@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 2.0.1
+
+### Patch Changes
+
+- [#7722](https://github.com/withastro/astro/pull/7722) [`77ffcc8f8`](https://github.com/withastro/astro/commit/77ffcc8f8b0ca9f8b9da29525f03028e666fd8df) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Ensure nested 404 and 500 pages are always excluded
+
 ## 2.0.0
 
 ### Major Changes

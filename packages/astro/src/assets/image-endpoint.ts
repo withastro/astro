@@ -22,7 +22,7 @@ async function loadRemoteImage(src: URL) {
 }
 
 /**
- * Endpoint used in SSR to serve optimized images
+ * Endpoint used in dev and SSR to serve optimized images by the base image services
  */
 export const get: APIRoute = async ({ request }) => {
 	try {

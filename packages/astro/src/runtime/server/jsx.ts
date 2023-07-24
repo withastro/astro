@@ -2,8 +2,8 @@
 import type { SSRResult } from '../../@types/astro.js';
 import { AstroJSX, isVNode, type AstroVNode } from '../../jsx-runtime/index.js';
 import {
-	escapeHTML,
 	HTMLString,
+	escapeHTML,
 	markHTMLString,
 	renderComponentToIterable,
 	renderToString,
@@ -91,7 +91,11 @@ Did you forget to import the component or is it possible there is a typo?`);
 						props[key] = value;
 					}
 				}
-				const html = markHTMLString(await renderToString(result, vnode.type as any, props, slots));
+				const str = await renderToString(result, vnode.type as any, props, slots);
+				if (str instanceof Response) {
+					throw str;
+				}
+				const html = markHTMLString(str);
 				return html;
 			}
 			case !vnode.type && (vnode.type as any) !== 0:

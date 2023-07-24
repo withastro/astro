@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -34,7 +34,8 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test-fn": "mocha --exit --timeout 20000 --file \"./test/setup.js\" test/functions/",
     "test-edge": "deno test --allow-run --allow-read --allow-net --allow-env --allow-write ./test/edge-functions/",
-    "test": "pnpm test-fn"
+    "test": "pnpm test-fn",
+    "test:hosted": "mocha --exit --timeout 30000 test/hosted"
   },
   "dependencies": {
     "@astrojs/underscore-redirects": "^0.2.0",
@@ -43,7 +44,7 @@
     "esbuild": "^0.15.18"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.8.4"
+    "astro": "workspace:^2.9.2"
   },
   "devDependencies": {
     "@netlify/edge-functions": "^2.0.0",
@@ -54,7 +55,7 @@
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
     "mocha": "^9.2.2",
-    "vite": "^4.3.9",
+    "vite": "^4.4.6",
     "chai-jest-snapshot": "^2.0.0"
   },
   "astro": {

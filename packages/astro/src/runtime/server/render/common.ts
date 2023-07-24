@@ -11,6 +11,14 @@ import {
 import { renderAllHeadContent } from './head.js';
 import { isSlotString, type SlotString } from './slot.js';
 
+export interface RenderDestination {
+	/**
+	 * Any rendering logic should call this to construct the HTML output.
+	 * See the `chunk` parameter for possible writable values
+	 */
+	write(chunk: string | HTMLBytes | RenderInstruction | Response): void;
+}
+
 export const Fragment = Symbol.for('astro:fragment');
 export const Renderer = Symbol.for('astro:renderer');
 
@@ -101,15 +109,23 @@ export class HTMLParts {
 	}
 }
 
+export function chunkToString(result: SSRResult, chunk: string | HTMLBytes | RenderInstruction) {
+	if (ArrayBuffer.isView(chunk)) {
+		return decoder.decode(chunk);
+	} else {
+		return stringifyChunk(result, chunk);
+	}
+}
+
 export function chunkToByteArray(
 	result: SSRResult,
 	chunk: string | HTMLBytes | RenderInstruction
 ): Uint8Array {
-	if (chunk instanceof Uint8Array) {
+	if (ArrayBuffer.isView(chunk)) {
 		return chunk as Uint8Array;
+	} else {
+		// `stringifyChunk` might return a HTMLString, call `.toString()` to really ensure it's a string
+		const stringified = stringifyChunk(result, chunk);
+		return encoder.encode(stringified.toString());
 	}
-
-	// stringify chunk might return a HTMLString
-	let stringified = stringifyChunk(result, chunk);
-	return encoder.encode(stringified.toString());
 }

@@ -5,6 +5,10 @@ examples/with-nanostores/src/layouts
 # Ignoring this file for now due to https://github.com/withastro/compiler/issues/485
 packages/markdown/component/Markdown.astro
 
+# Benchmark artifacts
+benchmark/projects/
+benchmark/results/
+
 # Deep Directories
 **/dist
 **/smoke
