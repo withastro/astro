@@ -7,7 +7,7 @@ export function getStaticPaths() {
 }
 
 /** @param {import('astro').APIContext} params */
-export async function get({ params }) {
+export async function GET({ params }) {
 	const { id } = params;
 	const author = await getEntry('authors-without-config', id);
 	if (!author) {

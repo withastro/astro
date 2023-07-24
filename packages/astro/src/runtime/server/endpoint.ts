@@ -5,13 +5,9 @@ function getHandlerFromModule(mod: EndpointHandler, method: string) {
 	if (mod[method]) {
 		return mod[method];
 	}
-	// Handle `del` instead of `delete`, since `delete` is a reserved word in JS.
-	if (method === 'delete' && mod['del']) {
-		return mod['del'];
-	}
 	// If a single `all` handler was used, return that function.
-	if (mod['all']) {
-		return mod['all'];
+	if (mod['ALL']) {
+		return mod['ALL'];
 	}
 	// Otherwise, no handler found.
 	return undefined;
@@ -20,9 +16,9 @@ function getHandlerFromModule(mod: EndpointHandler, method: string) {
 /** Renders an endpoint request to completion, returning the body. */
 export async function renderEndpoint(mod: EndpointHandler, context: APIContext, ssr: boolean) {
 	const { request, params } = context;
-	const chosenMethod = request.method?.toLowerCase();
+	const chosenMethod = request.method?.toUpperCase();
 	const handler = getHandlerFromModule(mod, chosenMethod);
-	if (!ssr && ssr === false && chosenMethod && chosenMethod !== 'get') {
+	if (!ssr && ssr === false && chosenMethod && chosenMethod !== 'GET') {
 		// eslint-disable-next-line no-console
 		console.warn(`
 ${chosenMethod} requests are not available when building a static site. Update your config to \`output: 'server'\` or \`output: 'hybrid'\` with an \`export const prerender = false\` to handle ${chosenMethod} requests.`);

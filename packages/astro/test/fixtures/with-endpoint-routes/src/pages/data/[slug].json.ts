@@ -5,7 +5,7 @@ export async function getStaticPaths() {
     ];
 }
 
-export async function get({ params }) {
+export async function GET({ params }) {
     return {
         body: JSON.stringify({
             slug: params.slug,
