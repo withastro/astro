@@ -47,6 +47,6 @@
     "strip-json-comments": "^5.0.0"
   },
   "engines": {
-    "node": ">=16.12.0"
+    "node": ">=18.14.1"
   }
 }

@@ -1,3 +1,4 @@
+import type { Node as ESTreeNode } from 'estree-walker';
 import type { ModuleInfo, PluginContext } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
 import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types';
@@ -36,7 +37,7 @@ async function doesParentImportChild(
 
 	const imports: Array<ImportDeclaration> = [];
 	const exports: Array<ExportNamedDeclaration | ExportDefaultDeclaration> = [];
-	walk(parentInfo.ast, {
+	walk(parentInfo.ast as ESTreeNode, {
 		enter(node) {
 			if (node.type === 'ImportDeclaration') {
 				imports.push(node as ImportDeclaration);
