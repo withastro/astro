@@ -5,6 +5,8 @@
     "allowJs": true,
     "module": "ES2022",
     "outDir": "./dist",
-    "target": "ES2021"
+    "target": "ES2022",
+    // TODO: Due to the shim for Deno imports in `server.ts`, we can't use moduleResolution: 'bundler' or the types get very weird.
+    "moduleResolution": "Node"
   }
 }
