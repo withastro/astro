@@ -9,7 +9,7 @@ HTML elements and creating a modified set of markdown-it tokens which seamlessly
 HTML markup elements with any Markdoc tags and nodes.
 
 This is a potential XSS vector as HTML in Markdoc markup will be rendered as real HTML nodes
-once this is enabled (it should be noted this is already the case for Markdoc and MDX integrations
+once this is enabled (it should be noted this is already the case for Markdown and MDX integrations
 as-is, by default.)
 
 Example of enabling this feature:
