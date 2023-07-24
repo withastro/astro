@@ -25,6 +25,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 	const supportsViewTransitions = !!document.startViewTransition;
 	const transitionEnabledOnThisPage = () =>
 		!!document.querySelector('[name="astro-view-transitions-enabled"]');
+	const onload = () => document.dispatchEvent(new Event('astro:load'));
 
 	async function getHTML(href: string) {
 		const res = await fetch(href);
@@ -38,6 +39,23 @@ const { fallback = 'animate' } = Astro.props as Props;
 			return el.getAttribute('content') as Fallback;
 		}
 		return 'animate';
+	}
+
+	function runScripts() {
+		let wait = Promise.resolve();
+		for(const script of Array.from(document.scripts)) {
+			const s = document.createElement('script');
+			s.innerHTML = script.innerHTML;
+			for(const attr of script.attributes) {
+				if(attr.name === 'src') {
+					const p = new Promise(r => {s.onload = r});
+					wait = wait.then(() => p as any);
+				}
+				s.setAttribute(attr.name, attr.value);
+			}
+			script.replaceWith(s);
+		}
+		return wait;
 	}
 
 	const parser = new DOMParser();
@@ -95,6 +113,8 @@ const { fallback = 'animate' } = Astro.props as Props;
 			await finished;
 		} finally {
 			document.documentElement.removeAttribute('data-astro-transition');
+			await runScripts();
+			onload();
 		}
 	}
 
@@ -171,5 +191,6 @@ const { fallback = 'animate' } = Astro.props as Props;
 				{ passive: true, capture: true }
 			);
 		});
+		addEventListener('load', onload)
 	}
 </script>
