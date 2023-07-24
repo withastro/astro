@@ -39,7 +39,7 @@
     "packages/*"
   ],
   "engines": {
-    "node": ">=16.12.0",
+    "node": ">=18.14.1",
     "pnpm": ">=8.6.2"
   },
   "packageManager": "pnpm@8.6.2",
@@ -82,7 +82,7 @@
     "@types/node": "^18.16.18",
     "@typescript-eslint/eslint-plugin": "6.0.0",
     "@typescript-eslint/parser": "6.0.0",
-    "esbuild": "^0.17.19",
+    "esbuild": "^0.18.16",
     "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-no-only-tests": "^2.6.0",
@@ -93,6 +93,6 @@
     "prettier-plugin-astro": "^0.10.0",
     "tiny-glob": "^0.2.9",
     "turbo": "^1.10.3",
-    "typescript": "~5.0.2"
+    "typescript": "~5.1.6"
   }
 }

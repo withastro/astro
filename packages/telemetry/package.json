@@ -13,7 +13,10 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
   "exports": {
-    ".": "./dist/index.js",
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/index.js"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -45,6 +48,6 @@
     "mocha": "^9.2.2"
   },
   "engines": {
-    "node": ">=16.12.0"
+    "node": ">=18.14.1"
   }
 }

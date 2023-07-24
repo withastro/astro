@@ -1,4 +1,5 @@
 import dget from 'dlv';
+// @ts-expect-error `dset` is mispackaged: https://publint.dev/dset@3.1.2
 import { dset } from 'dset';
 import fs from 'node:fs';
 import os from 'node:os';
