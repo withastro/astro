@@ -11,7 +11,7 @@ declare global {
 	// eslint-disable-next-line no-var
 	var astroAsset: {
 		imageService?: ImageService;
-		addStaticImage?: ((options: ImageTransform) => string) | undefined;
+		addStaticImage?: ((options: ImageTransform) => string | Promise<string>) | undefined;
 		staticImages?: Map<string, { path: string; options: ImageTransform }>;
 	};
 }

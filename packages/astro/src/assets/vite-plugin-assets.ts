@@ -1,10 +1,11 @@
+import { writeFile, mkdir } from 'node:fs/promises';
 import { bold } from 'kleur/colors';
 import MagicString from 'magic-string';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroPluginOptions, ImageTransform } from '../@types/astro';
-import { error } from '../core/logger/core.js';
+import { info, error } from '../core/logger/core.js';
 import {
 	appendForwardSlash,
 	joinPaths,
@@ -12,7 +13,7 @@ import {
 	removeQueryString,
 } from '../core/path.js';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
-import { isESMImportedImage } from './internal.js';
+import { isRemoteImage } from './internal.js';
 import { emitESMImage } from './utils/emitAsset.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
@@ -95,7 +96,7 @@ export default function assets({
 					return;
 				}
 
-				globalThis.astroAsset.addStaticImage = (options) => {
+				globalThis.astroAsset.addStaticImage = async (options) => {
 					if (!globalThis.astroAsset.staticImages) {
 						globalThis.astroAsset.staticImages = new Map<
 							string,
@@ -103,25 +104,44 @@ export default function assets({
 						>();
 					}
 
+					// in case of remote images
+					if (isRemoteImage(options.src)) {
+						const remoteCacheDir = new URL('remote-assets/', settings.config.cacheDir);
+						await mkdir(remoteCacheDir, { recursive: true });
+
+						const remoteFileURL = new URL(options.src);
+						const cachedFileURL = new URL('.' + remoteFileURL.pathname, remoteCacheDir);
+
+						info(
+							logging,
+							'astro:assets',
+							`${bold('caching remote asset')} ${remoteFileURL.href} -> ${cachedFileURL.href}`
+						);
+						const res = await fetch(remoteFileURL);
+						const imgBytes = await res.arrayBuffer();
+						await writeFile(cachedFileURL, Buffer.from(imgBytes));
+					}
+
 					const hash = hashTransform(options, settings.config.image.service.entrypoint);
 
 					let filePath: string;
 					if (globalThis.astroAsset.staticImages.has(hash)) {
 						filePath = globalThis.astroAsset.staticImages.get(hash)!.path;
+					} else if (isRemoteImage(options.src)) {
+						const { pathname } = new URL(options.src);
+						filePath = options.format
+							? pathname.slice(0, pathname.lastIndexOf('.') + 1) + options.format
+							: pathname;
 					} else {
-						// If the image is not imported, we can return the path as-is, since static references
-						// should only point ot valid paths for builds or remote images
-						if (!isESMImportedImage(options.src)) {
-							return options.src;
-						}
-
-						filePath = prependForwardSlash(
-							joinPaths(settings.config.build.assets, propsToFilename(options, hash))
-						);
-						globalThis.astroAsset.staticImages.set(hash, { path: filePath, options: options });
+						filePath = propsToFilename(options, hash);
 					}
 
-					if (settings.config.build.assetsPrefix) {
+					filePath = prependForwardSlash(joinPaths(settings.config.build.assets, filePath));
+					globalThis.astroAsset.staticImages.set(hash, { path: filePath, options: options });
+
+					if (isRemoteImage(options.src)) {
+						return filePath;
+					} else if (settings.config.build.assetsPrefix) {
 						return joinPaths(settings.config.build.assetsPrefix, filePath);
 					} else {
 						return prependForwardSlash(joinPaths(settings.config.base, filePath));

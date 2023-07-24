@@ -6,6 +6,10 @@ export function isESMImportedImage(src: ImageMetadata | string): src is ImageMet
 	return typeof src === 'object';
 }
 
+export function isRemoteImage(src: ImageMetadata | string): src is string {
+	return typeof src === 'string';
+}
+
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
 		const { default: service }: { default: ImageService } = await import(
@@ -45,7 +49,7 @@ export async function getImage(
 
 	// In build and for local services, we need to collect the requested parameters so we can generate the final images
 	if (isLocalService(service) && globalThis.astroAsset.addStaticImage) {
-		imageURL = globalThis.astroAsset.addStaticImage(validatedOptions);
+		imageURL = await globalThis.astroAsset.addStaticImage(validatedOptions);
 	}
 
 	return {

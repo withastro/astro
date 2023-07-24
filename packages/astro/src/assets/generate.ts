@@ -27,10 +27,6 @@ export async function generateImage(
 	options: ImageTransform,
 	filepath: string
 ): Promise<GenerationData | undefined> {
-	if (!isESMImportedImage(options.src)) {
-		return undefined;
-	}
-
 	let useCache = true;
 	const assetsCacheDir = new URL('assets/', buildOpts.settings.config.cacheDir);
 
@@ -70,22 +66,26 @@ export async function generateImage(
 	}
 
 	// The original file's path (the `src` attribute of the ESM imported image passed by the user)
-	const originalImagePath = options.src.src;
+	// if it's a string we assumed it was cached before in the cacheDir/fetch folder.
+	const fileURL = isESMImportedImage(options.src)
+		? new URL(
+				'.' +
+					prependForwardSlash(
+						join(buildOpts.settings.config.build.assets, basename(options.src.src))
+					),
+				serverRoot
+		  )
+		: new URL(
+				join('.', 'remote-assets', new URL(options.src).pathname),
+				buildOpts.settings.config.cacheDir
+		  );
 
-	const fileData = await fs.promises.readFile(
-		new URL(
-			'.' +
-				prependForwardSlash(
-					join(buildOpts.settings.config.build.assets, basename(originalImagePath))
-				),
-			serverRoot
-		)
-	);
+	const fileData: Buffer = await fs.promises.readFile(fileURL);
 
 	const imageService = (await getConfiguredImageService()) as LocalImageService;
 	const resultData = await imageService.transform(
 		fileData,
-		{ ...options, src: originalImagePath },
+		{ ...options, src: isESMImportedImage(options.src) ? options.src.src : options.src },
 		buildOpts.settings.config.image.service.config
 	);
 
