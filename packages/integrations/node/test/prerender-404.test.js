@@ -101,7 +101,7 @@ describe('Prerender 404', () => {
 	});
 });
 
-describe('Hybrid rendering', () => {
+describe('Hybrid 404', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let server;
