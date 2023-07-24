@@ -6,7 +6,7 @@ Adds an "allowHTML" Markdoc integration option.
 
 When enabled, all HTML in Markdoc files will be processed, including HTML elements within Markdoc tags and nodes.
 
-Example of enabling this feature:
+Enable this feature in the `markdoc` integration configuration:
 
 ```js
 // astro.config.mjs
