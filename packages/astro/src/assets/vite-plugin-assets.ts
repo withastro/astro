@@ -1,4 +1,5 @@
 import { writeFile, mkdir } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { bold } from 'kleur/colors';
 import MagicString from 'magic-string';
 import { fileURLToPath } from 'node:url';
@@ -112,20 +113,24 @@ export default function assets({
 						const remoteFileURL = new URL(options.src);
 						const cachedFileURL = new URL('.' + remoteFileURL.pathname, remoteCacheDir);
 
-						info(
-							logging,
-							'astro:assets',
-							`${bold('caching remote asset')} ${remoteFileURL.href} -> ${cachedFileURL.href}`
-						);
-						const res = await fetch(remoteFileURL);
-						const imgBytes = await res.arrayBuffer();
-						await writeFile(cachedFileURL, Buffer.from(imgBytes));
+						// there's no async api for exists :(
+						if (!existsSync(cachedFileURL)) {
+							info(
+								logging,
+								'astro:assets',
+								`${bold('downloading remote asset')} ${remoteFileURL.href} -> ${cachedFileURL.href}`
+							);
+							const res = await fetch(remoteFileURL);
+							const imgBytes = await res.arrayBuffer();
+							await writeFile(cachedFileURL, Buffer.from(imgBytes));
+						}
 					}
 
 					const hash = hashTransform(options, settings.config.image.service.entrypoint);
 
 					let filePath: string;
-					if (globalThis.astroAsset.staticImages.has(hash)) {
+					const hasHash = globalThis.astroAsset.staticImages.has(hash);
+					if (hasHash) {
 						filePath = globalThis.astroAsset.staticImages.get(hash)!.path;
 					} else if (isRemoteImage(options.src)) {
 						const { pathname } = new URL(options.src);
@@ -136,8 +141,10 @@ export default function assets({
 						filePath = propsToFilename(options, hash);
 					}
 
-					filePath = prependForwardSlash(joinPaths(settings.config.build.assets, filePath));
-					globalThis.astroAsset.staticImages.set(hash, { path: filePath, options: options });
+					if (!hasHash) {
+						filePath = prependForwardSlash(joinPaths(settings.config.build.assets, filePath));
+						globalThis.astroAsset.staticImages.set(hash, { path: filePath, options: options });
+					}
 
 					if (isRemoteImage(options.src)) {
 						return filePath;
