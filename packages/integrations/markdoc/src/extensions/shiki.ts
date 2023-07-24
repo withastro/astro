@@ -1,9 +1,6 @@
-// leave space, so organize imports doesn't mess up comments
-// @ts-expect-error Cannot find module 'astro/runtime/server/index.js' or its corresponding type declarations.
-import { unescapeHTML } from 'astro/runtime/server/index.js';
-
 import Markdoc from '@markdoc/markdoc';
 import type { ShikiConfig } from 'astro';
+import { unescapeHTML } from 'astro/runtime/server/index.js';
 import type * as shikiTypes from 'shiki';
 import { getHighlighter } from 'shiki';
 import type { AstroMarkdocConfig } from '../config.js';
@@ -123,7 +120,7 @@ export default async function shiki({
 					}
 
 					// Use `unescapeHTML` to return `HTMLString` for Astro renderer to inline as HTML
-					return unescapeHTML(html);
+					return unescapeHTML(html) as any;
 				},
 			},
 		},
