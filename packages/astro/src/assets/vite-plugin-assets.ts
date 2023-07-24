@@ -1,8 +1,5 @@
 import { bold } from 'kleur/colors';
 import MagicString from 'magic-string';
-import mime from 'mime/lite.js';
-import fs from 'node:fs/promises';
-import { Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
@@ -16,10 +13,7 @@ import {
 } from '../core/path.js';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { isESMImportedImage } from './internal.js';
-import { isLocalService } from './services/service.js';
 import { emitESMImage } from './utils/emitAsset.js';
-import { imageMetadata } from './utils/metadata.js';
-import { getOrigQueryParams } from './utils/queryParams.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
@@ -95,70 +89,6 @@ export default function assets({
 					export const getImage = async (options) => await getImageInternal(options, imageServiceConfig);
 				`;
 				}
-			},
-			// Handle serving images during development
-			configureServer(server) {
-				server.middlewares.use(async (req, res, next) => {
-					if (req.url?.startsWith('/_image')) {
-						// If the currently configured service isn't a local service, we don't need to do anything here.
-						// TODO: Support setting a specific service through a prop on Image / a parameter in getImage
-						if (!isLocalService(globalThis.astroAsset.imageService)) {
-							return next();
-						}
-
-						const url = new URL(req.url, 'file:');
-						if (!url.searchParams.has('href')) {
-							return next();
-						}
-
-						const filePath = url.searchParams.get('href')?.slice('/@fs'.length);
-						const filePathURL = new URL('.' + filePath, 'file:');
-						const file = await fs.readFile(filePathURL);
-
-						// Get the file's metadata from the URL
-						let meta = getOrigQueryParams(filePathURL.searchParams);
-
-						// If we don't have them (ex: the image came from Markdown, let's calculate them again)
-						if (!meta) {
-							meta = await imageMetadata(filePathURL, file);
-
-							if (!meta) {
-								return next();
-							}
-						}
-
-						const transform = await globalThis.astroAsset.imageService.parseURL(
-							url,
-							settings.config.image.service.config
-						);
-
-						if (transform === undefined) {
-							error(logging, 'image', `Failed to parse transform for ${url}`);
-						}
-
-						// if no transforms were added, the original file will be returned as-is
-						let data = file;
-						let format: string = meta.format;
-
-						if (transform) {
-							const result = await globalThis.astroAsset.imageService.transform(
-								file,
-								transform,
-								settings.config.image.service.config
-							);
-							data = result.data;
-							format = result.format;
-						}
-
-						res.setHeader('Content-Type', mime.getType(format) ?? `image/${format}`);
-						res.setHeader('Cache-Control', 'max-age=360000');
-
-						const stream = Readable.from(data);
-						return stream.pipe(res);
-					}
-
-					return next();
-				});
 			},
 			buildStart() {
 				if (mode != 'build') {

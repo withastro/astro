@@ -27,6 +27,7 @@
     "test:vite-ci": "turbo run test --filter=astro",
     "test:e2e": "cd packages/astro && pnpm playwright install && pnpm run test:e2e",
     "test:e2e:match": "cd packages/astro && pnpm playwright install && pnpm run test:e2e:match",
+    "test:e2e:hosts": "turbo run test:hosted",
     "benchmark": "astro-benchmark",
     "lint": "eslint . --report-unused-disable-directives",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",

@@ -32,7 +32,7 @@ interface SharedServiceProps {
 	 * For external services, this should point to the URL your images are coming from, for instance, `/_vercel/image`
 	 *
 	 */
-	getURL: (options: ImageTransform, serviceConfig: Record<string, any>) => string;
+	getURL: (options: ImageTransform, serviceConfig: Record<string, any>) => string | Promise<string>;
 	/**
 	 * Return any additional HTML attributes separate from `src` that your service requires to show the image properly.
 	 *
@@ -42,7 +42,7 @@ interface SharedServiceProps {
 	getHTMLAttributes?: (
 		options: ImageTransform,
 		serviceConfig: Record<string, any>
-	) => Record<string, any>;
+	) => Record<string, any> | Promise<Record<string, any>>;
 	/**
 	 * Validate and return the options passed by the user.
 	 *
@@ -51,7 +51,10 @@ interface SharedServiceProps {
 	 *
 	 * This method should returns options, and can be used to set defaults (ex: a default output format to be used if the user didn't specify one.)
 	 */
-	validateOptions?: (options: ImageTransform, serviceConfig: Record<string, any>) => ImageTransform;
+	validateOptions?: (
+		options: ImageTransform,
+		serviceConfig: Record<string, any>
+	) => ImageTransform | Promise<ImageTransform>;
 }
 
 export type ExternalImageService = SharedServiceProps;
@@ -63,11 +66,14 @@ export type LocalImageTransform = {
 
 export interface LocalImageService extends SharedServiceProps {
 	/**
-	 * Parse the requested parameters passed in the URL from `getURL` back into an object to be used later by `transform`
+	 * Parse the requested parameters passed in the URL from `getURL` back into an object to be used later by `transform`.
 	 *
 	 * In most cases, this will get query parameters using, for example, `params.get('width')` and return those.
 	 */
-	parseURL: (url: URL, serviceConfig: Record<string, any>) => LocalImageTransform | undefined;
+	parseURL: (
+		url: URL,
+		serviceConfig: Record<string, any>
+	) => LocalImageTransform | undefined | Promise<LocalImageTransform> | Promise<undefined>;
 	/**
 	 * Performs the image transformations on the input image and returns both the binary data and
 	 * final image format of the optimized image.
