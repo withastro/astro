@@ -298,7 +298,7 @@ export class App {
 			} catch {}
 		}
 
-		const response = this.#mergeResponses(new Response(), originalResponse);
+		const response = this.#mergeResponses(new Response(null, { status }), originalResponse);
 		Reflect.set(response, responseSentSymbol, true);
 		return response;
 	}
@@ -306,8 +306,9 @@ export class App {
 	#mergeResponses(newResponse: Response, oldResponse?: Response) {
 		if (!oldResponse) return newResponse;
 		const { status, statusText, headers } = oldResponse;
+
 		return new Response(newResponse.body, {
-			status,
+			status: status === 200 ? newResponse.status : status,
 			statusText,
 			headers: new Headers(Array.from(headers))
 		})
