@@ -1,4 +1,4 @@
-import type { APIContext, EndpointHandler, Params } from '../../@types/astro';
+import type { APIContext, EndpointHandler, Params } from '../../@types/astro.js';
 
 function getHandlerFromModule(mod: EndpointHandler, method: string) {
 	// If there was an exact match on `method`, return that function.

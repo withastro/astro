@@ -1,7 +1,7 @@
 import type http from 'node:http';
-import type { ManifestData, SSRManifest } from '../@types/astro';
-import type { DevelopmentEnvironment } from '../core/render/index';
-import type { DevServerController } from './controller';
+import type { ManifestData, SSRManifest } from '../@types/astro.js';
+import type { DevelopmentEnvironment } from '../core/render/index.js';
+import type { DevServerController } from './controller.js';
 
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { createSafeError } from '../core/errors/index.js';

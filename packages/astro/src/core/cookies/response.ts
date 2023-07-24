@@ -1,4 +1,4 @@
-import type { AstroCookies } from './cookies';
+import type { AstroCookies } from './cookies.js';
 
 const astroCookiesSymbol = Symbol.for('astro.cookies');
 

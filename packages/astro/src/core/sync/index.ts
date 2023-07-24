@@ -3,7 +3,7 @@ import type fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { createServer, type HMRPayload } from 'vite';
 import type { Arguments } from 'yargs-parser';
-import type { AstroSettings } from '../../@types/astro';
+import type { AstroSettings } from '../../@types/astro.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { runHookConfigSetup } from '../../integrations/index.js';

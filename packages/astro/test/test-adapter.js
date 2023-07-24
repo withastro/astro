@@ -2,7 +2,7 @@ import { viteID } from '../dist/core/util.js';
 
 /**
  *
- * @returns {import('../src/@types/astro').AstroIntegration}
+ * @returns {import('../src/@types/astro.js').AstroIntegration}
  */
 export default function (
 	{ provideAddress = true, extendAdapter, setEntryPoints = undefined, setRoutes = undefined } = {

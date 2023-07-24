@@ -1,7 +1,7 @@
 import yaml from 'js-yaml';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { AstroConfig, AstroSettings, AstroUserConfig } from '../../@types/astro';
+import type { AstroConfig, AstroSettings, AstroUserConfig } from '../../@types/astro.js';
 import { getContentPaths } from '../../content/index.js';
 import jsxRenderer from '../../jsx/renderer.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';

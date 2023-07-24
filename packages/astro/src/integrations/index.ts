@@ -12,8 +12,8 @@ import type {
 	HookParameters,
 	RouteData,
 } from '../@types/astro.js';
-import type { SerializedSSRManifest } from '../core/app/types';
-import type { PageBuildData } from '../core/build/types';
+import type { SerializedSSRManifest } from '../core/app/types.js';
+import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/index.js';
 import { info, type LogOptions } from '../core/logger/core.js';

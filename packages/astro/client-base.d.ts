@@ -57,7 +57,7 @@ declare module 'astro:assets' {
 	type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 	type Simplify<T> = { [KeyType in keyof T]: T[KeyType] };
 	type ImgAttributes = WithRequired<
-		Omit<import('./types').HTMLAttributes<'img'>, 'src' | 'width' | 'height'>,
+		Omit<import('./types.js').HTMLAttributes<'img'>, 'src' | 'width' | 'height'>,
 		'alt'
 	>;
 
@@ -79,7 +79,7 @@ declare module 'astro:transitions' {
 	export const ViewTransitions: ViewTransitionsModule['default'];
 }
 
-type MD = import('./dist/@types/astro').MarkdownInstance<Record<string, any>>;
+type MD = import('./dist/@types/astro.js').MarkdownInstance<Record<string, any>>;
 interface ExportedMarkdownModuleEntities {
 	frontmatter: MD['frontmatter'];
 	file: MD['file'];
@@ -184,7 +184,7 @@ declare module '*.mdown' {
 }
 
 declare module '*.mdx' {
-	type MDX = import('./dist/@types/astro').MDXInstance<Record<string, any>>;
+	type MDX = import('./dist/@types/astro.js').MDXInstance<Record<string, any>>;
 
 	export const frontmatter: MDX['frontmatter'];
 	export const file: MDX['file'];
@@ -197,7 +197,7 @@ declare module '*.mdx' {
 }
 
 declare module 'astro:ssr-manifest' {
-	export const manifest: import('./dist/@types/astro').SSRManifest;
+	export const manifest: import('./dist/@types/astro.js').SSRManifest;
 }
 
 // Everything below are Vite's types (apart from image types, which are in `client.d.ts`)

@@ -1,4 +1,4 @@
-import type { TransitionAnimationPair, TransitionDirectionalAnimations } from '../@types/astro';
+import type { TransitionAnimationPair, TransitionDirectionalAnimations } from '../@types/astro.js';
 
 export function slide({
 	duration,

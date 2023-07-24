@@ -1,6 +1,6 @@
 import type { Image } from 'mdast';
 import { visit } from 'unist-util-visit';
-import type { MarkdownVFile } from './types';
+import type { MarkdownVFile } from './types.js';
 
 export function remarkCollectImages() {
 	return function (tree: any, vfile: MarkdownVFile) {

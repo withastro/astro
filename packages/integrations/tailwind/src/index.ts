@@ -33,7 +33,7 @@ async function getViteConfiguration(
 	const postcssOptions = postcssConfigResult?.options ?? {};
 	const postcssPlugins = postcssConfigResult?.plugins?.slice() ?? [];
 
-	postcssPlugins.push(tailwindPlugin(tailwindConfigPath) as ResultPlugin);
+	postcssPlugins.push((tailwindPlugin as any)(tailwindConfigPath) as ResultPlugin);
 	postcssPlugins.push(autoprefixerPlugin());
 
 	return {

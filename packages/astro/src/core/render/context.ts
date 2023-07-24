@@ -5,9 +5,9 @@ import type {
 	RouteData,
 	SSRElement,
 	SSRResult,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Environment } from './environment';
+import type { Environment } from './environment.js';
 import { getParamsAndProps } from './params-and-props.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');

@@ -14,13 +14,13 @@ import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
 import type { z } from 'zod';
-import type { SerializedSSRManifest } from '../core/app/types';
-import type { PageBuildData } from '../core/build/types';
-import type { AstroConfigSchema } from '../core/config';
-import type { AstroTimer } from '../core/config/timer';
-import type { AstroCookies } from '../core/cookies';
-import type { LogOptions } from '../core/logger/core';
-import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
+import type { SerializedSSRManifest } from '../core/app/types.js';
+import type { PageBuildData } from '../core/build/types.js';
+import type { AstroConfigSchema } from '../core/config/index.js';
+import type { AstroTimer } from '../core/config/timer.js';
+import type { AstroCookies } from '../core/cookies/index.js';
+import type { LogOptions } from '../core/logger/core.js';
+import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 export type {
 	MarkdownHeading,
@@ -34,7 +34,7 @@ export type {
 	ExternalImageService,
 	ImageService,
 	LocalImageService,
-} from '../assets/services/service';
+} from '../assets/services/service.js';
 export type {
 	GetImageResult,
 	ImageInputFormat,
@@ -43,9 +43,9 @@ export type {
 	ImageQuality,
 	ImageQualityPreset,
 	ImageTransform,
-} from '../assets/types';
-export type { SSRManifest } from '../core/app/types';
-export type { AstroCookies } from '../core/cookies';
+} from '../assets/types.js';
+export type { SSRManifest } from '../core/app/types.js';
+export type { AstroCookies } from '../core/cookies/index.js';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;

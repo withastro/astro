@@ -12,11 +12,11 @@ import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import ora from 'ora';
 import type { Arguments as Flags } from 'yargs-parser';
-import type { AstroSettings } from '../../@types/astro';
+import type { AstroSettings } from '../../@types/astro.js';
 import type { LogOptions } from '../../core/logger/core.js';
 import { debug, info } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
-import type { ProcessExit, SyncOptions } from '../../core/sync';
+import type { ProcessExit, SyncOptions } from '../../core/sync/index.js';
 import { loadSettings } from '../load-settings.js';
 import { printDiagnostic } from './print.js';
 

@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from './http-server.js';
 import middleware from './nodeMiddleware.js';
-import type { Options } from './types';
+import type { Options } from './types.js';
 
 function resolvePaths(options: Options) {
 	const clientURLRaw = new URL(options.client);

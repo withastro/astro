@@ -1,4 +1,4 @@
-import type { IImage } from './interface'
+import type { IImage } from './interface.js'
 
 const pngSignature = 'PNG\r\n\x1a\n'
 const pngImageHeaderChunkName = 'IHDR'

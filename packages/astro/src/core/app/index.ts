@@ -5,14 +5,14 @@ import type {
 	RouteData,
 	SSRElement,
 	SSRManifest,
-} from '../../@types/astro';
-import type { SinglePageBuiltModule } from '../build/types';
+} from '../../@types/astro.js';
+import type { SinglePageBuiltModule } from '../build/types.js';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
 import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { isResponse } from '../render/core';
+import { isResponse } from '../render/core.js';
 import {
 	createEnvironment,
 	createRenderContext,
@@ -27,7 +27,7 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
-import type { RouteInfo } from './types';
+import type { RouteInfo } from './types.js';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');

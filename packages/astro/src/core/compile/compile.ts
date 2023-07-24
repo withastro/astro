@@ -1,6 +1,6 @@
 import type { TransformResult } from '@astrojs/compiler';
 import type { ResolvedConfig } from 'vite';
-import type { AstroConfig } from '../../@types/astro';
+import type { AstroConfig } from '../../@types/astro.js';
 
 import { transform } from '@astrojs/compiler';
 import { fileURLToPath } from 'node:url';

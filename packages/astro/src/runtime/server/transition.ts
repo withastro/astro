@@ -3,7 +3,7 @@ import type {
 	TransitionAnimation,
 	TransitionAnimationValue,
 	TransitionDirectionalAnimations,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { fade, slide } from '../../transitions/index.js';
 import { markHTMLString } from './escape.js';
 

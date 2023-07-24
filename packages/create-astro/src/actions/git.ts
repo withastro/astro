@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { Context } from './context';
+import type { Context } from './context.js';
 
 import { color } from '@astrojs/cli-kit';
 import { execa } from 'execa';

@@ -1,6 +1,6 @@
-import type { AstroSettings } from '../../@types/astro';
+import type { AstroSettings } from '../../@types/astro.js';
 import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
-import type { ModuleLoader } from '../module-loader';
+import type { ModuleLoader } from '../module-loader/index.js';
 
 /**
  * It accepts a module loader and the astro settings, and it attempts to load the middlewares defined in the configuration.

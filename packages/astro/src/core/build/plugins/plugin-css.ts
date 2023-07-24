@@ -3,9 +3,9 @@ import * as npath from 'node:path';
 import type { GetModuleInfo } from 'rollup';
 import { type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
 import { isBuildableCSSRequest } from '../../../vite-plugin-astro-server/util.js';
-import type { BuildInternals } from '../internal';
-import type { AstroBuildPlugin } from '../plugin';
-import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types';
+import type { BuildInternals } from '../internal.js';
+import type { AstroBuildPlugin } from '../plugin.js';
+import type { OutputChunk, PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
 
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import * as assetName from '../css-asset-name.js';
@@ -110,7 +110,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			for (const [, chunk] of Object.entries(bundle)) {
 				if (chunk.type !== 'chunk') continue;
 				if ('viteMetadata' in chunk === false) continue;
-				const meta = chunk.viteMetadata as ViteMetadata;
+				const meta = (chunk as OutputChunk & { viteMetadata: ViteMetadata }).viteMetadata;
 
 				// Skip if the chunk has no CSS, we want to handle CSS chunks only
 				if (meta.importedCss.size < 1) continue;

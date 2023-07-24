@@ -1,6 +1,6 @@
-import type { RouteData, SSRResult } from '../../../@types/astro';
-import type { ComponentIterable } from './component';
-import type { AstroComponentFactory } from './index';
+import type { RouteData, SSRResult } from '../../../@types/astro.js';
+import type { ComponentIterable } from './component.js';
+import type { AstroComponentFactory } from './index.js';
 
 import { AstroError } from '../../../core/errors/index.js';
 import { isHTMLString } from '../escape.js';

@@ -1,4 +1,4 @@
-import type { AstroErrorPayload } from './dev/vite';
+import type { AstroErrorPayload } from './dev/vite.js';
 
 const style = /* css */ `
 * {

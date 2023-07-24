@@ -1,4 +1,4 @@
-import type { SSRResult } from '../../../../@types/astro';
+import type { SSRResult } from '../../../../@types/astro.js';
 import type { ComponentSlots } from '../slot.js';
 import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
 

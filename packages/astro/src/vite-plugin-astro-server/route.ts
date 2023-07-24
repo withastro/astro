@@ -7,7 +7,7 @@ import type {
 	RouteData,
 	SSRElement,
 	SSRManifest,
-} from '../@types/astro';
+} from '../@types/astro.js';
 import { attachToResponse } from '../core/cookies/index.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { warn } from '../core/logger/core.js';

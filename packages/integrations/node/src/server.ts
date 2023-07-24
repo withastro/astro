@@ -3,7 +3,7 @@ import type { SSRManifest } from 'astro';
 import { NodeApp } from 'astro/app/node';
 import middleware from './nodeMiddleware.js';
 import startServer from './standalone.js';
-import type { Options } from './types';
+import type { Options } from './types.js';
 
 polyfill(globalThis, {
 	exclude: 'window document',

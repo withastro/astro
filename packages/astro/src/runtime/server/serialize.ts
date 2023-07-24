@@ -1,4 +1,4 @@
-import type { AstroComponentMetadata } from '../../@types/astro';
+import type { AstroComponentMetadata } from '../../@types/astro.js';
 
 type ValueOf<T> = T[keyof T];
 

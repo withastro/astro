@@ -1,6 +1,6 @@
 import type { LocalImageService } from 'astro';
 import squooshService from 'astro/assets/services/squoosh';
-import { sharedValidateOptions } from './shared';
+import { sharedValidateOptions } from './shared.js';
 
 const service: LocalImageService = {
 	validateOptions: (options, serviceOptions) =>

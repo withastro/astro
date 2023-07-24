@@ -1,5 +1,5 @@
 import type { Arguments as Flags } from 'yargs-parser';
-import type { AstroConfig, AstroUserConfig, CLIFlags } from '../../@types/astro';
+import type { AstroConfig, AstroUserConfig, CLIFlags } from '../../@types/astro.js';
 
 import * as colors from 'kleur/colors';
 import fs from 'node:fs';

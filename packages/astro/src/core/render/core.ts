@@ -5,7 +5,7 @@ import type {
 	MiddlewareHandler,
 	MiddlewareResponseHandler,
 	RouteType,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';
 import { callEndpoint, createAPIContext, type EndpointCallResult } from '../endpoint/index.js';

@@ -5,8 +5,8 @@ import type {
 	MiddlewareEndpointHandler,
 	MiddlewareHandler,
 	Params,
-} from '../../@types/astro';
-import type { Environment, RenderContext } from '../render/index';
+} from '../../@types/astro.js';
+import type { Environment, RenderContext } from '../render/index.js';
 
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';

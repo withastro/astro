@@ -1,6 +1,6 @@
 import { h, render, type JSX } from 'preact';
 import StaticHtml from './static-html.js';
-import type { SignalLike } from './types';
+import type { SignalLike } from './types.js';
 
 const sharedSignalMap = new Map<string, SignalLike>();
 

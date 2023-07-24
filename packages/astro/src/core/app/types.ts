@@ -5,8 +5,8 @@ import type {
 	SSRComponentMetadata,
 	SSRLoadedRenderer,
 	SSRResult,
-} from '../../@types/astro';
-import type { SinglePageBuiltModule } from '../build/types';
+} from '../../@types/astro.js';
+import type { SinglePageBuiltModule } from '../build/types.js';
 
 export type ComponentPath = string;
 

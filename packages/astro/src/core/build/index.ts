@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import type * as vite from 'vite';
 import type yargs from 'yargs-parser';
-import type { AstroConfig, AstroSettings, ManifestData, RuntimeMode } from '../../@types/astro';
+import type { AstroConfig, AstroSettings, ManifestData, RuntimeMode } from '../../@types/astro.js';
 import {
 	runHookBuildDone,
 	runHookBuildStart,

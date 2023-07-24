@@ -1,4 +1,4 @@
-import type { AstroGlobalPartial } from '../../@types/astro';
+import type { AstroGlobalPartial } from '../../@types/astro.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 

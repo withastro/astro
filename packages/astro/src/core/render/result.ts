@@ -6,7 +6,7 @@ import type {
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { isHTMLString } from '../../runtime/server/escape.js';
 import {
 	renderSlotToString,

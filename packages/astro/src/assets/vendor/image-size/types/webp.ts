@@ -1,5 +1,5 @@
 // based on https://developers.google.com/speed/webp/docs/riff_container
-import type { IImage, ISize } from './interface'
+import type { IImage, ISize } from './interface.js'
 
 function calculateExtended(buffer: Buffer): ISize {
   return {

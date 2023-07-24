@@ -5,9 +5,9 @@ import {
 	type Plugin,
 	type ResolvedConfig,
 } from 'vite';
-import type { AstroRenderer, AstroSettings } from '../@types/astro';
+import type { AstroRenderer, AstroSettings } from '../@types/astro.js';
 import type { LogOptions } from '../core/logger/core.js';
-import type { PluginMetadata } from '../vite-plugin-astro/types';
+import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 import babel from '@babel/core';
 import * as colors from 'kleur/colors';

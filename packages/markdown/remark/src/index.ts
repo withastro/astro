@@ -3,7 +3,7 @@ import type {
 	MarkdownRenderingOptions,
 	MarkdownRenderingResult,
 	MarkdownVFile,
-} from './types';
+} from './types.js';
 
 import { toRemarkInitializeAstroData } from './frontmatter-injection.js';
 import { loadPlugins } from './load-plugins.js';

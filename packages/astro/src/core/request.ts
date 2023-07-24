@@ -1,5 +1,5 @@
 import type { IncomingHttpHeaders } from 'node:http';
-import type { LogOptions } from './logger/core';
+import type { LogOptions } from './logger/core.js';
 import { warn } from './logger/core.js';
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;

@@ -4,10 +4,10 @@ import type {
 	EndpointOutput,
 	MiddlewareHandler,
 	MiddlewareNext,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn } from '../logger/core.js';
-import type { Environment } from '../render';
+import type { Environment } from '../render/index.js';
 
 /**
  * Utility function that is in charge of calling the middleware.

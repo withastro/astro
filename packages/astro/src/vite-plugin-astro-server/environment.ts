@@ -1,7 +1,7 @@
 import type { AstroSettings, RuntimeMode, SSRManifest } from '../@types/astro.js';
 import type { LogOptions } from '../core/logger/core.js';
-import type { ModuleLoader } from '../core/module-loader';
-import type { DevelopmentEnvironment } from '../core/render';
+import type { ModuleLoader } from '../core/module-loader/index.js';
+import type { DevelopmentEnvironment } from '../core/render/index.js';
 import { createEnvironment } from '../core/render/index.js';
 import { RouteCache } from '../core/render/route-cache.js';
 import { isServerLikeOutput } from '../prerender/utils.js';

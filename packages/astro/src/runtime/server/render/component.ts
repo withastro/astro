@@ -1,4 +1,8 @@
-import type { AstroComponentMetadata, SSRLoadedRenderer, SSRResult } from '../../../@types/astro';
+import type {
+	AstroComponentMetadata,
+	SSRLoadedRenderer,
+	SSRResult,
+} from '../../../@types/astro.js';
 import type { RenderInstruction } from './types.js';
 
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';

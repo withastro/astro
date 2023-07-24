@@ -59,7 +59,7 @@ async function getViteConfiguration(options?: Options): Promise<UserConfig> {
 			include: ['@astrojs/vue/client.js', 'vue'],
 			exclude: ['@astrojs/vue/server.js', 'virtual:@astrojs/vue/app'],
 		},
-		plugins: [vue(options), virtualAppEntrypoint(options)],
+		plugins: [(vue as any)(options), virtualAppEntrypoint(options)],
 		ssr: {
 			external: ['@vue/server-renderer'],
 			noExternal: ['vuetify', 'vueperslides', 'primevue'],
@@ -69,7 +69,7 @@ async function getViteConfiguration(options?: Options): Promise<UserConfig> {
 	if (options?.jsx) {
 		const vueJsx = (await import('@vitejs/plugin-vue-jsx')).default;
 		const jsxOptions = typeof options.jsx === 'object' ? options.jsx : undefined;
-		config.plugins?.push(vueJsx(jsxOptions));
+		config.plugins?.push((vueJsx as any)(jsxOptions));
 	}
 
 	return config;

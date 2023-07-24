@@ -4,7 +4,7 @@ import type { AddressInfo } from 'node:net';
 import { performance } from 'perf_hooks';
 import type * as vite from 'vite';
 import type yargs from 'yargs-parser';
-import type { AstroSettings } from '../../@types/astro';
+import type { AstroSettings } from '../../@types/astro.js';
 import { attachContentServerListeners } from '../../content/index.js';
 import { telemetry } from '../../events/index.js';
 import { info, warn, type LogOptions } from '../logger/core.js';

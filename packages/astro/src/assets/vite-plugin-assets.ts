@@ -3,7 +3,7 @@ import MagicString from 'magic-string';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
-import type { AstroPluginOptions, ImageTransform } from '../@types/astro';
+import type { AstroPluginOptions, ImageTransform } from '../@types/astro.js';
 import { error } from '../core/logger/core.js';
 import {
 	appendForwardSlash,

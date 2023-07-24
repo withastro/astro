@@ -3,7 +3,7 @@ import type {
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { escapeHTML } from './escape.js';
 import { serializeProps } from './serialize.js';

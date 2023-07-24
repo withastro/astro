@@ -1,8 +1,8 @@
 import type { Root, RootContent } from 'hast';
-import type MagicString from 'magic-string';
 import type { Plugin } from 'unified';
 import { visit } from 'unist-util-visit';
 
+import type MagicString from 'magic-string';
 import { escape, needsEscape, replaceAttribute } from './utils.js';
 
 const rehypeEscape: Plugin<[{ s: MagicString }], Root> = ({ s }) => {

@@ -2,7 +2,7 @@ import type { CreatePreviewServer } from 'astro';
 import type http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { createServer } from './http-server.js';
-import type { createExports } from './server';
+import type { createExports } from './server.js';
 
 const preview: CreatePreviewServer = async function ({
 	client,

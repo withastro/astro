@@ -1,9 +1,9 @@
 import * as vite from 'vite';
-import type { AstroSettings } from '../../@types/astro';
+import type { AstroSettings } from '../../@types/astro.js';
 import { createSettings, openConfig } from '../config/index.js';
 import { createSafeError } from '../errors/index.js';
 import { info } from '../logger/core.js';
-import type { Container, CreateContainerParams } from './container';
+import type { Container, CreateContainerParams } from './container.js';
 import { createContainer, isStarted, startContainer } from './container.js';
 
 async function createRestartedContainer(

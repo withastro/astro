@@ -1,4 +1,4 @@
-import type { Context } from './context';
+import type { Context } from './context.js';
 
 import { color } from '@astrojs/cli-kit';
 import { downloadTemplate } from 'giget';

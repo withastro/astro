@@ -6,7 +6,7 @@ import type {
 	Params,
 	RouteData,
 	RuntimeMode,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, warn, type LogOptions } from '../logger/core.js';
 

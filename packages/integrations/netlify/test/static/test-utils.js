@@ -5,7 +5,7 @@ export * from '../../../../astro/test/test-utils.js';
 
 /**
  *
- * @returns {import('../../../../astro/dist/types/@types/astro').AstroIntegration}
+ * @returns {import('../../../../astro/dist/types/@types/astro.js').AstroIntegration}
  */
 export function testIntegration() {
 	return {

@@ -33,21 +33,21 @@ export interface RotateOptions {
 }
 
 // MozJPEG
-import type { MozJPEGModule as MozJPEGEncodeModule } from './mozjpeg/mozjpeg_enc'
+import type { MozJPEGModule as MozJPEGEncodeModule } from './mozjpeg/mozjpeg_enc.js'
 import mozDec from './mozjpeg/mozjpeg_node_dec.js'
 import mozDecWasm from './mozjpeg/mozjpeg_node_dec.wasm.js'
 import mozEnc from './mozjpeg/mozjpeg_node_enc.js'
 import mozEncWasm from './mozjpeg/mozjpeg_node_enc.wasm.js'
 
 // WebP
-import type { WebPModule as WebPEncodeModule } from './webp/webp_enc'
+import type { WebPModule as WebPEncodeModule } from './webp/webp_enc.js'
 import webpDec from './webp/webp_node_dec.js'
 import webpDecWasm from './webp/webp_node_dec.wasm.js'
 import webpEnc from './webp/webp_node_enc.js'
 import webpEncWasm from './webp/webp_node_enc.wasm.js'
 
 // AVIF
-import type { AVIFModule as AVIFEncodeModule } from './avif/avif_enc'
+import type { AVIFModule as AVIFEncodeModule } from './avif/avif_enc.js'
 import avifDec from './avif/avif_node_dec.js'
 import avifDecWasm from './avif/avif_node_dec.wasm.js'
 import avifEnc from './avif/avif_node_enc.js'

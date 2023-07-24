@@ -15,7 +15,7 @@ import type {
 	SSRError,
 	SSRLoadedRenderer,
 	SSRManifest,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import {
 	generateImage as generateImageInternal,
 	getStaticImageList,
@@ -61,7 +61,7 @@ import type {
 	SinglePageBuiltModule,
 	StaticBuildOptions,
 	StylesheetAsset,
-} from './types';
+} from './types.js';
 import { getTimeStat } from './util.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {

@@ -1,9 +1,9 @@
 import type { NodeApp } from 'astro/app/node';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Readable } from 'stream';
-import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders';
-import { responseIterator } from './response-iterator';
-import type { Options } from './types';
+import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
+import { responseIterator } from './response-iterator.js';
+import type { Options } from './types.js';
 
 export default function (app: NodeApp, mode: Options['mode']) {
 	return async function (

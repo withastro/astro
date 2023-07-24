@@ -1,4 +1,4 @@
-import type { SSRElement } from '../../../@types/astro';
+import type { SSRElement } from '../../../@types/astro.js';
 
 import { HTMLString, markHTMLString } from '../escape.js';
 import { serializeListValue } from '../util.js';

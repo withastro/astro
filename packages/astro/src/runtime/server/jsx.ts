@@ -11,7 +11,7 @@ import {
 	voidElementNames,
 } from './index.js';
 import { HTMLParts } from './render/common.js';
-import type { ComponentIterable } from './render/component';
+import type { ComponentIterable } from './render/component.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 

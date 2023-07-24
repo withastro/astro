@@ -1,4 +1,4 @@
-import type { RenderInstruction } from '../types';
+import type { RenderInstruction } from '../types.js';
 
 import { HTMLBytes, markHTMLString } from '../../escape.js';
 import { isPromise } from '../../util.js';

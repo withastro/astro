@@ -1,6 +1,6 @@
 import type * as http from 'node:http';
 import type { AddressInfo } from 'node:net';
-import type { AstroSettings, AstroUserConfig } from '../../@types/astro';
+import type { AstroSettings, AstroUserConfig } from '../../@types/astro.js';
 
 import nodeFs from 'node:fs';
 import * as vite from 'vite';

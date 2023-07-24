@@ -1,4 +1,4 @@
-import type { AstroConfig } from '../@types/astro';
+import type { AstroConfig } from '../@types/astro.js';
 
 export function isServerLikeOutput(config: AstroConfig) {
 	return config.output === 'server' || config.output === 'hybrid';
