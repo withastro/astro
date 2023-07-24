@@ -14,8 +14,8 @@
   "homepage": "https://astro.build",
   "exports": {
     ".": {
-      "default": "./dist/index.js",
-      "types": "./dist/types/index.d.ts"
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./package.json": "./package.json"
   },
