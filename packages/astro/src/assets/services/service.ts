@@ -203,20 +203,29 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		};
 	},
 	getURL(options: ImageTransform) {
-		// Both our currently available local services don't handle remote images, so we return the path as is.
-		if (!isESMImportedImage(options.src)) {
+		const PARAMS: Record<string, keyof typeof options> = {
+			w: 'width',
+			h: 'height',
+			q: 'quality',
+			f: 'format',
+		};
+
+		const searchParams = Object.entries(PARAMS).reduce((params, [param, key]) => {
+			options[key] && params.append(param, options[key].toString());
+			return params;
+		}, new URLSearchParams());
+
+		if (isESMImportedImage(options.src)) {
+			searchParams.append('href', options.src.src);
+		} else if (options.src.startsWith('http')) {
+			searchParams.append('href', options.src);
+		} else {
+			// ignore non http strings
 			return options.src;
 		}
 
-		const searchParams = new URLSearchParams();
-		searchParams.append('href', options.src.src);
-
-		options.width && searchParams.append('w', options.width.toString());
-		options.height && searchParams.append('h', options.height.toString());
-		options.quality && searchParams.append('q', options.quality.toString());
-		options.format && searchParams.append('f', options.format);
-
-		return joinPaths(import.meta.env.BASE_URL, '/_image?') + searchParams;
+		const imageEndpoint = joinPaths(import.meta.env.BASE_URL, '/_image');
+		return `${imageEndpoint}?${searchParams}`;
 	},
 	parseURL(url) {
 		const params = url.searchParams;
