@@ -13,7 +13,10 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
   "exports": {
-    ".": "./dist/index.js",
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
