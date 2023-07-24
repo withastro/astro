@@ -14,7 +14,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 	<head>
 		<BaseHead title={title} description={description} />
 		<style>
-			.blog-post {
+			main {
 				width: calc(100% - 2em);
 				max-width: 100%;
 				margin: 0;
@@ -56,7 +56,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 
 	<body>
 		<Header />
-		<main class="blog-post">
+		<main>
 			<article>
 				<div class="hero-image">{heroImage && <img width={1020} height={510} src={heroImage} alt="" />}</div>
 				<div class="prose">

@@ -16,7 +16,7 @@ const posts = (await getCollection('blog')).sort(
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 		<style>
-			.blog-index {
+			main {
 				width: 960px;
 			}
 			ul {
@@ -86,7 +86,7 @@ const posts = (await getCollection('blog')).sort(
 	</head>
 	<body>
 		<Header />
-		<main class="blog-index">
+		<main>
 			<section>
 				<ul>
 					{
