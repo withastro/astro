@@ -237,6 +237,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						await glob(`${fileURLToPath(_buildConfig.client)}/**/*`, {
 							cwd: fileURLToPath(_config.outDir),
 							filesOnly: true,
+							dot: true,
 						})
 					)
 						.filter((file: string) => cloudflareSpecialFiles.indexOf(file) < 0)
