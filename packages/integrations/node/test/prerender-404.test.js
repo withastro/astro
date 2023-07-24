@@ -12,7 +12,7 @@ async function load() {
 	const mod = await import(`./fixtures/prerender-404/dist/server/entry.mjs?dropcache=${Date.now()}`);
 	return mod;
 }
-describe('Prerendering', () => {
+describe('Prerender 404', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let server;
