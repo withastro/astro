@@ -1,12 +1,11 @@
-/* eslint-disable no-console */
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
-import { bold, red } from 'kleur/colors';
 import { getContentEntryType } from './content-entry-type.js';
 import {
 	SUPPORTED_MARKDOC_CONFIG_FILES,
 	loadMarkdocConfig,
 	type MarkdocConfigResult,
 } from './load-config.js';
+import type { MarkdocIntegrationOptions } from './options.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -14,15 +13,7 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
 
-export default function markdocIntegration(legacyConfig?: any): AstroIntegration {
-	if (legacyConfig) {
-		console.log(
-			`${red(
-				bold('[Markdoc]')
-			)} Passing Markdoc config from your \`astro.config\` is no longer supported. Configuration should be exported from a \`markdoc.config.mjs\` file. See the configuration docs for more: https://docs.astro.build/en/guides/integrations-guide/markdoc/#configuration`
-		);
-		process.exit(0);
-	}
+export default function markdocIntegration(options?: MarkdocIntegrationOptions): AstroIntegration {
 	let markdocConfigResult: MarkdocConfigResult | undefined;
 	let astroConfig: AstroConfig;
 	return {
@@ -34,7 +25,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 
 				markdocConfigResult = await loadMarkdocConfig(astroConfig);
 
-				addContentEntryType(await getContentEntryType({ markdocConfigResult, astroConfig }));
+				addContentEntryType(await getContentEntryType({ markdocConfigResult, astroConfig, options }));
 
 				updateConfig({
 					vite: {

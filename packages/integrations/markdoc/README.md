@@ -93,7 +93,7 @@ const { Content } = await entry.render();
 
 📚 See the [Astro Content Collection docs][astro-content-collections] for more information.
 
-## Configuration
+## Markdoc config
 
 `@astrojs/markdoc` offers configuration options to use all of Markdoc's features and connect UI components to your content.
 
@@ -400,6 +400,36 @@ const { Content } = await entry.render();
 ```
 
 This can now be accessed as `$frontmatter` in your Markdoc.
+
+## Integration config options
+
+The Astro Markdoc integration handles configuring Markdoc options and capabilities that are not available through the `markdoc.config.js` file.
+
+### allowHTML
+
+Enables writing HTML markup alongside Markdoc tags and nodes.
+
+By default, Markdoc will not recognize HTML markup as semantic content.  
+
+To achieve a more Markdown-like experience, where HTML elements can be included alongside your content, set `allowHTML:true`  as a `markdoc` integration option. This will enable HTML parsing in Markdoc markup.
+
+
+> **Warning**
+> When `allowHTML` is enabled, HTML markup inside Markdoc documents will be rendered as actual HTML elements (including `<script>`), making attack vectors like XSS possible.
+>
+> Ensure that any HTML markup comes from trusted sources. 
+
+
+```js {7} "allowHTML: true"
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import markdoc from '@astrojs/markdoc';
+
+export default defineConfig({
+  // ...
+  integrations: [markdoc({ allowHTML: true })],
+});
+```
 
 ## Examples
 
