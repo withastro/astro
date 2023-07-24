@@ -67,7 +67,7 @@
     "mocha": "^9.2.2",
     "rollup": "^2.79.1",
     "tslib": "^2.5.3",
-    "typescript": "~5.0.2",
+    "typescript": "~5.1.6",
     "urlpattern-polyfill": "^1.0.0-rc5"
   },
   "scripts": {

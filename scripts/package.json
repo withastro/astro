@@ -10,7 +10,7 @@
   "dependencies": {
     "@astrojs/webapi": "workspace:*",
     "arg": "^5.0.2",
-    "esbuild": "^0.17.19",
+    "esbuild": "^0.18.16",
     "globby": "^12.2.0",
     "kleur": "^4.1.4",
     "p-limit": "^4.0.0",
