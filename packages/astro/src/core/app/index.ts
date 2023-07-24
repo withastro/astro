@@ -39,6 +39,11 @@ const STATUS_CODES = new Set([404, 500]);
 export interface MatchOptions {
 	matchNotFound?: boolean | undefined;
 }
+export interface RenderErrorOptions {
+	routeData?: RouteData; 
+	response?: Response;
+	status: 404 | 500;
+}
 
 export class App {
 	/**
@@ -130,7 +135,7 @@ export class App {
 			routeData = this.match(request);
 		}
 		if (!routeData) {
-			return this.#renderError(request, routeData, 404);
+			return this.#renderError(request, { routeData, status: 404 });
 		}
 
 		Reflect.set(request, clientLocalsSymbol, locals ?? {});
@@ -158,19 +163,19 @@ export class App {
 			);
 		} catch (err: any) {
 			error(this.#logging, 'ssr', err.stack || err.message || String(err));
-			return this.#renderError(request, routeData, 500);
+			return this.#renderError(request, { routeData, status: 500 });
 		}
 
 		if (isResponse(response, routeData.type)) {
 			if (STATUS_CODES.has(response.status)) {
-				return this.#renderError(request, routeData, response.status as 404 | 500);
+				return this.#renderError(request, { routeData, response, status: response.status as 404 | 500 } );
 			}
 			Reflect.set(response, responseSentSymbol, true);
 			return response;
 		} else {
 			if (response.type === 'response') {
 				if (response.response.headers.get('X-Astro-Response') === 'Not-Found') {
-					return this.#renderError(request, routeData, 404);
+					return this.#renderError(request, { routeData, response: response.response, status: 404 });
 				}
 				return response.response;
 			} else {
@@ -261,13 +266,14 @@ export class App {
 	 * If is a known error code, try sending the according page (e.g. 404.astro / 500.astro).
 	 * This also handles pre-rendered /404 or /500 routes
 	 */
-	async #renderError(request: Request, routeData: RouteData | undefined, status: 404 | 500) {
+	async #renderError(request: Request, { routeData, status, response: originalResponse }: RenderErrorOptions) {
 		const errorRouteData = matchRoute('/' + status, this.#manifestData);
 		const url = new URL(request.url);
 		if (errorRouteData) {
 			if (errorRouteData.prerender) {
 				const statusURL = new URL(`${this.#baseWithoutTrailingSlash}/${status}`, url);
-				return fetch(statusURL.toString());
+				const response = await fetch(statusURL.toString());
+				return this.#mergeResponses(response, originalResponse);
 			}
 			const finalRouteData = routeData ?? errorRouteData;
 			const mod = await this.#getModuleForRoute(errorRouteData);
@@ -280,19 +286,29 @@ export class App {
 					status
 				);
 				const page = (await mod.page()) as any;
-				const errorResponse = await tryRenderRoute(
+				const response = await tryRenderRoute(
 					'page', // this is hardcoded to ensure proper behavior for missing endpoints
 					newRenderContext,
 					this.#env,
 					page
-				);
-				return errorResponse as Response;
+				) as Response;
+				return this.#mergeResponses(response, originalResponse);
 			} catch {}
 		}
 
-		const response = new Response(null, { status });
+		const response = this.#mergeResponses(new Response(), originalResponse);
 		Reflect.set(response, responseSentSymbol, true);
 		return response;
+	}
+
+	#mergeResponses(newResponse: Response, oldResponse?: Response) {
+		if (!oldResponse) return newResponse;
+		const { status, statusText, headers } = oldResponse;
+		return new Response(newResponse.body, {
+			status,
+			statusText,
+			headers: new Headers(Array.from(headers))
+		})
 	}
 
 	#getDefaultStatusCode(route: string): number {
