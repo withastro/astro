@@ -46,7 +46,7 @@ describe('Prerendering', () => {
 			const $ = cheerio.load(html);
 
 			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Hello world');
+			expect($('h1').text()).to.equal('Hello world!');
 		});
 
 		it('Can handle prerendered 404', async () => {
@@ -87,7 +87,7 @@ describe('Prerendering', () => {
 			const $ = cheerio.load(html);
 
 			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Hello world');
+			expect($('h1').text()).to.equal('Hello world!');
 		});
 
 		it('Can handle prerendered 404', async () => {
@@ -134,7 +134,7 @@ describe('Hybrid rendering', () => {
 			const $ = cheerio.load(html);
 
 			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Hello world');
+			expect($('h1').text()).to.equal('Hello world!');
 		});
 
 		it('Can handle prerendered 404', async () => {
@@ -174,7 +174,7 @@ describe('Hybrid rendering', () => {
 			const $ = cheerio.load(html);
 
 			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Hello world');
+			expect($('h1').text()).to.equal('Hello world!');
 		});
 
 		it('Can handle prerendered 404', async () => {
