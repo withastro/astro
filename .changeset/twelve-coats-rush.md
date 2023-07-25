@@ -2,9 +2,9 @@
 'astro': major
 ---
 
-The endpoints that have **lower case** name are **deprecated**.
+The endpoints that have **lowercase** names are **deprecated**.
 
-The endpoints methods **needs** to be in **upper case**.
+The endpoints methods **need** to be in **uppercase**.
 
 ```diff
 --export function get() {
