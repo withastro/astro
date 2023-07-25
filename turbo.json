@@ -38,6 +38,10 @@
     "test": {
       "env": ["RUNNER_OS", "NODE_VERSION"],
       "outputMode": "new-only"
+    },
+    "test:hosted": {
+      "outputMode": "new-only",
+      "cache": false
     }
   }
 }

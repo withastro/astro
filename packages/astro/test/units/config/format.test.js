@@ -22,7 +22,7 @@ describe('Astro config formats', () => {
 		);
 
 		const { astroConfig } = await resolveConfig({ root: fileURLToPath(root) }, 'dev', fs);
-		const settings = createSettings(astroConfig);
+		const settings = createSettings(astroConfig, 'dev');
 
 		await runInContainer({ fs, root, settings }, () => {
 			expect(true).to.equal(
