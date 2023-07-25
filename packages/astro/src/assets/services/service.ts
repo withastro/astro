@@ -210,6 +210,16 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		};
 	},
 	getURL(options, serviceConfig, assetsConfig) {
+		const searchParams = new URLSearchParams();
+
+		if (isESMImportedImage(options.src)) {
+			searchParams.append('href', options.src.src);
+		} else if (isRemoteAllowed(options.src, assetsConfig)) {
+			searchParams.append('href', options.src);
+		} else {
+			return options.src;
+		}
+
 		const PARAMS: Record<string, keyof typeof options> = {
 			w: 'width',
 			h: 'height',
@@ -217,19 +227,9 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			f: 'format',
 		};
 
-		const searchParams = Object.entries(PARAMS).reduce((params, [param, key]) => {
-			options[key] && params.append(param, options[key].toString());
-			return params;
-		}, new URLSearchParams());
-
-		if (isESMImportedImage(options.src)) {
-			searchParams.append('href', options.src.src);
-		} else if (isRemoteAllowed(options.src, assetsConfig)) {
-			searchParams.append('href', options.src);
-		} else {
-			// ignore non http strings
-			return options.src;
-		}
+		Object.entries(PARAMS).forEach(([param, key]) => {
+			options[key] && searchParams.append(param, options[key].toString());
+		});
 
 		const imageEndpoint = joinPaths(import.meta.env.BASE_URL, '/_image');
 		return `${imageEndpoint}?${searchParams}`;
