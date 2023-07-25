@@ -1,10 +1,10 @@
 import type { APIContext, EndpointHandler, Params } from '../../@types/astro';
-import { type LogOptions, warn, info } from '../../core/logger/core.js';
+import { type LogOptions, warn } from '../../core/logger/core.js';
 
 function getHandlerFromModule(mod: EndpointHandler, method: string, logging: LogOptions) {
 	const lowerCaseMethod = method.toLowerCase();
 
-	// NOTE: remove in Astro 4.0
+	// TODO: remove in Astro 4.0
 	if (mod[lowerCaseMethod]) {
 		warn(
 			logging,
@@ -17,16 +17,16 @@ function getHandlerFromModule(mod: EndpointHandler, method: string, logging: Log
 		return mod[method];
 	}
 
-	// NOTE: remove in Astro 4.0
+	// TODO: remove in Astro 4.0
 	if (mod[lowerCaseMethod]) {
 		return mod[lowerCaseMethod];
 	}
-	// NOTE: remove in Astro 4.0
+	// TODO: remove in Astro 4.0
 	// Handle `del` instead of `delete`, since `delete` is a reserved word in JS.
 	if (method === 'delete' && mod['del']) {
 		return mod['del'];
 	}
-	// NOTE: remove in Astro 4.0
+	// TODO: remove in Astro 4.0
 	// If a single `all` handler was used, return that function.
 	if (mod['all']) {
 		return mod['all'];
@@ -49,6 +49,7 @@ export async function renderEndpoint(
 
 	const chosenMethod = request.method?.toUpperCase();
 	const handler = getHandlerFromModule(mod, chosenMethod, logging);
+	// TODO: remove the 'get' check in Astro 4.0
 	if (!ssr && ssr === false && chosenMethod && chosenMethod !== 'GET' && chosenMethod !== 'get') {
 		// eslint-disable-next-line no-console
 		console.warn(`
