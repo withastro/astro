@@ -21,15 +21,15 @@ import {
 import {
 	Fragment,
 	Renderer,
-	type RenderDestination,
 	chunkToString,
-	type RenderInstance,
+	type RenderDestination,
 	type RenderDestinationChunk,
+	type RenderInstance,
 } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
+import { maybeRenderHead } from './head.js';
 import { renderSlotToString, renderSlots, type ComponentSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
-import { maybeRenderHead } from './head.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 const rendererAliases = new Map([['solid', 'solid-js']]);

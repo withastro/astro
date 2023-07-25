@@ -4,9 +4,9 @@ import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.j
 
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
+import type { RenderDestination } from '../common.js';
 import { isAPropagatingComponent } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
-import type { RenderDestination } from '../common.js';
 
 type ComponentProps = Record<string | number, any>;
 

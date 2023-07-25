@@ -9,10 +9,10 @@ import type {
 } from '../../@types/astro';
 import { renderSlotToString, type ComponentSlots } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
+import { chunkToString } from '../../runtime/server/render/index.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
-import { chunkToString } from '../../runtime/server/render/index.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
