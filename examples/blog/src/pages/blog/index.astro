@@ -23,7 +23,7 @@ const posts = (await getCollection('blog')).sort(
 				display: flex;
 				flex-wrap: wrap;
 				gap: 2rem;
-  				list-style-type: none;
+				list-style-type: none;
 				margin: 0;
 				padding: 0;
 			}
@@ -46,7 +46,7 @@ const posts = (await getCollection('blog')).sort(
 				font-size: 2.369rem;
 			}
 			ul li img {
-				margin-bottom: .5rem;
+				margin-bottom: 0.5rem;
 				border-radius: 12px;
 			}
 			ul li a {
@@ -61,7 +61,8 @@ const posts = (await getCollection('blog')).sort(
 				margin: 0;
 				color: rgb(var(--gray));
 			}
-			ul li a:hover h4, ul li a:hover .date {
+			ul li a:hover h4,
+			ul li a:hover .date {
 				color: rgb(var(--accent));
 			}
 			ul a:hover img {
@@ -69,7 +70,7 @@ const posts = (await getCollection('blog')).sort(
 			}
 			@media (max-width: 720px) {
 				ul {
-					gap: .5em;
+					gap: 0.5em;
 				}
 				ul li {
 					width: 100%;
@@ -95,7 +96,9 @@ const posts = (await getCollection('blog')).sort(
 								<a href={`/blog/${post.slug}/`}>
 									<img width={720} height={360} src={post.data.heroImage} alt="" />
 									<h4 class="title">{post.data.title}</h4>
-									<p class="date"><FormattedDate date={post.data.pubDate} /></p>
+									<p class="date">
+										<FormattedDate date={post.data.pubDate} />
+									</p>
 								</a>
 							</li>
 						))

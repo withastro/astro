@@ -42,10 +42,10 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				line-height: 1;
 			}
 			.title h1 {
-				margin: 0 0 .5em 0;
+				margin: 0 0 0.5em 0;
 			}
 			.date {
-				margin-bottom: .5em;
+				margin-bottom: 0.5em;
 				color: rgb(var(--gray));
 			}
 			.last-updated-on {
@@ -58,7 +58,9 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		<Header />
 		<main>
 			<article>
-				<div class="hero-image">{heroImage && <img width={1020} height={510} src={heroImage} alt="" />}</div>
+				<div class="hero-image">
+					{heroImage && <img width={1020} height={510} src={heroImage} alt="" />}
+				</div>
 				<div class="prose">
 					<div class="title">
 						<div class="date">
