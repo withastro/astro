@@ -22,6 +22,7 @@ import type { AstroCookies } from '../core/cookies';
 import type { LogOptions } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type { RemotePattern } from '../assets/utils/remotePattern';
 export type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -44,6 +45,7 @@ export type {
 	ImageQualityPreset,
 	ImageTransform,
 } from '../assets/types';
+export type { RemotePattern } from '../assets/utils/remotePattern';
 export type { SSRManifest } from '../core/app/types';
 export type { AstroCookies } from '../core/cookies';
 
@@ -364,10 +366,10 @@ export interface ViteUserConfig extends vite.UserConfig {
 	ssr?: vite.SSROptions;
 }
 
-export interface ImageServiceConfig {
+export interface ImageServiceConfig<T extends Record<string, any> = Record<string, any>> {
 	// eslint-disable-next-line @typescript-eslint/ban-types
 	entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
-	config?: Record<string, any>;
+	config?: T;
 }
 
 /**
@@ -1004,6 +1006,71 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		service: ImageServiceConfig;
+
+		/**
+		 * @docs
+		 * @name image.domains (Experimental)
+		 * @type {Array<string>}
+		 * @default `{domains: []}`
+		 * @version 2.9.2
+		 * @description
+		 * Defines a list of domains allowed to be optimized locally
+		 *
+		 * The value should be an array of domain strings of images allowed to be optimized locally.
+		 * Wildcards are not permitted (see image.remotePatterns).
+		 *
+		 * ```js
+		 * {
+		 *   image: {
+		 *     // Example: Enable the Sharp-based image service
+		 *     domains: ['astro.build'],
+		 *   },
+		 * }
+		 * ```
+		 */
+		domains?: string[];
+
+		/**
+		 * @docs
+		 * @name image.remotePatterns (Experimental)
+		 * @type {Array<RemotePattern>}
+		 * @default `{remotePatterns: []}`
+		 * @version 2.9.2
+		 * @description
+		 * Defines a list of url patterns allowed to be optimized locally
+		 *
+		 * The patterns can contain 4 properties:
+		 * 1. protocol
+		 * 2. hostname
+		 * 3. port
+		 * 4. pathname
+		 *
+		 * Each property will be matched individually to the URL object representing the remote asset to be loaded.
+		 * The rules for matching are:
+		 *
+		 * 1. protocol & port: strict equal.(`===`)
+		 * 2. hostname:
+		 *   - if the hostname starts with '**.', all subdomains will be allowed ('endsWith')
+		 *   - if the hostname starts with '*.', only one level of subdomain will be allowed
+		 *   - strict equal otherwise
+		 * 3. pathname:
+		 *   - if the pathname ends with '/**', all sub routes will be allowed ('startsWith')
+		 *   - if the pathname ends with '/*', only one level of sub route will be allowed
+		 *   - strict equal otherwise
+		 *
+		 * ```js
+		 * {
+		 *   image: {
+		 *     // Example: statically process all images from your aws s3 bucket
+		 *     remotePatterns: [{
+		 *       protocol: 'https',
+		 *       hostname: '**.amazonaws.com',
+		 *     }],
+		 *   },
+		 * }
+		 * ```
+		 */
+		remotePatterns?: Partial<RemotePattern>[];
 	};
 
 	/**

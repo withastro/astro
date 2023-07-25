@@ -1,7 +1,8 @@
+import type { AstroConfig } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { joinPaths } from '../../core/path.js';
 import { VALID_SUPPORTED_FORMATS } from '../consts.js';
-import { isESMImportedImage } from '../internal.js';
+import { isESMImportedImage, isRemoteAllowed } from '../internal.js';
 import type { ImageOutputFormat, ImageTransform } from '../types.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
@@ -23,7 +24,7 @@ export function parseQuality(quality: string): string | number {
 	return result;
 }
 
-interface SharedServiceProps {
+interface SharedServiceProps<T extends Record<string, any> = Record<string, any>> {
 	/**
 	 * Return the URL to the endpoint or URL your images are generated from.
 	 *
@@ -32,7 +33,11 @@ interface SharedServiceProps {
 	 * For external services, this should point to the URL your images are coming from, for instance, `/_vercel/image`
 	 *
 	 */
-	getURL: (options: ImageTransform, serviceConfig: Record<string, any>) => string | Promise<string>;
+	getURL: (
+		options: ImageTransform,
+		serviceConfig: T,
+		assetsConfig: AstroConfig['image']
+	) => string | Promise<string>;
 	/**
 	 * Return any additional HTML attributes separate from `src` that your service requires to show the image properly.
 	 *
@@ -41,7 +46,7 @@ interface SharedServiceProps {
 	 */
 	getHTMLAttributes?: (
 		options: ImageTransform,
-		serviceConfig: Record<string, any>
+		serviceConfig: T
 	) => Record<string, any> | Promise<Record<string, any>>;
 	/**
 	 * Validate and return the options passed by the user.
@@ -53,18 +58,20 @@ interface SharedServiceProps {
 	 */
 	validateOptions?: (
 		options: ImageTransform,
-		serviceConfig: Record<string, any>
+		serviceConfig: T
 	) => ImageTransform | Promise<ImageTransform>;
 }
 
-export type ExternalImageService = SharedServiceProps;
+export type ExternalImageService<T extends Record<string, any> = Record<string, any>> =
+	SharedServiceProps<T>;
 
 export type LocalImageTransform = {
 	src: string;
 	[key: string]: any;
 };
 
-export interface LocalImageService extends SharedServiceProps {
+export interface LocalImageService<T extends Record<string, any> = Record<string, any>>
+	extends SharedServiceProps<T> {
 	/**
 	 * Parse the requested parameters passed in the URL from `getURL` back into an object to be used later by `transform`.
 	 *
@@ -72,7 +79,7 @@ export interface LocalImageService extends SharedServiceProps {
 	 */
 	parseURL: (
 		url: URL,
-		serviceConfig: Record<string, any>
+		serviceConfig: T
 	) => LocalImageTransform | undefined | Promise<LocalImageTransform> | Promise<undefined>;
 	/**
 	 * Performs the image transformations on the input image and returns both the binary data and
@@ -81,7 +88,7 @@ export interface LocalImageService extends SharedServiceProps {
 	transform: (
 		inputBuffer: Buffer,
 		transform: LocalImageTransform,
-		serviceConfig: Record<string, any>
+		serviceConfig: T
 	) => Promise<{ data: Buffer; format: ImageOutputFormat }>;
 }
 
@@ -202,7 +209,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			decoding: attributes.decoding ?? 'async',
 		};
 	},
-	getURL(options: ImageTransform) {
+	getURL(options, serviceConfig, assetsConfig) {
 		const PARAMS: Record<string, keyof typeof options> = {
 			w: 'width',
 			h: 'height',
@@ -217,7 +224,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 		if (isESMImportedImage(options.src)) {
 			searchParams.append('href', options.src.src);
-		} else if (options.src.startsWith('http')) {
+		} else if (isRemoteAllowed(options.src, assetsConfig)) {
 			searchParams.append('href', options.src);
 		} else {
 			// ignore non http strings

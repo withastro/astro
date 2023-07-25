@@ -14,7 +14,7 @@ import {
 	removeQueryString,
 } from '../core/path.js';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
-import { isRemoteImage } from './internal.js';
+import { isRemoteAllowed, isRemoteImage } from './internal.js';
 import { emitESMImage } from './utils/emitAsset.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
@@ -88,7 +88,8 @@ export default function assets({
 					export { default as Image } from "astro/components/Image.astro";
 
 					export const imageServiceConfig = ${JSON.stringify(settings.config.image.service.config)};
-					export const getImage = async (options) => await getImageInternal(options, imageServiceConfig);
+					export const astroAssetsConfig = ${JSON.stringify(settings.config.image)};
+					export const getImage = async (options) => await getImageInternal(options, imageServiceConfig, astroAssetsConfig);
 				`;
 				}
 			},
@@ -103,6 +104,14 @@ export default function assets({
 							string,
 							{ path: string; options: ImageTransform }
 						>();
+					}
+
+					// hard skip on non allowed remote images
+					if (
+						typeof options.src === 'string' &&
+						!isRemoteAllowed(options.src, settings.config.image)
+					) {
+						return options.src;
 					}
 
 					// in case of remote images
