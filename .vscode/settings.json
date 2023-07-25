@@ -1,0 +1,9 @@
+{
+	"files.exclude": {
+		"examples/[^b]**": true,
+		"examples/ba*": true,
+		"packages/**": true,
+		"scripts/**": true
+	},
+	"explorer.compactFolders": false
+}
