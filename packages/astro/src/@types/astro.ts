@@ -891,9 +891,10 @@ export interface AstroUserConfig {
 		 * @default `undefined`
 		 * @version 2.10.0
 		 * @description
-* Defines a function that will check which pages should be filtered out from the build while returning `false`.
-*
-* When defined, its function will be called for every single page about to be generated and gives the opportunity to skip the page. The criteria defined by the user based on `pageURL`, while returning `false`, will exclude any generated pages from the static build (including prerendered pages).
+		 *
+		 * Defines a function that will check which pages should be filtered out from the build while returning `false`.
+		 *
+		 * When defined, its function will be called for every single page about to be generated and gives the opportunity to skip the page. The criteria defined by the user based on `pageURL`, while returning `false`, will exclude any generated pages from the static build (including prerendered pages).
 		 *
 		 * ```js
 		 * {
