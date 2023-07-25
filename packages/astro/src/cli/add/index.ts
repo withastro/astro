@@ -647,13 +647,22 @@ async function tryToInstallIntegrations({
 }): Promise<UpdateResult> {
 	const installCommand = await getInstallIntegrationsCommand({ integrations, cwd });
 
+	const inheritedFlags = Object.entries(flags)
+		.map(([flag, value]) => {
+			if (flag == '_') return;
+
+			return [`-${flag}`, value.toString()];
+		})
+		.filter(Boolean)
+		.flat();
+
 	if (installCommand === null) {
 		return UpdateResult.none;
 	} else {
 		const coloredOutput = `${bold(installCommand.pm)} ${installCommand.command}${[
 			'',
 			...installCommand.flags,
-		].join(' ')} ${cyan(installCommand.dependencies.join(' '))}`;
+		].join(' ')} ${cyan(installCommand.dependencies.join(' '))} ${inheritedFlags.join(' ')}`;
 		const message = `\n${boxen(coloredOutput, {
 			margin: 0.5,
 			padding: 0.5,
