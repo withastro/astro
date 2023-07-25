@@ -11,6 +11,12 @@ const { link } = Astro.props as Props;
 	<head>
 		<title>Testing</title>
 		{link ? <link rel="stylesheet" href={link} > : ''}
+		<style>
+			main {
+				max-width: 900px;
+				margin: auto;
+			}	
+		</style>
 		<ViewTransitions />
 	</head>
 	<body>

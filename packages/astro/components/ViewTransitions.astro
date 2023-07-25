@@ -13,6 +13,10 @@ const { fallback = 'animate' } = Astro.props as Props;
 <script>
 	type Fallback = 'none' | 'animate' | 'swap';
 	type Direction = 'forward' | 'back';
+	type State = {
+		index: number;
+		scrollY: number;
+	};
 
 	// The History API does not tell you if navigation is forward or back, so
 	// you can figure it using an index. On pushState the index is incremented so you
@@ -62,10 +66,16 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 	const parser = new DOMParser();
 
-	async function updateDOM(dir: Direction, html: string, fallback?: Fallback) {
+	async function updateDOM(dir: Direction, html: string, state?: State, fallback?: Fallback) {
 		const doc = parser.parseFromString(html, 'text/html');
 		doc.documentElement.dataset.astroTransition = dir;
-		const swap = () => document.documentElement.replaceWith(doc.documentElement);
+		const swap = () => {
+			document.documentElement.replaceWith(doc.documentElement);
+
+			if(state?.scrollY != null) {
+				scrollTo(0, state.scrollY);
+			}
+		}
 
 		// Wait on links to finish, to prevent FOUC
 		const links = Array.from(doc.querySelectorAll('head link[rel=stylesheet]')).map(
@@ -98,7 +108,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		}
 	}
 
-	async function navigate(dir: Direction, href: string) {
+	async function navigate(dir: Direction, href: string, state?: State) {
 		let finished: Promise<void>;
 		const { html, ok } = await getHTML(href);
 		// If there is a problem fetching the new page, just do an MPA navigation to it.
@@ -107,9 +117,9 @@ const { fallback = 'animate' } = Astro.props as Props;
 			return;
 		}
 		if (supportsViewTransitions) {
-			finished = document.startViewTransition(() => updateDOM(dir, html)).finished;
+			finished = document.startViewTransition(() => updateDOM(dir, html, state)).finished;
 		} else {
-			finished = updateDOM(dir, html, getFallback());
+			finished = updateDOM(dir, html, state, getFallback());
 		}
 		try {
 			await finished;
@@ -159,19 +169,22 @@ const { fallback = 'animate' } = Astro.props as Props;
 				ev.preventDefault();
 				navigate('forward', link.href);
 				currentHistoryIndex++;
-				history.pushState({ index: currentHistoryIndex }, '', link.href);
+				const state: State = { index: currentHistoryIndex, scrollY };
+				history.replaceState({ index: currentHistoryIndex - 1, scrollY }, '');
+				history.pushState(state, '', link.href);
 			}
 		});
-		window.addEventListener('popstate', () => {
+		addEventListener('popstate', () => {
 			if (!transitionEnabledOnThisPage()) {
 				// The current page doesn't haven't View Transitions,
 				// respect that with a full page reload
 				location.reload();
 				return;
 			}
-			const nextIndex = history.state?.index ?? currentHistoryIndex + 1;
+			const state: State | undefined = history.state;
+			const nextIndex = state?.index ?? currentHistoryIndex + 1;
 			const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
-			navigate(direction, location.href);
+			navigate(direction, location.href, state);
 			currentHistoryIndex = nextIndex;
 		});
 
@@ -194,5 +207,14 @@ const { fallback = 'animate' } = Astro.props as Props;
 			);
 		});
 		addEventListener('load', onload);
+		// There's not a good way to record scroll position before a back button.
+		// So the way we do it is by listening to scroll and just continuously recording it.
+		addEventListener('scroll', () => {
+			const state: State | undefined = history.state;
+			if(state) {
+				state.scrollY = scrollY;
+				history.replaceState(state, '');
+			}
+		}, { passive: true });
 	}
 </script>
