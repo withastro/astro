@@ -168,7 +168,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				const pth = fileURLToPath(entryUrl);
 
 				await esbuild.build({
-					target: 'es2020',
+					target: 'esnext',
 					platform: 'browser',
 					entryPoints: [pth],
 					outfile: pth,
