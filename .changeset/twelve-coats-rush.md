@@ -2,9 +2,9 @@
 'astro': major
 ---
 
-The endpoints that have **lowercase** names are **deprecated**.
+Lowercase names for endpoint functions are now deprecated.
 
-The endpoints methods **need** to be in **uppercase**.
+Rename functions to their uppercase equivalent:
 
 ```diff
 - export function get() {
