@@ -26,7 +26,6 @@ export function matchHostname(url: URL, hostname?: string, allowWildcard?: boole
 	if (!hostname) {
 		return true;
 	} else if (!allowWildcard || !hostname.startsWith('*')) {
-		console.log(hostname, url.hostname);
 		return hostname === url.hostname;
 	} else if (hostname.startsWith('**.')) {
 		const slicedHostname = hostname.slice(2); // ** length
