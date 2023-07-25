@@ -112,22 +112,6 @@ export function resolveRoot(cwd?: string | URL): string {
 	return cwd ? path.resolve(cwd) : process.cwd();
 }
 
-/** Merge CLI flags & user config object (CLI flags take priority) */
-function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
-	return mergeConfig(astroConfig, {
-		site: flags.site,
-		base: flags.base,
-		markdown: {
-			drafts: flags.drafts,
-		},
-		server: {
-			port: flags.port,
-			host: flags.host,
-			open: flags.open,
-		},
-	});
-}
-
 async function search(fsMod: typeof fs, root: string) {
 	const paths = [
 		'astro.config.mjs',
@@ -143,16 +127,6 @@ async function search(fsMod: typeof fs, root: string) {
 			return file;
 		}
 	}
-}
-
-interface LoadConfigOptions {
-	cwd?: string;
-	flags?: Flags;
-	cmd: string;
-	validate?: boolean;
-	/** Invalidate when reloading a previously loaded config */
-	isRestart?: boolean;
-	fsMod?: typeof fs;
 }
 
 interface ResolveConfigPathOptions {
@@ -183,21 +157,6 @@ export async function resolveConfigPath(
 	return userConfigPath;
 }
 
-/** Load a configuration file, returning both the userConfig and astroConfig */
-// NOTE: This function will be removed in a later PR. Use `resolveConfig` instead.
-export async function openConfig(configOptions: LoadConfigOptions): Promise<ResolveConfigResult> {
-	const root = resolveRoot(configOptions.cwd);
-	const flags = resolveFlags(configOptions.flags || {});
-
-	const userConfig = await loadConfig(root, flags.config, configOptions.fsMod);
-	const astroConfig = await resolveConfigLegacy(userConfig, root, flags, configOptions.cmd);
-
-	return {
-		userConfig,
-		astroConfig,
-	};
-}
-
 async function loadConfig(
 	root: string,
 	configFile?: string | false,
@@ -220,34 +179,11 @@ async function loadConfig(
 	});
 }
 
-/** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
-// NOTE: This function will be removed in a later PR. Renamed with "Legacy" suffix to make way
-// for the new `resolveConfig` API.
-async function resolveConfigLegacy(
-	userConfig: AstroUserConfig,
-	root: string,
-	flags: CLIFlags = {},
-	cmd: string
-): Promise<AstroConfig> {
-	const mergedConfig = mergeCLIFlags(userConfig, flags);
-	const validatedConfig = await validateConfig(mergedConfig, root, cmd);
-
-	return validatedConfig;
-}
-
-export function createDefaultDevConfig(
-	userConfig: AstroUserConfig = {},
-	root: string = process.cwd()
-) {
-	return resolveConfigLegacy(userConfig, root, undefined, 'dev');
-}
-
 interface ResolveConfigResult {
 	userConfig: AstroUserConfig;
 	astroConfig: AstroConfig;
 }
 
-// NOTE: This is the new API to load an Astro config. Use this instead of the other functions!
 export async function resolveConfig(
 	inlineConfig: AstroInlineConfig,
 	command: string,

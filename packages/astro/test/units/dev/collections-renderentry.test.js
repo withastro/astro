@@ -1,16 +1,16 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import os from 'node:os';
+import { fileURLToPath } from 'node:url';
 
-import mdx from '../../../../integrations/mdx/dist/index.js';
 import { attachContentServerListeners } from '../../../dist/content/server-listeners.js';
-import { runInContainer } from '../../../dist/core/dev/index.js';
-import { createFsWithFallback, createRequestAndResponse } from '../test-utils.js';
+import { createFsWithFallback, createRequestAndResponse, runInContainer } from '../test-utils.js';
 
 const root = new URL('../../fixtures/content/', import.meta.url);
 
 const describe = os.platform() === 'win32' ? global.describe.skip : global.describe;
 
+/** @type {typeof runInContainer} */
 async function runInContainerWithContentListeners(params, callback) {
 	return await runInContainer(params, async (container) => {
 		await attachContentServerListeners(container);
@@ -56,9 +56,8 @@ describe('Content Collections - render()', () => {
 		await runInContainerWithContentListeners(
 			{
 				fs,
-				root,
-				userConfig: {
-					integrations: [mdx()],
+				inlineConfig: {
+					root: fileURLToPath(root),
 					vite: { server: { middlewareMode: true } },
 				},
 			},
@@ -72,6 +71,7 @@ describe('Content Collections - render()', () => {
 				const html = await text();
 
 				const $ = cheerio.load(html);
+				console.log(html);
 				// Rendered the content
 				expect($('ul li')).to.have.a.lengthOf(3);
 
@@ -129,9 +129,8 @@ description: Astro is launching this week!
 		await runInContainerWithContentListeners(
 			{
 				fs,
-				root,
-				userConfig: {
-					integrations: [mdx()],
+				inlineConfig: {
+					root: fileURLToPath(root),
 					vite: { server: { middlewareMode: true } },
 				},
 			},
@@ -200,9 +199,8 @@ description: Astro is launching this week!
 		await runInContainerWithContentListeners(
 			{
 				fs,
-				root,
-				userConfig: {
-					integrations: [mdx()],
+				inlineConfig: {
+					root: fileURLToPath(root),
 					vite: { server: { middlewareMode: true } },
 				},
 			},
@@ -270,9 +268,8 @@ description: Astro is launching this week!
 		await runInContainerWithContentListeners(
 			{
 				fs,
-				root,
-				userConfig: {
-					integrations: [mdx()],
+				inlineConfig: {
+					root: fileURLToPath(root),
 					vite: { server: { middlewareMode: true } },
 				},
 			},

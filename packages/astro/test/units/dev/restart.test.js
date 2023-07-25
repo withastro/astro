@@ -7,8 +7,12 @@ import {
 	isStarted,
 	startContainer,
 } from '../../../dist/core/dev/index.js';
-import { createSettings, resolveConfig } from '../../../dist/core/config/index.js';
-import { createFs, createRequestAndResponse, triggerFSEvent } from '../test-utils.js';
+import {
+	createFs,
+	createRequestAndResponse,
+	defaultLogging,
+	triggerFSEvent,
+} from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -31,8 +35,10 @@ describe('dev container restarts', () => {
 			root
 		);
 
-		let restart = await createContainerWithAutomaticRestart({
-			params: { fs, root },
+		const restart = await createContainerWithAutomaticRestart({
+			fs,
+			inlineConfig: { root: fileURLToPath(root) },
+			logging: defaultLogging,
 		});
 
 		try {
@@ -94,8 +100,10 @@ describe('dev container restarts', () => {
 			root
 		);
 
-		let restart = await createContainerWithAutomaticRestart({
-			params: { fs, root },
+		const restart = await createContainerWithAutomaticRestart({
+			fs,
+			inlineConfig: { root: fileURLToPath(root) },
+			logging: defaultLogging,
 		});
 		await startContainer(restart.container);
 		expect(isStarted(restart.container)).to.equal(true);
@@ -122,11 +130,10 @@ describe('dev container restarts', () => {
 			troot
 		);
 
-		const { astroConfig } = await resolveConfig({ root: fileURLToPath(troot) }, 'dev');
-		const settings = createSettings(astroConfig, 'dev');
-
-		let restart = await createContainerWithAutomaticRestart({
-			params: { fs, root, settings },
+		const restart = await createContainerWithAutomaticRestart({
+			fs,
+			inlineConfig: { root: fileURLToPath(root) },
+			logging: defaultLogging,
 		});
 		await startContainer(restart.container);
 		expect(isStarted(restart.container)).to.equal(true);
@@ -151,11 +158,10 @@ describe('dev container restarts', () => {
 			root
 		);
 
-		const { astroConfig } = await resolveConfig({ root: fileURLToPath(root) }, 'dev');
-		const settings = createSettings(astroConfig, 'dev', fileURLToPath(root));
-
-		let restart = await createContainerWithAutomaticRestart({
-			params: { fs, root, settings },
+		const restart = await createContainerWithAutomaticRestart({
+			fs,
+			inlineConfig: { root: fileURLToPath(root) },
+			logging: defaultLogging,
 		});
 		await startContainer(restart.container);
 		expect(isStarted(restart.container)).to.equal(true);
@@ -178,11 +184,10 @@ describe('dev container restarts', () => {
 			root
 		);
 
-		const { astroConfig } = await resolveConfig({ root: fileURLToPath(root) }, 'dev');
-		const settings = createSettings(astroConfig, 'dev', fileURLToPath(root));
-
-		let restart = await createContainerWithAutomaticRestart({
-			params: { fs, root, settings },
+		const restart = await createContainerWithAutomaticRestart({
+			fs,
+			inlineConfig: { root: fileURLToPath(root) },
+			logging: defaultLogging,
 		});
 		await startContainer(restart.container);
 		expect(isStarted(restart.container)).to.equal(true);

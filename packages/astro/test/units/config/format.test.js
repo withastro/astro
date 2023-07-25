@@ -1,9 +1,6 @@
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { expect } from 'chai';
-
-import { runInContainer } from '../../../dist/core/dev/index.js';
-import { resolveConfig, createSettings } from '../../../dist/core/config/index.js';
-import { createFs } from '../test-utils.js';
+import { createFs, runInContainer } from '../test-utils.js';
 
 const root = new URL('../../fixtures/tailwindcss-ts/', import.meta.url);
 
@@ -21,10 +18,7 @@ describe('Astro config formats', () => {
 			root
 		);
 
-		const { astroConfig } = await resolveConfig({ root: fileURLToPath(root) }, 'dev', fs);
-		const settings = createSettings(astroConfig, 'dev');
-
-		await runInContainer({ fs, root, settings }, () => {
+		await runInContainer({ fs, inlineConfig: { root: fileURLToPath(root) } }, () => {
 			expect(true).to.equal(
 				true,
 				'We were able to get into the container which means the config loaded.'

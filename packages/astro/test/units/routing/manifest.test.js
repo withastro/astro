@@ -1,10 +1,8 @@
 import { expect } from 'chai';
 
-import { createFs } from '../test-utils.js';
-import { createRouteManifest } from '../../../dist/core/routing/manifest/create.js';
-import { createDefaultDevSettings } from '../../../dist/core/config/index.js';
 import { fileURLToPath } from 'node:url';
-import { defaultLogging } from '../test-utils.js';
+import { createRouteManifest } from '../../../dist/core/routing/manifest/create.js';
+import { createBasicSettings, createFs, defaultLogging } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -16,13 +14,11 @@ describe('routing - createRouteManifest', () => {
 			},
 			root
 		);
-		const settings = await createDefaultDevSettings(
-			{
-				base: '/search',
-				trailingSlash: 'never',
-			},
-			root
-		);
+		const settings = await createBasicSettings({
+			root: fileURLToPath(root),
+			base: '/search',
+			trailingSlash: 'never',
+		});
 		const manifest = createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
@@ -41,17 +37,15 @@ describe('routing - createRouteManifest', () => {
 			},
 			root
 		);
-		const settings = await createDefaultDevSettings(
-			{
-				base: '/search',
-				trailingSlash: 'never',
-				redirects: {
-					'/blog/[...slug]': '/',
-					'/blog/contributing': '/another',
-				},
+		const settings = await createBasicSettings({
+			root: fileURLToPath(root),
+			base: '/search',
+			trailingSlash: 'never',
+			redirects: {
+				'/blog/[...slug]': '/',
+				'/blog/contributing': '/another',
 			},
-			root
-		);
+		});
 		const manifest = createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
@@ -70,15 +64,13 @@ describe('routing - createRouteManifest', () => {
 			},
 			root
 		);
-		const settings = await createDefaultDevSettings(
-			{
-				trailingSlash: 'never',
-				redirects: {
-					'/foo': '/bar',
-				},
+		const settings = await createBasicSettings({
+			root: fileURLToPath(root),
+			trailingSlash: 'never',
+			redirects: {
+				'/foo': '/bar',
 			},
-			root
-		);
+		});
 		const manifest = createRouteManifest(
 			{
 				cwd: fileURLToPath(root),
