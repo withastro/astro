@@ -5,13 +5,11 @@ import {
 	HTMLString,
 	escapeHTML,
 	markHTMLString,
-	renderComponentToIterable,
 	renderToString,
 	spreadAttributes,
 	voidElementNames,
 } from './index.js';
-import { HTMLParts } from './render/common.js';
-import type { ComponentIterable } from './render/component';
+import { renderComponentToString } from './render/component.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
@@ -177,9 +175,9 @@ Did you forget to import the component or is it possible there is a typo?`);
 			await Promise.all(slotPromises);
 
 			props[Skip.symbol] = skip;
-			let output: ComponentIterable;
+			let output: string;
 			if (vnode.type === ClientOnlyPlaceholder && vnode.props['client:only']) {
-				output = await renderComponentToIterable(
+				output = await renderComponentToString(
 					result,
 					vnode.props['client:display-name'] ?? '',
 					null,
@@ -187,7 +185,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 					slots
 				);
 			} else {
-				output = await renderComponentToIterable(
+				output = await renderComponentToString(
 					result,
 					typeof vnode.type === 'function' ? vnode.type.name : vnode.type,
 					vnode.type,
@@ -195,15 +193,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 					slots
 				);
 			}
-			if (typeof output !== 'string' && Symbol.asyncIterator in output) {
-				let parts = new HTMLParts();
-				for await (const chunk of output) {
-					parts.append(chunk, result);
-				}
-				return markHTMLString(parts.toString());
-			} else {
-				return markHTMLString(output);
-			}
+			return markHTMLString(output);
 		}
 	}
 	// numbers, plain objects, etc
