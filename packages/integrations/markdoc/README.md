@@ -424,7 +424,7 @@ export default defineConfig({
 });
 ```
 
-> **Caution**
+> **Warning**
 > When `allowHTML` is enabled, HTML markup inside Markdoc documents will be rendered as actual HTML elements (including `<script>`), making attack vectors like XSS possible.
 >
 > Ensure that any HTML markup comes from trusted sources.
