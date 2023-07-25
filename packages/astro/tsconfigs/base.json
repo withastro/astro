@@ -10,9 +10,13 @@
     "allowImportingTsExtensions": true,
     // Enable JSON imports.
     "resolveJsonModule": true,
+    // Enforce the usage of type-only imports when needed, which helps avoiding bundling issues.
+    "verbatimModuleSyntax": true,
+    // Ensure that each file can be transpiled without relying on other imports.
+    "isolatedModules": true,
     // Astro directly run TypeScript code, no transpilation needed.
     "noEmit": true,
-    // Report an error when importing a file using a casing different from the casing on disk.
+    // Report an error when importing a file using a casing different from another import of the same file.
     "forceConsistentCasingInFileNames": true,
     // Properly support importing CJS modules in ESM
     "esModuleInterop": true,
