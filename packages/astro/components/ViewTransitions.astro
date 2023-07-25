@@ -43,12 +43,14 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 	function runScripts() {
 		let wait = Promise.resolve();
-		for(const script of Array.from(document.scripts)) {
+		for (const script of Array.from(document.scripts)) {
 			const s = document.createElement('script');
 			s.innerHTML = script.innerHTML;
-			for(const attr of script.attributes) {
-				if(attr.name === 'src') {
-					const p = new Promise(r => {s.onload = r});
+			for (const attr of script.attributes) {
+				if (attr.name === 'src') {
+					const p = new Promise((r) => {
+						s.onload = r;
+					});
 					wait = wait.then(() => p as any);
 				}
 				s.setAttribute(attr.name, attr.value);
@@ -191,6 +193,6 @@ const { fallback = 'animate' } = Astro.props as Props;
 				{ passive: true, capture: true }
 			);
 		});
-		addEventListener('load', onload)
+		addEventListener('load', onload);
 	}
 </script>
