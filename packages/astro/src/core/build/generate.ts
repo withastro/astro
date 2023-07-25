@@ -279,26 +279,39 @@ async function generatePage(
 		mod: pageModule,
 	};
 
-	const icon = pageData.route.type === 'page' ? green('▶') : magenta('λ');
-	if (isRelativePath(pageData.route.component)) {
-		logger.info(null, `${icon} ${pageData.route.route}`);
-	} else {
-		logger.info(null, `${icon} ${pageData.route.component}`);
-	}
-
 	// Get paths for the route, calling getStaticPaths if needed.
 	const paths = await getPathsForRoute(pageData, pageModule, pipeline, builtPaths);
 
+	// We do this here to get the stat `filteredPaths / paths` for info logging.
+	const filteredPaths = paths.filter((path) => pathFilter?.(path));
+
+	// Cleanup entries added from `getPathsForRoute`
+	const skippedPaths = paths.filter((path) => !filteredPaths.includes(path));
+	skippedPaths.forEach((path) => builtPaths.delete(removeTrailingForwardSlash(path)));
+
+	const routesSkipped =
+		filteredPaths.length === 0
+			? dim('[skipped fully]')
+			: filteredPaths.length < paths.length
+			? dim(`[skipped ${paths.length - filteredPaths.length} paths of ${paths.length}]`)
+			: '';
+
+	const icon = pageData.route.type === 'page' ? green('▶') : magenta('λ');
+	if (isRelativePath(pageData.route.component)) {
+		logger.info(null, `${icon} ${pageData.route.route} ${routesSkipped}`);
+	} else {
+		logger.info(null, `${icon} ${pageData.route.component} ${routesSkipped}`);
+	}
+
 	let prevTimeEnd = timeStart;
-	for (let i = 0; i < paths.length; i++) {
-		const path = paths[i];
-		if (pathFilter && !pathFilter(path)) continue;
+	for (let i = 0; i < filteredPaths.length; i++) {
+		const path = filteredPaths[i];
 		await generatePath(path, generationOptions, pipeline);
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
 		const filePath = getOutputFilename(pipeline.getConfig(), path, pageData.route.type);
-		const lineIcon = i === paths.length - 1 ? '└─' : '├─';
+		const lineIcon = i === filteredPaths.length - 1 ? '└─' : '├─';
 		logger.info(null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
 		prevTimeEnd = timeEnd;
 	}

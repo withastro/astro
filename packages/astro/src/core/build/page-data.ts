@@ -37,7 +37,9 @@ export async function collectPagesData(
 	for (const route of manifest.routes) {
 		// static route:
 		if (route.pathname) {
-			if (!opts.settings.config.build.filterPage(route.pathname)) continue;
+			if (route.prerender && !opts.settings.config.build.filterPage(route.pathname)) {
+				continue;
+			}
 
 			const routeCollectionLogTimeout = setInterval(() => {
 				opts.logger.info(
