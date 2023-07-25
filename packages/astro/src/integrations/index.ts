@@ -16,7 +16,7 @@ import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/index.js';
-import { info, type LogOptions } from '../core/logger/core.js';
+import { info, type LogOptions, AstroIntegrationLogger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 
 async function withTakingALongTimeMsg<T>({
@@ -36,6 +36,19 @@ async function withTakingALongTimeMsg<T>({
 	const result = await hookResult;
 	clearTimeout(timeout);
 	return result;
+}
+
+// Internally used to store instances of loggers.
+const Loggers = new Map<string, AstroIntegrationLogger>();
+
+function getLogger(adapterName: string, logging: LogOptions) {
+	if (Loggers.has(adapterName)) {
+		// SAFETY: we check the existence in the if block
+		return Loggers.get(adapterName)!;
+	}
+	const logger = new AstroIntegrationLogger(logging, adapterName);
+	Loggers.set(adapterName, logger);
+	return logger;
 }
 
 export async function runHookConfigSetup({
@@ -72,6 +85,8 @@ export async function runHookConfigSetup({
 		 * ```
 		 */
 		if (integration.hooks?.['astro:config:setup']) {
+			const logger = getLogger(integration.name, logging);
+
 			const hooks: HookParameters<'astro:config:setup'> = {
 				config: updatedConfig,
 				command,
@@ -144,7 +159,7 @@ export async function runHookConfigSetup({
 
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:config:setup'](hooks),
+				hookResult: integration.hooks['astro:config:setup'](hooks, { logger }),
 				logging,
 			});
 
@@ -167,20 +182,24 @@ export async function runHookConfigDone({
 	logging: LogOptions;
 }) {
 	for (const integration of settings.config.integrations) {
+		const logger = getLogger(integration.name, logging);
 		if (integration?.hooks?.['astro:config:done']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:config:done']({
-					config: settings.config,
-					setAdapter(adapter) {
-						if (settings.adapter && settings.adapter.name !== adapter.name) {
-							throw new Error(
-								`Integration "${integration.name}" conflicts with "${settings.adapter.name}". You can only configure one deployment integration.`
-							);
-						}
-						settings.adapter = adapter;
+				hookResult: integration.hooks['astro:config:done'](
+					{
+						config: settings.config,
+						setAdapter(adapter) {
+							if (settings.adapter && settings.adapter.name !== adapter.name) {
+								throw new Error(
+									`Integration "${integration.name}" conflicts with "${settings.adapter.name}". You can only configure one deployment integration.`
+								);
+							}
+							settings.adapter = adapter;
+						},
 					},
-				}),
+					{ logger }
+				),
 				logging,
 			});
 		}
@@ -198,9 +217,10 @@ export async function runHookServerSetup({
 }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:server:setup']) {
+			const logger = getLogger(integration.name, logging);
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:server:setup']({ server }),
+				hookResult: integration.hooks['astro:server:setup']({ server }, { logger }),
 				logging,
 			});
 		}
@@ -217,10 +237,12 @@ export async function runHookServerStart({
 	logging: LogOptions;
 }) {
 	for (const integration of config.integrations) {
+		const logger = getLogger(integration.name, logging);
+
 		if (integration?.hooks?.['astro:server:start']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:server:start']({ address }),
+				hookResult: integration.hooks['astro:server:start']({ address }, { logger }),
 				logging,
 			});
 		}
@@ -235,10 +257,12 @@ export async function runHookServerDone({
 	logging: LogOptions;
 }) {
 	for (const integration of config.integrations) {
+		const logger = getLogger(integration.name, logging);
+
 		if (integration?.hooks?.['astro:server:done']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:server:done'](),
+				hookResult: integration.hooks['astro:server:done']({ logger }),
 				logging,
 			});
 		}
@@ -254,9 +278,11 @@ export async function runHookBuildStart({
 }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:start']) {
+			const logger = getLogger(integration.name, logging);
+
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:build:start'](),
+				hookResult: integration.hooks['astro:build:start']({ logger }),
 				logging,
 			});
 		}
@@ -280,16 +306,21 @@ export async function runHookBuildSetup({
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:setup']) {
+			const logger = getLogger(integration.name, logging);
+
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:build:setup']({
-					vite,
-					pages,
-					target,
-					updateConfig: (newConfig) => {
-						updatedConfig = mergeConfig(updatedConfig, newConfig);
+				hookResult: integration.hooks['astro:build:setup'](
+					{
+						vite,
+						pages,
+						target,
+						updateConfig: (newConfig) => {
+							updatedConfig = mergeConfig(updatedConfig, newConfig);
+						},
 					},
-				}),
+					{ logger }
+				),
 				logging,
 			});
 		}
@@ -315,13 +346,18 @@ export async function runHookBuildSsr({
 }: RunHookBuildSsr) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:ssr']) {
+			const logger = getLogger(integration.name, logging);
+
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:build:ssr']({
-					manifest,
-					entryPoints,
-					middlewareEntryPoint,
-				}),
+				hookResult: integration.hooks['astro:build:ssr'](
+					{
+						manifest,
+						entryPoints,
+						middlewareEntryPoint,
+					},
+					{ logger }
+				),
 				logging,
 			});
 		}
@@ -338,10 +374,12 @@ export async function runHookBuildGenerated({
 	const dir = isServerLikeOutput(config) ? config.build.client : config.outDir;
 
 	for (const integration of config.integrations) {
+		const logger = getLogger(integration.name, logging);
+
 		if (integration?.hooks?.['astro:build:generated']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:build:generated']({ dir }),
+				hookResult: integration.hooks['astro:build:generated']({ dir }, { logger }),
 				logging,
 			});
 		}
@@ -361,13 +399,18 @@ export async function runHookBuildDone({ config, pages, routes, logging }: RunHo
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:done']) {
+			const logger = getLogger(integration.name, logging);
+
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:build:done']({
-					pages: pages.map((p) => ({ pathname: p })),
-					dir,
-					routes,
-				}),
+				hookResult: integration.hooks['astro:build:done'](
+					{
+						pages: pages.map((p) => ({ pathname: p })),
+						dir,
+						routes,
+					},
+					{ logger }
+				),
 				logging,
 			});
 		}
