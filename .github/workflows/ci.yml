@@ -178,6 +178,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Install Replay Playwright
+        run: npx @replayio/playwright install        
+
       - name: Build Packages
         run: pnpm run build
 
