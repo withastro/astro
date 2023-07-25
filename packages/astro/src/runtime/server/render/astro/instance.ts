@@ -6,6 +6,7 @@ import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
 import { isAPropagatingComponent } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
+import type { RenderDestination } from '../common.js';
 
 type ComponentProps = Record<string | number, any>;
 
@@ -40,7 +41,7 @@ export class AstroComponentInstance {
 		return this.returnValue;
 	}
 
-	async *render() {
+	async render(destination: RenderDestination) {
 		if (this.returnValue === undefined) {
 			await this.init(this.result);
 		}
@@ -50,9 +51,9 @@ export class AstroComponentInstance {
 			value = await value;
 		}
 		if (isHeadAndContent(value)) {
-			yield* value.content;
+			await value.content.render(destination);
 		} else {
-			yield* renderChild(value);
+			await renderChild(destination, value);
 		}
 	}
 }
@@ -71,7 +72,7 @@ function validateComponentProps(props: any, displayName: string) {
 	}
 }
 
-export function createAstroComponentInstance(
+export async function createAstroComponentInstance(
 	result: SSRResult,
 	displayName: string,
 	factory: AstroComponentFactory,
@@ -80,9 +81,16 @@ export function createAstroComponentInstance(
 ) {
 	validateComponentProps(props, displayName);
 	const instance = new AstroComponentInstance(result, props, slots, factory);
+
 	if (isAPropagatingComponent(result, factory) && !result._metadata.propagators.has(factory)) {
 		result._metadata.propagators.set(factory, instance);
+		// Call component instances that might have head content to be propagated up.
+		const returnValue = await instance.init(result);
+		if (isHeadAndContent(returnValue)) {
+			result._metadata.extraHead.push(returnValue.head);
+		}
 	}
+
 	return instance;
 }
 
