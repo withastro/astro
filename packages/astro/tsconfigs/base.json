@@ -13,6 +13,7 @@
     // Enforce the usage of type-only imports when needed, which helps avoiding bundling issues.
     "verbatimModuleSyntax": true,
     // Ensure that each file can be transpiled without relying on other imports.
+    // This is redundant with the previous option, however it ensures that it's on even if someone disable `verbatimModuleSyntax`
     "isolatedModules": true,
     // Astro directly run TypeScript code, no transpilation needed.
     "noEmit": true,
