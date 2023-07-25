@@ -887,22 +887,22 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name build.filterPage
-		 * @type {(pagePath: string) => boolean}
+		 * @type {(pageURL: string) => boolean}
 		 * @default `undefined`
 		 * @version 2.10.0
 		 * @description
-		 * When defined, will be called for every single page to be generated (before generation) and gives opportunity to skip the generation of the page (based on user defined criterias)
+		 * When defined, will be called for every single page about to be generated and gives opportunity to skip the page. When returning `false`, the page matching the finale `pageURL` will be excluded from the static build.
 		 *
 		 * ```js
 		 * {
 		 *   build: {
-		 *     // will exclude all /dev/ from being generated
-		 *     filterPage: (pagePath) => !pagePath.startsWith('/dev/')
+		 *     // will exclude all /dev/* pages from being generated
+		 *     filterPage: (pageURL) => !pageURL.startsWith('/dev/')
 		 *   }
 		 * }
 		 * ```
 		 */
-		filterPage?: (pagePath: string) => boolean;
+		filterPage?: (pageURL: string) => boolean;
 	};
 
 	/**
