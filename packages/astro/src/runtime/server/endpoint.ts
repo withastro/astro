@@ -9,9 +9,8 @@ function getHandlerFromModule(mod: EndpointHandler, method: string, logging: Log
 		warn(
 			logging,
 			'astro',
-			"Lower case endpoint points are deprecated. In Astro 4.0 it won't work anymore."
+			`Lower case endpoint names are deprecated and will not be supported in Astro 4.0. Rename the endpoint ${lowerCaseMethod} to ${method}.`
 		);
-		info(logging, 'astro', `Rename the endpoint ${lowerCaseMethod} to ${method}`);
 	}
 	// If there was an exact match on `method`, return that function.
 	if (mod[method]) {
