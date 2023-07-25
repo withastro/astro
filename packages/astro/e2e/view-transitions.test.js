@@ -128,10 +128,6 @@ test.describe('View Transitions', () => {
 	});
 
 	test('Stylesheets in the head are waited on', async ({ page, astro }) => {
-		page.addListener('console', (data) => {
-			console.log(data);
-		});
-
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
@@ -142,5 +138,24 @@ test.describe('View Transitions', () => {
 		p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
 		await expect(p, 'imported CSS updated').toHaveCSS('font-size', '24px');
+	});
+
+	test('astro:load event fires when navigating to new page', async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		const p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page 2
+		await page.click('#click-two');
+		const article = page.locator('#twoarticle');
+		await expect(article, 'should have script content').toHaveText('works');
+	});
+
+	test('astro:load event fires when navigating directly to a page', async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/two'));
+		const article = page.locator('#twoarticle');
+		await expect(article, 'should have script content').toHaveText('works');
 	});
 });
