@@ -140,7 +140,7 @@ export const AstroConfigSchema = z.object({
 			filterPage: z
 				.function()
 				.optional()
-				.default(() => true),
+				.default(() => () => true),
 		})
 		.optional()
 		.default({}),
@@ -356,7 +356,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				filterPage: z
 					.function()
 					.optional()
-					.default(() => true),
+					.default(() => () => true),
 			})
 			.optional()
 			.default({}),
