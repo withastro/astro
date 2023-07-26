@@ -72,6 +72,26 @@ describe('Content Collections - render()', () => {
 			expect($('script[data-is-inline]')).to.have.a.lengthOf(1);
 		});
 
+		it('Includes component scripts for indirectly rendered entry', async () => {
+			const html = await fixture.readFile('/launch-week-component-rendered-indirectly/index.html');
+			const $ = cheerio.load(html);
+
+			const allScripts = $('head > script[type="module"]');
+			expect(allScripts).to.have.length;
+
+			// Includes hoisted script
+			expect(
+				[...allScripts].find((script) => $(script).attr('src')?.includes('WithScripts')),
+				'`WithScripts.astro` hoisted script missing from head.'
+			).to.not.be.undefined;
+
+			// Includes inline script
+			expect($('script[data-is-inline]')).to.have.a.lengthOf(1);
+		});
+
+		it('Includes component styles for indirectly rendered entry', async () => {
+		});
+
 		it('Excludes component scripts for non-rendered entries', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
@@ -219,6 +239,29 @@ describe('Content Collections - render()', () => {
 
 			// Includes inline script
 			expect($('script[data-is-inline]')).to.have.a.lengthOf(1);
+		});
+
+		it('Includes component scripts for indirectly rendered entry', async () => {
+			const response = await fixture.fetch('/launch-week-component-rendered-indirectly', { method: 'GET' });
+			expect(response.status).to.equal(200);
+
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const allScripts = $('head > script[src]');
+			expect(allScripts).to.have.length;
+
+			// Includes hoisted script
+			expect(
+				[...allScripts].find((script) => script.attribs.src.includes('WithScripts.astro')),
+				'`WithScripts.astro` hoisted script missing from head.'
+			).to.not.be.undefined;
+
+			// Includes inline script
+			expect($('script[data-is-inline]')).to.have.a.lengthOf(1);
+		});
+
+		it('Includes component styles for indirectly rendered entry', async () => {
 		});
 
 		it('Applies MDX components export', async () => {
