@@ -105,7 +105,7 @@ export async function check({ logging, flags }: CheckPayload): Promise<AstroChec
 		info(logging, 'check', 'Checking files');
 	}
 
-	const { syncCli } = await import('../../core/sync/index.js');
+	const { syncInternal } = await import('../../core/sync/index.js');
 	const root = settings.config.root;
 	const require = createRequire(import.meta.url);
 	const diagnosticChecker = new AstroCheck(
@@ -116,7 +116,7 @@ export async function check({ logging, flags }: CheckPayload): Promise<AstroChec
 	);
 
 	return new AstroChecker({
-		syncCli,
+		syncInternal,
 		settings,
 		fileSystem: fs,
 		logging,
@@ -130,7 +130,7 @@ type CheckerConstructor = {
 
 	isWatchMode: boolean;
 
-	syncCli: (settings: AstroSettings, options: SyncOptions) => Promise<ProcessExit>;
+	syncInternal: (settings: AstroSettings, options: SyncOptions) => Promise<ProcessExit>;
 
 	settings: Readonly<AstroSettings>;
 
@@ -148,7 +148,7 @@ type CheckerConstructor = {
 export class AstroChecker {
 	readonly #diagnosticsChecker: AstroCheck;
 	readonly #shouldWatch: boolean;
-	readonly #syncCli: (settings: AstroSettings, opts: SyncOptions) => Promise<ProcessExit>;
+	readonly #syncInternal: (settings: AstroSettings, opts: SyncOptions) => Promise<ProcessExit>;
 
 	readonly #settings: AstroSettings;
 
@@ -162,14 +162,14 @@ export class AstroChecker {
 	constructor({
 		diagnosticChecker,
 		isWatchMode,
-		syncCli,
+		syncInternal,
 		settings,
 		fileSystem,
 		logging,
 	}: CheckerConstructor) {
 		this.#diagnosticsChecker = diagnosticChecker;
 		this.#shouldWatch = isWatchMode;
-		this.#syncCli = syncCli;
+		this.#syncInternal = syncInternal;
 		this.#logging = logging;
 		this.#settings = settings;
 		this.#fs = fileSystem;
@@ -223,7 +223,7 @@ export class AstroChecker {
 	 * @param openDocuments Whether the operation should open all `.astro` files
 	 */
 	async #checkAllFiles(openDocuments: boolean): Promise<CheckResult> {
-		const processExit = await this.#syncCli(this.#settings, {
+		const processExit = await this.#syncInternal(this.#settings, {
 			logging: this.#logging,
 			fs: this.#fs,
 		});
