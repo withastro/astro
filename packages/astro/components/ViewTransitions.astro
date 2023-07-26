@@ -25,6 +25,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 	const supportsViewTransitions = !!document.startViewTransition;
 	const transitionEnabledOnThisPage = () =>
 		!!document.querySelector('[name="astro-view-transitions-enabled"]');
+	const onload = () => document.dispatchEvent(new Event('astro:load'));
 
 	async function getHTML(href: string) {
 		const res = await fetch(href);
@@ -40,12 +41,44 @@ const { fallback = 'animate' } = Astro.props as Props;
 		return 'animate';
 	}
 
+	function runScripts() {
+		let wait = Promise.resolve();
+		for (const script of Array.from(document.scripts)) {
+			const s = document.createElement('script');
+			s.innerHTML = script.innerHTML;
+			for (const attr of script.attributes) {
+				if (attr.name === 'src') {
+					const p = new Promise((r) => {
+						s.onload = r;
+					});
+					wait = wait.then(() => p as any);
+				}
+				s.setAttribute(attr.name, attr.value);
+			}
+			script.replaceWith(s);
+		}
+		return wait;
+	}
+
 	const parser = new DOMParser();
 
 	async function updateDOM(dir: Direction, html: string, fallback?: Fallback) {
 		const doc = parser.parseFromString(html, 'text/html');
 		doc.documentElement.dataset.astroTransition = dir;
 		const swap = () => document.documentElement.replaceWith(doc.documentElement);
+
+		// Wait on links to finish, to prevent FOUC
+		const links = Array.from(doc.querySelectorAll('head link[rel=stylesheet]')).map(
+			(link) =>
+				new Promise((resolve) => {
+					const c = link.cloneNode();
+					['load', 'error'].forEach((evName) => c.addEventListener(evName, resolve));
+					document.head.append(c);
+				})
+		);
+		if (links.length) {
+			await Promise.all(links);
+		}
 
 		if (fallback === 'animate') {
 			let isAnimating = false;
@@ -82,6 +115,8 @@ const { fallback = 'animate' } = Astro.props as Props;
 			await finished;
 		} finally {
 			document.documentElement.removeAttribute('data-astro-transition');
+			await runScripts();
+			onload();
 		}
 	}
 
@@ -128,7 +163,12 @@ const { fallback = 'animate' } = Astro.props as Props;
 			}
 		});
 		window.addEventListener('popstate', () => {
-			if (!transitionEnabledOnThisPage()) return;
+			if (!transitionEnabledOnThisPage()) {
+				// The current page doesn't haven't View Transitions,
+				// respect that with a full page reload
+				location.reload();
+				return;
+			}
 			const nextIndex = history.state?.index ?? currentHistoryIndex + 1;
 			const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
 			navigate(direction, location.href);
@@ -153,5 +193,6 @@ const { fallback = 'animate' } = Astro.props as Props;
 				{ passive: true, capture: true }
 			);
 		});
+		addEventListener('load', onload);
 	}
 </script>

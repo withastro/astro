@@ -147,7 +147,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 
 				function updateImageReferences(html) {
 					return html.replaceAll(
-						/__ASTRO_IMAGE_=\"(.+)\"/gm,
+						/__ASTRO_IMAGE_="([^"]+)"/gm,
 						(full, imagePath) => spreadAttributes({src: images[imagePath].src, ...images[imagePath].attributes})
 					);
 				}

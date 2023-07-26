@@ -38,10 +38,10 @@ export async function getImage(
 
 	const service = await getConfiguredImageService();
 	const validatedOptions = service.validateOptions
-		? service.validateOptions(options, serviceConfig)
+		? await service.validateOptions(options, serviceConfig)
 		: options;
 
-	let imageURL = service.getURL(validatedOptions, serviceConfig);
+	let imageURL = await service.getURL(validatedOptions, serviceConfig);
 
 	// In build and for local services, we need to collect the requested parameters so we can generate the final images
 	if (isLocalService(service) && globalThis.astroAsset.addStaticImage) {

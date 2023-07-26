@@ -49,7 +49,7 @@ export function fade({
 }: {
 	duration?: string | number;
 } = {}): TransitionDirectionalAnimations {
-	const anim: TransitionAnimationPair = {
+	const anim = {
 		old: {
 			name: 'astroFadeInOut',
 			duration: duration ?? '0.2s',
@@ -62,7 +62,7 @@ export function fade({
 			easing: 'linear',
 			fillMode: 'backwards',
 		},
-	};
+	} satisfies TransitionAnimationPair;
 
 	return {
 		forwards: anim,

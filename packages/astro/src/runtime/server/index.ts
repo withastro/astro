@@ -16,9 +16,8 @@ export {
 	defineScriptVars,
 	Fragment,
 	maybeRenderHead,
-	renderAstroTemplateResult as renderAstroComponent,
+	renderTemplate as render,
 	renderComponent,
-	renderComponentToIterable,
 	Renderer as Renderer,
 	renderHead,
 	renderHTMLElement,
@@ -26,11 +25,9 @@ export {
 	renderScriptElement,
 	renderSlot,
 	renderSlotToString,
-	renderTemplate as render,
 	renderTemplate,
 	renderToString,
 	renderUniqueStylesheet,
-	stringifyChunk,
 	voidElementNames,
 } from './render/index.js';
 export type {

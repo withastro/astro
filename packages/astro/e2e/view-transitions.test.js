@@ -104,4 +104,58 @@ test.describe('View Transitions', () => {
 			'There should be 2 page loads. The original, then going from 3 to 2'
 		).toEqual(2);
 	});
+
+	test('Moving from a page without ViewTransitions w/ back button', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// Go to page 3 which does *not* have ViewTransitions enabled
+		await page.click('#click-three');
+		p = page.locator('#three');
+		await expect(p, 'should have content').toHaveText('Page 3');
+
+		// Back to page 1
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+	});
+
+	test('Stylesheets in the head are waited on', async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// Go to page 2
+		await page.click('#click-two');
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+		await expect(p, 'imported CSS updated').toHaveCSS('font-size', '24px');
+	});
+
+	test('astro:load event fires when navigating to new page', async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		const p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page 2
+		await page.click('#click-two');
+		const article = page.locator('#twoarticle');
+		await expect(article, 'should have script content').toHaveText('works');
+	});
+
+	test('astro:load event fires when navigating directly to a page', async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/two'));
+		const article = page.locator('#twoarticle');
+		await expect(article, 'should have script content').toHaveText('works');
+	});
 });

@@ -41,7 +41,6 @@ export async function cachedFullCompilation({
 			tsconfigRaw: {
 				compilerOptions: {
 					// Ensure client:only imports are treeshaken
-					// @ts-expect-error anticipate esbuild 0.18 feature
 					verbatimModuleSyntax: false,
 					importsNotUsedAsValues: 'remove',
 				},
