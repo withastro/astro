@@ -1,5 +1,5 @@
 
-export function get() {
+export function GET() {
 	return {
 		body: JSON.stringify([
 			{ name: 'lettuce' },
@@ -9,7 +9,7 @@ export function get() {
 	};
 }
 
-export async function post({ params, request }) {
+export async function POST({ params, request }) {
 	const body = await request.text();
 	return new Response(body === `some data` ? `ok` : `not ok`, {
 		status: 200,

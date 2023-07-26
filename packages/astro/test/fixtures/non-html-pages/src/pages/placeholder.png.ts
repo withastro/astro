@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 
 import type { APIRoute } from 'astro';
 
-export const get: APIRoute = async function get() {
+export const GET: APIRoute = async function get() {
 	try {
 		// Image is in the public domain. Sourced from
 		// https://en.wikipedia.org/wiki/File:Portrait_placeholder.png

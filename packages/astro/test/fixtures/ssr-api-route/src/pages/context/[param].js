@@ -1,7 +1,7 @@
 /**
  * @param {import('astro').APIContext} api 
  */
-export function get(ctx) {
+export function GET(ctx) {
 	return {
 		body: JSON.stringify({
 			cookiesExist: !!ctx.cookies,
