@@ -9,12 +9,13 @@ export function getAdapter(options: Options): AstroAdapter {
 		exports: ['handler', 'startServer'],
 		args: options,
 		supportedFeatures: {
-			functionPerPage: 'Stable',
-			edgeMiddleware: 'Stable',
 			hybridOutput: 'Stable',
 			staticOutput: 'Stable',
 			serverOutput: 'Stable',
-			assets: 'Experimental',
+			assets: {
+				supportKind: 'Stable',
+				isNodeCompatible: true,
+			},
 		},
 	};
 }

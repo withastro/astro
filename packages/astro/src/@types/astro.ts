@@ -1676,14 +1676,6 @@ export type AstroAdapterFeatureMap = {
 	 */
 	serverOutput?: SupportsKind;
 	/**
-	 * Support for emitting a SSR file per page
-	 */
-	functionPerPage?: SupportsKind;
-	/**
-	 * Support when `build.ecludeMiddleware` is enabled.
-	 */
-	edgeMiddleware?: SupportsKind;
-	/**
 	 * The adapter can emit static assets
 	 */
 	assets?: {

@@ -15,12 +15,13 @@ export function getAdapter(args: Args = {}): AstroAdapter {
 		exports: ['handler'],
 		args,
 		supportedFeatures: {
-			functionPerPage: 'Experimental',
-			edgeMiddleware: 'Experimental',
 			hybridOutput: 'Stable',
 			staticOutput: 'Stable',
 			serverOutput: 'Stable',
-			assets: 'Unsupported',
+			assets: {
+				supportKind: 'Stable',
+				isNodeCompatible: true,
+			},
 		},
 	};
 }

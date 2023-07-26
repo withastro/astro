@@ -239,9 +239,7 @@ export async function runHookConfigDone({
 const ALL_UNSUPPORTED: Required<AstroAdapterFeatureMap> = {
 	serverOutput: UNSUPPORTED,
 	staticOutput: UNSUPPORTED,
-	edgeMiddleware: UNSUPPORTED,
 	hybridOutput: UNSUPPORTED,
-	functionPerPage: UNSUPPORTED,
 	assets: { supportKind: UNSUPPORTED },
 };
 
@@ -263,29 +261,13 @@ export function validateSupportedFeatures(
 	logging: LogOptions
 ): ValidationResult {
 	const {
-		functionPerPage = UNSUPPORTED,
-		edgeMiddleware = UNSUPPORTED,
 		assets,
 		serverOutput = UNSUPPORTED,
 		staticOutput = UNSUPPORTED,
 		hybridOutput = UNSUPPORTED,
 	} = featureMap;
 	const validationResult: ValidationResult = {};
-	validationResult.functionPerPage = validateSupportKind(
-		functionPerPage,
-		adapterName,
-		logging,
-		'functionPerPage',
-		() => config?.build?.split === true && config?.output === 'server'
-	);
 
-	validationResult.edgeMiddleware = validateSupportKind(
-		edgeMiddleware,
-		adapterName,
-		logging,
-		'edgeMiddleware',
-		() => config?.build?.excludeMiddleware === true
-	);
 	validationResult.staticOutput = validateSupportKind(
 		staticOutput,
 		adapterName,

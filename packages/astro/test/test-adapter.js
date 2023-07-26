@@ -72,8 +72,6 @@ export default function (
 					serverEntrypoint: '@my-ssr',
 					exports: ['manifest', 'createApp'],
 					supportedFeatures: {
-						edgeMiddleware: 'Stable',
-						functionPerPage: 'Stable',
 						assets: {
 							supportKind: 'Stable',
 							isNodeCompatible: true,

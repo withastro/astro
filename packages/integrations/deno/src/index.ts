@@ -90,12 +90,13 @@ export function getAdapter(args?: Options): AstroAdapter {
 		args: args ?? {},
 		exports: ['stop', 'handle', 'start', 'running'],
 		supportedFeatures: {
-			functionPerPage: 'Unsupported',
-			edgeMiddleware: 'Unsupported',
 			hybridOutput: 'Stable',
 			staticOutput: 'Stable',
 			serverOutput: 'Stable',
-			assets: 'Unsupported',
+			assets: {
+				supportKind: 'Unsupported',
+				isNodeCompatible: false,
+			},
 		},
 	};
 }
