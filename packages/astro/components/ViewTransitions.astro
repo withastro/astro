@@ -13,6 +13,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 <script>
 	type Fallback = 'none' | 'animate' | 'swap';
 	type Direction = 'forward' | 'back';
+	type Events = 'astro:load' | 'astro:beforeload';
 
 	// The History API does not tell you if navigation is forward or back, so
 	// you can figure it using an index. On pushState the index is incremented so you
@@ -25,7 +26,8 @@ const { fallback = 'animate' } = Astro.props as Props;
 	const supportsViewTransitions = !!document.startViewTransition;
 	const transitionEnabledOnThisPage = () =>
 		!!document.querySelector('[name="astro-view-transitions-enabled"]');
-	const onload = () => document.dispatchEvent(new Event('astro:load'));
+	const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
+	const onload = () => triggerEvent('astro:load');
 
 	async function getHTML(href: string) {
 		const res = await fetch(href);
@@ -65,7 +67,10 @@ const { fallback = 'animate' } = Astro.props as Props;
 	async function updateDOM(dir: Direction, html: string, fallback?: Fallback) {
 		const doc = parser.parseFromString(html, 'text/html');
 		doc.documentElement.dataset.astroTransition = dir;
-		const swap = () => document.documentElement.replaceWith(doc.documentElement);
+		const swap = () => {
+			document.documentElement.replaceWith(doc.documentElement);
+			triggerEvent('astro:beforeload')
+		}
 
 		// Wait on links to finish, to prevent FOUC
 		const links = Array.from(doc.querySelectorAll('head link[rel=stylesheet]')).map(
