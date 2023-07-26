@@ -13,7 +13,7 @@ import { createDefaultDevConfig } from './config.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
 
-export function createBaseSettings(config: AstroConfig, mode: 'build' | 'dev'): AstroSettings {
+export function createBaseSettings(config: AstroConfig): AstroSettings {
 	const { contentDir } = getContentPaths(config);
 	return {
 		config,
@@ -104,13 +104,9 @@ export function createBaseSettings(config: AstroConfig, mode: 'build' | 'dev'): 
 	};
 }
 
-export function createSettings(
-	config: AstroConfig,
-	mode: 'build' | 'dev',
-	cwd?: string
-): AstroSettings {
+export function createSettings(config: AstroConfig, cwd?: string): AstroSettings {
 	const tsconfig = loadTSConfig(cwd);
-	const settings = createBaseSettings(config, mode);
+	const settings = createBaseSettings(config);
 
 	const watchFiles = tsconfig?.exists ? [tsconfig.path, ...tsconfig.extendedPaths] : [];
 
@@ -132,5 +128,5 @@ export async function createDefaultDevSettings(
 		root = fileURLToPath(root);
 	}
 	const config = await createDefaultDevConfig(userConfig, root);
-	return createBaseSettings(config, 'dev');
+	return createBaseSettings(config);
 }
