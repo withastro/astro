@@ -19,6 +19,7 @@ import { printHelp } from '../../core/messages.js';
 import type { ProcessExit, SyncOptions } from '../../core/sync';
 import { loadSettings } from '../load-settings.js';
 import { printDiagnostic } from './print.js';
+import { runHookConfigSetup } from '../../integrations/index.js';
 
 type DiagnosticResult = {
 	errors: number;
@@ -223,7 +224,14 @@ export class AstroChecker {
 	 * @param openDocuments Whether the operation should open all `.astro` files
 	 */
 	async #checkAllFiles(openDocuments: boolean): Promise<CheckResult> {
-		const processExit = await this.#syncInternal(this.#settings, {
+		// Run `astro:config:setup` before syncing to initialize integrations.
+		// We do this manually as we're calling `syncInternal` directly.
+		const syncSettings = await runHookConfigSetup({
+			settings: this.#settings,
+			logging: this.#logging,
+			command: 'build',
+		});
+		const processExit = await this.#syncInternal(syncSettings, {
 			logging: this.#logging,
 			fs: this.#fs,
 		});
