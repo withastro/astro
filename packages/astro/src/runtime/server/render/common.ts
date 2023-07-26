@@ -1,7 +1,7 @@
 import type { SSRResult } from '../../../@types/astro';
 import type { RenderInstruction } from './types.js';
 
-import { HTMLBytes, markHTMLString } from '../escape.js';
+import { HTMLBytes, HTMLString, markHTMLString } from '../escape.js';
 import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
@@ -11,12 +11,32 @@ import {
 import { renderAllHeadContent } from './head.js';
 import { isSlotString, type SlotString } from './slot.js';
 
+/**
+ * Possible chunk types to be written to the destination, and it'll
+ * handle stringifying them at the end.
+ *
+ * NOTE: Try to reduce adding new types here. If possible, serialize
+ * the custom types to a string in `renderChild` in `any.ts`.
+ */
+export type RenderDestinationChunk =
+	| string
+	| HTMLBytes
+	| HTMLString
+	| SlotString
+	| ArrayBufferView
+	| RenderInstruction
+	| Response;
+
 export interface RenderDestination {
 	/**
 	 * Any rendering logic should call this to construct the HTML output.
-	 * See the `chunk` parameter for possible writable values
+	 * See the `chunk` parameter for possible writable values.
 	 */
-	write(chunk: string | HTMLBytes | RenderInstruction | Response): void;
+	write(chunk: RenderDestinationChunk): void;
+}
+
+export interface RenderInstance {
+	render(destination: RenderDestination): Promise<void> | void;
 }
 
 export const Fragment = Symbol.for('astro:fragment');
@@ -28,9 +48,9 @@ export const decoder = new TextDecoder();
 // Rendering produces either marked strings of HTML or instructions for hydration.
 // These directive instructions bubble all the way up to renderPage so that we
 // can ensure they are added only once, and as soon as possible.
-export function stringifyChunk(
+function stringifyChunk(
 	result: SSRResult,
-	chunk: string | SlotString | RenderInstruction
+	chunk: string | HTMLString | SlotString | RenderInstruction
 ): string {
 	if (typeof (chunk as any).type === 'string') {
 		const instruction = chunk as RenderInstruction;
@@ -89,27 +109,7 @@ export function stringifyChunk(
 	}
 }
 
-export class HTMLParts {
-	public parts: string;
-	constructor() {
-		this.parts = '';
-	}
-	append(part: string | HTMLBytes | RenderInstruction, result: SSRResult) {
-		if (ArrayBuffer.isView(part)) {
-			this.parts += decoder.decode(part);
-		} else {
-			this.parts += stringifyChunk(result, part);
-		}
-	}
-	toString() {
-		return this.parts;
-	}
-	toArrayBuffer() {
-		return encoder.encode(this.parts);
-	}
-}
-
-export function chunkToString(result: SSRResult, chunk: string | HTMLBytes | RenderInstruction) {
+export function chunkToString(result: SSRResult, chunk: Exclude<RenderDestinationChunk, Response>) {
 	if (ArrayBuffer.isView(chunk)) {
 		return decoder.decode(chunk);
 	} else {
@@ -119,7 +119,7 @@ export function chunkToString(result: SSRResult, chunk: string | HTMLBytes | Ren
 
 export function chunkToByteArray(
 	result: SSRResult,
-	chunk: string | HTMLBytes | RenderInstruction
+	chunk: Exclude<RenderDestinationChunk, Response>
 ): Uint8Array {
 	if (ArrayBuffer.isView(chunk)) {
 		return chunk as Uint8Array;
@@ -128,4 +128,8 @@ export function chunkToByteArray(
 		const stringified = stringifyChunk(result, chunk);
 		return encoder.encode(stringified.toString());
 	}
+}
+
+export function isRenderInstance(obj: unknown): obj is RenderInstance {
+	return !!obj && typeof obj === 'object' && 'render' in obj && typeof obj.render === 'function';
 }
