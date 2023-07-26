@@ -157,7 +157,7 @@ export class AstroIntegrationLogger {
 	}
 
 	/**
-	 * Creates a new logger instances with a new label, but the same log options.
+	 * Creates a new logger instance with a new label, but the same log options.
 	 */
 	fork(label: string): AstroIntegrationLogger {
 		return new AstroIntegrationLogger(this.options, label);
