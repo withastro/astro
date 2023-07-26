@@ -1,6 +1,6 @@
 import { getCollection } from 'astro:content';
 
-export async function get() {
+export async function GET() {
 	const authors = await getCollection('authors-without-config');
 
 	return {

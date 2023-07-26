@@ -7,13 +7,13 @@ import type {
 	Params,
 } from '../../@types/astro';
 import type { Environment, RenderContext } from '../render/index';
-
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
+
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -119,11 +119,11 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 			onRequest as MiddlewareEndpointHandler,
 			context,
 			async () => {
-				return await renderEndpoint(mod, context, env.ssr);
+				return await renderEndpoint(mod, context, env.ssr, env.logging);
 			}
 		);
 	} else {
-		response = await renderEndpoint(mod, context, env.ssr);
+		response = await renderEndpoint(mod, context, env.ssr, env.logging);
 	}
 
 	if (response instanceof Response) {
