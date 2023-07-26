@@ -1,18 +1,27 @@
 import * as colors from 'kleur/colors';
 import fs from 'node:fs';
 import { performance } from 'node:perf_hooks';
+import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
-import type yargs from 'yargs-parser';
-import type { AstroConfig, AstroSettings, ManifestData, RuntimeMode } from '../../@types/astro';
+import type {
+	AstroConfig,
+	AstroInlineConfig,
+	AstroSettings,
+	ManifestData,
+	RuntimeMode,
+} from '../../@types/astro';
+import { telemetry } from '../../events/index.js';
+import { eventCliSession } from '../../events/session.js';
 import {
 	runHookBuildDone,
 	runHookBuildStart,
 	runHookConfigDone,
 	runHookConfigSetup,
 } from '../../integrations/index.js';
+import { resolveConfig } from '../config/config.js';
+import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { debug, info, levels, timerMessage, warn, type LogOptions } from '../logger/core.js';
-import { printHelp } from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
@@ -22,35 +31,26 @@ import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
-	mode?: RuntimeMode;
 	logging: LogOptions;
 	/**
 	 * Teardown the compiler WASM instance after build. This can improve performance when
 	 * building once, but may cause a performance hit if building multiple times in a row.
 	 */
 	teardownCompiler?: boolean;
-	flags?: yargs.Arguments;
 }
 
 /** `astro build` */
-export default async function build(settings: AstroSettings, options: BuildOptions): Promise<void> {
+export default async function build(
+	inlineConfig: AstroInlineConfig,
+	options: BuildOptions
+): Promise<void> {
 	applyPolyfill();
-	if (options.flags?.help || options.flags?.h) {
-		printHelp({
-			commandName: 'astro build',
-			usage: '[...flags]',
-			tables: {
-				Flags: [
-					['--drafts', `Include Markdown draft pages in the build.`],
-					['--help (-h)', 'See all available flags.'],
-				],
-			},
-			description: `Builds your site for deployment.`,
-		});
-		return;
-	}
+	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'build');
+	telemetry.record(eventCliSession('build', userConfig));
 
-	const builder = new AstroBuilder(settings, options);
+	const settings = createSettings(astroConfig, 'build', fileURLToPath(astroConfig.root));
+
+	const builder = new AstroBuilder(settings, options, inlineConfig?.mode);
 	await builder.run();
 }
 
@@ -64,9 +64,9 @@ class AstroBuilder {
 	private timer: Record<string, number>;
 	private teardownCompiler: boolean;
 
-	constructor(settings: AstroSettings, options: BuildOptions) {
-		if (options.mode) {
-			this.mode = options.mode;
+	constructor(settings: AstroSettings, options: BuildOptions, mode?: RuntimeMode) {
+		if (mode) {
+			this.mode = mode;
 		}
 		this.settings = settings;
 		this.logging = options.logging;

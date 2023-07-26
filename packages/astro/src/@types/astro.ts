@@ -1333,6 +1333,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 }
 export interface AstroInlineConfig extends AstroUserConfig {
 	configFile?: string | false;
+	mode?: RuntimeMode;
 }
 
 export type ContentEntryModule = {
