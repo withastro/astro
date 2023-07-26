@@ -35,13 +35,7 @@ export async function sync(
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
 	telemetry.record(eventCliSession('sync', userConfig));
 
-	const _settings = createSettings(astroConfig, 'dev', fileURLToPath(astroConfig.root));
-
-	const settings = await runHookConfigSetup({
-		settings: _settings,
-		logging: options.logging,
-		command: 'build',
-	});
+	const settings = createSettings(astroConfig, 'dev', fileURLToPath(astroConfig.root));
 
 	return await syncInternal(settings, options);
 }
@@ -61,9 +55,15 @@ export async function sync(
  * @return {Promise<ProcessExit>}
  */
 export async function syncInternal(
-	settings: AstroSettings,
+	_settings: AstroSettings,
 	{ logging, fs }: SyncOptions
 ): Promise<ProcessExit> {
+	const settings = await runHookConfigSetup({
+		settings: _settings,
+		logging: logging,
+		command: 'build',
+	});
+
 	const timerStart = performance.now();
 	// Needed to load content config
 	const tempViteServer = await createServer(
