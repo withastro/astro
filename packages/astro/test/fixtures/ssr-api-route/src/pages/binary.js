@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-export function get() {
+export function GET() {
 	return {
 		body: 'ok'
 	};

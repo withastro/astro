@@ -1,6 +1,6 @@
 import { rawContent, compiledContent } from './basic.md';
 
-export async function get() {
+export async function GET() {
 	return {
 		body: JSON.stringify({
 			raw: rawContent(),
