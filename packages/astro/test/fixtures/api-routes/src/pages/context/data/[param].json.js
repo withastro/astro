@@ -14,7 +14,7 @@ export function getStaticPaths() {
 	]
 }
 
-export function get({ params, request }) {
+export function GET({ params, request }) {
 	return {
 		body: JSON.stringify({
 			param: params.param,
