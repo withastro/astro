@@ -2,8 +2,7 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "./base.json",
   "compilerOptions": {
-    "strict": true,
-    // Error when a value import is only used as a type.
-    "importsNotUsedAsValues": "error"
+    // Enable strict mode. This enables a few options at a time, see https://www.typescriptlang.org/tsconfig#strict for a list.
+    "strict": true
   }
 }
