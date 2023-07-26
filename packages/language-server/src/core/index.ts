@@ -32,6 +32,17 @@ export function getLanguageModule(
 		resolveHost(host) {
 			return {
 				...host,
+				resolveModuleName(moduleName, impliedNodeFormat) {
+					if (
+						impliedNodeFormat === ts.ModuleKind.ESNext &&
+						(moduleName.endsWith('.astro') ||
+							moduleName.endsWith('.vue') ||
+							moduleName.endsWith('.svelte'))
+					) {
+						return `${moduleName}.js`;
+					}
+					return host.resolveModuleName?.(moduleName, impliedNodeFormat) ?? moduleName;
+				},
 				getScriptFileNames() {
 					const fileNames = host.getScriptFileNames();
 					return [

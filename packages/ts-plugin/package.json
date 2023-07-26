@@ -27,8 +27,8 @@
   "author": "withastro",
   "license": "MIT",
   "dependencies": {
-    "@volar/language-core": "~1.9.0",
-    "@volar/typescript": "~1.9.0",
+    "@volar/language-core": "~1.10.0",
+    "@volar/typescript": "~1.10.0",
     "@astrojs/compiler": "1.5.7",
     "@jridgewell/sourcemap-codec": "^1.4.15",
     "vscode-languageserver-textdocument": "^1.0.8"
