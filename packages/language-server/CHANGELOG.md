@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.1.2
+
+### Patch Changes
+
+- ab8fd87: Add transition:name and transition:animate attributes
+
 ## 2.1.0
 
 ### Minor Changes

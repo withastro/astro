@@ -1,5 +1,12 @@
 # astro-vscode
 
+## 2.1.2
+
+### Patch Changes
+
+- 2748230: Use configured tsdk
+- ab8fd87: Add transition:name and transition:animate attributes
+
 ## 2.1.1
 
 ### Patch Changes
