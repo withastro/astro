@@ -1,5 +1,5 @@
 /** @type {import('astro').APIRoute} */
-export function post({ cookies }) {
+export function POST({ cookies }) {
 	cookies.set('foo', 'foo', {
 		httpOnly: true
 	});
