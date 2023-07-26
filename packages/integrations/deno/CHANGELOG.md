@@ -1,5 +1,16 @@
 # @astrojs/deno
 
+## 4.3.0
+
+### Minor Changes
+
+- [#7687](https://github.com/withastro/astro/pull/7687) [`0a1b33349`](https://github.com/withastro/astro/commit/0a1b33349fc12d9927e6eef2b66588afedf517a1) Thanks [@kwhinnery](https://github.com/kwhinnery)! - Update build target for Deno to esnext to allow supported language features on the runtime.
+
+### Patch Changes
+
+- Updated dependencies [[`0f677c009`](https://github.com/withastro/astro/commit/0f677c009d102bc12232a966634136be58f34739), [`188eeddd4`](https://github.com/withastro/astro/commit/188eeddd47a61e04639670496924c37866180749)]:
+  - astro@2.9.3
+
 ## 4.2.0
 
 ### Minor Changes
