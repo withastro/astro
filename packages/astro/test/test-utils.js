@@ -177,7 +177,7 @@ export async function loadFixture(inlineConfig) {
 		},
 		startDevServer: async (opts = {}) => {
 			process.env.NODE_ENV = 'development';
-			devServer = await dev(await getSettings('dev'), { logging, ...opts });
+			devServer = await dev({ ...inlineConfig, root }, { logging, ...opts });
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
 			return devServer;

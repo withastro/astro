@@ -1,12 +1,15 @@
 import { expect } from 'chai';
-
-import { runInContainer } from '../../../dist/core/dev/index.js';
-import { createFs, createRequestAndResponse, silentLogging } from '../test-utils.js';
-import svelte from '../../../../integrations/svelte/dist/index.js';
+import { fileURLToPath } from 'node:url';
+import {
+	createFs,
+	createRequestAndResponse,
+	runInContainer,
+	silentLogging,
+} from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
-describe('dev container', () => {
+describe('hydration', () => {
 	it('should not crash when reassigning a hydrated component', async () => {
 		const fs = createFs(
 			{
@@ -31,11 +34,10 @@ describe('dev container', () => {
 		await runInContainer(
 			{
 				fs,
-				root,
-				logging: silentLogging,
-				userConfig: {
-					integrations: [svelte()],
+				inlineConfig: {
+					root: fileURLToPath(root),
 				},
+				logging: silentLogging,
 			},
 			async (container) => {
 				const { req, res, done } = createRequestAndResponse({

@@ -1,9 +1,12 @@
+import nodeFs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
-import type { AstroSettings } from '../../@types/astro';
-import { createSettings, openConfig } from '../config/index.js';
+import type { AstroInlineConfig, AstroSettings } from '../../@types/astro';
+import { eventCliSession, telemetry } from '../../events/index.js';
+import { createSettings, resolveConfig } from '../config/index.js';
 import { createSafeError } from '../errors/index.js';
-import { info } from '../logger/core.js';
-import type { Container, CreateContainerParams } from './container';
+import { info, type LogOptions } from '../logger/core.js';
+import type { Container } from './container';
 import { createContainer, isStarted, startContainer } from './container.js';
 
 async function createRestartedContainer(
@@ -11,15 +14,13 @@ async function createRestartedContainer(
 	settings: AstroSettings,
 	needsStart: boolean
 ): Promise<Container> {
-	const { logging, fs, resolvedRoot, configFlag, configFlagPath } = container;
+	const { logging, fs, inlineConfig } = container;
 	const newContainer = await createContainer({
 		isRestart: true,
 		logging,
 		settings,
+		inlineConfig,
 		fs,
-		root: resolvedRoot,
-		configFlag,
-		configFlagPath,
 	});
 
 	if (needsStart) {
@@ -30,7 +31,7 @@ async function createRestartedContainer(
 }
 
 export function shouldRestartContainer(
-	{ settings, configFlag, configFlagPath, restartInFlight }: Container,
+	{ settings, inlineConfig, restartInFlight }: Container,
 	changedFile: string
 ): boolean {
 	if (restartInFlight) return false;
@@ -38,10 +39,8 @@ export function shouldRestartContainer(
 	let shouldRestart = false;
 
 	// If the config file changed, reload the config and restart the server.
-	if (configFlag) {
-		if (!!configFlagPath) {
-			shouldRestart = vite.normalizePath(configFlagPath) === vite.normalizePath(changedFile);
-		}
+	if (inlineConfig.configFile) {
+		shouldRestart = vite.normalizePath(inlineConfig.configFile) === vite.normalizePath(changedFile);
 	}
 	// Otherwise, watch for any astro.config.* file changes in project root
 	else {
@@ -62,7 +61,6 @@ export function shouldRestartContainer(
 
 interface RestartContainerParams {
 	container: Container;
-	flags: any;
 	logMsg: string;
 	handleConfigError: (err: Error) => Promise<void> | void;
 	beforeRestart?: () => void;
@@ -70,12 +68,11 @@ interface RestartContainerParams {
 
 export async function restartContainer({
 	container,
-	flags,
 	logMsg,
 	handleConfigError,
 	beforeRestart,
 }: RestartContainerParams): Promise<{ container: Container; error: Error | null }> {
-	const { logging, close, resolvedRoot, settings: existingSettings } = container;
+	const { logging, close, settings: existingSettings } = container;
 	container.restartInFlight = true;
 
 	if (beforeRestart) {
@@ -83,16 +80,13 @@ export async function restartContainer({
 	}
 	const needsStart = isStarted(container);
 	try {
-		const newConfig = await openConfig({
-			cwd: resolvedRoot,
-			flags,
-			cmd: 'dev',
-			isRestart: true,
-			fsMod: container.fs,
-		});
+		const { astroConfig } = await resolveConfig(container.inlineConfig, 'dev', container.fs);
 		info(logging, 'astro', logMsg + '\n');
-		let astroConfig = newConfig.astroConfig;
-		const settings = createSettings(astroConfig, 'dev', resolvedRoot);
+		const settings = createSettings(
+			astroConfig,
+			'dev',
+			fileURLToPath(existingSettings.config.root)
+		);
 		await close();
 		return {
 			container: await createRestartedContainer(container, settings, needsStart),
@@ -111,8 +105,9 @@ export async function restartContainer({
 }
 
 export interface CreateContainerWithAutomaticRestart {
-	flags: any;
-	params: CreateContainerParams;
+	inlineConfig?: AstroInlineConfig;
+	logging: LogOptions;
+	fs: typeof nodeFs;
 	handleConfigError?: (error: Error) => void | Promise<void>;
 	beforeRestart?: () => void;
 }
@@ -123,12 +118,19 @@ interface Restart {
 }
 
 export async function createContainerWithAutomaticRestart({
-	flags,
+	inlineConfig,
+	logging,
+	fs,
 	handleConfigError = () => {},
 	beforeRestart,
-	params,
 }: CreateContainerWithAutomaticRestart): Promise<Restart> {
-	const initialContainer = await createContainer(params);
+	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev', fs);
+	telemetry.record(eventCliSession('dev', userConfig));
+
+	const settings = createSettings(astroConfig, 'dev', fileURLToPath(astroConfig.root));
+
+	const initialContainer = await createContainer({ settings, logging, inlineConfig, fs });
+
 	let resolveRestart: (value: Error | null) => void;
 	let restartComplete = new Promise<Error | null>((resolve) => {
 		resolveRestart = resolve;
@@ -144,10 +146,9 @@ export async function createContainerWithAutomaticRestart({
 	async function handleServerRestart(logMsg: string) {
 		const container = restart.container;
 		const { container: newContainer, error } = await restartContainer({
-			beforeRestart,
 			container,
-			flags,
 			logMsg,
+			beforeRestart,
 			async handleConfigError(err) {
 				// Send an error message to the client if one is connected.
 				await handleConfigError(err);
