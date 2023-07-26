@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.1.1
+
+### Patch Changes
+
+- 65fca95: Update Volar to latest version. This fixes resolving Astro files from `node_modules` and various other import errors.
+
 ## 1.1.0
 
 ### Minor Changes
