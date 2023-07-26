@@ -71,7 +71,6 @@ describe('Content Collections - render()', () => {
 				const html = await text();
 
 				const $ = cheerio.load(html);
-				console.log(html);
 				// Rendered the content
 				expect($('ul li')).to.have.a.lengthOf(3);
 
