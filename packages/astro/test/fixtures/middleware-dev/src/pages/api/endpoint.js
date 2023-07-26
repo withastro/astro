@@ -1,4 +1,4 @@
-export function get() {
+export function GET() {
 	const object = {
 		name: 'Endpoint!!',
 	};

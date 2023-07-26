@@ -1,4 +1,4 @@
-export async function get() {
+export async function GET() {
     return {
         body: JSON.stringify({
             name: 'Astro Technology Company',

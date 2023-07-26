@@ -20,7 +20,7 @@ async function loadRemoteImage(src: URL) {
 	}
 }
 
-export const get: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request }) => {
 	try {
 		const url = new URL(request.url);
 		const transform = loader.parseTransform(url.searchParams);
