@@ -56,7 +56,7 @@ describe('Content Collections - render()', () => {
 		});
 
 		it('Includes component scripts for rendered entry', async () => {
-			const html = await fixture.readFile('/launch-week-component-scripts/index.html');
+			const html = await fixture.readFile('/launch-week-component/index.html');
 			const $ = cheerio.load(html);
 
 			const allScripts = $('head > script[type="module"]');
@@ -202,7 +202,7 @@ describe('Content Collections - render()', () => {
 		});
 
 		it('Includes component scripts for rendered entry', async () => {
-			const response = await fixture.fetch('/launch-week-component-scripts', { method: 'GET' });
+			const response = await fixture.fetch('/launch-week-component', { method: 'GET' });
 			expect(response.status).to.equal(200);
 
 			const html = await response.text();

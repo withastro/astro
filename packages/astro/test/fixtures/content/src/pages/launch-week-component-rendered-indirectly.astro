@@ -1,0 +1,14 @@
+---
+import { getEntryBySlug } from 'astro:content';
+import ContentRenderer from '../components/ContentRenderer.astro';
+
+const entry = await getEntryBySlug('blog', 'promo/launch-week-component');
+---
+<html>
+<head>
+	<title>Launch Week</title>
+</head>
+<body>
+	<ContentRenderer {entry}/>
+</body>
+</html>
