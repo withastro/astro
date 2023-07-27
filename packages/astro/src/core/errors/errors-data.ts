@@ -235,6 +235,28 @@ but ${plural ? 'none were' : 'it was not'} able to server-side render \`${compon
 	 * @docs
 	 * @see
 	 * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+	 * @description
+	 * `getStaticPaths`'s return value must be an array of objects. In most cases, this error happens because an array of array was returned. Using [`.flatMap()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap) or a [`.flat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) call may be useful.
+	 *
+	 * ```ts title="pages/blog/[id].astro"
+	 * export async function getStaticPaths() {
+	 *	return [ // <-- Array
+	 *		{ params: { slug: "blog" } }, // <-- Object
+	 * 		{ params: { slug: "about" } }
+	 * 	];
+	 *}
+	 * ```
+	 */
+	InvalidGetStaticPathsEntry: {
+		title: "Invalid entry inside getStaticPath's return value",
+		message: (entryType) =>
+			`Invalid entry returned by getStaticPaths. Expected an object, got \`${entryType}\``,
+		hint: "If you're using a `.map` call, you might be looking for `.flatMap()` instead. See https://docs.astro.build/en/reference/api-reference/#getstaticpaths for more information on getStaticPaths.",
+	},
+	/**
+	 * @docs
+	 * @see
+	 * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
 	 * - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
 	 * @description
 	 * `getStaticPaths`'s return value must be an array of objects.
@@ -254,6 +276,7 @@ but ${plural ? 'none were' : 'it was not'} able to server-side render \`${compon
 			`Invalid type returned by \`getStaticPaths\`. Expected an \`array\`, got \`${returnType}\``,
 		hint: 'See https://docs.astro.build/en/reference/api-reference/#getstaticpaths for more information on getStaticPaths.',
 	},
+
 	/**
 	 * @docs
 	 * @see
