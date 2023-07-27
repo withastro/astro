@@ -92,7 +92,7 @@ export async function restartContainer({
 		});
 		info(logging, 'astro', logMsg + '\n');
 		let astroConfig = newConfig.astroConfig;
-		const settings = createSettings(astroConfig, 'dev', resolvedRoot);
+		const settings = createSettings(astroConfig, resolvedRoot);
 		await close();
 		return {
 			container: await createRestartedContainer(container, settings, needsStart),
