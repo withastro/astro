@@ -168,9 +168,9 @@ test.describe('View Transitions', () => {
 		// go to page 2
 		await page.click('#click-two');
 		p = page.locator('#two');
-		const h =  page.locator('html');
+		const h = page.locator('html');
 		await expect(h, 'imported CSS updated').toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
-	})
+	});
 
 	test('click hash links does not do navigation', async ({ page, astro }) => {
 		// Go to page 1
