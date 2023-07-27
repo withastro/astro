@@ -300,7 +300,6 @@ async function getPathsForRoute(
 			mod,
 			route,
 			routeCache: opts.routeCache,
-			isValidate: false,
 			logging: opts.logging,
 			ssr: isServerLikeOutput(opts.settings.config),
 		}).catch((err) => {
