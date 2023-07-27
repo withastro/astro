@@ -148,6 +148,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				link.href &&
 				(!link.target || link.target === '_self') &&
 				link.origin === location.origin &&
+				!link.hash &&
 				ev.button === 0 && // left clicks only
 				!ev.metaKey && // new tab (mac)
 				!ev.ctrlKey && // new tab (windows)
@@ -162,11 +163,17 @@ const { fallback = 'animate' } = Astro.props as Props;
 				history.pushState({ index: currentHistoryIndex }, '', link.href);
 			}
 		});
-		window.addEventListener('popstate', () => {
+		window.addEventListener('popstate', ev => {
 			if (!transitionEnabledOnThisPage()) {
 				// The current page doesn't haven't View Transitions,
 				// respect that with a full page reload
 				location.reload();
+				return;
+			}
+			// hash change creates no state. 
+			if(ev.state === null) {
+				history.replaceState({ index: currentHistoryIndex }, '');
+				ev.preventDefault();
 				return;
 			}
 			const nextIndex = history.state?.index ?? currentHistoryIndex + 1;
