@@ -1,5 +1,6 @@
 ---
 import { ViewTransitions } from 'astro:transitions';
+import DarkMode from './DarkMode.astro';
 
 interface Props {
 	link?: string;
@@ -12,6 +13,7 @@ const { link } = Astro.props as Props;
 		<title>Testing</title>
 		{link ? <link rel="stylesheet" href={link} > : ''}
 		<ViewTransitions />
+		<DarkMode />
 	</head>
 	<body>
 		<header transition:animate="morph">
