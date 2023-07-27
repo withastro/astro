@@ -279,7 +279,7 @@ export async function handleRoute({
 		//
 		// By default, we should give priority to the status code passed, although it's possible that
 		// the `Response` emitted by the user is a redirect. If so, then return the returned response.
-		if (status && response.status !== status && !response.status.toString().startsWith('3')) {
+		if (status && response.status !== status && response.status < 400 && response.status >= 300) {
 			// Response.status is read-only, so a clone is required to override
 			response = new Response(result.body, { ...result, status });
 		}
