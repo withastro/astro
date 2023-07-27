@@ -4,7 +4,6 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroConfig, AstroSettings, AstroUserConfig } from '../../@types/astro';
 import { getContentPaths } from '../../content/index.js';
 import jsxRenderer from '../../jsx/renderer.js';
-import { isServerLikeOutput } from '../../prerender/utils.js';
 import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
 import { getDefaultClientDirectives } from '../client-directive/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -14,7 +13,7 @@ import { createDefaultDevConfig } from './config.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
 
-export function createBaseSettings(config: AstroConfig, mode: 'build' | 'dev'): AstroSettings {
+export function createBaseSettings(config: AstroConfig): AstroSettings {
 	const { contentDir } = getContentPaths(config);
 	return {
 		config,
@@ -22,10 +21,7 @@ export function createBaseSettings(config: AstroConfig, mode: 'build' | 'dev'): 
 		tsConfigPath: undefined,
 
 		adapter: undefined,
-		injectedRoutes:
-			config.experimental.assets && (isServerLikeOutput(config) || mode === 'dev')
-				? [{ pattern: '/_image', entryPoint: 'astro/assets/image-endpoint', prerender: false }]
-				: [],
+		injectedRoutes: [],
 		pageExtensions: ['.astro', '.html', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS],
 		contentEntryTypes: [markdownContentEntryType],
 		dataEntryTypes: [
@@ -108,13 +104,9 @@ export function createBaseSettings(config: AstroConfig, mode: 'build' | 'dev'): 
 	};
 }
 
-export function createSettings(
-	config: AstroConfig,
-	mode: 'build' | 'dev',
-	cwd?: string
-): AstroSettings {
+export function createSettings(config: AstroConfig, cwd?: string): AstroSettings {
 	const tsconfig = loadTSConfig(cwd);
-	const settings = createBaseSettings(config, mode);
+	const settings = createBaseSettings(config);
 
 	const watchFiles = tsconfig?.exists ? [tsconfig.path, ...tsconfig.extendedPaths] : [];
 
@@ -136,5 +128,5 @@ export async function createDefaultDevSettings(
 		root = fileURLToPath(root);
 	}
 	const config = await createDefaultDevConfig(userConfig, root);
-	return createBaseSettings(config, 'dev');
+	return createBaseSettings(config);
 }

@@ -133,7 +133,7 @@ describe('dev container restarts', () => {
 			cmd: 'dev',
 			logging: defaultLogging,
 		});
-		const settings = createSettings(astroConfig, 'dev');
+		const settings = createSettings(astroConfig);
 
 		let restart = await createContainerWithAutomaticRestart({
 			params: { fs, root, settings },
@@ -167,7 +167,7 @@ describe('dev container restarts', () => {
 			cmd: 'dev',
 			logging: defaultLogging,
 		});
-		const settings = createSettings(astroConfig, 'dev', fileURLToPath(root));
+		const settings = createSettings(astroConfig, fileURLToPath(root));
 
 		let restart = await createContainerWithAutomaticRestart({
 			params: { fs, root, settings },
@@ -199,7 +199,7 @@ describe('dev container restarts', () => {
 			cmd: 'dev',
 			logging: defaultLogging,
 		});
-		const settings = createSettings(astroConfig, 'dev', fileURLToPath(root));
+		const settings = createSettings(astroConfig, fileURLToPath(root));
 
 		let restart = await createContainerWithAutomaticRestart({
 			params: { fs, root, settings },

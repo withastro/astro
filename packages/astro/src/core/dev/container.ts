@@ -4,6 +4,7 @@ import type { AstroSettings, AstroUserConfig } from '../../@types/astro';
 
 import nodeFs from 'node:fs';
 import * as vite from 'vite';
+import { injectImageEndpoint } from '../../assets/internal.js';
 import {
 	runHookConfigDone,
 	runHookConfigSetup,
@@ -64,6 +65,13 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 		logging,
 		isRestart,
 	});
+
+	// HACK: Since we only inject the endpoint if `experimental.assets` is on and it's possible for an integration to
+	// add that flag, we need to only check and inject the endpoint after running the config setup hook.
+	if (settings.config.experimental.assets) {
+		settings = injectImageEndpoint(settings);
+	}
+
 	const { host, headers, open } = settings.config.server;
 
 	// The client entrypoint for renderers. Since these are imported dynamically

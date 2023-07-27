@@ -153,9 +153,33 @@ test.describe('View Transitions', () => {
 	});
 
 	test('astro:load event fires when navigating directly to a page', async ({ page, astro }) => {
-		// Go to page 1
+		// Go to page 2
 		await page.goto(astro.resolveUrl('/two'));
 		const article = page.locator('#twoarticle');
 		await expect(article, 'should have script content').toHaveText('works');
+	});
+
+	test('astro:beforeload event fires right before the swap', async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page 2
+		await page.click('#click-two');
+		p = page.locator('#two');
+		const h = page.locator('html');
+		await expect(h, 'imported CSS updated').toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+	});
+
+	test('click hash links does not do navigation', async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		const p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// Clicking 1 stays put
+		await page.click('#click-one');
+		await expect(p, 'should have content').toHaveText('Page 1');
 	});
 });

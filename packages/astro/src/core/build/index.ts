@@ -4,12 +4,14 @@ import { performance } from 'node:perf_hooks';
 import type * as vite from 'vite';
 import type yargs from 'yargs-parser';
 import type { AstroConfig, AstroSettings, ManifestData, RuntimeMode } from '../../@types/astro';
+import { injectImageEndpoint } from '../../assets/internal.js';
 import {
 	runHookBuildDone,
 	runHookBuildStart,
 	runHookConfigDone,
 	runHookConfigSetup,
 } from '../../integrations/index.js';
+import { isServerLikeOutput } from '../../prerender/utils.js';
 import { createVite } from '../create-vite.js';
 import { debug, info, levels, timerMessage, warn, type LogOptions } from '../logger/core.js';
 import { printHelp } from '../messages.js';
@@ -89,6 +91,13 @@ class AstroBuilder {
 			command: 'build',
 			logging,
 		});
+
+		// HACK: Since we only inject the endpoint if `experimental.assets` is on and it's possible for an integration to
+		// add that flag, we need to only check and inject the endpoint after running the config setup hook.
+		if (this.settings.config.experimental.assets && isServerLikeOutput(this.settings.config)) {
+			this.settings = injectImageEndpoint(this.settings);
+		}
+
 		this.manifest = createRouteManifest({ settings: this.settings }, this.logging);
 
 		const viteConfig = await createVite(
