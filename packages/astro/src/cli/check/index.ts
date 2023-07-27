@@ -17,9 +17,9 @@ import type { LogOptions } from '../../core/logger/core.js';
 import { debug, info } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
 import type { ProcessExit, SyncOptions } from '../../core/sync';
+import { runHookConfigSetup } from '../../integrations/index.js';
 import { loadSettings } from '../load-settings.js';
 import { printDiagnostic } from './print.js';
-import { runHookConfigSetup } from '../../integrations/index.js';
 
 type DiagnosticResult = {
 	errors: number;

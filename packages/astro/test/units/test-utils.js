@@ -202,7 +202,7 @@ export async function createBasicSettings(inlineConfig = {}) {
 		inlineConfig.root = fileURLToPath(new URL('.', import.meta.url));
 	}
 	const { astroConfig } = await resolveConfig(inlineConfig, 'dev');
-	return createBaseSettings(astroConfig, 'dev');
+	return createBaseSettings(astroConfig);
 }
 
 /**

@@ -35,7 +35,7 @@ export async function sync(
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
 	telemetry.record(eventCliSession('sync', userConfig));
 
-	const _settings = createSettings(astroConfig, 'dev', fileURLToPath(astroConfig.root));
+	const _settings = createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	const settings = await runHookConfigSetup({
 		settings: _settings,

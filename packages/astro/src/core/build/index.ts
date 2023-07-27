@@ -10,6 +10,7 @@ import type {
 	ManifestData,
 	RuntimeMode,
 } from '../../@types/astro';
+import { injectImageEndpoint } from '../../assets/internal.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import {
@@ -18,6 +19,7 @@ import {
 	runHookConfigDone,
 	runHookConfigSetup,
 } from '../../integrations/index.js';
+import { isServerLikeOutput } from '../../prerender/utils.js';
 import { resolveConfig } from '../config/config.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
@@ -48,7 +50,7 @@ export default async function build(
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
 
-	const settings = createSettings(astroConfig, 'build', fileURLToPath(astroConfig.root));
+	const settings = createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	const builder = new AstroBuilder(settings, options, inlineConfig?.mode);
 	await builder.run();
@@ -89,6 +91,13 @@ class AstroBuilder {
 			command: 'build',
 			logging,
 		});
+
+		// HACK: Since we only inject the endpoint if `experimental.assets` is on and it's possible for an integration to
+		// add that flag, we need to only check and inject the endpoint after running the config setup hook.
+		if (this.settings.config.experimental.assets && isServerLikeOutput(this.settings.config)) {
+			this.settings = injectImageEndpoint(this.settings);
+		}
+
 		this.manifest = createRouteManifest({ settings: this.settings }, this.logging);
 
 		const viteConfig = await createVite(

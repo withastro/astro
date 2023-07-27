@@ -82,11 +82,7 @@ export async function restartContainer({
 	try {
 		const { astroConfig } = await resolveConfig(container.inlineConfig, 'dev', container.fs);
 		info(logging, 'astro', logMsg + '\n');
-		const settings = createSettings(
-			astroConfig,
-			'dev',
-			fileURLToPath(existingSettings.config.root)
-		);
+		const settings = createSettings(astroConfig, fileURLToPath(existingSettings.config.root));
 		await close();
 		return {
 			container: await createRestartedContainer(container, settings, needsStart),
@@ -127,7 +123,7 @@ export async function createContainerWithAutomaticRestart({
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev', fs);
 	telemetry.record(eventCliSession('dev', userConfig));
 
-	const settings = createSettings(astroConfig, 'dev', fileURLToPath(astroConfig.root));
+	const settings = createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	const initialContainer = await createContainer({ settings, logging, inlineConfig, fs });
 
