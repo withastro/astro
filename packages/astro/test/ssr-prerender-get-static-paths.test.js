@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Prerender', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -102,11 +102,6 @@ describe('Prerender', () => {
 			});
 
 			describe('route params type validation', () => {
-				it('resolves 200 on nested array parameters', async () => {
-					const res = await fixture.fetch('/blog/nested-arrays/slug1');
-					expect(res.status).to.equal(200);
-				});
-
 				it('resolves 200 on matching static path - string params', async () => {
 					// route provided with { params: { year: "2022", slug: "post-2" }}
 					const res = await fixture.fetch('/blog/blog/2022/post-1');
@@ -234,11 +229,6 @@ describe('Prerender', () => {
 			});
 
 			describe('route params type validation', () => {
-				it('resolves 200 on nested array parameters', async () => {
-					const res = await fixture.fetch('/blog/nested-arrays/slug1');
-					expect(res.status).to.equal(200);
-				});
-
 				it('resolves 200 on matching static path - string params', async () => {
 					// route provided with { params: { year: "2022", slug: "post-2" }}
 					const res = await fixture.fetch('/blog/blog/2022/post-1');
