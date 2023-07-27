@@ -2539,17 +2539,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/custom-elements:
-    dependencies:
-      '@test/custom-element-renderer':
-        specifier: workspace:*
-        version: link:my-component-lib
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/custom-elements/my-component-lib: {}
-
   packages/astro/test/fixtures/data-collections:
     dependencies:
       astro:
@@ -5382,61 +5371,6 @@ importers:
       mocha:
         specifier: ^9.2.2
         version: 9.2.2
-
-  packages/webapi:
-    dependencies:
-      undici:
-        specifier: ^5.22.1
-        version: 5.22.1
-    devDependencies:
-      '@rollup/plugin-alias':
-        specifier: ^3.1.9
-        version: 3.1.9(rollup@2.79.1)
-      '@rollup/plugin-inject':
-        specifier: ^4.0.4
-        version: 4.0.4(rollup@2.79.1)
-      '@rollup/plugin-node-resolve':
-        specifier: ^13.3.0
-        version: 13.3.0(rollup@2.79.1)
-      '@rollup/plugin-typescript':
-        specifier: ^8.5.0
-        version: 8.5.0(rollup@2.79.1)(tslib@2.5.3)(typescript@5.1.6)
-      '@types/chai':
-        specifier: ^4.3.5
-        version: 4.3.5
-      '@types/mocha':
-        specifier: ^9.1.1
-        version: 9.1.1
-      '@types/node':
-        specifier: ^18.16.18
-        version: 18.16.18
-      '@ungap/structured-clone':
-        specifier: ^0.3.4
-        version: 0.3.4
-      chai:
-        specifier: ^4.3.7
-        version: 4.3.7
-      event-target-shim:
-        specifier: ^6.0.2
-        version: 6.0.2
-      magic-string:
-        specifier: ^0.27.0
-        version: 0.27.0
-      mocha:
-        specifier: ^9.2.2
-        version: 9.2.2
-      rollup:
-        specifier: ^2.79.1
-        version: 2.79.1
-      tslib:
-        specifier: ^2.5.3
-        version: 2.5.3
-      typescript:
-        specifier: ~5.1.6
-        version: 5.1.6
-      urlpattern-polyfill:
-        specifier: ^1.0.0-rc5
-        version: 1.0.0-rc5
 
   scripts:
     dependencies:
@@ -8606,26 +8540,6 @@ packages:
       magic-string: 0.27.0
       rollup: 3.20.1
     dev: false
-
-  /@rollup/plugin-typescript@8.5.0(rollup@2.79.1)(tslib@2.5.3)(typescript@5.1.6):
-    resolution: {integrity: sha512-wMv1/scv0m/rXx21wD2IsBbJFba8wGF3ErJIr6IKRfRj49S85Lszbxb4DCo8iILpluTjk2GAAu9CoZt4G3ppgQ==}
-    engines: {node: '>=8.0.0'}
-    peerDependencies:
-      rollup: ^2.14.0
-      tslib: '*'
-      typescript: '>=3.7.0'
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-      tslib:
-        optional: true
-    dependencies:
-      '@rollup/pluginutils': 3.1.0(rollup@2.79.1)
-      resolve: 1.22.2
-      rollup: 2.79.1
-      tslib: 2.5.3
-      typescript: 5.1.6
-    dev: true
 
   /@rollup/pluginutils@3.1.0(rollup@2.79.1):
     resolution: {integrity: sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==}
