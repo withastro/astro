@@ -71,6 +71,10 @@ export async function renderToReadableStream(
 	// If the Astro component returns a Response on init, return that response
 	if (templateResult instanceof Response) return templateResult;
 
+	if (isPage) {
+		await bufferHeadContent(result);
+	}
+
 	let renderedFirstPageChunk = false;
 
 	return new ReadableStream({
@@ -143,4 +147,20 @@ async function callComponentAsTemplateResultOrResponse(
 	}
 
 	return isHeadAndContent(factoryResult) ? factoryResult.content : factoryResult;
+}
+
+// Recursively calls component instances that might have head content
+// to be propagated up.
+async function bufferHeadContent(result: SSRResult) {
+	const iterator = result._metadata.propagators.values();
+	while (true) {
+		const { value, done } = iterator.next();
+		if (done) {
+			break;
+		}
+		const returnValue = await value.init(result);
+		if (isHeadAndContent(returnValue)) {
+			result._metadata.extraHead.push(returnValue.head);
+		}
+	}
 }

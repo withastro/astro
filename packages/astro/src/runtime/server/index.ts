@@ -28,6 +28,7 @@ export {
 	renderTemplate,
 	renderToString,
 	renderUniqueStylesheet,
+	renderUniqueScriptElement,
 	voidElementNames,
 } from './render/index.js';
 export type {
