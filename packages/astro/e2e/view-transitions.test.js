@@ -235,5 +235,12 @@ test.describe('View Transitions', () => {
 
 		const newScrollY = await page.evaluate(() => window.scrollY);
 		expect(oldScrollY).toEqual(newScrollY);
+  })
+
+	test('<Image /> component forwards transitions to the <img>', async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/image-one'));
+		const img = page.locator('img[data-astro-transition-scope]');
+		await expect(img).toBeVisible('The image tag should have the transition scope attribute.');
 	});
 });
