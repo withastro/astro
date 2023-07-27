@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 2.5.1
+
+### Patch Changes
+
+- [#7805](https://github.com/withastro/astro/pull/7805) [`42a21b5da`](https://github.com/withastro/astro/commit/42a21b5da631948da4495062a6ef30fbb91abd05) Thanks [@matthewp](https://github.com/matthewp)! - Prevent building .html file redirects in hybrid mode
+
+- Updated dependencies [[`31c4031ba`](https://github.com/withastro/astro/commit/31c4031ba7aea132a861f2465f38a83741f0cd05), [`5161cf919`](https://github.com/withastro/astro/commit/5161cf919c81bd3681af221def0abab7d25abec0), [`59b556232`](https://github.com/withastro/astro/commit/59b556232696d3aba3c2263ea104cd9922085fd2), [`267487e63`](https://github.com/withastro/astro/commit/267487e63ea0a4cfcb771c667a088afb16c62ba6), [`b063a2d8a`](https://github.com/withastro/astro/commit/b063a2d8aeaed18550d148511bfb68f9ba3cdb09), [`d5f526b33`](https://github.com/withastro/astro/commit/d5f526b3397cf24aa06353de2de91b2ba08cd4eb), [`7dbcbc86b`](https://github.com/withastro/astro/commit/7dbcbc86b3bd7e5458570906745364c9399d1a46)]:
+  - astro@2.9.4
+
 ## 2.5.0
 
 ### Minor Changes
