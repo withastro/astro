@@ -7,13 +7,9 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
-import { isHTMLString } from '../../runtime/server/escape.js';
-import {
-	renderSlotToString,
-	stringifyChunk,
-	type ComponentSlots,
-} from '../../runtime/server/index.js';
+import { renderSlotToString, type ComponentSlots } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
+import { chunkToString } from '../../runtime/server/render/index.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
@@ -112,7 +108,7 @@ class Slots {
 			const expression = getFunctionExpression(component);
 			if (expression) {
 				const slot = async () =>
-					isHTMLString(await expression) ? expression : expression(...args);
+					typeof expression === 'function' ? expression(...args) : expression;
 				return await renderSlotToString(result, slot).then((res) => {
 					return res != null ? String(res) : res;
 				});
@@ -126,7 +122,7 @@ class Slots {
 		}
 
 		const content = await renderSlotToString(result, this.#slots[name]);
-		const outHTML = stringifyChunk(result, content);
+		const outHTML = chunkToString(result, content);
 
 		return outHTML;
 	}
@@ -262,6 +258,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			headInTree: false,
 			extraHead: [],
 			propagators: new Map(),
+			contentKeys: new Set(),
 		},
 	};
 

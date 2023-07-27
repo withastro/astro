@@ -105,7 +105,7 @@ export async function add(names: string[], { flags, logging }: AddOptions) {
 					['svelte', 'astro add svelte'],
 					['solid-js', 'astro add solid-js'],
 					['lit', 'astro add lit'],
-					['alpine', 'astro add alpine'],
+					['alpinejs', 'astro add alpinejs'],
 				],
 				'SSR Adapters': [
 					['netlify', 'astro add netlify'],

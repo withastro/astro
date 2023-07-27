@@ -132,14 +132,14 @@ describe('Assets Prefix - Server', () => {
 		expect(island.attr('renderer-url')).to.match(assetsPrefixRegex);
 	});
 
-	it('markdown image src start with assetsPrefix', async () => {
+	it('markdown optimized image src does not start with assetsPrefix in SSR', async () => {
 		const request = new Request('http://example.com/custom-base/markdown/');
 		const response = await app.render(request);
 		expect(response.status).to.equal(200);
 		const html = await response.text();
 		const $ = cheerio.load(html);
 		const imgAsset = $('img');
-		expect(imgAsset.attr('src')).to.match(assetsPrefixRegex);
+		expect(imgAsset.attr('src')).to.not.match(assetsPrefixRegex);
 	});
 });
 
