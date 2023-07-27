@@ -241,6 +241,6 @@ const { fallback = 'animate' } = Astro.props as Props;
 			if(history.state) {
 				persistState({ ...history.state, scrollY })
 			}
-		}, 500), { passive: true });
+		}, 300), { passive: true });
 	}
 </script>
