@@ -161,7 +161,6 @@ async function bufferHeadContent(result: SSRResult) {
 		const returnValue = await value.init(result);
 		if (isHeadAndContent(returnValue)) {
 			result._metadata.extraHead.push(returnValue.head);
-			console.log("PUSHING", returnValue.head)
 		}
 	}
 }
