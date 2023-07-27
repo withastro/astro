@@ -343,8 +343,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						JSON.stringify(
 							{
 								version: 1,
-								include,
-								exclude,
+								include: [...new Set(include)],
+								exclude: [...new Set(exclude)],
 							},
 							null,
 							2
