@@ -120,7 +120,6 @@
     "@astrojs/language-server": "^1.0.0",
     "@astrojs/markdown-remark": "^2.2.1",
     "@astrojs/telemetry": "^2.1.1",
-    "@astrojs/webapi": "^2.2.0",
     "@babel/core": "^7.22.5",
     "@babel/generator": "^7.22.5",
     "@babel/parser": "^7.22.5",
