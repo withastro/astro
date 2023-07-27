@@ -18,7 +18,6 @@ interface CallGetStaticPathsOptions {
 	mod: ComponentInstance;
 	route: RouteData;
 	routeCache: RouteCache;
-	isValidate: boolean;
 	logging: LogOptions;
 	ssr: boolean;
 }
@@ -27,7 +26,6 @@ export async function callGetStaticPaths({
 	mod,
 	route,
 	routeCache,
-	isValidate,
 	logging,
 	ssr,
 }: CallGetStaticPathsOptions): Promise<GetStaticPathsResultKeyed> {
@@ -58,14 +56,7 @@ export async function callGetStaticPaths({
 		},
 	});
 
-	// Flatten the array before validating the content, otherwise users using `.map` will run into errors
-	if (Array.isArray(staticPaths)) {
-		staticPaths = staticPaths.flat();
-	}
-
-	if (isValidate) {
-		validateGetStaticPathsResult(staticPaths, logging, route);
-	}
+	validateGetStaticPathsResult(staticPaths, logging, route);
 
 	const keyedStaticPaths = staticPaths as GetStaticPathsResultKeyed;
 	keyedStaticPaths.keyed = new Map<string, GetStaticPathsItem>();
