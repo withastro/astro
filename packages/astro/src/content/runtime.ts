@@ -6,7 +6,7 @@ import {
 	createComponent,
 	createHeadAndContent,
 	renderComponent,
-	renderScriptElement,
+	renderUniqueScriptElement,
 	renderTemplate,
 	renderUniqueStylesheet,
 	unescapeHTML,
@@ -303,7 +303,7 @@ async function render({
 						.join('');
 				}
 				if (Array.isArray(collectedScripts)) {
-					scripts = collectedScripts.map((script: any) => renderScriptElement(script)).join('');
+					scripts = collectedScripts.map((script: any) => renderUniqueScriptElement(result, script)).join('');
 				}
 
 				let props = baseProps;
