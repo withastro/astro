@@ -233,6 +233,31 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				// cloudflare to handle static files and support _redirects configuration
 				// (without calling the function)
 				if (!routesExists) {
+					const functionEndpoints = routes
+						.filter((route) => ['endpoint', 'page'].includes(route.type) && !route.prerender)
+						.map((route) => {
+							const includePattern =
+								'/' +
+								route.segments
+									.flat()
+									.map((segment) => (segment.dynamic ? '*' : segment.content))
+									.join('/');
+
+							const regexp = new RegExp(
+								'^\\/' +
+									route.segments
+										.flat()
+										.map((segment) => (segment.dynamic ? '(.*)' : segment.content))
+										.join('\\/') +
+									'$'
+							);
+
+							return {
+								includePattern,
+								regexp,
+							};
+						});
+
 					const staticPathList: Array<string> = (
 						await glob(`${fileURLToPath(_buildConfig.client)}/**/*`, {
 							cwd: fileURLToPath(_config.outDir),
@@ -303,13 +328,23 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						);
 					}
 
+					let include = functionEndpoints.map((endpoint) => endpoint.includePattern);
+					let exclude = staticPathList.filter((file: string) =>
+						functionEndpoints.some((endpoint) => endpoint.regexp.test(file))
+					);
+
+					if (include.length + exclude.length > 100 && staticPathList.length < 100) {
+						include = ['/*'];
+						exclude = staticPathList;
+					}
+
 					await fs.promises.writeFile(
 						new URL('./_routes.json', _config.outDir),
 						JSON.stringify(
 							{
 								version: 1,
-								include: ['/*'],
-								exclude: staticPathList,
+								include,
+								exclude,
 							},
 							null,
 							2
