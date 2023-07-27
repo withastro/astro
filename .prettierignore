@@ -22,5 +22,4 @@ benchmark/results/
 .changeset
 
 # Files
-packages/webapi/mod.d.ts
 pnpm-lock.yaml

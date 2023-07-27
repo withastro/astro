@@ -73,7 +73,6 @@
     }
   },
   "dependencies": {
-    "@astrojs/webapi": "workspace:*",
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
