@@ -141,7 +141,7 @@ type HandleRoute = {
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 	manifest: SSRManifest;
-	status?: number;
+	status?: 404 | 500;
 };
 
 export async function handleRoute({
@@ -274,12 +274,19 @@ export async function handleRoute({
 		}
 
 		let response = result;
-		// We are in a recursion, and it's possible that this function is called itself with a status code
-		// By default, the status code passed via parameters is computed by the matched route.
-		//
-		// By default, we should give priority to the status code passed, although it's possible that
-		// the `Response` emitted by the user is a redirect. If so, then return the returned response.
-		if (status && response.status !== status && response.status < 400 && response.status >= 300) {
+
+		if (
+			// We are in a recursion, and it's possible that this function is called itself with a status code
+			// By default, the status code passed via parameters is computed by the matched route.
+			//
+			// By default, we should give priority to the status code passed, although it's possible that
+			// the `Response` emitted by the user is a redirect. If so, then return the returned response.
+			response.status < 400 &&
+			response.status >= 300
+		) {
+			await writeSSRResult(request, response, incomingResponse);
+			return;
+		} else if (status && response.status !== status && (status === 404 || status === 500)) {
 			// Response.status is read-only, so a clone is required to override
 			response = new Response(result.body, { ...result, status });
 		}
@@ -365,7 +372,7 @@ async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams)
 	return { scripts, styles, links, metadata };
 }
 
-function getStatus(matchedRoute?: MatchedRoute): number | undefined {
+function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | undefined {
 	if (!matchedRoute) return 404;
 	if (matchedRoute.route.route === '/404') return 404;
 	if (matchedRoute.route.route === '/500') return 500;
