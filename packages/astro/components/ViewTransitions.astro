@@ -163,15 +163,15 @@ const { fallback = 'animate' } = Astro.props as Props;
 				history.pushState({ index: currentHistoryIndex }, '', link.href);
 			}
 		});
-		window.addEventListener('popstate', ev => {
+		window.addEventListener('popstate', (ev) => {
 			if (!transitionEnabledOnThisPage()) {
 				// The current page doesn't haven't View Transitions,
 				// respect that with a full page reload
 				location.reload();
 				return;
 			}
-			// hash change creates no state. 
-			if(ev.state === null) {
+			// hash change creates no state.
+			if (ev.state === null) {
 				history.replaceState({ index: currentHistoryIndex }, '');
 				ev.preventDefault();
 				return;
