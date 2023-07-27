@@ -24,8 +24,8 @@ export function renderUniqueScriptElement(result: SSRResult, { props, children }
 
 export function renderUniqueStylesheet(result: SSRResult, sheet: StylesheetAsset) {
 	if (sheet.type === 'external') {
-		if (Array.from(result.links).some((s) => s.props.href === sheet.src)) return '';
-		const key = 'script-external-' + sheet.src;
+		if (Array.from(result.styles).some((s) => s.props.href === sheet.src)) return '';
+		const key = 'link-external-' + sheet.src;
 		if(checkOrAddContentKey(result, key)) return '';
 		return renderElement('link', {
 			props: {
@@ -38,7 +38,7 @@ export function renderUniqueStylesheet(result: SSRResult, sheet: StylesheetAsset
 
 	if (sheet.type === 'inline') {
 		if (Array.from(result.styles).some((s) => s.children.includes(sheet.content))) return '';
-		const key = `script-inline-` + sheet.content;
+		const key = `link-inline-` + sheet.content;
 		if(checkOrAddContentKey(result, key)) return '';
 		return renderElement('style', { props: { type: 'text/css' }, children: sheet.content });
 	}
