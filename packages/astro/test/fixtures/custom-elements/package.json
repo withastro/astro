@@ -1,9 +1,0 @@
-{
-  "name": "@test/custom-elements",
-  "version": "0.0.0",
-  "private": true,
-  "dependencies": {
-    "astro": "workspace:*",
-    "@test/custom-element-renderer": "workspace:*"
-  }
-}

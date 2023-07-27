@@ -1,11 +1,8 @@
-import { polyfill } from '@astrojs/webapi';
 import type { SSRManifest } from 'astro';
-import { NodeApp } from 'astro/app/node';
+import { NodeApp, applyPolyfills } from 'astro/app/node';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-polyfill(globalThis, {
-	exclude: 'window document',
-});
+applyPolyfills();
 
 export function createExports(manifest: SSRManifest) {
 	const app = new NodeApp(manifest);
