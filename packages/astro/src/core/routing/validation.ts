@@ -54,6 +54,15 @@ export function validateGetStaticPathsResult(
 	}
 
 	result.forEach((pathObject) => {
+		if ((typeof pathObject === 'object' && Array.isArray(pathObject)) || pathObject === null) {
+			throw new AstroError({
+				...AstroErrorData.InvalidGetStaticPathsEntry,
+				message: AstroErrorData.InvalidGetStaticPathsEntry.message(
+					Array.isArray(pathObject) ? 'array' : typeof pathObject
+				),
+			});
+		}
+
 		if (
 			pathObject.params === undefined ||
 			pathObject.params === null ||
@@ -61,16 +70,6 @@ export function validateGetStaticPathsResult(
 		) {
 			throw new AstroError({
 				...AstroErrorData.GetStaticPathsExpectedParams,
-				location: {
-					file: route.component,
-				},
-			});
-		}
-
-		if (typeof pathObject.params !== 'object') {
-			throw new AstroError({
-				...AstroErrorData.InvalidGetStaticPathParam,
-				message: AstroErrorData.InvalidGetStaticPathParam.message(typeof pathObject.params),
 				location: {
 					file: route.component,
 				},

@@ -1514,10 +1514,7 @@ export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
  */
 export type GetStaticPaths = (
 	options: GetStaticPathsOptions
-) =>
-	| Promise<GetStaticPathsResult | GetStaticPathsResult[]>
-	| GetStaticPathsResult
-	| GetStaticPathsResult[];
+) => Promise<GetStaticPathsResult> | GetStaticPathsResult;
 
 /**
  * Infers the shape of the `params` property returned by `getStaticPaths()`.
