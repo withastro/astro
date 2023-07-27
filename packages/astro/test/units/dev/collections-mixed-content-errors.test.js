@@ -1,7 +1,5 @@
 import { expect } from 'chai';
 import { fileURLToPath } from 'node:url';
-import { validateConfig } from '../../../dist/core/config/config.js';
-import { createSettings } from '../../../dist/core/config/index.js';
 import { sync as _sync } from '../../../dist/core/sync/index.js';
 import { createFsWithFallback, defaultLogging } from '../test-utils.js';
 
@@ -9,10 +7,7 @@ const root = new URL('../../fixtures/content-mixed-errors/', import.meta.url);
 const logging = defaultLogging;
 
 async function sync({ fs, config = {} }) {
-	const astroConfig = await validateConfig(config, fileURLToPath(root), 'prod');
-	const settings = createSettings(astroConfig, 'build', fileURLToPath(root));
-
-	return _sync(settings, { logging, fs });
+	return _sync({ ...config, root: fileURLToPath(root) }, { logging, fs });
 }
 
 describe('Content Collections - mixed content errors', () => {

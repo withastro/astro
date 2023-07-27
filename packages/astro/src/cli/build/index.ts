@@ -1,7 +1,8 @@
 import type yargs from 'yargs-parser';
 import _build from '../../core/build/index.js';
 import type { LogOptions } from '../../core/logger/core.js';
-import { loadSettings } from '../load-settings.js';
+import { printHelp } from '../../core/messages.js';
+import { flagsToAstroInlineConfig } from '../load-settings.js';
 
 interface BuildOptions {
 	flags: yargs.Arguments;
@@ -9,13 +10,25 @@ interface BuildOptions {
 }
 
 export async function build({ flags, logging }: BuildOptions) {
-	const settings = await loadSettings({ cmd: 'build', flags, logging });
-	if (!settings) return;
+	if (flags?.help || flags?.h) {
+		printHelp({
+			commandName: 'astro build',
+			usage: '[...flags]',
+			tables: {
+				Flags: [
+					['--drafts', `Include Markdown draft pages in the build.`],
+					['--help (-h)', 'See all available flags.'],
+				],
+			},
+			description: `Builds your site for deployment.`,
+		});
+		return;
+	}
 
-	await _build(settings, {
-		flags,
+	const inlineConfig = flagsToAstroInlineConfig(flags);
+
+	await _build(inlineConfig, {
 		logging,
 		teardownCompiler: true,
-		mode: flags.mode,
 	});
 }

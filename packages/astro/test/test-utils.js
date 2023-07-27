@@ -12,7 +12,6 @@ import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.
 import { getVirtualModulePageNameFromPath } from '../dist/core/build/plugins/util.js';
 import { makeSplitEntryPointFileName } from '../dist/core/build/static-build.js';
 import { resolveConfig } from '../dist/core/config/config.js';
-import { createSettings } from '../dist/core/config/index.js';
 import dev from '../dist/core/dev/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
 import preview from '../dist/core/preview/index.js';
@@ -120,23 +119,9 @@ export async function loadFixture(inlineConfig) {
 	else if (!path.isAbsolute(root)) {
 		root = fileURLToPath(new URL(root, import.meta.url));
 	}
+	inlineConfig = { ...inlineConfig, root };
 	// Load the config.
-	const { astroConfig: config } = await resolveConfig({ ...inlineConfig, root }, 'dev');
-
-	/**
-	 * The dev/build/sync/check commands run integrations' `astro:config:setup` hook that could mutate
-	 * the `AstroSettings`. This function helps to create a fresh settings object that is used by the
-	 * command functions below to prevent tests from polluting each other.
-	 */
-	const getSettings = async (mode) => {
-		let settings = createSettings(config, mode, root);
-		if (config.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
-			// Enable default JSX integration. It needs to come first, so unshift rather than push!
-			const { default: jsxRenderer } = await import('astro/jsx/renderer.js');
-			settings.renderers.unshift(jsxRenderer);
-		}
-		return settings;
-	};
+	const { astroConfig: config } = await resolveConfig(inlineConfig, 'dev');
 
 	const resolveUrl = (url) =>
 		`http://${config.server.host || 'localhost'}:${config.server.port}${url.replace(/^\/?/, '/')}`;
@@ -169,15 +154,15 @@ export async function loadFixture(inlineConfig) {
 	return {
 		build: async (opts = {}) => {
 			process.env.NODE_ENV = 'production';
-			return build(await getSettings('build'), { logging, ...opts });
+			return build(inlineConfig, { logging, ...opts });
 		},
-		sync: async (opts) => sync(await getSettings('build'), { logging, fs, ...opts }),
+		sync: async (opts) => sync(inlineConfig, { logging, ...opts }),
 		check: async (opts) => {
-			return await check(await getSettings('build'), { logging, ...opts });
+			return await check(inlineConfig, { logging, ...opts });
 		},
 		startDevServer: async (opts = {}) => {
 			process.env.NODE_ENV = 'development';
-			devServer = await dev({ ...inlineConfig, root }, { logging, ...opts });
+			devServer = await dev(inlineConfig, { logging, ...opts });
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
 			return devServer;
@@ -199,7 +184,7 @@ export async function loadFixture(inlineConfig) {
 		},
 		preview: async (opts = {}) => {
 			process.env.NODE_ENV = 'production';
-			const previewServer = await preview(await getSettings('build'), { logging, ...opts });
+			const previewServer = await preview(inlineConfig, { logging, ...opts });
 			config.server.host = parseAddressToHost(previewServer.host); // update host
 			config.server.port = previewServer.port; // update port
 			return previewServer;
