@@ -13,6 +13,7 @@ describe('Split support', () => {
 			output: 'server',
 			adapter: netlifyAdapter({
 				dist: new URL('./fixtures/split-support/dist/', import.meta.url),
+				functionPerRoute: true,
 			}),
 			site: `http://example.com`,
 			integrations: [
@@ -22,9 +23,6 @@ describe('Split support', () => {
 					},
 				}),
 			],
-			build: {
-				split: true,
-			},
 		});
 		await fixture.build();
 	});
