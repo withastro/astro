@@ -166,5 +166,11 @@ export async function generateHydrateScript(
 		})
 	);
 
+	['data-astro-transition-scope', 'data-astro-transition-persist'].forEach(name => {
+		if(props[name]) {
+			island.props[name] = props[name];
+		}
+	});
+
 	return island;
 }
