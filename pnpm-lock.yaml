@@ -2209,6 +2209,12 @@ importers:
         specifier: ^3.3.4
         version: 3.3.4
 
+  packages/astro/test/fixtures/astro-unified-class:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/before-hydration:
     dependencies:
       '@astrojs/preact':
