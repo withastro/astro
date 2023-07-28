@@ -128,7 +128,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
 
   examples/blog:
@@ -143,19 +143,19 @@ importers:
         specifier: ^2.0.1
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
 
   examples/component:
     devDependencies:
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
 
   examples/deno:
     dependencies:
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
     devDependencies:
       '@astrojs/deno':
@@ -174,7 +174,7 @@ importers:
         specifier: ^3.12.2
         version: 3.12.2
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
 
   examples/framework-lit:
@@ -186,7 +186,7 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
       lit:
         specifier: ^2.7.5
@@ -210,7 +210,7 @@ importers:
         specifier: ^2.2.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
       preact:
         specifier: ^10.15.1
@@ -240,7 +240,7 @@ importers:
         specifier: ^1.1.3
         version: 1.1.3(preact@10.15.1)
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
       preact:
         specifier: ^10.15.1
@@ -258,7 +258,7 @@ importers:
         specifier: ^18.2.6
         version: 18.2.6
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
       react:
         specifier: ^18.2.0
@@ -273,7 +273,7 @@ importers:
         specifier: ^2.2.0
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.7.6
@@ -285,7 +285,7 @@ importers:
         specifier: ^3.1.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
       svelte:
         specifier: ^3.59.1
@@ -297,7 +297,7 @@ importers:
         specifier: ^2.2.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
       vue:
         specifier: ^3.3.4
@@ -309,13 +309,13 @@ importers:
         specifier: ^5.3.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
 
   examples/middleware:
@@ -324,7 +324,7 @@ importers:
         specifier: ^5.3.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
       html-minifier:
         specifier: ^4.0.0
@@ -333,19 +333,19 @@ importers:
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
 
   examples/non-html-pages:
     dependencies:
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
 
   examples/ssr:
@@ -357,7 +357,7 @@ importers:
         specifier: ^3.1.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
       svelte:
         specifier: ^3.59.1
@@ -369,7 +369,7 @@ importers:
         specifier: ^0.4.4
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
 
   examples/with-markdown-plugins:
@@ -378,7 +378,7 @@ importers:
         specifier: ^2.2.1
         version: link:../../packages/markdown/remark
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
       hast-util-select:
         specifier: ^5.0.5
@@ -399,7 +399,7 @@ importers:
   examples/with-markdown-shiki:
     dependencies:
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -411,7 +411,7 @@ importers:
         specifier: ^2.2.1
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
       preact:
         specifier: ^10.15.1
@@ -426,7 +426,7 @@ importers:
         specifier: ^0.4.1
         version: 0.4.1(nanostores@0.8.1)(preact@10.15.1)
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.8.1
@@ -447,7 +447,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
       autoprefixer:
         specifier: ^10.4.14
@@ -465,7 +465,7 @@ importers:
   examples/with-vite-plugin-pwa:
     dependencies:
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
       vite-plugin-pwa:
         specifier: 0.14.7
@@ -477,7 +477,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^2.9.4
+        specifier: ^2.9.5
         version: link:../../packages/astro
       vitest:
         specifier: ^0.31.4
@@ -4527,7 +4527,7 @@ importers:
     dependencies:
       '@astrojs/netlify':
         specifier: file:../../..
-        version: file:packages/integrations/netlify(astro@2.9.4)
+        version: file:packages/integrations/netlify(astro@2.9.5)
       astro:
         specifier: file:../../../../../astro
         version: file:packages/astro(@types/node@18.16.18)
@@ -5048,7 +5048,7 @@ importers:
     dependencies:
       '@astrojs/vercel':
         specifier: file:../../..
-        version: file:packages/integrations/vercel(astro@2.9.4)
+        version: file:packages/integrations/vercel(astro@2.9.5)
       astro:
         specifier: file:../../../../../astro
         version: file:packages/astro(@types/node@18.16.18)
@@ -5611,7 +5611,7 @@ packages:
       vscode-uri: 3.0.7
     dev: false
 
-  /@astrojs/markdown-remark@2.2.1(astro@2.9.4):
+  /@astrojs/markdown-remark@2.2.1(astro@2.9.5):
     resolution: {integrity: sha512-VF0HRv4GpC1XEMLnsKf6jth7JSmlt9qpqP0josQgA2eSpCIAC/Et+y94mgdBIZVBYH/yFnMoIxgKVe93xfO2GA==}
     peerDependencies:
       astro: '*'
@@ -18675,7 +18675,7 @@ packages:
     resolution: {directory: packages/astro, type: directory}
     id: file:packages/astro
     name: astro
-    version: 2.9.4
+    version: 2.9.5
     engines: {node: '>=16.12.0', npm: '>=6.14.0'}
     hasBin: true
     peerDependencies:
@@ -18687,7 +18687,7 @@ packages:
       '@astrojs/compiler': 1.6.3
       '@astrojs/internal-helpers': 0.1.1
       '@astrojs/language-server': 1.0.0
-      '@astrojs/markdown-remark': 2.2.1(astro@2.9.4)
+      '@astrojs/markdown-remark': 2.2.1(astro@2.9.5)
       '@astrojs/telemetry': 2.1.1
       '@astrojs/webapi': 2.2.0
       '@babel/core': 7.22.5
@@ -18784,7 +18784,7 @@ packages:
       solid-js: 1.7.6
     dev: false
 
-  file:packages/integrations/netlify(astro@2.9.4):
+  file:packages/integrations/netlify(astro@2.9.5):
     resolution: {directory: packages/integrations/netlify, type: directory}
     id: file:packages/integrations/netlify
     name: '@astrojs/netlify'
@@ -18799,7 +18799,7 @@ packages:
       esbuild: 0.15.18
     dev: false
 
-  file:packages/integrations/vercel(astro@2.9.4):
+  file:packages/integrations/vercel(astro@2.9.5):
     resolution: {directory: packages/integrations/vercel, type: directory}
     id: file:packages/integrations/vercel
     name: '@astrojs/vercel'

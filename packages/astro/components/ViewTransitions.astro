@@ -41,11 +41,11 @@ const { fallback = 'animate' } = Astro.props as Props;
 			if (wait) return;
 
 			cb(...args);
-			wait = true
+			wait = true;
 			setTimeout(() => {
-				wait = false
+				wait = false;
 			}, delay);
-		}
+		};
 	};
 
 	async function getHTML(href: string) {
@@ -89,7 +89,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		const swap = () => {
 			document.documentElement.replaceWith(doc.documentElement);
 
-			if(state?.scrollY != null) {
+			if (state?.scrollY != null) {
 				scrollTo(0, state.scrollY);
 			}
 
@@ -237,10 +237,14 @@ const { fallback = 'animate' } = Astro.props as Props;
 		addEventListener('load', onload);
 		// There's not a good way to record scroll position before a back button.
 		// So the way we do it is by listening to scroll and just continuously recording it.
-		addEventListener('scroll', throttle(() => {
-			if(history.state) {
-				persistState({ ...history.state, scrollY })
-			}
-		}, 300), { passive: true });
+		addEventListener(
+			'scroll',
+			throttle(() => {
+				if (history.state) {
+					persistState({ ...history.state, scrollY });
+				}
+			}, 300),
+			{ passive: true }
+		);
 	}
 </script>
