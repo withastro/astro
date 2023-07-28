@@ -5,7 +5,7 @@ import type { AstroInlineConfig, AstroSettings } from '../../@types/astro';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { createSettings, resolveConfig } from '../config/index.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
-import { astroConfigZodErrorTag } from '../errors/errors.js';
+import { astroConfigZodErrors } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
 import { error as _error, info, type LogOptions } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
@@ -80,7 +80,7 @@ export async function restartContainer(
 	} catch (_err) {
 		const error = createSafeError(_err);
 		// Print all error messages except ZodErrors from AstroConfig as the pre-logged error is sufficient
-		if (!(astroConfigZodErrorTag in error)) {
+		if (!astroConfigZodErrors.has(error)) {
 			_error(logging, 'config', formatErrorMessage(collectErrorMetadata(error)) + '\n');
 		}
 		// Inform connected clients of the config error
