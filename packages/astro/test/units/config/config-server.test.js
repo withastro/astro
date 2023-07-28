@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { fileURLToPath } from 'node:url';
-import { flagsToAstroInlineConfig } from '../../../dist/cli/load-settings.js';
+import { flagsToAstroInlineConfig } from '../../../dist/cli/flags.js';
 import { resolveConfig } from '../../../dist/core/config/index.js';
 
 const cwd = fileURLToPath(new URL('../../fixtures/config-host/', import.meta.url));
