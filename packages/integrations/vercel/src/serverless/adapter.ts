@@ -29,11 +29,21 @@ const SUPPORTED_NODE_VERSIONS: Record<
 	18: { status: 'current' },
 };
 
-function getAdapter(): AstroAdapter {
+function getAdapter({
+	edgeMiddleware,
+	functionPerRoute,
+}: {
+	edgeMiddleware: boolean;
+	functionPerRoute: boolean;
+}): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
 		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
 		exports: ['default'],
+		adapterFeatures: {
+			edgeMiddleware,
+			functionPerRoute,
+		},
 	};
 }
 
@@ -43,6 +53,8 @@ export interface VercelServerlessConfig {
 	analytics?: boolean;
 	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
+	edgeMiddleware?: boolean;
+	functionPerRoute?: boolean;
 }
 
 export default function vercelServerless({
@@ -51,6 +63,8 @@ export default function vercelServerless({
 	analytics,
 	imageService,
 	imagesConfig,
+	functionPerRoute = false,
+	edgeMiddleware = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
@@ -112,7 +126,7 @@ export default function vercelServerless({
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
 				throwIfAssetsNotEnabled(config, imageService);
-				setAdapter(getAdapter());
+				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware }));
 				_config = config;
 				buildTempFolder = config.build.server;
 				serverEntry = config.build.serverEntry;
