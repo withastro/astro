@@ -3,6 +3,7 @@ import type { GetModuleInfo, ModuleInfo, PluginContext } from 'rollup';
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import type { ExportDefaultDeclaration, ExportNamedDeclaration, ImportDeclaration } from 'estree';
 import { walk } from 'estree-walker';
+import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 
 // This walks up the dependency graph and yields out each ModuleInfo object.
 export function* walkParentInfos(
@@ -188,5 +189,24 @@ export function* getTopLevelPages(
 		if (moduleIsTopLevelPage(res[0])) {
 			yield res;
 		}
+	}
+}
+
+export async function* getTopLevelPagesTrackingImports(
+	id: string,
+	ctx: PluginContext
+): AsyncGenerator<[ModuleInfo, number, number], void, unknown> {
+	for await (const res of walkParentInfosTrackingImports(id, ctx)) {
+		if (moduleIsTopLevelPage(res[0])) {
+			yield res;
+		}
+	}
+}
+
+export function isPropagatedAsset(id: string) {
+	try {
+		return new URL('file://' + id).searchParams.has(PROPAGATED_ASSET_FLAG);
+	} catch {
+		return false;
 	}
 }

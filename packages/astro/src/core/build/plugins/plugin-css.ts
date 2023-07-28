@@ -7,9 +7,8 @@ import type { BuildInternals } from '../internal';
 import type { AstroBuildPlugin } from '../plugin';
 import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types';
 
-import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import * as assetName from '../css-asset-name.js';
-import { moduleIsTopLevelPage, walkParentInfos, walkParentInfosTrackingImports } from '../graph.js';
+import { isPropagatedAsset, moduleIsTopLevelPage, walkParentInfos, walkParentInfosTrackingImports } from '../graph.js';
 import {
 	eachPageData,
 	getPageDataByViteID,
@@ -61,45 +60,58 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const pagesToCss: Record<string, Record<string, { order: number; depth: number }>> = {};
 	const pagesToPropagatedCss: Record<string, Record<string, Set<string>>> = {};
 
+	let createNameForParentPages: (typeof assetName)['shortHashedName'];
+
 	const cssBuildPlugin: VitePlugin = {
 		name: 'astro:rollup-plugin-build-css',
+
+		async renderStart() {
+			// For client builds that has hydrated components as entrypoints, there's no way
+			// to crawl up and find the pages that use it. So we lookup the cache during SSR
+			// build (that has the pages information) to derive the same chunk id so they
+			// match up on build, making sure both builds has the CSS deduped.
+			// NOTE: Components that are only used with `client:only` may not exist in the cache
+			// and that's okay. We can use Rollup's default chunk strategy instead as these CSS
+			// are outside of the SSR build scope, which no dedupe is needed.
+			if (options.target === 'client') {
+				return;
+			}
+
+			const modules = this.getModuleIds();
+			for (const id of modules) {
+				let built = false;
+				if (isBuildableCSSRequest(id)) {
+					for (const [pageInfo] of walkParentInfos(id, this)) {
+						if (isPropagatedAsset(pageInfo.id)) {
+							// Split delayed assets to separate modules
+							// so they can be injected where needed
+							const chunkId = createNameHash(id, [id]);
+							internals.cssModuleToChunkIdMap.set(id, chunkId);
+							built = true;
+							break;
+						}
+					}
+					if (!built) {
+						const chunkId = await createNameForParentPages(id, this);
+						internals.cssModuleToChunkIdMap.set(id, chunkId);
+					}
+				}
+			}
+		},
 
 		outputOptions(outputOptions) {
 			const assetFileNames = outputOptions.assetFileNames;
 			const namingIncludesHash = assetFileNames?.toString().includes('[hash]');
-			const createNameForParentPages = namingIncludesHash
+			createNameForParentPages = namingIncludesHash
 				? assetName.shortHashedName
 				: assetName.createSlugger(settings);
-			const ctx = this;
 
 			extendManualChunks(outputOptions, {
-				after(id, meta) {
+				after(id) {
 					// For CSS, create a hash of all of the pages that use it.
 					// This causes CSS to be built into shared chunks when used by multiple pages.
 					if (isBuildableCSSRequest(id)) {
-						// For client builds that has hydrated components as entrypoints, there's no way
-						// to crawl up and find the pages that use it. So we lookup the cache during SSR
-						// build (that has the pages information) to derive the same chunk id so they
-						// match up on build, making sure both builds has the CSS deduped.
-						// NOTE: Components that are only used with `client:only` may not exist in the cache
-						// and that's okay. We can use Rollup's default chunk strategy instead as these CSS
-						// are outside of the SSR build scope, which no dedupe is needed.
-						if (options.target === 'client') {
-							return internals.cssModuleToChunkIdMap.get(id)!;
-						}
-
-						for (const [pageInfo] of walkParentInfos(id, ctx)) {
-							if (new URL(pageInfo.id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)) {
-								// Split delayed assets to separate modules
-								// so they can be injected where needed
-								const chunkId = createNameHash(id, [id]);
-								internals.cssModuleToChunkIdMap.set(id, chunkId);
-								return chunkId;
-							}
-						}
-						const chunkId = createNameForParentPages(id, meta);
-						internals.cssModuleToChunkIdMap.set(id, chunkId);
-						return chunkId;
+						return internals.cssModuleToChunkIdMap.get(id)!;
 					}
 				},
 			});
@@ -130,14 +142,13 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 				// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
 				for (const id of Object.keys(chunk.modules)) {
-					for (const [pageInfo, depth, order] of walkParentInfos(
-						id,
+					const componentId = this.getModuleInfo(id)!.importers[0];
+					for await (const [pageInfo, depth, order] of walkParentInfosTrackingImports(
+						componentId,
 						this,
-						function until(importer) {
-							return new URL(importer, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG);
-						}
+						isPropagatedAsset
 					)) {
-						if (new URL(pageInfo.id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)) {
+						if (isPropagatedAsset(pageInfo.id)) {
 							for (const parent of walkParentInfos(id, this)) {
 								const parentInfo = parent[0];
 								if (moduleIsTopLevelPage(parentInfo) === false) continue;

@@ -1,21 +1,25 @@
-import type { GetModuleInfo } from 'rollup';
+import type { ModuleInfo, PluginContext } from 'rollup';
 
 import crypto from 'node:crypto';
 import npath from 'node:path';
 import type { AstroSettings } from '../../@types/astro';
 import { viteID } from '../util.js';
-import { getTopLevelPages } from './graph.js';
+import { getTopLevelPagesTrackingImports } from './graph.js';
 
 // The short name for when the hash can be included
 // We could get rid of this and only use the createSlugger implementation, but this creates
 // slightly prettier names.
-export function shortHashedName(id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
-	const parents = Array.from(getTopLevelPages(id, ctx));
-	const firstParentId = parents[0]?.[0].id;
+export async function shortHashedName(id: string, ctx: PluginContext): Promise<string> {
+	const componentId = ctx.getModuleInfo(id)!.importers[0];
+	const parents: ModuleInfo[] = [];
+	for await (const [mod] of getTopLevelPagesTrackingImports(componentId, ctx)) {
+		parents.push(mod);
+	}
+	const firstParentId = parents[0]?.id;
 	const firstParentName = firstParentId ? npath.parse(firstParentId).name : 'index';
 
 	const hash = crypto.createHash('sha256');
-	for (const [page] of parents) {
+	for (const page of parents) {
 		hash.update(page.id, 'utf-8');
 	}
 	const h = hash.digest('hex').slice(0, 8);
@@ -28,13 +32,17 @@ export function createSlugger(settings: AstroSettings) {
 	const indexPage = viteID(new URL('./pages/index', settings.config.srcDir));
 	const map = new Map<string, Map<string, number>>();
 	const sep = '-';
-	return function (id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
-		const parents = Array.from(getTopLevelPages(id, ctx));
+	return async function (id: string, ctx: PluginContext): Promise<string> {
+		const componentId = ctx.getModuleInfo(id)!.importers[0];
+		const parents: ModuleInfo[] = [];
+		for await (const [mod] of getTopLevelPagesTrackingImports(componentId, ctx)) {
+			parents.push(mod);
+		}
 		const allParentsKey = parents
-			.map(([page]) => page.id)
+			.map((page) => page.id)
 			.sort()
 			.join('-');
-		const firstParentId = parents[0]?.[0].id || indexPage;
+		const firstParentId = parents[0]?.id || indexPage;
 
 		// Use the last two segments, for ex /docs/index
 		let dir = firstParentId;

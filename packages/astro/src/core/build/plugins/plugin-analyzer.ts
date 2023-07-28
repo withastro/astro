@@ -3,23 +3,15 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
-import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { prependForwardSlash } from '../../../core/path.js';
 import {
 	getTopLevelPages,
+	isPropagatedAsset,
 	moduleIsTopLevelPage,
 	walkParentInfos,
 	walkParentInfosTrackingImports,
 } from '../graph.js';
 import { getPageDataByViteID, trackClientOnlyPageDatas } from '../internal.js';
-
-function isPropagatedAsset(id: string) {
-	try {
-		return new URL('file://' + id).searchParams.has(PROPAGATED_ASSET_FLAG);
-	} catch {
-		return false;
-	}
-}
 
 export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 	function hoistedScriptScanner() {
