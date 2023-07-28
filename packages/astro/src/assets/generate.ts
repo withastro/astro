@@ -27,6 +27,11 @@ export async function generateImage(
 	options: ImageTransform,
 	filepath: string
 ): Promise<GenerationData | undefined> {
+	if (typeof buildOpts.settings.config.image === 'undefined') {
+		throw new Error(
+			"Astro hasn't set a default service for `astro:assets`. This is an internal error and you should report it."
+		);
+	}
 	if (!isESMImportedImage(options.src)) {
 		return undefined;
 	}
