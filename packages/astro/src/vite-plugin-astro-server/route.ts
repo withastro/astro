@@ -31,6 +31,7 @@ import { preload } from './index.js';
 import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { getScriptsForURL } from './scripts.js';
+import { isEndpointResult } from '../core/render/core.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -140,7 +141,7 @@ type HandleRoute = {
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 	manifest: SSRManifest;
-	status?: number;
+	status?: 404 | 500;
 };
 
 export async function handleRoute({
@@ -216,7 +217,7 @@ export async function handleRoute({
 	const onRequest = options.middleware?.onRequest as MiddlewareResponseHandler | undefined;
 
 	const result = await tryRenderRoute(route.type, renderContext, env, mod, onRequest);
-	if (route.type === 'endpoint' && !(result instanceof Response)) {
+	if (isEndpointResult(result, route.type)) {
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
 				const fourOhFourRoute = await matchRoute('/404', env, manifestData);
@@ -254,7 +255,7 @@ export async function handleRoute({
 			attachToResponse(response, result.cookies);
 			await writeWebResponse(incomingResponse, response);
 		}
-	} else if (result instanceof Response) {
+	} else {
 		if (result.status === 404) {
 			const fourOhFourRoute = await matchRoute('/404', env, manifestData);
 			return handleRoute({
@@ -273,13 +274,24 @@ export async function handleRoute({
 		}
 
 		let response = result;
-		// Response.status is read-only, so a clone is required to override
-		if (status && response.status !== status) {
+
+		if (
+			// We are in a recursion, and it's possible that this function is called itself with a status code
+			// By default, the status code passed via parameters is computed by the matched route.
+			//
+			// By default, we should give priority to the status code passed, although it's possible that
+			// the `Response` emitted by the user is a redirect. If so, then return the returned response.
+			response.status < 400 &&
+			response.status >= 300
+		) {
+			await writeSSRResult(request, response, incomingResponse);
+			return;
+		} else if (status && response.status !== status && (status === 404 || status === 500)) {
+			// Response.status is read-only, so a clone is required to override
 			response = new Response(result.body, { ...result, status });
 		}
 		await writeSSRResult(request, response, incomingResponse);
 	}
-	// unreachable
 }
 
 interface GetScriptsAndStylesParams {
@@ -360,7 +372,7 @@ async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams)
 	return { scripts, styles, links, metadata };
 }
 
-function getStatus(matchedRoute?: MatchedRoute): number | undefined {
+function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | undefined {
 	if (!matchedRoute) return 404;
 	if (matchedRoute.route.route === '/404') return 404;
 	if (matchedRoute.route.route === '/500') return 500;
