@@ -172,11 +172,19 @@ async function loadConfig(
 	if (!configPath) return {};
 
 	// Create a vite server to load the config
-	return await loadConfigWithVite({
-		root,
-		configPath,
-		fs: fsMod,
-	});
+	try {
+		return await loadConfigWithVite({
+			root,
+			configPath,
+			fs: fsMod,
+		});
+	} catch (e) {
+		const configPathText = configFile ? colors.bold(configFile) : 'your Astro config';
+		// Config errors should bypass log level as it breaks startup
+		// eslint-disable-next-line no-console
+		console.error(`${colors.bold(colors.red('[astro]'))} Unable to load ${configPathText}\n`);
+		throw e;
+	}
 }
 
 interface ResolveConfigResult {

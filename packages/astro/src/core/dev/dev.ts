@@ -13,7 +13,6 @@ import { createContainerWithAutomaticRestart } from './restart.js';
 
 export interface DevOptions {
 	logging: LogOptions;
-	handleConfigError: (error: Error) => void;
 }
 
 export interface DevServer {
@@ -36,9 +35,6 @@ export default async function dev(
 		inlineConfig,
 		logging: options.logging,
 		fs,
-		handleConfigError: options.handleConfigError,
-		// eslint-disable-next-line no-console
-		beforeRestart: () => console.clear(),
 	});
 
 	// Start listening to the port

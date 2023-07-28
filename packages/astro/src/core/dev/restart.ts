@@ -59,29 +59,15 @@ export function shouldRestartContainer(
 	return shouldRestart;
 }
 
-interface RestartContainerParams {
-	container: Container;
-	logMsg: string;
-	handleConfigError: (err: Error) => Promise<void> | void;
-	beforeRestart?: () => void;
-}
-
-export async function restartContainer({
-	container,
-	logMsg,
-	handleConfigError,
-	beforeRestart,
-}: RestartContainerParams): Promise<{ container: Container; error: Error | null }> {
+export async function restartContainer(
+	container: Container
+): Promise<{ container: Container; error: Error | null }> {
 	const { logging, close, settings: existingSettings } = container;
 	container.restartInFlight = true;
 
-	if (beforeRestart) {
-		beforeRestart();
-	}
 	const needsStart = isStarted(container);
 	try {
 		const { astroConfig } = await resolveConfig(container.inlineConfig, 'dev', container.fs);
-		info(logging, 'astro', logMsg + '\n');
 		const settings = createSettings(astroConfig, fileURLToPath(existingSettings.config.root));
 		await close();
 		return {
@@ -90,7 +76,14 @@ export async function restartContainer({
 		};
 	} catch (_err) {
 		const error = createSafeError(_err);
-		await handleConfigError(error);
+		// TODO: format and log the error
+		container.viteServer.ws.send({
+			type: 'error',
+			err: {
+				message: error.message,
+				stack: error.stack || '',
+			},
+		});
 		await close();
 		info(logging, 'astro', 'Continuing with previous valid configuration\n');
 		return {
@@ -104,8 +97,6 @@ export interface CreateContainerWithAutomaticRestart {
 	inlineConfig?: AstroInlineConfig;
 	logging: LogOptions;
 	fs: typeof nodeFs;
-	handleConfigError?: (error: Error) => void | Promise<void>;
-	beforeRestart?: () => void;
 }
 
 interface Restart {
@@ -117,8 +108,6 @@ export async function createContainerWithAutomaticRestart({
 	inlineConfig,
 	logging,
 	fs,
-	handleConfigError = () => {},
-	beforeRestart,
 }: CreateContainerWithAutomaticRestart): Promise<Restart> {
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev', fs);
 	telemetry.record(eventCliSession('dev', userConfig));
@@ -139,24 +128,9 @@ export async function createContainerWithAutomaticRestart({
 		},
 	};
 
-	async function handleServerRestart(logMsg: string) {
+	async function handleServerRestart() {
 		const container = restart.container;
-		const { container: newContainer, error } = await restartContainer({
-			container,
-			logMsg,
-			beforeRestart,
-			async handleConfigError(err) {
-				// Send an error message to the client if one is connected.
-				await handleConfigError(err);
-				container.viteServer.ws.send({
-					type: 'error',
-					err: {
-						message: err.message,
-						stack: err.stack || '',
-					},
-				});
-			},
-		});
+		const { container: newContainer, error } = await restartContainer(container);
 		restart.container = newContainer;
 		// Add new watches because this is a new container with a new Vite server
 		addWatches();
@@ -169,7 +143,8 @@ export async function createContainerWithAutomaticRestart({
 	function handleChangeRestart(logMsg: string) {
 		return async function (changedFile: string) {
 			if (shouldRestartContainer(restart.container, changedFile)) {
-				handleServerRestart(logMsg);
+				info(logging, 'astro', logMsg + '\n');
+				handleServerRestart();
 			}
 		};
 	}
