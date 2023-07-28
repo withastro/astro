@@ -12,6 +12,7 @@ import { attachToResponse } from '../core/cookies/index.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { warn } from '../core/logger/core.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
+import { isEndpointResult } from '../core/render/core.js';
 import {
 	createRenderContext,
 	getParamsAndProps,
@@ -31,7 +32,6 @@ import { preload } from './index.js';
 import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { getScriptsForURL } from './scripts.js';
-import { isEndpointResult } from '../core/render/core.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
