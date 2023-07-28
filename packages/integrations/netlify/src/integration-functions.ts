@@ -8,12 +8,16 @@ import { createRedirects } from './shared.js';
 export const NETLIFY_EDGE_MIDDLEWARE_FILE = 'netlify-edge-middleware';
 export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
 
-export function getAdapter(args: Args = {}): AstroAdapter {
+export function getAdapter({ functionPerRoute, edgeMiddleware, ...args }: Args): AstroAdapter {
 	return {
 		name: '@astrojs/netlify/functions',
 		serverEntrypoint: '@astrojs/netlify/netlify-functions.js',
 		exports: ['handler'],
 		args,
+		adapterFeatures: {
+			functionPerRoute,
+			edgeMiddleware,
+		},
 	};
 }
 
@@ -21,12 +25,16 @@ interface NetlifyFunctionsOptions {
 	dist?: URL;
 	builders?: boolean;
 	binaryMediaTypes?: string[];
+	edgeMiddleware?: boolean;
+	functionPerRoute?: boolean;
 }
 
 function netlifyFunctions({
 	dist,
 	builders,
 	binaryMediaTypes,
+	functionPerRoute = false,
+	edgeMiddleware = false,
 }: NetlifyFunctionsOptions = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let _entryPoints: Map<RouteData, URL>;
@@ -53,7 +61,7 @@ function netlifyFunctions({
 				_entryPoints = entryPoints;
 			},
 			'astro:config:done': ({ config, setAdapter }) => {
-				setAdapter(getAdapter({ binaryMediaTypes, builders }));
+				setAdapter(getAdapter({ binaryMediaTypes, builders, functionPerRoute, edgeMiddleware }));
 				_config = config;
 				ssrEntryFile = config.build.serverEntry.replace(/\.m?js/, '');
 

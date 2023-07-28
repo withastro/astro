@@ -10,6 +10,7 @@ describe('Middleware', () => {
 			output: 'server',
 			adapter: netlifyAdapter({
 				dist: new URL('./fixtures/middleware-with-handler-file/dist/', import.meta.url),
+				edgeMiddleware: true,
 			}),
 			site: `http://example.com`,
 			integrations: [testIntegration()],
