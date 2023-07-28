@@ -420,7 +420,7 @@ async function renderAstroComponent(
 	props: Record<string | number, any>,
 	slots: any = {}
 ): Promise<RenderInstance> {
-	const instance = await createAstroComponentInstance(result, displayName, Component, props, slots);
+	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
 
 	// Eagerly render the component so they are rendered in parallel
 	const chunks: RenderDestinationChunk[] = [];

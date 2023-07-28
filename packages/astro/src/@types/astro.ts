@@ -2033,8 +2033,6 @@ export interface SSRMetadata {
 	headInTree: boolean;
 	extraHead: string[];
 	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
-	// Used to key track of unique content; links and script tags
-	contentKeys: Set<string>;
 }
 
 /* Preview server stuff */

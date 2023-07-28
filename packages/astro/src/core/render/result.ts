@@ -258,7 +258,6 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			headInTree: false,
 			extraHead: [],
 			propagators: new Map(),
-			contentKeys: new Set(),
 		},
 	};
 
