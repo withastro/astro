@@ -190,7 +190,7 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
 
-	test('Scroll position restored on back button',  async ({ page, astro }) => {
+	test('Scroll position restored on back button', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/long-page'));
 		let article = page.locator('#longpage');
@@ -211,7 +211,7 @@ test.describe('View Transitions', () => {
 		expect(oldScrollY).toEqual(newScrollY);
 	});
 
-	test('Scroll position restored on forward button',  async ({ page, astro }) => {
+	test('Scroll position restored on forward button', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
@@ -235,7 +235,7 @@ test.describe('View Transitions', () => {
 
 		const newScrollY = await page.evaluate(() => window.scrollY);
 		expect(oldScrollY).toEqual(newScrollY);
-  })
+	});
 
 	test('<Image /> component forwards transitions to the <img>', async ({ page, astro }) => {
 		// Go to page 1
