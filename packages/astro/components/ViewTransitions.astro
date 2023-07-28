@@ -34,6 +34,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		!!document.querySelector('[name="astro-view-transitions-enabled"]');
 	const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
 	const onload = () => triggerEvent('astro:load');
+	const PERSIST_ATTR = 'data-astro-transition-persist';
 
 	const throttle = (cb: (...args: any[]) => any, delay: number) => {
 		let wait = false;
@@ -87,7 +88,17 @@ const { fallback = 'animate' } = Astro.props as Props;
 		const doc = parser.parseFromString(html, 'text/html');
 		doc.documentElement.dataset.astroTransition = dir;
 		const swap = () => {
+			const oldDocEl = document.documentElement
 			document.documentElement.replaceWith(doc.documentElement);
+			// Move over persist stuff
+			for(const el of oldDocEl.querySelectorAll(`[${PERSIST_ATTR}]`)) {
+				const id = el.getAttribute(PERSIST_ATTR);
+				const newEl = document.querySelector(`[${PERSIST_ATTR}="${id}"]`);
+				if(newEl) {
+					newEl.replaceWith(el);
+				}
+			}
+
 
 			if (state?.scrollY != null) {
 				scrollTo(0, state.scrollY);
