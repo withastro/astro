@@ -3,7 +3,7 @@ import type yargs from 'yargs-parser';
 import devServer from '../../core/dev/index.js';
 import type { LogOptions } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
-import { flagsToAstroInlineConfig } from '../load-settings.js';
+import { flagsToAstroInlineConfig } from '../flags.js';
 
 interface DevOptions {
 	flags: yargs.Arguments;

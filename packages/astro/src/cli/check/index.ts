@@ -18,7 +18,7 @@ import { debug, info } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
 import type { ProcessExit, SyncOptions } from '../../core/sync';
 import { runHookConfigSetup } from '../../integrations/index.js';
-import { flagsToAstroInlineConfig } from '../load-settings.js';
+import { flagsToAstroInlineConfig } from '../flags.js';
 import { printDiagnostic } from './print.js';
 import { resolveConfig } from '../../core/config/config.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
