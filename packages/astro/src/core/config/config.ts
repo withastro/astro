@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ZodError } from 'zod';
 import { eventConfigError, telemetry } from '../../events/index.js';
-import { astroConfigZodErrors } from '../errors/errors.js';
+import { trackAstroConfigZodError } from '../errors/errors.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { formatConfigErrorMessage } from '../messages.js';
 import { mergeConfig } from './merge.js';
@@ -92,7 +92,7 @@ export async function validateConfig(
 		if (e instanceof ZodError) {
 			// Mark this error so the callee can decide to suppress Zod's error if needed.
 			// We still want to throw the error to signal an error in validation.
-			astroConfigZodErrors.add(e);
+			trackAstroConfigZodError(e);
 			// eslint-disable-next-line no-console
 			console.error(formatConfigErrorMessage(e) + '\n');
 			telemetry.record(eventConfigError({ cmd, err: e, isFatal: true }));

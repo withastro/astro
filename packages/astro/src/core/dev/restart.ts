@@ -5,9 +5,9 @@ import type { AstroInlineConfig, AstroSettings } from '../../@types/astro';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { createSettings, resolveConfig } from '../config/index.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
-import { astroConfigZodErrors } from '../errors/errors.js';
+import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
-import { error as _error, info, type LogOptions } from '../logger/core.js';
+import { error as logError, info, type LogOptions } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import type { Container } from './container';
 import { createContainer, isStarted, startContainer } from './container.js';
@@ -80,8 +80,8 @@ export async function restartContainer(
 	} catch (_err) {
 		const error = createSafeError(_err);
 		// Print all error messages except ZodErrors from AstroConfig as the pre-logged error is sufficient
-		if (!astroConfigZodErrors.has(error)) {
-			_error(logging, 'config', formatErrorMessage(collectErrorMetadata(error)) + '\n');
+		if (!isAstroConfigZodError(_err)) {
+			logError(logging, 'config', formatErrorMessage(collectErrorMetadata(error)) + '\n');
 		}
 		// Inform connected clients of the config error
 		container.viteServer.ws.send({
