@@ -22,6 +22,7 @@ import type { AstroCookies } from '../core/cookies';
 import type { LogOptions, LoggerLevel } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import { AstroIntegrationLogger } from '../core/logger/core';
 export type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -1879,6 +1880,7 @@ export interface AstroIntegration {
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			addClientDirective: (directive: ClientDirectiveConfig) => void;
+			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.
@@ -1887,10 +1889,17 @@ export interface AstroIntegration {
 		'astro:config:done'?: (options: {
 			config: AstroConfig;
 			setAdapter: (adapter: AstroAdapter) => void;
+			logger: AstroIntegrationLogger;
 		}) => void | Promise<void>;
-		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
-		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
-		'astro:server:done'?: () => void | Promise<void>;
+		'astro:server:setup'?: (options: {
+			server: vite.ViteDevServer;
+			logger: AstroIntegrationLogger;
+		}) => void | Promise<void>;
+		'astro:server:start'?: (options: {
+			address: AddressInfo;
+			logger: AstroIntegrationLogger;
+		}) => void | Promise<void>;
+		'astro:server:done'?: (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
 		'astro:build:ssr'?: (options: {
 			manifest: SerializedSSRManifest;
 			/**
@@ -1902,19 +1911,25 @@ export interface AstroIntegration {
 			 * File path of the emitted middleware
 			 */
 			middlewareEntryPoint: URL | undefined;
+			logger: AstroIntegrationLogger;
 		}) => void | Promise<void>;
-		'astro:build:start'?: () => void | Promise<void>;
+		'astro:build:start'?: (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
 		'astro:build:setup'?: (options: {
 			vite: vite.InlineConfig;
 			pages: Map<string, PageBuildData>;
 			target: 'client' | 'server';
 			updateConfig: (newConfig: vite.InlineConfig) => void;
+			logger: AstroIntegrationLogger;
 		}) => void | Promise<void>;
-		'astro:build:generated'?: (options: { dir: URL }) => void | Promise<void>;
+		'astro:build:generated'?: (options: {
+			dir: URL;
+			logger: AstroIntegrationLogger;
+		}) => void | Promise<void>;
 		'astro:build:done'?: (options: {
 			pages: { pathname: string }[];
 			dir: URL;
 			routes: RouteData[];
+			logger: AstroIntegrationLogger;
 		}) => void | Promise<void>;
 	};
 }
