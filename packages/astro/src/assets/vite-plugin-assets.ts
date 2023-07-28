@@ -1,10 +1,8 @@
-import { bold } from 'kleur/colors';
 import MagicString from 'magic-string';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroPluginOptions, ImageTransform } from '../@types/astro';
-import { error } from '../core/logger/core.js';
 import {
 	appendForwardSlash,
 	joinPaths,
@@ -23,42 +21,11 @@ const urlRE = /(\?|&)url(?:&|$)/;
 
 export default function assets({
 	settings,
-	logging,
 	mode,
 }: AstroPluginOptions & { mode: string }): vite.Plugin[] {
-	const imageService = settings.config.image;
-	if (typeof imageService === 'undefined') {
-		throw new Error(
-			"Astro hasn't set a default service for `astro:assets`. This is an internal error and you should report it."
-		);
-	}
 	let resolvedConfig: vite.ResolvedConfig;
 
 	globalThis.astroAsset = {};
-
-	const UNSUPPORTED_ADAPTERS = new Set([
-		'@astrojs/cloudflare',
-		'@astrojs/deno',
-		'@astrojs/netlify/edge-functions',
-		'@astrojs/vercel/edge',
-	]);
-
-	const adapterName = settings.config.adapter?.name;
-	if (
-		['astro/assets/services/sharp', 'astro/assets/services/squoosh'].includes(
-			imageService.service.entrypoint
-		) &&
-		adapterName &&
-		UNSUPPORTED_ADAPTERS.has(adapterName)
-	) {
-		error(
-			logging,
-			'assets',
-			`The currently selected adapter \`${adapterName}\` does not run on Node, however the currently used image service depends on Node built-ins. ${bold(
-				'Your project will NOT be able to build.'
-			)}`
-		);
-	}
 
 	return [
 		// Expose the components and different utilities from `astro:assets` and handle serving images from `/_image` in dev
@@ -78,7 +45,7 @@ export default function assets({
 			},
 			async resolveId(id) {
 				if (id === VIRTUAL_SERVICE_ID) {
-					return await this.resolve(imageService.service.entrypoint);
+					return await this.resolve(settings.config.image.service.entrypoint);
 				}
 				if (id === VIRTUAL_MODULE_ID) {
 					return resolvedVirtualModuleId;
@@ -91,7 +58,7 @@ export default function assets({
 					import { getImage as getImageInternal } from "astro/assets";
 					export { default as Image } from "astro/components/Image.astro";
 
-					export const imageServiceConfig = ${JSON.stringify(imageService.service.config)};
+					export const imageServiceConfig = ${JSON.stringify(settings.config.image.service.config)};
 					export const getImage = async (options) => await getImageInternal(options, imageServiceConfig);
 				`;
 				}
@@ -109,7 +76,7 @@ export default function assets({
 						>();
 					}
 
-					const hash = hashTransform(options, imageService.service.entrypoint);
+					const hash = hashTransform(options, settings.config.image.service.entrypoint);
 
 					let filePath: string;
 					if (globalThis.astroAsset.staticImages.has(hash)) {
