@@ -16,15 +16,12 @@ export async function throwAndExit(cmd: string, err: unknown) {
 	}
 
 	const safeError = createSafeError(err);
+	// Suppress ZodErrors from AstroConfig as the pre-logged error is sufficient
+	if (astroConfigZodErrorTag in safeError) return;
+
 	const errorWithMetadata = collectErrorMetadata(safeError);
 	telemetryPromise = telemetry.record(eventError({ cmd, err: errorWithMetadata, isFatal: true }));
-
-	// Suppress ZodErrors from AstroConfig as the pre-logged error is sufficient
-	if (astroConfigZodErrorTag in safeError) {
-		errorMessage = '';
-	} else {
-		errorMessage = formatErrorMessage(errorWithMetadata);
-	}
+	errorMessage = formatErrorMessage(errorWithMetadata);
 
 	// Timeout the error reporter (very short) because the user is waiting.
 	// NOTE(fks): It is better that we miss some events vs. holding too long.
