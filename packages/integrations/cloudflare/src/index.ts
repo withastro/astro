@@ -39,6 +39,8 @@ const SHIM = `globalThis.process = {
 
 const SERVER_BUILD_FOLDER = '/$server_build/';
 
+const matchNoneIncludePattern = '/MATCH_NONE_INCLUDE_PATTERN';
+
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
@@ -328,14 +330,28 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						);
 					}
 
-					let include = functionEndpoints.map((endpoint) => endpoint.includePattern);
-					let exclude = staticPathList.filter((file: string) =>
-						functionEndpoints.some((endpoint) => endpoint.regexp.test(file))
+					staticPathList.push(...routes.filter((r) => r.type === 'redirect').map((r) => r.route));
+
+					// In order to product the shortest list of patterns, we first try to
+					// include all function endpoints, and then exclude all static paths
+					let include = deduplicatePatterns(
+						functionEndpoints.map((endpoint) => endpoint.includePattern)
+					);
+					let exclude = deduplicatePatterns(
+						staticPathList.filter((file: string) =>
+							functionEndpoints.some((endpoint) => endpoint.regexp.test(file))
+						)
 					);
 
-					if (include.length + exclude.length > 100 && staticPathList.length < 100) {
+					if (include.length === 0) {
+						include = [matchNoneIncludePattern];
+					}
+
+					// If using only an exclude list would produce a shorter list of patterns,
+					// we use that instead
+					if (include.length + exclude.length > staticPathList.length) {
 						include = ['/*'];
-						exclude = staticPathList;
+						exclude = deduplicatePatterns(staticPathList);
 					}
 
 					await fs.promises.writeFile(
@@ -343,8 +359,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						JSON.stringify(
 							{
 								version: 1,
-								include: [...new Set(include)],
-								exclude: [...new Set(exclude)],
+								include,
+								exclude,
 							},
 							null,
 							2
@@ -358,4 +374,22 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 function prependForwardSlash(path: string) {
 	return path[0] === '/' ? path : '/' + path;
+}
+
+function deduplicatePatterns(patterns: string[]) {
+	const openPatterns: RegExp[] = [];
+
+	return [...new Set(patterns)]
+		.sort((a, b) => a.length - b.length)
+		.filter((pattern) => {
+			if (openPatterns.some((p) => p.test(pattern))) {
+				return false;
+			}
+
+			if (pattern.endsWith('*')) {
+				openPatterns.push(new RegExp(`^${pattern.replace(/(\*\/)*\*$/g, '.*')}`));
+			}
+
+			return true;
+		});
 }

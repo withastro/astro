@@ -1,5 +1,5 @@
 {
-  "name": "@test/astro-cloudflare-hybrid",
+  "name": "@test/astro-cloudflare-routes-json",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

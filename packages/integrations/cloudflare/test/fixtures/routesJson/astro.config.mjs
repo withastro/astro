@@ -7,6 +7,7 @@ export default defineConfig({
 	adapter: cloudflare({ mode: 'directory' }),
 	output: 'hybrid',
 	redirects: {
-		'/old': '/',
+		'/a/redirect': '/',
 	},
+	srcDir: process.env.SRC 
 });
