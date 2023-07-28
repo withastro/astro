@@ -11,6 +11,16 @@ export function getAdapter(): AstroAdapter {
 		name: '@astrojs/netlify/edge-functions',
 		serverEntrypoint: '@astrojs/netlify/netlify-edge-functions.js',
 		exports: ['default'],
+		supportedAstroFeatures: {
+			hybridOutput: 'stable',
+			staticOutput: 'stable',
+			serverOutput: 'stable',
+			assets: {
+				supportKind: 'stable',
+				isSharpCompatible: false,
+				isSquooshCompatible: false,
+			},
+		},
 	};
 }
 

@@ -24,11 +24,31 @@ export function getAdapter(isModeDirectory: boolean): AstroAdapter {
 				name: '@astrojs/cloudflare',
 				serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
 				exports: ['onRequest', 'manifest'],
+				supportedAstroFeatures: {
+					hybridOutput: 'stable',
+					staticOutput: 'unsupported',
+					serverOutput: 'stable',
+					assets: {
+						supportKind: 'unsupported',
+						isSharpCompatible: false,
+						isSquooshCompatible: false,
+					},
+				},
 		  }
 		: {
 				name: '@astrojs/cloudflare',
 				serverEntrypoint: '@astrojs/cloudflare/server.advanced.js',
 				exports: ['default'],
+				supportedAstroFeatures: {
+					hybridOutput: 'stable',
+					staticOutput: 'unsupported',
+					serverOutput: 'stable',
+					assets: {
+						supportKind: 'stable',
+						isSharpCompatible: false,
+						isSquooshCompatible: false,
+					},
+				},
 		  };
 }
 

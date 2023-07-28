@@ -18,6 +18,16 @@ export function getAdapter({ functionPerRoute, edgeMiddleware, ...args }: Args):
 			functionPerRoute,
 			edgeMiddleware,
 		},
+		supportedAstroFeatures: {
+			hybridOutput: 'stable',
+			staticOutput: 'stable',
+			serverOutput: 'stable',
+			assets: {
+				supportKind: 'stable',
+				isSharpCompatible: true,
+				isSquooshCompatible: true,
+			},
+		},
 	};
 }
 

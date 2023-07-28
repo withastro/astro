@@ -1,10 +1,8 @@
-import { bold } from 'kleur/colors';
 import MagicString from 'magic-string';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroPluginOptions, ImageTransform } from '../@types/astro';
-import { error } from '../core/logger/core.js';
 import {
 	appendForwardSlash,
 	joinPaths,
@@ -23,36 +21,11 @@ const urlRE = /(\?|&)url(?:&|$)/;
 
 export default function assets({
 	settings,
-	logging,
 	mode,
 }: AstroPluginOptions & { mode: string }): vite.Plugin[] {
 	let resolvedConfig: vite.ResolvedConfig;
 
 	globalThis.astroAsset = {};
-
-	const UNSUPPORTED_ADAPTERS = new Set([
-		'@astrojs/cloudflare',
-		'@astrojs/deno',
-		'@astrojs/netlify/edge-functions',
-		'@astrojs/vercel/edge',
-	]);
-
-	const adapterName = settings.config.adapter?.name;
-	if (
-		['astro/assets/services/sharp', 'astro/assets/services/squoosh'].includes(
-			settings.config.image.service.entrypoint
-		) &&
-		adapterName &&
-		UNSUPPORTED_ADAPTERS.has(adapterName)
-	) {
-		error(
-			logging,
-			'assets',
-			`The currently selected adapter \`${adapterName}\` does not run on Node, however the currently used image service depends on Node built-ins. ${bold(
-				'Your project will NOT be able to build.'
-			)}`
-		);
-	}
 
 	return [
 		// Expose the components and different utilities from `astro:assets` and handle serving images from `/_image` in dev

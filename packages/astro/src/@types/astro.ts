@@ -1685,6 +1685,39 @@ export type PaginateFunction = (data: any[], args?: PaginateOptions) => GetStati
 
 export type Params = Record<string, string | undefined>;
 
+export type SupportsKind = 'unsupported' | 'stable' | 'experimental' | 'deprecated';
+
+export type AstroFeatureMap = {
+	/**
+	 * The adapter is able serve static pages
+	 */
+	staticOutput?: SupportsKind;
+	/**
+	 * The adapter is able to serve pages that are static or rendered via server
+	 */
+	hybridOutput?: SupportsKind;
+	/**
+	 * The adapter is able to serve SSR pages
+	 */
+	serverOutput?: SupportsKind;
+	/**
+	 * The adapter can emit static assets
+	 */
+	assets?: AstroAssetsFeature;
+};
+
+export interface AstroAssetsFeature {
+	supportKind?: SupportsKind;
+	/**
+	 * Whether if this adapter deploys files in an enviroment that is compatible with the library `sharp`
+	 */
+	isSharpCompatible?: boolean;
+	/**
+	 * Whether if this adapter deploys files in an enviroment that is compatible with the library `squoosh`
+	 */
+	isSquooshCompatible?: boolean;
+}
+
 export interface AstroAdapter {
 	name: string;
 	serverEntrypoint?: string;
@@ -1692,6 +1725,12 @@ export interface AstroAdapter {
 	exports?: string[];
 	args?: any;
 	adapterFeatures?: AstroAdapterFeatures;
+	/**
+	 * List of features supported by an adapter.
+	 *
+	 * If the adapter is not able to handle certain configurations, Astro will throw an error.
+	 */
+	supportedAstroFeatures?: AstroFeatureMap;
 }
 
 type Body = string;
