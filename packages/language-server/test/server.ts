@@ -27,6 +27,10 @@ export interface LanguageServer {
 		) => Promise<protocol.CompletionList>;
 		requestDiagnostics: (document: TextDocument) => Promise<protocol.FullDocumentDiagnosticReport>;
 		requestHover: (document: TextDocument, position: protocol.Position) => Promise<protocol.Hover>;
+		requestFormatting(
+			document: TextDocument,
+			options?: protocol.FormattingOptions
+		): Promise<protocol.TextEdit[]>;
 	};
 }
 
@@ -140,6 +144,17 @@ async function initLanguageServer() {
 					},
 					position: position,
 				});
+			},
+			async requestFormatting(document, options) {
+				return await connection.sendRequest<protocol.TextEdit[]>(
+					protocol.DocumentFormattingRequest.method,
+					{
+						textDocument: {
+							uri: document.uri,
+						},
+						options: options,
+					}
+				);
 			},
 		},
 	};

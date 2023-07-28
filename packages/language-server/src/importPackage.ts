@@ -11,14 +11,23 @@ export function setIsTrusted(_isTrusted: boolean) {
 	isTrusted = _isTrusted;
 }
 
-export function getPackagePath(packageName: string, fromPath: string[]): string | undefined {
+/**
+ * Get the path of a package's directory from the paths in `fromPath`, if `root` is set to false, it will return the path of the package's entry point
+ */
+export function getPackagePath(
+	packageName: string,
+	fromPath: string[],
+	root = true
+): string | undefined {
 	const paths = [];
 	if (isTrusted) {
 		paths.unshift(...fromPath);
 	}
 
 	try {
-		return dirname(require.resolve(packageName + '/package.json', { paths }));
+		return root
+			? dirname(require.resolve(packageName + '/package.json', { paths }))
+			: require.resolve(packageName, { paths });
 	} catch (e) {
 		return undefined;
 	}
@@ -63,7 +72,7 @@ export function importPrettier(fromPath: string): typeof prettier | undefined {
 }
 
 export function getPrettierPluginPath(fromPath: string): string | undefined {
-	const prettierPluginPath = getPackagePath('prettier-plugin-astro', [fromPath, __dirname]);
+	const prettierPluginPath = getPackagePath('prettier-plugin-astro', [fromPath, __dirname], false);
 
 	if (!prettierPluginPath) {
 		return undefined;

@@ -75,8 +75,7 @@ export const plugin: LanguageServerPlugin = (
 					languages: ['astro'],
 					ignoreIdeOptions: true,
 					resolveConfigOptions: {
-						// Prettier's cache is a bit cumbersome, because you need to reload the config yourself on change
-						// TODO: Upstream a fix for this
+						// This seems to be broken since Prettier 3, and it'll always use its cumbersome cache. Hopefully it works one day.
 						useCache: false,
 					},
 					additionalOptions: async (resolvedConfig) => {
@@ -85,9 +84,9 @@ export const plugin: LanguageServerPlugin = (
 								return [];
 							}
 
-							const hasPluginLoadedAlready = (await prettier.getSupportInfo()).languages.some(
-								(l: any) => l.name === 'astro'
-							);
+							const hasPluginLoadedAlready =
+								(await prettier.getSupportInfo()).languages.some((l: any) => l.name === 'astro') ||
+								resolvedConfig.plugins?.includes('prettier-plugin-astro'); // getSupportInfo doesn't seems to work very well in Prettier 3 for plugins
 
 							return hasPluginLoadedAlready ? [] : [prettierPluginPath];
 						}
