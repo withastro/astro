@@ -6,7 +6,6 @@ interface LogWritable<T> {
 }
 
 export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
-export type LoggerEvent = 'info' | 'warn' | 'error';
 
 export interface LogOptions {
 	dest: LogWritable<LogMessage>;
@@ -29,7 +28,7 @@ export const dateTimeFormat = new Intl.DateTimeFormat([], {
 });
 
 export interface LogMessage {
-	type: string | null;
+	label: string | null;
 	level: LoggerLevel;
 	message: string;
 }
@@ -43,11 +42,11 @@ export const levels: Record<LoggerLevel, number> = {
 };
 
 /** Full logging API */
-export function log(opts: LogOptions, level: LoggerLevel, type: string | null, message: string) {
+export function log(opts: LogOptions, level: LoggerLevel, label: string | null, message: string) {
 	const logLevel = opts.level;
 	const dest = opts.dest;
 	const event: LogMessage = {
-		type,
+		label,
 		level,
 		message,
 	};
@@ -61,18 +60,18 @@ export function log(opts: LogOptions, level: LoggerLevel, type: string | null, m
 }
 
 /** Emit a user-facing message. Useful for UI and other console messages. */
-export function info(opts: LogOptions, type: string | null, message: string) {
-	return log(opts, 'info', type, message);
+export function info(opts: LogOptions, label: string | null, message: string) {
+	return log(opts, 'info', label, message);
 }
 
 /** Emit a warning message. Useful for high-priority messages that aren't necessarily errors. */
-export function warn(opts: LogOptions, type: string | null, message: string) {
-	return log(opts, 'warn', type, message);
+export function warn(opts: LogOptions, label: string | null, message: string) {
+	return log(opts, 'warn', label, message);
 }
 
 /** Emit a error message, Useful when Astro can't recover from some error. */
-export function error(opts: LogOptions, type: string | null, message: string) {
-	return log(opts, 'error', type, message);
+export function error(opts: LogOptions, label: string | null, message: string) {
+	return log(opts, 'error', label, message);
 }
 
 type LogFn = typeof info | typeof warn | typeof error;
@@ -126,4 +125,54 @@ export function timerMessage(message: string, startTime: number = Date.now()) {
 	let timeDisplay =
 		timeDiff < 750 ? `${Math.round(timeDiff)}ms` : `${(timeDiff / 1000).toFixed(1)}s`;
 	return `${message}   ${dim(timeDisplay)}`;
+}
+
+export class Logger {
+	options: LogOptions;
+	constructor(options: LogOptions) {
+		this.options = options;
+	}
+
+	info(label: string, message: string) {
+		info(this.options, label, message);
+	}
+	warn(label: string, message: string) {
+		warn(this.options, label, message);
+	}
+	error(label: string, message: string) {
+		error(this.options, label, message);
+	}
+	debug(label: string, message: string) {
+		debug(this.options, label, message);
+	}
+}
+
+export class AstroIntegrationLogger {
+	options: LogOptions;
+	label: string;
+
+	constructor(logging: LogOptions, label: string) {
+		this.options = logging;
+		this.label = label;
+	}
+
+	/**
+	 * Creates a new logger instance with a new label, but the same log options.
+	 */
+	fork(label: string): AstroIntegrationLogger {
+		return new AstroIntegrationLogger(this.options, label);
+	}
+
+	info(message: string) {
+		info(this.options, this.label, message);
+	}
+	warn(message: string) {
+		warn(this.options, this.label, message);
+	}
+	error(message: string) {
+		error(this.options, this.label, message);
+	}
+	debug(message: string) {
+		debug(this.options, this.label, message);
+	}
 }
