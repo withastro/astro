@@ -10,6 +10,7 @@ export function serializeRouteData(
 		...routeData,
 		generate: undefined,
 		pattern: routeData.pattern.source,
+		redirectRoute: routeData.redirectRoute ? serializeRouteData(routeData.redirectRoute, trailingSlash) : undefined,
 		_meta: { trailingSlash },
 	};
 }
@@ -25,5 +26,7 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 		pathname: rawRouteData.pathname || undefined,
 		segments: rawRouteData.segments,
 		prerender: rawRouteData.prerender,
+		redirect: rawRouteData.redirect,
+    redirectRoute: rawRouteData.redirectRoute ? deserializeRouteData(rawRouteData.redirectRoute) : undefined,
 	};
 }
