@@ -18,8 +18,9 @@ import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/index.js';
-import { info, type LogOptions, AstroIntegrationLogger } from '../core/logger/core.js';
+import { info, warn, error, type LogOptions, AstroIntegrationLogger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
+import { validateSupportedFeatures } from './astroFeaturesValidation.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -196,6 +197,30 @@ export async function runHookConfigDone({
 							throw new Error(
 								`Integration "${integration.name}" conflicts with "${settings.adapter.name}". You can only configure one deployment integration.`
 							);
+						}
+						if (!adapter.supportedAstroFeatures) {
+							// NOTE: throw an error in Astro 4.0
+							warn(
+								logging,
+								'astro',
+								`The adapter ${adapter.name} doesn't provide a feature map. From Astro 3.0, an adapter can provide a feature map. Not providing a feature map will cause an error in Astro 4.0.`
+							);
+						} else {
+							const validationResult = validateSupportedFeatures(
+								adapter.name,
+								adapter.supportedAstroFeatures,
+								settings.config,
+								logging
+							);
+							for (const [featureName, supported] of Object.entries(validationResult)) {
+								if (!supported) {
+									error(
+										logging,
+										'astro',
+										`The adapter ${adapter.name} doesn't support the feature ${featureName}. Your project won't be built. You should not use it.`
+									);
+								}
+							}
 						}
 						settings.adapter = adapter;
 					},

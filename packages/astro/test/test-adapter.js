@@ -71,6 +71,15 @@ export default function (
 					name: 'my-ssr-adapter',
 					serverEntrypoint: '@my-ssr',
 					exports: ['manifest', 'createApp'],
+					supportedFeatures: {
+						assets: {
+							supportKind: 'Stable',
+							isNodeCompatible: true,
+						},
+						serverOutput: 'Stable',
+						staticOutput: 'Stable',
+						hybridOutput: 'Stable',
+					},
 					...extendAdapter,
 				});
 			},
