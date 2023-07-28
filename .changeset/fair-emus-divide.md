@@ -8,7 +8,7 @@ The `build.split` and `build.excludeMiddleware` configuration options are deprec
 If your config includes the `build.excludeMiddleware` option, replace it with `edgeMiddleware` in your adapter options:
 
 ```diff
-import {defineConfig} from "astro/config";
+import { defineConfig } from "astro/config";
 import netlify from "@astrojs/netlify/functions";
 
 export default defineConfig({
@@ -24,7 +24,7 @@ export default defineConfig({
 If your config includes the `build.split` option, replace it with `functionPerRoute` in your adapter options:
 
 ```diff
-import {defineConfig} from "astro/config";
+import { defineConfig } from "astro/config";
 import netlify from "@astrojs/netlify/functions";
 
 export default defineConfig({
