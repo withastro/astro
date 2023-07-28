@@ -4,6 +4,7 @@ import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import type {
+	AstroAdapter,
 	AstroConfig,
 	AstroIntegration,
 	AstroRenderer,
@@ -408,5 +409,21 @@ export async function runHookBuildDone({ config, pages, routes, logging }: RunHo
 				logging,
 			});
 		}
+	}
+}
+
+export function isFunctionPerRouteEnabled(adapter: AstroAdapter | undefined): boolean {
+	if (adapter?.adapterFeatures?.functionPerRoute === true) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+export function isEdgeMiddlewareEnabled(adapter: AstroAdapter | undefined): boolean {
+	if (adapter?.adapterFeatures?.edgeMiddleware === true) {
+		return true;
+	} else {
+		return false;
 	}
 }
