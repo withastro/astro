@@ -486,8 +486,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: 1.7.0-pre.2
-        version: 1.7.0-pre.2
+        specifier: 0.0.0-view-transitions-20230728203621
+        version: 0.0.0-view-transitions-20230728203621
       '@astrojs/internal-helpers':
         specifier: ^0.1.1
         version: link:../internal-helpers
@@ -5591,6 +5591,10 @@ packages:
       chalk: 5.2.0
       log-update: 5.0.1
       sisteransi: 1.0.5
+    dev: false
+
+  /@astrojs/compiler@0.0.0-view-transitions-20230728203621:
+    resolution: {integrity: sha512-rGI7Bmk7iLXUKhWkrY1CVDLh/0FtDitvzSfsS/aw+oB4jqBcRy25ZrpIl1AEJOFNdmzvWk0XrpCepO8bRpG/Sw==}
     dev: false
 
   /@astrojs/compiler@1.6.3:
