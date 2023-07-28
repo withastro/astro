@@ -9,6 +9,8 @@ applyPolyfills();
 export interface Args {
 	builders?: boolean;
 	binaryMediaTypes?: string[];
+	edgeMiddleware: boolean;
+	functionPerRoute: boolean;
 }
 
 function parseContentType(header?: string) {

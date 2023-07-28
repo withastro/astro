@@ -7,11 +7,8 @@ describe('build: split', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/basic/',
+			root: './fixtures/functionPerRoute/',
 			output: 'server',
-			build: {
-				split: true,
-			},
 		});
 		await fixture.build();
 	});
