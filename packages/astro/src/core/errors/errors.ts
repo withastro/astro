@@ -141,6 +141,10 @@ export class AggregateError extends AstroError {
 	}
 }
 
+// An error property name used to tag and track if it's a ZodError from
+// an AstroConfig validation. Used to suppress formatting a ZodError if needed.
+export const astroConfigZodErrorTag = '_astroConfigZodError';
+
 /**
  * Generic object representing an error with all possible data
  * Compatible with both Astro's and Vite's errors

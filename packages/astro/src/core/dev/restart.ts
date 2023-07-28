@@ -5,9 +5,12 @@ import type { AstroInlineConfig, AstroSettings } from '../../@types/astro';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { createSettings, resolveConfig } from '../config/index.js';
 import { createSafeError } from '../errors/index.js';
-import { info, type LogOptions } from '../logger/core.js';
+import { info, error as _error, type LogOptions } from '../logger/core.js';
 import type { Container } from './container';
 import { createContainer, isStarted, startContainer } from './container.js';
+import { astroConfigZodErrorTag } from '../errors/errors.js';
+import { collectErrorMetadata } from '../errors/dev/utils.js';
+import { formatErrorMessage } from '../messages.js';
 
 async function createRestartedContainer(
 	container: Container,
@@ -76,7 +79,11 @@ export async function restartContainer(
 		};
 	} catch (_err) {
 		const error = createSafeError(_err);
-		// TODO: format and log the error
+		// Print all error messages except ZodErrors from AstroConfig as the pre-logged error is sufficient
+		if (!(astroConfigZodErrorTag in error)) {
+			_error(logging, 'config', formatErrorMessage(collectErrorMetadata(error)) + '\n');
+		}
+		// Inform connected clients of the config error
 		container.viteServer.ws.send({
 			type: 'error',
 			err: {
@@ -128,7 +135,8 @@ export async function createContainerWithAutomaticRestart({
 		},
 	};
 
-	async function handleServerRestart() {
+	async function handleServerRestart(logMsg: string) {
+		info(logging, 'astro', logMsg + '\n');
 		const container = restart.container;
 		const { container: newContainer, error } = await restartContainer(container);
 		restart.container = newContainer;
@@ -143,8 +151,7 @@ export async function createContainerWithAutomaticRestart({
 	function handleChangeRestart(logMsg: string) {
 		return async function (changedFile: string) {
 			if (shouldRestartContainer(restart.container, changedFile)) {
-				info(logging, 'astro', logMsg + '\n');
-				handleServerRestart();
+				handleServerRestart(logMsg);
 			}
 		};
 	}

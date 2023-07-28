@@ -96,7 +96,7 @@ export async function check({ logging, flags }: CheckPayload): Promise<AstroChec
 		return;
 	}
 
-	const settings = await loadSettings({ cmd: 'check', flags, logging });
+	const settings = await loadSettings({ cmd: 'check', flags });
 	if (!settings) return;
 
 	const checkFlags = parseFlags(flags);

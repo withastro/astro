@@ -2,13 +2,17 @@ import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroConfig, AstroInlineConfig, AstroUserConfig, CLIFlags } from '../../@types/astro';
 
 import * as colors from 'kleur/colors';
+import { ZodError } from 'zod';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { eventConfigError, telemetry } from '../../events/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { mergeConfig } from './merge.js';
 import { createRelativeSchema } from './schema.js';
 import { loadConfigWithVite } from './vite-load.js';
+import { formatConfigErrorMessage } from '../messages.js';
+import { astroConfigZodErrorTag } from '../errors/errors.js';
 
 const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 	'projectRoot',
@@ -80,7 +84,21 @@ export async function validateConfig(
 	const AstroConfigRelativeSchema = createRelativeSchema(cmd, root);
 
 	// First-Pass Validation
-	const result = await AstroConfigRelativeSchema.parseAsync(userConfig);
+	let result: AstroConfig;
+	try {
+		result = await AstroConfigRelativeSchema.parseAsync(userConfig);
+	} catch (e) {
+		// Improve config zod error messages
+		if (e instanceof ZodError) {
+			// Mark this error so the callee can decide to suppress Zod's error if needed.
+			// We still want to throw the error to signal an error in validation.
+			Object.defineProperty(e, astroConfigZodErrorTag, { value: true, enumerable: true });
+			// eslint-disable-next-line no-console
+			console.error(formatConfigErrorMessage(e) + '\n');
+			telemetry.record(eventConfigError({ cmd, err: e, isFatal: true }));
+		}
+		throw e;
+	}
 
 	// If successful, return the result as a verified AstroConfig object.
 	return result;
