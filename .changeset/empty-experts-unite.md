@@ -1,0 +1,5 @@
+---
+'astro': minor
+---
+
+Persistent islands
