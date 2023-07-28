@@ -124,7 +124,15 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
 
+			/**
+			 * @deprecated
+			 * Use the adapter feature instead
+			 */
 			split: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.split),
+			/**
+			 * @deprecated
+			 * Use the adapter feature instead
+			 */
 			excludeMiddleware: z
 				.boolean()
 				.optional()
