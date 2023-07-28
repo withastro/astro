@@ -486,8 +486,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: 1.7.0-pre.1
-        version: 1.7.0-pre.1
+        specifier: 1.7.0-pre.2
+        version: 1.7.0-pre.2
       '@astrojs/internal-helpers':
         specifier: ^0.1.1
         version: link:../internal-helpers
@@ -5596,8 +5596,8 @@ packages:
   /@astrojs/compiler@1.6.3:
     resolution: {integrity: sha512-n0xTuBznKspc0plk6RHBOlSv/EwQGyMNSxEOPj7HMeiRNnXX4woeSopN9hQsLkqraDds1eRvB4u99buWgVNJig==}
 
-  /@astrojs/compiler@1.7.0-pre.1:
-    resolution: {integrity: sha512-D8TmR55/1omwioszn+3oJkYXCU5qombs8ImbSNhC4KDmt9cs1+HPCDHYhNmjqJfWNjjyO+EdTs0oYLANKFcK4w==}
+  /@astrojs/compiler@1.7.0-pre.2:
+    resolution: {integrity: sha512-KluqlBJYyeG28zbWlAT4VNJZuoNwWHByrlu+z2EPFik2E9V5Rfs0dcEW20OBuO6h8l9tLAC7/2/VgGbJiM6PJw==}
     dev: false
 
   /@astrojs/internal-helpers@0.1.1:
@@ -18697,7 +18697,7 @@ packages:
       sharp:
         optional: true
     dependencies:
-      '@astrojs/compiler': 1.7.0-pre.1
+      '@astrojs/compiler': 1.7.0-pre.2
       '@astrojs/internal-helpers': 0.1.1
       '@astrojs/language-server': 1.0.0
       '@astrojs/markdown-remark': 2.2.1(astro@2.9.5)
