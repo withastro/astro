@@ -24,7 +24,7 @@ export default defineConfig({
 
 ```diff
 import {defineConfig} from "astro/config";
-import vercel from "@astrojs/vercel/serverless";
+import netlify from "@astrojs/netlify/functions";
 
 export default defineConfig({
 -    build: {
