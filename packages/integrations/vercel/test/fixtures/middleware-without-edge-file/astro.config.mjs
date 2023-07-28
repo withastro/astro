@@ -2,9 +2,8 @@ import {defineConfig} from "astro/config";
 import vercel from "@astrojs/vercel/serverless";
 
 export default defineConfig({
-    adapter: vercel(),
-    build: {
-        excludeMiddleware: true
-    },
+    adapter: vercel({
+        edgeMiddleware: true
+    }),
     output: 'server'
 });

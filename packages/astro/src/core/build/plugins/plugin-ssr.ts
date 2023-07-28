@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroAdapter, AstroConfig } from '../../../@types/astro';
-import { runHookBuildSsr } from '../../../integrations/index.js';
+import { isFunctionPerRouteEnabled, runHookBuildSsr } from '../../../integrations/index.js';
 import { isServerLikeOutput } from '../../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types';
@@ -103,12 +103,16 @@ export function pluginSSR(
 	internals: BuildInternals
 ): AstroBuildPlugin {
 	const ssr = isServerLikeOutput(options.settings.config);
+	const functionPerRouteEnabled = isFunctionPerRouteEnabled(options.settings.adapter);
 	return {
 		build: 'ssr',
 		hooks: {
 			'build:before': () => {
 				let vitePlugin =
-					ssr && !options.settings.config.build.split
+					ssr &&
+					// TODO: Remove in Astro 4.0
+					options.settings.config.build.split === false &&
+					functionPerRouteEnabled === false
 						? vitePluginSSR(internals, options.settings.adapter!, options)
 						: undefined;
 
@@ -122,7 +126,7 @@ export function pluginSSR(
 					return;
 				}
 
-				if (options.settings.config.build.split) {
+				if (options.settings.config.build.split || functionPerRouteEnabled) {
 					return;
 				}
 
@@ -155,11 +159,12 @@ function vitePluginSSRSplit(
 	adapter: AstroAdapter,
 	options: StaticBuildOptions
 ): VitePlugin {
+	const functionPerRouteEnabled = isFunctionPerRouteEnabled(options.settings.adapter);
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr-split',
 		enforce: 'post',
 		options(opts) {
-			if (options.settings.config.build.split) {
+			if (options.settings.config.build.split || functionPerRouteEnabled) {
 				const inputs = new Set<string>();
 
 				for (const path of Object.keys(options.allPages)) {
@@ -229,12 +234,14 @@ export function pluginSSRSplit(
 	internals: BuildInternals
 ): AstroBuildPlugin {
 	const ssr = isServerLikeOutput(options.settings.config);
+	const functionPerRouteEnabled = isFunctionPerRouteEnabled(options.settings.adapter);
+
 	return {
 		build: 'ssr',
 		hooks: {
 			'build:before': () => {
 				let vitePlugin =
-					ssr && options.settings.config.build.split
+					ssr && (options.settings.config.build.split || functionPerRouteEnabled)
 						? vitePluginSSRSplit(internals, options.settings.adapter!, options)
 						: undefined;
 
@@ -247,7 +254,7 @@ export function pluginSSRSplit(
 				if (!ssr) {
 					return;
 				}
-				if (!options.settings.config.build.split) {
+				if (!options.settings.config.build.split && !functionPerRouteEnabled) {
 					return;
 				}
 
@@ -276,7 +283,7 @@ function generateSSRCode(config: AstroConfig, adapter: AstroAdapter) {
 	const imports: string[] = [];
 	const contents: string[] = [];
 	let pageMap;
-	if (config.build.split) {
+	if (config.build.split || isFunctionPerRouteEnabled(adapter)) {
 		pageMap = 'pageModule';
 	} else {
 		pageMap = 'pageMap';
@@ -337,7 +344,10 @@ export async function createManifest(
 	buildOpts: StaticBuildOptions,
 	internals: BuildInternals
 ): Promise<SerializedSSRManifest> {
-	if (buildOpts.settings.config.build.split) {
+	if (
+		buildOpts.settings.config.build.split ||
+		isFunctionPerRouteEnabled(buildOpts.settings.adapter)
+	) {
 		if (internals.ssrSplitEntryChunks.size === 0) {
 			throw new Error(`Did not generate an entry chunk for SSR in serverless mode`);
 		}

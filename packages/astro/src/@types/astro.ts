@@ -1400,6 +1400,17 @@ export interface DataEntryType {
 
 export type GetDataEntryInfoReturnType = { data: Record<string, unknown>; rawData?: string };
 
+export interface AstroAdapterFeatures {
+	/**
+	 * Creates and edge function that will communiate with the Astro middleware
+	 */
+	edgeMiddleware: boolean;
+	/**
+	 * SSR only. Each route becomes its own function/file.
+	 */
+	functionPerRoute: boolean;
+}
+
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
@@ -1664,6 +1675,7 @@ export interface AstroAdapter {
 	previewEntrypoint?: string;
 	exports?: string[];
 	args?: any;
+	adapterFeatures?: AstroAdapterFeatures;
 }
 
 type Body = string;
