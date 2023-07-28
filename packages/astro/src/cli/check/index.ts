@@ -13,16 +13,16 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import ora from 'ora';
 import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
+import { resolveConfig } from '../../core/config/config.js';
+import { createSettings } from '../../core/config/settings.js';
 import type { LogOptions } from '../../core/logger/core.js';
 import { debug, info } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
 import type { ProcessExit, SyncOptions } from '../../core/sync';
+import { eventCliSession, telemetry } from '../../events/index.js';
 import { runHookConfigSetup } from '../../integrations/index.js';
 import { flagsToAstroInlineConfig } from '../flags.js';
 import { printDiagnostic } from './print.js';
-import { resolveConfig } from '../../core/config/config.js';
-import { eventCliSession, telemetry } from '../../events/index.js';
-import { createSettings } from '../../core/config/settings.js';
 
 type DiagnosticResult = {
 	errors: number;

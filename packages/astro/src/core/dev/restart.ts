@@ -4,13 +4,13 @@ import * as vite from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { createSettings, resolveConfig } from '../config/index.js';
+import { collectErrorMetadata } from '../errors/dev/utils.js';
+import { astroConfigZodErrorTag } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
-import { info, error as _error, type LogOptions } from '../logger/core.js';
+import { error as _error, info, type LogOptions } from '../logger/core.js';
+import { formatErrorMessage } from '../messages.js';
 import type { Container } from './container';
 import { createContainer, isStarted, startContainer } from './container.js';
-import { astroConfigZodErrorTag } from '../errors/errors.js';
-import { collectErrorMetadata } from '../errors/dev/utils.js';
-import { formatErrorMessage } from '../messages.js';
 
 async function createRestartedContainer(
 	container: Container,

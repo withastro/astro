@@ -2,17 +2,17 @@ import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroConfig, AstroInlineConfig, AstroUserConfig, CLIFlags } from '../../@types/astro';
 
 import * as colors from 'kleur/colors';
-import { ZodError } from 'zod';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ZodError } from 'zod';
 import { eventConfigError, telemetry } from '../../events/index.js';
+import { astroConfigZodErrorTag } from '../errors/errors.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { formatConfigErrorMessage } from '../messages.js';
 import { mergeConfig } from './merge.js';
 import { createRelativeSchema } from './schema.js';
 import { loadConfigWithVite } from './vite-load.js';
-import { formatConfigErrorMessage } from '../messages.js';
-import { astroConfigZodErrorTag } from '../errors/errors.js';
 
 const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 	'projectRoot',
