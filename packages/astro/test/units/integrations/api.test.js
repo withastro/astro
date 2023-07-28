@@ -36,7 +36,7 @@ describe('Astro feature map', function () {
 		let result = validateSupportedFeatures(
 			'test',
 			{
-				hybridOutput: 'Stable',
+				hybridOutput: 'stable',
 			},
 			{
 				output: 'hybrid',
@@ -74,7 +74,7 @@ describe('Astro feature map', function () {
 		it('should be supported with the correct config', () => {
 			let result = validateSupportedFeatures(
 				'test',
-				{ staticOutput: 'Stable' },
+				{ staticOutput: 'stable' },
 				{
 					output: 'static',
 				},
@@ -86,7 +86,7 @@ describe('Astro feature map', function () {
 		it("should not be valid if the config is correct, but the it's unsupported", () => {
 			let result = validateSupportedFeatures(
 				'test',
-				{ staticOutput: 'Unsupported' },
+				{ staticOutput: 'unsupported' },
 				{
 					output: 'static',
 				},
@@ -99,7 +99,7 @@ describe('Astro feature map', function () {
 		it('should be supported with the correct config', () => {
 			let result = validateSupportedFeatures(
 				'test',
-				{ hybridOutput: 'Stable' },
+				{ hybridOutput: 'stable' },
 				{
 					output: 'hybrid',
 				},
@@ -112,7 +112,7 @@ describe('Astro feature map', function () {
 			let result = validateSupportedFeatures(
 				'test',
 				{
-					hybridOutput: 'Unsupported',
+					hybridOutput: 'unsupported',
 				},
 				{
 					output: 'hybrid',
@@ -126,7 +126,7 @@ describe('Astro feature map', function () {
 		it('should be supported with the correct config', () => {
 			let result = validateSupportedFeatures(
 				'test',
-				{ serverOutput: 'Stable' },
+				{ serverOutput: 'stable' },
 				{
 					output: 'server',
 				},
@@ -139,7 +139,7 @@ describe('Astro feature map', function () {
 			let result = validateSupportedFeatures(
 				'test',
 				{
-					serverOutput: 'Unsupported',
+					serverOutput: 'unsupported',
 				},
 				{
 					output: 'server',
@@ -156,7 +156,7 @@ describe('Astro feature map', function () {
 				'test',
 				{
 					assets: {
-						supportKind: 'Stable',
+						supportKind: 'stable',
 						isSharpCompatible: true,
 					},
 				},
@@ -176,7 +176,7 @@ describe('Astro feature map', function () {
 				'test',
 				{
 					assets: {
-						supportKind: 'Stable',
+						supportKind: 'stable',
 						isSquooshCompatible: true,
 					},
 				},
@@ -197,7 +197,7 @@ describe('Astro feature map', function () {
 				'test',
 				{
 					assets: {
-						supportKind: 'Unsupported',
+						supportKind: 'unsupported',
 						isNodeCompatible: false,
 					},
 				},
