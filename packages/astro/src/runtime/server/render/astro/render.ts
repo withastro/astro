@@ -71,6 +71,10 @@ export async function renderToReadableStream(
 	// If the Astro component returns a Response on init, return that response
 	if (templateResult instanceof Response) return templateResult;
 
+	if (isPage) {
+		await bufferHeadContent(result);
+	}
+
 	let renderedFirstPageChunk = false;
 
 	if (isPage) {
