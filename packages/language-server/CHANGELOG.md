@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.1.4
+
+### Patch Changes
+
+- bb38a76: Fix formatting not working in certain situations
+
 ## 2.1.3
 
 ### Patch Changes
