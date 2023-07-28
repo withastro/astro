@@ -8,6 +8,16 @@ export function getAdapter(options: Options): AstroAdapter {
 		previewEntrypoint: '@astrojs/node/preview.js',
 		exports: ['handler', 'startServer'],
 		args: options,
+		supportedAstroFeatures: {
+			hybridOutput: 'stable',
+			staticOutput: 'stable',
+			serverOutput: 'stable',
+			assets: {
+				supportKind: 'stable',
+				isSharpCompatible: true,
+				isSquooshCompatible: true,
+			},
+		},
 	};
 }
 
