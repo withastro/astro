@@ -13,6 +13,13 @@ test.afterAll(async () => {
 	await devServer.stop();
 });
 
+function scrollToBottom(page) {
+	return page.evaluate(() => {
+		window.scrollY = document.documentElement.scrollHeight;
+		window.dispatchEvent(new Event('scroll'));
+	});
+}
+
 test.describe('View Transitions', () => {
 	test('Moving from page 1 to page 2', async ({ page, astro }) => {
 		const loads = [];
@@ -182,6 +189,53 @@ test.describe('View Transitions', () => {
 		await page.click('#click-one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
+
+	test('Scroll position restored on back button',  async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/long-page'));
+		let article = page.locator('#longpage');
+		await expect(article, 'should have script content').toBeVisible('exists');
+
+		await scrollToBottom(page);
+		const oldScrollY = await page.evaluate(() => window.scrollY);
+
+		// go to page long-page
+		await page.click('#click-one');
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// Back to page 1
+		await page.goBack();
+
+		const newScrollY = await page.evaluate(() => window.scrollY);
+		expect(oldScrollY).toEqual(newScrollY);
+	});
+
+	test('Scroll position restored on forward button',  async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page long-page
+		await page.click('#click-longpage');
+		let article = page.locator('#longpage');
+		await expect(article, 'should have script content').toBeVisible('exists');
+
+		await scrollToBottom(page);
+		const oldScrollY = await page.evaluate(() => window.scrollY);
+
+		// Back to page 1
+		await page.goBack();
+
+		// Go forward
+		await page.goForward();
+		article = page.locator('#longpage');
+		await expect(article, 'should have script content').toBeVisible('exists');
+
+		const newScrollY = await page.evaluate(() => window.scrollY);
+		expect(oldScrollY).toEqual(newScrollY);
+  })
 
 	test('<Image /> component forwards transitions to the <img>', async ({ page, astro }) => {
 		// Go to page 1
