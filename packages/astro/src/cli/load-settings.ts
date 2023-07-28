@@ -1,24 +1,5 @@
 import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroInlineConfig } from '../@types/astro.js';
-import { createSettings, resolveConfig } from '../core/config/index.js';
-import { telemetry, eventCliSession } from '../events/index.js';
-
-interface LoadSettingsOptions {
-	cmd: string;
-	flags: Flags;
-}
-
-export async function loadSettings({ cmd, flags }: LoadSettingsOptions) {
-	const inlineConfig = flagsToAstroInlineConfig(flags);
-	const { astroConfig: initialAstroConfig, userConfig: initialUserConfig } = await resolveConfig(
-		inlineConfig,
-		cmd
-	);
-
-	if (!initialAstroConfig) return;
-	telemetry.record(eventCliSession(cmd, initialUserConfig, flags));
-	return createSettings(initialAstroConfig, inlineConfig.root);
-}
 
 export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 	return {

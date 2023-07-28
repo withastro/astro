@@ -18,8 +18,11 @@ import { debug, info } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
 import type { ProcessExit, SyncOptions } from '../../core/sync';
 import { runHookConfigSetup } from '../../integrations/index.js';
-import { loadSettings } from '../load-settings.js';
+import { flagsToAstroInlineConfig } from '../load-settings.js';
 import { printDiagnostic } from './print.js';
+import { resolveConfig } from '../../core/config/config.js';
+import { eventCliSession, telemetry } from '../../events/index.js';
+import { createSettings } from '../../core/config/settings.js';
 
 type DiagnosticResult = {
 	errors: number;
@@ -96,8 +99,11 @@ export async function check({ logging, flags }: CheckPayload): Promise<AstroChec
 		return;
 	}
 
-	const settings = await loadSettings({ cmd: 'check', flags });
-	if (!settings) return;
+	// Load settings
+	const inlineConfig = flagsToAstroInlineConfig(flags);
+	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'check');
+	telemetry.record(eventCliSession('check', userConfig, flags));
+	const settings = createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	const checkFlags = parseFlags(flags);
 	if (checkFlags.watch) {
