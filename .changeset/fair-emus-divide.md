@@ -3,37 +3,37 @@
 '@astrojs/netlify': minor
 ---
 
-The configuration `build.split` and `build.excludeMiddleware` are deprecated.
+The `build.split` and `build.excludeMiddleware` configuration options are deprecated and have been replaced by options in the adapter config.
 
-Configuration that were inside the astro configuration, are now moved inside the adapter:
+If your config includes the `build.excludeMiddleware` option, replace it with `edgeMiddleware` in your adapter options:
 
 ```diff
-import {defineConfig} from "astro/config";
+import { defineConfig } from "astro/config";
 import netlify from "@astrojs/netlify/functions";
 
 export default defineConfig({
--    build: {
+     build: {
 -        excludeMiddleware: true
--    },
--    adapter: netlify()
-+    adapter: netlify({
+     },
+     adapter: netlify({
 +        edgeMiddleware: true
-+    })
-})
+     }),
+});
 ```
 
+If your config includes the `build.split` option, replace it with `functionPerRoute` in your adapter options:
+
 ```diff
-import {defineConfig} from "astro/config";
+import { defineConfig } from "astro/config";
 import netlify from "@astrojs/netlify/functions";
 
 export default defineConfig({
--    build: {
+     build: {
 -        split: true
--    },
--    adapter: netlify()
-+    adapter: netlify({
+     },
+     adapter: netlify({
 +        functionPerRoute: true
-+    })
-})
+     }),
+});
 ```
 
