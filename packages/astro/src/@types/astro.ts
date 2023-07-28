@@ -23,6 +23,7 @@ import type { LogOptions, LoggerLevel } from '../core/logger/core';
 import { AstroIntegrationLogger } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import { AstroIntegrationLogger } from '../core/logger/core';
 export type {
 	MarkdownHeading,
 	MarkdownMetadata,
