@@ -80,6 +80,15 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		return '';
 	}
 
+	if (key === 'class' || key === 'className') {
+		const classString = typeof value === 'string' ? value : serializeListValue(value);
+		const listValue = toAttributeString(classString, shouldEscape);
+		if (listValue === '') {
+			return '';
+		}
+		return markHTMLString(` ${key}="${listValue}"`);
+	}
+
 	// support "class" from an expression passed into an element (#782)
 	if (key === 'class:list') {
 		const listValue = toAttributeString(serializeListValue(value), shouldEscape);
@@ -99,11 +108,6 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		if (typeof value === 'object') {
 			return markHTMLString(` ${key}="${toAttributeString(toStyleString(value), shouldEscape)}"`);
 		}
-	}
-
-	// support `className` for better JSX compat
-	if (key === 'className') {
-		return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
 	}
 
 	// Boolean values only need the key

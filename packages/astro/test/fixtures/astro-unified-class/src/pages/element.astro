@@ -1,0 +1,16 @@
+<span class="test control" />
+
+<span class={'test expression'} />
+
+<span class={[ 'array' ]} />
+
+<span class={{ test: true, true: true, false: false }} />
+<span class={{ test: 1, truthy: '0', noshow1: 0, noshow2: '', noshow3: null, noshow4: undefined }} />
+
+<span class={new Set(['test', 'set'])} />
+
+<span class={[ 'hello goodbye', { hello: true, world: true }, new Set([ 'hello', 'friend' ]) ]} />
+
+<span class={['foo', false && 'bar', true && 'baz']} />
+
+<span class={[false && 'empty']} />

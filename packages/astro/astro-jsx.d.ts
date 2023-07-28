@@ -474,7 +474,14 @@ declare namespace astroHTML.JSX {
 		accesskey?: string | undefined | null;
 		autocapitalize?: string | undefined | null;
 		autofocus?: boolean | string | undefined | null;
-		class?: string | undefined | null;
+		class?:
+			| Record<string, boolean>
+			| Record<any, any>
+			| Iterable<string>
+			| Iterable<any>
+			| string
+			| undefined
+			| null;
 		contenteditable?: 'true' | 'false' | boolean | 'inherit' | string | undefined | null;
 		dir?: string | undefined | null;
 		draggable?: 'true' | 'false' | boolean | undefined | null;
@@ -1017,7 +1024,14 @@ declare namespace astroHTML.JSX {
 	//   - union of string literals
 	interface SVGAttributes extends AriaAttributes, DOMAttributes, AstroBuiltinAttributes {
 		// Attributes which are also defined in HTMLAttributes
-		class?: string | undefined | null;
+		class?:
+			| Record<string, boolean>
+			| Record<any, any>
+			| Iterable<string>
+			| Iterable<any>
+			| string
+			| undefined
+			| null;
 		color?: string | undefined | null;
 		height?: number | string | undefined | null;
 		id?: string | undefined | null;

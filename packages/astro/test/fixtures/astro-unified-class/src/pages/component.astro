@@ -1,0 +1,19 @@
+---
+import SimpleSpread from '../components/SimpleSpread.astro'
+---
+<SimpleSpread class="test control" />
+
+<SimpleSpread class={'test expression'} />
+
+<SimpleSpread class={[ 'array' ]} />
+
+<SimpleSpread class={{ test: true, true: true, false: false }} />
+<SimpleSpread class={{ test: 1, truthy: '0', noshow1: 0, noshow2: '', noshow3: null, noshow4: undefined }} />
+
+<SimpleSpread class={new Set(['test', 'set'])} />
+
+<SimpleSpread class={[ 'hello goodbye', { hello: true, world: true }, new Set([ 'hello', 'friend' ]) ]} />
+
+<SimpleSpread class={['foo', false && 'bar', true && 'baz']} />
+
+<SimpleSpread class={[false && 'empty']} />

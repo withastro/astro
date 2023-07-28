@@ -1,0 +1,22 @@
+---
+interface Props  {
+  class?: Record<string, boolean>
+				| Record<any, any>
+				| Iterable<string>
+				| Iterable<any>
+				| string
+				| undefined
+				| null;
+};
+
+const { class: className } = Astro.props;
+---
+<div class={className}>
+  <slot/>
+</div>
+
+<style>
+	div {
+		color: blue;
+	}
+</style>

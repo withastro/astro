@@ -95,6 +95,10 @@ export function extractDirectives(
 				// support "class" from an expression passed into a component (#782)
 				extracted.props[key.slice(0, -5)] = serializeListValue(value);
 			}
+		} else if (key === 'class') {
+			if (value) {
+				extracted.props[key] = serializeListValue(value);
+			}
 		} else {
 			extracted.props[key] = value;
 		}

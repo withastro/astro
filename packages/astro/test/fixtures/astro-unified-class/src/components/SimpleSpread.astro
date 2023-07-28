@@ -1,0 +1,14 @@
+---
+interface Props  {
+  class?: Record<string, boolean>
+				| Record<any, any>
+				| Iterable<string>
+				| Iterable<any>
+				| string
+				| undefined
+				| null;
+};
+
+const {...props } = Astro.props;
+---
+<div {...props }></div> 
