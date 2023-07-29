@@ -5,8 +5,8 @@ import type { RenderTemplateResult } from './render-template';
 export type AstroFactoryReturnValue = RenderTemplateResult | Response | HeadAndContent;
 
 // The callback passed to to $$createComponent
-export interface AstroComponentFactory {
-	(result: any, props: any, slots: any): AstroFactoryReturnValue;
+export interface AstroComponentFactory<TResult = any, TProps = any, TSlots = any> {
+	(result: TResult, props: TProps, slots: TSlots): AstroFactoryReturnValue;
 	isAstroComponentFactory?: boolean;
 	moduleId?: string | undefined;
 	propagation?: PropagationHint;

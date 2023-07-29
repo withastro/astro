@@ -216,7 +216,7 @@ export interface AstroGlobal<Props extends Record<string, any> = Record<string, 
 	 *
 	 * [Astro reference](https://docs.astro.build/en/guides/api-reference/#astroself)
 	 */
-	self: AstroComponentFactory;
+	self: AstroComponentFactory<any, AstroSharedContext<Props>['props']>;
 	/** Utility functions for modifying an Astro component’s slotted children
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroslots)
