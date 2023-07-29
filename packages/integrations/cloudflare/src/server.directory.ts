@@ -10,11 +10,11 @@ if (!isNode) {
 export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest);
 
-	const onRequest = async (context: EventContext<unknown, any, unknown>) => {
-		const request = context.request as Request & CFRequest
+	const onRequest = async (context: EventContext<unknown, string, unknown>) => {
+		const request = context.request as CFRequest & Request
 		const { next, env } = context
 
-		process.env = env as any;
+		process.env = env as any; // would love to remove this any cast in the future
 
 		const { pathname } = new URL(request.url);
 		// static assets fallback, in case default _routes.json is not used
@@ -30,7 +30,7 @@ export function createExports(manifest: SSRManifest) {
 				request.headers.get('cf-connecting-ip')
 			);
 
-			// @deprecated: getRuntime() can be removed, Astro.locals.env is the new place
+			// @deprecated: getRuntime() can be removed, use `Astro.locals.runtime` instead
 			Reflect.set(request, Symbol.for('runtime'), {
 				...context,
 				waitUntil: (promise: Promise<any>) => {
@@ -46,16 +46,16 @@ export function createExports(manifest: SSRManifest) {
 				env: env,
 				cf: request.cf,
 				runtime: {
-					// request: Request; // we don't need this because of Astro.request, even if they are not the same
-					// functionPath: string; // we don't need this
-					waitUntil: (promise: Promise<any>) => context.waitUntil(promise),
-					// passThroughOnException: () => void; // we don't need this
-					// next: (input?: Request | string, init?: RequestInit) => Promise<Response>; // we don't need this
+					// request: Request; // not needed because we have Astro.request, thus they are minor differences
+					// functionPath: string; // not needed
+					waitUntil: (promise: Promise<any>) => { context.waitUntil(promise); },
+					// passThroughOnException: () => void; // probably not needed ??
+					// next: (input?: Request | string, init?: RequestInit) => Promise<Response>; // probably not needed ??
 					env: context.env,
-					params: context.params, // Holds the values from dynamic routing. See CF Docs for more info. We do have Astro.props, so not sure
-					// data: Data; // I don't think we need this: https://community.cloudflare.com/t/what-is-context-data-in-pages-functions/476559/7
+					params: context.params, // Isn't that the same as Astro.props ??
+					// data: Data; // Should we include it ??: https://community.cloudflare.com/t/what-is-context-data-in-pages-functions/476559/7
 					cf: request.cf,
-					caches: caches, // Cloudflare Workers runtime exposes a single global cache object
+					caches: caches,
 				}
 			});
 
