@@ -95,12 +95,22 @@ const service: LocalImageService = {
 			}
 		}
 
-		const data = await processBuffer(inputBuffer, operations, format, quality);
+		try {
+			const data = await processBuffer(inputBuffer, operations, format, quality);
 
-		return {
-			data: Buffer.from(data),
-			format: format,
-		};
+			return {
+				data: Buffer.from(data),
+				format: format,
+			};
+		} catch (err) {
+			const message = err && typeof err === "object" && "message" in err ? err.message : err;
+			// Edge-case for unsupported formats, as Squoosh's error message is not very helpful
+			if (message === "Buffer has an unsupported format") {
+				throw new Error(`${transform.src} has an unsupported format to be transformed by @astrojs/image`);
+			}
+
+			throw err;
+		}
 	},
 };
 
