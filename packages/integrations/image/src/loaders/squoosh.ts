@@ -126,13 +126,23 @@ class SquooshService extends BaseSSRService {
 			});
 			throw new Error(`Unknown image output: "${transform.format}" used for ${transform.src}`);
 		}
-		const { processBuffer } = await imagePoolModulePromise;
-		const data = await processBuffer(inputBuffer, operations, transform.format, transform.quality);
+		try {
+			const {processBuffer} = await imagePoolModulePromise;
+			const data = await processBuffer(inputBuffer, operations, transform.format, transform.quality);
 
-		return {
-			data: Buffer.from(data),
-			format: transform.format,
-		};
+			return {
+				data: Buffer.from(data),
+				format: transform.format,
+			};
+		} catch (err) {
+			const message = err && typeof err === "object" && "message" in err ? err.message : err;
+			// Edge-case for unsupported formats, as Squoosh's error message is not very helpful
+			if (message === "Buffer has an unsupported format") {
+				throw new Error(`${transform.src} has an unsupported format to be transformed by @astrojs/image`);
+			}
+			
+			throw err;
+		}
 	}
 }
 
