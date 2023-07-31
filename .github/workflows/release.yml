@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - "1-legacy"
+      - next
 
 defaults:
   run:
