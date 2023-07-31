@@ -53,6 +53,9 @@
     "unist-util-visit": "^4.1.2",
     "vfile": "^5.3.7"
   },
+  "peerDependencies": {
+    "astro": "workspace:^2.9.6"
+  },
   "devDependencies": {
     "@types/chai": "^4.3.5",
     "@types/estree": "^1.0.1",

@@ -95,6 +95,21 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 								enforce: 'pre',
 								configResolved(resolved) {
 									importMetaEnv = { ...importMetaEnv, ...resolved.env };
+
+									// HACK: move ourselves before Astro's JSX plugin to transform things in the right order
+									const jsxPluginIndex = resolved.plugins.findIndex((p) => p.name === 'astro:jsx');
+									if (jsxPluginIndex !== -1) {
+										const myPluginIndex = resolved.plugins.findIndex(
+											(p) => p.name === '@mdx-js/rollup'
+										);
+										if (myPluginIndex !== -1) {
+											const myPlugin = resolved.plugins[myPluginIndex];
+											// @ts-ignore-error ignore readonly annotation
+											resolved.plugins.splice(myPluginIndex, 1);
+											// @ts-ignore-error ignore readonly annotation
+											resolved.plugins.splice(jsxPluginIndex, 0, myPlugin);
+										}
+									}
 								},
 								// Override transform to alter code before MDX compilation
 								// ex. inject layouts
