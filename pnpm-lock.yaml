@@ -128,7 +128,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
 
   examples/blog:
@@ -143,23 +143,23 @@ importers:
         specifier: ^2.0.1
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
 
   examples/component:
     devDependencies:
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
 
   examples/deno:
     dependencies:
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
     devDependencies:
       '@astrojs/deno':
-        specifier: ^4.2.0
+        specifier: ^4.3.0
         version: link:../../packages/integrations/deno
 
   examples/framework-alpine:
@@ -174,7 +174,7 @@ importers:
         specifier: ^3.12.2
         version: 3.12.2
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
 
   examples/framework-lit:
@@ -186,7 +186,7 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
       lit:
         specifier: ^2.7.5
@@ -210,7 +210,7 @@ importers:
         specifier: ^2.2.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
       preact:
         specifier: ^10.15.1
@@ -240,7 +240,7 @@ importers:
         specifier: ^1.1.3
         version: 1.1.3(preact@10.15.1)
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
       preact:
         specifier: ^10.15.1
@@ -258,7 +258,7 @@ importers:
         specifier: ^18.2.6
         version: 18.2.6
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
       react:
         specifier: ^18.2.0
@@ -273,7 +273,7 @@ importers:
         specifier: ^2.2.0
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.7.6
@@ -285,7 +285,7 @@ importers:
         specifier: ^3.1.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
       svelte:
         specifier: ^3.59.1
@@ -297,7 +297,7 @@ importers:
         specifier: ^2.2.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
       vue:
         specifier: ^3.3.4
@@ -309,13 +309,13 @@ importers:
         specifier: ^5.3.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
 
   examples/middleware:
@@ -324,7 +324,7 @@ importers:
         specifier: ^5.3.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
       html-minifier:
         specifier: ^4.0.0
@@ -333,19 +333,19 @@ importers:
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
 
   examples/non-html-pages:
     dependencies:
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
 
   examples/ssr:
@@ -357,7 +357,7 @@ importers:
         specifier: ^3.1.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
       svelte:
         specifier: ^3.59.1
@@ -366,10 +366,10 @@ importers:
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
-        specifier: ^0.4.3
+        specifier: ^0.4.4
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
 
   examples/with-markdown-plugins:
@@ -378,7 +378,7 @@ importers:
         specifier: ^2.2.1
         version: link:../../packages/markdown/remark
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
       hast-util-select:
         specifier: ^5.0.5
@@ -399,7 +399,7 @@ importers:
   examples/with-markdown-shiki:
     dependencies:
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -411,7 +411,7 @@ importers:
         specifier: ^2.2.1
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
       preact:
         specifier: ^10.15.1
@@ -426,7 +426,7 @@ importers:
         specifier: ^0.4.1
         version: 0.4.1(nanostores@0.8.1)(preact@10.15.1)
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.8.1
@@ -447,7 +447,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
       autoprefixer:
         specifier: ^10.4.14
@@ -465,7 +465,7 @@ importers:
   examples/with-vite-plugin-pwa:
     dependencies:
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
       vite-plugin-pwa:
         specifier: 0.14.7
@@ -477,7 +477,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^2.9.2
+        specifier: ^2.9.6
         version: link:../../packages/astro
       vitest:
         specifier: ^0.31.4
@@ -486,8 +486,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^1.6.0
-        version: 1.6.0
+        specifier: ^1.6.3
+        version: 1.6.3
       '@astrojs/internal-helpers':
         specifier: ^0.1.1
         version: link:../internal-helpers
@@ -4029,6 +4029,9 @@ importers:
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
+      htmlparser2:
+        specifier: ^9.0.0
+        version: 9.0.0
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
@@ -4048,6 +4051,9 @@ importers:
       '@types/html-escaper':
         specifier: ^3.0.0
         version: 3.0.0
+      '@types/markdown-it':
+        specifier: ^12.2.3
+        version: 12.2.3
       '@types/mocha':
         specifier: ^9.1.1
         version: 9.1.1
@@ -4113,6 +4119,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/markdoc/test/fixtures/propagated-assets:
+    dependencies:
+      '@astrojs/markdoc':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/markdoc/test/fixtures/render-html:
     dependencies:
       '@astrojs/markdoc':
         specifier: workspace:*
@@ -4512,7 +4527,7 @@ importers:
     dependencies:
       '@astrojs/netlify':
         specifier: file:../../..
-        version: file:packages/integrations/netlify(astro@2.9.2)
+        version: file:packages/integrations/netlify(astro@2.9.6)
       astro:
         specifier: file:../../../../../astro
         version: file:packages/astro(@types/node@18.16.18)
@@ -4597,6 +4612,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/node/test/fixtures/headers:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/node/test/fixtures/image:
     dependencies:
       '@astrojs/node':
         specifier: workspace:*
@@ -5024,7 +5048,7 @@ importers:
     dependencies:
       '@astrojs/vercel':
         specifier: file:../../..
-        version: file:packages/integrations/vercel(astro@2.9.2)
+        version: file:packages/integrations/vercel(astro@2.9.6)
       astro:
         specifier: file:../../../../../astro
         version: file:packages/astro(@types/node@18.16.18)
@@ -5560,8 +5584,8 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
-  /@astrojs/compiler@1.6.0:
-    resolution: {integrity: sha512-vxuzp09jAW/ZQ8C4Itf6/OsF76TNjBQC06FNpcayKOzxYkCGHTLh7+0lF4ywmG/fDgSc+f1x7kKxxEKl4nqXvQ==}
+  /@astrojs/compiler@1.6.3:
+    resolution: {integrity: sha512-n0xTuBznKspc0plk6RHBOlSv/EwQGyMNSxEOPj7HMeiRNnXX4woeSopN9hQsLkqraDds1eRvB4u99buWgVNJig==}
 
   /@astrojs/internal-helpers@0.1.1:
     resolution: {integrity: sha512-+LySbvFbjv2nO2m/e78suleQOGEru4Cnx73VsZbrQgB2u7A4ddsQg3P2T0zC0e10jgcT+c6nNlKeLpa6nRhQIg==}
@@ -5571,7 +5595,7 @@ packages:
     resolution: {integrity: sha512-oEw7AwJmzjgy6HC9f5IdrphZ1GVgfV/+7xQuyf52cpTiRWd/tJISK3MsKP0cDkVlfodmNABNFnAaAWuLZEiiiA==}
     hasBin: true
     dependencies:
-      '@astrojs/compiler': 1.6.0
+      '@astrojs/compiler': 1.6.3
       '@jridgewell/trace-mapping': 0.3.18
       '@vscode/emmet-helper': 2.8.8
       events: 3.3.0
@@ -5587,7 +5611,7 @@ packages:
       vscode-uri: 3.0.7
     dev: false
 
-  /@astrojs/markdown-remark@2.2.1(astro@2.9.2):
+  /@astrojs/markdown-remark@2.2.1(astro@2.9.6):
     resolution: {integrity: sha512-VF0HRv4GpC1XEMLnsKf6jth7JSmlt9qpqP0josQgA2eSpCIAC/Et+y94mgdBIZVBYH/yFnMoIxgKVe93xfO2GA==}
     peerDependencies:
       astro: '*'
@@ -8936,8 +8960,6 @@ packages:
 
   /@types/linkify-it@3.0.2:
     resolution: {integrity: sha512-HZQYqbiFVWufzCwexrvh694SOim8z2d+xJl5UNamcvQFejLY/2YUtzXHYi3cHdI7PMlS8ejH2slRAOJQ32aNbA==}
-    dev: false
-    optional: true
 
   /@types/markdown-it@12.2.3:
     resolution: {integrity: sha512-GKMHFfv3458yYy+v/N8gjufHO6MSZKCOXpZc5GXIWWy8uldwfmPn98vp81gZ5f9SVw8YYBctgfJ22a2d7AOMeQ==}
@@ -8945,8 +8967,6 @@ packages:
     dependencies:
       '@types/linkify-it': 3.0.2
       '@types/mdurl': 1.0.2
-    dev: false
-    optional: true
 
   /@types/mathjax@0.0.37:
     resolution: {integrity: sha512-y0WSZBtBNQwcYipTU/BhgeFu1EZNlFvUNCmkMXV9kBQZq7/o5z82dNVyH3yy2Xv5zzeNeQoHSL4Xm06+EQiH+g==}
@@ -8959,8 +8979,6 @@ packages:
 
   /@types/mdurl@1.0.2:
     resolution: {integrity: sha512-eC4U9MlIcu2q0KQmXszyn5Akca/0jrQmwDRgpAMJai7qBWq4amIQhZyNau4VYGtCeALvW1/NtjzJJ567aZxfKA==}
-    dev: false
-    optional: true
 
   /@types/mdx@2.0.5:
     resolution: {integrity: sha512-76CqzuD6Q7LC+AtbPqrvD9AqsN0k8bsYo2bM2J8pmNldP1aIPAbzUQ7QbobyXL4eLr1wK5x8FZFe8eF/ubRuBg==}
@@ -10966,11 +10984,9 @@ packages:
       domelementtype: 2.3.0
       domhandler: 5.0.3
       entities: 4.5.0
-    dev: true
 
   /domelementtype@2.3.0:
     resolution: {integrity: sha512-OLETBj6w0OsagBwdXnPdN0cnMfF9opN69co+7ZrbfPGrdpPVNBUj02spi6B1N7wChLQiPn4CSH/zJvXw56gmHw==}
-    dev: true
 
   /domexception@4.0.0:
     resolution: {integrity: sha512-A2is4PLG+eeSfoTMA95/s4pvAoSo2mKtiM5jlHkAVewmiO8ISFTFKZjH7UAM1Atli/OT/7JHOrJRJiMKUZKYBw==}
@@ -10984,7 +11000,6 @@ packages:
     engines: {node: '>= 4'}
     dependencies:
       domelementtype: 2.3.0
-    dev: true
 
   /domutils@3.1.0:
     resolution: {integrity: sha512-H78uMmQtI2AhgDJjWeQmHwJJ2bLPD3GMmO7Zja/ZZh84wkm+4ut+IUnUdRa8uCGX88DiVx1j6FRe1XfxEgjEZA==}
@@ -10992,7 +11007,6 @@ packages:
       dom-serializer: 2.0.0
       domelementtype: 2.3.0
       domhandler: 5.0.3
-    dev: true
 
   /dotenv@10.0.0:
     resolution: {integrity: sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==}
@@ -12732,6 +12746,15 @@ packages:
       domutils: 3.1.0
       entities: 4.5.0
     dev: true
+
+  /htmlparser2@9.0.0:
+    resolution: {integrity: sha512-uxbSI98wmFT/G4P2zXx4OVx04qWUmyFPrD2/CNepa2Zo3GPNaCaaxElDgwUrwYWkK1nr9fft0Ya8dws8coDLLQ==}
+    dependencies:
+      domelementtype: 2.3.0
+      domhandler: 5.0.3
+      domutils: 3.1.0
+      entities: 4.5.0
+    dev: false
 
   /http-cache-semantics@4.1.1:
     resolution: {integrity: sha512-er295DKPVsV82j5kw1Gjt+ADA/XYHsajl82cGNQG2eyoPkvgUhX+nDIyelzhIWbbsXP39EHcI6l5tYs2FYqYXQ==}
@@ -15643,7 +15666,7 @@ packages:
     resolution: {integrity: sha512-dPzop0gKZyVGpTDQmfy+e7FKXC9JT3mlpfYA2diOVz+Ui+QR1U4G/s+OesKl2Hib2JJOtAYJs/l+ovgT0ljlFA==}
     engines: {node: ^14.15.0 || >=16.0.0, pnpm: '>=7.14.0'}
     dependencies:
-      '@astrojs/compiler': 1.6.0
+      '@astrojs/compiler': 1.6.3
       prettier: 2.8.8
       sass-formatter: 0.7.6
     dev: true
@@ -15652,7 +15675,7 @@ packages:
     resolution: {integrity: sha512-lJ/mG/Lz/ccSwNtwqpFS126mtMVzFVyYv0ddTF9wqwrEG4seECjKDAyw/oGv915rAcJi8jr89990nqfpmG+qdg==}
     engines: {node: ^14.15.0 || >=16.0.0, pnpm: '>=7.14.0'}
     dependencies:
-      '@astrojs/compiler': 1.6.0
+      '@astrojs/compiler': 1.6.3
       prettier: 2.8.8
       sass-formatter: 0.7.6
       synckit: 0.8.5
@@ -18652,7 +18675,7 @@ packages:
     resolution: {directory: packages/astro, type: directory}
     id: file:packages/astro
     name: astro
-    version: 2.9.2
+    version: 2.9.6
     engines: {node: '>=16.12.0', npm: '>=6.14.0'}
     hasBin: true
     peerDependencies:
@@ -18661,10 +18684,10 @@ packages:
       sharp:
         optional: true
     dependencies:
-      '@astrojs/compiler': 1.6.0
+      '@astrojs/compiler': 1.6.3
       '@astrojs/internal-helpers': 0.1.1
       '@astrojs/language-server': 1.0.0
-      '@astrojs/markdown-remark': 2.2.1(astro@2.9.2)
+      '@astrojs/markdown-remark': 2.2.1(astro@2.9.6)
       '@astrojs/telemetry': 2.1.1
       '@astrojs/webapi': 2.2.0
       '@babel/core': 7.22.5
@@ -18761,11 +18784,11 @@ packages:
       solid-js: 1.7.6
     dev: false
 
-  file:packages/integrations/netlify(astro@2.9.2):
+  file:packages/integrations/netlify(astro@2.9.6):
     resolution: {directory: packages/integrations/netlify, type: directory}
     id: file:packages/integrations/netlify
     name: '@astrojs/netlify'
-    version: 2.5.0
+    version: 2.5.1
     peerDependencies:
       astro: '*'
     dependencies:
@@ -18776,7 +18799,7 @@ packages:
       esbuild: 0.15.18
     dev: false
 
-  file:packages/integrations/vercel(astro@2.9.2):
+  file:packages/integrations/vercel(astro@2.9.6):
     resolution: {directory: packages/integrations/vercel, type: directory}
     id: file:packages/integrations/vercel
     name: '@astrojs/vercel'

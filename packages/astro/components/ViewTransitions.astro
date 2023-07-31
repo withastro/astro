@@ -13,18 +13,40 @@ const { fallback = 'animate' } = Astro.props as Props;
 <script>
 	type Fallback = 'none' | 'animate' | 'swap';
 	type Direction = 'forward' | 'back';
+	type State = {
+		index: number;
+		scrollY: number;
+	};
+	type Events = 'astro:load' | 'astro:beforeload';
+
+	const persistState = (state: State) => history.replaceState(state, '');
 
 	// The History API does not tell you if navigation is forward or back, so
 	// you can figure it using an index. On pushState the index is incremented so you
 	// can use that to determine popstate if going forward or back.
 	let currentHistoryIndex = history.state?.index || 0;
 	if (!history.state) {
-		history.replaceState({ index: currentHistoryIndex }, document.title);
+		persistState({ index: currentHistoryIndex, scrollY: 0 });
 	}
 
 	const supportsViewTransitions = !!document.startViewTransition;
 	const transitionEnabledOnThisPage = () =>
 		!!document.querySelector('[name="astro-view-transitions-enabled"]');
+	const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
+	const onload = () => triggerEvent('astro:load');
+
+	const throttle = (cb: (...args: any[]) => any, delay: number) => {
+		let wait = false;
+		return (...args: any[]) => {
+			if (wait) return;
+
+			cb(...args);
+			wait = true;
+			setTimeout(() => {
+				wait = false;
+			}, delay);
+		};
+	};
 
 	async function getHTML(href: string) {
 		const res = await fetch(href);
@@ -40,12 +62,39 @@ const { fallback = 'animate' } = Astro.props as Props;
 		return 'animate';
 	}
 
+	function runScripts() {
+		let wait = Promise.resolve();
+		for (const script of Array.from(document.scripts)) {
+			const s = document.createElement('script');
+			s.innerHTML = script.innerHTML;
+			for (const attr of script.attributes) {
+				if (attr.name === 'src') {
+					const p = new Promise((r) => {
+						s.onload = r;
+					});
+					wait = wait.then(() => p as any);
+				}
+				s.setAttribute(attr.name, attr.value);
+			}
+			script.replaceWith(s);
+		}
+		return wait;
+	}
+
 	const parser = new DOMParser();
 
-	async function updateDOM(dir: Direction, html: string, fallback?: Fallback) {
+	async function updateDOM(dir: Direction, html: string, state?: State, fallback?: Fallback) {
 		const doc = parser.parseFromString(html, 'text/html');
 		doc.documentElement.dataset.astroTransition = dir;
-		const swap = () => document.documentElement.replaceWith(doc.documentElement);
+		const swap = () => {
+			document.documentElement.replaceWith(doc.documentElement);
+
+			if (state?.scrollY != null) {
+				scrollTo(0, state.scrollY);
+			}
+
+			triggerEvent('astro:beforeload');
+		};
 
 		// Wait on links to finish, to prevent FOUC
 		const links = Array.from(doc.querySelectorAll('head link[rel=stylesheet]')).map(
@@ -78,7 +127,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		}
 	}
 
-	async function navigate(dir: Direction, href: string) {
+	async function navigate(dir: Direction, href: string, state?: State) {
 		let finished: Promise<void>;
 		const { html, ok } = await getHTML(href);
 		// If there is a problem fetching the new page, just do an MPA navigation to it.
@@ -87,14 +136,16 @@ const { fallback = 'animate' } = Astro.props as Props;
 			return;
 		}
 		if (supportsViewTransitions) {
-			finished = document.startViewTransition(() => updateDOM(dir, html)).finished;
+			finished = document.startViewTransition(() => updateDOM(dir, html, state)).finished;
 		} else {
-			finished = updateDOM(dir, html, getFallback());
+			finished = updateDOM(dir, html, state, getFallback());
 		}
 		try {
 			await finished;
 		} finally {
 			document.documentElement.removeAttribute('data-astro-transition');
+			await runScripts();
+			onload();
 		}
 	}
 
@@ -126,6 +177,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				link.href &&
 				(!link.target || link.target === '_self') &&
 				link.origin === location.origin &&
+				!link.hash &&
 				ev.button === 0 && // left clicks only
 				!ev.metaKey && // new tab (mac)
 				!ev.ctrlKey && // new tab (windows)
@@ -137,19 +189,30 @@ const { fallback = 'animate' } = Astro.props as Props;
 				ev.preventDefault();
 				navigate('forward', link.href);
 				currentHistoryIndex++;
-				history.pushState({ index: currentHistoryIndex }, '', link.href);
+				const newState: State = { index: currentHistoryIndex, scrollY };
+				persistState({ index: currentHistoryIndex - 1, scrollY });
+				history.pushState(newState, '', link.href);
 			}
 		});
-		window.addEventListener('popstate', () => {
+		addEventListener('popstate', (ev) => {
 			if (!transitionEnabledOnThisPage()) {
 				// The current page doesn't haven't View Transitions,
 				// respect that with a full page reload
 				location.reload();
 				return;
 			}
-			const nextIndex = history.state?.index ?? currentHistoryIndex + 1;
+
+			// hash change creates no state.
+			if (ev.state === null) {
+				persistState({ index: currentHistoryIndex, scrollY });
+				ev.preventDefault();
+				return;
+			}
+
+			const state: State | undefined = history.state;
+			const nextIndex = state?.index ?? currentHistoryIndex + 1;
 			const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
-			navigate(direction, location.href);
+			navigate(direction, location.href, state);
 			currentHistoryIndex = nextIndex;
 		});
 
@@ -171,5 +234,17 @@ const { fallback = 'animate' } = Astro.props as Props;
 				{ passive: true, capture: true }
 			);
 		});
+		addEventListener('load', onload);
+		// There's not a good way to record scroll position before a back button.
+		// So the way we do it is by listening to scroll and just continuously recording it.
+		addEventListener(
+			'scroll',
+			throttle(() => {
+				if (history.state) {
+					persistState({ ...history.state, scrollY });
+				}
+			}, 300),
+			{ passive: true }
+		);
 	}
 </script>

@@ -1,6 +1,17 @@
+import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isLocalService, type ImageService } from './services/service.js';
 import type { GetImageResult, ImageMetadata, ImageTransform } from './types.js';
+
+export function injectImageEndpoint(settings: AstroSettings) {
+	settings.injectedRoutes.push({
+		pattern: '/_image',
+		entryPoint: 'astro/assets/image-endpoint',
+		prerender: false,
+	});
+
+	return settings;
+}
 
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
 	return typeof src === 'object';
