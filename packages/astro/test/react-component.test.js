@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
-import { isWindows, loadFixture, silentLogging } from './test-utils.js';
+import { isWindows, loadFixture } from './test-utils.js';
 
 let fixture;
 
@@ -108,9 +108,7 @@ describe('React Components', () => {
 		let devServer;
 
 		before(async () => {
-			devServer = await fixture.startDevServer({
-				logging: silentLogging,
-			});
+			devServer = await fixture.startDevServer();
 		});
 
 		after(async () => {

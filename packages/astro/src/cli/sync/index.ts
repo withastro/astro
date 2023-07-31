@@ -1,15 +1,13 @@
 import type yargs from 'yargs-parser';
-import type { LogOptions } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
 import { sync as _sync } from '../../core/sync/index.js';
 import { flagsToAstroInlineConfig } from '../flags.js';
 
 interface SyncOptions {
 	flags: yargs.Arguments;
-	logging: LogOptions;
 }
 
-export async function sync({ flags, logging }: SyncOptions) {
+export async function sync({ flags }: SyncOptions) {
 	if (flags?.help || flags?.h) {
 		printHelp({
 			commandName: 'astro sync',
@@ -24,6 +22,6 @@ export async function sync({ flags, logging }: SyncOptions) {
 
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 
-	const exitCode = await _sync(inlineConfig, { logging });
+	const exitCode = await _sync(inlineConfig);
 	return exitCode;
 }

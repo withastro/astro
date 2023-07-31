@@ -11,7 +11,7 @@ import build from '../dist/core/build/index.js';
 import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.js';
 import { getVirtualModulePageNameFromPath } from '../dist/core/build/plugins/util.js';
 import { makeSplitEntryPointFileName } from '../dist/core/build/static-build.js';
-import { resolveConfig } from '../dist/core/config/config.js';
+import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import dev from '../dist/core/dev/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
 import preview from '../dist/core/preview/index.js';
@@ -43,12 +43,13 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @property {(path: string, updater: (content: string) => string) => Promise<void>} writeFile
  * @property {(path: string) => Promise<string[]>} readdir
  * @property {(pattern: string) => Promise<string[]>} glob
- * @property {() => Promise<DevServer>} startDevServer
- * @property {() => Promise<PreviewServer>} preview
+ * @property {typeof dev} startDevServer
+ * @property {typeof preview} preview
  * @property {() => Promise<void>} clean
  * @property {() => Promise<App>} loadTestAdapterApp
  * @property {() => Promise<void>} onNextChange
- * @property {(opts: CheckPayload) => Promise<AstroChecker>} check
+ * @property {typeof check} check
+ * @property {typeof sync} sync
  *
  * This function returns an instance of the Check
  *
@@ -103,8 +104,8 @@ export const silentLogging = {
 export async function loadFixture(inlineConfig) {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
 
-	/** @type {import('../src/core/logger/core').LogOptions} */
-	const logging = defaultLogging;
+	// Silent by default during tests to not pollute the console output
+	inlineConfig.logLevel = 'silent';
 
 	let root = inlineConfig.root;
 	// Handle URL, should already be absolute so just convert to path
@@ -152,17 +153,19 @@ export async function loadFixture(inlineConfig) {
 	let devServer;
 
 	return {
-		build: async (opts = {}) => {
+		build: async (extraInlineConfig = {}) => {
 			process.env.NODE_ENV = 'production';
-			return build(inlineConfig, { logging, ...opts });
+			return build(mergeConfig(inlineConfig, extraInlineConfig));
 		},
-		sync: async (opts) => sync(inlineConfig, { logging, ...opts }),
+		sync: async (extraInlineConfig = {}, opts) => {
+			return sync(mergeConfig(inlineConfig, extraInlineConfig), opts);
+		},
 		check: async (opts) => {
-			return await check(inlineConfig, { logging, ...opts });
+			return await check(opts);
 		},
-		startDevServer: async (opts = {}) => {
+		startDevServer: async (extraInlineConfig = {}) => {
 			process.env.NODE_ENV = 'development';
-			devServer = await dev(inlineConfig, { logging, ...opts });
+			devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
 			return devServer;
@@ -182,9 +185,9 @@ export async function loadFixture(inlineConfig) {
 				throw err;
 			}
 		},
-		preview: async (opts = {}) => {
+		preview: async (extraInlineConfig = {}) => {
 			process.env.NODE_ENV = 'production';
-			const previewServer = await preview(inlineConfig, { logging, ...opts });
+			const previewServer = await preview(mergeConfig(inlineConfig, extraInlineConfig));
 			config.server.host = parseAddressToHost(previewServer.host); // update host
 			config.server.port = previewServer.port; // update port
 			return previewServer;

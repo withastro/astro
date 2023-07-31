@@ -6,14 +6,10 @@ import type * as vite from 'vite';
 import type { AstroInlineConfig } from '../../@types/astro';
 import { attachContentServerListeners } from '../../content/index.js';
 import { telemetry } from '../../events/index.js';
-import { info, warn, type LogOptions } from '../logger/core.js';
+import { info, warn } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { startContainer } from './container.js';
 import { createContainerWithAutomaticRestart } from './restart.js';
-
-export interface DevOptions {
-	logging: LogOptions;
-}
 
 export interface DevServer {
 	address: AddressInfo;
@@ -23,25 +19,19 @@ export interface DevServer {
 }
 
 /** `astro dev` */
-export default async function dev(
-	inlineConfig: AstroInlineConfig,
-	options: DevOptions
-): Promise<DevServer> {
+export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevServer> {
 	const devStart = performance.now();
 	await telemetry.record([]);
 
 	// Create a container which sets up the Vite server.
-	const restart = await createContainerWithAutomaticRestart({
-		inlineConfig,
-		logging: options.logging,
-		fs,
-	});
+	const restart = await createContainerWithAutomaticRestart({ inlineConfig, fs });
+	const logging = restart.container.logging;
 
 	// Start listening to the port
 	const devServerAddressInfo = await startContainer(restart.container);
 
 	info(
-		options.logging,
+		logging,
 		null,
 		msg.serverStart({
 			startupTime: performance.now() - devStart,
@@ -53,10 +43,10 @@ export default async function dev(
 
 	const currentVersion = process.env.PACKAGE_VERSION ?? '0.0.0';
 	if (currentVersion.includes('-')) {
-		warn(options.logging, null, msg.prerelease({ currentVersion }));
+		warn(logging, null, msg.prerelease({ currentVersion }));
 	}
 	if (restart.container.viteServer.config.server?.fs?.strict === false) {
-		warn(options.logging, null, msg.fsStrictWarning());
+		warn(logging, null, msg.fsStrictWarning());
 	}
 
 	await attachContentServerListeners(restart.container);

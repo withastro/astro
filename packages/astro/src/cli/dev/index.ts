@@ -1,16 +1,14 @@
 import { cyan } from 'kleur/colors';
 import type yargs from 'yargs-parser';
 import devServer from '../../core/dev/index.js';
-import type { LogOptions } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
 import { flagsToAstroInlineConfig } from '../flags.js';
 
 interface DevOptions {
 	flags: yargs.Arguments;
-	logging: LogOptions;
 }
 
-export async function dev({ flags, logging }: DevOptions) {
+export async function dev({ flags }: DevOptions) {
 	if (flags.help || flags.h) {
 		printHelp({
 			commandName: 'astro dev',
@@ -33,5 +31,5 @@ export async function dev({ flags, logging }: DevOptions) {
 
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 
-	return await devServer(inlineConfig, { logging });
+	return await devServer(inlineConfig);
 }

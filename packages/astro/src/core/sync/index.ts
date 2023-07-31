@@ -16,11 +16,11 @@ import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { AstroError, AstroErrorData, createSafeError, isAstroError } from '../errors/index.js';
 import { info, type LogOptions } from '../logger/core.js';
+import { createNodeLogging } from '../config/logging.js';
 
 export type ProcessExit = 0 | 1;
 
 export type SyncOptions = {
-	logging: LogOptions;
 	/**
 	 * Only used for testing
 	 * @internal
@@ -28,10 +28,15 @@ export type SyncOptions = {
 	fs?: typeof fsMod;
 };
 
+export type SyncInternalOptions = SyncOptions & {
+	logging: LogOptions;
+};
+
 export async function sync(
 	inlineConfig: AstroInlineConfig,
-	options: SyncOptions
+	options?: SyncOptions
 ): Promise<ProcessExit> {
+	const logging = createNodeLogging(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
 	telemetry.record(eventCliSession('sync', userConfig));
 
@@ -39,11 +44,11 @@ export async function sync(
 
 	const settings = await runHookConfigSetup({
 		settings: _settings,
-		logging: options.logging,
+		logging: logging,
 		command: 'build',
 	});
 
-	return await syncInternal(settings, options);
+	return await syncInternal(settings, { logging, fs: options?.fs });
 }
 
 /**
@@ -62,7 +67,7 @@ export async function sync(
  */
 export async function syncInternal(
 	settings: AstroSettings,
-	{ logging, fs }: SyncOptions
+	{ logging, fs }: SyncInternalOptions
 ): Promise<ProcessExit> {
 	const timerStart = performance.now();
 	// Needed to load content config

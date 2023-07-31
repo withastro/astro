@@ -1,9 +1,16 @@
 import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroInlineConfig } from '../@types/astro.js';
+import type { LogOptions } from '../core/logger/core.js';
+import { nodeLogDestination } from '../core/logger/node.js';
 
 export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 	return {
+		// Inline-only configs
 		configFile: typeof flags.config === 'string' ? flags.config : undefined,
+		mode: typeof flags.mode === 'string' ? (flags.mode as AstroInlineConfig['mode']) : undefined,
+		logLevel: flags.verbose ? 'debug' : flags.silent ? 'silent' : undefined,
+
+		// Astro user configs
 		root: typeof flags.root === 'string' ? flags.root : undefined,
 		site: typeof flags.site === 'string' ? flags.site : undefined,
 		base: typeof flags.base === 'string' ? flags.base : undefined,
@@ -20,4 +27,23 @@ export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 			assets: typeof flags.experimentalAssets === 'boolean' ? flags.experimentalAssets : undefined,
 		},
 	};
+}
+
+/**
+ * The `logging` is usually created from an `AstroInlineConfig`, but some flows like `add`
+ * doesn't read the AstroConfig directly, so we create a `logging` object from the CLI flags instead.
+ */
+export function createLoggingFromFlags(flags: Flags): LogOptions {
+	const logging: LogOptions = {
+		dest: nodeLogDestination,
+		level: 'info',
+	};
+
+	if (flags.verbose) {
+		logging.level = 'debug';
+	} else if (flags.silent) {
+		logging.level = 'silent';
+	}
+
+	return logging;
 }

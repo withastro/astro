@@ -26,9 +26,9 @@ import { eventCliSession, telemetry } from '../../events/index.js';
 import { generate, parse, t, visit } from './babel.js';
 import { ensureImport } from './imports.js';
 import { wrapDefaultExport } from './wrapper.js';
+import { createLoggingFromFlags } from '../flags.js';
 
 interface AddOptions {
-	logging: LogOptions;
 	flags: yargs.Arguments;
 }
 
@@ -86,7 +86,7 @@ async function getRegistry(): Promise<string> {
 	}
 }
 
-export async function add(names: string[], { flags, logging }: AddOptions) {
+export async function add(names: string[], { flags }: AddOptions) {
 	telemetry.record(eventCliSession('add'));
 	applyPolyfill();
 	if (flags.help || names.length === 0) {
@@ -130,6 +130,7 @@ export async function add(names: string[], { flags, logging }: AddOptions) {
 
 	// Some packages might have a common alias! We normalize those here.
 	const cwd = flags.root;
+	const logging = createLoggingFromFlags(flags);
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames);
 	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logging });
