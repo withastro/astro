@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.2.0
+
+### Minor Changes
+
+- 8ac32d9: Added several new options to the check entrypoint in order to support the new `@astrojs/check` package
+
 ## 2.1.4
 
 ### Patch Changes
