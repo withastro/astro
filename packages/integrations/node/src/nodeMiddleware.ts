@@ -5,7 +5,9 @@ import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders';
 import { responseIterator } from './response-iterator';
 import type { Options } from './types';
 
-export default function (app: NodeApp, mode: Options['mode']) {
+// Disable no-unused-vars to avoid breaking signature change
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function (app: NodeApp, _mode: Options['mode']) {
 	return async function (
 		req: IncomingMessage,
 		res: ServerResponse,
