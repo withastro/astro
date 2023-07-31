@@ -3,4 +3,10 @@ import Layout from '../components/Layout.astro';
 ---
 <Layout link="/two.css">
 	<p id="two">Page 2</p>
+	<article id="twoarticle"></article>
 </Layout>
+<script>
+	document.addEventListener('astro:load', () => {
+		document.getElementById('twoarticle')!.textContent = 'works';
+	}, { once: true });
+</script>

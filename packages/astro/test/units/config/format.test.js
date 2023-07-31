@@ -27,7 +27,7 @@ describe('Astro config formats', () => {
 			logging: defaultLogging,
 			fsMod: fs,
 		});
-		const settings = createSettings(astroConfig, 'dev');
+		const settings = createSettings(astroConfig);
 
 		await runInContainer({ fs, root, settings }, () => {
 			expect(true).to.equal(

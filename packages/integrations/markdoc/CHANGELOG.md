@@ -1,5 +1,25 @@
 # @astrojs/markdoc
 
+## 0.4.4
+
+### Patch Changes
+
+- [#7597](https://github.com/withastro/astro/pull/7597) [`7461e82c8`](https://github.com/withastro/astro/commit/7461e82c81438df956861197536f9ceeaf63d6b3) Thanks [@alex-sherwin](https://github.com/alex-sherwin)! - Adds an "allowHTML" Markdoc integration option.
+
+  When enabled, all HTML in Markdoc files will be processed, including HTML elements within Markdoc tags and nodes.
+
+  Enable this feature in the `markdoc` integration configuration:
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    integrations: [markdoc({ allowHTML: true })],
+  });
+  ```
+
+- Updated dependencies [[`0f677c009`](https://github.com/withastro/astro/commit/0f677c009d102bc12232a966634136be58f34739), [`188eeddd4`](https://github.com/withastro/astro/commit/188eeddd47a61e04639670496924c37866180749)]:
+  - astro@2.9.3
+
 ## 0.4.3
 
 ### Patch Changes
