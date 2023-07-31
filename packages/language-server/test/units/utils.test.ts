@@ -1,9 +1,9 @@
-import { Point } from '@astrojs/compiler/types.js';
+import type { Point } from '@astrojs/compiler/types.js';
 import { Range } from '@volar/language-server';
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as html from 'vscode-html-languageservice';
-import { Node } from 'vscode-html-languageservice';
+import type { Node } from 'vscode-html-languageservice';
 import * as compilerUtils from '../../src/core/compilerUtils.js';
 import { getAstroMetadata } from '../../src/core/parseAstro.js';
 import * as utils from '../../src/plugins/utils.js';

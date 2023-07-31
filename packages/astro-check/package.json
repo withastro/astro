@@ -1,0 +1,47 @@
+{
+  "name": "@astrojs/check",
+  "version": "0.1.0",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/language-tools",
+    "directory": "packages/astro-check"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "astro-check": "./dist/bin.js"
+  },
+  "files": [
+    "bin",
+    "dist/**/*.js",
+    "dist/**/*.d.ts"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "mocha --timeout 30000 --require tsx test/**/*.test.ts",
+    "test:match": "pnpm run test -g"
+  },
+  "dependencies": {
+    "@astrojs/language-server": "^2.1.0",
+    "chokidar": "^3.5.3",
+    "fast-glob": "^3.3.1",
+    "kleur": "^4.1.5",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^16.18.26",
+    "@types/yargs": "^17.0.24",
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "tsx": "^3.12.7"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

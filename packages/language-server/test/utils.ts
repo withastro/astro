@@ -1,4 +1,4 @@
-import { Point, Position } from '@astrojs/compiler';
+import type { Point, Position } from '@astrojs/compiler';
 
 export function createCompilerPosition(start: Point, end: Point): Position {
 	return {

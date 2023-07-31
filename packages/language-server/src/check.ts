@@ -7,24 +7,33 @@ import { getVueLanguageModule } from './core/vue.js';
 import createAstroService from './plugins/astro.js';
 import createTypeScriptService from './plugins/typescript/index.js';
 import { getAstroInstall } from './utils.js';
+import { DiagnosticSeverity, Diagnostic } from '@volar/language-server';
 
 // Export those for downstream consumers
-export { DiagnosticSeverity, type Diagnostic } from '@volar/language-server';
+export { DiagnosticSeverity, Diagnostic };
 
 export interface CheckResult {
-	errors: kit.Diagnostic[];
-	fileUrl: URL;
-	fileContent: string;
+	status: 'completed' | 'cancelled' | undefined;
+	fileChecked: number;
+	errors: number;
+	warnings: number;
+	hints: number;
+	fileResult: {
+		errors: kit.Diagnostic[];
+		fileUrl: URL;
+		fileContent: string;
+	}[];
 }
 
 export class AstroCheck {
 	private ts!: typeof import('typescript/lib/tsserverlibrary.js');
-	private project!: ReturnType<typeof kit.createProject>;
+	public project!: ReturnType<typeof kit.createProject>;
 	private linter!: ReturnType<typeof kit.createLinter>;
 
 	constructor(
 		private readonly workspacePath: string,
-		private readonly typescriptPath: string | undefined
+		private readonly typescriptPath: string | undefined,
+		private readonly tsconfigPath: string | undefined
 	) {
 		this.initialize();
 	}
@@ -35,35 +44,76 @@ export class AstroCheck {
 	 * @param logErrors Whether to log errors by itself. This is disabled by default.
 	 * @return {CheckResult} The result of the lint, including a list of errors, the file's content and its file path.
 	 */
-	public async lint(
-		fileNames: string[] | undefined = undefined,
-		logErrors = false
-	): Promise<CheckResult[]> {
+	public async lint({
+		fileNames = undefined,
+		cancel = () => false,
+		logErrors = undefined,
+	}: {
+		fileNames?: string[] | undefined;
+		cancel?: () => boolean;
+		logErrors?:
+			| {
+					level: 'error' | 'warning' | 'hint';
+			  }
+			| undefined;
+	}): Promise<CheckResult> {
 		const files =
-			fileNames !== undefined
-				? fileNames
-				: this.project.languageHost.getScriptFileNames().filter((file) => file.endsWith('.astro'));
+			fileNames !== undefined ? fileNames : this.project.languageHost.getScriptFileNames();
 
-		const errors: CheckResult[] = [];
+		const result: CheckResult = {
+			status: undefined,
+			fileChecked: 0,
+			errors: 0,
+			warnings: 0,
+			hints: 0,
+			fileResult: [],
+		};
 		for (const file of files) {
-			const fileErrors = await this.linter.check(file);
+			if (cancel()) {
+				result.status = 'cancelled';
+				return result;
+			}
+			const fileDiagnostics = (await this.linter.check(file)).filter((diag) => {
+				const severity = diag.severity ?? DiagnosticSeverity.Error;
+				switch (logErrors?.level ?? 'error') {
+					case 'error':
+						return true;
+					case 'warning':
+						return severity <= DiagnosticSeverity.Warning;
+					case 'hint':
+						return severity <= DiagnosticSeverity.Hint;
+				}
+			});
+
 			if (logErrors) {
-				this.linter.logErrors(file, fileErrors);
+				this.linter.logErrors(file, fileDiagnostics);
 			}
 
-			if (fileErrors.length > 0) {
+			if (fileDiagnostics.length > 0) {
 				const fileSnapshot = this.project.languageHost.getScriptSnapshot(file);
 				const fileContent = fileSnapshot?.getText(0, fileSnapshot.getLength());
 
-				errors.push({
-					errors: fileErrors,
+				result.fileResult.push({
+					errors: fileDiagnostics,
 					fileContent: fileContent ?? '',
 					fileUrl: pathToFileURL(file),
 				});
+				result.errors += fileDiagnostics.filter(
+					(diag) => diag.severity === DiagnosticSeverity.Error
+				).length;
+				result.warnings += fileDiagnostics.filter(
+					(diag) => diag.severity === DiagnosticSeverity.Warning
+				).length;
+				result.hints += fileDiagnostics.filter(
+					(diag) => diag.severity === DiagnosticSeverity.Hint
+				).length;
 			}
+
+			result.fileChecked += 1;
 		}
 
-		return errors;
+		result.status = 'completed';
+		return result;
 	}
 
 	private initialize() {
@@ -102,9 +152,11 @@ export class AstroCheck {
 	}
 
 	private getTsconfig() {
+		const searchPath = this.tsconfigPath ?? this.workspacePath;
+
 		const tsconfig =
-			this.ts.findConfigFile(this.workspacePath, this.ts.sys.fileExists) ||
-			this.ts.findConfigFile(this.workspacePath, this.ts.sys.fileExists, 'jsconfig.json');
+			this.ts.findConfigFile(searchPath, this.ts.sys.fileExists) ||
+			this.ts.findConfigFile(searchPath, this.ts.sys.fileExists, 'jsconfig.json');
 
 		return tsconfig;
 	}
