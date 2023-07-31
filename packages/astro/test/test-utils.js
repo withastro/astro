@@ -138,8 +138,8 @@ export async function loadFixture(inlineConfig) {
 	 * the `AstroSettings`. This function helps to create a fresh settings object that is used by the
 	 * command functions below to prevent tests from polluting each other.
 	 */
-	const getSettings = async (mode) => {
-		let settings = createSettings(config, mode, fileURLToPath(cwd));
+	const getSettings = async () => {
+		let settings = createSettings(config, fileURLToPath(cwd));
 		if (config.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
 			// Enable default JSX integration. It needs to come first, so unshift rather than push!
 			const { default: jsxRenderer } = await import('astro/jsx/renderer.js');
