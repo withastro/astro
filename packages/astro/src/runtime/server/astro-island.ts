@@ -135,9 +135,17 @@ declare const Astro: {
 							? JSON.parse(this.getAttribute('props')!, reviver)
 							: {};
 					} catch (e) {
+						let componentName: string =
+							this.getAttribute('component-url') || this.Component?.__name || '<unknown>';
+						const componentExport = this.getAttribute('component-export');
+
+						if (componentExport) {
+							componentName += ` (export ${componentExport})`;
+						}
+
 						// eslint-disable-next-line no-console
 						console.error(
-							`[hydrate] Error parsing props for component ${this.Component?.__name}`,
+							`[hydrate] Error parsing props for component ${componentName}`,
 							this.getAttribute('props'),
 							e
 						);
