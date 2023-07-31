@@ -89,11 +89,7 @@ export function createAPIContext({
 			if (typeof val !== 'object') {
 				throw new AstroError(AstroErrorData.LocalsNotAnObject);
 			} else {
-				if (Reflect.has(request, 'runtime') && !Reflect.has(val, 'runtime')) {
-					throw new AstroError(AstroErrorData.LocalsNoRuntime);
-				} else {
-					Reflect.set(request, clientLocalsSymbol, val);
-				}
+				Reflect.set(request, clientLocalsSymbol, val);
 			}
 		},
 	});

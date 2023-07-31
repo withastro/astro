@@ -16,7 +16,9 @@ export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest);
 
 	const fetch = async (request: Request & CFRequest, env: Env, context: ExecutionContext) => {
-		process.env = env as any; // would love to remove this any cast in the future
+		// TODO: remove this any cast in the future
+		// REF: the type cast to any is needed because the Cloudflare Env Type is not assignable to type 'ProcessEnv'
+		process.env = env as any;
 
 		const { pathname } = new URL(request.url);
 
@@ -33,7 +35,7 @@ export function createExports(manifest: SSRManifest) {
 				request.headers.get('cf-connecting-ip')
 			);
 
-			// @deprecated: getRuntime() can be removed, Astro.locals.env is the new place
+			// @deprecated: getRuntime() can be removed in the next major release, after testing
 			Reflect.set(request, Symbol.for('runtime'), {
 				env,
 				name: 'cloudflare',
@@ -47,12 +49,9 @@ export function createExports(manifest: SSRManifest) {
 
 			let response = await app.render(request, routeData, {
 				runtime: {
-					// request: Request; // not needed because we have Astro.request, thus they are minor differences
-					// functionPath: string; // not needed
 					waitUntil: (promise: Promise<any>) => {
 						context.waitUntil(promise);
 					},
-					// passThroughOnException: () => void; // probably not needed ??
 					env: env,
 					cf: request.cf,
 					caches: caches,
