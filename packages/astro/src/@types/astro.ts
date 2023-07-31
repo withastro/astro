@@ -326,7 +326,7 @@ type ServerConfig = {
 	/**
 	 * @name server.port
 	 * @type {number}
-	 * @default `3000`
+	 * @default `4321`
 	 * @description
 	 * Set which port the dev server should listen on.
 	 *

@@ -32,7 +32,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	compressHTML: false,
 	server: {
 		host: false,
-		port: 3000,
+		port: 4321,
 		open: false,
 	},
 	integrations: [],
