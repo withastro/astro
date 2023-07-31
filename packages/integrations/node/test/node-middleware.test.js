@@ -39,7 +39,7 @@ describe('behavior from middleware', () => {
 
 	describe('404', async () => {
 		it('when mode is standalone', async () => {
-			const res = await fixture.fetch('/error-page');
+			const res = await fetch(`http://${server.host}:${server.port}/error-page`);
 
 			expect(res.status).to.equal(404);
 
