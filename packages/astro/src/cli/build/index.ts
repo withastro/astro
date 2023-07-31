@@ -1,6 +1,5 @@
 import type yargs from 'yargs-parser';
 import _build from '../../core/build/index.js';
-import type { LogOptions } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
 import { flagsToAstroInlineConfig } from '../flags.js';
 
