@@ -18,11 +18,12 @@ import { createSettings } from '../../core/config/settings.js';
 import type { LogOptions } from '../../core/logger/core.js';
 import { debug, info } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
-import type { ProcessExit, SyncOptions } from '../../core/sync';
+import type { syncInternal } from '../../core/sync';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { runHookConfigSetup } from '../../integrations/index.js';
 import { flagsToAstroInlineConfig } from '../flags.js';
 import { printDiagnostic } from './print.js';
+import { createNodeLogging } from '../../core/config/logging.js';
 
 type DiagnosticResult = {
 	errors: number;
@@ -35,11 +36,6 @@ export type CheckPayload = {
 	 * Flags passed via CLI
 	 */
 	flags: Flags;
-
-	/**
-	 * Logging options
-	 */
-	logging: LogOptions;
 };
 
 type CheckFlags = {
@@ -81,9 +77,8 @@ const ASTRO_GLOB_PATTERN = '**/*.astro';
  *
  * @param {CheckPayload} options Options passed {@link AstroChecker}
  * @param {Flags} options.flags Flags coming from the CLI
- * @param {LogOptions} options.logging Logging options
  */
-export async function check({ logging, flags }: CheckPayload): Promise<AstroChecker | undefined> {
+export async function check({ flags }: CheckPayload): Promise<AstroChecker | undefined> {
 	if (flags.help || flags.h) {
 		printHelp({
 			commandName: 'astro check',
@@ -101,6 +96,7 @@ export async function check({ logging, flags }: CheckPayload): Promise<AstroChec
 
 	// Load settings
 	const inlineConfig = flagsToAstroInlineConfig(flags);
+	const logging = createNodeLogging(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'check');
 	telemetry.record(eventCliSession('check', userConfig, flags));
 	const settings = createSettings(astroConfig, fileURLToPath(astroConfig.root));
@@ -137,7 +133,7 @@ type CheckerConstructor = {
 
 	isWatchMode: boolean;
 
-	syncInternal: (settings: AstroSettings, options: SyncOptions) => Promise<ProcessExit>;
+	syncInternal: typeof syncInternal;
 
 	settings: Readonly<AstroSettings>;
 
@@ -155,7 +151,7 @@ type CheckerConstructor = {
 export class AstroChecker {
 	readonly #diagnosticsChecker: AstroCheck;
 	readonly #shouldWatch: boolean;
-	readonly #syncInternal: (settings: AstroSettings, opts: SyncOptions) => Promise<ProcessExit>;
+	readonly #syncInternal: CheckerConstructor['syncInternal'];
 
 	readonly #settings: AstroSettings;
 

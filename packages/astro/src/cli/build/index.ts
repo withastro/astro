@@ -1,15 +1,13 @@
 import type yargs from 'yargs-parser';
 import _build from '../../core/build/index.js';
-import type { LogOptions } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
 import { flagsToAstroInlineConfig } from '../flags.js';
 
 interface BuildOptions {
 	flags: yargs.Arguments;
-	logging: LogOptions;
 }
 
-export async function build({ flags, logging }: BuildOptions) {
+export async function build({ flags }: BuildOptions) {
 	if (flags?.help || flags?.h) {
 		printHelp({
 			commandName: 'astro build',
@@ -28,7 +26,6 @@ export async function build({ flags, logging }: BuildOptions) {
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 
 	await _build(inlineConfig, {
-		logging,
 		teardownCompiler: true,
 	});
 }

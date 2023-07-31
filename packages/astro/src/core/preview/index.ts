@@ -6,19 +6,15 @@ import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
 import { resolveConfig } from '../config/config.js';
 import { createSettings } from '../config/settings.js';
-import type { LogOptions } from '../logger/core';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
-
-interface PreviewOptions {
-	logging: LogOptions;
-}
+import { createNodeLogging } from '../config/logging.js';
 
 /** The primary dev action */
 export default async function preview(
-	inlineConfig: AstroInlineConfig,
-	{ logging }: PreviewOptions
+	inlineConfig: AstroInlineConfig
 ): Promise<PreviewServer | undefined> {
+	const logging = createNodeLogging(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'preview');
 	telemetry.record(eventCliSession('preview', userConfig));
 

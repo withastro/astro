@@ -1,13 +1,12 @@
 import { expect } from 'chai';
 import { fileURLToPath } from 'node:url';
 import { sync as _sync } from '../../../dist/core/sync/index.js';
-import { createFsWithFallback, defaultLogging } from '../test-utils.js';
+import { createFsWithFallback } from '../test-utils.js';
 
 const root = new URL('../../fixtures/content-mixed-errors/', import.meta.url);
-const logging = defaultLogging;
 
 async function sync({ fs, config = {} }) {
-	return _sync({ ...config, root: fileURLToPath(root) }, { logging, fs });
+	return _sync({ ...config, root: fileURLToPath(root), logLevel: 'silent' }, { fs });
 }
 
 describe('Content Collections - mixed content errors', () => {

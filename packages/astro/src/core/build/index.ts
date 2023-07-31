@@ -31,9 +31,9 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+import { createNodeLogging } from '../config/logging.js';
 
 export interface BuildOptions {
-	logging: LogOptions;
 	/**
 	 * Teardown the compiler WASM instance after build. This can improve performance when
 	 * building once, but may cause a performance hit if building multiple times in a row.
@@ -47,13 +47,23 @@ export default async function build(
 	options: BuildOptions
 ): Promise<void> {
 	applyPolyfill();
-	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'build');
+	const logging = createNodeLogging(inlineConfig);
+	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
 
 	const settings = createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
-	const builder = new AstroBuilder(settings, options, inlineConfig?.mode);
+	const builder = new AstroBuilder(settings, {
+		...options,
+		logging,
+		mode: inlineConfig.mode,
+	});
 	await builder.run();
+}
+
+interface AstroBuilderOptions extends BuildOptions {
+	logging: LogOptions;
+	mode?: RuntimeMode;
 }
 
 class AstroBuilder {
@@ -66,9 +76,9 @@ class AstroBuilder {
 	private timer: Record<string, number>;
 	private teardownCompiler: boolean;
 
-	constructor(settings: AstroSettings, options: BuildOptions, mode?: RuntimeMode) {
-		if (mode) {
-			this.mode = mode;
+	constructor(settings: AstroSettings, options: AstroBuilderOptions) {
+		if (options.mode) {
+			this.mode = options.mode;
 		}
 		this.settings = settings;
 		this.logging = options.logging;

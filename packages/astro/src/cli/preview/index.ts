@@ -1,16 +1,14 @@
 import { cyan } from 'kleur/colors';
 import type yargs from 'yargs-parser';
-import type { LogOptions } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
 import previewServer from '../../core/preview/index.js';
 import { flagsToAstroInlineConfig } from '../flags.js';
 
 interface PreviewOptions {
 	flags: yargs.Arguments;
-	logging: LogOptions;
 }
 
-export async function preview({ flags, logging }: PreviewOptions) {
+export async function preview({ flags }: PreviewOptions) {
 	if (flags?.help || flags?.h) {
 		printHelp({
 			commandName: 'astro preview',
@@ -30,5 +28,5 @@ export async function preview({ flags, logging }: PreviewOptions) {
 
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 
-	return await previewServer(inlineConfig, { logging });
+	return await previewServer(inlineConfig);
 }

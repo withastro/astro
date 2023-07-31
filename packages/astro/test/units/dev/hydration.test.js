@@ -1,11 +1,6 @@
 import { expect } from 'chai';
 import { fileURLToPath } from 'node:url';
-import {
-	createFs,
-	createRequestAndResponse,
-	runInContainer,
-	silentLogging,
-} from '../test-utils.js';
+import { createFs, createRequestAndResponse, runInContainer } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -36,8 +31,8 @@ describe('hydration', () => {
 				fs,
 				inlineConfig: {
 					root: fileURLToPath(root),
+					logLevel: 'silent',
 				},
-				logging: silentLogging,
 			},
 			async (container) => {
 				const { req, res, done } = createRequestAndResponse({

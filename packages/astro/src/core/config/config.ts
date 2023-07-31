@@ -1,5 +1,11 @@
 import type { Arguments as Flags } from 'yargs-parser';
-import type { AstroConfig, AstroInlineConfig, AstroUserConfig, CLIFlags } from '../../@types/astro';
+import type {
+	AstroConfig,
+	AstroInlineConfig,
+	AstroInlineOnlyConfig,
+	AstroUserConfig,
+	CLIFlags,
+} from '../../@types/astro';
 
 import * as colors from 'kleur/colors';
 import fs from 'node:fs';
@@ -205,6 +211,21 @@ async function loadConfig(
 	}
 }
 
+function splitInlineConfig(inlineConfig: AstroInlineConfig): {
+	inlineUserConfig: AstroUserConfig;
+	inlineOnlyConfig: AstroInlineOnlyConfig;
+} {
+	const { configFile, mode, logLevel, ...inlineUserConfig } = inlineConfig;
+	return {
+		inlineUserConfig,
+		inlineOnlyConfig: {
+			configFile,
+			mode,
+			logLevel,
+		},
+	};
+}
+
 interface ResolveConfigResult {
 	userConfig: AstroUserConfig;
 	astroConfig: AstroConfig;
@@ -216,9 +237,10 @@ export async function resolveConfig(
 	fsMod = fs
 ): Promise<ResolveConfigResult> {
 	const root = resolveRoot(inlineConfig.root);
+	const { inlineUserConfig, inlineOnlyConfig } = splitInlineConfig(inlineConfig);
 
-	const userConfig = await loadConfig(root, inlineConfig.configFile, fsMod);
-	const mergedConfig = mergeConfig(userConfig, inlineConfig);
+	const userConfig = await loadConfig(root, inlineOnlyConfig.configFile, fsMod);
+	const mergedConfig = mergeConfig(userConfig, inlineUserConfig);
 	const astroConfig = await validateConfig(mergedConfig, root, command);
 
 	return { userConfig, astroConfig };

@@ -3,11 +3,11 @@ import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro';
 import { eventCliSession, telemetry } from '../../events/index.js';
-import { createSettings, resolveConfig } from '../config/index.js';
+import { createNodeLogging, createSettings, resolveConfig } from '../config/index.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
-import { error as logError, info, type LogOptions } from '../logger/core.js';
+import { error as logError, info } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import type { Container } from './container';
 import { createContainer, isStarted, startContainer } from './container.js';
@@ -102,7 +102,6 @@ export async function restartContainer(
 
 export interface CreateContainerWithAutomaticRestart {
 	inlineConfig?: AstroInlineConfig;
-	logging: LogOptions;
 	fs: typeof nodeFs;
 }
 
@@ -113,9 +112,9 @@ interface Restart {
 
 export async function createContainerWithAutomaticRestart({
 	inlineConfig,
-	logging,
 	fs,
 }: CreateContainerWithAutomaticRestart): Promise<Restart> {
+	const logging = createNodeLogging(inlineConfig ?? {});
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev', fs);
 	telemetry.record(eventCliSession('dev', userConfig));
 

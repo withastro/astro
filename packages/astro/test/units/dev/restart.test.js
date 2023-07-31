@@ -7,12 +7,7 @@ import {
 	isStarted,
 	startContainer,
 } from '../../../dist/core/dev/index.js';
-import {
-	createFs,
-	createRequestAndResponse,
-	defaultLogging,
-	triggerFSEvent,
-} from '../test-utils.js';
+import { createFs, createRequestAndResponse, triggerFSEvent } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -37,8 +32,7 @@ describe('dev container restarts', () => {
 
 		const restart = await createContainerWithAutomaticRestart({
 			fs,
-			inlineConfig: { root: fileURLToPath(root) },
-			logging: defaultLogging,
+			inlineConfig: { root: fileURLToPath(root), logLevel: 'silent' },
 		});
 
 		try {
@@ -102,8 +96,7 @@ describe('dev container restarts', () => {
 
 		const restart = await createContainerWithAutomaticRestart({
 			fs,
-			inlineConfig: { root: fileURLToPath(root) },
-			logging: defaultLogging,
+			inlineConfig: { root: fileURLToPath(root), logLevel: 'silent' },
 		});
 		await startContainer(restart.container);
 		expect(isStarted(restart.container)).to.equal(true);
@@ -132,8 +125,7 @@ describe('dev container restarts', () => {
 
 		const restart = await createContainerWithAutomaticRestart({
 			fs,
-			inlineConfig: { root: fileURLToPath(root) },
-			logging: defaultLogging,
+			inlineConfig: { root: fileURLToPath(root), logLevel: 'silent' },
 		});
 		await startContainer(restart.container);
 		expect(isStarted(restart.container)).to.equal(true);
@@ -160,8 +152,7 @@ describe('dev container restarts', () => {
 
 		const restart = await createContainerWithAutomaticRestart({
 			fs,
-			inlineConfig: { root: fileURLToPath(root) },
-			logging: defaultLogging,
+			inlineConfig: { root: fileURLToPath(root), logLevel: 'silent' },
 		});
 		await startContainer(restart.container);
 		expect(isStarted(restart.container)).to.equal(true);
@@ -186,8 +177,7 @@ describe('dev container restarts', () => {
 
 		const restart = await createContainerWithAutomaticRestart({
 			fs,
-			inlineConfig: { root: fileURLToPath(root) },
-			logging: defaultLogging,
+			inlineConfig: { root: fileURLToPath(root), logLevel: 'silent' },
 		});
 		await startContainer(restart.container);
 		expect(isStarted(restart.container)).to.equal(true);
