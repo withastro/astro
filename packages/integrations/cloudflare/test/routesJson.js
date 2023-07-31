@@ -2,12 +2,12 @@ import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
 /** @type {import('./test-utils.js').Fixture} */
-describe('generate _routes.json', () => {
+describe('_routes.json generation', () => {
 	after(() => {
 		delete process.env.SRC;
 	});
 
-	describe('both functions and static files', () => {
+	describe('of both functions and static files', () => {
 		let fixture;
 
 		before(async () => {
@@ -18,7 +18,7 @@ describe('generate _routes.json', () => {
 			await fixture.build();
 		});
 
-		it('creates includes for functions and excludes for static files where needed', async () => {
+		it('creates `include` for functions and `exclude` for static files where needed', async () => {
 			const _routesJson = await fixture.readFile('/_routes.json');
 			const routes = JSON.parse(_routesJson);
 
@@ -30,7 +30,7 @@ describe('generate _routes.json', () => {
 		});
 	});
 
-	describe('only functions', () => {
+	describe('of only functions', () => {
 		let fixture;
 
 		before(async () => {
@@ -41,7 +41,7 @@ describe('generate _routes.json', () => {
 			await fixture.build();
 		});
 
-		it('creates a wildcard include and excludes only for the redirect', async () => {
+		it('creates a wildcard `include` and `exclude` only for the redirect', async () => {
 			const _routesJson = await fixture.readFile('/_routes.json');
 			const routes = JSON.parse(_routesJson);
 
@@ -53,7 +53,7 @@ describe('generate _routes.json', () => {
 		});
 	});
 
-	describe('only static files', () => {
+	describe('of only static files', () => {
 		let fixture;
 
 		before(async () => {
@@ -64,7 +64,7 @@ describe('generate _routes.json', () => {
 			await fixture.build();
 		});
 
-		it('create only one include that is supposed to match nothing', async () => {
+		it('create only one `include` that is supposed to match nothing', async () => {
 			const _routesJson = await fixture.readFile('/_routes.json');
 			const routes = JSON.parse(_routesJson);
 
