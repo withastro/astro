@@ -15,6 +15,8 @@ export interface AstroPluginScannerOptions {
 	logging: LogOptions;
 }
 
+const KNOWN_FILE_EXTENSIONS = ['.astro', '.js', '.ts'];
+
 export default function astroScannerPlugin({
 	settings,
 	logging,
@@ -44,15 +46,13 @@ export default function astroScannerPlugin({
 			if (typeof pageOptions.prerender === 'undefined') {
 				pageOptions.prerender = defaultPrerender;
 			}
-			const fileExtension = extname(filename);
-
 			// `getStaticPaths` warning is just a string check, should be good enough for most cases
 			if (
 				!pageOptions.prerender &&
 				isServerLikeOutput(settings.config) &&
 				code.includes('getStaticPaths') &&
-				// this should only be valid for `.astro` files
-				fileExtension === '.astro'
+				// this should only be valid for `.astro`, `.js` and `.ts` files
+				KNOWN_FILE_EXTENSIONS.includes(extname(filename))
 			) {
 				const reason = ` because \`output: "${settings.config.output}"\` is set`;
 				warn(
