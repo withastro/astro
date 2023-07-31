@@ -234,35 +234,10 @@ export async function createVite(
 		result = vite.mergeConfig(result, settings.config.vite || {});
 	}
 	result = vite.mergeConfig(result, commandConfig);
-	if (result.plugins) {
-		sortPlugins(result.plugins);
-	}
 
 	result.customLogger = vite.createLogger(result.logLevel ?? 'warn');
 
 	return result;
-}
-
-function isVitePlugin(plugin: vite.PluginOption): plugin is vite.Plugin {
-	return Boolean(plugin?.hasOwnProperty('name'));
-}
-
-function findPluginIndexByName(pluginOptions: vite.PluginOption[], name: string): number {
-	return pluginOptions.findIndex(function (pluginOption) {
-		// Use isVitePlugin to ignore nulls, booleans, promises, and arrays
-		// CAUTION: could be a problem if a plugin we're searching for becomes async!
-		return isVitePlugin(pluginOption) && pluginOption.name === name;
-	});
-}
-
-function sortPlugins(pluginOptions: vite.PluginOption[]) {
-	// HACK: move mdxPlugin to top because it needs to run before internal JSX plugin
-	const mdxPluginIndex = findPluginIndexByName(pluginOptions, '@mdx-js/rollup');
-	if (mdxPluginIndex === -1) return;
-	const jsxPluginIndex = findPluginIndexByName(pluginOptions, 'astro:jsx');
-	const mdxPlugin = pluginOptions[mdxPluginIndex];
-	pluginOptions.splice(mdxPluginIndex, 1);
-	pluginOptions.splice(jsxPluginIndex, 0, mdxPlugin);
 }
 
 const COMMON_DEPENDENCIES_NOT_ASTRO = [
