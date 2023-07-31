@@ -8,6 +8,7 @@ import { warn } from '../core/logger/core.js';
 import { isEndpoint, isPage, rootRelativePath } from '../core/util.js';
 import { getPrerenderDefault, isServerLikeOutput } from '../prerender/utils.js';
 import { scan } from './scan.js';
+import { extname } from 'node:path';
 
 export interface AstroPluginScannerOptions {
 	settings: AstroSettings;
@@ -43,12 +44,15 @@ export default function astroScannerPlugin({
 			if (typeof pageOptions.prerender === 'undefined') {
 				pageOptions.prerender = defaultPrerender;
 			}
+			const fileExtension = extname(filename);
 
 			// `getStaticPaths` warning is just a string check, should be good enough for most cases
 			if (
 				!pageOptions.prerender &&
 				isServerLikeOutput(settings.config) &&
-				code.includes('getStaticPaths')
+				code.includes('getStaticPaths') &&
+				// this should only be valid for `.astro` files
+				fileExtension === '.astro'
 			) {
 				const reason = ` because \`output: "${settings.config.output}"\` is set`;
 				warn(
