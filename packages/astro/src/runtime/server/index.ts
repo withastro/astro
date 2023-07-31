@@ -27,7 +27,6 @@ export {
 	renderSlotToString,
 	renderTemplate,
 	renderToString,
-	renderUniqueScriptElement,
 	renderUniqueStylesheet,
 	voidElementNames,
 } from './render/index.js';

@@ -1962,9 +1962,10 @@ export type RedirectRouteData = RouteData & {
 	redirect: string;
 };
 
-export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
+export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern' | 'redirectRoute'> & {
 	generate: undefined;
 	pattern: string;
+	redirectRoute: SerializedRouteData | undefined;
 	_meta: {
 		trailingSlash: AstroConfig['trailingSlash'];
 	};
@@ -2033,8 +2034,6 @@ export interface SSRMetadata {
 	headInTree: boolean;
 	extraHead: string[];
 	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
-	// Used to key track of unique content; links and script tags
-	contentKeys: Set<string>;
 }
 
 /* Preview server stuff */

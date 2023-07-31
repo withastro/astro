@@ -6,8 +6,8 @@ import {
 	createComponent,
 	createHeadAndContent,
 	renderComponent,
+	renderScriptElement,
 	renderTemplate,
-	renderUniqueScriptElement,
 	renderUniqueStylesheet,
 	unescapeHTML,
 	type AstroComponentFactory,
@@ -303,9 +303,7 @@ async function render({
 						.join('');
 				}
 				if (Array.isArray(collectedScripts)) {
-					scripts = collectedScripts
-						.map((script: any) => renderUniqueScriptElement(result, script))
-						.join('');
+					scripts = collectedScripts.map((script: any) => renderScriptElement(script)).join('');
 				}
 
 				let props = baseProps;
