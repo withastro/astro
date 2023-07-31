@@ -12,6 +12,17 @@ type Env = {
 	name: string;
 };
 
+interface CloudflareContext {
+	locals: {
+		runtime: {
+			waitUntil: (promise: Promise<any>) => void;
+			env: Env;
+			cf: CFRequest['cf'];
+			caches: typeof caches;
+		};
+	};
+}
+
 export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest);
 
@@ -47,16 +58,31 @@ export function createExports(manifest: SSRManifest) {
 				},
 			});
 
-			let response = await app.render(request, routeData, {
-				runtime: {
-					waitUntil: (promise: Promise<any>) => {
-						context.waitUntil(promise);
+			const cloudflareContext = {} as CloudflareContext;
+
+			// We define a custom property, so we can check the value passed to locals
+			Object.defineProperty(cloudflareContext, 'locals', {
+				enumerable: true,
+				// we should protect top-level locals from being overwritten
+				// users should just use nested properties, e.g. locals.test = "foo"
+				writable: false,
+				configurable: false,
+				value: {
+					runtime: {
+						waitUntil: (promise: Promise<any>) => {
+							context.waitUntil(promise);
+						},
+						env: env,
+						cf: request.cf,
+						caches: caches,
 					},
-					env: env,
-					cf: request.cf,
-					caches: caches,
 				},
 			});
+
+			// We should freeze the runtime object, to make sure it&nested properties are not mutated
+			Object.freeze(cloudflareContext.locals.runtime);
+
+			let response = await app.render(request, routeData, cloudflareContext.locals);
 
 			if (app.setCookieHeaders) {
 				for (const setCookieHeader of app.setCookieHeaders(response)) {
