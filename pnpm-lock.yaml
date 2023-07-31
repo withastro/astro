@@ -486,8 +486,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: 0.0.0-view-transitions-20230728203621
-        version: 0.0.0-view-transitions-20230728203621
+        specifier: 0.0.0-view-transitions-20230731144215
+        version: 0.0.0-view-transitions-20230731144215
       '@astrojs/internal-helpers':
         specifier: ^0.1.1
         version: link:../internal-helpers
@@ -5595,6 +5595,10 @@ packages:
 
   /@astrojs/compiler@0.0.0-view-transitions-20230728203621:
     resolution: {integrity: sha512-rGI7Bmk7iLXUKhWkrY1CVDLh/0FtDitvzSfsS/aw+oB4jqBcRy25ZrpIl1AEJOFNdmzvWk0XrpCepO8bRpG/Sw==}
+    dev: false
+
+  /@astrojs/compiler@0.0.0-view-transitions-20230731144215:
+    resolution: {integrity: sha512-isyWJXvIeHgsB/LPIE9P9k0FQHEkmPfssXujlTbqK0u+VOKzZZPBArr+4T9TJ7EPxaqPo2bqnnAlW4sYRXKomA==}
     dev: false
 
   /@astrojs/compiler@1.6.3:

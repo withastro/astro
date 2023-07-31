@@ -115,7 +115,7 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "0.0.0-view-transitions-20230728203621",
+    "@astrojs/compiler": "0.0.0-view-transitions-20230731144215",
     "@astrojs/internal-helpers": "^0.1.1",
     "@astrojs/language-server": "^1.0.0",
     "@astrojs/markdown-remark": "^2.2.1",

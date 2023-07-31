@@ -8,4 +8,9 @@ export default defineConfig({
 		viewTransitions: true,
 		assets: true,
 	},
+	vite: {
+		build: {
+			assetsInlineLimit: 0,
+		},
+	},
 });

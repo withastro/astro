@@ -3,6 +3,7 @@ import type { SSRResult } from '../../../@types/astro';
 import { markHTMLString } from '../escape.js';
 import type { MaybeRenderHeadInstruction, RenderHeadInstruction } from './types';
 import { renderElement } from './util.js';
+import { shorthash } from '../shorthash.js';
 
 // Filter out duplicate elements in our set
 const uniqueElements = (item: any, index: number, all: any[]) => {
@@ -17,11 +18,20 @@ export function renderAllHeadContent(result: SSRResult) {
 	result._metadata.hasRenderedHead = true;
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
-		.map((style) =>
-			style.props.rel === 'stylesheet'
-				? renderElement('link', style)
-				: renderElement('style', style)
-		);
+		.map((style) => {
+			if(style.props.rel === 'stylesheet') {
+				return renderElement('link', {
+					props: {
+						...style.props,
+						// Add this attribute so ViewTransitions keeps the link in the page
+						'data-astro-transition-persist': shorthash(style.props.href)
+					},
+					children: style.children
+				});
+			} else {
+				return renderElement('style', style)
+			}
+		});
 	// Clear result.styles so that any new styles added will be inlined.
 	result.styles.clear();
 	const scripts = Array.from(result.scripts)
