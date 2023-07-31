@@ -39,7 +39,16 @@ const SHIM = `globalThis.process = {
 
 const SERVER_BUILD_FOLDER = '/$server_build/';
 
+/**
+ * If there are no dynamic routes, the `include` array in `_routes.json` would be empty.
+ * Cloudflare does not allow this therefore we have to fill in something: A magic value that should not match anything real.
+ */
 const matchNoneIncludePattern = '/MATCH_NONE_INCLUDE_PATTERN';
+
+/**
+ * These route types are candiates for being part of the `_routes.json` `include` array.
+ */
+const potentialFunctionRouteTypes = ['endpoint', 'page'];
 
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
@@ -236,7 +245,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				// (without calling the function)
 				if (!routesExists) {
 					const functionEndpoints = routes
-						.filter((route) => ['endpoint', 'page'].includes(route.type) && !route.prerender)
+						// Certain route types, when their prerender option is set to false, a run on the server as function invocations
+						.filter((route) => potentialFunctionRouteTypes.includes(route.type) && !route.prerender)
 						.map((route) => {
 							const includePattern =
 								'/' +
@@ -376,6 +386,13 @@ function prependForwardSlash(path: string) {
 	return path[0] === '/' ? path : '/' + path;
 }
 
+/**
+ * Remove duplicates and redundant patterns from an `include` or `exclude` list.
+ * Otherwise Cloudflare will throw an error on deployment. Plus, it saves more entries.
+ * E.g. `['/foo/*', '/foo/*', '/foo/bar'] => ['/foo/*']`
+ * @param patterns a list of `include` or `exclude` patterns
+ * @returns a deduplicated list of patterns
+ */
 function deduplicatePatterns(patterns: string[]) {
 	const openPatterns: RegExp[] = [];
 
