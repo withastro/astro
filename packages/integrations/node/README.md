@@ -188,7 +188,7 @@ export $(cat .env.runtime) && astro build
 
 ### SyntaxError: Named export 'compile' not found
 
-You may see this when running the entry script if it was built with npm or Yarn. This is a [known issue](https://github.com/withastro/astro/issues/4974) that will be fixed in a future release. As a workaround, add `"path-to-regexp"` to the `noExternal` array:
+You may see this when running the entry script if it was built with npm or Yarn. This is a known issue that may be fixed in a future release. As a workaround, add `"path-to-regexp"` to the `noExternal` array:
 
 ```js ins={9-13}
 // astro.config.mjs
