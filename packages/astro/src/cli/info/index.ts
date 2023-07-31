@@ -5,7 +5,7 @@ import whichPm from 'which-pm';
 import type yargs from 'yargs-parser';
 import { resolveConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
-import { flagsToAstroInlineConfig } from '../load-settings.js';
+import { flagsToAstroInlineConfig } from '../flags.js';
 
 interface InfoOptions {
 	flags: yargs.Arguments;

@@ -5,7 +5,11 @@ import * as colors from 'kleur/colors';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ZodError } from 'zod';
+import { eventConfigError, telemetry } from '../../events/index.js';
+import { trackAstroConfigZodError } from '../errors/errors.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { formatConfigErrorMessage } from '../messages.js';
 import { mergeConfig } from './merge.js';
 import { createRelativeSchema } from './schema.js';
 import { loadConfigWithVite } from './vite-load.js';
@@ -80,7 +84,21 @@ export async function validateConfig(
 	const AstroConfigRelativeSchema = createRelativeSchema(cmd, root);
 
 	// First-Pass Validation
-	const result = await AstroConfigRelativeSchema.parseAsync(userConfig);
+	let result: AstroConfig;
+	try {
+		result = await AstroConfigRelativeSchema.parseAsync(userConfig);
+	} catch (e) {
+		// Improve config zod error messages
+		if (e instanceof ZodError) {
+			// Mark this error so the callee can decide to suppress Zod's error if needed.
+			// We still want to throw the error to signal an error in validation.
+			trackAstroConfigZodError(e);
+			// eslint-disable-next-line no-console
+			console.error(formatConfigErrorMessage(e) + '\n');
+			telemetry.record(eventConfigError({ cmd, err: e, isFatal: true }));
+		}
+		throw e;
+	}
 
 	// If successful, return the result as a verified AstroConfig object.
 	return result;
@@ -172,11 +190,19 @@ async function loadConfig(
 	if (!configPath) return {};
 
 	// Create a vite server to load the config
-	return await loadConfigWithVite({
-		root,
-		configPath,
-		fs: fsMod,
-	});
+	try {
+		return await loadConfigWithVite({
+			root,
+			configPath,
+			fs: fsMod,
+		});
+	} catch (e) {
+		const configPathText = configFile ? colors.bold(configFile) : 'your Astro config';
+		// Config errors should bypass log level as it breaks startup
+		// eslint-disable-next-line no-console
+		console.error(`${colors.bold(colors.red('[astro]'))} Unable to load ${configPathText}\n`);
+		throw e;
+	}
 }
 
 interface ResolveConfigResult {

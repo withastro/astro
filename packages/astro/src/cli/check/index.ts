@@ -13,12 +13,15 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import ora from 'ora';
 import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
+import { resolveConfig } from '../../core/config/config.js';
+import { createSettings } from '../../core/config/settings.js';
 import type { LogOptions } from '../../core/logger/core.js';
 import { debug, info } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
 import type { ProcessExit, SyncOptions } from '../../core/sync';
+import { eventCliSession, telemetry } from '../../events/index.js';
 import { runHookConfigSetup } from '../../integrations/index.js';
-import { loadSettings } from '../load-settings.js';
+import { flagsToAstroInlineConfig } from '../flags.js';
 import { printDiagnostic } from './print.js';
 
 type DiagnosticResult = {
@@ -96,8 +99,11 @@ export async function check({ logging, flags }: CheckPayload): Promise<AstroChec
 		return;
 	}
 
-	const settings = await loadSettings({ cmd: 'check', flags, logging });
-	if (!settings) return;
+	// Load settings
+	const inlineConfig = flagsToAstroInlineConfig(flags);
+	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'check');
+	telemetry.record(eventCliSession('check', userConfig, flags));
+	const settings = createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	const checkFlags = parseFlags(flags);
 	if (checkFlags.watch) {

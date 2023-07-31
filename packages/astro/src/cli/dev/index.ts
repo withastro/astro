@@ -1,10 +1,9 @@
 import { cyan } from 'kleur/colors';
 import type yargs from 'yargs-parser';
-import { resolveRoot } from '../../core/config/index.js';
 import devServer from '../../core/dev/index.js';
-import { info, type LogOptions } from '../../core/logger/core.js';
+import type { LogOptions } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
-import { flagsToAstroInlineConfig, handleConfigError } from '../load-settings.js';
+import { flagsToAstroInlineConfig } from '../flags.js';
 
 interface DevOptions {
 	flags: yargs.Arguments;
@@ -34,12 +33,5 @@ export async function dev({ flags, logging }: DevOptions) {
 
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 
-	return await devServer(inlineConfig, {
-		logging,
-		handleConfigError(e) {
-			const root = resolveRoot(flags.root);
-			handleConfigError(e, { cmd: 'dev', cwd: root, flags, logging });
-			info(logging, 'astro', 'Continuing with previous valid configuration\n');
-		},
-	});
+	return await devServer(inlineConfig, { logging });
 }

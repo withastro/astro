@@ -4,8 +4,11 @@ import * as vite from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { createSettings, resolveConfig } from '../config/index.js';
+import { collectErrorMetadata } from '../errors/dev/utils.js';
+import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
-import { info, type LogOptions } from '../logger/core.js';
+import { error as logError, info, type LogOptions } from '../logger/core.js';
+import { formatErrorMessage } from '../messages.js';
 import type { Container } from './container';
 import { createContainer, isStarted, startContainer } from './container.js';
 
@@ -59,29 +62,15 @@ export function shouldRestartContainer(
 	return shouldRestart;
 }
 
-interface RestartContainerParams {
-	container: Container;
-	logMsg: string;
-	handleConfigError: (err: Error) => Promise<void> | void;
-	beforeRestart?: () => void;
-}
-
-export async function restartContainer({
-	container,
-	logMsg,
-	handleConfigError,
-	beforeRestart,
-}: RestartContainerParams): Promise<{ container: Container; error: Error | null }> {
+export async function restartContainer(
+	container: Container
+): Promise<{ container: Container; error: Error | null }> {
 	const { logging, close, settings: existingSettings } = container;
 	container.restartInFlight = true;
 
-	if (beforeRestart) {
-		beforeRestart();
-	}
 	const needsStart = isStarted(container);
 	try {
 		const { astroConfig } = await resolveConfig(container.inlineConfig, 'dev', container.fs);
-		info(logging, 'astro', logMsg + '\n');
 		const settings = createSettings(astroConfig, fileURLToPath(existingSettings.config.root));
 		await close();
 		return {
@@ -90,7 +79,18 @@ export async function restartContainer({
 		};
 	} catch (_err) {
 		const error = createSafeError(_err);
-		await handleConfigError(error);
+		// Print all error messages except ZodErrors from AstroConfig as the pre-logged error is sufficient
+		if (!isAstroConfigZodError(_err)) {
+			logError(logging, 'config', formatErrorMessage(collectErrorMetadata(error)) + '\n');
+		}
+		// Inform connected clients of the config error
+		container.viteServer.ws.send({
+			type: 'error',
+			err: {
+				message: error.message,
+				stack: error.stack || '',
+			},
+		});
 		await close();
 		info(logging, 'astro', 'Continuing with previous valid configuration\n');
 		return {
@@ -104,8 +104,6 @@ export interface CreateContainerWithAutomaticRestart {
 	inlineConfig?: AstroInlineConfig;
 	logging: LogOptions;
 	fs: typeof nodeFs;
-	handleConfigError?: (error: Error) => void | Promise<void>;
-	beforeRestart?: () => void;
 }
 
 interface Restart {
@@ -117,8 +115,6 @@ export async function createContainerWithAutomaticRestart({
 	inlineConfig,
 	logging,
 	fs,
-	handleConfigError = () => {},
-	beforeRestart,
 }: CreateContainerWithAutomaticRestart): Promise<Restart> {
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev', fs);
 	telemetry.record(eventCliSession('dev', userConfig));
@@ -140,23 +136,9 @@ export async function createContainerWithAutomaticRestart({
 	};
 
 	async function handleServerRestart(logMsg: string) {
+		info(logging, 'astro', logMsg + '\n');
 		const container = restart.container;
-		const { container: newContainer, error } = await restartContainer({
-			container,
-			logMsg,
-			beforeRestart,
-			async handleConfigError(err) {
-				// Send an error message to the client if one is connected.
-				await handleConfigError(err);
-				container.viteServer.ws.send({
-					type: 'error',
-					err: {
-						message: err.message,
-						stack: err.stack || '',
-					},
-				});
-			},
-		});
+		const { container: newContainer, error } = await restartContainer(container);
 		restart.container = newContainer;
 		// Add new watches because this is a new container with a new Vite server
 		addWatches();
