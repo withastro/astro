@@ -7,7 +7,7 @@ import { createNodeLogging, createSettings, resolveConfig } from '../config/inde
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
-import { error as logError, info } from '../logger/core.js';
+import { info, error as logError } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import type { Container } from './container';
 import { createContainer, isStarted, startContainer } from './container.js';

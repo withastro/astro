@@ -23,10 +23,10 @@ import { appendForwardSlash } from '../../core/path.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
+import { createLoggingFromFlags } from '../flags.js';
 import { generate, parse, t, visit } from './babel.js';
 import { ensureImport } from './imports.js';
 import { wrapDefaultExport } from './wrapper.js';
-import { createLoggingFromFlags } from '../flags.js';
 
 interface AddOptions {
 	flags: yargs.Arguments;

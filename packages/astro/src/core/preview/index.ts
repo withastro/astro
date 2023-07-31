@@ -5,10 +5,10 @@ import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
 import { resolveConfig } from '../config/config.js';
+import { createNodeLogging } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
-import { createNodeLogging } from '../config/logging.js';
 
 /** The primary dev action */
 export default async function preview(

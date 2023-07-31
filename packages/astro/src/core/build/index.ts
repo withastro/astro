@@ -21,6 +21,7 @@ import {
 } from '../../integrations/index.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import { resolveConfig } from '../config/config.js';
+import { createNodeLogging } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { debug, info, levels, timerMessage, warn, type LogOptions } from '../logger/core.js';
@@ -31,7 +32,6 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
-import { createNodeLogging } from '../config/logging.js';
 
 export interface BuildOptions {
 	/**
