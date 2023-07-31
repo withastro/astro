@@ -253,8 +253,7 @@ export function get() {
 
 - The [Astro Netlify Edge Starter](https://github.com/sarahetter/astro-netlify-edge-starter) provides an example and a guide in the README.
 
-- [Browse Astro Netlify projects on GitHub](https://github.com/search?q=%22%40astrojs%2Fnetlify%22+filename%3Apackage.json&type=Code) for more examples!
-
+- [Browse Astro Netlify projects on GitHub](https://github.com/search?q=path%3A**%2Fastro.config.mjs+%40astrojs%2Fnetlify&type=code) for more examples!
 ## Troubleshooting
 
 For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
