@@ -936,7 +936,7 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name server.port
 	 * @type {number}
-	 * @default `3000`
+	 * @default `4321`
 	 * @description
 	 * Set which port the server should listen on.
 	 *
