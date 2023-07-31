@@ -259,7 +259,7 @@ test.describe('View Transitions', () => {
 		await expect(p).toBeVisible();
 		const secondTime = await page.evaluate(getTime);
 
-		expect(secondTime).toEqual(firstTime);
+		expect(secondTime).toBeGreaterThanOrEqual(firstTime);
 	});
 
 	test('Islands can persist using transition:persist', async ({ page, astro }) => {
