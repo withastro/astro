@@ -47,7 +47,7 @@ describe('Astro.redirect', () => {
 				const request = new Request('http://example.com/api/redirect');
 				const response = await app.render(request);
 				expect(response.status).to.equal(301);
-				expect(response.headers.get('Location')).to.equal('/');
+				expect(response.headers.get('Location')).to.equal('/test');
 			});
 
 			it('Uses 308 for non-GET methods', async () => {
