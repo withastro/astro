@@ -11,7 +11,7 @@ interface CloudflareContext {
 	locals: {
 		runtime: {
 			waitUntil: (promise: Promise<any>) => void;
-			env: Env;
+			env: EventContext<unknown, string, unknown>['env'];
 			cf: CFRequest['cf'];
 			caches: typeof caches;
 		};
