@@ -24,6 +24,6 @@ describe('build: split', () => {
 	it('creates the route definitions in the config.json', async () => {
 		const json = await fixture.readFile('../.vercel/output/config.json');
 		const config = JSON.parse(json);
-		expect(config.routes).to.have.a.lengthOf(3);
+		expect(config.routes).to.have.a.lengthOf(4);
 	});
 });

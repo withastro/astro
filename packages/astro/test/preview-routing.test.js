@@ -13,7 +13,7 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					root: './fixtures/with-subpath-no-trailing-slash/',
 					base: '/blog',
-					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4000/', import.meta.url),
+					outDir: './dist-4000',
 					build: {
 						format: 'directory',
 					},
@@ -41,9 +41,10 @@ describe('Preview Routing', () => {
 				expect(response.redirected).to.equal(false);
 			});
 
-			it('404 when loading subpath root without trailing slash', async () => {
+			it('200 when loading subpath root without trailing slash', async () => {
 				const response = await fixture.fetch('/blog');
-				expect(response.status).to.equal(404);
+				expect(response.status).to.equal(200);
+				expect(response.redirected).to.equal(false);
 			});
 
 			it('404 when loading another page with subpath used', async () => {
@@ -72,7 +73,7 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					root: './fixtures/with-subpath-no-trailing-slash/',
 					base: '/blog',
-					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4001/', import.meta.url),
+					outDir: './dist-4001',
 					trailingSlash: 'always',
 					server: {
 						port: 4001,
@@ -132,7 +133,7 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					root: './fixtures/with-subpath-no-trailing-slash/',
 					base: '/blog',
-					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4002/', import.meta.url),
+					outDir: './dist-4002',
 					trailingSlash: 'ignore',
 					server: {
 						port: 4002,
@@ -194,7 +195,7 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					root: './fixtures/with-subpath-no-trailing-slash/',
 					base: '/blog',
-					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4003/', import.meta.url),
+					outDir: './dist-4003',
 					build: {
 						format: 'file',
 					},
@@ -222,9 +223,10 @@ describe('Preview Routing', () => {
 				expect(response.redirected).to.equal(false);
 			});
 
-			it('404 when loading subpath root without trailing slash', async () => {
+			it('200 when loading subpath root without trailing slash', async () => {
 				const response = await fixture.fetch('/blog');
-				expect(response.status).to.equal(404);
+				expect(response.status).to.equal(200);
+				expect(response.redirected).to.equal(false);
 			});
 
 			it('404 when loading another page with subpath used', async () => {
@@ -253,7 +255,7 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					root: './fixtures/with-subpath-no-trailing-slash/',
 					base: '/blog',
-					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4004/', import.meta.url),
+					outDir: './dist-4004',
 					build: {
 						format: 'file',
 					},
@@ -316,7 +318,7 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					root: './fixtures/with-subpath-no-trailing-slash/',
 					base: '/blog',
-					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4005/', import.meta.url),
+					outDir: './dist-4005',
 					build: {
 						format: 'file',
 					},
@@ -379,7 +381,7 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					root: './fixtures/with-subpath-no-trailing-slash/',
 					base: '/blog',
-					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4006/', import.meta.url),
+					outDir: './dist-4006',
 					build: {
 						format: 'file',
 					},
