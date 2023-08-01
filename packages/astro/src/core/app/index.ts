@@ -34,8 +34,15 @@ const clientLocalsSymbol = Symbol.for('astro.locals');
 
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
+const STATUS_CODES = new Set([404, 500]);
+
 export interface MatchOptions {
 	matchNotFound?: boolean | undefined;
+}
+export interface RenderErrorOptions {
+	routeData?: RouteData; 
+	response?: Response;
+	status: 404 | 500;
 }
 
 export class App {
@@ -113,50 +120,29 @@ export class App {
 		}
 		return pathname;
 	}
-	match(request: Request, { matchNotFound = false }: MatchOptions = {}): RouteData | undefined {
+	// Disable no-unused-vars to avoid breaking signature change
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	match(request: Request, _opts: MatchOptions = {}): RouteData | undefined {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
-		if (this.#manifest.assets.has(url.pathname)) {
-			return undefined;
-		}
+		if (this.#manifest.assets.has(url.pathname)) return undefined;
 		let pathname = prependForwardSlash(this.removeBase(url.pathname));
 		let routeData = matchRoute(pathname, this.#manifestData);
-
-		if (routeData) {
-			if (routeData.prerender) return undefined;
-			return routeData;
-		} else if (matchNotFound) {
-			const notFoundRouteData = matchRoute('/404', this.#manifestData);
-			if (notFoundRouteData?.prerender) return undefined;
-			return notFoundRouteData;
-		} else {
-			return undefined;
-		}
+		// missing routes fall-through, prerendered are handled by static layer
+		if (!routeData || routeData.prerender) return undefined;
+		return routeData;
 	}
 	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {
-		let defaultStatus = 200;
 		if (!routeData) {
 			routeData = this.match(request);
-			if (!routeData) {
-				defaultStatus = 404;
-				routeData = this.match(request, { matchNotFound: true });
-			}
-			if (!routeData) {
-				return new Response(null, {
-					status: 404,
-					statusText: 'Not found',
-				});
-			}
+		}
+		if (!routeData) {
+			return this.#renderError(request, { routeData, status: 404 });
 		}
 
 		Reflect.set(request, clientLocalsSymbol, locals ?? {});
-
-		// Use the 404 status code for 404.astro components
-		if (routeData.route === '/404') {
-			defaultStatus = 404;
-		}
-
-		let mod = await this.#getModuleForRoute(routeData);
+		const defaultStatus = this.#getDefaultStatusCode(routeData.route);
+		const mod = await this.#getModuleForRoute(routeData);
 
 		const pageModule = (await mod.page()) as any;
 		const url = new URL(request.url);
@@ -179,47 +165,19 @@ export class App {
 			);
 		} catch (err: any) {
 			error(this.#logging, 'ssr', err.stack || err.message || String(err));
-			response = new Response(null, {
-				status: 500,
-				statusText: 'Internal server error',
-			});
+			return this.#renderError(request, { routeData, status: 500 });
 		}
 
 		if (isResponse(response, routeData.type)) {
-			// If there was a known error code, try sending the according page (e.g. 404.astro / 500.astro).
-			if (response.status === 500 || response.status === 404) {
-				const errorRouteData = matchRoute('/' + response.status, this.#manifestData);
-				if (errorRouteData && errorRouteData.route !== routeData.route) {
-					mod = await this.#getModuleForRoute(errorRouteData);
-					try {
-						const newRenderContext = await this.#createRenderContext(
-							url,
-							request,
-							routeData,
-							mod,
-							response.status
-						);
-						const page = (await mod.page()) as any;
-						const errorResponse = await tryRenderRoute(
-							routeData.type,
-							newRenderContext,
-							this.#env,
-							page
-						);
-						return errorResponse as Response;
-					} catch {}
-				}
+			if (STATUS_CODES.has(response.status)) {
+				return this.#renderError(request, { routeData, response, status: response.status as 404 | 500 } );
 			}
 			Reflect.set(response, responseSentSymbol, true);
 			return response;
 		} else {
 			if (response.type === 'response') {
 				if (response.response.headers.get('X-Astro-Response') === 'Not-Found') {
-					const fourOhFourRequest = new Request(new URL('/404', request.url));
-					const fourOhFourRouteData = this.match(fourOhFourRequest);
-					if (fourOhFourRouteData) {
-						return this.render(fourOhFourRequest, fourOhFourRouteData);
-					}
+					return this.#renderError(request, { routeData, response: response.response, status: 404 });
 				}
 				return response.response;
 			} else {
@@ -238,7 +196,6 @@ export class App {
 					status: 200,
 					headers,
 				});
-
 				attachToResponse(newResponse, response.cookies);
 				return newResponse;
 			}
@@ -305,6 +262,63 @@ export class App {
 				env: this.#env,
 			});
 		}
+	}
+
+	/**
+	 * If is a known error code, try sending the according page (e.g. 404.astro / 500.astro).
+	 * This also handles pre-rendered /404 or /500 routes
+	 */
+	async #renderError(request: Request, { routeData, status, response: originalResponse }: RenderErrorOptions) {
+		const errorRouteData = matchRoute('/' + status, this.#manifestData);
+		const url = new URL(request.url);
+		if (errorRouteData) {
+			if (errorRouteData.prerender && !errorRouteData.route.endsWith(`/${status}`)) {
+				const statusURL = new URL(`${this.#baseWithoutTrailingSlash}/${status}`, url);
+				const response = await fetch(statusURL.toString());
+				return this.#mergeResponses(response, originalResponse);
+			}
+			const finalRouteData = routeData ?? errorRouteData;
+			const mod = await this.#getModuleForRoute(errorRouteData);
+			try {
+				const newRenderContext = await this.#createRenderContext(
+					url,
+					request,
+					finalRouteData,
+					mod,
+					status
+				);
+				const page = (await mod.page()) as any;
+				const response = await tryRenderRoute(
+					'page', // this is hardcoded to ensure proper behavior for missing endpoints
+					newRenderContext,
+					this.#env,
+					page
+				) as Response;
+				return this.#mergeResponses(response, originalResponse);
+			} catch {}
+		}
+
+		const response = this.#mergeResponses(new Response(null, { status }), originalResponse);
+		Reflect.set(response, responseSentSymbol, true);
+		return response;
+	}
+
+	#mergeResponses(newResponse: Response, oldResponse?: Response) {
+		if (!oldResponse) return newResponse;
+		const { status, statusText, headers } = oldResponse;
+
+		return new Response(newResponse.body, {
+			status: status === 200 ? newResponse.status : status,
+			statusText,
+			headers: new Headers(Array.from(headers))
+		})
+	}
+
+	#getDefaultStatusCode(route: string): number {
+		route = removeTrailingForwardSlash(route)
+		if (route.endsWith('/404')) return 404;
+		if (route.endsWith('/500')) return 500;
+		return 200;
 	}
 
 	async #getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
