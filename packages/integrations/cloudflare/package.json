@@ -39,7 +39,7 @@
     "test:match": "mocha --exit --timeout 30000 -g"
   },
   "dependencies": {
-    "@astrojs/underscore-redirects": "^0.2.0",
+    "@astrojs/underscore-redirects": "workspace:*",
     "@cloudflare/workers-types": "^4.20230518.0",
     "esbuild": "^0.18.16",
     "tiny-glob": "^0.2.9"
