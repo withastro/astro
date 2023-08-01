@@ -8,7 +8,9 @@ import * as cheerio from 'cheerio';
  */
 
 async function load() {
-	const mod = await import(`./fixtures/node-middleware/dist/server/entry.mjs?dropcache=${Date.now()}`);
+	const mod = await import(
+		`./fixtures/node-middleware/dist/server/entry.mjs?dropcache=${Date.now()}`
+	);
 	return mod;
 }
 
@@ -35,7 +37,7 @@ describe('behavior from middleware', () => {
 		await server.stop();
 		await fixture.clean();
 		delete process.env.PRERENDER;
-	})
+	});
 
 	describe('404', async () => {
 		it('when mode is standalone', async () => {

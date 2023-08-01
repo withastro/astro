@@ -40,7 +40,7 @@ export interface MatchOptions {
 	matchNotFound?: boolean | undefined;
 }
 export interface RenderErrorOptions {
-	routeData?: RouteData; 
+	routeData?: RouteData;
 	response?: Response;
 	status: 404 | 500;
 }
@@ -170,14 +170,22 @@ export class App {
 
 		if (isResponse(response, routeData.type)) {
 			if (STATUS_CODES.has(response.status)) {
-				return this.#renderError(request, { routeData, response, status: response.status as 404 | 500 } );
+				return this.#renderError(request, {
+					routeData,
+					response,
+					status: response.status as 404 | 500,
+				});
 			}
 			Reflect.set(response, responseSentSymbol, true);
 			return response;
 		} else {
 			if (response.type === 'response') {
 				if (response.response.headers.get('X-Astro-Response') === 'Not-Found') {
-					return this.#renderError(request, { routeData, response: response.response, status: 404 });
+					return this.#renderError(request, {
+						routeData,
+						response: response.response,
+						status: 404,
+					});
 				}
 				return response.response;
 			} else {
@@ -268,7 +276,10 @@ export class App {
 	 * If is a known error code, try sending the according page (e.g. 404.astro / 500.astro).
 	 * This also handles pre-rendered /404 or /500 routes
 	 */
-	async #renderError(request: Request, { routeData, status, response: originalResponse }: RenderErrorOptions) {
+	async #renderError(
+		request: Request,
+		{ routeData, status, response: originalResponse }: RenderErrorOptions
+	) {
 		const errorRouteData = matchRoute('/' + status, this.#manifestData);
 		const url = new URL(request.url);
 		if (errorRouteData) {
@@ -288,12 +299,12 @@ export class App {
 					status
 				);
 				const page = (await mod.page()) as any;
-				const response = await tryRenderRoute(
+				const response = (await tryRenderRoute(
 					'page', // this is hardcoded to ensure proper behavior for missing endpoints
 					newRenderContext,
 					this.#env,
 					page
-				) as Response;
+				)) as Response;
 				return this.#mergeResponses(response, originalResponse);
 			} catch {}
 		}
@@ -310,12 +321,12 @@ export class App {
 		return new Response(newResponse.body, {
 			status: status === 200 ? newResponse.status : status,
 			statusText,
-			headers: new Headers(Array.from(headers))
-		})
+			headers: new Headers(Array.from(headers)),
+		});
 	}
 
 	#getDefaultStatusCode(route: string): number {
-		route = removeTrailingForwardSlash(route)
+		route = removeTrailingForwardSlash(route);
 		if (route.endsWith('/404')) return 404;
 		if (route.endsWith('/500')) return 500;
 		return 200;
