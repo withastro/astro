@@ -13,7 +13,7 @@ describe('Static Assets', () => {
 			adapter,
 			build: {
 				assets,
-			}
+			},
 		});
 		await fixture.build();
 	}
