@@ -3316,12 +3316,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/ssr-prerender-404:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/ssr-prerender-get-static-paths:
     dependencies:
       astro:
@@ -4648,6 +4642,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/node/test/fixtures/prerender:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/node/test/fixtures/prerender-404:
     dependencies:
       '@astrojs/node':
         specifier: workspace:*

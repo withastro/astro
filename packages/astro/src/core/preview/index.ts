@@ -1,40 +1,24 @@
-import { cyan } from 'kleur/colors';
-import { createRequire } from 'module';
-import { pathToFileURL } from 'node:url';
-import type { Arguments } from 'yargs-parser';
-import type { AstroSettings, PreviewModule, PreviewServer } from '../../@types/astro';
+import { createRequire } from 'node:module';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import type { AstroInlineConfig, PreviewModule, PreviewServer } from '../../@types/astro';
+import { telemetry } from '../../events/index.js';
+import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
-import type { LogOptions } from '../logger/core';
-import { printHelp } from '../messages.js';
+import { resolveConfig } from '../config/config.js';
+import { createNodeLogging } from '../config/logging.js';
+import { createSettings } from '../config/settings.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
 
-interface PreviewOptions {
-	logging: LogOptions;
-	flags?: Arguments;
-}
-
 /** The primary dev action */
 export default async function preview(
-	_settings: AstroSettings,
-	{ logging, flags }: PreviewOptions
+	inlineConfig: AstroInlineConfig
 ): Promise<PreviewServer | undefined> {
-	if (flags?.help || flags?.h) {
-		printHelp({
-			commandName: 'astro preview',
-			usage: '[...flags]',
-			tables: {
-				Flags: [
-					['--open', 'Automatically open the app in the browser on server start'],
-					['--help (-h)', 'See all available flags.'],
-				],
-			},
-			description: `Starts a local server to serve your static dist/ directory. Check ${cyan(
-				'https://docs.astro.build/en/reference/cli-reference/#astro-preview'
-			)} for more information.`,
-		});
-		return;
-	}
+	const logging = createNodeLogging(inlineConfig);
+	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'preview');
+	telemetry.record(eventCliSession('preview', userConfig));
+
+	const _settings = createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	const settings = await runHookConfigSetup({
 		settings: _settings,

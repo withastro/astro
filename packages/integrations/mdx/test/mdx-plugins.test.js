@@ -96,7 +96,7 @@ describe('MDX plugins', () => {
 	it('ignores string-based plugins in markdown config', async () => {
 		const fixture = await buildFixture({
 			markdown: {
-				remarkPlugins: [['remark-toc']],
+				remarkPlugins: [['remark-toc', {}]],
 			},
 			integrations: [mdx()],
 		});

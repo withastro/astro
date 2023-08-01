@@ -3,6 +3,7 @@ import { execa } from 'execa';
 import fastGlob from 'fast-glob';
 import fs from 'node:fs';
 import os from 'node:os';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import stripAnsi from 'strip-ansi';
 import { check } from '../dist/cli/check/index.js';
@@ -10,8 +11,7 @@ import build from '../dist/core/build/index.js';
 import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.js';
 import { getVirtualModulePageNameFromPath } from '../dist/core/build/plugins/util.js';
 import { makeSplitEntryPointFileName } from '../dist/core/build/static-build.js';
-import { openConfig } from '../dist/core/config/config.js';
-import { createSettings } from '../dist/core/config/index.js';
+import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import dev from '../dist/core/dev/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
 import preview from '../dist/core/preview/index.js';
@@ -28,7 +28,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
 /**
  * @typedef {import('undici').Response} Response
  * @typedef {import('../src/core/dev/dev').DedvServer} DevServer
- * @typedef {import('../src/@types/astro').AstroConfig} AstroConfig
+ * @typedef {import('../src/@types/astro').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
  * @typedef {import('../src/core/app/index').App} App
  * @typedef {import('../src/cli/check/index').AstroChecker} AstroChecker
@@ -43,12 +43,13 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @property {(path: string, updater: (content: string) => string) => Promise<void>} writeFile
  * @property {(path: string) => Promise<string[]>} readdir
  * @property {(pattern: string) => Promise<string[]>} glob
- * @property {() => Promise<DevServer>} startDevServer
- * @property {() => Promise<PreviewServer>} preview
+ * @property {typeof dev} startDevServer
+ * @property {typeof preview} preview
  * @property {() => Promise<void>} clean
  * @property {() => Promise<App>} loadTestAdapterApp
  * @property {() => Promise<void>} onNextChange
- * @property {(opts: CheckPayload) => Promise<AstroChecker>} check
+ * @property {typeof check} check
+ * @property {typeof sync} sync
  *
  * This function returns an instance of the Check
  *
@@ -82,7 +83,7 @@ export const silentLogging = {
 
 /**
  * Load Astro fixture
- * @param {AstroConfig} inlineConfig Astro config partial (note: must specify `root`)
+ * @param {AstroInlineConfig} inlineConfig Astro config partial (note: must specify `root`)
  * @returns {Promise<Fixture>} The fixture. Has the following properties:
  *   .config     - Returns the final config. Will be automatically passed to the methods below:
  *
@@ -103,50 +104,25 @@ export const silentLogging = {
 export async function loadFixture(inlineConfig) {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
 
-	// load config
-	let cwd = inlineConfig.root;
-	delete inlineConfig.root;
-	if (typeof cwd === 'string') {
-		try {
-			cwd = new URL(cwd.replace(/\/?$/, '/'));
-		} catch (err1) {
-			cwd = new URL(cwd.replace(/\/?$/, '/'), import.meta.url);
-		}
+	// Silent by default during tests to not pollute the console output
+	inlineConfig.logLevel = 'silent';
+
+	let root = inlineConfig.root;
+	// Handle URL, should already be absolute so just convert to path
+	if (typeof root !== 'string') {
+		root = fileURLToPath(root);
 	}
-
-	/** @type {import('../src/core/logger/core').LogOptions} */
-	const logging = defaultLogging;
-
+	// Handle "file:///C:/Users/fred", convert to "C:/Users/fred"
+	else if (root.startsWith('file://')) {
+		root = fileURLToPath(new URL(root));
+	}
+	// Handle "./fixtures/...", convert to absolute path
+	else if (!path.isAbsolute(root)) {
+		root = fileURLToPath(new URL(root, import.meta.url));
+	}
+	inlineConfig = { ...inlineConfig, root };
 	// Load the config.
-	let { astroConfig: config } = await openConfig({
-		cwd: fileURLToPath(cwd),
-		logging,
-		cmd: 'dev',
-	});
-	config = merge(config, { ...inlineConfig, root: cwd });
-
-	// HACK: the inline config doesn't run through config validation where these normalizations usually occur
-	if (typeof inlineConfig.site === 'string') {
-		config.site = new URL(inlineConfig.site);
-	}
-	if (inlineConfig.base && !inlineConfig.base.endsWith('/')) {
-		config.base = inlineConfig.base + '/';
-	}
-
-	/**
-	 * The dev/build/sync/check commands run integrations' `astro:config:setup` hook that could mutate
-	 * the `AstroSettings`. This function helps to create a fresh settings object that is used by the
-	 * command functions below to prevent tests from polluting each other.
-	 */
-	const getSettings = async () => {
-		let settings = createSettings(config, fileURLToPath(cwd));
-		if (config.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
-			// Enable default JSX integration. It needs to come first, so unshift rather than push!
-			const { default: jsxRenderer } = await import('astro/jsx/renderer.js');
-			settings.renderers.unshift(jsxRenderer);
-		}
-		return settings;
-	};
+	const { astroConfig: config } = await resolveConfig(inlineConfig, 'dev');
 
 	const resolveUrl = (url) =>
 		`http://${config.server.host || 'localhost'}:${config.server.port}${url.replace(/^\/?/, '/')}`;
@@ -177,17 +153,19 @@ export async function loadFixture(inlineConfig) {
 	let devServer;
 
 	return {
-		build: async (opts = {}) => {
+		build: async (extraInlineConfig = {}) => {
 			process.env.NODE_ENV = 'production';
-			return build(await getSettings('build'), { logging, ...opts });
+			return build(mergeConfig(inlineConfig, extraInlineConfig));
 		},
-		sync: async (opts) => sync(await getSettings('build'), { logging, fs, ...opts }),
+		sync: async (extraInlineConfig = {}, opts) => {
+			return sync(mergeConfig(inlineConfig, extraInlineConfig), opts);
+		},
 		check: async (opts) => {
-			return await check(await getSettings('build'), { logging, ...opts });
+			return await check(opts);
 		},
-		startDevServer: async (opts = {}) => {
+		startDevServer: async (extraInlineConfig = {}) => {
 			process.env.NODE_ENV = 'development';
-			devServer = await dev(await getSettings('dev'), { logging, ...opts });
+			devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
 			return devServer;
@@ -207,9 +185,9 @@ export async function loadFixture(inlineConfig) {
 				throw err;
 			}
 		},
-		preview: async (opts = {}) => {
+		preview: async (extraInlineConfig = {}) => {
 			process.env.NODE_ENV = 'production';
-			const previewServer = await preview(await getSettings('build'), { logging, ...opts });
+			const previewServer = await preview(mergeConfig(inlineConfig, extraInlineConfig));
 			config.server.host = parseAddressToHost(previewServer.host); // update host
 			config.server.port = previewServer.port; // update port
 			return previewServer;
@@ -280,32 +258,6 @@ function parseAddressToHost(address) {
 		return `[${address}]`;
 	}
 	return address;
-}
-
-/**
- * Basic object merge utility. Returns new copy of merged Object.
- * @param {Object} a
- * @param {Object} b
- * @returns {Object}
- */
-function merge(a, b) {
-	const allKeys = new Set([...Object.keys(a), ...Object.keys(b)]);
-	const c = {};
-	for (const k of allKeys) {
-		const needsObjectMerge =
-			typeof a[k] === 'object' &&
-			typeof b[k] === 'object' &&
-			(Object.keys(a[k]).length || Object.keys(b[k]).length) &&
-			!Array.isArray(a[k]) &&
-			!Array.isArray(b[k]);
-		if (needsObjectMerge) {
-			c[k] = merge(a[k] || {}, b[k] || {});
-			continue;
-		}
-		c[k] = a[k];
-		if (b[k] !== undefined) c[k] = b[k];
-	}
-	return c;
 }
 
 const cliPath = fileURLToPath(new URL('../astro.js', import.meta.url));
