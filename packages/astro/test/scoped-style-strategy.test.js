@@ -57,4 +57,36 @@ describe('scopedStyleStrategy', () => {
 			expect(stylesheet).to.match(/h1\.astro/);
 		});
 	});
+
+	describe('scopedStyleStrategy: "attribute"', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		let stylesheet;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/scoped-style-strategy/',
+				scopedStyleStrategy: 'attribute',
+			});
+			await fixture.build();
+
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const $link = $('link[rel=stylesheet]');
+			const href = $link.attr('href');
+			stylesheet = await fixture.readFile(href);
+		});
+
+		it('does not include :where pseudo-selector', () => {
+			expect(stylesheet).to.not.match(/:where/);
+		});
+
+		it('does not include the class name directly in the selector', () => {
+			expect(stylesheet).to.not.match(/h1\.astro/);
+		});
+
+		it('includes the data attribute hash', () => {
+			expect(stylesheet).to.include('h1[data-astro-hash-');
+		});
+	});
 });
