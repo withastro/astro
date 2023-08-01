@@ -135,8 +135,7 @@ declare const Astro: {
 							? JSON.parse(this.getAttribute('props')!, reviver)
 							: {};
 					} catch (e) {
-						let componentName: string =
-							this.getAttribute('component-url') || this.Component?.__name || '<unknown>';
+						let componentName: string = this.getAttribute('component-url') || '<unknown>';
 						const componentExport = this.getAttribute('component-export');
 
 						if (componentExport) {
