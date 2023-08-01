@@ -116,10 +116,10 @@
   },
   "dependencies": {
     "@astrojs/compiler": "^1.8.0",
-    "@astrojs/internal-helpers": "^0.1.2",
+    "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/language-server": "^1.0.0",
-    "@astrojs/markdown-remark": "^2.2.1",
-    "@astrojs/telemetry": "^2.1.1",
+    "@astrojs/markdown-remark": "workspace:*",
+    "@astrojs/telemetry": "workspace:*",
     "@babel/core": "^7.22.5",
     "@babel/generator": "^7.22.5",
     "@babel/parser": "^7.22.5",
