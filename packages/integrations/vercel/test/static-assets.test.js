@@ -52,8 +52,8 @@ describe('Static Assets', () => {
 		});
 	});
 
-	describe('serverless adapter', () => {
-		const adapter = import('@astrojs/vercel/serverless');
+	describe('serverless adapter', async () => {
+		const adapter = await import('@astrojs/vercel/serverless');
 
 		it('has cache control', async () => {
 			await build({ adapter });
