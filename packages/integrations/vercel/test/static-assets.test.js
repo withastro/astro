@@ -37,8 +37,8 @@ describe('Static Assets', () => {
 		expect(route.continue).to.equal(true);
 	}
 
-	describe('static adapter', () => {
-		const adapter = import('@astrojs/vercel/static');
+	describe('static adapter', async () => {
+		const adapter = await import('@astrojs/vercel/static');
 
 		it('has cache control', async () => {
 			await build({ adapter });
