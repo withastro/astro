@@ -413,28 +413,35 @@ async function renderHTMLComponent(
 	};
 }
 
-async function renderAstroComponent(
+function renderAstroComponent(
 	result: SSRResult,
 	displayName: string,
 	Component: AstroComponentFactory,
 	props: Record<string | number, any>,
 	slots: any = {}
-): Promise<RenderInstance> {
+): RenderInstance {
 	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
 
-	// Eagerly render the component so they are rendered in parallel
-	const chunks: RenderDestinationChunk[] = [];
-	const temporaryDestination: RenderDestination = {
-		write: (chunk) => chunks.push(chunk),
+	// Eagerly render the component so they are rendered in parallel.
+	// Render to buffer for now until our returned render function is called.
+	const bufferChunks: RenderDestinationChunk[] = [];
+	const bufferDestination: RenderDestination = {
+		write: (chunk) => bufferChunks.push(chunk),
 	};
-	await instance.render(temporaryDestination);
+	// Don't await for the render to finish to not block streaming
+	const renderPromise = instance.render(bufferDestination);
 
 	return {
-		render(destination) {
-			// The real render function will simply pass on the results from the temporary destination
-			for (const chunk of chunks) {
+		async render(destination) {
+			// Write the buffered chunks to the real destination
+			for (const chunk of bufferChunks) {
 				destination.write(chunk);
 			}
+			// Free memory
+			bufferChunks.length = 0;
+			// Re-assign the real destination so `instance.render` will continue and write to the new destination
+			bufferDestination.write = (chunk) => destination.write(chunk);
+			await renderPromise;
 		},
 	};
 }
@@ -460,7 +467,7 @@ export async function renderComponent(
 	}
 
 	if (isAstroComponentFactory(Component)) {
-		return await renderAstroComponent(result, displayName, Component, props, slots);
+		return renderAstroComponent(result, displayName, Component, props, slots);
 	}
 
 	return await renderFrameworkComponent(result, displayName, Component, props, slots);
