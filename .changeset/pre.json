@@ -1,6 +1,6 @@
 {
   "mode": "pre",
-  "tag": "next",
+  "tag": "beta",
   "initialVersions": {
     "astro": "2.9.6",
     "@astrojs/prism": "2.1.2",
