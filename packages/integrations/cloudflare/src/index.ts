@@ -40,12 +40,6 @@ const SHIM = `globalThis.process = {
 const SERVER_BUILD_FOLDER = '/$server_build/';
 
 /**
- * If there are no dynamic routes, the `include` array in `_routes.json` would be empty.
- * Cloudflare does not allow this therefore we have to fill in something: A magic value that should not match anything real.
- */
-const matchNoneIncludePattern = '/MATCH_NONE_INCLUDE_PATTERN';
-
-/**
  * These route types are candiates for being part of the `_routes.json` `include` array.
  */
 const potentialFunctionRouteTypes = ['endpoint', 'page'];
@@ -353,8 +347,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						)
 					);
 
+					// Cloudflare requires at least one include pattern:
+					// https://developers.cloudflare.com/pages/platform/functions/routing/#limits
+					// So we add a pattern that we immediately exclude again
 					if (include.length === 0) {
-						include = [matchNoneIncludePattern];
+						include = ['/'];
+						exclude = ['/'];
 					}
 
 					// If using only an exclude list would produce a shorter list of patterns,
