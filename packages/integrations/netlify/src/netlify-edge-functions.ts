@@ -15,25 +15,19 @@ export function createExports(manifest: SSRManifest) {
 		if (manifest.assets.has(url.pathname)) {
 			return;
 		}
-		if (app.match(request)) {
-			const ip =
-				request.headers.get('x-nf-client-connection-ip') ||
-				context?.ip ||
-				(context as any)?.remoteAddr?.hostname;
-			Reflect.set(request, clientAddressSymbol, ip);
-			const response = await app.render(request);
-			if (app.setCookieHeaders) {
-				for (const setCookieHeader of app.setCookieHeaders(response)) {
-					response.headers.append('Set-Cookie', setCookieHeader);
-				}
+		const routeData = app.match(request)
+		const ip =
+			request.headers.get('x-nf-client-connection-ip') ||
+			context?.ip ||
+			(context as any)?.remoteAddr?.hostname;
+		Reflect.set(request, clientAddressSymbol, ip);
+		const response = await app.render(request, routeData);
+		if (app.setCookieHeaders) {
+			for (const setCookieHeader of app.setCookieHeaders(response)) {
+				response.headers.append('Set-Cookie', setCookieHeader);
 			}
-			return response;
 		}
-
-		return new Response(null, {
-			status: 404,
-			statusText: 'Not found',
-		});
+		return response;
 	};
 
 	return { default: handler };
