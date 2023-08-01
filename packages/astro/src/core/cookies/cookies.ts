@@ -15,14 +15,14 @@ interface AstroCookieSetOptions {
 type AstroCookieDeleteOptions = Pick<AstroCookieSetOptions, 'domain' | 'path'>;
 
 interface AstroCookieInterface {
-	value: string | undefined;
+	value: string;
 	json(): Record<string, any>;
 	number(): number;
 	boolean(): boolean;
 }
 
 interface AstroCookiesInterface {
-	get(key: string): AstroCookieInterface;
+	get(key: string): AstroCookieInterface | undefined;
 	has(key: string): boolean;
 	set(
 		key: string,
@@ -37,7 +37,7 @@ const DELETED_VALUE = 'deleted';
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
 class AstroCookie implements AstroCookieInterface {
-	constructor(public value: string | undefined) {}
+	constructor(public value: string) {}
 	json() {
 		if (this.value === undefined) {
 			throw new Error(`Cannot convert undefined to an object.`);
@@ -97,20 +97,23 @@ class AstroCookies implements AstroCookiesInterface {
 	 * @param key The cookie to get.
 	 * @returns An object containing the cookie value as well as convenience methods for converting its value.
 	 */
-	get(key: string): AstroCookie {
+	get(key: string): AstroCookie | undefined {
 		// Check for outgoing Set-Cookie values first
 		if (this.#outgoing?.has(key)) {
 			let [serializedValue, , isSetValue] = this.#outgoing.get(key)!;
 			if (isSetValue) {
 				return new AstroCookie(serializedValue);
 			} else {
-				return new AstroCookie(undefined);
+				return undefined;
 			}
 		}
 
 		const values = this.#ensureParsed();
-		const value = values[key];
-		return new AstroCookie(value);
+		if(key in values) {
+			const value = values[key];
+			return new AstroCookie(value);
+		}
+
 	}
 
 	/**
