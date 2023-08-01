@@ -153,6 +153,7 @@
     "mime": "^3.0.0",
     "network-information-types": "^0.1.1",
     "ora": "^6.3.1",
+    "sharp": "^0.32.1",
     "p-limit": "^4.0.0",
     "path-to-regexp": "^6.2.1",
     "preferred-pm": "^3.0.3",
@@ -209,18 +210,9 @@
     "remark-code-titles": "^0.1.2",
     "rollup": "^3.25.1",
     "sass": "^1.63.4",
-    "sharp": "^0.32.1",
     "srcset-parse": "^1.1.0",
     "undici": "^5.22.1",
     "unified": "^10.1.2"
-  },
-  "peerDependencies": {
-    "sharp": ">=0.31.0"
-  },
-  "peerDependenciesMeta": {
-    "sharp": {
-      "optional": true
-    }
   },
   "engines": {
     "node": ">=18.14.1",
