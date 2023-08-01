@@ -2721,6 +2721,12 @@ importers:
         specifier: ^10.15.1
         version: 10.15.1
 
+  packages/astro/test/fixtures/import-app:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/import-ts-with-js:
     dependencies:
       astro:
