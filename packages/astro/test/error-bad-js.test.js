@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { loadFixture, silentLogging } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Errors in JavaScript', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -15,9 +15,7 @@ describe('Errors in JavaScript', () => {
 				logLevel: 'silent',
 			},
 		});
-		devServer = await fixture.startDevServer({
-			logging: silentLogging,
-		});
+		devServer = await fixture.startDevServer();
 	});
 
 	after(async () => {

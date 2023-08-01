@@ -1,24 +1,25 @@
 import { expect } from 'chai';
 import { fileURLToPath } from 'node:url';
-import { defaultLogging } from '../test-utils.js';
-import { openConfig } from '../../../dist/core/config/index.js';
+import { flagsToAstroInlineConfig } from '../../../dist/cli/flags.js';
+import { resolveConfig } from '../../../dist/core/config/index.js';
 
 const cwd = fileURLToPath(new URL('../../fixtures/config-host/', import.meta.url));
 
 describe('config.server', () => {
-	function openConfigWithFlags(flags) {
-		return openConfig({
-			cwd: flags.root || cwd,
-			flags,
-			cmd: 'dev',
-			logging: defaultLogging,
-		});
+	function resolveConfigWithFlags(flags) {
+		return resolveConfig(
+			flagsToAstroInlineConfig({
+				root: cwd,
+				...flags,
+			}),
+			'dev'
+		);
 	}
 
 	describe('host', () => {
 		it('can be specified via --host flag', async () => {
 			const projectRootURL = new URL('../../fixtures/astro-basic/', import.meta.url);
-			const { astroConfig } = await openConfigWithFlags({
+			const { astroConfig } = await resolveConfigWithFlags({
 				root: fileURLToPath(projectRootURL),
 				host: true,
 			});
@@ -32,7 +33,7 @@ describe('config.server', () => {
 			it('can be passed via relative --config', async () => {
 				const projectRootURL = new URL('../../fixtures/astro-basic/', import.meta.url);
 				const configFileURL = 'my-config.mjs';
-				const { astroConfig } = await openConfigWithFlags({
+				const { astroConfig } = await resolveConfigWithFlags({
 					root: fileURLToPath(projectRootURL),
 					config: configFileURL,
 				});
@@ -44,7 +45,7 @@ describe('config.server', () => {
 			it('can be passed via relative --config', async () => {
 				const projectRootURL = new URL('../../fixtures/astro-basic/', import.meta.url);
 				const configFileURL = './my-config.mjs';
-				const { astroConfig } = await openConfigWithFlags({
+				const { astroConfig } = await resolveConfigWithFlags({
 					root: fileURLToPath(projectRootURL),
 					config: configFileURL,
 				});
@@ -57,7 +58,7 @@ describe('config.server', () => {
 				const projectRootURL = new URL('../../fixtures/astro-basic/', import.meta.url);
 				const configFileURL = './does-not-exist.mjs';
 				try {
-					await openConfigWithFlags({
+					await resolveConfigWithFlags({
 						root: fileURLToPath(projectRootURL),
 						config: configFileURL,
 					});

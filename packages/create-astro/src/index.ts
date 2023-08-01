@@ -48,14 +48,14 @@ export async function main() {
 }
 
 export {
-	setStdout,
-	getContext,
-	intro,
-	projectName,
-	template,
 	dependencies,
+	getContext,
 	git,
-	typescript,
-	setupTypeScript,
+	intro,
 	next,
+	projectName,
+	setStdout,
+	setupTypeScript,
+	template,
+	typescript,
 };

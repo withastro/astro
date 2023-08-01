@@ -11,6 +11,7 @@ import {
 	astroContentImportPlugin,
 	astroContentVirtualModPlugin,
 } from '../content/index.js';
+import astroTransitions from '../transitions/vite-plugin-transitions.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
@@ -125,13 +126,14 @@ export async function createVite(
 			mode === 'dev' && astroIntegrationsContainerPlugin({ settings, logging }),
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPlugin(),
-			astroScannerPlugin({ settings }),
+			astroScannerPlugin({ settings, logging }),
 			astroInjectEnvTsPlugin({ settings, logging, fs }),
 			astroContentVirtualModPlugin({ settings }),
 			astroContentImportPlugin({ fs, settings }),
 			astroContentAssetPropagationPlugin({ mode, settings }),
 			vitePluginSSRManifest(),
 			settings.config.experimental.assets ? [astroAssetsPlugin({ settings, logging, mode })] : [],
+			astroTransitions({ config: settings.config }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

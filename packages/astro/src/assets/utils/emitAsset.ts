@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { prependForwardSlash, slash } from '../../core/path.js';
@@ -15,34 +15,46 @@ export async function emitESMImage(
 	}
 
 	const url = pathToFileURL(id);
-	const meta = await imageMetadata(url);
-
-	if (!meta) {
+	let fileData: Buffer;
+	try {
+		fileData = await fs.readFile(url);
+	} catch (err) {
 		return undefined;
 	}
+
+	const fileMetadata = await imageMetadata(fileData);
+
+	if (!fileMetadata) {
+		return undefined;
+	}
+
+	const emittedImage: ImageMetadata = {
+		src: '',
+		...fileMetadata,
+	};
 
 	// Build
 	if (!watchMode) {
 		const pathname = decodeURI(url.pathname);
-		const filename = path.basename(pathname, path.extname(pathname) + `.${meta.format}`);
+		const filename = path.basename(pathname, path.extname(pathname) + `.${fileMetadata.format}`);
 
 		const handle = fileEmitter({
 			name: filename,
-			source: await fs.promises.readFile(url),
+			source: await fs.readFile(url),
 			type: 'asset',
 		});
 
-		meta.src = `__ASTRO_ASSET_IMAGE__${handle}__`;
+		emittedImage.src = `__ASTRO_ASSET_IMAGE__${handle}__`;
 	} else {
 		// Pass the original file information through query params so we don't have to load the file twice
-		url.searchParams.append('origWidth', meta.width.toString());
-		url.searchParams.append('origHeight', meta.height.toString());
-		url.searchParams.append('origFormat', meta.format);
+		url.searchParams.append('origWidth', fileMetadata.width.toString());
+		url.searchParams.append('origHeight', fileMetadata.height.toString());
+		url.searchParams.append('origFormat', fileMetadata.format);
 
-		meta.src = `/@fs` + prependForwardSlash(fileURLToNormalizedPath(url));
+		emittedImage.src = `/@fs` + prependForwardSlash(fileURLToNormalizedPath(url));
 	}
 
-	return meta;
+	return emittedImage;
 }
 
 function fileURLToNormalizedPath(filePath: URL): string {

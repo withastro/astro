@@ -1,4 +1,4 @@
-import type { default as vite, InlineConfig } from 'vite';
+import type { InlineConfig, default as vite } from 'vite';
 import type {
 	AstroConfig,
 	AstroSettings,

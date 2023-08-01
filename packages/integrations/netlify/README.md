@@ -142,7 +142,7 @@ export default defineConfig({
 
 ### Static sites
 
-For static sites you usually don't need an adapter. However, if you use `redirects` configuration (experimental) in your Astro config, the Netlify adapter can be used to translate this to the proper `_redirects` format.
+For static sites you usually don't need an adapter. However, if you use `redirects` configuration in your Astro config, the Netlify adapter can be used to translate this to the proper `_redirects` format.
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -153,9 +153,6 @@ export default defineConfig({
 
   redirects: {
     '/blog/old-post': '/blog/new-post',
-  },
-  experimental: {
-    redirects: true,
   },
 });
 ```
@@ -256,7 +253,7 @@ export function get() {
 
 - The [Astro Netlify Edge Starter](https://github.com/sarahetter/astro-netlify-edge-starter) provides an example and a guide in the README.
 
-- [Browse Astro Netlify projects on GitHub](https://github.com/search?q=%22%40astrojs%2Fnetlify%22+filename%3Apackage.json&type=Code) for more examples!
+- [Browse Astro Netlify projects on GitHub](https://github.com/search?q=path%3A**%2Fastro.config.mjs+%40astrojs%2Fnetlify&type=code) for more examples!
 
 ## Troubleshooting
 

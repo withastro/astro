@@ -1,5 +1,220 @@
 # astro
 
+## 2.9.7
+
+### Patch Changes
+
+- [#7754](https://github.com/withastro/astro/pull/7754) [`298dbb89f`](https://github.com/withastro/astro/commit/298dbb89f2963a547370b6e65cafd2650fdb1b27) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Refactor `404` and `500` route handling for consistency and improved prerendering support
+
+- [#7885](https://github.com/withastro/astro/pull/7885) [`9e2203847`](https://github.com/withastro/astro/commit/9e22038472c8be05ed7a72620534b88324dce793) Thanks [@andremralves](https://github.com/andremralves)! - Fix incorrect build path logging for 404.astro pages.
+
+- [#7887](https://github.com/withastro/astro/pull/7887) [`5c5da8d2f`](https://github.com/withastro/astro/commit/5c5da8d2fbb37830f3ee81830d4c9afcd2c1a3e3) Thanks [@ffxsam](https://github.com/ffxsam)! - Add logging for when JSON.parse fails within hydrate func
+
+- [#7895](https://github.com/withastro/astro/pull/7895) [`0b8375fe8`](https://github.com/withastro/astro/commit/0b8375fe82a15bfff3f517f98de6454adb2779f1) Thanks [@bluwy](https://github.com/bluwy)! - Fix streaming Astro components
+
+- [#7876](https://github.com/withastro/astro/pull/7876) [`89d015db6`](https://github.com/withastro/astro/commit/89d015db6ce4d15b5b1140f0eb6bfbef187d6ad7) Thanks [@ematipico](https://github.com/ematipico)! - Check for `getStaticPaths` only if the file has the `.astro` extension.
+
+- [#7879](https://github.com/withastro/astro/pull/7879) [`ebf7ebbf7`](https://github.com/withastro/astro/commit/ebf7ebbf7ae767625d736fad327954cfb853837e) Thanks [@bluwy](https://github.com/bluwy)! - Refactor and improve Astro config loading flow
+
+## 2.9.6
+
+### Patch Changes
+
+- [#7856](https://github.com/withastro/astro/pull/7856) [`861f10eaf`](https://github.com/withastro/astro/commit/861f10eafd4bf4fa08b8e943d64adec51a4c9c1d) Thanks [@matthewp](https://github.com/matthewp)! - Properly serialize redirect config for SSR
+
+## 2.9.5
+
+### Patch Changes
+
+- [#7838](https://github.com/withastro/astro/pull/7838) [`e50f64675`](https://github.com/withastro/astro/commit/e50f646758f5a48e836523d1976d62e18e2893a4) Thanks [@bluwy](https://github.com/bluwy)! - Fix head propagation for MDX components
+
+- [#7841](https://github.com/withastro/astro/pull/7841) [`2275c7d56`](https://github.com/withastro/astro/commit/2275c7d56b2b54e75ca1dbd1df5c7901cf358d52) Thanks [@ematipico](https://github.com/ematipico)! - Allow to return a redirect in dev mode when the original route is not present in the file system.
+
+- [#7800](https://github.com/withastro/astro/pull/7800) [`49a4b2820`](https://github.com/withastro/astro/commit/49a4b28202cfc571897bcc74042b873a2ceecba4) Thanks [@matthewp](https://github.com/matthewp)! - Scroll position restoration with ViewTransitions router
+
+## 2.9.4
+
+### Patch Changes
+
+- [#7826](https://github.com/withastro/astro/pull/7826) [`31c4031ba`](https://github.com/withastro/astro/commit/31c4031ba7aea132a861f2465f38a83741f0cd05) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix `astro:assets` not working on Windows in build when using Squoosh
+
+- [#7823](https://github.com/withastro/astro/pull/7823) [`5161cf919`](https://github.com/withastro/astro/commit/5161cf919c81bd3681af221def0abab7d25abec0) Thanks [@matthewp](https://github.com/matthewp)! - Adds an `astro:beforeload` event for the dark mode use-case
+
+- [#7836](https://github.com/withastro/astro/pull/7836) [`59b556232`](https://github.com/withastro/astro/commit/59b556232696d3aba3c2263ea104cd9922085fd2) Thanks [@matthewp](https://github.com/matthewp)! - Upgrade compiler to bring in Image view transition support
+
+- [#7824](https://github.com/withastro/astro/pull/7824) [`267487e63`](https://github.com/withastro/astro/commit/267487e63ea0a4cfcb771c667a088afb16c62ba6) Thanks [@matthewp](https://github.com/matthewp)! - Prevent navigation on hash change
+
+- [#7829](https://github.com/withastro/astro/pull/7829) [`b063a2d8a`](https://github.com/withastro/astro/commit/b063a2d8aeaed18550d148511bfb68f9ba3cdb09) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix `astro:assets` endpoint not working in dev and SSR if `experimental.assets` was enabled by an integration (such as Starlight)
+
+- [#7734](https://github.com/withastro/astro/pull/7734) [`d5f526b33`](https://github.com/withastro/astro/commit/d5f526b3397cf24aa06353de2de91b2ba08cd4eb) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix some global state related to `astro:assets` not getting cleaned out properly in SSR with no pre-rendered pages
+
+- [#7843](https://github.com/withastro/astro/pull/7843) [`7dbcbc86b`](https://github.com/withastro/astro/commit/7dbcbc86b3bd7e5458570906745364c9399d1a46) Thanks [@matthewp](https://github.com/matthewp)! - Fixes head propagation regression
+
+## 2.9.3
+
+### Patch Changes
+
+- [#7782](https://github.com/withastro/astro/pull/7782) [`0f677c009`](https://github.com/withastro/astro/commit/0f677c009d102bc12232a966634136be58f34739) Thanks [@bluwy](https://github.com/bluwy)! - Refactor Astro rendering to write results directly. This improves the rendering performance for all Astro files.
+
+- [#7786](https://github.com/withastro/astro/pull/7786) [`188eeddd4`](https://github.com/withastro/astro/commit/188eeddd47a61e04639670496924c37866180749) Thanks [@matthewp](https://github.com/matthewp)! - Execute scripts when navigating to a new page.
+
+  When navigating to an new page with client-side navigation, scripts are executed (and re-executed) so that any new scripts on the incoming page are run and the DOM can be updated.
+
+  However, `type=module` scripts never re-execute in Astro, and will not do so in client-side routing. To support cases where you want to modify the DOM, a new `astro:load` event listener been added:
+
+  ```js
+  document.addEventListener('astro:load', () => {
+    updateTheDOMSomehow();
+  });
+  ```
+
+## 2.9.2
+
+### Patch Changes
+
+- [#7777](https://github.com/withastro/astro/pull/7777) [`3567afac4`](https://github.com/withastro/astro/commit/3567afac4411c1054a5e999dd692e6d079825b4a) Thanks [@bluwy](https://github.com/bluwy)! - Fix rendering TextEncoder encoding error regression
+
+- [#7759](https://github.com/withastro/astro/pull/7759) [`1792737da`](https://github.com/withastro/astro/commit/1792737dae1b24e3d678f8c4780f3cd17710944f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix SharedImageService's types not properly reflecting that image services hooks can be async
+
+- [#7766](https://github.com/withastro/astro/pull/7766) [`da7f1128b`](https://github.com/withastro/astro/commit/da7f1128bf749dab1d9bd43e50c29a67e8271746) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix missing `referrerpolicy` on ScriptHTMLAttributes
+
+- [#7746](https://github.com/withastro/astro/pull/7746) [`0c9959704`](https://github.com/withastro/astro/commit/0c9959704fff703417eb4602965c668c7f7a3001) Thanks [@birkskyum](https://github.com/birkskyum)! - Update Vite to 4.4
+
+## 2.9.1
+
+### Patch Changes
+
+- [#7756](https://github.com/withastro/astro/pull/7756) [`274e67532`](https://github.com/withastro/astro/commit/274e6753281edde72fcb4af1cf8a9f892ee46127) Thanks [@matthewp](https://github.com/matthewp)! - Fixes case where there is FOUC caused by stylesheets not loaded
+
+- [#7742](https://github.com/withastro/astro/pull/7742) [`e52852628`](https://github.com/withastro/astro/commit/e528526289dd9fba98e254743ded47a5c6d418a8) Thanks [@andersk](https://github.com/andersk)! - Fix parsing image assets from a Markdown line along with other markup.
+
+- [#7757](https://github.com/withastro/astro/pull/7757) [`c2d6cfd0c`](https://github.com/withastro/astro/commit/c2d6cfd0c26f4ebb81c715389347de1c3bf5f3e6) Thanks [@matthewp](https://github.com/matthewp)! - Prevent animations when prefers-reduced-motion
+
+- [#7750](https://github.com/withastro/astro/pull/7750) [`201d32dcf`](https://github.com/withastro/astro/commit/201d32dcfc58ca82468ac9be43b07cdc60abad88) Thanks [@matthewp](https://github.com/matthewp)! - Trigger full page refresh on back nav from page without VT enabled
+
+## 2.9.0
+
+### Minor Changes
+
+- [#7686](https://github.com/withastro/astro/pull/7686) [`ec745d689`](https://github.com/withastro/astro/commit/ec745d689abc79d27bc24477589533481f077ddb) Thanks [@matthewp](https://github.com/matthewp)! - Redirects configuration
+
+  This change moves the `redirects` configuration out of experimental. If you were previously using experimental redirects, remove the following experimental flag:
+
+  ```js
+  experimental: {
+    redirects: true,
+  }
+  ```
+
+  If you have been waiting for stabilization before using redirects, now you can do so. Check out [the docs on redirects](https://docs.astro.build/en/core-concepts/routing/#redirects) to learn how to use this built-in feature.
+
+- [#7707](https://github.com/withastro/astro/pull/7707) [`3a6e42e19`](https://github.com/withastro/astro/commit/3a6e42e190421c2e172d5c408c0a7592653fccef) Thanks [@ottomated](https://github.com/ottomated)! - Improved hoisted script bundling
+
+  Astro's static analysis to determine which `<script>` tags to bundle together just got a little smarter!
+
+  Astro create bundles that optimize script usage between pages and place them in the head of the document so that they are downloaded as early as possible. One limitation to Astro's existing approach has been that you could not dynamically use hoisted scripts. Each page received the same, all-inclusive bundle whether or not every script was needed on that page.
+
+  Now, Astro has improved the static analysis to take into account the actual imports used.
+
+  For example, Astro would previously bundle the `<script>`s from both the `<Tab>` and `<Accordian>` component for the following library that re-exports multiple components:
+
+  **@matthewp/my-astro-lib**
+
+  ```js
+  export { default as Tabs } from './Tabs.astro';
+  export { default as Accordion } from './Accordion.astro';
+  ```
+
+  Now, when an Astro page only uses a single component, Astro will send only the necessary script to the page. A page that only imports the `<Accordian>` component will not receive any `<Tab>` component's scripts:
+
+  ```astro
+  ---
+  import { Accordion } from '@matthewp/my-astro-lib';
+  ---
+  ```
+
+  You should now see more efficient performance with Astro now supporting this common library re-export pattern.
+
+- [#7511](https://github.com/withastro/astro/pull/7511) [`6a12fcecb`](https://github.com/withastro/astro/commit/6a12fcecb076623769eb017da9d4a17cfb0815d3) Thanks [@matthewp](https://github.com/matthewp)! - Built-in View Transitions Support (experimental)
+
+  Astro now supports [view transitions](https://developer.chrome.com/docs/web-platform/view-transitions/) through the new `<ViewTransitions />` component and the `transition:animate` (and associated) directives. View transitions are a great fit for content-oriented sites, and we see it as the best path to get the benefits of client-side routing (smoother transitions) without sacrificing the more simple mental model of MPAs.
+
+  Enable support for view transitions in Astro 2.9 by adding the experimental flag to your config:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      viewTransitions: true,
+    },
+  });
+  ```
+
+  This enables you to use the new APIs added.
+
+  #### <ViewTransitions />
+
+  This is a component which acts as the _router_ for transitions between pages. Add it to the `<head>` section of each individual page where transitions should occur _in the client_ as you navigate away to another page, instead of causing a full page browser refresh. To enable support throughout your entire app, add the component in some common layout or component that targets the `<head>` of every page.
+
+  **CommonHead.astro**
+
+  ```astro
+  ---
+  import { ViewTransitions } from 'astro:transitions';
+  ---
+
+  <meta charset="utf-8" />
+  <title>{Astro.props.title}</title>
+  <ViewTransitions />
+  ```
+
+  With only this change, your app will now route completely in-client. You can then add transitions to individual elements using the `transition:animate` directive.
+
+  #### Animations
+
+  Add `transition:animate` to any element to use Astro's built-in animations.
+
+  ```astro
+  <header transition:animate="slide"></header>
+  ```
+
+  In the above, Astro's `slide` animation will cause the `<header>` element to slide out to the left, and then slide in from the right when you navigate away from the page.
+
+  You can also customize these animations using any CSS animation properties, for example, by specifying a duration:
+
+  ```astro
+  ---
+  import { slide } from 'astro:transition';
+  ---
+
+  <header transition:animate={slide({ duration: 200 })}></header>
+  ```
+
+  #### Continue learning
+
+  Check out the [client-side routing docs](https://docs.astro.build/en/guides/client-side-routing/) to learn more.
+
+### Patch Changes
+
+- [#7701](https://github.com/withastro/astro/pull/7701) [`019b797bf`](https://github.com/withastro/astro/commit/019b797bf83201d2d4834cc9e0dde30f6a48daa2) Thanks [@bluwy](https://github.com/bluwy)! - Fix redirects map object-form value validation
+
+- [#7704](https://github.com/withastro/astro/pull/7704) [`d78db48ac`](https://github.com/withastro/astro/commit/d78db48ac48bec6bd550b937a896cbcc747625f1) Thanks [@bluwy](https://github.com/bluwy)! - Fix absolute path handling when passing `root`, `srcDir`, `publicDir`, `outDir`, `cacheDir`, `build.client`, and `build.server` configs in Windows
+
+- [#7713](https://github.com/withastro/astro/pull/7713) [`d088351f5`](https://github.com/withastro/astro/commit/d088351f54d2518e2bb539d7bbf8691427ff8a7a) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update warning when `getStaticPaths` is detected but a route is not prerendered.
+
+## 2.8.5
+
+### Patch Changes
+
+- [#7711](https://github.com/withastro/astro/pull/7711) [`72bbfac97`](https://github.com/withastro/astro/commit/72bbfac976c2965a523eea88ff0543e64d848d80) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix `status` code for custom `404` and `500` pages in the dev server
+
+- [#7693](https://github.com/withastro/astro/pull/7693) [`d401866f9`](https://github.com/withastro/astro/commit/d401866f93bfe25a50c171bc54b2b1ee0f483cc9) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix loading of `/404.astro` page when dynamic route returns 404
+
+- [#7706](https://github.com/withastro/astro/pull/7706) [`4f6b5ae2b`](https://github.com/withastro/astro/commit/4f6b5ae2ba8eb162e03f25cbd600a905d434f529) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix Markdoc integration not being able to import `emitESMImage` from Astro
+
+- [#7694](https://github.com/withastro/astro/pull/7694) [`06c255716`](https://github.com/withastro/astro/commit/06c255716ae8e922fb9d4ffa5595cbb34146fff6) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix route matching behavior when `getStaticPaths` result includes hyphenated params
+
 ## 2.8.4
 
 ### Patch Changes

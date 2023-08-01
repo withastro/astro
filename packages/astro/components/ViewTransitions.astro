@@ -1,0 +1,250 @@
+---
+type Fallback = 'none' | 'animate' | 'swap';
+
+export interface Props {
+	fallback?: Fallback;
+}
+
+const { fallback = 'animate' } = Astro.props as Props;
+---
+
+<meta name="astro-view-transitions-enabled" content="true" />
+<meta name="astro-view-transitions-fallback" content={fallback} />
+<script>
+	type Fallback = 'none' | 'animate' | 'swap';
+	type Direction = 'forward' | 'back';
+	type State = {
+		index: number;
+		scrollY: number;
+	};
+	type Events = 'astro:load' | 'astro:beforeload';
+
+	const persistState = (state: State) => history.replaceState(state, '');
+
+	// The History API does not tell you if navigation is forward or back, so
+	// you can figure it using an index. On pushState the index is incremented so you
+	// can use that to determine popstate if going forward or back.
+	let currentHistoryIndex = history.state?.index || 0;
+	if (!history.state) {
+		persistState({ index: currentHistoryIndex, scrollY: 0 });
+	}
+
+	const supportsViewTransitions = !!document.startViewTransition;
+	const transitionEnabledOnThisPage = () =>
+		!!document.querySelector('[name="astro-view-transitions-enabled"]');
+	const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
+	const onload = () => triggerEvent('astro:load');
+
+	const throttle = (cb: (...args: any[]) => any, delay: number) => {
+		let wait = false;
+		return (...args: any[]) => {
+			if (wait) return;
+
+			cb(...args);
+			wait = true;
+			setTimeout(() => {
+				wait = false;
+			}, delay);
+		};
+	};
+
+	async function getHTML(href: string) {
+		const res = await fetch(href);
+		const html = await res.text();
+		return { ok: res.ok, html };
+	}
+
+	function getFallback(): Fallback {
+		const el = document.querySelector('[name="astro-view-transitions-fallback"]');
+		if (el) {
+			return el.getAttribute('content') as Fallback;
+		}
+		return 'animate';
+	}
+
+	function runScripts() {
+		let wait = Promise.resolve();
+		for (const script of Array.from(document.scripts)) {
+			const s = document.createElement('script');
+			s.innerHTML = script.innerHTML;
+			for (const attr of script.attributes) {
+				if (attr.name === 'src') {
+					const p = new Promise((r) => {
+						s.onload = r;
+					});
+					wait = wait.then(() => p as any);
+				}
+				s.setAttribute(attr.name, attr.value);
+			}
+			script.replaceWith(s);
+		}
+		return wait;
+	}
+
+	const parser = new DOMParser();
+
+	async function updateDOM(dir: Direction, html: string, state?: State, fallback?: Fallback) {
+		const doc = parser.parseFromString(html, 'text/html');
+		doc.documentElement.dataset.astroTransition = dir;
+		const swap = () => {
+			document.documentElement.replaceWith(doc.documentElement);
+
+			if (state?.scrollY != null) {
+				scrollTo(0, state.scrollY);
+			}
+
+			triggerEvent('astro:beforeload');
+		};
+
+		// Wait on links to finish, to prevent FOUC
+		const links = Array.from(doc.querySelectorAll('head link[rel=stylesheet]')).map(
+			(link) =>
+				new Promise((resolve) => {
+					const c = link.cloneNode();
+					['load', 'error'].forEach((evName) => c.addEventListener(evName, resolve));
+					document.head.append(c);
+				})
+		);
+		if (links.length) {
+			await Promise.all(links);
+		}
+
+		if (fallback === 'animate') {
+			let isAnimating = false;
+			addEventListener('animationstart', () => (isAnimating = true), { once: true });
+
+			// Trigger the animations
+			document.documentElement.dataset.astroTransitionFallback = 'old';
+			doc.documentElement.dataset.astroTransitionFallback = 'new';
+			// If there are any animations, want for the animationend event.
+			addEventListener('animationend', swap, { once: true });
+			// If there are no animations, go ahead and swap on next tick
+			// This is necessary because we do not know if there are animations.
+			// The setTimeout is a fallback in case there are none.
+			setTimeout(() => !isAnimating && swap());
+		} else {
+			swap();
+		}
+	}
+
+	async function navigate(dir: Direction, href: string, state?: State) {
+		let finished: Promise<void>;
+		const { html, ok } = await getHTML(href);
+		// If there is a problem fetching the new page, just do an MPA navigation to it.
+		if (!ok) {
+			location.href = href;
+			return;
+		}
+		if (supportsViewTransitions) {
+			finished = document.startViewTransition(() => updateDOM(dir, html, state)).finished;
+		} else {
+			finished = updateDOM(dir, html, state, getFallback());
+		}
+		try {
+			await finished;
+		} finally {
+			document.documentElement.removeAttribute('data-astro-transition');
+			await runScripts();
+			onload();
+		}
+	}
+
+	// Prefetching
+	function maybePrefetch(pathname: string) {
+		if (document.querySelector(`link[rel=prefetch][href="${pathname}"]`)) return;
+		if (navigator.connection) {
+			let conn = navigator.connection;
+			if (conn.saveData || /(2|3)g/.test(conn.effectiveType || '')) return;
+		}
+		let link = document.createElement('link');
+		link.setAttribute('rel', 'prefetch');
+		link.setAttribute('href', pathname);
+		document.head.append(link);
+	}
+
+	if (supportsViewTransitions || getFallback() !== 'none') {
+		document.addEventListener('click', (ev) => {
+			let link = ev.target;
+			if (link instanceof Element && link.tagName !== 'A') {
+				link = link.closest('a');
+			}
+			// This check verifies that the click is happening on an anchor
+			// that is going to another page within the same origin. Basically it determines
+			// same-origin navigation, but omits special key combos for new tabs, etc.
+			if (
+				link &&
+				link instanceof HTMLAnchorElement &&
+				link.href &&
+				(!link.target || link.target === '_self') &&
+				link.origin === location.origin &&
+				!link.hash &&
+				ev.button === 0 && // left clicks only
+				!ev.metaKey && // new tab (mac)
+				!ev.ctrlKey && // new tab (windows)
+				!ev.altKey && // download
+				!ev.shiftKey &&
+				!ev.defaultPrevented &&
+				transitionEnabledOnThisPage()
+			) {
+				ev.preventDefault();
+				navigate('forward', link.href);
+				currentHistoryIndex++;
+				const newState: State = { index: currentHistoryIndex, scrollY };
+				persistState({ index: currentHistoryIndex - 1, scrollY });
+				history.pushState(newState, '', link.href);
+			}
+		});
+		addEventListener('popstate', (ev) => {
+			if (!transitionEnabledOnThisPage()) {
+				// The current page doesn't haven't View Transitions,
+				// respect that with a full page reload
+				location.reload();
+				return;
+			}
+
+			// hash change creates no state.
+			if (ev.state === null) {
+				persistState({ index: currentHistoryIndex, scrollY });
+				ev.preventDefault();
+				return;
+			}
+
+			const state: State | undefined = history.state;
+			const nextIndex = state?.index ?? currentHistoryIndex + 1;
+			const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
+			navigate(direction, location.href, state);
+			currentHistoryIndex = nextIndex;
+		});
+
+		['mouseenter', 'touchstart', 'focus'].forEach((evName) => {
+			document.addEventListener(
+				evName,
+				(ev) => {
+					if (ev.target instanceof HTMLAnchorElement) {
+						let el = ev.target;
+						if (
+							el.origin === location.origin &&
+							el.pathname !== location.pathname &&
+							transitionEnabledOnThisPage()
+						) {
+							maybePrefetch(el.pathname);
+						}
+					}
+				},
+				{ passive: true, capture: true }
+			);
+		});
+		addEventListener('load', onload);
+		// There's not a good way to record scroll position before a back button.
+		// So the way we do it is by listening to scroll and just continuously recording it.
+		addEventListener(
+			'scroll',
+			throttle(() => {
+				if (history.state) {
+					persistState({ ...history.state, scrollY });
+				}
+			}, 300),
+			{ passive: true }
+		);
+	}
+</script>

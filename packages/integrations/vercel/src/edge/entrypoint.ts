@@ -13,21 +13,15 @@ export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest);
 
 	const handler = async (request: Request): Promise<Response> => {
-		if (app.match(request)) {
-			Reflect.set(request, clientAddressSymbol, request.headers.get('x-forwarded-for'));
-			const response = await app.render(request);
-			if (app.setCookieHeaders) {
-				for (const setCookieHeader of app.setCookieHeaders(response)) {
-					response.headers.append('Set-Cookie', setCookieHeader);
-				}
+		const routeData = app.match(request);
+		Reflect.set(request, clientAddressSymbol, request.headers.get('x-forwarded-for'));
+		const response = await app.render(request, routeData);
+		if (app.setCookieHeaders) {
+			for (const setCookieHeader of app.setCookieHeaders(response)) {
+				response.headers.append('Set-Cookie', setCookieHeader);
 			}
-			return response;
 		}
-
-		return new Response(null, {
-			status: 404,
-			statusText: 'Not found',
-		});
+		return response;
 	};
 
 	return { default: handler };

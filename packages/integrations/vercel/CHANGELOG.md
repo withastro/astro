@@ -1,5 +1,23 @@
 # @astrojs/vercel
 
+## 3.7.5
+
+### Patch Changes
+
+- [#7754](https://github.com/withastro/astro/pull/7754) [`298dbb89f`](https://github.com/withastro/astro/commit/298dbb89f2963a547370b6e65cafd2650fdb1b27) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve `404` behavior for `serverless` and `edge`
+
+- Updated dependencies [[`298dbb89f`](https://github.com/withastro/astro/commit/298dbb89f2963a547370b6e65cafd2650fdb1b27), [`9e2203847`](https://github.com/withastro/astro/commit/9e22038472c8be05ed7a72620534b88324dce793), [`5c5da8d2f`](https://github.com/withastro/astro/commit/5c5da8d2fbb37830f3ee81830d4c9afcd2c1a3e3), [`0b8375fe8`](https://github.com/withastro/astro/commit/0b8375fe82a15bfff3f517f98de6454adb2779f1), [`89d015db6`](https://github.com/withastro/astro/commit/89d015db6ce4d15b5b1140f0eb6bfbef187d6ad7), [`ebf7ebbf7`](https://github.com/withastro/astro/commit/ebf7ebbf7ae767625d736fad327954cfb853837e)]:
+  - astro@2.9.7
+
+## 3.7.4
+
+### Patch Changes
+
+- [#7718](https://github.com/withastro/astro/pull/7718) [`35a0b6c8a`](https://github.com/withastro/astro/commit/35a0b6c8a909623d802523006cb3c65e4e70c88f) Thanks [@lilnasy](https://github.com/lilnasy)! - The vercel adapter now Warns when using a deprecated version of Node, and switches to 18 when using an unsupported version.
+
+- Updated dependencies [[`274e67532`](https://github.com/withastro/astro/commit/274e6753281edde72fcb4af1cf8a9f892ee46127), [`e52852628`](https://github.com/withastro/astro/commit/e528526289dd9fba98e254743ded47a5c6d418a8), [`c2d6cfd0c`](https://github.com/withastro/astro/commit/c2d6cfd0c26f4ebb81c715389347de1c3bf5f3e6), [`201d32dcf`](https://github.com/withastro/astro/commit/201d32dcfc58ca82468ac9be43b07cdc60abad88)]:
+  - astro@2.9.1
+
 ## 3.7.3
 
 ### Patch Changes

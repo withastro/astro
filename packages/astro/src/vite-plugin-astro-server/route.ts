@@ -1,21 +1,37 @@
 import mime from 'mime';
 import type http from 'node:http';
-import type { ComponentInstance, ManifestData, RouteData, SSRManifest } from '../@types/astro';
+import type {
+	ComponentInstance,
+	ManifestData,
+	MiddlewareResponseHandler,
+	RouteData,
+	SSRElement,
+	SSRManifest,
+} from '../@types/astro';
 import { attachToResponse } from '../core/cookies/index.js';
-import { call as callEndpoint } from '../core/endpoint/dev/index.js';
-import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { warn } from '../core/logger/core.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
-import type { DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
-import { preload, renderPage } from '../core/render/dev/index.js';
-import { getParamsAndProps } from '../core/render/index.js';
+import { isEndpointResult } from '../core/render/core.js';
+import {
+	createRenderContext,
+	getParamsAndProps,
+	tryRenderRoute,
+	type DevelopmentEnvironment,
+	type SSROptions,
+} from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
+import { isPage, resolveIdToUrl, viteID } from '../core/util.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
+import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { log404 } from './common.js';
+import { getStylesForURL } from './css.js';
+import { preload } from './index.js';
+import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
+import { getScriptsForURL } from './scripts.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -125,7 +141,7 @@ type HandleRoute = {
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 	manifest: SSRManifest;
-	status?: number;
+	status?: 404 | 500;
 };
 
 export async function handleRoute({
@@ -144,16 +160,6 @@ export async function handleRoute({
 	const { logging, settings } = env;
 	if (!matchedRoute) {
 		return handle404Response(origin, incomingRequest, incomingResponse);
-	}
-
-	if (matchedRoute.route.type === 'redirect' && !settings.config.experimental.redirects) {
-		writeWebResponse(
-			incomingResponse,
-			new Response(`To enable redirect set experimental.redirects to \`true\`.`, {
-				status: 400,
-			})
-		);
-		return;
 	}
 
 	const { config } = settings;
@@ -190,9 +196,28 @@ export async function handleRoute({
 	if (middleware) {
 		options.middleware = middleware;
 	}
-	// Route successfully matched! Render it.
-	if (route.type === 'endpoint') {
-		const result = await callEndpoint(options);
+	const mod = options.preload;
+
+	const { scripts, links, styles, metadata } = await getScriptsAndStyles({
+		env: options.env,
+		filePath: options.filePath,
+	});
+
+	const renderContext = await createRenderContext({
+		request: options.request,
+		pathname: options.pathname,
+		scripts,
+		links,
+		styles,
+		componentMetadata: metadata,
+		route: options.route,
+		mod,
+		env,
+	});
+	const onRequest = options.middleware?.onRequest as MiddlewareResponseHandler | undefined;
+
+	const result = await tryRenderRoute(route.type, renderContext, env, mod, onRequest);
+	if (isEndpointResult(result, route.type)) {
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
 				const fourOhFourRoute = await matchRoute('/404', env, manifestData);
@@ -210,7 +235,6 @@ export async function handleRoute({
 					manifest,
 				});
 			}
-			throwIfRedirectNotAllowed(result.response, config);
 			await writeWebResponse(incomingResponse, result.response);
 		} else {
 			let contentType = 'text/plain';
@@ -232,7 +256,6 @@ export async function handleRoute({
 			await writeWebResponse(incomingResponse, response);
 		}
 	} else {
-		const result = await renderPage(options);
 		if (result.status === 404) {
 			const fourOhFourRoute = await matchRoute('/404', env, manifestData);
 			return handleRoute({
@@ -249,18 +272,107 @@ export async function handleRoute({
 				manifest,
 			});
 		}
-		throwIfRedirectNotAllowed(result, config);
 
 		let response = result;
-		// Response.status is read-only, so a clone is required to override
-		if (status && response.status !== status) {
+
+		if (
+			// We are in a recursion, and it's possible that this function is called itself with a status code
+			// By default, the status code passed via parameters is computed by the matched route.
+			//
+			// By default, we should give priority to the status code passed, although it's possible that
+			// the `Response` emitted by the user is a redirect. If so, then return the returned response.
+			response.status < 400 &&
+			response.status >= 300
+		) {
+			await writeSSRResult(request, response, incomingResponse);
+			return;
+		} else if (status && response.status !== status && (status === 404 || status === 500)) {
+			// Response.status is read-only, so a clone is required to override
 			response = new Response(result.body, { ...result, status });
 		}
-		return await writeSSRResult(request, response, incomingResponse);
+		await writeSSRResult(request, response, incomingResponse);
 	}
 }
 
-function getStatus(matchedRoute?: MatchedRoute): number | undefined {
+interface GetScriptsAndStylesParams {
+	env: DevelopmentEnvironment;
+	filePath: URL;
+}
+
+async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams) {
+	// Add hoisted script tags
+	const scripts = await getScriptsForURL(filePath, env.settings.config.root, env.loader);
+
+	// Inject HMR scripts
+	if (isPage(filePath, env.settings) && env.mode === 'development') {
+		scripts.add({
+			props: { type: 'module', src: '/@vite/client' },
+			children: '',
+		});
+		scripts.add({
+			props: {
+				type: 'module',
+				src: await resolveIdToUrl(env.loader, 'astro/runtime/client/hmr.js'),
+			},
+			children: '',
+		});
+	}
+
+	// TODO: We should allow adding generic HTML elements to the head, not just scripts
+	for (const script of env.settings.scripts) {
+		if (script.stage === 'head-inline') {
+			scripts.add({
+				props: {},
+				children: script.content,
+			});
+		} else if (script.stage === 'page' && isPage(filePath, env.settings)) {
+			scripts.add({
+				props: { type: 'module', src: `/@id/${PAGE_SCRIPT_ID}` },
+				children: '',
+			});
+		}
+	}
+
+	// Pass framework CSS in as style tags to be appended to the page.
+	const { urls: styleUrls, stylesMap } = await getStylesForURL(filePath, env.loader, env.mode);
+	let links = new Set<SSRElement>();
+	[...styleUrls].forEach((href) => {
+		links.add({
+			props: {
+				rel: 'stylesheet',
+				href,
+			},
+			children: '',
+		});
+	});
+
+	let styles = new Set<SSRElement>();
+	[...stylesMap].forEach(([url, content]) => {
+		// Vite handles HMR for styles injected as scripts
+		scripts.add({
+			props: {
+				type: 'module',
+				src: url,
+			},
+			children: '',
+		});
+		// But we still want to inject the styles to avoid FOUC
+		styles.add({
+			props: {
+				type: 'text/css',
+				// Track the ID so we can match it to Vite's injected style later
+				'data-astro-dev-id': viteID(new URL(`.${url}`, env.settings.config.root)),
+			},
+			children: content,
+		});
+	});
+
+	const metadata = await getComponentMetadata(filePath, env.loader);
+
+	return { scripts, styles, links, metadata };
+}
+
+function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | undefined {
 	if (!matchedRoute) return 404;
 	if (matchedRoute.route.route === '/404') return 404;
 	if (matchedRoute.route.route === '/500') return 500;

@@ -1,14 +1,18 @@
-// @ts-check
-import { createFs, createRequestAndResponse, defaultLogging } from '../test-utils.js';
+import {
+	createBasicSettings,
+	createFs,
+	createRequestAndResponse,
+	defaultLogging,
+} from '../test-utils.js';
 import { createRouteManifest, matchAllRoutes } from '../../../dist/core/routing/index.js';
 import { fileURLToPath } from 'node:url';
 import { createViteLoader } from '../../../dist/core/module-loader/vite.js';
-import { createDevelopmentEnvironment } from '../../../dist/core/render/dev/environment.js';
 import { expect } from 'chai';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import * as cheerio from 'cheerio';
 import testAdapter from '../../test-adapter.js';
 import { getSortedPreloadedMatches } from '../../../dist/prerender/routing.js';
+import { createDevelopmentEnvironment } from '../../../dist/vite-plugin-astro-server/environment.js';
 import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
@@ -127,16 +131,17 @@ describe('Route matching', () => {
 
 	before(async () => {
 		const fs = createFs(fileSystem, root);
+		settings = await createBasicSettings({
+			root: fileURLToPath(root),
+			trailingSlash: 'never',
+			output: 'hybrid',
+			adapter: testAdapter(),
+		});
 		container = await createContainer({
 			fs,
-			root,
-			userConfig: {
-				trailingSlash: 'never',
-				output: 'hybrid',
-				adapter: testAdapter(),
-			},
+			settings,
+			logging: defaultLogging,
 		});
-		settings = container.settings;
 
 		const loader = createViteLoader(container.viteServer);
 		const manifest = createDevelopmentManifest(container.settings);

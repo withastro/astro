@@ -34,7 +34,7 @@ export async function callGetStaticPaths({
 	const cached = routeCache.get(route);
 	if (cached?.staticPaths) return cached.staticPaths;
 
-	validateDynamicRouteModule(mod, { ssr, logging, route });
+	validateDynamicRouteModule(mod, { ssr, route });
 
 	// No static paths in SSR mode. Return an empty RouteCacheEntry.
 	if (ssr && !route.prerender) {

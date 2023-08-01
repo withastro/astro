@@ -25,8 +25,7 @@ export default function (app: NodeApp, _mode: Options['mode']) {
 		}
 
 		try {
-			const route =
-				mode === 'standalone' ? app.match(req, { matchNotFound: true }) : app.match(req);
+			const route = app.match(req);
 			if (route) {
 				try {
 					const response = await app.render(req, route, locals);
@@ -41,8 +40,8 @@ export default function (app: NodeApp, _mode: Options['mode']) {
 			} else if (next) {
 				return next();
 			} else {
-				res.writeHead(404);
-				res.end('Not found');
+				const response = await app.render(req);
+				await writeWebResponse(app, res, response);
 			}
 		} catch (err: unknown) {
 			if (!res.headersSent) {

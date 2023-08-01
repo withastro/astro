@@ -15,9 +15,6 @@ describe('Astro.redirect', () => {
 				redirects: {
 					'/api/redirect': '/test',
 				},
-				experimental: {
-					redirects: true,
-				},
 			});
 			await fixture.build();
 		});
@@ -50,7 +47,7 @@ describe('Astro.redirect', () => {
 				const request = new Request('http://example.com/api/redirect');
 				const response = await app.render(request);
 				expect(response.status).to.equal(301);
-				expect(response.headers.get('Location')).to.equal('/');
+				expect(response.headers.get('Location')).to.equal('/test');
 			});
 
 			it('Uses 308 for non-GET methods', async () => {
@@ -71,9 +68,6 @@ describe('Astro.redirect', () => {
 				fixture = await loadFixture({
 					root: './fixtures/ssr-redirect/',
 					output: 'static',
-					experimental: {
-						redirects: true,
-					},
 					redirects: {
 						'/': '/test',
 						'/one': '/test',
@@ -159,9 +153,6 @@ describe('Astro.redirect', () => {
 				fixture = await loadFixture({
 					root: './fixtures/ssr-redirect/',
 					output: 'static',
-					experimental: {
-						redirects: true,
-					},
 					redirects: {
 						'/one': '/',
 					},
@@ -193,9 +184,6 @@ describe('Astro.redirect', () => {
 				},
 				build: {
 					redirects: false,
-				},
-				experimental: {
-					redirects: true,
 				},
 			});
 			await fixture.build();

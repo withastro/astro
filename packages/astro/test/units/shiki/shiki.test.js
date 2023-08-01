@@ -1,6 +1,8 @@
 import { expect } from 'chai';
+import { fileURLToPath } from 'node:url';
 import { createContainer } from '../../../dist/core/dev/index.js';
 import { createViteLoader } from '../../../dist/core/module-loader/index.js';
+import { createBasicSettings, defaultLogging } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -9,7 +11,8 @@ describe('<Code />', () => {
 		let container;
 		let mod;
 		before(async () => {
-			container = await createContainer({ root });
+			const settings = await createBasicSettings({ root: fileURLToPath(root) });
+			container = await createContainer({ settings, logging: defaultLogging });
 			const loader = createViteLoader(container.viteServer);
 			mod = await loader.import('astro/components/Shiki.js');
 		});
