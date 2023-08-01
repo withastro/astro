@@ -34,8 +34,8 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "@astrojs/markdown-remark": "^2.2.1",
-    "@astrojs/prism": "^2.1.2",
+    "@astrojs/markdown-remark": "workspace:*",
+    "@astrojs/prism": "workspace:*",
     "@mdx-js/mdx": "^2.3.0",
     "acorn": "^8.9.0",
     "es-module-lexer": "^1.3.0",
