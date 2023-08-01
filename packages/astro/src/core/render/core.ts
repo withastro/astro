@@ -59,12 +59,7 @@ async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
 		locals: renderContext.locals ?? {},
 	});
 
-	// Support `export const components` for `MDX` pages
-	if (typeof (mod as any).components === 'object') {
-		Object.assign(renderContext.props, { components: (mod as any).components });
-	}
-
-	let response = await runtimeRenderPage(
+	const response = await runtimeRenderPage(
 		result,
 		Component,
 		renderContext.props,
