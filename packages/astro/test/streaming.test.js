@@ -48,7 +48,7 @@ describe('Streaming', () => {
 				let chunk = decoder.decode(bytes);
 				chunks.push(chunk);
 			}
-			expect(chunks.length).to.equal(2);
+			expect(chunks.length).to.equal(3);
 		});
 	});
 
