@@ -17,7 +17,6 @@
 '@astrojs/prism': major
 '@astrojs/rss': major
 '@astrojs/telemetry': major
-'@astrojs/webapi': major
 'astro': major
 '@astrojs/turbolinks': minor
 '@astrojs/alpinejs': minor
