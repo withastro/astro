@@ -273,7 +273,7 @@ export class App {
 	}
 
 	/**
-	 * If is a known error code, try sending the according page (e.g. 404.astro / 500.astro).
+	 * If it is a known error code, try sending the according page (e.g. 404.astro / 500.astro).
 	 * This also handles pre-rendered /404 or /500 routes
 	 */
 	async #renderError(
@@ -319,8 +319,10 @@ export class App {
 		const { status, statusText, headers } = oldResponse;
 
 		return new Response(newResponse.body, {
+			// If the original status was 200 (default), override it with the new status (probably 404 or 500)
+			// Otherwise, the user set a specific status while rendering and we should respect that one
 			status: status === 200 ? newResponse.status : status,
-			statusText,
+			statusText: status === 200 ? newResponse.statusText : statusText,
 			headers: new Headers(Array.from(headers)),
 		});
 	}
