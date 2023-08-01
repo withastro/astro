@@ -15,7 +15,7 @@ export function createExports(manifest: SSRManifest) {
 		if (manifest.assets.has(url.pathname)) {
 			return;
 		}
-		const routeData = app.match(request)
+		const routeData = app.match(request);
 		const ip =
 			request.headers.get('x-nf-client-connection-ip') ||
 			context?.ip ||
