@@ -1,10 +1,18 @@
 import * as colors from 'kleur/colors';
 import fs from 'node:fs';
 import { performance } from 'node:perf_hooks';
+import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
-import type yargs from 'yargs-parser';
-import type { AstroConfig, AstroSettings, ManifestData, RuntimeMode } from '../../@types/astro';
+import type {
+	AstroConfig,
+	AstroInlineConfig,
+	AstroSettings,
+	ManifestData,
+	RuntimeMode,
+} from '../../@types/astro';
 import { injectImageEndpoint } from '../../assets/internal.js';
+import { telemetry } from '../../events/index.js';
+import { eventCliSession } from '../../events/session.js';
 import {
 	runHookBuildDone,
 	runHookBuildStart,
@@ -12,9 +20,11 @@ import {
 	runHookConfigSetup,
 } from '../../integrations/index.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
+import { resolveConfig } from '../config/config.js';
+import { createNodeLogging } from '../config/logging.js';
+import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { debug, info, levels, timerMessage, warn, type LogOptions } from '../logger/core.js';
-import { printHelp } from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
@@ -24,36 +34,36 @@ import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
-	mode?: RuntimeMode;
-	logging: LogOptions;
 	/**
 	 * Teardown the compiler WASM instance after build. This can improve performance when
 	 * building once, but may cause a performance hit if building multiple times in a row.
 	 */
 	teardownCompiler?: boolean;
-	flags?: yargs.Arguments;
 }
 
 /** `astro build` */
-export default async function build(settings: AstroSettings, options: BuildOptions): Promise<void> {
+export default async function build(
+	inlineConfig: AstroInlineConfig,
+	options: BuildOptions
+): Promise<void> {
 	applyPolyfill();
-	if (options.flags?.help || options.flags?.h) {
-		printHelp({
-			commandName: 'astro build',
-			usage: '[...flags]',
-			tables: {
-				Flags: [
-					['--drafts', `Include Markdown draft pages in the build.`],
-					['--help (-h)', 'See all available flags.'],
-				],
-			},
-			description: `Builds your site for deployment.`,
-		});
-		return;
-	}
+	const logging = createNodeLogging(inlineConfig);
+	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
+	telemetry.record(eventCliSession('build', userConfig));
 
-	const builder = new AstroBuilder(settings, options);
+	const settings = createSettings(astroConfig, fileURLToPath(astroConfig.root));
+
+	const builder = new AstroBuilder(settings, {
+		...options,
+		logging,
+		mode: inlineConfig.mode,
+	});
 	await builder.run();
+}
+
+interface AstroBuilderOptions extends BuildOptions {
+	logging: LogOptions;
+	mode?: RuntimeMode;
 }
 
 class AstroBuilder {
@@ -66,7 +76,7 @@ class AstroBuilder {
 	private timer: Record<string, number>;
 	private teardownCompiler: boolean;
 
-	constructor(settings: AstroSettings, options: BuildOptions) {
+	constructor(settings: AstroSettings, options: AstroBuilderOptions) {
 		if (options.mode) {
 			this.mode = options.mode;
 		}
@@ -112,8 +122,8 @@ class AstroBuilder {
 		);
 		await runHookConfigDone({ settings: this.settings, logging });
 
-		const { sync } = await import('../sync/index.js');
-		const syncRet = await sync(this.settings, { logging, fs });
+		const { syncInternal } = await import('../sync/index.js');
+		const syncRet = await syncInternal(this.settings, { logging, fs });
 		if (syncRet !== 0) {
 			return process.exit(syncRet);
 		}

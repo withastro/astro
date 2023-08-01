@@ -29,6 +29,14 @@ describe('Using Astro.response in SSR', () => {
 		expect(response.statusText).to.equal('Oops');
 	});
 
+	it('Can set headers for 404 page', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/status-code');
+		const response = await app.render(request);
+		const headers = response.headers;
+		expect(headers.get('one-two')).to.equal('three');
+	});
+
 	it('Can add headers', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/some-header');

@@ -17,7 +17,7 @@ export function getViteConfig(inlineConfig: UserConfig) {
 			fs,
 			{ mergeConfig },
 			{ nodeLogDestination },
-			{ openConfig, createSettings },
+			{ resolveConfig, createSettings },
 			{ createVite },
 			{ runHookConfigSetup, runHookConfigDone },
 			{ astroContentListenPlugin },
@@ -34,7 +34,7 @@ export function getViteConfig(inlineConfig: UserConfig) {
 			dest: nodeLogDestination,
 			level: 'info',
 		};
-		const { astroConfig: config } = await openConfig({ cmd });
+		const { astroConfig: config } = await resolveConfig({}, cmd);
 		const settings = createSettings(config, inlineConfig.root);
 		await runHookConfigSetup({ settings, command: cmd, logging });
 		const viteConfig = await createVite(

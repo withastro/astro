@@ -1,5 +1,16 @@
 # @astrojs/netlify
 
+## 2.5.2
+
+### Patch Changes
+
+- [#7862](https://github.com/withastro/astro/pull/7862) [`1859960d0`](https://github.com/withastro/astro/commit/1859960d0443cc6638569408282544f37e0a90ae) Thanks [@Yan-Thomas](https://github.com/Yan-Thomas)! - Fix README GitHub search link
+
+- [#7754](https://github.com/withastro/astro/pull/7754) [`298dbb89f`](https://github.com/withastro/astro/commit/298dbb89f2963a547370b6e65cafd2650fdb1b27) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve `404` behavior for `serverless` and `edge`
+
+- Updated dependencies [[`298dbb89f`](https://github.com/withastro/astro/commit/298dbb89f2963a547370b6e65cafd2650fdb1b27), [`9e2203847`](https://github.com/withastro/astro/commit/9e22038472c8be05ed7a72620534b88324dce793), [`5c5da8d2f`](https://github.com/withastro/astro/commit/5c5da8d2fbb37830f3ee81830d4c9afcd2c1a3e3), [`0b8375fe8`](https://github.com/withastro/astro/commit/0b8375fe82a15bfff3f517f98de6454adb2779f1), [`89d015db6`](https://github.com/withastro/astro/commit/89d015db6ce4d15b5b1140f0eb6bfbef187d6ad7), [`ebf7ebbf7`](https://github.com/withastro/astro/commit/ebf7ebbf7ae767625d736fad327954cfb853837e)]:
+  - astro@2.9.7
+
 ## 2.5.1
 
 ### Patch Changes
