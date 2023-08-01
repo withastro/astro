@@ -2,9 +2,8 @@ import { fileURLToPath } from 'node:url';
 import nodeFS from 'node:fs';
 import path from 'node:path';
 
-import { runInContainer } from '../../../dist/core/dev/index.js';
 import { attachContentServerListeners } from '../../../dist/content/index.js';
-import { createFs, triggerFSEvent } from '../test-utils.js';
+import { createFs, runInContainer, triggerFSEvent } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -53,7 +52,7 @@ describe('frontmatter', () => {
 			root
 		);
 
-		await runInContainer({ fs, root }, async (container) => {
+		await runInContainer({ fs, inlineConfig: { root: fileURLToPath(root) } }, async (container) => {
 			await attachContentServerListeners(container);
 
 			fs.writeFileFromRootSync(

@@ -1,6 +1,6 @@
 import type * as http from 'node:http';
 import type { AddressInfo } from 'node:net';
-import type { AstroSettings, AstroUserConfig } from '../../@types/astro';
+import type { AstroInlineConfig, AstroSettings } from '../../@types/astro';
 
 import nodeFs from 'node:fs';
 import * as vite from 'vite';
@@ -11,52 +11,36 @@ import {
 	runHookServerDone,
 	runHookServerStart,
 } from '../../integrations/index.js';
-import { createDefaultDevSettings, resolveRoot } from '../config/index.js';
 import { createVite } from '../create-vite.js';
 import type { LogOptions } from '../logger/core.js';
-import { nodeLogDestination } from '../logger/node.js';
-import { appendForwardSlash } from '../path.js';
 import { apply as applyPolyfill } from '../polyfill.js';
-
-const defaultLogging: LogOptions = {
-	dest: nodeLogDestination,
-	level: 'error',
-};
 
 export interface Container {
 	fs: typeof nodeFs;
 	logging: LogOptions;
 	settings: AstroSettings;
-	viteConfig: vite.InlineConfig;
 	viteServer: vite.ViteDevServer;
-	resolvedRoot: string;
-	configFlag: string | undefined;
-	configFlagPath: string | undefined;
+	inlineConfig: AstroInlineConfig;
 	restartInFlight: boolean; // gross
 	handle: (req: http.IncomingMessage, res: http.ServerResponse) => void;
 	close: () => Promise<void>;
 }
 
 export interface CreateContainerParams {
+	logging: LogOptions;
+	settings: AstroSettings;
+	inlineConfig?: AstroInlineConfig;
 	isRestart?: boolean;
-	logging?: LogOptions;
-	userConfig?: AstroUserConfig;
-	settings?: AstroSettings;
 	fs?: typeof nodeFs;
-	root?: string | URL;
-	// The string passed to --config and the resolved path
-	configFlag?: string;
-	configFlagPath?: string;
 }
 
-export async function createContainer(params: CreateContainerParams = {}): Promise<Container> {
-	let {
-		isRestart = false,
-		logging = defaultLogging,
-		settings = await createDefaultDevSettings(params.userConfig, params.root),
-		fs = nodeFs,
-	} = params;
-
+export async function createContainer({
+	isRestart = false,
+	logging,
+	inlineConfig,
+	settings,
+	fs = nodeFs,
+}: CreateContainerParams): Promise<Container> {
 	// Initialize
 	applyPolyfill();
 	settings = await runHookConfigSetup({
@@ -94,14 +78,11 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 	const viteServer = await vite.createServer(viteConfig);
 
 	const container: Container = {
-		configFlag: params.configFlag,
-		configFlagPath: params.configFlagPath,
+		inlineConfig: inlineConfig ?? {},
 		fs,
 		logging,
-		resolvedRoot: appendForwardSlash(resolveRoot(params.root)),
 		restartInFlight: false,
 		settings,
-		viteConfig,
 		viteServer,
 		handle(req, res) {
 			viteServer.middlewares.handle(req, res, Function.prototype);
@@ -142,19 +123,4 @@ export async function startContainer({
 
 export function isStarted(container: Container): boolean {
 	return !!container.viteServer.httpServer?.listening;
-}
-
-/**
- * Only used in tests
- */
-export async function runInContainer(
-	params: CreateContainerParams,
-	callback: (container: Container) => Promise<void> | void
-) {
-	const container = await createContainer(params);
-	try {
-		await callback(container);
-	} finally {
-		await container.close();
-	}
 }

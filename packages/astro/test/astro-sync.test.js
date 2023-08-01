@@ -19,7 +19,7 @@ describe('astro sync', () => {
 				},
 			},
 		};
-		await fixture.sync({ fs: fsMock });
+		await fixture.sync({}, { fs: fsMock });
 
 		const expectedTypesFile = new URL('.astro/types.d.ts', fixture.config.root).href;
 		expect(writtenFiles).to.haveOwnProperty(expectedTypesFile);
@@ -55,7 +55,7 @@ describe('astro sync', () => {
 				},
 			},
 		};
-		await fixture.sync({ fs: fsMock });
+		await fixture.sync({}, { fs: fsMock });
 
 		expect(writtenFiles, 'Did not try to update env.d.ts file.').to.haveOwnProperty(typesEnvPath);
 		expect(writtenFiles[typesEnvPath]).to.include(`/// <reference path="../.astro/types.d.ts" />`);
@@ -79,7 +79,7 @@ describe('astro sync', () => {
 				},
 			},
 		};
-		await fixture.sync({ fs: fsMock });
+		await fixture.sync({}, { fs: fsMock });
 
 		expect(writtenFiles, 'Did not try to write env.d.ts file.').to.haveOwnProperty(typesEnvPath);
 		expect(writtenFiles[typesEnvPath]).to.include(`/// <reference types="astro/client" />`);
