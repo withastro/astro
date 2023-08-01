@@ -191,7 +191,7 @@ export const AstroConfigSchema = z.object({
 			}),
 		})
 		.default({
-			service: { entrypoint: 'astro/assets/services/squoosh', config: {} },
+			service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 		}),
 	markdown: z
 		.object({
