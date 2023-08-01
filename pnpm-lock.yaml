@@ -3619,7 +3619,7 @@ importers:
   packages/integrations/cloudflare:
     dependencies:
       '@astrojs/underscore-redirects':
-        specifier: ^0.2.0
+        specifier: workspace:*
         version: link:../../underscore-redirects
       '@cloudflare/workers-types':
         specifier: ^4.20230518.0
@@ -4421,7 +4421,7 @@ importers:
   packages/integrations/netlify:
     dependencies:
       '@astrojs/underscore-redirects':
-        specifier: ^0.2.0
+        specifier: workspace:*
         version: link:../../underscore-redirects
       '@netlify/functions':
         specifier: ^1.6.0
@@ -5527,10 +5527,6 @@ packages:
       vscode-languageserver-textdocument: 1.0.8
       vscode-languageserver-types: 3.17.3
       vscode-uri: 3.0.7
-    dev: false
-
-  /@astrojs/underscore-redirects@0.2.0:
-    resolution: {integrity: sha512-TP+uEdqMGNC7Lyci6WmbHvvMElBDSyHlTsvGH9E9/2duvD/n4KJVyr59klycEroaZJiAi5tzlXL8Jsl9/R32gQ==}
     dev: false
 
   /@astrojs/webapi@2.2.0:
@@ -18613,7 +18609,7 @@ packages:
     peerDependencies:
       astro: '*'
     dependencies:
-      '@astrojs/underscore-redirects': 0.2.0
+      '@astrojs/underscore-redirects': link:packages/underscore-redirects
       '@astrojs/webapi': 2.2.0
       '@netlify/functions': 1.6.0
       astro: file:packages/astro(@types/node@18.16.18)
