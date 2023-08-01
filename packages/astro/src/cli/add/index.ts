@@ -9,7 +9,7 @@ import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import type yargs from 'yargs-parser';
-import { loadTSConfig, resolveConfigPath } from '../../core/config/index.js';
+import { loadTSConfig, resolveConfigPath, resolveRoot } from '../../core/config/index.js';
 import {
 	defaultTSConfig,
 	presets,
@@ -23,12 +23,12 @@ import { appendForwardSlash } from '../../core/path.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
+import { createLoggingFromFlags } from '../flags.js';
 import { generate, parse, t, visit } from './babel.js';
 import { ensureImport } from './imports.js';
 import { wrapDefaultExport } from './wrapper.js';
 
 interface AddOptions {
-	logging: LogOptions;
 	flags: yargs.Arguments;
 }
 
@@ -86,7 +86,7 @@ async function getRegistry(): Promise<string> {
 	}
 }
 
-export async function add(names: string[], { flags, logging }: AddOptions) {
+export async function add(names: string[], { flags }: AddOptions) {
 	telemetry.record(eventCliSession('add'));
 	applyPolyfill();
 	if (flags.help || names.length === 0) {
@@ -130,10 +130,12 @@ export async function add(names: string[], { flags, logging }: AddOptions) {
 
 	// Some packages might have a common alias! We normalize those here.
 	const cwd = flags.root;
+	const logging = createLoggingFromFlags(flags);
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames);
 	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logging });
-	const root = pathToFileURL(cwd ? path.resolve(cwd) : process.cwd());
+	const rootPath = resolveRoot(cwd);
+	const root = pathToFileURL(rootPath);
 	// Append forward slash to compute relative paths
 	root.href = appendForwardSlash(root.href);
 
@@ -199,7 +201,11 @@ export async function add(names: string[], { flags, logging }: AddOptions) {
 		}
 	}
 
-	const rawConfigPath = await resolveConfigPath({ cwd, flags, fs: fsMod });
+	const rawConfigPath = await resolveConfigPath({
+		root: rootPath,
+		configFile: flags.config,
+		fs: fsMod,
+	});
 	let configURL = rawConfigPath ? pathToFileURL(rawConfigPath) : undefined;
 
 	if (configURL) {

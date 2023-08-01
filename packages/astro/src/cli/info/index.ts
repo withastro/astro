@@ -3,14 +3,16 @@ import * as colors from 'kleur/colors';
 import { arch, platform } from 'node:os';
 import whichPm from 'which-pm';
 import type yargs from 'yargs-parser';
-import { openConfig } from '../../core/config/index.js';
+import { resolveConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
+import { flagsToAstroInlineConfig } from '../flags.js';
 
 interface InfoOptions {
 	flags: yargs.Arguments;
 }
 
 export async function printInfo({ flags }: InfoOptions) {
+	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const packageManager = await whichPm(process.cwd());
 	let adapter = "Couldn't determine.";
 	let integrations = [];
@@ -22,11 +24,7 @@ export async function printInfo({ flags }: InfoOptions) {
 	}
 
 	try {
-		const { userConfig } = await openConfig({
-			cwd: flags.root,
-			flags,
-			cmd: 'info',
-		});
+		const { userConfig } = await resolveConfig(inlineConfig, 'info');
 		if (userConfig.adapter?.name) {
 			adapter = userConfig.adapter.name;
 		}

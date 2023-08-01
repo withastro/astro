@@ -1,5 +1,9 @@
-// @ts-check
-import { createFs, createRequestAndResponse, defaultLogging } from '../test-utils.js';
+import {
+	createBasicSettings,
+	createFs,
+	createRequestAndResponse,
+	defaultLogging,
+} from '../test-utils.js';
 import { createRouteManifest, matchAllRoutes } from '../../../dist/core/routing/index.js';
 import { fileURLToPath } from 'node:url';
 import { createViteLoader } from '../../../dist/core/module-loader/vite.js';
@@ -127,16 +131,17 @@ describe('Route matching', () => {
 
 	before(async () => {
 		const fs = createFs(fileSystem, root);
+		settings = await createBasicSettings({
+			root: fileURLToPath(root),
+			trailingSlash: 'never',
+			output: 'hybrid',
+			adapter: testAdapter(),
+		});
 		container = await createContainer({
 			fs,
-			root,
-			userConfig: {
-				trailingSlash: 'never',
-				output: 'hybrid',
-				adapter: testAdapter(),
-			},
+			settings,
+			logging: defaultLogging,
 		});
-		settings = container.settings;
 
 		const loader = createViteLoader(container.viteServer);
 		const manifest = createDevelopmentManifest(container.settings);

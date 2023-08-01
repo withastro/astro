@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { getErrorOverlayContent, silentLogging, testFactory } from './test-utils.js';
+import { getErrorOverlayContent, testFactory } from './test-utils.js';
 
 const test = testFactory({
 	root: './fixtures/errors/',
@@ -12,10 +12,7 @@ const test = testFactory({
 let devServer;
 
 test.beforeAll(async ({ astro }) => {
-	devServer = await astro.startDevServer({
-		// Only test the error overlay, don't print to console
-		logging: silentLogging,
-	});
+	devServer = await astro.startDevServer();
 });
 
 test.afterAll(async ({ astro }) => {
