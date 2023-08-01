@@ -70,15 +70,7 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 		}
 		const request = new Request(rawUrl, init);
 
-		let routeData = app.match(request, { matchNotFound: true });
-
-		if (!routeData) {
-			return {
-				statusCode: 404,
-				body: 'Not found',
-			};
-		}
-
+		const routeData = app.match(request);
 		const ip = headers['x-nf-client-connection-ip'];
 		Reflect.set(request, clientAddressSymbol, ip);
 		let locals = {};
