@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import {
 	AstroCheck,
 	DiagnosticSeverity,
@@ -36,16 +37,32 @@ export type CheckPayload = {
 	 * Flags passed via CLI
 	 */
 	flags: Flags;
-};
+=======
+import path from 'node:path';
+import type { Arguments } from 'yargs-parser';
+import { error, info, type LogOptions } from '../../core/logger/core.js';
+import { getPackage } from '../install-package.js';
 
-type CheckFlags = {
+type CheckOptions = {
+	flags: Arguments;
 	/**
-	 * Whether the `check` command should watch for `.astro` and report errors
-	 * @default {false}
+	 * Logging options
 	 */
-	watch: boolean;
+	logging: LogOptions;
+>>>>>>> Stashed changes
 };
 
+export async function check({ flags, logging }: CheckOptions) {
+	const getPackageOpts = { skipAsk: flags.yes || flags.y, cwd: flags.root };
+	const checkPackage = await getPackage<typeof import('@astrojs/check')>(
+		'@astrojs/check',
+		logging,
+		getPackageOpts,
+		['typescript']
+	);
+	const typescript = await getPackage('typescript', logging, getPackageOpts);
+
+<<<<<<< Updated upstream
 /**
  *
  * Types of response emitted by the checker
@@ -100,14 +117,22 @@ export async function check({ flags }: CheckPayload): Promise<AstroChecker | und
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'check');
 	telemetry.record(eventCliSession('check', userConfig, flags));
 	const settings = createSettings(astroConfig, fileURLToPath(astroConfig.root));
-
-	const checkFlags = parseFlags(flags);
-	if (checkFlags.watch) {
-		info(logging, 'check', 'Checking files in watch mode');
-	} else {
-		info(logging, 'check', 'Checking files');
+=======
+	if (!checkPackage || !typescript) {
+		error(
+			logging,
+			'check',
+			'The `@astrojs/check` and `typescript` packages are required for this command to work. Please install them into your project and try again.'
+		);
+		return;
 	}
 
+	const { check: checker, parseArgsAsCheckConfig } = checkPackage;
+>>>>>>> Stashed changes
+
+	const config = parseArgsAsCheckConfig(process.argv);
+
+<<<<<<< Updated upstream
 	const { syncInternal } = await import('../../core/sync/index.js');
 	const root = settings.config.root;
 	const require = createRequire(import.meta.url);
@@ -393,4 +418,8 @@ function parseFlags(flags: Flags): CheckFlags {
 	return {
 		watch: flags.watch ?? false,
 	};
+=======
+	info(logging, 'check', `Getting diagnostics for Astro files in ${path.resolve(config.root)}...`);
+	return await checker(config);
+>>>>>>> Stashed changes
 }
