@@ -18,7 +18,7 @@ vscode:
     - esbenp.prettier-vscode
     - dbaeumer.vscode-eslint
 ports:
-  - port: 3000
+  - port: 4321
     onOpen: open-preview
 github:
   prebuilds:

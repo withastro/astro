@@ -159,7 +159,7 @@ For standalone mode the server handles file servering in addition to the page an
 You can override the host and port the standalone server runs on by passing them as environment variables at runtime:
 
 ```shell
-HOST=0.0.0.0 PORT=3000 node ./dist/server/entry.mjs
+HOST=0.0.0.0 PORT=4321 node ./dist/server/entry.mjs
 ```
 
 #### HTTPS
