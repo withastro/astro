@@ -87,7 +87,7 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default('static'),
 	scopedStyleStrategy: z
-		.union([z.literal('where'), z.literal('class')])
+		.union([z.literal('where'), z.literal('class'), z.literal('attribute')])
 		.optional()
 		.default('where'),
 	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
