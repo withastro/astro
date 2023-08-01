@@ -150,7 +150,7 @@
     "html-escaper": "^3.0.3",
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.4",
-    "magic-string": "^0.27.0",
+    "magic-string": "^0.30.2",
     "mime": "^3.0.0",
     "network-information-types": "^0.1.1",
     "ora": "^6.3.1",
