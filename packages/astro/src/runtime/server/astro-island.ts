@@ -127,9 +127,29 @@ declare const Astro: {
 						if (!closest?.isSameNode(this)) continue;
 						slots[slot.getAttribute('name') || 'default'] = slot.innerHTML;
 					}
-					const props = this.hasAttribute('props')
-						? JSON.parse(this.getAttribute('props')!, reviver)
-						: {};
+
+					let props: Record<string, unknown>;
+
+					try {
+						props = this.hasAttribute('props')
+							? JSON.parse(this.getAttribute('props')!, reviver)
+							: {};
+					} catch (e) {
+						let componentName: string = this.getAttribute('component-url') || '<unknown>';
+						const componentExport = this.getAttribute('component-export');
+
+						if (componentExport) {
+							componentName += ` (export ${componentExport})`;
+						}
+
+						// eslint-disable-next-line no-console
+						console.error(
+							`[hydrate] Error parsing props for component ${componentName}`,
+							this.getAttribute('props'),
+							e
+						);
+						throw e;
+					}
 					await this.hydrator(this)(this.Component, props, slots, {
 						client: this.getAttribute('client'),
 					});

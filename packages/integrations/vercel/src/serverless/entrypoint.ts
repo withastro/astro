@@ -23,12 +23,7 @@ export const createExports = (manifest: SSRManifest) => {
 			return res.end(err.reason || 'Invalid request body');
 		}
 
-		let routeData = app.match(request, { matchNotFound: true });
-		if (!routeData) {
-			res.statusCode = 404;
-			return res.end('Not found');
-		}
-
+		let routeData = app.match(request);
 		let locals = {};
 		if (request.headers.has(ASTRO_LOCALS_HEADER)) {
 			let localsAsString = request.headers.get(ASTRO_LOCALS_HEADER);
