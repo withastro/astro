@@ -483,16 +483,16 @@ importers:
         specifier: ^1.6.3
         version: 1.6.3
       '@astrojs/internal-helpers':
-        specifier: ^0.1.1
+        specifier: workspace:*
         version: link:../internal-helpers
       '@astrojs/language-server':
         specifier: ^1.0.0
         version: 1.0.0
       '@astrojs/markdown-remark':
-        specifier: ^2.2.1
+        specifier: workspace:*
         version: link:../markdown/remark
       '@astrojs/telemetry':
-        specifier: ^2.1.1
+        specifier: workspace:*
         version: link:../telemetry
       '@babel/core':
         specifier: ^7.22.5
@@ -3992,10 +3992,10 @@ importers:
   packages/integrations/markdoc:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: ^0.1.0
+        specifier: workspace:*
         version: link:../../internal-helpers
       '@astrojs/prism':
-        specifier: ^2.1.2
+        specifier: workspace:*
         version: link:../../astro-prism
       '@markdoc/markdoc':
         specifier: ^0.3.0
@@ -4023,7 +4023,7 @@ importers:
         version: 3.20.6
     devDependencies:
       '@astrojs/markdown-remark':
-        specifier: ^2.2.1
+        specifier: workspace:*
         version: link:../../markdown/remark
       '@types/chai':
         specifier: ^4.3.5
@@ -4168,10 +4168,10 @@ importers:
   packages/integrations/mdx:
     dependencies:
       '@astrojs/markdown-remark':
-        specifier: ^2.2.1
+        specifier: workspace:*
         version: link:../../markdown/remark
       '@astrojs/prism':
-        specifier: ^2.1.2
+        specifier: workspace:*
         version: link:../../astro-prism
       '@mdx-js/mdx':
         specifier: ^2.3.0
@@ -4903,7 +4903,7 @@ importers:
   packages/integrations/vercel:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: ^0.1.1
+        specifier: workspace:*
         version: link:../../internal-helpers
       '@vercel/analytics':
         specifier: ^0.1.11
@@ -5509,10 +5509,6 @@ packages:
   /@astrojs/compiler@1.6.3:
     resolution: {integrity: sha512-n0xTuBznKspc0plk6RHBOlSv/EwQGyMNSxEOPj7HMeiRNnXX4woeSopN9hQsLkqraDds1eRvB4u99buWgVNJig==}
 
-  /@astrojs/internal-helpers@0.1.1:
-    resolution: {integrity: sha512-+LySbvFbjv2nO2m/e78suleQOGEru4Cnx73VsZbrQgB2u7A4ddsQg3P2T0zC0e10jgcT+c6nNlKeLpa6nRhQIg==}
-    dev: false
-
   /@astrojs/language-server@1.0.0:
     resolution: {integrity: sha512-oEw7AwJmzjgy6HC9f5IdrphZ1GVgfV/+7xQuyf52cpTiRWd/tJISK3MsKP0cDkVlfodmNABNFnAaAWuLZEiiiA==}
     hasBin: true
@@ -5531,52 +5527,6 @@ packages:
       vscode-languageserver-textdocument: 1.0.8
       vscode-languageserver-types: 3.17.3
       vscode-uri: 3.0.7
-    dev: false
-
-  /@astrojs/markdown-remark@2.2.1(astro@2.9.6):
-    resolution: {integrity: sha512-VF0HRv4GpC1XEMLnsKf6jth7JSmlt9qpqP0josQgA2eSpCIAC/Et+y94mgdBIZVBYH/yFnMoIxgKVe93xfO2GA==}
-    peerDependencies:
-      astro: '*'
-    dependencies:
-      '@astrojs/prism': 2.1.2
-      astro: file:packages/astro(@types/node@18.16.18)
-      github-slugger: 1.5.0
-      import-meta-resolve: 2.2.2
-      rehype-raw: 6.1.1
-      rehype-stringify: 9.0.3
-      remark-gfm: 3.0.1
-      remark-parse: 10.0.2
-      remark-rehype: 10.1.0
-      remark-smartypants: 2.0.0
-      shiki: 0.14.1
-      unified: 10.1.2
-      unist-util-visit: 4.1.2
-      vfile: 5.3.7
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
-  /@astrojs/prism@2.1.2:
-    resolution: {integrity: sha512-3antim1gb34689GHRQFJ88JEo93HuZKQBnmxDT5W/nxiNz1p/iRxnCTEhIbJhqMOTRbbo5h2ldm5qSxx+TMFQA==}
-    engines: {node: '>=16.12.0'}
-    dependencies:
-      prismjs: 1.29.0
-    dev: false
-
-  /@astrojs/telemetry@2.1.1:
-    resolution: {integrity: sha512-4pRhyeQr0MLB5PKYgkdu+YE8sSpMbHL8dUuslBWBIdgcYjtD1SufPMBI8pgXJ+xlwrQJHKKfK2X1KonHYuOS9A==}
-    engines: {node: '>=16.12.0'}
-    dependencies:
-      ci-info: 3.8.0
-      debug: 4.3.4
-      dlv: 1.1.3
-      dset: 3.1.2
-      is-docker: 3.0.0
-      is-wsl: 2.2.0
-      undici: 5.22.1
-      which-pm-runs: 1.1.0
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /@astrojs/underscore-redirects@0.2.0:
@@ -18556,10 +18506,10 @@ packages:
         optional: true
     dependencies:
       '@astrojs/compiler': 1.6.3
-      '@astrojs/internal-helpers': 0.1.1
+      '@astrojs/internal-helpers': link:packages/internal-helpers
       '@astrojs/language-server': 1.0.0
-      '@astrojs/markdown-remark': 2.2.1(astro@2.9.6)
-      '@astrojs/telemetry': 2.1.1
+      '@astrojs/markdown-remark': link:packages/markdown/remark
+      '@astrojs/telemetry': link:packages/telemetry
       '@astrojs/webapi': 2.2.0
       '@babel/core': 7.22.5
       '@babel/generator': 7.22.5
@@ -18678,7 +18628,7 @@ packages:
     peerDependencies:
       astro: '*'
     dependencies:
-      '@astrojs/internal-helpers': 0.1.1
+      '@astrojs/internal-helpers': link:packages/internal-helpers
       '@astrojs/webapi': 2.2.0
       '@vercel/analytics': 0.1.11
       '@vercel/nft': 0.22.6
