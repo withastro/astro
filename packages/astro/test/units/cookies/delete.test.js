@@ -30,7 +30,7 @@ describe('astro/src/core/cookies', () => {
 			expect(cookies.get('foo').value).to.equal('bar');
 
 			cookies.delete('foo');
-			expect(cookies.get('foo').value).to.equal(undefined);
+			expect(cookies.get('foo')).to.equal(undefined);
 		});
 
 		it('calling cookies.has() after returns false', () => {
