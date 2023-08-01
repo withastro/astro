@@ -9,7 +9,9 @@ import { fetch } from 'undici';
  */
 
 async function load() {
-	const mod = await import(`./fixtures/prerender-404/dist/server/entry.mjs?dropcache=${Date.now()}`);
+	const mod = await import(
+		`./fixtures/prerender-404/dist/server/entry.mjs?dropcache=${Date.now()}`
+	);
 	return mod;
 }
 describe('Prerender 404', () => {
