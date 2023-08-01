@@ -38,7 +38,7 @@
     "test:hosted": "mocha --exit --timeout 30000 test/hosted"
   },
   "dependencies": {
-    "@astrojs/underscore-redirects": "^0.2.0",
+    "@astrojs/underscore-redirects": "workspace:*",
     "@netlify/functions": "^1.6.0",
     "esbuild": "^0.18.16"
   },
