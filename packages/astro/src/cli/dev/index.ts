@@ -15,7 +15,7 @@ export async function dev({ flags }: DevOptions) {
 			usage: '[...flags]',
 			tables: {
 				Flags: [
-					['--port', `Specify which port to run on. Defaults to 3000.`],
+					['--port', `Specify which port to run on. Defaults to 4321.`],
 					['--host', `Listen on all addresses, including LAN and public addresses.`],
 					['--host <custom-address>', `Expose on a network IP address at <custom-address>`],
 					['--open', 'Automatically open the app in the browser on server start'],
