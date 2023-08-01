@@ -179,13 +179,26 @@ jobs:
         run: pnpm install
 
       - name: Install Replay Playwright
+        if: matrix.os == 'ubuntu-latest'
         run: npx @replayio/playwright install        
 
       - name: Build Packages
         run: pnpm run build
 
+      - name: Test with Replay
+        if: matrix.os == 'ubuntu-latest'
+        run: pnpm run test:e2e:replay
+
       - name: Test
+        if: matrix.os != 'ubuntu-latest'
         run: pnpm run test:e2e
+
+      - name: Upload replays
+        if: ${{ always() && matrix.os == 'ubuntu-latest' }}
+        uses: replayio/action-upload@v0.5.1
+        with:
+          public: true
+          api-key: rwk_JlPk8ZX9iTg5Ceuxql5eTbcy7jxgMDx7kVI7xg9zQhT
 
   smoke:
     name: "Test (Smoke): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
