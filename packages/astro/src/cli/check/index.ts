@@ -19,7 +19,7 @@ export async function check(flags: Arguments) {
 		error(
 			logging,
 			'check',
-			'The `@astrojs/check` and `typescript` packages are required for this command to work. Please install them into your project and try again.'
+			'The `@astrojs/check` and `typescript` packages are required for this command to work. Please manually install them into your project and try again.'
 		);
 		return;
 	}
