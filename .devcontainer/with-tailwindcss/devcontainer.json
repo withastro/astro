@@ -7,13 +7,13 @@
   "workspaceFolder": "/workspaces/astro/examples/with-tailwindcss",
 
   "portsAttributes": {
-    "3000": {
+    "4321": {
       "label": "Application",
       "onAutoForward": "openPreview"
     }
   },
 
-  "forwardPorts": [3000],
+  "forwardPorts": [4321],
 
   "postCreateCommand": "pnpm install && cd /workspaces/astro && pnpm run build",
 

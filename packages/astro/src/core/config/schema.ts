@@ -32,7 +32,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	compressHTML: false,
 	server: {
 		host: false,
-		port: 3000,
+		port: 4321,
 		open: false,
 	},
 	integrations: [],
@@ -191,7 +191,7 @@ export const AstroConfigSchema = z.object({
 			}),
 		})
 		.default({
-			service: { entrypoint: 'astro/assets/services/squoosh', config: {} },
+			service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 		}),
 	markdown: z
 		.object({

@@ -20,9 +20,9 @@ import type { AstroConfigSchema } from '../core/config';
 import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
 import type { LogOptions, LoggerLevel } from '../core/logger/core';
+import { AstroIntegrationLogger } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
-import { AstroIntegrationLogger } from '../core/logger/core';
 export type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -326,7 +326,7 @@ type ServerConfig = {
 	/**
 	 * @name server.port
 	 * @type {number}
-	 * @default `3000`
+	 * @default `4321`
 	 * @description
 	 * Set which port the dev server should listen on.
 	 *
@@ -914,7 +914,7 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   // Example: Use the function syntax to customize based on command
-	 *   server: ({ command }) => ({ port: command === 'dev' ? 3000 : 4000 })
+	 *   server: ({ command }) => ({ port: command === 'dev' ? 4321 : 4000 })
 	 * }
 	 * ```
 	 */
@@ -936,7 +936,7 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name server.port
 	 * @type {number}
-	 * @default `3000`
+	 * @default `4321`
 	 * @description
 	 * Set which port the server should listen on.
 	 *
@@ -986,7 +986,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name image.service (Experimental)
 		 * @type {{entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | string, config: Record<string, any>}}
-		 * @default `{entrypoint: 'astro/assets/services/squoosh', config?: {}}`
+		 * @default `{entrypoint: 'astro/assets/services/sharp', config?: {}}`
 		 * @version 2.1.0
 		 * @description
 		 * Set which image service is used for Astro’s experimental assets support.

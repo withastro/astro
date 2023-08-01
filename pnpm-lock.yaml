@@ -614,6 +614,9 @@ importers:
       server-destroy:
         specifier: ^1.0.1
         version: 1.0.1
+      sharp:
+        specifier: ^0.32.1
+        version: 0.32.1
       shiki:
         specifier: ^0.14.1
         version: 0.14.1
@@ -756,9 +759,6 @@ importers:
       sass:
         specifier: ^1.63.4
         version: 1.63.4
-      sharp:
-        specifier: ^0.32.1
-        version: 0.32.1
       srcset-parse:
         specifier: ^1.1.0
         version: 1.1.0
@@ -18498,11 +18498,6 @@ packages:
     version: 2.9.6
     engines: {node: '>=18.14.1', npm: '>=6.14.0'}
     hasBin: true
-    peerDependencies:
-      sharp: '>=0.31.0'
-    peerDependenciesMeta:
-      sharp:
-        optional: true
     dependencies:
       '@astrojs/compiler': 1.6.3
       '@astrojs/internal-helpers': link:packages/internal-helpers
@@ -18550,6 +18545,7 @@ packages:
       rehype: 12.0.1
       semver: 7.5.4
       server-destroy: 1.0.1
+      sharp: 0.32.1
       shiki: 0.14.1
       string-width: 5.1.2
       strip-ansi: 7.1.0
