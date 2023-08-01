@@ -64,14 +64,14 @@ describe('_routes.json generation', () => {
 			await fixture.build();
 		});
 
-		it('create only one `include` that is supposed to match nothing', async () => {
+		it('create only one `include` and `exclude` that are supposed to match nothing', async () => {
 			const _routesJson = await fixture.readFile('/_routes.json');
 			const routes = JSON.parse(_routesJson);
 
 			expect(routes).to.deep.equal({
 				version: 1,
-				include: ['/MATCH_NONE_INCLUDE_PATTERN'],
-				exclude: [],
+				include: ['/'],
+				exclude: ['/'],
 			});
 		});
 	});
