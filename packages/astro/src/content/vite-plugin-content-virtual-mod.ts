@@ -213,7 +213,7 @@ function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): stri
 	const contentDir = appendForwardSlash(relContentDir);
 	return [
 		`${contentDir}**/*${extGlob}`,
-		`!${contentDir}**/_*/**${extGlob}`,
+		`!${contentDir}**/_*/**/*${extGlob}`,
 		`!${contentDir}**/_*${extGlob}`,
 	];
 }
