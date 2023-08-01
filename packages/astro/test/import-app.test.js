@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 
 describe('Import astro/app', async () => {
-
 	it('Successfully imports astro/app', async () => {
 		try {
 			await import('astro/app');
