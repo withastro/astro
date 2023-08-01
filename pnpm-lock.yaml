@@ -5523,36 +5523,15 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
-<<<<<<< Updated upstream
-  /@astrojs/compiler@1.6.3:
-    resolution: {integrity: sha512-n0xTuBznKspc0plk6RHBOlSv/EwQGyMNSxEOPj7HMeiRNnXX4woeSopN9hQsLkqraDds1eRvB4u99buWgVNJig==}
-=======
   /@astrojs/compiler@1.5.7:
     resolution: {integrity: sha512-dFU7GAMbpTUGPkRoCoMQrGFlTe3qIiQMSOxIXp/nB1Do4My9uogjEmBHdR5Cwr4i6rc5/1R3Od9v8kU/pkHXGQ==}
     dev: true
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-  /@astrojs/internal-helpers@0.1.1:
-    resolution: {integrity: sha512-+LySbvFbjv2nO2m/e78suleQOGEru4Cnx73VsZbrQgB2u7A4ddsQg3P2T0zC0e10jgcT+c6nNlKeLpa6nRhQIg==}
-    dev: false
-
->>>>>>> Stashed changes
-  /@astrojs/language-server@1.0.0:
-    resolution: {integrity: sha512-oEw7AwJmzjgy6HC9f5IdrphZ1GVgfV/+7xQuyf52cpTiRWd/tJISK3MsKP0cDkVlfodmNABNFnAaAWuLZEiiiA==}
-=======
-  /@astrojs/compiler@1.6.0:
-    resolution: {integrity: sha512-vxuzp09jAW/ZQ8C4Itf6/OsF76TNjBQC06FNpcayKOzxYkCGHTLh7+0lF4ywmG/fDgSc+f1x7kKxxEKl4nqXvQ==}
-
-  /@astrojs/internal-helpers@0.1.1:
-    resolution: {integrity: sha512-+LySbvFbjv2nO2m/e78suleQOGEru4Cnx73VsZbrQgB2u7A4ddsQg3P2T0zC0e10jgcT+c6nNlKeLpa6nRhQIg==}
-    dev: false
->>>>>>> Stashed changes
+  /@astrojs/compiler@1.6.3:
+    resolution: {integrity: sha512-n0xTuBznKspc0plk6RHBOlSv/EwQGyMNSxEOPj7HMeiRNnXX4woeSopN9hQsLkqraDds1eRvB4u99buWgVNJig==}
 
   /@astrojs/language-server@2.2.0(prettier-plugin-astro@0.10.0)(prettier@2.8.8)(typescript@5.1.6):
     resolution: {integrity: sha512-zyEumkwcep3pGyMpcEJFEn96jV6pEg3CUtjehnT9KseDFqf+gPYTbw5nwOpN9uXIJ/E5bAxhqpkr3J2LCQHRrg==}
->>>>>>> Stashed changes
     hasBin: true
     peerDependencies:
       prettier: ^3.0.0
@@ -5563,12 +5542,6 @@ packages:
       prettier-plugin-astro:
         optional: true
     dependencies:
-<<<<<<< Updated upstream
-      '@astrojs/compiler': 1.6.3
-      '@jridgewell/trace-mapping': 0.3.18
-      '@vscode/emmet-helper': 2.8.8
-      events: 3.3.0
-=======
       '@astrojs/compiler': 1.5.7
       '@jridgewell/sourcemap-codec': 1.4.15
       '@volar/kit': 1.10.0(typescript@5.1.6)
@@ -5579,7 +5552,6 @@ packages:
       '@volar/typescript': 1.10.0
       fast-glob: 3.3.1
       muggle-string: 0.3.1
->>>>>>> Stashed changes
       prettier: 2.8.8
       prettier-plugin-astro: 0.10.0
       volar-service-css: 0.0.11(@volar/language-service@1.10.0)
@@ -5594,59 +5566,6 @@ packages:
       - typescript
     dev: true
 
-<<<<<<< Updated upstream
-=======
-  /@astrojs/markdown-remark@2.2.1(astro@2.9.6):
-    resolution: {integrity: sha512-VF0HRv4GpC1XEMLnsKf6jth7JSmlt9qpqP0josQgA2eSpCIAC/Et+y94mgdBIZVBYH/yFnMoIxgKVe93xfO2GA==}
-    peerDependencies:
-      astro: '*'
-    dependencies:
-      '@astrojs/prism': 2.1.2
-      astro: file:packages/astro(@types/node@18.16.18)(typescript@5.1.6)
-      github-slugger: 1.5.0
-      import-meta-resolve: 2.2.2
-      rehype-raw: 6.1.1
-      rehype-stringify: 9.0.3
-      remark-gfm: 3.0.1
-      remark-parse: 10.0.2
-      remark-rehype: 10.1.0
-      remark-smartypants: 2.0.0
-      shiki: 0.14.1
-      unified: 10.1.2
-      unist-util-visit: 4.1.2
-      vfile: 5.3.7
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
-  /@astrojs/prism@2.1.2:
-    resolution: {integrity: sha512-3antim1gb34689GHRQFJ88JEo93HuZKQBnmxDT5W/nxiNz1p/iRxnCTEhIbJhqMOTRbbo5h2ldm5qSxx+TMFQA==}
-    engines: {node: '>=16.12.0'}
-    dependencies:
-      prismjs: 1.29.0
-    dev: false
-
-  /@astrojs/telemetry@2.1.1:
-    resolution: {integrity: sha512-4pRhyeQr0MLB5PKYgkdu+YE8sSpMbHL8dUuslBWBIdgcYjtD1SufPMBI8pgXJ+xlwrQJHKKfK2X1KonHYuOS9A==}
-    engines: {node: '>=16.12.0'}
-    dependencies:
-      ci-info: 3.8.0
-      debug: 4.3.4
-      dlv: 1.1.3
-      dset: 3.1.2
-      is-docker: 3.0.0
-      is-wsl: 2.2.0
-      undici: 5.22.1
-      which-pm-runs: 1.1.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
-  /@astrojs/underscore-redirects@0.2.0:
-    resolution: {integrity: sha512-TP+uEdqMGNC7Lyci6WmbHvvMElBDSyHlTsvGH9E9/2duvD/n4KJVyr59klycEroaZJiAi5tzlXL8Jsl9/R32gQ==}
-    dev: false
-
->>>>>>> Stashed changes
   /@astrojs/webapi@2.2.0:
     resolution: {integrity: sha512-mHAOApWyjqSe5AQMOUD9rsZJqbMQqe3Wosb1a40JV6Okvyxj1G6GTlthwYadWCymq/lbgwh0PLiY8Fr4eFxtuQ==}
     dependencies:
@@ -8712,7 +8631,7 @@ packages:
   /@ts-morph/common@0.20.0:
     resolution: {integrity: sha512-7uKjByfbPpwuzkstL3L5MQyuXPSKdoNG93Fmi2JoDcTf3pEP731JdRFAduRVkOs8oqxPsXKA+ScrWkdQ8t/I+Q==}
     dependencies:
-      fast-glob: 3.3.1
+      fast-glob: 3.2.12
       minimatch: 7.4.6
       mkdirp: 2.1.6
       path-browserify: 1.0.1
@@ -9428,10 +9347,10 @@ packages:
       '@volar/language-core': 1.10.0
     dev: true
 
-  /@vscode/emmet-helper@2.9.2:
-    resolution: {integrity: sha512-MaGuyW+fa13q3aYsluKqclmh62Hgp0BpKIqS66fCxfOaBcVQ1OnMQxRRgQUYnCkxFISAQlkJ0qWWPyXjro1Qrg==}
+  /@vscode/emmet-helper@2.8.8:
+    resolution: {integrity: sha512-QuD4CmNeXSFxuP8VZwI6qL+8vmmd7JcSdwsEIdsrzb4YumWs/+4rXRX9MM+NsFfUO69g6ezngCD7XRd6jY9TQw==}
     dependencies:
-      emmet: 2.4.6
+      emmet: 2.4.4
       jsonc-parser: 2.3.1
       vscode-languageserver-textdocument: 1.0.8
       vscode-languageserver-types: 3.17.3
@@ -10997,8 +10916,8 @@ packages:
   /electron-to-chromium@1.4.396:
     resolution: {integrity: sha512-pqKTdqp/c5vsrc0xUPYXTDBo9ixZuGY8es4ZOjjd6HD6bFYbu5QA09VoW3fkY4LF1T0zYk86lN6bZnNlBuOpdQ==}
 
-  /emmet@2.4.6:
-    resolution: {integrity: sha512-dJfbdY/hfeTyf/Ef7Y7ubLYzkBvPQ912wPaeVYpAxvFxkEBf/+hJu4H6vhAvFN6HlxqedlfVn2x1S44FfQ97pg==}
+  /emmet@2.4.4:
+    resolution: {integrity: sha512-v8Mwpjym55CS3EjJgiCLWUB3J2HSR93jhzXW325720u8KvYxdI2voYLstW3pHBxFz54H6jFjayR9G4LfTG0q+g==}
     dependencies:
       '@emmetio/abbreviation': 2.3.3
       '@emmetio/css-abbreviation': 2.1.8
@@ -11918,6 +11837,7 @@ packages:
       glob-parent: 5.1.2
       merge2: 1.4.1
       micromatch: 4.0.5
+    dev: true
 
   /fast-json-stable-stringify@2.1.0:
     resolution: {integrity: sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==}
@@ -15546,19 +15466,6 @@ packages:
       sass-formatter: 0.7.6
     dev: true
 
-<<<<<<< Updated upstream
-  /prettier-plugin-astro@0.8.1:
-    resolution: {integrity: sha512-lJ/mG/Lz/ccSwNtwqpFS126mtMVzFVyYv0ddTF9wqwrEG4seECjKDAyw/oGv915rAcJi8jr89990nqfpmG+qdg==}
-    engines: {node: ^14.15.0 || >=16.0.0, pnpm: '>=7.14.0'}
-    dependencies:
-      '@astrojs/compiler': 1.6.3
-      prettier: 2.8.8
-      sass-formatter: 0.7.6
-      synckit: 0.8.5
-    dev: false
-
-=======
->>>>>>> Stashed changes
   /prettier@2.8.8:
     resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
@@ -17925,7 +17832,7 @@ packages:
         optional: true
     dependencies:
       '@volar/language-service': 1.10.0
-      '@vscode/emmet-helper': 2.9.2
+      '@vscode/emmet-helper': 2.8.8
       volar-service-html: 0.0.11(@volar/language-service@1.10.0)
     dev: true
 
@@ -18628,23 +18535,10 @@ packages:
       sharp:
         optional: true
     dependencies:
-<<<<<<< Updated upstream
       '@astrojs/compiler': 1.6.3
       '@astrojs/internal-helpers': link:packages/internal-helpers
-      '@astrojs/language-server': 1.0.0
-<<<<<<< Updated upstream
       '@astrojs/markdown-remark': link:packages/markdown/remark
       '@astrojs/telemetry': link:packages/telemetry
-      '@astrojs/webapi': 2.2.0
-=======
-      '@astrojs/markdown-remark': 2.2.1(astro@2.9.6)
-=======
-      '@astrojs/compiler': 1.6.0
-      '@astrojs/internal-helpers': 0.1.1
-      '@astrojs/markdown-remark': 2.2.1(astro@2.9.3)
->>>>>>> Stashed changes
-      '@astrojs/telemetry': 2.1.1
->>>>>>> Stashed changes
       '@babel/core': 7.22.5
       '@babel/generator': 7.22.5
       '@babel/parser': 7.22.5
@@ -18668,7 +18562,7 @@ packages:
       esbuild: 0.18.16
       estree-walker: 3.0.3
       execa: 6.1.0
-      fast-glob: 3.3.1
+      fast-glob: 3.2.12
       github-slugger: 2.0.0
       gray-matter: 4.0.3
       html-escaper: 3.0.3
@@ -18768,7 +18662,7 @@ packages:
       '@vercel/nft': 0.22.6
       astro: file:packages/astro(@types/node@18.16.18)(typescript@5.1.6)
       esbuild: 0.18.16
-      fast-glob: 3.3.1
+      fast-glob: 3.2.12
       set-cookie-parser: 2.6.0
       web-vitals: 3.3.2
     transitivePeerDependencies:
