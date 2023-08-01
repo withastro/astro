@@ -131,8 +131,8 @@ describe('astro cli', () => {
 
 				// Note: our tests run in parallel so this could be 3000+!
 				expect(Number.parseInt(localURL.port)).to.be.greaterThanOrEqual(
-					3000,
-					`Expected Port to be >= 3000`
+					4321,
+					`Expected Port to be >= 4321`
 				);
 				expect(networkURL.port).to.be.equal(
 					localURL.port,
