@@ -4,6 +4,6 @@ import mdx from '@astrojs/mdx';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'http://localhost:3000',
+	site: 'http://localhost:4321',
 	integrations: [image({ logLevel: 'silent', serviceEntryPoint: '@astrojs/image/sharp' }), mdx()]
 });
