@@ -4,8 +4,7 @@ import type {
 	AstroFeatureMap,
 	SupportsKind,
 } from '../@types/astro';
-import { error, type LogOptions, warn } from '../core/logger/core.js';
-import { bold } from 'kleur/colors';
+import { error, warn, type LogOptions } from '../core/logger/core.js';
 
 const STABLE = 'stable';
 const DEPRECATED = 'deprecated';
@@ -140,9 +139,7 @@ function validateAssetsFeature(
 		error(
 			logging,
 			'astro',
-			`The currently selected adapter \`${adapterName}\` is not compatible with the service "Sharp". ${bold(
-				'Your project will NOT be able to build.'
-			)}`
+			`The currently selected adapter \`${adapterName}\` is not compatible with the image service "Sharp".`
 		);
 		return false;
 	}
@@ -151,9 +148,7 @@ function validateAssetsFeature(
 		error(
 			logging,
 			'astro',
-			`The currently selected adapter \`${adapterName}\` is not compatible with the service "Squoosh". ${bold(
-				'Your project will NOT be able to build.'
-			)}`
+			`The currently selected adapter \`${adapterName}\` is not compatible with the image service "Squoosh".`
 		);
 		return false;
 	}
