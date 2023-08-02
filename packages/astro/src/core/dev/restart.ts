@@ -10,12 +10,11 @@ import { createSafeError } from '../errors/index.js';
 import { info, error as logError } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import type { Container } from './container';
-import { createContainer, isStarted, startContainer } from './container.js';
+import { createContainer, startContainer } from './container.js';
 
 async function createRestartedContainer(
 	container: Container,
-	settings: AstroSettings,
-	needsStart: boolean
+	settings: AstroSettings
 ): Promise<Container> {
 	const { logging, fs, inlineConfig } = container;
 	const newContainer = await createContainer({
@@ -26,9 +25,7 @@ async function createRestartedContainer(
 		fs,
 	});
 
-	if (needsStart) {
-		await startContainer(newContainer);
-	}
+	await startContainer(newContainer);
 
 	return newContainer;
 }
@@ -62,21 +59,15 @@ export function shouldRestartContainer(
 	return shouldRestart;
 }
 
-export async function restartContainer(
-	container: Container
-): Promise<{ container: Container; error: Error | null }> {
+export async function restartContainer(container: Container): Promise<Container | Error> {
 	const { logging, close, settings: existingSettings } = container;
 	container.restartInFlight = true;
 
-	const needsStart = isStarted(container);
 	try {
 		const { astroConfig } = await resolveConfig(container.inlineConfig, 'dev', container.fs);
 		const settings = createSettings(astroConfig, fileURLToPath(existingSettings.config.root));
 		await close();
-		return {
-			container: await createRestartedContainer(container, settings, needsStart),
-			error: null,
-		};
+		return await createRestartedContainer(container, settings);
 	} catch (_err) {
 		const error = createSafeError(_err);
 		// Print all error messages except ZodErrors from AstroConfig as the pre-logged error is sufficient
@@ -91,12 +82,9 @@ export async function restartContainer(
 				stack: error.stack || '',
 			},
 		});
-		await close();
+		container.restartInFlight = false;
 		info(logging, 'astro', 'Continuing with previous valid configuration\n');
-		return {
-			container: await createRestartedContainer(container, existingSettings, needsStart),
-			error,
-		};
+		return error;
 	}
 }
 
@@ -137,11 +125,16 @@ export async function createContainerWithAutomaticRestart({
 	async function handleServerRestart(logMsg: string) {
 		info(logging, 'astro', logMsg + '\n');
 		const container = restart.container;
-		const { container: newContainer, error } = await restartContainer(container);
-		restart.container = newContainer;
-		// Add new watches because this is a new container with a new Vite server
-		addWatches();
-		resolveRestart(error);
+		const result = await restartContainer(container);
+		if (result instanceof Error) {
+			// Failed to restart, use existing container
+			resolveRestart(result);
+		} else {
+			// Restart success. Add new watches because this is a new container with a new Vite server
+			restart.container = result;
+			addWatches();
+			resolveRestart(null);
+		}
 		restartComplete = new Promise<Error | null>((resolve) => {
 			resolveRestart = resolve;
 		});
