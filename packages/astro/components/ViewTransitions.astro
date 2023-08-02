@@ -34,6 +34,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		!!document.querySelector('[name="astro-view-transitions-enabled"]');
 	const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
 	const onload = () => triggerEvent('astro:load');
+	const PERSIST_ATTR = 'data-astro-transition-persist';
 
 	const throttle = (cb: (...args: any[]) => any, delay: number) => {
 		let wait = false;
@@ -86,9 +87,51 @@ const { fallback = 'animate' } = Astro.props as Props;
 	async function updateDOM(dir: Direction, html: string, state?: State, fallback?: Fallback) {
 		const doc = parser.parseFromString(html, 'text/html');
 		doc.documentElement.dataset.astroTransition = dir;
-		const swap = () => {
-			document.documentElement.replaceWith(doc.documentElement);
 
+		// Check for a head element that should persist, either because it has the data
+		// attribute or is a link el.
+		const persistedHeadElement = (el: Element): Element | null => {
+			const id = el.getAttribute(PERSIST_ATTR);
+			const newEl = id && doc.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
+			if(newEl) {
+				return newEl;
+			}
+			if(el.matches('link[rel=stylesheet]')) {
+				const href = el.getAttribute('href');
+				return doc.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
+			}
+			return null;
+		};
+
+		const swap = () => {
+			// Swap head
+			for(const el of Array.from(document.head.children)) {
+				const newEl = persistedHeadElement(el);
+				// If the element exists in the document already, remove it
+				// from the new document and leave the current node alone
+				if(newEl) {
+					newEl.remove();
+				} else {
+					// Otherwise remove the element in the head. It doesn't exist in the new page.
+					el.remove();
+				}
+			}
+			// Everything left in the new head is new, append it all.
+			document.head.append(...doc.head.children);
+
+			// Move over persist stuff in the body
+			const oldBody = document.body;
+			document.body.replaceWith(doc.body);
+			for(const el of oldBody.querySelectorAll(`[${PERSIST_ATTR}]`)) {
+				const id = el.getAttribute(PERSIST_ATTR);
+				const newEl = document.querySelector(`[${PERSIST_ATTR}="${id}"]`);
+				if(newEl) {
+					// The element exists in the new page, replace it with the element
+					// from the old page so that state is preserved.
+					newEl.replaceWith(el);
+				}
+			}
+			
 			if (state?.scrollY != null) {
 				scrollTo(0, state.scrollY);
 			}
@@ -97,17 +140,21 @@ const { fallback = 'animate' } = Astro.props as Props;
 		};
 
 		// Wait on links to finish, to prevent FOUC
-		const links = Array.from(doc.querySelectorAll('head link[rel=stylesheet]')).map(
-			(link) =>
-				new Promise((resolve) => {
-					const c = link.cloneNode();
+		const links: Promise<any>[] = [];
+		for(const el of doc.querySelectorAll('head link[rel=stylesheet]')) {
+			// Do not preload links that are already on the page.
+			if(!document.querySelector(`[${PERSIST_ATTR}="${el.getAttribute(PERSIST_ATTR)}"], link[rel=stylesheet]`)) {
+				const c = document.createElement('link');
+				c.setAttribute('rel', 'preload');
+				c.setAttribute('as', 'style');
+				c.setAttribute('href', el.getAttribute('href')!);
+				links.push(new Promise<any>(resolve => {
 					['load', 'error'].forEach((evName) => c.addEventListener(evName, resolve));
 					document.head.append(c);
-				})
-		);
-		if (links.length) {
-			await Promise.all(links);
+				}));
+			}
 		}
+		links.length && await Promise.all(links);
 
 		if (fallback === 'animate') {
 			let isAnimating = false;
