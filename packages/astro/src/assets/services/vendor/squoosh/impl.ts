@@ -33,7 +33,7 @@ export async function decodeBuffer(
     .join('')
 	// TODO (future PR): support more formats
 	if (firstChunkString.includes('GIF')) {
-		throw Error(`GIF images are not supported, please install the @astrojs/image/sharp plugin`)
+		throw Error(`GIF images are not supported, please use the Sharp image service`)
 	}
   const key = Object.entries(supportedFormats).find(([, { detectors }]) =>
     detectors.some((detector) => detector.exec(firstChunkString))
@@ -78,7 +78,7 @@ export async function encodeJpeg(
   opts: { quality?: number }
 ): Promise<Uint8Array> {
   image = ImageData.from(image)
-	
+
   const e = supportedFormats['mozjpeg']
   const m = await e.enc()
   await maybeDelay()

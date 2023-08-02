@@ -9,7 +9,6 @@
     "@astrojs/alpinejs": "0.2.2",
     "@astrojs/cloudflare": "6.6.2",
     "@astrojs/deno": "4.3.0",
-    "@astrojs/image": "0.17.2",
     "@astrojs/lit": "2.1.0",
     "@astrojs/markdoc": "0.4.4",
     "@astrojs/mdx": "0.19.7",
