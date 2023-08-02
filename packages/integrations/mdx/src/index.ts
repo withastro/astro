@@ -171,11 +171,14 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 										code += `\nexport const file = ${JSON.stringify(fileId)};`;
 									}
 									if (!moduleExports.find(({ n }) => n === 'Content')) {
+										// If have `export const components`, pass that as props to `Content` as fallback
+										const hasComponents = moduleExports.find(({ n }) => n === 'components');
+
 										// Make `Content` the default export so we can wrap `MDXContent` and pass in `Fragment`
 										code = code.replace('export default MDXContent;', '');
 										code += `\nexport const Content = (props = {}) => MDXContent({
 											...props,
-											components: { Fragment, ...props.components },
+											components: { Fragment${hasComponents ? ', ...components' : ''}, ...props.components },
 										});
 										export default Content;`;
 									}
