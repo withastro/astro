@@ -225,7 +225,7 @@ export async function runHookConfigDone({
 								info(
 									logging,
 									'astro',
-									`The selected adapter ${adapter.name} does not support Sharp or Squoosh as image services. To ensure your project still build, image processing has been disabled.`
+									`The selected adapter ${adapter.name} does not support Sharp or Squoosh for image processing. To ensure your project is still able to build, image processing has been disabled.`
 								);
 								settings.config.image.service = {
 									entrypoint: 'astro/assets/services/noop',
