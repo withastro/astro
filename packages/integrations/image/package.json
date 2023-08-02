@@ -45,7 +45,7 @@
     "http-cache-semantics": "^4.1.1",
     "image-size": "^1.0.2",
     "kleur": "^4.1.5",
-    "magic-string": "^0.27.0",
+    "magic-string": "^0.30.2",
     "mime": "^3.0.0"
   },
   "devDependencies": {
