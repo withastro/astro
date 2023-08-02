@@ -22,4 +22,4 @@ Likewise, this feature works with any client-side framework component island. In
 <Counter count={5} client:load transition:persist />
 ```
 
-See the [docs](https://docs.astro.build/en/guides/view-transitions/#maintaining-state) to learn more on usage.
+See our [View Transitions Guide](https://docs.astro.build/en/guides/view-transitions/#maintaining-state) to learn more on usage.
