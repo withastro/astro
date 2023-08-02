@@ -18,7 +18,7 @@ import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/index.js';
-import { info, warn, error, type LogOptions, AstroIntegrationLogger } from '../core/logger/core.js';
+import { AstroIntegrationLogger, error, info, warn, type LogOptions } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { validateSupportedFeatures } from './astroFeaturesValidation.js';
 
@@ -220,6 +220,17 @@ export async function runHookConfigDone({
 										`The adapter ${adapter.name} doesn't support the feature ${featureName}. Your project won't be built. You should not use it.`
 									);
 								}
+							}
+							if (!validationResult.assets) {
+								info(
+									logging,
+									'astro',
+									`The selected adapter ${adapter.name} does not support Sharp or Squoosh for image processing. To ensure your project is still able to build, image processing has been disabled.`
+								);
+								settings.config.image.service = {
+									entrypoint: 'astro/assets/services/noop',
+									config: {},
+								};
 							}
 						}
 						settings.adapter = adapter;
