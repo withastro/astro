@@ -187,7 +187,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				transitionEnabledOnThisPage()
 			) {
 				ev.preventDefault();
-				navigate('forward', link.href, { index:currentHistoryIndex, scrollY:0 });
+				navigate('forward', link.href, { index: currentHistoryIndex, scrollY: 0 });
 				currentHistoryIndex++;
 				const newState: State = { index: currentHistoryIndex, scrollY };
 				persistState({ index: currentHistoryIndex - 1, scrollY });
