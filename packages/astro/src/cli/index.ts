@@ -154,18 +154,12 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 		case 'check': {
 			const { check } = await import('./check/index.js');
-			// We create a server to start doing our operations
-			const checkServer = await check({ flags });
-			if (checkServer) {
-				if (checkServer.isWatchMode) {
-					await checkServer.watch();
-					return await new Promise(() => {}); // lives forever
-				} else {
-					const checkResult = await checkServer.check();
-					return process.exit(checkResult);
-				}
+			const checkServer = await check(flags);
+			if (flags.watch) {
+				return await new Promise(() => {}); // lives forever
+			} else {
+				return process.exit(checkServer ? 1 : 0);
 			}
-			return;
 		}
 		case 'sync': {
 			const { sync } = await import('./sync/index.js');
