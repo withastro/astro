@@ -6,7 +6,7 @@ Persistent DOM and Islands in Experimental View Transitions
 
 If you have `viewTransitions: true` enabled in your Astro config's experimental section, you can now take advantage of the new `transition:persist` directive. With this directive, you can keep the state of DOM elements and islands on the old page when transitioning to the new page.
 
-For example, say you have a Video playing, it might look like this:
+For example, to keep a video playing across page navigation, add `transition:persist` to the element:
 
 ```astro
 <video controls="" autoplay="" transition:persist>
@@ -14,7 +14,7 @@ For example, say you have a Video playing, it might look like this:
 </video>
 ```
 
-In 2.10 you can now add the `transition:persist` directive and this video will be moved over to the next page (if the video also exists on that page).
+This `<video>` element, with its current state, will be moved over to the next page (if the video also exists on that page).
 
 Likewise, this feature works with any client-side framework component island. In this example, a counter's state is preserved and moved to the new page:
 
