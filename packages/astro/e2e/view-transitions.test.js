@@ -252,7 +252,7 @@ test.describe('View Transitions', () => {
 		const vid = page.locator('video[data-ready]');
 		await expect(vid).toBeVisible();
 		const firstTime = await page.evaluate(getTime);
-		
+
 		// Navigate to page 2
 		await page.click('#click-two');
 		const p = page.locator('#video-two');
@@ -270,7 +270,7 @@ test.describe('View Transitions', () => {
 
 		await page.click('.increment');
 		await expect(cnt).toHaveText('6');
-		
+
 		// Navigate to page 2
 		await page.click('#click-two');
 		const p = page.locator('#island-two');
