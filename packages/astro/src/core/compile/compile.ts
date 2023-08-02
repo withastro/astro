@@ -46,6 +46,7 @@ export async function compile({
 			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
 			resultScopedSlot: true,
 			experimentalTransitions: astroConfig.experimental.viewTransitions,
+			experimentalPersistence: astroConfig.experimental.viewTransitions,
 			transitionsAnimationURL: 'astro/components/viewtransitions.css',
 			preprocessStyle: createStylePreprocessor({
 				filename,

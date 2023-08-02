@@ -92,6 +92,7 @@ export interface AstroBuiltinAttributes {
 	'is:raw'?: boolean;
 	'transition:animate'?: 'morph' | 'slide' | 'fade' | TransitionDirectionalAnimations;
 	'transition:name'?: string;
+	'transition:persist'?: boolean | string;
 }
 
 export interface AstroDefineVarsAttribute {
