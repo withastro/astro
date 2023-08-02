@@ -4,7 +4,7 @@
 
 Persistent DOM and Islands in Experimental View Transitions
 
-If you have `viewTransitions: true` enabled in your Astro config's experimental section, you can now take advantage of the new `transition:persist` directive. With this directive you can keep the state of DOM elements and islands on the old page when transitioning to the new page.
+If you have `viewTransitions: true` enabled in your Astro config's experimental section, you can now take advantage of the new `transition:persist` directive. With this directive, you can keep the state of DOM elements and islands on the old page when transitioning to the new page.
 
 For example, say you have a Video playing, it might look like this:
 
