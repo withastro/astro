@@ -117,7 +117,6 @@
   "dependencies": {
     "@astrojs/compiler": "^1.8.0",
     "@astrojs/internal-helpers": "workspace:*",
-    "@astrojs/language-server": "^1.0.0",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
     "@babel/core": "^7.22.5",
@@ -165,7 +164,6 @@
     "string-width": "^5.1.2",
     "strip-ansi": "^7.1.0",
     "tsconfig-resolver": "^3.0.1",
-    "typescript": "*",
     "unist-util-visit": "^4.1.2",
     "vfile": "^5.3.7",
     "vite": "^4.4.6",
@@ -197,6 +195,7 @@
     "@types/send": "^0.17.1",
     "@types/server-destroy": "^1.0.1",
     "@types/unist": "^2.0.6",
+    "@astrojs/check": "^0.1.0",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
