@@ -16,7 +16,7 @@ describe('astro/src/core/cookies', () => {
 			expect(cookies.get('foo').value).to.equal('bar');
 		});
 
-		it('Returns undefined is the value doesn\'t exist', () => {
+		it("Returns undefined is the value doesn't exist", () => {
 			const req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);
 			let cookie = cookies.get('foo');
