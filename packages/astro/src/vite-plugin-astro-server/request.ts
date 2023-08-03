@@ -7,7 +7,7 @@ import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { createSafeError } from '../core/errors/index.js';
 import { error } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
-import { removeTrailingForwardSlash } from '../core/path.js';
+import { removeTrailingForwardSlash, collapseDuplicateSlashes } from '../core/path.js';
 import { eventError, telemetry } from '../events/index.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { runWithErrorHandling } from './controller.js';
@@ -44,9 +44,10 @@ export async function handleRequest({
 	} else {
 		pathname = decodeURI(url.pathname);
 	}
+	pathname = collapseDuplicateSlashes(pathname);
 
 	// Add config.base back to url before passing it to SSR
-	url.pathname = removeTrailingForwardSlash(config.base) + url.pathname;
+	url.pathname = removeTrailingForwardSlash(config.base) + collapseDuplicateSlashes(url.pathname);
 
 	// HACK! @astrojs/image uses query params for the injected route in `dev`
 	if (!buildingToSSR && pathname !== '/_image') {

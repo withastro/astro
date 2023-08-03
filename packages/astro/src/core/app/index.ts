@@ -10,7 +10,7 @@ import type { SinglePageBuiltModule } from '../build/types';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
-import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import { prependForwardSlash, removeTrailingForwardSlash, collapseDuplicateSlashes } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { isResponse } from '../render/core.js';
 import {
@@ -126,7 +126,7 @@ export class App {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
 		if (this.#manifest.assets.has(url.pathname)) return undefined;
-		let pathname = prependForwardSlash(this.removeBase(url.pathname));
+		let pathname = prependForwardSlash(collapseDuplicateSlashes(this.removeBase(url.pathname)));
 		let routeData = matchRoute(pathname, this.#manifestData);
 		// missing routes fall-through, prerendered are handled by static layer
 		if (!routeData || routeData.prerender) return undefined;
@@ -146,6 +146,7 @@ export class App {
 
 		const pageModule = (await mod.page()) as any;
 		const url = new URL(request.url);
+		url.pathname = collapseDuplicateSlashes(url.pathname);
 
 		const renderContext = await this.#createRenderContext(
 			url,
