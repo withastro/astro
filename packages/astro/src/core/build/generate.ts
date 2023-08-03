@@ -35,7 +35,8 @@ import {
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError } from '../errors/index.js';
+import * as AstroErrorData from '../errors/errors-data.js';
 import { debug, info } from '../logger/core.js';
 import { RedirectSinglePageBuiltModule, getRedirectLocationOrThrow } from '../redirects/index.js';
 import { isEndpointResult } from '../render/core.js';

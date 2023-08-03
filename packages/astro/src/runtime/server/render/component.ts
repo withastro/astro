@@ -5,8 +5,8 @@ import type {
 	SSRResult,
 } from '../../../@types/astro';
 import type { RenderInstruction } from './types.js';
-
-import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
+import * as AstroErrorData from '../../../core/errors/errors-data.js';
+import { AstroError } from '../../../core/errors/index.js';
 import { HTMLBytes, markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';

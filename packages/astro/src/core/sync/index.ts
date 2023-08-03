@@ -15,8 +15,9 @@ import { resolveConfig } from '../config/config.js';
 import { createNodeLogging } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
-import { AstroError, AstroErrorData, createSafeError, isAstroError } from '../errors/index.js';
+import { AstroError, createSafeError, isAstroError } from '../errors/index.js';
 import { info, type LogOptions } from '../logger/core.js';
+import * as AstroErrorData from '../errors/errors-data.js';
 
 export type ProcessExit = 0 | 1;
 

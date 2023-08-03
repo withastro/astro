@@ -1,8 +1,9 @@
 import type { ComponentInstance, Params, Props, RouteData } from '../../@types/astro';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError } from '../errors/index.js';
 import type { LogOptions } from '../logger/core.js';
 import { getParams } from '../routing/params.js';
 import { RouteCache, callGetStaticPaths, findPathItemByKey } from './route-cache.js';
+import * as AstroErrorData from '../errors/errors-data.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance;

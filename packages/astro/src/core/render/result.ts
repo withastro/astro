@@ -11,8 +11,9 @@ import { renderSlotToString, type ComponentSlots } from '../../runtime/server/in
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { chunkToString } from '../../runtime/server/render/index.js';
 import { AstroCookies } from '../cookies/index.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
+import * as AstroErrorData from '../errors/errors-data.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');

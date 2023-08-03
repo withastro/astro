@@ -1,5 +1,6 @@
 import type { RouteData, SSRResult } from '../../../../@types/astro';
-import { AstroError, AstroErrorData } from '../../../../core/errors/index.js';
+import { AstroError } from '../../../../core/errors/index.js';
+import * as AstroErrorData from '../../../../core/errors/errors-data.js';
 import { chunkToByteArray, chunkToString, encoder, type RenderDestination } from '../common.js';
 import type { AstroComponentFactory } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';

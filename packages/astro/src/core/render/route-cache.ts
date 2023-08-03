@@ -7,9 +7,9 @@ import type {
 	RouteData,
 	RuntimeMode,
 } from '../../@types/astro';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError } from '../errors/index.js';
 import { debug, warn, type LogOptions } from '../logger/core.js';
-
+import * as AstroErrorData from '../errors/errors-data.js';
 import { stringifyParams } from '../routing/params.js';
 import { validateDynamicRouteModule, validateGetStaticPathsResult } from '../routing/validation.js';
 import { generatePaginateFunction } from './paginate.js';

@@ -2,7 +2,8 @@ import type { AstroSettings } from '../@types/astro.js';
 import type { PageOptions } from '../vite-plugin-astro/types.js';
 
 import * as eslexer from 'es-module-lexer';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroError } from '../core/errors/index.js';
+import * as AstroErrorData from '../core/errors/errors-data.js';
 
 const BOOLEAN_EXPORTS = new Set(['prerender']);
 

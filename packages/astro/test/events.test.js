@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { AstroErrorData } from '../dist/core/errors/errors-data.js';
+import * as AstroErrorData from '../dist/core/errors/errors-data.js';
 import { AstroError } from '../dist/core/errors/errors.js';
 import * as events from '../dist/events/index.js';
 

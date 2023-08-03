@@ -1,5 +1,6 @@
 import type { AstroSettings } from '../@types/astro.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroError } from '../core/errors/index.js';
+import * as AstroErrorData from '../core/errors/errors-data.js';
 import { isLocalService, type ImageService } from './services/service.js';
 import type { GetImageResult, ImageMetadata, ImageTransform } from './types.js';
 

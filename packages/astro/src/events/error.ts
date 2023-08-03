@@ -1,6 +1,7 @@
 import type { ZodError } from 'zod';
 import type { ErrorData } from '../core/errors/errors-data.js';
-import { AstroError, AstroErrorData, type ErrorWithMetadata } from '../core/errors/index.js';
+import { AstroError, type ErrorWithMetadata } from '../core/errors/index.js';
+import * as AstroErrorData from '../core/errors/errors-data.js';
 
 const EVENT_ERROR = 'ASTRO_CLI_ERROR';
 

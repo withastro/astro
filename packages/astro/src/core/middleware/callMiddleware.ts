@@ -5,9 +5,10 @@ import type {
 	MiddlewareHandler,
 	MiddlewareNext,
 } from '../../@types/astro';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError } from '../errors/index.js';
 import { warn } from '../logger/core.js';
 import type { Environment } from '../render';
+import * as AstroErrorData from '../errors/errors-data.js';
 
 /**
  * Utility function that is in charge of calling the middleware.

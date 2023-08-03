@@ -1,4 +1,5 @@
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { AstroError } from '../../core/errors/index.js';
+import * as AstroErrorData from '../../core/errors/errors-data.js';
 import { joinPaths } from '../../core/path.js';
 import { VALID_SUPPORTED_FORMATS } from '../consts.js';
 import { isESMImportedImage } from '../internal.js';

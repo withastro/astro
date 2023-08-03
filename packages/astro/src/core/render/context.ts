@@ -6,9 +6,10 @@ import type {
 	SSRElement,
 	SSRResult,
 } from '../../@types/astro';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError } from '../errors/index.js';
 import type { Environment } from './environment';
 import { getParamsAndProps } from './params-and-props.js';
+import * as AstroErrorData from '../errors/errors-data.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 

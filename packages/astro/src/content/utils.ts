@@ -14,7 +14,8 @@ import type {
 	ImageInputFormat,
 } from '../@types/astro.js';
 import { VALID_INPUT_FORMATS } from '../assets/consts.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroError } from '../core/errors/index.js';
+import * as AstroErrorData from '../core/errors/errors-data.js';
 
 import { formatYAMLException, isYAMLException } from '../core/errors/utils.js';
 import { CONTENT_FLAGS, CONTENT_TYPES_FILE } from './consts.js';

@@ -1,6 +1,7 @@
 import type { PropagationHint } from '../../@types/astro';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { AstroError } from '../../core/errors/index.js';
 import type { AstroComponentFactory } from './render/index.js';
+import * as AstroErrorData from '../../core/errors/errors-data.js';
 
 function validateArgs(args: unknown[]): args is Parameters<AstroComponentFactory> {
 	if (args.length !== 3) return false;

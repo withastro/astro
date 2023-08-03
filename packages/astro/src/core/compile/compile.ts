@@ -1,12 +1,11 @@
 import type { TransformResult } from '@astrojs/compiler';
 import type { ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../@types/astro';
-
+import * as AstroErrorData from '../errors/errors-data.js';
 import { transform } from '@astrojs/compiler';
 import { fileURLToPath } from 'node:url';
 import { normalizePath } from 'vite';
 import { AggregateError, AstroError, CompilerError } from '../errors/errors.js';
-import { AstroErrorData } from '../errors/index.js';
 import { resolvePath } from '../util.js';
 import { createStylePreprocessor } from './style.js';
 
@@ -87,6 +86,7 @@ function handleCompileResultErrors(result: TransformResult, cssTransformErrors: 
 
 	if (compilerError) {
 		throw new CompilerError({
+			name: 'CompilerError',
 			message: compilerError.text,
 			location: {
 				line: compilerError.location.line,

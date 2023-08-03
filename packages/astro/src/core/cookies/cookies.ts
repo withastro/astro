@@ -1,6 +1,7 @@
 import type { CookieSerializeOptions } from 'cookie';
 import { parse, serialize } from 'cookie';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError } from '../errors/index.js';
+import * as AstroErrorData from '../errors/errors-data.js';
 
 interface AstroCookieSetOptions {
 	domain?: string;

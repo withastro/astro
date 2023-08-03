@@ -4,10 +4,11 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { AstroError } from '../../core/errors/index.js';
 import { escapeHTML } from './escape.js';
 import { serializeProps } from './serialize.js';
 import { serializeListValue } from './util.js';
+import * as AstroErrorData from '../../core/errors/errors-data.js';
 
 export interface HydrationMetadata {
 	directive: string;

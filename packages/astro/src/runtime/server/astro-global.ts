@@ -1,6 +1,7 @@
 import type { AstroGlobalPartial } from '../../@types/astro';
 import { ASTRO_VERSION } from '../../core/constants.js';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { AstroError } from '../../core/errors/index.js';
+import * as AstroErrorData from '../../core/errors/errors-data.js';
 
 /** Create the Astro.glob() runtime function. */
 function createAstroGlobFn() {

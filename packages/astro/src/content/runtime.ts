@@ -1,6 +1,7 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { ZodIssueCode, string as zodString } from 'zod';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroError } from '../core/errors/index.js';
+import * as AstroErrorData from '../core/errors/errors-data.js';
 import { prependForwardSlash } from '../core/path.js';
 import {
 	createComponent,

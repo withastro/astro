@@ -9,7 +9,8 @@ import type {
 	SSRManifest,
 } from '../@types/astro';
 import { attachToResponse } from '../core/cookies/index.js';
-import { AstroErrorData, isAstroError } from '../core/errors/index.js';
+import { isAstroError } from '../core/errors/index.js';
+import * as AstroErrorData from '../core/errors/errors-data.js';
 import { warn } from '../core/logger/core.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import { isEndpointResult } from '../core/render/core.js';

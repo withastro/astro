@@ -1,7 +1,8 @@
 import type { TransformOptions } from '@astrojs/compiler';
 import fs from 'node:fs';
 import { preprocessCSS, type ResolvedConfig } from 'vite';
-import { AstroErrorData, CSSError, positionAt } from '../errors/index.js';
+import { CSSError, positionAt } from '../errors/index.js';
+import * as AstroErrorData from '../errors/errors-data.js';
 
 export function createStylePreprocessor({
 	filename,
@@ -88,6 +89,7 @@ function enhanceCSSError(err: any, filename: string, cssContent: string) {
 	errorPosition.line += 1;
 
 	return new CSSError({
+		name: 'CSSError',
 		message: err.message,
 		location: {
 			file: filename,

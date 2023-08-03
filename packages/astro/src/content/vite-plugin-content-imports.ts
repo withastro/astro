@@ -12,7 +12,7 @@ import type {
 	DataEntryModule,
 	DataEntryType,
 } from '../@types/astro.js';
-import { AstroErrorData } from '../core/errors/errors-data.js';
+import * as AstroErrorData from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG, DATA_FLAG } from './consts.js';
@@ -371,6 +371,7 @@ function stringifyEntryData(data: Record<string, any>): string {
 			});
 		} else {
 			throw new AstroError({
+				name: 'ContentImportsPluginError',
 				message: 'Unexpected error processing content collection data.',
 			});
 		}

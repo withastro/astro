@@ -1,6 +1,7 @@
 ---
 import { getImage, type LocalImageProps, type RemoteImageProps } from 'astro:assets';
-import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
+import { AstroError } from '../dist/core/errors/index.js';
+import { ImageMissingAlt } from '../dist/core/errors/errors-data.js';
 
 // The TypeScript diagnostic for JSX props uses the last member of the union to suggest props, so it would be better for
 // LocalImageProps to be last. Unfortunately, when we do this the error messages that remote images get are complete nonsense
@@ -10,7 +11,7 @@ type Props = LocalImageProps | RemoteImageProps;
 const props = Astro.props;
 
 if (props.alt === undefined || props.alt === null) {
-	throw new AstroError(AstroErrorData.ImageMissingAlt);
+	throw new AstroError(ImageMissingAlt);
 }
 
 // As a convenience, allow width and height to be string with a number in them, to match HTML's native `img`.
