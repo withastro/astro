@@ -29,7 +29,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 		split: false,
 		excludeMiddleware: false,
 	},
-	compressHTML: false,
+	compressHTML: true,
 	server: {
 		host: false,
 		port: 4321,

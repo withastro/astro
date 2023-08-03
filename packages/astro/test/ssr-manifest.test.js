@@ -11,7 +11,6 @@ describe('astro:ssr-manifest', () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-manifest/',
 			output: 'server',
-			compressHTML: true,
 			adapter: testAdapter(),
 		});
 		await fixture.build();
