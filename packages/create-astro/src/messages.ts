@@ -83,7 +83,8 @@ export const getVersion = () =>
 		if (v) return resolve(v);
 		let registry = await getRegistry();
 		const { version } = await fetch(`${registry}/astro/latest`, { redirect: 'follow' }).then(
-			(res) => res.json()
+			(res) => res.json(),
+			() => ({ version: '' })
 		);
 		v = version;
 		resolve(version);
