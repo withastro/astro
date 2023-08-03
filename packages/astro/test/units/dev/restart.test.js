@@ -4,12 +4,15 @@ import { fileURLToPath } from 'node:url';
 
 import {
 	createContainerWithAutomaticRestart,
-	isStarted,
 	startContainer,
 } from '../../../dist/core/dev/index.js';
 import { createFs, createRequestAndResponse, triggerFSEvent } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
+
+function isStarted(container) {
+	return !!container.viteServer.httpServer?.listening;
+}
 
 describe('dev container restarts', () => {
 	it('Surfaces config errors on restarts', async () => {
