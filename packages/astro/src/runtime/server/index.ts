@@ -36,7 +36,7 @@ export type {
 	ComponentSlots,
 	RenderInstruction,
 } from './render/index.js';
-export { renderTransition } from './transition.js';
+export { renderTransition, createTransitionScope } from './transition.js';
 
 import { markHTMLString } from './escape.js';
 import { addAttribute, Renderer } from './render/index.js';
