@@ -126,13 +126,17 @@ export class App {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
 		if (this.#manifest.assets.has(url.pathname)) return undefined;
-		let pathname = prependForwardSlash(collapseDuplicateSlashes(this.removeBase(url.pathname)));
-		let routeData = matchRoute(pathname, this.#manifestData);
+		const pathname = prependForwardSlash(this.removeBase(url.pathname));
+		const routeData = matchRoute(pathname, this.#manifestData);
 		// missing routes fall-through, prerendered are handled by static layer
 		if (!routeData || routeData.prerender) return undefined;
 		return routeData;
 	}
 	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {
+		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
+		if (request.url !== collapseDuplicateSlashes(request.url)) {
+			request = new Request(collapseDuplicateSlashes(request.url), request);
+		}
 		if (!routeData) {
 			routeData = this.match(request);
 		}
@@ -146,7 +150,6 @@ export class App {
 
 		const pageModule = (await mod.page()) as any;
 		const url = new URL(request.url);
-		url.pathname = collapseDuplicateSlashes(url.pathname);
 
 		const renderContext = await this.#createRenderContext(
 			url,
