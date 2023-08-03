@@ -6,7 +6,7 @@
     "build": "astro build"
   },
   "dependencies": {
-    "@astrojs/netlify": "file:../../..",
-    "astro": "file:../../../../../astro"
+    "@astrojs/netlify": "workspace:*",
+    "astro": "workspace:*"
   }
 }
