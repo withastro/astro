@@ -1,5 +1,7 @@
 ---
 const origin = Astro.url.origin;
+const requestPathname = new URL(Astro.request.url).pathname;
+const pathname = Astro.url.pathname;
 ---
 
 <html>
@@ -15,6 +17,8 @@ const origin = Astro.url.origin;
 	</script>
 </head>
 <body>
-<h1 id="origin">{origin}</h1>
+<p id="origin">{origin}</p>
+<p id="pathname">{pathname}</p>
+<p id="request-pathname">{requestPathname}</p>
 </body>
 </html>
