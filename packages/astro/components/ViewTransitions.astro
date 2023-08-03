@@ -168,18 +168,13 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 			// Trigger the animations
 			document.documentElement.dataset.astroTransitionFallback = 'old';
-			const fallbackSwap = () => {
-				removeEventListener('animationend', fallbackSwap);
-				clearTimeout(timeout);
-				swap();
-				document.documentElement.dataset.astroTransitionFallback = 'new';
-			};
+			doc.documentElement.dataset.astroTransitionFallback = 'new';
 			// If there are any animations, want for the animationend event.
-			addEventListener('animationend', fallbackSwap, { once: true });
+			addEventListener('animationend', swap, { once: true });
 			// If there are no animations, go ahead and swap on next tick
 			// This is necessary because we do not know if there are animations.
 			// The setTimeout is a fallback in case there are none.
-			var timeout = setTimeout(() => !isAnimating && fallbackSwap());
+			setTimeout(() => !isAnimating && swap());
 		} else {
 			swap();
 		}
