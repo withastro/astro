@@ -37,17 +37,16 @@ export async function handleRequest({
 	const origin = `${moduleLoader.isHttps() ? 'https' : 'http'}://${incomingRequest.headers.host}`;
 	const buildingToSSR = isServerLikeOutput(config);
 
-	const url = new URL(origin + incomingRequest.url);
+	const url = new URL(origin + collapseDuplicateSlashes(incomingRequest.url));
 	let pathname: string;
 	if (config.trailingSlash === 'never' && !incomingRequest.url) {
 		pathname = '';
 	} else {
 		pathname = decodeURI(url.pathname);
 	}
-	pathname = collapseDuplicateSlashes(pathname);
 
 	// Add config.base back to url before passing it to SSR
-	url.pathname = removeTrailingForwardSlash(config.base) + collapseDuplicateSlashes(url.pathname);
+	url.pathname = removeTrailingForwardSlash(config.base) + url.pathname;
 
 	// HACK! @astrojs/image uses query params for the injected route in `dev`
 	if (!buildingToSSR && pathname !== '/_image') {
