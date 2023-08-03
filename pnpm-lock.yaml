@@ -4529,11 +4529,11 @@ importers:
   packages/integrations/netlify/test/hosted/hosted-astro-project:
     dependencies:
       '@astrojs/netlify':
-        specifier: file:../../..
-        version: file:packages/integrations/netlify(astro@2.10.0)
+        specifier: workspace:*
+        version: link:../../..
       astro:
-        specifier: file:../../../../../astro
-        version: file:packages/astro(@types/node@18.16.18)
+        specifier: workspace:*
+        version: link:../../../../../astro
 
   packages/integrations/node:
     dependencies:
@@ -5676,10 +5676,6 @@ packages:
       which-pm-runs: 1.1.0
     transitivePeerDependencies:
       - supports-color
-    dev: false
-
-  /@astrojs/underscore-redirects@0.2.0:
-    resolution: {integrity: sha512-TP+uEdqMGNC7Lyci6WmbHvvMElBDSyHlTsvGH9E9/2duvD/n4KJVyr59klycEroaZJiAi5tzlXL8Jsl9/R32gQ==}
     dev: false
 
   /@astrojs/webapi@2.2.0:
@@ -18811,21 +18807,6 @@ packages:
     version: 0.0.0
     dependencies:
       solid-js: 1.7.6
-    dev: false
-
-  file:packages/integrations/netlify(astro@2.10.0):
-    resolution: {directory: packages/integrations/netlify, type: directory}
-    id: file:packages/integrations/netlify
-    name: '@astrojs/netlify'
-    version: 2.5.2
-    peerDependencies:
-      astro: '*'
-    dependencies:
-      '@astrojs/underscore-redirects': 0.2.0
-      '@astrojs/webapi': 2.2.0
-      '@netlify/functions': 1.6.0
-      astro: file:packages/astro(@types/node@18.16.18)
-      esbuild: 0.15.18
     dev: false
 
   file:packages/integrations/vercel(astro@2.10.0):
