@@ -10,7 +10,11 @@ import type { SinglePageBuiltModule } from '../build/types';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
-import { prependForwardSlash, removeTrailingForwardSlash, collapseDuplicateSlashes } from '../path.js';
+import {
+	collapseDuplicateSlashes,
+	prependForwardSlash,
+	removeTrailingForwardSlash,
+} from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { isResponse } from '../render/core.js';
 import {
