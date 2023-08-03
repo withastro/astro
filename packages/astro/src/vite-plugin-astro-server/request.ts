@@ -37,7 +37,7 @@ export async function handleRequest({
 	const origin = `${moduleLoader.isHttps() ? 'https' : 'http'}://${incomingRequest.headers.host}`;
 	const buildingToSSR = isServerLikeOutput(config);
 
-	const url = new URL(origin + collapseDuplicateSlashes(incomingRequest.url));
+	const url = new URL(collapseDuplicateSlashes(origin + incomingRequest.url));
 	let pathname: string;
 	if (config.trailingSlash === 'never' && !incomingRequest.url) {
 		pathname = '';
