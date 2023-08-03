@@ -10,7 +10,7 @@ import type { SinglePageBuiltModule } from '../build/types';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
-import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import { prependForwardSlash, removeTrailingForwardSlash, collapseDuplicateSlashes } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { isResponse } from '../render/core.js';
 import {
@@ -126,13 +126,17 @@ export class App {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
 		if (this.#manifest.assets.has(url.pathname)) return undefined;
-		let pathname = prependForwardSlash(this.removeBase(url.pathname));
-		let routeData = matchRoute(pathname, this.#manifestData);
+		const pathname = prependForwardSlash(this.removeBase(url.pathname));
+		const routeData = matchRoute(pathname, this.#manifestData);
 		// missing routes fall-through, prerendered are handled by static layer
 		if (!routeData || routeData.prerender) return undefined;
 		return routeData;
 	}
 	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {
+		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
+		if (request.url !== collapseDuplicateSlashes(request.url)) {
+			request = new Request(collapseDuplicateSlashes(request.url), request);
+		}
 		if (!routeData) {
 			routeData = this.match(request);
 		}

@@ -7,7 +7,7 @@ import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { createSafeError } from '../core/errors/index.js';
 import { error } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
-import { removeTrailingForwardSlash } from '../core/path.js';
+import { removeTrailingForwardSlash, collapseDuplicateSlashes } from '../core/path.js';
 import { eventError, telemetry } from '../events/index.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { runWithErrorHandling } from './controller.js';
@@ -37,7 +37,7 @@ export async function handleRequest({
 	const origin = `${moduleLoader.isHttps() ? 'https' : 'http'}://${incomingRequest.headers.host}`;
 	const buildingToSSR = isServerLikeOutput(config);
 
-	const url = new URL(origin + incomingRequest.url);
+	const url = new URL(collapseDuplicateSlashes(origin + incomingRequest.url));
 	let pathname: string;
 	if (config.trailingSlash === 'never' && !incomingRequest.url) {
 		pathname = '';
