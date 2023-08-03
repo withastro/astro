@@ -1,5 +1,224 @@
 # astro
 
+## 3.0.0-beta.0
+
+### Major Changes
+
+- [`1eae2e3f7`](https://github.com/withastro/astro/commit/1eae2e3f7d693c9dfe91c8ccfbe606d32bf2fb81) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove support for Node 16. The lowest supported version by Astro and all integrations is now v18.14.1. As a reminder, Node 16 will be deprecated on the 11th September 2023.
+
+- [`76ddef19c`](https://github.com/withastro/astro/commit/76ddef19ccab6e5f7d3a5740cd41acf10e334b38) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Removed automatic flattening of `getStaticPaths` result. `.flatMap` and `.flat` should now be used to ensure that you're returning a flat array.
+
+- [`3fdf509b2`](https://github.com/withastro/astro/commit/3fdf509b2731a9b2f972d89291e57cf78d62c769) Thanks [@ematipico](https://github.com/ematipico)! - The `build.split` and `build.excludeMiddleware` configuration options are deprecated and have been replaced by options in the adapter config.
+
+  If your config includes the `build.excludeMiddleware` option, replace it with `edgeMiddleware` in your adapter options:
+
+  ```diff
+  import { defineConfig } from "astro/config";
+  import netlify from "@astrojs/netlify/functions";
+
+  export default defineConfig({
+       build: {
+  -        excludeMiddleware: true
+       },
+       adapter: netlify({
+  +        edgeMiddleware: true
+       }),
+  });
+  ```
+
+  If your config includes the `build.split` option, replace it with `functionPerRoute` in your adapter options:
+
+  ```diff
+  import { defineConfig } from "astro/config";
+  import netlify from "@astrojs/netlify/functions";
+
+  export default defineConfig({
+       build: {
+  -        split: true
+       },
+       adapter: netlify({
+  +        functionPerRoute: true
+       }),
+  });
+  ```
+
+- [`2f951cd40`](https://github.com/withastro/astro/commit/2f951cd403dfcc2c3ca6aae618ae3e1409516e32) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Sharp is now the default image service used for `astro:assets`. If you would prefer to still use Squoosh, you can update your config with the following:
+
+  ```ts
+  import { defineConfig, squooshImageService } from 'astro/config';
+
+  // https://astro.build/config
+  export default defineConfig({
+    image: {
+      service: squooshImageService(),
+    },
+  });
+  ```
+
+  However, not only do we recommend using Sharp as it is faster and more reliable, it is also highly likely that the Squoosh service will be removed in a future release.
+
+- [`c022a4217`](https://github.com/withastro/astro/commit/c022a4217a805d223c1494e9eda4e48bbf810388) Thanks [@Princesseuh](https://github.com/Princesseuh)! - When using an adapter that supports neither Squoosh or Sharp, Astro will now automatically use an image service that does not support processing, but still provides the other benefits of `astro:assets` such as enforcing `alt`, no CLS etc to users
+
+- [`67becaa58`](https://github.com/withastro/astro/commit/67becaa580b8f787df58de66b7008b7098f1209c) Thanks [@ematipico](https://github.com/ematipico)! - Removed support for old syntax of the API routes.
+
+- [`dfc2d93e3`](https://github.com/withastro/astro/commit/dfc2d93e3c645995379358fabbdfa9aab99f43d8) Thanks [@bluwy](https://github.com/bluwy)! - Remove MDX plugin re-ordering hack
+
+- [`3dc1ca2fa`](https://github.com/withastro/astro/commit/3dc1ca2fac8d9965cc5085a5d09e72ed87b4281a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Reduced the amount of polyfills provided by Astro. Astro will no longer provide (no-op) polyfills for several web apis such as HTMLElement, Image or Document. If you need access to those APIs on the server, we recommend using more proper polyfills available on npm.
+
+- [`1be84dfee`](https://github.com/withastro/astro/commit/1be84dfee3ce8e6f5cc624f99aec4e980f6fde37) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Update `tsconfig.json` presets with `moduleResolution: 'bundler'` and other new options from TypeScript 5.0. Astro now assumes that you use TypeScript 5.0 (March 2023), or that your editor includes it, ex: VS Code 1.77
+
+- [`35f01df79`](https://github.com/withastro/astro/commit/35f01df797d23315f2bee2fc3fd795adb0559c58) Thanks [@Princesseuh](https://github.com/Princesseuh)! - The `astro check` command now requires an external package `@astrojs/check` and an install of `typescript` in your project. This was done in order to make the main `astro` package smaller and give more flexibility to users in regard to the version of TypeScript they use.
+
+- [`3fdf509b2`](https://github.com/withastro/astro/commit/3fdf509b2731a9b2f972d89291e57cf78d62c769) Thanks [@ematipico](https://github.com/ematipico)! - The `build.split` and `build.excludeMiddleware` configuration options are deprecated and have been replaced by options in the adapter config.
+
+  If your config includes the `build.excludeMiddleware` option, replace it with `edgeMiddleware` in your adapter options:
+
+  ```diff
+  import { defineConfig } from "astro/config";
+  import vercel from "@astrojs/vercel/serverless";
+
+  export default defineConfig({
+       build: {
+  -        excludeMiddleware: true
+       },
+       adapter: vercel({
+  +        edgeMiddleware: true
+       }),
+  });
+  ```
+
+  If your config includes the `build.split` option, replace it with `functionPerRoute` in your adapter options:
+
+  ```diff
+  import { defineConfig } from "astro/config";
+  import vercel from "@astrojs/vercel/serverless";
+
+  export default defineConfig({
+       build: {
+  -        split: true
+       },
+       adapter: vercel({
+  +        functionPerRoute: true
+       }),
+  });
+  ```
+
+- [`78de801f2`](https://github.com/withastro/astro/commit/78de801f21fd4ca1653950027d953bf08614566b) Thanks [@ematipico](https://github.com/ematipico)! - Lowercase names for endpoint functions are now deprecated.
+
+  Rename functions to their uppercase equivalent:
+
+  ```diff
+  - export function get() {
+  + export function GET() {
+      return new Response(JSON.stringify({ "title": "Bob's blog" }));
+  }
+
+  - export function post() {
+  + export function POST() {
+      return new Response(JSON.stringify({ "title": "Bob's blog" }));
+  }
+
+  - export function put() {
+  + export function PUT() {
+      return new Response(JSON.stringify({ "title": "Bob's blog" }));
+  }
+
+  - export function all() {
+  + export function ALL() {
+      return new Response(JSON.stringify({ "title": "Bob's blog" }));
+  }
+
+  // you can use the whole word "DELETE"
+  - export function del() {
+  + export function DELETE() {
+      return new Response(JSON.stringify({ "title": "Bob's blog" }));
+  }
+  ```
+
+- [`59d6e569f`](https://github.com/withastro/astro/commit/59d6e569f63e175c97e82e94aa7974febfb76f7c) Thanks [@matthewp](https://github.com/matthewp)! - Astro.cookies.get(key) returns undefined if cookie doesn't exist
+
+  With this change, Astro.cookies.get(key) no longer always returns a `AstroCookie` object. Instead it now returns `undefined` if the cookie does not exist.
+
+  You should update your code if you assume that all calls to `get()` return a value. When using with `has()` you still need to assert the value, like so:
+
+  ```astro
+  ---
+  if (Astro.cookies.has(id)) {
+    const id = Astro.cookies.get(id)!;
+  }
+  ---
+  ```
+
+- [`7723c4cc9`](https://github.com/withastro/astro/commit/7723c4cc93298c2e6530e55da7afda048f22cf81) Thanks [@ematipico](https://github.com/ematipico)! - The property `compressHTML` is now `true` by default. Setting this value to `true` is no longer required.
+
+  If you do not want to minify your HTML output, you must set this value to `false` in `astro.config.mjs`.
+
+  ```diff
+  import {defineConfig} from "astro/config";
+  export default defineConfig({
+  +  compressHTML: false
+  })
+  ```
+
+- [`fb5cd6b56`](https://github.com/withastro/astro/commit/fb5cd6b56dc27a71366ed5e1ab8bfe9b8f96bac5) Thanks [@ematipico](https://github.com/ematipico)! - Astro's default port when running the dev or preview server is now `4321`.
+
+  This will reduce conflicts with ports used by other tools.
+
+- [`631b9c410`](https://github.com/withastro/astro/commit/631b9c410d5d66fa384674027ba95d69ebb5063f) Thanks [@bluwy](https://github.com/bluwy)! - Remove MDX special `components` export handling
+
+### Minor Changes
+
+- [`9b4f70a62`](https://github.com/withastro/astro/commit/9b4f70a629f55e461759ba46f68af7097a2e9215) Thanks [@ematipico](https://github.com/ematipico)! - Introduced the concept of feature map. A feature map is a list of features that are built-in in Astro, and an Adapter
+  can tell Astro if it can support it.
+
+  ```ts
+  import { AstroIntegration } from './astro';
+
+  function myIntegration(): AstroIntegration {
+    return {
+      name: 'astro-awesome-list',
+      // new feature map
+      supportedAstroFeatures: {
+        hybridOutput: 'experimental',
+        staticOutput: 'stable',
+        serverOutput: 'stable',
+        assets: {
+          supportKind: 'stable',
+          isSharpCompatible: false,
+          isSquooshCompatible: false,
+        },
+      },
+    };
+  }
+  ```
+
+- [`bc37331d8`](https://github.com/withastro/astro/commit/bc37331d8154e3e95a8df9131e4e014e78a7a9e7) Thanks [@ematipico](https://github.com/ematipico)! - Integrations can now log messages using Astro’s built-in logger.
+
+  The logger is available to all hooks as an additional parameter:
+
+  ```ts
+  import { AstroIntegration } from './astro';
+
+  // integration.js
+  export function myIntegration(): AstroIntegration {
+    return {
+      name: 'my-integration',
+      hooks: {
+        'astro:config:done': ({ logger }) => {
+          logger.info('Configure integration...');
+        },
+      },
+    };
+  }
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`1eae2e3f7`](https://github.com/withastro/astro/commit/1eae2e3f7d693c9dfe91c8ccfbe606d32bf2fb81)]:
+  - @astrojs/telemetry@3.0.0-beta.0
+  - @astrojs/internal-helpers@0.2.0-beta.0
+  - @astrojs/markdown-remark@3.0.0-beta.0
+
 ## 2.10.3
 
 ### Patch Changes

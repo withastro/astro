@@ -109,11 +109,10 @@ class AstroCookies implements AstroCookiesInterface {
 		}
 
 		const values = this.#ensureParsed();
-		if(key in values) {
+		if (key in values) {
 			const value = values[key];
 			return new AstroCookie(value);
 		}
-
 	}
 
 	/**

@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.2.0-beta.0
+
+### Minor Changes
+
+- [`1eae2e3f7`](https://github.com/withastro/astro/commit/1eae2e3f7d693c9dfe91c8ccfbe606d32bf2fb81) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove support for Node 16. The lowest supported version by Astro and all integrations is now v18.14.1. As a reminder, Node 16 will be deprecated on the 11th September 2023.
+
 ## 0.1.2
 
 ### Patch Changes
