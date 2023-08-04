@@ -3,7 +3,7 @@ import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('scopedStyleStrategy', () => {
-	describe('default', () => {
+	describe('scopedStyleStrategy: "where"', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 		let stylesheet;
@@ -11,6 +11,7 @@ describe('scopedStyleStrategy', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/scoped-style-strategy/',
+				scopedStyleStrategy: 'where',
 			});
 			await fixture.build();
 
@@ -58,7 +59,7 @@ describe('scopedStyleStrategy', () => {
 		});
 	});
 
-	describe('scopedStyleStrategy: "attribute"', () => {
+	describe('default', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 		let stylesheet;
@@ -66,7 +67,6 @@ describe('scopedStyleStrategy', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/scoped-style-strategy/',
-				scopedStyleStrategy: 'attribute',
 			});
 			await fixture.build();
 
@@ -86,7 +86,7 @@ describe('scopedStyleStrategy', () => {
 		});
 
 		it('includes the data attribute hash', () => {
-			expect(stylesheet).to.include('h1[data-astro-hash-');
+			expect(stylesheet).to.include('h1[data-astro-cid-');
 		});
 	});
 });
