@@ -1,3 +1,3 @@
-export async function get({ request }: { request: Request }) {
+export async function GET({ request }: { request: Request }) {
 	return new Response('hello world', { headers: undefined });
 }
