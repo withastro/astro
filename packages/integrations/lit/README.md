@@ -61,15 +61,11 @@ To use your first Lit component in Astro, head to our [UI framework documentatio
 - 💧 client-side hydration options, and
 - 🤝 opportunities to mix and nest frameworks together
 
-However, there's a key difference with Lit _custom elements_ over conventional _components_: you can use the element tag name directly.
-
-Astro needs to know which tag is associated with which component script. We expose this through exporting a `tagName` variable from the component script. It looks like this:
+Writing and importing a Lit component in Astro looks like this:
 
 ```js
 // src/components/my-element.js
 import { LitElement, html } from 'lit';
-
-const tagName = 'my-element';
 
 export class MyElement extends LitElement {
   render() {
@@ -77,19 +73,16 @@ export class MyElement extends LitElement {
   }
 }
 
-customElements.define(tagName, MyElement);
+customElements.define('my-element', MyElement);
 ```
 
-> Note that exporting the `tagName` is **required** if you want to use the tag name in your templates. Otherwise you can export and use the constructor, like with non custom element frameworks.
-
-In your Astro template import this component as a side-effect and use the element.
+Now, the component is ready to be imported via the Astro frontmatter:
 
 ```astro
----
 // src/pages/index.astro
+---
 import { MyElement } from '../components/my-element.js';
 ---
-
 <MyElement />
 ```
 
