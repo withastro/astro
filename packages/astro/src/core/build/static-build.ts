@@ -449,7 +449,7 @@ export function makeAstroPageEntryPointFileName(
 		.replace(prefix, '')
 		.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
 	let route = routes.find((routeData) => {
-		return routeData.route === pageModuleId || routeData.component === pageModuleId;
+		return routeData.route === pageModuleId;
 	});
 	let name = pageModuleId;
 	if (route) {
@@ -457,7 +457,7 @@ export function makeAstroPageEntryPointFileName(
 	}
 	if (name.endsWith('/')) name += 'index';
 	const fileName = `${name.replaceAll('[', '_').replaceAll(']', '_').replaceAll('...', '---')}.mjs`;
-	if (pageModuleId.startsWith('..')) {
+	if (name.startsWith('..')) {
 		return `pages${fileName}`;
 	}
 	return fileName;
