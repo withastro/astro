@@ -60,8 +60,6 @@ describe('CSS', function () {
 
 				// 2. check CSS
 				const expected = `.blue[${scopedAttribute}],.color\\:blue[${scopedAttribute}]{color:#b0e0e6}.visible[${scopedAttribute}]{display:block}`;
-				// console.log(bundledCSS);
-				// console.log(expected);
 				expect(bundledCSS).to.include(expected);
 			});
 
