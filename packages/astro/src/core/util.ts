@@ -36,7 +36,7 @@ export function padMultilineString(source: string, n = 2) {
 	return lines.map((l) => ` `.repeat(n) + l).join(`\n`);
 }
 
-const REGEXP_404_OR_500_ROUTE = /(404)|(500)\/?$/;
+const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 
 /**
  * Get the correct output filename for a route, based on your config.
@@ -50,7 +50,7 @@ export function getOutputFilename(astroConfig: AstroConfig, name: string, type: 
 	if (name === '/' || name === '') {
 		return path.posix.join(name, 'index.html');
 	}
-	if (astroConfig.build.format === 'file' || REGEXP_404_OR_500_ROUTE.test(name)) {
+	if (astroConfig.build.format === 'file' || STATUS_CODE_PAGES.has(name)) {
 		return `${removeTrailingForwardSlash(name || 'index')}.html`;
 	}
 	return path.posix.join(name, 'index.html');

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { AstroErrorData } from '../dist/core/errors/errors-data.js';
+import { ClientAddressNotAvailable } from '../dist/core/errors/errors-data.js';
 import { AstroError } from '../dist/core/errors/errors.js';
 import * as events from '../dist/events/index.js';
 
@@ -470,8 +470,8 @@ describe('Events', () => {
 		it('returns the expected event payload for AstroError', () => {
 			const [event] = events.eventError({
 				err: new AstroError({
-					...AstroErrorData.ClientAddressNotAvailable,
-					message: AstroErrorData.ClientAddressNotAvailable.message('mysuperadapter'),
+					...ClientAddressNotAvailable,
+					message: ClientAddressNotAvailable.message('mysuperadapter'),
 				}),
 				cmd: 'COMMAND_NAME',
 				isFatal: false,

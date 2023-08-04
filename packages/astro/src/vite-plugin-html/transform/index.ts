@@ -15,6 +15,6 @@ export async function transform(code: string, id: string) {
 
 	return {
 		code: s.toString(),
-		map: s.generateMap(),
+		map: s.generateMap({ hires: 'boundary' }),
 	};
 }

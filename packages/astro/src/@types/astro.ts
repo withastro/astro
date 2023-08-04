@@ -19,7 +19,7 @@ import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
-import type { LogOptions } from '../core/logger/core';
+import type { LogOptions, LoggerLevel } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 export type {
@@ -92,6 +92,7 @@ export interface AstroBuiltinAttributes {
 	'is:raw'?: boolean;
 	'transition:animate'?: 'morph' | 'slide' | 'fade' | TransitionDirectionalAnimations;
 	'transition:name'?: string;
+	'transition:persist'?: boolean | string;
 }
 
 export interface AstroDefineVarsAttribute {
@@ -1331,6 +1332,16 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
 }
+export interface AstroInlineConfig extends AstroUserConfig, AstroInlineOnlyConfig {}
+export interface AstroInlineOnlyConfig {
+	configFile?: string | false;
+	mode?: RuntimeMode;
+	logLevel?: LoggerLevel;
+	/**
+	 * @internal for testing only
+	 */
+	logging?: LogOptions;
+}
 
 export type ContentEntryModule = {
 	id: string;
@@ -1962,9 +1973,10 @@ export type RedirectRouteData = RouteData & {
 	redirect: string;
 };
 
-export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
+export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern' | 'redirectRoute'> & {
 	generate: undefined;
 	pattern: string;
+	redirectRoute: SerializedRouteData | undefined;
 	_meta: {
 		trailingSlash: AstroConfig['trailingSlash'];
 	};

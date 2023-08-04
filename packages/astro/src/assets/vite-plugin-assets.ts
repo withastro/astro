@@ -150,7 +150,7 @@ export default function assets({
 				if (s) {
 					return {
 						code: s.toString(),
-						map: resolvedConfig.build.sourcemap ? s.generateMap({ hires: true }) : null,
+						map: resolvedConfig.build.sourcemap ? s.generateMap({ hires: 'boundary' }) : null,
 					};
 				} else {
 					return null;

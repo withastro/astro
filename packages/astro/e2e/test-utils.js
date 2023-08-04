@@ -1,6 +1,7 @@
 import { expect, test as testBase } from '@playwright/test';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { loadFixture as baseLoadFixture } from '../test/test-utils.js';
 
 export const isWindows = process.platform === 'win32';
@@ -24,7 +25,7 @@ export function loadFixture(inlineConfig) {
 	// without this, the main `loadFixture` helper will resolve relative to `packages/astro/test`
 	return baseLoadFixture({
 		...inlineConfig,
-		root: new URL(inlineConfig.root, import.meta.url).toString(),
+		root: fileURLToPath(new URL(inlineConfig.root, import.meta.url)),
 		server: {
 			port: testFileToPort.get(path.basename(inlineConfig.root)),
 		},

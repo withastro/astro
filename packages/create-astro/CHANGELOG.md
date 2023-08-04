@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.1.11
+
+### Patch Changes
+
+- [#7939](https://github.com/withastro/astro/pull/7939) [`89cd4b877`](https://github.com/withastro/astro/commit/89cd4b877e870ce4a263dd45f42f818fd2c4d5a6) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Handle error state for version number
+
 ## 3.1.10
 
 ### Patch Changes

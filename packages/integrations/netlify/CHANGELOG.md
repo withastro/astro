@@ -1,5 +1,25 @@
 # @astrojs/netlify
 
+## 2.5.2
+
+### Patch Changes
+
+- [#7862](https://github.com/withastro/astro/pull/7862) [`1859960d0`](https://github.com/withastro/astro/commit/1859960d0443cc6638569408282544f37e0a90ae) Thanks [@Yan-Thomas](https://github.com/Yan-Thomas)! - Fix README GitHub search link
+
+- [#7754](https://github.com/withastro/astro/pull/7754) [`298dbb89f`](https://github.com/withastro/astro/commit/298dbb89f2963a547370b6e65cafd2650fdb1b27) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve `404` behavior for `serverless` and `edge`
+
+- Updated dependencies [[`298dbb89f`](https://github.com/withastro/astro/commit/298dbb89f2963a547370b6e65cafd2650fdb1b27), [`9e2203847`](https://github.com/withastro/astro/commit/9e22038472c8be05ed7a72620534b88324dce793), [`5c5da8d2f`](https://github.com/withastro/astro/commit/5c5da8d2fbb37830f3ee81830d4c9afcd2c1a3e3), [`0b8375fe8`](https://github.com/withastro/astro/commit/0b8375fe82a15bfff3f517f98de6454adb2779f1), [`89d015db6`](https://github.com/withastro/astro/commit/89d015db6ce4d15b5b1140f0eb6bfbef187d6ad7), [`ebf7ebbf7`](https://github.com/withastro/astro/commit/ebf7ebbf7ae767625d736fad327954cfb853837e)]:
+  - astro@2.9.7
+
+## 2.5.1
+
+### Patch Changes
+
+- [#7805](https://github.com/withastro/astro/pull/7805) [`42a21b5da`](https://github.com/withastro/astro/commit/42a21b5da631948da4495062a6ef30fbb91abd05) Thanks [@matthewp](https://github.com/matthewp)! - Prevent building .html file redirects in hybrid mode
+
+- Updated dependencies [[`31c4031ba`](https://github.com/withastro/astro/commit/31c4031ba7aea132a861f2465f38a83741f0cd05), [`5161cf919`](https://github.com/withastro/astro/commit/5161cf919c81bd3681af221def0abab7d25abec0), [`59b556232`](https://github.com/withastro/astro/commit/59b556232696d3aba3c2263ea104cd9922085fd2), [`267487e63`](https://github.com/withastro/astro/commit/267487e63ea0a4cfcb771c667a088afb16c62ba6), [`b063a2d8a`](https://github.com/withastro/astro/commit/b063a2d8aeaed18550d148511bfb68f9ba3cdb09), [`d5f526b33`](https://github.com/withastro/astro/commit/d5f526b3397cf24aa06353de2de91b2ba08cd4eb), [`7dbcbc86b`](https://github.com/withastro/astro/commit/7dbcbc86b3bd7e5458570906745364c9399d1a46)]:
+  - astro@2.9.4
+
 ## 2.5.0
 
 ### Minor Changes
