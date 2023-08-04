@@ -195,7 +195,7 @@ export class App {
 						const newRenderContext = await this.#createRenderContext(
 							url,
 							request,
-							routeData,
+							errorRouteData,
 							mod,
 							response.status
 						);
