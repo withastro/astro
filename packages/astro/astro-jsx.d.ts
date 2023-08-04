@@ -9,7 +9,9 @@
  * Adapted from React’s TypeScript definition from DefinitelyTyped.
  * @see https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/react/index.d.ts
  */
-namespace astroHTML.JSX {
+// BUG! Prettier 3.0 removes `declare`: https://github.com/prettier/prettier/issues/15207
+// prettier-ignore
+declare namespace astroHTML.JSX {
 	export type Child = Node | Node[] | string | number | boolean | null | undefined | unknown;
 	export type Children = Child | Child[];
 
