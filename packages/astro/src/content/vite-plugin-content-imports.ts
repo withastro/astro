@@ -12,8 +12,8 @@ import type {
 	DataEntryModule,
 	DataEntryType,
 } from '../@types/astro.js';
-import { AstroErrorData } from '../core/errors/index.js';
 import { AstroError } from '../core/errors/errors.js';
+import { AstroErrorData } from '../core/errors/index.js';
 import { escapeViteEnvReferences } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG, DATA_FLAG } from './consts.js';
 import {
