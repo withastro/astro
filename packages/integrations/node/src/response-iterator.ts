@@ -120,7 +120,7 @@ function nodeStreamIterator<T>(stream: NodeReadableStream): AsyncIterableIterato
 				| IteratorResult<T, boolean | undefined>
 				| PromiseLike<IteratorResult<T, boolean | undefined>>
 		) => void,
-		(reason?: any) => void
+		(reason?: any) => void,
 	][] = [];
 
 	function onData(chunk: any) {

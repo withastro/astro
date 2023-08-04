@@ -9,7 +9,7 @@
  * Adapted from React’s TypeScript definition from DefinitelyTyped.
  * @see https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/react/index.d.ts
  */
-declare namespace astroHTML.JSX {
+namespace astroHTML.JSX {
 	export type Child = Node | Node[] | string | number | boolean | null | undefined | unknown;
 	export type Children = Child | Child[];
 

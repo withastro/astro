@@ -130,14 +130,14 @@ import heroImage from '../assets/hero.png';
 // optimized image, keeping the original width, height, and image format
 <Image src={heroImage} alt="descriptive text" />
 
-// specify multiple sizes for responsive images or art direction
+ // specify multiple sizes for responsive images or art direction
 <Picture
   src={heroImage}
   widths={[200, 400, 800]}
   sizes="(max-width: 800px) 100vw, 800px"
   alt="descriptive text"
 />
----
+ ---
 ```
 
 The included image transformers support resizing images and encoding them to different image formats. Third-party image services will be able to add support for custom transformations as well (ex: `blur`, `filter`, `rotate`, etc).
@@ -566,16 +566,16 @@ import heroImage from '../assets/hero.png';
 // optimized image, keeping the original width, height, and image format
 <Image src={heroImage} alt="descriptive text" />
 
-// height will be recalculated to match the original aspect ratio
+ // height will be recalculated to match the original aspect ratio
 <Image src={heroImage} width={300} alt="descriptive text" />
 
-// cropping to a specific width and height
+ // cropping to a specific width and height
 <Image src={heroImage} width={300} height={600} alt="descriptive text" />
 
-// cropping to a specific aspect ratio and converting to an avif format
+ // cropping to a specific aspect ratio and converting to an avif format
 <Image src={heroImage} width={300} aspectRatio="16:9" format="avif" alt="descriptive text" />
 
-// image imports can also be inlined directly
+ // image imports can also be inlined directly
 <Image src={import('../assets/hero.png')} alt="descriptive text" />
 ```
 
@@ -612,7 +612,7 @@ const imageUrl = 'https://astro.build/assets/press/full-logo-dark.png';
 // cropping to a specific width and height
 <Image src={imageUrl} width={750} height={250} format="avif" alt="descriptive text" />
 
-// height will be recalculated to match the aspect ratio
+ // height will be recalculated to match the aspect ratio
 <Image src={imageUrl} width={750} aspectRatio={16 / 9} format="avif" alt="descriptive text" />
 ```
 
@@ -641,7 +641,7 @@ const imageUrl =
   alt="descriptive text"
 />
 
-// Remote image (aspect ratio is required)
+ // Remote image (aspect ratio is required)
 <Picture
   src={imageUrl}
   widths={[200, 400, 800]}
@@ -650,7 +650,7 @@ const imageUrl =
   alt="descriptive text"
 />
 
-// Inlined imports are supported
+ // Inlined imports are supported
 <Picture
   src={import('../assets/hero.png')}
   widths={[200, 400, 800]}
