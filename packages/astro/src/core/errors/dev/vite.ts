@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { getHighlighter } from 'shiki';
 import type { ErrorPayload } from 'vite';
 import type { ModuleLoader } from '../../module-loader/index.js';
-import { AstroErrorData } from '../errors-data.js';
+import { FailedToLoadModuleSSR, InvalidGlob, MdxIntegrationMissingError } from '../errors-data.js';
 import { AstroError, type ErrorWithMetadata } from '../errors.js';
 import { createSafeError } from '../utils.js';
 import type { SSRLoadedRenderer } from './../../../@types/astro.js';
@@ -41,10 +41,10 @@ export function enhanceViteSSRError({
 		// https://github.com/vitejs/vite/blob/ee7c28a46a6563d54b828af42570c55f16b15d2c/packages/vite/src/node/ssr/ssrModuleLoader.ts#L91
 		let importName: string | undefined;
 		if ((importName = safeError.message.match(/Failed to load url (.*?) \(resolved id:/)?.[1])) {
-			safeError.title = AstroErrorData.FailedToLoadModuleSSR.title;
+			safeError.title = FailedToLoadModuleSSR.title;
 			safeError.name = 'FailedToLoadModuleSSR';
-			safeError.message = AstroErrorData.FailedToLoadModuleSSR.message(importName);
-			safeError.hint = AstroErrorData.FailedToLoadModuleSSR.hint;
+			safeError.message = FailedToLoadModuleSSR.message(importName);
+			safeError.hint = FailedToLoadModuleSSR.hint;
 			const line = lns.findIndex((ln) => ln.includes(importName!));
 
 			if (line !== -1) {
@@ -68,8 +68,8 @@ export function enhanceViteSSRError({
 			fileId?.match(/\.mdx$/)
 		) {
 			safeError = new AstroError({
-				...AstroErrorData.MdxIntegrationMissingError,
-				message: AstroErrorData.MdxIntegrationMissingError.message(JSON.stringify(fileId)),
+				...MdxIntegrationMissingError,
+				message: MdxIntegrationMissingError.message(JSON.stringify(fileId)),
 				location: safeError.loc,
 				stack: safeError.stack,
 			}) as ErrorWithMetadata;
@@ -80,10 +80,10 @@ export function enhanceViteSSRError({
 			const globPattern = safeError.message.match(/glob: "(.+)" \(/)?.[1];
 
 			if (globPattern) {
-				safeError.message = AstroErrorData.InvalidGlob.message(globPattern);
+				safeError.message = InvalidGlob.message(globPattern);
 				safeError.name = 'InvalidGlob';
-				safeError.hint = AstroErrorData.InvalidGlob.hint;
-				safeError.title = AstroErrorData.InvalidGlob.title;
+				safeError.hint = InvalidGlob.hint;
+				safeError.title = InvalidGlob.title;
 
 				const line = lns.findIndex((ln) => ln.includes(globPattern));
 
@@ -137,7 +137,7 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 	const message = renderErrorMarkdown(err.message.trim(), 'html');
 	const hint = err.hint ? renderErrorMarkdown(err.hint.trim(), 'html') : undefined;
 
-	const hasDocs = err.name in AstroErrorData;
+	const hasDocs = !!err.name;
 	const docslink = hasDocs
 		? `https://docs.astro.build/en/reference/errors/${getKebabErrorName(err.name)}/`
 		: undefined;

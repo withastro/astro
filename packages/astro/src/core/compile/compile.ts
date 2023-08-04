@@ -87,6 +87,7 @@ function handleCompileResultErrors(result: TransformResult, cssTransformErrors: 
 
 	if (compilerError) {
 		throw new CompilerError({
+			name: 'CompilerError',
 			message: compilerError.text,
 			location: {
 				line: compilerError.location.line,

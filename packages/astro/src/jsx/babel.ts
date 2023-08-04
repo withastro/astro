@@ -1,6 +1,6 @@
 import type { PluginObj } from '@babel/core';
 import * as t from '@babel/types';
-import { AstroErrorData } from '../core/errors/errors-data.js';
+import { AstroErrorData } from '../core/errors/index.js';
 import { AstroError } from '../core/errors/errors.js';
 import { resolvePath } from '../core/util.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
