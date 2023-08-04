@@ -17,7 +17,6 @@ export function createDevelopmentEnvironment(
 	let env = createEnvironment({
 		adapterName: manifest.adapterName,
 		logging,
-		markdown: manifest.markdown,
 		mode,
 		// This will be overridden in the dev server
 		renderers: [],

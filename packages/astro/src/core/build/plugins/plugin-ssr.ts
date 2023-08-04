@@ -489,7 +489,6 @@ function buildManifest(
 		base: settings.config.base,
 		compressHTML: settings.config.compressHTML,
 		assetsPrefix: settings.config.build.assetsPrefix,
-		markdown: settings.config.markdown,
 		componentMetadata: Array.from(internals.componentMetadata),
 		renderers: [],
 		clientDirectives: Array.from(settings.clientDirectives),

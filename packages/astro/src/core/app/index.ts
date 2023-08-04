@@ -88,7 +88,6 @@ export class App {
 		return createEnvironment({
 			adapterName: this.#manifest.adapterName,
 			logging: this.#logging,
-			markdown: this.#manifest.markdown,
 			mode: 'production',
 			compressHTML: this.#manifest.compressHTML,
 			renderers: this.#manifest.renderers,
