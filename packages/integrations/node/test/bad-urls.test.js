@@ -41,6 +41,6 @@ describe('API routes', () => {
 		}
 		const stillWork = await fixture.fetch('/');
 		const text = await stillWork.text();
-		expect(text).to.equal('<!DOCTYPE html>\nHello!');
+		expect(text).to.equal('<!DOCTYPE html>Hello!');
 	});
 });
