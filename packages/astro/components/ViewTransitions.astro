@@ -179,7 +179,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			// If there are no animations, go ahead and swap on next tick
 			// This is necessary because we do not know if there are animations.
 			// The setTimeout is a fallback in case there are none.
-			var timeout = setTimeout(() => !isAnimating && fallbackSwap());
+			let timeout = setTimeout(() => !isAnimating && fallbackSwap());
 		} else {
 			swap();
 		}
