@@ -1,5 +1,5 @@
 
-export async function post({ request }) {
+export async function POST({ request }) {
 	let body = await request.json();
 	const recipes = [
 		{
