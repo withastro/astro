@@ -26,7 +26,7 @@ describe('Partial HTML', async () => {
 
 		// test 2: correct CSS present
 		const allInjectedStyles = $('style').text();
-		expect(allInjectedStyles).to.match(/\:where\(\.astro-[^{]+{color:red}/);
+		expect(allInjectedStyles).to.match(/\[data-astro-cid-[^{]+{color:red}/);
 	});
 
 	it('injects framework styles', async () => {

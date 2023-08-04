@@ -610,7 +610,7 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name scopedStyleStrategy
-	 * @type {('where' | 'class' \ 'attribute')}
+	 * @type {('where' | 'class' | 'attribute')}
 	 * @default `'where'`
 	 * @version 2.4
 	 * @description
