@@ -27,7 +27,6 @@
     "@astrojs/vercel": "3.7.4",
     "@astrojs/vue": "2.2.1",
     "@astrojs/internal-helpers": "0.1.1",
-    "@astrojs/markdown-component": "1.0.5",
     "@astrojs/markdown-remark": "2.2.1",
     "@astrojs/telemetry": "2.1.1",
     "@astrojs/underscore-redirects": "0.2.0"

@@ -42,7 +42,6 @@ async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
 		links: renderContext.links,
 		styles: renderContext.styles,
 		logging: env.logging,
-		markdown: env.markdown,
 		params: renderContext.params,
 		pathname: renderContext.pathname,
 		componentMetadata: renderContext.componentMetadata,

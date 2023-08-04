@@ -92,7 +92,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		entryModules: {},
 		routes: [],
 		adapterName: '',
-		markdown: settings.config.markdown,
 		clientDirectives: settings.clientDirectives,
 		renderers: [],
 		base: settings.config.base,

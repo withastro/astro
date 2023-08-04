@@ -507,7 +507,6 @@ async function generatePath(
 	const env = createEnvironment({
 		adapterName: manifest.adapterName,
 		logging,
-		markdown: manifest.markdown,
 		mode: opts.mode,
 		renderers: manifest.renderers,
 		clientDirectives: manifest.clientDirectives,
@@ -619,7 +618,6 @@ export function createBuildManifest(
 		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
 		routes: [],
 		adapterName: '',
-		markdown: settings.config.markdown,
 		clientDirectives: settings.clientDirectives,
 		compressHTML: settings.config.compressHTML,
 		renderers,
