@@ -167,7 +167,7 @@ Once you run `astro build` there will be a `dist/_redirects` file. Netlify will 
 
 By default, all pages will be rendered on first visit and the rendered result will be reused for every subsequent visit until you redeploy. To set a revalidation time, mutate the `netlify.builders.ttl` [local](https://docs.astro.build/en/guides/middleware/#locals) with the duration (in seconds) for which the page should be reused.
 
-For example, in the following example, Netlify will store the rendered HTML for 45 seconds.
+As an example, for the following snippet, Netlify will store the rendered HTML for 45 seconds.
 
 ```astro
 ---
