@@ -162,6 +162,24 @@ Once you run `astro build` there will be a `dist/_redirects` file. Netlify will 
 > **Note**
 > You can still include a `public/_redirects` file for manual redirects. Any redirects you specify in the redirects config are appended to the end of your own.
 
+### On-demand Builders
+[Netlify On-demand Builders](https://docs.netlify.com/configure-builds/on-demand-builders/) are serverless functions used to generate web content as needed that’s automatically cached on Netlify’s Edge CDN. You can enable their use using the [`builders` configuration](#builders).
+
+By default, all pages will be rendered on first visit and the rendered result will be reused for every subsequent visit until you redeploy. To set a revalidation time, mutate the `netlify.builders.ttl` [local](https://docs.astro.build/en/guides/middleware/#locals) with the duration (in seconds) for which the page should be reused.
+
+For example, in the following example, Netlify will store the rendered HTML for 45 seconds.
+
+```astro
+---
+import Layout from '../components/Layout.astro'
+Astro.locals.netlify.builders.ttl = 45
+---
+<Layout title="Astro on Netlify">
+    {new Date(Date.now())}
+</Layout>
+```
+
+
 ## Usage
 
 [Read the full deployment guide here.](https://docs.astro.build/en/guides/deploy/netlify/)
@@ -206,7 +224,7 @@ directory = "dist/functions"
 
 ### builders
 
-[Netlify On-demand Builders](https://docs.netlify.com/configure-builds/on-demand-builders/) are serverless functions used to build and cache page content on Netlify’s Edge CDN. You can enable these functions with the `builders` option:
+You can enable On-demand Builders using the `builders` option:
 
 ```js
 // astro.config.mjs
