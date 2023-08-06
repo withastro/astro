@@ -80,6 +80,9 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 				locals = JSON.parse(localsAsString);
 			}
 		}
+		if (builders) {
+			Object.assign(locals, { netlify: { builders: { ttl : undefined } } });
+		}
 		const response: Response = await app.render(request, routeData, locals);
 		const responseHeaders = Object.fromEntries(response.headers.entries());
 
@@ -99,6 +102,8 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 			headers: responseHeaders,
 			body: responseBody,
 			isBase64Encoded: responseIsBase64Encoded,
+			// @ts-expect-error Property 'netlify' does not exist on type '{}'
+			ttl: locals.netlify?.builders?.ttl,
 		};
 
 		const cookies = response.headers.get('set-cookie');

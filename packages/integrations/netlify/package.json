@@ -23,6 +23,7 @@
     "./netlify-functions.js": "./dist/netlify-functions.js",
     "./edge-functions": "./dist/integration-edge-functions.js",
     "./netlify-edge-functions.js": "./dist/netlify-edge-functions.js",
+    "./builders": "./builders.d.ts",
     "./package.json": "./package.json"
   },
   "files": [
