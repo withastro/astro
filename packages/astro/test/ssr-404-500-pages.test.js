@@ -62,6 +62,17 @@ describe('404 and 500 pages', () => {
 			expect($('h1').text()).to.equal('Something went horribly wrong!');
 		});
 
+		it('404 page returned when a route does not match and imports are included', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/blog/fake/route');
+			const routeData = app.match(request);
+			const response = await app.render(request, routeData);
+			expect(response.status).to.equal(404);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			expect($('head link')).to.have.a.lengthOf(1);
+		});
+
 		it('404 page returned when there is an 404 response returned from route', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/causes-404');
