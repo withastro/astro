@@ -179,6 +179,8 @@ Astro.locals.netlify.builders.ttl = 45
 </Layout>
 ```
 
+It is important to note that On-demand Builders ignore query params when checking for cached pages. For example, if `example.com/?x=y` is cached, it will be served for `example.com/?a=b` (different query params) and `example.com/` (no query params) as well.
+
 
 ## Usage
 
