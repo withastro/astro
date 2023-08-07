@@ -35,7 +35,6 @@
     "dset": "^3.1.2",
     "is-docker": "^3.0.0",
     "is-wsl": "^2.2.0",
-    "undici": "^5.22.1",
     "which-pm-runs": "^1.1.0"
   },
   "devDependencies": {
