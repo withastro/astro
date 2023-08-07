@@ -17,9 +17,11 @@ export default function astroIntegrationsContainerPlugin({
 	return {
 		name: 'astro:integration-container',
 		configureServer(server) {
+			if (server.config.isProduction) return;
 			runHookServerSetup({ config: settings.config, server, logging });
 		},
 		async buildStart() {
+			if (settings.injectedRoutes.length === settings.resolvedInjectedRoutes.length) return;
 			// Ensure the injectedRoutes are all resolved to their final paths through Rollup
 			settings.resolvedInjectedRoutes = await Promise.all(
 				settings.injectedRoutes.map((route) => resolveEntryPoint.call(this, route))
