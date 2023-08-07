@@ -12,7 +12,7 @@ export default function astroScriptsPostPlugin({
 	return {
 		name: 'astro:scripts:page-ssr',
 		enforce: 'post',
-		async transform(this, code, id, options) {
+		transform(this, code, id, options) {
 			if (!options?.ssr) return;
 
 			const hasInjectedScript = settings.scripts.some((s) => s.stage === 'page-ssr');
