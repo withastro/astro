@@ -1,5 +1,5 @@
-import type { Plugin as VitePlugin } from 'vite';
 import type { PluginContext } from 'rollup';
+import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings, InjectedRoute, ResolvedInjectedRoute } from '../@types/astro.js';
 import type { LogOptions } from '../core/logger/core.js';
 
@@ -21,14 +21,19 @@ export default function astroIntegrationsContainerPlugin({
 		},
 		async buildStart() {
 			// Ensure the injectedRoutes are all resolved to their final paths through Rollup
-			settings.resolvedInjectedRoutes = await Promise.all(settings.injectedRoutes.map(route => resolveEntryPoint.call(this, route)))
+			settings.resolvedInjectedRoutes = await Promise.all(
+				settings.injectedRoutes.map((route) => resolveEntryPoint.call(this, route))
+			);
 		},
 	};
 }
 
-async function resolveEntryPoint(this: PluginContext, route: InjectedRoute): Promise<ResolvedInjectedRoute> {
+async function resolveEntryPoint(
+	this: PluginContext,
+	route: InjectedRoute
+): Promise<ResolvedInjectedRoute> {
 	const resolvedId = await this.resolve(route.entryPoint)
-		.then(res => res?.id)
+		.then((res) => res?.id)
 		.catch(() => undefined);
 	if (!resolvedId) return route;
 
