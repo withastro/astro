@@ -1,5 +1,11 @@
 # astro
 
+## 2.10.3
+
+### Patch Changes
+
+- [#7986](https://github.com/withastro/astro/pull/7986) [`8e5a27b48`](https://github.com/withastro/astro/commit/8e5a27b488b326c1f9be6f02c191a2fb0dafac56) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Ensure injectRoute is properly handled in `build` as well as `dev`
+
 ## 2.10.2
 
 ### Patch Changes
