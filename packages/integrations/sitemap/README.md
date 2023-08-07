@@ -148,7 +148,7 @@ All pages are included in your sitemap by default. By adding a custom `filter` f
 // astro.config.mjs
 // ...
 sitemap({
-  filter: (page) => page !== 'https://stargazers.club/secret-vip-lounge',
+  filter: (page) => page !== 'https://stargazers.club/secret-vip-lounge/',
 });
 ```
 
@@ -161,10 +161,10 @@ To filter multiple pages, add arguments with target URLs.
 // ...
 sitemap({
   filter: (page) =>
-    page !== 'https://stargazers.club/secret-vip-lounge-1' &&
-    page !== 'https://stargazers.club/secret-vip-lounge-2' &&
-    page !== 'https://stargazers.club/secret-vip-lounge-3' &&
-    page !== 'https://stargazers.club/secret-vip-lounge-4',
+    page !== 'https://stargazers.club/secret-vip-lounge-1/' &&
+    page !== 'https://stargazers.club/secret-vip-lounge-2/' &&
+    page !== 'https://stargazers.club/secret-vip-lounge-3/' &&
+    page !== 'https://stargazers.club/secret-vip-lounge-4/',
 });
 ```
 
