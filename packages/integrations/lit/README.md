@@ -79,9 +79,7 @@ customElements.define('my-element', MyElement);
 Now, the component is ready to be imported via the Astro frontmatter:
 
 ```astro
-// src/pages/index.astro
-
-import { MyElement } from '../components/my-element.js';
+// src/pages/index.astro import {MyElement} from '../components/my-element.js';
 <MyElement />
 ```
 

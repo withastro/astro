@@ -1316,16 +1316,20 @@ export interface AstroUserConfig {
  */
 export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 'page-ssr';
 
-/**
- * Resolved Astro Config
- * Config with user settings along with all defaults filled in.
- */
-
 export interface InjectedRoute {
 	pattern: string;
 	entryPoint: string;
 	prerender?: boolean;
 }
+
+export interface ResolvedInjectedRoute extends InjectedRoute {
+	resolvedEntryPoint?: URL;
+}
+
+/**
+ * Resolved Astro Config
+ * Config with user settings along with all defaults filled in.
+ */
 export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// Public:
 	// This is a more detailed type than zod validation gives us.
@@ -1414,6 +1418,7 @@ export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
 	injectedRoutes: InjectedRoute[];
+	resolvedInjectedRoutes: ResolvedInjectedRoute[];
 	pageExtensions: string[];
 	contentEntryTypes: ContentEntryType[];
 	dataEntryTypes: DataEntryType[];
