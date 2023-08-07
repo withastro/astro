@@ -1,5 +1,59 @@
 # astro
 
+## 2.10.1
+
+### Patch Changes
+
+- [#7935](https://github.com/withastro/astro/pull/7935) [`6035bb35f`](https://github.com/withastro/astro/commit/6035bb35f222fc6a80b418f13998b21c59da85b6) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Properly handle routing when multiple slashes are present in the request by collapsing them to a single `/`
+
+- [#7936](https://github.com/withastro/astro/pull/7936) [`4b6deda36`](https://github.com/withastro/astro/commit/4b6deda360b2ba47d03427c377d5982b24ee894c) Thanks [@matthewp](https://github.com/matthewp)! - Export createTransitionScope for the runtime
+
+- Updated dependencies [[`6035bb35f`](https://github.com/withastro/astro/commit/6035bb35f222fc6a80b418f13998b21c59da85b6)]:
+  - @astrojs/internal-helpers@0.1.2
+
+## 2.10.0
+
+### Minor Changes
+
+- [#7861](https://github.com/withastro/astro/pull/7861) [`41afb8405`](https://github.com/withastro/astro/commit/41afb84057f606b0e7f9a73c1e40487068e43948) Thanks [@matthewp](https://github.com/matthewp)! - Persistent DOM and Islands in Experimental View Transitions
+
+  With `viewTransitions: true` enabled in your Astro config's experimental section, pages using the `<ViewTransition />` routing component can now access a new `transition:persist` directive.
+
+  With this directive, you can keep the state of DOM elements and islands on the old page when transitioning to the new page.
+
+  For example, to keep a video playing across page navigation, add `transition:persist` to the element:
+
+  ```astro
+  <video controls="" autoplay="" transition:persist>
+    <source
+      src="https://ia804502.us.archive.org/33/items/GoldenGa1939_3/GoldenGa1939_3_512kb.mp4"
+      type="video/mp4"
+    />
+  </video>
+  ```
+
+  This `<video>` element, with its current state, will be moved over to the next page (if the video also exists on that page).
+
+  Likewise, this feature works with any client-side framework component island. In this example, a counter's state is preserved and moved to the new page:
+
+  ```astro
+  <Counter count={5} client:load transition:persist />
+  ```
+
+  See our [View Transitions Guide](https://docs.astro.build/en/guides/view-transitions/#maintaining-state) to learn more on usage.
+
+### Patch Changes
+
+- [#7821](https://github.com/withastro/astro/pull/7821) [`c00b6f0c4`](https://github.com/withastro/astro/commit/c00b6f0c49027125ea3026e89b21fef84380d187) Thanks [@ottomated](https://github.com/ottomated)! - Fixes an issue that prevents importing `'astro/app'`
+
+- [#7917](https://github.com/withastro/astro/pull/7917) [`1f0ee494a`](https://github.com/withastro/astro/commit/1f0ee494a5190356d130282f1f51ba2a5e6ea63f) Thanks [@bluwy](https://github.com/bluwy)! - Prevent integration hooks from re-triggering if the server restarts on config change, but the config fails to load.
+
+- [#7901](https://github.com/withastro/astro/pull/7901) [`00cb28f49`](https://github.com/withastro/astro/commit/00cb28f4964a60bc609770108d491acc277997b9) Thanks [@bluwy](https://github.com/bluwy)! - Improve sourcemap generation and performance
+
+- [#7911](https://github.com/withastro/astro/pull/7911) [`c264be349`](https://github.com/withastro/astro/commit/c264be3497db4aa8b3bcce0d2f79a26e35b8e91e) Thanks [@martrapp](https://github.com/martrapp)! - fix for #7882 by setting state in page navigation (view transitions)
+
+- [#7909](https://github.com/withastro/astro/pull/7909) [`e1e958a75`](https://github.com/withastro/astro/commit/e1e958a75860292688569e82b4617fc141056202) Thanks [@tonydangblog](https://github.com/tonydangblog)! - Fix: ignore `.json` files nested in subdirectories within content collection directories starting with an `_` underscore.
+
 ## 2.9.7
 
 ### Patch Changes

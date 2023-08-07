@@ -46,6 +46,7 @@ export async function compile({
 			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
 			resultScopedSlot: true,
 			experimentalTransitions: astroConfig.experimental.viewTransitions,
+			experimentalPersistence: astroConfig.experimental.viewTransitions,
 			transitionsAnimationURL: 'astro/components/viewtransitions.css',
 			preprocessStyle: createStylePreprocessor({
 				filename,
@@ -86,6 +87,7 @@ function handleCompileResultErrors(result: TransformResult, cssTransformErrors: 
 
 	if (compilerError) {
 		throw new CompilerError({
+			name: 'CompilerError',
 			message: compilerError.text,
 			location: {
 				line: compilerError.location.line,

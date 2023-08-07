@@ -120,7 +120,3 @@ export async function startContainer({
 
 	return devServerAddressInfo;
 }
-
-export function isStarted(container: Container): boolean {
-	return !!container.viteServer.httpServer?.listening;
-}
