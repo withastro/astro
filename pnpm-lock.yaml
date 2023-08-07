@@ -437,9 +437,6 @@ importers:
 
   examples/with-tailwindcss:
     dependencies:
-      '@astrojs/mdx':
-        specifier: ^0.19.7
-        version: link:../../packages/integrations/mdx
       '@astrojs/tailwind':
         specifier: ^4.0.0
         version: link:../../packages/integrations/tailwind
