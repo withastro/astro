@@ -211,6 +211,10 @@ async function loadConfig(
 	}
 }
 
+/**
+ * `AstroInlineConfig` is a union of `AstroUserConfig` and `AstroInlineOnlyConfig`.
+ * This functions splits it up.
+ */
 function splitInlineConfig(inlineConfig: AstroInlineConfig): {
 	inlineUserConfig: AstroUserConfig;
 	inlineOnlyConfig: AstroInlineOnlyConfig;
@@ -231,6 +235,12 @@ interface ResolveConfigResult {
 	astroConfig: AstroConfig;
 }
 
+/**
+ * Resolves the Astro config with a given inline config.
+ *
+ * @param inlineConfig An inline config that takes highest priority when merging and resolving the final config.
+ * @param command The running command that uses this config. Usually 'dev' or 'build'.
+ */
 export async function resolveConfig(
 	inlineConfig: AstroInlineConfig,
 	command: string,
@@ -238,6 +248,11 @@ export async function resolveConfig(
 ): Promise<ResolveConfigResult> {
 	const root = resolveRoot(inlineConfig.root);
 	const { inlineUserConfig, inlineOnlyConfig } = splitInlineConfig(inlineConfig);
+
+	// If the root is specified, assign the resolved path so it takes the highest priority
+	if (inlineConfig.root) {
+		inlineUserConfig.root = root;
+	}
 
 	const userConfig = await loadConfig(root, inlineOnlyConfig.configFile, fsMod);
 	const mergedConfig = mergeConfig(userConfig, inlineUserConfig);
