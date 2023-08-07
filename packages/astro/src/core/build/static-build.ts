@@ -445,10 +445,15 @@ export function makeAstroPageEntryPointFileName(
 	facadeModuleId: string,
 	routes: RouteData[]
 ) {
-	const pageModuleId = facadeModuleId.replace(prefix, '').replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
+	const pageModuleId = facadeModuleId
+		.replace(prefix, '')
+		.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
 	const route = routes.find((routeData) => routeData.component === pageModuleId);
 	const name = route?.route ?? pageModuleId;
-	return `pages${name.replace(/\/$/, '/index').replaceAll(/[\[\]]/g, '_').replaceAll('...', '---')}.astro.mjs`;
+	return `pages${name
+		.replace(/\/$/, '/index')
+		.replaceAll(/[\[\]]/g, '_')
+		.replaceAll('...', '---')}.astro.mjs`;
 }
 
 /**
