@@ -145,7 +145,7 @@ export class App {
 			routeData = this.match(request);
 		}
 		if (!routeData) {
-			return this.#renderError(request, { routeData, status: 404 });
+			return this.#renderError(request, { status: 404 });
 		}
 
 		Reflect.set(request, clientLocalsSymbol, locals ?? {});
@@ -173,13 +173,12 @@ export class App {
 			);
 		} catch (err: any) {
 			error(this.#logging, 'ssr', err.stack || err.message || String(err));
-			return this.#renderError(request, { routeData, status: 500 });
+			return this.#renderError(request, { status: 500 });
 		}
 
 		if (isResponse(response, routeData.type)) {
 			if (STATUS_CODES.has(response.status)) {
 				return this.#renderError(request, {
-					routeData,
 					response,
 					status: response.status as 404 | 500,
 				});
@@ -190,7 +189,6 @@ export class App {
 			if (response.type === 'response') {
 				if (response.response.headers.get('X-Astro-Response') === 'Not-Found') {
 					return this.#renderError(request, {
-						routeData,
 						response: response.response,
 						status: 404,
 					});
@@ -284,10 +282,7 @@ export class App {
 	 * If it is a known error code, try sending the according page (e.g. 404.astro / 500.astro).
 	 * This also handles pre-rendered /404 or /500 routes
 	 */
-	async #renderError(
-		request: Request,
-		{ routeData, status, response: originalResponse }: RenderErrorOptions
-	) {
+	async #renderError(request: Request, { status, response: originalResponse }: RenderErrorOptions) {
 		const errorRouteData = matchRoute('/' + status, this.#manifestData);
 		const url = new URL(request.url);
 		if (errorRouteData) {
@@ -296,13 +291,12 @@ export class App {
 				const response = await fetch(statusURL.toString());
 				return this.#mergeResponses(response, originalResponse);
 			}
-			const finalRouteData = routeData ?? errorRouteData;
 			const mod = await this.#getModuleForRoute(errorRouteData);
 			try {
 				const newRenderContext = await this.#createRenderContext(
 					url,
 					request,
-					finalRouteData,
+					errorRouteData,
 					mod,
 					status
 				);
