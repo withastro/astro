@@ -282,10 +282,7 @@ export class App {
 	 * If it is a known error code, try sending the according page (e.g. 404.astro / 500.astro).
 	 * This also handles pre-rendered /404 or /500 routes
 	 */
-	async #renderError(
-		request: Request,
-		{ status, response: originalResponse }: RenderErrorOptions
-	) {
+	async #renderError(request: Request, { status, response: originalResponse }: RenderErrorOptions) {
 		const errorRouteData = matchRoute('/' + status, this.#manifestData);
 		const url = new URL(request.url);
 		if (errorRouteData) {
