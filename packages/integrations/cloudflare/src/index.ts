@@ -210,7 +210,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					}
 				}
 
-				// // // throw the server folder in the bin
+				// throw the server folder in the bin
 				const serverUrl = new URL(_buildConfig.server);
 				await fs.promises.rm(serverUrl, { recursive: true, force: true });
 
