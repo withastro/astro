@@ -11,7 +11,6 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^0.19.7",
     "@astrojs/tailwind": "^4.0.0",
     "@types/canvas-confetti": "^1.6.0",
     "astro": "^2.10.3",
