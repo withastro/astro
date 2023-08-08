@@ -48,7 +48,6 @@
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
     "mocha": "^9.2.2",
-    "node-mocks-http": "^1.12.2",
-    "undici": "^5.22.1"
+    "node-mocks-http": "^1.12.2"
   }
 }
