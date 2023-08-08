@@ -17,7 +17,7 @@ describe('Runtime Locals', () => {
 		});
 		await fixture.build();
 
-		cli = runCLI('./fixtures/runtime/', { silent: true, port: 8788 });
+		cli = runCLI('./fixtures/runtime/', { silent: false, port: 8791 });
 		await cli.ready;
 	});
 
@@ -26,7 +26,7 @@ describe('Runtime Locals', () => {
 	});
 
 	it('has CF and Caches', async () => {
-		let res = await fetch(`http://localhost:8788/`);
+		let res = await fetch(`http://localhost:8791/`);
 		expect(res.status).to.equal(200);
 		let html = await res.text();
 		let $ = cheerio.load(html);
