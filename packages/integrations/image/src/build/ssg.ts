@@ -127,7 +127,7 @@ export async function ssgBuild({
 
 	async function processStaticImage([src, transformsMap]: [
 		string,
-		Map<string, TransformOptions>
+		Map<string, TransformOptions>,
 	]): Promise<void> {
 		let inputFile: string | undefined = undefined;
 		let inputBuffer: Buffer | undefined = undefined;
