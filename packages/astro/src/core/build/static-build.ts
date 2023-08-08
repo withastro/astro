@@ -448,19 +448,12 @@ export function makeAstroPageEntryPointFileName(
 	const pageModuleId = facadeModuleId
 		.replace(prefix, '')
 		.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
-	let route = routes.find((routeData) => {
-		return routeData.route === pageModuleId;
-	});
-	let name = pageModuleId;
-	if (route) {
-		name = route.route;
-	}
-	if (name.endsWith('/')) name += 'index';
-	const fileName = `${name.replaceAll('[', '_').replaceAll(']', '_').replaceAll('...', '---')}.mjs`;
-	if (name.startsWith('..')) {
-		return `pages${fileName}`;
-	}
-	return fileName;
+	const route = routes.find((routeData) => routeData.component === pageModuleId);
+	const name = route?.route ?? pageModuleId;
+	return `pages${name
+		.replace(/\/$/, '/index')
+		.replaceAll(/[\[\]]/g, '_')
+		.replaceAll('...', '---')}.astro.mjs`;
 }
 
 /**

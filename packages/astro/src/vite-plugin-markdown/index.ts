@@ -27,6 +27,7 @@ function safeMatter(source: string, id: string) {
 		return matter(source);
 	} catch (err: any) {
 		const markdownError = new MarkdownError({
+			name: 'MarkdownError',
 			message: err.message,
 			stack: err.stack,
 			location: {

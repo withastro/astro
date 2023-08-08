@@ -130,7 +130,7 @@ export default defineConfig({
 
 ## Examples
 
-- [Browse projects with Astro Partytown on GitHub](https://github.com/search?q=%22@astrojs/partytown%22+filename:package.json&type=Code) for more examples!
+- [Browse projects with Astro Partytown on GitHub](https://github.com/search?q=%22%40astrojs%2Fpartytown%22+path%3A**%2Fpackage.json&type=code) for more examples!
 
 ## Troubleshooting
 
