@@ -1342,11 +1342,31 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 }
 export interface AstroInlineConfig extends AstroUserConfig, AstroInlineOnlyConfig {}
 export interface AstroInlineOnlyConfig {
+	/**
+	 * A custom path to the Astro config file. If relative, it'll resolve based on the current working directory.
+	 * Set to false to disable loading any config files.
+	 *
+	 * If this value is undefined or unset, Astro will search for an `astro.config.(js,mjs,ts)` file relative to
+	 * the `root` and load the config file if found.
+	 */
 	configFile?: string | false;
+	/**
+	 * The current mode used when building your site to generate either "development" or "production" code.
+	 */
 	mode?: RuntimeMode;
+	/**
+	 * The logging level to filter messages logged by Astro.
+	 * - "debug": Log all messages and debug information.
+	 * - "info": Log all messages.
+	 * - "warn": Log only warnings and errors.
+	 * - "error": Log only errors.
+	 * - "silent": Log no messages.
+	 *
+	 * @default "info"
+	 */
 	logLevel?: LoggerLevel;
 	/**
-	 * @internal for testing only
+	 * @internal for testing only, use `logLevel` instead.
 	 */
 	logging?: LogOptions;
 }
