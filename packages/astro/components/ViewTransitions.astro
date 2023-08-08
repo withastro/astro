@@ -132,6 +132,10 @@ const { fallback = 'animate' } = Astro.props as Props;
 				}
 			}
 
+			if (state?.scrollY === 0 && location.hash) {
+				const id = decodeURIComponent(location.hash.slice(1));
+				state.scrollY = document.getElementById(id)?.offsetTop || 0;
+			}
 			if (state?.scrollY != null) {
 				scrollTo(0, state.scrollY);
 			}
@@ -220,6 +224,12 @@ const { fallback = 'animate' } = Astro.props as Props;
 		document.head.append(link);
 	}
 
+	function samePage(location, link) {
+		const linkURL = new URL(link.href, location.href);
+		linkURL.hash = location.hash;
+		return linkURL.href === location.href;
+	}
+
 	if (supportsViewTransitions || getFallback() !== 'none') {
 		document.addEventListener('click', (ev) => {
 			let link = ev.target;
@@ -235,7 +245,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				link.href &&
 				(!link.target || link.target === '_self') &&
 				link.origin === location.origin &&
-				!link.hash &&
+				!(link.hash && samePage(location, link)) &&
 				ev.button === 0 && // left clicks only
 				!ev.metaKey && // new tab (mac)
 				!ev.ctrlKey && // new tab (windows)
