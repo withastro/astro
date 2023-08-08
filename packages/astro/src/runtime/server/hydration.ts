@@ -4,9 +4,10 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
+
+import { serialize } from 'seroval';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { escapeHTML } from './escape.js';
-import { serializeProps } from './serialize.js';
 import { serializeListValue } from './util.js';
 
 export interface HydrationMetadata {
@@ -123,7 +124,7 @@ interface HydrateScriptOptions {
 export async function generateHydrateScript(
 	scriptOptions: HydrateScriptOptions,
 	metadata: Required<AstroComponentMetadata>
-): Promise<SSRElement> {
+): Promise<[SSRElement, SSRElement]> {
 	const { renderer, result, astroId, props, attrs } = scriptOptions;
 	const { hydrate, componentUrl, componentExport } = metadata;
 
@@ -140,6 +141,7 @@ export async function generateHydrateScript(
 			uid: astroId,
 		},
 	};
+	const scriptProps: Record<string, any> = {}
 
 	// Attach renderer-provided attributes
 	if (attrs) {
@@ -149,27 +151,25 @@ export async function generateHydrateScript(
 	}
 
 	// Add component url
-	island.props['component-url'] = await result.resolve(decodeURI(componentUrl));
+	scriptProps['componentUrl'] = await result.resolve(decodeURI(componentUrl));
 
 	// Add renderer url
 	if (renderer.clientEntrypoint) {
-		island.props['component-export'] = componentExport.value;
-		island.props['renderer-url'] = await result.resolve(decodeURI(renderer.clientEntrypoint));
-		island.props['props'] = escapeHTML(serializeProps(props, metadata));
+		scriptProps['componentExport'] = componentExport.value;
+		scriptProps['rendererUrl'] = await result.resolve(decodeURI(renderer.clientEntrypoint));
 	}
 
 	island.props['ssr'] = '';
 	island.props['client'] = hydrate;
 	let beforeHydrationUrl = await result.resolve('astro:scripts/before-hydration.js');
 	if (beforeHydrationUrl.length) {
-		island.props['before-hydration-url'] = beforeHydrationUrl;
+		scriptProps['beforeHydrationUrl'] = beforeHydrationUrl;
 	}
-	island.props['opts'] = escapeHTML(
-		JSON.stringify({
-			name: metadata.displayName,
-			value: metadata.hydrateArgs || '',
-		})
-	);
+	scriptProps['opts'] = {
+		name: metadata.displayName,
+		value: metadata.hydrateArgs || '',
+	}
+	scriptProps['props'] = props;
 
 	transitionDirectivesToCopyOnIsland.forEach((name) => {
 		if (props[name]) {
@@ -177,5 +177,10 @@ export async function generateHydrateScript(
 		}
 	});
 
-	return island;
+	const script: SSRElement = {
+		children: `Astro.assign(document.currentScript,${serialize(scriptProps)})`,
+		props: { async: '' }
+	}
+
+	return [island, script];
 }

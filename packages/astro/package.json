@@ -160,6 +160,7 @@
     "prompts": "^2.4.2",
     "rehype": "^12.0.1",
     "semver": "^7.5.3",
+    "seroval": "^0.9.0",
     "server-destroy": "^1.0.1",
     "sharp": "^0.32.1",
     "shiki": "^0.14.1",

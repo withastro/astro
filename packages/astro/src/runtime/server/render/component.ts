@@ -6,10 +6,10 @@ import type {
 } from '../../../@types/astro';
 import type { RenderInstruction } from './types.js';
 
+import { serialize } from 'seroval';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 import { HTMLBytes, markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
-import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
 import { isPromise } from '../util.js';
 import {
@@ -314,13 +314,10 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 	// Include componentExport name, componentUrl, and props in hash to dedupe identical islands
 	const astroId = shorthash(
-		`<!--${metadata.componentExport!.value}:${metadata.componentUrl}-->\n${html}\n${serializeProps(
-			props,
-			metadata
-		)}`
+		`<!--${metadata.componentExport!.value}:${metadata.componentUrl}-->\n${html}\n${serialize(props)}`
 	);
 
-	const island = await generateHydrateScript(
+	const [island, script] = await generateHydrateScript(
 		{ renderer: renderer!, result, astroId, props, attrs },
 		metadata as Required<AstroComponentMetadata>
 	);
@@ -357,10 +354,10 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 			: '';
 
 	island.children = `${html ?? ''}${template}`;
-
 	if (island.children) {
 		island.props['await-children'] = '';
 	}
+	island.children = `${renderElement('script', script, false)}${island.children}`
 
 	return {
 		render(destination) {
