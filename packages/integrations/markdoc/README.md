@@ -344,6 +344,44 @@ Now, you can call this function from any Markdoc content entry:
 
 📚 [See the Markdoc documentation](https://markdoc.dev/docs/functions#creating-a-custom-function) for more on using variables or functions in your content.
 
+### Markdoc Language Server
+
+If you are using VS Code there is a extension called [Markdoc language support](https://marketplace.visualstudio.com/items?itemName=Stripe.markdoc-language-support). It gives you syntax highlighting for markdown and autocomplete for configured tags.
+For more information please go click [here](https://github.com/markdoc/language-server.git).
+
+To configure the language server to work. Create a `markdoc.config.json` file into the project root.
+Then copy the code below and paste it in that file.
+
+```json
+[
+  {
+    "id": "my-site",
+    "path": "src/content",
+    "schema": {
+      "path": "markdoc.config.mjs",
+      "type": "esm",
+      "property": "default",
+      "watch": true
+    },
+    "routing": {
+      "frontmatter": "route"
+    }
+  }
+]
+```
+
+If you need to change anything remember that the `schema` property is the one that is important.
+It tells the server information about the config file you are using. 
+It accepts these properties.
+
+- The path is where the config file is
+- The type is that kind of module the config is using
+- The property is what exported property contains the config object you are using.
+- The watch is to tell the server to watch for changes to the config   
+
+The path that is not in the schema tells the server what folder to watch for.
+**Don't use a glob pattern**. 
+
 ### Pass Markdoc variables
 
 You may need to pass [variables][markdoc-variables] to your content. This is useful when passing SSR parameters like A/B tests.
