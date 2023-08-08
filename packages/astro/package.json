@@ -211,7 +211,6 @@
     "rollup": "^3.25.1",
     "sass": "^1.63.4",
     "srcset-parse": "^1.1.0",
-    "undici": "^5.22.1",
     "unified": "^10.1.2"
   },
   "engines": {
