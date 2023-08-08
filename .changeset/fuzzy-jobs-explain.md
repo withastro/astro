@@ -4,6 +4,10 @@
 
 Expose the runtime bindings & environmental variabels via `Astro.locals`
 
-  ```js
-  const env = Astro.locals.runtime.env;
+  ```diff
+  - import { getRuntime } from '@astrojs/cloudflare/runtime';
+  - getRuntime(Astro.request);
+  
+  + const runtime = Astro.locals.runtime;
+  + const env = runtime.env;
   ```
