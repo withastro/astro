@@ -12,15 +12,13 @@ type Env = {
 	name: string;
 };
 
-interface CloudflareContext {
-	locals: {
+interface WorkerRuntime {
 		runtime: {
 			waitUntil: (promise: Promise<any>) => void;
 			env: Env;
 			cf: CFRequest['cf'];
 			caches: typeof caches;
 		};
-	};
 }
 
 export function createExports(manifest: SSRManifest) {
@@ -46,7 +44,7 @@ export function createExports(manifest: SSRManifest) {
 				request.headers.get('cf-connecting-ip')
 			);
 
-			// @deprecated: getRuntime() can be removed in the next major release, after testing
+			// @deprecated: getRuntime() can be removed in the next major release, after testing runtime in locals
 			Reflect.set(request, Symbol.for('runtime'), {
 				env,
 				name: 'cloudflare',
@@ -58,31 +56,18 @@ export function createExports(manifest: SSRManifest) {
 				},
 			});
 
-			const cloudflareContext = {} as CloudflareContext;
-
-			// We define a custom property, so we can check the value passed to locals
-			Object.defineProperty(cloudflareContext, 'locals', {
-				enumerable: true,
-				// we should protect top-level locals from being overwritten
-				// users should just use nested properties, e.g. locals.test = "foo"
-				writable: false,
-				configurable: false,
-				value: {
-					runtime: {
-						waitUntil: (promise: Promise<any>) => {
-							context.waitUntil(promise);
-						},
-						env: env,
-						cf: request.cf,
-						caches: caches,
+			const locals = {
+				runtime: {
+					waitUntil: (promise: Promise<any>) => {
+						context.waitUntil(promise);
 					},
+					env: env,
+					cf: request.cf,
+					caches: caches,
 				},
-			});
+			} satisfies WorkerRuntime;
 
-			// We should freeze the runtime object, to make sure it&nested properties are not mutated
-			Object.freeze(cloudflareContext.locals.runtime);
-
-			let response = await app.render(request, routeData, cloudflareContext.locals);
+			let response = await app.render(request, routeData, locals);
 
 			if (app.setCookieHeaders) {
 				for (const setCookieHeader of app.setCookieHeaders(response)) {
