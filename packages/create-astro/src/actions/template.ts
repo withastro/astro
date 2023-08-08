@@ -68,7 +68,7 @@ const FILES_TO_UPDATE = {
 
 function getTemplateTarget(tmpl: string, ref = 'latest') {
 	if (tmpl.startsWith('starlight')) {
-		const [_, starter = 'basics'] = tmpl.split('/');
+		const [, starter = 'basics'] = tmpl.split('/');
 		return `withastro/starlight/examples/${starter}`;
 	}
 	const isThirdParty = tmpl.includes('/');
