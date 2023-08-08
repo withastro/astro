@@ -200,9 +200,7 @@ function asyncIterator<T>(source: AsyncIterableIterator<T>): AsyncIterableIterat
 	};
 }
 
-export function responseIterator<T>(
-	response: Response | Buffer
-): AsyncIterableIterator<T> {
+export function responseIterator<T>(response: Response | Buffer): AsyncIterableIterator<T> {
 	let body: unknown = response;
 
 	if (isNodeResponse(response)) body = response.body;
