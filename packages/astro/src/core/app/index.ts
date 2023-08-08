@@ -195,7 +195,6 @@ export class App {
 				}
 				return response.response;
 			} else {
-				const body = response.body;
 				const headers = new Headers();
 				const mimeType = mime.getType(url.pathname);
 				if (mimeType) {
@@ -203,7 +202,8 @@ export class App {
 				} else {
 					headers.set('Content-Type', 'text/plain;charset=utf-8');
 				}
-				const bytes = this.#encoder.encode(body);
+				const bytes =
+					response.encoding !== 'binary' ? this.#encoder.encode(response.body) : response.body;
 				headers.set('Content-Length', bytes.byteLength.toString());
 
 				const newResponse = new Response(bytes, {
