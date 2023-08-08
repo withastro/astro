@@ -59,7 +59,6 @@ export function createExports(manifest: SSRManifest) {
 						context.waitUntil(promise);
 					},
 					env: context.env,
-					params: context.params, // These are params from Cloudflare, possible equal to Astro.params (unvalidated)
 					cf: request.cf,
 					caches: caches,
 				},
