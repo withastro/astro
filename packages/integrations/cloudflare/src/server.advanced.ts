@@ -56,7 +56,7 @@ export function createExports(manifest: SSRManifest) {
 				},
 			});
 
-			const locals = {
+			const locals: WorkerRuntime = {
 				runtime: {
 					waitUntil: (promise: Promise<any>) => {
 						context.waitUntil(promise);
@@ -65,7 +65,7 @@ export function createExports(manifest: SSRManifest) {
 					cf: request.cf,
 					caches: caches,
 				},
-			} satisfies WorkerRuntime;
+			};
 
 			let response = await app.render(request, routeData, locals);
 

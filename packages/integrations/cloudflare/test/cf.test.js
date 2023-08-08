@@ -31,7 +31,6 @@ describe('Cf metadata and caches', () => {
 		let html = await res.text();
 		let $ = cheerio.load(html);
 		// console.log($('#cf').text(), html);
-		// console.log($('#env').text(), html);
 		expect($('#cf').text()).to.contain('city');
 		expect($('#hasCache').text()).to.equal('true');
 	});
