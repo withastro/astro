@@ -16,7 +16,7 @@ export type RSSOptions = {
 	 * We recommend using the [endpoint context object](https://docs.astro.build/en/reference/api-reference/#contextsite),
 	 * which includes the `site` configured in your project's `astro.config.*`
 	 */
-	site: z.infer<typeof rssOptionsValidator>['site'];
+	site: z.infer<typeof rssOptionsValidator>['site'] | URL;
 	/** List of RSS feed items to render. */
 	items: RSSFeedItem[] | GlobResult;
 	/** Specify arbitrary metadata on opening <xml> tag */

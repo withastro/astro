@@ -130,7 +130,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 			if (s) {
 				return {
 					code: s.toString(),
-					map: resolvedConfig.build.sourcemap ? s.generateMap({ hires: true }) : null,
+					map: resolvedConfig.build.sourcemap ? s.generateMap({ hires: 'boundary' }) : null,
 				};
 			} else {
 				return null;

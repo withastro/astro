@@ -40,6 +40,7 @@ function netlifyFunctions({
 				updateConfig({
 					outDir,
 					build: {
+						redirects: false,
 						client: outDir,
 						server: new URL('./.netlify/functions-internal/', config.root),
 					},

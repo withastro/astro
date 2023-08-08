@@ -11,7 +11,7 @@ export async function intro(ctx: Pick<Context, 'skipHouston' | 'version' | 'user
 				'Welcome',
 				'to',
 				label('astro', color.bgGreen, color.black),
-				color.green(`v${ctx.version}`) + ',',
+				(ctx.version ? color.green(`v${ctx.version}`) : '') + ',',
 				`${ctx.username}!`,
 			],
 			random(welcome),
