@@ -77,11 +77,13 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-react-jsx": "^7.22.5",
+    "@babel/plugin-transform-react-jsx-development": "^7.22.5",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.26.1",
     "@types/node": "^18.16.18",
     "@typescript-eslint/eslint-plugin": "6.0.0",
     "@typescript-eslint/parser": "6.0.0",
+    "babel-plugin-transform-hook-names": "^1.0.2",
     "esbuild": "^0.18.16",
     "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.8.0",

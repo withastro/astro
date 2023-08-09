@@ -21,6 +21,9 @@ importers:
       '@babel/plugin-transform-react-jsx':
         specifier: ^7.22.5
         version: 7.22.5(@babel/core@7.22.5)
+      '@babel/plugin-transform-react-jsx-development':
+        specifier: ^7.22.5
+        version: 7.22.5
       '@changesets/changelog-github':
         specifier: ^0.4.8
         version: 0.4.8
@@ -36,6 +39,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: 6.0.0
         version: 6.0.0(eslint@8.43.0)(typescript@5.1.6)
+      babel-plugin-transform-hook-names:
+        specifier: ^1.0.2
+        version: 1.0.2
       esbuild:
         specifier: ^0.18.16
         version: 0.18.16
@@ -6638,7 +6644,6 @@ packages:
         optional: true
     dependencies:
       '@babel/plugin-transform-react-jsx': 7.22.5(@babel/core@7.22.5)
-    dev: false
 
   /@babel/plugin-transform-react-jsx-self@7.22.5(@babel/core@7.22.5):
     resolution: {integrity: sha512-nTh2ogNUtxbiSbxaT4Ds6aXnXEipHweN9YRgOX/oNXdf0cCrGn/+2LozFa3lnPV5D90MkjhgckCPBrsoSc1a7g==}
@@ -10002,7 +10007,6 @@ packages:
     peerDependenciesMeta:
       '@babel/core':
         optional: true
-    dev: false
 
   /babel-preset-solid@1.7.4(@babel/core@7.22.5):
     resolution: {integrity: sha512-0mbHNYkbOVYhH6L95VlHVkBEVQjOXSzUqLDiFxUcsg/tU4yTM/qx7FI8C+kmos9LHckQBSm3wtwoe1BZLNJR1w==}
