@@ -224,12 +224,6 @@ const { fallback = 'animate' } = Astro.props as Props;
 		document.head.append(link);
 	}
 
-	function isSamePage(location, link) {
-		const linkURL = new URL(link.href, location.href);
-		linkURL.hash = location.hash;
-		return linkURL.href.replace(/#$/, '') === location.href.replace(/#$/, '');
-	}
-
 	if (supportsViewTransitions || getFallback() !== 'none') {
 		document.addEventListener('click', (ev) => {
 			let link = ev.target;
@@ -245,7 +239,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				link.href &&
 				(!link.target || link.target === '_self') &&
 				link.origin === location.origin &&
-				!isSamePage(location, link) &&
+				location.pathname !== link.pathname &&
 				ev.button === 0 && // left clicks only
 				!ev.metaKey && // new tab (mac)
 				!ev.ctrlKey && // new tab (windows)
