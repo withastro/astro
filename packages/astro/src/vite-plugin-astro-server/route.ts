@@ -246,12 +246,15 @@ export async function handleRoute({
 			if (computedMimeType) {
 				contentType = computedMimeType;
 			}
-			const response = new Response(Buffer.from(result.body, result.encoding), {
-				status: 200,
-				headers: {
-					'Content-Type': `${contentType};charset=utf-8`,
-				},
-			});
+			const response = new Response(
+				result.encoding !== 'binary' ? Buffer.from(result.body, result.encoding) : result.body,
+				{
+					status: 200,
+					headers: {
+						'Content-Type': `${contentType};charset=utf-8`,
+					},
+				}
+			);
 			attachToResponse(response, result.cookies);
 			await writeWebResponse(incomingResponse, response);
 		}

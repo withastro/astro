@@ -18,12 +18,10 @@ const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
 export type EndpointCallResult =
-	| {
+	| (EndpointOutput & {
 			type: 'simple';
-			body: string;
-			encoding?: BufferEncoding;
 			cookies: AstroCookies;
-	  }
+	  })
 	| {
 			type: 'response';
 			response: Response;
@@ -153,9 +151,8 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	}
 
 	return {
+		...response,
 		type: 'simple',
-		body: response.body,
-		encoding: response.encoding,
 		cookies: context.cookies,
 	};
 }
