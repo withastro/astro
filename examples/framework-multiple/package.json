@@ -11,12 +11,12 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/preact": "^2.2.1",
+    "@astrojs/preact": "^2.2.2",
     "@astrojs/react": "^2.2.1",
     "@astrojs/solid-js": "^2.2.0",
     "@astrojs/svelte": "^3.1.0",
     "@astrojs/vue": "^2.2.1",
-    "astro": "^2.10.3",
+    "astro": "^2.10.4",
     "preact": "^10.15.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
