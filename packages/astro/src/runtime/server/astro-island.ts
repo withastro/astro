@@ -14,7 +14,10 @@ declare const Astro: {
 
 {
 	// @ts-ignore
-	(self.Astro || (self.Astro = {})).assign = (script,value) => Object.assign(script.parentElement,value);
+	(self.Astro || (self.Astro = {})).assign = (script,value) => {
+		Object.assign(script.parentElement,value);
+		script.remove();
+	};
 
 	if (!customElements.get('astro-island')) {
 		customElements.define(
@@ -28,6 +31,7 @@ declare const Astro: {
 				public rendererUrl = '';
 				public componentUrl = '';
 				public componentExport = 'default';
+				public beforeHydrationUrl = '';
 
 				connectedCallback() {
 					if (!this.hasAttribute('await-children') || this.firstChild) {
@@ -44,11 +48,12 @@ declare const Astro: {
 					}
 				}
 				async childrenConnectedCallback() {
-					let { beforeHydrationUrl } = this as any;
+					let { beforeHydrationUrl } = this;
 					if (beforeHydrationUrl) {
 						await import(beforeHydrationUrl);
 					}
 					this.start();
+					this.removeAttribute('await-children');
 				}
 				start() {
 					const { opts } = this;
