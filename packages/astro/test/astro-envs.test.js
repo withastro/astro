@@ -109,7 +109,7 @@ describe('Environment Variables', () => {
 			expect(res.status).to.equal(200);
 			let indexHtml = await res.text();
 			let $ = cheerio.load(indexHtml);
-			expect($('#base-url').text()).to.equal('/blog/');
+			expect($('#base-url').text()).to.equal('/blog');
 		});
 
 		it('does render destructured builtin SITE env', async () => {
@@ -117,7 +117,7 @@ describe('Environment Variables', () => {
 			expect(res.status).to.equal(200);
 			let indexHtml = await res.text();
 			let $ = cheerio.load(indexHtml);
-			expect($('#base-url').text()).to.equal('/blog/');
+			expect($('#base-url').text()).to.equal('/blog');
 		});
 	});
 });

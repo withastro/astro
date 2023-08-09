@@ -113,9 +113,9 @@ describe('Development Routing', () => {
 			expect(response.status).to.equal(200);
 		});
 
-		it('404 when loading subpath root without trailing slash', async () => {
+		it('200 when loading subpath root without trailing slash', async () => {
 			const response = await fixture.fetch('/blog');
-			expect(response.status).to.equal(404);
+			expect(response.status).to.equal(200);
 		});
 
 		it('200 when loading another page with subpath used', async () => {
@@ -163,9 +163,9 @@ describe('Development Routing', () => {
 			expect(response.status).to.equal(200);
 		});
 
-		it('404 when loading subpath root without trailing slash', async () => {
+		it('200 when loading subpath root without trailing slash', async () => {
 			const response = await fixture.fetch('/blog');
-			expect(response.status).to.equal(404);
+			expect(response.status).to.equal(200);
 		});
 
 		it('200 when loading another page with subpath used', async () => {
