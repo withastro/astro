@@ -224,10 +224,10 @@ const { fallback = 'animate' } = Astro.props as Props;
 		document.head.append(link);
 	}
 
-	function samePage(location, link) {
+	function isSamePage(location, link) {
 		const linkURL = new URL(link.href, location.href);
 		linkURL.hash = location.hash;
-		return linkURL.href === location.href;
+		return linkURL.href.replace(/#$/, '') === location.href.replace(/#$/, '');
 	}
 
 	if (supportsViewTransitions || getFallback() !== 'none') {
@@ -245,7 +245,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				link.href &&
 				(!link.target || link.target === '_self') &&
 				link.origin === location.origin &&
-				!samePage(location, link) &&
+				!isSamePage(location, link) &&
 				ev.button === 0 && // left clicks only
 				!ev.metaKey && // new tab (mac)
 				!ev.ctrlKey && // new tab (windows)
