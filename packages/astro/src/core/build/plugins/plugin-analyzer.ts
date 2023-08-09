@@ -5,10 +5,10 @@ import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 
 import type { ExportDefaultDeclaration, ExportNamedDeclaration, ImportDeclaration } from 'estree';
-import { walk } from 'estree-walker';
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { prependForwardSlash } from '../../../core/path.js';
 import { getTopLevelPages, moduleIsTopLevelPage, walkParentInfos } from '../graph.js';
+import type { StaticBuildOptions } from '../types.js';
 import { getPageDataByViteID, trackClientOnlyPageDatas } from '../internal.js';
 
 function isPropagatedAsset(id: string) {
@@ -30,29 +30,28 @@ async function doesParentImportChild(
 ): Promise<'no' | 'dynamic' | string[]> {
 	if (!childInfo || !parentInfo.ast || !childExportNames) return 'no';
 
+	// If we're dynamically importing the child, return `dynamic` directly to opt-out of optimization
 	if (childExportNames === 'dynamic' || parentInfo.dynamicallyImportedIds?.includes(childInfo.id)) {
 		return 'dynamic';
 	}
 
 	const imports: Array<ImportDeclaration> = [];
 	const exports: Array<ExportNamedDeclaration | ExportDefaultDeclaration> = [];
-	walk(parentInfo.ast, {
-		enter(node) {
-			if (node.type === 'ImportDeclaration') {
-				imports.push(node as ImportDeclaration);
-			} else if (
-				node.type === 'ExportDefaultDeclaration' ||
-				node.type === 'ExportNamedDeclaration'
-			) {
-				exports.push(node as ExportNamedDeclaration | ExportDefaultDeclaration);
-			}
-		},
-	});
-	// All of the aliases the current component is imported as
+	for (const node of (parentInfo.ast as any).body) {
+		if (node.type === 'ImportDeclaration') {
+			imports.push(node);
+		} else if (node.type === 'ExportDefaultDeclaration' || node.type === 'ExportNamedDeclaration') {
+			exports.push(node);
+		}
+	}
+
+	// All local import names that could be importing the child component
 	const importNames: string[] = [];
 	// All of the aliases the child component is exported as
 	const exportNames: string[] = [];
 
+	// Iterate each import, find it they import the child component, if so, check if they
+	// import the child component name specifically. We can verify this with `childExportNames`.
 	for (const node of imports) {
 		const resolved = await this.resolve(node.source.value as string, parentInfo.id);
 		if (!resolved || resolved.id !== childInfo.id) continue;
@@ -67,14 +66,17 @@ async function doesParentImportChild(
 			}
 		}
 	}
+
+	// Iterate each export, find it they re-export the child component, and push the exported name to `exportNames`
 	for (const node of exports) {
 		if (node.type === 'ExportDefaultDeclaration') {
 			if (node.declaration.type === 'Identifier' && importNames.includes(node.declaration.name)) {
 				exportNames.push('default');
-				// return
 			}
 		} else {
-			// handle `export { x } from 'something';`, where the export and import are in the same node
+			// Handle:
+			// export { Component } from './Component.astro'
+			// export { Component as AliasedComponent } from './Component.astro'
 			if (node.source) {
 				const resolved = await this.resolve(node.source.value as string, parentInfo.id);
 				if (!resolved || resolved.id !== childInfo.id) continue;
@@ -85,6 +87,9 @@ async function doesParentImportChild(
 					}
 				}
 			}
+			// Handle:
+			// export const AliasedComponent = Component
+			// export const AliasedComponent = Component, let foo = 'bar'
 			if (node.declaration) {
 				if (node.declaration.type !== 'VariableDeclaration') continue;
 				for (const declarator of node.declaration.declarations) {
@@ -95,6 +100,9 @@ async function doesParentImportChild(
 					}
 				}
 			}
+			// Handle:
+			// export { Component }
+			// export { Component as AliasedComponent }
 			for (const specifier of node.specifiers) {
 				if (importNames.includes(specifier.local.name)) {
 					exportNames.push(specifier.exported.name);
@@ -115,7 +123,10 @@ async function doesParentImportChild(
 	return exportNames;
 }
 
-export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
+export function vitePluginAnalyzer(
+	options: StaticBuildOptions,
+	internals: BuildInternals
+): VitePlugin {
 	function hoistedScriptScanner() {
 		const uniqueHoistedIds = new Map<string, string>();
 		const pageScripts = new Map<
@@ -139,6 +150,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 				}
 
 				if (hoistedScripts.size) {
+					// These variables are only used for hoisted script analysis optimization
 					const depthsToChildren = new Map<number, ModuleInfo>();
 					const depthsToExportNames = new Map<number, string[] | 'dynamic'>();
 					// The component export from the original component file will always be default.
@@ -147,25 +159,28 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 					for (const [parentInfo, depth] of walkParentInfos(from, this, function until(importer) {
 						return isPropagatedAsset(importer);
 					})) {
-						depthsToChildren.set(depth, parentInfo);
-						// If at any point
-						if (depth > 0) {
-							// Check if the component is actually imported:
-							const childInfo = depthsToChildren.get(depth - 1);
-							const childExportNames = depthsToExportNames.get(depth - 1);
+						// If hoisted script analysis optimization is enabled, try to analyse and bail early if possible
+						if (options.settings.config.experimental.optimizeHoistedScript) {
+							depthsToChildren.set(depth, parentInfo);
+							// If at any point
+							if (depth > 0) {
+								// Check if the component is actually imported:
+								const childInfo = depthsToChildren.get(depth - 1);
+								const childExportNames = depthsToExportNames.get(depth - 1);
 
-							const doesImport = await doesParentImportChild.call(
-								this,
-								parentInfo,
-								childInfo,
-								childExportNames
-							);
+								const doesImport = await doesParentImportChild.call(
+									this,
+									parentInfo,
+									childInfo,
+									childExportNames
+								);
 
-							if (doesImport === 'no') {
-								// Break the search if the parent doesn't import the child.
-								continue;
+								if (doesImport === 'no') {
+									// Break the search if the parent doesn't import the child.
+									continue;
+								}
+								depthsToExportNames.set(depth, doesImport);
 							}
-							depthsToExportNames.set(depth, doesImport);
 						}
 
 						if (isPropagatedAsset(parentInfo.id)) {
@@ -310,13 +325,16 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 	};
 }
 
-export function pluginAnalyzer(internals: BuildInternals): AstroBuildPlugin {
+export function pluginAnalyzer(
+	options: StaticBuildOptions,
+	internals: BuildInternals
+): AstroBuildPlugin {
 	return {
 		build: 'ssr',
 		hooks: {
 			'build:before': () => {
 				return {
-					vitePlugin: vitePluginAnalyzer(internals),
+					vitePlugin: vitePluginAnalyzer(options, internals),
 				};
 			},
 		},

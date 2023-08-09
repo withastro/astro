@@ -1272,6 +1272,27 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		viewTransitions?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.optimizeHoistedScript
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.10.4
+		 * @description
+		 * Enable hoisted script analysis optimization to prevent unused components' script from being included in a page unexpectedly.
+		 * The optimization is best-effort and may inversely miss including the used scripts. Make sure to double-check your built pages
+		 * before publishing.
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		optimizeHoistedScript: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		optimizeHoistedScript?: boolean;
 	};
 
 	// Legacy options to be removed
