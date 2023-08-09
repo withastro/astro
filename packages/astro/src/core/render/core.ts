@@ -7,7 +7,7 @@ import type {
 	RouteType,
 } from '../../@types/astro';
 import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
-import { attachToResponse } from '../cookies/index.js';
+import { attachCookiesToResponse } from '../cookies/index.js';
 import { callEndpoint, createAPIContext, type EndpointCallResult } from '../endpoint/index.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../redirects/index.js';
@@ -70,7 +70,7 @@ async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
 	// If there is an Astro.cookies instance, attach it to the response so that
 	// adapters can grab the Set-Cookie headers.
 	if (result.cookies) {
-		attachToResponse(response, result.cookies);
+		attachCookiesToResponse(response, result.cookies);
 	}
 
 	return response;
@@ -87,7 +87,6 @@ async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
  * It throws an error if the page can't be rendered.
  */
 export async function tryRenderRoute<MiddlewareReturnType = Response>(
-	routeType: RouteType,
 	renderContext: Readonly<RenderContext>,
 	env: Readonly<Environment>,
 	mod: Readonly<ComponentInstance>,
@@ -101,7 +100,7 @@ export async function tryRenderRoute<MiddlewareReturnType = Response>(
 		adapterName: env.adapterName,
 	});
 
-	switch (routeType) {
+	switch (renderContext.route.type) {
 		case 'page':
 		case 'redirect': {
 			if (onRequest) {
@@ -137,7 +136,7 @@ export async function tryRenderRoute<MiddlewareReturnType = Response>(
 			return result;
 		}
 		default:
-			throw new Error(`Couldn't find route of type [${routeType}]`);
+			throw new Error(`Couldn't find route of type [${renderContext.route.type}]`);
 	}
 }
 
