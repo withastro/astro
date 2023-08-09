@@ -41,7 +41,8 @@ export function createExports(manifest: SSRManifest) {
 				request.headers.get('cf-connecting-ip')
 			);
 
-			// @deprecated: getRuntime() can be removed in the next major release, after testing runtime in locals
+			// `getRuntime()` is deprecated, currently available additionally to new Astro.locals.runtime
+			// TODO: remove `getRuntime()` in Astro 3.0
 			Reflect.set(request, Symbol.for('runtime'), {
 				...context,
 				waitUntil: (promise: Promise<any>) => {
