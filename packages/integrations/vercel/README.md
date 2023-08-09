@@ -58,16 +58,12 @@ If you prefer to install the adapter manually instead, complete the following tw
 
 You can deploy to different targets:
 
-- `edge`: SSR inside an [Edge function](https://vercel.com/docs/concepts/functions/edge-functions).
 - `serverless`: SSR inside a [Node.js function](https://vercel.com/docs/concepts/functions/serverless-functions).
 - `static`: generates a static website following Vercel's output formats, redirects, etc.
-
-> **Note**: deploying to the Edge has [its limitations](https://vercel.com/docs/concepts/functions/edge-functions#known-limitations). An edge function can't be more than 1 MB in size and they don't support native Node.js APIs, among others.
 
 You can change where to target by changing the import:
 
 ```js
-import vercel from '@astrojs/vercel/edge';
 import vercel from '@astrojs/vercel/serverless';
 import vercel from '@astrojs/vercel/static';
 ```
@@ -90,7 +86,7 @@ To configure this adapter, pass an object to the `vercel()` function call in `as
 ### analytics
 
 **Type:** `boolean`<br>
-**Available for:** Serverless, Edge, Static<br>
+**Available for:** Serverless, Static<br>
 **Added in:** `@astrojs/vercel@3.1.0`
 
 You can enable [Vercel Analytics](https://vercel.com/analytics) (including Web Vitals and Audiences) by setting `analytics: true`. This will inject Vercel’s tracking scripts into all your pages.
@@ -111,7 +107,7 @@ export default defineConfig({
 ### imagesConfig
 
 **Type:** `VercelImageConfig`<br>
-**Available for:** Edge, Serverless, Static
+**Available for:** Serverless, Static
 **Added in:** `@astrojs/vercel@3.3.0`
 
 Configuration options for [Vercel's Image Optimization API](https://vercel.com/docs/concepts/image-optimization). See [Vercel's image configuration documentation](https://vercel.com/docs/build-output-api/v3/configuration#images) for a complete list of supported parameters.
@@ -134,7 +130,7 @@ export default defineConfig({
 ### imageService
 
 **Type:** `boolean`<br>
-**Available for:** Edge, Serverless, Static
+**Available for:** Serverless, Static
 **Added in:** `@astrojs/vercel@3.3.0`
 
 When enabled, an [Image Service](https://docs.astro.build/en/reference/image-service-reference/) powered by the Vercel Image Optimization API will be automatically configured and used in production. In development, a built-in Squoosh-based service will be used instead.
@@ -175,7 +171,7 @@ import astroLogo from '../assets/logo.png';
 ### includeFiles
 
 **Type:** `string[]`<br>
-**Available for:** Edge, Serverless
+**Available for:** Serverless
 
 Use this property to force files to be bundled with your function. This is helpful when you notice missing files.
 
@@ -191,9 +187,6 @@ export default defineConfig({
   }),
 });
 ```
-
-> **Note**
-> When building for the Edge, all the dependencies get bundled in a single file to save space. **No extra file will be bundled**. So, if you _need_ some file inside the function, you have to specify it in `includeFiles`.
 
 ### excludeFiles
 
