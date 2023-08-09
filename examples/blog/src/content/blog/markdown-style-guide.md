@@ -36,7 +36,7 @@ Itatur? Quiatae cullecum rem ent aut odis in re eossequodi nonsequ idebis ne sap
 ```markdown
 ![Alt text](./full/or/relative/path/of/image)
 ```
- 
+
 #### Output
 
 ![blog placeholder](../../../public/blog-placeholder-about.jpg)
@@ -83,7 +83,6 @@ The blockquote element represents content that is quoted from another source, op
 | Italics   | Bold     | Code   |
 | --------- | -------- | ------ |
 | _italics_ | **bold** | `code` |
-
 ```
 
 #### Output
@@ -99,19 +98,20 @@ The blockquote element represents content that is quoted from another source, op
 we can use 3 backticks ``` in new line and write snippet and close with 3 backticks on new line and to highlight language specific syntac, write one word of language name after first 3 backticks, for eg. html, javascript, css, markdown, typescript, txt, bash
 
 ````markdown
-  ```html
-     <!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="utf-8" />
-          <title>Example HTML5 Document</title>
-        </head>
-        <body>
-          <p>Test</p>
-        </body>
-      </html>
-  ```
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Example HTML5 Document</title>
+  </head>
+  <body>
+    <p>Test</p>
+  </body>
+</html>
+```
 ````
+
 Output
 
 ```html
