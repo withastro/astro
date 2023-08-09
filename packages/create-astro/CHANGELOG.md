@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.1.12
+
+### Patch Changes
+
+- [#7993](https://github.com/withastro/astro/pull/7993) [`315d58f27`](https://github.com/withastro/astro/commit/315d58f27b022c9d4285cf13f445ed18c26c327e) Thanks [@delucis](https://github.com/delucis)! - Add support for more Starlight templates
+
 ## 3.1.11
 
 ### Patch Changes
