@@ -7,9 +7,9 @@ import vue from '@astrojs/vue';
 
 export default defineConfig({
 	integrations: [
-		react(),
-		preact(),
-		solid(),
+		preact({ include: ['**/preact/*'] }),
+		solid({ include: ['**/solid/*'] }),
+		react({ include: ['**/react/*'] }),
 		svelte(),
 		vue()
 	]
