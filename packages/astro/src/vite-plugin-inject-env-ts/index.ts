@@ -85,8 +85,6 @@ export async function setUpEnvTs({
 		let referenceDefs: string[] = [];
 		if (settings.config.experimental.assets) {
 			referenceDefs.push('/// <reference types="astro/client-image" />');
-		} else if (settings.config.integrations.find((i) => i.name === '@astrojs/image')) {
-			referenceDefs.push('/// <reference types="@astrojs/image/client" />');
 		} else {
 			referenceDefs.push('/// <reference types="astro/client" />');
 		}

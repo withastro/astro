@@ -23,7 +23,6 @@
 '@astrojs/prefetch': minor
 '@astrojs/markdoc': minor
 '@astrojs/underscore-redirects': minor
-'@astrojs/image': minor
 '@astrojs/mdx': minor
 '@astrojs/internal-helpers': minor
 ---
