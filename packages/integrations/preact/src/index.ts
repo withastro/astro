@@ -1,5 +1,8 @@
 import type { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
 import preact, {type PreactPluginOptions as VitePreactPluginOptions} from '@preact/preset-vite';
+import { fileURLToPath } from 'node:url';
+
+const babelCwd = new URL('../', import.meta.url);
 
 function getRenderer(development: boolean): AstroRenderer {
 	return {
@@ -16,7 +19,13 @@ export default function ({include, exclude, compat}: Options = {}): AstroIntegra
 		name: '@astrojs/preact',
 		hooks: {
 			'astro:config:setup': ({ addRenderer, updateConfig, command }) => {
-				const preactPlugin = preact({include, exclude});
+				const preactPlugin = preact({
+					include,
+					exclude,
+					babel: {
+						cwd: fileURLToPath(babelCwd)
+					}
+				});
 
 				const viteConfig: ViteUserConfig = {
 					optimizeDeps: {
@@ -35,7 +44,7 @@ export default function ({include, exclude, compat}: Options = {}): AstroIntegra
 					viteConfig.optimizeDeps!.include!.push(
 						'preact/compat',
 						'preact/test-utils',
-						'preact/compat/jsx-runtime'
+						'preact/compat/jsx-runtime',
 					);
 					viteConfig.resolve = {
 						alias: [
