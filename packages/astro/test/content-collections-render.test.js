@@ -178,12 +178,12 @@ describe('Content Collections - render()', () => {
 			let $ = cheerio.load(html);
 			expect($('li').first().text()).to.equal('With Layout Prop');
 
-			 request = new Request('http://example.com/');
-			 response = await app.render(request);
-			 html = await response.text();
-			 $ = cheerio.load(html);
+			request = new Request('http://example.com/');
+			response = await app.render(request);
+			html = await response.text();
+			$ = cheerio.load(html);
 			expect($('li').first().text()).to.equal('Hello world');
-		})
+		});
 	});
 
 	describe('Dev - SSG', () => {
