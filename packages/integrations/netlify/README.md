@@ -163,24 +163,28 @@ Once you run `astro build` there will be a `dist/_redirects` file. Netlify will 
 > You can still include a `public/_redirects` file for manual redirects. Any redirects you specify in the redirects config are appended to the end of your own.
 
 ### On-demand Builders
+
 [Netlify On-demand Builders](https://docs.netlify.com/configure-builds/on-demand-builders/) are serverless functions used to generate web content as needed that’s automatically cached on Netlify’s Edge CDN. You can enable their use using the [`builders` configuration](#builders).
 
-By default, all pages will be rendered on first visit and the rendered result will be reused for every subsequent visit until you redeploy. To set a revalidation time, call the `netlify.setBuildersTtl(ttl)` [local](https://docs.astro.build/en/guides/middleware/#locals) with the duration (in seconds) for which the page should be reused.
+By default, all pages will be rendered on first visit and the rendered result will be reused for every subsequent visit until you redeploy. To set a revalidation time, call the `runtime.setBuildersTtl(ttl)` [local](https://docs.astro.build/en/guides/middleware/#locals) with the duration (in seconds) for which the page should be reused.
 
 As an example, for the following snippet, Netlify will store the rendered HTML for 45 seconds.
 
 ```astro
 ---
-import Layout from '../components/Layout.astro'
-Astro.locals.netlify.setBuildersTtl(45)
+import Layout from '../components/Layout.astro';
+
+if (import.meta.env.PROD) {
+  Astro.locals.runtime.setBuildersTtl(45);
+}
 ---
+
 <Layout title="Astro on Netlify">
-    {new Date(Date.now())}
+  {new Date(Date.now())}
 </Layout>
 ```
 
 It is important to note that On-demand Builders ignore query params when checking for cached pages. For example, if `example.com/?x=y` is cached, it will be served for `example.com/?a=b` (different query params) and `example.com/` (no query params) as well.
-
 
 ## Usage
 

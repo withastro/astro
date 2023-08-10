@@ -74,17 +74,22 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 		const routeData = app.match(request);
 		const ip = headers['x-nf-client-connection-ip'];
 		Reflect.set(request, clientAddressSymbol, ip);
-		let locals = {};
+
+		let locals: Record<string, unknown> = {};
+
 		if (request.headers.has(ASTRO_LOCALS_HEADER)) {
 			let localsAsString = request.headers.get(ASTRO_LOCALS_HEADER);
 			if (localsAsString) {
 				locals = JSON.parse(localsAsString);
 			}
 		}
-		let responseTtl = undefined
-		if (builders) {
-			Object.assign(locals, { netlify: { setBuildersTtl(ttl : number) { responseTtl = ttl } } });
-		}
+
+		let responseTtl = undefined;
+
+		locals.runtime = builders
+			? { setBuildersTtl(ttl: number) { responseTtl = ttl } }
+			: {}
+
 		const response: Response = await app.render(request, routeData, locals);
 		const responseHeaders = Object.fromEntries(response.headers.entries());
 
