@@ -3,7 +3,7 @@ import type { AstroSettings } from '../@types/astro.js';
 import { type LogOptions } from '../core/logger/core.js';
 
 import { bold } from 'kleur/colors';
-import { extname } from 'node:path';
+import { basename, extname } from 'node:path';
 import { normalizePath } from 'vite';
 import { warn } from '../core/logger/core.js';
 import { isEndpoint, isPage, rootRelativePath } from '../core/util.js';
@@ -13,6 +13,11 @@ import { scan } from './scan.js';
 export interface AstroPluginScannerOptions {
 	settings: AstroSettings;
 	logging: LogOptions;
+}
+
+function isPrerenderEligible(id: string) {
+	const base = basename(id)
+	return !base.startsWith("404") && !base.startsWith("500")
 }
 
 const KNOWN_FILE_EXTENSIONS = ['.astro', '.js', '.ts'];
@@ -46,6 +51,11 @@ export default function astroScannerPlugin({
 			if (typeof pageOptions.prerender === 'undefined') {
 				pageOptions.prerender = defaultPrerender;
 			}
+
+			if (!isPrerenderEligible(id)) {
+				pageOptions.prerender = false;
+			}
+			
 			// `getStaticPaths` warning is just a string check, should be good enough for most cases
 			if (
 				!pageOptions.prerender &&
