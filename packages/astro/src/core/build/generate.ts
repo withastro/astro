@@ -28,6 +28,7 @@ import {
 } from '../../core/build/internal.js';
 import {
 	isRelativePath,
+	joinPaths,
 	prependForwardSlash,
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
@@ -437,11 +438,11 @@ function getUrlForPath(
 		buildPathname = base;
 	} else if (routeType === 'endpoint') {
 		const buildPathRelative = removeLeadingForwardSlash(pathname);
-		buildPathname = base + buildPathRelative;
+		buildPathname = joinPaths(base, buildPathRelative);
 	} else {
 		const buildPathRelative =
 			removeTrailingForwardSlash(removeLeadingForwardSlash(pathname)) + ending;
-		buildPathname = base + buildPathRelative;
+		buildPathname = joinPaths(base, buildPathRelative);
 	}
 	const url = new URL(buildPathname, origin);
 	return url;

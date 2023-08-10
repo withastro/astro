@@ -48,7 +48,7 @@ export async function handleRequest({
 	// Add config.base back to url before passing it to SSR
 	url.pathname = removeTrailingForwardSlash(config.base) + url.pathname;
 
-	// HACK! @astrojs/image uses query params for the injected route in `dev`
+	// HACK! astro:assets uses query params for the injected route in `dev`
 	if (!buildingToSSR && pathname !== '/_image') {
 		// Prevent user from depending on search params when not doing SSR.
 		// NOTE: Create an array copy here because deleting-while-iterating

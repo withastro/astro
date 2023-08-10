@@ -67,9 +67,12 @@ const FILES_TO_UPDATE = {
 };
 
 function getTemplateTarget(tmpl: string, ref = 'latest') {
+	if (tmpl.startsWith('starlight')) {
+		const [, starter = 'basics'] = tmpl.split('/');
+		return `withastro/starlight/examples/${starter}`;
+	}
 	const isThirdParty = tmpl.includes('/');
 	if (isThirdParty) return tmpl;
-	if (tmpl === 'starlight') return `withastro/starlight/examples/basics`;
 	return `github:withastro/astro/examples/${tmpl}#${ref}`;
 }
 
