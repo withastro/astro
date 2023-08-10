@@ -34,6 +34,8 @@ export type SyncInternalOptions = SyncOptions & {
 /**
  * Generates TypeScript types for all Astro modules. This sets up a `src/env.d.ts` file for type inferencing,
  * and defines the `astro:content` module for the Content Collections API.
+ *
+ * @experimental The JavaScript API is experimental
  */
 export default async function sync(
 	inlineConfig: AstroInlineConfig,

@@ -10,6 +10,8 @@ export { default as preview } from './preview/index.js';
 /**
  * Builds your site for deployment. By default, this will generate static files and place them in a dist/ directory.
  * If SSR is enabled, this will generate the necessary server files to serve your site.
+ *
+ * @experimental The JavaScript API is experimental
  */
 // Wrap `_build` to prevent exposing the second internal options parameter
 export const build = (inlineConfig: AstroInlineConfig) => _build(inlineConfig);
@@ -17,6 +19,8 @@ export const build = (inlineConfig: AstroInlineConfig) => _build(inlineConfig);
 /**
  * Generates TypeScript types for all Astro modules. This sets up a `src/env.d.ts` file for type inferencing,
  * and defines the `astro:content` module for the Content Collections API.
+ *
+ * @experimental The JavaScript API is experimental
  */
 // Wrap `_sync` to prevent exposing the second internal options parameter
 export const sync = (inlineConfig: AstroInlineConfig) => _sync(inlineConfig);

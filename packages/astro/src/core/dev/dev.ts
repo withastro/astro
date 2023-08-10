@@ -21,6 +21,8 @@ export interface DevServer {
 /**
  * Runs Astro’s development server. This is a local HTTP server that doesn’t bundle assets.
  * It uses Hot Module Replacement (HMR) to update your browser as you save changes in your editor.
+ *
+ * @experimental The JavaScript API is experimental
  */
 export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevServer> {
 	const devStart = performance.now();
