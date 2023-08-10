@@ -56,7 +56,7 @@ export default function startServer(app: NodeApp, options: Options) {
 	);
 
 	const protocol = server.server instanceof https.Server ? 'https' : 'http';
-	const address = getNetworkAddress(protocol, host!, port)
+	const address = getNetworkAddress(protocol, host, port)
 
 	if (host === undefined) {
 		// eslint-disable-next-line no-console

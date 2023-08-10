@@ -68,7 +68,7 @@ const preview: CreatePreviewServer = async function ({
 		},
 		handler
 	);
-	const address = getNetworkAddress('http', host!, port)
+	const address = getNetworkAddress('http', host, port)
 
 	if (host === undefined) {
 		// eslint-disable-next-line no-console
