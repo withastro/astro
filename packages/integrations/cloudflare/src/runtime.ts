@@ -23,7 +23,7 @@ export type PagesRuntime<T = unknown, U = unknown> = {
 };
 
 /**
- * @deprecated since version 2.0
+ * @deprecated since version 6.8.0
  * The `getRuntime` utility has been deprecated and should be updated to the new [`Astro.locals`](https://docs.astro.build/en/guides/middleware/#locals) API.
  * ```diff
  * - import { getRuntime } from '@astrojs/cloudflare/runtime';
