@@ -59,7 +59,6 @@ function getRenderer(): AstroRenderer {
 export type Options = Pick<ViteSolidPluginOptions, 'include' | 'exclude'>;
 
 export default function (opts: Options = {}): AstroIntegration {
-	//const { include, exclude } = opts;
 	return {
 		name: '@astrojs/solid-js',
 		hooks: {
