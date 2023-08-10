@@ -5,7 +5,6 @@ import type {
 	ManifestData,
 	MiddlewareResponseHandler,
 	RouteData,
-	RouteType,
 	SSRElement,
 	SSRManifest,
 } from '../@types/astro';
