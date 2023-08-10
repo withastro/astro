@@ -189,7 +189,6 @@ export function emoji(char: string, fallback: string) {
  * through a script tag or a dynamic import as-is.
  */
 // NOTE: `/@id/` should only be used when the id is fully resolved
-// TODO: Export a helper util from Vite
 export async function resolveIdToUrl(loader: ModuleLoader, id: string, root?: URL) {
 	let resultId = await loader.resolveId(id, undefined);
 	// Try resolve jsx to tsx

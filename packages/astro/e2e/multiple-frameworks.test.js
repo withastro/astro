@@ -154,9 +154,7 @@ test.skip('Multiple frameworks', () => {
 			await expect(count, 'initial count updated to 5').toHaveText('5');
 		});
 
-		// TODO: re-enable this test when #3559 is fixed
-		// https://github.com/withastro/astro/issues/3559
-		test.skip('Vue component', async ({ astro, page }) => {
+		test('Vue component', async ({ astro, page }) => {
 			await page.goto(astro.resolveUrl('/'));
 
 			const count = page.locator('#vue-counter pre');
@@ -169,9 +167,7 @@ test.skip('Multiple frameworks', () => {
 			await expect(count, 'initial count updated to 5').toHaveText('5');
 		});
 
-		// TODO: track down a reliability issue in this test
-		// It seems to lost connection to the vite server in CI
-		test.skip('Svelte component', async ({ astro, page }) => {
+		test('Svelte component', async ({ astro, page }) => {
 			await page.goto(astro.resolveUrl('/'));
 
 			const count = page.locator('#svelte-counter pre');
