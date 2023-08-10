@@ -1,5 +1,4 @@
 import { escape } from 'html-escaper';
-import { baseCSS } from './css.js';
 
 interface ErrorTemplateOptions {
 	/** a short description of the error */
