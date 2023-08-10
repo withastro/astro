@@ -3,21 +3,21 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import cloudflare from '../dist/index.js';
 
-describe('Cf metadata and caches', () => {
-	/** @type {import('./test-utils').Fixture} */
+describe('Runtime Locals', () => {
+	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
-	/** @type {import('./test-utils').WranglerCLI} */
+	/** @type {import('./test-utils.js').WranglerCLI} */
 	let cli;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/cf/',
+			root: './fixtures/runtime/',
 			output: 'server',
 			adapter: cloudflare(),
 		});
 		await fixture.build();
 
-		cli = runCLI('./fixtures/cf/', { silent: false, port: 8788 });
+		cli = runCLI('./fixtures/runtime/', { silent: true, port: 8793 });
 		await cli.ready;
 	});
 
@@ -25,13 +25,14 @@ describe('Cf metadata and caches', () => {
 		await cli.stop();
 	});
 
-	it('Load cf and caches API', async () => {
-		let res = await fetch(`http://localhost:8788/`);
+	it('has CF and Caches', async () => {
+		let res = await fetch(`http://localhost:8793/`);
 		expect(res.status).to.equal(200);
 		let html = await res.text();
 		let $ = cheerio.load(html);
-		// console.log($('#cf').text(), html);
 		expect($('#cf').text()).to.contain('city');
+		expect($('#env').text()).to.contain('SECRET_STUFF');
+		expect($('#env').text()).to.contain('secret');
 		expect($('#hasCache').text()).to.equal('true');
 	});
 });
