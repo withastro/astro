@@ -55,28 +55,11 @@ If you prefer to install the adapter manually instead, complete the following tw
    });
    ```
 
-### Edge Functions
-
-Netlify has two serverless platforms, [Netlify Functions](https://docs.netlify.com/functions/overview/) and [Netlify Edge Functions](https://docs.netlify.com/edge-functions/overview/). With Edge Functions your code is distributed closer to your users, lowering latency.
-
-To deploy with Edge Functions, use `netlify/edge-functions` in the Astro config file instead of `netlify/functions`.
-
-```js ins={3}
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import netlify from '@astrojs/netlify/edge-functions';
-
-export default defineConfig({
-  output: 'server',
-  adapter: netlify(),
-});
-```
-
 ### Run middleware in Edge Functions
 
 When deploying to Netlify Functions, you can choose to use an Edge Function to run your Astro middleware.
 
-To enable this, set the `build.excludeMiddleware` Astro config option to `true`:
+To enable this, set the `edgeMiddleware` config option to `true`:
 
 ```js ins={9}
 // astro.config.mjs
@@ -85,10 +68,9 @@ import netlify from '@astrojs/netlify/functions';
 
 export default defineConfig({
   output: 'server',
-  adapter: netlify(),
-  build: {
-    excludeMiddleware: true,
-  },
+  adapter: netlify({
+    edgeMiddleware: true,
+  }),
 });
 ```
 
