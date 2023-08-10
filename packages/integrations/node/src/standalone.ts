@@ -54,16 +54,15 @@ export default function startServer(app: NodeApp, options: Options) {
 		},
 		handler
 	);
-	
+
 	const protocol = server.server instanceof https.Server ? 'https' : 'http';
 	const address = getNetworkAddress(protocol, host!, port)
 
-	if(host === undefined ){
+	if (host === undefined) {
 		// eslint-disable-next-line no-console
 		console.log(
-			`Preview server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}
-			` );
-	}else{
+			`Preview server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}\n`);
+	} else {
 		// eslint-disable-next-line no-console
 		console.log(`Preview server listening on ${address.local[0]}`);
 	}
