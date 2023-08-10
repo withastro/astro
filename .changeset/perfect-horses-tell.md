@@ -10,6 +10,8 @@ Now, rather than scanning your components, JSX framework integrations accept `in
 
 ```js
 export default defineConfig({
+  // The `include` config is only needed in projects that use multiple JSX frameworks;
+  // if only using one no extra config is needed.
   integrations: [
 		preact({
 			include: ['**/preact/*']
@@ -23,5 +25,3 @@ export default defineConfig({
   ]
 });
 ```
-
-This config is only needed in projects that use multiple JSX frameworks; if only using one no config is needed.
