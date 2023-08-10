@@ -1,8 +1,8 @@
 import type { CreatePreviewServer } from 'astro';
 import type http from 'node:http';
 import { fileURLToPath } from 'node:url';
+import { getNetworkAddress } from './get-network-address.js';
 import { createServer } from './http-server.js';
-import { getNetworkAddress } from './get-network-address.js'
 import type { createExports } from './server';
 
 const preview: CreatePreviewServer = async function ({
@@ -68,16 +68,17 @@ const preview: CreatePreviewServer = async function ({
 		},
 		handler
 	);
-	const address = getNetworkAddress('http', host, port)
+	const address = getNetworkAddress('http', host, port);
 
 	if (host === undefined) {
 		// eslint-disable-next-line no-console
-		console.log(`Preview server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}\n`);
+		console.log(
+			`Preview server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}\n`
+		);
 	} else {
 		// eslint-disable-next-line no-console
 		console.log(`Preview server listening on ${address.local[0]}`);
 	}
-
 
 	return server;
 };
