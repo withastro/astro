@@ -26,6 +26,7 @@ declare const Astro: {
 				public Component: any;
 				public hydrator: any;
 
+				// These props are injected by the Astro runtime via inline `<script>`
 				public opts: Record<string, any> = {};
 				public props: Record<string, any> = {};
 				public rendererUrl = '';
