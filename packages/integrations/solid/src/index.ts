@@ -1,6 +1,5 @@
 import type { AstroConfig, AstroIntegration, AstroRenderer } from 'astro';
 import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
-import { getSolidPkgsConfig } from './dependencies.js';
 
 async function getViteConfiguration(
 	isDev: boolean,
@@ -10,7 +9,6 @@ async function getViteConfiguration(
 	// https://github.com/solidjs/vite-plugin-solid
 	// We inject the dev mode only if the user explicitly wants it or if we are in dev (serve) mode
 	const nestedDeps = ['solid-js', 'solid-js/web', 'solid-js/store', 'solid-js/html', 'solid-js/h'];
-	const solidPkgsConfig = await getSolidPkgsConfig(!isDev, astroConfig);
 	return {
 		/**
 		 * We only need esbuild on .ts or .js files.
@@ -22,8 +20,8 @@ async function getViteConfiguration(
 			alias: [{ find: /^solid-refresh$/, replacement: '/@solid-refresh' }],
 		},
 		optimizeDeps: {
-			include: [...nestedDeps, ...solidPkgsConfig.optimizeDeps.include],
-			exclude: ['@astrojs/solid-js/server.js',  ...solidPkgsConfig.optimizeDeps.exclude],
+			include: [...nestedDeps],
+			exclude: ['@astrojs/solid-js/server.js'],
 		},
 		plugins: [
 			solid({ include, exclude, dev: isDev, ssr: true }),
@@ -42,8 +40,7 @@ async function getViteConfiguration(
 			}
 		],
 		ssr: {
-			external: ['babel-preset-solid', ...solidPkgsConfig.ssr.external],
-			noExternal: [...solidPkgsConfig.ssr.noExternal],
+			external: ['babel-preset-solid'],
 		},
 	};
 }

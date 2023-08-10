@@ -4655,9 +4655,6 @@ importers:
       solid-js:
         specifier: ^1.7.6
         version: 1.7.6
-      vitefu:
-        specifier: ^0.2.4
-        version: 0.2.4(vite@4.4.6)
 
   packages/integrations/svelte:
     dependencies:
@@ -17821,6 +17818,7 @@ packages:
         optional: true
     dependencies:
       vite: 4.4.6(@types/node@18.16.18)(sass@1.63.4)
+    dev: false
 
   /vitest@0.31.4:
     resolution: {integrity: sha512-GoV0VQPmWrUFOZSg3RpQAPN+LPmHg2/gxlMNJlyxJihkz6qReHDV6b0pPDcqFLNEPya4tWJ1pgwUNP9MLmUfvQ==}
