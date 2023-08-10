@@ -1,5 +1,11 @@
 # astro
 
+## 2.10.5
+
+### Patch Changes
+
+- [#8011](https://github.com/withastro/astro/pull/8011) [`5b1e39ef6`](https://github.com/withastro/astro/commit/5b1e39ef6ec6dcebea96584f95d9530bd9aa715d) Thanks [@bluwy](https://github.com/bluwy)! - Move hoisted script analysis optimization behind the `experimental.optimizeHoistedScript` option
+
 ## 2.10.4
 
 ### Patch Changes
