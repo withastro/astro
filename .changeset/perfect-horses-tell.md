@@ -2,9 +2,11 @@
 'astro': major
 ---
 
-JSX refactor
+Astro's JSX handling has been refactored with better support for each framework.
 
-JSX in Astro has been refactored to better support each framework. In order to support multiple JSX frameworks at the same time, new `include` and `exclude` config options have been added to each integration to control which files to target. For example:
+Previously, Astro automatically scanned your components to determine which framework-specific transformations should be used. In practice, supporting advanced features like Fast Refresh with this approach proved difficult.
+
+Now, rather than scanning your components, JSX framework integrations accept `include` and `exclude` config options. When using multiple JSX frameworks in the same project, users should manually control which files belong to each framework using the `include` and `exclude` options.
 
 ```js
 export default defineConfig({
