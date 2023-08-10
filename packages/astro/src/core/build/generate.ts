@@ -547,7 +547,7 @@ async function generatePath(
 
 	let response;
 	try {
-		response = await tryRenderRoute(pageData.route.type, renderContext, env, mod, onRequest);
+		response = await tryRenderRoute(renderContext, env, mod, onRequest);
 	} catch (err) {
 		if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
 			(err as SSRError).id = pageData.component;

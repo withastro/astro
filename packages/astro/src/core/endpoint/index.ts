@@ -9,7 +9,7 @@ import type {
 import type { Environment, RenderContext } from '../render/index';
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
-import { AstroCookies, attachToResponse } from '../cookies/index.js';
+import { AstroCookies, attachCookiesToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
@@ -125,7 +125,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	}
 
 	if (response instanceof Response) {
-		attachToResponse(response, context.cookies);
+		attachCookiesToResponse(response, context.cookies);
 		return {
 			type: 'response',
 			response,

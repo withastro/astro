@@ -1,4 +1,3 @@
-import type { Node as ESTreeNode } from 'estree-walker';
 import type { ModuleInfo, PluginContext } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
 import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types';
