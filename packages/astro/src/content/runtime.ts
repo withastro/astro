@@ -69,7 +69,8 @@ export function createGetCollection({
 		// Cache `getCollection()` calls in production only
 		// prevents stale cache in development
 		if (import.meta.env.PROD && cacheEntriesByCollection.has(collection)) {
-			entries = cacheEntriesByCollection.get(collection)!;
+			// Always return a new instance so consumers can safely mutate it
+			entries = [...cacheEntriesByCollection.get(collection)!]
 		} else {
 			entries = await Promise.all(
 				lazyImports.map(async (lazyImport) => {
