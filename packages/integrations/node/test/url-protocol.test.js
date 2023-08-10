@@ -1,4 +1,7 @@
 import { expect } from 'chai';
+import { TLSSocket } from 'node:tls';
+import nodejs from '../dist/index.js';
+import { createRequestAndResponse, loadFixture } from './test-utils.js';
 
 describe('URL protocol', () => {
 	/** @type {import('./test-utils').Fixture} */
