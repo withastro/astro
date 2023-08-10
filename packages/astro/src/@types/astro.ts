@@ -1280,9 +1280,10 @@ export interface AstroUserConfig {
 		 * @default `false`
 		 * @version 2.10.4
 		 * @description
-		 * Enable hoisted script analysis optimization to prevent unused components' script from being included in a page unexpectedly.
+		 * Prevents unused components' scripts from being included in a page unexpectedly.
 		 * The optimization is best-effort and may inversely miss including the used scripts. Make sure to double-check your built pages
 		 * before publishing.
+		 * Enable hoisted script analysis optimization by adding the experimental flag:
 		 *
 		 * ```js
 		 * {
