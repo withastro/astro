@@ -2,12 +2,11 @@
 '@astrojs/cloudflare': minor
 ---
 
-Expose the runtime bindings & environmental variabels via `Astro.locals`
+The `getRuntime` utility has been deprecated and should be updated to the new [`Astro.locals`](https://docs.astro.build/en/guides/middleware/#locals) API.
 
-  ```diff
-  - import { getRuntime } from '@astrojs/cloudflare/runtime';
-  - getRuntime(Astro.request);
+```diff
+- import { getRuntime } from '@astrojs/cloudflare/runtime';
+- getRuntime(Astro.request);
   
-  + const runtime = Astro.locals.runtime;
-  + const env = runtime.env;
-  ```
++ const runtime = Astro.locals.runtime;
+```
