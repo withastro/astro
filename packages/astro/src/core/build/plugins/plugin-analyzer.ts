@@ -8,8 +8,8 @@ import type { ExportDefaultDeclaration, ExportNamedDeclaration, ImportDeclaratio
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { prependForwardSlash } from '../../../core/path.js';
 import { getTopLevelPages, moduleIsTopLevelPage, walkParentInfos } from '../graph.js';
-import type { StaticBuildOptions } from '../types.js';
 import { getPageDataByViteID, trackClientOnlyPageDatas } from '../internal.js';
+import type { StaticBuildOptions } from '../types.js';
 
 function isPropagatedAsset(id: string) {
 	try {
