@@ -19,6 +19,7 @@ export interface ErrorLocation {
 
 type ErrorTypes =
 	| 'AstroError'
+	| 'AstroUserError'
 	| 'CompilerError'
 	| 'CSSError'
 	| 'MarkdownError'
@@ -170,4 +171,26 @@ export interface ErrorWithMetadata {
 		column?: number;
 	};
 	cause?: any;
+}
+
+/**
+ * Special error that is exposed to users.
+ * Compared to AstroError, it contains a subset of information.
+ */
+export class AstroUserError extends Error {
+	type: ErrorTypes = 'AstroUserError';
+	/**
+	 * A message that explains to the user how they can fix the error.
+	 */
+	hint: string | undefined;
+	name = 'AstroUserError';
+	constructor(message: string, hint?: string) {
+		super();
+		this.message = message;
+		this.hint = hint;
+	}
+
+	static is(err: unknown): err is AstroUserError {
+		return (err as AstroUserError).type === 'AstroUserError';
+	}
 }
