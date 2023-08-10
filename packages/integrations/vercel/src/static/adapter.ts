@@ -6,10 +6,17 @@ import {
 	throwIfAssetsNotEnabled,
 	type VercelImageConfig,
 } from '../image/shared.js';
-import { exposeEnv } from '../lib/env.js';
 import { emptyDir, getVercelOutput, writeJson } from '../lib/fs.js';
 import { isServerLikeOutput } from '../lib/prerender.js';
 import { getRedirects } from '../lib/redirects.js';
+import {
+	getSpeedInsightsViteConfig,
+	type VercelSpeedInsightsConfig,
+} from '../lib/speed-insights.js';
+import {
+	getInjectableWebAnalyticsContent,
+	type VercelWebAnalyticsConfig,
+} from '../lib/web-analytics.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/static';
 
@@ -18,13 +25,15 @@ function getAdapter(): AstroAdapter {
 }
 
 export interface VercelStaticConfig {
-	analytics?: boolean;
+	webAnalytics?: VercelWebAnalyticsConfig;
+	speedInsights?: VercelSpeedInsightsConfig;
 	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
 }
 
 export default function vercelStatic({
-	analytics,
+	webAnalytics,
+	speedInsights,
 	imageService,
 	imagesConfig,
 }: VercelStaticConfig = {}): AstroIntegration {
@@ -34,11 +43,19 @@ export default function vercelStatic({
 		name: '@astrojs/vercel',
 		hooks: {
 			'astro:config:setup': ({ command, config, injectScript, updateConfig }) => {
-				if (command === 'build' && analytics) {
-					injectScript('page', 'import "@astrojs/vercel/analytics"');
+				if (webAnalytics?.enabled) {
+					injectScript(
+						'page',
+						getInjectableWebAnalyticsContent({
+							...webAnalytics.config,
+							mode: command === 'dev' ? 'development' : 'production',
+						})
+					);
+				}
+				if (command === 'build' && speedInsights?.enabled) {
+					injectScript('page', 'import "@astrojs/vercel/speed-insights"');
 				}
 				const outDir = new URL('./static/', getVercelOutput(config.root));
-				const viteDefine = exposeEnv(['VERCEL_ANALYTICS_ID']);
 				updateConfig({
 					outDir,
 					build: {
@@ -46,7 +63,7 @@ export default function vercelStatic({
 						redirects: false,
 					},
 					vite: {
-						define: viteDefine,
+						...getSpeedInsightsViteConfig(speedInsights?.enabled),
 					},
 					...getImageConfig(imageService, imagesConfig, command),
 				});

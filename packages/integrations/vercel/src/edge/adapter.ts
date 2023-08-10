@@ -10,7 +10,6 @@ import {
 	throwIfAssetsNotEnabled,
 	type VercelImageConfig,
 } from '../image/shared.js';
-import { exposeEnv } from '../lib/env.js';
 import {
 	copyFilesToFunction,
 	getFilesFromFolder,
@@ -19,6 +18,14 @@ import {
 	writeJson,
 } from '../lib/fs.js';
 import { getRedirects } from '../lib/redirects.js';
+import {
+	getInjectableWebAnalyticsContent,
+	type VercelWebAnalyticsConfig,
+} from '../lib/web-analytics.js';
+import {
+	getSpeedInsightsViteConfig,
+	type VercelSpeedInsightsConfig,
+} from '../lib/speed-insights.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/edge';
 
@@ -31,15 +38,17 @@ function getAdapter(): AstroAdapter {
 }
 
 export interface VercelEdgeConfig {
+	webAnalytics?: VercelWebAnalyticsConfig;
+	speedInsights?: VercelSpeedInsightsConfig;
 	includeFiles?: string[];
-	analytics?: boolean;
 	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
 }
 
 export default function vercelEdge({
+	webAnalytics,
+	speedInsights,
 	includeFiles = [],
-	analytics,
 	imageService,
 	imagesConfig,
 }: VercelEdgeConfig = {}): AstroIntegration {
@@ -52,11 +61,19 @@ export default function vercelEdge({
 		name: PACKAGE_NAME,
 		hooks: {
 			'astro:config:setup': ({ command, config, updateConfig, injectScript }) => {
-				if (command === 'build' && analytics) {
-					injectScript('page', 'import "@astrojs/vercel/analytics"');
+				if (webAnalytics?.enabled) {
+					injectScript(
+						'page',
+						getInjectableWebAnalyticsContent({
+							...webAnalytics.config,
+							mode: command === 'dev' ? 'development' : 'production',
+						})
+					);
+				}
+				if (command === 'build' && speedInsights?.enabled) {
+					injectScript('page', 'import "@astrojs/vercel/speed-insights"');
 				}
 				const outDir = getVercelOutput(config.root);
-				const viteDefine = exposeEnv(['VERCEL_ANALYTICS_ID']);
 				updateConfig({
 					outDir,
 					build: {
@@ -65,7 +82,7 @@ export default function vercelEdge({
 						server: new URL('./dist/', config.root),
 					},
 					vite: {
-						define: viteDefine,
+						...getSpeedInsightsViteConfig(speedInsights?.enabled),
 						ssr: {
 							external: ['@vercel/nft'],
 						},

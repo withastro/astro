@@ -22,7 +22,7 @@
     "./serverless": "./dist/serverless/adapter.js",
     "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
     "./static": "./dist/static/adapter.js",
-    "./analytics": "./dist/analytics.js",
+    "./speed-insights": "./dist/speed-insights.js",
     "./build-image-service": "./dist/image/build-service.js",
     "./dev-image-service": "./dist/image/dev-service.js",
     "./package.json": "./package.json"
@@ -53,7 +53,7 @@
   "dependencies": {
     "@astrojs/internal-helpers": "^0.1.2",
     "@astrojs/webapi": "^2.2.0",
-    "@vercel/analytics": "^0.1.11",
+    "@vercel/analytics": "~1.0.0",
     "@vercel/nft": "^0.22.6",
     "esbuild": "^0.17.19",
     "fast-glob": "^3.2.12",

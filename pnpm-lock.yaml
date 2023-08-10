@@ -4953,8 +4953,8 @@ importers:
         specifier: ^2.2.0
         version: link:../../webapi
       '@vercel/analytics':
-        specifier: ^0.1.11
-        version: 0.1.11
+        specifier: ~1.0.0
+        version: 1.0.2
       '@vercel/nft':
         specifier: ^0.22.6
         version: 0.22.6
@@ -5070,6 +5070,24 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
+
+  packages/integrations/vercel/test/fixtures/with-speed-insights-enabled/output-as-server:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../../astro
+
+  packages/integrations/vercel/test/fixtures/with-speed-insights-enabled/output-as-static:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../../astro
 
   packages/integrations/vercel/test/hosted/hosted-astro-project:
     dependencies:
@@ -9304,13 +9322,8 @@ packages:
     resolution: {integrity: sha512-TSVh8CpnwNAsPC5wXcIyh92Bv1gq6E9cNDeeLu7Z4h8V4/qWtXJp7y42qljRkqcpmsve1iozwv1wr+3BNdILCg==}
     dev: true
 
-  /@vercel/analytics@0.1.11:
-    resolution: {integrity: sha512-mj5CPR02y0BRs1tN3oZcBNAX9a8NxsIUl9vElDPcqxnMfP0RbRc9fI9Ud7+QDg/1Izvt5uMumsr+6YsmVHcyuw==}
-    peerDependencies:
-      react: ^16.8||^17||^18
-    peerDependenciesMeta:
-      react:
-        optional: true
+  /@vercel/analytics@1.0.2:
+    resolution: {integrity: sha512-BZFxVrv24VbNNl5xMxqUojQIegEeXMI6rX3rg1uVLYUEXsuKNBSAEQf4BWEcjQDp/8aYJOj6m8V4PUA3x/cxgg==}
     dev: false
 
   /@vercel/edge@0.3.4:

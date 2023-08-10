@@ -87,13 +87,14 @@ vercel deploy --prebuilt
 
 To configure this adapter, pass an object to the `vercel()` function call in `astro.config.mjs`:
 
-### analytics
+### Web Analytics
 
-**Type:** `boolean`<br>
+**Type:** `VercelWebAnalyticsConfig`<br>
 **Available for:** Serverless, Edge, Static<br>
-**Added in:** `@astrojs/vercel@3.1.0`
+**Added in:** `@astrojs/vercel@3.8.0`
 
-You can enable [Vercel Analytics](https://vercel.com/analytics) (including Web Vitals and Audiences) by setting `analytics: true`. This will inject Vercel’s tracking scripts into all your pages.
+You can enable [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics) by setting `webAnalytics: { enabled: true }`. This will inject Vercel’s tracking scripts into all of your pages.
+Alternatively, you can pass all [available configuration options](https://vercel.com/docs/concepts/analytics/package) via the `config` property inside `webAnalytics`.
 
 ```js
 // astro.config.mjs
@@ -103,7 +104,40 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    analytics: true,
+    webAnalytics: {
+      enabled: true,
+      config: {
+        beforeSend: (event) => {
+          // Ignore all events that have a `/private` inside the URL
+          if (event.url.includes('/private')) {
+            return null;
+          }
+          return event;
+        }
+      }
+    }
+  }),
+});
+```
+
+### Speed Insights
+You can enable [Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights) by setting `speedInsights: { enabled: true }`. This will collect and send Web Vital data to Vercel.
+
+**Type:** `VercelSpeedInsightsConfig`<br>
+**Available for:** Serverless, Edge, Static<br>
+**Added in:** `@astrojs/vercel@3.8.0`
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/serverless';
+
+export default defineConfig({
+  output: 'server',
+  adapter: vercel({
+    speedInsights: {
+      enabled: true,
+    }
   }),
 });
 ```
