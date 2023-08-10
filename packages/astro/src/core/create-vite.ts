@@ -121,7 +121,6 @@ export async function createVite(
 			envVitePlugin({ settings }),
 			markdownVitePlugin({ settings, logging }),
 			htmlVitePlugin(),
-			// jsxVitePlugin({ settings, logging }),
 			mdxVitePlugin({ settings, logging }),
 			astroPostprocessVitePlugin(),
 			astroIntegrationsContainerPlugin({ settings, logging }),
