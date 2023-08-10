@@ -60,11 +60,12 @@ export default function ({include, exclude}: Pick<ViteReactPluginOptions, 'inclu
 	return {
 		name: '@astrojs/react',
 		hooks: {
-			'astro:config:setup': ({ command, addRenderer, updateConfig, injectScript }) => {
+			'astro:config:setup': ({ config, command, addRenderer, updateConfig, injectScript }) => {
 				addRenderer(getRenderer());
 				updateConfig({ vite: getViteConfiguration({include, exclude}) });
 				if (command === 'dev') {
-					injectScript('before-hydration', FAST_REFRESH_PREAMBLE);
+					const preamble = FAST_REFRESH_PREAMBLE.replace(`__BASE__`, config.base)
+					injectScript('before-hydration', preamble);
 				}
 			},
 		},
