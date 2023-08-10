@@ -42,6 +42,3 @@ export function getNetworkAddress(protocol: Protocol = 'http', hostname: string 
 		})
 	return NetworkAddress
 }
-
-
-
