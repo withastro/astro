@@ -16,7 +16,6 @@ async function getViteConfiguration(
 		 * We only need esbuild on .ts or .js files.
 		 * .tsx & .jsx files are handled by us
 		 */
-		//esbuild: { include: /\.ts$/ },
 		resolve: {
 			conditions: ['solid', ...(isDev ? ['development'] : [])],
 			dedupe: nestedDeps,
