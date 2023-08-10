@@ -1,5 +1,5 @@
 /* eslint no-console: 'off' */
-import { color, label, say as houston, spinner as load } from '@astrojs/cli-kit';
+import { color, say as houston, label, spinner as load } from '@astrojs/cli-kit';
 import { align, sleep } from '@astrojs/cli-kit/utils';
 import { execa } from 'execa';
 import fetch from 'node-fetch-native';
@@ -83,7 +83,8 @@ export const getVersion = () =>
 		if (v) return resolve(v);
 		let registry = await getRegistry();
 		const { version } = await fetch(`${registry}/astro/latest`, { redirect: 'follow' }).then(
-			(res) => res.json()
+			(res) => res.json(),
+			() => ({ version: '' })
 		);
 		v = version;
 		resolve(version);
@@ -92,9 +93,9 @@ export const getVersion = () =>
 export const log = (message: string) => stdout.write(message + '\n');
 export const banner = async (version: string) =>
 	log(
-		`\n${label('astro', color.bgGreen, color.black)}  ${color.green(
-			color.bold(`v${version}`)
-		)} ${color.bold('Launch sequence initiated.')}`
+		`\n${label('astro', color.bgGreen, color.black)}  ${
+			version ? color.green(color.bold(`v${version}`)) : ''
+		} ${color.bold('Launch sequence initiated.')}`
 	);
 
 export const info = async (prefix: string, text: string) => {

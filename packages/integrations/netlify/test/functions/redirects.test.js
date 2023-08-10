@@ -8,18 +8,15 @@ describe('SSG - Redirects', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: new URL('../static/fixtures/redirects/', import.meta.url).toString(),
-			output: 'server',
+			root: new URL('../functions/fixtures/redirects/', import.meta.url).toString(),
+			output: 'hybrid',
 			adapter: netlifyAdapter({
-				dist: new URL('../static/fixtures/redirects/dist/', import.meta.url),
+				dist: new URL('../functions/fixtures/redirects/dist/', import.meta.url),
 			}),
 			site: `http://example.com`,
 			integrations: [testIntegration()],
 			redirects: {
 				'/other': '/',
-			},
-			experimental: {
-				redirects: true,
 			},
 		});
 		await fixture.build();
@@ -46,5 +43,15 @@ describe('SSG - Redirects', () => {
 			'/.netlify/functions/entry',
 			'200',
 		]);
+		expect(redirects).to.matchSnapshot();
+	});
+
+	it('Does not create .html files', async () => {
+		try {
+			await fixture.readFile('/other/index.html');
+			expect(false).to.equal(true, 'this file should not exist');
+		} catch {
+			expect(true).to.equal(true);
+		}
 	});
 });

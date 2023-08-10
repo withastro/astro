@@ -11,7 +11,7 @@ export default defineMarkdocConfig({
 		},
 	},
 	tags: {
-		mq: {
+		'marquee-element': {
 			render: component('./src/components/CustomMarquee.astro'),
 			attributes: {
 				direction: {

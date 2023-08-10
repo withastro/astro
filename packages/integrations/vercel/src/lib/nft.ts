@@ -1,7 +1,5 @@
-import { nodeFileTrace } from '@vercel/nft';
 import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
-
 import { copyFilesToFunction } from './fs.js';
 
 export async function copyDependenciesToFunction({
@@ -23,6 +21,11 @@ export async function copyDependenciesToFunction({
 		base = new URL('../', base);
 	}
 
+	// The Vite bundle includes an import to `@vercel/nft` for some reason,
+	// and that trips up `@vercel/nft` itself during the adapter build. Using a
+	// dynamic import helps prevent the issue.
+	// TODO: investigate why
+	const { nodeFileTrace } = await import('@vercel/nft');
 	const result = await nodeFileTrace([entryPath], {
 		base: fileURLToPath(base),
 	});

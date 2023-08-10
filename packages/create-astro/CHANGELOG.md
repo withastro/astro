@@ -1,5 +1,23 @@
 # create-astro
 
+## 3.1.12
+
+### Patch Changes
+
+- [#7993](https://github.com/withastro/astro/pull/7993) [`315d58f27`](https://github.com/withastro/astro/commit/315d58f27b022c9d4285cf13f445ed18c26c327e) Thanks [@delucis](https://github.com/delucis)! - Add support for more Starlight templates
+
+## 3.1.11
+
+### Patch Changes
+
+- [#7939](https://github.com/withastro/astro/pull/7939) [`89cd4b877`](https://github.com/withastro/astro/commit/89cd4b877e870ce4a263dd45f42f818fd2c4d5a6) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Handle error state for version number
+
+## 3.1.10
+
+### Patch Changes
+
+- [#7580](https://github.com/withastro/astro/pull/7580) [`2ca5bdde2`](https://github.com/withastro/astro/commit/2ca5bdde2b1acc2be1586a99686a9a48cdef65dc) Thanks [@sankethchebbi](https://github.com/sankethchebbi)! - Update dependency installation grammar
+
 ## 3.1.9
 
 ### Patch Changes

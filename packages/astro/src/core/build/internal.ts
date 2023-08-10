@@ -88,6 +88,7 @@ export interface BuildInternals {
 	entryPoints: Map<RouteData, URL>;
 	ssrSplitEntryChunks: Map<string, Rollup.OutputChunk>;
 	componentMetadata: SSRResult['componentMetadata'];
+	middlewareEntryPoint?: URL;
 }
 
 /**

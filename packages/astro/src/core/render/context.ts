@@ -1,5 +1,4 @@
 import type {
-	AstroCookies,
 	ComponentInstance,
 	Params,
 	Props,
@@ -18,23 +17,21 @@ const clientLocalsSymbol = Symbol.for('astro.locals');
  */
 export interface RenderContext {
 	request: Request;
-	origin: string;
 	pathname: string;
-	url: URL;
 	scripts?: Set<SSRElement>;
 	links?: Set<SSRElement>;
 	styles?: Set<SSRElement>;
 	componentMetadata?: SSRResult['componentMetadata'];
 	route?: RouteData;
 	status?: number;
-	cookies?: AstroCookies;
 	params: Params;
 	props: Props;
 	locals?: object;
 }
 
-export type CreateRenderContextArgs = Partial<RenderContext> & {
-	origin?: string;
+export type CreateRenderContextArgs = Partial<
+	Omit<RenderContext, 'params' | 'props' | 'locals'>
+> & {
 	request: RenderContext['request'];
 	mod: ComponentInstance;
 	env: Environment;
@@ -44,9 +41,7 @@ export async function createRenderContext(
 	options: CreateRenderContextArgs
 ): Promise<RenderContext> {
 	const request = options.request;
-	const url = new URL(request.url);
-	const origin = options.origin ?? url.origin;
-	const pathname = options.pathname ?? url.pathname;
+	const pathname = options.pathname ?? new URL(request.url).pathname;
 	const [params, props] = await getParamsAndProps({
 		mod: options.mod as any,
 		route: options.route,
@@ -56,11 +51,9 @@ export async function createRenderContext(
 		ssr: options.env.ssr,
 	});
 
-	let context = {
+	const context: RenderContext = {
 		...options,
-		origin,
 		pathname,
-		url,
 		params,
 		props,
 	};

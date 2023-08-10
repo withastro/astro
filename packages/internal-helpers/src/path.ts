@@ -15,6 +15,10 @@ export function prependForwardSlash(path: string) {
 	return path[0] === '/' ? path : '/' + path;
 }
 
+export function collapseDuplicateSlashes(path: string) {
+	return path.replace(/(?<!:)\/\/+/g, '/');
+}
+
 export function removeTrailingForwardSlash(path: string) {
 	return path.endsWith('/') ? path.slice(0, path.length - 1) : path;
 }

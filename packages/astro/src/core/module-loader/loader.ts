@@ -1,5 +1,5 @@
-import { EventEmitter } from 'events';
-import type * as fs from 'fs';
+import { EventEmitter } from 'node:events';
+import type * as fs from 'node:fs';
 import type { TypedEventEmitter } from '../../@types/typed-emitter';
 
 // This is a generic interface for a module loader. In the astro cli this is

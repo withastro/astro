@@ -1,5 +1,54 @@
 # @astrojs/markdoc
 
+## 0.4.4
+
+### Patch Changes
+
+- [#7597](https://github.com/withastro/astro/pull/7597) [`7461e82c8`](https://github.com/withastro/astro/commit/7461e82c81438df956861197536f9ceeaf63d6b3) Thanks [@alex-sherwin](https://github.com/alex-sherwin)! - Adds an "allowHTML" Markdoc integration option.
+
+  When enabled, all HTML in Markdoc files will be processed, including HTML elements within Markdoc tags and nodes.
+
+  Enable this feature in the `markdoc` integration configuration:
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    integrations: [markdoc({ allowHTML: true })],
+  });
+  ```
+
+- Updated dependencies [[`0f677c009`](https://github.com/withastro/astro/commit/0f677c009d102bc12232a966634136be58f34739), [`188eeddd4`](https://github.com/withastro/astro/commit/188eeddd47a61e04639670496924c37866180749)]:
+  - astro@2.9.3
+
+## 0.4.3
+
+### Patch Changes
+
+- [#7706](https://github.com/withastro/astro/pull/7706) [`4f6b5ae2b`](https://github.com/withastro/astro/commit/4f6b5ae2ba8eb162e03f25cbd600a905d434f529) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix Markdoc integration not being able to import `emitESMImage` from Astro
+
+- Updated dependencies [[`72bbfac97`](https://github.com/withastro/astro/commit/72bbfac976c2965a523eea88ff0543e64d848d80), [`d401866f9`](https://github.com/withastro/astro/commit/d401866f93bfe25a50c171bc54b2b1ee0f483cc9), [`4f6b5ae2b`](https://github.com/withastro/astro/commit/4f6b5ae2ba8eb162e03f25cbd600a905d434f529), [`06c255716`](https://github.com/withastro/astro/commit/06c255716ae8e922fb9d4ffa5595cbb34146fff6)]:
+  - astro@2.8.5
+
+## 0.4.2
+
+### Patch Changes
+
+- [#7593](https://github.com/withastro/astro/pull/7593) [`c135633bf`](https://github.com/withastro/astro/commit/c135633bf6a84e751249920cba9009f0e394e29a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add a documentation link to the configuration error hint for those migration pre-v0.4.0 config to the latest version.
+
+- [#7599](https://github.com/withastro/astro/pull/7599) [`8df6a423c`](https://github.com/withastro/astro/commit/8df6a423c5088a68cc409b5415b09aff0c10a0f1) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix hyphens in Markdoc tag names causing build failures
+
+- Updated dependencies [[`904921cbe`](https://github.com/withastro/astro/commit/904921cbe44e168477c751774a2e01a6cc972a16), [`3669e2d27`](https://github.com/withastro/astro/commit/3669e2d2762bf8a4909be00ed212a6c5e847eedf), [`831dfd151`](https://github.com/withastro/astro/commit/831dfd1516c8b900ec4a0c151a40121655cdedc6)]:
+  - astro@2.8.1
+
+## 0.4.1
+
+### Patch Changes
+
+- [#7575](https://github.com/withastro/astro/pull/7575) [`30d04db98`](https://github.com/withastro/astro/commit/30d04db98107b40669e964c3ec4ac77dc2d65645) Thanks [@bluwy](https://github.com/bluwy)! - Handle internal access change
+
+- Updated dependencies [[`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b), [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b), [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b), [`6e9c29579`](https://github.com/withastro/astro/commit/6e9c295799cb6524841adbcbec21ff628d8d19c8), [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b), [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b)]:
+  - astro@2.8.0
+
 ## 0.4.0
 
 ### Minor Changes

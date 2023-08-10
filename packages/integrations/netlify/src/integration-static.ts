@@ -1,4 +1,4 @@
-import type { AstroIntegration } from 'astro';
+import type { AstroIntegration, RouteData } from 'astro';
 import { createRedirects } from './shared.js';
 
 export function netlifyStatic(): AstroIntegration {
@@ -18,7 +18,12 @@ export function netlifyStatic(): AstroIntegration {
 				_config = config;
 			},
 			'astro:build:done': async ({ dir, routes }) => {
-				await createRedirects(_config, routes, dir, '', 'static');
+				const mappedRoutes: [RouteData, string][] = routes.map((route) => [
+					route,
+					`/.netlify/static/`,
+				]);
+				const routesToDynamicTargetMap = new Map(Array.from(mappedRoutes));
+				await createRedirects(_config, routesToDynamicTargetMap, dir);
 			},
 		},
 	};

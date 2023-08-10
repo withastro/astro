@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { loadFixture } from '../test/test-utils.js';
 import { generatePosts } from './scripts/generate-posts.mjs';
 import yargs from 'yargs-parser';

@@ -3,19 +3,13 @@ import type {
 	AstroGlobal,
 	AstroGlobalPartial,
 	Params,
-	Props,
-	RuntimeMode,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
-import { isHTMLString } from '../../runtime/server/escape.js';
-import {
-	renderSlotToString,
-	stringifyChunk,
-	type ComponentSlots,
-} from '../../runtime/server/index.js';
+import { renderSlotToString, type ComponentSlots } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
+import { chunkToString } from '../../runtime/server/render/index.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
@@ -33,17 +27,15 @@ export interface CreateResultArgs {
 	 */
 	ssr: boolean;
 	logging: LogOptions;
-	origin: string;
 	/**
 	 * Used to support `Astro.__renderMarkdown` for legacy `<Markdown />` component
 	 */
 	markdown: MarkdownRenderingOptions;
-	mode: RuntimeMode;
 	params: Params;
 	pathname: string;
-	props: Props;
 	renderers: SSRLoadedRenderer[];
 	clientDirectives: Map<string, string>;
+	compressHTML: boolean;
 	resolve: (s: string) => Promise<string>;
 	/**
 	 * Used for `Astro.site`
@@ -116,7 +108,7 @@ class Slots {
 			const expression = getFunctionExpression(component);
 			if (expression) {
 				const slot = async () =>
-					isHTMLString(await expression) ? expression : expression(...args);
+					typeof expression === 'function' ? expression(...args) : expression;
 				return await renderSlotToString(result, slot).then((res) => {
 					return res != null ? String(res) : res;
 				});
@@ -130,7 +122,7 @@ class Slots {
 		}
 
 		const content = await renderSlotToString(result, this.#slots[name]);
-		const outHTML = stringifyChunk(result, content);
+		const outHTML = chunkToString(result, content);
 
 		return outHTML;
 	}
@@ -139,8 +131,7 @@ class Slots {
 let renderMarkdown: any = null;
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, pathname, renderers, clientDirectives, request, resolve, locals } =
-		args;
+	const { markdown, params, request, resolve, locals } = args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
@@ -160,7 +151,6 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 	// Astro.cookies is defined lazily to avoid the cost on pages that do not use it.
 	let cookies: AstroCookies | undefined = args.cookies;
-	let componentMetadata = args.componentMetadata ?? new Map();
 
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then
@@ -169,10 +159,11 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		styles: args.styles ?? new Set<SSRElement>(),
 		scripts: args.scripts ?? new Set<SSRElement>(),
 		links: args.links ?? new Set<SSRElement>(),
-		componentMetadata,
-		propagators: new Map(),
-		extraHead: [],
-		scope: 0,
+		componentMetadata: args.componentMetadata ?? new Map(),
+		renderers: args.renderers,
+		clientDirectives: args.clientDirectives,
+		compressHTML: args.compressHTML,
+		pathname: args.pathname,
 		cookies,
 		/** This function returns the `Astro` faux-global */
 		createAstro(
@@ -259,16 +250,15 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			return Astro;
 		},
 		resolve,
+		response,
 		_metadata: {
-			renderers,
-			pathname,
 			hasHydrationScript: false,
 			hasRenderedHead: false,
 			hasDirectives: new Set(),
 			headInTree: false,
-			clientDirectives,
+			extraHead: [],
+			propagators: new Map(),
 		},
-		response,
 	};
 
 	return result;

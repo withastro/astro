@@ -17,13 +17,14 @@ declare global {
 }
 
 /**
- * Type returned by ESM imports of images and direct calls to imageMetadata
+ * Type returned by ESM imports of images
  */
 export interface ImageMetadata {
 	src: string;
 	width: number;
 	height: number;
 	format: ImageInputFormat;
+	orientation?: number;
 }
 
 /**

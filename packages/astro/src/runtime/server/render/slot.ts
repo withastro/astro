@@ -4,6 +4,7 @@ import type { RenderInstruction } from './types.js';
 
 import { HTMLString, markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
+import { chunkToString, type RenderDestination, type RenderInstance } from './common.js';
 
 type RenderTemplateResult = ReturnType<typeof renderTemplate>;
 export type ComponentSlots = Record<string, ComponentSlotValue>;
@@ -27,19 +28,19 @@ export function isSlotString(str: string): str is any {
 	return !!(str as any)[slotString];
 }
 
-export async function* renderSlot(
+export function renderSlot(
 	result: SSRResult,
 	slotted: ComponentSlotValue | RenderTemplateResult,
 	fallback?: ComponentSlotValue | RenderTemplateResult
-): AsyncGenerator<any, void, undefined> {
-	if (slotted) {
-		let iterator = renderChild(typeof slotted === 'function' ? slotted(result) : slotted);
-		yield* iterator;
+): RenderInstance {
+	if (!slotted && fallback) {
+		return renderSlot(result, fallback);
 	}
-
-	if (fallback && !slotted) {
-		yield* renderSlot(result, fallback);
-	}
+	return {
+		async render(destination) {
+			await renderChild(destination, typeof slotted === 'function' ? slotted(result) : slotted);
+		},
+	};
 }
 
 export async function renderSlotToString(
@@ -49,17 +50,21 @@ export async function renderSlotToString(
 ): Promise<string> {
 	let content = '';
 	let instructions: null | RenderInstruction[] = null;
-	let iterator = renderSlot(result, slotted, fallback);
-	for await (const chunk of iterator) {
-		if (typeof chunk.type === 'string') {
-			if (instructions === null) {
-				instructions = [];
+	const temporaryDestination: RenderDestination = {
+		write(chunk) {
+			if (chunk instanceof Response) return;
+			if (typeof chunk === 'object' && 'type' in chunk && typeof chunk.type === 'string') {
+				if (instructions === null) {
+					instructions = [];
+				}
+				instructions.push(chunk);
+			} else {
+				content += chunkToString(result, chunk);
 			}
-			instructions.push(chunk);
-		} else {
-			content += chunk;
-		}
-	}
+		},
+	};
+	const renderInstance = renderSlot(result, slotted, fallback);
+	await renderInstance.render(temporaryDestination);
 	return markHTMLString(new SlotString(content, instructions));
 }
 

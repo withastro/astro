@@ -18,23 +18,30 @@ declare const Astro: {
 	}
 
 	const propTypes: PropTypeSelector = {
-		0: (value) => value,
-		1: (value) => JSON.parse(value, reviver),
+		0: (value) => reviveObject(value),
+		1: (value) => reviveArray(value),
 		2: (value) => new RegExp(value),
 		3: (value) => new Date(value),
-		4: (value) => new Map(JSON.parse(value, reviver)),
-		5: (value) => new Set(JSON.parse(value, reviver)),
+		4: (value) => new Map(reviveArray(value)),
+		5: (value) => new Set(reviveArray(value)),
 		6: (value) => BigInt(value),
 		7: (value) => new URL(value),
-		8: (value) => new Uint8Array(JSON.parse(value)),
-		9: (value) => new Uint16Array(JSON.parse(value)),
-		10: (value) => new Uint32Array(JSON.parse(value)),
+		8: (value) => new Uint8Array(value),
+		9: (value) => new Uint16Array(value),
+		10: (value) => new Uint32Array(value),
 	};
 
-	const reviver = (propKey: string, raw: string): any => {
-		if (propKey === '' || !Array.isArray(raw)) return raw;
+	// Not using JSON.parse reviver because it's bottom-up but we want top-down
+	const reviveTuple = (raw: any): any => {
 		const [type, value] = raw;
 		return type in propTypes ? propTypes[type](value) : undefined;
+	};
+
+	const reviveArray = (raw: any): any => (raw as Array<any>).map(reviveTuple);
+
+	const reviveObject = (raw: any): any => {
+		if (typeof raw !== 'object' || raw === null) return raw;
+		return Object.fromEntries(Object.entries(raw).map(([key, value]) => [key, reviveTuple(value)]));
 	};
 
 	if (!customElements.get('astro-island')) {
@@ -127,9 +134,29 @@ declare const Astro: {
 						if (!closest?.isSameNode(this)) continue;
 						slots[slot.getAttribute('name') || 'default'] = slot.innerHTML;
 					}
-					const props = this.hasAttribute('props')
-						? JSON.parse(this.getAttribute('props')!, reviver)
-						: {};
+
+					let props: Record<string, unknown>;
+
+					try {
+						props = this.hasAttribute('props')
+							? reviveObject(JSON.parse(this.getAttribute('props')!))
+							: {};
+					} catch (e) {
+						let componentName: string = this.getAttribute('component-url') || '<unknown>';
+						const componentExport = this.getAttribute('component-export');
+
+						if (componentExport) {
+							componentName += ` (export ${componentExport})`;
+						}
+
+						// eslint-disable-next-line no-console
+						console.error(
+							`[hydrate] Error parsing props for component ${componentName}`,
+							this.getAttribute('props'),
+							e
+						);
+						throw e;
+					}
 					await this.hydrator(this)(this.Component, props, slots, {
 						client: this.getAttribute('client'),
 					});

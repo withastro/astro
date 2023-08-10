@@ -1,26 +1,8 @@
-import fs from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
 import type { ImageInputFormat, ImageMetadata } from '../types.js';
 import imageSize from '../vendor/image-size/index.js';
 
-export interface Metadata extends ImageMetadata {
-	orientation?: number;
-}
-
-export async function imageMetadata(
-	src: URL | string,
-	data?: Buffer
-): Promise<Metadata | undefined> {
-	let file = data;
-	if (!file) {
-		try {
-			file = await fs.readFile(src);
-		} catch (e) {
-			return undefined;
-		}
-	}
-
-	const { width, height, type, orientation } = imageSize(file);
+export async function imageMetadata(data: Buffer): Promise<Omit<ImageMetadata, 'src'> | undefined> {
+	const { width, height, type, orientation } = imageSize(data);
 	const isPortrait = (orientation || 0) >= 5;
 
 	if (!width || !height || !type) {
@@ -28,7 +10,6 @@ export async function imageMetadata(
 	}
 
 	return {
-		src: fileURLToPath(src),
 		width: isPortrait ? height : width,
 		height: isPortrait ? width : height,
 		format: type as ImageInputFormat,

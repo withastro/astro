@@ -5,8 +5,6 @@
   "dependencies": {
     "astro": "workspace:*",
     "@astrojs/react": "workspace:*",
-    "@astrojs/netlify": "workspace:*",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0"
+    "@astrojs/netlify": "workspace:*"
   }
 }

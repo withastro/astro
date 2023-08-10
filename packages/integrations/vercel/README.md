@@ -233,9 +233,9 @@ export default defineConfig({
 });
 ```
 
-### Vercel Middleware
+### Vercel Edge Middleware
 
-You can use Vercel middleware to intercept a request and redirect before sending a response. Vercel middleware can run for Edge, SSR, and Static deployments. You don't need to install `@vercel/edge` to write middleware, but you do need to install it to use features such as geolocation. For more information see [Vercel’s middleware documentation](https://vercel.com/docs/concepts/functions/edge-middleware).
+You can use Vercel Edge middleware to intercept a request and redirect before sending a response. Vercel middleware can run for Edge, SSR, and Static deployments. You may not need to install this package for your middleware. `@vercel/edge` is only required to use some middleware features such as geolocation. For more information see [Vercel’s middleware documentation](https://vercel.com/docs/concepts/functions/edge-middleware).
 
 1. Add a `middleware.js` file to the root of your project:
 
@@ -261,6 +261,77 @@ You can use Vercel middleware to intercept a request and redirect before sending
 <!-- prettier-ignore -->
 > **Warning**
 > **Trying to rewrite?** Currently rewriting a request with middleware only works for static files.
+
+### Vercel Edge Middleware with Astro middleware
+
+The `@astrojs/vercel/serverless` adapter can automatically create the Vercel Edge middleware from an Astro middleware in your code base.
+
+This is an opt-in feature, and the `build.excludeMiddleware` option needs to be set to `true`:
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel';
+export default defineConfig({
+  output: 'server',
+  adapter: vercel(),
+  build: {
+    excludeMiddleware: true,
+  },
+});
+```
+
+Optionally, you can create a file recognized by the adapter named `vercel-edge-middleware.(js|ts)` in the [`srcDir`](https://docs.astro.build/en/reference/configuration-reference/#srcdir) folder to create [`Astro.locals`](https://docs.astro.build/en/reference/api-reference/#astrolocals).
+
+Typings requires the [`@vercel/edge`](https://www.npmjs.com/package/@vercel/edge) package.
+
+```js
+// src/vercel-edge-middleware.js
+/**
+ *
+ * @param options.request {Request}
+ * @param options.context {import("@vercel/edge").RequestContext}
+ * @returns {object}
+ */
+export default function ({ request, context }) {
+  // do something with request and context
+  return {
+    title: "Spider-man's blog",
+  };
+}
+```
+
+If you use TypeScript, you can type the function as follows:
+
+```ts
+// src/vercel-edge-middleware.ts
+import type { RequestContext } from '@vercel/edge';
+
+export default function ({ request, context }: { request: Request; context: RequestContext }) {
+  // do something with request and context
+  return {
+    title: "Spider-man's blog",
+  };
+}
+```
+
+The data returned by this function will be passed to Astro middleware.
+
+The function:
+
+- must export a **default** function;
+- must **return** an `object`;
+- accepts an object with a `request` and `context` as properties;
+- `request` is typed as [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request);
+- `context` is typed as [`RequestContext`](https://vercel.com/docs/concepts/functions/edge-functions/vercel-edge-package#requestcontext);
+
+#### Limitations and constraints
+
+When you opt in to this feature, there are few constraints to note:
+
+- The Vercel Edge middleware will always be the **first** function to receive the `Request` and the last function to receive `Response`. This an architectural constraint that follows the [boundaries set by Vercel](https://vercel.com/docs/concepts/functions/edge-middleware).
+- Only `request` and `context` may be used to produce an `Astro.locals` object. Operations like redirects, etc. should be delegated to Astro middleware.
+- `Astro.locals` **must be serializable**. Failing to do so will result in a **runtime error**. This means that you **cannot** store complex types like `Map`, `function`, `Set`, etc.
 
 ## Troubleshooting
 

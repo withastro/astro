@@ -37,8 +37,8 @@ export type SSRManifest = {
 	adapterName: string;
 	routes: RouteInfo[];
 	site?: string;
-	base?: string;
-	compressHTML?: boolean;
+	base: string;
+	compressHTML: boolean;
 	assetsPrefix?: string;
 	markdown: MarkdownRenderingOptions;
 	renderers: SSRLoadedRenderer[];

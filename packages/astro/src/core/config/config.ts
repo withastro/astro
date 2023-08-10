@@ -1,18 +1,26 @@
 import type { Arguments as Flags } from 'yargs-parser';
-import type { AstroConfig, AstroUserConfig, CLIFlags } from '../../@types/astro';
+import type {
+	AstroConfig,
+	AstroInlineConfig,
+	AstroInlineOnlyConfig,
+	AstroUserConfig,
+	CLIFlags,
+} from '../../@types/astro';
 
-import fs from 'fs';
 import * as colors from 'kleur/colors';
-import path from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
-import { mergeConfig as mergeViteConfig } from 'vite';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { ZodError } from 'zod';
+import { eventConfigError, telemetry } from '../../events/index.js';
+import { trackAstroConfigZodError } from '../errors/errors.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { LogOptions } from '../logger/core.js';
-import { arraify, isObject, isURL } from '../util.js';
+import { formatConfigErrorMessage } from '../messages.js';
+import { mergeConfig } from './merge.js';
 import { createRelativeSchema } from './schema.js';
 import { loadConfigWithVite } from './vite-load.js';
 
-export const LEGACY_ASTRO_CONFIG_KEYS = new Set([
+const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 	'projectRoot',
 	'src',
 	'pages',
@@ -30,7 +38,6 @@ export async function validateConfig(
 	root: string,
 	cmd: string
 ): Promise<AstroConfig> {
-	const fileProtocolRoot = pathToFileURL(root + path.sep);
 	// Manual deprecation checks
 	/* eslint-disable no-console */
 	if (userConfig.hasOwnProperty('renderers')) {
@@ -80,16 +87,32 @@ export async function validateConfig(
 	}
 	/* eslint-enable no-console */
 
-	const AstroConfigRelativeSchema = createRelativeSchema(cmd, fileProtocolRoot);
+	const AstroConfigRelativeSchema = createRelativeSchema(cmd, root);
 
 	// First-Pass Validation
-	const result = await AstroConfigRelativeSchema.parseAsync(userConfig);
+	let result: AstroConfig;
+	try {
+		result = await AstroConfigRelativeSchema.parseAsync(userConfig);
+	} catch (e) {
+		// Improve config zod error messages
+		if (e instanceof ZodError) {
+			// Mark this error so the callee can decide to suppress Zod's error if needed.
+			// We still want to throw the error to signal an error in validation.
+			trackAstroConfigZodError(e);
+			// eslint-disable-next-line no-console
+			console.error(formatConfigErrorMessage(e) + '\n');
+			telemetry.record(eventConfigError({ cmd, err: e, isFatal: true }));
+		}
+		throw e;
+	}
 
 	// If successful, return the result as a verified AstroConfig object.
 	return result;
 }
 
 /** Convert the generic "yargs" flag object into our own, custom TypeScript object. */
+// NOTE: This function will be removed in a later PR. Use `flagsToAstroInlineConfig` instead.
+// All CLI related flow should be located in the `packages/astro/src/cli` directory.
 export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 	return {
 		root: typeof flags.root === 'string' ? flags.root : undefined,
@@ -103,8 +126,6 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
 		experimentalAssets:
 			typeof flags.experimentalAssets === 'boolean' ? flags.experimentalAssets : undefined,
-		experimentalRedirects:
-			typeof flags.experimentalRedirects === 'boolean' ? flags.experimentalRedirects : undefined,
 	};
 }
 
@@ -113,32 +134,6 @@ export function resolveRoot(cwd?: string | URL): string {
 		cwd = fileURLToPath(cwd);
 	}
 	return cwd ? path.resolve(cwd) : process.cwd();
-}
-
-/** Merge CLI flags & user config object (CLI flags take priority) */
-function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
-	astroConfig.server = astroConfig.server || {};
-	astroConfig.markdown = astroConfig.markdown || {};
-	astroConfig.experimental = astroConfig.experimental || {};
-	if (typeof flags.site === 'string') astroConfig.site = flags.site;
-	if (typeof flags.base === 'string') astroConfig.base = flags.base;
-	if (typeof flags.drafts === 'boolean') astroConfig.markdown.drafts = flags.drafts;
-	if (typeof flags.port === 'number') {
-		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
-		// TODO: Come back here and refactor to remove this expected error.
-		astroConfig.server.port = flags.port;
-	}
-	if (typeof flags.host === 'string' || typeof flags.host === 'boolean') {
-		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
-		// TODO: Come back here and refactor to remove this expected error.
-		astroConfig.server.host = flags.host;
-	}
-	if (typeof flags.open === 'boolean') {
-		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
-		// TODO: Come back here and refactor to remove this expected error.
-		astroConfig.server.open = flags.open;
-	}
-	return astroConfig;
 }
 
 async function search(fsMod: typeof fs, root: string) {
@@ -158,20 +153,9 @@ async function search(fsMod: typeof fs, root: string) {
 	}
 }
 
-interface LoadConfigOptions {
-	cwd?: string;
-	flags?: Flags;
-	cmd: string;
-	validate?: boolean;
-	logging: LogOptions;
-	/** Invalidate when reloading a previously loaded config */
-	isRestart?: boolean;
-	fsMod?: typeof fs;
-}
-
 interface ResolveConfigPathOptions {
-	cwd?: string;
-	flags?: Flags;
+	root: string;
+	configFile?: string;
 	fs: typeof fs;
 }
 
@@ -179,172 +163,100 @@ interface ResolveConfigPathOptions {
  * Resolve the file URL of the user's `astro.config.js|cjs|mjs|ts` file
  */
 export async function resolveConfigPath(
-	configOptions: ResolveConfigPathOptions
+	options: ResolveConfigPathOptions
 ): Promise<string | undefined> {
-	const root = resolveRoot(configOptions.cwd);
-	const flags = resolveFlags(configOptions.flags || {});
-
 	let userConfigPath: string | undefined;
-	if (flags?.config) {
-		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
-		userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`));
-		if (!configOptions.fs.existsSync(userConfigPath)) {
+	if (options.configFile) {
+		userConfigPath = path.join(options.root, options.configFile);
+		if (!options.fs.existsSync(userConfigPath)) {
 			throw new AstroError({
 				...AstroErrorData.ConfigNotFound,
-				message: AstroErrorData.ConfigNotFound.message(flags.config),
+				message: AstroErrorData.ConfigNotFound.message(options.configFile),
 			});
 		}
 	} else {
-		userConfigPath = await search(configOptions.fs, root);
+		userConfigPath = await search(options.fs, options.root);
 	}
 
 	return userConfigPath;
 }
 
-interface OpenConfigResult {
-	userConfig: AstroUserConfig;
-	astroConfig: AstroConfig;
-	flags: CLIFlags;
-	root: string;
+async function loadConfig(
+	root: string,
+	configFile?: string | false,
+	fsMod = fs
+): Promise<Record<string, any>> {
+	if (configFile === false) return {};
+
+	const configPath = await resolveConfigPath({
+		root,
+		configFile,
+		fs: fsMod,
+	});
+	if (!configPath) return {};
+
+	// Create a vite server to load the config
+	try {
+		return await loadConfigWithVite({
+			root,
+			configPath,
+			fs: fsMod,
+		});
+	} catch (e) {
+		const configPathText = configFile ? colors.bold(configFile) : 'your Astro config';
+		// Config errors should bypass log level as it breaks startup
+		// eslint-disable-next-line no-console
+		console.error(`${colors.bold(colors.red('[astro]'))} Unable to load ${configPathText}\n`);
+		throw e;
+	}
 }
 
-/** Load a configuration file, returning both the userConfig and astroConfig */
-export async function openConfig(configOptions: LoadConfigOptions): Promise<OpenConfigResult> {
-	const root = resolveRoot(configOptions.cwd);
-	const flags = resolveFlags(configOptions.flags || {});
-	let userConfig: AstroUserConfig = {};
-
-	const config = await tryLoadConfig(configOptions, root);
-	if (config) {
-		userConfig = config.value;
-	}
-	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
-
+/**
+ * `AstroInlineConfig` is a union of `AstroUserConfig` and `AstroInlineOnlyConfig`.
+ * This functions splits it up.
+ */
+function splitInlineConfig(inlineConfig: AstroInlineConfig): {
+	inlineUserConfig: AstroUserConfig;
+	inlineOnlyConfig: AstroInlineOnlyConfig;
+} {
+	const { configFile, mode, logLevel, ...inlineUserConfig } = inlineConfig;
 	return {
-		astroConfig,
-		userConfig,
-		flags,
-		root,
+		inlineUserConfig,
+		inlineOnlyConfig: {
+			configFile,
+			mode,
+			logLevel,
+		},
 	};
 }
 
-interface TryLoadConfigResult {
-	value: Record<string, any>;
-	filePath?: string;
+interface ResolveConfigResult {
+	userConfig: AstroUserConfig;
+	astroConfig: AstroConfig;
 }
 
-async function tryLoadConfig(
-	configOptions: LoadConfigOptions,
-	root: string
-): Promise<TryLoadConfigResult | undefined> {
-	const fsMod = configOptions.fsMod ?? fs;
-	let finallyCleanup = async () => {};
-	try {
-		let configPath = await resolveConfigPath({
-			cwd: configOptions.cwd,
-			flags: configOptions.flags,
-			fs: fsMod,
-		});
-		if (!configPath) return undefined;
-		if (configOptions.isRestart) {
-			// Hack: Write config to temporary file at project root
-			// This invalidates and reloads file contents when using ESM imports or "resolve"
-			const tempConfigPath = path.join(
-				root,
-				`.temp.${Date.now()}.config${path.extname(configPath)}`
-			);
-
-			const currentConfigContent = await fsMod.promises.readFile(configPath, 'utf-8');
-			await fs.promises.writeFile(tempConfigPath, currentConfigContent);
-			finallyCleanup = async () => {
-				try {
-					await fs.promises.unlink(tempConfigPath);
-				} catch {
-					/** file already removed */
-				}
-			};
-			configPath = tempConfigPath;
-		}
-
-		// Create a vite server to load the config
-		const config = await loadConfigWithVite({
-			configPath,
-			fs: fsMod,
-			root,
-		});
-		return config as TryLoadConfigResult;
-	} finally {
-		await finallyCleanup();
-	}
-}
-
-/** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
+/**
+ * Resolves the Astro config with a given inline config.
+ *
+ * @param inlineConfig An inline config that takes highest priority when merging and resolving the final config.
+ * @param command The running command that uses this config. Usually 'dev' or 'build'.
+ */
 export async function resolveConfig(
-	userConfig: AstroUserConfig,
-	root: string,
-	flags: CLIFlags = {},
-	cmd: string
-): Promise<AstroConfig> {
-	const mergedConfig = mergeCLIFlags(userConfig, flags);
-	const validatedConfig = await validateConfig(mergedConfig, root, cmd);
+	inlineConfig: AstroInlineConfig,
+	command: string,
+	fsMod = fs
+): Promise<ResolveConfigResult> {
+	const root = resolveRoot(inlineConfig.root);
+	const { inlineUserConfig, inlineOnlyConfig } = splitInlineConfig(inlineConfig);
 
-	return validatedConfig;
-}
-
-export function createDefaultDevConfig(
-	userConfig: AstroUserConfig = {},
-	root: string = process.cwd()
-) {
-	return resolveConfig(userConfig, root, undefined, 'dev');
-}
-
-function mergeConfigRecursively(
-	defaults: Record<string, any>,
-	overrides: Record<string, any>,
-	rootPath: string
-) {
-	const merged: Record<string, any> = { ...defaults };
-	for (const key in overrides) {
-		const value = overrides[key];
-		if (value == null) {
-			continue;
-		}
-
-		const existing = merged[key];
-
-		if (existing == null) {
-			merged[key] = value;
-			continue;
-		}
-
-		// fields that require special handling:
-		if (key === 'vite' && rootPath === '') {
-			merged[key] = mergeViteConfig(existing, value);
-			continue;
-		}
-
-		if (Array.isArray(existing) || Array.isArray(value)) {
-			merged[key] = [...arraify(existing ?? []), ...arraify(value ?? [])];
-			continue;
-		}
-		if (isURL(existing) && isURL(value)) {
-			merged[key] = value;
-			continue;
-		}
-		if (isObject(existing) && isObject(value)) {
-			merged[key] = mergeConfigRecursively(existing, value, rootPath ? `${rootPath}.${key}` : key);
-			continue;
-		}
-
-		merged[key] = value;
+	// If the root is specified, assign the resolved path so it takes the highest priority
+	if (inlineConfig.root) {
+		inlineUserConfig.root = root;
 	}
-	return merged;
-}
 
-export function mergeConfig(
-	defaults: Record<string, any>,
-	overrides: Record<string, any>,
-	isRoot = true
-): Record<string, any> {
-	return mergeConfigRecursively(defaults, overrides, isRoot ? '' : '.');
+	const userConfig = await loadConfig(root, inlineOnlyConfig.configFile, fsMod);
+	const mergedConfig = mergeConfig(userConfig, inlineUserConfig);
+	const astroConfig = await validateConfig(mergedConfig, root, command);
+
+	return { userConfig, astroConfig };
 }

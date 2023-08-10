@@ -1,4 +1,4 @@
-import type { OutgoingHttpHeaders } from 'http';
+import type { OutgoingHttpHeaders } from 'node:http';
 
 /**
  * Takes in a nullable WebAPI Headers object and produces a NodeJS OutgoingHttpHeaders object suitable for usage

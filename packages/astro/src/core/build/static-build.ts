@@ -1,11 +1,10 @@
 import { teardown } from '@astrojs/compiler';
 import * as eslexer from 'es-module-lexer';
 import glob from 'fast-glob';
-import fs from 'fs';
 import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
-import { extname } from 'node:path';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path, { extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import type { RouteData } from '../../@types/astro';
 import {
@@ -21,12 +20,12 @@ import { isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info } from '../logger/core.js';
+import { routeIsRedirect } from '../redirects/index.js';
 import { getOutDirWithinCwd } from './common.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
-import { MIDDLEWARE_MODULE_ID } from './plugins/plugin-middleware.js';
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
 import { RESOLVED_SPLIT_MODULE_ID, SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
@@ -61,8 +60,10 @@ export async function viteBuild(opts: StaticBuildOptions) {
 		// Track the page data in internals
 		trackPageData(internals, component, pageData, astroModuleId, astroModuleURL);
 
-		pageInput.add(astroModuleId);
-		facadeIdToPageDataMap.set(fileURLToPath(astroModuleURL), pageData);
+		if (!routeIsRedirect(pageData.route)) {
+			pageInput.add(astroModuleId);
+			facadeIdToPageDataMap.set(fileURLToPath(astroModuleURL), pageData);
+		}
 	}
 
 	// Empty out the dist folder, if needed. Vite has a config for doing this
@@ -183,8 +184,6 @@ async function ssrBuild(
 							);
 						} else if (chunkInfo.facadeModuleId?.startsWith(RESOLVED_SPLIT_MODULE_ID)) {
 							return makeSplitEntryPointFileName(chunkInfo.facadeModuleId, routes);
-						} else if (chunkInfo.facadeModuleId === MIDDLEWARE_MODULE_ID) {
-							return 'middleware.mjs';
 						} else if (chunkInfo.facadeModuleId === SSR_VIRTUAL_MODULE_ID) {
 							return opts.settings.config.build.serverEntry;
 						} else if (chunkInfo.facadeModuleId === RESOLVED_RENDERERS_MODULE_ID) {
@@ -449,19 +448,12 @@ export function makeAstroPageEntryPointFileName(
 	const pageModuleId = facadeModuleId
 		.replace(prefix, '')
 		.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
-	let route = routes.find((routeData) => {
-		return routeData.route === pageModuleId;
-	});
-	let name = pageModuleId;
-	if (route) {
-		name = route.route;
-	}
-	if (name.endsWith('/')) name += 'index';
-	const fileName = `${name.replaceAll('[', '_').replaceAll(']', '_').replaceAll('...', '---')}.mjs`;
-	if (name.startsWith('..')) {
-		return `pages${fileName}`;
-	}
-	return fileName;
+	const route = routes.find((routeData) => routeData.component === pageModuleId);
+	const name = route?.route ?? pageModuleId;
+	return `pages${name
+		.replace(/\/$/, '/index')
+		.replaceAll(/[\[\]]/g, '_')
+		.replaceAll('...', '---')}.astro.mjs`;
 }
 
 /**

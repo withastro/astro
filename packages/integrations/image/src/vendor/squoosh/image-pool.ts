@@ -1,6 +1,6 @@
+import { cpus } from 'node:os';
+import { fileURLToPath } from 'node:url';
 import { isMainThread } from 'node:worker_threads';
-import { cpus } from 'os';
-import { fileURLToPath } from 'url';
 import type { OutputFormat } from '../../loaders/index.js';
 import execOnce from '../../utils/execOnce.js';
 import WorkerPool from '../../utils/workerPool.js';

@@ -901,6 +901,7 @@ declare namespace astroHTML.JSX {
 		crossorigin?: string | undefined | null;
 		defer?: boolean | string | undefined | null;
 		fetchpriority?: 'auto' | 'high' | 'low' | undefined | null;
+		referrerpolicy?: HTMLAttributeReferrerPolicy | undefined | null;
 		integrity?: string | undefined | null;
 		nomodule?: boolean | string | undefined | null;
 		nonce?: string | undefined | null;

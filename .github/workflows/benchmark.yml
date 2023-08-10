@@ -43,8 +43,11 @@ jobs:
 
       - name: Get bench command
         id: bench-command
+        env:
+          # protects from untrusted user input and command injection
+          COMMENT: ${{ github.event.comment.body }}
         run: |
-          benchcmd=$(echo "${{ github.event.comment.body }}" | grep '!bench' | awk -F ' ' '{print $2}')
+          benchcmd=$(echo "$COMMENT" | grep '!bench' | awk -F ' ' '{print $2}')
           echo "bench=$benchcmd" >> $GITHUB_OUTPUT
         shell: bash
 

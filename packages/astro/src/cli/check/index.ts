@@ -5,18 +5,24 @@ import {
 } from '@astrojs/language-server';
 import type { FSWatcher } from 'chokidar';
 import glob from 'fast-glob';
-import fs from 'fs';
 import { bold, dim, red, yellow } from 'kleur/colors';
 import { createRequire } from 'module';
+import fs from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import ora from 'ora';
-import { fileURLToPath, pathToFileURL } from 'url';
 import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
+import { resolveConfig } from '../../core/config/config.js';
+import { createNodeLogging } from '../../core/config/logging.js';
+import { createSettings } from '../../core/config/settings.js';
 import type { LogOptions } from '../../core/logger/core.js';
 import { debug, info } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
-import type { ProcessExit, SyncOptions } from '../../core/sync';
+import type { syncInternal } from '../../core/sync';
+import { eventCliSession, telemetry } from '../../events/index.js';
+import { runHookConfigSetup } from '../../integrations/index.js';
+import { flagsToAstroInlineConfig } from '../flags.js';
 import { printDiagnostic } from './print.js';
 
 type DiagnosticResult = {
@@ -30,11 +36,6 @@ export type CheckPayload = {
 	 * Flags passed via CLI
 	 */
 	flags: Flags;
-
-	/**
-	 * Logging options
-	 */
-	logging: LogOptions;
 };
 
 type CheckFlags = {
@@ -74,15 +75,10 @@ const ASTRO_GLOB_PATTERN = '**/*.astro';
  *
  * Every time an astro files is modified, content collections are also generated.
  *
- * @param {AstroSettings} settings
  * @param {CheckPayload} options Options passed {@link AstroChecker}
  * @param {Flags} options.flags Flags coming from the CLI
- * @param {LogOptions} options.logging Logging options
  */
-export async function check(
-	settings: AstroSettings,
-	{ logging, flags }: CheckPayload
-): Promise<AstroChecker | undefined> {
+export async function check({ flags }: CheckPayload): Promise<AstroChecker | undefined> {
 	if (flags.help || flags.h) {
 		printHelp({
 			commandName: 'astro check',
@@ -97,6 +93,14 @@ export async function check(
 		});
 		return;
 	}
+
+	// Load settings
+	const inlineConfig = flagsToAstroInlineConfig(flags);
+	const logging = createNodeLogging(inlineConfig);
+	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'check');
+	telemetry.record(eventCliSession('check', userConfig, flags));
+	const settings = createSettings(astroConfig, fileURLToPath(astroConfig.root));
+
 	const checkFlags = parseFlags(flags);
 	if (checkFlags.watch) {
 		info(logging, 'check', 'Checking files in watch mode');
@@ -104,7 +108,7 @@ export async function check(
 		info(logging, 'check', 'Checking files');
 	}
 
-	const { syncCli } = await import('../../core/sync/index.js');
+	const { syncInternal } = await import('../../core/sync/index.js');
 	const root = settings.config.root;
 	const require = createRequire(import.meta.url);
 	const diagnosticChecker = new AstroCheck(
@@ -115,7 +119,7 @@ export async function check(
 	);
 
 	return new AstroChecker({
-		syncCli,
+		syncInternal,
 		settings,
 		fileSystem: fs,
 		logging,
@@ -129,7 +133,7 @@ type CheckerConstructor = {
 
 	isWatchMode: boolean;
 
-	syncCli: (settings: AstroSettings, options: SyncOptions) => Promise<ProcessExit>;
+	syncInternal: typeof syncInternal;
 
 	settings: Readonly<AstroSettings>;
 
@@ -147,7 +151,7 @@ type CheckerConstructor = {
 export class AstroChecker {
 	readonly #diagnosticsChecker: AstroCheck;
 	readonly #shouldWatch: boolean;
-	readonly #syncCli: (settings: AstroSettings, opts: SyncOptions) => Promise<ProcessExit>;
+	readonly #syncInternal: CheckerConstructor['syncInternal'];
 
 	readonly #settings: AstroSettings;
 
@@ -161,14 +165,14 @@ export class AstroChecker {
 	constructor({
 		diagnosticChecker,
 		isWatchMode,
-		syncCli,
+		syncInternal,
 		settings,
 		fileSystem,
 		logging,
 	}: CheckerConstructor) {
 		this.#diagnosticsChecker = diagnosticChecker;
 		this.#shouldWatch = isWatchMode;
-		this.#syncCli = syncCli;
+		this.#syncInternal = syncInternal;
 		this.#logging = logging;
 		this.#settings = settings;
 		this.#fs = fileSystem;
@@ -222,7 +226,14 @@ export class AstroChecker {
 	 * @param openDocuments Whether the operation should open all `.astro` files
 	 */
 	async #checkAllFiles(openDocuments: boolean): Promise<CheckResult> {
-		const processExit = await this.#syncCli(this.#settings, {
+		// Run `astro:config:setup` before syncing to initialize integrations.
+		// We do this manually as we're calling `syncInternal` directly.
+		const syncSettings = await runHookConfigSetup({
+			settings: this.#settings,
+			logging: this.#logging,
+			command: 'build',
+		});
+		const processExit = await this.#syncInternal(syncSettings, {
 			logging: this.#logging,
 			fs: this.#fs,
 		});

@@ -22,11 +22,16 @@ interface ExtractedProps {
 	props: Record<string | number | symbol, any>;
 }
 
+const transitionDirectivesToCopyOnIsland = Object.freeze([
+	'data-astro-transition-scope',
+	'data-astro-transition-persist',
+]);
+
 // Used to extract the directives, aka `client:load` information about a component.
 // Finds these special props and removes them from what gets passed into the component.
 export function extractDirectives(
 	inputProps: Record<string | number | symbol, any>,
-	clientDirectives: SSRResult['_metadata']['clientDirectives']
+	clientDirectives: SSRResult['clientDirectives']
 ): ExtractedProps {
 	let extracted: ExtractedProps = {
 		isPage: false,
@@ -165,6 +170,12 @@ export async function generateHydrateScript(
 			value: metadata.hydrateArgs || '',
 		})
 	);
+
+	transitionDirectivesToCopyOnIsland.forEach((name) => {
+		if (props[name]) {
+			island.props[name] = props[name];
+		}
+	});
 
 	return island;
 }

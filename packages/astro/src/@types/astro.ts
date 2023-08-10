@@ -8,8 +8,8 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
-import type { OutgoingHttpHeaders } from 'http';
-import type { AddressInfo } from 'net';
+import type { OutgoingHttpHeaders } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
@@ -19,7 +19,7 @@ import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
-import type { LogOptions } from '../core/logger/core';
+import type { LogOptions, LoggerLevel } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 export type {
@@ -55,6 +55,27 @@ export interface AstroBuiltinProps {
 	'client:only'?: boolean | string;
 }
 
+export interface TransitionAnimation {
+	name: string; // The name of the keyframe
+	delay?: number | string;
+	duration?: number | string;
+	easing?: string;
+	fillMode?: string;
+	direction?: string;
+}
+
+export interface TransitionAnimationPair {
+	old: TransitionAnimation | TransitionAnimation[];
+	new: TransitionAnimation | TransitionAnimation[];
+}
+
+export interface TransitionDirectionalAnimations {
+	forwards: TransitionAnimationPair;
+	backwards: TransitionAnimationPair;
+}
+
+export type TransitionAnimationValue = 'morph' | 'slide' | 'fade' | TransitionDirectionalAnimations;
+
 // Allow users to extend this for astro-jsx.d.ts
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AstroClientDirectives {}
@@ -69,6 +90,9 @@ export interface AstroBuiltinAttributes {
 	'set:html'?: any;
 	'set:text'?: any;
 	'is:raw'?: boolean;
+	'transition:animate'?: 'morph' | 'slide' | 'fade' | TransitionDirectionalAnimations;
+	'transition:name'?: string;
+	'transition:persist'?: boolean | string;
 }
 
 export interface AstroDefineVarsAttribute {
@@ -108,7 +132,6 @@ export interface CLIFlags {
 	drafts?: boolean;
 	open?: boolean;
 	experimentalAssets?: boolean;
-	experimentalRedirects?: boolean;
 }
 
 /**
@@ -455,10 +478,10 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @name redirects (Experimental)
+	 * @name redirects
 	 * @type {Record<string, RedirectConfig>}
 	 * @default `{}`
-	 * @version 2.6.0
+	 * @version 2.9.0
 	 * @description Specify a mapping of redirects where the key is the route to match
 	 * and the value is the path to redirect to.
 	 *
@@ -849,6 +872,27 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		split?: boolean;
+
+		/**
+		 * @docs
+		 * @name build.excludeMiddleware
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.8.0
+		 * @description
+		 * Defines whether or not any SSR middleware code will be bundled when built.
+		 *
+		 * When enabled, middleware code is not bundled and imported by all pages during the build. To instead execute and import middleware code manually, set `build.excludeMiddleware: true`:
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     excludeMiddleware: true
+		 *   }
+		 * }
+		 * ```
+		 */
+		excludeMiddleware?: boolean;
 	};
 
 	/**
@@ -1210,24 +1254,46 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.redirects
+		 * @name experimental.viewTransitions
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 2.6.0
+		 * @version 2.9.0
 		 * @description
-		 * Enable experimental support for redirect configuration. With this enabled
-		 * you can set redirects via the top-level `redirects` property. To enable
-		 * this feature, set `experimental.redirects` to `true`.
+		 * Enable experimental support for the `<ViewTransitions / >` component. With this enabled
+		 * you can opt-in to [view transitions](https://docs.astro.build/en/guides/view-transitions/) on a per-page basis using this component
+		 * and enable animations with the `transition:animate` directive.
 		 *
 		 * ```js
 		 * {
 		 * 	experimental: {
-		 *		redirects: true,
+		 *		viewTransitions: true,
 		 * 	},
 		 * }
 		 * ```
 		 */
-		redirects?: boolean;
+		viewTransitions?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.optimizeHoistedScript
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.10.4
+		 * @description
+		 * Prevents unused components' scripts from being included in a page unexpectedly.
+		 * The optimization is best-effort and may inversely miss including the used scripts. Make sure to double-check your built pages
+		 * before publishing.
+		 * Enable hoisted script analysis optimization by adding the experimental flag:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		optimizeHoistedScript: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		optimizeHoistedScript?: boolean;
 	};
 
 	// Legacy options to be removed
@@ -1272,21 +1338,35 @@ export interface AstroUserConfig {
  */
 export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 'page-ssr';
 
-/**
- * Resolved Astro Config
- * Config with user settings along with all defaults filled in.
- */
-
 export interface InjectedRoute {
 	pattern: string;
 	entryPoint: string;
 	prerender?: boolean;
 }
+
+export interface ResolvedInjectedRoute extends InjectedRoute {
+	resolvedEntryPoint?: URL;
+}
+
+/**
+ * Resolved Astro Config
+ * Config with user settings along with all defaults filled in.
+ */
 export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// Public:
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
+}
+export interface AstroInlineConfig extends AstroUserConfig, AstroInlineOnlyConfig {}
+export interface AstroInlineOnlyConfig {
+	configFile?: string | false;
+	mode?: RuntimeMode;
+	logLevel?: LoggerLevel;
+	/**
+	 * @internal for testing only
+	 */
+	logging?: LogOptions;
 }
 
 export type ContentEntryModule = {
@@ -1360,6 +1440,7 @@ export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
 	injectedRoutes: InjectedRoute[];
+	resolvedInjectedRoutes: ResolvedInjectedRoute[];
 	pageExtensions: string[];
 	contentEntryTypes: ContentEntryType[];
 	dataEntryTypes: DataEntryType[];
@@ -1764,10 +1845,15 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	locals: App.Locals;
 }
 
-export interface EndpointOutput {
-	body: Body;
-	encoding?: BufferEncoding;
-}
+export type EndpointOutput =
+	| {
+			body: Body;
+			encoding?: Exclude<BufferEncoding, 'binary'>;
+	  }
+	| {
+			body: Uint8Array;
+			encoding: 'binary';
+	  };
 
 export type APIRoute<Props extends Record<string, any> = Record<string, any>> = (
 	context: APIContext<Props>
@@ -1842,6 +1928,10 @@ export interface AstroIntegration {
 			 * the physical file you should import.
 			 */
 			entryPoints: Map<RouteData, URL>;
+			/**
+			 * File path of the emitted middleware
+			 */
+			middlewareEntryPoint: URL | undefined;
 		}) => void | Promise<void>;
 		'astro:build:start'?: () => void | Promise<void>;
 		'astro:build:setup'?: (options: {
@@ -1915,9 +2005,10 @@ export type RedirectRouteData = RouteData & {
 	redirect: string;
 };
 
-export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
+export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern' | 'redirectRoute'> & {
 	generate: undefined;
 	pattern: string;
+	redirectRoute: SerializedRouteData | undefined;
 	_meta: {
 		trailingSlash: AstroConfig['trailingSlash'];
 	};
@@ -1930,16 +2021,6 @@ export type SSRError = Error & vite.ErrorPayload['err'];
 export interface SSRElement {
 	props: Record<string, any>;
 	children: string;
-}
-
-export interface SSRMetadata {
-	renderers: SSRLoadedRenderer[];
-	pathname: string;
-	hasHydrationScript: boolean;
-	hasDirectives: Set<string>;
-	hasRenderedHead: boolean;
-	headInTree: boolean;
-	clientDirectives: Map<string, string>;
 }
 
 /**
@@ -1964,9 +2045,6 @@ export interface SSRResult {
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
 	componentMetadata: Map<string, SSRComponentMetadata>;
-	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
-	extraHead: Array<string>;
-	cookies: AstroCookies | undefined;
 	createAstro(
 		Astro: AstroGlobalPartial,
 		props: Record<string, any>,
@@ -1974,11 +2052,31 @@ export interface SSRResult {
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
 	response: ResponseInit;
-	// Bits 1 = astro, 2 = jsx, 4 = slot
-	// As rendering occurs these bits are manipulated to determine where content
-	// is within a slot. This is used for head injection.
-	scope: number;
+	renderers: SSRLoadedRenderer[];
+	/**
+	 * Map of directive name (e.g. `load`) to the directive script code
+	 */
+	clientDirectives: Map<string, string>;
+	compressHTML: boolean;
+	/**
+	 * Only used for logging
+	 */
+	pathname: string;
+	cookies: AstroCookies | undefined;
 	_metadata: SSRMetadata;
+}
+
+/**
+ * Ephemeral and mutable state during rendering that doesn't rely
+ * on external configuration
+ */
+export interface SSRMetadata {
+	hasHydrationScript: boolean;
+	hasDirectives: Set<string>;
+	hasRenderedHead: boolean;
+	headInTree: boolean;
+	extraHead: string[];
+	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
 }
 
 /* Preview server stuff */

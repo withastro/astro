@@ -16,10 +16,10 @@ import { pluginSSR, pluginSSRSplit } from './plugin-ssr.js';
 export function registerAllPlugins({ internals, options, register }: AstroBuildPluginContainer) {
 	register(pluginComponentEntry(internals));
 	register(pluginAliasResolve(internals));
-	register(pluginAnalyzer(internals));
+	register(pluginAnalyzer(options, internals));
 	register(pluginInternals(internals));
 	register(pluginRenderers(options));
-	register(pluginMiddleware(options));
+	register(pluginMiddleware(options, internals));
 	register(pluginPages(options, internals));
 	register(pluginCSS(options, internals));
 	register(astroHeadBuildPlugin(internals));

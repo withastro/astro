@@ -1,12 +1,13 @@
 import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
-import type { RuntimeMode, SSRLoadedRenderer } from '../../@types/astro';
+import type { AstroSettings, RuntimeMode, SSRLoadedRenderer } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
+import type { ModuleLoader } from '../module-loader';
 import type { RouteCache } from './route-cache.js';
 
 /**
  * An environment represents the static parts of rendering that do not change
  * between requests. These are mostly known when the server first starts up and do not change.
- * Thus they can be created once and passed through to renderPage on each request.
+ * Thus, they can be created once and passed through to renderPage on each request.
  */
 export interface Environment {
 	/**
@@ -21,6 +22,7 @@ export interface Environment {
 	markdown: MarkdownRenderingOptions;
 	/** "development" or "production" */
 	mode: RuntimeMode;
+	compressHTML: boolean;
 	renderers: SSRLoadedRenderer[];
 	clientDirectives: Map<string, string>;
 	resolve: (s: string) => Promise<string>;
@@ -41,3 +43,8 @@ export type CreateEnvironmentArgs = Environment;
 export function createEnvironment(options: CreateEnvironmentArgs): Environment {
 	return options;
 }
+
+export type DevelopmentEnvironment = Environment & {
+	loader: ModuleLoader;
+	settings: AstroSettings;
+};

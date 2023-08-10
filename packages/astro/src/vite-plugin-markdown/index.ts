@@ -27,6 +27,7 @@ function safeMatter(source: string, id: string) {
 		return matter(source);
 	} catch (err: any) {
 		const markdownError = new MarkdownError({
+			name: 'MarkdownError',
 			message: err.message,
 			stack: err.stack,
 			location: {
@@ -147,7 +148,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 
 				function updateImageReferences(html) {
 					return html.replaceAll(
-						/__ASTRO_IMAGE_=\"(.+)\"/gm,
+						/__ASTRO_IMAGE_="([^"]+)"/gm,
 						(full, imagePath) => spreadAttributes({src: images[imagePath].src, ...images[imagePath].attributes})
 					);
 				}

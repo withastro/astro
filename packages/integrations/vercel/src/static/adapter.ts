@@ -71,7 +71,15 @@ export default function vercelStatic({
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
 				await writeJson(new URL(`./config.json`, getVercelOutput(_config.root)), {
 					version: 3,
-					routes: [...getRedirects(routes, _config), { handle: 'filesystem' }],
+					routes: [
+						...getRedirects(routes, _config),
+						{
+							src: `^/${_config.build.assets}/(.*)$`,
+							headers: { 'cache-control': 'public, max-age=31536000, immutable' },
+							continue: true,
+						},
+						{ handle: 'filesystem' },
+					],
 					...(imageService || imagesConfig
 						? { images: imagesConfig ? imagesConfig : defaultImageConfig }
 						: {}),

@@ -1,6 +1,17 @@
+import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isLocalService, type ImageService } from './services/service.js';
 import type { GetImageResult, ImageMetadata, ImageTransform } from './types.js';
+
+export function injectImageEndpoint(settings: AstroSettings) {
+	settings.injectedRoutes.push({
+		pattern: '/_image',
+		entryPoint: 'astro/assets/image-endpoint',
+		prerender: false,
+	});
+
+	return settings;
+}
 
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
 	return typeof src === 'object';
@@ -38,10 +49,10 @@ export async function getImage(
 
 	const service = await getConfiguredImageService();
 	const validatedOptions = service.validateOptions
-		? service.validateOptions(options, serviceConfig)
+		? await service.validateOptions(options, serviceConfig)
 		: options;
 
-	let imageURL = service.getURL(validatedOptions, serviceConfig);
+	let imageURL = await service.getURL(validatedOptions, serviceConfig);
 
 	// In build and for local services, we need to collect the requested parameters so we can generate the final images
 	if (isLocalService(service) && globalThis.astroAsset.addStaticImage) {

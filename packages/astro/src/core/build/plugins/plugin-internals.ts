@@ -1,4 +1,4 @@
-import type { Plugin as VitePlugin, UserConfig } from 'vite';
+import type { UserConfig, Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import { normalizeEntryId } from './plugin-component-entry.js';

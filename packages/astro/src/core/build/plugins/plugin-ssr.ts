@@ -138,6 +138,7 @@ export function pluginSSR(
 					manifest,
 					logging: options.logging,
 					entryPoints: internals.entryPoints,
+					middlewareEntryPoint: internals.middlewareEntryPoint,
 				});
 				const code = injectManifest(manifest, internals.ssrEntryChunk);
 				mutate(internals.ssrEntryChunk, 'server', code);
@@ -260,6 +261,7 @@ export function pluginSSRSplit(
 					manifest,
 					logging: options.logging,
 					entryPoints: internals.entryPoints,
+					middlewareEntryPoint: internals.middlewareEntryPoint,
 				});
 				for (const [, chunk] of internals.ssrSplitEntryChunks) {
 					const code = injectManifest(manifest, chunk);

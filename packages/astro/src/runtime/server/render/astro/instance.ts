@@ -4,6 +4,7 @@ import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.j
 
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
+import type { RenderDestination } from '../common.js';
 import { isAPropagatingComponent } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
 
@@ -36,11 +37,12 @@ export class AstroComponentInstance {
 	}
 
 	async init(result: SSRResult) {
+		if (this.returnValue !== undefined) return this.returnValue;
 		this.returnValue = this.factory(result, this.props, this.slotValues);
 		return this.returnValue;
 	}
 
-	async *render() {
+	async render(destination: RenderDestination) {
 		if (this.returnValue === undefined) {
 			await this.init(this.result);
 		}
@@ -50,9 +52,9 @@ export class AstroComponentInstance {
 			value = await value;
 		}
 		if (isHeadAndContent(value)) {
-			yield* value.content;
+			await value.content.render(destination);
 		} else {
-			yield* renderChild(value);
+			await renderChild(destination, value);
 		}
 	}
 }
@@ -80,8 +82,8 @@ export function createAstroComponentInstance(
 ) {
 	validateComponentProps(props, displayName);
 	const instance = new AstroComponentInstance(result, props, slots, factory);
-	if (isAPropagatingComponent(result, factory) && !result.propagators.has(factory)) {
-		result.propagators.set(factory, instance);
+	if (isAPropagatingComponent(result, factory) && !result._metadata.propagators.has(factory)) {
+		result._metadata.propagators.set(factory, instance);
 	}
 	return instance;
 }

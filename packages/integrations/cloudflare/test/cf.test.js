@@ -6,6 +6,8 @@ import cloudflare from '../dist/index.js';
 describe('Cf metadata and caches', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
+	/** @type {import('./test-utils').WranglerCLI} */
+	let cli;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -14,22 +16,22 @@ describe('Cf metadata and caches', () => {
 			adapter: cloudflare(),
 		});
 		await fixture.build();
+
+		cli = runCLI('./fixtures/cf/', { silent: true, port: 8788 });
+		await cli.ready;
+	});
+
+	after(async () => {
+		await cli.stop();
 	});
 
 	it('Load cf and caches API', async () => {
-		const { ready, stop } = runCLI('./fixtures/cf/', { silent: true, port: 8788 });
-
-		try {
-			await ready;
-			let res = await fetch(`http://localhost:8788/`);
-			expect(res.status).to.equal(200);
-			let html = await res.text();
-			let $ = cheerio.load(html);
-			// console.log($('#cf').text(), html);
-			expect($('#cf').text()).to.contain('city');
-			expect($('#hasCache').text()).to.equal('true');
-		} finally {
-			await stop();
-		}
+		let res = await fetch(`http://localhost:8788/`);
+		expect(res.status).to.equal(200);
+		let html = await res.text();
+		let $ = cheerio.load(html);
+		// console.log($('#cf').text(), html);
+		expect($('#cf').text()).to.contain('city');
+		expect($('#hasCache').text()).to.equal('true');
 	});
 });

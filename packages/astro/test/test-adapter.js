@@ -50,12 +50,12 @@ export default function (
 													return super.render(request, routeData, locals);
 												}
 											}
-											
+
 											export function createExports(manifest) {
 												return {
 													manifest,
 													createApp: (streaming) => new MyApp(manifest, streaming)
-													
+
 												};
 											}
 										`;
@@ -74,9 +74,10 @@ export default function (
 					...extendAdapter,
 				});
 			},
-			'astro:build:ssr': ({ entryPoints }) => {
+			'astro:build:ssr': ({ entryPoints, middlewareEntryPoint }) => {
 				if (setEntryPoints) {
 					setEntryPoints(entryPoints);
+					setEntryPoints(middlewareEntryPoint);
 				}
 			},
 			'astro:build:done': ({ routes }) => {

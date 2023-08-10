@@ -108,7 +108,7 @@ Or, with Fastify (>4):
 import Fastify from 'fastify';
 import fastifyMiddie from '@fastify/middie';
 import fastifyStatic from '@fastify/static';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { handler as ssrHandler } from './dist/server/entry.mjs';
 
 const app = Fastify({ logger: true });
@@ -172,11 +172,23 @@ You can pass the path to your key and certification via the environment variable
 SERVER_KEY_PATH=./private/key.pem SERVER_CERT_PATH=./private/cert.pem node ./dist/server/entry.mjs
 ```
 
+#### Runtime environment variables
+
+If an `.env` file containing environment variables is present when the build process is run, these values will be hard-coded in the output, just as when generating a static website.
+
+During the build, the runtime variables must be absent from the `.env` file, and you must provide Astro with every environment variable to expect at run-time: `VARIABLE_1=placeholder astro build`. This signals to Astro that the actual value will be available when the built application is run. The placeholder value will be ignored by the build process, and Astro will use the value provided at run-time.
+
+In the case of multiple run-time variables, store them in a seperate file (e.g. `.env.runtime`) from `.env`. Start the build with the following command:
+
+```sh
+export $(cat .env.runtime) && astro build
+```
+
 ## Troubleshooting
 
 ### SyntaxError: Named export 'compile' not found
 
-You may see this when running the entry script if it was built with npm or Yarn. This is a [known issue](https://github.com/withastro/astro/issues/4974) that will be fixed in a future release. As a workaround, add `"path-to-regexp"` to the `noExternal` array:
+You may see this when running the entry script if it was built with npm or Yarn. This is a known issue that may be fixed in a future release. As a workaround, add `"path-to-regexp"` to the `noExternal` array:
 
 ```js ins={9-13}
 // astro.config.mjs

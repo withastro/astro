@@ -23,7 +23,7 @@ export async function dependencies(
 		await info('--dry-run', `Skipping dependency installation`);
 	} else if (deps) {
 		await spinner({
-			start: `Dependencies installing with ${ctx.pkgManager}...`,
+			start: `Installing dependencies with ${ctx.pkgManager}...`,
 			end: 'Dependencies installed',
 			while: () => {
 				return install({ pkgManager: ctx.pkgManager, cwd: ctx.cwd }).catch((e) => {

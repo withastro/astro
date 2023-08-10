@@ -57,7 +57,7 @@ If you prefer to install the adapter manually instead, complete the following tw
 
 ### Edge Functions
 
-Netlify has two serverless platforms, Netlify Functions and [Netlify's experimental Edge Functions](https://docs.netlify.com/netlify-labs/experimental-features/edge-functions/#app). With Edge Functions your code is distributed closer to your users, lowering latency.
+Netlify has two serverless platforms, [Netlify Functions](https://docs.netlify.com/functions/overview/) and [Netlify Edge Functions](https://docs.netlify.com/edge-functions/overview/). With Edge Functions your code is distributed closer to your users, lowering latency.
 
 To deploy with Edge Functions, use `netlify/edge-functions` in the Astro config file instead of `netlify/functions`.
 
@@ -72,9 +72,77 @@ export default defineConfig({
 });
 ```
 
+### Run middleware in Edge Functions
+
+When deploying to Netlify Functions, you can choose to use an Edge Function to run your Astro middleware.
+
+To enable this, set the `build.excludeMiddleware` Astro config option to `true`:
+
+```js ins={9}
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import netlify from '@astrojs/netlify/functions';
+
+export default defineConfig({
+  output: 'server',
+  adapter: netlify(),
+  build: {
+    excludeMiddleware: true,
+  },
+});
+```
+
+#### Pass edge context to your site
+
+Netlify Edge Functions provide a [context object](https://docs.netlify.com/edge-functions/api/#netlify-specific-context-object) including metadata about the request, such as a user’s IP, geolocation data, and cookies.
+
+To expose values from this context to your site, create a `netlify-edge-middleware.ts` (or `.js`) file in your project’s [source directory](https://docs.astro.build/en/reference/configuration-reference/#srcdir). This file must export a function that returns the data to add to [Astro’s `locals` object](https://docs.astro.build/en/guides/middleware/#locals), which is available in middleware and Astro routes.
+
+In this example, `visitorCountry` and `hasEdgeMiddleware` would both be added to Astro’s `locals` object:
+
+```ts
+// src/netlify-edge-middleware.ts
+import type { Context } from 'https://edge.netlify.com';
+
+export default function ({ request, context }: { request: Request; context: Context }) {
+  // Return serializable data to add to Astro.locals
+  return {
+    visitorCountry: context.geo.country.name,
+    hasEdgeMiddleware: true,
+  };
+}
+```
+
+> **Note**
+> Netlify Edge Functions run in [a Deno environment](https://docs.netlify.com/edge-functions/api/#runtime-environment), so import statements in this file must use Deno’s URL syntax.
+
+`netlify-edge-middleware.ts` must provide a function as its default export. This function:
+
+- must return a JSON-serializable object, which cannot include types like `Map`, `function`, `Set`, etc.
+- will always run first, before any other middleware and routes.
+- cannot return a response or redirect.
+
+### Per-page functions
+
+The Netlify adapter builds to a single function by default. Astro 2.7 added support for splitting your build into separate entry points per page. If you use this configuration, the Netlify adapter will generate a separate function for each page. This can help reduce the size of each function so they are only bundling code used on that page.
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import netlify from '@astrojs/netlify/functions';
+
+export default defineConfig({
+  output: 'server',
+  adapter: netlify(),
+  build: {
+    split: true,
+  },
+});
+```
+
 ### Static sites
 
-For static sites you usually don't need an adapter. However, if you use `redirects` configuration (experimental) in your Astro config, the Netlify adapter can be used to translate this to the proper `_redirects` format.
+For static sites you usually don't need an adapter. However, if you use `redirects` configuration in your Astro config, the Netlify adapter can be used to translate this to the proper `_redirects` format.
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -85,9 +153,6 @@ export default defineConfig({
 
   redirects: {
     '/blog/old-post': '/blog/new-post',
-  },
-  experimental: {
-    redirects: true,
   },
 });
 ```
@@ -188,7 +253,7 @@ export function get() {
 
 - The [Astro Netlify Edge Starter](https://github.com/sarahetter/astro-netlify-edge-starter) provides an example and a guide in the README.
 
-- [Browse Astro Netlify projects on GitHub](https://github.com/search?q=%22%40astrojs%2Fnetlify%22+filename%3Apackage.json&type=Code) for more examples!
+- [Browse Astro Netlify projects on GitHub](https://github.com/search?q=path%3A**%2Fastro.config.mjs+%40astrojs%2Fnetlify&type=code) for more examples!
 
 ## Troubleshooting
 

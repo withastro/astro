@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 
-import { createFs } from '../test-utils.js';
+import { fileURLToPath } from 'node:url';
 import { createRouteManifest } from '../../../dist/core/routing/manifest/create.js';
-import { createDefaultDevSettings } from '../../../dist/core/config/index.js';
-import { fileURLToPath } from 'url';
+import { createBasicSettings, createFs, defaultLogging } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -15,13 +14,11 @@ describe('routing - createRouteManifest', () => {
 			},
 			root
 		);
-		const settings = await createDefaultDevSettings(
-			{
-				base: '/search',
-				trailingSlash: 'never',
-			},
-			root
-		);
+		const settings = await createBasicSettings({
+			root: fileURLToPath(root),
+			base: '/search',
+			trailingSlash: 'never',
+		});
 		const manifest = createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
@@ -40,17 +37,15 @@ describe('routing - createRouteManifest', () => {
 			},
 			root
 		);
-		const settings = await createDefaultDevSettings(
-			{
-				base: '/search',
-				trailingSlash: 'never',
-				redirects: {
-					'/blog/[...slug]': '/',
-					'/blog/contributing': '/another',
-				},
+		const settings = await createBasicSettings({
+			root: fileURLToPath(root),
+			base: '/search',
+			trailingSlash: 'never',
+			redirects: {
+				'/blog/[...slug]': '/',
+				'/blog/contributing': '/another',
 			},
-			root
-		);
+		});
 		const manifest = createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
@@ -59,6 +54,32 @@ describe('routing - createRouteManifest', () => {
 
 		expect(manifest.routes[1].route).to.equal('/blog/contributing');
 		expect(manifest.routes[1].type).to.equal('page');
-		expect(manifest.routes[2].route).to.equal('/blog/[...slug]');
+		expect(manifest.routes[3].route).to.equal('/blog/[...slug]');
+	});
+
+	it('static redirect route is prioritized over dynamic file route', async () => {
+		const fs = createFs(
+			{
+				'/src/pages/[...slug].astro': `<h1>test</h1>`,
+			},
+			root
+		);
+		const settings = await createBasicSettings({
+			root: fileURLToPath(root),
+			trailingSlash: 'never',
+			redirects: {
+				'/foo': '/bar',
+			},
+		});
+		const manifest = createRouteManifest(
+			{
+				cwd: fileURLToPath(root),
+				settings,
+				fsMod: fs,
+			},
+			defaultLogging
+		);
+
+		expect(manifest.routes[0].route).to.equal('/foo');
 	});
 });
