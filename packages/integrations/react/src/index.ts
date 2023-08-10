@@ -2,13 +2,8 @@ import type { AstroIntegration } from 'astro';
 import { version as ReactVersion } from 'react-dom';
 import react, {type Options as ViteReactPluginOptions} from '@vitejs/plugin-react';
 
-const FAST_REFRESH_PREAMBLE = `
-import RefreshRuntime from '/@react-refresh'
-RefreshRuntime.injectIntoGlobalHook(window)
-window.$RefreshReg$ = () => {}
-window.$RefreshSig$ = () => (type) => type
-window.__vite_plugin_react_preamble_installed__ = true
-`;
+
+const FAST_REFRESH_PREAMBLE = react.preambleCode;
 
 function getRenderer() {
 	return {
