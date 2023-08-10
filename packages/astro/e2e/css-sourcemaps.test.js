@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { isWindows, testFactory } from './test-utils.js';
+import { testFactory } from './test-utils.js';
 
 const test = testFactory({
 	root: './fixtures/css/',
@@ -16,8 +16,6 @@ test.afterAll(async () => {
 });
 
 test.describe('CSS Sourcemap HMR', () => {
-	test.skip(isWindows, 'TODO: fix css hmr in windows');
-
 	test('removes Astro-injected CSS once Vite-injected CSS loads', async ({ page, astro }) => {
 		const html = await astro.fetch('/').then((res) => res.text());
 
