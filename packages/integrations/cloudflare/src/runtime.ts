@@ -28,7 +28,7 @@ export type PagesRuntime<T = unknown, U = unknown> = {
  * ```diff
  * - import { getRuntime } from '@astrojs/cloudflare/runtime';
  * - getRuntime(Astro.request);
- *  
+ *
  * + const runtime = Astro.locals.runtime;
  * ```
  */
