@@ -10,7 +10,7 @@ declare module 'astro:content' {
 
 declare module 'astro:content' {
 	export { z } from 'astro/zod';
-	
+
 	type Flatten<T> = T extends { [K: string]: infer U } ? U : never;
 	export type CollectionEntry<C extends keyof AnyEntryMap> = Flatten<AnyEntryMap[C]>;
 
