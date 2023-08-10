@@ -168,6 +168,22 @@ describe('Content Collections - render()', () => {
 			expect(h2).to.have.a.lengthOf(1);
 			expect(h2.attr('data-components-export-applied')).to.equal('true');
 		});
+
+		it('getCollection should return new instances of the array to be mutated safely', async () => {
+			const app = await fixture.loadTestAdapterApp();
+
+			let request = new Request('http://example.com/sort-blog-collection');
+			let response = await app.render(request);
+			let html = await response.text();
+			let $ = cheerio.load(html);
+			expect($('li').first().text()).to.equal('With Layout Prop');
+
+			 request = new Request('http://example.com/');
+			 response = await app.render(request);
+			 html = await response.text();
+			 $ = cheerio.load(html);
+			expect($('li').first().text()).to.equal('Hello world');
+		})
 	});
 
 	describe('Dev - SSG', () => {
