@@ -22,7 +22,7 @@ export type RenderPage = {
 	cookies: AstroCookies;
 };
 
-async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
+export async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
 	if (routeIsRedirect(renderContext.route)) {
 		return new Response(null, {
 			status: redirectRouteStatus(renderContext.route, renderContext.request.method),
@@ -85,6 +85,7 @@ async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
  * ## Errors
  *
  * It throws an error if the page can't be rendered.
+ * @deprecated Use the pipeline instead
  */
 export async function tryRenderRoute<MiddlewareReturnType = Response>(
 	renderContext: Readonly<RenderContext>,

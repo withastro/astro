@@ -30,7 +30,7 @@ import {
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 import type { RouteInfo } from './types';
-import { SSRRoutePipeline } from '../pipeline';
+import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -161,13 +161,18 @@ export class App {
 		);
 		let response;
 		try {
+			// NOTE: ideally we could set the middleware function just once, but we don't have the infrastructure to that yet
 			if (mod.onRequest) {
 				this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
 			}
 			response = await this.#pipeline.renderRoute(renderContext, pageModule);
 		} catch (err: any) {
-			error(this.#logging, 'ssr', err.stack || err.message || String(err));
-			return this.#renderError(request, { status: 500 });
+			if (err instanceof EndpointNotFoundError) {
+				return this.#renderError(request, { status: 404, response: err.originalResponse });
+			} else {
+				error(this.#logging, 'ssr', err.stack || err.message || String(err));
+				return this.#renderError(request, { status: 500 });
+			}
 		}
 
 		if (SSRRoutePipeline.isResponse(response, routeData.type)) {
@@ -179,34 +184,6 @@ export class App {
 			}
 			Reflect.set(response, responseSentSymbol, true);
 			return response;
-		} else {
-			if (response.type === 'response') {
-				if (response.response.headers.get('X-Astro-Response') === 'Not-Found') {
-					return this.#renderError(request, {
-						response: response.response,
-						status: 404,
-					});
-				}
-				return response.response;
-			} else {
-				const headers = new Headers();
-				const mimeType = mime.getType(url.pathname);
-				if (mimeType) {
-					headers.set('Content-Type', `${mimeType};charset=utf-8`);
-				} else {
-					headers.set('Content-Type', 'text/plain;charset=utf-8');
-				}
-				const bytes =
-					response.encoding !== 'binary' ? this.#encoder.encode(response.body) : response.body;
-				headers.set('Content-Length', bytes.byteLength.toString());
-
-				const newResponse = new Response(bytes, {
-					status: 200,
-					headers,
-				});
-				attachToResponse(newResponse, response.cookies);
-				return newResponse;
-			}
 		}
 		return response;
 	}

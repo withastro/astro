@@ -90,13 +90,14 @@ describe('core/render', () => {
 
 			const PageModule = createAstroModule(Page);
 			const ctx = await createRenderContext({
+				route: { type: 'page', pathname: '/index' },
 				request: new Request('http://example.com/'),
 				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
 				mod: PageModule,
 				env,
 			});
 
-			const response = await tryRenderRoute('page', ctx, env, PageModule);
+			const response = await tryRenderRoute(ctx, env, PageModule);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -170,13 +171,14 @@ describe('core/render', () => {
 
 			const PageModule = createAstroModule(Page);
 			const ctx = await createRenderContext({
+				route: { type: 'page', pathname: '/index' },
 				request: new Request('http://example.com/'),
 				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
 				env,
 				mod: PageModule,
 			});
 
-			const response = await tryRenderRoute('page', ctx, env, PageModule);
+			const response = await tryRenderRoute(ctx, env, PageModule);
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
@@ -216,13 +218,14 @@ describe('core/render', () => {
 
 			const PageModule = createAstroModule(Page);
 			const ctx = await createRenderContext({
+				route: { type: 'page', pathname: '/index' },
 				request: new Request('http://example.com/'),
 				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
 				env,
 				mod: PageModule,
 			});
 
-			const response = await tryRenderRoute('page', ctx, env, PageModule);
+			const response = await tryRenderRoute(ctx, env, PageModule);
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
