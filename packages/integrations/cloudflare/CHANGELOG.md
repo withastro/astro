@@ -1,5 +1,16 @@
 # @astrojs/cloudflare
 
+## 6.7.0
+
+### Minor Changes
+
+- [#7846](https://github.com/withastro/astro/pull/7846) [`ea30a9d4f`](https://github.com/withastro/astro/commit/ea30a9d4f2d7a12345869e971f3051cf803dbe74) Thanks [@schummar](https://github.com/schummar)! - More efficient \_routes.json
+
+### Patch Changes
+
+- Updated dependencies [[`5b1e39ef6`](https://github.com/withastro/astro/commit/5b1e39ef6ec6dcebea96584f95d9530bd9aa715d)]:
+  - astro@2.10.5
+
 ## 6.6.2
 
 ### Patch Changes
