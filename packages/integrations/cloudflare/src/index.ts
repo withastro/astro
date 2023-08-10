@@ -21,15 +21,15 @@ interface BuildConfig {
 export function getAdapter(isModeDirectory: boolean): AstroAdapter {
 	return isModeDirectory
 		? {
-			name: '@astrojs/cloudflare',
-			serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
-			exports: ['onRequest', 'manifest'],
-		}
+				name: '@astrojs/cloudflare',
+				serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
+				exports: ['onRequest', 'manifest'],
+		  }
 		: {
-			name: '@astrojs/cloudflare',
-			serverEntrypoint: '@astrojs/cloudflare/server.advanced.js',
-			exports: ['default'],
-		};
+				name: '@astrojs/cloudflare',
+				serverEntrypoint: '@astrojs/cloudflare/server.advanced.js',
+				exports: ['default'],
+		  };
 }
 
 const SHIM = `globalThis.process = {
