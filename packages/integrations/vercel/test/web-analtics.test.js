@@ -1,7 +1,7 @@
 import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 
-describe.only('Vercel Web Analytics', () => {
+describe('Vercel Web Analytics', () => {
 	describe('output: server', () => {
 		/** @type {import('./test-utils.js').Fixture} */
 		let fixture;
