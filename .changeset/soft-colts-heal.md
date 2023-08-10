@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-pass down `astro add` cli arguments to package manager
+`astro add` now passes down `--save-prod`, `--save-dev`, `--save-exact`, and `--no-save` flags for installation
