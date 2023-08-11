@@ -294,4 +294,24 @@ test.describe('View Transitions', () => {
 		const meta = page.locator('[name="script-executions"]');
 		await expect(meta).toHaveAttribute('content', '0');
 	});
+
+	test('Navigating to the same path but with different query params should result in transition', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/query'));
+		let p = page.locator('#query-page');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page 2
+		await page.click('#click-two');
+		p = page.locator('#query-page');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+
+		await expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
 });

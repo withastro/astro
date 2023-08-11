@@ -1484,6 +1484,9 @@ importers:
 
   packages/astro/e2e/fixtures/view-transitions:
     dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react

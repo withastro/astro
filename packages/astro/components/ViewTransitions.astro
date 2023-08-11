@@ -263,7 +263,11 @@ const { fallback = 'animate' } = Astro.props as Props;
 				link.href &&
 				(!link.target || link.target === '_self') &&
 				link.origin === location.origin &&
-				location.pathname !== link.pathname &&
+				!(
+					// Same page means same path and same query params
+					location.pathname === link.pathname &&
+					location.search === link.search
+				) &&
 				ev.button === 0 && // left clicks only
 				!ev.metaKey && // new tab (mac)
 				!ev.ctrlKey && // new tab (windows)
