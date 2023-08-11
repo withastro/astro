@@ -28,6 +28,8 @@ export async function copyDependenciesToFunction({
 	const { nodeFileTrace } = await import('@vercel/nft');
 	const result = await nodeFileTrace([entryPath], {
 		base: fileURLToPath(base),
+		// If you have a route of /dev this appears in source and NFT will try to
+		// scan your local /dev :8
 		ignore: ['/dev/**']
 	});
 
