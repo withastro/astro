@@ -19,9 +19,9 @@ import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
 import astroHeadPlugin from '../vite-plugin-head/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
+import mdxVitePlugin from '../vite-plugin-mdx/index.js';
 import { astroInjectEnvTsPlugin } from '../vite-plugin-inject-env-ts/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
-import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScannerPlugin from '../vite-plugin-scanner/index.js';
@@ -121,7 +121,7 @@ export async function createVite(
 			envVitePlugin({ settings }),
 			markdownVitePlugin({ settings, logging }),
 			htmlVitePlugin(),
-			jsxVitePlugin({ settings, logging }),
+			mdxVitePlugin({ settings, logging }),
 			astroPostprocessVitePlugin(),
 			astroIntegrationsContainerPlugin({ settings, logging }),
 			astroScriptsPageSSRPlugin({ settings }),

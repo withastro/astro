@@ -20,7 +20,7 @@ import { sync } from '../dist/core/sync/index.js';
 process.env.ASTRO_TELEMETRY_DISABLED = true;
 
 /**
- * @typedef {import('../src/core/dev/dev').DedvServer} DevServer
+ * @typedef {import('../src/core/dev/dev').DevServer} DevServer
  * @typedef {import('../src/@types/astro').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
  * @typedef {import('../src/core/app/index').App} App

@@ -75,7 +75,7 @@ test.describe('Error display', () => {
 		const fileExists = astro.pathExists(absoluteFileUrl);
 
 		expect(fileExists).toBeTruthy();
-		expect(fileLocation).toMatch(/^components\/PreactRuntimeError.jsx/);
+		expect(fileLocation).toMatch(/^preact\/PreactRuntimeError.jsx/);
 	});
 
 	test('shows correct line when a style preprocess has an error', async ({ page, astro }) => {
@@ -105,7 +105,7 @@ test.describe('Error display', () => {
 			// Wait for page reload
 			page.waitForNavigation(),
 			// Edit the component file
-			astro.editFile('./src/components/SvelteSyntaxError.svelte', () => `<h1>No mismatch</h1>`),
+			astro.editFile('./src/components/svelte/SvelteSyntaxError.svelte', () => `<h1>No mismatch</h1>`),
 		]);
 
 		expect(await page.locator('vite-error-overlay').count()).toEqual(0);

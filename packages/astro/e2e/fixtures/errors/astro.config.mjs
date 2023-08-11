@@ -7,5 +7,11 @@ import vue from '@astrojs/vue';
 
 // https://astro.build/config
 export default defineConfig({
-	integrations: [react(), preact(), solid(), svelte(), vue()],
+	integrations: [
+		react({ include: ['**/react/*'] }),
+		preact({ include: ['**/preact/*'] }),
+		solid({ include: ['**/solid/*'] }),
+		svelte(),
+		vue(),
+	],
 });

@@ -49,11 +49,6 @@ function safeMatter(source: string, id: string) {
 	}
 }
 
-// absolute path of "astro/jsx-runtime"
-const astroJsxRuntimeModulePath = normalizePath(
-	fileURLToPath(new URL('../jsx-runtime/index.js', import.meta.url))
-);
-
 const astroServerRuntimeModulePath = normalizePath(
 	fileURLToPath(new URL('../runtime/server/index.js', import.meta.url))
 );
@@ -115,8 +110,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				}
 
 				const code = escapeViteEnvReferences(`
-				import { Fragment, jsx as h } from ${JSON.stringify(astroJsxRuntimeModulePath)};
-				import { spreadAttributes } from ${JSON.stringify(astroServerRuntimeModulePath)};
+				import { unescapeHTML, spreadAttributes, createComponent, render, renderComponent } from ${JSON.stringify(astroServerRuntimeModulePath)};
 				import { AstroError, AstroErrorData } from ${JSON.stringify(astroErrorModulePath)};
 
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
@@ -167,27 +161,29 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				export function getHeadings() {
 					return ${JSON.stringify(headings)};
 				}
-				export async function Content() {
+
+				export const Content = createComponent((result, _props, slots) => {
 					const { layout, ...content } = frontmatter;
 					content.file = file;
 					content.url = url;
-					const contentFragment = h(Fragment, { 'set:html': html });
+
 					return ${
 						layout
-							? `h(Layout, {
-									file,
-									url,
-									content,
-									frontmatter: content,
-									headings: getHeadings(),
-									rawContent,
-									compiledContent,
-									'server:root': true,
-									children: contentFragment
-								})`
-							: `contentFragment`
-					};
-				}
+							? `render\`\${renderComponent(result, 'Layout', Layout, {
+								file,
+								url,
+								content,
+								frontmatter: content,
+								headings: getHeadings(),
+								rawContent,
+								compiledContent,
+								'server:root': true,
+							}, {
+								'default': () => render\`\${unescapeHTML(html)}\`
+							})}\`;`
+							: `render\`\${unescapeHTML(html)}\`;`
+					}
+				});
 				Content[Symbol.for('astro.needsHeadRendering')] = ${layout ? 'false' : 'true'};
 				export default Content;
 				`);

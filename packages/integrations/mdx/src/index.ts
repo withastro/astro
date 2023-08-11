@@ -13,6 +13,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import { getRehypePlugins, getRemarkPlugins, recmaInjectImportMetaEnvPlugin } from './plugins.js';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
 import { getFileInfo, ignoreStringPlugins, parseFrontmatter } from './utils.js';
+import astroJSXRenderer from 'astro/jsx/renderer.js';
 
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
 	extendMarkdownConfig: boolean;
@@ -37,9 +38,10 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 		name: '@astrojs/mdx',
 		hooks: {
 			'astro:config:setup': async (params) => {
-				const { updateConfig, config, addPageExtension, addContentEntryType, command } =
+				const { updateConfig, config, addPageExtension, addContentEntryType, command, addRenderer } =
 					params as SetupHookParams;
 
+				addRenderer(astroJSXRenderer);
 				addPageExtension('.mdx');
 				addContentEntryType({
 					extensions: ['.mdx'],

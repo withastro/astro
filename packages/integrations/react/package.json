@@ -44,8 +44,8 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@babel/core": "^7.22.5",
-    "@babel/plugin-transform-react-jsx": "^7.22.5"
+    "@astrojs/internal-helpers": "0.2.0-beta.0",
+    "@vitejs/plugin-react": "^4.0.3"
   },
   "devDependencies": {
     "@types/react": "^17.0.62",

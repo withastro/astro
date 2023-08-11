@@ -29,8 +29,8 @@ function check(this: RendererContext, Component: any, props: Record<string, any>
 
 			// There are edge cases (SolidJS) where Preact *might* render a string,
 			// but components would be <undefined></undefined>
-
-			return !/\<undefined\>/.test(html);
+			// It also might render an empty sting.
+			return html == '' ? false : !/\<undefined\>/.test(html);
 		} catch (err) {
 			return false;
 		}
