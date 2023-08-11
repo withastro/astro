@@ -7,6 +7,7 @@ export {
 	CompilerError,
 	MarkdownError,
 	isAstroError,
+	AstroUserError,
 } from './errors.js';
 export { codeFrame } from './printer.js';
 export { createSafeError, positionAt } from './utils.js';
