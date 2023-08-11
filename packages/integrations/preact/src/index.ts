@@ -53,7 +53,7 @@ export default function ({include, exclude, compat}: Options = {}): AstroIntegra
 						dedupe: ['preact/compat', 'preact'],
 					};
 					// noExternal React entrypoints to be bundled, resolved, and aliased by Vite
-					viteConfig.ssr = {f
+					viteConfig.ssr = {
 						noExternal: ['react', 'react-dom', 'react-dom/test-utils', 'react/jsx-runtime'],
 					};
 				}
