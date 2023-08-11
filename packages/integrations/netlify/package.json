@@ -26,7 +26,8 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "builders-types.d.ts"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
