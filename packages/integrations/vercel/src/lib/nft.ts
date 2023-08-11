@@ -30,7 +30,7 @@ export async function copyDependenciesToFunction({
 		base: fileURLToPath(base),
 		// If you have a route of /dev this appears in source and NFT will try to
 		// scan your local /dev :8
-		ignore: ['/dev/**']
+		ignore: ['/dev/**'],
 	});
 
 	for (const error of result.warnings) {
