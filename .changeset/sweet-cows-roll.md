@@ -2,7 +2,7 @@
 '@astrojs/netlify': minor
 ---
 
-If you are using Netlify's On-demand Builders, you can now specify how long should your pages remain cached. By default, all pages will be rendered on first visit and reused on every subsequent visit until you redeploy. To set a custom revalidation time, call the `runtime.setBuildersTtl()` local in either your frontmatter or a middleware.
+If you are using Netlify's On-demand Builders, you can now specify how long your pages should remain cached. By default, all pages will be rendered on first visit and reused on every subsequent visit until a redeploy. To set a custom revalidation time, call the `runtime.setBuildersTtl()` local in either your frontmatter or middleware.
 
 ```astro
 ---
