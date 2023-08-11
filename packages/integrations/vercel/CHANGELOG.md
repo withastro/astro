@@ -1,5 +1,14 @@
 # @astrojs/vercel
 
+## 3.8.1
+
+### Patch Changes
+
+- [#8039](https://github.com/withastro/astro/pull/8039) [`6b57628d1`](https://github.com/withastro/astro/commit/6b57628d128779290db3344bbb6de7282196fb97) Thanks [@matthewp](https://github.com/matthewp)! - Prevent Vercel NFT from scanning /dev
+
+- Updated dependencies [[`1b8d30209`](https://github.com/withastro/astro/commit/1b8d3020990130dabfaaf753db73a32c6e0c896a), [`405913cdf`](https://github.com/withastro/astro/commit/405913cdf20b26407aa351c090f0a0859a4e6f54), [`87d4b1843`](https://github.com/withastro/astro/commit/87d4b18437c7565c48cad4bea81831c2a244ebb8), [`c23377caa`](https://github.com/withastro/astro/commit/c23377caafbc75deb91c33b9678c1b6868ad40ea), [`86bee2812`](https://github.com/withastro/astro/commit/86bee2812185df6e14025e5962a335f51853587b)]:
+  - astro@2.10.6
+
 ## 3.8.0
 
 ### Minor Changes
