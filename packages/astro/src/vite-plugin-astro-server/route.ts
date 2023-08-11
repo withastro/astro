@@ -8,7 +8,7 @@ import type {
 	SSRElement,
 	SSRManifest,
 } from '../@types/astro';
-import { attachToResponse } from '../core/cookies/index.js';
+import { attachCookiesToResponse } from '../core/cookies/index.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { warn } from '../core/logger/core.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
@@ -49,18 +49,18 @@ export interface MatchedRoute {
 	mod: ComponentInstance;
 }
 
-function getCustom404Route(manifest: ManifestData): RouteData | undefined {
+function getCustom404Route(manifestData: ManifestData): RouteData | undefined {
 	const route404 = /^\/404\/?$/;
-	return manifest.routes.find((r) => route404.test(r.route));
+	return manifestData.routes.find((r) => route404.test(r.route));
 }
 
 export async function matchRoute(
 	pathname: string,
 	env: DevelopmentEnvironment,
-	manifest: ManifestData
+	manifestData: ManifestData
 ): Promise<MatchedRoute | undefined> {
 	const { logging, settings, routeCache } = env;
-	const matches = matchAllRoutes(pathname, manifest);
+	const matches = matchAllRoutes(pathname, manifestData);
 	const preloadedMatches = await getSortedPreloadedMatches({ env, matches, settings });
 
 	for await (const { preloadedComponent, route: maybeRoute, filePath } of preloadedMatches) {
@@ -96,7 +96,7 @@ export async function matchRoute(
 	// build formats, and is necessary based on how the manifest tracks build targets.
 	const altPathname = pathname.replace(/(index)?\.html$/, '');
 	if (altPathname !== pathname) {
-		return await matchRoute(altPathname, env, manifest);
+		return await matchRoute(altPathname, env, manifestData);
 	}
 
 	if (matches.length) {
@@ -112,7 +112,7 @@ export async function matchRoute(
 	}
 
 	log404(logging, pathname);
-	const custom404 = getCustom404Route(manifest);
+	const custom404 = getCustom404Route(manifestData);
 
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, settings.config.root);
@@ -216,7 +216,7 @@ export async function handleRoute({
 	});
 	const onRequest = options.middleware?.onRequest as MiddlewareResponseHandler | undefined;
 
-	const result = await tryRenderRoute(route.type, renderContext, env, mod, onRequest);
+	const result = await tryRenderRoute(renderContext, env, mod, onRequest);
 	if (isEndpointResult(result, route.type)) {
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
@@ -255,7 +255,7 @@ export async function handleRoute({
 					},
 				}
 			);
-			attachToResponse(response, result.cookies);
+			attachCookiesToResponse(response, result.cookies);
 			await writeWebResponse(incomingResponse, response);
 		}
 	} else {
