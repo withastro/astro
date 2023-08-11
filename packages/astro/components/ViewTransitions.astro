@@ -72,7 +72,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 	function runScripts() {
 		let wait = Promise.resolve();
 		for (const script of Array.from(document.scripts)) {
-			if(script.dataset.astroExec === '') continue;
+			if (script.dataset.astroExec === '') continue;
 			const s = document.createElement('script');
 			s.innerHTML = script.innerHTML;
 			for (const attr of script.attributes) {
@@ -108,14 +108,15 @@ const { fallback = 'animate' } = Astro.props as Props;
 				const href = el.getAttribute('href');
 				return doc.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
 			}
-			if(el.tagName === 'SCRIPT') {
+			if (el.tagName === 'SCRIPT') {
 				let s1 = el as HTMLScriptElement;
-				for(const s2 of doc.scripts) {
-					if(
+				for (const s2 of doc.scripts) {
+					if (
 						// Inline
 						(s1.textContent && s1.textContent === s2.textContent) ||
 						// External
-						(s1.type === s2.type && s1.src === s2.src)) {
+						(s1.type === s2.type && s1.src === s2.src)
+					) {
 						return s2;
 					}
 				}
