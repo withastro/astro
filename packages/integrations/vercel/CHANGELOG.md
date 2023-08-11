@@ -1,5 +1,34 @@
 # @astrojs/vercel
 
+## 4.0.0-beta.1
+
+### Major Changes
+
+- [#8015](https://github.com/withastro/astro/pull/8015) [`9cc4e48e6`](https://github.com/withastro/astro/commit/9cc4e48e6a858d3a12e6373a5e287b32d24a1c5a) Thanks [@matthewp](https://github.com/matthewp)! - Remove the Vercel Edge adapter
+
+  `@astrojs/vercel/serverless` now supports Edge middleware, so a separate adapter for Edge itself (deploying your entire app to the edge) is no longer necessary. Please update your Astro config to reflect this change:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  - import vercel from '@astrojs/vercel/edge';
+  + import vercel from '@astrojs/vercel/serverless';
+
+  export default defineConfig({
+   output: 'server',
+   adapter: vercel({
+  +    edgeMiddleware: true
+   }),
+  });
+  ```
+
+  This adapter had several known limitations and compatibility issues that prevented many people from using it in production. To reduce maintenance costs and because we have a better story with Serveless + Edge Middleware, we are removing the Edge adapter.
+
+### Patch Changes
+
+- Updated dependencies [[`65c354969`](https://github.com/withastro/astro/commit/65c354969e6fe0ef6d622e8f4c545e2f717ce8c6), [`3c3100851`](https://github.com/withastro/astro/commit/3c31008519ce68b5b1b1cb23b71fbe0a2d506882), [`34cb20021`](https://github.com/withastro/astro/commit/34cb2002161ba88df6bcb72fecfd12ed867c134b), [`7bd1b86f8`](https://github.com/withastro/astro/commit/7bd1b86f85c06fdde0a1ed9146d01bac69990671), [`519a1c4e8`](https://github.com/withastro/astro/commit/519a1c4e8407c7abcb8d879b67a9f4b960652cae), [`70f34f5a3`](https://github.com/withastro/astro/commit/70f34f5a355f42526ee9e5355f3de8e510002ea2), [`0f637c71e`](https://github.com/withastro/astro/commit/0f637c71e511cb4c51712128d217a26c8eee4d40), [`866ed4098`](https://github.com/withastro/astro/commit/866ed4098edffb052239cdb26e076cf8db61b1d9), [`5b1e39ef6`](https://github.com/withastro/astro/commit/5b1e39ef6ec6dcebea96584f95d9530bd9aa715d)]:
+  - astro@3.0.0-beta.1
+
 ## 4.0.0-beta.0
 
 ### Major Changes
