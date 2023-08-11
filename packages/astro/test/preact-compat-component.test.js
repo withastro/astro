@@ -20,9 +20,9 @@ describe('Preact compat component', () => {
 			devServer = await fixture.startDevServer();
 		});
 
-		after(async() => {
+		after(async () => {
 			await devServer.stop();
-		})
+		});
 
 		it('Can load Counter', async () => {
 			const res = await fixture.fetch('/');

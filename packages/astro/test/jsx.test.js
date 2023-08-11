@@ -65,6 +65,6 @@ describe('jsx-runtime', () => {
 		const $ = cheerio.load(html);
 
 		expect($('#mdx-wrapper #hello-world')).to.have.a.lengthOf(1, 'md content rendered');
-		expect($('#mdx-wrapper #react')).to.have.a.lengthOf(1, 'React component rendered')
+		expect($('#mdx-wrapper #react')).to.have.a.lengthOf(1, 'React component rendered');
 	});
 });

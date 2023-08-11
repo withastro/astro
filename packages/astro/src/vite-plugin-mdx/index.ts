@@ -1,9 +1,5 @@
 import type { TransformResult } from 'rollup';
-import {
-	transformWithEsbuild,
-	type Plugin,
-	type ResolvedConfig,
-} from 'vite';
+import { transformWithEsbuild, type Plugin, type ResolvedConfig } from 'vite';
 import type { AstroRenderer, AstroSettings } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
