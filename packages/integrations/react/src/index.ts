@@ -1,6 +1,7 @@
 import type { AstroIntegration } from 'astro';
 import { version as ReactVersion } from 'react-dom';
 import react, {type Options as ViteReactPluginOptions} from '@vitejs/plugin-react';
+import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 
 
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
@@ -64,7 +65,7 @@ export default function ({include, exclude}: Pick<ViteReactPluginOptions, 'inclu
 				addRenderer(getRenderer());
 				updateConfig({ vite: getViteConfiguration({include, exclude}) });
 				if (command === 'dev') {
-					const preamble = FAST_REFRESH_PREAMBLE.replace(`__BASE__`, config.base)
+					const preamble = FAST_REFRESH_PREAMBLE.replace(`__BASE__`, appendForwardSlash(config.base))
 					injectScript('before-hydration', preamble);
 				}
 			},

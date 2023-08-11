@@ -13,7 +13,7 @@ function getRenderer(development: boolean): AstroRenderer {
 }
 
 export type Options =Pick<VitePreactPluginOptions, 'include' | 'exclude'> & { compat?: boolean };
-// TODO: Add back compat support -- how would this work in the new world?
+
 export default function ({include, exclude, compat}: Options = {}): AstroIntegration {
 	return {
 		name: '@astrojs/preact',
@@ -53,7 +53,7 @@ export default function ({include, exclude, compat}: Options = {}): AstroIntegra
 						dedupe: ['preact/compat', 'preact'],
 					};
 					// noExternal React entrypoints to be bundled, resolved, and aliased by Vite
-					viteConfig.ssr = {
+					viteConfig.ssr = {f
 						noExternal: ['react', 'react-dom', 'react-dom/test-utils', 'react/jsx-runtime'],
 					};
 				}
