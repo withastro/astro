@@ -33,6 +33,24 @@ describe('SSR: prerender', () => {
 			expect(assets.size).to.equal(1);
 			expect(Array.from(assets)[0].endsWith('static/index.html')).to.be.true;
 		});
+		
+		// remove when support for prerendered 404 and 500 routes is added
+		it('ignores prerender = true for 500 routes', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const fiveHundredRoute = app.manifest.routes.find(route => route.routeData.route === '/500');
+			expect(fiveHundredRoute.routeData.prerender).to.equal(false);
+		});
+
+		it('includes expected styles in a redirected 500 route that has `prerender = true`', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/fivehundred');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			
+			// length will be 0 if the stylesheet does not get included
+			expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
+		});
 	});
 
 	describe('Astro.params in SSR', () => {
