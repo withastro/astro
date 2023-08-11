@@ -17,7 +17,10 @@ export interface AstroPluginScannerOptions {
 
 function isPrerenderEligible(id: string) {
 	const base = basename(id)
-	return !base.startsWith("404") && !base.startsWith("500")
+	// astro core doesn't use a prerendered 404.astro
+	// but netlify adapter achieves the effect by using redirects
+	// so it would still be a regression to consider it ineligible
+	return /* !base.startsWith("404") && */ !base.startsWith("500")
 }
 
 const KNOWN_FILE_EXTENSIONS = ['.astro', '.js', '.ts'];
