@@ -1,5 +1,11 @@
 # @astrojs/telemetry
 
+## 3.0.0-beta.1
+
+### Patch Changes
+
+- [#7952](https://github.com/withastro/astro/pull/7952) [`b675acb2a`](https://github.com/withastro/astro/commit/b675acb2aa820448e9c0d363339a37fbac873215) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Remove undici dependency
+
 ## 3.0.0-beta.0
 
 ### Major Changes

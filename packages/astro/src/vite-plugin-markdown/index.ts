@@ -110,7 +110,9 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				}
 
 				const code = escapeViteEnvReferences(`
-				import { unescapeHTML, spreadAttributes, createComponent, render, renderComponent } from ${JSON.stringify(astroServerRuntimeModulePath)};
+				import { unescapeHTML, spreadAttributes, createComponent, render, renderComponent } from ${JSON.stringify(
+					astroServerRuntimeModulePath
+				)};
 				import { AstroError, AstroErrorData } from ${JSON.stringify(astroErrorModulePath)};
 
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}

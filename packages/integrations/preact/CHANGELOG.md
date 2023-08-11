@@ -1,5 +1,13 @@
 # @astrojs/preact
 
+## 3.0.0-beta.1
+
+### Major Changes
+
+- [#7924](https://github.com/withastro/astro/pull/7924) [`519a1c4e8`](https://github.com/withastro/astro/commit/519a1c4e8407c7abcb8d879b67a9f4b960652cae) Thanks [@matthewp](https://github.com/matthewp)! - New `include` and `exclude` config options
+
+  The Preact integration now has new `include` and `exclude` config options. Use these if you want to use Preact alongside another JSX framework; include specifies files to be compiled for Preact and `exclude` does the opposite.
+
 ## 3.0.0-beta.0
 
 ### Major Changes

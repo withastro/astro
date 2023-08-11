@@ -1,5 +1,5 @@
 import type { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
-import preact, {type PreactPluginOptions as VitePreactPluginOptions} from '@preact/preset-vite';
+import preact, { type PreactPluginOptions as VitePreactPluginOptions } from '@preact/preset-vite';
 import { fileURLToPath } from 'node:url';
 
 const babelCwd = new URL('../', import.meta.url);
@@ -12,9 +12,9 @@ function getRenderer(development: boolean): AstroRenderer {
 	};
 }
 
-export type Options =Pick<VitePreactPluginOptions, 'include' | 'exclude'> & { compat?: boolean };
+export type Options = Pick<VitePreactPluginOptions, 'include' | 'exclude'> & { compat?: boolean };
 
-export default function ({include, exclude, compat}: Options = {}): AstroIntegration {
+export default function ({ include, exclude, compat }: Options = {}): AstroIntegration {
 	return {
 		name: '@astrojs/preact',
 		hooks: {
@@ -23,8 +23,8 @@ export default function ({include, exclude, compat}: Options = {}): AstroIntegra
 					include,
 					exclude,
 					babel: {
-						cwd: fileURLToPath(babelCwd)
-					}
+						cwd: fileURLToPath(babelCwd),
+					},
 				});
 
 				const viteConfig: ViteUserConfig = {
@@ -35,8 +35,8 @@ export default function ({include, exclude, compat}: Options = {}): AstroIntegra
 				};
 
 				// If not compat, delete the plugin that does it
-				if(!compat) {
-					const pIndex = preactPlugin.findIndex(p => p.name == 'preact:config');
+				if (!compat) {
+					const pIndex = preactPlugin.findIndex((p) => p.name == 'preact:config');
 					if (pIndex >= 0) {
 						preactPlugin.splice(pIndex, 1);
 					}
@@ -44,12 +44,10 @@ export default function ({include, exclude, compat}: Options = {}): AstroIntegra
 					viteConfig.optimizeDeps!.include!.push(
 						'preact/compat',
 						'preact/test-utils',
-						'preact/compat/jsx-runtime',
+						'preact/compat/jsx-runtime'
 					);
 					viteConfig.resolve = {
-						alias: [
-							{ find: 'react/jsx-runtime', replacement: 'preact/jsx-runtime' },
-						],
+						alias: [{ find: 'react/jsx-runtime', replacement: 'preact/jsx-runtime' }],
 						dedupe: ['preact/compat', 'preact'],
 					};
 					// noExternal React entrypoints to be bundled, resolved, and aliased by Vite

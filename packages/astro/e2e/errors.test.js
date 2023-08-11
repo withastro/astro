@@ -105,7 +105,10 @@ test.describe('Error display', () => {
 			// Wait for page reload
 			page.waitForNavigation(),
 			// Edit the component file
-			astro.editFile('./src/components/svelte/SvelteSyntaxError.svelte', () => `<h1>No mismatch</h1>`),
+			astro.editFile(
+				'./src/components/svelte/SvelteSyntaxError.svelte',
+				() => `<h1>No mismatch</h1>`
+			),
 		]);
 
 		expect(await page.locator('vite-error-overlay').count()).toEqual(0);

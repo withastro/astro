@@ -38,8 +38,14 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 		name: '@astrojs/mdx',
 		hooks: {
 			'astro:config:setup': async (params) => {
-				const { updateConfig, config, addPageExtension, addContentEntryType, command, addRenderer } =
-					params as SetupHookParams;
+				const {
+					updateConfig,
+					config,
+					addPageExtension,
+					addContentEntryType,
+					command,
+					addRenderer,
+				} = params as SetupHookParams;
 
 				addRenderer(astroJSXRenderer);
 				addPageExtension('.mdx');
