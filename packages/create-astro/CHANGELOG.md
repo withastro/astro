@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.1.13
+
+### Patch Changes
+
+- [#8028](https://github.com/withastro/astro/pull/8028) [`8292c4131`](https://github.com/withastro/astro/commit/8292c41311ec41d9d50921fbb2bdeed69e039443) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve yarn berry support
+
 ## 3.1.12
 
 ### Patch Changes
