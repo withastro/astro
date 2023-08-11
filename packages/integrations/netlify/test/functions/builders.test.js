@@ -12,7 +12,7 @@ describe('Builders', () => {
 			output: 'server',
 			adapter: netlifyAdapter({
 				dist: new URL('./fixtures/builders/dist/', import.meta.url),
-                builders: true
+				builders: true,
 			}),
 			site: `http://example.com`,
 			integrations: [testIntegration()],

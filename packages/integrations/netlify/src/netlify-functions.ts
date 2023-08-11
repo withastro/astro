@@ -87,8 +87,12 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 		let responseTtl = undefined;
 
 		locals.runtime = builders
-			? { setBuildersTtl(ttl: number) { responseTtl = ttl } }
-			: {}
+			? {
+					setBuildersTtl(ttl: number) {
+						responseTtl = ttl;
+					},
+			  }
+			: {};
 
 		const response: Response = await app.render(request, routeData, locals);
 		const responseHeaders = Object.fromEntries(response.headers.entries());
