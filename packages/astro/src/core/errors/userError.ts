@@ -1,1 +1,1 @@
-export { AstroUserError } from './errors.js';
+export { AstroUserError as AstroError } from './errors.js';

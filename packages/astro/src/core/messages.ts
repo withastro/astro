@@ -17,9 +17,13 @@ import {
 import type { ResolvedServerUrls } from 'vite';
 import type { ZodError } from 'zod';
 import { renderErrorMarkdown } from './errors/dev/utils.js';
-import { AstroError, CompilerError, type ErrorWithMetadata } from './errors/index.js';
+import {
+	AstroError,
+	CompilerError,
+	type ErrorWithMetadata,
+	AstroUserError,
+} from './errors/index.js';
 import { emoji, padMultilineString } from './util.js';
-import { AstroUserError } from './errors/errors';
 
 const PREFIX_PADDING = 6;
 
