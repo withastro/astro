@@ -214,6 +214,9 @@
     "srcset-parse": "^1.1.0",
     "unified": "^10.1.2"
   },
+  "peerDependencies": {
+    "sharp": "^0.32.1"
+  },
   "engines": {
     "node": ">=18.14.1",
     "pnpm": ">=8.6.2"

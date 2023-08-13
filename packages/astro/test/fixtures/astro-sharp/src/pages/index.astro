@@ -1,5 +1,7 @@
 ---
 import { Image } from 'astro:assets';
+// @ts-ignore
+import myImage from "../assets/img.svg";
 
 let title = 'My Page'
 ---
@@ -9,7 +11,7 @@ let title = 'My Page'
   <title>{title}</title>
 </head>
 <body>
-  <h1>{title}</h1>
-	<Image id="opt-image" width="100" height="100" src="https://docs.astro.build/assets/logomark-light.png" alt="A description of my image." />
+	<h1>{title}</h1>
+	<Image src={myImage} width={750} height={250} format="avif" alt="descriptive text" />
 </body>
 </html>
