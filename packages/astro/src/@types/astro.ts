@@ -1434,7 +1434,10 @@ export interface DataEntryType {
 	}): GetDataEntryInfoReturnType | Promise<GetDataEntryInfoReturnType>;
 }
 
-export type GetDataEntryInfoReturnType = { data: Record<string, unknown>; rawData?: string };
+export type GetDataEntryInfoReturnType = {
+	data: Record<string, unknown>;
+	rawData?: string;
+};
 
 export interface AstroSettings {
 	config: AstroConfig;
@@ -1527,8 +1530,12 @@ export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
  * getStaticPaths() options
  *
  * [Astro Reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
- */ export interface GetStaticPathsOptions {
-	paginate: PaginateFunction;
+ */
+export interface GetStaticPathsOptions<
+	PaginateItem = any,
+	StaticPathsItem extends GetStaticPathsItem = GetStaticPathsItem
+> {
+	paginate: PaginateFunction<PaginateItem, StaticPathsItem>;
 	/**
 	 * The RSS helper has been removed from getStaticPaths! Try the new @astrojs/rss package instead.
 	 * @see https://docs.astro.build/en/guides/rss/
@@ -1538,9 +1545,9 @@ export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
 
 export type GetStaticPathsItem = {
 	params: { [K in keyof Params]: Params[K] | number };
-	props?: Props;
+	props?: Props | undefined;
 };
-export type GetStaticPathsResult = GetStaticPathsItem[];
+export type GetStaticPathsResult<Item extends GetStaticPathsItem = GetStaticPathsItem> = Item[];
 export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
 	keyed: Map<string, GetStaticPathsItem>;
 };
@@ -1550,12 +1557,12 @@ export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
  *
  * [Astro Reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
  */
-export type GetStaticPaths = (
-	options: GetStaticPathsOptions
+export type GetStaticPaths<Item extends GetStaticPathsItem = GetStaticPathsItem> = (
+	options: GetStaticPathsOptions<Item>
 ) =>
-	| Promise<GetStaticPathsResult | GetStaticPathsResult[]>
-	| GetStaticPathsResult
-	| GetStaticPathsResult[];
+	| Promise<GetStaticPathsResult<Item> | GetStaticPathsResult<Item>[]>
+	| GetStaticPathsResult<Item>
+	| GetStaticPathsResult<Item>[];
 
 /**
  * Infers the shape of the `params` property returned by `getStaticPaths()`.
@@ -1576,7 +1583,9 @@ export type GetStaticPaths = (
  * const { slug } = Astro.params as Params;
  * ```
  */
-export type InferGetStaticParamsType<T> = T extends () => infer R | Promise<infer R>
+export type InferGetStaticParamsType<T> = T extends (
+	opts?: GetStaticPathsOptions
+) => infer R | Promise<infer R>
 	? R extends Array<infer U>
 		? U extends { params: infer P }
 			? P
@@ -1607,7 +1616,9 @@ export type InferGetStaticParamsType<T> = T extends () => infer R | Promise<infe
  * const { propA, propB } = Astro.props;
  * ```
  */
-export type InferGetStaticPropsType<T> = T extends () => infer R | Promise<infer R>
+export type InferGetStaticPropsType<T> = T extends (
+	opts: GetStaticPathsOptions
+) => infer R | Promise<infer R>
 	? R extends Array<infer U>
 		? U extends { props: infer P }
 			? P
@@ -1654,21 +1665,19 @@ export type MarkdownContent<T extends Record<string, any> = Record<string, any>>
  *
  * [Astro reference](https://docs.astro.build/en/reference/api-reference/#paginate)
  */
-export interface PaginateOptions {
+export type PaginateOptions<
+	Item extends Partial<GetStaticPathsItem> = Partial<GetStaticPathsItem>
+> = {
 	/** the number of items per-page (default: `10`) */
 	pageSize?: number;
-	/** key: value object of page params (ex: `{ tag: 'javascript' }`) */
-	params?: Params;
-	/** object of props to forward to `page` result */
-	props?: Props;
-}
+} & Item;
 
 /**
  * Represents a single page of data in a paginated collection
  *
  * [Astro reference](https://docs.astro.build/en/reference/api-reference/#the-pagination-page-prop)
  */
-export interface Page<T = any> {
+export type Page<T = any> = {
 	/** result */
 	data: T[];
 	/** metadata */
@@ -1692,9 +1701,22 @@ export interface Page<T = any> {
 		/** url of the next page (if there is one) */
 		next: string | undefined;
 	};
-}
+};
 
-export type PaginateFunction = (data: any[], args?: PaginateOptions) => GetStaticPathsResult;
+export type PaginateFunction<
+	PageItem = any,
+	Item extends Partial<GetStaticPathsItem> = Partial<GetStaticPathsItem>
+> = (
+	data: PageItem[],
+	args?: PaginateOptions<Item>
+) => GetStaticPathsResult<{
+	params: {
+		page: string | undefined;
+	} & Item['params'];
+	props: {
+		page: Page<PageItem>;
+	} & Item['props'];
+}>;
 
 export type Params = Record<string, string | undefined>;
 

@@ -1,17 +1,19 @@
 import type {
-	GetStaticPathsResult,
+	GetStaticPathsItem,
 	Page,
 	PaginateFunction,
-	Params,
-	Props,
+	PaginateOptions,
 	RouteData,
 } from '../../@types/astro';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
-export function generatePaginateFunction(routeMatch: RouteData): PaginateFunction {
+export function generatePaginateFunction<
+	PageItem = any,
+	StaticPathItem extends Partial<GetStaticPathsItem> = Partial<GetStaticPathsItem>
+>(routeMatch: RouteData): PaginateFunction<PageItem, StaticPathItem> {
 	return function paginateUtility(
-		data: any[],
-		args: { pageSize?: number; params?: Params; props?: Props } = {}
+		data: PageItem[],
+		args: PaginateOptions = {}
 	) {
 		let { pageSize: _pageSize, params: _params, props: _props } = args;
 		const pageSize = _pageSize || 10;
@@ -31,7 +33,7 @@ export function generatePaginateFunction(routeMatch: RouteData): PaginateFunctio
 		}
 		const lastPage = Math.max(1, Math.ceil(data.length / pageSize));
 
-		const result: GetStaticPathsResult = [...Array(lastPage).keys()].map((num) => {
+		const result = [...Array(lastPage).keys()].map((num) => {
 			const pageNum = num + 1;
 			const start = pageSize === Infinity ? 0 : (pageNum - 1) * pageSize; // currentPage is 1-indexed
 			const end = Math.min(start + pageSize, data.length);
@@ -67,7 +69,7 @@ export function generatePaginateFunction(routeMatch: RouteData): PaginateFunctio
 						currentPage: pageNum,
 						lastPage: lastPage,
 						url: { current, next, prev },
-					} as Page,
+					} as Page<PageItem>,
 				},
 			};
 		});
