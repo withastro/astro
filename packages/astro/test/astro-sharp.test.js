@@ -15,6 +15,6 @@ describe('Sharp Default Setup', () => {
 	it('Serve optimized image', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		expect($('#opt-image').attr('src')).to.include('_astro');
+		expect($('img').attr('src')).to.include('_astro');
 	});
 });
