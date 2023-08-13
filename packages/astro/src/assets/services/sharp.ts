@@ -1,3 +1,4 @@
+import sharp from 'sharp';
 import type { FormatEnum } from 'sharp';
 import type { ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
@@ -7,8 +8,6 @@ import {
 	type LocalImageService,
 } from './service.js';
 
-let sharp: typeof import('sharp');
-
 const qualityTable: Record<ImageQualityPreset, number> = {
 	low: 25,
 	mid: 50,
@@ -16,25 +15,12 @@ const qualityTable: Record<ImageQualityPreset, number> = {
 	max: 100,
 };
 
-async function loadSharp() {
-	let sharpImport: typeof import('sharp');
-	try {
-		sharpImport = (await import('sharp')).default;
-	} catch (e) {
-		throw new Error('Could not find Sharp. Please install Sharp manually into your project.');
-	}
-
-	return sharpImport;
-}
-
 const sharpService: LocalImageService = {
 	validateOptions: baseService.validateOptions,
 	getURL: baseService.getURL,
 	parseURL: baseService.parseURL,
 	getHTMLAttributes: baseService.getHTMLAttributes,
 	async transform(inputBuffer, transformOptions) {
-		if (!sharp) sharp = await loadSharp();
-
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
 
 		// Return SVGs as-is
