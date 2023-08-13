@@ -1,4 +1,3 @@
-import sharp from 'sharp';
 import type { FormatEnum } from 'sharp';
 import type { ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
