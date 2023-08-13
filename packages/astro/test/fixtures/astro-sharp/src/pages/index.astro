@@ -1,0 +1,15 @@
+---
+import { Image } from 'astro:assets';
+
+let title = 'My Page'
+---
+
+<html>
+<head>
+  <title>{title}</title>
+</head>
+<body>
+  <h1>{title}</h1>
+	<Image id="opt-image" width="100" height="100" src="https://docs.astro.build/assets/logomark-light.png" alt="A description of my image." />
+</body>
+</html>
