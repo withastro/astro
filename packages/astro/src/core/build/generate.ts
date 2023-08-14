@@ -148,7 +148,10 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			if (pageData.route.prerender) {
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const ssrEntryPage = await import(ssrEntryURLPage.toString());
-				if (opts.settings.config.build.split) {
+				if (
+					opts.settings.config.build.split ||
+					opts.settings.adapter?.adapterFeatures?.functionPerRoute
+				) {
 					// forcing to use undefined, so we fail in an expected way if the module is not even there.
 					const manifest: SSRManifest | undefined = ssrEntryPage.manifest;
 					const ssrEntry = manifest?.pageModule;

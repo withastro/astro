@@ -3671,6 +3671,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/cloudflare/test/fixtures/function-per-route:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/cloudflare/test/fixtures/no-output:
     dependencies:
       '@astrojs/cloudflare':
@@ -3690,15 +3699,6 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/cloudflare/test/fixtures/routesJson:
-    dependencies:
-      '@astrojs/cloudflare':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-
-  packages/integrations/cloudflare/test/fixtures/split:
     dependencies:
       '@astrojs/cloudflare':
         specifier: workspace:*

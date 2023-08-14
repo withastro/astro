@@ -19,7 +19,13 @@ interface BuildConfig {
 	split?: boolean;
 }
 
-export function getAdapter({isModeDirectory,functionPerRoute}: {isModeDirectory: boolean, functionPerRoute: boolean}): AstroAdapter {
+export function getAdapter({
+	isModeDirectory,
+	functionPerRoute,
+}: {
+	isModeDirectory: boolean;
+	functionPerRoute: boolean;
+}): AstroAdapter {
 	return isModeDirectory
 		? {
 				name: '@astrojs/cloudflare',
@@ -91,7 +97,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				setAdapter(getAdapter({isModeDirectory, functionPerRoute}));
+				setAdapter(getAdapter({ isModeDirectory, functionPerRoute }));
 				_config = config;
 				_buildConfig = config.build;
 
