@@ -32,15 +32,14 @@
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {
     "@astrojs/cli-kit": "^0.2.3",
-    "chai": "^4.3.7",
-    "execa": "^6.1.0",
-    "giget": "1.0.0",
-    "mocha": "^9.2.2",
+    "giget": "^1.1.2",
     "node-fetch-native": "^1.2.0",
     "which-pm-runs": "^1.1.0"
   },
   "devDependencies": {
     "@types/which-pm-runs": "^1.0.0",
+    "chai": "^4.3.7",
+    "mocha": "^9.2.2",
     "arg": "^5.0.2",
     "astro-scripts": "workspace:*",
     "strip-ansi": "^7.1.0",

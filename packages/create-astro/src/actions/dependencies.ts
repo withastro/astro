@@ -1,5 +1,5 @@
 import { color } from '@astrojs/cli-kit';
-import { execa } from 'execa';
+import { shell } from '../shell.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { error, info, spinner, title } from '../messages.js';
@@ -49,12 +49,7 @@ export async function dependencies(
 
 async function install({ pkgManager, cwd }: { pkgManager: string; cwd: string }) {
 	if (pkgManager === 'yarn') await ensureYarnLock({ cwd });
-	const installExec = execa(pkgManager, ['install'], { cwd });
-	return new Promise<void>((resolve, reject) => {
-		setTimeout(() => reject(`Request timed out after 1m 30s`), 90_000);
-		installExec.on('error', (e) => reject(e));
-		installExec.on('close', () => resolve());
-	});
+	return shell(pkgManager, ['install'], { cwd, timeout: 90_000, stdio: 'ignore' });
 }
 
 async function ensureYarnLock({ cwd }: { cwd: string }) {
