@@ -30,8 +30,37 @@ describe('SSR: prerender', () => {
 			const app = await fixture.loadTestAdapterApp();
 			/** @type {Set<string>} */
 			const assets = app.manifest.assets;
-			expect(assets.size).to.equal(1);
-			expect(Array.from(assets)[0].endsWith('static/index.html')).to.be.true;
+			expect(assets).to.contain('/static/index.html');
+		});
+
+		it('prerenders a 500 route', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/fivehundred');
+			const response1 = await app.render(request);
+			const response2 = await app.render(request);
+			const response3 = await app.render(request);
+
+			expect(response1.status).to.equal(500);
+
+			const html1 = await response1.text();
+			const html2 = await response2.text();
+			const html3 = await response3.text();
+
+			expect(html1).to.contain("Something went wrong");
+
+			expect(html1).to.equal(html2);
+			expect(html2).to.equal(html3);
+		});
+
+		it('includes expected styles in a redirected prerendered 500 route', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/fivehundred');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			
+			// length will be 0 if the stylesheet does not get included
+			expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
 		});
 	});
 
