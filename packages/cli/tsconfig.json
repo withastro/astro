@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src", "index.d.ts"],
+  "compilerOptions": {
+    "allowJs": true,
+    "emitDeclarationOnly": false,
+    "noEmit": true,
+    "target": "ES2022",
+    "module": "ES2022",
+    "outDir": "./dist",
+    "declarationDir": "./dist/types"
+  }
+}
