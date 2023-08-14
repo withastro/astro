@@ -27,6 +27,10 @@ export interface ImageMetadata {
 	orientation?: number;
 }
 
+export type UnresolvedImageTransform = Omit<ImageTransform, 'src'> & {
+	src: Promise<{ default: ImageMetadata }>;
+};
+
 /**
  * Options accepted by the image transformation service.
  */
