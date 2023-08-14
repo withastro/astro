@@ -56,7 +56,7 @@ export function vitePluginMiddleware(
 				if (chunk.type === 'asset') {
 					continue;
 				}
-				if (chunk.fileName === 'middleware.mjs') {
+				if (chunk.fileName === 'middleware.mjs' && opts.settings.config.build.excludeMiddleware) {
 					internals.middlewareEntryPoint = new URL(chunkName, opts.settings.config.build.server);
 				}
 			}
