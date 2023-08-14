@@ -97,7 +97,7 @@ export type LocalImageProps<T> = ImageSharedProps<T> & {
 	 *	<Image src={myImage} alt="..."></Image>
 	 * ```
 	 */
-	src: ImageMetadata;
+	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
 	/**
 	 * Desired output format for the image. Defaults to `webp`.
 	 *
