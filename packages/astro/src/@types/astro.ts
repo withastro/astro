@@ -698,6 +698,10 @@ export interface AstroUserConfig {
 		 * - `file` - The `Astro.url.pathname` will include `.html`; ie `/foo.html`.
 		 *
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
+		 * 
+		 * To further align the trailing slash behaviour in dev, you can restrict the `trailingSlash` option to `'always'` or `'never'` to prevent inconsistencies:
+		 * - `directory` - Set `trailingSlash: 'always'`
+		 * - `file` - Set `trailingSlash: 'never'`
 		 */
 		format?: 'file' | 'directory';
 		/**
