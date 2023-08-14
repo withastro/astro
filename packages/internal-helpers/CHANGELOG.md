@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.2.0-beta.1
+
+### Patch Changes
+
+- [#8062](https://github.com/withastro/astro/pull/8062) [`2aa6d8ace`](https://github.com/withastro/astro/commit/2aa6d8ace398a41c2dec5473521d758816b08191) Thanks [@bluwy](https://github.com/bluwy)! - Trigger re-release to fix `collapseDuplicateSlashes` export
+
 ## 0.2.0-beta.0
 
 ### Minor Changes
