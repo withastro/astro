@@ -1357,6 +1357,10 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
 }
+/**
+ * An inline Astro config that takes highest priority when merging with the user config,
+ * and includes inline-specific options to configure how Astro runs.
+ */
 export interface AstroInlineConfig extends AstroUserConfig, AstroInlineOnlyConfig {}
 export interface AstroInlineOnlyConfig {
 	/**
@@ -1365,6 +1369,8 @@ export interface AstroInlineOnlyConfig {
 	 *
 	 * If this value is undefined or unset, Astro will search for an `astro.config.(js,mjs,ts)` file relative to
 	 * the `root` and load the config file if found.
+	 * 
+	 * The inline config passed in this object will take highest priority when merging with the loaded user config.
 	 */
 	configFile?: string | false;
 	/**
