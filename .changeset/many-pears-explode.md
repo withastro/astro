@@ -9,12 +9,13 @@ While these APIs are experimental, the inline config parameter is relatively sta
 ```ts
 import { dev, build, preview, sync, type AstroInlineConfig } from 'astro';
 
-// Inline Astro config that takes highest priority over the user config
+// Inline Astro config object.
+// Provide a path to a configuration file to load or set options directly inline.
 const inlineConfig: AstroInlineConfig = {
   // Inline-specific options...
   configFile: './astro.config.mjs',
   logLevel: 'info',
-  // Other Astro options...
+  // Standard Astro config options...
   site: 'https://example.com',
 };
 

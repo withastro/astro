@@ -1374,7 +1374,7 @@ export interface AstroInlineOnlyConfig {
 	 */
 	configFile?: string | false;
 	/**
-	 * The current mode used when building your site to generate either "development" or "production" code.
+	 * The mode used when building your site to generate either "development" or "production" code.
 	 */
 	mode?: RuntimeMode;
 	/**
