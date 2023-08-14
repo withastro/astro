@@ -1,4 +1,4 @@
-import type http from 'http';
+import type http from 'node:http';
 import type { ErrorWithMetadata } from '../core/errors/index.js';
 import type { ModuleLoader } from '../core/module-loader/index';
 

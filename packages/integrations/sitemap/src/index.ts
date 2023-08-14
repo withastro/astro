@@ -1,11 +1,11 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
+import { fileURLToPath } from 'node:url';
 import {
 	EnumChangefreq,
 	simpleSitemapAndIndex,
 	type LinkItem as LinkItemBase,
 	type SitemapItemLoose,
 } from 'sitemap';
-import { fileURLToPath } from 'url';
 import { ZodError } from 'zod';
 
 import { generateSitemap } from './generate-sitemap.js';
@@ -49,6 +49,15 @@ function formatConfigErrorMessage(err: ZodError) {
 
 const PKG_NAME = '@astrojs/sitemap';
 const OUTFILE = 'sitemap-index.xml';
+const STATUS_CODE_PAGES = new Set(['404', '500']);
+
+function isStatusCodePage(pathname: string): boolean {
+	if (pathname.endsWith('/')) {
+		pathname = pathname.slice(0, -1);
+	}
+	const end = pathname.split('/').pop() ?? '';
+	return STATUS_CODE_PAGES.has(end);
+}
 
 const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 	let config: AstroConfig;
@@ -85,18 +94,24 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						return;
 					}
 
-					let pageUrls = pages.map((p) => {
-						if (p.pathname !== '' && !finalSiteUrl.pathname.endsWith('/'))
-							finalSiteUrl.pathname += '/';
-						const path = finalSiteUrl.pathname + p.pathname;
-						return new URL(path, finalSiteUrl).href;
-					});
+					let pageUrls = pages
+						.filter((p) => !isStatusCodePage(p.pathname))
+						.map((p) => {
+							if (p.pathname !== '' && !finalSiteUrl.pathname.endsWith('/'))
+								finalSiteUrl.pathname += '/';
+							const path = finalSiteUrl.pathname + p.pathname;
+							return new URL(path, finalSiteUrl).href;
+						});
 
 					let routeUrls = routes.reduce<string[]>((urls, r) => {
+						// Only expose pages, not endpoints or redirects
+						if (r.type !== 'page') return urls;
+
 						/**
 						 * Dynamic URLs have entries with `undefined` pathnames
 						 */
 						if (r.pathname) {
+							if (isStatusCodePage(r.pathname ?? r.route)) return urls;
 							/**
 							 * remove the initial slash from relative pathname
 							 * because `finalSiteUrl` always has trailing slash

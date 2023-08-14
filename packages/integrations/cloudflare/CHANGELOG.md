@@ -1,5 +1,55 @@
 # @astrojs/cloudflare
 
+## 6.8.0
+
+### Minor Changes
+
+- [#7541](https://github.com/withastro/astro/pull/7541) [`ffcfcddb7`](https://github.com/withastro/astro/commit/ffcfcddb7575030d62b4ef979d46a74425e6d3fe) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - The `getRuntime` utility has been deprecated and should be updated to the new [`Astro.locals`](https://docs.astro.build/en/guides/middleware/#locals) API.
+
+  ```diff
+  - import { getRuntime } from '@astrojs/cloudflare/runtime';
+  - getRuntime(Astro.request);
+
+  + const runtime = Astro.locals.runtime;
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`1b8d30209`](https://github.com/withastro/astro/commit/1b8d3020990130dabfaaf753db73a32c6e0c896a), [`405913cdf`](https://github.com/withastro/astro/commit/405913cdf20b26407aa351c090f0a0859a4e6f54), [`87d4b1843`](https://github.com/withastro/astro/commit/87d4b18437c7565c48cad4bea81831c2a244ebb8), [`c23377caa`](https://github.com/withastro/astro/commit/c23377caafbc75deb91c33b9678c1b6868ad40ea), [`86bee2812`](https://github.com/withastro/astro/commit/86bee2812185df6e14025e5962a335f51853587b)]:
+  - astro@2.10.6
+
+## 6.7.0
+
+### Minor Changes
+
+- [#7846](https://github.com/withastro/astro/pull/7846) [`ea30a9d4f`](https://github.com/withastro/astro/commit/ea30a9d4f2d7a12345869e971f3051cf803dbe74) Thanks [@schummar](https://github.com/schummar)! - More efficient \_routes.json
+
+### Patch Changes
+
+- Updated dependencies [[`5b1e39ef6`](https://github.com/withastro/astro/commit/5b1e39ef6ec6dcebea96584f95d9530bd9aa715d)]:
+  - astro@2.10.5
+
+## 6.6.2
+
+### Patch Changes
+
+- [#7568](https://github.com/withastro/astro/pull/7568) [`6ec040761`](https://github.com/withastro/astro/commit/6ec040761ef657df0e0f5ac103788da4b98fa688) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fix a bug where asset redirects caused Cloudflare error
+
+- [#7679](https://github.com/withastro/astro/pull/7679) [`1a6f833c4`](https://github.com/withastro/astro/commit/1a6f833c404ba2e64e3497929b64c863b5a348c8) Thanks [@bluwy](https://github.com/bluwy)! - Fix runtime env var handling
+
+- [#7568](https://github.com/withastro/astro/pull/7568) [`6ec040761`](https://github.com/withastro/astro/commit/6ec040761ef657df0e0f5ac103788da4b98fa688) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fix bug where `.ts` files are not renamed to `.js`
+
+- Updated dependencies [[`cc8e9de88`](https://github.com/withastro/astro/commit/cc8e9de88179d2ed4b70980c60b41448db393429), [`1a6f833c4`](https://github.com/withastro/astro/commit/1a6f833c404ba2e64e3497929b64c863b5a348c8), [`cc0f81c04`](https://github.com/withastro/astro/commit/cc0f81c040e912cff0c09e89327ef1655f96b67d)]:
+  - astro@2.8.4
+
+## 6.6.1
+
+### Patch Changes
+
+- Updated dependencies [[`f21357b69`](https://github.com/withastro/astro/commit/f21357b69d94fe8d81f267efddb182d1a3cc678a), [`86e19c7cf`](https://github.com/withastro/astro/commit/86e19c7cf8696e065c1ccdc2eb841ad0a2b61ede)]:
+  - @astrojs/underscore-redirects@0.2.0
+  - astro@2.8.2
+
 ## 6.6.0
 
 ### Minor Changes

@@ -1,8 +1,8 @@
 import * as devalue from 'devalue';
 import type fsMod from 'node:fs';
 import { extname } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type { PluginContext } from 'rollup';
-import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
 import type {
 	AstroConfig,
@@ -12,8 +12,8 @@ import type {
 	DataEntryModule,
 	DataEntryType,
 } from '../@types/astro.js';
-import { AstroErrorData } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
+import { AstroErrorData } from '../core/errors/index.js';
 import { escapeViteEnvReferences } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG, DATA_FLAG } from './consts.js';
 import {
@@ -371,6 +371,7 @@ function stringifyEntryData(data: Record<string, any>): string {
 			});
 		} else {
 			throw new AstroError({
+				name: 'PluginContentImportsError',
 				message: 'Unexpected error processing content collection data.',
 			});
 		}

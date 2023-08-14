@@ -73,6 +73,12 @@ describe('Middleware in DEV mode', () => {
 		let res = await fixture.fetch('/');
 		expect(res.headers.get('set-cookie')).to.equal('foo=bar');
 	});
+
+	it('should be able to clone the response', async () => {
+		let res = await fixture.fetch('/clone');
+		let html = await res.text();
+		expect(html).to.contain('<h1>it works</h1>');
+	});
 });
 
 describe('Middleware in PROD mode, SSG', () => {
@@ -112,13 +118,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-dev/',
 			output: 'server',
-			adapter: testAdapter({
-				setEntryPoints(entryPointsOrMiddleware) {
-					if (entryPointsOrMiddleware instanceof URL) {
-						middlewarePath = entryPointsOrMiddleware;
-					}
-				},
-			}),
+			adapter: testAdapter({}),
 		});
 		await fixture.build();
 	});
@@ -212,6 +212,21 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	it('the integration should receive the path to the middleware', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/middleware-dev/',
+			output: 'server',
+			build: {
+				excludeMiddleware: true,
+			},
+			adapter: testAdapter({
+				setEntryPoints(entryPointsOrMiddleware) {
+					if (entryPointsOrMiddleware instanceof URL) {
+						middlewarePath = entryPointsOrMiddleware;
+					}
+				},
+			}),
+		});
+		await fixture.build();
 		expect(middlewarePath).to.not.be.undefined;
 		try {
 			const path = fileURLToPath(middlewarePath);

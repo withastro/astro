@@ -1,8 +1,8 @@
 ---
-import CartFlyoutToggle from '../components/CartFlyoutToggle';
 import CartFlyout from '../components/CartFlyout';
+import CartFlyoutToggle from '../components/CartFlyoutToggle';
 
-export interface Props {
+interface Props {
 	title: string;
 }
 
@@ -34,7 +34,7 @@ const { title } = Astro.props;
 	:root {
 		--font-family: system-ui, sans-serif;
 		--font-size-base: clamp(1rem, 0.34vw + 0.91rem, 1.19rem);
-		--font-size-lg: clamp(1.2rem, 0.7vw + 1.2rem, 1.5rem); 
+		--font-size-lg: clamp(1.2rem, 0.7vw + 1.2rem, 1.5rem);
 		--font-size-xl: clamp(2.0rem, 1.75vw + 1.35rem, 2.75rem);
 
 		--color-text: hsl(12, 5%, 4%);

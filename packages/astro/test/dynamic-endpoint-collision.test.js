@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture, silentLogging } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Dynamic endpoint collision', () => {
 	describe('build', () => {
@@ -31,9 +31,7 @@ describe('Dynamic endpoint collision', () => {
 				root: './fixtures/dynamic-endpoint-collision/',
 			});
 
-			devServer = await fixture.startDevServer({
-				logging: silentLogging,
-			});
+			devServer = await fixture.startDevServer();
 		});
 
 		after(async () => {

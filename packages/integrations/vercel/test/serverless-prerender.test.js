@@ -10,11 +10,19 @@ describe('Serverless prerender', () => {
 		fixture = await loadFixture({
 			root: './fixtures/serverless-prerender/',
 		});
+		await fixture.build();
 	});
 
 	it('build successful', async () => {
-		await fixture.build();
 		expect(await fixture.readFile('../.vercel/output/static/index.html')).to.be.ok;
+	});
+
+	it('includeFiles work', async () => {
+		expect(
+			await fixture.readFile(
+				'../.vercel/output/functions/render.func/packages/integrations/vercel/test/fixtures/serverless-prerender/included.js'
+			)
+		).to.be.ok;
 	});
 });
 
@@ -28,10 +36,10 @@ describe('Serverless hybrid rendering', () => {
 			root: './fixtures/serverless-prerender/',
 			output: 'hybrid',
 		});
+		await fixture.build();
 	});
 
 	it('build successful', async () => {
-		await fixture.build();
 		expect(await fixture.readFile('../.vercel/output/static/index.html')).to.be.ok;
 	});
 });

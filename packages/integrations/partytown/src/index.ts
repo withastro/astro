@@ -2,10 +2,10 @@ import type { PartytownConfig } from '@builder.io/partytown/integration';
 import { partytownSnippet } from '@builder.io/partytown/integration';
 import { copyLibFiles, libDirPath } from '@builder.io/partytown/utils';
 import type { AstroIntegration } from 'astro';
-import * as fs from 'fs';
 import { createRequire } from 'module';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import * as fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import sirv from './sirv.js';
 const resolve = createRequire(import.meta.url).resolve;
 

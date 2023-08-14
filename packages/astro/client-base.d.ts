@@ -48,7 +48,9 @@ declare module 'astro:assets' {
 		 * This is functionally equivalent to using the `<Image />` component, as the component calls this function internally.
 		 */
 		getImage: (
-			options: import('./dist/assets/types.js').ImageTransform
+			options:
+				| import('./dist/assets/types.js').ImageTransform
+				| import('./dist/assets/types.js').UnresolvedImageTransform
 		) => Promise<import('./dist/assets/types.js').GetImageResult>;
 		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
 		Image: typeof import('./components/Image.astro').default;
@@ -68,6 +70,15 @@ declare module 'astro:assets' {
 		import('./dist/assets/types.js').RemoteImageProps<ImgAttributes>
 	>;
 	export const { getImage, getConfiguredImageService, Image }: AstroAssets;
+}
+
+declare module 'astro:transitions' {
+	type TransitionModule = typeof import('./dist/transitions/index.js');
+	export const slide: TransitionModule['slide'];
+	export const fade: TransitionModule['fade'];
+
+	type ViewTransitionsModule = typeof import('./components/ViewTransitions.astro');
+	export const ViewTransitions: ViewTransitionsModule['default'];
 }
 
 type MD = import('./dist/@types/astro').MarkdownInstance<Record<string, any>>;

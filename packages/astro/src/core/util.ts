@@ -1,6 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { normalizePath } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
 import { isServerLikeOutput } from '../prerender/utils.js';
@@ -36,7 +36,7 @@ export function padMultilineString(source: string, n = 2) {
 	return lines.map((l) => ` `.repeat(n) + l).join(`\n`);
 }
 
-const REGEXP_404_OR_500_ROUTE = /(404)|(500)\/?$/;
+const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 
 /**
  * Get the correct output filename for a route, based on your config.
@@ -50,7 +50,7 @@ export function getOutputFilename(astroConfig: AstroConfig, name: string, type: 
 	if (name === '/' || name === '') {
 		return path.posix.join(name, 'index.html');
 	}
-	if (astroConfig.build.format === 'file' || REGEXP_404_OR_500_ROUTE.test(name)) {
+	if (astroConfig.build.format === 'file' || STATUS_CODE_PAGES.has(name)) {
 		return `${removeTrailingForwardSlash(name || 'index')}.html`;
 	}
 	return path.posix.join(name, 'index.html');
@@ -113,8 +113,9 @@ function isInPagesDir(file: URL, config: AstroConfig): boolean {
 }
 
 function isInjectedRoute(file: URL, settings: AstroSettings) {
-	for (const route of settings.injectedRoutes) {
-		if (file.toString().endsWith(route.entryPoint)) return true;
+	let fileURL = file.toString();
+	for (const route of settings.resolvedInjectedRoutes) {
+		if (route.resolvedEntryPoint && fileURL === route.resolvedEntryPoint.toString()) return true;
 	}
 	return false;
 }

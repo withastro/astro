@@ -1,8 +1,8 @@
 // @ts-check
 
-import { spawn } from 'child_process';
-import { readdirSync, readFileSync, writeFileSync } from 'fs';
-import * as path from 'path';
+import { spawn } from 'node:child_process';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import * as path from 'node:path';
 import pLimit from 'p-limit';
 import { tsconfigResolverSync } from 'tsconfig-resolver';
 
@@ -18,31 +18,32 @@ function checkExamples() {
 
 	for (const example of examples) {
 		checkPromises.push(
-			limit(() =>
-				new Promise((resolve) => {
-					const originalConfig = prepareExample(example.name);
-					let data = '';
-					const child = spawn('node', ['../../packages/astro/astro.js', 'check'], {
-						cwd: path.join('./examples', example.name),
-						env: { ...process.env, FORCE_COLOR: 'true' },
-					});
+			limit(
+				() =>
+					new Promise((resolve) => {
+						const originalConfig = prepareExample(example.name);
+						let data = '';
+						const child = spawn('node', ['../../packages/astro/astro.js', 'check'], {
+							cwd: path.join('./examples', example.name),
+							env: { ...process.env, FORCE_COLOR: 'true' },
+						});
 
-					child.stdout.on('data', function (buffer) {
-						data += buffer.toString();
-					});
+						child.stdout.on('data', function (buffer) {
+							data += buffer.toString();
+						});
 
-					child.on('exit', (code) => {
-						if (code !== 0) {
-							console.error(data);
-						}
-						if (originalConfig) {
-							resetExample(example.name, originalConfig);
-						}
-						resolve(code);
-					});
-				})
+						child.on('exit', (code) => {
+							if (code !== 0) {
+								console.error(data);
+							}
+							if (originalConfig) {
+								resetExample(example.name, originalConfig);
+							}
+							resolve(code);
+						});
+					})
 			)
-		)
+		);
 	}
 
 	Promise.all(checkPromises).then((codes) => {
@@ -50,7 +51,7 @@ function checkExamples() {
 			process.exit(1);
 		}
 
-		console.log("No errors found!");
+		console.log('No errors found!');
 	});
 }
 
@@ -75,7 +76,9 @@ function prepareExample(examplePath) {
 		});
 	}
 
-	writeFileSync(tsconfigPath, JSON.stringify(tsconfig.config));
+	if (tsconfig.config) {
+		writeFileSync(tsconfigPath, JSON.stringify(tsconfig.config));
+	}
 
 	return originalConfig;
 }

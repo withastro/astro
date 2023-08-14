@@ -1,11 +1,11 @@
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 import esbuild from 'esbuild';
-import * as fs from 'fs';
-import * as os from 'os';
-import { dirname } from 'path';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import { sep } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'tiny-glob';
-import { fileURLToPath, pathToFileURL } from 'url';
 
 type Options = {
 	mode: 'directory' | 'advanced';
@@ -38,6 +38,11 @@ const SHIM = `globalThis.process = {
 };`;
 
 const SERVER_BUILD_FOLDER = '/$server_build/';
+
+/**
+ * These route types are candiates for being part of the `_routes.json` `include` array.
+ */
+const potentialFunctionRouteTypes = ['endpoint', 'page'];
 
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
@@ -91,6 +96,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					}
 					vite.ssr ||= {};
 					vite.ssr.target = 'webworker';
+
+					// Cloudflare env is only available per request. This isn't feasible for code that access env vars
+					// in a global way, so we shim their access as `process.env.*`. We will populate `process.env` later
+					// in its fetch handler.
+					vite.define = {
+						'process.env': 'process.env',
+						...vite.define,
+					};
 				}
 			},
 			'astro:build:ssr': ({ entryPoints }) => {
@@ -104,13 +117,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 
 				if (isModeDirectory && _buildConfig.split) {
-					const entryPointsRouteData = [..._entryPoints.keys()];
 					const entryPointsURL = [..._entryPoints.values()];
 					const entryPaths = entryPointsURL.map((entry) => fileURLToPath(entry));
-					const outputDir = fileURLToPath(new URL('.astro', _buildConfig.server));
+					const outputUrl = new URL('$astro', _buildConfig.server);
+					const outputDir = fileURLToPath(outputUrl);
 
-					// NOTE: AFAIK, esbuild keeps the order of the entryPoints array
-					const { outputFiles } = await esbuild.build({
+					await esbuild.build({
 						target: 'es2020',
 						platform: 'browser',
 						conditions: ['workerd', 'worker', 'browser'],
@@ -126,28 +138,43 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						logOverride: {
 							'ignored-bare-import': 'silent',
 						},
-						write: false,
 					});
 
-					// loop through all bundled files and write them to the functions folder
-					for (const [index, outputFile] of outputFiles.entries()) {
-						// we need to make sure the filename in the functions folder
-						// matches to cloudflares routing capabilities (see their docs)
-						// IN: src/pages/[language]/files/[...path].astro
-						// OUT: [language]/files/[[path]].js
-						const fileName = entryPointsRouteData[index].component
-							.replace('src/pages/', '')
-							.replace('.astro', '.js')
-							.replace(/(\[\.\.\.)(\w+)(\])/g, (_match, _p1, p2) => {
-								return `[[${p2}]]`;
+					const outputFiles: Array<string> = await glob(`**/*`, {
+						cwd: outputDir,
+						filesOnly: true,
+					});
+
+					// move the files into the functions folder
+					// & make sure the file names match Cloudflare syntax for routing
+					for (const outputFile of outputFiles) {
+						const path = outputFile.split(sep);
+
+						const finalSegments = path.map((segment) =>
+							segment
+								.replace(/(\_)(\w+)(\_)/g, (_, __, prop) => {
+									return `[${prop}]`;
+								})
+								.replace(/(\_\-\-\-)(\w+)(\_)/g, (_, __, prop) => {
+									return `[[${prop}]]`;
+								})
+						);
+
+						finalSegments[finalSegments.length - 1] = finalSegments[finalSegments.length - 1]
+							.replace('entry.', '')
+							.replace(/(.*)\.(\w+)\.(\w+)$/g, (_, fileName, __, newExt) => {
+								return `${fileName}.${newExt}`;
 							});
 
-						const fileUrl = new URL(fileName, functionsUrl);
-						const newFileDir = dirname(fileURLToPath(fileUrl));
-						if (!fs.existsSync(newFileDir)) {
-							fs.mkdirSync(newFileDir, { recursive: true });
-						}
-						await fs.promises.writeFile(fileUrl, outputFile.contents);
+						const finalDirPath = finalSegments.slice(0, -1).join(sep);
+						const finalPath = finalSegments.join(sep);
+
+						const newDirUrl = new URL(finalDirPath, functionsUrl);
+						await fs.promises.mkdir(newDirUrl, { recursive: true });
+
+						const oldFileUrl = new URL(`$astro/${outputFile}`, outputUrl);
+						const newFileUrl = new URL(finalPath, functionsUrl);
+						await fs.promises.rename(oldFileUrl, newFileUrl);
 					}
 				} else {
 					const entryPath = fileURLToPath(new URL(_buildConfig.serverEntry, _buildConfig.server));
@@ -183,7 +210,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					}
 				}
 
-				// // // throw the server folder in the bin
+				// throw the server folder in the bin
 				const serverUrl = new URL(_buildConfig.server);
 				await fs.promises.rm(serverUrl, { recursive: true, force: true });
 
@@ -211,6 +238,32 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				// cloudflare to handle static files and support _redirects configuration
 				// (without calling the function)
 				if (!routesExists) {
+					const functionEndpoints = routes
+						// Certain route types, when their prerender option is set to false, a run on the server as function invocations
+						.filter((route) => potentialFunctionRouteTypes.includes(route.type) && !route.prerender)
+						.map((route) => {
+							const includePattern =
+								'/' +
+								route.segments
+									.flat()
+									.map((segment) => (segment.dynamic ? '*' : segment.content))
+									.join('/');
+
+							const regexp = new RegExp(
+								'^\\/' +
+									route.segments
+										.flat()
+										.map((segment) => (segment.dynamic ? '(.*)' : segment.content))
+										.join('\\/') +
+									'$'
+							);
+
+							return {
+								includePattern,
+								regexp,
+							};
+						});
+
 					const staticPathList: Array<string> = (
 						await glob(`${fileURLToPath(_buildConfig.client)}/**/*`, {
 							cwd: fileURLToPath(_config.outDir),
@@ -218,7 +271,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						})
 					)
 						.filter((file: string) => cloudflareSpecialFiles.indexOf(file) < 0)
-						.map((file: string) => `/${file}`);
+						.map((file: string) => `/${file.replace(/\\/g, '/')}`);
 
 					for (let page of pages) {
 						let pagePath = prependForwardSlash(page.pathname);
@@ -264,10 +317,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						}
 					}
 
-					const redirectRoutes = routes.filter((r) => r.type === 'redirect');
+					const redirectRoutes: [RouteData, string][] = routes
+						.filter((r) => r.type === 'redirect')
+						.map((r) => {
+							return [r, ''];
+						});
 					const trueRedirects = createRedirectsFromAstroRoutes({
 						config: _config,
-						routes: redirectRoutes,
+						routeToDynamicTargetMap: new Map(Array.from(redirectRoutes)),
 						dir,
 					});
 					if (!trueRedirects.empty()) {
@@ -277,13 +334,41 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						);
 					}
 
+					staticPathList.push(...routes.filter((r) => r.type === 'redirect').map((r) => r.route));
+
+					// In order to product the shortest list of patterns, we first try to
+					// include all function endpoints, and then exclude all static paths
+					let include = deduplicatePatterns(
+						functionEndpoints.map((endpoint) => endpoint.includePattern)
+					);
+					let exclude = deduplicatePatterns(
+						staticPathList.filter((file: string) =>
+							functionEndpoints.some((endpoint) => endpoint.regexp.test(file))
+						)
+					);
+
+					// Cloudflare requires at least one include pattern:
+					// https://developers.cloudflare.com/pages/platform/functions/routing/#limits
+					// So we add a pattern that we immediately exclude again
+					if (include.length === 0) {
+						include = ['/'];
+						exclude = ['/'];
+					}
+
+					// If using only an exclude list would produce a shorter list of patterns,
+					// we use that instead
+					if (include.length + exclude.length > staticPathList.length) {
+						include = ['/*'];
+						exclude = deduplicatePatterns(staticPathList);
+					}
+
 					await fs.promises.writeFile(
 						new URL('./_routes.json', _config.outDir),
 						JSON.stringify(
 							{
 								version: 1,
-								include: ['/*'],
-								exclude: staticPathList,
+								include,
+								exclude,
 							},
 							null,
 							2
@@ -297,4 +382,29 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 function prependForwardSlash(path: string) {
 	return path[0] === '/' ? path : '/' + path;
+}
+
+/**
+ * Remove duplicates and redundant patterns from an `include` or `exclude` list.
+ * Otherwise Cloudflare will throw an error on deployment. Plus, it saves more entries.
+ * E.g. `['/foo/*', '/foo/*', '/foo/bar'] => ['/foo/*']`
+ * @param patterns a list of `include` or `exclude` patterns
+ * @returns a deduplicated list of patterns
+ */
+function deduplicatePatterns(patterns: string[]) {
+	const openPatterns: RegExp[] = [];
+
+	return [...new Set(patterns)]
+		.sort((a, b) => a.length - b.length)
+		.filter((pattern) => {
+			if (openPatterns.some((p) => p.test(pattern))) {
+				return false;
+			}
+
+			if (pattern.endsWith('*')) {
+				openPatterns.push(new RegExp(`^${pattern.replace(/(\*\/)*\*$/g, '.*')}`));
+			}
+
+			return true;
+		});
 }

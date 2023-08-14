@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 2.4.4
+
+### Patch Changes
+
+- [#7964](https://github.com/withastro/astro/pull/7964) [`51028f85c`](https://github.com/withastro/astro/commit/51028f85c68944872a65b4bc0b8fcb6c3f3cf496) Thanks [@DerTimonius](https://github.com/DerTimonius)! - Add URL to RSSOptions.site type
+
 ## 2.4.3
 
 ### Patch Changes

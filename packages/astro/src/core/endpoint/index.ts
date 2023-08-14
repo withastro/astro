@@ -1,6 +1,5 @@
 import type {
 	APIContext,
-	AstroConfig,
 	EndpointHandler,
 	EndpointOutput,
 	MiddlewareEndpointHandler,
@@ -9,7 +8,6 @@ import type {
 } from '../../@types/astro';
 import type { Environment, RenderContext } from '../render/index';
 
-import { isServerLikeOutput } from '../../prerender/utils.js';
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
@@ -19,13 +17,11 @@ import { callMiddleware } from '../middleware/callMiddleware.js';
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
-type EndpointCallResult =
-	| {
+export type EndpointCallResult =
+	| (EndpointOutput & {
 			type: 'simple';
-			body: string;
-			encoding?: BufferEncoding;
 			cookies: AstroCookies;
-	  }
+	  })
 	| {
 			type: 'response';
 			response: Response;
@@ -155,23 +151,8 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	}
 
 	return {
+		...response,
 		type: 'simple',
-		body: response.body,
-		encoding: response.encoding,
 		cookies: context.cookies,
 	};
-}
-
-function isRedirect(statusCode: number) {
-	return statusCode >= 300 && statusCode < 400;
-}
-
-export function throwIfRedirectNotAllowed(response: Response, config: AstroConfig) {
-	if (
-		!isServerLikeOutput(config) &&
-		isRedirect(response.status) &&
-		!config.experimental.redirects
-	) {
-		throw new AstroError(AstroErrorData.StaticRedirectNotAvailable);
-	}
 }

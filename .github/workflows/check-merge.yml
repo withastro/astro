@@ -69,7 +69,7 @@ jobs:
               issue_number: process.env.issue_number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              labels: ['semver minor']
+              labels: ['semver: minor']
             });
 
       - name: Change PR Status

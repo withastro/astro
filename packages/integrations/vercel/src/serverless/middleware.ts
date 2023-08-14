@@ -1,4 +1,4 @@
-import { existsSync } from 'fs';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ASTRO_LOCALS_HEADER } from './adapter.js';
@@ -50,7 +50,7 @@ function edgeMiddlewareTemplate(middlewarePath: string, vercelEdgeMiddlewareHand
 	const filePathEdgeMiddleware = fileURLToPath(vercelEdgeMiddlewareHandlerPath);
 	let handlerTemplateImport = '';
 	let handlerTemplateCall = '{}';
-	if (existsSync(filePathEdgeMiddleware) + '.js' || existsSync(filePathEdgeMiddleware) + '.ts') {
+	if (existsSync(filePathEdgeMiddleware + '.js') || existsSync(filePathEdgeMiddleware + '.ts')) {
 		const stringified = JSON.stringify(filePathEdgeMiddleware.replace(/\\/g, '/'));
 		handlerTemplateImport = `import handler from ${stringified}`;
 		handlerTemplateCall = `handler({ request, context })`;
@@ -62,12 +62,12 @@ import { onRequest } from ${middlewarePath};
 import { createContext, trySerializeLocals } from 'astro/middleware';
 export default async function middleware(request, context) {
 	const url = new URL(request.url);
-	const ctx = createContext({ 
+	const ctx = createContext({
 		request,
 		params: {}
 	});
 	ctx.locals = ${handlerTemplateCall};
-	const next = async () => {	
+	const next = async () => {
 		const response = await fetch(url, {
 			headers: {
 				${JSON.stringify(ASTRO_LOCALS_HEADER)}: trySerializeLocals(ctx.locals)

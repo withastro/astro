@@ -1,8 +1,8 @@
 import type { AstroSettings } from '../@types/astro';
 import type { LogOptions } from './logger/core';
 
-import nodeFs from 'fs';
-import { fileURLToPath } from 'url';
+import nodeFs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
@@ -11,6 +11,7 @@ import {
 	astroContentImportPlugin,
 	astroContentVirtualModPlugin,
 } from '../content/index.js';
+import astroTransitions from '../transitions/vite-plugin-transitions.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
@@ -122,16 +123,17 @@ export async function createVite(
 			htmlVitePlugin(),
 			jsxVitePlugin({ settings, logging }),
 			astroPostprocessVitePlugin(),
-			mode === 'dev' && astroIntegrationsContainerPlugin({ settings, logging }),
+			astroIntegrationsContainerPlugin({ settings, logging }),
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPlugin(),
-			astroScannerPlugin({ settings }),
+			astroScannerPlugin({ settings, logging }),
 			astroInjectEnvTsPlugin({ settings, logging, fs }),
 			astroContentVirtualModPlugin({ settings }),
 			astroContentImportPlugin({ fs, settings }),
 			astroContentAssetPropagationPlugin({ mode, settings }),
 			vitePluginSSRManifest(),
 			settings.config.experimental.assets ? [astroAssetsPlugin({ settings, logging, mode })] : [],
+			astroTransitions({ config: settings.config }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

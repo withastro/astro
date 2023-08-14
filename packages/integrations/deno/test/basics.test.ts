@@ -67,6 +67,15 @@ Deno.test({
 			assertEquals(p!.innerText, varContent);
 		});
 
+		await t.step('Can use a module with top-level await', async () => {
+			const resp = await fetch(app.url);
+			const html = await resp.text();
+
+			const doc = new DOMParser().parseFromString(html, `text/html`);
+			const p = doc!.querySelector('p#module-value');
+			assertEquals(p!.innerText, 'bar');
+		});
+
 		await t.step('Works with Markdown', async () => {
 			const resp = await fetch(new URL('markdown', app.url));
 			const html = await resp.text();

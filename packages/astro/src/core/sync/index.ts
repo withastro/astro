@@ -1,48 +1,54 @@
 import { dim } from 'kleur/colors';
-import type fsMod from 'node:fs';
+import fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
+import { fileURLToPath } from 'node:url';
 import { createServer, type HMRPayload } from 'vite';
-import type { Arguments } from 'yargs-parser';
-import type { AstroSettings } from '../../@types/astro';
+import type { AstroInlineConfig, AstroSettings } from '../../@types/astro';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
+import { telemetry } from '../../events/index.js';
+import { eventCliSession } from '../../events/session.js';
 import { runHookConfigSetup } from '../../integrations/index.js';
 import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 import { getTimeStat } from '../build/util.js';
+import { resolveConfig } from '../config/config.js';
+import { createNodeLogging } from '../config/logging.js';
+import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { AstroError, AstroErrorData, createSafeError, isAstroError } from '../errors/index.js';
 import { info, type LogOptions } from '../logger/core.js';
-import { printHelp } from '../messages.js';
 
 export type ProcessExit = 0 | 1;
 
 export type SyncOptions = {
-	logging: LogOptions;
-	fs: typeof fsMod;
+	/**
+	 * Only used for testing
+	 * @internal
+	 */
+	fs?: typeof fsMod;
 };
 
-export async function syncCli(
-	settings: AstroSettings,
-	{ logging, fs, flags }: { logging: LogOptions; fs: typeof fsMod; flags?: Arguments }
-): Promise<ProcessExit> {
-	if (flags?.help || flags?.h) {
-		printHelp({
-			commandName: 'astro sync',
-			usage: '[...flags]',
-			tables: {
-				Flags: [['--help (-h)', 'See all available flags.']],
-			},
-			description: `Generates TypeScript types for all Astro modules.`,
-		});
-		return 0;
-	}
+export type SyncInternalOptions = SyncOptions & {
+	logging: LogOptions;
+};
 
-	const resolvedSettings = await runHookConfigSetup({
-		settings,
-		logging,
+export async function sync(
+	inlineConfig: AstroInlineConfig,
+	options?: SyncOptions
+): Promise<ProcessExit> {
+	const logging = createNodeLogging(inlineConfig);
+	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
+	telemetry.record(eventCliSession('sync', userConfig));
+
+	const _settings = createSettings(astroConfig, fileURLToPath(astroConfig.root));
+
+	const settings = await runHookConfigSetup({
+		settings: _settings,
+		logging: logging,
 		command: 'build',
 	});
-	return sync(resolvedSettings, { logging, fs });
+
+	return await syncInternal(settings, { logging, fs: options?.fs });
 }
 
 /**
@@ -50,15 +56,18 @@ export async function syncCli(
  *
  * A non-zero process signal is emitted in case there's an error while generating content collection types.
  *
+ * This should only be used when the callee already has an `AstroSetting`, otherwise use `sync()` instead.
+ * @internal
+ *
  * @param {SyncOptions} options
  * @param {AstroSettings} settings Astro settings
  * @param {typeof fsMod} options.fs The file system
  * @param {LogOptions} options.logging Logging options
  * @return {Promise<ProcessExit>}
  */
-export async function sync(
+export async function syncInternal(
 	settings: AstroSettings,
-	{ logging, fs }: SyncOptions
+	{ logging, fs }: SyncInternalOptions
 ): Promise<ProcessExit> {
 	const timerStart = performance.now();
 	// Needed to load content config
@@ -88,7 +97,7 @@ export async function sync(
 		const contentTypesGenerator = await createContentTypesGenerator({
 			contentConfigObserver: globalContentConfigObserver,
 			logging,
-			fs,
+			fs: fs ?? fsMod,
 			settings,
 			viteServer: tempViteServer,
 		});
@@ -124,7 +133,7 @@ export async function sync(
 	}
 
 	info(logging, 'content', `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
-	await setUpEnvTs({ settings, logging, fs });
+	await setUpEnvTs({ settings, logging, fs: fs ?? fsMod });
 
 	return 0;
 }
