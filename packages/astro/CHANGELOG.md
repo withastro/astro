@@ -1,5 +1,106 @@
 # astro
 
+## 3.0.0-beta.1
+
+### Major Changes
+
+- [#7952](https://github.com/withastro/astro/pull/7952) [`3c3100851`](https://github.com/withastro/astro/commit/3c31008519ce68b5b1b1cb23b71fbe0a2d506882) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Remove support for `Astro.__renderMarkdown` which is used by `@astrojs/markdown-component`.
+
+  The `<Markdown />` component was deprecated in Astro v1 and is completely removed in v3. This integration must now be removed from your project.
+
+  As an alternative, you can use community packages that provide a similar component like https://github.com/natemoo-re/astro-remote instead.
+
+- [#8019](https://github.com/withastro/astro/pull/8019) [`34cb20021`](https://github.com/withastro/astro/commit/34cb2002161ba88df6bcb72fecfd12ed867c134b) Thanks [@bluwy](https://github.com/bluwy)! - Remove backwards-compatible kebab-case transform for camelCase CSS variable names passed to the `style` attribute. If you were relying on the kebab-case transform in your styles, make sure to use the camelCase version to prevent missing styles. For example:
+
+  ```astro
+  ---
+  const myValue = 'red';
+  ---
+
+  <!-- input -->
+  <div style={{ '--myValue': myValue }}></div>
+
+  <!-- output (before) -->
+  <div style="--my-value:var(--myValue);--myValue:red"></div>
+
+  <!-- output (after) -->
+  <div style="--myValue:red"></div>
+  ```
+
+  ```diff
+  <style>
+    div {
+  -   color: var(--my-value);
+  +   color: var(--myValue);
+    }
+  </style>
+  ```
+
+- [#7893](https://github.com/withastro/astro/pull/7893) [`7bd1b86f8`](https://github.com/withastro/astro/commit/7bd1b86f85c06fdde0a1ed9146d01bac69990671) Thanks [@ematipico](https://github.com/ematipico)! - Implements a new scope style strategy called `"attribute"`. When enabled, styles are applied using `data-*` attributes.
+
+  The **default** value of `scopedStyleStrategy` is `"attribute"`.
+
+  If you want to use the previous behaviour, you have to use the `"where"` option:
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+  +    scopedStyleStrategy: 'where',
+  });
+  ```
+
+- [#7924](https://github.com/withastro/astro/pull/7924) [`519a1c4e8`](https://github.com/withastro/astro/commit/519a1c4e8407c7abcb8d879b67a9f4b960652cae) Thanks [@matthewp](https://github.com/matthewp)! - Astro's JSX handling has been refactored with better support for each framework.
+
+  Previously, Astro automatically scanned your components to determine which framework-specific transformations should be used. In practice, supporting advanced features like Fast Refresh with this approach proved difficult.
+
+  Now, Astro determines which framework to use with `include` and `exclude` config options where you can specify files and folders on a per-framework basis. When using multiple JSX frameworks in the same project, users should manually control which files belong to each framework using the `include` and `exclude` options.
+
+  ```js
+  export default defineConfig({
+    // The `include` config is only needed in projects that use multiple JSX frameworks;
+    // if only using one no extra config is needed.
+    integrations: [
+      preact({
+        include: ['**/preact/*'],
+      }),
+      react({
+        include: ['**/react/*'],
+      }),
+      solid({
+        include: ['**/solid/*'],
+      }),
+    ],
+  });
+  ```
+
+- [#7878](https://github.com/withastro/astro/pull/7878) [`0f637c71e`](https://github.com/withastro/astro/commit/0f637c71e511cb4c51712128d217a26c8eee4d40) Thanks [@bluwy](https://github.com/bluwy)! - The value of `import.meta.env.BASE_URL`, which is derived from the `base` option, will no longer have a trailing slash added by default or when `trailingSlash: "ignore"` is set. The existing behavior of `base` in combination with `trailingSlash: "always"` or `trailingSlash: "never"` is unchanged.
+
+  If your `base` already has a trailing slash, no change is needed.
+
+  If your `base` does not have a trailing slash, add one to preserve the previous behaviour:
+
+  ```diff
+  // astro.config.mjs
+  - base: 'my-base',
+  + base: 'my-base/',
+  ```
+
+### Minor Changes
+
+- [#8012](https://github.com/withastro/astro/pull/8012) [`866ed4098`](https://github.com/withastro/astro/commit/866ed4098edffb052239cdb26e076cf8db61b1d9) Thanks [@ematipico](https://github.com/ematipico)! - Add a new `astro/errors` module. Developers can import `AstroUserError`, and provide a `message` and an optional `hint`
+
+### Patch Changes
+
+- [#7998](https://github.com/withastro/astro/pull/7998) [`65c354969`](https://github.com/withastro/astro/commit/65c354969e6fe0ef6d622e8f4c545e2f717ce8c6) Thanks [@bluwy](https://github.com/bluwy)! - Call `astro sync` once before calling `astro check`
+
+- [#7952](https://github.com/withastro/astro/pull/7952) [`70f34f5a3`](https://github.com/withastro/astro/commit/70f34f5a355f42526ee9e5355f3de8e510002ea2) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Remove StreamingCompatibleResponse polyfill
+
+- [#8011](https://github.com/withastro/astro/pull/8011) [`5b1e39ef6`](https://github.com/withastro/astro/commit/5b1e39ef6ec6dcebea96584f95d9530bd9aa715d) Thanks [@bluwy](https://github.com/bluwy)! - Move hoisted script analysis optimization behind the `experimental.optimizeHoistedScript` option
+
+- Updated dependencies [[`b675acb2a`](https://github.com/withastro/astro/commit/b675acb2aa820448e9c0d363339a37fbac873215)]:
+  - @astrojs/telemetry@3.0.0-beta.1
+
 ## 3.0.0-beta.0
 
 ### Major Changes

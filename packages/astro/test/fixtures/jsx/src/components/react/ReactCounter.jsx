@@ -6,6 +6,8 @@ export default function ReactCounter() {
   const add = () => setCount((i) => i + 1);
   const subtract = () => setCount((i) => i - 1);
 
+	debugger;
+
   return (
     <div id="react">
       <div className="counter">

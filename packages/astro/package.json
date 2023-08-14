@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "3.0.0-beta.0",
+  "version": "3.0.0-beta.1",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -68,6 +68,7 @@
       "types": "./zod.d.ts",
       "default": "./zod.mjs"
     },
+    "./errors": "./dist/core/errors/userError.js",
     "./middleware": {
       "types": "./dist/core/middleware/index.d.ts",
       "default": "./dist/core/middleware/index.js"
