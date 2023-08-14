@@ -1,4 +1,5 @@
 ---
+'astro': major
 '@astrojs/cloudflare': major
 ---
 
