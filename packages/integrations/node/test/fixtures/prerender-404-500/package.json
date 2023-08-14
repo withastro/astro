@@ -1,5 +1,5 @@
 {
-  "name": "@test/nodejs-prerender-404",
+  "name": "@test/nodejs-prerender-404-500",
   "version": "0.0.0",
   "private": true,
   "type": "module",
