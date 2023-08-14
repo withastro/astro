@@ -1,7 +1,12 @@
 import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isLocalService, type ImageService } from './services/service.js';
-import type { GetImageResult, ImageMetadata, ImageTransform } from './types.js';
+import type {
+	GetImageResult,
+	ImageMetadata,
+	ImageTransform,
+	UnresolvedImageTransform,
+} from './types.js';
 
 export function injectImageEndpoint(settings: AstroSettings) {
 	settings.injectedRoutes.push({
@@ -37,7 +42,7 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 }
 
 export async function getImage(
-	options: ImageTransform,
+	options: ImageTransform | UnresolvedImageTransform,
 	serviceConfig: Record<string, any>
 ): Promise<GetImageResult> {
 	if (!options || typeof options !== 'object') {
@@ -48,9 +53,19 @@ export async function getImage(
 	}
 
 	const service = await getConfiguredImageService();
+
+	// If the user inlined an import, something fairly common especially in MDX, await it for them
+	const resolvedOptions: ImageTransform = {
+		...options,
+		src:
+			typeof options.src === 'object' && 'then' in options.src
+				? (await options.src).default
+				: options.src,
+	};
+
 	const validatedOptions = service.validateOptions
-		? await service.validateOptions(options, serviceConfig)
-		: options;
+		? await service.validateOptions(resolvedOptions, serviceConfig)
+		: resolvedOptions;
 
 	let imageURL = await service.getURL(validatedOptions, serviceConfig);
 
@@ -60,7 +75,7 @@ export async function getImage(
 	}
 
 	return {
-		rawOptions: options,
+		rawOptions: resolvedOptions,
 		options: validatedOptions,
 		src: imageURL,
 		attributes:
