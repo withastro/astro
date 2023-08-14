@@ -24,7 +24,9 @@ describe('API routes', () => {
 
 		handler(req, res);
 
-		req.send(JSON.stringify({ id: 2 }));
+		req.once('async_iterator', () => {
+			req.send(JSON.stringify({ id: 2 }));
+		});
 
 		let [buffer] = await done;
 
@@ -44,7 +46,10 @@ describe('API routes', () => {
 		});
 
 		handler(req, res);
-		req.send(Buffer.from(new Uint8Array([1, 2, 3, 4, 5])));
+
+		req.on('async_iterator', () => {
+			req.send(Buffer.from(new Uint8Array([1, 2, 3, 4, 5])));
+		});
 
 		let [out] = await done;
 		let arr = Array.from(new Uint8Array(out.buffer));
