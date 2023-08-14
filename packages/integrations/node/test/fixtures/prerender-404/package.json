@@ -2,6 +2,7 @@
   "name": "@test/nodejs-prerender-404",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "astro": "workspace:*",
     "@astrojs/node": "workspace:*"

@@ -14,6 +14,7 @@ async function load() {
 	);
 	return mod;
 }
+
 describe('Prerender 404', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -25,6 +26,10 @@ describe('Prerender 404', () => {
 			process.env.PRERENDER = true;
 
 			fixture = await loadFixture({
+				// inconsequential config that differs between tests
+				// to bust cache and prevent modules and their state
+				// from being reused
+				site: 'https://test.dev/',
 				base: '/some-base',
 				root: './fixtures/prerender-404/',
 				output: 'server',
@@ -79,12 +84,16 @@ describe('Prerender 404', () => {
 			process.env.PRERENDER = true;
 
 			fixture = await loadFixture({
+				// inconsequential config that differs between tests
+				// to bust cache and prevent modules and their state
+				// from being reused
+				site: 'https://test.info/',
 				root: './fixtures/prerender-404/',
 				output: 'server',
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await await load();
+			const { startServer } = await load();
 			let res = startServer();
 			server = res.server;
 		});
@@ -137,13 +146,17 @@ describe('Hybrid 404', () => {
 			process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 			process.env.PRERENDER = false;
 			fixture = await loadFixture({
+				// inconsequential config that differs between tests
+				// to bust cache and prevent modules and their state
+				// from being reused
+				site: 'https://test.com/',
 				base: '/some-base',
 				root: './fixtures/prerender-404/',
 				output: 'hybrid',
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await await load();
+			const { startServer } = await load();
 			let res = startServer();
 			server = res.server;
 		});
@@ -190,12 +203,16 @@ describe('Hybrid 404', () => {
 			process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 			process.env.PRERENDER = false;
 			fixture = await loadFixture({
+				// inconsequential config that differs between tests
+				// to bust cache and prevent modules and their state
+				// from being reused
+				site: 'https://test.net/',
 				root: './fixtures/prerender-404/',
 				output: 'hybrid',
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await await load();
+			const { startServer } = await load();
 			let res = startServer();
 			server = res.server;
 		});
