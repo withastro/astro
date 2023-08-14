@@ -73,10 +73,8 @@ function useConsoleFilter() {
 	consoleFilterRefs++;
 
 	if (!originalConsoleWarning) {
-		// eslint-disable-next-line no-console
 		originalConsoleWarning = console.warn;
 		try {
-			// eslint-disable-next-line no-console
 			console.warn = filteredConsoleWarning;
 		} catch (error) {
 			// If we're unable to hook `console.warn`, just accept it
