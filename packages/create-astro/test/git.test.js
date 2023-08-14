@@ -37,7 +37,7 @@ describe('git initialized', () => {
 	before(async () => {
 		await mkdir(dir, { recursive: true });
 		await writeFile(new URL('./git.json', dir), '{}', { encoding: 'utf8' });
-	})
+	});
 
 	it('already initialized', async () => {
 		const context = {
@@ -53,5 +53,5 @@ describe('git initialized', () => {
 
 	after(() => {
 		rmSync(dir, { recursive: true, force: true });
-	})
-})
+	});
+});

@@ -1,8 +1,8 @@
 import { color } from '@astrojs/cli-kit';
-import { shell } from '../shell.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { error, info, spinner, title } from '../messages.js';
+import { shell } from '../shell.js';
 import type { Context } from './context';
 
 export async function dependencies(

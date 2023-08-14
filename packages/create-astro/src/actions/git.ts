@@ -3,8 +3,8 @@ import path from 'node:path';
 import type { Context } from './context';
 
 import { color } from '@astrojs/cli-kit';
-import { shell } from '../shell.js';
 import { error, info, spinner, title } from '../messages.js';
+import { shell } from '../shell.js';
 
 export async function git(ctx: Pick<Context, 'cwd' | 'git' | 'yes' | 'prompt' | 'dryRun'>) {
 	if (fs.existsSync(path.join(ctx.cwd, '.git'))) {
