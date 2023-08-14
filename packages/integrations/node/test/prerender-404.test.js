@@ -52,11 +52,23 @@ describe('Prerender 404', () => {
 		});
 
 		it('Can handle prerendered 404', async () => {
-			const res = await fetch(`http://${server.host}:${server.port}/some-base/missing`);
-			const html = await res.text();
-			const $ = cheerio.load(html);
+			const res1 = await fetch(`http://${server.host}:${server.port}/some-base/missing`);
+			const res2 = await fetch(`http://${server.host}:${server.port}/some-base/missing`);
+			const res3 = await fetch(`http://${server.host}:${server.port}/some-base/missing`);
+			
+			expect(res1.status).to.equal(404);
+			expect(res2.status).to.equal(404);
+			expect(res3.status).to.equal(404);
+			
+			const html1 = await res1.text();
+			const html2 = await res2.text();
+			const html3 = await res3.text();
 
-			expect(res.status).to.equal(404);
+			expect(html1).to.equal(html2);
+			expect(html2).to.equal(html3);
+			
+			const $ = cheerio.load(html1);
+
 			expect($('body').text()).to.equal('Page does not exist');
 		});
 	});
@@ -93,11 +105,23 @@ describe('Prerender 404', () => {
 		});
 
 		it('Can handle prerendered 404', async () => {
-			const res = await fetch(`http://${server.host}:${server.port}/missing`);
-			const html = await res.text();
-			const $ = cheerio.load(html);
+			const res1 = await fetch(`http://${server.host}:${server.port}/missing`);
+			const res2 = await fetch(`http://${server.host}:${server.port}/missing`);
+			const res3 = await fetch(`http://${server.host}:${server.port}/missing`);
+			
+			expect(res1.status).to.equal(404);
+			expect(res2.status).to.equal(404);
+			expect(res3.status).to.equal(404);
+			
+			const html1 = await res1.text();
+			const html2 = await res2.text();
+			const html3 = await res3.text();
 
-			expect(res.status).to.equal(404);
+			expect(html1).to.equal(html2);
+			expect(html2).to.equal(html3);
+			
+			const $ = cheerio.load(html1);
+
 			expect($('body').text()).to.equal('Page does not exist');
 		});
 	});
@@ -140,11 +164,23 @@ describe('Hybrid 404', () => {
 		});
 
 		it('Can handle prerendered 404', async () => {
-			const res = await fetch(`http://${server.host}:${server.port}/some-base/missing`);
-			const html = await res.text();
-			const $ = cheerio.load(html);
+			const res1 = await fetch(`http://${server.host}:${server.port}/some-base/missing`);
+			const res2 = await fetch(`http://${server.host}:${server.port}/some-base/missing`);
+			const res3 = await fetch(`http://${server.host}:${server.port}/some-base/missing`);
+			
+			expect(res1.status).to.equal(404);
+			expect(res2.status).to.equal(404);
+			expect(res3.status).to.equal(404);
+			
+			const html1 = await res1.text();
+			const html2 = await res2.text();
+			const html3 = await res3.text();
 
-			expect(res.status).to.equal(404);
+			expect(html1).to.equal(html2);
+			expect(html2).to.equal(html3);
+			
+			const $ = cheerio.load(html1);
+
 			expect($('body').text()).to.equal('Page does not exist');
 		});
 	});
@@ -180,11 +216,23 @@ describe('Hybrid 404', () => {
 		});
 
 		it('Can handle prerendered 404', async () => {
-			const res = await fetch(`http://${server.host}:${server.port}/missing`);
-			const html = await res.text();
-			const $ = cheerio.load(html);
+			const res1 = await fetch(`http://${server.host}:${server.port}/missing`);
+			const res2 = await fetch(`http://${server.host}:${server.port}/missing`);
+			const res3 = await fetch(`http://${server.host}:${server.port}/missing`);
+			
+			expect(res1.status).to.equal(404);
+			expect(res2.status).to.equal(404);
+			expect(res3.status).to.equal(404);
+			
+			const html1 = await res1.text();
+			const html2 = await res2.text();
+			const html3 = await res3.text();
 
-			expect(res.status).to.equal(404);
+			expect(html1).to.equal(html2);
+			expect(html2).to.equal(html3);
+			
+			const $ = cheerio.load(html1);
+
 			expect($('body').text()).to.equal('Page does not exist');
 		});
 	});
