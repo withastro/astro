@@ -87,7 +87,7 @@ function makeRequestBody(req: NodeIncomingMessage): BodyProps {
 function asyncIterableToBodyProps(iterable: AsyncIterable<any>): BodyProps {
 	return {
 		// Node uses undici for the Request implementation. Undici accepts
-		// a non-standard async iterables for the body.
+		// a non-standard async iterable for the body.
 		// @ts-ignore
 		body: iterable,
 		// The duplex property is required when using a ReadableStream or async
