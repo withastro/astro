@@ -34,3 +34,22 @@ test.describe('dev', () => {
 		expect(await suffix.textContent()).toBe('suffix toggle true');
 	});
 });
+
+test.describe('React client id generation', () => {
+	test('react components generate unique ids', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const components = page.locator('.react-use-id');
+		await expect(components).toHaveCount(5);
+		const staticId = await components.nth(0).getAttribute('id');
+		const hydratedId0 = await components.nth(1).getAttribute('id');
+		const hydratedId1 = await components.nth(2).getAttribute('id');
+		const clientOnlyId0 = await components.nth(3).getAttribute('id');
+		const clientOnlyId1 = await components.nth(4).getAttribute('id');
+		console.log("ho ho", staticId, hydratedId0, hydratedId1, clientOnlyId0, clientOnlyId1)
+		expect(staticId).not.toEqual(hydratedId0)
+		expect(hydratedId0).not.toEqual(hydratedId1)
+		expect(hydratedId1).not.toEqual(clientOnlyId0)
+		expect(clientOnlyId0).not.toEqual(clientOnlyId1)
+	});
+})
