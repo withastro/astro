@@ -64,7 +64,6 @@
     "./package.json": "./package.json",
     "./runtime/*": "./dist/runtime/*",
     "./server/*": "./dist/runtime/server/*",
-    "./dist/jsx/*": "./dist/jsx/*",
     "./zod": {
       "types": "./zod.d.ts",
       "default": "./zod.mjs"
