@@ -1,3 +1,4 @@
+import { AstroError } from '../core/errors/errors.js';
 import { AstroJSX, jsx } from '../jsx-runtime/index.js';
 import { renderJSX } from '../runtime/server/jsx.js';
 
@@ -22,7 +23,7 @@ export async function check(
 		// if the exception is from an mdx component
 		// throw an error
 		if (Component[Symbol.for('mdx-component')]) {
-			throw createFormattedError({
+			throw new AstroError({
 				message: error.message,
 				title: error.name,
 				hint: `This issue often occurs when your MDX component encounters runtime errors.`,
@@ -49,23 +50,6 @@ export async function renderToStaticMarkup(
 	const { result } = this;
 	const html = await renderJSX(result, jsx(Component, { ...props, ...slots, children }));
 	return { html };
-}
-
-type FormatErrorOptions = {
-	message: string;
-	name: string;
-	stack?: string;
-	hint: string;
-	title: string;
-};
-// TODO: Remove this function and use `AstroError` when we refactor it to be usable without error codes
-function createFormattedError({ message, name, stack, hint }: FormatErrorOptions) {
-	const error = new Error(message);
-	error.name = name;
-	error.stack = stack;
-	// @ts-expect-error - hint is not part of the Error interface but it will be picked up by the error overlay
-	error.hint = hint;
-	return error;
 }
 
 export default {

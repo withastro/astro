@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/solid-js",
-  "version": "3.0.0-beta.0",
+  "version": "3.0.0-beta.1",
   "description": "Use Solid components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -35,8 +35,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "babel-preset-solid": "^1.7.4",
-    "vitefu": "^0.2.4"
+    "vite-plugin-solid": "^2.7.0"
   },
   "devDependencies": {
     "astro": "workspace:*",

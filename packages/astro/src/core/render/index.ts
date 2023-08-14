@@ -22,7 +22,7 @@ export interface SSROptions {
 	/** Request */
 	request: Request;
 	/** optional, in case we need to render something outside of a dev server */
-	route?: RouteData;
+	route: RouteData;
 	/**
 	 * Optional middlewares
 	 */

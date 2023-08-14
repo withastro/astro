@@ -216,12 +216,6 @@ export async function add(names: string[], { flags }: AddOptions) {
 		await fs.writeFile(fileURLToPath(configURL), ASTRO_CONFIG_STUB, { encoding: 'utf-8' });
 	}
 
-	// TODO: improve error handling for invalid configs
-	if (configURL?.pathname.endsWith('package.json')) {
-		throw new Error(
-			`Unable to use "astro add" with package.json configuration. Try migrating to \`astro.config.mjs\` and try again.`
-		);
-	}
 	let ast: t.File | null = null;
 	try {
 		ast = await parseAstroConfig(configURL);

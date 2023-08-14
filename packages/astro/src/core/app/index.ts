@@ -1,13 +1,13 @@
-import mime from 'mime';
 import type {
 	EndpointHandler,
 	ManifestData,
+	MiddlewareEndpointHandler,
 	RouteData,
 	SSRElement,
 	SSRManifest,
 } from '../../@types/astro';
 import type { SinglePageBuiltModule } from '../build/types';
-import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
+import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
 import {
@@ -16,12 +16,10 @@ import {
 	removeTrailingForwardSlash,
 } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { isResponse } from '../render/core.js';
 import {
 	createEnvironment,
 	createRenderContext,
 	tryRenderRoute,
-	type Environment,
 	type RenderContext,
 } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
@@ -32,6 +30,7 @@ import {
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 import type { RouteInfo } from './types';
+import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -53,16 +52,15 @@ export class App {
 	/**
 	 * The current environment of the application
 	 */
-	#env: Environment;
 	#manifest: SSRManifest;
 	#manifestData: ManifestData;
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
-	#encoder = new TextEncoder();
 	#logging: LogOptions = {
 		dest: consoleLogDestination,
 		level: 'info',
 	};
 	#baseWithoutTrailingSlash: string;
+	#pipeline: SSRRoutePipeline;
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
@@ -71,7 +69,7 @@ export class App {
 		};
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
-		this.#env = this.#createEnvironment(streaming);
+		this.#pipeline = new SSRRoutePipeline(this.#createEnvironment(streaming));
 	}
 
 	set setManifest(newManifest: SSRManifest) {
@@ -163,19 +161,21 @@ export class App {
 		);
 		let response;
 		try {
-			response = await tryRenderRoute(
-				routeData.type,
-				renderContext,
-				this.#env,
-				pageModule,
-				mod.onRequest
-			);
+			// NOTE: ideally we could set the middleware function just once, but we don't have the infrastructure to that yet
+			if (mod.onRequest) {
+				this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
+			}
+			response = await this.#pipeline.renderRoute(renderContext, pageModule);
 		} catch (err: any) {
-			error(this.#logging, 'ssr', err.stack || err.message || String(err));
-			return this.#renderError(request, { status: 500 });
+			if (err instanceof EndpointNotFoundError) {
+				return this.#renderError(request, { status: 404, response: err.originalResponse });
+			} else {
+				error(this.#logging, 'ssr', err.stack || err.message || String(err));
+				return this.#renderError(request, { status: 500 });
+			}
 		}
 
-		if (isResponse(response, routeData.type)) {
+		if (SSRRoutePipeline.isResponse(response, routeData.type)) {
 			if (STATUS_CODES.has(response.status)) {
 				return this.#renderError(request, {
 					response,
@@ -184,35 +184,8 @@ export class App {
 			}
 			Reflect.set(response, responseSentSymbol, true);
 			return response;
-		} else {
-			if (response.type === 'response') {
-				if (response.response.headers.get('X-Astro-Response') === 'Not-Found') {
-					return this.#renderError(request, {
-						response: response.response,
-						status: 404,
-					});
-				}
-				return response.response;
-			} else {
-				const headers = new Headers();
-				const mimeType = mime.getType(url.pathname);
-				if (mimeType) {
-					headers.set('Content-Type', `${mimeType};charset=utf-8`);
-				} else {
-					headers.set('Content-Type', 'text/plain;charset=utf-8');
-				}
-				const bytes =
-					response.encoding !== 'binary' ? this.#encoder.encode(response.body) : response.body;
-				headers.set('Content-Length', bytes.byteLength.toString());
-
-				const newResponse = new Response(bytes, {
-					status: 200,
-					headers,
-				});
-				attachToResponse(newResponse, response.cookies);
-				return newResponse;
-			}
 		}
+		return response;
 	}
 
 	setCookieHeaders(response: Response) {
@@ -238,7 +211,7 @@ export class App {
 				pathname,
 				route: routeData,
 				status,
-				env: this.#env,
+				env: this.#pipeline.env,
 				mod: handler as any,
 			});
 		} else {
@@ -272,7 +245,7 @@ export class App {
 				route: routeData,
 				status,
 				mod,
-				env: this.#env,
+				env: this.#pipeline.env,
 			});
 		}
 	}
@@ -301,9 +274,8 @@ export class App {
 				);
 				const page = (await mod.page()) as any;
 				const response = (await tryRenderRoute(
-					'page', // this is hardcoded to ensure proper behavior for missing endpoints
 					newRenderContext,
-					this.#env,
+					this.#pipeline.env,
 					page
 				)) as Response;
 				return this.#mergeResponses(response, originalResponse);

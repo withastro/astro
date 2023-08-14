@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { getColor, isWindows, testFactory } from './test-utils.js';
+import { getColor, testFactory } from './test-utils.js';
 
 const test = testFactory({
 	root: './fixtures/css/',
@@ -16,8 +16,6 @@ test.afterAll(async () => {
 });
 
 test.describe('CSS HMR', () => {
-	test.skip(isWindows, 'TODO: fix css hmr in windows');
-
 	test('edit CSS from @import', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
