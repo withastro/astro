@@ -139,8 +139,10 @@ export interface CLIFlags {
  *
  * [Astro reference](https://docs.astro.build/reference/api-reference/#astro-global)
  */
-export interface AstroGlobal<Props extends Record<string, any> = Record<string, any>>
-	extends AstroGlobalPartial,
+export interface AstroGlobal<
+	Props extends Record<string, any> = Record<string, any>,
+	Self = AstroComponentFactory
+> extends AstroGlobalPartial,
 		AstroSharedContext<Props> {
 	/**
 	 * A full URL object of the request URL.
@@ -217,7 +219,7 @@ export interface AstroGlobal<Props extends Record<string, any> = Record<string, 
 	 *
 	 * [Astro reference](https://docs.astro.build/en/guides/api-reference/#astroself)
 	 */
-	self: AstroComponentFactory;
+	self: Self;
 	/** Utility functions for modifying an Astro component’s slotted children
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroslots)
