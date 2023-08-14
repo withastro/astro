@@ -100,9 +100,10 @@ describe('React Components', () => {
 			expect($('#cloned').text()).to.equal('Cloned With Props');
 		});
 
-		it.skip('works', async () => {
+		it('Children are parsed as React components, can be manipulated', async () => {
 			const html = await fixture.readFile('/children/index.html');
-			console.log("HTML", html)
+			const $ = cheerioLoad(html);
+			expect($(".with-children-count").text()).to.equal('1');
 		})
 	});
 
