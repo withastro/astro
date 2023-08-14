@@ -634,6 +634,15 @@ async function getInstallIntegrationsCommand({
 	}
 }
 
+// Allow forwarding of standard `npm install` flags
+// See https://docs.npmjs.com/cli/v8/commands/npm-install#description
+const INHERITED_FLAGS = new Set<string>([
+	"P", "save-prod",
+	"D", "save-dev",
+	"E", "save-exact",
+	"no-save",
+])
+
 async function tryToInstallIntegrations({
 	integrations,
 	cwd,
@@ -647,12 +656,24 @@ async function tryToInstallIntegrations({
 }): Promise<UpdateResult> {
 	const installCommand = await getInstallIntegrationsCommand({ integrations, cwd });
 
+	const inheritedFlags = Object.entries(flags)
+		.map(([flag]) => {
+			if (flag == '_') return;
+			if (INHERITED_FLAGS.has(flag)) {
+				if (flag.length === 1) return `-${flag}`;
+				return `--${flag}`;
+			}
+		})
+		.filter(Boolean)
+		.flat() as string[];
+
 	if (installCommand === null) {
 		return UpdateResult.none;
 	} else {
 		const coloredOutput = `${bold(installCommand.pm)} ${installCommand.command}${[
 			'',
 			...installCommand.flags,
+			...inheritedFlags
 		].join(' ')} ${cyan(installCommand.dependencies.join(' '))}`;
 		const message = `\n${boxen(coloredOutput, {
 			margin: 0.5,
@@ -672,14 +693,15 @@ async function tryToInstallIntegrations({
 			try {
 				await execa(
 					installCommand.pm,
-					[installCommand.command, ...installCommand.flags, ...installCommand.dependencies],
+					[installCommand.command, ...installCommand.flags, ...inheritedFlags, ...installCommand.dependencies],
 					{ cwd }
 				);
 				spinner.succeed();
 				return UpdateResult.updated;
 			} catch (err) {
-				debug('add', 'Error installing dependencies', err);
 				spinner.fail();
+				debug('add', 'Error installing dependencies', err);
+				console.error('\n', (err as any).stdout, '\n');
 				return UpdateResult.failure;
 			}
 		} else {
