@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { Context } from './context';
 
 import { color } from '@astrojs/cli-kit';
-import { execa } from 'execa';
+import { shell } from '../shell.js';
 import { error, info, spinner, title } from '../messages.js';
 
 export async function git(ctx: Pick<Context, 'cwd' | 'git' | 'yes' | 'prompt' | 'dryRun'>) {
@@ -45,9 +45,9 @@ export async function git(ctx: Pick<Context, 'cwd' | 'git' | 'yes' | 'prompt' | 
 
 async function init({ cwd }: { cwd: string }) {
 	try {
-		await execa('git', ['init'], { cwd, stdio: 'ignore' });
-		await execa('git', ['add', '-A'], { cwd, stdio: 'ignore' });
-		await execa(
+		await shell('git', ['init'], { cwd, stdio: 'ignore' });
+		await shell('git', ['add', '-A'], { cwd, stdio: 'ignore' });
+		await shell(
 			'git',
 			[
 				'commit',
