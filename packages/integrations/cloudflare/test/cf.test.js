@@ -30,8 +30,8 @@ describe('Cf metadata and caches', () => {
 		expect(res.status).to.equal(200);
 		let html = await res.text();
 		let $ = cheerio.load(html);
-		// console.log($('#cf').text(), html);
-		expect($('#cf').text()).to.contain('city');
+
+		expect($('#cf').text()).to.contain('city', `Expected "city" to exist in runtime, but got ${$('#cf').text()}`);
 		expect($('#hasCache').text()).to.equal('true');
 	});
 });
