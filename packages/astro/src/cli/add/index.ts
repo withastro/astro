@@ -637,11 +637,14 @@ async function getInstallIntegrationsCommand({
 // Allow forwarding of standard `npm install` flags
 // See https://docs.npmjs.com/cli/v8/commands/npm-install#description
 const INHERITED_FLAGS = new Set<string>([
-	"P", "save-prod",
-	"D", "save-dev",
-	"E", "save-exact",
-	"no-save",
-])
+	'P',
+	'save-prod',
+	'D',
+	'save-dev',
+	'E',
+	'save-exact',
+	'no-save',
+]);
 
 async function tryToInstallIntegrations({
 	integrations,
@@ -673,7 +676,7 @@ async function tryToInstallIntegrations({
 		const coloredOutput = `${bold(installCommand.pm)} ${installCommand.command}${[
 			'',
 			...installCommand.flags,
-			...inheritedFlags
+			...inheritedFlags,
 		].join(' ')} ${cyan(installCommand.dependencies.join(' '))}`;
 		const message = `\n${boxen(coloredOutput, {
 			margin: 0.5,
@@ -693,7 +696,12 @@ async function tryToInstallIntegrations({
 			try {
 				await execa(
 					installCommand.pm,
-					[installCommand.command, ...installCommand.flags, ...inheritedFlags, ...installCommand.dependencies],
+					[
+						installCommand.command,
+						...installCommand.flags,
+						...inheritedFlags,
+						...installCommand.dependencies,
+					],
 					{ cwd }
 				);
 				spinner.succeed();
