@@ -3,7 +3,7 @@ import { createElement, Fragment } from 'react';
 
 export default function convert(children) {
     const nodeMap = new WeakMap();
-    let doc = parse(children.default.toString().trim());
+    let doc = parse(children.toString().trim());
     let root = createElement(Fragment, { children: [] });
 
     walkSync(doc, (node, parent, index) => {
