@@ -7,10 +7,9 @@ function getRenderer(development: boolean): AstroRenderer {
 		serverEntrypoint: '@astrojs/preact/server.js',
 		jsxImportSource: 'preact',
 		jsxTransformOptions: async () => {
-			const {
-				default: { default: jsx },
-				// @ts-expect-error types not found
-			} = await import('@babel/plugin-transform-react-jsx');
+			// @ts-expect-error types not found
+			const plugin = await import('@babel/plugin-transform-react-jsx');
+			const jsx = plugin.default?.default ?? plugin.default;
 			return {
 				plugins: [jsx({}, { runtime: 'automatic', importSource: 'preact' })],
 			};
@@ -25,10 +24,9 @@ function getCompatRenderer(development: boolean): AstroRenderer {
 		serverEntrypoint: '@astrojs/preact/server.js',
 		jsxImportSource: 'react',
 		jsxTransformOptions: async () => {
-			const {
-				default: { default: jsx },
-				// @ts-expect-error types not found
-			} = await import('@babel/plugin-transform-react-jsx');
+			// @ts-expect-error types not found
+			const plugin = await import('@babel/plugin-transform-react-jsx');
+			const jsx = plugin.default?.default ?? plugin.default;
 			return {
 				plugins: [
 					jsx({}, { runtime: 'automatic', importSource: 'preact/compat' }),

@@ -88,6 +88,7 @@ function enhanceCSSError(err: any, filename: string, cssContent: string) {
 	errorPosition.line += 1;
 
 	return new CSSError({
+		name: 'CSSError',
 		message: err.message,
 		location: {
 			file: filename,

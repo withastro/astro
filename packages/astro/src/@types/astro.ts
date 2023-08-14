@@ -19,7 +19,7 @@ import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
-import type { LogOptions } from '../core/logger/core';
+import type { LogOptions, LoggerLevel } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 export type {
@@ -92,6 +92,7 @@ export interface AstroBuiltinAttributes {
 	'is:raw'?: boolean;
 	'transition:animate'?: 'morph' | 'slide' | 'fade' | TransitionDirectionalAnimations;
 	'transition:name'?: string;
+	'transition:persist'?: boolean | string;
 }
 
 export interface AstroDefineVarsAttribute {
@@ -1273,6 +1274,28 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		viewTransitions?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.optimizeHoistedScript
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.10.4
+		 * @description
+		 * Prevents unused components' scripts from being included in a page unexpectedly.
+		 * The optimization is best-effort and may inversely miss including the used scripts. Make sure to double-check your built pages
+		 * before publishing.
+		 * Enable hoisted script analysis optimization by adding the experimental flag:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		optimizeHoistedScript: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		optimizeHoistedScript?: boolean;
 	};
 
 	// Legacy options to be removed
@@ -1317,21 +1340,35 @@ export interface AstroUserConfig {
  */
 export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 'page-ssr';
 
-/**
- * Resolved Astro Config
- * Config with user settings along with all defaults filled in.
- */
-
 export interface InjectedRoute {
 	pattern: string;
 	entryPoint: string;
 	prerender?: boolean;
 }
+
+export interface ResolvedInjectedRoute extends InjectedRoute {
+	resolvedEntryPoint?: URL;
+}
+
+/**
+ * Resolved Astro Config
+ * Config with user settings along with all defaults filled in.
+ */
 export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// Public:
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
+}
+export interface AstroInlineConfig extends AstroUserConfig, AstroInlineOnlyConfig {}
+export interface AstroInlineOnlyConfig {
+	configFile?: string | false;
+	mode?: RuntimeMode;
+	logLevel?: LoggerLevel;
+	/**
+	 * @internal for testing only
+	 */
+	logging?: LogOptions;
 }
 
 export type ContentEntryModule = {
@@ -1405,6 +1442,7 @@ export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
 	injectedRoutes: InjectedRoute[];
+	resolvedInjectedRoutes: ResolvedInjectedRoute[];
 	pageExtensions: string[];
 	contentEntryTypes: ContentEntryType[];
 	dataEntryTypes: DataEntryType[];
@@ -1809,10 +1847,15 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	locals: App.Locals;
 }
 
-export interface EndpointOutput {
-	body: Body;
-	encoding?: BufferEncoding;
-}
+export type EndpointOutput =
+	| {
+			body: Body;
+			encoding?: Exclude<BufferEncoding, 'binary'>;
+	  }
+	| {
+			body: Uint8Array;
+			encoding: 'binary';
+	  };
 
 export type APIRoute<Props extends Record<string, any> = Record<string, any>> = (
 	context: APIContext<Props>

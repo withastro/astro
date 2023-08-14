@@ -1,7 +1,7 @@
 import yaml from 'js-yaml';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { AstroConfig, AstroSettings, AstroUserConfig } from '../../@types/astro';
+import type { AstroConfig, AstroSettings } from '../../@types/astro';
 import { getContentPaths } from '../../content/index.js';
 import jsxRenderer from '../../jsx/renderer.js';
 import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
@@ -9,7 +9,6 @@ import { getDefaultClientDirectives } from '../client-directive/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { formatYAMLException, isYAMLException } from '../errors/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
-import { createDefaultDevConfig } from './config.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
 
@@ -22,6 +21,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 
 		adapter: undefined,
 		injectedRoutes: [],
+		resolvedInjectedRoutes: [],
 		pageExtensions: ['.astro', '.html', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS],
 		contentEntryTypes: [markdownContentEntryType],
 		dataEntryTypes: [
@@ -118,15 +118,4 @@ export function createSettings(config: AstroConfig, cwd?: string): AstroSettings
 	settings.tsConfigPath = tsconfig?.path;
 	settings.watchFiles = watchFiles;
 	return settings;
-}
-
-export async function createDefaultDevSettings(
-	userConfig: AstroUserConfig = {},
-	root?: string | URL
-): Promise<AstroSettings> {
-	if (root && typeof root !== 'string') {
-		root = fileURLToPath(root);
-	}
-	const config = await createDefaultDevConfig(userConfig, root);
-	return createBaseSettings(config);
 }

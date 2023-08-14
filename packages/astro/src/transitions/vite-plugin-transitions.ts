@@ -18,6 +18,7 @@ export default function astroTransitions({ config }: { config: AstroConfig }): v
 			if (id === resolvedVirtualModuleId) {
 				if (!config.experimental.viewTransitions) {
 					throw new AstroError({
+						name: 'TransitionError',
 						title: 'Experimental View Transitions not enabled',
 						message: `View Transitions support is experimental. To enable update your config to include: 
 						

@@ -1,0 +1,9 @@
+---
+import Layout from '../components/Layout.astro';
+import Island from '../components/Island.jsx';
+---
+<Layout>
+	<p id="island-one">Page 1</p>
+	<a id="click-two" href="/island-two">go to 2</a>
+	<Island count={5} client:load transition:persist transition:name="counter" />
+</Layout>
