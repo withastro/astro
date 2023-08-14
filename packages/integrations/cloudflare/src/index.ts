@@ -29,7 +29,7 @@ export function getAdapter(isModeDirectory: boolean): AstroAdapter {
 					staticOutput: 'unsupported',
 					serverOutput: 'stable',
 					assets: {
-						supportKind: 'unsupported',
+						supportKind: 'stable',
 						isSharpCompatible: false,
 						isSquooshCompatible: false,
 					},
