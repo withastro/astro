@@ -16,7 +16,7 @@ export class EndpointNotFoundError extends Error {
 }
 
 export class SSRRoutePipeline extends Pipeline {
-	encoder = new TextEncoder();
+	#encoder = new TextEncoder();
 
 	constructor(env: Environment) {
 		super(env);
@@ -40,7 +40,7 @@ export class SSRRoutePipeline extends Pipeline {
 				headers.set('Content-Type', 'text/plain;charset=utf-8');
 			}
 			const bytes =
-				response.encoding !== 'binary' ? this.encoder.encode(response.body) : response.body;
+				response.encoding !== 'binary' ? this.#encoder.encode(response.body) : response.body;
 			headers.set('Content-Length', bytes.byteLength.toString());
 
 			const newResponse = new Response(bytes, {

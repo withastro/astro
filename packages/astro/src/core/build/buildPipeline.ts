@@ -12,6 +12,9 @@ import { createEnvironment } from '../render/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { createAssetLink } from '../render/ssr-element.js';
 
+/**
+ * This pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
+ */
 export class BuildPipeline extends Pipeline {
 	#internals: BuildInternals;
 	#staticBuildOptions: StaticBuildOptions;
@@ -71,6 +74,23 @@ export class BuildPipeline extends Pipeline {
 		return this.#staticBuildOptions.settings.config;
 	}
 
+	getManifest(): SSRManifest {
+		return this.#manifest;
+	}
+
+	/**
+	 * The SSR build emits two important files:
+	 * - dist/server/manifest.mjs
+	 * - dist/renderers.mjs
+	 *
+	 * These two files, put together, will be used to generate the pages.
+	 *
+	 * ## Errors
+	 *
+	 * It will throw errors if the previous files can't be found in the file system.
+	 *
+	 * @param staticBuildOptions
+	 */
 	static async retrieveManifest(staticBuildOptions: StaticBuildOptions): Promise<SSRManifest> {
 		const manifestEntryUrl = new URL(
 			'manifest.mjs',
@@ -94,7 +114,12 @@ export class BuildPipeline extends Pipeline {
 		return manifest;
 	}
 
-	retrievePagesToGenerate(): Map<PageBuildData, string> {
+	/**
+	 * It collects the routes to generate during the build.
+	 *
+	 * It returns a map of page information and their relative entry point as a string.
+	 */
+	retrieveRoutesToGenerate(): Map<PageBuildData, string> {
 		const pages = new Map<PageBuildData, string>();
 
 		for (const [entryPoint, filePath] of this.#internals.entrySpecifierToBundleMap) {
@@ -128,22 +153,24 @@ export class BuildPipeline extends Pipeline {
 
 	async #handleEndpointResult(_: Request, response: EndpointCallResult): Promise<Response> {
 		if (response.type === 'response') {
-			// NOTE: is an empty body allowed??
-			// If there's no body, do nothing
-			// if (!response.response.body) return;
+			if (!response.response.body) {
+				return new Response(null);
+			}
 			const ab = await response.response.arrayBuffer();
 			const body = new Uint8Array(ab);
-			// TODO handle headers for encoding
 			return new Response(body, {
 				headers: { ...response.response.headers },
 			});
 		} else {
-			// TODO: handle encoding
-			return new Response(response.body, {});
+			if (response.encoding) {
+				const headers = new Headers();
+				headers.set('X-Astro-Encoding', response.encoding);
+				return new Response(response.body, {
+					headers,
+				});
+			} else {
+				return new Response(response.body);
+			}
 		}
-	}
-
-	getManifest(): SSRManifest {
-		return this.#manifest;
 	}
 }

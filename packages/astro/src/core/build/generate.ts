@@ -63,6 +63,7 @@ import type {
 } from './types';
 import { getTimeStat } from './util.js';
 import { BuildPipeline } from './buildPipeline.js';
+import type { BufferEncoding } from 'vfile';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -143,7 +144,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const verb = ssr ? 'prerendering' : 'generating';
 	info(opts.logging, null, `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
-	const pagesToGenerate = buildPipeline.retrievePagesToGenerate();
+	const pagesToGenerate = buildPipeline.retrieveRoutesToGenerate();
 	if (ssr) {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (pageData.route.prerender) {
@@ -164,10 +165,10 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 					await generatePage(pageData, ssrEntry, builtPaths, buildPipeline, logger);
 				}
 			}
-		}
-		for (const pageData of eachRedirectPageData(internals)) {
-			const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-			await generatePage(pageData, entry, builtPaths, buildPipeline, logger);
+			if (pageData.route.type === 'redirect') {
+				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
+				await generatePage(pageData, entry, builtPaths, buildPipeline, logger);
+			}
 		}
 	} else {
 		for (const [pageData, filePath] of pagesToGenerate) {
@@ -560,6 +561,10 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 	const outFolder = getOutFolder(pipeline.getConfig(), pathname, pageData.route.type);
 	const outFile = getOutFile(pipeline.getConfig(), outFolder, pathname, pageData.route.type);
 	pageData.route.distURL = outFile;
+	const possibleEncoding = response.headers.get('X-Astro-Encoding');
+	if (possibleEncoding) {
+		encoding = possibleEncoding as BufferEncoding;
+	}
 	await fs.promises.mkdir(outFolder, { recursive: true });
 	await fs.promises.writeFile(outFile, body, encoding ?? 'utf-8');
 }
