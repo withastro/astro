@@ -253,6 +253,7 @@ export function getIslandDataFromScript(text) {
 	const args = { Astro, document }
 
 	// Yes, I know, `eval` is bad! But our data is embedded as JS on purpose.
+	// eslint-disable-next-line @typescript-eslint/no-implied-eval
 	return new Function(Object.keys(args), `return ${text}`)(...Object.values(args));
 }
 

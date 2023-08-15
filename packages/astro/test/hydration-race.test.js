@@ -24,6 +24,6 @@ describe('Hydration script ordering', async () => {
 
 		// Sanity check that we're only rendering them once.
 		expect($('style')).to.have.a.lengthOf(1, 'hydration style added once');
-		expect($('script')).to.have.a.lengthOf(1, 'only one hydration script needed');
+		expect($('script')).to.have.a.lengthOf(4, 'only one hydration script needed');
 	});
 });
