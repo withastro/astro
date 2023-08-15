@@ -89,7 +89,7 @@ async function renderFrameworkComponent(
 	const { renderers, clientDirectives } = result;
 	const metadata: AstroComponentMetadata = {
 		astroStaticSlot: true,
-		displayName,
+		displayName: typeof displayName === 'string' ? displayName : '',
 	};
 
 	const { hydration, isPage, props } = extractDirectives(_props, clientDirectives);
