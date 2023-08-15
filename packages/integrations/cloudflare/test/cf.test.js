@@ -17,7 +17,7 @@ describe('Cf metadata and caches', () => {
 		});
 		await fixture.build();
 
-		cli = runCLI('./fixtures/cf/', { silent: true, port: 8788 });
+		cli = runCLI('./fixtures/cf/', { silent: false, port: 8788 });
 		await cli.ready;
 	});
 

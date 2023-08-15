@@ -339,7 +339,7 @@ The resulting sitemap looks like this:
 ## Examples
 
 - The official Astro website uses Astro Sitemap to generate [its sitemap](https://astro.build/sitemap-index.xml).
-- [Browse projects with Astro Sitemap on GitHub](https://github.com/search?q=%22@astrojs/sitemap%22+filename:package.json&type=Code) for more examples!
+- [Browse projects with Astro Sitemap on GitHub](https://github.com/search?q=%22%40astrojs%2Fsitemap%22+path%3Apackage.json&type=Code) for more examples!
 
 ## Troubleshooting
 

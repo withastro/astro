@@ -20,6 +20,16 @@ const { link } = Astro.props as Props;
 		</style>
 		<ViewTransitions />
 		<DarkMode />
+		<meta name="script-executions" content="0">
+		<script is:inline defer>
+			{
+				// Increment a global to see if this is running more than once
+				globalThis.scriptExecutions = globalThis.scriptExecutions == null ? -1 : globalThis.scriptExecutions;
+				globalThis.scriptExecutions++;
+				const el = document.querySelector('[name="script-executions"]');
+				el.setAttribute('content', globalThis.scriptExecutions);
+			}
+		</script>
 	</head>
 	<body>
 		<header transition:animate="morph">

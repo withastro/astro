@@ -44,12 +44,11 @@ export default function createVitePluginAstroServer({
 
 			return () => {
 				// Push this middleware to the front of the stack so that it can intercept responses.
-				if (settings.config.base !== '/') {
-					viteServer.middlewares.stack.unshift({
-						route: '',
-						handle: baseMiddleware(settings, logging),
-					});
-				}
+				// fix(#6067): always inject this to ensure zombie base handling is killed after restarts
+				viteServer.middlewares.stack.unshift({
+					route: '',
+					handle: baseMiddleware(settings, logging),
+				});
 				// Note that this function has a name so other middleware can find it.
 				viteServer.middlewares.use(async function astroDevHandler(request, response) {
 					if (request.url === undefined || !request.method) {

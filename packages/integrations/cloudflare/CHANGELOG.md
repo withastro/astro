@@ -52,6 +52,35 @@
   - astro@3.0.0-beta.0
   - @astrojs/underscore-redirects@0.3.0-beta.0
 
+## 6.8.0
+
+### Minor Changes
+
+- [#7541](https://github.com/withastro/astro/pull/7541) [`ffcfcddb7`](https://github.com/withastro/astro/commit/ffcfcddb7575030d62b4ef979d46a74425e6d3fe) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - The `getRuntime` utility has been deprecated and should be updated to the new [`Astro.locals`](https://docs.astro.build/en/guides/middleware/#locals) API.
+
+  ```diff
+  - import { getRuntime } from '@astrojs/cloudflare/runtime';
+  - getRuntime(Astro.request);
+
+  + const runtime = Astro.locals.runtime;
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`1b8d30209`](https://github.com/withastro/astro/commit/1b8d3020990130dabfaaf753db73a32c6e0c896a), [`405913cdf`](https://github.com/withastro/astro/commit/405913cdf20b26407aa351c090f0a0859a4e6f54), [`87d4b1843`](https://github.com/withastro/astro/commit/87d4b18437c7565c48cad4bea81831c2a244ebb8), [`c23377caa`](https://github.com/withastro/astro/commit/c23377caafbc75deb91c33b9678c1b6868ad40ea), [`86bee2812`](https://github.com/withastro/astro/commit/86bee2812185df6e14025e5962a335f51853587b)]:
+  - astro@2.10.6
+
+## 6.7.0
+
+### Minor Changes
+
+- [#7846](https://github.com/withastro/astro/pull/7846) [`ea30a9d4f`](https://github.com/withastro/astro/commit/ea30a9d4f2d7a12345869e971f3051cf803dbe74) Thanks [@schummar](https://github.com/schummar)! - More efficient \_routes.json
+
+### Patch Changes
+
+- Updated dependencies [[`5b1e39ef6`](https://github.com/withastro/astro/commit/5b1e39ef6ec6dcebea96584f95d9530bd9aa715d)]:
+  - astro@2.10.5
+
 ## 6.6.2
 
 ### Patch Changes
