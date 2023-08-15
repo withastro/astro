@@ -33,7 +33,17 @@ export async function runCLI(basePath, { silent, port }) {
 	}
 
 	const script = fileURLToPath(new URL(`${basePath}/dist/_worker.js`, import.meta.url));
-	const p = spawn('node', [wranglerPath, 'dev', script, '--port', port, '--log-level', 'info', '--persist-to', `${basePath}/.wrangler/state`]);
+	const p = spawn('node', [
+		wranglerPath,
+		'dev',
+		script,
+		'--port',
+		port,
+		'--log-level',
+		'info',
+		'--persist-to',
+		`${basePath}/.wrangler/state`,
+	]);
 
 	p.stderr.setEncoding('utf-8');
 	p.stdout.setEncoding('utf-8');
@@ -41,13 +51,10 @@ export async function runCLI(basePath, { silent, port }) {
 	const timeout = 10_000;
 
 	const ready = new Promise(async (resolve, reject) => {
-		const failed = setTimeout(
-			() => {
-				p.kill();
-				reject(new Error(`Timed out starting the wrangler CLI`));
-			},
-			timeout
-		);
+		const failed = setTimeout(() => {
+			p.kill();
+			reject(new Error(`Timed out starting the wrangler CLI`));
+		}, timeout);
 
 		(async function () {
 			for (const msg of p.stderr) {
