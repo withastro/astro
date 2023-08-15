@@ -14,7 +14,7 @@ describe('With SolidJS', () => {
 		});
 		await fixture.build();
 
-		cli = runCLI('./fixtures/with-solid-js/', { silent: true, port: 8790 });
+		cli = await runCLI('./fixtures/with-solid-js/', { silent: true, port: 8790 });
 		await cli.ready;
 	});
 
@@ -23,7 +23,7 @@ describe('With SolidJS', () => {
 	});
 
 	it('renders the solid component', async () => {
-		let res = await fetch(`http://localhost:8790/`);
+		let res = await fetch(`http://127.0.0.1:8790/`);
 		expect(res.status).to.equal(200);
 		let html = await res.text();
 		let $ = cheerio.load(html);

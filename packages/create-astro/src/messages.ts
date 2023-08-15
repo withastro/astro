@@ -1,11 +1,11 @@
 /* eslint no-console: 'off' */
 import { color, say as houston, label, spinner as load } from '@astrojs/cli-kit';
 import { align, sleep } from '@astrojs/cli-kit/utils';
-import { execa } from 'execa';
 import fetch from 'node-fetch-native';
 import { exec } from 'node:child_process';
 import stripAnsi from 'strip-ansi';
 import detectPackageManager from 'which-pm-runs';
+import { shell } from './shell.js';
 
 // Users might lack access to the global npm registry, this function
 // checks the user's project type and will return the proper npm registry
@@ -14,7 +14,7 @@ import detectPackageManager from 'which-pm-runs';
 async function getRegistry(): Promise<string> {
 	const packageManager = detectPackageManager()?.name || 'npm';
 	try {
-		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
+		const { stdout } = await shell(packageManager, ['config', 'get', 'registry']);
 		return stdout?.trim()?.replace(/\/$/, '') || 'https://registry.npmjs.org';
 	} catch (e) {
 		return 'https://registry.npmjs.org';
