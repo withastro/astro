@@ -172,6 +172,7 @@ export async function generateHydrateScript(
 	if (metadata.hydrateArgs !== true) {
 		scriptProps.opts.value = metadata.hydrateArgs;
 	}
+	if (Object.keys(scriptProps.opts).length === 0) delete scriptProps.opts;
 	if (typeof props === 'object' && Object.keys(props).length > 0) {
 		scriptProps['props'] = props;
 	}
