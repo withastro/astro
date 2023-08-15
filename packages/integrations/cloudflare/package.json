@@ -52,7 +52,8 @@
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
+    "kill-port": "^2.0.1",
     "mocha": "^9.2.2",
-    "wrangler": "^2.0.23"
+    "wrangler": "^3.5.0"
   }
 }
