@@ -286,8 +286,9 @@ export class App {
 		const errorRouteData = matchRoute('/' + status, this.#manifestData);
 		const url = new URL(request.url);
 		if (errorRouteData) {
-			if (errorRouteData.prerender && !errorRouteData.route.endsWith(`/${status}`)) {
-				const statusURL = new URL(`${this.#baseWithoutTrailingSlash}/${status}`, url);
+			if (errorRouteData.prerender){
+				const maybeDotHtml = errorRouteData.route.endsWith(`/${status}`) ? '.html' : ''
+				const statusURL = new URL(`${this.#baseWithoutTrailingSlash}/${status}${maybeDotHtml}`, url);
 				const response = await fetch(statusURL.toString());
 				return this.#mergeResponses(response, originalResponse);
 			}
