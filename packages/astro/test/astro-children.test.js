@@ -89,7 +89,7 @@ describe('Component children', () => {
 		expect($('#client-render').parent().find('template')).to.have.lengthOf(0);
 
 		// test 4: If client and no children are provided, no template is.
-		expect($('#client-no-children').parent().children()).to.have.lengthOf(1);
+		expect($('#client-no-children').parent().children()).to.have.lengthOf(2);
 		expect($('#client-no-children').parent().find('template')).to.have.lengthOf(0);
 	});
 });
