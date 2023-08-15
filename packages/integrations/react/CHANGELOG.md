@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 2.2.2
+
+### Patch Changes
+
+- [#8075](https://github.com/withastro/astro/pull/8075) [`da517d405`](https://github.com/withastro/astro/commit/da517d4055825ee1b630cd4a6983818d6120a7b7) Thanks [@SudoCat](https://github.com/SudoCat)! - fix a bug where react identifierPrefix was set to null for client:only components causing React.useId to generate ids prefixed with null
+
 ## 2.2.1
 
 ### Patch Changes

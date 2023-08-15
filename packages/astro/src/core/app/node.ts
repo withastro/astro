@@ -9,20 +9,33 @@ import { App, type MatchOptions } from './index.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
-function createRequestFromNodeRequest(req: NodeIncomingMessage, body?: Uint8Array): Request {
+type CreateNodeRequestOptions = {
+	emptyBody?: boolean;
+};
+
+type BodyProps = Partial<RequestInit>;
+
+function createRequestFromNodeRequest(
+	req: NodeIncomingMessage,
+	options?: CreateNodeRequestOptions
+): Request {
 	const protocol =
 		req.socket instanceof TLSSocket || req.headers['x-forwarded-proto'] === 'https'
 			? 'https'
 			: 'http';
 	const hostname = req.headers.host || req.headers[':authority'];
 	const url = `${protocol}://${hostname}${req.url}`;
-	const rawHeaders = req.headers as Record<string, any>;
-	const entries = Object.entries(rawHeaders);
+	const headers = makeRequestHeaders(req);
 	const method = req.method || 'GET';
+	let bodyProps: BodyProps = {};
+	const bodyAllowed = method !== 'HEAD' && method !== 'GET' && !options?.emptyBody;
+	if (bodyAllowed) {
+		bodyProps = makeRequestBody(req);
+	}
 	const request = new Request(url, {
 		method,
-		headers: new Headers(entries),
-		body: ['HEAD', 'GET'].includes(method) ? null : body,
+		headers,
+		...bodyProps,
 	});
 	if (req.socket?.remoteAddress) {
 		Reflect.set(request, clientAddressSymbol, req.socket.remoteAddress);
@@ -30,63 +43,83 @@ function createRequestFromNodeRequest(req: NodeIncomingMessage, body?: Uint8Arra
 	return request;
 }
 
+function makeRequestHeaders(req: NodeIncomingMessage): Headers {
+	const headers = new Headers();
+	for (const [name, value] of Object.entries(req.headers)) {
+		if (value === undefined) {
+			continue;
+		}
+		if (Array.isArray(value)) {
+			for (const item of value) {
+				headers.append(name, item);
+			}
+		} else {
+			headers.append(name, value);
+		}
+	}
+	return headers;
+}
+
+function makeRequestBody(req: NodeIncomingMessage): BodyProps {
+	if (req.body !== undefined) {
+		if (typeof req.body === 'string' && req.body.length > 0) {
+			return { body: Buffer.from(req.body) };
+		}
+
+		if (typeof req.body === 'object' && req.body !== null && Object.keys(req.body).length > 0) {
+			return { body: Buffer.from(JSON.stringify(req.body)) };
+		}
+
+		// This covers all async iterables including Readable and ReadableStream.
+		if (
+			typeof req.body === 'object' &&
+			req.body !== null &&
+			typeof (req.body as any)[Symbol.asyncIterator] !== 'undefined'
+		) {
+			return asyncIterableToBodyProps(req.body as AsyncIterable<any>);
+		}
+	}
+
+	// Return default body.
+	return asyncIterableToBodyProps(req);
+}
+
+function asyncIterableToBodyProps(iterable: AsyncIterable<any>): BodyProps {
+	return {
+		// Node uses undici for the Request implementation. Undici accepts
+		// a non-standard async iterable for the body.
+		// @ts-expect-error
+		body: iterable,
+		// The duplex property is required when using a ReadableStream or async
+		// iterable for the body. The type definitions do not include the duplex
+		// property because they are not up-to-date.
+		// @ts-expect-error
+		duplex: 'half',
+	} satisfies BodyProps;
+}
+
 class NodeIncomingMessage extends IncomingMessage {
 	/**
-	 * The read-only body property of the Request interface contains a ReadableStream with the body contents that have been added to the request.
+	 * Allow the request body to be explicitly overridden. For example, this
+	 * is used by the Express JSON middleware.
 	 */
 	body?: unknown;
 }
 
 export class NodeApp extends App {
 	match(req: NodeIncomingMessage | Request, opts: MatchOptions = {}) {
-		return super.match(req instanceof Request ? req : createRequestFromNodeRequest(req), opts);
+		if (!(req instanceof Request)) {
+			req = createRequestFromNodeRequest(req, {
+				emptyBody: true,
+			});
+		}
+		return super.match(req, opts);
 	}
 	render(req: NodeIncomingMessage | Request, routeData?: RouteData, locals?: object) {
-		if (typeof req.body === 'string' && req.body.length > 0) {
-			return super.render(
-				req instanceof Request ? req : createRequestFromNodeRequest(req, Buffer.from(req.body)),
-				routeData,
-				locals
-			);
+		if (!(req instanceof Request)) {
+			req = createRequestFromNodeRequest(req);
 		}
-
-		if (typeof req.body === 'object' && req.body !== null && Object.keys(req.body).length > 0) {
-			return super.render(
-				req instanceof Request
-					? req
-					: createRequestFromNodeRequest(req, Buffer.from(JSON.stringify(req.body))),
-				routeData,
-				locals
-			);
-		}
-
-		if ('on' in req) {
-			let body = Buffer.from([]);
-			let reqBodyComplete = new Promise((resolve, reject) => {
-				req.on('data', (d) => {
-					body = Buffer.concat([body, d]);
-				});
-				req.on('end', () => {
-					resolve(body);
-				});
-				req.on('error', (err) => {
-					reject(err);
-				});
-			});
-
-			return reqBodyComplete.then(() => {
-				return super.render(
-					req instanceof Request ? req : createRequestFromNodeRequest(req, body),
-					routeData,
-					locals
-				);
-			});
-		}
-		return super.render(
-			req instanceof Request ? req : createRequestFromNodeRequest(req),
-			routeData,
-			locals
-		);
+		return super.render(req, routeData, locals);
 	}
 }
 
