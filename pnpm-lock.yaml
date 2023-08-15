@@ -1475,6 +1475,9 @@ importers:
 
   packages/astro/e2e/fixtures/view-transitions:
     dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -3690,6 +3693,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/cloudflare/test/fixtures/routesJson:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/cloudflare/test/fixtures/runtime:
     dependencies:
       '@astrojs/cloudflare':
         specifier: workspace:*
