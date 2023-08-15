@@ -1,5 +1,11 @@
 # astro
 
+## 2.10.9
+
+### Patch Changes
+
+- [#8091](https://github.com/withastro/astro/pull/8091) [`56e7c5177`](https://github.com/withastro/astro/commit/56e7c5177bd61b404978dc9b82e2d34d76a4b2f9) Thanks [@martrapp](https://github.com/martrapp)! - Handle `<noscript>` tags in `<head>` during ViewTransitions
+
 ## 2.10.8
 
 ### Patch Changes
