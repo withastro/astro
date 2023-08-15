@@ -57,7 +57,7 @@ describe('API routes', () => {
 		expect(arr).to.deep.equal([5, 4, 3, 2, 1]);
 	});
 
-	it('Can post large binary daya', async () => {
+	it('Can post large binary data', async () => {
 		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
 
 		let { req, res, done } = createRequestAndResponse({
