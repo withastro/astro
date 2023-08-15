@@ -699,7 +699,7 @@ export interface AstroUserConfig {
 		 *
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
 		 * 
-		 * To further align the trailing slash behaviour in dev, you can restrict the `trailingSlash` option to `'always'` or `'never'` to prevent inconsistencies:
+		 * To prevent inconsistencies with trailing slash behaviour in dev, you can restrict the [`trailingSlash` option](#trailingslash) to `'always'` or `'never'` depending on your build format:
 		 * - `directory` - Set `trailingSlash: 'always'`
 		 * - `file` - Set `trailingSlash: 'never'`
 		 */
