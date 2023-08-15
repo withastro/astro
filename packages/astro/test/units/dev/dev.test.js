@@ -1,8 +1,12 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-
-import { runInContainer } from '../../../dist/core/dev/index.js';
-import { createFs, createRequestAndResponse, triggerFSEvent } from '../test-utils.js';
+import { fileURLToPath } from 'node:url';
+import {
+	createFs,
+	createRequestAndResponse,
+	triggerFSEvent,
+	runInContainer,
+} from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -25,7 +29,7 @@ describe('dev container', () => {
 			root
 		);
 
-		await runInContainer({ fs, root }, async (container) => {
+		await runInContainer({ fs, inlineConfig: { root: fileURLToPath(root) } }, async (container) => {
 			const { req, res, text } = createRequestAndResponse({
 				method: 'GET',
 				url: '/',
@@ -60,7 +64,7 @@ describe('dev container', () => {
 			root
 		);
 
-		await runInContainer({ fs, root }, async (container) => {
+		await runInContainer({ fs, inlineConfig: { root: fileURLToPath(root) } }, async (container) => {
 			let r = createRequestAndResponse({
 				method: 'GET',
 				url: '/',
@@ -119,8 +123,8 @@ describe('dev container', () => {
 		await runInContainer(
 			{
 				fs,
-				root,
-				userConfig: {
+				inlineConfig: {
+					root: fileURLToPath(root),
 					output: 'server',
 					integrations: [
 						{
@@ -170,8 +174,8 @@ describe('dev container', () => {
 		await runInContainer(
 			{
 				fs,
-				root,
-				userConfig: {
+				inlineConfig: {
+					root: fileURLToPath(root),
 					output: 'server',
 					integrations: [
 						{
@@ -223,8 +227,8 @@ describe('dev container', () => {
 	it('items in public/ are not available from root when using a base', async () => {
 		await runInContainer(
 			{
-				root,
-				userConfig: {
+				inlineConfig: {
+					root: fileURLToPath(root),
 					base: '/sub/',
 				},
 			},
@@ -256,7 +260,7 @@ describe('dev container', () => {
 	});
 
 	it('items in public/ are available from root when not using a base', async () => {
-		await runInContainer({ root }, async (container) => {
+		await runInContainer({ inlineConfig: { root: fileURLToPath(root) } }, async (container) => {
 			// Try the root path
 			let r = createRequestAndResponse({
 				method: 'GET',

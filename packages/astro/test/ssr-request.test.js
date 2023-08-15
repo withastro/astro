@@ -42,6 +42,18 @@ describe('Using Astro.request in SSR', () => {
 		expect($('#origin').text()).to.equal('http://example.com');
 	});
 
+	it('Duplicate slashes are collapsed', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/subpath////request/////');
+		const response = await app.render(request);
+		expect(response.status).to.equal(200);
+		const html = await response.text();
+		const $ = cheerioLoad(html);
+		expect($('#origin').text()).to.equal('http://example.com');
+		expect($('#pathname').text()).to.equal('/subpath/request/');
+		expect($('#request-pathname').text()).to.equal('/subpath/request/');
+	});
+
 	it('public file is copied over', async () => {
 		const json = await fixture.readFile('/client/cars.json');
 		expect(json).to.not.be.undefined;

@@ -8,7 +8,7 @@
 
 **Error Format**
 
-Name (key of the object definition):
+Name:
 
 - This property is a static reference to the error. The shape should be similar to JavaScript's native errors (TypeError, ReferenceError): pascal-cased, no spaces, no special characters etc. (ex: `ClientAddressNotAvailable`)
 - This is the only part of the error message that should not be written as a full, proper sentence complete with Capitalization and end punctuation.
@@ -19,8 +19,8 @@ Title:
 
 Message:
 
-- Begin with **what happened** and **why**. (ex: `Could not use {feature} because Server⁠-⁠side Rendering is not enabled.`)
-- Then, **describe the action the user should take**. (ex: `Update your Astro config with `output: 'server'` to enable Server⁠-⁠side Rendering.`)
+- Begin with **what happened** and **why**. (ex: `Could not use {feature} because Server-side Rendering is not enabled.`)
+- Then, **describe the action the user should take**. (ex: `Update your Astro config with `output: 'server'` to enable Server-side Rendering.`)
 - Although this does not need to be as brief as the `title`, try to keep sentences short, clear and direct to give the reader all the necessary information quickly as possible.
 - Instead of writing a longer message, consider using a `hint`.
 

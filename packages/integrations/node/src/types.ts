@@ -1,3 +1,5 @@
+import { IncomingMessage, ServerResponse } from 'node:http';
+
 export interface UserOptions {
 	/**
 	 * Specifies the mode that the adapter builds to.
@@ -14,3 +16,12 @@ export interface Options extends UserOptions {
 	server: string;
 	client: string;
 }
+
+export type RequestHandlerParams = [
+	req: IncomingMessage,
+	res: ServerResponse,
+	next?: (err?: unknown) => void,
+	locals?: object
+];
+
+export type ErrorHandlerParams = [unknown, ...RequestHandlerParams];

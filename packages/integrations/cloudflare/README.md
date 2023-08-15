@@ -73,12 +73,10 @@ It's then possible to update the preview script in your `package.json` to `"prev
 
 ## Access to the Cloudflare runtime
 
-You can access all the Cloudflare bindings and environment variables from Astro components and API routes through the adapter API.
+You can access all the Cloudflare bindings and environment variables from Astro components and API routes through `Astro.locals`.
 
 ```js
-import { getRuntime } from '@astrojs/cloudflare/runtime';
-
-getRuntime(Astro.request);
+const env = Astro.locals.runtime.env;
 ```
 
 Depending on your adapter mode (advanced = worker, directory = pages), the runtime object will look a little different due to differences in the Cloudflare API.
@@ -106,7 +104,10 @@ Cloudflare has support for adding custom [headers](https://developers.cloudflare
 
 ### Custom `_routes.json`
 
-By default, `@astrojs/cloudflare` will generate a `_routes.json` file that lists all files from your `dist/` folder and redirects from the `_redirects` file in the `exclude` array. This will enable Cloudflare to serve files and process static redirects without a function invocation. Creating a custom `_routes.json` will override this automatic optimization and, if not configured manually, cause function invocations that will count against the request limits of your Cloudflare plan.
+By default, `@astrojs/cloudflare` will generate a `_routes.json` file with `include` and `exclude` rules based on your applications's dynamic and static routes.
+This will enable Cloudflare to serve files and process static redirects without a function invocation. Creating a custom `_routes.json` will override this automatic optimization and, if not configured manually, cause function invocations that will count against the request limits of your Cloudflare plan.
+
+See [Cloudflare's documentation](https://developers.cloudflare.com/pages/platform/functions/routing/#create-a-_routesjson-file) for more details.
 
 ## Troubleshooting
 

@@ -1,9 +1,9 @@
+import type { ZodError } from 'zod';
 import { codeFrame } from './printer.js';
-import { getErrorDataByTitle } from './utils.js';
 
 interface ErrorProperties {
 	title?: string;
-	name?: string;
+	name: string;
 	message?: string;
 	location?: ErrorLocation;
 	hint?: string;
@@ -42,16 +42,7 @@ export class AstroError extends Error {
 
 		const { name, title, message, stack, location, hint, frame } = props;
 		this.title = title;
-
-		if (name && name !== 'Error') {
-			this.name = name;
-		} else if (this.title) {
-			const errorData = getErrorDataByTitle(this.title)?.name;
-
-			if (errorData) {
-				this.name = errorData;
-			}
-		}
+		this.name = name;
 
 		if (message) this.message = message;
 		// Only set this if we actually have a stack passed, otherwise uses Error's
@@ -91,8 +82,6 @@ export class CompilerError extends AstroError {
 
 	constructor(props: ErrorProperties, ...params: any) {
 		super(props, ...params);
-
-		this.name = 'CompilerError';
 	}
 
 	static is(err: unknown): err is CompilerError {
@@ -139,6 +128,23 @@ export class AggregateError extends AstroError {
 	static is(err: unknown): err is AggregateError {
 		return (err as AggregateError).type === 'AggregateError';
 	}
+}
+
+const astroConfigZodErrors = new WeakSet<ZodError>();
+
+/**
+ * Check if an error is a ZodError from an AstroConfig validation.
+ * Used to suppress formatting a ZodError if needed.
+ */
+export function isAstroConfigZodError(error: unknown): error is ZodError {
+	return astroConfigZodErrors.has(error as ZodError);
+}
+
+/**
+ * Track that a ZodError comes from an AstroConfig validation.
+ */
+export function trackAstroConfigZodError(error: ZodError): void {
+	astroConfigZodErrors.add(error);
 }
 
 /**

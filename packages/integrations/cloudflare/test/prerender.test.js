@@ -18,13 +18,14 @@ describe('Prerendering', () => {
 		fixture.clean();
 	});
 
-	it('includes prerendered routes in the routes.json config', async () => {
-		const foundRoutes = JSON.parse(await fixture.readFile('/_routes.json')).exclude.map((r) =>
-			r.replace(/\\/g, '/')
-		);
-		const expectedExcludedRoutes = ['/_worker.js', '/one/index.html', '/one/'];
+	it('includes non prerendered routes in the routes.json config', async () => {
+		const foundRoutes = JSON.parse(await fixture.readFile('/_routes.json'));
 
-		expect(foundRoutes.every((element) => expectedExcludedRoutes.includes(element))).to.be.true;
+		expect(foundRoutes).to.deep.equal({
+			version: 1,
+			include: ['/'],
+			exclude: [],
+		});
 	});
 });
 
@@ -45,12 +46,13 @@ describe('Hybrid rendering', () => {
 		delete process.env.PRERENDER;
 	});
 
-	it('includes prerendered routes in the routes.json config', async () => {
-		const foundRoutes = JSON.parse(await fixture.readFile('/_routes.json')).exclude.map((r) =>
-			r.replace(/\\/g, '/')
-		);
-		const expectedExcludedRoutes = ['/_worker.js', '/index.html', '/'];
+	it('includes non prerendered routes in the routes.json config', async () => {
+		const foundRoutes = JSON.parse(await fixture.readFile('/_routes.json'));
 
-		expect(foundRoutes.every((element) => expectedExcludedRoutes.includes(element))).to.be.true;
+		expect(foundRoutes).to.deep.equal({
+			version: 1,
+			include: ['/one'],
+			exclude: [],
+		});
 	});
 });

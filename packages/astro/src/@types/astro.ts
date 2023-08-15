@@ -13,13 +13,12 @@ import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
-import type { z } from 'zod';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
-import type { AstroConfigSchema } from '../core/config';
+import type { AstroConfigType } from '../core/config';
 import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
-import type { LogOptions } from '../core/logger/core';
+import type { LogOptions, LoggerLevel } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 import type { RemotePattern } from '../assets/utils/remotePattern';
@@ -94,6 +93,7 @@ export interface AstroBuiltinAttributes {
 	'is:raw'?: boolean;
 	'transition:animate'?: 'morph' | 'slide' | 'fade' | TransitionDirectionalAnimations;
 	'transition:name'?: string;
+	'transition:persist'?: boolean | string;
 }
 
 export interface AstroDefineVarsAttribute {
@@ -140,8 +140,10 @@ export interface CLIFlags {
  *
  * [Astro reference](https://docs.astro.build/reference/api-reference/#astro-global)
  */
-export interface AstroGlobal<Props extends Record<string, any> = Record<string, any>>
-	extends AstroGlobalPartial,
+export interface AstroGlobal<
+	Props extends Record<string, any> = Record<string, any>,
+	Self = AstroComponentFactory
+> extends AstroGlobalPartial,
 		AstroSharedContext<Props> {
 	/**
 	 * A full URL object of the request URL.
@@ -218,7 +220,7 @@ export interface AstroGlobal<Props extends Record<string, any> = Record<string, 
 	 *
 	 * [Astro reference](https://docs.astro.build/en/guides/api-reference/#astroself)
 	 */
-	self: AstroComponentFactory;
+	self: Self;
 	/** Utility functions for modifying an Astro component’s slotted children
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroslots)
@@ -699,6 +701,10 @@ export interface AstroUserConfig {
 		 * - `file` - The `Astro.url.pathname` will include `.html`; ie `/foo.html`.
 		 *
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
+		 *
+		 * To prevent inconsistencies with trailing slash behaviour in dev, you can restrict the [`trailingSlash` option](#trailingslash) to `'always'` or `'never'` depending on your build format:
+		 * - `directory` - Set `trailingSlash: 'always'`
+		 * - `file` - Set `trailingSlash: 'never'`
 		 */
 		format?: 'file' | 'directory';
 		/**
@@ -1338,6 +1344,28 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		viewTransitions?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.optimizeHoistedScript
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.10.4
+		 * @description
+		 * Prevents unused components' scripts from being included in a page unexpectedly.
+		 * The optimization is best-effort and may inversely miss including the used scripts. Make sure to double-check your built pages
+		 * before publishing.
+		 * Enable hoisted script analysis optimization by adding the experimental flag:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		optimizeHoistedScript: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		optimizeHoistedScript?: boolean;
 	};
 
 	// Legacy options to be removed
@@ -1382,21 +1410,35 @@ export interface AstroUserConfig {
  */
 export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 'page-ssr';
 
-/**
- * Resolved Astro Config
- * Config with user settings along with all defaults filled in.
- */
-
 export interface InjectedRoute {
 	pattern: string;
 	entryPoint: string;
 	prerender?: boolean;
 }
-export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
+
+export interface ResolvedInjectedRoute extends InjectedRoute {
+	resolvedEntryPoint?: URL;
+}
+
+/**
+ * Resolved Astro Config
+ * Config with user settings along with all defaults filled in.
+ */
+export interface AstroConfig extends AstroConfigType {
 	// Public:
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
+}
+export interface AstroInlineConfig extends AstroUserConfig, AstroInlineOnlyConfig {}
+export interface AstroInlineOnlyConfig {
+	configFile?: string | false;
+	mode?: RuntimeMode;
+	logLevel?: LoggerLevel;
+	/**
+	 * @internal for testing only
+	 */
+	logging?: LogOptions;
 }
 
 export type ContentEntryModule = {
@@ -1470,6 +1512,7 @@ export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
 	injectedRoutes: InjectedRoute[];
+	resolvedInjectedRoutes: ResolvedInjectedRoute[];
 	pageExtensions: string[];
 	contentEntryTypes: ContentEntryType[];
 	dataEntryTypes: DataEntryType[];
@@ -1874,10 +1917,15 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	locals: App.Locals;
 }
 
-export interface EndpointOutput {
-	body: Body;
-	encoding?: BufferEncoding;
-}
+export type EndpointOutput =
+	| {
+			body: Body;
+			encoding?: Exclude<BufferEncoding, 'binary'>;
+	  }
+	| {
+			body: Uint8Array;
+			encoding: 'binary';
+	  };
 
 export type APIRoute<Props extends Record<string, any> = Record<string, any>> = (
 	context: APIContext<Props>
@@ -2029,9 +2077,10 @@ export type RedirectRouteData = RouteData & {
 	redirect: string;
 };
 
-export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
+export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern' | 'redirectRoute'> & {
 	generate: undefined;
 	pattern: string;
+	redirectRoute: SerializedRouteData | undefined;
 	_meta: {
 		trailingSlash: AstroConfig['trailingSlash'];
 	};

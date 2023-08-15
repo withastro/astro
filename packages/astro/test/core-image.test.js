@@ -147,6 +147,19 @@ describe('astro:image', () => {
 					})
 				).to.be.true;
 			});
+
+			it('supports inlined imports', async () => {
+				let res = await fixture.fetch('/inlineImport');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(1);
+
+				let src = $img.attr('src');
+				res = await fixture.fetch(src);
+				expect(res.status).to.equal(200);
+			});
 		});
 
 		describe('vite-isms', () => {

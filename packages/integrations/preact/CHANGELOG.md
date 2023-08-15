@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 2.2.2
+
+### Patch Changes
+
+- [#8007](https://github.com/withastro/astro/pull/8007) [`58b121d42`](https://github.com/withastro/astro/commit/58b121d42a9f58a5a992f0c378b036f37e9715fc) Thanks [@paperdave](https://github.com/paperdave)! - Support Bun by adjusting how `@babel/plugin-transform-react-jsx` is imported.
+
 ## 2.2.1
 
 ### Patch Changes

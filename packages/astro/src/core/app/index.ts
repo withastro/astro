@@ -10,9 +10,13 @@ import type { SinglePageBuiltModule } from '../build/types';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
-import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import {
+	collapseDuplicateSlashes,
+	prependForwardSlash,
+	removeTrailingForwardSlash,
+} from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { isResponse } from '../render/core';
+import { isResponse } from '../render/core.js';
 import {
 	createEnvironment,
 	createRenderContext,
@@ -34,8 +38,15 @@ const clientLocalsSymbol = Symbol.for('astro.locals');
 
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
+const STATUS_CODES = new Set([404, 500]);
+
 export interface MatchOptions {
 	matchNotFound?: boolean | undefined;
+}
+export interface RenderErrorOptions {
+	routeData?: RouteData;
+	response?: Response;
+	status: 404 | 500;
 }
 
 export class App {
@@ -113,50 +124,33 @@ export class App {
 		}
 		return pathname;
 	}
-	match(request: Request, { matchNotFound = false }: MatchOptions = {}): RouteData | undefined {
+	// Disable no-unused-vars to avoid breaking signature change
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	match(request: Request, _opts: MatchOptions = {}): RouteData | undefined {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
-		if (this.#manifest.assets.has(url.pathname)) {
-			return undefined;
-		}
-		let pathname = prependForwardSlash(this.removeBase(url.pathname));
-		let routeData = matchRoute(pathname, this.#manifestData);
-
-		if (routeData) {
-			if (routeData.prerender) return undefined;
-			return routeData;
-		} else if (matchNotFound) {
-			const notFoundRouteData = matchRoute('/404', this.#manifestData);
-			if (notFoundRouteData?.prerender) return undefined;
-			return notFoundRouteData;
-		} else {
-			return undefined;
-		}
+		if (this.#manifest.assets.has(url.pathname)) return undefined;
+		const pathname = prependForwardSlash(this.removeBase(url.pathname));
+		const routeData = matchRoute(pathname, this.#manifestData);
+		// missing routes fall-through, prerendered are handled by static layer
+		if (!routeData || routeData.prerender) return undefined;
+		return routeData;
 	}
 	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {
-		let defaultStatus = 200;
+		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
+		if (request.url !== collapseDuplicateSlashes(request.url)) {
+			request = new Request(collapseDuplicateSlashes(request.url), request);
+		}
 		if (!routeData) {
 			routeData = this.match(request);
-			if (!routeData) {
-				defaultStatus = 404;
-				routeData = this.match(request, { matchNotFound: true });
-			}
-			if (!routeData) {
-				return new Response(null, {
-					status: 404,
-					statusText: 'Not found',
-				});
-			}
+		}
+		if (!routeData) {
+			return this.#renderError(request, { status: 404 });
 		}
 
 		Reflect.set(request, clientLocalsSymbol, locals ?? {});
-
-		// Use the 404 status code for 404.astro components
-		if (routeData.route === '/404') {
-			defaultStatus = 404;
-		}
-
-		let mod = await this.#getModuleForRoute(routeData);
+		const defaultStatus = this.#getDefaultStatusCode(routeData.route);
+		const mod = await this.#getModuleForRoute(routeData);
 
 		const pageModule = (await mod.page()) as any;
 		const url = new URL(request.url);
@@ -179,51 +173,28 @@ export class App {
 			);
 		} catch (err: any) {
 			error(this.#logging, 'ssr', err.stack || err.message || String(err));
-			response = new Response(null, {
-				status: 500,
-				statusText: 'Internal server error',
-			});
+			return this.#renderError(request, { status: 500 });
 		}
 
 		if (isResponse(response, routeData.type)) {
-			// If there was a known error code, try sending the according page (e.g. 404.astro / 500.astro).
-			if (response.status === 500 || response.status === 404) {
-				const errorRouteData = matchRoute('/' + response.status, this.#manifestData);
-				if (errorRouteData && errorRouteData.route !== routeData.route) {
-					mod = await this.#getModuleForRoute(errorRouteData);
-					try {
-						const newRenderContext = await this.#createRenderContext(
-							url,
-							request,
-							routeData,
-							mod,
-							response.status
-						);
-						const page = (await mod.page()) as any;
-						const errorResponse = await tryRenderRoute(
-							routeData.type,
-							newRenderContext,
-							this.#env,
-							page
-						);
-						return errorResponse as Response;
-					} catch {}
-				}
+			if (STATUS_CODES.has(response.status)) {
+				return this.#renderError(request, {
+					response,
+					status: response.status as 404 | 500,
+				});
 			}
 			Reflect.set(response, responseSentSymbol, true);
 			return response;
 		} else {
 			if (response.type === 'response') {
 				if (response.response.headers.get('X-Astro-Response') === 'Not-Found') {
-					const fourOhFourRequest = new Request(new URL('/404', request.url));
-					const fourOhFourRouteData = this.match(fourOhFourRequest);
-					if (fourOhFourRouteData) {
-						return this.render(fourOhFourRequest, fourOhFourRouteData);
-					}
+					return this.#renderError(request, {
+						response: response.response,
+						status: 404,
+					});
 				}
 				return response.response;
 			} else {
-				const body = response.body;
 				const headers = new Headers();
 				const mimeType = mime.getType(url.pathname);
 				if (mimeType) {
@@ -231,14 +202,14 @@ export class App {
 				} else {
 					headers.set('Content-Type', 'text/plain;charset=utf-8');
 				}
-				const bytes = this.#encoder.encode(body);
+				const bytes =
+					response.encoding !== 'binary' ? this.#encoder.encode(response.body) : response.body;
 				headers.set('Content-Length', bytes.byteLength.toString());
 
 				const newResponse = new Response(bytes, {
 					status: 200,
 					headers,
 				});
-
 				attachToResponse(newResponse, response.cookies);
 				return newResponse;
 			}
@@ -305,6 +276,64 @@ export class App {
 				env: this.#env,
 			});
 		}
+	}
+
+	/**
+	 * If it is a known error code, try sending the according page (e.g. 404.astro / 500.astro).
+	 * This also handles pre-rendered /404 or /500 routes
+	 */
+	async #renderError(request: Request, { status, response: originalResponse }: RenderErrorOptions) {
+		const errorRouteData = matchRoute('/' + status, this.#manifestData);
+		const url = new URL(request.url);
+		if (errorRouteData) {
+			if (errorRouteData.prerender && !errorRouteData.route.endsWith(`/${status}`)) {
+				const statusURL = new URL(`${this.#baseWithoutTrailingSlash}/${status}`, url);
+				const response = await fetch(statusURL.toString());
+				return this.#mergeResponses(response, originalResponse);
+			}
+			const mod = await this.#getModuleForRoute(errorRouteData);
+			try {
+				const newRenderContext = await this.#createRenderContext(
+					url,
+					request,
+					errorRouteData,
+					mod,
+					status
+				);
+				const page = (await mod.page()) as any;
+				const response = (await tryRenderRoute(
+					'page', // this is hardcoded to ensure proper behavior for missing endpoints
+					newRenderContext,
+					this.#env,
+					page
+				)) as Response;
+				return this.#mergeResponses(response, originalResponse);
+			} catch {}
+		}
+
+		const response = this.#mergeResponses(new Response(null, { status }), originalResponse);
+		Reflect.set(response, responseSentSymbol, true);
+		return response;
+	}
+
+	#mergeResponses(newResponse: Response, oldResponse?: Response) {
+		if (!oldResponse) return newResponse;
+		const { status, statusText, headers } = oldResponse;
+
+		return new Response(newResponse.body, {
+			// If the original status was 200 (default), override it with the new status (probably 404 or 500)
+			// Otherwise, the user set a specific status while rendering and we should respect that one
+			status: status === 200 ? newResponse.status : status,
+			statusText: status === 200 ? newResponse.statusText : statusText,
+			headers: new Headers(Array.from(headers)),
+		});
+	}
+
+	#getDefaultStatusCode(route: string): number {
+		route = removeTrailingForwardSlash(route);
+		if (route.endsWith('/404')) return 404;
+		if (route.endsWith('/500')) return 500;
+		return 200;
 	}
 
 	async #getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
