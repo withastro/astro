@@ -18,7 +18,7 @@ export default async function tagExportsWithRenderer({
 	return {
 		visitor: {
 			Program: {
-				// Inject `import { __astro_tag_component__ } from 'astro/server/index.js'`
+				// Inject `import { __astro_tag_component__ } from 'astro/runtime/server/index.js'`
 				enter(path) {
 					path.node.body.splice(
 						0,
@@ -30,7 +30,7 @@ export default async function tagExportsWithRenderer({
 									t.identifier('__astro_tag_component__')
 								),
 							],
-							t.stringLiteral('astro/server/index.js')
+							t.stringLiteral('astro/runtime/server/index.js')
 						)
 					);
 				},

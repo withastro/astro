@@ -274,6 +274,8 @@ export const AstroConfigSchema = z.object({
 	legacy: z.object({}).optional().default({}),
 });
 
+export type AstroConfigType = z.infer<typeof AstroConfigSchema>;
+
 export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 	// We need to extend the global schema to add transforms that are relative to root.
 	// This is type checked against the global schema to make sure we still match.

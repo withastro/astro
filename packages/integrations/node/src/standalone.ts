@@ -2,6 +2,7 @@ import type { NodeApp } from 'astro/app/node';
 import https from 'https';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { getNetworkAddress } from './get-network-address.js';
 import { createServer } from './http-server.js';
 import middleware from './nodeMiddleware.js';
 import type { Options } from './types';
@@ -55,9 +56,17 @@ export default function startServer(app: NodeApp, options: Options) {
 	);
 
 	const protocol = server.server instanceof https.Server ? 'https' : 'http';
+	const address = getNetworkAddress(protocol, host, port);
 
-	// eslint-disable-next-line no-console
-	console.log(`Server listening on ${protocol}://${host}:${port}`);
+	if (host === undefined) {
+		// eslint-disable-next-line no-console
+		console.log(
+			`Preview server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}\n`
+		);
+	} else {
+		// eslint-disable-next-line no-console
+		console.log(`Preview server listening on ${address.local[0]}`);
+	}
 
 	return {
 		server,
