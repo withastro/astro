@@ -125,6 +125,10 @@ const { fallback = 'animate' } = Astro.props as Props;
 		};
 
 		const swap = () => {
+			// noscript tags inside head element are not honored on swap (#7969).
+			// Remove them before swapping.
+			doc.querySelectorAll('head noscript').forEach((el) => el.remove());
+
 			// Swap head
 			for (const el of Array.from(document.head.children)) {
 				const newEl = persistedHeadElement(el);
