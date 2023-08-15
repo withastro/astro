@@ -177,8 +177,9 @@ export async function generateHydrateScript(
 		}
 	});
 
+	const serializedProps = serialize(scriptProps)
 	const script: SSRElement = {
-		children: `Astro.assign(document.currentScript,${serialize(scriptProps)})`,
+		children: `Astro.assign(document.currentScript,${serializedProps})`,
 		props: { async: '' }
 	}
 
