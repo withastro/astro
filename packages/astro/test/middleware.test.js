@@ -118,13 +118,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-dev/',
 			output: 'server',
-			adapter: testAdapter({
-				setEntryPoints(entryPointsOrMiddleware) {
-					if (entryPointsOrMiddleware instanceof URL) {
-						middlewarePath = entryPointsOrMiddleware;
-					}
-				},
-			}),
+			adapter: testAdapter({}),
 		});
 		await fixture.build();
 	});
@@ -218,6 +212,21 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	it('the integration should receive the path to the middleware', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/middleware-dev/',
+			output: 'server',
+			build: {
+				excludeMiddleware: true,
+			},
+			adapter: testAdapter({
+				setEntryPoints(entryPointsOrMiddleware) {
+					if (entryPointsOrMiddleware instanceof URL) {
+						middlewarePath = entryPointsOrMiddleware;
+					}
+				},
+			}),
+		});
+		await fixture.build();
 		expect(middlewarePath).to.not.be.undefined;
 		try {
 			const path = fileURLToPath(middlewarePath);

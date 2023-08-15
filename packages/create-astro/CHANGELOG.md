@@ -1,5 +1,17 @@
 # create-astro
 
+## 3.1.13
+
+### Patch Changes
+
+- [#8028](https://github.com/withastro/astro/pull/8028) [`8292c4131`](https://github.com/withastro/astro/commit/8292c41311ec41d9d50921fbb2bdeed69e039443) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve yarn berry support
+
+## 3.1.12
+
+### Patch Changes
+
+- [#7993](https://github.com/withastro/astro/pull/7993) [`315d58f27`](https://github.com/withastro/astro/commit/315d58f27b022c9d4285cf13f445ed18c26c327e) Thanks [@delucis](https://github.com/delucis)! - Add support for more Starlight templates
+
 ## 3.1.11
 
 ### Patch Changes

@@ -1,5 +1,31 @@
 # @astrojs/netlify
 
+## 2.6.0
+
+### Minor Changes
+
+- [#7975](https://github.com/withastro/astro/pull/7975) [`f974c95a2`](https://github.com/withastro/astro/commit/f974c95a27ccbf91adbc66f6f1433f4cf11be33e) Thanks [@lilnasy](https://github.com/lilnasy)! - If you are using Netlify's On-demand Builders, you can now specify how long your pages should remain cached. By default, all pages will be rendered on first visit and reused on every subsequent visit until a redeploy. To set a custom revalidation time, call the `runtime.setBuildersTtl()` local in either your frontmatter or middleware.
+
+  ```astro
+  ---
+  import Layout from '../components/Layout.astro';
+
+  if (import.meta.env.PROD) {
+    // revalidates every 45 seconds
+    Astro.locals.runtime.setBuildersTtl(45);
+  }
+  ---
+
+  <Layout title="Astro on Netlify">
+    {new Date(Date.now())}
+  </Layout>
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`1b8d30209`](https://github.com/withastro/astro/commit/1b8d3020990130dabfaaf753db73a32c6e0c896a), [`405913cdf`](https://github.com/withastro/astro/commit/405913cdf20b26407aa351c090f0a0859a4e6f54), [`87d4b1843`](https://github.com/withastro/astro/commit/87d4b18437c7565c48cad4bea81831c2a244ebb8), [`c23377caa`](https://github.com/withastro/astro/commit/c23377caafbc75deb91c33b9678c1b6868ad40ea), [`86bee2812`](https://github.com/withastro/astro/commit/86bee2812185df6e14025e5962a335f51853587b)]:
+  - astro@2.10.6
+
 ## 2.5.2
 
 ### Patch Changes

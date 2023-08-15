@@ -139,8 +139,10 @@ export interface CLIFlags {
  *
  * [Astro reference](https://docs.astro.build/reference/api-reference/#astro-global)
  */
-export interface AstroGlobal<Props extends Record<string, any> = Record<string, any>>
-	extends AstroGlobalPartial,
+export interface AstroGlobal<
+	Props extends Record<string, any> = Record<string, any>,
+	Self = AstroComponentFactory
+> extends AstroGlobalPartial,
 		AstroSharedContext<Props> {
 	/**
 	 * A full URL object of the request URL.
@@ -217,7 +219,7 @@ export interface AstroGlobal<Props extends Record<string, any> = Record<string, 
 	 *
 	 * [Astro reference](https://docs.astro.build/en/guides/api-reference/#astroself)
 	 */
-	self: AstroComponentFactory;
+	self: Self;
 	/** Utility functions for modifying an Astro component’s slotted children
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroslots)
@@ -1272,6 +1274,28 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		viewTransitions?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.optimizeHoistedScript
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.10.4
+		 * @description
+		 * Prevents unused components' scripts from being included in a page unexpectedly.
+		 * The optimization is best-effort and may inversely miss including the used scripts. Make sure to double-check your built pages
+		 * before publishing.
+		 * Enable hoisted script analysis optimization by adding the experimental flag:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		optimizeHoistedScript: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		optimizeHoistedScript?: boolean;
 	};
 
 	// Legacy options to be removed
@@ -1823,10 +1847,15 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	locals: App.Locals;
 }
 
-export interface EndpointOutput {
-	body: Body;
-	encoding?: BufferEncoding;
-}
+export type EndpointOutput =
+	| {
+			body: Body;
+			encoding?: Exclude<BufferEncoding, 'binary'>;
+	  }
+	| {
+			body: Uint8Array;
+			encoding: 'binary';
+	  };
 
 export type APIRoute<Props extends Record<string, any> = Record<string, any>> = (
 	context: APIContext<Props>

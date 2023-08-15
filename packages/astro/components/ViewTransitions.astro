@@ -63,9 +63,16 @@ const { fallback = 'animate' } = Astro.props as Props;
 		return 'animate';
 	}
 
+	function markScriptsExec() {
+		for (const script of document.scripts) {
+			script.dataset.astroExec = '';
+		}
+	}
+
 	function runScripts() {
 		let wait = Promise.resolve();
 		for (const script of Array.from(document.scripts)) {
+			if (script.dataset.astroExec === '') continue;
 			const s = document.createElement('script');
 			s.innerHTML = script.innerHTML;
 			for (const attr of script.attributes) {
@@ -77,6 +84,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				}
 				s.setAttribute(attr.name, attr.value);
 			}
+			s.dataset.astroExec = '';
 			script.replaceWith(s);
 		}
 		return wait;
@@ -99,6 +107,19 @@ const { fallback = 'animate' } = Astro.props as Props;
 			if (el.matches('link[rel=stylesheet]')) {
 				const href = el.getAttribute('href');
 				return doc.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
+			}
+			if (el.tagName === 'SCRIPT') {
+				let s1 = el as HTMLScriptElement;
+				for (const s2 of doc.scripts) {
+					if (
+						// Inline
+						(s1.textContent && s1.textContent === s2.textContent) ||
+						// External
+						(s1.type === s2.type && s1.src === s2.src)
+					) {
+						return s2;
+					}
+				}
 			}
 			return null;
 		};
@@ -132,6 +153,10 @@ const { fallback = 'animate' } = Astro.props as Props;
 				}
 			}
 
+			if (state?.scrollY === 0 && location.hash) {
+				const id = decodeURIComponent(location.hash.slice(1));
+				state.scrollY = document.getElementById(id)?.offsetTop || 0;
+			}
 			if (state?.scrollY != null) {
 				scrollTo(0, state.scrollY);
 			}
@@ -203,6 +228,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		} finally {
 			document.documentElement.removeAttribute('data-astro-transition');
 			await runScripts();
+			markScriptsExec();
 			onload();
 		}
 	}
@@ -221,6 +247,8 @@ const { fallback = 'animate' } = Astro.props as Props;
 	}
 
 	if (supportsViewTransitions || getFallback() !== 'none') {
+		markScriptsExec();
+
 		document.addEventListener('click', (ev) => {
 			let link = ev.target;
 			if (link instanceof Element && link.tagName !== 'A') {
@@ -235,7 +263,10 @@ const { fallback = 'animate' } = Astro.props as Props;
 				link.href &&
 				(!link.target || link.target === '_self') &&
 				link.origin === location.origin &&
-				!link.hash &&
+				!(
+					// Same page means same path and same query params
+					(location.pathname === link.pathname && location.search === link.search)
+				) &&
 				ev.button === 0 && // left clicks only
 				!ev.metaKey && // new tab (mac)
 				!ev.ctrlKey && // new tab (windows)
