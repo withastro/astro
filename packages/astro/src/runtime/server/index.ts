@@ -1,3 +1,5 @@
+// NOTE: Although this entrypoint is exported, it is internal API and may change at any time.
+
 export { createComponent } from './astro-component.js';
 export { createAstro } from './astro-global.js';
 export { renderEndpoint } from './endpoint.js';

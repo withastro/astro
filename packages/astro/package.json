@@ -42,6 +42,8 @@
     "./tsconfigs/*": "./tsconfigs/*.json",
     "./jsx/*": "./dist/jsx/*",
     "./jsx-runtime": "./dist/jsx-runtime/index.js",
+    "./compiler-runtime": "./dist/runtime/compiler/index.js",
+    "./runtime/*": "./dist/runtime/*",
     "./config": {
       "types": "./config.d.ts",
       "default": "./config.mjs"
@@ -60,10 +62,7 @@
     "./content/runtime": "./dist/content/runtime.js",
     "./content/runtime-assets": "./dist/content/runtime-assets.js",
     "./debug": "./components/Debug.astro",
-    "./internal/*": "./dist/runtime/server/*",
     "./package.json": "./package.json",
-    "./runtime/*": "./dist/runtime/*",
-    "./server/*": "./dist/runtime/server/*",
     "./zod": {
       "types": "./zod.d.ts",
       "default": "./zod.mjs"
