@@ -70,7 +70,7 @@ describe('API routes', () => {
 		let expectedDigest = null;
 		req.once('async_iterator', () => {
 			// Send 256MB of garbage data in 256KB chunks. This should be fast (< 1sec).
-			let remainingBytes = 128 * 1024 * 1024;
+			let remainingBytes = 256 * 1024 * 1024;
 			const chunkSize = 256 * 1024;
 
 			const hash = crypto.createHash('sha256');
