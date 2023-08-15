@@ -1,11 +1,10 @@
 // This is an extremely simplified version of [`execa`](https://github.com/sindresorhus/execa)
 // intended to keep our dependency size down
-import type { StdioOptions } from 'node:child_process';
+import type { ChildProcess, StdioOptions } from 'node:child_process';
 import type { Readable } from 'node:stream';
 
 import { spawn } from 'node:child_process';
 import { text as textFromStream } from 'node:stream/consumers';
-import { setTimeout as sleep } from 'node:timers/promises';
 
 export interface ExecaOptions {
 	cwd?: string | URL;
@@ -25,25 +24,28 @@ export async function shell(
 	flags: string[],
 	opts: ExecaOptions = {}
 ): Promise<Output> {
-	const controller = opts.timeout ? new AbortController() : undefined;
-	const child = spawn(command, flags, {
-		cwd: opts.cwd,
-		shell: true,
-		stdio: opts.stdio,
-		signal: controller?.signal,
-	});
-	const stdout = await text(child.stdout);
-	const stderr = await text(child.stderr);
-	if (opts.timeout) {
-		sleep(opts.timeout).then(() => {
-			controller!.abort();
-			throw { stdout, stderr, exitCode: 1 };
+	let child: ChildProcess;
+	let stdout = '';
+	let stderr = '';
+	try {
+		child = spawn(command, flags, {
+			cwd: opts.cwd,
+			shell: true,
+			stdio: opts.stdio,
+			timeout: opts.timeout,
 		});
+		const done = new Promise((resolve) => child.on('close', resolve));
+		([stdout, stderr] = await Promise.all([text(child.stdout), text(child.stderr)]));
+		await done;
+	} catch (e) {
+		throw { stdout, stderr, exitCode: 1 };
 	}
-	await new Promise((resolve) => child.on('exit', resolve));
 	const { exitCode } = child;
+	if (exitCode === null) {
+		throw new Error('Timeout');
+	}
 	if (exitCode !== 0) {
-		throw { stdout, stderr, exitCode };
+		throw new Error(stderr);
 	}
 	return { stdout, stderr, exitCode };
 }
