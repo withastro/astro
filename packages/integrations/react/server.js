@@ -44,12 +44,6 @@ async function check(Component, props, children) {
 		return React.createElement('div');
 	}
 
-	if (props['use:vnode']) {
-		const convert = await import('./vnode-children.js').then(mod => mod.default);
-		delete props['use:vnode'];
-		children = convert(children);
-	}
-
 	await renderToStaticMarkup(Tester, props, children, {});
 
 	if (error) {
