@@ -17,7 +17,7 @@ describe('Cf metadata and caches', () => {
 		});
 		await fixture.build();
 
-		cli = runCLI('./fixtures/cf/', { silent: false, port: 8788 });
+		cli = await runCLI('./fixtures/cf/', { silent: false, port: 8788 });
 		await cli.ready;
 	});
 
@@ -26,12 +26,12 @@ describe('Cf metadata and caches', () => {
 	});
 
 	it('Load cf and caches API', async () => {
-		let res = await fetch(`http://localhost:8788/`);
+		let res = await fetch(`http://127.0.0.1:8788/`);
 		expect(res.status).to.equal(200);
 		let html = await res.text();
 		let $ = cheerio.load(html);
-		// console.log($('#cf').text(), html);
-		expect($('#cf').text()).to.contain('city');
+
+		expect($('#cf').text()).to.contain('city', `Expected "city" to exist in runtime, but got ${$('#cf').text()}`);
 		expect($('#hasCache').text()).to.equal('true');
 	});
 });
