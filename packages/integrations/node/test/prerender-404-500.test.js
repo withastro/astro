@@ -78,7 +78,7 @@ describe('Prerender 404', () => {
 			expect($('body').text()).to.equal('Page does not exist');
 		});
 
-		it('serves prerendered 500 indirectly', async () => {
+		it(' Can handle prerendered 500 called indirectly', async () => {
 			const url = `http://${server.host}:${server.port}/some-base/fivehundred`;
 			const response1 = await fetch(url);
 			const response2 = await fetch(url);
