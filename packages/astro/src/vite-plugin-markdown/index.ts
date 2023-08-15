@@ -75,7 +75,6 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 					...settings.config.markdown,
 					fileURL: new URL(`file://${fileId}`),
 					frontmatter: raw.data,
-					experimentalAssets: settings.config.experimental.assets,
 				});
 
 				let html = renderResult.code;
@@ -83,7 +82,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 
 				// Resolve all the extracted images from the content
 				let imagePaths: { raw: string; resolved: string }[] = [];
-				if (settings.config.experimental.assets && renderResult.vfile.data.imagePaths) {
+				if (renderResult.vfile.data.imagePaths) {
 					for (let imagePath of renderResult.vfile.data.imagePaths.values()) {
 						imagePaths.push({
 							raw: imagePath,
@@ -116,7 +115,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				import { AstroError, AstroErrorData } from ${JSON.stringify(astroErrorModulePath)};
 
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
-				${settings.config.experimental.assets ? 'import { getImage } from "astro:assets";' : ''}
+				import { getImage } from "astro:assets";
 
 				export const images = {
 					${imagePaths.map(

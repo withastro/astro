@@ -9,7 +9,6 @@ export default defineConfig({
 	integrations: [react()],
 	experimental: {
 		viewTransitions: true,
-		assets: true,
 	},
 	vite: {
 		build: {

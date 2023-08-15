@@ -30,7 +30,7 @@ describe('Split support', () => {
 	it('outputs a correct redirect file', async () => {
 		const redir = await fixture.readFile('/_redirects');
 		const lines = redir.split(/[\r\n]+/);
-		expect(lines.length).to.equal(2);
+		expect(lines.length).to.equal(3);
 
 		expect(lines[0].includes('/blog')).to.be.true;
 		expect(lines[0].includes('blog.astro')).to.be.true;
@@ -43,15 +43,17 @@ describe('Split support', () => {
 	describe('Should create multiple functions', () => {
 		it('and hit 200', async () => {
 			if (_entryPoints) {
-				for (const [, filePath] of _entryPoints) {
-					const { handler } = await import(filePath.toString());
-					const resp = await handler({
-						httpMethod: 'POST',
-						headers: {},
-						rawUrl: 'http://example.com/',
-						body: '{}',
-					});
-					expect(resp.statusCode).to.equal(200);
+				for (const [routeData, filePath] of _entryPoints) {
+					if (routeData.route !== '/_image') {
+						const { handler } = await import(filePath.toString());
+						const resp = await handler({
+							httpMethod: 'GET',
+							headers: {},
+							rawUrl: `http://example.com${routeData.route}`,
+							body: '{}',
+						});
+						expect(resp.statusCode).to.equal(200);
+					}
 				}
 			} else {
 				expect(false).to.be.true;

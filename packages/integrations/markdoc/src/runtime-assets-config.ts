@@ -3,10 +3,7 @@ import Markdoc from '@markdoc/markdoc';
 //@ts-expect-error Cannot find module 'astro:assets' or its corresponding type declarations.
 import { Image } from 'astro:assets';
 
-// Separate module to only import `astro:assets` when
-// `experimental.assets` flag is set in a project.
-// TODO: merge with `./runtime.ts` when `experimental.assets` is baselined.
-export const experimentalAssetsConfig: MarkdocConfig = {
+export const assetsConfig: MarkdocConfig = {
 	nodes: {
 		image: {
 			attributes: {

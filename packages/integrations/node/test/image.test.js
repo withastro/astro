@@ -13,9 +13,6 @@ describe.skip('Image endpoint', () => {
 			root: './fixtures/image/',
 			output: 'server',
 			adapter: nodejs({ mode: 'standalone' }),
-			experimental: {
-				assets: true,
-			},
 		});
 		await fixture.build();
 		devPreview = await fixture.preview();

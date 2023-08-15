@@ -9,6 +9,7 @@ import type {
 } from './types.js';
 
 export function injectImageEndpoint(settings: AstroSettings) {
+	// TODO: Add a setting to disable the image endpoint
 	settings.injectedRoutes.push({
 		pattern: '/_image',
 		entryPoint: 'astro/assets/image-endpoint',

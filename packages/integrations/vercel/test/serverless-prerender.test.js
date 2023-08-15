@@ -20,7 +20,7 @@ describe('Serverless prerender', () => {
 	it('includeFiles work', async () => {
 		expect(
 			await fixture.readFile(
-				'../.vercel/output/functions/render.func/packages/integrations/vercel/test/fixtures/serverless-prerender/included.js'
+				'../.vercel/output/functions/render.func/packages/integrations/vercel/test/fixtures/serverless-prerender/dist/middleware.mjs'
 			)
 		).to.be.ok;
 	});
