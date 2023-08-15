@@ -88,12 +88,12 @@ function asyncIterableToBodyProps(iterable: AsyncIterable<any>): BodyProps {
 	return {
 		// Node uses undici for the Request implementation. Undici accepts
 		// a non-standard async iterable for the body.
-		// @ts-ignore
+		// @ts-expect-error
 		body: iterable,
 		// The duplex property is required when using a ReadableStream or async
 		// iterable for the body. The type definitions do not include the duplex
 		// property because they are not up-to-date.
-		// @ts-ignore
+		// @ts-expect-error
 		duplex: 'half',
 	} satisfies BodyProps;
 }
