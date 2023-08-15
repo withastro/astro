@@ -155,7 +155,7 @@ export async function generateHydrateScript(
 
 	// Add renderer url
 	if (renderer.clientEntrypoint) {
-		scriptProps['componentExport'] = componentExport.value;
+		if (componentExport.value !== 'default') scriptProps['componentExport'] = componentExport.value;
 		scriptProps['rendererUrl'] = await result.resolve(decodeURI(renderer.clientEntrypoint));
 	}
 
@@ -165,11 +165,16 @@ export async function generateHydrateScript(
 	if (beforeHydrationUrl.length) {
 		scriptProps['beforeHydrationUrl'] = beforeHydrationUrl;
 	}
-	scriptProps['opts'] = {
-		name: metadata.displayName,
-		value: metadata.hydrateArgs || '',
+	scriptProps['opts'] = {};
+	if (metadata.displayName) {
+		scriptProps.opts.name = metadata.displayName;
 	}
-	scriptProps['props'] = props;
+	if (metadata.hydrateArgs !== true) {
+		scriptProps.opts.value = metadata.hydrateArgs;
+	}
+	if (typeof props === 'object' && Object.keys(props).length > 0) {
+		scriptProps['props'] = props;
+	}
 
 	transitionDirectivesToCopyOnIsland.forEach((name) => {
 		if (props[name]) {
