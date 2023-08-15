@@ -13,10 +13,9 @@ import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
-import type { z } from 'zod';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
-import type { AstroConfigSchema } from '../core/config';
+import type { AstroConfigType } from '../core/config';
 import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
 import type { LogOptions, LoggerLevel } from '../core/logger/core';
@@ -700,6 +699,10 @@ export interface AstroUserConfig {
 		 * - `file` - The `Astro.url.pathname` will include `.html`; ie `/foo.html`.
 		 *
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
+		 *
+		 * To prevent inconsistencies with trailing slash behaviour in dev, you can restrict the [`trailingSlash` option](#trailingslash) to `'always'` or `'never'` depending on your build format:
+		 * - `directory` - Set `trailingSlash: 'always'`
+		 * - `file` - Set `trailingSlash: 'never'`
 		 */
 		format?: 'file' | 'directory';
 		/**
@@ -1354,7 +1357,7 @@ export interface ResolvedInjectedRoute extends InjectedRoute {
  * Resolved Astro Config
  * Config with user settings along with all defaults filled in.
  */
-export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
+export interface AstroConfig extends AstroConfigType {
 	// Public:
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.
