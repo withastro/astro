@@ -149,6 +149,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					await fs.promises.mkdir(functionsUrl, { recursive: true });
 				}
 
+				// TODO: remove _buildConfig.split in Astro 4.0
 				if (isModeDirectory && (_buildConfig.split || functionPerRoute)) {
 					const entryPointsURL = [..._entryPoints.values()];
 					const entryPaths = entryPointsURL.map((entry) => fileURLToPath(entry));
