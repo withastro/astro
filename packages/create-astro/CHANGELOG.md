@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.2.0
+
+### Minor Changes
+
+- [#8077](https://github.com/withastro/astro/pull/8077) [`44cf30a25`](https://github.com/withastro/astro/commit/44cf30a25209b331e6e8a95a4b40a768ede3604a) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Reduce dependency installation size, swap `execa` for light `node:child_process` wrapper
+
 ## 3.1.13
 
 ### Patch Changes
