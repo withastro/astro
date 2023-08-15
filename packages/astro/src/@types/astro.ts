@@ -13,10 +13,9 @@ import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
-import type { z } from 'zod';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
-import type { AstroConfigSchema } from '../core/config';
+import type { AstroConfigType } from '../core/config';
 import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
 import type { LogOptions, LoggerLevel } from '../core/logger/core';
@@ -1354,7 +1353,7 @@ export interface ResolvedInjectedRoute extends InjectedRoute {
  * Resolved Astro Config
  * Config with user settings along with all defaults filled in.
  */
-export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
+export interface AstroConfig extends AstroConfigType {
 	// Public:
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.
