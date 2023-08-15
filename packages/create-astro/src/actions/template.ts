@@ -60,7 +60,7 @@ const FILES_TO_UPDATE = {
 					Object.assign(JSON.parse(value), Object.assign(overrides, { private: undefined })),
 					null,
 					indent
-				),
+				) + '\n',
 				'utf-8'
 			);
 		}),

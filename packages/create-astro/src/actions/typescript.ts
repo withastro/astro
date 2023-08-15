@@ -81,7 +81,7 @@ export async function setupTypeScript(value: string, { cwd }: { cwd: string }) {
 				extends: `astro/tsconfigs/${value}`,
 			});
 
-			fs.writeFileSync(templateTSConfigPath, JSON.stringify(result, null, 2));
+			fs.writeFileSync(templateTSConfigPath, JSON.stringify(result, null, 2) + '\n');
 		} else {
 			throw new Error(
 				"There was an error applying the requested TypeScript settings. This could be because the template's tsconfig.json is malformed"
@@ -92,7 +92,7 @@ export async function setupTypeScript(value: string, { cwd }: { cwd: string }) {
 			// If the template doesn't have a tsconfig.json, let's add one instead
 			fs.writeFileSync(
 				templateTSConfigPath,
-				JSON.stringify({ extends: `astro/tsconfigs/${value}` }, null, 2)
+				JSON.stringify({ extends: `astro/tsconfigs/${value}` }, null, 2) + '\n'
 			);
 		}
 	}
