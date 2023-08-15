@@ -103,15 +103,21 @@ export class BuildPipeline extends Pipeline {
 			);
 		}
 
-		const renderersEntryUrl = new URL('renderers.mjs', staticBuildOptions.settings.config.outDir);
+		const renderersEntryUrl = new URL(
+			'renderers.mjs',
+			staticBuildOptions.settings.config.build.server
+		);
 		const renderers: SSRLoadedRenderer[] | undefined = await import(renderersEntryUrl.toString());
 		if (!renderers) {
 			throw new Error(
 				"Astro couldn't find the emitted renderers. This is an internal error, please file an issue."
 			);
 		}
-		manifest.renderers = renderers;
-		return manifest;
+		// manifest.renderers = renderers;
+		return {
+			...manifest,
+			renderers,
+		};
 	}
 
 	/**

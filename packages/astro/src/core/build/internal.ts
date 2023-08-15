@@ -229,14 +229,6 @@ export function* eachPageData(internals: BuildInternals) {
 	yield* internals.pagesByComponent.values();
 }
 
-export function* eachRedirectPageData(internals: BuildInternals) {
-	for (const pageData of eachPageData(internals)) {
-		if (pageData.route.type === 'redirect') {
-			yield pageData;
-		}
-	}
-}
-
 export function* eachPageDataFromEntryPoint(
 	internals: BuildInternals
 ): Generator<[PageBuildData, string]> {

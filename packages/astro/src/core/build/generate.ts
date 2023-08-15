@@ -20,11 +20,7 @@ import {
 	generateImage as generateImageInternal,
 	getStaticImageList,
 } from '../../assets/generate.js';
-import {
-	eachRedirectPageData,
-	hasPrerenderedPages,
-	type BuildInternals,
-} from '../../core/build/internal.js';
+import { hasPrerenderedPages, type BuildInternals } from '../../core/build/internal.js';
 import {
 	isRelativePath,
 	joinPaths,

@@ -267,7 +267,7 @@ export { _default as default };`;
 }
 const _start = 'start';
 if(_start in adapter) {
-	adapter[_start](_module, _args);
+	adapter[_start](_manifest, _args);
 }`);
 	return {
 		imports,

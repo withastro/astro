@@ -1,8 +1,7 @@
 import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import { type Plugin as VitePlugin } from 'vite';
-import { isServerLikeOutput } from '../../../prerender/utils.js';
-import { isFunctionPerRouteEnabled, runHookBuildSsr } from '../../../integrations/index.js';
+import { runHookBuildSsr } from '../../../integrations/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import glob from 'fast-glob';
 import { fileURLToPath } from 'node:url';
