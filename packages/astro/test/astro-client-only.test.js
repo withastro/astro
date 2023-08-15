@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, getIslandDataFromScript } from './test-utils.js';
 
 describe('Client only components', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -18,12 +18,14 @@ describe('Client only components', () => {
 	it('Loads pages using client:only hydrator', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerioLoad(html);
+		const script = $('astro-island > script').first();
+		const data = getIslandDataFromScript(script.text());
 
 		// test 1: <astro-island> is empty
-		expect($('astro-island').html()).to.equal('');
+		expect($('astro-island').first().children().length).to.equal(1);
 
 		// test 2: svelte renderer is on the page
-		expect($('astro-island').attr('renderer-url')).to.be.ok;
+		expect(data.rendererUrl).to.be.ok;
 	});
 
 	it('Adds the CSS to the page', async () => {
@@ -83,12 +85,14 @@ describe('Client only components subpath', () => {
 	it('Loads pages using client:only hydrator', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerioLoad(html);
+		const script = $('astro-island > script').first();
+		const data = getIslandDataFromScript(script.text());
 
 		// test 1: <astro-island> is empty
-		expect($('astro-island').html()).to.equal('');
+		expect($('astro-island').first().children.length).to.equal(1);
 
 		// test 2: svelte renderer is on the page
-		expect($('astro-island').attr('renderer-url')).to.be.ok;
+		expect(data.rendererUrl).to.be.ok;
 	});
 
 	it('Adds the CSS to the page', async () => {

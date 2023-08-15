@@ -76,7 +76,7 @@ describe('Component children', () => {
 
 		// test 2: If client, and no children are rendered, a template is.
 		expect($('#client').parent().children()).to.have.lengthOf(
-			2,
+			3,
 			'rendered the client component and a template'
 		);
 		expect($('#client').parent().find('template[data-astro-template]')).to.have.lengthOf(

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, getIslandDataFromScript } from './test-utils.js';
 
 const assetsPrefix = 'http://localhost:4321';
 const assetsPrefixRegex = /^http:\/\/localhost:4321\/_astro\/.*/;
@@ -36,9 +36,11 @@ describe('Assets Prefix - Static', () => {
 	it('react component astro-island should import from assetsPrefix', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		const island = $('astro-island');
-		expect(island.attr('component-url')).to.match(assetsPrefixRegex);
-		expect(island.attr('renderer-url')).to.match(assetsPrefixRegex);
+		const script = $('astro-island > script').first();
+		const data = getIslandDataFromScript(script.text());
+
+		expect(data.componentUrl).to.match(assetsPrefixRegex);
+		expect(data.rendererUrl).to.match(assetsPrefixRegex);
 	});
 
 	it('import.meta.env.ASSETS_PREFIX works', async () => {
@@ -127,9 +129,11 @@ describe('Assets Prefix, server', () => {
 		expect(response.status).to.equal(200);
 		const html = await response.text();
 		const $ = cheerio.load(html);
-		const island = $('astro-island');
-		expect(island.attr('component-url')).to.match(assetsPrefixRegex);
-		expect(island.attr('renderer-url')).to.match(assetsPrefixRegex);
+		const script = $('astro-island > script');
+		const data = getIslandDataFromScript(script.text());
+
+		expect(data.componentUrl).to.match(assetsPrefixRegex);
+		expect(data.rendererUrl).to.match(assetsPrefixRegex);
 	});
 
 	it('markdown optimized image src does not start with assetsPrefix in SSR', async () => {

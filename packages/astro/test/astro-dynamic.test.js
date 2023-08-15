@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, getIslandDataFromScript } from './test-utils.js';
 
 describe('Dynamic components', () => {
 	let fixture;
@@ -16,7 +16,7 @@ describe('Dynamic components', () => {
 		const html = await fixture.readFile('/index.html');
 
 		const $ = cheerio.load(html);
-		expect($('script').length).to.eq(1);
+		expect($('script').length).to.eq(3);
 	});
 
 	it('Loads pages using client:media hydrator', async () => {
@@ -24,18 +24,19 @@ describe('Dynamic components', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: static value rendered
-		expect($('script').length).to.equal(1);
+		expect($('script').length).to.equal(3);
 	});
 
 	it('Loads pages using client:only hydrator', async () => {
 		const html = await fixture.readFile('/client-only/index.html');
 		const $ = cheerio.load(html);
+		const script = $('astro-island > script').first();
+		const data = getIslandDataFromScript(script.text());
 
 		// test 1: <astro-island> is empty.
-		expect($('astro-island').html()).to.equal('');
+		expect($('astro-island').first().children().length).to.equal(1);
 		// test 2: component url
-		const href = $('astro-island').attr('component-url');
-		expect(href).to.include(`/PersistentCounter`);
+		expect(data.componentUrl).to.include(`/PersistentCounter`);
 	});
 });
 
@@ -55,7 +56,7 @@ describe('Dynamic components subpath', () => {
 		const html = await fixture.readFile('/index.html');
 
 		const $ = cheerio.load(html);
-		expect($('script').length).to.eq(1);
+		expect($('script').length).to.eq(3);
 	});
 
 	it('Loads pages using client:media hydrator', async () => {
@@ -63,17 +64,18 @@ describe('Dynamic components subpath', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: static value rendered
-		expect($('script').length).to.equal(1);
+		expect($('script').length).to.equal(3);
 	});
 
 	it('Loads pages using client:only hydrator', async () => {
 		const html = await fixture.readFile('/client-only/index.html');
 		const $ = cheerio.load(html);
+		const script = $('astro-island > script').first();
+		const data = getIslandDataFromScript(script.text());
 
 		// test 1: <astro-island> is empty.
-		expect($('astro-island').html()).to.equal('');
-		// test 2: has component url
-		const attr = $('astro-island').attr('component-url');
-		expect(attr).to.include(`blog/_astro/PersistentCounter`);
+		expect($('astro-island').first().children().length).to.equal(1);
+		// test 2: component url
+		expect(data.componentUrl).to.include(`blog/_astro/PersistentCounter`);
 	});
 });

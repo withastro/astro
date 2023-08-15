@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, getIslandDataFromScript } from './test-utils.js';
 
 describe('Re-exported astro components with client components', () => {
 	let fixture;
@@ -14,6 +14,7 @@ describe('Re-exported astro components with client components', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		expect($('astro-island').length).to.equal(1);
-		expect($('astro-island').attr('component-export')).to.equal('One');
+		const data = getIslandDataFromScript($('astro-island > script').text())
+		expect(data.componentExport).to.equal('One');
 	});
 });

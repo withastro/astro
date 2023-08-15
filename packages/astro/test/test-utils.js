@@ -245,13 +245,15 @@ export async function loadFixture(inlineConfig) {
 /**
  * 
  * @param {string} text
- * @returns {{ componentUrl: string, componentExport: string, rendererUrl: string, opts: Record<string, unknown>, props: Record<string, unknown> }}
+ * @returns {{ componentUrl: string, componentExport: string, rendererUrl: string, beforeHydrationUrl?: string, opts: Record<string, unknown>, props: Record<string, unknown> }}
  */
 export function getIslandDataFromScript(text) {
-	// Island script references `Astro` and `document` globals, so we need to mock them
-	const prelude = [`const Astro = { assign: (_, props) => props }`, `const document = {}`, ''].join(';')
+	const Astro = { assign: (_, props) => props };
+	const document = {};
+	const args = { Astro, document }
+
 	// Yes, I know, `eval` is bad! But our data is embedded as JS on purpose.
-	return new Function([prelude, `return ${text}`].join(''))();
+	return new Function(Object.keys(args), `return ${text}`)(...Object.values(args));
 }
 
 /**

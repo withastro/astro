@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, getIslandDataFromScript } from './test-utils.js';
 import { preact } from './fixtures/before-hydration/deps.mjs';
 import testAdapter from './test-adapter.js';
 
@@ -44,8 +44,9 @@ describe('build assets (static)', () => {
 
 			const island = $('astro-island');
 			expect(island.length).to.eq(1);
-			expect(island.attr('component-url')).to.match(/^\/_astro\//);
-			expect(island.attr('renderer-url')).to.match(/^\/_astro\//);
+			const data = getIslandDataFromScript(island.children('script').text())
+			expect(data.componentUrl).to.match(/^\/_astro\//);
+			expect(data.rendererUrl).to.match(/^\/_astro\//);
 		});
 	});
 
@@ -83,8 +84,9 @@ describe('build assets (static)', () => {
 
 			const island = $('astro-island');
 			expect(island.length).to.eq(1);
-			expect(island.attr('component-url')).to.match(/^\/custom-assets\//);
-			expect(island.attr('renderer-url')).to.match(/^\/custom-assets\//);
+			const data = getIslandDataFromScript(island.children('script').text())
+			expect(data.componentUrl).to.match(/^\/custom-assets\//);
+			expect(data.rendererUrl).to.match(/^\/custom-assets\//);
 		});
 	});
 });
@@ -130,8 +132,9 @@ describe('build assets (server)', () => {
 
 			const island = $('astro-island');
 			expect(island.length).to.eq(1);
-			expect(island.attr('component-url')).to.match(/^\/_astro\//);
-			expect(island.attr('renderer-url')).to.match(/^\/_astro\//);
+			const data = getIslandDataFromScript(island.children('script').text())
+			expect(data.componentUrl).to.match(/^\/_astro\//);
+			expect(data.rendererUrl).to.match(/^\/_astro\//);
 		});
 	});
 
@@ -170,8 +173,9 @@ describe('build assets (server)', () => {
 
 			const island = $('astro-island');
 			expect(island.length).to.eq(1);
-			expect(island.attr('component-url')).to.match(/^\/custom-assets\//);
-			expect(island.attr('renderer-url')).to.match(/^\/custom-assets\//);
+			const data = getIslandDataFromScript(island.children('script').text())
+			expect(data.componentUrl).to.match(/^\/custom-assets\//);
+			expect(data.rendererUrl).to.match(/^\/custom-assets\//);
 		});
 	});
 });
