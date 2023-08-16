@@ -4,9 +4,6 @@ import { testImageService } from '../../../../../astro/test/test-image-service.j
 
 export default defineConfig({
 	adapter: vercel({imageService: true}),
-	experimental: {
-		assets: true,
-	},
 	image: {
 		service: testImageService(),
 	},
