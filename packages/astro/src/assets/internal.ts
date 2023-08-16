@@ -1,3 +1,4 @@
+import { isRemotePath } from '@astrojs/internal-helpers/path';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isLocalService, type ImageService } from './services/service.js';
@@ -33,14 +34,10 @@ export function isRemoteAllowed(
 		domains = [],
 		remotePatterns = [],
 	}: Partial<Pick<AstroConfig['image'], 'domains' | 'remotePatterns'>>
-): boolean | undefined {
-	let url: URL;
-	try {
-		url = new URL(src);
-	} catch (e) {
-		return undefined;
-	}
+): boolean {
+	if (!isRemotePath(src)) return false;
 
+	const url = new URL(src);
 	return (
 		domains.some((domain) => matchHostname(url, domain)) ||
 		remotePatterns.some((remotePattern) => matchPattern(url, remotePattern))

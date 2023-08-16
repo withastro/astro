@@ -2,14 +2,15 @@
 'astro': patch
 ---
 
-Added support for optimizing remote images to `astro:assets`. This comes with two new parameters to specify which domains and host patterns are authorized for remote images.
+Added support for optimizing remote images from authorized sources when using `astro:assets`. This comes with two new parameters to specify which domains (`image.domains`) and host patterns (`image.remotePatterns) are authorized for remote images.
 
 For example, the following configuration will only allow remote images from `astro.build` to be optimized:
 
 ```ts
+// astro.config.mjs
 export default defineConfig({
   image: {
-    domains: ["astro.build/"],
+    domains: ["astro.build"],
   }
 });
 ```
@@ -17,6 +18,7 @@ export default defineConfig({
 The following configuration will only allo remote images from HTTPs hosts:
 
 ```ts
+// astro.config.mjs
 export default defineConfig({
   image: {
     remotePatterns: [{ protocol: "https" }],

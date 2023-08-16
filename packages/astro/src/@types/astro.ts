@@ -1016,19 +1016,19 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name image.domains (Experimental)
-		 * @type {Array<string>}
+		 * @type {string[]}
 		 * @default `{domains: []}`
-		 * @version 2.9.2
+		 * @version 2.10.10
 		 * @description
-		 * Defines a list of domains allowed to be optimized locally
+		 * Defines a list of permitted image source domains for local image optimization. No other remote images will be optimized by Astro.
 		 *
-		 * The value should be an array of domain strings of images allowed to be optimized locally.
-		 * Wildcards are not permitted (see image.remotePatterns).
+		 * This option requires an array of individual domain names as strings. Wildcards are not permitted. Instead, use [`image.remotePatterns`](#imageremotepatterns-experimental) to define a list of allowed source URL patterns.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * {
 		 *   image: {
-		 *     // Example: Enable the Sharp-based image service
+		 *     // Example: Allow remote image optimization from a single domain
 		 *     domains: ['astro.build'],
 		 *   },
 		 * }
@@ -1039,35 +1039,22 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name image.remotePatterns (Experimental)
-		 * @type {Array<RemotePattern>}
+		 * @type {RemotePattern[]}
 		 * @default `{remotePatterns: []}`
-		 * @version 2.9.2
+		 * @version 2.10.10
 		 * @description
-		 * Defines a list of url patterns allowed to be optimized locally
+		 * Defines a list of permitted image source URL patterns for local image optimization.
 		 *
-		 * The patterns can contain 4 properties:
+		 * `remotePatterns` can be configured with four properties:
 		 * 1. protocol
 		 * 2. hostname
 		 * 3. port
 		 * 4. pathname
 		 *
-		 * Each property will be matched individually to the URL object representing the remote asset to be loaded.
-		 * The rules for matching are:
-		 *
-		 * 1. protocol & port: strict equal.(`===`)
-		 * 2. hostname:
-		 *   - if the hostname starts with '**.', all subdomains will be allowed ('endsWith')
-		 *   - if the hostname starts with '*.', only one level of subdomain will be allowed
-		 *   - strict equal otherwise
-		 * 3. pathname:
-		 *   - if the pathname ends with '/**', all sub routes will be allowed ('startsWith')
-		 *   - if the pathname ends with '/*', only one level of sub route will be allowed
-		 *   - strict equal otherwise
-		 *
 		 * ```js
 		 * {
 		 *   image: {
-		 *     // Example: statically process all images from your aws s3 bucket
+		 *     // Example: allow processing all images from your aws s3 bucket
 		 *     remotePatterns: [{
 		 *       protocol: 'https',
 		 *       hostname: '**.amazonaws.com',
@@ -1075,6 +1062,16 @@ export interface AstroUserConfig {
 		 *   },
 		 * }
 		 * ```
+		 *
+		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured:
+		 * `hostname`:
+		 *   - Start with '**.' to allow all subdomains ('endsWith').
+		 *   - Start with '*.' to allow only one level of subdomain.
+		 *
+		 * `pathname`:
+		 *   - End with '/**' to allow all sub-routes ('startsWith').
+		 *   - End with '/*' to allow only one level of sub-route.
+
 		 */
 		remotePatterns?: Partial<RemotePattern>[];
 	};
@@ -1963,7 +1960,7 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 
 export type HookParameters<
 	Hook extends keyof AstroIntegration['hooks'],
-	Fn = AstroIntegration['hooks'][Hook],
+	Fn = AstroIntegration['hooks'][Hook]
 > = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
 
 export interface AstroIntegration {
