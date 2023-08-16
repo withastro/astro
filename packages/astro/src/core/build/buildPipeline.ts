@@ -6,7 +6,7 @@ import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { SSRManifest } from '../app/types';
 import type { AstroConfig, AstroSettings, SSRLoadedRenderer } from '../../@types/astro';
-import { isServerLikeOutput } from '../../prerender/utils.js';
+import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import type { EndpointCallResult } from '../endpoint';
 import { createEnvironment } from '../render/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
@@ -92,10 +92,9 @@ export class BuildPipeline extends Pipeline {
 	 * @param staticBuildOptions
 	 */
 	static async retrieveManifest(staticBuildOptions: StaticBuildOptions): Promise<SSRManifest> {
-		const manifestEntryUrl = new URL(
-			'manifest.mjs',
-			staticBuildOptions.settings.config.build.server
-		);
+		const config = staticBuildOptions.settings.config;
+		const baseDirectory = getOutputDirectory(config);
+		const manifestEntryUrl = new URL('manifest.mjs', baseDirectory);
 		const manifest: SSRManifest | undefined = await import(manifestEntryUrl.toString());
 		if (!manifest) {
 			throw new Error(
@@ -103,10 +102,7 @@ export class BuildPipeline extends Pipeline {
 			);
 		}
 
-		const renderersEntryUrl = new URL(
-			'renderers.mjs',
-			staticBuildOptions.settings.config.build.server
-		);
+		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
 		const renderers: SSRLoadedRenderer[] | undefined = await import(renderersEntryUrl.toString());
 		if (!renderers) {
 			throw new Error(
