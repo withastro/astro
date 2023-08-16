@@ -65,7 +65,9 @@ To use your first React component in Astro, head to our [UI framework documentat
 
 ### Children parsing
 
-When you pass children into a React component from an Astro component you only see a single child on the React side:
+Children passed into a React component from an Astro component are parsed as plain strings, not React nodes.
+
+For example, the `<ReactComponent />` below will only receive a single child element:
 
 ```astro
 ---
