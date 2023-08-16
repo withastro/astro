@@ -37,7 +37,7 @@ import { runHookBuildGenerated } from '../../integrations/index.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { debug, info } from '../logger/core.js';
+import { debug, info, warn } from '../logger/core.js';
 import { RedirectSinglePageBuiltModule, getRedirectLocationOrThrow } from '../redirects/index.js';
 import { isEndpointResult } from '../render/core.js';
 import { createEnvironment, createRenderContext, tryRenderRoute } from '../render/index.js';
@@ -249,6 +249,12 @@ async function generatePage(
 	const pageModule = await pageModulePromise();
 	if (shouldSkipDraft(pageModule, opts.settings)) {
 		info(opts.logging, null, `${magenta('⚠️')}  Skipping draft ${pageData.route.component}`);
+		// TODO: Remove in Astro 4.0
+		warn(
+			opts.logging,
+			'astro',
+			`The drafts feature is deprecated. You should migrate to content collections instead. See https://docs.astro.build/en/guides/content-collections/#filtering-collection-queries for more information.`
+		);
 		return;
 	}
 

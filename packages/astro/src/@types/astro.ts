@@ -1017,6 +1017,7 @@ export interface AstroUserConfig {
 		 * @name markdown.drafts
 		 * @type {boolean}
 		 * @default `false`
+		 * @deprecated since version 3.0. Use content collections instead.
 		 * @description
 		 * Control whether Markdown draft pages should be included in the build.
 		 *
@@ -1460,6 +1461,10 @@ export interface ComponentInstance {
 	default: AstroComponentFactory;
 	css?: string[];
 	prerender?: boolean;
+	/**
+	 * Only used for logging if deprecated drafts feature is used
+	 */
+	frontmatter?: Record<string, any>;
 	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 
