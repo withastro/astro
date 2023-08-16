@@ -1,5 +1,6 @@
 import type { AstroIntegration } from 'astro';
 import { version as ReactVersion } from 'react-dom';
+import type * as vite from 'vite';
 
 function getRenderer() {
 	return {
@@ -36,7 +37,29 @@ function getRenderer() {
 	};
 }
 
-function getViteConfiguration() {
+function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
+	const virtualModule = 'astro:react:opts';
+	const virtualModuleId = '\0' + virtualModule; 
+	return 			{
+		name: '@astrojs/react:opts',
+		resolveId(id) {
+			if(id === virtualModule) {
+				return virtualModuleId;
+			}
+		},
+		load(id) {
+			if(id === virtualModuleId) {
+				return {
+					code: `export default {
+						experimentalReactChildren: ${JSON.stringify(experimentalReactChildren)}
+					}`
+				};
+			}
+		}
+	};
+}
+
+function getViteConfiguration(experimentalReactChildren: boolean) {
 	return {
 		optimizeDeps: {
 			include: [
@@ -70,16 +93,23 @@ function getViteConfiguration() {
 				'use-immer',
 			],
 		},
+		plugins: [
+			optionsPlugin(experimentalReactChildren)
+		]
 	};
 }
 
-export default function (): AstroIntegration {
+export type ReactIntegrationOptions = {
+	experimentalReactChildren: boolean;
+}
+
+export default function ({ experimentalReactChildren }: ReactIntegrationOptions = { experimentalReactChildren: false }): AstroIntegration {
 	return {
 		name: '@astrojs/react',
 		hooks: {
 			'astro:config:setup': ({ addRenderer, updateConfig }) => {
 				addRenderer(getRenderer());
-				updateConfig({ vite: getViteConfiguration() });
+				updateConfig({ vite: getViteConfiguration(experimentalReactChildren) });
 			},
 		},
 	};
