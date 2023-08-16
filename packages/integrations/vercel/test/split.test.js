@@ -15,12 +15,12 @@ describe('build: split', () => {
 
 	it('creates separate functions for each page', async () => {
 		const files = await fixture.readdir('../.vercel/output/functions/');
-		expect(files.length).to.equal(2);
+		expect(files.length).to.equal(3);
 	});
 
 	it('creates the route definitions in the config.json', async () => {
 		const json = await fixture.readFile('../.vercel/output/config.json');
 		const config = JSON.parse(json);
-		expect(config.routes).to.have.a.lengthOf(4);
+		expect(config.routes).to.have.a.lengthOf(5);
 	});
 });

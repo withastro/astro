@@ -102,9 +102,7 @@ class AstroBuilder {
 			logging,
 		});
 
-		// HACK: Since we only inject the endpoint if `experimental.assets` is on and it's possible for an integration to
-		// add that flag, we need to only check and inject the endpoint after running the config setup hook.
-		if (this.settings.config.experimental.assets && isServerLikeOutput(this.settings.config)) {
+		if (isServerLikeOutput(this.settings.config)) {
 			this.settings = injectImageEndpoint(this.settings);
 		}
 

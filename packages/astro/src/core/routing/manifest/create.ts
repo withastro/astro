@@ -185,7 +185,12 @@ function injectedRouteToItem(
 	{ config, cwd }: { config: AstroConfig; cwd?: string },
 	{ pattern, entryPoint }: InjectedRoute
 ): Item {
-	const resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
+	let resolved: string;
+	try {
+		resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
+	} catch (e) {
+		resolved = fileURLToPath(new URL(entryPoint, config.root));
+	}
 
 	const ext = path.extname(pattern);
 

@@ -1,4 +1,4 @@
-import type { AstroConfig, ImageMetadata, ImageQualityPreset, ImageTransform } from 'astro';
+import type { ImageMetadata, ImageQualityPreset, ImageTransform } from 'astro';
 
 export const defaultImageConfig: VercelImageConfig = {
 	sizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -55,15 +55,6 @@ export const qualityTable: Record<ImageQualityPreset, number> = {
 	high: 80,
 	max: 100,
 };
-
-// TODO: Remove once Astro 3.0 is out and `experimental.assets` is no longer needed
-export function throwIfAssetsNotEnabled(config: AstroConfig, imageService: boolean | undefined) {
-	if (!config.experimental.assets && imageService) {
-		throw new Error(
-			`Using the Vercel Image Optimization-powered image service requires \`experimental.assets\` to be enabled. See https://docs.astro.build/en/guides/assets/ for more information.`
-		);
-	}
-}
 
 export function getImageConfig(
 	images: boolean | undefined,
