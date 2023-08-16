@@ -1,5 +1,5 @@
-import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
+import { defineConfig } from 'astro/config';
 import { testImageService } from '../../test-image-service.js';
 
 // https://astro.build/config
@@ -9,9 +9,6 @@ export default defineConfig({
 	integrations: [react()],
 	build: {
 		assetsPrefix: 'http://localhost:4321',
-	},
-	experimental: {
-		assets: true,
 	},
 	image: {
 		service: testImageService(),

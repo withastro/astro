@@ -186,14 +186,12 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		}
 	}
 
-	if (opts.settings.config.experimental.assets) {
-		info(opts.logging, null, `\n${bgGreen(black(` generating optimized images `))}`);
-		for (const imageData of getStaticImageList()) {
-			await generateImage(opts, imageData[1].options, imageData[1].path);
-		}
-
-		delete globalThis?.astroAsset?.addStaticImage;
+	info(opts.logging, null, `\n${bgGreen(black(` generating optimized images `))}`);
+	for (const imageData of getStaticImageList()) {
+		await generateImage(opts, imageData[1].options, imageData[1].path);
 	}
+
+	delete globalThis?.astroAsset?.addStaticImage;
 
 	await runHookBuildGenerated({
 		config: opts.settings.config,

@@ -44,7 +44,6 @@ const ASTRO_CONFIG_DEFAULTS = {
 	legacy: {},
 	redirects: {},
 	experimental: {
-		assets: false,
 		viewTransitions: false,
 		optimizeHoistedScript: false,
 	},
@@ -241,7 +240,6 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
 	experimental: z
 		.object({
-			assets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.assets),
 			viewTransitions: z
 				.boolean()
 				.optional()
@@ -273,6 +271,8 @@ export const AstroConfigSchema = z.object({
 		.default({}),
 	legacy: z.object({}).optional().default({}),
 });
+
+export type AstroConfigType = z.infer<typeof AstroConfigSchema>;
 
 export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 	// We need to extend the global schema to add transforms that are relative to root.

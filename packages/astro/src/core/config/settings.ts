@@ -17,7 +17,6 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		config,
 		tsConfig: undefined,
 		tsConfigPath: undefined,
-
 		adapter: undefined,
 		injectedRoutes: [],
 		resolvedInjectedRoutes: [],

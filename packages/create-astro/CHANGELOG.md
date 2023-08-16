@@ -6,6 +6,12 @@
 
 - [`1eae2e3f7`](https://github.com/withastro/astro/commit/1eae2e3f7d693c9dfe91c8ccfbe606d32bf2fb81) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove support for Node 16. The lowest supported version by Astro and all integrations is now v18.14.1. As a reminder, Node 16 will be deprecated on the 11th September 2023.
 
+## 3.1.13
+
+### Patch Changes
+
+- [#8028](https://github.com/withastro/astro/pull/8028) [`8292c4131`](https://github.com/withastro/astro/commit/8292c41311ec41d9d50921fbb2bdeed69e039443) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve yarn berry support
+
 ## 3.1.12
 
 ### Patch Changes
