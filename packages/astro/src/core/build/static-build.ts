@@ -352,6 +352,8 @@ async function cleanServerOutput(opts: StaticBuildOptions) {
 	// The SSR output is all .mjs files, the client output is not.
 	const files = await glob('**/*.mjs', {
 		cwd: fileURLToPath(out),
+		// Important! Also cleanup dotfiles like `node_modules/.pnpm/**`
+		dot: true,
 	});
 	if (files.length) {
 		// Remove all the SSR generated .mjs files
