@@ -6,13 +6,15 @@ import { getTemplateTarget } from "./template.js";
 import { banner, error, log, info, bannerAbort } from '../messages.js';
 import fetch from 'node-fetch-native';
 
-export async function verify(ctx: Pick<Context, 'version' | 'template' | 'ref' | 'exit'>) {
-  const online = await isOnline();
-  if (!online) {
-    bannerAbort();
-    log('');
-    error('error', `Unable to connect to the internet.`);
-    ctx.exit(1);
+export async function verify(ctx: Pick<Context, 'version' | 'dryRun' | 'template' | 'ref' | 'exit'>) {
+  if (!ctx.dryRun) {
+    const online = await isOnline();
+    if (!online) {
+      bannerAbort();
+      log('');
+      error('error', `Unable to connect to the internet.`);
+      ctx.exit(1);
+    }  
   }
 
   if (ctx.template) {
