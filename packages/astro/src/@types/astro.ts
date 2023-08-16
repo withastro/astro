@@ -13,10 +13,9 @@ import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
-import type { z } from 'zod';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
-import type { AstroConfigSchema } from '../core/config';
+import type { AstroConfigType } from '../core/config';
 import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
 import type { LogOptions, LoggerLevel } from '../core/logger/core';
@@ -133,7 +132,6 @@ export interface CLIFlags {
 	config?: string;
 	drafts?: boolean;
 	open?: boolean;
-	experimentalAssets?: boolean;
 }
 
 /**
@@ -141,8 +139,10 @@ export interface CLIFlags {
  *
  * [Astro reference](https://docs.astro.build/reference/api-reference/#astro-global)
  */
-export interface AstroGlobal<Props extends Record<string, any> = Record<string, any>>
-	extends AstroGlobalPartial,
+export interface AstroGlobal<
+	Props extends Record<string, any> = Record<string, any>,
+	Self = AstroComponentFactory
+> extends AstroGlobalPartial,
 		AstroSharedContext<Props> {
 	/**
 	 * A full URL object of the request URL.
@@ -219,7 +219,7 @@ export interface AstroGlobal<Props extends Record<string, any> = Record<string, 
 	 *
 	 * [Astro reference](https://docs.astro.build/en/guides/api-reference/#astroself)
 	 */
-	self: AstroComponentFactory;
+	self: Self;
 	/** Utility functions for modifying an Astro component’s slotted children
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroslots)
@@ -542,14 +542,14 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name compressHTML
 	 * @type {boolean}
-	 * @default `false`
+	 * @default `true`
 	 * @description
-	 * This is an option to minify your HTML output and reduce the size of your HTML files. When enabled, Astro removes all whitespace from your HTML, including line breaks, from `.astro` components. This occurs both in development mode and in the final build.
-	 * To enable this, set the `compressHTML` flag to `true`.
+	 * This is an option to minify your HTML output and reduce the size of your HTML files. By default, Astro removes all whitespace from your HTML, including line breaks, from `.astro` components. This occurs both in development mode and in the final build.
+	 * To disable HTML compression, set the `compressHTML` flag to `false`.
 	 *
 	 * ```js
 	 * {
-	 *   compressHTML: true
+	 *   compressHTML: false
 	 * }
 	 * ```
 	 */
@@ -1232,27 +1232,6 @@ export interface AstroUserConfig {
 	experimental?: {
 		/**
 		 * @docs
-		 * @name experimental.assets
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.1.0
-		 * @description
-		 * Enable experimental support for optimizing and resizing images. With this enabled, a new `astro:assets` module will be exposed.
-		 *
-		 * To enable this feature, set `experimental.assets` to `true` in your Astro config:
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		assets: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		assets?: boolean;
-
-		/**
-		 * @docs
 		 * @name experimental.viewTransitions
 		 * @type {boolean}
 		 * @default `false`
@@ -1351,7 +1330,7 @@ export interface ResolvedInjectedRoute extends InjectedRoute {
  * Resolved Astro Config
  * Config with user settings along with all defaults filled in.
  */
-export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
+export interface AstroConfig extends AstroConfigType {
 	// Public:
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.

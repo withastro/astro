@@ -95,10 +95,8 @@ export async function renderMarkdown(
 			parser.use([remarkPrism(scopedClassName)]);
 		}
 
-		if (opts.experimentalAssets) {
-			// Apply later in case user plugins resolve relative image paths
-			parser.use([remarkCollectImages]);
-		}
+		// Apply later in case user plugins resolve relative image paths
+		parser.use([remarkCollectImages]);
 	}
 
 	parser.use([
@@ -116,9 +114,7 @@ export async function renderMarkdown(
 		parser.use([[plugin, pluginOpts]]);
 	});
 
-	if (opts.experimentalAssets) {
-		parser.use(rehypeImages());
-	}
+	parser.use(rehypeImages());
 	if (!isPerformanceBenchmark) {
 		parser.use([rehypeHeadingIds]);
 	}

@@ -155,8 +155,7 @@ export async function createContentTypesGenerator({
 			fileURLToPath(event.entry),
 			contentPaths,
 			contentEntryExts,
-			dataEntryExts,
-			settings.config.experimental.assets
+			dataEntryExts
 		);
 		if (fileType === 'ignored') {
 			return { shouldGenerateTypes: false };

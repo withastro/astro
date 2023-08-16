@@ -3,12 +3,7 @@ import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'ast
 import glob from 'fast-glob';
 import { basename } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import {
-	defaultImageConfig,
-	getImageConfig,
-	throwIfAssetsNotEnabled,
-	type VercelImageConfig,
-} from '../image/shared.js';
+import { defaultImageConfig, getImageConfig, type VercelImageConfig } from '../image/shared.js';
 import { exposeEnv } from '../lib/env.js';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
@@ -135,7 +130,6 @@ export default function vercelServerless({
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				throwIfAssetsNotEnabled(config, imageService);
 				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware }));
 				_config = config;
 				buildTempFolder = config.build.server;

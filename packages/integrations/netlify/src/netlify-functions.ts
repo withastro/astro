@@ -68,18 +68,32 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 			init.body =
 				typeof requestBody === 'string' ? Buffer.from(requestBody, encoding) : requestBody;
 		}
+
 		const request = new Request(rawUrl, init);
 
 		const routeData = app.match(request);
 		const ip = headers['x-nf-client-connection-ip'];
 		Reflect.set(request, clientAddressSymbol, ip);
-		let locals = {};
+
+		let locals: Record<string, unknown> = {};
+
 		if (request.headers.has(ASTRO_LOCALS_HEADER)) {
 			let localsAsString = request.headers.get(ASTRO_LOCALS_HEADER);
 			if (localsAsString) {
 				locals = JSON.parse(localsAsString);
 			}
 		}
+
+		let responseTtl = undefined;
+
+		locals.runtime = builders
+			? {
+					setBuildersTtl(ttl: number) {
+						responseTtl = ttl;
+					},
+			  }
+			: {};
+
 		const response: Response = await app.render(request, routeData, locals);
 		const responseHeaders = Object.fromEntries(response.headers.entries());
 
@@ -99,6 +113,7 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 			headers: responseHeaders,
 			body: responseBody,
 			isBase64Encoded: responseIsBase64Encoded,
+			ttl: responseTtl,
 		};
 
 		const cookies = response.headers.get('set-cookie');

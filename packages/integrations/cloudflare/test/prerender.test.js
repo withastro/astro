@@ -23,7 +23,7 @@ describe('Prerendering', () => {
 
 		expect(foundRoutes).to.deep.equal({
 			version: 1,
-			include: ['/'],
+			include: ['/', '/_image'],
 			exclude: [],
 		});
 	});
@@ -51,7 +51,7 @@ describe('Hybrid rendering', () => {
 
 		expect(foundRoutes).to.deep.equal({
 			version: 1,
-			include: ['/one'],
+			include: ['/one', '/_image'],
 			exclude: [],
 		});
 	});
