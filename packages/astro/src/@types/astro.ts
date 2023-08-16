@@ -13,6 +13,7 @@ import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
+import type { RemotePattern } from '../assets/utils/remotePattern';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigType } from '../core/config';
@@ -21,7 +22,6 @@ import type { AstroCookies } from '../core/cookies';
 import type { LogOptions, LoggerLevel } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
-import type { RemotePattern } from '../assets/utils/remotePattern';
 export type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -1963,7 +1963,7 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 
 export type HookParameters<
 	Hook extends keyof AstroIntegration['hooks'],
-	Fn = AstroIntegration['hooks'][Hook]
+	Fn = AstroIntegration['hooks'][Hook],
 > = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
 
 export interface AstroIntegration {

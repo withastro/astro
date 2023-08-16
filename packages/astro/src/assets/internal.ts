@@ -33,8 +33,13 @@ export function isRemoteAllowed(
 		domains = [],
 		remotePatterns = [],
 	}: Partial<Pick<AstroConfig['image'], 'domains' | 'remotePatterns'>>
-) {
-	const url = new URL(src);
+): boolean | undefined {
+	let url: URL;
+	try {
+		url = new URL(src);
+	} catch (e) {
+		return undefined;
+	}
 
 	return (
 		domains.some((domain) => matchHostname(url, domain)) ||
@@ -63,8 +68,7 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 
 export async function getImage(
 	options: ImageTransform | UnresolvedImageTransform,
-	serviceConfig: Record<string, any>,
-	assetsConfig: AstroConfig['image']
+	imageConfig: AstroConfig['image']
 ): Promise<GetImageResult> {
 	if (!options || typeof options !== 'object') {
 		throw new AstroError({
@@ -85,14 +89,19 @@ export async function getImage(
 	};
 
 	const validatedOptions = service.validateOptions
-		? await service.validateOptions(resolvedOptions, serviceConfig)
+		? await service.validateOptions(resolvedOptions, imageConfig)
 		: resolvedOptions;
 
-	let imageURL = await service.getURL(validatedOptions, serviceConfig, assetsConfig);
+	let imageURL = await service.getURL(validatedOptions, imageConfig);
 
 	// In build and for local services, we need to collect the requested parameters so we can generate the final images
-	if (isLocalService(service) && globalThis.astroAsset.addStaticImage) {
-		imageURL = await globalThis.astroAsset.addStaticImage(validatedOptions);
+	if (
+		isLocalService(service) &&
+		globalThis.astroAsset.addStaticImage &&
+		// If `getURL` returned the same URL as the user provided, it means the service doesn't need to do anything
+		!(isRemoteImage(validatedOptions.src) && imageURL === validatedOptions.src)
+	) {
+		imageURL = globalThis.astroAsset.addStaticImage(validatedOptions);
 	}
 
 	return {
@@ -101,7 +110,7 @@ export async function getImage(
 		src: imageURL,
 		attributes:
 			service.getHTMLAttributes !== undefined
-				? service.getHTMLAttributes(validatedOptions, serviceConfig)
+				? service.getHTMLAttributes(validatedOptions, imageConfig)
 				: {},
 	};
 }

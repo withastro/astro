@@ -5,14 +5,13 @@ import { isESMImportedImage } from '../internal.js';
 import type { ImageTransform } from '../types.js';
 
 export function propsToFilename(transform: ImageTransform, hash: string) {
-	if (!isESMImportedImage(transform.src)) {
-		return transform.src;
-	}
-
-	let filename = removeQueryString(transform.src.src);
+	let filename = removeQueryString(
+		isESMImportedImage(transform.src) ? transform.src.src : transform.src
+	);
 	const ext = extname(filename);
 	filename = basename(filename, ext);
-	const outputExt = transform.format ? `.${transform.format}` : ext;
+
+	let outputExt = transform.format ? `.${transform.format}` : ext;
 	return `/${filename}_${hash}${outputExt}`;
 }
 

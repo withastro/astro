@@ -24,6 +24,10 @@ export function parseQuality(quality: string): string | number {
 	return result;
 }
 
+type ImageConfig<T> = Omit<AstroConfig['image'], 'service'> & {
+	service: { entrypoint: string; config: T };
+};
+
 interface SharedServiceProps<T extends Record<string, any> = Record<string, any>> {
 	/**
 	 * Return the URL to the endpoint or URL your images are generated from.
@@ -33,11 +37,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	 * For external services, this should point to the URL your images are coming from, for instance, `/_vercel/image`
 	 *
 	 */
-	getURL: (
-		options: ImageTransform,
-		serviceConfig: T,
-		assetsConfig: AstroConfig['image']
-	) => string | Promise<string>;
+	getURL: (options: ImageTransform, imageConfig: ImageConfig<T>) => string | Promise<string>;
 	/**
 	 * Return any additional HTML attributes separate from `src` that your service requires to show the image properly.
 	 *
@@ -46,7 +46,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	 */
 	getHTMLAttributes?: (
 		options: ImageTransform,
-		serviceConfig: T
+		imageConfig: ImageConfig<T>
 	) => Record<string, any> | Promise<Record<string, any>>;
 	/**
 	 * Validate and return the options passed by the user.
@@ -58,7 +58,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	 */
 	validateOptions?: (
 		options: ImageTransform,
-		serviceConfig: T
+		imageConfig: ImageConfig<T>
 	) => ImageTransform | Promise<ImageTransform>;
 }
 
@@ -79,7 +79,7 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 	 */
 	parseURL: (
 		url: URL,
-		serviceConfig: T
+		imageConfig: ImageConfig<T>
 	) => LocalImageTransform | undefined | Promise<LocalImageTransform> | Promise<undefined>;
 	/**
 	 * Performs the image transformations on the input image and returns both the binary data and
@@ -88,7 +88,7 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 	transform: (
 		inputBuffer: Buffer,
 		transform: LocalImageTransform,
-		serviceConfig: T
+		imageConfig: ImageConfig<T>
 	) => Promise<{ data: Buffer; format: ImageOutputFormat }>;
 }
 
@@ -209,25 +209,26 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			decoding: attributes.decoding ?? 'async',
 		};
 	},
-	getURL(options, serviceConfig, assetsConfig) {
+	getURL(options, imageConfig) {
 		const searchParams = new URLSearchParams();
 
 		if (isESMImportedImage(options.src)) {
 			searchParams.append('href', options.src.src);
-		} else if (isRemoteAllowed(options.src, assetsConfig)) {
+		} else if (isRemoteAllowed(options.src, imageConfig)) {
 			searchParams.append('href', options.src);
 		} else {
+			// If it's not an imported image, nor is it allowed using the current domains or remote patterns, we'll just return the original URL
 			return options.src;
 		}
 
-		const PARAMS: Record<string, keyof typeof options> = {
+		const params: Record<string, keyof typeof options> = {
 			w: 'width',
 			h: 'height',
 			q: 'quality',
 			f: 'format',
 		};
 
-		Object.entries(PARAMS).forEach(([param, key]) => {
+		Object.entries(params).forEach(([param, key]) => {
 			options[key] && searchParams.append(param, options[key].toString());
 		});
 

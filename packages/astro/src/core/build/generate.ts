@@ -19,7 +19,7 @@ import type {
 import {
 	generateImage as generateImageInternal,
 	getStaticImageList,
-} from '../../assets/generate.js';
+} from '../../assets/build/generate.js';
 import {
 	eachPageDataFromEntryPoint,
 	eachRedirectPageData,

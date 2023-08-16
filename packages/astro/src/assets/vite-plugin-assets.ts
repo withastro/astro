@@ -1,12 +1,10 @@
-import { writeFile, mkdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
 import { bold } from 'kleur/colors';
 import MagicString from 'magic-string';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroPluginOptions, ImageTransform } from '../@types/astro';
-import { info, error } from '../core/logger/core.js';
+import { error } from '../core/logger/core.js';
 import {
 	appendForwardSlash,
 	joinPaths,
@@ -14,7 +12,6 @@ import {
 	removeQueryString,
 } from '../core/path.js';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
-import { isRemoteAllowed, isRemoteImage } from './internal.js';
 import { emitESMImage } from './utils/emitAsset.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
@@ -87,9 +84,8 @@ export default function assets({
 					import { getImage as getImageInternal } from "astro/assets";
 					export { default as Image } from "astro/components/Image.astro";
 
-					export const imageServiceConfig = ${JSON.stringify(settings.config.image.service.config)};
-					export const astroAssetsConfig = ${JSON.stringify(settings.config.image)};
-					export const getImage = async (options) => await getImageInternal(options, imageServiceConfig, astroAssetsConfig);
+					export const imageConfig = ${JSON.stringify(settings.config.image)};
+					export const getImage = async (options) => await getImageInternal(options, imageConfig);
 				`;
 				}
 			},
@@ -98,7 +94,7 @@ export default function assets({
 					return;
 				}
 
-				globalThis.astroAsset.addStaticImage = async (options) => {
+				globalThis.astroAsset.addStaticImage = (options) => {
 					if (!globalThis.astroAsset.staticImages) {
 						globalThis.astroAsset.staticImages = new Map<
 							string,
@@ -106,58 +102,20 @@ export default function assets({
 						>();
 					}
 
-					// hard skip on non allowed remote images
-					if (
-						typeof options.src === 'string' &&
-						!isRemoteAllowed(options.src, settings.config.image)
-					) {
-						return options.src;
-					}
-
-					// in case of remote images
-					if (isRemoteImage(options.src)) {
-						const remoteCacheDir = new URL('remote-assets/', settings.config.cacheDir);
-						await mkdir(remoteCacheDir, { recursive: true });
-
-						const remoteFileURL = new URL(options.src);
-						const cachedFileURL = new URL('.' + remoteFileURL.pathname, remoteCacheDir);
-
-						// there's no async api for exists :(
-						if (!existsSync(cachedFileURL)) {
-							info(
-								logging,
-								'astro:assets',
-								`${bold('downloading remote asset')} ${remoteFileURL.href} -> ${cachedFileURL.href}`
-							);
-							const res = await fetch(remoteFileURL);
-							const imgBytes = await res.arrayBuffer();
-							await writeFile(cachedFileURL, Buffer.from(imgBytes));
-						}
-					}
-
 					const hash = hashTransform(options, settings.config.image.service.entrypoint);
 
 					let filePath: string;
-					const hasHash = globalThis.astroAsset.staticImages.has(hash);
-					if (hasHash) {
+					if (globalThis.astroAsset.staticImages.has(hash)) {
 						filePath = globalThis.astroAsset.staticImages.get(hash)!.path;
-					} else if (isRemoteImage(options.src)) {
-						const { pathname } = new URL(options.src);
-						filePath = options.format
-							? pathname.slice(0, pathname.lastIndexOf('.') + 1) + options.format
-							: pathname;
 					} else {
-						filePath = propsToFilename(options, hash);
-					}
+						filePath = prependForwardSlash(
+							joinPaths(settings.config.build.assets, propsToFilename(options, hash))
+						);
 
-					if (!hasHash) {
-						filePath = prependForwardSlash(joinPaths(settings.config.build.assets, filePath));
 						globalThis.astroAsset.staticImages.set(hash, { path: filePath, options: options });
 					}
 
-					if (isRemoteImage(options.src)) {
-						return filePath;
-					} else if (settings.config.build.assetsPrefix) {
+					if (settings.config.build.assetsPrefix) {
 						return joinPaths(settings.config.build.assetsPrefix, filePath);
 					} else {
 						return prependForwardSlash(joinPaths(settings.config.base, filePath));
