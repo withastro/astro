@@ -1,7 +1,7 @@
 import mime from 'mime/lite.js';
 import type { APIRoute } from '../@types/astro.js';
 import { isRemotePath } from '../core/path.js';
-import { getConfiguredImageService } from './internal.js';
+import { getConfiguredImageService, isRemoteAllowed } from './internal.js';
 import { isLocalService } from './services/service.js';
 import { etag } from './utils/etag.js';
 // @ts-expect-error
@@ -45,6 +45,11 @@ export const get: APIRoute = async ({ request }) => {
 		const sourceUrl = isRemotePath(transform.src)
 			? new URL(transform.src)
 			: new URL(transform.src, url.origin);
+
+		if (isRemoteAllowed(transform.src, imageConfig) === false) {
+			return new Response('Forbidden', { status: 403 });
+		}
+
 		inputBuffer = await loadRemoteImage(sourceUrl);
 
 		if (!inputBuffer) {
