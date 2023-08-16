@@ -3000,27 +3000,6 @@ importers:
         specifier: ^1.7.6
         version: 1.7.6
 
-  packages/astro/test/fixtures/react-component:
-    dependencies:
-      '@astrojs/react':
-        specifier: workspace:*
-        version: link:../../../../integrations/react
-      '@astrojs/vue':
-        specifier: workspace:*
-        version: link:../../../../integrations/vue
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      react:
-        specifier: ^18.1.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.1.0
-        version: 18.2.0(react@18.2.0)
-      vue:
-        specifier: ^3.3.4
-        version: 3.3.4
-
   packages/astro/test/fixtures/react-jsx-export:
     dependencies:
       react:
@@ -4787,6 +4766,9 @@ importers:
       '@babel/plugin-transform-react-jsx':
         specifier: ^7.22.5
         version: 7.22.5(@babel/core@7.22.5)
+      ultrahtml:
+        specifier: ^1.2.0
+        version: 1.2.0
     devDependencies:
       '@types/react':
         specifier: ^17.0.62
@@ -4800,12 +4782,42 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
+      chai:
+        specifier: ^4.3.7
+        version: 4.3.7
+      cheerio:
+        specifier: 1.0.0-rc.12
+        version: 1.0.0-rc.12
       react:
         specifier: ^18.1.0
         version: 18.2.0
       react-dom:
         specifier: ^18.1.0
         version: 18.2.0(react@18.2.0)
+      vite:
+        specifier: ^4.4.6
+        version: 4.4.6(@types/node@18.16.18)(sass@1.63.4)
+
+  packages/integrations/react/test/fixtures/react-component:
+    dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../../../vue
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      react:
+        specifier: ^18.1.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.1.0
+        version: 18.2.0(react@18.2.0)
+      vue:
+        specifier: ^3.3.4
+        version: 3.3.4
 
   packages/integrations/sitemap:
     dependencies:
@@ -17372,6 +17384,10 @@ packages:
 
   /ultrahtml@0.1.3:
     resolution: {integrity: sha512-P24ulZdT9UKyQuKA1IApdAZ+F9lwruGvmKb4pG3+sMvR3CjN0pjawPnxuSABHQFB+XqnB35TVXzJPOBYjCv6Kw==}
+    dev: false
+
+  /ultrahtml@1.2.0:
+    resolution: {integrity: sha512-vxZM2yNvajRmCj/SknRYGNXk2tqiy6kRNvZjJLaleG3zJbSh/aNkOqD1/CVzypw8tyHyhpzYuwQgMMhUB4ZVNQ==}
     dev: false
 
   /unbox-primitive@1.0.2:
