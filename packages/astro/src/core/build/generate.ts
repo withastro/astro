@@ -126,7 +126,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const ssr = isServerLikeOutput(opts.settings.config);
 	let manifest: SSRManifest;
 	if (ssr) {
-		manifest = await BuildPipeline.retrieveManifest(opts);
+		manifest = await BuildPipeline.retrieveManifest(opts, internals);
 	} else {
 		const baseDirectory = getOutputDirectory(opts.settings.config);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);

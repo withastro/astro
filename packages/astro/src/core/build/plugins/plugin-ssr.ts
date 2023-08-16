@@ -242,7 +242,7 @@ function generateSSRCode(config: AstroConfig, adapter: AstroAdapter) {
 
 	contents.push(`import * as adapter from '${adapter.serverEntrypoint}';
 import { renderers } from '${RENDERERS_MODULE_ID}'; 
-import defaultManifest from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}'; 
+import { manifest as defaultManifest} from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}'; 
 const _manifest = Object.assign(defaultManifest, {
 	${pageMap},
 	renderers,

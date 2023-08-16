@@ -31,6 +31,11 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 				return RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID;
 			}
 		},
+		augmentChunkHash(chunkInfo) {
+			if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
+				return Date.now().toString();
+			}
+		},
 		async load(id) {
 			if (id === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
 				const imports = [];
@@ -46,7 +51,7 @@ const manifest = _deserializeManifest('${manifestReplace}');
 _privateSetManifestDontUseThis(manifest);
 `);
 
-				exports.push('export default manifest');
+				exports.push('export { manifest }');
 
 				return `${imports.join('\n')}${contents.join('\n')}${exports.join('\n')}`;
 			}
@@ -60,6 +65,9 @@ _privateSetManifestDontUseThis(manifest);
 				if (chunk.modules[RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID]) {
 					internals.manifestEntryChunk = chunk;
 					delete bundle[chunkName];
+				}
+				if (chunkName.startsWith('manifest')) {
+					internals.manifestFileName = chunkName;
 				}
 			}
 		},

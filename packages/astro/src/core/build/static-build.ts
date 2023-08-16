@@ -190,7 +190,7 @@ async function ssrBuild(
 						} else if (chunkInfo.facadeModuleId === RESOLVED_RENDERERS_MODULE_ID) {
 							return 'renderers.mjs';
 						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
-							return 'manifest.mjs';
+							return 'manifest.[hash].mjs';
 						} else {
 							return '[name].mjs';
 						}

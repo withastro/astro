@@ -20,6 +20,10 @@ export class BuildPipeline extends Pipeline {
 	#internals: BuildInternals;
 	#staticBuildOptions: StaticBuildOptions;
 	#manifest: SSRManifest;
+	#currentEndpointBody?: {
+		body: string | Uint8Array;
+		encoding: BufferEncoding;
+	};
 
 	constructor(
 		staticBuildOptions: StaticBuildOptions,
@@ -92,18 +96,24 @@ export class BuildPipeline extends Pipeline {
 	 *
 	 * @param staticBuildOptions
 	 */
-	static async retrieveManifest(staticBuildOptions: StaticBuildOptions): Promise<SSRManifest> {
+	static async retrieveManifest(
+		staticBuildOptions: StaticBuildOptions,
+		internals: BuildInternals
+	): Promise<SSRManifest> {
 		const config = staticBuildOptions.settings.config;
 		const baseDirectory = getOutputDirectory(config);
-		const manifestEntryUrl = new URL('manifest.mjs', baseDirectory);
-		const { default: manifest } = await import(manifestEntryUrl.toString());
+		const manifestEntryUrl = new URL(
+			`${internals.manifestFileName}?time=${Date.now()}`,
+			baseDirectory
+		);
+		const { manifest } = await import(manifestEntryUrl.toString());
 		if (!manifest) {
 			throw new Error(
 				"Astro couldn't find the emitted manifest. This is an internal error, please file an issue."
 			);
 		}
 
-		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
+		const renderersEntryUrl = new URL(`renderers.mjs?time=${Date.now()}`, baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
 		if (!renderers) {
 			throw new Error(
@@ -153,15 +163,24 @@ export class BuildPipeline extends Pipeline {
 		return pages;
 	}
 
-	async #handleEndpointResult(_: Request, response: EndpointCallResult): Promise<Response> {
+	async #handleEndpointResult(request: Request, response: EndpointCallResult): Promise<Response> {
 		if (response.type === 'response') {
 			if (!response.response.body) {
 				return new Response(null);
 			}
-
+			const ab = await response.response.arrayBuffer();
+			const body = new Uint8Array(ab);
+			this.#currentEndpointBody = {
+				body: body,
+				encoding: 'utf-8',
+			};
 			return response.response;
 		} else {
 			if (response.encoding) {
+				this.#currentEndpointBody = {
+					body: response.body,
+					encoding: response.encoding,
+				};
 				const headers = new Headers();
 				headers.set('X-Astro-Encoding', response.encoding);
 				return new Response(response.body, {
@@ -181,10 +200,10 @@ export class BuildPipeline extends Pipeline {
 		encoding: BufferEncoding;
 	}> {
 		const encoding = response.headers.get('X-Astro-Encoding') ?? 'utf-8';
-		if (routeType === 'endpoint') {
-			const ab = await response.arrayBuffer();
-			const body = new Uint8Array(ab);
-			return { body, encoding: encoding as BufferEncoding };
+		if (this.#currentEndpointBody) {
+			const currentEndpointBody = this.#currentEndpointBody;
+			this.#currentEndpointBody = undefined;
+			return currentEndpointBody;
 		} else {
 			return { body: await response.text(), encoding: encoding as BufferEncoding };
 		}

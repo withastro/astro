@@ -87,6 +87,7 @@ export interface BuildInternals {
 	ssrEntryChunk?: Rollup.OutputChunk;
 	// The SSR manifest entry chunk.
 	manifestEntryChunk?: Rollup.OutputChunk;
+	manifestFileName?: string;
 	entryPoints: Map<RouteData, URL>;
 	ssrSplitEntryChunks: Map<string, Rollup.OutputChunk>;
 	componentMetadata: SSRResult['componentMetadata'];
