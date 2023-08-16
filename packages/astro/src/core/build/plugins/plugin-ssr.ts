@@ -1,28 +1,21 @@
-import glob from 'fast-glob';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroAdapter, AstroConfig } from '../../../@types/astro';
-import { isFunctionPerRouteEnabled, runHookBuildSsr } from '../../../integrations/index.js';
+import { isFunctionPerRouteEnabled } from '../../../integrations/index.js';
 import { isServerLikeOutput } from '../../../prerender/utils.js';
-import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
-import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types';
-import { joinPaths, prependForwardSlash } from '../../path.js';
 import { routeIsRedirect } from '../../redirects/index.js';
-import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
-import { getOutFile, getOutFolder } from '../common.js';
-import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
+import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
-import type { OutputChunk, StaticBuildOptions } from '../types';
+import type { StaticBuildOptions } from '../types';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 import { getPathFromVirtualModulePageName, getVirtualModulePageNameFromPath } from './util.js';
+import { SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugin-manifest.js';
 
 export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
-const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
-const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
-const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
+export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
 
 function vitePluginSSR(
 	internals: BuildInternals,
@@ -85,13 +78,12 @@ function vitePluginSSR(
 				}
 			}
 
-			for (const [chunkName, chunk] of Object.entries(bundle)) {
+			for (const [, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') {
 					continue;
 				}
 				if (chunk.modules[RESOLVED_SSR_VIRTUAL_MODULE_ID]) {
 					internals.ssrEntryChunk = chunk;
-					delete bundle[chunkName];
 				}
 			}
 		},
@@ -121,7 +113,7 @@ export function pluginSSR(
 					vitePlugin,
 				};
 			},
-			'build:post': async ({ mutate }) => {
+			'build:post': async () => {
 				if (!ssr) {
 					return;
 				}
@@ -135,17 +127,6 @@ export function pluginSSR(
 				}
 				// Mutate the filename
 				internals.ssrEntryChunk.fileName = options.settings.config.build.serverEntry;
-
-				const manifest = await createManifest(options, internals);
-				await runHookBuildSsr({
-					config: options.settings.config,
-					manifest,
-					logging: options.logging,
-					entryPoints: internals.entryPoints,
-					middlewareEntryPoint: internals.middlewareEntryPoint,
-				});
-				const code = injectManifest(manifest, internals.ssrEntryChunk);
-				mutate(internals.ssrEntryChunk, 'server', code);
 			},
 		},
 	};
@@ -209,20 +190,15 @@ function vitePluginSSRSplit(
 				}
 			}
 
-			for (const [chunkName, chunk] of Object.entries(bundle)) {
+			for (const [, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') {
 					continue;
 				}
-				let shouldDeleteBundle = false;
 				for (const moduleKey of Object.keys(chunk.modules)) {
 					if (moduleKey.startsWith(RESOLVED_SPLIT_MODULE_ID)) {
 						internals.ssrSplitEntryChunks.set(moduleKey, chunk);
 						storeEntryPoint(moduleKey, options, internals, chunk.fileName);
-						shouldDeleteBundle = true;
 					}
-				}
-				if (shouldDeleteBundle) {
-					delete bundle[chunkName];
 				}
 			}
 		},
@@ -250,31 +226,6 @@ export function pluginSSRSplit(
 					vitePlugin,
 				};
 			},
-			'build:post': async ({ mutate }) => {
-				if (!ssr) {
-					return;
-				}
-				if (!options.settings.config.build.split && !functionPerRouteEnabled) {
-					return;
-				}
-
-				if (internals.ssrSplitEntryChunks.size === 0) {
-					throw new Error(`Did not generate an entry chunk for SSR serverless`);
-				}
-
-				const manifest = await createManifest(options, internals);
-				await runHookBuildSsr({
-					config: options.settings.config,
-					manifest,
-					logging: options.logging,
-					entryPoints: internals.entryPoints,
-					middlewareEntryPoint: internals.middlewareEntryPoint,
-				});
-				for (const [, chunk] of internals.ssrSplitEntryChunks) {
-					const code = injectManifest(manifest, chunk);
-					mutate(chunk, 'server', code);
-				}
-			},
 		},
 	};
 }
@@ -291,13 +242,11 @@ function generateSSRCode(config: AstroConfig, adapter: AstroAdapter) {
 
 	contents.push(`import * as adapter from '${adapter.serverEntrypoint}';
 import { renderers } from '${RENDERERS_MODULE_ID}'; 
-import { deserializeManifest as _deserializeManifest } from 'astro/app';
-import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest';
-const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
+import { manifest as defaultManifest} from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}'; 
+const _manifest = Object.assign(defaultManifest, {
 	${pageMap},
 	renderers,
 });
-_privateSetManifestDontUseThis(_manifest);
 const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
 
 ${
@@ -327,51 +276,6 @@ if(_start in adapter) {
 }
 
 /**
- * It injects the manifest in the given output rollup chunk. It returns the new emitted code
- * @param buildOpts
- * @param internals
- * @param chunk
- */
-export function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<OutputChunk>) {
-	const code = chunk.code;
-
-	return code.replace(replaceExp, () => {
-		return JSON.stringify(manifest);
-	});
-}
-
-export async function createManifest(
-	buildOpts: StaticBuildOptions,
-	internals: BuildInternals
-): Promise<SerializedSSRManifest> {
-	if (
-		buildOpts.settings.config.build.split ||
-		isFunctionPerRouteEnabled(buildOpts.settings.adapter)
-	) {
-		if (internals.ssrSplitEntryChunks.size === 0) {
-			throw new Error(`Did not generate an entry chunk for SSR in serverless mode`);
-		}
-	} else {
-		if (!internals.ssrEntryChunk) {
-			throw new Error(`Did not generate an entry chunk for SSR`);
-		}
-	}
-
-	// Add assets from the client build.
-	const clientStatics = new Set(
-		await glob('**/*', {
-			cwd: fileURLToPath(buildOpts.settings.config.build.client),
-		})
-	);
-	for (const file of clientStatics) {
-		internals.staticFiles.add(file);
-	}
-
-	const staticFiles = internals.staticFiles;
-	return buildManifest(buildOpts, internals, Array.from(staticFiles));
-}
-
-/**
  * Because we delete the bundle from rollup at the end of this function,
  *  we can't use `writeBundle` hook to get the final file name of the entry point written on disk.
  *  We use this hook instead.
@@ -391,110 +295,4 @@ function storeEntryPoint(
 			internals.entryPoints.set(pageData.route, pathToFileURL(join(publicPath, fileName)));
 		}
 	}
-}
-
-function buildManifest(
-	opts: StaticBuildOptions,
-	internals: BuildInternals,
-	staticFiles: string[]
-): SerializedSSRManifest {
-	const { settings } = opts;
-
-	const routes: SerializedRouteInfo[] = [];
-	const entryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
-	if (settings.scripts.some((script) => script.stage === 'page')) {
-		staticFiles.push(entryModules[PAGE_SCRIPT_ID]);
-	}
-
-	const prefixAssetPath = (pth: string) => {
-		if (settings.config.build.assetsPrefix) {
-			return joinPaths(settings.config.build.assetsPrefix, pth);
-		} else {
-			return prependForwardSlash(joinPaths(settings.config.base, pth));
-		}
-	};
-
-	for (const route of opts.manifest.routes) {
-		if (!route.prerender) continue;
-		if (!route.pathname) continue;
-
-		const outFolder = getOutFolder(opts.settings.config, route.pathname, route.type);
-		const outFile = getOutFile(opts.settings.config, outFolder, route.pathname, route.type);
-		const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
-		routes.push({
-			file,
-			links: [],
-			scripts: [],
-			styles: [],
-			routeData: serializeRouteData(route, settings.config.trailingSlash),
-		});
-		staticFiles.push(file);
-	}
-
-	for (const route of opts.manifest.routes) {
-		const pageData = internals.pagesByComponent.get(route.component);
-		if (route.prerender || !pageData) continue;
-		const scripts: SerializedRouteInfo['scripts'] = [];
-		if (pageData.hoistedScript) {
-			const hoistedValue = pageData.hoistedScript.value;
-			const value = hoistedValue.endsWith('.js') ? prefixAssetPath(hoistedValue) : hoistedValue;
-			scripts.unshift(
-				Object.assign({}, pageData.hoistedScript, {
-					value,
-				})
-			);
-		}
-		if (settings.scripts.some((script) => script.stage === 'page')) {
-			const src = entryModules[PAGE_SCRIPT_ID];
-
-			scripts.push({
-				type: 'external',
-				value: prefixAssetPath(src),
-			});
-		}
-
-		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
-		const links: [] = [];
-
-		const styles = pageData.styles
-			.sort(cssOrder)
-			.map(({ sheet }) => sheet)
-			.map((s) => (s.type === 'external' ? { ...s, src: prefixAssetPath(s.src) } : s))
-			.reduce(mergeInlineCss, []);
-
-		routes.push({
-			file: '',
-			links,
-			scripts: [
-				...scripts,
-				...settings.scripts
-					.filter((script) => script.stage === 'head-inline')
-					.map(({ stage, content }) => ({ stage, children: content })),
-			],
-			styles,
-			routeData: serializeRouteData(route, settings.config.trailingSlash),
-		});
-	}
-
-	// HACK! Patch this special one.
-	if (!(BEFORE_HYDRATION_SCRIPT_ID in entryModules)) {
-		// Set this to an empty string so that the runtime knows not to try and load this.
-		entryModules[BEFORE_HYDRATION_SCRIPT_ID] = '';
-	}
-
-	const ssrManifest: SerializedSSRManifest = {
-		adapterName: opts.settings.adapter!.name,
-		routes,
-		site: settings.config.site,
-		base: settings.config.base,
-		compressHTML: settings.config.compressHTML,
-		assetsPrefix: settings.config.build.assetsPrefix,
-		componentMetadata: Array.from(internals.componentMetadata),
-		renderers: [],
-		clientDirectives: Array.from(settings.clientDirectives),
-		entryModules,
-		assets: staticFiles.map(prefixAssetPath),
-	};
-
-	return ssrManifest;
 }

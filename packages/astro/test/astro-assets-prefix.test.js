@@ -63,7 +63,7 @@ describe('Assets Prefix - Static', () => {
 	});
 });
 
-describe('Assets Prefix - Static with path prefix', () => {
+describe('Assets Prefix - with path prefix', () => {
 	let fixture;
 
 	before(async () => {
@@ -86,7 +86,7 @@ describe('Assets Prefix - Static with path prefix', () => {
 	});
 });
 
-describe('Assets Prefix - Server', () => {
+describe('Assets Prefix, server', () => {
 	let app;
 
 	before(async () => {
@@ -143,7 +143,7 @@ describe('Assets Prefix - Server', () => {
 	});
 });
 
-describe('Assets Prefix - Server with path prefix', () => {
+describe('Assets Prefix, with path prefix', () => {
 	let app;
 
 	before(async () => {
