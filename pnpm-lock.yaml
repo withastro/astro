@@ -2443,23 +2443,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/css-inline-stylesheets/always:
+  packages/astro/test/fixtures/css-inline-stylesheets:
     dependencies:
       astro:
         specifier: workspace:*
-        version: link:../../../..
-
-  packages/astro/test/fixtures/css-inline-stylesheets/auto:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../../..
-
-  packages/astro/test/fixtures/css-inline-stylesheets/never:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../../..
+        version: link:../../..
 
   packages/astro/test/fixtures/css-no-code-split:
     dependencies:
@@ -3011,27 +2999,6 @@ importers:
       solid-js:
         specifier: ^1.7.6
         version: 1.7.6
-
-  packages/astro/test/fixtures/react-component:
-    dependencies:
-      '@astrojs/react':
-        specifier: workspace:*
-        version: link:../../../../integrations/react
-      '@astrojs/vue':
-        specifier: workspace:*
-        version: link:../../../../integrations/vue
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      react:
-        specifier: ^18.1.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.1.0
-        version: 18.2.0(react@18.2.0)
-      vue:
-        specifier: ^3.3.4
-        version: 3.3.4
 
   packages/astro/test/fixtures/react-jsx-export:
     dependencies:
@@ -4799,6 +4766,9 @@ importers:
       '@babel/plugin-transform-react-jsx':
         specifier: ^7.22.5
         version: 7.22.5(@babel/core@7.22.5)
+      ultrahtml:
+        specifier: ^1.2.0
+        version: 1.2.0
     devDependencies:
       '@types/react':
         specifier: ^17.0.62
@@ -4812,12 +4782,42 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
+      chai:
+        specifier: ^4.3.7
+        version: 4.3.7
+      cheerio:
+        specifier: 1.0.0-rc.12
+        version: 1.0.0-rc.12
       react:
         specifier: ^18.1.0
         version: 18.2.0
       react-dom:
         specifier: ^18.1.0
         version: 18.2.0(react@18.2.0)
+      vite:
+        specifier: ^4.4.6
+        version: 4.4.6(@types/node@18.16.18)(sass@1.63.4)
+
+  packages/integrations/react/test/fixtures/react-component:
+    dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../../../vue
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      react:
+        specifier: ^18.1.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.1.0
+        version: 18.2.0(react@18.2.0)
+      vue:
+        specifier: ^3.3.4
+        version: 3.3.4
 
   packages/integrations/sitemap:
     dependencies:
@@ -17386,6 +17386,10 @@ packages:
     resolution: {integrity: sha512-P24ulZdT9UKyQuKA1IApdAZ+F9lwruGvmKb4pG3+sMvR3CjN0pjawPnxuSABHQFB+XqnB35TVXzJPOBYjCv6Kw==}
     dev: false
 
+  /ultrahtml@1.2.0:
+    resolution: {integrity: sha512-vxZM2yNvajRmCj/SknRYGNXk2tqiy6kRNvZjJLaleG3zJbSh/aNkOqD1/CVzypw8tyHyhpzYuwQgMMhUB4ZVNQ==}
+    dev: false
+
   /unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
     dependencies:
@@ -18556,25 +18560,21 @@ packages:
   file:packages/astro/test/fixtures/css-assets/packages/font-awesome:
     resolution: {directory: packages/astro/test/fixtures/css-assets/packages/font-awesome, type: directory}
     name: '@test/astro-font-awesome-package'
-    version: 0.0.1
     dev: false
 
   file:packages/astro/test/fixtures/multiple-renderers/renderers/one:
     resolution: {directory: packages/astro/test/fixtures/multiple-renderers/renderers/one, type: directory}
     name: '@test/astro-renderer-one'
-    version: 1.0.0
     dev: false
 
   file:packages/astro/test/fixtures/multiple-renderers/renderers/two:
     resolution: {directory: packages/astro/test/fixtures/multiple-renderers/renderers/two, type: directory}
     name: '@test/astro-renderer-two'
-    version: 1.0.0
     dev: false
 
   file:packages/astro/test/fixtures/solid-component/deps/solid-jsx-component:
     resolution: {directory: packages/astro/test/fixtures/solid-component/deps/solid-jsx-component, type: directory}
     name: '@test/solid-jsx-component'
-    version: 0.0.0
     dependencies:
       solid-js: 1.7.6
     dev: false
