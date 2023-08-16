@@ -80,11 +80,11 @@ import ReactComponent from './ReactComponent';
 </ReactComponent>
 ```
 
-This is because the children being passed to *are not* React nodes. Astro treats its templates as plain strings.
+If you are using a library that *expects* more than one child element element to be passed, for example so that it can slot certain elements in different places, you might find this to be a blocker.
 
-If you are using a library that *expects* to be passed more than 1 child element; for example so that it can slot certain elements in different places, you might find this to be a blocker. You can set the experimental flag `experimentalReactChildren` to tell Astro to always pass children to React as React vnodes.
+You can set the experimental flag `experimentalReactChildren` to tell Astro to always pass children to React as React vnodes. There is some runtime cost to this, but it can help with compatibility. 
 
-There is some runtime cost to this, but it can help with compatibility. You can enable this option with:
+You can enable this option in the configuration for the React integration:
 
 ```js
 // astro.config.mjs
