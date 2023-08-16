@@ -1852,7 +1852,7 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 *
 	 * ```ts
 	 * // src/middleware.ts
-	 * import {defineMiddleware} from "astro/middleware";
+	 * import {defineMiddleware} from "astro:middleware";
 	 *
 	 * export const onRequest = defineMiddleware((context, next) => {
 	 *   context.locals.greeting = "Hello!";
