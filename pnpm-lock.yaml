@@ -515,12 +515,6 @@ importers:
       '@types/babel__core':
         specifier: ^7.20.1
         version: 7.20.1
-      '@types/dom-view-transitions':
-        specifier: ^1.0.1
-        version: 1.0.1
-      '@types/yargs-parser':
-        specifier: ^21.0.0
-        version: 21.0.0
       acorn:
         specifier: ^8.9.0
         version: 8.9.0
@@ -587,9 +581,6 @@ importers:
       mime:
         specifier: ^3.0.0
         version: 3.0.0
-      network-information-types:
-        specifier: ^0.1.1
-        version: 0.1.1(typescript@5.1.6)
       ora:
         specifier: ^6.3.1
         version: 6.3.1
@@ -681,6 +672,9 @@ importers:
       '@types/diff':
         specifier: ^5.0.3
         version: 5.0.3
+      '@types/dom-view-transitions':
+        specifier: ^1.0.1
+        version: 1.0.1
       '@types/estree':
         specifier: ^0.0.51
         version: 0.0.51
@@ -705,12 +699,6 @@ importers:
       '@types/prompts':
         specifier: ^2.4.4
         version: 2.4.4
-      '@types/resolve':
-        specifier: ^1.20.2
-        version: 1.20.2
-      '@types/rimraf':
-        specifier: ^3.0.2
-        version: 3.0.2
       '@types/send':
         specifier: ^0.17.1
         version: 0.17.1
@@ -720,6 +708,9 @@ importers:
       '@types/unist':
         specifier: ^2.0.6
         version: 2.0.6
+      '@types/yargs-parser':
+        specifier: ^21.0.0
+        version: 21.0.0
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
@@ -738,6 +729,9 @@ importers:
       mocha:
         specifier: ^9.2.2
         version: 9.2.2
+      network-information-types:
+        specifier: ^0.1.1
+        version: 0.1.1(typescript@5.1.6)
       node-mocks-http:
         specifier: ^1.12.2
         version: 1.12.2
@@ -8490,7 +8484,7 @@ packages:
 
   /@types/dom-view-transitions@1.0.1:
     resolution: {integrity: sha512-A9S1ijj/4MX06I1W/6on8lhaYyq1Ir7gaOvfllW1o4RzVWW88HAeqX0pUx9VgOLnNpdiGeUW2CTkg18p5LWIrA==}
-    dev: false
+    dev: true
 
   /@types/estree-jsx@1.0.0:
     resolution: {integrity: sha512-3qvGd0z8F2ENTGr/GG1yViqfiKmRfrXVx5sJyHGFu3z7m5g5utCQtGp/g29JnjflhtQJBv1WDQukHiT58xPcYQ==}
@@ -8514,13 +8508,6 @@ packages:
 
   /@types/github-slugger@1.3.0:
     resolution: {integrity: sha512-J/rMZa7RqiH/rT29TEVZO4nBoDP9XJOjnbbIofg7GQKs4JIduEO3WLpte+6WeUz/TcrXKlY+bM7FYrp8yFB+3g==}
-    dev: true
-
-  /@types/glob@8.1.0:
-    resolution: {integrity: sha512-IO+MJPVhoqz+28h1qLAcBEH2+xHMK6MTyHJc7MTnnYb6wsoLR29POVGJ7LycmVXIqyy/4/2ShP5sUwTXuOwb/w==}
-    dependencies:
-      '@types/minimatch': 5.1.2
-      '@types/node': 18.16.18
     dev: true
 
   /@types/hast@2.3.4:
@@ -8585,10 +8572,6 @@ packages:
 
   /@types/mime@2.0.3:
     resolution: {integrity: sha512-Jus9s4CDbqwocc5pOAnh8ShfrnMcPHuJYzVcSUU7lrh8Ni5HuIqX3oilL86p3dlTrk0LzHRCgA/GQ7uNCw6l2Q==}
-    dev: true
-
-  /@types/minimatch@5.1.2:
-    resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
     dev: true
 
   /@types/minimist@1.2.2:
@@ -8694,13 +8677,6 @@ packages:
   /@types/resolve@1.20.2:
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
 
-  /@types/rimraf@3.0.2:
-    resolution: {integrity: sha512-F3OznnSLAUxFrCEu/L5PY8+ny8DtcFRjx7fZZ9bycvXRi3KPTRS9HOitGZwvPg0juRhXFWIeKX58cnX5YqLohQ==}
-    dependencies:
-      '@types/glob': 8.1.0
-      '@types/node': 18.16.3
-    dev: true
-
   /@types/sax@1.2.4:
     resolution: {integrity: sha512-pSAff4IAxJjfAXUG6tFkO7dsSbTmf8CtUpfhhZ5VhkRpC4628tJhh3+V6H1E+/Gs9piSzYKT5yzHO5M4GG9jkw==}
     dependencies:
@@ -8765,6 +8741,7 @@ packages:
 
   /@types/yargs-parser@21.0.0:
     resolution: {integrity: sha512-iO9ZQHkZxHn4mSakYV0vFHAVDyEOIJQrV2uZ06HxEPcx+mt8swXoZHIbaaJ2crJYFfErySgktuTZ3BeLz+XmFA==}
+    dev: true
 
   /@typescript-eslint/eslint-plugin@6.0.0(@typescript-eslint/parser@6.0.0)(eslint@8.43.0)(typescript@5.1.6):
     resolution: {integrity: sha512-xuv6ghKGoiq856Bww/yVYnXGsKa588kY3M0XK7uUW/3fJNNULKRfZfSBkMTSpqGG/8ZCXCadfh8G/z/B4aqS/A==}
@@ -14142,7 +14119,7 @@ packages:
       typescript: '>= 3.0.0'
     dependencies:
       typescript: 5.1.6
-    dev: false
+    dev: true
 
   /nice-try@1.0.5:
     resolution: {integrity: sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==}
@@ -18275,25 +18252,21 @@ packages:
   file:packages/astro/test/fixtures/css-assets/packages/font-awesome:
     resolution: {directory: packages/astro/test/fixtures/css-assets/packages/font-awesome, type: directory}
     name: '@test/astro-font-awesome-package'
-    version: 0.0.1
     dev: false
 
   file:packages/astro/test/fixtures/multiple-renderers/renderers/one:
     resolution: {directory: packages/astro/test/fixtures/multiple-renderers/renderers/one, type: directory}
     name: '@test/astro-renderer-one'
-    version: 1.0.0
     dev: false
 
   file:packages/astro/test/fixtures/multiple-renderers/renderers/two:
     resolution: {directory: packages/astro/test/fixtures/multiple-renderers/renderers/two, type: directory}
     name: '@test/astro-renderer-two'
-    version: 1.0.0
     dev: false
 
   file:packages/astro/test/fixtures/solid-component/deps/solid-jsx-component:
     resolution: {directory: packages/astro/test/fixtures/solid-component/deps/solid-jsx-component, type: directory}
     name: '@test/solid-jsx-component'
-    version: 0.0.0
     dependencies:
       solid-js: 1.7.6
     dev: false
