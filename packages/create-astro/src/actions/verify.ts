@@ -1,20 +1,34 @@
 import type { Context } from './context';
 
+import dns from 'node:dns/promises';
 import { color } from '@astrojs/cli-kit';
 import { getTemplateTarget } from "./template.js";
-import { banner, error, log, info } from '../messages.js';
+import { banner, error, log, info, bannerAbort } from '../messages.js';
+import fetch from 'node-fetch-native';
 
 export async function verify(ctx: Pick<Context, 'version' | 'template' | 'ref' | 'exit'>) {
-  if (!ctx.template) return;
-  const ok = await verifyTemplate(ctx.template, ctx.ref);
-
-  if (!ok) {
-    await banner(ctx.version);
+  const online = await isOnline();
+  if (!online) {
+    bannerAbort();
     log('');
-    error('error', `Template ${color.reset(ctx.template)} ${color.dim('could not be found!')}`);
-    await info('check', 'https://astro.build/examples');
+    error('error', `Unable to connect to the internet.`);
     ctx.exit(1);
   }
+
+  if (ctx.template) {
+    const ok = await verifyTemplate(ctx.template, ctx.ref);
+    if (!ok) {
+      bannerAbort();
+      log('');
+      error('error', `Template ${color.reset(ctx.template)} ${color.dim('could not be found!')}`);
+      await info('check', 'https://astro.build/examples');
+      ctx.exit(1);
+    }
+  }
+}
+
+function isOnline(): Promise<boolean> {
+  return dns.lookup('github.com').then(() => true, () => false);
 }
 
 async function verifyTemplate(tmpl: string, ref?: string) {
