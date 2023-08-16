@@ -3,6 +3,7 @@ import { getContext } from './actions/context.js';
 import { dependencies } from './actions/dependencies.js';
 import { git } from './actions/git.js';
 import { help } from './actions/help.js';
+import { verify } from './actions/verify.js';
 import { intro } from './actions/intro.js';
 import { next } from './actions/next-steps.js';
 import { projectName } from './actions/project-name.js';
@@ -30,6 +31,7 @@ export async function main() {
 	}
 
 	const steps = [
+		verify,
 		intro,
 		projectName,
 		template,
@@ -51,6 +53,7 @@ export {
 	dependencies,
 	getContext,
 	git,
+	verify,
 	intro,
 	next,
 	projectName,
