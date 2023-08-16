@@ -132,7 +132,6 @@ export interface CLIFlags {
 	config?: string;
 	drafts?: boolean;
 	open?: boolean;
-	experimentalAssets?: boolean;
 }
 
 /**
@@ -1231,27 +1230,6 @@ export interface AstroUserConfig {
 	 * These flags are not guaranteed to be stable.
 	 */
 	experimental?: {
-		/**
-		 * @docs
-		 * @name experimental.assets
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.1.0
-		 * @description
-		 * Enable experimental support for optimizing and resizing images. With this enabled, a new `astro:assets` module will be exposed.
-		 *
-		 * To enable this feature, set `experimental.assets` to `true` in your Astro config:
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		assets: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		assets?: boolean;
-
 		/**
 		 * @docs
 		 * @name experimental.viewTransitions

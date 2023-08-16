@@ -8,6 +8,7 @@ import type { StaticBuildOptions } from '../types';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN, getPathFromVirtualModulePageName } from './util.js';
+import type { AstroSettings } from '../../../@types/astro';
 
 export const ASTRO_PAGE_MODULE_ID = '@astro-page:';
 export const ASTRO_PAGE_RESOLVED_MODULE_ID = '\0' + ASTRO_PAGE_MODULE_ID;
@@ -74,11 +75,7 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 						exports.push(`export { renderers };`);
 
 						// The middleware should not be imported by the pages
-						if (
-							// TODO: remover in Astro 4.0
-							!opts.settings.config.build.excludeMiddleware ||
-							opts.settings.adapter?.adapterFeatures?.edgeMiddleware === true
-						) {
+						if (shouldBundleMiddleware(opts.settings)) {
 							const middlewareModule = await this.resolve(MIDDLEWARE_MODULE_ID);
 							if (middlewareModule) {
 								imports.push(`import { onRequest } from "${middlewareModule.id}";`);
@@ -92,6 +89,17 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 			}
 		},
 	};
+}
+
+export function shouldBundleMiddleware(settings: AstroSettings) {
+	// TODO: Remove in Astro 4.0
+	if (settings.config.build.excludeMiddleware === true) {
+		return false;
+	}
+	if (settings.adapter?.adapterFeatures?.edgeMiddleware === true) {
+		return false;
+	}
+	return true;
 }
 
 export function pluginPages(opts: StaticBuildOptions, internals: BuildInternals): AstroBuildPlugin {

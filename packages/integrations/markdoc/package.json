@@ -34,7 +34,7 @@
     ".": "./dist/index.js",
     "./components": "./components/index.ts",
     "./runtime": "./dist/runtime.js",
-    "./experimental-assets-config": "./dist/experimental-assets-config.js",
+    "./runtime-assets-config": "./dist/runtime-assets-config.js",
     "./package.json": "./package.json"
   },
   "typesVersions": {

@@ -1,11 +1,8 @@
 import mime from 'mime/lite.js';
 import type { APIRoute } from '../@types/astro.js';
-import { isRemotePath } from '../core/path.js';
-import { getConfiguredImageService } from './internal.js';
-import { isLocalService } from './services/service.js';
 import { etag } from './utils/etag.js';
 // @ts-expect-error
-import { imageServiceConfig } from 'astro:assets';
+import { getConfiguredImageService, imageServiceConfig } from 'astro:assets';
 
 async function loadRemoteImage(src: URL) {
 	try {
@@ -28,7 +25,7 @@ export const GET: APIRoute = async ({ request }) => {
 	try {
 		const imageService = await getConfiguredImageService();
 
-		if (!isLocalService(imageService)) {
+		if (!('transform' in imageService)) {
 			throw new Error('Configured image service is not a local service');
 		}
 
@@ -70,3 +67,7 @@ export const GET: APIRoute = async ({ request }) => {
 		return new Response(`Server Error: ${err}`, { status: 500 });
 	}
 };
+
+function isRemotePath(src: string) {
+	return /^(http|ftp|https|ws):?\/\//.test(src) || src.startsWith('data:');
+}
