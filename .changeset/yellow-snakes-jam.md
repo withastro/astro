@@ -2,9 +2,9 @@
 '@astrojs/react': minor
 ---
 
-Optionally parse React slots as React children
+Optionally parse React slots as React children.
 
-This adds a new flag `experimentalReactChildren` which can be set in the React component like so:
+This adds a new configuration option for the React integration `experimentalReactChildren`:
 
 ```js
 export default {
