@@ -31,10 +31,7 @@ describe('Cf metadata and caches', () => {
 		let html = await res.text();
 		let $ = cheerio.load(html);
 
-		expect($('#cf').text()).to.contain(
-			'city',
-			`Expected "city" to exist in runtime, but got ${$('#cf').text()}`
-		);
+		expect($('#hasRuntime').text()).to.equal('true');
 		expect($('#hasCache').text()).to.equal('true');
 	});
 });

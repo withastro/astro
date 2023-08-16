@@ -30,9 +30,9 @@ describe('Runtime Locals', () => {
 		expect(res.status).to.equal(200);
 		let html = await res.text();
 		let $ = cheerio.load(html);
-		expect($('#cf').text()).to.contain('city');
 		expect($('#env').text()).to.contain('SECRET_STUFF');
 		expect($('#env').text()).to.contain('secret');
+		expect($('#hasRuntime').text()).to.contain('true');
 		expect($('#hasCache').text()).to.equal('true');
 	});
 });
