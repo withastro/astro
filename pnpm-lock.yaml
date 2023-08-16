@@ -4877,8 +4877,8 @@ importers:
   packages/integrations/solid:
     dependencies:
       babel-preset-solid:
-        specifier: ^1.7.4
-        version: 1.7.4
+        specifier: ^1.7.7
+        version: 1.7.7
       vitefu:
         specifier: ^0.2.4
         version: 0.2.4(vite@4.4.6)
@@ -10007,8 +10007,8 @@ packages:
       - supports-color
     dev: false
 
-  /babel-preset-solid@1.7.4:
-    resolution: {integrity: sha512-0mbHNYkbOVYhH6L95VlHVkBEVQjOXSzUqLDiFxUcsg/tU4yTM/qx7FI8C+kmos9LHckQBSm3wtwoe1BZLNJR1w==}
+  /babel-preset-solid@1.7.7:
+    resolution: {integrity: sha512-tdxVzx3kgcIjNXAOmGRbzIhFBPeJjSakiN9yM+IYdL/+LtXNnbGqb0Va5tJb8Sjbk+QVEriovCyuzB5T7jeTvg==}
     peerDependencies:
       '@babel/core': ^7.0.0
     peerDependenciesMeta:
