@@ -15,7 +15,7 @@ export default defineConfig({
 });
 ```
 
-The following configuration will only allo remote images from HTTPs hosts:
+The following configuration will only allow remote images from HTTPS hosts:
 
 ```ts
 // astro.config.mjs
