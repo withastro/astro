@@ -3,7 +3,7 @@ import type { Context } from './context';
 import dns from 'node:dns/promises';
 import { color } from '@astrojs/cli-kit';
 import { getTemplateTarget } from "./template.js";
-import { banner, error, log, info, bannerAbort } from '../messages.js';
+import { error, log, info, bannerAbort } from '../messages.js';
 import fetch from 'node-fetch-native';
 
 export async function verify(ctx: Pick<Context, 'version' | 'dryRun' | 'template' | 'ref' | 'exit'>) {
@@ -79,7 +79,8 @@ const GIT_RE =
   /^(?<repo>[\w.-]+\/[\w.-]+)(?<subdir>[^#]+)?(?<ref>#[\w.-]+)?/;
 
 function parseGitURI(input: string) {
-  const m = input.match(GIT_RE)?.groups!;
+  const m = input.match(GIT_RE)?.groups;
+  if (!m) throw new Error(`Unable to parse "${input}"`);
   return {
     repo: m.repo,
     subdir: m.subdir || "/",
