@@ -31,7 +31,7 @@ export default (element) =>
 		}
 		if (client === 'only') {
 			return startTransition(() => {
-				createRoot(element, renderOptions).render(componentEl);
+				createRoot(element).render(componentEl);
 			});
 		}
 		return startTransition(() => {
