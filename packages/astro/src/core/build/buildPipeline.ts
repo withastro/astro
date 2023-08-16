@@ -5,12 +5,13 @@ import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { SSRManifest } from '../app/types';
-import type { AstroConfig, AstroSettings, SSRLoadedRenderer } from '../../@types/astro';
+import type { AstroConfig, AstroSettings, RouteType, SSRLoadedRenderer } from '../../@types/astro';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import type { EndpointCallResult } from '../endpoint';
 import { createEnvironment } from '../render/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { createAssetLink } from '../render/ssr-element.js';
+import type { BufferEncoding } from 'vfile';
 
 /**
  * This pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
@@ -95,7 +96,7 @@ export class BuildPipeline extends Pipeline {
 		const config = staticBuildOptions.settings.config;
 		const baseDirectory = getOutputDirectory(config);
 		const manifestEntryUrl = new URL('manifest.mjs', baseDirectory);
-		const manifest: SSRManifest | undefined = await import(manifestEntryUrl.toString());
+		const { default: manifest } = await import(manifestEntryUrl.toString());
 		if (!manifest) {
 			throw new Error(
 				"Astro couldn't find the emitted manifest. This is an internal error, please file an issue."
@@ -103,16 +104,15 @@ export class BuildPipeline extends Pipeline {
 		}
 
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
-		const renderers: SSRLoadedRenderer[] | undefined = await import(renderersEntryUrl.toString());
+		const renderers = await import(renderersEntryUrl.toString());
 		if (!renderers) {
 			throw new Error(
 				"Astro couldn't find the emitted renderers. This is an internal error, please file an issue."
 			);
 		}
-		// manifest.renderers = renderers;
 		return {
 			...manifest,
-			renderers,
+			renderers: renderers.renderers as SSRLoadedRenderer[],
 		};
 	}
 
@@ -158,11 +158,8 @@ export class BuildPipeline extends Pipeline {
 			if (!response.response.body) {
 				return new Response(null);
 			}
-			const ab = await response.response.arrayBuffer();
-			const body = new Uint8Array(ab);
-			return new Response(body, {
-				headers: { ...response.response.headers },
-			});
+
+			return response.response;
 		} else {
 			if (response.encoding) {
 				const headers = new Headers();
@@ -173,6 +170,23 @@ export class BuildPipeline extends Pipeline {
 			} else {
 				return new Response(response.body);
 			}
+		}
+	}
+
+	async computeBodyAndEncoding(
+		routeType: RouteType,
+		response: Response
+	): Promise<{
+		body: string | Uint8Array;
+		encoding: BufferEncoding;
+	}> {
+		const encoding = response.headers.get('X-Astro-Encoding') ?? 'utf-8';
+		if (routeType === 'endpoint') {
+			const ab = await response.arrayBuffer();
+			const body = new Uint8Array(ab);
+			return { body, encoding: encoding as BufferEncoding };
+		} else {
+			return { body: await response.text(), encoding: encoding as BufferEncoding };
 		}
 	}
 }

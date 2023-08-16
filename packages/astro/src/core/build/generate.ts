@@ -29,7 +29,7 @@ import {
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
-import { isServerLikeOutput } from '../../prerender/utils.js';
+import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info, Logger } from '../logger/core.js';
@@ -124,7 +124,19 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const logger = new Logger(opts.logging);
 	const timer = performance.now();
 	const ssr = isServerLikeOutput(opts.settings.config);
-	const manifest: SSRManifest = await BuildPipeline.retrieveManifest(opts);
+	let manifest: SSRManifest;
+	if (ssr) {
+		manifest = await BuildPipeline.retrieveManifest(opts);
+	} else {
+		const baseDirectory = getOutputDirectory(opts.settings.config);
+		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
+		const renderers = await import(renderersEntryUrl.toString());
+		manifest = createBuildManifest(
+			opts.settings,
+			internals,
+			renderers.renderers as SSRLoadedRenderer[]
+		);
+	}
 	const buildPipeline = new BuildPipeline(opts, internals, manifest);
 	const outFolder = ssr
 		? opts.settings.config.build.server
@@ -551,7 +563,9 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 	} else {
 		// If there's no body, do nothing
 		if (!response.body) return;
-		body = await response.text();
+		const result = await pipeline.computeBodyAndEncoding(renderContext.route.type, response);
+		body = result.body;
+		encoding = result.encoding;
 	}
 
 	const outFolder = getOutFolder(pipeline.getConfig(), pathname, pageData.route.type);
