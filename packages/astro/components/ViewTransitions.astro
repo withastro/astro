@@ -38,12 +38,21 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 	const throttle = (cb: (...args: any[]) => any, delay: number) => {
 		let wait = false;
+		// During the waiting time additional events are lost.
+		// So repeat the callback at the end if we have swallowed events.
+		let onceMore = false;
 		return (...args: any[]) => {
-			if (wait) return;
-
+			if (wait) {
+				onceMore = true;
+				return;
+			}
 			cb(...args);
 			wait = true;
 			setTimeout(() => {
+				if (onceMore) {
+					onceMore = false;
+					cb(...args);
+				}
 				wait = false;
 			}, delay);
 		};
@@ -163,6 +172,8 @@ const { fallback = 'animate' } = Astro.props as Props;
 			}
 			if (state?.scrollY != null) {
 				scrollTo(0, state.scrollY);
+				// Overwrite erroneous updates by the scroll handler during transition
+				persistState(state);
 			}
 
 			triggerEvent('astro:beforeload');
