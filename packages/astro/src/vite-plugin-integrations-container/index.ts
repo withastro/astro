@@ -16,9 +16,9 @@ export default function astroIntegrationsContainerPlugin({
 }): VitePlugin {
 	return {
 		name: 'astro:integration-container',
-		configureServer(server) {
+		async configureServer(server) {
 			if (server.config.isProduction) return;
-			runHookServerSetup({ config: settings.config, server, logging });
+			await runHookServerSetup({ config: settings.config, server, logging });
 		},
 		async buildStart() {
 			if (settings.injectedRoutes.length === settings.resolvedInjectedRoutes.length) return;
