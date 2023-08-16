@@ -46,7 +46,7 @@ export const get: APIRoute = async ({ request }) => {
 			? new URL(transform.src)
 			: new URL(transform.src, url.origin);
 
-		if (isRemoteAllowed(transform.src, imageConfig) === false) {
+		if (isRemotePath(transform.src) && isRemoteAllowed(transform.src, imageConfig) === false) {
 			return new Response('Forbidden', { status: 403 });
 		}
 
