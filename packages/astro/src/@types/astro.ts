@@ -141,7 +141,7 @@ export interface CLIFlags {
  */
 export interface AstroGlobal<
 	Props extends Record<string, any> = Record<string, any>,
-	Self = AstroComponentFactory
+	Self = AstroComponentFactory,
 > extends AstroGlobalPartial,
 		AstroSharedContext<Props> {
 	/**
@@ -1348,7 +1348,7 @@ export interface AstroInlineOnlyConfig {
 	 *
 	 * If this value is undefined or unset, Astro will search for an `astro.config.(js,mjs,ts)` file relative to
 	 * the `root` and load the config file if found.
-	 * 
+	 *
 	 * The inline config passed in this object will take highest priority when merging with the loaded user config.
 	 */
 	configFile?: string | false;
@@ -1358,11 +1358,11 @@ export interface AstroInlineOnlyConfig {
 	mode?: RuntimeMode;
 	/**
 	 * The logging level to filter messages logged by Astro.
-	 * - "debug": Log all messages and debug information.
-	 * - "info": Log all messages.
-	 * - "warn": Log only warnings and errors.
-	 * - "error": Log only errors.
-	 * - "silent": Log no messages.
+	 * - "debug": Log everything, including noisy debugging diagnostics.
+	 * - "info": Log informational messages, warnings, and errors.
+	 * - "warn": Log warnings and errors.
+	 * - "error": Log errors only.
+	 * - "silent": No logging.
 	 *
 	 * @default "info"
 	 */
