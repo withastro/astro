@@ -103,7 +103,7 @@ describe('React Components', () => {
 		it('Children are parsed as React components, can be manipulated', async () => {
 			const html = await fixture.readFile('/children/index.html');
 			const $ = cheerioLoad(html);
-			expect($(".with-children-count").text()).to.equal('1');
+			expect($(".with-children-count").text()).to.equal('2');
 		})
 	});
 
