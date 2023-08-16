@@ -45,7 +45,8 @@
   },
   "dependencies": {
     "@babel/core": "^7.22.5",
-    "@babel/plugin-transform-react-jsx": "^7.22.5"
+    "@babel/plugin-transform-react-jsx": "^7.22.5",
+    "ultrahtml": "^1.2.0"
   },
   "devDependencies": {
     "@types/react": "^17.0.62",
@@ -53,7 +54,10 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "react": "^18.1.0",
-    "react-dom": "^18.1.0"
+    "react-dom": "^18.1.0",
+    "chai": "^4.3.7",
+    "cheerio": "1.0.0-rc.12",
+    "vite": "^4.4.6"
   },
   "peerDependencies": {
     "@types/react": "^17.0.50 || ^18.0.21",
