@@ -39,23 +39,23 @@ function getRenderer() {
 
 function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
 	const virtualModule = 'astro:react:opts';
-	const virtualModuleId = '\0' + virtualModule; 
-	return 			{
+	const virtualModuleId = '\0' + virtualModule;
+	return {
 		name: '@astrojs/react:opts',
 		resolveId(id) {
-			if(id === virtualModule) {
+			if (id === virtualModule) {
 				return virtualModuleId;
 			}
 		},
 		load(id) {
-			if(id === virtualModuleId) {
+			if (id === virtualModuleId) {
 				return {
 					code: `export default {
 						experimentalReactChildren: ${JSON.stringify(experimentalReactChildren)}
-					}`
+					}`,
 				};
 			}
-		}
+		},
 	};
 }
 
@@ -93,17 +93,17 @@ function getViteConfiguration(experimentalReactChildren: boolean) {
 				'use-immer',
 			],
 		},
-		plugins: [
-			optionsPlugin(experimentalReactChildren)
-		]
+		plugins: [optionsPlugin(experimentalReactChildren)],
 	};
 }
 
 export type ReactIntegrationOptions = {
 	experimentalReactChildren: boolean;
-}
+};
 
-export default function ({ experimentalReactChildren }: ReactIntegrationOptions = { experimentalReactChildren: false }): AstroIntegration {
+export default function (
+	{ experimentalReactChildren }: ReactIntegrationOptions = { experimentalReactChildren: false }
+): AstroIntegration {
 	return {
 		name: '@astrojs/react',
 		hooks: {

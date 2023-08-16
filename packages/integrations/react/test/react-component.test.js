@@ -51,7 +51,9 @@ describe('React Components', () => {
 			// test 10: Should properly render children passed as props
 			const islandsWithChildren = $('.with-children');
 			expect(islandsWithChildren).to.have.lengthOf(2);
-			expect($(islandsWithChildren[0]).html()).to.equal($(islandsWithChildren[1]).find('astro-slot').html());
+			expect($(islandsWithChildren[0]).html()).to.equal(
+				$(islandsWithChildren[1]).find('astro-slot').html()
+			);
 
 			// test 11: Should generate unique React.useId per island
 			const islandsWithId = $('.react-use-id');
@@ -103,8 +105,8 @@ describe('React Components', () => {
 		it('Children are parsed as React components, can be manipulated', async () => {
 			const html = await fixture.readFile('/children/index.html');
 			const $ = cheerioLoad(html);
-			expect($(".with-children-count").text()).to.equal('2');
-		})
+			expect($('.with-children-count').text()).to.equal('2');
+		});
 	});
 
 	if (isWindows) return;
