@@ -48,7 +48,7 @@ export async function runCLI(basePath, { silent, port }) {
 	p.stderr.setEncoding('utf-8');
 	p.stdout.setEncoding('utf-8');
 
-	const timeout = 10_000;
+	const timeout = 20_000;
 
 	const ready = new Promise(async (resolve, reject) => {
 		const failed = setTimeout(() => {

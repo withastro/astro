@@ -8,7 +8,11 @@ describe('Setting inlineStylesheets to never in static output', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/css-inline-stylesheets/never/',
+			// inconsequential config that differs between tests
+			// to bust cache and prevent modules and their state
+			// from being reused
+			site: 'https://test.dev/',
+			root: './fixtures/css-inline-stylesheets/',
 			output: 'static',
 			build: {
 				inlineStylesheets: 'never',
@@ -41,7 +45,11 @@ describe('Setting inlineStylesheets to never in server output', () => {
 
 	before(async () => {
 		const fixture = await loadFixture({
-			root: './fixtures/css-inline-stylesheets/never/',
+			// inconsequential config that differs between tests
+			// to bust cache and prevent modules and their state
+			// from being reused
+			site: 'https://test.dev/',
+			root: './fixtures/css-inline-stylesheets/',
 			output: 'server',
 			adapter: testAdapter(),
 			build: {
@@ -77,7 +85,11 @@ describe('Setting inlineStylesheets to auto in static output', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/css-inline-stylesheets/auto/',
+			// inconsequential config that differs between tests
+			// to bust cache and prevent modules and their state
+			// from being reused
+			site: 'https://test.info/',
+			root: './fixtures/css-inline-stylesheets/',
 			output: 'static',
 			build: {
 				inlineStylesheets: 'auto',
@@ -117,7 +129,11 @@ describe('Setting inlineStylesheets to auto in server output', () => {
 
 	before(async () => {
 		const fixture = await loadFixture({
-			root: './fixtures/css-inline-stylesheets/auto/',
+			// inconsequential config that differs between tests
+			// to bust cache and prevent modules and their state
+			// from being reused
+			site: 'https://test.info/',
+			root: './fixtures/css-inline-stylesheets/',
 			output: 'server',
 			adapter: testAdapter(),
 			build: {
@@ -161,7 +177,11 @@ describe('Setting inlineStylesheets to always in static output', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/css-inline-stylesheets/always/',
+			// inconsequential config that differs between tests
+			// to bust cache and prevent modules and their state
+			// from being reused
+			site: 'https://test.net/',
+			root: './fixtures/css-inline-stylesheets/',
 			output: 'static',
 			build: {
 				inlineStylesheets: 'always',
@@ -193,7 +213,11 @@ describe('Setting inlineStylesheets to always in server output', () => {
 
 	before(async () => {
 		const fixture = await loadFixture({
-			root: './fixtures/css-inline-stylesheets/always/',
+			// inconsequential config that differs between tests
+			// to bust cache and prevent modules and their state
+			// from being reused
+			site: 'https://test.net/',
+			root: './fixtures/css-inline-stylesheets/',
 			output: 'server',
 			adapter: testAdapter(),
 			build: {

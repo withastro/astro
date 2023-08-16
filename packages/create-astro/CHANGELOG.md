@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.2.1
+
+### Patch Changes
+
+- [#8089](https://github.com/withastro/astro/pull/8089) [`04755e846`](https://github.com/withastro/astro/commit/04755e84658ea10914a09f3d07f302267326d610) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix install step to avoid uncaught errors
+
 ## 3.2.0
 
 ### Minor Changes
