@@ -8,8 +8,8 @@ const env = runtime.env;
 	</head>
 	<body>
 		<h1>Testing</h1>
-		<div id="cf">{JSON.stringify(runtime.cf)}</div>
 		<div id="env">{JSON.stringify(env)}</div>
+		<div id="hasRuntime">{!!runtime.cf?.colo}</div>
 		<div id="hasCache">{!!runtime.caches}</div>
 	</body>
 </html>
