@@ -99,9 +99,7 @@ export const banner = async (version: string) =>
 	);
 
 export const bannerAbort = () =>
-	log(
-		`\n${label('astro', color.bgRed)} ${color.bold('Launch sequence aborted.')}`
-	);
+	log(`\n${label('astro', color.bgRed)} ${color.bold('Launch sequence aborted.')}`);
 
 export const info = async (prefix: string, text: string) => {
 	await sleep(100);

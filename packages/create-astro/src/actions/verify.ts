@@ -1,56 +1,61 @@
 import type { Context } from './context';
 
-import dns from 'node:dns/promises';
 import { color } from '@astrojs/cli-kit';
-import { getTemplateTarget } from "./template.js";
-import { error, log, info, bannerAbort } from '../messages.js';
 import fetch from 'node-fetch-native';
+import dns from 'node:dns/promises';
+import { bannerAbort, error, info, log } from '../messages.js';
+import { getTemplateTarget } from './template.js';
 
-export async function verify(ctx: Pick<Context, 'version' | 'dryRun' | 'template' | 'ref' | 'exit'>) {
-  if (!ctx.dryRun) {
-    const online = await isOnline();
-    if (!online) {
-      bannerAbort();
-      log('');
-      error('error', `Unable to connect to the internet.`);
-      ctx.exit(1);
-    }  
-  }
+export async function verify(
+	ctx: Pick<Context, 'version' | 'dryRun' | 'template' | 'ref' | 'exit'>
+) {
+	if (!ctx.dryRun) {
+		const online = await isOnline();
+		if (!online) {
+			bannerAbort();
+			log('');
+			error('error', `Unable to connect to the internet.`);
+			ctx.exit(1);
+		}
+	}
 
-  if (ctx.template) {
-    const ok = await verifyTemplate(ctx.template, ctx.ref);
-    if (!ok) {
-      bannerAbort();
-      log('');
-      error('error', `Template ${color.reset(ctx.template)} ${color.dim('could not be found!')}`);
-      await info('check', 'https://astro.build/examples');
-      ctx.exit(1);
-    }
-  }
+	if (ctx.template) {
+		const ok = await verifyTemplate(ctx.template, ctx.ref);
+		if (!ok) {
+			bannerAbort();
+			log('');
+			error('error', `Template ${color.reset(ctx.template)} ${color.dim('could not be found!')}`);
+			await info('check', 'https://astro.build/examples');
+			ctx.exit(1);
+		}
+	}
 }
 
 function isOnline(): Promise<boolean> {
-  return dns.lookup('github.com').then(() => true, () => false);
+	return dns.lookup('github.com').then(
+		() => true,
+		() => false
+	);
 }
 
 async function verifyTemplate(tmpl: string, ref?: string) {
-  const target = getTemplateTarget(tmpl, ref);
-  const { repo, subdir, ref: branch } = parseGitURI(target.replace('github:', ''));
-  const url = new URL(`/repos/${repo}/contents${subdir}?ref=${branch}`, 'https://api.github.com/')
+	const target = getTemplateTarget(tmpl, ref);
+	const { repo, subdir, ref: branch } = parseGitURI(target.replace('github:', ''));
+	const url = new URL(`/repos/${repo}/contents${subdir}?ref=${branch}`, 'https://api.github.com/');
 
-  let res = await fetch(url.toString(), {
-    headers: {
-      "Accept": "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28"
-    }
-  })
+	let res = await fetch(url.toString(), {
+		headers: {
+			Accept: 'application/vnd.github+json',
+			'X-GitHub-Api-Version': '2022-11-28',
+		},
+	});
 
-  // If users hit a ratelimit, fallback to the GitHub website
-  if (res.status === 403) {
-    res = await fetch(`https://github.com/${repo}/tree/${branch}${subdir}`)
-  }
+	// If users hit a ratelimit, fallback to the GitHub website
+	if (res.status === 403) {
+		res = await fetch(`https://github.com/${repo}/tree/${branch}${subdir}`);
+	}
 
-  return res.status === 200;
+	return res.status === 200;
 }
 
 // Adapted from https://github.com/unjs/giget/blob/main/src/_utils.ts
@@ -75,15 +80,14 @@ async function verifyTemplate(tmpl: string, ref?: string) {
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-const GIT_RE =
-  /^(?<repo>[\w.-]+\/[\w.-]+)(?<subdir>[^#]+)?(?<ref>#[\w.-]+)?/;
+const GIT_RE = /^(?<repo>[\w.-]+\/[\w.-]+)(?<subdir>[^#]+)?(?<ref>#[\w.-]+)?/;
 
 function parseGitURI(input: string) {
-  const m = input.match(GIT_RE)?.groups;
-  if (!m) throw new Error(`Unable to parse "${input}"`);
-  return {
-    repo: m.repo,
-    subdir: m.subdir || "/",
-    ref: m.ref ? m.ref.slice(1) : "main",
-  };
+	const m = input.match(GIT_RE)?.groups;
+	if (!m) throw new Error(`Unable to parse "${input}"`);
+	return {
+		repo: m.repo,
+		subdir: m.subdir || '/',
+		ref: m.ref ? m.ref.slice(1) : 'main',
+	};
 }

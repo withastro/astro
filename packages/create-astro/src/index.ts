@@ -3,12 +3,12 @@ import { getContext } from './actions/context.js';
 import { dependencies } from './actions/dependencies.js';
 import { git } from './actions/git.js';
 import { help } from './actions/help.js';
-import { verify } from './actions/verify.js';
 import { intro } from './actions/intro.js';
 import { next } from './actions/next-steps.js';
 import { projectName } from './actions/project-name.js';
 import { template } from './actions/template.js';
 import { setupTypeScript, typescript } from './actions/typescript.js';
+import { verify } from './actions/verify.js';
 import { setStdout } from './messages.js';
 
 const exit = () => process.exit(0);
@@ -53,7 +53,6 @@ export {
 	dependencies,
 	getContext,
 	git,
-	verify,
 	intro,
 	next,
 	projectName,
@@ -61,4 +60,5 @@ export {
 	setupTypeScript,
 	template,
 	typescript,
+	verify,
 };

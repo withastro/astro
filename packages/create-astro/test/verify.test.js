@@ -7,12 +7,12 @@ describe('verify', () => {
 	const fixture = setup();
 	const exit = (code) => {
 		throw code;
-	}
+	};
 
 	it('basics', async () => {
 		const context = { template: 'basics', exit };
 		await verify(context);
-		expect(fixture.messages().length).to.equal(0, 'Did not expect `verify` to log any messages')
+		expect(fixture.messages().length).to.equal(0, 'Did not expect `verify` to log any messages');
 	});
 
 	it('missing', async () => {
@@ -30,12 +30,12 @@ describe('verify', () => {
 	it('starlight', async () => {
 		const context = { template: 'starlight', exit };
 		await verify(context);
-		expect(fixture.messages().length).to.equal(0, 'Did not expect `verify` to log any messages')
+		expect(fixture.messages().length).to.equal(0, 'Did not expect `verify` to log any messages');
 	});
 
 	it('starlight/tailwind', async () => {
 		const context = { template: 'starlight/tailwind', exit };
 		await verify(context);
-		expect(fixture.messages().length).to.equal(0, 'Did not expect `verify` to log any messages')
+		expect(fixture.messages().length).to.equal(0, 'Did not expect `verify` to log any messages');
 	});
 });
