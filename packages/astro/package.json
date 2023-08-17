@@ -23,6 +23,9 @@
       ],
       "middleware": [
         "./dist/core/middleware/index.d.ts"
+      ],
+      "middleware/namespace": [
+        "./dist/core/middleware/namespace.d.ts"
       ]
     }
   },
@@ -69,6 +72,10 @@
     "./middleware": {
       "types": "./dist/core/middleware/index.d.ts",
       "default": "./dist/core/middleware/index.js"
+    },
+    "./middleware/namespace": {
+      "types": "./dist/core/middleware/namespace.d.ts",
+      "default": "./dist/core/middleware/namespace.js"
     },
     "./transitions": "./dist/transitions/index.js"
   },
