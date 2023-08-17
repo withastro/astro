@@ -306,10 +306,11 @@ const { fallback = 'animate' } = Astro.props as Props;
 				return;
 			}
 
-			// hash change creates no state.
+			// History entries without state are created by the browser (e.g. for hash links)
+			// Our view transition entries always have state.
+			// Just ignore stateless entries.
+			// The browser will handle navigation fine without our help
 			if (ev.state === null) {
-				persistState({ index: currentHistoryIndex, scrollY });
-				ev.preventDefault();
 				return;
 			}
 
@@ -344,6 +345,8 @@ const { fallback = 'animate' } = Astro.props as Props;
 		addEventListener(
 			'scroll',
 			throttle(() => {
+				// only updste history entries that are managed by us
+				// leave other entries alone and do not accidently add state.
 				if (history.state) {
 					persistState({ ...history.state, scrollY });
 				}
