@@ -4,7 +4,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../../@types/astro';
-import type { RenderInstruction } from './types.js';
+import { createRenderInstruction, type RenderInstruction } from './instruction.js';
 
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 import { HTMLBytes, markHTMLString } from '../escape.js';
@@ -370,7 +370,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 					destination.write(instruction);
 				}
 			}
-			destination.write({ type: 'directive', hydration });
+			destination.write(createRenderInstruction({ type: 'directive', hydration }));
 			destination.write(markHTMLString(renderElement('astro-island', island, false)));
 		},
 	};
