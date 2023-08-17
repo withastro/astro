@@ -23,6 +23,9 @@
       ],
       "middleware": [
         "./dist/core/middleware/index.d.ts"
+      ],
+      "middleware/namespace": [
+        "./dist/core/middleware/namespace.d.ts"
       ]
     }
   },
@@ -69,6 +72,10 @@
     "./middleware": {
       "types": "./dist/core/middleware/index.d.ts",
       "default": "./dist/core/middleware/index.js"
+    },
+    "./middleware/namespace": {
+      "types": "./dist/core/middleware/namespace.d.ts",
+      "default": "./dist/core/middleware/namespace.js"
     },
     "./transitions": "./dist/transitions/index.js"
   },
@@ -139,6 +146,7 @@
     "fast-glob": "^3.2.12",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
+    "http-cache-semantics": "^4.1.1",
     "html-escaper": "^3.0.3",
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.4",
@@ -180,6 +188,7 @@
     "@types/estree": "^0.0.51",
     "@types/hast": "^2.3.4",
     "@types/html-escaper": "^3.0.0",
+    "@types/http-cache-semantics": "^4.0.1",
     "@types/js-yaml": "^4.0.5",
     "@types/mime": "^2.0.3",
     "@types/mocha": "^9.1.1",

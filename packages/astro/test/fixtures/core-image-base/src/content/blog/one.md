@@ -1,6 +1,6 @@
 ---
 title: One
-image: ~/assets/penguin2.jpg
+image: ../../assets/penguin2.jpg
 cover:
   image: ../../assets/penguin1.jpg
 ---

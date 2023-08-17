@@ -1,4 +1,3 @@
-import { deepmerge } from 'deepmerge-ts';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import * as tsr from 'tsconfig-resolver';
@@ -96,5 +95,28 @@ export function updateTSConfigForFramework(
 		return target;
 	}
 
-	return deepmerge(target, presets.get(framework)!);
+	return deepMergeObjects(target, presets.get(framework)!);
+}
+
+// Simple deep merge implementation that merges objects and strings
+function deepMergeObjects<T extends Record<string, any>>(a: T, b: T): T {
+	const merged: T = { ...a };
+
+	for (const key in b) {
+		const value = b[key];
+
+		if (a[key] == null) {
+			merged[key] = value;
+			continue;
+		}
+
+		if (typeof a[key] === 'object' && typeof value === 'object') {
+			merged[key] = deepMergeObjects(a[key], value);
+			continue;
+		}
+
+		merged[key] = value;
+	}
+
+	return merged;
 }

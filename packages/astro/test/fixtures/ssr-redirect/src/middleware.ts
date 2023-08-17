@@ -1,4 +1,4 @@
-import { defineMiddleware } from 'astro/middleware';
+import { defineMiddleware } from 'astro:middleware';
 
 export const onRequest = defineMiddleware(({ request }, next) => {
 	if(new URL(request.url).pathname === '/middleware-redirect/') {

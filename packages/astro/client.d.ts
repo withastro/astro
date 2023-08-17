@@ -119,6 +119,14 @@ declare module 'astro:transitions' {
 	export const ViewTransitions: ViewTransitionsModule['default'];
 }
 
+declare module 'astro:middleware' {
+	export * from 'astro/middleware/namespace';
+}
+
+declare module 'astro:components' {
+	export * from 'astro/components';
+}
+
 type MD = import('./dist/@types/astro').MarkdownInstance<Record<string, any>>;
 interface ExportedMarkdownModuleEntities {
 	frontmatter: MD['frontmatter'];

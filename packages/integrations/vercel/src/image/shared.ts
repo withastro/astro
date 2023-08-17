@@ -80,10 +80,10 @@ export function getImageConfig(
 
 export function sharedValidateOptions(
 	options: ImageTransform,
-	serviceOptions: Record<string, any>,
+	serviceConfig: Record<string, any>,
 	mode: 'development' | 'production'
 ) {
-	const vercelImageOptions = serviceOptions as VercelImageConfig;
+	const vercelImageOptions = serviceConfig as VercelImageConfig;
 
 	if (
 		mode === 'development' &&
