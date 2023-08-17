@@ -219,10 +219,9 @@ import vercel from '@astrojs/vercel/serverless';
 
 export default defineConfig({
   output: 'server',
-  adapter: vercel(),
-  build: {
-    split: true,
-  },
+  adapter: vercel({
+    functionPerRoute: true
+  }),
 });
 ```
 
@@ -259,7 +258,7 @@ You can use Vercel Edge middleware to intercept a request and redirect before se
 
 The `@astrojs/vercel/serverless` adapter can automatically create the Vercel Edge middleware from an Astro middleware in your code base.
 
-This is an opt-in feature, and the `build.excludeMiddleware` option needs to be set to `true`:
+This is an opt-in feature, and the `edgeMiddleware` option needs to be set to `true`:
 
 ```js
 // astro.config.mjs
@@ -267,10 +266,9 @@ import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
 export default defineConfig({
   output: 'server',
-  adapter: vercel(),
-  build: {
-    excludeMiddleware: true,
-  },
+  adapter: vercel({
+    edgeMiddleware: true
+  }),
 });
 ```
 
