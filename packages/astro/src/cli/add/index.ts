@@ -703,6 +703,7 @@ async function tryToInstallIntegrations({
 			} catch (err) {
 				spinner.fail();
 				debug('add', 'Error installing dependencies', err);
+				// eslint-disable-next-line no-console
 				console.error('\n', (err as any).stdout, '\n');
 				return UpdateResult.failure;
 			}

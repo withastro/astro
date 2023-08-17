@@ -16,7 +16,7 @@ import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
-import { isServerLikeOutput } from '../../prerender/utils.js';
+import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info } from '../logger/core.js';
@@ -28,10 +28,11 @@ import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.
 import { registerAllPlugins } from './plugins/index.js';
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
-import { RESOLVED_SPLIT_MODULE_ID, SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
+import { RESOLVED_SPLIT_MODULE_ID, RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
+import { RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugins/plugin-manifest.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -147,7 +148,7 @@ async function ssrBuild(
 ) {
 	const { allPages, settings, viteConfig } = opts;
 	const ssr = isServerLikeOutput(settings.config);
-	const out = ssr ? settings.config.build.server : getOutDirWithinCwd(settings.config.outDir);
+	const out = getOutputDirectory(settings.config);
 	const routes = Object.values(allPages).map((pd) => pd.route);
 	const { lastVitePlugins, vitePlugins } = container.runBeforeHook('ssr', input);
 
@@ -184,10 +185,12 @@ async function ssrBuild(
 							);
 						} else if (chunkInfo.facadeModuleId?.startsWith(RESOLVED_SPLIT_MODULE_ID)) {
 							return makeSplitEntryPointFileName(chunkInfo.facadeModuleId, routes);
-						} else if (chunkInfo.facadeModuleId === SSR_VIRTUAL_MODULE_ID) {
+						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_VIRTUAL_MODULE_ID) {
 							return opts.settings.config.build.serverEntry;
 						} else if (chunkInfo.facadeModuleId === RESOLVED_RENDERERS_MODULE_ID) {
 							return 'renderers.mjs';
+						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
+							return 'manifest.[hash].mjs';
 						} else {
 							return '[name].mjs';
 						}
