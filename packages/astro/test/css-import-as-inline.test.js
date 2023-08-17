@@ -7,6 +7,8 @@ describe('Importing raw/inlined CSS', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/css-import-as-inline/',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 	});
 	describe('Build', () => {

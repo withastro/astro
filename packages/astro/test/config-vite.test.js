@@ -6,7 +6,11 @@ describe('Vite Config', async () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/config-vite/' });
+		fixture = await loadFixture({
+			root: './fixtures/config-vite/',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
+		});
 		await fixture.build();
 	});
 

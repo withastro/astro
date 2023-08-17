@@ -12,6 +12,8 @@ describe('scopedStyleStrategy', () => {
 			fixture = await loadFixture({
 				root: './fixtures/scoped-style-strategy/',
 				scopedStyleStrategy: 'where',
+				// test suite was authored when inlineStylesheets defaulted to never
+				build: { inlineStylesheets: 'never' },
 			});
 			await fixture.build();
 
@@ -40,6 +42,8 @@ describe('scopedStyleStrategy', () => {
 			fixture = await loadFixture({
 				root: './fixtures/scoped-style-strategy/',
 				scopedStyleStrategy: 'class',
+				// test suite was authored when inlineStylesheets defaulted to never
+				build: { inlineStylesheets: 'never' },
 			});
 			await fixture.build();
 
@@ -67,6 +71,8 @@ describe('scopedStyleStrategy', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/scoped-style-strategy/',
+				// test suite was authored when inlineStylesheets defaulted to never
+				build: { inlineStylesheets: 'never' },
 			});
 			await fixture.build();
 
