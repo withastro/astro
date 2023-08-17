@@ -101,9 +101,8 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 	const parser = new DOMParser();
 
-	async function updateDOM(dir: Direction, html: string, state?: State, fallback?: Fallback) {
+	async function updateDOM(html: string, state?: State, fallback?: Fallback) {
 		const doc = parser.parseFromString(html, 'text/html');
-		doc.documentElement.dataset.astroTransition = dir;
 
 		// Check for a head element that should persist, either because it has the data
 		// attribute or is a link el.
@@ -233,15 +232,17 @@ const { fallback = 'animate' } = Astro.props as Props;
 			location.href = href;
 			return;
 		}
+		document.documentElement.dataset.astroTransition = dir;
 		if (supportsViewTransitions) {
-			finished = document.startViewTransition(() => updateDOM(dir, html, state)).finished;
+			finished = document.startViewTransition(() => updateDOM(html, state)).finished;
 		} else {
-			finished = updateDOM(dir, html, state, getFallback());
+			finished = updateDOM(html, state, getFallback());
 		}
 		try {
 			await finished;
 		} finally {
-			document.documentElement.removeAttribute('data-astro-transition');
+			// skip this for the moment as it tends to stop fallback animations
+			// document.documentElement.removeAttribute('data-astro-transition');
 			await runScripts();
 			markScriptsExec();
 			onload();
@@ -291,8 +292,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				transitionEnabledOnThisPage()
 			) {
 				ev.preventDefault();
-				navigate('forward', link.href, { index: currentHistoryIndex, scrollY: 0 });
-				currentHistoryIndex++;
+				navigate('forward', link.href, { index: ++currentHistoryIndex, scrollY: 0 });
 				const newState: State = { index: currentHistoryIndex, scrollY };
 				persistState({ index: currentHistoryIndex - 1, scrollY });
 				history.pushState(newState, '', link.href);
