@@ -13,6 +13,7 @@ import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
+import type { RemotePattern } from '../assets/utils/remotePattern';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigType } from '../core/config';
@@ -43,6 +44,7 @@ export type {
 	ImageQualityPreset,
 	ImageTransform,
 } from '../assets/types';
+export type { RemotePattern } from '../assets/utils/remotePattern';
 export type { SSRManifest } from '../core/app/types';
 export type { AstroCookies } from '../core/cookies';
 
@@ -366,10 +368,10 @@ export interface ViteUserConfig extends vite.UserConfig {
 	ssr?: vite.SSROptions;
 }
 
-export interface ImageServiceConfig {
+export interface ImageServiceConfig<T extends Record<string, any> = Record<string, any>> {
 	// eslint-disable-next-line @typescript-eslint/ban-types
 	entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
-	config?: Record<string, any>;
+	config?: T;
 }
 
 /**
@@ -1010,6 +1012,68 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		service: ImageServiceConfig;
+
+		/**
+		 * @docs
+		 * @name image.domains (Experimental)
+		 * @type {string[]}
+		 * @default `{domains: []}`
+		 * @version 2.10.10
+		 * @description
+		 * Defines a list of permitted image source domains for local image optimization. No other remote images will be optimized by Astro.
+		 *
+		 * This option requires an array of individual domain names as strings. Wildcards are not permitted. Instead, use [`image.remotePatterns`](#imageremotepatterns-experimental) to define a list of allowed source URL patterns.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * {
+		 *   image: {
+		 *     // Example: Allow remote image optimization from a single domain
+		 *     domains: ['astro.build'],
+		 *   },
+		 * }
+		 * ```
+		 */
+		domains?: string[];
+
+		/**
+		 * @docs
+		 * @name image.remotePatterns (Experimental)
+		 * @type {RemotePattern[]}
+		 * @default `{remotePatterns: []}`
+		 * @version 2.10.10
+		 * @description
+		 * Defines a list of permitted image source URL patterns for local image optimization.
+		 *
+		 * `remotePatterns` can be configured with four properties:
+		 * 1. protocol
+		 * 2. hostname
+		 * 3. port
+		 * 4. pathname
+		 *
+		 * ```js
+		 * {
+		 *   image: {
+		 *     // Example: allow processing all images from your aws s3 bucket
+		 *     remotePatterns: [{
+		 *       protocol: 'https',
+		 *       hostname: '**.amazonaws.com',
+		 *     }],
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured:
+		 * `hostname`:
+		 *   - Start with '**.' to allow all subdomains ('endsWith').
+		 *   - Start with '*.' to allow only one level of subdomain.
+		 *
+		 * `pathname`:
+		 *   - End with '/**' to allow all sub-routes ('startsWith').
+		 *   - End with '/*' to allow only one level of sub-route.
+
+		 */
+		remotePatterns?: Partial<RemotePattern>[];
 	};
 
 	/**

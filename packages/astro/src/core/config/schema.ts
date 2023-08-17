@@ -182,9 +182,35 @@ export const AstroConfigSchema = z.object({
 				]),
 				config: z.record(z.any()).default({}),
 			}),
+			domains: z.array(z.string()).default([]),
+			remotePatterns: z
+				.array(
+					z.object({
+						protocol: z.string().optional(),
+						hostname: z
+							.string()
+							.refine(
+								(val) => !val.includes('*') || val.startsWith('*.') || val.startsWith('**.'),
+								{
+									message: 'wildcards can only be placed at the beginning of the hostname',
+								}
+							)
+							.optional(),
+						port: z.string().optional(),
+						pathname: z
+							.string()
+							.refine((val) => !val.includes('*') || val.endsWith('/*') || val.endsWith('/**'), {
+								message: 'wildcards can only be placed at the end of a pathname',
+							})
+							.optional(),
+					})
+				)
+				.default([]),
 		})
 		.default({
 			service: { entrypoint: 'astro/assets/services/squoosh', config: {} },
+			domains: [],
+			remotePatterns: [],
 		}),
 	markdown: z
 		.object({
