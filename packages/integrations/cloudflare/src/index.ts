@@ -9,6 +9,7 @@ import glob from 'tiny-glob';
 
 type Options = {
 	mode: 'directory' | 'advanced';
+	functionPerRoute?: boolean;
 };
 
 interface BuildConfig {
@@ -18,12 +19,22 @@ interface BuildConfig {
 	split?: boolean;
 }
 
-export function getAdapter(isModeDirectory: boolean): AstroAdapter {
+export function getAdapter({
+	isModeDirectory,
+	functionPerRoute,
+}: {
+	isModeDirectory: boolean;
+	functionPerRoute: boolean;
+}): AstroAdapter {
 	return isModeDirectory
 		? {
 				name: '@astrojs/cloudflare',
 				serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
 				exports: ['onRequest', 'manifest'],
+				adapterFeatures: {
+					functionPerRoute,
+					edgeMiddleware: false,
+				},
 				supportedAstroFeatures: {
 					hybridOutput: 'stable',
 					staticOutput: 'unsupported',
@@ -67,8 +78,10 @@ const potentialFunctionRouteTypes = ['endpoint', 'page'];
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
-	const isModeDirectory = args?.mode === 'directory';
 	let _entryPoints = new Map<RouteData, URL>();
+
+	const isModeDirectory = args?.mode === 'directory';
+	const functionPerRoute = args?.functionPerRoute ?? false;
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -84,7 +97,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				setAdapter(getAdapter(isModeDirectory));
+				setAdapter(getAdapter({ isModeDirectory, functionPerRoute }));
 				_config = config;
 				_buildConfig = config.build;
 
@@ -136,7 +149,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					await fs.promises.mkdir(functionsUrl, { recursive: true });
 				}
 
-				if (isModeDirectory && _buildConfig.split) {
+				// TODO: remove _buildConfig.split in Astro 4.0
+				if (isModeDirectory && (_buildConfig.split || functionPerRoute)) {
 					const entryPointsURL = [..._entryPoints.values()];
 					const entryPaths = entryPointsURL.map((entry) => fileURLToPath(entry));
 					const outputUrl = new URL('$astro', _buildConfig.server);
