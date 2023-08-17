@@ -17,7 +17,7 @@ declare global {
 }
 
 /**
- * Type returned by ESM imports of images and direct calls to imageMetadata
+ * Type returned by ESM imports of images
  */
 export interface ImageMetadata {
 	src: string;
@@ -26,6 +26,10 @@ export interface ImageMetadata {
 	format: ImageInputFormat;
 	orientation?: number;
 }
+
+export type UnresolvedImageTransform = Omit<ImageTransform, 'src'> & {
+	src: Promise<{ default: ImageMetadata }>;
+};
 
 /**
  * Options accepted by the image transformation service.
@@ -93,7 +97,7 @@ export type LocalImageProps<T> = ImageSharedProps<T> & {
 	 *	<Image src={myImage} alt="..."></Image>
 	 * ```
 	 */
-	src: ImageMetadata;
+	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
 	/**
 	 * Desired output format for the image. Defaults to `webp`.
 	 *

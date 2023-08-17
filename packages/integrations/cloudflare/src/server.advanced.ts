@@ -12,10 +12,21 @@ type Env = {
 	name: string;
 };
 
+interface WorkerRuntime {
+	runtime: {
+		waitUntil: (promise: Promise<any>) => void;
+		env: Env;
+		cf: CFRequest['cf'];
+		caches: typeof caches;
+	};
+}
+
 export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest);
 
 	const fetch = async (request: Request & CFRequest, env: Env, context: ExecutionContext) => {
+		// TODO: remove this any cast in the future
+		// REF: the type cast to any is needed because the Cloudflare Env Type is not assignable to type 'ProcessEnv'
 		process.env = env as any;
 
 		const { pathname } = new URL(request.url);
@@ -32,6 +43,9 @@ export function createExports(manifest: SSRManifest) {
 				Symbol.for('astro.clientAddress'),
 				request.headers.get('cf-connecting-ip')
 			);
+
+			// `getRuntime()` is deprecated, currently available additionally to new Astro.locals.runtime
+			// TODO: remove `getRuntime()` in Astro 3.0
 			Reflect.set(request, Symbol.for('runtime'), {
 				env,
 				name: 'cloudflare',
@@ -42,7 +56,19 @@ export function createExports(manifest: SSRManifest) {
 					context.waitUntil(promise);
 				},
 			});
-			let response = await app.render(request, routeData);
+
+			const locals: WorkerRuntime = {
+				runtime: {
+					waitUntil: (promise: Promise<any>) => {
+						context.waitUntil(promise);
+					},
+					env: env,
+					cf: request.cf,
+					caches: caches,
+				},
+			};
+
+			let response = await app.render(request, routeData, locals);
 
 			if (app.setCookieHeaders) {
 				for (const setCookieHeader of app.setCookieHeaders(response)) {

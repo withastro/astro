@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-
-import { runInContainer } from '../../../dist/core/dev/index.js';
-import { createFs, createRequestAndResponse } from '../test-utils.js';
+import { fileURLToPath } from 'node:url';
+import { createFs, createRequestAndResponse, runInContainer } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -19,8 +18,8 @@ describe('base configuration', () => {
 				await runInContainer(
 					{
 						fs,
-						root,
-						userConfig: {
+						inlineConfig: {
+							root: fileURLToPath(root),
 							base: '/docs',
 							trailingSlash: 'never',
 						},
@@ -48,8 +47,8 @@ describe('base configuration', () => {
 				await runInContainer(
 					{
 						fs,
-						root,
-						userConfig: {
+						inlineConfig: {
+							root: fileURLToPath(root),
 							base: '/docs',
 							trailingSlash: 'never',
 						},
@@ -79,8 +78,8 @@ describe('base configuration', () => {
 				await runInContainer(
 					{
 						fs,
-						root,
-						userConfig: {
+						inlineConfig: {
+							root: fileURLToPath(root),
 							base: '/docs',
 							trailingSlash: 'never',
 						},
@@ -108,8 +107,8 @@ describe('base configuration', () => {
 				await runInContainer(
 					{
 						fs,
-						root,
-						userConfig: {
+						inlineConfig: {
+							root: fileURLToPath(root),
 							base: '/docs',
 							trailingSlash: 'never',
 						},

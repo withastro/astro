@@ -2,20 +2,17 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { fileURLToPath } from 'node:url';
 
-import { createSettings, openConfig } from '../../../dist/core/config/index.js';
 import {
 	createContainerWithAutomaticRestart,
-	isStarted,
 	startContainer,
 } from '../../../dist/core/dev/index.js';
-import {
-	createFs,
-	createRequestAndResponse,
-	defaultLogging,
-	triggerFSEvent,
-} from '../test-utils.js';
+import { createFs, createRequestAndResponse, triggerFSEvent } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
+
+function isStarted(container) {
+	return !!container.viteServer.httpServer?.listening;
+}
 
 describe('dev container restarts', () => {
 	it('Surfaces config errors on restarts', async () => {
@@ -36,8 +33,9 @@ describe('dev container restarts', () => {
 			root
 		);
 
-		let restart = await createContainerWithAutomaticRestart({
-			params: { fs, root },
+		const restart = await createContainerWithAutomaticRestart({
+			fs,
+			inlineConfig: { root: fileURLToPath(root), logLevel: 'silent' },
 		});
 
 		try {
@@ -99,8 +97,9 @@ describe('dev container restarts', () => {
 			root
 		);
 
-		let restart = await createContainerWithAutomaticRestart({
-			params: { fs, root },
+		const restart = await createContainerWithAutomaticRestart({
+			fs,
+			inlineConfig: { root: fileURLToPath(root), logLevel: 'silent' },
 		});
 		await startContainer(restart.container);
 		expect(isStarted(restart.container)).to.equal(true);
@@ -127,16 +126,9 @@ describe('dev container restarts', () => {
 			troot
 		);
 
-		const { astroConfig } = await openConfig({
-			cwd: troot,
-			flags: {},
-			cmd: 'dev',
-			logging: defaultLogging,
-		});
-		const settings = createSettings(astroConfig, 'dev');
-
-		let restart = await createContainerWithAutomaticRestart({
-			params: { fs, root, settings },
+		const restart = await createContainerWithAutomaticRestart({
+			fs,
+			inlineConfig: { root: fileURLToPath(root), logLevel: 'silent' },
 		});
 		await startContainer(restart.container);
 		expect(isStarted(restart.container)).to.equal(true);
@@ -161,16 +153,9 @@ describe('dev container restarts', () => {
 			root
 		);
 
-		const { astroConfig } = await openConfig({
-			cwd: root,
-			flags: {},
-			cmd: 'dev',
-			logging: defaultLogging,
-		});
-		const settings = createSettings(astroConfig, 'dev', fileURLToPath(root));
-
-		let restart = await createContainerWithAutomaticRestart({
-			params: { fs, root, settings },
+		const restart = await createContainerWithAutomaticRestart({
+			fs,
+			inlineConfig: { root: fileURLToPath(root), logLevel: 'silent' },
 		});
 		await startContainer(restart.container);
 		expect(isStarted(restart.container)).to.equal(true);
@@ -193,16 +178,9 @@ describe('dev container restarts', () => {
 			root
 		);
 
-		const { astroConfig } = await openConfig({
-			cwd: root,
-			flags: {},
-			cmd: 'dev',
-			logging: defaultLogging,
-		});
-		const settings = createSettings(astroConfig, 'dev', fileURLToPath(root));
-
-		let restart = await createContainerWithAutomaticRestart({
-			params: { fs, root, settings },
+		const restart = await createContainerWithAutomaticRestart({
+			fs,
+			inlineConfig: { root: fileURLToPath(root), logLevel: 'silent' },
 		});
 		await startContainer(restart.container);
 		expect(isStarted(restart.container)).to.equal(true);

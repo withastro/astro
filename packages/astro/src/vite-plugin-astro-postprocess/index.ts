@@ -56,7 +56,7 @@ export default function astro(): Plugin {
 			if (s) {
 				return {
 					code: s.toString(),
-					map: s.generateMap({ hires: true }),
+					map: s.generateMap({ hires: 'boundary' }),
 				};
 			}
 		},

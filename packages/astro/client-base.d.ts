@@ -48,7 +48,9 @@ declare module 'astro:assets' {
 		 * This is functionally equivalent to using the `<Image />` component, as the component calls this function internally.
 		 */
 		getImage: (
-			options: import('./dist/assets/types.js').ImageTransform
+			options:
+				| import('./dist/assets/types.js').ImageTransform
+				| import('./dist/assets/types.js').UnresolvedImageTransform
 		) => Promise<import('./dist/assets/types.js').GetImageResult>;
 		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
 		Image: typeof import('./components/Image.astro').default;

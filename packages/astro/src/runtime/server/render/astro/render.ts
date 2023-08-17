@@ -3,7 +3,7 @@ import { AstroError, AstroErrorData } from '../../../../core/errors/index.js';
 import { chunkToByteArray, chunkToString, encoder, type RenderDestination } from '../common.js';
 import type { AstroComponentFactory } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
-import { isRenderTemplateResult, renderAstroTemplateResult } from './render-template.js';
+import { isRenderTemplateResult } from './render-template.js';
 
 // Calls a component and renders it into a string of HTML
 export async function renderToString(
@@ -46,9 +46,7 @@ export async function renderToString(
 		},
 	};
 
-	for await (const chunk of renderAstroTemplateResult(templateResult)) {
-		destination.write(chunk);
-	}
+	await templateResult.render(destination);
 
 	return str;
 }
@@ -73,11 +71,11 @@ export async function renderToReadableStream(
 	// If the Astro component returns a Response on init, return that response
 	if (templateResult instanceof Response) return templateResult;
 
+	let renderedFirstPageChunk = false;
+
 	if (isPage) {
 		await bufferHeadContent(result);
 	}
-
-	let renderedFirstPageChunk = false;
 
 	return new ReadableStream({
 		start(controller) {
@@ -108,9 +106,7 @@ export async function renderToReadableStream(
 
 			(async () => {
 				try {
-					for await (const chunk of renderAstroTemplateResult(templateResult)) {
-						destination.write(chunk);
-					}
+					await templateResult.render(destination);
 					controller.close();
 				} catch (e) {
 					// We don't have a lot of information downstream, and upstream we can't catch the error properly
@@ -120,7 +116,9 @@ export async function renderToReadableStream(
 							file: route?.component,
 						});
 					}
-					controller.error(e);
+
+					// Queue error on next microtask to flush the remaining chunks written synchronously
+					setTimeout(() => controller.error(e), 0);
 				}
 			})();
 		},
@@ -160,6 +158,7 @@ async function bufferHeadContent(result: SSRResult) {
 		if (done) {
 			break;
 		}
+		// Call component instances that might have head content to be propagated up.
 		const returnValue = await value.init(result);
 		if (isHeadAndContent(returnValue)) {
 			result._metadata.extraHead.push(returnValue.head);

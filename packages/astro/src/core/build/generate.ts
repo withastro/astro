@@ -130,7 +130,12 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		? opts.settings.config.build.server
 		: getOutDirWithinCwd(opts.settings.config.outDir);
 
-	if (ssr && !hasPrerenderedPages(internals)) return;
+	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
+	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
+	if (ssr && !hasPrerenderedPages(internals)) {
+		delete globalThis?.astroAsset?.addStaticImage;
+		return;
+	}
 
 	const verb = ssr ? 'prerendering' : 'generating';
 	info(opts.logging, null, `\n${bgGreen(black(` ${verb} static routes `))}`);
@@ -186,7 +191,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			await generateImage(opts, imageData[1].options, imageData[1].path);
 		}
 
-		delete globalThis.astroAsset.addStaticImage;
+		delete globalThis?.astroAsset?.addStaticImage;
 	}
 
 	await runHookBuildGenerated({

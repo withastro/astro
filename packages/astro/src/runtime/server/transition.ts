@@ -17,10 +17,11 @@ function incrementTransitionNumber(result: SSRResult) {
 	return num;
 }
 
-function createTransitionScope(result: SSRResult, hash: string) {
+export function createTransitionScope(result: SSRResult, hash: string) {
 	const num = incrementTransitionNumber(result);
 	return `astro-${hash}-${num}`;
 }
+
 export function renderTransition(
 	result: SSRResult,
 	hash: string,

@@ -17,9 +17,7 @@ export {
 	Fragment,
 	maybeRenderHead,
 	renderTemplate as render,
-	renderAstroTemplateResult as renderAstroComponent,
 	renderComponent,
-	renderComponentToIterable,
 	Renderer as Renderer,
 	renderHead,
 	renderHTMLElement,
@@ -30,7 +28,6 @@ export {
 	renderTemplate,
 	renderToString,
 	renderUniqueStylesheet,
-	stringifyChunk,
 	voidElementNames,
 } from './render/index.js';
 export type {
@@ -39,7 +36,7 @@ export type {
 	ComponentSlots,
 	RenderInstruction,
 } from './render/index.js';
-export { renderTransition } from './transition.js';
+export { createTransitionScope, renderTransition } from './transition.js';
 
 import { markHTMLString } from './escape.js';
 import { addAttribute, Renderer } from './render/index.js';

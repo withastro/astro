@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 2.0.2
+
+### Patch Changes
+
+- [#8063](https://github.com/withastro/astro/pull/8063) [`bee284cb7`](https://github.com/withastro/astro/commit/bee284cb7741ee594e8b38b1a618763e9058740b) Thanks [@martrapp](https://github.com/martrapp)! - docs: fix github search link in README.md
+
 ## 2.0.1
 
 ### Patch Changes
