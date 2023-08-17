@@ -15,9 +15,9 @@ describe('Nested Slots', () => {
 		const html = await fixture.readFile('/hidden-nested/index.html');
 		const $ = cheerio.load(html);
 		expect($('script')).to.have.a.lengthOf(3, 'script rendered');
-		// Astro Island scripts are [async], so this will only find other types of scripts
-		const scriptInTemplate = $($('template')[0].children[0]).find('script:not([async])');
-		expect(scriptInTemplate).to.have.a.lengthOf(0, 'script defined outside of the inner template');
+		// Astro Island scripts are, so this will only find other types of scripts
+		const scriptInTemplate = $($('template')[0].children[0]).find('script');
+		expect(scriptInTemplate).to.have.a.lengthOf(1, 'script defined outside of the inner template');
 	});
 
 	it('Slots rendered via Astro.slots.render have the hydration script', async () => {
