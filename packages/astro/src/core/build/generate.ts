@@ -272,15 +272,17 @@ async function generatePage(
 	// Get paths for the route, calling getStaticPaths if needed.
 	const paths = await getPathsForRoute(pageData, pageModule, opts, builtPaths);
 
+	let prevTimeEnd = timeStart;
 	for (let i = 0; i < paths.length; i++) {
 		const path = paths[i];
 		await generatePath(path, opts, generationOptions, manifest, onRequest);
 		const timeEnd = performance.now();
-		const timeChange = getTimeStat(timeStart, timeEnd);
+		const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
 		const filePath = getOutputFilename(opts.settings.config, path, pageData.route.type);
 		const lineIcon = i === paths.length - 1 ? '└─' : '├─';
 		info(opts.logging, null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
+		prevTimeEnd = timeEnd;
 	}
 }
 
