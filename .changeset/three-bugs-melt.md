@@ -1,0 +1,5 @@
+---
+'astro': patch
+---
+
+Stackblitz compat
