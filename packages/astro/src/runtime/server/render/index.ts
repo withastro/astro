@@ -7,5 +7,4 @@ export { maybeRenderHead, renderHead } from './head.js';
 export { renderPage } from './page.js';
 export { renderSlot, renderSlotToString, type ComponentSlots } from './slot.js';
 export { renderScriptElement, renderUniqueStylesheet } from './tags.js';
-export type { RenderInstruction } from './types';
 export { addAttribute, defineScriptVars, voidElementNames } from './util.js';
