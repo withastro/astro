@@ -1,5 +1,4 @@
 import MagicString from 'magic-string';
-import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroPluginOptions, ImageTransform } from '../@types/astro';
@@ -31,18 +30,6 @@ export default function assets({
 		// Expose the components and different utilities from `astro:assets` and handle serving images from `/_image` in dev
 		{
 			name: 'astro:assets',
-			config() {
-				return {
-					resolve: {
-						alias: [
-							{
-								find: /^~\/assets\/(.+)$/,
-								replacement: fileURLToPath(new URL('./assets/$1', settings.config.srcDir)),
-							},
-						],
-					},
-				};
-			},
 			async resolveId(id) {
 				if (id === VIRTUAL_SERVICE_ID) {
 					return await this.resolve(settings.config.image.service.entrypoint);
