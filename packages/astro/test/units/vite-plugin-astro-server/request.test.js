@@ -1,31 +1,35 @@
 import { expect } from 'chai';
-
 import { createLoader } from '../../../dist/core/module-loader/index.js';
 import { createRouteManifest } from '../../../dist/core/routing/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createController, handleRequest } from '../../../dist/vite-plugin-astro-server/index.js';
 import {
 	createAstroModule,
-	createBasicEnvironment,
 	createBasicSettings,
 	createFs,
 	createRequestAndResponse,
 	defaultLogging,
 } from '../test-utils.js';
+import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
+import DevPipeline from '../../../dist/vite-plugin-astro-server/devPipeline.js';
 
-async function createDevEnvironment(overrides = {}) {
-	const env = createBasicEnvironment();
-	env.settings = await createBasicSettings({ root: '/' });
-	env.settings.renderers = [];
-	env.loader = createLoader();
-	Object.assign(env, overrides);
-	return env;
+async function createDevPipeline(overrides = {}) {
+	const settings = overrides.settings ?? (await createBasicSettings({ root: '/' }));
+	const loader = overrides.loader ?? createLoader();
+	const manifest = createDevelopmentManifest(settings);
+
+	return new DevPipeline({
+		manifest,
+		settings,
+		logging: defaultLogging,
+		loader,
+	});
 }
 
 describe('vite-plugin-astro-server', () => {
 	describe('request', () => {
 		it('renders a request', async () => {
-			const env = await createDevEnvironment({
+			const pipeline = await createDevPipeline({
 				loader: createLoader({
 					import() {
 						const Page = createComponent(() => {
@@ -35,7 +39,7 @@ describe('vite-plugin-astro-server', () => {
 					},
 				}),
 			});
-			const controller = createController({ loader: env.loader });
+			const controller = createController({ loader: pipeline.getModuleLoader() });
 			const { req, res, text } = createRequestAndResponse();
 			const fs = createFs(
 				{
@@ -47,14 +51,14 @@ describe('vite-plugin-astro-server', () => {
 			const manifestData = createRouteManifest(
 				{
 					fsMod: fs,
-					settings: env.settings,
+					settings: pipeline.getSettings(),
 				},
 				defaultLogging
 			);
 
 			try {
 				await handleRequest({
-					env,
+					pipeline,
 					manifestData,
 					controller,
 					incomingRequest: req,

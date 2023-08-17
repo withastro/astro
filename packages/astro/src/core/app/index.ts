@@ -16,12 +16,7 @@ import {
 	removeTrailingForwardSlash,
 } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import {
-	createEnvironment,
-	createRenderContext,
-	tryRenderRoute,
-	type RenderContext,
-} from '../render/index.js';
+import { createEnvironment, createRenderContext, type RenderContext } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -282,11 +277,7 @@ export class App {
 					status
 				);
 				const page = (await mod.page()) as any;
-				const response = (await tryRenderRoute(
-					newRenderContext,
-					this.#pipeline.env,
-					page
-				)) as Response;
+				const response = await this.#pipeline.renderRoute(newRenderContext, page);
 				return this.#mergeResponses(response, originalResponse);
 			} catch {}
 		}
