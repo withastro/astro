@@ -847,7 +847,7 @@ export interface AstroUserConfig {
 		 * ```js
 		 * {
 		 * 	build: {
-		 *		inlineStylesheets: `auto`,
+		 *		inlineStylesheets: `never`,
 		 * 	},
 		 * }
 		 * ```
