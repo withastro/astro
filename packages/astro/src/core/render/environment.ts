@@ -1,6 +1,5 @@
-import type { AstroSettings, RuntimeMode, SSRLoadedRenderer } from '../../@types/astro';
+import type { RuntimeMode, SSRLoadedRenderer } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
-import type { ModuleLoader } from '../module-loader';
 import type { RouteCache } from './route-cache.js';
 
 /**
@@ -38,8 +37,3 @@ export type CreateEnvironmentArgs = Environment;
 export function createEnvironment(options: CreateEnvironmentArgs): Environment {
 	return options;
 }
-
-export type DevelopmentEnvironment = Environment & {
-	loader: ModuleLoader;
-	settings: AstroSettings;
-};
