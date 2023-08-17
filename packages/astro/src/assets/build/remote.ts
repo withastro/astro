@@ -3,10 +3,6 @@ import CachePolicy from 'http-cache-semantics';
 export type RemoteCacheEntry = { data: string; expires: number };
 
 export async function loadRemoteImage(src: string) {
-	if (src.startsWith('//')) {
-		src = `https:${src}`;
-	}
-
 	const req = new Request(src);
 	const res = await fetch(req);
 
