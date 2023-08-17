@@ -59,7 +59,7 @@ export class Pipeline {
 	/**
 	 * Returns the current environment
 	 */
-	getEnvironment() {
+	getEnvironment(): Readonly<Environment> {
 		return this.env;
 	}
 

@@ -7,8 +7,8 @@ import { createViteLoader } from '../core/module-loader/index.js';
 import { createRouteManifest } from '../core/routing/index.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
-import { createDevelopmentEnvironment } from './environment.js';
 import { handleRequest } from './request.js';
+import DevPipeline from './devPipeline.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -26,13 +26,13 @@ export default function createVitePluginAstroServer({
 		configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
 			const manifest = createDevelopmentManifest(settings);
-			const env = createDevelopmentEnvironment(manifest, settings, logging, loader);
+			const pipeline = new DevPipeline({ logging, manifest, settings, loader });
 			let manifestData: ManifestData = createRouteManifest({ settings, fsMod }, logging);
 			const controller = createController({ loader });
 
 			/** rebuild the route cache + manifest, as needed. */
 			function rebuildManifest(needsManifestRebuild: boolean) {
-				env.routeCache.clearAll();
+				pipeline.clearRouteCache();
 				if (needsManifestRebuild) {
 					manifestData = createRouteManifest({ settings }, logging);
 				}
@@ -57,7 +57,7 @@ export default function createVitePluginAstroServer({
 						return;
 					}
 					handleRequest({
-						env,
+						pipeline,
 						manifestData,
 						controller,
 						incomingRequest: request,
