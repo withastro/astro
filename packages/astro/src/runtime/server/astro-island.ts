@@ -23,7 +23,7 @@ interface IslandMeta {
 
 {
 	// island meta info (for all islands) is stored here
-	var $meta: Record<string, IslandMeta> = {};
+	let $meta: Record<string, IslandMeta> = {};
 	// Astro.assign is called in injected scripts
 	(self as any).Astro = Object.assign((self as any).Astro || {}, {
 		assign(script: HTMLElement, value: any) {
