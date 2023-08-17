@@ -1,31 +1,35 @@
-import fs from 'node:fs';
+import { cyan } from 'kleur/colors';
 import type yargs from 'yargs-parser';
-import { resolveConfigPath, resolveFlags } from '../../core/config/index.js';
 import devServer from '../../core/dev/index.js';
-import { info, type LogOptions } from '../../core/logger/core.js';
-import { handleConfigError, loadSettings } from '../load-settings.js';
+import { printHelp } from '../../core/messages.js';
+import { flagsToAstroInlineConfig } from '../flags.js';
 
 interface DevOptions {
 	flags: yargs.Arguments;
-	logging: LogOptions;
 }
 
-export async function dev({ flags, logging }: DevOptions) {
-	const settings = await loadSettings({ cmd: 'dev', flags, logging });
-	if (!settings) return;
+export async function dev({ flags }: DevOptions) {
+	if (flags.help || flags.h) {
+		printHelp({
+			commandName: 'astro dev',
+			usage: '[...flags]',
+			tables: {
+				Flags: [
+					['--port', `Specify which port to run on. Defaults to 3000.`],
+					['--host', `Listen on all addresses, including LAN and public addresses.`],
+					['--host <custom-address>', `Expose on a network IP address at <custom-address>`],
+					['--open', 'Automatically open the app in the browser on server start'],
+					['--help (-h)', 'See all available flags.'],
+				],
+			},
+			description: `Check ${cyan(
+				'https://docs.astro.build/en/reference/cli-reference/#astro-dev'
+			)} for more information.`,
+		});
+		return;
+	}
 
-	const root = flags.root;
-	const configFlag = resolveFlags(flags).config;
-	const configFlagPath = configFlag ? await resolveConfigPath({ cwd: root, flags, fs }) : undefined;
+	const inlineConfig = flagsToAstroInlineConfig(flags);
 
-	return await devServer(settings, {
-		configFlag,
-		configFlagPath,
-		flags,
-		logging,
-		handleConfigError(e) {
-			handleConfigError(e, { cmd: 'dev', cwd: root, flags, logging });
-			info(logging, 'astro', 'Continuing with previous valid configuration\n');
-		},
-	});
+	return await devServer(inlineConfig);
 }

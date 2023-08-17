@@ -34,7 +34,13 @@ describe('serialize', () => {
 	});
 	it('serializes an array', () => {
 		const input = { a: [0] };
-		const output = `{"a":[1,"[[0,0]]"]}`;
+		const output = `{"a":[1,[[0,0]]]}`;
+		expect(serializeProps(input)).to.equal(output);
+	});
+	it('can serialize deeply nested data without quadratic quote escaping', () => {
+		const input = { a: [{ b: [{ c: [{ d: [{ e: [{ f: [{ g: ['leaf'] }] }] }] }] }] }] };
+		const output =
+			'{"a":[1,[[0,{"b":[1,[[0,{"c":[1,[[0,{"d":[1,[[0,{"e":[1,[[0,{"f":[1,[[0,{"g":[1,[[0,"leaf"]]]}]]]}]]]}]]]}]]]}]]]}]]]}';
 		expect(serializeProps(input)).to.equal(output);
 	});
 	it('serializes a regular expression', () => {
@@ -49,12 +55,12 @@ describe('serialize', () => {
 	});
 	it('serializes a Map', () => {
 		const input = { a: new Map([[0, 1]]) };
-		const output = `{"a":[4,"[[1,\\"[[0,0],[0,1]]\\"]]"]}`;
+		const output = `{"a":[4,[[1,[[0,0],[0,1]]]]]}`;
 		expect(serializeProps(input)).to.equal(output);
 	});
 	it('serializes a Set', () => {
 		const input = { a: new Set([0, 1, 2, 3]) };
-		const output = `{"a":[5,"[[0,0],[0,1],[0,2],[0,3]]"]}`;
+		const output = `{"a":[5,[[0,0],[0,1],[0,2],[0,3]]]}`;
 		expect(serializeProps(input)).to.equal(output);
 	});
 	it('serializes a BigInt', () => {
@@ -69,17 +75,17 @@ describe('serialize', () => {
 	});
 	it('serializes a Uint8Array', () => {
 		const input = { a: new Uint8Array([1, 2, 3]) };
-		const output = `{"a":[8,"[1,2,3]"]}`;
+		const output = `{"a":[8,[1,2,3]]}`;
 		expect(serializeProps(input)).to.equal(output);
 	});
 	it('serializes a Uint16Array', () => {
 		const input = { a: new Uint16Array([1, 2, 3]) };
-		const output = `{"a":[9,"[1,2,3]"]}`;
+		const output = `{"a":[9,[1,2,3]]}`;
 		expect(serializeProps(input)).to.equal(output);
 	});
 	it('serializes a Uint32Array', () => {
 		const input = { a: new Uint32Array([1, 2, 3]) };
-		const output = `{"a":[10,"[1,2,3]"]}`;
+		const output = `{"a":[10,[1,2,3]]}`;
 		expect(serializeProps(input)).to.equal(output);
 	});
 	it('cannot serialize a cyclic reference', () => {

@@ -3,10 +3,9 @@ const renderer = {
 	serverEntrypoint: 'astro/jsx/server.js',
 	jsxImportSource: 'astro',
 	jsxTransformOptions: async () => {
-		const {
-			default: { default: jsx },
-			// @ts-expect-error
-		} = await import('@babel/plugin-transform-react-jsx');
+		// @ts-expect-error types not found
+		const plugin = await import('@babel/plugin-transform-react-jsx');
+		const jsx = plugin.default?.default ?? plugin.default;
 		const { default: astroJSX } = await import('./babel.js');
 		return {
 			plugins: [

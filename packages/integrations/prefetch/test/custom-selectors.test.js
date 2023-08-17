@@ -10,6 +10,8 @@ const customIntentSelector = [
 ];
 
 const test = testFactory({
+	// pass custom prefetch configuration
+	configFile: false,
 	root: './fixtures/basic-prefetch/',
 	integrations: [
 		prefetch({

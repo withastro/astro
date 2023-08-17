@@ -34,15 +34,25 @@ const { fallback = 'animate' } = Astro.props as Props;
 		!!document.querySelector('[name="astro-view-transitions-enabled"]');
 	const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
 	const onload = () => triggerEvent('astro:load');
+	const PERSIST_ATTR = 'data-astro-transition-persist';
 
 	const throttle = (cb: (...args: any[]) => any, delay: number) => {
 		let wait = false;
+		// During the waiting time additional events are lost.
+		// So repeat the callback at the end if we have swallowed events.
+		let onceMore = false;
 		return (...args: any[]) => {
-			if (wait) return;
-
+			if (wait) {
+				onceMore = true;
+				return;
+			}
 			cb(...args);
 			wait = true;
 			setTimeout(() => {
+				if (onceMore) {
+					onceMore = false;
+					cb(...args);
+				}
 				wait = false;
 			}, delay);
 		};
@@ -62,9 +72,16 @@ const { fallback = 'animate' } = Astro.props as Props;
 		return 'animate';
 	}
 
+	function markScriptsExec() {
+		for (const script of document.scripts) {
+			script.dataset.astroExec = '';
+		}
+	}
+
 	function runScripts() {
 		let wait = Promise.resolve();
 		for (const script of Array.from(document.scripts)) {
+			if (script.dataset.astroExec === '') continue;
 			const s = document.createElement('script');
 			s.innerHTML = script.innerHTML;
 			for (const attr of script.attributes) {
@@ -76,6 +93,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				}
 				s.setAttribute(attr.name, attr.value);
 			}
+			s.dataset.astroExec = '';
 			script.replaceWith(s);
 		}
 		return wait;
@@ -86,28 +104,103 @@ const { fallback = 'animate' } = Astro.props as Props;
 	async function updateDOM(dir: Direction, html: string, state?: State, fallback?: Fallback) {
 		const doc = parser.parseFromString(html, 'text/html');
 		doc.documentElement.dataset.astroTransition = dir;
-		const swap = () => {
-			document.documentElement.replaceWith(doc.documentElement);
 
+		// Check for a head element that should persist, either because it has the data
+		// attribute or is a link el.
+		const persistedHeadElement = (el: Element): Element | null => {
+			const id = el.getAttribute(PERSIST_ATTR);
+			const newEl = id && doc.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
+			if (newEl) {
+				return newEl;
+			}
+			if (el.matches('link[rel=stylesheet]')) {
+				const href = el.getAttribute('href');
+				return doc.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
+			}
+			if (el.tagName === 'SCRIPT') {
+				let s1 = el as HTMLScriptElement;
+				for (const s2 of doc.scripts) {
+					if (
+						// Inline
+						(s1.textContent && s1.textContent === s2.textContent) ||
+						// External
+						(s1.type === s2.type && s1.src === s2.src)
+					) {
+						return s2;
+					}
+				}
+			}
+			return null;
+		};
+
+		const swap = () => {
+			// noscript tags inside head element are not honored on swap (#7969).
+			// Remove them before swapping.
+			doc.querySelectorAll('head noscript').forEach((el) => el.remove());
+
+			// Swap head
+			for (const el of Array.from(document.head.children)) {
+				const newEl = persistedHeadElement(el);
+				// If the element exists in the document already, remove it
+				// from the new document and leave the current node alone
+				if (newEl) {
+					newEl.remove();
+				} else {
+					// Otherwise remove the element in the head. It doesn't exist in the new page.
+					el.remove();
+				}
+			}
+			// Everything left in the new head is new, append it all.
+			document.head.append(...doc.head.children);
+
+			// Move over persist stuff in the body
+			const oldBody = document.body;
+			document.body.replaceWith(doc.body);
+			for (const el of oldBody.querySelectorAll(`[${PERSIST_ATTR}]`)) {
+				const id = el.getAttribute(PERSIST_ATTR);
+				const newEl = document.querySelector(`[${PERSIST_ATTR}="${id}"]`);
+				if (newEl) {
+					// The element exists in the new page, replace it with the element
+					// from the old page so that state is preserved.
+					newEl.replaceWith(el);
+				}
+			}
+
+			if (state?.scrollY === 0 && location.hash) {
+				const id = decodeURIComponent(location.hash.slice(1));
+				state.scrollY = document.getElementById(id)?.offsetTop || 0;
+			}
 			if (state?.scrollY != null) {
 				scrollTo(0, state.scrollY);
+				// Overwrite erroneous updates by the scroll handler during transition
+				persistState(state);
 			}
 
 			triggerEvent('astro:beforeload');
 		};
 
 		// Wait on links to finish, to prevent FOUC
-		const links = Array.from(doc.querySelectorAll('head link[rel=stylesheet]')).map(
-			(link) =>
-				new Promise((resolve) => {
-					const c = link.cloneNode();
-					['load', 'error'].forEach((evName) => c.addEventListener(evName, resolve));
-					document.head.append(c);
-				})
-		);
-		if (links.length) {
-			await Promise.all(links);
+		const links: Promise<any>[] = [];
+		for (const el of doc.querySelectorAll('head link[rel=stylesheet]')) {
+			// Do not preload links that are already on the page.
+			if (
+				!document.querySelector(
+					`[${PERSIST_ATTR}="${el.getAttribute(PERSIST_ATTR)}"], link[rel=stylesheet]`
+				)
+			) {
+				const c = document.createElement('link');
+				c.setAttribute('rel', 'preload');
+				c.setAttribute('as', 'style');
+				c.setAttribute('href', el.getAttribute('href')!);
+				links.push(
+					new Promise<any>((resolve) => {
+						['load', 'error'].forEach((evName) => c.addEventListener(evName, resolve));
+						document.head.append(c);
+					})
+				);
+			}
 		}
+		links.length && (await Promise.all(links));
 
 		if (fallback === 'animate') {
 			let isAnimating = false;
@@ -115,13 +208,18 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 			// Trigger the animations
 			document.documentElement.dataset.astroTransitionFallback = 'old';
-			doc.documentElement.dataset.astroTransitionFallback = 'new';
+			const fallbackSwap = () => {
+				removeEventListener('animationend', fallbackSwap);
+				clearTimeout(timeout);
+				swap();
+				document.documentElement.dataset.astroTransitionFallback = 'new';
+			};
 			// If there are any animations, want for the animationend event.
-			addEventListener('animationend', swap, { once: true });
+			addEventListener('animationend', fallbackSwap, { once: true });
 			// If there are no animations, go ahead and swap on next tick
 			// This is necessary because we do not know if there are animations.
 			// The setTimeout is a fallback in case there are none.
-			setTimeout(() => !isAnimating && swap());
+			let timeout = setTimeout(() => !isAnimating && fallbackSwap());
 		} else {
 			swap();
 		}
@@ -145,6 +243,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		} finally {
 			document.documentElement.removeAttribute('data-astro-transition');
 			await runScripts();
+			markScriptsExec();
 			onload();
 		}
 	}
@@ -163,6 +262,8 @@ const { fallback = 'animate' } = Astro.props as Props;
 	}
 
 	if (supportsViewTransitions || getFallback() !== 'none') {
+		markScriptsExec();
+
 		document.addEventListener('click', (ev) => {
 			let link = ev.target;
 			if (link instanceof Element && link.tagName !== 'A') {
@@ -177,7 +278,10 @@ const { fallback = 'animate' } = Astro.props as Props;
 				link.href &&
 				(!link.target || link.target === '_self') &&
 				link.origin === location.origin &&
-				!link.hash &&
+				!(
+					// Same page means same path and same query params
+					(location.pathname === link.pathname && location.search === link.search)
+				) &&
 				ev.button === 0 && // left clicks only
 				!ev.metaKey && // new tab (mac)
 				!ev.ctrlKey && // new tab (windows)
@@ -187,7 +291,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				transitionEnabledOnThisPage()
 			) {
 				ev.preventDefault();
-				navigate('forward', link.href);
+				navigate('forward', link.href, { index: currentHistoryIndex, scrollY: 0 });
 				currentHistoryIndex++;
 				const newState: State = { index: currentHistoryIndex, scrollY };
 				persistState({ index: currentHistoryIndex - 1, scrollY });

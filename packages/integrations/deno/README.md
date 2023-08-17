@@ -81,7 +81,7 @@ npm run preview
 After [performing a build](https://docs.astro.build/en/guides/deploy/#building-your-site-locally) there will be a `dist/server/entry.mjs` module. You can start a server by importing this module in your Deno app:
 
 ```js
-import './dist/entry.mjs';
+import './dist/server/entry.mjs';
 ```
 
 See the `start` option below for how you can have more control over starting the Astro server.
@@ -129,7 +129,7 @@ If you disable this, you need to write your own Deno web server. Import and call
 
 ```ts
 import { serve } from 'https://deno.land/std@0.167.0/http/server.ts';
-import { handle } from './dist/entry.mjs';
+import { handle } from './dist/server/entry.mjs';
 
 serve((req: Request) => {
   // Check the request, maybe do static file handling here.

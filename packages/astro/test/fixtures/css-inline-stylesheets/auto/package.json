@@ -1,8 +1,0 @@
-{
-  "name": "@test/css-inline-stylesheets-auto",
-  "version": "0.0.0",
-  "private": true,
-  "dependencies": {
-    "astro": "workspace:*"
-  }
-}

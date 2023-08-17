@@ -9,7 +9,7 @@ describe('Astro Markdown URL', () => {
 		it('trailingSlash: always', async () => {
 			let fixture = await loadFixture({
 				root: './fixtures/astro-markdown-url/',
-				outDir: new URL('./fixtures/astro-markdown-url/with-subpath-always/', import.meta.url),
+				outDir: './with-subpath-always',
 				base: '/my-cool-base',
 				trailingSlash: 'always',
 			});
@@ -24,7 +24,7 @@ describe('Astro Markdown URL', () => {
 		it('trailingSlash: never', async () => {
 			let fixture = await loadFixture({
 				root: './fixtures/astro-markdown-url/',
-				outDir: new URL('./fixtures/astro-markdown-url/with-subpath-never/', import.meta.url),
+				outDir: './with-subpath-never',
 				base: '/my-cool-base',
 				trailingSlash: 'never',
 			});
@@ -39,7 +39,7 @@ describe('Astro Markdown URL', () => {
 		it('trailingSlash: ignore', async () => {
 			let fixture = await loadFixture({
 				root: './fixtures/astro-markdown-url/',
-				outDir: new URL('./fixtures/astro-markdown-url/with-subpath-ignore/', import.meta.url),
+				outDir: './with-subpath-ignore',
 				base: '/my-cool-base',
 				trailingSlash: 'ignore',
 			});
@@ -58,7 +58,7 @@ describe('Astro Markdown URL', () => {
 		it('trailingSlash: always', async () => {
 			let fixture = await loadFixture({
 				root: './fixtures/astro-markdown-url/',
-				outDir: new URL('./fixtures/astro-markdown-url/without-subpath-always/', import.meta.url),
+				outDir: './without-subpath-always',
 				trailingSlash: 'always',
 			});
 			await fixture.build();
@@ -72,7 +72,7 @@ describe('Astro Markdown URL', () => {
 		it('trailingSlash: never', async () => {
 			let fixture = await loadFixture({
 				root: './fixtures/astro-markdown-url/',
-				outDir: new URL('./fixtures/astro-markdown-url/without-subpath-never/', import.meta.url),
+				outDir: './without-subpath-never',
 				trailingSlash: 'never',
 			});
 			await fixture.build();
@@ -86,7 +86,7 @@ describe('Astro Markdown URL', () => {
 		it('trailingSlash: ignore', async () => {
 			let fixture = await loadFixture({
 				root: './fixtures/astro-markdown-url/',
-				outDir: new URL('./fixtures/astro-markdown-url/without-subpath-ignore/', import.meta.url),
+				outDir: './without-subpath-ignore',
 				trailingSlash: 'ignore',
 			});
 			await fixture.build();

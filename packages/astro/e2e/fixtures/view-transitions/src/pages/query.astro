@@ -1,0 +1,9 @@
+---
+import Layout from '../components/Layout.astro';
+
+const page = Astro.url.searchParams.get('page') || 1;
+---
+<Layout>
+	<p id="query-page">Page {page}</p>
+	<a id="click-two" href="/query?page=2">go to 2</a>
+</Layout>

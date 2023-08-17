@@ -6,7 +6,7 @@
     "build": "astro build"
   },
   "dependencies": {
-    "@astrojs/vercel": "file:../../..",
-    "astro": "file:../../../../../astro"
+    "@astrojs/vercel": "workspace:*",
+    "astro": "workspace:*"
   }
 }
