@@ -4,7 +4,7 @@
 
 The configuration `build.split` and `build.excludeMiddleware` are deprecated.
 
-Configuration that were inside the astro configuration, are now moved inside the adapter:
+You can now configure this behaviour using `functionPerRoute` in your Cloudflare integration config:
 
 ```diff
 import {defineConfig} from "astro/config";
