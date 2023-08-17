@@ -52,7 +52,9 @@ export async function createContainer({
 
 	settings = injectImageEndpoint(settings);
 
-	const { host, headers, open } = settings.config.server;
+	const { base, server: { host, headers, open: shouldOpen }} = settings.config;
+	// Open server to the correct path
+	const open = shouldOpen ? base : false;
 
 	// The client entrypoint for renderers. Since these are imported dynamically
 	// we need to tell Vite to preoptimize them.
