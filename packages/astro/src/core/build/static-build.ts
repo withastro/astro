@@ -341,7 +341,7 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 				// Replace exports (only prerendered pages) with a noop
 				let value = 'const noop = () => {};';
 				for (const e of exports) {
-					if (e.n === 'default') value += `\n export default noop;`
+					if (e.n === 'default') value += `\n export default noop;`;
 					else value += `\nexport const ${e.n} = noop;`;
 				}
 				await fs.promises.writeFile(url, value, { encoding: 'utf8' });

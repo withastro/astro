@@ -61,18 +61,18 @@ describe('Prerender 404', () => {
 			const res1 = await fetch(url);
 			const res2 = await fetch(url);
 			const res3 = await fetch(url);
-			
+
 			expect(res1.status).to.equal(404);
 			expect(res2.status).to.equal(404);
 			expect(res3.status).to.equal(404);
-			
+
 			const html1 = await res1.text();
 			const html2 = await res2.text();
 			const html3 = await res3.text();
 
 			expect(html1).to.equal(html2);
 			expect(html2).to.equal(html3);
-			
+
 			const $ = cheerio.load(html1);
 
 			expect($('body').text()).to.equal('Page does not exist');
@@ -90,7 +90,7 @@ describe('Prerender 404', () => {
 			const html2 = await response2.text();
 			const html3 = await response3.text();
 
-			expect(html1).to.contain("Something went wrong");
+			expect(html1).to.contain('Something went wrong');
 
 			expect(html1).to.equal(html2);
 			expect(html2).to.equal(html3);
@@ -100,11 +100,10 @@ describe('Prerender 404', () => {
 			const response = await fetch(`http://${server.host}:${server.port}/some-base/fivehundred`);
 			const html = await response.text();
 			const $ = cheerio.load(html);
-			
+
 			// length will be 0 if the stylesheet does not get included
 			expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
 		});
-		
 	});
 
 	describe('Without base', async () => {
@@ -143,22 +142,22 @@ describe('Prerender 404', () => {
 		});
 
 		it('Can handle prerendered 404', async () => {
-			const url = `http://${server.host}:${server.port}/some-base/missing`
+			const url = `http://${server.host}:${server.port}/some-base/missing`;
 			const res1 = await fetch(url);
 			const res2 = await fetch(url);
 			const res3 = await fetch(url);
-			
+
 			expect(res1.status).to.equal(404);
 			expect(res2.status).to.equal(404);
 			expect(res3.status).to.equal(404);
-			
+
 			const html1 = await res1.text();
 			const html2 = await res2.text();
 			const html3 = await res3.text();
 
 			expect(html1).to.equal(html2);
 			expect(html2).to.equal(html3);
-			
+
 			const $ = cheerio.load(html1);
 
 			expect($('body').text()).to.equal('Page does not exist');
@@ -207,22 +206,22 @@ describe('Hybrid 404', () => {
 		});
 
 		it('Can handle prerendered 404', async () => {
-			const url = `http://${server.host}:${server.port}/some-base/missing`
+			const url = `http://${server.host}:${server.port}/some-base/missing`;
 			const res1 = await fetch(url);
 			const res2 = await fetch(url);
 			const res3 = await fetch(url);
-			
+
 			expect(res1.status).to.equal(404);
 			expect(res2.status).to.equal(404);
 			expect(res3.status).to.equal(404);
-			
+
 			const html1 = await res1.text();
 			const html2 = await res2.text();
 			const html3 = await res3.text();
 
 			expect(html1).to.equal(html2);
 			expect(html2).to.equal(html3);
-			
+
 			const $ = cheerio.load(html1);
 
 			expect($('body').text()).to.equal('Page does not exist');
@@ -264,22 +263,22 @@ describe('Hybrid 404', () => {
 		});
 
 		it('Can handle prerendered 404', async () => {
-			const url = `http://${server.host}:${server.port}/missing`
+			const url = `http://${server.host}:${server.port}/missing`;
 			const res1 = await fetch(url);
 			const res2 = await fetch(url);
 			const res3 = await fetch(url);
-			
+
 			expect(res1.status).to.equal(404);
 			expect(res2.status).to.equal(404);
 			expect(res3.status).to.equal(404);
-			
+
 			const html1 = await res1.text();
 			const html2 = await res2.text();
 			const html3 = await res3.text();
 
 			expect(html1).to.equal(html2);
 			expect(html2).to.equal(html3);
-			
+
 			const $ = cheerio.load(html1);
 
 			expect($('body').text()).to.equal('Page does not exist');
