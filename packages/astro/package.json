@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "2.10.9",
+  "version": "3.0.0-beta.2",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -23,6 +23,9 @@
       ],
       "middleware": [
         "./dist/core/middleware/index.d.ts"
+      ],
+      "middleware/namespace": [
+        "./dist/core/middleware/namespace.d.ts"
       ]
     }
   },
@@ -34,14 +37,14 @@
     "./env": "./env.d.ts",
     "./types": "./types.d.ts",
     "./client": "./client.d.ts",
-    "./client-base": "./client-base.d.ts",
-    "./client-image": "./client-image.d.ts",
     "./import-meta": "./import-meta.d.ts",
     "./astro-jsx": "./astro-jsx.d.ts",
     "./tsconfigs/*.json": "./tsconfigs/*",
     "./tsconfigs/*": "./tsconfigs/*.json",
     "./jsx/*": "./dist/jsx/*",
     "./jsx-runtime": "./dist/jsx-runtime/index.js",
+    "./compiler-runtime": "./dist/runtime/compiler/index.js",
+    "./runtime/*": "./dist/runtime/*",
     "./config": {
       "types": "./config.d.ts",
       "default": "./config.mjs"
@@ -56,21 +59,23 @@
     "./assets/image-endpoint": "./dist/assets/image-endpoint.js",
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/squoosh": "./dist/assets/services/squoosh.js",
+    "./assets/services/noop": "./dist/assets/services/noop.js",
     "./content/runtime": "./dist/content/runtime.js",
     "./content/runtime-assets": "./dist/content/runtime-assets.js",
     "./debug": "./components/Debug.astro",
-    "./internal/*": "./dist/runtime/server/*",
     "./package.json": "./package.json",
-    "./runtime/*": "./dist/runtime/*",
-    "./server/*": "./dist/runtime/server/*",
-    "./dist/jsx/*": "./dist/jsx/*",
     "./zod": {
       "types": "./zod.d.ts",
       "default": "./zod.mjs"
     },
+    "./errors": "./dist/core/errors/userError.js",
     "./middleware": {
       "types": "./dist/core/middleware/index.d.ts",
       "default": "./dist/core/middleware/index.js"
+    },
+    "./middleware/namespace": {
+      "types": "./dist/core/middleware/namespace.d.ts",
+      "default": "./dist/core/middleware/namespace.js"
     },
     "./transitions": "./dist/transitions/index.js"
   },
@@ -91,8 +96,6 @@
     "zod.mjs",
     "env.d.ts",
     "client.d.ts",
-    "client-base.d.ts",
-    "client-image.d.ts",
     "content-types.template.d.ts",
     "content-module.template.mjs",
     "import-meta.d.ts",
@@ -115,12 +118,10 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^1.8.0",
-    "@astrojs/internal-helpers": "^0.1.2",
-    "@astrojs/language-server": "^1.0.0",
-    "@astrojs/markdown-remark": "^2.2.1",
-    "@astrojs/telemetry": "^2.1.1",
-    "@astrojs/webapi": "^2.2.0",
+    "@astrojs/compiler": "^1.8.1",
+    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/markdown-remark": "workspace:*",
+    "@astrojs/telemetry": "workspace:*",
     "@babel/core": "^7.22.5",
     "@babel/generator": "^7.22.5",
     "@babel/parser": "^7.22.5",
@@ -128,8 +129,6 @@
     "@babel/traverse": "^7.22.5",
     "@babel/types": "^7.22.5",
     "@types/babel__core": "^7.20.1",
-    "@types/dom-view-transitions": "^1.0.1",
-    "@types/yargs-parser": "^21.0.0",
     "acorn": "^8.9.0",
     "boxen": "^6.2.1",
     "chokidar": "^3.5.3",
@@ -137,22 +136,22 @@
     "common-ancestor-path": "^1.0.1",
     "cookie": "^0.5.0",
     "debug": "^4.3.4",
+    "deepmerge-ts": "^4.3.0",
     "devalue": "^4.3.2",
     "diff": "^5.1.0",
     "es-module-lexer": "^1.3.0",
-    "esbuild": "^0.17.19",
-    "estree-walker": "3.0.0",
+    "esbuild": "^0.18.16",
+    "estree-walker": "^3.0.3",
     "execa": "^6.1.0",
     "fast-glob": "^3.2.12",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
-    "html-escaper": "^3.0.3",
     "http-cache-semantics": "^4.1.1",
+    "html-escaper": "^3.0.3",
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.4",
     "magic-string": "^0.30.2",
     "mime": "^3.0.0",
-    "network-information-types": "^0.1.1",
     "ora": "^6.3.1",
     "p-limit": "^4.0.0",
     "path-to-regexp": "^6.2.1",
@@ -161,11 +160,11 @@
     "rehype": "^12.0.1",
     "semver": "^7.5.3",
     "server-destroy": "^1.0.1",
+    "sharp": "^0.32.1",
     "shiki": "^0.14.1",
     "string-width": "^5.1.2",
     "strip-ansi": "^7.1.0",
     "tsconfig-resolver": "^3.0.1",
-    "typescript": "*",
     "unist-util-visit": "^4.1.2",
     "vfile": "^5.3.7",
     "vite": "^4.4.6",
@@ -175,6 +174,7 @@
     "zod": "^3.20.6"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.1.0",
     "@playwright/test": "^1.29.2",
     "@types/babel__generator": "^7.6.4",
     "@types/babel__traverse": "^7.20.1",
@@ -184,6 +184,7 @@
     "@types/cookie": "^0.5.1",
     "@types/debug": "^4.1.8",
     "@types/diff": "^5.0.3",
+    "@types/dom-view-transitions": "^1.0.1",
     "@types/estree": "^0.0.51",
     "@types/hast": "^2.3.4",
     "@types/html-escaper": "^3.0.0",
@@ -193,17 +194,17 @@
     "@types/mocha": "^9.1.1",
     "@types/prettier": "^2.7.3",
     "@types/prompts": "^2.4.4",
-    "@types/resolve": "^1.20.2",
-    "@types/rimraf": "^3.0.2",
     "@types/send": "^0.17.1",
     "@types/server-destroy": "^1.0.1",
     "@types/unist": "^2.0.6",
+    "@types/yargs-parser": "^21.0.0",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
     "eol": "^0.9.1",
     "memfs": "^3.5.3",
     "mocha": "^9.2.2",
+    "network-information-types": "^0.1.1",
     "node-mocks-http": "^1.12.2",
     "rehype-autolink-headings": "^6.1.1",
     "rehype-slug": "^5.0.1",
@@ -211,21 +212,11 @@
     "remark-code-titles": "^0.1.2",
     "rollup": "^3.25.1",
     "sass": "^1.63.4",
-    "sharp": "^0.32.1",
     "srcset-parse": "^1.1.0",
-    "undici": "^5.22.1",
     "unified": "^10.1.2"
   },
-  "peerDependencies": {
-    "sharp": ">=0.31.0"
-  },
-  "peerDependenciesMeta": {
-    "sharp": {
-      "optional": true
-    }
-  },
   "engines": {
-    "node": ">=16.12.0",
+    "node": ">=18.14.1",
     "npm": ">=6.14.0"
   }
 }

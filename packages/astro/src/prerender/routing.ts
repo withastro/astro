@@ -1,22 +1,22 @@
 import type { AstroSettings, ComponentInstance, RouteData } from '../@types/astro';
 import { RedirectComponentInstance, routeIsRedirect } from '../core/redirects/index.js';
-import type { DevelopmentEnvironment } from '../core/render';
 import { preload } from '../vite-plugin-astro-server/index.js';
 import { getPrerenderStatus } from './metadata.js';
+import type DevPipeline from '../vite-plugin-astro-server/devPipeline';
 
 type GetSortedPreloadedMatchesParams = {
-	env: DevelopmentEnvironment;
+	pipeline: DevPipeline;
 	matches: RouteData[];
 	settings: AstroSettings;
 };
 export async function getSortedPreloadedMatches({
-	env,
+	pipeline,
 	matches,
 	settings,
 }: GetSortedPreloadedMatchesParams) {
 	return (
 		await preloadAndSetPrerenderStatus({
-			env,
+			pipeline,
 			matches,
 			settings,
 		})
@@ -24,7 +24,7 @@ export async function getSortedPreloadedMatches({
 }
 
 type PreloadAndSetPrerenderStatusParams = {
-	env: DevelopmentEnvironment;
+	pipeline: DevPipeline;
 	matches: RouteData[];
 	settings: AstroSettings;
 };
@@ -36,7 +36,7 @@ type PreloadAndSetPrerenderStatusResult = {
 };
 
 async function preloadAndSetPrerenderStatus({
-	env,
+	pipeline,
 	matches,
 	settings,
 }: PreloadAndSetPrerenderStatusParams): Promise<PreloadAndSetPrerenderStatusResult[]> {
@@ -52,12 +52,12 @@ async function preloadAndSetPrerenderStatus({
 				};
 			}
 
-			const preloadedComponent = await preload({ env, filePath });
+			const preloadedComponent = await preload({ pipeline, filePath });
 
 			// gets the prerender metadata set by the `astro:scanner` vite plugin
 			const prerenderStatus = getPrerenderStatus({
 				filePath,
-				loader: env.loader,
+				loader: pipeline.getModuleLoader(),
 			});
 
 			if (prerenderStatus !== undefined) {

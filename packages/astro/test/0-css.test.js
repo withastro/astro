@@ -39,15 +39,27 @@ describe('CSS', function () {
 			it('HTML and CSS scoped correctly', async () => {
 				const el1 = $('#dynamic-class');
 				const el2 = $('#dynamic-vis');
-				const classes = $('#class').attr('class').split(' ');
-				const scopedClass = classes.find((name) => /^astro-[A-Za-z0-9-]+/.test(name));
+				const classes = $('#class');
+				let scopedAttribute;
+				for (const [key] of Object.entries(classes[0].attribs)) {
+					if (/^data-astro-cid-[A-Za-z0-9-]+/.test(key)) {
+						// Ema: this is ugly, but for reasons that I don't want to explore, cheerio
+						// lower case the hash of the attribute
+						scopedAttribute = key
+							.toUpperCase()
+							.replace('data-astro-cid-'.toUpperCase(), 'data-astro-cid-');
+					}
+				}
+				if (!scopedAttribute) {
+					throw new Error("Couldn't find scoped attribute");
+				}
 
 				// 1. check HTML
-				expect(el1.attr('class')).to.equal(`blue ${scopedClass}`);
-				expect(el2.attr('class')).to.equal(`visible ${scopedClass}`);
+				expect(el1.attr('class')).to.equal(`blue`);
+				expect(el2.attr('class')).to.equal(`visible`);
 
 				// 2. check CSS
-				const expected = `.blue:where(.${scopedClass}){color:#b0e0e6}.color\\:blue:where(.${scopedClass}){color:#b0e0e6}.visible:where(.${scopedClass}){display:block}`;
+				const expected = `.blue[${scopedAttribute}],.color\\:blue[${scopedAttribute}]{color:#b0e0e6}.visible[${scopedAttribute}]{display:block}`;
 				expect(bundledCSS).to.include(expected);
 			});
 
@@ -60,8 +72,12 @@ describe('CSS', function () {
 				expect($('#no-scope').attr('class')).to.equal(undefined);
 			});
 
-			it('Child inheritance', async () => {
-				expect($('#passed-in').attr('class')).to.match(/outer astro-[A-Z0-9]+ astro-[A-Z0-9]+/);
+			it('Child inheritance', (done) => {
+				for (const [key] of Object.entries($('#passed-in')[0].attribs)) {
+					if (/^data-astro-cid-[A-Za-z0-9-]+/.test(key)) {
+						done();
+					}
+				}
 			});
 
 			it('Using hydrated components adds astro-island styles', async () => {
@@ -70,11 +86,11 @@ describe('CSS', function () {
 			});
 
 			it('<style lang="sass">', async () => {
-				expect(bundledCSS).to.match(new RegExp('h1\\:where\\(.astro-[^{]*{color:#90ee90}'));
+				expect(bundledCSS).to.match(new RegExp('h1\\[data-astro-cid-[^{]*{color:#90ee90}'));
 			});
 
 			it('<style lang="scss">', async () => {
-				expect(bundledCSS).to.match(new RegExp('h1\\:where\\(.astro-[^{]*{color:#ff69b4}'));
+				expect(bundledCSS).to.match(new RegExp('h1\\[data-astro-cid-[^{]*{color:#ff69b4}'));
 			});
 		});
 
@@ -331,10 +347,10 @@ describe('CSS', function () {
 		it('resolves Astro styles', async () => {
 			const allInjectedStyles = $('style').text();
 
-			expect(allInjectedStyles).to.contain('.linked-css:where(.astro-');
-			expect(allInjectedStyles).to.contain('.linked-sass:where(.astro-');
-			expect(allInjectedStyles).to.contain('.linked-scss:where(.astro-');
-			expect(allInjectedStyles).to.contain('.wrapper:where(.astro-');
+			expect(allInjectedStyles).to.contain('.linked-css[data-astro-cid-');
+			expect(allInjectedStyles).to.contain('.linked-sass[data-astro-cid-');
+			expect(allInjectedStyles).to.contain('.linked-scss[data-astro-cid-');
+			expect(allInjectedStyles).to.contain('.wrapper[data-astro-cid-');
 		});
 
 		it('resolves Styles from React', async () => {

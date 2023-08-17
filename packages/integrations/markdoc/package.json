@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/markdoc",
   "description": "Add support for Markdoc in your Astro site",
-  "version": "0.4.4",
+  "version": "1.0.0-beta.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -34,7 +34,7 @@
     ".": "./dist/index.js",
     "./components": "./components/index.ts",
     "./runtime": "./dist/runtime.js",
-    "./experimental-assets-config": "./dist/experimental-assets-config.js",
+    "./runtime-assets-config": "./dist/runtime-assets-config.js",
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -63,10 +63,10 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "^0.1.2",
-    "@astrojs/prism": "^2.1.2",
+    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/prism": "workspace:*",
     "@markdoc/markdoc": "^0.3.0",
-    "esbuild": "^0.17.19",
+    "esbuild": "^0.18.16",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
     "htmlparser2": "^9.0.0",
@@ -75,10 +75,10 @@
     "zod": "^3.17.3"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.10.9"
+    "astro": "workspace:^3.0.0-beta.2"
   },
   "devDependencies": {
-    "@astrojs/markdown-remark": "^2.2.1",
+    "@astrojs/markdown-remark": "workspace:*",
     "@types/chai": "^4.3.5",
     "@types/html-escaper": "^3.0.0",
     "@types/markdown-it": "^12.2.3",
@@ -93,6 +93,6 @@
     "vite": "^4.4.6"
   },
   "engines": {
-    "node": ">=16.12.0"
+    "node": ">=18.14.1"
   }
 }

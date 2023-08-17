@@ -1,4 +1,3 @@
-/** @jsxImportSource preact */
 import { useSpecialState } from '@test/react-lib'
 
 export default function Counter({ children }) {

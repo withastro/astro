@@ -13,6 +13,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import { getRehypePlugins, getRemarkPlugins, recmaInjectImportMetaEnvPlugin } from './plugins.js';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
 import { getFileInfo, ignoreStringPlugins, parseFrontmatter } from './utils.js';
+import astroJSXRenderer from 'astro/jsx/renderer.js';
 
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
 	extendMarkdownConfig: boolean;
@@ -37,9 +38,16 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 		name: '@astrojs/mdx',
 		hooks: {
 			'astro:config:setup': async (params) => {
-				const { updateConfig, config, addPageExtension, addContentEntryType, command } =
-					params as SetupHookParams;
+				const {
+					updateConfig,
+					config,
+					addPageExtension,
+					addContentEntryType,
+					command,
+					addRenderer,
+				} = params as SetupHookParams;
 
+				addRenderer(astroJSXRenderer);
 				addPageExtension('.mdx');
 				addContentEntryType({
 					extensions: ['.mdx'],
@@ -72,7 +80,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				});
 
 				const mdxPluginOpts: CompileOptions = {
-					remarkPlugins: await getRemarkPlugins(mdxOptions, config),
+					remarkPlugins: await getRemarkPlugins(mdxOptions),
 					rehypePlugins: getRehypePlugins(mdxOptions),
 					recmaPlugins: mdxOptions.recmaPlugins,
 					remarkRehypeOptions: mdxOptions.remarkRehype,
@@ -95,6 +103,21 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 								enforce: 'pre',
 								configResolved(resolved) {
 									importMetaEnv = { ...importMetaEnv, ...resolved.env };
+
+									// HACK: move ourselves before Astro's JSX plugin to transform things in the right order
+									const jsxPluginIndex = resolved.plugins.findIndex((p) => p.name === 'astro:jsx');
+									if (jsxPluginIndex !== -1) {
+										const myPluginIndex = resolved.plugins.findIndex(
+											(p) => p.name === '@mdx-js/rollup'
+										);
+										if (myPluginIndex !== -1) {
+											const myPlugin = resolved.plugins[myPluginIndex];
+											// @ts-ignore-error ignore readonly annotation
+											resolved.plugins.splice(myPluginIndex, 1);
+											// @ts-ignore-error ignore readonly annotation
+											resolved.plugins.splice(jsxPluginIndex, 0, myPlugin);
+										}
+									}
 								},
 								// Override transform to alter code before MDX compilation
 								// ex. inject layouts
@@ -156,11 +179,14 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 										code += `\nexport const file = ${JSON.stringify(fileId)};`;
 									}
 									if (!moduleExports.find(({ n }) => n === 'Content')) {
+										// If have `export const components`, pass that as props to `Content` as fallback
+										const hasComponents = moduleExports.find(({ n }) => n === 'components');
+
 										// Make `Content` the default export so we can wrap `MDXContent` and pass in `Fragment`
 										code = code.replace('export default MDXContent;', '');
 										code += `\nexport const Content = (props = {}) => MDXContent({
 											...props,
-											components: { Fragment, ...props.components },
+											components: { Fragment${hasComponents ? ', ...components' : ''}, ...props.components },
 										});
 										export default Content;`;
 									}

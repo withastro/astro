@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/vue",
-  "version": "2.2.1",
+  "version": "3.0.0-beta.0",
   "description": "Use Vue components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -56,10 +56,10 @@
     "vue": "^3.3.4"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.10.9",
+    "astro": "workspace:^3.0.0-beta.2",
     "vue": "^3.2.30"
   },
   "engines": {
-    "node": ">=16.12.0"
+    "node": ">=18.14.1"
   }
 }

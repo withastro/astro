@@ -90,7 +90,7 @@ export type LocalImageProps<T> = ImageSharedProps<T> & {
 	 *
 	 * **Example**:
 	 * ```js
-	 * import myImage from "~/assets/my_image.png";
+	 * import myImage from "../assets/my_image.png";
 	 * ```
 	 * And then refer to the image, like so:
 	 * ```astro

@@ -14,7 +14,7 @@ function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals
 			extendManualChunks(outputOptions, {
 				after(id, meta) {
 					// Split the Astro runtime into a separate chunk for readability
-					if (id.includes('astro/dist')) {
+					if (id.includes('astro/dist/runtime')) {
 						return 'astro';
 					}
 					const pageInfo = internals.pagesByViteID.get(id);

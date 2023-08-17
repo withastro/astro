@@ -3,12 +3,7 @@ import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'ast
 import glob from 'fast-glob';
 import { basename } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import {
-	defaultImageConfig,
-	getImageConfig,
-	throwIfAssetsNotEnabled,
-	type VercelImageConfig,
-} from '../image/shared.js';
+import { defaultImageConfig, getImageConfig, type VercelImageConfig } from '../image/shared.js';
 import { exposeEnv } from '../lib/env.js';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
@@ -29,11 +24,31 @@ const SUPPORTED_NODE_VERSIONS: Record<
 	18: { status: 'current' },
 };
 
-function getAdapter(): AstroAdapter {
+function getAdapter({
+	edgeMiddleware,
+	functionPerRoute,
+}: {
+	edgeMiddleware: boolean;
+	functionPerRoute: boolean;
+}): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
 		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
 		exports: ['default'],
+		adapterFeatures: {
+			edgeMiddleware,
+			functionPerRoute,
+		},
+		supportedAstroFeatures: {
+			hybridOutput: 'stable',
+			staticOutput: 'stable',
+			serverOutput: 'stable',
+			assets: {
+				supportKind: 'stable',
+				isSharpCompatible: true,
+				isSquooshCompatible: true,
+			},
+		},
 	};
 }
 
@@ -43,6 +58,8 @@ export interface VercelServerlessConfig {
 	analytics?: boolean;
 	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
+	edgeMiddleware?: boolean;
+	functionPerRoute?: boolean;
 }
 
 export default function vercelServerless({
@@ -51,6 +68,8 @@ export default function vercelServerless({
 	analytics,
 	imageService,
 	imagesConfig,
+	functionPerRoute = false,
+	edgeMiddleware = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
@@ -111,8 +130,7 @@ export default function vercelServerless({
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				throwIfAssetsNotEnabled(config, imageService);
-				setAdapter(getAdapter());
+				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware }));
 				_config = config;
 				buildTempFolder = config.build.server;
 				serverEntry = config.build.serverEntry;

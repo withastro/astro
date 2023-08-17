@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/svelte",
-  "version": "3.1.0",
+  "version": "4.0.0-beta.0",
   "description": "Use Svelte components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -48,10 +48,10 @@
     "vite": "^4.4.6"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.10.9",
+    "astro": "workspace:^3.0.0-beta.2",
     "svelte": "^3.55.0 || ^4.0.0"
   },
   "engines": {
-    "node": ">=16.12.0"
+    "node": ">=18.14.1"
   }
 }

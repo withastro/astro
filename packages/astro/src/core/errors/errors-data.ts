@@ -658,7 +658,7 @@ export const ResponseSentError = {
  *
  * For example:
  * ```ts
- * import {defineMiddleware} from "astro/middleware";
+ * import {defineMiddleware} from "astro:middleware";
  * export const onRequest = defineMiddleware((context, _) => {
  * 	// doesn't return anything or call `next`
  * 	context.locals.someData = false;
@@ -678,7 +678,7 @@ export const MiddlewareNoDataOrNextCalled = {
  *
  * For example:
  * ```ts
- * import {defineMiddleware} from "astro/middleware";
+ * import {defineMiddleware} from "astro:middleware";
  * export const onRequest = defineMiddleware(() => {
  *   return "string"
  * });
@@ -698,7 +698,7 @@ export const MiddlewareNotAResponse = {
  *
  * For example:
  * ```ts
- * import {defineMiddleware} from "astro/middleware";
+ * import {defineMiddleware} from "astro:middleware";
  * export const onRequest = defineMiddleware((context, next) => {
  *   context.locals = 1541;
  *   return next();

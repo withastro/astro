@@ -7,7 +7,7 @@ export function getStaticPaths() {
 }
 
 /** @param {import('astro').APIContext} params */
-export async function get({ params }) {
+export async function GET({ params }) {
 	const { lang } = params;
 	const translations = await getEntry('i18n', lang);
 	if (!translations) {

@@ -1,11 +1,8 @@
 import type http from 'node:http';
 import type { ManifestData, SSRManifest } from '../@types/astro';
-import type { DevelopmentEnvironment } from '../core/render/index';
 import type { DevServerController } from './controller';
-
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { createSafeError } from '../core/errors/index.js';
-import { error } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { collapseDuplicateSlashes, removeTrailingForwardSlash } from '../core/path.js';
 import { eventError, telemetry } from '../events/index.js';
@@ -13,9 +10,10 @@ import { isServerLikeOutput } from '../prerender/utils.js';
 import { runWithErrorHandling } from './controller.js';
 import { handle500Response } from './response.js';
 import { handleRoute, matchRoute } from './route.js';
+import type DevPipeline from './devPipeline';
 
 type HandleRequest = {
-	env: DevelopmentEnvironment;
+	pipeline: DevPipeline;
 	manifestData: ManifestData;
 	controller: DevServerController;
 	incomingRequest: http.IncomingMessage;
@@ -25,15 +23,15 @@ type HandleRequest = {
 
 /** The main logic to route dev server requests to pages in Astro. */
 export async function handleRequest({
-	env,
+	pipeline,
 	manifestData,
 	controller,
 	incomingRequest,
 	incomingResponse,
 	manifest,
 }: HandleRequest) {
-	const { settings, loader: moduleLoader } = env;
-	const { config } = settings;
+	const config = pipeline.getConfig();
+	const moduleLoader = pipeline.getModuleLoader();
 	const origin = `${moduleLoader.isHttps() ? 'https' : 'http'}://${incomingRequest.headers.host}`;
 	const buildingToSSR = isServerLikeOutput(config);
 
@@ -48,7 +46,7 @@ export async function handleRequest({
 	// Add config.base back to url before passing it to SSR
 	url.pathname = removeTrailingForwardSlash(config.base) + url.pathname;
 
-	// HACK! @astrojs/image uses query params for the injected route in `dev`
+	// HACK! astro:assets uses query params for the injected route in `dev`
 	if (!buildingToSSR && pathname !== '/_image') {
 		// Prevent user from depending on search params when not doing SSR.
 		// NOTE: Create an array copy here because deleting-while-iterating
@@ -75,7 +73,7 @@ export async function handleRequest({
 		controller,
 		pathname,
 		async run() {
-			const matchedRoute = await matchRoute(pathname, env, manifestData);
+			const matchedRoute = await matchRoute(pathname, manifestData, pipeline);
 			const resolvedPathname = matchedRoute?.resolvedPathname ?? pathname;
 			return await handleRoute({
 				matchedRoute,
@@ -83,7 +81,7 @@ export async function handleRequest({
 				pathname: resolvedPathname,
 				body,
 				origin,
-				env,
+				pipeline,
 				manifestData,
 				incomingRequest: incomingRequest,
 				incomingResponse: incomingResponse,
@@ -95,7 +93,7 @@ export async function handleRequest({
 
 			// This could be a runtime error from Vite's SSR module, so try to fix it here
 			try {
-				env.loader.fixStacktrace(err);
+				moduleLoader.fixStacktrace(err);
 			} catch {}
 
 			// This is our last line of defense regarding errors where we still might have some information about the request
@@ -104,7 +102,7 @@ export async function handleRequest({
 
 			telemetry.record(eventError({ cmd: 'dev', err: errorWithMetadata, isFatal: false }));
 
-			error(env.logging, null, msg.formatErrorMessage(errorWithMetadata));
+			pipeline.logger.error(null, msg.formatErrorMessage(errorWithMetadata));
 			handle500Response(moduleLoader, incomingResponse, errorWithMetadata);
 
 			return err;

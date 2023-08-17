@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/react",
   "description": "Use React components within Astro",
-  "version": "2.2.2",
+  "version": "3.0.0-beta.2",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -44,8 +44,8 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@babel/core": "^7.22.5",
-    "@babel/plugin-transform-react-jsx": "^7.22.5",
+    "@astrojs/internal-helpers": "0.2.0-beta.1",
+    "@vitejs/plugin-react": "^4.0.3",
     "ultrahtml": "^1.2.0"
   },
   "devDependencies": {
@@ -66,6 +66,6 @@
     "react-dom": "^17.0.2 || ^18.0.0"
   },
   "engines": {
-    "node": ">=16.12.0"
+    "node": ">=18.14.1"
   }
 }

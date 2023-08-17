@@ -19,9 +19,9 @@ import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
 import astroHeadPlugin from '../vite-plugin-head/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
+import mdxVitePlugin from '../vite-plugin-mdx/index.js';
 import { astroInjectEnvTsPlugin } from '../vite-plugin-inject-env-ts/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
-import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScannerPlugin from '../vite-plugin-scanner/index.js';
@@ -121,7 +121,7 @@ export async function createVite(
 			envVitePlugin({ settings }),
 			markdownVitePlugin({ settings, logging }),
 			htmlVitePlugin(),
-			jsxVitePlugin({ settings, logging }),
+			mdxVitePlugin({ settings, logging }),
 			astroPostprocessVitePlugin(),
 			astroIntegrationsContainerPlugin({ settings, logging }),
 			astroScriptsPageSSRPlugin({ settings }),
@@ -132,7 +132,7 @@ export async function createVite(
 			astroContentImportPlugin({ fs, settings }),
 			astroContentAssetPropagationPlugin({ mode, settings }),
 			vitePluginSSRManifest(),
-			settings.config.experimental.assets ? [astroAssetsPlugin({ settings, logging, mode })] : [],
+			astroAssetsPlugin({ settings, logging, mode }),
 			astroTransitions({ config: settings.config }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
@@ -169,6 +169,14 @@ export async function createVite(
 					// Typings are imported from 'astro' (e.g. import { Type } from 'astro')
 					find: /^astro$/,
 					replacement: fileURLToPath(new URL('../@types/astro', import.meta.url)),
+				},
+				{
+					find: 'astro:middleware',
+					replacement: 'astro/middleware/namespace',
+				},
+				{
+					find: 'astro:components',
+					replacement: 'astro/components',
 				},
 			],
 			conditions: ['astro'],
@@ -234,35 +242,10 @@ export async function createVite(
 		result = vite.mergeConfig(result, settings.config.vite || {});
 	}
 	result = vite.mergeConfig(result, commandConfig);
-	if (result.plugins) {
-		sortPlugins(result.plugins);
-	}
 
 	result.customLogger = vite.createLogger(result.logLevel ?? 'warn');
 
 	return result;
-}
-
-function isVitePlugin(plugin: vite.PluginOption): plugin is vite.Plugin {
-	return Boolean(plugin?.hasOwnProperty('name'));
-}
-
-function findPluginIndexByName(pluginOptions: vite.PluginOption[], name: string): number {
-	return pluginOptions.findIndex(function (pluginOption) {
-		// Use isVitePlugin to ignore nulls, booleans, promises, and arrays
-		// CAUTION: could be a problem if a plugin we're searching for becomes async!
-		return isVitePlugin(pluginOption) && pluginOption.name === name;
-	});
-}
-
-function sortPlugins(pluginOptions: vite.PluginOption[]) {
-	// HACK: move mdxPlugin to top because it needs to run before internal JSX plugin
-	const mdxPluginIndex = findPluginIndexByName(pluginOptions, '@mdx-js/rollup');
-	if (mdxPluginIndex === -1) return;
-	const jsxPluginIndex = findPluginIndexByName(pluginOptions, 'astro:jsx');
-	const mdxPlugin = pluginOptions[mdxPluginIndex];
-	pluginOptions.splice(mdxPluginIndex, 1);
-	pluginOptions.splice(jsxPluginIndex, 0, mdxPlugin);
 }
 
 const COMMON_DEPENDENCIES_NOT_ASTRO = [

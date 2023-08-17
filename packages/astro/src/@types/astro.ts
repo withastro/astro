@@ -20,8 +20,10 @@ import type { AstroConfigType } from '../core/config';
 import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
 import type { LogOptions, LoggerLevel } from '../core/logger/core';
+import type { AstroIntegrationLogger } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+
 export type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -132,7 +134,6 @@ export interface CLIFlags {
 	config?: string;
 	drafts?: boolean;
 	open?: boolean;
-	experimentalAssets?: boolean;
 }
 
 /**
@@ -329,7 +330,7 @@ type ServerConfig = {
 	/**
 	 * @name server.port
 	 * @type {number}
-	 * @default `3000`
+	 * @default `4321`
 	 * @description
 	 * Set which port the dev server should listen on.
 	 *
@@ -543,14 +544,14 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name compressHTML
 	 * @type {boolean}
-	 * @default `false`
+	 * @default `true`
 	 * @description
-	 * This is an option to minify your HTML output and reduce the size of your HTML files. When enabled, Astro removes all whitespace from your HTML, including line breaks, from `.astro` components. This occurs both in development mode and in the final build.
-	 * To enable this, set the `compressHTML` flag to `true`.
+	 * This is an option to minify your HTML output and reduce the size of your HTML files. By default, Astro removes all whitespace from your HTML, including line breaks, from `.astro` components. This occurs both in development mode and in the final build.
+	 * To disable HTML compression, set the `compressHTML` flag to `false`.
 	 *
 	 * ```js
 	 * {
-	 *   compressHTML: true
+	 *   compressHTML: false
 	 * }
 	 * ```
 	 */
@@ -573,12 +574,7 @@ export interface AstroUserConfig {
 	 *
 	 * When using this option, all of your static asset imports and URLs should add the base as a prefix. You can access this value via `import.meta.env.BASE_URL`.
 	 *
-	 * By default, the value of `import.meta.env.BASE_URL` includes a trailing slash. If you have the [`trailingSlash`](https://docs.astro.build/en/reference/configuration-reference/#trailingslash) option set to `'never'`, you will need to add it manually in your static asset imports and URLs.
-	 *
-	 * ```astro
-	 * <a href="/docs/about/">About</a>
-	 * <img src=`${import.meta.env.BASE_URL}image.png`>
-	 * ```
+	 * The value of `import.meta.env.BASE_URL` respects your `trailingSlash` config and will include a trailing slash if you explicitly include one or if `trailingSlash: "always"` is set. If `trailingSlash: "never"` is set, `BASE_URL` will not include a trailing slash, even if `base` includes one.
 	 */
 	base?: string;
 
@@ -611,19 +607,21 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name scopedStyleStrategy
-	 * @type {('where' | 'class')}
+	 * @type {('where' | 'class' | 'attribute')}
 	 * @default `'where'`
 	 * @version 2.4
 	 * @description
 	 *
 	 * Specify the strategy used for scoping styles within Astro components. Choose from:
-	 *   - `'where'` - Use `:where` selectors, causing no specifity increase.
-	 *   - `'class'` - Use class-based selectors, causing a +1 specifity increase.
+	 *   - `'where'` 		- Use `:where` selectors, causing no specifity increase.
+	 *   - `'class'` 		- Use class-based selectors, causing a +1 specifity increase.
+	 *   - `'attribute'` 	- Use `data-` attributes, causing no specifity increase.
 	 *
 	 * Using `'class'` is helpful when you want to ensure that element selectors within an Astro component override global style defaults (e.g. from a global stylesheet).
 	 * Using `'where'` gives you more control over specifity, but requires that you use higher-specifity selectors, layers, and other tools to control which selectors are applied.
+	 * Using `'attribute'` is useful in case there's manipulation of the class attributes, so the styling emitted by Astro doesn't go in conflict with the user's business logic.
 	 */
-	scopedStyleStrategy?: 'where' | 'class';
+	scopedStyleStrategy?: 'where' | 'class' | 'attribute';
 
 	/**
 	 * @docs
@@ -921,7 +919,7 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   // Example: Use the function syntax to customize based on command
-	 *   server: ({ command }) => ({ port: command === 'dev' ? 3000 : 4000 })
+	 *   server: ({ command }) => ({ port: command === 'dev' ? 4321 : 4000 })
 	 * }
 	 * ```
 	 */
@@ -943,7 +941,7 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name server.port
 	 * @type {number}
-	 * @default `3000`
+	 * @default `4321`
 	 * @description
 	 * Set which port the server should listen on.
 	 *
@@ -993,7 +991,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name image.service (Experimental)
 		 * @type {{entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | string, config: Record<string, any>}}
-		 * @default `{entrypoint: 'astro/assets/services/squoosh', config?: {}}`
+		 * @default `{entrypoint: 'astro/assets/services/sharp', config?: {}}`
 		 * @version 2.1.0
 		 * @description
 		 * Set which image service is used for Astro’s experimental assets support.
@@ -1302,27 +1300,6 @@ export interface AstroUserConfig {
 	experimental?: {
 		/**
 		 * @docs
-		 * @name experimental.assets
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.1.0
-		 * @description
-		 * Enable experimental support for optimizing and resizing images. With this enabled, a new `astro:assets` module will be exposed.
-		 *
-		 * To enable this feature, set `experimental.assets` to `true` in your Astro config:
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		assets: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		assets?: boolean;
-
-		/**
-		 * @docs
 		 * @name experimental.viewTransitions
 		 * @type {boolean}
 		 * @default `false`
@@ -1505,6 +1482,17 @@ export interface DataEntryType {
 
 export type GetDataEntryInfoReturnType = { data: Record<string, unknown>; rawData?: string };
 
+export interface AstroAdapterFeatures {
+	/**
+	 * Creates and edge function that will communiate with the Astro middleware
+	 */
+	edgeMiddleware: boolean;
+	/**
+	 * SSR only. Each route becomes its own function/file.
+	 */
+	functionPerRoute: boolean;
+}
+
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
@@ -1621,10 +1609,7 @@ export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
  */
 export type GetStaticPaths = (
 	options: GetStaticPathsOptions
-) =>
-	| Promise<GetStaticPathsResult | GetStaticPathsResult[]>
-	| GetStaticPathsResult
-	| GetStaticPathsResult[];
+) => Promise<GetStaticPathsResult> | GetStaticPathsResult;
 
 /**
  * Infers the shape of the `params` property returned by `getStaticPaths()`.
@@ -1767,12 +1752,52 @@ export type PaginateFunction = (data: any[], args?: PaginateOptions) => GetStati
 
 export type Params = Record<string, string | undefined>;
 
+export type SupportsKind = 'unsupported' | 'stable' | 'experimental' | 'deprecated';
+
+export type AstroFeatureMap = {
+	/**
+	 * The adapter is able serve static pages
+	 */
+	staticOutput?: SupportsKind;
+	/**
+	 * The adapter is able to serve pages that are static or rendered via server
+	 */
+	hybridOutput?: SupportsKind;
+	/**
+	 * The adapter is able to serve SSR pages
+	 */
+	serverOutput?: SupportsKind;
+	/**
+	 * The adapter can emit static assets
+	 */
+	assets?: AstroAssetsFeature;
+};
+
+export interface AstroAssetsFeature {
+	supportKind?: SupportsKind;
+	/**
+	 * Whether if this adapter deploys files in an enviroment that is compatible with the library `sharp`
+	 */
+	isSharpCompatible?: boolean;
+	/**
+	 * Whether if this adapter deploys files in an enviroment that is compatible with the library `squoosh`
+	 */
+	isSquooshCompatible?: boolean;
+}
+
 export interface AstroAdapter {
 	name: string;
 	serverEntrypoint?: string;
 	previewEntrypoint?: string;
 	exports?: string[];
 	args?: any;
+	adapterFeatures?: AstroAdapterFeatures;
+	/**
+	 * List of features supported by an adapter.
+	 *
+	 * If the adapter is not able to handle certain configurations, Astro will throw an error.
+	 */
+	supportedAstroFeatures?: AstroFeatureMap;
 }
 
 type Body = string;
@@ -1895,7 +1920,7 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 *
 	 * ```ts
 	 * // src/middleware.ts
-	 * import {defineMiddleware} from "astro/middleware";
+	 * import {defineMiddleware} from "astro:middleware";
 	 *
 	 * export const onRequest = defineMiddleware((context, next) => {
 	 *   context.locals.greeting = "Hello!";
@@ -1960,7 +1985,7 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 
 export type HookParameters<
 	Hook extends keyof AstroIntegration['hooks'],
-	Fn = AstroIntegration['hooks'][Hook]
+	Fn = AstroIntegration['hooks'][Hook],
 > = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
 
 export interface AstroIntegration {
@@ -1978,6 +2003,7 @@ export interface AstroIntegration {
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			addClientDirective: (directive: ClientDirectiveConfig) => void;
+			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.
@@ -1986,10 +2012,17 @@ export interface AstroIntegration {
 		'astro:config:done'?: (options: {
 			config: AstroConfig;
 			setAdapter: (adapter: AstroAdapter) => void;
+			logger: AstroIntegrationLogger;
 		}) => void | Promise<void>;
-		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
-		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
-		'astro:server:done'?: () => void | Promise<void>;
+		'astro:server:setup'?: (options: {
+			server: vite.ViteDevServer;
+			logger: AstroIntegrationLogger;
+		}) => void | Promise<void>;
+		'astro:server:start'?: (options: {
+			address: AddressInfo;
+			logger: AstroIntegrationLogger;
+		}) => void | Promise<void>;
+		'astro:server:done'?: (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
 		'astro:build:ssr'?: (options: {
 			manifest: SerializedSSRManifest;
 			/**
@@ -2001,19 +2034,25 @@ export interface AstroIntegration {
 			 * File path of the emitted middleware
 			 */
 			middlewareEntryPoint: URL | undefined;
+			logger: AstroIntegrationLogger;
 		}) => void | Promise<void>;
-		'astro:build:start'?: () => void | Promise<void>;
+		'astro:build:start'?: (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
 		'astro:build:setup'?: (options: {
 			vite: vite.InlineConfig;
 			pages: Map<string, PageBuildData>;
 			target: 'client' | 'server';
 			updateConfig: (newConfig: vite.InlineConfig) => void;
+			logger: AstroIntegrationLogger;
 		}) => void | Promise<void>;
-		'astro:build:generated'?: (options: { dir: URL }) => void | Promise<void>;
+		'astro:build:generated'?: (options: {
+			dir: URL;
+			logger: AstroIntegrationLogger;
+		}) => void | Promise<void>;
 		'astro:build:done'?: (options: {
 			pages: { pathname: string }[];
 			dir: URL;
 			routes: RouteData[];
+			logger: AstroIntegrationLogger;
 		}) => void | Promise<void>;
 	};
 }

@@ -1,4 +1,3 @@
-import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
 	AstroGlobal,
 	AstroGlobalPartial,
@@ -27,10 +26,6 @@ export interface CreateResultArgs {
 	 */
 	ssr: boolean;
 	logging: LogOptions;
-	/**
-	 * Used to support `Astro.__renderMarkdown` for legacy `<Markdown />` component
-	 */
-	markdown: MarkdownRenderingOptions;
 	params: Params;
 	pathname: string;
 	renderers: SSRLoadedRenderer[];
@@ -128,10 +123,8 @@ class Slots {
 	}
 }
 
-let renderMarkdown: any = null;
-
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, request, resolve, locals } = args;
+	const { params, request, resolve, locals } = args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
@@ -221,31 +214,6 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				response: response as AstroGlobal['response'],
 				slots: astroSlots as unknown as AstroGlobal['slots'],
 			};
-
-			Object.defineProperty(Astro, '__renderMarkdown', {
-				// Ensure this API is not exposed to users
-				enumerable: false,
-				writable: false,
-				// TODO: Remove this hole "Deno" logic once our plugin gets Deno support
-				value: async function (content: string, opts: MarkdownRenderingOptions) {
-					// @ts-expect-error
-					if (typeof Deno !== 'undefined') {
-						throw new Error('Markdown is not supported in Deno SSR');
-					}
-
-					if (!renderMarkdown) {
-						// The package is saved in this variable because Vite is too smart
-						// and will try to inline it in buildtime
-						let astroRemark = '@astrojs/';
-						astroRemark += 'markdown-remark';
-
-						renderMarkdown = (await import(astroRemark)).renderMarkdown;
-					}
-
-					const { code } = await renderMarkdown(content, { ...markdown, ...(opts ?? {}) });
-					return code;
-				},
-			});
 
 			return Astro;
 		},

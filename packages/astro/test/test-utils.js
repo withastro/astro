@@ -1,4 +1,3 @@
-import { polyfill } from '@astrojs/webapi';
 import { execa } from 'execa';
 import fastGlob from 'fast-glob';
 import fs from 'node:fs';
@@ -17,17 +16,11 @@ import { nodeLogDestination } from '../dist/core/logger/node.js';
 import preview from '../dist/core/preview/index.js';
 import { sync } from '../dist/core/sync/index.js';
 
-// polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
-polyfill(globalThis, {
-	exclude: 'window document',
-});
-
 // Disable telemetry when running tests
 process.env.ASTRO_TELEMETRY_DISABLED = true;
 
 /**
- * @typedef {import('undici').Response} Response
- * @typedef {import('../src/core/dev/dev').DedvServer} DevServer
+ * @typedef {import('../src/core/dev/dev').DevServer} DevServer
  * @typedef {import('../src/@types/astro').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
  * @typedef {import('../src/core/app/index').App} App

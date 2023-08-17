@@ -4,7 +4,9 @@ import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import type {
+	AstroAdapter,
 	AstroConfig,
+	AstroIntegration,
 	AstroRenderer,
 	AstroSettings,
 	ContentEntryType,
@@ -16,8 +18,9 @@ import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/index.js';
-import { info, type LogOptions } from '../core/logger/core.js';
+import { AstroIntegrationLogger, error, info, warn, type LogOptions } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
+import { validateSupportedFeatures } from './astroFeaturesValidation.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -36,6 +39,19 @@ async function withTakingALongTimeMsg<T>({
 	const result = await hookResult;
 	clearTimeout(timeout);
 	return result;
+}
+
+// Used internally to store instances of loggers.
+const Loggers = new WeakMap<AstroIntegration, AstroIntegrationLogger>();
+
+function getLogger(integration: AstroIntegration, logging: LogOptions) {
+	if (Loggers.has(integration)) {
+		// SAFETY: we check the existence in the if block
+		return Loggers.get(integration)!;
+	}
+	const logger = new AstroIntegrationLogger(logging, integration.name);
+	Loggers.set(integration, logger);
+	return logger;
 }
 
 export async function runHookConfigSetup({
@@ -72,6 +88,8 @@ export async function runHookConfigSetup({
 		 * ```
 		 */
 		if (integration.hooks?.['astro:config:setup']) {
+			const logger = getLogger(integration, logging);
+
 			const hooks: HookParameters<'astro:config:setup'> = {
 				config: updatedConfig,
 				command,
@@ -107,6 +125,7 @@ export async function runHookConfigSetup({
 					}
 					addedClientDirectives.set(name, buildClientDirectiveEntrypoint(name, entrypoint));
 				},
+				logger,
 			};
 
 			// ---
@@ -167,6 +186,7 @@ export async function runHookConfigDone({
 	logging: LogOptions;
 }) {
 	for (const integration of settings.config.integrations) {
+		const logger = getLogger(integration, logging);
 		if (integration?.hooks?.['astro:config:done']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
@@ -178,8 +198,44 @@ export async function runHookConfigDone({
 								`Integration "${integration.name}" conflicts with "${settings.adapter.name}". You can only configure one deployment integration.`
 							);
 						}
+						if (!adapter.supportedAstroFeatures) {
+							// NOTE: throw an error in Astro 4.0
+							warn(
+								logging,
+								'astro',
+								`The adapter ${adapter.name} doesn't provide a feature map. From Astro 3.0, an adapter can provide a feature map. Not providing a feature map will cause an error in Astro 4.0.`
+							);
+						} else {
+							const validationResult = validateSupportedFeatures(
+								adapter.name,
+								adapter.supportedAstroFeatures,
+								settings.config,
+								logging
+							);
+							for (const [featureName, supported] of Object.entries(validationResult)) {
+								if (!supported) {
+									error(
+										logging,
+										'astro',
+										`The adapter ${adapter.name} doesn't support the feature ${featureName}. Your project won't be built. You should not use it.`
+									);
+								}
+							}
+							if (!validationResult.assets) {
+								info(
+									logging,
+									'astro',
+									`The selected adapter ${adapter.name} does not support Sharp or Squoosh for image processing. To ensure your project is still able to build, image processing has been disabled.`
+								);
+								settings.config.image.service = {
+									entrypoint: 'astro/assets/services/noop',
+									config: {},
+								};
+							}
+						}
 						settings.adapter = adapter;
 					},
+					logger,
 				}),
 				logging,
 			});
@@ -198,9 +254,10 @@ export async function runHookServerSetup({
 }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:server:setup']) {
+			const logger = getLogger(integration, logging);
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:server:setup']({ server }),
+				hookResult: integration.hooks['astro:server:setup']({ server, logger }),
 				logging,
 			});
 		}
@@ -217,10 +274,12 @@ export async function runHookServerStart({
 	logging: LogOptions;
 }) {
 	for (const integration of config.integrations) {
+		const logger = getLogger(integration, logging);
+
 		if (integration?.hooks?.['astro:server:start']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:server:start']({ address }),
+				hookResult: integration.hooks['astro:server:start']({ address, logger }),
 				logging,
 			});
 		}
@@ -235,10 +294,12 @@ export async function runHookServerDone({
 	logging: LogOptions;
 }) {
 	for (const integration of config.integrations) {
+		const logger = getLogger(integration, logging);
+
 		if (integration?.hooks?.['astro:server:done']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:server:done'](),
+				hookResult: integration.hooks['astro:server:done']({ logger }),
 				logging,
 			});
 		}
@@ -254,9 +315,11 @@ export async function runHookBuildStart({
 }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:start']) {
+			const logger = getLogger(integration, logging);
+
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:build:start'](),
+				hookResult: integration.hooks['astro:build:start']({ logger }),
 				logging,
 			});
 		}
@@ -280,6 +343,8 @@ export async function runHookBuildSetup({
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:setup']) {
+			const logger = getLogger(integration, logging);
+
 			await withTakingALongTimeMsg({
 				name: integration.name,
 				hookResult: integration.hooks['astro:build:setup']({
@@ -289,6 +354,7 @@ export async function runHookBuildSetup({
 					updateConfig: (newConfig) => {
 						updatedConfig = mergeConfig(updatedConfig, newConfig);
 					},
+					logger,
 				}),
 				logging,
 			});
@@ -315,12 +381,15 @@ export async function runHookBuildSsr({
 }: RunHookBuildSsr) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:ssr']) {
+			const logger = getLogger(integration, logging);
+
 			await withTakingALongTimeMsg({
 				name: integration.name,
 				hookResult: integration.hooks['astro:build:ssr']({
 					manifest,
 					entryPoints,
 					middlewareEntryPoint,
+					logger,
 				}),
 				logging,
 			});
@@ -338,10 +407,12 @@ export async function runHookBuildGenerated({
 	const dir = isServerLikeOutput(config) ? config.build.client : config.outDir;
 
 	for (const integration of config.integrations) {
+		const logger = getLogger(integration, logging);
+
 		if (integration?.hooks?.['astro:build:generated']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:build:generated']({ dir }),
+				hookResult: integration.hooks['astro:build:generated']({ dir, logger }),
 				logging,
 			});
 		}
@@ -361,15 +432,34 @@ export async function runHookBuildDone({ config, pages, routes, logging }: RunHo
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:done']) {
+			const logger = getLogger(integration, logging);
+
 			await withTakingALongTimeMsg({
 				name: integration.name,
 				hookResult: integration.hooks['astro:build:done']({
 					pages: pages.map((p) => ({ pathname: p })),
 					dir,
 					routes,
+					logger,
 				}),
 				logging,
 			});
 		}
+	}
+}
+
+export function isFunctionPerRouteEnabled(adapter: AstroAdapter | undefined): boolean {
+	if (adapter?.adapterFeatures?.functionPerRoute === true) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+export function isEdgeMiddlewareEnabled(adapter: AstroAdapter | undefined): boolean {
+	if (adapter?.adapterFeatures?.edgeMiddleware === true) {
+		return true;
+	} else {
+		return false;
 	}
 }

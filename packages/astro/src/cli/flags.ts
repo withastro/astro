@@ -23,9 +23,6 @@ export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 				typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 			open: typeof flags.open === 'boolean' ? flags.open : undefined,
 		},
-		experimental: {
-			assets: typeof flags.experimentalAssets === 'boolean' ? flags.experimentalAssets : undefined,
-		},
 	};
 }
 

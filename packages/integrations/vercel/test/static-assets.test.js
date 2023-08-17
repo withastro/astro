@@ -66,19 +66,4 @@ describe('Static Assets', () => {
 			checkValidCacheControl(assets);
 		});
 	});
-
-	describe('edge adapter', async () => {
-		const adapter = await import('@astrojs/vercel/edge');
-
-		it('has cache control', async () => {
-			await build({ adapter });
-			checkValidCacheControl();
-		});
-
-		it('has cache control other assets', async () => {
-			const assets = '_foo';
-			await build({ adapter, assets });
-			checkValidCacheControl(assets);
-		});
-	});
 });

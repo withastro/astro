@@ -1,7 +1,5 @@
-import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
-import type { AstroSettings, RuntimeMode, SSRLoadedRenderer } from '../../@types/astro';
+import type { RuntimeMode, SSRLoadedRenderer } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
-import type { ModuleLoader } from '../module-loader';
 import type { RouteCache } from './route-cache.js';
 
 /**
@@ -16,10 +14,6 @@ export interface Environment {
 	adapterName?: string;
 	/** logging options */
 	logging: LogOptions;
-	/**
-	 * Used to support `Astro.__renderMarkdown` for legacy `<Markdown />` component
-	 */
-	markdown: MarkdownRenderingOptions;
 	/** "development" or "production" */
 	mode: RuntimeMode;
 	compressHTML: boolean;
@@ -43,8 +37,3 @@ export type CreateEnvironmentArgs = Environment;
 export function createEnvironment(options: CreateEnvironmentArgs): Environment {
 	return options;
 }
-
-export type DevelopmentEnvironment = Environment & {
-	loader: ModuleLoader;
-	settings: AstroSettings;
-};

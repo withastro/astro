@@ -6,6 +6,7 @@ import { IncomingMessage } from 'node:http';
 import { TLSSocket } from 'node:tls';
 import { deserializeManifest } from './common.js';
 import { App, type MatchOptions } from './index.js';
+export { apply as applyPolyfills } from '../polyfill.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 

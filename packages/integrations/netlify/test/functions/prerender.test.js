@@ -1,7 +1,7 @@
 import { expect } from 'chai';
+import { after } from 'node:test';
 import netlifyAdapter from '../../dist/index.js';
 import { loadFixture, testIntegration } from './test-utils.js';
-import { after } from 'node:test';
 
 describe('Mixed Prerendering with SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -27,9 +27,9 @@ describe('Mixed Prerendering with SSR', () => {
 
 	it('Wildcard 404 is sorted last', async () => {
 		const redir = await fixture.readFile('/_redirects');
-		const baseRouteIndex = redir.indexOf('/       /.netlify/functions/entry    200');
-		const oneRouteIndex = redir.indexOf('/one    /one/index.html              200');
-		const fourOhFourWildCardIndex = redir.indexOf('/*      /.netlify/functions/entry    404');
+		const baseRouteIndex = redir.indexOf('/          /.netlify/functions/entry    200');
+		const oneRouteIndex = redir.indexOf('/one       /one/index.html              200');
+		const fourOhFourWildCardIndex = redir.indexOf('/*         /.netlify/functions/entry    404');
 
 		expect(oneRouteIndex).to.not.be.equal(-1);
 		expect(fourOhFourWildCardIndex).to.be.greaterThan(baseRouteIndex);
@@ -61,12 +61,15 @@ describe('Mixed Hybrid rendering with SSR', () => {
 
 	it('outputs a correct redirect file', async () => {
 		const redir = await fixture.readFile('/_redirects');
-		const baseRouteIndex = redir.indexOf('/one    /.netlify/functions/entry    200');
-		const rootRouteIndex = redir.indexOf('/       /index.html                  200');
-		const fourOhFourIndex = redir.indexOf('/404    /404.html                    200');
+		console.log(redir);
+		const baseRouteIndex = redir.indexOf('/one       /.netlify/functions/entry    200');
+		const rootRouteIndex = redir.indexOf('/          /index.html                  200');
+		const fourOhFourIndex = redir.indexOf('/404       /404.html                    200');
+		const imageEndpoint = redir.indexOf('/_image    /.netlify/functions/entry    200');
 
 		expect(rootRouteIndex).to.not.be.equal(-1);
 		expect(baseRouteIndex).to.not.be.equal(-1);
 		expect(fourOhFourIndex).to.not.be.equal(-1);
+		expect(imageEndpoint).to.not.be.equal(-1);
 	});
 });

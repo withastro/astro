@@ -33,7 +33,6 @@ export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise
 		mod,
 		route,
 		routeCache,
-		isValidate: true,
 		logging,
 		ssr,
 	});
