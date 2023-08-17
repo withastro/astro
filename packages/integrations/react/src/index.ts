@@ -4,10 +4,11 @@ import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-re
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import type * as vite from 'vite';
 
+export type ReactIntegrationOptions = Pick<ViteReactPluginOptions, 'include' | 'exclude'> & {
+	experimentalReactChildren?: boolean;
+};
+
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
-
-
-
 
 function getRenderer() {
 	return {
@@ -43,7 +44,7 @@ function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
 	};
 }
 
-function getViteConfiguration(experimentalReactChildren: boolean, { include, exclude }: Options = {}) {
+function getViteConfiguration({ include, exclude, experimentalReactChildren }: ReactIntegrationOptions = {}) {
 	return {
 		optimizeDeps: {
 			include: [
@@ -63,7 +64,7 @@ function getViteConfiguration(experimentalReactChildren: boolean, { include, exc
 		},
 		plugins: [
 			react({ include, exclude }),
-			optionsPlugin(experimentalReactChildren)
+			optionsPlugin(!!experimentalReactChildren)
 		],
 		resolve: {
 			dedupe: ['react', 'react-dom', 'react-dom/server'],
@@ -84,22 +85,17 @@ function getViteConfiguration(experimentalReactChildren: boolean, { include, exc
 	};
 }
 
-export type ReactIntegrationOptions = Pick<ViteReactPluginOptions, 'include' | 'exclude'> & {
-	experimentalReactChildren: boolean;
-};
 export default function ({
 	include,
 	exclude,
 	experimentalReactChildren
-}: ReactIntegrationOptions = {
-	experimentalReactChildren: false
-}): AstroIntegration {
+}: ReactIntegrationOptions = {}): AstroIntegration {
 	return {
 		name: '@astrojs/react',
 		hooks: {
 			'astro:config:setup': ({ config, command, addRenderer, updateConfig, injectScript }) => {
 				addRenderer(getRenderer());
-				updateConfig({ vite: getViteConfiguration(experimentalReactChildren, { include, exclude }) });
+				updateConfig({ vite: getViteConfiguration({ include, exclude, experimentalReactChildren }) });
 				if (command === 'dev') {
 					const preamble = FAST_REFRESH_PREAMBLE.replace(
 						`__BASE__`,

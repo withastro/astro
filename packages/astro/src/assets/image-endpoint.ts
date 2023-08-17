@@ -1,7 +1,7 @@
 import mime from 'mime/lite.js';
 import type { APIRoute } from '../@types/astro.js';
 import { etag } from './utils/etag.js';
-import { isRemotePath } from '../core/path.js';
+import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { getConfiguredImageService, isRemoteAllowed } from './internal.js';
 // @ts-expect-error
 import { imageConfig } from 'astro:assets';
@@ -70,7 +70,3 @@ export const GET: APIRoute = async ({ request }) => {
 		return new Response(`Server Error: ${err}`, { status: 500 });
 	}
 };
-
-function isRemotePath(src: string) {
-	return /^(http|ftp|https|ws):?\/\//.test(src) || src.startsWith('data:');
-}
