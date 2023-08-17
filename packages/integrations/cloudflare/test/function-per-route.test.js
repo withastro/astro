@@ -1,25 +1,13 @@
 import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
-import cloudflare from '../dist/index.js';
 
-/** @type {import('./test-utils').Fixture} */
-describe('Cloudflare SSR split', () => {
+/** @type {import('./test-utils.js').Fixture} */
+describe('Cloudflare SSR functionPerRoute', () => {
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/split/',
-			adapter: cloudflare({ mode: 'directory' }),
-			output: 'server',
-			build: {
-				split: true,
-				excludeMiddleware: false,
-			},
-			vite: {
-				build: {
-					minify: false,
-				},
-			},
+			root: './fixtures/function-per-route/',
 		});
 		await fixture.build();
 	});
