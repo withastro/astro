@@ -597,7 +597,7 @@ describe('astro:image', () => {
 				},
 				image: {
 					service: testImageService(),
-					domains: ['avatars.githubusercontent.com'],
+					domains: ['astro.build'],
 				},
 			});
 			// Remove cache directory
@@ -728,12 +728,15 @@ describe('astro:image', () => {
 		});
 
 		it('has cache entries', async () => {
-			const generatedImages = (await fixture.glob('_astro/**/*.webp')).map((path) =>
-				basename(path)
-			);
-			const cachedImages = (await fixture.glob('../node_modules/.astro/assets/**/*.webp')).map(
-				(path) => basename(path)
-			);
+			const generatedImages = (await fixture.glob('_astro/**/*.webp'))
+				.map((path) => basename(path))
+				.sort();
+			const cachedImages = [
+				...(await fixture.glob('../node_modules/.astro/assets/**/*.webp')),
+				...(await fixture.glob('../node_modules/.astro/assets/**/*.json')),
+			]
+				.map((path) => basename(path).replace('.webp.json', '.webp'))
+				.sort();
 
 			expect(generatedImages).to.deep.equal(cachedImages);
 		});
