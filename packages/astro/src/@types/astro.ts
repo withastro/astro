@@ -836,7 +836,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name build.inlineStylesheets
 		 * @type {('always' | 'auto' | 'never')}
-		 * @default `never`
+		 * @default `auto`
 		 * @version 2.6.0
 		 * @description
 		 * Control whether project styles are sent to the browser in a separate css file or inlined into `<style>` tags. Choose from the following options:
