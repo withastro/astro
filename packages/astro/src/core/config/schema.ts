@@ -25,7 +25,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 		assets: '_astro',
 		serverEntry: 'entry.mjs',
 		redirects: true,
-		inlineStylesheets: 'never',
+		inlineStylesheets: 'auto',
 		split: false,
 		excludeMiddleware: false,
 	},
