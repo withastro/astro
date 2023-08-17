@@ -120,7 +120,7 @@ declare module 'astro:transitions' {
 }
 
 declare module 'astro:middleware' {
-	export * from 'astro/middleware';
+	export * from 'astro/middleware/namespace';
 }
 
 declare module 'astro:components' {

@@ -172,7 +172,7 @@ export async function createVite(
 				},
 				{
 					find: 'astro:middleware',
-					replacement: 'astro/middleware',
+					replacement: 'astro/middleware/namespace',
 				},
 				{
 					find: 'astro:components',
