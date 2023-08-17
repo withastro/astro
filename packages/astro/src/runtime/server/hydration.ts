@@ -186,7 +186,7 @@ export async function generateHydrateScript(
 	const serializedProps = serialize(scriptProps)
 	const script: SSRElement = {
 		children: `Astro.assign(document.currentScript,${serializedProps})`,
-		props: { async: '' }
+		props: {}
 	}
 
 	return [island, script];

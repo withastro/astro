@@ -10,14 +10,27 @@ declare const Astro: {
 		opts: Record<string, any>,
 		root: HTMLElement
 	) => void;
-};
+}
+
+interface IslandMeta {
+	componentUrl: string;
+	rendererUrl: string;
+	beforeHydrationUrl?: string;
+	componentExport?: string;
+	props: Record<string, any>;
+	opts: Record<string, any>;
+}
 
 {
-	// @ts-ignore
-	(self.Astro || (self.Astro = {})).assign = (script,value) => {
-		Object.assign(script.parentElement,value);
-		script.remove();
-	};
+	// island meta info (for all islands) is stored here
+	var $meta: Record<string, IslandMeta> = {};
+	// Astro.assign is called in injected scripts
+	(self as any).Astro = Object.assign((self as any).Astro || {}, {
+		assign(script: HTMLElement, value: any) {
+			$meta[(script.parentElement as any).getAttribute('uid')] = value;
+			script.remove();
+		}
+	})
 
 	if (!customElements.get('astro-island')) {
 		customElements.define(
@@ -25,16 +38,11 @@ declare const Astro: {
 			class extends HTMLElement {
 				public Component: any;
 				public hydrator: any;
-
-				// These props are injected by the Astro runtime via inline `<script>`
-				public opts: Record<string, any> = {};
-				public props: Record<string, any> = {};
-				public rendererUrl = '';
-				public componentUrl = '';
-				public componentExport = 'default';
-				public beforeHydrationUrl = '';
-
+				public uid: any;
+				static get observedAttributes() { return ['ssr'] }
+				get meta() { return $meta[this.uid]; }
 				connectedCallback() {
+					this.uid = this.getAttribute('uid')!;
 					if (!this.hasAttribute('await-children') || this.firstChild) {
 						this.childrenConnectedCallback();
 					} else {
@@ -49,7 +57,7 @@ declare const Astro: {
 					}
 				}
 				async childrenConnectedCallback() {
-					let { beforeHydrationUrl } = this;
+					let { beforeHydrationUrl } = this.meta;
 					if (beforeHydrationUrl) {
 						await import(beforeHydrationUrl);
 					}
@@ -57,7 +65,7 @@ declare const Astro: {
 					this.removeAttribute('await-children');
 				}
 				start() {
-					const { opts } = this;
+					const { opts = {} } = this.meta;
 					const client = this.getAttribute('client') as directiveAstroKeys;
 					if (Astro[client] === undefined) {
 						window.addEventListener(`astro:${client}`, () => this.start(), { once: true });
@@ -65,7 +73,7 @@ declare const Astro: {
 					}
 					Astro[client]!(
 						async () => {
-							const { rendererUrl, componentUrl, componentExport = 'default' } = this;
+							const { rendererUrl, componentUrl, componentExport = 'default' } = this.meta;
 							const [componentModule, { default: hydrator }] = await Promise.all([
 								import(componentUrl),
 								rendererUrl ? import(rendererUrl) : () => () => {},
@@ -117,7 +125,8 @@ declare const Astro: {
 						if (!closest?.isSameNode(this)) continue;
 						slots[slot.getAttribute('name') || 'default'] = slot.innerHTML;
 					}
-					await this.hydrator(this)(this.Component, this.props, slots, {
+					const { props = {} } = this.meta;
+					await this.hydrator(this)(this.Component, props, slots, {
 						client: this.getAttribute('client'),
 					});
 					this.removeAttribute('ssr');
