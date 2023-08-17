@@ -287,15 +287,17 @@ async function generatePage(
 		builtPaths
 	);
 
+	let prevTimeEnd = timeStart;
 	for (let i = 0; i < paths.length; i++) {
 		const path = paths[i];
 		await generatePath(path, generationOptions, pipeline);
 		const timeEnd = performance.now();
-		const timeChange = getTimeStat(timeStart, timeEnd);
+		const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
 		const filePath = getOutputFilename(pipeline.getConfig(), path, pageData.route.type);
 		const lineIcon = i === paths.length - 1 ? '└─' : '├─';
 		logger.info(null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
+		prevTimeEnd = timeEnd;
 	}
 }
 
