@@ -1,4 +1,5 @@
 export type { AstroComponentFactory, AstroComponentInstance } from './astro/index';
+export type { RenderInstruction } from './instruction';
 export { createHeadAndContent, renderTemplate, renderToString } from './astro/index.js';
 export { Fragment, Renderer, chunkToByteArray, chunkToString } from './common.js';
 export { renderComponent, renderComponentToString } from './component.js';
