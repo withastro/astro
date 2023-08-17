@@ -23,12 +23,12 @@ type EndpointResultHandler = (
  */
 export class Pipeline {
 	env: Environment;
-	onRequest?: MiddlewareEndpointHandler;
+	#onRequest?: MiddlewareEndpointHandler;
 	/**
 	 * The handler accepts the *original* `Request` and result returned by the endpoint.
 	 * It must return a `Response`.
 	 */
-	endpointHandler?: EndpointResultHandler;
+	#endpointHandler?: EndpointResultHandler;
 
 	/**
 	 * When creating a pipeline, an environment is mandatory.
@@ -38,20 +38,29 @@ export class Pipeline {
 		this.env = env;
 	}
 
+	setEnvironment() {}
+
 	/**
 	 * When rendering a route, an "endpoint" will a type that needs to be handled and transformed into a `Response`.
 	 *
 	 * Each consumer might have different needs; use this function to set up the handler.
 	 */
 	setEndpointHandler(handler: EndpointResultHandler) {
-		this.endpointHandler = handler;
+		this.#endpointHandler = handler;
 	}
 
 	/**
 	 * A middleware function that will be called before each request.
 	 */
 	setMiddlewareFunction(onRequest: MiddlewareEndpointHandler) {
-		this.onRequest = onRequest;
+		this.#onRequest = onRequest;
+	}
+
+	/**
+	 * Returns the current environment
+	 */
+	getEnvironment() {
+		return this.env;
 	}
 
 	/**
@@ -65,15 +74,15 @@ export class Pipeline {
 			renderContext,
 			this.env,
 			componentInstance,
-			this.onRequest
+			this.#onRequest
 		);
 		if (Pipeline.isEndpointResult(result, renderContext.route.type)) {
-			if (!this.endpointHandler) {
+			if (!this.#endpointHandler) {
 				throw new Error(
 					'You created a pipeline that does not know how to handle the result coming from an endpoint.'
 				);
 			}
-			return this.endpointHandler(renderContext.request, result);
+			return this.#endpointHandler(renderContext.request, result);
 		} else {
 			return result;
 		}

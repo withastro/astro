@@ -133,16 +133,16 @@ export class Logger {
 		this.options = options;
 	}
 
-	info(label: string, message: string) {
+	info(label: string | null, message: string) {
 		info(this.options, label, message);
 	}
-	warn(label: string, message: string) {
+	warn(label: string | null, message: string) {
 		warn(this.options, label, message);
 	}
-	error(label: string, message: string) {
+	error(label: string | null, message: string) {
 		error(this.options, label, message);
 	}
-	debug(label: string, message: string) {
+	debug(label: string | null, message: string) {
 		debug(this.options, label, message);
 	}
 }

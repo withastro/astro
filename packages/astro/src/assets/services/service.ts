@@ -1,7 +1,8 @@
+import type { AstroConfig } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { joinPaths } from '../../core/path.js';
 import { VALID_SUPPORTED_FORMATS } from '../consts.js';
-import { isESMImportedImage } from '../internal.js';
+import { isESMImportedImage, isRemoteAllowed } from '../internal.js';
 import type { ImageOutputFormat, ImageTransform } from '../types.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
@@ -23,7 +24,11 @@ export function parseQuality(quality: string): string | number {
 	return result;
 }
 
-interface SharedServiceProps {
+type ImageConfig<T> = Omit<AstroConfig['image'], 'service'> & {
+	service: { entrypoint: string; config: T };
+};
+
+interface SharedServiceProps<T extends Record<string, any> = Record<string, any>> {
 	/**
 	 * Return the URL to the endpoint or URL your images are generated from.
 	 *
@@ -32,7 +37,7 @@ interface SharedServiceProps {
 	 * For external services, this should point to the URL your images are coming from, for instance, `/_vercel/image`
 	 *
 	 */
-	getURL: (options: ImageTransform, serviceConfig: Record<string, any>) => string | Promise<string>;
+	getURL: (options: ImageTransform, imageConfig: ImageConfig<T>) => string | Promise<string>;
 	/**
 	 * Return any additional HTML attributes separate from `src` that your service requires to show the image properly.
 	 *
@@ -41,7 +46,7 @@ interface SharedServiceProps {
 	 */
 	getHTMLAttributes?: (
 		options: ImageTransform,
-		serviceConfig: Record<string, any>
+		imageConfig: ImageConfig<T>
 	) => Record<string, any> | Promise<Record<string, any>>;
 	/**
 	 * Validate and return the options passed by the user.
@@ -53,18 +58,20 @@ interface SharedServiceProps {
 	 */
 	validateOptions?: (
 		options: ImageTransform,
-		serviceConfig: Record<string, any>
+		imageConfig: ImageConfig<T>
 	) => ImageTransform | Promise<ImageTransform>;
 }
 
-export type ExternalImageService = SharedServiceProps;
+export type ExternalImageService<T extends Record<string, any> = Record<string, any>> =
+	SharedServiceProps<T>;
 
 export type LocalImageTransform = {
 	src: string;
 	[key: string]: any;
 };
 
-export interface LocalImageService extends SharedServiceProps {
+export interface LocalImageService<T extends Record<string, any> = Record<string, any>>
+	extends SharedServiceProps<T> {
 	/**
 	 * Parse the requested parameters passed in the URL from `getURL` back into an object to be used later by `transform`.
 	 *
@@ -72,7 +79,7 @@ export interface LocalImageService extends SharedServiceProps {
 	 */
 	parseURL: (
 		url: URL,
-		serviceConfig: Record<string, any>
+		imageConfig: ImageConfig<T>
 	) => LocalImageTransform | undefined | Promise<LocalImageTransform> | Promise<undefined>;
 	/**
 	 * Performs the image transformations on the input image and returns both the binary data and
@@ -81,7 +88,7 @@ export interface LocalImageService extends SharedServiceProps {
 	transform: (
 		inputBuffer: Buffer,
 		transform: LocalImageTransform,
-		serviceConfig: Record<string, any>
+		imageConfig: ImageConfig<T>
 	) => Promise<{ data: Buffer; format: ImageOutputFormat }>;
 }
 
@@ -202,21 +209,31 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			decoding: attributes.decoding ?? 'async',
 		};
 	},
-	getURL(options: ImageTransform) {
-		// Both our currently available local services don't handle remote images, so we return the path as is.
-		if (!isESMImportedImage(options.src)) {
+	getURL(options, imageConfig) {
+		const searchParams = new URLSearchParams();
+
+		if (isESMImportedImage(options.src)) {
+			searchParams.append('href', options.src.src);
+		} else if (isRemoteAllowed(options.src, imageConfig)) {
+			searchParams.append('href', options.src);
+		} else {
+			// If it's not an imported image, nor is it allowed using the current domains or remote patterns, we'll just return the original URL
 			return options.src;
 		}
 
-		const searchParams = new URLSearchParams();
-		searchParams.append('href', options.src.src);
+		const params: Record<string, keyof typeof options> = {
+			w: 'width',
+			h: 'height',
+			q: 'quality',
+			f: 'format',
+		};
 
-		options.width && searchParams.append('w', options.width.toString());
-		options.height && searchParams.append('h', options.height.toString());
-		options.quality && searchParams.append('q', options.quality.toString());
-		options.format && searchParams.append('f', options.format);
+		Object.entries(params).forEach(([param, key]) => {
+			options[key] && searchParams.append(param, options[key].toString());
+		});
 
-		return joinPaths(import.meta.env.BASE_URL, '/_image?') + searchParams;
+		const imageEndpoint = joinPaths(import.meta.env.BASE_URL, '/_image');
+		return `${imageEndpoint}?${searchParams}`;
 	},
 	parseURL(url) {
 		const params = url.searchParams;

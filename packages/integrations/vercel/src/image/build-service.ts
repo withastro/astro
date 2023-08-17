@@ -3,7 +3,7 @@ import { isESMImportedImage, sharedValidateOptions } from './shared';
 
 const service: ExternalImageService = {
 	validateOptions: (options, serviceOptions) =>
-		sharedValidateOptions(options, serviceOptions, 'production'),
+		sharedValidateOptions(options, serviceOptions.service.config, 'production'),
 	getHTMLAttributes(options) {
 		const { inputtedWidth, ...props } = options;
 

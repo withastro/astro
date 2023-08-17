@@ -93,10 +93,13 @@ export const getVersion = () =>
 export const log = (message: string) => stdout.write(message + '\n');
 export const banner = async (version: string) =>
 	log(
-		`\n${label('astro', color.bgGreen, color.black)}  ${
-			version ? color.green(color.bold(`v${version}`)) : ''
+		`\n${label('astro', color.bgGreen, color.black)}${
+			version ? '  ' + color.green(color.bold(`v${version}`)) : ''
 		} ${color.bold('Launch sequence initiated.')}`
 	);
+
+export const bannerAbort = () =>
+	log(`\n${label('astro', color.bgRed)} ${color.bold('Launch sequence aborted.')}`);
 
 export const info = async (prefix: string, text: string) => {
 	await sleep(100);
