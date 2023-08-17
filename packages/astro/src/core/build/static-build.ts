@@ -308,8 +308,12 @@ async function runPostBuildHooks(
 async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInternals) {
 	const allStaticFiles = new Set();
 	for (const pageData of eachPageData(internals)) {
-		if (pageData.route.prerender)
-			allStaticFiles.add(internals.pageToBundleMap.get(pageData.moduleSpecifier));
+		if (pageData.route.prerender) {
+			const { moduleSpecifier } = pageData;
+			const pageBundleId = internals.pageToBundleMap.get(moduleSpecifier);
+			const entryBundleId = internals.entrySpecifierToBundleMap.get(moduleSpecifier);
+			allStaticFiles.add(pageBundleId ?? entryBundleId);
+		}
 	}
 	const ssr = isServerLikeOutput(opts.settings.config);
 	const out = ssr
@@ -337,7 +341,8 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 				// Replace exports (only prerendered pages) with a noop
 				let value = 'const noop = () => {};';
 				for (const e of exports) {
-					value += `\nexport const ${e.n} = noop;`;
+					if (e.n === 'default') value += `\n export default noop;`
+					else value += `\nexport const ${e.n} = noop;`;
 				}
 				await fs.promises.writeFile(url, value, { encoding: 'utf8' });
 			})

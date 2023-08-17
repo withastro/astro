@@ -4641,7 +4641,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
-  packages/integrations/node/test/fixtures/prerender-404:
+  packages/integrations/node/test/fixtures/prerender-404-500:
     dependencies:
       '@astrojs/node':
         specifier: workspace:*
