@@ -2,8 +2,12 @@ import type { AstroIntegration } from 'astro';
 import { version as ReactVersion } from 'react-dom';
 import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
+import type * as vite from 'vite';
 
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
+
+
+
 
 function getRenderer() {
 	return {
@@ -17,7 +21,29 @@ function getRenderer() {
 	};
 }
 
-function getViteConfiguration({ include, exclude }: Options = {}) {
+function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
+	const virtualModule = 'astro:react:opts';
+	const virtualModuleId = '\0' + virtualModule;
+	return {
+		name: '@astrojs/react:opts',
+		resolveId(id) {
+			if (id === virtualModule) {
+				return virtualModuleId;
+			}
+		},
+		load(id) {
+			if (id === virtualModuleId) {
+				return {
+					code: `export default {
+						experimentalReactChildren: ${JSON.stringify(experimentalReactChildren)}
+					}`,
+				};
+			}
+		},
+	};
+}
+
+function getViteConfiguration(experimentalReactChildren: boolean, { include, exclude }: Options = {}) {
 	return {
 		optimizeDeps: {
 			include: [
@@ -35,7 +61,10 @@ function getViteConfiguration({ include, exclude }: Options = {}) {
 					: '@astrojs/react/server-v17.js',
 			],
 		},
-		plugins: [react({ include, exclude })],
+		plugins: [
+			react({ include, exclude }),
+			optionsPlugin(experimentalReactChildren)
+		],
 		resolve: {
 			dedupe: ['react', 'react-dom', 'react-dom/server'],
 		},
@@ -55,17 +84,22 @@ function getViteConfiguration({ include, exclude }: Options = {}) {
 	};
 }
 
-export type Options = Pick<ViteReactPluginOptions, 'include' | 'exclude'>;
+export type ReactIntegrationOptions = Pick<ViteReactPluginOptions, 'include' | 'exclude'> & {
+	experimentalReactChildren: boolean;
+};
 export default function ({
 	include,
 	exclude,
-}: Pick<ViteReactPluginOptions, 'include' | 'exclude'> = {}): AstroIntegration {
+	experimentalReactChildren
+}: ReactIntegrationOptions = {
+	experimentalReactChildren: false
+}): AstroIntegration {
 	return {
 		name: '@astrojs/react',
 		hooks: {
 			'astro:config:setup': ({ config, command, addRenderer, updateConfig, injectScript }) => {
 				addRenderer(getRenderer());
-				updateConfig({ vite: getViteConfiguration({ include, exclude }) });
+				updateConfig({ vite: getViteConfiguration(experimentalReactChildren, { include, exclude }) });
 				if (command === 'dev') {
 					const preamble = FAST_REFRESH_PREAMBLE.replace(
 						`__BASE__`,

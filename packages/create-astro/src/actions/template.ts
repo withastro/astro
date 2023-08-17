@@ -66,7 +66,7 @@ const FILES_TO_UPDATE = {
 		}),
 };
 
-function getTemplateTarget(tmpl: string, ref = 'latest') {
+export function getTemplateTarget(tmpl: string, ref = 'latest') {
 	if (tmpl.startsWith('starlight')) {
 		const [, starter = 'basics'] = tmpl.split('/');
 		return `withastro/starlight/examples/${starter}`;
