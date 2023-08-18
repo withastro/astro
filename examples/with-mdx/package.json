@@ -13,7 +13,7 @@
   "dependencies": {
     "@astrojs/mdx": "^1.0.0-beta.1",
     "@astrojs/preact": "^3.0.0-beta.1",
-    "astro": "^3.0.0-beta.3",
+    "astro": "^3.0.0-beta.4",
     "preact": "^10.15.1"
   }
 }
