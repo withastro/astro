@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 2.3.1
+
+### Patch Changes
+
+- [#8137](https://github.com/withastro/astro/pull/8137) [`8c0a4ed10`](https://github.com/withastro/astro/commit/8c0a4ed106efeda286f0aae8b959008f9462b5ec) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix missing export for new `experimentalReactChildren` option
+
 ## 2.3.0
 
 ### Minor Changes
