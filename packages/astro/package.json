@@ -134,6 +134,7 @@
     "boxen": "^6.2.1",
     "chokidar": "^3.5.3",
     "ci-info": "^3.8.0",
+    "clsx": "^2.0.0",
     "common-ancestor-path": "^1.0.1",
     "cookie": "^0.5.0",
     "debug": "^4.3.4",

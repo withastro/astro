@@ -1,7 +1,7 @@
 import type { SSRElement } from '../../../@types/astro';
 
 import { HTMLString, markHTMLString } from '../escape.js';
-import { serializeListValue } from '../util.js';
+import { clsx } from 'clsx';
 
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
@@ -78,7 +78,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 
 	// support "class" from an expression passed into an element (#782)
 	if (key === 'class:list') {
-		const listValue = toAttributeString(serializeListValue(value), shouldEscape);
+		const listValue = toAttributeString(clsx(value), shouldEscape);
 		if (listValue === '') {
 			return '';
 		}
