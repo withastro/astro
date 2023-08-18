@@ -1,7 +1,6 @@
 import type { SSRResult } from '../../../@types/astro';
 import type { RenderInstruction } from './instruction.js';
 
-import { isRenderInstruction } from './instruction.js';
 import { HTMLBytes, HTMLString, markHTMLString } from '../escape.js';
 import {
 	determineIfNeedsHydrationScript,
@@ -10,6 +9,7 @@ import {
 	type PrescriptType,
 } from '../scripts.js';
 import { renderAllHeadContent } from './head.js';
+import { isRenderInstruction } from './instruction.js';
 import { isSlotString, type SlotString } from './slot.js';
 
 /**
@@ -65,8 +65,8 @@ function stringifyChunk(
 				let prescriptType: PrescriptType = needsHydrationScript
 					? 'both'
 					: needsDirectiveScript
-						? 'directive'
-						: null;
+					? 'directive'
+					: null;
 				if (prescriptType) {
 					let prescripts = getPrescripts(result, prescriptType, hydration.directive);
 					return markHTMLString(prescripts);

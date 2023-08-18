@@ -20,13 +20,19 @@ export type RenderInstruction =
 	| RenderHeadInstruction
 	| MaybeRenderHeadInstruction;
 
-export function createRenderInstruction(instruction: RenderDirectiveInstruction): RenderDirectiveInstruction;
+export function createRenderInstruction(
+	instruction: RenderDirectiveInstruction
+): RenderDirectiveInstruction;
 export function createRenderInstruction(instruction: RenderHeadInstruction): RenderHeadInstruction;
-export function createRenderInstruction(instruction: MaybeRenderHeadInstruction): MaybeRenderHeadInstruction;
+export function createRenderInstruction(
+	instruction: MaybeRenderHeadInstruction
+): MaybeRenderHeadInstruction;
 export function createRenderInstruction(instruction: { type: string }): RenderInstruction {
-    return Object.defineProperty(instruction as RenderInstruction, RenderInstructionSymbol, { value: true });
+	return Object.defineProperty(instruction as RenderInstruction, RenderInstructionSymbol, {
+		value: true,
+	});
 }
 
 export function isRenderInstruction(chunk: any): chunk is RenderInstruction {
-    return chunk && typeof chunk === 'object' && chunk[RenderInstructionSymbol];
+	return chunk && typeof chunk === 'object' && chunk[RenderInstructionSymbol];
 }
