@@ -9,8 +9,8 @@ describe('Page-level styles', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/page-level-styles/',
-				// test suite was authored when inlineStylesheets defaulted to never
-				build: { inlineStylesheets: 'never' },
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 		await fixture.build();
 	});

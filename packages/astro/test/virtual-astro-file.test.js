@@ -8,8 +8,8 @@ describe('Loading virtual Astro files', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/virtual-astro-file/',
-				// test suite was authored when inlineStylesheets defaulted to never
-				build: { inlineStylesheets: 'never' },
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 		await fixture.build();
 	});
