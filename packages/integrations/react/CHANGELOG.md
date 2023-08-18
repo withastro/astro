@@ -1,5 +1,33 @@
 # @astrojs/react
 
+## 2.3.1
+
+### Patch Changes
+
+- [#8137](https://github.com/withastro/astro/pull/8137) [`8c0a4ed10`](https://github.com/withastro/astro/commit/8c0a4ed106efeda286f0aae8b959008f9462b5ec) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix missing export for new `experimentalReactChildren` option
+
+## 2.3.0
+
+### Minor Changes
+
+- [#8082](https://github.com/withastro/astro/pull/8082) [`16a3fdf93`](https://github.com/withastro/astro/commit/16a3fdf93165a1a0404c1db0973871345b2c591b) Thanks [@matthewp](https://github.com/matthewp)! - Optionally parse React slots as React children.
+
+  This adds a new configuration option for the React integration `experimentalReactChildren`:
+
+  ```js
+  export default {
+    integrations: [
+      react({
+        experimentalReactChildren: true,
+      }),
+    ],
+  };
+  ```
+
+  With this enabled, children passed to React from Astro components via the default slot are parsed as React components.
+
+  This enables better compatibility with certain React components which manipulate their children.
+
 ## 2.2.2
 
 ### Patch Changes
