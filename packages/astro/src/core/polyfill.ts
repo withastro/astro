@@ -24,7 +24,7 @@ const isStackblitz = process.env.SHELL === '/bin/jsh' && process.versions.webcon
 
 export function apply() {
 	if (isStackblitz) {
-		const neededPolyfills = [
+		const neededPolyfills = {
 			ByteLengthQueuingStrategy,
 			CountQueuingStrategy,
 			ReadableByteStreamController,
@@ -43,7 +43,7 @@ export function apply() {
 			Request,
 			Response,
 			fetch,
-		];
+		};
 
 		for (let polyfillName of Object.keys(neededPolyfills)) {
 			if (Object.hasOwnProperty.call(globalThis, polyfillName)) continue;
