@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 2.2.1
+
+### Patch Changes
+
+- [#8107](https://github.com/withastro/astro/pull/8107) [`5b4b78245`](https://github.com/withastro/astro/commit/5b4b782451ba9a7d685d56990b471740616e9610) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update `babel-preset-solid` dependency to `^1.7.7`
+
 ## 2.2.0
 
 ### Minor Changes
