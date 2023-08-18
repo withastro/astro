@@ -1,4 +1,3 @@
-import { File } from 'node:buffer';
 import crypto from 'node:crypto';
 import {
 	ByteLengthQueuingStrategy,
@@ -14,13 +13,13 @@ import {
 	WritableStreamDefaultController,
 	WritableStreamDefaultWriter,
 } from 'node:stream/web';
-import { FormData, Headers, Request, Response, fetch, File as undiciFile } from 'undici';
+import { File, FormData, Headers, Request, Response, fetch } from 'undici';
 
 // NOTE: This file does not intend to polyfill everything that exists, its main goal is to make life easier
 // for users deploying to runtime that do support these features. In the future, we hope for this file to disappear.
 
 // HACK (2023-08-18) Stackblitz does not support Node 18 yet, so we'll fake Node 16 support for some time until it's supported
-// TODO: Remove when Node 18 is supported on Stackblitz
+// TODO: Remove when Node 18 is supported on Stackblitz. File should get imported from `node:buffer` instead of `undici` once this is removed
 const isStackblitz = process.env.SHELL === '/bin/jsh' && process.versions.webcontainer != null;
 
 export function apply() {
@@ -38,7 +37,7 @@ export function apply() {
 			WritableStream,
 			WritableStreamDefaultController,
 			WritableStreamDefaultWriter,
-			undiciFile,
+			File,
 			FormData,
 			Headers,
 			Request,
@@ -54,10 +53,7 @@ export function apply() {
 				configurable: true,
 				enumerable: true,
 				writable: true,
-				value:
-					neededPolyfills[
-						(polyfillName === 'undiciFile' ? 'File' : polyfillName) as keyof typeof neededPolyfills
-					],
+				value: neededPolyfills[polyfillName as keyof typeof neededPolyfills],
 			});
 		}
 	}
