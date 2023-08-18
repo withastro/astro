@@ -37,14 +37,22 @@ export interface BuildOptions {
 	/**
 	 * Teardown the compiler WASM instance after build. This can improve performance when
 	 * building once, but may cause a performance hit if building multiple times in a row.
+	 *
+	 * @internal only used for testing
+	 * @default true
 	 */
 	teardownCompiler?: boolean;
 }
 
-/** `astro build` */
+/**
+ * Builds your site for deployment. By default, this will generate static files and place them in a dist/ directory.
+ * If SSR is enabled, this will generate the necessary server files to serve your site.
+ *
+ * @experimental The JavaScript API is experimental
+ */
 export default async function build(
 	inlineConfig: AstroInlineConfig,
-	options: BuildOptions
+	options?: BuildOptions
 ): Promise<void> {
 	applyPolyfill();
 	const logging = createNodeLogging(inlineConfig);
@@ -82,7 +90,7 @@ class AstroBuilder {
 		}
 		this.settings = settings;
 		this.logging = options.logging;
-		this.teardownCompiler = options.teardownCompiler ?? false;
+		this.teardownCompiler = options.teardownCompiler ?? true;
 		this.routeCache = new RouteCache(this.logging);
 		this.origin = settings.config.site
 			? new URL(settings.config.site).origin

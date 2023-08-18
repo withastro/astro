@@ -6,15 +6,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import stripAnsi from 'strip-ansi';
 import { check } from '../dist/cli/check/index.js';
+import { dev, preview } from '../dist/core/index.js';
 import build from '../dist/core/build/index.js';
+import sync from '../dist/core/sync/index.js';
 import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.js';
 import { getVirtualModulePageNameFromPath } from '../dist/core/build/plugins/util.js';
 import { makeSplitEntryPointFileName } from '../dist/core/build/static-build.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
-import dev from '../dist/core/dev/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
-import preview from '../dist/core/preview/index.js';
-import { sync } from '../dist/core/sync/index.js';
 
 // Disable telemetry when running tests
 process.env.ASTRO_TELEMETRY_DISABLED = true;
@@ -148,7 +147,7 @@ export async function loadFixture(inlineConfig) {
 	return {
 		build: async (extraInlineConfig = {}) => {
 			process.env.NODE_ENV = 'production';
-			return build(mergeConfig(inlineConfig, extraInlineConfig));
+			return build(mergeConfig(inlineConfig, extraInlineConfig), { teardownCompiler: false });
 		},
 		sync: async (extraInlineConfig = {}, opts) => {
 			return sync(mergeConfig(inlineConfig, extraInlineConfig), opts);

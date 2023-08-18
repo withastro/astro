@@ -143,7 +143,7 @@ export interface CLIFlags {
  */
 export interface AstroGlobal<
 	Props extends Record<string, any> = Record<string, any>,
-	Self = AstroComponentFactory
+	Self = AstroComponentFactory,
 > extends AstroGlobalPartial,
 		AstroSharedContext<Props> {
 	/**
@@ -1404,13 +1404,39 @@ export interface AstroConfig extends AstroConfigType {
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
 }
+/**
+ * An inline Astro config that takes highest priority when merging with the user config,
+ * and includes inline-specific options to configure how Astro runs.
+ */
 export interface AstroInlineConfig extends AstroUserConfig, AstroInlineOnlyConfig {}
 export interface AstroInlineOnlyConfig {
+	/**
+	 * A custom path to the Astro config file. If relative, it'll resolve based on the current working directory.
+	 * Set to false to disable loading any config files.
+	 *
+	 * If this value is undefined or unset, Astro will search for an `astro.config.(js,mjs,ts)` file relative to
+	 * the `root` and load the config file if found.
+	 *
+	 * The inline config passed in this object will take highest priority when merging with the loaded user config.
+	 */
 	configFile?: string | false;
+	/**
+	 * The mode used when building your site to generate either "development" or "production" code.
+	 */
 	mode?: RuntimeMode;
+	/**
+	 * The logging level to filter messages logged by Astro.
+	 * - "debug": Log everything, including noisy debugging diagnostics.
+	 * - "info": Log informational messages, warnings, and errors.
+	 * - "warn": Log warnings and errors.
+	 * - "error": Log errors only.
+	 * - "silent": No logging.
+	 *
+	 * @default "info"
+	 */
 	logLevel?: LoggerLevel;
 	/**
-	 * @internal for testing only
+	 * @internal for testing only, use `logLevel` instead.
 	 */
 	logging?: LogOptions;
 }
