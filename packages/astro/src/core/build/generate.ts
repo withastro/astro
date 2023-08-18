@@ -1,18 +1,15 @@
-import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import type { OutputAsset, OutputChunk } from 'rollup';
-import { fileURLToPath } from 'url';
 import type {
 	AstroConfig,
 	AstroSettings,
 	ComponentInstance,
-	EndpointHandler,
-	EndpointOutput,
 	GetStaticPathsItem,
 	ImageTransform,
 	MiddlewareHandler,
-	MiddlewareResponseHandler,
 	RouteData,
 	RouteType,
 	SSRError,
@@ -22,7 +19,7 @@ import type {
 import {
 	generateImage as generateImageInternal,
 	getStaticImageList,
-} from '../../assets/generate.js';
+} from '../../assets/build/generate.js';
 import {
 	eachPageDataFromEntryPoint,
 	eachRedirectPageData,
@@ -38,16 +35,11 @@ import {
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { callEndpoint, createAPIContext, throwIfRedirectNotAllowed } from '../endpoint/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
-import { callMiddleware } from '../middleware/callMiddleware.js';
-import {
-	getRedirectLocationOrThrow,
-	RedirectSinglePageBuiltModule,
-	routeIsRedirect,
-} from '../redirects/index.js';
-import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
+import { RedirectSinglePageBuiltModule, getRedirectLocationOrThrow } from '../redirects/index.js';
+import { isEndpointResult } from '../render/core.js';
+import { createEnvironment, createRenderContext, tryRenderRoute } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -138,7 +130,12 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		? opts.settings.config.build.server
 		: getOutDirWithinCwd(opts.settings.config.outDir);
 
-	if (ssr && !hasPrerenderedPages(internals)) return;
+	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
+	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
+	if (ssr && !hasPrerenderedPages(internals)) {
+		delete globalThis?.astroAsset?.addStaticImage;
+		return;
+	}
 
 	const verb = ssr ? 'prerendering' : 'generating';
 	info(opts.logging, null, `\n${bgGreen(black(` ${verb} static routes `))}`);
@@ -163,27 +160,27 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 					}
 				} else {
 					const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
-					const manifest = generateRuntimeManifest(opts.settings, internals, ssrEntry.renderers);
+					const manifest = createBuildManifest(opts.settings, internals, ssrEntry.renderers);
 					await generatePage(opts, internals, pageData, ssrEntry, builtPaths, manifest);
 				}
 			}
 		}
 		for (const pageData of eachRedirectPageData(internals)) {
 			const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-			const manifest = generateRuntimeManifest(opts.settings, internals, entry.renderers);
+			const manifest = createBuildManifest(opts.settings, internals, entry.renderers);
 			await generatePage(opts, internals, pageData, entry, builtPaths, manifest);
 		}
 	} else {
 		for (const [pageData, filePath] of eachPageDataFromEntryPoint(internals)) {
 			const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 			const entry: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
-			const manifest = generateRuntimeManifest(opts.settings, internals, entry.renderers);
+			const manifest = createBuildManifest(opts.settings, internals, entry.renderers);
 
 			await generatePage(opts, internals, pageData, entry, builtPaths, manifest);
 		}
 		for (const pageData of eachRedirectPageData(internals)) {
 			const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-			const manifest = generateRuntimeManifest(opts.settings, internals, entry.renderers);
+			const manifest = createBuildManifest(opts.settings, internals, entry.renderers);
 			await generatePage(opts, internals, pageData, entry, builtPaths, manifest);
 		}
 	}
@@ -194,7 +191,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			await generateImage(opts, imageData[1].options, imageData[1].path);
 		}
 
-		delete globalThis.astroAsset.addStaticImage;
+		delete globalThis?.astroAsset?.addStaticImage;
 	}
 
 	await runHookBuildGenerated({
@@ -230,10 +227,6 @@ async function generatePage(
 	builtPaths: Set<string>,
 	manifest: SSRManifest
 ) {
-	if (routeIsRedirect(pageData.route) && !opts.settings.config.experimental.redirects) {
-		throw new Error(`To use redirects first set experimental.redirects to \`true\``);
-	}
-
 	let timeStart = performance.now();
 
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
@@ -279,15 +272,17 @@ async function generatePage(
 	// Get paths for the route, calling getStaticPaths if needed.
 	const paths = await getPathsForRoute(pageData, pageModule, opts, builtPaths);
 
+	let prevTimeEnd = timeStart;
 	for (let i = 0; i < paths.length; i++) {
 		const path = paths[i];
 		await generatePath(path, opts, generationOptions, manifest, onRequest);
 		const timeEnd = performance.now();
-		const timeChange = getTimeStat(timeStart, timeEnd);
+		const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
 		const filePath = getOutputFilename(opts.settings.config, path, pageData.route.type);
 		const lineIcon = i === paths.length - 1 ? '└─' : '├─';
 		info(opts.logging, null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
+		prevTimeEnd = timeEnd;
 	}
 }
 
@@ -521,8 +516,7 @@ async function generatePath(
 		clientDirectives: manifest.clientDirectives,
 		compressHTML: manifest.compressHTML,
 		async resolve(specifier: string) {
-			// NOTE: next PR, borrow logic from build manifest maybe?
-			const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
+			const hashedFilePath = manifest.entryModules[specifier];
 			if (typeof hashedFilePath !== 'string') {
 				// If no "astro:scripts/before-hydration.js" script exists in the build,
 				// then we can assume that no before-hydration scripts are needed.
@@ -553,75 +547,46 @@ async function generatePath(
 
 	let body: string | Uint8Array;
 	let encoding: BufferEncoding | undefined;
-	if (pageData.route.type === 'endpoint') {
-		const endpointHandler = mod as unknown as EndpointHandler;
 
-		const result = await callEndpoint(
-			endpointHandler,
-			env,
-			renderContext,
-			onRequest as MiddlewareHandler<Response | EndpointOutput>
-		);
+	let response;
+	try {
+		response = await tryRenderRoute(pageData.route.type, renderContext, env, mod, onRequest);
+	} catch (err) {
+		if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
+			(err as SSRError).id = pageData.component;
+		}
+		throw err;
+	}
 
-		if (result.type === 'response') {
-			throwIfRedirectNotAllowed(result.response, opts.settings.config);
+	if (isEndpointResult(response, pageData.route.type)) {
+		if (response.type === 'response') {
 			// If there's no body, do nothing
-			if (!result.response.body) return;
-			const ab = await result.response.arrayBuffer();
+			if (!response.response.body) return;
+			const ab = await response.response.arrayBuffer();
 			body = new Uint8Array(ab);
 		} else {
-			body = result.body;
-			encoding = result.encoding;
+			body = response.body;
+			encoding = response.encoding;
 		}
 	} else {
-		let response: Response;
-		try {
-			const apiContext = createAPIContext({
-				request: renderContext.request,
-				params: renderContext.params,
-				props: renderContext.props,
-				site: env.site,
-				adapterName: env.adapterName,
-			});
-
-			if (onRequest) {
-				response = await callMiddleware<Response>(
-					env.logging,
-					onRequest as MiddlewareResponseHandler,
-					apiContext,
-					() => {
-						return renderPage({
-							mod,
-							renderContext,
-							env,
-							cookies: apiContext.cookies,
-						});
-					}
-				);
-			} else {
-				response = await renderPage({
-					mod,
-					renderContext,
-					env,
-					cookies: apiContext.cookies,
-				});
-			}
-		} catch (err) {
-			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
-				(err as SSRError).id = pageData.component;
-			}
-			throw err;
-		}
-
 		if (response.status >= 300 && response.status < 400) {
 			// If redirects is set to false, don't output the HTML
 			if (!opts.settings.config.build.redirects) {
 				return;
 			}
 			const location = getRedirectLocationOrThrow(response.headers);
+			const fromPath = new URL(renderContext.request.url).pathname;
+			// A short delay causes Google to interpret the redirect as temporary.
+			// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
+			const delay = response.status === 302 ? 2 : 0;
 			body = `<!doctype html>
 <title>Redirecting to: ${location}</title>
-<meta http-equiv="refresh" content="0;url=${location}" />`;
+<meta http-equiv="refresh" content="${delay};url=${location}">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="${location}">
+<body>
+	<a href="${location}">Redirecting from <code>${fromPath}</code> to <code>${location}</code></a>
+</body>`;
 			// A dynamic redirect, set the location so that integrations know about it.
 			if (pageData.route.type !== 'redirect') {
 				pageData.route.redirect = location;
@@ -647,14 +612,14 @@ async function generatePath(
  * @param settings
  * @param renderers
  */
-export function generateRuntimeManifest(
+export function createBuildManifest(
 	settings: AstroSettings,
 	internals: BuildInternals,
 	renderers: SSRLoadedRenderer[]
 ): SSRManifest {
 	return {
 		assets: new Set(),
-		entryModules: {},
+		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
 		routes: [],
 		adapterName: '',
 		markdown: settings.config.markdown,

@@ -1,5 +1,11 @@
 # @astrojs/lit
 
+## 2.1.1
+
+### Patch Changes
+
+- [#7985](https://github.com/withastro/astro/pull/7985) [`ec06dd9bb`](https://github.com/withastro/astro/commit/ec06dd9bbb29cc38e891517fbf884cb7083b3240) Thanks [@delucis](https://github.com/delucis)! - Fix formatting in Lit README
+
 ## 2.1.0
 
 ### Minor Changes

@@ -1,9 +1,9 @@
-import fs from 'fs';
-import http from 'http';
 import https from 'https';
+import fs from 'node:fs';
+import http from 'node:http';
+import { fileURLToPath } from 'node:url';
 import send from 'send';
 import enableDestroy from 'server-destroy';
-import { fileURLToPath } from 'url';
 
 interface CreateServerOptions {
 	client: URL;

@@ -1,5 +1,5 @@
-import nodeFs from 'fs';
-import npath from 'path';
+import nodeFs from 'node:fs';
+import npath from 'node:path';
 import type * as vite from 'vite';
 import { slash } from '../core/path.js';
 
@@ -15,7 +15,7 @@ export default function loadFallbackPlugin({
 	root,
 }: LoadFallbackPluginParams): vite.Plugin[] | false {
 	// Only add this plugin if a custom fs implementation is provided.
-	// Also check for `fs.default` because `import * as fs from 'fs'` will
+	// Also check for `fs.default` because `import * as fs from 'node:fs'` will
 	// export as so, which only it's `.default` would === `nodeFs`.
 	// @ts-expect-error check default
 	if (!fs || fs === nodeFs || fs.default === nodeFs) {

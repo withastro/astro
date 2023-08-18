@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config';
 import react from "@astrojs/react";
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
   integrations: [astroClientClickDirective(), astroClientPasswordDirective(), react()],

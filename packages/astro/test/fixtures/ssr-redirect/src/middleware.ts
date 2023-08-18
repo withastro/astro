@@ -5,7 +5,7 @@ export const onRequest = defineMiddleware(({ request }, next) => {
 		return new Response(null, {
 			status: 301,
 			headers: {
-				'Location': '/'
+				'Location': '/test'
 			}
 		});
 	}

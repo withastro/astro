@@ -1,5 +1,5 @@
 // @ts-check
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 
 export * from '../../../../astro/test/test-utils.js';
 

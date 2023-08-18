@@ -13,7 +13,7 @@ export async function renderHTMLElement(
 	constructor: typeof HTMLElement,
 	props: any,
 	slots: any
-) {
+): Promise<string> {
 	const name = getHTMLElementName(constructor);
 
 	let attrHTML = '';

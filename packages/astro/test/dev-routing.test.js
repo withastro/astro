@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { loadFixture, silentLogging } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Development Routing', () => {
 	describe('No site config', () => {
@@ -10,9 +10,7 @@ describe('Development Routing', () => {
 
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/without-site-config/' });
-			devServer = await fixture.startDevServer({
-				logging: silentLogging,
-			});
+			devServer = await fixture.startDevServer();
 		});
 
 		after(async () => {
@@ -42,11 +40,6 @@ describe('Development Routing', () => {
 		it('404 when loading invalid dynamic route', async () => {
 			const response = await fixture.fetch('/2');
 			expect(response.status).to.equal(404);
-		});
-
-		it('500 when redirecting in SSG mode', async () => {
-			const response = await fixture.fetch('/redirect');
-			expect(response.status).to.equal(500);
 		});
 	});
 

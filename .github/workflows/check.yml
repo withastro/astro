@@ -23,6 +23,7 @@ jobs:
   check:
     name: astro check
     runs-on: ubuntu-latest
+    timeout-minutes: 7
     steps:
       - name: Check out repository
         uses: actions/checkout@v3

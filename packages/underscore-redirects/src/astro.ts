@@ -13,9 +13,11 @@ function getRedirectStatus(route: RouteData): ValidRedirectStatus {
 
 interface CreateRedirectsFromAstroRoutesParams {
 	config: Pick<AstroConfig, 'build' | 'output'>;
-	routes: RouteData[];
+	/**
+	 * Maps a `RouteData` to a dynamic target
+	 */
+	routeToDynamicTargetMap: Map<RouteData, string>;
 	dir: URL;
-	dynamicTarget?: string;
 }
 
 /**
@@ -23,18 +25,17 @@ interface CreateRedirectsFromAstroRoutesParams {
  */
 export function createRedirectsFromAstroRoutes({
 	config,
-	routes,
+	routeToDynamicTargetMap,
 	dir,
-	dynamicTarget = '',
 }: CreateRedirectsFromAstroRoutesParams) {
 	const output = config.output;
 	const _redirects = new Redirects();
 
-	for (const route of routes) {
+	for (const [route, dynamicTarget = ''] of routeToDynamicTargetMap) {
 		// A route with a `pathname` is as static route.
 		if (route.pathname) {
 			if (route.redirect) {
-				// A redirect route without dynamic parts. Get the redirect status
+				// A redirect route without dynami§c parts. Get the redirect status
 				// from the user if provided.
 				_redirects.add({
 					dynamic: false,

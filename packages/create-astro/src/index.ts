@@ -8,6 +8,7 @@ import { next } from './actions/next-steps.js';
 import { projectName } from './actions/project-name.js';
 import { template } from './actions/template.js';
 import { setupTypeScript, typescript } from './actions/typescript.js';
+import { verify } from './actions/verify.js';
 import { setStdout } from './messages.js';
 
 const exit = () => process.exit(0);
@@ -30,6 +31,7 @@ export async function main() {
 	}
 
 	const steps = [
+		verify,
 		intro,
 		projectName,
 		template,
@@ -48,14 +50,15 @@ export async function main() {
 }
 
 export {
-	setStdout,
-	getContext,
-	intro,
-	projectName,
-	template,
 	dependencies,
+	getContext,
 	git,
-	typescript,
-	setupTypeScript,
+	intro,
 	next,
+	projectName,
+	setStdout,
+	setupTypeScript,
+	template,
+	typescript,
+	verify,
 };

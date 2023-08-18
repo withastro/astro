@@ -5,7 +5,7 @@ import { sharedValidateOptions } from './shared';
 
 const service: LocalImageService = {
 	validateOptions: (options, serviceOptions) =>
-		sharedValidateOptions(options, serviceOptions, 'development'),
+		sharedValidateOptions(options, serviceOptions.service.config, 'development'),
 	getHTMLAttributes(options, serviceOptions) {
 		const { inputtedWidth, ...props } = options;
 

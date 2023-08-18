@@ -1,10 +1,12 @@
+import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import kill from 'kill-port';
 import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
-import { spawn } from 'child_process';
-import { fileURLToPath } from 'url';
 
 export { fixLineEndings } from '../../../astro/test/test-utils.js';
 
 /**
+ * @typedef {{ ready: Promise<void>, stop: Promise<void> }} WranglerCLI
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
  */
 
@@ -19,20 +21,40 @@ const wranglerPath = fileURLToPath(
 	new URL('../node_modules/wrangler/bin/wrangler.js', import.meta.url)
 );
 
-export function runCLI(basePath, { silent, port = 8787 }) {
+/**
+ * @returns {Promise<WranglerCLI>}
+ */
+export async function runCLI(basePath, { silent, port }) {
+	// Hack: force existing process on port to be killed
+	try {
+		await kill(port, 'tcp');
+	} catch {
+		// Will throw if port is not in use, but that's fine
+	}
+
 	const script = fileURLToPath(new URL(`${basePath}/dist/_worker.js`, import.meta.url));
-	const p = spawn('node', [wranglerPath, 'dev', '-l', script, '--port', port]);
+	const p = spawn('node', [
+		wranglerPath,
+		'dev',
+		script,
+		'--port',
+		port,
+		'--log-level',
+		'info',
+		'--persist-to',
+		`${basePath}/.wrangler/state`,
+	]);
 
 	p.stderr.setEncoding('utf-8');
 	p.stdout.setEncoding('utf-8');
 
-	const timeout = 10000;
+	const timeout = 20_000;
 
 	const ready = new Promise(async (resolve, reject) => {
-		const failed = setTimeout(
-			() => reject(new Error(`Timed out starting the wrangler CLI`)),
-			timeout
-		);
+		const failed = setTimeout(() => {
+			p.kill();
+			reject(new Error(`Timed out starting the wrangler CLI`));
+		}, timeout);
 
 		(async function () {
 			for (const msg of p.stderr) {
@@ -46,7 +68,7 @@ export function runCLI(basePath, { silent, port = 8787 }) {
 			if (!silent) {
 				console.log(msg);
 			}
-			if (msg.includes(`Listening on`)) {
+			if (msg.includes(`[mf:inf] Ready on`)) {
 				break;
 			}
 		}

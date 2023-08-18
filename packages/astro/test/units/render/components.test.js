@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-
-import { runInContainer } from '../../../dist/core/dev/index.js';
-import { createFs, createRequestAndResponse, silentLogging } from '../test-utils.js';
+import { fileURLToPath } from 'node:url';
 import svelte from '../../../../integrations/svelte/dist/index.js';
+import { createFs, createRequestAndResponse, runInContainer } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -31,9 +30,9 @@ describe('core/render components', () => {
 		await runInContainer(
 			{
 				fs,
-				root,
-				logging: silentLogging,
-				userConfig: {
+				inlineConfig: {
+					root: fileURLToPath(root),
+					logLevel: 'silent',
 					integrations: [svelte()],
 				},
 			},

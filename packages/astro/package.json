@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "2.8.0",
+  "version": "2.10.9",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -52,6 +52,7 @@
     "./components": "./components/index.ts",
     "./components/*": "./components/*",
     "./assets": "./dist/assets/index.js",
+    "./assets/utils": "./dist/assets/utils/index.js",
     "./assets/image-endpoint": "./dist/assets/image-endpoint.js",
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/squoosh": "./dist/assets/services/squoosh.js",
@@ -70,7 +71,8 @@
     "./middleware": {
       "types": "./dist/core/middleware/index.d.ts",
       "default": "./dist/core/middleware/index.js"
-    }
+    },
+    "./transitions": "./dist/transitions/index.js"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
@@ -107,14 +109,14 @@
     "postbuild": "astro-scripts copy \"src/**/*.astro\" && astro-scripts copy \"src/**/*.wasm\"",
     "test:unit": "mocha --exit --timeout 30000 ./test/units/**/*.test.js",
     "test:unit:match": "mocha --exit --timeout 30000 ./test/units/**/*.test.js -g",
-    "test": "pnpm run test:unit && mocha --exit --timeout 20000 --ignore **/lit-element.test.js && mocha --timeout 20000 **/lit-element.test.js",
-    "test:match": "mocha --timeout 20000 -g",
+    "test": "pnpm run test:unit && mocha --exit --timeout 30000 --ignore **/lit-element.test.js && mocha --timeout 30000 **/lit-element.test.js",
+    "test:match": "mocha --timeout 30000 -g",
     "test:e2e": "playwright test",
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^1.5.3",
-    "@astrojs/internal-helpers": "^0.1.1",
+    "@astrojs/compiler": "^1.8.0",
+    "@astrojs/internal-helpers": "^0.1.2",
     "@astrojs/language-server": "^1.0.0",
     "@astrojs/markdown-remark": "^2.2.1",
     "@astrojs/telemetry": "^2.1.1",
@@ -126,6 +128,7 @@
     "@babel/traverse": "^7.22.5",
     "@babel/types": "^7.22.5",
     "@types/babel__core": "^7.20.1",
+    "@types/dom-view-transitions": "^1.0.1",
     "@types/yargs-parser": "^21.0.0",
     "acorn": "^8.9.0",
     "boxen": "^6.2.1",
@@ -134,7 +137,6 @@
     "common-ancestor-path": "^1.0.1",
     "cookie": "^0.5.0",
     "debug": "^4.3.4",
-    "deepmerge-ts": "^4.3.0",
     "devalue": "^4.3.2",
     "diff": "^5.1.0",
     "es-module-lexer": "^1.3.0",
@@ -145,10 +147,12 @@
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
     "html-escaper": "^3.0.3",
+    "http-cache-semantics": "^4.1.1",
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.4",
-    "magic-string": "^0.27.0",
+    "magic-string": "^0.30.2",
     "mime": "^3.0.0",
+    "network-information-types": "^0.1.1",
     "ora": "^6.3.1",
     "p-limit": "^4.0.0",
     "path-to-regexp": "^6.2.1",
@@ -164,7 +168,7 @@
     "typescript": "*",
     "unist-util-visit": "^4.1.2",
     "vfile": "^5.3.7",
-    "vite": "^4.3.9",
+    "vite": "^4.4.6",
     "vitefu": "^0.2.4",
     "which-pm": "^2.0.0",
     "yargs-parser": "^21.1.1",
@@ -183,6 +187,7 @@
     "@types/estree": "^0.0.51",
     "@types/hast": "^2.3.4",
     "@types/html-escaper": "^3.0.0",
+    "@types/http-cache-semantics": "^4.0.1",
     "@types/js-yaml": "^4.0.5",
     "@types/mime": "^2.0.3",
     "@types/mocha": "^9.1.1",

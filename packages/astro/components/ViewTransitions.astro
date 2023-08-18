@@ -1,0 +1,357 @@
+---
+type Fallback = 'none' | 'animate' | 'swap';
+
+export interface Props {
+	fallback?: Fallback;
+}
+
+const { fallback = 'animate' } = Astro.props as Props;
+---
+
+<meta name="astro-view-transitions-enabled" content="true" />
+<meta name="astro-view-transitions-fallback" content={fallback} />
+<script>
+	type Fallback = 'none' | 'animate' | 'swap';
+	type Direction = 'forward' | 'back';
+	type State = {
+		index: number;
+		scrollY: number;
+	};
+	type Events = 'astro:load' | 'astro:beforeload';
+
+	const persistState = (state: State) => history.replaceState(state, '');
+
+	// The History API does not tell you if navigation is forward or back, so
+	// you can figure it using an index. On pushState the index is incremented so you
+	// can use that to determine popstate if going forward or back.
+	let currentHistoryIndex = history.state?.index || 0;
+	if (!history.state) {
+		persistState({ index: currentHistoryIndex, scrollY: 0 });
+	}
+
+	const supportsViewTransitions = !!document.startViewTransition;
+	const transitionEnabledOnThisPage = () =>
+		!!document.querySelector('[name="astro-view-transitions-enabled"]');
+	const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
+	const onload = () => triggerEvent('astro:load');
+	const PERSIST_ATTR = 'data-astro-transition-persist';
+
+	const throttle = (cb: (...args: any[]) => any, delay: number) => {
+		let wait = false;
+		// During the waiting time additional events are lost.
+		// So repeat the callback at the end if we have swallowed events.
+		let onceMore = false;
+		return (...args: any[]) => {
+			if (wait) {
+				onceMore = true;
+				return;
+			}
+			cb(...args);
+			wait = true;
+			setTimeout(() => {
+				if (onceMore) {
+					onceMore = false;
+					cb(...args);
+				}
+				wait = false;
+			}, delay);
+		};
+	};
+
+	async function getHTML(href: string) {
+		const res = await fetch(href);
+		const html = await res.text();
+		return { ok: res.ok, html };
+	}
+
+	function getFallback(): Fallback {
+		const el = document.querySelector('[name="astro-view-transitions-fallback"]');
+		if (el) {
+			return el.getAttribute('content') as Fallback;
+		}
+		return 'animate';
+	}
+
+	function markScriptsExec() {
+		for (const script of document.scripts) {
+			script.dataset.astroExec = '';
+		}
+	}
+
+	function runScripts() {
+		let wait = Promise.resolve();
+		for (const script of Array.from(document.scripts)) {
+			if (script.dataset.astroExec === '') continue;
+			const s = document.createElement('script');
+			s.innerHTML = script.innerHTML;
+			for (const attr of script.attributes) {
+				if (attr.name === 'src') {
+					const p = new Promise((r) => {
+						s.onload = r;
+					});
+					wait = wait.then(() => p as any);
+				}
+				s.setAttribute(attr.name, attr.value);
+			}
+			s.dataset.astroExec = '';
+			script.replaceWith(s);
+		}
+		return wait;
+	}
+
+	const parser = new DOMParser();
+
+	async function updateDOM(html: string, state?: State, fallback?: Fallback) {
+		const doc = parser.parseFromString(html, 'text/html');
+
+		// Check for a head element that should persist, either because it has the data
+		// attribute or is a link el.
+		const persistedHeadElement = (el: Element): Element | null => {
+			const id = el.getAttribute(PERSIST_ATTR);
+			const newEl = id && doc.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
+			if (newEl) {
+				return newEl;
+			}
+			if (el.matches('link[rel=stylesheet]')) {
+				const href = el.getAttribute('href');
+				return doc.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
+			}
+			if (el.tagName === 'SCRIPT') {
+				let s1 = el as HTMLScriptElement;
+				for (const s2 of doc.scripts) {
+					if (
+						// Inline
+						(s1.textContent && s1.textContent === s2.textContent) ||
+						// External
+						(s1.type === s2.type && s1.src === s2.src)
+					) {
+						return s2;
+					}
+				}
+			}
+			return null;
+		};
+
+		const swap = () => {
+			// noscript tags inside head element are not honored on swap (#7969).
+			// Remove them before swapping.
+			doc.querySelectorAll('head noscript').forEach((el) => el.remove());
+
+			// Swap head
+			for (const el of Array.from(document.head.children)) {
+				const newEl = persistedHeadElement(el);
+				// If the element exists in the document already, remove it
+				// from the new document and leave the current node alone
+				if (newEl) {
+					newEl.remove();
+				} else {
+					// Otherwise remove the element in the head. It doesn't exist in the new page.
+					el.remove();
+				}
+			}
+			// Everything left in the new head is new, append it all.
+			document.head.append(...doc.head.children);
+
+			// Move over persist stuff in the body
+			const oldBody = document.body;
+			document.body.replaceWith(doc.body);
+			for (const el of oldBody.querySelectorAll(`[${PERSIST_ATTR}]`)) {
+				const id = el.getAttribute(PERSIST_ATTR);
+				const newEl = document.querySelector(`[${PERSIST_ATTR}="${id}"]`);
+				if (newEl) {
+					// The element exists in the new page, replace it with the element
+					// from the old page so that state is preserved.
+					newEl.replaceWith(el);
+				}
+			}
+
+			if (state?.scrollY === 0 && location.hash) {
+				const id = decodeURIComponent(location.hash.slice(1));
+				state.scrollY = document.getElementById(id)?.offsetTop || 0;
+			}
+			if (state?.scrollY != null) {
+				scrollTo(0, state.scrollY);
+				// Overwrite erroneous updates by the scroll handler during transition
+				persistState(state);
+			}
+
+			triggerEvent('astro:beforeload');
+		};
+
+		// Wait on links to finish, to prevent FOUC
+		const links: Promise<any>[] = [];
+		for (const el of doc.querySelectorAll('head link[rel=stylesheet]')) {
+			// Do not preload links that are already on the page.
+			if (
+				!document.querySelector(
+					`[${PERSIST_ATTR}="${el.getAttribute(PERSIST_ATTR)}"], link[rel=stylesheet]`
+				)
+			) {
+				const c = document.createElement('link');
+				c.setAttribute('rel', 'preload');
+				c.setAttribute('as', 'style');
+				c.setAttribute('href', el.getAttribute('href')!);
+				links.push(
+					new Promise<any>((resolve) => {
+						['load', 'error'].forEach((evName) => c.addEventListener(evName, resolve));
+						document.head.append(c);
+					})
+				);
+			}
+		}
+		links.length && (await Promise.all(links));
+
+		if (fallback === 'animate') {
+			let isAnimating = false;
+			addEventListener('animationstart', () => (isAnimating = true), { once: true });
+
+			// Trigger the animations
+			document.documentElement.dataset.astroTransitionFallback = 'old';
+			const fallbackSwap = () => {
+				removeEventListener('animationend', fallbackSwap);
+				clearTimeout(timeout);
+				swap();
+				document.documentElement.dataset.astroTransitionFallback = 'new';
+			};
+			// If there are any animations, want for the animationend event.
+			addEventListener('animationend', fallbackSwap, { once: true });
+			// If there are no animations, go ahead and swap on next tick
+			// This is necessary because we do not know if there are animations.
+			// The setTimeout is a fallback in case there are none.
+			let timeout = setTimeout(() => !isAnimating && fallbackSwap());
+		} else {
+			swap();
+		}
+	}
+
+	async function navigate(dir: Direction, href: string, state?: State) {
+		let finished: Promise<void>;
+		const { html, ok } = await getHTML(href);
+		// If there is a problem fetching the new page, just do an MPA navigation to it.
+		if (!ok) {
+			location.href = href;
+			return;
+		}
+		document.documentElement.dataset.astroTransition = dir;
+		if (supportsViewTransitions) {
+			finished = document.startViewTransition(() => updateDOM(html, state)).finished;
+		} else {
+			finished = updateDOM(html, state, getFallback());
+		}
+		try {
+			await finished;
+		} finally {
+			// skip this for the moment as it tends to stop fallback animations
+			// document.documentElement.removeAttribute('data-astro-transition');
+			await runScripts();
+			markScriptsExec();
+			onload();
+		}
+	}
+
+	// Prefetching
+	function maybePrefetch(pathname: string) {
+		if (document.querySelector(`link[rel=prefetch][href="${pathname}"]`)) return;
+		if (navigator.connection) {
+			let conn = navigator.connection;
+			if (conn.saveData || /(2|3)g/.test(conn.effectiveType || '')) return;
+		}
+		let link = document.createElement('link');
+		link.setAttribute('rel', 'prefetch');
+		link.setAttribute('href', pathname);
+		document.head.append(link);
+	}
+
+	if (supportsViewTransitions || getFallback() !== 'none') {
+		markScriptsExec();
+
+		document.addEventListener('click', (ev) => {
+			let link = ev.target;
+			if (link instanceof Element && link.tagName !== 'A') {
+				link = link.closest('a');
+			}
+			// This check verifies that the click is happening on an anchor
+			// that is going to another page within the same origin. Basically it determines
+			// same-origin navigation, but omits special key combos for new tabs, etc.
+			if (
+				link &&
+				link instanceof HTMLAnchorElement &&
+				link.href &&
+				(!link.target || link.target === '_self') &&
+				link.origin === location.origin &&
+				!(
+					// Same page means same path and same query params
+					(location.pathname === link.pathname && location.search === link.search)
+				) &&
+				ev.button === 0 && // left clicks only
+				!ev.metaKey && // new tab (mac)
+				!ev.ctrlKey && // new tab (windows)
+				!ev.altKey && // download
+				!ev.shiftKey &&
+				!ev.defaultPrevented &&
+				transitionEnabledOnThisPage()
+			) {
+				ev.preventDefault();
+				navigate('forward', link.href, { index: ++currentHistoryIndex, scrollY: 0 });
+				const newState: State = { index: currentHistoryIndex, scrollY };
+				persistState({ index: currentHistoryIndex - 1, scrollY });
+				history.pushState(newState, '', link.href);
+			}
+		});
+		addEventListener('popstate', (ev) => {
+			if (!transitionEnabledOnThisPage()) {
+				// The current page doesn't haven't View Transitions,
+				// respect that with a full page reload
+				location.reload();
+				return;
+			}
+
+			// History entries without state are created by the browser (e.g. for hash links)
+			// Our view transition entries always have state.
+			// Just ignore stateless entries.
+			// The browser will handle navigation fine without our help
+			if (ev.state === null) {
+				return;
+			}
+
+			const state: State | undefined = history.state;
+			const nextIndex = state?.index ?? currentHistoryIndex + 1;
+			const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
+			navigate(direction, location.href, state);
+			currentHistoryIndex = nextIndex;
+		});
+
+		['mouseenter', 'touchstart', 'focus'].forEach((evName) => {
+			document.addEventListener(
+				evName,
+				(ev) => {
+					if (ev.target instanceof HTMLAnchorElement) {
+						let el = ev.target;
+						if (
+							el.origin === location.origin &&
+							el.pathname !== location.pathname &&
+							transitionEnabledOnThisPage()
+						) {
+							maybePrefetch(el.pathname);
+						}
+					}
+				},
+				{ passive: true, capture: true }
+			);
+		});
+		addEventListener('load', onload);
+		// There's not a good way to record scroll position before a back button.
+		// So the way we do it is by listening to scroll and just continuously recording it.
+		addEventListener(
+			'scroll',
+			throttle(() => {
+				// only updste history entries that are managed by us
+				// leave other entries alone and do not accidently add state.
+				if (history.state) {
+					persistState({ ...history.state, scrollY });
+				}
+			}, 300),
+			{ passive: true }
+		);
+	}
+</script>

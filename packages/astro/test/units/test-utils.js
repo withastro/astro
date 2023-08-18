@@ -1,14 +1,17 @@
-import { EventEmitter } from 'events';
 import { Volume } from 'memfs';
 import httpMocks from 'node-mocks-http';
+import { EventEmitter } from 'node:events';
 import realFS from 'node:fs';
-import npath from 'path';
-import { fileURLToPath } from 'url';
-import { unixify } from './correct-path.js';
+import npath from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { getDefaultClientDirectives } from '../../dist/core/client-directive/index.js';
+import { nodeLogDestination } from '../../dist/core/logger/node.js';
 import { createEnvironment } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
-import { nodeLogDestination } from '../../dist/core/logger/node.js';
+import { resolveConfig } from '../../dist/core/config/index.js';
+import { createBaseSettings } from '../../dist/core/config/settings.js';
+import { createContainer } from '../../dist/core/dev/container.js';
+import { unixify } from './correct-path.js';
 
 /** @type {import('../../src/core/logger/core').LogOptions} */
 export const defaultLogging = {
@@ -99,7 +102,7 @@ export function createFsWithFallback(json, root) {
 /**
  *
  * @param {import('../../src/core/dev/container').Container} container
- * @param {typeof import('fs')} fs
+ * @param {typeof import('node:fs')} fs
  * @param {string} shortPath
  * @param {'change'} eventType
  */
@@ -188,4 +191,43 @@ export function createBasicEnvironment(options = {}) {
 		ssr: options.ssr ?? true,
 		streaming: options.streaming ?? true,
 	});
+}
+
+/**
+ * @param {import('../../src/@types/astro.js').AstroInlineConfig} inlineConfig
+ * @returns {Promise<import('../../src/@types/astro.js').AstroSettings>}
+ */
+export async function createBasicSettings(inlineConfig = {}) {
+	if (!inlineConfig.root) {
+		inlineConfig.root = fileURLToPath(new URL('.', import.meta.url));
+	}
+	const { astroConfig } = await resolveConfig(inlineConfig, 'dev');
+	return createBaseSettings(astroConfig);
+}
+
+/**
+ * @typedef {{
+ * 	fs?: typeof realFS,
+ * 	inlineConfig?: import('../../src/@types/astro.js').AstroInlineConfig,
+ *  logging?: import('../../src/core/logger/core').LogOptions,
+ * }} RunInContainerOptions
+ */
+
+/**
+ * @param {RunInContainerOptions} options
+ * @param {(container: import('../../src/core/dev/container.js').Container) => Promise<void> | void} callback
+ */
+export async function runInContainer(options = {}, callback) {
+	const settings = await createBasicSettings(options.inlineConfig ?? {});
+	const container = await createContainer({
+		fs: options?.fs ?? realFS,
+		settings,
+		inlineConfig: options.inlineConfig ?? {},
+		logging: defaultLogging,
+	});
+	try {
+		await callback(container);
+	} finally {
+		await container.close();
+	}
 }

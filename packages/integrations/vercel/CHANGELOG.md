@@ -1,5 +1,67 @@
 # @astrojs/vercel
 
+## 3.8.1
+
+### Patch Changes
+
+- [#8039](https://github.com/withastro/astro/pull/8039) [`6b57628d1`](https://github.com/withastro/astro/commit/6b57628d128779290db3344bbb6de7282196fb97) Thanks [@matthewp](https://github.com/matthewp)! - Prevent Vercel NFT from scanning /dev
+
+- Updated dependencies [[`1b8d30209`](https://github.com/withastro/astro/commit/1b8d3020990130dabfaaf753db73a32c6e0c896a), [`405913cdf`](https://github.com/withastro/astro/commit/405913cdf20b26407aa351c090f0a0859a4e6f54), [`87d4b1843`](https://github.com/withastro/astro/commit/87d4b18437c7565c48cad4bea81831c2a244ebb8), [`c23377caa`](https://github.com/withastro/astro/commit/c23377caafbc75deb91c33b9678c1b6868ad40ea), [`86bee2812`](https://github.com/withastro/astro/commit/86bee2812185df6e14025e5962a335f51853587b)]:
+  - astro@2.10.6
+
+## 3.8.0
+
+### Minor Changes
+
+- [#7729](https://github.com/withastro/astro/pull/7729) [`560d0dab1`](https://github.com/withastro/astro/commit/560d0dab1cc7510e5d01f38955c13b329ebf66ff) Thanks [@soilSpoon](https://github.com/soilSpoon)! - Add cache headers to assets in Vercel adapter
+
+### Patch Changes
+
+- Updated dependencies [[`41afb8405`](https://github.com/withastro/astro/commit/41afb84057f606b0e7f9a73c1e40487068e43948), [`c00b6f0c4`](https://github.com/withastro/astro/commit/c00b6f0c49027125ea3026e89b21fef84380d187), [`1f0ee494a`](https://github.com/withastro/astro/commit/1f0ee494a5190356d130282f1f51ba2a5e6ea63f), [`00cb28f49`](https://github.com/withastro/astro/commit/00cb28f4964a60bc609770108d491acc277997b9), [`c264be349`](https://github.com/withastro/astro/commit/c264be3497db4aa8b3bcce0d2f79a26e35b8e91e), [`e1e958a75`](https://github.com/withastro/astro/commit/e1e958a75860292688569e82b4617fc141056202)]:
+  - astro@2.10.0
+
+## 3.7.5
+
+### Patch Changes
+
+- [#7754](https://github.com/withastro/astro/pull/7754) [`298dbb89f`](https://github.com/withastro/astro/commit/298dbb89f2963a547370b6e65cafd2650fdb1b27) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve `404` behavior for `serverless` and `edge`
+
+- Updated dependencies [[`298dbb89f`](https://github.com/withastro/astro/commit/298dbb89f2963a547370b6e65cafd2650fdb1b27), [`9e2203847`](https://github.com/withastro/astro/commit/9e22038472c8be05ed7a72620534b88324dce793), [`5c5da8d2f`](https://github.com/withastro/astro/commit/5c5da8d2fbb37830f3ee81830d4c9afcd2c1a3e3), [`0b8375fe8`](https://github.com/withastro/astro/commit/0b8375fe82a15bfff3f517f98de6454adb2779f1), [`89d015db6`](https://github.com/withastro/astro/commit/89d015db6ce4d15b5b1140f0eb6bfbef187d6ad7), [`ebf7ebbf7`](https://github.com/withastro/astro/commit/ebf7ebbf7ae767625d736fad327954cfb853837e)]:
+  - astro@2.9.7
+
+## 3.7.4
+
+### Patch Changes
+
+- [#7718](https://github.com/withastro/astro/pull/7718) [`35a0b6c8a`](https://github.com/withastro/astro/commit/35a0b6c8a909623d802523006cb3c65e4e70c88f) Thanks [@lilnasy](https://github.com/lilnasy)! - The vercel adapter now Warns when using a deprecated version of Node, and switches to 18 when using an unsupported version.
+
+- Updated dependencies [[`274e67532`](https://github.com/withastro/astro/commit/274e6753281edde72fcb4af1cf8a9f892ee46127), [`e52852628`](https://github.com/withastro/astro/commit/e528526289dd9fba98e254743ded47a5c6d418a8), [`c2d6cfd0c`](https://github.com/withastro/astro/commit/c2d6cfd0c26f4ebb81c715389347de1c3bf5f3e6), [`201d32dcf`](https://github.com/withastro/astro/commit/201d32dcfc58ca82468ac9be43b07cdc60abad88)]:
+  - astro@2.9.1
+
+## 3.7.3
+
+### Patch Changes
+
+- [#7677](https://github.com/withastro/astro/pull/7677) [`1f0d0b586`](https://github.com/withastro/astro/commit/1f0d0b5863750104fc93cbbbd54ebae9c65143f7) Thanks [@bluwy](https://github.com/bluwy)! - Fix build error when passing `includeFiles`
+
+- Updated dependencies [[`cc8e9de88`](https://github.com/withastro/astro/commit/cc8e9de88179d2ed4b70980c60b41448db393429), [`1a6f833c4`](https://github.com/withastro/astro/commit/1a6f833c404ba2e64e3497929b64c863b5a348c8), [`cc0f81c04`](https://github.com/withastro/astro/commit/cc0f81c040e912cff0c09e89327ef1655f96b67d)]:
+  - astro@2.8.4
+
+## 3.7.2
+
+### Patch Changes
+
+- [#7659](https://github.com/withastro/astro/pull/7659) [`57a5eff5c`](https://github.com/withastro/astro/commit/57a5eff5cee9852dca1e328e233949581edc5fb9) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix critical build regression. `@vercel/nft` is excluded from the bundle automatically.
+
+## 3.7.1
+
+### Patch Changes
+
+- [#7621](https://github.com/withastro/astro/pull/7621) [`2ddf34262`](https://github.com/withastro/astro/commit/2ddf3426268847d87c24ba1dc0adff20d3046035) Thanks [@ematipico](https://github.com/ematipico)! - Improve file detection of the middleware file handler
+
+- Updated dependencies [[`86e19c7cf`](https://github.com/withastro/astro/commit/86e19c7cf8696e065c1ccdc2eb841ad0a2b61ede)]:
+  - astro@2.8.2
+
 ## 3.7.0
 
 ### Minor Changes

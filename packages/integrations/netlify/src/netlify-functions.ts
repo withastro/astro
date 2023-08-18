@@ -2,6 +2,7 @@ import { polyfill } from '@astrojs/webapi';
 import { builder, type Handler } from '@netlify/functions';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
+import { ASTRO_LOCALS_HEADER } from './integration-functions.js';
 
 polyfill(globalThis, {
 	exclude: 'window document',
@@ -67,21 +68,33 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 			init.body =
 				typeof requestBody === 'string' ? Buffer.from(requestBody, encoding) : requestBody;
 		}
+
 		const request = new Request(rawUrl, init);
 
-		let routeData = app.match(request, { matchNotFound: true });
-
-		if (!routeData) {
-			return {
-				statusCode: 404,
-				body: 'Not found',
-			};
-		}
-
+		const routeData = app.match(request);
 		const ip = headers['x-nf-client-connection-ip'];
 		Reflect.set(request, clientAddressSymbol, ip);
 
-		const response: Response = await app.render(request, routeData);
+		let locals: Record<string, unknown> = {};
+
+		if (request.headers.has(ASTRO_LOCALS_HEADER)) {
+			let localsAsString = request.headers.get(ASTRO_LOCALS_HEADER);
+			if (localsAsString) {
+				locals = JSON.parse(localsAsString);
+			}
+		}
+
+		let responseTtl = undefined;
+
+		locals.runtime = builders
+			? {
+					setBuildersTtl(ttl: number) {
+						responseTtl = ttl;
+					},
+			  }
+			: {};
+
+		const response: Response = await app.render(request, routeData, locals);
 		const responseHeaders = Object.fromEntries(response.headers.entries());
 
 		const responseContentType = parseContentType(responseHeaders['content-type']);
@@ -100,6 +113,7 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 			headers: responseHeaders,
 			body: responseBody,
 			isBase64Encoded: responseIsBase64Encoded,
+			ttl: responseTtl,
 		};
 
 		const cookies = response.headers.get('set-cookie');

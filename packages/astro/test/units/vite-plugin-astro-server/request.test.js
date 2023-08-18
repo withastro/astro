@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 
-import { createDefaultDevSettings } from '../../../dist/core/config/index.js';
 import { createLoader } from '../../../dist/core/module-loader/index.js';
 import { createRouteManifest } from '../../../dist/core/routing/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
@@ -8,6 +7,7 @@ import { createController, handleRequest } from '../../../dist/vite-plugin-astro
 import {
 	createAstroModule,
 	createBasicEnvironment,
+	createBasicSettings,
 	createFs,
 	createRequestAndResponse,
 	defaultLogging,
@@ -15,7 +15,7 @@ import {
 
 async function createDevEnvironment(overrides = {}) {
 	const env = createBasicEnvironment();
-	env.settings = await createDefaultDevSettings({}, '/');
+	env.settings = await createBasicSettings({ root: '/' });
 	env.settings.renderers = [];
 	env.loader = createLoader();
 	Object.assign(env, overrides);
@@ -44,7 +44,7 @@ describe('vite-plugin-astro-server', () => {
 				},
 				'/'
 			);
-			const manifest = createRouteManifest(
+			const manifestData = createRouteManifest(
 				{
 					fsMod: fs,
 					settings: env.settings,
@@ -53,7 +53,13 @@ describe('vite-plugin-astro-server', () => {
 			);
 
 			try {
-				await handleRequest(env, manifest, controller, req, res);
+				await handleRequest({
+					env,
+					manifestData,
+					controller,
+					incomingRequest: req,
+					incomingResponse: res,
+				});
 			} catch (err) {
 				expect(err.message).to.be.undefined();
 			}

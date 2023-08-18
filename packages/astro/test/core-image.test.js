@@ -25,6 +25,7 @@ describe('astro:image', () => {
 				},
 				image: {
 					service: testImageService({ foo: 'bar' }),
+					domains: ['avatars.githubusercontent.com'],
 				},
 			});
 
@@ -109,13 +110,17 @@ describe('astro:image', () => {
 				expect(res.headers.get('content-type')).to.equal('image/webp');
 			});
 
-			it('errors on unsupported formats', async () => {
-				logs.length = 0;
-				let res = await fixture.fetch('/unsupported-format');
-				await res.text();
+			it('properly skip processing SVGs, but does not error', async () => {
+				let res = await fixture.fetch('/svgSupport');
+				let html = await res.text();
 
-				expect(logs).to.have.a.lengthOf(1);
-				expect(logs[0].message).to.contain('Received unsupported format');
+				$ = cheerio.load(html);
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(1);
+
+				let src = $img.attr('src');
+				res = await fixture.fetch(src);
+				expect(res.status).to.equal(200);
 			});
 
 			it("errors when an ESM imported image's src is passed to Image/getImage instead of the full import", async () => {
@@ -142,6 +147,19 @@ describe('astro:image', () => {
 						);
 					})
 				).to.be.true;
+			});
+
+			it('supports inlined imports', async () => {
+				let res = await fixture.fetch('/inlineImport');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(1);
+
+				let src = $img.attr('src');
+				res = await fixture.fetch(src);
+				expect(res.status).to.equal(200);
 			});
 		});
 
@@ -179,6 +197,15 @@ describe('astro:image', () => {
 					let res = await fixture.fetch('/');
 					let html = await res.text();
 					$ = cheerio.load(html);
+				});
+
+				it('has proper link and works', async () => {
+					let $img = $('#remote img');
+
+					let src = $img.attr('src');
+					expect(src.startsWith('/_image?')).to.be.true;
+					const imageRequest = await fixture.fetch(src);
+					expect(imageRequest.status).to.equal(200);
 				});
 
 				it('includes the provided alt', async () => {
@@ -570,6 +597,7 @@ describe('astro:image', () => {
 				},
 				image: {
 					service: testImageService(),
+					domains: ['astro.build'],
 				},
 			});
 			// Remove cache directory
@@ -582,6 +610,15 @@ describe('astro:image', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 			const src = $('#local img').attr('src');
+			expect(src.length).to.be.greaterThan(0);
+			const data = await fixture.readFile(src, null);
+			expect(data).to.be.an.instanceOf(Buffer);
+		});
+
+		it('writes out allowed remote images', async () => {
+			const html = await fixture.readFile('/remote/index.html');
+			const $ = cheerio.load(html);
+			const src = $('#remote img').attr('src');
 			expect(src.length).to.be.greaterThan(0);
 			const data = await fixture.readFile(src, null);
 			expect(data).to.be.an.instanceOf(Buffer);
@@ -691,12 +728,15 @@ describe('astro:image', () => {
 		});
 
 		it('has cache entries', async () => {
-			const generatedImages = (await fixture.glob('_astro/**/*.webp')).map((path) =>
-				basename(path)
-			);
-			const cachedImages = (await fixture.glob('../node_modules/.astro/assets/**/*.webp')).map(
-				(path) => basename(path)
-			);
+			const generatedImages = (await fixture.glob('_astro/**/*.webp'))
+				.map((path) => basename(path))
+				.sort();
+			const cachedImages = [
+				...(await fixture.glob('../node_modules/.astro/assets/**/*.webp')),
+				...(await fixture.glob('../node_modules/.astro/assets/**/*.json')),
+			]
+				.map((path) => basename(path).replace('.webp.json', '.webp'))
+				.sort();
 
 			expect(generatedImages).to.deep.equal(cachedImages);
 		});

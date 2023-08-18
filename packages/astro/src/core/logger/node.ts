@@ -1,7 +1,7 @@
 import debugPackage from 'debug';
 import { bold, cyan, dim, red, reset, yellow } from 'kleur/colors';
-import * as readline from 'readline';
-import { Writable } from 'stream';
+import * as readline from 'node:readline';
+import { Writable } from 'node:stream';
 import stringWidth from 'string-width';
 import { dateTimeFormat, error, info, warn } from './core.js';
 

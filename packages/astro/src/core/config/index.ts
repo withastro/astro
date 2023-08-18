@@ -1,11 +1,6 @@
-export {
-	createDefaultDevConfig,
-	openConfig,
-	resolveConfigPath,
-	resolveFlags,
-	resolveRoot,
-	validateConfig,
-} from './config.js';
-export type { AstroConfigSchema } from './schema';
-export { createDefaultDevSettings, createSettings } from './settings.js';
+export { resolveConfig, resolveConfigPath, resolveFlags, resolveRoot } from './config.js';
+export { createNodeLogging } from './logging.js';
+export { mergeConfig } from './merge.js';
+export type { AstroConfigType } from './schema';
+export { createSettings } from './settings.js';
 export { loadTSConfig, updateTSConfigForFramework } from './tsconfig.js';

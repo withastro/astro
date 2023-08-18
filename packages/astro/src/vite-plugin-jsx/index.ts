@@ -11,7 +11,7 @@ import type { PluginMetadata } from '../vite-plugin-astro/types';
 
 import babel from '@babel/core';
 import * as colors from 'kleur/colors';
-import path from 'path';
+import path from 'node:path';
 import { CONTENT_FLAG, PROPAGATED_ASSET_FLAG } from '../content/index.js';
 import { astroEntryPrefix } from '../core/build/plugins/plugin-component-entry.js';
 import { error } from '../core/logger/core.js';
@@ -160,7 +160,6 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 					tsconfigRaw: {
 						compilerOptions: {
 							// Ensure client:only imports are treeshaken
-							// @ts-expect-error anticipate esbuild 0.18 feature
 							verbatimModuleSyntax: false,
 							importsNotUsedAsValues: 'remove',
 						},
