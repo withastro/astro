@@ -26,7 +26,8 @@
     "./server.js": "./server.js",
     "./server-v17.js": "./server-v17.js",
     "./package.json": "./package.json",
-    "./jsx-runtime": "./jsx-runtime.js"
+    "./jsx-runtime": "./jsx-runtime.js",
+    "./vnode-children.js": "./vnode-children.js"
   },
   "files": [
     "dist",
