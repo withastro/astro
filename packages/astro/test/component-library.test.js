@@ -13,6 +13,8 @@ describe('Component Libraries', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/component-library/',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 	});
 

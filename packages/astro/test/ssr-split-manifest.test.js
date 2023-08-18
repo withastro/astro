@@ -26,6 +26,8 @@ describe('astro:ssr-manifest, split', () => {
 					currentRoutes = routes;
 				},
 			}),
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 		await fixture.build();
 	});

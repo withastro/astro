@@ -12,6 +12,8 @@ describe('astro:ssr-manifest', () => {
 			root: './fixtures/ssr-manifest/',
 			output: 'server',
 			adapter: testAdapter(),
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 		await fixture.build();
 	});

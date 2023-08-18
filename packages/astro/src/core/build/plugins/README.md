@@ -166,7 +166,8 @@ This plugin is responsible to create a file called `manifest.mjs`. In SSG, the f
 in `config.outDir`, in SSR the file is saved in `config.build.server`.
 
 This file is important to do two things:
-- generate the pages during the SSG; 
+
+- generate the pages during the SSG;
 - render the pages in SSR;
 
 The file contains all the information needed to Astro to accomplish the operations mentioned above.

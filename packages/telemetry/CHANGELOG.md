@@ -1,5 +1,11 @@
 # @astrojs/telemetry
 
+## 3.0.0-beta.2
+
+### Patch Changes
+
+- [#8130](https://github.com/withastro/astro/pull/8130) [`3e834293d`](https://github.com/withastro/astro/commit/3e834293d47ab2761a7aa013916e8371871efb7f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add some polyfills for Stackblitz until they support Node 18. Running Astro on Node 16 is still not officially supported, however.
+
 ## 3.0.0-beta.1
 
 ### Patch Changes

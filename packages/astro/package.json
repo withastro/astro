@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "3.0.0-beta.2",
+  "version": "3.0.0-beta.3",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -12,7 +12,7 @@
   },
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
-  "types": "./dist/@types/astro.d.ts",
+  "types": "./index.d.ts",
   "typesVersions": {
     "*": {
       "app": [
@@ -31,8 +31,8 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/@types/astro.d.ts",
-      "default": "./astro.js"
+      "types": "./index.d.ts",
+      "default": "./dist/core/index.js"
     },
     "./env": "./env.d.ts",
     "./types": "./types.d.ts",
@@ -90,6 +90,7 @@
     "tsconfigs",
     "dist",
     "astro.js",
+    "index.d.ts",
     "config.d.ts",
     "config.mjs",
     "zod.d.ts",
@@ -146,8 +147,8 @@
     "fast-glob": "^3.2.12",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
-    "http-cache-semantics": "^4.1.1",
     "html-escaper": "^3.0.3",
+    "http-cache-semantics": "^4.1.1",
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.4",
     "magic-string": "^0.30.2",
@@ -165,6 +166,7 @@
     "string-width": "^5.1.2",
     "strip-ansi": "^7.1.0",
     "tsconfig-resolver": "^3.0.1",
+    "undici": "^5.23.0",
     "unist-util-visit": "^4.1.2",
     "vfile": "^5.3.7",
     "vite": "^4.4.6",

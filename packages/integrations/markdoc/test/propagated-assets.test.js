@@ -8,6 +8,8 @@ describe('Markdoc - propagated assets', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/propagated-assets/', import.meta.url),
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 	});
 

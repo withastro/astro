@@ -159,7 +159,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const ssrEntryPage = await import(ssrEntryURLPage.toString());
 				if (
-				  // TODO: remove in Astro 4.0
+					// TODO: remove in Astro 4.0
 					opts.settings.config.build.split ||
 					opts.settings.adapter?.adapterFeatures?.functionPerRoute
 				) {

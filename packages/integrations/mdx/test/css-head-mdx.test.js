@@ -12,6 +12,8 @@ describe('Head injection w/ MDX', () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/css-head-mdx/', import.meta.url),
 			integrations: [mdx()],
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 	});
 

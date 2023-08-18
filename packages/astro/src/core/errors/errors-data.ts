@@ -791,6 +791,32 @@ export const InvalidDynamicRoute = {
 	message: (route: string, invalidParam: string, received: string) =>
 		`The ${invalidParam} param for route ${route} is invalid. Received **${received}**.`,
 } satisfies ErrorData;
+/**
+ * @docs
+ * @see
+ * - [Default Image Service](https://docs.astro.build/en/guides/images/#default-image-service)
+ * - [Image Component](https://docs.astro.build/en/guides/images/#image--astroassets)
+ * - [Image Services API](https://docs.astro.build/en/reference/image-service-reference/)
+ * @description
+ * Sharp is the default image service used for `astro:assets`. When using a [strict package manager](https://pnpm.io/pnpm-vs-npm#npms-flat-tree) like pnpm, Sharp must be installed manually into your project in order to use image processing.
+ *
+ * If you are not using `astro:assets` for image processing, and do not wish to install Sharp, you can configure the following passthrough image service that does no processing:
+ *
+ * ```js
+ * import { defineConfig, passthroughImageService } from "astro/config";
+ * export default defineConfig({
+ *  image: {
+ *    service: passthroughImageService(),
+ *  },
+ * });
+ * ```
+ */
+export const MissingSharp = {
+	name: 'MissingSharp',
+	title: 'Could not find Sharp.',
+	message: 'Could not find Sharp. Please install Sharp (`sharp`) manually into your project.',
+	hint: "See Sharp's installation instructions for more information: https://sharp.pixelplumbing.com/install. If you are not relying on `astro:assets` to optimize, transform, or process any images, you can configure a passthrough image service instead of installing Sharp. See https://docs.astro.build/en/reference/errors/missing-sharp for more information.",
+};
 // No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 // Vite Errors - 4xxx
 /**

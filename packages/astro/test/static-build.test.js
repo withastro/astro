@@ -34,6 +34,8 @@ describe('Static build', () => {
 
 		fixture = await loadFixture({
 			root: './fixtures/static-build/',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 		await fixture.build({ logging });
 	});
