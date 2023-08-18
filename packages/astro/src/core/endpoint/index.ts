@@ -93,9 +93,25 @@ export function createAPIContext({
 type ResponseParameters = ConstructorParameters<typeof Response>;
 
 export class ResponseWithEncoding extends Response {
-	constructor(body: ResponseParameters[0], init: ResponseParameters[1], encoding: BufferEncoding) {
+	constructor(body: ResponseParameters[0], init: ResponseParameters[1], encoding?: BufferEncoding) {
+		// If a body string is given, try to encode it to preserve the behaviour as simple objects.
+		// We don't do the full handling as simple objects so users can control how headers are set instead.
+		if (typeof body === 'string') {
+			// In NodeJS, we can use Buffer.from which supports all BufferEncoding
+			if (typeof Buffer !== 'undefined' && Buffer.from) {
+				body = Buffer.from(body, encoding);
+			}
+			// In non-NodeJS, use the web-standard TextEncoder for utf-8 strings
+			else if (encoding == null || encoding === 'utf8' || encoding === 'utf-8') {
+				body = encoder.encode(body);
+			}
+		}
+
 		super(body, init);
-		this.headers.set('X-Astro-Encoding', encoding);
+
+		if (encoding) {
+			this.headers.set('X-Astro-Encoding', encoding);
+		}
 	}
 }
 
@@ -147,7 +163,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	warn(
 		env.logging,
 		'astro',
-		`${ctx.route.route} returns a simple object which is deprecated. Please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.`
+		`${ctx.route.component} returns a simple object which is deprecated. Please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.`
 	);
 
 	if (isEndpointSSR) {
@@ -171,7 +187,15 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	let body: BodyInit;
 	const headers = new Headers();
 
-	const mimeType = mime.getType(ctx.route.route) || 'text/plain';
+	// Try to get the MIME type for this route
+	const pathname = ctx.route
+		? // Try the static route `pathname`
+		  ctx.route.pathname ??
+		  // Dynamic routes don't include `pathname`, so synthesize a path for these (e.g. 'src/pages/[slug].svg')
+		  ctx.route.segments.map((s) => s.map((p) => p.content).join('')).join('/')
+		: // Fallback to pathname of the request
+		  ctx.pathname;
+	const mimeType = mime.getType(pathname) || 'text/plain';
 	headers.set('Content-Type', `${mimeType};charset=utf-8`);
 
 	// Save encoding to X-Astro-Encoding to be used later during SSG with `fs.writeFile`.
@@ -180,7 +204,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 		headers.set('X-Astro-Encoding', response.encoding);
 	}
 
-	// For binary string or UInt8Array, it can passed to Response directly
+	// For Uint8Array (binary), it can passed to Response directly
 	if (response.body instanceof Uint8Array) {
 		body = response.body;
 		headers.set('Content-Length', body.byteLength.toString());
