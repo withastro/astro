@@ -6,6 +6,7 @@ import fsMod, { existsSync, promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import ora from 'ora';
+import whichPM from 'which-pm';
 import prompts from 'prompts';
 import type yargs from 'yargs-parser';
 import { loadTSConfig, resolveConfigPath, resolveRoot } from '../../core/config/index.js';
@@ -73,17 +74,27 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 
 async function detectPackageManager(cwd = process.cwd()) {
 	if (existsSync(path.join(cwd, 'package-lock.json'))) {
-		return { name: 'npm' };
+		return { name: 'npm', version: '>=5' };
 	}
 	if (existsSync(path.join(cwd, 'yarn.lock'))) {
-		return { name: 'yarn' };
+		return { name: 'yarn', version: '*' };
 	}
 	if (existsSync(path.join(cwd, 'pnpm-lock.yaml'))) {
-		return { name: 'pnpm' };
+		return { name: 'pnpm', version: '>=3' };
 	}
-	if (existsSync(path.join(cwd, 'bun.lock'))) {
-		return { name: 'bun' };
+	if (existsSync(path.join(cwd, 'bun.lockb'))) {
+		return { name: 'bun', version: '*' };
 	}
+
+	// Use whichPM as a fallback if no other lock files are detected
+	const pm = await whichPM(cwd);
+	if (pm) {
+		return {
+			name: pm.name,
+			version: pm.version || '*',
+		};
+	}
+
 	return null;
 }
 
