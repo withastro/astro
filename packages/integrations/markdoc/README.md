@@ -372,10 +372,10 @@ To set up the extension, create a `markdoc.config.json` file into the project ro
 The `schema` property, is the most important. It contains all information to configure the language server.
 It accepts following properties.
 
-- The path is where the config file is
-- The type is that kind of module the config is using
-- The property is what exported property contains the config object you are using.
-- The watch is to tell the server to watch for changes to the config   
+- `path`: The path to the configuration file.
+- `type`: Kind of module your configuration file uses.
+- `property`: The exported property name that contains the configuration object.
+- `watch`: Tell the server to watch for changes in the configuration.
 
 The global `path` property, tells the server where the content is located. You can't use a glob pattern. 
 
