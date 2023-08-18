@@ -1,5 +1,11 @@
 # astro
 
+## 2.10.12
+
+### Patch Changes
+
+- [#8144](https://github.com/withastro/astro/pull/8144) [`04caa99c4`](https://github.com/withastro/astro/commit/04caa99c48ce604ca3b90302ff0df8dcdbeee650) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixed an issue where data entries' id included backslashes instead of forward slashes on Windows.
+
 ## 2.10.11
 
 ### Patch Changes
