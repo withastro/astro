@@ -220,7 +220,7 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    functionPerRoute: true
+    functionPerRoute: true,
   }),
 });
 ```
@@ -267,7 +267,7 @@ import vercel from '@astrojs/vercel';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    edgeMiddleware: true
+    edgeMiddleware: true,
   }),
 });
 ```
