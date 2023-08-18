@@ -16,12 +16,7 @@ import {
 	removeTrailingForwardSlash,
 } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import {
-	createEnvironment,
-	createRenderContext,
-	tryRenderRoute,
-	type RenderContext,
-} from '../render/index.js';
+import { createEnvironment, createRenderContext, type RenderContext } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -258,10 +253,19 @@ export class App {
 		const errorRouteData = matchRoute('/' + status, this.#manifestData);
 		const url = new URL(request.url);
 		if (errorRouteData) {
-			if (errorRouteData.prerender && !errorRouteData.route.endsWith(`/${status}`)) {
-				const statusURL = new URL(`${this.#baseWithoutTrailingSlash}/${status}`, url);
+			if (errorRouteData.prerender) {
+				const maybeDotHtml = errorRouteData.route.endsWith(`/${status}`) ? '.html' : '';
+				const statusURL = new URL(
+					`${this.#baseWithoutTrailingSlash}/${status}${maybeDotHtml}`,
+					url
+				);
 				const response = await fetch(statusURL.toString());
-				return this.#mergeResponses(response, originalResponse);
+
+				// response for /404.html and 500.html is 200, which is not meaningful
+				// so we create an override
+				const override = { status };
+
+				return this.#mergeResponses(response, originalResponse, override);
 			}
 			const mod = await this.#getModuleForRoute(errorRouteData);
 			try {
@@ -273,11 +277,7 @@ export class App {
 					status
 				);
 				const page = (await mod.page()) as any;
-				const response = (await tryRenderRoute(
-					newRenderContext,
-					this.#pipeline.env,
-					page
-				)) as Response;
+				const response = await this.#pipeline.renderRoute(newRenderContext, page);
 				return this.#mergeResponses(response, originalResponse);
 			} catch {}
 		}
@@ -287,14 +287,31 @@ export class App {
 		return response;
 	}
 
-	#mergeResponses(newResponse: Response, oldResponse?: Response) {
-		if (!oldResponse) return newResponse;
-		const { status, statusText, headers } = oldResponse;
+	#mergeResponses(newResponse: Response, oldResponse?: Response, override?: { status: 404 | 500 }) {
+		if (!oldResponse) {
+			if (override !== undefined) {
+				return new Response(newResponse.body, {
+					status: override.status,
+					statusText: newResponse.statusText,
+					headers: newResponse.headers,
+				});
+			}
+			return newResponse;
+		}
+
+		const { statusText, headers } = oldResponse;
+
+		// If the the new response did not have a meaningful status, an override may have been provided
+		// If the original status was 200 (default), override it with the new status (probably 404 or 500)
+		// Otherwise, the user set a specific status while rendering and we should respect that one
+		const status = override?.status
+			? override.status
+			: oldResponse.status === 200
+			? newResponse.status
+			: oldResponse.status;
 
 		return new Response(newResponse.body, {
-			// If the original status was 200 (default), override it with the new status (probably 404 or 500)
-			// Otherwise, the user set a specific status while rendering and we should respect that one
-			status: status === 200 ? newResponse.status : status,
+			status,
 			statusText: status === 200 ? newResponse.statusText : statusText,
 			headers: new Headers(Array.from(headers)),
 		});

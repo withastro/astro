@@ -170,6 +170,14 @@ export async function createVite(
 					find: /^astro$/,
 					replacement: fileURLToPath(new URL('../@types/astro', import.meta.url)),
 				},
+				{
+					find: 'astro:middleware',
+					replacement: 'astro/middleware/namespace',
+				},
+				{
+					find: 'astro:components',
+					replacement: 'astro/components',
+				},
 			],
 			conditions: ['astro'],
 			// Astro imports in third-party packages should use the same version as root

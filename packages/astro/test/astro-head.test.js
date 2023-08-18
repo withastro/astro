@@ -10,6 +10,8 @@ describe('Head in its own component', () => {
 			root: './fixtures/astro-head/',
 			site: 'https://mysite.dev/',
 			base: '/blog',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 		await fixture.build();
 	});

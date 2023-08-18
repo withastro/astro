@@ -8,6 +8,8 @@ describe('CSS ordering - import order', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/css-order-import/',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 	});
 
@@ -133,6 +135,8 @@ describe('CSS ordering - import order', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/css-order-dynamic-import/',
+				// test suite was authored when inlineStylesheets defaulted to never
+				build: { inlineStylesheets: 'never' },
 			});
 			await fixture.build();
 		});

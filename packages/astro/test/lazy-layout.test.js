@@ -7,7 +7,11 @@ describe('Lazily imported layouts', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/lazy-layout/' });
+		fixture = await loadFixture({
+			root: './fixtures/lazy-layout/',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
+		});
 		await fixture.build();
 	});
 

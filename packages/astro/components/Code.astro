@@ -74,9 +74,9 @@ const html = renderToHtml(tokens, {
 			// Handle code wrapping
 			// if wrap=null, do nothing.
 			if (wrap === false) {
-				style += '; overflow-x: auto;"';
+				style += '; overflow-x: auto;';
 			} else if (wrap === true) {
-				style += '; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"';
+				style += '; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
 			}
 			return `<${tag} class="${className}" style="${style}" tabindex="0">${children}</${tag}>`;
 		},

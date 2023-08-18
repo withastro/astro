@@ -22,8 +22,7 @@ export type ProcessExit = 0 | 1;
 
 export type SyncOptions = {
 	/**
-	 * Only used for testing
-	 * @internal
+	 * @internal only used for testing
 	 */
 	fs?: typeof fsMod;
 };
@@ -32,7 +31,13 @@ export type SyncInternalOptions = SyncOptions & {
 	logging: LogOptions;
 };
 
-export async function sync(
+/**
+ * Generates TypeScript types for all Astro modules. This sets up a `src/env.d.ts` file for type inferencing,
+ * and defines the `astro:content` module for the Content Collections API.
+ *
+ * @experimental The JavaScript API is experimental
+ */
+export default async function sync(
 	inlineConfig: AstroInlineConfig,
 	options?: SyncOptions
 ): Promise<ProcessExit> {
@@ -48,7 +53,7 @@ export async function sync(
 		command: 'build',
 	});
 
-	return await syncInternal(settings, { logging, fs: options?.fs });
+	return await syncInternal(settings, { ...options, logging });
 }
 
 /**

@@ -30,8 +30,7 @@ describe('SSR: prerender', () => {
 			const app = await fixture.loadTestAdapterApp();
 			/** @type {Set<string>} */
 			const assets = app.manifest.assets;
-			expect(assets.size).to.equal(1);
-			expect(Array.from(assets)[0].endsWith('static/index.html')).to.be.true;
+			expect(assets).to.contain('/static/index.html');
 		});
 	});
 

@@ -13,6 +13,8 @@ describe('Content Collections - render()', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/content/',
+				// test suite was authored when inlineStylesheets defaulted to never
+				build: { inlineStylesheets: 'never' },
 			});
 			await fixture.build();
 		});
@@ -106,6 +108,8 @@ describe('Content Collections - render()', () => {
 				output: 'server',
 				root: './fixtures/content/',
 				adapter: testAdapter(),
+				// test suite was authored when inlineStylesheets defaulted to never
+				build: { inlineStylesheets: 'never' },
 			});
 			await fixture.build();
 		});

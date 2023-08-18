@@ -13,6 +13,7 @@ import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
+import type { RemotePattern } from '../assets/utils/remotePattern';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigType } from '../core/config';
@@ -45,6 +46,7 @@ export type {
 	ImageQualityPreset,
 	ImageTransform,
 } from '../assets/types';
+export type { RemotePattern } from '../assets/utils/remotePattern';
 export type { SSRManifest } from '../core/app/types';
 export type { AstroCookies } from '../core/cookies';
 
@@ -141,7 +143,7 @@ export interface CLIFlags {
  */
 export interface AstroGlobal<
 	Props extends Record<string, any> = Record<string, any>,
-	Self = AstroComponentFactory
+	Self = AstroComponentFactory,
 > extends AstroGlobalPartial,
 		AstroSharedContext<Props> {
 	/**
@@ -367,10 +369,10 @@ export interface ViteUserConfig extends vite.UserConfig {
 	ssr?: vite.SSROptions;
 }
 
-export interface ImageServiceConfig {
+export interface ImageServiceConfig<T extends Record<string, any> = Record<string, any>> {
 	// eslint-disable-next-line @typescript-eslint/ban-types
 	entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
-	config?: Record<string, any>;
+	config?: T;
 }
 
 /**
@@ -697,6 +699,10 @@ export interface AstroUserConfig {
 		 * - `file` - The `Astro.url.pathname` will include `.html`; ie `/foo.html`.
 		 *
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
+		 *
+		 * To prevent inconsistencies with trailing slash behaviour in dev, you can restrict the [`trailingSlash` option](#trailingslash) to `'always'` or `'never'` depending on your build format:
+		 * - `directory` - Set `trailingSlash: 'always'`
+		 * - `file` - Set `trailingSlash: 'never'`
 		 */
 		format?: 'file' | 'directory';
 		/**
@@ -830,18 +836,18 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name build.inlineStylesheets
 		 * @type {('always' | 'auto' | 'never')}
-		 * @default `never`
+		 * @default `auto`
 		 * @version 2.6.0
 		 * @description
-		 * Control whether styles are sent to the browser in a separate css file or inlined into `<style>` tags. Choose from the following options:
-		 *  - `'always'` - all styles are inlined into `<style>` tags
-		 *  - `'auto'` - only stylesheets smaller than `ViteConfig.build.assetsInlineLimit` (default: 4kb) are inlined. Otherwise, styles are sent in external stylesheets.
-		 *  - `'never'` - all styles are sent in external stylesheets
+		 * Control whether project styles are sent to the browser in a separate css file or inlined into `<style>` tags. Choose from the following options:
+		 *  - `'always'` - project styles are inlined into `<style>` tags
+		 *  - `'auto'` - only stylesheets smaller than `ViteConfig.build.assetsInlineLimit` (default: 4kb) are inlined. Otherwise, project styles are sent in external stylesheets.
+		 *  - `'never'` - project styles are sent in external stylesheets
 		 *
 		 * ```js
 		 * {
 		 * 	build: {
-		 *		inlineStylesheets: `auto`,
+		 *		inlineStylesheets: `never`,
 		 * 	},
 		 * }
 		 * ```
@@ -1004,6 +1010,68 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		service: ImageServiceConfig;
+
+		/**
+		 * @docs
+		 * @name image.domains (Experimental)
+		 * @type {string[]}
+		 * @default `{domains: []}`
+		 * @version 2.10.10
+		 * @description
+		 * Defines a list of permitted image source domains for local image optimization. No other remote images will be optimized by Astro.
+		 *
+		 * This option requires an array of individual domain names as strings. Wildcards are not permitted. Instead, use [`image.remotePatterns`](#imageremotepatterns-experimental) to define a list of allowed source URL patterns.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * {
+		 *   image: {
+		 *     // Example: Allow remote image optimization from a single domain
+		 *     domains: ['astro.build'],
+		 *   },
+		 * }
+		 * ```
+		 */
+		domains?: string[];
+
+		/**
+		 * @docs
+		 * @name image.remotePatterns (Experimental)
+		 * @type {RemotePattern[]}
+		 * @default `{remotePatterns: []}`
+		 * @version 2.10.10
+		 * @description
+		 * Defines a list of permitted image source URL patterns for local image optimization.
+		 *
+		 * `remotePatterns` can be configured with four properties:
+		 * 1. protocol
+		 * 2. hostname
+		 * 3. port
+		 * 4. pathname
+		 *
+		 * ```js
+		 * {
+		 *   image: {
+		 *     // Example: allow processing all images from your aws s3 bucket
+		 *     remotePatterns: [{
+		 *       protocol: 'https',
+		 *       hostname: '**.amazonaws.com',
+		 *     }],
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured:
+		 * `hostname`:
+		 *   - Start with '**.' to allow all subdomains ('endsWith').
+		 *   - Start with '*.' to allow only one level of subdomain.
+		 *
+		 * `pathname`:
+		 *   - End with '/**' to allow all sub-routes ('startsWith').
+		 *   - End with '/*' to allow only one level of sub-route.
+
+		 */
+		remotePatterns?: Partial<RemotePattern>[];
 	};
 
 	/**
@@ -1337,13 +1405,39 @@ export interface AstroConfig extends AstroConfigType {
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
 }
+/**
+ * An inline Astro config that takes highest priority when merging with the user config,
+ * and includes inline-specific options to configure how Astro runs.
+ */
 export interface AstroInlineConfig extends AstroUserConfig, AstroInlineOnlyConfig {}
 export interface AstroInlineOnlyConfig {
+	/**
+	 * A custom path to the Astro config file. If relative, it'll resolve based on the current working directory.
+	 * Set to false to disable loading any config files.
+	 *
+	 * If this value is undefined or unset, Astro will search for an `astro.config.(js,mjs,ts)` file relative to
+	 * the `root` and load the config file if found.
+	 *
+	 * The inline config passed in this object will take highest priority when merging with the loaded user config.
+	 */
 	configFile?: string | false;
+	/**
+	 * The mode used when building your site to generate either "development" or "production" code.
+	 */
 	mode?: RuntimeMode;
+	/**
+	 * The logging level to filter messages logged by Astro.
+	 * - "debug": Log everything, including noisy debugging diagnostics.
+	 * - "info": Log informational messages, warnings, and errors.
+	 * - "warn": Log warnings and errors.
+	 * - "error": Log errors only.
+	 * - "silent": No logging.
+	 *
+	 * @default "info"
+	 */
 	logLevel?: LoggerLevel;
 	/**
-	 * @internal for testing only
+	 * @internal for testing only, use `logLevel` instead.
 	 */
 	logging?: LogOptions;
 }
@@ -1857,7 +1951,7 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 *
 	 * ```ts
 	 * // src/middleware.ts
-	 * import {defineMiddleware} from "astro/middleware";
+	 * import {defineMiddleware} from "astro:middleware";
 	 *
 	 * export const onRequest = defineMiddleware((context, next) => {
 	 *   context.locals.greeting = "Hello!";

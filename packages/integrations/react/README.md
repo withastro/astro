@@ -61,6 +61,46 @@ To use your first React component in Astro, head to our [UI framework documentat
 - 💧 client-side hydration options, and
 - 🤝 opportunities to mix and nest frameworks together
 
+## Options
+
+### Children parsing
+
+Children passed into a React component from an Astro component are parsed as plain strings, not React nodes.
+
+For example, the `<ReactComponent />` below will only receive a single child element:
+
+```astro
+---
+import ReactComponent from './ReactComponent';
+---
+
+<ReactComponent>
+  <div>one</div>
+  <div>two</div>
+</ReactComponent>
+```
+
+If you are using a library that _expects_ more than one child element element to be passed, for example so that it can slot certain elements in different places, you might find this to be a blocker.
+
+You can set the experimental flag `experimentalReactChildren` to tell Astro to always pass children to React as React vnodes. There is some runtime cost to this, but it can help with compatibility.
+
+You can enable this option in the configuration for the React integration:
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import react from '@astrojs/react';
+
+export default defineConfig({
+  // ...
+  integrations: [
+    react({
+      experimentalReactChildren: true,
+    }),
+  ],
+});
+```
+
 ## Troubleshooting
 
 For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!

@@ -1,4 +1,4 @@
-import { sequence, defineMiddleware } from 'astro/middleware';
+import { sequence, defineMiddleware } from 'astro:middleware';
 
 const first = defineMiddleware(async (context, next) => {
 	if (context.request.url.includes('/lorem')) {
