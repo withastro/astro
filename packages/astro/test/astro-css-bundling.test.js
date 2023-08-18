@@ -26,6 +26,8 @@ describe('CSS Bundling', function () {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-css-bundling/',
+				// test suite was authored when inlineStylesheets defaulted to never
+				build: { inlineStylesheets: 'never' },
 			});
 			await fixture.build({ mode: 'production' });
 		});
@@ -75,6 +77,9 @@ describe('CSS Bundling', function () {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-css-bundling/',
+
+				// test suite was authored when inlineStylesheets defaulted to never
+				build: { inlineStylesheets: 'never' },
 
 				vite: {
 					build: {

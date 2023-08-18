@@ -10,7 +10,11 @@ let fixture;
 
 describe('CSS', function () {
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/config-vite-css-target/' });
+		fixture = await loadFixture({
+			root: './fixtures/config-vite-css-target/',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
+		});
 	});
 
 	describe('build', () => {

@@ -8,6 +8,8 @@ describe('srcDir', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/root-srcdir-css/',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 		await fixture.build();
 	});

@@ -9,6 +9,8 @@ describe('Head injection', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/head-injection/',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 	});
 
