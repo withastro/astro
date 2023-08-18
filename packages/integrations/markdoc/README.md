@@ -369,9 +369,8 @@ To set up the extension, create a `markdoc.config.json` file into the project ro
 ]
 ```
 
-If you need to change anything remember that the `schema` property is the one that is important.
-It tells the server information about the config file you are using. 
-It accepts these properties.
+The `schema` property, is the most important. It contains all information to configure the language server.
+It accepts following properties.
 
 - The path is where the config file is
 - The type is that kind of module the config is using
