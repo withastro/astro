@@ -1,5 +1,5 @@
 ---
-'astro': patch
+'astro': major
 ---
 
 Astro is smarter about CSS! Small stylesheets are now inlined by default, and no longer incur the cost of additional requests to your server. Your visitors will have to wait less before they see your pages, especially those in remote locations or in a subway.
