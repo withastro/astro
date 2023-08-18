@@ -605,9 +605,6 @@ importers:
       path-to-regexp:
         specifier: ^6.2.1
         version: 6.2.1
-      preferred-pm:
-        specifier: ^3.0.3
-        version: 3.0.3
       prompts:
         specifier: ^2.4.2
         version: 2.4.2

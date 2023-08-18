@@ -6,7 +6,6 @@ import fsMod, { existsSync, promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import ora from 'ora';
-import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import type yargs from 'yargs-parser';
 import { loadTSConfig, resolveConfigPath, resolveRoot } from '../../core/config/index.js';
@@ -72,12 +71,28 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 	deno: '@astrojs/deno',
 };
 
+async function detectPackageManager(cwd = process.cwd()) {
+	if (existsSync(path.join(cwd, 'package-lock.json'))) {
+		return { name: 'npm' };
+	}
+	if (existsSync(path.join(cwd, 'yarn.lock'))) {
+		return { name: 'yarn' };
+	}
+	if (existsSync(path.join(cwd, 'pnpm-lock.yaml'))) {
+		return { name: 'pnpm' };
+	}
+	if (existsSync(path.join(cwd, 'bun.lock'))) {
+		return { name: 'bun' };
+	}
+	return null;
+}
+
 // Users might lack access to the global npm registry, this function
 // checks the user's project type and will return the proper npm registry
 //
 // A copy of this function also exists in the create-astro package
 async function getRegistry(): Promise<string> {
-	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';
+	const packageManager = (await detectPackageManager(process.cwd()))?.name || 'npm';
 	try {
 		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
 		return stdout?.trim()?.replace(/\/$/, '') || 'https://registry.npmjs.org';
@@ -171,7 +186,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			// we add an .npmrc to hoist them
 			if (
 				integrations.find((integration) => integration.id === 'lit') &&
-				(await preferredPM(fileURLToPath(root)))?.name === 'pnpm'
+				(await detectPackageManager(fileURLToPath(root)))?.name === 'pnpm'
 			) {
 				await setupIntegrationConfig({
 					root,
@@ -609,7 +624,7 @@ async function getInstallIntegrationsCommand({
 	integrations: IntegrationInfo[];
 	cwd?: string;
 }): Promise<InstallCommand | null> {
-	const pm = await preferredPM(cwd);
+	const pm = await detectPackageManager(cwd);
 	debug('add', `package manager: ${JSON.stringify(pm)}`);
 	if (!pm) return null;
 
@@ -629,6 +644,8 @@ async function getInstallIntegrationsCommand({
 			return { pm: 'yarn', command: 'add', flags: [], dependencies };
 		case 'pnpm':
 			return { pm: 'pnpm', command: 'add', flags: [], dependencies };
+		case 'bun':
+			return { pm: 'bun', command: 'add', flags: [], dependencies };
 		default:
 			return null;
 	}
