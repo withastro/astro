@@ -10,6 +10,9 @@ import { getSystemInfo, type SystemInfo } from './system-info.js';
 export type AstroTelemetryOptions = { astroVersion: string; viteVersion: string };
 export type TelemetryEvent = { eventName: string; payload: Record<string, any> };
 
+// In the event of significant policy changes, update this!
+const VALID_TELEMETRY_NOTICE_DATE = '2023-08-18';
+
 type EventMeta = SystemInfo;
 interface EventContext extends ProjectInfo {
 	anonymousId: string;
@@ -94,18 +97,25 @@ export class AstroTelemetry {
 		return this.config.clear();
 	}
 
-	async notify(callback: () => Promise<boolean>) {
+	isValidNotice() {
+		if (!this.notifyDate) return false;
+		const current = Number(this.notifyDate);
+		const valid = new Date(VALID_TELEMETRY_NOTICE_DATE).valueOf();
+
+		return current > valid;
+	}
+
+	async notify(callback: () => boolean | Promise<boolean>) {
 		if (this.isDisabled || isCI) {
 			return;
 		}
 		// The end-user has already been notified about our telemetry integration!
 		// Don't bother them about it again.
-		// In the event of significant changes, we should invalidate old dates.
-		if (this.notifyDate) {
+		if (this.isValidNotice()) {
 			return;
 		}
 		const enabled = await callback();
-		this.config.set(KEY.TELEMETRY_NOTIFY_DATE, Date.now().toString());
+		this.config.set(KEY.TELEMETRY_NOTIFY_DATE, new Date().valueOf().toString());
 		this.config.set(KEY.TELEMETRY_ENABLED, enabled);
 	}
 

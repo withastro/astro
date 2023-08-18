@@ -107,10 +107,11 @@ export function serverStart({
 }
 
 export function telemetryNotice() {
-	const headline = yellow(`Astro now collects ${bold('anonymous')} usage data.`);
-	const why = `This ${bold('optional program')} will help shape our roadmap.`;
+	const headline = yellow(`Astro collects ${bold('anonymous')} usage data during development.`);
+	const why = `${dim('This ')}optional program${dim(' helps shape our roadmap.')}`;
+	const no = `${dim('Run ')}astro telemetry disable${dim(' to opt-out.')}`;
 	const more = `For more info, visit ${underline('https://astro.build/telemetry')}`;
-	const box = boxen([headline, why, '', more].join('\n'), {
+	const box = boxen([headline, why, '', no, '', more].join('\n'), {
 		margin: 0,
 		padding: 1,
 		borderStyle: 'round',
