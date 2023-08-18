@@ -377,8 +377,7 @@ It accepts following properties.
 - The property is what exported property contains the config object you are using.
 - The watch is to tell the server to watch for changes to the config   
 
-The path that is not in the schema tells the server what folder to watch for.
-**Don't use a glob pattern**. 
+The global `path` property, tells the server where the content is located. You can't use a glob pattern. 
 
 ### Pass Markdoc variables
 
