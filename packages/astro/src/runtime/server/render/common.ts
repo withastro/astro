@@ -1,6 +1,7 @@
 import type { SSRResult } from '../../../@types/astro';
-import type { RenderInstruction } from './types.js';
+import type { RenderInstruction } from './instruction.js';
 
+import { isRenderInstruction } from './instruction.js';
 import { HTMLBytes, HTMLString, markHTMLString } from '../escape.js';
 import {
 	determineIfNeedsHydrationScript,
@@ -52,8 +53,8 @@ function stringifyChunk(
 	result: SSRResult,
 	chunk: string | HTMLString | SlotString | RenderInstruction
 ): string {
-	if (typeof (chunk as any).type === 'string') {
-		const instruction = chunk as RenderInstruction;
+	if (isRenderInstruction(chunk)) {
+		const instruction = chunk;
 		switch (instruction.type) {
 			case 'directive': {
 				const { hydration } = instruction;
@@ -64,8 +65,8 @@ function stringifyChunk(
 				let prescriptType: PrescriptType = needsHydrationScript
 					? 'both'
 					: needsDirectiveScript
-					? 'directive'
-					: null;
+						? 'directive'
+						: null;
 				if (prescriptType) {
 					let prescripts = getPrescripts(result, prescriptType, hydration.directive);
 					return markHTMLString(prescripts);
@@ -86,27 +87,24 @@ function stringifyChunk(
 				return renderAllHeadContent(result);
 			}
 			default: {
-				if (chunk instanceof Response) {
-					return '';
-				}
 				throw new Error(`Unknown chunk type: ${(chunk as any).type}`);
 			}
 		}
-	} else {
-		if (isSlotString(chunk as string)) {
-			let out = '';
-			const c = chunk as SlotString;
-			if (c.instructions) {
-				for (const instr of c.instructions) {
-					out += stringifyChunk(result, instr);
-				}
+	} else if (chunk instanceof Response) {
+		return '';
+	} else if (isSlotString(chunk as string)) {
+		let out = '';
+		const c = chunk as SlotString;
+		if (c.instructions) {
+			for (const instr of c.instructions) {
+				out += stringifyChunk(result, instr);
 			}
-			out += chunk.toString();
-			return out;
 		}
-
-		return chunk.toString();
+		out += chunk.toString();
+		return out;
 	}
+
+	return chunk.toString();
 }
 
 export function chunkToString(result: SSRResult, chunk: Exclude<RenderDestinationChunk, Response>) {

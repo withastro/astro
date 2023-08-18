@@ -46,6 +46,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		assets: false,
 		viewTransitions: false,
+		optimizeHoistedScript: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -181,9 +182,35 @@ export const AstroConfigSchema = z.object({
 				]),
 				config: z.record(z.any()).default({}),
 			}),
+			domains: z.array(z.string()).default([]),
+			remotePatterns: z
+				.array(
+					z.object({
+						protocol: z.string().optional(),
+						hostname: z
+							.string()
+							.refine(
+								(val) => !val.includes('*') || val.startsWith('*.') || val.startsWith('**.'),
+								{
+									message: 'wildcards can only be placed at the beginning of the hostname',
+								}
+							)
+							.optional(),
+						port: z.string().optional(),
+						pathname: z
+							.string()
+							.refine((val) => !val.includes('*') || val.endsWith('/*') || val.endsWith('/**'), {
+								message: 'wildcards can only be placed at the end of a pathname',
+							})
+							.optional(),
+					})
+				)
+				.default([]),
 		})
 		.default({
 			service: { entrypoint: 'astro/assets/services/squoosh', config: {} },
+			domains: [],
+			remotePatterns: [],
 		}),
 	markdown: z
 		.object({
@@ -237,6 +264,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.viewTransitions),
+			optimizeHoistedScript: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.optimizeHoistedScript),
 		})
 		.passthrough()
 		.refine(
@@ -260,6 +291,8 @@ export const AstroConfigSchema = z.object({
 		.default({}),
 	legacy: z.object({}).optional().default({}),
 });
+
+export type AstroConfigType = z.infer<typeof AstroConfigSchema>;
 
 export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 	// We need to extend the global schema to add transforms that are relative to root.

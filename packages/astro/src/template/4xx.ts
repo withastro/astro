@@ -1,5 +1,4 @@
 import { escape } from 'html-escaper';
-import { baseCSS } from './css.js';
 
 interface ErrorTemplateOptions {
 	/** a short description of the error */
@@ -28,14 +27,40 @@ export default function template({
 		<meta charset="UTF-8">
 		<title>${tabTitle}</title>
 		<style>
-			${baseCSS}
 			:root {
+				--gray-10: hsl(258, 7%, 10%);
+				--gray-20: hsl(258, 7%, 20%);
+				--gray-30: hsl(258, 7%, 30%);
+				--gray-40: hsl(258, 7%, 40%);
+				--gray-50: hsl(258, 7%, 50%);
+				--gray-60: hsl(258, 7%, 60%);
+				--gray-70: hsl(258, 7%, 70%);
+				--gray-80: hsl(258, 7%, 80%);
+				--gray-90: hsl(258, 7%, 90%);
 				--black: #13151A;
 				--accent-light: #E0CCFA;
 			}
 
-			body {
+			* {
+				box-sizing: border-box;
+			}
+
+			html {
 				background: var(--black);
+				color-scheme: dark;
+				accent-color: var(--accent-light);
+			}
+
+			body {
+				background-color: var(--gray-10);
+				color: var(--gray-80);
+				font-family: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+				line-height: 1.5;
+				margin: 0;
+			}
+
+			a {
+				color: var(--accent-light);
 			}
 
 			.center {
@@ -52,6 +77,8 @@ export default function template({
 				color: white;
 				font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 				font-weight: 700;
+				margin-top: 1rem;
+				margin-bottom: 0;
 			}
 
 			.statusCode {
@@ -63,11 +90,14 @@ export default function template({
 				width: 124px;
 			}
 
-			pre {
+			pre, code {
 				padding: 2px 8px;
 				background: rgba(0,0,0, 0.25);
 				border: 1px solid rgba(255,255,255, 0.25);
 				border-radius: 4px;
+				font-size: 1.2em;
+				margin-top: 0;
+				max-width: 60em;
 			}
 		</style>
 	</head>

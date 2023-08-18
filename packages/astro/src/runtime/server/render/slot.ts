@@ -1,6 +1,6 @@
 import type { SSRResult } from '../../../@types/astro.js';
 import type { renderTemplate } from './astro/render-template.js';
-import type { RenderInstruction } from './types.js';
+import type { RenderInstruction } from './instruction.js';
 
 import { HTMLString, markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';

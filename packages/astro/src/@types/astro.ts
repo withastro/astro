@@ -13,10 +13,10 @@ import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
-import type { z } from 'zod';
+import type { RemotePattern } from '../assets/utils/remotePattern';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
-import type { AstroConfigSchema } from '../core/config';
+import type { AstroConfigType } from '../core/config';
 import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
 import type { LogOptions, LoggerLevel } from '../core/logger/core';
@@ -44,6 +44,7 @@ export type {
 	ImageQualityPreset,
 	ImageTransform,
 } from '../assets/types';
+export type { RemotePattern } from '../assets/utils/remotePattern';
 export type { SSRManifest } from '../core/app/types';
 export type { AstroCookies } from '../core/cookies';
 
@@ -139,8 +140,10 @@ export interface CLIFlags {
  *
  * [Astro reference](https://docs.astro.build/reference/api-reference/#astro-global)
  */
-export interface AstroGlobal<Props extends Record<string, any> = Record<string, any>>
-	extends AstroGlobalPartial,
+export interface AstroGlobal<
+	Props extends Record<string, any> = Record<string, any>,
+	Self = AstroComponentFactory
+> extends AstroGlobalPartial,
 		AstroSharedContext<Props> {
 	/**
 	 * A full URL object of the request URL.
@@ -217,7 +220,7 @@ export interface AstroGlobal<Props extends Record<string, any> = Record<string, 
 	 *
 	 * [Astro reference](https://docs.astro.build/en/guides/api-reference/#astroself)
 	 */
-	self: AstroComponentFactory;
+	self: Self;
 	/** Utility functions for modifying an Astro component’s slotted children
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroslots)
@@ -365,10 +368,10 @@ export interface ViteUserConfig extends vite.UserConfig {
 	ssr?: vite.SSROptions;
 }
 
-export interface ImageServiceConfig {
+export interface ImageServiceConfig<T extends Record<string, any> = Record<string, any>> {
 	// eslint-disable-next-line @typescript-eslint/ban-types
 	entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
-	config?: Record<string, any>;
+	config?: T;
 }
 
 /**
@@ -698,6 +701,10 @@ export interface AstroUserConfig {
 		 * - `file` - The `Astro.url.pathname` will include `.html`; ie `/foo.html`.
 		 *
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
+		 *
+		 * To prevent inconsistencies with trailing slash behaviour in dev, you can restrict the [`trailingSlash` option](#trailingslash) to `'always'` or `'never'` depending on your build format:
+		 * - `directory` - Set `trailingSlash: 'always'`
+		 * - `file` - Set `trailingSlash: 'never'`
 		 */
 		format?: 'file' | 'directory';
 		/**
@@ -834,10 +841,10 @@ export interface AstroUserConfig {
 		 * @default `never`
 		 * @version 2.6.0
 		 * @description
-		 * Control whether styles are sent to the browser in a separate css file or inlined into `<style>` tags. Choose from the following options:
-		 *  - `'always'` - all styles are inlined into `<style>` tags
-		 *  - `'auto'` - only stylesheets smaller than `ViteConfig.build.assetsInlineLimit` (default: 4kb) are inlined. Otherwise, styles are sent in external stylesheets.
-		 *  - `'never'` - all styles are sent in external stylesheets
+		 * Control whether project styles are sent to the browser in a separate css file or inlined into `<style>` tags. Choose from the following options:
+		 *  - `'always'` - project styles are inlined into `<style>` tags
+		 *  - `'auto'` - only stylesheets smaller than `ViteConfig.build.assetsInlineLimit` (default: 4kb) are inlined. Otherwise, project styles are sent in external stylesheets.
+		 *  - `'never'` - project styles are sent in external stylesheets
 		 *
 		 * ```js
 		 * {
@@ -1005,6 +1012,68 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		service: ImageServiceConfig;
+
+		/**
+		 * @docs
+		 * @name image.domains (Experimental)
+		 * @type {string[]}
+		 * @default `{domains: []}`
+		 * @version 2.10.10
+		 * @description
+		 * Defines a list of permitted image source domains for local image optimization. No other remote images will be optimized by Astro.
+		 *
+		 * This option requires an array of individual domain names as strings. Wildcards are not permitted. Instead, use [`image.remotePatterns`](#imageremotepatterns-experimental) to define a list of allowed source URL patterns.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * {
+		 *   image: {
+		 *     // Example: Allow remote image optimization from a single domain
+		 *     domains: ['astro.build'],
+		 *   },
+		 * }
+		 * ```
+		 */
+		domains?: string[];
+
+		/**
+		 * @docs
+		 * @name image.remotePatterns (Experimental)
+		 * @type {RemotePattern[]}
+		 * @default `{remotePatterns: []}`
+		 * @version 2.10.10
+		 * @description
+		 * Defines a list of permitted image source URL patterns for local image optimization.
+		 *
+		 * `remotePatterns` can be configured with four properties:
+		 * 1. protocol
+		 * 2. hostname
+		 * 3. port
+		 * 4. pathname
+		 *
+		 * ```js
+		 * {
+		 *   image: {
+		 *     // Example: allow processing all images from your aws s3 bucket
+		 *     remotePatterns: [{
+		 *       protocol: 'https',
+		 *       hostname: '**.amazonaws.com',
+		 *     }],
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured:
+		 * `hostname`:
+		 *   - Start with '**.' to allow all subdomains ('endsWith').
+		 *   - Start with '*.' to allow only one level of subdomain.
+		 *
+		 * `pathname`:
+		 *   - End with '/**' to allow all sub-routes ('startsWith').
+		 *   - End with '/*' to allow only one level of sub-route.
+
+		 */
+		remotePatterns?: Partial<RemotePattern>[];
 	};
 
 	/**
@@ -1272,6 +1341,28 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		viewTransitions?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.optimizeHoistedScript
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.10.4
+		 * @description
+		 * Prevents unused components' scripts from being included in a page unexpectedly.
+		 * The optimization is best-effort and may inversely miss including the used scripts. Make sure to double-check your built pages
+		 * before publishing.
+		 * Enable hoisted script analysis optimization by adding the experimental flag:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		optimizeHoistedScript: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		optimizeHoistedScript?: boolean;
 	};
 
 	// Legacy options to be removed
@@ -1330,7 +1421,7 @@ export interface ResolvedInjectedRoute extends InjectedRoute {
  * Resolved Astro Config
  * Config with user settings along with all defaults filled in.
  */
-export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
+export interface AstroConfig extends AstroConfigType {
 	// Public:
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.
@@ -1823,10 +1914,15 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	locals: App.Locals;
 }
 
-export interface EndpointOutput {
-	body: Body;
-	encoding?: BufferEncoding;
-}
+export type EndpointOutput =
+	| {
+			body: Body;
+			encoding?: Exclude<BufferEncoding, 'binary'>;
+	  }
+	| {
+			body: Uint8Array;
+			encoding: 'binary';
+	  };
 
 export type APIRoute<Props extends Record<string, any> = Record<string, any>> = (
 	context: APIContext<Props>

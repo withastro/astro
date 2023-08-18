@@ -14,7 +14,7 @@ describe('Basic app', () => {
 		});
 		await fixture.build();
 
-		cli = runCLI('./fixtures/basics/', { silent: true, port: 8789 });
+		cli = await runCLI('./fixtures/basics/', { silent: true, port: 8789 });
 		await cli.ready;
 	});
 
@@ -23,7 +23,7 @@ describe('Basic app', () => {
 	});
 
 	it('can render', async () => {
-		let res = await fetch(`http://localhost:8789/`);
+		let res = await fetch(`http://127.0.0.1:8789/`);
 		expect(res.status).to.equal(200);
 		let html = await res.text();
 		let $ = cheerio.load(html);
