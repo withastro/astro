@@ -1,5 +1,49 @@
 # astro
 
+## 2.10.10
+
+### Patch Changes
+
+- [#8127](https://github.com/withastro/astro/pull/8127) [`b12c8471f`](https://github.com/withastro/astro/commit/b12c8471f413c0291de4a9c444bfe3079a192034) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Do not throw Error when users pass an object with a "type" property
+
+- [#8092](https://github.com/withastro/astro/pull/8092) [`7177f7579`](https://github.com/withastro/astro/commit/7177f7579b6e866f0fd895b3fd079d8ba330b1a9) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Ensure dotfiles are cleaned during static builds
+
+- [#8122](https://github.com/withastro/astro/pull/8122) [`fa6b68a77`](https://github.com/withastro/astro/commit/fa6b68a776c5b3cc8167fc042b7d305234ebcff9) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve fidelity of time stats when running `astro build`
+
+- [#8070](https://github.com/withastro/astro/pull/8070) [`097a8e4e9`](https://github.com/withastro/astro/commit/097a8e4e916c7df18eafdaa6c8d6ce2991c17ab6) Thanks [@lilnasy](https://github.com/lilnasy)! - Fix a handful of edge cases with prerendered 404/500 pages
+
+- [#8123](https://github.com/withastro/astro/pull/8123) [`1f6497c33`](https://github.com/withastro/astro/commit/1f6497c3341231ee76fc4538cfe7624cf4721d56) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Open to configured `base` when `astro dev --open` runs
+
+- [#8105](https://github.com/withastro/astro/pull/8105) [`0e0fa605d`](https://github.com/withastro/astro/commit/0e0fa605d109cc91e08a1ae1cc560ea240fe631b) Thanks [@martrapp](https://github.com/martrapp)! - ViewTransition: bug fix for lost scroll position in browser history
+
+- [#8116](https://github.com/withastro/astro/pull/8116) [`b290f0a99`](https://github.com/withastro/astro/commit/b290f0a99778a9b9c1045f3cd06b6aee934d7c03) Thanks [@martrapp](https://github.com/martrapp)! - On back navigation only animate view transitions that were animated going forward.
+
+- [#7778](https://github.com/withastro/astro/pull/7778) [`d6b494376`](https://github.com/withastro/astro/commit/d6b4943764989c0e89df2d6875cd19691566dfb3) Thanks [@y-nk](https://github.com/y-nk)! - Added support for optimizing remote images from authorized sources when using `astro:assets`. This comes with two new parameters to specify which domains (`image.domains`) and host patterns (`image.remotePatterns`) are authorized for remote images.
+
+  For example, the following configuration will only allow remote images from `astro.build` to be optimized:
+
+  ```ts
+  // astro.config.mjs
+  export default defineConfig({
+    image: {
+      domains: ['astro.build'],
+    },
+  });
+  ```
+
+  The following configuration will only allow remote images from HTTPS hosts:
+
+  ```ts
+  // astro.config.mjs
+  export default defineConfig({
+    image: {
+      remotePatterns: [{ protocol: 'https' }],
+    },
+  });
+  ```
+
+- [#8109](https://github.com/withastro/astro/pull/8109) [`da6e3da1c`](https://github.com/withastro/astro/commit/da6e3da1ce00bed625fc568cfe4693713448e93f) Thanks [@martrapp](https://github.com/martrapp)! - fix: reinsert attribute to specify direction of ViewTransition (forward / back)
+
 ## 2.10.9
 
 ### Patch Changes
