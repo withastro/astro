@@ -9,7 +9,7 @@ describe('Directives', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-directives/',
 			// test suite was authored when inlineStylesheets defaulted to never
-			build: { inlineStylesheets: 'never' }
+			build: { inlineStylesheets: 'never' },
 		});
 		await fixture.build();
 	});

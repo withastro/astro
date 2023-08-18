@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Add support for MDX pages in your Astro site",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -54,7 +54,7 @@
     "vfile": "^5.3.7"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.0.0-beta.2"
+    "astro": "workspace:^3.0.0-beta.3"
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",

@@ -1,5 +1,149 @@
 # astro
 
+## 3.0.0-beta.3
+
+### Major Changes
+
+- [#8113](https://github.com/withastro/astro/pull/8113) [`2484dc408`](https://github.com/withastro/astro/commit/2484dc4080e5cd84b9a53648a1de426d7c907be2) Thanks [@Princesseuh](https://github.com/Princesseuh)! - This import alias is no longer included by default with astro:assets. If you were using this alias with experimental assets, you must convert them to relative file paths, or create your own [import aliases](https://docs.astro.build/en/guides/aliases/).
+
+  ```diff
+  ---
+  // src/pages/posts/post-1.astro
+  - import rocket from '~/assets/rocket.png'
+  + import rocket from '../../assets/rocket.png';
+  ---
+  ```
+
+- [#7979](https://github.com/withastro/astro/pull/7979) [`dbc97b121`](https://github.com/withastro/astro/commit/dbc97b121f42583728f1cdfdbf14575fda943f5b) Thanks [@bluwy](https://github.com/bluwy)! - Export experimental `dev`, `build`, `preview`, and `sync` APIs from `astro`. These APIs allow you to run Astro's commands programmatically, and replaces the previous entry point that runs the Astro CLI.
+
+  While these APIs are experimental, the inline config parameter is relatively stable without foreseeable changes. However, the returned results of these APIs are more likely to change in the future.
+
+  ```ts
+  import { dev, build, preview, sync, type AstroInlineConfig } from 'astro';
+
+  // Inline Astro config object.
+  // Provide a path to a configuration file to load or set options directly inline.
+  const inlineConfig: AstroInlineConfig = {
+    // Inline-specific options...
+    configFile: './astro.config.mjs',
+    logLevel: 'info',
+    // Standard Astro config options...
+    site: 'https://example.com',
+  };
+
+  // Start the Astro dev server
+  const devServer = await dev(inlineConfig);
+  await devServer.stop();
+
+  // Build your Astro project
+  await build(inlineConfig);
+
+  // Preview your built project
+  const previewServer = await preview(inlineConfig);
+  await previewServer.stop();
+
+  // Generate types for your Astro project
+  await sync(inlineConfig);
+  ```
+
+- [#8085](https://github.com/withastro/astro/pull/8085) [`68efd4a8b`](https://github.com/withastro/astro/commit/68efd4a8b29f248397667801465b3152dc98e9a7) Thanks [@bluwy](https://github.com/bluwy)! - Remove exports for `astro/internal/*` and `astro/runtime/server/*` in favour of `astro/runtime/*`. Add new `astro/compiler-runtime` export for compiler-specific runtime code.
+
+  These are exports for Astro's internal API and should not affect your project, but if you do use these entrypoints, you can migrate like below:
+
+  ```diff
+  - import 'astro/internal/index.js';
+  + import 'astro/runtime/server/index.js';
+
+  - import 'astro/server/index.js';
+  + import 'astro/runtime/server/index.js';
+  ```
+
+  ```diff
+  import { transform } from '@astrojs/compiler';
+
+  const result = await transform(source, {
+  - internalURL: 'astro/runtime/server/index.js',
+  + internalURL: 'astro/compiler-runtime',
+    // ...
+  });
+  ```
+
+- [#8030](https://github.com/withastro/astro/pull/8030) [`5208a3c8f`](https://github.com/withastro/astro/commit/5208a3c8fefcec7694857fb344af351f4631fc34) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Removed duplicate `astro/dist/jsx` export. Please use the `astro/jsx` export instead
+
+- [#8118](https://github.com/withastro/astro/pull/8118) [`8a5b0c1f3`](https://github.com/withastro/astro/commit/8a5b0c1f3a4be6bb62db66ec70144109ff5b4c59) Thanks [@lilnasy](https://github.com/lilnasy)! - Astro is smarter about CSS! Small stylesheets are now inlined by default, and no longer incur the cost of additional requests to your server. Your visitors will have to wait less before they see your pages, especially those in remote locations or in a subway.
+
+  This may not be news to you if you had opted-in via the `build.inlineStylesheets` configuration. Stabilized in Astro 2.6 and set to "auto" by default for Starlight, this configuration allows you to reduce the number of requests for stylesheets by inlining them into <style> tags. The new default is "auto", which selects assets smaller than 4kB and includes them in the initial response.
+
+  To go back to the previous default behavior, change `build.inlineStylesheets` to "never".
+
+  ```ts
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    build: {
+      inlineStylesheets: 'never',
+    },
+  });
+  ```
+
+- [#7921](https://github.com/withastro/astro/pull/7921) [`b76c166bd`](https://github.com/withastro/astro/commit/b76c166bdd8e28683f62806aef968d1e0c3b06d9) Thanks [@Princesseuh](https://github.com/Princesseuh)! - `astro:assets` is now enabled by default. If you were previously using the `experimental.assets` flag, please remove it from your config. Also note that the previous `@astrojs/image` integration is incompatible, and must be removed.
+
+  This also brings two important changes to using images in Astro:
+
+  - New ESM shape: importing an image will now return an object with different properties describing the image such as its path, format and dimensions. This is a breaking change and may require you to update your existing images.
+  - In Markdown, MDX, and Markdoc, the `![]()` syntax will now resolve relative images located anywhere in your project in addition to remote images and images stored in the `public/` folder. This notably unlocks storing images next to your content.
+
+  Please see our existing [Assets page in Docs](https://docs.astro.build/en/guides/assets/) for more information about using `astro:assets`.
+
+### Minor Changes
+
+- [#8101](https://github.com/withastro/astro/pull/8101) [`ea7ff5177`](https://github.com/withastro/astro/commit/ea7ff5177dbcd7b2508cb1eef1b22b8ee1f47079) Thanks [@matthewp](https://github.com/matthewp)! - `astro:`namespace aliases for middleware and components
+
+  This adds aliases of `astro:middleware` and `astro:components` for the middleware and components modules. This is to make our documentation consistent between are various modules, where some are virtual modules and others are not. Going forward new built-in modules will use this namespace.
+
+### Patch Changes
+
+- [#8128](https://github.com/withastro/astro/pull/8128) [`c2c71d90c`](https://github.com/withastro/astro/commit/c2c71d90c264a2524f99e0373ab59015f23ad4b1) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Update error message when Sharp couldn't be found (tends to happen on pnpm notably)
+
+- [#8092](https://github.com/withastro/astro/pull/8092) [`7177f7579`](https://github.com/withastro/astro/commit/7177f7579b6e866f0fd895b3fd079d8ba330b1a9) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Ensure dotfiles are cleaned during static builds
+
+- [#8070](https://github.com/withastro/astro/pull/8070) [`097a8e4e9`](https://github.com/withastro/astro/commit/097a8e4e916c7df18eafdaa6c8d6ce2991c17ab6) Thanks [@lilnasy](https://github.com/lilnasy)! - Fix a handful of edge cases with prerendered 404/500 pages
+
+- [#8078](https://github.com/withastro/astro/pull/8078) [`2540feedb`](https://github.com/withastro/astro/commit/2540feedb06785d5a20eecc3668849f147d778d4) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Reimplement https://github.com/withastro/astro/pull/7509 to correctly emit pre-rendered pages now that `build.split` is deprecated and this configuration has been moved to `functionPerRoute` inside the adapter.
+
+- [#8105](https://github.com/withastro/astro/pull/8105) [`0e0fa605d`](https://github.com/withastro/astro/commit/0e0fa605d109cc91e08a1ae1cc560ea240fe631b) Thanks [@martrapp](https://github.com/martrapp)! - ViewTransition: bug fix for lost scroll position in browser history
+
+- [#7778](https://github.com/withastro/astro/pull/7778) [`d6b494376`](https://github.com/withastro/astro/commit/d6b4943764989c0e89df2d6875cd19691566dfb3) Thanks [@y-nk](https://github.com/y-nk)! - Added support for optimizing remote images from authorized sources when using `astro:assets`. This comes with two new parameters to specify which domains (`image.domains`) and host patterns (`image.remotePatterns`) are authorized for remote images.
+
+  For example, the following configuration will only allow remote images from `astro.build` to be optimized:
+
+  ```ts
+  // astro.config.mjs
+  export default defineConfig({
+    image: {
+      domains: ['astro.build'],
+    },
+  });
+  ```
+
+  The following configuration will only allow remote images from HTTPS hosts:
+
+  ```ts
+  // astro.config.mjs
+  export default defineConfig({
+    image: {
+      remotePatterns: [{ protocol: 'https' }],
+    },
+  });
+  ```
+
+- [#8072](https://github.com/withastro/astro/pull/8072) [`4477bb41c`](https://github.com/withastro/astro/commit/4477bb41c8ed688785c545731ef5b184b629f4e5) Thanks [@matthewp](https://github.com/matthewp)! - Update Astro types to reflect that compress defaults to true
+
+- [#8130](https://github.com/withastro/astro/pull/8130) [`3e834293d`](https://github.com/withastro/astro/commit/3e834293d47ab2761a7aa013916e8371871efb7f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add some polyfills for Stackblitz until they support Node 18. Running Astro on Node 16 is still not officially supported, however.
+
+- Updated dependencies [[`3e834293d`](https://github.com/withastro/astro/commit/3e834293d47ab2761a7aa013916e8371871efb7f)]:
+  - @astrojs/telemetry@3.0.0-beta.2
+
 ## 3.0.0-beta.2
 
 ### Patch Changes
