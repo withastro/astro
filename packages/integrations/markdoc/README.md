@@ -349,8 +349,7 @@ Now, you can call this function from any Markdoc content entry:
 If you are using VS Code, there is a [Markdoc language extension](https://marketplace.visualstudio.com/items?itemName=Stripe.markdoc-language-support). Which includes syntax highlighting and autocomplete for configured tags.
 For more information, [see the language server on GitHub](https://github.com/markdoc/language-server.git).
 
-To configure the language server to work. Create a `markdoc.config.json` file into the project root.
-Then copy the code below and paste it in that file.
+To set up the extension, create a `markdoc.config.json` file into the project root, with following content:
 
 ```json
 [
