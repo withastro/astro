@@ -619,7 +619,7 @@ export interface AstroUserConfig {
 	 *
 	 * Using `'class'` is helpful when you want to ensure that element selectors within an Astro component override global style defaults (e.g. from a global stylesheet).
 	 * Using `'where'` gives you more control over specifity, but requires that you use higher-specifity selectors, layers, and other tools to control which selectors are applied.
-	 * Using 'attribute' is useful when you have scripts manipulating the `class` attribute of elements, and want to avoid conflicts between your own styling logic and Astro's styling.
+	 * Using 'attribute' is useful when you have scripts manipulating the `class` attribute of elements to avoid conflicts between your own styling logic and Astro's application of styles.
 	 */
 	scopedStyleStrategy?: 'where' | 'class' | 'attribute';
 
