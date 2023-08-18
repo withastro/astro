@@ -382,5 +382,5 @@ function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | undefined {
 }
 
 function has404Route(manifest: ManifestData): RouteData | undefined {
-	return manifest.routes.find((route) => route.route === '/404')
+	return manifest.routes.find((route) => route.route === '/404');
 }
