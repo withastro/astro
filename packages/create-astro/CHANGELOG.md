@@ -1,5 +1,13 @@
 # create-astro
 
+## 3.2.2
+
+### Patch Changes
+
+- [#7944](https://github.com/withastro/astro/pull/7944) [`dff0f0f8d`](https://github.com/withastro/astro/commit/dff0f0f8ddd531c5d92a90ac00fdb86d71f77509) Thanks [@colinhacks](https://github.com/colinhacks)! - Update 'dev' command for Bun users
+
+- [#8102](https://github.com/withastro/astro/pull/8102) [`e6e1de4f0`](https://github.com/withastro/astro/commit/e6e1de4f08ddba3a7703136a81f275de1976dc9e) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Verify internet connection and that `--template` exists before continuing
+
 ## 3.2.1
 
 ### Patch Changes
