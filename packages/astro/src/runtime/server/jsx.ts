@@ -50,9 +50,11 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 		case !vnode && vnode !== 0:
 			return '';
 		case Array.isArray(vnode):
-			return markHTMLString(
-				(await Promise.all(vnode.map((v: any) => renderJSX(result, v)))).join('')
-			);
+			let dest = '';
+			for (const child of vnode) {
+				dest += await renderJSX(result, child);
+			}
+			return markHTMLString(dest);
 	}
 
 	// Extract the skip from the props, if we've already attempted a previous render
