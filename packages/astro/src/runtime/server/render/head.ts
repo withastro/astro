@@ -1,8 +1,8 @@
 import type { SSRResult } from '../../../@types/astro';
 
 import { markHTMLString } from '../escape.js';
-import { createRenderInstruction } from './instruction.js';
 import type { MaybeRenderHeadInstruction, RenderHeadInstruction } from './instruction.js';
+import { createRenderInstruction } from './instruction.js';
 import { renderElement } from './util.js';
 
 // Filter out duplicate elements in our set
