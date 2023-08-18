@@ -1,5 +1,11 @@
 # astro
 
+## 2.10.11
+
+### Patch Changes
+
+- [#8136](https://github.com/withastro/astro/pull/8136) [`97c8760d7`](https://github.com/withastro/astro/commit/97c8760d78ffd172149f7776442725861576fba7) Thanks [@andremralves](https://github.com/andremralves)! - Fix 404 response leading to an infinite loop when there is no 404 page.
+
 ## 2.10.10
 
 ### Patch Changes
