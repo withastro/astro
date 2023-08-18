@@ -387,7 +387,7 @@ export const GetStaticPathsRequired = {
 		'`getStaticPaths()` function is required for dynamic routes. Make sure that you `export` a `getStaticPaths` function from your dynamic route.',
 	hint: `See https://docs.astro.build/en/core-concepts/routing/#dynamic-routes for more information on dynamic routes.
 
-Alternatively, set \`output: "server"\` in your Astro config file to switch to a non-static server build. This error can also occur if using \`export const prerender = true;\`.
+Alternatively, set \`output: "server"\` or \`output: "hybrid"\` in your Astro config file to switch to a non-static server build. This error can also occur if using \`export const prerender = true;\`.
 See https://docs.astro.build/en/guides/server-side-rendering/ for more information on non-static rendering.`,
 } satisfies ErrorData;
 /**
@@ -481,9 +481,9 @@ export const PageNumberParamNotFound = {
 /**
  * @docs
  * @see
- * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
- * - [Image component](https://docs.astro.build/en/guides/assets/#image--astroassets)
- * - [Image component#alt](https://docs.astro.build/en/guides/assets/#alt-required)
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * - [Image component](https://docs.astro.build/en/guides/images/#image--astroassets)
+ * - [Image component#alt](https://docs.astro.build/en/guides/images/#alt-required)
  * @description
  * The `alt` property allows you to provide descriptive alt text to users of screen readers and other assistive technologies. In order to ensure your images are accessible, the `Image` component requires that an `alt` be specified.
  *
@@ -515,8 +515,8 @@ export const InvalidImageService = {
  * @message
  * Missing width and height attributes for `IMAGE_URL`. When using remote images, both dimensions are always required in order to avoid cumulative layout shift (CLS).
  * @see
- * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
- * - [Image component#width-and-height](https://docs.astro.build/en/guides/assets/#width-and-height)
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * - [Image component#width-and-height-required](https://docs.astro.build/en/guides/images/#width-and-height-required-for-public-and-remote-images)
  * @description
  * For remote images, `width` and `height` cannot be inferred from the original file. As such, in order to avoid CLS, those two properties are always required.
  *
@@ -536,10 +536,10 @@ export const MissingImageDimension = {
  * @description
  * The built-in image services do not currently support optimizing all image formats.
  *
- * For unsupported formats such as SVGs and GIFs, you may be able to use an `img` tag directly:
+ * For unsupported formats such as GIFs, you may be able to use an `img` tag directly:
  * ```astro
  * ---
- * import rocket from '../assets/images/rocket.svg';
+ * import rocket from '../assets/images/rocket.gif';
  * ---
  *
  * <img src={rocket.src} width={rocket.width} height={rocket.height} alt="A rocketship in space." />
@@ -575,7 +575,7 @@ export const PrerenderDynamicEndpointPathCollide = {
 /**
  * @docs
  * @see
- * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+ * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
  * An image's `src` property is not valid. The Image component requires the `src` attribute to be either an image that has been ESM imported or a string. This is also true for the first parameter of `getImage()`.
  *
@@ -601,7 +601,7 @@ export const ExpectedImage = {
 /**
  * @docs
  * @see
- * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+ * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
  * `getImage()`'s first parameter should be an object with the different properties to apply to your image.
  *
@@ -625,7 +625,7 @@ export const ExpectedImageOptions = {
  * @message
  * Could not find requested image `IMAGE_PATH` at `FULL_IMAGE_PATH`.
  * @see
- * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+ * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
  * Astro could not find an image you included in your Markdown content. Usually, this is simply caused by a typo in the path.
  *
@@ -715,7 +715,7 @@ export const LocalsNotAnObject = {
 /**
  * @docs
  * @see
- * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+ * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
  * When using the default image services, `Image`'s and `getImage`'s `src` parameter must be either an imported image or an URL, it cannot be a filepath.
  *
