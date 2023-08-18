@@ -209,7 +209,10 @@ export function getDataEntryId({
 	collection,
 }: Pick<ContentPaths, 'contentDir'> & { entry: URL; collection: string }): string {
 	const relativePath = getRelativeEntryPath(entry, collection, contentDir);
-	const withoutFileExt = normalizePath(relativePath).replace(new RegExp(path.extname(relativePath) + '$'), '');
+	const withoutFileExt = normalizePath(relativePath).replace(
+		new RegExp(path.extname(relativePath) + '$'),
+		''
+	);
 
 	return withoutFileExt;
 }
