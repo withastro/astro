@@ -1,7 +1,8 @@
 import type { SSRResult } from '../../../@types/astro';
 
 import { markHTMLString } from '../escape.js';
-import type { MaybeRenderHeadInstruction, RenderHeadInstruction } from './types';
+import { createRenderInstruction } from './instruction.js';
+import type { MaybeRenderHeadInstruction, RenderHeadInstruction } from './instruction.js';
 import { renderElement } from './util.js';
 
 // Filter out duplicate elements in our set
@@ -45,7 +46,7 @@ export function renderAllHeadContent(result: SSRResult) {
 }
 
 export function* renderHead(): Generator<RenderHeadInstruction> {
-	yield { type: 'head' };
+	yield createRenderInstruction({ type: 'head' });
 }
 
 // This function is called by Astro components that do not contain a <head> component
@@ -55,5 +56,5 @@ export function* renderHead(): Generator<RenderHeadInstruction> {
 export function* maybeRenderHead(): Generator<MaybeRenderHeadInstruction> {
 	// This is an instruction informing the page rendering that head might need rendering.
 	// This allows the page to deduplicate head injections.
-	yield { type: 'maybe-head' };
+	yield createRenderInstruction({ type: 'maybe-head' });
 }
