@@ -1,5 +1,14 @@
 # @astrojs/node
 
+## 5.3.5
+
+### Patch Changes
+
+- [#8141](https://github.com/withastro/astro/pull/8141) [`4c15c0696`](https://github.com/withastro/astro/commit/4c15c069691ca25efcb9ebb7d9b45605cd136ed3) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixed an issue where the preview mode handled 404 and 500 routes differently from running app with node directly.
+
+- Updated dependencies [[`04caa99c4`](https://github.com/withastro/astro/commit/04caa99c48ce604ca3b90302ff0df8dcdbeee650)]:
+  - astro@2.10.12
+
 ## 5.3.4
 
 ### Patch Changes
