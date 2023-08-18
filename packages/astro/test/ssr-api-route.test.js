@@ -29,6 +29,15 @@ describe('API routes in SSR', () => {
 		const request = new Request('http://example.com/food.json');
 		const response = await app.render(request);
 		expect(response.status).to.equal(200);
+		const body = await response.json();
+		expect(body.length).to.equal(3);
+	});
+
+	it('Can load the API route too (deprecated object form)', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/food-object.json');
+		const response = await app.render(request);
+		expect(response.status).to.equal(200);
 		expect(response.headers.get('Content-Type')).to.equal('application/json;charset=utf-8');
 		expect(response.headers.get('Content-Length')).to.not.be.empty;
 		const body = await response.json();
@@ -87,8 +96,8 @@ describe('API routes in SSR', () => {
 			expect(res.status).to.equal(200);
 		});
 
-		it('Infer content type with charset for { body } shorthand', async () => {
-			const response = await fixture.fetch('/food.json', {
+		it('Infer content type with charset for { body } shorthand (deprecated object form)', async () => {
+			const response = await fixture.fetch('/food-object.json', {
 				method: 'GET',
 			});
 			expect(response.headers.get('Content-Type')).to.equal('application/json;charset=utf-8');
