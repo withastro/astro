@@ -1,4 +1,5 @@
 const ASTRO_TELEMETRY_ENDPOINT = `https://telemetry.astro.build/api/v1/record`;
+import { fetch } from 'undici';
 
 export function post(body: Record<string, any>): Promise<any> {
 	return fetch(ASTRO_TELEMETRY_ENDPOINT, {
