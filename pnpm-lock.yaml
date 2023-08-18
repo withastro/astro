@@ -578,6 +578,9 @@ importers:
       html-escaper:
         specifier: ^3.0.3
         version: 3.0.3
+      http-cache-semantics:
+        specifier: ^4.1.1
+        version: 4.1.1
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.0
@@ -690,6 +693,9 @@ importers:
       '@types/html-escaper':
         specifier: ^3.0.0
         version: 3.0.0
+      '@types/http-cache-semantics':
+        specifier: ^4.0.1
+        version: 4.0.1
       '@types/js-yaml':
         specifier: ^4.0.5
         version: 4.0.5
@@ -4641,7 +4647,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
-  packages/integrations/node/test/fixtures/prerender-404:
+  packages/integrations/node/test/fixtures/prerender-404-500:
     dependencies:
       '@astrojs/node':
         specifier: workspace:*
@@ -4877,8 +4883,8 @@ importers:
   packages/integrations/solid:
     dependencies:
       babel-preset-solid:
-        specifier: ^1.7.4
-        version: 1.7.4
+        specifier: ^1.7.7
+        version: 1.7.7
       vitefu:
         specifier: ^0.2.4
         version: 0.2.4(vite@4.4.6)
@@ -10007,8 +10013,8 @@ packages:
       - supports-color
     dev: false
 
-  /babel-preset-solid@1.7.4:
-    resolution: {integrity: sha512-0mbHNYkbOVYhH6L95VlHVkBEVQjOXSzUqLDiFxUcsg/tU4yTM/qx7FI8C+kmos9LHckQBSm3wtwoe1BZLNJR1w==}
+  /babel-preset-solid@1.7.7:
+    resolution: {integrity: sha512-tdxVzx3kgcIjNXAOmGRbzIhFBPeJjSakiN9yM+IYdL/+LtXNnbGqb0Va5tJb8Sjbk+QVEriovCyuzB5T7jeTvg==}
     peerDependencies:
       '@babel/core': ^7.0.0
     peerDependenciesMeta:
