@@ -1,5 +1,11 @@
 # astro
 
+## 3.0.0-beta.4
+
+### Patch Changes
+
+- [#8139](https://github.com/withastro/astro/pull/8139) [`db39206cb`](https://github.com/withastro/astro/commit/db39206cbb85b034859ac416179f141184bb2bff) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Use `undici` for File changeset for Node 16 compatibility
+
 ## 3.0.0-beta.3
 
 ### Major Changes
