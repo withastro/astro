@@ -56,7 +56,10 @@ export async function createContainer({
 		settings = injectImageEndpoint(settings);
 	}
 
-	const { base, server: { host, headers, open: shouldOpen }} = settings.config;
+	const {
+		base,
+		server: { host, headers, open: shouldOpen },
+	} = settings.config;
 	// Open server to the correct path
 	const open = shouldOpen ? base : false;
 
