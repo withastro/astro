@@ -3,11 +3,14 @@ import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Disqus from '../components/Disqus.astro';
 import FormattedDate from '../components/FormattedDate.astro';
+import { DISQUS_SHORTNAME } from '../consts';
 
 type Props = CollectionEntry<'blog'>['data'];
 
 const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const slug = Astro.params.slug;
 ---
 
 <html lang="en">
@@ -77,6 +80,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 						<hr />
 					</div>
 					<slot />
+                    {DISQUS_SHORTNAME && <Disqus shortname={DISQUS_SHORTNAME} identifier={slug} url={Astro.url.href} title={title} />}
 				</div>
 			</article>
 		</main>
