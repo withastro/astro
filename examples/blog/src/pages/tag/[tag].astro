@@ -1,0 +1,25 @@
+---
+import { getCollection } from 'astro:content';
+import BlogList from '../../layouts/BlogList.astro';
+
+async function getPostsByTag(tag: string) {
+    const posts = await getCollection('blog');
+    return posts.filter((post) => post.data.tags.includes(tag));
+}
+
+export async function getStaticPaths() {
+    const posts = await getCollection('blog');
+    const tagSet = new Set(posts.flatMap((post) => post.data.tags));
+    const tags = Array.from(tagSet).sort((a, b) => (
+        a.toLowerCase().localeCompare(b.toLowerCase())
+    ));
+	return tags.map((tag) => ({
+		params: { tag: tag },
+	}));
+}
+
+const { tag } = Astro.params;
+const posts = await getPostsByTag(tag);
+---
+
+<BlogList posts={posts} title={"Tag: " + tag} />
