@@ -521,6 +521,9 @@ importers:
       '@types/babel__core':
         specifier: ^7.20.1
         version: 7.20.1
+				'@skarab/detect-package-manager':
+				specifier: ^1.0.0
+				version: 1.0.0
       '@types/dom-view-transitions':
         specifier: ^1.0.1
         version: 1.0.1
@@ -644,9 +647,6 @@ importers:
       vitefu:
         specifier: ^0.2.4
         version: 0.2.4(vite@4.4.6)
-      which-pm:
-        specifier: ^2.0.0
-        version: 2.0.0
       yargs-parser:
         specifier: ^21.1.1
         version: 21.1.1
@@ -8753,6 +8753,11 @@ packages:
       picomatch: 2.3.1
       rollup: 3.20.1
     dev: false
+
+		/askarab/detect-package-manager@1.0.0:
+		resolution: {integrity: sha512-CuU1x6LgkJIF+H8FCKi j×6DbWVP1Y7kqPk88LS×Ne@ulbe3BZ37qd3Aa×3t5vnFZESLFMcjQd2d1PhdvWNSdQ==}
+		engines: {node: '>=14', ppm: '>=7'}
+		dev: false
 
   /@solidjs/router@0.5.1(solid-js@1.7.6):
     resolution: {integrity: sha512-igyrwUqm/9T26Lb6l7oXwpc4lLUVqbhbN92wOL3NgLoLVmkQlUNTZciuAe+Su8XeJXlrWjl6oxDJDLt+6pws/g==}

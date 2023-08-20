@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import * as colors from 'kleur/colors';
 import { arch, platform } from 'node:os';
-import whichPm from 'which-pm';
+import { detectAgent } from '@skarab/detect-package-manager';
 import type yargs from 'yargs-parser';
 import { resolveConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
@@ -13,7 +13,7 @@ interface InfoOptions {
 
 export async function printInfo({ flags }: InfoOptions) {
 	const inlineConfig = flagsToAstroInlineConfig(flags);
-	const packageManager = await whichPm(process.cwd());
+	const packageManager = await detectAgent(process.cwd());
 	let adapter = "Couldn't determine.";
 	let integrations = [];
 

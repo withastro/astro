@@ -12,9 +12,11 @@ import { shell } from './shell.js';
 //
 // A copy of this function also exists in the astro package
 async function getRegistry(): Promise<string> {
-	const packageManager = detectPackageManager()?.name || 'npm';
+	const pkgManager = process.env.BUN_INSTALL
+		? detectPackageManager()?.name || 'bun'
+		: detectPackageManager()?.name || 'npm';
 	try {
-		const { stdout } = await shell(packageManager, ['config', 'get', 'registry']);
+		const { stdout } = await shell(pkgManager, ['config', 'get', 'registry']);
 		return stdout?.trim()?.replace(/\/$/, '') || 'https://registry.npmjs.org';
 	} catch (e) {
 		return 'https://registry.npmjs.org';

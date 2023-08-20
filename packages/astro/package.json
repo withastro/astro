@@ -127,6 +127,7 @@
     "@babel/plugin-transform-react-jsx": "^7.22.5",
     "@babel/traverse": "^7.22.5",
     "@babel/types": "^7.22.5",
+    "@skarab/detect-package-manager": "^1.0.0",
     "@types/babel__core": "^7.20.1",
     "@types/dom-view-transitions": "^1.0.1",
     "@types/yargs-parser": "^21.0.0",
@@ -169,7 +170,6 @@
     "vfile": "^5.3.7",
     "vite": "^4.4.6",
     "vitefu": "^0.2.4",
-    "which-pm": "^2.0.0",
     "yargs-parser": "^21.1.1",
     "zod": "^3.20.6"
   },

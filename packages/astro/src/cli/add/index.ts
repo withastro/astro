@@ -6,7 +6,6 @@ import fsMod, { existsSync, promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import ora from 'ora';
-import whichPM from 'which-pm';
 import prompts from 'prompts';
 import type yargs from 'yargs-parser';
 import { loadTSConfig, resolveConfigPath, resolveRoot } from '../../core/config/index.js';
@@ -27,6 +26,7 @@ import { createLoggingFromFlags } from '../flags.js';
 import { generate, parse, t, visit } from './babel.js';
 import { ensureImport } from './imports.js';
 import { wrapDefaultExport } from './wrapper.js';
+import { detectAgent } from '@skarab/detect-package-manager';
 
 interface AddOptions {
 	flags: yargs.Arguments;
@@ -72,38 +72,12 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 	deno: '@astrojs/deno',
 };
 
-async function detectPackageManager(cwd = process.cwd()) {
-	if (existsSync(path.join(cwd, 'package-lock.json'))) {
-		return { name: 'npm', version: '>=5' };
-	}
-	if (existsSync(path.join(cwd, 'yarn.lock'))) {
-		return { name: 'yarn', version: '*' };
-	}
-	if (existsSync(path.join(cwd, 'pnpm-lock.yaml'))) {
-		return { name: 'pnpm', version: '>=3' };
-	}
-	if (existsSync(path.join(cwd, 'bun.lockb'))) {
-		return { name: 'bun', version: '*' };
-	}
-
-	// Use whichPM as a fallback if no other lock files are detected
-	const pm = await whichPM(cwd);
-	if (pm) {
-		return {
-			name: pm.name,
-			version: pm.version || '*',
-		};
-	}
-
-	return null;
-}
-
 // Users might lack access to the global npm registry, this function
 // checks the user's project type and will return the proper npm registry
 //
 // A copy of this function also exists in the create-astro package
 async function getRegistry(): Promise<string> {
-	const packageManager = (await detectPackageManager(process.cwd()))?.name || 'npm';
+	const packageManager = (await detectAgent(process.cwd()))?.name || 'npm';
 	try {
 		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
 		return stdout?.trim()?.replace(/\/$/, '') || 'https://registry.npmjs.org';
@@ -197,7 +171,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			// we add an .npmrc to hoist them
 			if (
 				integrations.find((integration) => integration.id === 'lit') &&
-				(await detectPackageManager(fileURLToPath(root)))?.name === 'pnpm'
+				(await detectAgent(fileURLToPath(root)))?.name === 'pnpm'
 			) {
 				await setupIntegrationConfig({
 					root,
@@ -635,7 +609,7 @@ async function getInstallIntegrationsCommand({
 	integrations: IntegrationInfo[];
 	cwd?: string;
 }): Promise<InstallCommand | null> {
-	const pm = await detectPackageManager(cwd);
+	const pm = await detectAgent(cwd);
 	debug('add', `package manager: ${JSON.stringify(pm)}`);
 	if (!pm) return null;
 
