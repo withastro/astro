@@ -3,14 +3,14 @@ import type { Context } from './context';
 
 import { nextSteps, say } from '../messages.js';
 
-export async function next(ctx: Pick<Context, 'cwd' | 'pkgManager' | 'skipHouston'>) {
+export async function next(ctx: Pick<Context, 'cwd' | 'packageManager' | 'skipHouston'>) {
 	let projectDir = path.relative(process.cwd(), ctx.cwd);
 	const devCmd =
-		ctx.pkgManager === 'npm'
+		ctx.packageManager === 'npm'
 			? 'npm run dev'
-			: ctx.pkgManager === 'bun'
+			: ctx.packageManager === 'bun'
 			? 'bun run dev'
-			: `${ctx.pkgManager} dev`;
+			: `${ctx.packageManager} dev`;
 	await nextSteps({ projectDir, devCmd });
 
 	if (!ctx.skipHouston) {
