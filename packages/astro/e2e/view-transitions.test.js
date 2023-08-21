@@ -166,7 +166,7 @@ test.describe('View Transitions', () => {
 		await expect(article, 'should have script content').toHaveText('works');
 	});
 
-	test('astro:beforeload event fires right before the swap', async ({ page, astro }) => {
+	test('astro:afterswap event fires right after the swap', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
