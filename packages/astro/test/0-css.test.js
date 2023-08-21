@@ -45,9 +45,7 @@ describe('CSS', function () {
 					if (/^data-astro-cid-[A-Za-z0-9-]+/.test(key)) {
 						// Ema: this is ugly, but for reasons that I don't want to explore, cheerio
 						// lower case the hash of the attribute
-						scopedAttribute = key
-							.toUpperCase()
-							.replace('data-astro-cid-'.toUpperCase(), 'data-astro-cid-');
+						scopedAttribute = key;
 					}
 				}
 				if (!scopedAttribute) {
