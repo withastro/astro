@@ -159,7 +159,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const ssrEntryPage = await import(ssrEntryURLPage.toString());
 				if (
-				  // TODO: remove in Astro 4.0
+					// TODO: remove in Astro 4.0
 					opts.settings.config.build.split ||
 					opts.settings.adapter?.adapterFeatures?.functionPerRoute
 				) {
@@ -292,15 +292,17 @@ async function generatePage(
 		builtPaths
 	);
 
+	let prevTimeEnd = timeStart;
 	for (let i = 0; i < paths.length; i++) {
 		const path = paths[i];
 		await generatePath(path, generationOptions, pipeline);
 		const timeEnd = performance.now();
-		const timeChange = getTimeStat(timeStart, timeEnd);
+		const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
 		const filePath = getOutputFilename(pipeline.getConfig(), path, pageData.route.type);
 		const lineIcon = i === paths.length - 1 ? '└─' : '├─';
 		logger.info(null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
+		prevTimeEnd = timeEnd;
 	}
 }
 
@@ -572,20 +574,16 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 	} else {
 		// If there's no body, do nothing
 		if (!response.body) return;
-		const result = await pipeline.computeBodyAndEncoding(renderContext.route.type, response);
-		body = result.body;
-		encoding = result.encoding;
+		body = Buffer.from(await response.arrayBuffer());
+		encoding = (response.headers.get('X-Astro-Encoding') as BufferEncoding | null) ?? 'utf-8';
 	}
 
 	const outFolder = getOutFolder(pipeline.getConfig(), pathname, pageData.route.type);
 	const outFile = getOutFile(pipeline.getConfig(), outFolder, pathname, pageData.route.type);
 	pageData.route.distURL = outFile;
-	const possibleEncoding = response.headers.get('X-Astro-Encoding');
-	if (possibleEncoding) {
-		encoding = possibleEncoding as BufferEncoding;
-	}
+
 	await fs.promises.mkdir(outFolder, { recursive: true });
-	await fs.promises.writeFile(outFile, body, encoding ?? 'utf-8');
+	await fs.promises.writeFile(outFile, body, encoding);
 }
 
 /**

@@ -44,7 +44,11 @@ function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
 	};
 }
 
-function getViteConfiguration({ include, exclude, experimentalReactChildren }: ReactIntegrationOptions = {}) {
+function getViteConfiguration({
+	include,
+	exclude,
+	experimentalReactChildren,
+}: ReactIntegrationOptions = {}) {
 	return {
 		optimizeDeps: {
 			include: [
@@ -62,10 +66,7 @@ function getViteConfiguration({ include, exclude, experimentalReactChildren }: R
 					: '@astrojs/react/server-v17.js',
 			],
 		},
-		plugins: [
-			react({ include, exclude }),
-			optionsPlugin(!!experimentalReactChildren)
-		],
+		plugins: [react({ include, exclude }), optionsPlugin(!!experimentalReactChildren)],
 		resolve: {
 			dedupe: ['react', 'react-dom', 'react-dom/server'],
 		},
@@ -88,14 +89,16 @@ function getViteConfiguration({ include, exclude, experimentalReactChildren }: R
 export default function ({
 	include,
 	exclude,
-	experimentalReactChildren
+	experimentalReactChildren,
 }: ReactIntegrationOptions = {}): AstroIntegration {
 	return {
 		name: '@astrojs/react',
 		hooks: {
 			'astro:config:setup': ({ config, command, addRenderer, updateConfig, injectScript }) => {
 				addRenderer(getRenderer());
-				updateConfig({ vite: getViteConfiguration({ include, exclude, experimentalReactChildren }) });
+				updateConfig({
+					vite: getViteConfiguration({ include, exclude, experimentalReactChildren }),
+				});
 				if (command === 'dev') {
 					const preamble = FAST_REFRESH_PREAMBLE.replace(
 						`__BASE__`,

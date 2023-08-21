@@ -4,8 +4,8 @@ export { Fragment, Renderer, chunkToByteArray, chunkToString } from './common.js
 export { renderComponent, renderComponentToString } from './component.js';
 export { renderHTMLElement } from './dom.js';
 export { maybeRenderHead, renderHead } from './head.js';
+export type { RenderInstruction } from './instruction';
 export { renderPage } from './page.js';
 export { renderSlot, renderSlotToString, type ComponentSlots } from './slot.js';
 export { renderScriptElement, renderUniqueStylesheet } from './tags.js';
-export type { RenderInstruction } from './types';
 export { addAttribute, defineScriptVars, voidElementNames } from './util.js';

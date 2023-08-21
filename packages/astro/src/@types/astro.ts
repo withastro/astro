@@ -23,6 +23,7 @@ import type { LogOptions, LoggerLevel } from '../core/logger/core';
 import type { AstroIntegrationLogger } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 
 export type {
 	MarkdownHeading,
@@ -103,15 +104,11 @@ export interface AstroDefineVarsAttribute {
 }
 
 export interface AstroStyleAttributes {
-	/** @deprecated Use `is:global` instead */
-	global?: boolean;
 	'is:global'?: boolean;
 	'is:inline'?: boolean;
 }
 
 export interface AstroScriptAttributes {
-	/** @deprecated Hoist is now the default behavior */
-	hoist?: boolean;
 	'is:inline'?: boolean;
 }
 
@@ -608,7 +605,7 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name scopedStyleStrategy
 	 * @type {('where' | 'class' | 'attribute')}
-	 * @default `'where'`
+	 * @default `'attribute'`
 	 * @version 2.4
 	 * @description
 	 *
@@ -619,7 +616,7 @@ export interface AstroUserConfig {
 	 *
 	 * Using `'class'` is helpful when you want to ensure that element selectors within an Astro component override global style defaults (e.g. from a global stylesheet).
 	 * Using `'where'` gives you more control over specifity, but requires that you use higher-specifity selectors, layers, and other tools to control which selectors are applied.
-	 * Using `'attribute'` is useful in case there's manipulation of the class attributes, so the styling emitted by Astro doesn't go in conflict with the user's business logic.
+	 * Using 'attribute' is useful when you are manipulating the `class` attribute of elements and need to avoid conflicts between your own styling logic and Astro's application of styles.
 	 */
 	scopedStyleStrategy?: 'where' | 'class' | 'attribute';
 
@@ -859,22 +856,12 @@ export interface AstroUserConfig {
 		 * @name build.split
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 2.7.0
+		 * @deprecated since version 3.0
 		 * @description
-		 * Defines how the SSR code should be bundled when built.
+		 * The build config option `build.split` has been replaced by the adapter configuration option [`functionPerRoute`](/en/reference/adapter-reference/#functionperroute). 
 		 *
-		 * When `split` is `true`, Astro will emit a file for each page.
-		 * Each file emitted will render only one page. The pages will be emitted
-		 * inside a `dist/pages/` directory, and the emitted files will keep the same file paths
-		 * of the `src/pages` directory.
-		 *
-		 * ```js
-		 * {
-		 *   build: {
-		 *     split: true
-		 *   }
-		 * }
-		 * ```
+		 * Please see your [SSR adapter's documentation](/en/guides/integrations-guide/#official-integrations) for using `functionPerRoute` to define how your SSR code is bundled.
+		 * 
 		 */
 		split?: boolean;
 
@@ -883,19 +870,11 @@ export interface AstroUserConfig {
 		 * @name build.excludeMiddleware
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 2.8.0
+		 * @deprecated since version 3.0
 		 * @description
-		 * Defines whether or not any SSR middleware code will be bundled when built.
+		 * The build config option `build.excludeMiddleware` has been replaced by the adapter configuration option [`edgeMiddleware`](/en/reference/adapter-reference/#edgemiddleware). 
 		 *
-		 * When enabled, middleware code is not bundled and imported by all pages during the build. To instead execute and import middleware code manually, set `build.excludeMiddleware: true`:
-		 *
-		 * ```js
-		 * {
-		 *   build: {
-		 *     excludeMiddleware: true
-		 *   }
-		 * }
-		 * ```
+		 * Please see your [SSR adapter's documentation](/en/guides/integrations-guide/#official-integrations) for using `edgeMiddleware` to define whether or not any SSR middleware code will be bundled when built.
 		 */
 		excludeMiddleware?: boolean;
 	};
@@ -1342,29 +1321,6 @@ export interface AstroUserConfig {
 		 */
 		optimizeHoistedScript?: boolean;
 	};
-
-	// Legacy options to be removed
-
-	/** @deprecated - Use "integrations" instead. Run Astro to learn more about migrating. */
-	renderers?: never;
-	/** @deprecated `projectRoot` has been renamed to `root` */
-	projectRoot?: never;
-	/** @deprecated `src` has been renamed to `srcDir` */
-	src?: never;
-	/** @deprecated `pages` has been removed. It is no longer configurable. */
-	pages?: never;
-	/** @deprecated `public` has been renamed to `publicDir` */
-	public?: never;
-	/** @deprecated `dist` has been renamed to `outDir` */
-	dist?: never;
-	/** @deprecated `styleOptions` has been renamed to `style` */
-	styleOptions?: never;
-	/** @deprecated `markdownOptions` has been renamed to `markdown` */
-	markdownOptions?: never;
-	/** @deprecated `buildOptions` has been renamed to `build` */
-	buildOptions?: never;
-	/** @deprecated `devOptions` has been renamed to `server` */
-	devOptions?: never;
 }
 
 // NOTE(fks): We choose to keep our hand-generated AstroUserConfig interface so that
@@ -1968,12 +1924,13 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 * ```
 	 */
 	locals: App.Locals;
+	ResponseWithEncoding: typeof ResponseWithEncoding;
 }
 
 export type EndpointOutput =
 	| {
 			body: Body;
-			encoding?: Exclude<BufferEncoding, 'binary'>;
+			encoding?: BufferEncoding;
 	  }
 	| {
 			body: Uint8Array;

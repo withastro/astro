@@ -16,11 +16,15 @@ const CI_INSTRUCTIONS = {
 const engines = '>=18.14.1';
 const skipSemverCheckIfAbove = 19;
 
+// HACK (2023-08-18) Stackblitz does not support Node 18 yet, so we'll fake Node 16 support for some time until it's supported
+// TODO: Remove when Node 18 is supported on Stackblitz
+const isStackblitz = process.env.SHELL === '/bin/jsh' && process.versions.webcontainer != null;
+
 /** `astro *` */
 async function main() {
 	const version = process.versions.node;
 	// Fast-path for higher Node.js versions
-	if ((parseInt(version) || 0) <= skipSemverCheckIfAbove) {
+	if (!isStackblitz && (parseInt(version) || 0) <= skipSemverCheckIfAbove) {
 		try {
 			const semver = await import('semver');
 			if (!semver.satisfies(version, engines)) {

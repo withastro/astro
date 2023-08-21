@@ -52,7 +52,7 @@ Deno.test({
 
 			assertEquals(style?.getAttribute('type'), 'text/css');
 
-			assert(style?.textContent?.includes('Courier New'))
+			assert(style?.textContent?.includes('Courier New'));
 		});
 
 		await t.step('Correctly loads run-time env variables', async () => {

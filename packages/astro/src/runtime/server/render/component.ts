@@ -4,8 +4,9 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../../@types/astro';
-import type { RenderInstruction } from './types.js';
+import { createRenderInstruction, type RenderInstruction } from './instruction.js';
 
+import { clsx } from 'clsx';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 import { HTMLBytes, markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
@@ -370,7 +371,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 					destination.write(instruction);
 				}
 			}
-			destination.write({ type: 'directive', hydration });
+			destination.write(createRenderInstruction({ type: 'directive', hydration }));
 			destination.write(markHTMLString(renderElement('astro-island', island, false)));
 		},
 	};
@@ -461,6 +462,9 @@ export async function renderComponent(
 		return await renderFragmentComponent(result, slots);
 	}
 
+	// Ensure directives (`class:list`) are processed
+	props = normalizeProps(props);
+
 	// .html components
 	if (isHTMLComponent(Component)) {
 		return await renderHTMLComponent(result, Component, props, slots);
@@ -471,6 +475,18 @@ export async function renderComponent(
 	}
 
 	return await renderFrameworkComponent(result, displayName, Component, props, slots);
+}
+
+function normalizeProps(props: Record<string, any>): Record<string, any> {
+	if (props['class:list'] !== undefined) {
+		const value = props['class:list'];
+		delete props['class:list'];
+		props['class'] = clsx(props['class'], value)
+		if (props['class'] === '') {
+			delete props['class']
+		}
+	}
+	return props;
 }
 
 export async function renderComponentToString(
