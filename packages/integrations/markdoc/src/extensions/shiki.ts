@@ -5,25 +5,6 @@ import type * as shikiTypes from 'shiki';
 import { getHighlighter } from 'shiki';
 import type { AstroMarkdocConfig } from '../config.js';
 
-// Map of old theme names to new names to preserve compatibility when we upgrade shiki
-const compatThemes: Record<string, string> = {
-	'material-darker': 'material-theme-darker',
-	'material-default': 'material-theme',
-	'material-lighter': 'material-theme-lighter',
-	'material-ocean': 'material-theme-ocean',
-	'material-palenight': 'material-theme-palenight',
-};
-
-const normalizeTheme = (theme: string | shikiTypes.IShikiTheme) => {
-	if (typeof theme === 'string') {
-		return compatThemes[theme] || theme;
-	} else if (compatThemes[theme.name]) {
-		return { ...theme, name: compatThemes[theme.name] };
-	} else {
-		return theme;
-	}
-};
-
 const ASTRO_COLOR_REPLACEMENTS = {
 	'#000001': 'var(--astro-code-color-text)',
 	'#000002': 'var(--astro-code-color-background)',
@@ -53,8 +34,6 @@ export default async function shiki({
 	theme = 'github-dark',
 	wrap = false,
 }: ShikiConfig = {}): Promise<AstroMarkdocConfig> {
-	theme = normalizeTheme(theme);
-
 	const cacheID: string = typeof theme === 'string' ? theme : theme.name;
 	if (!highlighterCache.has(cacheID)) {
 		highlighterCache.set(
