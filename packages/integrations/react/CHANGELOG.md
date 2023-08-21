@@ -45,6 +45,40 @@
 
 - [`1eae2e3f7`](https://github.com/withastro/astro/commit/1eae2e3f7d693c9dfe91c8ccfbe606d32bf2fb81) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove support for Node 16. The lowest supported version by Astro and all integrations is now v18.14.1. As a reminder, Node 16 will be deprecated on the 11th September 2023.
 
+## 2.3.2
+
+### Patch Changes
+
+- [#8149](https://github.com/withastro/astro/pull/8149) [`531cc3e49`](https://github.com/withastro/astro/commit/531cc3e490bc3bc1b896eeaec05664571df5bb24) Thanks [@matthewp](https://github.com/matthewp)! - Fix missing package file regression
+
+## 2.3.1
+
+### Patch Changes
+
+- [#8137](https://github.com/withastro/astro/pull/8137) [`8c0a4ed10`](https://github.com/withastro/astro/commit/8c0a4ed106efeda286f0aae8b959008f9462b5ec) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix missing export for new `experimentalReactChildren` option
+
+## 2.3.0
+
+### Minor Changes
+
+- [#8082](https://github.com/withastro/astro/pull/8082) [`16a3fdf93`](https://github.com/withastro/astro/commit/16a3fdf93165a1a0404c1db0973871345b2c591b) Thanks [@matthewp](https://github.com/matthewp)! - Optionally parse React slots as React children.
+
+  This adds a new configuration option for the React integration `experimentalReactChildren`:
+
+  ```js
+  export default {
+    integrations: [
+      react({
+        experimentalReactChildren: true,
+      }),
+    ],
+  };
+  ```
+
+  With this enabled, children passed to React from Astro components via the default slot are parsed as React components.
+
+  This enables better compatibility with certain React components which manipulate their children.
+
 ## 2.2.2
 
 ### Patch Changes

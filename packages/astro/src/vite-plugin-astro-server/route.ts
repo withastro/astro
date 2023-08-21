@@ -218,7 +218,7 @@ export async function handleRoute({
 	}
 
 	let response = await pipeline.renderRoute(renderContext, mod);
-	if (response.status === 404) {
+	if (response.status === 404 && has404Route(manifestData)) {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
 		return handleRoute({
 			...options,
@@ -341,4 +341,8 @@ function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | undefined {
 	if (!matchedRoute) return 404;
 	if (matchedRoute.route.route === '/404') return 404;
 	if (matchedRoute.route.route === '/500') return 500;
+}
+
+function has404Route(manifest: ManifestData): RouteData | undefined {
+	return manifest.routes.find((route) => route.route === '/404');
 }

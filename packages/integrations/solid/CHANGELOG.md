@@ -20,6 +20,12 @@
 
 - [`1eae2e3f7`](https://github.com/withastro/astro/commit/1eae2e3f7d693c9dfe91c8ccfbe606d32bf2fb81) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove support for Node 16. The lowest supported version by Astro and all integrations is now v18.14.1. As a reminder, Node 16 will be deprecated on the 11th September 2023.
 
+## 2.2.1
+
+### Patch Changes
+
+- [#8107](https://github.com/withastro/astro/pull/8107) [`5b4b78245`](https://github.com/withastro/astro/commit/5b4b782451ba9a7d685d56990b471740616e9610) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update `babel-preset-solid` dependency to `^1.7.7`
+
 ## 2.2.0
 
 ### Minor Changes
