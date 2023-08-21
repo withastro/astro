@@ -165,8 +165,9 @@ const { fallback = 'animate' } = Astro.props as Props;
 				}
 			}
 
-			// Simulate scroll behavior of Chromium based browsers
-			!!window.chrome && scrollTo({ left: 0, top: 0, behavior: 'instant' });
+			// Simulate scroll behavior of Safari and
+			// Chromium based browsers (Chrome, Edge, Opera, ...)
+			scrollTo({ left: 0, top: 0, behavior: 'instant' });
 
 			if (state?.scrollY === 0 && location.hash) {
 				const id = decodeURIComponent(location.hash.slice(1));
@@ -175,12 +176,10 @@ const { fallback = 'animate' } = Astro.props as Props;
 				if (elem) {
 					state.scrollY = elem.offsetTop;
 					persistState(state); // first guess, later updated by scroll handler
-					elem.scrollIntoView({
-						behavior: navigator.userAgent.toLowerCase().indexOf('firefox') ? 'instant' : 'auto',
-					});
+					elem.scrollIntoView(); // for Firefox, this should better be {behavior: 'instant'}
 				}
 			} else if (state && state.scrollY !== 0) {
-				scrollTo(0, state.scrollY); // usings default scrollBehavior: 'auto'
+				scrollTo(0, state.scrollY); // usings default scrollBehavior
 			}
 
 			triggerEvent('astro:beforeload');
