@@ -1,12 +1,12 @@
 
 export function GET() {
-	return {
-		body: JSON.stringify([
+	return new Response(
+		JSON.stringify([
 			{ name: 'lettuce' },
 			{ name: 'broccoli' },
 			{ name: 'pizza' }
 		])
-	};
+	)
 }
 
 export async function POST({ params, request }) {

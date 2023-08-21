@@ -23,6 +23,7 @@ import type { LogOptions, LoggerLevel } from '../core/logger/core';
 import type { AstroIntegrationLogger } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 
 export type {
 	MarkdownHeading,
@@ -1963,12 +1964,13 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 * ```
 	 */
 	locals: App.Locals;
+	ResponseWithEncoding: typeof ResponseWithEncoding;
 }
 
 export type EndpointOutput =
 	| {
 			body: Body;
-			encoding?: Exclude<BufferEncoding, 'binary'>;
+			encoding?: BufferEncoding;
 	  }
 	| {
 			body: Uint8Array;

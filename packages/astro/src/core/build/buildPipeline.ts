@@ -5,13 +5,11 @@ import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { SSRManifest } from '../app/types';
-import type { AstroConfig, AstroSettings, RouteType, SSRLoadedRenderer } from '../../@types/astro';
+import type { AstroConfig, AstroSettings, SSRLoadedRenderer } from '../../@types/astro';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
-import type { EndpointCallResult } from '../endpoint';
 import { createEnvironment } from '../render/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { createAssetLink } from '../render/ssr-element.js';
-import type { BufferEncoding } from 'vfile';
 
 /**
  * This pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
@@ -20,10 +18,6 @@ export class BuildPipeline extends Pipeline {
 	#internals: BuildInternals;
 	#staticBuildOptions: StaticBuildOptions;
 	#manifest: SSRManifest;
-	#currentEndpointBody?: {
-		body: string | Uint8Array;
-		encoding: BufferEncoding;
-	};
 
 	constructor(
 		staticBuildOptions: StaticBuildOptions,
@@ -163,49 +157,7 @@ export class BuildPipeline extends Pipeline {
 		return pages;
 	}
 
-	async #handleEndpointResult(request: Request, response: EndpointCallResult): Promise<Response> {
-		if (response.type === 'response') {
-			if (!response.response.body) {
-				return new Response(null);
-			}
-			const ab = await response.response.arrayBuffer();
-			const body = new Uint8Array(ab);
-			this.#currentEndpointBody = {
-				body: body,
-				encoding: 'utf-8',
-			};
-			return response.response;
-		} else {
-			if (response.encoding) {
-				this.#currentEndpointBody = {
-					body: response.body,
-					encoding: response.encoding,
-				};
-				const headers = new Headers();
-				headers.set('X-Astro-Encoding', response.encoding);
-				return new Response(response.body, {
-					headers,
-				});
-			} else {
-				return new Response(response.body);
-			}
-		}
-	}
-
-	async computeBodyAndEncoding(
-		routeType: RouteType,
-		response: Response
-	): Promise<{
-		body: string | Uint8Array;
-		encoding: BufferEncoding;
-	}> {
-		const encoding = response.headers.get('X-Astro-Encoding') ?? 'utf-8';
-		if (this.#currentEndpointBody) {
-			const currentEndpointBody = this.#currentEndpointBody;
-			this.#currentEndpointBody = undefined;
-			return currentEndpointBody;
-		} else {
-			return { body: await response.text(), encoding: encoding as BufferEncoding };
-		}
+	async #handleEndpointResult(_: Request, response: Response): Promise<Response> {
+		return response;
 	}
 }

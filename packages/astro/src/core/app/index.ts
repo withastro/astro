@@ -170,7 +170,7 @@ export class App {
 			}
 		}
 
-		if (SSRRoutePipeline.isResponse(response, routeData.type)) {
+		if (routeData.type === 'page' || routeData.type === 'redirect') {
 			if (STATUS_CODES.has(response.status)) {
 				return this.#renderError(request, {
 					response,

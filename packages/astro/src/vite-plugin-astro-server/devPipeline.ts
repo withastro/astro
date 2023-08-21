@@ -1,5 +1,5 @@
 import { Pipeline } from '../core/pipeline.js';
-import type { AstroConfig, AstroSettings, RouteData } from '../@types/astro';
+import type { AstroConfig, AstroSettings } from '../@types/astro';
 import type { ModuleLoader } from '../core/module-loader';
 import type { Environment } from '../core/render';
 import { createEnvironment, loadRenderer } from '../core/render/index.js';
@@ -9,15 +9,11 @@ import { isServerLikeOutput } from '../prerender/utils.js';
 import type { RuntimeMode, SSRManifest, SSRLoadedRenderer } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core';
 import { Logger } from '../core/logger/core.js';
-import type { EndpointCallResult } from '../core/endpoint/index.js';
-import mime from 'mime';
-import { attachCookiesToResponse } from '../core/cookies/index.js';
 
 export default class DevPipeline extends Pipeline {
 	#settings: AstroSettings;
 	#loader: ModuleLoader;
 	#devLogger: Logger;
-	#currentMatchedRoute: RouteData | undefined;
 
 	constructor({
 		manifest,
@@ -36,10 +32,6 @@ export default class DevPipeline extends Pipeline {
 		this.#settings = settings;
 		this.#loader = loader;
 		this.setEndpointHandler(this.#handleEndpointResult);
-	}
-
-	setCurrentMatchedRoute(route: RouteData) {
-		this.#currentMatchedRoute = route;
 	}
 
 	clearRouteCache() {
@@ -93,36 +85,7 @@ export default class DevPipeline extends Pipeline {
 		});
 	}
 
-	async #handleEndpointResult(_: Request, result: EndpointCallResult): Promise<Response> {
-		if (result.type === 'simple') {
-			if (!this.#currentMatchedRoute) {
-				throw new Error(
-					'In development mode, you must set the current matched route before handling a endpoint.'
-				);
-			}
-			let contentType = 'text/plain';
-			// Dynamic routes don't include `route.pathname`, so synthesize a path for these (e.g. 'src/pages/[slug].svg')
-			const filepath =
-				this.#currentMatchedRoute.pathname ||
-				this.#currentMatchedRoute.segments
-					.map((segment) => segment.map((p) => p.content).join(''))
-					.join('/');
-			const computedMimeType = mime.getType(filepath);
-			if (computedMimeType) {
-				contentType = computedMimeType;
-			}
-			const response = new Response(
-				result.encoding !== 'binary' ? Buffer.from(result.body, result.encoding) : result.body,
-				{
-					status: 200,
-					headers: {
-						'Content-Type': `${contentType};charset=utf-8`,
-					},
-				}
-			);
-			attachCookiesToResponse(response, result.cookies);
-			return response;
-		}
-		return result.response;
+	async #handleEndpointResult(_: Request, response: Response): Promise<Response> {
+		return response;
 	}
 }
