@@ -104,15 +104,11 @@ export interface AstroDefineVarsAttribute {
 }
 
 export interface AstroStyleAttributes {
-	/** @deprecated Use `is:global` instead */
-	global?: boolean;
 	'is:global'?: boolean;
 	'is:inline'?: boolean;
 }
 
 export interface AstroScriptAttributes {
-	/** @deprecated Hoist is now the default behavior */
-	hoist?: boolean;
 	'is:inline'?: boolean;
 }
 
@@ -1342,29 +1338,6 @@ export interface AstroUserConfig {
 		 */
 		optimizeHoistedScript?: boolean;
 	};
-
-	// Legacy options to be removed
-
-	/** @deprecated - Use "integrations" instead. Run Astro to learn more about migrating. */
-	renderers?: never;
-	/** @deprecated `projectRoot` has been renamed to `root` */
-	projectRoot?: never;
-	/** @deprecated `src` has been renamed to `srcDir` */
-	src?: never;
-	/** @deprecated `pages` has been removed. It is no longer configurable. */
-	pages?: never;
-	/** @deprecated `public` has been renamed to `publicDir` */
-	public?: never;
-	/** @deprecated `dist` has been renamed to `outDir` */
-	dist?: never;
-	/** @deprecated `styleOptions` has been renamed to `style` */
-	styleOptions?: never;
-	/** @deprecated `markdownOptions` has been renamed to `markdown` */
-	markdownOptions?: never;
-	/** @deprecated `buildOptions` has been renamed to `build` */
-	buildOptions?: never;
-	/** @deprecated `devOptions` has been renamed to `server` */
-	devOptions?: never;
 }
 
 // NOTE(fks): We choose to keep our hand-generated AstroUserConfig interface so that
