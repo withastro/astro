@@ -216,7 +216,6 @@ export async function handleRoute({
 	if (onRequest) {
 		pipeline.setMiddlewareFunction(onRequest);
 	}
-	pipeline.setCurrentMatchedRoute(route);
 
 	let response = await pipeline.renderRoute(renderContext, mod);
 	if (response.status === 404) {

@@ -4,11 +4,10 @@ import type {
 	EndpointHandler,
 	MiddlewareHandler,
 	MiddlewareResponseHandler,
-	RouteType,
 } from '../../@types/astro';
 import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachCookiesToResponse } from '../cookies/index.js';
-import { callEndpoint, createAPIContext, type EndpointCallResult } from '../endpoint/index.js';
+import { callEndpoint, createAPIContext } from '../endpoint/index.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../redirects/index.js';
 import type { RenderContext } from './context.js';
@@ -92,7 +91,7 @@ export async function tryRenderRoute<MiddlewareReturnType = Response>(
 	env: Readonly<Environment>,
 	mod: Readonly<ComponentInstance>,
 	onRequest?: MiddlewareHandler<MiddlewareReturnType>
-): Promise<Response | EndpointCallResult> {
+): Promise<Response> {
 	const apiContext = createAPIContext({
 		request: renderContext.request,
 		params: renderContext.params,
@@ -139,12 +138,4 @@ export async function tryRenderRoute<MiddlewareReturnType = Response>(
 		default:
 			throw new Error(`Couldn't find route of type [${renderContext.route.type}]`);
 	}
-}
-
-export function isEndpointResult(result: any, routeType: RouteType): result is EndpointCallResult {
-	return !(result instanceof Response) && routeType === 'endpoint';
-}
-
-export function isResponse(result: any, routeType: RouteType): result is Response {
-	return result instanceof Response && (routeType === 'page' || routeType === 'redirect');
 }

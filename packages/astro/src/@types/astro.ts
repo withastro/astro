@@ -23,6 +23,7 @@ import type { LogOptions, LoggerLevel } from '../core/logger/core';
 import type { AstroIntegrationLogger } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 
 export type {
 	MarkdownHeading,
@@ -608,7 +609,7 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name scopedStyleStrategy
 	 * @type {('where' | 'class' | 'attribute')}
-	 * @default `'where'`
+	 * @default `'attribute'`
 	 * @version 2.4
 	 * @description
 	 *
@@ -619,7 +620,7 @@ export interface AstroUserConfig {
 	 *
 	 * Using `'class'` is helpful when you want to ensure that element selectors within an Astro component override global style defaults (e.g. from a global stylesheet).
 	 * Using `'where'` gives you more control over specifity, but requires that you use higher-specifity selectors, layers, and other tools to control which selectors are applied.
-	 * Using `'attribute'` is useful in case there's manipulation of the class attributes, so the styling emitted by Astro doesn't go in conflict with the user's business logic.
+	 * Using 'attribute' is useful when you are manipulating the `class` attribute of elements and need to avoid conflicts between your own styling logic and Astro's application of styles.
 	 */
 	scopedStyleStrategy?: 'where' | 'class' | 'attribute';
 
@@ -1963,12 +1964,13 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 * ```
 	 */
 	locals: App.Locals;
+	ResponseWithEncoding: typeof ResponseWithEncoding;
 }
 
 export type EndpointOutput =
 	| {
 			body: Body;
-			encoding?: Exclude<BufferEncoding, 'binary'>;
+			encoding?: BufferEncoding;
 	  }
 	| {
 			body: Uint8Array;

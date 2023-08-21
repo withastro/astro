@@ -1,11 +1,10 @@
 import { type RenderContext, type Environment } from './render/index.js';
-import { type EndpointCallResult, callEndpoint, createAPIContext } from './endpoint/index.js';
+import { callEndpoint, createAPIContext } from './endpoint/index.js';
 import type {
 	MiddlewareHandler,
 	MiddlewareResponseHandler,
 	ComponentInstance,
 	MiddlewareEndpointHandler,
-	RouteType,
 	EndpointHandler,
 } from '../@types/astro';
 import { callMiddleware } from './middleware/callMiddleware.js';
@@ -13,7 +12,7 @@ import { renderPage } from './render/core.js';
 
 type EndpointResultHandler = (
 	originalRequest: Request,
-	result: EndpointCallResult
+	result: Response
 ) => Promise<Response> | Response;
 
 /**
@@ -76,7 +75,7 @@ export class Pipeline {
 			componentInstance,
 			this.#onRequest
 		);
-		if (Pipeline.isEndpointResult(result, renderContext.route.type)) {
+		if (renderContext.route.type === 'endpoint') {
 			if (!this.#endpointHandler) {
 				throw new Error(
 					'You created a pipeline that does not know how to handle the result coming from an endpoint.'
@@ -103,7 +102,7 @@ export class Pipeline {
 		env: Readonly<Environment>,
 		mod: Readonly<ComponentInstance>,
 		onRequest?: MiddlewareHandler<MiddlewareReturnType>
-	): Promise<Response | EndpointCallResult> {
+	): Promise<Response> {
 		const apiContext = createAPIContext({
 			request: renderContext.request,
 			params: renderContext.params,
@@ -150,16 +149,5 @@ export class Pipeline {
 			default:
 				throw new Error(`Couldn't find route of type [${renderContext.route.type}]`);
 		}
-	}
-
-	/**
-	 * Use this function
-	 */
-	static isEndpointResult(result: any, routeType: RouteType): result is EndpointCallResult {
-		return !(result instanceof Response) && routeType === 'endpoint';
-	}
-
-	static isResponse(result: any, routeType: RouteType): result is Response {
-		return result instanceof Response && (routeType === 'page' || routeType === 'redirect');
 	}
 }

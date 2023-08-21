@@ -567,20 +567,16 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 	} else {
 		// If there's no body, do nothing
 		if (!response.body) return;
-		const result = await pipeline.computeBodyAndEncoding(renderContext.route.type, response);
-		body = result.body;
-		encoding = result.encoding;
+		body = Buffer.from(await response.arrayBuffer());
+		encoding = (response.headers.get('X-Astro-Encoding') as BufferEncoding | null) ?? 'utf-8';
 	}
 
 	const outFolder = getOutFolder(pipeline.getConfig(), pathname, pageData.route.type);
 	const outFile = getOutFile(pipeline.getConfig(), outFolder, pathname, pageData.route.type);
 	pageData.route.distURL = outFile;
-	const possibleEncoding = response.headers.get('X-Astro-Encoding');
-	if (possibleEncoding) {
-		encoding = possibleEncoding as BufferEncoding;
-	}
+
 	await fs.promises.mkdir(outFolder, { recursive: true });
-	await fs.promises.writeFile(outFile, body, encoding ?? 'utf-8');
+	await fs.promises.writeFile(outFile, body, encoding);
 }
 
 /**
