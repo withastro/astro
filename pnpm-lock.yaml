@@ -364,7 +364,7 @@ importers:
     dependencies:
       '@astrojs/markdoc':
         specifier: ^1.0.0-beta.1
-        version: link:../../packages/integrations/markdoc
+        version: 1.0.0-beta.1(astro@packages+astro)
       astro:
         specifier: ^3.0.0-beta.4
         version: link:../../packages/astro
@@ -483,8 +483,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^1.8.1
-        version: 1.8.1
+        specifier: ^2.0.0
+        version: 2.0.0
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -5191,6 +5191,15 @@ packages:
 
   /@astrojs/compiler@1.8.1:
     resolution: {integrity: sha512-C28qplQzgIJ+JU9S+1wNx+ue2KCBUp0TTAd10EWAEkk4RsL3Tzlw0BYvLDDb4KP9jS48lXmR4/1TtZ4aavYJ8Q==}
+    dev: true
+
+  /@astrojs/compiler@2.0.0:
+    resolution: {integrity: sha512-SKVWorXpOHff+OuZCd5kdTc5HxVX7bVXVXYP0jANT4crz7y2PdthUxMnE21iuYt4+Bq3aV5MId4OdgwlJ2/d/Q==}
+    dev: false
+
+  /@astrojs/internal-helpers@0.2.0-beta.1:
+    resolution: {integrity: sha512-hqeB0lAtqYy3pDI1wSNMfAAGoDIFDF8qiKZMflWiCDwvBxYBBAe26nh9llJTxtT3ycuQAUrGLK5JyI2XQMxfyg==}
+    dev: false
 
   /@astrojs/language-server@2.2.0(prettier-plugin-astro@0.11.0)(prettier@3.0.1)(typescript@5.1.6):
     resolution: {integrity: sha512-zyEumkwcep3pGyMpcEJFEn96jV6pEg3CUtjehnT9KseDFqf+gPYTbw5nwOpN9uXIJ/E5bAxhqpkr3J2LCQHRrg==}
@@ -5227,6 +5236,35 @@ packages:
     transitivePeerDependencies:
       - typescript
     dev: true
+
+  /@astrojs/markdoc@1.0.0-beta.1(astro@packages+astro):
+    resolution: {integrity: sha512-KYA9kRZHIboVhOV+kVU6rDxp3x1HXFbqPezC5Ttthc4DLSXTPOlDjF1+/tZ5LhGkZTvxD0g/0PcII5X4IsciQg==}
+    engines: {node: '>=18.14.1'}
+    peerDependencies:
+      astro: '*'
+    dependencies:
+      '@astrojs/internal-helpers': 0.2.0-beta.1
+      '@astrojs/prism': 3.0.0-beta.0
+      '@markdoc/markdoc': 0.3.0
+      astro: link:packages/astro
+      esbuild: 0.18.16
+      github-slugger: 2.0.0
+      gray-matter: 4.0.3
+      htmlparser2: 9.0.0
+      kleur: 4.1.5
+      shiki: 0.14.1
+      zod: 3.20.6
+    transitivePeerDependencies:
+      - '@types/react'
+      - react
+    dev: false
+
+  /@astrojs/prism@3.0.0-beta.0:
+    resolution: {integrity: sha512-ZAPhCxhiFOyoHSf9ZXZB/cjZ+nX2crJhmGLLR8NnXwZcmMRYdkKfjnD2GrjQNPvI0lHFO42yjC4vty2heJNBlg==}
+    engines: {node: '>=18.14.1'}
+    dependencies:
+      prismjs: 1.29.0
+    dev: false
 
   /@babel/code-frame@7.22.5:
     resolution: {integrity: sha512-Xmwn266vad+6DAqEB2A6V/CcZVp62BbwVmcOJc2RPuwih1kw02TjQvWVWlcKGbBPd+8/0V5DEkOcizRGYsspYQ==}

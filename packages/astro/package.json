@@ -119,7 +119,7 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^1.8.1",
+    "@astrojs/compiler": "^2.0.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
