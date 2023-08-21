@@ -856,22 +856,12 @@ export interface AstroUserConfig {
 		 * @name build.split
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 2.7.0
+		 * @deprecated since version 3.0
 		 * @description
-		 * Defines how the SSR code should be bundled when built.
+		 * The build config option `build.split` has been replaced by the adapter configuration option [`functionPerRoute`](/en/reference/adapter-reference/#functionperroute). 
 		 *
-		 * When `split` is `true`, Astro will emit a file for each page.
-		 * Each file emitted will render only one page. The pages will be emitted
-		 * inside a `dist/pages/` directory, and the emitted files will keep the same file paths
-		 * of the `src/pages` directory.
-		 *
-		 * ```js
-		 * {
-		 *   build: {
-		 *     split: true
-		 *   }
-		 * }
-		 * ```
+		 * Please see your [SSR adapter's documentation](/en/guides/integrations-guide/#official-integrations) for using `functionPerRoute` to define how your SSR code is bundled.
+		 * 
 		 */
 		split?: boolean;
 
@@ -880,19 +870,11 @@ export interface AstroUserConfig {
 		 * @name build.excludeMiddleware
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 2.8.0
+		 * @deprecated since version 3.0
 		 * @description
-		 * Defines whether or not any SSR middleware code will be bundled when built.
+		 * The build config option `build.excludeMiddleware` has been replaced by the adapter configuration option [`edgeMiddleware`](/en/reference/adapter-reference/#edgemiddleware). 
 		 *
-		 * When enabled, middleware code is not bundled and imported by all pages during the build. To instead execute and import middleware code manually, set `build.excludeMiddleware: true`:
-		 *
-		 * ```js
-		 * {
-		 *   build: {
-		 *     excludeMiddleware: true
-		 *   }
-		 * }
-		 * ```
+		 * Please see your [SSR adapter's documentation](/en/guides/integrations-guide/#official-integrations) for using `edgeMiddleware` to define whether or not any SSR middleware code will be bundled when built.
 		 */
 		excludeMiddleware?: boolean;
 	};
