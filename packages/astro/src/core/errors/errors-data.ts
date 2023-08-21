@@ -42,7 +42,7 @@ export const UnknownCompilerError = {
  * The `Astro.redirect` function is only available when [Server-side rendering](/en/guides/server-side-rendering/) is enabled.
  *
  * To redirect on a static website, the [meta refresh attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta) can be used. Certain hosts also provide config-based redirects (ex: [Netlify redirects](https://docs.netlify.com/routing/redirects/)).
- * @deprecated since version 2.6
+ * @deprecated Deprecated since version 2.6.
  */
 export const StaticRedirectNotAvailable = {
 	name: 'StaticRedirectNotAvailable',

@@ -29,7 +29,7 @@ export type RSSOptions = {
 	customData?: z.infer<typeof rssOptionsValidator>['customData'];
 	/**
 	 * Whether to include drafts or not
-	 * @deprecated since version 3.0. Use content collections instead.
+	 * @deprecated Deprecated since version 3.0. Use content collections instead.
 	 */
 	drafts?: z.infer<typeof rssOptionsValidator>['drafts'];
 	trailingSlash?: z.infer<typeof rssOptionsValidator>['trailingSlash'];
@@ -50,7 +50,7 @@ export type RSSFeedItem = {
 	customData?: z.infer<typeof rssSchema>['customData'];
 	/**
 	 * Whether draft or not
-	 * @deprecated since version 3.0. Use content collections instead.
+	 * @deprecated Deprecated since version 3.0. Use content collections instead.
 	 */
 	draft?: z.infer<typeof rssSchema>['draft'];
 	/** Categories or tags related to the item */

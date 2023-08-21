@@ -856,7 +856,7 @@ export interface AstroUserConfig {
 		 * @name build.split
 		 * @type {boolean}
 		 * @default `false`
-		 * @deprecated since version 3.0
+		 * @deprecated Deprecated since version 3.0.
 		 * @description
 		 * The build config option `build.split` has been replaced by the adapter configuration option [`functionPerRoute`](/en/reference/adapter-reference/#functionperroute). 
 		 *
@@ -870,7 +870,7 @@ export interface AstroUserConfig {
 		 * @name build.excludeMiddleware
 		 * @type {boolean}
 		 * @default `false`
-		 * @deprecated since version 3.0
+		 * @deprecated Deprecated since version 3.0.
 		 * @description
 		 * The build config option `build.excludeMiddleware` has been replaced by the adapter configuration option [`edgeMiddleware`](/en/reference/adapter-reference/#edgemiddleware). 
 		 *
@@ -1064,7 +1064,7 @@ export interface AstroUserConfig {
 		 * @name markdown.drafts
 		 * @type {boolean}
 		 * @default `false`
-		 * @deprecated since version 3.0. Use content collections instead.
+		 * @deprecated Deprecated since version 3.0. Use content collections instead.
 		 * @description
 		 * Control whether Markdown draft pages should be included in the build.
 		 *
