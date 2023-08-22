@@ -34,12 +34,9 @@ declare module 'astro:content' {
 
 	type BaseSchemaWithoutEffects =
 		| import('astro/zod').AnyZodObject
-		| import('astro/zod').ZodUnion<import('astro/zod').AnyZodObject[]>
+		| import('astro/zod').ZodUnion<[BaseSchemaWithoutEffects, ...BaseSchemaWithoutEffects[]]>
 		| import('astro/zod').ZodDiscriminatedUnion<string, import('astro/zod').AnyZodObject[]>
-		| import('astro/zod').ZodIntersection<
-				import('astro/zod').AnyZodObject,
-				import('astro/zod').AnyZodObject
-		  >;
+		| import('astro/zod').ZodIntersection<BaseSchemaWithoutEffects, BaseSchemaWithoutEffects>;
 
 	type BaseSchema =
 		| BaseSchemaWithoutEffects

@@ -399,14 +399,18 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		// Handle `base` trailing slash based on `trailingSlash` config
 		if (config.trailingSlash === 'never') {
 			config.base = prependForwardSlash(removeTrailingForwardSlash(config.base));
-		} else if (config.trailingSlash === 'always') {
+			} else if (config.trailingSlash === 'always') {
 			config.base = prependForwardSlash(appendForwardSlash(config.base));
 		} else {
 			config.base = prependForwardSlash(config.base);
-		}
+			}
 
-		return config;
-	});
+			return config;
+		})
+		.refine((obj) => !obj.outDir.toString().startsWith(obj.publicDir.toString()), {
+			message:
+				'`outDir` must not be placed inside `publicDir` to prevent an infinite loop. Please adjust the directory configuration and try again',
+		});
 
 	return AstroConfigRelativeSchema;
 }

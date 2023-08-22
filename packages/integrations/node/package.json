@@ -49,6 +49,7 @@
     "cheerio": "1.0.0-rc.12",
     "mocha": "^9.2.2",
     "node-mocks-http": "^1.13.0",
-    "undici": "^5.22.1"
+    "undici": "^5.22.1",
+    "express": "^4.18.2"
   }
 }
