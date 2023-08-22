@@ -23,7 +23,6 @@ import {
 	Renderer,
 	chunkToString,
 	type RenderDestination,
-	type RenderDestinationChunk,
 	type RenderInstance,
 } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
@@ -420,28 +419,14 @@ function renderAstroComponent(
 	props: Record<string | number, any>,
 	slots: any = {}
 ): RenderInstance {
-	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
-
-	// Eagerly render the component so they are rendered in parallel.
-	// Render to buffer for now until our returned render function is called.
-	const bufferChunks: RenderDestinationChunk[] = [];
-	const bufferDestination: RenderDestination = {
-		write: (chunk) => bufferChunks.push(chunk),
-	};
-	// Don't await for the render to finish to not block streaming
-	const renderPromise = instance.render(bufferDestination);
-
 	return {
 		async render(destination) {
-			// Write the buffered chunks to the real destination
-			for (const chunk of bufferChunks) {
-				destination.write(chunk);
-			}
-			// Free memory
-			bufferChunks.length = 0;
-			// Re-assign the real destination so `instance.render` will continue and write to the new destination
-			bufferDestination.write = (chunk) => destination.write(chunk);
-			await renderPromise;
+			// NOTE: Creating an Astro instance will also invoke its slots recursively for head propagation.
+			// If an Astro component is used as a slot, it will also call this function, so make sure any side-effectful
+			// behaviour is kept within this `render` function, otherwise if it's outside, the side-effect will
+			// be called reversed / bottom-up in the slots tree.
+			const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
+			await instance.render(destination);
 		},
 	};
 }

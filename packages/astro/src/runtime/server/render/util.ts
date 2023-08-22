@@ -1,4 +1,5 @@
 import type { SSRElement } from '../../../@types/astro';
+import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
 
 import { HTMLString, markHTMLString } from '../escape.js';
 import { serializeListValue } from '../util.js';
@@ -144,4 +145,46 @@ export function renderElement(
 		return `<${name}${internalSpreadAttributes(props, shouldEscape)} />`;
 	}
 	return `<${name}${internalSpreadAttributes(props, shouldEscape)}>${children}</${name}>`;
+}
+
+/**
+ * Executes the `bufferRenderFunction` to prerender it into a buffer destination, and return a promise
+ * with an object containing the `renderToFinalDestination` function to flush the buffer to the final
+ * destination.
+ *
+ * @example
+ * // Render components in parallel ahead of time
+ * const promises = [ComponentA, ComponentB].map((comp) => {
+ *   return renderToBufferDestination(async (bufferDestination) => {
+ *     await renderComponentToDestination(bufferDestination);
+ *   });
+ * });
+ * // Render array of componenets serially
+ * for (const promise of promises) {
+ *   const { renderToFinalDestination } = await promise;
+ *   renderToFinalDestination(finalDestination);
+ * }
+ */
+export async function renderToBufferDestination(
+	bufferRenderFunction: RenderFunction
+): Promise<{ renderToFinalDestination: RenderFunction }> {
+	// Keep chunks in memory
+	const bufferChunks: RenderDestinationChunk[] = [];
+	const bufferDestination: RenderDestination = {
+		write: (chunk) => bufferChunks.push(chunk),
+	};
+	// Run the actual render
+	await bufferRenderFunction(bufferDestination);
+	// Return a closure that writes the buffered chunk
+	return {
+		renderToFinalDestination(destination) {
+			for (const chunk of bufferChunks) {
+				destination.write(chunk);
+			}
+			// NOTE: We don't empty `bufferChunks` after it's written as benchmarks show
+			// that it causes poorer performance, likely due to forced memory re-allocation,
+			// instead of letting the garbage collector handle it automatically.
+			// (Unsure how this affects on limited memory machines)
+		},
+	};
 }
