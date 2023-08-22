@@ -11,12 +11,12 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/preact": "^3.0.0-beta.1",
-    "@astrojs/react": "^3.0.0-beta.3",
-    "@astrojs/solid-js": "^3.0.0-beta.2",
-    "@astrojs/svelte": "^4.0.0-beta.1",
-    "@astrojs/vue": "^3.0.0-beta.0",
-    "astro": "^3.0.0-beta.4",
+    "@astrojs/preact": "^3.0.0-rc.2",
+    "@astrojs/react": "^3.0.0-rc.4",
+    "@astrojs/solid-js": "^3.0.0-rc.3",
+    "@astrojs/svelte": "^4.0.0-rc.2",
+    "@astrojs/vue": "^3.0.0-rc.1",
+    "astro": "^3.0.0-rc.5",
     "preact": "^10.15.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
