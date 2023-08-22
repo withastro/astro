@@ -11,32 +11,12 @@ body:
 
         ✅ I am using the **latest version of Astro** and all plugins.
         ✅ I am using a version of Node that Astro supports (`>=18.14.1`)
-  - type: input
-    id: astro-version
+  - type: textarea
+    id: astro-info
     attributes:
-      label: What version of `astro` are you using?
-      placeholder: 0.0.0
-    validations:
-      required: true
-  - type: input
-    id: ssr-adapter
-    attributes:
-      label: Are you using an SSR adapter? If so, which one?
-      placeholder: None, or Netlify, Vercel, Cloudflare, etc.
-    validations:
-      required: true
-  - type: input
-    id: package-manager
-    attributes:
-      label: What package manager are you using?
-      placeholder: npm, yarn, pnpm
-    validations:
-      required: true
-  - type: input
-    id: os
-    attributes:
-      label: What operating system are you using?
-      placeholder: Mac, Windows, Linux
+      label: Astro info
+      description: Run the command `astro info` in your terminal and paste the output here. Please review the data before submitting in case there is any sensitive information you don't want to share.
+      render: block
     validations:
       required: true
   - type: input
