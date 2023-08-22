@@ -164,14 +164,21 @@ const { fallback = 'animate' } = Astro.props as Props;
 				}
 			}
 
+			// Simulate scroll behavior of Safari and
+			// Chromium based browsers (Chrome, Edge, Opera, ...)
+			scrollTo({ left: 0, top: 0, behavior: 'instant' });
+
 			if (state?.scrollY === 0 && location.hash) {
 				const id = decodeURIComponent(location.hash.slice(1));
-				state.scrollY = document.getElementById(id)?.offsetTop || 0;
-			}
-			if (state?.scrollY != null) {
-				scrollTo(0, state.scrollY);
-				// Overwrite erroneous updates by the scroll handler during transition
-				persistState(state);
+				const elem = document.getElementById(id);
+				// prefer scrollIntoView() over scrollTo() because it takes scroll-padding into account
+				if (elem) {
+					state.scrollY = elem.offsetTop;
+					persistState(state); // first guess, later updated by scroll handler
+					elem.scrollIntoView(); // for Firefox, this should better be {behavior: 'instant'}
+				}
+			} else if (state && state.scrollY !== 0) {
+				scrollTo(0, state.scrollY); // usings default scrollBehavior
 			}
 
 			triggerEvent('astro:beforeload');
