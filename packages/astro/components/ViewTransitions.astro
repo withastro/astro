@@ -274,30 +274,54 @@ const { fallback = 'animate' } = Astro.props as Props;
 			// that is going to another page within the same origin. Basically it determines
 			// same-origin navigation, but omits special key combos for new tabs, etc.
 			if (
-				link &&
-				link instanceof HTMLAnchorElement &&
-				link.href &&
-				(!link.target || link.target === '_self') &&
-				link.origin === location.origin &&
-				!(
-					// Same page means same path and same query params
-					(location.pathname === link.pathname && location.search === link.search)
-				) &&
-				ev.button === 0 && // left clicks only
-				!ev.metaKey && // new tab (mac)
-				!ev.ctrlKey && // new tab (windows)
-				!ev.altKey && // download
-				!ev.shiftKey &&
-				!ev.defaultPrevented &&
-				transitionEnabledOnThisPage()
-			) {
-				ev.preventDefault();
-				navigate('forward', link.href, { index: ++currentHistoryIndex, scrollY: 0 });
-				const newState: State = { index: currentHistoryIndex, scrollY };
-				persistState({ index: currentHistoryIndex - 1, scrollY });
-				history.pushState(newState, '', link.href);
+				!link ||
+				!(link instanceof HTMLAnchorElement) ||
+				!link.href ||
+				(link.target && link.target !== '_self') ||
+				link.origin !== location.origin ||
+				ev.button !== 0 || // left clicks only
+				ev.metaKey || // new tab (mac)
+				ev.ctrlKey || // new tab (windows)
+				ev.altKey || // download
+				ev.shiftKey || // new window
+				ev.defaultPrevented ||
+				!transitionEnabledOnThisPage()
+			)
+				// No page transitions in these cases,
+				// Let the browser standard action handle this
+				return;
+
+			// We do not need to handle same page links because there are no page transitions
+			// Same page means same path and same query params (but different hash)
+			if (location.pathname === link.pathname && location.search === link.search) {
+				if (link.hash) {
+					// The browser default action will handle navigations with hash fragments
+					return;
+				} else {
+					// Special case: self link without hash
+					// If handed to the browser it will reload the page
+					// But we want to handle it like any other same page navigation
+					// So we scroll to the top of the page but do not start page transitions
+					ev.preventDefault();
+					persistState({ ...history.state, scrollY });
+					scrollTo({ left: 0, top: 0, behavior: 'instant' });
+					if (location.hash) {
+						// last target was different
+						const newState: State = { index: ++currentHistoryIndex, scrollY: 0 };
+						history.pushState(newState, '', link.href);
+					}
+					return;
+				}
 			}
+
+			// these are the cases we will handle: same origin, different page
+			ev.preventDefault();
+			navigate('forward', link.href, { index: ++currentHistoryIndex, scrollY: 0 });
+			const newState: State = { index: currentHistoryIndex, scrollY };
+			persistState({ index: currentHistoryIndex - 1, scrollY });
+			history.pushState(newState, '', link.href);
 		});
+
 		addEventListener('popstate', (ev) => {
 			if (!transitionEnabledOnThisPage()) {
 				// The current page doesn't haven't View Transitions,

@@ -190,6 +190,22 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
 
+	test('click self link (w/o hash) does not do navigation', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		const p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// Clicking href="" stays on page
+		await page.click('#click-self');
+		await expect(p, 'should have content').toHaveText('Page 1');
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
 	test('Scroll position restored on back button', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/long-page'));
