@@ -349,7 +349,7 @@ type ServerConfig = {
 
 	/**
 	 * @name server.open
-	 * @type {boolean}
+	 * @type {boolean | string}
 	 * @default `false`
 	 * @version 2.1.8
 	 * @description
@@ -360,8 +360,14 @@ type ServerConfig = {
 	 *   server: { open: true }
 	 * }
 	 * ```
+	 * or
+	 * ```js
+	 * {
+	 *   server: { open: '/about' }
+	 * }
+	 * ```
 	 */
-	open?: boolean;
+	open?: boolean | string;
 };
 
 export interface ViteUserConfig extends vite.UserConfig {
@@ -958,7 +964,7 @@ export interface AstroUserConfig {
 
 	/**
 	 * @name server.open
-	 * @type {boolean}
+	 * @type {boolean | string}
 	 * @default `false`
 	 * @version 2.1.8
 	 * @description
@@ -967,6 +973,12 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   server: { open: true }
+	 * }
+	 * ```
+	 * or
+	 * ```js
+	 * {
+	 *   server: { open: '/about' }
 	 * }
 	 * ```
 	 */
