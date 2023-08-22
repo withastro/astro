@@ -1269,7 +1269,7 @@ declare namespace astroHTML.JSX {
 		viewTarget?: number | string | undefined | null;
 		visibility?: number | string | undefined | null;
 		'v-mathematical'?: number | string | undefined | null;
-		widths?: number | string | undefined | null;
+		width?: number | string | undefined | null;
 		'word-spacing'?: number | string | undefined | null;
 		'writing-mode'?: number | string | undefined | null;
 		x1?: number | string | undefined | null;
