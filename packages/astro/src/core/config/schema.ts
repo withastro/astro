@@ -376,43 +376,46 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				.optional()
 				.default({})
 		),
-	}).transform((config) => {
-		// If the user changed outDir but not build.server, build.config, adjust so those
-		// are relative to the outDir, as is the expected default.
-		if (
-			!config.build.server.toString().startsWith(config.outDir.toString()) &&
-			config.build.server.toString().endsWith('dist/server/')
-		) {
-			config.build.server = new URL('./dist/server/', config.outDir);
-		}
-		if (
-			!config.build.client.toString().startsWith(config.outDir.toString()) &&
-			config.build.client.toString().endsWith('dist/client/')
-		) {
-			config.build.client = new URL('./dist/client/', config.outDir);
-		}
-		const trimmedBase = trimSlashes(config.base);
+	})
+		.transform((config) => {
+			// If the user changed outDir but not build.server, build.config, adjust so those
+			// are relative to the outDir, as is the expected default.
+			if (
+				!config.build.server.toString().startsWith(config.outDir.toString()) &&
+				config.build.server.toString().endsWith('dist/server/')
+			) {
+				config.build.server = new URL('./dist/server/', config.outDir);
+			}
+			if (
+				!config.build.client.toString().startsWith(config.outDir.toString()) &&
+				config.build.client.toString().endsWith('dist/client/')
+			) {
+				config.build.client = new URL('./dist/client/', config.outDir);
+			}
+			const trimmedBase = trimSlashes(config.base);
 
-		// If there is no base but there is a base for site config, warn.
-		const sitePathname = config.site && new URL(config.site).pathname;
-		if (!trimmedBase.length && sitePathname && sitePathname !== '/') {
-			config.base = sitePathname;
-			/* eslint-disable no-console */
-			console.warn(`The site configuration value includes a pathname of ${sitePathname} but there is no base configuration.
+			// If there is no base but there is a base for site config, warn.
+			const sitePathname = config.site && new URL(config.site).pathname;
+			if (!trimmedBase.length && sitePathname && sitePathname !== '/') {
+				config.base = sitePathname;
+				/* eslint-disable no-console */
+				console.warn(`The site configuration value includes a pathname of ${sitePathname} but there is no base configuration.
 
 A future version of Astro will stop using the site pathname when producing <link> and <script> tags. Set your site's base with the base configuration.`);
-		}
+			}
 
-		if (trimmedBase.length && config.trailingSlash === 'never') {
-			config.base = prependForwardSlash(trimmedBase);
-		} else {
-			config.base = prependForwardSlash(appendForwardSlash(trimmedBase));
-		}
+			if (trimmedBase.length && config.trailingSlash === 'never') {
+				config.base = prependForwardSlash(trimmedBase);
+			} else {
+				config.base = prependForwardSlash(appendForwardSlash(trimmedBase));
+			}
 
-		return config;
-	}).refine((obj) => !obj.outDir.toString().startsWith(obj.publicDir.toString()), {
-		message: '`outDir` must not be placed inside `publicDir` to prevent an infinite loop. Please adjust the directory configuration and try again'
-	});
+			return config;
+		})
+		.refine((obj) => !obj.outDir.toString().startsWith(obj.publicDir.toString()), {
+			message:
+				'`outDir` must not be placed inside `publicDir` to prevent an infinite loop. Please adjust the directory configuration and try again',
+		});
 
 	return AstroConfigRelativeSchema;
 }

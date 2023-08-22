@@ -69,9 +69,13 @@ describe('Config Validation', () => {
 		expect(configError).to.be.not.instanceOf(Error);
 	});
 	it('Error when outDir is placed within publicDir', async () => {
-		const configError = await validateConfig({ outDir: './public/dist' }, process.cwd()).catch((err) => err);
+		const configError = await validateConfig({ outDir: './public/dist' }, process.cwd()).catch(
+			(err) => err
+		);
 		expect(configError instanceof z.ZodError).to.equal(true);
-		expect(configError.errors[0].message).to.equal('`outDir` must not be placed inside `publicDir` to prevent an infinite loop. \
-Please adjust the directory configuration and try again')
+		expect(configError.errors[0].message).to.equal(
+			'`outDir` must not be placed inside `publicDir` to prevent an infinite loop. \
+Please adjust the directory configuration and try again'
+		);
 	});
 });
