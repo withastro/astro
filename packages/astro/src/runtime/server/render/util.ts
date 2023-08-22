@@ -153,6 +153,7 @@ export function renderElement(
  * destination.
  *
  * @example
+ * ```ts
  * // Render components in parallel ahead of time
  * const finalRenders = [ComponentA, ComponentB].map((comp) => {
  *   return renderToBufferDestination(async (bufferDestination) => {
@@ -163,6 +164,7 @@ export function renderElement(
  * for (const finalRender of finalRenders) {
  *   await finalRender.renderToFinalDestination(finalDestination);
  * }
+ * ```
  */
 export function renderToBufferDestination(bufferRenderFunction: RenderFunction): {
 	renderToFinalDestination: RenderFunction;
@@ -172,8 +174,10 @@ export function renderToBufferDestination(bufferRenderFunction: RenderFunction):
 	const bufferDestination: RenderDestination = {
 		write: (chunk) => bufferChunks.push(chunk),
 	};
+
 	// Don't await for the render to finish to not block streaming
 	const renderPromise = bufferRenderFunction(bufferDestination);
+
 	// Return a closure that writes the buffered chunk
 	return {
 		async renderToFinalDestination(destination) {
@@ -181,15 +185,17 @@ export function renderToBufferDestination(bufferRenderFunction: RenderFunction):
 			for (const chunk of bufferChunks) {
 				destination.write(chunk);
 			}
-			// Free memory
-			bufferChunks.length = 0;
-			// Re-assign the real destination so `instance.render` will continue and write to the new destination
-			bufferDestination.write = (chunk) => destination.write(chunk);
-			await renderPromise;
+
 			// NOTE: We don't empty `bufferChunks` after it's written as benchmarks show
 			// that it causes poorer performance, likely due to forced memory re-allocation,
 			// instead of letting the garbage collector handle it automatically.
 			// (Unsure how this affects on limited memory machines)
+
+			// Re-assign the real destination so `instance.render` will continue and write to the new destination
+			bufferDestination.write = (chunk) => destination.write(chunk);
+
+			// Wait for render to finish entirely
+			await renderPromise;
 		},
 	};
 }
