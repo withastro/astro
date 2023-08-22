@@ -12,14 +12,13 @@ export async function renderChild(destination: RenderDestination, child: any) {
 		destination.write(child);
 	} else if (Array.isArray(child)) {
 		// Render all children eagerly and in parallel
-		const childPromises = child.map((c) => {
+		const childRenders = child.map((c) => {
 			return renderToBufferDestination((bufferDestination) => {
 				return renderChild(bufferDestination, c);
 			});
 		});
-		for (const childPromise of childPromises) {
-			const { renderToFinalDestination } = await childPromise;
-			renderToFinalDestination(destination);
+		for (const childRender of childRenders) {
+			await childRender.renderToFinalDestination(destination);
 		}
 	} else if (typeof child === 'function') {
 		// Special: If a child is a function, call it automatically.

@@ -34,7 +34,7 @@ export class RenderTemplateResult {
 
 	async render(destination: RenderDestination) {
 		// Render all expressions eagerly and in parallel
-		const expPromises = this.expressions.map((exp) => {
+		const expRenders = this.expressions.map((exp) => {
 			return renderToBufferDestination((bufferDestination) => {
 				// Skip render if falsy, except the number 0
 				if (exp || exp === 0) {
@@ -45,12 +45,11 @@ export class RenderTemplateResult {
 
 		for (let i = 0; i < this.htmlParts.length; i++) {
 			const html = this.htmlParts[i];
-			const expPromise = expPromises[i];
+			const expRender = expRenders[i];
 
 			destination.write(markHTMLString(html));
-			if (expPromise) {
-				const { renderToFinalDestination } = await expPromise;
-				await renderToFinalDestination(destination);
+			if (expRender) {
+				await expRender.renderToFinalDestination(destination);
 			}
 		}
 	}

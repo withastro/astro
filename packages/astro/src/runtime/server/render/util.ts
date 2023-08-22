@@ -154,33 +154,38 @@ export function renderElement(
  *
  * @example
  * // Render components in parallel ahead of time
- * const promises = [ComponentA, ComponentB].map((comp) => {
+ * const finalRenders = [ComponentA, ComponentB].map((comp) => {
  *   return renderToBufferDestination(async (bufferDestination) => {
  *     await renderComponentToDestination(bufferDestination);
  *   });
  * });
- * // Render array of componenets serially
- * for (const promise of promises) {
- *   const { renderToFinalDestination } = await promise;
- *   renderToFinalDestination(finalDestination);
+ * // Render array of components serially
+ * for (const finalRender of finalRenders) {
+ *   await finalRender.renderToFinalDestination(finalDestination);
  * }
  */
-export async function renderToBufferDestination(
-	bufferRenderFunction: RenderFunction
-): Promise<{ renderToFinalDestination: RenderFunction }> {
+export function renderToBufferDestination(bufferRenderFunction: RenderFunction): {
+	renderToFinalDestination: RenderFunction;
+} {
 	// Keep chunks in memory
 	const bufferChunks: RenderDestinationChunk[] = [];
 	const bufferDestination: RenderDestination = {
 		write: (chunk) => bufferChunks.push(chunk),
 	};
-	// Run the actual render
-	await bufferRenderFunction(bufferDestination);
+	// Don't await for the render to finish to not block streaming
+	const renderPromise = bufferRenderFunction(bufferDestination);
 	// Return a closure that writes the buffered chunk
 	return {
-		renderToFinalDestination(destination) {
+		async renderToFinalDestination(destination) {
+			// Write the buffered chunks to the real destination
 			for (const chunk of bufferChunks) {
 				destination.write(chunk);
 			}
+			// Free memory
+			bufferChunks.length = 0;
+			// Re-assign the real destination so `instance.render` will continue and write to the new destination
+			bufferDestination.write = (chunk) => destination.write(chunk);
+			await renderPromise;
 			// NOTE: We don't empty `bufferChunks` after it's written as benchmarks show
 			// that it causes poorer performance, likely due to forced memory re-allocation,
 			// instead of letting the garbage collector handle it automatically.

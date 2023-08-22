@@ -419,13 +419,12 @@ function renderAstroComponent(
 	props: Record<string | number, any>,
 	slots: any = {}
 ): RenderInstance {
+	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
 	return {
 		async render(destination) {
-			// NOTE: Creating an Astro instance will also invoke its slots recursively for head propagation.
-			// If an Astro component is used as a slot, it will also call this function, so make sure any side-effectful
-			// behaviour is kept within this `render` function, otherwise if it's outside, the side-effect will
-			// be called reversed / bottom-up in the slots tree.
-			const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
+			// NOTE: This render call can't be pre-invoked outside of this function as it'll also initialize the slots
+			// recursively, which causes each Astro components in the tree to be called bottom-up, and is incorrect.
+			// The slots are initialized eagerly for head propagation.
 			await instance.render(destination);
 		},
 	};
