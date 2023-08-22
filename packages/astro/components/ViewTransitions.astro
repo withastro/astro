@@ -20,21 +20,20 @@ const { fallback = 'animate' } = Astro.props as Props;
 	type Events = 'astro:load' | 'astro:beforeload';
 
 	const persistState = (state: State) => history.replaceState(state, '');
-
-	// The History API does not tell you if navigation is forward or back, so
-	// you can figure it using an index. On pushState the index is incremented so you
-	// can use that to determine popstate if going forward or back.
-	let currentHistoryIndex = history.state?.index || 0;
-	if (!history.state) {
-		persistState({ index: currentHistoryIndex, scrollY: 0 });
-	}
-
 	const supportsViewTransitions = !!document.startViewTransition;
 	const transitionEnabledOnThisPage = () =>
 		!!document.querySelector('[name="astro-view-transitions-enabled"]');
 	const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
 	const onload = () => triggerEvent('astro:load');
 	const PERSIST_ATTR = 'data-astro-transition-persist';
+
+	// The History API does not tell you if navigation is forward or back, so
+	// you can figure it using an index. On pushState the index is incremented so you
+	// can use that to determine popstate if going forward or back.
+	let currentHistoryIndex = history.state?.index || 0;
+	if (!history.state && transitionEnabledOnThisPage()) {
+		persistState({ index: currentHistoryIndex, scrollY: 0 });
+	}
 
 	const throttle = (cb: (...args: any[]) => any, delay: number) => {
 		let wait = false;
@@ -323,9 +322,10 @@ const { fallback = 'animate' } = Astro.props as Props;
 		});
 
 		addEventListener('popstate', (ev) => {
-			if (!transitionEnabledOnThisPage()) {
+			if (!transitionEnabledOnThisPage() && ev.state) {
 				// The current page doesn't haven't View Transitions,
 				// respect that with a full page reload
+				// -- but only for transition managed by us (ev.state is set)
 				location.reload();
 				return;
 			}
