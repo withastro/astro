@@ -65,8 +65,6 @@ export function get(context) {
     site: context.site,
     // list of `<item>`s in output xml
     items: [...],
-    // include draft posts in the feed (default: false)
-    drafts: true,
     // (optional) absolute path to XSL stylesheet in your project
     stylesheet: '/rss-styles.xsl',
     // (optional) inject custom xml
@@ -117,6 +115,8 @@ When providing a formatted RSS item list, see the [`RSSFeedItem` type reference]
 ### drafts
 
 Type: `boolean (optional)`
+
+**Deprecated**: Manually filter `items` instead.
 
 Set `drafts: true` to include [draft posts](https://docs.astro.build/en/guides/markdown-content/#draft-pages) in the feed output. By default, this option is `false` and draft posts are not included.
 

@@ -8,6 +8,7 @@ import type {
 import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachCookiesToResponse } from '../cookies/index.js';
 import { callEndpoint, createAPIContext } from '../endpoint/index.js';
+import { warn } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../redirects/index.js';
 import type { RenderContext } from './context.js';
@@ -56,6 +57,15 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		cookies,
 		locals: renderContext.locals ?? {},
 	});
+
+	// TODO: Remove in Astro 4.0
+	if (mod.frontmatter && typeof mod.frontmatter === 'object' && 'draft' in mod.frontmatter) {
+		warn(
+			env.logging,
+			'astro',
+			`The drafts feature is deprecated and used in ${renderContext.route.component}. You should migrate to content collections instead. See https://docs.astro.build/en/guides/content-collections/#filtering-collection-queries for more information.`
+		);
+	}
 
 	const response = await runtimeRenderPage(
 		result,

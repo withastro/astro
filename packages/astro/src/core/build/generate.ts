@@ -261,6 +261,11 @@ async function generatePage(
 	const pageModule = await pageModulePromise();
 	if (shouldSkipDraft(pageModule, pipeline.getSettings())) {
 		logger.info(null, `${magenta('⚠️')}  Skipping draft ${pageData.route.component}`);
+		// TODO: Remove in Astro 4.0
+		logger.warn(
+			'astro',
+			`The drafts feature is deprecated. You should migrate to content collections instead. See https://docs.astro.build/en/guides/content-collections/#filtering-collection-queries for more information.`
+		);
 		return;
 	}
 
