@@ -4691,19 +4691,6 @@ importers:
         specifier: ^4.4.6
         version: 4.4.6(@types/node@18.16.18)(sass@1.63.4)
 
-  packages/integrations/turbolinks:
-    dependencies:
-      turbolinks:
-        specifier: ^5.2.0
-        version: 5.2.0
-    devDependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../astro
-      astro-scripts:
-        specifier: workspace:*
-        version: link:../../../scripts
-
   packages/integrations/vercel:
     dependencies:
       '@astrojs/internal-helpers':
@@ -16820,10 +16807,6 @@ packages:
       turbo-windows-64: 1.10.3
       turbo-windows-arm64: 1.10.3
     dev: true
-
-  /turbolinks@5.2.0:
-    resolution: {integrity: sha512-pMiez3tyBo6uRHFNNZoYMmrES/IaGgMhQQM+VFF36keryjb5ms0XkVpmKHkfW/4Vy96qiGW3K9bz0tF5sK9bBw==}
-    dev: false
 
   /type-check@0.3.2:
     resolution: {integrity: sha512-ZCmOJdvOWDBYJlzAoFkC+Q0+bUyEOS1ltgp1MGU03fqHG+dbi9tBFU2Rd9QKiDZFAYrhPh2JUf7rZRIuHRKtOg==}
