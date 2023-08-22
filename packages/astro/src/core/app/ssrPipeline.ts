@@ -23,6 +23,6 @@ export class SSRRoutePipeline extends Pipeline {
 		if (response.headers.get('X-Astro-Response') === 'Not-Found') {
 			throw new EndpointNotFoundError(response);
 		}
-		return response
+		return response;
 	}
 }

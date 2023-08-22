@@ -19,7 +19,10 @@ describe('Class List', async () => {
 		expect($('[class="test true"]')).to.have.lengthOf(1, '[class="test true"]');
 		expect($('[class="test truthy"]')).to.have.lengthOf(1, '[class="test truthy"]');
 		expect($('[class="test set"]')).to.have.lengthOf(1, '[class="test set"]');
-		expect($('[class="hello goodbye hello world hello friend"]')).to.have.lengthOf(1, '[class="hello goodbye hello world hello friend"]');
+		expect($('[class="hello goodbye hello world hello friend"]')).to.have.lengthOf(
+			1,
+			'[class="hello goodbye hello world hello friend"]'
+		);
 		expect($('[class="foo baz"]')).to.have.lengthOf(1, '[class="foo baz"]');
 		expect($('span:not([class])')).to.have.lengthOf(1, 'span:not([class])');
 
@@ -35,7 +38,10 @@ describe('Class List', async () => {
 		expect($('[class="test true"]')).to.have.lengthOf(1, '[class="test true"]');
 		expect($('[class="test truthy"]')).to.have.lengthOf(1, '[class="test truthy"]');
 		expect($('[class="test set"]')).to.have.lengthOf(1, '[class="test set"]');
-		expect($('[class="hello goodbye hello world hello friend"]')).to.have.lengthOf(1, '[class="hello goodbye hello world hello friend"]');
+		expect($('[class="hello goodbye hello world hello friend"]')).to.have.lengthOf(
+			1,
+			'[class="hello goodbye hello world hello friend"]'
+		);
 		expect($('[class="foo baz"]')).to.have.lengthOf(1, '[class="foo baz"]');
 		expect($('span:not([class])')).to.have.lengthOf(1, 'span:not([class])');
 
@@ -44,7 +50,9 @@ describe('Class List', async () => {
 		expect($('[class="test true"]').text()).to.equal('test true');
 		expect($('[class="test truthy"]').text()).to.equal('test truthy');
 		expect($('[class="test set"]').text()).to.equal('test set');
-		expect($('[class="hello goodbye hello world hello friend"]').text()).to.equal('hello goodbye hello world hello friend');
+		expect($('[class="hello goodbye hello world hello friend"]').text()).to.equal(
+			'hello goodbye hello world hello friend'
+		);
 		expect($('[class="foo baz"]').text()).to.equal('foo baz');
 		expect($('span:not([class])').text()).to.equal('');
 	});

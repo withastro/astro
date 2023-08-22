@@ -380,29 +380,30 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				.optional()
 				.default({})
 		),
-	}).transform((config) => {
-		// If the user changed outDir but not build.server, build.config, adjust so those
-		// are relative to the outDir, as is the expected default.
-		if (
-			!config.build.server.toString().startsWith(config.outDir.toString()) &&
-			config.build.server.toString().endsWith('dist/server/')
-		) {
-			config.build.server = new URL('./dist/server/', config.outDir);
-		}
-		if (
-			!config.build.client.toString().startsWith(config.outDir.toString()) &&
-			config.build.client.toString().endsWith('dist/client/')
-		) {
-			config.build.client = new URL('./dist/client/', config.outDir);
-		}
+	})
+		.transform((config) => {
+			// If the user changed outDir but not build.server, build.config, adjust so those
+			// are relative to the outDir, as is the expected default.
+			if (
+				!config.build.server.toString().startsWith(config.outDir.toString()) &&
+				config.build.server.toString().endsWith('dist/server/')
+			) {
+				config.build.server = new URL('./dist/server/', config.outDir);
+			}
+			if (
+				!config.build.client.toString().startsWith(config.outDir.toString()) &&
+				config.build.client.toString().endsWith('dist/client/')
+			) {
+				config.build.client = new URL('./dist/client/', config.outDir);
+			}
 
-		// Handle `base` trailing slash based on `trailingSlash` config
-		if (config.trailingSlash === 'never') {
-			config.base = prependForwardSlash(removeTrailingForwardSlash(config.base));
+			// Handle `base` trailing slash based on `trailingSlash` config
+			if (config.trailingSlash === 'never') {
+				config.base = prependForwardSlash(removeTrailingForwardSlash(config.base));
 			} else if (config.trailingSlash === 'always') {
-			config.base = prependForwardSlash(appendForwardSlash(config.base));
-		} else {
-			config.base = prependForwardSlash(config.base);
+				config.base = prependForwardSlash(appendForwardSlash(config.base));
+			} else {
+				config.base = prependForwardSlash(config.base);
 			}
 
 			return config;

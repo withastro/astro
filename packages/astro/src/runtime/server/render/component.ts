@@ -481,9 +481,9 @@ function normalizeProps(props: Record<string, any>): Record<string, any> {
 	if (props['class:list'] !== undefined) {
 		const value = props['class:list'];
 		delete props['class:list'];
-		props['class'] = clsx(props['class'], value)
+		props['class'] = clsx(props['class'], value);
 		if (props['class'] === '') {
-			delete props['class']
+			delete props['class'];
 		}
 	}
 	return props;

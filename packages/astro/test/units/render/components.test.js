@@ -102,14 +102,14 @@ describe('core/render components', () => {
 				const html = await text();
 				const $ = cheerio.load(html);
 
-				const check = (name) => JSON.parse($(name).text() || '{}')
+				const check = (name) => JSON.parse($(name).text() || '{}');
 
 				const Class = check('#class');
 				const ClassList = check('#class-list');
 				const BothLiteral = check('#both-literal');
 				const BothFlipped = check('#both-flipped');
 				const BothSpread = check('#both-spread');
-				
+
 				expect(Class).to.deep.equal({ class: 'red blue' }, '#class');
 				expect(ClassList).to.deep.equal({ class: 'red blue' }, '#class-list');
 				expect(BothLiteral).to.deep.equal({ class: 'red blue' }, '#both-literal');
