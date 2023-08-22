@@ -38,15 +38,7 @@ const preview: CreatePreviewServer = async function ({
 	}
 
 	const handler: http.RequestListener = (req, res) => {
-		ssrHandler(req, res, (ssrErr: any) => {
-			if (ssrErr) {
-				res.writeHead(500);
-				res.end(ssrErr.toString());
-			} else {
-				res.writeHead(404);
-				res.end();
-			}
-		});
+		ssrHandler(req, res);
 	};
 
 	const baseWithoutTrailingSlash: string = base.endsWith('/')

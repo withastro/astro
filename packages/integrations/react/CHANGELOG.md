@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 2.3.2
+
+### Patch Changes
+
+- [#8149](https://github.com/withastro/astro/pull/8149) [`531cc3e49`](https://github.com/withastro/astro/commit/531cc3e490bc3bc1b896eeaec05664571df5bb24) Thanks [@matthewp](https://github.com/matthewp)! - Fix missing package file regression
+
 ## 2.3.1
 
 ### Patch Changes
