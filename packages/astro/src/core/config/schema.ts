@@ -410,6 +410,8 @@ A future version of Astro will stop using the site pathname when producing <link
 		}
 
 		return config;
+	}).refine((obj) => !obj.outDir.toString().startsWith(obj.publicDir.toString()), {
+		message: '`outDir` must not be placed inside `publicDir` to prevent an infinite loop. Please adjust the directory configuration and try again'
 	});
 
 	return AstroConfigRelativeSchema;
