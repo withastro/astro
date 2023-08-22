@@ -22,7 +22,6 @@
     "@astrojs/solid-js": "2.2.0",
     "@astrojs/svelte": "3.1.0",
     "@astrojs/tailwind": "4.0.0",
-    "@astrojs/turbolinks": "0.2.2",
     "@astrojs/vercel": "3.7.4",
     "@astrojs/vue": "2.2.1",
     "@astrojs/internal-helpers": "0.1.1",

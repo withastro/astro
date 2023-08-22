@@ -18,7 +18,6 @@
 '@astrojs/rss': major
 '@astrojs/telemetry': major
 'astro': major
-'@astrojs/turbolinks': minor
 '@astrojs/alpinejs': minor
 '@astrojs/prefetch': minor
 '@astrojs/markdoc': minor
