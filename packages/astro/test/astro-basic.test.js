@@ -106,8 +106,8 @@ describe('Astro basics', () => {
 		it('renders the components top-down', async () => {
 			const html = await fixture.readFile('/order/index.html');
 			const $ = cheerio.load(html);
-			expect($('#rendered-order').text()).to.eq('Rendered order: A, B')
-		})
+			expect($('#rendered-order').text()).to.eq('Rendered order: A, B');
+		});
 	});
 
 	it('Supports void elements whose name is a string (#2062)', async () => {
