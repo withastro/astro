@@ -1,5 +1,14 @@
 # @astrojs/node
 
+## 5.3.6
+
+### Patch Changes
+
+- [#8176](https://github.com/withastro/astro/pull/8176) [`d08c83ee3`](https://github.com/withastro/astro/commit/d08c83ee3fe0f10374264f61ee473255dcf0cd06) Thanks [@ematipico](https://github.com/ematipico)! - Fix an issue where `express` couldn't use the `handler` in `middleware` mode.
+
+- Updated dependencies [[`582132328`](https://github.com/withastro/astro/commit/5821323285646aee7ff9194a505f708028e4db57), [`fddd4dc71`](https://github.com/withastro/astro/commit/fddd4dc71af321bd6b4d01bb4b1b955284846e60), [`cfc465dde`](https://github.com/withastro/astro/commit/cfc465ddebcc58d20f29ecffaa857a77525435a9), [`95120efbe`](https://github.com/withastro/astro/commit/95120efbe817163663492181cbeb225849354493), [`273335cb0`](https://github.com/withastro/astro/commit/273335cb01615c3c06d46c02464f4496a81f8d0b), [`9142178b1`](https://github.com/withastro/astro/commit/9142178b113443749b87c1d259859b42a3d7a9c4), [`179796405`](https://github.com/withastro/astro/commit/179796405e053b559d83f84507e5a465861a029a)]:
+  - astro@2.10.13
+
 ## 5.3.5
 
 ### Patch Changes

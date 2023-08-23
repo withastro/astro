@@ -13,7 +13,7 @@
   "dependencies": {
     "@astrojs/tailwind": "^4.0.0",
     "@types/canvas-confetti": "^1.6.0",
-    "astro": "^2.10.12",
+    "astro": "^2.10.13",
     "autoprefixer": "^10.4.14",
     "canvas-confetti": "^1.6.0",
     "postcss": "^8.4.24",
