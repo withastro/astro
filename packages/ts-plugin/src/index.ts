@@ -18,6 +18,18 @@ const init: ts.server.PluginModuleFactory = (modules) => {
 			decorateLanguageService(virtualFiles, info.languageService, true);
 			decorateLanguageServiceHost(virtualFiles, info.languageServiceHost, ts, ['.astro']);
 
+			const getScriptKind = info.languageServiceHost.getScriptKind?.bind(
+				info.languageServiceHost.getScriptKind
+			);
+			if (getScriptKind) {
+				info.languageServiceHost.getScriptKind = (fileName) => {
+					if (fileName.endsWith('.astro')) {
+						return ts.ScriptKind.TSX;
+					}
+					return getScriptKind(fileName);
+				};
+			}
+
 			return info.languageService;
 		},
 		getExternalFiles(project) {
