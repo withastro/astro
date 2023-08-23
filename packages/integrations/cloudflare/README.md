@@ -86,9 +86,9 @@ From an endpoint:
 ```js
 // src/pages/api/someFile.js
 export function get(context) {
-    const runtime = context.locals.runtime;
-    
-    return new Response("Some body");
+  const runtime = context.locals.runtime;
+
+  return new Response('Some body');
 }
 ```
 
@@ -99,7 +99,7 @@ If you're using the `advanced` runtime, you can type the `runtime` object as fol
 ```ts
 // src/env.d.ts
 /// <reference types="astro/client" />
-import type { AdvancedRuntime } from "@astrojs/cloudflare"
+import type { AdvancedRuntime } from '@astrojs/cloudflare';
 
 declare namespace App {
   interface Locals extends AdvancedRuntime {
@@ -116,7 +116,7 @@ If you're using the `directory` runtime, you can type the `runtime` object as fo
 ```ts
 // src/env.d.ts
 /// <reference types="astro/client" />
-import type { DirectoryRuntime } from "@astrojs/cloudflare"
+import type { DirectoryRuntime } from '@astrojs/cloudflare';
 
 declare namespace App {
   interface Locals extends DirectoryRuntime {
