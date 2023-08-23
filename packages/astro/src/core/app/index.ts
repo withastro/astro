@@ -26,7 +26,6 @@ import {
 import { matchRoute } from '../routing/match.js';
 import type { RouteInfo } from './types';
 import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
-import { wait } from '../../../test/fixtures/streaming/src/wait';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
