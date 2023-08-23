@@ -20,21 +20,20 @@ const { fallback = 'animate' } = Astro.props as Props;
 	type Events = 'astro:load' | 'astro:beforeload';
 
 	const persistState = (state: State) => history.replaceState(state, '');
-
-	// The History API does not tell you if navigation is forward or back, so
-	// you can figure it using an index. On pushState the index is incremented so you
-	// can use that to determine popstate if going forward or back.
-	let currentHistoryIndex = history.state?.index || 0;
-	if (!history.state) {
-		persistState({ index: currentHistoryIndex, scrollY: 0 });
-	}
-
 	const supportsViewTransitions = !!document.startViewTransition;
 	const transitionEnabledOnThisPage = () =>
 		!!document.querySelector('[name="astro-view-transitions-enabled"]');
 	const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
 	const onload = () => triggerEvent('astro:load');
 	const PERSIST_ATTR = 'data-astro-transition-persist';
+
+	// The History API does not tell you if navigation is forward or back, so
+	// you can figure it using an index. On pushState the index is incremented so you
+	// can use that to determine popstate if going forward or back.
+	let currentHistoryIndex = history.state?.index || 0;
+	if (!history.state && transitionEnabledOnThisPage()) {
+		persistState({ index: currentHistoryIndex, scrollY: 0 });
+	}
 
 	const throttle = (cb: (...args: any[]) => any, delay: number) => {
 		let wait = false;
@@ -165,14 +164,21 @@ const { fallback = 'animate' } = Astro.props as Props;
 				}
 			}
 
+			// Simulate scroll behavior of Safari and
+			// Chromium based browsers (Chrome, Edge, Opera, ...)
+			scrollTo({ left: 0, top: 0, behavior: 'instant' });
+
 			if (state?.scrollY === 0 && location.hash) {
 				const id = decodeURIComponent(location.hash.slice(1));
-				state.scrollY = document.getElementById(id)?.offsetTop || 0;
-			}
-			if (state?.scrollY != null) {
-				scrollTo(0, state.scrollY);
-				// Overwrite erroneous updates by the scroll handler during transition
-				persistState(state);
+				const elem = document.getElementById(id);
+				// prefer scrollIntoView() over scrollTo() because it takes scroll-padding into account
+				if (elem) {
+					state.scrollY = elem.offsetTop;
+					persistState(state); // first guess, later updated by scroll handler
+					elem.scrollIntoView(); // for Firefox, this should better be {behavior: 'instant'}
+				}
+			} else if (state && state.scrollY !== 0) {
+				scrollTo(0, state.scrollY); // usings default scrollBehavior
 			}
 
 			triggerEvent('astro:beforeload');
@@ -274,34 +280,59 @@ const { fallback = 'animate' } = Astro.props as Props;
 			// that is going to another page within the same origin. Basically it determines
 			// same-origin navigation, but omits special key combos for new tabs, etc.
 			if (
-				link &&
-				link instanceof HTMLAnchorElement &&
-				link.href &&
-				(!link.target || link.target === '_self') &&
-				link.origin === location.origin &&
-				!(
-					// Same page means same path and same query params
-					(location.pathname === link.pathname && location.search === link.search)
-				) &&
-				ev.button === 0 && // left clicks only
-				!ev.metaKey && // new tab (mac)
-				!ev.ctrlKey && // new tab (windows)
-				!ev.altKey && // download
-				!ev.shiftKey &&
-				!ev.defaultPrevented &&
-				transitionEnabledOnThisPage()
-			) {
-				ev.preventDefault();
-				navigate('forward', link.href, { index: ++currentHistoryIndex, scrollY: 0 });
-				const newState: State = { index: currentHistoryIndex, scrollY };
-				persistState({ index: currentHistoryIndex - 1, scrollY });
-				history.pushState(newState, '', link.href);
+				!link ||
+				!(link instanceof HTMLAnchorElement) ||
+				!link.href ||
+				(link.target && link.target !== '_self') ||
+				link.origin !== location.origin ||
+				ev.button !== 0 || // left clicks only
+				ev.metaKey || // new tab (mac)
+				ev.ctrlKey || // new tab (windows)
+				ev.altKey || // download
+				ev.shiftKey || // new window
+				ev.defaultPrevented ||
+				!transitionEnabledOnThisPage()
+			)
+				// No page transitions in these cases,
+				// Let the browser standard action handle this
+				return;
+
+			// We do not need to handle same page links because there are no page transitions
+			// Same page means same path and same query params (but different hash)
+			if (location.pathname === link.pathname && location.search === link.search) {
+				if (link.hash) {
+					// The browser default action will handle navigations with hash fragments
+					return;
+				} else {
+					// Special case: self link without hash
+					// If handed to the browser it will reload the page
+					// But we want to handle it like any other same page navigation
+					// So we scroll to the top of the page but do not start page transitions
+					ev.preventDefault();
+					persistState({ ...history.state, scrollY });
+					scrollTo({ left: 0, top: 0, behavior: 'instant' });
+					if (location.hash) {
+						// last target was different
+						const newState: State = { index: ++currentHistoryIndex, scrollY: 0 };
+						history.pushState(newState, '', link.href);
+					}
+					return;
+				}
 			}
+
+			// these are the cases we will handle: same origin, different page
+			ev.preventDefault();
+			navigate('forward', link.href, { index: ++currentHistoryIndex, scrollY: 0 });
+			const newState: State = { index: currentHistoryIndex, scrollY };
+			persistState({ index: currentHistoryIndex - 1, scrollY });
+			history.pushState(newState, '', link.href);
 		});
+
 		addEventListener('popstate', (ev) => {
-			if (!transitionEnabledOnThisPage()) {
+			if (!transitionEnabledOnThisPage() && ev.state) {
 				// The current page doesn't haven't View Transitions,
 				// respect that with a full page reload
+				// -- but only for transition managed by us (ev.state is set)
 				location.reload();
 				return;
 			}
