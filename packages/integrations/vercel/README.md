@@ -33,7 +33,7 @@ yarn astro add vercel
 pnpm astro add vercel
 ```
 
-### Install dependencies manually
+### Add dependencies manually
 
 If you prefer to install the adapter manually instead, complete the following two steps:
 
