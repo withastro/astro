@@ -397,3 +397,25 @@ test.describe('View Transitions', () => {
 		).toEqual(1);
 	});
 });
+
+test('Navigation also swaps the attributes of the document root', async ({ page, astro }) => {
+	page.on('console', (msg) => console.log(msg.text()));
+	await page.goto(astro.resolveUrl('/some-attributes'));
+	let p = page.locator('#heading');
+	await expect(p, 'should have content').toHaveText('Page with some attributes');
+
+	let h = page.locator('html');
+	await expect(h, 'should have content').toHaveAttribute('lang', 'en');
+
+	await page.click('#click-other-attributes');
+	p = page.locator('#heading');
+	await expect(p, 'should have content').toHaveText('Page with other attributes');
+
+	h = page.locator('html');
+	await expect(h, 'should have content').toHaveAttribute('lang', 'es');
+	await expect(h, 'should have content').toHaveAttribute('style', 'background-color: green');
+	await expect(h, 'should have content').toHaveAttribute('data-other-name', 'value');
+	await expect(h, 'should have content').toHaveAttribute('data-astro-fake', 'value');
+	await expect(h, 'should have content').toHaveAttribute('data-astro-transition', 'forward');
+	await expect(h, 'should be absent').not.toHaveAttribute('class', /.*/);
+});
