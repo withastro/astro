@@ -3,6 +3,7 @@ import type { TransitionAnimationPair, TransitionDirectionalAnimations } from '.
 const EASE_IN_QUART = 'cubic-bezier(0.5, 0, 0.75, 0)';
 const EASE_OUT_QUART = 'cubic-bezier(0.25, 1, 0.5, 1)';
 const EASE_IN_OUT_QUART = 'cubic-bezier(0.76, 0, 0.24, 1)';
+const EASE_IN_OUT_QUINT = 'cubic-bezier(0.83, 0, 0.17, 1)';
 
 export function slide({
 	duration,
@@ -64,6 +65,32 @@ export function fade({
 			name: 'astroFadeIn',
 			duration: duration ?? '250ms',
 			easing: EASE_IN_QUART,
+			fillMode: 'both',
+		},
+	} satisfies TransitionAnimationPair;
+
+	return {
+		forwards: anim,
+		backwards: anim,
+	};
+}
+
+export function crossfade({
+	duration,
+}: {
+	duration?: string | number;
+} = {}): TransitionDirectionalAnimations {
+	const anim = {
+		old: {
+			name: 'astroFadeOut',
+			duration: duration ?? '180',
+			easing: EASE_IN_OUT_QUINT,
+			fillMode: 'both',
+		},
+		new: {
+			name: 'astroFadeIn',
+			duration: duration ?? '180',
+			easing: EASE_IN_OUT_QUINT,
 			fillMode: 'both',
 		},
 	} satisfies TransitionAnimationPair;
