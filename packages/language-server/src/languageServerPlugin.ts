@@ -13,6 +13,7 @@ import { getVueLanguageModule } from './core/vue.js';
 import { getPrettierPluginPath, importPrettier } from './importPackage.js';
 import createAstroService from './plugins/astro.js';
 import createHtmlService from './plugins/html.js';
+import { createTypescriptAddonsService } from './plugins/typescript-addons/index.js';
 import createTypeScriptService from './plugins/typescript/index.js';
 import { getAstroInstall } from './utils.js';
 
@@ -62,6 +63,7 @@ export const plugin: LanguageServerPlugin = (
 		config.services.emmet ??= createEmmetService();
 		config.services.typescript ??= createTypeScriptService();
 		config.services.typescripttwoslash ??= createTypeScriptTwoSlashService();
+		config.services.typescriptaddons ??= createTypescriptAddonsService();
 		config.services.astro ??= createAstroService();
 
 		if (ctx) {
