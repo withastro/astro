@@ -22,78 +22,78 @@ export function createTransitionScope(result: SSRResult, hash: string) {
 	return `astro-${hash}-${num}`;
 }
 
+// Ensure animationName is a valid CSS identifier
+function toValidIdent(name: string): string {
+	return name.replace(/[^a-zA-Z0-9\-\_]/g, '_').replace(/^\_+|\_+$/g, '')
+}
+
+const BUILTIN_TRANSITION_ANIMATIONS = { fade, slide };
+
 export function renderTransition(
 	result: SSRResult,
 	hash: string,
 	animationName: TransitionAnimationValue | undefined,
 	transitionName: string
 ) {
-	let animations: TransitionDirectionalAnimations | null = null;
-	switch (animationName) {
-		case 'fade': {
-			animations = fade();
-			break;
-		}
-		case 'slide': {
-			animations = slide();
-			break;
-		}
-		default: {
-			if (typeof animationName === 'object') {
-				animations = animationName;
-			}
-		}
-	}
-
 	const scope = createTransitionScope(result, hash);
-
-	// Default transition name is the scope of the element, ie HASH-1
-	if (!transitionName) {
-		transitionName = scope;
+	const viewTransitionName = transitionName ? toValidIdent(transitionName) : scope;
+	const styles = [
+		`[data-astro-transition-scope="${scope}"] { view-transition-name: ${viewTransitionName}; }`,
+	]
+	if (animationName === 'fade' || animationName === 'slide') {
+		styles.push(generateAnimationStyle(scope, viewTransitionName, BUILTIN_TRANSITION_ANIMATIONS[animationName]()))
+	} else if (animationName === 'none') {
+		styles.push(generateAnimationNone(scope, viewTransitionName))
+	} else if (typeof animationName === 'object') {
+		styles.push(generateAnimationStyle(scope, viewTransitionName, animationName))
 	}
+	result._metadata.extraHead.push(markHTMLString(`<style>${styles.join('')}</style>`));
 
-	const styles = markHTMLString(`<style>[data-astro-transition-scope="${scope}"] {
-	view-transition-name: ${transitionName};
+	return scope;
 }
-	${
-		!animations
-			? ``
-			: // Regular animations
-			  `
-::view-transition-old(${transitionName}) {
+
+function generateAnimationNone(scope: string, viewTransitionName: string) {
+	const oldSelectors = [
+		`::view-transition-old(${viewTransitionName})`,
+		`[data-astro-transition-fallback=old] [data-astro-transition-scope="${scope}"]`,
+	]
+	const newSelectors = [
+		`::view-transition-new(${viewTransitionName})`,
+		`[data-astro-transition-fallback=new] [data-astro-transition-scope="${scope}"]`,
+	]
+	return [
+		`${oldSelectors.join(', ')} { animation: none; opacity: 0; mix-blend-mode: normal; }`,
+		`${newSelectors.join(', ')} { animation: none; mix-blend-mode: normal; }`,
+	].join('')
+}
+
+function generateAnimationStyle(scope: string, viewTransitionName: string, animations: TransitionDirectionalAnimations) {
+	return `::view-transition-old(${viewTransitionName}) {
 	${stringifyAnimation(animations.forwards.old)}
 }
 [data-astro-transition-fallback=old] [data-astro-transition-scope="${scope}"] {
 	${stringifyAnimation(animations.forwards.old)}
 }
-
-::view-transition-new(${transitionName}) {
+::view-transition-new(${viewTransitionName}) {
 	${stringifyAnimation(animations.forwards.new)}
 }
 [data-astro-transition-fallback=new] [data-astro-transition-scope="${scope}"] {
 	${stringifyAnimation(animations.forwards.new)}
 }
 
-[data-astro-transition=back]::view-transition-old(${transitionName}) {
+[data-astro-transition=back]::view-transition-old(${viewTransitionName}) {
 	${stringifyAnimation(animations.backwards.old)}
 }
 [data-astro-transition=back][data-astro-transition-fallback=old] [data-astro-transition-scope="${scope}"] {
 	${stringifyAnimation(animations.backwards.old)}
 }
 
-[data-astro-transition=back]::view-transition-new(${transitionName}) {
+[data-astro-transition=back]::view-transition-new(${viewTransitionName}) {
 	${stringifyAnimation(animations.backwards.new)}
 }
 [data-astro-transition=back][data-astro-transition-fallback=new] [data-astro-transition-scope="${scope}"] {
 	${stringifyAnimation(animations.backwards.new)}
-}
-	`.trim()
-	}
-	</style>`);
-
-	result._metadata.extraHead.push(styles);
-
-	return scope;
+}`;
 }
 
 type AnimationBuilder = {
