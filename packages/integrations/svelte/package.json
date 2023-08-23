@@ -48,7 +48,7 @@
     "vite": "^4.4.6"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.10.12",
+    "astro": "workspace:^2.10.13",
     "svelte": "^3.55.0 || ^4.0.0"
   },
   "engines": {

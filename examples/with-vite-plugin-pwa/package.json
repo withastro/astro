@@ -11,7 +11,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^2.10.12",
+    "astro": "^2.10.13",
     "vite-plugin-pwa": "0.14.7",
     "workbox-window": "^6.6.0"
   }

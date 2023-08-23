@@ -75,7 +75,7 @@
     "zod": "^3.17.3"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.10.12"
+    "astro": "workspace:^2.10.13"
   },
   "devDependencies": {
     "@astrojs/markdown-remark": "^2.2.1",
