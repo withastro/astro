@@ -61,7 +61,7 @@
   },
   "peerDependencies": {
     "prettier": "^3.0.0",
-    "prettier-plugin-astro": "^0.11.0"
+    "prettier-plugin-astro": ">=0.11.0"
   },
   "peerDependenciesMeta": {
     "prettier": {
