@@ -93,14 +93,19 @@ export function pluginManifest(
 				}
 
 				const manifest = await createManifest(options, internals);
+				const shouldPassMiddlewareEntryPoint =
+					// TODO: remove in Astro 4.0
+					options.settings.config.build.excludeMiddleware ||
+					options.settings.adapter?.adapterFeatures?.edgeMiddleware;
 				await runHookBuildSsr({
 					config: options.settings.config,
 					manifest,
 					logging: options.logging,
 					entryPoints: internals.entryPoints,
-					middlewareEntryPoint: internals.middlewareEntryPoint,
+					middlewareEntryPoint: shouldPassMiddlewareEntryPoint
+						? internals.middlewareEntryPoint
+						: undefined,
 				});
-				// TODO: use the manifest entry chunk instead
 				const code = injectManifest(manifest, internals.manifestEntryChunk);
 				mutate(internals.manifestEntryChunk, 'server', code);
 			},
@@ -245,6 +250,7 @@ function buildManifest(
 		clientDirectives: Array.from(settings.clientDirectives),
 		entryModules,
 		assets: staticFiles.map(prefixAssetPath),
+		middlewareEntryPoint: internals.middlewareEntryPoint?.toString() ?? undefined,
 	};
 
 	return ssrManifest;

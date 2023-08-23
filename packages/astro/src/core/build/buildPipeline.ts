@@ -77,6 +77,13 @@ export class BuildPipeline extends Pipeline {
 		return this.#manifest;
 	}
 
+	async retrieveMiddlewareFunction() {
+		if (this.#internals.middlewareEntryPoint) {
+			const middleware = await import(this.#internals.middlewareEntryPoint.toString());
+			this.setMiddlewareFunction(middleware.onRequest);
+		}
+	}
+
 	/**
 	 * The SSR build emits two important files:
 	 * - dist/server/manifest.mjs

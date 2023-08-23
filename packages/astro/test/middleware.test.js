@@ -237,6 +237,16 @@ describe('Middleware API in PROD mode, SSR', () => {
 			throw e;
 		}
 	});
+
+	it('should correctly call the middleware function for 404', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/funky-url');
+		const routeData = app.match(request, { matchNotFound: true });
+		const response = await app.render(request, routeData);
+		const text = await response.text();
+		expect(text.includes('Error')).to.be.true;
+		expect(text.includes('bar')).to.be.true;
+	});
 });
 
 describe('Middleware with tailwind', () => {
