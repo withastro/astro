@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import { after } from 'node:test';
 import netlifyAdapter from '../../dist/index.js';
 import { loadFixture, testIntegration } from './test-utils.js';
 

@@ -40,7 +40,7 @@
     "@preact/preset-vite": "^2.5.0",
     "@preact/signals": "^1.2.1",
     "babel-plugin-transform-hook-names": "^1.0.2",
-    "preact-render-to-string": "^5.2.6"
+    "preact-render-to-string": "^6.2.1"
   },
   "devDependencies": {
     "astro": "workspace:*",

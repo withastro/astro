@@ -10,10 +10,10 @@
     "autoprefixer": "^10.4.15",
     "postcss": "^8.4.28",
     "solid-js": "^1.7.11",
-    "svelte": "^3.59.2",
+    "svelte": "^4.2.0",
     "vue": "^3.3.4"
   },
   "devDependencies": {
-    "postcss-preset-env": "^7.8.3"
+    "postcss-preset-env": "^9.1.1"
   }
 }
