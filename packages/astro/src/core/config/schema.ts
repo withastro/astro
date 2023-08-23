@@ -1,6 +1,6 @@
 import type { RehypePlugin, RemarkPlugin, RemarkRehype } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
-import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
+import type { ILanguageRegistration, IShikiTheme, Theme } from 'shiki';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro';
 
 import type { OutgoingHttpHeaders } from 'node:http';
@@ -228,8 +228,8 @@ export const AstroConfigSchema = z.object({
 					langs: z.custom<ILanguageRegistration>().array().default([]),
 					theme: z
 						.enum(BUNDLED_THEMES as [Theme, ...Theme[]])
-						.or(z.custom<IThemeRegistration>())
-						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme!),
+						.or(z.custom<IShikiTheme>())
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme! as Theme),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
 				})
 				.default({}),

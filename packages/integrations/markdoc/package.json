@@ -66,13 +66,13 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/prism": "workspace:*",
     "@markdoc/markdoc": "^0.3.0",
-    "esbuild": "^0.18.16",
+    "esbuild": "^0.18.20",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
     "htmlparser2": "^9.0.0",
     "kleur": "^4.1.5",
-    "shiki": "^0.14.1",
-    "zod": "^3.17.3"
+    "shiki": "^0.14.3",
+    "zod": "3.21.1"
   },
   "peerDependencies": {
     "astro": "workspace:^3.0.0-rc.5"
@@ -89,8 +89,8 @@
     "devalue": "^4.3.2",
     "linkedom": "^0.14.26",
     "mocha": "^9.2.2",
-    "rollup": "^3.25.1",
-    "vite": "^4.4.6"
+    "rollup": "^3.28.1",
+    "vite": "^4.4.9"
   },
   "engines": {
     "node": ">=18.14.1"

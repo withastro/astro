@@ -40,9 +40,9 @@
   ],
   "engines": {
     "node": ">=18.14.1",
-    "pnpm": ">=8.6.2"
+    "pnpm": ">=8.6.12"
   },
-  "packageManager": "pnpm@8.6.2",
+  "packageManager": "pnpm@8.6.12",
   "pnpm": {
     "packageExtensions": {
       "svelte2tsx": {
@@ -78,21 +78,21 @@
   "devDependencies": {
     "@astrojs/check": "^0.1.0",
     "@changesets/changelog-github": "^0.4.8",
-    "@changesets/cli": "^2.26.1",
-    "@types/node": "^18.16.18",
+    "@changesets/cli": "^2.26.2",
+    "@types/node": "^18.17.7",
     "@typescript-eslint/eslint-plugin": "6.0.0",
     "@typescript-eslint/parser": "6.0.0",
-    "esbuild": "^0.18.16",
-    "eslint": "^8.43.0",
-    "eslint-config-prettier": "^8.8.0",
+    "esbuild": "^0.18.20",
+    "eslint": "^8.47.0",
+    "eslint-config-prettier": "^8.10.0",
     "eslint-plugin-no-only-tests": "^2.6.0",
     "eslint-plugin-prettier": "^4.2.1",
     "only-allow": "^1.1.1",
     "organize-imports-cli": "^0.10.0",
-    "prettier": "^3.0.1",
-    "prettier-plugin-astro": "^0.11.0",
+    "prettier": "^3.0.2",
+    "prettier-plugin-astro": "^0.11.1",
     "tiny-glob": "^0.2.9",
-    "turbo": "^1.10.3",
+    "turbo": "^1.10.12",
     "typescript": "~5.1.6"
   }
 }

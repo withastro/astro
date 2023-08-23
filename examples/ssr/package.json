@@ -15,6 +15,6 @@
     "@astrojs/node": "^6.0.0-rc.1",
     "@astrojs/svelte": "^4.0.0-rc.2",
     "astro": "^3.0.0-rc.5",
-    "svelte": "^3.59.1"
+    "svelte": "^3.59.2"
   }
 }

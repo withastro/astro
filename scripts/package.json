@@ -9,11 +9,11 @@
   },
   "dependencies": {
     "arg": "^5.0.2",
-    "esbuild": "^0.18.16",
+    "esbuild": "^0.18.20",
     "globby": "^12.2.0",
     "kleur": "^4.1.4",
     "p-limit": "^4.0.0",
-    "svelte": "^3.59.1",
+    "svelte": "^3.59.2",
     "tar": "^6.1.15"
   },
   "devDependencies": {
