@@ -2,7 +2,7 @@
 '@astrojs/rss': major
 ---
 
-Update the `rss()` default export to return a `Response` instead of a simple object, which is deprecated in Astro 3.0.
+Update the `rss()` default export to return a `Response` instead of a simple object, which is deprecated in Astro 3.0. If you were directly returning the `rss()` result from an endpoint before, this breaking change should not affect you.
 
 You can also import `getRssString()` to get the RSS string directly and use it to return your own Response:
 
