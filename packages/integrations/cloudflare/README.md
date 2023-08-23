@@ -94,6 +94,40 @@ export function get(context) {
 
 Depending on your adapter mode (advanced = worker, directory = pages), the runtime object will look a little different due to differences in the Cloudflare API.
 
+If you're using the `advanced` runtime, you can type the `runtime` object as following:
+
+```ts
+// src/env.d.ts
+/// <reference types="astro/client" />
+import type { AdvancedRuntime } from "@astrojs/cloudflare"
+
+declare namespace App {
+  interface Locals extends AdvancedRuntime {
+    user: {
+      name: string;
+      surname: string;
+    };
+  }
+}
+```
+
+If you're using the `directory` runtime, you can type the `runtime` object as following:
+
+```ts
+// src/env.d.ts
+/// <reference types="astro/client" />
+import type { DirectoryRuntime } from "@astrojs/cloudflare"
+
+declare namespace App {
+  interface Locals extends DirectoryRuntime {
+    user: {
+      name: string;
+      surname: string;
+    };
+  }
+}
+```
+
 ## Environment Variables
 
 See Cloudflare's documentation for [working with environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables).
