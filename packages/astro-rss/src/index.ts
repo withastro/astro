@@ -98,12 +98,18 @@ const rssOptionsValidator = z.object({
 	trailingSlash: z.boolean().default(true),
 });
 
-export default async function getRSS(rssOptions: RSSOptions) {
-	const validatedRssOptions = await validateRssOptions(rssOptions);
+export default async function getRssResponse(rssOptions: RSSOptions): Promise<Response> {
+	const rssString = await getRssString(rssOptions);
+	return new Response(rssString, {
+		headers: {
+			'Content-Type': 'application/xml',
+		},
+	});
+}
 
-	return {
-		body: await generateRSS(validatedRssOptions),
-	};
+export async function getRssString(rssOptions: RSSOptions): Promise<string> {
+	const validatedRssOptions = await validateRssOptions(rssOptions);
+	return await generateRSS(validatedRssOptions);
 }
 
 async function validateRssOptions(rssOptions: RSSOptions) {
