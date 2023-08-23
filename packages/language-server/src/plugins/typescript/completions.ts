@@ -4,11 +4,16 @@ export function enhancedProvideCompletionItems(completions: CompletionList): Com
 	completions.items = completions.items.filter(isValidCompletion).map((completion) => {
 		const source = completion?.data?.originalItem?.source;
 		if (source) {
-			// For components import, use the file kind and sort them higher, as they're often what the user want over something else
+			// Sort completions starting with `astro:` higher than other imports
+			if (source.startsWith('astro:')) {
+				completion.sortText = '\u0000' + (completion.sortText ?? completion.label);
+			}
+
+			// For components import, use the file kind and sort them first, as they're often what the user want over something else
 			if (['.astro', '.svelte', '.vue'].some((ext) => source.endsWith(ext))) {
 				completion.kind = CompletionItemKind.File;
 				completion.detail = completion.detail + '\n\n' + source;
-				completion.sortText = '\0';
+				completion.sortText = '\u0001' + (completion.sortText ?? completion.label);
 				completion.data.isComponent = true;
 			}
 		}
