@@ -370,7 +370,27 @@ export async function get(context) {
 }
 ```
 
----
+## `getRssString()`
+
+As `rss()` returns a `Response`, you can also use `getRssString()` to get the RSS string directly and use it in your own response:
+
+```ts "getRssString"
+// src/pages/rss.xml.js
+import { getRssString } from '@astrojs/rss';
+
+export async function get(context) {
+  const rssString = await getRssString({
+    title: 'Buzz’s Blog',
+    ...
+  });
+
+  return new Response(rssString, {
+    headers: {
+      'Content-Type': 'application/xml',
+    },
+  });
+}
+```
 
 For more on building with Astro, [visit the Astro docs][astro-rss].
 
