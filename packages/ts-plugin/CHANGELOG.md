@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.1.2
+
+### Patch Changes
+
+- 4b510dd: Fix TSServer crashing in certain situations
+
 ## 1.1.1
 
 ### Patch Changes

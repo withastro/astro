@@ -1,5 +1,18 @@
 # astro-vscode
 
+## 2.3.0
+
+### Minor Changes
+
+- 1bb48f4: Add completions snippets for getStaticPaths, the Props interface and prerender statements
+
+### Patch Changes
+
+- 2ac4220: Update to latest version of the Astro Prettier plugin
+- 4b510dd: Fix TSServer crashing in certain situations
+- cd0f5d5: Order `astro:*` completions higher than other completions
+- 9759fdb: Fix wordpattern syntax in astro-language-configuration.json
+
 ## 2.1.4
 
 ### Patch Changes

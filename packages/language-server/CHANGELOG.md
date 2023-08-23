@@ -1,5 +1,16 @@
 # @astrojs/language-server
 
+## 2.3.0
+
+### Minor Changes
+
+- 1bb48f4: Add completions snippets for getStaticPaths, the Props interface and prerender statements
+
+### Patch Changes
+
+- 95e091c: Support prettier-plugin-astro v0.12 and higher in language-server
+- cd0f5d5: Order `astro:*` completions higher than other completions
+
 ## 2.2.0
 
 ### Minor Changes

@@ -232,10 +232,10 @@ importers:
         version: 0.12.0
     devDependencies:
       '@astrojs/language-server':
-        specifier: ^2.1.4
+        specifier: ^2.3.0
         version: link:../language-server
       '@astrojs/ts-plugin':
-        specifier: ^1.1.1
+        specifier: ^1.1.2
         version: link:../ts-plugin
       '@types/glob':
         specifier: ^8.1.0
@@ -260,7 +260,7 @@ importers:
         version: 2.3.2
       '@vscode/vsce':
         specifier: latest
-        version: 2.19.0
+        version: 2.20.1
       esbuild:
         specifier: ^0.17.19
         version: 0.17.19
@@ -1778,8 +1778,8 @@ packages:
       - supports-color
     dev: true
 
-  /@vscode/vsce@2.19.0:
-    resolution: {integrity: sha512-dAlILxC5ggOutcvJY24jxz913wimGiUrHaPkk16Gm9/PGFbz1YezWtrXsTKUtJws4fIlpX2UIlVlVESWq8lkfQ==}
+  /@vscode/vsce@2.20.1:
+    resolution: {integrity: sha512-ilbvoqvR/1/zseRPBAzYR6aKqSJ+jvda4/BqIwOqTxajpvLtEpK3kMLs77+dJdrlygS+VrP7Yhad8j0ukyD96g==}
     engines: {node: '>= 14'}
     hasBin: true
     dependencies:
@@ -1796,7 +1796,7 @@ packages:
       minimatch: 3.1.2
       parse-semver: 1.1.1
       read: 1.0.7
-      semver: 5.7.1
+      semver: 7.5.4
       tmp: 0.2.1
       typed-rest-client: 1.8.9
       url-join: 4.0.1
