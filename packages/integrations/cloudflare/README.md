@@ -75,11 +75,58 @@ It's then possible to update the preview script in your `package.json` to `"prev
 
 You can access all the Cloudflare bindings and environment variables from Astro components and API routes through `Astro.locals`.
 
-```js
+If you're inside an `.astro` file, you access the runtime using the `Astro.locals` global:
+
+```astro
 const env = Astro.locals.runtime.env;
 ```
 
+From an endpoint:
+
+```js
+// src/pages/api/someFile.js
+export function get(context) {
+  const runtime = context.locals.runtime;
+
+  return new Response('Some body');
+}
+```
+
 Depending on your adapter mode (advanced = worker, directory = pages), the runtime object will look a little different due to differences in the Cloudflare API.
+
+If you're using the `advanced` runtime, you can type the `runtime` object as following:
+
+```ts
+// src/env.d.ts
+/// <reference types="astro/client" />
+import type { AdvancedRuntime } from '@astrojs/cloudflare';
+
+declare namespace App {
+  interface Locals extends AdvancedRuntime {
+    user: {
+      name: string;
+      surname: string;
+    };
+  }
+}
+```
+
+If you're using the `directory` runtime, you can type the `runtime` object as following:
+
+```ts
+// src/env.d.ts
+/// <reference types="astro/client" />
+import type { DirectoryRuntime } from '@astrojs/cloudflare';
+
+declare namespace App {
+  interface Locals extends DirectoryRuntime {
+    user: {
+      name: string;
+      surname: string;
+    };
+  }
+}
+```
 
 ## Environment Variables
 
