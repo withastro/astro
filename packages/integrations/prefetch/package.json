@@ -34,13 +34,12 @@
     "test:match": "playwright test -g"
   },
   "devDependencies": {
-    "@playwright/test": "^1.29.2",
+    "@playwright/test": "^1.37.1",
     "@types/chai": "^4.3.5",
     "@types/chai-as-promised": "^7.1.5",
     "@types/mocha": "^9.1.1",
     "astro": "workspace:*",
-    "astro-scripts": "workspace:*",
-    "playwright": "^1.29.2"
+    "astro-scripts": "workspace:*"
   },
   "dependencies": {
     "throttles": "^1.0.1"

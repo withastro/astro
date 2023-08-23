@@ -45,19 +45,19 @@
   },
   "dependencies": {
     "@astrojs/internal-helpers": "0.2.0-rc.2",
-    "@vitejs/plugin-react": "^4.0.3",
-    "ultrahtml": "^1.2.0"
+    "@vitejs/plugin-react": "^4.0.4",
+    "ultrahtml": "^1.3.0"
   },
   "devDependencies": {
-    "@types/react": "^17.0.62",
+    "@types/react": "^17.0.64",
     "@types/react-dom": "^17.0.20",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0",
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
-    "vite": "^4.4.6"
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "vite": "^4.4.9"
   },
   "peerDependencies": {
     "@types/react": "^17.0.50 || ^18.0.21",

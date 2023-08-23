@@ -7,6 +7,6 @@
     "astro": "workspace:*"
   },
   "devDependencies": {
-    "shiki": "^0.14.1"
+    "shiki": "^0.14.3"
   }
 }

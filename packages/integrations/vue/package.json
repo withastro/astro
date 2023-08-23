@@ -40,9 +40,9 @@
     "test": "mocha --timeout 20000"
   },
   "dependencies": {
-    "@vitejs/plugin-vue": "^4.2.3",
-    "@vitejs/plugin-vue-jsx": "^3.0.1",
-    "@vue/babel-plugin-jsx": "^1.1.1",
+    "@vitejs/plugin-vue": "^4.3.3",
+    "@vitejs/plugin-vue-jsx": "^3.0.2",
+    "@vue/babel-plugin-jsx": "^1.1.5",
     "@vue/compiler-sfc": "^3.3.4"
   },
   "devDependencies": {
@@ -52,7 +52,7 @@
     "chai": "^4.3.7",
     "linkedom": "^0.14.26",
     "mocha": "^9.2.2",
-    "vite": "^4.4.6",
+    "vite": "^4.4.9",
     "vue": "^3.3.4"
   },
   "peerDependencies": {

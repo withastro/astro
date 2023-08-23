@@ -54,16 +54,16 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@vercel/analytics": "^0.1.11",
     "@vercel/nft": "^0.22.6",
-    "esbuild": "^0.18.16",
-    "fast-glob": "^3.2.12",
+    "esbuild": "^0.18.20",
+    "fast-glob": "^3.3.1",
     "set-cookie-parser": "^2.6.0",
-    "web-vitals": "^3.3.2"
+    "web-vitals": "^3.4.0"
   },
   "peerDependencies": {
     "astro": "workspace:^3.0.0-rc.5"
   },
   "devDependencies": {
-    "@types/set-cookie-parser": "^2.4.2",
+    "@types/set-cookie-parser": "^2.4.3",
     "@vercel/edge": "^0.3.4",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
@@ -71,6 +71,6 @@
     "chai-jest-snapshot": "^2.0.0",
     "cheerio": "1.0.0-rc.12",
     "mocha": "^9.2.2",
-    "rollup": "^3.20.1"
+    "rollup": "^3.28.1"
   }
 }

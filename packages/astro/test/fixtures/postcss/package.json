@@ -7,10 +7,10 @@
     "@astrojs/svelte": "workspace:*",
     "@astrojs/vue": "workspace:*",
     "astro": "workspace:*",
-    "autoprefixer": "^10.4.14",
-    "postcss": "^8.4.24",
-    "solid-js": "^1.7.6",
-    "svelte": "^3.59.1",
+    "autoprefixer": "^10.4.15",
+    "postcss": "^8.4.28",
+    "solid-js": "^1.7.11",
+    "svelte": "^3.59.2",
     "vue": "^3.3.4"
   },
   "devDependencies": {

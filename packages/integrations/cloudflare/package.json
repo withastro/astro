@@ -40,8 +40,8 @@
   },
   "dependencies": {
     "@astrojs/underscore-redirects": "workspace:*",
-    "@cloudflare/workers-types": "^4.20230518.0",
-    "esbuild": "^0.18.16",
+    "@cloudflare/workers-types": "^4.20230821.0",
+    "esbuild": "^0.18.20",
     "tiny-glob": "^0.2.9"
   },
   "peerDependencies": {
@@ -54,6 +54,6 @@
     "cheerio": "1.0.0-rc.12",
     "kill-port": "^2.0.1",
     "mocha": "^9.2.2",
-    "wrangler": "^3.5.0"
+    "wrangler": "^3.5.1"
   }
 }
