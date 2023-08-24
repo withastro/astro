@@ -553,6 +553,12 @@
   - @astrojs/internal-helpers@0.2.0-beta.0
   - @astrojs/markdown-remark@3.0.0-beta.0
 
+## 2.10.14
+
+### Patch Changes
+
+- [#8206](https://github.com/withastro/astro/pull/8206) [`52606a390`](https://github.com/withastro/astro/commit/52606a3909f9de5ced9b9ba3ba25832f73a8689e) Thanks [@martrapp](https://github.com/martrapp)! - fix: View Transition: swap attributes of document's root element
+
 ## 2.10.13
 
 ### Patch Changes
