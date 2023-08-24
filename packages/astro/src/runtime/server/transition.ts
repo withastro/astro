@@ -4,7 +4,7 @@ import type {
 	TransitionAnimationValue,
 	TransitionDirectionalAnimations,
 } from '../../@types/astro';
-import { fade, slide, crossfade } from '../../transitions/index.js';
+import { fade, slide } from '../../transitions/index.js';
 import { markHTMLString } from './escape.js';
 
 const transitionNameMap = new WeakMap<SSRResult, number>();
@@ -27,7 +27,7 @@ function toValidIdent(name: string): string {
 	return name.replace(/[^a-zA-Z0-9\-\_]/g, '_').replace(/^\_+|\_+$/g, '')
 }
 
-const BUILTIN_TRANSITION_ANIMATIONS = { fade, slide, crossfade };
+const BUILTIN_TRANSITION_ANIMATIONS = { fade, slide };
 
 export function renderTransition(
 	result: SSRResult,
@@ -35,14 +35,14 @@ export function renderTransition(
 	animationName: TransitionAnimationValue | undefined,
 	transitionName: string
 ) {
-	// Default to crossfade (similar to `initial`, but snappier)
-	if (!animationName) animationName = 'crossfade';
+	// Default to `fade` (similar to `initial`, but snappier)
+	if (!animationName) animationName = 'fade';
 	const scope = createTransitionScope(result, hash);
 	const viewTransitionName = transitionName ? toValidIdent(transitionName) : scope;
 	const styles = [
 		`[data-astro-transition-scope="${scope}"] { view-transition-name: ${viewTransitionName}; }`,
 	]
-	if (animationName === 'fade' || animationName === 'slide' || animationName === 'crossfade') {
+	if (animationName === 'fade' || animationName === 'slide') {
 		styles.push(generateAnimationStyle(scope, viewTransitionName, BUILTIN_TRANSITION_ANIMATIONS[animationName]()))
 	} else if (animationName === 'none') {
 		styles.push(generateAnimationNone(scope, viewTransitionName))

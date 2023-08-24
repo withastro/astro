@@ -31,7 +31,7 @@ export function slide({
 					name: 'astroFadeIn',
 					duration: duration ?? '210ms',
 					easing: EASE_IN_QUART,
-					delay: '30ms',
+					delay: duration ? undefined : '30ms',
 					fillMode: 'both',
 				},
 				{
@@ -50,46 +50,20 @@ export function slide({
 }
 
 export function fade({
-	duration,
+	duration
 }: {
 	duration?: string | number;
 } = {}): TransitionDirectionalAnimations {
 	const anim = {
 		old: {
 			name: 'astroFadeOut',
-			duration: duration ?? '150ms',
-			easing: EASE_OUT_QUART,
-			fillMode: 'both',
-		},
-		new: {
-			name: 'astroFadeIn',
-			duration: duration ?? '250ms',
-			easing: EASE_IN_QUART,
-			fillMode: 'both',
-		},
-	} satisfies TransitionAnimationPair;
-
-	return {
-		forwards: anim,
-		backwards: anim,
-	};
-}
-
-export function crossfade({
-	duration,
-}: {
-	duration?: string | number;
-} = {}): TransitionDirectionalAnimations {
-	const anim = {
-		old: {
-			name: 'astroFadeOut',
-			duration: duration ?? '180',
+			duration: duration ?? 180,
 			easing: EASE_IN_OUT_QUINT,
 			fillMode: 'both',
 		},
 		new: {
 			name: 'astroFadeIn',
-			duration: duration ?? '180',
+			duration: duration ?? 180,
 			easing: EASE_IN_OUT_QUINT,
 			fillMode: 'both',
 		},
