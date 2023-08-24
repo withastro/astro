@@ -1,5 +1,13 @@
 # astro
 
+## 3.0.0-rc.6
+
+### Patch Changes
+
+- [#8196](https://github.com/withastro/astro/pull/8196) [`632579dc2`](https://github.com/withastro/astro/commit/632579dc2094cc342929261c89e689f0dd358284) Thanks [@bluwy](https://github.com/bluwy)! - Prevent bundling sharp as it errors in runtime
+
+- [#8214](https://github.com/withastro/astro/pull/8214) [`55c10d1d5`](https://github.com/withastro/astro/commit/55c10d1d564e805efc3c1a7c48e0d9a1cdf0c7ed) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Automatically update user's env.d.ts with the proper types to help out migrating away from assets being experimental
+
 ## 3.0.0-rc.5
 
 ### Major Changes
