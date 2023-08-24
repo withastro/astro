@@ -18,13 +18,15 @@ const init: ts.server.PluginModuleFactory = (modules) => {
 			decorateLanguageService(virtualFiles, info.languageService, true);
 			decorateLanguageServiceHost(virtualFiles, info.languageServiceHost, ts, ['.astro']);
 
+			// HACK: AutoImportProviderProject's script kind does not match the one of the language service host here
+			// this causes TypeScript to throw and crash. So, we'll fake being a TS file here for now until they fix it
 			const getScriptKind = info.languageServiceHost.getScriptKind?.bind(
 				info.languageServiceHost.getScriptKind
 			);
 			if (getScriptKind) {
 				info.languageServiceHost.getScriptKind = (fileName) => {
 					if (fileName.endsWith('.astro')) {
-						return ts.ScriptKind.TSX;
+						return ts.ScriptKind.TS;
 					}
 					return getScriptKind(fileName);
 				};
