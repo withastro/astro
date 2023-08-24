@@ -8,4 +8,4 @@ The `transition:animate` value `morph` has been renamed to `initial`. Also, this
 
  If no `transition:animate` directive is specified, your animations will now default to `fade`.
 
-Astro also supports a new `transition:animate` values, `none`. This can be used to disable animated full page transitions by setting `transition:animate="none"` on your `html` element.
+Astro also supports a new `transition:animate` value, `none`. This value can be used on a page's `<html>` element to disable animated full-page transitions on an entire page.
