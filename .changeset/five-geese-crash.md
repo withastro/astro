@@ -2,7 +2,7 @@
 'astro': major
 ---
 
-Adjust default [View Transition](https://docs.astro.build/en/guides/view-transitions/) animations.
+Change the [View Transition built-in animation](https://docs.astro.build/en/guides/view-transitions/#built-in-animation-directives) options.
 
 The `transition:animate` value `morph` has been renamed to `initial`. Elements with a `transition:name` directive but no `transition:animate` directive will now default to `fade`.
 
