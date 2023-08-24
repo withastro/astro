@@ -12,7 +12,7 @@ type Env = {
 	name: string;
 };
 
-interface WorkerRuntime {
+export interface AdvancedRuntime {
 	runtime: {
 		waitUntil: (promise: Promise<any>) => void;
 		env: Env;
@@ -57,7 +57,7 @@ export function createExports(manifest: SSRManifest) {
 				},
 			});
 
-			const locals: WorkerRuntime = {
+			const locals: AdvancedRuntime = {
 				runtime: {
 					waitUntil: (promise: Promise<any>) => {
 						context.waitUntil(promise);
