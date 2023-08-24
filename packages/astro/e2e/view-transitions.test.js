@@ -419,3 +419,25 @@ test('Navigation also swaps the attributes of the document root', async ({ page,
 	await expect(h, 'should have content').toHaveAttribute('data-astro-transition', 'forward');
 	await expect(h, 'should be absent').not.toHaveAttribute('class', /.*/);
 });
+
+test('Link with data-astro-reload attribute should trigger page load, no tranistion', async ({
+	page,
+	astro,
+}) => {
+	const loads = [];
+	page.addListener('load', (p) => {
+		loads.push(p.title());
+	});
+
+	// Go to page 4
+	await page.goto(astro.resolveUrl('/four'));
+	let p = page.locator('#four');
+	await expect(p, 'should have content').toHaveText('Page 4');
+
+	// go to page 2
+	await page.click('#click-two');
+	p = page.locator('#two');
+	await expect(p, 'should have content').toHaveText('Page 2');
+
+	expect(loads.length, 'There should be 2 page load').toEqual(2);
+});

@@ -294,6 +294,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			if (
 				!link ||
 				!(link instanceof HTMLAnchorElement) ||
+				link.dataset.astroReload !== undefined ||
 				!link.href ||
 				(link.target && link.target !== '_self') ||
 				link.origin !== location.origin ||
