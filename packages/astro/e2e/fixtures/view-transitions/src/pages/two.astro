@@ -6,7 +6,7 @@ import Layout from '../components/Layout.astro';
 	<article id="twoarticle"></article>
 </Layout>
 <script>
-	document.addEventListener('astro:load', () => {
+	document.addEventListener('astro:page-load', () => {
 		document.getElementById('twoarticle')!.textContent = 'works';
 	}, { once: true });
 </script>

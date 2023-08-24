@@ -17,14 +17,14 @@ const { fallback = 'animate' } = Astro.props as Props;
 		index: number;
 		scrollY: number;
 	};
-	type Events = 'astro:load' | 'astro:beforeload';
+	type Events = 'astro:page-load' | 'astro:after-swap';
 
 	const persistState = (state: State) => history.replaceState(state, '');
 	const supportsViewTransitions = !!document.startViewTransition;
 	const transitionEnabledOnThisPage = () =>
 		!!document.querySelector('[name="astro-view-transitions-enabled"]');
 	const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
-	const onload = () => triggerEvent('astro:load');
+	const onPageLoad = () => triggerEvent('astro:page-load');
 	const PERSIST_ATTR = 'data-astro-transition-persist';
 
 	// The History API does not tell you if navigation is forward or back, so
@@ -193,7 +193,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				scrollTo(0, state.scrollY); // usings default scrollBehavior
 			}
 
-			triggerEvent('astro:beforeload');
+			triggerEvent('astro:after-swap');
 		};
 
 		// Wait on links to finish, to prevent FOUC
@@ -263,7 +263,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			// document.documentElement.removeAttribute('data-astro-transition');
 			await runScripts();
 			markScriptsExec();
-			onload();
+			onPageLoad();
 		}
 	}
 
@@ -383,7 +383,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				{ passive: true, capture: true }
 			);
 		});
-		addEventListener('load', onload);
+		addEventListener('load', onPageLoad);
 		// There's not a good way to record scroll position before a back button.
 		// So the way we do it is by listening to scroll and just continuously recording it.
 		addEventListener(
