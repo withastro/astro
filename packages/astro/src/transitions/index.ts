@@ -1,9 +1,6 @@
 import type { TransitionAnimationPair, TransitionDirectionalAnimations } from '../@types/astro';
 
-const EASE_IN_QUART = 'cubic-bezier(0.5, 0, 0.75, 0)';
-const EASE_OUT_QUART = 'cubic-bezier(0.25, 1, 0.5, 1)';
 const EASE_IN_OUT_QUART = 'cubic-bezier(0.76, 0, 0.24, 1)';
-const EASE_IN_OUT_QUINT = 'cubic-bezier(0.83, 0, 0.17, 1)';
 
 export function slide({
 	duration,
@@ -16,7 +13,7 @@ export function slide({
 				{
 					name: 'astroFadeOut',
 					duration: duration ?? '90ms',
-					easing: EASE_OUT_QUART,
+					easing: EASE_IN_OUT_QUART,
 					fillMode: 'both',
 				},
 				{
@@ -30,7 +27,7 @@ export function slide({
 				{
 					name: 'astroFadeIn',
 					duration: duration ?? '210ms',
-					easing: EASE_IN_QUART,
+					easing: EASE_IN_OUT_QUART,
 					delay: duration ? undefined : '30ms',
 					fillMode: 'both',
 				},
@@ -58,13 +55,13 @@ export function fade({
 		old: {
 			name: 'astroFadeOut',
 			duration: duration ?? 180,
-			easing: EASE_IN_OUT_QUINT,
+			easing: EASE_IN_OUT_QUART,
 			fillMode: 'both',
 		},
 		new: {
 			name: 'astroFadeIn',
 			duration: duration ?? 180,
-			easing: EASE_IN_OUT_QUINT,
+			easing: EASE_IN_OUT_QUART,
 			fillMode: 'both',
 		},
 	} satisfies TransitionAnimationPair;
