@@ -1,5 +1,5 @@
 {
-  "name": "@test/astro-cloudflare-split",
+  "name": "@test/astro-cloudflare-function-per-route",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
