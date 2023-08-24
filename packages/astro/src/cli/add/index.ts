@@ -307,8 +307,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 				logging,
 				null,
 				msg.success(
-					`Added the following integration${
-						integrations.length === 1 ? '' : 's'
+					`Added the following integration${integrations.length === 1 ? '' : 's'
 					} to your project:\n${list}`
 				)
 			);
@@ -623,6 +622,8 @@ async function getInstallIntegrationsCommand({
 			return { pm: 'yarn', command: 'add', flags: [], dependencies };
 		case 'pnpm':
 			return { pm: 'pnpm', command: 'add', flags: [], dependencies };
+		case 'bun':
+			return { pm: 'bun', command: 'add', flags: [], dependencies };
 		default:
 			return null;
 	}
