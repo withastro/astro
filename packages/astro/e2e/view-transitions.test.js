@@ -112,6 +112,40 @@ test.describe('View Transitions', () => {
 		).toEqual(2);
 	});
 
+	test('Moving within a page without ViewTransitions does not trigger a full page navigation', async ({
+		page,
+		astro,
+	}) => {
+		const loads = [];
+		page.addListener('load', async (p) => {
+			loads.push(p.title());
+		});
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// Go to page 3 which does *not* have ViewTransitions enabled
+		await page.click('#click-three');
+		p = page.locator('#three');
+		await expect(p, 'should have content').toHaveText('Page 3');
+
+		// click a hash link to navigate further down the page
+		await page.click('#click-hash');
+		// still on page 3
+		p = page.locator('#three');
+		await expect(p, 'should have content').toHaveText('Page 3');
+
+		// check that we are further down the page
+		const Y = await page.evaluate(() => window.scrollY);
+		expect(Y, 'The target is further down the page').toBeGreaterThan(0);
+
+		expect(
+			loads.length,
+			'There should be only 1 page load. The original, but no additional loads for the hash change'
+		).toEqual(1);
+	});
+
 	test('Moving from a page without ViewTransitions w/ back button', async ({ page, astro }) => {
 		const loads = [];
 		page.addListener('load', (p) => {
@@ -188,6 +222,22 @@ test.describe('View Transitions', () => {
 		// Clicking 1 stays put
 		await page.click('#click-one');
 		await expect(p, 'should have content').toHaveText('Page 1');
+	});
+
+	test('click self link (w/o hash) does not do navigation', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		const p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// Clicking href="" stays on page
+		await page.click('#click-self');
+		await expect(p, 'should have content').toHaveText('Page 1');
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
 
 	test('Scroll position restored on back button', async ({ page, astro }) => {
@@ -315,5 +365,35 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toHaveText('Page 2');
 
 		await expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
+	test('Importing ViewTransitions w/o using the component must not mess with history', async ({
+		page,
+		astro,
+	}) => {
+		const loads = [];
+		page.addListener('load', async (p) => {
+			loads.push(p);
+		});
+		// Go to the half bakeed page
+		await page.goto(astro.resolveUrl('/half-baked'));
+		let p = page.locator('#half-baked');
+		await expect(p, 'should have content').toHaveText('Half Baked');
+
+		// click a hash link to navigate further down the page
+		await page.click('#click-hash');
+		// still on page
+		p = page.locator('#half-baked');
+		await expect(p, 'should have content').toHaveText('Half Baked');
+
+		// go back within same page without reloading
+		await page.goBack();
+		p = page.locator('#half-baked');
+		await expect(p, 'should have content').toHaveText('Half Baked');
+
+		expect(
+			loads.length,
+			'There should be only 1 page load. No additional loads for going back on same page'
+		).toEqual(1);
 	});
 });

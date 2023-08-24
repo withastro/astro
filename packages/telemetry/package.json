@@ -34,18 +34,18 @@
     "dlv": "^1.1.3",
     "dset": "^3.1.2",
     "is-docker": "^3.0.0",
-    "is-wsl": "^2.2.0",
+    "is-wsl": "^3.0.0",
     "undici": "^5.23.0",
     "which-pm-runs": "^1.1.0"
   },
   "devDependencies": {
     "@types/debug": "^4.1.8",
     "@types/dlv": "^1.1.2",
-    "@types/node": "^18.17.7",
+    "@types/node": "^18.17.8",
     "@types/which-pm-runs": "^1.0.0",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
-    "mocha": "^9.2.2"
+    "mocha": "^10.2.0"
   },
   "engines": {
     "node": ">=18.14.1"

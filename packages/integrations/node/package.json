@@ -40,7 +40,7 @@
     "astro": "workspace:^3.0.0-rc.5"
   },
   "devDependencies": {
-    "@types/node": "^18.17.7",
+    "@types/node": "^18.17.8",
     "@types/send": "^0.17.1",
     "@types/server-destroy": "^1.0.1",
     "astro": "workspace:*",
@@ -48,7 +48,7 @@
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
     "express": "^4.18.2",
-    "mocha": "^9.2.2",
+    "mocha": "^10.2.0",
     "node-mocks-http": "^1.13.0",
     "undici": "^5.23.0"
   }

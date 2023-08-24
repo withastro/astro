@@ -36,7 +36,7 @@ const iconLinks: { label: string; href: string; icon: keyof typeof iconPaths }[]
 			</template>
 		</menu-button>
 	</div>
-	<noscript class="menu-noscript">
+	<noscript>
 		<ul class="nav-items">
 			{
 				textLinks.map(({ label, href }) => (
@@ -60,7 +60,7 @@ const iconLinks: { label: string; href: string; icon: keyof typeof iconPaths }[]
 			}
 		</ul>
 	</noscript>
-	<noscript style="display: contents;">
+	<noscript>
 		<div class="menu-footer">
 			<div class="socials">
 				{

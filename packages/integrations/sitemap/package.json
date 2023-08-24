@@ -41,7 +41,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
-    "mocha": "^9.2.2",
-    "xml2js": "0.5.0"
+    "mocha": "^10.2.0",
+    "xml2js": "0.6.2"
   }
 }

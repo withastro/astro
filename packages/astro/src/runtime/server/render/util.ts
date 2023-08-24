@@ -1,4 +1,5 @@
 import type { SSRElement } from '../../../@types/astro';
+import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
 
 import { HTMLString, markHTMLString } from '../escape.js';
 import { clsx } from 'clsx';
@@ -140,4 +141,57 @@ export function renderElement(
 		return `<${name}${internalSpreadAttributes(props, shouldEscape)} />`;
 	}
 	return `<${name}${internalSpreadAttributes(props, shouldEscape)}>${children}</${name}>`;
+}
+
+/**
+ * Executes the `bufferRenderFunction` to prerender it into a buffer destination, and return a promise
+ * with an object containing the `renderToFinalDestination` function to flush the buffer to the final
+ * destination.
+ *
+ * @example
+ * ```ts
+ * // Render components in parallel ahead of time
+ * const finalRenders = [ComponentA, ComponentB].map((comp) => {
+ *   return renderToBufferDestination(async (bufferDestination) => {
+ *     await renderComponentToDestination(bufferDestination);
+ *   });
+ * });
+ * // Render array of components serially
+ * for (const finalRender of finalRenders) {
+ *   await finalRender.renderToFinalDestination(finalDestination);
+ * }
+ * ```
+ */
+export function renderToBufferDestination(bufferRenderFunction: RenderFunction): {
+	renderToFinalDestination: RenderFunction;
+} {
+	// Keep chunks in memory
+	const bufferChunks: RenderDestinationChunk[] = [];
+	const bufferDestination: RenderDestination = {
+		write: (chunk) => bufferChunks.push(chunk),
+	};
+
+	// Don't await for the render to finish to not block streaming
+	const renderPromise = bufferRenderFunction(bufferDestination);
+
+	// Return a closure that writes the buffered chunk
+	return {
+		async renderToFinalDestination(destination) {
+			// Write the buffered chunks to the real destination
+			for (const chunk of bufferChunks) {
+				destination.write(chunk);
+			}
+
+			// NOTE: We don't empty `bufferChunks` after it's written as benchmarks show
+			// that it causes poorer performance, likely due to forced memory re-allocation,
+			// instead of letting the garbage collector handle it automatically.
+			// (Unsure how this affects on limited memory machines)
+
+			// Re-assign the real destination so `instance.render` will continue and write to the new destination
+			bufferDestination.write = (chunk) => destination.write(chunk);
+
+			// Wait for render to finish entirely
+			await renderPromise;
+		},
+	};
 }

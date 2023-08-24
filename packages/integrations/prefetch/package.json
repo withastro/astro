@@ -35,9 +35,6 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.37.1",
-    "@types/chai": "^4.3.5",
-    "@types/chai-as-promised": "^7.1.5",
-    "@types/mocha": "^9.1.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*"
   },
