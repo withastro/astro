@@ -181,7 +181,7 @@ test.describe('View Transitions', () => {
 		await expect(p, 'imported CSS updated').toHaveCSS('font-size', '24px');
 	});
 
-	test('astro:load event fires when navigating to new page', async ({ page, astro }) => {
+	test('astro:page-load event fires when navigating to new page', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		const p = page.locator('#one');
@@ -193,14 +193,14 @@ test.describe('View Transitions', () => {
 		await expect(article, 'should have script content').toHaveText('works');
 	});
 
-	test('astro:load event fires when navigating directly to a page', async ({ page, astro }) => {
+	test('astro:page-load event fires when navigating directly to a page', async ({ page, astro }) => {
 		// Go to page 2
 		await page.goto(astro.resolveUrl('/two'));
 		const article = page.locator('#twoarticle');
 		await expect(article, 'should have script content').toHaveText('works');
 	});
 
-	test('astro:beforeload event fires right before the swap', async ({ page, astro }) => {
+	test('astro:after-swap event fires right after the swap', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
