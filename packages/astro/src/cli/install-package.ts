@@ -4,7 +4,7 @@ import { bold, cyan, dim, magenta } from 'kleur/colors';
 import { createRequire } from 'node:module';
 import ora from 'ora';
 import prompts from 'prompts';
-import whichPm from 'which-pm';
+import { detectAgent } from '@skarab/detect-package-manager';
 import { debug, info, type LogOptions } from '../core/logger/core.js';
 
 type GetPackageOptions = {
@@ -52,6 +52,8 @@ function getInstallCommand(packages: string[], packageManager: string) {
 			return { pm: 'yarn', command: 'add', flags: [], dependencies: packages };
 		case 'pnpm':
 			return { pm: 'pnpm', command: 'add', flags: [], dependencies: packages };
+		case 'bun':
+			return { pm: 'bun', command: 'add', flags: [], dependencies: packages };
 		default:
 			return null;
 	}
@@ -63,7 +65,8 @@ async function installPackage(
 	logging: LogOptions
 ): Promise<boolean> {
 	const cwd = options.cwd ?? process.cwd();
-	const packageManager = (await whichPm(cwd)).name ?? 'npm';
+	const detectedAgent = await detectAgent(cwd);
+	const packageManager = detectedAgent?.name ?? 'npm';
 	const installCommand = getInstallCommand(packageNames, packageManager);
 
 	if (!installCommand) {
