@@ -136,18 +136,6 @@ const { fallback = 'animate' } = Astro.props as Props;
 			// Remove them before swapping.
 			doc.querySelectorAll('head noscript').forEach((el) => el.remove());
 
-			// swap attributes of the html element
-			// - delete all attributes from the current document
-			// - insert all attributes from doc
-			// - reinsert all original attributes that are named 'data-astro-*'
-			const html = document.documentElement;
-			const astro = [...html.attributes].filter(
-				({ name }) => (html.removeAttribute(name), name.startsWith('data-astro-'))
-			);
-			[...doc.documentElement.attributes, ...astro].forEach(({ name, value }) =>
-				html.setAttribute(name, value)
-			);
-
 			// Swap head
 			for (const el of Array.from(document.head.children)) {
 				const newEl = persistedHeadElement(el);
