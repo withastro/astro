@@ -19,9 +19,9 @@ import type { ZodError } from 'zod';
 import { renderErrorMarkdown } from './errors/dev/utils.js';
 import {
 	AstroError,
+	AstroUserError,
 	CompilerError,
 	type ErrorWithMetadata,
-	AstroUserError,
 } from './errors/index.js';
 import { emoji, padMultilineString } from './util.js';
 

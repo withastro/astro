@@ -3,6 +3,7 @@ import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/inter
 import { compile as mdxCompile, type CompileOptions } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { AstroIntegration, ContentEntryType, HookParameters } from 'astro';
+import astroJSXRenderer from 'astro/jsx/renderer.js';
 import { parse as parseESM } from 'es-module-lexer';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -13,7 +14,6 @@ import type { Plugin as VitePlugin } from 'vite';
 import { getRehypePlugins, getRemarkPlugins, recmaInjectImportMetaEnvPlugin } from './plugins.js';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
 import { getFileInfo, ignoreStringPlugins, parseFrontmatter } from './utils.js';
-import astroJSXRenderer from 'astro/jsx/renderer.js';
 
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
 	extendMarkdownConfig: boolean;

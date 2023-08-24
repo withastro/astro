@@ -18,11 +18,11 @@ import { isServerLikeOutput } from '../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { log404 } from './common.js';
 import { getStylesForURL } from './css.js';
+import type DevPipeline from './devPipeline.js';
 import { preload } from './index.js';
 import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { getScriptsForURL } from './scripts.js';
-import type DevPipeline from './devPipeline.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 

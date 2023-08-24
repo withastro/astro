@@ -1,5 +1,5 @@
-import type { Environment } from '../render';
 import { Pipeline } from '../pipeline.js';
+import type { Environment } from '../render';
 
 /**
  * Thrown when an endpoint contains a response with the header "X-Astro-Response" === 'Not-Found'

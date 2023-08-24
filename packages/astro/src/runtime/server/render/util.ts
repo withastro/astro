@@ -1,8 +1,8 @@
 import type { SSRElement } from '../../../@types/astro';
 import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
 
-import { HTMLString, markHTMLString } from '../escape.js';
 import { clsx } from 'clsx';
+import { HTMLString, markHTMLString } from '../escape.js';
 
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;

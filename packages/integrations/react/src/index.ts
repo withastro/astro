@@ -1,7 +1,7 @@
+import { appendForwardSlash } from '@astrojs/internal-helpers/path';
+import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
 import type { AstroIntegration } from 'astro';
 import { version as ReactVersion } from 'react-dom';
-import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
-import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import type * as vite from 'vite';
 
 export type ReactIntegrationOptions = Pick<ViteReactPluginOptions, 'include' | 'exclude'> & {

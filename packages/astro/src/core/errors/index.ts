@@ -3,11 +3,11 @@ export * as AstroErrorData from './errors-data.js';
 export {
 	AggregateError,
 	AstroError,
+	AstroUserError,
 	CSSError,
 	CompilerError,
 	MarkdownError,
 	isAstroError,
-	AstroUserError,
 } from './errors.js';
 export { codeFrame } from './printer.js';
 export { createSafeError, positionAt } from './utils.js';

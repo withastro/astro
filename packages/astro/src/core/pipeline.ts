@@ -1,14 +1,14 @@
-import { type RenderContext, type Environment } from './render/index.js';
-import { callEndpoint, createAPIContext } from './endpoint/index.js';
 import type {
+	ComponentInstance,
+	EndpointHandler,
+	MiddlewareEndpointHandler,
 	MiddlewareHandler,
 	MiddlewareResponseHandler,
-	ComponentInstance,
-	MiddlewareEndpointHandler,
-	EndpointHandler,
 } from '../@types/astro';
+import { callEndpoint, createAPIContext } from './endpoint/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { renderPage } from './render/core.js';
+import { type Environment, type RenderContext } from './render/index.js';
 
 type EndpointResultHandler = (
 	originalRequest: Request,

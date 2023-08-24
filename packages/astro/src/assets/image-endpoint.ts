@@ -1,8 +1,8 @@
+import { isRemotePath } from '@astrojs/internal-helpers/path';
 import mime from 'mime/lite.js';
 import type { APIRoute } from '../@types/astro.js';
-import { etag } from './utils/etag.js';
-import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { getConfiguredImageService, isRemoteAllowed } from './internal.js';
+import { etag } from './utils/etag.js';
 // @ts-expect-error
 import { imageConfig } from 'astro:assets';
 
