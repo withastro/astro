@@ -76,6 +76,7 @@ export const plugin: LanguageServerPlugin = (
 					prettier: prettier,
 					languages: ['astro'],
 					ignoreIdeOptions: true,
+					useIdeOptionsFallback: true,
 					resolveConfigOptions: {
 						// This seems to be broken since Prettier 3, and it'll always use its cumbersome cache. Hopefully it works one day.
 						useCache: false,
