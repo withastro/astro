@@ -44,7 +44,6 @@ const ASTRO_CONFIG_DEFAULTS = {
 	legacy: {},
 	redirects: {},
 	experimental: {
-		viewTransitions: false,
 		optimizeHoistedScript: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
@@ -264,10 +263,6 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
 	experimental: z
 		.object({
-			viewTransitions: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.viewTransitions),
 			optimizeHoistedScript: z
 				.boolean()
 				.optional()
