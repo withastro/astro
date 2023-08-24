@@ -4,7 +4,6 @@ import type {
 	AstroSettings,
 	ComponentInstance,
 	ManifestData,
-	MiddlewareHandler,
 	RouteData,
 	RuntimeMode,
 	SSRLoadedRenderer,
