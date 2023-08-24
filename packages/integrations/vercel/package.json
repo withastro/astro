@@ -52,9 +52,9 @@
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
-    "@vercel/analytics": "^0.1.11",
-    "@vercel/nft": "^0.22.6",
-    "esbuild": "^0.18.20",
+    "@vercel/analytics": "^1.0.2",
+    "@vercel/nft": "^0.23.1",
+    "esbuild": "^0.19.2",
     "fast-glob": "^3.3.1",
     "set-cookie-parser": "^2.6.0",
     "web-vitals": "^3.4.0"
@@ -64,13 +64,12 @@
   },
   "devDependencies": {
     "@types/set-cookie-parser": "^2.4.3",
-    "@vercel/edge": "^0.3.4",
+    "@vercel/edge": "^1.0.0",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "chai-jest-snapshot": "^2.0.0",
     "cheerio": "1.0.0-rc.12",
-    "mocha": "^9.2.2",
-    "rollup": "^3.28.1"
+    "mocha": "^10.2.0"
   }
 }
