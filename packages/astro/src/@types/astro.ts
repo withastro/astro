@@ -77,7 +77,7 @@ export interface TransitionDirectionalAnimations {
 	backwards: TransitionAnimationPair;
 }
 
-export type TransitionAnimationValue = 'morph' | 'slide' | 'fade' | TransitionDirectionalAnimations;
+export type TransitionAnimationValue = 'initial' | 'slide' | 'fade' | 'none' | TransitionDirectionalAnimations;
 
 // Allow users to extend this for astro-jsx.d.ts
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -93,7 +93,7 @@ export interface AstroBuiltinAttributes {
 	'set:html'?: any;
 	'set:text'?: any;
 	'is:raw'?: boolean;
-	'transition:animate'?: 'morph' | 'slide' | 'fade' | TransitionDirectionalAnimations;
+	'transition:animate'?: TransitionAnimationValue;
 	'transition:name'?: string;
 	'transition:persist'?: boolean | string;
 }
