@@ -57,11 +57,7 @@ export function vitePluginMiddleware(
 				if (chunk.type === 'asset') {
 					continue;
 				}
-				const shouldInclude =
-					// TODO: remove in Astro 4.0
-					!opts.settings.config.build.excludeMiddleware &&
-					!opts.settings.adapter?.adapterFeatures?.edgeMiddleware;
-				if (chunk.fileName === 'middleware.mjs' && shouldInclude) {
+				if (chunk.fileName === 'middleware.mjs') {
 					const outputDirectory = getOutputDirectory(opts.settings.config);
 					internals.middlewareEntryPoint = new URL(chunkName, outputDirectory);
 				}

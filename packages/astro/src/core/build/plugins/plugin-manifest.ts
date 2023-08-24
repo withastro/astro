@@ -237,6 +237,10 @@ function buildManifest(
 		// Set this to an empty string so that the runtime knows not to try and load this.
 		entryModules[BEFORE_HYDRATION_SCRIPT_ID] = '';
 	}
+	const isEdgeMiddleware =
+		// TODO: remove in Astro 4.0
+		settings.config.build.excludeMiddleware ||
+		settings.adapter?.adapterFeatures?.edgeMiddleware;
 
 	const ssrManifest: SerializedSSRManifest = {
 		adapterName: opts.settings.adapter?.name ?? '',
@@ -250,7 +254,7 @@ function buildManifest(
 		clientDirectives: Array.from(settings.clientDirectives),
 		entryModules,
 		assets: staticFiles.map(prefixAssetPath),
-		middlewareEntryPoint: internals.middlewareEntryPoint?.toString() ?? undefined,
+		middlewareEntryPoint: !isEdgeMiddleware ? internals.middlewareEntryPoint?.toString() : undefined,
 	};
 
 	return ssrManifest;

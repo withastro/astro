@@ -219,10 +219,8 @@ describe('Middleware API in PROD mode, SSR', () => {
 				excludeMiddleware: true,
 			},
 			adapter: testAdapter({
-				setEntryPoints(entryPointsOrMiddleware) {
-					if (entryPointsOrMiddleware instanceof URL) {
-						middlewarePath = entryPointsOrMiddleware;
-					}
+				setMiddlewareEntryPoint(entryPointsOrMiddleware) {
+					middlewarePath = entryPointsOrMiddleware;
 				},
 			}),
 		});
