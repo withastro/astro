@@ -77,7 +77,12 @@ export interface TransitionDirectionalAnimations {
 	backwards: TransitionAnimationPair;
 }
 
-export type TransitionAnimationValue = 'initial' | 'slide' | 'fade' | 'none' | TransitionDirectionalAnimations;
+export type TransitionAnimationValue =
+	| 'initial'
+	| 'slide'
+	| 'fade'
+	| 'none'
+	| TransitionDirectionalAnimations;
 
 // Allow users to extend this for astro-jsx.d.ts
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

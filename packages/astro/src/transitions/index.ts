@@ -47,7 +47,7 @@ export function slide({
 }
 
 export function fade({
-	duration
+	duration,
 }: {
 	duration?: string | number;
 } = {}): TransitionDirectionalAnimations {
