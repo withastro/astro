@@ -1,4 +1,4 @@
-export async function get({ request }: { request: Request }) {
+export async function GET({ request }: { request: Request }) {
   const headers = new Headers();
   headers.append('content-type', 'text/plain;charset=utf-8');
   headers.append('x-SINGLE', 'single');
