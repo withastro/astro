@@ -54,3 +54,11 @@
 		animation: none !important;
 	}
 }
+
+/* Opinionated Astro default: set root transition to our own `fade` */
+::view-transition-old(root) {
+	animation: astroFadeOut 180ms cubic-bezier(0.83, 0, 0.17, 1) both;
+}
+::view-transition-new(root) {
+  animation: astroFadeIn 180ms cubic-bezier(0.83, 0, 0.17, 1) both;
+}
