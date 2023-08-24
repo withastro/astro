@@ -2,7 +2,6 @@ import type {
 	SSRResult,
 	TransitionAnimation,
 	TransitionAnimationValue,
-	TransitionDirectionalAnimations,
 } from '../../@types/astro';
 import { fade, slide } from '../../transitions/index.js';
 import { markHTMLString } from './escape.js';
@@ -27,7 +26,13 @@ function toValidIdent(name: string): string {
 	return name.replace(/[^a-zA-Z0-9\-\_]/g, '_').replace(/^\_+|\_+$/g, '')
 }
 
-const BUILTIN_TRANSITION_ANIMATIONS = { fade, slide };
+type Entries<T extends Record<string, any>> = Iterable<[keyof T, T[keyof T]]>
+
+const getAnimations = (name: TransitionAnimationValue) => {
+	if (name === 'fade') return fade();
+	if (name === 'slide') return slide();
+	if (typeof name === 'object') return name;
+}
 
 export function renderTransition(
 	result: SSRResult,
@@ -38,64 +43,58 @@ export function renderTransition(
 	// Default to `fade` (similar to `initial`, but snappier)
 	if (!animationName) animationName = 'fade';
 	const scope = createTransitionScope(result, hash);
-	const viewTransitionName = transitionName ? toValidIdent(transitionName) : scope;
-	const styles = [
-		`[data-astro-transition-scope="${scope}"] { view-transition-name: ${viewTransitionName}; }`,
-	]
-	if (animationName === 'fade' || animationName === 'slide') {
-		styles.push(generateAnimationStyle(scope, viewTransitionName, BUILTIN_TRANSITION_ANIMATIONS[animationName]()))
+	const name = transitionName ? toValidIdent(transitionName) : scope;
+	const sheet = new ViewTransitionStyleSheet(scope, name);
+	
+	const animations = getAnimations(animationName);
+	if (animations) {
+		for (const [direction, images] of Object.entries(animations) as Entries<typeof animations>) {
+			for (const [image, rules] of Object.entries(images) as Entries<typeof animations[typeof direction]>) {
+				sheet.addAnimationPair(direction, image, rules);
+			}
+		}
 	} else if (animationName === 'none') {
-		styles.push(generateAnimationNone(scope, viewTransitionName))
-	} else if (typeof animationName === 'object') {
-		styles.push(generateAnimationStyle(scope, viewTransitionName, animationName))
+		sheet.addAnimationRaw('old', 'animation: none; opacity: 0; mix-blend-mode: normal;')
+		sheet.addAnimationRaw('new', 'animation: none; mix-blend-mode: normal;')
 	}
-	result._metadata.extraHead.push(markHTMLString(`<style>${styles.join('')}</style>`));
 
+	result._metadata.extraHead.push(markHTMLString(`<style>${sheet.toString()}</style>`));
 	return scope;
 }
 
-function generateAnimationNone(scope: string, viewTransitionName: string) {
-	const oldSelectors = [
-		`::view-transition-old(${viewTransitionName})`,
-		`[data-astro-transition-fallback=old] [data-astro-transition-scope="${scope}"]`,
-	]
-	const newSelectors = [
-		`::view-transition-new(${viewTransitionName})`,
-		`[data-astro-transition-fallback=new] [data-astro-transition-scope="${scope}"]`,
-	]
-	return [
-		`${oldSelectors.join(', ')} { animation: none; opacity: 0; mix-blend-mode: normal; }`,
-		`${newSelectors.join(', ')} { animation: none; mix-blend-mode: normal; }`,
-	].join('')
-}
+class ViewTransitionStyleSheet {
+	private modern: string[] = []
+	private fallback: string[] = []
 
-function generateAnimationStyle(scope: string, viewTransitionName: string, animations: TransitionDirectionalAnimations) {
-	return `::view-transition-old(${viewTransitionName}) {
-	${stringifyAnimation(animations.forwards.old)}
-}
-[data-astro-transition-fallback=old] [data-astro-transition-scope="${scope}"] {
-	${stringifyAnimation(animations.forwards.old)}
-}
-::view-transition-new(${viewTransitionName}) {
-	${stringifyAnimation(animations.forwards.new)}
-}
-[data-astro-transition-fallback=new] [data-astro-transition-scope="${scope}"] {
-	${stringifyAnimation(animations.forwards.new)}
-}
+	constructor(private scope: string, private name: string) {}
 
-[data-astro-transition=back]::view-transition-old(${viewTransitionName}) {
-	${stringifyAnimation(animations.backwards.old)}
-}
-[data-astro-transition=back][data-astro-transition-fallback=old] [data-astro-transition-scope="${scope}"] {
-	${stringifyAnimation(animations.backwards.old)}
-}
+	toString() {
+		const { scope, name } = this;
+		const [modern, fallback] = [this.modern, this.fallback].map(rules => rules.join(''));
+		return [`[data-astro-transition-scope="${scope}"] { view-transition-name: ${name}; }`, this.layer(modern), fallback].join('')
+	}
 
-[data-astro-transition=back]::view-transition-new(${viewTransitionName}) {
-	${stringifyAnimation(animations.backwards.new)}
-}
-[data-astro-transition=back][data-astro-transition-fallback=new] [data-astro-transition-scope="${scope}"] {
-	${stringifyAnimation(animations.backwards.new)}
-}`;
+	private layer(cssText: string) {
+		return cssText ? `@layer astro { ${cssText} }` : '';
+	}
+
+	private addRule(target: 'modern' | 'fallback', cssText: string) {
+		this[target].push(cssText);
+	}
+
+	addAnimationRaw(image: 'old' | 'new' | 'group', animation: string) {
+		const { scope, name } = this;
+		this.addRule('modern', `::view-transition-${image}(${name}) { ${animation} }`)
+		this.addRule('fallback', `[data-astro-transition-fallback="${image}"] [data-astro-transition-scope="${scope}"] { ${animation} }`)
+	}
+
+	addAnimationPair(direction: 'forwards' | 'backwards', image: 'old' | 'new', rules: TransitionAnimation | TransitionAnimation[]) {
+		const { scope, name } = this;
+		const animation = stringifyAnimation(rules);
+		const prefix = direction === 'backwards' ? `[data-astro-transition=back]` : '';
+		this.addRule('modern', `${prefix}::view-transition-${image}(${name}) { ${animation} }`)
+		this.addRule('fallback', `${prefix}[data-astro-transition-fallback="${image}"] [data-astro-transition-scope="${scope}"] { ${animation} }`)
+	}
 }
 
 type AnimationBuilder = {
@@ -139,7 +138,6 @@ function stringifyAnimations(anims: TransitionAnimation[]): string {
 	const builder = animationBuilder();
 
 	for (const anim of anims) {
-		/*300ms cubic-bezier(0.4, 0, 0.2, 1) both astroSlideFromRight;*/
 		if (anim.duration) {
 			addAnimationProperty(builder, 'animation-duration', toTimeValue(anim.duration));
 		}
