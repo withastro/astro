@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.1.3
+
+### Patch Changes
+
+- 4e10283: Fix TSServer crash, for real this time
+
 ## 1.1.2
 
 ### Patch Changes

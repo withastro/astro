@@ -1,5 +1,12 @@
 # astro-vscode
 
+## 2.3.1
+
+### Patch Changes
+
+- 0a34d96: Use editor formatting settings as a fallback when there's no Prettier config
+- 4e10283: Fix TSServer crash, for real this time
+
 ## 2.3.0
 
 ### Minor Changes

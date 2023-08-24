@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.3.1
+
+### Patch Changes
+
+- 0a34d96: Use editor formatting settings as a fallback when there's no Prettier config
+
 ## 2.3.0
 
 ### Minor Changes
