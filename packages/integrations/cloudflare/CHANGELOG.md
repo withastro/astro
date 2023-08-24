@@ -96,6 +96,15 @@
   - astro@3.0.0-beta.0
   - @astrojs/underscore-redirects@0.3.0-beta.0
 
+## 6.8.1
+
+### Patch Changes
+
+- [#8190](https://github.com/withastro/astro/pull/8190) [`0be8d9bfa`](https://github.com/withastro/astro/commit/0be8d9bfa9fa811c4b7e15c4ffd2d37c93f856fe) Thanks [@ematipico](https://github.com/ematipico)! - Improve documentation and export the types needed to type the `runtime` object.
+
+- Updated dependencies [[`52606a390`](https://github.com/withastro/astro/commit/52606a3909f9de5ced9b9ba3ba25832f73a8689e)]:
+  - astro@2.10.14
+
 ## 6.8.0
 
 ### Minor Changes
