@@ -33,7 +33,7 @@
     "test": "deno test --allow-run --allow-env --allow-read --allow-net ./test/"
   },
   "dependencies": {
-    "esbuild": "^0.15.18"
+    "esbuild": "^0.19.2"
   },
   "peerDependencies": {
     "astro": "workspace:^3.0.0-rc.5"

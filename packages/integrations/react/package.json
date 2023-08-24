@@ -49,8 +49,8 @@
     "ultrahtml": "^1.3.0"
   },
   "devDependencies": {
-    "@types/react": "^17.0.64",
-    "@types/react-dom": "^17.0.20",
+    "@types/react": "^18.2.21",
+    "@types/react-dom": "^18.2.7",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",

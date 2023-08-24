@@ -6,7 +6,7 @@
     "@astrojs/svelte": "workspace:*",
     "@astrojs/vue": "workspace:*",
     "astro": "workspace:*",
-    "svelte": "^3.59.2",
+    "svelte": "^4.2.0",
     "vue": "^3.3.4"
   }
 }
