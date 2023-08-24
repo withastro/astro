@@ -2,7 +2,7 @@ import type { SSRElement } from '../../../@types/astro';
 import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
 
 import { HTMLString, markHTMLString } from '../escape.js';
-import { serializeListValue } from '../util.js';
+import { clsx } from 'clsx';
 
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
@@ -30,10 +30,6 @@ const toStyleString = (obj: Record<string, any>) =>
 	Object.entries(obj)
 		.map(([k, v]) => {
 			if (k[0] !== '-' && k[1] !== '-') return `${kebab(k)}:${v}`;
-			// TODO: Remove in v3! See #6264
-			// We need to emit --kebab-case AND --camelCase for backwards-compat in v2,
-			// but we should be able to remove this workaround in v3.
-			if (kebab(k) !== k) return `${kebab(k)}:var(${k});${k}:${v}`;
 			return `${k}:${v}`;
 		})
 		.join(';');
@@ -83,7 +79,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 
 	// support "class" from an expression passed into an element (#782)
 	if (key === 'class:list') {
-		const listValue = toAttributeString(serializeListValue(value), shouldEscape);
+		const listValue = toAttributeString(clsx(value), shouldEscape);
 		if (listValue === '') {
 			return '';
 		}

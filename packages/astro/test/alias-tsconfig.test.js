@@ -29,6 +29,8 @@ describe('Aliases with tsconfig.json', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 			root: './fixtures/alias-tsconfig/',
 		});
 	});

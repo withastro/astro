@@ -1,4 +1,4 @@
-import rss from '../dist/index.js';
+import rss, { getRssString } from '../dist/index.js';
 import { rssSchema } from '../dist/schema.js';
 import chai from 'chai';
 import chaiPromises from 'chai-as-promised';
@@ -36,41 +36,73 @@ const validXmlWithStylesheet = `<?xml version="1.0" encoding="UTF-8"?><?xml-styl
 const validXmlWithXSLStylesheet = `<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="/feedstylesheet.xsl" type="text/xsl"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link></channel></rss>`;
 
 describe('rss', () => {
-	it('should generate on valid RSSFeedItem array', async () => {
-		const { body } = await rss({
+	it('should return a response', async () => {
+		const response = await rss({
 			title,
 			description,
 			items: [phpFeedItem, web1FeedItem],
 			site,
 		});
 
-		chai.expect(body).xml.to.equal(validXmlResult);
+		const str = await response.text();
+		chai.expect(str).xml.to.equal(validXmlResult);
+
+		const contentType = response.headers.get('Content-Type');
+		chai.expect(contentType).to.equal('application/xml');
+	});
+
+	it('should be the same string as getRssString', async () => {
+		const options = {
+			title,
+			description,
+			items: [phpFeedItem, web1FeedItem],
+			site,
+		};
+
+		const response = await rss(options);
+		const str1 = await response.text();
+		const str2 = await getRssString(options);
+
+		chai.expect(str1).to.equal(str2);
+	});
+});
+
+describe('getRssString', () => {
+	it('should generate on valid RSSFeedItem array', async () => {
+		const str = await getRssString({
+			title,
+			description,
+			items: [phpFeedItem, web1FeedItem],
+			site,
+		});
+
+		chai.expect(str).xml.to.equal(validXmlResult);
 	});
 
 	it('should generate on valid RSSFeedItem array with HTML content included', async () => {
-		const { body } = await rss({
+		const str = await getRssString({
 			title,
 			description,
 			items: [phpFeedItemWithContent, web1FeedItemWithContent],
 			site,
 		});
 
-		chai.expect(body).xml.to.equal(validXmlWithContentResult);
+		chai.expect(str).xml.to.equal(validXmlWithContentResult);
 	});
 
 	it('should generate on valid RSSFeedItem array with all RSS content included', async () => {
-		const { body } = await rss({
+		const str = await getRssString({
 			title,
 			description,
 			items: [phpFeedItem, web1FeedItemWithAllData],
 			site,
 		});
 
-		chai.expect(body).xml.to.equal(validXmlResultWithAllData);
+		chai.expect(str).xml.to.equal(validXmlResultWithAllData);
 	});
 
 	it('should generate on valid RSSFeedItem array with custom data included', async () => {
-		const { body } = await rss({
+		const str = await getRssString({
 			xmlns: {
 				dc: 'http://purl.org/dc/elements/1.1/',
 			},
@@ -80,11 +112,11 @@ describe('rss', () => {
 			site,
 		});
 
-		chai.expect(body).xml.to.equal(validXmlWithCustomDataResult);
+		chai.expect(str).xml.to.equal(validXmlWithCustomDataResult);
 	});
 
 	it('should include xml-stylesheet instruction when stylesheet is defined', async () => {
-		const { body } = await rss({
+		const str = await getRssString({
 			title,
 			description,
 			items: [],
@@ -92,11 +124,11 @@ describe('rss', () => {
 			stylesheet: '/feedstylesheet.css',
 		});
 
-		chai.expect(body).xml.to.equal(validXmlWithStylesheet);
+		chai.expect(str).xml.to.equal(validXmlWithStylesheet);
 	});
 
 	it('should include xml-stylesheet instruction with xsl type when stylesheet is set to xsl file', async () => {
-		const { body } = await rss({
+		const str = await getRssString({
 			title,
 			description,
 			items: [],
@@ -104,13 +136,13 @@ describe('rss', () => {
 			stylesheet: '/feedstylesheet.xsl',
 		});
 
-		chai.expect(body).xml.to.equal(validXmlWithXSLStylesheet);
+		chai.expect(str).xml.to.equal(validXmlWithXSLStylesheet);
 	});
 
 	it('should preserve self-closing tags on `customData`', async () => {
 		const customData =
 			'<atom:link href="https://example.com/feed.xml" rel="self" type="application/rss+xml"/>';
-		const { body } = await rss({
+		const str = await getRssString({
 			title,
 			description,
 			items: [],
@@ -121,22 +153,22 @@ describe('rss', () => {
 			customData,
 		});
 
-		chai.expect(body).to.contain(customData);
+		chai.expect(str).to.contain(customData);
 	});
 
 	it('should filter out entries marked as `draft`', async () => {
-		const { body } = await rss({
+		const str = await getRssString({
 			title,
 			description,
 			items: [phpFeedItem, { ...web1FeedItem, draft: true }],
 			site,
 		});
 
-		chai.expect(body).xml.to.equal(validXmlWithoutWeb1FeedResult);
+		chai.expect(str).xml.to.equal(validXmlWithoutWeb1FeedResult);
 	});
 
 	it('should respect drafts option', async () => {
-		const { body } = await rss({
+		const str = await getRssString({
 			title,
 			description,
 			items: [phpFeedItem, { ...web1FeedItem, draft: true }],
@@ -144,11 +176,11 @@ describe('rss', () => {
 			drafts: true,
 		});
 
-		chai.expect(body).xml.to.equal(validXmlResult);
+		chai.expect(str).xml.to.equal(validXmlResult);
 	});
 
 	it('should not append trailing slash to URLs with the given option', async () => {
-		const { body } = await rss({
+		const str = await getRssString({
 			title,
 			description,
 			items: [phpFeedItem, { ...web1FeedItem, draft: true }],
@@ -157,8 +189,8 @@ describe('rss', () => {
 			trailingSlash: false,
 		});
 
-		chai.expect(body).xml.to.contain('https://example.com/<');
-		chai.expect(body).xml.to.contain('https://example.com/php<');
+		chai.expect(str).xml.to.contain('https://example.com/<');
+		chai.expect(str).xml.to.contain('https://example.com/php<');
 	});
 
 	it('Deprecated import.meta.glob mapping still works', async () => {
@@ -187,14 +219,14 @@ describe('rss', () => {
 				),
 		};
 
-		const { body } = await rss({
+		const str = await getRssString({
 			title,
 			description,
 			items: globResult,
 			site,
 		});
 
-		chai.expect(body).xml.to.equal(validXmlResult);
+		chai.expect(str).xml.to.equal(validXmlResult);
 	});
 
 	it('should fail when an invalid date string is provided', async () => {

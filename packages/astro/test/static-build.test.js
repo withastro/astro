@@ -34,6 +34,8 @@ describe('Static build', () => {
 
 		fixture = await loadFixture({
 			root: './fixtures/static-build/',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 		await fixture.build({ logging });
 	});
@@ -175,7 +177,7 @@ describe('Static build', () => {
 		let found = false;
 		for (const log of logs) {
 			if (
-				log.type === 'ssg' &&
+				log.label === 'ssg' &&
 				/[hH]eaders are not exposed in static \(SSG\) output mode/.test(log.message)
 			) {
 				found = true;

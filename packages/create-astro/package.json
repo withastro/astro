@@ -1,6 +1,6 @@
 {
   "name": "create-astro",
-  "version": "3.2.2",
+  "version": "4.0.0-rc.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -32,20 +32,21 @@
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {
     "@astrojs/cli-kit": "^0.2.3",
-    "giget": "^1.1.2",
-    "node-fetch-native": "^1.2.0",
+    "execa": "^8.0.1",
+    "giget": "1.1.2",
+    "node-fetch-native": "^1.4.0",
     "which-pm-runs": "^1.1.0"
   },
   "devDependencies": {
     "@types/which-pm-runs": "^1.0.0",
-    "chai": "^4.3.7",
-    "mocha": "^9.2.2",
     "arg": "^5.0.2",
     "astro-scripts": "workspace:*",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
     "strip-ansi": "^7.1.0",
-    "strip-json-comments": "^5.0.0"
+    "strip-json-comments": "^5.0.1"
   },
   "engines": {
-    "node": ">=16.12.0"
+    "node": ">=18.14.1"
   }
 }

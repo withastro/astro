@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "2.6.0",
+  "version": "3.0.0-rc.2",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -26,8 +26,7 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "dist",
-    "builders-types.d.ts"
+    "dist"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
@@ -39,25 +38,24 @@
     "test:hosted": "mocha --exit --timeout 30000 test/hosted"
   },
   "dependencies": {
-    "@astrojs/underscore-redirects": "^0.2.0",
-    "@astrojs/webapi": "^2.2.0",
-    "@netlify/functions": "^1.6.0",
-    "esbuild": "^0.15.18"
+    "@astrojs/underscore-redirects": "workspace:*",
+    "@netlify/functions": "^2.0.1",
+    "esbuild": "^0.19.2"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.10.14"
+    "astro": "workspace:^3.0.0-rc.5"
   },
   "devDependencies": {
     "@netlify/edge-functions": "^2.0.0",
     "@netlify/edge-handler-types": "^0.34.1",
-    "@types/node": "^14.18.51",
+    "@types/node": "^18.17.8",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
+    "chai-jest-snapshot": "^2.0.0",
     "cheerio": "1.0.0-rc.12",
-    "mocha": "^9.2.2",
-    "vite": "^4.4.6",
-    "chai-jest-snapshot": "^2.0.0"
+    "mocha": "^10.2.0",
+    "vite": "^4.4.9"
   },
   "astro": {
     "external": true

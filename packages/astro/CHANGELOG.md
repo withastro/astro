@@ -1,5 +1,558 @@
 # astro
 
+## 3.0.0-rc.5
+
+### Major Changes
+
+- [#8142](https://github.com/withastro/astro/pull/8142) [`81545197a`](https://github.com/withastro/astro/commit/81545197a32fd015d763fc386c8b67e0e08b7393) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes for the `class:list` directive
+
+  - Previously, `class:list` would ocassionally not be merged the `class` prop when passed to Astro components. Now, `class:list` is always converted to a `class` prop (as a string value).
+  - Previously, `class:list` diverged from [`clsx`](https://github.com/lukeed/clsx) in a few edge cases. Now, `class:list` uses [`clsx`](https://github.com/lukeed/clsx) directly.
+    - `class:list` used to deduplicate matching values, but it no longer does
+    - `class:list` used to sort individual values, but it no longer does
+    - `class:list` used to support `Set` and other iterables, but it no longer does
+
+- [#8179](https://github.com/withastro/astro/pull/8179) [`6011d52d3`](https://github.com/withastro/astro/commit/6011d52d38e43c3e3d52bc3bc41a60e36061b7b7) Thanks [@matthewp](https://github.com/matthewp)! - Astro 3.0 Release Candidate
+
+- [#8170](https://github.com/withastro/astro/pull/8170) [`be6bbd2c8`](https://github.com/withastro/astro/commit/be6bbd2c86b9bf5268e765bb937dda00ff15781a) Thanks [@bluwy](https://github.com/bluwy)! - Remove deprecated config option types, deprecated script/style attributes, and deprecated `image` export from `astro:content`
+
+- [#8180](https://github.com/withastro/astro/pull/8180) [`f003e7364`](https://github.com/withastro/astro/commit/f003e7364317cafdb8589913b26b28e928dd07c9) Thanks [@ematipico](https://github.com/ematipico)! - The scoped hash created by the Astro compiler is now **lowercase**.
+
+- [#8169](https://github.com/withastro/astro/pull/8169) [`e79e3779d`](https://github.com/withastro/astro/commit/e79e3779df0ad35253abcdb931d622847d9adb12) Thanks [@bluwy](https://github.com/bluwy)! - Remove pre-shiki v0.14 theme names for compatibility. Please rename to the new theme names to migrate:
+
+  - `material-darker` -> `material-theme-darker`
+  - `material-default` -> `material-theme`
+  - `material-lighter` -> `material-theme-lighter`
+  - `material-ocean` -> `material-theme-ocean`
+  - `material-palenight` -> `material-theme-palenight`
+
+### Patch Changes
+
+- [#8147](https://github.com/withastro/astro/pull/8147) [`adf9fccfd`](https://github.com/withastro/astro/commit/adf9fccfdda107c2224558f1c2e6a77847ac0a8a) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Do not throw Error when users pass an object with a "type" property
+
+- [#8152](https://github.com/withastro/astro/pull/8152) [`582132328`](https://github.com/withastro/astro/commit/5821323285646aee7ff9194a505f708028e4db57) Thanks [@andremralves](https://github.com/andremralves)! - Displays a new config error if `outDir` is placed within `publicDir`.
+
+- [#8147](https://github.com/withastro/astro/pull/8147) [`42785c7b7`](https://github.com/withastro/astro/commit/42785c7b784b151e6d582570e5d74482129e8eb8) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Improve fidelity of time stats when running `astro build`
+
+- [#8171](https://github.com/withastro/astro/pull/8171) [`95120efbe`](https://github.com/withastro/astro/commit/95120efbe817163663492181cbeb225849354493) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix missing type for `imageConfig` export from `astro:assets`
+
+- [#8147](https://github.com/withastro/astro/pull/8147) [`2ae9d37f0`](https://github.com/withastro/astro/commit/2ae9d37f0a9cb21ab288d3c30aecb6d84db87788) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Open to configured `base` when `astro dev --open` runs
+
+- [#8099](https://github.com/withastro/astro/pull/8099) [`732111cdc`](https://github.com/withastro/astro/commit/732111cdce441639db31f40f621df48442d00969) Thanks [@bluwy](https://github.com/bluwy)! - Deprecate the `markdown.drafts` configuration option.
+
+  If you'd like to create draft pages that are visible in dev but not in production, you can [migrate to content collections](https://docs.astro.build/en/guides/content-collections/#migrating-from-file-based-routing) and [manually filter out pages](https://docs.astro.build/en/guides/content-collections/#filtering-collection-queries) with the `draft: true` frontmatter property instead.
+
+- [#8147](https://github.com/withastro/astro/pull/8147) [`33b8910cf`](https://github.com/withastro/astro/commit/33b8910cfdce5713891c50a84a0a8fe926311710) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - On back navigation only animate view transitions that were animated going forward.
+
+- [#8163](https://github.com/withastro/astro/pull/8163) [`179796405`](https://github.com/withastro/astro/commit/179796405e053b559d83f84507e5a465861a029a) Thanks [@delucis](https://github.com/delucis)! - Make typing of `defineCollection` more permissive to support advanced union and intersection types
+
+- [#8147](https://github.com/withastro/astro/pull/8147) [`a87cbe400`](https://github.com/withastro/astro/commit/a87cbe400314341d5f72abf86ea264e6b47c091f) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - fix: reinsert attribute to specify direction of ViewTransition (forward / back)
+
+- [#8132](https://github.com/withastro/astro/pull/8132) [`767eb6866`](https://github.com/withastro/astro/commit/767eb68666eb777965baa0d6ade20bbafecf95bf) Thanks [@bluwy](https://github.com/bluwy)! - Deprecate returning simple objects from endpoints. Endpoints should only return a `Response`.
+
+  To return a result with a custom encoding not supported by a `Response`, you can use the `ResponseWithEncoding` utility class instead.
+
+  Before:
+
+  ```ts
+  export function GET() {
+    return {
+      body: '...',
+      encoding: 'binary',
+    };
+  }
+  ```
+
+  After:
+
+  ```ts
+  export function GET({ ResponseWithEncoding }) {
+    return new ResponseWithEncoding('...', undefined, 'binary');
+  }
+  ```
+
+- Updated dependencies [[`6011d52d3`](https://github.com/withastro/astro/commit/6011d52d38e43c3e3d52bc3bc41a60e36061b7b7), [`e79e3779d`](https://github.com/withastro/astro/commit/e79e3779df0ad35253abcdb931d622847d9adb12)]:
+  - @astrojs/markdown-remark@3.0.0-rc.1
+  - @astrojs/telemetry@3.0.0-rc.3
+  - @astrojs/internal-helpers@0.2.0-rc.2
+
+## 3.0.0-beta.4
+
+### Patch Changes
+
+- [#8139](https://github.com/withastro/astro/pull/8139) [`db39206cb`](https://github.com/withastro/astro/commit/db39206cbb85b034859ac416179f141184bb2bff) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Use `undici` for File changeset for Node 16 compatibility
+
+## 3.0.0-beta.3
+
+### Major Changes
+
+- [#8113](https://github.com/withastro/astro/pull/8113) [`2484dc408`](https://github.com/withastro/astro/commit/2484dc4080e5cd84b9a53648a1de426d7c907be2) Thanks [@Princesseuh](https://github.com/Princesseuh)! - This import alias is no longer included by default with astro:assets. If you were using this alias with experimental assets, you must convert them to relative file paths, or create your own [import aliases](https://docs.astro.build/en/guides/aliases/).
+
+  ```diff
+  ---
+  // src/pages/posts/post-1.astro
+  - import rocket from '~/assets/rocket.png'
+  + import rocket from '../../assets/rocket.png';
+  ---
+  ```
+
+- [#7979](https://github.com/withastro/astro/pull/7979) [`dbc97b121`](https://github.com/withastro/astro/commit/dbc97b121f42583728f1cdfdbf14575fda943f5b) Thanks [@bluwy](https://github.com/bluwy)! - Export experimental `dev`, `build`, `preview`, and `sync` APIs from `astro`. These APIs allow you to run Astro's commands programmatically, and replaces the previous entry point that runs the Astro CLI.
+
+  While these APIs are experimental, the inline config parameter is relatively stable without foreseeable changes. However, the returned results of these APIs are more likely to change in the future.
+
+  ```ts
+  import { dev, build, preview, sync, type AstroInlineConfig } from 'astro';
+
+  // Inline Astro config object.
+  // Provide a path to a configuration file to load or set options directly inline.
+  const inlineConfig: AstroInlineConfig = {
+    // Inline-specific options...
+    configFile: './astro.config.mjs',
+    logLevel: 'info',
+    // Standard Astro config options...
+    site: 'https://example.com',
+  };
+
+  // Start the Astro dev server
+  const devServer = await dev(inlineConfig);
+  await devServer.stop();
+
+  // Build your Astro project
+  await build(inlineConfig);
+
+  // Preview your built project
+  const previewServer = await preview(inlineConfig);
+  await previewServer.stop();
+
+  // Generate types for your Astro project
+  await sync(inlineConfig);
+  ```
+
+- [#8085](https://github.com/withastro/astro/pull/8085) [`68efd4a8b`](https://github.com/withastro/astro/commit/68efd4a8b29f248397667801465b3152dc98e9a7) Thanks [@bluwy](https://github.com/bluwy)! - Remove exports for `astro/internal/*` and `astro/runtime/server/*` in favour of `astro/runtime/*`. Add new `astro/compiler-runtime` export for compiler-specific runtime code.
+
+  These are exports for Astro's internal API and should not affect your project, but if you do use these entrypoints, you can migrate like below:
+
+  ```diff
+  - import 'astro/internal/index.js';
+  + import 'astro/runtime/server/index.js';
+
+  - import 'astro/server/index.js';
+  + import 'astro/runtime/server/index.js';
+  ```
+
+  ```diff
+  import { transform } from '@astrojs/compiler';
+
+  const result = await transform(source, {
+  - internalURL: 'astro/runtime/server/index.js',
+  + internalURL: 'astro/compiler-runtime',
+    // ...
+  });
+  ```
+
+- [#8030](https://github.com/withastro/astro/pull/8030) [`5208a3c8f`](https://github.com/withastro/astro/commit/5208a3c8fefcec7694857fb344af351f4631fc34) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Removed duplicate `astro/dist/jsx` export. Please use the `astro/jsx` export instead
+
+- [#8118](https://github.com/withastro/astro/pull/8118) [`8a5b0c1f3`](https://github.com/withastro/astro/commit/8a5b0c1f3a4be6bb62db66ec70144109ff5b4c59) Thanks [@lilnasy](https://github.com/lilnasy)! - Astro is smarter about CSS! Small stylesheets are now inlined by default, and no longer incur the cost of additional requests to your server. Your visitors will have to wait less before they see your pages, especially those in remote locations or in a subway.
+
+  This may not be news to you if you had opted-in via the `build.inlineStylesheets` configuration. Stabilized in Astro 2.6 and set to "auto" by default for Starlight, this configuration allows you to reduce the number of requests for stylesheets by inlining them into <style> tags. The new default is "auto", which selects assets smaller than 4kB and includes them in the initial response.
+
+  To go back to the previous default behavior, change `build.inlineStylesheets` to "never".
+
+  ```ts
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    build: {
+      inlineStylesheets: 'never',
+    },
+  });
+  ```
+
+- [#7921](https://github.com/withastro/astro/pull/7921) [`b76c166bd`](https://github.com/withastro/astro/commit/b76c166bdd8e28683f62806aef968d1e0c3b06d9) Thanks [@Princesseuh](https://github.com/Princesseuh)! - `astro:assets` is now enabled by default. If you were previously using the `experimental.assets` flag, please remove it from your config. Also note that the previous `@astrojs/image` integration is incompatible, and must be removed.
+
+  This also brings two important changes to using images in Astro:
+
+  - New ESM shape: importing an image will now return an object with different properties describing the image such as its path, format and dimensions. This is a breaking change and may require you to update your existing images.
+  - In Markdown, MDX, and Markdoc, the `![]()` syntax will now resolve relative images located anywhere in your project in addition to remote images and images stored in the `public/` folder. This notably unlocks storing images next to your content.
+
+  Please see our existing [Assets page in Docs](https://docs.astro.build/en/guides/assets/) for more information about using `astro:assets`.
+
+### Minor Changes
+
+- [#8101](https://github.com/withastro/astro/pull/8101) [`ea7ff5177`](https://github.com/withastro/astro/commit/ea7ff5177dbcd7b2508cb1eef1b22b8ee1f47079) Thanks [@matthewp](https://github.com/matthewp)! - `astro:`namespace aliases for middleware and components
+
+  This adds aliases of `astro:middleware` and `astro:components` for the middleware and components modules. This is to make our documentation consistent between are various modules, where some are virtual modules and others are not. Going forward new built-in modules will use this namespace.
+
+### Patch Changes
+
+- [#8128](https://github.com/withastro/astro/pull/8128) [`c2c71d90c`](https://github.com/withastro/astro/commit/c2c71d90c264a2524f99e0373ab59015f23ad4b1) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Update error message when Sharp couldn't be found (tends to happen on pnpm notably)
+
+- [#8092](https://github.com/withastro/astro/pull/8092) [`7177f7579`](https://github.com/withastro/astro/commit/7177f7579b6e866f0fd895b3fd079d8ba330b1a9) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Ensure dotfiles are cleaned during static builds
+
+- [#8070](https://github.com/withastro/astro/pull/8070) [`097a8e4e9`](https://github.com/withastro/astro/commit/097a8e4e916c7df18eafdaa6c8d6ce2991c17ab6) Thanks [@lilnasy](https://github.com/lilnasy)! - Fix a handful of edge cases with prerendered 404/500 pages
+
+- [#8078](https://github.com/withastro/astro/pull/8078) [`2540feedb`](https://github.com/withastro/astro/commit/2540feedb06785d5a20eecc3668849f147d778d4) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Reimplement https://github.com/withastro/astro/pull/7509 to correctly emit pre-rendered pages now that `build.split` is deprecated and this configuration has been moved to `functionPerRoute` inside the adapter.
+
+- [#8105](https://github.com/withastro/astro/pull/8105) [`0e0fa605d`](https://github.com/withastro/astro/commit/0e0fa605d109cc91e08a1ae1cc560ea240fe631b) Thanks [@martrapp](https://github.com/martrapp)! - ViewTransition: bug fix for lost scroll position in browser history
+
+- [#7778](https://github.com/withastro/astro/pull/7778) [`d6b494376`](https://github.com/withastro/astro/commit/d6b4943764989c0e89df2d6875cd19691566dfb3) Thanks [@y-nk](https://github.com/y-nk)! - Added support for optimizing remote images from authorized sources when using `astro:assets`. This comes with two new parameters to specify which domains (`image.domains`) and host patterns (`image.remotePatterns`) are authorized for remote images.
+
+  For example, the following configuration will only allow remote images from `astro.build` to be optimized:
+
+  ```ts
+  // astro.config.mjs
+  export default defineConfig({
+    image: {
+      domains: ['astro.build'],
+    },
+  });
+  ```
+
+  The following configuration will only allow remote images from HTTPS hosts:
+
+  ```ts
+  // astro.config.mjs
+  export default defineConfig({
+    image: {
+      remotePatterns: [{ protocol: 'https' }],
+    },
+  });
+  ```
+
+- [#8072](https://github.com/withastro/astro/pull/8072) [`4477bb41c`](https://github.com/withastro/astro/commit/4477bb41c8ed688785c545731ef5b184b629f4e5) Thanks [@matthewp](https://github.com/matthewp)! - Update Astro types to reflect that compress defaults to true
+
+- [#8130](https://github.com/withastro/astro/pull/8130) [`3e834293d`](https://github.com/withastro/astro/commit/3e834293d47ab2761a7aa013916e8371871efb7f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add some polyfills for Stackblitz until they support Node 18. Running Astro on Node 16 is still not officially supported, however.
+
+- Updated dependencies [[`3e834293d`](https://github.com/withastro/astro/commit/3e834293d47ab2761a7aa013916e8371871efb7f)]:
+  - @astrojs/telemetry@3.0.0-beta.2
+
+## 3.0.0-beta.2
+
+### Patch Changes
+
+- Updated dependencies [[`2aa6d8ace`](https://github.com/withastro/astro/commit/2aa6d8ace398a41c2dec5473521d758816b08191)]:
+  - @astrojs/internal-helpers@0.2.0-beta.1
+
+## 3.0.0-beta.1
+
+### Major Changes
+
+- [#7952](https://github.com/withastro/astro/pull/7952) [`3c3100851`](https://github.com/withastro/astro/commit/3c31008519ce68b5b1b1cb23b71fbe0a2d506882) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Remove support for `Astro.__renderMarkdown` which is used by `@astrojs/markdown-component`.
+
+  The `<Markdown />` component was deprecated in Astro v1 and is completely removed in v3. This integration must now be removed from your project.
+
+  As an alternative, you can use community packages that provide a similar component like https://github.com/natemoo-re/astro-remote instead.
+
+- [#8019](https://github.com/withastro/astro/pull/8019) [`34cb20021`](https://github.com/withastro/astro/commit/34cb2002161ba88df6bcb72fecfd12ed867c134b) Thanks [@bluwy](https://github.com/bluwy)! - Remove backwards-compatible kebab-case transform for camelCase CSS variable names passed to the `style` attribute. If you were relying on the kebab-case transform in your styles, make sure to use the camelCase version to prevent missing styles. For example:
+
+  ```astro
+  ---
+  const myValue = 'red';
+  ---
+
+  <!-- input -->
+  <div style={{ '--myValue': myValue }}></div>
+
+  <!-- output (before) -->
+  <div style="--my-value:var(--myValue);--myValue:red"></div>
+
+  <!-- output (after) -->
+  <div style="--myValue:red"></div>
+  ```
+
+  ```diff
+  <style>
+    div {
+  -   color: var(--my-value);
+  +   color: var(--myValue);
+    }
+  </style>
+  ```
+
+- [#7893](https://github.com/withastro/astro/pull/7893) [`7bd1b86f8`](https://github.com/withastro/astro/commit/7bd1b86f85c06fdde0a1ed9146d01bac69990671) Thanks [@ematipico](https://github.com/ematipico)! - Implements a new scope style strategy called `"attribute"`. When enabled, styles are applied using `data-*` attributes.
+
+  The **default** value of `scopedStyleStrategy` is `"attribute"`.
+
+  If you want to use the previous behaviour, you have to use the `"where"` option:
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+  +    scopedStyleStrategy: 'where',
+  });
+  ```
+
+- [#7924](https://github.com/withastro/astro/pull/7924) [`519a1c4e8`](https://github.com/withastro/astro/commit/519a1c4e8407c7abcb8d879b67a9f4b960652cae) Thanks [@matthewp](https://github.com/matthewp)! - Astro's JSX handling has been refactored with better support for each framework.
+
+  Previously, Astro automatically scanned your components to determine which framework-specific transformations should be used. In practice, supporting advanced features like Fast Refresh with this approach proved difficult.
+
+  Now, Astro determines which framework to use with `include` and `exclude` config options where you can specify files and folders on a per-framework basis. When using multiple JSX frameworks in the same project, users should manually control which files belong to each framework using the `include` and `exclude` options.
+
+  ```js
+  export default defineConfig({
+    // The `include` config is only needed in projects that use multiple JSX frameworks;
+    // if only using one no extra config is needed.
+    integrations: [
+      preact({
+        include: ['**/preact/*'],
+      }),
+      react({
+        include: ['**/react/*'],
+      }),
+      solid({
+        include: ['**/solid/*'],
+      }),
+    ],
+  });
+  ```
+
+- [#7878](https://github.com/withastro/astro/pull/7878) [`0f637c71e`](https://github.com/withastro/astro/commit/0f637c71e511cb4c51712128d217a26c8eee4d40) Thanks [@bluwy](https://github.com/bluwy)! - The value of `import.meta.env.BASE_URL`, which is derived from the `base` option, will no longer have a trailing slash added by default or when `trailingSlash: "ignore"` is set. The existing behavior of `base` in combination with `trailingSlash: "always"` or `trailingSlash: "never"` is unchanged.
+
+  If your `base` already has a trailing slash, no change is needed.
+
+  If your `base` does not have a trailing slash, add one to preserve the previous behaviour:
+
+  ```diff
+  // astro.config.mjs
+  - base: 'my-base',
+  + base: 'my-base/',
+  ```
+
+### Minor Changes
+
+- [#8012](https://github.com/withastro/astro/pull/8012) [`866ed4098`](https://github.com/withastro/astro/commit/866ed4098edffb052239cdb26e076cf8db61b1d9) Thanks [@ematipico](https://github.com/ematipico)! - Add a new `astro/errors` module. Developers can import `AstroUserError`, and provide a `message` and an optional `hint`
+
+### Patch Changes
+
+- [#7998](https://github.com/withastro/astro/pull/7998) [`65c354969`](https://github.com/withastro/astro/commit/65c354969e6fe0ef6d622e8f4c545e2f717ce8c6) Thanks [@bluwy](https://github.com/bluwy)! - Call `astro sync` once before calling `astro check`
+
+- [#7952](https://github.com/withastro/astro/pull/7952) [`70f34f5a3`](https://github.com/withastro/astro/commit/70f34f5a355f42526ee9e5355f3de8e510002ea2) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Remove StreamingCompatibleResponse polyfill
+
+- [#8011](https://github.com/withastro/astro/pull/8011) [`5b1e39ef6`](https://github.com/withastro/astro/commit/5b1e39ef6ec6dcebea96584f95d9530bd9aa715d) Thanks [@bluwy](https://github.com/bluwy)! - Move hoisted script analysis optimization behind the `experimental.optimizeHoistedScript` option
+
+- Updated dependencies [[`b675acb2a`](https://github.com/withastro/astro/commit/b675acb2aa820448e9c0d363339a37fbac873215)]:
+  - @astrojs/telemetry@3.0.0-beta.1
+
+## 3.0.0-beta.0
+
+### Major Changes
+
+- [`1eae2e3f7`](https://github.com/withastro/astro/commit/1eae2e3f7d693c9dfe91c8ccfbe606d32bf2fb81) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove support for Node 16. The lowest supported version by Astro and all integrations is now v18.14.1. As a reminder, Node 16 will be deprecated on the 11th September 2023.
+
+- [`76ddef19c`](https://github.com/withastro/astro/commit/76ddef19ccab6e5f7d3a5740cd41acf10e334b38) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Removed automatic flattening of `getStaticPaths` result. `.flatMap` and `.flat` should now be used to ensure that you're returning a flat array.
+
+- [`3fdf509b2`](https://github.com/withastro/astro/commit/3fdf509b2731a9b2f972d89291e57cf78d62c769) Thanks [@ematipico](https://github.com/ematipico)! - The `build.split` and `build.excludeMiddleware` configuration options are deprecated and have been replaced by options in the adapter config.
+
+  If your config includes the `build.excludeMiddleware` option, replace it with `edgeMiddleware` in your adapter options:
+
+  ```diff
+  import { defineConfig } from "astro/config";
+  import netlify from "@astrojs/netlify/functions";
+
+  export default defineConfig({
+       build: {
+  -        excludeMiddleware: true
+       },
+       adapter: netlify({
+  +        edgeMiddleware: true
+       }),
+  });
+  ```
+
+  If your config includes the `build.split` option, replace it with `functionPerRoute` in your adapter options:
+
+  ```diff
+  import { defineConfig } from "astro/config";
+  import netlify from "@astrojs/netlify/functions";
+
+  export default defineConfig({
+       build: {
+  -        split: true
+       },
+       adapter: netlify({
+  +        functionPerRoute: true
+       }),
+  });
+  ```
+
+- [`2f951cd40`](https://github.com/withastro/astro/commit/2f951cd403dfcc2c3ca6aae618ae3e1409516e32) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Sharp is now the default image service used for `astro:assets`. If you would prefer to still use Squoosh, you can update your config with the following:
+
+  ```ts
+  import { defineConfig, squooshImageService } from 'astro/config';
+
+  // https://astro.build/config
+  export default defineConfig({
+    image: {
+      service: squooshImageService(),
+    },
+  });
+  ```
+
+  However, not only do we recommend using Sharp as it is faster and more reliable, it is also highly likely that the Squoosh service will be removed in a future release.
+
+- [`c022a4217`](https://github.com/withastro/astro/commit/c022a4217a805d223c1494e9eda4e48bbf810388) Thanks [@Princesseuh](https://github.com/Princesseuh)! - When using an adapter that supports neither Squoosh or Sharp, Astro will now automatically use an image service that does not support processing, but still provides the other benefits of `astro:assets` such as enforcing `alt`, no CLS etc to users
+
+- [`67becaa58`](https://github.com/withastro/astro/commit/67becaa580b8f787df58de66b7008b7098f1209c) Thanks [@ematipico](https://github.com/ematipico)! - Removed support for old syntax of the API routes.
+
+- [`dfc2d93e3`](https://github.com/withastro/astro/commit/dfc2d93e3c645995379358fabbdfa9aab99f43d8) Thanks [@bluwy](https://github.com/bluwy)! - Remove MDX plugin re-ordering hack
+
+- [`3dc1ca2fa`](https://github.com/withastro/astro/commit/3dc1ca2fac8d9965cc5085a5d09e72ed87b4281a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Reduced the amount of polyfills provided by Astro. Astro will no longer provide (no-op) polyfills for several web apis such as HTMLElement, Image or Document. If you need access to those APIs on the server, we recommend using more proper polyfills available on npm.
+
+- [`1be84dfee`](https://github.com/withastro/astro/commit/1be84dfee3ce8e6f5cc624f99aec4e980f6fde37) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Update `tsconfig.json` presets with `moduleResolution: 'bundler'` and other new options from TypeScript 5.0. Astro now assumes that you use TypeScript 5.0 (March 2023), or that your editor includes it, ex: VS Code 1.77
+
+- [`35f01df79`](https://github.com/withastro/astro/commit/35f01df797d23315f2bee2fc3fd795adb0559c58) Thanks [@Princesseuh](https://github.com/Princesseuh)! - The `astro check` command now requires an external package `@astrojs/check` and an install of `typescript` in your project. This was done in order to make the main `astro` package smaller and give more flexibility to users in regard to the version of TypeScript they use.
+
+- [`3fdf509b2`](https://github.com/withastro/astro/commit/3fdf509b2731a9b2f972d89291e57cf78d62c769) Thanks [@ematipico](https://github.com/ematipico)! - The `build.split` and `build.excludeMiddleware` configuration options are deprecated and have been replaced by options in the adapter config.
+
+  If your config includes the `build.excludeMiddleware` option, replace it with `edgeMiddleware` in your adapter options:
+
+  ```diff
+  import { defineConfig } from "astro/config";
+  import vercel from "@astrojs/vercel/serverless";
+
+  export default defineConfig({
+       build: {
+  -        excludeMiddleware: true
+       },
+       adapter: vercel({
+  +        edgeMiddleware: true
+       }),
+  });
+  ```
+
+  If your config includes the `build.split` option, replace it with `functionPerRoute` in your adapter options:
+
+  ```diff
+  import { defineConfig } from "astro/config";
+  import vercel from "@astrojs/vercel/serverless";
+
+  export default defineConfig({
+       build: {
+  -        split: true
+       },
+       adapter: vercel({
+  +        functionPerRoute: true
+       }),
+  });
+  ```
+
+- [`78de801f2`](https://github.com/withastro/astro/commit/78de801f21fd4ca1653950027d953bf08614566b) Thanks [@ematipico](https://github.com/ematipico)! - Lowercase names for endpoint functions are now deprecated.
+
+  Rename functions to their uppercase equivalent:
+
+  ```diff
+  - export function get() {
+  + export function GET() {
+      return new Response(JSON.stringify({ "title": "Bob's blog" }));
+  }
+
+  - export function post() {
+  + export function POST() {
+      return new Response(JSON.stringify({ "title": "Bob's blog" }));
+  }
+
+  - export function put() {
+  + export function PUT() {
+      return new Response(JSON.stringify({ "title": "Bob's blog" }));
+  }
+
+  - export function all() {
+  + export function ALL() {
+      return new Response(JSON.stringify({ "title": "Bob's blog" }));
+  }
+
+  // you can use the whole word "DELETE"
+  - export function del() {
+  + export function DELETE() {
+      return new Response(JSON.stringify({ "title": "Bob's blog" }));
+  }
+  ```
+
+- [`59d6e569f`](https://github.com/withastro/astro/commit/59d6e569f63e175c97e82e94aa7974febfb76f7c) Thanks [@matthewp](https://github.com/matthewp)! - Astro.cookies.get(key) returns undefined if cookie doesn't exist
+
+  With this change, Astro.cookies.get(key) no longer always returns a `AstroCookie` object. Instead it now returns `undefined` if the cookie does not exist.
+
+  You should update your code if you assume that all calls to `get()` return a value. When using with `has()` you still need to assert the value, like so:
+
+  ```astro
+  ---
+  if (Astro.cookies.has(id)) {
+    const id = Astro.cookies.get(id)!;
+  }
+  ---
+  ```
+
+- [`7723c4cc9`](https://github.com/withastro/astro/commit/7723c4cc93298c2e6530e55da7afda048f22cf81) Thanks [@ematipico](https://github.com/ematipico)! - The property `compressHTML` is now `true` by default. Setting this value to `true` is no longer required.
+
+  If you do not want to minify your HTML output, you must set this value to `false` in `astro.config.mjs`.
+
+  ```diff
+  import {defineConfig} from "astro/config";
+  export default defineConfig({
+  +  compressHTML: false
+  })
+  ```
+
+- [`fb5cd6b56`](https://github.com/withastro/astro/commit/fb5cd6b56dc27a71366ed5e1ab8bfe9b8f96bac5) Thanks [@ematipico](https://github.com/ematipico)! - Astro's default port when running the dev or preview server is now `4321`.
+
+  This will reduce conflicts with ports used by other tools.
+
+- [`631b9c410`](https://github.com/withastro/astro/commit/631b9c410d5d66fa384674027ba95d69ebb5063f) Thanks [@bluwy](https://github.com/bluwy)! - Remove MDX special `components` export handling
+
+### Minor Changes
+
+- [`9b4f70a62`](https://github.com/withastro/astro/commit/9b4f70a629f55e461759ba46f68af7097a2e9215) Thanks [@ematipico](https://github.com/ematipico)! - Introduced the concept of feature map. A feature map is a list of features that are built-in in Astro, and an Adapter
+  can tell Astro if it can support it.
+
+  ```ts
+  import { AstroIntegration } from './astro';
+
+  function myIntegration(): AstroIntegration {
+    return {
+      name: 'astro-awesome-list',
+      // new feature map
+      supportedAstroFeatures: {
+        hybridOutput: 'experimental',
+        staticOutput: 'stable',
+        serverOutput: 'stable',
+        assets: {
+          supportKind: 'stable',
+          isSharpCompatible: false,
+          isSquooshCompatible: false,
+        },
+      },
+    };
+  }
+  ```
+
+- [`bc37331d8`](https://github.com/withastro/astro/commit/bc37331d8154e3e95a8df9131e4e014e78a7a9e7) Thanks [@ematipico](https://github.com/ematipico)! - Integrations can now log messages using Astro’s built-in logger.
+
+  The logger is available to all hooks as an additional parameter:
+
+  ```ts
+  import { AstroIntegration } from './astro';
+
+  // integration.js
+  export function myIntegration(): AstroIntegration {
+    return {
+      name: 'my-integration',
+      hooks: {
+        'astro:config:done': ({ logger }) => {
+          logger.info('Configure integration...');
+        },
+      },
+    };
+  }
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`1eae2e3f7`](https://github.com/withastro/astro/commit/1eae2e3f7d693c9dfe91c8ccfbe606d32bf2fb81)]:
+  - @astrojs/telemetry@3.0.0-beta.0
+  - @astrojs/internal-helpers@0.2.0-beta.0
+  - @astrojs/markdown-remark@3.0.0-beta.0
+
 ## 2.10.14
 
 ### Patch Changes

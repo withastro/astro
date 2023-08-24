@@ -1,11 +1,6 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
-import {
-	defaultImageConfig,
-	getImageConfig,
-	throwIfAssetsNotEnabled,
-	type VercelImageConfig,
-} from '../image/shared.js';
+import { defaultImageConfig, getImageConfig, type VercelImageConfig } from '../image/shared.js';
 import { exposeEnv } from '../lib/env.js';
 import { emptyDir, getVercelOutput, writeJson } from '../lib/fs.js';
 import { isServerLikeOutput } from '../lib/prerender.js';
@@ -52,7 +47,6 @@ export default function vercelStatic({
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				throwIfAssetsNotEnabled(config, imageService);
 				setAdapter(getAdapter());
 				_config = config;
 

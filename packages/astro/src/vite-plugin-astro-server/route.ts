@@ -1,25 +1,15 @@
-import mime from 'mime';
 import type http from 'node:http';
 import type {
 	ComponentInstance,
 	ManifestData,
-	MiddlewareResponseHandler,
+	MiddlewareEndpointHandler,
 	RouteData,
 	SSRElement,
 	SSRManifest,
 } from '../@types/astro';
-import { attachToResponse } from '../core/cookies/index.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
-import { warn } from '../core/logger/core.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
-import { isEndpointResult } from '../core/render/core.js';
-import {
-	createRenderContext,
-	getParamsAndProps,
-	tryRenderRoute,
-	type DevelopmentEnvironment,
-	type SSROptions,
-} from '../core/render/index.js';
+import { createRenderContext, getParamsAndProps, type SSROptions } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { isPage, resolveIdToUrl, viteID } from '../core/util.js';
@@ -32,6 +22,7 @@ import { preload } from './index.js';
 import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { getScriptsForURL } from './scripts.js';
+import type DevPipeline from './devPipeline.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -49,19 +40,24 @@ export interface MatchedRoute {
 	mod: ComponentInstance;
 }
 
-function getCustom404Route(manifest: ManifestData): RouteData | undefined {
+function getCustom404Route(manifestData: ManifestData): RouteData | undefined {
 	const route404 = /^\/404\/?$/;
-	return manifest.routes.find((r) => route404.test(r.route));
+	return manifestData.routes.find((r) => route404.test(r.route));
 }
 
 export async function matchRoute(
 	pathname: string,
-	env: DevelopmentEnvironment,
-	manifest: ManifestData
+	manifestData: ManifestData,
+	pipeline: DevPipeline
 ): Promise<MatchedRoute | undefined> {
-	const { logging, settings, routeCache } = env;
-	const matches = matchAllRoutes(pathname, manifest);
-	const preloadedMatches = await getSortedPreloadedMatches({ env, matches, settings });
+	const env = pipeline.getEnvironment();
+	const { routeCache, logging } = env;
+	const matches = matchAllRoutes(pathname, manifestData);
+	const preloadedMatches = await getSortedPreloadedMatches({
+		pipeline,
+		matches,
+		settings: pipeline.getSettings(),
+	});
 
 	for await (const { preloadedComponent, route: maybeRoute, filePath } of preloadedMatches) {
 		// attempt to get static paths
@@ -73,7 +69,7 @@ export async function matchRoute(
 				routeCache,
 				pathname: pathname,
 				logging,
-				ssr: isServerLikeOutput(settings.config),
+				ssr: isServerLikeOutput(pipeline.getConfig()),
 			});
 			return {
 				route: maybeRoute,
@@ -96,14 +92,13 @@ export async function matchRoute(
 	// build formats, and is necessary based on how the manifest tracks build targets.
 	const altPathname = pathname.replace(/(index)?\.html$/, '');
 	if (altPathname !== pathname) {
-		return await matchRoute(altPathname, env, manifest);
+		return await matchRoute(altPathname, manifestData, pipeline);
 	}
 
 	if (matches.length) {
 		const possibleRoutes = matches.flatMap((route) => route.component);
 
-		warn(
-			logging,
+		pipeline.logger.warn(
 			'getStaticPaths',
 			`${AstroErrorData.NoMatchingStaticPathFound.message(
 				pathname
@@ -112,11 +107,11 @@ export async function matchRoute(
 	}
 
 	log404(logging, pathname);
-	const custom404 = getCustom404Route(manifest);
+	const custom404 = getCustom404Route(manifestData);
 
 	if (custom404) {
-		const filePath = new URL(`./${custom404.component}`, settings.config.root);
-		const preloadedComponent = await preload({ env, filePath });
+		const filePath = new URL(`./${custom404.component}`, pipeline.getConfig().root);
+		const preloadedComponent = await preload({ pipeline, filePath });
 
 		return {
 			route: custom404,
@@ -136,12 +131,12 @@ type HandleRoute = {
 	pathname: string;
 	body: ArrayBuffer | undefined;
 	origin: string;
-	env: DevelopmentEnvironment;
 	manifestData: ManifestData;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 	manifest: SSRManifest;
 	status?: 404 | 500;
+	pipeline: DevPipeline;
 };
 
 export async function handleRoute({
@@ -151,18 +146,21 @@ export async function handleRoute({
 	status = getStatus(matchedRoute),
 	body,
 	origin,
-	env,
+	pipeline,
 	manifestData,
 	incomingRequest,
 	incomingResponse,
 	manifest,
 }: HandleRoute): Promise<void> {
-	const { logging, settings } = env;
+	const env = pipeline.getEnvironment();
+	const settings = pipeline.getSettings();
+	const config = pipeline.getConfig();
+	const moduleLoader = pipeline.getModuleLoader();
+	const { logging } = env;
 	if (!matchedRoute) {
 		return handle404Response(origin, incomingRequest, incomingResponse);
 	}
 
-	const { config } = settings;
 	const filePath: URL | undefined = matchedRoute.filePath;
 	const { route, preloadedComponent } = matchedRoute;
 	const buildingToSSR = isServerLikeOutput(config);
@@ -192,14 +190,14 @@ export async function handleRoute({
 		request,
 		route,
 	};
-	const middleware = await loadMiddleware(env.loader, env.settings.config.srcDir);
+	const middleware = await loadMiddleware(moduleLoader, settings.config.srcDir);
 	if (middleware) {
 		options.middleware = middleware;
 	}
 	const mod = options.preload;
 
 	const { scripts, links, styles, metadata } = await getScriptsAndStyles({
-		env: options.env,
+		pipeline,
 		filePath: options.filePath,
 	});
 
@@ -214,70 +212,31 @@ export async function handleRoute({
 		mod,
 		env,
 	});
-	const onRequest = options.middleware?.onRequest as MiddlewareResponseHandler | undefined;
+	const onRequest = options.middleware?.onRequest as MiddlewareEndpointHandler | undefined;
+	if (onRequest) {
+		pipeline.setMiddlewareFunction(onRequest);
+	}
 
-	const result = await tryRenderRoute(route.type, renderContext, env, mod, onRequest);
-	if (isEndpointResult(result, route.type)) {
-		if (result.type === 'response') {
-			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
-				const fourOhFourRoute = await matchRoute('/404', env, manifestData);
-				return handleRoute({
-					matchedRoute: fourOhFourRoute,
-					url: new URL('/404', url),
-					pathname: '/404',
-					status: 404,
-					body,
-					origin,
-					env,
-					manifestData,
-					incomingRequest,
-					incomingResponse,
-					manifest,
-				});
-			}
-			await writeWebResponse(incomingResponse, result.response);
-		} else {
-			let contentType = 'text/plain';
-			// Dynamic routes don't include `route.pathname`, so synthesize a path for these (e.g. 'src/pages/[slug].svg')
-			const filepath =
-				route.pathname ||
-				route.segments.map((segment) => segment.map((p) => p.content).join('')).join('/');
-			const computedMimeType = mime.getType(filepath);
-			if (computedMimeType) {
-				contentType = computedMimeType;
-			}
-			const response = new Response(
-				result.encoding !== 'binary' ? Buffer.from(result.body, result.encoding) : result.body,
-				{
-					status: 200,
-					headers: {
-						'Content-Type': `${contentType};charset=utf-8`,
-					},
-				}
-			);
-			attachToResponse(response, result.cookies);
-			await writeWebResponse(incomingResponse, response);
-		}
+	let response = await pipeline.renderRoute(renderContext, mod);
+	if (response.status === 404 && has404Route(manifestData)) {
+		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
+		return handleRoute({
+			...options,
+			matchedRoute: fourOhFourRoute,
+			url: new URL(pathname, url),
+			status: 404,
+			body,
+			origin,
+			pipeline,
+			manifestData,
+			incomingRequest,
+			incomingResponse,
+			manifest,
+		});
+	}
+	if (route.type === 'endpoint') {
+		await writeWebResponse(incomingResponse, response);
 	} else {
-		if (result.status === 404 && has404Route(manifestData)) {
-			const fourOhFourRoute = await matchRoute('/404', env, manifestData);
-			return handleRoute({
-				...options,
-				matchedRoute: fourOhFourRoute,
-				url: new URL(pathname, url),
-				status: 404,
-				body,
-				origin,
-				env,
-				manifestData,
-				incomingRequest,
-				incomingResponse,
-				manifest,
-			});
-		}
-
-		let response = result;
-
 		if (
 			// We are in a recursion, and it's possible that this function is called itself with a status code
 			// By default, the status code passed via parameters is computed by the matched route.
@@ -291,23 +250,26 @@ export async function handleRoute({
 			return;
 		} else if (status && response.status !== status && (status === 404 || status === 500)) {
 			// Response.status is read-only, so a clone is required to override
-			response = new Response(result.body, { ...result, status });
+			response = new Response(response.body, { ...response, status });
 		}
 		await writeSSRResult(request, response, incomingResponse);
 	}
 }
 
 interface GetScriptsAndStylesParams {
-	env: DevelopmentEnvironment;
+	pipeline: DevPipeline;
 	filePath: URL;
 }
 
-async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams) {
+async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesParams) {
+	const moduleLoader = pipeline.getModuleLoader();
+	const settings = pipeline.getSettings();
+	const mode = pipeline.getEnvironment().mode;
 	// Add hoisted script tags
-	const scripts = await getScriptsForURL(filePath, env.settings.config.root, env.loader);
+	const scripts = await getScriptsForURL(filePath, settings.config.root, moduleLoader);
 
 	// Inject HMR scripts
-	if (isPage(filePath, env.settings) && env.mode === 'development') {
+	if (isPage(filePath, settings) && mode === 'development') {
 		scripts.add({
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',
@@ -315,20 +277,20 @@ async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams)
 		scripts.add({
 			props: {
 				type: 'module',
-				src: await resolveIdToUrl(env.loader, 'astro/runtime/client/hmr.js'),
+				src: await resolveIdToUrl(moduleLoader, 'astro/runtime/client/hmr.js'),
 			},
 			children: '',
 		});
 	}
 
 	// TODO: We should allow adding generic HTML elements to the head, not just scripts
-	for (const script of env.settings.scripts) {
+	for (const script of settings.scripts) {
 		if (script.stage === 'head-inline') {
 			scripts.add({
 				props: {},
 				children: script.content,
 			});
-		} else if (script.stage === 'page' && isPage(filePath, env.settings)) {
+		} else if (script.stage === 'page' && isPage(filePath, settings)) {
 			scripts.add({
 				props: { type: 'module', src: `/@id/${PAGE_SCRIPT_ID}` },
 				children: '',
@@ -337,7 +299,7 @@ async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams)
 	}
 
 	// Pass framework CSS in as style tags to be appended to the page.
-	const { urls: styleUrls, stylesMap } = await getStylesForURL(filePath, env.loader, env.mode);
+	const { urls: styleUrls, stylesMap } = await getStylesForURL(filePath, moduleLoader, mode);
 	let links = new Set<SSRElement>();
 	[...styleUrls].forEach((href) => {
 		links.add({
@@ -364,13 +326,13 @@ async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams)
 			props: {
 				type: 'text/css',
 				// Track the ID so we can match it to Vite's injected style later
-				'data-astro-dev-id': viteID(new URL(`.${url}`, env.settings.config.root)),
+				'data-astro-dev-id': viteID(new URL(`.${url}`, settings.config.root)),
 			},
 			children: content,
 		});
 	});
 
-	const metadata = await getComponentMetadata(filePath, env.loader);
+	const metadata = await getComponentMetadata(filePath, moduleLoader);
 
 	return { scripts, styles, links, metadata };
 }

@@ -85,6 +85,9 @@ export interface BuildInternals {
 	staticFiles: Set<string>;
 	// The SSR entry chunk. Kept in internals to share between ssr/client build steps
 	ssrEntryChunk?: Rollup.OutputChunk;
+	// The SSR manifest entry chunk.
+	manifestEntryChunk?: Rollup.OutputChunk;
+	manifestFileName?: string;
 	entryPoints: Map<RouteData, URL>;
 	ssrSplitEntryChunks: Map<string, Rollup.OutputChunk>;
 	componentMetadata: SSRResult['componentMetadata'];
@@ -225,14 +228,6 @@ export function hasPageDataByViteID(internals: BuildInternals, viteid: ViteID): 
 
 export function* eachPageData(internals: BuildInternals) {
 	yield* internals.pagesByComponent.values();
-}
-
-export function* eachRedirectPageData(internals: BuildInternals) {
-	for (const pageData of eachPageData(internals)) {
-		if (pageData.route.type === 'redirect') {
-			yield pageData;
-		}
-	}
 }
 
 export function* eachPageDataFromEntryPoint(

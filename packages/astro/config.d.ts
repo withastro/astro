@@ -24,3 +24,10 @@ export function sharpImageService(): ImageServiceConfig;
  * Return the configuration needed to use the Squoosh-based image service
  */
 export function squooshImageService(): ImageServiceConfig;
+
+/**
+ * Return the configuration needed to use the passthrough image service. This image services does not perform
+ * any image transformations, and is mainly useful when your platform does not support other image services, or you are
+ * not using Astro's built-in image processing.
+ */
+export function passthroughImageService(): ImageServiceConfig;

@@ -4,11 +4,11 @@ import type {
 	EndpointHandler,
 	MiddlewareHandler,
 	MiddlewareResponseHandler,
-	RouteType,
 } from '../../@types/astro';
 import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
-import { attachToResponse } from '../cookies/index.js';
-import { callEndpoint, createAPIContext, type EndpointCallResult } from '../endpoint/index.js';
+import { attachCookiesToResponse } from '../cookies/index.js';
+import { callEndpoint, createAPIContext } from '../endpoint/index.js';
+import { warn } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../redirects/index.js';
 import type { RenderContext } from './context.js';
@@ -22,7 +22,7 @@ export type RenderPage = {
 	cookies: AstroCookies;
 };
 
-async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
+export async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
 	if (routeIsRedirect(renderContext.route)) {
 		return new Response(null, {
 			status: redirectRouteStatus(renderContext.route, renderContext.request.method),
@@ -42,7 +42,6 @@ async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
 		links: renderContext.links,
 		styles: renderContext.styles,
 		logging: env.logging,
-		markdown: env.markdown,
 		params: renderContext.params,
 		pathname: renderContext.pathname,
 		componentMetadata: renderContext.componentMetadata,
@@ -59,12 +58,16 @@ async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
 		locals: renderContext.locals ?? {},
 	});
 
-	// Support `export const components` for `MDX` pages
-	if (typeof (mod as any).components === 'object') {
-		Object.assign(renderContext.props, { components: (mod as any).components });
+	// TODO: Remove in Astro 4.0
+	if (mod.frontmatter && typeof mod.frontmatter === 'object' && 'draft' in mod.frontmatter) {
+		warn(
+			env.logging,
+			'astro',
+			`The drafts feature is deprecated and used in ${renderContext.route.component}. You should migrate to content collections instead. See https://docs.astro.build/en/guides/content-collections/#filtering-collection-queries for more information.`
+		);
 	}
 
-	let response = await runtimeRenderPage(
+	const response = await runtimeRenderPage(
 		result,
 		Component,
 		renderContext.props,
@@ -76,7 +79,7 @@ async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
 	// If there is an Astro.cookies instance, attach it to the response so that
 	// adapters can grab the Set-Cookie headers.
 	if (result.cookies) {
-		attachToResponse(response, result.cookies);
+		attachCookiesToResponse(response, result.cookies);
 	}
 
 	return response;
@@ -91,14 +94,14 @@ async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
  * ## Errors
  *
  * It throws an error if the page can't be rendered.
+ * @deprecated Use the pipeline instead
  */
 export async function tryRenderRoute<MiddlewareReturnType = Response>(
-	routeType: RouteType,
 	renderContext: Readonly<RenderContext>,
 	env: Readonly<Environment>,
 	mod: Readonly<ComponentInstance>,
 	onRequest?: MiddlewareHandler<MiddlewareReturnType>
-): Promise<Response | EndpointCallResult> {
+): Promise<Response> {
 	const apiContext = createAPIContext({
 		request: renderContext.request,
 		params: renderContext.params,
@@ -107,7 +110,7 @@ export async function tryRenderRoute<MiddlewareReturnType = Response>(
 		adapterName: env.adapterName,
 	});
 
-	switch (routeType) {
+	switch (renderContext.route.type) {
 		case 'page':
 		case 'redirect': {
 			if (onRequest) {
@@ -143,14 +146,6 @@ export async function tryRenderRoute<MiddlewareReturnType = Response>(
 			return result;
 		}
 		default:
-			throw new Error(`Couldn't find route of type [${routeType}]`);
+			throw new Error(`Couldn't find route of type [${renderContext.route.type}]`);
 	}
-}
-
-export function isEndpointResult(result: any, routeType: RouteType): result is EndpointCallResult {
-	return !(result instanceof Response) && routeType === 'endpoint';
-}
-
-export function isResponse(result: any, routeType: RouteType): result is Response {
-	return result instanceof Response && (routeType === 'page' || routeType === 'redirect');
 }

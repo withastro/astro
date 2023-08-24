@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/prefetch",
   "description": "Prefetch page navigations in your Astro site",
-  "version": "0.3.0",
+  "version": "0.4.0-rc.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -34,13 +34,9 @@
     "test:match": "playwright test -g"
   },
   "devDependencies": {
-    "@playwright/test": "^1.29.2",
-    "@types/chai": "^4.3.5",
-    "@types/chai-as-promised": "^7.1.5",
-    "@types/mocha": "^9.1.1",
+    "@playwright/test": "^1.37.1",
     "astro": "workspace:*",
-    "astro-scripts": "workspace:*",
-    "playwright": "^1.29.2"
+    "astro-scripts": "workspace:*"
   },
   "dependencies": {
     "throttles": "^1.0.1"

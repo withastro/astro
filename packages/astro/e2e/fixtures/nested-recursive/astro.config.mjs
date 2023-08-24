@@ -8,5 +8,11 @@ import solid from '@astrojs/solid-js';
 // https://astro.build/config
 export default defineConfig({
 	// Enable many frameworks to support all different kinds of components.
-	integrations: [preact(), react(), svelte(), vue(), solid()],
+	integrations: [
+		react({ include: ['**/react/*'] }),
+		preact({ include: ['**/preact/*'] }),
+		solid({ include: ['**/solid/*'] }),
+		svelte(),
+		vue(),
+	],
 });

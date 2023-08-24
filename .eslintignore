@@ -2,7 +2,6 @@
 packages/**/*.min.js
 packages/**/dist/**/*
 packages/**/fixtures/**/*
-packages/webapi/**/*
 packages/astro/vendor/vite/**/*
 examples/**/*
 scripts/**/*

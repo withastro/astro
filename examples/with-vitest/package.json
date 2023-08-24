@@ -12,7 +12,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "astro": "^2.10.14",
-    "vitest": "^0.31.4"
+    "astro": "^3.0.0-rc.5",
+    "vitest": "^0.34.2"
   }
 }

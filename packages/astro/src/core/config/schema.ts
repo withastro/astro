@@ -1,6 +1,6 @@
 import type { RehypePlugin, RemarkPlugin, RemarkRehype } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
-import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
+import type { ILanguageRegistration, IShikiTheme, Theme } from 'shiki';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro';
 
 import type { OutgoingHttpHeaders } from 'node:http';
@@ -8,7 +8,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { BUNDLED_THEMES } from 'shiki';
 import { z } from 'zod';
-import { appendForwardSlash, prependForwardSlash, trimSlashes } from '../path.js';
+import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
 const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
@@ -25,14 +25,14 @@ const ASTRO_CONFIG_DEFAULTS = {
 		assets: '_astro',
 		serverEntry: 'entry.mjs',
 		redirects: true,
-		inlineStylesheets: 'never',
+		inlineStylesheets: 'auto',
 		split: false,
 		excludeMiddleware: false,
 	},
-	compressHTML: false,
+	compressHTML: true,
 	server: {
 		host: false,
-		port: 3000,
+		port: 4321,
 		open: false,
 	},
 	integrations: [],
@@ -44,7 +44,6 @@ const ASTRO_CONFIG_DEFAULTS = {
 	legacy: {},
 	redirects: {},
 	experimental: {
-		assets: false,
 		viewTransitions: false,
 		optimizeHoistedScript: false,
 	},
@@ -88,9 +87,9 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default('static'),
 	scopedStyleStrategy: z
-		.union([z.literal('where'), z.literal('class')])
+		.union([z.literal('where'), z.literal('class'), z.literal('attribute')])
 		.optional()
-		.default('where'),
+		.default('attribute'),
 	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
 	integrations: z.preprocess(
 		// preprocess
@@ -125,7 +124,15 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
 
+			/**
+			 * @deprecated
+			 * Use the adapter feature instead
+			 */
 			split: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.split),
+			/**
+			 * @deprecated
+			 * Use the adapter feature instead
+			 */
 			excludeMiddleware: z
 				.boolean()
 				.optional()
@@ -208,9 +215,7 @@ export const AstroConfigSchema = z.object({
 				.default([]),
 		})
 		.default({
-			service: { entrypoint: 'astro/assets/services/squoosh', config: {} },
-			domains: [],
-			remotePatterns: [],
+			service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 		}),
 	markdown: z
 		.object({
@@ -223,8 +228,8 @@ export const AstroConfigSchema = z.object({
 					langs: z.custom<ILanguageRegistration>().array().default([]),
 					theme: z
 						.enum(BUNDLED_THEMES as [Theme, ...Theme[]])
-						.or(z.custom<IThemeRegistration>())
-						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme!),
+						.or(z.custom<IShikiTheme>())
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme! as Theme),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
 				})
 				.default({}),
@@ -259,7 +264,6 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
 	experimental: z
 		.object({
-			assets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.assets),
 			viewTransitions: z
 				.boolean()
 				.optional()
@@ -392,22 +396,14 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 			) {
 				config.build.client = new URL('./dist/client/', config.outDir);
 			}
-			const trimmedBase = trimSlashes(config.base);
 
-			// If there is no base but there is a base for site config, warn.
-			const sitePathname = config.site && new URL(config.site).pathname;
-			if (!trimmedBase.length && sitePathname && sitePathname !== '/') {
-				config.base = sitePathname;
-				/* eslint-disable no-console */
-				console.warn(`The site configuration value includes a pathname of ${sitePathname} but there is no base configuration.
-
-A future version of Astro will stop using the site pathname when producing <link> and <script> tags. Set your site's base with the base configuration.`);
-			}
-
-			if (trimmedBase.length && config.trailingSlash === 'never') {
-				config.base = prependForwardSlash(trimmedBase);
+			// Handle `base` trailing slash based on `trailingSlash` config
+			if (config.trailingSlash === 'never') {
+				config.base = prependForwardSlash(removeTrailingForwardSlash(config.base));
+			} else if (config.trailingSlash === 'always') {
+				config.base = prependForwardSlash(appendForwardSlash(config.base));
 			} else {
-				config.base = prependForwardSlash(appendForwardSlash(trimmedBase));
+				config.base = prependForwardSlash(config.base);
 			}
 
 			return config;

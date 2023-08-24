@@ -60,9 +60,7 @@ Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll 
 | [@astrojs/partytown](packages/integrations/partytown)   | [![astro version](https://img.shields.io/npm/v/@astrojs/partytown.svg?label=%20)](packages/integrations/partytown/CHANGELOG.md)   |
 | [@astrojs/sitemap](packages/integrations/sitemap)       | [![astro version](https://img.shields.io/npm/v/@astrojs/sitemap.svg?label=%20)](packages/integrations/sitemap/CHANGELOG.md)       |
 | [@astrojs/tailwind](packages/integrations/tailwind)     | [![astro version](https://img.shields.io/npm/v/@astrojs/tailwind.svg?label=%20)](packages/integrations/tailwind/CHANGELOG.md)     |
-| [@astrojs/turbolinks](packages/integrations/turbolinks) | [![astro version](https://img.shields.io/npm/v/@astrojs/turbolinks.svg?label=%20)](packages/integrations/turbolinks/CHANGELOG.md) |
 | [@astrojs/alpinejs](packages/integrations/alpinejs)     | [![astro version](https://img.shields.io/npm/v/@astrojs/alpinejs.svg?label=%20)](packages/integrations/alpinejs/CHANGELOG.md)     |
-| [@astrojs/image](packages/integrations/image)           | [![astro version](https://img.shields.io/npm/v/@astrojs/image.svg?label=%20)](packages/integrations/image/CHANGELOG.md)           |
 | [@astrojs/mdx](packages/integrations/mdx)               | [![astro version](https://img.shields.io/npm/v/@astrojs/mdx.svg?label=%20)](packages/integrations/mdx/CHANGELOG.md)               |
 | [@astrojs/prefetch](packages/integrations/prefetch)     | [![astro version](https://img.shields.io/npm/v/@astrojs/prefetch.svg?label=%20)](packages/integrations/prefetch/CHANGELOG.md)     |
 

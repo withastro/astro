@@ -3,7 +3,7 @@
   "include": ["src"],
   "compilerOptions": {
     "allowJs": true,
-    "target": "ES2021",
+    "target": "ES2022",
     "module": "ES2022",
     "outDir": "./dist"
   }

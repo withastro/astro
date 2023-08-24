@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/tailwind",
   "description": "Use Tailwind CSS to style your Astro site",
-  "version": "4.0.0",
+  "version": "5.0.0-rc.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -32,18 +32,18 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "autoprefixer": "^10.4.14",
-    "postcss": "^8.4.24",
+    "autoprefixer": "^10.4.15",
+    "postcss": "^8.4.28",
     "postcss-load-config": "^4.0.1"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "tailwindcss": "^3.3.2",
-    "vite": "^4.4.6"
+    "tailwindcss": "^3.3.3",
+    "vite": "^4.4.9"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.10.14",
+    "astro": "workspace:^3.0.0-rc.5",
     "tailwindcss": "^3.0.24"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/svelte",
-  "version": "3.1.1",
+  "version": "4.0.0-rc.2",
   "description": "Use Svelte components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -38,20 +38,20 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@sveltejs/vite-plugin-svelte": "^2.4.2",
-    "svelte2tsx": "^0.6.15"
+    "@sveltejs/vite-plugin-svelte": "^2.4.5",
+    "svelte2tsx": "^0.6.20"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "svelte": "^3.59.1",
-    "vite": "^4.4.6"
+    "svelte": "^4.2.0",
+    "vite": "^4.4.9"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.10.14",
+    "astro": "workspace:^3.0.0-rc.5",
     "svelte": "^3.55.0 || ^4.0.0"
   },
   "engines": {
-    "node": ">=16.12.0"
+    "node": ">=18.14.1"
   }
 }

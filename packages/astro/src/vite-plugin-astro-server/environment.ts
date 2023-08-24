@@ -1,7 +1,7 @@
 import type { AstroSettings, RuntimeMode, SSRManifest } from '../@types/astro.js';
 import type { LogOptions } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader';
-import type { DevelopmentEnvironment } from '../core/render';
+import type { Environment } from '../core/render';
 import { createEnvironment } from '../core/render/index.js';
 import { RouteCache } from '../core/render/route-cache.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
@@ -12,12 +12,11 @@ export function createDevelopmentEnvironment(
 	settings: AstroSettings,
 	logging: LogOptions,
 	loader: ModuleLoader
-): DevelopmentEnvironment {
+): Environment {
 	const mode: RuntimeMode = 'development';
-	let env = createEnvironment({
+	return createEnvironment({
 		adapterName: manifest.adapterName,
 		logging,
-		markdown: manifest.markdown,
 		mode,
 		// This will be overridden in the dev server
 		renderers: [],
@@ -29,10 +28,4 @@ export function createDevelopmentEnvironment(
 		ssr: isServerLikeOutput(settings.config),
 		streaming: true,
 	});
-
-	return {
-		...env,
-		loader,
-		settings,
-	};
 }

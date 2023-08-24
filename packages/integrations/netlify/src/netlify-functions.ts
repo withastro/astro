@@ -1,16 +1,16 @@
-import { polyfill } from '@astrojs/webapi';
 import { builder, type Handler } from '@netlify/functions';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
+import { applyPolyfills } from 'astro/app/node';
 import { ASTRO_LOCALS_HEADER } from './integration-functions.js';
 
-polyfill(globalThis, {
-	exclude: 'window document',
-});
+applyPolyfills();
 
 export interface Args {
 	builders?: boolean;
 	binaryMediaTypes?: string[];
+	edgeMiddleware: boolean;
+	functionPerRoute: boolean;
 }
 
 function parseContentType(header?: string) {

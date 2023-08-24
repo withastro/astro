@@ -7,6 +7,6 @@
     "astro": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.1.0",
-    "solid-js": "^1.7.6"
+    "solid-js": "^1.7.11"
   }
 }

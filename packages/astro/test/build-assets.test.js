@@ -13,6 +13,8 @@ describe('build assets (static)', () => {
 			fixture = await loadFixture({
 				root: './fixtures/build-assets/',
 				integrations: [preact()],
+				// test suite was authored when inlineStylesheets defaulted to never
+				build: { inlineStylesheets: 'never' },
 			});
 			await fixture.build();
 		});
@@ -57,6 +59,7 @@ describe('build assets (static)', () => {
 				integrations: [preact()],
 				build: {
 					assets: 'custom-assets',
+					inlineStylesheets: 'never',
 				},
 			});
 			await fixture.build();
@@ -96,6 +99,8 @@ describe('build assets (server)', () => {
 				root: './fixtures/build-assets/',
 				integrations: [preact()],
 				adapter: testAdapter(),
+				// test suite was authored when inlineStylesheets defaulted to never
+				build: { inlineStylesheets: 'never' },
 			});
 			await fixture.build();
 		});
@@ -140,6 +145,7 @@ describe('build assets (server)', () => {
 				integrations: [preact()],
 				build: {
 					assets: 'custom-assets',
+					inlineStylesheets: 'never',
 				},
 				adapter: testAdapter(),
 			});

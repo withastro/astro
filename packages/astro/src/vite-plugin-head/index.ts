@@ -16,7 +16,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 
 	function propagateMetadata<
 		P extends keyof PluginMetadata['astro'],
-		V extends PluginMetadata['astro'][P]
+		V extends PluginMetadata['astro'][P],
 	>(
 		this: { getModuleInfo(id: string): ModuleInfo | null },
 		id: string,
