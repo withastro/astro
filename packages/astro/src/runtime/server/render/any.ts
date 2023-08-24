@@ -2,6 +2,7 @@ import { escapeHTML, isHTMLString, markHTMLString } from '../escape.js';
 import { isAstroComponentInstance, isRenderTemplateResult } from './astro/index.js';
 import { isRenderInstance, type RenderDestination } from './common.js';
 import { SlotString } from './slot.js';
+import { renderToBufferDestination } from './util.js';
 
 export async function renderChild(destination: RenderDestination, child: any) {
 	child = await child;
@@ -10,8 +11,14 @@ export async function renderChild(destination: RenderDestination, child: any) {
 	} else if (isHTMLString(child)) {
 		destination.write(child);
 	} else if (Array.isArray(child)) {
-		for (const c of child) {
-			await renderChild(destination, c);
+		// Render all children eagerly and in parallel
+		const childRenders = child.map((c) => {
+			return renderToBufferDestination((bufferDestination) => {
+				return renderChild(bufferDestination, c);
+			});
+		});
+		for (const childRender of childRenders) {
+			await childRender.renderToFinalDestination(destination);
 		}
 	} else if (typeof child === 'function') {
 		// Special: If a child is a function, call it automatically.

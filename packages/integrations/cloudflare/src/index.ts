@@ -7,6 +7,9 @@ import { sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'tiny-glob';
 
+export type { AdvancedRuntime } from './server.advanced';
+export type { DirectoryRuntime } from './server.directory';
+
 type Options = {
 	mode: 'directory' | 'advanced';
 	functionPerRoute?: boolean;

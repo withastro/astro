@@ -2,6 +2,7 @@ import { markHTMLString } from '../../escape.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
 import type { RenderDestination } from '../common.js';
+import { renderToBufferDestination } from '../util.js';
 
 const renderTemplateResultSym = Symbol.for('astro.renderTemplateResult');
 
@@ -32,14 +33,23 @@ export class RenderTemplateResult {
 	}
 
 	async render(destination: RenderDestination) {
+		// Render all expressions eagerly and in parallel
+		const expRenders = this.expressions.map((exp) => {
+			return renderToBufferDestination((bufferDestination) => {
+				// Skip render if falsy, except the number 0
+				if (exp || exp === 0) {
+					return renderChild(bufferDestination, exp);
+				}
+			});
+		});
+
 		for (let i = 0; i < this.htmlParts.length; i++) {
 			const html = this.htmlParts[i];
-			const exp = this.expressions[i];
+			const expRender = expRenders[i];
 
 			destination.write(markHTMLString(html));
-			// Skip render if falsy, except the number 0
-			if (exp || exp === 0) {
-				await renderChild(destination, exp);
+			if (expRender) {
+				await expRender.renderToFinalDestination(destination);
 			}
 		}
 	}
