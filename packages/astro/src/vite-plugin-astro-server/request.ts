@@ -1,16 +1,16 @@
 import type http from 'node:http';
 import type { ManifestData, SSRManifest } from '../@types/astro';
-import type { DevServerController } from './controller';
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { createSafeError } from '../core/errors/index.js';
 import * as msg from '../core/messages.js';
 import { collapseDuplicateSlashes, removeTrailingForwardSlash } from '../core/path.js';
 import { eventError, telemetry } from '../events/index.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
+import type { DevServerController } from './controller';
 import { runWithErrorHandling } from './controller.js';
+import type DevPipeline from './devPipeline';
 import { handle500Response } from './response.js';
 import { handleRoute, matchRoute } from './route.js';
-import type DevPipeline from './devPipeline';
 
 type HandleRequest = {
 	pipeline: DevPipeline;

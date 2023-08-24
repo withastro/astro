@@ -19,11 +19,10 @@ import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigType } from '../core/config';
 import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
-import type { LogOptions, LoggerLevel } from '../core/logger/core';
-import type { AstroIntegrationLogger } from '../core/logger/core';
+import type { ResponseWithEncoding } from '../core/endpoint/index.js';
+import type { AstroIntegrationLogger, LogOptions, LoggerLevel } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
-import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 
 export type {
 	MarkdownHeading,

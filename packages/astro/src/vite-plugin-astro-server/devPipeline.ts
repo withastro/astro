@@ -1,14 +1,19 @@
-import { Pipeline } from '../core/pipeline.js';
-import type { AstroConfig, AstroSettings } from '../@types/astro';
-import type { ModuleLoader } from '../core/module-loader';
-import type { Environment } from '../core/render';
-import { createEnvironment, loadRenderer } from '../core/render/index.js';
-import { createResolve } from './resolve.js';
-import { RouteCache } from '../core/render/route-cache.js';
-import { isServerLikeOutput } from '../prerender/utils.js';
-import type { RuntimeMode, SSRManifest, SSRLoadedRenderer } from '../@types/astro';
+import type {
+	AstroConfig,
+	AstroSettings,
+	RuntimeMode,
+	SSRLoadedRenderer,
+	SSRManifest,
+} from '../@types/astro';
 import type { LogOptions } from '../core/logger/core';
 import { Logger } from '../core/logger/core.js';
+import type { ModuleLoader } from '../core/module-loader';
+import { Pipeline } from '../core/pipeline.js';
+import type { Environment } from '../core/render';
+import { createEnvironment, loadRenderer } from '../core/render/index.js';
+import { RouteCache } from '../core/render/route-cache.js';
+import { isServerLikeOutput } from '../prerender/utils.js';
+import { createResolve } from './resolve.js';
 
 export default class DevPipeline extends Pipeline {
 	#settings: AstroSettings;

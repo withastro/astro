@@ -24,8 +24,8 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
-import type { RouteInfo } from './types';
 import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
+import type { RouteInfo } from './types';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');

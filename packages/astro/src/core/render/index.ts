@@ -1,8 +1,8 @@
 import type { AstroMiddlewareInstance, ComponentInstance, RouteData } from '../../@types/astro';
+import type { Environment } from './environment';
 export { createRenderContext } from './context.js';
 export type { RenderContext } from './context.js';
 export { tryRenderRoute } from './core.js';
-import type { Environment } from './environment';
 export { createEnvironment } from './environment.js';
 export { getParamsAndProps } from './params-and-props.js';
 export { loadRenderer } from './renderer.js';

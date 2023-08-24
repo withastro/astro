@@ -1,5 +1,5 @@
 import type { APIContext, EndpointHandler, Params } from '../../@types/astro';
-import { type LogOptions, warn } from '../../core/logger/core.js';
+import { warn, type LogOptions } from '../../core/logger/core.js';
 
 function getHandlerFromModule(mod: EndpointHandler, method: string, logging: LogOptions) {
 	const lowerCaseMethod = method.toLowerCase();

@@ -3,6 +3,7 @@ import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { OutputAsset, OutputChunk } from 'rollup';
+import type { BufferEncoding } from 'vfile';
 import type {
 	AstroConfig,
 	AstroSettings,
@@ -32,7 +33,7 @@ import { runHookBuildGenerated } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { debug, info, Logger } from '../logger/core.js';
+import { Logger, debug, info } from '../logger/core.js';
 import { RedirectSinglePageBuiltModule, getRedirectLocationOrThrow } from '../redirects/index.js';
 import { createRenderContext } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
@@ -44,6 +45,7 @@ import {
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
+import { BuildPipeline } from './buildPipeline.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
 import {
 	cssOrder,
@@ -58,8 +60,6 @@ import type {
 	StylesheetAsset,
 } from './types';
 import { getTimeStat } from './util.js';
-import { BuildPipeline } from './buildPipeline.js';
-import type { BufferEncoding } from 'vfile';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);

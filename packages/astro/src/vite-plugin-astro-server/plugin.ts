@@ -7,8 +7,8 @@ import { createViteLoader } from '../core/module-loader/index.js';
 import { createRouteManifest } from '../core/routing/index.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
-import { handleRequest } from './request.js';
 import DevPipeline from './devPipeline.js';
+import { handleRequest } from './request.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
