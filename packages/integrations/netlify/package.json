@@ -39,8 +39,8 @@
   },
   "dependencies": {
     "@astrojs/underscore-redirects": "workspace:*",
-    "@netlify/functions": "^1.6.0",
-    "esbuild": "^0.18.20"
+    "@netlify/functions": "^2.0.1",
+    "esbuild": "^0.19.2"
   },
   "peerDependencies": {
     "astro": "workspace:^3.0.0-rc.5"
@@ -48,13 +48,13 @@
   "devDependencies": {
     "@netlify/edge-functions": "^2.0.0",
     "@netlify/edge-handler-types": "^0.34.1",
-    "@types/node": "^14.18.54",
+    "@types/node": "^18.17.8",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "chai-jest-snapshot": "^2.0.0",
     "cheerio": "1.0.0-rc.12",
-    "mocha": "^9.2.2",
+    "mocha": "^10.2.0",
     "vite": "^4.4.9"
   },
   "astro": {
