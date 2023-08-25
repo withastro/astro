@@ -18,6 +18,15 @@ function setup() {
 	return { telemetry, config, logs }
 }
 describe('AstroTelemetry', () => {	
+	let oldCI;
+	before(() => {
+		oldCI = process.env.CI;
+		// Stub process.env.CI to `false`
+		process.env.CI = 'false';
+	})
+	after(() => {
+		process.env.CI = oldCI;
+	})
 	it('initializes when expected arguments are given', () => {
 		const { telemetry } = setup();
 		expect(telemetry).to.be.instanceOf(AstroTelemetry);
