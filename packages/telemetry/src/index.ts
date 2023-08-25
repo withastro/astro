@@ -107,6 +107,7 @@ export class AstroTelemetry {
 
 	async notify(callback: () => boolean | Promise<boolean>) {
 		if (this.isDisabled || isCI) {
+			this.debug('telemetry has been disabled');
 			return;
 		}
 		// The end-user has already been notified about our telemetry integration!
@@ -127,7 +128,7 @@ export class AstroTelemetry {
 
 		// Skip recording telemetry if the feature is disabled
 		if (this.isDisabled) {
-			this.debug('telemetry disabled');
+			this.debug('telemetry has been disabled');
 			return Promise.resolve();
 		}
 
