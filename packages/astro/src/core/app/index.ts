@@ -9,7 +9,7 @@ import type {
 import type { SinglePageBuiltModule } from '../build/types';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
-import { error, type LogOptions } from '../logger/core.js';
+import { error, type LogOptions, warn } from '../logger/core.js';
 import {
 	collapseDuplicateSlashes,
 	prependForwardSlash,
@@ -56,6 +56,8 @@ export class App {
 	};
 	#baseWithoutTrailingSlash: string;
 	#pipeline: SSRRoutePipeline;
+	#onRequest: MiddlewareEndpointHandler | undefined;
+	#middlewareLoaded: boolean;
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
@@ -65,6 +67,7 @@ export class App {
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
 		this.#pipeline = new SSRRoutePipeline(this.#createEnvironment(streaming));
+		this.#middlewareLoaded = false;
 	}
 
 	set setManifest(newManifest: SSRManifest) {
@@ -128,7 +131,21 @@ export class App {
 		if (!routeData || routeData.prerender) return undefined;
 		return routeData;
 	}
+
+	async #getOnRequest() {
+		if (this.#manifest.middlewareEntryPoint && !this.#middlewareLoaded) {
+			try {
+				const middleware = await import(this.#manifest.middlewareEntryPoint);
+				this.#pipeline.setMiddlewareFunction(middleware.onRequest as MiddlewareEndpointHandler);
+			} catch (e) {
+				warn(this.#logging, 'SSR', "Couldn't load the middleware entry point");
+			}
+		}
+		this.#middlewareLoaded = true;
+	}
+
 	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {
+		await this.#getOnRequest();
 		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
 		if (request.url !== collapseDuplicateSlashes(request.url)) {
 			request = new Request(collapseDuplicateSlashes(request.url), request);
@@ -156,10 +173,6 @@ export class App {
 		);
 		let response;
 		try {
-			// NOTE: ideally we could set the middleware function just once, but we don't have the infrastructure to that yet
-			if (mod.onRequest) {
-				this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
-			}
 			response = await this.#pipeline.renderRoute(renderContext, pageModule);
 		} catch (err: any) {
 			if (err instanceof EndpointNotFoundError) {

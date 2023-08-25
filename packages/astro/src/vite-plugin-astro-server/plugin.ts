@@ -99,5 +99,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			? new URL(settings.config.base, settings.config.site).toString()
 			: settings.config.site,
 		componentMetadata: new Map(),
+		middlewareEntryPoint: undefined,
 	};
 }

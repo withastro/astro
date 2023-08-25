@@ -211,6 +211,16 @@ describe('Middleware API in PROD mode, SSR', () => {
 		expect(text.includes('REDACTED')).to.be.true;
 	});
 
+	it('should correctly call the middleware function for 404', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/funky-url');
+		const routeData = app.match(request, { matchNotFound: true });
+		const response = await app.render(request, routeData);
+		const text = await response.text();
+		expect(text.includes('Error')).to.be.true;
+		expect(text.includes('bar')).to.be.true;
+	});
+	
 	it('the integration should receive the path to the middleware', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-dev/',
@@ -219,10 +229,8 @@ describe('Middleware API in PROD mode, SSR', () => {
 				excludeMiddleware: true,
 			},
 			adapter: testAdapter({
-				setEntryPoints(entryPointsOrMiddleware) {
-					if (entryPointsOrMiddleware instanceof URL) {
-						middlewarePath = entryPointsOrMiddleware;
-					}
+				setMiddlewareEntryPoint(entryPointsOrMiddleware) {
+					middlewarePath = entryPointsOrMiddleware;
 				},
 			}),
 		});
@@ -237,6 +245,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 			throw e;
 		}
 	});
+
 });
 
 describe('Middleware with tailwind', () => {
