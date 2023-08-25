@@ -2,14 +2,14 @@ import type * as vite from 'vite';
 import type { AstroSettings } from '../@types/astro';
 
 import * as fs from 'node:fs';
-import { warn, type LogOptions } from '../core/logger/core.js';
+import type { Logger } from '../core/logger/core.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 import { log404 } from './common.js';
 import { writeHtmlResponse } from './response.js';
 
 export function baseMiddleware(
 	settings: AstroSettings,
-	logging: LogOptions
+	logger: Logger
 ): vite.Connect.NextHandleFunction {
 	const { config } = settings;
 	const site = config.site ? new URL(config.base, config.site) : undefined;
@@ -28,13 +28,13 @@ export function baseMiddleware(
 		}
 
 		if (pathname === '/' || pathname === '/index.html') {
-			log404(logging, pathname);
+			log404(logger, pathname);
 			const html = subpathNotUsedTemplate(devRoot, pathname);
 			return writeHtmlResponse(res, 404, html);
 		}
 
 		if (req.headers.accept?.includes('text/html')) {
-			log404(logging, pathname);
+			log404(logger, pathname);
 			const html = notFoundTemplate({
 				statusCode: 404,
 				title: 'Not found',
@@ -49,8 +49,7 @@ export function baseMiddleware(
 		fs.stat(publicPath, (_err, stats) => {
 			if (stats) {
 				const expectedLocation = new URL('.' + url, devRootURL).pathname;
-				warn(
-					logging,
+				logger.warn(
 					'dev',
 					`Requests for items in your public folder must also include your base. ${url} should be ${expectedLocation}. Omitting the base will break in production.`
 				);

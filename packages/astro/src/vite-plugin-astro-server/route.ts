@@ -51,7 +51,7 @@ export async function matchRoute(
 	pipeline: DevPipeline
 ): Promise<MatchedRoute | undefined> {
 	const env = pipeline.getEnvironment();
-	const { routeCache, logging } = env;
+	const { routeCache, logger } = env;
 	const matches = matchAllRoutes(pathname, manifestData);
 	const preloadedMatches = await getSortedPreloadedMatches({
 		pipeline,
@@ -68,7 +68,7 @@ export async function matchRoute(
 				route: maybeRoute,
 				routeCache,
 				pathname: pathname,
-				logging,
+				logger,
 				ssr: isServerLikeOutput(pipeline.getConfig()),
 			});
 			return {
@@ -106,7 +106,7 @@ export async function matchRoute(
 		);
 	}
 
-	log404(logging, pathname);
+	log404(logger, pathname);
 	const custom404 = getCustom404Route(manifestData);
 
 	if (custom404) {
@@ -156,7 +156,7 @@ export async function handleRoute({
 	const settings = pipeline.getSettings();
 	const config = pipeline.getConfig();
 	const moduleLoader = pipeline.getModuleLoader();
-	const { logging } = env;
+	const { logger } = env;
 	if (!matchedRoute) {
 		return handle404Response(origin, incomingRequest, incomingResponse);
 	}
@@ -171,7 +171,7 @@ export async function handleRoute({
 		headers: buildingToSSR ? incomingRequest.headers : new Headers(),
 		method: incomingRequest.method,
 		body,
-		logging,
+		logger,
 		ssr: buildingToSSR,
 		clientAddress: buildingToSSR ? incomingRequest.socket.remoteAddress : undefined,
 		locals: Reflect.get(incomingRequest, clientLocalsSymbol), // Allows adapters to pass in locals in dev mode.

@@ -142,8 +142,16 @@ export class Logger {
 	error(label: string | null, message: string) {
 		error(this.options, label, message);
 	}
-	debug(label: string | null, message: string) {
-		debug(this.options, label, message);
+	debug(label: string | null, message: string, ...args: any[]) {
+		debug(this.options, label, message, args);
+	}
+
+	level() {
+		return this.options.level;
+	}
+
+	forkIntegrationLogger(label: string) {
+		return new AstroIntegrationLogger(this.options, label);
 	}
 }
 

@@ -4,8 +4,7 @@ import { performance } from 'perf_hooks';
 import enableDestroy from 'server-destroy';
 import { preview, type PreviewServer as VitePreviewServer } from 'vite';
 import type { AstroSettings } from '../../@types/astro';
-import type { LogOptions } from '../logger/core';
-import { error, info } from '../logger/core.js';
+import type { Logger } from '../logger/core';
 import * as msg from '../messages.js';
 import { getResolvedHostForHttpServer } from './util.js';
 import { vitePluginAstroPreview } from './vite-plugin-astro-preview.js';
@@ -20,7 +19,7 @@ export interface PreviewServer {
 
 export default async function createStaticPreviewServer(
 	settings: AstroSettings,
-	logging: LogOptions
+	logger: Logger
 ): Promise<PreviewServer> {
 	const startServerTime = performance.now();
 
@@ -43,7 +42,7 @@ export default async function createStaticPreviewServer(
 		});
 	} catch (err) {
 		if (err instanceof Error) {
-			error(logging, 'astro', err.stack || err.message);
+			logger.error('astro', err.stack || err.message);
 		}
 		throw err;
 	}
@@ -51,8 +50,7 @@ export default async function createStaticPreviewServer(
 	enableDestroy(previewServer.httpServer);
 
 	// Log server start URLs
-	info(
-		logging,
+	logger.info(
 		null,
 		msg.serverStart({
 			startupTime: performance.now() - startServerTime,

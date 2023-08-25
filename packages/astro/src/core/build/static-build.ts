@@ -19,7 +19,6 @@ import { runHookBuildSetup } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { info } from '../logger/core.js';
 import { routeIsRedirect } from '../redirects/index.js';
 import { getOutDirWithinCwd } from './common.js';
 import { generatePages } from './generate.js';
@@ -80,9 +79,9 @@ export async function viteBuild(opts: StaticBuildOptions) {
 
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrTime = performance.now();
-	info(opts.logging, 'build', `Building ${settings.config.output} entrypoints...`);
+	opts.logger.info('build', `Building ${settings.config.output} entrypoints...`);
 	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
-	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(ssrTime, performance.now())}.`));
+	opts.logger.info('build', dim(`Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 
 	settings.timer.end('SSR build');
 	settings.timer.start('Client build');
@@ -132,7 +131,7 @@ export async function staticBuild(opts: StaticBuildOptions, internals: BuildInte
 			settings.timer.start('Server generate');
 			await generatePages(opts, internals);
 			await cleanStaticOutput(opts, internals);
-			info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
+			opts.logger.info(null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 			await ssrMoveAssets(opts);
 			settings.timer.end('Server generate');
 			return;
@@ -214,7 +213,7 @@ async function ssrBuild(
 		pages: internals.pagesByComponent,
 		vite: viteBuildConfig,
 		target: 'server',
-		logging: opts.logging,
+		logger: opts.logger,
 	});
 
 	return await vite.build(updatedViteBuildConfig);
@@ -242,7 +241,7 @@ async function clientBuild(
 	}
 
 	const { lastVitePlugins, vitePlugins } = container.runBeforeHook('client', input);
-	info(opts.logging, null, `\n${bgGreen(black(' building client '))}`);
+	opts.logger.info(null, `\n${bgGreen(black(' building client '))}`);
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
@@ -276,11 +275,11 @@ async function clientBuild(
 		pages: internals.pagesByComponent,
 		vite: viteBuildConfig,
 		target: 'client',
-		logging: opts.logging,
+		logger: opts.logger,
 	});
 
 	const buildResult = await vite.build(viteBuildConfig);
-	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
+	opts.logger.info(null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 	return buildResult;
 }
 
@@ -403,7 +402,7 @@ async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles = false
 }
 
 async function ssrMoveAssets(opts: StaticBuildOptions) {
-	info(opts.logging, 'build', 'Rearranging server assets...');
+	opts.logger.info('build', 'Rearranging server assets...');
 	const serverRoot =
 		opts.settings.config.output === 'static'
 			? opts.settings.config.build.client

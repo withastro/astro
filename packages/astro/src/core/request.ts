@@ -1,6 +1,5 @@
 import type { IncomingHttpHeaders } from 'node:http';
-import type { LogOptions } from './logger/core';
-import { warn } from './logger/core.js';
+import type { Logger } from './logger/core';
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
 type RequestBody = ArrayBuffer | Blob | ReadableStream | URLSearchParams | FormData;
@@ -11,7 +10,7 @@ export interface CreateRequestOptions {
 	headers: HeaderType;
 	method?: string;
 	body?: RequestBody | undefined;
-	logging: LogOptions;
+	logger: Logger;
 	ssr: boolean;
 	locals?: object | undefined;
 }
@@ -25,7 +24,7 @@ export function createRequest({
 	clientAddress,
 	method = 'GET',
 	body = undefined,
-	logging,
+	logger,
 	ssr,
 	locals,
 }: CreateRequestOptions): Request {
@@ -43,7 +42,7 @@ export function createRequest({
 	Object.defineProperties(request, {
 		params: {
 			get() {
-				warn(logging, 'deprecation', `Astro.request.params has been moved to Astro.params`);
+				logger.warn('deprecation', `Astro.request.params has been moved to Astro.params`);
 				return undefined;
 			},
 		},
@@ -56,8 +55,7 @@ export function createRequest({
 		Object.defineProperty(request, 'headers', {
 			...headersDesc,
 			get() {
-				warn(
-					logging,
+				logger.warn(
 					'ssg',
 					`Headers are not exposed in static (SSG) output mode. To enable headers: set \`output: "server"\` in your config file.`
 				);

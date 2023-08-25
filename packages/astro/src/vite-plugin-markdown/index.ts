@@ -11,15 +11,14 @@ import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.js';
-import type { LogOptions } from '../core/logger/core.js';
-import { warn } from '../core/logger/core.js';
+import type { Logger } from '../core/logger/core.js';
 import { isMarkdownFile, rootRelativePath } from '../core/util.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 }
 
 function safeMatter(source: string, id: string) {
@@ -57,7 +56,7 @@ const astroErrorModulePath = normalizePath(
 	fileURLToPath(new URL('../core/errors/index.js', import.meta.url))
 );
 
-export default function markdown({ settings, logging }: AstroPluginOptions): Plugin {
+export default function markdown({ settings, logger }: AstroPluginOptions): Plugin {
 	return {
 		enforce: 'pre',
 		name: 'astro:markdown',
@@ -101,8 +100,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const { layout } = frontmatter;
 
 				if (frontmatter.setup) {
-					warn(
-						logging,
+					logger.warn(
 						'markdown',
 						`[${id}] Astro now supports MDX! Support for components in ".md" (or alternative extensions like ".markdown") files using the "setup" frontmatter is no longer enabled by default. Migrate this file to MDX.`
 					);

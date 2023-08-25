@@ -2,6 +2,7 @@ import type { AstroConfig, AstroSettings, SSRLoadedRenderer } from '../../@types
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types';
+import { Logger } from '../logger/core.js';
 import { Pipeline } from '../pipeline.js';
 import { createEnvironment } from '../render/index.js';
 import { createAssetLink } from '../render/ssr-element.js';
@@ -28,7 +29,7 @@ export class BuildPipeline extends Pipeline {
 		super(
 			createEnvironment({
 				adapterName: manifest.adapterName,
-				logging: staticBuildOptions.logging,
+				logger: staticBuildOptions.logger,
 				mode: staticBuildOptions.mode,
 				renderers: manifest.renderers,
 				clientDirectives: manifest.clientDirectives,
@@ -75,6 +76,17 @@ export class BuildPipeline extends Pipeline {
 
 	getManifest(): SSRManifest {
 		return this.#manifest;
+	}
+
+	async retrieveMiddlewareFunction() {
+		if (this.#internals.middlewareEntryPoint) {
+			const middleware = await import(this.#internals.middlewareEntryPoint.toString());
+			this.setMiddlewareFunction(middleware.onRequest);
+		}
+	}
+
+	getLogger(): Logger {
+		return this.getEnvironment().logger;
 	}
 
 	/**

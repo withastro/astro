@@ -1,5 +1,31 @@
 # @astrojs/rss
 
+## 3.0.0-rc.2
+
+### Major Changes
+
+- [#8198](https://github.com/withastro/astro/pull/8198) [`cb95aa5f8`](https://github.com/withastro/astro/commit/cb95aa5f8e0b04eba1a56e3e4a7901d40f1c854b) Thanks [@bluwy](https://github.com/bluwy)! - Update the `rss()` default export to return a `Response` instead of a simple object, which is deprecated in Astro 3.0. If you were directly returning the `rss()` result from an endpoint before, this breaking change should not affect you.
+
+  You can also import `getRssString()` to get the RSS string directly and use it to return your own Response:
+
+  ```ts
+  // src/pages/rss.xml.js
+  import { getRssString } from '@astrojs/rss';
+
+  export async function get(context) {
+    const rssString = await getRssString({
+      title: 'Buzz’s Blog',
+      ...
+    });
+
+    return new Response(rssString, {
+      headers: {
+        'Content-Type': 'application/xml',
+      },
+    });
+  }
+  ```
+
 ## 3.0.0-rc.1
 
 ### Major Changes

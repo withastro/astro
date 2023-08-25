@@ -2,7 +2,7 @@ import {
 	createBasicSettings,
 	createFs,
 	createRequestAndResponse,
-	defaultLogging,
+	defaultLogger,
 } from '../test-utils.js';
 import { createRouteManifest, matchAllRoutes } from '../../../dist/core/routing/index.js';
 import { fileURLToPath } from 'node:url';
@@ -140,19 +140,19 @@ describe('Route matching', () => {
 		container = await createContainer({
 			fs,
 			settings,
-			logging: defaultLogging,
+			logger: defaultLogger,
 		});
 
 		const loader = createViteLoader(container.viteServer);
 		const manifest = createDevelopmentManifest(container.settings);
-		pipeline = new DevPipeline({ manifest, logging: defaultLogging, settings, loader });
+		pipeline = new DevPipeline({ manifest, logger: defaultLogger, settings, loader });
 		manifestData = createRouteManifest(
 			{
 				cwd: fileURLToPath(root),
 				settings,
 				fsMod: fs,
 			},
-			defaultLogging
+			defaultLogger
 		);
 	});
 
