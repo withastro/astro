@@ -9,7 +9,7 @@ import type {
 import type { SinglePageBuiltModule } from '../build/types';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
-import { error, type LogOptions, warn } from '../logger/core.js';
+import { error, warn, type LogOptions } from '../logger/core.js';
 import {
 	collapseDuplicateSlashes,
 	prependForwardSlash,

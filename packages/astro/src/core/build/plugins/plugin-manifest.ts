@@ -239,8 +239,7 @@ function buildManifest(
 	}
 	const isEdgeMiddleware =
 		// TODO: remove in Astro 4.0
-		settings.config.build.excludeMiddleware ||
-		settings.adapter?.adapterFeatures?.edgeMiddleware;
+		settings.config.build.excludeMiddleware || settings.adapter?.adapterFeatures?.edgeMiddleware;
 
 	const ssrManifest: SerializedSSRManifest = {
 		adapterName: opts.settings.adapter?.name ?? '',
@@ -254,7 +253,9 @@ function buildManifest(
 		clientDirectives: Array.from(settings.clientDirectives),
 		entryModules,
 		assets: staticFiles.map(prefixAssetPath),
-		middlewareEntryPoint: !isEdgeMiddleware ? internals.middlewareEntryPoint?.toString() : undefined,
+		middlewareEntryPoint: !isEdgeMiddleware
+			? internals.middlewareEntryPoint?.toString()
+			: undefined,
 	};
 
 	return ssrManifest;

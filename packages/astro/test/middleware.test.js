@@ -220,7 +220,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 		expect(text.includes('Error')).to.be.true;
 		expect(text.includes('bar')).to.be.true;
 	});
-	
+
 	it('the integration should receive the path to the middleware', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-dev/',
@@ -245,7 +245,6 @@ describe('Middleware API in PROD mode, SSR', () => {
 			throw e;
 		}
 	});
-
 });
 
 describe('Middleware with tailwind', () => {

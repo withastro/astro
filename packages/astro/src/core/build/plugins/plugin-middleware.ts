@@ -1,10 +1,10 @@
 import type { Plugin as VitePlugin } from 'vite';
+import { getOutputDirectory } from '../../../prerender/utils.js';
 import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../../constants.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
-import { getOutputDirectory } from '../../../prerender/utils.js';
 
 export const MIDDLEWARE_MODULE_ID = '@astro-middleware';
 
