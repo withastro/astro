@@ -50,7 +50,7 @@ export class AstroTelemetry {
 	 */
 	private getConfigWithFallback<T>(key: string, getValue: () => T): T {
 		const currentValue = this.config.get(key);
-		if (currentValue) {
+		if (currentValue !== undefined) {
 			return currentValue;
 		}
 		const newValue = getValue();
