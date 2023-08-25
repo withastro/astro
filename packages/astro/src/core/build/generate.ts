@@ -32,7 +32,6 @@ import { runHookBuildGenerated } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { Logger, debug, info } from '../logger/core.js';
 import { RedirectSinglePageBuiltModule, getRedirectLocationOrThrow } from '../redirects/index.js';
 import { createRenderContext } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
@@ -120,7 +119,6 @@ export function chunkIsPage(
 }
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
-	const logger = new Logger(opts.logging);
 	const timer = performance.now();
 	const ssr = isServerLikeOutput(opts.settings.config);
 	let manifest: SSRManifest;
@@ -136,12 +134,13 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			renderers.renderers as SSRLoadedRenderer[]
 		);
 	}
-	const buildPipeline = new BuildPipeline(opts, internals, manifest);
-	await buildPipeline.retrieveMiddlewareFunction();
+	const pipeline = new BuildPipeline(opts, internals, manifest);
+	await pipeline.retrieveMiddlewareFunction();
 	const outFolder = ssr
 		? opts.settings.config.build.server
 		: getOutDirWithinCwd(opts.settings.config.outDir);
 
+	const logger = pipeline.getLogger();
 	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
 	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
 	if (ssr && !hasPrerenderedPages(internals)) {
@@ -150,9 +149,9 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	}
 
 	const verb = ssr ? 'prerendering' : 'generating';
-	info(opts.logging, null, `\n${bgGreen(black(` ${verb} static routes `))}`);
+	logger.info(null, `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
-	const pagesToGenerate = buildPipeline.retrieveRoutesToGenerate();
+	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
 	if (ssr) {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (pageData.route.prerender) {
@@ -166,7 +165,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 					// forcing to use undefined, so we fail in an expected way if the module is not even there.
 					const ssrEntry = ssrEntryPage?.manifest?.pageModule;
 					if (ssrEntry) {
-						await generatePage(pageData, ssrEntry, builtPaths, buildPipeline, logger);
+						await generatePage(pageData, ssrEntry, builtPaths, pipeline);
 					} else {
 						throw new Error(
 							`Unable to find the manifest for the module ${ssrEntryURLPage.toString()}. This is unexpected and likely a bug in Astro, please report.`
@@ -174,46 +173,47 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 					}
 				} else {
 					const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
-					await generatePage(pageData, ssrEntry, builtPaths, buildPipeline, logger);
+					await generatePage(pageData, ssrEntry, builtPaths, pipeline);
 				}
 			}
 			if (pageData.route.type === 'redirect') {
 				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, buildPipeline, logger);
+				await generatePage(pageData, entry, builtPaths, pipeline);
 			}
 		}
 	} else {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (pageData.route.type === 'redirect') {
 				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, buildPipeline, logger);
+				await generatePage(pageData, entry, builtPaths, pipeline);
 			} else {
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const entry: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
 
-				await generatePage(pageData, entry, builtPaths, buildPipeline, logger);
+				await generatePage(pageData, entry, builtPaths, pipeline);
 			}
 		}
 	}
 
-	info(opts.logging, null, `\n${bgGreen(black(` generating optimized images `))}`);
+	logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`);
 	for (const imageData of getStaticImageList()) {
-		await generateImage(opts, imageData[1].options, imageData[1].path);
+		await generateImage(pipeline, imageData[1].options, imageData[1].path);
 	}
 
 	delete globalThis?.astroAsset?.addStaticImage;
 
 	await runHookBuildGenerated({
 		config: opts.settings.config,
-		logging: opts.logging,
+		logger: pipeline.getLogger(),
 	});
 
-	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
+	logger.info(null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 }
 
-async function generateImage(opts: StaticBuildOptions, transform: ImageTransform, path: string) {
+async function generateImage(pipeline: BuildPipeline, transform: ImageTransform, path: string) {
+	const logger = pipeline.getLogger();
 	let timeStart = performance.now();
-	const generationData = await generateImageInternal(opts, transform, path);
+	const generationData = await generateImageInternal(pipeline, transform, path);
 
 	if (!generationData) {
 		return;
@@ -225,18 +225,17 @@ async function generateImage(opts: StaticBuildOptions, transform: ImageTransform
 	const statsText = generationData.cached
 		? `(reused cache entry)`
 		: `(before: ${generationData.weight.before}kb, after: ${generationData.weight.after}kb)`;
-	info(opts.logging, null, `  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)}`);
+	logger.info(null, `  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)}`);
 }
 
 async function generatePage(
 	pageData: PageBuildData,
 	ssrEntry: SinglePageBuiltModule,
 	builtPaths: Set<string>,
-	pipeline: BuildPipeline,
-	logger: Logger
+	pipeline: BuildPipeline
 ) {
 	let timeStart = performance.now();
-
+	const logger = pipeline.getLogger();
 	const pageInfo = getPageDataByComponent(pipeline.getInternals(), pageData.route.component);
 
 	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
@@ -281,12 +280,7 @@ async function generatePage(
 	}
 
 	// Get paths for the route, calling getStaticPaths if needed.
-	const paths = await getPathsForRoute(
-		pageData,
-		pageModule,
-		pipeline.getStaticBuildOptions(),
-		builtPaths
-	);
+	const paths = await getPathsForRoute(pageData, pageModule, pipeline, builtPaths);
 
 	let prevTimeEnd = timeStart;
 	for (let i = 0; i < paths.length; i++) {
@@ -305,9 +299,11 @@ async function generatePage(
 async function getPathsForRoute(
 	pageData: PageBuildData,
 	mod: ComponentInstance,
-	opts: StaticBuildOptions,
+	pipeline: BuildPipeline,
 	builtPaths: Set<string>
 ): Promise<Array<string>> {
+	const opts = pipeline.getStaticBuildOptions();
+	const logger = pipeline.getLogger();
 	let paths: Array<string> = [];
 	if (pageData.route.pathname) {
 		paths.push(pageData.route.pathname);
@@ -318,15 +314,15 @@ async function getPathsForRoute(
 			mod,
 			route,
 			routeCache: opts.routeCache,
-			logging: opts.logging,
+			logger,
 			ssr: isServerLikeOutput(opts.settings.config),
 		}).catch((err) => {
-			debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
+			logger.debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
 			throw err;
 		});
 
 		const label = staticPaths.length === 1 ? 'page' : 'pages';
-		debug(
+		logger.debug(
 			'build',
 			`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(
 				`[${staticPaths.length} ${label}]`
@@ -473,7 +469,7 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		addPageName(pathname, pipeline.getStaticBuildOptions());
 	}
 
-	debug('build', `Generating: ${pathname}`);
+	pipeline.getEnvironment().logger.debug('build', `Generating: ${pathname}`);
 
 	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 	const links = new Set<never>();
@@ -520,7 +516,7 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		request: createRequest({
 			url,
 			headers: new Headers(),
-			logging: pipeline.getStaticBuildOptions().logging,
+			logger: pipeline.getLogger(),
 			ssr,
 		}),
 		componentMetadata: manifest.componentMetadata,

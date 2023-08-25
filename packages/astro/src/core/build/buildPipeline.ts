@@ -10,6 +10,7 @@ import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
+import { Logger } from '../logger/core.js';
 
 /**
  * This pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
@@ -28,7 +29,7 @@ export class BuildPipeline extends Pipeline {
 		super(
 			createEnvironment({
 				adapterName: manifest.adapterName,
-				logging: staticBuildOptions.logging,
+				logger: staticBuildOptions.logger,
 				mode: staticBuildOptions.mode,
 				renderers: manifest.renderers,
 				clientDirectives: manifest.clientDirectives,
@@ -82,6 +83,10 @@ export class BuildPipeline extends Pipeline {
 			const middleware = await import(this.#internals.middlewareEntryPoint.toString());
 			this.setMiddlewareFunction(middleware.onRequest);
 		}
+	}
+
+	getLogger(): Logger {
+		return this.getEnvironment().logger;
 	}
 
 	/**

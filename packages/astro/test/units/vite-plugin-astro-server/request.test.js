@@ -8,7 +8,7 @@ import {
 	createBasicSettings,
 	createFs,
 	createRequestAndResponse,
-	defaultLogging,
+	defaultLogger,
 } from '../test-utils.js';
 import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
 import DevPipeline from '../../../dist/vite-plugin-astro-server/devPipeline.js';
@@ -21,7 +21,7 @@ async function createDevPipeline(overrides = {}) {
 	return new DevPipeline({
 		manifest,
 		settings,
-		logging: defaultLogging,
+		logging: defaultLogger,
 		loader,
 	});
 }
@@ -53,7 +53,7 @@ describe('vite-plugin-astro-server', () => {
 					fsMod: fs,
 					settings: pipeline.getSettings(),
 				},
-				defaultLogging
+				defaultLogger
 			);
 
 			try {

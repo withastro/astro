@@ -9,7 +9,7 @@ import type {
 import type { SinglePageBuiltModule } from '../build/types';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
-import { error, warn, type LogOptions } from '../logger/core.js';
+import { Logger } from '../logger/core.js';
 import {
 	collapseDuplicateSlashes,
 	prependForwardSlash,
@@ -50,10 +50,10 @@ export class App {
 	#manifest: SSRManifest;
 	#manifestData: ManifestData;
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
-	#logging: LogOptions = {
+	#logger = new Logger({
 		dest: consoleLogDestination,
 		level: 'info',
-	};
+	});
 	#baseWithoutTrailingSlash: string;
 	#pipeline: SSRRoutePipeline;
 	#onRequest: MiddlewareEndpointHandler | undefined;
@@ -83,7 +83,7 @@ export class App {
 	#createEnvironment(streaming = false) {
 		return createEnvironment({
 			adapterName: this.#manifest.adapterName,
-			logging: this.#logging,
+			logger: this.#logger,
 			mode: 'production',
 			compressHTML: this.#manifest.compressHTML,
 			renderers: this.#manifest.renderers,
@@ -103,7 +103,7 @@ export class App {
 					}
 				}
 			},
-			routeCache: new RouteCache(this.#logging),
+			routeCache: new RouteCache(this.#logger),
 			site: this.#manifest.site,
 			ssr: true,
 			streaming,
@@ -138,7 +138,7 @@ export class App {
 				const middleware = await import(this.#manifest.middlewareEntryPoint);
 				this.#pipeline.setMiddlewareFunction(middleware.onRequest as MiddlewareEndpointHandler);
 			} catch (e) {
-				warn(this.#logging, 'SSR', "Couldn't load the middleware entry point");
+				this.#logger.warn('SSR', "Couldn't load the middleware entry point");
 			}
 		}
 		this.#middlewareLoaded = true;
@@ -178,7 +178,7 @@ export class App {
 			if (err instanceof EndpointNotFoundError) {
 				return this.#renderError(request, { status: 404, response: err.originalResponse });
 			} else {
-				error(this.#logging, 'ssr', err.stack || err.message || String(err));
+				this.#logger.error('ssr', err.stack || err.message || String(err));
 				return this.#renderError(request, { status: 500 });
 			}
 		}

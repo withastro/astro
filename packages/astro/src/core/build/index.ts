@@ -21,10 +21,10 @@ import {
 } from '../../integrations/index.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import { resolveConfig } from '../config/config.js';
-import { createNodeLogging } from '../config/logging.js';
+import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
-import { debug, info, levels, timerMessage, warn, type LogOptions } from '../logger/core.js';
+import { levels, timerMessage, Logger } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
@@ -55,7 +55,7 @@ export default async function build(
 	options?: BuildOptions
 ): Promise<void> {
 	applyPolyfill();
-	const logging = createNodeLogging(inlineConfig);
+	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
 
@@ -63,20 +63,20 @@ export default async function build(
 
 	const builder = new AstroBuilder(settings, {
 		...options,
-		logging,
+		logger,
 		mode: inlineConfig.mode,
 	});
 	await builder.run();
 }
 
 interface AstroBuilderOptions extends BuildOptions {
-	logging: LogOptions;
+	logger: Logger;
 	mode?: RuntimeMode;
 }
 
 class AstroBuilder {
 	private settings: AstroSettings;
-	private logging: LogOptions;
+	private logger: Logger;
 	private mode: RuntimeMode = 'production';
 	private origin: string;
 	private routeCache: RouteCache;
@@ -89,9 +89,9 @@ class AstroBuilder {
 			this.mode = options.mode;
 		}
 		this.settings = settings;
-		this.logging = options.logging;
+		this.logger = options.logger;
 		this.teardownCompiler = options.teardownCompiler ?? true;
-		this.routeCache = new RouteCache(this.logging);
+		this.routeCache = new RouteCache(this.logger);
 		this.origin = settings.config.site
 			? new URL(settings.config.site).origin
 			: `http://localhost:${settings.config.server.port}`;
@@ -101,20 +101,20 @@ class AstroBuilder {
 
 	/** Setup Vite and run any async setup logic that couldn't run inside of the constructor. */
 	private async setup() {
-		debug('build', 'Initial setup...');
-		const { logging } = this;
+		this.logger.debug('build', 'Initial setup...');
+		const { logger } = this;
 		this.timer.init = performance.now();
 		this.settings = await runHookConfigSetup({
 			settings: this.settings,
 			command: 'build',
-			logging,
+			logger: logger,
 		});
 
 		if (isServerLikeOutput(this.settings.config)) {
 			this.settings = injectImageEndpoint(this.settings);
 		}
 
-		this.manifest = createRouteManifest({ settings: this.settings }, this.logging);
+		this.manifest = createRouteManifest({ settings: this.settings }, this.logger);
 
 		const viteConfig = await createVite(
 			{
@@ -124,12 +124,12 @@ class AstroBuilder {
 					middlewareMode: true,
 				},
 			},
-			{ settings: this.settings, logging, mode: 'build', command: 'build' }
+			{ settings: this.settings, logger: this.logger, mode: 'build', command: 'build' }
 		);
-		await runHookConfigDone({ settings: this.settings, logging });
+		await runHookConfigDone({ settings: this.settings, logger: logger });
 
 		const { syncInternal } = await import('../sync/index.js');
-		const syncRet = await syncInternal(this.settings, { logging, fs });
+		const syncRet = await syncInternal(this.settings, { logger: logger, fs });
 		if (syncRet !== 0) {
 			return process.exit(syncRet);
 		}
@@ -139,22 +139,22 @@ class AstroBuilder {
 
 	/** Run the build logic. build() is marked private because usage should go through ".run()" */
 	private async build({ viteConfig }: { viteConfig: vite.InlineConfig }) {
-		await runHookBuildStart({ config: this.settings.config, logging: this.logging });
+		await runHookBuildStart({ config: this.settings.config, logging: this.logger });
 		this.validateConfig();
 
-		info(this.logging, 'build', `output target: ${colors.green(this.settings.config.output)}`);
+		this.logger.info('build', `output target: ${colors.green(this.settings.config.output)}`);
 		if (this.settings.adapter) {
-			info(this.logging, 'build', `deploy adapter: ${colors.green(this.settings.adapter.name)}`);
+			this.logger.info('build', `deploy adapter: ${colors.green(this.settings.adapter.name)}`);
 		}
-		info(this.logging, 'build', 'Collecting build info...');
+		this.logger.info('build', 'Collecting build info...');
 		this.timer.loadStart = performance.now();
 		const { assets, allPages } = await collectPagesData({
 			settings: this.settings,
-			logging: this.logging,
+			logger: this.logger,
 			manifest: this.manifest,
 		});
 
-		debug('build', timerMessage('All pages loaded', this.timer.loadStart));
+		this.logger.debug('build', timerMessage('All pages loaded', this.timer.loadStart));
 
 		// The names of each pages
 		const pageNames: string[] = [];
@@ -162,8 +162,7 @@ class AstroBuilder {
 		// Bundle the assets in your final build: This currently takes the HTML output
 		// of every page (stored in memory) and bundles the assets pointed to on those pages.
 		this.timer.buildStart = performance.now();
-		info(
-			this.logging,
+		this.logger.info(
 			'build',
 			colors.dim(`Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
 		);
@@ -171,7 +170,7 @@ class AstroBuilder {
 		const opts: StaticBuildOptions = {
 			allPages,
 			settings: this.settings,
-			logging: this.logging,
+			logger: this.logger,
 			manifest: this.manifest,
 			mode: this.mode,
 			origin: this.origin,
@@ -193,19 +192,19 @@ class AstroBuilder {
 			fs.writeFileSync(filePath, assets[k], 'utf8');
 			delete assets[k]; // free up memory
 		});
-		debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
+		this.logger.debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
 		// You're done! Time to clean up.
 		await runHookBuildDone({
 			config: this.settings.config,
 			pages: pageNames,
 			routes: Object.values(allPages).map((pd) => pd.route),
-			logging: this.logging,
+			logging: this.logger,
 		});
 
-		if (this.logging.level && levels[this.logging.level] <= levels['info']) {
+		if (this.logger.level && levels[this.logger.level()] <= levels['info']) {
 			await this.printStats({
-				logging: this.logging,
+				logger: this.logger,
 				timeStart: this.timer.init,
 				pageCount: pageNames.length,
 				buildMode: this.settings.config.output,
@@ -238,8 +237,7 @@ class AstroBuilder {
 
 		if (config.build.split === true) {
 			if (config.output === 'static') {
-				warn(
-					this.logging,
+				this.logger.warn(
 					'configuration',
 					'The option `build.split` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
 				);
@@ -247,8 +245,7 @@ class AstroBuilder {
 		}
 		if (config.build.excludeMiddleware === true) {
 			if (config.output === 'static') {
-				warn(
-					this.logging,
+				this.logger.warn(
 					'configuration',
 					'The option `build.excludeMiddleware` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
 				);
@@ -266,12 +263,12 @@ class AstroBuilder {
 
 	/** Stats */
 	private async printStats({
-		logging,
+		logger,
 		timeStart,
 		pageCount,
 		buildMode,
 	}: {
-		logging: LogOptions;
+		logger: Logger;
 		timeStart: number;
 		pageCount: number;
 		buildMode: AstroConfig['output'];
@@ -285,7 +282,7 @@ class AstroBuilder {
 			messages = ['Server built in', colors.bold(total)];
 		}
 
-		info(logging, 'build', messages.join(' '));
-		info(logging, 'build', `${colors.bold('Complete!')}`);
+		logger.info('build', messages.join(' '));
+		logger.info('build', `${colors.bold('Complete!')}`);
 	}
 }

@@ -1,7 +1,7 @@
 import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import type { AstroSettings } from '../@types/astro';
-import type { LogOptions } from '../core/logger/core.js';
+import type { Logger } from '../core/logger/core.js';
 import type { PluginMetadata as AstroPluginMetadata } from './types';
 
 import { normalizePath } from 'vite';
@@ -20,11 +20,11 @@ export type { AstroPluginMetadata };
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 }
 
 /** Transform .astro files for Vite */
-export default function astro({ settings, logging }: AstroPluginOptions): vite.Plugin[] {
+export default function astro({ settings, logger }: AstroPluginOptions): vite.Plugin[] {
 	const { config } = settings;
 	let resolvedConfig: vite.ResolvedConfig;
 
@@ -143,7 +143,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 				source,
 			};
 
-			const transformResult = await cachedFullCompilation({ compileProps, logging });
+			const transformResult = await cachedFullCompilation({ compileProps, logger });
 
 			for (const dep of transformResult.cssDeps) {
 				this.addWatchFile(dep);
@@ -182,7 +182,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 			const compile = () => cachedCompilation(compileProps);
 			return handleHotUpdate(context, {
 				config,
-				logging,
+				logger,
 				compile,
 				source: compileProps.source,
 			});

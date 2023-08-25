@@ -1,13 +1,12 @@
 import fs, { readFileSync } from 'node:fs';
 import { basename, join } from 'node:path/posix';
-import type { StaticBuildOptions } from '../../core/build/types.js';
-import { warn } from '../../core/logger/core.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import { getConfiguredImageService, isESMImportedImage } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
 import type { ImageMetadata, ImageTransform } from '../types.js';
 import { loadRemoteImage, type RemoteCacheEntry } from './remote.js';
+import type { BuildPipeline } from '../../core/build/buildPipeline';
 
 interface GenerationDataUncached {
 	cached: false;
@@ -24,19 +23,20 @@ interface GenerationDataCached {
 type GenerationData = GenerationDataUncached | GenerationDataCached;
 
 export async function generateImage(
-	buildOpts: StaticBuildOptions,
+	pipeline: BuildPipeline,
 	options: ImageTransform,
 	filepath: string
 ): Promise<GenerationData | undefined> {
+	const config = pipeline.getConfig();
+	const logger = pipeline.getLogger();
 	let useCache = true;
-	const assetsCacheDir = new URL('assets/', buildOpts.settings.config.cacheDir);
+	const assetsCacheDir = new URL('assets/', config.cacheDir);
 
 	// Ensure that the cache directory exists
 	try {
 		await fs.promises.mkdir(assetsCacheDir, { recursive: true });
 	} catch (err) {
-		warn(
-			buildOpts.logging,
+		logger.warn(
 			'astro:assets',
 			`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${err}`
 		);
@@ -44,12 +44,12 @@ export async function generateImage(
 	}
 
 	let serverRoot: URL, clientRoot: URL;
-	if (isServerLikeOutput(buildOpts.settings.config)) {
-		serverRoot = buildOpts.settings.config.build.server;
-		clientRoot = buildOpts.settings.config.build.client;
+	if (isServerLikeOutput(config)) {
+		serverRoot = config.build.server;
+		clientRoot = config.build.client;
 	} else {
-		serverRoot = buildOpts.settings.config.outDir;
-		clientRoot = buildOpts.settings.config.outDir;
+		serverRoot = config.outDir;
+		clientRoot = config.outDir;
 	}
 
 	const isLocalImage = isESMImportedImage(options.src);
@@ -105,10 +105,7 @@ export async function generateImage(
 	if (isLocalImage) {
 		imageData = await fs.promises.readFile(
 			new URL(
-				'.' +
-					prependForwardSlash(
-						join(buildOpts.settings.config.build.assets, basename(originalImagePath))
-					),
+				'.' + prependForwardSlash(join(config.build.assets, basename(originalImagePath))),
 				serverRoot
 			)
 		);
@@ -120,11 +117,7 @@ export async function generateImage(
 
 	const imageService = (await getConfiguredImageService()) as LocalImageService;
 	resultData.data = (
-		await imageService.transform(
-			imageData,
-			{ ...options, src: originalImagePath },
-			buildOpts.settings.config.image
-		)
+		await imageService.transform(imageData, { ...options, src: originalImagePath }, config.image)
 	).data;
 
 	try {
@@ -143,8 +136,7 @@ export async function generateImage(
 			}
 		}
 	} catch (e) {
-		warn(
-			buildOpts.logging,
+		logger.warn(
 			'astro:assets',
 			`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${e}`
 		);

@@ -7,7 +7,6 @@ import { normalizePath, type ViteDevServer } from 'vite';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
-import { info, warn, type LogOptions } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
@@ -24,6 +23,7 @@ import {
 	type ContentObservable,
 	type ContentPaths,
 } from './utils.js';
+import type { Logger } from '../core/logger/core';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
@@ -49,7 +49,7 @@ type CollectionEntryMap = {
 
 type CreateContentGeneratorParams = {
 	contentConfigObserver: ContentObservable;
-	logging: LogOptions;
+	logger: Logger;
 	settings: AstroSettings;
 	/** This is required for loading the content config */
 	viteServer: ViteDevServer;
@@ -68,7 +68,7 @@ class UnsupportedFileTypeError extends Error {}
 export async function createContentTypesGenerator({
 	contentConfigObserver,
 	fs,
-	logging,
+	logger,
 	settings,
 	viteServer,
 }: CreateContentGeneratorParams) {
@@ -140,7 +140,7 @@ export async function createContentTypesGenerator({
 				case 'addDir':
 					collectionEntryMap[JSON.stringify(collection)] = { type: 'unknown', entries: {} };
 					if (logLevel === 'info') {
-						info(logging, 'content', `${cyan(collection)} collection added`);
+						logger.info('content', `${cyan(collection)} collection added`);
 					}
 					break;
 				case 'unlinkDir':
@@ -186,8 +186,7 @@ export async function createContentTypesGenerator({
 		const collection = getEntryCollectionName({ entry, contentDir });
 		if (collection === undefined) {
 			if (['info', 'warn'].includes(logLevel)) {
-				warn(
-					logging,
+				logger.warn(
 					'content',
 					`${cyan(
 						normalizePath(
@@ -350,8 +349,7 @@ export async function createContentTypesGenerator({
 			}
 		}
 		if (unsupportedFiles.length > 0 && ['info', 'warn'].includes(logLevel)) {
-			warn(
-				logging,
+			logger.warn(
 				'content',
 				`Unsupported file types found. Prefix with an underscore (\`_\`) to ignore:\n- ${unsupportedFiles.join(
 					'\n'
@@ -372,7 +370,7 @@ export async function createContentTypesGenerator({
 			invalidateVirtualMod(viteServer);
 			if (observable.status === 'loaded' && ['info', 'warn'].includes(logLevel)) {
 				warnNonexistentCollections({
-					logging,
+					logger,
 					contentConfig: observable.config,
 					collectionEntryMap,
 				});
@@ -505,16 +503,15 @@ async function writeContentFiles({
 function warnNonexistentCollections({
 	contentConfig,
 	collectionEntryMap,
-	logging,
+	logger,
 }: {
 	contentConfig: ContentConfig;
 	collectionEntryMap: CollectionEntryMap;
-	logging: LogOptions;
+	logger: Logger;
 }) {
 	for (const configuredCollection in contentConfig.collections) {
 		if (!collectionEntryMap[JSON.stringify(configuredCollection)]) {
-			warn(
-				logging,
+			logger.warn(
 				'content',
 				`The ${JSON.stringify(
 					configuredCollection

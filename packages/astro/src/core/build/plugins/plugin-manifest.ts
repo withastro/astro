@@ -100,7 +100,7 @@ export function pluginManifest(
 				await runHookBuildSsr({
 					config: options.settings.config,
 					manifest,
-					logging: options.logging,
+					logger: options.logger,
 					entryPoints: internals.entryPoints,
 					middlewareEntryPoint: shouldPassMiddlewareEntryPoint
 						? internals.middlewareEntryPoint
