@@ -1621,7 +1621,9 @@ export type GetStaticPaths = (
  * const { slug } = Astro.params as Params;
  * ```
  */
-export type InferGetStaticParamsType<T> = T extends () => infer R | Promise<infer R>
+export type InferGetStaticParamsType<T> = T extends (
+	opts?: GetStaticPathsOptions
+) => infer R | Promise<infer R>
 	? R extends Array<infer U>
 		? U extends { params: infer P }
 			? P
@@ -1652,7 +1654,9 @@ export type InferGetStaticParamsType<T> = T extends () => infer R | Promise<infe
  * const { propA, propB } = Astro.props;
  * ```
  */
-export type InferGetStaticPropsType<T> = T extends () => infer R | Promise<infer R>
+export type InferGetStaticPropsType<T> = T extends (
+	opts: GetStaticPathsOptions
+) => infer R | Promise<infer R>
 	? R extends Array<infer U>
 		? U extends { props: infer P }
 			? P
