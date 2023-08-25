@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { fileURLToPath } from 'node:url';
 import { createRouteManifest } from '../../../dist/core/routing/manifest/create.js';
-import { createBasicSettings, createFs, defaultLogging } from '../test-utils.js';
+import { createBasicSettings, createFs, defaultLogger } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -77,7 +77,7 @@ describe('routing - createRouteManifest', () => {
 				settings,
 				fsMod: fs,
 			},
-			defaultLogging
+			defaultLogger
 		);
 
 		expect(manifest.routes[0].route).to.equal('/foo');

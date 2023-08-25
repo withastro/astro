@@ -93,14 +93,19 @@ export function pluginManifest(
 				}
 
 				const manifest = await createManifest(options, internals);
+				const shouldPassMiddlewareEntryPoint =
+					// TODO: remove in Astro 4.0
+					options.settings.config.build.excludeMiddleware ||
+					options.settings.adapter?.adapterFeatures?.edgeMiddleware;
 				await runHookBuildSsr({
 					config: options.settings.config,
 					manifest,
-					logging: options.logging,
+					logger: options.logger,
 					entryPoints: internals.entryPoints,
-					middlewareEntryPoint: internals.middlewareEntryPoint,
+					middlewareEntryPoint: shouldPassMiddlewareEntryPoint
+						? internals.middlewareEntryPoint
+						: undefined,
 				});
-				// TODO: use the manifest entry chunk instead
 				const code = injectManifest(manifest, internals.manifestEntryChunk);
 				mutate(internals.manifestEntryChunk, 'server', code);
 			},
@@ -232,6 +237,9 @@ function buildManifest(
 		// Set this to an empty string so that the runtime knows not to try and load this.
 		entryModules[BEFORE_HYDRATION_SCRIPT_ID] = '';
 	}
+	const isEdgeMiddleware =
+		// TODO: remove in Astro 4.0
+		settings.config.build.excludeMiddleware || settings.adapter?.adapterFeatures?.edgeMiddleware;
 
 	const ssrManifest: SerializedSSRManifest = {
 		adapterName: opts.settings.adapter?.name ?? '',
@@ -245,6 +253,9 @@ function buildManifest(
 		clientDirectives: Array.from(settings.clientDirectives),
 		entryModules,
 		assets: staticFiles.map(prefixAssetPath),
+		middlewareEntryPoint: !isEdgeMiddleware
+			? internals.middlewareEntryPoint?.toString()
+			: undefined,
 	};
 
 	return ssrManifest;

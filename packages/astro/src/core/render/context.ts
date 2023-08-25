@@ -48,7 +48,7 @@ export async function createRenderContext(
 		route: options.route,
 		routeCache: options.env.routeCache,
 		pathname: pathname,
-		logging: options.env.logging,
+		logger: options.env.logger,
 		ssr: options.env.ssr,
 	});
 

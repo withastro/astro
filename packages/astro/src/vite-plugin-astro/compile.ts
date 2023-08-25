@@ -1,12 +1,12 @@
 import { transformWithEsbuild, type ESBuildTransformResult } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { cachedCompilation, type CompileProps, type CompileResult } from '../core/compile/index.js';
-import type { LogOptions } from '../core/logger/core.js';
+import type { Logger } from '../core/logger/core.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 
 interface CachedFullCompilation {
 	compileProps: CompileProps;
-	logging: LogOptions;
+	logger: Logger;
 }
 
 interface FullCompileResult extends Omit<CompileResult, 'map'> {
@@ -18,14 +18,14 @@ interface EnhanceCompilerErrorOptions {
 	id: string;
 	source: string;
 	config: AstroConfig;
-	logging: LogOptions;
+	logger: Logger;
 }
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 
 export async function cachedFullCompilation({
 	compileProps,
-	logging,
+	logger,
 }: CachedFullCompilation): Promise<FullCompileResult> {
 	let transformResult: CompileResult;
 	let esbuildResult: ESBuildTransformResult;
@@ -52,7 +52,7 @@ export async function cachedFullCompilation({
 			id: compileProps.filename,
 			source: compileProps.source,
 			config: compileProps.astroConfig,
-			logging: logging,
+			logger: logger,
 		});
 		throw err;
 	}

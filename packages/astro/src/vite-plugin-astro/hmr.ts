@@ -7,8 +7,7 @@ import {
 	isCached,
 	type CompileResult,
 } from '../core/compile/index.js';
-import type { LogOptions } from '../core/logger/core.js';
-import { info } from '../core/logger/core.js';
+import type { Logger } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { isAstroScript } from './query.js';
 
@@ -20,14 +19,15 @@ const isPkgFile = (id: string | null) => {
 
 export interface HandleHotUpdateOptions {
 	config: AstroConfig;
-	logging: LogOptions;
+	logger: Logger;
+
 	compile: () => ReturnType<typeof cachedCompilation>;
 	source: string;
 }
 
 export async function handleHotUpdate(
 	ctx: HmrContext,
-	{ config, logging, compile, source }: HandleHotUpdateOptions
+	{ config, logger, compile, source }: HandleHotUpdateOptions
 ) {
 	let isStyleOnlyChange = false;
 	if (ctx.file.endsWith('.astro') && isCached(config, ctx.file)) {
@@ -95,7 +95,7 @@ export async function handleHotUpdate(
 
 	// If only styles are changed, remove the component file from the update list
 	if (isStyleOnlyChange) {
-		info(logging, 'astro', msg.hmr({ file, style: true }));
+		logger.info('astro', msg.hmr({ file, style: true }));
 		// remove base file and hoisted scripts
 		return mods.filter((mod) => mod.id !== ctx.file && !mod.id?.endsWith('.ts'));
 	}
@@ -124,9 +124,9 @@ export async function handleHotUpdate(
 	const isSelfAccepting = mods.every((m) => m.isSelfAccepting || m.url.endsWith('.svelte'));
 	if (isSelfAccepting) {
 		if (/astro\.config\.[cm][jt]s$/.test(file)) return mods;
-		info(logging, 'astro', msg.hmr({ file }));
+		logger.info('astro', msg.hmr({ file }));
 	} else {
-		info(logging, 'astro', msg.reload({ file }));
+		logger.info('astro', msg.reload({ file }));
 	}
 
 	return mods;

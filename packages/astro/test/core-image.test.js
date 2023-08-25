@@ -6,6 +6,7 @@ import { removeDir } from '../dist/core/fs/index.js';
 import testAdapter from './test-adapter.js';
 import { testImageService } from './test-image-service.js';
 import { loadFixture } from './test-utils.js';
+import { Logger } from '../dist/core/logger/core.js';
 
 describe('astro:image', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -27,7 +28,7 @@ describe('astro:image', () => {
 			});
 
 			devServer = await fixture.startDevServer({
-				logging: {
+				logger: new Logger({
 					level: 'error',
 					dest: new Writable({
 						objectMode: true,
@@ -36,7 +37,7 @@ describe('astro:image', () => {
 							callback();
 						},
 					}),
-				},
+				}),
 			});
 		});
 
@@ -447,7 +448,7 @@ describe('astro:image', () => {
 			});
 
 			devServer = await fixture.startDevServer({
-				logging: {
+				logger: new Logger({
 					level: 'error',
 					dest: new Writable({
 						objectMode: true,
@@ -456,7 +457,7 @@ describe('astro:image', () => {
 							callback();
 						},
 					}),
-				},
+				}),
 			});
 		});
 

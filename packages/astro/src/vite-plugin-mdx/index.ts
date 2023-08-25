@@ -1,7 +1,7 @@
 import type { TransformResult } from 'rollup';
 import { transformWithEsbuild, type Plugin, type ResolvedConfig } from 'vite';
 import type { AstroRenderer, AstroSettings } from '../@types/astro';
-import type { LogOptions } from '../core/logger/core.js';
+import type { Logger } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
 
 import babel from '@babel/core';
@@ -73,7 +73,7 @@ async function transformJSX({
 
 interface AstroPluginJSXOptions {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 }
 
 // Format inspired by https://github.com/vitejs/vite/blob/main/packages/vite/src/node/constants.ts#L54

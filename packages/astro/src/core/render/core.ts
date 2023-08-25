@@ -8,7 +8,6 @@ import type {
 import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachCookiesToResponse } from '../cookies/index.js';
 import { callEndpoint, createAPIContext } from '../endpoint/index.js';
-import { warn } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../redirects/index.js';
 import type { RenderContext } from './context.js';
@@ -41,7 +40,7 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		adapterName: env.adapterName,
 		links: renderContext.links,
 		styles: renderContext.styles,
-		logging: env.logging,
+		logger: env.logger,
 		params: renderContext.params,
 		pathname: renderContext.pathname,
 		componentMetadata: renderContext.componentMetadata,
@@ -60,8 +59,7 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 
 	// TODO: Remove in Astro 4.0
 	if (mod.frontmatter && typeof mod.frontmatter === 'object' && 'draft' in mod.frontmatter) {
-		warn(
-			env.logging,
+		env.logger.warn(
 			'astro',
 			`The drafts feature is deprecated and used in ${renderContext.route.component}. You should migrate to content collections instead. See https://docs.astro.build/en/guides/content-collections/#filtering-collection-queries for more information.`
 		);
@@ -115,7 +113,7 @@ export async function tryRenderRoute<MiddlewareReturnType = Response>(
 		case 'redirect': {
 			if (onRequest) {
 				return await callMiddleware<Response>(
-					env.logging,
+					env.logger,
 					onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {

@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/react",
   "description": "Use React components within Astro",
-  "version": "3.0.0-rc.4",
+  "version": "3.0.0-rc.5",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -36,7 +36,8 @@
     "jsx-runtime.js",
     "server.js",
     "server-v17.js",
-    "static-html.js"
+    "static-html.js",
+    "vnode-children.js"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",

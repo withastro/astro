@@ -20,7 +20,7 @@ import type { AstroConfigType } from '../core/config';
 import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
 import type { ResponseWithEncoding } from '../core/endpoint/index.js';
-import type { AstroIntegrationLogger, LogOptions, LoggerLevel } from '../core/logger/core';
+import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
@@ -77,7 +77,12 @@ export interface TransitionDirectionalAnimations {
 	backwards: TransitionAnimationPair;
 }
 
-export type TransitionAnimationValue = 'morph' | 'slide' | 'fade' | TransitionDirectionalAnimations;
+export type TransitionAnimationValue =
+	| 'initial'
+	| 'slide'
+	| 'fade'
+	| 'none'
+	| TransitionDirectionalAnimations;
 
 // Allow users to extend this for astro-jsx.d.ts
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -93,7 +98,7 @@ export interface AstroBuiltinAttributes {
 	'set:html'?: any;
 	'set:text'?: any;
 	'is:raw'?: boolean;
-	'transition:animate'?: 'morph' | 'slide' | 'fade' | TransitionDirectionalAnimations;
+	'transition:animate'?: TransitionAnimationValue;
 	'transition:name'?: string;
 	'transition:persist'?: boolean | string;
 }
@@ -1279,27 +1284,6 @@ export interface AstroUserConfig {
 	experimental?: {
 		/**
 		 * @docs
-		 * @name experimental.viewTransitions
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.9.0
-		 * @description
-		 * Enable experimental support for the `<ViewTransitions / >` component. With this enabled
-		 * you can opt-in to [view transitions](https://docs.astro.build/en/guides/view-transitions/) on a per-page basis using this component
-		 * and enable animations with the `transition:animate` directive.
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		viewTransitions: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		viewTransitions?: boolean;
-
-		/**
-		 * @docs
 		 * @name experimental.optimizeHoistedScript
 		 * @type {boolean}
 		 * @default `false`
@@ -1394,7 +1378,7 @@ export interface AstroInlineOnlyConfig {
 	/**
 	 * @internal for testing only, use `logLevel` instead.
 	 */
-	logging?: LogOptions;
+	logger?: Logger;
 }
 
 export type ContentEntryModule = {
@@ -2062,7 +2046,7 @@ export type AstroMiddlewareInstance<R> = {
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 }
 
 export type RouteType = 'page' | 'endpoint' | 'redirect';
