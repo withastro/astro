@@ -1,9 +1,9 @@
-import type { Plugin as VitePlugin } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
-import { type Logger } from '../core/logger/core.js';
 import { bold } from 'kleur/colors';
 import { extname } from 'node:path';
+import type { Plugin as VitePlugin } from 'vite';
 import { normalizePath } from 'vite';
+import type { AstroSettings } from '../@types/astro.js';
+import { type Logger } from '../core/logger/core.js';
 import { isEndpoint, isPage, rootRelativePath } from '../core/util.js';
 import { getPrerenderDefault, isServerLikeOutput } from '../prerender/utils.js';
 import { scan } from './scan.js';
