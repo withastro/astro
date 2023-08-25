@@ -1,4 +1,3 @@
-import boxen from 'boxen';
 import {
 	bgCyan,
 	bgGreen,
