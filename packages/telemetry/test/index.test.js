@@ -7,6 +7,8 @@ function setup() {
 	const logs = [];
 	// Stub isCI to false so we can test user-facing behavior
 	telemetry.isCI = false;
+	// Stub process.env to properly test in Astro's own CI
+	telemetry.env = {};
 	// Override config so we can inspect it
 	telemetry.config = config;
 	// Override debug so we can inspect it
@@ -16,14 +18,6 @@ function setup() {
 	return { telemetry, config, logs }
 }
 describe('AstroTelemetry', () => {	
-	before(() => {
-		process.env.ASTRO_TELEMETRY_DISABLED = undefined;
-		process.env.TELEMETRY_DISABLED = undefined;
-	})
-	after(() => {
-		process.env.ASTRO_TELEMETRY_DISABLED = true;
-		process.env.TELEMETRY_DISABLED = true;
-	})
 	it('initializes when expected arguments are given', () => {
 		const { telemetry } = setup();
 		expect(telemetry).to.be.instanceOf(AstroTelemetry);
