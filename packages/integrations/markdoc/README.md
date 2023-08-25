@@ -360,7 +360,7 @@ To set up the extension, create a `markdoc.config.json` file into the project ro
       "type": "esm",
       "property": "default",
       "watch": true
-    },
+    }
   }
 ]
 ```
