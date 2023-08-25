@@ -1699,13 +1699,13 @@ export type MarkdownContent<T extends Record<string, any> = Record<string, any>>
  *
  * [Astro reference](https://docs.astro.build/en/reference/api-reference/#paginate)
  */
-export interface PaginateOptions {
+export interface PaginateOptions<PaginateProps extends Props, PaginateParams extends Params> {
 	/** the number of items per-page (default: `10`) */
 	pageSize?: number;
 	/** key: value object of page params (ex: `{ tag: 'javascript' }`) */
-	params?: Params;
+	params?: PaginateParams;
 	/** object of props to forward to `page` result */
-	props?: Props;
+	props?: PaginateProps;
 }
 
 /**
@@ -1739,7 +1739,33 @@ export interface Page<T = any> {
 	};
 }
 
-export type PaginateFunction = (data: any[], args?: PaginateOptions) => GetStaticPathsResult;
+type OmitIndexSignature<ObjectType> = {
+	// eslint-disable-next-line @typescript-eslint/ban-types
+	[KeyType in keyof ObjectType as {} extends Record<KeyType, unknown>
+		? never
+		: KeyType]: ObjectType[KeyType];
+};
+// eslint-disable-next-line @typescript-eslint/ban-types
+type Simplify<T> = { [KeyType in keyof T]: T[KeyType] } & {};
+export type PaginateFunction = <
+	PaginateData,
+	AdditionalPaginateProps extends Props,
+	AdditionalPaginateParams extends Params,
+>(
+	data: PaginateData[],
+	args?: PaginateOptions<AdditionalPaginateProps, AdditionalPaginateParams>
+) => {
+	params: Simplify<
+		{
+			page: string | undefined;
+		} & OmitIndexSignature<AdditionalPaginateParams>
+	>;
+	props: Simplify<
+		{
+			page: Page<PaginateData>;
+		} & OmitIndexSignature<AdditionalPaginateProps>
+	>;
+}[];
 
 export type Params = Record<string, string | undefined>;
 
