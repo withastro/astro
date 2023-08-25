@@ -74,7 +74,7 @@ describe('Config Validation', () => {
 		);
 		expect(configError instanceof z.ZodError).to.equal(true);
 		expect(configError.errors[0].message).to.equal(
-			'The value of `outDir` must not point to a path within the folder set as `publicDir` to prevent an infinite loop'
+			'The value of `outDir` must not point to a path within the folder set as `publicDir`, this will cause an infinite loop'
 		);
 	});
 });
