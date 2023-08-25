@@ -9,7 +9,7 @@ interface TelemetryOptions {
 }
 
 export async function notify() {
-	await telemetry.notify(async () => {
+	await telemetry.notify(() => {
 		console.log(msg.telemetryNotice() + '\n');
 		return true;
 	})

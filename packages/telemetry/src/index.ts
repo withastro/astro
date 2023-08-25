@@ -11,7 +11,7 @@ export type AstroTelemetryOptions = { astroVersion: string; viteVersion: string 
 export type TelemetryEvent = { eventName: string; payload: Record<string, any> };
 
 // In the event of significant policy changes, update this!
-const VALID_TELEMETRY_NOTICE_DATE = '2023-08-18';
+const VALID_TELEMETRY_NOTICE_DATE = '2023-08-25';
 
 type EventMeta = SystemInfo;
 interface EventContext extends ProjectInfo {
