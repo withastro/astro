@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { runHookBuildSetup } from '../../../dist/integrations/index.js';
 import { validateSupportedFeatures } from '../../../dist/integrations/astroFeaturesValidation.js';
-import { defaultLogging } from '../test-utils.js';
+import { defaultLogger } from '../test-utils.js';
 
 describe('Integration API', () => {
 	it('runHookBuildSetup should work', async () => {
@@ -23,7 +23,7 @@ describe('Integration API', () => {
 				],
 			},
 			vite: {},
-			logging: {},
+			logger: defaultLogger,
 			pages: new Map(),
 			target: 'server',
 		});
@@ -41,7 +41,7 @@ describe('Astro feature map', function () {
 			{
 				output: 'hybrid',
 			},
-			defaultLogging
+			defaultLogger
 		);
 		expect(result['hybridOutput']).to.be.true;
 	});
@@ -53,7 +53,7 @@ describe('Astro feature map', function () {
 			{
 				output: 'hybrid',
 			},
-			defaultLogging
+			defaultLogger
 		);
 		expect(result['hybridOutput']).to.be.false;
 	});
@@ -65,7 +65,7 @@ describe('Astro feature map', function () {
 			{
 				output: 'hybrid',
 			},
-			defaultLogging
+			defaultLogger
 		);
 		expect(result['hybridOutput']).to.be.false;
 	});
@@ -78,7 +78,7 @@ describe('Astro feature map', function () {
 				{
 					output: 'static',
 				},
-				defaultLogging
+				defaultLogger
 			);
 			expect(result['staticOutput']).to.be.true;
 		});
@@ -90,7 +90,7 @@ describe('Astro feature map', function () {
 				{
 					output: 'static',
 				},
-				defaultLogging
+				defaultLogger
 			);
 			expect(result['staticOutput']).to.be.false;
 		});
@@ -103,7 +103,7 @@ describe('Astro feature map', function () {
 				{
 					output: 'hybrid',
 				},
-				defaultLogging
+				defaultLogger
 			);
 			expect(result['hybridOutput']).to.be.true;
 		});
@@ -117,7 +117,7 @@ describe('Astro feature map', function () {
 				{
 					output: 'hybrid',
 				},
-				defaultLogging
+				defaultLogger
 			);
 			expect(result['hybridOutput']).to.be.false;
 		});
@@ -130,7 +130,7 @@ describe('Astro feature map', function () {
 				{
 					output: 'server',
 				},
-				defaultLogging
+				defaultLogger
 			);
 			expect(result['serverOutput']).to.be.true;
 		});
@@ -144,7 +144,7 @@ describe('Astro feature map', function () {
 				{
 					output: 'server',
 				},
-				defaultLogging
+				defaultLogger
 			);
 			expect(result['serverOutput']).to.be.false;
 		});
@@ -167,7 +167,7 @@ describe('Astro feature map', function () {
 						},
 					},
 				},
-				defaultLogging
+				defaultLogger
 			);
 			expect(result['assets']).to.be.true;
 		});
@@ -187,7 +187,7 @@ describe('Astro feature map', function () {
 						},
 					},
 				},
-				defaultLogging
+				defaultLogger
 			);
 			expect(result['assets']).to.be.true;
 		});
@@ -208,7 +208,7 @@ describe('Astro feature map', function () {
 						},
 					},
 				},
-				defaultLogging
+				defaultLogger
 			);
 			expect(result['assets']).to.be.false;
 		});

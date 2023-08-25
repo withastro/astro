@@ -4,7 +4,7 @@ import type {
 	AstroFeatureMap,
 	SupportsKind,
 } from '../@types/astro';
-import { error, warn, type LogOptions } from '../core/logger/core.js';
+import type { Logger } from '../core/logger/core.js';
 
 const STABLE = 'stable';
 const DEPRECATED = 'deprecated';
@@ -40,7 +40,7 @@ export function validateSupportedFeatures(
 	adapterName: string,
 	featureMap: AstroFeatureMap = ALL_UNSUPPORTED,
 	config: AstroConfig,
-	logging: LogOptions
+	logger: Logger
 ): ValidationResult {
 	const {
 		assets = UNSUPPORTED_ASSETS_FEATURE,
@@ -53,7 +53,7 @@ export function validateSupportedFeatures(
 	validationResult.staticOutput = validateSupportKind(
 		staticOutput,
 		adapterName,
-		logging,
+		logger,
 		'staticOutput',
 		() => config?.output === 'static'
 	);
@@ -61,7 +61,7 @@ export function validateSupportedFeatures(
 	validationResult.hybridOutput = validateSupportKind(
 		hybridOutput,
 		adapterName,
-		logging,
+		logger,
 		'hybridOutput',
 		() => config?.output === 'hybrid'
 	);
@@ -69,11 +69,11 @@ export function validateSupportedFeatures(
 	validationResult.serverOutput = validateSupportKind(
 		serverOutput,
 		adapterName,
-		logging,
+		logger,
 		'serverOutput',
 		() => config?.output === 'server'
 	);
-	validationResult.assets = validateAssetsFeature(assets, adapterName, config, logging);
+	validationResult.assets = validateAssetsFeature(assets, adapterName, config, logger);
 
 	return validationResult;
 }
@@ -81,44 +81,39 @@ export function validateSupportedFeatures(
 function validateSupportKind(
 	supportKind: SupportsKind,
 	adapterName: string,
-	logging: LogOptions,
+	logger: Logger,
 	featureName: string,
 	hasCorrectConfig: () => boolean
 ): boolean {
 	if (supportKind === STABLE) {
 		return true;
 	} else if (supportKind === DEPRECATED) {
-		featureIsDeprecated(adapterName, logging);
+		featureIsDeprecated(adapterName, logger);
 	} else if (supportKind === EXPERIMENTAL) {
-		featureIsExperimental(adapterName, logging);
+		featureIsExperimental(adapterName, logger);
 	}
 
 	if (hasCorrectConfig() && supportKind === UNSUPPORTED) {
-		featureIsUnsupported(adapterName, logging, featureName);
+		featureIsUnsupported(adapterName, logger, featureName);
 		return false;
 	} else {
 		return true;
 	}
 }
 
-function featureIsUnsupported(adapterName: string, logging: LogOptions, featureName: string) {
-	error(
-		logging,
+function featureIsUnsupported(adapterName: string, logger: Logger, featureName: string) {
+	logger.error(
 		`${adapterName}`,
 		`The feature ${featureName} is not supported by the adapter ${adapterName}.`
 	);
 }
 
-function featureIsExperimental(adapterName: string, logging: LogOptions) {
-	warn(logging, `${adapterName}`, 'The feature is experimental and subject to issues or changes.');
+function featureIsExperimental(adapterName: string, logger: Logger) {
+	logger.warn(`${adapterName}`, 'The feature is experimental and subject to issues or changes.');
 }
 
-function featureIsDeprecated(adapterName: string, logging: LogOptions) {
-	warn(
-		logging,
-		`${adapterName}`,
-		'The feature is deprecated and will be moved in the next release.'
-	);
+function featureIsDeprecated(adapterName: string, logger: Logger) {
+	logger.warn(`${adapterName}`, 'The feature is deprecated and will be moved in the next release.');
 }
 
 const SHARP_SERVICE = 'astro/assets/services/sharp';
@@ -128,7 +123,7 @@ function validateAssetsFeature(
 	assets: AstroAssetsFeature,
 	adapterName: string,
 	config: AstroConfig,
-	logging: LogOptions
+	logger: Logger
 ): boolean {
 	const {
 		supportKind = UNSUPPORTED,
@@ -136,8 +131,7 @@ function validateAssetsFeature(
 		isSquooshCompatible = false,
 	} = assets;
 	if (config?.image?.service?.entrypoint === SHARP_SERVICE && !isSharpCompatible) {
-		error(
-			logging,
+		logger.error(
 			'astro',
 			`The currently selected adapter \`${adapterName}\` is not compatible with the image service "Sharp".`
 		);
@@ -145,13 +139,12 @@ function validateAssetsFeature(
 	}
 
 	if (config?.image?.service?.entrypoint === SQUOOSH_SERVICE && !isSquooshCompatible) {
-		error(
-			logging,
+		logger.error(
 			'astro',
 			`The currently selected adapter \`${adapterName}\` is not compatible with the image service "Squoosh".`
 		);
 		return false;
 	}
 
-	return validateSupportKind(supportKind, adapterName, logging, 'assets', () => true);
+	return validateSupportKind(supportKind, adapterName, logger, 'assets', () => true);
 }

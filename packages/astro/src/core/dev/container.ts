@@ -12,12 +12,12 @@ import {
 	runHookServerStart,
 } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
-import type { LogOptions } from '../logger/core.js';
+import type { Logger } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 
 export interface Container {
 	fs: typeof nodeFs;
-	logging: LogOptions;
+	logger: Logger;
 	settings: AstroSettings;
 	viteServer: vite.ViteDevServer;
 	inlineConfig: AstroInlineConfig;
@@ -27,7 +27,7 @@ export interface Container {
 }
 
 export interface CreateContainerParams {
-	logging: LogOptions;
+	logger: Logger;
 	settings: AstroSettings;
 	inlineConfig?: AstroInlineConfig;
 	isRestart?: boolean;
@@ -36,7 +36,7 @@ export interface CreateContainerParams {
 
 export async function createContainer({
 	isRestart = false,
-	logging,
+	logger,
 	inlineConfig,
 	settings,
 	fs = nodeFs,
@@ -46,7 +46,7 @@ export async function createContainer({
 	settings = await runHookConfigSetup({
 		settings,
 		command: 'dev',
-		logging,
+		logger: logger,
 		isRestart,
 	});
 
@@ -73,15 +73,15 @@ export async function createContainer({
 				include: rendererClientEntries,
 			},
 		},
-		{ settings, logging, mode: 'dev', command: 'dev', fs }
+		{ settings, logger, mode: 'dev', command: 'dev', fs }
 	);
-	await runHookConfigDone({ settings, logging });
+	await runHookConfigDone({ settings, logger });
 	const viteServer = await vite.createServer(viteConfig);
 
 	const container: Container = {
 		inlineConfig: inlineConfig ?? {},
 		fs,
-		logging,
+		logger,
 		restartInFlight: false,
 		settings,
 		viteServer,
@@ -97,18 +97,18 @@ export async function createContainer({
 	return container;
 }
 
-async function closeContainer({ viteServer, settings, logging }: Container) {
+async function closeContainer({ viteServer, settings, logger }: Container) {
 	await viteServer.close();
 	await runHookServerDone({
 		config: settings.config,
-		logging,
+		logger,
 	});
 }
 
 export async function startContainer({
 	settings,
 	viteServer,
-	logging,
+	logger,
 }: Container): Promise<AddressInfo> {
 	const { port } = settings.config.server;
 	await viteServer.listen(port);
@@ -116,7 +116,7 @@ export async function startContainer({
 	await runHookServerStart({
 		config: settings.config,
 		address: devServerAddressInfo,
-		logging,
+		logger,
 	});
 
 	return devServerAddressInfo;

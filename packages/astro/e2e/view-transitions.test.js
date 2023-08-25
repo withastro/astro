@@ -193,7 +193,10 @@ test.describe('View Transitions', () => {
 		await expect(article, 'should have script content').toHaveText('works');
 	});
 
-	test('astro:page-load event fires when navigating directly to a page', async ({ page, astro }) => {
+	test('astro:page-load event fires when navigating directly to a page', async ({
+		page,
+		astro,
+	}) => {
 		// Go to page 2
 		await page.goto(astro.resolveUrl('/two'));
 		const article = page.locator('#twoarticle');

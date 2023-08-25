@@ -5,7 +5,7 @@ import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
 import { resolveConfig } from '../config/config.js';
-import { createNodeLogging } from '../config/logging.js';
+import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
@@ -17,7 +17,7 @@ import { getResolvedHostForHttpServer } from './util.js';
  * @experimental The JavaScript API is experimental
  */
 export default async function preview(inlineConfig: AstroInlineConfig): Promise<PreviewServer> {
-	const logging = createNodeLogging(inlineConfig);
+	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'preview');
 	telemetry.record(eventCliSession('preview', userConfig));
 
@@ -26,12 +26,12 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 	const settings = await runHookConfigSetup({
 		settings: _settings,
 		command: 'preview',
-		logging: logging,
+		logger: logger,
 	});
-	await runHookConfigDone({ settings: settings, logging: logging });
+	await runHookConfigDone({ settings: settings, logger: logger });
 
 	if (settings.config.output === 'static') {
-		const server = await createStaticPreviewServer(settings, logging);
+		const server = await createStaticPreviewServer(settings, logger);
 		return server;
 	}
 	if (!settings.adapter) {

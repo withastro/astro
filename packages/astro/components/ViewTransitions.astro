@@ -385,17 +385,15 @@ const { fallback = 'animate' } = Astro.props as Props;
 		});
 		addEventListener('load', onPageLoad);
 		// There's not a good way to record scroll position before a back button.
-		// So the way we do it is by listening to scroll and just continuously recording it.
-		addEventListener(
-			'scroll',
-			throttle(() => {
-				// only updste history entries that are managed by us
-				// leave other entries alone and do not accidently add state.
-				if (history.state) {
-					persistState({ ...history.state, scrollY });
-				}
-			}, 300),
-			{ passive: true }
-		);
+		// So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
+    const updateState = () => {
+			// only update history entries that are managed by us
+			// leave other entries alone and do not accidently add state.
+			if (history.state) {
+				persistState({ ...history.state, scrollY });
+			}
+		}
+		if ('onscrollend' in window) addEventListener('scrollend', updateState);
+		else addEventListener('scroll', throttle(updateState, 300));
 	}
 </script>
