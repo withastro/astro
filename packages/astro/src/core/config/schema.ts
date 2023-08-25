@@ -410,7 +410,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		})
 		.refine((obj) => !obj.outDir.toString().startsWith(obj.publicDir.toString()), {
 			message:
-				'`outDir` must not be placed inside `publicDir` to prevent an infinite loop. Please adjust the directory configuration and try again',
+				'The value of `outDir` must not point to a path within the folder set as `publicDir`, this will cause an infinite loop',
 		});
 
 	return AstroConfigRelativeSchema;
