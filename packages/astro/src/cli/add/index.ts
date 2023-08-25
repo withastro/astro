@@ -599,8 +599,8 @@ async function getInstallIntegrationsCommand({
 	logger: Logger;
 	cwd?: string;
 }): Promise<InstallCommand | null> {
-	const pm = await detectAgent(cwd);
-	logger.debug('add', `package manager: ${JSON.stringify(pm)}`);
+const pm = await detectAgent(cwd);
+logger.debug('add', `package manager: ${JSON.stringify(pm)}`);
 	if (!pm) return null;
 
 	let dependencies = integrations
