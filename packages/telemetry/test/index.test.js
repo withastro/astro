@@ -3,9 +3,6 @@ import { AstroTelemetry } from '../dist/index.js';
 
 function setup() {
 	const config = new Map();
-	// Stub both of these to false for Astro's own CI
-	process.env.ASTRO_TELEMETRY_DISABLED = undefined;
-	process.env.TELEMETRY_DISABLED = undefined;
 	const telemetry = new AstroTelemetry({ version: '0.0.0-test.1' });
 	const logs = [];
 	// Stub isCI to false so we can test user-facing behavior
@@ -19,6 +16,14 @@ function setup() {
 	return { telemetry, config, logs }
 }
 describe('AstroTelemetry', () => {	
+	before(() => {
+		process.env.ASTRO_TELEMETRY_DISABLED = undefined;
+		process.env.TELEMETRY_DISABLED = undefined;
+	})
+	after(() => {
+		process.env.ASTRO_TELEMETRY_DISABLED = true;
+		process.env.TELEMETRY_DISABLED = true;
+	})
 	it('initializes when expected arguments are given', () => {
 		const { telemetry } = setup();
 		expect(telemetry).to.be.instanceOf(AstroTelemetry);
