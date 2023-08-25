@@ -2,7 +2,6 @@
 import type yargs from 'yargs-parser';
 import * as msg from '../../core/messages.js';
 import { telemetry } from '../../events/index.js';
-import prompts from 'prompts';
 
 interface TelemetryOptions {
 	flags: yargs.Arguments;
