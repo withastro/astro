@@ -132,23 +132,22 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	let response;
 	if (onRequest) {
 		response = await callMiddleware<Response | EndpointOutput>(
-			env.logging,
+			env.logger,
 			onRequest as MiddlewareEndpointHandler,
 			context,
 			async () => {
-				return await renderEndpoint(mod, context, env.ssr, env.logging);
+				return await renderEndpoint(mod, context, env.ssr, env.logger);
 			}
 		);
 	} else {
-		response = await renderEndpoint(mod, context, env.ssr, env.logging);
+		response = await renderEndpoint(mod, context, env.ssr, env.logger);
 	}
 
 	const isEndpointSSR = env.ssr && !ctx.route?.prerender;
 
 	if (response instanceof Response) {
 		if (isEndpointSSR && response.headers.get('X-Astro-Encoding')) {
-			warn(
-				env.logging,
+			env.logger.warn(
 				'ssr',
 				'`ResponseWithEncoding` is ignored in SSR. Please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.'
 			);
@@ -160,24 +159,21 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	// The endpoint returned a simple object, convert it to a Response
 
 	// TODO: Remove in Astro 4.0
-	warn(
-		env.logging,
+	env.logger.warn(
 		'astro',
 		`${ctx.route.component} returns a simple object which is deprecated. Please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.`
 	);
 
 	if (isEndpointSSR) {
 		if (response.hasOwnProperty('headers')) {
-			warn(
-				env.logging,
+			env.logger.warn(
 				'ssr',
 				'Setting headers is not supported when returning an object. Please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.'
 			);
 		}
 
 		if (response.encoding) {
-			warn(
-				env.logging,
+			env.logger.warn(
 				'ssr',
 				'`encoding` is ignored in SSR. To return a charset other than UTF-8, please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.'
 			);

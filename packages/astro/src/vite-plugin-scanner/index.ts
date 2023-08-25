@@ -1,25 +1,23 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
-import { type LogOptions } from '../core/logger/core.js';
-
+import { type Logger } from '../core/logger/core.js';
 import { bold } from 'kleur/colors';
 import { extname } from 'node:path';
 import { normalizePath } from 'vite';
-import { warn } from '../core/logger/core.js';
 import { isEndpoint, isPage, rootRelativePath } from '../core/util.js';
 import { getPrerenderDefault, isServerLikeOutput } from '../prerender/utils.js';
 import { scan } from './scan.js';
 
 export interface AstroPluginScannerOptions {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 }
 
 const KNOWN_FILE_EXTENSIONS = ['.astro', '.js', '.ts'];
 
 export default function astroScannerPlugin({
 	settings,
-	logging,
+	logger,
 }: AstroPluginScannerOptions): VitePlugin {
 	return {
 		name: 'astro:scanner',
@@ -55,8 +53,7 @@ export default function astroScannerPlugin({
 				KNOWN_FILE_EXTENSIONS.includes(extname(filename))
 			) {
 				const reason = ` because \`output: "${settings.config.output}"\` is set`;
-				warn(
-					logging,
+				logger.warn(
 					'getStaticPaths',
 					`The getStaticPaths() statement in ${bold(
 						rootRelativePath(settings.config.root, fileURL, true)

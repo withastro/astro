@@ -2,7 +2,7 @@ import type fs from 'node:fs';
 import type * as vite from 'vite';
 import type { AstroSettings, ManifestData, SSRManifest } from '../@types/astro';
 import { patchOverlay } from '../core/errors/overlay.js';
-import type { LogOptions } from '../core/logger/core.js';
+import type { Logger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import { createRouteManifest } from '../core/routing/index.js';
 import { baseMiddleware } from './base.js';
@@ -12,13 +12,13 @@ import { handleRequest } from './request.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 	fs: typeof fs;
 }
 
 export default function createVitePluginAstroServer({
 	settings,
-	logging,
+	logger,
 	fs: fsMod,
 }: AstroPluginOptions): vite.Plugin {
 	return {
@@ -26,15 +26,15 @@ export default function createVitePluginAstroServer({
 		configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
 			const manifest = createDevelopmentManifest(settings);
-			const pipeline = new DevPipeline({ logging, manifest, settings, loader });
-			let manifestData: ManifestData = createRouteManifest({ settings, fsMod }, logging);
+			const pipeline = new DevPipeline({ logger, manifest, settings, loader });
+			let manifestData: ManifestData = createRouteManifest({ settings, fsMod }, logger);
 			const controller = createController({ loader });
 
 			/** rebuild the route cache + manifest, as needed. */
 			function rebuildManifest(needsManifestRebuild: boolean) {
 				pipeline.clearRouteCache();
 				if (needsManifestRebuild) {
-					manifestData = createRouteManifest({ settings }, logging);
+					manifestData = createRouteManifest({ settings }, logger);
 				}
 			}
 			// Rebuild route manifest on file change, if needed.
@@ -47,7 +47,7 @@ export default function createVitePluginAstroServer({
 				// fix(#6067): always inject this to ensure zombie base handling is killed after restarts
 				viteServer.middlewares.stack.unshift({
 					route: '',
-					handle: baseMiddleware(settings, logging),
+					handle: baseMiddleware(settings, logger),
 				});
 				// Note that this function has a name so other middleware can find it.
 				viteServer.middlewares.use(async function astroDevHandler(request, response) {

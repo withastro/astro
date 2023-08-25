@@ -16,14 +16,14 @@ import {
 	updateTSConfigForFramework,
 	type frameworkWithTSSettings,
 } from '../../core/config/tsconfig.js';
-import { debug, info, type LogOptions } from '../../core/logger/core.js';
+import type { Logger } from '../../core/logger/core.js';
 import * as msg from '../../core/messages.js';
 import { printHelp } from '../../core/messages.js';
 import { appendForwardSlash } from '../../core/path.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
-import { createLoggingFromFlags } from '../flags.js';
+import { createLoggerFromFlags } from '../flags.js';
 import { generate, parse, t, visit } from './babel.js';
 import { ensureImport } from './imports.js';
 import { wrapDefaultExport } from './wrapper.js';
@@ -130,10 +130,10 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 	// Some packages might have a common alias! We normalize those here.
 	const cwd = flags.root;
-	const logging = createLoggingFromFlags(flags);
+	const logger = createLoggerFromFlags(flags);
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames);
-	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logging });
+	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logger });
 	const rootPath = resolveRoot(cwd);
 	const root = pathToFileURL(rootPath);
 	// Append forward slash to compute relative paths
@@ -144,7 +144,8 @@ export async function add(names: string[], { flags }: AddOptions) {
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
 				await setupIntegrationConfig({
 					root,
-					logging,
+					logger,
+
 					flags,
 					integrationName: 'Tailwind',
 					possibleConfigFiles: [
@@ -159,7 +160,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			if (integrations.find((integration) => integration.id === 'svelte')) {
 				await setupIntegrationConfig({
 					root,
-					logging,
+					logger,
 					flags,
 					integrationName: 'Svelte',
 					possibleConfigFiles: ['./svelte.config.js', './svelte.config.cjs', './svelte.config.mjs'],
@@ -175,7 +176,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			) {
 				await setupIntegrationConfig({
 					root,
-					logging,
+					logger,
 					flags,
 					integrationName: 'Lit',
 					possibleConfigFiles: ['./.npmrc'],
@@ -186,8 +187,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			break;
 		}
 		case UpdateResult.cancelled: {
-			info(
-				logging,
+			logger.info(
 				null,
 				msg.cancelled(
 					`Dependencies ${bold('NOT')} installed.`,
@@ -209,9 +209,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 	let configURL = rawConfigPath ? pathToFileURL(rawConfigPath) : undefined;
 
 	if (configURL) {
-		debug('add', `Found config at ${configURL}`);
+		logger.debug('add', `Found config at ${configURL}`);
 	} else {
-		info(logging, 'add', `Unable to locate a config file, generating one for you.`);
+		logger.info('add', `Unable to locate a config file, generating one for you.`);
 		configURL = new URL('./astro.config.mjs', root);
 		await fs.writeFile(fileURLToPath(configURL), ASTRO_CONFIG_STUB, { encoding: 'utf-8' });
 	}
@@ -220,7 +220,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 	try {
 		ast = await parseAstroConfig(configURL);
 
-		debug('add', 'Parsed astro config');
+		logger.debug('add', 'Parsed astro config');
 
 		const defineConfig = t.identifier('defineConfig');
 		ensureImport(
@@ -232,7 +232,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 		);
 		wrapDefaultExport(ast, defineConfig);
 
-		debug('add', 'Astro config ensured `defineConfig`');
+		logger.debug('add', 'Astro config ensured `defineConfig`');
 
 		for (const integration of integrations) {
 			if (isAdapter(integration)) {
@@ -240,8 +240,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 				if (officialExportName) {
 					await setAdapter(ast, integration, officialExportName);
 				} else {
-					info(
-						logging,
+					logger.info(
 						null,
 						`\n  ${magenta(
 							`Check our deployment docs for ${bold(
@@ -253,10 +252,10 @@ export async function add(names: string[], { flags }: AddOptions) {
 			} else {
 				await addIntegration(ast, integration);
 			}
-			debug('add', `Astro config added integration ${integration.id}`);
+			logger.debug('add', `Astro config added integration ${integration.id}`);
 		}
 	} catch (err) {
-		debug('add', 'Error parsing/modifying astro config: ', err);
+		logger.debug('add', 'Error parsing/modifying astro config: ', err);
 		throw createPrettyError(err as Error);
 	}
 
@@ -268,18 +267,18 @@ export async function add(names: string[], { flags }: AddOptions) {
 				configURL,
 				ast,
 				flags,
-				logging,
+				logger,
 				logAdapterInstructions: integrations.some(isAdapter),
 			});
 		} catch (err) {
-			debug('add', 'Error updating astro config', err);
+			logger.debug('add', 'Error updating astro config', err);
 			throw createPrettyError(err as Error);
 		}
 	}
 
 	switch (configResult) {
 		case UpdateResult.cancelled: {
-			info(logging, null, msg.cancelled(`Your configuration has ${bold('NOT')} been updated.`));
+			logger.info(null, msg.cancelled(`Your configuration has ${bold('NOT')} been updated.`));
 			break;
 		}
 		case UpdateResult.none: {
@@ -293,18 +292,17 @@ export async function add(names: string[], { flags }: AddOptions) {
 					(integration) => !deps.includes(integration.packageName)
 				);
 				if (missingDeps.length === 0) {
-					info(logging, null, msg.success(`Configuration up-to-date.`));
+					logger.info(null, msg.success(`Configuration up-to-date.`));
 					break;
 				}
 			}
 
-			info(logging, null, msg.success(`Configuration up-to-date.`));
+			logger.info(null, msg.success(`Configuration up-to-date.`));
 			break;
 		}
 		default: {
 			const list = integrations.map((integration) => `  - ${integration.packageName}`).join('\n');
-			info(
-				logging,
+			logger.info(
 				null,
 				msg.success(
 					`Added the following integration${
@@ -315,15 +313,14 @@ export async function add(names: string[], { flags }: AddOptions) {
 		}
 	}
 
-	const updateTSConfigResult = await updateTSConfig(cwd, logging, integrations, flags);
+	const updateTSConfigResult = await updateTSConfig(cwd, logger, integrations, flags);
 
 	switch (updateTSConfigResult) {
 		case UpdateResult.none: {
 			break;
 		}
 		case UpdateResult.cancelled: {
-			info(
-				logging,
+			logger.info(
 				null,
 				msg.cancelled(`Your TypeScript configuration has ${bold('NOT')} been updated.`)
 			);
@@ -335,7 +332,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			);
 		}
 		default:
-			info(logging, null, msg.success(`Successfully updated TypeScript settings`));
+			logger.info(null, msg.success(`Successfully updated TypeScript settings`));
 	}
 }
 
@@ -529,13 +526,13 @@ async function updateAstroConfig({
 	configURL,
 	ast,
 	flags,
-	logging,
+	logger,
 	logAdapterInstructions,
 }: {
 	configURL: URL;
 	ast: t.File;
 	flags: yargs.Arguments;
-	logging: LogOptions;
+	logger: Logger;
 	logAdapterInstructions: boolean;
 }): Promise<UpdateResult> {
 	const input = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
@@ -562,15 +559,13 @@ async function updateAstroConfig({
 		title: configURL.pathname.split('/').pop(),
 	})}\n`;
 
-	info(
-		logging,
+	logger.info(
 		null,
 		`\n  ${magenta('Astro will make the following changes to your config file:')}\n${message}`
 	);
 
 	if (logAdapterInstructions) {
-		info(
-			logging,
+		logger.info(
 			null,
 			magenta(
 				`  For complete deployment options, visit\n  ${bold(
@@ -582,7 +577,7 @@ async function updateAstroConfig({
 
 	if (await askToContinue({ flags })) {
 		await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
-		debug('add', `Updated astro config`);
+		logger.debug('add', `Updated astro config`);
 		return UpdateResult.updated;
 	} else {
 		return UpdateResult.cancelled;
@@ -598,13 +593,15 @@ interface InstallCommand {
 
 async function getInstallIntegrationsCommand({
 	integrations,
+	logger,
 	cwd = process.cwd(),
 }: {
 	integrations: IntegrationInfo[];
+	logger: Logger;
 	cwd?: string;
 }): Promise<InstallCommand | null> {
 	const pm = await preferredPM(cwd);
-	debug('add', `package manager: ${JSON.stringify(pm)}`);
+	logger.debug('add', `package manager: ${JSON.stringify(pm)}`);
 	if (!pm) return null;
 
 	let dependencies = integrations
@@ -644,14 +641,14 @@ async function tryToInstallIntegrations({
 	integrations,
 	cwd,
 	flags,
-	logging,
+	logger,
 }: {
 	integrations: IntegrationInfo[];
 	cwd?: string;
 	flags: yargs.Arguments;
-	logging: LogOptions;
+	logger: Logger;
 }): Promise<UpdateResult> {
-	const installCommand = await getInstallIntegrationsCommand({ integrations, cwd });
+	const installCommand = await getInstallIntegrationsCommand({ integrations, cwd, logger });
 
 	const inheritedFlags = Object.entries(flags)
 		.map(([flag]) => {
@@ -677,8 +674,7 @@ async function tryToInstallIntegrations({
 			padding: 0.5,
 			borderStyle: 'round',
 		})}\n`;
-		info(
-			logging,
+		logger.info(
 			null,
 			`\n  ${magenta('Astro will run the following command:')}\n  ${dim(
 				'If you skip this step, you can always run it yourself later'
@@ -702,7 +698,7 @@ async function tryToInstallIntegrations({
 				return UpdateResult.updated;
 			} catch (err) {
 				spinner.fail();
-				debug('add', 'Error installing dependencies', err);
+				logger.debug('add', 'Error installing dependencies', err);
 				// eslint-disable-next-line no-console
 				console.error('\n', (err as any).stdout, '\n');
 				return UpdateResult.failure;
@@ -829,7 +825,7 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 
 async function updateTSConfig(
 	cwd = process.cwd(),
-	logging: LogOptions,
+	logger: Logger,
 	integrationsInfo: IntegrationInfo[],
 	flags: yargs.Arguments
 ): Promise<UpdateResult> {
@@ -852,7 +848,7 @@ async function updateTSConfig(
 	}
 
 	if (inputConfig.reason === 'not-found') {
-		debug('add', "Couldn't find tsconfig.json or jsconfig.json, generating one");
+		logger.debug('add', "Couldn't find tsconfig.json or jsconfig.json, generating one");
 	}
 
 	const outputConfig = updateTSConfigForFramework(
@@ -875,8 +871,7 @@ async function updateTSConfig(
 		title: configFileName,
 	})}\n`;
 
-	info(
-		logging,
+	logger.info(
 		null,
 		`\n  ${magenta(`Astro will make the following changes to your ${configFileName}:`)}\n${message}`
 	);
@@ -890,8 +885,7 @@ async function updateTSConfig(
 		integrations.filter((integration) => conflictingIntegrations.includes(integration)).length > 0;
 
 	if (hasConflictingIntegrations) {
-		info(
-			logging,
+		logger.info(
 			null,
 			red(
 				`  ${bold(
@@ -907,7 +901,7 @@ async function updateTSConfig(
 		await fs.writeFile(inputConfig?.path ?? path.join(cwd, 'tsconfig.json'), output, {
 			encoding: 'utf-8',
 		});
-		debug('add', `Updated ${configFileName} file`);
+		logger.debug('add', `Updated ${configFileName} file`);
 		return UpdateResult.updated;
 	} else {
 		return UpdateResult.cancelled;
@@ -971,13 +965,14 @@ function getDiffContent(input: string, output: string): string | null {
 
 async function setupIntegrationConfig(opts: {
 	root: URL;
-	logging: LogOptions;
+	logger: Logger;
 	flags: yargs.Arguments;
 	integrationName: string;
 	possibleConfigFiles: string[];
 	defaultConfigFile: string;
 	defaultConfigContent: string;
 }) {
+	const logger = opts.logger;
 	const possibleConfigFiles = opts.possibleConfigFiles.map((p) =>
 		fileURLToPath(new URL(p, opts.root))
 	);
@@ -989,8 +984,7 @@ async function setupIntegrationConfig(opts: {
 		}
 	}
 	if (!alreadyConfigured) {
-		info(
-			opts.logging,
+		logger.info(
 			null,
 			`\n  ${magenta(`Astro will generate a minimal ${bold(opts.defaultConfigFile)} file.`)}\n`
 		);
@@ -1002,9 +996,9 @@ async function setupIntegrationConfig(opts: {
 					encoding: 'utf-8',
 				}
 			);
-			debug('add', `Generated default ${opts.defaultConfigFile} file`);
+			logger.debug('add', `Generated default ${opts.defaultConfigFile} file`);
 		}
 	} else {
-		debug('add', `Using existing ${opts.integrationName} configuration`);
+		logger.debug('add', `Using existing ${opts.integrationName} configuration`);
 	}
 }

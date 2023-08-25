@@ -1,5 +1,5 @@
 import type { AstroSettings } from '../@types/astro';
-import type { LogOptions } from './logger/core';
+import type { Logger } from './logger/core';
 
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -32,7 +32,7 @@ import { joinPaths } from './path.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 	mode: 'dev' | 'build' | string;
 	// will be undefined when using `getViteConfig`
 	command?: 'dev' | 'build';
@@ -66,7 +66,7 @@ const ONLY_DEV_EXTERNAL = [
 /** Return a common starting point for all Vite actions */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logging, mode, command, fs = nodeFs }: CreateViteOptions
+	{ settings, logger, mode, command, fs = nodeFs }: CreateViteOptions
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -113,26 +113,26 @@ export async function createVite(
 		plugins: [
 			configAliasVitePlugin({ settings }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
-			astroVitePlugin({ settings, logging }),
+			astroVitePlugin({ settings, logger }),
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			mode !== 'build' && vitePluginAstroServer({ settings, logging, fs }),
+			mode !== 'build' && vitePluginAstroServer({ settings, logger, fs }),
 			envVitePlugin({ settings }),
-			markdownVitePlugin({ settings, logging }),
+			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
-			mdxVitePlugin({ settings, logging }),
+			mdxVitePlugin({ settings, logger }),
 			astroPostprocessVitePlugin(),
-			astroIntegrationsContainerPlugin({ settings, logging }),
+			astroIntegrationsContainerPlugin({ settings, logger }),
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPlugin(),
-			astroScannerPlugin({ settings, logging }),
-			astroInjectEnvTsPlugin({ settings, logging, fs }),
+			astroScannerPlugin({ settings, logger }),
+			astroInjectEnvTsPlugin({ settings, logger, fs }),
 			astroContentVirtualModPlugin({ settings }),
 			astroContentImportPlugin({ fs, settings }),
 			astroContentAssetPropagationPlugin({ mode, settings }),
 			vitePluginSSRManifest(),
-			astroAssetsPlugin({ settings, logging, mode }),
+			astroAssetsPlugin({ settings, logger, mode }),
 			astroTransitions({ config: settings.config }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),

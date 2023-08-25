@@ -6,7 +6,7 @@ import type {
 	RouteData,
 	RoutePart,
 } from '../../../@types/astro';
-import type { LogOptions } from '../../logger/core';
+import type { Logger } from '../../logger/core';
 
 import { createRequire } from 'module';
 import nodeFs from 'node:fs';
@@ -221,7 +221,7 @@ export interface CreateRouteManifestParams {
 /** Create manifest of all static routes */
 export function createRouteManifest(
 	{ settings, cwd, fsMod }: CreateRouteManifestParams,
-	logging: LogOptions
+	logger: Logger
 ): ManifestData {
 	const components: string[] = [];
 	const routes: RouteData[] = [];
@@ -261,7 +261,7 @@ export function createRouteManifest(
 			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
 				if (!foundInvalidFileExtensions.has(ext)) {
 					foundInvalidFileExtensions.add(ext);
-					warn(logging, 'astro', `Invalid file extension for Pages: ${ext}`);
+					logger.warn('astro', `Invalid file extension for Pages: ${ext}`);
 				}
 
 				return;
@@ -359,7 +359,7 @@ export function createRouteManifest(
 	} else if (settings.injectedRoutes.length === 0) {
 		const pagesDirRootRelative = pages.href.slice(settings.config.root.href.length);
 
-		warn(logging, 'astro', `Missing pages directory: ${pagesDirRootRelative}`);
+		logger.warn('astro', `Missing pages directory: ${pagesDirRootRelative}`);
 	}
 
 	settings.injectedRoutes
