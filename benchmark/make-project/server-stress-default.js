@@ -7,11 +7,13 @@ import { loremIpsum } from './_util.js';
 export async function run(projectDir) {
 	await fs.rm(projectDir, { recursive: true, force: true });
 	await fs.mkdir(new URL('./src/pages', projectDir), { recursive: true });
+	await fs.mkdir(new URL('./src/components', projectDir), { recursive: true });
 
 	await fs.writeFile(
 		new URL('./src/pages/index.astro', projectDir),
 		`\
 ---
+import Paragraph from '../components/Paragraph.astro'
 const content = "${loremIpsum}"
 ---
 
@@ -25,10 +27,19 @@ const content = "${loremIpsum}"
 	<body>
 		<h1>Astro</h1>
 		<div>
-			${Array.from({ length: 60 }).map(() => '<p>{content}</p>')}
+			${Array.from({ length: 100 }).map(() => '<p>{content}</p>').join('\n')}
+		</div>
+		<div>
+			${Array.from({ length: 50 }).map((_, i) => '<Paragraph num={' + i + '} str={content} />').join('\n')}
 		</div>
 	</body>
 </html>`,
+		'utf-8'
+	);
+
+	await fs.writeFile(
+		new URL('./src/components/Paragraph.astro', projectDir),
+		`<div>{Astro.props.num} {Astro.props.str}</div>`,
 		'utf-8'
 	);
 
