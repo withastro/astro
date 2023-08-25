@@ -3,11 +3,8 @@
 // @ts-check
 
 import { execa } from 'execa';
-import { polyfill } from '@astrojs/webapi';
-import { fileURLToPath } from 'node:url';
 import { promises as fs } from 'node:fs';
-
-polyfill(globalThis, { exclude: 'window document' });
+import { fileURLToPath } from 'node:url';
 
 /** URL directory containing the entire project. */
 const rootDir = new URL('../../', import.meta.url);

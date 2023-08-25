@@ -44,7 +44,7 @@ describe('Public dev with base', () => {
 		expect(response.status).to.equal(404);
 		const html = await response.text();
 		$ = cheerio.load(html);
-		expect($('a').first().text()).to.equal('/blog/');
+		expect($('a').first().text()).to.equal('/blog');
 	});
 
 	it('default 404 page when loading /none/', async () => {

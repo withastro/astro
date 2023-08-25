@@ -1,6 +1,9 @@
-import { createRequire } from 'module';
+import { createRequire } from 'node:module';
+import path from 'node:path';
 
-export const astroBin = createRequire(import.meta.url).resolve('astro');
+const astroPkgPath = createRequire(import.meta.url).resolve('astro/package.json');
+
+export const astroBin = path.resolve(astroPkgPath, '../astro.js');
 
 /** @typedef {{ avg: number, stdev: number, max: number }} Stat */
 

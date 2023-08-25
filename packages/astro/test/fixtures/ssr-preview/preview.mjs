@@ -1,7 +1,7 @@
 export default () => {
 	// noop
 	return {
-		port: 3000,
+		port: 4321,
 		closed() {},
 		stop() {}
 	}

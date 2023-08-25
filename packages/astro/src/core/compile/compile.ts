@@ -41,12 +41,10 @@ export async function compile({
 			filename,
 			normalizedFilename: normalizeFilename(filename, astroConfig.root),
 			sourcemap: 'both',
-			internalURL: 'astro/server/index.js',
+			internalURL: 'astro/compiler-runtime',
 			astroGlobalArgs: JSON.stringify(astroConfig.site),
 			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
 			resultScopedSlot: true,
-			experimentalTransitions: astroConfig.experimental.viewTransitions,
-			experimentalPersistence: astroConfig.experimental.viewTransitions,
 			transitionsAnimationURL: 'astro/components/viewtransitions.css',
 			preprocessStyle: createStylePreprocessor({
 				filename,

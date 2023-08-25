@@ -6,7 +6,6 @@ import type * as vite from 'vite';
 import type { AstroInlineConfig } from '../../@types/astro';
 import { attachContentServerListeners } from '../../content/index.js';
 import { telemetry } from '../../events/index.js';
-import { info, warn } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { startContainer } from './container.js';
 import { createContainerWithAutomaticRestart } from './restart.js';
@@ -18,20 +17,24 @@ export interface DevServer {
 	stop(): Promise<void>;
 }
 
-/** `astro dev` */
+/**
+ * Runs Astro’s development server. This is a local HTTP server that doesn’t bundle assets.
+ * It uses Hot Module Replacement (HMR) to update your browser as you save changes in your editor.
+ *
+ * @experimental The JavaScript API is experimental
+ */
 export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevServer> {
 	const devStart = performance.now();
 	await telemetry.record([]);
 
 	// Create a container which sets up the Vite server.
 	const restart = await createContainerWithAutomaticRestart({ inlineConfig, fs });
-	const logging = restart.container.logging;
+	const logger = restart.container.logger;
 
 	// Start listening to the port
 	const devServerAddressInfo = await startContainer(restart.container);
 
-	info(
-		logging,
+	logger.info(
 		null,
 		msg.serverStart({
 			startupTime: performance.now() - devStart,
@@ -43,10 +46,10 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	const currentVersion = process.env.PACKAGE_VERSION ?? '0.0.0';
 	if (currentVersion.includes('-')) {
-		warn(logging, null, msg.prerelease({ currentVersion }));
+		logger.warn(null, msg.prerelease({ currentVersion }));
 	}
 	if (restart.container.viteServer.config.server?.fs?.strict === false) {
-		warn(logging, null, msg.fsStrictWarning());
+		logger.warn(null, msg.fsStrictWarning());
 	}
 
 	await attachContentServerListeners(restart.container);

@@ -1,26 +1,22 @@
 import type { ComponentInstance } from '../@types/astro.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
-import type { DevelopmentEnvironment } from '../core/render/environment';
-import { loadRenderers } from '../core/render/index.js';
 import { viteID } from '../core/util.js';
+import type DevPipeline from './devPipeline';
 
 export async function preload({
-	env,
+	pipeline,
 	filePath,
 }: {
-	env: DevelopmentEnvironment;
+	pipeline: DevPipeline;
 	filePath: URL;
 }): Promise<ComponentInstance> {
 	// Important: This needs to happen first, in case a renderer provides polyfills.
-	const renderers = await loadRenderers(env.settings, env.loader);
-	// Override the environment's renderers. This ensures that if renderers change (HMR)
-	// The new instances are passed through.
-	env.renderers = renderers;
+	await pipeline.loadRenderers();
 
 	try {
 		// Load the module from the Vite SSR Runtime.
-		const mod = (await env.loader.import(viteID(filePath))) as ComponentInstance;
+		const mod = (await pipeline.getModuleLoader().import(viteID(filePath))) as ComponentInstance;
 
 		return mod;
 	} catch (error) {
@@ -29,7 +25,7 @@ export async function preload({
 			throw error;
 		}
 
-		throw enhanceViteSSRError({ error, filePath, loader: env.loader });
+		throw enhanceViteSSRError({ error, filePath, loader: pipeline.getModuleLoader() });
 	}
 }
 

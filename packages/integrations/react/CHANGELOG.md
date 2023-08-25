@@ -1,5 +1,107 @@
 # @astrojs/react
 
+## 3.0.0-rc.5
+
+### Patch Changes
+
+- [#8228](https://github.com/withastro/astro/pull/8228) [`4bd2fac8d`](https://github.com/withastro/astro/commit/4bd2fac8da4efb7c532d8920077df1f61d6e1953) Thanks [@bluwy](https://github.com/bluwy)! - Publish missing `vnode-children.js` file
+
+## 3.0.0-rc.4
+
+### Major Changes
+
+- [#8179](https://github.com/withastro/astro/pull/8179) [`6011d52d3`](https://github.com/withastro/astro/commit/6011d52d38e43c3e3d52bc3bc41a60e36061b7b7) Thanks [@matthewp](https://github.com/matthewp)! - Astro 3.0 Release Candidate
+
+### Patch Changes
+
+- Updated dependencies [[`6011d52d3`](https://github.com/withastro/astro/commit/6011d52d38e43c3e3d52bc3bc41a60e36061b7b7)]:
+  - @astrojs/internal-helpers@0.2.0-rc.2
+
+## 3.0.0-beta.3
+
+### Minor Changes
+
+- [#8082](https://github.com/withastro/astro/pull/8082) [`16a3fdf93`](https://github.com/withastro/astro/commit/16a3fdf93165a1a0404c1db0973871345b2c591b) Thanks [@matthewp](https://github.com/matthewp)! - Optionally parse React slots as React children.
+
+  This adds a new configuration option for the React integration `experimentalReactChildren`:
+
+  ```js
+  export default {
+    integrations: [
+      react({
+        experimentalReactChildren: true,
+      }),
+    ],
+  };
+  ```
+
+  With this enabled, children passed to React from Astro components via the default slot are parsed as React components.
+
+  This enables better compatibility with certain React components which manipulate their children.
+
+## 3.0.0-beta.2
+
+### Patch Changes
+
+- Updated dependencies [[`2aa6d8ace`](https://github.com/withastro/astro/commit/2aa6d8ace398a41c2dec5473521d758816b08191)]:
+  - @astrojs/internal-helpers@0.2.0-beta.1
+
+## 3.0.0-beta.1
+
+### Major Changes
+
+- [#7924](https://github.com/withastro/astro/pull/7924) [`519a1c4e8`](https://github.com/withastro/astro/commit/519a1c4e8407c7abcb8d879b67a9f4b960652cae) Thanks [@matthewp](https://github.com/matthewp)! - Support for React Refresh
+
+  The React integration now fully supports React Refresh and is backed by `@vitejs/plugin-react`.
+
+  Also included in this change are new `include` and `exclude` config options. Use these if you want to use React alongside another JSX framework; include specifies files to be compiled for React and `exclude` does the opposite.
+
+## 3.0.0-beta.0
+
+### Major Changes
+
+- [`1eae2e3f7`](https://github.com/withastro/astro/commit/1eae2e3f7d693c9dfe91c8ccfbe606d32bf2fb81) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove support for Node 16. The lowest supported version by Astro and all integrations is now v18.14.1. As a reminder, Node 16 will be deprecated on the 11th September 2023.
+
+## 2.3.2
+
+### Patch Changes
+
+- [#8149](https://github.com/withastro/astro/pull/8149) [`531cc3e49`](https://github.com/withastro/astro/commit/531cc3e490bc3bc1b896eeaec05664571df5bb24) Thanks [@matthewp](https://github.com/matthewp)! - Fix missing package file regression
+
+## 2.3.1
+
+### Patch Changes
+
+- [#8137](https://github.com/withastro/astro/pull/8137) [`8c0a4ed10`](https://github.com/withastro/astro/commit/8c0a4ed106efeda286f0aae8b959008f9462b5ec) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix missing export for new `experimentalReactChildren` option
+
+## 2.3.0
+
+### Minor Changes
+
+- [#8082](https://github.com/withastro/astro/pull/8082) [`16a3fdf93`](https://github.com/withastro/astro/commit/16a3fdf93165a1a0404c1db0973871345b2c591b) Thanks [@matthewp](https://github.com/matthewp)! - Optionally parse React slots as React children.
+
+  This adds a new configuration option for the React integration `experimentalReactChildren`:
+
+  ```js
+  export default {
+    integrations: [
+      react({
+        experimentalReactChildren: true,
+      }),
+    ],
+  };
+  ```
+
+  With this enabled, children passed to React from Astro components via the default slot are parsed as React components.
+
+  This enables better compatibility with certain React components which manipulate their children.
+
+## 2.2.2
+
+### Patch Changes
+
+- [#8075](https://github.com/withastro/astro/pull/8075) [`da517d405`](https://github.com/withastro/astro/commit/da517d4055825ee1b630cd4a6983818d6120a7b7) Thanks [@SudoCat](https://github.com/SudoCat)! - fix a bug where react identifierPrefix was set to null for client:only components causing React.useId to generate ids prefixed with null
+
 ## 2.2.1
 
 ### Patch Changes

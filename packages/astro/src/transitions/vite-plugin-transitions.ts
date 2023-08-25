@@ -1,12 +1,10 @@
 import * as vite from 'vite';
-import type { AstroConfig } from '../@types/astro';
-import { AstroError } from '../core/errors/index.js';
 
 const virtualModuleId = 'astro:transitions';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
 
 // The virtual module for the astro:transitions namespace
-export default function astroTransitions({ config }: { config: AstroConfig }): vite.Plugin {
+export default function astroTransitions(): vite.Plugin {
 	return {
 		name: 'astro:transitions',
 		async resolveId(id) {
@@ -16,20 +14,6 @@ export default function astroTransitions({ config }: { config: AstroConfig }): v
 		},
 		load(id) {
 			if (id === resolvedVirtualModuleId) {
-				if (!config.experimental.viewTransitions) {
-					throw new AstroError({
-						name: 'TransitionError',
-						title: 'Experimental View Transitions not enabled',
-						message: `View Transitions support is experimental. To enable update your config to include: 
-						
-export default defineConfig({
-	experimental: {
-		viewTransitions: true
-	}
-})`,
-					});
-				}
-
 				return `
 				export * from "astro/transitions";
 				export { default as ViewTransitions } from "astro/components/ViewTransitions.astro";

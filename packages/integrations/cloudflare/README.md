@@ -44,22 +44,36 @@ export default defineConfig({
 
 default `"advanced"`
 
-Cloudflare Pages has 2 different modes for deploying functions, `advanced` mode which picks up the `_worker.js` in `dist`, or a directory mode where pages will compile the worker out of a functions folder in the project root.
+Cloudflare Pages has 2 different modes for deploying functions, `advanced` mode which picks up the `_worker.js` in `dist`, or a directory mode where pages will compile the worker out of a functions folder in the project root. For most projects the adapter default of `advanced` will be sufficient; the `dist` folder will contain your compiled project.
 
-For most projects the adapter default of `advanced` will be sufficient; the `dist` folder will contain your compiled project. Switching to directory mode allows you to use [pages plugins](https://developers.cloudflare.com/pages/platform/functions/plugins/) such as [Sentry](https://developers.cloudflare.com/pages/platform/functions/plugins/sentry/) or write custom code to enable logging.
+#### `mode:directory`
 
-In directory mode, the adapter will compile the client side part of your app the same way by default, but moves the worker script into a `functions` folder in the project root. In this case, the adapter will only ever place a `[[path]].js` in that folder, allowing you to add additional plugins and pages middleware which can be checked into version control.
-
-With the build configuration `split: true`, the adapter instead compiles a separate bundle for each page. This option requires some manual maintenance of the `functions` folder. Files emitted by Astro will overwrite existing `functions` files with identical names, so you must choose unique file names for each file you manually add. Additionally, the adapter will never empty the `functions` folder of outdated files, so you must clean up the folder manually when you remove pages.
-
-Note that this adapter does not support using [Cloudflare Pages Middleware](https://developers.cloudflare.com/pages/platform/functions/middleware/). Astro will bundle the [Astro middleware](https://docs.astro.build/en/guides/middleware/) into each page.
+Switching to directory mode allows you to use [pages plugins](https://developers.cloudflare.com/pages/platform/functions/plugins/) such as [Sentry](https://developers.cloudflare.com/pages/platform/functions/plugins/sentry/) or write custom code to enable logging.
 
 ```ts
-// directory mode
+// astro.config.mjs
 export default defineConfig({
   adapter: cloudflare({ mode: 'directory' }),
 });
 ```
+
+In `directory` mode, the adapter will compile the client-side part of your app the same way as in `advanced` mode by default, but moves the worker script into a `functions` folder in the project root. In this case, the adapter will only ever place a `[[path]].js` in that folder, allowing you to add additional plugins and pages middleware which can be checked into version control.
+
+To instead compile a separate bundle for each page, set the `functionPerPath` option in your Cloudflare adapter config. This option requires some manual maintenance of the `functions` folder. Files emitted by Astro will overwrite existing `functions` files with identical names, so you must choose unique file names for each file you manually add. Additionally, the adapter will never empty the `functions` folder of outdated files, so you must clean up the folder manually when you remove pages.
+
+```diff
+import {defineConfig} from "astro/config";
+import cloudflare from '@astrojs/cloudflare';
+
+export default defineConfig({
+     adapter: cloudflare({
+        mode: 'directory',
++       functionPerRoute: true
+    })
+})
+```
+
+Note that this adapter does not support using [Cloudflare Pages Middleware](https://developers.cloudflare.com/pages/platform/functions/middleware/). Astro will bundle the [Astro middleware](https://docs.astro.build/en/guides/middleware/) into each page.
 
 ## Enabling Preview
 
@@ -73,15 +87,60 @@ It's then possible to update the preview script in your `package.json` to `"prev
 
 ## Access to the Cloudflare runtime
 
-You can access all the Cloudflare bindings and environment variables from Astro components and API routes through the adapter API.
+You can access all the Cloudflare bindings and environment variables from Astro components and API routes through `Astro.locals`.
+
+If you're inside an `.astro` file, you access the runtime using the `Astro.locals` global:
+
+```astro
+const env = Astro.locals.runtime.env;
+```
+
+From an endpoint:
 
 ```js
-import { getRuntime } from '@astrojs/cloudflare/runtime';
+// src/pages/api/someFile.js
+export function get(context) {
+  const runtime = context.locals.runtime;
 
-getRuntime(Astro.request);
+  return new Response('Some body');
+}
 ```
 
 Depending on your adapter mode (advanced = worker, directory = pages), the runtime object will look a little different due to differences in the Cloudflare API.
+
+If you're using the `advanced` runtime, you can type the `runtime` object as following:
+
+```ts
+// src/env.d.ts
+/// <reference types="astro/client" />
+import type { AdvancedRuntime } from '@astrojs/cloudflare';
+
+declare namespace App {
+  interface Locals extends AdvancedRuntime {
+    user: {
+      name: string;
+      surname: string;
+    };
+  }
+}
+```
+
+If you're using the `directory` runtime, you can type the `runtime` object as following:
+
+```ts
+// src/env.d.ts
+/// <reference types="astro/client" />
+import type { DirectoryRuntime } from '@astrojs/cloudflare';
+
+declare namespace App {
+  interface Locals extends DirectoryRuntime {
+    user: {
+      name: string;
+      surname: string;
+    };
+  }
+}
+```
 
 ## Environment Variables
 
@@ -106,7 +165,10 @@ Cloudflare has support for adding custom [headers](https://developers.cloudflare
 
 ### Custom `_routes.json`
 
-By default, `@astrojs/cloudflare` will generate a `_routes.json` file that lists all files from your `dist/` folder and redirects from the `_redirects` file in the `exclude` array. This will enable Cloudflare to serve files and process static redirects without a function invocation. Creating a custom `_routes.json` will override this automatic optimization and, if not configured manually, cause function invocations that will count against the request limits of your Cloudflare plan.
+By default, `@astrojs/cloudflare` will generate a `_routes.json` file with `include` and `exclude` rules based on your applications's dynamic and static routes.
+This will enable Cloudflare to serve files and process static redirects without a function invocation. Creating a custom `_routes.json` will override this automatic optimization and, if not configured manually, cause function invocations that will count against the request limits of your Cloudflare plan.
+
+See [Cloudflare's documentation](https://developers.cloudflare.com/pages/platform/functions/routing/#create-a-_routesjson-file) for more details.
 
 ## Troubleshooting
 

@@ -11,15 +11,14 @@ import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.js';
-import type { LogOptions } from '../core/logger/core.js';
-import { warn } from '../core/logger/core.js';
+import type { Logger } from '../core/logger/core.js';
 import { isMarkdownFile, rootRelativePath } from '../core/util.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 }
 
 function safeMatter(source: string, id: string) {
@@ -49,11 +48,6 @@ function safeMatter(source: string, id: string) {
 	}
 }
 
-// absolute path of "astro/jsx-runtime"
-const astroJsxRuntimeModulePath = normalizePath(
-	fileURLToPath(new URL('../jsx-runtime/index.js', import.meta.url))
-);
-
 const astroServerRuntimeModulePath = normalizePath(
 	fileURLToPath(new URL('../runtime/server/index.js', import.meta.url))
 );
@@ -62,7 +56,7 @@ const astroErrorModulePath = normalizePath(
 	fileURLToPath(new URL('../core/errors/index.js', import.meta.url))
 );
 
-export default function markdown({ settings, logging }: AstroPluginOptions): Plugin {
+export default function markdown({ settings, logger }: AstroPluginOptions): Plugin {
 	return {
 		enforce: 'pre',
 		name: 'astro:markdown',
@@ -80,7 +74,6 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 					...settings.config.markdown,
 					fileURL: new URL(`file://${fileId}`),
 					frontmatter: raw.data,
-					experimentalAssets: settings.config.experimental.assets,
 				});
 
 				let html = renderResult.code;
@@ -88,7 +81,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 
 				// Resolve all the extracted images from the content
 				let imagePaths: { raw: string; resolved: string }[] = [];
-				if (settings.config.experimental.assets && renderResult.vfile.data.imagePaths) {
+				if (renderResult.vfile.data.imagePaths) {
 					for (let imagePath of renderResult.vfile.data.imagePaths.values()) {
 						imagePaths.push({
 							raw: imagePath,
@@ -107,20 +100,20 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const { layout } = frontmatter;
 
 				if (frontmatter.setup) {
-					warn(
-						logging,
+					logger.warn(
 						'markdown',
 						`[${id}] Astro now supports MDX! Support for components in ".md" (or alternative extensions like ".markdown") files using the "setup" frontmatter is no longer enabled by default. Migrate this file to MDX.`
 					);
 				}
 
 				const code = escapeViteEnvReferences(`
-				import { Fragment, jsx as h } from ${JSON.stringify(astroJsxRuntimeModulePath)};
-				import { spreadAttributes } from ${JSON.stringify(astroServerRuntimeModulePath)};
+				import { unescapeHTML, spreadAttributes, createComponent, render, renderComponent } from ${JSON.stringify(
+					astroServerRuntimeModulePath
+				)};
 				import { AstroError, AstroErrorData } from ${JSON.stringify(astroErrorModulePath)};
 
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
-				${settings.config.experimental.assets ? 'import { getImage } from "astro:assets";' : ''}
+				import { getImage } from "astro:assets";
 
 				export const images = {
 					${imagePaths.map(
@@ -167,27 +160,29 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				export function getHeadings() {
 					return ${JSON.stringify(headings)};
 				}
-				export async function Content() {
+
+				export const Content = createComponent((result, _props, slots) => {
 					const { layout, ...content } = frontmatter;
 					content.file = file;
 					content.url = url;
-					const contentFragment = h(Fragment, { 'set:html': html });
+
 					return ${
 						layout
-							? `h(Layout, {
-									file,
-									url,
-									content,
-									frontmatter: content,
-									headings: getHeadings(),
-									rawContent,
-									compiledContent,
-									'server:root': true,
-									children: contentFragment
-								})`
-							: `contentFragment`
-					};
-				}
+							? `render\`\${renderComponent(result, 'Layout', Layout, {
+								file,
+								url,
+								content,
+								frontmatter: content,
+								headings: getHeadings(),
+								rawContent,
+								compiledContent,
+								'server:root': true,
+							}, {
+								'default': () => render\`\${unescapeHTML(html)}\`
+							})}\`;`
+							: `render\`\${unescapeHTML(html)}\`;`
+					}
+				});
 				Content[Symbol.for('astro.needsHeadRendering')] = ${layout ? 'false' : 'true'};
 				export default Content;
 				`);

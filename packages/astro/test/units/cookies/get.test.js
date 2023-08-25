@@ -16,6 +16,13 @@ describe('astro/src/core/cookies', () => {
 			expect(cookies.get('foo').value).to.equal('bar');
 		});
 
+		it("Returns undefined is the value doesn't exist", () => {
+			const req = new Request('http://example.com/');
+			let cookies = new AstroCookies(req);
+			let cookie = cookies.get('foo');
+			expect(cookie).to.equal(undefined);
+		});
+
 		describe('.json()', () => {
 			it('returns a JavaScript object', () => {
 				const req = new Request('http://example.com/', {
@@ -28,13 +35,6 @@ describe('astro/src/core/cookies', () => {
 				const json = cookies.get('foo').json();
 				expect(json).to.be.an('object');
 				expect(json.key).to.equal('value');
-			});
-
-			it('throws if the value is undefined', () => {
-				const req = new Request('http://example.com/');
-				let cookies = new AstroCookies(req);
-				let cookie = cookies.get('foo');
-				expect(() => cookie.json()).to.throw('Cannot convert undefined to an object.');
 			});
 		});
 

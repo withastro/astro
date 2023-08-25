@@ -1,11 +1,10 @@
 import type { LocalImageService } from 'astro';
-// @ts-expect-error
 import squooshService from 'astro/assets/services/squoosh';
 import { sharedValidateOptions } from './shared';
 
 const service: LocalImageService = {
 	validateOptions: (options, serviceOptions) =>
-		sharedValidateOptions(options, serviceOptions, 'development'),
+		sharedValidateOptions(options, serviceOptions.service.config, 'development'),
 	getHTMLAttributes(options, serviceOptions) {
 		const { inputtedWidth, ...props } = options;
 
@@ -14,7 +13,9 @@ const service: LocalImageService = {
 			props.width = inputtedWidth;
 		}
 
-		return squooshService.getHTMLAttributes(props, serviceOptions);
+		return squooshService.getHTMLAttributes
+			? squooshService.getHTMLAttributes(props, serviceOptions)
+			: {};
 	},
 	getURL(options) {
 		const fileSrc = typeof options.src === 'string' ? options.src : options.src.src;

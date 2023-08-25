@@ -12,6 +12,8 @@ describe('Asset URL resolution in build', () => {
 				fixture = await loadFixture({
 					root: './fixtures/asset-url-base/',
 					site: 'http://example.com/sub/path/',
+					// test suite was authored when inlineStylesheets defaulted to never
+					build: { inlineStylesheets: 'never' },
 				});
 				await fixture.build();
 			});
@@ -30,6 +32,8 @@ describe('Asset URL resolution in build', () => {
 					root: './fixtures/asset-url-base/',
 					site: 'http://example.com/sub/path/',
 					base: '/another/base/',
+					// test suite was authored when inlineStylesheets defaulted to never
+					build: { inlineStylesheets: 'never' },
 				});
 				await fixture.build();
 			});

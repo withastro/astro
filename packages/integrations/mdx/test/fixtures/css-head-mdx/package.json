@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "astro": "workspace:*",
     "@astrojs/mdx": "workspace:*",
-    "astro-remote": "0.2.3"
+    "astro": "workspace:*",
+    "astro-remote": "0.2.4"
   }
 }

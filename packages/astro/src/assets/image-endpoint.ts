@@ -1,11 +1,10 @@
+import { isRemotePath } from '@astrojs/internal-helpers/path';
 import mime from 'mime/lite.js';
 import type { APIRoute } from '../@types/astro.js';
-import { isRemotePath } from '../core/path.js';
-import { getConfiguredImageService } from './internal.js';
-import { isLocalService } from './services/service.js';
+import { getConfiguredImageService, isRemoteAllowed } from './internal.js';
 import { etag } from './utils/etag.js';
 // @ts-expect-error
-import { imageServiceConfig } from 'astro:assets';
+import { imageConfig } from 'astro:assets';
 
 async function loadRemoteImage(src: URL) {
 	try {
@@ -24,16 +23,16 @@ async function loadRemoteImage(src: URL) {
 /**
  * Endpoint used in dev and SSR to serve optimized images by the base image services
  */
-export const get: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request }) => {
 	try {
 		const imageService = await getConfiguredImageService();
 
-		if (!isLocalService(imageService)) {
+		if (!('transform' in imageService)) {
 			throw new Error('Configured image service is not a local service');
 		}
 
 		const url = new URL(request.url);
-		const transform = await imageService.parseURL(url, imageServiceConfig);
+		const transform = await imageService.parseURL(url, imageConfig);
 
 		if (!transform?.src) {
 			throw new Error('Incorrect transform returned by `parseURL`');
@@ -45,17 +44,18 @@ export const get: APIRoute = async ({ request }) => {
 		const sourceUrl = isRemotePath(transform.src)
 			? new URL(transform.src)
 			: new URL(transform.src, url.origin);
+
+		if (isRemotePath(transform.src) && isRemoteAllowed(transform.src, imageConfig) === false) {
+			return new Response('Forbidden', { status: 403 });
+		}
+
 		inputBuffer = await loadRemoteImage(sourceUrl);
 
 		if (!inputBuffer) {
 			return new Response('Not Found', { status: 404 });
 		}
 
-		const { data, format } = await imageService.transform(
-			inputBuffer,
-			transform,
-			imageServiceConfig
-		);
+		const { data, format } = await imageService.transform(inputBuffer, transform, imageConfig);
 
 		return new Response(data, {
 			status: 200,

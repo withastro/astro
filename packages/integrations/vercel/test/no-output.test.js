@@ -19,6 +19,6 @@ describe('Missing output config', () => {
 			error = err;
 		}
 		expect(error).to.not.be.equal(undefined);
-		expect(error.message).to.include(`output: "server"`);
+		expect(error.message).to.include('output: "server"');
 	});
 });

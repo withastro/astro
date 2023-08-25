@@ -1,5 +1,29 @@
 # @astrojs/telemetry
 
+## 3.0.0-rc.3
+
+### Major Changes
+
+- [#8179](https://github.com/withastro/astro/pull/8179) [`6011d52d3`](https://github.com/withastro/astro/commit/6011d52d38e43c3e3d52bc3bc41a60e36061b7b7) Thanks [@matthewp](https://github.com/matthewp)! - Astro 3.0 Release Candidate
+
+## 3.0.0-beta.2
+
+### Patch Changes
+
+- [#8130](https://github.com/withastro/astro/pull/8130) [`3e834293d`](https://github.com/withastro/astro/commit/3e834293d47ab2761a7aa013916e8371871efb7f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add some polyfills for Stackblitz until they support Node 18. Running Astro on Node 16 is still not officially supported, however.
+
+## 3.0.0-beta.1
+
+### Patch Changes
+
+- [#7952](https://github.com/withastro/astro/pull/7952) [`b675acb2a`](https://github.com/withastro/astro/commit/b675acb2aa820448e9c0d363339a37fbac873215) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Remove undici dependency
+
+## 3.0.0-beta.0
+
+### Major Changes
+
+- [`1eae2e3f7`](https://github.com/withastro/astro/commit/1eae2e3f7d693c9dfe91c8ccfbe606d32bf2fb81) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove support for Node 16. The lowest supported version by Astro and all integrations is now v18.14.1. As a reminder, Node 16 will be deprecated on the 11th September 2023.
+
 ## 2.1.1
 
 ### Patch Changes

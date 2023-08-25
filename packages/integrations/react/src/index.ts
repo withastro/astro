@@ -1,5 +1,14 @@
+import { appendForwardSlash } from '@astrojs/internal-helpers/path';
+import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
 import type { AstroIntegration } from 'astro';
 import { version as ReactVersion } from 'react-dom';
+import type * as vite from 'vite';
+
+export type ReactIntegrationOptions = Pick<ViteReactPluginOptions, 'include' | 'exclude'> & {
+	experimentalReactChildren?: boolean;
+};
+
+const FAST_REFRESH_PREAMBLE = react.preambleCode;
 
 function getRenderer() {
 	return {
@@ -10,33 +19,36 @@ function getRenderer() {
 		serverEntrypoint: ReactVersion.startsWith('18.')
 			? '@astrojs/react/server.js'
 			: '@astrojs/react/server-v17.js',
-		jsxImportSource: 'react',
-		jsxTransformOptions: async () => {
-			// @ts-expect-error types not found
-			const babelPluginTransformReactJsxModule = await import('@babel/plugin-transform-react-jsx');
-			const jsx =
-				babelPluginTransformReactJsxModule?.default?.default ??
-				babelPluginTransformReactJsxModule?.default;
-			return {
-				plugins: [
-					jsx(
-						{},
-						{
-							runtime: 'automatic',
-							// This option tells the JSX transform how to construct the "*/jsx-runtime" import.
-							// In React v17, we had to shim this due to an export map issue in React.
-							// In React v18, this issue was fixed and we can import "react/jsx-runtime" directly.
-							// See `./jsx-runtime.js` for more details.
-							importSource: ReactVersion.startsWith('18.') ? 'react' : '@astrojs/react',
-						}
-					),
-				],
-			};
+	};
+}
+
+function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
+	const virtualModule = 'astro:react:opts';
+	const virtualModuleId = '\0' + virtualModule;
+	return {
+		name: '@astrojs/react:opts',
+		resolveId(id) {
+			if (id === virtualModule) {
+				return virtualModuleId;
+			}
+		},
+		load(id) {
+			if (id === virtualModuleId) {
+				return {
+					code: `export default {
+						experimentalReactChildren: ${JSON.stringify(experimentalReactChildren)}
+					}`,
+				};
+			}
 		},
 	};
 }
 
-function getViteConfiguration() {
+function getViteConfiguration({
+	include,
+	exclude,
+	experimentalReactChildren,
+}: ReactIntegrationOptions = {}) {
 	return {
 		optimizeDeps: {
 			include: [
@@ -54,8 +66,9 @@ function getViteConfiguration() {
 					: '@astrojs/react/server-v17.js',
 			],
 		},
+		plugins: [react({ include, exclude }), optionsPlugin(!!experimentalReactChildren)],
 		resolve: {
-			dedupe: ['react', 'react-dom'],
+			dedupe: ['react', 'react-dom', 'react-dom/server'],
 		},
 		ssr: {
 			external: ReactVersion.startsWith('18.')
@@ -73,13 +86,26 @@ function getViteConfiguration() {
 	};
 }
 
-export default function (): AstroIntegration {
+export default function ({
+	include,
+	exclude,
+	experimentalReactChildren,
+}: ReactIntegrationOptions = {}): AstroIntegration {
 	return {
 		name: '@astrojs/react',
 		hooks: {
-			'astro:config:setup': ({ addRenderer, updateConfig }) => {
+			'astro:config:setup': ({ config, command, addRenderer, updateConfig, injectScript }) => {
 				addRenderer(getRenderer());
-				updateConfig({ vite: getViteConfiguration() });
+				updateConfig({
+					vite: getViteConfiguration({ include, exclude, experimentalReactChildren }),
+				});
+				if (command === 'dev') {
+					const preamble = FAST_REFRESH_PREAMBLE.replace(
+						`__BASE__`,
+						appendForwardSlash(config.base)
+					);
+					injectScript('before-hydration', preamble);
+				}
 			},
 		},
 	};

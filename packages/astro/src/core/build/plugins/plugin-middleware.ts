@@ -1,4 +1,5 @@
 import type { Plugin as VitePlugin } from 'vite';
+import { getOutputDirectory } from '../../../prerender/utils.js';
 import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../../constants.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal';
@@ -57,7 +58,8 @@ export function vitePluginMiddleware(
 					continue;
 				}
 				if (chunk.fileName === 'middleware.mjs') {
-					internals.middlewareEntryPoint = new URL(chunkName, opts.settings.config.build.server);
+					const outputDirectory = getOutputDirectory(opts.settings.config);
+					internals.middlewareEntryPoint = new URL(chunkName, outputDirectory);
 				}
 			}
 		},

@@ -14,7 +14,7 @@
     "dev": "turbo run dev --concurrency=40 --parallel --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
     "format": "pnpm run format:code",
     "format:ci": "pnpm run format:imports && pnpm run format:code",
-    "format:code": "prettier -w . --cache --plugin-search-dir=.",
+    "format:code": "prettier -w . --cache",
     "format:imports": "organize-imports-cli ./packages/*/tsconfig.json ./packages/*/*/tsconfig.json",
     "test": "turbo run test --concurrency=1 --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
     "test:match": "cd packages/astro && pnpm run test:match",
@@ -39,10 +39,10 @@
     "packages/*"
   ],
   "engines": {
-    "node": ">=16.12.0",
-    "pnpm": ">=8.6.2"
+    "node": ">=18.14.1",
+    "pnpm": ">=8.6.12"
   },
-  "packageManager": "pnpm@8.6.2",
+  "packageManager": "pnpm@8.6.12",
   "pnpm": {
     "packageExtensions": {
       "svelte2tsx": {
@@ -73,26 +73,26 @@
     }
   },
   "dependencies": {
-    "@astrojs/webapi": "workspace:*",
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.1.0",
     "@changesets/changelog-github": "^0.4.8",
-    "@changesets/cli": "^2.26.1",
-    "@types/node": "^18.16.18",
-    "@typescript-eslint/eslint-plugin": "6.0.0",
-    "@typescript-eslint/parser": "6.0.0",
-    "esbuild": "^0.17.19",
-    "eslint": "^8.43.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-no-only-tests": "^2.6.0",
-    "eslint-plugin-prettier": "^4.2.1",
+    "@changesets/cli": "^2.26.2",
+    "@types/node": "^18.17.8",
+    "@typescript-eslint/eslint-plugin": "^6.4.1",
+    "@typescript-eslint/parser": "^6.4.1",
+    "esbuild": "^0.19.2",
+    "eslint": "^8.47.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-no-only-tests": "^3.1.0",
+    "eslint-plugin-prettier": "^5.0.0",
     "only-allow": "^1.1.1",
     "organize-imports-cli": "^0.10.0",
-    "prettier": "^2.8.8",
-    "prettier-plugin-astro": "^0.10.0",
+    "prettier": "^3.0.2",
+    "prettier-plugin-astro": "^0.12.0",
     "tiny-glob": "^0.2.9",
-    "turbo": "^1.10.3",
-    "typescript": "~5.0.2"
+    "turbo": "^1.10.12",
+    "typescript": "~5.1.6"
   }
 }

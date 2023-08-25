@@ -1,5 +1,5 @@
 import type { AstroComponentMetadata } from 'astro';
-import { Component as BaseComponent, h } from 'preact';
+import { Component as BaseComponent, h, type VNode } from 'preact';
 import render from 'preact-render-to-string';
 import { getContext } from './context.js';
 import { restoreSignalsOnProps, serializeSignals } from './signals.js';
@@ -29,8 +29,8 @@ function check(this: RendererContext, Component: any, props: Record<string, any>
 
 			// There are edge cases (SolidJS) where Preact *might* render a string,
 			// but components would be <undefined></undefined>
-
-			return !/\<undefined\>/.test(html);
+			// It also might render an empty sting.
+			return html == '' ? false : !/\<undefined\>/.test(html);
 		} catch (err) {
 			return false;
 		}
@@ -60,7 +60,7 @@ function renderToStaticMarkup(
 			hydrate: shouldHydrate(metadata),
 			value,
 			name,
-		});
+		}) as VNode<any>;
 	}
 
 	// Restore signals back onto props so that they will be passed as-is to components
@@ -81,7 +81,7 @@ function renderToStaticMarkup(
 						value: children,
 				  })
 				: children
-		)
+		) as VNode<any>
 	);
 	return {
 		attrs,

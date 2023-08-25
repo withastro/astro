@@ -25,7 +25,5 @@ export async function build({ flags }: BuildOptions) {
 
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 
-	await _build(inlineConfig, {
-		teardownCompiler: true,
-	});
+	await _build(inlineConfig);
 }

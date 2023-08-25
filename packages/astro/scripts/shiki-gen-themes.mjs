@@ -8,15 +8,6 @@ const themeImports = dir.map((f) => {
 	return [f.slice(0, f.indexOf('.json')), toThemeImport(f)];
 });
 
-// Map of old theme names to new names to preserve compatibility when we upgrade shiki
-const compatThemes = {
-	'material-darker': 'material-theme-darker',
-	'material-default': 'material-theme',
-	'material-lighter': 'material-theme-lighter',
-	'material-ocean': 'material-theme-ocean',
-	'material-palenight': 'material-theme-palenight',
-};
-
 let code = `\
 /**
  * This file is prebuilt from packages/astro/scripts/shiki-gen-themes.mjs
@@ -28,10 +19,6 @@ export const themes = {`;
 
 for (const [key, imp] of themeImports) {
 	code += `\n\t'${key}': () => ${imp},`;
-}
-code += `\n\t// old theme names for compat`;
-for (const oldName in compatThemes) {
-	code += `\n\t'${oldName}': () => ${toThemeImport(compatThemes[oldName])},`;
 }
 code += '\n};';
 

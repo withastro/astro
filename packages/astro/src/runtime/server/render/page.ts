@@ -2,7 +2,6 @@ import type { RouteData, SSRResult } from '../../../@types/astro';
 import { renderComponentToString, type NonAstroPageComponent } from './component.js';
 import type { AstroComponentFactory } from './index';
 
-import { createResponse } from '../response.js';
 import { isAstroComponentFactory } from './astro/index.js';
 import { renderToReadableStream, renderToString } from './astro/render.js';
 import { encoder } from './common.js';
@@ -64,6 +63,6 @@ export async function renderPage(
 		body = encoder.encode(body);
 		headers.set('Content-Length', body.byteLength.toString());
 	}
-	const response = createResponse(body, { ...init, headers });
+	const response = new Response(body, { ...init, headers });
 	return response;
 }

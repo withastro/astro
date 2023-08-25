@@ -3,7 +3,7 @@ import Header from '../components/Header.astro';
 import Container from '../components/Container.astro';
 import { getCart } from '../api';
 
-if (!Astro.cookies.get('user-id').value) {
+if (!Astro.cookies.get('user-id')) {
 	return Astro.redirect('/');
 }
 

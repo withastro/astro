@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/internal-helpers",
   "description": "Internal helpers used by core Astro packages.",
-  "version": "0.1.2",
+  "version": "0.2.0-rc.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
