@@ -35,6 +35,12 @@ const { fallback = 'animate' } = Astro.props as Props;
 		persistState({ index: currentHistoryIndex, scrollY: 0 });
 	}
 
+	// With the default "auto", the browser will jump to the old scroll position
+	// before the ViewTransition is complete.
+	if (history.scrollRestoration) {
+		history.scrollRestoration = "manual";
+	}
+
 	const throttle = (cb: (...args: any[]) => any, delay: number) => {
 		let wait = false;
 		// During the waiting time additional events are lost.
