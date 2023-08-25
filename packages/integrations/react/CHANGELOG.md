@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 3.0.0-rc.5
+
+### Patch Changes
+
+- [#8228](https://github.com/withastro/astro/pull/8228) [`4bd2fac8d`](https://github.com/withastro/astro/commit/4bd2fac8da4efb7c532d8920077df1f61d6e1953) Thanks [@bluwy](https://github.com/bluwy)! - Publish missing `vnode-children.js` file
+
 ## 3.0.0-rc.4
 
 ### Major Changes

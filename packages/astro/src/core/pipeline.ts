@@ -116,7 +116,7 @@ export class Pipeline {
 			case 'redirect': {
 				if (onRequest) {
 					return await callMiddleware<Response>(
-						env.logging,
+						env.logger,
 						onRequest as MiddlewareResponseHandler,
 						apiContext,
 						() => {

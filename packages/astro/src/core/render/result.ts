@@ -11,7 +11,7 @@ import { renderJSX } from '../../runtime/server/jsx.js';
 import { chunkToString } from '../../runtime/server/render/index.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { warn, type LogOptions } from '../logger/core.js';
+import type { Logger } from '../logger/core.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
@@ -25,7 +25,7 @@ export interface CreateResultArgs {
 	 * Value of Astro config's `output` option, true if "server" or "hybrid"
 	 */
 	ssr: boolean;
-	logging: LogOptions;
+	logger: Logger;
 	params: Params;
 	pathname: string;
 	renderers: SSRLoadedRenderer[];
@@ -55,12 +55,12 @@ function getFunctionExpression(slot: any) {
 class Slots {
 	#result: SSRResult;
 	#slots: ComponentSlots | null;
-	#loggingOpts: LogOptions;
+	#logger: Logger;
 
-	constructor(result: SSRResult, slots: ComponentSlots | null, logging: LogOptions) {
+	constructor(result: SSRResult, slots: ComponentSlots | null, logger: Logger) {
 		this.#result = result;
 		this.#slots = slots;
-		this.#loggingOpts = logging;
+		this.#logger = logger;
 
 		if (slots) {
 			for (const key of Object.keys(slots)) {
@@ -90,8 +90,7 @@ class Slots {
 
 		const result = this.#result;
 		if (!Array.isArray(args)) {
-			warn(
-				this.#loggingOpts,
+			this.#logger.warn(
 				'Astro.slots.render',
 				`Expected second parameter to be an array, received a ${typeof args}. If you're trying to pass an array as a single argument and getting unexpected results, make sure you're passing your array as a item of an array. Ex: Astro.slots.render('default', [["Hello", "World"]])`
 			);
@@ -164,7 +163,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			props: Record<string, any>,
 			slots: Record<string, any> | null
 		) {
-			const astroSlots = new Slots(result, slots, args.logging);
+			const astroSlots = new Slots(result, slots, args.logger);
 
 			const Astro: AstroGlobal = {
 				// @ts-expect-error

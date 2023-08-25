@@ -1,13 +1,12 @@
 import type { APIContext, EndpointHandler, Params } from '../../@types/astro';
-import { warn, type LogOptions } from '../../core/logger/core.js';
+import type { Logger } from '../../core/logger/core.js';
 
-function getHandlerFromModule(mod: EndpointHandler, method: string, logging: LogOptions) {
+function getHandlerFromModule(mod: EndpointHandler, method: string, logger: Logger) {
 	const lowerCaseMethod = method.toLowerCase();
 
 	// TODO: remove in Astro 4.0
 	if (mod[lowerCaseMethod]) {
-		warn(
-			logging,
+		logger.warn(
 			'astro',
 			`Lower case endpoint names are deprecated and will not be supported in Astro 4.0. Rename the endpoint ${lowerCaseMethod} to ${method}.`
 		);
@@ -43,12 +42,12 @@ export async function renderEndpoint(
 	mod: EndpointHandler,
 	context: APIContext,
 	ssr: boolean,
-	logging: LogOptions
+	logger: Logger
 ) {
 	const { request } = context;
 
 	const chosenMethod = request.method?.toUpperCase();
-	const handler = getHandlerFromModule(mod, chosenMethod, logging);
+	const handler = getHandlerFromModule(mod, chosenMethod, logger);
 	// TODO: remove the 'get' check in Astro 4.0
 	if (!ssr && ssr === false && chosenMethod && chosenMethod !== 'GET' && chosenMethod !== 'get') {
 		// eslint-disable-next-line no-console

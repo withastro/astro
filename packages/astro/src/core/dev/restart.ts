@@ -3,11 +3,10 @@ import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro';
 import { eventCliSession, telemetry } from '../../events/index.js';
-import { createNodeLogging, createSettings, resolveConfig } from '../config/index.js';
+import { createNodeLogger, createSettings, resolveConfig } from '../config/index.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
-import { info, error as logError } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import type { Container } from './container';
 import { createContainer, startContainer } from './container.js';
@@ -16,10 +15,10 @@ async function createRestartedContainer(
 	container: Container,
 	settings: AstroSettings
 ): Promise<Container> {
-	const { logging, fs, inlineConfig } = container;
+	const { logger, fs, inlineConfig } = container;
 	const newContainer = await createContainer({
 		isRestart: true,
-		logging,
+		logger: logger,
 		settings,
 		inlineConfig,
 		fs,
@@ -60,7 +59,7 @@ export function shouldRestartContainer(
 }
 
 export async function restartContainer(container: Container): Promise<Container | Error> {
-	const { logging, close, settings: existingSettings } = container;
+	const { logger, close, settings: existingSettings } = container;
 	container.restartInFlight = true;
 
 	try {
@@ -72,7 +71,7 @@ export async function restartContainer(container: Container): Promise<Container 
 		const error = createSafeError(_err);
 		// Print all error messages except ZodErrors from AstroConfig as the pre-logged error is sufficient
 		if (!isAstroConfigZodError(_err)) {
-			logError(logging, 'config', formatErrorMessage(collectErrorMetadata(error)) + '\n');
+			logger.error('config', formatErrorMessage(collectErrorMetadata(error)) + '\n');
 		}
 		// Inform connected clients of the config error
 		container.viteServer.ws.send({
@@ -83,7 +82,7 @@ export async function restartContainer(container: Container): Promise<Container 
 			},
 		});
 		container.restartInFlight = false;
-		info(logging, 'astro', 'Continuing with previous valid configuration\n');
+		logger.error('astro', 'Continuing with previous valid configuration\n');
 		return error;
 	}
 }
@@ -102,13 +101,13 @@ export async function createContainerWithAutomaticRestart({
 	inlineConfig,
 	fs,
 }: CreateContainerWithAutomaticRestart): Promise<Restart> {
-	const logging = createNodeLogging(inlineConfig ?? {});
+	const logger = createNodeLogger(inlineConfig ?? {});
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev', fs);
 	telemetry.record(eventCliSession('dev', userConfig));
 
 	const settings = createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
-	const initialContainer = await createContainer({ settings, logging, inlineConfig, fs });
+	const initialContainer = await createContainer({ settings, logger: logger, inlineConfig, fs });
 
 	let resolveRestart: (value: Error | null) => void;
 	let restartComplete = new Promise<Error | null>((resolve) => {
@@ -123,7 +122,7 @@ export async function createContainerWithAutomaticRestart({
 	};
 
 	async function handleServerRestart(logMsg: string) {
-		info(logging, 'astro', logMsg + '\n');
+		logger.info('astro', logMsg + '\n');
 		const container = restart.container;
 		const result = await restartContainer(container);
 		if (result instanceof Error) {

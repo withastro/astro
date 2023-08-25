@@ -5,8 +5,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRManifest,
 } from '../@types/astro';
-import type { LogOptions } from '../core/logger/core';
-import { Logger } from '../core/logger/core.js';
+import type { Logger } from '../core/logger/core';
 import type { ModuleLoader } from '../core/module-loader';
 import { Pipeline } from '../core/pipeline.js';
 import type { Environment } from '../core/render';
@@ -22,18 +21,18 @@ export default class DevPipeline extends Pipeline {
 
 	constructor({
 		manifest,
-		logging,
+		logger,
 		settings,
 		loader,
 	}: {
 		manifest: SSRManifest;
-		logging: LogOptions;
+		logger: Logger;
 		settings: AstroSettings;
 		loader: ModuleLoader;
 	}) {
-		const env = DevPipeline.createDevelopmentEnvironment(manifest, settings, logging, loader);
+		const env = DevPipeline.createDevelopmentEnvironment(manifest, settings, logger, loader);
 		super(env);
-		this.#devLogger = new Logger(logging);
+		this.#devLogger = logger;
 		this.#settings = settings;
 		this.#loader = loader;
 		this.setEndpointHandler(this.#handleEndpointResult);
@@ -69,21 +68,20 @@ export default class DevPipeline extends Pipeline {
 	static createDevelopmentEnvironment(
 		manifest: SSRManifest,
 		settings: AstroSettings,
-		logging: LogOptions,
+		logger: Logger,
 		loader: ModuleLoader
 	): Environment {
 		const mode: RuntimeMode = 'development';
-
 		return createEnvironment({
 			adapterName: manifest.adapterName,
-			logging,
+			logger,
 			mode,
 			// This will be overridden in the dev server
 			renderers: [],
 			clientDirectives: manifest.clientDirectives,
 			compressHTML: manifest.compressHTML,
 			resolve: createResolve(loader, settings.config.root),
-			routeCache: new RouteCache(logging, mode),
+			routeCache: new RouteCache(logger, mode),
 			site: manifest.site,
 			ssr: isServerLikeOutput(settings.config),
 			streaming: true,

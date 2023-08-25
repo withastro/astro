@@ -5,7 +5,7 @@ import { createRequire } from 'node:module';
 import ora from 'ora';
 import prompts from 'prompts';
 import whichPm from 'which-pm';
-import { debug, info, type LogOptions } from '../core/logger/core.js';
+import { type Logger } from '../core/logger/core.js';
 
 type GetPackageOptions = {
 	skipAsk?: boolean;
@@ -14,7 +14,7 @@ type GetPackageOptions = {
 
 export async function getPackage<T>(
 	packageName: string,
-	logging: LogOptions,
+	logger: Logger,
 	options: GetPackageOptions,
 	otherDeps: string[] = []
 ): Promise<T | undefined> {
@@ -27,12 +27,11 @@ export async function getPackage<T>(
 		// The `require.resolve` is required as to avoid Node caching the failed `import`
 		packageImport = await import(packageName);
 	} catch (e) {
-		info(
-			logging,
+		logger.info(
 			'',
 			`To continue, Astro requires the following dependency to be installed: ${bold(packageName)}.`
 		);
-		const result = await installPackage([packageName, ...otherDeps], options, logging);
+		const result = await installPackage([packageName, ...otherDeps], options, logger);
 
 		if (result) {
 			packageImport = await import(packageName);
@@ -60,7 +59,7 @@ function getInstallCommand(packages: string[], packageManager: string) {
 async function installPackage(
 	packageNames: string[],
 	options: GetPackageOptions,
-	logging: LogOptions
+	logger: Logger
 ): Promise<boolean> {
 	const cwd = options.cwd ?? process.cwd();
 	const packageManager = (await whichPm(cwd)).name ?? 'npm';
@@ -79,8 +78,7 @@ async function installPackage(
 		padding: 0.5,
 		borderStyle: 'round',
 	})}\n`;
-	info(
-		logging,
+	logger.info(
 		null,
 		`\n  ${magenta('Astro will run the following command:')}\n  ${dim(
 			'If you skip this step, you can always run it yourself later'
@@ -113,7 +111,7 @@ async function installPackage(
 
 			return true;
 		} catch (err) {
-			debug('add', 'Error installing dependencies', err);
+			logger.debug('add', 'Error installing dependencies', err);
 			spinner.fail();
 
 			return false;
