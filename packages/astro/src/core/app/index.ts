@@ -50,7 +50,7 @@ export class App {
 	#manifest: SSRManifest;
 	#manifestData: ManifestData;
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
-	#logger = new Logger( {
+	#logger = new Logger({
 		dest: consoleLogDestination,
 		level: 'info',
 	});
@@ -138,7 +138,7 @@ export class App {
 				const middleware = await import(this.#manifest.middlewareEntryPoint);
 				this.#pipeline.setMiddlewareFunction(middleware.onRequest as MiddlewareEndpointHandler);
 			} catch (e) {
-				warn(this.#logging, 'SSR', "Couldn't load the middleware entry point");
+				this.#logger.warn('SSR', "Couldn't load the middleware entry point");
 			}
 		}
 		this.#middlewareLoaded = true;
@@ -178,7 +178,7 @@ export class App {
 			if (err instanceof EndpointNotFoundError) {
 				return this.#renderError(request, { status: 404, response: err.originalResponse });
 			} else {
-				this.#logger.error( 'ssr', err.stack || err.message || String(err));
+				this.#logger.error('ssr', err.stack || err.message || String(err));
 				return this.#renderError(request, { status: 500 });
 			}
 		}

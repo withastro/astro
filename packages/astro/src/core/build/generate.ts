@@ -135,7 +135,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		);
 	}
 	const pipeline = new BuildPipeline(opts, internals, manifest);
-	await buildPipeline.retrieveMiddlewareFunction();
+	await pipeline.retrieveMiddlewareFunction();
 	const outFolder = ssr
 		? opts.settings.config.build.server
 		: getOutDirWithinCwd(opts.settings.config.outDir);
