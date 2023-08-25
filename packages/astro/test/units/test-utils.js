@@ -188,7 +188,7 @@ export function createBasicEnvironment(options = {}) {
 		clientDirectives: getDefaultClientDirectives(),
 		resolve: options.resolve ?? ((s) => Promise.resolve(s)),
 		routeCache: new RouteCache(options.logging, mode),
-		logging: options.logging ?? defaultLogger,
+		logger: options.logger ?? defaultLogger,
 		ssr: options.ssr ?? true,
 		streaming: options.streaming ?? true,
 	});
