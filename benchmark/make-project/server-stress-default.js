@@ -27,10 +27,14 @@ const content = "${loremIpsum}"
 	<body>
 		<h1>Astro</h1>
 		<div>
-			${Array.from({ length: 100 }).map(() => '<p>{content}</p>').join('\n')}
+			${Array.from({ length: 100 })
+				.map(() => '<p>{content}</p>')
+				.join('\n')}
 		</div>
 		<div>
-			${Array.from({ length: 50 }).map((_, i) => '<Paragraph num={' + i + '} str={content} />').join('\n')}
+			${Array.from({ length: 50 })
+				.map((_, i) => '<Paragraph num={' + i + '} str={content} />')
+				.join('\n')}
 		</div>
 	</body>
 </html>`,
