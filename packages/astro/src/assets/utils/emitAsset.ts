@@ -5,11 +5,13 @@ import { prependForwardSlash, slash } from '../../core/path.js';
 import type { ImageMetadata } from '../types.js';
 import { imageMetadata } from './metadata.js';
 
+type ImageMetadataWithContents = ImageMetadata & { contents?: Buffer };
+
 export async function emitESMImage(
 	id: string | undefined,
 	watchMode: boolean,
 	fileEmitter: any
-): Promise<ImageMetadata | undefined> {
+): Promise<ImageMetadata & { contents?: Buffer } | undefined> {
 	if (!id) {
 		return undefined;
 	}
@@ -28,10 +30,14 @@ export async function emitESMImage(
 		return undefined;
 	}
 
-	const emittedImage: ImageMetadata = {
+	const emittedImage: ImageMetadataWithContents = {
 		src: '',
 		...fileMetadata,
 	};
+
+	if (fileMetadata.format === 'svg') {
+		emittedImage.contents = fileData;
+	}
 
 	// Build
 	if (!watchMode) {

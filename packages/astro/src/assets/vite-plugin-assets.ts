@@ -1,7 +1,10 @@
-import MagicString from 'magic-string';
 import type * as vite from 'vite';
+import type { AstroPluginOptions, ImageTransform, ImageMetadata } from '../@types/astro';
+import type { SvgComponentProps } from './runtime';
+
+import MagicString from 'magic-string';
 import { normalizePath } from 'vite';
-import type { AstroPluginOptions, ImageTransform } from '../@types/astro';
+import { parse, renderSync } from 'ultrahtml';
 import {
 	appendForwardSlash,
 	joinPaths,
@@ -10,6 +13,7 @@ import {
 } from '../core/path.js';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { emitESMImage } from './utils/emitAsset.js';
+import { dropAttributes } from './utils/svg.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
@@ -125,11 +129,37 @@ export default function assets({
 				}
 
 				const cleanedUrl = removeQueryString(id);
+
 				if (/\.(jpeg|jpg|png|tiff|webp|gif|svg)$/.test(cleanedUrl)) {
 					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile);
-					return `export default ${JSON.stringify(meta)}`;
+					if (!meta) return;
+					if (/\.svg$/.test(cleanedUrl)) {
+						const { contents, ...metadata } = meta;
+						return makeSvgComponent(metadata, contents!);
+					} else {
+						return `export default ${JSON.stringify(meta)}`;
+					}
 				}
 			},
 		},
 	];
+}
+
+function parseSVG(contents: string) {
+	const root = parse(contents);
+	const [{ attributes, children }] = root.children;
+	const body = renderSync({ ...root, children });
+	return { attributes, body };
+}
+
+function makeSvgComponent(meta: ImageMetadata, contents: Buffer) {
+	const file = contents.toString('utf-8');
+	const { attributes, body: children } = parseSVG(file);
+	const props: SvgComponentProps = { 
+		meta,
+		attributes: dropAttributes(attributes),
+		children
+	}
+	return `import { createSvgComponent } from 'astro/assets/runtime';
+export default createSvgComponent(${JSON.stringify(props)});`;
 }
