@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': patch
 ---
 
-View Transitions: use history.scrollRestoration="manual"
+Fixes scroll behavior when using View Transitions by enabling `manual` scroll restoration
