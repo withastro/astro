@@ -133,7 +133,7 @@ export async function createVite(
 			astroContentAssetPropagationPlugin({ mode, settings }),
 			vitePluginSSRManifest(),
 			astroAssetsPlugin({ settings, logger, mode }),
-			astroTransitions({ config: settings.config }),
+			astroTransitions(),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

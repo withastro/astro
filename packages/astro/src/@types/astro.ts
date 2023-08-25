@@ -1284,27 +1284,6 @@ export interface AstroUserConfig {
 	experimental?: {
 		/**
 		 * @docs
-		 * @name experimental.viewTransitions
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.9.0
-		 * @description
-		 * Enable experimental support for the `<ViewTransitions / >` component. With this enabled
-		 * you can opt-in to [view transitions](https://docs.astro.build/en/guides/view-transitions/) on a per-page basis using this component
-		 * and enable animations with the `transition:animate` directive.
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		viewTransitions: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		viewTransitions?: boolean;
-
-		/**
-		 * @docs
 		 * @name experimental.optimizeHoistedScript
 		 * @type {boolean}
 		 * @default `false`
