@@ -24,6 +24,7 @@ export class AstroTelemetry {
 	private config = new GlobalConfig({ name: 'astro' });
 	private debug = debug('astro:telemetry');
 	private isCI = isCI;
+	private env = process.env;
 
 	private get astroVersion() {
 		return this.opts.astroVersion;
@@ -32,10 +33,10 @@ export class AstroTelemetry {
 		return this.opts.viteVersion;
 	}
 	private get ASTRO_TELEMETRY_DISABLED() {
-		return process.env.ASTRO_TELEMETRY_DISABLED;
+		return this.env.ASTRO_TELEMETRY_DISABLED;
 	}
 	private get TELEMETRY_DISABLED() {
-		return process.env.TELEMETRY_DISABLED;
+		return this.env.TELEMETRY_DISABLED;
 	}
 
 	constructor(private opts: AstroTelemetryOptions) {
