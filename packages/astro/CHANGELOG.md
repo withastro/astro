@@ -1,5 +1,11 @@
 # astro
 
+## 3.0.0-rc.7
+
+### Patch Changes
+
+- [#8232](https://github.com/withastro/astro/pull/8232) [`a824863ab`](https://github.com/withastro/astro/commit/a824863ab1c451f4068eac54f28dd240573e1cba) Thanks [@matthewp](https://github.com/matthewp)! - Use .js to import logger
+
 ## 3.0.0-rc.6
 
 ### Major Changes
