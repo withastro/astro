@@ -36,7 +36,8 @@
     "jsx-runtime.js",
     "server.js",
     "server-v17.js",
-    "static-html.js"
+    "static-html.js",
+    "vnode-children.js"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
