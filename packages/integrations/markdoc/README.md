@@ -346,10 +346,9 @@ Now, you can call this function from any Markdoc content entry:
 
 ### Markdoc Language Server
 
-If you are using VS Code, there is a [Markdoc language extension](https://marketplace.visualstudio.com/items?itemName=Stripe.markdoc-language-support). Which includes syntax highlighting and autocomplete for configured tags.
-For more information, [see the language server on GitHub](https://github.com/markdoc/language-server.git).
+If you are using VS Code, there is an official [Markdoc language extension](https://marketplace.visualstudio.com/items?itemName=Stripe.markdoc-language-support) that includes syntax highlighting and autocomplete for configured tags. [See the language server on GitHub](https://github.com/markdoc/language-server.git) for more information.
 
-To set up the extension, create a `markdoc.config.json` file into the project root, with following content:
+To set up the extension, create a `markdoc.config.json` file into the project root with following content:
 
 ```json
 [
@@ -362,22 +361,18 @@ To set up the extension, create a `markdoc.config.json` file into the project ro
       "property": "default",
       "watch": true
     },
-    "routing": {
-      "frontmatter": "route"
-    }
   }
 ]
 ```
 
-The `schema` property, is the most important. It contains all information to configure the language server.
-It accepts following properties.
+The `schema` property contains all information to configure the language server for Astro content collections. It accepts following properties:
 
 - `path`: The path to the configuration file.
-- `type`: Kind of module your configuration file uses.
+- `type`: The type of module your configuration file uses (`esm` allows `import` syntax).
 - `property`: The exported property name that contains the configuration object.
 - `watch`: Tell the server to watch for changes in the configuration.
 
-The global `path` property, tells the server where the content is located. You can't use a glob pattern. 
+The top-level `path` property tells the server where content is located. Since Markdoc is specific to content collections, you can use `src/content`.
 
 ### Pass Markdoc variables
 
