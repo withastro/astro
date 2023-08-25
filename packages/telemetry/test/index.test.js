@@ -5,6 +5,8 @@ function setup() {
 	const config = new Map();
 	const telemetry = new AstroTelemetry({ version: '0.0.0-test.1' });
 	const logs = [];
+	// Stub isCI to false so we can test user-facing behavior
+	telemetry.isCI = false;
 	telemetry.config = config;
 	telemetry.debug.enabled = true;
 	telemetry.debug.log = (...args) => logs.push(args);

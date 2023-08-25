@@ -23,6 +23,7 @@ export class AstroTelemetry {
 	private _anonymousProjectInfo: ProjectInfo | undefined;
 	private config = new GlobalConfig({ name: 'astro' });
 	private debug = debug('astro:telemetry');
+	private isCI = isCI;
 
 	private get astroVersion() {
 		return this.opts.astroVersion;
@@ -78,7 +79,7 @@ export class AstroTelemetry {
 
 	private get anonymousProjectInfo(): ProjectInfo {
 		// NOTE(fks): this value isn't global, so it can't use getConfigWithFallback().
-		this._anonymousProjectInfo = this._anonymousProjectInfo || getProjectInfo(isCI);
+		this._anonymousProjectInfo = this._anonymousProjectInfo || getProjectInfo(this.isCI);
 		return this._anonymousProjectInfo;
 	}
 
@@ -106,7 +107,7 @@ export class AstroTelemetry {
 	}
 
 	async notify(callback: () => boolean | Promise<boolean>) {
-		if (this.isDisabled || isCI) {
+		if (this.isDisabled || this.isCI) {
 			this.debug(`[notify] telemetry has been disabled`);
 			return;
 		}
