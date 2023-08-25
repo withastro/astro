@@ -344,6 +344,36 @@ Now, you can call this function from any Markdoc content entry:
 
 📚 [See the Markdoc documentation](https://markdoc.dev/docs/functions#creating-a-custom-function) for more on using variables or functions in your content.
 
+### Markdoc Language Server
+
+If you are using VS Code, there is an official [Markdoc language extension](https://marketplace.visualstudio.com/items?itemName=Stripe.markdoc-language-support) that includes syntax highlighting and autocomplete for configured tags. [See the language server on GitHub](https://github.com/markdoc/language-server.git) for more information.
+
+To set up the extension, create a `markdoc.config.json` file into the project root with following content:
+
+```json
+[
+  {
+    "id": "my-site",
+    "path": "src/content",
+    "schema": {
+      "path": "markdoc.config.mjs",
+      "type": "esm",
+      "property": "default",
+      "watch": true
+    },
+  }
+]
+```
+
+The `schema` property contains all information to configure the language server for Astro content collections. It accepts following properties:
+
+- `path`: The path to the configuration file.
+- `type`: The type of module your configuration file uses (`esm` allows `import` syntax).
+- `property`: The exported property name that contains the configuration object.
+- `watch`: Tell the server to watch for changes in the configuration.
+
+The top-level `path` property tells the server where content is located. Since Markdoc is specific to content collections, you can use `src/content`.
+
 ### Pass Markdoc variables
 
 You may need to pass [variables][markdoc-variables] to your content. This is useful when passing SSR parameters like A/B tests.
