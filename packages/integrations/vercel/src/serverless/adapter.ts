@@ -68,7 +68,7 @@ export default function vercelServerless({
 	analytics,
 	imageService,
 	imagesConfig,
-	functionPerRoute = false,
+	functionPerRoute = true,
 	edgeMiddleware = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
