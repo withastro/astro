@@ -1,5 +1,5 @@
 
-export function post({ cookies }) {
+export function POST({ cookies }) {
 	const mode = cookies.get('prefs').json().mode;
 
 	cookies.set('prefs', {

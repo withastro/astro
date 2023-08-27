@@ -5,5 +5,5 @@ import preact from '@astrojs/preact';
 export default defineConfig({
 	integrations: [preact()],
 	// make sure CLI flags have precedence
-  server: () => ({ port: 3000 })
+  server: () => ({ port: 4321 })
 });

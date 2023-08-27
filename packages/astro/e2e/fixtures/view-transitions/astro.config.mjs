@@ -7,10 +7,6 @@ export default defineConfig({
 	output: 'server',
 	adapter: nodejs({ mode: 'standalone' }),
 	integrations: [react()],
-	experimental: {
-		viewTransitions: true,
-		assets: true,
-	},
 	vite: {
 		build: {
 			assetsInlineLimit: 0,

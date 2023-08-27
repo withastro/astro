@@ -2,7 +2,6 @@ import nodejs from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { fetch } from 'undici';
 
 /**
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
@@ -102,7 +101,7 @@ describe('Prerender 404', () => {
 			const $ = cheerio.load(html);
 
 			// length will be 0 if the stylesheet does not get included
-			expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
+			expect($('style[type="text/css"]')).to.have.a.lengthOf(1);
 		});
 	});
 

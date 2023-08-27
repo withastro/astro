@@ -47,7 +47,11 @@ describe('HTML minification', () => {
 	describe('Build SSG', () => {
 		let fixture;
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/minification-html/' });
+			fixture = await loadFixture({
+				root: './fixtures/minification-html/',
+				// test suite was authored when inlineStylesheets defaulted to never
+				build: { inlineStylesheets: 'never' },
+			});
 			await fixture.build();
 		});
 
@@ -64,6 +68,8 @@ describe('HTML minification', () => {
 				root: './fixtures/minification-html/',
 				output: 'server',
 				adapter: testAdapter(),
+				// test suite was authored when inlineStylesheets defaulted to never
+				build: { inlineStylesheets: 'never' },
 			});
 			await fixture.build();
 		});

@@ -27,7 +27,10 @@ export type RSSOptions = {
 	stylesheet?: z.infer<typeof rssOptionsValidator>['stylesheet'];
 	/** Specify custom data in opening of file */
 	customData?: z.infer<typeof rssOptionsValidator>['customData'];
-	/** Whether to include drafts or not */
+	/**
+	 * Whether to include drafts or not
+	 * @deprecated Deprecated since version 3.0. Use content collections instead.
+	 */
 	drafts?: z.infer<typeof rssOptionsValidator>['drafts'];
 	trailingSlash?: z.infer<typeof rssOptionsValidator>['trailingSlash'];
 };
@@ -45,7 +48,10 @@ export type RSSFeedItem = {
 	description?: z.infer<typeof rssSchema>['description'];
 	/** Append some other XML-valid data to this item */
 	customData?: z.infer<typeof rssSchema>['customData'];
-	/** Whether draft or not */
+	/**
+	 * Whether draft or not
+	 * @deprecated Deprecated since version 3.0. Use content collections instead.
+	 */
 	draft?: z.infer<typeof rssSchema>['draft'];
 	/** Categories or tags related to the item */
 	categories?: z.infer<typeof rssSchema>['categories'];
@@ -92,12 +98,18 @@ const rssOptionsValidator = z.object({
 	trailingSlash: z.boolean().default(true),
 });
 
-export default async function getRSS(rssOptions: RSSOptions) {
-	const validatedRssOptions = await validateRssOptions(rssOptions);
+export default async function getRssResponse(rssOptions: RSSOptions): Promise<Response> {
+	const rssString = await getRssString(rssOptions);
+	return new Response(rssString, {
+		headers: {
+			'Content-Type': 'application/xml',
+		},
+	});
+}
 
-	return {
-		body: await generateRSS(validatedRssOptions),
-	};
+export async function getRssString(rssOptions: RSSOptions): Promise<string> {
+	const validatedRssOptions = await validateRssOptions(rssOptions);
+	return await generateRSS(validatedRssOptions);
 }
 
 async function validateRssOptions(rssOptions: RSSOptions) {

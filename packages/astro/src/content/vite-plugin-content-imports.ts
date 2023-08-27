@@ -131,13 +131,7 @@ export const _internal = {
 			configureServer(viteServer) {
 				viteServer.watcher.on('all', async (event, entry) => {
 					if (CHOKIDAR_MODIFIED_EVENTS.includes(event)) {
-						const entryType = getEntryType(
-							entry,
-							contentPaths,
-							contentEntryExts,
-							dataEntryExts,
-							settings.config.experimental.assets
-						);
+						const entryType = getEntryType(entry, contentPaths, contentEntryExts, dataEntryExts);
 						if (!COLLECTION_TYPES_TO_INVALIDATE_ON.includes(entryType)) return;
 
 						// The content config could depend on collection entries via `reference()`.
@@ -194,7 +188,7 @@ type GetEntryModuleParams<TEntryType extends ContentEntryType | DataEntryType> =
 async function getContentEntryModule(
 	params: GetEntryModuleParams<ContentEntryType>
 ): Promise<ContentEntryModule> {
-	const { fileId, contentDir, pluginContext, config } = params;
+	const { fileId, contentDir, pluginContext } = params;
 	const { collectionConfig, entryConfig, entry, rawContents, collection } =
 		await getEntryModuleBaseInfo(params);
 
@@ -221,8 +215,7 @@ async function getContentEntryModule(
 		? await getEntryData(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
-				pluginContext,
-				config
+				pluginContext
 		  )
 		: unvalidatedData;
 
@@ -241,7 +234,7 @@ async function getContentEntryModule(
 async function getDataEntryModule(
 	params: GetEntryModuleParams<DataEntryType>
 ): Promise<DataEntryModule> {
-	const { fileId, contentDir, pluginContext, config } = params;
+	const { fileId, contentDir, pluginContext } = params;
 	const { collectionConfig, entryConfig, entry, rawContents, collection } =
 		await getEntryModuleBaseInfo(params);
 
@@ -256,8 +249,7 @@ async function getDataEntryModule(
 		? await getEntryData(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
-				pluginContext,
-				config
+				pluginContext
 		  )
 		: unvalidatedData;
 

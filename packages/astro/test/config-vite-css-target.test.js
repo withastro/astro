@@ -10,7 +10,11 @@ let fixture;
 
 describe('CSS', function () {
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/config-vite-css-target/' });
+		fixture = await loadFixture({
+			root: './fixtures/config-vite-css-target/',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
+		});
 	});
 
 	describe('build', () => {
@@ -32,7 +36,7 @@ describe('CSS', function () {
 
 		it('vite.build.cssTarget is respected', async () => {
 			expect(bundledCSS).to.match(
-				new RegExp('.class\\:where\\(.astro-[^{]*{top:0;right:0;bottom:0;left:0}')
+				new RegExp('.class\\[data-astro-[^{]*{top:0;right:0;bottom:0;left:0}')
 			);
 		});
 	});

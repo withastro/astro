@@ -1,5 +1,25 @@
 # create-astro
 
+## 4.0.0-rc.2
+
+### Major Changes
+
+- [#8179](https://github.com/withastro/astro/pull/8179) [`6011d52d3`](https://github.com/withastro/astro/commit/6011d52d38e43c3e3d52bc3bc41a60e36061b7b7) Thanks [@matthewp](https://github.com/matthewp)! - Astro 3.0 Release Candidate
+
+## 4.0.0-beta.1
+
+### Patch Changes
+
+- [#7944](https://github.com/withastro/astro/pull/7944) [`dff0f0f8d`](https://github.com/withastro/astro/commit/dff0f0f8ddd531c5d92a90ac00fdb86d71f77509) Thanks [@colinhacks](https://github.com/colinhacks)! - Update 'dev' command for Bun users
+
+- [#8102](https://github.com/withastro/astro/pull/8102) [`e6e1de4f0`](https://github.com/withastro/astro/commit/e6e1de4f08ddba3a7703136a81f275de1976dc9e) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Verify internet connection and that `--template` exists before continuing
+
+## 4.0.0-beta.0
+
+### Major Changes
+
+- [`1eae2e3f7`](https://github.com/withastro/astro/commit/1eae2e3f7d693c9dfe91c8ccfbe606d32bf2fb81) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove support for Node 16. The lowest supported version by Astro and all integrations is now v18.14.1. As a reminder, Node 16 will be deprecated on the 11th September 2023.
+
 ## 3.2.2
 
 ### Patch Changes

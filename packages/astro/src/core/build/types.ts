@@ -4,12 +4,11 @@ import type {
 	AstroSettings,
 	ComponentInstance,
 	ManifestData,
-	MiddlewareHandler,
 	RouteData,
 	RuntimeMode,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
-import type { LogOptions } from '../logger/core';
+import type { Logger } from '../logger/core';
 import type { RouteCache } from '../render/route-cache';
 
 export type ComponentPath = string;
@@ -35,7 +34,7 @@ export type AllPagesData = Record<ComponentPath, PageBuildData>;
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 	manifest: ManifestData;
 	mode: RuntimeMode;
 	origin: string;
@@ -52,7 +51,6 @@ export interface SinglePageBuiltModule {
 	/**
 	 * The `onRequest` hook exported by the middleware
 	 */
-	onRequest?: MiddlewareHandler<unknown>;
 	renderers: SSRLoadedRenderer[];
 }
 

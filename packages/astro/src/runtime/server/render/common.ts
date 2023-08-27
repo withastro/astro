@@ -37,8 +37,10 @@ export interface RenderDestination {
 }
 
 export interface RenderInstance {
-	render(destination: RenderDestination): Promise<void> | void;
+	render: RenderFunction;
 }
+
+export type RenderFunction = (destination: RenderDestination) => Promise<void> | void;
 
 export const Fragment = Symbol.for('astro:fragment');
 export const Renderer = Symbol.for('astro:renderer');

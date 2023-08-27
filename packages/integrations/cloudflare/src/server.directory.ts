@@ -7,7 +7,7 @@ if (!isNode) {
 	process.env = getProcessEnvProxy();
 }
 
-interface FunctionRuntime {
+export interface DirectoryRuntime {
 	runtime: {
 		waitUntil: (promise: Promise<any>) => void;
 		env: EventContext<unknown, string, unknown>['env'];
@@ -54,7 +54,7 @@ export function createExports(manifest: SSRManifest) {
 				cf: request.cf,
 			});
 
-			const locals: FunctionRuntime = {
+			const locals: DirectoryRuntime = {
 				runtime: {
 					waitUntil: (promise: Promise<any>) => {
 						context.waitUntil(promise);

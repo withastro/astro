@@ -1,6 +1,6 @@
-import { info, type LogOptions } from '../core/logger/core.js';
+import type { Logger } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 
-export function log404(logging: LogOptions, pathname: string) {
-	info(logging, 'serve', msg.req({ url: pathname, statusCode: 404 }));
+export function log404(logger: Logger, pathname: string) {
+	logger.info('serve', msg.req({ url: pathname, statusCode: 404 }));
 }

@@ -1,6 +1,6 @@
 import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroInlineConfig } from '../@types/astro.js';
-import type { LogOptions } from '../core/logger/core.js';
+import { Logger, type LogOptions } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 
 export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
@@ -23,9 +23,6 @@ export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 				typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 			open: typeof flags.open === 'boolean' ? flags.open : undefined,
 		},
-		experimental: {
-			assets: typeof flags.experimentalAssets === 'boolean' ? flags.experimentalAssets : undefined,
-		},
 	};
 }
 
@@ -33,7 +30,7 @@ export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
  * The `logging` is usually created from an `AstroInlineConfig`, but some flows like `add`
  * doesn't read the AstroConfig directly, so we create a `logging` object from the CLI flags instead.
  */
-export function createLoggingFromFlags(flags: Flags): LogOptions {
+export function createLoggerFromFlags(flags: Flags): Logger {
 	const logging: LogOptions = {
 		dest: nodeLogDestination,
 		level: 'info',
@@ -45,5 +42,5 @@ export function createLoggingFromFlags(flags: Flags): LogOptions {
 		logging.level = 'silent';
 	}
 
-	return logging;
+	return new Logger(logging);
 }

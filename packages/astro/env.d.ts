@@ -1,8 +1,8 @@
-/// <reference path="./client-base.d.ts" />
+/// <reference path="./client.d.ts" />
 
 // Caution! The types here are only available inside Astro files (injected automatically by our language server)
 // As such, if the typings you're trying to add should be available inside ex: React components, they should instead
-// be inside `client-base.d.ts`
+// be inside `client.d.ts`
 
 type Astro = import('./dist/@types/astro.js').AstroGlobal;
 

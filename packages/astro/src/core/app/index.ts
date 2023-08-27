@@ -1,29 +1,22 @@
-import mime from 'mime';
 import type {
 	EndpointHandler,
 	ManifestData,
+	MiddlewareEndpointHandler,
 	RouteData,
 	SSRElement,
 	SSRManifest,
 } from '../../@types/astro';
 import type { SinglePageBuiltModule } from '../build/types';
-import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
+import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
-import { error, type LogOptions } from '../logger/core.js';
+import { Logger } from '../logger/core.js';
 import {
 	collapseDuplicateSlashes,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { isResponse } from '../render/core.js';
-import {
-	createEnvironment,
-	createRenderContext,
-	tryRenderRoute,
-	type Environment,
-	type RenderContext,
-} from '../render/index.js';
+import { createEnvironment, createRenderContext, type RenderContext } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -31,6 +24,7 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
+import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
 import type { RouteInfo } from './types';
 export { deserializeManifest } from './common.js';
 
@@ -53,16 +47,17 @@ export class App {
 	/**
 	 * The current environment of the application
 	 */
-	#env: Environment;
 	#manifest: SSRManifest;
 	#manifestData: ManifestData;
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
-	#encoder = new TextEncoder();
-	#logging: LogOptions = {
+	#logger = new Logger({
 		dest: consoleLogDestination,
 		level: 'info',
-	};
+	});
 	#baseWithoutTrailingSlash: string;
+	#pipeline: SSRRoutePipeline;
+	#onRequest: MiddlewareEndpointHandler | undefined;
+	#middlewareLoaded: boolean;
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
@@ -71,7 +66,8 @@ export class App {
 		};
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
-		this.#env = this.#createEnvironment(streaming);
+		this.#pipeline = new SSRRoutePipeline(this.#createEnvironment(streaming));
+		this.#middlewareLoaded = false;
 	}
 
 	set setManifest(newManifest: SSRManifest) {
@@ -87,8 +83,7 @@ export class App {
 	#createEnvironment(streaming = false) {
 		return createEnvironment({
 			adapterName: this.#manifest.adapterName,
-			logging: this.#logging,
-			markdown: this.#manifest.markdown,
+			logger: this.#logger,
 			mode: 'production',
 			compressHTML: this.#manifest.compressHTML,
 			renderers: this.#manifest.renderers,
@@ -108,7 +103,7 @@ export class App {
 					}
 				}
 			},
-			routeCache: new RouteCache(this.#logging),
+			routeCache: new RouteCache(this.#logger),
 			site: this.#manifest.site,
 			ssr: true,
 			streaming,
@@ -136,7 +131,21 @@ export class App {
 		if (!routeData || routeData.prerender) return undefined;
 		return routeData;
 	}
+
+	async #getOnRequest() {
+		if (this.#manifest.middlewareEntryPoint && !this.#middlewareLoaded) {
+			try {
+				const middleware = await import(this.#manifest.middlewareEntryPoint);
+				this.#pipeline.setMiddlewareFunction(middleware.onRequest as MiddlewareEndpointHandler);
+			} catch (e) {
+				this.#logger.warn('SSR', "Couldn't load the middleware entry point");
+			}
+		}
+		this.#middlewareLoaded = true;
+	}
+
 	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {
+		await this.#getOnRequest();
 		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
 		if (request.url !== collapseDuplicateSlashes(request.url)) {
 			request = new Request(collapseDuplicateSlashes(request.url), request);
@@ -164,19 +173,17 @@ export class App {
 		);
 		let response;
 		try {
-			response = await tryRenderRoute(
-				routeData.type,
-				renderContext,
-				this.#env,
-				pageModule,
-				mod.onRequest
-			);
+			response = await this.#pipeline.renderRoute(renderContext, pageModule);
 		} catch (err: any) {
-			error(this.#logging, 'ssr', err.stack || err.message || String(err));
-			return this.#renderError(request, { status: 500 });
+			if (err instanceof EndpointNotFoundError) {
+				return this.#renderError(request, { status: 404, response: err.originalResponse });
+			} else {
+				this.#logger.error('ssr', err.stack || err.message || String(err));
+				return this.#renderError(request, { status: 500 });
+			}
 		}
 
-		if (isResponse(response, routeData.type)) {
+		if (routeData.type === 'page' || routeData.type === 'redirect') {
 			if (STATUS_CODES.has(response.status)) {
 				return this.#renderError(request, {
 					response,
@@ -185,35 +192,8 @@ export class App {
 			}
 			Reflect.set(response, responseSentSymbol, true);
 			return response;
-		} else {
-			if (response.type === 'response') {
-				if (response.response.headers.get('X-Astro-Response') === 'Not-Found') {
-					return this.#renderError(request, {
-						response: response.response,
-						status: 404,
-					});
-				}
-				return response.response;
-			} else {
-				const headers = new Headers();
-				const mimeType = mime.getType(url.pathname);
-				if (mimeType) {
-					headers.set('Content-Type', `${mimeType};charset=utf-8`);
-				} else {
-					headers.set('Content-Type', 'text/plain;charset=utf-8');
-				}
-				const bytes =
-					response.encoding !== 'binary' ? this.#encoder.encode(response.body) : response.body;
-				headers.set('Content-Length', bytes.byteLength.toString());
-
-				const newResponse = new Response(bytes, {
-					status: 200,
-					headers,
-				});
-				attachToResponse(newResponse, response.cookies);
-				return newResponse;
-			}
 		}
+		return response;
 	}
 
 	setCookieHeaders(response: Response) {
@@ -239,7 +219,7 @@ export class App {
 				pathname,
 				route: routeData,
 				status,
-				env: this.#env,
+				env: this.#pipeline.env,
 				mod: handler as any,
 			});
 		} else {
@@ -273,7 +253,7 @@ export class App {
 				route: routeData,
 				status,
 				mod,
-				env: this.#env,
+				env: this.#pipeline.env,
 			});
 		}
 	}
@@ -310,12 +290,7 @@ export class App {
 					status
 				);
 				const page = (await mod.page()) as any;
-				const response = (await tryRenderRoute(
-					'page', // this is hardcoded to ensure proper behavior for missing endpoints
-					newRenderContext,
-					this.#env,
-					page
-				)) as Response;
+				const response = await this.#pipeline.renderRoute(newRenderContext, page);
 				return this.#mergeResponses(response, originalResponse);
 			} catch {}
 		}

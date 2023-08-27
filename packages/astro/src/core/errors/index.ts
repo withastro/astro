@@ -3,6 +3,7 @@ export * as AstroErrorData from './errors-data.js';
 export {
 	AggregateError,
 	AstroError,
+	AstroUserError,
 	CSSError,
 	CompilerError,
 	MarkdownError,

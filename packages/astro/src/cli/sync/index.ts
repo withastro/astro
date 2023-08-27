@@ -1,6 +1,6 @@
 import type yargs from 'yargs-parser';
 import { printHelp } from '../../core/messages.js';
-import { sync as _sync } from '../../core/sync/index.js';
+import _sync from '../../core/sync/index.js';
 import { flagsToAstroInlineConfig } from '../flags.js';
 
 interface SyncOptions {
