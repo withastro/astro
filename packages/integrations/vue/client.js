@@ -21,15 +21,13 @@ export default (element) =>
 			content = h(Suspense, null, content);
 		}
 
-		if (client === 'only') {
-			const app = createApp({ name, render: () => content });
-			await setup(app);
-			app.mount(element, false);
-		} else {
-			const app = createSSRApp({ name, render: () => content });
-			await setup(app);
-			app.mount(element, true);
-		}
+		const isHydrate = client !== 'only';
+		const boostrap = isHydrate ? createSSRApp : createApp;
+		const app = boostrap({ name, render: () => content });
+		await setup(app);
+		app.mount(element, isHydrate);
+
+		element.addEventListener('astro:unmount', () => app.unmount(), { once: true });
 	};
 
 function isAsync(fn) {
