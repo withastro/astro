@@ -92,10 +92,10 @@ export function createAPIContext({
 
 type ResponseParameters = ConstructorParameters<typeof Response>;
 
-let ResponseWithEncoding: ReturnType<typeof initResponseWithEncoding>;
+export let ResponseWithEncoding: ReturnType<typeof initResponseWithEncoding>;
 let initResponseWithEncoding = () => {
 	// eslint-disable-next-line @typescript-eslint/no-shadow
-	class ResponseWithEncoding extends Response {
+	class LocalResponseWithEncoding extends Response {
 		constructor(body: ResponseParameters[0], init: ResponseParameters[1], encoding?: BufferEncoding) {
 			// If a body string is given, try to encode it to preserve the behaviour as simple objects.
 			// We don't do the full handling as simple objects so users can control how headers are set instead.
@@ -118,10 +118,13 @@ let initResponseWithEncoding = () => {
 		}
 	}
 
+	// Set the module scoped variable.
+	ResponseWithEncoding = LocalResponseWithEncoding;
+
 	// Turn this into a noop.
 	initResponseWithEncoding = (() => {}) as any;
 
-	return ResponseWithEncoding;
+	return LocalResponseWithEncoding;
 }
 
 export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>(
