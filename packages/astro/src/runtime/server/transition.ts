@@ -52,7 +52,8 @@ export function renderTransition(
 			}
 		}
 	} else if (animationName === 'none') {
-		sheet.addAnimationRaw('old', 'animation: none; mix-blend-mode: normal;');
+		sheet.addFallback('old', 'animation: none; mix-blend-mode: normal;');
+		sheet.addModern('old', 'animation: none; opacity: 0; mix-blend-mode: normal;');
 		sheet.addAnimationRaw('new', 'animation: none; mix-blend-mode: normal;');
 	}
 
@@ -88,8 +89,17 @@ class ViewTransitionStyleSheet {
 	}
 
 	addAnimationRaw(image: 'old' | 'new' | 'group', animation: string) {
-		const { scope, name } = this;
+		this.addModern(image, animation);
+		this.addFallback(image, animation);
+	}
+
+	addModern(image: 'old' | 'new' | 'group', animation: string) {
+		const { name } = this;
 		this.addRule('modern', `::view-transition-${image}(${name}) { ${animation} }`);
+	}
+
+	addFallback(image: 'old' | 'new' | 'group', animation: string) {
+		const { scope } = this;
 		this.addRule(
 			'fallback',
 			// Two selectors here, the second in case there is an animation on the root.
