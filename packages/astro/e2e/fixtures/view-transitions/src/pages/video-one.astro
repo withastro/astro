@@ -8,7 +8,8 @@ import Video from '../components/Video.astro';
 	<Video />
 	<script>
 		const vid = document.querySelector('video');
-		vid.addEventListener('canplay', () => {
+		
+		vid.addEventListener('canplaythrough', () => {
 			// Jump to the 1 minute mark
 			vid.currentTime = 60;
 			vid.dataset.ready = '';
