@@ -210,9 +210,11 @@ export default defineConfig({
 });
 ```
 
-### Per-page functions
+### Function bundling configuration
 
-The Vercel adapter builds to a single function by default. Astro 2.7 added support for splitting your build into separate entry points per page. If you use this configuration the Vercel adapter will generate a separate function for each page. This can help reduce the size of each function so they are only bundling code used on that page.
+The Vercel adapter splits builds into a separate function per route by default. This helps reduce the size of each function, as it only bundles code used on that page.
+
+You can disable this and build to a single function by setting the `functionPerRoute` configuration option to `false`:
 
 ```js
 // astro.config.mjs
@@ -222,7 +224,7 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    functionPerRoute: true,
+    functionPerRoute: false,
   }),
 });
 ```
