@@ -302,7 +302,7 @@ test.describe('View Transitions', () => {
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/video-one'));
-		const vid = page.locator('video[data-ready]');
+		const vid = page.locator('video');
 		await expect(vid).toBeVisible();
 		const firstTime = await page.evaluate(getTime);
 
