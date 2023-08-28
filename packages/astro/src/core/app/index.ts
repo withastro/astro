@@ -27,6 +27,7 @@ import { matchRoute } from '../routing/match.js';
 import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
 import type { RouteInfo } from './types';
 export { deserializeManifest } from './common.js';
+import { AstroIntegrationLogger } from '../logger/core.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -58,6 +59,7 @@ export class App {
 	#pipeline: SSRRoutePipeline;
 	#onRequest: MiddlewareEndpointHandler | undefined;
 	#middlewareLoaded: boolean;
+	#adapterLogger: AstroIntegrationLogger;
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
@@ -68,10 +70,14 @@ export class App {
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
 		this.#pipeline = new SSRRoutePipeline(this.#createEnvironment(streaming));
 		this.#middlewareLoaded = false;
+		this.#adapterLogger = new AstroIntegrationLogger(
+			this.#logger.options,
+			this.#manifest.adapterName
+		);
 	}
 
-	set setManifest(newManifest: SSRManifest) {
-		this.#manifest = newManifest;
+	getAdapterLogger(): AstroIntegrationLogger {
+		return this.#adapterLogger;
 	}
 
 	/**

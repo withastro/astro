@@ -9,6 +9,7 @@ import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
+import { AstroIntegrationLogger } from '../../core/logger/core.js';
 
 /**
  * Starts a local server to serve your static dist/ directory. This command is useful for previewing
@@ -62,6 +63,7 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 		host: getResolvedHostForHttpServer(settings.config.server.host),
 		port: settings.config.server.port,
 		base: settings.config.base,
+		logger: new AstroIntegrationLogger(logger.options, settings.adapter.name),
 	});
 
 	return server;

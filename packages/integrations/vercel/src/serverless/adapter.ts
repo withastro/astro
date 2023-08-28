@@ -1,5 +1,5 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
-
+import { AstroError } from 'astro/errors';
 import glob from 'fast-glob';
 import { basename } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -136,10 +136,9 @@ export default function vercelServerless({
 				serverEntry = config.build.serverEntry;
 
 				if (config.output === 'static') {
-					throw new Error(`
-		[@astrojs/vercel] \`output: "server"\` or \`output: "hybrid"\` is required to use the serverless adapter.
-
-	`);
+					throw new AstroError(
+						'`output: "server"` or `output: "hybrid"` is required to use the serverless adapter.'
+					);
 				}
 			},
 
