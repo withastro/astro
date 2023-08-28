@@ -10,6 +10,9 @@ import { getSystemInfo, type SystemInfo } from './system-info.js';
 export type AstroTelemetryOptions = { astroVersion: string; viteVersion: string };
 export type TelemetryEvent = { eventName: string; payload: Record<string, any> };
 
+// In the event of significant policy changes, update this!
+const VALID_TELEMETRY_NOTICE_DATE = '2023-08-25';
+
 type EventMeta = SystemInfo;
 interface EventContext extends ProjectInfo {
 	anonymousId: string;
@@ -20,6 +23,8 @@ export class AstroTelemetry {
 	private _anonymousProjectInfo: ProjectInfo | undefined;
 	private config = new GlobalConfig({ name: 'astro' });
 	private debug = debug('astro:telemetry');
+	private isCI = isCI;
+	private env = process.env;
 
 	private get astroVersion() {
 		return this.opts.astroVersion;
@@ -28,10 +33,10 @@ export class AstroTelemetry {
 		return this.opts.viteVersion;
 	}
 	private get ASTRO_TELEMETRY_DISABLED() {
-		return process.env.ASTRO_TELEMETRY_DISABLED;
+		return this.env.ASTRO_TELEMETRY_DISABLED;
 	}
 	private get TELEMETRY_DISABLED() {
-		return process.env.TELEMETRY_DISABLED;
+		return this.env.TELEMETRY_DISABLED;
 	}
 
 	constructor(private opts: AstroTelemetryOptions) {
@@ -47,7 +52,7 @@ export class AstroTelemetry {
 	 */
 	private getConfigWithFallback<T>(key: string, getValue: () => T): T {
 		const currentValue = this.config.get(key);
-		if (currentValue) {
+		if (currentValue !== undefined) {
 			return currentValue;
 		}
 		const newValue = getValue();
@@ -75,7 +80,7 @@ export class AstroTelemetry {
 
 	private get anonymousProjectInfo(): ProjectInfo {
 		// NOTE(fks): this value isn't global, so it can't use getConfigWithFallback().
-		this._anonymousProjectInfo = this._anonymousProjectInfo || getProjectInfo(isCI);
+		this._anonymousProjectInfo = this._anonymousProjectInfo || getProjectInfo(this.isCI);
 		return this._anonymousProjectInfo;
 	}
 
@@ -94,19 +99,29 @@ export class AstroTelemetry {
 		return this.config.clear();
 	}
 
-	async notify(callback: () => Promise<boolean>) {
-		if (this.isDisabled || isCI) {
+	isValidNotice() {
+		if (!this.notifyDate) return false;
+		const current = Number(this.notifyDate);
+		const valid = new Date(VALID_TELEMETRY_NOTICE_DATE).valueOf();
+
+		return current > valid;
+	}
+
+	async notify(callback: () => boolean | Promise<boolean>) {
+		if (this.isDisabled || this.isCI) {
+			this.debug(`[notify] telemetry has been disabled`);
 			return;
 		}
 		// The end-user has already been notified about our telemetry integration!
 		// Don't bother them about it again.
-		// In the event of significant changes, we should invalidate old dates.
-		if (this.notifyDate) {
+		if (this.isValidNotice()) {
+			this.debug(`[notify] last notified on ${this.notifyDate}`)
 			return;
 		}
 		const enabled = await callback();
-		this.config.set(KEY.TELEMETRY_NOTIFY_DATE, Date.now().toString());
+		this.config.set(KEY.TELEMETRY_NOTIFY_DATE, new Date().valueOf().toString());
 		this.config.set(KEY.TELEMETRY_ENABLED, enabled);
+		this.debug(`[notify] telemetry has been ${enabled ? 'enabled' : 'disabled'}`)
 	}
 
 	async record(event: TelemetryEvent | TelemetryEvent[] = []) {
@@ -117,7 +132,7 @@ export class AstroTelemetry {
 
 		// Skip recording telemetry if the feature is disabled
 		if (this.isDisabled) {
-			this.debug('telemetry disabled');
+			this.debug('[record] telemetry has been disabled');
 			return Promise.resolve();
 		}
 

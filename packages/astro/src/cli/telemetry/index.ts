@@ -7,6 +7,13 @@ interface TelemetryOptions {
 	flags: yargs.Arguments;
 }
 
+export async function notify() {
+	await telemetry.notify(() => {
+		console.log(msg.telemetryNotice() + '\n');
+		return true;
+	})
+}
+
 export async function update(subcommand: string, { flags }: TelemetryOptions) {
 	const isValid = ['enable', 'disable', 'reset'].includes(subcommand);
 
