@@ -24,6 +24,8 @@ import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
+export { type AstroIntegrationLogger };
+
 export type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -2203,6 +2205,7 @@ export interface PreviewServerParams {
 	host: string | undefined;
 	port: number;
 	base: string;
+	logger: AstroIntegrationLogger;
 }
 
 export type CreatePreviewServer = (
