@@ -298,18 +298,11 @@ test.describe('View Transitions', () => {
 	});
 
 	test('<video> can persist using transition:persist', async ({ page, astro }) => {
-		page.on("console", (message) => {
-			console.log(message.type(), message.text())
-		});
-		page.on('pageerror', err => {
-			console.log("PAGE ERROR", err)
-		})
-
 		const getTime = () => document.querySelector('video').currentTime;
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/video-one'));
-		const vid = page.locator('video[data-ready]');
+		const vid = page.locator('video');
 		await expect(vid).toBeVisible();
 		const firstTime = await page.evaluate(getTime);
 
