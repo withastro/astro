@@ -11,6 +11,6 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^3.0.0-rc.7"
+    "astro": "^3.0.0-rc.8"
   }
 }

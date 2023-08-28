@@ -1,5 +1,14 @@
 # @astrojs/deno
 
+## 5.0.0-rc.2
+
+### Patch Changes
+
+- [#8245](https://github.com/withastro/astro/pull/8245) [`ed39fbf16`](https://github.com/withastro/astro/commit/ed39fbf168f7a30c4fbf5b5618b70146ce5d5b3e) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - TypeScript users now get better suggestions when configuring the Deno adapter.
+
+- Updated dependencies [[`46c4c0e05`](https://github.com/withastro/astro/commit/46c4c0e053f830585b9ef229ce1c259df00a80f8), [`1048aca55`](https://github.com/withastro/astro/commit/1048aca550769415e528016e42b358ffbfd44b61), [`ffc9e2d3d`](https://github.com/withastro/astro/commit/ffc9e2d3de46049bf3d82140ef018f524fb03187), [`3674584e0`](https://github.com/withastro/astro/commit/3674584e02b161a698b429ceb66723918fdc56ac)]:
+  - astro@3.0.0-rc.8
+
 ## 5.0.0-rc.1
 
 ### Major Changes
