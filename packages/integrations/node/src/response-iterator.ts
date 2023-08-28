@@ -6,6 +6,7 @@
 
 import type { ReadableStreamDefaultReadResult } from 'node:stream/web';
 import { Readable as NodeReadableStream } from 'stream';
+import { AstroError } from 'astro/errors';
 
 interface NodeStreamIterator<T> {
 	next(): Promise<IteratorResult<T, boolean | undefined>>;
@@ -221,5 +222,7 @@ export function responseIterator<T>(response: Response | Buffer): AsyncIterableI
 
 	if (isNodeReadableStream(body)) return nodeStreamIterator<T>(body);
 
-	throw new Error('Unknown body type for responseIterator. Please pass a streamable response.');
+	throw new AstroError(
+		'Unknown body type for responseIterator. Please pass a streamable response.'
+	);
 }

@@ -1,6 +1,6 @@
 import type { AstroAdapter, AstroIntegration } from 'astro';
 import type { Options, UserOptions } from './types';
-
+import { AstroError } from 'astro/errors';
 export function getAdapter(options: Options): AstroAdapter {
 	return {
 		name: '@astrojs/node',
@@ -23,7 +23,7 @@ export function getAdapter(options: Options): AstroAdapter {
 
 export default function createIntegration(userOptions: UserOptions): AstroIntegration {
 	if (!userOptions?.mode) {
-		throw new Error(`[@astrojs/node] Setting the 'mode' option is required.`);
+		throw new AstroError(`Setting the 'mode' option is required.`);
 	}
 
 	let _options: Options;
