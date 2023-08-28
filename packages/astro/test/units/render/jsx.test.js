@@ -45,12 +45,13 @@ describe('core/render', () => {
 
 			const mod = createAstroModule(Page);
 			const ctx = await createRenderContext({
+				route: { type: 'page', pathname: '/index' },
 				request: new Request('http://example.com/'),
 				env,
 				mod,
 			});
 
-			const response = await tryRenderRoute('page', ctx, env, mod);
+			const response = await tryRenderRoute(ctx, env, mod);
 
 			expect(response.status).to.equal(200);
 
@@ -90,11 +91,12 @@ describe('core/render', () => {
 
 			const mod = createAstroModule(Page);
 			const ctx = await createRenderContext({
+				route: { type: 'page', pathname: '/index' },
 				request: new Request('http://example.com/'),
 				env,
 				mod,
 			});
-			const response = await tryRenderRoute('page', ctx, env, mod);
+			const response = await tryRenderRoute(ctx, env, mod);
 
 			expect(response.status).to.equal(200);
 
@@ -115,12 +117,13 @@ describe('core/render', () => {
 
 			const mod = createAstroModule(Page);
 			const ctx = await createRenderContext({
+				route: { type: 'page', pathname: '/index' },
 				request: new Request('http://example.com/'),
 				env,
 				mod,
 			});
 
-			const response = await tryRenderRoute('page', ctx, env, mod);
+			const response = await tryRenderRoute(ctx, env, mod);
 
 			try {
 				await response.text();

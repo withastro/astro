@@ -5,7 +5,6 @@ import {
 } from '@astrojs/markdown-remark/dist/internal.js';
 import { nodeTypes } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
-import type { AstroConfig } from 'astro';
 import type { Literal, MemberExpression } from 'estree';
 import { visit as estreeVisit } from 'estree-util-visit';
 import rehypeRaw from 'rehype-raw';
@@ -96,13 +95,8 @@ export function rehypeApplyFrontmatterExport() {
 	};
 }
 
-export async function getRemarkPlugins(
-	mdxOptions: MdxOptions,
-	config: AstroConfig
-): Promise<PluggableList> {
-	let remarkPlugins: PluggableList = [
-		...(config.experimental.assets ? [remarkCollectImages, remarkImageToComponent] : []),
-	];
+export async function getRemarkPlugins(mdxOptions: MdxOptions): Promise<PluggableList> {
+	let remarkPlugins: PluggableList = [remarkCollectImages, remarkImageToComponent];
 
 	if (!isPerformanceBenchmark) {
 		if (mdxOptions.gfm) {

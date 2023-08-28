@@ -6,7 +6,11 @@ describe('Directives', async () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-directives/' });
+		fixture = await loadFixture({
+			root: './fixtures/astro-directives/',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
+		});
 		await fixture.build();
 	});
 

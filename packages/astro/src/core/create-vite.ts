@@ -1,5 +1,5 @@
 import type { AstroSettings } from '../@types/astro';
-import type { LogOptions } from './logger/core';
+import type { Logger } from './logger/core';
 
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -21,9 +21,9 @@ import astroHeadPlugin from '../vite-plugin-head/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
 import { astroInjectEnvTsPlugin } from '../vite-plugin-inject-env-ts/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
-import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
+import mdxVitePlugin from '../vite-plugin-mdx/index.js';
 import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
@@ -32,7 +32,7 @@ import { joinPaths } from './path.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 	mode: 'dev' | 'build' | string;
 	// will be undefined when using `getViteConfig`
 	command?: 'dev' | 'build';
@@ -66,7 +66,7 @@ const ONLY_DEV_EXTERNAL = [
 /** Return a common starting point for all Vite actions */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logging, mode, command, fs = nodeFs }: CreateViteOptions
+	{ settings, logger, mode, command, fs = nodeFs }: CreateViteOptions
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -113,27 +113,27 @@ export async function createVite(
 		plugins: [
 			configAliasVitePlugin({ settings }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
-			astroVitePlugin({ settings, logging }),
+			astroVitePlugin({ settings, logger }),
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			mode !== 'build' && vitePluginAstroServer({ settings, logging, fs }),
+			mode !== 'build' && vitePluginAstroServer({ settings, logger, fs }),
 			envVitePlugin({ settings }),
-			markdownVitePlugin({ settings, logging }),
+			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
-			jsxVitePlugin({ settings, logging }),
+			mdxVitePlugin({ settings, logger }),
 			astroPostprocessVitePlugin(),
-			astroIntegrationsContainerPlugin({ settings, logging }),
+			astroIntegrationsContainerPlugin({ settings, logger }),
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPlugin(),
-			astroScannerPlugin({ settings, logging }),
-			astroInjectEnvTsPlugin({ settings, logging, fs }),
+			astroScannerPlugin({ settings, logger }),
+			astroInjectEnvTsPlugin({ settings, logger, fs }),
 			astroContentVirtualModPlugin({ settings }),
 			astroContentImportPlugin({ fs, settings }),
 			astroContentAssetPropagationPlugin({ mode, settings }),
 			vitePluginSSRManifest(),
-			settings.config.experimental.assets ? [astroAssetsPlugin({ settings, logging, mode })] : [],
-			astroTransitions({ config: settings.config }),
+			astroAssetsPlugin({ settings, logger, mode }),
+			astroTransitions(),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
@@ -169,6 +169,14 @@ export async function createVite(
 					// Typings are imported from 'astro' (e.g. import { Type } from 'astro')
 					find: /^astro$/,
 					replacement: fileURLToPath(new URL('../@types/astro', import.meta.url)),
+				},
+				{
+					find: 'astro:middleware',
+					replacement: 'astro/middleware/namespace',
+				},
+				{
+					find: 'astro:components',
+					replacement: 'astro/components',
 				},
 			],
 			conditions: ['astro'],
@@ -234,35 +242,10 @@ export async function createVite(
 		result = vite.mergeConfig(result, settings.config.vite || {});
 	}
 	result = vite.mergeConfig(result, commandConfig);
-	if (result.plugins) {
-		sortPlugins(result.plugins);
-	}
 
 	result.customLogger = vite.createLogger(result.logLevel ?? 'warn');
 
 	return result;
-}
-
-function isVitePlugin(plugin: vite.PluginOption): plugin is vite.Plugin {
-	return Boolean(plugin?.hasOwnProperty('name'));
-}
-
-function findPluginIndexByName(pluginOptions: vite.PluginOption[], name: string): number {
-	return pluginOptions.findIndex(function (pluginOption) {
-		// Use isVitePlugin to ignore nulls, booleans, promises, and arrays
-		// CAUTION: could be a problem if a plugin we're searching for becomes async!
-		return isVitePlugin(pluginOption) && pluginOption.name === name;
-	});
-}
-
-function sortPlugins(pluginOptions: vite.PluginOption[]) {
-	// HACK: move mdxPlugin to top because it needs to run before internal JSX plugin
-	const mdxPluginIndex = findPluginIndexByName(pluginOptions, '@mdx-js/rollup');
-	if (mdxPluginIndex === -1) return;
-	const jsxPluginIndex = findPluginIndexByName(pluginOptions, 'astro:jsx');
-	const mdxPlugin = pluginOptions[mdxPluginIndex];
-	pluginOptions.splice(mdxPluginIndex, 1);
-	pluginOptions.splice(jsxPluginIndex, 0, mdxPlugin);
 }
 
 const COMMON_DEPENDENCIES_NOT_ASTRO = [

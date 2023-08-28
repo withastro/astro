@@ -21,7 +21,7 @@ export type RequestHandlerParams = [
 	req: IncomingMessage,
 	res: ServerResponse,
 	next?: (err?: unknown) => void,
-	locals?: object
+	locals?: object,
 ];
 
 export type ErrorHandlerParams = [unknown, ...RequestHandlerParams];

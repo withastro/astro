@@ -1,9 +1,7 @@
 import fs from 'node:fs';
 
-export function get() {
-	return {
-		body: 'ok'
-	};
+export function GET() {
+	return new Response('ok')
 }
 
 export async function post({ request }) {

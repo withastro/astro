@@ -118,13 +118,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-dev/',
 			output: 'server',
-			adapter: testAdapter({
-				setEntryPoints(entryPointsOrMiddleware) {
-					if (entryPointsOrMiddleware instanceof URL) {
-						middlewarePath = entryPointsOrMiddleware;
-					}
-				},
-			}),
+			adapter: testAdapter({}),
 		});
 		await fixture.build();
 	});
@@ -217,7 +211,30 @@ describe('Middleware API in PROD mode, SSR', () => {
 		expect(text.includes('REDACTED')).to.be.true;
 	});
 
+	it('should correctly call the middleware function for 404', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/funky-url');
+		const routeData = app.match(request, { matchNotFound: true });
+		const response = await app.render(request, routeData);
+		const text = await response.text();
+		expect(text.includes('Error')).to.be.true;
+		expect(text.includes('bar')).to.be.true;
+	});
+
 	it('the integration should receive the path to the middleware', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/middleware-dev/',
+			output: 'server',
+			build: {
+				excludeMiddleware: true,
+			},
+			adapter: testAdapter({
+				setMiddlewareEntryPoint(entryPointsOrMiddleware) {
+					middlewarePath = entryPointsOrMiddleware;
+				},
+			}),
+		});
+		await fixture.build();
 		expect(middlewarePath).to.not.be.undefined;
 		try {
 			const path = fileURLToPath(middlewarePath);

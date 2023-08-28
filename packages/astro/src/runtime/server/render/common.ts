@@ -1,5 +1,5 @@
 import type { SSRResult } from '../../../@types/astro';
-import type { RenderInstruction } from './types.js';
+import type { RenderInstruction } from './instruction.js';
 
 import { HTMLBytes, HTMLString, markHTMLString } from '../escape.js';
 import {
@@ -9,6 +9,7 @@ import {
 	type PrescriptType,
 } from '../scripts.js';
 import { renderAllHeadContent } from './head.js';
+import { isRenderInstruction } from './instruction.js';
 import { isSlotString, type SlotString } from './slot.js';
 
 /**
@@ -36,8 +37,10 @@ export interface RenderDestination {
 }
 
 export interface RenderInstance {
-	render(destination: RenderDestination): Promise<void> | void;
+	render: RenderFunction;
 }
+
+export type RenderFunction = (destination: RenderDestination) => Promise<void> | void;
 
 export const Fragment = Symbol.for('astro:fragment');
 export const Renderer = Symbol.for('astro:renderer');
@@ -52,8 +55,8 @@ function stringifyChunk(
 	result: SSRResult,
 	chunk: string | HTMLString | SlotString | RenderInstruction
 ): string {
-	if (typeof (chunk as any).type === 'string') {
-		const instruction = chunk as RenderInstruction;
+	if (isRenderInstruction(chunk)) {
+		const instruction = chunk;
 		switch (instruction.type) {
 			case 'directive': {
 				const { hydration } = instruction;
@@ -86,27 +89,24 @@ function stringifyChunk(
 				return renderAllHeadContent(result);
 			}
 			default: {
-				if (chunk instanceof Response) {
-					return '';
-				}
 				throw new Error(`Unknown chunk type: ${(chunk as any).type}`);
 			}
 		}
-	} else {
-		if (isSlotString(chunk as string)) {
-			let out = '';
-			const c = chunk as SlotString;
-			if (c.instructions) {
-				for (const instr of c.instructions) {
-					out += stringifyChunk(result, instr);
-				}
+	} else if (chunk instanceof Response) {
+		return '';
+	} else if (isSlotString(chunk as string)) {
+		let out = '';
+		const c = chunk as SlotString;
+		if (c.instructions) {
+			for (const instr of c.instructions) {
+				out += stringifyChunk(result, instr);
 			}
-			out += chunk.toString();
-			return out;
 		}
-
-		return chunk.toString();
+		out += chunk.toString();
+		return out;
 	}
+
+	return chunk.toString();
 }
 
 export function chunkToString(result: SSRResult, chunk: Exclude<RenderDestinationChunk, Response>) {

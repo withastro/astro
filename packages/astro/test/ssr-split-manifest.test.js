@@ -26,6 +26,8 @@ describe('astro:ssr-manifest, split', () => {
 					currentRoutes = routes;
 				},
 			}),
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 		await fixture.build();
 	});
@@ -43,7 +45,7 @@ describe('astro:ssr-manifest, split', () => {
 
 	it('should give access to entry points that exists on file system', async () => {
 		// number of the pages inside src/
-		expect(entryPoints.size).to.equal(5);
+		expect(entryPoints.size).to.equal(6);
 		for (const fileUrl of entryPoints.values()) {
 			let filePath = fileURLToPath(fileUrl);
 			expect(existsSync(filePath)).to.be.true;

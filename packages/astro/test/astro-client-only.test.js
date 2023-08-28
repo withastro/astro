@@ -9,6 +9,8 @@ describe('Client only components', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-client-only/',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 		await fixture.build();
 	});
@@ -72,6 +74,8 @@ describe('Client only components subpath', () => {
 			site: 'https://site.com',
 			base: '/blog',
 			root: './fixtures/astro-client-only/',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 		await fixture.build();
 	});

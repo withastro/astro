@@ -12,6 +12,8 @@ describe('404 and 500 pages', () => {
 			root: './fixtures/ssr-api-route-custom-404/',
 			output: 'server',
 			adapter: testAdapter(),
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 	});
 

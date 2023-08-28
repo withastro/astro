@@ -1,12 +1,12 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["src", "index.d.ts"],
+  "include": ["src"],
   "compilerOptions": {
     "allowJs": true,
     "declarationDir": "./dist",
     "module": "ES2022",
     "outDir": "./dist",
-    "target": "ES2021",
+    "target": "ES2022",
     "jsx": "preserve",
     "types": ["@types/dom-view-transitions", "network-information-types"]
   }

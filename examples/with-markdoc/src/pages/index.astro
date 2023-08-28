@@ -1,8 +1,8 @@
 ---
-import { getEntryBySlug } from 'astro:content';
+import { getEntry } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 
-const intro = await getEntryBySlug('docs', 'intro');
+const intro = await getEntry('docs', 'intro');
 const { Content } = await intro.render();
 ---
 

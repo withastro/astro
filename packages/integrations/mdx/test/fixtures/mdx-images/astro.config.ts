@@ -3,9 +3,6 @@ import { testImageService } from '../../../../../astro/test/test-image-service.j
 
 export default {
 	integrations: [mdx()],
-	experimental: {
-		assets: true,
-	},
 	image: {
 		service: testImageService(),
 	},

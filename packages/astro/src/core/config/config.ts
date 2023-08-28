@@ -20,73 +20,12 @@ import { mergeConfig } from './merge.js';
 import { createRelativeSchema } from './schema.js';
 import { loadConfigWithVite } from './vite-load.js';
 
-const LEGACY_ASTRO_CONFIG_KEYS = new Set([
-	'projectRoot',
-	'src',
-	'pages',
-	'public',
-	'dist',
-	'styleOptions',
-	'markdownOptions',
-	'buildOptions',
-	'devOptions',
-]);
-
 /** Turn raw config values into normalized values */
 export async function validateConfig(
 	userConfig: any,
 	root: string,
 	cmd: string
 ): Promise<AstroConfig> {
-	// Manual deprecation checks
-	/* eslint-disable no-console */
-	if (userConfig.hasOwnProperty('renderers')) {
-		console.error('Astro "renderers" are now "integrations"!');
-		console.error('Update your configuration and install new dependencies:');
-		try {
-			const rendererKeywords = userConfig.renderers.map((r: string) =>
-				r.replace('@astrojs/renderer-', '')
-			);
-			const rendererImports = rendererKeywords
-				.map((r: string) => `  import ${r} from '@astrojs/${r === 'solid' ? 'solid-js' : r}';`)
-				.join('\n');
-			const rendererIntegrations = rendererKeywords.map((r: string) => `    ${r}(),`).join('\n');
-			console.error('');
-			console.error(colors.dim('  // astro.config.js'));
-			if (rendererImports.length > 0) {
-				console.error(colors.green(rendererImports));
-			}
-			console.error('');
-			console.error(colors.dim('  // ...'));
-			if (rendererIntegrations.length > 0) {
-				console.error(colors.green('  integrations: ['));
-				console.error(colors.green(rendererIntegrations));
-				console.error(colors.green('  ],'));
-			} else {
-				console.error(colors.green('  integrations: [],'));
-			}
-			console.error('');
-		} catch (err) {
-			// We tried, better to just exit.
-		}
-		process.exit(1);
-	}
-
-	let legacyConfigKey: string | undefined;
-	for (const key of Object.keys(userConfig)) {
-		if (LEGACY_ASTRO_CONFIG_KEYS.has(key)) {
-			legacyConfigKey = key;
-			break;
-		}
-	}
-	if (legacyConfigKey) {
-		throw new AstroError({
-			...AstroErrorData.ConfigLegacyKey,
-			message: AstroErrorData.ConfigLegacyKey.message(legacyConfigKey),
-		});
-	}
-	/* eslint-enable no-console */
-
 	const AstroConfigRelativeSchema = createRelativeSchema(cmd, root);
 
 	// First-Pass Validation
@@ -124,8 +63,6 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
-		experimentalAssets:
-			typeof flags.experimentalAssets === 'boolean' ? flags.experimentalAssets : undefined,
 	};
 }
 

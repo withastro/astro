@@ -13,7 +13,7 @@ async function fetchPosts() {
     return posts.sort((a, b) => a.title.localeCompare(b.title));
 }
 
-export async function get() {
+export async function GET() {
     const posts = await fetchPosts();
 
     return {

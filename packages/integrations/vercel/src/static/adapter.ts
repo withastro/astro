@@ -69,7 +69,6 @@ export default function vercelStatic({
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				throwIfAssetsNotEnabled(config, imageService);
 				setAdapter(getAdapter());
 				_config = config;
 

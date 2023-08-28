@@ -1,9 +1,0 @@
-{
-  "name": "@test/astro-markdown-component-astro-markdown-shiki-normal",
-  "version": "0.0.0",
-  "private": true,
-  "dependencies": {
-    "astro": "workspace:*",
-    "@astrojs/markdown-component": "workspace:*"
-  }
-}

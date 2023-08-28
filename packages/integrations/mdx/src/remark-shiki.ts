@@ -10,27 +10,7 @@ import { visit } from 'unist-util-visit';
  */
 const highlighterCacheAsync = new Map<string, Promise<shiki.Highlighter>>();
 
-// Map of old theme names to new names to preserve compatibility when we upgrade shiki
-const compatThemes: Record<string, string> = {
-	'material-darker': 'material-theme-darker',
-	'material-default': 'material-theme',
-	'material-lighter': 'material-theme-lighter',
-	'material-ocean': 'material-theme-ocean',
-	'material-palenight': 'material-theme-palenight',
-};
-
-const normalizeTheme = (theme: string | shiki.IShikiTheme) => {
-	if (typeof theme === 'string') {
-		return compatThemes[theme] || theme;
-	} else if (compatThemes[theme.name]) {
-		return { ...theme, name: compatThemes[theme.name] };
-	} else {
-		return theme;
-	}
-};
-
 const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig) => {
-	theme = normalizeTheme(theme);
 	const cacheID: string = typeof theme === 'string' ? theme : theme.name;
 	let highlighterAsync = highlighterCacheAsync.get(cacheID);
 	if (!highlighterAsync) {

@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/telemetry",
-  "version": "2.1.1",
+  "version": "3.0.0-rc.3",
   "type": "module",
   "types": "./dist/types/index.d.ts",
   "author": "withastro",
@@ -13,7 +13,10 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
   "exports": {
-    ".": "./dist/index.js",
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/index.js"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -31,20 +34,20 @@
     "dlv": "^1.1.3",
     "dset": "^3.1.2",
     "is-docker": "^3.0.0",
-    "is-wsl": "^2.2.0",
-    "undici": "^5.22.1",
+    "is-wsl": "^3.0.0",
+    "undici": "^5.23.0",
     "which-pm-runs": "^1.1.0"
   },
   "devDependencies": {
     "@types/debug": "^4.1.8",
     "@types/dlv": "^1.1.2",
-    "@types/node": "^18.16.18",
+    "@types/node": "^18.17.8",
     "@types/which-pm-runs": "^1.0.0",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
-    "mocha": "^9.2.2"
+    "mocha": "^10.2.0"
   },
   "engines": {
-    "node": ">=16.12.0"
+    "node": ">=18.14.1"
   }
 }

@@ -65,8 +65,6 @@ export function get(context) {
     site: context.site,
     // list of `<item>`s in output xml
     items: [...],
-    // include draft posts in the feed (default: false)
-    drafts: true,
     // (optional) absolute path to XSL stylesheet in your project
     stylesheet: '/rss-styles.xsl',
     // (optional) inject custom xml
@@ -117,6 +115,8 @@ When providing a formatted RSS item list, see the [`RSSFeedItem` type reference]
 ### drafts
 
 Type: `boolean (optional)`
+
+**Deprecated**: Manually filter `items` instead.
 
 Set `drafts: true` to include [draft posts](https://docs.astro.build/en/guides/markdown-content/#draft-pages) in the feed output. By default, this option is `false` and draft posts are not included.
 
@@ -370,7 +370,27 @@ export async function get(context) {
 }
 ```
 
----
+## `getRssString()`
+
+As `rss()` returns a `Response`, you can also use `getRssString()` to get the RSS string directly and use it in your own response:
+
+```ts "getRssString"
+// src/pages/rss.xml.js
+import { getRssString } from '@astrojs/rss';
+
+export async function get(context) {
+  const rssString = await getRssString({
+    title: 'Buzz’s Blog',
+    ...
+  });
+
+  return new Response(rssString, {
+    headers: {
+      'Content-Type': 'application/xml',
+    },
+  });
+}
+```
 
 For more on building with Astro, [visit the Astro docs][astro-rss].
 

@@ -8,6 +8,8 @@ describe('Astro.glob on pages/ directory', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/glob-pages-css/',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 		await fixture.build();
 	});

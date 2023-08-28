@@ -6,6 +6,6 @@
     "@astrojs/cloudflare": "workspace:*",
     "@astrojs/solid-js": "workspace:*",
     "astro": "workspace:*",
-    "solid-js": "^1.7.6"
+    "solid-js": "^1.7.11"
   }
 }

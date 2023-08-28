@@ -34,10 +34,4 @@ export const themes = {
 	'solarized-light': () => import('shiki/themes/solarized-light.json').then(mod => mod.default),
 	'vitesse-dark': () => import('shiki/themes/vitesse-dark.json').then(mod => mod.default),
 	'vitesse-light': () => import('shiki/themes/vitesse-light.json').then(mod => mod.default),
-	// old theme names for compat
-	'material-darker': () => import('shiki/themes/material-theme-darker').then(mod => mod.default),
-	'material-default': () => import('shiki/themes/material-theme').then(mod => mod.default),
-	'material-lighter': () => import('shiki/themes/material-theme-lighter').then(mod => mod.default),
-	'material-ocean': () => import('shiki/themes/material-theme-ocean').then(mod => mod.default),
-	'material-palenight': () => import('shiki/themes/material-theme-palenight').then(mod => mod.default),
 };

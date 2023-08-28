@@ -2,7 +2,7 @@ import type fsMod from 'node:fs';
 import type { Plugin, ViteDevServer } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import { attachContentServerListeners } from '../content/server-listeners.js';
-import type { LogOptions } from '../core/logger/core.js';
+import type { Logger } from '../core/logger/core.js';
 
 /**
  * Listen for Astro content directory changes and generate types.
@@ -14,11 +14,11 @@ import type { LogOptions } from '../core/logger/core.js';
  */
 export function astroContentListenPlugin({
 	settings,
-	logging,
+	logger,
 	fs,
 }: {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 	fs: typeof fsMod;
 }): Plugin {
 	let server: ViteDevServer;
@@ -33,7 +33,7 @@ export function astroContentListenPlugin({
 			await attachContentServerListeners({
 				fs: fs,
 				settings,
-				logging,
+				logger,
 				viteServer: server,
 			});
 		},

@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Tailwind', () => {
+	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -56,14 +57,6 @@ describe('Tailwind', () => {
 
 			expect(button.hasClass('w-10/12'), 'solidus').to.be.true;
 			expect(button.hasClass('2xl:w-[80%]'), 'complex class').to.be.true;
-		});
-
-		it('handles Markdown pages', async () => {
-			const html = await fixture.readFile('/markdown-page/index.html');
-			const $md = cheerio.load(html);
-			const bundledCSSHREF = $md('link[rel=stylesheet][href^=/_astro/]').attr('href');
-			const mdBundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
-			expect(mdBundledCSS, 'includes used component classes').to.match(/\.bg-purple-600{/);
 		});
 
 		it('handles MDX pages (with integration)', async () => {

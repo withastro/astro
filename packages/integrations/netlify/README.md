@@ -34,6 +34,8 @@ yarn astro add netlify
 pnpm astro add netlify
 ```
 
+### Add dependencies manually
+
 If you prefer to install the adapter manually instead, complete the following two steps:
 
 1. Install the Netlify adapter to your project’s dependencies using your preferred package manager. If you’re using npm or aren’t sure, run this in the terminal:
@@ -55,28 +57,11 @@ If you prefer to install the adapter manually instead, complete the following tw
    });
    ```
 
-### Edge Functions
-
-Netlify has two serverless platforms, [Netlify Functions](https://docs.netlify.com/functions/overview/) and [Netlify Edge Functions](https://docs.netlify.com/edge-functions/overview/). With Edge Functions your code is distributed closer to your users, lowering latency.
-
-To deploy with Edge Functions, use `netlify/edge-functions` in the Astro config file instead of `netlify/functions`.
-
-```js ins={3}
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import netlify from '@astrojs/netlify/edge-functions';
-
-export default defineConfig({
-  output: 'server',
-  adapter: netlify(),
-});
-```
-
 ### Run middleware in Edge Functions
 
 When deploying to Netlify Functions, you can choose to use an Edge Function to run your Astro middleware.
 
-To enable this, set the `build.excludeMiddleware` Astro config option to `true`:
+To enable this, set the `edgeMiddleware` config option to `true`:
 
 ```js ins={9}
 // astro.config.mjs
@@ -85,10 +70,9 @@ import netlify from '@astrojs/netlify/functions';
 
 export default defineConfig({
   output: 'server',
-  adapter: netlify(),
-  build: {
-    excludeMiddleware: true,
-  },
+  adapter: netlify({
+    edgeMiddleware: true,
+  }),
 });
 ```
 
@@ -133,10 +117,9 @@ import netlify from '@astrojs/netlify/functions';
 
 export default defineConfig({
   output: 'server',
-  adapter: netlify(),
-  build: {
-    split: true,
-  },
+  adapter: netlify({
+    functionPerRoute: true,
+  }),
 });
 ```
 
@@ -161,6 +144,30 @@ Once you run `astro build` there will be a `dist/_redirects` file. Netlify will 
 
 > **Note**
 > You can still include a `public/_redirects` file for manual redirects. Any redirects you specify in the redirects config are appended to the end of your own.
+
+### On-demand Builders
+
+[Netlify On-demand Builders](https://docs.netlify.com/configure-builds/on-demand-builders/) are serverless functions used to generate web content as needed that’s automatically cached on Netlify’s Edge CDN. You can enable these functions using the [`builders` configuration](#builders).
+
+By default, all pages will be rendered on first visit and the rendered result will be reused for every subsequent visit until you redeploy. To set a revalidation time, call the [`runtime.setBuildersTtl(ttl)` local](https://docs.astro.build/en/guides/middleware/#locals) with the duration (in seconds).
+
+The following example sets a revalidation time of 45, causing Netlify to store the rendered HTML for 45 seconds.
+
+```astro
+---
+import Layout from '../components/Layout.astro';
+
+if (import.meta.env.PROD) {
+  Astro.locals.runtime.setBuildersTtl(45);
+}
+---
+
+<Layout title="Astro on Netlify">
+  {new Date(Date.now())}
+</Layout>
+```
+
+It is important to note that On-demand Builders ignore query params when checking for cached pages. For example, if `example.com/?x=y` is cached, it will be served for `example.com/?a=b` (different query params) and `example.com/` (no query params) as well.
 
 ## Usage
 
@@ -206,7 +213,7 @@ directory = "dist/functions"
 
 ### builders
 
-[Netlify On-demand Builders](https://docs.netlify.com/configure-builds/on-demand-builders/) are serverless functions used to build and cache page content on Netlify’s Edge CDN. You can enable these functions with the `builders` option:
+You can enable On-demand Builders using the `builders` option:
 
 ```js
 // astro.config.mjs
