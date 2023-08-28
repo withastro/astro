@@ -8,11 +8,16 @@ import Video from '../components/Video.astro';
 	<Video />
 	<script is:inline>
 		const vid = document.querySelector('video');
-		
-		vid.addEventListener('canplay', () => {
+		if(vid.readyState > 2) {
 			// Jump to the 1 minute mark
 			vid.currentTime = 60;
 			vid.dataset.ready = '';
-		}, { once: true });
+		} else {
+			vid.addEventListener('canplay', () => {
+				// Jump to the 1 minute mark
+				vid.currentTime = 60;
+				vid.dataset.ready = '';
+			}, { once: true });
+		}
 	</script>
 </Layout>
