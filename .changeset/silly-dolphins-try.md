@@ -2,7 +2,7 @@
 '@astrojs/vercel': major
 ---
 
-Vercel adapter now defaults to a function per route
+Vercel adapter now defaults to `functionPerRoute`.
 
 With this change, `@astrojs/vercel/serverless` now splits each route into its own function. By doing this, the size of each function is reduced and startup time is faster.
 
