@@ -93,6 +93,7 @@ export function createAPIContext({
 type ResponseParameters = ConstructorParameters<typeof Response>;
 
 export let ResponseWithEncoding: ReturnType<typeof initResponseWithEncoding>;
+// TODO Remove this after StackBlitz supports Node 18.
 let initResponseWithEncoding = () => {
 	// eslint-disable-next-line @typescript-eslint/no-shadow
 	class LocalResponseWithEncoding extends Response {
