@@ -2108,6 +2108,7 @@ export interface RouteData {
 	segments: RoutePart[][];
 	type: RouteType;
 	prerender: boolean;
+	customOptions: Record<string, boolean>;
 	redirect?: RedirectConfig;
 	redirectRoute?: RouteData;
 }

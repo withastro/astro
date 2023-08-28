@@ -5,14 +5,12 @@ import * as eslexer from 'es-module-lexer';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 
 const BOOLEAN_EXPORTS = new Set(['prerender']);
+type BuiltInExports = Exclude<keyof PageOptions, 'custom'>;
 
 // Quick scan to determine if code includes recognized export
 // False positives are not a problem, so be forgiving!
 function includesExport(code: string) {
-	for (const name of BOOLEAN_EXPORTS) {
-		if (code.includes(name)) return true;
-	}
-	return false;
+	return code.includes('export const');
 }
 
 // Support quoted values to allow statically known `import.meta.env` variables to be used
@@ -52,21 +50,24 @@ export async function scan(
 	let pageOptions: PageOptions = {};
 	for (const _export of exports) {
 		const { n: name, le: endOfLocalName } = _export;
-		// mark that a `prerender` export was found
-		if (BOOLEAN_EXPORTS.has(name)) {
-			// For a given export, check the value of the local declaration
-			// Basically extract the `const` from the statement `export const prerender = true`
-			const prefix = code
-				.slice(0, endOfLocalName)
-				.split('export')
-				.pop()!
-				.trim()
-				.replace('prerender', '')
-				.trim();
-			// For a given export, check the value of the first non-whitespace token.
-			// Basically extract the `true` from the statement `export const prerender = true`
-			const suffix = code.slice(endOfLocalName).trim().replace(/\=/, '').trim().split(/[;\n]/)[0];
-			if (prefix !== 'const' || !(isTruthy(suffix) || isFalsy(suffix))) {
+		// For a given export, check the value of the local declaration
+		// Basically extract the `const` from the statement `export const prerender = true`
+		const prefix = code
+			.slice(0, endOfLocalName)
+			.split('export')
+			.pop()!
+			.trim()
+			.replace(name, '')
+			.trim();
+		// For a given export, check the value of the first non-whitespace token.
+		// Basically extract the `true` from the statement `export const prerender = true`
+		const suffix = code.slice(endOfLocalName).trim().replace(/\=/, '').trim().split(/[;\n]/)[0];
+
+		const isBuiltIn = BOOLEAN_EXPORTS.has(name);
+
+		if (prefix !== 'const' || !(isTruthy(suffix) || isFalsy(suffix))) {
+			// Only throw an error for built-in exports
+			if (isBuiltIn) {
 				throw new AstroError({
 					...AstroErrorData.InvalidPrerenderExport,
 					message: AstroErrorData.InvalidPrerenderExport.message(
@@ -76,8 +77,13 @@ export async function scan(
 					),
 					location: { file: id },
 				});
+			}
+		} else {
+			if (isBuiltIn) {
+				pageOptions[name as BuiltInExports] = isTruthy(suffix);
 			} else {
-				pageOptions[name as keyof PageOptions] = isTruthy(suffix);
+				pageOptions.custom = pageOptions.custom ?? {};
+				pageOptions.custom[name] = isTruthy(suffix);
 			}
 		}
 	}

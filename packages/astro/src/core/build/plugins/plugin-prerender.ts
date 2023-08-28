@@ -1,6 +1,6 @@
 import path from 'node:path';
 import type { Plugin as VitePlugin } from 'vite';
-import { getPrerenderMetadata } from '../../../prerender/metadata.js';
+import { getPageOptionsMetadata } from '../../../prerender/metadata.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types';
@@ -19,9 +19,12 @@ function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals
 					}
 					const pageInfo = internals.pagesByViteID.get(id);
 					if (pageInfo) {
+						const pageOptions = getPageOptionsMetadata(meta.getModuleInfo(id));
+						pageInfo.route.customOptions = pageOptions?.custom ?? {};
+
 						// prerendered pages should be split into their own chunk
 						// Important: this can't be in the `pages/` directory!
-						if (getPrerenderMetadata(meta.getModuleInfo(id))) {
+						if (pageOptions?.prerender) {
 							pageInfo.route.prerender = true;
 							return 'prerender';
 						}

@@ -28,6 +28,7 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 		pathname: rawRouteData.pathname || undefined,
 		segments: rawRouteData.segments,
 		prerender: rawRouteData.prerender,
+		customOptions: rawRouteData.customOptions,
 		redirect: rawRouteData.redirect,
 		redirectRoute: rawRouteData.redirectRoute
 			? deserializeRouteData(rawRouteData.redirectRoute)

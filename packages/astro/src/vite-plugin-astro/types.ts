@@ -3,6 +3,7 @@ import type { PropagationHint } from '../@types/astro';
 
 export interface PageOptions {
 	prerender?: boolean;
+	custom?: Record<string, boolean>;
 }
 
 export interface PluginMetadata {

@@ -345,6 +345,7 @@ export function createRouteManifest(
 					generate,
 					pathname: pathname || undefined,
 					prerender,
+					customOptions: {},
 				});
 			}
 		});
@@ -421,6 +422,7 @@ export function createRouteManifest(
 				generate,
 				pathname: pathname || void 0,
 				prerender: prerenderInjected ?? prerender,
+				customOptions: {},
 			});
 		});
 
@@ -458,6 +460,7 @@ export function createRouteManifest(
 			generate,
 			pathname: pathname || void 0,
 			prerender: false,
+			customOptions: {},
 			redirect: to,
 			redirectRoute: routes.find((r) => r.route === to),
 		};
