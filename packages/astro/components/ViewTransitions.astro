@@ -163,18 +163,20 @@ const { fallback = 'animate' } = Astro.props as Props;
 			// Everything left in the new head is new, append it all.
 			document.head.append(...doc.head.children);
 
-			// Move over persist stuff in the body
+			// Persist elements in the existing body
 			const oldBody = document.body;
-			document.body.replaceWith(doc.body);
 			for (const el of oldBody.querySelectorAll(`[${PERSIST_ATTR}]`)) {
 				const id = el.getAttribute(PERSIST_ATTR);
-				const newEl = document.querySelector(`[${PERSIST_ATTR}="${id}"]`);
+				const newEl = doc.querySelector(`[${PERSIST_ATTR}="${id}"]`);
 				if (newEl) {
 					// The element exists in the new page, replace it with the element
 					// from the old page so that state is preserved.
 					newEl.replaceWith(el);
 				}
 			}
+			// Only replace the existing body *AFTER* persistent elements are moved over
+			// This avoids disconnecting `astro-island` nodes multiple times
+			document.body.replaceWith(doc.body);
 
 			// Simulate scroll behavior of Safari and
 			// Chromium based browsers (Chrome, Edge, Opera, ...)
@@ -220,15 +222,23 @@ const { fallback = 'animate' } = Astro.props as Props;
 		links.length && (await Promise.all(links));
 
 		if (fallback === 'animate') {
+			let isAnimating = false;
+			addEventListener('animationstart', () => (isAnimating = true), { once: true });
+
 			// Trigger the animations
 			document.documentElement.dataset.astroTransitionFallback = 'old';
-			const finished = Promise.all(document.getAnimations().map(a => a.finished));
 			const fallbackSwap = () => {
+				removeEventListener('animationend', fallbackSwap);
+				clearTimeout(timeout);
 				swap();
 				document.documentElement.dataset.astroTransitionFallback = 'new';
 			};
-			await finished;
-			fallbackSwap();
+			// If there are any animations, want for the animationend event.
+			addEventListener('animationend', fallbackSwap, { once: true });
+			// If there are no animations, go ahead and swap on next tick
+			// This is necessary because we do not know if there are animations.
+			// The setTimeout is a fallback in case there are none.
+			let timeout = setTimeout(() => !isAnimating && fallbackSwap());
 		} else {
 			swap();
 		}
