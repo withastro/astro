@@ -95,7 +95,6 @@ type ResponseParameters = ConstructorParameters<typeof Response>;
 export let ResponseWithEncoding: ReturnType<typeof initResponseWithEncoding>;
 // TODO Remove this after StackBlitz supports Node 18.
 let initResponseWithEncoding = () => {
-	// eslint-disable-next-line @typescript-eslint/no-shadow
 	class LocalResponseWithEncoding extends Response {
 		constructor(body: ResponseParameters[0], init: ResponseParameters[1], encoding?: BufferEncoding) {
 			// If a body string is given, try to encode it to preserve the behaviour as simple objects.
