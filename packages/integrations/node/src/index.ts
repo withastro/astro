@@ -1,6 +1,6 @@
 import type { AstroAdapter, AstroIntegration } from 'astro';
-import type { Options, UserOptions } from './types';
 import { AstroError } from 'astro/errors';
+import type { Options, UserOptions } from './types';
 export function getAdapter(options: Options): AstroAdapter {
 	return {
 		name: '@astrojs/node',
