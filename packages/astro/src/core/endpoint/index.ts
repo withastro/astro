@@ -96,7 +96,11 @@ export let ResponseWithEncoding: ReturnType<typeof initResponseWithEncoding>;
 // TODO Remove this after StackBlitz supports Node 18.
 let initResponseWithEncoding = () => {
 	class LocalResponseWithEncoding extends Response {
-		constructor(body: ResponseParameters[0], init: ResponseParameters[1], encoding?: BufferEncoding) {
+		constructor(
+			body: ResponseParameters[0],
+			init: ResponseParameters[1],
+			encoding?: BufferEncoding
+		) {
 			// If a body string is given, try to encode it to preserve the behaviour as simple objects.
 			// We don't do the full handling as simple objects so users can control how headers are set instead.
 			if (typeof body === 'string') {
@@ -109,9 +113,9 @@ let initResponseWithEncoding = () => {
 					body = encoder.encode(body);
 				}
 			}
-	
+
 			super(body, init);
-	
+
 			if (encoding) {
 				this.headers.set('X-Astro-Encoding', encoding);
 			}
@@ -125,7 +129,7 @@ let initResponseWithEncoding = () => {
 	initResponseWithEncoding = (() => {}) as any;
 
 	return LocalResponseWithEncoding;
-}
+};
 
 export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>(
 	mod: EndpointHandler,
