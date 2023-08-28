@@ -1,5 +1,17 @@
 # astro
 
+## 3.0.0-rc.8
+
+### Patch Changes
+
+- [#8251](https://github.com/withastro/astro/pull/8251) [`46c4c0e05`](https://github.com/withastro/astro/commit/46c4c0e053f830585b9ef229ce1c259df00a80f8) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a link to the error reference in the CLI when an error occurs
+
+- [#8253](https://github.com/withastro/astro/pull/8253) [`1048aca55`](https://github.com/withastro/astro/commit/1048aca550769415e528016e42b358ffbfd44b61) Thanks [@matthewp](https://github.com/matthewp)! - Fix, lazily initialize ResponseWithEncoding
+
+- [#8229](https://github.com/withastro/astro/pull/8229) [`ffc9e2d3d`](https://github.com/withastro/astro/commit/ffc9e2d3de46049bf3d82140ef018f524fb03187) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Paginate will now return exact types instead of a naive Record
+
+- [#8237](https://github.com/withastro/astro/pull/8237) [`3674584e0`](https://github.com/withastro/astro/commit/3674584e02b161a698b429ceb66723918fdc56ac) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix `astro check` not finding the `@astrojs/check` package
+
 ## 3.0.0-rc.7
 
 ### Patch Changes
