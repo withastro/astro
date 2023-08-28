@@ -9,7 +9,7 @@ import type {
 import type { SinglePageBuiltModule } from '../build/types';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
-import { Logger } from '../logger/core.js';
+import { AstroIntegrationLogger, Logger } from '../logger/core.js';
 import {
 	collapseDuplicateSlashes,
 	prependForwardSlash,
@@ -27,7 +27,6 @@ import { matchRoute } from '../routing/match.js';
 import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
 import type { RouteInfo } from './types';
 export { deserializeManifest } from './common.js';
-import { AstroIntegrationLogger } from '../logger/core.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
