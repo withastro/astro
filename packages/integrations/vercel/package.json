@@ -17,8 +17,8 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/vercel/",
   "exports": {
-    "./edge": "./dist/edge/adapter.js",
-    "./edge/entrypoint": "./dist/edge/entrypoint.js",
+    "./edge": "./dist/edge/throw.js",
+    "./edge/entrypoint": "./dist/edge/throw.js",
     "./serverless": "./dist/serverless/adapter.js",
     "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
     "./static": "./dist/static/adapter.js",
