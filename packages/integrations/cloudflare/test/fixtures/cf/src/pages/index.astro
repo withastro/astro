@@ -1,6 +1,5 @@
 ---
-import { getRuntime } from '@astrojs/cloudflare/runtime';
-const runtime = getRuntime(Astro.request);
+const runtime = Astro.locals.runtime;
 ---
 <html>
 	<head>

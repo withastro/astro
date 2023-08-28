@@ -61,10 +61,10 @@ export default function startServer(app: NodeApp, options: Options) {
 
 	if (host === undefined) {
 		logger.info(
-			`Preview server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}\n`
+			`Server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}\n`
 		);
 	} else {
-		logger.info(`Preview server listening on ${address.local[0]}`);
+		logger.info(`Server listening on ${address.local[0]}`);
 	}
 
 	return {
