@@ -52,7 +52,7 @@ export function renderTransition(
 			}
 		}
 	} else if (animationName === 'none') {
-		sheet.addAnimationRaw('old', 'animation: none; opacity: 0; mix-blend-mode: normal;');
+		sheet.addAnimationRaw('old', 'animation: none; mix-blend-mode: normal;');
 		sheet.addAnimationRaw('new', 'animation: none; mix-blend-mode: normal;');
 	}
 
@@ -92,7 +92,9 @@ class ViewTransitionStyleSheet {
 		this.addRule('modern', `::view-transition-${image}(${name}) { ${animation} }`);
 		this.addRule(
 			'fallback',
-			`[data-astro-transition-fallback="${image}"] [data-astro-transition-scope="${scope}"] { ${animation} }`
+			// Two selectors here, the second in case there is an animation on the root.
+			`[data-astro-transition-fallback="${image}"] [data-astro-transition-scope="${scope}"],
+			[data-astro-transition-fallback="${image}"][data-astro-transition-scope="${scope}"] { ${animation} }`
 		);
 	}
 
@@ -107,7 +109,8 @@ class ViewTransitionStyleSheet {
 		this.addRule('modern', `${prefix}::view-transition-${image}(${name}) { ${animation} }`);
 		this.addRule(
 			'fallback',
-			`${prefix}[data-astro-transition-fallback="${image}"] [data-astro-transition-scope="${scope}"] { ${animation} }`
+			`${prefix}[data-astro-transition-fallback="${image}"] [data-astro-transition-scope="${scope}"],
+			${prefix}[data-astro-transition-fallback="${image}"][data-astro-transition-scope="${scope}"] { ${animation} }`
 		);
 	}
 }
