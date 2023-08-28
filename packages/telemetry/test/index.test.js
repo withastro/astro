@@ -15,18 +15,18 @@ function setup() {
 	telemetry.debug.enabled = true;
 	telemetry.debug.log = (...args) => logs.push(args);
 
-	return { telemetry, config, logs }
+	return { telemetry, config, logs };
 }
-describe('AstroTelemetry', () => {	
+describe('AstroTelemetry', () => {
 	let oldCI;
 	before(() => {
 		oldCI = process.env.CI;
 		// Stub process.env.CI to `false`
 		process.env.CI = 'false';
-	})
+	});
 	after(() => {
 		process.env.CI = oldCI;
-	})
+	});
 	it('initializes when expected arguments are given', () => {
 		const { telemetry } = setup();
 		expect(telemetry).to.be.instanceOf(AstroTelemetry);

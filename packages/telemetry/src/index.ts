@@ -115,13 +115,13 @@ export class AstroTelemetry {
 		// The end-user has already been notified about our telemetry integration!
 		// Don't bother them about it again.
 		if (this.isValidNotice()) {
-			this.debug(`[notify] last notified on ${this.notifyDate}`)
+			this.debug(`[notify] last notified on ${this.notifyDate}`);
 			return;
 		}
 		const enabled = await callback();
 		this.config.set(KEY.TELEMETRY_NOTIFY_DATE, new Date().valueOf().toString());
 		this.config.set(KEY.TELEMETRY_ENABLED, enabled);
-		this.debug(`[notify] telemetry has been ${enabled ? 'enabled' : 'disabled'}`)
+		this.debug(`[notify] telemetry has been ${enabled ? 'enabled' : 'disabled'}`);
 	}
 
 	async record(event: TelemetryEvent | TelemetryEvent[] = []) {

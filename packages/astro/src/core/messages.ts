@@ -107,28 +107,28 @@ export function serverStart({
 
 export function telemetryNotice() {
 	const headline = `${cyan('◆')} Astro collects completely anonymous usage data.`;
-	const why = dim('  This optional program helps shape our roadmap.')
+	const why = dim('  This optional program helps shape our roadmap.');
 	const disable = dim('  Run `npm run astro telemetry disable` to opt-out.');
 	const details = `  Details: ${underline('https://astro.build/telemetry')}`;
-	return [headline, why, disable, details].map(v => '  ' + v).join('\n');
+	return [headline, why, disable, details].map((v) => '  ' + v).join('\n');
 }
 
 export function telemetryEnabled() {
-	return `${green('◉')} Anonymous telemetry is now ${bgGreen(
-		black(' enabled ')
-	)}\n  ${dim('Thank you for improving Astro!')}\n`;
+	return `${green('◉')} Anonymous telemetry is now ${bgGreen(black(' enabled '))}\n  ${dim(
+		'Thank you for improving Astro!'
+	)}\n`;
 }
 
 export function telemetryDisabled() {
-	return `${yellow('◯')} Anonymous telemetry is now ${bgYellow(
-		black(' disabled ')
-	)}\n  ${dim('We won\'t ever record your usage data.')}\n`;
+	return `${yellow('◯')} Anonymous telemetry is now ${bgYellow(black(' disabled '))}\n  ${dim(
+		"We won't ever record your usage data."
+	)}\n`;
 }
 
 export function telemetryReset() {
-	return `${cyan('◆')} Anonymous telemetry has been ${bgCyan(
-		black(' reset ')
-	)}\n  ${dim('You may be prompted again.')}\n`;
+	return `${cyan('◆')} Anonymous telemetry has been ${bgCyan(black(' reset '))}\n  ${dim(
+		'You may be prompted again.'
+	)}\n`;
 }
 
 export function fsStrictWarning() {
