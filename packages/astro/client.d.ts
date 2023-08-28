@@ -57,7 +57,7 @@ declare module 'astro:assets' {
 	};
 
 	type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
-	type Simplify<T> = { [KeyType in keyof T]: T[KeyType] };
+	type Simplify<T> = { [KeyType in keyof T]: T[KeyType] } & {};
 	type ImgAttributes = WithRequired<
 		Omit<import('./types').HTMLAttributes<'img'>, 'src' | 'width' | 'height'>,
 		'alt'

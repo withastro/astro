@@ -163,7 +163,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 					opts.settings.adapter?.adapterFeatures?.functionPerRoute
 				) {
 					// forcing to use undefined, so we fail in an expected way if the module is not even there.
-					const ssrEntry = ssrEntryPage?.manifest?.pageModule;
+					const ssrEntry = ssrEntryPage?.pageModule;
 					if (ssrEntry) {
 						await generatePage(pageData, ssrEntry, builtPaths, pipeline);
 					} else {

@@ -1,15 +1,10 @@
 // Normal Imports
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
+import type { Options } from './types';
 
 // @ts-expect-error
 import { fromFileUrl, serveFile, Server } from '@astrojs/deno/__deno_imports.js';
-
-interface Options {
-	port?: number;
-	hostname?: string;
-	start?: boolean;
-}
 
 let _server: Server | undefined = undefined;
 let _startPromise: Promise<void> | undefined = undefined;

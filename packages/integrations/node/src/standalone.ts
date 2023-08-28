@@ -37,6 +37,7 @@ export function getResolvedHostForHttpServer(host: string | boolean) {
 }
 
 export default function startServer(app: NodeApp, options: Options) {
+	const logger = app.getAdapterLogger();
 	const port = process.env.PORT ? Number(process.env.PORT) : options.port ?? 8080;
 	const { client } = resolvePaths(options);
 	const handler = middleware(app, options.mode);
@@ -59,13 +60,11 @@ export default function startServer(app: NodeApp, options: Options) {
 	const address = getNetworkAddress(protocol, host, port);
 
 	if (host === undefined) {
-		// eslint-disable-next-line no-console
-		console.log(
-			`Preview server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}\n`
+		logger.info(
+			`Server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}\n`
 		);
 	} else {
-		// eslint-disable-next-line no-console
-		console.log(`Preview server listening on ${address.local[0]}`);
+		logger.info(`Server listening on ${address.local[0]}`);
 	}
 
 	return {

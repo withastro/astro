@@ -22,7 +22,7 @@ export async function getPackage<T>(
 
 	let packageImport;
 	try {
-		require.resolve(packageName);
+		require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
 
 		// The `require.resolve` is required as to avoid Node caching the failed `import`
 		packageImport = await import(packageName);

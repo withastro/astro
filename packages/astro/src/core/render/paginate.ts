@@ -1,18 +1,20 @@
 import type {
-	GetStaticPathsResult,
 	Page,
 	PaginateFunction,
+	PaginateOptions,
 	Params,
 	Props,
 	RouteData,
 } from '../../@types/astro';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
-export function generatePaginateFunction(routeMatch: RouteData): PaginateFunction {
+export function generatePaginateFunction(
+	routeMatch: RouteData
+): (...args: Parameters<PaginateFunction>) => ReturnType<PaginateFunction> {
 	return function paginateUtility(
 		data: any[],
-		args: { pageSize?: number; params?: Params; props?: Props } = {}
-	) {
+		args: PaginateOptions<Props, Params> = {}
+	): ReturnType<PaginateFunction> {
 		let { pageSize: _pageSize, params: _params, props: _props } = args;
 		const pageSize = _pageSize || 10;
 		const paramName = 'page';
@@ -31,7 +33,7 @@ export function generatePaginateFunction(routeMatch: RouteData): PaginateFunctio
 		}
 		const lastPage = Math.max(1, Math.ceil(data.length / pageSize));
 
-		const result: GetStaticPathsResult = [...Array(lastPage).keys()].map((num) => {
+		const result = [...Array(lastPage).keys()].map((num) => {
 			const pageNum = num + 1;
 			const start = pageSize === Infinity ? 0 : (pageNum - 1) * pageSize; // currentPage is 1-indexed
 			const end = Math.min(start + pageSize, data.length);

@@ -3,6 +3,7 @@ import type {
 	GetStaticPathsItem,
 	GetStaticPathsResult,
 	GetStaticPathsResultKeyed,
+	PaginateFunction,
 	Params,
 	RouteData,
 	RuntimeMode,
@@ -50,7 +51,9 @@ export async function callGetStaticPaths({
 	// Calculate your static paths.
 	let staticPaths: GetStaticPathsResult = [];
 	staticPaths = await mod.getStaticPaths({
-		paginate: generatePaginateFunction(route),
+		// Q: Why the cast?
+		// A: So users downstream can have nicer typings, we have to make some sacrifice in our internal typings, which necessitate a cast here
+		paginate: generatePaginateFunction(route) as PaginateFunction,
 		rss() {
 			throw new AstroError(AstroErrorData.GetStaticPathsRemovedRSSHelper);
 		},

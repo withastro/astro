@@ -1,5 +1,20 @@
 # @astrojs/vercel
 
+## 4.0.0-rc.5
+
+### Major Changes
+
+- [#8239](https://github.com/withastro/astro/pull/8239) [`52f0837bd`](https://github.com/withastro/astro/commit/52f0837bdeca0b54e07cbf76a7570bd042b98922) Thanks [@matthewp](https://github.com/matthewp)! - Vercel adapter now defaults to `functionPerRoute`.
+
+  With this change, `@astrojs/vercel/serverless` now splits each route into its own function. By doing this, the size of each function is reduced and startup time is faster.
+
+  You can disable this option, which will cause the code to be bundled into a single function, by setting `functionPerRoute` to `false`.
+
+### Patch Changes
+
+- Updated dependencies [[`46c4c0e05`](https://github.com/withastro/astro/commit/46c4c0e053f830585b9ef229ce1c259df00a80f8), [`1048aca55`](https://github.com/withastro/astro/commit/1048aca550769415e528016e42b358ffbfd44b61), [`ffc9e2d3d`](https://github.com/withastro/astro/commit/ffc9e2d3de46049bf3d82140ef018f524fb03187), [`3674584e0`](https://github.com/withastro/astro/commit/3674584e02b161a698b429ceb66723918fdc56ac)]:
+  - astro@3.0.0-rc.8
+
 ## 4.0.0-rc.4
 
 ### Major Changes

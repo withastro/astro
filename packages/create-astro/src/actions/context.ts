@@ -13,6 +13,7 @@ export interface Context {
 	username: string;
 	version: string;
 	skipHouston: boolean;
+	fancy?: boolean;
 	dryRun?: boolean;
 	yes?: boolean;
 	projectName?: string;
@@ -90,6 +91,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		username,
 		version,
 		skipHouston,
+		fancy,
 		dryRun,
 		projectName,
 		template,
