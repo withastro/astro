@@ -109,8 +109,8 @@ export function telemetryNotice() {
 	const headline = `${cyan('◆')} Astro collects completely anonymous usage data.`;
 	const why = dim('  This optional program helps shape our roadmap.')
 	const disable = dim('  Run `npm run astro telemetry disable` to opt-out.');
-	const more = `  Questions? See ${underline('https://astro.build/telemetry')}`;
-	return [headline, why, disable, more, ''].map(v => '  ' + v).join('\n');
+	const details = `  Details: ${underline('https://astro.build/telemetry')}`;
+	return [headline, why, disable, details].map(v => '  ' + v).join('\n');
 }
 
 export function telemetryEnabled() {
