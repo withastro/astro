@@ -300,6 +300,9 @@ test.describe('View Transitions', () => {
 	test('<video> can persist using transition:persist', async ({ page, astro }) => {
 		page.on("console", (message) => {
 			console.log(message.type(), message.text())
+		});
+		page.on('pageerror', err => {
+			console.log("PAGE ERROR", err)
 		})
 
 		const getTime = () => document.querySelector('video').currentTime;
