@@ -27,6 +27,7 @@ describe('Public', () => {
 		expect(page.customOptions).to.deep.equal({
 			customTrue: true,
 			customFalse: false,
+			whitespace: true,
 			// customString: 'string',
 			// customString2: 'string2',
 			// customNumber: 123,
