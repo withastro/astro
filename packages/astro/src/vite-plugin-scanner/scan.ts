@@ -54,7 +54,7 @@ export async function scan(
 		// For a given export, check the value of the local declaration
 		// Basically extract the `const` from the statement `export const prerender = true`
 		const indexOfExport = code.lastIndexOf('export', startOfLocalName);
-		const prefix = code.slice(indexOfExport + 6, startOfLocalName).trim();
+		const prefix = code.slice(indexOfExport + /* "export".length */ 6, startOfLocalName).trim();
 
 		// `export const name = "value";
 		//                      ^      ^
