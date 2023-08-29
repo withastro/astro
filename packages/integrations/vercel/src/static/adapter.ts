@@ -20,6 +20,10 @@ function getAdapter(): AstroAdapter {
 }
 
 export interface VercelStaticConfig {
+	/**
+	 * @deprecated
+	 */
+	analytics?: boolean;
 	webAnalytics?: VercelWebAnalyticsConfig;
 	speedInsights?: VercelSpeedInsightsConfig;
 	imageService?: boolean;
@@ -27,6 +31,7 @@ export interface VercelStaticConfig {
 }
 
 export default function vercelStatic({
+	analytics,
 	webAnalytics,
 	speedInsights,
 	imageService,
@@ -38,12 +43,18 @@ export default function vercelStatic({
 		name: '@astrojs/vercel',
 		hooks: {
 			'astro:config:setup': async ({ command, config, injectScript, updateConfig, logger }) => {
-				if (webAnalytics?.enabled) {
+				if (webAnalytics?.enabled || analytics) {
+					if (analytics) {
+						logger.warn(
+							`@astrojs/vercel: the \`analytics\` property is deprecated. Please use the new \`webAnalytics\` and \`speedInsights\` properties instead.`
+						);
+					}
+
 					injectScript(
 						'page',
 						await getInjectableWebAnalyticsContent({
 							config: {
-								...webAnalytics.config,
+								...(webAnalytics?.config || {}),
 								mode: command === 'dev' ? 'development' : 'production',
 							},
 							astro: {
@@ -53,7 +64,7 @@ export default function vercelStatic({
 						})
 					);
 				}
-				if (command === 'build' && speedInsights?.enabled) {
+				if (command === 'build' && (speedInsights?.enabled || analytics)) {
 					injectScript('page', 'import "@astrojs/vercel/speed-insights"');
 				}
 				const outDir = new URL('./static/', getVercelOutput(config.root));

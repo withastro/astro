@@ -39,11 +39,14 @@ const sendToSpeedInsights = (metric: Metric, options: Options) => {
 
 function collectWebVitals() {
 	const analyticsId = (import.meta as any).env.PUBLIC_VERCEL_ANALYTICS_ID;
+
 	if (!analyticsId) {
 		console.error('[Speed Insights] VERCEL_ANALYTICS_ID not found');
 		return;
 	}
+
 	const options: Options = { path: window.location.pathname, analyticsId };
+
 	try {
 		onFID((metric) => sendToSpeedInsights(metric, options));
 		onTTFB((metric) => sendToSpeedInsights(metric, options));
