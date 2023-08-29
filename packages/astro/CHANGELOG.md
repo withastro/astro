@@ -1,5 +1,11 @@
 # astro
 
+## 3.0.0-rc.11
+
+### Patch Changes
+
+- [#8271](https://github.com/withastro/astro/pull/8271) [`16f09dfff`](https://github.com/withastro/astro/commit/16f09dfff7722fda99dd0412e3006a7a39c80829) Thanks [@matthewp](https://github.com/matthewp)! - Fix video persistence regression
+
 ## 3.0.0-rc.10
 
 ### Patch Changes

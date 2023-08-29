@@ -60,7 +60,7 @@
     "web-vitals": "^3.4.0"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.0.0-rc.10"
+    "astro": "workspace:^3.0.0-rc.11"
   },
   "devDependencies": {
     "@types/set-cookie-parser": "^2.4.3",
