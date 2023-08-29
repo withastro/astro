@@ -147,8 +147,9 @@ export interface CLIFlags {
 export interface AstroGlobal<
 	Props extends Record<string, any> = Record<string, any>,
 	Self = AstroComponentFactory,
+	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
 > extends AstroGlobalPartial,
-		AstroSharedContext<Props> {
+		AstroSharedContext<Props, Params> {
 	/**
 	 * A full URL object of the request URL.
 	 * Equivalent to: `new URL(Astro.request.url)`
@@ -174,7 +175,7 @@ export interface AstroGlobal<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroparams)
 	 */
-	params: AstroSharedContext['params'];
+	params: AstroSharedContext<Props, Params>['params'];
 	/** List of props passed to this component
 	 *
 	 * A common way to get specific props is through [destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment), ex:
@@ -184,7 +185,7 @@ export interface AstroGlobal<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/core-concepts/astro-components/#component-props)
 	 */
-	props: AstroSharedContext<Props>['props'];
+	props: AstroSharedContext<Props, Params>['props'];
 	/** Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
 	 *
 	 * For example, to get a URL object of the current URL, you can use:
@@ -1807,7 +1808,10 @@ type Body = string;
 export type ValidRedirectStatus = 300 | 301 | 302 | 303 | 304 | 307 | 308;
 
 // Shared types between `Astro` global and API context object
-interface AstroSharedContext<Props extends Record<string, any> = Record<string, any>> {
+interface AstroSharedContext<
+	Props extends Record<string, any> = Record<string, any>,
+	RouteParams extends Record<string, string | undefined> = Record<string, string | undefined>,
+> {
 	/**
 	 * The address (usually IP address) of the user. Used with SSR only.
 	 */
@@ -1827,7 +1831,7 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	/**
 	 * Route parameters for this request if this is a dynamic route.
 	 */
-	params: Params;
+	params: RouteParams;
 	/**
 	 * List of props returned for this path by `getStaticPaths` (**Static Only**).
 	 */
@@ -1843,8 +1847,10 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	locals: App.Locals;
 }
 
-export interface APIContext<Props extends Record<string, any> = Record<string, any>>
-	extends AstroSharedContext<Props> {
+export interface APIContext<
+	Props extends Record<string, any> = Record<string, any>,
+	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>,
+> extends AstroSharedContext<Props, Params> {
 	site: URL | undefined;
 	generator: string;
 	/**
@@ -1876,7 +1882,7 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 *
 	 * [context reference](https://docs.astro.build/en/reference/api-reference/#contextparams)
 	 */
-	params: AstroSharedContext['params'];
+	params: AstroSharedContext<Props, APIParams>['params'];
 	/**
 	 * List of props passed from `getStaticPaths`. Only available to static builds.
 	 *
@@ -1899,7 +1905,7 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 *
 	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextprops)
 	 */
-	props: AstroSharedContext<Props>['props'];
+	props: AstroSharedContext<Props, APIParams>['props'];
 	/**
 	 * Redirect to another page. Only available in SSR builds.
 	 *
