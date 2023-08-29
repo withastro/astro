@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "4.0.0-rc.4",
+  "version": "4.0.0-rc.5",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -17,8 +17,8 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/vercel/",
   "exports": {
-    "./edge": "./dist/edge/adapter.js",
-    "./edge/entrypoint": "./dist/edge/entrypoint.js",
+    "./edge": "./dist/edge/throw.js",
+    "./edge/entrypoint": "./dist/edge/throw.js",
     "./serverless": "./dist/serverless/adapter.js",
     "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
     "./static": "./dist/static/adapter.js",
@@ -60,7 +60,7 @@
     "web-vitals": "^3.4.0"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.0.0-rc.7"
+    "astro": "workspace:^3.0.0-rc.8"
   },
   "devDependencies": {
     "@types/set-cookie-parser": "^2.4.3",

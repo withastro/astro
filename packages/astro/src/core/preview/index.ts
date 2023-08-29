@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroInlineConfig, PreviewModule, PreviewServer } from '../../@types/astro';
+import { AstroIntegrationLogger } from '../../core/logger/core.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
@@ -62,6 +63,7 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 		host: getResolvedHostForHttpServer(settings.config.server.host),
 		port: settings.config.server.port,
 		base: settings.config.base,
+		logger: new AstroIntegrationLogger(logger.options, settings.adapter.name),
 	});
 
 	return server;

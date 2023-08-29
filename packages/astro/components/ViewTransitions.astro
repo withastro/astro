@@ -220,23 +220,15 @@ const { fallback = 'animate' } = Astro.props as Props;
 		links.length && (await Promise.all(links));
 
 		if (fallback === 'animate') {
-			let isAnimating = false;
-			addEventListener('animationstart', () => (isAnimating = true), { once: true });
-
 			// Trigger the animations
 			document.documentElement.dataset.astroTransitionFallback = 'old';
+			const finished = Promise.all(document.getAnimations().map(a => a.finished));
 			const fallbackSwap = () => {
-				removeEventListener('animationend', fallbackSwap);
-				clearTimeout(timeout);
 				swap();
 				document.documentElement.dataset.astroTransitionFallback = 'new';
 			};
-			// If there are any animations, want for the animationend event.
-			addEventListener('animationend', fallbackSwap, { once: true });
-			// If there are no animations, go ahead and swap on next tick
-			// This is necessary because we do not know if there are animations.
-			// The setTimeout is a fallback in case there are none.
-			let timeout = setTimeout(() => !isAnimating && fallbackSwap());
+			await finished;
+			fallbackSwap();
 		} else {
 			swap();
 		}

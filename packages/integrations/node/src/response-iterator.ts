@@ -4,6 +4,7 @@
  *  - https://github.com/apollographql/apollo-client/blob/main/src/utilities/common/responseIterator.ts
  */
 
+import { AstroError } from 'astro/errors';
 import type { ReadableStreamDefaultReadResult } from 'node:stream/web';
 import { Readable as NodeReadableStream } from 'stream';
 
@@ -221,5 +222,7 @@ export function responseIterator<T>(response: Response | Buffer): AsyncIterableI
 
 	if (isNodeReadableStream(body)) return nodeStreamIterator<T>(body);
 
-	throw new Error('Unknown body type for responseIterator. Please pass a streamable response.');
+	throw new AstroError(
+		'Unknown body type for responseIterator. Please pass a streamable response.'
+	);
 }
