@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - "1-legacy"
+      - "2-legacy"
       - next
 
 defaults:
