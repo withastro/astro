@@ -29,6 +29,9 @@ const ASTRO_CONFIG_DEFAULTS = {
 		split: false,
 		excludeMiddleware: false,
 	},
+	image: {
+		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
+	},
 	compressHTML: true,
 	server: {
 		host: false,
@@ -180,14 +183,18 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.redirects),
 	image: z
 		.object({
-			service: z.object({
-				entrypoint: z.union([
-					z.literal('astro/assets/services/sharp'),
-					z.literal('astro/assets/services/squoosh'),
-					z.string(),
-				]),
-				config: z.record(z.any()).default({}),
-			}),
+			service: z
+				.object({
+					entrypoint: z
+						.union([
+							z.literal('astro/assets/services/sharp'),
+							z.literal('astro/assets/services/squoosh'),
+							z.string(),
+						])
+						.default(ASTRO_CONFIG_DEFAULTS.image.service.entrypoint),
+					config: z.record(z.any()).default({}),
+				})
+				.default(ASTRO_CONFIG_DEFAULTS.image.service),
 			domains: z.array(z.string()).default([]),
 			remotePatterns: z
 				.array(
@@ -213,9 +220,7 @@ export const AstroConfigSchema = z.object({
 				)
 				.default([]),
 		})
-		.default({
-			service: { entrypoint: 'astro/assets/services/sharp', config: {} },
-		}),
+		.default(ASTRO_CONFIG_DEFAULTS.image),
 	markdown: z
 		.object({
 			drafts: z.boolean().default(false),
