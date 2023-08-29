@@ -92,7 +92,7 @@ To configure this adapter, pass an object to the `vercel()` function call in `as
 **Added in:** `@astrojs/vercel@3.8.0`
 
 You can enable [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics) by setting `webAnalytics: { enabled: true }`. This will inject Vercel’s tracking scripts into all of your pages.
-Alternatively, you can pass all [available configuration options](https://vercel.com/docs/concepts/analytics/package) via the `config` property inside `webAnalytics`.
+Alternatively, you can also pass [configuration options](https://vercel.com/docs/concepts/analytics/package) (except functions like `beforeSend`) via the `config` property inside `webAnalytics`.
 
 ```js
 // astro.config.mjs
@@ -104,19 +104,31 @@ export default defineConfig({
   adapter: vercel({
     webAnalytics: {
       enabled: true,
-      config: {
-        beforeSend: (event) => {
-          // Ignore all events that have a `/private` inside the URL
-          if (event.url.includes('/private')) {
-            return null;
-          }
-          return event;
-        }
-      }
-    }
+    },
   }),
 });
 ```
+
+#### `beforeSend`
+
+Since functions can't be passed down via `astro.config.mjs`, you need to export the `beforeSend` function in a separate file inside your root called `vercel-web-analytics.ts`.
+If you're not using TypeScript, you can define the function inside `vercel-web-analytics.js`.
+
+```js
+// vercel-web-analytics.ts
+import type { VercelWebAnalyticsBeforeSend } from '@astrojs/vercel';
+
+export const beforeSend: VercelWebAnalyticsBeforeSend = (event) => {
+    // Ignore all events that have a `/private` inside the URL
+    if (event.url.includes('/private')) {
+      return null;
+    }
+    return event;
+  }
+}
+```
+
+````js
 
 ### Speed Insights
 You can enable [Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights) by setting `speedInsights: { enabled: true }`. This will collect and send Web Vital data to Vercel.
@@ -138,7 +150,7 @@ export default defineConfig({
     }
   }),
 });
-```
+````
 
 ### imagesConfig
 

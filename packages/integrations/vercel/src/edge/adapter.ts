@@ -55,14 +55,17 @@ export default function vercelEdge({
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
-			'astro:config:setup': ({ command, config, updateConfig, injectScript }) => {
+			'astro:config:setup': async ({ command, config, updateConfig, injectScript }) => {
 				if (webAnalytics?.enabled) {
 					injectScript(
 						'page',
-						getInjectableWebAnalyticsContent({
-							...webAnalytics.config,
-							mode: command === 'dev' ? 'development' : 'production',
-						})
+						await getInjectableWebAnalyticsContent(
+							{
+								...webAnalytics.config,
+								mode: command === 'dev' ? 'development' : 'production',
+							},
+							config.root
+						)
 					);
 				}
 				if (command === 'build' && speedInsights?.enabled) {
