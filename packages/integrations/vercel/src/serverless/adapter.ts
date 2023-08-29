@@ -116,17 +116,20 @@ export default function vercelServerless({
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
-			'astro:config:setup': async ({ command, config, updateConfig, injectScript }) => {
+			'astro:config:setup': async ({ command, config, updateConfig, injectScript, logger }) => {
 				if (webAnalytics?.enabled) {
 					injectScript(
 						'page',
-						await getInjectableWebAnalyticsContent(
-							{
+						await getInjectableWebAnalyticsContent({
+							config: {
 								...webAnalytics.config,
 								mode: command === 'dev' ? 'development' : 'production',
 							},
-							config.root
-						)
+							astro: {
+								root: config.root,
+								logger,
+							},
+						})
 					);
 				}
 				if (command === 'build' && speedInsights?.enabled) {

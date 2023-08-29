@@ -111,10 +111,10 @@ export default defineConfig({
 
 #### `beforeSend`
 
-Since functions can't be passed down via `astro.config.mjs`, you need to export the `beforeSend` function in a separate file inside your root called `vercel-web-analytics.ts`.
+To define the `beforeSend` function, you need to create a separate file inside your root called `vercel-web-analytics.ts`.
 If you're not using TypeScript, you can define the function inside `vercel-web-analytics.js`.
 
-```js
+```ts
 // vercel-web-analytics.ts
 import type { VercelWebAnalyticsBeforeSend } from '@astrojs/vercel';
 
@@ -127,8 +127,6 @@ export const beforeSend: VercelWebAnalyticsBeforeSend = (event) => {
   }
 }
 ```
-
-````js
 
 ### Speed Insights
 You can enable [Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights) by setting `speedInsights: { enabled: true }`. This will collect and send Web Vital data to Vercel.

@@ -4679,7 +4679,7 @@ importers:
         specifier: workspace:*
         version: link:../../internal-helpers
       '@vercel/analytics':
-        specifier: ~1.0.0
+        specifier: ^1.0.2
         version: 1.0.2
       '@vercel/nft':
         specifier: ^0.23.1

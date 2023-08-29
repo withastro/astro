@@ -1,51 +1,71 @@
+import { AstroError } from 'astro/errors';
 import type { AnalyticsProps } from '@vercel/analytics';
 import { fileURLToPath } from 'url';
+import { existsSync } from 'node:fs';
+import type { AstroIntegrationLogger } from 'astro';
 
 export type VercelWebAnalyticsConfig = {
 	enabled: boolean;
 	config?: Omit<AnalyticsProps, 'beforeSend'>;
 };
 
-async function getWebAnalyticsFunctions(root: URL) {
-	try {
-		const files = await Promise.all([
-			import(/* @vite-ignore */ fileURLToPath(new URL('./vercel-web-analytics.ts', root))).catch(
-				() => undefined
-			),
-			import(/* @vite-ignore */ fileURLToPath(new URL('./vercel-web-analytics.js', root))).catch(
-				() => undefined
-			),
-		]);
+async function getWebAnalyticsFunctions({
+	root,
+	logger,
+}: {
+	root: URL;
+	logger: AstroIntegrationLogger;
+}) {
+	const tsPath = fileURLToPath(new URL('./vercel-web-analytics.ts', root));
+	const jsPath = fileURLToPath(new URL('./vercel-web-analytics.js', root));
 
-		const functions = files[0] || files[1];
+	const tsFileExists = existsSync(tsPath);
+	const jsFileExists = existsSync(jsPath);
 
-		if (functions?.default) {
-			if (typeof functions.default.beforeSend !== 'function') {
-				throw new Error(
-					`@astrojs/vercel: ./vercel-web-analytics.js should export a \`beforeSend\` function.`
-				);
-			}
+	if (tsFileExists && jsFileExists) {
+		logger.warn(
+			`@astrojs/vercel: Both \`vercel-web-analytics.ts\` and \`vercel-web-analytics.js\` exist. Using \`vercel-web-analytics.ts\`.`
+		);
+	}
 
-			return {
-				beforeSend: functions.default.beforeSend,
-			};
-		}
+	if (!tsFileExists && !jsFileExists) {
+		logger.debug(
+			`@astrojs/vercel: \`vercel-web-analytics.ts\` or \`vercel-web-analytics.js\` not found.`
+		);
 
-		return {
-			beforeSend: undefined,
-		};
-	} catch (e) {
 		return {
 			beforeSend: undefined,
 		};
 	}
+
+	const functions = await import(
+		tsFileExists ? /* @vite-ignore */ tsPath : /* @vite-ignore */ jsPath
+	);
+
+	if (typeof functions.beforeSend !== 'function') {
+		throw new AstroError(
+			`@astrojs/vercel: \`vercel-web-analytics.${
+				tsFileExists ? 'ts' : 'js'
+			}\` must export a \`beforeSend\` function.`
+		);
+	}
+
+	return {
+		beforeSend: functions.beforeSend,
+	};
 }
 
-export async function getInjectableWebAnalyticsContent(
-	config: Omit<AnalyticsProps, 'beforeSend'> | undefined,
-	root: URL
-) {
-	const { beforeSend } = await getWebAnalyticsFunctions(root);
+export async function getInjectableWebAnalyticsContent({
+	config,
+	astro,
+}: {
+	config: Omit<AnalyticsProps, 'beforeSend'> | undefined;
+	astro: {
+		root: URL;
+		logger: AstroIntegrationLogger;
+	};
+}) {
+	const { beforeSend } = await getWebAnalyticsFunctions(astro);
 
 	return `import { inject } from '@vercel/analytics';
 		inject({

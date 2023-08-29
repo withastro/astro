@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
-    "@vercel/analytics": "~1.0.0",
+    "@vercel/analytics": "^1.0.2",
     "@vercel/nft": "^0.23.1",
     "esbuild": "^0.19.2",
     "fast-glob": "^3.3.1",

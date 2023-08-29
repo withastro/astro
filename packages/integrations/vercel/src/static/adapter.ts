@@ -37,17 +37,20 @@ export default function vercelStatic({
 	return {
 		name: '@astrojs/vercel',
 		hooks: {
-			'astro:config:setup': async ({ command, config, injectScript, updateConfig }) => {
+			'astro:config:setup': async ({ command, config, injectScript, updateConfig, logger }) => {
 				if (webAnalytics?.enabled) {
 					injectScript(
 						'page',
-						await getInjectableWebAnalyticsContent(
-							{
+						await getInjectableWebAnalyticsContent({
+							config: {
 								...webAnalytics.config,
 								mode: command === 'dev' ? 'development' : 'production',
 							},
-							config.root
-						)
+							astro: {
+								root: config.root,
+								logger,
+							},
+						})
 					);
 				}
 				if (command === 'build' && speedInsights?.enabled) {
