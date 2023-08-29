@@ -32,7 +32,13 @@ export function stringifyParams(params: GetStaticPathsItem['params'], route: Rou
 	const validatedParams = Object.entries(params).reduce((acc, next) => {
 		validateGetStaticPathsParameter(next, route.component);
 		const [key, value] = next;
-		acc[key] = value?.toString();
+		if (value !== undefined) {
+			acc[key] = value
+				// cast to a string
+				.toString()
+				// trim all trailing or leading slashes
+				.replace(/^\/+|\/+$/g, "");
+		}
 		return acc;
 	}, {} as Params);
 
