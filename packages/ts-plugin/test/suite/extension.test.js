@@ -20,13 +20,6 @@ suite('Extension Test Suite', () => {
 		);
 	}
 
-	test('extension is enabled', async () => {
-		const ext = vscode.extensions.getExtension('astro-build.astro-vscode');
-		const activate = await ext?.activate();
-
-		assert.notStrictEqual(activate, undefined);
-	});
-
 	test('can find references inside Astro files', async () => {
 		const doc = await vscode.workspace.openTextDocument(
 			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts'))

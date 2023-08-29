@@ -1,6 +1,7 @@
 import * as kit from '@volar/kit';
 import { Diagnostic, DiagnosticSeverity } from '@volar/language-server';
 import fg from 'fast-glob';
+import { existsSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { getLanguageModule } from './core/index.js';
 import { getSvelteLanguageModule } from './core/svelte.js';
@@ -10,7 +11,7 @@ import createTypeScriptService from './plugins/typescript/index.js';
 import { getAstroInstall } from './utils.js';
 
 // Export those for downstream consumers
-export { DiagnosticSeverity, Diagnostic };
+export { Diagnostic, DiagnosticSeverity };
 
 export interface CheckResult {
 	status: 'completed' | 'cancelled' | undefined;
@@ -22,6 +23,7 @@ export interface CheckResult {
 		errors: kit.Diagnostic[];
 		fileUrl: URL;
 		fileContent: string;
+		text: string;
 	}[];
 }
 
@@ -73,7 +75,10 @@ export class AstroCheck {
 				result.status = 'cancelled';
 				return result;
 			}
-			const fileDiagnostics = (await this.linter.check(file)).filter((diag) => {
+			const fileDiagnostics = await this.linter.check(file);
+
+			// Filter diagnostics based on the logErrors level
+			const fileDiagnosticsToPrint = fileDiagnostics.filter((diag) => {
 				const severity = diag.severity ?? DiagnosticSeverity.Error;
 				switch (logErrors?.level ?? 'error') {
 					case 'error':
@@ -85,11 +90,13 @@ export class AstroCheck {
 				}
 			});
 
-			if (logErrors) {
-				this.linter.logErrors(file, fileDiagnostics);
-			}
-
 			if (fileDiagnostics.length > 0) {
+				const errorText = this.linter.printErrors(file, fileDiagnosticsToPrint);
+
+				if (logErrors !== undefined && errorText) {
+					console.info(errorText);
+				}
+
 				const fileSnapshot = this.project.languageHost.getScriptSnapshot(file);
 				const fileContent = fileSnapshot?.getText(0, fileSnapshot.getLength());
 
@@ -97,7 +104,9 @@ export class AstroCheck {
 					errors: fileDiagnostics,
 					fileContent: fileContent ?? '',
 					fileUrl: pathToFileURL(file),
+					text: errorText,
 				});
+
 				result.errors += fileDiagnostics.filter(
 					(diag) => diag.severity === DiagnosticSeverity.Error
 				).length;
@@ -152,7 +161,15 @@ export class AstroCheck {
 	}
 
 	private getTsconfig() {
-		const searchPath = this.tsconfigPath ?? this.workspacePath;
+		if (this.tsconfigPath) {
+			if (!existsSync(this.tsconfigPath)) {
+				throw new Error(`Specified tsconfig file \`${this.tsconfigPath}\` does not exist.`);
+			}
+
+			return this.tsconfigPath;
+		}
+
+		const searchPath = this.workspacePath;
 
 		const tsconfig =
 			this.ts.findConfigFile(searchPath, this.ts.sys.fileExists) ||

@@ -9,9 +9,10 @@
   "scripts": {
     "release": "pnpm build && changeset publish",
     "version": "changeset version && pnpm install --no-frozen-lockfile && pnpm run format",
-    "build": "turbo run build --scope=\"@astrojs/**\" --scope=\"astro-vscode\" --concurrency=1",
-    "dev": "turbo run dev --scope=\"@astrojs/**\" --scope=\"astro-vscode\" --parallel --no-cache",
-    "test": "turbo run test --scope=@astrojs/language-server --scope=astro-vscode",
+    "build": "turbo run build --filter=\"@astrojs/**\" --filter=\"astro-vscode\" --concurrency=1",
+    "dev": "turbo run dev --filter=\"@astrojs/**\" --filter=\"astro-vscode\" --parallel --no-cache",
+    "test": "turbo run test --filter=\"@astrojs/**\" --filter=astro-vscode",
+    "test:skip-vs": "turbo run test --filter=\"@astrojs/language-server\" --filter=\"@astrojs/check\"",
     "format": "pnpm run format:code",
     "format:ci": "pnpm run format:imports && pnpm run format:code",
     "format:code": "prettier -w . --cache",

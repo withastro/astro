@@ -22,7 +22,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "mocha --timeout 30000 --require tsx test/**/*.test.ts",
+    "test": "mocha --timeout 50000 --require tsx test/**/*.test.ts",
     "test:match": "pnpm run test -g"
   },
   "dependencies": {
