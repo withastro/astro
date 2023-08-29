@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 3.0.0-rc.4
+
+### Patch Changes
+
+- [#8264](https://github.com/withastro/astro/pull/8264) [`1f58a7a1b`](https://github.com/withastro/astro/commit/1f58a7a1bea6888868b689dac94801d554319b02) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Automatically unmount islands when `astro:unmount` is fired
+
 ## 3.0.0-rc.3
 
 ### Major Changes
