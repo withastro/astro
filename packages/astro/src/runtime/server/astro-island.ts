@@ -53,6 +53,7 @@ declare const Astro: {
 				static observedAttributes = ['props'];
 				disconnectedCallback() {
 					document.addEventListener('astro:after-swap', () => {
+						// If element wasn't persisted, fire unmount event
 						if (!this.isConnected) this.dispatchEvent(new CustomEvent('astro:unmount'))
 					}, { once: true })
 				}
