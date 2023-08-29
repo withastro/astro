@@ -10,6 +10,9 @@ type BuiltInExports = Exclude<keyof PageOptions, 'custom'>;
 // Quick scan to determine if code includes recognized export
 // False positives are not a problem, so be forgiving!
 function includesExport(code: string) {
+	for (const name of BOOLEAN_EXPORTS) {
+		if (code.includes(name)) return true;
+	}
 	return code.includes('export const');
 }
 
