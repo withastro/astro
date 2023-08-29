@@ -1,6 +1,6 @@
-import type { SignalLike } from './types';
-import { h, render, hydrate } from 'preact';
+import { h, hydrate, render } from 'preact';
 import StaticHtml from './static-html.js';
+import type { SignalLike } from './types';
 
 const sharedSignalMap = new Map<string, SignalLike>();
 
@@ -32,9 +32,9 @@ export default (element: HTMLElement) =>
 
 		bootstrap(
 			h(Component, props, children != null ? h(StaticHtml, { value: children }) : children),
-			element,
+			element
 		);
-		
+
 		// Preact has no "unmount" option, but you can use `render(null, element)`
-		element.addEventListener('astro:unmount', () => render(null, element), { once: true })
+		element.addEventListener('astro:unmount', () => render(null, element), { once: true });
 	};

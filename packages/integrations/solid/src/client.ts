@@ -43,5 +43,5 @@ export default (element: HTMLElement) =>
 			}
 		);
 
-		element.addEventListener('astro:unmount', () => dispose(), { once: true })
+		element.addEventListener('astro:unmount', () => dispose(), { once: true });
 	};

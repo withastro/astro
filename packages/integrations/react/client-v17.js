@@ -16,5 +16,7 @@ export default (element) =>
 		const isHydrate = client !== 'only';
 		const bootstrap = isHydrate ? hydrate : render;
 		bootstrap(componentEl, element);
-		element.addEventListener('astro:unmount', () => unmountComponentAtNode(element), { once: true });
+		element.addEventListener('astro:unmount', () => unmountComponentAtNode(element), {
+			once: true,
+		});
 	};
