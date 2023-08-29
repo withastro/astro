@@ -173,7 +173,7 @@ declare const Astro: {
 				unmount = () => {
 					// If element wasn't persisted, fire unmount event
 					if (!this.isConnected) this.dispatchEvent(new CustomEvent('astro:unmount'));
-				}
+				};
 			}
 		);
 	}
