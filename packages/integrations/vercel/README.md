@@ -119,16 +119,16 @@ If you're not using TypeScript, you can define the function inside `vercel-web-a
 import type { VercelWebAnalyticsBeforeSend } from '@astrojs/vercel';
 
 export const beforeSend: VercelWebAnalyticsBeforeSend = (event) => {
-    // Ignore all events that have a `/private` inside the URL
-    if (event.url.includes('/private')) {
-      return null;
-    }
-    return event;
+  // Ignore all events that have a `/private` inside the URL
+  if (event.url.includes('/private')) {
+    return null;
   }
-}
+  return event;
+};
 ```
 
 ### Speed Insights
+
 You can enable [Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights) by setting `speedInsights: { enabled: true }`. This will collect and send Web Vital data to Vercel.
 
 **Type:** `VercelSpeedInsightsConfig`<br>
@@ -145,10 +145,10 @@ export default defineConfig({
   adapter: vercel({
     speedInsights: {
       enabled: true,
-    }
+    },
   }),
 });
-````
+```
 
 ### imagesConfig
 
