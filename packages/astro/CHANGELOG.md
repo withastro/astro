@@ -1,5 +1,11 @@
 # astro
 
+## 2.10.15
+
+### Patch Changes
+
+- [#8268](https://github.com/withastro/astro/pull/8268) [`3b0d805bd`](https://github.com/withastro/astro/commit/3b0d805bdabcbc75f26b1d29890b689b40fab220) Thanks [@matthewp](https://github.com/matthewp)! - Prevent ViewTransition script from being added by mistake
+
 ## 2.10.14
 
 ### Patch Changes
