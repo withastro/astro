@@ -49,30 +49,30 @@ export async function scan(
 
 	let pageOptions: PageOptions = {};
 	for (const _export of exports) {
-		const { n: name, le: endOfLocalName } = _export;
+		const { n: name, ls: startOfLocalName, le: endOfLocalName } = _export;
+		if (startOfLocalName === -1 || endOfLocalName === -1) continue;
 		// For a given export, check the value of the local declaration
 		// Basically extract the `const` from the statement `export const prerender = true`
-		const prefix = code
-			.slice(0, endOfLocalName)
-			.split('export')
-			.pop()!
-			.trim()
-			.replace(name, '')
-			.trim();
-		// For a given export, check the value of the first non-whitespace token.
-		// Basically extract the `true` from the statement `export const prerender = true`
-		const suffix = code.slice(endOfLocalName).trim().replace(/\=/, '').trim().split(/[;\n]/)[0];
+		const indexOfExport = code.lastIndexOf('export', startOfLocalName);
+		const prefix = code.slice(indexOfExport + 6, startOfLocalName).trim();
+
+		// `export const name = "value";
+		//                      ^      ^
+		// indexOfFirstNonWhitespace  endOfLineIndex
+		const indexOfFirstNonWhitespace = code.slice(endOfLocalName).search(/[^=\s]/) + endOfLocalName;
+		const endOfLineIndex = code.slice(indexOfFirstNonWhitespace).search(/[\n;]/) + indexOfFirstNonWhitespace;
+		const exportValue = code.slice(indexOfFirstNonWhitespace, endOfLineIndex).trim();
 
 		const isBuiltIn = BOOLEAN_EXPORTS.has(name);
 
-		if (prefix !== 'const' || !(isTruthy(suffix) || isFalsy(suffix))) {
+		if (prefix !== 'const' || !(isTruthy(exportValue) || isFalsy(exportValue))) {
 			// Only throw an error for built-in exports
 			if (isBuiltIn) {
 				throw new AstroError({
 					...AstroErrorData.InvalidPrerenderExport,
 					message: AstroErrorData.InvalidPrerenderExport.message(
 						prefix,
-						suffix,
+						exportValue,
 						settings?.config.output === 'hybrid' ?? false
 					),
 					location: { file: id },
@@ -80,10 +80,10 @@ export async function scan(
 			}
 		} else {
 			if (isBuiltIn) {
-				pageOptions[name as BuiltInExports] = isTruthy(suffix);
+				pageOptions[name as BuiltInExports] = isTruthy(exportValue);
 			} else {
 				pageOptions.custom = pageOptions.custom ?? {};
-				pageOptions.custom[name] = isTruthy(suffix);
+				pageOptions.custom[name] = isTruthy(exportValue);
 			}
 		}
 	}
