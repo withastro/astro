@@ -109,6 +109,11 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			await update(subcommand, { flags });
 			return;
 		}
+		case 'sync': {
+			const { sync } = await import('./sync/index.js');
+			const exitCode = await sync({ flags });
+			return process.exit(exitCode);
+		}
 	}
 
 	// In verbose/debug mode, we log the debug logs asap before any potential errors could appear
@@ -121,6 +126,9 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	if (!process.env.NODE_ENV) {
 		process.env.NODE_ENV = cmd === 'dev' ? 'development' : 'production';
 	}
+
+	const { notify } = await import('./telemetry/index.js');
+	await notify();
 
 	// These commands uses the logging and user config. All commands are assumed to have been handled
 	// by the end of this switch statement.
@@ -160,11 +168,6 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			} else {
 				return process.exit(checkServer ? 1 : 0);
 			}
-		}
-		case 'sync': {
-			const { sync } = await import('./sync/index.js');
-			const exitCode = await sync({ flags });
-			return process.exit(exitCode);
 		}
 	}
 

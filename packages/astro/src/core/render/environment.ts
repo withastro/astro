@@ -1,5 +1,5 @@
 import type { RuntimeMode, SSRLoadedRenderer } from '../../@types/astro';
-import type { LogOptions } from '../logger/core.js';
+import type { Logger } from '../logger/core.js';
 import type { RouteCache } from './route-cache.js';
 
 /**
@@ -13,7 +13,7 @@ export interface Environment {
 	 */
 	adapterName?: string;
 	/** logging options */
-	logging: LogOptions;
+	logger: Logger;
 	/** "development" or "production" */
 	mode: RuntimeMode;
 	compressHTML: boolean;

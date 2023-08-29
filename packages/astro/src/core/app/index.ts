@@ -9,7 +9,7 @@ import type {
 import type { SinglePageBuiltModule } from '../build/types';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
-import { error, type LogOptions } from '../logger/core.js';
+import { AstroIntegrationLogger, Logger } from '../logger/core.js';
 import {
 	collapseDuplicateSlashes,
 	prependForwardSlash,
@@ -50,12 +50,15 @@ export class App {
 	#manifest: SSRManifest;
 	#manifestData: ManifestData;
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
-	#logging: LogOptions = {
+	#logger = new Logger({
 		dest: consoleLogDestination,
 		level: 'info',
-	};
+	});
 	#baseWithoutTrailingSlash: string;
 	#pipeline: SSRRoutePipeline;
+	#onRequest: MiddlewareEndpointHandler | undefined;
+	#middlewareLoaded: boolean;
+	#adapterLogger: AstroIntegrationLogger;
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
@@ -65,10 +68,15 @@ export class App {
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
 		this.#pipeline = new SSRRoutePipeline(this.#createEnvironment(streaming));
+		this.#middlewareLoaded = false;
+		this.#adapterLogger = new AstroIntegrationLogger(
+			this.#logger.options,
+			this.#manifest.adapterName
+		);
 	}
 
-	set setManifest(newManifest: SSRManifest) {
-		this.#manifest = newManifest;
+	getAdapterLogger(): AstroIntegrationLogger {
+		return this.#adapterLogger;
 	}
 
 	/**
@@ -80,7 +88,7 @@ export class App {
 	#createEnvironment(streaming = false) {
 		return createEnvironment({
 			adapterName: this.#manifest.adapterName,
-			logging: this.#logging,
+			logger: this.#logger,
 			mode: 'production',
 			compressHTML: this.#manifest.compressHTML,
 			renderers: this.#manifest.renderers,
@@ -100,7 +108,7 @@ export class App {
 					}
 				}
 			},
-			routeCache: new RouteCache(this.#logging),
+			routeCache: new RouteCache(this.#logger),
 			site: this.#manifest.site,
 			ssr: true,
 			streaming,
@@ -128,7 +136,21 @@ export class App {
 		if (!routeData || routeData.prerender) return undefined;
 		return routeData;
 	}
+
+	async #getOnRequest() {
+		if (this.#manifest.middlewareEntryPoint && !this.#middlewareLoaded) {
+			try {
+				const middleware = await import(this.#manifest.middlewareEntryPoint);
+				this.#pipeline.setMiddlewareFunction(middleware.onRequest as MiddlewareEndpointHandler);
+			} catch (e) {
+				this.#logger.warn('SSR', "Couldn't load the middleware entry point");
+			}
+		}
+		this.#middlewareLoaded = true;
+	}
+
 	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {
+		await this.#getOnRequest();
 		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
 		if (request.url !== collapseDuplicateSlashes(request.url)) {
 			request = new Request(collapseDuplicateSlashes(request.url), request);
@@ -156,16 +178,12 @@ export class App {
 		);
 		let response;
 		try {
-			// NOTE: ideally we could set the middleware function just once, but we don't have the infrastructure to that yet
-			if (mod.onRequest) {
-				this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
-			}
 			response = await this.#pipeline.renderRoute(renderContext, pageModule);
 		} catch (err: any) {
 			if (err instanceof EndpointNotFoundError) {
 				return this.#renderError(request, { status: 404, response: err.originalResponse });
 			} else {
-				error(this.#logging, 'ssr', err.stack || err.message || String(err));
+				this.#logger.error('ssr', err.stack || err.message || String(err));
 				return this.#renderError(request, { status: 500 });
 			}
 		}

@@ -44,7 +44,6 @@ const ASTRO_CONFIG_DEFAULTS = {
 	legacy: {},
 	redirects: {},
 	experimental: {
-		viewTransitions: false,
 		optimizeHoistedScript: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
@@ -264,10 +263,6 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
 	experimental: z
 		.object({
-			viewTransitions: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.viewTransitions),
 			optimizeHoistedScript: z
 				.boolean()
 				.optional()
@@ -410,7 +405,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		})
 		.refine((obj) => !obj.outDir.toString().startsWith(obj.publicDir.toString()), {
 			message:
-				'`outDir` must not be placed inside `publicDir` to prevent an infinite loop. Please adjust the directory configuration and try again',
+				'The value of `outDir` must not point to a path within the folder set as `publicDir`, this will cause an infinite loop',
 		});
 
 	return AstroConfigRelativeSchema;

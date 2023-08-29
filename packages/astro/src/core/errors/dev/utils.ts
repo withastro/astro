@@ -9,6 +9,7 @@ import { normalizePath } from 'vite';
 import type { SSRError } from '../../../@types/astro.js';
 import { removeLeadingForwardSlashWindows } from '../../path.js';
 import { AggregateError, type ErrorWithMetadata } from '../errors.js';
+import { AstroErrorData } from '../index.js';
 import { codeFrame } from '../printer.js';
 import { normalizeLF } from '../utils.js';
 
@@ -206,13 +207,29 @@ function cleanErrorStack(stack: string) {
 		.join('\n');
 }
 
+export function getDocsForError(err: ErrorWithMetadata): string | undefined {
+	if (err.name in AstroErrorData) {
+		return `https://docs.astro.build/en/reference/errors/${getKebabErrorName(err.name)}/`;
+	}
+
+	return undefined;
+
+	/**
+	 * The docs has kebab-case urls for errors, so we need to convert the error name
+	 * @param errorName
+	 */
+	function getKebabErrorName(errorName: string): string {
+		return errorName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+	}
+}
+
 /**
  * Render a subset of Markdown to HTML or a CLI output
  */
 export function renderErrorMarkdown(markdown: string, target: 'html' | 'cli') {
 	const linkRegex = /\[(.+)\]\((.+)\)/gm;
 	const boldRegex = /\*\*(.+)\*\*/gm;
-	const urlRegex = / (\b(https?|ftp):\/\/[-A-Z0-9+&@#\\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|]) /gim;
+	const urlRegex = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|])/gim;
 	const codeRegex = /`([^`]+)`/gim;
 
 	if (target === 'html') {

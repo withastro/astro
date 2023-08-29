@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { normalizePath, type Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { getContentPaths, getDotAstroTypeReference } from '../content/index.js';
-import { info, type LogOptions } from '../core/logger/core.js';
+import { type Logger } from '../core/logger/core.js';
 
 export function getEnvTsPath({ srcDir }: { srcDir: URL }) {
 	return new URL('env.d.ts', srcDir);
@@ -13,11 +13,11 @@ export function getEnvTsPath({ srcDir }: { srcDir: URL }) {
 
 export function astroInjectEnvTsPlugin({
 	settings,
-	logging,
+	logger,
 	fs,
 }: {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 	fs: typeof fsMod;
 }): Plugin {
 	return {
@@ -26,18 +26,18 @@ export function astroInjectEnvTsPlugin({
 		// Ex. `.astro` types have been written
 		enforce: 'post',
 		async config() {
-			await setUpEnvTs({ settings, logging, fs });
+			await setUpEnvTs({ settings, logger, fs });
 		},
 	};
 }
 
 export async function setUpEnvTs({
 	settings,
-	logging,
+	logger,
 	fs,
 }: {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 	fs: typeof fsMod;
 }) {
 	const envTsPath = getEnvTsPath(settings.config);
@@ -57,7 +57,7 @@ export async function setUpEnvTs({
 				'types="astro/client"'
 			);
 			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
-			info(logging, 'assets', `Removed ${bold(envTsPathRelativetoRoot)} types`);
+			logger.info('assets', `Removed ${bold(envTsPathRelativetoRoot)} types`);
 		}
 
 		if (!fs.existsSync(dotAstroDir))
@@ -68,7 +68,7 @@ export async function setUpEnvTs({
 		if (!typesEnvContents.includes(expectedTypeReference)) {
 			typesEnvContents = `${expectedTypeReference}\n${typesEnvContents}`;
 			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
-			info(logging, 'content', `Added ${bold(envTsPathRelativetoRoot)} types`);
+			logger.info('content', `Added ${bold(envTsPathRelativetoRoot)} types`);
 		}
 	} else {
 		// Otherwise, inject the `env.d.ts` file
@@ -81,6 +81,6 @@ export async function setUpEnvTs({
 
 		await fs.promises.mkdir(settings.config.srcDir, { recursive: true });
 		await fs.promises.writeFile(envTsPath, referenceDefs.join('\n'), 'utf-8');
-		info(logging, 'astro', `Added ${bold(envTsPathRelativetoRoot)} types`);
+		logger.info('astro', `Added ${bold(envTsPathRelativetoRoot)} types`);
 	}
 }

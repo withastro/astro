@@ -17,14 +17,14 @@ const { fallback = 'animate' } = Astro.props as Props;
 		index: number;
 		scrollY: number;
 	};
-	type Events = 'astro:load' | 'astro:beforeload';
+	type Events = 'astro:page-load' | 'astro:after-swap';
 
 	const persistState = (state: State) => history.replaceState(state, '');
 	const supportsViewTransitions = !!document.startViewTransition;
 	const transitionEnabledOnThisPage = () =>
 		!!document.querySelector('[name="astro-view-transitions-enabled"]');
 	const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
-	const onload = () => triggerEvent('astro:load');
+	const onPageLoad = () => triggerEvent('astro:page-load');
 	const PERSIST_ATTR = 'data-astro-transition-persist';
 
 	// The History API does not tell you if navigation is forward or back, so
@@ -193,7 +193,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				scrollTo(0, state.scrollY); // usings default scrollBehavior
 			}
 
-			triggerEvent('astro:beforeload');
+			triggerEvent('astro:after-swap');
 		};
 
 		// Wait on links to finish, to prevent FOUC
@@ -220,23 +220,15 @@ const { fallback = 'animate' } = Astro.props as Props;
 		links.length && (await Promise.all(links));
 
 		if (fallback === 'animate') {
-			let isAnimating = false;
-			addEventListener('animationstart', () => (isAnimating = true), { once: true });
-
 			// Trigger the animations
 			document.documentElement.dataset.astroTransitionFallback = 'old';
+			const finished = Promise.all(document.getAnimations().map(a => a.finished));
 			const fallbackSwap = () => {
-				removeEventListener('animationend', fallbackSwap);
-				clearTimeout(timeout);
 				swap();
 				document.documentElement.dataset.astroTransitionFallback = 'new';
 			};
-			// If there are any animations, want for the animationend event.
-			addEventListener('animationend', fallbackSwap, { once: true });
-			// If there are no animations, go ahead and swap on next tick
-			// This is necessary because we do not know if there are animations.
-			// The setTimeout is a fallback in case there are none.
-			let timeout = setTimeout(() => !isAnimating && fallbackSwap());
+			await finished;
+			fallbackSwap();
 		} else {
 			swap();
 		}
@@ -263,7 +255,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			// document.documentElement.removeAttribute('data-astro-transition');
 			await runScripts();
 			markScriptsExec();
-			onload();
+			onPageLoad();
 		}
 	}
 
@@ -294,6 +286,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			if (
 				!link ||
 				!(link instanceof HTMLAnchorElement) ||
+				link.dataset.astroReload !== undefined ||
 				!link.href ||
 				(link.target && link.target !== '_self') ||
 				link.origin !== location.origin ||
@@ -382,19 +375,17 @@ const { fallback = 'animate' } = Astro.props as Props;
 				{ passive: true, capture: true }
 			);
 		});
-		addEventListener('load', onload);
+		addEventListener('load', onPageLoad);
 		// There's not a good way to record scroll position before a back button.
-		// So the way we do it is by listening to scroll and just continuously recording it.
-		addEventListener(
-			'scroll',
-			throttle(() => {
-				// only updste history entries that are managed by us
-				// leave other entries alone and do not accidently add state.
-				if (history.state) {
-					persistState({ ...history.state, scrollY });
-				}
-			}, 300),
-			{ passive: true }
-		);
+		// So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
+    const updateState = () => {
+			// only update history entries that are managed by us
+			// leave other entries alone and do not accidently add state.
+			if (history.state) {
+				persistState({ ...history.state, scrollY });
+			}
+		}
+		if ('onscrollend' in window) addEventListener('scrollend', updateState);
+		else addEventListener('scroll', throttle(updateState, 300));
 	}
 </script>

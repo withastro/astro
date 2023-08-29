@@ -178,6 +178,8 @@ function vitePluginSSRSplit(
 				imports.push(...ssrCode.imports);
 				contents.push(...ssrCode.contents);
 
+				exports.push('export { pageModule }');
+
 				return `${imports.join('\n')}${contents.join('\n')}${exports.join('\n')}`;
 			}
 			return void 0;

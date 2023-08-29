@@ -113,7 +113,7 @@ import ReactComponent from './ReactComponent';
 </ReactComponent>
 ```
 
-If you are using a library that _expects_ more than one child element element to be passed, for example so that it can slot certain elements in different places, you might find this to be a blocker.
+If you are using a library that _expects_ more than one child element to be passed, for example so that it can slot certain elements in different places, you might find this to be a blocker.
 
 You can set the experimental flag `experimentalReactChildren` to tell Astro to always pass children to React as React vnodes. There is some runtime cost to this, but it can help with compatibility.
 

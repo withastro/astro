@@ -11,7 +11,6 @@ import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachCookiesToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { warn } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import type { Environment, RenderContext } from '../render/index';
 
@@ -40,6 +39,7 @@ export function createAPIContext({
 	props,
 	adapterName,
 }: CreateAPIContext): APIContext {
+	initResponseWithEncoding();
 	const context = {
 		cookies: new AstroCookies(request),
 		request,
@@ -92,28 +92,44 @@ export function createAPIContext({
 
 type ResponseParameters = ConstructorParameters<typeof Response>;
 
-export class ResponseWithEncoding extends Response {
-	constructor(body: ResponseParameters[0], init: ResponseParameters[1], encoding?: BufferEncoding) {
-		// If a body string is given, try to encode it to preserve the behaviour as simple objects.
-		// We don't do the full handling as simple objects so users can control how headers are set instead.
-		if (typeof body === 'string') {
-			// In NodeJS, we can use Buffer.from which supports all BufferEncoding
-			if (typeof Buffer !== 'undefined' && Buffer.from) {
-				body = Buffer.from(body, encoding);
+export let ResponseWithEncoding: ReturnType<typeof initResponseWithEncoding>;
+// TODO Remove this after StackBlitz supports Node 18.
+let initResponseWithEncoding = () => {
+	class LocalResponseWithEncoding extends Response {
+		constructor(
+			body: ResponseParameters[0],
+			init: ResponseParameters[1],
+			encoding?: BufferEncoding
+		) {
+			// If a body string is given, try to encode it to preserve the behaviour as simple objects.
+			// We don't do the full handling as simple objects so users can control how headers are set instead.
+			if (typeof body === 'string') {
+				// In NodeJS, we can use Buffer.from which supports all BufferEncoding
+				if (typeof Buffer !== 'undefined' && Buffer.from) {
+					body = Buffer.from(body, encoding);
+				}
+				// In non-NodeJS, use the web-standard TextEncoder for utf-8 strings
+				else if (encoding == null || encoding === 'utf8' || encoding === 'utf-8') {
+					body = encoder.encode(body);
+				}
 			}
-			// In non-NodeJS, use the web-standard TextEncoder for utf-8 strings
-			else if (encoding == null || encoding === 'utf8' || encoding === 'utf-8') {
-				body = encoder.encode(body);
+
+			super(body, init);
+
+			if (encoding) {
+				this.headers.set('X-Astro-Encoding', encoding);
 			}
-		}
-
-		super(body, init);
-
-		if (encoding) {
-			this.headers.set('X-Astro-Encoding', encoding);
 		}
 	}
-}
+
+	// Set the module scoped variable.
+	ResponseWithEncoding = LocalResponseWithEncoding;
+
+	// Turn this into a noop.
+	initResponseWithEncoding = (() => {}) as any;
+
+	return LocalResponseWithEncoding;
+};
 
 export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>(
 	mod: EndpointHandler,
@@ -132,23 +148,22 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	let response;
 	if (onRequest) {
 		response = await callMiddleware<Response | EndpointOutput>(
-			env.logging,
+			env.logger,
 			onRequest as MiddlewareEndpointHandler,
 			context,
 			async () => {
-				return await renderEndpoint(mod, context, env.ssr, env.logging);
+				return await renderEndpoint(mod, context, env.ssr, env.logger);
 			}
 		);
 	} else {
-		response = await renderEndpoint(mod, context, env.ssr, env.logging);
+		response = await renderEndpoint(mod, context, env.ssr, env.logger);
 	}
 
 	const isEndpointSSR = env.ssr && !ctx.route?.prerender;
 
 	if (response instanceof Response) {
 		if (isEndpointSSR && response.headers.get('X-Astro-Encoding')) {
-			warn(
-				env.logging,
+			env.logger.warn(
 				'ssr',
 				'`ResponseWithEncoding` is ignored in SSR. Please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.'
 			);
@@ -160,24 +175,21 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	// The endpoint returned a simple object, convert it to a Response
 
 	// TODO: Remove in Astro 4.0
-	warn(
-		env.logging,
+	env.logger.warn(
 		'astro',
 		`${ctx.route.component} returns a simple object which is deprecated. Please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.`
 	);
 
 	if (isEndpointSSR) {
 		if (response.hasOwnProperty('headers')) {
-			warn(
-				env.logging,
+			env.logger.warn(
 				'ssr',
 				'Setting headers is not supported when returning an object. Please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.'
 			);
 		}
 
 		if (response.encoding) {
-			warn(
-				env.logging,
+			env.logger.warn(
 				'ssr',
 				'`encoding` is ignored in SSR. To return a charset other than UTF-8, please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.'
 			);

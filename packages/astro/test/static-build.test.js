@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
+import { Logger } from '../dist/core/logger/core.js';
 
 function addLeadingSlash(path) {
 	return path.startsWith('/') ? path : '/' + path;
@@ -22,22 +23,22 @@ describe('Static build', () => {
 	let logs = [];
 
 	before(async () => {
-		/** @type {import('../src/core/logger/core').LogOptions} */
-		const logging = {
+		/** @type {import('../src/core/logger/core').Logger} */
+		const logger = new Logger({
 			dest: {
 				write(chunk) {
 					logs.push(chunk);
 				},
 			},
 			level: 'warn',
-		};
+		});
 
 		fixture = await loadFixture({
 			root: './fixtures/static-build/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
 		});
-		await fixture.build({ logging });
+		await fixture.build({ logger });
 	});
 
 	it('Builds out .astro pages', async () => {
