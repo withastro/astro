@@ -165,18 +165,16 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 			// Persist elements in the existing body
 			const oldBody = document.body;
+			document.body.replaceWith(doc.body);
 			for (const el of oldBody.querySelectorAll(`[${PERSIST_ATTR}]`)) {
 				const id = el.getAttribute(PERSIST_ATTR);
-				const newEl = doc.querySelector(`[${PERSIST_ATTR}="${id}"]`);
+				const newEl = document.querySelector(`[${PERSIST_ATTR}="${id}"]`);
 				if (newEl) {
 					// The element exists in the new page, replace it with the element
 					// from the old page so that state is preserved.
 					newEl.replaceWith(el);
 				}
 			}
-			// Only replace the existing body *AFTER* persistent elements are moved over
-			// This avoids disconnecting `astro-island` nodes multiple times
-			document.body.replaceWith(doc.body);
 
 			// Simulate scroll behavior of Safari and
 			// Chromium based browsers (Chrome, Edge, Opera, ...)
