@@ -1,6 +1,6 @@
-import { h, render, type JSX } from 'preact';
-import StaticHtml from './static-html.js';
 import type { SignalLike } from './types';
+import { h, render, hydrate } from 'preact';
+import StaticHtml from './static-html.js';
 
 const sharedSignalMap = new Map<string, SignalLike>();
 
@@ -8,7 +8,8 @@ export default (element: HTMLElement) =>
 	async (
 		Component: any,
 		props: Record<string, any>,
-		{ default: children, ...slotted }: Record<string, any>
+		{ default: children, ...slotted }: Record<string, any>,
+		{ client }: Record<string, string>
 	) => {
 		if (!element.hasAttribute('ssr')) return;
 		for (const [key, value] of Object.entries(slotted)) {
@@ -27,23 +28,13 @@ export default (element: HTMLElement) =>
 			}
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-shadow
-		function Wrapper({ children }: { children: JSX.Element }) {
-			let attrs = Object.fromEntries(
-				Array.from(element.attributes).map((attr) => [attr.name, attr.value])
-			);
-			return h(element.localName, attrs, children);
-		}
+		const bootstrap = client !== 'only' ? hydrate : render;
 
-		let parent = element.parentNode as Element;
-
-		render(
-			h(
-				Wrapper,
-				null,
-				h(Component, props, children != null ? h(StaticHtml, { value: children }) : children)
-			),
-			parent,
-			element
+		bootstrap(
+			h(Component, props, children != null ? h(StaticHtml, { value: children }) : children),
+			element,
 		);
+		
+		// Preact has no "unmount" option, but you can use `render(null, element)`
+		element.addEventListener('astro:unmount', () => render(null, element), { once: true })
 	};

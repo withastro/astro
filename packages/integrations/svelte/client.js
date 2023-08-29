@@ -14,7 +14,7 @@ export default (target) => {
 		try {
 			if (import.meta.env.DEV) useConsoleFilter();
 
-			new Component({
+			const component = new Component({
 				target,
 				props: {
 					...props,
@@ -24,6 +24,8 @@ export default (target) => {
 				hydrate: client !== 'only',
 				$$inline: true,
 			});
+			
+			element.addEventListener('astro:unmount', () => component.$destroy(), { once: true })
 		} catch (e) {
 		} finally {
 			if (import.meta.env.DEV) finishUsingConsoleFilter();

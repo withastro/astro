@@ -51,6 +51,12 @@ declare const Astro: {
 				public Component: any;
 				public hydrator: any;
 				static observedAttributes = ['props'];
+				disconnectedCallback() {
+					document.addEventListener('astro:after-swap', () => {
+						// If element wasn't persisted, fire unmount event
+						if (!this.isConnected) this.dispatchEvent(new CustomEvent('astro:unmount'))
+					}, { once: true })
+				}
 				connectedCallback() {
 					if (!this.hasAttribute('await-children') || this.firstChild) {
 						this.childrenConnectedCallback();

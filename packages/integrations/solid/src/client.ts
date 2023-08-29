@@ -9,7 +9,7 @@ export default (element: HTMLElement) =>
 		}
 		if (!element.hasAttribute('ssr')) return;
 
-		const fn = client === 'only' ? render : hydrate;
+		const boostrap = client === 'only' ? render : hydrate;
 
 		let _slots: Record<string, any> = {};
 		if (Object.keys(slotted).length > 0) {
@@ -30,7 +30,7 @@ export default (element: HTMLElement) =>
 		const { default: children, ...slots } = _slots;
 		const renderId = element.dataset.solidRenderId;
 
-		fn(
+		const dispose = boostrap(
 			() =>
 				createComponent(Component, {
 					...props,
@@ -42,4 +42,6 @@ export default (element: HTMLElement) =>
 				renderId,
 			}
 		);
+
+		element.addEventListener('astro:unmount', () => dispose(), { once: true })
 	};

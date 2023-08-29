@@ -31,10 +31,14 @@ export default (element) =>
 		}
 		if (client === 'only') {
 			return startTransition(() => {
-				createRoot(element).render(componentEl);
+				const root = createRoot(element);
+				root.render(componentEl);
+				element.addEventListener('astro:unmount', () => root.unmount(), { once: true });
 			});
 		}
-		return startTransition(() => {
-			hydrateRoot(element, componentEl, renderOptions);
+		startTransition(() => {
+			const root = hydrateRoot(element, componentEl, renderOptions);
+			root.render(componentEl);
+			element.addEventListener('astro:unmount', () => root.unmount(), { once: true });
 		});
 	};
