@@ -51,7 +51,7 @@
 		animation-fill-mode: both;
 	}
 	
-	::view-transition-old(new) {
+	::view-transition-new(root) {
 		animation-name: astroFadeIn;
 		animation-duration: 180;
 		animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
