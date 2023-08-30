@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/check",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -26,7 +26,7 @@
     "test:match": "pnpm run test -g"
   },
   "dependencies": {
-    "@astrojs/language-server": "^2.1.0",
+    "@astrojs/language-server": "^2.3.2",
     "chokidar": "^3.5.3",
     "fast-glob": "^3.3.1",
     "kleur": "^4.1.5",

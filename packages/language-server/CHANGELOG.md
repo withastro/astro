@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.3.2
+
+### Patch Changes
+
+- 4115714: Fix logging severity filtering out diagnostics completely from results
+
 ## 2.3.1
 
 ### Patch Changes
