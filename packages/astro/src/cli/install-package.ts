@@ -1,9 +1,9 @@
 import boxen from 'boxen';
 import { execa } from 'execa';
 import { bold, cyan, dim, magenta } from 'kleur/colors';
-import { createRequire } from 'node:module';
 import ora from 'ora';
 import prompts from 'prompts';
+import resolvePackage from 'resolve';
 import whichPm from 'which-pm';
 import { type Logger } from '../core/logger/core.js';
 
@@ -18,11 +18,9 @@ export async function getPackage<T>(
 	options: GetPackageOptions,
 	otherDeps: string[] = []
 ): Promise<T | undefined> {
-	const require = createRequire(options.cwd ?? process.cwd());
-
 	let packageImport;
 	try {
-		require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
+		await tryResolve(packageName, options.cwd ?? process.cwd());
 
 		// The `require.resolve` is required as to avoid Node caching the failed `import`
 		packageImport = await import(packageName);
@@ -41,6 +39,20 @@ export async function getPackage<T>(
 	}
 
 	return packageImport as T;
+}
+
+function tryResolve(packageName: string, cwd: string) {
+	return new Promise((resolve, reject) => {
+		resolvePackage(packageName, {
+			basedir: cwd,
+		}, (err) => {
+			if(err) {
+				reject(err);
+			} else {
+				resolve(0);
+			}
+		});
+	});
 }
 
 function getInstallCommand(packages: string[], packageManager: string) {
