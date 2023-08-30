@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.0.1
+
+### Patch Changes
+
+- [#8292](https://github.com/withastro/astro/pull/8292) [`4e88ffd81`](https://github.com/withastro/astro/commit/4e88ffd813a3a9fa37b2ddd1a2eff181d4a99c0f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Correctly remove new `.codesandbox` folder when copying template
+
 ## 4.0.0
 
 ### Major Changes
