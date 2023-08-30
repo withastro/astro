@@ -129,6 +129,7 @@
     "@babel/plugin-transform-react-jsx": "^7.22.5",
     "@babel/traverse": "^7.22.10",
     "@babel/types": "^7.22.10",
+    "@skarab/detect-package-manager": "^1.0.0",
     "@types/babel__core": "^7.20.1",
     "acorn": "^8.10.0",
     "boxen": "^7.1.1",
@@ -156,7 +157,6 @@
     "ora": "^7.0.1",
     "p-limit": "^4.0.0",
     "path-to-regexp": "^6.2.1",
-    "preferred-pm": "^3.0.3",
     "prompts": "^2.4.2",
     "rehype": "^12.0.1",
     "resolve": "^1.22.4",
@@ -172,7 +172,6 @@
     "vfile": "^5.3.7",
     "vite": "^4.4.9",
     "vitefu": "^0.2.4",
-    "which-pm": "^2.0.0",
     "yargs-parser": "^21.1.1",
     "zod": "3.21.1"
   },

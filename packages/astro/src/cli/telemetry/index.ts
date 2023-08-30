@@ -7,9 +7,9 @@ interface TelemetryOptions {
 	flags: yargs.Arguments;
 }
 
-export async function notify() {
+export async function notify(packageManager = 'npm') {
 	await telemetry.notify(() => {
-		console.log(msg.telemetryNotice() + '\n');
+		console.log(msg.telemetryNotice(packageManager) + '\n');
 		return true;
 	});
 }

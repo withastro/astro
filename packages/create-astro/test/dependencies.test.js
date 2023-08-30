@@ -10,7 +10,7 @@ describe('dependencies', () => {
 		const context = {
 			cwd: '',
 			yes: true,
-			pkgManager: 'npm',
+			packageManager: 'npm',
 			dryRun: true,
 			prompt: () => ({ deps: true }),
 		};
@@ -21,7 +21,7 @@ describe('dependencies', () => {
 	it('prompt yes', async () => {
 		const context = {
 			cwd: '',
-			pkgManager: 'npm',
+			packageManager: 'npm',
 			dryRun: true,
 			prompt: () => ({ deps: true }),
 			install: undefined,
@@ -34,7 +34,7 @@ describe('dependencies', () => {
 	it('prompt no', async () => {
 		const context = {
 			cwd: '',
-			pkgManager: 'npm',
+			packageManager: 'npm',
 			dryRun: true,
 			prompt: () => ({ deps: false }),
 			install: undefined,
@@ -48,7 +48,7 @@ describe('dependencies', () => {
 		const context = {
 			cwd: '',
 			install: true,
-			pkgManager: 'npm',
+			packageManager: 'npm',
 			dryRun: true,
 			prompt: () => ({ deps: false }),
 		};
@@ -61,7 +61,7 @@ describe('dependencies', () => {
 		const context = {
 			cwd: '',
 			install: false,
-			pkgManager: 'npm',
+			packageManager: 'npm',
 			dryRun: true,
 			prompt: () => ({ deps: false }),
 		};
