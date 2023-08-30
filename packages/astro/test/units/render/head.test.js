@@ -1,17 +1,17 @@
 import { expect } from 'chai';
 
+import * as cheerio from 'cheerio';
+import { createRenderContext, tryRenderRoute } from '../../../dist/core/render/index.js';
 import {
+	Fragment,
 	createComponent,
+	maybeRenderHead,
 	render,
 	renderComponent,
-	renderSlot,
-	maybeRenderHead,
 	renderHead,
-	Fragment,
+	renderSlot,
 } from '../../../dist/runtime/server/index.js';
-import { createRenderContext, tryRenderRoute } from '../../../dist/core/render/index.js';
 import { createBasicEnvironment } from '../test-utils.js';
-import * as cheerio from 'cheerio';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 

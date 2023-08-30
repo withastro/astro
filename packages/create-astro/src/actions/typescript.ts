@@ -1,9 +1,9 @@
 import type { Context } from './context.js';
 
-import { color } from '@astrojs/cli-kit';
 import fs from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { color } from '@astrojs/cli-kit';
 import stripJsonComments from 'strip-json-comments';
 import { error, info, spinner, title, typescriptByDefault } from '../messages.js';
 

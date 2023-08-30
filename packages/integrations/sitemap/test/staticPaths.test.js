@@ -1,5 +1,5 @@
-import { loadFixture, readXML } from './test-utils.js';
 import { expect } from 'chai';
+import { loadFixture, readXML } from './test-utils.js';
 
 describe('getStaticPaths support', () => {
 	/** @type {import('./test-utils.js').Fixture} */

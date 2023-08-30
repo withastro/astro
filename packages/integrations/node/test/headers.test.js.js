@@ -1,6 +1,6 @@
-import nodejs from '../dist/index.js';
-import { loadFixture, createRequestAndResponse } from './test-utils.js';
 import { expect } from 'chai';
+import nodejs from '../dist/index.js';
+import { createRequestAndResponse, loadFixture } from './test-utils.js';
 
 describe('Node Adapter Headers', () => {
 	/** @type {import('./test-utils').Fixture} */

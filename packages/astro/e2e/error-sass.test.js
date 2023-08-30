@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory, getErrorOverlayContent } from './test-utils.js';
+import { getErrorOverlayContent, testFactory } from './test-utils.js';
 
 const test = testFactory({
 	root: './fixtures/error-sass/',

@@ -52,7 +52,9 @@ describe('React Components', () => {
 			const islandsWithChildren = $('.with-children');
 			expect(islandsWithChildren).to.have.lengthOf(2);
 			expect($(islandsWithChildren[0]).html()).to.equal(
-				$(islandsWithChildren[1]).find('astro-slot').html()
+				$(islandsWithChildren[1])
+					.find('astro-slot')
+					.html()
 			);
 
 			// test 11: Should generate unique React.useId per island

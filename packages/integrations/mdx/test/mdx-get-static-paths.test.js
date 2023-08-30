@@ -1,8 +1,8 @@
 import mdx from '@astrojs/mdx';
 
 import { expect } from 'chai';
-import { loadFixture } from '../../../astro/test/test-utils.js';
 import * as cheerio from 'cheerio';
+import { loadFixture } from '../../../astro/test/test-utils.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-get-static-paths', import.meta.url);
 

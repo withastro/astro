@@ -1,8 +1,8 @@
-import nodejs from '../dist/index.js';
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import express from 'express';
+import nodejs from '../dist/index.js';
+import { loadFixture } from './test-utils.js';
 
 /**
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture

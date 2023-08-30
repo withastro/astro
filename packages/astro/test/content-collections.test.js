@@ -1,9 +1,9 @@
-import * as devalue from 'devalue';
-import * as cheerio from 'cheerio';
 import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
+import * as cheerio from 'cheerio';
+import * as devalue from 'devalue';
 import testAdapter from './test-adapter.js';
 import { preventNodeBuiltinDependencyPlugin } from './test-plugins.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Content Collections', () => {
 	describe('Query', () => {
@@ -181,9 +181,11 @@ describe('Content Collections', () => {
 			for (const slug in blogSlugToContents) {
 				const post = await fixture.readFile(`/posts/${slug}/index.html`);
 				const $ = cheerio.load(post);
-				expect($(blogSlugToContents[slug].element).text().trim()).to.equal(
-					blogSlugToContents[slug].content
-				);
+				expect(
+					$(blogSlugToContents[slug].element)
+						.text()
+						.trim()
+				).to.equal(blogSlugToContents[slug].content);
 			}
 		});
 	});
@@ -284,9 +286,11 @@ describe('Content Collections', () => {
 				const response = await app.render(request);
 				const body = await response.text();
 				const $ = cheerio.load(body);
-				expect($(blogSlugToContents[slug].element).text().trim()).to.equal(
-					blogSlugToContents[slug].content
-				);
+				expect(
+					$(blogSlugToContents[slug].element)
+						.text()
+						.trim()
+				).to.equal(blogSlugToContents[slug].content);
 			}
 		});
 	});

@@ -4,9 +4,9 @@
  *  - https://github.com/apollographql/apollo-client/blob/main/src/utilities/common/responseIterator.ts
  */
 
-import { AstroError } from 'astro/errors';
 import type { ReadableStreamDefaultReadResult } from 'node:stream/web';
 import { Readable as NodeReadableStream } from 'stream';
+import { AstroError } from 'astro/errors';
 
 interface NodeStreamIterator<T> {
 	next(): Promise<IteratorResult<T, boolean | undefined>>;
@@ -121,7 +121,7 @@ function nodeStreamIterator<T>(stream: NodeReadableStream): AsyncIterableIterato
 				| IteratorResult<T, boolean | undefined>
 				| PromiseLike<IteratorResult<T, boolean | undefined>>
 		) => void,
-		(reason?: any) => void,
+		(reason?: any) => void
 	][] = [];
 
 	function onData(chunk: any) {

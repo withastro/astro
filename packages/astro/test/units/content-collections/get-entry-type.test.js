@@ -1,5 +1,5 @@
-import { expect } from 'chai';
 import { fileURLToPath } from 'node:url';
+import { expect } from 'chai';
 import { getEntryType } from '../../../dist/content/utils.js';
 
 const fixtures = [

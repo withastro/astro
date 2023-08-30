@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
-import { testFactory, waitForHydrate } from './test-utils.js';
 import testAdapter from '../test/test-adapter.js';
+import { testFactory, waitForHydrate } from './test-utils.js';
 
 const test = testFactory({
 	root: './fixtures/custom-client-directives/',

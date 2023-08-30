@@ -1,5 +1,5 @@
-import { getContentEntryIdAndSlug, getEntryCollectionName } from '../../../dist/content/utils.js';
 import { expect } from 'chai';
+import { getContentEntryIdAndSlug, getEntryCollectionName } from '../../../dist/content/utils.js';
 
 describe('Content Collections - entry info', () => {
 	const contentDir = new URL('src/content/', import.meta.url);

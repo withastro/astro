@@ -1,6 +1,6 @@
 import { fromFileUrl } from 'https://deno.land/std@0.110.0/path/mod.ts';
-import { assert } from 'https://deno.land/std@0.158.0/testing/asserts.ts';
 import { readableStreamFromReader } from 'https://deno.land/std@0.142.0/streams/conversion.ts';
+import { assert } from 'https://deno.land/std@0.158.0/testing/asserts.ts';
 
 const dir = new URL('./', import.meta.url);
 const defaultURL = new URL('http://localhost:8085/');

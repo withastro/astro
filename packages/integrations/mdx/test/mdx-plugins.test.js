@@ -1,10 +1,10 @@
 import mdx from '@astrojs/mdx';
 
 import { expect } from 'chai';
-import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
-import remarkToc from 'remark-toc';
 import { visit as estreeVisit } from 'estree-util-visit';
+import { parseHTML } from 'linkedom';
+import remarkToc from 'remark-toc';
+import { loadFixture } from '../../../astro/test/test-utils.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-plugins/', import.meta.url);
 const FILE = '/with-plugins/index.html';

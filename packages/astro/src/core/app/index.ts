@@ -16,7 +16,7 @@ import {
 	removeTrailingForwardSlash,
 } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { createEnvironment, createRenderContext, type RenderContext } from '../render/index.js';
+import { type RenderContext, createEnvironment, createRenderContext } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createAssetLink,

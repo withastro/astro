@@ -1,5 +1,5 @@
-import { bold } from 'kleur/colors';
 import { extname } from 'node:path';
+import { bold } from 'kleur/colors';
 import type { Plugin as VitePlugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';

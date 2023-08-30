@@ -1,34 +1,33 @@
-import { h, createSSRApp, createApp, Suspense } from 'vue';
-import { setup } from 'virtual:@astrojs/vue/app';
+import { Suspense, createApp, createSSRApp, h } from 'vue';
 import StaticHtml from './static-html.js';
+import { setup } from 'virtual:@astrojs/vue/app';
 
-export default (element) =>
-	async (Component, props, slotted, { client }) => {
-		delete props['class'];
-		if (!element.hasAttribute('ssr')) return;
+export default (element) => async (Component, props, slotted, { client }) => {
+	delete props['class'];
+	if (!element.hasAttribute('ssr')) return;
 
-		// Expose name on host component for Vue devtools
-		const name = Component.name ? `${Component.name} Host` : undefined;
-		const slots = {};
-		for (const [key, value] of Object.entries(slotted)) {
-			slots[key] = () => h(StaticHtml, { value, name: key === 'default' ? undefined : key });
-		}
+	// Expose name on host component for Vue devtools
+	const name = Component.name ? `${Component.name} Host` : undefined;
+	const slots = {};
+	for (const [key, value] of Object.entries(slotted)) {
+		slots[key] = () => h(StaticHtml, { value, name: key === 'default' ? undefined : key });
+	}
 
-		let content = h(Component, props, slots);
-		// related to https://github.com/withastro/astro/issues/6549
-		// if the component is async, wrap it in a Suspense component
-		if (isAsync(Component.setup)) {
-			content = h(Suspense, null, content);
-		}
+	let content = h(Component, props, slots);
+	// related to https://github.com/withastro/astro/issues/6549
+	// if the component is async, wrap it in a Suspense component
+	if (isAsync(Component.setup)) {
+		content = h(Suspense, null, content);
+	}
 
-		const isHydrate = client !== 'only';
-		const boostrap = isHydrate ? createSSRApp : createApp;
-		const app = boostrap({ name, render: () => content });
-		await setup(app);
-		app.mount(element, isHydrate);
+	const isHydrate = client !== 'only';
+	const boostrap = isHydrate ? createSSRApp : createApp;
+	const app = boostrap({ name, render: () => content });
+	await setup(app);
+	app.mount(element, isHydrate);
 
-		element.addEventListener('astro:unmount', () => app.unmount(), { once: true });
-	};
+	element.addEventListener('astro:unmount', () => app.unmount(), { once: true });
+};
 
 function isAsync(fn) {
 	const constructor = fn?.constructor;

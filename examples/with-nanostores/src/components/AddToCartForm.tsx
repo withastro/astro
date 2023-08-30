@@ -1,6 +1,6 @@
-import { isCartOpen, addCartItem } from '../cartStore';
-import type { CartItemDisplayInfo } from '../cartStore';
 import type { ComponentChildren } from 'preact';
+import { addCartItem, isCartOpen } from '../cartStore';
+import type { CartItemDisplayInfo } from '../cartStore';
 
 type Props = {
 	item: CartItemDisplayInfo;

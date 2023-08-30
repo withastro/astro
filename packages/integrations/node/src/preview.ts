@@ -1,7 +1,7 @@
-import type { CreatePreviewServer } from 'astro';
-import { AstroError } from 'astro/errors';
 import type http from 'node:http';
 import { fileURLToPath } from 'node:url';
+import type { CreatePreviewServer } from 'astro';
+import { AstroError } from 'astro/errors';
 import { getNetworkAddress } from './get-network-address.js';
 import { createServer } from './http-server.js';
 import type { createExports } from './server.js';

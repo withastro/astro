@@ -1,7 +1,7 @@
-import { bold } from 'kleur/colors';
 import fs from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
+import { bold } from 'kleur/colors';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import type {
 	AstroAdapter,

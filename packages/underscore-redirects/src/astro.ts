@@ -1,5 +1,5 @@
-import type { AstroConfig, RouteData, ValidRedirectStatus } from 'astro';
 import { posix } from 'node:path';
+import type { AstroConfig, RouteData, ValidRedirectStatus } from 'astro';
 import { Redirects } from './redirects.js';
 
 const pathJoin = posix.join;

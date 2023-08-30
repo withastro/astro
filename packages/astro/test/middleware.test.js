@@ -1,9 +1,9 @@
-import { loadFixture } from './test-utils.js';
+import { existsSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { fileURLToPath } from 'node:url';
-import { readFileSync, existsSync } from 'node:fs';
+import { loadFixture } from './test-utils.js';
 
 describe('Middleware in DEV mode', () => {
 	/** @type {import('./test-utils').Fixture} */

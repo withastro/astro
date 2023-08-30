@@ -167,9 +167,7 @@ export const NoMatchingRenderer = {
 
 ${
 	validRenderersCount > 0
-		? `There ${plural ? 'are' : 'is'} ${validRenderersCount} renderer${
-				plural ? 's' : ''
-		  } configured in your \`astro.config.mjs\` file,
+		? `There ${plural ? 'are' : 'is'} ${validRenderersCount} renderer${plural ? 's' : ''} configured in your \`astro.config.mjs\` file,
 but ${plural ? 'none were' : 'it was not'} able to server-side render \`${componentName}\`.`
 		: `No valid renderer was found ${
 				componentExtension

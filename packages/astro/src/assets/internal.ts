@@ -1,7 +1,7 @@
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { isLocalService, type ImageService } from './services/service.js';
+import { type ImageService, isLocalService } from './services/service.js';
 import type {
 	GetImageResult,
 	ImageMetadata,

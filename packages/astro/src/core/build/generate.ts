@@ -1,7 +1,7 @@
-import * as colors from 'kleur/colors';
-import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import * as colors from 'kleur/colors';
+import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
 import type { OutputAsset, OutputChunk } from 'rollup';
 import type { BufferEncoding } from 'vfile';
 import type {
@@ -21,7 +21,7 @@ import {
 	generateImage as generateImageInternal,
 	getStaticImageList,
 } from '../../assets/build/generate.js';
-import { hasPrerenderedPages, type BuildInternals } from '../../core/build/internal.js';
+import { type BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
 import {
 	isRelativePath,
 	joinPaths,

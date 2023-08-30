@@ -2,10 +2,10 @@ import { fileURLToPath } from 'node:url';
 import type { HmrContext, ModuleNode } from 'vite';
 import type { AstroConfig } from '../@types/astro.js';
 import {
+	type CompileResult,
 	cachedCompilation,
 	invalidateCompilation,
 	isCached,
-	type CompileResult,
 } from '../core/compile/index.js';
 import type { Logger } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';

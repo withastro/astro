@@ -1,5 +1,5 @@
-import { expect } from 'chai';
 import * as fs from 'node:fs';
+import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
 describe('outDir set to project root', async () => {

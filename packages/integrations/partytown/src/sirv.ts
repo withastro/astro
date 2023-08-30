@@ -32,10 +32,10 @@
 
 import * as fs from 'node:fs';
 import { join, normalize, resolve } from 'node:path';
+import { URL } from 'node:url';
 // import { totalist } from 'totalist/sync';
 // import { parse } from '@polka/url';
 import { lookup } from 'mrmime';
-import { URL } from 'node:url';
 
 const noop = () => {};
 

@@ -1,18 +1,18 @@
-import rss, { getRssString } from '../dist/index.js';
-import { rssSchema } from '../dist/schema.js';
 import chai from 'chai';
 import chaiPromises from 'chai-as-promised';
 import chaiXml from 'chai-xml';
+import rss, { getRssString } from '../dist/index.js';
+import { rssSchema } from '../dist/schema.js';
 import {
-	title,
 	description,
-	site,
 	phpFeedItem,
 	phpFeedItemWithContent,
 	phpFeedItemWithCustomData,
+	site,
+	title,
 	web1FeedItem,
-	web1FeedItemWithContent,
 	web1FeedItemWithAllData,
+	web1FeedItemWithContent,
 } from './test-utils.js';
 
 chai.use(chaiPromises);
@@ -21,15 +21,93 @@ chai.use(chaiXml);
 // note: I spent 30 minutes looking for a nice node-based snapshot tool
 // ...and I gave up. Enjoy big strings!
 // prettier-ignore
-const validXmlResult = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${phpFeedItem.title}]]></title><link>${site}${phpFeedItem.link}/</link><guid isPermaLink="true">${site}${phpFeedItem.link}/</guid><description><![CDATA[${phpFeedItem.description}]]></description><pubDate>${new Date(phpFeedItem.pubDate).toUTCString()}</pubDate></item><item><title><![CDATA[${web1FeedItem.title}]]></title><link>${site}${web1FeedItem.link}/</link><guid isPermaLink="true">${site}${web1FeedItem.link}/</guid><description><![CDATA[${web1FeedItem.description}]]></description><pubDate>${new Date(web1FeedItem.pubDate).toUTCString()}</pubDate></item></channel></rss>`;
+const validXmlResult = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${
+	phpFeedItem.title
+}]]></title><link>${site}${phpFeedItem.link}/</link><guid isPermaLink="true">${site}${
+	phpFeedItem.link
+}/</guid><description><![CDATA[${phpFeedItem.description}]]></description><pubDate>${new Date(
+	phpFeedItem.pubDate
+).toUTCString()}</pubDate></item><item><title><![CDATA[${
+	web1FeedItem.title
+}]]></title><link>${site}${web1FeedItem.link}/</link><guid isPermaLink="true">${site}${
+	web1FeedItem.link
+}/</guid><description><![CDATA[${web1FeedItem.description}]]></description><pubDate>${new Date(
+	web1FeedItem.pubDate
+).toUTCString()}</pubDate></item></channel></rss>`;
 // prettier-ignore
-const validXmlWithoutWeb1FeedResult = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${phpFeedItem.title}]]></title><link>${site}${phpFeedItem.link}/</link><guid isPermaLink="true">${site}${phpFeedItem.link}/</guid><description><![CDATA[${phpFeedItem.description}]]></description><pubDate>${new Date(phpFeedItem.pubDate).toUTCString()}</pubDate></item></channel></rss>`;
+const validXmlWithoutWeb1FeedResult = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${
+	phpFeedItem.title
+}]]></title><link>${site}${phpFeedItem.link}/</link><guid isPermaLink="true">${site}${
+	phpFeedItem.link
+}/</guid><description><![CDATA[${phpFeedItem.description}]]></description><pubDate>${new Date(
+	phpFeedItem.pubDate
+).toUTCString()}</pubDate></item></channel></rss>`;
 // prettier-ignore
-const validXmlWithContentResult = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${phpFeedItemWithContent.title}]]></title><link>${site}${phpFeedItemWithContent.link}/</link><guid isPermaLink="true">${site}${phpFeedItemWithContent.link}/</guid><description><![CDATA[${phpFeedItemWithContent.description}]]></description><pubDate>${new Date(phpFeedItemWithContent.pubDate).toUTCString()}</pubDate><content:encoded><![CDATA[${phpFeedItemWithContent.content}]]></content:encoded></item><item><title><![CDATA[${web1FeedItemWithContent.title}]]></title><link>${site}${web1FeedItemWithContent.link}/</link><guid isPermaLink="true">${site}${web1FeedItemWithContent.link}/</guid><description><![CDATA[${web1FeedItemWithContent.description}]]></description><pubDate>${new Date(web1FeedItemWithContent.pubDate).toUTCString()}</pubDate><content:encoded><![CDATA[${web1FeedItemWithContent.content}]]></content:encoded></item></channel></rss>`;
+const validXmlWithContentResult = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${
+	phpFeedItemWithContent.title
+}]]></title><link>${site}${phpFeedItemWithContent.link}/</link><guid isPermaLink="true">${site}${
+	phpFeedItemWithContent.link
+}/</guid><description><![CDATA[${
+	phpFeedItemWithContent.description
+}]]></description><pubDate>${new Date(
+	phpFeedItemWithContent.pubDate
+).toUTCString()}</pubDate><content:encoded><![CDATA[${
+	phpFeedItemWithContent.content
+}]]></content:encoded></item><item><title><![CDATA[${
+	web1FeedItemWithContent.title
+}]]></title><link>${site}${web1FeedItemWithContent.link}/</link><guid isPermaLink="true">${site}${
+	web1FeedItemWithContent.link
+}/</guid><description><![CDATA[${
+	web1FeedItemWithContent.description
+}]]></description><pubDate>${new Date(
+	web1FeedItemWithContent.pubDate
+).toUTCString()}</pubDate><content:encoded><![CDATA[${
+	web1FeedItemWithContent.content
+}]]></content:encoded></item></channel></rss>`;
 // prettier-ignore
-const validXmlResultWithAllData = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${phpFeedItem.title}]]></title><link>${site}${phpFeedItem.link}/</link><guid isPermaLink="true">${site}${phpFeedItem.link}/</guid><description><![CDATA[${phpFeedItem.description}]]></description><pubDate>${new Date(phpFeedItem.pubDate).toUTCString()}</pubDate></item><item><title><![CDATA[${web1FeedItemWithAllData.title}]]></title><link>${site}${web1FeedItemWithAllData.link}/</link><guid isPermaLink="true">${site}${web1FeedItemWithAllData.link}/</guid><description><![CDATA[${web1FeedItemWithAllData.description}]]></description><pubDate>${new Date(web1FeedItemWithAllData.pubDate).toUTCString()}</pubDate><category>${web1FeedItemWithAllData.categories[0]}</category><category>${web1FeedItemWithAllData.categories[1]}</category><author>${web1FeedItemWithAllData.author}</author><comments>${web1FeedItemWithAllData.commentsUrl}</comments><source url="${web1FeedItemWithAllData.source.url}">${web1FeedItemWithAllData.source.title}</source><enclosure url="${site}${web1FeedItemWithAllData.enclosure.url}" length="${web1FeedItemWithAllData.enclosure.length}" type="${web1FeedItemWithAllData.enclosure.type}"/></item></channel></rss>`;
+const validXmlResultWithAllData = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${
+	phpFeedItem.title
+}]]></title><link>${site}${phpFeedItem.link}/</link><guid isPermaLink="true">${site}${
+	phpFeedItem.link
+}/</guid><description><![CDATA[${phpFeedItem.description}]]></description><pubDate>${new Date(
+	phpFeedItem.pubDate
+).toUTCString()}</pubDate></item><item><title><![CDATA[${
+	web1FeedItemWithAllData.title
+}]]></title><link>${site}${web1FeedItemWithAllData.link}/</link><guid isPermaLink="true">${site}${
+	web1FeedItemWithAllData.link
+}/</guid><description><![CDATA[${
+	web1FeedItemWithAllData.description
+}]]></description><pubDate>${new Date(
+	web1FeedItemWithAllData.pubDate
+).toUTCString()}</pubDate><category>${web1FeedItemWithAllData.categories[0]}</category><category>${
+	web1FeedItemWithAllData.categories[1]
+}</category><author>${web1FeedItemWithAllData.author}</author><comments>${
+	web1FeedItemWithAllData.commentsUrl
+}</comments><source url="${web1FeedItemWithAllData.source.url}">${
+	web1FeedItemWithAllData.source.title
+}</source><enclosure url="${site}${web1FeedItemWithAllData.enclosure.url}" length="${
+	web1FeedItemWithAllData.enclosure.length
+}" type="${web1FeedItemWithAllData.enclosure.type}"/></item></channel></rss>`;
 // prettier-ignore
-const validXmlWithCustomDataResult = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${phpFeedItemWithCustomData.title}]]></title><link>${site}${phpFeedItemWithCustomData.link}/</link><guid isPermaLink="true">${site}${phpFeedItemWithCustomData.link}/</guid><description><![CDATA[${phpFeedItemWithCustomData.description}]]></description><pubDate>${new Date(phpFeedItemWithCustomData.pubDate).toUTCString()}</pubDate>${phpFeedItemWithCustomData.customData}</item><item><title><![CDATA[${web1FeedItemWithContent.title}]]></title><link>${site}${web1FeedItemWithContent.link}/</link><guid isPermaLink="true">${site}${web1FeedItemWithContent.link}/</guid><description><![CDATA[${web1FeedItemWithContent.description}]]></description><pubDate>${new Date(web1FeedItemWithContent.pubDate).toUTCString()}</pubDate><content:encoded><![CDATA[${web1FeedItemWithContent.content}]]></content:encoded></item></channel></rss>`;
+const validXmlWithCustomDataResult = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${
+	phpFeedItemWithCustomData.title
+}]]></title><link>${site}${phpFeedItemWithCustomData.link}/</link><guid isPermaLink="true">${site}${
+	phpFeedItemWithCustomData.link
+}/</guid><description><![CDATA[${
+	phpFeedItemWithCustomData.description
+}]]></description><pubDate>${new Date(phpFeedItemWithCustomData.pubDate).toUTCString()}</pubDate>${
+	phpFeedItemWithCustomData.customData
+}</item><item><title><![CDATA[${web1FeedItemWithContent.title}]]></title><link>${site}${
+	web1FeedItemWithContent.link
+}/</link><guid isPermaLink="true">${site}${
+	web1FeedItemWithContent.link
+}/</guid><description><![CDATA[${
+	web1FeedItemWithContent.description
+}]]></description><pubDate>${new Date(
+	web1FeedItemWithContent.pubDate
+).toUTCString()}</pubDate><content:encoded><![CDATA[${
+	web1FeedItemWithContent.content
+}]]></content:encoded></item></channel></rss>`;
 // prettier-ignore
 const validXmlWithStylesheet = `<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="/feedstylesheet.css"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link></channel></rss>`;
 // prettier-ignore

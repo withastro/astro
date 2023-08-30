@@ -1,6 +1,6 @@
-import { loadFixture, readXML } from './test-utils.js';
 import { expect } from 'chai';
 import { sitemap } from './fixtures/static/deps.mjs';
+import { loadFixture, readXML } from './test-utils.js';
 
 describe('Filter support', () => {
 	/** @type {import('./test-utils.js').Fixture} */

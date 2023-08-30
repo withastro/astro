@@ -1,6 +1,6 @@
-import { parse as parseDevalue } from 'devalue';
 import { expect } from 'chai';
-import { loadFixture, fixLineEndings } from '../../../astro/test/test-utils.js';
+import { parse as parseDevalue } from 'devalue';
+import { fixLineEndings, loadFixture } from '../../../astro/test/test-utils.js';
 import markdoc from '../dist/index.js';
 
 function formatPost(post) {

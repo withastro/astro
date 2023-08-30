@@ -1,5 +1,5 @@
-import { expect } from 'chai';
 import { fileURLToPath } from 'node:url';
+import { expect } from 'chai';
 import { createContainer } from '../../../dist/core/dev/index.js';
 import { createViteLoader } from '../../../dist/core/module-loader/index.js';
 import { createBasicSettings, defaultLogger } from '../test-utils.js';

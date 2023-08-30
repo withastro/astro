@@ -1,5 +1,5 @@
-import { expect } from 'chai';
 import os from 'node:os';
+import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
 // TODO: fix these tests on macOS

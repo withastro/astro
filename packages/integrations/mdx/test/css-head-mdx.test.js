@@ -1,9 +1,9 @@
 import mdx from '@astrojs/mdx';
 
 import { expect } from 'chai';
+import * as cheerio from 'cheerio';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
-import * as cheerio from 'cheerio';
 
 describe('Head injection w/ MDX', () => {
 	let fixture;

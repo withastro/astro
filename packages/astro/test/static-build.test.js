@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import { Logger } from '../dist/core/logger/core.js';
+import { loadFixture } from './test-utils.js';
 
 function addLeadingSlash(path) {
 	return path.startsWith('/') ? path : '/' + path;

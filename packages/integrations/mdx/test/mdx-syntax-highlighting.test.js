@@ -2,9 +2,9 @@ import mdx from '@astrojs/mdx';
 
 import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
-import shikiTwoslash from 'remark-shiki-twoslash';
 import rehypePrettyCode from 'rehype-pretty-code';
+import shikiTwoslash from 'remark-shiki-twoslash';
+import { loadFixture } from '../../../astro/test/test-utils.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-syntax-hightlighting/', import.meta.url);
 

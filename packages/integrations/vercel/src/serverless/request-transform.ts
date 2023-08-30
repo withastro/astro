@@ -1,5 +1,5 @@
-import type { App } from 'astro/app';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { App } from 'astro/app';
 import { splitCookiesString } from 'set-cookie-parser';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');

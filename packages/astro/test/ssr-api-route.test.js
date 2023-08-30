@@ -1,5 +1,5 @@
-import { expect } from 'chai';
 import net from 'node:net';
+import { expect } from 'chai';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 

@@ -1,17 +1,17 @@
-import type { AstroInstance } from 'astro';
 import type { RenderableTreeNode } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
+import type { AstroInstance } from 'astro';
 import {
-	createComponent,
-	renderComponent,
-	render,
-	renderScriptElement,
-	renderUniqueStylesheet,
-	createHeadAndContent,
-	unescapeHTML,
-	renderTemplate,
 	HTMLString,
+	createComponent,
+	createHeadAndContent,
 	isHTMLString,
+	render,
+	renderComponent,
+	renderScriptElement,
+	renderTemplate,
+	renderUniqueStylesheet,
+	unescapeHTML,
 } from 'astro/runtime/server/index.js';
 
 export type TreeNode =

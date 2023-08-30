@@ -204,7 +204,9 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 		? // Try the static route `pathname`
 		  ctx.route.pathname ??
 		  // Dynamic routes don't include `pathname`, so synthesize a path for these (e.g. 'src/pages/[slug].svg')
-		  ctx.route.segments.map((s) => s.map((p) => p.content).join('')).join('/')
+		  ctx.route.segments
+				.map((s) => s.map((p) => p.content).join(''))
+				.join('/')
 		: // Fallback to pathname of the request
 		  ctx.pathname;
 	const mimeType = mime.getType(pathname) || 'text/plain';

@@ -1,5 +1,5 @@
-import { expect } from 'chai';
 import { fileURLToPath } from 'node:url';
+import { expect } from 'chai';
 import { createFs, createRequestAndResponse, runInContainer } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);

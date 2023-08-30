@@ -1,5 +1,5 @@
-import { expect } from 'chai';
 import { fileURLToPath } from 'node:url';
+import { expect } from 'chai';
 import _sync from '../../../dist/core/sync/index.js';
 import { createFsWithFallback } from '../test-utils.js';
 

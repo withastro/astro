@@ -4,7 +4,7 @@ import { App } from 'astro/app';
 import type { Options } from './types';
 
 // @ts-expect-error
-import { fromFileUrl, serveFile, Server } from '@astrojs/deno/__deno_imports.js';
+import { Server, fromFileUrl, serveFile } from '@astrojs/deno/__deno_imports.js';
 
 let _server: Server | undefined = undefined;
 let _startPromise: Promise<void> | undefined = undefined;

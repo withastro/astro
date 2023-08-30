@@ -1,34 +1,34 @@
 {
-  "name": "Nanostores",
-  "build": {
-    "dockerfile": "../examples.Dockerfile"
-  },
+	"name": "Nanostores",
+	"build": {
+		"dockerfile": "../examples.Dockerfile"
+	},
 
-  "workspaceFolder": "/workspaces/astro/examples/with-nanostores",
+	"workspaceFolder": "/workspaces/astro/examples/with-nanostores",
 
-  "portsAttributes": {
-    "4321": {
-      "label": "Application",
-      "onAutoForward": "openPreview"
-    }
-  },
+	"portsAttributes": {
+		"4321": {
+			"label": "Application",
+			"onAutoForward": "openPreview"
+		}
+	},
 
-  "forwardPorts": [4321],
+	"forwardPorts": [4321],
 
-  "postCreateCommand": "pnpm install && cd /workspaces/astro && pnpm run build",
+	"postCreateCommand": "pnpm install && cd /workspaces/astro && pnpm run build",
 
-  "waitFor": "postCreateCommand",
+	"waitFor": "postCreateCommand",
 
-  "postAttachCommand": {
-    "Server": "pnpm start --host"
-  },
+	"postAttachCommand": {
+		"Server": "pnpm start --host"
+	},
 
-  "customizations": {
-    "codespaces": {
-      "openFiles": ["src/pages/index.astro"]
-    },
-    "vscode": {
-      "extensions": ["astro-build.astro-vscode", "esbenp.prettier-vscode"]
-    }
-  }
+	"customizations": {
+		"codespaces": {
+			"openFiles": ["src/pages/index.astro"]
+		},
+		"vscode": {
+			"extensions": ["astro-build.astro-vscode", "esbenp.prettier-vscode"]
+		}
+	}
 }

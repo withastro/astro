@@ -1,5 +1,5 @@
-import { Redirects } from '../dist/index.js';
 import { expect } from 'chai';
+import { Redirects } from '../dist/index.js';
 
 describe('Weight', () => {
 	it('Puts higher weighted definitions on top', () => {

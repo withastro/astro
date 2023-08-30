@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { loadFixture, fixLineEndings } from './test-utils.js';
+import { fixLineEndings, loadFixture } from './test-utils.js';
 
 const FIXTURE_ROOT = './fixtures/astro-markdown/';
 

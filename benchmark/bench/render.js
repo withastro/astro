@@ -1,9 +1,9 @@
-import { execaCommand } from 'execa';
-import { markdownTable } from 'markdown-table';
 import fs from 'node:fs/promises';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execaCommand } from 'execa';
+import { markdownTable } from 'markdown-table';
 import { waitUntilBusy } from 'port-authority';
 import { calculateStat, astroBin } from './_util.js';
 import { renderFiles } from '../make-project/render-default.js';

@@ -1,7 +1,7 @@
-import arg from 'arg';
-import { globby as glob } from 'globby';
 import { promises as fs, readFileSync } from 'node:fs';
 import { posix } from 'node:path';
+import arg from 'arg';
+import { globby as glob } from 'globby';
 import tar from 'tar';
 
 const { resolve, dirname, sep, join } = posix;

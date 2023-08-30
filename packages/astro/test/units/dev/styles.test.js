@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
-import { getStylesForURL } from '../../../dist/vite-plugin-astro-server/css.js';
 import { viteID } from '../../../dist/core/util.js';
+import { getStylesForURL } from '../../../dist/vite-plugin-astro-server/css.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 

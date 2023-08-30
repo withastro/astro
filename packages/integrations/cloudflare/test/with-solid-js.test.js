@@ -1,6 +1,6 @@
-import { loadFixture, runCLI } from './test-utils.js';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
+import { loadFixture, runCLI } from './test-utils.js';
 
 describe('With SolidJS', () => {
 	/** @type {import('./test-utils').Fixture} */

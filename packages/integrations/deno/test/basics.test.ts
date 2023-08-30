@@ -1,8 +1,8 @@
+import { assert, assertEquals } from 'https://deno.land/std@0.158.0/testing/asserts.ts';
 /* Deno types consider DOM elements nullable */
 /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 import { DOMParser } from 'https://deno.land/x/deno_dom@v0.1.35-alpha/deno-dom-wasm.ts';
-import { assert, assertEquals } from 'https://deno.land/std@0.158.0/testing/asserts.ts';
-import { runBuildAndStartApp, defaultTestPermissions } from './helpers.ts';
+import { defaultTestPermissions, runBuildAndStartApp } from './helpers.ts';
 
 // this needs to be here and not in the specific test case, because
 // the variables are loaded in the global scope of the built server

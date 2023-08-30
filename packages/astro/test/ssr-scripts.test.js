@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('SSR Hydrated component scripts', () => {
 	/** @type {import('./test-utils').Fixture} */

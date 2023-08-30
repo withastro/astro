@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import addClasses from './fixtures/astro-markdown-plugins/add-classes.mjs';
+import { loadFixture } from './test-utils.js';
 
 const defaultMarkdownConfig = {
 	gfm: true,

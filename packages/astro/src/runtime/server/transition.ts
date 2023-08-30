@@ -50,7 +50,7 @@ export function renderTransition(
 	if (animations) {
 		for (const [direction, images] of Object.entries(animations) as Entries<typeof animations>) {
 			for (const [image, rules] of Object.entries(images) as Entries<
-				(typeof animations)[typeof direction]
+				typeof animations[typeof direction]
 			>) {
 				sheet.addAnimationPair(direction, image, rules);
 			}
@@ -69,10 +69,7 @@ class ViewTransitionStyleSheet {
 	private modern: string[] = [];
 	private fallback: string[] = [];
 
-	constructor(
-		private scope: string,
-		private name: string
-	) {}
+	constructor(private scope: string, private name: string) {}
 
 	toString() {
 		const { scope, name } = this;

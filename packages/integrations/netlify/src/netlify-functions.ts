@@ -1,4 +1,4 @@
-import { builder, type Handler } from '@netlify/functions';
+import { type Handler, builder } from '@netlify/functions';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { applyPolyfills } from 'astro/app/node';

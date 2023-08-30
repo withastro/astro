@@ -1,5 +1,5 @@
-import { parseHTML } from 'linkedom';
 import { expect } from 'chai';
+import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
 async function getFixture(name) {

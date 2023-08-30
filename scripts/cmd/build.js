@@ -1,8 +1,8 @@
+import { promises as fs } from 'node:fs';
 import { deleteAsync } from 'del';
 import esbuild from 'esbuild';
 import { copy } from 'esbuild-plugin-copy';
 import { dim, green, red, yellow } from 'kleur/colors';
-import { promises as fs } from 'node:fs';
 import glob from 'tiny-glob';
 import svelte from '../utils/svelte-plugin.js';
 import prebuild from './prebuild.js';

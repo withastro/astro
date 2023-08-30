@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
 import * as cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
 describe('Hoisted Imports', () => {
 	let fixture;

@@ -6,7 +6,7 @@ import { isServerLikeOutput } from '../../prerender/utils.js';
 import { getConfiguredImageService, isESMImportedImage } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
 import type { ImageMetadata, ImageTransform } from '../types.js';
-import { loadRemoteImage, type RemoteCacheEntry } from './remote.js';
+import { type RemoteCacheEntry, loadRemoteImage } from './remote.js';
 
 interface GenerationDataUncached {
 	cached: false;

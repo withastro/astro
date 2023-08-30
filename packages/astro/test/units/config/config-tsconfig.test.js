@@ -1,8 +1,8 @@
-import { expect } from 'chai';
-import { fileURLToPath } from 'node:url';
-import { loadTSConfig, updateTSConfigForFramework } from '../../../dist/core/config/index.js';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { expect } from 'chai';
 import * as tsr from 'tsconfig-resolver';
+import { loadTSConfig, updateTSConfigForFramework } from '../../../dist/core/config/index.js';
 
 const cwd = fileURLToPath(new URL('../../fixtures/tsconfig-handling/', import.meta.url));
 

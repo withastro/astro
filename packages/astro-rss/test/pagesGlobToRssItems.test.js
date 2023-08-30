@@ -1,7 +1,7 @@
 import chai from 'chai';
 import chaiPromises from 'chai-as-promised';
-import { phpFeedItem, web1FeedItem } from './test-utils.js';
 import { pagesGlobToRssItems } from '../dist/index.js';
+import { phpFeedItem, web1FeedItem } from './test-utils.js';
 
 chai.use(chaiPromises);
 

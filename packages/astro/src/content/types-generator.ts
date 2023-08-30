@@ -1,9 +1,9 @@
-import glob from 'fast-glob';
-import { cyan } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { normalizePath, type ViteDevServer } from 'vite';
+import glob from 'fast-glob';
+import { cyan } from 'kleur/colors';
+import { type ViteDevServer, normalizePath } from 'vite';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
@@ -11,6 +11,9 @@ import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
+	type ContentConfig,
+	type ContentObservable,
+	type ContentPaths,
 	getContentEntryIdAndSlug,
 	getContentPaths,
 	getDataEntryExts,
@@ -20,9 +23,6 @@ import {
 	getEntrySlug,
 	getEntryType,
 	reloadContentConfigObserver,
-	type ContentConfig,
-	type ContentObservable,
-	type ContentPaths,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';

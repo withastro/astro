@@ -1,17 +1,17 @@
 import { expect } from 'chai';
 import {
+	createRenderContext,
+	loadRenderer,
+	tryRenderRoute,
+} from '../../../dist/core/render/index.js';
+import { jsx } from '../../../dist/jsx-runtime/index.js';
+import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
+import {
 	createComponent,
 	render,
 	renderComponent,
 	renderSlot,
 } from '../../../dist/runtime/server/index.js';
-import { jsx } from '../../../dist/jsx-runtime/index.js';
-import {
-	createRenderContext,
-	tryRenderRoute,
-	loadRenderer,
-} from '../../../dist/core/render/index.js';
-import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
 import { createBasicEnvironment } from '../test-utils.js';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });

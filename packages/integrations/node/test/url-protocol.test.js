@@ -1,5 +1,5 @@
-import { expect } from 'chai';
 import { TLSSocket } from 'node:tls';
+import { expect } from 'chai';
 import nodejs from '../dist/index.js';
 import { createRequestAndResponse, loadFixture } from './test-utils.js';
 

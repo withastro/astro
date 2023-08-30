@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { runHookBuildSetup } from '../../../dist/integrations/index.js';
 import { validateSupportedFeatures } from '../../../dist/integrations/astroFeaturesValidation.js';
+import { runHookBuildSetup } from '../../../dist/integrations/index.js';
 import { defaultLogger } from '../test-utils.js';
 
 describe('Integration API', () => {

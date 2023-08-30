@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-import { typescript, setupTypeScript } from '../dist/index.js';
+import { setupTypeScript, typescript } from '../dist/index.js';
 import { setup } from './utils.js';
 
 describe('typescript', () => {

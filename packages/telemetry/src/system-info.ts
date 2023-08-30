@@ -1,7 +1,7 @@
-import { name as ciName, isCI } from 'ci-info';
+import os from 'node:os';
+import { isCI, name as ciName } from 'ci-info';
 import isDocker from 'is-docker';
 import isWSL from 'is-wsl';
-import os from 'node:os';
 
 /**
  * Astro Telemetry -- System Info

@@ -1,6 +1,6 @@
-import netlifyAdapter from '../../dist/index.js';
-import { testIntegration, loadFixture } from './test-utils.js';
 import { expect } from 'chai';
+import netlifyAdapter from '../../dist/index.js';
+import { loadFixture, testIntegration } from './test-utils.js';
 
 describe('Middleware', () => {
 	it('with edge handle file, should successfully build the middleware', async () => {

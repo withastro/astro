@@ -10,9 +10,7 @@ const adder = ([selector, className]) => {
 	return (node) => selectAll(selector, node).forEach(writer);
 };
 
-const write =
-	(className) =>
-	({ properties }) => {
-		if (!properties.className) properties.className = className;
-		else properties.className += ` ${className}`;
-	};
+const write = (className) => ({ properties }) => {
+	if (!properties.className) properties.className = className;
+	else properties.className += ` ${className}`;
+};

@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
 import prefetch from '../dist/index.js';
+import { testFactory } from './test-utils.js';
 
 const customSelector = 'a[href="/contact"]';
 const customIntentSelector = [

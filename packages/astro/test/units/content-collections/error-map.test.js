@@ -1,7 +1,7 @@
-import { z } from '../../../zod.mjs';
-import { errorMap } from '../../../dist/content/index.js';
-import { fixLineEndings } from '../../test-utils.js';
 import { expect } from 'chai';
+import { errorMap } from '../../../dist/content/index.js';
+import { z } from '../../../zod.mjs';
+import { fixLineEndings } from '../../test-utils.js';
 
 describe('Content Collections - error map', () => {
 	it('Prefixes messages with object key', () => {

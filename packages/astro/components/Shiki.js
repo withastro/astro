@@ -1,6 +1,6 @@
 import { getHighlighter as getShikiHighlighter } from 'shiki';
-import { themes } from './shiki-themes.js';
 import { languages } from './shiki-languages.js';
+import { themes } from './shiki-themes.js';
 
 // Caches Promise<Highlighter> for reuse when the same theme and langs are provided
 const _resolvedHighlighters = new Map();

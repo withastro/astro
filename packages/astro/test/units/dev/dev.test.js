@@ -1,11 +1,11 @@
+import { fileURLToPath } from 'node:url';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { fileURLToPath } from 'node:url';
 import {
 	createFs,
 	createRequestAndResponse,
-	triggerFSEvent,
 	runInContainer,
+	triggerFSEvent,
 } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);

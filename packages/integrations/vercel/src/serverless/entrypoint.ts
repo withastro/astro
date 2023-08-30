@@ -1,7 +1,7 @@
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { applyPolyfills } from 'astro/app/node';
-import type { IncomingMessage, ServerResponse } from 'node:http';
 
 import { ASTRO_LOCALS_HEADER } from './adapter.js';
 import { getRequest, setResponse } from './request-transform.js';

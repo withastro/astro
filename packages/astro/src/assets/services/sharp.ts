@@ -2,10 +2,10 @@ import type { FormatEnum } from 'sharp';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
-	baseService,
-	parseQuality,
 	type BaseServiceTransform,
 	type LocalImageService,
+	baseService,
+	parseQuality,
 } from './service.js';
 
 let sharp: typeof import('sharp');

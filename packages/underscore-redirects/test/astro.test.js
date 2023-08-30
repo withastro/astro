@@ -1,5 +1,5 @@
-import { createRedirectsFromAstroRoutes } from '../dist/index.js';
 import { expect } from 'chai';
+import { createRedirectsFromAstroRoutes } from '../dist/index.js';
 
 describe('Astro', () => {
 	const serverConfig = {

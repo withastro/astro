@@ -1,9 +1,9 @@
 import type { Context } from './context.js';
 
-import { color } from '@astrojs/cli-kit';
-import { downloadTemplate } from 'giget';
 import fs from 'node:fs';
 import path from 'node:path';
+import { color } from '@astrojs/cli-kit';
+import { downloadTemplate } from 'giget';
 import { error, info, spinner, title } from '../messages.js';
 
 export async function template(ctx: Pick<Context, 'template' | 'prompt' | 'dryRun' | 'exit'>) {

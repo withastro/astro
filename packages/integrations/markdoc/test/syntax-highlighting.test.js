@@ -1,10 +1,10 @@
-import { parseHTML } from 'linkedom';
-import { expect } from 'chai';
 import Markdoc from '@markdoc/markdoc';
-import shiki from '../dist/extensions/shiki.js';
-import prism from '../dist/extensions/prism.js';
-import { setupConfig } from '../dist/runtime.js';
 import { isHTMLString } from 'astro/runtime/server/index.js';
+import { expect } from 'chai';
+import { parseHTML } from 'linkedom';
+import prism from '../dist/extensions/prism.js';
+import shiki from '../dist/extensions/shiki.js';
+import { setupConfig } from '../dist/runtime.js';
 
 const entry = `
 \`\`\`ts

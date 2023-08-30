@@ -1,5 +1,5 @@
-import { defineMiddleware, sequence } from 'astro:middleware';
 import htmlMinifier from 'html-minifier';
+import { defineMiddleware, sequence } from 'astro:middleware';
 
 const limit = 50;
 

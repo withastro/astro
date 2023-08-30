@@ -7,10 +7,10 @@ import type {
 	CLIFlags,
 } from '../../@types/astro.js';
 
-import * as colors from 'kleur/colors';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import * as colors from 'kleur/colors';
 import { ZodError } from 'zod';
 import { eventConfigError, telemetry } from '../../events/index.js';
 import { trackAstroConfigZodError } from '../errors/errors.js';

@@ -15,12 +15,9 @@ export const SitemapOptionsSchema = z
 				defaultLocale: localeKeySchema,
 				locales: z.record(
 					localeKeySchema,
-					z
-						.string()
-						.min(2)
-						.regex(/^[a-zA-Z\-]+$/gm, {
-							message: 'Only English alphabet symbols and hyphen allowed',
-						})
+					z.string().min(2).regex(/^[a-zA-Z\-]+$/gm, {
+						message: 'Only English alphabet symbols and hyphen allowed',
+					})
 				),
 			})
 			.refine((val) => !val || val.locales[val.defaultLocale], {

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { loadFixture, testIntegration } from './test-utils.js';
 import netlifyAdapter from '../../dist/index.js';
+import { loadFixture, testIntegration } from './test-utils.js';
 
 describe('Builders', () => {
 	/** @type {import('../../../astro/test/test-utils').Fixture} */

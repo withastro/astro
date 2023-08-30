@@ -1,8 +1,8 @@
-import { escape } from 'html-escaper';
-import { bold, underline } from 'kleur/colors';
 import * as fs from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { escape } from 'html-escaper';
+import { bold, underline } from 'kleur/colors';
 import stripAnsi from 'strip-ansi';
 import type { ESBuildTransformResult } from 'vite';
 import { normalizePath } from 'vite';
@@ -165,7 +165,9 @@ function collectInfoFromStacktrace(error: SSRError & { stack: string }): StackIn
 			error.pluginCode ||
 			error.id ||
 			// TODO: this could be better, `src` might be something else
-			stackText.split('\n').find((ln) => ln.includes('src') || ln.includes('node_modules'));
+			stackText
+				.split('\n')
+				.find((ln) => ln.includes('src') || ln.includes('node_modules'));
 		const source = possibleFilePath?.replace(/^[^(]+\(([^)]+).*$/, '$1').replace(/^\s+at\s+/, '');
 
 		let file = source?.replace(/(:[0-9]+)/g, '');

@@ -1,4 +1,4 @@
-import { h, Fragment } from 'preact';
+import { Fragment, h } from 'preact';
 import './Counter.css';
 
 export default function Counter({ children, count }) {

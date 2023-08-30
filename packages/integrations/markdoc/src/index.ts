@@ -1,9 +1,9 @@
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import { getContentEntryType } from './content-entry-type.js';
 import {
+	type MarkdocConfigResult,
 	SUPPORTED_MARKDOC_CONFIG_FILES,
 	loadMarkdocConfig,
-	type MarkdocConfigResult,
 } from './load-config.js';
 import type { MarkdocIntegrationOptions } from './options.js';
 

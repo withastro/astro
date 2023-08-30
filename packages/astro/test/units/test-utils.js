@@ -1,18 +1,18 @@
-import { Volume } from 'memfs';
-import httpMocks from 'node-mocks-http';
 import { EventEmitter } from 'node:events';
 import realFS from 'node:fs';
 import npath from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { Volume } from 'memfs';
+import httpMocks from 'node-mocks-http';
 import { getDefaultClientDirectives } from '../../dist/core/client-directive/index.js';
-import { nodeLogDestination } from '../../dist/core/logger/node.js';
-import { createEnvironment } from '../../dist/core/render/index.js';
-import { RouteCache } from '../../dist/core/render/route-cache.js';
 import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { createContainer } from '../../dist/core/dev/container.js';
-import { unixify } from './correct-path.js';
 import { Logger } from '../../dist/core/logger/core.js';
+import { nodeLogDestination } from '../../dist/core/logger/node.js';
+import { createEnvironment } from '../../dist/core/render/index.js';
+import { RouteCache } from '../../dist/core/render/route-cache.js';
+import { unixify } from './correct-path.js';
 
 /** @type {import('../../src/core/logger/core').Logger} */
 export const defaultLogger = new Logger({

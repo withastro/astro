@@ -101,11 +101,7 @@ function getSafeErrorMessage(message: string | Function): string {
 			.slice(1, -1)
 			.replace(
 				/\${([^}]+)}/gm,
-				(str, match1) =>
-					`${match1
-						.split(/\.?(?=[A-Z])/)
-						.join('_')
-						.toUpperCase()}`
+				(str, match1) => `${match1.split(/\.?(?=[A-Z])/).join('_').toUpperCase()}`
 			)
 			.replace(/\\`/g, '`');
 	}

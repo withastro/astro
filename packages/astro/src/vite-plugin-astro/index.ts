@@ -6,9 +6,9 @@ import type { PluginMetadata as AstroPluginMetadata } from './types.js';
 
 import { normalizePath } from 'vite';
 import {
+	type CompileProps,
 	cachedCompilation,
 	getCachedCompileResult,
-	type CompileProps,
 } from '../core/compile/index.js';
 import { isRelativePath } from '../core/path.js';
 import { normalizeFilename } from '../vite-plugin-utils/index.js';

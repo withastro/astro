@@ -1,0 +1,38 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.0.0/schema.json",
+	"organizeImports": {
+		"enabled": true
+	},
+	"files": {
+		"ignoreUnknown": true,
+		"ignore": [
+			"examples/basics/src/layouts/**",
+			"examples/with-nanostores/src/layouts/**",
+			"benchmark/projects/**",
+			"benchmark/results/**",
+			"**/dist",
+			"**/smoke",
+			"**/node_modules",
+			"**/fixtures",
+			"**/vendor",
+			"**/.vercel"
+		]
+	},
+	"linter": {
+		"enabled": false
+	},
+	"formatter": {
+		"lineWidth": 100
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "single",
+			"trailingComma": "es5"
+		}
+	},
+	"json": {
+		"parser": {
+			"allowComments": true
+		}
+	}
+}

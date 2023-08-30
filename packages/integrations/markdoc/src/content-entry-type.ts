@@ -1,11 +1,11 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
 import { emitESMImage } from 'astro/assets/utils';
 import matter from 'gray-matter';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type * as rollup from 'rollup';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';

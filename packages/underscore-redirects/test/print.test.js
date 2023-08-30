@@ -1,5 +1,5 @@
-import { Redirects } from '../dist/index.js';
 import { expect } from 'chai';
+import { Redirects } from '../dist/index.js';
 
 describe('Printing', () => {
 	it('Formats long lines in a pretty way', () => {

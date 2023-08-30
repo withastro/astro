@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
 import * as cheerio from 'cheerio';
+import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Astro.clientAddress', () => {
 	describe('SSR', () => {

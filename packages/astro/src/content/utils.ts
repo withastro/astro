@@ -1,10 +1,10 @@
-import { slug as githubSlug } from 'github-slugger';
-import matter from 'gray-matter';
 import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { slug as githubSlug } from 'github-slugger';
+import matter from 'gray-matter';
 import type { PluginContext } from 'rollup';
-import { normalizePath, type ViteDevServer } from 'vite';
+import { type ViteDevServer, normalizePath } from 'vite';
 import { z } from 'zod';
 import type {
 	AstroConfig,
@@ -326,7 +326,7 @@ export function parseFrontmatter(fileContents: string) {
  */
 export const globalContentConfigObserver = contentObservable({ status: 'init' });
 
-export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[number]): boolean {
+export function hasContentFlag(viteId: string, flag: typeof CONTENT_FLAGS[number]): boolean {
 	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
 	return flags.has(flag);
 }

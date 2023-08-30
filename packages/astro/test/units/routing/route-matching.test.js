@@ -1,19 +1,19 @@
+import { fileURLToPath } from 'node:url';
+import { expect } from 'chai';
+import * as cheerio from 'cheerio';
+import { createContainer } from '../../../dist/core/dev/container.js';
+import { createViteLoader } from '../../../dist/core/module-loader/vite.js';
+import { createRouteManifest, matchAllRoutes } from '../../../dist/core/routing/index.js';
+import { getSortedPreloadedMatches } from '../../../dist/prerender/routing.js';
+import DevPipeline from '../../../dist/vite-plugin-astro-server/devPipeline.js';
+import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
+import testAdapter from '../../test-adapter.js';
 import {
 	createBasicSettings,
 	createFs,
 	createRequestAndResponse,
 	defaultLogger,
 } from '../test-utils.js';
-import { createRouteManifest, matchAllRoutes } from '../../../dist/core/routing/index.js';
-import { fileURLToPath } from 'node:url';
-import { createViteLoader } from '../../../dist/core/module-loader/vite.js';
-import { expect } from 'chai';
-import { createContainer } from '../../../dist/core/dev/container.js';
-import * as cheerio from 'cheerio';
-import testAdapter from '../../test-adapter.js';
-import { getSortedPreloadedMatches } from '../../../dist/prerender/routing.js';
-import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
-import DevPipeline from '../../../dist/vite-plugin-astro-server/devPipeline.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 const fileSystem = {

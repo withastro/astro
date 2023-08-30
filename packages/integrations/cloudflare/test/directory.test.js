@@ -1,6 +1,6 @@
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import cloudflare from '../dist/index.js';
+import { loadFixture } from './test-utils.js';
 
 /** @type {import('./test-utils').Fixture} */
 describe('mode: "directory"', () => {

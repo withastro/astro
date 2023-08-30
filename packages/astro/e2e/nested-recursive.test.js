@@ -1,4 +1,4 @@
-import { test as base, expect } from '@playwright/test';
+import { expect, test as base } from '@playwright/test';
 import { loadFixture, waitForHydrate } from './test-utils.js';
 
 const test = base.extend({

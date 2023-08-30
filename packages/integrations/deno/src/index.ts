@@ -1,8 +1,8 @@
-import type { AstroAdapter, AstroIntegration } from 'astro';
-import esbuild from 'esbuild';
 import * as fs from 'node:fs';
 import * as npath from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { AstroAdapter, AstroIntegration } from 'astro';
+import esbuild from 'esbuild';
 import type { BuildConfig, Options } from './types';
 
 const SHIM = `globalThis.process = {

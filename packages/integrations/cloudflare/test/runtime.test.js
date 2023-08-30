@@ -1,7 +1,7 @@
-import { loadFixture, runCLI } from './test-utils.js';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import cloudflare from '../dist/index.js';
+import { loadFixture, runCLI } from './test-utils.js';
 
 describe('Runtime Locals', () => {
 	/** @type {import('./test-utils.js').Fixture} */

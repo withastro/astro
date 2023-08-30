@@ -1,5 +1,5 @@
-import { loadFixture, readXML } from './test-utils.js';
 import { expect } from 'chai';
+import { loadFixture, readXML } from './test-utils.js';
 
 describe('routes', () => {
 	/** @type {import('./test-utils.js').Fixture} */

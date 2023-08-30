@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Using Astro.request in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
