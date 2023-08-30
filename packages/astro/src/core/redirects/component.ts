@@ -12,5 +12,6 @@ export const RedirectComponentInstance: ComponentInstance = {
 
 export const RedirectSinglePageBuiltModule: SinglePageBuiltModule = {
 	page: () => Promise.resolve(RedirectComponentInstance),
+	onRequest: (_, next) => next(),
 	renderers: [],
 };

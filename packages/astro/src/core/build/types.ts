@@ -4,6 +4,7 @@ import type {
 	AstroSettings,
 	ComponentInstance,
 	ManifestData,
+	MiddlewareHandler,
 	RouteData,
 	RuntimeMode,
 	SSRLoadedRenderer,
@@ -51,6 +52,7 @@ export interface SinglePageBuiltModule {
 	/**
 	 * The `onRequest` hook exported by the middleware
 	 */
+	onRequest?: MiddlewareHandler<unknown>;
 	renderers: SSRLoadedRenderer[];
 }
 

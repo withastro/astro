@@ -56,8 +56,6 @@ export class App {
 	});
 	#baseWithoutTrailingSlash: string;
 	#pipeline: SSRRoutePipeline;
-	#onRequest: MiddlewareEndpointHandler | undefined;
-	#middlewareLoaded: boolean;
 	#adapterLogger: AstroIntegrationLogger;
 
 	constructor(manifest: SSRManifest, streaming = true) {
@@ -68,7 +66,6 @@ export class App {
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
 		this.#pipeline = new SSRRoutePipeline(this.#createEnvironment(streaming));
-		this.#middlewareLoaded = false;
 		this.#adapterLogger = new AstroIntegrationLogger(
 			this.#logger.options,
 			this.#manifest.adapterName
@@ -137,20 +134,7 @@ export class App {
 		return routeData;
 	}
 
-	async #getOnRequest() {
-		if (this.#manifest.middlewareEntryPoint && !this.#middlewareLoaded) {
-			try {
-				const middleware = await import(this.#manifest.middlewareEntryPoint);
-				this.#pipeline.setMiddlewareFunction(middleware.onRequest as MiddlewareEndpointHandler);
-			} catch (e) {
-				this.#logger.warn('SSR', "Couldn't load the middleware entry point");
-			}
-		}
-		this.#middlewareLoaded = true;
-	}
-
 	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {
-		await this.#getOnRequest();
 		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
 		if (request.url !== collapseDuplicateSlashes(request.url)) {
 			request = new Request(collapseDuplicateSlashes(request.url), request);
@@ -178,6 +162,9 @@ export class App {
 		);
 		let response;
 		try {
+			if (mod.onRequest) {
+				this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
+			}
 			response = await this.#pipeline.renderRoute(renderContext, pageModule);
 		} catch (err: any) {
 			if (err instanceof EndpointNotFoundError) {
@@ -295,6 +282,9 @@ export class App {
 					status
 				);
 				const page = (await mod.page()) as any;
+				if (mod.onRequest) {
+					this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
+				}
 				const response = await this.#pipeline.renderRoute(newRenderContext, page);
 				return this.#mergeResponses(response, originalResponse);
 			} catch {}
@@ -319,7 +309,7 @@ export class App {
 
 		const { statusText, headers } = oldResponse;
 
-		// If the the new response did not have a meaningful status, an override may have been provided
+		// If the new response did not have a meaningful status, an override may have been provided
 		// If the original status was 200 (default), override it with the new status (probably 404 or 500)
 		// Otherwise, the user set a specific status while rendering and we should respect that one
 		const status = override?.status
