@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "3.0.0-rc.2",
+  "version": "3.0.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -43,7 +43,7 @@
     "esbuild": "^0.19.2"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.0.0-rc.11"
+    "astro": "workspace:^3.0.0"
   },
   "devDependencies": {
     "@netlify/edge-functions": "^2.0.0",
