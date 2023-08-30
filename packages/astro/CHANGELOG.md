@@ -1,5 +1,11 @@
 # astro
 
+## 3.0.2
+
+### Patch Changes
+
+- [#8293](https://github.com/withastro/astro/pull/8293) [`d9bd7cf5c`](https://github.com/withastro/astro/commit/d9bd7cf5ce4086d9dd59e372ca25d4c4cfdb05f6) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix `tsc` errors inside `astro/components/index.ts`
+
 ## 3.0.1
 
 ### Patch Changes
