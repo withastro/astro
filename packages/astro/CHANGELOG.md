@@ -4,11 +4,13 @@
 
 ### Patch Changes
 
-- [#8282](https://github.com/withastro/astro/pull/8282) [`a0955f769`](https://github.com/withastro/astro/commit/a0955f769f9c9b73a401700fbe892ffbd6850d15) Thanks [@sarah11918](https://github.com/sarah11918)! - Remove "experimental" text from the image config options, for docs and editor etc. text displayed.
+- [#8290](https://github.com/withastro/astro/pull/8290) [`ef37f9e29`](https://github.com/withastro/astro/commit/ef37f9e290d0e61403261b2a2195f127dc031654) Thanks [@matthewp](https://github.com/matthewp)! - Remove "experimental" text from the image config options, for docs and editor etc. text displayed.
 
-- [#8287](https://github.com/withastro/astro/pull/8287) [`1d2389cb6`](https://github.com/withastro/astro/commit/1d2389cb6faf2082fb9946f267a8936e4ab2379a) Thanks [@matthewp](https://github.com/matthewp)! - Prevent astro check cache issues
+- [#8290](https://github.com/withastro/astro/pull/8290) [`ef37f9e29`](https://github.com/withastro/astro/commit/ef37f9e290d0e61403261b2a2195f127dc031654) Thanks [@matthewp](https://github.com/matthewp)! - Prevent astro check cache issues
 
   `astro check` hits cache issues in 3.0 causing it never to work on the first try.
+
+- [#8283](https://github.com/withastro/astro/pull/8283) [`c32f52a62`](https://github.com/withastro/astro/commit/c32f52a6246a0f929238f7d47bfc870899729fb4) Thanks [@ematipico](https://github.com/ematipico)! - Add useful warning when deprecated options are still used.
 
 ## 3.0.0
 
