@@ -24,6 +24,12 @@ describe('Vercel edge middleware', () => {
 			root: './fixtures/middleware-without-edge-file/',
 		});
 		await fixture.build();
-		return true;
+		const contents = await fixture.readFile(
+			// this is abysmal...
+			'../.vercel/output/functions/render.func/www/withastro/astro/packages/integrations/vercel/test/fixtures/middleware-without-edge-file/dist/middleware.mjs'
+		);
+		expect(contents.includes('title:')).to.be.false;
+		chaiJestSnapshot.setTestName('Middleware without handler file');
+		expect(contents).to.matchSnapshot(true);
 	});
 });
