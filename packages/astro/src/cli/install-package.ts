@@ -43,15 +43,19 @@ export async function getPackage<T>(
 
 function tryResolve(packageName: string, cwd: string) {
 	return new Promise((resolve, reject) => {
-		resolvePackage(packageName, {
-			basedir: cwd,
-		}, (err) => {
-			if(err) {
-				reject(err);
-			} else {
-				resolve(0);
+		resolvePackage(
+			packageName,
+			{
+				basedir: cwd,
+			},
+			(err) => {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(0);
+				}
 			}
-		});
+		);
 	});
 }
 
