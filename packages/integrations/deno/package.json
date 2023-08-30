@@ -36,7 +36,7 @@
     "esbuild": "^0.19.2"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.0.0"
+    "astro": "workspace:^3.0.1"
   },
   "devDependencies": {
     "astro": "workspace:*",
