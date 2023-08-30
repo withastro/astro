@@ -43,6 +43,36 @@
 	}
 }
 
+@layer astro {
+	::view-transition-old(root) {
+		animation-name: astroFadeOut;
+		animation-duration: 180;
+		animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+		animation-fill-mode: both;
+	}
+	
+	::view-transition-old(new) {
+		animation-name: astroFadeIn;
+		animation-duration: 180;
+		animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+		animation-fill-mode: both;
+	}
+}
+
+:root[data-astro-transition-fallback="old"]:not([data-astro-transition-scope]) {
+	animation-name: astroFadeOut;
+	animation-duration: 180;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+}
+
+:root[data-astro-transition-fallback="new"]:not([data-astro-transition-scope]) {
+	animation-name: astroFadeIn;
+	animation-duration: 180;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+}
+
 @media (prefers-reduced-motion) {
 	::view-transition-group(*),
 	::view-transition-old(*),
