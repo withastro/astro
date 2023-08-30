@@ -1,5 +1,13 @@
 # @astrojs/image
 
+## 0.18.0
+
+### Minor Changes
+
+- [#8294](https://github.com/withastro/astro/pull/8294) [`19b8fbd11`](https://github.com/withastro/astro/commit/19b8fbd11cfda1311d966a5510ed9807821240f3) Thanks [@matthewp](https://github.com/matthewp)! - @astrojs/image deprecation
+
+  The `@astrojs/image` package is deprecated in favor of using `astro:assets`. If you are using Astro 3 you should start using the Assets package. See [the upgrade guide](https://docs.astro.build/en/guides/upgrade-to/v3/#removed-astrojsimage) for more information.
+
 ## 0.17.3
 
 ### Patch Changes
