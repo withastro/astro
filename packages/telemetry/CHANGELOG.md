@@ -1,5 +1,11 @@
 # @astrojs/telemetry
 
+## 3.0.0-rc.4
+
+### Patch Changes
+
+- [#8234](https://github.com/withastro/astro/pull/8234) [`0c7b42dc6`](https://github.com/withastro/astro/commit/0c7b42dc6780e687e416137539f55a3a427d1d10) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update telemetry notice
+
 ## 3.0.0-rc.3
 
 ### Major Changes

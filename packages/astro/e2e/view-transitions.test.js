@@ -264,6 +264,28 @@ test.describe('View Transitions', () => {
 		expect(oldScrollY).toEqual(newScrollY);
 	});
 
+	test('Fragment scroll position restored on back button', async ({ page, astro }) => {
+		// Go to the long page
+		await page.goto(astro.resolveUrl('/long-page'));
+		let locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+
+		// Scroll down to middle fragment
+		await page.click('#click-scroll-down');
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+
+		// Scroll up to top fragment
+		await page.click('#click-scroll-up');
+		locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+
+		// Back to middle of the page
+		await page.goBack();
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+	});
+
 	test('Scroll position restored on forward button', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -288,6 +310,28 @@ test.describe('View Transitions', () => {
 
 		const newScrollY = await page.evaluate(() => window.scrollY);
 		expect(oldScrollY).toEqual(newScrollY);
+	});
+
+	test('Fragment scroll position restored on forward button', async ({ page, astro }) => {
+		// Go to the long page
+		await page.goto(astro.resolveUrl('/long-page'));
+		let locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+
+		// Scroll down to middle fragment
+		await page.click('#click-scroll-down');
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+
+		// Scroll back to top
+		await page.goBack();
+		locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+
+		// Forward to middle of page
+		await page.goForward();
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
 	});
 
 	test('<Image /> component forwards transitions to the <img>', async ({ page, astro }) => {
@@ -402,7 +446,6 @@ test.describe('View Transitions', () => {
 });
 
 test('Navigation also swaps the attributes of the document root', async ({ page, astro }) => {
-	page.on('console', (msg) => console.log(msg.text()));
 	await page.goto(astro.resolveUrl('/some-attributes'));
 	let p = page.locator('#heading');
 	await expect(p, 'should have content').toHaveText('Page with some attributes');

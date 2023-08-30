@@ -163,7 +163,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			// Everything left in the new head is new, append it all.
 			document.head.append(...doc.head.children);
 
-			// Move over persist stuff in the body
+			// Persist elements in the existing body
 			const oldBody = document.body;
 			document.body.replaceWith(doc.body);
 			for (const el of oldBody.querySelectorAll(`[${PERSIST_ATTR}]`)) {
