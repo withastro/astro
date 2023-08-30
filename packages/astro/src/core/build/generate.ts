@@ -10,6 +10,7 @@ import type {
 	ComponentInstance,
 	GetStaticPathsItem,
 	ImageTransform,
+	MiddlewareEndpointHandler,
 	RouteData,
 	RouteType,
 	SSRError,
@@ -135,7 +136,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		);
 	}
 	const pipeline = new BuildPipeline(opts, internals, manifest);
-	await pipeline.retrieveMiddlewareFunction();
+
 	const outFolder = ssr
 		? opts.settings.config.build.server
 		: getOutDirWithinCwd(opts.settings.config.outDir);
@@ -247,7 +248,10 @@ async function generatePage(
 		.reduce(mergeInlineCss, []);
 
 	const pageModulePromise = ssrEntry.page;
-
+	const onRequest = ssrEntry.onRequest;
+	if (onRequest) {
+		pipeline.setMiddlewareFunction(onRequest as MiddlewareEndpointHandler);
+	}
 	if (!pageModulePromise) {
 		throw new Error(
 			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`
@@ -604,8 +608,5 @@ export function createBuildManifest(
 			? new URL(settings.config.base, settings.config.site).toString()
 			: settings.config.site,
 		componentMetadata: internals.componentMetadata,
-		middlewareEntryPoint: internals.middlewareEntryPoint
-			? internals.middlewareEntryPoint.toString()
-			: undefined,
 	};
 }
