@@ -1,5 +1,11 @@
 # astro
 
+## 3.0.3
+
+### Patch Changes
+
+- [#8300](https://github.com/withastro/astro/pull/8300) [`d4a6ab733`](https://github.com/withastro/astro/commit/d4a6ab7339043042fd62dffd30ba078edae55f86) Thanks [@ematipico](https://github.com/ematipico)! - Correctly retrive middleware when using it in SSR enviroments.
+
 ## 3.0.2
 
 ### Patch Changes
