@@ -43,7 +43,7 @@
     "vite": "^4.4.9"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.0.0",
+    "astro": "workspace:^3.0.1",
     "tailwindcss": "^3.0.24"
   }
 }
