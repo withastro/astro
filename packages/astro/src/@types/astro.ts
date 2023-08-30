@@ -1006,7 +1006,7 @@ export interface AstroUserConfig {
 		 * @description
 		 * Defines a list of permitted image source domains for local image optimization. No other remote images will be optimized by Astro.
 		 *
-		 * This option requires an array of individual domain names as strings. Wildcards are not permitted. Instead, use [`image.remotePatterns`](#imageremotepatterns-experimental) to define a list of allowed source URL patterns.
+		 * This option requires an array of individual domain names as strings. Wildcards are not permitted. Instead, use [`image.remotePatterns`](#imageremotepatterns) to define a list of allowed source URL patterns.
 		 *
 		 * ```js
 		 * // astro.config.mjs
