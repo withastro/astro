@@ -975,7 +975,7 @@ export interface AstroUserConfig {
 	image?: {
 		/**
 		 * @docs
-		 * @name image.service (Experimental)
+		 * @name image.service
 		 * @type {{entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | string, config: Record<string, any>}}
 		 * @default `{entrypoint: 'astro/assets/services/sharp', config?: {}}`
 		 * @version 2.1.0
@@ -999,7 +999,7 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name image.domains (Experimental)
+		 * @name image.domains
 		 * @type {string[]}
 		 * @default `{domains: []}`
 		 * @version 2.10.10
@@ -1022,7 +1022,7 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name image.remotePatterns (Experimental)
+		 * @name image.remotePatterns
 		 * @type {RemotePattern[]}
 		 * @default `{remotePatterns: []}`
 		 * @version 2.10.10
