@@ -1,5 +1,8 @@
+import { useState } from "react";
+
 const Component = () => {
-  return <p>Hello world</p>;
+	const [name] = useState('world');
+  return <p>Hello {name}</p>;
 };
 
 export default Component;

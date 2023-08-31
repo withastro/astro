@@ -1,5 +1,25 @@
 # @astrojs/vercel
 
+## 4.0.2
+
+### Patch Changes
+
+- [#8318](https://github.com/withastro/astro/pull/8318) [`c58472756`](https://github.com/withastro/astro/commit/c58472756ea30d2496592b2bde390cf858c1876f) Thanks [@ematipico](https://github.com/ematipico)! - Add astro feature map and adapter features to the static adapter. This will remove the warning emitted by Astro.
+
+- Updated dependencies [[`5f3a44aee`](https://github.com/withastro/astro/commit/5f3a44aeeff3c5f31a8063b6005abb90343a817e), [`b21038c19`](https://github.com/withastro/astro/commit/b21038c193fd30351235a1b241a4a0aaf4e692f2), [`7a894eec3`](https://github.com/withastro/astro/commit/7a894eec3e6d2670632ca8cdb592cf5649a22d3e), [`af41b03d0`](https://github.com/withastro/astro/commit/af41b03d05f8a561990de42ccc93663343da2c0d)]:
+  - astro@3.0.5
+
+## 4.0.1
+
+### Patch Changes
+
+- [#8328](https://github.com/withastro/astro/pull/8328) [`8fff0e9ae`](https://github.com/withastro/astro/commit/8fff0e9aebec5ff8c2516ed6dbcccb307c20ce45) Thanks [@matthewp](https://github.com/matthewp)! - Update verbiage of Vercel warning
+
+- [#8319](https://github.com/withastro/astro/pull/8319) [`dc29e0f79`](https://github.com/withastro/astro/commit/dc29e0f797398678d16a3a7154443e0f2dd48077) Thanks [@ematipico](https://github.com/ematipico)! - Add warning when `functionPerRoute` is set to `true`
+
+- Updated dependencies [[`0752cf368`](https://github.com/withastro/astro/commit/0752cf3688eaac535ceda1ebcd22ccaf20b2171f)]:
+  - astro@3.0.4
+
 ## 4.0.0
 
 ### Major Changes

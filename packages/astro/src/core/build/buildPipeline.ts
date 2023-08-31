@@ -78,13 +78,6 @@ export class BuildPipeline extends Pipeline {
 		return this.#manifest;
 	}
 
-	async retrieveMiddlewareFunction() {
-		if (this.#internals.middlewareEntryPoint) {
-			const middleware = await import(this.#internals.middlewareEntryPoint.toString());
-			this.setMiddlewareFunction(middleware.onRequest);
-		}
-	}
-
 	getLogger(): Logger {
 		return this.getEnvironment().logger;
 	}
