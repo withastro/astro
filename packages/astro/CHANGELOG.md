@@ -1,5 +1,15 @@
 # astro
 
+## 3.0.4
+
+### Patch Changes
+
+- [#8324](https://github.com/withastro/astro/pull/8324) [`0752cf368`](https://github.com/withastro/astro/commit/0752cf3688eaac535ceda1ebcd22ccaf20b2171f) Thanks [@matthewp](https://github.com/matthewp)! - Prevent React hook call warnings when used with MDX
+
+  When React and MDX are used in the same project, if the MDX integration is added before React, previously you'd get a warning about hook calls.
+
+  This makes it so that the MDX integration's JSX renderer is last in order.
+
 ## 3.0.3
 
 ### Patch Changes
