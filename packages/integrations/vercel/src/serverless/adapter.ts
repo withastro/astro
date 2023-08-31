@@ -129,7 +129,12 @@ export default function vercelServerless({
 					...getImageConfig(imageService, imagesConfig, command),
 				});
 			},
-			'astro:config:done': ({ setAdapter, config }) => {
+			'astro:config:done': ({ setAdapter, config, logger }) => {
+				if (functionPerRoute === true) {
+					logger.warn(
+						"The Vercel plans might have limits to the number of functions you can create, make sure to check them if you don't want to incur into additional costs."
+					);
+				}
 				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware }));
 				_config = config;
 				buildTempFolder = config.build.server;
