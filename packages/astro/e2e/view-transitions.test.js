@@ -491,11 +491,6 @@ test.describe('View Transitions', () => {
 		page,
 		astro,
 	}) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
-
 		// Go to page 4
 		await page.goto(astro.resolveUrl('/four'));
 		let p = page.locator('#four');
