@@ -73,6 +73,7 @@ export async function runHookConfigSetup({
 	let updatedConfig: AstroConfig = { ...settings.config };
 	let updatedSettings: AstroSettings = { ...settings, config: updatedConfig };
 	let addedClientDirectives = new Map<string, Promise<string>>();
+	let astroJSXRenderer: AstroRenderer | null = null;
 
 	for (const integration of settings.config.integrations) {
 		/**
@@ -103,7 +104,11 @@ export async function runHookConfigSetup({
 						throw new Error(`Renderer ${bold(renderer.name)} does not provide a serverEntrypoint.`);
 					}
 
-					updatedSettings.renderers.push(renderer);
+					if(renderer.name === 'astro:jsx') {
+						astroJSXRenderer = renderer;
+					} else {
+						updatedSettings.renderers.push(renderer);
+					}
 				},
 				injectScript: (stage, content) => {
 					updatedSettings.scripts.push({ stage, content });
@@ -172,6 +177,11 @@ export async function runHookConfigSetup({
 				updatedSettings.clientDirectives.set(name, await compiled);
 			}
 		}
+	}
+
+	// The astro:jsx renderer should come last, to not interfere with others.
+	if(astroJSXRenderer) {
+		updatedSettings.renderers.push(astroJSXRenderer);
 	}
 
 	updatedSettings.config = updatedConfig;
