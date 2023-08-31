@@ -5,10 +5,10 @@ import { loadFixture } from '../../../astro/test/test-utils.js';
 function hookError() {
 	const error = console.error;
 	const errors = [];
-	console.error = function(...args) {
+	console.error = function (...args) {
 		errors.push(args);
 	};
-	return () => { 
+	return () => {
 		console.error = error;
 		return errors;
 	};

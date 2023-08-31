@@ -104,7 +104,7 @@ export async function runHookConfigSetup({
 						throw new Error(`Renderer ${bold(renderer.name)} does not provide a serverEntrypoint.`);
 					}
 
-					if(renderer.name === 'astro:jsx') {
+					if (renderer.name === 'astro:jsx') {
 						astroJSXRenderer = renderer;
 					} else {
 						updatedSettings.renderers.push(renderer);
@@ -180,7 +180,7 @@ export async function runHookConfigSetup({
 	}
 
 	// The astro:jsx renderer should come last, to not interfere with others.
-	if(astroJSXRenderer) {
+	if (astroJSXRenderer) {
 		updatedSettings.renderers.push(astroJSXRenderer);
 	}
 
