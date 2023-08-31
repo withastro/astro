@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
-import type yargs from 'yargs-parser';
 import * as colors from 'kleur/colors';
+import { execSync } from 'node:child_process';
 import { arch, platform } from 'node:os';
 import prompts from 'prompts';
+import type yargs from 'yargs-parser';
 import { resolveConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
 import { flagsToAstroInlineConfig } from '../flags.js';
-import { execSync } from 'node:child_process';
 
 interface InfoOptions {
 	flags: yargs.Arguments;
@@ -18,13 +18,13 @@ export async function printInfo({ flags }: InfoOptions) {
 		['Node', process.version],
 		['System', getSystem()],
 		['Package Manager', getPackageManager()],
-	]
+	];
 
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	try {
 		const { userConfig } = await resolveConfig(inlineConfig, 'info');
-		rows.push(['Output', userConfig.output ?? 'static'])
-		rows.push(['Adapter', userConfig.adapter?.name ?? 'none'])
+		rows.push(['Output', userConfig.output ?? 'static']);
+		rows.push(['Adapter', userConfig.adapter?.name ?? 'none']);
 		const integrations = (userConfig?.integrations ?? [])
 			.filter(Boolean)
 			.flat()
@@ -45,20 +45,25 @@ const SUPPORTED_SYSTEM = new Set(['darwin', 'win32']);
 async function copyToClipboard(text: string) {
 	const system = platform();
 	if (!SUPPORTED_SYSTEM.has(system)) return;
-	
+
 	console.log();
 	const { shouldCopy } = await prompts({
 		type: 'confirm',
 		name: 'shouldCopy',
 		message: 'Copy to clipboard?',
 		initial: true,
-	})
+	});
 	if (!shouldCopy) return;
 	const command = system === 'darwin' ? 'pbcopy' : 'clip';
 	try {
-		execSync(`echo ${JSON.stringify(text.trim())} | ${command}`, { encoding: 'utf8', stdio: 'ignore' });
+		execSync(`echo ${JSON.stringify(text.trim())} | ${command}`, {
+			encoding: 'utf8',
+			stdio: 'ignore',
+		});
 	} catch (e) {
-		console.error(colors.red(`\nSorry, something went wrong!`) + ` Please copy the text above manually.`);
+		console.error(
+			colors.red(`\nSorry, something went wrong!`) + ` Please copy the text above manually.`
+		);
 	}
 }
 
@@ -66,7 +71,7 @@ const PLATFORM_TO_OS: Partial<Record<ReturnType<typeof platform>, string>> = {
 	darwin: 'macOS',
 	win32: 'Windows',
 	linux: 'Linux',
-}
+};
 
 function getSystem() {
 	const system = PLATFORM_TO_OS[platform()] ?? platform();
@@ -74,12 +79,12 @@ function getSystem() {
 }
 
 function getPackageManager() {
-  if (!process.env.npm_config_user_agent) {
-    return 'unknown'
-  }
-  const specifier = process.env.npm_config_user_agent.split(' ')[0];
-  const name = specifier.substring(0, specifier.lastIndexOf('/'));
-  return name === 'npminstall' ? 'cnpm' : name;
+	if (!process.env.npm_config_user_agent) {
+		return 'unknown';
+	}
+	const specifier = process.env.npm_config_user_agent.split(' ')[0];
+	const name = specifier.substring(0, specifier.lastIndexOf('/'));
+	return name === 'npminstall' ? 'cnpm' : name;
 }
 
 const MAX_PADDING = 25;
@@ -91,7 +96,7 @@ function printRow(label: string, value: string | string[]) {
 	if (rest.length > 0) {
 		for (const entry of rest) {
 			plaintext += `\n${' '.repeat(MAX_PADDING)}${entry}`;
-			richtext += `\n${' '.repeat(MAX_PADDING)}${colors.green(entry)}`
+			richtext += `\n${' '.repeat(MAX_PADDING)}${colors.green(entry)}`;
 		}
 	}
 	plaintext += '\n';
