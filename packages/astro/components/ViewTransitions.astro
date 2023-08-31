@@ -221,8 +221,10 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 		if (fallback === 'animate') {
 			// Trigger the animations
+			const currentAnimations = document.getAnimations();
 			document.documentElement.dataset.astroTransitionFallback = 'old';
-			const finished = Promise.all(document.getAnimations().map(a => a.finished));
+			const newAnimations = document.getAnimations().filter(a => !currentAnimations.includes(a));
+			const finished = Promise.all(newAnimations.map(a => a.finished));
 			const fallbackSwap = () => {
 				swap();
 				document.documentElement.dataset.astroTransitionFallback = 'new';
