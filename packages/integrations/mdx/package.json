@@ -54,7 +54,7 @@
     "vfile": "^5.3.7"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.0.3"
+    "astro": "workspace:^3.0.4"
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",
