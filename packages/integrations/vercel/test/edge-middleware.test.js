@@ -19,7 +19,7 @@ describe('Vercel edge middleware', () => {
 	});
 
 	// TODO: The path here seems to be inconsistent?
-	it.skip('with edge handle file, should successfully build the middleware', async () => {
+	it.skip('without edge handle file, should successfully build the middleware', async () => {
 		const fixture = await loadFixture({
 			root: './fixtures/middleware-without-edge-file/',
 		});

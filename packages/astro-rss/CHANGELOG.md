@@ -1,5 +1,41 @@
 # @astrojs/rss
 
+## 3.0.0
+
+### Major Changes
+
+- [#8188](https://github.com/withastro/astro/pull/8188) [`d0679a666`](https://github.com/withastro/astro/commit/d0679a666f37da0fca396d42b9b32bbb25d29312) Thanks [@ematipico](https://github.com/ematipico)! - Remove support for Node 16. The lowest supported version by Astro and all integrations is now v18.14.1. As a reminder, Node 16 will be deprecated on the 11th September 2023.
+
+- [#8179](https://github.com/withastro/astro/pull/8179) [`6011d52d3`](https://github.com/withastro/astro/commit/6011d52d38e43c3e3d52bc3bc41a60e36061b7b7) Thanks [@matthewp](https://github.com/matthewp)! - Astro 3.0 Release Candidate
+
+- [#8198](https://github.com/withastro/astro/pull/8198) [`cb95aa5f8`](https://github.com/withastro/astro/commit/cb95aa5f8e0b04eba1a56e3e4a7901d40f1c854b) Thanks [@bluwy](https://github.com/bluwy)! - Update the `rss()` default export to return a `Response` instead of a simple object, which is deprecated in Astro 3.0. If you were directly returning the `rss()` result from an endpoint before, this breaking change should not affect you.
+
+  You can also import `getRssString()` to get the RSS string directly and use it to return your own Response:
+
+  ```ts
+  // src/pages/rss.xml.js
+  import { getRssString } from '@astrojs/rss';
+
+  export async function get(context) {
+    const rssString = await getRssString({
+      title: 'Buzz’s Blog',
+      ...
+    });
+
+    return new Response(rssString, {
+      headers: {
+        'Content-Type': 'application/xml',
+      },
+    });
+  }
+  ```
+
+### Patch Changes
+
+- [#8099](https://github.com/withastro/astro/pull/8099) [`732111cdc`](https://github.com/withastro/astro/commit/732111cdce441639db31f40f621df48442d00969) Thanks [@bluwy](https://github.com/bluwy)! - Deprecate the `markdown.drafts` configuration option.
+
+  If you'd like to create draft pages that are visible in dev but not in production, you can [migrate to content collections](https://docs.astro.build/en/guides/content-collections/#migrating-from-file-based-routing) and [manually filter out pages](https://docs.astro.build/en/guides/content-collections/#filtering-collection-queries) with the `draft: true` frontmatter property instead.
+
 ## 3.0.0-rc.2
 
 ### Major Changes

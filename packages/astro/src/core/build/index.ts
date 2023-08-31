@@ -242,6 +242,10 @@ class AstroBuilder {
 					'The option `build.split` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
 				);
 			}
+			this.logger.warn(
+				'configuration',
+				'The option `build.split` is deprecated. Use the adapter options.'
+			);
 		}
 		if (config.build.excludeMiddleware === true) {
 			if (config.output === 'static') {
@@ -250,14 +254,10 @@ class AstroBuilder {
 					'The option `build.excludeMiddleware` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
 				);
 			}
-		}
-
-		if (config.build.split === true) {
-			if (config.output !== 'server') {
-				throw new Error(
-					'The option `build.split` can only be used when `output` is set to `"server"`.'
-				);
-			}
+			this.logger.warn(
+				'configuration',
+				'The option `build.excludeMiddleware` is deprecated. Use the adapter options.'
+			);
 		}
 	}
 
