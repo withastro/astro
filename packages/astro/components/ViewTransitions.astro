@@ -347,7 +347,16 @@ const { fallback = 'animate' } = Astro.props as Props;
 			// Just ignore stateless entries.
 			// The browser will handle navigation fine without our help
 			if (ev.state === null) {
+				if (history.scrollRestoration) {
+					history.scrollRestoration = "auto";
+				}
 				return;
+			}
+
+			// With the default "auto", the browser will jump to the old scroll position
+			// before the ViewTransition is complete.
+			if (history.scrollRestoration) {
+				history.scrollRestoration = "manual";
 			}
 
 			const state: State | undefined = history.state;
