@@ -1,5 +1,16 @@
 # @astrojs/vercel
 
+## 4.0.1
+
+### Patch Changes
+
+- [#8328](https://github.com/withastro/astro/pull/8328) [`8fff0e9ae`](https://github.com/withastro/astro/commit/8fff0e9aebec5ff8c2516ed6dbcccb307c20ce45) Thanks [@matthewp](https://github.com/matthewp)! - Update verbiage of Vercel warning
+
+- [#8319](https://github.com/withastro/astro/pull/8319) [`dc29e0f79`](https://github.com/withastro/astro/commit/dc29e0f797398678d16a3a7154443e0f2dd48077) Thanks [@ematipico](https://github.com/ematipico)! - Add warning when `functionPerRoute` is set to `true`
+
+- Updated dependencies [[`0752cf368`](https://github.com/withastro/astro/commit/0752cf3688eaac535ceda1ebcd22ccaf20b2171f)]:
+  - astro@3.0.4
+
 ## 4.0.0
 
 ### Major Changes
