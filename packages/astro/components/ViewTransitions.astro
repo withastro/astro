@@ -98,6 +98,17 @@ const { fallback = 'animate' } = Astro.props as Props;
 		return wait;
 	}
 
+	function isInfinite(animation: Animation) {
+		const effect = animation.effect;
+		if(
+			!effect ||
+			!(effect instanceof KeyframeEffect) ||
+			!effect.target
+		) return false;
+    const style = window.getComputedStyle(effect.target, effect.pseudoElement);
+    return style.animationIterationCount === "infinite";
+}
+
 	const parser = new DOMParser();
 
 	async function updateDOM(html: string, state?: State, fallback?: Fallback) {
@@ -221,8 +232,10 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 		if (fallback === 'animate') {
 			// Trigger the animations
+			const currentAnimations = document.getAnimations();
 			document.documentElement.dataset.astroTransitionFallback = 'old';
-			const finished = Promise.all(document.getAnimations().map(a => a.finished));
+			const newAnimations = document.getAnimations().filter(a => !currentAnimations.includes(a) && !isInfinite(a));
+			const finished = Promise.all(newAnimations.map(a => a.finished));
 			const fallbackSwap = () => {
 				swap();
 				document.documentElement.dataset.astroTransitionFallback = 'new';
