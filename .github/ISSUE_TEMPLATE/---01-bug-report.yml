@@ -14,7 +14,7 @@ body:
   - type: textarea
     id: astro-info
     attributes:
-      label: Astro info
+      label: Astro Info
       description: Run the command `astro info` in your terminal and paste the output here. Please review the data before submitting in case there is any sensitive information you don't want to share.
       render: block
     validations:
@@ -22,10 +22,8 @@ body:
   - type: input
     id: browser
     attributes:
-      label: What browser are you using?
+      label: If this issue only occurs in one browser, which browser is a problem?
       placeholder: Chrome, Firefox, Safari
-    validations:
-      required: true
   - type: textarea
     id: bug-description
     attributes:
