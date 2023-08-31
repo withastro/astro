@@ -12,7 +12,7 @@ import testAdapter from '../../test-adapter.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 const fileSystem = {
-'/src/pages/[...testSlashTrim].astro': `
+	'/src/pages/[...testSlashTrim].astro': `
 	---
 	export function getStaticPaths() {
 		return [
