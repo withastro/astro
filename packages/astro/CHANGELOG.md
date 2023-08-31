@@ -1,5 +1,17 @@
 # astro
 
+## 3.0.5
+
+### Patch Changes
+
+- [#8327](https://github.com/withastro/astro/pull/8327) [`5f3a44aee`](https://github.com/withastro/astro/commit/5f3a44aeeff3c5f31a8063b6005abb90343a817e) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve `astro info` command formatting, allow users to copy info automatically
+
+- [#8320](https://github.com/withastro/astro/pull/8320) [`b21038c19`](https://github.com/withastro/astro/commit/b21038c193fd30351235a1b241a4a0aaf4e692f2) Thanks [@ematipico](https://github.com/ematipico)! - Exclude redirects from split entry points
+
+- [#8331](https://github.com/withastro/astro/pull/8331) [`7a894eec3`](https://github.com/withastro/astro/commit/7a894eec3e6d2670632ca8cdb592cf5649a22d3e) Thanks [@matthewp](https://github.com/matthewp)! - Prevent View Transition fallback from waiting on looping animations
+
+- [#8231](https://github.com/withastro/astro/pull/8231) [`af41b03d0`](https://github.com/withastro/astro/commit/af41b03d05f8a561990de42ccc93663343da2c0d) Thanks [@justinbeaty](https://github.com/justinbeaty)! - Fixes scroll behavior when using View Transitions by enabling `manual` scroll restoration
+
 ## 3.0.4
 
 ### Patch Changes
