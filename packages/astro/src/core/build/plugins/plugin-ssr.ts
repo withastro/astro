@@ -148,7 +148,10 @@ function vitePluginSSRSplit(
 			if (options.settings.config.build.split || functionPerRouteEnabled) {
 				const inputs = new Set<string>();
 
-				for (const path of Object.keys(options.allPages)) {
+				for (const [path, pageData] of Object.entries(options.allPages)) {
+					if (routeIsRedirect(pageData.route)) {
+						continue;
+					}
 					inputs.add(getVirtualModulePageNameFromPath(SPLIT_MODULE_ID, path));
 				}
 
