@@ -1,5 +1,6 @@
 import type { GetStaticPathsItem, Params, RouteData } from '../../@types/astro';
 import { validateGetStaticPathsParameter } from './validation.js';
+import { trimSlashes } from '../path.js';
 
 /**
  * given an array of params like `['x', 'y', 'z']` for
@@ -33,11 +34,7 @@ export function stringifyParams(params: GetStaticPathsItem['params'], route: Rou
 		validateGetStaticPathsParameter(next, route.component);
 		const [key, value] = next;
 		if (value !== undefined) {
-			acc[key] = value
-				// cast to a string
-				.toString()
-				// trim all trailing or leading slashes
-				.replace(/^\/+|\/+$/g, "");
+			acc[key] = typeof value === 'string' ? trimSlashes(value) : value.toString()
 		}
 		return acc;
 	}, {} as Params);
