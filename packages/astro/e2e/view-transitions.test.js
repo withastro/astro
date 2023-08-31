@@ -443,47 +443,62 @@ test.describe('View Transitions', () => {
 			'There should be only 1 page load. No additional loads for going back on same page'
 		).toEqual(1);
 	});
-});
 
-test('Navigation also swaps the attributes of the document root', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/some-attributes'));
-	let p = page.locator('#heading');
-	await expect(p, 'should have content').toHaveText('Page with some attributes');
+	test('Navigation also swaps the attributes of the document root', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/some-attributes'));
+		let p = page.locator('#heading');
+		await expect(p, 'should have content').toHaveText('Page with some attributes');
 
-	let h = page.locator('html');
-	await expect(h, 'should have content').toHaveAttribute('lang', 'en');
+		let h = page.locator('html');
+		await expect(h, 'should have content').toHaveAttribute('lang', 'en');
 
-	await page.click('#click-other-attributes');
-	p = page.locator('#heading');
-	await expect(p, 'should have content').toHaveText('Page with other attributes');
+		await page.click('#click-other-attributes');
+		p = page.locator('#heading');
+		await expect(p, 'should have content').toHaveText('Page with other attributes');
 
-	h = page.locator('html');
-	await expect(h, 'should have content').toHaveAttribute('lang', 'es');
-	await expect(h, 'should have content').toHaveAttribute('style', 'background-color: green');
-	await expect(h, 'should have content').toHaveAttribute('data-other-name', 'value');
-	await expect(h, 'should have content').toHaveAttribute('data-astro-fake', 'value');
-	await expect(h, 'should have content').toHaveAttribute('data-astro-transition', 'forward');
-	await expect(h, 'should be absent').not.toHaveAttribute('class', /.*/);
-});
-
-test('Link with data-astro-reload attribute should trigger page load, no tranistion', async ({
-	page,
-	astro,
-}) => {
-	const loads = [];
-	page.addListener('load', (p) => {
-		loads.push(p.title());
+		h = page.locator('html');
+		await expect(h, 'should have content').toHaveAttribute('lang', 'es');
+		await expect(h, 'should have content').toHaveAttribute('style', 'background-color: green');
+		await expect(h, 'should have content').toHaveAttribute('data-other-name', 'value');
+		await expect(h, 'should have content').toHaveAttribute('data-astro-fake', 'value');
+		await expect(h, 'should have content').toHaveAttribute('data-astro-transition', 'forward');
+		await expect(h, 'should be absent').not.toHaveAttribute('class', /.*/);
 	});
 
-	// Go to page 4
-	await page.goto(astro.resolveUrl('/four'));
-	let p = page.locator('#four');
-	await expect(p, 'should have content').toHaveText('Page 4');
+	test('Link with data-astro-reload attribute should trigger page load, no tranistion', async ({
+		page,
+		astro,
+	}) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
 
-	// go to page 2
-	await page.click('#click-two');
-	p = page.locator('#two');
-	await expect(p, 'should have content').toHaveText('Page 2');
+		// Go to page 4
+		await page.goto(astro.resolveUrl('/four'));
+		let p = page.locator('#four');
+		await expect(p, 'should have content').toHaveText('Page 4');
 
-	expect(loads.length, 'There should be 2 page load').toEqual(2);
+		// go to page 2
+		await page.click('#click-two');
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		expect(loads.length, 'There should be 2 page load').toEqual(2);
+	});
+
+	test('Link with download attribute should trigger download, no transition', async ({
+		page,
+		astro,
+	}) => {
+		// Go to page 4
+		await page.goto(astro.resolveUrl('/four'));
+		let p = page.locator('#four');
+		await expect(p, 'should have content').toHaveText('Page 4');
+
+		// Start waiting for download before clicking. Note no await.
+		const downloadPromise = page.waitForEvent('download', { timeout: 4000 });
+		await page.click('#click-logo');
+		await downloadPromise;
+	});
 });
