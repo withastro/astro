@@ -9,6 +9,7 @@ import type {
 	AstroSettings,
 	ComponentInstance,
 	GetStaticPathsItem,
+	ImageMetadata,
 	ImageTransform,
 	MiddlewareEndpointHandler,
 	RouteData,
@@ -21,6 +22,7 @@ import {
 	generateImage as generateImageInternal,
 	getStaticImageList,
 } from '../../assets/build/generate.js';
+import { isESMImportedImage } from '../../assets/internal.js';
 import { hasPrerenderedPages, type BuildInternals } from '../../core/build/internal.js';
 import {
 	isRelativePath,
@@ -196,6 +198,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		}
 	}
 
+	const originalImages = new Set<string>();
 	const staticImageList = getStaticImageList();
 
 	if (staticImageList.size)
@@ -210,7 +213,25 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			count,
 			staticImageList.size
 		);
+
+		// We don't need to remove remote images
+		const imageSrc = imageData[1].options.src;
+		const isLocalImage = isESMImportedImage(imageSrc);
+		if (opts.settings.config.image.removeOriginals && !ssr && isLocalImage) {
+			originalImages.add(imageSrc.src);
+		}
 	}
+
+	for (const originalImagePath of originalImages) {
+		try {
+			const targetPath = new URL('.' + originalImagePath, outFolder);
+			await fs.promises.unlink(targetPath);
+		} catch (e) {
+			logger.warn(
+				'astro:assets',
+				`An error was encountered while removing original image. Error: ${e}`
+			);
+		}
 
 	delete globalThis?.astroAsset?.addStaticImage;
 
