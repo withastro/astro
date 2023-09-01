@@ -1,5 +1,6 @@
 import type { PathLike } from 'node:fs';
 import * as fs from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import nodePath from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -74,11 +75,13 @@ export async function copyFilesToFunction(
 
 		if (isSymlink) {
 			const realdest = fileURLToPath(new URL(nodePath.relative(commonAncestor, realpath), outDir));
-			await fs.symlink(
-				nodePath.relative(fileURLToPath(new URL('.', dest)), realdest),
-				dest,
-				isDir ? 'dir' : 'file'
-			);
+			const target = nodePath.relative(fileURLToPath(new URL('.', dest)), realdest);
+			// NOTE: when building function per route, dependencies are linked at the first run, then there's no need anymore to do that once more.
+			// So we check if the destination already exists. If it does, move on.
+			// Symbolic links here are usually dependencies and not user code. Symbolic links exist because of the pnpm strategy.
+			if (!existsSync(dest)) {
+				await fs.symlink(target, dest, isDir ? 'dir' : 'file');
+			}
 		} else if (!isDir) {
 			await fs.copyFile(origin, dest);
 		}
