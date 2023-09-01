@@ -246,7 +246,7 @@ async function generateImage(
 	const counter = `(${count}/${totalCount})`;
 	logger.info(
 		null,
-		`  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)} ${dim(counter)}}`
+		`  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)} ${dim(counter)}`
 	);
 }
 
@@ -411,10 +411,10 @@ function getInvalidRouteSegmentError(
 		...AstroErrorData.InvalidDynamicRoute,
 		message: invalidParam
 			? AstroErrorData.InvalidDynamicRoute.message(
-					route.route,
-					JSON.stringify(invalidParam),
-					JSON.stringify(received)
-			  )
+				route.route,
+				JSON.stringify(invalidParam),
+				JSON.stringify(received)
+			)
 			: `Generated path for ${route.route} is invalid.`,
 		hint,
 	});
