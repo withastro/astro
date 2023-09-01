@@ -172,7 +172,7 @@ async function ssrBuild(
 					format: 'esm',
 					// Server chunks can't go in the assets (_astro) folder
 					// We need to keep these separate
-					chunkFileNames: (chunkInfo) {
+					chunkFileNames(chunkInfo) {
 						const { name } = chunkInfo;
 						// Sometimes chunks have the `@_@astro` suffix due to SSR logic. Remove it!
 						// TODO: refactor our build logic to avoid this
