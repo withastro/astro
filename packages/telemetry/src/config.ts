@@ -49,9 +49,9 @@ export class GlobalConfig {
 			try {
 				this._store = JSON.parse(fs.readFileSync(this.file).toString());
 			} catch {}
-		} else {
-			const store = {};
-			this._store = store;
+		}
+		if (!this._store) {
+			this._store = {};
 			this.write();
 		}
 		return this._store!;
