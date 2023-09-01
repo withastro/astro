@@ -178,14 +178,14 @@ async function ssrBuild(
 						// TODO: refactor our build logic to avoid this
 						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
 							const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
-							return `chunks/${sanitizedName}_[hash].mjs`
+							return `chunks/${sanitizedName}_[hash].mjs`;
 						}
 						// Injected routes include "pages/[name].[ext]" already. Clean those up!
 						if (name.startsWith('pages/')) {
 							const sanitizedName = name.split('.')[0];
-							return `chunks/${sanitizedName}_[hash].mjs`
+							return `chunks/${sanitizedName}_[hash].mjs`;
 						}
-						return `chunks/[name]_[hash].mjs`
+						return `chunks/[name]_[hash].mjs`;
 					},
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
