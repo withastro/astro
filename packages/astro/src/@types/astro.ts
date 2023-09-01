@@ -793,6 +793,24 @@ export interface AstroUserConfig {
 		assetsPrefix?: string;
 		/**
 		 * @docs
+		 * @name build.assetsRemoveOriginals
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 3.0.6
+		 * @description
+		 * Specifies necessity for removing assets originals.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     assetsRemoveOriginals: true
+		 *   }
+		 * }
+		 * ```
+		 */
+		assetsRemoveOriginals?: boolean;
+		/**
+		 * @docs
 		 * @name build.serverEntry
 		 * @type {string}
 		 * @default `'entry.mjs'`

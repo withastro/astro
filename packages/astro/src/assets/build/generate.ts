@@ -57,6 +57,23 @@ export async function generateImage(
 	const finalFileURL = new URL('.' + filepath, clientRoot);
 	const finalFolderURL = new URL('./', finalFileURL);
 
+	// The original filepath or URL from the image transform
+	const originalImagePath = isLocalImage
+		? (options.src as ImageMetadata).src
+		: (options.src as string);
+
+	if (config.build.assetsRemoveOriginals) {
+		const originalFileURL = new URL('.' + originalImagePath, clientRoot);
+		try {
+			await fs.promises.unlink(originalFileURL);
+		} catch (e) {
+			logger.warn(
+				'astro:assets',
+				`An error was encountered while removing asset original. Error: ${e}`
+			);
+		}
+	}
+
 	// For remote images, instead of saving the image directly, we save a JSON file with the image data and expiration date from the server
 	const cacheFile = basename(filepath) + (isLocalImage ? '' : '.json');
 	const cachedFileURL = new URL(cacheFile, assetsCacheDir);
@@ -89,11 +106,6 @@ export async function generateImage(
 		}
 		// If the cache file doesn't exist, just move on, and we'll generate it
 	}
-
-	// The original filepath or URL from the image transform
-	const originalImagePath = isLocalImage
-		? (options.src as ImageMetadata).src
-		: (options.src as string);
 
 	let imageData;
 	let resultData: { data: Buffer | undefined; expires: number | undefined } = {
