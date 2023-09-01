@@ -96,7 +96,7 @@ export function rehypeApplyFrontmatterExport() {
 }
 
 export async function getRemarkPlugins(mdxOptions: MdxOptions): Promise<PluggableList> {
-	let remarkPlugins: PluggableList = [...(MdxOptions.disableImageOptimization ? [] : [remarkCollectImages, remarkImageToComponent])];
+	let remarkPlugins: PluggableList = [...(mdxOptions.disableImageOptimization ? [] : [remarkCollectImages, remarkImageToComponent])];
 
 	if (!isPerformanceBenchmark) {
 		if (mdxOptions.gfm) {
