@@ -186,7 +186,7 @@ async function ssrBuild(
 						}
 						return `chunks/[name]_[hash].mjs`
 					},
-					assetFileNames: `${settings.config.build.assets}/[name]_[hash][extname]`,
+					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames(chunkInfo) {
 						if (chunkInfo.facadeModuleId?.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
