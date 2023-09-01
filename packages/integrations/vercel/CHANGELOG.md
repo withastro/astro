@@ -1,5 +1,18 @@
 # @astrojs/vercel
 
+## 4.0.3
+
+### Patch Changes
+
+- [#8348](https://github.com/withastro/astro/pull/8348) [`5f2c55bb5`](https://github.com/withastro/astro/commit/5f2c55bb54bb66693d278b7cd705c198aecc0331) Thanks [@ematipico](https://github.com/ematipico)! - - Cache result during bundling, to speed up the process of multiple functions;
+
+  - Avoid creating multiple symbolic links of the dependencies when building the project with `funcitonPerRoute` enabled;
+
+- [#8354](https://github.com/withastro/astro/pull/8354) [`0eb09dbab`](https://github.com/withastro/astro/commit/0eb09dbab1674a57d23ac97950a527d2e5a9c9fb) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix unnecessary warning about Sharp showing while building
+
+- Updated dependencies [[`d3a6f9f83`](https://github.com/withastro/astro/commit/d3a6f9f836e35932a950e40ba69eff63d7db7eed), [`f21599671`](https://github.com/withastro/astro/commit/f21599671a90c3327307eb6d2f4d5c02e9137207)]:
+  - astro@3.0.6
+
 ## 4.0.2
 
 ### Patch Changes
