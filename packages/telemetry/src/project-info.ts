@@ -107,7 +107,6 @@ function getProjectId(isCI: boolean): Pick<ProjectInfo, 'anonymousProjectId' | '
 export function getProjectInfo(isCI: boolean): ProjectInfo {
 	const projectId = getProjectId(isCI);
 	const packageManager = detectPackageManager();
-
 	return {
 		...projectId,
 		packageManager: packageManager?.name,

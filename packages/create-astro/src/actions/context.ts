@@ -51,7 +51,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		{ argv, permissive: true }
 	);
 
-	const packageManager = detectPackageManager()?.name || 'npm';
+	const packageManager = detectPackageManager()?.name ?? 'npm';
 	const [username, version] = await Promise.all([getName(), getVersion()]);
 	let cwd = flags['_'][0];
 	let {
