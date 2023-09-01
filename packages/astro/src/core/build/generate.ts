@@ -196,9 +196,12 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		}
 	}
 
-	logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`);
-	for (const imageData of getStaticImageList()) {
-		await generateImage(pipeline, imageData[1].options, imageData[1].path);
+	const staticImageList = Array.from(getStaticImageList())
+
+	if (staticImageList.length) logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`); let count = 0;
+	for (const imageData of staticImageList) {
+		count++
+		await generateImage(pipeline, imageData[1].options, imageData[1].path, count, staticImageList.length);
 	}
 
 	delete globalThis?.astroAsset?.addStaticImage;
@@ -211,7 +214,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	logger.info(null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 }
 
-async function generateImage(pipeline: BuildPipeline, transform: ImageTransform, path: string) {
+async function generateImage(pipeline: BuildPipeline, transform: ImageTransform, path: string, count: number, length: number) {
 	const logger = pipeline.getLogger();
 	let timeStart = performance.now();
 	const generationData = await generateImageInternal(pipeline, transform, path);
@@ -226,7 +229,8 @@ async function generateImage(pipeline: BuildPipeline, transform: ImageTransform,
 	const statsText = generationData.cached
 		? `(reused cache entry)`
 		: `(before: ${generationData.weight.before}kb, after: ${generationData.weight.after}kb)`;
-	logger.info(null, `  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)}`);
+	const counter = `(${count}/${length})`;
+	logger.info(null, `  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)} ${dim(counter)}}`);
 }
 
 async function generatePage(
@@ -390,10 +394,10 @@ function getInvalidRouteSegmentError(
 		...AstroErrorData.InvalidDynamicRoute,
 		message: invalidParam
 			? AstroErrorData.InvalidDynamicRoute.message(
-					route.route,
-					JSON.stringify(invalidParam),
-					JSON.stringify(received)
-			  )
+				route.route,
+				JSON.stringify(invalidParam),
+				JSON.stringify(received)
+			)
 			: `Generated path for ${route.route} is invalid.`,
 		hint,
 	});
