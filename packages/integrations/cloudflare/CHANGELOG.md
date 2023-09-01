@@ -1,5 +1,15 @@
 # @astrojs/cloudflare
 
+## 7.0.1
+
+### Patch Changes
+
+- [#8346](https://github.com/withastro/astro/pull/8346) [`b74dacdb6`](https://github.com/withastro/astro/commit/b74dacdb6a49755f979f15091355f06bd6bd64bf) Thanks [@delucis](https://github.com/delucis)! - Update README
+
+- Updated dependencies [[`c5633434f`](https://github.com/withastro/astro/commit/c5633434f02cc477ee8da380e22efaccfa55d459), [`405ad9501`](https://github.com/withastro/astro/commit/405ad950173dadddc519cf1c2e7f2523bf5326a8), [`6b1e79814`](https://github.com/withastro/astro/commit/6b1e7981469d30aa4c3658487abed6ffea94797f)]:
+  - astro@3.0.7
+  - @astrojs/underscore-redirects@0.3.0
+
 ## 7.0.0
 
 ### Major Changes
