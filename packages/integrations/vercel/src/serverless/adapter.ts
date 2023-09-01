@@ -2,8 +2,8 @@ import type {
 	AstroAdapter,
 	AstroConfig,
 	AstroIntegration,
-	RouteData,
 	AstroIntegrationLogger,
+	RouteData,
 } from 'astro';
 import { AstroError } from 'astro/errors';
 import glob from 'fast-glob';
