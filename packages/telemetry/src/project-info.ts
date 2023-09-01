@@ -106,15 +106,12 @@ function getProjectId(isCI: boolean): Pick<ProjectInfo, 'anonymousProjectId' | '
 
 export function getProjectInfo(isCI: boolean): ProjectInfo {
 	const projectId = getProjectId(isCI);
-	const detectedPackageManager = detectPackageManager();
+	const packageManager = detectPackageManager();
 
-	const packageManager = process.env.BUN_INSTALL
-		? detectedPackageManager?.name || 'bun'
-		: detectedPackageManager?.name || 'npm';
 	return {
 		...projectId,
-		packageManager: packageManager,
-		packageManagerVersion: detectedPackageManager?.version,
+		packageManager: packageManager?.name,
+		packageManagerVersion: packageManager?.version,
 	};
 }
 //
