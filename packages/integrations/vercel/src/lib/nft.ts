@@ -49,6 +49,9 @@ export async function copyDependenciesToFunction(
 			// The import(astroRemark) sometimes fails to resolve, but it's not a problem
 			if (module === '@astrojs/') continue;
 
+			// Sharp is always external and won't be able to be resolved, but that's also not a problem
+			if (module === 'sharp') continue;
+
 			if (entryPath === file) {
 				console.warn(
 					`[@astrojs/vercel] The module "${module}" couldn't be resolved. This may not be a problem, but it's worth checking.`
