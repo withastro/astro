@@ -54,7 +54,7 @@ export async function generateImage(
 	}
 
 	const isESMImported = isESMImportedImage(options.src);
-	const isLocalImage = isESMImported || !isRemotePath(options.src);
+	const isLocalImage = isESMImported || !isRemotePath((options.src as string));
 
 	const finalFileURL = new URL('.' + filepath, clientRoot);
 	const finalFolderURL = new URL('./', finalFileURL);
