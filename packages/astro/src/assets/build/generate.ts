@@ -1,5 +1,6 @@
 import fs, { readFileSync } from 'node:fs';
 import { basename, join } from 'node:path/posix';
+import { isRemotePath } from '@astrojs/internal-helpers/path';
 import type { BuildPipeline } from '../../core/build/buildPipeline';
 import { prependForwardSlash } from '../../core/path.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
@@ -52,7 +53,8 @@ export async function generateImage(
 		clientRoot = config.outDir;
 	}
 
-	const isLocalImage = isESMImportedImage(options.src);
+	const isESMImported = isESMImportedImage(options.src);
+	const isLocalImage = isESMImported || !isRemotePath(options.src);
 
 	const finalFileURL = new URL('.' + filepath, clientRoot);
 	const finalFolderURL = new URL('./', finalFileURL);
@@ -91,7 +93,7 @@ export async function generateImage(
 	}
 
 	// The original filepath or URL from the image transform
-	const originalImagePath = isLocalImage
+	const originalImagePath = isESMImported
 		? (options.src as ImageMetadata).src
 		: (options.src as string);
 
@@ -102,11 +104,18 @@ export async function generateImage(
 	};
 
 	// If the image is local, we can just read it directly, otherwise we need to download it
-	if (isLocalImage) {
+	if (isESMImported) {
 		imageData = await fs.promises.readFile(
 			new URL(
 				'.' + prependForwardSlash(join(config.build.assets, basename(originalImagePath))),
 				serverRoot
+			)
+		);
+	} else if (isLocalImage) {
+		imageData = await fs.promises.readFile(
+			new URL(
+				'.' + originalImagePath,
+				config.publicDir
 			)
 		);
 	} else {
