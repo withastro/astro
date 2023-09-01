@@ -54,7 +54,7 @@ export class GlobalConfig {
 			this._store = {};
 			this.write();
 		}
-		return this._store!;
+		return this._store;
 	}
 	private set store(value: Record<string, any>) {
 		this._store = value;
