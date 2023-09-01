@@ -177,16 +177,16 @@ async function ssrBuild(
 						// Sometimes chunks have the `@_@astro` suffix. Remove it!
 						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
 							const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
-							return `chunks/${sanitizedName}.[hash].mjs`
+							return `chunks/${sanitizedName}_[hash].mjs`
 						}
 						// Injected routes include "pages/[name].[ext]" already. Clean those up!
 						if (name.startsWith('pages/')) {
 							const sanitizedName = name.split('.')[0];
-							return `chunks/${sanitizedName}.[hash].mjs`
+							return `chunks/${sanitizedName}_[hash].mjs`
 						}
-						return `chunks/[name].[hash].mjs`
+						return `chunks/[name]_[hash].mjs`
 					},
-					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
+					assetFileNames: `${settings.config.build.assets}/[name]_[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames(chunkInfo) {
 						if (chunkInfo.facadeModuleId?.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
@@ -202,7 +202,7 @@ async function ssrBuild(
 						} else if (chunkInfo.facadeModuleId === RESOLVED_RENDERERS_MODULE_ID) {
 							return 'renderers.mjs';
 						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
-							return 'manifest.[hash].mjs';
+							return 'manifest_[hash].mjs';
 						} else {
 							return '[name].mjs';
 						}
@@ -270,9 +270,9 @@ async function clientBuild(
 				input: Array.from(input),
 				output: {
 					format: 'esm',
-					entryFileNames: `${settings.config.build.assets}/[name].[hash].js`,
-					chunkFileNames: `${settings.config.build.assets}/[name].[hash].js`,
-					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
+					entryFileNames: `${settings.config.build.assets}/[name]_[hash].js`,
+					chunkFileNames: `${settings.config.build.assets}/[name]_[hash].js`,
+					assetFileNames: `${settings.config.build.assets}/[name]_[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
 				},
 				preserveEntrySignatures: 'exports-only',
