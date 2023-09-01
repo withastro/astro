@@ -1,19 +1,27 @@
-import { relative as relativePath } from 'node:path';
+import type { AstroIntegrationLogger } from 'astro';
+import { relative, relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { copyFilesToFunction } from './fs.js';
 
-export async function copyDependenciesToFunction({
-	entry,
-	outDir,
-	includeFiles,
-	excludeFiles,
-}: {
-	entry: URL;
-	outDir: URL;
-	includeFiles: URL[];
-	excludeFiles: URL[];
-}): Promise<{ handler: string }> {
+export async function copyDependenciesToFunction(
+	{
+		entry,
+		outDir,
+		includeFiles,
+		excludeFiles,
+		logger,
+	}: {
+		entry: URL;
+		outDir: URL;
+		includeFiles: URL[];
+		excludeFiles: URL[];
+		logger: AstroIntegrationLogger;
+	},
+	// we want to pass the caching by reference, and not by value
+	cache: object
+): Promise<{ handler: string }> {
 	const entryPath = fileURLToPath(entry);
+	logger.info(`Bundling function ${relative(fileURLToPath(outDir), entryPath)}`);
 
 	// Get root of folder of the system (like C:\ on Windows or / on Linux)
 	let base = entry;
@@ -31,6 +39,7 @@ export async function copyDependenciesToFunction({
 		// If you have a route of /dev this appears in source and NFT will try to
 		// scan your local /dev :8
 		ignore: ['/dev/**'],
+		cache,
 	});
 
 	for (const error of result.warnings) {
@@ -39,6 +48,9 @@ export async function copyDependenciesToFunction({
 
 			// The import(astroRemark) sometimes fails to resolve, but it's not a problem
 			if (module === '@astrojs/') continue;
+
+			// Sharp is always external and won't be able to be resolved, but that's also not a problem
+			if (module === 'sharp') continue;
 
 			if (entryPath === file) {
 				console.warn(

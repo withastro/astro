@@ -1,5 +1,13 @@
 # astro
 
+## 3.0.6
+
+### Patch Changes
+
+- [#8276](https://github.com/withastro/astro/pull/8276) [`d3a6f9f83`](https://github.com/withastro/astro/commit/d3a6f9f836e35932a950e40ba69eff63d7db7eed) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Sanitize route params for leading and trailing slashes
+
+- [#8339](https://github.com/withastro/astro/pull/8339) [`f21599671`](https://github.com/withastro/astro/commit/f21599671a90c3327307eb6d2f4d5c02e9137207) Thanks [@martrapp](https://github.com/martrapp)! - Respect the download attribute in links when using view transitions
+
 ## 3.0.5
 
 ### Patch Changes
