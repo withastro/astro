@@ -172,9 +172,10 @@ async function ssrBuild(
 					format: 'esm',
 					// Server chunks can't go in the assets (_astro) folder
 					// We need to keep these separate
-					chunkFileNames(chunkInfo) {
+					chunkFileNames: (chunkInfo) {
 						const { name } = chunkInfo;
-						// Sometimes chunks have the `@_@astro` suffix. Remove it!
+						// Sometimes chunks have the `@_@astro` suffix due to SSR logic. Remove it!
+						// TODO: refactor our build logic to avoid this
 						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
 							const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
 							return `chunks/${sanitizedName}_[hash].mjs`
@@ -270,9 +271,9 @@ async function clientBuild(
 				input: Array.from(input),
 				output: {
 					format: 'esm',
-					entryFileNames: `${settings.config.build.assets}/[name]_[hash].js`,
-					chunkFileNames: `${settings.config.build.assets}/[name]_[hash].js`,
-					assetFileNames: `${settings.config.build.assets}/[name]_[hash][extname]`,
+					entryFileNames: `${settings.config.build.assets}/[name].[hash].js`,
+					chunkFileNames: `${settings.config.build.assets}/[name].[hash].js`,
+					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
 				},
 				preserveEntrySignatures: 'exports-only',
