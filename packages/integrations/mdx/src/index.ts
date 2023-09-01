@@ -24,6 +24,7 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	rehypePlugins: PluggableList;
 	remarkRehype: RemarkRehypeOptions;
 	optimize: boolean | OptimizeOptions;
+	disableImageOptimization: boolean;
 };
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -229,6 +230,7 @@ function markdownConfigToMdxOptions(markdownConfig: typeof markdownConfigDefault
 		rehypePlugins: ignoreStringPlugins(markdownConfig.rehypePlugins),
 		remarkRehype: (markdownConfig.remarkRehype as any) ?? {},
 		optimize: false,
+		disableImageOptimization: false,
 	};
 }
 
@@ -250,6 +252,7 @@ function applyDefaultOptions({
 		rehypePlugins: options.rehypePlugins ?? defaults.rehypePlugins,
 		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,
 		optimize: options.optimize ?? defaults.optimize,
+		disableImageOptimization: option.disableImageOptimization ?? defaults.disableImageOptimization,
 	};
 }
 
