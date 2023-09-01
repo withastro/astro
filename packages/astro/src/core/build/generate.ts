@@ -228,7 +228,7 @@ async function generateImage(pipeline: BuildPipeline, transform: ImageTransform,
 	const timeIncrease = `(+${timeChange})`;
 	const statsText = generationData.cached
 		? `(reused cache entry)`
-		: `(before: ${generationData.weight.before}kb, after: ${generationData.weight.after}kb)`;
+		: `(before: ${generationData.weight.before}kB, after: ${generationData.weight.after}kB)`;
 	const counter = `(${count}/${length})`;
 	logger.info(null, `  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)} ${dim(counter)}}`);
 }
