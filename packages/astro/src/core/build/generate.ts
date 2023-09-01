@@ -214,7 +214,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	logger.info(null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 }
 
-async function generateImage(pipeline: BuildPipeline, transform: ImageTransform, path: string, count: number, length: number) {
+async function generateImage(pipeline: BuildPipeline, transform: ImageTransform, path: string, count: number, totalCount: number) {
 	const logger = pipeline.getLogger();
 	let timeStart = performance.now();
 	const generationData = await generateImageInternal(pipeline, transform, path);
@@ -229,7 +229,7 @@ async function generateImage(pipeline: BuildPipeline, transform: ImageTransform,
 	const statsText = generationData.cached
 		? `(reused cache entry)`
 		: `(before: ${generationData.weight.before}kB, after: ${generationData.weight.after}kB)`;
-	const counter = `(${count}/${length})`;
+	const counter = `(${count}/${totalCount})`;
 	logger.info(null, `  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)} ${dim(counter)}}`);
 }
 
