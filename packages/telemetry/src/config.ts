@@ -46,7 +46,9 @@ export class GlobalConfig {
 		if (this._store) return this._store;
 		this.ensureDir();
 		if (fs.existsSync(this.file)) {
-			this._store = JSON.parse(fs.readFileSync(this.file).toString());
+			try {
+				this._store = JSON.parse(fs.readFileSync(this.file).toString());
+			} catch {}
 		} else {
 			const store = {};
 			this._store = store;
