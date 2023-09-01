@@ -13,11 +13,11 @@ interface ImportMeta {
 
 	readonly env: ImportMetaEnv;
 
-	glob: import('vite/types/importGlob').ImportGlobFunction;
+	glob: import('vite').ImportGlobFunction;
 	/**
 	 * @deprecated Use `import.meta.glob('*', { eager: true })` instead
 	 */
-	globEager: import('vite/types/importGlob').ImportGlobEagerFunction;
+	globEager: import('vite').ImportGlobEagerFunction;
 }
 
 interface ImportMetaEnv {
