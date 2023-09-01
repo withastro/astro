@@ -36,7 +36,7 @@ export function isRemoteAllowed(
 		remotePatterns = [],
 	}: Partial<Pick<AstroConfig['image'], 'domains' | 'remotePatterns'>>
 ): boolean {
-	if (!isRemotePath(src)) return false;
+	if (!isRemotePath(src)) return true;
 
 	const url = new URL(src);
 	return (
