@@ -217,8 +217,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						? false
 						: assetSize <= assetsInlineLimit;
 
-				if (toBeInlined) delete bundle[id];
-
 				// there should be a single js object for each stylesheet,
 				// allowing the single reference to be shared and checked for duplicates
 				const sheet: StylesheetAsset = toBeInlined
