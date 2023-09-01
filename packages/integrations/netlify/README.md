@@ -243,7 +243,7 @@ We check for common mime types for audio, image, and video files. To include spe
 
 import fs from 'node:fs';
 
-export function get() {
+export function GET() {
   const buffer = fs.readFileSync('../image.jpg');
 
   // Return the buffer directly, @astrojs/netlify will base64 encode the body
