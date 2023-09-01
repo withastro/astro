@@ -252,7 +252,7 @@ function applyDefaultOptions({
 		rehypePlugins: options.rehypePlugins ?? defaults.rehypePlugins,
 		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,
 		optimize: options.optimize ?? defaults.optimize,
-		disableImageOptimization: option.disableImageOptimization ?? defaults.disableImageOptimization,
+		disableImageOptimization: options.disableImageOptimization ?? defaults.disableImageOptimization,
 	};
 }
 
