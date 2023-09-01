@@ -155,9 +155,7 @@ export async function generateImage(
 	};
 }
 
-export function getStaticImageList(): Map<
-	string, { path: string; options: ImageTransform }
-> {
+export function getStaticImageList(): Map<string, { path: string; options: ImageTransform }> {
 	if (!globalThis?.astroAsset?.staticImages) {
 		return new Map();
 	}
