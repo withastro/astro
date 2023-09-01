@@ -200,7 +200,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			const inlineConfig = settings.config.build.inlineStylesheets;
 			const { assetsInlineLimit = 4096 } = settings.config.vite?.build ?? {};
 
-			Object.entries(bundle).forEach(([id, stylesheet]) => {
+			Object.entries(bundle).forEach(([_, stylesheet]) => {
 				if (
 					stylesheet.type !== 'asset' ||
 					stylesheet.name?.endsWith('.css') !== true ||
