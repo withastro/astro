@@ -23,7 +23,6 @@ const ASTRO_CONFIG_DEFAULTS = {
 		client: './dist/client/',
 		server: './dist/server/',
 		assets: '_astro',
-		assetsRemoveOriginals: false,
 		serverEntry: 'entry.mjs',
 		redirects: true,
 		inlineStylesheets: 'auto',
@@ -32,6 +31,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	},
 	image: {
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
+		removeOriginals: false,
 	},
 	compressHTML: true,
 	server: {
@@ -120,7 +120,6 @@ export const AstroConfigSchema = z.object({
 				.transform((val) => new URL(val)),
 			assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
 			assetsPrefix: z.string().optional(),
-			assetsRemoveOriginals: z.boolean().default(ASTRO_CONFIG_DEFAULTS.build.assetsRemoveOriginals),
 			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 			inlineStylesheets: z
@@ -221,6 +220,7 @@ export const AstroConfigSchema = z.object({
 					})
 				)
 				.default([]),
+			removeOriginals: z.boolean().default(ASTRO_CONFIG_DEFAULTS.image.removeOriginals),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
 	markdown: z
@@ -343,7 +343,6 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 				assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
 				assetsPrefix: z.string().optional(),
-			assetsRemoveOriginals: z.boolean().default(ASTRO_CONFIG_DEFAULTS.build.assetsRemoveOriginals),
 				serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 				redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 				inlineStylesheets: z

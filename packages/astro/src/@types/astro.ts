@@ -793,24 +793,6 @@ export interface AstroUserConfig {
 		assetsPrefix?: string;
 		/**
 		 * @docs
-		 * @name build.assetsRemoveOriginals
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 3.0.6
-		 * @description
-		 * Specifies necessity for removing assets originals.
-		 *
-		 * ```js
-		 * {
-		 *   build: {
-		 *     assetsRemoveOriginals: true
-		 *   }
-		 * }
-		 * ```
-		 */
-		assetsRemoveOriginals?: boolean;
-		/**
-		 * @docs
 		 * @name build.serverEntry
 		 * @type {string}
 		 * @default `'entry.mjs'`
@@ -1076,6 +1058,26 @@ export interface AstroUserConfig {
 
 		 */
 		remotePatterns?: Partial<RemotePattern>[];
+		/**
+		 * @docs
+		 * @name image.removeOriginals
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 3.1.0
+		 * @description
+		 * Specifies if original files for optimized assets should be removed from the final build in SSG.
+		 * Note that this option is **potentially unsafe**, as we cannot reliably tell if your website uses the original files outside of the optimization pipeline.
+		 * With this option enabled, **ALL** original files won't be included in the final output.
+		 *
+		 * ```js
+		 * {
+		 *   image: {
+		 *     removeOriginals: true
+		 *   }
+		 * }
+		 * ```
+		 */
+		removeOriginals?: boolean;
 	};
 
 	/**

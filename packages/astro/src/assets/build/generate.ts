@@ -29,6 +29,7 @@ export async function generateImage(
 ): Promise<GenerationData | undefined> {
 	const config = pipeline.getConfig();
 	const logger = pipeline.getLogger();
+	const ssr = isServerLikeOutput(config);
 	let useCache = true;
 	const assetsCacheDir = new URL('assets/', config.cacheDir);
 
@@ -44,7 +45,7 @@ export async function generateImage(
 	}
 
 	let serverRoot: URL, clientRoot: URL;
-	if (isServerLikeOutput(config)) {
+	if (ssr) {
 		serverRoot = config.build.server;
 		clientRoot = config.build.client;
 	} else {
@@ -62,7 +63,7 @@ export async function generateImage(
 		? (options.src as ImageMetadata).src
 		: (options.src as string);
 
-	if (config.build.assetsRemoveOriginals) {
+	if (!ssr && config.image.removeOriginals) {
 		const originalFileURL = new URL('.' + originalImagePath, clientRoot);
 		try {
 			await fs.promises.unlink(originalFileURL);
