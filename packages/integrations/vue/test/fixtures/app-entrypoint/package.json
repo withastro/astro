@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "astro": "workspace:*",
-    "@astrojs/vue": "workspace:*"
+    "@astrojs/vue": "workspace:*",
+    "vite-svg-loader": "4.0.0"
   }
 }
