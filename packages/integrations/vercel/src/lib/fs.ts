@@ -1,6 +1,6 @@
 import type { PathLike } from 'node:fs';
-import * as fs from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import * as fs from 'node:fs/promises';
 import nodePath from 'node:path';
 import { fileURLToPath } from 'node:url';
 
