@@ -21,10 +21,10 @@ export default function template({
 	tabTitle,
 	body,
 }: ErrorTemplateOptions): string {
-	return `<!doctype html>
+	return `<!DOCTYPE html>
 <html lang="en">
 	<head>
-		<meta charset="UTF-8">
+		<meta charset="utf-8">
 		<title>${tabTitle}</title>
 		<style>
 			:root {

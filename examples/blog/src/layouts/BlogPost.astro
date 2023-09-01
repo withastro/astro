@@ -11,7 +11,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 ---
 
 <html lang="en">
-	<head>
+	<head prefix="og: https://ogp.me/ns#">
 		<BaseHead title={title} description={description} />
 		<style>
 			main {

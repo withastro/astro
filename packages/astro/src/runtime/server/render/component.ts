@@ -500,7 +500,7 @@ export async function renderComponentToString(
 				// Automatic doctype and head insertion for pages
 				if (isPage && !renderedFirstPageChunk) {
 					renderedFirstPageChunk = true;
-					if (!/<!doctype html/i.test(String(chunk))) {
+					if (!/<!DOCTYPE html/i.test(String(chunk))) {
 						const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
 						str += doctype + head;
 					}
