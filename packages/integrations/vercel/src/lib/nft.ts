@@ -1,19 +1,28 @@
 import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { relative } from 'node:path';
 import { copyFilesToFunction } from './fs.js';
+import type { AstroIntegrationLogger } from 'astro';
 
-export async function copyDependenciesToFunction({
-	entry,
-	outDir,
-	includeFiles,
-	excludeFiles,
-}: {
-	entry: URL;
-	outDir: URL;
-	includeFiles: URL[];
-	excludeFiles: URL[];
-}): Promise<{ handler: string }> {
+export async function copyDependenciesToFunction(
+	{
+		entry,
+		outDir,
+		includeFiles,
+		excludeFiles,
+		logger,
+	}: {
+		entry: URL;
+		outDir: URL;
+		includeFiles: URL[];
+		excludeFiles: URL[];
+		logger: AstroIntegrationLogger;
+	},
+	// we want to pass the caching by reference, and not by value
+	cache: object
+): Promise<{ handler: string }> {
 	const entryPath = fileURLToPath(entry);
+	logger.info(`Bundling function ${relative(fileURLToPath(outDir), entryPath)}`);
 
 	// Get root of folder of the system (like C:\ on Windows or / on Linux)
 	let base = entry;
@@ -31,6 +40,7 @@ export async function copyDependenciesToFunction({
 		// If you have a route of /dev this appears in source and NFT will try to
 		// scan your local /dev :8
 		ignore: ['/dev/**'],
+		cache,
 	});
 
 	for (const error of result.warnings) {
