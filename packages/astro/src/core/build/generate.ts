@@ -9,7 +9,6 @@ import type {
 	AstroSettings,
 	ComponentInstance,
 	GetStaticPathsItem,
-	ImageMetadata,
 	ImageTransform,
 	MiddlewareEndpointHandler,
 	RouteData,
