@@ -155,12 +155,12 @@ export async function generateImage(
 	};
 }
 
-export function getStaticImageList(): Iterable<
-	[string, { path: string; options: ImageTransform }]
+export function getStaticImageList(): Map<
+	string, { path: string; options: ImageTransform }
 > {
 	if (!globalThis?.astroAsset?.staticImages) {
-		return [];
+		return new Map();
 	}
 
-	return globalThis.astroAsset.staticImages?.entries();
+	return globalThis.astroAsset.staticImages;
 }

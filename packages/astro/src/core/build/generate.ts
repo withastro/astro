@@ -196,12 +196,12 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		}
 	}
 
-	const staticImageList = Array.from(getStaticImageList())
+	const staticImageList = getStaticImageList()
 
-	if (staticImageList.length) logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`); let count = 0;
-	for (const imageData of staticImageList) {
+	if (staticImageList.size) logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`); let count = 0;
+	for (const imageData of staticImageList.entries()) {
 		count++
-		await generateImage(pipeline, imageData[1].options, imageData[1].path, count, staticImageList.length);
+		await generateImage(pipeline, imageData[1].options, imageData[1].path, count, staticImageList.size);
 	}
 
 	delete globalThis?.astroAsset?.addStaticImage;
