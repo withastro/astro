@@ -196,9 +196,20 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		}
 	}
 
-	logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`);
-	for (const imageData of getStaticImageList()) {
-		await generateImage(pipeline, imageData[1].options, imageData[1].path);
+	const staticImageList = getStaticImageList();
+
+	if (staticImageList.size)
+		logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`);
+	let count = 0;
+	for (const imageData of staticImageList.entries()) {
+		count++;
+		await generateImage(
+			pipeline,
+			imageData[1].options,
+			imageData[1].path,
+			count,
+			staticImageList.size
+		);
 	}
 
 	delete globalThis?.astroAsset?.addStaticImage;
@@ -211,7 +222,13 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	logger.info(null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 }
 
-async function generateImage(pipeline: BuildPipeline, transform: ImageTransform, path: string) {
+async function generateImage(
+	pipeline: BuildPipeline,
+	transform: ImageTransform,
+	path: string,
+	count: number,
+	totalCount: number
+) {
 	const logger = pipeline.getLogger();
 	let timeStart = performance.now();
 	const generationData = await generateImageInternal(pipeline, transform, path);
@@ -225,8 +242,12 @@ async function generateImage(pipeline: BuildPipeline, transform: ImageTransform,
 	const timeIncrease = `(+${timeChange})`;
 	const statsText = generationData.cached
 		? `(reused cache entry)`
-		: `(before: ${generationData.weight.before}kb, after: ${generationData.weight.after}kb)`;
-	logger.info(null, `  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)}`);
+		: `(before: ${generationData.weight.before}kB, after: ${generationData.weight.after}kB)`;
+	const counter = `(${count}/${totalCount})`;
+	logger.info(
+		null,
+		`  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)} ${dim(counter)}`
+	);
 }
 
 async function generatePage(

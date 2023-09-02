@@ -1,5 +1,11 @@
 # @astrojs/telemetry
 
+## 3.0.1
+
+### Patch Changes
+
+- [#8363](https://github.com/withastro/astro/pull/8363) [`0ce0720c7`](https://github.com/withastro/astro/commit/0ce0720c7f2c7ba21dddfea0b75d1e9b39c6a274) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Wrap `JSON.parse` in `try`/`catch`
+
 ## 3.0.0
 
 ### Major Changes
