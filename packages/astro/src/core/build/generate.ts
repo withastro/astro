@@ -411,10 +411,10 @@ function getInvalidRouteSegmentError(
 		...AstroErrorData.InvalidDynamicRoute,
 		message: invalidParam
 			? AstroErrorData.InvalidDynamicRoute.message(
-				route.route,
-				JSON.stringify(invalidParam),
-				JSON.stringify(received)
-			)
+					route.route,
+					JSON.stringify(invalidParam),
+					JSON.stringify(received)
+			  )
 			: `Generated path for ${route.route} is invalid.`,
 		hint,
 	});
