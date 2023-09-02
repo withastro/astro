@@ -125,7 +125,7 @@ export default function assets({
 				}
 
 				const cleanedUrl = removeQueryString(id);
-				if (/\.(jpeg|jpg|png|tiff|webp|gif|svg)$/.test(cleanedUrl)) {
+				if (/\.(jpeg|jpg|png|tiff|webp|gif|svg|avif)$/.test(cleanedUrl)) {
 					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile);
 					return `export default ${JSON.stringify(meta)}`;
 				}

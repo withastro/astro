@@ -109,6 +109,10 @@ declare module '*.svg' {
 	const metadata: ImageMetadata;
 	export default metadata;
 }
+declare module '*.avif' {
+	const metadata: ImageMetadata;
+	export default metadata;
+}
 
 declare module 'astro:transitions' {
 	type TransitionModule = typeof import('./dist/transitions/index.js');
