@@ -55,9 +55,11 @@ export function createGetCollection({
 		} else if (collection in dataCollectionToEntryMap) {
 			type = 'data';
 		} else {
-			throw new AstroError({
-				...AstroErrorData.CollectionDoesNotExistError,
-				message: AstroErrorData.CollectionDoesNotExistError.message(collection),
+			return zodString().transform((_, ctx) => {
+				ctx.addIssue({
+					code: ZodIssueCode.custom,
+					message: `The collection **${collection}** does not exist. Ensure a collection directory with this name exists.`,
+				});
 			});
 		}
 		const lazyImports = Object.values(
