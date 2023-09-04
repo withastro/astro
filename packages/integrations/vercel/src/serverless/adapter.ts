@@ -208,13 +208,25 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 				// Multiple entrypoint support
 				if (_entryPoints.size) {
 					for (const [route, entryFile] of _entryPoints) {
-						const func = basename(entryFile.toString()).replace(/\.mjs$/, '');
+            const [entryNameHead, ...entryNameTail] = basename(entryFile.toString()).split('.');
+            const entryPathSegments = [];
+
+            for (let i = 0; i < route.segments.length - 1; i++) {
+							const segment = route.segments[i][0];
+              entryPathSegments.push(segment.content)
+            }
+						
+						// Include route segment in the func name to avoid naming conflicts
+						// See: https://github.com/withastro/astro/issues/8401
+            const func = [entryNameHead, ...entryPathSegments, ...entryNameTail].join('.')
+              .replace(/\.mjs$/, "")
+
 						await createFunctionFolder(func, entryFile, filesToInclude, logger);
-						routeDefinitions.push({
-							src: route.pattern.source,
-							dest: func,
-						});
-					}
+            routeDefinitions.push({
+              src: route.pattern.source,
+              dest: func,
+            });
+          }
 				} else {
 					await createFunctionFolder(
 						'render',
