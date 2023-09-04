@@ -111,8 +111,9 @@ export default defineConfig({
 
 #### `beforeSend`
 
-To define the `beforeSend` function, you need to create a separate file inside your root called `vercel-web-analytics.ts`.
-If you're not using TypeScript, you can define the function inside `vercel-web-analytics.js`.
+`beforeSend` is a function that can modify analytics event data before it's sent to Vercel.
+
+Define this function in a separate file at the root of your project called `vercel-web-analytics.ts` (or `vercel-web-analytics.js` if you're not using TypeScript).
 
 ```ts
 // vercel-web-analytics.ts
