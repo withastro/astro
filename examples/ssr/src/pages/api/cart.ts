@@ -1,7 +1,7 @@
 import { APIContext } from 'astro';
 import { userCartItems } from '../../models/session';
 
-export function get({ cookies }: APIContext) {
+export function GET({ cookies }: APIContext) {
 	let userId = cookies.get('user-id').value;
 
 	if (!userId || !userCartItems.has(userId)) {
@@ -12,9 +12,7 @@ export function get({ cookies }: APIContext) {
 	let items = userCartItems.get(userId);
 	let array = Array.from(items.values());
 
-	return {
-		body: JSON.stringify({ items: array }),
-	};
+	return new Response(JSON.stringify({ items: array }));
 }
 
 interface AddToCartItem {
@@ -22,7 +20,7 @@ interface AddToCartItem {
 	name: string;
 }
 
-export async function post({ cookies, request }: APIContext) {
+export async function POST({ cookies, request }: APIContext) {
 	const item: AddToCartItem = await request.json();
 
 	let userId = cookies.get('user-id').value;
@@ -38,9 +36,7 @@ export async function post({ cookies, request }: APIContext) {
 		cart.set(item.id, { id: item.id, name: item.name, count: 1 });
 	}
 
-	return {
-		body: JSON.stringify({
-			ok: true,
-		}),
-	};
+	return new Response(JSON.stringify({
+		ok: true,
+	}));
 }
