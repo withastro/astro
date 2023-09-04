@@ -92,7 +92,7 @@ To configure this adapter, pass an object to the `vercel()` function call in `as
 **Added in:** `@astrojs/vercel@3.8.0`
 
 You can enable [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics) by setting `webAnalytics: { enabled: true }`. This will inject Vercel’s tracking scripts into all of your pages.
-Alternatively, you can also pass [configuration options](https://vercel.com/docs/concepts/analytics/package) (except functions like `beforeSend`) via the `config` property inside `webAnalytics`.
+You can also pass [configuration options](https://vercel.com/docs/concepts/analytics/package) like `mode` and `debug` via the `config` property inside `webAnalytics`.
 
 ```js
 // astro.config.mjs
