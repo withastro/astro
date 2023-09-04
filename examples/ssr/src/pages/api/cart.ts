@@ -36,7 +36,9 @@ export async function POST({ cookies, request }: APIContext) {
 		cart.set(item.id, { id: item.id, name: item.name, count: 1 });
 	}
 
-	return new Response(JSON.stringify({
-		ok: true,
-	}));
+	return new Response(
+		JSON.stringify({
+			ok: true,
+		})
+	);
 }
