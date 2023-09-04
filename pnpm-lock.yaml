@@ -512,9 +512,6 @@ importers:
       '@babel/types':
         specifier: ^7.22.10
         version: 7.22.10
-      '@skarab/detect-package-manager':
-        specifier: ^1.0.0
-        version: 1.0.0
       '@types/babel__core':
         specifier: ^7.20.1
         version: 7.20.1
@@ -596,6 +593,9 @@ importers:
       path-to-regexp:
         specifier: ^6.2.1
         version: 6.2.1
+      preferred-pm:
+        specifier: ^3.1.1
+        version: 3.1.1
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
@@ -637,10 +637,13 @@ importers:
         version: 5.3.7
       vite:
         specifier: ^4.4.9
-        version: 4.4.9(@types/node@18.17.8)(sass@1.66.1)
+        version: 4.4.9(sass@1.66.1)
       vitefu:
         specifier: ^0.2.4
         version: 0.2.4(vite@4.4.9)
+      which-pm:
+        specifier: ^2.1.1
+        version: 2.1.1
       yargs-parser:
         specifier: ^21.1.1
         version: 21.1.1
@@ -650,7 +653,7 @@ importers:
     devDependencies:
       '@astrojs/check':
         specifier: ^0.1.0
-        version: 0.1.0(prettier-plugin-astro@0.12.0)(prettier@3.0.2)(typescript@5.1.6)
+        version: 0.1.0
       '@playwright/test':
         specifier: ^1.37.1
         version: 1.37.1
@@ -740,7 +743,7 @@ importers:
         version: 10.2.0
       network-information-types:
         specifier: ^0.1.1
-        version: 0.1.1(typescript@5.1.6)
+        version: 0.1.1
       node-mocks-http:
         specifier: ^1.13.0
         version: 1.13.0
@@ -5131,6 +5134,22 @@ packages:
       lite-youtube-embed: 0.2.0
     dev: false
 
+  /@astrojs/check@0.1.0:
+    resolution: {integrity: sha512-tgjq+Vehgv0dwdsRlT4ai3QgT3etn8W5C4E4dvQ0Xe9ccwjKdMTWmpty5exfBtHLLAAOvwe5/OkYQsQ9OyKoVw==}
+    hasBin: true
+    peerDependencies:
+      typescript: ^5.0.0
+    dependencies:
+      '@astrojs/language-server': 2.3.0
+      chokidar: 3.5.3
+      fast-glob: 3.3.1
+      kleur: 4.1.5
+      yargs: 17.7.2
+    transitivePeerDependencies:
+      - prettier
+      - prettier-plugin-astro
+    dev: true
+
   /@astrojs/check@0.1.0(prettier-plugin-astro@0.12.0)(prettier@3.0.2)(typescript@5.1.6):
     resolution: {integrity: sha512-tgjq+Vehgv0dwdsRlT4ai3QgT3etn8W5C4E4dvQ0Xe9ccwjKdMTWmpty5exfBtHLLAAOvwe5/OkYQsQ9OyKoVw==}
     hasBin: true
@@ -5167,6 +5186,40 @@ packages:
   /@astrojs/compiler@2.0.1:
     resolution: {integrity: sha512-DfBR7Cf+tOgQ4n7TIgTtU5x5SEA/08DNshpEPcT+91A0KbBlmUOYMBM/O6qAaHkmVo1KIoXQYhAmfdTT1zx9PQ==}
     dev: false
+
+  /@astrojs/language-server@2.3.0:
+    resolution: {integrity: sha512-NFSzszjR4+f0+fTUCuFKXrLWusJFqWvHMrIzHB0lXUE8dt3Dm1Ok9Emrdj3s3BvlguJz05MV9xSIz1puMvomtQ==}
+    hasBin: true
+    peerDependencies:
+      prettier: ^3.0.0
+      prettier-plugin-astro: '>=0.11.0'
+    peerDependenciesMeta:
+      prettier:
+        optional: true
+      prettier-plugin-astro:
+        optional: true
+    dependencies:
+      '@astrojs/compiler': 1.5.7
+      '@jridgewell/sourcemap-codec': 1.4.15
+      '@volar/kit': 1.10.0
+      '@volar/language-core': 1.10.0
+      '@volar/language-server': 1.10.0
+      '@volar/language-service': 1.10.0
+      '@volar/source-map': 1.10.0
+      '@volar/typescript': 1.10.0
+      fast-glob: 3.3.1
+      muggle-string: 0.3.1
+      volar-service-css: 0.0.11(@volar/language-service@1.10.0)
+      volar-service-emmet: 0.0.11(@volar/language-service@1.10.0)
+      volar-service-html: 0.0.11(@volar/language-service@1.10.0)
+      volar-service-prettier: 0.0.11(@volar/language-service@1.10.0)
+      volar-service-typescript: 0.0.11(@volar/language-service@1.10.0)(@volar/typescript@1.10.0)
+      volar-service-typescript-twoslash-queries: 0.0.11(@volar/language-service@1.10.0)
+      vscode-html-languageservice: 5.0.6
+      vscode-uri: 3.0.7
+    transitivePeerDependencies:
+      - typescript
+    dev: true
 
   /@astrojs/language-server@2.3.0(prettier-plugin-astro@0.12.0)(prettier@3.0.2)(typescript@5.1.6):
     resolution: {integrity: sha512-NFSzszjR4+f0+fTUCuFKXrLWusJFqWvHMrIzHB0lXUE8dt3Dm1Ok9Emrdj3s3BvlguJz05MV9xSIz1puMvomtQ==}
@@ -8500,11 +8553,6 @@ packages:
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
     dev: false
 
-  /@skarab/detect-package-manager@1.0.0:
-    resolution: {integrity: sha512-CuU1x6LgkJIF+H8FCnKijx6DbWVP1Y7kqPk88LSxNe0ulbe3BZ37qd3AaX3t5vnFZESLFMcjQd2dlPhdvWNSdQ==}
-    engines: {node: '>=14', pnpm: '>=7'}
-    dev: false
-
   /@solidjs/router@0.8.3(solid-js@1.7.11):
     resolution: {integrity: sha512-oJuqQo10rVTiQYhe1qXIG1NyZIZ2YOwHnlLc8Xx+g/iJhFCJo1saLOIrD/Dkh2fpIaIny5ZMkz1cYYqoTYGJbg==}
     peerDependencies:
@@ -9187,6 +9235,17 @@ packages:
       loupe: 2.3.6
       pretty-format: 29.6.3
     dev: false
+
+  /@volar/kit@1.10.0:
+    resolution: {integrity: sha512-3ijH2Gqe8kWnij58rwaBID22J/b+VT457ZEf5TwyPDqHTrfNCZIVitpdD5WlLD4Wy/D0Vymwj2ct9TNc1hkOmQ==}
+    peerDependencies:
+      typescript: '*'
+    dependencies:
+      '@volar/language-service': 1.10.0
+      typesafe-path: 0.2.2
+      vscode-languageserver-textdocument: 1.0.8
+      vscode-uri: 3.0.7
+    dev: true
 
   /@volar/kit@1.10.0(typescript@5.1.6):
     resolution: {integrity: sha512-3ijH2Gqe8kWnij58rwaBID22J/b+VT457ZEf5TwyPDqHTrfNCZIVitpdD5WlLD4Wy/D0Vymwj2ct9TNc1hkOmQ==}
@@ -11598,7 +11657,6 @@ packages:
     dependencies:
       locate-path: 5.0.0
       path-exists: 4.0.0
-    dev: true
 
   /find-up@5.0.0:
     resolution: {integrity: sha512-78/PXT1wlLLDgTzDs7sjq9hzz0vXD+zn+7wypEe4fXQxCmdmqfGsEPQxmiCSQI3ajFV91bVSsvNtrJRiW6nGng==}
@@ -11606,14 +11664,12 @@ packages:
     dependencies:
       locate-path: 6.0.0
       path-exists: 4.0.0
-    dev: true
 
   /find-yarn-workspace-root2@1.2.16:
     resolution: {integrity: sha512-hr6hb1w8ePMpPVUK39S4RlwJzi+xPLuVuG8XlwXU3KD5Yn3qgBWVfy3AzNlDhWvE1EORCE65/Qm26rFQt3VLVA==}
     dependencies:
       micromatch: 4.0.5
       pkg-dir: 4.2.0
-    dev: true
 
   /flat-cache@3.0.4:
     resolution: {integrity: sha512-dm9s5Pw7Jc0GvMYbshN6zchCA9RgQlzzEZX3vylR9IqFfS8XciblUXOKfW6SiuJ0e13eDYZoZV5wdrev7P3Nwg==}
@@ -13027,7 +13083,6 @@ packages:
       js-yaml: 3.14.1
       pify: 4.0.1
       strip-bom: 3.0.0
-    dev: true
 
   /local-pkg@0.4.3:
     resolution: {integrity: sha512-SFppqq5p42fe2qcZQqqEOiVRXl+WCP1MdT6k7BDEW1j++sp5fIY+/fdRQitvKgB5BrBcmrs5m/L0v2FrU5MY1g==}
@@ -13042,14 +13097,12 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       p-locate: 4.1.0
-    dev: true
 
   /locate-path@6.0.0:
     resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==}
     engines: {node: '>=10'}
     dependencies:
       p-locate: 5.0.0
-    dev: true
 
   /lodash.chunk@4.2.0:
     resolution: {integrity: sha512-ZzydJKfUHJwHa+hF5X66zLFCBrWn5GeF28OHEr4WVWtNDXlQ/IjWKPBiikqKo2ne0+v6JgCgJ0GzJp8k8bHC7w==}
@@ -14170,12 +14223,10 @@ packages:
     engines: {node: '>= 0.6'}
     dev: true
 
-  /network-information-types@0.1.1(typescript@5.1.6):
+  /network-information-types@0.1.1:
     resolution: {integrity: sha512-mLXNafJYOkiJB6IlF727YWssTRpXitR+tKSLyA5VAdBi3SOvLf5gtizHgxf241YHPWocnAO/fAhVrB/68tPHDw==}
     peerDependencies:
       typescript: '>= 3.0.0'
-    dependencies:
-      typescript: 5.1.6
     dev: true
 
   /nice-try@1.0.5:
@@ -14486,14 +14537,12 @@ packages:
     engines: {node: '>=6'}
     dependencies:
       p-try: 2.2.0
-    dev: true
 
   /p-limit@3.1.0:
     resolution: {integrity: sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==}
     engines: {node: '>=10'}
     dependencies:
       yocto-queue: 0.1.0
-    dev: true
 
   /p-limit@4.0.0:
     resolution: {integrity: sha512-5b0R4txpzjPWVw/cXXUResoD4hb6U/x9BH08L7nw+GN1sezDzPdxeRvpc9c433fZhBan/wusjbCsqwqm4EIBIQ==}
@@ -14507,14 +14556,12 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       p-limit: 2.3.0
-    dev: true
 
   /p-locate@5.0.0:
     resolution: {integrity: sha512-LaNjtRWUBY++zB5nE/NwcaoMylSPk+S+ZHNB1TzdbMJMny6dynpAGt7X/tl/QYq3TIeE6nxHppbo2LGymrG5Pw==}
     engines: {node: '>=10'}
     dependencies:
       p-limit: 3.1.0
-    dev: true
 
   /p-map@2.1.0:
     resolution: {integrity: sha512-y3b8Kpd8OAN444hxfBbFfj1FY/RjtTd8tzYwhUqNYXx0fXx2iX4maP4Qr6qhIKbQXI02wTLAda4fYUbDagTUFw==}
@@ -14531,7 +14578,6 @@ packages:
   /p-try@2.2.0:
     resolution: {integrity: sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==}
     engines: {node: '>=6'}
-    dev: true
 
   /pako@1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
@@ -14627,7 +14673,6 @@ packages:
   /path-exists@4.0.0:
     resolution: {integrity: sha512-ak9Qy5Q7jYb2Wwcey5Fpvg2KoAc/ZIhLSLOSBmRmygPsGwkVVt0fZa0qrtMz+m6tJTAHfZQ8FnmB4MG4LWy7/w==}
     engines: {node: '>=8'}
-    dev: true
 
   /path-is-absolute@1.0.1:
     resolution: {integrity: sha512-AVbw3UJ2e9bq64vSaS9Am0fje1Pa8pbGqTTsmXfaIiMpnr5DlDhfJOuLj9Sf95ZPVDAUerDfEk88MPmPe7UCQg==}
@@ -14706,7 +14751,6 @@ packages:
   /pify@4.0.1:
     resolution: {integrity: sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==}
     engines: {node: '>=6'}
-    dev: true
 
   /pirates@4.0.5:
     resolution: {integrity: sha512-8V9+HQPupnaXMA23c5hvl69zXvTwTzyAYasnkb0Tts4XvO4CliqONMOnvlq26rkhLC3nWDFBJf73LU1e1VZLaQ==}
@@ -14717,7 +14761,6 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       find-up: 4.1.0
-    dev: true
 
   /pkg-types@1.0.3:
     resolution: {integrity: sha512-nN7pYi0AQqJnoLPC9eHFQ8AcyaixBUOwvqc5TDnIKCMEE6I0y8P7OKA7fPexsXGCGxQDl/cmrLAp26LhcwxZ4A==}
@@ -15170,6 +15213,16 @@ packages:
       path-exists: 4.0.0
       which-pm: 2.0.0
     dev: true
+
+  /preferred-pm@3.1.1:
+    resolution: {integrity: sha512-CsZgOVLKHifdoRu2y66P1s6oLb2WfT5Njkcgi80I/52FWTTVkWG6z0Z13vPkXC4hsT0nMrYXqX30buH8+D2eRQ==}
+    engines: {node: '>=10'}
+    dependencies:
+      find-up: 5.0.0
+      find-yarn-workspace-root2: 1.2.16
+      path-exists: 4.0.0
+      which-pm: 2.0.0
+    dev: false
 
   /prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
@@ -16425,7 +16478,6 @@ packages:
   /strip-bom@3.0.0:
     resolution: {integrity: sha512-vavAMRXOgBVNF6nyEEmL3DBK19iRpDcoIwW+swQ+CbGiu7lju6t+JklA1MHweoWtadgt4ISVUsXLyDq34ddcwA==}
     engines: {node: '>=4'}
-    dev: true
 
   /strip-bom@4.0.0:
     resolution: {integrity: sha512-3xurFv5tEgii33Zi8Jtp55wEIILR9eh34FAW00PZf+JnSsTmV/ioewSgQl97JHvgjoRGwPShsWm+IdrxB35d0w==}
@@ -17528,6 +17580,42 @@ packages:
       fsevents: 2.3.3
     dev: false
 
+  /vite@4.4.9(sass@1.66.1):
+    resolution: {integrity: sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': '>= 14'
+      less: '*'
+      lightningcss: ^1.21.0
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      lightningcss:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      esbuild: 0.18.20
+      postcss: 8.4.28
+      rollup: 3.28.1
+      sass: 1.66.1
+    optionalDependencies:
+      fsevents: 2.3.3
+    dev: false
+
   /vitefu@0.2.4(vite@4.4.9):
     resolution: {integrity: sha512-fanAXjSaf9xXtOOeno8wZXIhgia+CZury481LsDaV++lSvcU2R9Ch2bPh3PYFyoHW+w9LqAeYRISVQjUIew14g==}
     peerDependencies:
@@ -17536,7 +17624,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 4.4.9(@types/node@18.17.8)(sass@1.66.1)
+      vite: 4.4.9(sass@1.66.1)
     dev: false
 
   /vitest@0.34.2:
@@ -17641,6 +17729,20 @@ packages:
       '@volar/language-service': 1.10.0
       vscode-html-languageservice: 5.0.6
       vscode-uri: 3.0.7
+    dev: true
+
+  /volar-service-prettier@0.0.11(@volar/language-service@1.10.0):
+    resolution: {integrity: sha512-A4vEU5BUitNNAySb+t/fCjEoL01uYUkoe/Fe5UxR3JJbdgr2nTeXb5IlW90/1vzmnTKZznadJV4i1SoAf2CRbg==}
+    peerDependencies:
+      '@volar/language-service': ~1.10.0
+      prettier: ^2.2 || ^3.0
+    peerDependenciesMeta:
+      '@volar/language-service':
+        optional: true
+      prettier:
+        optional: true
+    dependencies:
+      '@volar/language-service': 1.10.0
     dev: true
 
   /volar-service-prettier@0.0.11(@volar/language-service@1.10.0)(prettier@3.0.2):
@@ -17856,7 +17958,14 @@ packages:
     dependencies:
       load-yaml-file: 0.2.0
       path-exists: 4.0.0
-    dev: true
+
+  /which-pm@2.1.1:
+    resolution: {integrity: sha512-xzzxNw2wMaoCWXiGE8IJ9wuPMU+EYhFksjHxrRT8kMT5SnocBPRg69YAMtyV4D12fP582RA+k3P8H9J5EMdIxQ==}
+    engines: {node: '>=8.15'}
+    dependencies:
+      load-yaml-file: 0.2.0
+      path-exists: 4.0.0
+    dev: false
 
   /which-typed-array@1.1.11:
     resolution: {integrity: sha512-qe9UWWpkeG5yzZ0tNYxDmd7vo58HDBc39mZ0xWWpolAGADdFOzkfamWLDxkOWcvHQKVmdTyQdLD4NOfjLWTKew==}
@@ -18294,7 +18403,6 @@ packages:
   /yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
-    dev: true
 
   /yocto-queue@1.0.0:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}

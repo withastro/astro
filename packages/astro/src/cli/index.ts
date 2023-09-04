@@ -2,7 +2,7 @@
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { ASTRO_VERSION } from '../core/constants.js';
-import { detectAgent } from '@skarab/detect-package-manager';
+import whichPm from 'which-pm';
 
 type CLICommand =
 	| 'help'
@@ -128,8 +128,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		process.env.NODE_ENV = cmd === 'dev' ? 'development' : 'production';
 	}
 
-	const detectedAgent = await detectAgent(process.cwd());
-	const packageManager = detectedAgent?.name ?? 'npm';
+	const packageManager = (await whichPm(process.cwd())).name ?? 'npm';
 
 	const { notify } = await import('./telemetry/index.js');
 	await notify(packageManager);

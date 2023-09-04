@@ -4,7 +4,7 @@ import { bold, cyan, dim, magenta } from 'kleur/colors';
 import ora from 'ora';
 import prompts from 'prompts';
 import resolvePackage from 'resolve';
-import { detectAgent } from '@skarab/detect-package-manager';
+import whichPm from 'which-pm';
 import { type Logger } from '../core/logger/core.js';
 
 type GetPackageOptions = {
@@ -80,8 +80,7 @@ async function installPackage(
 	logger: Logger
 ): Promise<boolean> {
 	const cwd = options.cwd ?? process.cwd();
-	const detectedAgent = await detectAgent(cwd);
-	const packageManager = detectedAgent?.name ?? 'npm';
+	const packageManager = (await whichPm(cwd)).name ?? 'npm';
 	const installCommand = getInstallCommand(packageNames, packageManager);
 
 	if (!installCommand) {

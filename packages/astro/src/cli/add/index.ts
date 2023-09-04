@@ -6,7 +6,7 @@ import fsMod, { existsSync, promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import ora from 'ora';
-import { detectAgent } from '@skarab/detect-package-manager';
+import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import type yargs from 'yargs-parser';
 import { loadTSConfig, resolveConfigPath, resolveRoot } from '../../core/config/index.js';
@@ -77,7 +77,7 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 //
 // A copy of this function also exists in the create-astro package
 async function getRegistry(): Promise<string> {
-	const packageManager = (await detectAgent(process.cwd()))?.name || 'npm';
+	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';
 	try {
 		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
 		return stdout?.trim()?.replace(/\/$/, '') || 'https://registry.npmjs.org';
@@ -172,7 +172,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			// we add an .npmrc to hoist them
 			if (
 				integrations.find((integration) => integration.id === 'lit') &&
-				(await detectAgent(fileURLToPath(root)))?.name === 'pnpm'
+				(await preferredPM(fileURLToPath(root)))?.name === 'pnpm'
 			) {
 				await setupIntegrationConfig({
 					root,
@@ -600,7 +600,7 @@ async function getInstallIntegrationsCommand({
 	logger: Logger;
 	cwd?: string;
 }): Promise<InstallCommand | null> {
-	const pm = await detectAgent(cwd);
+	const pm = await preferredPM(cwd);
 	logger.debug('add', `package manager: ${JSON.stringify(pm)}`);
 	if (!pm) return null;
 
@@ -620,8 +620,8 @@ async function getInstallIntegrationsCommand({
 			return { pm: 'yarn', command: 'add', flags: [], dependencies };
 		case 'pnpm':
 			return { pm: 'pnpm', command: 'add', flags: [], dependencies };
-		case 'bun':
-			return { pm: 'bun', command: 'add', flags: [], dependencies };
+		// case 'bun':
+		// 	return { pm: 'bun', command: 'add', flags: [], dependencies };
 		default:
 			return null;
 	}

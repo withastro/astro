@@ -4,8 +4,10 @@
 'astro': patch
 ---
 
-With this PR, I want to propose the usage of @skarab/detect-package-manager for detecting package managers instead of preferred-pm and which-pm.
+Update preferred-pm and which-pm-runs packages as the latest versions now support Bun.
 
 Standardized variable naming by changing all instances of pkgManager to packageManager to ensure consistent wording throughout the codebase.
 
-Correctly runs `bunx astro add` when adding an integration.
+`bunx astro add` command correctly uses bun.
+
+Telemetry notice returns package manager.
