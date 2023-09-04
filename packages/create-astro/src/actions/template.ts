@@ -48,7 +48,7 @@ export async function template(ctx: Pick<Context, 'template' | 'prompt' | 'dryRu
 }
 
 // some files are only needed for online editors when using astro.new. Remove for create-astro installs.
-const FILES_TO_REMOVE = ['sandbox.config.json', 'CHANGELOG.md'];
+const FILES_TO_REMOVE = ['CHANGELOG.md', '.codesandbox'];
 const FILES_TO_UPDATE = {
 	'package.json': (file: string, overrides: { name: string }) =>
 		fs.promises.readFile(file, 'utf-8').then((value) => {

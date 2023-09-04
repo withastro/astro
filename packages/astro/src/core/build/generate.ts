@@ -10,6 +10,7 @@ import type {
 	ComponentInstance,
 	GetStaticPathsItem,
 	ImageTransform,
+	MiddlewareEndpointHandler,
 	RouteData,
 	RouteType,
 	SSRError,
@@ -135,7 +136,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		);
 	}
 	const pipeline = new BuildPipeline(opts, internals, manifest);
-	await pipeline.retrieveMiddlewareFunction();
+
 	const outFolder = ssr
 		? opts.settings.config.build.server
 		: getOutDirWithinCwd(opts.settings.config.outDir);
@@ -195,9 +196,20 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		}
 	}
 
-	logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`);
-	for (const imageData of getStaticImageList()) {
-		await generateImage(pipeline, imageData[1].options, imageData[1].path);
+	const staticImageList = getStaticImageList();
+
+	if (staticImageList.size)
+		logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`);
+	let count = 0;
+	for (const imageData of staticImageList.entries()) {
+		count++;
+		await generateImage(
+			pipeline,
+			imageData[1].options,
+			imageData[1].path,
+			count,
+			staticImageList.size
+		);
 	}
 
 	delete globalThis?.astroAsset?.addStaticImage;
@@ -210,7 +222,13 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	logger.info(null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 }
 
-async function generateImage(pipeline: BuildPipeline, transform: ImageTransform, path: string) {
+async function generateImage(
+	pipeline: BuildPipeline,
+	transform: ImageTransform,
+	path: string,
+	count: number,
+	totalCount: number
+) {
 	const logger = pipeline.getLogger();
 	let timeStart = performance.now();
 	const generationData = await generateImageInternal(pipeline, transform, path);
@@ -224,8 +242,12 @@ async function generateImage(pipeline: BuildPipeline, transform: ImageTransform,
 	const timeIncrease = `(+${timeChange})`;
 	const statsText = generationData.cached
 		? `(reused cache entry)`
-		: `(before: ${generationData.weight.before}kb, after: ${generationData.weight.after}kb)`;
-	logger.info(null, `  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)}`);
+		: `(before: ${generationData.weight.before}kB, after: ${generationData.weight.after}kB)`;
+	const counter = `(${count}/${totalCount})`;
+	logger.info(
+		null,
+		`  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)} ${dim(counter)}`
+	);
 }
 
 async function generatePage(
@@ -247,7 +269,10 @@ async function generatePage(
 		.reduce(mergeInlineCss, []);
 
 	const pageModulePromise = ssrEntry.page;
-
+	const onRequest = ssrEntry.onRequest;
+	if (onRequest) {
+		pipeline.setMiddlewareFunction(onRequest as MiddlewareEndpointHandler);
+	}
 	if (!pageModulePromise) {
 		throw new Error(
 			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`
@@ -604,8 +629,5 @@ export function createBuildManifest(
 			? new URL(settings.config.base, settings.config.site).toString()
 			: settings.config.site,
 		componentMetadata: internals.componentMetadata,
-		middlewareEntryPoint: internals.middlewareEntryPoint
-			? internals.middlewareEntryPoint.toString()
-			: undefined,
 	};
 }

@@ -16,7 +16,23 @@ import {
 const PACKAGE_NAME = '@astrojs/vercel/static';
 
 function getAdapter(): AstroAdapter {
-	return { name: PACKAGE_NAME };
+	return {
+		name: PACKAGE_NAME,
+		supportedAstroFeatures: {
+			assets: {
+				supportKind: 'stable',
+				isSquooshCompatible: true,
+				isSharpCompatible: true,
+			},
+			staticOutput: 'stable',
+			serverOutput: 'unsupported',
+			hybridOutput: 'unsupported',
+		},
+		adapterFeatures: {
+			edgeMiddleware: false,
+			functionPerRoute: false,
+		},
+	};
 }
 
 export interface VercelStaticConfig {

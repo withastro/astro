@@ -99,7 +99,7 @@ From an endpoint:
 
 ```js
 // src/pages/api/someFile.js
-export function get(context) {
+export function GET(context) {
   const runtime = context.locals.runtime;
 
   return new Response('Some body');

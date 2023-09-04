@@ -1,4 +1,10 @@
-import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
+import type {
+	AstroAdapter,
+	AstroConfig,
+	AstroIntegration,
+	AstroIntegrationLogger,
+	RouteData,
+} from 'astro';
 import { AstroError } from 'astro/errors';
 import glob from 'fast-glob';
 import { basename } from 'node:path';
@@ -92,16 +98,27 @@ export default function vercelServerless({
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
 
-	async function createFunctionFolder(funcName: string, entry: URL, inc: URL[]) {
+	const NTF_CACHE = Object.create(null);
+
+	async function createFunctionFolder(
+		funcName: string,
+		entry: URL,
+		inc: URL[],
+		logger: AstroIntegrationLogger
+	) {
 		const functionFolder = new URL(`./functions/${funcName}.func/`, _config.outDir);
 
 		// Copy necessary files (e.g. node_modules/)
-		const { handler } = await copyDependenciesToFunction({
-			entry,
-			outDir: functionFolder,
-			includeFiles: inc,
-			excludeFiles: excludeFiles?.map((file) => new URL(file, _config.root)) || [],
-		});
+		const { handler } = await copyDependenciesToFunction(
+			{
+				entry,
+				outDir: functionFolder,
+				includeFiles: inc,
+				excludeFiles: excludeFiles?.map((file) => new URL(file, _config.root)) || [],
+				logger,
+			},
+			NTF_CACHE
+		);
 
 		// Enable ESM
 		// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
@@ -163,7 +180,14 @@ export default function vercelServerless({
 					...getImageConfig(imageService, imagesConfig, command),
 				});
 			},
-			'astro:config:done': ({ setAdapter, config }) => {
+			'astro:config:done': ({ setAdapter, config, logger }) => {
+				if (functionPerRoute === true) {
+					logger.warn(
+						`Vercel's hosting plans might have limits to the number of functions you can create.
+Make sure to check your plan carefully to avoid incurring additional costs.
+You can set functionPerRoute: false to prevent surpassing the limit.`
+					);
+				}
 				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware }));
 				_config = config;
 				buildTempFolder = config.build.server;
@@ -194,7 +218,7 @@ export default function vercelServerless({
 				}
 			},
 
-			'astro:build:done': async ({ routes }) => {
+			'astro:build:done': async ({ routes, logger }) => {
 				// Merge any includes from `vite.assetsInclude
 				if (_config.vite.assetsInclude) {
 					const mergeGlobbedIncludes = (globPattern: unknown) => {
@@ -219,7 +243,7 @@ export default function vercelServerless({
 				if (_entryPoints.size) {
 					for (const [route, entryFile] of _entryPoints) {
 						const func = basename(entryFile.toString()).replace(/\.mjs$/, '');
-						await createFunctionFolder(func, entryFile, filesToInclude);
+						await createFunctionFolder(func, entryFile, filesToInclude, logger);
 						routeDefinitions.push({
 							src: route.pattern.source,
 							dest: func,
@@ -229,7 +253,8 @@ export default function vercelServerless({
 					await createFunctionFolder(
 						'render',
 						new URL(serverEntry, buildTempFolder),
-						filesToInclude
+						filesToInclude,
+						logger
 					);
 					routeDefinitions.push({ src: '/.*', dest: 'render' });
 				}
