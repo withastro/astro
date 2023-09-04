@@ -36,7 +36,7 @@ export class BuildPipeline extends Pipeline {
 				compressHTML: manifest.compressHTML,
 				async resolve(specifier: string) {
 					const hashedFilePath = manifest.entryModules[specifier];
-					if (typeof hashedFilePath !== 'string') {
+					if (typeof hashedFilePath !== 'string' || hashedFilePath === '') {
 						// If no "astro:scripts/before-hydration.js" script exists in the build,
 						// then we can assume that no before-hydration scripts are needed.
 						if (specifier === BEFORE_HYDRATION_SCRIPT_ID) {
