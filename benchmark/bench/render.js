@@ -5,9 +5,8 @@ import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { waitUntilBusy } from 'port-authority';
-import { calculateStat } from './_util.js';
+import { calculateStat, astroBin } from './_util.js';
 import { renderFiles } from '../make-project/render-default.js';
-import { astroBin } from './_util.js';
 
 const port = 4322;
 
