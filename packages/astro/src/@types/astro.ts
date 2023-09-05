@@ -642,7 +642,7 @@ export interface AstroUserConfig {
 	 * import netlify from '@astrojs/netlify/functions';
 	 * {
 	 *   // Example: Build for Netlify serverless deployment
-	 * 	 adapter: netlify(),
+	 *   adapter: netlify(),
 	 * }
 	 * ```
 	 */
@@ -658,9 +658,9 @@ export interface AstroUserConfig {
 	 *
 	 * Specifies the output target for builds.
 	 *
-	 * - 'static' - Building a static site to be deploy to any static host.
-	 * - 'server' - Building an app to be deployed to a host supporting SSR (server-side rendering).
-	 * - 'hybrid' - Building a static site with a few server-side rendered pages.
+	 * - `'static'` - Building a static site to be deploy to any static host.
+	 * - `'server'` - Building an app to be deployed to a host supporting SSR (server-side rendering).
+	 * - `'hybrid'` - Building a static site with a few server-side rendered pages.
 	 *
 	 * ```js
 	 * import { defineConfig } from 'astro/config';
@@ -685,8 +685,8 @@ export interface AstroUserConfig {
 		 * @default `'directory'`
 		 * @description
 		 * Control the output file format of each page.
-		 *   - If 'file', Astro will generate an HTML file (ex: "/foo.html") for each page.
-		 *   - If 'directory', Astro will generate a directory with a nested `index.html` file (ex: "/foo/index.html") for each page.
+		 *   - If `'file'`, Astro will generate an HTML file (ex: "/foo.html") for each page.
+		 *   - If `'directory'`, Astro will generate a directory with a nested `index.html` file (ex: "/foo/index.html") for each page.
 		 *
 		 * ```js
 		 * {
@@ -970,7 +970,7 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name Image options
+	 * @name Image Options
 	 */
 	image?: {
 		/**
@@ -980,7 +980,7 @@ export interface AstroUserConfig {
 		 * @default `{entrypoint: 'astro/assets/services/sharp', config?: {}}`
 		 * @version 2.1.0
 		 * @description
-		 * Set which image service is used for Astro’s experimental assets support.
+		 * Set which image service is used for Astro’s assets support.
 		 *
 		 * The value should be an object with an entrypoint for the image service to use and optionally, a config object to pass to the service.
 		 *
@@ -1004,7 +1004,7 @@ export interface AstroUserConfig {
 		 * @default `{domains: []}`
 		 * @version 2.10.10
 		 * @description
-		 * Defines a list of permitted image source domains for local image optimization. No other remote images will be optimized by Astro.
+		 * Defines a list of permitted image source domains for remote image optimization. No other remote images will be optimized by Astro.
 		 *
 		 * This option requires an array of individual domain names as strings. Wildcards are not permitted. Instead, use [`image.remotePatterns`](#imageremotepatterns) to define a list of allowed source URL patterns.
 		 *
@@ -1027,7 +1027,7 @@ export interface AstroUserConfig {
 		 * @default `{remotePatterns: []}`
 		 * @version 2.10.10
 		 * @description
-		 * Defines a list of permitted image source URL patterns for local image optimization.
+		 * Defines a list of permitted image source URL patterns for remote image optimization.
 		 *
 		 * `remotePatterns` can be configured with four properties:
 		 * 1. protocol
