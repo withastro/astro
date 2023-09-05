@@ -501,6 +501,31 @@ test.describe('View Transitions', () => {
 		await page.click('#click-logo');
 		await downloadPromise;
 	});
+
+	test("Non transition navigation doesn't loose handlers", async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page 3
+		await page.click('#click-three');
+		p = page.locator('#three');
+		await expect(p, 'should have content').toHaveText('Page 3');
+
+		// go to page 5
+		await page.click('#click-five');
+		p = page.locator('#five');
+		await expect(p, 'should have content').toHaveText('Page 5');
+
+		await page.goBack();
+		p = page.locator('#three');
+		await expect(p, 'should have content').toHaveText('Page 3');
+
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+	});
 });
 
 test('Scroll position is restored on back navigation from page w/o ViewTransitions', async ({
