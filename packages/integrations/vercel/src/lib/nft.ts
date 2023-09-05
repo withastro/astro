@@ -21,7 +21,7 @@ export async function copyDependenciesToFunction(
 	cache: object
 ): Promise<{ handler: string }> {
 	const entryPath = fileURLToPath(entry);
-	logger.info(`Bundling function ${relative(fileURLToPath(outDir), entryPath)}`);
+	logger.info(`Bundling function ${relativePath(fileURLToPath(outDir), entryPath)}`);
 
 	// Get root of folder of the system (like C:\ on Windows or / on Linux)
 	let base = entry;
