@@ -2,7 +2,6 @@
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { ASTRO_VERSION } from '../core/constants.js';
-import whichPm from 'which-pm';
 
 type CLICommand =
 	| 'help'
@@ -128,10 +127,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		process.env.NODE_ENV = cmd === 'dev' ? 'development' : 'production';
 	}
 
-	const packageManager = (await whichPm(process.cwd())).name ?? 'npm';
-
 	const { notify } = await import('./telemetry/index.js');
-	await notify(packageManager);
+	await notify();
 
 	// These commands uses the logging and user config. All commands are assumed to have been handled
 	// by the end of this switch statement.
