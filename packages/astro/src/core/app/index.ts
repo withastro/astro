@@ -121,8 +121,6 @@ export class App {
 		}
 		return pathname;
 	}
-	// Disable no-unused-vars to avoid breaking signature change
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	match(request: Request, _opts: MatchOptions = {}): RouteData | undefined {
 		const url = new URL(request.url);
 		// ignore requests matching public assets

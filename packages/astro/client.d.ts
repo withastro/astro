@@ -52,6 +52,7 @@ declare module 'astro:assets' {
 				| import('./dist/assets/types.js').ImageTransform
 				| import('./dist/assets/types.js').UnresolvedImageTransform
 		) => Promise<import('./dist/assets/types.js').GetImageResult>;
+		imageConfig: import('./dist/@types/astro').AstroConfig['image'];
 		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
 		Image: typeof import('./components/Image.astro').default;
 	};
@@ -69,7 +70,7 @@ declare module 'astro:assets' {
 	export type RemoteImageProps = Simplify<
 		import('./dist/assets/types.js').RemoteImageProps<ImgAttributes>
 	>;
-	export const { getImage, getConfiguredImageService, Image }: AstroAssets;
+	export const { getImage, getConfiguredImageService, imageConfig, Image }: AstroAssets;
 }
 
 type InputFormat = import('./dist/assets/types.js').ImageInputFormat;
