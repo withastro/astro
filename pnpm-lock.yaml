@@ -2437,6 +2437,18 @@ importers:
 
   packages/astro/test/fixtures/css-assets/packages/font-awesome: {}
 
+  packages/astro/test/fixtures/css-dangling-references:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../../integrations/svelte
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      svelte:
+        specifier: '4'
+        version: 4.2.0
+
   packages/astro/test/fixtures/css-import-as-inline:
     dependencies:
       astro:
