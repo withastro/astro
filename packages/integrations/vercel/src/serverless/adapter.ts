@@ -215,7 +215,7 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 
           const getInjectedFuncName = (entryFile: URL) =>
             basename(entryFile.toString())
-              .replace(/^entry-/, '')
+              .replace(/^entry\./, '')
               .replace(/\.mjs$/, '');
 
           const getFuncName = (route: RouteData) =>
