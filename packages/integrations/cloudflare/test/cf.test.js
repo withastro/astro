@@ -30,7 +30,7 @@ describe('Cf metadata and caches', () => {
 	});
 
 	it('Load cf and caches API', async () => {
-		let res = await fetch(`http://127.0.0.1:8788/`);
+		let res = await fetch(`http://127.0.0.1:8786/`);
 		expect(res.status).to.equal(200);
 		let html = await res.text();
 		let $ = cheerio.load(html);
