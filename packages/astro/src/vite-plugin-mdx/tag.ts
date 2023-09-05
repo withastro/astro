@@ -2,11 +2,11 @@ import type { PluginObj } from '@babel/core';
 
 const t = await import('@babel/types')
 			.catch(error => new Proxy({}, { get: () => {
-				if (process.version === 'v20.6.0') {
+				if (process.version.startsWith('v20.6')) {
 					console.error("The build could not complete because of a bug in Node.js v20.6.0.\nSee https://github.com/nodejs/node/issues/49497\n\nConsider using Node.js v20.5.1, or update if the issue has been fixed.")
+					process.exit(1)
 				}
-				else { console.log(error) }
-				process.exit(1)
+				else { throw error }
 			} }) as never);
 
 /**
