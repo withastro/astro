@@ -2,7 +2,7 @@ import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/internal.js';
 import { compile as mdxCompile, type CompileOptions } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
-import type { AstroIntegration, ContentEntryType, HookParameters } from 'astro';
+import type { AstroIntegration, ContentEntryType, HookParameters, SSRError } from 'astro';
 import astroJSXRenderer from 'astro/jsx/renderer.js';
 import { parse as parseESM } from 'es-module-lexer';
 import fs from 'node:fs/promises';
@@ -129,27 +129,33 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									const code = await fs.readFile(fileId, 'utf-8');
 
 									const { data: frontmatter, content: pageContent } = parseFrontmatter(code, id);
-									const compiled = await mdxCompile(new VFile({ value: pageContent, path: id }), {
-										...mdxPluginOpts,
-										elementAttributeNameCase: 'html',
-										remarkPlugins: [
-											// Ensure `data.astro` is available to all remark plugins
-											toRemarkInitializeAstroData({ userFrontmatter: frontmatter }),
-											...(mdxPluginOpts.remarkPlugins ?? []),
-										],
-										recmaPlugins: [
-											...(mdxPluginOpts.recmaPlugins ?? []),
-											() => recmaInjectImportMetaEnvPlugin({ importMetaEnv }),
-										],
-										SourceMapGenerator: config.vite.build?.sourcemap
-											? SourceMapGenerator
-											: undefined,
-									});
+									try {
+										const compiled = await mdxCompile(new VFile({ value: pageContent, path: id }), {
+											...mdxPluginOpts,
+											elementAttributeNameCase: 'html',
+											remarkPlugins: [
+												// Ensure `data.astro` is available to all remark plugins
+												toRemarkInitializeAstroData({ userFrontmatter: frontmatter }),
+												...(mdxPluginOpts.remarkPlugins ?? []),
+											],
+											recmaPlugins: [
+												...(mdxPluginOpts.recmaPlugins ?? []),
+												() => recmaInjectImportMetaEnvPlugin({ importMetaEnv }),
+											],
+											SourceMapGenerator: config.vite.build?.sourcemap
+												? SourceMapGenerator
+												: undefined,
+										});
 
-									return {
-										code: escapeViteEnvReferences(String(compiled.value)),
-										map: compiled.map,
-									};
+										return {
+											code: escapeViteEnvReferences(String(compiled.value)),
+											map: compiled.map,
+										};
+									} catch (e: any) {
+										const err: SSRError = e;
+										err.loc = { file: fileId, line: e.line, column: e.column };
+										throw err;
+									}
 								},
 							},
 							{
