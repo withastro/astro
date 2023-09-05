@@ -1,6 +1,7 @@
 import { t, visit } from './babel.js';
+import type * as Babel from "@babel/types"
 
-export function wrapDefaultExport(ast: t.File, functionIdentifier: t.Identifier) {
+export function wrapDefaultExport(ast: Babel.File, functionIdentifier: Babel.Identifier) {
 	visit(ast, {
 		ExportDefaultDeclaration(path) {
 			if (!t.isExpression(path.node.declaration)) return;

@@ -1,5 +1,13 @@
 import type { PluginObj } from '@babel/core';
-import * as t from '@babel/types';
+
+const t = await import('@babel/types')
+			.catch(error => new Proxy({}, { get: () => {
+				if (process.version === 'v20.6.0') {
+					console.error("The build could not complete because of a bug in Node.js v20.6.0.\nSee https://github.com/nodejs/node/issues/49497\n\nConsider using Node.js v20.5.1, or update if the issue has been fixed.")
+				}
+				else { console.log(error) }
+				process.exit(1)
+			} }) as never);
 
 /**
  * This plugin handles every file that runs through our JSX plugin.

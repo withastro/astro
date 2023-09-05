@@ -9,6 +9,7 @@ import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import type yargs from 'yargs-parser';
+import type * as Babel from "@babel/types"
 import { loadTSConfig, resolveConfigPath, resolveRoot } from '../../core/config/index.js';
 import {
 	defaultTSConfig,
@@ -216,7 +217,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 		await fs.writeFile(fileURLToPath(configURL), ASTRO_CONFIG_STUB, { encoding: 'utf-8' });
 	}
 
-	let ast: t.File | null = null;
+	let ast: Babel.File | null = null;
 	try {
 		ast = await parseAstroConfig(configURL);
 
@@ -342,7 +343,7 @@ function isAdapter(
 	return integration.type === 'adapter';
 }
 
-async function parseAstroConfig(configURL: URL): Promise<t.File> {
+async function parseAstroConfig(configURL: URL): Promise<Babel.File> {
 	const source = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
 	const result = parse(source);
 
@@ -389,7 +390,7 @@ Documentation: https://docs.astro.build/en/guides/integrations-guide/`;
 	return err;
 }
 
-async function addIntegration(ast: t.File, integration: IntegrationInfo) {
+async function addIntegration(ast: Babel.File, integration: IntegrationInfo) {
 	const integrationId = t.identifier(toIdent(integration.id));
 
 	ensureImport(
@@ -417,7 +418,7 @@ async function addIntegration(ast: t.File, integration: IntegrationInfo) {
 					if (prop.key.value === 'integrations') return true;
 				}
 				return false;
-			}) as t.ObjectProperty | undefined;
+			}) as Babel.ObjectProperty | undefined;
 
 			const integrationCall = t.callExpression(integrationId, []);
 
@@ -445,7 +446,7 @@ async function addIntegration(ast: t.File, integration: IntegrationInfo) {
 	});
 }
 
-async function setAdapter(ast: t.File, adapter: IntegrationInfo, exportName: string) {
+async function setAdapter(ast: Babel.File, adapter: IntegrationInfo, exportName: string) {
 	const adapterId = t.identifier(toIdent(adapter.id));
 
 	ensureImport(
@@ -470,7 +471,7 @@ async function setAdapter(ast: t.File, adapter: IntegrationInfo, exportName: str
 					if (prop.key.value === 'output') return true;
 				}
 				return false;
-			}) as t.ObjectProperty | undefined;
+			}) as Babel.ObjectProperty | undefined;
 
 			if (!outputProp) {
 				configObject.properties.push(
@@ -487,7 +488,7 @@ async function setAdapter(ast: t.File, adapter: IntegrationInfo, exportName: str
 					if (prop.key.value === 'adapter') return true;
 				}
 				return false;
-			}) as t.ObjectProperty | undefined;
+			}) as Babel.ObjectProperty | undefined;
 
 			let adapterCall;
 			switch (adapter.id) {
@@ -530,7 +531,7 @@ async function updateAstroConfig({
 	logAdapterInstructions,
 }: {
 	configURL: URL;
-	ast: t.File;
+	ast: Babel.File;
 	flags: yargs.Arguments;
 	logger: Logger;
 	logAdapterInstructions: boolean;

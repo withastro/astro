@@ -1,9 +1,18 @@
 import type { PluginObj } from '@babel/core';
-import * as t from '@babel/types';
+import * as Babel from '@babel/types';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import { resolvePath } from '../core/util.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
+
+const t = await import('@babel/types')
+			.catch(error => new Proxy({}, { get: () => {
+				if (process.version === 'v20.6.0') {
+					console.error("The build could not complete because of a bug in Node.js v20.6.0.\nSee https://github.com/nodejs/node/issues/49497\n\nConsider using Node.js v20.5.1, or update if the issue has been fixed.")
+				}
+				else { console.log(error) }
+				process.exit(1)
+			} }) as never);
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
@@ -15,7 +24,7 @@ function isComponent(tagName: string) {
 	);
 }
 
-function hasClientDirective(node: t.JSXElement) {
+function hasClientDirective(node: Babel.JSXElement) {
 	for (const attr of node.openingElement.attributes) {
 		if (attr.type === 'JSXAttribute' && attr.name.type === 'JSXNamespacedName') {
 			return attr.name.namespace.name === 'client';
@@ -24,7 +33,7 @@ function hasClientDirective(node: t.JSXElement) {
 	return false;
 }
 
-function isClientOnlyComponent(node: t.JSXElement) {
+function isClientOnlyComponent(node: Babel.JSXElement) {
 	for (const attr of node.openingElement.attributes) {
 		if (attr.type === 'JSXAttribute' && attr.name.type === 'JSXNamespacedName') {
 			return jsxAttributeToString(attr) === 'client:only';
@@ -33,12 +42,12 @@ function isClientOnlyComponent(node: t.JSXElement) {
 	return false;
 }
 
-function getTagName(tag: t.JSXElement) {
+function getTagName(tag: Babel.JSXElement) {
 	const jsxName = tag.openingElement.name;
 	return jsxElementNameToString(jsxName);
 }
 
-function jsxElementNameToString(node: t.JSXOpeningElement['name']): string {
+function jsxElementNameToString(node: Babel.JSXOpeningElement['name']): string {
 	if (t.isJSXMemberExpression(node)) {
 		return `${jsxElementNameToString(node.object)}.${node.property.name}`;
 	}
@@ -48,7 +57,7 @@ function jsxElementNameToString(node: t.JSXOpeningElement['name']): string {
 	return `${node.namespace.name}:${node.name.name}`;
 }
 
-function jsxAttributeToString(attr: t.JSXAttribute): string {
+function jsxAttributeToString(attr: Babel.JSXAttribute): string {
 	if (t.isJSXNamespacedName(attr.name)) {
 		return `${attr.name.namespace.name}:${attr.name.name.name}`;
 	}
@@ -56,7 +65,7 @@ function jsxAttributeToString(attr: t.JSXAttribute): string {
 }
 
 function addClientMetadata(
-	node: t.JSXElement,
+	node: Babel.JSXElement,
 	meta: { resolvedPath: string; path: string; name: string }
 ) {
 	const existingAttributes = node.openingElement.attributes.map((attr) =>
@@ -88,7 +97,7 @@ function addClientMetadata(
 }
 
 function addClientOnlyMetadata(
-	node: t.JSXElement,
+	node: Babel.JSXElement,
 	meta: { resolvedPath: string; path: string; name: string }
 ) {
 	const tagName = getTagName(node);
@@ -193,7 +202,7 @@ export default function astroJSX(): PluginObj {
 					return;
 				}
 				const parent = path.findParent((n) => t.isJSXElement(n.node))!;
-				const parentNode = parent.node as t.JSXElement;
+				const parentNode = parent.node as Babel.JSXElement;
 				const tagName = getTagName(parentNode);
 				if (!isComponent(tagName)) return;
 				if (!hasClientDirective(parentNode)) return;
@@ -252,7 +261,7 @@ export default function astroJSX(): PluginObj {
 				const isAttr = path.findParent((n) => t.isJSXAttribute(n.node));
 				if (isAttr) return;
 				const parent = path.findParent((n) => t.isJSXElement(n.node))!;
-				const parentNode = parent.node as t.JSXElement;
+				const parentNode = parent.node as Babel.JSXElement;
 				const tagName = getTagName(parentNode);
 				if (!isComponent(tagName)) return;
 				if (!hasClientDirective(parentNode)) return;

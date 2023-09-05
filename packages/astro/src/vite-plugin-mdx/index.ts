@@ -4,11 +4,19 @@ import type { AstroRenderer, AstroSettings } from '../@types/astro';
 import type { Logger } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
 
-import babel from '@babel/core';
 import { CONTENT_FLAG, PROPAGATED_ASSET_FLAG } from '../content/index.js';
 import { astroEntryPrefix } from '../core/build/plugins/plugin-component-entry.js';
 import { removeQueryString } from '../core/path.js';
 import tagExportsPlugin from './tag.js';
+
+const babel = await import('@babel/core')
+			.catch(error => new Proxy({}, { get: () => {
+				if (process.version === 'v20.6.0') {
+					console.error("The build could not complete because of a bug in Node.js v20.6.0.\nSee https://github.com/nodejs/node/issues/49497\n\nConsider using Node.js v20.5.1, or update if the issue has been fixed.")
+				}
+				else { console.log(error) }
+				process.exit(1)
+			} }) as never);
 
 interface TransformJSXOptions {
 	code: string;

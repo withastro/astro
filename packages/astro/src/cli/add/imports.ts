@@ -1,6 +1,7 @@
+import type * as Babel from '@babel/types';
 import { t, visit } from './babel.js';
 
-export function ensureImport(root: t.File, importDeclaration: t.ImportDeclaration) {
+export function ensureImport(root: Babel.File, importDeclaration: Babel.ImportDeclaration) {
 	let specifiersToFind = [...importDeclaration.specifiers];
 
 	visit(root, {
