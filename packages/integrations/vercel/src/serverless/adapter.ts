@@ -207,24 +207,18 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 
 				// Multiple entrypoint support
 				if (_entryPoints.size) {
-					// TODO: Currently this function directly checks for a single route 
-					// injected in packages/astro/src/assets/internal.ts Ideally this
-					// should be done dynamically
-					const isInjectedRoute = (route: RouteData) =>
-						route.pathname === '/_image';
+					const getRouteFuncName = (route: RouteData) =>
+						route.component.replace('src/pages/', '')
 
-          const getInjectedFuncName = (entryFile: URL) =>
+          const getFallbackFuncName = (entryFile: URL) =>
             basename(entryFile.toString())
-              .replace(/^entry\./, '')
+              .replace('entry.', '')
               .replace(/\.mjs$/, '');
 
-          const getFuncName = (route: RouteData) =>
-            route.component.replace(/^src\/pages\//, '')
-
           for (const [route, entryFile] of _entryPoints) {
-            const func = isInjectedRoute(route)
-							? getInjectedFuncName(entryFile)
-							: getFuncName(route)
+            const func = route.component.startsWith('src/pages/')
+							? getRouteFuncName(route)
+							: getFallbackFuncName(entryFile)
 						
 						await createFunctionFolder(func, entryFile, filesToInclude, logger);
 						routeDefinitions.push({
