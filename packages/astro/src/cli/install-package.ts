@@ -1,4 +1,3 @@
-import { createRequire } from 'node:module';
 import boxen from 'boxen';
 import { execa } from 'execa';
 import { bold, cyan, dim, magenta } from 'kleur/colors';
