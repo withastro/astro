@@ -16,7 +16,7 @@ describe('Serverless with dynamic routes', () => {
 
 	it('build successful', async () => {
 		expect(await fixture.readFile('../.vercel/output/static/index.html')).to.be.ok;
-		expect(await fixture.readFile('../.vercel/output/functions/entry._id_.astro.func/.vc-config.json')).to.be.ok;
-		expect(await fixture.readFile('../.vercel/output/functions/entry.api._id_.astro.func/.vc-config.json')).to.be.ok;
+		expect(await fixture.readFile('../.vercel/output/functions/[id]/index.astro.func/.vc-config.json')).to.be.ok;
+		expect(await fixture.readFile('../.vercel/output/functions/api/[id].js.func/.vc-config.json')).to.be.ok;
 	});
 });
