@@ -30,9 +30,11 @@ const { fallback = 'animate' } = Astro.props as Props;
 	// The History API does not tell you if navigation is forward or back, so
 	// you can figure it using an index. On pushState the index is incremented so you
 	// can use that to determine popstate if going forward or back.
-	let currentHistoryIndex = history.state?.index || 0;
-	if (!history.state && transitionEnabledOnThisPage()) {
-		persistState({ index: currentHistoryIndex, scrollY: 0 });
+	let currentHistoryIndex = 0;
+	if (history.state) {
+		// we reloaded a page with history state (e.g. back button or browser reload)
+		currentHistoryIndex = history.state.index;
+		scrollTo({ left: 0, top: history.state.scrollY });
 	}
 
 	const throttle = (cb: (...args: any[]) => any, delay: number) => {
@@ -352,6 +354,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				// The current page doesn't haven't View Transitions,
 				// respect that with a full page reload
 				// -- but only for transition managed by us (ev.state is set)
+				history.scrollRestoration && (history.scrollRestoration = "manual")
 				location.reload();
 				return;
 			}
