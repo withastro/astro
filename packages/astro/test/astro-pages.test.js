@@ -49,5 +49,10 @@ describe('Pages', () => {
 
 			expect($('#testing').length).to.be.greaterThan(0);
 		});
+
+		it('should have Vite client in dev', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			expect(html).to.include('/@vite/client', 'Markdown page does not have Vite client for HMR');
+		});
 	});
 });
