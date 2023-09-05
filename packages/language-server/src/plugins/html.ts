@@ -4,7 +4,8 @@ import { AstroFile } from '../core/index.js';
 import { astroAttributes, astroElements, classListAttribute } from './html-data.js';
 import { isInComponentStartTag } from './utils.js';
 
-export default (): Service =>
+export const create =
+	(): Service =>
 	(context, modules): ReturnType<Service> => {
 		const htmlPlugin = createHtmlService()(context, modules);
 

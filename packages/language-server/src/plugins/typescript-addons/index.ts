@@ -3,7 +3,7 @@ import { AstroFile } from '../../core/index.js';
 import { isInsideFrontmatter, isJSDocument } from '../utils.js';
 import { getSnippetCompletions } from './snippets.js';
 
-export const createTypescriptAddonsService =
+export const create =
 	(): Service =>
 	(context): ReturnType<Service> => {
 		return {

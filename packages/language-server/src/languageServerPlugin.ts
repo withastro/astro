@@ -3,19 +3,22 @@ import {
 	MessageType,
 	ShowMessageNotification,
 } from '@volar/language-server/node';
-import createCssService from 'volar-service-css';
-import createEmmetService from 'volar-service-emmet';
-import createPrettierService from 'volar-service-prettier';
-import createTypeScriptTwoSlashService from 'volar-service-typescript-twoslash-queries';
 import { getLanguageModule } from './core';
 import { getSvelteLanguageModule } from './core/svelte.js';
 import { getVueLanguageModule } from './core/vue.js';
 import { getPrettierPluginPath, importPrettier } from './importPackage.js';
-import createAstroService from './plugins/astro.js';
-import createHtmlService from './plugins/html.js';
-import { createTypescriptAddonsService } from './plugins/typescript-addons/index.js';
-import createTypeScriptService from './plugins/typescript/index.js';
 import { getAstroInstall } from './utils.js';
+
+// Services
+import { create as createCssService } from 'volar-service-css';
+import { create as createEmmetService } from 'volar-service-emmet';
+import { create as createPrettierService } from 'volar-service-prettier';
+import { create as createTypeScriptTwoSlashService } from 'volar-service-typescript-twoslash-queries';
+
+import { create as createAstroService } from './plugins/astro.js';
+import { create as createHtmlService } from './plugins/html.js';
+import { create as createTypescriptAddonsService } from './plugins/typescript-addons/index.js';
+import { create as createTypeScriptService } from './plugins/typescript/index.js';
 
 export const plugin: LanguageServerPlugin = (
 	initOptions,

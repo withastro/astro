@@ -6,9 +6,10 @@ import { pathToFileURL } from 'node:url';
 import { getLanguageModule } from './core/index.js';
 import { getSvelteLanguageModule } from './core/svelte.js';
 import { getVueLanguageModule } from './core/vue.js';
-import createAstroService from './plugins/astro.js';
-import createTypeScriptService from './plugins/typescript/index.js';
 import { getAstroInstall } from './utils.js';
+
+import { create as createAstroService } from './plugins/astro.js';
+import { create as createTypeScriptService } from './plugins/typescript/index.js';
 
 // Export those for downstream consumers
 export { Diagnostic, DiagnosticSeverity };

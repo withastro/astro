@@ -17,7 +17,8 @@ import type { TextDocument } from 'vscode-html-languageservice';
 import { AstroFile } from '../core/index.js';
 import { isJSDocument } from './utils.js';
 
-export default (): Service =>
+export const create =
+	(): Service =>
 	(context, modules): ReturnType<Service> => {
 		return {
 			triggerCharacters: ['-'],

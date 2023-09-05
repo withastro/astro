@@ -9,7 +9,8 @@ import {
 import { enhancedProvideCompletionItems, enhancedResolveCompletionItem } from './completions.js';
 import { enhancedProvideSemanticDiagnostics } from './diagnostics.js';
 
-export default (): Service =>
+export const create =
+	(): Service =>
 	(context, modules): ReturnType<Service> => {
 		const typeScriptPlugin = createTypeScriptService()(context, modules);
 
