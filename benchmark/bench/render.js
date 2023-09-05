@@ -5,8 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { execaCommand } from 'execa';
 import { markdownTable } from 'markdown-table';
 import { waitUntilBusy } from 'port-authority';
-import { calculateStat, astroBin } from './_util.js';
 import { renderFiles } from '../make-project/render-default.js';
+import { astroBin, calculateStat } from './_util.js';
 
 const port = 4322;
 

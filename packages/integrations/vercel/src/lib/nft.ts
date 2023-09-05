@@ -1,6 +1,6 @@
-import type { AstroIntegrationLogger } from 'astro';
-import { relative, relative as relativePath } from 'node:path';
+import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { AstroIntegrationLogger } from 'astro';
 import { copyFilesToFunction } from './fs.js';
 
 export async function copyDependenciesToFunction(
