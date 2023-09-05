@@ -1779,11 +1779,11 @@ export type AstroFeatureMap = {
 export interface AstroAssetsFeature {
 	supportKind?: SupportsKind;
 	/**
-	 * Whether if this adapter deploys files in an enviroment that is compatible with the library `sharp`
+	 * Whether if this adapter deploys files in an environment that is compatible with the library `sharp`
 	 */
 	isSharpCompatible?: boolean;
 	/**
-	 * Whether if this adapter deploys files in an enviroment that is compatible with the library `squoosh`
+	 * Whether if this adapter deploys files in an environment that is compatible with the library `squoosh`
 	 */
 	isSquooshCompatible?: boolean;
 }
