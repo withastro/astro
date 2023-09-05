@@ -1,5 +1,5 @@
-// Heads up: This file should be renamed to `.cjs`, however if we did that, changesets wouldn't be able to load it
-module.exports = {
+/** @type {import("prettier").Config} */
+export default {
   printWidth: 100,
   semi: true,
   singleQuote: true,
