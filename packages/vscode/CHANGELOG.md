@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.3.3
+
+### Patch Changes
+
+- 351f5dd: Fix formatting not respecting Prettier overrides in certain cases
+
 ## 2.3.1
 
 ### Patch Changes
