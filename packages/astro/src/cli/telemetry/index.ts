@@ -2,14 +2,17 @@
 import type yargs from 'yargs-parser';
 import * as msg from '../../core/messages.js';
 import { telemetry } from '../../events/index.js';
+import whichPm from 'which-pm';
 
 interface TelemetryOptions {
 	flags: yargs.Arguments;
 }
 
+
 export async function notify() {
+	const packageManager = (await whichPm(process.cwd())).name ?? 'npm';
 	await telemetry.notify(() => {
-		console.log(msg.telemetryNotice() + '\n');
+		console.log(msg.telemetryNotice(packageManager) + '\n');
 		return true;
 	});
 }

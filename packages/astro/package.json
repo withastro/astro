@@ -156,7 +156,7 @@
     "ora": "^7.0.1",
     "p-limit": "^4.0.0",
     "path-to-regexp": "^6.2.1",
-    "preferred-pm": "^3.0.3",
+    "preferred-pm": "^3.1.2",
     "prompts": "^2.4.2",
     "rehype": "^12.0.1",
     "resolve": "^1.22.4",
@@ -172,7 +172,7 @@
     "vfile": "^5.3.7",
     "vite": "^4.4.9",
     "vitefu": "^0.2.4",
-    "which-pm": "^2.0.0",
+    "which-pm": "^2.1.1",
     "yargs-parser": "^21.1.1",
     "zod": "3.21.1"
   },
