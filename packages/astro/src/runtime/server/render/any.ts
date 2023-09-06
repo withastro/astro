@@ -18,6 +18,7 @@ export async function renderChild(destination: RenderDestination, child: any) {
 			});
 		});
 		for (const childRender of childRenders) {
+			if (!childRender) continue;
 			await childRender.renderToFinalDestination(destination);
 		}
 	} else if (typeof child === 'function') {
