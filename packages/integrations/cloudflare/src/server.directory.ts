@@ -41,19 +41,6 @@ export function createExports(manifest: SSRManifest) {
 				request.headers.get('cf-connecting-ip')
 			);
 
-			// `getRuntime()` is deprecated, currently available additionally to new Astro.locals.runtime
-			// TODO: remove `getRuntime()` in Astro 3.0
-			Reflect.set(request, Symbol.for('runtime'), {
-				...context,
-				waitUntil: (promise: Promise<any>) => {
-					context.waitUntil(promise);
-				},
-				name: 'cloudflare',
-				next,
-				caches,
-				cf: request.cf,
-			});
-
 			const locals: DirectoryRuntime = {
 				runtime: {
 					waitUntil: (promise: Promise<any>) => {
