@@ -153,7 +153,14 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 										};
 									} catch (e: any) {
 										const err: SSRError = e;
+
+										// For some reason MDX puts the error location in the error's name, not very useful for us.
+										err.name = 'MDXError';
 										err.loc = { file: fileId, line: e.line, column: e.column };
+
+										// For another some reason, MDX doesn't include a stack trace. Weird
+										Error.captureStackTrace(err);
+
 										throw err;
 									}
 								},
