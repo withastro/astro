@@ -111,7 +111,6 @@ function getVarsForDev(config: any, configPath: string | undefined): any {
 	const loaded = loadDotEnv(devVarsPath);
 	if (loaded !== undefined) {
 		const devVarsRelativePath = relative(process.cwd(), loaded.path);
-		// logger.log(`Using vars defined in ${devVarsRelativePath}`);
 		return {
 			...config.vars,
 			...loaded.parsed,
