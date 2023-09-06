@@ -99,10 +99,7 @@ export default function ({
 					vite: getViteConfiguration({ include, exclude, experimentalReactChildren }),
 				});
 				if (command === 'dev') {
-					const preamble = FAST_REFRESH_PREAMBLE.replace(
-						`__BASE__`,
-						'/'
-					);
+					const preamble = FAST_REFRESH_PREAMBLE.replace(`__BASE__`, '/');
 					injectScript('before-hydration', preamble);
 				}
 			},
