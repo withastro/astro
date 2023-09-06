@@ -45,7 +45,6 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "0.2.0",
     "@vitejs/plugin-react": "^4.0.4",
     "ultrahtml": "^1.3.0"
   },
