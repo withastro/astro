@@ -2,4 +2,4 @@
 '@astrojs/cloudflare': patch
 ---
 
-[README] Update code sample to use uppercase `GET`.
+Update code sample in the README to use uppercase `GET`.
