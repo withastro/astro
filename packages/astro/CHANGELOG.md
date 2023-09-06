@@ -1,5 +1,61 @@
 # astro
 
+## 3.0.10
+
+### Patch Changes
+
+- [#8437](https://github.com/withastro/astro/pull/8437) [`b3cf1b327`](https://github.com/withastro/astro/commit/b3cf1b32765c76cfc90e497a68280ad52f02cb1f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix imports of images with uppercased file extensions not working
+
+- [#8440](https://github.com/withastro/astro/pull/8440) [`b92d066b7`](https://github.com/withastro/astro/commit/b92d066b737f64f08a9cf293bd07c9263ef8f32d) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix issue where `renderToFinalDestination` would throw in internal Astro code
+
+## 3.0.9
+
+### Patch Changes
+
+- [#8351](https://github.com/withastro/astro/pull/8351) [`7d95bd9ba`](https://github.com/withastro/astro/commit/7d95bd9baaf755239fd7d35e4813861b2dbccf42) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixed a case where dynamic imports tried to preload inlined stylesheets.
+
+- [#8353](https://github.com/withastro/astro/pull/8353) [`1947ef7a9`](https://github.com/withastro/astro/commit/1947ef7a99ce3d1d6ea797842edd31d5edffa5de) Thanks [@elevatebart](https://github.com/elevatebart)! - Astro will now skip asset optimization when there is a query in the import. Instead, it will let vite deal with it using plugins.
+
+  ```vue
+  <script>
+  // This will not return an optimized asset
+  import Component from './Component.vue?component';
+  </script>
+  ```
+
+- [#8424](https://github.com/withastro/astro/pull/8424) [`61ad70fdc`](https://github.com/withastro/astro/commit/61ad70fdc52035964c43ecdb4cf7468f6c2b61e7) Thanks [@itsmatteomanf](https://github.com/itsmatteomanf)! - Fixes remote assets caching logic to not use expired assets
+
+- [#8306](https://github.com/withastro/astro/pull/8306) [`d2f2a11cd`](https://github.com/withastro/astro/commit/d2f2a11cdb42b0de79be21c798eda8e7e7b2a277) Thanks [@jacobthesheep](https://github.com/jacobthesheep)! - Support detecting Bun when logging messages with package manager information.
+
+- [#8414](https://github.com/withastro/astro/pull/8414) [`5126c6a40`](https://github.com/withastro/astro/commit/5126c6a40f88bff66ee5d3c3a21eea8c4a44ce7a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix missing type for `imageConfig` export from `astro:assets`
+
+- [#8416](https://github.com/withastro/astro/pull/8416) [`48ff7855b`](https://github.com/withastro/astro/commit/48ff7855b238536a3df17cb29335c90029fc41a4) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Installing will no longer fail when Sharp can't be installed
+
+- [#8418](https://github.com/withastro/astro/pull/8418) [`923a443cb`](https://github.com/withastro/astro/commit/923a443cb060a0e936a0e1cc87c0360232f77914) Thanks [@bluwy](https://github.com/bluwy)! - Fix markdown page HMR
+
+- [#8332](https://github.com/withastro/astro/pull/8332) [`8935b3b46`](https://github.com/withastro/astro/commit/8935b3b4672d6c54c7b79e6c4575298f75eeb9f4) Thanks [@martrapp](https://github.com/martrapp)! - Fix scroll position when navigating back from page w/o ViewTransitions
+
+## 3.0.8
+
+### Patch Changes
+
+- [#8388](https://github.com/withastro/astro/pull/8388) [`362491b8d`](https://github.com/withastro/astro/commit/362491b8da33317c9a1116fbd5a648184b9b3c7f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Properly handle `BEFORE_HYDRATION_SCRIPT` generation, fixing MIME type error on hydration.
+
+- [#8370](https://github.com/withastro/astro/pull/8370) [`06e7256b5`](https://github.com/withastro/astro/commit/06e7256b58682064cf7410f72658ce44507f639e) Thanks [@itsmatteomanf](https://github.com/itsmatteomanf)! - Removed extra curly brace.
+
+## 3.0.7
+
+### Patch Changes
+
+- [#8366](https://github.com/withastro/astro/pull/8366) [`c5633434f`](https://github.com/withastro/astro/commit/c5633434f02cc477ee8da380e22efaccfa55d459) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update `chunkFileNames` to avoid emitting invalid characters
+
+- [#8367](https://github.com/withastro/astro/pull/8367) [`405ad9501`](https://github.com/withastro/astro/commit/405ad950173dadddc519cf1c2e7f2523bf5326a8) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix `tsc` complaining about imports of `.astro` files in specific cases
+
+- [#8357](https://github.com/withastro/astro/pull/8357) [`6b1e79814`](https://github.com/withastro/astro/commit/6b1e7981469d30aa4c3658487abed6ffea94797f) Thanks [@itsmatteomanf](https://github.com/itsmatteomanf)! - Added counter to show progress for assets image generation.
+  Fixed small unit of measurement error.
+- Updated dependencies [[`0ce0720c7`](https://github.com/withastro/astro/commit/0ce0720c7f2c7ba21dddfea0b75d1e9b39c6a274)]:
+  - @astrojs/telemetry@3.0.1
+
 ## 3.0.6
 
 ### Patch Changes

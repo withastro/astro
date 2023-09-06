@@ -502,3 +502,24 @@ test.describe('View Transitions', () => {
 		await downloadPromise;
 	});
 });
+
+test('Scroll position is restored on back navigation from page w/o ViewTransitions', async ({
+	page,
+	astro,
+}) => {
+	// Go to middle of long page
+	await page.goto(astro.resolveUrl('/long-page#click-external'));
+
+	let locator = page.locator('#click-external');
+	await expect(locator).toBeInViewport();
+
+	// Go to a page that has not enabled ViewTransistions
+	await page.click('#click-external');
+	locator = page.locator('#three');
+	await expect(locator).toHaveText('Page 3');
+
+	// Scroll back to long page
+	await page.goBack();
+	locator = page.locator('#click-external');
+	await expect(locator).toBeInViewport();
+});

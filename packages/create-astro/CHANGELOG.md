@@ -1,5 +1,13 @@
 # create-astro
 
+## 4.0.2
+
+### Patch Changes
+
+- [#8427](https://github.com/withastro/astro/pull/8427) [`b81ff8fce`](https://github.com/withastro/astro/commit/b81ff8fcefe6c30312d7b2050a63b1520d79b25f) Thanks [@aswind7](https://github.com/aswind7)! - trim project name of the user input
+
+- [#8306](https://github.com/withastro/astro/pull/8306) [`d2f2a11cd`](https://github.com/withastro/astro/commit/d2f2a11cdb42b0de79be21c798eda8e7e7b2a277) Thanks [@jacobthesheep](https://github.com/jacobthesheep)! - Support detecting Bun when logging messages with package manager information.
+
 ## 4.0.1
 
 ### Patch Changes

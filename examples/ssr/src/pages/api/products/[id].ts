@@ -1,14 +1,12 @@
 import { productMap } from '../../../models/db';
 import type { APIContext } from 'astro';
 
-export function get({ params }: APIContext) {
+export function GET({ params }: APIContext) {
 	const id = Number(params.id);
 	if (productMap.has(id)) {
 		const product = productMap.get(id);
 
-		return {
-			body: JSON.stringify(product),
-		};
+		return new Response(JSON.stringify(products));
 	} else {
 		return new Response(null, {
 			status: 400,

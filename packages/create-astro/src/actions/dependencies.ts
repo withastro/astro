@@ -6,7 +6,7 @@ import { shell } from '../shell.js';
 import type { Context } from './context';
 
 export async function dependencies(
-	ctx: Pick<Context, 'install' | 'yes' | 'prompt' | 'pkgManager' | 'cwd' | 'dryRun'>
+	ctx: Pick<Context, 'install' | 'yes' | 'prompt' | 'packageManager' | 'cwd' | 'dryRun'>
 ) {
 	let deps = ctx.install ?? ctx.yes;
 	if (deps === undefined) {
@@ -25,15 +25,15 @@ export async function dependencies(
 		await info('--dry-run', `Skipping dependency installation`);
 	} else if (deps) {
 		await spinner({
-			start: `Installing dependencies with ${ctx.pkgManager}...`,
+			start: `Installing dependencies with ${ctx.packageManager}...`,
 			end: 'Dependencies installed',
 			while: () => {
-				return install({ pkgManager: ctx.pkgManager, cwd: ctx.cwd }).catch((e) => {
+				return install({ packageManager: ctx.packageManager, cwd: ctx.cwd }).catch((e) => {
 					error('error', e);
 					error(
 						'error',
 						`Dependencies failed to install, please run ${color.bold(
-							ctx.pkgManager + ' install'
+							ctx.packageManager + ' install'
 						)}  to install them manually after setup.`
 					);
 				});
@@ -47,9 +47,9 @@ export async function dependencies(
 	}
 }
 
-async function install({ pkgManager, cwd }: { pkgManager: string; cwd: string }) {
-	if (pkgManager === 'yarn') await ensureYarnLock({ cwd });
-	return shell(pkgManager, ['install'], { cwd, timeout: 90_000, stdio: 'ignore' });
+async function install({ packageManager, cwd }: { packageManager: string; cwd: string }) {
+	if (packageManager === 'yarn') await ensureYarnLock({ cwd });
+	return shell(packageManager, ['install'], { cwd, timeout: 90_000, stdio: 'ignore' });
 }
 
 async function ensureYarnLock({ cwd }: { cwd: string }) {

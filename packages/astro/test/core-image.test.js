@@ -3,10 +3,10 @@ import * as cheerio from 'cheerio';
 import { basename } from 'node:path';
 import { Writable } from 'node:stream';
 import { removeDir } from '../dist/core/fs/index.js';
+import { Logger } from '../dist/core/logger/core.js';
 import testAdapter from './test-adapter.js';
 import { testImageService } from './test-image-service.js';
 import { loadFixture } from './test-utils.js';
-import { Logger } from '../dist/core/logger/core.js';
 
 describe('astro:image', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -158,6 +158,21 @@ describe('astro:image', () => {
 				let src = $img.attr('src');
 				res = await fixture.fetch(src);
 				expect(res.status).to.equal(200);
+			});
+
+			it('supports uppercased imports', async () => {
+				let res = await fixture.fetch('/uppercase');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(1);
+
+				let src = $img.attr('src');
+				let loading = $img.attr('loading');
+				res = await fixture.fetch(src);
+				expect(res.status).to.equal(200);
+				expect(loading).to.not.be.undefined;
 			});
 		});
 

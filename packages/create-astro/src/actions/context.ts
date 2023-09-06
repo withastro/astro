@@ -9,7 +9,7 @@ export interface Context {
 	help: boolean;
 	prompt: typeof prompt;
 	cwd: string;
-	pkgManager: string;
+	packageManager: string;
 	username: string;
 	version: string;
 	skipHouston: boolean;
@@ -51,7 +51,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		{ argv, permissive: true }
 	);
 
-	const pkgManager = detectPackageManager()?.name ?? 'npm';
+	const packageManager = detectPackageManager()?.name ?? 'npm';
 	const [username, version] = await Promise.all([getName(), getVersion()]);
 	let cwd = flags['_'][0];
 	let {
@@ -85,7 +85,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 	const context: Context = {
 		help,
 		prompt,
-		pkgManager,
+		packageManager,
 		username,
 		version,
 		skipHouston,
