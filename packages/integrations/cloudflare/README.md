@@ -149,7 +149,7 @@ See Cloudflare's documentation for [working with environment variables](https://
 ```js
 // pages/[id].json.js
 
-export function get({ params }) {
+export function GET({ params }) {
   // Access environment variables per request inside a function
   const serverUrl = import.meta.env.SERVER_URL;
   const result = await fetch(serverUrl + "/user/" + params.id);

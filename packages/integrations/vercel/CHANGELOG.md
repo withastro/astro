@@ -1,5 +1,14 @@
 # @astrojs/vercel
 
+## 4.0.4
+
+### Patch Changes
+
+- [#8408](https://github.com/withastro/astro/pull/8408) [`9ffa1a84e`](https://github.com/withastro/astro/commit/9ffa1a84e81f52d55ffe07826b8b1f10fc023ee9) Thanks [@slawekkolodziej](https://github.com/slawekkolodziej)! - Fix serverless function naming conflicts for routes with identical filenames but different directory structures
+
+- Updated dependencies [[`7d95bd9ba`](https://github.com/withastro/astro/commit/7d95bd9baaf755239fd7d35e4813861b2dbccf42), [`1947ef7a9`](https://github.com/withastro/astro/commit/1947ef7a99ce3d1d6ea797842edd31d5edffa5de), [`61ad70fdc`](https://github.com/withastro/astro/commit/61ad70fdc52035964c43ecdb4cf7468f6c2b61e7), [`d2f2a11cd`](https://github.com/withastro/astro/commit/d2f2a11cdb42b0de79be21c798eda8e7e7b2a277), [`5126c6a40`](https://github.com/withastro/astro/commit/5126c6a40f88bff66ee5d3c3a21eea8c4a44ce7a), [`48ff7855b`](https://github.com/withastro/astro/commit/48ff7855b238536a3df17cb29335c90029fc41a4), [`923a443cb`](https://github.com/withastro/astro/commit/923a443cb060a0e936a0e1cc87c0360232f77914), [`8935b3b46`](https://github.com/withastro/astro/commit/8935b3b4672d6c54c7b79e6c4575298f75eeb9f4)]:
+  - astro@3.0.9
+
 ## 4.0.3
 
 ### Patch Changes
