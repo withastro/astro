@@ -3611,22 +3611,22 @@ importers:
   packages/integrations/cloudflare:
     dependencies:
       '@astrojs/underscore-redirects':
-        specifier: 0.3.0
+        specifier: workspace:*
         version: link:../../underscore-redirects
       '@cloudflare/workers-types':
         specifier: ^4.20230821.0
         version: 4.20230821.0
       '@iarna/toml':
-        specifier: 2.2.5
+        specifier: ^2.2.5
         version: 2.2.5
       dotenv:
-        specifier: 16.3.1
+        specifier: ^16.3.1
         version: 16.3.1
       esbuild:
         specifier: ^0.19.2
         version: 0.19.2
       find-up:
-        specifier: 6.3.0
+        specifier: ^6.3.0
         version: 6.3.0
       tiny-glob:
         specifier: ^0.2.9
