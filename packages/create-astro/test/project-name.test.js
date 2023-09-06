@@ -62,6 +62,15 @@ describe('project name', () => {
 		expect(context.projectName).to.eq('foobar');
 	});
 
+
+	it('blank space', async () => {
+		const context = { projectName: '', cwd: '', prompt: () => ({ name: 'foobar  ' }) };
+		await projectName(context);
+
+		expect(context.cwd).to.eq('foobar');
+		expect(context.projectName).to.eq('foobar');
+	});
+
 	it('normalize', async () => {
 		const context = { projectName: '', cwd: '', prompt: () => ({ name: 'Invalid Name' }) };
 		await projectName(context);
