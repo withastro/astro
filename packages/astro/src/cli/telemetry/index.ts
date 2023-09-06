@@ -9,7 +9,7 @@ interface TelemetryOptions {
 }
 
 export async function notify() {
-	const packageManager = (await whichPm(process.cwd())).name ?? 'npm';
+	const packageManager = (await whichPm(process.cwd()))?.name ?? 'npm';
 	await telemetry.notify(() => {
 		console.log(msg.telemetryNotice(packageManager) + '\n');
 		return true;
