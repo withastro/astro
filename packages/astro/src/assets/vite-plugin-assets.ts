@@ -11,12 +11,14 @@ import {
 	prependForwardSlash,
 	removeQueryString,
 } from '../core/path.js';
-import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
+import { VIRTUAL_ICONS_ID, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { emitESMImage } from './utils/emitAsset.js';
 import { dropAttributes } from './utils/svg.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
+import { getIconData } from './utils/icon.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
+const resolvedVirtualIconsId = '\0' + VIRTUAL_ICONS_ID;
 
 const rawRE = /(?:\?|&)raw(?:&|$)/;
 const urlRE = /(\?|&)url(?:&|$)/;
@@ -142,6 +144,26 @@ export default function assets({
 				}
 			},
 		},
+		{
+			name: 'astro:assets/icons',
+			async resolveId(id) {
+				if (id.startsWith(VIRTUAL_ICONS_ID)) {
+					return `\0${id}`;
+				}
+			},
+			async load(id) {
+				if (id.startsWith(resolvedVirtualIconsId)) {
+					const name = id.slice(resolvedVirtualIconsId.length);
+					const [collection, icon] = name.split('/');
+
+					const data = await getIconData(settings, collection, icon);
+					if (!data) return;
+					const { width = 24, height = 24, body } = data;
+					const svg = Buffer.from(`<svg data-name="${name}" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">${body}</svg>`, 'utf8');
+					return makeSvgComponent({ src: `${collection}/${icon}`, format: 'svg', width, height }, svg);
+				}
+			},
+		}
 	];
 }
 

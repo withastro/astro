@@ -332,6 +332,10 @@ importers:
       astro:
         specifier: ^3.0.8
         version: link:../../packages/astro
+    devDependencies:
+      '@iconify-icons/mdi':
+        specifier: ^1.2.47
+        version: 1.2.47
 
   examples/non-html-pages:
     dependencies:
@@ -626,6 +630,9 @@ importers:
       tsconfig-resolver:
         specifier: ^3.0.1
         version: 3.0.1
+      ultrahtml:
+        specifier: ^1.3.0
+        version: 1.3.0
       undici:
         specifier: ^5.23.0
         version: 5.23.0
@@ -7998,6 +8005,16 @@ packages:
 
   /@humanwhocodes/object-schema@1.2.1:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
+    dev: true
+
+  /@iconify-icons/mdi@1.2.47:
+    resolution: {integrity: sha512-XwrHxJb2GzToyyoI9gaVm6/yE3aRlxB2IolKXzTEf6qAtjv3S4xFAxYaOlm6iuylQv+WyquH9C4cBudNPRHApg==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
+  /@iconify/types@2.0.0:
+    resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
     dev: true
 
   /@jest/schemas@29.6.3:

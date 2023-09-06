@@ -1,4 +1,5 @@
 export const VIRTUAL_MODULE_ID = 'astro:assets';
+export const VIRTUAL_ICONS_ID = 'astro:assets/icons/';
 export const VIRTUAL_SERVICE_ID = 'virtual:image-service';
 export const VALID_INPUT_FORMATS = [
 	// TODO: `image-size` does not support the following formats, so users can't import them.
