@@ -814,8 +814,9 @@ export const InvalidDynamicRoute = {
 export const MissingSharp = {
 	name: 'MissingSharp',
 	title: 'Could not find Sharp.',
-	message: 'Could not find Sharp. Please install Sharp (`sharp`) manually into your project.',
-	hint: "See Sharp's installation instructions for more information: https://sharp.pixelplumbing.com/install. If you are not relying on `astro:assets` to optimize, transform, or process any images, you can configure a passthrough image service instead of installing Sharp. See https://docs.astro.build/en/reference/errors/missing-sharp for more information.",
+	message:
+		'Could not find Sharp. Please install Sharp (`sharp`) manually into your project or migrate to another image service.',
+	hint: "See Sharp's installation instructions for more information: https://sharp.pixelplumbing.com/install. If you are not relying on `astro:assets` to optimize, transform, or process any images, you can configure a passthrough image service instead of installing Sharp. See https://docs.astro.build/en/reference/errors/missing-sharp for more information.\n\nSee https://docs.astro.build/en/guides/images/#default-image-service for more information on how to migrate to another image service.",
 };
 // No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 // Vite Errors - 4xxx
