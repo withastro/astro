@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 3.0.1
+
+### Patch Changes
+
+- [#8428](https://github.com/withastro/astro/pull/8428) [`67e834859`](https://github.com/withastro/astro/commit/67e83485949cf21de62831731111413abf57718c) Thanks [@matthewp](https://github.com/matthewp)! - Fix React dev mode using a base
+
 ## 3.0.0
 
 ### Major Changes
