@@ -4812,6 +4812,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/vercel/test/fixtures/serverless-with-dynamic-routes:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/vercel/test/fixtures/static-assets:
     dependencies:
       '@astrojs/vercel':
