@@ -207,25 +207,24 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 
 				// Multiple entrypoint support
 				if (_entryPoints.size) {
-					const getRouteFuncName = (route: RouteData) =>
-						route.component.replace('src/pages/', '')
+					const getRouteFuncName = (route: RouteData) => route.component.replace('src/pages/', '');
 
-          const getFallbackFuncName = (entryFile: URL) =>
-            basename(entryFile.toString())
-              .replace('entry.', '')
-              .replace(/\.mjs$/, '');
+					const getFallbackFuncName = (entryFile: URL) =>
+						basename(entryFile.toString())
+							.replace('entry.', '')
+							.replace(/\.mjs$/, '');
 
-          for (const [route, entryFile] of _entryPoints) {
-            const func = route.component.startsWith('src/pages/')
+					for (const [route, entryFile] of _entryPoints) {
+						const func = route.component.startsWith('src/pages/')
 							? getRouteFuncName(route)
-							: getFallbackFuncName(entryFile)
-						
+							: getFallbackFuncName(entryFile);
+
 						await createFunctionFolder(func, entryFile, filesToInclude, logger);
 						routeDefinitions.push({
-              src: route.pattern.source,
-              dest: func,
-            });
-          }
+							src: route.pattern.source,
+							dest: func,
+						});
+					}
 				} else {
 					await createFunctionFolder(
 						'render',
