@@ -1,4 +1,3 @@
-import { sharedConfig } from 'solid-js';
 import { createComponent, hydrate, render } from 'solid-js/web';
 
 export default (element: HTMLElement) =>
@@ -11,19 +10,25 @@ export default (element: HTMLElement) =>
 
 		const boostrap = client === 'only' ? render : hydrate;
 
+		let slot: HTMLElement | null;
 		let _slots: Record<string, any> = {};
 		if (Object.keys(slotted).length > 0) {
-			// hydrating
-			if (sharedConfig.context) {
-				element.querySelectorAll('astro-slot').forEach((slot) => {
-					_slots[slot.getAttribute('name') || 'default'] = slot.cloneNode(true);
-				});
-			} else {
-				for (const [key, value] of Object.entries(slotted)) {
-					_slots[key] = document.createElement('astro-slot');
-					if (key !== 'default') _slots[key].setAttribute('name', key);
-					_slots[key].innerHTML = value;
-				}
+			// hydratable
+			if (client !== "only") {
+				const iterator = document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT, (node) => {
+          if (node === element) return NodeFilter.FILTER_SKIP
+          if (node.nodeName === "ASTRO-SLOT") return NodeFilter.FILTER_ACCEPT;
+          if (node.nodeName === "ASTRO-ISLAND") return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_SKIP;
+        });
+        while(slot = iterator.nextNode() as HTMLElement | null)
+          _slots[slot.getAttribute("name") || "default"] = slot;
+			}
+			for (const [key, value] of Object.entries(slotted)) {
+				if (_slots[key]) continue;
+				_slots[key] = document.createElement('astro-slot');
+				if (key !== 'default') _slots[key].setAttribute('name', key);
+				_slots[key].innerHTML = value;
 			}
 		}
 
