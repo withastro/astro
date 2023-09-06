@@ -9,6 +9,20 @@ export type VercelWebAnalyticsConfig = {
 	config?: Omit<AnalyticsProps, 'beforeSend'>;
 };
 
+export function getWebAnalyticsViteConfig(enabled?: boolean) {
+	if (enabled) {
+		return {
+			build: {
+				rollupOptions: {
+					external: ['@vercel/analytics'],
+				},
+			},
+		};
+	}
+
+	return {};
+}
+
 async function getWebAnalyticsFunctions({
 	root,
 	logger,

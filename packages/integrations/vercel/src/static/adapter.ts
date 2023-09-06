@@ -10,6 +10,7 @@ import {
 } from '../lib/speed-insights.js';
 import {
 	getInjectableWebAnalyticsContent,
+	getWebAnalyticsViteConfig,
 	type VercelWebAnalyticsConfig,
 } from '../lib/web-analytics.js';
 
@@ -91,7 +92,8 @@ export default function vercelStatic({
 						redirects: false,
 					},
 					vite: {
-						...getSpeedInsightsViteConfig(speedInsights?.enabled),
+						...getWebAnalyticsViteConfig(webAnalytics?.enabled || analytics),
+						...getSpeedInsightsViteConfig(speedInsights?.enabled || analytics),
 					},
 					...getImageConfig(imageService, imagesConfig, command),
 				});
