@@ -75,7 +75,7 @@ export async function generateImage(
 			const JSONData = JSON.parse(readFileSync(cachedFileURL, 'utf-8')) as RemoteCacheEntry;
 
 			// If the cache entry is not expired, use it
-			if (JSONData.expires < Date.now()) {
+			if (JSONData.expires > Date.now()) {
 				await fs.promises.writeFile(finalFileURL, Buffer.from(JSONData.data, 'base64'));
 
 				return {
