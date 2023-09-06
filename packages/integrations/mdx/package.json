@@ -44,7 +44,6 @@
     "hast-util-to-html": "^8.0.4",
     "kleur": "^4.1.4",
     "rehype-raw": "^6.1.1",
-    "remark-frontmatter": "^4.0.1",
     "remark-gfm": "^3.0.1",
     "remark-smartypants": "^2.0.0",
     "source-map": "^0.7.4",
