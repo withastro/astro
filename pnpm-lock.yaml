@@ -3983,9 +3983,6 @@ importers:
       '@astrojs/markdown-remark':
         specifier: workspace:*
         version: link:../../markdown/remark
-      '@astrojs/prism':
-        specifier: workspace:*
-        version: link:../../astro-prism
       '@mdx-js/mdx':
         specifier: ^2.3.0
         version: 2.3.0
@@ -4022,9 +4019,6 @@ importers:
       remark-smartypants:
         specifier: ^2.0.0
         version: 2.0.0
-      shiki:
-        specifier: ^0.14.3
-        version: 0.14.3
       source-map:
         specifier: ^0.7.4
         version: 0.7.4
@@ -4082,7 +4076,7 @@ importers:
         version: 4.0.3
       rehype-pretty-code:
         specifier: ^0.10.0
-        version: 0.10.0(shiki@0.14.3)
+        version: 0.10.0
       remark-math:
         specifier: ^5.1.1
         version: 5.1.1
@@ -13289,7 +13283,7 @@ packages:
     dependencies:
       '@types/mdast': 3.0.12
       mdast-util-to-markdown: 1.5.0
-      micromark-extension-frontmatter: 1.1.0
+      micromark-extension-frontmatter: 1.1.1
     dev: false
 
   /mdast-util-gfm-autolink-literal@1.0.3:
@@ -13550,13 +13544,13 @@ packages:
       micromark-util-types: 1.0.2
       uvu: 0.5.6
 
-  /micromark-extension-frontmatter@1.1.0:
-    resolution: {integrity: sha512-0nLelmvXR5aZ+F2IL6/Ed4cDnHLpL/VD/EELKuclsTWHrLI8UgxGHEmeoumeX2FXiM6z2WrBIOEcbKUZR8RYNg==}
+  /micromark-extension-frontmatter@1.1.1:
+    resolution: {integrity: sha512-m2UH9a7n3W8VAH9JO9y01APpPKmNNNs71P0RbknEmYSaZU5Ghogv38BYO94AI5Xw6OYfxZRdHZZ2nYjs/Z+SZQ==}
     dependencies:
       fault: 2.0.1
-      micromark-util-character: 1.1.0
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
+      micromark-util-character: 1.2.0
+      micromark-util-symbol: 1.1.0
+      micromark-util-types: 1.1.0
     dev: false
 
   /micromark-extension-gfm-autolink-literal@1.0.4:
@@ -15525,7 +15519,7 @@ packages:
       unified: 10.1.2
     dev: false
 
-  /rehype-pretty-code@0.10.0(shiki@0.14.3):
+  /rehype-pretty-code@0.10.0:
     resolution: {integrity: sha512-qCD071Y+vUxEy9yyrATPk2+W9q7qCbzZgtc9suZhu75bmRQvOlBhJt4d3WvqSMTamkKoFkvqtCjyAk+ggH+aXQ==}
     engines: {node: '>=16'}
     peerDependencies:
@@ -15534,7 +15528,6 @@ packages:
       '@types/hast': 2.3.5
       hash-obj: 4.0.0
       parse-numeric-range: 1.3.0
-      shiki: 0.14.3
     dev: true
 
   /rehype-raw@6.1.1:
@@ -15598,7 +15591,7 @@ packages:
     dependencies:
       '@types/mdast': 3.0.12
       mdast-util-frontmatter: 1.0.1
-      micromark-extension-frontmatter: 1.1.0
+      micromark-extension-frontmatter: 1.1.1
       unified: 10.1.2
     dev: false
 
