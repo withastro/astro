@@ -14,15 +14,15 @@ export default (element: HTMLElement) =>
 		let _slots: Record<string, any> = {};
 		if (Object.keys(slotted).length > 0) {
 			// hydratable
-			if (client !== "only") {
+			if (client !== 'only') {
 				const iterator = document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT, (node) => {
-          if (node === element) return NodeFilter.FILTER_SKIP
-          if (node.nodeName === "ASTRO-SLOT") return NodeFilter.FILTER_ACCEPT;
-          if (node.nodeName === "ASTRO-ISLAND") return NodeFilter.FILTER_REJECT;
-          return NodeFilter.FILTER_SKIP;
-        });
-        while(slot = iterator.nextNode() as HTMLElement | null)
-          _slots[slot.getAttribute("name") || "default"] = slot;
+					if (node === element) return NodeFilter.FILTER_SKIP;
+					if (node.nodeName === 'ASTRO-SLOT') return NodeFilter.FILTER_ACCEPT;
+					if (node.nodeName === 'ASTRO-ISLAND') return NodeFilter.FILTER_REJECT;
+					return NodeFilter.FILTER_SKIP;
+				});
+				while ((slot = iterator.nextNode() as HTMLElement | null))
+					_slots[slot.getAttribute('name') || 'default'] = slot;
 			}
 			for (const [key, value] of Object.entries(slotted)) {
 				if (_slots[key]) continue;
