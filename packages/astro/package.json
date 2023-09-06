@@ -162,7 +162,6 @@
     "resolve": "^1.22.4",
     "semver": "^7.5.4",
     "server-destroy": "^1.0.1",
-    "sharp": "^0.32.5",
     "shiki": "^0.14.3",
     "string-width": "^6.1.0",
     "strip-ansi": "^7.1.0",
@@ -175,6 +174,9 @@
     "which-pm": "^2.1.1",
     "yargs-parser": "^21.1.1",
     "zod": "3.21.1"
+  },
+  "optionalDependencies": {
+    "sharp": "^0.32.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.1.0",
