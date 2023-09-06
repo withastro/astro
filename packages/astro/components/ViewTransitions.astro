@@ -32,11 +32,11 @@ const { fallback = 'animate' } = Astro.props as Props;
 	// can use that to determine popstate if going forward or back.
 	let currentHistoryIndex = 0;
 	if (history.state) {
-		// we reloaded a page with history state (e.g. back button or browser reload)
+		// we reloaded a page with history state 
+		// (e.g. history navigation from non-transition page or browser reload)
 		currentHistoryIndex = history.state.index;
 		scrollTo({ left: 0, top: history.state.scrollY });
 	}
-
 	const throttle = (cb: (...args: any[]) => any, delay: number) => {
 		let wait = false;
 		// During the waiting time additional events are lost.
@@ -113,9 +113,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 	const parser = new DOMParser();
 
-	async function updateDOM(html: string, state?: State, fallback?: Fallback) {
-		const doc = parser.parseFromString(html, 'text/html');
-
+	async function updateDOM(doc: Document, state?: State, fallback?: Fallback) {
 		// Check for a head element that should persist, either because it has the data
 		// attribute or is a link el.
 		const persistedHeadElement = (el: Element): Element | null => {
@@ -193,19 +191,21 @@ const { fallback = 'animate' } = Astro.props as Props;
 			// Chromium based browsers (Chrome, Edge, Opera, ...)
 			scrollTo({ left: 0, top: 0, behavior: 'instant' });
 
-			if (state?.scrollY === 0 && location.hash) {
+			let initialScrollY = 0;
+			if (!state && location.hash) {
 				const id = decodeURIComponent(location.hash.slice(1));
 				const elem = document.getElementById(id);
 				// prefer scrollIntoView() over scrollTo() because it takes scroll-padding into account
-				if (elem) {
-					state.scrollY = elem.offsetTop;
-					persistState(state); // first guess, later updated by scroll handler
-					elem.scrollIntoView(); // for Firefox, this should better be {behavior: 'instant'}
-				}
+				elem && (initialScrollY = elem.offsetTop) && elem.scrollIntoView();
 			} else if (state && state.scrollY !== 0) {
 				scrollTo(0, state.scrollY); // usings default scrollBehavior
 			}
-
+			!state &&
+				history.pushState(
+					{ index: ++currentHistoryIndex, scrollY: initialScrollY },
+					'',
+					location.href
+				);
 			triggerEvent('astro:after-swap');
 		};
 
@@ -257,11 +257,17 @@ const { fallback = 'animate' } = Astro.props as Props;
 			location.href = href;
 			return;
 		}
+		const doc = parser.parseFromString(html, 'text/html');
+		if (!doc.querySelector('[name="astro-view-transitions-enabled"]')) {
+			location.href = href;
+			return;
+		}
+
 		document.documentElement.dataset.astroTransition = dir;
 		if (supportsViewTransitions) {
-			finished = document.startViewTransition(() => updateDOM(html, state)).finished;
+			finished = document.startViewTransition(() => updateDOM(doc, state)).finished;
 		} else {
-			finished = updateDOM(html, state, getFallback());
+			finished = updateDOM(doc, state, getFallback());
 		}
 		try {
 			await finished;
@@ -313,11 +319,11 @@ const { fallback = 'animate' } = Astro.props as Props;
 				ev.shiftKey || // new window
 				ev.defaultPrevented ||
 				!transitionEnabledOnThisPage()
-			)
+			) {
 				// No page transitions in these cases,
 				// Let the browser standard action handle this
 				return;
-
+			}
 			// We do not need to handle same page links because there are no page transitions
 			// Same page means same path and same query params (but different hash)
 			if (location.pathname === link.pathname && location.search === link.search) {
@@ -343,10 +349,8 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 			// these are the cases we will handle: same origin, different page
 			ev.preventDefault();
-			navigate('forward', link.href, { index: ++currentHistoryIndex, scrollY: 0 });
-			const newState: State = { index: currentHistoryIndex, scrollY };
-			persistState({ index: currentHistoryIndex - 1, scrollY });
-			history.pushState(newState, '', link.href);
+			persistState({ index: currentHistoryIndex, scrollY });
+			navigate('forward', link.href);
 		});
 
 		addEventListener('popstate', (ev) => {
@@ -376,11 +380,11 @@ const { fallback = 'animate' } = Astro.props as Props;
 				history.scrollRestoration = "manual";
 			}
 
-			const state: State | undefined = history.state;
-			const nextIndex = state?.index ?? currentHistoryIndex + 1;
+			const state: State = history.state;
+			const nextIndex = state.index;
 			const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
-			navigate(direction, location.href, state);
 			currentHistoryIndex = nextIndex;
+			navigate(direction, location.href, state);
 		});
 
 		['mouseenter', 'touchstart', 'focus'].forEach((evName) => {
