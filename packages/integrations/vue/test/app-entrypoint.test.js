@@ -30,4 +30,12 @@ describe('App Entrypoint', () => {
 		const js = await fixture.readFile(client);
 		expect(js).to.match(/\w+\.component\(\"Bar\"/gm);
 	});
+
+	it('loads svg components without transforming them to assets', async () => {
+		const data = await fixture.readFile('/index.html');
+		const { document } = parseHTML(data);
+		const client = document.querySelector('astro-island svg');
+
+		expect(client).not.to.be.undefined;
+	});
 });
