@@ -1,4 +1,3 @@
-import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
 import type { AstroIntegration } from 'astro';
 import { version as ReactVersion } from 'react-dom';
@@ -94,7 +93,7 @@ export default function ({
 	return {
 		name: '@astrojs/react',
 		hooks: {
-			'astro:config:setup': ({ config, command, addRenderer, updateConfig, injectScript }) => {
+			'astro:config:setup': ({ command, addRenderer, updateConfig, injectScript }) => {
 				addRenderer(getRenderer());
 				updateConfig({
 					vite: getViteConfiguration({ include, exclude, experimentalReactChildren }),
@@ -102,7 +101,7 @@ export default function ({
 				if (command === 'dev') {
 					const preamble = FAST_REFRESH_PREAMBLE.replace(
 						`__BASE__`,
-						appendForwardSlash(config.base)
+						'/'
 					);
 					injectScript('before-hydration', preamble);
 				}

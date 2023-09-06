@@ -4515,9 +4515,6 @@ importers:
 
   packages/integrations/react:
     dependencies:
-      '@astrojs/internal-helpers':
-        specifier: 0.2.0
-        version: link:../../internal-helpers
       '@vitejs/plugin-react':
         specifier: ^4.0.4
         version: 4.0.4(vite@4.4.9)
