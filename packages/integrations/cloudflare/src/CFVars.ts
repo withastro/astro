@@ -131,11 +131,5 @@ export async function CFVars() {
 		// rawConfig = parseJSONC(fs.readFileSync(configPath), configPath);
 	}
 	const vars = getVarsForDev(rawConfig, configPath);
-	// // Process the top-level configuration.
-	// const { config, diagnostics } = normalizeAndValidateConfig(
-	// 	rawConfig,
-	// 	configPath,
-	// 	args
-	// );
 	return vars;
 }
