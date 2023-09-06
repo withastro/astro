@@ -140,10 +140,6 @@ async function getCFObject(runtimeMode: string): Promise<IncomingRequestCfProper
 			const res = await fetch(CF_ENDPOINT);
 			const cfText = await res.text();
 			const storedCf = JSON.parse(cfText);
-			// // Write cf so we can reuse it later
-			// await mkdir(path.dirname(cfPath), { recursive: true });
-			// await writeFile(cfPath, cfText, "utf8");
-			// log.debug("Updated `Request.cf` object cache!");
 			return storedCf;
 		} catch (e: any) {
 			return CF_FALLBACK;
