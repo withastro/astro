@@ -127,8 +127,6 @@ export async function CFVars() {
 	// Load the configuration from disk if available
 	if (configPath?.endsWith('toml')) {
 		rawConfig = parseTOML(fs.readFileSync(configPath).toString(), configPath);
-	} else if (configPath?.endsWith('json')) {
-		// rawConfig = parseJSONC(fs.readFileSync(configPath), configPath);
 	}
 	const vars = getVarsForDev(rawConfig, configPath);
 	return vars;
