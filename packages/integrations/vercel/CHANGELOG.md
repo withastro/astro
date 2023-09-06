@@ -6,7 +6,7 @@
 
 - [#8348](https://github.com/withastro/astro/pull/8348) [`5f2c55bb5`](https://github.com/withastro/astro/commit/5f2c55bb54bb66693d278b7cd705c198aecc0331) Thanks [@ematipico](https://github.com/ematipico)! - - Cache result during bundling, to speed up the process of multiple functions;
 
-  - Avoid creating multiple symbolic links of the dependencies when building the project with `funcitonPerRoute` enabled;
+  - Avoid creating multiple symbolic links of the dependencies when building the project with `functionPerRoute` enabled;
 
 - [#8354](https://github.com/withastro/astro/pull/8354) [`0eb09dbab`](https://github.com/withastro/astro/commit/0eb09dbab1674a57d23ac97950a527d2e5a9c9fb) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix unnecessary warning about Sharp showing while building
 
