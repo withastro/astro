@@ -117,7 +117,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 	const parser = new DOMParser();
 
-	async function updateDOM(doc: Document, loc: Location, state?: State, fallback?: Fallback) {
+	async function updateDOM(doc: Document, loc: URL, state?: State, fallback?: Fallback) {
 		// Check for a head element that should persist, either because it has the data
 		// attribute or is a link el.
 		const persistedHeadElement = (el: Element): Element | null => {
@@ -253,7 +253,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		}
 	}
 
-	async function navigate(dir: Direction, loc: Location, state?: State) {
+	async function navigate(dir: Direction, loc: URL, state?: State) {
 		let finished: Promise<void>;
 		const href=loc.href;
 		const { html, ok } = await getHTML(href);
@@ -355,7 +355,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			// these are the cases we will handle: same origin, different page
 			ev.preventDefault();
 			persistState({ index: currentHistoryIndex, scrollY });
-			navigate('forward', link);
+			navigate('forward', new URL(link.href));
 		});
 
 		addEventListener('popstate', (ev) => {
@@ -389,7 +389,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			const nextIndex = state.index;
 			const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
 			currentHistoryIndex = nextIndex;
-			navigate(direction, location, state);
+			navigate(direction, new URL(location.href), state);
 		});
 
 		['mouseenter', 'touchstart', 'focus'].forEach((evName) => {
