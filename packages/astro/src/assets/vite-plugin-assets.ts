@@ -8,11 +8,13 @@ import {
 	prependForwardSlash,
 	removeQueryString,
 } from '../core/path.js';
-import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
+import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { emitESMImage } from './utils/emitAsset.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
+
+const assetRegex = new RegExp(`\.(${VALID_INPUT_FORMATS.join('|')})$`, 'i');
 
 export default function assets({
 	settings,
@@ -121,7 +123,7 @@ export default function assets({
 				if (id !== removeQueryString(id)) {
 					return;
 				}
-				if (/\.(jpeg|jpg|png|tiff|webp|gif|svg)$/.test(id)) {
+				if (assetRegex.test(id)) {
 					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile);
 					return `export default ${JSON.stringify(meta)}`;
 				}
