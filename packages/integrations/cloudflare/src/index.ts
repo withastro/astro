@@ -136,13 +136,6 @@ async function getCFObject(runtimeMode: string): Promise<IncomingRequestCfProper
 	if (runtimeMode === 'local') {
 		return CF_FALLBACK;
 	} else if (runtimeMode === 'remote') {
-		// add caching to stop extensive querying
-		// try {
-		// 	const storedCf = JSON.parse(await fs.readFile(cfPath, "utf8"));
-		// 	const cfStat = await fs.stat(cfPath);
-		// 	assert(Date.now() - cfStat.mtimeMs <= CF_DAYS * DAY);
-		// 	return storedCf;
-		// } catch {}
 		try {
 			const res = await fetch(CF_ENDPOINT);
 			const cfText = await res.text();
