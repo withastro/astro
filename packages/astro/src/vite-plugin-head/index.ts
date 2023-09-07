@@ -59,8 +59,11 @@ export default function configHeadVitePlugin(): vite.Plugin {
 			}
 
 			if(info && getAstroMetadata(info)?.propagation === 'self') {
-				for (const parent of info.importers) {
-					propagateMetadata.call(this, parent, 'propagation', 'in-tree');
+				const mod = server.moduleGraph.getModuleById(id);
+				for (const parent of mod?.importers ?? []) {
+					if(parent.id) {
+						propagateMetadata.call(this, parent.id, 'propagation', 'in-tree');
+					}
 				}
 			}
 
@@ -97,10 +100,21 @@ export function astroHeadBuildPlugin(internals: BuildInternals): AstroBuildPlugi
 									const modinfo = this.getModuleInfo(id);
 
 									// <head> tag in the tree
-									if (modinfo && getAstroMetadata(modinfo)?.containsHead) {
-										for (const [pageInfo] of getTopLevelPages(id, this)) {
-											let metadata = getOrCreateMetadata(pageInfo.id);
-											metadata.containsHead = true;
+									if(modinfo) {
+										const meta = getAstroMetadata(modinfo);
+										if(meta?.containsHead) {
+											for (const [pageInfo] of getTopLevelPages(id, this)) {
+												let metadata = getOrCreateMetadata(pageInfo.id);
+												metadata.containsHead = true;
+											}
+										}
+										if(meta?.propagation === 'self') {
+											for (const [info] of walkParentInfos(id, this)) {
+												let metadata = getOrCreateMetadata(info.id);
+												if(metadata.propagation !== 'self') {
+													metadata.propagation = 'in-tree';
+												}
+											}
 										}
 									}
 
