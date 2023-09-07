@@ -32,12 +32,14 @@ export interface VercelStaticConfig {
 	analytics?: boolean;
 	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
+	useSquooshDev?: boolean;
 }
 
 export default function vercelStatic({
 	analytics,
 	imageService,
 	imagesConfig,
+	useSquooshDev,
 }: VercelStaticConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 
@@ -59,7 +61,7 @@ export default function vercelStatic({
 					vite: {
 						define: viteDefine,
 					},
-					...getImageConfig(imageService, imagesConfig, command),
+					...getImageConfig(imageService, imagesConfig, command, useSquooshDev),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {

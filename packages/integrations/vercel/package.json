@@ -25,6 +25,7 @@
     "./analytics": "./dist/analytics.js",
     "./build-image-service": "./dist/image/build-service.js",
     "./dev-image-service": "./dist/image/dev-service.js",
+    "./squoosh-dev-service": "./dist/image/squoosh-dev-service.js",
     "./package.json": "./package.json"
   },
   "typesVersions": {

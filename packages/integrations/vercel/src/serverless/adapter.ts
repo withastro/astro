@@ -64,6 +64,7 @@ export interface VercelServerlessConfig {
 	analytics?: boolean;
 	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
+	useSquooshDev?: boolean;
 	edgeMiddleware?: boolean;
 	functionPerRoute?: boolean;
 }
@@ -74,6 +75,7 @@ export default function vercelServerless({
 	analytics,
 	imageService,
 	imagesConfig,
+	useSquooshDev,
 	functionPerRoute = true,
 	edgeMiddleware = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
@@ -143,7 +145,7 @@ export default function vercelServerless({
 							external: ['@vercel/nft'],
 						},
 					},
-					...getImageConfig(imageService, imagesConfig, command),
+					...getImageConfig(imageService, imagesConfig, command, useSquooshDev),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config, logger }) => {

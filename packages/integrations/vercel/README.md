@@ -170,6 +170,27 @@ import astroLogo from '../assets/logo.png';
 />
 ```
 
+### useSquooshDev
+
+**Type:** `boolean`<br>
+**Available for:** Serverless, Static
+**Added in:** `@astrojs/vercel@3.3.0`
+
+When enabled, in development mode a Squoosh-based image service will be used in development instead of Sharp. This is useful if you cannot install Sharp's dependencies on your development machine.
+
+```js
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/serverless';
+
+export default defineConfig({
+  output: 'server',
+  adapter: vercel({
+    imageService: true,
+    useSquooshDev: true,
+  }),
+});
+```
+
 ### includeFiles
 
 **Type:** `string[]`<br>

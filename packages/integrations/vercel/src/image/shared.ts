@@ -59,7 +59,8 @@ export const qualityTable: Record<ImageQualityPreset, number> = {
 export function getImageConfig(
 	images: boolean | undefined,
 	imagesConfig: VercelImageConfig | undefined,
-	command: string
+	command: string,
+	useSquoosh: boolean | undefined
 ) {
 	if (images) {
 		return {
@@ -67,7 +68,9 @@ export function getImageConfig(
 				service: {
 					entrypoint:
 						command === 'dev'
-							? '@astrojs/vercel/dev-image-service'
+							? useSquoosh
+								? '@astrojs/vercel/squoosh-dev-image-service'
+								: '@astrojs/vercel/dev-image-service'
 							: '@astrojs/vercel/build-image-service',
 					config: imagesConfig ? imagesConfig : defaultImageConfig,
 				},
