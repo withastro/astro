@@ -2,7 +2,6 @@ import { prompt } from '@astrojs/cli-kit';
 import { random } from '@astrojs/cli-kit/utils';
 import arg from 'arg';
 import os from 'node:os';
-import detectPackageManager from 'which-pm-runs';
 
 import { getName, getVersion } from '../messages.js';
 
@@ -53,7 +52,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		{ argv, permissive: true }
 	);
 
-	const packageManager = detectPackageManager()?.name ?? 'npm';
+	const packageManager = detectPackageManager() ?? 'npm';
 	let cwd = flags['_'][0];
 	let {
 		'--help': help = false,
@@ -88,7 +87,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		prompt,
 		packageManager,
 		username: getName(),
-		version: getVersion(),
+		version: getVersion(packageManager),
 		skipHouston,
 		fancy,
 		dryRun,
@@ -106,4 +105,11 @@ export async function getContext(argv: string[]): Promise<Context> {
 		},
 	};
 	return context;
+}
+
+function detectPackageManager() {
+	if (!process.env.npm_config_user_agent) return;
+	const specifier = process.env.npm_config_user_agent.split(' ')[0];
+	const name = specifier.substring(0, specifier.lastIndexOf('/'));
+	return name === 'npminstall' ? 'cnpm' : name;
 }

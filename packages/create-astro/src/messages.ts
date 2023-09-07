@@ -1,18 +1,15 @@
 /* eslint no-console: 'off' */
 import { color, say as houston, label, spinner as load } from '@astrojs/cli-kit';
 import { align, sleep } from '@astrojs/cli-kit/utils';
-import fetch from 'node-fetch-native';
 import { exec } from 'node:child_process';
 import stripAnsi from 'strip-ansi';
-import detectPackageManager from 'which-pm-runs';
 import { shell } from './shell.js';
 
 // Users might lack access to the global npm registry, this function
 // checks the user's project type and will return the proper npm registry
 //
 // A copy of this function also exists in the astro package
-async function getRegistry(): Promise<string> {
-	const packageManager = detectPackageManager()?.name || 'npm';
+async function getRegistry(packageManager: string): Promise<string> {
 	try {
 		const { stdout } = await shell(packageManager, ['config', 'get', 'registry']);
 		return stdout?.trim()?.replace(/\/$/, '') || 'https://registry.npmjs.org';
@@ -78,10 +75,10 @@ export const getName = () =>
 	});
 
 let v: string;
-export const getVersion = () =>
+export const getVersion = (packageManager: string) =>
 	new Promise<string>(async (resolve) => {
 		if (v) return resolve(v);
-		let registry = await getRegistry();
+		let registry = await getRegistry(packageManager);
 		const { version } = await fetch(`${registry}/astro/latest`, { redirect: 'follow' }).then(
 			(res) => res.json(),
 			() => ({ version: '' })
