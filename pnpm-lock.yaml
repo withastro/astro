@@ -3984,9 +3984,6 @@ importers:
       '@astrojs/markdown-remark':
         specifier: workspace:*
         version: link:../../markdown/remark
-      '@astrojs/prism':
-        specifier: workspace:*
-        version: link:../../astro-prism
       '@mdx-js/mdx':
         specifier: ^2.3.0
         version: 2.3.0
@@ -4014,18 +4011,12 @@ importers:
       rehype-raw:
         specifier: ^6.1.1
         version: 6.1.1
-      remark-frontmatter:
-        specifier: ^4.0.1
-        version: 4.0.1
       remark-gfm:
         specifier: ^3.0.1
         version: 3.0.1
       remark-smartypants:
         specifier: ^2.0.0
         version: 2.0.0
-      shiki:
-        specifier: ^0.14.3
-        version: 0.14.3
       source-map:
         specifier: ^0.7.4
         version: 0.7.4
@@ -4083,7 +4074,7 @@ importers:
         version: 4.0.3
       rehype-pretty-code:
         specifier: ^0.10.0
-        version: 0.10.0(shiki@0.14.3)
+        version: 0.10.0
       remark-math:
         specifier: ^5.1.1
         version: 5.1.1
@@ -11595,12 +11586,6 @@ packages:
     dependencies:
       reusify: 1.0.4
 
-  /fault@2.0.1:
-    resolution: {integrity: sha512-WtySTkS4OKev5JtpHXnib4Gxiurzh5NCGvWrFaZ34m6JehfTUhKZvn9njTfw48t6JumVQOmrKqpmGcdwxnhqBQ==}
-    dependencies:
-      format: 0.2.2
-    dev: false
-
   /fenceparser@1.1.1:
     resolution: {integrity: sha512-VdkTsK7GWLT0VWMK5S5WTAPn61wJ98WPFwJiRHumhg4ESNUO/tnkU8bzzzc62o6Uk1SVhuZFLnakmDA4SGV7wA==}
     engines: {node: '>=12'}
@@ -11700,11 +11685,6 @@ packages:
       asynckit: 0.4.0
       combined-stream: 1.0.8
       mime-types: 2.1.35
-
-  /format@0.2.2:
-    resolution: {integrity: sha512-wzsgA6WOq+09wrU1tsJ09udeR/YZRaeArL9e1wPbFg3GG2yDnC2ldKpxs4xunpFF9DgqCqOIra3bc1HWrJ37Ww==}
-    engines: {node: '>=0.4.x'}
-    dev: false
 
   /formdata-polyfill@4.0.10:
     resolution: {integrity: sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==}
@@ -13329,14 +13309,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /mdast-util-frontmatter@1.0.1:
-    resolution: {integrity: sha512-JjA2OjxRqAa8wEG8hloD0uTU0kdn8kbtOWpPP94NBkfAlbxn4S8gCGf/9DwFtEeGPXrDcNXdiDjVaRdUFqYokw==}
-    dependencies:
-      '@types/mdast': 3.0.12
-      mdast-util-to-markdown: 1.5.0
-      micromark-extension-frontmatter: 1.1.0
-    dev: false
-
   /mdast-util-gfm-autolink-literal@1.0.3:
     resolution: {integrity: sha512-My8KJ57FYEy2W2LyNom4n3E7hKTuQk/0SES0u16tjA9Z3oFkF4RrC/hPAPgjlSpezsOvI8ObcXcElo92wn5IGA==}
     dependencies:
@@ -13598,15 +13570,6 @@ packages:
       micromark-util-symbol: 1.0.1
       micromark-util-types: 1.0.2
       uvu: 0.5.6
-
-  /micromark-extension-frontmatter@1.1.0:
-    resolution: {integrity: sha512-0nLelmvXR5aZ+F2IL6/Ed4cDnHLpL/VD/EELKuclsTWHrLI8UgxGHEmeoumeX2FXiM6z2WrBIOEcbKUZR8RYNg==}
-    dependencies:
-      fault: 2.0.1
-      micromark-util-character: 1.1.0
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
-    dev: false
 
   /micromark-extension-gfm-autolink-literal@1.0.4:
     resolution: {integrity: sha512-WCssN+M9rUyfHN5zPBn3/f0mIA7tqArHL/EKbv3CZK+LT2rG77FEikIQEqBkv46fOqXQK4NEW/Pc7Z27gshpeg==}
@@ -15584,7 +15547,7 @@ packages:
       unified: 10.1.2
     dev: false
 
-  /rehype-pretty-code@0.10.0(shiki@0.14.3):
+  /rehype-pretty-code@0.10.0:
     resolution: {integrity: sha512-qCD071Y+vUxEy9yyrATPk2+W9q7qCbzZgtc9suZhu75bmRQvOlBhJt4d3WvqSMTamkKoFkvqtCjyAk+ggH+aXQ==}
     engines: {node: '>=16'}
     peerDependencies:
@@ -15593,7 +15556,6 @@ packages:
       '@types/hast': 2.3.5
       hash-obj: 4.0.0
       parse-numeric-range: 1.3.0
-      shiki: 0.14.3
     dev: true
 
   /rehype-raw@6.1.1:
@@ -15651,15 +15613,6 @@ packages:
     resolution: {integrity: sha512-KsHQbaI4FX8Ozxqk7YErxwmBiveUqloKuVqyPG2YPLHojpgomodWgRfG4B+bOtmn/5bfJ8khw4rR0lvgVFl2Uw==}
     dependencies:
       unist-util-visit: 1.4.1
-
-  /remark-frontmatter@4.0.1:
-    resolution: {integrity: sha512-38fJrB0KnmD3E33a5jZC/5+gGAC2WKNiPw1/fdXJvijBlhA7RCsvJklrYJakS0HedninvaCYW8lQGf9C918GfA==}
-    dependencies:
-      '@types/mdast': 3.0.12
-      mdast-util-frontmatter: 1.0.1
-      micromark-extension-frontmatter: 1.1.0
-      unified: 10.1.2
-    dev: false
 
   /remark-gfm@3.0.1:
     resolution: {integrity: sha512-lEFDoi2PICJyNrACFOfDD3JlLkuSbOa5Wd8EPt06HUdptv8Gn0bxYTdbU/XXQ3swAPkEaGxxPN9cbnMHvVu1Ig==}

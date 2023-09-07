@@ -1,4 +1,9 @@
-import { rehypeHeadingIds, remarkCollectImages } from '@astrojs/markdown-remark';
+import {
+	rehypeHeadingIds,
+	remarkCollectImages,
+	remarkPrism,
+	remarkShiki,
+} from '@astrojs/markdown-remark';
 import {
 	InvalidAstroDataError,
 	safelyGetAstroData,
@@ -16,8 +21,6 @@ import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
 import { rehypeOptimizeStatic } from './rehype-optimize-static.js';
 import { remarkImageToComponent } from './remark-images-to-component.js';
-import remarkPrism from './remark-prism.js';
-import remarkShiki from './remark-shiki.js';
 import { jsToTreeNode } from './utils.js';
 
 // Skip nonessential plugins during performance benchmark runs
@@ -112,7 +115,7 @@ export async function getRemarkPlugins(mdxOptions: MdxOptions): Promise<Pluggabl
 	if (!isPerformanceBenchmark) {
 		// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
 		if (mdxOptions.syntaxHighlight === 'shiki') {
-			remarkPlugins.push([await remarkShiki(mdxOptions.shikiConfig)]);
+			remarkPlugins.push([remarkShiki, mdxOptions.shikiConfig]);
 		}
 		if (mdxOptions.syntaxHighlight === 'prism') {
 			remarkPlugins.push(remarkPrism);
