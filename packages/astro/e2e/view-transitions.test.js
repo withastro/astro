@@ -83,7 +83,7 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
 
-	test('Moving from a page without ViewTransitions triggers a full page navigation', async ({
+	test('Moving to a page without ViewTransitions triggers a full page navigation', async ({
 		page,
 		astro,
 	}) => {
@@ -101,10 +101,6 @@ test.describe('View Transitions', () => {
 		await page.click('#click-three');
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
-
-		await page.click('#click-two');
-		p = page.locator('#two');
-		await expect(p, 'should have content').toHaveText('Page 2');
 
 		expect(
 			loads.length,
@@ -142,8 +138,8 @@ test.describe('View Transitions', () => {
 
 		expect(
 			loads.length,
-			'There should be only 1 page load. The original, but no additional loads for the hash change'
-		).toEqual(1);
+			'There should be only 2 page loads (for page one & three), but no additional loads for the hash change'
+		).toEqual(2);
 	});
 
 	test('Moving from a page without ViewTransitions w/ back button', async ({ page, astro }) => {
@@ -501,25 +497,51 @@ test.describe('View Transitions', () => {
 		await page.click('#click-logo');
 		await downloadPromise;
 	});
+
+	test('Scroll position is restored on back navigation from page w/o ViewTransitions', async ({
+		page,
+		astro,
+	}) => {
+		// Go to middle of long page
+		await page.goto(astro.resolveUrl('/long-page#click-external'));
+
+		let locator = page.locator('#click-external');
+		await expect(locator).toBeInViewport();
+
+		// Go to a page that has not enabled ViewTransistions
+		await page.click('#click-external');
+		locator = page.locator('#three');
+		await expect(locator).toHaveText('Page 3');
+
+		// Scroll back to long page
+		await page.goBack();
+		locator = page.locator('#click-external');
+		await expect(locator).toBeInViewport();
+	});
+
+	test("Non transition navigation doesn't loose handlers", async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page 3
+		await page.click('#click-three');
+		p = page.locator('#three');
+		await expect(p, 'should have content').toHaveText('Page 3');
+
+		// go to page 5
+		await page.click('#click-five');
+		p = page.locator('#five');
+		await expect(p, 'should have content').toHaveText('Page 5');
+
+		await page.goBack();
+		p = page.locator('#three');
+		await expect(p, 'should have content').toHaveText('Page 3');
+
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+	});
 });
 
-test('Scroll position is restored on back navigation from page w/o ViewTransitions', async ({
-	page,
-	astro,
-}) => {
-	// Go to middle of long page
-	await page.goto(astro.resolveUrl('/long-page#click-external'));
-
-	let locator = page.locator('#click-external');
-	await expect(locator).toBeInViewport();
-
-	// Go to a page that has not enabled ViewTransistions
-	await page.click('#click-external');
-	locator = page.locator('#three');
-	await expect(locator).toHaveText('Page 3');
-
-	// Scroll back to long page
-	await page.goBack();
-	locator = page.locator('#click-external');
-	await expect(locator).toBeInViewport();
-});

@@ -19,7 +19,9 @@ const { fallback = 'animate' } = Astro.props as Props;
 	};
 	type Events = 'astro:page-load' | 'astro:after-swap';
 
-	const persistState = (state: State) => history.replaceState(state, '');
+	// only update history entries that are managed by us
+	// leave other entries alone and do not accidently add state.
+	const persistState = (state: State) => history.state && history.replaceState(state, '');
 	const supportsViewTransitions = !!document.startViewTransition;
 	const transitionEnabledOnThisPage = () =>
 		!!document.querySelector('[name="astro-view-transitions-enabled"]');
@@ -32,11 +34,13 @@ const { fallback = 'animate' } = Astro.props as Props;
 	// can use that to determine popstate if going forward or back.
 	let currentHistoryIndex = 0;
 	if (history.state) {
-		// we reloaded a page with history state (e.g. back button or browser reload)
+		// we reloaded a page with history state 
+		// (e.g. history navigation from non-transition page or browser reload)
 		currentHistoryIndex = history.state.index;
 		scrollTo({ left: 0, top: history.state.scrollY });
+	} else if (transitionEnabledOnThisPage()) {
+		history.replaceState({index: currentHistoryIndex, scrollY}, '');
 	}
-
 	const throttle = (cb: (...args: any[]) => any, delay: number) => {
 		let wait = false;
 		// During the waiting time additional events are lost.
@@ -109,9 +113,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 	const parser = new DOMParser();
 
-	async function updateDOM(html: string, state?: State, fallback?: Fallback) {
-		const doc = parser.parseFromString(html, 'text/html');
-
+	async function updateDOM(doc: Document, loc: URL, state?: State, fallback?: Fallback) {
 		// Check for a head element that should persist, either because it has the data
 		// attribute or is a link el.
 		const persistedHeadElement = (el: Element): Element | null => {
@@ -189,19 +191,21 @@ const { fallback = 'animate' } = Astro.props as Props;
 			// Chromium based browsers (Chrome, Edge, Opera, ...)
 			scrollTo({ left: 0, top: 0, behavior: 'instant' });
 
-			if (state?.scrollY === 0 && location.hash) {
-				const id = decodeURIComponent(location.hash.slice(1));
+			let initialScrollY = 0;
+			if (!state && loc.hash) {
+				const id = decodeURIComponent(loc.hash.slice(1));
 				const elem = document.getElementById(id);
 				// prefer scrollIntoView() over scrollTo() because it takes scroll-padding into account
-				if (elem) {
-					state.scrollY = elem.offsetTop;
-					persistState(state); // first guess, later updated by scroll handler
-					elem.scrollIntoView(); // for Firefox, this should better be {behavior: 'instant'}
-				}
+				elem && (initialScrollY = elem.offsetTop) && elem.scrollIntoView();
 			} else if (state && state.scrollY !== 0) {
 				scrollTo(0, state.scrollY); // usings default scrollBehavior
 			}
-
+			!state &&
+				history.pushState(
+					{ index: ++currentHistoryIndex, scrollY: initialScrollY },
+					'',
+					loc.href
+				);
 			triggerEvent('astro:after-swap');
 		};
 
@@ -247,19 +251,26 @@ const { fallback = 'animate' } = Astro.props as Props;
 		}
 	}
 
-	async function navigate(dir: Direction, href: string, state?: State) {
+	async function navigate(dir: Direction, loc: URL, state?: State) {
 		let finished: Promise<void>;
+		const href=loc.href;
 		const { html, ok } = await getHTML(href);
 		// If there is a problem fetching the new page, just do an MPA navigation to it.
 		if (!ok) {
 			location.href = href;
 			return;
 		}
+		const doc = parser.parseFromString(html, 'text/html');
+		if (!doc.querySelector('[name="astro-view-transitions-enabled"]')) {
+			location.href = href;
+			return;
+		}
+
 		document.documentElement.dataset.astroTransition = dir;
 		if (supportsViewTransitions) {
-			finished = document.startViewTransition(() => updateDOM(html, state)).finished;
+			finished = document.startViewTransition(() => updateDOM(doc, loc, state)).finished;
 		} else {
-			finished = updateDOM(html, state, getFallback());
+			finished = updateDOM(doc, loc, state, getFallback());
 		}
 		try {
 			await finished;
@@ -311,11 +322,11 @@ const { fallback = 'animate' } = Astro.props as Props;
 				ev.shiftKey || // new window
 				ev.defaultPrevented ||
 				!transitionEnabledOnThisPage()
-			)
+			) {
 				// No page transitions in these cases,
 				// Let the browser standard action handle this
 				return;
-
+			}
 			// We do not need to handle same page links because there are no page transitions
 			// Same page means same path and same query params (but different hash)
 			if (location.pathname === link.pathname && location.search === link.search) {
@@ -341,10 +352,8 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 			// these are the cases we will handle: same origin, different page
 			ev.preventDefault();
-			navigate('forward', link.href, { index: ++currentHistoryIndex, scrollY: 0 });
-			const newState: State = { index: currentHistoryIndex, scrollY };
-			persistState({ index: currentHistoryIndex - 1, scrollY });
-			history.pushState(newState, '', link.href);
+			persistState({ index: currentHistoryIndex, scrollY });
+			navigate('forward', new URL(link.href));
 		});
 
 		addEventListener('popstate', (ev) => {
@@ -374,11 +383,11 @@ const { fallback = 'animate' } = Astro.props as Props;
 				history.scrollRestoration = 'manual';
 			}
 
-			const state: State | undefined = history.state;
-			const nextIndex = state?.index ?? currentHistoryIndex + 1;
+			const state: State = history.state;
+			const nextIndex = state.index;
 			const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
-			navigate(direction, location.href, state);
 			currentHistoryIndex = nextIndex;
+			navigate(direction, new URL(location.href), state);
 		});
 
 		['mouseenter', 'touchstart', 'focus'].forEach((evName) => {
@@ -402,13 +411,10 @@ const { fallback = 'animate' } = Astro.props as Props;
 		addEventListener('load', onPageLoad);
 		// There's not a good way to record scroll position before a back button.
 		// So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
-		const updateState = () => {
-			// only update history entries that are managed by us
-			// leave other entries alone and do not accidently add state.
-			if (history.state) {
-				persistState({ ...history.state, scrollY });
-			}
-		};
+    const updateState = () => {
+			persistState({ ...history.state, scrollY });
+		}
+
 		if ('onscrollend' in window) addEventListener('scrollend', updateState);
 		else addEventListener('scroll', throttle(updateState, 300));
 	}
