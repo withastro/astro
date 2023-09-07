@@ -421,6 +421,9 @@ function renderAstroComponent(
 	slots: any = {}
 ): RenderInstance {
 	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
+	// Initialize the instance early so that child components with head propagation
+	// are able to register themselves.
+	instance.init(result);
 	return {
 		async render(destination) {
 			// NOTE: This render call can't be pre-invoked outside of this function as it'll also initialize the slots
