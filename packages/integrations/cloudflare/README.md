@@ -75,6 +75,36 @@ export default defineConfig({
 
 Note that this adapter does not support using [Cloudflare Pages Middleware](https://developers.cloudflare.com/pages/platform/functions/middleware/). Astro will bundle the [Astro middleware](https://docs.astro.build/en/guides/middleware/) into each page.
 
+### routes.strategy
+
+`routes.strategy: "auto" | "include" | "exclude"`
+
+default `"auto"`
+
+If no [custom `_routes.json`](#custom-_routesjson) is provided, `@astrojs/cloudflare` will generate one for you. There are two ways to generate the `_routes.json`:
+
+1. For each page or endpoint in your application that is not prerendered, an entry in the `include` array will be generated. For each page that is prerendered and whoose path is matched by an `include` entry, an entry in the `exclude` array will be generated.
+
+2. One `"/*"` entry in the `include` array will be generated. For each page that is prerendered, an entry in the `exclude` array will be generated.
+
+Setting `routes.strategy` to `"include"` will generate a `_routes.json` with the first strategy. Setting it to `"exclude"` will use the second strategy. Setting it to `"auto"` will use the strategy that generates the least amount of entries.
+
+### routes.include
+
+`routes.include: string[]`
+
+default `[]`
+
+If you want to use the automatic `_routes.json` generation, but want to include additional routes (e.g. when having custom functions in the `functions` folder), you can use the `routes.include` option to add additional routes to the `include` array.
+
+### routes.exclude
+
+`routes.exclude: string[]`
+
+default `[]`
+
+If you want to use the automatic `_routes.json` generation, but want to exclude additional routes, you can use the `routes.exclude` option to add additional routes to the `exclude` array.
+
 ## Enabling Preview
 
 In order for preview to work you must install `wrangler`
