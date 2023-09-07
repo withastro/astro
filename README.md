@@ -83,7 +83,7 @@ Several official projects are maintained outside of this repo:
 
 ## Sponsors
 
-Astro is generously supported by Netlify, Storyblok, and several other amazing organizations.
+Astro is free, open source software made possible by these wonderful sponsors.
 
 [❤️ Sponsor Astro! ❤️](https://github.com/withastro/.github/blob/main/FUNDING.md)
 
@@ -91,7 +91,7 @@ Astro is generously supported by Netlify, Storyblok, and several other amazing o
   <a target="_blank" href="https://github.com/sponsors/withastro">
 
 [![Astro's sponsors.](https://astro.build/sponsors.png "Astro's sponsors.
-Platinum sponsors: Netlify, storyblok, Vercel, Ship Shape, Google Chrome
+Platinum sponsors: Vercel, storyblok, Netlify, Ship Shape, Google Chrome
 Gold sponsors: ‹div›RIOTS, DEEPGRAM, Transloadit, CloudCannon
 Sponsors: Monogram, Qoddi, Dimension")](https://github.com/sponsors/withastro)
 

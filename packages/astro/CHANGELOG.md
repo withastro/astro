@@ -1,5 +1,13 @@
 # astro
 
+## 3.0.10
+
+### Patch Changes
+
+- [#8437](https://github.com/withastro/astro/pull/8437) [`b3cf1b327`](https://github.com/withastro/astro/commit/b3cf1b32765c76cfc90e497a68280ad52f02cb1f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix imports of images with uppercased file extensions not working
+
+- [#8440](https://github.com/withastro/astro/pull/8440) [`b92d066b7`](https://github.com/withastro/astro/commit/b92d066b737f64f08a9cf293bd07c9263ef8f32d) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix issue where `renderToFinalDestination` would throw in internal Astro code
+
 ## 3.0.9
 
 ### Patch Changes

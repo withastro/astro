@@ -1,5 +1,14 @@
 # @astrojs/mdx
 
+## 1.0.2
+
+### Patch Changes
+
+- [#8438](https://github.com/withastro/astro/pull/8438) [`6df4f3bd9`](https://github.com/withastro/astro/commit/6df4f3bd9d74de47dc8732e7f3b42bef42d2facf) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix errors not having a stacktrace
+
+- Updated dependencies [[`b3cf1b327`](https://github.com/withastro/astro/commit/b3cf1b32765c76cfc90e497a68280ad52f02cb1f), [`b92d066b7`](https://github.com/withastro/astro/commit/b92d066b737f64f08a9cf293bd07c9263ef8f32d)]:
+  - astro@3.0.10
+
 ## 1.0.1
 
 ### Patch Changes

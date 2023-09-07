@@ -1,6 +1,10 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
-import { defaultImageConfig, getImageConfig, type VercelImageConfig } from '../image/shared.js';
+import {
+	getAstroImageConfig,
+	getDefaultImageConfig,
+	type VercelImageConfig,
+} from '../image/shared.js';
 import { exposeEnv } from '../lib/env.js';
 import { emptyDir, getVercelOutput, writeJson } from '../lib/fs.js';
 import { isServerLikeOutput } from '../lib/prerender.js';
@@ -61,7 +65,7 @@ export default function vercelStatic({
 					vite: {
 						define: viteDefine,
 					},
-					...getImageConfig(imageService, imagesConfig, command, useSquooshDev),
+					...getAstroImageConfig(imageService, imagesConfig, command, useSquooshDev, config.image),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
@@ -93,7 +97,18 @@ export default function vercelStatic({
 						{ handle: 'filesystem' },
 					],
 					...(imageService || imagesConfig
-						? { images: imagesConfig ? imagesConfig : defaultImageConfig }
+						? {
+								images: imagesConfig
+									? {
+											...imagesConfig,
+											domains: [...imagesConfig.domains, ..._config.image.domains],
+											remotePatterns: [
+												...(imagesConfig.remotePatterns ?? []),
+												..._config.image.remotePatterns,
+											],
+									  }
+									: getDefaultImageConfig(_config.image),
+						  }
 						: {}),
 				});
 			},

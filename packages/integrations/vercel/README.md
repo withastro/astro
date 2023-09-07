@@ -114,6 +114,8 @@ export default defineConfig({
 
 Configuration options for [Vercel's Image Optimization API](https://vercel.com/docs/concepts/image-optimization). See [Vercel's image configuration documentation](https://vercel.com/docs/build-output-api/v3/configuration#images) for a complete list of supported parameters.
 
+The `domains` and `remotePatterns` properties will automatically be filled using [the Astro corresponding `image` settings](https://docs.astro.build/en/reference/configuration-reference/#image-options).
+
 ```js
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
