@@ -10,7 +10,6 @@ import {
 } from '../lib/speed-insights.js';
 import {
 	getInjectableWebAnalyticsContent,
-	getWebAnalyticsViteConfig,
 	type VercelWebAnalyticsConfig,
 } from '../lib/web-analytics.js';
 
@@ -68,16 +67,9 @@ export default function vercelStatic({
 					}
 
 					injectScript(
-						'page',
+						'head-inline',
 						await getInjectableWebAnalyticsContent({
-							config: {
-								...(webAnalytics?.config || {}),
-								mode: command === 'dev' ? 'development' : 'production',
-							},
-							astro: {
-								root: config.root,
-								logger,
-							},
+							mode: command === 'dev' ? 'development' : 'production',
 						})
 					);
 				}
@@ -92,7 +84,6 @@ export default function vercelStatic({
 						redirects: false,
 					},
 					vite: {
-						...getWebAnalyticsViteConfig(webAnalytics?.enabled || analytics),
 						...getSpeedInsightsViteConfig(speedInsights?.enabled || analytics),
 					},
 					...getImageConfig(imageService, imagesConfig, command),

@@ -16,7 +16,6 @@ import { getRedirects } from '../lib/redirects.js';
 import { generateEdgeMiddleware } from './middleware.js';
 import {
 	getInjectableWebAnalyticsContent,
-	getWebAnalyticsViteConfig,
 	type VercelWebAnalyticsConfig,
 } from '../lib/web-analytics.js';
 import {
@@ -148,16 +147,9 @@ export default function vercelServerless({
 					}
 
 					injectScript(
-						'page',
+						'head-inline',
 						await getInjectableWebAnalyticsContent({
-							config: {
-								...(webAnalytics?.config || {}),
-								mode: command === 'dev' ? 'development' : 'production',
-							},
-							astro: {
-								root: config.root,
-								logger,
-							},
+							mode: command === 'dev' ? 'development' : 'production',
 						})
 					);
 				}
@@ -173,7 +165,6 @@ export default function vercelServerless({
 						server: new URL('./dist/', config.root),
 					},
 					vite: {
-						...getWebAnalyticsViteConfig(webAnalytics?.enabled || analytics),
 						...getSpeedInsightsViteConfig(speedInsights?.enabled || analytics),
 						ssr: {
 							external: ['@vercel/nft'],

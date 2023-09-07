@@ -92,7 +92,6 @@ To configure this adapter, pass an object to the `vercel()` function call in `as
 **Added in:** `@astrojs/vercel@3.8.0`
 
 You can enable [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics) by setting `webAnalytics: { enabled: true }`. This will inject Vercel’s tracking scripts into all of your pages.
-You can also pass [configuration options](https://vercel.com/docs/concepts/analytics/package) like `mode` and `debug` via the `config` property inside `webAnalytics`.
 
 ```js
 // astro.config.mjs
@@ -107,25 +106,6 @@ export default defineConfig({
     },
   }),
 });
-```
-
-#### `beforeSend`
-
-`beforeSend` is a function that can modify analytics event data before it's sent to Vercel.
-
-Define this function in a separate file at the root of your project called `vercel-web-analytics.ts` (or `vercel-web-analytics.js` if you're not using TypeScript).
-
-```ts
-// vercel-web-analytics.ts
-import type { VercelWebAnalyticsBeforeSend } from '@astrojs/vercel';
-
-export const beforeSend: VercelWebAnalyticsBeforeSend = (event) => {
-  // Ignore all events that have a `/private` inside the URL
-  if (event.url.includes('/private')) {
-    return null;
-  }
-  return event;
-};
 ```
 
 ### Speed Insights
