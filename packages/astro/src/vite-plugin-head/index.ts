@@ -58,6 +58,12 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				propagateMetadata.call(this, id, 'containsHead', true);
 			}
 
+			if(info && getAstroMetadata(info)?.propagation === 'self') {
+				for (const parent of info.importers) {
+					propagateMetadata.call(this, parent, 'propagation', 'in-tree');
+				}
+			}
+
 			if (injectExp.test(source)) {
 				propagateMetadata.call(this, id, 'propagation', 'in-tree');
 			}
