@@ -34,12 +34,12 @@ const { fallback = 'animate' } = Astro.props as Props;
 	// can use that to determine popstate if going forward or back.
 	let currentHistoryIndex = 0;
 	if (history.state) {
-		// we reloaded a page with history state 
+		// we reloaded a page with history state
 		// (e.g. history navigation from non-transition page or browser reload)
 		currentHistoryIndex = history.state.index;
 		scrollTo({ left: 0, top: history.state.scrollY });
 	} else if (transitionEnabledOnThisPage()) {
-		history.replaceState({index: currentHistoryIndex, scrollY}, '');
+		history.replaceState({ index: currentHistoryIndex, scrollY }, '');
 	}
 	const throttle = (cb: (...args: any[]) => any, delay: number) => {
 		let wait = false;
@@ -201,11 +201,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				scrollTo(0, state.scrollY); // usings default scrollBehavior
 			}
 			!state &&
-				history.pushState(
-					{ index: ++currentHistoryIndex, scrollY: initialScrollY },
-					'',
-					loc.href
-				);
+				history.pushState({ index: ++currentHistoryIndex, scrollY: initialScrollY }, '', loc.href);
 			triggerEvent('astro:after-swap');
 		};
 
@@ -253,7 +249,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 	async function navigate(dir: Direction, loc: URL, state?: State) {
 		let finished: Promise<void>;
-		const href=loc.href;
+		const href = loc.href;
 		const { html, ok } = await getHTML(href);
 		// If there is a problem fetching the new page, just do an MPA navigation to it.
 		if (!ok) {
@@ -411,9 +407,9 @@ const { fallback = 'animate' } = Astro.props as Props;
 		addEventListener('load', onPageLoad);
 		// There's not a good way to record scroll position before a back button.
 		// So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
-    const updateState = () => {
+		const updateState = () => {
 			persistState({ ...history.state, scrollY });
-		}
+		};
 
 		if ('onscrollend' in window) addEventListener('scrollend', updateState);
 		else addEventListener('scroll', throttle(updateState, 300));
