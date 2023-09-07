@@ -254,7 +254,18 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 						...routeDefinitions,
 					],
 					...(imageService || imagesConfig
-						? { images: imagesConfig ? imagesConfig : getDefaultImageConfig(_config.image) }
+						? {
+								images: imagesConfig
+									? {
+											...imagesConfig,
+											domains: [...imagesConfig.domains, ..._config.image.domains],
+											remotePatterns: [
+												...(imagesConfig.remotePatterns ?? []),
+												..._config.image.remotePatterns,
+											],
+									  }
+									: getDefaultImageConfig(_config.image),
+						  }
 						: {}),
 				});
 
