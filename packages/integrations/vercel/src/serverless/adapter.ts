@@ -149,7 +149,6 @@ export default function vercelServerless({
 							external: ['@vercel/nft'],
 						},
 					},
-					...getImageConfig(imageService, imagesConfig, command, useSquooshDev),
 					...getAstroImageConfig(imageService, imagesConfig, command, useSquooshDev, config.image),
 				});
 			},

@@ -64,7 +64,7 @@ export function getAstroImageConfig(
 	images: boolean | undefined,
 	imagesConfig: VercelImageConfig | undefined,
 	command: string,
-	useSquoosh: boolean | undefined
+	useSquoosh: boolean | undefined,
 	astroImageConfig: AstroConfig['image']
 ) {
 	if (images) {
