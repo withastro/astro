@@ -67,6 +67,8 @@ function getInstallCommand(packages: string[], packageManager: string) {
 			return { pm: 'yarn', command: 'add', flags: [], dependencies: packages };
 		case 'pnpm':
 			return { pm: 'pnpm', command: 'add', flags: [], dependencies: packages };
+		case 'bun':
+			return { pm: 'bun', command: 'add', flags: [], dependencies: packages };
 		default:
 			return null;
 	}

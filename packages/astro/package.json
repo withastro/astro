@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "3.0.8",
+  "version": "3.0.10",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -156,13 +156,12 @@
     "ora": "^7.0.1",
     "p-limit": "^4.0.0",
     "path-to-regexp": "^6.2.1",
-    "preferred-pm": "^3.0.3",
+    "preferred-pm": "^3.1.2",
     "prompts": "^2.4.2",
     "rehype": "^12.0.1",
     "resolve": "^1.22.4",
     "semver": "^7.5.4",
     "server-destroy": "^1.0.1",
-    "sharp": "^0.32.5",
     "shiki": "^0.14.3",
     "string-width": "^6.1.0",
     "strip-ansi": "^7.1.0",
@@ -172,9 +171,12 @@
     "vfile": "^5.3.7",
     "vite": "^4.4.9",
     "vitefu": "^0.2.4",
-    "which-pm": "^2.0.0",
+    "which-pm": "^2.1.1",
     "yargs-parser": "^21.1.1",
     "zod": "3.21.1"
+  },
+  "optionalDependencies": {
+    "sharp": "^0.32.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.1.0",
