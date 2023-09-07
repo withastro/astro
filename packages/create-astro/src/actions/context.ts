@@ -1,4 +1,5 @@
 import { prompt } from '@astrojs/cli-kit';
+import { random } from '@astrojs/cli-kit/utils';
 import arg from 'arg';
 import os from 'node:os';
 import detectPackageManager from 'which-pm-runs';
@@ -10,8 +11,8 @@ export interface Context {
 	prompt: typeof prompt;
 	cwd: string;
 	packageManager: string;
-	username: string;
-	version: string;
+	username: Promise<string>;
+	version: Promise<string>;
 	skipHouston: boolean;
 	fancy?: boolean;
 	dryRun?: boolean;
@@ -25,6 +26,7 @@ export interface Context {
 	stdin?: typeof process.stdin;
 	stdout?: typeof process.stdout;
 	exit(code: number): never;
+	hat?: string;
 }
 
 export async function getContext(argv: string[]): Promise<Context> {
@@ -52,7 +54,6 @@ export async function getContext(argv: string[]): Promise<Context> {
 	);
 
 	const packageManager = detectPackageManager()?.name ?? 'npm';
-	const [username, version] = await Promise.all([getName(), getVersion()]);
 	let cwd = flags['_'][0];
 	let {
 		'--help': help = false,
@@ -86,14 +87,15 @@ export async function getContext(argv: string[]): Promise<Context> {
 		help,
 		prompt,
 		packageManager,
-		username,
-		version,
+		username: getName(),
+		version: getVersion(),
 		skipHouston,
 		fancy,
 		dryRun,
 		projectName,
 		template,
 		ref: ref ?? 'latest',
+		hat: fancy ? random(['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦']) : undefined,
 		yes,
 		install: install ?? (noInstall ? false : undefined),
 		git: git ?? (noGit ? false : undefined),
