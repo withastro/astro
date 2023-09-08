@@ -22,6 +22,7 @@ import type { AstroCookies } from '../core/cookies';
 import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
+import type { OmitIndexSignature, Simplify } from '../type-utils';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
 export { type AstroIntegrationLogger };
@@ -1725,14 +1726,6 @@ export interface Page<T = any> {
 	};
 }
 
-type OmitIndexSignature<ObjectType> = {
-	// eslint-disable-next-line @typescript-eslint/ban-types
-	[KeyType in keyof ObjectType as {} extends Record<KeyType, unknown>
-		? never
-		: KeyType]: ObjectType[KeyType];
-};
-// eslint-disable-next-line @typescript-eslint/ban-types
-type Simplify<T> = { [KeyType in keyof T]: T[KeyType] } & {};
 export type PaginateFunction = <
 	PaginateData,
 	AdditionalPaginateProps extends Props,
