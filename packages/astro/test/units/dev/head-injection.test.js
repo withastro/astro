@@ -123,27 +123,38 @@ describe('head injection', () => {
 						});
 					}
 				`.trim(),
+				'/src/components/Content.astro': `
+				---
+				import { renderEntry } from '../common/head.js';
+				const ExtraHead = renderEntry();
+				---
+				<ExtraHead />
+				`,
+				'/src/components/Inner.astro': `
+				---
+				import Content from './Content.astro';
+				---
+				<Content />
+				`,
 				'/src/components/Layout.astro': `
-					---
-					import { renderEntry } from '../common/head.js';
-					const ExtraHead = renderEntry();
-					---
 					<html>
 						<head>
 							<title>Normal head stuff</title>
 						</head>
 						<body>
 							<slot name="title" />
-							<ExtraHead />
+							<slot name="inner" />
 						</body>
 					</html>
 				`,
 				'/src/pages/index.astro': `
 					---
 					import Layout from '../components/Layout.astro';
+					import Inner from '../components/Inner.astro';
 					---
 					<Layout>
 						<h1 slot="title">Test page</h1>
+						<Inner slot="inner" />
 					</Layout>
 				`,
 			},
@@ -168,8 +179,8 @@ describe('head injection', () => {
 				const html = await text();
 				const $ = cheerio.load(html);
 
-				expect($('link[rel=stylesheet][href="/some/fake/styles.css"]')).to.have.a.lengthOf(1);
-				expect($('#other')).to.have.a.lengthOf(1);
+				expect($('link[rel=stylesheet][href="/some/fake/styles.css"]')).to.have.a.lengthOf(1, 'found inner link');
+				expect($('#other')).to.have.a.lengthOf(1, 'Found the #other div');
 			}
 		);
 	});
