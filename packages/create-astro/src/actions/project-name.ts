@@ -31,7 +31,7 @@ export async function projectName(ctx: Pick<Context, 'cwd' | 'prompt' | 'project
 			},
 		});
 
-		ctx.cwd = name!;
+		ctx.cwd = name!.trim();
 		ctx.projectName = toValidName(name!);
 	} else {
 		let name = ctx.cwd;

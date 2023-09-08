@@ -105,10 +105,10 @@ export function serverStart({
 		.join('\n');
 }
 
-export function telemetryNotice() {
+export function telemetryNotice(packageManager = 'npm') {
 	const headline = `${cyan('◆')} Astro collects completely anonymous usage data.`;
 	const why = dim('  This optional program helps shape our roadmap.');
-	const disable = dim('  Run `npm run astro telemetry disable` to opt-out.');
+	const disable = dim(`  Run \`${packageManager} run astro telemetry disable\` to opt-out.`);
 	const details = `  Details: ${underline('https://astro.build/telemetry')}`;
 	return [headline, why, disable, details].map((v) => '  ' + v).join('\n');
 }

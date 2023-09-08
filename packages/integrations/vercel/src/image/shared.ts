@@ -1,9 +1,13 @@
-import type { ImageMetadata, ImageQualityPreset, ImageTransform } from 'astro';
+import type { AstroConfig, ImageMetadata, ImageQualityPreset, ImageTransform } from 'astro';
 
-export const defaultImageConfig: VercelImageConfig = {
-	sizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-	domains: [],
-};
+export function getDefaultImageConfig(astroImageConfig: AstroConfig['image']): VercelImageConfig {
+	return {
+		sizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+		domains: astroImageConfig.domains ?? [],
+		// Cast is necessary here because Vercel's types are slightly different from ours regarding allowed protocols. Behavior should be the same, however.
+		remotePatterns: (astroImageConfig.remotePatterns as VercelImageConfig['remotePatterns']) ?? [],
+	};
+}
 
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
 	return typeof src === 'object';
@@ -56,10 +60,11 @@ export const qualityTable: Record<ImageQualityPreset, number> = {
 	max: 100,
 };
 
-export function getImageConfig(
+export function getAstroImageConfig(
 	images: boolean | undefined,
 	imagesConfig: VercelImageConfig | undefined,
-	command: string
+	command: string,
+	astroImageConfig: AstroConfig['image']
 ) {
 	if (images) {
 		return {
@@ -69,7 +74,7 @@ export function getImageConfig(
 						command === 'dev'
 							? '@astrojs/vercel/dev-image-service'
 							: '@astrojs/vercel/build-image-service',
-					config: imagesConfig ? imagesConfig : defaultImageConfig,
+					config: imagesConfig ? imagesConfig : getDefaultImageConfig(astroImageConfig),
 				},
 			},
 		};

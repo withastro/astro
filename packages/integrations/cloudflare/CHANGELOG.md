@@ -1,5 +1,15 @@
 # @astrojs/cloudflare
 
+## 7.0.2
+
+### Patch Changes
+
+- [#8429](https://github.com/withastro/astro/pull/8429) [`bd8aa9a99`](https://github.com/withastro/astro/commit/bd8aa9a996c8a9f9283995360fd495c291d1f766) Thanks [@sarah11918](https://github.com/sarah11918)! - Update code sample in the README to use uppercase `GET`.
+
+- Updated dependencies [[`7d95bd9ba`](https://github.com/withastro/astro/commit/7d95bd9baaf755239fd7d35e4813861b2dbccf42), [`1947ef7a9`](https://github.com/withastro/astro/commit/1947ef7a99ce3d1d6ea797842edd31d5edffa5de), [`61ad70fdc`](https://github.com/withastro/astro/commit/61ad70fdc52035964c43ecdb4cf7468f6c2b61e7), [`d2f2a11cd`](https://github.com/withastro/astro/commit/d2f2a11cdb42b0de79be21c798eda8e7e7b2a277), [`5126c6a40`](https://github.com/withastro/astro/commit/5126c6a40f88bff66ee5d3c3a21eea8c4a44ce7a), [`48ff7855b`](https://github.com/withastro/astro/commit/48ff7855b238536a3df17cb29335c90029fc41a4), [`923a443cb`](https://github.com/withastro/astro/commit/923a443cb060a0e936a0e1cc87c0360232f77914), [`8935b3b46`](https://github.com/withastro/astro/commit/8935b3b4672d6c54c7b79e6c4575298f75eeb9f4)]:
+  - astro@3.0.9
+  - @astrojs/underscore-redirects@0.3.0
+
 ## 7.0.1
 
 ### Patch Changes

@@ -52,24 +52,23 @@ declare module 'astro:assets' {
 				| import('./dist/assets/types.js').ImageTransform
 				| import('./dist/assets/types.js').UnresolvedImageTransform
 		) => Promise<import('./dist/assets/types.js').GetImageResult>;
+		imageConfig: import('./dist/@types/astro').AstroConfig['image'];
 		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
 		Image: typeof import('./components/Image.astro').default;
 	};
 
-	type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
-	type Simplify<T> = { [KeyType in keyof T]: T[KeyType] } & {};
-	type ImgAttributes = WithRequired<
+	type ImgAttributes = import('./dist/type-utils.js').WithRequired<
 		Omit<import('./types').HTMLAttributes<'img'>, 'src' | 'width' | 'height'>,
 		'alt'
 	>;
 
-	export type LocalImageProps = Simplify<
+	export type LocalImageProps = import('./dist/type-utils.js').Simplify<
 		import('./dist/assets/types.js').LocalImageProps<ImgAttributes>
 	>;
-	export type RemoteImageProps = Simplify<
+	export type RemoteImageProps = import('./dist/type-utils.js').Simplify<
 		import('./dist/assets/types.js').RemoteImageProps<ImgAttributes>
 	>;
-	export const { getImage, getConfiguredImageService, Image }: AstroAssets;
+	export const { getImage, getConfiguredImageService, imageConfig, Image }: AstroAssets;
 }
 
 type InputFormat = import('./dist/assets/types.js').ImageInputFormat;

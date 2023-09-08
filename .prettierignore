@@ -1,10 +1,3 @@
-# Ignoring these files for now due to https://github.com/withastro/compiler/issues/585
-examples/basics/src/layouts
-examples/with-nanostores/src/layouts
-
-# Ignoring this file for now due to https://github.com/withastro/compiler/issues/485
-packages/markdown/component/Markdown.astro
-
 # Benchmark artifacts
 benchmark/projects/
 benchmark/results/
