@@ -113,6 +113,11 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 	const parser = new DOMParser();
 
+	// A noop element used to prevent styles from being removed
+	if(import.meta.env.DEV) {
+		var noopEl: string | undefined = document.createElement('div');
+	}
+
 	async function updateDOM(doc: Document, loc: URL, state?: State, fallback?: Fallback) {
 		// Check for a head element that should persist, either because it has the data
 		// attribute or is a link el.
@@ -137,6 +142,16 @@ const { fallback = 'animate' } = Astro.props as Props;
 					) {
 						return s2;
 					}
+				}
+			}
+			// Only run this in dev. This will get stripped from production builds and is not needed.
+			if(import.meta.env.DEV) {
+				if(el.tagName === 'STYLE' && el.dataset.viteDevId) {
+					const devId = el.dataset.viteDevId;
+					// If this same style tag exists, remove it from the new page
+					return doc.querySelector(`style[data-astro-dev-id="${devId}"]`)
+					// Otherwise, keep it anyways. This is client:only styles.
+					|| noopEl;
 				}
 			}
 			return null;
