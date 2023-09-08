@@ -183,6 +183,7 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.redirects),
 	image: z
 		.object({
+			endpoint: z.string().optional(),
 			service: z
 				.object({
 					entrypoint: z
