@@ -80,6 +80,7 @@ Several official projects are maintained outside of this repo:
 - [Open Governance & Voting](https://github.com/withastro/.github/blob/main/GOVERNANCE.md)
 - [Project Funding](https://github.com/withastro/.github/blob/main/FUNDING.md)
 - [Website](https://astro.build/)
+- [Usage Trend of Astro Packages](https://npm-compare.com/astro,create-astro,@astrojs/react,@astrojs/preact,@astrojs/solid-js,@astrojs/svelte,@astrojs/vue,@astrojs/lit,@astrojs/deno,@astrojs/netlify,@astrojs/node,@astrojs/vercel,@astrojs/cloudflare,@astrojs/partytown,@astrojs/sitemap,@astrojs/tailwind,@astrojs/alpinejs,@astrojs/mdx,@astrojs/prefetch)
 
 ## Sponsors
 
