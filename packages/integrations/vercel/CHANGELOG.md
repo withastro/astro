@@ -1,5 +1,14 @@
 # @astrojs/vercel
 
+## 4.0.5
+
+### Patch Changes
+
+- [#8452](https://github.com/withastro/astro/pull/8452) [`7ea32c7fb`](https://github.com/withastro/astro/commit/7ea32c7fbf4fc74a3c0fa7319561243c4e262e99) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix Astro's `domains` and `remotePatterns` not being used by Vercel when using Vercel Image Optimization
+
+- Updated dependencies [[`f66053a1e`](https://github.com/withastro/astro/commit/f66053a1ea0a4e3bdb0b0df12bb1bf56e1ea2618), [`0fa483283`](https://github.com/withastro/astro/commit/0fa483283e54c94f173838cd558dc0dbdd11e699)]:
+  - astro@3.0.11
+
 ## 4.0.4
 
 ### Patch Changes
