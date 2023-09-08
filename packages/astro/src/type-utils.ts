@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 // Q: Why is this not in @types?
 // A: `@types` is for types that are part of the public API. This is just a bunch of utilities we use throughout the codebase. (Mostly by Erika)
 
