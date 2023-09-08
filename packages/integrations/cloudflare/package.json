@@ -51,7 +51,7 @@
     "@miniflare/storage-memory": "2.14.1"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.0.9"
+    "astro": "workspace:^3.0.10"
   },
   "devDependencies": {
     "astro": "workspace:*",
