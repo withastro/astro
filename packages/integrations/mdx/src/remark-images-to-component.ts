@@ -4,6 +4,9 @@ import type { MdxJsxFlowElement, MdxjsEsm } from 'mdast-util-mdx';
 import { visit } from 'unist-util-visit';
 import { jsToTreeNode } from './utils.js';
 
+export const ASTRO_IMAGE_ELEMENT = 'astro-image';
+export const ASTRO_IMAGE_EXPORT = '__AstroImage__';
+
 export function remarkImageToComponent() {
 	return function (tree: any, file: MarkdownVFile) {
 		if (!file.data.imagePaths) return;
@@ -48,7 +51,7 @@ export function remarkImageToComponent() {
 
 				// Build a component that's equivalent to <Image src={importName} alt={node.alt} title={node.title} />
 				const componentElement: MdxJsxFlowElement = {
-					name: '__AstroImage__',
+					name: ASTRO_IMAGE_ELEMENT,
 					type: 'mdxJsxFlowElement',
 					attributes: [
 						{
@@ -92,7 +95,8 @@ export function remarkImageToComponent() {
 		// Add all the import statements to the top of the file for the images
 		tree.children.unshift(...importsStatements);
 
-		// Add an import statement for the Astro Image component, we rename it to avoid conflicts
-		tree.children.unshift(jsToTreeNode(`import { Image as __AstroImage__ } from "astro:assets";`));
+		// Export `__AstroImage__` to pick up `astro:assets` usage in the module graph.
+		// @see the '@astrojs/mdx-postprocess' plugin
+		tree.children.unshift(jsToTreeNode(`export { Image as ${ASTRO_IMAGE_EXPORT} } from "astro:assets";`));
 	};
 }
