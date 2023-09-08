@@ -154,7 +154,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				hydratedComponents: transformResult.hydratedComponents,
 				scripts: transformResult.scripts,
 				containsHead: transformResult.containsHead,
-				propagation: 'none',
+				propagation: transformResult.propagation ? 'self' : 'none',
 				pageOptions: {},
 			};
 

@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -28,7 +28,7 @@
     "test": "mocha --exit --timeout 20000"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.0.0"
+    "astro": "workspace:^3.0.11"
   },
   "dependencies": {
     "@astrojs/prism": "^3.0.0",
