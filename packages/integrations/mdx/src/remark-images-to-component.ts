@@ -5,7 +5,8 @@ import { visit } from 'unist-util-visit';
 import { jsToTreeNode } from './utils.js';
 
 export const ASTRO_IMAGE_ELEMENT = 'astro-image';
-export const ASTRO_IMAGE_EXPORT = '__AstroImage__';
+export const ASTRO_IMAGE_IMPORT = '__AstroImage__';
+export const USES_ASTRO_IMAGE_FLAG = '__usesAstroImage';
 
 export function remarkImageToComponent() {
 	return function (tree: any, file: MarkdownVFile) {
@@ -95,8 +96,9 @@ export function remarkImageToComponent() {
 		// Add all the import statements to the top of the file for the images
 		tree.children.unshift(...importsStatements);
 
-		// Export `__AstroImage__` to pick up `astro:assets` usage in the module graph.
+		tree.children.unshift(jsToTreeNode(`import { Image as ${ASTRO_IMAGE_IMPORT} } from "astro:assets";`));
+		// Export `__usesAstroImage` to pick up `astro:assets` usage in the module graph.
 		// @see the '@astrojs/mdx-postprocess' plugin
-		tree.children.unshift(jsToTreeNode(`export { Image as ${ASTRO_IMAGE_EXPORT} } from "astro:assets";`));
+		tree.children.push(jsToTreeNode(`export const ${USES_ASTRO_IMAGE_FLAG} = true`));
 	};
 }
