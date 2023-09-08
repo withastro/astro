@@ -179,7 +179,10 @@ describe('head injection', () => {
 				const html = await text();
 				const $ = cheerio.load(html);
 
-				expect($('link[rel=stylesheet][href="/some/fake/styles.css"]')).to.have.a.lengthOf(1, 'found inner link');
+				expect($('link[rel=stylesheet][href="/some/fake/styles.css"]')).to.have.a.lengthOf(
+					1,
+					'found inner link'
+				);
 				expect($('#other')).to.have.a.lengthOf(1, 'Found the #other div');
 			}
 		);
