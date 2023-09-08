@@ -9,7 +9,11 @@ import { AstroError } from 'astro/errors';
 import glob from 'fast-glob';
 import { basename } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { defaultImageConfig, getImageConfig, type VercelImageConfig } from '../image/shared.js';
+import {
+	getAstroImageConfig,
+	getDefaultImageConfig,
+	type VercelImageConfig,
+} from '../image/shared.js';
 import { exposeEnv } from '../lib/env.js';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
@@ -143,7 +147,7 @@ export default function vercelServerless({
 							external: ['@vercel/nft'],
 						},
 					},
-					...getImageConfig(imageService, imagesConfig, command),
+					...getAstroImageConfig(imageService, imagesConfig, command, config.image),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config, logger }) => {
@@ -207,8 +211,18 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 
 				// Multiple entrypoint support
 				if (_entryPoints.size) {
+					const getRouteFuncName = (route: RouteData) => route.component.replace('src/pages/', '');
+
+					const getFallbackFuncName = (entryFile: URL) =>
+						basename(entryFile.toString())
+							.replace('entry.', '')
+							.replace(/\.mjs$/, '');
+
 					for (const [route, entryFile] of _entryPoints) {
-						const func = basename(entryFile.toString()).replace(/\.mjs$/, '');
+						const func = route.component.startsWith('src/pages/')
+							? getRouteFuncName(route)
+							: getFallbackFuncName(entryFile);
+
 						await createFunctionFolder(func, entryFile, filesToInclude, logger);
 						routeDefinitions.push({
 							src: route.pattern.source,
@@ -240,7 +254,18 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 						...routeDefinitions,
 					],
 					...(imageService || imagesConfig
-						? { images: imagesConfig ? imagesConfig : defaultImageConfig }
+						? {
+								images: imagesConfig
+									? {
+											...imagesConfig,
+											domains: [...imagesConfig.domains, ..._config.image.domains],
+											remotePatterns: [
+												...(imagesConfig.remotePatterns ?? []),
+												..._config.image.remotePatterns,
+											],
+									  }
+									: getDefaultImageConfig(_config.image),
+						  }
 						: {}),
 				});
 

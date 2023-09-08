@@ -107,7 +107,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				}
 
 				const code = escapeViteEnvReferences(`
-				import { unescapeHTML, spreadAttributes, createComponent, render, renderComponent } from ${JSON.stringify(
+				import { unescapeHTML, spreadAttributes, createComponent, render, renderComponent, maybeRenderHead } from ${JSON.stringify(
 					astroServerRuntimeModulePath
 				)};
 				import { AstroError, AstroErrorData } from ${JSON.stringify(astroErrorModulePath)};
@@ -180,10 +180,9 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 							}, {
 								'default': () => render\`\${unescapeHTML(html)}\`
 							})}\`;`
-							: `render\`\${unescapeHTML(html)}\`;`
+							: `render\`\${maybeRenderHead(result)}\${unescapeHTML(html)}\`;`
 					}
 				});
-				Content[Symbol.for('astro.needsHeadRendering')] = ${layout ? 'false' : 'true'};
 				export default Content;
 				`);
 

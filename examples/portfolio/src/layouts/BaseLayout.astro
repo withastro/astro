@@ -92,13 +92,18 @@ const { title, description } = Astro.props;
 				min-height: 100%;
 				isolation: isolate;
 				background:
-					/*noise*/ url('/assets/backgrounds/noise.png') top center/220px repeat,
+					/*noise*/
+					url('/assets/backgrounds/noise.png') top center/220px repeat,
 					/*footer*/ var(--bg-image-footer) bottom center/var(--bg-gradient-size) no-repeat,
 					/*header1*/ var(--bg-image-main-curves) top center/var(--bg-gradient-size) no-repeat,
 					/*header2*/ var(--bg-image-main) top center/var(--bg-gradient-size) no-repeat,
 					/*base*/ var(--gray-999);
-				background-blend-mode: /*noise*/ overlay, /*footer*/ var(--bg-blend-mode),
-					/*header1*/ var(--bg-svg-blend-mode), /*header2*/ normal, /*base*/ normal;
+				background-blend-mode: /*noise*/
+					overlay,
+					/*footer*/ var(--bg-blend-mode),
+					/*header1*/ var(--bg-svg-blend-mode),
+					/*header2*/ normal,
+					/*base*/ normal;
 			}
 			@media (forced-colors: active) {
 				/* Deactivate custom backgrounds for high contrast users. */
