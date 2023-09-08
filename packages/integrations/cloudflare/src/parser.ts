@@ -4,6 +4,7 @@
  * https://github.com/cloudflare/workers-sdk/issues/3897
  *
  * Until further notice, we will be using this file as a workaround
+ * TODO: Tackle this file, once their is an decision on the upstream request
  */
 
 import * as fs from 'node:fs';
@@ -119,7 +120,7 @@ function getVarsForDev(config: any, configPath: string | undefined): any {
 		return config.vars;
 	}
 }
-export async function CFVars() {
+export async function getEnvVars() {
 	let rawConfig;
 	const configPath = findWranglerToml(process.cwd(), false); // false = args.experimentalJsonConfig
 

@@ -1,13 +1,18 @@
-import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
 import type { IncomingRequestCfProperties } from '@cloudflare/workers-types/experimental';
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
+
+import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
+import { CacheStorage } from '@miniflare/cache';
+import { NoOpLog } from '@miniflare/shared';
+import { MemoryStorage } from '@miniflare/storage-memory';
+import { AstroError } from 'astro/errors';
 import esbuild from 'esbuild';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import { sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'tiny-glob';
-import { CFVars } from './CFVars.js';
+import { getEnvVars } from './parser.js';
 
 export type { AdvancedRuntime } from './server.advanced';
 export type { DirectoryRuntime } from './server.directory';
@@ -28,6 +33,17 @@ interface BuildConfig {
 	client: URL;
 	serverEntry: string;
 	split?: boolean;
+}
+
+class StorageFactory {
+	storages = new Map();
+
+	storage(namespace: string) {
+		let storage = this.storages.get(namespace);
+		if (storage) return storage;
+		this.storages.set(namespace, (storage = new MemoryStorage()));
+		return storage;
+	}
 }
 
 export function getAdapter({
@@ -75,13 +91,7 @@ export function getAdapter({
 }
 
 async function getCFObject(runtimeMode: string): Promise<IncomingRequestCfProperties | void> {
-	// Milliseconds in 1 day
-	const DAY = 86400000;
-	// Max age in days of cf.json
-	const CF_DAYS = 1;
-
 	const CF_ENDPOINT = 'https://workers.cloudflare.com/cf.json';
-
 	const CF_FALLBACK: IncomingRequestCfProperties = {
 		asOrganization: '',
 		asn: 395747,
@@ -159,14 +169,6 @@ const SERVER_BUILD_FOLDER = '/$server_build/';
  */
 const potentialFunctionRouteTypes = ['endpoint', 'page'];
 
-const STATIC_ERROR = `
-[@astrojs/cloudflare] \`output: "server"\` or \`output: "hybrid"\` is required to use this adapter. Otherwise, this adapter is not necessary to deploy a static site to Cloudflare.
-`;
-
-const FOLDER_ERROR = `
-[@astrojs/cloudflare] \`base: "${SERVER_BUILD_FOLDER}"\` is not allowed. Please change your \`base\` config to something else.
-`;
-
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
@@ -195,20 +197,22 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				_buildConfig = config.build;
 
 				if (config.output === 'static') {
-					throw new Error(STATIC_ERROR);
+					throw new AstroError(
+						'[@astrojs/cloudflare] `output: "server"` or `output: "hybrid"` is required to use this adapter. Otherwise, this adapter is not necessary to deploy a static site to Cloudflare.'
+					);
 				}
 
 				if (config.base === SERVER_BUILD_FOLDER) {
-					throw new Error(FOLDER_ERROR);
+					throw new AstroError(
+						'[@astrojs/cloudflare] `base: "${SERVER_BUILD_FOLDER}"` is not allowed. Please change your `base` config to something else.'
+					);
 				}
 			},
 			'astro:server:setup': ({ server }) => {
-				server.middlewares.use(async function middleware(req, res, next) {
-					if (runtimeMode === 'off') {
-						next();
-					} else {
-						const vars = await CFVars();
+				if (runtimeMode === 'off') {
+					server.middlewares.use(async function middleware(req, res, next) {
 						const cf = await getCFObject(runtimeMode);
+						const vars = await getEnvVars();
 
 						const clientLocalsSymbol = Symbol.for('astro.locals');
 						Reflect.set(req, clientLocalsSymbol, {
@@ -226,17 +230,20 @@ export default function createIntegration(args?: Options): AstroIntegration {
 									...vars,
 								},
 								cf: cf,
-								// will be supported once we support mocking of bindings
-								// waitUntil: (promise: Promise<any>) => {
-								//   context.waitUntil(promise);
-								// },
-								// will be supported once we support mocking of bindings
-								// caches: caches,
+								waitUntil: (_promise: Promise<any>) => {
+									return;
+								},
+								caches: new CacheStorage(
+									{ cache: true, cachePersist: false },
+									new NoOpLog(),
+									new StorageFactory(),
+									{}
+								),
 							},
 						});
 						next();
-					}
-				});
+					});
+				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
