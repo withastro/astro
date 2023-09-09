@@ -141,7 +141,7 @@ export const AstroConfigSchema = z.object({
 		// validate
 		z
 			.object({
-				open: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.server.open),
+				open: z.union([z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.server.open), z.string().optional()]),
 				host: z
 					.union([z.string(), z.boolean()])
 					.optional()
