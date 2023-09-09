@@ -324,7 +324,6 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 		// But we still want to inject the styles to avoid FOUC
 		styles.add({
 			props: {
-				type: 'text/css',
 				// Track the ID so we can match it to Vite's injected style later
 				'data-astro-dev-id': viteID(new URL(`.${url}`, settings.config.root)),
 			},
