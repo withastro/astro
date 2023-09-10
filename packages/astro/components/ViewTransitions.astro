@@ -340,7 +340,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 					ev.preventDefault();
 					// push state on the first navigation but not if we were here already
 					if (location.hash) {
-						history.replaceState({ index: currentHistoryIndex, scrollY: -(scrollY + 1)}, '');
+						history.replaceState({ index: currentHistoryIndex, scrollY: -(scrollY + 1) }, '');
 						const newState: State = { index: ++currentHistoryIndex, scrollY: 0 };
 						history.pushState(newState, '', link.href);
 					}
@@ -387,7 +387,6 @@ const { fallback = 'animate' } = Astro.props as Props;
 			const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
 			currentHistoryIndex = nextIndex;
 			if (state.scrollY < 0) {
-				console.log("restoring", state.scrollY);
 				scrollTo(0, -(state.scrollY + 1));
 			} else {
 				navigate(direction, new URL(location.href), state);
