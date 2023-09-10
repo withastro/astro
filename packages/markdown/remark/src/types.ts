@@ -36,6 +36,7 @@ export type RemarkRehype = Omit<RemarkRehypeOptions, 'handlers' | 'unknownHandle
 
 export interface ShikiConfig {
 	langs?: ILanguageRegistration[];
+	excludeLangs?: string[];
 	theme?: Theme | IThemeRegistration;
 	wrap?: boolean | null;
 }

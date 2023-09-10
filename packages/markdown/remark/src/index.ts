@@ -32,6 +32,7 @@ export const markdownConfigDefaults: Omit<Required<AstroMarkdownOptions>, 'draft
 	syntaxHighlight: 'shiki',
 	shikiConfig: {
 		langs: [],
+		excludeLangs: [],
 		theme: 'github-dark',
 		wrap: false,
 	},

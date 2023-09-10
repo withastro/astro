@@ -12,6 +12,7 @@ const highlighterCacheAsync = new Map<string, Promise<shiki.Highlighter>>();
 
 export function remarkShiki({
 	langs = [],
+	excludeLangs = [],
 	theme = 'github-dark',
 	wrap = false,
 }: ShikiConfig = {}): ReturnType<RemarkPlugin> {
@@ -67,6 +68,8 @@ export function remarkShiki({
 			} else {
 				lang = 'plaintext';
 			}
+
+			if (excludeLangs.includes(lang)) return;
 
 			let html = highlighter.codeToHtml(node.value, { lang });
 

@@ -230,6 +230,7 @@ export const AstroConfigSchema = z.object({
 			shikiConfig: z
 				.object({
 					langs: z.custom<ILanguageRegistration>().array().default([]),
+					excludeLangs: z.array(z.string()).default([]),
 					theme: z
 						.enum(BUNDLED_THEMES as [Theme, ...Theme[]])
 						.or(z.custom<IShikiTheme>())
