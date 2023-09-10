@@ -282,6 +282,28 @@ test.describe('View Transitions', () => {
 		await expect(locator).toBeInViewport();
 	});
 
+	test('Scroll position restored when transitioning back to fragment', async ({ page, astro }) => {
+		// Go to the long page
+		await page.goto(astro.resolveUrl('/long-page'));
+		let locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+
+		// Scroll down to middle fragment
+		await page.click('#click-scroll-down');
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+
+		// Scroll up to top fragment
+		await page.click('#click-one-again');
+		locator = page.locator('#one');
+		await expect(locator).toHaveText('Page 1');
+
+		// Back to middle of the page
+		await page.goBack();
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+	});
+
 	test('Scroll position restored on forward button', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
