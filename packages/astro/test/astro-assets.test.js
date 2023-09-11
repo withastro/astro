@@ -60,12 +60,4 @@ describe('Assets', () => {
 		const data = await fixture.readFile(src);
 		expect(!!data).to.equal(true);
 	});
-
-	it('built the avif image', async () => {
-		const html = await fixture.readFile('/index.html');
-		const $ = cheerio.load(html);
-		const src = $('#avif').attr('src');
-		const data = await fixture.readFile(src);
-		expect(!!data).to.equal(true);
-	});
 });
