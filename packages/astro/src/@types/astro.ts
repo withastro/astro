@@ -620,7 +620,7 @@ export interface AstroUserConfig {
 	 * Specify the strategy used for scoping styles within Astro components. Choose from:
 	 *   - `'where'` 		- Use `:where` selectors, causing no specifity increase.
 	 *   - `'class'` 		- Use class-based selectors, causing a +1 specifity increase.
-	 *   - `'attribute'` 	- Use `data-` attributes, causing no specifity increase.
+	 *   - `'attribute'` 	- Use `data-` attributes, causing a +1 specifity increase.
 	 *
 	 * Using `'class'` is helpful when you want to ensure that element selectors within an Astro component override global style defaults (e.g. from a global stylesheet).
 	 * Using `'where'` gives you more control over specifity, but requires that you use higher-specifity selectors, layers, and other tools to control which selectors are applied.
