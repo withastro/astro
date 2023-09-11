@@ -1,6 +1,4 @@
 ---
-'@astrojs/deno': patch
-'@astrojs/node': patch
 'astro': patch
 ---
 
