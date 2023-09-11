@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': patch
 ---
 
 Support AVIF input assets
