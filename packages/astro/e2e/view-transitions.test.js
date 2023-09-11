@@ -565,4 +565,24 @@ test.describe('View Transitions', () => {
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
+
+	test("client:only styles are retained on transition", async ({ page, astro }) => {
+		const totalExpectedStyles = 8;
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/client-only-one'));
+		let msg = page.locator('.counter-message');
+		await expect(msg).toHaveText('message here');
+
+		let styles = await page.locator('style').all();
+		expect(styles.length).toEqual(totalExpectedStyles);
+
+		await page.click('#click-two');
+
+		let pageTwo = page.locator('#page-two');
+		await expect(pageTwo, 'should have content').toHaveText('Page 2');
+
+		styles = await page.locator('style').all();
+		expect(styles.length).toEqual(totalExpectedStyles, 'style count has not changed');
+	});
 });
