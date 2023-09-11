@@ -3626,13 +3626,13 @@ importers:
         specifier: ^2.2.5
         version: 2.2.5
       '@miniflare/cache':
-        specifier: 2.14.1
+        specifier: ^2.14.1
         version: 2.14.1
       '@miniflare/shared':
-        specifier: 2.14.1
+        specifier: ^2.14.1
         version: 2.14.1
       '@miniflare/storage-memory':
-        specifier: 2.14.1
+        specifier: ^2.14.1
         version: 2.14.1
       dotenv:
         specifier: ^16.3.1
