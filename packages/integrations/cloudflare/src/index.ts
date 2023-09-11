@@ -388,8 +388,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 					const strategy = args?.routes?.strategy ?? 'auto';
 
-					// In order to product the shortest list of patterns, we first try to
-					// include all function endpoints, and then exclude all static paths
+					// Strategy `include`: include all function endpoints, and then exclude static paths that would be matched by an include pattern
 					const includeStrategy =
 						strategy === 'exclude'
 							? undefined
@@ -416,8 +415,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						includeStrategy.exclude = ['/'];
 					}
 
-					// If using only an exclude list would produce a shorter list of patterns,
-					// we use that instead
+					// Strategy `exclude`: include everything, and then exclude all static paths
 					const excludeStrategy =
 						strategy === 'include'
 							? undefined
