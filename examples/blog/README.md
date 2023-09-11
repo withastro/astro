@@ -1,6 +1,6 @@
 # Astro Starter Kit: Blog
 
-```
+```sh
 npm create astro@latest -- --template blog
 ```
 
@@ -25,7 +25,7 @@ Features:
 
 Inside of your Astro project, you'll see the following folders and files:
 
-```
+```text
 ├── public/
 ├── src/
 │   ├── components/

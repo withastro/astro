@@ -448,7 +448,7 @@ export function getContentPaths(
 	};
 }
 function search(fs: typeof fsMod, srcDir: URL) {
-	const paths = ['config.mjs', 'config.js', 'config.ts'].map(
+	const paths = ['config.mjs', 'config.js', 'config.mts', 'config.ts'].map(
 		(p) => new URL(`./content/${p}`, srcDir)
 	);
 	for (const file of paths) {
