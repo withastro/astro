@@ -14,7 +14,7 @@ import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
-const assetRegex = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})$`, 'i');
+const assetRegex = new RegExp(`\.(${VALID_INPUT_FORMATS.join('|')})$`, 'i');
 
 export default function assets({
 	settings,
