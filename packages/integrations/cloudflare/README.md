@@ -87,7 +87,7 @@ It's then possible to update the preview script in your `package.json` to `"prev
 
 ## Access to the Cloudflare runtime
 
-You can access all the Cloudflare bindings and environment variables from Astro components and API routes through `Astro.locals`. Usually you need to use [Wrangler](https://github.com/cloudflare/workers-sdk) to be able to access the runtime.
+You can access all the Cloudflare bindings and environment variables from Astro components and API routes through `Astro.locals`.
 
 If you're inside an `.astro` file, you access the runtime using the `Astro.locals` global:
 
@@ -166,8 +166,8 @@ default `"off"`
 
 This optional flag enables the Astro dev server to populate environment variables and the Cloudflare Request Object, avoiding the need for Wrangler.
 
--  `local`: environmental variables are available, but the request object is populated from a static placeholder value. 
-- `remote`: environmental variables and the live, fetched request object are available.
+-  `local`: environment variables are available, but the request object is populated from a static placeholder value. 
+- `remote`: environment variables and the live, fetched request object are available.
 - `off`: the Astro dev server will populate neither environment variables nor the request object. Use Wrangler to access Cloudflare bindings and environment variables.
 
 ```js

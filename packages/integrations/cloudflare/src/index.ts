@@ -18,14 +18,14 @@ export type { AdvancedRuntime } from './server.advanced';
 export type { DirectoryRuntime } from './server.directory';
 
 type Options = {
-	mode: 'directory' | 'advanced';
+	mode?: 'directory' | 'advanced';
 	functionPerRoute?: boolean;
 	/**
 	 * 'off': current behaviour (wrangler is needed)
 	 * 'local': use a static req.cf object, and env vars defined in wrangler.toml & .dev.vars (astro dev is enough)
 	 * 'remote': use a dynamic real-live req.cf object, and env vars defined in wrangler.toml & .dev.vars (astro dev is enough)
 	 */
-	runtime: 'off' | 'local' | 'remote';
+	runtime?: 'off' | 'local' | 'remote';
 };
 
 interface BuildConfig {
