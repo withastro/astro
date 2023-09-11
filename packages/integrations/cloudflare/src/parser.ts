@@ -107,11 +107,10 @@ export function loadDotEnv(path: string): DotEnv | undefined {
 	return tryLoadDotEnv(path);
 }
 function getVarsForDev(config: any, configPath: string | undefined): any {
-	const configDir = resolve(dirname(config.configPath ?? '.'));
+	const configDir = resolve(dirname(configPath ?? '.'));
 	const devVarsPath = resolve(configDir, '.dev.vars');
 	const loaded = loadDotEnv(devVarsPath);
 	if (loaded !== undefined) {
-		const devVarsRelativePath = relative(process.cwd(), loaded.path);
 		return {
 			...config.vars,
 			...loaded.parsed,

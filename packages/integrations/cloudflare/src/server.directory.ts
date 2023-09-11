@@ -21,7 +21,7 @@ export function createExports(manifest: SSRManifest) {
 
 	const onRequest = async (context: EventContext<unknown, string, unknown>) => {
 		const request = context.request as CFRequest & Request;
-		const { next, env } = context;
+		const { env } = context;
 
 		// TODO: remove this any cast in the future
 		// REF: the type cast to any is needed because the Cloudflare Env Type is not assignable to type 'ProcessEnv'
