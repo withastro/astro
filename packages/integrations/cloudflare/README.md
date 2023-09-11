@@ -159,11 +159,16 @@ export function GET({ params }) {
 }
 ```
 
-### Astro Dev Server
+### `cloudflare.runtime` 
 
-The Adapter allows an opt-in flag, to enable the use of Environment Variables and the Cloudflare Request Object to be populated by the Astro Dev Server. There is no need to use wrangler in this case. This flag is `off` by default.
+`runtime: "off" | "local" | "remote"`
+default `"off"`
 
-There are two supported modes: `local` & `remote`. In the mode `local` environmental variables are available, but the request object is populated from a static placeholder value. In the mode `remote` environmental variables and the a live fetched request object are available.
+This optional flag enables the Astro dev server to populate environment variables and the Cloudflare Request Object, avoiding the need for Wrangler.
+
+-  `local`: environmental variables are available, but the request object is populated from a static placeholder value. 
+- `remote`: environmental variables and the live, fetched request object are available.
+- `off`: the Astro dev server will populate neither environment variables nor the request object. Use Wrangler to access Cloudflare bindings and environment variables.
 
 ```js
 // astro.config.mjs
