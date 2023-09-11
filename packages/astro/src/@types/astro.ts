@@ -996,7 +996,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 */
-		service: ImageServiceConfig;
+		service?: ImageServiceConfig;
 
 		/**
 		 * @docs
