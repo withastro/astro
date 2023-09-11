@@ -87,7 +87,7 @@ It's then possible to update the preview script in your `package.json` to `"prev
 
 ## Access to the Cloudflare runtime
 
-You can access all the Cloudflare bindings and environment variables from Astro components and API routes through `Astro.locals`.
+You can access all the Cloudflare bindings and environment variables from Astro components and API routes through `Astro.locals`. Usually you need to use [Wrangler](https://github.com/cloudflare/workers-sdk) to be able to access the runtime.
 
 If you're inside an `.astro` file, you access the runtime using the `Astro.locals` global:
 
@@ -142,7 +142,7 @@ declare namespace App {
 }
 ```
 
-## Environment Variables
+### Environment Variables
 
 See Cloudflare's documentation for [working with environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables).
 
@@ -157,6 +157,25 @@ export function GET({ params }) {
     body: await result.text(),
   };
 }
+```
+
+### Astro Dev Server
+
+The Adapter allows an opt-in flag, to enable the use of Environment Variables and the Cloudflare Request Object to be populated by the Astro Dev Server. There is no need to use wrangler in this case. This flag is `off` by default.
+
+There are two supported modes: `local` & `remote`. In the mode `local` environmental variables are available, but the request object is populated from a static placeholder value. In the mode `remote` environmental variables and the a live fetched request object are available.
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import cloudflare from '@astrojs/cloudflare';
+
+export default defineConfig({
+  output: 'server',
+  adapter: cloudflare({
+    runtime: 'off' | 'local' | 'remote',
+  }),
+});
 ```
 
 ## Headers, Redirects and function invocation routes

@@ -209,7 +209,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 			},
 			'astro:server:setup': ({ server }) => {
-				if (runtimeMode === 'off') {
+				if (runtimeMode !== 'off') {
 					server.middlewares.use(async function middleware(req, res, next) {
 						const cf = await getCFObject(runtimeMode);
 						const vars = await getEnvVars();
