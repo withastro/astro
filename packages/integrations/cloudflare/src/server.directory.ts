@@ -21,7 +21,7 @@ export function createExports(manifest: SSRManifest) {
 
 	const onRequest = async (context: EventContext<unknown, string, unknown>) => {
 		const request = context.request as CFRequest & Request;
-		const { next, env } = context;
+		const { env } = context;
 
 		// TODO: remove this any cast in the future
 		// REF: the type cast to any is needed because the Cloudflare Env Type is not assignable to type 'ProcessEnv'
@@ -40,19 +40,6 @@ export function createExports(manifest: SSRManifest) {
 				Symbol.for('astro.clientAddress'),
 				request.headers.get('cf-connecting-ip')
 			);
-
-			// `getRuntime()` is deprecated, currently available additionally to new Astro.locals.runtime
-			// TODO: remove `getRuntime()` in Astro 3.0
-			Reflect.set(request, Symbol.for('runtime'), {
-				...context,
-				waitUntil: (promise: Promise<any>) => {
-					context.waitUntil(promise);
-				},
-				name: 'cloudflare',
-				next,
-				caches,
-				cf: request.cf,
-			});
 
 			const locals: DirectoryRuntime = {
 				runtime: {
