@@ -566,7 +566,7 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
 
-	test("client:only styles are retained on transition", async ({ page, astro }) => {
+	test('client:only styles are retained on transition', async ({ page, astro }) => {
 		const totalExpectedStyles = 8;
 
 		// Go to page 1
