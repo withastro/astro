@@ -262,6 +262,9 @@ const { fallback = 'animate' } = Astro.props as Props;
 			return;
 		}
 
+		// Now we are sure that we will push state, and it is time to create a state if it is still missing.
+		!state && history.replaceState({ index: currentHistoryIndex, scrollY }, '');
+
 		document.documentElement.dataset.astroTransition = dir;
 		if (supportsViewTransitions) {
 			finished = document.startViewTransition(() => updateDOM(doc, loc, state)).finished;
@@ -335,28 +338,28 @@ const { fallback = 'animate' } = Astro.props as Props;
 					// But we want to handle it like any other same page navigation
 					// So we scroll to the top of the page but do not start page transitions
 					ev.preventDefault();
-					persistState({ ...history.state, scrollY });
-					scrollTo({ left: 0, top: 0, behavior: 'instant' });
+					// push state on the first navigation but not if we were here already
 					if (location.hash) {
-						// last target was different
+						history.replaceState({ index: currentHistoryIndex, scrollY: -(scrollY + 1) }, '');
 						const newState: State = { index: ++currentHistoryIndex, scrollY: 0 };
 						history.pushState(newState, '', link.href);
 					}
+					scrollTo({ left: 0, top: 0, behavior: 'instant' });
 					return;
 				}
 			}
 
 			// these are the cases we will handle: same origin, different page
 			ev.preventDefault();
-			persistState({ index: currentHistoryIndex, scrollY });
 			navigate('forward', new URL(link.href));
 		});
 
 		addEventListener('popstate', (ev) => {
 			if (!transitionEnabledOnThisPage() && ev.state) {
-				// The current page doesn't haven't View Transitions,
-				// respect that with a full page reload
-				// -- but only for transition managed by us (ev.state is set)
+				// The current page doesn't have View Transitions enabled
+				// but the page we navigate to does (because it set the state).
+				// Do a full page refresh to reload the client-side router from the new page.
+				// Scroll restauration will then happen during the reload when the router's code is re-executed
 				history.scrollRestoration && (history.scrollRestoration = 'manual');
 				location.reload();
 				return;
@@ -383,7 +386,11 @@ const { fallback = 'animate' } = Astro.props as Props;
 			const nextIndex = state.index;
 			const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
 			currentHistoryIndex = nextIndex;
-			navigate(direction, new URL(location.href), state);
+			if (state.scrollY < 0) {
+				scrollTo(0, -(state.scrollY + 1));
+			} else {
+				navigate(direction, new URL(location.href), state);
+			}
 		});
 
 		['mouseenter', 'touchstart', 'focus'].forEach((evName) => {
