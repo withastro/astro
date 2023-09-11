@@ -7,11 +7,11 @@
  * TODO: Tackle this file, once their is an decision on the upstream request
  */
 
-import * as fs from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { findUpSync } from 'find-up';
 import TOML from '@iarna/toml';
 import dotenv from 'dotenv';
+import { findUpSync } from 'find-up';
+import * as fs from 'node:fs';
+import { dirname, resolve } from 'node:path';
 
 function findWranglerToml(
 	referencePath: string = process.cwd(),

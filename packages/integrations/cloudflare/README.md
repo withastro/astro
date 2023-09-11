@@ -159,14 +159,14 @@ export function GET({ params }) {
 }
 ```
 
-### `cloudflare.runtime` 
+### `cloudflare.runtime`
 
 `runtime: "off" | "local" | "remote"`
 default `"off"`
 
 This optional flag enables the Astro dev server to populate environment variables and the Cloudflare Request Object, avoiding the need for Wrangler.
 
--  `local`: environment variables are available, but the request object is populated from a static placeholder value. 
+- `local`: environment variables are available, but the request object is populated from a static placeholder value.
 - `remote`: environment variables and the live, fetched request object are available.
 - `off`: the Astro dev server will populate neither environment variables nor the request object. Use Wrangler to access Cloudflare bindings and environment variables.
 
