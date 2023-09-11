@@ -584,6 +584,9 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 <body>
 	<a href="${location}">Redirecting from <code>${fromPath}</code> to <code>${location}</code></a>
 </body>`;
+		if (pipeline.getConfig().compressHTML === true) {
+			body = body.replaceAll('\n', '');
+		}
 		// A dynamic redirect, set the location so that integrations know about it.
 		if (pageData.route.type !== 'redirect') {
 			pageData.route.redirect = location;
