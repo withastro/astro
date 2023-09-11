@@ -1,5 +1,14 @@
 # @astrojs/svelte
 
+## 4.0.2
+
+### Patch Changes
+
+- [#8448](https://github.com/withastro/astro/pull/8448) [`3f49aa97a`](https://github.com/withastro/astro/commit/3f49aa97ab8fb4bffe50da993cae0f0027c7692d) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix potential memory leak when component is unmounted
+
+- Updated dependencies [[`f66053a1e`](https://github.com/withastro/astro/commit/f66053a1ea0a4e3bdb0b0df12bb1bf56e1ea2618), [`0fa483283`](https://github.com/withastro/astro/commit/0fa483283e54c94f173838cd558dc0dbdd11e699)]:
+  - astro@3.0.11
+
 ## 4.0.1
 
 ### Patch Changes
