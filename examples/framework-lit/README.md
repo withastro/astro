@@ -1,6 +1,6 @@
 # Astro + Lit Example
 
-```
+```sh
 npm create astro@latest -- --template framework-lit
 ```
 
