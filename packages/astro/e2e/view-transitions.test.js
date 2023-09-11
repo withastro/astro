@@ -585,4 +585,34 @@ test.describe('View Transitions', () => {
 		styles = await page.locator('style').all();
 		expect(styles.length).toEqual(totalExpectedStyles, 'style count has not changed');
 	});
+
+	test('Horizontal scroll position restored on back button', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/wide-page'));
+		let article = page.locator('#widepage');
+		await expect(article, 'should have script content').toBeVisible('exists');
+
+		let locator = page.locator('#click-one');
+		await expect(locator).not.toBeInViewport();
+
+		await page.click('#click-right');
+		locator = page.locator('#click-one');
+		await expect(locator).toBeInViewport();
+		locator = page.locator('#click-top');
+		await expect(locator).toBeInViewport();
+
+		await page.click('#click-one');
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		await page.goBack();
+		locator = page.locator('#click-one');
+		await expect(locator).toBeInViewport();
+
+		locator = page.locator('#click-top');
+		await expect(locator).toBeInViewport();
+
+		await page.click('#click-top');
+		locator = page.locator('#click-one');
+		await expect(locator).not.toBeInViewport();
+	});
 });

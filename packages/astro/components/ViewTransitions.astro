@@ -15,6 +15,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 	type Direction = 'forward' | 'back';
 	type State = {
 		index: number;
+		scrollX: number;
 		scrollY: number;
 	};
 	type Events = 'astro:page-load' | 'astro:after-swap';
@@ -37,9 +38,9 @@ const { fallback = 'animate' } = Astro.props as Props;
 		// we reloaded a page with history state
 		// (e.g. history navigation from non-transition page or browser reload)
 		currentHistoryIndex = history.state.index;
-		scrollTo({ left: 0, top: history.state.scrollY });
+		scrollTo({ left: history.state.scrollX, top: history.state.scrollY });
 	} else if (transitionEnabledOnThisPage()) {
-		history.replaceState({ index: currentHistoryIndex, scrollY }, '');
+		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
 	}
 	const throttle = (cb: (...args: any[]) => any, delay: number) => {
 		let wait = false;
@@ -208,17 +209,29 @@ const { fallback = 'animate' } = Astro.props as Props;
 			// Chromium based browsers (Chrome, Edge, Opera, ...)
 			scrollTo({ left: 0, top: 0, behavior: 'instant' });
 
+			let initialScrollX = 0;
 			let initialScrollY = 0;
 			if (!state && loc.hash) {
 				const id = decodeURIComponent(loc.hash.slice(1));
 				const elem = document.getElementById(id);
 				// prefer scrollIntoView() over scrollTo() because it takes scroll-padding into account
-				elem && (initialScrollY = elem.offsetTop) && elem.scrollIntoView();
-			} else if (state && state.scrollY !== 0) {
-				scrollTo(0, state.scrollY); // usings default scrollBehavior
+				if (elem) {
+					elem.scrollIntoView();
+					initialScrollX = Math.max(
+						0,
+						elem.offsetLeft + elem.offsetWidth - document.documentElement.clientWidth
+					);
+					initialScrollY = elem.offsetTop;
+				}
+			} else if (state) {
+				scrollTo(state.scrollX, state.scrollY); // usings default scrollBehavior
 			}
 			!state &&
-				history.pushState({ index: ++currentHistoryIndex, scrollY: initialScrollY }, '', loc.href);
+				history.pushState(
+					{ index: ++currentHistoryIndex, scrollX: initialScrollX, scrollY: initialScrollY },
+					'',
+					loc.href
+				);
 			triggerEvent('astro:after-swap');
 		};
 
@@ -280,7 +293,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		}
 
 		// Now we are sure that we will push state, and it is time to create a state if it is still missing.
-		!state && history.replaceState({ index: currentHistoryIndex, scrollY }, '');
+		!state && history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
 
 		document.documentElement.dataset.astroTransition = dir;
 		if (supportsViewTransitions) {
@@ -357,8 +370,11 @@ const { fallback = 'animate' } = Astro.props as Props;
 					ev.preventDefault();
 					// push state on the first navigation but not if we were here already
 					if (location.hash) {
-						history.replaceState({ index: currentHistoryIndex, scrollY: -(scrollY + 1) }, '');
-						const newState: State = { index: ++currentHistoryIndex, scrollY: 0 };
+						history.replaceState(
+							{ index: currentHistoryIndex, scrollX, scrollY: -(scrollY + 1) },
+							''
+						);
+						const newState: State = { index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 };
 						history.pushState(newState, '', link.href);
 					}
 					scrollTo({ left: 0, top: 0, behavior: 'instant' });
@@ -404,7 +420,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
 			currentHistoryIndex = nextIndex;
 			if (state.scrollY < 0) {
-				scrollTo(0, -(state.scrollY + 1));
+				scrollTo(state.scrollX, -(state.scrollY + 1));
 			} else {
 				navigate(direction, new URL(location.href), state);
 			}
@@ -432,7 +448,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		// There's not a good way to record scroll position before a back button.
 		// So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
 		const updateState = () => {
-			persistState({ ...history.state, scrollY });
+			persistState({ ...history.state, scrollX, scrollY });
 		};
 
 		if ('onscrollend' in window) addEventListener('scrollend', updateState);
