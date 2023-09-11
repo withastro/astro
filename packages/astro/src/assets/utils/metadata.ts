@@ -1,5 +1,5 @@
-import type { ImageInputFormat, ImageMetadata } from '../types.js';
 import probe from 'probe-image-size';
+import type { ImageInputFormat, ImageMetadata } from '../types.js';
 
 export async function imageMetadata(data: Buffer): Promise<Omit<ImageMetadata, 'src'> | undefined> {
 	const result = probe.sync(data);
