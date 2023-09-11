@@ -1,6 +1,6 @@
 # Astro Example: Markdown with Plugins
 
-```
+```sh
 npm create astro@latest -- --template with-markdown-plugins
 ```
 
