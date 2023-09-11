@@ -211,37 +211,41 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:server:setup': ({ server }) => {
 				if (runtimeMode !== 'off') {
 					server.middlewares.use(async function middleware(req, res, next) {
-						const cf = await getCFObject(runtimeMode);
-						const vars = await getEnvVars();
+						try {
+							const cf = await getCFObject(runtimeMode);
+							const vars = await getEnvVars();
 
-						const clientLocalsSymbol = Symbol.for('astro.locals');
-						Reflect.set(req, clientLocalsSymbol, {
-							runtime: {
-								env: {
-									// default binding for static assets will be dynamic once we support mocking of bindings
-									ASSETS: {},
-									// this is just a VAR for CF to change build behavior, on dev it should be 0
-									CF_PAGES: '0',
-									// will be fetched from git dynamically once we support mocking of bindings
-									CF_PAGES_BRANCH: 'TBA',
-									// will be fetched from git dynamically once we support mocking of bindings
-									CF_PAGES_COMMIT_SHA: 'TBA',
-									CF_PAGES_URL: `http://${req.headers.host}`,
-									...vars,
+							const clientLocalsSymbol = Symbol.for('astro.locals');
+							Reflect.set(req, clientLocalsSymbol, {
+								runtime: {
+									env: {
+										// default binding for static assets will be dynamic once we support mocking of bindings
+										ASSETS: {},
+										// this is just a VAR for CF to change build behavior, on dev it should be 0
+										CF_PAGES: '0',
+										// will be fetched from git dynamically once we support mocking of bindings
+										CF_PAGES_BRANCH: 'TBA',
+										// will be fetched from git dynamically once we support mocking of bindings
+										CF_PAGES_COMMIT_SHA: 'TBA',
+										CF_PAGES_URL: `http://${req.headers.host}`,
+										...vars,
+									},
+									cf: cf,
+									waitUntil: (_promise: Promise<any>) => {
+										return;
+									},
+									caches: new CacheStorage(
+										{ cache: true, cachePersist: false },
+										new NoOpLog(),
+										new StorageFactory(),
+										{}
+									),
 								},
-								cf: cf,
-								waitUntil: (_promise: Promise<any>) => {
-									return;
-								},
-								caches: new CacheStorage(
-									{ cache: true, cachePersist: false },
-									new NoOpLog(),
-									new StorageFactory(),
-									{}
-								),
-							},
-						});
-						next();
+							});
+							next();
+						} catch {
+							next();
+						}
 					});
 				}
 			},

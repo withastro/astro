@@ -58,13 +58,8 @@ describe('Astro Cloudflare Runtime', () => {
 				},
 			},
 		});
-		devServer = await fixture.startDevServer({
-			// logLevel: 'debug',
-			server: {
-				port: 4321,
-				host: true,
-			},
-		});
+		process.chdir('./test/fixtures/cf');
+		devServer = await fixture.startDevServer();
 	});
 
 	after(async () => {

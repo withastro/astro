@@ -8,7 +8,7 @@
  */
 
 import * as fs from 'node:fs';
-import { resolve, dirname, relative } from 'node:path';
+import { resolve, dirname } from 'node:path';
 import { findUpSync } from 'find-up';
 import TOML from '@iarna/toml';
 import dotenv from 'dotenv';
@@ -122,7 +122,9 @@ function getVarsForDev(config: any, configPath: string | undefined): any {
 export async function getEnvVars() {
 	let rawConfig;
 	const configPath = findWranglerToml(process.cwd(), false); // false = args.experimentalJsonConfig
-
+	if (!configPath) {
+		throw new Error('Could not find wrangler.toml');
+	}
 	// Load the configuration from disk if available
 	if (configPath?.endsWith('toml')) {
 		rawConfig = parseTOML(fs.readFileSync(configPath).toString(), configPath);
