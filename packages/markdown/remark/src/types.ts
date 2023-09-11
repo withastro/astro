@@ -5,7 +5,12 @@ import type {
 	all as Handlers,
 	Options as RemarkRehypeOptions,
 } from 'remark-rehype';
-import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
+import type {
+	BuiltinTheme,
+	LanguageRegistration,
+	ThemeRegistration,
+	ThemeRegistrationRaw,
+} from 'shikiji';
 import type * as unified from 'unified';
 import type { VFile } from 'vfile';
 
@@ -35,8 +40,8 @@ export type RemarkRehype = Omit<RemarkRehypeOptions, 'handlers' | 'unknownHandle
 };
 
 export interface ShikiConfig {
-	langs?: ILanguageRegistration[];
-	theme?: Theme | IThemeRegistration;
+	langs?: LanguageRegistration[];
+	theme?: BuiltinTheme | ThemeRegistration | ThemeRegistrationRaw;
 	wrap?: boolean | null;
 }
 

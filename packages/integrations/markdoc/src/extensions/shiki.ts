@@ -1,8 +1,7 @@
 import Markdoc from '@markdoc/markdoc';
 import type { ShikiConfig } from 'astro';
 import { unescapeHTML } from 'astro/runtime/server/index.js';
-import type * as shikiTypes from 'shiki';
-import { getHighlighter } from 'shiki';
+import { bundledLanguages, getHighlighter, type Highlighter } from 'shikiji';
 import type { AstroMarkdocConfig } from '../config.js';
 
 const ASTRO_COLOR_REPLACEMENTS = {
@@ -17,7 +16,7 @@ const ASTRO_COLOR_REPLACEMENTS = {
 	'#000010': 'var(--astro-code-token-string-expression)',
 	'#000011': 'var(--astro-code-token-punctuation)',
 	'#000012': 'var(--astro-code-token-link)',
-};
+} as const;
 
 const PRE_SELECTOR = /<pre class="(.*?)shiki(.*?)"/;
 const LINE_SELECTOR = /<span class="line"><span style="(.*?)">([\+|\-])/g;
@@ -27,28 +26,23 @@ const INLINE_STYLE_SELECTOR = /style="(.*?)"/;
  * Note: cache only needed for dev server reloads, internal test suites, and manual calls to `Markdoc.transform` by the user.
  * Otherwise, `shiki()` is only called once per build, NOT once per page, so a cache isn't needed!
  */
-const highlighterCache = new Map<string, shikiTypes.Highlighter>();
+const highlighterCache = new Map<string, Highlighter>();
 
 export default async function shiki({
 	langs = [],
 	theme = 'github-dark',
 	wrap = false,
 }: ShikiConfig = {}): Promise<AstroMarkdocConfig> {
-	const cacheID: string = typeof theme === 'string' ? theme : theme.name;
-	if (!highlighterCache.has(cacheID)) {
-		highlighterCache.set(
-			cacheID,
-			await getHighlighter({ theme }).then((hl) => {
-				hl.setColorReplacements(ASTRO_COLOR_REPLACEMENTS);
-				return hl;
-			})
-		);
+	const cacheId = typeof theme === 'string' ? theme : theme.name || '';
+	let highlighter = highlighterCache.get(cacheId)!;
+	if (!highlighter) {
+		highlighter = await getHighlighter({
+			langs: langs.length ? langs : Object.keys(bundledLanguages),
+			themes: [theme],
+		});
+		highlighterCache.set(cacheId, highlighter);
 	}
-	const highlighter = highlighterCache.get(cacheID)!;
 
-	for (const lang of langs) {
-		await highlighter.loadLanguage(lang);
-	}
 	return {
 		nodes: {
 			fence: {
@@ -72,7 +66,7 @@ export default async function shiki({
 						lang = 'plaintext';
 					}
 
-					let html = highlighter.codeToHtml(attributes.content, { lang });
+					let html = highlighter.codeToHtml(attributes.content, { lang, theme });
 
 					// Q: Could these regexes match on a user's inputted code blocks?
 					// A: Nope! All rendered HTML is properly escaped.

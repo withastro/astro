@@ -16,7 +16,6 @@ export function vitePluginInternals(input: Set<string>, internals: BuildInternal
 						// Except for these packages as they're not bundle-friendly. Users with strict package installations
 						// need to manually install these themselves if they use the related features.
 						external: [
-							'shiki', // For syntax highlighting
 							'sharp', // For sharp image service
 						],
 					},
