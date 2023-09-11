@@ -543,4 +543,42 @@ test.describe('View Transitions', () => {
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
+
+	test.skip('Moving to a page which redirects to another', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page 2
+		await page.click('#click-redirect-two');
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		expect(loads.length, 'There should be 2 page loads').toEqual(2);
+	});
+
+	test.only('Redirect to external site causes page load', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to external page
+		await page.click('#click-redirect-external');
+		p = page.locator('h1');
+		await expect(p, 'should have content').toBeVisible();
+
+		expect(loads.length, 'There should be 2 page load').toEqual(2);
+	});
 });
