@@ -26,6 +26,10 @@ canvas {
   max-width: 100%;
 }
 
+img {
+	height: auto;
+}
+
 a {
   color: var(--theme-text);
 }

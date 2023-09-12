@@ -1,0 +1,13 @@
+---
+import Layout, { type Props as LayoutProps } from './Base.astro';
+import UserProfile from '../components/UserProfile.astro';
+
+export interface Props extends LayoutProps {}
+---
+
+<Layout {...Astro.props}>
+	<UserProfile />
+	<main>
+		<slot />
+	</main>
+</Layout>

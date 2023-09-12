@@ -2,113 +2,91 @@
 import type { GetStaticPathsOptions, Page } from 'astro';
 import type { CollectionEntry } from 'astro:content';
 import Pagination from '../components/Pagination.astro';
+import TagList from '../components/TagList.astro';
 import { getSortedPosts } from '../helpers/getSortedPosts';
-import Base from '../layouts/Base.astro';
+import Layout from '../layouts/Feed.astro';
 import settings from '../settings';
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
-  return paginate(await getSortedPosts(), { pageSize: 3 });
+	return paginate(await getSortedPosts(), { pageSize: 3 });
 }
 
 interface Props {
-  page: Page<CollectionEntry<'posts'>>;
+	page: Page<CollectionEntry<'posts'>>;
 }
 
 const { page } = Astro.props;
 ---
 
-<Base>
-  <div class="stack">
-    <!-- <h1>Page {page.currentPage}</h1> -->
-    <ol>
-      {
-        page.data.map((post) => (
-          <li>
-            <article class="card">
-              <header>
-                <div style="display: flex;gap:0.875rem;align-items:center;">
-                  <img
-                    style="border-radius: var(--theme-radius-full);background-color:var(--theme-shade-subtle);"
-                    width="60"
-                    height="60"
-                    {...settings.avatar}
-                  />
-                  <div>
-                    <p style="font-family:var(--theme-font-brand);font-weight:700;font-size:var(--theme-text-lg)">
-                      {settings.name}
-                    </p>
-                    <p style="color:var(--theme-gray-200);font-size:var(--theme-text-sm);">
-                      {settings.username} •{' '}
-                      <time datetime={post.data.pubDate.toISOString()}>
-                        {post.data.pubDate.toLocaleDateString('en', {
-                          month: 'short',
-                          day: '2-digit',
-                          year: 'numeric',
-                        })}
-                      </time>
-                    </p>
-                  </div>
-                </div>
-                {post.data.tags.length > 0 && (
-                  <ul class="tags">
-                    {post.data.tags.map((tag) => (
-                      <li class="tag">{tag}</li>
-                    ))}
-                  </ul>
-                )}
-                <h2>
-                  <a href={'/post/' + post.slug}>{post.data.title}</a>
-                </h2>
-              </header>
-              {post.render().then(({ Content }) => (
-                <Content />
-              ))}
-            </article>
-          </li>
-        ))
-      }
-    </ol>
-    <Pagination {...page} />
-  </div>
-</Base>
+<Layout>
+	<div class="stack">
+		<!-- <h1>Page {page.currentPage}</h1> -->
+		<ol>
+			{
+				page.data.map((post) => (
+					<li>
+						<article class="card">
+							<header>
+								<div style="display: flex;gap:0.875rem;align-items:center;">
+									<img
+										style="border-radius: var(--theme-radius-full);background-color:var(--theme-shade-subtle);"
+										width="60"
+										height="60"
+										{...settings.avatar}
+									/>
+									<div>
+										<p style="font-family:var(--theme-font-brand);font-weight:700;font-size:var(--theme-text-lg)">
+											{settings.name}
+										</p>
+										<p style="color:var(--theme-gray-200);font-size:var(--theme-text-sm);">
+											{settings.username} •{' '}
+											<time datetime={post.data.pubDate.toISOString()}>
+												{post.data.pubDate.toLocaleDateString('en', {
+													month: 'short',
+													day: '2-digit',
+													year: 'numeric',
+												})}
+											</time>
+										</p>
+									</div>
+								</div>
+								{post.data.tags.length > 0 && <TagList tags={post.data.tags} />}
+								<h2>
+									<a href={'/post/' + post.slug}>{post.data.title}</a>
+								</h2>
+							</header>
+							{post.render().then(({ Content }) => (
+								<Content />
+							))}
+						</article>
+					</li>
+				))
+			}
+		</ol>
+		<Pagination {...page} />
+	</div>
+</Layout>
 
 <style>
-  .stack {
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-  }
-  ol {
-    list-style: none;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-  .card {
-    padding: 1.25rem 1.25rem 1.5rem;
-    background-color: var(--theme-bg-accent);
-    border-radius: var(--theme-radius-xl);
-    box-shadow: var(--theme-shadow-md);
-  }
-  header > * + * {
-    margin-top: 0.625rem;
-  }
-  .tags {
-    list-style: none;
-    padding: 0;
-    display: flex;
-    gap: 0.3125rem;
-  }
-  .tag {
-    padding: 0.25rem 0.5625rem;
-    border-radius: var(--theme-radius-full);
-    background-color: var(--theme-accent-dark);
-    color: var(--theme-text-invert);
-    font-size: var(--theme-text-sm);
-    font-weight: 500;
-  }
-  .tag::before {
-    content: '#';
-  }
+	.stack {
+		display: flex;
+		flex-direction: column;
+		gap: 2.5rem;
+	}
+	ol {
+		list-style: none;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+	}
+	.card {
+		padding: 1.25rem 1.25rem 1.5rem;
+		background-color: var(--theme-bg-accent);
+		border-radius: var(--theme-radius-xl);
+		box-shadow: var(--theme-shadow-md);
+	}
+	header > * + * {
+		margin-top: 0.625rem;
+	}
 </style>

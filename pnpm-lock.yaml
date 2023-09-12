@@ -353,6 +353,9 @@ importers:
       astro:
         specifier: ^3.0.1
         version: link:../../packages/astro
+      reading-time:
+        specifier: ^1.5.0
+        version: 1.5.0
 
   examples/ssr:
     dependencies:

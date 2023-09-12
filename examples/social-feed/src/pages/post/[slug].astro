@@ -1,29 +1,26 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { getSortedPosts } from '../../helpers/getSortedPosts';
-import Base from '../../layouts/Base.astro';
+import Layout from '../../layouts/Article.astro';
 
 export async function getStaticPaths() {
-  const posts = await getSortedPosts();
-  return posts.map((post, idx) => ({
-    params: { slug: post.slug },
-    props: { post, prev: posts[idx - 1], next: posts[idx + 1] },
-  }));
+	const posts = await getSortedPosts();
+	return posts.map((post, idx) => ({
+		params: { slug: post.slug },
+		props: { post, prev: posts[idx - 1], next: posts[idx + 1] },
+	}));
 }
 
 interface Props {
-  post: CollectionEntry<'posts'>;
-  prev?: CollectionEntry<'posts'>;
-  next?: CollectionEntry<'posts'>;
+	post: CollectionEntry<'posts'>;
+	prev?: CollectionEntry<'posts'>;
+	next?: CollectionEntry<'posts'>;
 }
 
 const { post, prev, next } = Astro.props;
 const { Content } = await post.render();
 ---
 
-<Base title={post.data.title}>
-  <h1>{post.data.title}</h1>
-  <Content />
-  {prev && <a href={'/post/' + prev.slug}>Previous: {prev.data.title}</a>}
-  {next && <a href={'/post/' + next.slug}>Next: {next.data.title}</a>}
-</Base>
+<Layout title={post.data.title} article={post} {next} {prev}>
+	<Content />
+</Layout>

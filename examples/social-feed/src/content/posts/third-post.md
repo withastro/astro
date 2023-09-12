@@ -2,7 +2,7 @@
 title: Three is a magic number
 pubDate: 2023-01-03
 cover:
-  src: stock-2.jpg
+  src: ../../assets/stock-2.jpg
   alt: A backlit multicolored mechanical keyboard
 ---
 

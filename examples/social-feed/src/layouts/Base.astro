@@ -7,13 +7,14 @@ import Header from '../components/Header.astro';
 import UserProfile from '../components/UserProfile.astro';
 import Footer from '../components/Footer.astro';
 
-interface Props {
+export interface Props {
   title?: string;
+	wrapperReverse?: boolean;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
-const { title = settings.name } = Astro.props;
+const { title = settings.name, wrapperReverse = false } = Astro.props;
 ---
 
 <html lang="en">
@@ -74,13 +75,10 @@ const { title = settings.name } = Astro.props;
   <body class="flex-col">
     <div class="flex-col pad">
       <Header />
-      <div class="flex-col wrapper">
-        <UserProfile />
-        <main>
-          <slot />
-        </main>
-      </div>
-    </div>
+			<div class="flex-col wrapper" class:list={["flex-col wrapper", { reverse: wrapperReverse }]}>
+				<slot />
+			</div>
+		</div>
     <Footer />
   </body>
 
@@ -95,18 +93,28 @@ const { title = settings.name } = Astro.props;
       padding: 1.875rem 1.25rem;
     }
 
-    .wrapper {
-      gap: 2.5rem;
-      margin: 0 auto;
-      width: 100%;
-      max-width: 55rem;
-    }
+		.flex-col {
+		display: flex;
+		flex-direction: column;
+	}
 
-    @media (min-width: 50em) {
-      .wrapper {
-        display: grid;
-        grid-template-columns: 12rem 1fr;
-      }
-    }
+	.wrapper {
+		gap: 2.5rem;
+		margin: 0 auto;
+		width: 100%;
+		max-width: 55rem;
+	}
+
+	@media (min-width: 50em) {
+		.wrapper {
+			display: grid;
+			grid-template-columns: 12rem 1fr;
+		}
+
+		.wrapper.reverse {
+			grid-template-columns: 1fr 12rem;
+		}
+	}
+
   </style>
 </html>
