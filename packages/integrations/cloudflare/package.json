@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers/Pages",
-  "version": "7.0.2",
+  "version": "7.1.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -51,7 +51,7 @@
     "@miniflare/storage-memory": "^2.14.1"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.0.12"
+    "astro": "workspace:^3.0.13"
   },
   "devDependencies": {
     "astro": "workspace:*",
