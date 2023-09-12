@@ -11,7 +11,7 @@ If you're using the `analytics` property, you'll need to update your config to u
 // astro.config.mjs
 export default defineConfig({
 	adapter: vercel({
--   analytics: true,
+-		analytics: true,
 +		webAnalytics: {
 +			enabled: true
 +		},
