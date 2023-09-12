@@ -282,6 +282,28 @@ test.describe('View Transitions', () => {
 		await expect(locator).toBeInViewport();
 	});
 
+	test('Scroll position restored when transitioning back to fragment', async ({ page, astro }) => {
+		// Go to the long page
+		await page.goto(astro.resolveUrl('/long-page'));
+		let locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+
+		// Scroll down to middle fragment
+		await page.click('#click-scroll-down');
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+
+		// Scroll up to top fragment
+		await page.click('#click-one-again');
+		locator = page.locator('#one');
+		await expect(locator).toHaveText('Page 1');
+
+		// Back to middle of the page
+		await page.goBack();
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+	});
+
 	test('Scroll position restored on forward button', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -590,5 +612,55 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toBeVisible();
 
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
+	});
+
+  test('client:only styles are retained on transition', async ({ page, astro }) => {
+		const totalExpectedStyles = 8;
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/client-only-one'));
+		let msg = page.locator('.counter-message');
+		await expect(msg).toHaveText('message here');
+
+		let styles = await page.locator('style').all();
+		expect(styles.length).toEqual(totalExpectedStyles);
+
+		await page.click('#click-two');
+
+		let pageTwo = page.locator('#page-two');
+		await expect(pageTwo, 'should have content').toHaveText('Page 2');
+
+		styles = await page.locator('style').all();
+		expect(styles.length).toEqual(totalExpectedStyles, 'style count has not changed');
+	});
+
+	test('Horizontal scroll position restored on back button', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/wide-page'));
+		let article = page.locator('#widepage');
+		await expect(article, 'should have script content').toBeVisible('exists');
+
+		let locator = page.locator('#click-one');
+		await expect(locator).not.toBeInViewport();
+
+		await page.click('#click-right');
+		locator = page.locator('#click-one');
+		await expect(locator).toBeInViewport();
+		locator = page.locator('#click-top');
+		await expect(locator).toBeInViewport();
+
+		await page.click('#click-one');
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		await page.goBack();
+		locator = page.locator('#click-one');
+		await expect(locator).toBeInViewport();
+
+		locator = page.locator('#click-top');
+		await expect(locator).toBeInViewport();
+
+		await page.click('#click-top');
+		locator = page.locator('#click-one');
+		await expect(locator).not.toBeInViewport();
 	});
 });
