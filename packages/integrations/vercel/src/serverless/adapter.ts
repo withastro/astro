@@ -142,7 +142,7 @@ export default function vercelServerless({
 				if (webAnalytics?.enabled || analytics) {
 					if (analytics) {
 						logger.warn(
-							`@astrojs/vercel: the \`analytics\` property is deprecated. Please use the new \`webAnalytics\` and \`speedInsights\` properties instead.`
+							`The \`analytics\` property is deprecated. Please use the new \`webAnalytics\` and \`speedInsights\` properties instead.`
 						);
 					}
 

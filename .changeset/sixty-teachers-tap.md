@@ -1,5 +1,5 @@
 ---
-'@astrojs/vercel': major
+'@astrojs/vercel': minor
 ---
 
 Enable Vercel Speed Insights and Vercel Web Analytics individually.
