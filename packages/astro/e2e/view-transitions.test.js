@@ -614,7 +614,7 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
 
-  test('client:only styles are retained on transition', async ({ page, astro }) => {
+	test('client:only styles are retained on transition', async ({ page, astro }) => {
 		const totalExpectedStyles = 8;
 
 		// Go to page 1
