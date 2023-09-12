@@ -69,6 +69,7 @@ describe('Astro.redirect', () => {
 					root: './fixtures/ssr-redirect/',
 					output: 'static',
 					redirects: {
+						'/old': '/test',
 						'/': '/test',
 						'/one': '/test',
 						'/two': '/test',
@@ -80,6 +81,11 @@ describe('Astro.redirect', () => {
 					},
 				});
 				await fixture.build();
+			});
+
+			it("Minifies the HTML emitted when a page that doesn't exist is emitted", async () => {
+				const html = await fixture.readFile('/old/index.html');
+				expect(html).to.not.include('\n');
 			});
 
 			it('Includes the meta refresh tag in Astro.redirect pages', async () => {

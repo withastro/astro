@@ -1,6 +1,6 @@
 # Kitchen Sink: Microfrontends with Astro
 
-```
+```sh
 npm create astro@latest -- --template framework-multiple
 ```
 

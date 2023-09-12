@@ -1,6 +1,10 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
-import { defaultImageConfig, getImageConfig, type VercelImageConfig } from '../image/shared.js';
+import {
+	getAstroImageConfig,
+	getDefaultImageConfig,
+	type VercelImageConfig,
+} from '../image/shared.js';
 import { emptyDir, getVercelOutput, writeJson } from '../lib/fs.js';
 import { isServerLikeOutput } from '../lib/prerender.js';
 import { getRedirects } from '../lib/redirects.js';
@@ -86,7 +90,7 @@ export default function vercelStatic({
 					vite: {
 						...getSpeedInsightsViteConfig(speedInsights?.enabled || analytics),
 					},
-					...getImageConfig(imageService, imagesConfig, command),
+					...getAstroImageConfig(imageService, imagesConfig, command, config.image),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
@@ -118,7 +122,18 @@ export default function vercelStatic({
 						{ handle: 'filesystem' },
 					],
 					...(imageService || imagesConfig
-						? { images: imagesConfig ? imagesConfig : defaultImageConfig }
+						? {
+								images: imagesConfig
+									? {
+											...imagesConfig,
+											domains: [...imagesConfig.domains, ..._config.image.domains],
+											remotePatterns: [
+												...(imagesConfig.remotePatterns ?? []),
+												..._config.image.remotePatterns,
+											],
+									  }
+									: getDefaultImageConfig(_config.image),
+						  }
 						: {}),
 				});
 			},

@@ -9,19 +9,23 @@ import { AstroError } from 'astro/errors';
 import glob from 'fast-glob';
 import { basename } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { defaultImageConfig, getImageConfig, type VercelImageConfig } from '../image/shared.js';
+import {
+	getAstroImageConfig,
+	getDefaultImageConfig,
+	type VercelImageConfig,
+} from '../image/shared.js';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
-import { generateEdgeMiddleware } from './middleware.js';
-import {
-	getInjectableWebAnalyticsContent,
-	type VercelWebAnalyticsConfig,
-} from '../lib/web-analytics.js';
 import {
 	getSpeedInsightsViteConfig,
 	type VercelSpeedInsightsConfig,
 } from '../lib/speed-insights.js';
+import {
+	getInjectableWebAnalyticsContent,
+	type VercelWebAnalyticsConfig,
+} from '../lib/web-analytics.js';
+import { generateEdgeMiddleware } from './middleware.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
 export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
@@ -170,7 +174,7 @@ export default function vercelServerless({
 							external: ['@vercel/nft'],
 						},
 					},
-					...getImageConfig(imageService, imagesConfig, command),
+					...getAstroImageConfig(imageService, imagesConfig, command, config.image),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config, logger }) => {
@@ -277,7 +281,18 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 						...routeDefinitions,
 					],
 					...(imageService || imagesConfig
-						? { images: imagesConfig ? imagesConfig : defaultImageConfig }
+						? {
+								images: imagesConfig
+									? {
+											...imagesConfig,
+											domains: [...imagesConfig.domains, ..._config.image.domains],
+											remotePatterns: [
+												...(imagesConfig.remotePatterns ?? []),
+												..._config.image.remotePatterns,
+											],
+									  }
+									: getDefaultImageConfig(_config.image),
+						  }
 						: {}),
 				});
 

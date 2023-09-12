@@ -1,6 +1,6 @@
 # Astro Starter Kit: Hackernews
 
-```
+```sh
 npm create astro@latest -- --template hackernews
 ```
 
@@ -14,7 +14,7 @@ npm create astro@latest -- --template hackernews
 
 Inside of your Astro project, you'll see the following folders and files:
 
-```
+```text
 /
 ├── public/
 │   └── favicon.svg

@@ -1,6 +1,6 @@
 # Astro Example: Markdown with Shiki
 
-```
+```sh
 npm create astro@latest -- --template with-markdown-shiki
 ```
 

@@ -9,9 +9,8 @@ import { toRemarkInitializeAstroData } from './frontmatter-injection.js';
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
 import { remarkCollectImages } from './remark-collect-images.js';
-import remarkPrism from './remark-prism.js';
-import scopedStyles from './remark-scoped-styles.js';
-import remarkShiki from './remark-shiki.js';
+import { remarkPrism } from './remark-prism.js';
+import { remarkShiki } from './remark-shiki.js';
 
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
@@ -25,6 +24,8 @@ import { rehypeImages } from './rehype-images.js';
 
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export { remarkCollectImages } from './remark-collect-images.js';
+export { remarkPrism } from './remark-prism.js';
+export { remarkShiki } from './remark-shiki.js';
 export * from './types.js';
 
 export const markdownConfigDefaults: Omit<Required<AstroMarkdownOptions>, 'drafts'> = {
@@ -61,7 +62,6 @@ export async function renderMarkdown(
 		frontmatter: userFrontmatter = {},
 	} = opts;
 	const input = new VFile({ value: content, path: fileURL });
-	const scopedClassName = opts.$?.scopedClassName;
 
 	let parser = unified()
 		.use(markdown)
@@ -85,18 +85,14 @@ export async function renderMarkdown(
 	});
 
 	if (!isPerformanceBenchmark) {
-		if (scopedClassName) {
-			parser.use([scopedStyles(scopedClassName)]);
-		}
-
 		if (syntaxHighlight === 'shiki') {
-			parser.use([await remarkShiki(shikiConfig, scopedClassName)]);
+			parser.use(remarkShiki, shikiConfig);
 		} else if (syntaxHighlight === 'prism') {
-			parser.use([remarkPrism(scopedClassName)]);
+			parser.use(remarkPrism);
 		}
 
 		// Apply later in case user plugins resolve relative image paths
-		parser.use([remarkCollectImages]);
+		parser.use(remarkCollectImages);
 	}
 
 	parser.use([
