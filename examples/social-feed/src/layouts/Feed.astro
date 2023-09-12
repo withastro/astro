@@ -11,3 +11,24 @@ export interface Props extends LayoutProps {}
 		<slot />
 	</main>
 </Layout>
+
+<style>
+	.flex-col {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.wrapper {
+		gap: 2.5rem;
+		margin: 0 auto;
+		width: 100%;
+		max-width: 55rem;
+	}
+
+	@media (min-width: 50em) {
+		.wrapper {
+			display: grid;
+			grid-template-columns: 12rem 1fr;
+		}
+	}
+</style>
