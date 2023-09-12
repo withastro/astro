@@ -42,8 +42,5 @@ function isStyle(node: Node): node is HTMLStyleElement {
 }
 
 function isViteInjectedStyle(node: Node): node is HTMLStyleElement {
-	return (
-		isStyle(node) &&
-		!!node.getAttribute('data-vite-dev-id')
-	);
+	return isStyle(node) && !!node.getAttribute('data-vite-dev-id');
 }
