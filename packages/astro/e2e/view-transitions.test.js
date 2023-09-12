@@ -566,7 +566,55 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
 
-	test('client:only styles are retained on transition', async ({ page, astro }) => {
+	test('Moving to a page which redirects to another', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page 2
+		await page.click('#click-redirect-two');
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		// go back
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		expect(
+			loads.length,
+			'There should only be the initial page load and two normal transitions'
+		).toEqual(1);
+	});
+
+	test('Redirect to external site causes page load', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to external page
+		await page.click('#click-redirect-external');
+		// doesn't work for playwright when we are too fast
+		await page.waitForTimeout(1000);
+		p = page.locator('h1');
+		await expect(p, 'should have content').toBeVisible();
+
+		expect(loads.length, 'There should be 2 page loads').toEqual(2);
+	});
+
+  test('client:only styles are retained on transition', async ({ page, astro }) => {
 		const totalExpectedStyles = 8;
 
 		// Go to page 1

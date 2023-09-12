@@ -65,9 +65,19 @@ const { fallback = 'animate' } = Astro.props as Props;
 	};
 
 	async function getHTML(href: string) {
-		const res = await fetch(href);
+		let res;
+		try {
+			res = await fetch(href);
+		} catch (err) {
+			return { ok: false };
+		}
 		const html = await res.text();
-		return { ok: res.ok, html };
+		return {
+			ok: res.ok,
+			html,
+			redirected: res.redirected ? res.url : undefined,
+			contentType: res.headers.get('content-type'),
+		};
 	}
 
 	function getFallback(): Fallback {
@@ -280,13 +290,16 @@ const { fallback = 'animate' } = Astro.props as Props;
 	async function navigate(dir: Direction, loc: URL, state?: State) {
 		let finished: Promise<void>;
 		const href = loc.href;
-		const { html, ok } = await getHTML(href);
+		const { html, ok, contentType, redirected } = await getHTML(href);
+		// if there was a redirection, show the final URL in the browser's address bar
+		redirected && (loc = new URL(redirected));
 		// If there is a problem fetching the new page, just do an MPA navigation to it.
-		if (!ok) {
+		if (!ok || contentType !== 'text/html') {
 			location.href = href;
 			return;
 		}
-		const doc = parser.parseFromString(html, 'text/html');
+
+		const doc = parser.parseFromString(html, contentType);
 		if (!doc.querySelector('[name="astro-view-transitions-enabled"]')) {
 			location.href = href;
 			return;
