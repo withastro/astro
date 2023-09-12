@@ -544,7 +544,7 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
 
-	test.skip('Moving to a page which redirects to another', async ({ page, astro }) => {
+	test('Moving to a page which redirects to another', async ({ page, astro }) => {
 		const loads = [];
 		page.addListener('load', (p) => {
 			loads.push(p.title());
@@ -560,10 +560,18 @@ test.describe('View Transitions', () => {
 		p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
 
-		expect(loads.length, 'There should be 2 page loads').toEqual(2);
+		// go back
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		expect(
+			loads.length,
+			'There should only be the initial page load and two normal transitions'
+		).toEqual(1);
 	});
 
-	test.only('Redirect to external site causes page load', async ({ page, astro }) => {
+	test('Redirect to external site causes page load', async ({ page, astro }) => {
 		const loads = [];
 		page.addListener('load', (p) => {
 			loads.push(p.title());
@@ -576,9 +584,11 @@ test.describe('View Transitions', () => {
 
 		// go to external page
 		await page.click('#click-redirect-external');
+		// doesn't work for playwright when we are too fast
+		await page.waitForTimeout(1000);
 		p = page.locator('h1');
 		await expect(p, 'should have content').toBeVisible();
 
-		expect(loads.length, 'There should be 2 page load').toEqual(2);
+		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
 });
