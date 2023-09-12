@@ -42,7 +42,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		prompt,
 		packageManager,
 		packages: [],
-		cwd: pathToFileURL(process.cwd()),
+		cwd: new URL(pathToFileURL(process.cwd()) + '/'),
 		dryRun,
 		version,
 		exit(code) {

@@ -60,6 +60,10 @@ async function verifyAstroProject(ctx: Pick<Context, 'cwd' | 'version' | 'packag
 	
 	// Side-effect! Persist dependency info to the shared context
 	collectPackageInfo(ctx, dependencies, devDependencies);
+	ctx.packages.sort((a) => {
+		if (a.name === 'astro') return -1;
+		return 0;
+	})
 	
 	return true;
 }
@@ -95,15 +99,28 @@ async function verifyVersions(ctx: Pick<Context, 'version' | 'packages'>, regist
 	}
 	await Promise.all(tasks);
 	for (const packageInfo of ctx.packages) {
-		// check for packageInfo.targetVersion, then fallback
-		// check if packageInfo.targetVersion === packageInfo.currentVersion
+		if (!packageInfo.targetVersion) {
+			return false;
+		}
 	}
 	return true;
 }
 
 async function resolveTargetVersion(packageInfo: PackageInfo, registry: string): Promise<void> {
-	const res = await fetch(`${registry}/${packageInfo.name}/tags/${packageInfo.targetVersion}`);
-	
-	// MUTATE packageInfo.targetVersion to resolvedValue
+	const res = await fetch(`${registry}/${packageInfo.name}/${packageInfo.targetVersion}`);
+	const { code, version } = await res.json()
+	if (code === 'ResourceNotFound') {
+		if (packageInfo.targetVersion === 'latest') {
+			packageInfo.targetVersion = '';
+			return;
+		} else {
+			return resolveTargetVersion({ ...packageInfo, targetVersion: 'latest' }, registry);
+		}
+	}
+	if (packageInfo.currentVersion === version) {
+		return;
+	}
+	const prefix = packageInfo.targetVersion === 'latest' ? '^' : '';
+	packageInfo.targetVersion = `${prefix}${version}`;
 }
 
