@@ -348,10 +348,10 @@ importers:
   examples/social-feed:
     dependencies:
       '@astrojs/rss':
-        specifier: ^2.4.3
+        specifier: ^3.0.0
         version: link:../../packages/astro-rss
       astro:
-        specifier: ^2.6.4
+        specifier: ^3.0.1
         version: link:../../packages/astro
 
   examples/ssr:
