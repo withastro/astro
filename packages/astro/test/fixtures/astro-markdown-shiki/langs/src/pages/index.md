@@ -24,3 +24,7 @@ fin
 ```unknown
 This language does not exist
 ```
+
+```shell
+This language code block is excluded
+```

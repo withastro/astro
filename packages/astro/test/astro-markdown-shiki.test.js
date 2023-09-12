@@ -92,6 +92,9 @@ describe('Astro Markdown Shiki', () => {
 			expect(unknownLang).to.be.equal(
 				'<span style="color: #e1e4e8">This language does not exist</span>'
 			);
+
+			const excludedLang = $('.language-shell').html().trim();
+			expect(excludedLang).to.be.equal('This language code block is excluded');
 		});
 	});
 

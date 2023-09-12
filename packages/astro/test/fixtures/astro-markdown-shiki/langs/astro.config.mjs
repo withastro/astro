@@ -14,6 +14,7 @@ export default {
 					aliases: ['ri'],
 				},
 			],
+			excludeLangs: ['shell']
 		},
 	},
 }
