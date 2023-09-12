@@ -32,7 +32,6 @@
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {
     "@astrojs/cli-kit": "^0.2.3",
-    "node-fetch-native": "^1.4.0",
     "which-pm-runs": "^1.1.0"
   },
   "devDependencies": {
