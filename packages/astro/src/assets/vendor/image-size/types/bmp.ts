@@ -1,4 +1,4 @@
-import type { IImage } from './interface'
+import type { IImage } from './interface.js'
 
 export const BMP: IImage = {
   validate(buffer) {

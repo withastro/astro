@@ -4,7 +4,7 @@
 // if this range we can't detect the file size correctly.
 
 import { readUInt } from '../readUInt.js'
-import type { IImage, ISize } from './interface'
+import type { IImage, ISize } from './interface.js'
 
 const EXIF_MARKER = '45786966'
 const APP1_DATA_SIZE_BYTES = 2

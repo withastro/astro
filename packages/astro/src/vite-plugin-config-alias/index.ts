@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { normalizePath, type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
-import type { AstroSettings } from '../@types/astro';
+import type { AstroSettings } from '../@types/astro.js';
 
 type Alias = {
 	find: RegExp;

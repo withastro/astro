@@ -14,8 +14,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'tiny-glob';
 import { getEnvVars } from './parser.js';
 
-export type { AdvancedRuntime } from './server.advanced';
-export type { DirectoryRuntime } from './server.directory';
+export type { AdvancedRuntime } from './server.advanced.js';
+export type { DirectoryRuntime } from './server.directory.js';
 
 type Options = {
 	mode?: 'directory' | 'advanced';

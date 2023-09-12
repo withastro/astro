@@ -4,7 +4,7 @@ import type {
 	EndpointHandler,
 	MiddlewareHandler,
 	MiddlewareResponseHandler,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachCookiesToResponse } from '../cookies/index.js';
 import { callEndpoint, createAPIContext } from '../endpoint/index.js';

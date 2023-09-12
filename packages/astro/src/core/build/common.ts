@@ -1,6 +1,6 @@
 import npath from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { AstroConfig, RouteType } from '../../@types/astro';
+import type { AstroConfig, RouteType } from '../../@types/astro.js';
 import { appendForwardSlash } from '../../core/path.js';
 
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);

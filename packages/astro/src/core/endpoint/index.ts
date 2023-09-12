@@ -6,13 +6,13 @@ import type {
 	MiddlewareEndpointHandler,
 	MiddlewareHandler,
 	Params,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachCookiesToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
-import type { Environment, RenderContext } from '../render/index';
+import type { Environment, RenderContext } from '../render/index.js';
 
 const encoder = new TextEncoder();
 

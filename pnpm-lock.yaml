@@ -3647,6 +3647,9 @@ importers:
         specifier: ^0.2.9
         version: 0.2.9
     devDependencies:
+      '@types/iarna__toml':
+        specifier: ^2.0.2
+        version: 2.0.2
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -8807,6 +8810,12 @@ packages:
 
   /@types/http-cache-semantics@4.0.1:
     resolution: {integrity: sha512-SZs7ekbP8CN0txVG2xVRH6EgKmEm31BOxA07vkFaETzZz1xh+cbt8BcI0slpymvwhx5dlFnQG2rTlPVQn+iRPQ==}
+    dev: true
+
+  /@types/iarna__toml@2.0.2:
+    resolution: {integrity: sha512-Q3obxKhBLVVbEQ8zsAmsQVobAAZhi8dFFFjF0q5xKXiaHvH8IkSxcbM27e46M9feUMieR03SPpmp5CtaNzpdBg==}
+    dependencies:
+      '@types/node': 18.17.8
     dev: true
 
   /@types/is-ci@3.0.0:

@@ -6,7 +6,7 @@ import type {
 	RouteData,
 	SSRElement,
 	SSRManifest,
-} from '../@types/astro';
+} from '../@types/astro.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import { createRenderContext, getParamsAndProps, type SSROptions } from '../core/render/index.js';

@@ -1,5 +1,5 @@
-import type { SSRElement, SSRResult } from '../../../@types/astro';
-import type { StylesheetAsset } from '../../../core/app/types';
+import type { SSRElement, SSRResult } from '../../../@types/astro.js';
+import type { StylesheetAsset } from '../../../core/app/types.js';
 import { renderElement } from './util.js';
 
 export function renderScriptElement({ props, children }: SSRElement) {
