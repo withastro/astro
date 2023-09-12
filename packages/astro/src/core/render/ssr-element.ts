@@ -19,9 +19,7 @@ export function createStylesheetElement(
 ): SSRElement {
 	if (stylesheet.type === 'inline') {
 		return {
-			props: {
-				type: 'text/css',
-			},
+			props: {},
 			children: stylesheet.content,
 		};
 	} else {
