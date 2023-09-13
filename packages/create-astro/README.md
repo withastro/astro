@@ -45,16 +45,20 @@ npm create astro@latest my-astro-project -- --template cassidoo/shopify-react-as
 
 May be provided in place of prompts
 
-| Name                         | Description                                            |
-| :--------------------------- | :----------------------------------------------------- |
-| `--template <name>`          | Specify your template.                                 |
-| `--install` / `--no-install` | Install dependencies (or not).                         |
-| `--git` / `--no-git`         | Initialize git repo (or not).                          |
-| `--yes` (`-y`)               | Skip all prompt by accepting defaults.                 |
-| `--no` (`-n`)                | Skip all prompt by declining defaults.                 |
-| `--dry-run`                  | Walk through steps without executing.                  |
-| `--skip-houston`             | Skip Houston animation.                                |
-| `--typescript <option>`      | TypeScript option: `strict` / `strictest` / `relaxed`. |
+| Name                       | Description                                                |
+| :------------------------- | :--------------------------------------------------------- |
+| `--help (-h)`              | Display available flags.                                   |
+| `--template <name>`        | Specify a template.                                        |
+| `--install / --no-install` | Toggle dependency installation.                            |
+| `--git / --no-git`         | Toggle git repository initialization.                      |
+| `--yes (-y)`               | Accept all default prompts.                                |
+| `--no (-n)`                | Decline all default prompts.                               |
+| `--dry-run`                | Simulate steps without actual execution.                   |
+| `--skip-houston`           | Skip the Houston animation.                                |
+| `--ref`                    | Specify an Astro branch (default: latest).                 |
+| `--fancy`                  | Enable full Unicode support for Windows.                   |
+| `--typescript <option>`    | Choose a TypeScript option: `strict`, `strictest`, `relaxed`. |
+
 
 [examples]: https://github.com/withastro/astro/tree/main/examples
 [typescript]: https://github.com/withastro/astro/tree/main/packages/astro/tsconfigs
