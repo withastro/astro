@@ -12,7 +12,12 @@ declare module 'astro:content' {
 	export { z } from 'astro/zod';
 
 	type Flatten<T> = T extends { [K: string]: infer U } ? U : never;
-	export type CollectionEntry<C extends keyof AnyEntryMap> = Flatten<AnyEntryMap[C]>;
+
+	export type CollectionKey = keyof AnyEntryMap;
+	export type CollectionEntry<C extends CollectionKey> = Flatten<AnyEntryMap[C]>;
+
+	export type ContentCollectionKey = keyof ContentEntryMap;
+	export type DataCollectionKey = keyof DataEntryMap;
 
 	// This needs to be in sync with ImageMetadata
 	export type ImageFunction = () => import('astro/zod').ZodObject<{
