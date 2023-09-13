@@ -3,7 +3,7 @@ import type { Context } from './context';
 
 import { nextSteps, say } from '../messages.js';
 
-export async function next(ctx: Pick<Context, 'cwd' | 'packageManager' | 'skipHouston'>) {
+export async function next(ctx: Pick<Context, 'hat' | 'cwd' | 'packageManager' | 'skipHouston'>) {
 	let projectDir = path.relative(process.cwd(), ctx.cwd);
 
 	const commandMap: { [key: string]: string } = {
@@ -17,7 +17,7 @@ export async function next(ctx: Pick<Context, 'cwd' | 'packageManager' | 'skipHo
 	await nextSteps({ projectDir, devCmd });
 
 	if (!ctx.skipHouston) {
-		await say(['Good luck out there, astronaut! 🚀']);
+		await say(['Good luck out there, astronaut! 🚀'], { hat: ctx.hat });
 	}
 	return;
 }

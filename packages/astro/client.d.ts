@@ -57,17 +57,15 @@ declare module 'astro:assets' {
 		Image: typeof import('./components/Image.astro').default;
 	};
 
-	type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
-	type Simplify<T> = { [KeyType in keyof T]: T[KeyType] } & {};
-	type ImgAttributes = WithRequired<
+	type ImgAttributes = import('./dist/type-utils.js').WithRequired<
 		Omit<import('./types').HTMLAttributes<'img'>, 'src' | 'width' | 'height'>,
 		'alt'
 	>;
 
-	export type LocalImageProps = Simplify<
+	export type LocalImageProps = import('./dist/type-utils.js').Simplify<
 		import('./dist/assets/types.js').LocalImageProps<ImgAttributes>
 	>;
-	export type RemoteImageProps = Simplify<
+	export type RemoteImageProps = import('./dist/type-utils.js').Simplify<
 		import('./dist/assets/types.js').RemoteImageProps<ImgAttributes>
 	>;
 	export const { getImage, getConfiguredImageService, imageConfig, Image }: AstroAssets;

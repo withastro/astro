@@ -1,5 +1,17 @@
 # @astrojs/cloudflare
 
+## 7.1.0
+
+### Minor Changes
+
+- [#8426](https://github.com/withastro/astro/pull/8426) [`2c9614469`](https://github.com/withastro/astro/commit/2c9614469674509b3e3bc21a4471a1aeb9b4141f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Add support for Cloudflare Runtime (env vars, caches and req object), using `astro dev`
+
+### Patch Changes
+
+- Updated dependencies [[`78b82bb39`](https://github.com/withastro/astro/commit/78b82bb3929bee5d8d9bd32d65374956ddb05859), [`5e1099f68`](https://github.com/withastro/astro/commit/5e1099f686abcc7026bd4fa74727f3b311c6d6d6), [`644825845`](https://github.com/withastro/astro/commit/644825845c11c8d100a9b0d16b69a23c165c529e), [`fa77fa63d`](https://github.com/withastro/astro/commit/fa77fa63d944f709a37f08be93f0d14fe1d91188), [`23f9536de`](https://github.com/withastro/astro/commit/23f9536de0456ed2ddc9a77f7aef773ab6a8e73c), [`2db9762eb`](https://github.com/withastro/astro/commit/2db9762eb06d8a95021556c64e0cbb56c61352d5), [`435b10549`](https://github.com/withastro/astro/commit/435b10549878281ad2bb60207cb86f312a4a809f), [`a6a516d94`](https://github.com/withastro/astro/commit/a6a516d9446a50cc32fbd7201b243c63b3a4db43), [`43bc5f2a5`](https://github.com/withastro/astro/commit/43bc5f2a55173218bcfeec50242b72ae999930e2), [`0ca332ba4`](https://github.com/withastro/astro/commit/0ca332ba4ab82cc04872776398952867b0f43d33)]:
+  - astro@3.0.13
+  - @astrojs/underscore-redirects@0.3.0
+
 ## 7.0.2
 
 ### Patch Changes

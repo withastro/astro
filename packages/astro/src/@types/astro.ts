@@ -22,6 +22,7 @@ import type { AstroCookies } from '../core/cookies';
 import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
+import type { OmitIndexSignature, Simplify } from '../type-utils';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
 export { type AstroIntegrationLogger };
@@ -617,12 +618,12 @@ export interface AstroUserConfig {
 	 * @description
 	 *
 	 * Specify the strategy used for scoping styles within Astro components. Choose from:
-	 *   - `'where'` 		- Use `:where` selectors, causing no specifity increase.
-	 *   - `'class'` 		- Use class-based selectors, causing a +1 specifity increase.
-	 *   - `'attribute'` 	- Use `data-` attributes, causing no specifity increase.
+	 *   - `'where'` 		- Use `:where` selectors, causing no specificity increase.
+	 *   - `'class'` 		- Use class-based selectors, causing a +1 specificity increase.
+	 *   - `'attribute'` 	- Use `data-` attributes, causing a +1 specificity increase.
 	 *
 	 * Using `'class'` is helpful when you want to ensure that element selectors within an Astro component override global style defaults (e.g. from a global stylesheet).
-	 * Using `'where'` gives you more control over specifity, but requires that you use higher-specifity selectors, layers, and other tools to control which selectors are applied.
+	 * Using `'where'` gives you more control over specificity, but requires that you use higher-specificity selectors, layers, and other tools to control which selectors are applied.
 	 * Using `'attribute'` is useful when you are manipulating the `class` attribute of elements and need to avoid conflicts between your own styling logic and Astro's application of styles.
 	 */
 	scopedStyleStrategy?: 'where' | 'class' | 'attribute';
@@ -995,7 +996,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 */
-		service: ImageServiceConfig;
+		service?: ImageServiceConfig;
 
 		/**
 		 * @docs
@@ -1725,14 +1726,6 @@ export interface Page<T = any> {
 	};
 }
 
-type OmitIndexSignature<ObjectType> = {
-	// eslint-disable-next-line @typescript-eslint/ban-types
-	[KeyType in keyof ObjectType as {} extends Record<KeyType, unknown>
-		? never
-		: KeyType]: ObjectType[KeyType];
-};
-// eslint-disable-next-line @typescript-eslint/ban-types
-type Simplify<T> = { [KeyType in keyof T]: T[KeyType] } & {};
 export type PaginateFunction = <
 	PaginateData,
 	AdditionalPaginateProps extends Props,

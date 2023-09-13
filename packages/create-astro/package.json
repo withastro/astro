@@ -31,14 +31,10 @@
   "//a": "MOST PACKAGES SHOULD GO IN DEV_DEPENDENCIES! THEY WILL BE BUNDLED.",
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {
-    "@astrojs/cli-kit": "^0.2.3",
-    "execa": "^8.0.1",
-    "giget": "1.1.2",
-    "node-fetch-native": "^1.4.0",
-    "which-pm-runs": "^1.1.0"
+    "@astrojs/cli-kit": "^0.2.5",
+    "giget": "1.1.2"
   },
   "devDependencies": {
-    "@types/which-pm-runs": "^1.0.0",
     "arg": "^5.0.2",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",

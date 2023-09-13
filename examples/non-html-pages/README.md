@@ -4,7 +4,7 @@ Documentation for "Non-HTML Pages":
 
 https://docs.astro.build/en/core-concepts/endpoints/#static-file-endpoints
 
-```
+```sh
 npm create astro@latest -- --template non-html-pages
 ```
 
@@ -18,7 +18,7 @@ npm create astro@latest -- --template non-html-pages
 
 Inside of your Astro project, you'll see the following folders and files:
 
-```
+```text
 /
 ├── public/
 ├── src/

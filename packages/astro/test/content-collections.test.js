@@ -214,6 +214,20 @@ describe('Content Collections', () => {
 			expect(error).to.include('**title**: Expected type `"string"`, received "number"');
 		});
 	});
+	describe('With config.mts', () => {
+		it("Errors when frontmatter doesn't match schema", async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/content-collections-with-config-mts/',
+			});
+			let error;
+			try {
+				await fixture.build();
+			} catch (e) {
+				error = e.message;
+			}
+			expect(error).to.include('**title**: Expected type `"string"`, received "number"');
+		});
+	});
 
 	describe('With empty markdown file', () => {
 		it('Throws the right error', async () => {
