@@ -1,5 +1,5 @@
-import type { RouteData } from '../../@types/astro';
-import type { SerializedSSRManifest, SSRManifest } from './types';
+import type { RouteData } from '../../@types/astro.js';
+import type { SerializedSSRManifest, SSRManifest } from './types.js';
 
 import * as fs from 'node:fs';
 import { IncomingMessage } from 'node:http';

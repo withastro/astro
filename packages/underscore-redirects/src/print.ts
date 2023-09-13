@@ -1,4 +1,4 @@
-import type { RedirectDefinition } from './redirects';
+import type { RedirectDefinition } from './redirects.js';
 
 /**
  * Pretty print a list of definitions into the output format. Keeps

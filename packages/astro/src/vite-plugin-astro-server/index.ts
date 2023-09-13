@@ -2,7 +2,7 @@ import type { ComponentInstance } from '../@types/astro.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
 import { viteID } from '../core/util.js';
-import type DevPipeline from './devPipeline';
+import type DevPipeline from './devPipeline.js';
 
 export async function preload({
 	pipeline,

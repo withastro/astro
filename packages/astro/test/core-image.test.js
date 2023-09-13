@@ -174,6 +174,22 @@ describe('astro:image', () => {
 				expect(res.status).to.equal(200);
 				expect(loading).to.not.be.undefined;
 			});
+
+			it('supports avif', async () => {
+				let res = await fixture.fetch('/avif');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				console.log(html);
+
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(1);
+
+				let src = $img.attr('src');
+				res = await fixture.fetch(src);
+				expect(res.status).to.equal(200);
+				expect(res.headers.get('content-type')).to.equal('image/avif');
+			});
 		});
 
 		describe('vite-isms', () => {

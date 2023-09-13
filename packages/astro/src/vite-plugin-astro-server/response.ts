@@ -1,6 +1,6 @@
 import type http from 'node:http';
 import type { ErrorWithMetadata } from '../core/errors/index.js';
-import type { ModuleLoader } from '../core/module-loader/index';
+import type { ModuleLoader } from '../core/module-loader/index.js';
 
 import { Readable } from 'stream';
 import { getSetCookiesFromResponse } from '../core/cookies/index.js';

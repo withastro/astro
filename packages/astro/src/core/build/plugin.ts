@@ -1,6 +1,6 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { BuildInternals } from './internal';
-import type { StaticBuildOptions, ViteBuildReturn } from './types';
+import type { BuildInternals } from './internal.js';
+import type { StaticBuildOptions, ViteBuildReturn } from './types.js';
 
 type RollupOutputArray = Extract<ViteBuildReturn, Array<any>>;
 type OutputChunkorAsset = RollupOutputArray[number]['output'][number];

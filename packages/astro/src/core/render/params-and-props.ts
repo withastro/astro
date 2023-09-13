@@ -1,4 +1,4 @@
-import type { ComponentInstance, Params, Props, RouteData } from '../../@types/astro';
+import type { ComponentInstance, Params, Props, RouteData } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { getParams } from '../routing/params.js';
