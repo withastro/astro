@@ -242,7 +242,7 @@ The Vercel adapter combines all of your routes into a single function by default
 
 You also have the option to split into a seperate function for each route using the `functionPerRoute` option. Doing so means your functions are smaller, you're less likely to exceed the size limit, and code starts are faster. 
 
-The free tier of Vercel limits each deployment to no more than 12 functions. If you have a paid plan, using turning on `functionPerRoute` is something to consider enabling.
+Verify that your Vercel plan includes an appropriate number of functions before enabling `functionPerRoute`. For example, Vercel's free tier limits each deployment to no more than 12 functions. If your Vercel plan is insufficient for the number of routes in your project, you will receive an error message during deployment.
 
 ```js
 // astro.config.mjs
