@@ -6,12 +6,18 @@ import { info, log, title } from '../messages.js';
 
 import { isEmpty, toValidName } from './shared.js';
 
-export async function projectName(ctx: Pick<Context, 'cwd' | 'prompt' | 'projectName' | 'exit'>) {
+export async function projectName(ctx: Pick<Context, 'cwd' | 'yes' | 'prompt' | 'projectName' | 'exit'>) {
 	await checkCwd(ctx.cwd);
 
 	if (!ctx.cwd || !isEmpty(ctx.cwd)) {
 		if (!isEmpty(ctx.cwd)) {
-			await info('Hmm...', `${color.reset(`"${ctx.cwd}"`)}${color.dim(` is not empty!`)}`);
+			await info('Hmm...', `${color.reset(`./${ctx.cwd}`)}${color.dim(` is not empty!`)}`);
+		}
+
+		if (ctx.yes) {
+			ctx.projectName = generateProjectName();
+			await info('dir', `Project created at ./${ctx.projectName}`);
+			return;
 		}
 
 		const { name } = await ctx.prompt({
