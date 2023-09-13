@@ -336,7 +336,7 @@ const style = /* css */ `
 #message-content,
 #hint-content {
   white-space: pre-wrap;
-  line-height: 24px;
+  line-height: 26px;
   flex-grow: 1;
 }
 
@@ -369,7 +369,7 @@ const style = /* css */ `
 #message-hints code {
   font-family: var(--font-monospace);
   background-color: var(--border);
-  padding: 4px;
+  padding: 2px 4px;
   border-radius: var(--roundiness);
 	white-space: nowrap;
 }
