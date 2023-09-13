@@ -1,5 +1,5 @@
 import type { z } from 'astro/zod';
-import type { RSSOptions } from './index';
+import type { RSSOptions } from './index.js';
 
 /** Normalize URL to its canonical form */
 export function createCanonicalURL(

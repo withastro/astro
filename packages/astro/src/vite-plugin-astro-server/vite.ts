@@ -1,6 +1,6 @@
 import npath from 'node:path';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../core/constants.js';
-import type { ModuleLoader, ModuleNode } from '../core/module-loader/index';
+import type { ModuleLoader, ModuleNode } from '../core/module-loader/index.js';
 import { unwrapId } from '../core/util.js';
 import { isCSSRequest } from './util.js';
 

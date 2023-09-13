@@ -1,5 +1,5 @@
-import type { AstroMiddlewareInstance, ComponentInstance, RouteData } from '../../@types/astro';
-import type { Environment } from './environment';
+import type { AstroMiddlewareInstance, ComponentInstance, RouteData } from '../../@types/astro.js';
+import type { Environment } from './environment.js';
 export { createRenderContext } from './context.js';
 export type { RenderContext } from './context.js';
 export { tryRenderRoute } from './core.js';

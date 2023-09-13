@@ -1,5 +1,5 @@
 import type { IncomingHttpHeaders } from 'node:http';
-import type { Logger } from './logger/core';
+import type { Logger } from './logger/core.js';
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
 type RequestBody = ArrayBuffer | Blob | ReadableStream | URLSearchParams | FormData;

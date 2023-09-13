@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { AstroInlineConfig, PreviewModule, PreviewServer } from '../../@types/astro';
+import type { AstroInlineConfig, PreviewModule, PreviewServer } from '../../@types/astro.js';
 import { AstroIntegrationLogger } from '../../core/logger/core.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';

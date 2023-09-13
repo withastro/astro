@@ -4,7 +4,7 @@ import type http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { getNetworkAddress } from './get-network-address.js';
 import { createServer } from './http-server.js';
-import type { createExports } from './server';
+import type { createExports } from './server.js';
 
 const preview: CreatePreviewServer = async function ({
 	client,

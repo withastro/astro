@@ -3,7 +3,7 @@ import * as t from '@babel/types';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import { resolvePath } from '../core/util.js';
-import type { PluginMetadata } from '../vite-plugin-astro/types';
+import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 

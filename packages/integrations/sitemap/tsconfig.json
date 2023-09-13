@@ -2,9 +2,6 @@
   "extends": "../../../tsconfig.base.json",
   "include": ["src"],
   "compilerOptions": {
-    "allowJs": true,
-    "module": "ES2022",
-    "outDir": "./dist",
-    "target": "ES2022"
+    "outDir": "./dist"
   }
 }
