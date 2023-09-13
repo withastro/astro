@@ -325,6 +325,37 @@ const { fallback = 'animate' } = Astro.props as Props;
 		}
 	}
 
+	export function goto(href: string) {
+		console.log('goto', href);
+		const link = new URL(href, location.href);
+		// We do not need to handle same page links because there are no page transitions
+		// Same page means same path and same query params (but different hash)
+		if (location.pathname === link.pathname && location.search === link.search) {
+			if (link.hash) {
+				location.href = link.href;
+			} else {
+				// Special case: self link without hash
+				// If handed to the browser it will reload the page
+				// But we want to handle it like any other same page navigation
+				// So we scroll to the top of the page but do not start page transitions
+				// push state on the first navigation but not if we were here already
+				if (location.hash) {
+					history.replaceState(
+						{ index: currentHistoryIndex, scrollX, scrollY: -(scrollY + 1) },
+						''
+					);
+					const newState: State = { index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 };
+					history.pushState(newState, '', link.href);
+				}
+				scrollTo({ left: 0, top: 0, behavior: 'instant' });
+			}
+			return;
+		}
+		// these are the cases we will handle: same origin, different page
+		navigate('forward', link);
+	}
+
+
 	// Prefetching
 	function maybePrefetch(pathname: string) {
 		if (document.querySelector(`link[rel=prefetch][href="${pathname}"]`)) return;
@@ -369,35 +400,8 @@ const { fallback = 'animate' } = Astro.props as Props;
 				// Let the browser standard action handle this
 				return;
 			}
-			// We do not need to handle same page links because there are no page transitions
-			// Same page means same path and same query params (but different hash)
-			if (location.pathname === link.pathname && location.search === link.search) {
-				if (link.hash) {
-					// The browser default action will handle navigations with hash fragments
-					return;
-				} else {
-					// Special case: self link without hash
-					// If handed to the browser it will reload the page
-					// But we want to handle it like any other same page navigation
-					// So we scroll to the top of the page but do not start page transitions
-					ev.preventDefault();
-					// push state on the first navigation but not if we were here already
-					if (location.hash) {
-						history.replaceState(
-							{ index: currentHistoryIndex, scrollX, scrollY: -(scrollY + 1) },
-							''
-						);
-						const newState: State = { index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 };
-						history.pushState(newState, '', link.href);
-					}
-					scrollTo({ left: 0, top: 0, behavior: 'instant' });
-					return;
-				}
-			}
-
-			// these are the cases we will handle: same origin, different page
 			ev.preventDefault();
-			navigate('forward', new URL(link.href));
+			goto(link.href);
 		});
 
 		addEventListener('popstate', (ev) => {
