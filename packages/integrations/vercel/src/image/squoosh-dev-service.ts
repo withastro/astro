@@ -1,5 +1,5 @@
 import type { LocalImageService } from 'astro';
-import sharpService from 'astro/assets/services/sharp';
+import squooshService from 'astro/assets/services/squoosh';
 import { baseDevService } from './shared-dev-service.js';
 
 const service: LocalImageService = {
@@ -12,8 +12,8 @@ const service: LocalImageService = {
 			props.width = inputtedWidth;
 		}
 
-		return sharpService.getHTMLAttributes
-			? sharpService.getHTMLAttributes(props, serviceOptions)
+		return squooshService.getHTMLAttributes
+			? squooshService.getHTMLAttributes(props, serviceOptions)
 			: {};
 	},
 	transform(inputBuffer, transform, serviceOptions) {
@@ -23,8 +23,8 @@ const service: LocalImageService = {
 		// in many more ways, this is one of the less offending cases and is, imo, okay, erika - 2023-04-27
 		transform.format = transform.src.endsWith('svg') ? 'svg' : 'webp';
 
-		// The base sharp service works the same way as the Vercel Image Optimization API, so it's a safe fallback in local
-		return sharpService.transform(inputBuffer, transform, serviceOptions);
+		// The base squoosh service works the same way as the Vercel Image Optimization API, so it's a safe fallback in local
+		return squooshService.transform(inputBuffer, transform, serviceOptions);
 	},
 };
 

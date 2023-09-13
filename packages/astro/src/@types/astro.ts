@@ -976,6 +976,28 @@ export interface AstroUserConfig {
 	image?: {
 		/**
 		 * @docs
+		 * @name image.endpoint
+		 * @type {string}
+		 * @default `undefined`
+		 * @version 3.1.0
+		 * @description
+		 * Set the endpoint to use for image optimization in dev and SSR. Set to `undefined` to use the default endpoint.
+		 *
+		 * The endpoint will always be injected at `/_image`.
+		 *
+		 * ```js
+		 * {
+		 *   image: {
+		 *     // Example: Use a custom image endpoint
+		 *     endpoint: './src/image-endpoint.ts',
+		 *   },
+		 * }
+		 * ```
+		 */
+		endpoint?: string;
+
+		/**
+		 * @docs
 		 * @name image.service
 		 * @type {{entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | string, config: Record<string, any>}}
 		 * @default `{entrypoint: 'astro/assets/services/sharp', config?: {}}`

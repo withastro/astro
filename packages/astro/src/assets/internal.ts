@@ -11,10 +11,12 @@ import type {
 import { matchHostname, matchPattern } from './utils/remotePattern.js';
 
 export function injectImageEndpoint(settings: AstroSettings) {
+	const endpointEntrypoint = settings.config.image.endpoint ?? 'astro/assets/image-endpoint';
+
 	// TODO: Add a setting to disable the image endpoint
 	settings.injectedRoutes.push({
 		pattern: '/_image',
-		entryPoint: 'astro/assets/image-endpoint',
+		entryPoint: endpointEntrypoint,
 		prerender: false,
 	});
 
