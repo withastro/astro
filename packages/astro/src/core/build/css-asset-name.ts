@@ -2,7 +2,7 @@ import type { GetModuleInfo } from 'rollup';
 
 import crypto from 'node:crypto';
 import npath from 'node:path';
-import type { AstroSettings } from '../../@types/astro';
+import type { AstroSettings } from '../../@types/astro.js';
 import { viteID } from '../util.js';
 import { getTopLevelPages } from './graph.js';
 

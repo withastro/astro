@@ -1,4 +1,4 @@
-import type { APIContext, MiddlewareResponseHandler } from '../../@types/astro';
+import type { APIContext, MiddlewareResponseHandler } from '../../@types/astro.js';
 import { defineMiddleware } from './index.js';
 
 // From SvelteKit: https://github.com/sveltejs/kit/blob/master/packages/kit/src/exports/hooks/sequence.js

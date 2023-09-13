@@ -1,5 +1,5 @@
 import './astro-jsx';
-import { AstroBuiltinAttributes } from './dist/@types/astro';
+import { AstroBuiltinAttributes } from './dist/@types/astro.js';
 
 /** Any supported HTML or SVG element name, as defined by the HTML specification */
 export type HTMLTag = keyof astroHTML.JSX.DefinedIntrinsicElements;

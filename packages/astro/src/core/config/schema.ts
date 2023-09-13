@@ -1,7 +1,7 @@
 import type { RehypePlugin, RemarkPlugin, RemarkRehype } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import type { ILanguageRegistration, IShikiTheme, Theme } from 'shiki';
-import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro';
+import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro.js';
 
 import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';

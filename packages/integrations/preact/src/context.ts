@@ -1,4 +1,4 @@
-import type { PropNameToSignalMap, RendererContext, SignalLike } from './types';
+import type { PropNameToSignalMap, RendererContext, SignalLike } from './types.js';
 
 export type Context = {
 	id: string;

@@ -14,6 +14,12 @@ npm create astro@latest
 yarn create astro
 ```
 
+**With PNPM:**
+
+```bash
+pnpm create astro
+```
+
 `create-astro` automatically runs in _interactive_ mode, but you can also specify your project name and template with command line arguments.
 
 ```bash
@@ -22,6 +28,9 @@ npm create astro@latest my-astro-project -- --template minimal
 
 # yarn
 yarn create astro my-astro-project --template minimal
+
+# pnpm
+pnpm create astro my-astro-project --template minimal
 ```
 
 [Check out the full list][examples] of example templates, available on GitHub.
