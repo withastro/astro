@@ -1,4 +1,5 @@
-import type { InlineConfig, default as vite } from 'vite';
+import type * as vite from 'vite';
+import type { InlineConfig } from 'vite';
 import type {
 	AstroConfig,
 	AstroSettings,
@@ -8,9 +9,9 @@ import type {
 	RouteData,
 	RuntimeMode,
 	SSRLoadedRenderer,
-} from '../../@types/astro';
-import type { LogOptions } from '../logger/core';
-import type { RouteCache } from '../render/route-cache';
+} from '../../@types/astro.js';
+import type { Logger } from '../logger/core.js';
+import type { RouteCache } from '../render/route-cache.js';
 
 export type ComponentPath = string;
 export type ViteID = string;
@@ -35,7 +36,7 @@ export type AllPagesData = Record<ComponentPath, PageBuildData>;
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 	manifest: ManifestData;
 	mode: RuntimeMode;
 	origin: string;

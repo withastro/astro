@@ -1,6 +1,6 @@
 # Astro + Preact Example
 
-```
+```sh
 npm create astro@latest -- --template framework-preact
 ```
 

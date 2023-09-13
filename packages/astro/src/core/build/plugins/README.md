@@ -125,10 +125,13 @@ will look like this:
 
 Of course, all these files will be deleted by Astro at the end build.
 
-## `plugin-ssr` (WIP)
+## `plugin-ssr`
 
-This plugin is responsible to create a single `entry.mjs` file that will be used
-in SSR.
+This plugin is responsible to create the JS files that will be executed in SSR.
+
+### Classic mode
+
+The plugin will emit a single entry point called `entry.mjs`.
 
 This plugin **will emit code** only when building an **SSR** site.
 
@@ -146,4 +149,25 @@ const pageMap = new Map([
 ```
 
 It will also import the [`renderers`](#plugin-renderers) virtual module
-and the [`middleware`](#plugin-middleware) virtual module.
+and the [`manifest`](#plugin-manifest) virtual module.
+
+### Split mode
+
+The plugin will emit various entry points. Each route will be an entry point.
+
+Each entry point will contain the necessary code to **render one single route**.
+
+Each entry point will also import the [`renderers`](#plugin-renderers) virtual module
+and the [`manifest`](#plugin-manifest) virtual module.
+
+## `plugin-manifest`
+
+This plugin is responsible to create a file called `manifest.mjs`. In SSG, the file is saved
+in `config.outDir`, in SSR the file is saved in `config.build.server`.
+
+This file is important to do two things:
+
+- generate the pages during the SSG;
+- render the pages in SSR;
+
+The file contains all the information needed to Astro to accomplish the operations mentioned above.

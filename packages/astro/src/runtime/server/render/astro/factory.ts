@@ -1,6 +1,6 @@
-import type { PropagationHint, SSRResult } from '../../../../@types/astro';
-import type { HeadAndContent } from './head-and-content';
-import type { RenderTemplateResult } from './render-template';
+import type { PropagationHint, SSRResult } from '../../../../@types/astro.js';
+import type { HeadAndContent } from './head-and-content.js';
+import type { RenderTemplateResult } from './render-template.js';
 
 export type AstroFactoryReturnValue = RenderTemplateResult | Response | HeadAndContent;
 

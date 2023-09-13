@@ -1,13 +1,21 @@
 import type { AstroConfig, ImageMetadata, ImageQualityPreset, ImageTransform } from 'astro';
 
-export const defaultImageConfig: VercelImageConfig = {
-	sizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-	domains: [],
-};
+export function getDefaultImageConfig(astroImageConfig: AstroConfig['image']): VercelImageConfig {
+	return {
+		sizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+		domains: astroImageConfig.domains ?? [],
+		// Cast is necessary here because Vercel's types are slightly different from ours regarding allowed protocols. Behavior should be the same, however.
+		remotePatterns: (astroImageConfig.remotePatterns as VercelImageConfig['remotePatterns']) ?? [],
+	};
+}
 
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
 	return typeof src === 'object';
 }
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type DevImageService = 'sharp' | 'squoosh' | (string & {});
+
 // https://vercel.com/docs/build-output-api/v3/configuration#images
 type ImageFormat = 'image/avif' | 'image/webp';
 
@@ -56,29 +64,37 @@ export const qualityTable: Record<ImageQualityPreset, number> = {
 	max: 100,
 };
 
-// TODO: Remove once Astro 3.0 is out and `experimental.assets` is no longer needed
-export function throwIfAssetsNotEnabled(config: AstroConfig, imageService: boolean | undefined) {
-	if (!config.experimental.assets && imageService) {
-		throw new Error(
-			`Using the Vercel Image Optimization-powered image service requires \`experimental.assets\` to be enabled. See https://docs.astro.build/en/guides/assets/ for more information.`
-		);
-	}
-}
-
-export function getImageConfig(
+export function getAstroImageConfig(
 	images: boolean | undefined,
 	imagesConfig: VercelImageConfig | undefined,
-	command: string
+	command: string,
+	devImageService: DevImageService,
+	astroImageConfig: AstroConfig['image']
 ) {
+	let devService = '@astrojs/vercel/dev-image-service';
+
+	switch (devImageService) {
+		case 'sharp':
+			devService = '@astrojs/vercel/dev-image-service';
+			break;
+		case 'squoosh':
+			devService = '@astrojs/vercel/squoosh-dev-image-service';
+			break;
+		default:
+			if (typeof devImageService === 'string') {
+				devService = devImageService;
+			} else {
+				devService = '@astrojs/vercel/dev-image-service';
+			}
+			break;
+	}
+
 	if (images) {
 		return {
 			image: {
 				service: {
-					entrypoint:
-						command === 'dev'
-							? '@astrojs/vercel/dev-image-service'
-							: '@astrojs/vercel/build-image-service',
-					config: imagesConfig ? imagesConfig : defaultImageConfig,
+					entrypoint: command === 'dev' ? devService : '@astrojs/vercel/build-image-service',
+					config: imagesConfig ? imagesConfig : getDefaultImageConfig(astroImageConfig),
 				},
 			},
 		};

@@ -2,7 +2,7 @@ import {
 	createBasicSettings,
 	createFs,
 	createRequestAndResponse,
-	defaultLogging,
+	defaultLogger,
 } from '../test-utils.js';
 import { createRouteManifest, matchAllRoutes } from '../../../dist/core/routing/index.js';
 import { fileURLToPath } from 'node:url';
@@ -12,8 +12,8 @@ import { createContainer } from '../../../dist/core/dev/container.js';
 import * as cheerio from 'cheerio';
 import testAdapter from '../../test-adapter.js';
 import { getSortedPreloadedMatches } from '../../../dist/prerender/routing.js';
-import { createDevelopmentEnvironment } from '../../../dist/vite-plugin-astro-server/environment.js';
 import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
+import DevPipeline from '../../../dist/vite-plugin-astro-server/devPipeline.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 const fileSystem = {
@@ -124,7 +124,7 @@ const fileSystem = {
 };
 
 describe('Route matching', () => {
-	let env;
+	let pipeline;
 	let manifestData;
 	let container;
 	let settings;
@@ -140,19 +140,19 @@ describe('Route matching', () => {
 		container = await createContainer({
 			fs,
 			settings,
-			logging: defaultLogging,
+			logger: defaultLogger,
 		});
 
 		const loader = createViteLoader(container.viteServer);
 		const manifest = createDevelopmentManifest(container.settings);
-		env = createDevelopmentEnvironment(manifest, container.settings, defaultLogging, loader);
+		pipeline = new DevPipeline({ manifest, logger: defaultLogger, settings, loader });
 		manifestData = createRouteManifest(
 			{
 				cwd: fileURLToPath(root),
 				settings,
 				fsMod: fs,
 			},
-			defaultLogging
+			defaultLogger
 		);
 	});
 
@@ -163,7 +163,7 @@ describe('Route matching', () => {
 	describe('Matched routes', () => {
 		it('should be sorted correctly', async () => {
 			const matches = matchAllRoutes('/try-matching-a-route', manifestData);
-			const preloadedMatches = await getSortedPreloadedMatches({ env, matches, settings });
+			const preloadedMatches = await getSortedPreloadedMatches({ pipeline, matches, settings });
 			const sortedRouteNames = preloadedMatches.map((match) => match.route.route);
 
 			expect(sortedRouteNames).to.deep.equal([
@@ -177,7 +177,7 @@ describe('Route matching', () => {
 		});
 		it('nested should be sorted correctly', async () => {
 			const matches = matchAllRoutes('/nested/try-matching-a-route', manifestData);
-			const preloadedMatches = await getSortedPreloadedMatches({ env, matches, settings });
+			const preloadedMatches = await getSortedPreloadedMatches({ pipeline, matches, settings });
 			const sortedRouteNames = preloadedMatches.map((match) => match.route.route);
 
 			expect(sortedRouteNames).to.deep.equal([

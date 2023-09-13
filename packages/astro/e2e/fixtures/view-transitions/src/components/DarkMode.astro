@@ -6,7 +6,7 @@
 	}
 
 	toggle();
-	document.addEventListener('astro:beforeload', () => {
+	document.addEventListener('astro:after-swap', () => {
 		toggle();
 	})
 </script>

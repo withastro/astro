@@ -1,11 +1,15 @@
-import { rehypeHeadingIds, remarkCollectImages } from '@astrojs/markdown-remark';
+import {
+	rehypeHeadingIds,
+	remarkCollectImages,
+	remarkPrism,
+	remarkShiki,
+} from '@astrojs/markdown-remark';
 import {
 	InvalidAstroDataError,
 	safelyGetAstroData,
 } from '@astrojs/markdown-remark/dist/internal.js';
 import { nodeTypes } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
-import type { AstroConfig } from 'astro';
 import type { Literal, MemberExpression } from 'estree';
 import { visit as estreeVisit } from 'estree-util-visit';
 import rehypeRaw from 'rehype-raw';
@@ -17,8 +21,6 @@ import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
 import { rehypeOptimizeStatic } from './rehype-optimize-static.js';
 import { remarkImageToComponent } from './remark-images-to-component.js';
-import remarkPrism from './remark-prism.js';
-import remarkShiki from './remark-shiki.js';
 import { jsToTreeNode } from './utils.js';
 
 // Skip nonessential plugins during performance benchmark runs
@@ -96,13 +98,8 @@ export function rehypeApplyFrontmatterExport() {
 	};
 }
 
-export async function getRemarkPlugins(
-	mdxOptions: MdxOptions,
-	config: AstroConfig
-): Promise<PluggableList> {
-	let remarkPlugins: PluggableList = [
-		...(config.experimental.assets ? [remarkCollectImages, remarkImageToComponent] : []),
-	];
+export async function getRemarkPlugins(mdxOptions: MdxOptions): Promise<PluggableList> {
+	let remarkPlugins: PluggableList = [remarkCollectImages, remarkImageToComponent];
 
 	if (!isPerformanceBenchmark) {
 		if (mdxOptions.gfm) {
@@ -118,7 +115,7 @@ export async function getRemarkPlugins(
 	if (!isPerformanceBenchmark) {
 		// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
 		if (mdxOptions.syntaxHighlight === 'shiki') {
-			remarkPlugins.push([await remarkShiki(mdxOptions.shikiConfig)]);
+			remarkPlugins.push([remarkShiki, mdxOptions.shikiConfig]);
 		}
 		if (mdxOptions.syntaxHighlight === 'prism') {
 			remarkPlugins.push(remarkPrism);

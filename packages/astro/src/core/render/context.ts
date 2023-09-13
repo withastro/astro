@@ -5,9 +5,9 @@ import type {
 	RouteData,
 	SSRElement,
 	SSRResult,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Environment } from './environment';
+import type { Environment } from './environment.js';
 import { getParamsAndProps } from './params-and-props.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -22,7 +22,7 @@ export interface RenderContext {
 	links?: Set<SSRElement>;
 	styles?: Set<SSRElement>;
 	componentMetadata?: SSRResult['componentMetadata'];
-	route?: RouteData;
+	route: RouteData;
 	status?: number;
 	params: Params;
 	props: Props;
@@ -32,6 +32,7 @@ export interface RenderContext {
 export type CreateRenderContextArgs = Partial<
 	Omit<RenderContext, 'params' | 'props' | 'locals'>
 > & {
+	route: RouteData;
 	request: RenderContext['request'];
 	mod: ComponentInstance;
 	env: Environment;
@@ -47,7 +48,7 @@ export async function createRenderContext(
 		route: options.route,
 		routeCache: options.env.routeCache,
 		pathname: pathname,
-		logging: options.env.logging,
+		logger: options.env.logger,
 		ssr: options.env.ssr,
 	});
 

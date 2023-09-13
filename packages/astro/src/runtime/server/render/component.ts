@@ -3,9 +3,10 @@ import type {
 	RouteData,
 	SSRLoadedRenderer,
 	SSRResult,
-} from '../../../@types/astro';
+} from '../../../@types/astro.js';
 import { createRenderInstruction, type RenderInstruction } from './instruction.js';
 
+import { clsx } from 'clsx';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 import { HTMLBytes, markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
@@ -23,7 +24,6 @@ import {
 	Renderer,
 	chunkToString,
 	type RenderDestination,
-	type RenderDestinationChunk,
 	type RenderInstance,
 } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
@@ -421,27 +421,12 @@ function renderAstroComponent(
 	slots: any = {}
 ): RenderInstance {
 	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
-
-	// Eagerly render the component so they are rendered in parallel.
-	// Render to buffer for now until our returned render function is called.
-	const bufferChunks: RenderDestinationChunk[] = [];
-	const bufferDestination: RenderDestination = {
-		write: (chunk) => bufferChunks.push(chunk),
-	};
-	// Don't await for the render to finish to not block streaming
-	const renderPromise = instance.render(bufferDestination);
-
 	return {
 		async render(destination) {
-			// Write the buffered chunks to the real destination
-			for (const chunk of bufferChunks) {
-				destination.write(chunk);
-			}
-			// Free memory
-			bufferChunks.length = 0;
-			// Re-assign the real destination so `instance.render` will continue and write to the new destination
-			bufferDestination.write = (chunk) => destination.write(chunk);
-			await renderPromise;
+			// NOTE: This render call can't be pre-invoked outside of this function as it'll also initialize the slots
+			// recursively, which causes each Astro components in the tree to be called bottom-up, and is incorrect.
+			// The slots are initialized eagerly for head propagation.
+			await instance.render(destination);
 		},
 	};
 }
@@ -461,6 +446,9 @@ export async function renderComponent(
 		return await renderFragmentComponent(result, slots);
 	}
 
+	// Ensure directives (`class:list`) are processed
+	props = normalizeProps(props);
+
 	// .html components
 	if (isHTMLComponent(Component)) {
 		return await renderHTMLComponent(result, Component, props, slots);
@@ -471,6 +459,18 @@ export async function renderComponent(
 	}
 
 	return await renderFrameworkComponent(result, displayName, Component, props, slots);
+}
+
+function normalizeProps(props: Record<string, any>): Record<string, any> {
+	if (props['class:list'] !== undefined) {
+		const value = props['class:list'];
+		delete props['class:list'];
+		props['class'] = clsx(props['class'], value);
+		if (props['class'] === '') {
+			delete props['class'];
+		}
+	}
+	return props;
 }
 
 export async function renderComponentToString(

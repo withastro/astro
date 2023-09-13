@@ -1,4 +1,3 @@
-import { polyfill } from '@astrojs/webapi';
 import { execa } from 'execa';
 import fastGlob from 'fast-glob';
 import fs from 'node:fs';
@@ -7,27 +6,20 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import stripAnsi from 'strip-ansi';
 import { check } from '../dist/cli/check/index.js';
+import { dev, preview } from '../dist/core/index.js';
 import build from '../dist/core/build/index.js';
+import sync from '../dist/core/sync/index.js';
 import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.js';
 import { getVirtualModulePageNameFromPath } from '../dist/core/build/plugins/util.js';
 import { makeSplitEntryPointFileName } from '../dist/core/build/static-build.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
-import dev from '../dist/core/dev/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
-import preview from '../dist/core/preview/index.js';
-import { sync } from '../dist/core/sync/index.js';
-
-// polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
-polyfill(globalThis, {
-	exclude: 'window document',
-});
 
 // Disable telemetry when running tests
 process.env.ASTRO_TELEMETRY_DISABLED = true;
 
 /**
- * @typedef {import('undici').Response} Response
- * @typedef {import('../src/core/dev/dev').DedvServer} DevServer
+ * @typedef {import('../src/core/dev/dev').DevServer} DevServer
  * @typedef {import('../src/@types/astro').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
  * @typedef {import('../src/core/app/index').App} App
@@ -155,7 +147,7 @@ export async function loadFixture(inlineConfig) {
 	return {
 		build: async (extraInlineConfig = {}) => {
 			process.env.NODE_ENV = 'production';
-			return build(mergeConfig(inlineConfig, extraInlineConfig));
+			return build(mergeConfig(inlineConfig, extraInlineConfig), { teardownCompiler: false });
 		},
 		sync: async (extraInlineConfig = {}, opts) => {
 			return sync(mergeConfig(inlineConfig, extraInlineConfig), opts);

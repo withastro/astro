@@ -25,7 +25,14 @@ describe('astro:ssr-manifest, split', () => {
 				setRoutes(routes) {
 					currentRoutes = routes;
 				},
+				extendAdapter: {
+					adapterFeatures: {
+						functionPerRoute: true,
+					},
+				},
 			}),
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 		await fixture.build();
 	});
@@ -43,7 +50,7 @@ describe('astro:ssr-manifest, split', () => {
 
 	it('should give access to entry points that exists on file system', async () => {
 		// number of the pages inside src/
-		expect(entryPoints.size).to.equal(5);
+		expect(entryPoints.size).to.equal(6);
 		for (const fileUrl of entryPoints.values()) {
 			let filePath = fileURLToPath(fileUrl);
 			expect(existsSync(filePath)).to.be.true;
@@ -67,5 +74,41 @@ describe('astro:ssr-manifest, split', () => {
 		const response = await app.render(request);
 		const html = await response.text();
 		expect(html.includes('<title>Pre render me</title>')).to.be.true;
+	});
+
+	describe('when function per route is enabled', async () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/ssr-split-manifest/',
+				output: 'server',
+				adapter: testAdapter({
+					setEntryPoints(entries) {
+						if (entries) {
+							entryPoints = entries;
+						}
+					},
+					setRoutes(routes) {
+						currentRoutes = routes;
+					},
+					extendAdapter: {
+						adapterFeatures: {
+							functionPerRoute: true,
+						},
+					},
+				}),
+				// test suite was authored when inlineStylesheets defaulted to never
+				build: { inlineStylesheets: 'never' },
+			});
+			await fixture.build();
+		});
+		it('should correctly build, and not create a "uses" entry point', async () => {
+			const pagePath = 'src/pages/index.astro';
+			const app = await fixture.loadEntryPoint(pagePath, currentRoutes);
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			const html = await response.text();
+			console.log(html);
+			expect(html.includes('<title>Testing</title>')).to.be.true;
+		});
 	});
 });

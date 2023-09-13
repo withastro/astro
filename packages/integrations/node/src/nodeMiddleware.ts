@@ -1,20 +1,27 @@
 import type { NodeApp } from 'astro/app/node';
 import type { ServerResponse } from 'node:http';
 import type { Readable } from 'stream';
-import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders';
-import { responseIterator } from './response-iterator';
-import type { ErrorHandlerParams, Options, RequestHandlerParams } from './types';
+import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
+import { responseIterator } from './response-iterator.js';
+import type { ErrorHandlerParams, Options, RequestHandlerParams } from './types.js';
 
 // Disable no-unused-vars to avoid breaking signature change
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export default function (app: NodeApp, _mode: Options['mode']) {
+export default function (app: NodeApp, mode: Options['mode']) {
 	return async function (...args: RequestHandlerParams | ErrorHandlerParams) {
 		let error = null;
-		let [req, res, next, locals] = args as RequestHandlerParams;
+		let locals;
+		let [req, res, next] = args as RequestHandlerParams;
+		if (mode === 'middleware') {
+			let { [3]: _locals } = args;
+			locals = _locals;
+		}
 
 		if (args[0] instanceof Error) {
-			[error, req, res, next, locals] = args as ErrorHandlerParams;
-
+			[error, req, res, next] = args as ErrorHandlerParams;
+			if (mode === 'middleware') {
+				let { [4]: _locals } = args as ErrorHandlerParams;
+				locals = _locals;
+			}
 			if (error) {
 				if (next) {
 					return next(error);

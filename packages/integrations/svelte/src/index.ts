@@ -17,7 +17,8 @@ async function svelteConfigHasPreprocess(root: URL) {
 	for (const file of svelteConfigFiles) {
 		const filePath = fileURLToPath(new URL(file, root));
 		try {
-			const config = (await import(filePath)).default;
+			// Suppress warnings by vite: "The above dynamic import cannot be analyzed by Vite."
+			const config = (await import(/* @vite-ignore */ filePath)).default;
 			return !!config.preprocess;
 		} catch {}
 	}

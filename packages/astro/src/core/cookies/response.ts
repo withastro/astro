@@ -1,8 +1,8 @@
-import type { AstroCookies } from './cookies';
+import type { AstroCookies } from './cookies.js';
 
 const astroCookiesSymbol = Symbol.for('astro.cookies');
 
-export function attachToResponse(response: Response, cookies: AstroCookies) {
+export function attachCookiesToResponse(response: Response, cookies: AstroCookies) {
 	Reflect.set(response, astroCookiesSymbol, cookies);
 }
 

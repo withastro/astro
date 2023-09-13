@@ -2,7 +2,7 @@ import { getCollection } from 'astro:content';
 import * as devalue from 'devalue';
 import { stripAllRenderFn } from '../utils.js';
 
-export async function get() {
+export async function GET() {
 	const withoutConfig = stripAllRenderFn(await getCollection('without-config'));
 	const withSchemaConfig = stripAllRenderFn(await getCollection('with-schema-config'));
 	const withSlugConfig = stripAllRenderFn(await getCollection('with-custom-slugs'));

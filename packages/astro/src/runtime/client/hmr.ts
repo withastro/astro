@@ -1,8 +1,8 @@
 /// <reference types="vite/client" />
 
 if (import.meta.hot) {
-	// Vite injects `<style type="text/css" data-vite-dev-id>` for ESM imports of styles
-	// but Astro also SSRs with `<style type="text/css" data-astro-dev-id>` blocks. This MutationObserver
+	// Vite injects `<style data-vite-dev-id>` for ESM imports of styles
+	// but Astro also SSRs with `<style data-astro-dev-id>` blocks. This MutationObserver
 	// removes any duplicates as soon as they are hydrated client-side.
 	const injectedStyles = getInjectedStyles();
 	const mo = new MutationObserver((records) => {
@@ -42,9 +42,5 @@ function isStyle(node: Node): node is HTMLStyleElement {
 }
 
 function isViteInjectedStyle(node: Node): node is HTMLStyleElement {
-	return (
-		isStyle(node) &&
-		node.getAttribute('type') === 'text/css' &&
-		!!node.getAttribute('data-vite-dev-id')
-	);
+	return isStyle(node) && !!node.getAttribute('data-vite-dev-id');
 }

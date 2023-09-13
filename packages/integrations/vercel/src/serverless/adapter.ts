@@ -1,12 +1,18 @@
-import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
-
+import type {
+	AstroAdapter,
+	AstroConfig,
+	AstroIntegration,
+	AstroIntegrationLogger,
+	RouteData,
+} from 'astro';
+import { AstroError } from 'astro/errors';
 import glob from 'fast-glob';
 import { basename } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
-	defaultImageConfig,
-	getImageConfig,
-	throwIfAssetsNotEnabled,
+	getAstroImageConfig,
+	getDefaultImageConfig,
+	type DevImageService,
 	type VercelImageConfig,
 } from '../image/shared.js';
 import { exposeEnv } from '../lib/env.js';
@@ -29,11 +35,31 @@ const SUPPORTED_NODE_VERSIONS: Record<
 	18: { status: 'current' },
 };
 
-function getAdapter(): AstroAdapter {
+function getAdapter({
+	edgeMiddleware,
+	functionPerRoute,
+}: {
+	edgeMiddleware: boolean;
+	functionPerRoute: boolean;
+}): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
 		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
 		exports: ['default'],
+		adapterFeatures: {
+			edgeMiddleware,
+			functionPerRoute,
+		},
+		supportedAstroFeatures: {
+			hybridOutput: 'stable',
+			staticOutput: 'stable',
+			serverOutput: 'stable',
+			assets: {
+				supportKind: 'stable',
+				isSharpCompatible: true,
+				isSquooshCompatible: true,
+			},
+		},
 	};
 }
 
@@ -43,6 +69,9 @@ export interface VercelServerlessConfig {
 	analytics?: boolean;
 	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
+	devImageService?: DevImageService;
+	edgeMiddleware?: boolean;
+	functionPerRoute?: boolean;
 }
 
 export default function vercelServerless({
@@ -51,6 +80,9 @@ export default function vercelServerless({
 	analytics,
 	imageService,
 	imagesConfig,
+	devImageService = 'sharp',
+	functionPerRoute = true,
+	edgeMiddleware = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
@@ -59,16 +91,27 @@ export default function vercelServerless({
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
 
-	async function createFunctionFolder(funcName: string, entry: URL, inc: URL[]) {
+	const NTF_CACHE = Object.create(null);
+
+	async function createFunctionFolder(
+		funcName: string,
+		entry: URL,
+		inc: URL[],
+		logger: AstroIntegrationLogger
+	) {
 		const functionFolder = new URL(`./functions/${funcName}.func/`, _config.outDir);
 
 		// Copy necessary files (e.g. node_modules/)
-		const { handler } = await copyDependenciesToFunction({
-			entry,
-			outDir: functionFolder,
-			includeFiles: inc,
-			excludeFiles: excludeFiles?.map((file) => new URL(file, _config.root)) || [],
-		});
+		const { handler } = await copyDependenciesToFunction(
+			{
+				entry,
+				outDir: functionFolder,
+				includeFiles: inc,
+				excludeFiles: excludeFiles?.map((file) => new URL(file, _config.root)) || [],
+				logger,
+			},
+			NTF_CACHE
+		);
 
 		// Enable ESM
 		// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
@@ -107,21 +150,32 @@ export default function vercelServerless({
 							external: ['@vercel/nft'],
 						},
 					},
-					...getImageConfig(imageService, imagesConfig, command),
+					...getAstroImageConfig(
+						imageService,
+						imagesConfig,
+						command,
+						devImageService,
+						config.image
+					),
 				});
 			},
-			'astro:config:done': ({ setAdapter, config }) => {
-				throwIfAssetsNotEnabled(config, imageService);
-				setAdapter(getAdapter());
+			'astro:config:done': ({ setAdapter, config, logger }) => {
+				if (functionPerRoute === true) {
+					logger.warn(
+						`Vercel's hosting plans might have limits to the number of functions you can create.
+Make sure to check your plan carefully to avoid incurring additional costs.
+You can set functionPerRoute: false to prevent surpassing the limit.`
+					);
+				}
+				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware }));
 				_config = config;
 				buildTempFolder = config.build.server;
 				serverEntry = config.build.serverEntry;
 
 				if (config.output === 'static') {
-					throw new Error(`
-		[@astrojs/vercel] \`output: "server"\` or \`output: "hybrid"\` is required to use the serverless adapter.
-
-	`);
+					throw new AstroError(
+						'`output: "server"` or `output: "hybrid"` is required to use the serverless adapter.'
+					);
 				}
 			},
 
@@ -143,7 +197,7 @@ export default function vercelServerless({
 				}
 			},
 
-			'astro:build:done': async ({ routes }) => {
+			'astro:build:done': async ({ routes, logger }) => {
 				// Merge any includes from `vite.assetsInclude
 				if (_config.vite.assetsInclude) {
 					const mergeGlobbedIncludes = (globPattern: unknown) => {
@@ -166,9 +220,19 @@ export default function vercelServerless({
 
 				// Multiple entrypoint support
 				if (_entryPoints.size) {
+					const getRouteFuncName = (route: RouteData) => route.component.replace('src/pages/', '');
+
+					const getFallbackFuncName = (entryFile: URL) =>
+						basename(entryFile.toString())
+							.replace('entry.', '')
+							.replace(/\.mjs$/, '');
+
 					for (const [route, entryFile] of _entryPoints) {
-						const func = basename(entryFile.toString()).replace(/\.mjs$/, '');
-						await createFunctionFolder(func, entryFile, filesToInclude);
+						const func = route.component.startsWith('src/pages/')
+							? getRouteFuncName(route)
+							: getFallbackFuncName(entryFile);
+
+						await createFunctionFolder(func, entryFile, filesToInclude, logger);
 						routeDefinitions.push({
 							src: route.pattern.source,
 							dest: func,
@@ -178,7 +242,8 @@ export default function vercelServerless({
 					await createFunctionFolder(
 						'render',
 						new URL(serverEntry, buildTempFolder),
-						filesToInclude
+						filesToInclude,
+						logger
 					);
 					routeDefinitions.push({ src: '/.*', dest: 'render' });
 				}
@@ -198,7 +263,18 @@ export default function vercelServerless({
 						...routeDefinitions,
 					],
 					...(imageService || imagesConfig
-						? { images: imagesConfig ? imagesConfig : defaultImageConfig }
+						? {
+								images: imagesConfig
+									? {
+											...imagesConfig,
+											domains: [...imagesConfig.domains, ..._config.image.domains],
+											remotePatterns: [
+												...(imagesConfig.remotePatterns ?? []),
+												..._config.image.remotePatterns,
+											],
+									  }
+									: getDefaultImageConfig(_config.image),
+						  }
 						: {}),
 				});
 

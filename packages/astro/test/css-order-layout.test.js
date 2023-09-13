@@ -8,6 +8,8 @@ describe('CSS ordering - import order with layouts', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/css-order-layout/',
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
 		});
 	});
 

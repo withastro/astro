@@ -2,7 +2,8 @@ import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/internal.js';
 import { compile as mdxCompile, type CompileOptions } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
-import type { AstroIntegration, ContentEntryType, HookParameters } from 'astro';
+import type { AstroIntegration, ContentEntryType, HookParameters, SSRError } from 'astro';
+import astroJSXRenderer from 'astro/jsx/renderer.js';
 import { parse as parseESM } from 'es-module-lexer';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -12,6 +13,11 @@ import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
 import { getRehypePlugins, getRemarkPlugins, recmaInjectImportMetaEnvPlugin } from './plugins.js';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
+import {
+	ASTRO_IMAGE_ELEMENT,
+	ASTRO_IMAGE_IMPORT,
+	USES_ASTRO_IMAGE_FLAG,
+} from './remark-images-to-component.js';
 import { getFileInfo, ignoreStringPlugins, parseFrontmatter } from './utils.js';
 
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
@@ -37,9 +43,16 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 		name: '@astrojs/mdx',
 		hooks: {
 			'astro:config:setup': async (params) => {
-				const { updateConfig, config, addPageExtension, addContentEntryType, command } =
-					params as SetupHookParams;
+				const {
+					updateConfig,
+					config,
+					addPageExtension,
+					addContentEntryType,
+					command,
+					addRenderer,
+				} = params as SetupHookParams;
 
+				addRenderer(astroJSXRenderer);
 				addPageExtension('.mdx');
 				addContentEntryType({
 					extensions: ['.mdx'],
@@ -72,7 +85,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				});
 
 				const mdxPluginOpts: CompileOptions = {
-					remarkPlugins: await getRemarkPlugins(mdxOptions, config),
+					remarkPlugins: await getRemarkPlugins(mdxOptions),
 					rehypePlugins: getRehypePlugins(mdxOptions),
 					recmaPlugins: mdxOptions.recmaPlugins,
 					remarkRehypeOptions: mdxOptions.remarkRehype,
@@ -95,6 +108,21 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 								enforce: 'pre',
 								configResolved(resolved) {
 									importMetaEnv = { ...importMetaEnv, ...resolved.env };
+
+									// HACK: move ourselves before Astro's JSX plugin to transform things in the right order
+									const jsxPluginIndex = resolved.plugins.findIndex((p) => p.name === 'astro:jsx');
+									if (jsxPluginIndex !== -1) {
+										const myPluginIndex = resolved.plugins.findIndex(
+											(p) => p.name === '@mdx-js/rollup'
+										);
+										if (myPluginIndex !== -1) {
+											const myPlugin = resolved.plugins[myPluginIndex];
+											// @ts-ignore-error ignore readonly annotation
+											resolved.plugins.splice(myPluginIndex, 1);
+											// @ts-ignore-error ignore readonly annotation
+											resolved.plugins.splice(jsxPluginIndex, 0, myPlugin);
+										}
+									}
 								},
 								// Override transform to alter code before MDX compilation
 								// ex. inject layouts
@@ -106,27 +134,40 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									const code = await fs.readFile(fileId, 'utf-8');
 
 									const { data: frontmatter, content: pageContent } = parseFrontmatter(code, id);
-									const compiled = await mdxCompile(new VFile({ value: pageContent, path: id }), {
-										...mdxPluginOpts,
-										elementAttributeNameCase: 'html',
-										remarkPlugins: [
-											// Ensure `data.astro` is available to all remark plugins
-											toRemarkInitializeAstroData({ userFrontmatter: frontmatter }),
-											...(mdxPluginOpts.remarkPlugins ?? []),
-										],
-										recmaPlugins: [
-											...(mdxPluginOpts.recmaPlugins ?? []),
-											() => recmaInjectImportMetaEnvPlugin({ importMetaEnv }),
-										],
-										SourceMapGenerator: config.vite.build?.sourcemap
-											? SourceMapGenerator
-											: undefined,
-									});
+									try {
+										const compiled = await mdxCompile(new VFile({ value: pageContent, path: id }), {
+											...mdxPluginOpts,
+											elementAttributeNameCase: 'html',
+											remarkPlugins: [
+												// Ensure `data.astro` is available to all remark plugins
+												toRemarkInitializeAstroData({ userFrontmatter: frontmatter }),
+												...(mdxPluginOpts.remarkPlugins ?? []),
+											],
+											recmaPlugins: [
+												...(mdxPluginOpts.recmaPlugins ?? []),
+												() => recmaInjectImportMetaEnvPlugin({ importMetaEnv }),
+											],
+											SourceMapGenerator: config.vite.build?.sourcemap
+												? SourceMapGenerator
+												: undefined,
+										});
 
-									return {
-										code: escapeViteEnvReferences(String(compiled.value)),
-										map: compiled.map,
-									};
+										return {
+											code: escapeViteEnvReferences(String(compiled.value)),
+											map: compiled.map,
+										};
+									} catch (e: any) {
+										const err: SSRError = e;
+
+										// For some reason MDX puts the error location in the error's name, not very useful for us.
+										err.name = 'MDXError';
+										err.loc = { file: fileId, line: e.line, column: e.column };
+
+										// For another some reason, MDX doesn't include a stack trace. Weird
+										Error.captureStackTrace(err);
+
+										throw err;
+									}
 								},
 							},
 							{
@@ -156,11 +197,27 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 										code += `\nexport const file = ${JSON.stringify(fileId)};`;
 									}
 									if (!moduleExports.find(({ n }) => n === 'Content')) {
+										// If have `export const components`, pass that as props to `Content` as fallback
+										const hasComponents = moduleExports.find(({ n }) => n === 'components');
+										const usesAstroImage = moduleExports.find(
+											({ n }) => n === USES_ASTRO_IMAGE_FLAG
+										);
+
+										let componentsCode = `{ Fragment${
+											hasComponents ? ', ...components' : ''
+										}, ...props.components,`;
+										if (usesAstroImage) {
+											componentsCode += ` ${JSON.stringify(ASTRO_IMAGE_ELEMENT)}: ${
+												hasComponents ? 'components.img ?? ' : ''
+											} props.components?.img ?? ${ASTRO_IMAGE_IMPORT}`;
+										}
+										componentsCode += ' }';
+
 										// Make `Content` the default export so we can wrap `MDXContent` and pass in `Fragment`
 										code = code.replace('export default MDXContent;', '');
 										code += `\nexport const Content = (props = {}) => MDXContent({
 											...props,
-											components: { Fragment, ...props.components },
+											components: ${componentsCode},
 										});
 										export default Content;`;
 									}

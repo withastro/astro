@@ -3,9 +3,9 @@ const noop = () => {};
 let originalConsoleWarning;
 let consoleFilterRefs = 0;
 
-export default (target) => {
+export default (element) => {
 	return (Component, props, slotted, { client }) => {
-		if (!target.hasAttribute('ssr')) return;
+		if (!element.hasAttribute('ssr')) return;
 		const slots = {};
 		for (const [key, value] of Object.entries(slotted)) {
 			slots[key] = createSlotDefinition(key, value);
@@ -14,8 +14,8 @@ export default (target) => {
 		try {
 			if (import.meta.env.DEV) useConsoleFilter();
 
-			new Component({
-				target,
+			const component = new Component({
+				target: element,
 				props: {
 					...props,
 					$$slots: slots,
@@ -24,6 +24,8 @@ export default (target) => {
 				hydrate: client !== 'only',
 				$$inline: true,
 			});
+
+			element.addEventListener('astro:unmount', () => component.$destroy(), { once: true });
 		} catch (e) {
 		} finally {
 			if (import.meta.env.DEV) finishUsingConsoleFilter();

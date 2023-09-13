@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@fontsource/montserrat": "4.5.11",
-    "@fontsource/monofett": "4.5.7",
+    "@fontsource/monofett": "5.0.9",
+    "@fontsource/montserrat": "5.0.8",
     "astro": "workspace:*"
   }
 }

@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import { basename } from 'node:path';
 import { Writable } from 'node:stream';
 import { removeDir } from '../dist/core/fs/index.js';
+import { Logger } from '../dist/core/logger/core.js';
 import testAdapter from './test-adapter.js';
 import { testImageService } from './test-image-service.js';
 import { loadFixture } from './test-utils.js';
@@ -20,9 +21,6 @@ describe('astro:image', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image/',
-				experimental: {
-					assets: true,
-				},
 				image: {
 					service: testImageService({ foo: 'bar' }),
 					domains: ['avatars.githubusercontent.com'],
@@ -30,7 +28,7 @@ describe('astro:image', () => {
 			});
 
 			devServer = await fixture.startDevServer({
-				logging: {
+				logger: new Logger({
 					level: 'error',
 					dest: new Writable({
 						objectMode: true,
@@ -39,7 +37,7 @@ describe('astro:image', () => {
 							callback();
 						},
 					}),
-				},
+				}),
 			});
 		});
 
@@ -160,6 +158,37 @@ describe('astro:image', () => {
 				let src = $img.attr('src');
 				res = await fixture.fetch(src);
 				expect(res.status).to.equal(200);
+			});
+
+			it('supports uppercased imports', async () => {
+				let res = await fixture.fetch('/uppercase');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(1);
+
+				let src = $img.attr('src');
+				let loading = $img.attr('loading');
+				res = await fixture.fetch(src);
+				expect(res.status).to.equal(200);
+				expect(loading).to.not.be.undefined;
+			});
+
+			it('supports avif', async () => {
+				let res = await fixture.fetch('/avif');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				console.log(html);
+
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(1);
+
+				let src = $img.attr('src');
+				res = await fixture.fetch(src);
+				expect(res.status).to.equal(200);
+				expect(res.headers.get('content-type')).to.equal('image/avif');
 			});
 		});
 
@@ -433,6 +462,47 @@ describe('astro:image', () => {
 				expect($('#local img').attr('data-service-config')).to.equal('bar');
 			});
 		});
+
+		describe('custom endpoint', async () => {
+			/** @type {import('./test-utils').DevServer} */
+			let customEndpointDevServer;
+
+			/** @type {import('./test-utils.js').Fixture} */
+			let customEndpointFixture;
+
+			before(async () => {
+				customEndpointFixture = await loadFixture({
+					root: './fixtures/core-image/',
+					image: {
+						endpoint: './src/custom-endpoint.ts',
+						service: testImageService({ foo: 'bar' }),
+						domains: ['avatars.githubusercontent.com'],
+					},
+				});
+
+				customEndpointDevServer = await customEndpointFixture.startDevServer({
+					server: { port: 4324 },
+				});
+			});
+
+			it('custom endpoint works', async () => {
+				const response = await customEndpointFixture.fetch('/');
+				const html = await response.text();
+
+				const $ = cheerio.load(html);
+				const src = $('#local img').attr('src');
+
+				let res = await customEndpointFixture.fetch(src);
+				expect(res.status).to.equal(200);
+				expect(await res.text()).to.equal(
+					"You fool! I'm not a image endpoint at all, I just return this!"
+				);
+			});
+
+			after(async () => {
+				await customEndpointDevServer.stop();
+			});
+		});
 	});
 
 	describe('proper errors', () => {
@@ -444,16 +514,13 @@ describe('astro:image', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-errors/',
-				experimental: {
-					assets: true,
-				},
 				image: {
 					service: testImageService(),
 				},
 			});
 
 			devServer = await fixture.startDevServer({
-				logging: {
+				logger: new Logger({
 					level: 'error',
 					dest: new Writable({
 						objectMode: true,
@@ -462,7 +529,7 @@ describe('astro:image', () => {
 							callback();
 						},
 					}),
-				},
+				}),
 			});
 		});
 
@@ -512,9 +579,6 @@ describe('astro:image', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-base/',
-				experimental: {
-					assets: true,
-				},
 				image: {
 					service: testImageService(),
 				},
@@ -568,9 +632,6 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
 				adapter: testAdapter(),
-				experimental: {
-					assets: true,
-				},
 				image: {
 					service: testImageService(),
 				},
@@ -592,9 +653,6 @@ describe('astro:image', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-ssg/',
-				experimental: {
-					assets: true,
-				},
 				image: {
 					service: testImageService(),
 					domains: ['astro.build'],
@@ -771,9 +829,6 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
 				adapter: testAdapter(),
-				experimental: {
-					assets: true,
-				},
 				image: {
 					service: testImageService(),
 				},
@@ -798,9 +853,6 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
 				adapter: testAdapter(),
-				experimental: {
-					assets: true,
-				},
 				image: {
 					service: testImageService(),
 				},

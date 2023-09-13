@@ -1,9 +1,9 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
 import {
-	defaultImageConfig,
-	getImageConfig,
-	throwIfAssetsNotEnabled,
+	getAstroImageConfig,
+	getDefaultImageConfig,
+	type DevImageService,
 	type VercelImageConfig,
 } from '../image/shared.js';
 import { exposeEnv } from '../lib/env.js';
@@ -14,19 +14,37 @@ import { getRedirects } from '../lib/redirects.js';
 const PACKAGE_NAME = '@astrojs/vercel/static';
 
 function getAdapter(): AstroAdapter {
-	return { name: PACKAGE_NAME };
+	return {
+		name: PACKAGE_NAME,
+		supportedAstroFeatures: {
+			assets: {
+				supportKind: 'stable',
+				isSquooshCompatible: true,
+				isSharpCompatible: true,
+			},
+			staticOutput: 'stable',
+			serverOutput: 'unsupported',
+			hybridOutput: 'unsupported',
+		},
+		adapterFeatures: {
+			edgeMiddleware: false,
+			functionPerRoute: false,
+		},
+	};
 }
 
 export interface VercelStaticConfig {
 	analytics?: boolean;
 	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
+	devImageService?: DevImageService;
 }
 
 export default function vercelStatic({
 	analytics,
 	imageService,
 	imagesConfig,
+	devImageService = 'sharp',
 }: VercelStaticConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 
@@ -48,11 +66,16 @@ export default function vercelStatic({
 					vite: {
 						define: viteDefine,
 					},
-					...getImageConfig(imageService, imagesConfig, command),
+					...getAstroImageConfig(
+						imageService,
+						imagesConfig,
+						command,
+						devImageService,
+						config.image
+					),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				throwIfAssetsNotEnabled(config, imageService);
 				setAdapter(getAdapter());
 				_config = config;
 
@@ -81,7 +104,18 @@ export default function vercelStatic({
 						{ handle: 'filesystem' },
 					],
 					...(imageService || imagesConfig
-						? { images: imagesConfig ? imagesConfig : defaultImageConfig }
+						? {
+								images: imagesConfig
+									? {
+											...imagesConfig,
+											domains: [...imagesConfig.domains, ..._config.image.domains],
+											remotePatterns: [
+												...(imagesConfig.remotePatterns ?? []),
+												..._config.image.remotePatterns,
+											],
+									  }
+									: getDefaultImageConfig(_config.image),
+						  }
 						: {}),
 				});
 			},

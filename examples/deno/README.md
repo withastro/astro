@@ -4,7 +4,7 @@
 [![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/deno)
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/deno/devcontainer.json)
 
-```
+```sh
 npm create astro@latest -- --template deno
 ```
 
@@ -16,7 +16,7 @@ npm create astro@latest -- --template deno
 
 Inside of your Astro project, you'll see the following folders and files:
 
-```
+```text
 /
 ├── public/
 │   └── favicon.svg
@@ -42,7 +42,7 @@ All commands are run from the root of the project, from a terminal:
 | Command                   | Action                                           |
 | :------------------------ | :----------------------------------------------- |
 | `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:3000`      |
+| `npm run dev`             | Starts local dev server at `localhost:4321`      |
 | `npm run build`           | Build your production site to `./dist/`          |
 | `npm run preview`         | Preview your build locally, before deploying     |
 |                           | (preview uses Deno CLI)                          |

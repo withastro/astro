@@ -1,7 +1,8 @@
-import type { SSRElement } from '../../../@types/astro';
+import type { SSRElement } from '../../../@types/astro.js';
+import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
 
+import { clsx } from 'clsx';
 import { HTMLString, markHTMLString } from '../escape.js';
-import { serializeListValue } from '../util.js';
 
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
@@ -29,10 +30,6 @@ const toStyleString = (obj: Record<string, any>) =>
 	Object.entries(obj)
 		.map(([k, v]) => {
 			if (k[0] !== '-' && k[1] !== '-') return `${kebab(k)}:${v}`;
-			// TODO: Remove in v3! See #6264
-			// We need to emit --kebab-case AND --camelCase for backwards-compat in v2,
-			// but we should be able to remove this workaround in v3.
-			if (kebab(k) !== k) return `${kebab(k)}:var(${k});${k}:${v}`;
 			return `${k}:${v}`;
 		})
 		.join(';');
@@ -82,7 +79,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 
 	// support "class" from an expression passed into an element (#782)
 	if (key === 'class:list') {
-		const listValue = toAttributeString(serializeListValue(value), shouldEscape);
+		const listValue = toAttributeString(clsx(value), shouldEscape);
 		if (listValue === '') {
 			return '';
 		}
@@ -144,4 +141,57 @@ export function renderElement(
 		return `<${name}${internalSpreadAttributes(props, shouldEscape)} />`;
 	}
 	return `<${name}${internalSpreadAttributes(props, shouldEscape)}>${children}</${name}>`;
+}
+
+/**
+ * Executes the `bufferRenderFunction` to prerender it into a buffer destination, and return a promise
+ * with an object containing the `renderToFinalDestination` function to flush the buffer to the final
+ * destination.
+ *
+ * @example
+ * ```ts
+ * // Render components in parallel ahead of time
+ * const finalRenders = [ComponentA, ComponentB].map((comp) => {
+ *   return renderToBufferDestination(async (bufferDestination) => {
+ *     await renderComponentToDestination(bufferDestination);
+ *   });
+ * });
+ * // Render array of components serially
+ * for (const finalRender of finalRenders) {
+ *   await finalRender.renderToFinalDestination(finalDestination);
+ * }
+ * ```
+ */
+export function renderToBufferDestination(bufferRenderFunction: RenderFunction): {
+	renderToFinalDestination: RenderFunction;
+} {
+	// Keep chunks in memory
+	const bufferChunks: RenderDestinationChunk[] = [];
+	const bufferDestination: RenderDestination = {
+		write: (chunk) => bufferChunks.push(chunk),
+	};
+
+	// Don't await for the render to finish to not block streaming
+	const renderPromise = bufferRenderFunction(bufferDestination);
+
+	// Return a closure that writes the buffered chunk
+	return {
+		async renderToFinalDestination(destination) {
+			// Write the buffered chunks to the real destination
+			for (const chunk of bufferChunks) {
+				destination.write(chunk);
+			}
+
+			// NOTE: We don't empty `bufferChunks` after it's written as benchmarks show
+			// that it causes poorer performance, likely due to forced memory re-allocation,
+			// instead of letting the garbage collector handle it automatically.
+			// (Unsure how this affects on limited memory machines)
+
+			// Re-assign the real destination so `instance.render` will continue and write to the new destination
+			bufferDestination.write = (chunk) => destination.write(chunk);
+
+			// Wait for render to finish entirely
+			await renderPromise;
+		},
+	};
 }

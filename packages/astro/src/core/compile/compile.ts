@@ -1,6 +1,6 @@
 import type { TransformResult } from '@astrojs/compiler';
 import type { ResolvedConfig } from 'vite';
-import type { AstroConfig } from '../../@types/astro';
+import type { AstroConfig } from '../../@types/astro.js';
 
 import { transform } from '@astrojs/compiler';
 import { fileURLToPath } from 'node:url';
@@ -41,12 +41,10 @@ export async function compile({
 			filename,
 			normalizedFilename: normalizeFilename(filename, astroConfig.root),
 			sourcemap: 'both',
-			internalURL: 'astro/server/index.js',
+			internalURL: 'astro/compiler-runtime',
 			astroGlobalArgs: JSON.stringify(astroConfig.site),
 			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
 			resultScopedSlot: true,
-			experimentalTransitions: astroConfig.experimental.viewTransitions,
-			experimentalPersistence: astroConfig.experimental.viewTransitions,
 			transitionsAnimationURL: 'astro/components/viewtransitions.css',
 			preprocessStyle: createStylePreprocessor({
 				filename,

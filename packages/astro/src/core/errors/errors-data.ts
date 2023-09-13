@@ -42,7 +42,7 @@ export const UnknownCompilerError = {
  * The `Astro.redirect` function is only available when [Server-side rendering](/en/guides/server-side-rendering/) is enabled.
  *
  * To redirect on a static website, the [meta refresh attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta) can be used. Certain hosts also provide config-based redirects (ex: [Netlify redirects](https://docs.netlify.com/routing/redirects/)).
- * @deprecated since version 2.6
+ * @deprecated Deprecated since version 2.6.
  */
 export const StaticRedirectNotAvailable = {
 	name: 'StaticRedirectNotAvailable',
@@ -481,9 +481,9 @@ export const PageNumberParamNotFound = {
 /**
  * @docs
  * @see
- * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
- * - [Image component](https://docs.astro.build/en/guides/assets/#image--astroassets)
- * - [Image component#alt](https://docs.astro.build/en/guides/assets/#alt-required)
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * - [Image component](https://docs.astro.build/en/guides/images/#image--astroassets)
+ * - [Image component#alt](https://docs.astro.build/en/guides/images/#alt-required)
  * @description
  * The `alt` property allows you to provide descriptive alt text to users of screen readers and other assistive technologies. In order to ensure your images are accessible, the `Image` component requires that an `alt` be specified.
  *
@@ -515,8 +515,8 @@ export const InvalidImageService = {
  * @message
  * Missing width and height attributes for `IMAGE_URL`. When using remote images, both dimensions are always required in order to avoid cumulative layout shift (CLS).
  * @see
- * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
- * - [Image component#width-and-height](https://docs.astro.build/en/guides/assets/#width-and-height)
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * - [Image component#width-and-height-required](https://docs.astro.build/en/guides/images/#width-and-height-required-for-public-and-remote-images)
  * @description
  * For remote images, `width` and `height` cannot be inferred from the original file. As such, in order to avoid CLS, those two properties are always required.
  *
@@ -536,10 +536,10 @@ export const MissingImageDimension = {
  * @description
  * The built-in image services do not currently support optimizing all image formats.
  *
- * For unsupported formats such as SVGs and GIFs, you may be able to use an `img` tag directly:
+ * For unsupported formats such as GIFs, you may be able to use an `img` tag directly:
  * ```astro
  * ---
- * import rocket from '../assets/images/rocket.svg';
+ * import rocket from '../assets/images/rocket.gif';
  * ---
  *
  * <img src={rocket.src} width={rocket.width} height={rocket.height} alt="A rocketship in space." />
@@ -575,7 +575,7 @@ export const PrerenderDynamicEndpointPathCollide = {
 /**
  * @docs
  * @see
- * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+ * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
  * An image's `src` property is not valid. The Image component requires the `src` attribute to be either an image that has been ESM imported or a string. This is also true for the first parameter of `getImage()`.
  *
@@ -594,14 +594,14 @@ export const PrerenderDynamicEndpointPathCollide = {
 export const ExpectedImage = {
 	name: 'ExpectedImage',
 	title: 'Expected src to be an image.',
-	message: (options: string) =>
-		`Expected \`src\` property to be either an ESM imported image or a string with the path of a remote image. Received \`${options}\`.`,
-	hint: 'This error can often happen because of a wrong path. Make sure the path to your image is correct.',
+	message: (src: string, typeofOptions: string, fullOptions: string) =>
+		`Expected \`src\` property for \`getImage\` or \`<Image />\` to be either an ESM imported image or a string with the path of a remote image. Received \`${src}\` (type: \`${typeofOptions}\`).\n\nFull serialized options received: \`${fullOptions}\`.`,
+	hint: "This error can often happen because of a wrong path. Make sure the path to your image is correct. If you're passing an async function, make sure to call and await it.",
 } satisfies ErrorData;
 /**
  * @docs
  * @see
- * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+ * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
  * `getImage()`'s first parameter should be an object with the different properties to apply to your image.
  *
@@ -625,7 +625,7 @@ export const ExpectedImageOptions = {
  * @message
  * Could not find requested image `IMAGE_PATH` at `FULL_IMAGE_PATH`.
  * @see
- * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+ * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
  * Astro could not find an image you included in your Markdown content. Usually, this is simply caused by a typo in the path.
  *
@@ -658,7 +658,7 @@ export const ResponseSentError = {
  *
  * For example:
  * ```ts
- * import {defineMiddleware} from "astro/middleware";
+ * import {defineMiddleware} from "astro:middleware";
  * export const onRequest = defineMiddleware((context, _) => {
  * 	// doesn't return anything or call `next`
  * 	context.locals.someData = false;
@@ -678,7 +678,7 @@ export const MiddlewareNoDataOrNextCalled = {
  *
  * For example:
  * ```ts
- * import {defineMiddleware} from "astro/middleware";
+ * import {defineMiddleware} from "astro:middleware";
  * export const onRequest = defineMiddleware(() => {
  *   return "string"
  * });
@@ -698,7 +698,7 @@ export const MiddlewareNotAResponse = {
  *
  * For example:
  * ```ts
- * import {defineMiddleware} from "astro/middleware";
+ * import {defineMiddleware} from "astro:middleware";
  * export const onRequest = defineMiddleware((context, next) => {
  *   context.locals = 1541;
  *   return next();
@@ -712,12 +712,15 @@ export const LocalsNotAnObject = {
 		'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
 	hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
 } satisfies ErrorData;
+
 /**
  * @docs
  * @see
- * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+ * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
- * When using the default image services, `Image`'s and `getImage`'s `src` parameter must be either an imported image or an URL, it cannot be a filepath.
+ * When using the default image services, `Image`'s and `getImage`'s `src` parameter must be either an imported image or an URL, it cannot be a string of a filepath.
+ *
+ * For local images from content collections, you can use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections) to resolve the images.
  *
  * ```astro
  * ---
@@ -728,15 +731,22 @@ export const LocalsNotAnObject = {
  * <!-- GOOD: `src` is the full imported image. -->
  * <Image src={myImage} alt="Cool image" />
  *
- * <!-- BAD: `src` is an image's `src` path instead of the full image. -->
+ * <!-- GOOD: `src` is a URL. -->
+ * <Image src="https://example.com/my_image.png" alt="Cool image" />
+ *
+ * <!-- BAD: `src` is an image's `src` path instead of the full image object. -->
  * <Image src={myImage.src} alt="Cool image" />
+ *
+ * <!-- BAD: `src` is a string filepath. -->
+ * <Image src="../my_image.png" alt="Cool image" />
  * ```
  */
 export const LocalImageUsedWrongly = {
 	name: 'LocalImageUsedWrongly',
-	title: 'ESM imported images must be passed as-is.',
+	title: 'Local images must be imported.',
 	message: (imageFilePath: string) =>
-		`\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or an URL, it cannot be a filepath. Received \`${imageFilePath}\`.`,
+		`\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or an URL, it cannot be a string filepath. Received \`${imageFilePath}\`.`,
+	hint: 'If you want to use an image from your `src` folder, you need to either import it or if the image is coming from a content collection, use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections) See https://docs.astro.build/en/guides/images/#src-required for more information on the `src` property.',
 } satisfies ErrorData;
 
 /**
@@ -791,6 +801,33 @@ export const InvalidDynamicRoute = {
 	message: (route: string, invalidParam: string, received: string) =>
 		`The ${invalidParam} param for route ${route} is invalid. Received **${received}**.`,
 } satisfies ErrorData;
+/**
+ * @docs
+ * @see
+ * - [Default Image Service](https://docs.astro.build/en/guides/images/#default-image-service)
+ * - [Image Component](https://docs.astro.build/en/guides/images/#image--astroassets)
+ * - [Image Services API](https://docs.astro.build/en/reference/image-service-reference/)
+ * @description
+ * Sharp is the default image service used for `astro:assets`. When using a [strict package manager](https://pnpm.io/pnpm-vs-npm#npms-flat-tree) like pnpm, Sharp must be installed manually into your project in order to use image processing.
+ *
+ * If you are not using `astro:assets` for image processing, and do not wish to install Sharp, you can configure the following passthrough image service that does no processing:
+ *
+ * ```js
+ * import { defineConfig, passthroughImageService } from "astro/config";
+ * export default defineConfig({
+ *  image: {
+ *    service: passthroughImageService(),
+ *  },
+ * });
+ * ```
+ */
+export const MissingSharp = {
+	name: 'MissingSharp',
+	title: 'Could not find Sharp.',
+	message:
+		'Could not find Sharp. Please install Sharp (`sharp`) manually into your project or migrate to another image service.',
+	hint: "See Sharp's installation instructions for more information: https://sharp.pixelplumbing.com/install. If you are not relying on `astro:assets` to optimize, transform, or process any images, you can configure a passthrough image service instead of installing Sharp. See https://docs.astro.build/en/reference/errors/missing-sharp for more information.\n\nSee https://docs.astro.build/en/guides/images/#default-image-service for more information on how to migrate to another image service.",
+};
 // No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 // Vite Errors - 4xxx
 /**

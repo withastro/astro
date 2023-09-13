@@ -1,9 +1,10 @@
 import type { CreatePreviewServer } from 'astro';
+import { AstroError } from 'astro/errors';
 import type http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { getNetworkAddress } from './get-network-address.js';
 import { createServer } from './http-server.js';
-import type { createExports } from './server';
+import type { createExports } from './server.js';
 
 const preview: CreatePreviewServer = async function ({
 	client,
@@ -11,6 +12,7 @@ const preview: CreatePreviewServer = async function ({
 	host,
 	port,
 	base,
+	logger,
 }) {
 	type ServerModule = ReturnType<typeof createExports>;
 	type MaybeServerModule = Partial<ServerModule>;
@@ -21,13 +23,13 @@ const preview: CreatePreviewServer = async function ({
 		if (typeof ssrModule.handler === 'function') {
 			ssrHandler = ssrModule.handler;
 		} else {
-			throw new Error(
+			throw new AstroError(
 				`The server entrypoint doesn't have a handler. Are you sure this is the right file?`
 			);
 		}
 	} catch (err) {
 		if ((err as any).code === 'ERR_MODULE_NOT_FOUND') {
-			throw new Error(
+			throw new AstroError(
 				`The server entrypoint ${fileURLToPath(
 					serverEntrypoint
 				)} does not exist. Have you ran a build yet?`
@@ -38,15 +40,7 @@ const preview: CreatePreviewServer = async function ({
 	}
 
 	const handler: http.RequestListener = (req, res) => {
-		ssrHandler(req, res, (ssrErr: any) => {
-			if (ssrErr) {
-				res.writeHead(500);
-				res.end(ssrErr.toString());
-			} else {
-				res.writeHead(404);
-				res.end();
-			}
-		});
+		ssrHandler(req, res);
 	};
 
 	const baseWithoutTrailingSlash: string = base.endsWith('/')
@@ -71,13 +65,11 @@ const preview: CreatePreviewServer = async function ({
 	const address = getNetworkAddress('http', host, port);
 
 	if (host === undefined) {
-		// eslint-disable-next-line no-console
-		console.log(
+		logger.info(
 			`Preview server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}\n`
 		);
 	} else {
-		// eslint-disable-next-line no-console
-		console.log(`Preview server listening on ${address.local[0]}`);
+		logger.info(`Preview server listening on ${address.local[0]}`);
 	}
 
 	return server;

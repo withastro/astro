@@ -1,3 +1,5 @@
+const { builtinModules } = require('module');
+
 module.exports = {
   extends: [
     'plugin:@typescript-eslint/recommended-type-checked',
@@ -13,7 +15,10 @@ module.exports = {
   rules: {
     // These off/configured-differently-by-default rules fit well for us
     '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
-    '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true }],
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      { argsIgnorePattern: '^_', ignoreRestSiblings: true },
+    ],
     'no-only-tests/no-only-tests': 'error',
     '@typescript-eslint/no-shadow': ['error'],
     'no-console': 'warn',
@@ -51,6 +56,19 @@ module.exports = {
     'prefer-const': 'off',
   },
   overrides: [
+    {
+      // Ensure Node builtins aren't included in Astro's server runtime
+      files: ['packages/astro/src/runtime/**/*.ts'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            paths: [...builtinModules],
+            patterns: ['node:*'],
+          },
+        ],
+      },
+    },
     {
       files: ['packages/**/test/*.js', 'packages/**/*.js'],
       env: {

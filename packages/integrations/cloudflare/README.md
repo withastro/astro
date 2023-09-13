@@ -44,22 +44,36 @@ export default defineConfig({
 
 default `"advanced"`
 
-Cloudflare Pages has 2 different modes for deploying functions, `advanced` mode which picks up the `_worker.js` in `dist`, or a directory mode where pages will compile the worker out of a functions folder in the project root.
+Cloudflare Pages has 2 different modes for deploying functions, `advanced` mode which picks up the `_worker.js` in `dist`, or a directory mode where pages will compile the worker out of a functions folder in the project root. For most projects the adapter default of `advanced` will be sufficient; the `dist` folder will contain your compiled project.
 
-For most projects the adapter default of `advanced` will be sufficient; the `dist` folder will contain your compiled project. Switching to directory mode allows you to use [pages plugins](https://developers.cloudflare.com/pages/platform/functions/plugins/) such as [Sentry](https://developers.cloudflare.com/pages/platform/functions/plugins/sentry/) or write custom code to enable logging.
+#### `mode:directory`
 
-In directory mode, the adapter will compile the client side part of your app the same way by default, but moves the worker script into a `functions` folder in the project root. In this case, the adapter will only ever place a `[[path]].js` in that folder, allowing you to add additional plugins and pages middleware which can be checked into version control.
-
-With the build configuration `split: true`, the adapter instead compiles a separate bundle for each page. This option requires some manual maintenance of the `functions` folder. Files emitted by Astro will overwrite existing `functions` files with identical names, so you must choose unique file names for each file you manually add. Additionally, the adapter will never empty the `functions` folder of outdated files, so you must clean up the folder manually when you remove pages.
-
-Note that this adapter does not support using [Cloudflare Pages Middleware](https://developers.cloudflare.com/pages/platform/functions/middleware/). Astro will bundle the [Astro middleware](https://docs.astro.build/en/guides/middleware/) into each page.
+Switching to directory mode allows you to use [pages plugins](https://developers.cloudflare.com/pages/platform/functions/plugins/) such as [Sentry](https://developers.cloudflare.com/pages/platform/functions/plugins/sentry/) or write custom code to enable logging.
 
 ```ts
-// directory mode
+// astro.config.mjs
 export default defineConfig({
   adapter: cloudflare({ mode: 'directory' }),
 });
 ```
+
+In `directory` mode, the adapter will compile the client-side part of your app the same way as in `advanced` mode by default, but moves the worker script into a `functions` folder in the project root. In this case, the adapter will only ever place a `[[path]].js` in that folder, allowing you to add additional plugins and pages middleware which can be checked into version control.
+
+To instead compile a separate bundle for each page, set the `functionPerPath` option in your Cloudflare adapter config. This option requires some manual maintenance of the `functions` folder. Files emitted by Astro will overwrite existing `functions` files with identical names, so you must choose unique file names for each file you manually add. Additionally, the adapter will never empty the `functions` folder of outdated files, so you must clean up the folder manually when you remove pages.
+
+```diff
+import {defineConfig} from "astro/config";
+import cloudflare from '@astrojs/cloudflare';
+
+export default defineConfig({
+     adapter: cloudflare({
+        mode: 'directory',
++       functionPerRoute: true
+    })
+})
+```
+
+Note that this adapter does not support using [Cloudflare Pages Middleware](https://developers.cloudflare.com/pages/platform/functions/middleware/). Astro will bundle the [Astro middleware](https://docs.astro.build/en/guides/middleware/) into each page.
 
 ## Enabling Preview
 
@@ -75,20 +89,67 @@ It's then possible to update the preview script in your `package.json` to `"prev
 
 You can access all the Cloudflare bindings and environment variables from Astro components and API routes through `Astro.locals`.
 
-```js
+If you're inside an `.astro` file, you access the runtime using the `Astro.locals` global:
+
+```astro
 const env = Astro.locals.runtime.env;
+```
+
+From an endpoint:
+
+```js
+// src/pages/api/someFile.js
+export function GET(context) {
+  const runtime = context.locals.runtime;
+
+  return new Response('Some body');
+}
 ```
 
 Depending on your adapter mode (advanced = worker, directory = pages), the runtime object will look a little different due to differences in the Cloudflare API.
 
-## Environment Variables
+If you're using the `advanced` runtime, you can type the `runtime` object as following:
+
+```ts
+// src/env.d.ts
+/// <reference types="astro/client" />
+import type { AdvancedRuntime } from '@astrojs/cloudflare';
+
+declare namespace App {
+  interface Locals extends AdvancedRuntime {
+    user: {
+      name: string;
+      surname: string;
+    };
+  }
+}
+```
+
+If you're using the `directory` runtime, you can type the `runtime` object as following:
+
+```ts
+// src/env.d.ts
+/// <reference types="astro/client" />
+import type { DirectoryRuntime } from '@astrojs/cloudflare';
+
+declare namespace App {
+  interface Locals extends DirectoryRuntime {
+    user: {
+      name: string;
+      surname: string;
+    };
+  }
+}
+```
+
+### Environment Variables
 
 See Cloudflare's documentation for [working with environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables).
 
 ```js
 // pages/[id].json.js
 
-export function get({ params }) {
+export function GET({ params }) {
   // Access environment variables per request inside a function
   const serverUrl = import.meta.env.SERVER_URL;
   const result = await fetch(serverUrl + "/user/" + params.id);
@@ -96,6 +157,30 @@ export function get({ params }) {
     body: await result.text(),
   };
 }
+```
+
+### `cloudflare.runtime`
+
+`runtime: "off" | "local" | "remote"`
+default `"off"`
+
+This optional flag enables the Astro dev server to populate environment variables and the Cloudflare Request Object, avoiding the need for Wrangler.
+
+- `local`: environment variables are available, but the request object is populated from a static placeholder value.
+- `remote`: environment variables and the live, fetched request object are available.
+- `off`: the Astro dev server will populate neither environment variables nor the request object. Use Wrangler to access Cloudflare bindings and environment variables.
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import cloudflare from '@astrojs/cloudflare';
+
+export default defineConfig({
+  output: 'server',
+  adapter: cloudflare({
+    runtime: 'off' | 'local' | 'remote',
+  }),
+});
 ```
 
 ## Headers, Redirects and function invocation routes

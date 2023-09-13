@@ -1,21 +1,20 @@
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
+import { emitESMImage } from 'astro/assets/utils';
 import matter from 'gray-matter';
 import fs from 'node:fs';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type * as rollup from 'rollup';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
-import { MarkdocError, isComponentConfig, isValidUrl, prependForwardSlash } from './utils.js';
-// @ts-expect-error Cannot get the types here without `moduleResolution: 'nodenext'`
-import { emitESMImage } from 'astro/assets/utils';
-import path from 'node:path';
-import type * as rollup from 'rollup';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
 import type { MarkdocConfigResult } from './load-config.js';
 import type { MarkdocIntegrationOptions } from './options.js';
 import { setupConfig } from './runtime.js';
 import { getMarkdocTokenizer } from './tokenizer.js';
+import { MarkdocError, isComponentConfig, isValidUrl, prependForwardSlash } from './utils.js';
 
 export async function getContentEntryType({
 	markdocConfigResult,
@@ -97,13 +96,11 @@ export async function getContentEntryType({
 				});
 			}
 
-			if (astroConfig.experimental.assets) {
-				await emitOptimizedImages(ast.children, {
-					astroConfig,
-					pluginContext,
-					filePath,
-				});
-			}
+			await emitOptimizedImages(ast.children, {
+				astroConfig,
+				pluginContext,
+				filePath,
+			});
 
 			const res = `import { Renderer } from '@astrojs/markdoc/components';
 import { createGetHeadings, createContentComponent } from '@astrojs/markdoc/runtime';
@@ -111,12 +108,10 @@ ${
 	markdocConfigUrl
 		? `import markdocConfig from ${JSON.stringify(markdocConfigUrl.pathname)};`
 		: 'const markdocConfig = {};'
-}${
-				astroConfig.experimental.assets
-					? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';
-markdocConfig.nodes = { ...experimentalAssetsConfig.nodes, ...markdocConfig.nodes };`
-					: ''
-			}
+}
+
+import { assetsConfig } from '@astrojs/markdoc/runtime-assets-config';
+markdocConfig.nodes = { ...assetsConfig.nodes, ...markdocConfig.nodes };
 
 ${getStringifiedImports(componentConfigByTagMap, 'Tag', astroConfig.root)}
 ${getStringifiedImports(componentConfigByNodeMap, 'Node', astroConfig.root)}
@@ -198,8 +193,7 @@ async function emitOptimizedImages(
 				const src = await emitESMImage(
 					resolved.id,
 					ctx.pluginContext.meta.watchMode,
-					ctx.pluginContext.emitFile,
-					{ config: ctx.astroConfig }
+					ctx.pluginContext.emitFile
 				);
 				node.attributes.__optimizedSrc = src;
 			} else {

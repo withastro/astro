@@ -1,4 +1,4 @@
-import type { SSRResult } from '../../../@types/astro';
+import type { SSRResult } from '../../../@types/astro.js';
 import type { RenderInstruction } from './instruction.js';
 
 import { HTMLBytes, HTMLString, markHTMLString } from '../escape.js';
@@ -37,8 +37,10 @@ export interface RenderDestination {
 }
 
 export interface RenderInstance {
-	render(destination: RenderDestination): Promise<void> | void;
+	render: RenderFunction;
 }
+
+export type RenderFunction = (destination: RenderDestination) => Promise<void> | void;
 
 export const Fragment = Symbol.for('astro:fragment');
 export const Renderer = Symbol.for('astro:renderer');

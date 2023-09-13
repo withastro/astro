@@ -7,7 +7,7 @@ import { FailedToLoadModuleSSR, InvalidGlob, MdxIntegrationMissingError } from '
 import { AstroError, type ErrorWithMetadata } from '../errors.js';
 import { createSafeError } from '../utils.js';
 import type { SSRLoadedRenderer } from './../../../@types/astro.js';
-import { renderErrorMarkdown } from './utils.js';
+import { getDocsForError, renderErrorMarkdown } from './utils.js';
 
 export function enhanceViteSSRError({
 	error,
@@ -137,10 +137,7 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 	const message = renderErrorMarkdown(err.message.trim(), 'html');
 	const hint = err.hint ? renderErrorMarkdown(err.hint.trim(), 'html') : undefined;
 
-	const hasDocs = !!err.name;
-	const docslink = hasDocs
-		? `https://docs.astro.build/en/reference/errors/${getKebabErrorName(err.name)}/`
-		: undefined;
+	const docslink = getDocsForError(err);
 
 	const highlighter = await getHighlighter({ theme: 'css-variables' });
 	let highlighterLang = err.loc?.file?.split('.').pop();
@@ -178,12 +175,4 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 			cause: err.cause,
 		},
 	};
-
-	/**
-	 * The docs has kebab-case urls for errors, so we need to convert the error name
-	 * @param errorName
-	 */
-	function getKebabErrorName(errorName: string): string {
-		return errorName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-	}
 }

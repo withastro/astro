@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path, { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
-import type { RouteData } from '../../@types/astro';
+import type { RouteData } from '../../@types/astro.js';
 import {
 	createBuildInternals,
 	eachPageData,
@@ -16,21 +16,21 @@ import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
-import { isServerLikeOutput } from '../../prerender/utils.js';
+import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { info } from '../logger/core.js';
 import { routeIsRedirect } from '../redirects/index.js';
 import { getOutDirWithinCwd } from './common.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
+import { RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugins/plugin-manifest.js';
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
-import { RESOLVED_SPLIT_MODULE_ID, SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
+import { RESOLVED_SPLIT_MODULE_ID, RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
-import type { PageBuildData, StaticBuildOptions } from './types';
+import type { PageBuildData, StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
@@ -79,9 +79,9 @@ export async function viteBuild(opts: StaticBuildOptions) {
 
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrTime = performance.now();
-	info(opts.logging, 'build', `Building ${settings.config.output} entrypoints...`);
+	opts.logger.info('build', `Building ${settings.config.output} entrypoints...`);
 	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
-	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(ssrTime, performance.now())}.`));
+	opts.logger.info('build', dim(`Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 
 	settings.timer.end('SSR build');
 	settings.timer.start('Client build');
@@ -131,7 +131,7 @@ export async function staticBuild(opts: StaticBuildOptions, internals: BuildInte
 			settings.timer.start('Server generate');
 			await generatePages(opts, internals);
 			await cleanStaticOutput(opts, internals);
-			info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
+			opts.logger.info(null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 			await ssrMoveAssets(opts);
 			settings.timer.end('Server generate');
 			return;
@@ -147,7 +147,7 @@ async function ssrBuild(
 ) {
 	const { allPages, settings, viteConfig } = opts;
 	const ssr = isServerLikeOutput(settings.config);
-	const out = ssr ? settings.config.build.server : getOutDirWithinCwd(settings.config.outDir);
+	const out = getOutputDirectory(settings.config);
 	const routes = Object.values(allPages).map((pd) => pd.route);
 	const { lastVitePlugins, vitePlugins } = container.runBeforeHook('ssr', input);
 
@@ -172,7 +172,21 @@ async function ssrBuild(
 					format: 'esm',
 					// Server chunks can't go in the assets (_astro) folder
 					// We need to keep these separate
-					chunkFileNames: `chunks/[name].[hash].mjs`,
+					chunkFileNames(chunkInfo) {
+						const { name } = chunkInfo;
+						// Sometimes chunks have the `@_@astro` suffix due to SSR logic. Remove it!
+						// TODO: refactor our build logic to avoid this
+						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
+							const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
+							return `chunks/${sanitizedName}_[hash].mjs`;
+						}
+						// Injected routes include "pages/[name].[ext]" already. Clean those up!
+						if (name.startsWith('pages/')) {
+							const sanitizedName = name.split('.')[0];
+							return `chunks/${sanitizedName}_[hash].mjs`;
+						}
+						return `chunks/[name]_[hash].mjs`;
+					},
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames(chunkInfo) {
@@ -184,10 +198,12 @@ async function ssrBuild(
 							);
 						} else if (chunkInfo.facadeModuleId?.startsWith(RESOLVED_SPLIT_MODULE_ID)) {
 							return makeSplitEntryPointFileName(chunkInfo.facadeModuleId, routes);
-						} else if (chunkInfo.facadeModuleId === SSR_VIRTUAL_MODULE_ID) {
+						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_VIRTUAL_MODULE_ID) {
 							return opts.settings.config.build.serverEntry;
 						} else if (chunkInfo.facadeModuleId === RESOLVED_RENDERERS_MODULE_ID) {
 							return 'renderers.mjs';
+						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
+							return 'manifest_[hash].mjs';
 						} else {
 							return '[name].mjs';
 						}
@@ -211,7 +227,7 @@ async function ssrBuild(
 		pages: internals.pagesByComponent,
 		vite: viteBuildConfig,
 		target: 'server',
-		logging: opts.logging,
+		logger: opts.logger,
 	});
 
 	return await vite.build(updatedViteBuildConfig);
@@ -239,7 +255,7 @@ async function clientBuild(
 	}
 
 	const { lastVitePlugins, vitePlugins } = container.runBeforeHook('client', input);
-	info(opts.logging, null, `\n${bgGreen(black(' building client '))}`);
+	opts.logger.info(null, `\n${bgGreen(black(' building client '))}`);
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
@@ -273,11 +289,11 @@ async function clientBuild(
 		pages: internals.pagesByComponent,
 		vite: viteBuildConfig,
 		target: 'client',
-		logging: opts.logging,
+		logger: opts.logger,
 	});
 
 	const buildResult = await vite.build(viteBuildConfig);
-	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
+	opts.logger.info(null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 	return buildResult;
 }
 
@@ -400,7 +416,7 @@ async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles = false
 }
 
 async function ssrMoveAssets(opts: StaticBuildOptions) {
-	info(opts.logging, 'build', 'Rearranging server assets...');
+	opts.logger.info('build', 'Rearranging server assets...');
 	const serverRoot =
 		opts.settings.config.output === 'static'
 			? opts.settings.config.build.client

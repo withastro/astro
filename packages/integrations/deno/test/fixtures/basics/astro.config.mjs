@@ -6,5 +6,5 @@ import mdx from '@astrojs/mdx';
 export default defineConfig({
 	adapter: deno(),
 	integrations: [react(), mdx()],
-	output: 'server',
+	output: 'server'
 })

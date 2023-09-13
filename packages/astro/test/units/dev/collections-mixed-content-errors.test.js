@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { fileURLToPath } from 'node:url';
-import { sync as _sync } from '../../../dist/core/sync/index.js';
+import _sync from '../../../dist/core/sync/index.js';
 import { createFsWithFallback } from '../test-utils.js';
 
 const root = new URL('../../fixtures/content-mixed-errors/', import.meta.url);

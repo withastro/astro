@@ -3,9 +3,9 @@ import * as npath from 'node:path';
 import type { GetModuleInfo } from 'rollup';
 import { type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
 import { isBuildableCSSRequest } from '../../../vite-plugin-astro-server/util.js';
-import type { BuildInternals } from '../internal';
-import type { AstroBuildPlugin } from '../plugin';
-import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types';
+import type { BuildInternals } from '../internal.js';
+import type { AstroBuildPlugin } from '../plugin.js';
+import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
 
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import * as assetName from '../css-asset-name.js';
@@ -200,7 +200,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			const inlineConfig = settings.config.build.inlineStylesheets;
 			const { assetsInlineLimit = 4096 } = settings.config.vite?.build ?? {};
 
-			Object.entries(bundle).forEach(([id, stylesheet]) => {
+			Object.entries(bundle).forEach(([_, stylesheet]) => {
 				if (
 					stylesheet.type !== 'asset' ||
 					stylesheet.name?.endsWith('.css') !== true ||
@@ -216,8 +216,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						: inlineConfig === 'never'
 						? false
 						: assetSize <= assetsInlineLimit;
-
-				if (toBeInlined) delete bundle[id];
 
 				// there should be a single js object for each stylesheet,
 				// allowing the single reference to be shared and checked for duplicates
