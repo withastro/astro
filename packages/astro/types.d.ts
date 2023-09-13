@@ -9,6 +9,11 @@ export type HTMLAttributes<Tag extends HTMLTag> = Omit<
 	keyof Omit<AstroBuiltinAttributes, 'class:list'>
 >;
 
+/**
+ * All the CSS properties available, as defined by the CSS specification
+ */
+export type CSSProperty = keyof astroHTML.JSX.KebabCSSDOMProperties;
+
 type PolymorphicAttributes<P extends { as: HTMLTag }> = Omit<P & HTMLAttributes<P['as']>, 'as'> & {
 	as?: P['as'];
 };

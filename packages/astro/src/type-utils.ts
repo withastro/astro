@@ -17,5 +17,13 @@ export type OmitIndexSignature<ObjectType> = {
 		: KeyType]: ObjectType[KeyType];
 };
 
+// Transform a string into its kebab case equivalent (camelCase -> kebab-case). Useful for CSS-in-JS to CSS.
+export type Kebab<T extends string, A extends string = ''> = T extends `${infer F}${infer R}`
+	? Kebab<R, `${A}${F extends Lowercase<F> ? '' : '-'}${Lowercase<F>}`>
+	: A;
+
+// Transform every key of an object to its kebab case equivalent using the above utility
+export type KebabKeys<T> = { [K in keyof T as K extends string ? Kebab<K> : K]: T[K] };
+
 // Similar to `keyof`, gets the type of all the values of an object
 export type ValueOf<T> = T[keyof T];
