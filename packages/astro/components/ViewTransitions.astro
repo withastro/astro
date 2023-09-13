@@ -126,13 +126,13 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 	// A noop element used to prevent styles from being removed
 	if (import.meta.env.DEV) {
-		var noopEl: string | undefined = document.createElement('div');
+		var noopEl = document.createElement('div');
 	}
 
 	async function updateDOM(doc: Document, loc: URL, state?: State, fallback?: Fallback) {
 		// Check for a head element that should persist, either because it has the data
 		// attribute or is a link el.
-		const persistedHeadElement = (el: Element): Element | null => {
+		const persistedHeadElement = (el: HTMLElement): Element | null => {
 			const id = el.getAttribute(PERSIST_ATTR);
 			const newEl = id && doc.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
 			if (newEl) {
@@ -189,7 +189,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 			// Swap head
 			for (const el of Array.from(document.head.children)) {
-				const newEl = persistedHeadElement(el);
+				const newEl = persistedHeadElement(el as HTMLElement);
 				// If the element exists in the document already, remove it
 				// from the new document and leave the current node alone
 				if (newEl) {
