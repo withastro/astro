@@ -137,7 +137,7 @@ export default defineConfig({
 **Available for:** Serverless, Static
 **Added in:** `@astrojs/vercel@3.3.0`
 
-When enabled, an [Image Service](https://docs.astro.build/en/reference/image-service-reference/) powered by the Vercel Image Optimization API will be automatically configured and used in production. In development, a built-in Squoosh-based service will be used instead.
+When enabled, an [Image Service](https://docs.astro.build/en/reference/image-service-reference/) powered by the Vercel Image Optimization API will be automatically configured and used in production. In development, the image service specified by [`devImageService`](#devimageservice) will be used instead.
 
 ```js
 // astro.config.mjs
