@@ -191,6 +191,26 @@ export default defineConfig({
 });
 ```
 
+## WASM module imports
+
+Cloudflare has native support for importing `.wasm` files [directly as ES modules](https://github.com/WebAssembly/esm-integration/tree/main/proposals/esm-integration). You can import a web assembly module in astro with `.wasm?module` syntax. This is in order to differentiate from the built in `.wasm?url` and `.wasm?init` bindings that won't work with cloudflare.
+
+```typescript
+import { type APIContext, type EndpointOutput } from 'astro';
+import mod from '../util/add.wasm?module';
+
+const addModule: any = new WebAssembly.Instance(mod);
+
+export async function GET(context: APIContext): Promise<EndpointOutput | Response> {
+  return new Response(JSON.stringify({ answer: addModule.exports.add(40, 2) }), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+```
+
 ## Headers, Redirects and function invocation routes
 
 Cloudflare has support for adding custom [headers](https://developers.cloudflare.com/pages/platform/headers/), configuring static [redirects](https://developers.cloudflare.com/pages/platform/redirects/) and defining which routes should [invoke functions](https://developers.cloudflare.com/pages/platform/functions/routing/#function-invocation-routes). Cloudflare looks for `_headers`, `_redirects`, and `_routes.json` files in your build output directory to configure these features. This means they should be placed in your Astro project’s `public/` directory.

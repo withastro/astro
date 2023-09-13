@@ -9,10 +9,11 @@ import { AstroError } from 'astro/errors';
 import esbuild from 'esbuild';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
-import { sep } from 'node:path';
+import { basename, dirname, relative, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'tiny-glob';
 import { getEnvVars } from './parser.js';
+import { wasmModuleLoader } from './wasm-module-loader.js';
 
 export type { AdvancedRuntime } from './server.advanced.js';
 export type { DirectoryRuntime } from './server.directory.js';
@@ -31,6 +32,7 @@ type Options = {
 interface BuildConfig {
 	server: URL;
 	client: URL;
+	assets: string;
 	serverEntry: string;
 	split?: boolean;
 }
@@ -189,6 +191,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						serverEntry: '_worker.mjs',
 						redirects: false,
 					},
+					vite: {
+						// load .wasm files as WebAssembly modules
+						plugins: [wasmModuleLoader()],
+					},
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
@@ -280,6 +286,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			},
 			'astro:build:done': async ({ pages, routes, dir }) => {
 				const functionsUrl = new URL('functions/', _config.root);
+				const assetsUrl = new URL(_buildConfig.assets, _buildConfig.client);
 
 				if (isModeDirectory) {
 					await fs.promises.mkdir(functionsUrl, { recursive: true });
@@ -291,36 +298,66 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					const entryPaths = entryPointsURL.map((entry) => fileURLToPath(entry));
 					const outputUrl = new URL('$astro', _buildConfig.server);
 					const outputDir = fileURLToPath(outputUrl);
+					//
+					// Sadly, this needs to build esbuild for each depth of routes/entrypoints independently so that relative
+					// import paths to the assets are correct.
+					// This is inefficient:
+					// - is there any ways to import from the root to keep these consistent?
+					// - if not, would be nice to not group like this if there's no wasm... Could we determine that ahead of time?
+					// - or perhaps wasm should be entirely opt-in?
+					const entryPathsGroupedByDepth = entryPaths.reduce((sum, thisPath) => {
+						const depthFromRoot = thisPath.split(sep).length;
+						sum.set(depthFromRoot, (sum.get(depthFromRoot) || []).concat(thisPath));
+						return sum;
+					}, new Map<number, string[]>());
 
-					await esbuild.build({
-						target: 'es2020',
-						platform: 'browser',
-						conditions: ['workerd', 'worker', 'browser'],
-						external: [
-							'node:assert',
-							'node:async_hooks',
-							'node:buffer',
-							'node:diagnostics_channel',
-							'node:events',
-							'node:path',
-							'node:process',
-							'node:stream',
-							'node:string_decoder',
-							'node:util',
-						],
-						entryPoints: entryPaths,
-						outdir: outputDir,
-						allowOverwrite: true,
-						format: 'esm',
-						bundle: true,
-						minify: _config.vite?.build?.minify !== false,
-						banner: {
-							js: SHIM,
-						},
-						logOverride: {
-							'ignored-bare-import': 'silent',
-						},
-					});
+					for (const pathsGroup of entryPathsGroupedByDepth.values()) {
+						// for some reason this exports to "entry.pages" instead of "pages" on windows.
+						// look up the pages with relative logic
+						const pagesDirname = relative(fileURLToPath(_buildConfig.server), pathsGroup[0]).split(
+							sep
+						)[0];
+						const absolutePagesDirname = fileURLToPath(new URL(pagesDirname, _buildConfig.server));
+						const urlWithinFunctions = new URL(
+							relative(absolutePagesDirname, pathsGroup[0]),
+							functionsUrl
+						);
+						const relativePathToAssets = relative(
+							dirname(fileURLToPath(urlWithinFunctions)),
+							fileURLToPath(assetsUrl)
+						);
+						await esbuild.build({
+							target: 'es2020',
+							platform: 'browser',
+							conditions: ['workerd', 'worker', 'browser'],
+							external: [
+								'node:assert',
+								'node:async_hooks',
+								'node:buffer',
+								'node:diagnostics_channel',
+								'node:events',
+								'node:path',
+								'node:process',
+								'node:stream',
+								'node:string_decoder',
+								'node:util',
+							],	
+							entryPoints: pathsGroup,
+							outbase: absolutePagesDirname,
+							outdir: outputDir,
+							allowOverwrite: true,
+							format: 'esm',
+							bundle: true,
+							minify: _config.vite?.build?.minify !== false,
+							banner: {
+								js: SHIM,
+							},
+							logOverride: {
+								'ignored-bare-import': 'silent',
+							},
+							plugins: [rewriteWasmImportPath({ relativePathToAssets })],
+						});
+					}
 
 					const outputFiles: Array<string> = await glob(`**/*`, {
 						cwd: outputDir,
@@ -393,6 +430,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						logOverride: {
 							'ignored-bare-import': 'silent',
 						},
+						plugins: [
+							rewriteWasmImportPath({
+								relativePathToAssets: isModeDirectory
+									? relative(fileURLToPath(functionsUrl), fileURLToPath(assetsUrl))
+									: relative(fileURLToPath(_buildConfig.client), fileURLToPath(assetsUrl)),
+							}),
+						],
 					});
 
 					// Rename to worker.js
@@ -601,4 +645,28 @@ function deduplicatePatterns(patterns: string[]) {
 
 			return true;
 		});
+}
+
+/**
+ *
+ * @param relativePathToAssets - relative path from the final location for the current esbuild output bundle, to the assets directory.
+ */
+function rewriteWasmImportPath({
+	relativePathToAssets,
+}: {
+	relativePathToAssets: string;
+}): esbuild.Plugin {
+	return {
+		name: 'wasm-loader',
+		setup(build) {
+			build.onResolve({ filter: /.*\.wasm$/ }, (args) => {
+				const updatedPath = [relativePathToAssets, basename(args.path)].join('/');
+
+				return {
+					path: updatedPath, // change the reference to the changed module
+					external: true, // mark it as external in the bundle
+				};
+			});
+		},
+	};
 }
