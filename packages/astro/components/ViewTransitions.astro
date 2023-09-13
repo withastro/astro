@@ -291,10 +291,11 @@ const { fallback = 'animate' } = Astro.props as Props;
 		let finished: Promise<void>;
 		const href = loc.href;
 		const { html, ok, contentType, redirected } = await getHTML(href);
+		const mediaType = contentType?.replace(/;.*/, '');
 		// if there was a redirection, show the final URL in the browser's address bar
 		redirected && (loc = new URL(redirected));
 		// If there is a problem fetching the new page, just do an MPA navigation to it.
-		if (!ok || contentType !== 'text/html') {
+		if (!ok || mediaType !== 'text/html') {
 			location.href = href;
 			return;
 		}
