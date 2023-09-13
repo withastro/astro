@@ -462,6 +462,47 @@ describe('astro:image', () => {
 				expect($('#local img').attr('data-service-config')).to.equal('bar');
 			});
 		});
+
+		describe('custom endpoint', async () => {
+			/** @type {import('./test-utils').DevServer} */
+			let customEndpointDevServer;
+
+			/** @type {import('./test-utils.js').Fixture} */
+			let customEndpointFixture;
+
+			before(async () => {
+				customEndpointFixture = await loadFixture({
+					root: './fixtures/core-image/',
+					image: {
+						endpoint: './src/custom-endpoint.ts',
+						service: testImageService({ foo: 'bar' }),
+						domains: ['avatars.githubusercontent.com'],
+					},
+				});
+
+				customEndpointDevServer = await customEndpointFixture.startDevServer({
+					server: { port: 4324 },
+				});
+			});
+
+			it('custom endpoint works', async () => {
+				const response = await customEndpointFixture.fetch('/');
+				const html = await response.text();
+
+				const $ = cheerio.load(html);
+				const src = $('#local img').attr('src');
+
+				let res = await customEndpointFixture.fetch(src);
+				expect(res.status).to.equal(200);
+				expect(await res.text()).to.equal(
+					"You fool! I'm not a image endpoint at all, I just return this!"
+				);
+			});
+
+			after(async () => {
+				await customEndpointDevServer.stop();
+			});
+		});
 	});
 
 	describe('proper errors', () => {
