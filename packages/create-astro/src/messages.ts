@@ -92,7 +92,7 @@ export const banner = () => {
 	const prefix = `astro`;
 	const suffix = `Launch sequence initiated.`;
 	log(`${label(prefix, color.bgGreen, color.black)}  ${suffix}`);
-}
+};
 
 export const bannerAbort = () =>
 	log(`\n${label('astro', color.bgRed)} ${color.bold('Launch sequence aborted.')}`);
