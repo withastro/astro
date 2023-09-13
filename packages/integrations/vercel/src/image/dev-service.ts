@@ -1,6 +1,6 @@
 import type { LocalImageService } from 'astro';
 import sharpService from 'astro/assets/services/sharp';
-import { baseDevService } from './shared-dev-service';
+import { baseDevService } from './shared-dev-service.js';
 
 const service: LocalImageService = {
 	...baseDevService,
