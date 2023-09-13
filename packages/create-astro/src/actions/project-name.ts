@@ -11,10 +11,9 @@ export async function projectName(ctx: Pick<Context, 'cwd' | 'yes' | 'dryRun' | 
 
 	if (!ctx.cwd || !isEmpty(ctx.cwd)) {
 		if (!isEmpty(ctx.cwd)) {
-			await info('Hmm...', `${color.reset(`./${ctx.cwd}`)}${color.dim(` is not empty!`)}`);
+			await info('Hmm...', `${color.reset(`"${ctx.cwd}"`)}${color.dim(` is not empty!`)}`);
 		}
 
-		console.log(ctx.yes);
 		if (ctx.yes) {
 			ctx.projectName = generateProjectName();
 			await info('dir', `Project created at ./${ctx.projectName}`);
@@ -40,12 +39,10 @@ export async function projectName(ctx: Pick<Context, 'cwd' | 'yes' | 'dryRun' | 
 
 		ctx.cwd = name!.trim();
 		ctx.projectName = toValidName(name!);
-
 		if (ctx.dryRun) {
 			await info('--dry-run', 'Skipping project naming');
 			return;
 		}
-
 	} else {
 		let name = ctx.cwd;
 		if (name === '.' || name === './') {

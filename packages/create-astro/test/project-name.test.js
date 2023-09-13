@@ -15,7 +15,7 @@ describe('project name', () => {
 	});
 
 	it('dot', async () => {
-		const context = { projectName: '', cwd: '.', prompt: () => ({ name: 'foobar' }), yes: false };
+		const context = { projectName: '', cwd: '.', prompt: () => ({ name: 'foobar' }) };
 		await projectName(context);
 
 		expect(fixture.hasMessage('"." is not empty!')).to.be.true;
@@ -23,7 +23,7 @@ describe('project name', () => {
 	});
 
 	it('dot slash', async () => {
-		const context = { projectName: '', cwd: './', prompt: () => ({ name: 'foobar' }), yes: false };
+		const context = { projectName: '', cwd: './', prompt: () => ({ name: 'foobar' }) };
 		await projectName(context);
 
 		expect(fixture.hasMessage('"./" is not empty!')).to.be.true;
@@ -47,7 +47,6 @@ describe('project name', () => {
 			projectName: '',
 			cwd: './test/fixtures/not-empty',
 			prompt: () => ({ name: 'foobar' }),
-			yes: false,
 		};
 		await projectName(context);
 
