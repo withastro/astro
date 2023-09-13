@@ -14,6 +14,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import { getRehypePlugins, getRemarkPlugins, recmaInjectImportMetaEnvPlugin } from './plugins.js';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
 import { getFileInfo, ignoreStringPlugins, parseFrontmatter } from './utils.js';
+import { ASTRO_IMAGE_ELEMENT, ASTRO_IMAGE_IMPORT, USES_ASTRO_IMAGE_FLAG } from './remark-images-to-component.js';
 
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
 	extendMarkdownConfig: boolean;
@@ -194,12 +195,19 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									if (!moduleExports.find(({ n }) => n === 'Content')) {
 										// If have `export const components`, pass that as props to `Content` as fallback
 										const hasComponents = moduleExports.find(({ n }) => n === 'components');
+										const usesAstroImage = moduleExports.find(({n}) => n === USES_ASTRO_IMAGE_FLAG);
+
+										let componentsCode = `{ Fragment${hasComponents ? ', ...components' : ''}, ...props.components,`
+										if (usesAstroImage) {
+											componentsCode += ` ${JSON.stringify(ASTRO_IMAGE_ELEMENT)}: ${hasComponents ? 'components.img ?? ' : ''} props.components?.img ?? ${ASTRO_IMAGE_IMPORT}`;
+										}
+										componentsCode += ' }';
 
 										// Make `Content` the default export so we can wrap `MDXContent` and pass in `Fragment`
 										code = code.replace('export default MDXContent;', '');
 										code += `\nexport const Content = (props = {}) => MDXContent({
 											...props,
-											components: { Fragment${hasComponents ? ', ...components' : ''}, ...props.components },
+											components: ${componentsCode},
 										});
 										export default Content;`;
 									}
