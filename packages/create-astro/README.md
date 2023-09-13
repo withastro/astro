@@ -59,6 +59,5 @@ May be provided in place of prompts
 | `--fancy`                  | Enable full Unicode support for Windows.                   |
 | `--typescript <option>`    | Choose a TypeScript option: `strict`, `strictest`, `relaxed`. |
 
-
 [examples]: https://github.com/withastro/astro/tree/main/examples
 [typescript]: https://github.com/withastro/astro/tree/main/packages/astro/tsconfigs
