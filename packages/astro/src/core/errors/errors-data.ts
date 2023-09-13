@@ -712,12 +712,15 @@ export const LocalsNotAnObject = {
 		'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
 	hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
 } satisfies ErrorData;
+
 /**
  * @docs
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
  * When using the default image services, `Image`'s and `getImage`'s `src` parameter must be either an imported image or an URL, it cannot be a string of a filepath.
+ *
+ * For local images from content collections, you can use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections) to resolve the images.
  *
  * ```astro
  * ---
@@ -728,8 +731,14 @@ export const LocalsNotAnObject = {
  * <!-- GOOD: `src` is the full imported image. -->
  * <Image src={myImage} alt="Cool image" />
  *
- * <!-- BAD: `src` is an image's `src` path instead of the full image. -->
+ * <!-- GOOD: `src` is a URL. -->
+ * <Image src="https://example.com/my_image.png" alt="Cool image" />
+ *
+ * <!-- BAD: `src` is an image's `src` path instead of the full image object. -->
  * <Image src={myImage.src} alt="Cool image" />
+ *
+ * <!-- BAD: `src` is a string filepath. -->
+ * <Image src="../my_image.png" alt="Cool image" />
  * ```
  */
 export const LocalImageUsedWrongly = {
