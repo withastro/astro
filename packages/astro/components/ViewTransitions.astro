@@ -73,7 +73,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				html,
 				redirected: res.redirected ? res.url : undefined,
 				// drop potential charset (+ other name/value pairs) as parser needs the mediaType
-				mediaType: res.headers.get('content-type')?.replace(/;.*/, ''),
+				mediaType: res.headers.get('content-type')?.replace(/;.*$/, ''),
 			};
 		} catch (err) {
 			return { ok: false };
