@@ -17,13 +17,10 @@ yarn create astro
 `create-astro` automatically runs in _interactive_ mode, but you can also specify your project name and template with command line arguments.
 
 ```bash
-# npm 6.x
-npm create astro@latest my-astro-project --template minimal
-
-# npm 7+, extra double-dash is needed:
+#npm
 npm create astro@latest my-astro-project -- --template minimal
 
-# yarn
+#yarn
 yarn create astro my-astro-project --template minimal
 ```
 
