@@ -2,7 +2,7 @@
 '@astrojs/vercel': major
 ---
 
-Turn off functionPerRoute by default
+Turn off `functionPerRoute` by default
 
 In the previous version of `@astrojs/vercel`, the default for `functionPerRoute` was changed to `true`. While this option has several advantages, if you a free tier user you are likely to run into the limit of 12 functions per deployment. This will result in an error when you attempt to deploy.
 
