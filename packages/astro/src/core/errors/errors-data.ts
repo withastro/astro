@@ -594,9 +594,9 @@ export const PrerenderDynamicEndpointPathCollide = {
 export const ExpectedImage = {
 	name: 'ExpectedImage',
 	title: 'Expected src to be an image.',
-	message: (options: string) =>
-		`Expected \`src\` property to be either an ESM imported image or a string with the path of a remote image. Received \`${options}\`.`,
-	hint: 'This error can often happen because of a wrong path. Make sure the path to your image is correct.',
+	message: (src: string, typeofOptions: string, fullOptions: string) =>
+		`Expected \`src\` property for \`getImage\` or \`<Image />\` to be either an ESM imported image or a string with the path of a remote image. Received \`${src}\` (type: \`${typeofOptions}\`).\n\nFull serialized options received: \`${fullOptions}\`.`,
+	hint: "This error can often happen because of a wrong path. Make sure the path to your image is correct. If you're passing an async function, make sure to call and await it.",
 } satisfies ErrorData;
 /**
  * @docs
@@ -717,7 +717,7 @@ export const LocalsNotAnObject = {
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
- * When using the default image services, `Image`'s and `getImage`'s `src` parameter must be either an imported image or an URL, it cannot be a filepath.
+ * When using the default image services, `Image`'s and `getImage`'s `src` parameter must be either an imported image or an URL, it cannot be a string of a filepath.
  *
  * ```astro
  * ---
@@ -734,9 +734,10 @@ export const LocalsNotAnObject = {
  */
 export const LocalImageUsedWrongly = {
 	name: 'LocalImageUsedWrongly',
-	title: 'ESM imported images must be passed as-is.',
+	title: 'Local images must be imported.',
 	message: (imageFilePath: string) =>
-		`\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or an URL, it cannot be a filepath. Received \`${imageFilePath}\`.`,
+		`\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or an URL, it cannot be a string filepath. Received \`${imageFilePath}\`.`,
+	hint: 'If you want to use an image from your `src` folder, you need to import it first. See https://docs.astro.build/en/guides/images/#image--astroassets for more information.',
 } satisfies ErrorData;
 
 /**
