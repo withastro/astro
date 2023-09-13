@@ -1,4 +1,4 @@
-import type { ClientDirective } from '../../@types/astro';
+import type { ClientDirective } from '../../@types/astro.js';
 
 /**
  * Hydrate this component when one of it's children becomes visible

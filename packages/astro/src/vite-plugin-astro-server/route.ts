@@ -6,7 +6,7 @@ import type {
 	RouteData,
 	SSRElement,
 	SSRManifest,
-} from '../@types/astro';
+} from '../@types/astro.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import { createRenderContext, getParamsAndProps, type SSROptions } from '../core/render/index.js';
@@ -324,7 +324,6 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 		// But we still want to inject the styles to avoid FOUC
 		styles.add({
 			props: {
-				type: 'text/css',
 				// Track the ID so we can match it to Vite's injected style later
 				'data-astro-dev-id': viteID(new URL(`.${url}`, settings.config.root)),
 			},

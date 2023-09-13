@@ -1,5 +1,5 @@
 import type { TransformResult } from '@astrojs/compiler';
-import type { PropagationHint } from '../@types/astro';
+import type { PropagationHint } from '../@types/astro.js';
 
 export interface PageOptions {
 	prerender?: boolean;

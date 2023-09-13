@@ -1,6 +1,6 @@
 import type { Rollup } from 'vite';
-import type { RouteData, SSRResult } from '../../@types/astro';
-import type { PageOptions } from '../../vite-plugin-astro/types';
+import type { RouteData, SSRResult } from '../../@types/astro.js';
+import type { PageOptions } from '../../vite-plugin-astro/types.js';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
 import {
@@ -9,7 +9,7 @@ import {
 } from './plugins/plugin-pages.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
-import type { PageBuildData, StylesheetAsset, ViteID } from './types';
+import type { PageBuildData, StylesheetAsset, ViteID } from './types.js';
 
 export interface BuildInternals {
 	/**

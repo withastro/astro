@@ -1,4 +1,8 @@
-import type { SSRResult, TransitionAnimation, TransitionAnimationValue } from '../../@types/astro';
+import type {
+	SSRResult,
+	TransitionAnimation,
+	TransitionAnimationValue,
+} from '../../@types/astro.js';
 import { fade, slide } from '../../transitions/index.js';
 import { markHTMLString } from './escape.js';
 

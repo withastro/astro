@@ -1,7 +1,7 @@
 import yaml from 'js-yaml';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { AstroConfig, AstroSettings } from '../../@types/astro';
+import type { AstroConfig, AstroSettings } from '../../@types/astro.js';
 import { getContentPaths } from '../../content/index.js';
 import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
 import { getDefaultClientDirectives } from '../client-directive/index.js';
