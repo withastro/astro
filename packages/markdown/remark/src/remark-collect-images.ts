@@ -1,4 +1,5 @@
-import type { Image } from 'mdast';
+import type { Image, ImageReference } from 'mdast';
+import { definitions } from 'mdast-util-definitions';
 import { visit } from 'unist-util-visit';
 import type { MarkdownVFile } from './types.js';
 
@@ -6,9 +7,18 @@ export function remarkCollectImages() {
 	return function (tree: any, vfile: MarkdownVFile) {
 		if (typeof vfile?.path !== 'string') return;
 
+		const definition = definitions(tree);
 		const imagePaths = new Set<string>();
-		visit(tree, 'image', (node: Image) => {
-			if (shouldOptimizeImage(node.url)) imagePaths.add(node.url);
+		visit(tree, ['image', 'imageReference'], (node: Image | ImageReference) => {
+			if (node.type === 'image') {
+				if (shouldOptimizeImage(node.url)) imagePaths.add(node.url);
+			}
+			if (node.type === 'imageReference') {
+				const imageDefinition = definition(node.identifier);
+				if (imageDefinition) {
+					if (shouldOptimizeImage(imageDefinition.url)) imagePaths.add(imageDefinition.url);
+				}
+			}
 		});
 
 		vfile.data.imagePaths = imagePaths;
