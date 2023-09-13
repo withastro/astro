@@ -81,16 +81,15 @@ Note that this adapter does not support using [Cloudflare Pages Middleware](http
 
 default `"auto"`
 
-
 Determines how `routes.json` will be generated if no [custom `_routes.json`](#custom-_routesjson) is provided.
 
-There are three options available: 
+There are three options available:
 
 - **`include`:** For each page or endpoint in your application that is not pre-rendered, an entry in the `include` array will be generated. For each page that is pre-rendered and whose path is matched by an `include` entry, an entry in the `exclude` array will be generated.
 
 - **`exclude`:** One `"/*"` entry in the `include` array will be generated. For each page that is pre-rendered, an entry in the `exclude` array will be generated.
 
-- **`"auto"`  (default):** will compare the methods used for both `include` and `exclude` and will automatically select the option that generates the fewest entries.
+- **`"auto"` (default):** will compare the methods used for both `include` and `exclude` and will automatically select the option that generates the fewest entries.
 
 ### routes.include
 
@@ -108,7 +107,7 @@ default `[]`
 
 If you want to use the automatic `_routes.json` generation, but want to exclude additional routes, you can use the `routes.exclude` option to add additional routes to the `exclude` array.
 
-The following example automatically generates `_routes.json` while including additional routes for  `/functions/` and excluding routes for `/assets/`:
+The following example automatically generates `_routes.json` while including and excluding additional routes. Note that that is only necessary if you have custom functions in the `functions` folder that are not handled by Astro.
 
 ```diff
 // astro.config.mjs
@@ -117,12 +116,13 @@ export default defineConfig({
         mode: 'directory',
 +       routes: {
 +           strategy: 'include',
-+           include: ['/functions'],
-+           exclude: ['/assets'],
++           include: ['/users/*'], // handled by custom function: functions/users/[id].js
++           exclude: ['/users/faq'], // handled by static page: pages/users/faq.astro
 +       },
     }),
 });
 ```
+
 ## Enabling Preview
 
 In order for preview to work you must install `wrangler`
