@@ -9,7 +9,7 @@ import type {
 	AstroSettings,
 	ManifestData,
 	RuntimeMode,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { injectImageEndpoint } from '../../assets/internal.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';

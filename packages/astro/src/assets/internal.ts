@@ -77,12 +77,12 @@ export async function getImage(
 
 	const service = await getConfiguredImageService();
 
-	// If the user inlined an import, something fairly common especially in MDX, await it for them
+	// If the user inlined an import, something fairly common especially in MDX, or passed a function that returns an Image, await it for them
 	const resolvedOptions: ImageTransform = {
 		...options,
 		src:
 			typeof options.src === 'object' && 'then' in options.src
-				? (await options.src).default
+				? (await options.src).default ?? (await options.src)
 				: options.src,
 	};
 

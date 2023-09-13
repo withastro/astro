@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 import type * as vite from 'vite';
-import type { ModuleLoader, ModuleLoaderEventEmitter } from './loader';
+import type { ModuleLoader, ModuleLoaderEventEmitter } from './loader.js';
 
 export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 	const events = new EventEmitter() as ModuleLoaderEventEmitter;
