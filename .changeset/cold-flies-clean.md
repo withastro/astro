@@ -2,4 +2,4 @@
 '@astrojs/vercel': major
 ---
 
-Use Sharp in dev mode instead of Squoosh by default
+Adds a configuration option `devImageService` to choose which of the built-in image services to use in development. Defaults to `sharp`.
