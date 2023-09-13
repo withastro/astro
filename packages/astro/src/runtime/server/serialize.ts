@@ -1,5 +1,5 @@
-import type { AstroComponentMetadata } from '../../@types/astro';
-import type { ValueOf } from '../../type-utils';
+import type { AstroComponentMetadata } from '../../@types/astro.js';
+import type { ValueOf } from '../../type-utils.js';
 
 const PROP_TYPE = {
 	Value: 0,

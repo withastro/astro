@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path, { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
-import type { RouteData } from '../../@types/astro';
+import type { RouteData } from '../../@types/astro.js';
 import {
 	createBuildInternals,
 	eachPageData,
@@ -30,7 +30,7 @@ import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
 import { RESOLVED_SPLIT_MODULE_ID, RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
-import type { PageBuildData, StaticBuildOptions } from './types';
+import type { PageBuildData, StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {

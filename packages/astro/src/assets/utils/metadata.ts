@@ -1,8 +1,13 @@
+import probe from 'probe-image-size';
 import type { ImageInputFormat, ImageMetadata } from '../types.js';
-import imageSize from '../vendor/image-size/index.js';
 
 export async function imageMetadata(data: Buffer): Promise<Omit<ImageMetadata, 'src'> | undefined> {
-	const { width, height, type, orientation } = imageSize(data);
+	const result = probe.sync(data);
+	if (result === null) {
+		throw new Error('Failed to probe image size.');
+	}
+
+	const { width, height, type, orientation } = result;
 	const isPortrait = (orientation || 0) >= 5;
 
 	if (!width || !height || !type) {

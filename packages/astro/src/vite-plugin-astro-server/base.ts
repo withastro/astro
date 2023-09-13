@@ -1,5 +1,5 @@
 import type * as vite from 'vite';
-import type { AstroSettings } from '../@types/astro';
+import type { AstroSettings } from '../@types/astro.js';
 
 import * as fs from 'node:fs';
 import type { Logger } from '../core/logger/core.js';
