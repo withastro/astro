@@ -737,7 +737,7 @@ export const LocalImageUsedWrongly = {
 	title: 'Local images must be imported.',
 	message: (imageFilePath: string) =>
 		`\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or an URL, it cannot be a string filepath. Received \`${imageFilePath}\`.`,
-	hint: 'If you want to use an image from your `src` folder, you need to import it first. See https://docs.astro.build/en/guides/images/#image--astroassets for more information.',
+	hint: 'If you want to use an image from your `src` folder, you need to either import it or if the image is coming from a content collection, use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections) See https://docs.astro.build/en/guides/images/#src-required for more information on the `src` property.',
 } satisfies ErrorData;
 
 /**

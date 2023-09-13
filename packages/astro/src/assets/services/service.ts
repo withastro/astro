@@ -129,7 +129,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				message: AstroErrorData.ExpectedImage.message(
 					JSON.stringify(options.src),
 					typeof options.src,
-					JSON.stringify(options, (k, v) => (v === undefined ? null : v))
+					JSON.stringify(options, (_, v) => (v === undefined ? null : v))
 				),
 			});
 		}
