@@ -34,7 +34,7 @@ Having trouble? Get help in the official [Astro Discord](https://astro.build/cha
 
 **New contributors welcome!** Check out our [Contributors Guide](/CONTRIBUTING.md) for help getting started.
 
-Join us on [Discord](https://astro.build/chat) to meet other contributers. We'll help you get your first contribution in no time!
+Join us on [Discord](https://astro.build/chat) to meet other contributors. We'll help you get your first contribution in no time!
 
 ## Sponsors
 
