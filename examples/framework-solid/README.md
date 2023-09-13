@@ -1,6 +1,6 @@
 # Astro + Solid.js Example
 
-```
+```sh
 npm create astro@latest -- --template framework-solid
 ```
 
