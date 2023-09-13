@@ -981,7 +981,7 @@ export interface AstroUserConfig {
 		 * @default `undefined`
 		 * @version 3.1.0
 		 * @description
-		 * Set the entrypoint of the endpoint to use for image optimization in dev and SSR. Set to `undefined` to use the default endpoint.
+		 * Set the endpoint to use for image optimization in dev and SSR. Set to `undefined` to use the default endpoint.
 		 *
 		 * The endpoint will always be injected at `/_image`.
 		 *
