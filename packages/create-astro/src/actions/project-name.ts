@@ -6,7 +6,7 @@ import { info, log, title } from '../messages.js';
 
 import { isEmpty, toValidName } from './shared.js';
 
-export async function projectName(ctx: Pick<Context, 'cwd' | 'yes' | 'prompt' | 'projectName' | 'exit'>) {
+export async function projectName(ctx: Pick<Context, 'cwd' | 'yes' | 'dryRun' | 'prompt' | 'projectName' | 'exit'>) {
 	await checkCwd(ctx.cwd);
 
 	if (!ctx.cwd || !isEmpty(ctx.cwd)) {
@@ -14,6 +14,7 @@ export async function projectName(ctx: Pick<Context, 'cwd' | 'yes' | 'prompt' | 
 			await info('Hmm...', `${color.reset(`./${ctx.cwd}`)}${color.dim(` is not empty!`)}`);
 		}
 
+		console.log(ctx.yes);
 		if (ctx.yes) {
 			ctx.projectName = generateProjectName();
 			await info('dir', `Project created at ./${ctx.projectName}`);
@@ -39,6 +40,12 @@ export async function projectName(ctx: Pick<Context, 'cwd' | 'yes' | 'prompt' | 
 
 		ctx.cwd = name!.trim();
 		ctx.projectName = toValidName(name!);
+
+		if (ctx.dryRun) {
+			await info('--dry-run', 'Skipping project naming');
+			return;
+		}
+
 	} else {
 		let name = ctx.cwd;
 		if (name === '.' || name === './') {
