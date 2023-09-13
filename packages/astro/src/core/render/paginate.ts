@@ -5,7 +5,7 @@ import type {
 	Params,
 	Props,
 	RouteData,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
 export function generatePaginateFunction(

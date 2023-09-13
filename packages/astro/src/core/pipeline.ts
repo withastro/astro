@@ -4,7 +4,7 @@ import type {
 	MiddlewareEndpointHandler,
 	MiddlewareHandler,
 	MiddlewareResponseHandler,
-} from '../@types/astro';
+} from '../@types/astro.js';
 import { callEndpoint, createAPIContext } from './endpoint/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { renderPage } from './render/core.js';

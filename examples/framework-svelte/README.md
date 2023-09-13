@@ -1,6 +1,6 @@
 # Astro + Svelte Example
 
-```
+```sh
 npm create astro@latest -- --template framework-svelte
 ```
 

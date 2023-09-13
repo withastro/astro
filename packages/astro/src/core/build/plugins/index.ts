@@ -1,6 +1,6 @@
 import { astroConfigBuildPlugin } from '../../../content/vite-plugin-content-assets.js';
 import { astroHeadBuildPlugin } from '../../../vite-plugin-head/index.js';
-import type { AstroBuildPluginContainer } from '../plugin';
+import type { AstroBuildPluginContainer } from '../plugin.js';
 import { pluginAliasResolve } from './plugin-alias-resolve.js';
 import { pluginAnalyzer } from './plugin-analyzer.js';
 import { pluginComponentEntry } from './plugin-component-entry.js';

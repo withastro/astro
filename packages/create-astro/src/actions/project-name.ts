@@ -1,4 +1,4 @@
-import type { Context } from './context';
+import type { Context } from './context.js';
 
 import { color, generateProjectName } from '@astrojs/cli-kit';
 import path from 'node:path';

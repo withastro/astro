@@ -3,7 +3,7 @@ import type {
 	AstroConfig,
 	AstroFeatureMap,
 	SupportsKind,
-} from '../@types/astro';
+} from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
 
 const STABLE = 'stable';

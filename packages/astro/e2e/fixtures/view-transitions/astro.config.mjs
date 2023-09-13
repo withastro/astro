@@ -7,6 +7,10 @@ export default defineConfig({
 	output: 'server',
 	adapter: nodejs({ mode: 'standalone' }),
 	integrations: [react()],
+	redirects: {
+		'/redirect-two': '/two',
+		'/redirect-external': 'http://example.com/',
+	},
 	vite: {
 		build: {
 			assetsInlineLimit: 0,

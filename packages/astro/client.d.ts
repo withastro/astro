@@ -52,7 +52,7 @@ declare module 'astro:assets' {
 				| import('./dist/assets/types.js').ImageTransform
 				| import('./dist/assets/types.js').UnresolvedImageTransform
 		) => Promise<import('./dist/assets/types.js').GetImageResult>;
-		imageConfig: import('./dist/@types/astro').AstroConfig['image'];
+		imageConfig: import('./dist/@types/astro.js').AstroConfig['image'];
 		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
 		Image: typeof import('./components/Image.astro').default;
 	};
@@ -126,7 +126,7 @@ declare module 'astro:components' {
 	export * from 'astro/components';
 }
 
-type MD = import('./dist/@types/astro').MarkdownInstance<Record<string, any>>;
+type MD = import('./dist/@types/astro.js').MarkdownInstance<Record<string, any>>;
 interface ExportedMarkdownModuleEntities {
 	frontmatter: MD['frontmatter'];
 	file: MD['file'];
@@ -231,7 +231,7 @@ declare module '*.mdown' {
 }
 
 declare module '*.mdx' {
-	type MDX = import('./dist/@types/astro').MDXInstance<Record<string, any>>;
+	type MDX = import('./dist/@types/astro.js').MDXInstance<Record<string, any>>;
 
 	export const frontmatter: MDX['frontmatter'];
 	export const file: MDX['file'];
@@ -244,7 +244,7 @@ declare module '*.mdx' {
 }
 
 declare module 'astro:ssr-manifest' {
-	export const manifest: import('./dist/@types/astro').SSRManifest;
+	export const manifest: import('./dist/@types/astro.js').SSRManifest;
 }
 
 // Everything below are Vite's types (apart from image types, which are in `client.d.ts`)
