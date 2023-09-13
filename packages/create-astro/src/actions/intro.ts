@@ -4,24 +4,22 @@ import { color, label } from '@astrojs/cli-kit';
 import { random } from '@astrojs/cli-kit/utils';
 import { banner, say, welcome } from '../messages.js';
 
-export async function intro(ctx: Pick<Context, 'skipHouston' | 'version' | 'username' | 'fancy'>) {
+export async function intro(ctx: Pick<Context, 'hat' | 'skipHouston' | 'version' | 'username' | 'fancy'>) {
+	banner();
+
 	if (!ctx.skipHouston) {
-		const hat = ctx.fancy ? random(['🎩', '🎩', '👑', '🧢', '🍦']) : undefined;
 		await say(
 			[
 				[
 					'Welcome',
 					'to',
 					label('astro', color.bgGreen, color.black),
-					(ctx.version ? color.green(`v${ctx.version}`) : '') + ',',
-					`${ctx.username}!`,
+					Promise.resolve(ctx.version).then(version => ((version ? color.green(`v${version}`) : '') + ',')),
+					Promise.resolve(ctx.username).then(username => `${username}!`),
 				],
 				random(welcome),
 			],
-			{ hat }
+			{ clear: true, hat: ctx.hat }
 		);
-		await banner(ctx.version);
-	} else {
-		await banner(ctx.version);
 	}
 }

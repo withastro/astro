@@ -3566,24 +3566,12 @@ importers:
   packages/create-astro:
     dependencies:
       '@astrojs/cli-kit':
-        specifier: ^0.2.3
-        version: 0.2.3
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
+        specifier: ^0.2.5
+        version: 0.2.5
       giget:
         specifier: 1.1.2
         version: 1.1.2
-      node-fetch-native:
-        specifier: ^1.4.0
-        version: 1.4.0
-      which-pm-runs:
-        specifier: ^1.1.0
-        version: 1.1.0
     devDependencies:
-      '@types/which-pm-runs':
-        specifier: ^1.0.0
-        version: 1.0.0
       arg:
         specifier: ^5.0.2
         version: 5.0.2
@@ -5188,10 +5176,10 @@ packages:
       - prettier-plugin-astro
     dev: true
 
-  /@astrojs/cli-kit@0.2.3:
-    resolution: {integrity: sha512-MjB42mpIG/F2rFtdp4f3NylFCILuFSib2yITSq65fRaDFn8+UC8EMh6T7Jr3YqHAbUY5r8V8QWNgH4keOEO2BA==}
+  /@astrojs/cli-kit@0.2.5:
+    resolution: {integrity: sha512-j6zpNUjtHJGEIKkTrTPvQD3G/sJUKyseJty42iVR3HqytzqHwLK165vptdT4NZKfZ082yLnUtsOXxRyIdfm/AQ==}
     dependencies:
-      chalk: 5.2.0
+      chalk: 5.3.0
       log-update: 5.0.1
       sisteransi: 1.0.5
     dev: false
@@ -10255,11 +10243,6 @@ packages:
     dependencies:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
-
-  /chalk@5.2.0:
-    resolution: {integrity: sha512-ree3Gqw/nazQAPuJJEy+avdl7QfZMcUvmHIKgEZkGL+xOBzRvup5Hxo6LHuMceSxOabuJLJm5Yp/92R9eMmMvA==}
-    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
-    dev: false
 
   /chalk@5.3.0:
     resolution: {integrity: sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w==}
