@@ -81,13 +81,16 @@ Note that this adapter does not support using [Cloudflare Pages Middleware](http
 
 default `"auto"`
 
-If no [custom `_routes.json`](#custom-_routesjson) is provided, `@astrojs/cloudflare` will generate one for you. There are two ways to generate the `_routes.json`:
 
-1. For each page or endpoint in your application that is not prerendered, an entry in the `include` array will be generated. For each page that is prerendered and whoose path is matched by an `include` entry, an entry in the `exclude` array will be generated.
+Determines how `routes.json` will be generated if no [custom `_routes.json`](#custom-_routesjson) is provided.
 
-2. One `"/*"` entry in the `include` array will be generated. For each page that is prerendered, an entry in the `exclude` array will be generated.
+There are three options available: 
 
-Setting `routes.strategy` to `"include"` will generate a `_routes.json` with the first strategy. Setting it to `"exclude"` will use the second strategy. Setting it to `"auto"` will use the strategy that generates the least amount of entries.
+- **`include`:** For each page or endpoint in your application that is not pre-rendered, an entry in the `include` array will be generated. For each page that is pre-rendered and whose path is matched by an `include` entry, an entry in the `exclude` array will be generated.
+
+- **`exclude`:** One `"/*"` entry in the `include` array will be generated. For each page that is pre-rendered, an entry in the `exclude` array will be generated.
+
+- **`"auto"`  (default):** will compare the methods used for both `include` and `exclude` and will automatically select the option that generates the fewest entries.
 
 ### routes.include
 
@@ -105,6 +108,21 @@ default `[]`
 
 If you want to use the automatic `_routes.json` generation, but want to exclude additional routes, you can use the `routes.exclude` option to add additional routes to the `exclude` array.
 
+The following example automatically generates `_routes.json` while including additional routes for  `/functions/` and excluding routes for `/assets/`:
+
+```diff
+// astro.config.mjs
+export default defineConfig({
+    adapter: cloudflare({
+        mode: 'directory',
++       routes: {
++           strategy: 'include',
++           include: ['/functions'],
++           exclude: ['/assets'],
++       },
+    }),
+});
+```
 ## Enabling Preview
 
 In order for preview to work you must install `wrangler`
