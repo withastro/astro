@@ -179,7 +179,7 @@ import astroLogo from '../assets/logo.png';
 **Added in:** `@astrojs/vercel@3.3.0`
 **Default**: 'sharp'
 
-Allows you to configure a which image service to use in development. This can be useful if you cannot install Sharp's dependencies on your development machine and prefer to use Squoosh instead.
+Allows you to configure which image service to use in development when [imageService](#imageservice) is enabled. This can be useful if you cannot install Sharp's dependencies on your development machine, but using another image service like Squoosh would allow you to preview images in your dev environment. Build is unaffected and will always use Vercel's Image Optimization.
 
 It can also be set to any arbitrary value in order to use a custom image service instead of Astro's built-in ones.
 
