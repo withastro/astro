@@ -40,8 +40,9 @@ const service: ExternalImageService = {
 		};
 	},
 	getURL(options) {
-		const fileSrc =
-			typeof options.src === 'string' ? options.src : removeLeadingForwardSlash(options.src.src);
+		const fileSrc = isESMImportedImage(options.src)
+			? removeLeadingForwardSlash(options.src.src)
+			: options.src;
 
 		const searchParams = new URLSearchParams();
 		searchParams.append('url', fileSrc);

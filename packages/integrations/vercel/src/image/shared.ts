@@ -12,6 +12,10 @@ export function getDefaultImageConfig(astroImageConfig: AstroConfig['image']): V
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
 	return typeof src === 'object';
 }
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type DevImageService = 'sharp' | 'squoosh' | (string & {});
+
 // https://vercel.com/docs/build-output-api/v3/configuration#images
 type ImageFormat = 'image/avif' | 'image/webp';
 
@@ -64,16 +68,32 @@ export function getAstroImageConfig(
 	images: boolean | undefined,
 	imagesConfig: VercelImageConfig | undefined,
 	command: string,
+	devImageService: DevImageService,
 	astroImageConfig: AstroConfig['image']
 ) {
+	let devService = '@astrojs/vercel/dev-image-service';
+
+	switch (devImageService) {
+		case 'sharp':
+			devService = '@astrojs/vercel/dev-image-service';
+			break;
+		case 'squoosh':
+			devService = '@astrojs/vercel/squoosh-dev-image-service';
+			break;
+		default:
+			if (typeof devImageService === 'string') {
+				devService = devImageService;
+			} else {
+				devService = '@astrojs/vercel/dev-image-service';
+			}
+			break;
+	}
+
 	if (images) {
 		return {
 			image: {
 				service: {
-					entrypoint:
-						command === 'dev'
-							? '@astrojs/vercel/dev-image-service'
-							: '@astrojs/vercel/build-image-service',
+					entrypoint: command === 'dev' ? devService : '@astrojs/vercel/build-image-service',
 					config: imagesConfig ? imagesConfig : getDefaultImageConfig(astroImageConfig),
 				},
 			},
