@@ -2,4 +2,4 @@
 'create-astro': minor
 ---
 
-- add `--yes` flag for project name and template
+Add `--yes` and `dry-run` flags to project name and `yes` flag to template.
