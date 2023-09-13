@@ -1,4 +1,4 @@
-import type { IImage, ISize, ISizeCalculationResult } from './interface'
+import type { IImage, ISize, ISizeCalculationResult } from './interface.js'
 
 const TYPE_ICON = 1
 

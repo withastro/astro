@@ -1,5 +1,5 @@
-import type { SSRComponentMetadata, SSRResult } from '../@types/astro';
-import type { ModuleInfo, ModuleLoader } from '../core/module-loader';
+import type { SSRComponentMetadata, SSRResult } from '../@types/astro.js';
+import type { ModuleInfo, ModuleLoader } from '../core/module-loader/index.js';
 import { viteID } from '../core/util.js';
 import { getAstroMetadata } from '../vite-plugin-astro/index.js';
 import { crawlGraph } from './vite.js';

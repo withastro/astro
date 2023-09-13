@@ -3566,8 +3566,8 @@ importers:
   packages/create-astro:
     dependencies:
       '@astrojs/cli-kit':
-        specifier: ^0.2.5
-        version: 0.2.5
+        specifier: ^0.3.0
+        version: 0.3.0
       giget:
         specifier: 1.1.2
         version: 1.1.2
@@ -3635,6 +3635,9 @@ importers:
         specifier: ^0.2.9
         version: 0.2.9
     devDependencies:
+      '@types/iarna__toml':
+        specifier: ^2.0.2
+        version: 2.0.2
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -5176,8 +5179,9 @@ packages:
       - prettier-plugin-astro
     dev: true
 
-  /@astrojs/cli-kit@0.2.5:
-    resolution: {integrity: sha512-j6zpNUjtHJGEIKkTrTPvQD3G/sJUKyseJty42iVR3HqytzqHwLK165vptdT4NZKfZ082yLnUtsOXxRyIdfm/AQ==}
+  /@astrojs/cli-kit@0.3.0:
+    resolution: {integrity: sha512-nil0Kz2xuzR3xQX+FVHg2W8g+FvbeUeoCeU53duQjAFuHRJrbqWRmgfjYeM6f2780dsSuGiYMXmY+IaJqaqiaw==}
+    engines: {node: '>=18.14.1'}
     dependencies:
       chalk: 5.3.0
       log-update: 5.0.1
@@ -8795,6 +8799,12 @@ packages:
 
   /@types/http-cache-semantics@4.0.1:
     resolution: {integrity: sha512-SZs7ekbP8CN0txVG2xVRH6EgKmEm31BOxA07vkFaETzZz1xh+cbt8BcI0slpymvwhx5dlFnQG2rTlPVQn+iRPQ==}
+    dev: true
+
+  /@types/iarna__toml@2.0.2:
+    resolution: {integrity: sha512-Q3obxKhBLVVbEQ8zsAmsQVobAAZhi8dFFFjF0q5xKXiaHvH8IkSxcbM27e46M9feUMieR03SPpmp5CtaNzpdBg==}
+    dependencies:
+      '@types/node': 18.17.8
     dev: true
 
   /@types/is-ci@3.0.0:

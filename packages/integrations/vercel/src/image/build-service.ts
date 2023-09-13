@@ -1,5 +1,5 @@
 import type { ExternalImageService } from 'astro';
-import { isESMImportedImage, sharedValidateOptions } from './shared';
+import { isESMImportedImage, sharedValidateOptions } from './shared.js';
 
 const service: ExternalImageService = {
 	validateOptions: (options, serviceOptions) =>
