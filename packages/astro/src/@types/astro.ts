@@ -992,7 +992,7 @@ export interface AstroUserConfig {
 		 *     endpoint: './src/image-endpoint.ts',
 		 *   },
 		 * }
-		 *
+		 * ```
 		 */
 		endpoint?: string;
 
