@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { error, info, spinner, title } from '../messages.js';
 import { shell } from '../shell.js';
-import type { Context } from './context';
+import type { Context } from './context.js';
 
 export async function dependencies(
 	ctx: Pick<Context, 'install' | 'yes' | 'prompt' | 'packageManager' | 'cwd' | 'dryRun'>

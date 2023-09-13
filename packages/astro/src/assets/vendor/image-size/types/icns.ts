@@ -1,4 +1,4 @@
-import type { IImage, ISize } from './interface'
+import type { IImage, ISize } from './interface.js'
 
 /**
  * ICNS Header

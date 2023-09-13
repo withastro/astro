@@ -9,7 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
-import type { AstroSettings } from '../@types/astro';
+import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isMarkdownFile, rootRelativePath } from '../core/util.js';

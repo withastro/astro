@@ -1,4 +1,4 @@
-import type { SSRResult } from '../../../@types/astro';
+import type { SSRResult } from '../../../@types/astro.js';
 
 import { markHTMLString } from '../escape.js';
 import { renderSlotToString } from './slot.js';

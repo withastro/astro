@@ -1,4 +1,4 @@
-import type { AstroConfig, RoutePart } from '../../../@types/astro';
+import type { AstroConfig, RoutePart } from '../../../@types/astro.js';
 
 import { compile } from 'path-to-regexp';
 

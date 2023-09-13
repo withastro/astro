@@ -1,10 +1,10 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroSettings } from '../../../@types/astro';
+import type { AstroSettings } from '../../../@types/astro.js';
 import { viteID } from '../../util.js';
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin';
-import type { OutputChunk, StaticBuildOptions } from '../types';
+import type { AstroBuildPlugin } from '../plugin.js';
+import type { OutputChunk, StaticBuildOptions } from '../types.js';
 
 function virtualHoistedEntry(id: string) {
 	return id.startsWith('/astro/hoisted.js?q=');

@@ -1,6 +1,6 @@
-import type { Context } from './context';
+import type { Context } from './context.js';
 import { incrementId } from './context.js';
-import type { AstroPreactAttrs, PropNameToSignalMap, SignalLike } from './types';
+import type { AstroPreactAttrs, PropNameToSignalMap, SignalLike } from './types.js';
 
 function isSignal(x: any): x is SignalLike {
 	return x != null && typeof x === 'object' && typeof x.peek === 'function' && 'value' in x;

@@ -3,7 +3,7 @@ import type {
 	RouteData,
 	SSRLoadedRenderer,
 	SSRResult,
-} from '../../../@types/astro';
+} from '../../../@types/astro.js';
 import { createRenderInstruction, type RenderInstruction } from './instruction.js';
 
 import { clsx } from 'clsx';

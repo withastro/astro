@@ -31,7 +31,7 @@
   "//a": "MOST PACKAGES SHOULD GO IN DEV_DEPENDENCIES! THEY WILL BE BUNDLED.",
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {
-    "@astrojs/cli-kit": "^0.2.5",
+    "@astrojs/cli-kit": "^0.3.0",
     "giget": "1.1.2"
   },
   "devDependencies": {
