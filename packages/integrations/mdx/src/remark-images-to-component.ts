@@ -96,7 +96,9 @@ export function remarkImageToComponent() {
 		// Add all the import statements to the top of the file for the images
 		tree.children.unshift(...importsStatements);
 
-		tree.children.unshift(jsToTreeNode(`import { Image as ${ASTRO_IMAGE_IMPORT} } from "astro:assets";`));
+		tree.children.unshift(
+			jsToTreeNode(`import { Image as ${ASTRO_IMAGE_IMPORT} } from "astro:assets";`)
+		);
 		// Export `__usesAstroImage` to pick up `astro:assets` usage in the module graph.
 		// @see the '@astrojs/mdx-postprocess' plugin
 		tree.children.push(jsToTreeNode(`export const ${USES_ASTRO_IMAGE_FLAG} = true`));

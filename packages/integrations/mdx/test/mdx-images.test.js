@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
-const imageTestRoutes = ['with-components', 'esm-import', 'content-collection']
+const imageTestRoutes = ['with-components', 'esm-import', 'content-collection'];
 
 describe('MDX Page', () => {
 	let devServer;
@@ -43,17 +43,17 @@ describe('MDX Page', () => {
 			it(`supports img component - ${route}`, async () => {
 				const res = await fixture.fetch(`/${route}`);
 				expect(res.status).to.equal(200);
-	
+
 				const html = await res.text();
 				const { document } = parseHTML(html);
-	
+
 				const imgs = document.getElementsByTagName('img');
 				expect(imgs.length).to.equal(2);
-	
+
 				const assetsImg = imgs.item(0);
 				expect(assetsImg.src.startsWith('/_image')).to.be.true;
 				expect(assetsImg.hasAttribute('data-my-image')).to.be.true;
-	
+
 				const publicImg = imgs.item(1);
 				expect(publicImg.src).to.equal('/favicon.svg');
 				expect(publicImg.hasAttribute('data-my-image')).to.be.true;
