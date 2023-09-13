@@ -1,6 +1,6 @@
 # Astro Example: MDX
 
-```
+```sh
 npm create astro@latest -- --template with-mdx
 ```
 

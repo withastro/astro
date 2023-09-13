@@ -5,7 +5,13 @@ import { viteID } from '../dist/core/util.js';
  * @returns {import('../src/@types/astro').AstroIntegration}
  */
 export default function (
-	{ provideAddress = true, extendAdapter, setEntryPoints = undefined, setRoutes = undefined } = {
+	{
+		provideAddress = true,
+		extendAdapter,
+		setEntryPoints = undefined,
+		setMiddlewareEntryPoint = undefined,
+		setRoutes = undefined,
+	} = {
 		provideAddress: true,
 	}
 ) {
@@ -71,13 +77,24 @@ export default function (
 					name: 'my-ssr-adapter',
 					serverEntrypoint: '@my-ssr',
 					exports: ['manifest', 'createApp'],
+					supportedFeatures: {
+						assets: {
+							supportKind: 'Stable',
+							isNodeCompatible: true,
+						},
+						serverOutput: 'Stable',
+						staticOutput: 'Stable',
+						hybridOutput: 'Stable',
+					},
 					...extendAdapter,
 				});
 			},
 			'astro:build:ssr': ({ entryPoints, middlewareEntryPoint }) => {
 				if (setEntryPoints) {
 					setEntryPoints(entryPoints);
-					setEntryPoints(middlewareEntryPoint);
+				}
+				if (setMiddlewareEntryPoint) {
+					setMiddlewareEntryPoint(middlewareEntryPoint);
 				}
 			},
 			'astro:build:done': ({ routes }) => {

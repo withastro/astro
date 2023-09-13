@@ -1,4 +1,3 @@
-import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
 	AstroGlobal,
 	AstroGlobalPartial,
@@ -6,13 +5,13 @@ import type {
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { renderSlotToString, type ComponentSlots } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { chunkToString } from '../../runtime/server/render/index.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { warn, type LogOptions } from '../logger/core.js';
+import type { Logger } from '../logger/core.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
@@ -26,11 +25,7 @@ export interface CreateResultArgs {
 	 * Value of Astro config's `output` option, true if "server" or "hybrid"
 	 */
 	ssr: boolean;
-	logging: LogOptions;
-	/**
-	 * Used to support `Astro.__renderMarkdown` for legacy `<Markdown />` component
-	 */
-	markdown: MarkdownRenderingOptions;
+	logger: Logger;
 	params: Params;
 	pathname: string;
 	renderers: SSRLoadedRenderer[];
@@ -60,12 +55,12 @@ function getFunctionExpression(slot: any) {
 class Slots {
 	#result: SSRResult;
 	#slots: ComponentSlots | null;
-	#loggingOpts: LogOptions;
+	#logger: Logger;
 
-	constructor(result: SSRResult, slots: ComponentSlots | null, logging: LogOptions) {
+	constructor(result: SSRResult, slots: ComponentSlots | null, logger: Logger) {
 		this.#result = result;
 		this.#slots = slots;
-		this.#loggingOpts = logging;
+		this.#logger = logger;
 
 		if (slots) {
 			for (const key of Object.keys(slots)) {
@@ -95,8 +90,7 @@ class Slots {
 
 		const result = this.#result;
 		if (!Array.isArray(args)) {
-			warn(
-				this.#loggingOpts,
+			this.#logger.warn(
 				'Astro.slots.render',
 				`Expected second parameter to be an array, received a ${typeof args}. If you're trying to pass an array as a single argument and getting unexpected results, make sure you're passing your array as a item of an array. Ex: Astro.slots.render('default', [["Hello", "World"]])`
 			);
@@ -128,10 +122,8 @@ class Slots {
 	}
 }
 
-let renderMarkdown: any = null;
-
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, request, resolve, locals } = args;
+	const { params, request, resolve, locals } = args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
@@ -171,7 +163,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			props: Record<string, any>,
 			slots: Record<string, any> | null
 		) {
-			const astroSlots = new Slots(result, slots, args.logging);
+			const astroSlots = new Slots(result, slots, args.logger);
 
 			const Astro: AstroGlobal = {
 				// @ts-expect-error
@@ -221,31 +213,6 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				response: response as AstroGlobal['response'],
 				slots: astroSlots as unknown as AstroGlobal['slots'],
 			};
-
-			Object.defineProperty(Astro, '__renderMarkdown', {
-				// Ensure this API is not exposed to users
-				enumerable: false,
-				writable: false,
-				// TODO: Remove this hole "Deno" logic once our plugin gets Deno support
-				value: async function (content: string, opts: MarkdownRenderingOptions) {
-					// @ts-expect-error
-					if (typeof Deno !== 'undefined') {
-						throw new Error('Markdown is not supported in Deno SSR');
-					}
-
-					if (!renderMarkdown) {
-						// The package is saved in this variable because Vite is too smart
-						// and will try to inline it in buildtime
-						let astroRemark = '@astrojs/';
-						astroRemark += 'markdown-remark';
-
-						renderMarkdown = (await import(astroRemark)).renderMarkdown;
-					}
-
-					const { code } = await renderMarkdown(content, { ...markdown, ...(opts ?? {}) });
-					return code;
-				},
-			});
 
 			return Astro;
 		},

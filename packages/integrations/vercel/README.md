@@ -33,6 +33,8 @@ yarn astro add vercel
 pnpm astro add vercel
 ```
 
+### Add dependencies manually
+
 If you prefer to install the adapter manually instead, complete the following two steps:
 
 1. Install the Vercel adapter to your project’s dependencies using your preferred package manager. If you’re using npm or aren’t sure, run this in the terminal:
@@ -58,16 +60,12 @@ If you prefer to install the adapter manually instead, complete the following tw
 
 You can deploy to different targets:
 
-- `edge`: SSR inside an [Edge function](https://vercel.com/docs/concepts/functions/edge-functions).
 - `serverless`: SSR inside a [Node.js function](https://vercel.com/docs/concepts/functions/serverless-functions).
 - `static`: generates a static website following Vercel's output formats, redirects, etc.
-
-> **Note**: deploying to the Edge has [its limitations](https://vercel.com/docs/concepts/functions/edge-functions#known-limitations). An edge function can't be more than 1 MB in size and they don't support native Node.js APIs, among others.
 
 You can change where to target by changing the import:
 
 ```js
-import vercel from '@astrojs/vercel/edge';
 import vercel from '@astrojs/vercel/serverless';
 import vercel from '@astrojs/vercel/static';
 ```
@@ -90,7 +88,7 @@ To configure this adapter, pass an object to the `vercel()` function call in `as
 ### analytics
 
 **Type:** `boolean`<br>
-**Available for:** Serverless, Edge, Static<br>
+**Available for:** Serverless, Static<br>
 **Added in:** `@astrojs/vercel@3.1.0`
 
 You can enable [Vercel Analytics](https://vercel.com/analytics) (including Web Vitals and Audiences) by setting `analytics: true`. This will inject Vercel’s tracking scripts into all your pages.
@@ -111,10 +109,12 @@ export default defineConfig({
 ### imagesConfig
 
 **Type:** `VercelImageConfig`<br>
-**Available for:** Edge, Serverless, Static
+**Available for:** Serverless, Static
 **Added in:** `@astrojs/vercel@3.3.0`
 
 Configuration options for [Vercel's Image Optimization API](https://vercel.com/docs/concepts/image-optimization). See [Vercel's image configuration documentation](https://vercel.com/docs/build-output-api/v3/configuration#images) for a complete list of supported parameters.
+
+The `domains` and `remotePatterns` properties will automatically be filled using [the Astro corresponding `image` settings](https://docs.astro.build/en/reference/configuration-reference/#image-options).
 
 ```js
 // astro.config.mjs
@@ -134,10 +134,10 @@ export default defineConfig({
 ### imageService
 
 **Type:** `boolean`<br>
-**Available for:** Edge, Serverless, Static
+**Available for:** Serverless, Static
 **Added in:** `@astrojs/vercel@3.3.0`
 
-When enabled, an [Image Service](https://docs.astro.build/en/reference/image-service-reference/) powered by the Vercel Image Optimization API will be automatically configured and used in production. In development, a built-in Squoosh-based service will be used instead.
+When enabled, an [Image Service](https://docs.astro.build/en/reference/image-service-reference/) powered by the Vercel Image Optimization API will be automatically configured and used in production. In development, the image service specified by [`devImageService`](#devimageservice) will be used instead.
 
 ```js
 // astro.config.mjs
@@ -172,10 +172,34 @@ import astroLogo from '../assets/logo.png';
 />
 ```
 
+### devImageService
+
+**Type:** `'sharp' | 'squoosh' | string`<br>
+**Available for:** Serverless, Static
+**Added in:** `@astrojs/vercel@3.3.0`
+**Default**: 'sharp'
+
+Allows you to configure which image service to use in development when [imageService](#imageservice) is enabled. This can be useful if you cannot install Sharp's dependencies on your development machine, but using another image service like Squoosh would allow you to preview images in your dev environment. Build is unaffected and will always use Vercel's Image Optimization.
+
+It can also be set to any arbitrary value in order to use a custom image service instead of Astro's built-in ones.
+
+```js
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/serverless';
+
+export default defineConfig({
+  output: 'server',
+  adapter: vercel({
+    imageService: true,
+    devImageService: 'squoosh',
+  }),
+});
+```
+
 ### includeFiles
 
 **Type:** `string[]`<br>
-**Available for:** Edge, Serverless
+**Available for:** Serverless
 
 Use this property to force files to be bundled with your function. This is helpful when you notice missing files.
 
@@ -191,9 +215,6 @@ export default defineConfig({
   }),
 });
 ```
-
-> **Note**
-> When building for the Edge, all the dependencies get bundled in a single file to save space. **No extra file will be bundled**. So, if you _need_ some file inside the function, you have to specify it in `includeFiles`.
 
 ### excludeFiles
 
@@ -215,9 +236,11 @@ export default defineConfig({
 });
 ```
 
-### Per-page functions
+### Function bundling configuration
 
-The Vercel adapter builds to a single function by default. Astro 2.7 added support for splitting your build into separate entry points per page. If you use this configuration the Vercel adapter will generate a separate function for each page. This can help reduce the size of each function so they are only bundling code used on that page.
+The Vercel adapter splits builds into a separate function per route by default. This helps reduce the size of each function, as it only bundles code used on that page.
+
+You can disable this and build to a single function by setting the `functionPerRoute` configuration option to `false`:
 
 ```js
 // astro.config.mjs
@@ -226,10 +249,9 @@ import vercel from '@astrojs/vercel/serverless';
 
 export default defineConfig({
   output: 'server',
-  adapter: vercel(),
-  build: {
-    split: true,
-  },
+  adapter: vercel({
+    functionPerRoute: false,
+  }),
 });
 ```
 
@@ -266,7 +288,7 @@ You can use Vercel Edge middleware to intercept a request and redirect before se
 
 The `@astrojs/vercel/serverless` adapter can automatically create the Vercel Edge middleware from an Astro middleware in your code base.
 
-This is an opt-in feature, and the `build.excludeMiddleware` option needs to be set to `true`:
+This is an opt-in feature, and the `edgeMiddleware` option needs to be set to `true`:
 
 ```js
 // astro.config.mjs
@@ -274,10 +296,9 @@ import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
 export default defineConfig({
   output: 'server',
-  adapter: vercel(),
-  build: {
-    excludeMiddleware: true,
-  },
+  adapter: vercel({
+    edgeMiddleware: true,
+  }),
 });
 ```
 

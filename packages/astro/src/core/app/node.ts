@@ -1,11 +1,12 @@
-import type { RouteData } from '../../@types/astro';
-import type { SerializedSSRManifest, SSRManifest } from './types';
+import type { RouteData } from '../../@types/astro.js';
+import type { SerializedSSRManifest, SSRManifest } from './types.js';
 
 import * as fs from 'node:fs';
 import { IncomingMessage } from 'node:http';
 import { TLSSocket } from 'node:tls';
 import { deserializeManifest } from './common.js';
 import { App, type MatchOptions } from './index.js';
+export { apply as applyPolyfills } from '../polyfill.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 

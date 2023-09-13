@@ -75,6 +75,8 @@ describe('CSS production ordering', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/css-order/',
+				// test suite was authored when inlineStylesheets defaulted to never
+				build: { inlineStylesheets: 'never' },
 			});
 			await fixture.build();
 		});

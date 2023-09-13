@@ -7,9 +7,9 @@ export default defineConfig({
 	output: 'server',
 	adapter: nodejs({ mode: 'standalone' }),
 	integrations: [react()],
-	experimental: {
-		viewTransitions: true,
-		assets: true,
+	redirects: {
+		'/redirect-two': '/two',
+		'/redirect-external': 'http://example.com/',
 	},
 	vite: {
 		build: {

@@ -1,24 +1,24 @@
 import type fs from 'node:fs';
 import type * as vite from 'vite';
-import type { AstroSettings, ManifestData, SSRManifest } from '../@types/astro';
+import type { AstroSettings, ManifestData, SSRManifest } from '../@types/astro.js';
 import { patchOverlay } from '../core/errors/overlay.js';
-import type { LogOptions } from '../core/logger/core.js';
+import type { Logger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import { createRouteManifest } from '../core/routing/index.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
-import { createDevelopmentEnvironment } from './environment.js';
+import DevPipeline from './devPipeline.js';
 import { handleRequest } from './request.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 	fs: typeof fs;
 }
 
 export default function createVitePluginAstroServer({
 	settings,
-	logging,
+	logger,
 	fs: fsMod,
 }: AstroPluginOptions): vite.Plugin {
 	return {
@@ -26,15 +26,15 @@ export default function createVitePluginAstroServer({
 		configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
 			const manifest = createDevelopmentManifest(settings);
-			const env = createDevelopmentEnvironment(manifest, settings, logging, loader);
-			let manifestData: ManifestData = createRouteManifest({ settings, fsMod }, logging);
+			const pipeline = new DevPipeline({ logger, manifest, settings, loader });
+			let manifestData: ManifestData = createRouteManifest({ settings, fsMod }, logger);
 			const controller = createController({ loader });
 
 			/** rebuild the route cache + manifest, as needed. */
 			function rebuildManifest(needsManifestRebuild: boolean) {
-				env.routeCache.clearAll();
+				pipeline.clearRouteCache();
 				if (needsManifestRebuild) {
-					manifestData = createRouteManifest({ settings }, logging);
+					manifestData = createRouteManifest({ settings }, logger);
 				}
 			}
 			// Rebuild route manifest on file change, if needed.
@@ -47,7 +47,7 @@ export default function createVitePluginAstroServer({
 				// fix(#6067): always inject this to ensure zombie base handling is killed after restarts
 				viteServer.middlewares.stack.unshift({
 					route: '',
-					handle: baseMiddleware(settings, logging),
+					handle: baseMiddleware(settings, logger),
 				});
 				// Note that this function has a name so other middleware can find it.
 				viteServer.middlewares.use(async function astroDevHandler(request, response) {
@@ -57,7 +57,7 @@ export default function createVitePluginAstroServer({
 						return;
 					}
 					handleRequest({
-						env,
+						pipeline,
 						manifestData,
 						controller,
 						incomingRequest: request,
@@ -91,7 +91,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		entryModules: {},
 		routes: [],
 		adapterName: '',
-		markdown: settings.config.markdown,
 		clientDirectives: settings.clientDirectives,
 		renderers: [],
 		base: settings.config.base,

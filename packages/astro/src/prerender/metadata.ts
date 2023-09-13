@@ -1,4 +1,4 @@
-import type { ModuleInfo, ModuleLoader } from '../core/module-loader';
+import type { ModuleInfo, ModuleLoader } from '../core/module-loader/index.js';
 import { viteID } from '../core/util.js';
 
 type GetPrerenderStatusParams = {

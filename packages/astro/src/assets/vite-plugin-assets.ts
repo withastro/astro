@@ -1,75 +1,33 @@
-import { bold } from 'kleur/colors';
 import MagicString from 'magic-string';
-import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
-import type { AstroPluginOptions, ImageTransform } from '../@types/astro';
-import { error } from '../core/logger/core.js';
+import type { AstroPluginOptions, ImageTransform } from '../@types/astro.js';
 import {
 	appendForwardSlash,
 	joinPaths,
 	prependForwardSlash,
 	removeQueryString,
 } from '../core/path.js';
-import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
-import { isESMImportedImage } from './internal.js';
+import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { emitESMImage } from './utils/emitAsset.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
-const rawRE = /(?:\?|&)raw(?:&|$)/;
-const urlRE = /(\?|&)url(?:&|$)/;
+const assetRegex = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})$`, 'i');
 
 export default function assets({
 	settings,
-	logging,
 	mode,
 }: AstroPluginOptions & { mode: string }): vite.Plugin[] {
 	let resolvedConfig: vite.ResolvedConfig;
 
 	globalThis.astroAsset = {};
 
-	const UNSUPPORTED_ADAPTERS = new Set([
-		'@astrojs/cloudflare',
-		'@astrojs/deno',
-		'@astrojs/netlify/edge-functions',
-		'@astrojs/vercel/edge',
-	]);
-
-	const adapterName = settings.config.adapter?.name;
-	if (
-		['astro/assets/services/sharp', 'astro/assets/services/squoosh'].includes(
-			settings.config.image.service.entrypoint
-		) &&
-		adapterName &&
-		UNSUPPORTED_ADAPTERS.has(adapterName)
-	) {
-		error(
-			logging,
-			'assets',
-			`The currently selected adapter \`${adapterName}\` does not run on Node, however the currently used image service depends on Node built-ins. ${bold(
-				'Your project will NOT be able to build.'
-			)}`
-		);
-	}
-
 	return [
 		// Expose the components and different utilities from `astro:assets` and handle serving images from `/_image` in dev
 		{
 			name: 'astro:assets',
-			config() {
-				return {
-					resolve: {
-						alias: [
-							{
-								find: /^~\/assets\/(.+)$/,
-								replacement: fileURLToPath(new URL('./assets/$1', settings.config.srcDir)),
-							},
-						],
-					},
-				};
-			},
 			async resolveId(id) {
 				if (id === VIRTUAL_SERVICE_ID) {
 					return await this.resolve(settings.config.image.service.entrypoint);
@@ -85,8 +43,8 @@ export default function assets({
 					import { getImage as getImageInternal } from "astro/assets";
 					export { default as Image } from "astro/components/Image.astro";
 
-					export const imageServiceConfig = ${JSON.stringify(settings.config.image.service.config)};
-					export const getImage = async (options) => await getImageInternal(options, imageServiceConfig);
+					export const imageConfig = ${JSON.stringify(settings.config.image)};
+					export const getImage = async (options) => await getImageInternal(options, imageConfig);
 				`;
 				}
 			},
@@ -109,15 +67,10 @@ export default function assets({
 					if (globalThis.astroAsset.staticImages.has(hash)) {
 						filePath = globalThis.astroAsset.staticImages.get(hash)!.path;
 					} else {
-						// If the image is not imported, we can return the path as-is, since static references
-						// should only point ot valid paths for builds or remote images
-						if (!isESMImportedImage(options.src)) {
-							return options.src;
-						}
-
 						filePath = prependForwardSlash(
 							joinPaths(settings.config.build.assets, propsToFilename(options, hash))
 						);
+
 						globalThis.astroAsset.staticImages.set(hash, { path: filePath, options: options });
 					}
 
@@ -165,13 +118,12 @@ export default function assets({
 				resolvedConfig = viteConfig;
 			},
 			async load(id) {
-				// If our import has the `?raw` or `?url` Vite query params, we'll let Vite handle it
-				if (rawRE.test(id) || urlRE.test(id)) {
+				// If our import has any query params, we'll let Vite handle it
+				// See https://github.com/withastro/astro/issues/8333
+				if (id !== removeQueryString(id)) {
 					return;
 				}
-
-				const cleanedUrl = removeQueryString(id);
-				if (/\.(jpeg|jpg|png|tiff|webp|gif|svg)$/.test(cleanedUrl)) {
+				if (assetRegex.test(id)) {
 					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile);
 					return `export default ${JSON.stringify(meta)}`;
 				}

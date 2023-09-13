@@ -61,13 +61,8 @@ export interface ImageMetadata {
 export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	/** @internal */
 	fileURL?: URL;
-	/** @internal */
-	$?: {
-		scopedClassName: string | null;
-	};
 	/** Used for frontmatter injection plugins */
 	frontmatter?: Record<string, any>;
-	experimentalAssets?: boolean;
 }
 
 export interface MarkdownHeading {

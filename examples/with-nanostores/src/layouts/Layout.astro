@@ -9,25 +9,27 @@ interface Props {
 const { title } = Astro.props;
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width">
-	<meta name="generator" content={Astro.generator} />
-	<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-	<title>{title}</title>
-</head>
-<body>
-	<header>
-		<nav>
-			<a href="/" class="nav-header"><span style="color: var(--astro-blue)">Astro</span> storefront</a>
-			<CartFlyoutToggle client:load />
-		</nav>
-	</header>
-	<slot />
-	<CartFlyout client:load />
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>{title}</title>
+	</head>
+	<body>
+		<header>
+			<nav>
+				<a href="/" class="nav-header"
+					><span style="color: var(--astro-blue)">Astro</span> storefront</a
+				>
+				<CartFlyoutToggle client:load />
+			</nav>
+		</header>
+		<slot />
+		<CartFlyout client:load />
+	</body>
 </html>
 
 <style is:global>
@@ -35,14 +37,14 @@ const { title } = Astro.props;
 		--font-family: system-ui, sans-serif;
 		--font-size-base: clamp(1rem, 0.34vw + 0.91rem, 1.19rem);
 		--font-size-lg: clamp(1.2rem, 0.7vw + 1.2rem, 1.5rem);
-		--font-size-xl: clamp(2.0rem, 1.75vw + 1.35rem, 2.75rem);
+		--font-size-xl: clamp(2rem, 1.75vw + 1.35rem, 2.75rem);
 
 		--color-text: hsl(12, 5%, 4%);
 		--color-bg: hsl(17, 20%, 97%);
 		--color-bg-2: hsl(17, 20%, 94%);
 		--color-bg-3: hsl(17, 20%, 88%);
-		--astro-blue: #4F39FA;
-		--astro-pink: #DA62C4;
+		--astro-blue: #4f39fa;
+		--astro-pink: #da62c4;
 
 		--content-max-width: 90ch;
 		--nav-height: clamp(2.44rem, 2.38vw + 1.85rem, 3.75rem);
@@ -56,7 +58,9 @@ const { title } = Astro.props;
 		border: none;
 		color: var(--astro-blue);
 		border: 2px solid var(--astro-blue);
-		transition: color 0.2s, background-color 0.2s;
+		transition:
+			color 0.2s,
+			background-color 0.2s;
 		background-color: transparent;
 		padding: 0.4rem 0.8rem;
 		border-radius: 0.4rem;
@@ -98,7 +102,8 @@ const { title } = Astro.props;
 		align-items: center;
 	}
 
-	.nav-header, .nav-header:visited {
+	.nav-header,
+	.nav-header:visited {
 		font-size: var(--font-size-base);
 		font-weight: bold;
 		color: inherit;

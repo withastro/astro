@@ -3,17 +3,7 @@ import esbuild from 'esbuild';
 import * as fs from 'node:fs';
 import * as npath from 'node:path';
 import { fileURLToPath } from 'node:url';
-
-interface BuildConfig {
-	server: URL;
-	serverEntry: string;
-	assets: string;
-}
-
-interface Options {
-	port?: number;
-	hostname?: string;
-}
+import type { BuildConfig, Options } from './types';
 
 const SHIM = `globalThis.process = {
 	argv: [],
@@ -89,6 +79,16 @@ export function getAdapter(args?: Options): AstroAdapter {
 		serverEntrypoint: '@astrojs/deno/server.js',
 		args: args ?? {},
 		exports: ['stop', 'handle', 'start', 'running'],
+		supportedAstroFeatures: {
+			hybridOutput: 'stable',
+			staticOutput: 'stable',
+			serverOutput: 'stable',
+			assets: {
+				supportKind: 'stable',
+				isSharpCompatible: false,
+				isSquooshCompatible: false,
+			},
+		},
 	};
 }
 

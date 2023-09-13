@@ -17,7 +17,7 @@ fi
 # Wait for VSCode to be ready (port 23000)
 gp ports await 23000 > /dev/null 2>&1
 
-echo "Loading example project:" $EXAMPLE_PROJECT
+echo "Loading example project: $EXAMPLE_PROJECT"
 
 # Go to the requested example project
 cd "$GITPOD_REPO_ROOT"/examples/"$EXAMPLE_PROJECT" || exit

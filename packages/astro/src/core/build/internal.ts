@@ -1,6 +1,6 @@
 import type { Rollup } from 'vite';
-import type { RouteData, SSRResult } from '../../@types/astro';
-import type { PageOptions } from '../../vite-plugin-astro/types';
+import type { RouteData, SSRResult } from '../../@types/astro.js';
+import type { PageOptions } from '../../vite-plugin-astro/types.js';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
 import {
@@ -9,7 +9,7 @@ import {
 } from './plugins/plugin-pages.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
-import type { PageBuildData, StylesheetAsset, ViteID } from './types';
+import type { PageBuildData, StylesheetAsset, ViteID } from './types.js';
 
 export interface BuildInternals {
 	/**
@@ -85,6 +85,9 @@ export interface BuildInternals {
 	staticFiles: Set<string>;
 	// The SSR entry chunk. Kept in internals to share between ssr/client build steps
 	ssrEntryChunk?: Rollup.OutputChunk;
+	// The SSR manifest entry chunk.
+	manifestEntryChunk?: Rollup.OutputChunk;
+	manifestFileName?: string;
 	entryPoints: Map<RouteData, URL>;
 	ssrSplitEntryChunks: Map<string, Rollup.OutputChunk>;
 	componentMetadata: SSRResult['componentMetadata'];
@@ -225,14 +228,6 @@ export function hasPageDataByViteID(internals: BuildInternals, viteid: ViteID): 
 
 export function* eachPageData(internals: BuildInternals) {
 	yield* internals.pagesByComponent.values();
-}
-
-export function* eachRedirectPageData(internals: BuildInternals) {
-	for (const pageData of eachPageData(internals)) {
-		if (pageData.route.type === 'redirect') {
-			yield pageData;
-		}
-	}
 }
 
 export function* eachPageDataFromEntryPoint(

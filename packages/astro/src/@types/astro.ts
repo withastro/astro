@@ -13,14 +13,20 @@ import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
-import type { SerializedSSRManifest } from '../core/app/types';
-import type { PageBuildData } from '../core/build/types';
-import type { AstroConfigType } from '../core/config';
-import type { AstroTimer } from '../core/config/timer';
-import type { AstroCookies } from '../core/cookies';
-import type { LogOptions, LoggerLevel } from '../core/logger/core';
-import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
+import type { RemotePattern } from '../assets/utils/remotePattern.js';
+import type { SerializedSSRManifest } from '../core/app/types.js';
+import type { PageBuildData } from '../core/build/types.js';
+import type { AstroConfigType } from '../core/config/index.js';
+import type { AstroTimer } from '../core/config/timer.js';
+import type { AstroCookies } from '../core/cookies/index.js';
+import type { ResponseWithEncoding } from '../core/endpoint/index.js';
+import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
+import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
+import type { OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+
+export { type AstroIntegrationLogger };
+
 export type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -33,7 +39,7 @@ export type {
 	ExternalImageService,
 	ImageService,
 	LocalImageService,
-} from '../assets/services/service';
+} from '../assets/services/service.js';
 export type {
 	GetImageResult,
 	ImageInputFormat,
@@ -42,9 +48,10 @@ export type {
 	ImageQuality,
 	ImageQualityPreset,
 	ImageTransform,
-} from '../assets/types';
-export type { SSRManifest } from '../core/app/types';
-export type { AstroCookies } from '../core/cookies';
+} from '../assets/types.js';
+export type { RemotePattern } from '../assets/utils/remotePattern.js';
+export type { SSRManifest } from '../core/app/types.js';
+export type { AstroCookies } from '../core/cookies/index.js';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
@@ -73,7 +80,12 @@ export interface TransitionDirectionalAnimations {
 	backwards: TransitionAnimationPair;
 }
 
-export type TransitionAnimationValue = 'morph' | 'slide' | 'fade' | TransitionDirectionalAnimations;
+export type TransitionAnimationValue =
+	| 'initial'
+	| 'slide'
+	| 'fade'
+	| 'none'
+	| TransitionDirectionalAnimations;
 
 // Allow users to extend this for astro-jsx.d.ts
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -89,7 +101,7 @@ export interface AstroBuiltinAttributes {
 	'set:html'?: any;
 	'set:text'?: any;
 	'is:raw'?: boolean;
-	'transition:animate'?: 'morph' | 'slide' | 'fade' | TransitionDirectionalAnimations;
+	'transition:animate'?: TransitionAnimationValue;
 	'transition:name'?: string;
 	'transition:persist'?: boolean | string;
 }
@@ -99,15 +111,11 @@ export interface AstroDefineVarsAttribute {
 }
 
 export interface AstroStyleAttributes {
-	/** @deprecated Use `is:global` instead */
-	global?: boolean;
 	'is:global'?: boolean;
 	'is:inline'?: boolean;
 }
 
 export interface AstroScriptAttributes {
-	/** @deprecated Hoist is now the default behavior */
-	hoist?: boolean;
 	'is:inline'?: boolean;
 }
 
@@ -130,7 +138,6 @@ export interface CLIFlags {
 	config?: string;
 	drafts?: boolean;
 	open?: boolean;
-	experimentalAssets?: boolean;
 }
 
 /**
@@ -140,9 +147,10 @@ export interface CLIFlags {
  */
 export interface AstroGlobal<
 	Props extends Record<string, any> = Record<string, any>,
-	Self = AstroComponentFactory
+	Self = AstroComponentFactory,
+	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
 > extends AstroGlobalPartial,
-		AstroSharedContext<Props> {
+		AstroSharedContext<Props, Params> {
 	/**
 	 * A full URL object of the request URL.
 	 * Equivalent to: `new URL(Astro.request.url)`
@@ -168,7 +176,7 @@ export interface AstroGlobal<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroparams)
 	 */
-	params: AstroSharedContext['params'];
+	params: AstroSharedContext<Props, Params>['params'];
 	/** List of props passed to this component
 	 *
 	 * A common way to get specific props is through [destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment), ex:
@@ -178,7 +186,7 @@ export interface AstroGlobal<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/core-concepts/astro-components/#component-props)
 	 */
-	props: AstroSharedContext<Props>['props'];
+	props: AstroSharedContext<Props, Params>['props'];
 	/** Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
 	 *
 	 * For example, to get a URL object of the current URL, you can use:
@@ -327,7 +335,7 @@ type ServerConfig = {
 	/**
 	 * @name server.port
 	 * @type {number}
-	 * @default `3000`
+	 * @default `4321`
 	 * @description
 	 * Set which port the dev server should listen on.
 	 *
@@ -366,10 +374,10 @@ export interface ViteUserConfig extends vite.UserConfig {
 	ssr?: vite.SSROptions;
 }
 
-export interface ImageServiceConfig {
+export interface ImageServiceConfig<T extends Record<string, any> = Record<string, any>> {
 	// eslint-disable-next-line @typescript-eslint/ban-types
 	entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
-	config?: Record<string, any>;
+	config?: T;
 }
 
 /**
@@ -541,14 +549,14 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name compressHTML
 	 * @type {boolean}
-	 * @default `false`
+	 * @default `true`
 	 * @description
-	 * This is an option to minify your HTML output and reduce the size of your HTML files. When enabled, Astro removes all whitespace from your HTML, including line breaks, from `.astro` components. This occurs both in development mode and in the final build.
-	 * To enable this, set the `compressHTML` flag to `true`.
+	 * This is an option to minify your HTML output and reduce the size of your HTML files. By default, Astro removes all whitespace from your HTML, including line breaks, from `.astro` components. This occurs both in development mode and in the final build.
+	 * To disable HTML compression, set the `compressHTML` flag to `false`.
 	 *
 	 * ```js
 	 * {
-	 *   compressHTML: true
+	 *   compressHTML: false
 	 * }
 	 * ```
 	 */
@@ -571,12 +579,7 @@ export interface AstroUserConfig {
 	 *
 	 * When using this option, all of your static asset imports and URLs should add the base as a prefix. You can access this value via `import.meta.env.BASE_URL`.
 	 *
-	 * By default, the value of `import.meta.env.BASE_URL` includes a trailing slash. If you have the [`trailingSlash`](https://docs.astro.build/en/reference/configuration-reference/#trailingslash) option set to `'never'`, you will need to add it manually in your static asset imports and URLs.
-	 *
-	 * ```astro
-	 * <a href="/docs/about/">About</a>
-	 * <img src=`${import.meta.env.BASE_URL}image.png`>
-	 * ```
+	 * The value of `import.meta.env.BASE_URL` respects your `trailingSlash` config and will include a trailing slash if you explicitly include one or if `trailingSlash: "always"` is set. If `trailingSlash: "never"` is set, `BASE_URL` will not include a trailing slash, even if `base` includes one.
 	 */
 	base?: string;
 
@@ -609,19 +612,21 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name scopedStyleStrategy
-	 * @type {('where' | 'class')}
-	 * @default `'where'`
+	 * @type {('where' | 'class' | 'attribute')}
+	 * @default `'attribute'`
 	 * @version 2.4
 	 * @description
 	 *
 	 * Specify the strategy used for scoping styles within Astro components. Choose from:
-	 *   - `'where'` - Use `:where` selectors, causing no specifity increase.
-	 *   - `'class'` - Use class-based selectors, causing a +1 specifity increase.
+	 *   - `'where'` 		- Use `:where` selectors, causing no specificity increase.
+	 *   - `'class'` 		- Use class-based selectors, causing a +1 specificity increase.
+	 *   - `'attribute'` 	- Use `data-` attributes, causing a +1 specificity increase.
 	 *
 	 * Using `'class'` is helpful when you want to ensure that element selectors within an Astro component override global style defaults (e.g. from a global stylesheet).
-	 * Using `'where'` gives you more control over specifity, but requires that you use higher-specifity selectors, layers, and other tools to control which selectors are applied.
+	 * Using `'where'` gives you more control over specificity, but requires that you use higher-specificity selectors, layers, and other tools to control which selectors are applied.
+	 * Using `'attribute'` is useful when you are manipulating the `class` attribute of elements and need to avoid conflicts between your own styling logic and Astro's application of styles.
 	 */
-	scopedStyleStrategy?: 'where' | 'class';
+	scopedStyleStrategy?: 'where' | 'class' | 'attribute';
 
 	/**
 	 * @docs
@@ -638,7 +643,7 @@ export interface AstroUserConfig {
 	 * import netlify from '@astrojs/netlify/functions';
 	 * {
 	 *   // Example: Build for Netlify serverless deployment
-	 * 	 adapter: netlify(),
+	 *   adapter: netlify(),
 	 * }
 	 * ```
 	 */
@@ -654,9 +659,9 @@ export interface AstroUserConfig {
 	 *
 	 * Specifies the output target for builds.
 	 *
-	 * - 'static' - Building a static site to be deploy to any static host.
-	 * - 'server' - Building an app to be deployed to a host supporting SSR (server-side rendering).
-	 * - 'hybrid' - Building a static site with a few server-side rendered pages.
+	 * - `'static'` - Building a static site to be deploy to any static host.
+	 * - `'server'` - Building an app to be deployed to a host supporting SSR (server-side rendering).
+	 * - `'hybrid'` - Building a static site with a few server-side rendered pages.
 	 *
 	 * ```js
 	 * import { defineConfig } from 'astro/config';
@@ -681,8 +686,8 @@ export interface AstroUserConfig {
 		 * @default `'directory'`
 		 * @description
 		 * Control the output file format of each page.
-		 *   - If 'file', Astro will generate an HTML file (ex: "/foo.html") for each page.
-		 *   - If 'directory', Astro will generate a directory with a nested `index.html` file (ex: "/foo/index.html") for each page.
+		 *   - If `'file'`, Astro will generate an HTML file (ex: "/foo.html") for each page.
+		 *   - If `'directory'`, Astro will generate a directory with a nested `index.html` file (ex: "/foo/index.html") for each page.
 		 *
 		 * ```js
 		 * {
@@ -836,7 +841,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name build.inlineStylesheets
 		 * @type {('always' | 'auto' | 'never')}
-		 * @default `never`
+		 * @default `auto`
 		 * @version 2.6.0
 		 * @description
 		 * Control whether project styles are sent to the browser in a separate css file or inlined into `<style>` tags. Choose from the following options:
@@ -847,7 +852,7 @@ export interface AstroUserConfig {
 		 * ```js
 		 * {
 		 * 	build: {
-		 *		inlineStylesheets: `auto`,
+		 *		inlineStylesheets: `never`,
 		 * 	},
 		 * }
 		 * ```
@@ -859,22 +864,12 @@ export interface AstroUserConfig {
 		 * @name build.split
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 2.7.0
+		 * @deprecated Deprecated since version 3.0.
 		 * @description
-		 * Defines how the SSR code should be bundled when built.
+		 * The build config option `build.split` has been replaced by the adapter configuration option [`functionPerRoute`](/en/reference/adapter-reference/#functionperroute).
 		 *
-		 * When `split` is `true`, Astro will emit a file for each page.
-		 * Each file emitted will render only one page. The pages will be emitted
-		 * inside a `dist/pages/` directory, and the emitted files will keep the same file paths
-		 * of the `src/pages` directory.
+		 * Please see your [SSR adapter's documentation](/en/guides/integrations-guide/#official-integrations) for using `functionPerRoute` to define how your SSR code is bundled.
 		 *
-		 * ```js
-		 * {
-		 *   build: {
-		 *     split: true
-		 *   }
-		 * }
-		 * ```
 		 */
 		split?: boolean;
 
@@ -883,19 +878,11 @@ export interface AstroUserConfig {
 		 * @name build.excludeMiddleware
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 2.8.0
+		 * @deprecated Deprecated since version 3.0.
 		 * @description
-		 * Defines whether or not any SSR middleware code will be bundled when built.
+		 * The build config option `build.excludeMiddleware` has been replaced by the adapter configuration option [`edgeMiddleware`](/en/reference/adapter-reference/#edgemiddleware).
 		 *
-		 * When enabled, middleware code is not bundled and imported by all pages during the build. To instead execute and import middleware code manually, set `build.excludeMiddleware: true`:
-		 *
-		 * ```js
-		 * {
-		 *   build: {
-		 *     excludeMiddleware: true
-		 *   }
-		 * }
-		 * ```
+		 * Please see your [SSR adapter's documentation](/en/guides/integrations-guide/#official-integrations) for using `edgeMiddleware` to define whether or not any SSR middleware code will be bundled when built.
 		 */
 		excludeMiddleware?: boolean;
 	};
@@ -919,7 +906,7 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   // Example: Use the function syntax to customize based on command
-	 *   server: ({ command }) => ({ port: command === 'dev' ? 3000 : 4000 })
+	 *   server: ({ command }) => ({ port: command === 'dev' ? 4321 : 4000 })
 	 * }
 	 * ```
 	 */
@@ -941,7 +928,7 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name server.port
 	 * @type {number}
-	 * @default `3000`
+	 * @default `4321`
 	 * @description
 	 * Set which port the server should listen on.
 	 *
@@ -984,17 +971,39 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name Image options
+	 * @name Image Options
 	 */
 	image?: {
 		/**
 		 * @docs
-		 * @name image.service (Experimental)
+		 * @name image.endpoint
+		 * @type {string}
+		 * @default `undefined`
+		 * @version 3.1.0
+		 * @description
+		 * Set the endpoint to use for image optimization in dev and SSR. Set to `undefined` to use the default endpoint.
+		 *
+		 * The endpoint will always be injected at `/_image`.
+		 *
+		 * ```js
+		 * {
+		 *   image: {
+		 *     // Example: Use a custom image endpoint
+		 *     endpoint: './src/image-endpoint.ts',
+		 *   },
+		 * }
+		 * ```
+		 */
+		endpoint?: string;
+
+		/**
+		 * @docs
+		 * @name image.service
 		 * @type {{entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | string, config: Record<string, any>}}
-		 * @default `{entrypoint: 'astro/assets/services/squoosh', config?: {}}`
+		 * @default `{entrypoint: 'astro/assets/services/sharp', config?: {}}`
 		 * @version 2.1.0
 		 * @description
-		 * Set which image service is used for Astro’s experimental assets support.
+		 * Set which image service is used for Astro’s assets support.
 		 *
 		 * The value should be an object with an entrypoint for the image service to use and optionally, a config object to pass to the service.
 		 *
@@ -1009,7 +1018,69 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 */
-		service: ImageServiceConfig;
+		service?: ImageServiceConfig;
+
+		/**
+		 * @docs
+		 * @name image.domains
+		 * @type {string[]}
+		 * @default `{domains: []}`
+		 * @version 2.10.10
+		 * @description
+		 * Defines a list of permitted image source domains for remote image optimization. No other remote images will be optimized by Astro.
+		 *
+		 * This option requires an array of individual domain names as strings. Wildcards are not permitted. Instead, use [`image.remotePatterns`](#imageremotepatterns) to define a list of allowed source URL patterns.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * {
+		 *   image: {
+		 *     // Example: Allow remote image optimization from a single domain
+		 *     domains: ['astro.build'],
+		 *   },
+		 * }
+		 * ```
+		 */
+		domains?: string[];
+
+		/**
+		 * @docs
+		 * @name image.remotePatterns
+		 * @type {RemotePattern[]}
+		 * @default `{remotePatterns: []}`
+		 * @version 2.10.10
+		 * @description
+		 * Defines a list of permitted image source URL patterns for remote image optimization.
+		 *
+		 * `remotePatterns` can be configured with four properties:
+		 * 1. protocol
+		 * 2. hostname
+		 * 3. port
+		 * 4. pathname
+		 *
+		 * ```js
+		 * {
+		 *   image: {
+		 *     // Example: allow processing all images from your aws s3 bucket
+		 *     remotePatterns: [{
+		 *       protocol: 'https',
+		 *       hostname: '**.amazonaws.com',
+		 *     }],
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured:
+		 * `hostname`:
+		 *   - Start with '**.' to allow all subdomains ('endsWith').
+		 *   - Start with '*.' to allow only one level of subdomain.
+		 *
+		 * `pathname`:
+		 *   - End with '/**' to allow all sub-routes ('startsWith').
+		 *   - End with '/*' to allow only one level of sub-route.
+
+		 */
+		remotePatterns?: Partial<RemotePattern>[];
 	};
 
 	/**
@@ -1023,6 +1094,7 @@ export interface AstroUserConfig {
 		 * @name markdown.drafts
 		 * @type {boolean}
 		 * @default `false`
+		 * @deprecated Deprecated since version 3.0. Use content collections instead.
 		 * @description
 		 * Control whether Markdown draft pages should be included in the build.
 		 *
@@ -1165,7 +1237,7 @@ export interface AstroUserConfig {
 	 * @name Integrations
 	 * @description
 	 *
-	 * Extend Astro with custom integrations. Integrations are your one-stop-shop for adding framework support (like Solid.js), new features (like sitemaps), and new libraries (like Partytown and Turbolinks).
+	 * Extend Astro with custom integrations. Integrations are your one-stop-shop for adding framework support (like Solid.js), new features (like sitemaps), and new libraries (like Partytown).
 	 *
 	 * Read our [Integrations Guide](https://docs.astro.build/en/guides/integrations-guide/) for help getting started with Astro Integrations.
 	 *
@@ -1238,48 +1310,6 @@ export interface AstroUserConfig {
 	experimental?: {
 		/**
 		 * @docs
-		 * @name experimental.assets
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.1.0
-		 * @description
-		 * Enable experimental support for optimizing and resizing images. With this enabled, a new `astro:assets` module will be exposed.
-		 *
-		 * To enable this feature, set `experimental.assets` to `true` in your Astro config:
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		assets: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		assets?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.viewTransitions
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.9.0
-		 * @description
-		 * Enable experimental support for the `<ViewTransitions / >` component. With this enabled
-		 * you can opt-in to [view transitions](https://docs.astro.build/en/guides/view-transitions/) on a per-page basis using this component
-		 * and enable animations with the `transition:animate` directive.
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		viewTransitions: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		viewTransitions?: boolean;
-
-		/**
-		 * @docs
 		 * @name experimental.optimizeHoistedScript
 		 * @type {boolean}
 		 * @default `false`
@@ -1300,29 +1330,6 @@ export interface AstroUserConfig {
 		 */
 		optimizeHoistedScript?: boolean;
 	};
-
-	// Legacy options to be removed
-
-	/** @deprecated - Use "integrations" instead. Run Astro to learn more about migrating. */
-	renderers?: never;
-	/** @deprecated `projectRoot` has been renamed to `root` */
-	projectRoot?: never;
-	/** @deprecated `src` has been renamed to `srcDir` */
-	src?: never;
-	/** @deprecated `pages` has been removed. It is no longer configurable. */
-	pages?: never;
-	/** @deprecated `public` has been renamed to `publicDir` */
-	public?: never;
-	/** @deprecated `dist` has been renamed to `outDir` */
-	dist?: never;
-	/** @deprecated `styleOptions` has been renamed to `style` */
-	styleOptions?: never;
-	/** @deprecated `markdownOptions` has been renamed to `markdown` */
-	markdownOptions?: never;
-	/** @deprecated `buildOptions` has been renamed to `build` */
-	buildOptions?: never;
-	/** @deprecated `devOptions` has been renamed to `server` */
-	devOptions?: never;
 }
 
 // NOTE(fks): We choose to keep our hand-generated AstroUserConfig interface so that
@@ -1363,15 +1370,41 @@ export interface AstroConfig extends AstroConfigType {
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
 }
+/**
+ * An inline Astro config that takes highest priority when merging with the user config,
+ * and includes inline-specific options to configure how Astro runs.
+ */
 export interface AstroInlineConfig extends AstroUserConfig, AstroInlineOnlyConfig {}
 export interface AstroInlineOnlyConfig {
+	/**
+	 * A custom path to the Astro config file. If relative, it'll resolve based on the current working directory.
+	 * Set to false to disable loading any config files.
+	 *
+	 * If this value is undefined or unset, Astro will search for an `astro.config.(js,mjs,ts)` file relative to
+	 * the `root` and load the config file if found.
+	 *
+	 * The inline config passed in this object will take highest priority when merging with the loaded user config.
+	 */
 	configFile?: string | false;
+	/**
+	 * The mode used when building your site to generate either "development" or "production" code.
+	 */
 	mode?: RuntimeMode;
+	/**
+	 * The logging level to filter messages logged by Astro.
+	 * - "debug": Log everything, including noisy debugging diagnostics.
+	 * - "info": Log informational messages, warnings, and errors.
+	 * - "warn": Log warnings and errors.
+	 * - "error": Log errors only.
+	 * - "silent": No logging.
+	 *
+	 * @default "info"
+	 */
 	logLevel?: LoggerLevel;
 	/**
-	 * @internal for testing only
+	 * @internal for testing only, use `logLevel` instead.
 	 */
-	logging?: LogOptions;
+	logger?: Logger;
 }
 
 export type ContentEntryModule = {
@@ -1441,6 +1474,17 @@ export interface DataEntryType {
 
 export type GetDataEntryInfoReturnType = { data: Record<string, unknown>; rawData?: string };
 
+export interface AstroAdapterFeatures {
+	/**
+	 * Creates and edge function that will communiate with the Astro middleware
+	 */
+	edgeMiddleware: boolean;
+	/**
+	 * SSR only. Each route becomes its own function/file.
+	 */
+	functionPerRoute: boolean;
+}
+
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
@@ -1476,6 +1520,10 @@ export interface ComponentInstance {
 	default: AstroComponentFactory;
 	css?: string[];
 	prerender?: boolean;
+	/**
+	 * Only used for logging if deprecated drafts feature is used
+	 */
+	frontmatter?: Record<string, any>;
 	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 
@@ -1557,10 +1605,7 @@ export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
  */
 export type GetStaticPaths = (
 	options: GetStaticPathsOptions
-) =>
-	| Promise<GetStaticPathsResult | GetStaticPathsResult[]>
-	| GetStaticPathsResult
-	| GetStaticPathsResult[];
+) => Promise<GetStaticPathsResult> | GetStaticPathsResult;
 
 /**
  * Infers the shape of the `params` property returned by `getStaticPaths()`.
@@ -1581,7 +1626,9 @@ export type GetStaticPaths = (
  * const { slug } = Astro.params as Params;
  * ```
  */
-export type InferGetStaticParamsType<T> = T extends () => infer R | Promise<infer R>
+export type InferGetStaticParamsType<T> = T extends (
+	opts?: GetStaticPathsOptions
+) => infer R | Promise<infer R>
 	? R extends Array<infer U>
 		? U extends { params: infer P }
 			? P
@@ -1612,7 +1659,9 @@ export type InferGetStaticParamsType<T> = T extends () => infer R | Promise<infe
  * const { propA, propB } = Astro.props;
  * ```
  */
-export type InferGetStaticPropsType<T> = T extends () => infer R | Promise<infer R>
+export type InferGetStaticPropsType<T> = T extends (
+	opts: GetStaticPathsOptions
+) => infer R | Promise<infer R>
 	? R extends Array<infer U>
 		? U extends { props: infer P }
 			? P
@@ -1659,13 +1708,13 @@ export type MarkdownContent<T extends Record<string, any> = Record<string, any>>
  *
  * [Astro reference](https://docs.astro.build/en/reference/api-reference/#paginate)
  */
-export interface PaginateOptions {
+export interface PaginateOptions<PaginateProps extends Props, PaginateParams extends Params> {
 	/** the number of items per-page (default: `10`) */
 	pageSize?: number;
 	/** key: value object of page params (ex: `{ tag: 'javascript' }`) */
-	params?: Params;
+	params?: PaginateParams;
 	/** object of props to forward to `page` result */
-	props?: Props;
+	props?: PaginateProps;
 }
 
 /**
@@ -1699,9 +1748,60 @@ export interface Page<T = any> {
 	};
 }
 
-export type PaginateFunction = (data: any[], args?: PaginateOptions) => GetStaticPathsResult;
+export type PaginateFunction = <
+	PaginateData,
+	AdditionalPaginateProps extends Props,
+	AdditionalPaginateParams extends Params,
+>(
+	data: PaginateData[],
+	args?: PaginateOptions<AdditionalPaginateProps, AdditionalPaginateParams>
+) => {
+	params: Simplify<
+		{
+			page: string | undefined;
+		} & OmitIndexSignature<AdditionalPaginateParams>
+	>;
+	props: Simplify<
+		{
+			page: Page<PaginateData>;
+		} & OmitIndexSignature<AdditionalPaginateProps>
+	>;
+}[];
 
 export type Params = Record<string, string | undefined>;
+
+export type SupportsKind = 'unsupported' | 'stable' | 'experimental' | 'deprecated';
+
+export type AstroFeatureMap = {
+	/**
+	 * The adapter is able serve static pages
+	 */
+	staticOutput?: SupportsKind;
+	/**
+	 * The adapter is able to serve pages that are static or rendered via server
+	 */
+	hybridOutput?: SupportsKind;
+	/**
+	 * The adapter is able to serve SSR pages
+	 */
+	serverOutput?: SupportsKind;
+	/**
+	 * The adapter can emit static assets
+	 */
+	assets?: AstroAssetsFeature;
+};
+
+export interface AstroAssetsFeature {
+	supportKind?: SupportsKind;
+	/**
+	 * Whether if this adapter deploys files in an environment that is compatible with the library `sharp`
+	 */
+	isSharpCompatible?: boolean;
+	/**
+	 * Whether if this adapter deploys files in an environment that is compatible with the library `squoosh`
+	 */
+	isSquooshCompatible?: boolean;
+}
 
 export interface AstroAdapter {
 	name: string;
@@ -1709,6 +1809,13 @@ export interface AstroAdapter {
 	previewEntrypoint?: string;
 	exports?: string[];
 	args?: any;
+	adapterFeatures?: AstroAdapterFeatures;
+	/**
+	 * List of features supported by an adapter.
+	 *
+	 * If the adapter is not able to handle certain configurations, Astro will throw an error.
+	 */
+	supportedAstroFeatures?: AstroFeatureMap;
 }
 
 type Body = string;
@@ -1716,7 +1823,10 @@ type Body = string;
 export type ValidRedirectStatus = 300 | 301 | 302 | 303 | 304 | 307 | 308;
 
 // Shared types between `Astro` global and API context object
-interface AstroSharedContext<Props extends Record<string, any> = Record<string, any>> {
+interface AstroSharedContext<
+	Props extends Record<string, any> = Record<string, any>,
+	RouteParams extends Record<string, string | undefined> = Record<string, string | undefined>,
+> {
 	/**
 	 * The address (usually IP address) of the user. Used with SSR only.
 	 */
@@ -1736,7 +1846,7 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	/**
 	 * Route parameters for this request if this is a dynamic route.
 	 */
-	params: Params;
+	params: RouteParams;
 	/**
 	 * List of props returned for this path by `getStaticPaths` (**Static Only**).
 	 */
@@ -1752,8 +1862,10 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	locals: App.Locals;
 }
 
-export interface APIContext<Props extends Record<string, any> = Record<string, any>>
-	extends AstroSharedContext<Props> {
+export interface APIContext<
+	Props extends Record<string, any> = Record<string, any>,
+	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>,
+> extends AstroSharedContext<Props, Params> {
 	site: URL | undefined;
 	generator: string;
 	/**
@@ -1785,7 +1897,7 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 *
 	 * [context reference](https://docs.astro.build/en/reference/api-reference/#contextparams)
 	 */
-	params: AstroSharedContext['params'];
+	params: AstroSharedContext<Props, APIParams>['params'];
 	/**
 	 * List of props passed from `getStaticPaths`. Only available to static builds.
 	 *
@@ -1808,7 +1920,7 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 *
 	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextprops)
 	 */
-	props: AstroSharedContext<Props>['props'];
+	props: AstroSharedContext<Props, APIParams>['props'];
 	/**
 	 * Redirect to another page. Only available in SSR builds.
 	 *
@@ -1831,7 +1943,7 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 *
 	 * ```ts
 	 * // src/middleware.ts
-	 * import {defineMiddleware} from "astro/middleware";
+	 * import {defineMiddleware} from "astro:middleware";
 	 *
 	 * export const onRequest = defineMiddleware((context, next) => {
 	 *   context.locals.greeting = "Hello!";
@@ -1848,12 +1960,13 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 * ```
 	 */
 	locals: App.Locals;
+	ResponseWithEncoding: typeof ResponseWithEncoding;
 }
 
 export type EndpointOutput =
 	| {
 			body: Body;
-			encoding?: Exclude<BufferEncoding, 'binary'>;
+			encoding?: BufferEncoding;
 	  }
 	| {
 			body: Uint8Array;
@@ -1896,7 +2009,7 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 
 export type HookParameters<
 	Hook extends keyof AstroIntegration['hooks'],
-	Fn = AstroIntegration['hooks'][Hook]
+	Fn = AstroIntegration['hooks'][Hook],
 > = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
 
 export interface AstroIntegration {
@@ -1914,6 +2027,7 @@ export interface AstroIntegration {
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			addClientDirective: (directive: ClientDirectiveConfig) => void;
+			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.
@@ -1922,10 +2036,17 @@ export interface AstroIntegration {
 		'astro:config:done'?: (options: {
 			config: AstroConfig;
 			setAdapter: (adapter: AstroAdapter) => void;
+			logger: AstroIntegrationLogger;
 		}) => void | Promise<void>;
-		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
-		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
-		'astro:server:done'?: () => void | Promise<void>;
+		'astro:server:setup'?: (options: {
+			server: vite.ViteDevServer;
+			logger: AstroIntegrationLogger;
+		}) => void | Promise<void>;
+		'astro:server:start'?: (options: {
+			address: AddressInfo;
+			logger: AstroIntegrationLogger;
+		}) => void | Promise<void>;
+		'astro:server:done'?: (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
 		'astro:build:ssr'?: (options: {
 			manifest: SerializedSSRManifest;
 			/**
@@ -1937,19 +2058,25 @@ export interface AstroIntegration {
 			 * File path of the emitted middleware
 			 */
 			middlewareEntryPoint: URL | undefined;
+			logger: AstroIntegrationLogger;
 		}) => void | Promise<void>;
-		'astro:build:start'?: () => void | Promise<void>;
+		'astro:build:start'?: (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
 		'astro:build:setup'?: (options: {
 			vite: vite.InlineConfig;
 			pages: Map<string, PageBuildData>;
 			target: 'client' | 'server';
 			updateConfig: (newConfig: vite.InlineConfig) => void;
+			logger: AstroIntegrationLogger;
 		}) => void | Promise<void>;
-		'astro:build:generated'?: (options: { dir: URL }) => void | Promise<void>;
+		'astro:build:generated'?: (options: {
+			dir: URL;
+			logger: AstroIntegrationLogger;
+		}) => void | Promise<void>;
 		'astro:build:done'?: (options: {
 			pages: { pathname: string }[];
 			dir: URL;
 			routes: RouteData[];
+			logger: AstroIntegrationLogger;
 		}) => void | Promise<void>;
 	};
 }
@@ -1972,7 +2099,7 @@ export type AstroMiddlewareInstance<R> = {
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 }
 
 export type RouteType = 'page' | 'endpoint' | 'redirect';
@@ -2099,6 +2226,7 @@ export interface PreviewServerParams {
 	host: string | undefined;
 	port: number;
 	base: string;
+	logger: AstroIntegrationLogger;
 }
 
 export type CreatePreviewServer = (

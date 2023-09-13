@@ -48,14 +48,9 @@ Deno.test({
 			const html = await resp.text();
 
 			const doc = new DOMParser().parseFromString(html, `text/html`);
-			const link = doc!.querySelector('link');
-			const href = link!.getAttribute('href');
+			const style = doc!.querySelector('style');
 
-			resp = await fetch(new URL(href!, app.url));
-			assertEquals(resp.status, 200);
-			const ct = resp.headers.get('content-type');
-			assertEquals(ct, 'text/css; charset=UTF-8');
-			await resp.body!.cancel();
+			assert(style?.textContent?.includes('Courier New'));
 		});
 
 		await t.step('Correctly loads run-time env variables', async () => {

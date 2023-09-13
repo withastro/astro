@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { loadFixture, testIntegration } from './test-utils.js';
 import netlifyAdapter from '../../dist/index.js';
+import { loadFixture, testIntegration } from './test-utils.js';
 
 describe('SSG - Redirects', () => {
 	/** @type {import('../../../astro/test/test-utils').Fixture} */
@@ -25,6 +25,7 @@ describe('SSG - Redirects', () => {
 	it('Creates a redirects file', async () => {
 		let redirects = await fixture.readFile('/_redirects');
 		let parts = redirects.split(/\s+/);
+		console.log(parts);
 		expect(parts).to.deep.equal([
 			'/other',
 			'/',
@@ -35,6 +36,11 @@ describe('SSG - Redirects', () => {
 			'/.netlify/functions/entry',
 			'200',
 			'/',
+			'/.netlify/functions/entry',
+			'200',
+
+			// Image endpoint
+			'/_image',
 			'/.netlify/functions/entry',
 			'200',
 

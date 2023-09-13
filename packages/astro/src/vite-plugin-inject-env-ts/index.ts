@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { normalizePath, type Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { getContentPaths, getDotAstroTypeReference } from '../content/index.js';
-import { info, type LogOptions } from '../core/logger/core.js';
+import { type Logger } from '../core/logger/core.js';
 
 export function getEnvTsPath({ srcDir }: { srcDir: URL }) {
 	return new URL('env.d.ts', srcDir);
@@ -13,11 +13,11 @@ export function getEnvTsPath({ srcDir }: { srcDir: URL }) {
 
 export function astroInjectEnvTsPlugin({
 	settings,
-	logging,
+	logger,
 	fs,
 }: {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 	fs: typeof fsMod;
 }): Plugin {
 	return {
@@ -26,18 +26,18 @@ export function astroInjectEnvTsPlugin({
 		// Ex. `.astro` types have been written
 		enforce: 'post',
 		async config() {
-			await setUpEnvTs({ settings, logging, fs });
+			await setUpEnvTs({ settings, logger, fs });
 		},
 	};
 }
 
 export async function setUpEnvTs({
 	settings,
-	logging,
+	logger,
 	fs,
 }: {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 	fs: typeof fsMod;
 }) {
 	const envTsPath = getEnvTsPath(settings.config);
@@ -50,24 +50,14 @@ export async function setUpEnvTs({
 	if (fs.existsSync(envTsPath)) {
 		let typesEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');
 
-		// TODO: Remove this logic in 3.0, as `astro/client-image` will be merged into `astro/client`
-		if (settings.config.experimental.assets && typesEnvContents.includes('types="astro/client"')) {
-			typesEnvContents = typesEnvContents.replace(
-				'types="astro/client"',
-				'types="astro/client-image"'
-			);
-			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
-			info(logging, 'assets', `Added ${bold(envTsPathRelativetoRoot)} types`);
-		} else if (
-			!settings.config.experimental.assets &&
-			typesEnvContents.includes('types="astro/client-image"')
-		) {
+		// TODO: Remove this in 4.0, this code is only to help users migrate away from assets being experimental for a long time
+		if (typesEnvContents.includes('types="astro/client-image"')) {
 			typesEnvContents = typesEnvContents.replace(
 				'types="astro/client-image"',
 				'types="astro/client"'
 			);
 			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
-			info(logging, 'assets', `Removed ${bold(envTsPathRelativetoRoot)} types`);
+			logger.info('assets', `Removed ${bold(envTsPathRelativetoRoot)} types`);
 		}
 
 		if (!fs.existsSync(dotAstroDir))
@@ -78,18 +68,12 @@ export async function setUpEnvTs({
 		if (!typesEnvContents.includes(expectedTypeReference)) {
 			typesEnvContents = `${expectedTypeReference}\n${typesEnvContents}`;
 			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
-			info(logging, 'content', `Added ${bold(envTsPathRelativetoRoot)} types`);
+			logger.info('content', `Added ${bold(envTsPathRelativetoRoot)} types`);
 		}
 	} else {
 		// Otherwise, inject the `env.d.ts` file
 		let referenceDefs: string[] = [];
-		if (settings.config.experimental.assets) {
-			referenceDefs.push('/// <reference types="astro/client-image" />');
-		} else if (settings.config.integrations.find((i) => i.name === '@astrojs/image')) {
-			referenceDefs.push('/// <reference types="@astrojs/image/client" />');
-		} else {
-			referenceDefs.push('/// <reference types="astro/client" />');
-		}
+		referenceDefs.push('/// <reference types="astro/client" />');
 
 		if (fs.existsSync(dotAstroDir)) {
 			referenceDefs.push(dotAstroTypeReference);
@@ -97,6 +81,6 @@ export async function setUpEnvTs({
 
 		await fs.promises.mkdir(settings.config.srcDir, { recursive: true });
 		await fs.promises.writeFile(envTsPath, referenceDefs.join('\n'), 'utf-8');
-		info(logging, 'astro', `Added ${bold(envTsPathRelativetoRoot)} types`);
+		logger.info('astro', `Added ${bold(envTsPathRelativetoRoot)} types`);
 	}
 }

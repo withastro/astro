@@ -13,3 +13,10 @@ export function squooshImageService() {
 		config: {},
 	};
 }
+
+export function passthroughImageService() {
+	return {
+		entrypoint: 'astro/assets/services/noop',
+		config: {},
+	};
+}

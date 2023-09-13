@@ -5,8 +5,8 @@ import type {
 	ManifestData,
 	RouteData,
 	RoutePart,
-} from '../../../@types/astro';
-import type { LogOptions } from '../../logger/core';
+} from '../../../@types/astro.js';
+import type { Logger } from '../../logger/core.js';
 
 import { createRequire } from 'module';
 import nodeFs from 'node:fs';
@@ -14,7 +14,6 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
-import { warn } from '../../logger/core.js';
 import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
@@ -185,7 +184,12 @@ function injectedRouteToItem(
 	{ config, cwd }: { config: AstroConfig; cwd?: string },
 	{ pattern, entryPoint }: InjectedRoute
 ): Item {
-	const resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
+	let resolved: string;
+	try {
+		resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
+	} catch (e) {
+		resolved = fileURLToPath(new URL(entryPoint, config.root));
+	}
 
 	const ext = path.extname(pattern);
 
@@ -216,7 +220,7 @@ export interface CreateRouteManifestParams {
 /** Create manifest of all static routes */
 export function createRouteManifest(
 	{ settings, cwd, fsMod }: CreateRouteManifestParams,
-	logging: LogOptions
+	logger: Logger
 ): ManifestData {
 	const components: string[] = [];
 	const routes: RouteData[] = [];
@@ -256,7 +260,7 @@ export function createRouteManifest(
 			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
 				if (!foundInvalidFileExtensions.has(ext)) {
 					foundInvalidFileExtensions.add(ext);
-					warn(logging, 'astro', `Invalid file extension for Pages: ${ext}`);
+					logger.warn('astro', `Invalid file extension for Pages: ${ext}`);
 				}
 
 				return;
@@ -354,7 +358,7 @@ export function createRouteManifest(
 	} else if (settings.injectedRoutes.length === 0) {
 		const pagesDirRootRelative = pages.href.slice(settings.config.root.href.length);
 
-		warn(logging, 'astro', `Missing pages directory: ${pagesDirRootRelative}`);
+		logger.warn('astro', `Missing pages directory: ${pagesDirRootRelative}`);
 	}
 
 	settings.injectedRoutes

@@ -4,10 +4,12 @@ import { testImageService } from '../../../../../astro/test/test-image-service.j
 
 export default defineConfig({
 	adapter: vercel({imageService: true}),
-	experimental: {
-		assets: true,
-	},
 	image: {
 		service: testImageService(),
+		domains: ['astro.build'],
+		remotePatterns: [{
+      protocol: 'https',
+      hostname: '**.amazonaws.com',
+    }],
 	},
 });

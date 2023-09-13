@@ -1,10 +1,19 @@
 /* eslint-disable no-console */
+import whichPm from 'which-pm';
 import type yargs from 'yargs-parser';
 import * as msg from '../../core/messages.js';
 import { telemetry } from '../../events/index.js';
 
 interface TelemetryOptions {
 	flags: yargs.Arguments;
+}
+
+export async function notify() {
+	const packageManager = (await whichPm(process.cwd()))?.name ?? 'npm';
+	await telemetry.notify(() => {
+		console.log(msg.telemetryNotice(packageManager) + '\n');
+		return true;
+	});
 }
 
 export async function update(subcommand: string, { flags }: TelemetryOptions) {

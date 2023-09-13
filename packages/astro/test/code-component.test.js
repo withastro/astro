@@ -23,4 +23,11 @@ describe('Code component', () => {
 		let $ = cheerio.load(html);
 		expect($('pre').attr('is:raw')).to.equal(undefined);
 	});
+
+	// ViewTransitions bug
+	it('No script should be added to the page', async () => {
+		let html = await fixture.readFile('/index.html');
+		let $ = cheerio.load(html);
+		expect($('script')).to.have.a.lengthOf(0);
+	});
 });

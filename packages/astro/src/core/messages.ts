@@ -1,4 +1,3 @@
-import boxen from 'boxen';
 import {
 	bgCyan,
 	bgGreen,
@@ -16,8 +15,13 @@ import {
 } from 'kleur/colors';
 import type { ResolvedServerUrls } from 'vite';
 import type { ZodError } from 'zod';
-import { renderErrorMarkdown } from './errors/dev/utils.js';
-import { AstroError, CompilerError, type ErrorWithMetadata } from './errors/index.js';
+import { getDocsForError, renderErrorMarkdown } from './errors/dev/utils.js';
+import {
+	AstroError,
+	AstroUserError,
+	CompilerError,
+	type ErrorWithMetadata,
+} from './errors/index.js';
 import { emoji, padMultilineString } from './util.js';
 
 const PREFIX_PADDING = 6;
@@ -101,35 +105,30 @@ export function serverStart({
 		.join('\n');
 }
 
-export function telemetryNotice() {
-	const headline = yellow(`Astro now collects ${bold('anonymous')} usage data.`);
-	const why = `This ${bold('optional program')} will help shape our roadmap.`;
-	const more = `For more info, visit ${underline('https://astro.build/telemetry')}`;
-	const box = boxen([headline, why, '', more].join('\n'), {
-		margin: 0,
-		padding: 1,
-		borderStyle: 'round',
-		borderColor: 'yellow',
-	});
-	return box;
+export function telemetryNotice(packageManager = 'npm') {
+	const headline = `${cyan('◆')} Astro collects completely anonymous usage data.`;
+	const why = dim('  This optional program helps shape our roadmap.');
+	const disable = dim(`  Run \`${packageManager} run astro telemetry disable\` to opt-out.`);
+	const details = `  Details: ${underline('https://astro.build/telemetry')}`;
+	return [headline, why, disable, details].map((v) => '  ' + v).join('\n');
 }
 
 export function telemetryEnabled() {
-	return `\n  ${green('◉')} Anonymous telemetry is ${bgGreen(
-		black(' enabled ')
-	)}. Thank you for improving Astro!\n`;
+	return `${green('◉')} Anonymous telemetry is now ${bgGreen(black(' enabled '))}\n  ${dim(
+		'Thank you for improving Astro!'
+	)}\n`;
 }
 
 export function telemetryDisabled() {
-	return `\n  ${yellow('◯')}  Anonymous telemetry is ${bgYellow(
-		black(' disabled ')
-	)}. We won't share any usage data.\n`;
+	return `${yellow('◯')} Anonymous telemetry is now ${bgYellow(black(' disabled '))}\n  ${dim(
+		"We won't ever record your usage data."
+	)}\n`;
 }
 
 export function telemetryReset() {
-	return `\n  ${cyan('◆')} Anonymous telemetry has been ${bgCyan(
-		black(' reset ')
-	)}. You may be prompted again.\n`;
+	return `${cyan('◆')} Anonymous telemetry has been ${bgCyan(black(' reset '))}\n  ${dim(
+		'You may be prompted again.'
+	)}\n`;
 }
 
 export function fsStrictWarning() {
@@ -198,7 +197,7 @@ export function formatConfigErrorMessage(err: ZodError) {
 }
 
 export function formatErrorMessage(err: ErrorWithMetadata, args: string[] = []): string {
-	const isOurError = AstroError.is(err) || CompilerError.is(err);
+	const isOurError = AstroError.is(err) || CompilerError.is(err) || AstroUserError.is(err);
 
 	args.push(
 		`${bgRed(black(` error `))}${red(
@@ -210,6 +209,11 @@ export function formatErrorMessage(err: ErrorWithMetadata, args: string[] = []):
 		args.push(
 			yellow(padMultilineString(isOurError ? renderErrorMarkdown(err.hint, 'cli') : err.hint, 4))
 		);
+	}
+	const docsLink = getDocsForError(err);
+	if (docsLink) {
+		args.push(`  ${bold('Error reference:')}`);
+		args.push(`    ${underline(docsLink)}`);
 	}
 	if (err.id || err.loc?.file) {
 		args.push(`  ${bold('File:')}`);

@@ -1,11 +1,11 @@
 ---
 title: One
-image: ~/assets/penguin2.jpg
+image: ../../assets/penguin2.jpg
 cover:
   image: ../../assets/penguin1.jpg
 arrayOfImages:
-  - ~/assets/penguin2.jpg
-  - ~/assets/penguin1.jpg
+  - ../../assets/penguin2.jpg
+  - ../../assets/penguin1.jpg
 refinedImage: ../../assets/penguin1.jpg
 ---
 

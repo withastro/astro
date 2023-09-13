@@ -1,4 +1,5 @@
-import type { AstroSettings } from '../@types/astro.js';
+import { isRemotePath } from '@astrojs/internal-helpers/path';
+import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isLocalService, type ImageService } from './services/service.js';
 import type {
@@ -7,11 +8,15 @@ import type {
 	ImageTransform,
 	UnresolvedImageTransform,
 } from './types.js';
+import { matchHostname, matchPattern } from './utils/remotePattern.js';
 
 export function injectImageEndpoint(settings: AstroSettings) {
+	const endpointEntrypoint = settings.config.image.endpoint ?? 'astro/assets/image-endpoint';
+
+	// TODO: Add a setting to disable the image endpoint
 	settings.injectedRoutes.push({
 		pattern: '/_image',
-		entryPoint: 'astro/assets/image-endpoint',
+		entryPoint: endpointEntrypoint,
 		prerender: false,
 	});
 
@@ -20,6 +25,26 @@ export function injectImageEndpoint(settings: AstroSettings) {
 
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
 	return typeof src === 'object';
+}
+
+export function isRemoteImage(src: ImageMetadata | string): src is string {
+	return typeof src === 'string';
+}
+
+export function isRemoteAllowed(
+	src: string,
+	{
+		domains = [],
+		remotePatterns = [],
+	}: Partial<Pick<AstroConfig['image'], 'domains' | 'remotePatterns'>>
+): boolean {
+	if (!isRemotePath(src)) return false;
+
+	const url = new URL(src);
+	return (
+		domains.some((domain) => matchHostname(url, domain)) ||
+		remotePatterns.some((remotePattern) => matchPattern(url, remotePattern))
+	);
 }
 
 export async function getConfiguredImageService(): Promise<ImageService> {
@@ -43,7 +68,7 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 
 export async function getImage(
 	options: ImageTransform | UnresolvedImageTransform,
-	serviceConfig: Record<string, any>
+	imageConfig: AstroConfig['image']
 ): Promise<GetImageResult> {
 	if (!options || typeof options !== 'object') {
 		throw new AstroError({
@@ -54,23 +79,28 @@ export async function getImage(
 
 	const service = await getConfiguredImageService();
 
-	// If the user inlined an import, something fairly common especially in MDX, await it for them
+	// If the user inlined an import, something fairly common especially in MDX, or passed a function that returns an Image, await it for them
 	const resolvedOptions: ImageTransform = {
 		...options,
 		src:
 			typeof options.src === 'object' && 'then' in options.src
-				? (await options.src).default
+				? (await options.src).default ?? (await options.src)
 				: options.src,
 	};
 
 	const validatedOptions = service.validateOptions
-		? await service.validateOptions(resolvedOptions, serviceConfig)
+		? await service.validateOptions(resolvedOptions, imageConfig)
 		: resolvedOptions;
 
-	let imageURL = await service.getURL(validatedOptions, serviceConfig);
+	let imageURL = await service.getURL(validatedOptions, imageConfig);
 
 	// In build and for local services, we need to collect the requested parameters so we can generate the final images
-	if (isLocalService(service) && globalThis.astroAsset.addStaticImage) {
+	if (
+		isLocalService(service) &&
+		globalThis.astroAsset.addStaticImage &&
+		// If `getURL` returned the same URL as the user provided, it means the service doesn't need to do anything
+		!(isRemoteImage(validatedOptions.src) && imageURL === validatedOptions.src)
+	) {
 		imageURL = globalThis.astroAsset.addStaticImage(validatedOptions);
 	}
 
@@ -80,7 +110,7 @@ export async function getImage(
 		src: imageURL,
 		attributes:
 			service.getHTMLAttributes !== undefined
-				? service.getHTMLAttributes(validatedOptions, serviceConfig)
+				? service.getHTMLAttributes(validatedOptions, imageConfig)
 				: {},
 	};
 }

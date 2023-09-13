@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers/Pages",
-  "version": "6.8.0",
+  "version": "7.1.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -39,21 +39,28 @@
     "test:match": "mocha --exit --timeout 30000 -g"
   },
   "dependencies": {
-    "@astrojs/underscore-redirects": "^0.2.0",
-    "@cloudflare/workers-types": "^4.20230518.0",
-    "esbuild": "^0.17.19",
+    "@astrojs/underscore-redirects": "workspace:*",
+    "@cloudflare/workers-types": "^4.20230821.0",
+    "@iarna/toml": "^2.2.5",
+    "@miniflare/cache": "^2.14.1",
+    "@miniflare/shared": "^2.14.1",
+    "@miniflare/storage-memory": "^2.14.1",
+    "dotenv": "^16.3.1",
+    "esbuild": "^0.19.2",
+    "find-up": "^6.3.0",
     "tiny-glob": "^0.2.9"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.10.9"
+    "astro": "workspace:^3.0.13"
   },
   "devDependencies": {
+    "@types/iarna__toml": "^2.0.2",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
     "kill-port": "^2.0.1",
-    "mocha": "^9.2.2",
-    "wrangler": "^3.5.0"
+    "mocha": "^10.2.0",
+    "wrangler": "^3.5.1"
   }
 }

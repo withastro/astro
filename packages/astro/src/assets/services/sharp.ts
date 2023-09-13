@@ -1,4 +1,5 @@
 import type { FormatEnum } from 'sharp';
+import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
 	baseService,
@@ -21,7 +22,7 @@ async function loadSharp() {
 	try {
 		sharpImport = (await import('sharp')).default;
 	} catch (e) {
-		throw new Error('Could not find Sharp. Please install Sharp manually into your project.');
+		throw new AstroError(AstroErrorData.MissingSharp);
 	}
 
 	return sharpImport;

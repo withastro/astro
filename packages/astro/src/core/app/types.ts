@@ -1,12 +1,11 @@
-import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
 	RouteData,
 	SerializedRouteData,
 	SSRComponentMetadata,
 	SSRLoadedRenderer,
 	SSRResult,
-} from '../../@types/astro';
-import type { SinglePageBuiltModule } from '../build/types';
+} from '../../@types/astro.js';
+import type { SinglePageBuiltModule } from '../build/types.js';
 
 export type ComponentPath = string;
 
@@ -40,7 +39,6 @@ export type SSRManifest = {
 	base: string;
 	compressHTML: boolean;
 	assetsPrefix?: string;
-	markdown: MarkdownRenderingOptions;
 	renderers: SSRLoadedRenderer[];
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code

@@ -3,11 +3,8 @@
 // @ts-check
 
 import { execa } from 'execa';
-import { polyfill } from '@astrojs/webapi';
-import { fileURLToPath } from 'node:url';
 import { promises as fs } from 'node:fs';
-
-polyfill(globalThis, { exclude: 'window document' });
+import { fileURLToPath } from 'node:url';
 
 /* Configuration
 /* ========================================================================== */

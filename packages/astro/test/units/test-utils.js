@@ -12,12 +12,13 @@ import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { createContainer } from '../../dist/core/dev/container.js';
 import { unixify } from './correct-path.js';
+import { Logger } from '../../dist/core/logger/core.js';
 
-/** @type {import('../../src/core/logger/core').LogOptions} */
-export const defaultLogging = {
+/** @type {import('../../src/core/logger/core').Logger} */
+export const defaultLogger = new Logger({
 	dest: nodeLogDestination,
 	level: 'error',
-};
+});
 
 /** @type {import('../../src/core/logger/core').LogOptions} */
 export const silentLogging = {
@@ -187,7 +188,7 @@ export function createBasicEnvironment(options = {}) {
 		clientDirectives: getDefaultClientDirectives(),
 		resolve: options.resolve ?? ((s) => Promise.resolve(s)),
 		routeCache: new RouteCache(options.logging, mode),
-		logging: options.logging ?? defaultLogging,
+		logger: options.logger ?? defaultLogger,
 		ssr: options.ssr ?? true,
 		streaming: options.streaming ?? true,
 	});
@@ -223,7 +224,7 @@ export async function runInContainer(options = {}, callback) {
 		fs: options?.fs ?? realFS,
 		settings,
 		inlineConfig: options.inlineConfig ?? {},
-		logging: defaultLogging,
+		logger: defaultLogger,
 	});
 	try {
 		await callback(container);

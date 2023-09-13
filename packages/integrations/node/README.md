@@ -31,6 +31,8 @@ yarn astro add node
 pnpm astro add node
 ```
 
+### Add dependencies manually
+
 If you prefer to install the adapter manually instead, complete the following two steps:
 
 1. Install the Node adapter to your project’s dependencies using your preferred package manager. If you’re using npm or aren’t sure, run this in the terminal:
@@ -159,7 +161,7 @@ For standalone mode the server handles file servering in addition to the page an
 You can override the host and port the standalone server runs on by passing them as environment variables at runtime:
 
 ```shell
-HOST=0.0.0.0 PORT=3000 node ./dist/server/entry.mjs
+HOST=0.0.0.0 PORT=4321 node ./dist/server/entry.mjs
 ```
 
 #### HTTPS

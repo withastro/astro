@@ -1,14 +1,31 @@
-import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
+import type { IncomingRequestCfProperties } from '@cloudflare/workers-types/experimental';
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
+
+import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
+import { CacheStorage } from '@miniflare/cache';
+import { NoOpLog } from '@miniflare/shared';
+import { MemoryStorage } from '@miniflare/storage-memory';
+import { AstroError } from 'astro/errors';
 import esbuild from 'esbuild';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import { sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'tiny-glob';
+import { getEnvVars } from './parser.js';
+
+export type { AdvancedRuntime } from './server.advanced.js';
+export type { DirectoryRuntime } from './server.directory.js';
 
 type Options = {
-	mode: 'directory' | 'advanced';
+	mode?: 'directory' | 'advanced';
+	functionPerRoute?: boolean;
+	/**
+	 * 'off': current behaviour (wrangler is needed)
+	 * 'local': use a static req.cf object, and env vars defined in wrangler.toml & .dev.vars (astro dev is enough)
+	 * 'remote': use a dynamic real-live req.cf object, and env vars defined in wrangler.toml & .dev.vars (astro dev is enough)
+	 */
+	runtime?: 'off' | 'local' | 'remote';
 };
 
 interface BuildConfig {
@@ -18,18 +35,126 @@ interface BuildConfig {
 	split?: boolean;
 }
 
-export function getAdapter(isModeDirectory: boolean): AstroAdapter {
+class StorageFactory {
+	storages = new Map();
+
+	storage(namespace: string) {
+		let storage = this.storages.get(namespace);
+		if (storage) return storage;
+		this.storages.set(namespace, (storage = new MemoryStorage()));
+		return storage;
+	}
+}
+
+export function getAdapter({
+	isModeDirectory,
+	functionPerRoute,
+}: {
+	isModeDirectory: boolean;
+	functionPerRoute: boolean;
+}): AstroAdapter {
 	return isModeDirectory
 		? {
 				name: '@astrojs/cloudflare',
 				serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
 				exports: ['onRequest', 'manifest'],
+				adapterFeatures: {
+					functionPerRoute,
+					edgeMiddleware: false,
+				},
+				supportedAstroFeatures: {
+					hybridOutput: 'stable',
+					staticOutput: 'unsupported',
+					serverOutput: 'stable',
+					assets: {
+						supportKind: 'stable',
+						isSharpCompatible: false,
+						isSquooshCompatible: false,
+					},
+				},
 		  }
 		: {
 				name: '@astrojs/cloudflare',
 				serverEntrypoint: '@astrojs/cloudflare/server.advanced.js',
 				exports: ['default'],
+				supportedAstroFeatures: {
+					hybridOutput: 'stable',
+					staticOutput: 'unsupported',
+					serverOutput: 'stable',
+					assets: {
+						supportKind: 'stable',
+						isSharpCompatible: false,
+						isSquooshCompatible: false,
+					},
+				},
 		  };
+}
+
+async function getCFObject(runtimeMode: string): Promise<IncomingRequestCfProperties | void> {
+	const CF_ENDPOINT = 'https://workers.cloudflare.com/cf.json';
+	const CF_FALLBACK: IncomingRequestCfProperties = {
+		asOrganization: '',
+		asn: 395747,
+		colo: 'DFW',
+		city: 'Austin',
+		region: 'Texas',
+		regionCode: 'TX',
+		metroCode: '635',
+		postalCode: '78701',
+		country: 'US',
+		continent: 'NA',
+		timezone: 'America/Chicago',
+		latitude: '30.27130',
+		longitude: '-97.74260',
+		clientTcpRtt: 0,
+		httpProtocol: 'HTTP/1.1',
+		requestPriority: 'weight=192;exclusive=0',
+		tlsCipher: 'AEAD-AES128-GCM-SHA256',
+		tlsVersion: 'TLSv1.3',
+		tlsClientAuth: {
+			certPresented: '0',
+			certVerified: 'NONE',
+			certRevoked: '0',
+			certIssuerDN: '',
+			certSubjectDN: '',
+			certIssuerDNRFC2253: '',
+			certSubjectDNRFC2253: '',
+			certIssuerDNLegacy: '',
+			certSubjectDNLegacy: '',
+			certSerial: '',
+			certIssuerSerial: '',
+			certSKI: '',
+			certIssuerSKI: '',
+			certFingerprintSHA1: '',
+			certFingerprintSHA256: '',
+			certNotBefore: '',
+			certNotAfter: '',
+		},
+		edgeRequestKeepAliveStatus: 0,
+		hostMetadata: undefined,
+		clientTrustScore: 99,
+		botManagement: {
+			corporateProxy: false,
+			verifiedBot: false,
+			ja3Hash: '25b4882c2bcb50cd6b469ff28c596742',
+			staticResource: false,
+			detectionIds: [],
+			score: 99,
+		},
+	};
+
+	if (runtimeMode === 'local') {
+		return CF_FALLBACK;
+	} else if (runtimeMode === 'remote') {
+		try {
+			const res = await fetch(CF_ENDPOINT);
+			const cfText = await res.text();
+			const storedCf = JSON.parse(cfText);
+			return storedCf;
+		} catch (e: any) {
+			return CF_FALLBACK;
+		}
+	}
 }
 
 const SHIM = `globalThis.process = {
@@ -47,8 +172,11 @@ const potentialFunctionRouteTypes = ['endpoint', 'page'];
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
-	const isModeDirectory = args?.mode === 'directory';
 	let _entryPoints = new Map<RouteData, URL>();
+
+	const isModeDirectory = args?.mode === 'directory';
+	const functionPerRoute = args?.functionPerRoute ?? false;
+	const runtimeMode = args?.runtime ?? 'off';
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -64,20 +192,61 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				setAdapter(getAdapter(isModeDirectory));
+				setAdapter(getAdapter({ isModeDirectory, functionPerRoute }));
 				_config = config;
 				_buildConfig = config.build;
 
 				if (config.output === 'static') {
-					throw new Error(`
-  [@astrojs/cloudflare] \`output: "server"\` or \`output: "hybrid"\` is required to use this adapter. Otherwise, this adapter is not necessary to deploy a static site to Cloudflare.
-
-`);
+					throw new AstroError(
+						'[@astrojs/cloudflare] `output: "server"` or `output: "hybrid"` is required to use this adapter. Otherwise, this adapter is not necessary to deploy a static site to Cloudflare.'
+					);
 				}
 
 				if (config.base === SERVER_BUILD_FOLDER) {
-					throw new Error(`
-  [@astrojs/cloudflare] \`base: "${SERVER_BUILD_FOLDER}"\` is not allowed. Please change your \`base\` config to something else.`);
+					throw new AstroError(
+						'[@astrojs/cloudflare] `base: "${SERVER_BUILD_FOLDER}"` is not allowed. Please change your `base` config to something else.'
+					);
+				}
+			},
+			'astro:server:setup': ({ server }) => {
+				if (runtimeMode !== 'off') {
+					server.middlewares.use(async function middleware(req, res, next) {
+						try {
+							const cf = await getCFObject(runtimeMode);
+							const vars = await getEnvVars();
+
+							const clientLocalsSymbol = Symbol.for('astro.locals');
+							Reflect.set(req, clientLocalsSymbol, {
+								runtime: {
+									env: {
+										// default binding for static assets will be dynamic once we support mocking of bindings
+										ASSETS: {},
+										// this is just a VAR for CF to change build behavior, on dev it should be 0
+										CF_PAGES: '0',
+										// will be fetched from git dynamically once we support mocking of bindings
+										CF_PAGES_BRANCH: 'TBA',
+										// will be fetched from git dynamically once we support mocking of bindings
+										CF_PAGES_COMMIT_SHA: 'TBA',
+										CF_PAGES_URL: `http://${req.headers.host}`,
+										...vars,
+									},
+									cf: cf,
+									waitUntil: (_promise: Promise<any>) => {
+										return;
+									},
+									caches: new CacheStorage(
+										{ cache: true, cachePersist: false },
+										new NoOpLog(),
+										new StorageFactory(),
+										{}
+									),
+								},
+							});
+							next();
+						} catch {
+							next();
+						}
+					});
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
@@ -116,7 +285,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					await fs.promises.mkdir(functionsUrl, { recursive: true });
 				}
 
-				if (isModeDirectory && _buildConfig.split) {
+				// TODO: remove _buildConfig.split in Astro 4.0
+				if (isModeDirectory && (_buildConfig.split || functionPerRoute)) {
 					const entryPointsURL = [..._entryPoints.values()];
 					const entryPaths = entryPointsURL.map((entry) => fileURLToPath(entry));
 					const outputUrl = new URL('$astro', _buildConfig.server);

@@ -1,10 +1,11 @@
 import { extname } from 'node:path';
 import type { Plugin as VitePlugin } from 'vite';
+import type { AstroSettings } from '../../../@types/astro.js';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { type BuildInternals } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin';
-import type { StaticBuildOptions } from '../types';
+import type { AstroBuildPlugin } from '../plugin.js';
+import type { StaticBuildOptions } from '../types.js';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN, getPathFromVirtualModulePageName } from './util.js';
@@ -74,7 +75,7 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 						exports.push(`export { renderers };`);
 
 						// The middleware should not be imported by the pages
-						if (!opts.settings.config.build.excludeMiddleware) {
+						if (shouldBundleMiddleware(opts.settings)) {
 							const middlewareModule = await this.resolve(MIDDLEWARE_MODULE_ID);
 							if (middlewareModule) {
 								imports.push(`import { onRequest } from "${middlewareModule.id}";`);
@@ -88,6 +89,17 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 			}
 		},
 	};
+}
+
+export function shouldBundleMiddleware(settings: AstroSettings) {
+	// TODO: Remove in Astro 4.0
+	if (settings.config.build.excludeMiddleware === true) {
+		return false;
+	}
+	if (settings.adapter?.adapterFeatures?.edgeMiddleware === true) {
+		return false;
+	}
+	return true;
 }
 
 export function pluginPages(opts: StaticBuildOptions, internals: BuildInternals): AstroBuildPlugin {

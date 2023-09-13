@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - "1-legacy"
+      - "2-legacy"
       - next
 
 defaults:
@@ -30,7 +31,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
           cache: "pnpm"
 
       - name: Install dependencies

@@ -1,14 +1,13 @@
-import type { AstroSettings, ManifestData } from '../../@types/astro';
-import type { LogOptions } from '../logger/core';
-import { info } from '../logger/core.js';
-import type { AllPagesData } from './types';
+import type { AstroSettings, ManifestData } from '../../@types/astro.js';
+import type { Logger } from '../logger/core.js';
+import type { AllPagesData } from './types.js';
 
 import * as colors from 'kleur/colors';
 import { debug } from '../logger/core.js';
 
 export interface CollectPagesDataOptions {
 	settings: AstroSettings;
-	logging: LogOptions;
+	logger: Logger;
 	manifest: ManifestData;
 }
 
@@ -27,7 +26,7 @@ export async function collectPagesData(
 	const allPages: AllPagesData = {};
 	const builtPaths = new Set<string>();
 	const dataCollectionLogTimeout = setInterval(() => {
-		info(opts.logging, 'build', 'The data collection step may take longer for larger projects...');
+		opts.logger.info('build', 'The data collection step may take longer for larger projects...');
 		clearInterval(dataCollectionLogTimeout);
 	}, 30000);
 
@@ -39,8 +38,7 @@ export async function collectPagesData(
 		// static route:
 		if (route.pathname) {
 			const routeCollectionLogTimeout = setInterval(() => {
-				info(
-					opts.logging,
+				opts.logger.info(
 					'build',
 					`${colors.bold(
 						route.component

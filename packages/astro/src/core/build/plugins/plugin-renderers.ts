@@ -1,7 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { addRollupInput } from '../add-rollup-input.js';
-import type { AstroBuildPlugin } from '../plugin';
-import type { StaticBuildOptions } from '../types';
+import type { AstroBuildPlugin } from '../plugin.js';
+import type { StaticBuildOptions } from '../types.js';
 
 export const RENDERERS_MODULE_ID = '@astro-renderers';
 export const RESOLVED_RENDERERS_MODULE_ID = `\0${RENDERERS_MODULE_ID}`;
@@ -38,6 +38,8 @@ export function vitePluginRenderers(opts: StaticBuildOptions): VitePlugin {
 					exports.push(`export const renderers = [${rendererItems}];`);
 
 					return `${imports.join('\n')}\n${exports.join('\n')}`;
+				} else {
+					return `export const renderers = [];`;
 				}
 			}
 		},

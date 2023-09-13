@@ -23,7 +23,6 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@astrojs/webapi": "workspace:*",
     "server-destroy": "^1.0.1"
   },
   "peerDependencies": {

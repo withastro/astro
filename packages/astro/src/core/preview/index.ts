@@ -1,20 +1,24 @@
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { AstroInlineConfig, PreviewModule, PreviewServer } from '../../@types/astro';
+import type { AstroInlineConfig, PreviewModule, PreviewServer } from '../../@types/astro.js';
+import { AstroIntegrationLogger } from '../../core/logger/core.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
 import { resolveConfig } from '../config/config.js';
-import { createNodeLogging } from '../config/logging.js';
+import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
 
-/** The primary dev action */
-export default async function preview(
-	inlineConfig: AstroInlineConfig
-): Promise<PreviewServer | undefined> {
-	const logging = createNodeLogging(inlineConfig);
+/**
+ * Starts a local server to serve your static dist/ directory. This command is useful for previewing
+ * your build locally, before deploying it. It is not designed to be run in production.
+ *
+ * @experimental The JavaScript API is experimental
+ */
+export default async function preview(inlineConfig: AstroInlineConfig): Promise<PreviewServer> {
+	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'preview');
 	telemetry.record(eventCliSession('preview', userConfig));
 
@@ -23,12 +27,12 @@ export default async function preview(
 	const settings = await runHookConfigSetup({
 		settings: _settings,
 		command: 'preview',
-		logging: logging,
+		logger: logger,
 	});
-	await runHookConfigDone({ settings: settings, logging: logging });
+	await runHookConfigDone({ settings: settings, logger: logger });
 
 	if (settings.config.output === 'static') {
-		const server = await createStaticPreviewServer(settings, logging);
+		const server = await createStaticPreviewServer(settings, logger);
 		return server;
 	}
 	if (!settings.adapter) {
@@ -59,6 +63,7 @@ export default async function preview(
 		host: getResolvedHostForHttpServer(settings.config.server.host),
 		port: settings.config.server.port,
 		base: settings.config.base,
+		logger: new AstroIntegrationLogger(logger.options, settings.adapter.name),
 	});
 
 	return server;

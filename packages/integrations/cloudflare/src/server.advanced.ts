@@ -12,7 +12,7 @@ type Env = {
 	name: string;
 };
 
-interface WorkerRuntime {
+export interface AdvancedRuntime {
 	runtime: {
 		waitUntil: (promise: Promise<any>) => void;
 		env: Env;
@@ -44,20 +44,7 @@ export function createExports(manifest: SSRManifest) {
 				request.headers.get('cf-connecting-ip')
 			);
 
-			// `getRuntime()` is deprecated, currently available additionally to new Astro.locals.runtime
-			// TODO: remove `getRuntime()` in Astro 3.0
-			Reflect.set(request, Symbol.for('runtime'), {
-				env,
-				name: 'cloudflare',
-				caches,
-				cf: request.cf,
-				...context,
-				waitUntil: (promise: Promise<any>) => {
-					context.waitUntil(promise);
-				},
-			});
-
-			const locals: WorkerRuntime = {
+			const locals: AdvancedRuntime = {
 				runtime: {
 					waitUntil: (promise: Promise<any>) => {
 						context.waitUntil(promise);

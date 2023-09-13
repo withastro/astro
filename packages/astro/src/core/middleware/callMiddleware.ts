@@ -4,10 +4,9 @@ import type {
 	EndpointOutput,
 	MiddlewareHandler,
 	MiddlewareNext,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { warn } from '../logger/core.js';
-import type { Environment } from '../render';
+import type { Environment } from '../render/index.js';
 
 /**
  * Utility function that is in charge of calling the middleware.
@@ -44,7 +43,7 @@ import type { Environment } from '../render';
  * @param responseFunction A callback function that should return a promise with the response
  */
 export async function callMiddleware<R>(
-	logging: Environment['logging'],
+	logger: Environment['logger'],
 	onRequest: MiddlewareHandler<R>,
 	apiContext: APIContext,
 	responseFunction: () => Promise<R>
@@ -61,8 +60,7 @@ export async function callMiddleware<R>(
 
 	return await Promise.resolve(middlewarePromise).then(async (value) => {
 		if (isEndpointOutput(value)) {
-			warn(
-				logging,
+			logger.warn(
 				'middleware',
 				'Using simple endpoints can cause unexpected issues in the chain of middleware functions.' +
 					`\nIt's strongly suggested to use full ${bold('Response')} objects.`

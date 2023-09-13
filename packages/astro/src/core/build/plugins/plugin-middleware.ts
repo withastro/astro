@@ -1,9 +1,10 @@
 import type { Plugin as VitePlugin } from 'vite';
+import { getOutputDirectory } from '../../../prerender/utils.js';
 import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../../constants.js';
 import { addRollupInput } from '../add-rollup-input.js';
-import type { BuildInternals } from '../internal';
-import type { AstroBuildPlugin } from '../plugin';
-import type { StaticBuildOptions } from '../types';
+import type { BuildInternals } from '../internal.js';
+import type { AstroBuildPlugin } from '../plugin.js';
+import type { StaticBuildOptions } from '../types.js';
 
 export const MIDDLEWARE_MODULE_ID = '@astro-middleware';
 
@@ -56,8 +57,9 @@ export function vitePluginMiddleware(
 				if (chunk.type === 'asset') {
 					continue;
 				}
-				if (chunk.fileName === 'middleware.mjs' && opts.settings.config.build.excludeMiddleware) {
-					internals.middlewareEntryPoint = new URL(chunkName, opts.settings.config.build.server);
+				if (chunk.fileName === 'middleware.mjs') {
+					const outputDirectory = getOutputDirectory(opts.settings.config);
+					internals.middlewareEntryPoint = new URL(chunkName, outputDirectory);
 				}
 			}
 		},

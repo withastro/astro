@@ -54,10 +54,10 @@ describe('Astro Global', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#pathname').text()).to.equal('/blog/');
+			expect($('#pathname').text()).to.equal('/blog');
 			expect($('#searchparams').text()).to.equal('{}');
-			expect($('#child-pathname').text()).to.equal('/blog/');
-			expect($('#nested-child-pathname').text()).to.equal('/blog/');
+			expect($('#child-pathname').text()).to.equal('/blog');
+			expect($('#nested-child-pathname').text()).to.equal('/blog');
 		});
 
 		it('Astro.site', async () => {

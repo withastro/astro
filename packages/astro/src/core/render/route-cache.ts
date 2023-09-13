@@ -3,12 +3,13 @@ import type {
 	GetStaticPathsItem,
 	GetStaticPathsResult,
 	GetStaticPathsResultKeyed,
+	PaginateFunction,
 	Params,
 	RouteData,
 	RuntimeMode,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { debug, warn, type LogOptions } from '../logger/core.js';
+import type { Logger } from '../logger/core.js';
 
 import { stringifyParams } from '../routing/params.js';
 import { validateDynamicRouteModule, validateGetStaticPathsResult } from '../routing/validation.js';
@@ -18,8 +19,7 @@ interface CallGetStaticPathsOptions {
 	mod: ComponentInstance;
 	route: RouteData;
 	routeCache: RouteCache;
-	isValidate: boolean;
-	logging: LogOptions;
+	logger: Logger;
 	ssr: boolean;
 }
 
@@ -27,8 +27,7 @@ export async function callGetStaticPaths({
 	mod,
 	route,
 	routeCache,
-	isValidate,
-	logging,
+	logger,
 	ssr,
 }: CallGetStaticPathsOptions): Promise<GetStaticPathsResultKeyed> {
 	const cached = routeCache.get(route);
@@ -52,20 +51,15 @@ export async function callGetStaticPaths({
 	// Calculate your static paths.
 	let staticPaths: GetStaticPathsResult = [];
 	staticPaths = await mod.getStaticPaths({
-		paginate: generatePaginateFunction(route),
+		// Q: Why the cast?
+		// A: So users downstream can have nicer typings, we have to make some sacrifice in our internal typings, which necessitate a cast here
+		paginate: generatePaginateFunction(route) as PaginateFunction,
 		rss() {
 			throw new AstroError(AstroErrorData.GetStaticPathsRemovedRSSHelper);
 		},
 	});
 
-	// Flatten the array before validating the content, otherwise users using `.map` will run into errors
-	if (Array.isArray(staticPaths)) {
-		staticPaths = staticPaths.flat();
-	}
-
-	if (isValidate) {
-		validateGetStaticPathsResult(staticPaths, logging, route);
-	}
+	validateGetStaticPathsResult(staticPaths, logger, route);
 
 	const keyedStaticPaths = staticPaths as GetStaticPathsResultKeyed;
 	keyedStaticPaths.keyed = new Map<string, GetStaticPathsItem>();
@@ -89,12 +83,12 @@ interface RouteCacheEntry {
  * responses during dev and only ever called once during build.
  */
 export class RouteCache {
-	private logging: LogOptions;
+	private logger: Logger;
 	private cache: Record<string, RouteCacheEntry> = {};
 	private mode: RuntimeMode;
 
-	constructor(logging: LogOptions, mode: RuntimeMode = 'production') {
-		this.logging = logging;
+	constructor(logger: Logger, mode: RuntimeMode = 'production') {
+		this.logger = logger;
 		this.mode = mode;
 	}
 
@@ -108,8 +102,7 @@ export class RouteCache {
 		// Warn here so that an unexpected double-call of getStaticPaths()
 		// isn't invisible and developer can track down the issue.
 		if (this.mode === 'production' && this.cache[route.component]?.staticPaths) {
-			warn(
-				this.logging,
+			this.logger.warn(
 				'routeCache',
 				`Internal Warning: route cache overwritten. (${route.component})`
 			);
@@ -125,12 +118,13 @@ export class RouteCache {
 export function findPathItemByKey(
 	staticPaths: GetStaticPathsResultKeyed,
 	params: Params,
-	route: RouteData
+	route: RouteData,
+	logger: Logger
 ) {
 	const paramsKey = stringifyParams(params, route);
 	const matchedStaticPath = staticPaths.keyed.get(paramsKey);
 	if (matchedStaticPath) {
 		return matchedStaticPath;
 	}
-	debug('findPathItemByKey', `Unexpected cache miss looking for ${paramsKey}`);
+	logger.debug('findPathItemByKey', `Unexpected cache miss looking for ${paramsKey}`);
 }

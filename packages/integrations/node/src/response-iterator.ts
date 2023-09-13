@@ -4,9 +4,9 @@
  *  - https://github.com/apollographql/apollo-client/blob/main/src/utilities/common/responseIterator.ts
  */
 
+import { AstroError } from 'astro/errors';
 import type { ReadableStreamDefaultReadResult } from 'node:stream/web';
 import { Readable as NodeReadableStream } from 'stream';
-import type { Response as NodeResponse } from 'undici';
 
 interface NodeStreamIterator<T> {
 	next(): Promise<IteratorResult<T, boolean | undefined>>;
@@ -35,8 +35,8 @@ function isBuffer(value: any): value is Buffer {
 	);
 }
 
-function isNodeResponse(value: any): value is NodeResponse {
-	return !!(value as NodeResponse).body;
+function isNodeResponse(value: any): value is Response {
+	return !!(value as Response).body;
 }
 
 function isReadableStream(value: any): value is ReadableStream<any> {
@@ -121,7 +121,7 @@ function nodeStreamIterator<T>(stream: NodeReadableStream): AsyncIterableIterato
 				| IteratorResult<T, boolean | undefined>
 				| PromiseLike<IteratorResult<T, boolean | undefined>>
 		) => void,
-		(reason?: any) => void
+		(reason?: any) => void,
 	][] = [];
 
 	function onData(chunk: any) {
@@ -201,9 +201,7 @@ function asyncIterator<T>(source: AsyncIterableIterator<T>): AsyncIterableIterat
 	};
 }
 
-export function responseIterator<T>(
-	response: Response | NodeResponse | Buffer
-): AsyncIterableIterator<T> {
+export function responseIterator<T>(response: Response | Buffer): AsyncIterableIterator<T> {
 	let body: unknown = response;
 
 	if (isNodeResponse(response)) body = response.body;
@@ -224,5 +222,7 @@ export function responseIterator<T>(
 
 	if (isNodeReadableStream(body)) return nodeStreamIterator<T>(body);
 
-	throw new Error('Unknown body type for responseIterator. Please pass a streamable response.');
+	throw new AstroError(
+		'Unknown body type for responseIterator. Please pass a streamable response.'
+	);
 }

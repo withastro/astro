@@ -15,7 +15,7 @@ export const consoleLogDestination = {
 
 		function getPrefix() {
 			let prefix = '';
-			let type = event.type;
+			let type = event.label;
 			if (type) {
 				// hide timestamp when type is undefined
 				prefix += dim(dateTimeFormat.format(new Date()) + ' ');

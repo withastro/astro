@@ -1,4 +1,4 @@
-import type { PropagationHint } from '../../@types/astro';
+import type { PropagationHint } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { AstroComponentFactory } from './render/index.js';
 

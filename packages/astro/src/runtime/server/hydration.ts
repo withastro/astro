@@ -3,11 +3,10 @@ import type {
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { escapeHTML } from './escape.js';
 import { serializeProps } from './serialize.js';
-import { serializeListValue } from './util.js';
 
 export interface HydrationMetadata {
 	directive: string;
@@ -94,11 +93,6 @@ export function extractDirectives(
 
 					break;
 				}
-			}
-		} else if (key === 'class:list') {
-			if (value) {
-				// support "class" from an expression passed into a component (#782)
-				extracted.props[key.slice(0, -5)] = serializeListValue(value);
 			}
 		} else {
 			extracted.props[key] = value;

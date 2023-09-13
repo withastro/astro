@@ -1,2 +1,0 @@
-<!-- HTML comments! -->
-# It works!

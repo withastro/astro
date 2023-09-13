@@ -93,8 +93,7 @@ export async function getEntryData(
 		_internal: EntryInternal;
 	},
 	collectionConfig: CollectionConfig,
-	pluginContext: PluginContext,
-	config: AstroConfig
+	pluginContext: PluginContext
 ) {
 	let data;
 	if (collectionConfig.type === 'data') {
@@ -106,12 +105,6 @@ export async function getEntryData(
 
 	let schema = collectionConfig.schema;
 	if (typeof schema === 'function') {
-		if (!config.experimental.assets) {
-			throw new Error(
-				'The function shape for schema can only be used when `experimental.assets` is enabled.'
-			);
-		}
-
 		schema = schema({
 			image: createImage(pluginContext, entry._internal.filePath),
 		});
@@ -209,7 +202,10 @@ export function getDataEntryId({
 	collection,
 }: Pick<ContentPaths, 'contentDir'> & { entry: URL; collection: string }): string {
 	const relativePath = getRelativeEntryPath(entry, collection, contentDir);
-	const withoutFileExt = relativePath.replace(new RegExp(path.extname(relativePath) + '$'), '');
+	const withoutFileExt = normalizePath(relativePath).replace(
+		new RegExp(path.extname(relativePath) + '$'),
+		''
+	);
 
 	return withoutFileExt;
 }
@@ -250,9 +246,7 @@ export function getEntryType(
 	entryPath: string,
 	paths: Pick<ContentPaths, 'config' | 'contentDir'>,
 	contentFileExts: string[],
-	dataFileExts: string[],
-	// TODO: Unflag this when we're ready to release assets - erika, 2023-04-12
-	experimentalAssets = false
+	dataFileExts: string[]
 ): 'content' | 'data' | 'config' | 'ignored' | 'unsupported' {
 	const { ext, base } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);
@@ -260,7 +254,7 @@ export function getEntryType(
 	if (
 		hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir) ||
 		isOnIgnoreList(base) ||
-		(experimentalAssets && isImageAsset(ext))
+		isImageAsset(ext)
 	) {
 		return 'ignored';
 	} else if (contentFileExts.includes(ext)) {
@@ -454,7 +448,7 @@ export function getContentPaths(
 	};
 }
 function search(fs: typeof fsMod, srcDir: URL) {
-	const paths = ['config.mjs', 'config.js', 'config.ts'].map(
+	const paths = ['config.mjs', 'config.js', 'config.mts', 'config.ts'].map(
 		(p) => new URL(`./content/${p}`, srcDir)
 	);
 	for (const file of paths) {
