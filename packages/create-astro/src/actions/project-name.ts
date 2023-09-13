@@ -16,6 +16,7 @@ export async function projectName(ctx: Pick<Context, 'cwd' | 'yes' | 'dryRun' | 
 
 		if (ctx.yes) {
 			ctx.projectName = generateProjectName();
+			ctx.cwd = `./${ctx.projectName}`;
 			await info('dir', `Project created at ./${ctx.projectName}`);
 			return;
 		}
