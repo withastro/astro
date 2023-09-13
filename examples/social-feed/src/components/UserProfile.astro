@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import settings from '../settings';
 import Icon from './Icon.astro';
 
@@ -8,155 +9,146 @@ const socialLinks = Object.entries(settings.social) as SocialEntry[];
 ---
 
 <div class="profile">
-  <div>
-    <div class="avatar">
-      <img width="110" height="110" {...settings.avatar} />
-    </div>
-    <h1>
-      {settings.name}
-      <small>{settings.username}</small>
-    </h1>
-  </div>
-  <div class="bio-sections">
-    <div class="bio">
-      <p>🚀 <a href="https://astro.build/">Astro</a> Mascot</p>
-      <p>😊 The cutest</p>
-      <p>🎨 Whimsical Speedy Web</p>
-    </div>
-    <div class="bio">
-      {
-        settings.pronouns && (
-          <p>
-            <Icon icon="user" color="var(--theme-accent-dark)" size="1.75rem" />
-            <span class="sr-only">Pronouns</span>
-            {settings.pronouns}
-          </p>
-        )
-      }
-      {
-        settings.location && (
-          <p>
-            <Icon
-              icon="location-point"
-              color="var(--theme-accent-dark)"
-              size="1.75rem"
-            />
-            <span class="sr-only">Location</span>
-            {settings.location}
-          </p>
-        )
-      }
-      {
-        settings.homepage && (
-          <p>
-            <Icon
-              icon="link-h"
-              color="var(--theme-accent-dark)"
-              size="1.75rem"
-            />
-            <span class="sr-only">Homepage</span>
-            <a href={settings.homepage}>
-              {settings.homepage.replace(/^https?:\/\/(www\.)?/, '')}
-            </a>
-          </p>
-        )
-      }
-      <p>
-        <Icon icon="rss-alt" color="var(--theme-accent-dark)" size="1.75rem" />
-        <a href="/rss.xml">RSS Feed</a>
-      </p>
-    </div>
-    <ul class="social">
-      {
-        socialLinks.map(([key, url]) => (
-          <li>
-            <a href={url}>
-              <Icon icon={`${key}-logo`} size="1.75rem" />
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
+	<div>
+		<div class="avatar">
+			<Image {...settings.avatar} width={220} />
+		</div>
+		<h1>
+			{settings.name}
+			<small>{settings.username}</small>
+		</h1>
+	</div>
+	<div class="bio-sections">
+		<div class="bio">
+			<p>🚀 <a href="https://astro.build/">Astro</a> Mascot</p>
+			<p>😊 The cutest</p>
+			<p>🎨 Whimsical Speedy Web</p>
+		</div>
+		<div class="bio">
+			{
+				settings.pronouns && (
+					<p>
+						<Icon icon="user" color="var(--theme-accent-dark)" size="1.75rem" />
+						<span class="sr-only">Pronouns</span>
+						{settings.pronouns}
+					</p>
+				)
+			}
+			{
+				settings.location && (
+					<p>
+						<Icon icon="location-point" color="var(--theme-accent-dark)" size="1.75rem" />
+						<span class="sr-only">Location</span>
+						{settings.location}
+					</p>
+				)
+			}
+			{
+				settings.homepage && (
+					<p>
+						<Icon icon="link-h" color="var(--theme-accent-dark)" size="1.75rem" />
+						<span class="sr-only">Homepage</span>
+						<a href={settings.homepage}>{settings.homepage.replace(/^https?:\/\/(www\.)?/, '')}</a>
+					</p>
+				)
+			}
+			<p>
+				<Icon icon="rss-alt" color="var(--theme-accent-dark)" size="1.75rem" />
+				<a href="/rss.xml">RSS Feed</a>
+			</p>
+		</div>
+		<ul class="social">
+			{
+				socialLinks.map(([key, url]) => (
+					<li>
+						<a href={url}>
+							<Icon icon={`${key}-logo`} size="1.75rem" />
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</div>
 </div>
 
 <style>
-  .profile {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
+	.profile {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
 
-  .avatar {
-    display: inline-block;
-    position: relative;
-  }
+	.avatar {
+		display: inline-block;
+		position: relative;
+	}
 
-  .avatar::after {
-    border-radius: var(--theme-radius-full);
-    position: absolute;
-    content: '';
-    inset: 0;
-    border: 0.1875rem solid var(--theme-text);
-  }
+	.avatar::after {
+		border-radius: var(--theme-radius-full);
+		position: absolute;
+		content: '';
+		inset: 0;
+		border: 0.1875rem solid var(--theme-text);
+	}
 
-  .avatar img {
-    height: auto;
-  }
+	.avatar img {
+		width: 110px;
+		height: 110px;
+	}
 
-  h1 {
-    display: flex;
-    flex-direction: column;
-    font-size: var(--theme-text-xl);
-  }
+	h1 {
+		display: flex;
+		flex-direction: column;
+		font-size: var(--theme-text-xl);
+	}
 
-  small {
-    font-size: var(--theme-text-base);
-    font-family: var(--theme-font-body);
-    color: var(--theme-gray-200);
-  }
+	small {
+		font-size: var(--theme-text-base);
+		font-family: var(--theme-font-body);
+		color: var(--theme-gray-200);
+	}
 
-  .bio-sections {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: flex-start;
-    gap: 1rem 1.75rem;
-  }
+	.bio-sections {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		align-items: flex-start;
+		gap: 1rem 1.75rem;
+	}
 
-  .bio-sections > :nth-child(2) {
-    grid-row: span 2;
-  }
+	.bio-sections > :nth-child(2) {
+		grid-row: span 2;
+	}
 
-  .bio {
-    font-size: var(--theme-text-sm);
-    font-weight: 500;
-  }
+	.bio {
+		font-size: var(--theme-text-sm);
+		font-weight: 500;
+	}
 
-  .bio > * + * {
-    margin-top: 0.75rem;
-  }
+	.bio > * + * {
+		margin-top: 0.75rem;
+	}
 
-  .bio :global(svg) {
-    /* Slightly hacky way to avoid the icon height being included in the box calculation. */
-    margin: -50% 0;
-  }
+	.bio :global(svg) {
+		/* Slightly hacky way to avoid the icon height being included in the box calculation. */
+		margin: -50% 0;
+	}
 
-  .social {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    list-style: none;
-    padding: 0;
-  }
+	.social {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		list-style: none;
+		padding: 0;
+	}
 
-  .social a {
-    color: var(--theme-accent-dark);
-  }
+	.social a {
+		color: var(--theme-accent-dark);
+	}
 
-  @media (min-width: 50em) {
-    .bio-sections {
-      display: flex;
-      flex-direction: column;
-    }
-  }
+	@media (min-width: 50em) {
+		.bio-sections {
+			display: flex;
+			flex-direction: column;
+		}
+	}
 </style>

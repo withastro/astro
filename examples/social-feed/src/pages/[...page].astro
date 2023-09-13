@@ -1,5 +1,6 @@
 ---
 import type { GetStaticPathsOptions, Page } from 'astro';
+import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import Pagination from '../components/Pagination.astro';
 import TagList from '../components/TagList.astro';
@@ -28,11 +29,11 @@ const { page } = Astro.props;
 						<article class="card">
 							<header>
 								<div style="display: flex;gap:0.875rem;align-items:center;">
-									<img
-										style="border-radius: var(--theme-radius-full);background-color:var(--theme-shade-subtle);"
-										width="60"
-										height="60"
-										{...settings.avatar}
+									<Image
+										src={settings.avatar.src}
+										width={120}
+										class="u-avatar"
+										alt={settings.avatar.alt}
 									/>
 									<div>
 										<p style="font-family:var(--theme-font-brand);font-weight:700;font-size:var(--theme-text-lg)">
@@ -88,5 +89,11 @@ const { page } = Astro.props;
 	}
 	header > * + * {
 		margin-top: 0.625rem;
+	}
+	.u-avatar {
+		width: 3.75rem;
+		height: 3.75rem;
+		border-radius: var(--theme-radius-full);
+		background-color: var(--theme-shade-subtle);
 	}
 </style>

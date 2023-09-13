@@ -1,0 +1,33 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+export interface Props extends HTMLAttributes<'article'> {}
+---
+
+<article {...Astro.props}>
+	<slot />
+</article>
+
+<style>
+	article > :global(* + *) {
+		margin-block-start: 1em;
+	}
+
+	article > :global(p:first-child::first-letter) {
+		float: left;
+		font-size: 3.5rem;
+		padding-inline-end: 0.5rem;
+		padding-block-start: 0.35rem;
+		font-weight: bold;
+	}
+
+	article :global(img, video, figure) {
+		margin-inline: auto;
+	}
+
+	@media (min-width: 50em) {
+		article > :global(* + *) {
+			margin-block-start: 1.5em;
+		}
+	}
+</style>
