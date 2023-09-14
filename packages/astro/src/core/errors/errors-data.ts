@@ -595,7 +595,7 @@ export const ExpectedImage = {
 	name: 'ExpectedImage',
 	title: 'Expected src to be an image.',
 	message: (src: string, typeofOptions: string, fullOptions: string) =>
-		`Expected \`src\` property for \`getImage\` or \`<Image />\` to be either an ESM imported image or a string with the path of a remote image. Received \`${src}\` (type: \`${typeofOptions}\`).\n\nFull serialized options received: \`${fullOptions}\`.`,
+		`Expected \`src\` property for \`getImage\` or \`\<Image /\>\` to be either an ESM imported image or a string with the path of a remote image. Received \`${src}\` (type: \`${typeofOptions}\`).\n\nFull serialized options received: \`${fullOptions}\`.`,
 	hint: "This error can often happen because of a wrong path. Make sure the path to your image is correct. If you're passing an async function, make sure to call and await it.",
 } satisfies ErrorData;
 /**
