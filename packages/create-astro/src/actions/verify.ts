@@ -24,7 +24,7 @@ export async function verify(
 			bannerAbort();
 			log('');
 			error('error', `Template ${color.reset(ctx.template)} ${color.dim('could not be found!')}`);
-			await info('check', 'https://astro.build/examples');
+			await info('check', 'https://github.com/withastro/astro/tree/main/examples');
 			ctx.exit(1);
 		}
 	}
