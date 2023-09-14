@@ -137,7 +137,7 @@ export default defineConfig({
 **Available for:** Serverless, Static
 **Added in:** `@astrojs/vercel@3.3.0`
 
-When enabled, an [Image Service](https://docs.astro.build/en/reference/image-service-reference/) powered by the Vercel Image Optimization API will be automatically configured and used in production. In development, a built-in Squoosh-based service will be used instead.
+When enabled, an [Image Service](https://docs.astro.build/en/reference/image-service-reference/) powered by the Vercel Image Optimization API will be automatically configured and used in production. In development, the image service specified by [`devImageService`](#devimageservice) will be used instead.
 
 ```js
 // astro.config.mjs
@@ -170,6 +170,30 @@ import astroLogo from '../assets/logo.png';
   width="..."
   height="..."
 />
+```
+
+### devImageService
+
+**Type:** `'sharp' | 'squoosh' | string`<br>
+**Available for:** Serverless, Static
+**Added in:** `@astrojs/vercel@3.3.0`
+**Default**: 'sharp'
+
+Allows you to configure which image service to use in development when [imageService](#imageservice) is enabled. This can be useful if you cannot install Sharp's dependencies on your development machine, but using another image service like Squoosh would allow you to preview images in your dev environment. Build is unaffected and will always use Vercel's Image Optimization.
+
+It can also be set to any arbitrary value in order to use a custom image service instead of Astro's built-in ones.
+
+```js
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/serverless';
+
+export default defineConfig({
+  output: 'server',
+  adapter: vercel({
+    imageService: true,
+    devImageService: 'squoosh',
+  }),
+});
 ```
 
 ### includeFiles

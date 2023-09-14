@@ -1,6 +1,6 @@
-import type { ComponentInstance, GetStaticPathsResult, RouteData } from '../../@types/astro';
+import type { ComponentInstance, GetStaticPathsResult, RouteData } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Logger } from '../logger/core';
+import type { Logger } from '../logger/core.js';
 
 const VALID_PARAM_TYPES = ['string', 'number', 'undefined'];
 

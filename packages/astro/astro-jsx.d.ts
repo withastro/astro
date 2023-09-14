@@ -471,6 +471,33 @@ declare namespace astroHTML.JSX {
 		| 'treegrid'
 		| 'treeitem';
 
+	type CssProperty = keyof Omit<
+		CSSStyleDeclaration,
+		| 'item'
+		| 'setProperty'
+		| 'removeProperty'
+		| 'getPropertyValue'
+		| 'getPropertyPriority'
+		| 'parentRule'
+		| 'length'
+		| 'cssFloat'
+		| 'cssText'
+		| typeof Symbol.iterator
+		| number
+	>;
+
+	type KebabCSSDOMProperties = import('./dist/type-utils.js').KebabKeys<DOMCSSProperties>;
+
+	type DOMCSSProperties = {
+		[key in CssProperty]?: string | number | null | undefined;
+	};
+	type AllCSSProperties = {
+		[key: string]: string | number | null | undefined;
+	};
+	type StyleObject = import('./dist/type-utils.js').Simplify<
+		KebabCSSDOMProperties & DOMCSSProperties & AllCSSProperties
+	>;
+
 	interface HTMLAttributes extends AriaAttributes, DOMAttributes, AstroBuiltinAttributes {
 		// Standard HTML Attributes
 		accesskey?: string | undefined | null;
@@ -513,7 +540,7 @@ declare namespace astroHTML.JSX {
 		lang?: string | undefined | null;
 		slot?: string | undefined | null;
 		spellcheck?: 'true' | 'false' | boolean | undefined | null;
-		style?: string | Record<string, any> | undefined | null;
+		style?: string | StyleObject | undefined | null;
 		tabindex?: number | string | undefined | null;
 		title?: string | undefined | null;
 		translate?: 'yes' | 'no' | undefined | null;

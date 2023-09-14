@@ -1,8 +1,8 @@
 import type { ModuleInfo } from 'rollup';
 import type * as vite from 'vite';
-import type { SSRComponentMetadata, SSRResult } from '../@types/astro';
+import type { SSRComponentMetadata, SSRResult } from '../@types/astro.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
-import type { PluginMetadata } from '../vite-plugin-astro/types';
+import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 import { getTopLevelPages, walkParentInfos } from '../core/build/graph.js';
 import type { BuildInternals } from '../core/build/internal.js';
@@ -58,6 +58,15 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				propagateMetadata.call(this, id, 'containsHead', true);
 			}
 
+			if (info && getAstroMetadata(info)?.propagation === 'self') {
+				const mod = server.moduleGraph.getModuleById(id);
+				for (const parent of mod?.importers ?? []) {
+					if (parent.id) {
+						propagateMetadata.call(this, parent.id, 'propagation', 'in-tree');
+					}
+				}
+			}
+
 			if (injectExp.test(source)) {
 				propagateMetadata.call(this, id, 'propagation', 'in-tree');
 			}
@@ -91,10 +100,21 @@ export function astroHeadBuildPlugin(internals: BuildInternals): AstroBuildPlugi
 									const modinfo = this.getModuleInfo(id);
 
 									// <head> tag in the tree
-									if (modinfo && getAstroMetadata(modinfo)?.containsHead) {
-										for (const [pageInfo] of getTopLevelPages(id, this)) {
-											let metadata = getOrCreateMetadata(pageInfo.id);
-											metadata.containsHead = true;
+									if (modinfo) {
+										const meta = getAstroMetadata(modinfo);
+										if (meta?.containsHead) {
+											for (const [pageInfo] of getTopLevelPages(id, this)) {
+												let metadata = getOrCreateMetadata(pageInfo.id);
+												metadata.containsHead = true;
+											}
+										}
+										if (meta?.propagation === 'self') {
+											for (const [info] of walkParentInfos(id, this)) {
+												let metadata = getOrCreateMetadata(info.id);
+												if (metadata.propagation !== 'self') {
+													metadata.propagation = 'in-tree';
+												}
+											}
 										}
 									}
 

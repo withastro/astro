@@ -2,7 +2,7 @@
 
 This is a template for an Astro integration. Use this template for writing integrations to use in multiple projects or publish to NPM.
 
-```
+```sh
 npm create astro@latest -- --template integration
 ```
 
@@ -14,7 +14,7 @@ npm create astro@latest -- --template integration
 
 Inside of your Astro project, you'll see the following folders and files:
 
-```
+```text
 /
 ├── index.ts
 ├── tsconfig.json

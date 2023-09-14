@@ -1,4 +1,4 @@
-import type { MiddlewareResponseHandler, Params } from '../../@types/astro';
+import type { MiddlewareResponseHandler, Params } from '../../@types/astro.js';
 import { createAPIContext } from '../endpoint/index.js';
 import { sequence } from './sequence.js';
 

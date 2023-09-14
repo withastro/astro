@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 3.0.1
+
+### Patch Changes
+
+- [#8365](https://github.com/withastro/astro/pull/8365) [`a525d5db1`](https://github.com/withastro/astro/commit/a525d5db1746ea6b79fced2a967b82c778320dbf) Thanks [@ryansolid](https://github.com/ryansolid)! - Fix hydration in Solid renderer
+
 ## 3.0.0
 
 ### Major Changes
