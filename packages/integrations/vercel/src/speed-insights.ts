@@ -1,8 +1,7 @@
-import { inject } from '@vercel/analytics';
 import type { Metric } from 'web-vitals';
-import { getCLS, getFCP, getFID, getLCP, getTTFB } from 'web-vitals';
+import { onCLS, onFCP, onFID, onLCP, onTTFB } from 'web-vitals';
 
-const vitalsUrl = 'https://vitals.vercel-analytics.com/v1/vitals';
+const SPEED_INSIGHTS_INTAKE = 'https://vitals.vercel-analytics.com/v1/vitals';
 
 type Options = { path: string; analyticsId: string };
 
@@ -14,7 +13,7 @@ const getConnectionSpeed = () => {
 		: '';
 };
 
-const sendToAnalytics = (metric: Metric, options: Options) => {
+const sendToSpeedInsights = (metric: Metric, options: Options) => {
 	const body = {
 		dsn: options.analyticsId,
 		id: metric.id,
@@ -28,9 +27,9 @@ const sendToAnalytics = (metric: Metric, options: Options) => {
 		type: 'application/x-www-form-urlencoded',
 	});
 	if (navigator.sendBeacon) {
-		navigator.sendBeacon(vitalsUrl, blob);
+		navigator.sendBeacon(SPEED_INSIGHTS_INTAKE, blob);
 	} else
-		fetch(vitalsUrl, {
+		fetch(SPEED_INSIGHTS_INTAKE, {
 			body: blob,
 			method: 'POST',
 			credentials: 'omit',
@@ -38,27 +37,29 @@ const sendToAnalytics = (metric: Metric, options: Options) => {
 		});
 };
 
-function webVitals() {
+function collectWebVitals() {
 	const analyticsId = (import.meta as any).env.PUBLIC_VERCEL_ANALYTICS_ID;
+
 	if (!analyticsId) {
-		console.error('[Analytics] VERCEL_ANALYTICS_ID not found');
+		console.error('[Speed Insights] VERCEL_ANALYTICS_ID not found');
 		return;
 	}
+
 	const options: Options = { path: window.location.pathname, analyticsId };
+
 	try {
-		getFID((metric) => sendToAnalytics(metric, options));
-		getTTFB((metric) => sendToAnalytics(metric, options));
-		getLCP((metric) => sendToAnalytics(metric, options));
-		getCLS((metric) => sendToAnalytics(metric, options));
-		getFCP((metric) => sendToAnalytics(metric, options));
+		onFID((metric) => sendToSpeedInsights(metric, options));
+		onTTFB((metric) => sendToSpeedInsights(metric, options));
+		onLCP((metric) => sendToSpeedInsights(metric, options));
+		onCLS((metric) => sendToSpeedInsights(metric, options));
+		onFCP((metric) => sendToSpeedInsights(metric, options));
 	} catch (err) {
-		console.error('[Analytics]', err);
+		console.error('[Speed Insights]', err);
 	}
 }
 
 const mode = (import.meta as any).env.MODE as 'development' | 'production';
 
-inject({ mode });
 if (mode === 'production') {
-	webVitals();
+	collectWebVitals();
 }

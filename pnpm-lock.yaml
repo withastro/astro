@@ -4840,6 +4840,42 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/vercel/test/fixtures/with-speed-insights-enabled/output-as-server:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../../astro
+
+  packages/integrations/vercel/test/fixtures/with-speed-insights-enabled/output-as-static:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../../astro
+
+  packages/integrations/vercel/test/fixtures/with-web-analytics-enabled/output-as-server:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../../astro
+
+  packages/integrations/vercel/test/fixtures/with-web-analytics-enabled/output-as-static:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../../astro
+
   packages/integrations/vercel/test/hosted/hosted-astro-project:
     dependencies:
       '@astrojs/vercel':

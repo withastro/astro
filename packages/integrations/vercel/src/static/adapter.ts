@@ -6,10 +6,17 @@ import {
 	type DevImageService,
 	type VercelImageConfig,
 } from '../image/shared.js';
-import { exposeEnv } from '../lib/env.js';
 import { emptyDir, getVercelOutput, writeJson } from '../lib/fs.js';
 import { isServerLikeOutput } from '../lib/prerender.js';
 import { getRedirects } from '../lib/redirects.js';
+import {
+	getSpeedInsightsViteConfig,
+	type VercelSpeedInsightsConfig,
+} from '../lib/speed-insights.js';
+import {
+	getInjectableWebAnalyticsContent,
+	type VercelWebAnalyticsConfig,
+} from '../lib/web-analytics.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/static';
 
@@ -34,7 +41,12 @@ function getAdapter(): AstroAdapter {
 }
 
 export interface VercelStaticConfig {
+	/**
+	 * @deprecated
+	 */
 	analytics?: boolean;
+	webAnalytics?: VercelWebAnalyticsConfig;
+	speedInsights?: VercelSpeedInsightsConfig;
 	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
 	devImageService?: DevImageService;
@@ -42,6 +54,8 @@ export interface VercelStaticConfig {
 
 export default function vercelStatic({
 	analytics,
+	webAnalytics,
+	speedInsights,
 	imageService,
 	imagesConfig,
 	devImageService = 'sharp',
@@ -51,12 +65,25 @@ export default function vercelStatic({
 	return {
 		name: '@astrojs/vercel',
 		hooks: {
-			'astro:config:setup': ({ command, config, injectScript, updateConfig }) => {
-				if (command === 'build' && analytics) {
-					injectScript('page', 'import "@astrojs/vercel/analytics"');
+			'astro:config:setup': async ({ command, config, injectScript, updateConfig, logger }) => {
+				if (webAnalytics?.enabled || analytics) {
+					if (analytics) {
+						logger.warn(
+							`The \`analytics\` property is deprecated. Please use the new \`webAnalytics\` and \`speedInsights\` properties instead.`
+						);
+					}
+
+					injectScript(
+						'head-inline',
+						await getInjectableWebAnalyticsContent({
+							mode: command === 'dev' ? 'development' : 'production',
+						})
+					);
+				}
+				if (command === 'build' && (speedInsights?.enabled || analytics)) {
+					injectScript('page', 'import "@astrojs/vercel/speed-insights"');
 				}
 				const outDir = new URL('./static/', getVercelOutput(config.root));
-				const viteDefine = exposeEnv(['VERCEL_ANALYTICS_ID']);
 				updateConfig({
 					outDir,
 					build: {
@@ -64,7 +91,7 @@ export default function vercelStatic({
 						redirects: false,
 					},
 					vite: {
-						define: viteDefine,
+						...getSpeedInsightsViteConfig(speedInsights?.enabled || analytics),
 					},
 					...getAstroImageConfig(
 						imageService,

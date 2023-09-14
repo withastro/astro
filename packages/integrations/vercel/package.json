@@ -22,7 +22,7 @@
     "./serverless": "./dist/serverless/adapter.js",
     "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
     "./static": "./dist/static/adapter.js",
-    "./analytics": "./dist/analytics.js",
+    "./speed-insights": "./dist/speed-insights.js",
     "./build-image-service": "./dist/image/build-service.js",
     "./dev-image-service": "./dist/image/dev-service.js",
     "./squoosh-dev-service": "./dist/image/squoosh-dev-service.js",
