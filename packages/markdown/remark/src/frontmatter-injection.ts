@@ -27,6 +27,13 @@ export function safelyGetAstroData(vfileData: Data): MarkdownAstroData | Invalid
 	return astro;
 }
 
+export function setAstroData(vfileData: Data, astroData: MarkdownAstroData) {
+	vfileData.astro = astroData;
+}
+
+/**
+ * @deprecated Use `setAstroData` instead
+ */
 export function toRemarkInitializeAstroData({
 	userFrontmatter,
 }: {

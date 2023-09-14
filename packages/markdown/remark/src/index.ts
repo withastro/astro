@@ -1,11 +1,16 @@
 import type {
 	AstroMarkdownOptions,
+	MarkdownProcessor,
 	MarkdownRenderingOptions,
 	MarkdownRenderingResult,
 	MarkdownVFile,
 } from './types.js';
 
-import { toRemarkInitializeAstroData } from './frontmatter-injection.js';
+import {
+	InvalidAstroDataError,
+	safelyGetAstroData,
+	setAstroData,
+} from './frontmatter-injection.js';
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
 import { remarkCollectImages } from './remark-collect-images.js';
@@ -15,13 +20,14 @@ import { remarkShiki } from './remark-shiki.js';
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import remarkGfm from 'remark-gfm';
-import markdown from 'remark-parse';
-import markdownToHtml from 'remark-rehype';
+import remarkParse from 'remark-parse';
+import remarkRehype from 'remark-rehype';
 import remarkSmartypants from 'remark-smartypants';
 import { unified } from 'unified';
 import { VFile } from 'vfile';
 import { rehypeImages } from './rehype-images.js';
 
+export { InvalidAstroDataError } from './frontmatter-injection.js';
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export { remarkCollectImages } from './remark-collect-images.js';
 export { remarkPrism } from './remark-prism.js';
@@ -45,30 +51,29 @@ export const markdownConfigDefaults: Omit<Required<AstroMarkdownOptions>, 'draft
 // Skip nonessential plugins during performance benchmark runs
 const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
 
-/** Shared utility for rendering markdown */
-export async function renderMarkdown(
-	content: string,
-	opts: MarkdownRenderingOptions
-): Promise<MarkdownRenderingResult> {
-	let {
-		fileURL,
+/**
+ * Create a markdown preprocessor to render multiple markdown files
+ */
+export async function createMarkdownProcessor(
+	opts?: AstroMarkdownOptions
+): Promise<MarkdownProcessor> {
+	const {
 		syntaxHighlight = markdownConfigDefaults.syntaxHighlight,
 		shikiConfig = markdownConfigDefaults.shikiConfig,
 		remarkPlugins = markdownConfigDefaults.remarkPlugins,
 		rehypePlugins = markdownConfigDefaults.rehypePlugins,
-		remarkRehype = markdownConfigDefaults.remarkRehype,
+		remarkRehype: remarkRehypeOptions = markdownConfigDefaults.remarkRehype,
 		gfm = markdownConfigDefaults.gfm,
 		smartypants = markdownConfigDefaults.smartypants,
-		frontmatter: userFrontmatter = {},
-	} = opts;
-	const input = new VFile({ value: content, path: fileURL });
+	} = opts ?? {};
 
-	let parser = unified()
-		.use(markdown)
-		.use(toRemarkInitializeAstroData({ userFrontmatter }))
-		.use([]);
+	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
+	const loadedRehypePlugins = await Promise.all(loadPlugins(rehypePlugins));
 
-	if (!isPerformanceBenchmark && gfm) {
+	const parser = unified().use(remarkParse);
+
+	// gfm and smartypants
+	if (!isPerformanceBenchmark) {
 		if (gfm) {
 			parser.use(remarkGfm);
 		}
@@ -77,14 +82,13 @@ export async function renderMarkdown(
 		}
 	}
 
-	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
-	const loadedRehypePlugins = await Promise.all(loadPlugins(rehypePlugins));
-
-	loadedRemarkPlugins.forEach(([plugin, pluginOpts]) => {
-		parser.use([[plugin, pluginOpts]]);
-	});
+	// User remark plugins
+	for (const [plugin, pluginOpts] of loadedRemarkPlugins) {
+		parser.use(plugin, pluginOpts);
+	}
 
 	if (!isPerformanceBenchmark) {
+		// Syntax highlighting
 		if (syntaxHighlight === 'shiki') {
 			parser.use(remarkShiki, shikiConfig);
 		} else if (syntaxHighlight === 'prism') {
@@ -95,45 +99,88 @@ export async function renderMarkdown(
 		parser.use(remarkCollectImages);
 	}
 
-	parser.use([
-		[
-			markdownToHtml as any,
-			{
-				allowDangerousHtml: true,
-				passThrough: [],
-				...remarkRehype,
-			},
-		],
-	]);
-
-	loadedRehypePlugins.forEach(([plugin, pluginOpts]) => {
-		parser.use([[plugin, pluginOpts]]);
+	// Remark -> Rehype
+	parser.use(remarkRehype as any, {
+		allowDangerousHtml: true,
+		passThrough: [],
+		...remarkRehypeOptions,
 	});
 
+	// User rehype plugins
+	for (const [plugin, pluginOpts] of loadedRehypePlugins) {
+		parser.use(plugin, pluginOpts);
+	}
+
+	// Images / Assets support
 	parser.use(rehypeImages());
+
+	// Headings
 	if (!isPerformanceBenchmark) {
-		parser.use([rehypeHeadingIds]);
+		parser.use(rehypeHeadingIds);
 	}
 
-	parser.use([rehypeRaw]).use(rehypeStringify, { allowDangerousHtml: true });
+	// Stringify to HTML
+	parser.use(rehypeRaw).use(rehypeStringify, { allowDangerousHtml: true });
 
-	let vfile: MarkdownVFile;
-	try {
-		vfile = await parser.process(input);
-	} catch (err) {
-		// Ensure that the error message contains the input filename
-		// to make it easier for the user to fix the issue
-		err = prefixError(err, `Failed to parse Markdown file "${input.path}"`);
-		// eslint-disable-next-line no-console
-		console.error(err);
-		throw err;
-	}
-
-	const headings = vfile?.data.__astroHeadings || [];
 	return {
-		metadata: { headings, source: content, html: String(vfile.value) },
-		code: String(vfile.value),
-		vfile,
+		async render(content, renderOpts) {
+			const vfile = new VFile({ value: content, path: renderOpts?.fileURL });
+			setAstroData(vfile.data, { frontmatter: renderOpts?.frontmatter ?? {} });
+
+			const result: MarkdownVFile = await parser.process(vfile).catch((err) => {
+				// Ensure that the error message contains the input filename
+				// to make it easier for the user to fix the issue
+				err = prefixError(err, `Failed to parse Markdown file "${vfile.path}"`);
+				// eslint-disable-next-line no-console
+				console.error(err);
+				throw err;
+			});
+
+			const astroData = safelyGetAstroData(result.data);
+			if (astroData instanceof InvalidAstroDataError) {
+				throw astroData;
+			}
+
+			return {
+				code: String(result.value),
+				metadata: {
+					headings: result.data.__astroHeadings ?? [],
+					imagePaths: result.data.imagePaths ?? new Set(),
+					frontmatter: astroData.frontmatter ?? {},
+				},
+				// Compat for `renderMarkdown` only. Do not use!
+				__renderMarkdownCompat: {
+					result,
+				},
+			};
+		},
+	};
+}
+
+/**
+ * Shared utility for rendering markdown
+ *
+ * @deprecated Use `createMarkdownProcessor` instead for better performance
+ */
+export async function renderMarkdown(
+	content: string,
+	opts: MarkdownRenderingOptions
+): Promise<MarkdownRenderingResult> {
+	const processor = await createMarkdownProcessor(opts);
+
+	const result = await processor.render(content, {
+		fileURL: opts.fileURL,
+		frontmatter: opts.frontmatter,
+	});
+
+	return {
+		code: result.code,
+		metadata: {
+			headings: result.metadata.headings,
+			source: content,
+			html: result.code,
+		},
+		vfile: (result as any).__renderMarkdownCompat.result,
 	};
 }
 

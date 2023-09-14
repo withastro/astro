@@ -1,14 +1,12 @@
-import { renderMarkdown } from '../dist/index.js';
+import { createMarkdownProcessor } from '../dist/index.js';
 import chai from 'chai';
-import { mockRenderMarkdownParams } from './test-utils.js';
 
 describe('autolinking', () => {
-	describe('plain md', () => {
+	describe('plain md', async () => {
+		const processor = await createMarkdownProcessor();
+
 		it('autolinks URLs starting with a protocol in plain text', async () => {
-			const { code } = await renderMarkdown(
-				`See https://example.com for more.`,
-				mockRenderMarkdownParams
-			);
+			const { code } = await processor.render(`See https://example.com for more.`);
 
 			chai
 				.expect(code.replace(/\n/g, ''))
@@ -16,10 +14,7 @@ describe('autolinking', () => {
 		});
 
 		it('autolinks URLs starting with "www." in plain text', async () => {
-			const { code } = await renderMarkdown(
-				`See www.example.com for more.`,
-				mockRenderMarkdownParams
-			);
+			const { code } = await processor.render(`See www.example.com for more.`);
 
 			chai
 				.expect(code.trim())
@@ -27,9 +22,8 @@ describe('autolinking', () => {
 		});
 
 		it('does not autolink URLs in code blocks', async () => {
-			const { code } = await renderMarkdown(
-				'See `https://example.com` or `www.example.com` for more.',
-				mockRenderMarkdownParams
+			const { code } = await processor.render(
+				'See `https://example.com` or `www.example.com` for more.'
 			);
 
 			chai
