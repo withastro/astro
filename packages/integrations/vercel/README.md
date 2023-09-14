@@ -263,9 +263,11 @@ export default defineConfig({
 
 ### Function bundling configuration
 
-The Vercel adapter splits builds into a separate function per route by default. This helps reduce the size of each function, as it only bundles code used on that page.
+The Vercel adapter combines all of your routes into a single function by default.
 
-You can disable this and build to a single function by setting the `functionPerRoute` configuration option to `false`:
+You also have the option to split builds into a separate function for each route using the `functionPerRoute` option. This reduces the size of each function, meaning you are less likely to exceed the size limit for an individual function. Also, code starts are faster. 
+
+Verify that your Vercel plan includes an appropriate number of functions before enabling `functionPerRoute`. For example, Vercel's free tier limits each deployment to no more than 12 functions. If your Vercel plan is insufficient for the number of routes in your project, you will receive an error message during deployment.
 
 ```js
 // astro.config.mjs
@@ -275,7 +277,7 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    functionPerRoute: false,
+    functionPerRoute: true,
   }),
 });
 ```
