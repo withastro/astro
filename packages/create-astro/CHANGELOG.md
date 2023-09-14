@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.1.0
+
+### Minor Changes
+
+- [#8456](https://github.com/withastro/astro/pull/8456) [`ed952b4ce`](https://github.com/withastro/astro/commit/ed952b4cea6f60a4e158a5b20cc36f5e91a6b07f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve startup performance by removing dependencies, lazily initializing async contextual values
+
 ## 4.0.2
 
 ### Patch Changes
