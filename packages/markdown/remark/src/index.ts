@@ -9,7 +9,7 @@ import type {
 import {
 	InvalidAstroDataError,
 	safelyGetAstroData,
-	setAstroData,
+	setVfileFrontmatter,
 } from './frontmatter-injection.js';
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
@@ -27,7 +27,7 @@ import { unified } from 'unified';
 import { VFile } from 'vfile';
 import { rehypeImages } from './rehype-images.js';
 
-export { InvalidAstroDataError } from './frontmatter-injection.js';
+export { InvalidAstroDataError, setVfileFrontmatter } from './frontmatter-injection.js';
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export { remarkCollectImages } from './remark-collect-images.js';
 export { remarkPrism } from './remark-prism.js';
@@ -125,7 +125,7 @@ export async function createMarkdownProcessor(
 	return {
 		async render(content, renderOpts) {
 			const vfile = new VFile({ value: content, path: renderOpts?.fileURL });
-			setAstroData(vfile.data, { frontmatter: renderOpts?.frontmatter ?? {} });
+			setVfileFrontmatter(vfile, renderOpts?.frontmatter ?? {});
 
 			const result: MarkdownVFile = await parser.process(vfile).catch((err) => {
 				// Ensure that the error message contains the input filename

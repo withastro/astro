@@ -4108,6 +4108,9 @@ importers:
       remark-toc:
         specifier: ^8.0.1
         version: 8.0.1
+      unified:
+        specifier: ^10.1.2
+        version: 10.1.2
       vite:
         specifier: ^4.4.9
         version: 4.4.9(@types/node@18.17.8)(sass@1.66.1)
