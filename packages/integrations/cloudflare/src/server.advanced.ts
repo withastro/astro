@@ -12,7 +12,7 @@ type Env = {
 	name: string;
 };
 
-export interface AdvancedRuntime<T extends object> {
+export interface AdvancedRuntime<T extends object = object> {
 	runtime: {
 		waitUntil: (promise: Promise<any>) => void;
 		env: Env & T;

@@ -7,7 +7,7 @@ if (!isNode) {
 	process.env = getProcessEnvProxy();
 }
 
-export interface DirectoryRuntime<T extends object> {
+export interface DirectoryRuntime<T extends object = object> {
 	runtime: {
 		waitUntil: (promise: Promise<any>) => void;
 		env: EventContext<unknown, string, unknown>['env'] & T;
