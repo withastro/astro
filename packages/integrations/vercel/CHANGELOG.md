@@ -1,5 +1,47 @@
 # @astrojs/vercel
 
+## 5.0.0
+
+### Major Changes
+
+- [#8445](https://github.com/withastro/astro/pull/8445) [`91380378c`](https://github.com/withastro/astro/commit/91380378cef545656d2c085117fc5f38c9ce4589) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a configuration option `devImageService` to choose which of the built-in image services to use in development. Defaults to `sharp`.
+
+- [#8546](https://github.com/withastro/astro/pull/8546) [`b79e11f3c`](https://github.com/withastro/astro/commit/b79e11f3c480e8e165d5b102adb1f2f8a089f29d) Thanks [@matthewp](https://github.com/matthewp)! - Turn off `functionPerRoute` by default
+
+  In the previous version of `@astrojs/vercel`, the default for `functionPerRoute` was changed to `true`. While this option has several advantages, if you're a free tier user you are likely to run into the limit of 12 functions per deployment. This will result in an error when you attempt to deploy.
+
+  For this reason, the `functionPerRoute` option is now back to defaulting to `false`. It's still a useful option if you have a paid plan and have previously run into issues with your single function exceeding the size limits.
+
+### Minor Changes
+
+- [#8021](https://github.com/withastro/astro/pull/8021) [`2e8726fee`](https://github.com/withastro/astro/commit/2e8726feec2e0d6ba8bd4db941009986e8e34141) Thanks [@chriswdmr](https://github.com/chriswdmr)! - Enable Vercel Speed Insights and Vercel Web Analytics individually.
+  Deprecates the `analytics` property in `astro.config.mjs` in favor of `speedInsights` and `webAnalytics`.
+
+  If you're using the `analytics` property, you'll need to update your config to use the new properties:
+
+  ```diff
+  // astro.config.mjs
+  export default defineConfig({
+  	adapter: vercel({
+  -		analytics: true,
+  +		webAnalytics: {
+  +			enabled: true
+  +		},
+  +		speedInsights: {
+  +			enabled: true
+  +		}
+  	})
+  });
+  ```
+
+  Allow configuration of Web Analytics with all available configuration options.
+  Bumps @vercel/analytics package to the latest version.
+
+### Patch Changes
+
+- Updated dependencies [[`7522bb491`](https://github.com/withastro/astro/commit/7522bb4914f2f9e8b8f3c743bc9c941fd3aca644), [`ecc65abbf`](https://github.com/withastro/astro/commit/ecc65abbf9e086c5bbd1973cd4a820082b4e0dc5), [`2c4fc878b`](https://github.com/withastro/astro/commit/2c4fc878bece36b7fcf1470419c7ce6f1e1e95d0), [`c92e0acd7`](https://github.com/withastro/astro/commit/c92e0acd715171b3f4c3294099780e21576648c8), [`f95febf96`](https://github.com/withastro/astro/commit/f95febf96bb97babb28d78994332f5e47f5f637d), [`b85c8a78a`](https://github.com/withastro/astro/commit/b85c8a78a116dbbddc901438bc0b7a1917dc0238), [`45364c345`](https://github.com/withastro/astro/commit/45364c345267429e400baecd1fbc290503f8b13a)]:
+  - astro@3.1.0
+
 ## 4.0.5
 
 ### Patch Changes
