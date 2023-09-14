@@ -9,7 +9,6 @@ if (!isNode) {
 
 type Env = {
 	ASSETS: { fetch: (req: Request) => Promise<Response> };
-	name: string;
 };
 
 export interface AdvancedRuntime<T extends object = object> {
