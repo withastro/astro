@@ -85,11 +85,49 @@ Determines how `routes.json` will be generated if no [custom `_routes.json`](#cu
 
 There are three options available:
 
-- **`include`:** For each page or endpoint in your application that is not pre-rendered, an entry in the `include` array will be generated. For each page that is pre-rendered and whose path is matched by an `include` entry, an entry in the `exclude` array will be generated.
+- **`"auto"` (default):** Will automatically select the strategy that generates the fewest entries. This should almost always be sufficient, so choose this option unless you have a specific reason not to.
 
-- **`exclude`:** One `"/*"` entry in the `include` array will be generated. For each page that is pre-rendered, an entry in the `exclude` array will be generated.
+- **`include`:** Pages and endpoints that are not pre-rendered are listed as `include` entries, telling Cloudflare to invoke these routes as functions. `exclude` entries are only used to resolve conflicts. Usually the best strategy when your website has mostly static pages and only a few dynamic pages or endpoints.
 
-- **`"auto"` (default):** will compare the methods used for both `include` and `exclude` and will automatically select the option that generates the fewest entries.
+  Example: For `src/pages/index.astro` (static), `src/pages/company.astro` (static), `src/pages/users/faq.astro` (static) and `/src/pages/users/[id].astro` (SSR) this will produce the following `_routes.json`:
+
+  ```json
+  {
+    "version": 1,
+    "include": [
+      "/_image", // Astro's image endpoint
+      "/users/*" // Dynamic route
+    ],
+    "exclude": [
+      // Static routes that needs to be exempted from the dynamic wildcard route above
+      "/users/faq/",
+      "/users/faq/index.html"
+    ]
+  }
+  ```
+
+- **`exclude`:** Pre-rendered pages are listed as `exclude` entries (telling Cloudflare to handle these routes as static assets). Usually the best strategy when your website has mostly dynamic pages or endpoints and only a few static pages.
+
+  Example: For the same pages as in the previous example this will produce the following `_routes.json`:
+
+  ```json
+  {
+    "version": 1,
+    "include": [
+      "/*" // Handle everything as function except the routes below
+    ],
+    "exclude": [
+      // All static assets
+      "/",
+      "/company/",
+      "/index.html",
+      "/users/faq/",
+      "/favicon.png",
+      "/company/index.html",
+      "/users/faq/index.html"
+    ]
+  }
+  ```
 
 ### routes.include
 
