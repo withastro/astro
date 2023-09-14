@@ -1,10 +1,9 @@
 import { rssSchema } from '@astrojs/rss';
 import { defineCollection, z } from 'astro:content';
 
-const posts = defineCollection({
+const articles = defineCollection({
 	schema: ({ image }) => rssSchema
 		.extend({
-			tags: z.array(z.string()).default([]),
 			cover: z
 				.object({
 					src: image().refine(
@@ -14,9 +13,26 @@ const posts = defineCollection({
 					alt: z.string(),
 				})
 				.optional(),
-			type: z.enum(['article', 'note']).default('note'),
+			type: z.literal('article').default('article')
+		})
+		.required({
+			// requiring the description for articles, this will be shown as the short preview text on cards
+			description: true
 		})
 		.strict(),
-});
+})
 
-export const collections = { posts };
+const notes = defineCollection({
+	schema: rssSchema
+		.extend({
+			type: z.literal('note').default('note')
+		})
+		.omit({
+			// notes are short, self-contained content without unique titles or descriptions
+			description: true,
+			title: true
+		})
+		.strict()
+})
+
+export const collections = { articles, notes };

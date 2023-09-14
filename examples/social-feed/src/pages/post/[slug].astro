@@ -1,7 +1,8 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { getSortedPosts } from '../../helpers/getSortedPosts';
-import Layout from '../../layouts/Article.astro';
+import ArticleLayout from '../../layouts/Article.astro';
+import NoteLayout from '../../layouts/Note.astro';
 
 export async function getStaticPaths() {
 	const posts = await getSortedPosts();
@@ -18,9 +19,12 @@ interface Props {
 }
 
 const { post, prev, next } = Astro.props;
-const { Content } = await post.render();
 ---
 
-<Layout title={post.data.title} article={post} {next} {prev}>
-	<Content />
-</Layout>
+{
+	post.data.type === 'article' ? (
+		<ArticleLayout title={post.data.title} article={post} {next} {prev} />
+	) : (
+		<NoteLayout note={post} {next} {prev} />
+	)
+}

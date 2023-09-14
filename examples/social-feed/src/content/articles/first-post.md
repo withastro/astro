@@ -1,7 +1,8 @@
 ---
 title: First post on my new site!
+description: Dignissim eu sagittis aliquet magna sagittis. Eu etiam faucibus quis non. Laoreet amet aliquam enim sapien. Cras ac enim nulla morbi ultrices elementum metus neque  nulla. Quis mi consectetur donec tempor habitant.
 pubDate: 2023-01-01
-tags: [keyboards, thoughts]
+categories: [keyboards, thoughts]
 cover:
   src: ../../assets/stock-1.jpg
   alt: A laptop with a code editor open

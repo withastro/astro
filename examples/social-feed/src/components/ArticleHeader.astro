@@ -48,7 +48,7 @@ const { text: readingTime } = await getReadingTime(article.body);
 
 	<h1>{article.data.title}</h1>
 
-	{article.data.tags?.length > 0 && <TagList tags={article.data.tags} />}
+	{article.data.categories?.length > 0 && <TagList tags={article.data.categories} />}
 </header>
 
 <style>

@@ -1,0 +1,99 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import { Image } from 'astro:assets';
+import FormattedDate from './FormattedDate.astro';
+import Icon from './Icon.astro';
+import TagList from './TagList.astro';
+import settings from '../settings.js';
+
+export interface Props extends HTMLAttributes<'article'> {
+	post: CollectionEntry<'articles'> | CollectionEntry<'notes'>;
+}
+
+const { post } = Astro.props;
+
+const { pubDate, categories = [], image, title, href } = post.data;
+
+const { Content } = await post.render();
+
+console.log(post.data)
+---
+
+<article>
+	<header>
+		<Image {...settings.avatar} width={120} class="u-image" />
+		<strong class="u-name">{settings.name}</strong>
+		<div class="u-nickname">
+			{settings.username}
+			 •
+			<FormattedDate date={pubDate} />
+		</div>
+		{categories.length > 0 && <TagList tags={categories} class="tags" />}
+	</header>
+	{image && <Image {...image} width={1060} />}
+	{title && <h3>{title}</h3>}
+	{
+		post.data.type === 'article' ? (
+			<p>{post.data.description}</p>
+		) : (
+			post.render().then(({ Content }) => <Content />)
+		)
+	}
+	<footer>
+		<a href={`/post/${post.slug}/`}>Full {post.data.type === 'article' ? 'article' : 'note'}</a>
+		<a href={`javascript: navigator.clipboard.writeText(window.location.href + "post/${post.slug}/");`}>
+			<Icon icon="share" size="1.5rem" />
+			<span class="sr-only">Share this post</span>
+		</a>
+	</footer>
+</article>
+
+<style>
+	article {
+		padding: 1.25rem 1.25rem 1.5rem;
+		background-color: var(--theme-bg-accent);
+		border-radius: var(--theme-radius-xl);
+		box-shadow: var(--theme-shadow-md);
+	}
+	article > :global(* + *) {
+		margin-block-start: 1.25rem;
+	}
+	header {
+		display: grid;
+		grid-template-columns: auto auto 1fr;
+		grid-template-areas: 'avatar name nickname' 'avatar tags tags';
+		align-items: center;
+		row-gap: 0.5rem;
+		column-gap: 1rem;
+	}
+	.u-image {
+		grid-area: avatar;
+		width: 3.75rem;
+		height: 3.75rem;
+		border-radius: var(--theme-radius-full);
+		background-color: var(--theme-shade-subtle);
+	}
+	.u-name {
+		grid-area: name;
+		font-family: var(--font-brand);
+		font-weight: bold;
+	}
+	.u-nickname {
+		grid-area: nickname;
+		font-size: var(--theme-text-sm);
+		color: var(--theme-gray-300);
+	}
+	.tags {
+		grid-area: tags;
+	}
+	article > img {
+		aspect-ratio: 21/9;
+		object-fit: cover;
+		border-radius: var(--theme-radius-lg);
+	}
+	footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+</style>

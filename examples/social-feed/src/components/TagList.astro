@@ -1,23 +1,25 @@
 ---
-interface Props {
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'ul'> {
 	tags: string[];
 }
 
-const { tags } = Astro.props;
+const { tags, ...attrs } = Astro.props;
 ---
 
-<ul class="tags">
-	{tags.map((tag) => <li class="tag">{tag}</li>)}
+<ul {...attrs}>
+	{tags.map((tag) => <li>{tag}</li>)}
 </ul>
 
 <style>
-	.tags {
+	ul {
 		list-style: none;
 		padding: 0;
 		display: flex;
 		gap: 0.3125rem;
 	}
-	.tag {
+	li {
 		padding: 0.25rem 0.5625rem;
 		border-radius: var(--theme-radius-full);
 		background-color: var(--theme-accent-dark);
@@ -25,7 +27,7 @@ const { tags } = Astro.props;
 		font-size: var(--theme-text-sm);
 		font-weight: 500;
 	}
-	.tag::before {
+	li::before {
 		content: '#';
 	}
 </style>

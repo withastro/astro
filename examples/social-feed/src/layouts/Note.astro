@@ -1,0 +1,25 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Layout, { type Props as LayoutProps } from './Base.astro';
+import Card from '../components/Card.astro';
+
+export interface Props extends LayoutProps {
+	note: CollectionEntry<'notes'>;
+}
+
+const { note, ...layout } = Astro.props;
+---
+
+<Layout {...layout}>
+	<div>
+		<Card post={note} />
+	</div>
+</Layout>
+
+<style>
+	div {
+		grid-column: 1 / -1;
+		max-width: 50ch;
+		margin-inline: auto;
+	}
+</style>

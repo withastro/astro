@@ -2,6 +2,7 @@
 import type { GetStaticPathsOptions, Page } from 'astro';
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
+import Card from '../components/Card.astro';
 import Pagination from '../components/Pagination.astro';
 import TagList from '../components/TagList.astro';
 import { getSortedPosts } from '../helpers/getSortedPosts';
@@ -13,7 +14,7 @@ export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
 }
 
 interface Props {
-	page: Page<CollectionEntry<'posts'>>;
+	page: Page<CollectionEntry<'articles'> | CollectionEntry<'notes'>>;
 }
 
 const { page } = Astro.props;
@@ -21,45 +22,11 @@ const { page } = Astro.props;
 
 <Layout>
 	<div class="stack">
-		<!-- <h1>Page {page.currentPage}</h1> -->
 		<ol>
 			{
 				page.data.map((post) => (
 					<li>
-						<article class="card">
-							<header>
-								<div style="display: flex;gap:0.875rem;align-items:center;">
-									<Image
-										src={settings.avatar.src}
-										width={120}
-										class="u-avatar"
-										alt={settings.avatar.alt}
-									/>
-									<div>
-										<p style="font-family:var(--theme-font-brand);font-weight:700;font-size:var(--theme-text-lg)">
-											{settings.name}
-										</p>
-										<p style="color:var(--theme-gray-200);font-size:var(--theme-text-sm);">
-											{settings.username} •{' '}
-											<time datetime={post.data.pubDate.toISOString()}>
-												{post.data.pubDate.toLocaleDateString('en', {
-													month: 'short',
-													day: '2-digit',
-													year: 'numeric',
-												})}
-											</time>
-										</p>
-									</div>
-								</div>
-								{post.data.tags.length > 0 && <TagList tags={post.data.tags} />}
-								<h2>
-									<a href={'/post/' + post.slug}>{post.data.title}</a>
-								</h2>
-							</header>
-							{post.render().then(({ Content }) => (
-								<Content />
-							))}
-						</article>
+						<Card {post} />
 					</li>
 				))
 			}
@@ -80,20 +47,5 @@ const { page } = Astro.props;
 		display: flex;
 		flex-direction: column;
 		gap: 1.25rem;
-	}
-	.card {
-		padding: 1.25rem 1.25rem 1.5rem;
-		background-color: var(--theme-bg-accent);
-		border-radius: var(--theme-radius-xl);
-		box-shadow: var(--theme-shadow-md);
-	}
-	header > * + * {
-		margin-top: 0.625rem;
-	}
-	.u-avatar {
-		width: 3.75rem;
-		height: 3.75rem;
-		border-radius: var(--theme-radius-full);
-		background-color: var(--theme-shade-subtle);
 	}
 </style>
