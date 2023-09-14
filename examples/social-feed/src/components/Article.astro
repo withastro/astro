@@ -1,0 +1,93 @@
+---
+import ArticleHeader from './ArticleHeader.astro';
+import Icon from './Icon.astro';
+import Prose from './Prose.astro';
+import SplitLayout from './SplitLayout.astro';
+import type { Article, Post } from '../content/config.js';
+
+export interface Props {
+	article: Article;
+}
+
+const { article } = Astro.props;
+
+const { Content, headings } = await article.render();
+---
+
+<article>
+	<ArticleHeader {article} class="header" />
+	<SplitLayout reverse>
+		<div class="p-content">
+			<Content />
+		</div>
+
+		{
+			headings.length > 0 && (
+				<aside>
+					<h3>Table of contents</h3>
+					<ul>
+						{headings.map(({ slug, text }) => (
+							<li>
+								<a href={`${Astro.url.pathname}#${slug}`}>{text}</a>
+							</li>
+						))}
+					</ul>
+				</aside>
+			)
+		}
+	</SplitLayout>
+</article>
+
+<style>
+	article {
+		display: flex;
+		flex-direction: column;
+		gap: var(--theme-space-lg);
+		padding-block: var(--theme-space-md);
+	}
+
+	.p-content > :global(* + *) {
+		margin-block-start: 1em;
+	}
+
+	.p-content > :global(p:first-child::first-letter) {
+		float: left;
+		font-size: 3.5rem;
+		padding-inline-end: 0.5rem;
+		padding-block-start: 0.35rem;
+		font-weight: bold;
+	}
+
+	.p-content :global(img, video, figure) {
+		margin-inline: auto;
+	}
+
+	aside {
+		display: none;
+	}
+
+	aside ul {
+		list-style: none;
+		padding: 0;
+		margin-top: var(--theme-space-sm);
+	}
+
+	aside ul > * + * {
+		margin-block-start: var(--theme-space-xs);
+	}
+
+	aside a {
+		font-weight: bold;
+		text-decoration: none;
+	}
+
+	@media (min-width: 50em) {
+		aside {
+			display: block;
+		}
+
+		.p-content > :global(* + *) {
+			margin-block-start: 1.5em;
+		}
+	}
+</style>

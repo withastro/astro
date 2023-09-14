@@ -1,5 +1,5 @@
 import { rssSchema } from '@astrojs/rss';
-import { defineCollection, z } from 'astro:content';
+import { defineCollection, z, type CollectionEntry } from 'astro:content';
 
 const articles = defineCollection({
 	schema: ({ image }) => rssSchema
@@ -13,7 +13,6 @@ const articles = defineCollection({
 					alt: z.string(),
 				})
 				.optional(),
-			type: z.literal('article').default('article')
 		})
 		.required({
 			// requiring the description for articles, this will be shown as the short preview text on cards
@@ -24,9 +23,6 @@ const articles = defineCollection({
 
 const notes = defineCollection({
 	schema: rssSchema
-		.extend({
-			type: z.literal('note').default('note')
-		})
 		.omit({
 			// notes are short, self-contained content without unique titles or descriptions
 			description: true,
@@ -36,3 +32,16 @@ const notes = defineCollection({
 })
 
 export const collections = { articles, notes };
+
+export type Article = CollectionEntry<'articles'>;
+export type Note = CollectionEntry<'notes'>;
+// eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
+export type Post = Article | Note;
+
+export function isArticle(post: Post): post is Article {
+	return post.collection === 'articles'
+}
+
+export function isNote(post: Post): post is Note {
+	return post.collection === 'notes'
+}

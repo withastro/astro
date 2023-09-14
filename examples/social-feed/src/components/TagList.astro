@@ -17,10 +17,10 @@ const { tags, ...attrs } = Astro.props;
 		list-style: none;
 		padding: 0;
 		display: flex;
-		gap: 0.3125rem;
+		gap: var(--theme-space-3xs);
 	}
 	li {
-		padding: 0.25rem 0.5625rem;
+		padding: var(--theme-space-3xs) var(--theme-space-2xs);
 		border-radius: var(--theme-radius-full);
 		background-color: var(--theme-accent-dark);
 		color: var(--theme-text-invert);

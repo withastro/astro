@@ -27,14 +27,14 @@
   --theme-shadow-lg: 2px 2px 20px rgba(0, 0, 0, 0.2);
 
   /* Type Scale */
-  --__type-scale-ratio: 1.2;
-  --theme-text-base: 1rem;
-  --theme-text-sm: calc(var(--theme-text-base) / var(--__type-scale-ratio)); /*13.3px*/
-  --theme-text-lg: calc(var(--theme-text-base) * var(--__type-scale-ratio)); /*19.2px*/
-  --theme-text-xl: calc(var(--theme-text-lg) * var(--__type-scale-ratio)); /*23px*/
-  --theme-text-2xl: calc(var(--theme-text-xl) * var(--__type-scale-ratio)); /*13.3px*/
-  --theme-text-3xl: calc(var(--theme-text-2xl) * var(--__type-scale-ratio)); /*27.6px*/
-  --theme-text-4xl: calc(var(--theme-text-3xl) * var(--__type-scale-ratio)); /*33.2px*/
+	/* @link https://utopia.fyi/type/calculator?c=320,16,1.2,1240,20,1.2,5,2,&s=0.75|0.5|0.25,1.5|2|3|4|6,s-l&g=s,l,xl,12 */
+  --theme-text-sm: clamp(0.83rem, calc(0.76rem + 0.36vw), 1.04rem);
+  --theme-text-base: clamp(1.00rem, calc(0.91rem + 0.43vw), 1.25rem);
+  --theme-text-lg: clamp(1.20rem, calc(1.10rem + 0.52vw), 1.50rem);
+  --theme-text-xl: clamp(1.44rem, calc(1.31rem + 0.63vw), 1.80rem);
+  --theme-text-2xl: clamp(1.73rem, calc(1.58rem + 0.75vw), 2.16rem);
+  --theme-text-3xl: clamp(2.07rem, calc(1.89rem + 0.90vw), 2.59rem);
+  --theme-text-4xl: clamp(2.49rem, calc(2.27rem + 1.08vw), 3.11rem);
 
   /* Fonts */
   --__font-system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
@@ -50,6 +50,31 @@
 
   /* Transitions */
   --theme-transition: 0.2s ease-in-out;
+
+	/* Spacing */
+	/* @link https://utopia.fyi/space/calculator?c=320,16,1.2,1240,20,1.2,5,2,&s=0.75|0.5|0.25,1.5|2|3|4|6,s-l&g=s,l,xl,12 */
+  --theme-space-3xs: clamp(0.25rem, calc(0.23rem + 0.11vw), 0.31rem);
+  --theme-space-2xs: clamp(0.50rem, calc(0.46rem + 0.22vw), 0.63rem);
+  --theme-space-xs: clamp(0.75rem, calc(0.68rem + 0.33vw), 0.94rem);
+  --theme-space-sm: clamp(1.00rem, calc(0.91rem + 0.43vw), 1.25rem);
+  --theme-space-md: clamp(1.50rem, calc(1.37rem + 0.65vw), 1.88rem);
+  --theme-space-lg: clamp(2.00rem, calc(1.83rem + 0.87vw), 2.50rem);
+  --theme-space-xl: clamp(3.00rem, calc(2.74rem + 1.30vw), 3.75rem);
+  --theme-space-2xl: clamp(4.00rem, calc(3.65rem + 1.74vw), 5.00rem);
+  --theme-space-3xl: clamp(6.00rem, calc(5.48rem + 2.61vw), 7.50rem);
+
+  /* One-up pairs */
+  --theme-space-3xs-2xs: clamp(0.25rem, calc(0.12rem + 0.65vw), 0.63rem);
+  --theme-space-2xs-xs: clamp(0.50rem, calc(0.35rem + 0.76vw), 0.94rem);
+  --theme-space-xs-sm: clamp(0.75rem, calc(0.58rem + 0.87vw), 1.25rem);
+  --theme-space-sm-md: clamp(1.00rem, calc(0.70rem + 1.52vw), 1.88rem);
+  --theme-space-md-lg: clamp(1.50rem, calc(1.15rem + 1.74vw), 2.50rem);
+  --theme-space-lg-xl: clamp(2.00rem, calc(1.39rem + 3.04vw), 3.75rem);
+  --theme-space-xl-2xl: clamp(3.00rem, calc(2.30rem + 3.48vw), 5.00rem);
+  --theme-space-2xl-3xl: clamp(4.00rem, calc(2.78rem + 6.09vw), 7.50rem);
+
+  /* Custom pairs */
+  --theme-space-sm-lg: clamp(1.00rem, calc(0.48rem + 2.61vw), 2.50rem);
 }
 
 :root.theme-dark {

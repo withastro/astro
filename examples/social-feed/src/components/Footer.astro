@@ -1,53 +1,63 @@
 ---
 import settings from '../settings';
 import Icon from './Icon.astro';
+
+const socialLinks = Object.values(settings.social)
 ---
 
 <footer>
-  <div class="row">
-    <p>
-      Copyright © {new Date().getFullYear()}
-      {settings.name}
+	<section>
+		<p>
+      {settings.name} © {new Date().getFullYear()}
     </p>
-    <p>
-      Designed & Developed with<Icon icon="heart" size="1.75em" />
-      <span class="sr-only">love</span>
+		<b>•</b>
+		<p>
+      Designed & Developed with ♥
     </p>
-    <p><a href="/rss.xml"><Icon icon="rss-alt" size="1.75em" />RSS</a></p>
-  </div>
-  <div class="row">
-    <a href={settings.social.twitter}>Twitter</a>
-    <a href={settings.social.twitch}>Twitch</a>
-    <a href={settings.social.github}>GitHub</a>
-    <a href={settings.social.devto}>DEV</a>
-    <a href={settings.social.codepen}>Codepen</a>
-  </div>
+		<b>•</b>
+		<p><a href="/rss.xml"><Icon icon="rss-alt" size="1.5em" />RSS</a></p>
+	</section>
+
+  <section>
+		{
+			socialLinks.map(({ url, title }) => (
+				<a href={url}>{title}</a>
+			))
+		}
+  </section>
 </footer>
 
 <style>
   footer {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     margin-top: auto;
     border-top: 3px solid var(--theme-shade-subtle);
     border-radius: var(--theme-radius-xl);
-    padding: 1.5rem;
-    gap: 1rem;
+    padding: var(--theme-space-md);
+    gap: var(--theme-space-sm);
     color: var(--theme-gray-200);
     font-size: var(--theme-text-sm);
   }
 
-  .row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 1.5rem;
-    justify-content: center;
-  }
+	section {
+		display: flex;
+		gap: var(--theme-space-xs);
+	}
+
+	p {
+		display: flex;
+		align-items: center;
+		gap: var(--theme-space-sm);	
+	}
 
   a {
     color: inherit;
     text-decoration: none;
   }
+
+	p :global(svg) {
+		margin-block-start: -.25em;
+	}
 </style>

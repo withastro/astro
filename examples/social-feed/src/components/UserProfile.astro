@@ -3,9 +3,7 @@ import { Image } from 'astro:assets';
 import settings from '../settings';
 import Icon from './Icon.astro';
 
-type SocialEntry = [keyof (typeof settings)['social'], string];
-
-const socialLinks = Object.entries(settings.social) as SocialEntry[];
+const socialLinks = Object.entries(settings.social);
 ---
 
 <div class="profile">
@@ -59,10 +57,10 @@ const socialLinks = Object.entries(settings.social) as SocialEntry[];
 		</div>
 		<ul class="social">
 			{
-				socialLinks.map(([key, url]) => (
+				socialLinks.map(([key, { url }]) => (
 					<li>
 						<a href={url}>
-							<Icon icon={`${key}-logo`} size="1.75rem" />
+							<Icon icon={`${key}`} size="1.75rem" />
 						</a>
 					</li>
 				))
@@ -75,7 +73,7 @@ const socialLinks = Object.entries(settings.social) as SocialEntry[];
 	.profile {
 		display: flex;
 		flex-direction: column;
-		gap: 1.5rem;
+		gap: var(--theme-space-md);
 	}
 
 	.avatar {
@@ -88,7 +86,7 @@ const socialLinks = Object.entries(settings.social) as SocialEntry[];
 		position: absolute;
 		content: '';
 		inset: 0;
-		border: 0.1875rem solid var(--theme-text);
+		border: 3px solid var(--theme-text);
 	}
 
 	.avatar img {
@@ -112,7 +110,7 @@ const socialLinks = Object.entries(settings.social) as SocialEntry[];
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		align-items: flex-start;
-		gap: 1rem 1.75rem;
+		gap: var(--theme-space-sm) var(--theme-space-md);
 	}
 
 	.bio-sections > :nth-child(2) {
@@ -125,7 +123,7 @@ const socialLinks = Object.entries(settings.social) as SocialEntry[];
 	}
 
 	.bio > * + * {
-		margin-top: 0.75rem;
+		margin-top: var(--theme-space-xs);
 	}
 
 	.bio :global(svg) {
@@ -136,7 +134,7 @@ const socialLinks = Object.entries(settings.social) as SocialEntry[];
 	.social {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.5rem;
+		gap: var(--theme-space-3xs);
 		list-style: none;
 		padding: 0;
 	}

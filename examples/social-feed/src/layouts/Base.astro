@@ -8,12 +8,11 @@ import Footer from '../components/Footer.astro';
 
 export interface Props {
 	title?: string;
-	wrapperReverse?: boolean;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
-const { title = settings.name, wrapperReverse = false } = Astro.props;
+const { title = settings.name } = Astro.props;
 ---
 
 <html lang="en">
@@ -58,48 +57,29 @@ const { title = settings.name, wrapperReverse = false } = Astro.props;
 			}
 		</script>
 	</head>
-	<body class="flex-col">
-		<div class="flex-col pad">
-			<Header />
-			<div class="flex-col wrapper" class:list={['flex-col wrapper', { reverse: wrapperReverse }]}>
-				<slot />
-			</div>
-		</div>
+	<body>
+		<Header class="header" />
+		<main>
+			<slot />
+		</main>
 		<Footer />
 	</body>
 
 	<style>
-		.flex-col {
+		body {
 			display: flex;
 			flex-direction: column;
+			gap: var(--theme-space-lg);
 		}
 
-		.pad {
-			gap: 2.5rem;
-			padding: 1.875rem 1.25rem;
+		.header, main {
+			padding-inline: var(--theme-space-sm-lg);
 		}
 
-		.flex-col {
-			display: flex;
-			flex-direction: column;
-		}
-
-		.wrapper {
-			gap: 2.5rem;
-			margin: 0 auto;
+		main {
 			width: 100%;
 			max-width: 55rem;
-		}
-
-		@media (min-width: 50em) {
-			.wrapper {
-				display: grid;
-				grid-template-columns: 12rem 1fr;
-			}
-
-			.wrapper.reverse {
-				grid-template-columns: 1fr 12rem;
-			}
+			margin-inline: auto;
 		}
 	</style>
 </html>

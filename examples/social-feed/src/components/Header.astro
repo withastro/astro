@@ -1,9 +1,12 @@
 ---
+import type { HTMLAttributes } from 'astro/types';
 import settings from '../settings';
 import ThemeToggle from './ThemeToggle.astro';
+
+export interface Props extends HTMLAttributes<'header'> {}
 ---
 
-<header>
+<header {...Astro.props}>
 	<a class="site-name" href="/">{settings.username}</a>
 	<ThemeToggle />
 </header>
@@ -13,6 +16,7 @@ import ThemeToggle from './ThemeToggle.astro';
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+		padding-block: var(--theme-space-md);
 	}
 
 	.site-name {

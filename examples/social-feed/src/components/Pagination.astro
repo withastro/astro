@@ -94,7 +94,7 @@ if (max < lastPage) items.push(makeItem(lastPage));
 		display: flex;
 		justify-content: center;
 		list-style: none;
-		gap: 0.5rem;
+		gap: var(--theme-space-2xs);
 		padding: 0;
 	}
 	a {
@@ -117,7 +117,7 @@ if (max < lastPage) items.push(makeItem(lastPage));
 	.pagination-arrow > * {
 		color: var(--theme-accent-dark);
 		opacity: 0.35;
-		font-size: 1.75rem;
+		font-size: var(--theme-text-xl);
 		display: flex;
 	}
 

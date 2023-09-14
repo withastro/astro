@@ -1,38 +1,35 @@
 ---
 import type { GetStaticPathsOptions, Page } from 'astro';
-import { Image } from 'astro:assets';
-import type { CollectionEntry } from 'astro:content';
 import Card from '../components/Card.astro';
 import Pagination from '../components/Pagination.astro';
-import TagList from '../components/TagList.astro';
 import { getSortedPosts } from '../helpers/getSortedPosts';
 import Layout from '../layouts/Feed.astro';
-import settings from '../settings';
+import type { Post } from '../content/config.js';
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
 	return paginate(await getSortedPosts(), { pageSize: 3 });
 }
 
 interface Props {
-	page: Page<CollectionEntry<'articles'> | CollectionEntry<'notes'>>;
+	page: Page<Post>;
 }
 
 const { page } = Astro.props;
 ---
 
 <Layout>
-	<div class="stack">
-		<ol>
-			{
-				page.data.map((post) => (
-					<li>
-						<Card {post} />
-					</li>
-				))
-			}
-		</ol>
-		<Pagination {...page} />
-	</div>
+		<div class="stack">
+			<ol>
+				{
+					page.data.map((post) => (
+						<li>
+							<Card {post} />
+						</li>
+					))
+				}
+			</ol>
+			<Pagination {...page} />
+		</div>
 </Layout>
 
 <style>

@@ -1,8 +1,10 @@
 ---
-import type { CollectionEntry } from 'astro:content';
+import Article from '../../components/Article.astro';
+import Card from '../../components/Card.astro';
+import Icon from '../../components/Icon.astro';
 import { getSortedPosts } from '../../helpers/getSortedPosts';
-import ArticleLayout from '../../layouts/Article.astro';
-import NoteLayout from '../../layouts/Note.astro';
+import Layout from '../../layouts/Base.astro';
+import { isArticle, type Post } from '../../content/config';
 
 export async function getStaticPaths() {
 	const posts = await getSortedPosts();
@@ -13,18 +15,80 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-	post: CollectionEntry<'posts'>;
-	prev?: CollectionEntry<'posts'>;
-	next?: CollectionEntry<'posts'>;
+	post: Post;
+	prev?: Post;
+	next?: Post;
 }
 
 const { post, prev, next } = Astro.props;
+
+const { title } = isArticle(post) && post.data;
 ---
 
-{
-	post.data.type === 'article' ? (
-		<ArticleLayout title={post.data.title} article={post} {next} {prev} />
-	) : (
-		<NoteLayout note={post} {next} {prev} />
-	)
-}
+<Layout {title}>
+	<a href="/" class="back">
+		<Icon icon="arrow-left" color="var(--theme-accent-dark)" size="var(--theme-space-md)" />
+		<span>Back to feed</span>
+	</a>
+
+	{isArticle(post) ? (<Article article={post} />) : (<div class="card"><Card {post} /></div>)}
+
+	{
+		(next || prev) && (
+			<footer>
+				{prev && (
+					<a href={`/post/${prev.slug}`} class="prev">
+						<Icon icon="arrow-left" size="var(--theme-space-md)" color="var(--theme-accent-dark)" />
+						<span>Previous post</span>
+					</a>
+				)}
+				{next && (
+					<a href={`/post/${next.slug}`} class="next">
+						<span>Next post</span>
+						<Icon icon="arrow-right" size="var(--theme-space-md)" color="var(--theme-accent-dark)" />
+					</a>
+				)}
+			</footer>
+		)
+	}
+</Layout>
+
+<style>
+	.back {
+		text-decoration: none;
+		font-weight: bold;
+	}
+
+	.back {
+		display: flex;
+		align-items: center;
+		gap: var(--theme-space-2xs);
+		margin-inline-start: -4px;
+	}
+
+	.card {
+		width: 100%;
+		max-width: 60ch;
+		margin-inline: auto;
+	}
+
+	.prev, .next {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	footer {
+		display: flex;
+		justify-content: space-between;
+		margin-inline: -4px;
+	}
+
+	footer a {
+		font-weight: 700;
+		text-decoration: none;
+	}
+
+	.next:first-child {
+		margin-inline-start: auto;
+	}
+</style>

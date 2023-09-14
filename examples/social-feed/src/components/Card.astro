@@ -5,21 +5,20 @@ import FormattedDate from './FormattedDate.astro';
 import Icon from './Icon.astro';
 import TagList from './TagList.astro';
 import settings from '../settings.js';
+import { isArticle, type Post } from '../content/config.js';
 
 export interface Props extends HTMLAttributes<'article'> {
-	post: CollectionEntry<'articles'> | CollectionEntry<'notes'>;
+	post: Post;
 }
 
-const { post } = Astro.props;
+const { post, ...attrs } = Astro.props;
 
-const { pubDate, categories = [], image, title, href } = post.data;
-
-const { Content } = await post.render();
-
-console.log(post.data)
+const { pubDate, categories = [] } = post.data;
+const cover = 'cover' in post.data && post.data.cover;
+const title = 'title' in post.data && post.data.title;
 ---
 
-<article>
+<article {...attrs}>
 	<header>
 		<Image {...settings.avatar} width={120} class="u-image" />
 		<strong class="u-name">{settings.name}</strong>
@@ -30,10 +29,10 @@ console.log(post.data)
 		</div>
 		{categories.length > 0 && <TagList tags={categories} class="tags" />}
 	</header>
-	{image && <Image {...image} width={1060} />}
+	{cover && <Image {...cover} width={1060} />}
 	{title && <h3>{title}</h3>}
 	{
-		post.data.type === 'article' ? (
+		isArticle(post) ? (
 			<p>{post.data.description}</p>
 		) : (
 			post.render().then(({ Content }) => <Content />)
@@ -50,26 +49,26 @@ console.log(post.data)
 
 <style>
 	article {
-		padding: 1.25rem 1.25rem 1.5rem;
+		padding: var(--theme-space-sm) var(--theme-space-sm) var(--theme-space-md);
 		background-color: var(--theme-bg-accent);
 		border-radius: var(--theme-radius-xl);
 		box-shadow: var(--theme-shadow-md);
 	}
 	article > :global(* + *) {
-		margin-block-start: 1.25rem;
+		margin-block-start: var(--theme-space-sm);
 	}
 	header {
 		display: grid;
 		grid-template-columns: auto auto 1fr;
 		grid-template-areas: 'avatar name nickname' 'avatar tags tags';
 		align-items: center;
-		row-gap: 0.5rem;
-		column-gap: 1rem;
+		row-gap: var(--theme-space-2xs);
+		column-gap: var(--theme-space-sm);
 	}
 	.u-image {
 		grid-area: avatar;
-		width: 3.75rem;
-		height: 3.75rem;
+		width: var(--theme-space-xl);
+		height: var(--theme-space-xl);
 		border-radius: var(--theme-radius-full);
 		background-color: var(--theme-shade-subtle);
 	}

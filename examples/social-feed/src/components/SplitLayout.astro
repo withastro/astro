@@ -1,0 +1,35 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+export interface Props extends HTMLAttributes<'div'> {
+	reverse?: boolean;
+}
+
+const { reverse = false, class: className, ...attrs } = Astro.props;
+---
+
+<div class:list={[className, { reverse }]} {...attrs}>
+	<slot />
+</div>
+
+<style>
+	div {
+		display: flex;
+		flex-direction: column;
+		gap: var(--theme-space-lg);
+		margin: 0 auto;
+		width: 100%;
+		max-width: var(--theme-content-width);
+	}
+
+	@media (min-width: 50em) {
+		div {
+			display: grid;
+			grid-template-columns: 12rem 1fr;
+		}
+
+		div.reverse {
+			grid-template-columns: 1fr 12rem;
+		}
+	}
+</style>

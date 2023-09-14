@@ -1,15 +1,18 @@
 ---
 import Layout, { type Props as LayoutProps } from './Base.astro';
 import UserProfile from '../components/UserProfile.astro';
+import SplitLayout from '../components/SplitLayout.astro';
 
 export interface Props extends LayoutProps {}
 ---
 
 <Layout {...Astro.props}>
-	<UserProfile />
-	<main>
-		<slot />
-	</main>
+	<SplitLayout>
+		<UserProfile />
+		<div>
+			<slot />
+		</div>
+</SplitLayout>
 </Layout>
 
 <style>
@@ -19,10 +22,10 @@ export interface Props extends LayoutProps {}
 	}
 
 	.wrapper {
-		gap: 2.5rem;
+		gap: var(--theme-size-xl);
 		margin: 0 auto;
 		width: 100%;
-		max-width: 55rem;
+		max-width: var(--theme-content-width);
 	}
 
 	@media (min-width: 50em) {
