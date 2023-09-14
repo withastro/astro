@@ -47,14 +47,14 @@ describe('_routes.json generation', () => {
 					await fixture.build();
 				});
 
-				it('creates a wildcard `include` and `exclude` only for the redirect', async () => {
+				it('creates a wildcard `include` and `exclude` only for static assets and redirects', async () => {
 					const _routesJson = await fixture.readFile('/_routes.json');
 					const routes = JSON.parse(_routesJson);
 
 					expect(routes).to.deep.equal({
 						version: 1,
 						include: ['/*'],
-						exclude: ['/a/redirect'],
+						exclude: ['/public.txt', '/redirectme', '/a/redirect'],
 					});
 				});
 			});
@@ -106,7 +106,7 @@ describe('_routes.json generation', () => {
 
 					expect(routes).to.deep.equal({
 						version: 1,
-						include: ['/', '/_image', '/another'],
+						include: ['/', '/_image', '/dynamic1', '/dynamic2', '/dynamic3'],
 						exclude: [],
 					});
 				});
@@ -134,7 +134,7 @@ describe('_routes.json generation', () => {
 					expect(routes).to.deep.equal({
 						version: 1,
 						include: ['/*'],
-						exclude: ['/', '/index.html', '/a/redirect'],
+						exclude: ['/', '/index.html', '/public.txt', '/redirectme', '/a/redirect'],
 					});
 				});
 			});
