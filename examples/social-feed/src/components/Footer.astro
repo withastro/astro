@@ -1,63 +1,30 @@
 ---
 import settings from '../settings';
 import Icon from './Icon.astro';
-
-const socialLinks = Object.values(settings.social)
 ---
 
 <footer>
-	<section>
 		<p>
       {settings.name} © {new Date().getFullYear()}
     </p>
-		<b>•</b>
 		<p>
       Designed & Developed with ♥
     </p>
-		<b>•</b>
-		<p><a href="/rss.xml"><Icon icon="rss-alt" size="1.5em" />RSS</a></p>
-	</section>
-
-  <section>
-		{
-			socialLinks.map(({ url, title }) => (
-				<a href={url}>{title}</a>
-			))
-		}
-  </section>
 </footer>
 
 <style>
   footer {
     display: flex;
-    justify-content: space-between;
+		flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
     margin-top: auto;
     border-top: 3px solid var(--theme-shade-subtle);
     border-radius: var(--theme-radius-xl);
     padding: var(--theme-space-md);
-    gap: var(--theme-space-sm);
+    row-gap: var(--theme-space-sm);
+    column-gap: var(--theme-space-lg);
     color: var(--theme-gray-200);
     font-size: var(--theme-text-sm);
   }
-
-	section {
-		display: flex;
-		gap: var(--theme-space-xs);
-	}
-
-	p {
-		display: flex;
-		align-items: center;
-		gap: var(--theme-space-sm);	
-	}
-
-  a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-	p :global(svg) {
-		margin-block-start: -.25em;
-	}
 </style>

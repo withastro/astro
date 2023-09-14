@@ -108,7 +108,7 @@ const socialLinks = Object.entries(settings.social);
 
 	.bio-sections {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: 1fr;
 		align-items: flex-start;
 		gap: var(--theme-space-sm) var(--theme-space-md);
 	}
@@ -137,10 +137,21 @@ const socialLinks = Object.entries(settings.social);
 		gap: var(--theme-space-3xs);
 		list-style: none;
 		padding: 0;
+		grid-row: 2;
 	}
 
 	.social a {
 		color: var(--theme-accent-dark);
+	}
+
+	@media (min-width: 35em) {
+		.bio-sections {
+			grid-template-columns: 1fr 1fr;
+		}
+
+		.social {
+			grid-row: unset;
+		}
 	}
 
 	@media (min-width: 50em) {
