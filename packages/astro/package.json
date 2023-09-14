@@ -77,7 +77,8 @@
       "types": "./dist/core/middleware/namespace.d.ts",
       "default": "./dist/core/middleware/namespace.js"
     },
-    "./transitions": "./dist/transitions/index.js"
+    "./transitions": "./dist/transitions/index.js",
+    "./transitions/router": "./dist/transitions/router.js"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
