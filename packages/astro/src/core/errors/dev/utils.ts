@@ -227,21 +227,21 @@ export function getDocsForError(err: ErrorWithMetadata): string | undefined {
  * Render a subset of Markdown to HTML or a CLI output
  */
 export function renderErrorMarkdown(markdown: string, target: 'html' | 'cli') {
-	const linkRegex = /\[(.+)\]\((.+)\)/gm;
+	const linkRegex = /\[([^\[]+)\]\((.*)\)/gm;
 	const boldRegex = /\*\*(.+)\*\*/gm;
-	const urlRegex = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|])/gim;
+	const urlRegex = / (\b(https?|ftp):\/\/[-A-Z0-9+&@#\\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|])/gim;
 	const codeRegex = /`([^`]+)`/gim;
 
 	if (target === 'html') {
 		return escape(markdown)
 			.replace(linkRegex, `<a href="$2" target="_blank">$1</a>`)
 			.replace(boldRegex, '<b>$1</b>')
-			.replace(urlRegex, ' <a href="$1" target="_blank">$1</a> ')
+			.replace(urlRegex, ' <a href="$1" target="_blank">$1</a>')
 			.replace(codeRegex, '<code>$1</code>');
 	} else {
 		return markdown
-			.replace(linkRegex, (fullMatch, m1, m2) => `${bold(m1)} ${underline(m2)}`)
-			.replace(urlRegex, (fullMatch) => ` ${underline(fullMatch.trim())} `)
-			.replace(boldRegex, (fullMatch, m1) => `${bold(m1)}`);
+			.replace(linkRegex, (_, m1, m2) => `${bold(m1)} ${underline(m2)}`)
+			.replace(urlRegex, (fullMatch) => ` ${underline(fullMatch.trim())}`)
+			.replace(boldRegex, (_, m1) => `${bold(m1)}`);
 	}
 }

@@ -5,8 +5,8 @@ import type {
 	ManifestData,
 	RouteData,
 	RoutePart,
-} from '../../../@types/astro';
-import type { Logger } from '../../logger/core';
+} from '../../../@types/astro.js';
+import type { Logger } from '../../logger/core.js';
 
 import { createRequire } from 'module';
 import nodeFs from 'node:fs';

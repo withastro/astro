@@ -12,6 +12,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
 	getAstroImageConfig,
 	getDefaultImageConfig,
+	type DevImageService,
 	type VercelImageConfig,
 } from '../image/shared.js';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
@@ -80,6 +81,7 @@ export interface VercelServerlessConfig {
 	excludeFiles?: string[];
 	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
+	devImageService?: DevImageService;
 	edgeMiddleware?: boolean;
 	functionPerRoute?: boolean;
 }
@@ -92,6 +94,7 @@ export default function vercelServerless({
 	excludeFiles,
 	imageService,
 	imagesConfig,
+	devImageService = 'sharp',
 	functionPerRoute = true,
 	edgeMiddleware = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
@@ -174,7 +177,13 @@ export default function vercelServerless({
 							external: ['@vercel/nft'],
 						},
 					},
-					...getAstroImageConfig(imageService, imagesConfig, command, config.image),
+					...getAstroImageConfig(
+						imageService,
+						imagesConfig,
+						command,
+						devImageService,
+						config.image
+					),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config, logger }) => {

@@ -3,6 +3,7 @@ import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import {
 	getAstroImageConfig,
 	getDefaultImageConfig,
+	type DevImageService,
 	type VercelImageConfig,
 } from '../image/shared.js';
 import { emptyDir, getVercelOutput, writeJson } from '../lib/fs.js';
@@ -48,6 +49,7 @@ export interface VercelStaticConfig {
 	speedInsights?: VercelSpeedInsightsConfig;
 	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
+	devImageService?: DevImageService;
 }
 
 export default function vercelStatic({
@@ -56,6 +58,7 @@ export default function vercelStatic({
 	speedInsights,
 	imageService,
 	imagesConfig,
+	devImageService = 'sharp',
 }: VercelStaticConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 
@@ -90,7 +93,13 @@ export default function vercelStatic({
 					vite: {
 						...getSpeedInsightsViteConfig(speedInsights?.enabled || analytics),
 					},
-					...getAstroImageConfig(imageService, imagesConfig, command, config.image),
+					...getAstroImageConfig(
+						imageService,
+						imagesConfig,
+						command,
+						devImageService,
+						config.image
+					),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {

@@ -5,7 +5,7 @@ import type {
 	AstroInlineOnlyConfig,
 	AstroUserConfig,
 	CLIFlags,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 
 import * as colors from 'kleur/colors';
 import fs from 'node:fs';

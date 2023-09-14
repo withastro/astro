@@ -4,14 +4,14 @@ import type { OutputChunk } from 'rollup';
 import { type Plugin as VitePlugin } from 'vite';
 import { runHookBuildSsr } from '../../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
-import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types';
+import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types.js';
 import { joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin';
-import type { StaticBuildOptions } from '../types';
+import type { AstroBuildPlugin } from '../plugin.js';
+import type { StaticBuildOptions } from '../types.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
@@ -46,8 +46,8 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`
 				);
 
-				contents.push(` 
-const manifest = _deserializeManifest('${manifestReplace}'); 
+				contents.push(`
+const manifest = _deserializeManifest('${manifestReplace}');
 _privateSetManifestDontUseThis(manifest);
 `);
 

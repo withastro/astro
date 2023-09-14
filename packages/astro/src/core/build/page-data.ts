@@ -1,6 +1,6 @@
-import type { AstroSettings, ManifestData } from '../../@types/astro';
-import type { Logger } from '../logger/core';
-import type { AllPagesData } from './types';
+import type { AstroSettings, ManifestData } from '../../@types/astro.js';
+import type { Logger } from '../logger/core.js';
+import type { AllPagesData } from './types.js';
 
 import * as colors from 'kleur/colors';
 import { debug } from '../logger/core.js';

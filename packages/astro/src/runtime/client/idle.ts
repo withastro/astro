@@ -1,4 +1,4 @@
-import type { ClientDirective } from '../../@types/astro';
+import type { ClientDirective } from '../../@types/astro.js';
 
 const idleDirective: ClientDirective = (load) => {
 	const cb = async () => {
