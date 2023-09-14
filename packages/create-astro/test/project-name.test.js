@@ -54,6 +54,18 @@ describe('project name', () => {
 		expect(context.projectName).to.eq('foobar');
 	});
 
+	it('yes flag with non-empty cwd', async () => {
+		const context = {
+			projectName: '',
+			cwd: './test/fixtures/not-empty',
+			yes: true,
+			prompt: () => {},
+		};
+		await projectName(context);
+
+		expect(context.projectName).to.not.eq('');
+	});
+
 	it('basic', async () => {
 		const context = { projectName: '', cwd: '', prompt: () => ({ name: 'foobar' }) };
 		await projectName(context);
@@ -91,5 +103,49 @@ describe('project name', () => {
 
 		expect(context.cwd).to.eq('@astro/site');
 		expect(context.projectName).to.eq('@astro/site');
+	});
+
+	it('--yes', async () => {
+		const context = {
+			projectName: '',
+			cwd: './foo/bar/baz',
+			yes: true,
+			prompt: () => {},
+		};
+		await projectName(context);
+		expect(context.projectName).to.eq('baz');
+	});
+
+	it('dry run with name', async () => {
+		const context = {
+			projectName: '',
+			cwd: './foo/bar/baz',
+			dryRun: true,
+			prompt: () => {},
+		};
+		await projectName(context);
+		expect(context.projectName).to.eq('baz');
+	});
+
+	it('dry run with dot', async () => {
+		const context = {
+			projectName: '',
+			cwd: '.',
+			dryRun: true,
+			prompt: () => ({ name: 'foobar' }),
+		};
+		await projectName(context);
+		expect(context.projectName).to.eq('foobar');
+	});
+
+	it('dry run with empty', async () => {
+		const context = {
+			projectName: '',
+			cwd: './test/fixtures/empty',
+			dryRun: true,
+			prompt: () => ({ name: 'foobar' }),
+		};
+		await projectName(context);
+		expect(context.projectName).to.eq('empty');
 	});
 });
