@@ -265,7 +265,7 @@ export default defineConfig({
 
 The Vercel adapter combines all of your routes into a single function by default.
 
-You also have the option to split builds into a separate function for each route using the `functionPerRoute` option. This reduces the size of each function, meaning you are less likely to exceed the size limit for an individual function. Also, code starts are faster. 
+You also have the option to split builds into a separate function for each route using the `functionPerRoute` option. This reduces the size of each function, meaning you are less likely to exceed the size limit for an individual function. Also, code starts are faster.
 
 Verify that your Vercel plan includes an appropriate number of functions before enabling `functionPerRoute`. For example, Vercel's free tier limits each deployment to no more than 12 functions. If your Vercel plan is insufficient for the number of routes in your project, you will receive an error message during deployment.
 
