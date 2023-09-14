@@ -58,12 +58,32 @@ export interface ImageMetadata {
 	type: string;
 }
 
-export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
+export interface MarkdownProcessor {
+	render: (
+		content: string,
+		opts?: MarkdownProcessorRenderOptions
+	) => Promise<MarkdownProcessorRenderResult>;
+}
+
+export interface MarkdownProcessorRenderOptions {
 	/** @internal */
 	fileURL?: URL;
 	/** Used for frontmatter injection plugins */
 	frontmatter?: Record<string, any>;
 }
+
+export interface MarkdownProcessorRenderResult {
+	code: string;
+	metadata: {
+		headings: MarkdownHeading[];
+		imagePaths: Set<string>;
+		frontmatter: Record<string, any>;
+	};
+}
+
+export interface MarkdownRenderingOptions
+	extends AstroMarkdownOptions,
+		MarkdownProcessorRenderOptions {}
 
 export interface MarkdownHeading {
 	depth: number;
