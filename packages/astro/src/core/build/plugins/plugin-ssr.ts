@@ -1,14 +1,14 @@
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroAdapter, AstroConfig } from '../../../@types/astro';
+import type { AstroAdapter, AstroConfig } from '../../../@types/astro.js';
 import { isFunctionPerRouteEnabled } from '../../../integrations/index.js';
 import { isServerLikeOutput } from '../../../prerender/utils.js';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin';
-import type { StaticBuildOptions } from '../types';
+import type { AstroBuildPlugin } from '../plugin.js';
+import type { StaticBuildOptions } from '../types.js';
 import { SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugin-manifest.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
@@ -246,8 +246,8 @@ function generateSSRCode(config: AstroConfig, adapter: AstroAdapter) {
 	}
 
 	contents.push(`import * as adapter from '${adapter.serverEntrypoint}';
-import { renderers } from '${RENDERERS_MODULE_ID}'; 
-import { manifest as defaultManifest} from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}'; 
+import { renderers } from '${RENDERERS_MODULE_ID}';
+import { manifest as defaultManifest} from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';
 const _manifest = Object.assign(defaultManifest, {
 	${pageMap},
 	renderers,

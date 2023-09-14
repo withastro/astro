@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import type { HmrContext, ModuleNode } from 'vite';
-import type { AstroConfig } from '../@types/astro';
+import type { AstroConfig } from '../@types/astro.js';
 import {
 	cachedCompilation,
 	invalidateCompilation,

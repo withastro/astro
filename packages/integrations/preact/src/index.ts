@@ -1,4 +1,4 @@
-import preact, { type PreactPluginOptions as VitePreactPluginOptions } from '@preact/preset-vite';
+import { preact, type PreactPluginOptions as VitePreactPluginOptions } from '@preact/preset-vite';
 import type { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
 import { fileURLToPath } from 'node:url';
 

@@ -1,4 +1,4 @@
-import type { APIContext, EndpointHandler, Params } from '../../@types/astro';
+import type { APIContext, EndpointHandler, Params } from '../../@types/astro.js';
 import type { Logger } from '../../core/logger/core.js';
 
 function getHandlerFromModule(mod: EndpointHandler, method: string, logger: Logger) {

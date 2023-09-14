@@ -4,7 +4,7 @@ import type {
 	MarkdownRenderingOptions,
 	MarkdownRenderingResult,
 	MarkdownVFile,
-} from './types';
+} from './types.js';
 
 import {
 	InvalidAstroDataError,

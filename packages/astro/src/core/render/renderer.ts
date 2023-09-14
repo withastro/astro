@@ -1,4 +1,4 @@
-import type { AstroRenderer, SSRLoadedRenderer } from '../../@types/astro';
+import type { AstroRenderer, SSRLoadedRenderer } from '../../@types/astro.js';
 import type { ModuleLoader } from '../module-loader/index.js';
 
 export async function loadRenderer(

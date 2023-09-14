@@ -1,8 +1,8 @@
 import type { ModuleInfo } from 'rollup';
 import type * as vite from 'vite';
-import type { SSRComponentMetadata, SSRResult } from '../@types/astro';
+import type { SSRComponentMetadata, SSRResult } from '../@types/astro.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
-import type { PluginMetadata } from '../vite-plugin-astro/types';
+import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 import { getTopLevelPages, walkParentInfos } from '../core/build/graph.js';
 import type { BuildInternals } from '../core/build/internal.js';

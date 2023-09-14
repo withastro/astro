@@ -1,4 +1,4 @@
-import type { RenderTemplateResult } from './render-template';
+import type { RenderTemplateResult } from './render-template.js';
 
 const headAndContentSym = Symbol.for('astro.headAndContent');
 

@@ -1,6 +1,6 @@
 import type { AstroConfig } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import { joinPaths } from '../../core/path.js';
+import { isRemotePath, joinPaths } from '../../core/path.js';
 import { VALID_SUPPORTED_FORMATS } from '../consts.js';
 import { isESMImportedImage, isRemoteAllowed } from '../internal.js';
 import type { ImageOutputFormat, ImageTransform } from '../types.js';
@@ -126,13 +126,20 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		if (!options.src || (typeof options.src !== 'string' && typeof options.src !== 'object')) {
 			throw new AstroError({
 				...AstroErrorData.ExpectedImage,
-				message: AstroErrorData.ExpectedImage.message(JSON.stringify(options.src)),
+				message: AstroErrorData.ExpectedImage.message(
+					JSON.stringify(options.src),
+					typeof options.src,
+					JSON.stringify(options, (_, v) => (v === undefined ? null : v))
+				),
 			});
 		}
 
 		if (!isESMImportedImage(options.src)) {
-			// User passed an `/@fs/` path instead of the full image.
-			if (options.src.startsWith('/@fs/')) {
+			// User passed an `/@fs/` path or a filesystem path instead of the full image.
+			if (
+				options.src.startsWith('/@fs/') ||
+				(!isRemotePath(options.src) && !options.src.startsWith('/'))
+			) {
 				throw new AstroError({
 					...AstroErrorData.LocalImageUsedWrongly,
 					message: AstroErrorData.LocalImageUsedWrongly.message(options.src),

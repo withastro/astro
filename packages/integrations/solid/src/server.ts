@@ -1,6 +1,6 @@
 import { createComponent, renderToString, ssr } from 'solid-js/web';
 import { getContext, incrementId } from './context.js';
-import type { RendererContext } from './types';
+import type { RendererContext } from './types.js';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 

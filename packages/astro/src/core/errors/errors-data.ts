@@ -594,9 +594,9 @@ export const PrerenderDynamicEndpointPathCollide = {
 export const ExpectedImage = {
 	name: 'ExpectedImage',
 	title: 'Expected src to be an image.',
-	message: (options: string) =>
-		`Expected \`src\` property to be either an ESM imported image or a string with the path of a remote image. Received \`${options}\`.`,
-	hint: 'This error can often happen because of a wrong path. Make sure the path to your image is correct.',
+	message: (src: string, typeofOptions: string, fullOptions: string) =>
+		`Expected \`src\` property for \`getImage\` or \`<Image />\` to be either an ESM imported image or a string with the path of a remote image. Received \`${src}\` (type: \`${typeofOptions}\`).\n\nFull serialized options received: \`${fullOptions}\`.`,
+	hint: "This error can often happen because of a wrong path. Make sure the path to your image is correct. If you're passing an async function, make sure to call and await it.",
 } satisfies ErrorData;
 /**
  * @docs
@@ -712,12 +712,15 @@ export const LocalsNotAnObject = {
 		'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
 	hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
 } satisfies ErrorData;
+
 /**
  * @docs
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
- * When using the default image services, `Image`'s and `getImage`'s `src` parameter must be either an imported image or an URL, it cannot be a filepath.
+ * When using the default image services, `Image`'s and `getImage`'s `src` parameter must be either an imported image or an URL, it cannot be a string of a filepath.
+ *
+ * For local images from content collections, you can use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections) to resolve the images.
  *
  * ```astro
  * ---
@@ -728,15 +731,22 @@ export const LocalsNotAnObject = {
  * <!-- GOOD: `src` is the full imported image. -->
  * <Image src={myImage} alt="Cool image" />
  *
- * <!-- BAD: `src` is an image's `src` path instead of the full image. -->
+ * <!-- GOOD: `src` is a URL. -->
+ * <Image src="https://example.com/my_image.png" alt="Cool image" />
+ *
+ * <!-- BAD: `src` is an image's `src` path instead of the full image object. -->
  * <Image src={myImage.src} alt="Cool image" />
+ *
+ * <!-- BAD: `src` is a string filepath. -->
+ * <Image src="../my_image.png" alt="Cool image" />
  * ```
  */
 export const LocalImageUsedWrongly = {
 	name: 'LocalImageUsedWrongly',
-	title: 'ESM imported images must be passed as-is.',
+	title: 'Local images must be imported.',
 	message: (imageFilePath: string) =>
-		`\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or an URL, it cannot be a filepath. Received \`${imageFilePath}\`.`,
+		`\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or an URL, it cannot be a string filepath. Received \`${imageFilePath}\`.`,
+	hint: 'If you want to use an image from your `src` folder, you need to either import it or if the image is coming from a content collection, use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections) See https://docs.astro.build/en/guides/images/#src-required for more information on the `src` property.',
 } satisfies ErrorData;
 
 /**

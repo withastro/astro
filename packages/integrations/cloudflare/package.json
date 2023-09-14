@@ -41,19 +41,20 @@
   "dependencies": {
     "@astrojs/underscore-redirects": "workspace:*",
     "@cloudflare/workers-types": "^4.20230821.0",
-    "esbuild": "^0.19.2",
-    "tiny-glob": "^0.2.9",
-    "find-up": "^6.3.0",
     "@iarna/toml": "^2.2.5",
-    "dotenv": "^16.3.1",
     "@miniflare/cache": "^2.14.1",
     "@miniflare/shared": "^2.14.1",
-    "@miniflare/storage-memory": "^2.14.1"
+    "@miniflare/storage-memory": "^2.14.1",
+    "dotenv": "^16.3.1",
+    "esbuild": "^0.19.2",
+    "find-up": "^6.3.0",
+    "tiny-glob": "^0.2.9"
   },
   "peerDependencies": {
     "astro": "workspace:^3.0.13"
   },
   "devDependencies": {
+    "@types/iarna__toml": "^2.0.2",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
