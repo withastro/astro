@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-remove AstroError for empty collection directory
+Do not throw an error for an empty collection directory.
