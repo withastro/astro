@@ -170,6 +170,10 @@ This will enable Cloudflare to serve files and process static redirects without 
 
 See [Cloudflare's documentation](https://developers.cloudflare.com/pages/platform/functions/routing/#create-a-_routesjson-file) for more details.
 
+## Node.js compatibility
+
+Cloudflare offers opt-in support for certain Node.js runtime APIs, and with the Cloudflare Adapter, Astro provides seamless integration for these APIs. To leverage this, ensure that your page or endpoint is set up for Server-Side Rendering (SSR). Additionally, you'll need to enable the Compatibility Flag in Cloudflare. The configuration for this flag may vary based on where you deploy your Astro site. For detailed guidance, please refer to the [Cloudflare documentation](https://developers.cloudflare.com/workers/runtime-apis/nodejs).
+
 ## Troubleshooting
 
 For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
