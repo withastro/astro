@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+// #!/usr/bin/env node
 export default async function run() {
 	const [cmd, ...args] = process.argv.slice(2);
 	switch (cmd) {
