@@ -8,10 +8,13 @@ import Layout from '../components/Layout.astro';
 	<script>
 		import { goto } from "astro:transitions/client";
 
+		// this is to simulate client side use, will be triggered from test
 		window.addEventListener('jumpToTwo', ()=>goto('/two'));
 
+		// this is a holder to pick up the router in additional tests
 		window.clientSideRouterForTestsParkedHere = goto
 
+		// this is the direct use of the router in this page, redirecting to page one 
 		goto('/one');
 	</script>
 </Layout>
