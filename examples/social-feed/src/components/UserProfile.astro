@@ -6,14 +6,14 @@ import Icon from './Icon.astro';
 const socialLinks = Object.entries(settings.social);
 ---
 
-<div class="profile">
+<div class="h-card">
 	<div>
-		<div class="avatar">
+		<div class="u-photo">
 			<Image {...settings.avatar} width={220} />
 		</div>
 		<h1>
-			{settings.name}
-			<small>{settings.username}</small>
+			<span class="p-name">{settings.name}</span>
+			<small class="p-nickname">{settings.username}</small>
 		</h1>
 	</div>
 	<div class="bio-sections">
@@ -37,7 +37,7 @@ const socialLinks = Object.entries(settings.social);
 					<p>
 						<Icon icon="location-point" color="var(--theme-accent-dark)" size="1.75rem" />
 						<span class="sr-only">Location</span>
-						{settings.location}
+						<span class="p-locality">{settings.location}</span>
 					</p>
 				)
 			}
@@ -46,7 +46,7 @@ const socialLinks = Object.entries(settings.social);
 					<p>
 						<Icon icon="link-h" color="var(--theme-accent-dark)" size="1.75rem" />
 						<span class="sr-only">Homepage</span>
-						<a href={settings.homepage}>{settings.homepage.replace(/^https?:\/\/(www\.)?/, '')}</a>
+						<a href={settings.homepage} class="u-url">{settings.homepage.replace(/^https?:\/\/(www\.)?/, '')}</a>
 					</p>
 				)
 			}
@@ -57,9 +57,10 @@ const socialLinks = Object.entries(settings.social);
 		</div>
 		<ul class="social">
 			{
-				socialLinks.map(([key, { url }]) => (
+				socialLinks.map(([key, { url, title }]) => (
 					<li>
-						<a href={url}>
+						<a href={url} rel="me">
+							<span class="sr-only">{title}</span>
 							<Icon icon={`${key}`} size="1.75rem" />
 						</a>
 					</li>
@@ -70,18 +71,18 @@ const socialLinks = Object.entries(settings.social);
 </div>
 
 <style>
-	.profile {
+	.h-card {
 		display: flex;
 		flex-direction: column;
 		gap: var(--theme-space-md);
 	}
 
-	.avatar {
+	.u-photo {
 		display: inline-block;
 		position: relative;
 	}
 
-	.avatar::after {
+	.u-photo::after {
 		border-radius: var(--theme-radius-full);
 		position: absolute;
 		content: '';
@@ -89,7 +90,7 @@ const socialLinks = Object.entries(settings.social);
 		border: 3px solid var(--theme-text);
 	}
 
-	.avatar img {
+	.u-photo img {
 		width: 110px;
 		height: 110px;
 	}

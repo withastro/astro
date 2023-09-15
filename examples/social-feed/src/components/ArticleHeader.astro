@@ -21,19 +21,19 @@ const { text: readingTime } = await getReadingTime(article.body);
 	<div class="cover">
 		{
 			article.data.cover && (
-				<Image src={article.data.cover.src} alt={article.data.cover.alt} />
+				<Image src={article.data.cover.src} alt={article.data.cover.alt} class="u-photo" />
 			)
 		}
 
-		<div class="author">
-			<Image src={settings.avatar.src} alt={settings.avatar.alt} width={80} />
-			<p class="u-name">{settings.name}</p>
-			<p class="u-nickname">{settings.username}</p>
+		<div class="p-author h-card">
+			<Image src={settings.avatar.src} alt={settings.avatar.alt} width={80} class="u-photo" />
+			<p class="p-name">{settings.name}</p>
+			<p class="p-nickname">{settings.username}</p>
 		</div>
 	</div>
 
 	<div class="meta">
-		<FormattedDate date={article.data.pubDate} />
+		<FormattedDate date={article.data.pubDate} class="dt-published" />
 		<span>•</span>
 		<p>
 			<Icon icon="clock" size="1rem" />
@@ -41,7 +41,7 @@ const { text: readingTime } = await getReadingTime(article.body);
 		</p>
 	</div>
 
-	<h1>{article.data.title}</h1>
+	<h1 class="p-name">{article.data.title}</h1>
 
 	{article.data.categories?.length > 0 && <TagList tags={article.data.categories} />}
 </header>
@@ -73,7 +73,7 @@ const { text: readingTime } = await getReadingTime(article.body);
 		border-radius: inherit;
 	}
 
-	.author {
+	.p-author {
 		grid-column: 1;
 		grid-row: 1;
 		display: flex;
@@ -96,23 +96,23 @@ const { text: readingTime } = await getReadingTime(article.body);
 		margin-block-end: var(--theme-space-sm);
 		}
 
-		.author {
+		.p-author {
 			justify-self: end;
 			margin-inline-end: var(--theme-space-xl);
 		}
 	}
 
-	.author img {
+	.p-author img {
 		width: var(--theme-space-lg);
 		height: var(--theme-space-lg);
 	}
 
-	.author .u-name {
+	.p-author .p-name {
 		font-family: var(--font-brand);
 		font-weight: bold;
 	}
 
-	.author .u-nickname {
+	.p-author .p-nickname {
 		color: var(--theme-gray-300);
 		font-size: var(--theme-text-sm);
 		font-weight: 600;

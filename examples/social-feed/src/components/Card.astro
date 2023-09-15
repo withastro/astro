@@ -18,28 +18,28 @@ const cover = 'cover' in post.data && post.data.cover;
 const title = 'title' in post.data && post.data.title;
 ---
 
-<article {...attrs}>
-	<header>
-		<Image {...settings.avatar} width={120} class="u-image" />
-		<strong class="u-name">{settings.name}</strong>
-		<div class="u-nickname">
+<article class="h-entry" {...attrs}>
+	<header class="p-author h-card">
+		<Image {...settings.avatar} width={120} class="u-photo" />
+		<strong class="p-name">{settings.name}</strong>
+		<div class="p-nickname">
 			{settings.username}
 			 •
-			<FormattedDate date={pubDate} />
+			<FormattedDate date={pubDate} class="dt-published" />
 		</div>
 		{categories.length > 0 && <TagList tags={categories} class="tags" />}
 	</header>
-	{cover && <Image {...cover} width={1060} />}
-	{title && <h3>{title}</h3>}
+	{cover && <Image {...cover} width={1060} class="u-photo" />}
+	{title && <h3 class="p-name">{title}</h3>}
 	{
 		isArticle(post) ? (
-			<p>{post.data.description}</p>
+			<p class="p-summary">{post.data.description}</p>
 		) : (
-			post.render().then(({ Content }) => <Content />)
+			post.render().then(({ Content }) => <div class="e-content"><Content /></div>)
 		)
 	}
 	<footer>
-		<a href={`/post/${post.slug}/`}>Full {post.data.type === 'article' ? 'article' : 'note'}</a>
+		<a href={`/post/${post.slug}/`} class="u-url">Full {post.collection === 'articles' ? 'article' : 'note'}</a>
 		<a href={`javascript: navigator.clipboard.writeText(window.location.href + "post/${post.slug}/");`}>
 			<Icon icon="share" size="1.5rem" />
 			<span class="sr-only">Share this post</span>
@@ -65,19 +65,19 @@ const title = 'title' in post.data && post.data.title;
 		row-gap: var(--theme-space-2xs);
 		column-gap: var(--theme-space-sm);
 	}
-	.u-image {
+	.u-photo {
 		grid-area: avatar;
 		width: var(--theme-space-xl);
 		height: var(--theme-space-xl);
 		border-radius: var(--theme-radius-full);
 		background-color: var(--theme-shade-subtle);
 	}
-	.u-name {
+	.p-name {
 		grid-area: name;
 		font-family: var(--font-brand);
 		font-weight: bold;
 	}
-	.u-nickname {
+	.p-nickname {
 		grid-area: nickname;
 		font-size: var(--theme-text-sm);
 		color: var(--theme-gray-300);

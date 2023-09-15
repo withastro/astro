@@ -1,7 +1,5 @@
 ---
 import ArticleHeader from './ArticleHeader.astro';
-import Icon from './Icon.astro';
-import Prose from './Prose.astro';
 import SplitLayout from './SplitLayout.astro';
 import type { Article, Post } from '../content/config.js';
 
@@ -17,7 +15,7 @@ const { Content, headings } = await article.render();
 <article>
 	<ArticleHeader {article} class="header" />
 	<SplitLayout reverse>
-		<div class="p-content">
+		<div class="e-content">
 			<Content />
 		</div>
 
@@ -46,11 +44,11 @@ const { Content, headings } = await article.render();
 		padding-block: var(--theme-space-md);
 	}
 
-	.p-content > :global(* + *) {
+	.e-content > :global(* + *) {
 		margin-block-start: 1em;
 	}
 
-	.p-content > :global(p:first-child::first-letter) {
+	.e-content > :global(p:first-child::first-letter) {
 		float: left;
 		font-size: 3.5rem;
 		padding-inline-end: 0.5rem;
@@ -58,7 +56,7 @@ const { Content, headings } = await article.render();
 		font-weight: bold;
 	}
 
-	.p-content :global(img, video, figure) {
+	.e-content :global(img, video, figure) {
 		margin-inline: auto;
 	}
 
@@ -86,7 +84,7 @@ const { Content, headings } = await article.render();
 			display: block;
 		}
 
-		.p-content > :global(* + *) {
+		.e-content > :global(* + *) {
 			margin-block-start: 1.5em;
 		}
 	}

@@ -16,6 +16,7 @@ const articles = defineCollection({
 		})
 		.required({
 			// requiring the description for articles, this will be shown as the short preview text on cards
+			title: true,
 			description: true
 		})
 		.strict(),

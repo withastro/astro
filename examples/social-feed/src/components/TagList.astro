@@ -9,7 +9,11 @@ const { tags, ...attrs } = Astro.props;
 ---
 
 <ul {...attrs}>
-	{tags.map((tag) => <li>{tag}</li>)}
+	{tags.map((tag) => (
+		<li>
+			<a href={`/category/${tag}/`} rel="category tag" class="p-category">{tag}</a>
+		</li>
+	))}
 </ul>
 
 <style>
