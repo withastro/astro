@@ -27,6 +27,7 @@ type Options = {
 	 * 'remote': use a dynamic real-live req.cf object, and env vars defined in wrangler.toml & .dev.vars (astro dev is enough)
 	 */
 	runtime?: 'off' | 'local' | 'remote';
+	wasmModuleImports?: boolean;
 };
 
 interface BuildConfig {
@@ -193,7 +194,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					},
 					vite: {
 						// load .wasm files as WebAssembly modules
-						plugins: [wasmModuleLoader()],
+						plugins: [wasmModuleLoader(!args?.wasmModuleImports)],
 					},
 				});
 			},
@@ -299,19 +300,20 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					const outputUrl = new URL('$astro', _buildConfig.server);
 					const outputDir = fileURLToPath(outputUrl);
 					//
-					// Sadly, this needs to build esbuild for each depth of routes/entrypoints independently so that relative
-					// import paths to the assets are correct.
-					// This is inefficient:
-					// - is there any ways to import from the root to keep these consistent?
-					// - if not, would be nice to not group like this if there's no wasm... Could we determine that ahead of time?
-					// - or perhaps wasm should be entirely opt-in?
-					const entryPathsGroupedByDepth = entryPaths.reduce((sum, thisPath) => {
-						const depthFromRoot = thisPath.split(sep).length;
-						sum.set(depthFromRoot, (sum.get(depthFromRoot) || []).concat(thisPath));
-						return sum;
-					}, new Map<number, string[]>());
+					// Sadly, when wasmModuleImports is enabled, this needs to build esbuild for each depth of routes/entrypoints
+					// independently so that relative import paths to the assets are the correct depth of '../' traversals
+					// This is inefficient, so wasmModuleImports is opt-in
+					const entryPathsGroupedByDepth = !args.wasmModuleImports
+						? [entryPaths]
+						: entryPaths
+								.reduce((sum, thisPath) => {
+									const depthFromRoot = thisPath.split(sep).length;
+									sum.set(depthFromRoot, (sum.get(depthFromRoot) || []).concat(thisPath));
+									return sum;
+								}, new Map<number, string[]>())
+								.values();
 
-					for (const pathsGroup of entryPathsGroupedByDepth.values()) {
+					for (const pathsGroup of entryPathsGroupedByDepth) {
 						// for some reason this exports to "entry.pages" instead of "pages" on windows.
 						// look up the pages with relative logic
 						const pagesDirname = relative(fileURLToPath(_buildConfig.server), pathsGroup[0]).split(
@@ -355,7 +357,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							logOverride: {
 								'ignored-bare-import': 'silent',
 							},
-							plugins: [rewriteWasmImportPath({ relativePathToAssets })],
+							plugins: !args?.wasmModuleImports ? [] : [rewriteWasmImportPath({ relativePathToAssets })],
 						});
 					}
 
@@ -430,13 +432,15 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						logOverride: {
 							'ignored-bare-import': 'silent',
 						},
-						plugins: [
-							rewriteWasmImportPath({
-								relativePathToAssets: isModeDirectory
-									? relative(fileURLToPath(functionsUrl), fileURLToPath(assetsUrl))
-									: relative(fileURLToPath(_buildConfig.client), fileURLToPath(assetsUrl)),
-							}),
-						],
+						plugins: !args?.wasmModuleImports
+							? []
+							: [
+									rewriteWasmImportPath({
+										relativePathToAssets: isModeDirectory
+											? relative(fileURLToPath(functionsUrl), fileURLToPath(assetsUrl))
+											: relative(fileURLToPath(_buildConfig.client), fileURLToPath(assetsUrl)),
+									}),
+							  ],
 					});
 
 					// Rename to worker.js

@@ -1,5 +1,7 @@
 import { loadFixture, runCLI } from './test-utils.js';
 import { expect } from 'chai';
+import cloudflare from '../dist/index.js';
+
 
 describe('Wasm import', () => {
 	describe('in cloudflare workerd', () => {
@@ -29,7 +31,7 @@ describe('Wasm import', () => {
 		});
 
 		it('can render', async () => {
-			let res = await fetch(`http://127.0.0.1:${cli.port}/`);
+			let res = await fetch(`http://127.0.0.1:${cli.port}/add/40/2`);
 			expect(res.status).to.equal(200);
 			const json = await res.json();
 			expect(json).to.deep.equal({ answer: 42 });
@@ -44,7 +46,7 @@ describe('Wasm import', () => {
 			fixture = await loadFixture({
 				root: './fixtures/wasm/',
 			});
-			devServer = await fixture.startDevServer();
+			devServer = undefined;
 		});
 
 		after(async () => {
@@ -52,10 +54,26 @@ describe('Wasm import', () => {
 		});
 
 		it('can serve wasm', async () => {
-			let res = await fetch(`http://localhost:${devServer.address.port}/`);
+			devServer = await fixture.startDevServer();
+			let res = await fetch(`http://localhost:${devServer.address.port}/add/60/3`);
 			expect(res.status).to.equal(200);
 			const json = await res.json();
-			expect(json).to.deep.equal({ answer: 42 });
+			expect(json).to.deep.equal({ answer: 63 });
 		});
+
+		it('fails to build intelligently when wasm is disabled', async () => {
+			let ex;
+			try {
+				devServer = await fixture.build({ 
+					adapter: cloudflare({
+						wasmModuleImports: false
+					}),
+				});
+			} catch (err) {
+				ex = err
+			}
+			expect(ex?.message).to.have.string('add `wasmModuleImports: true` to your astro config')
+		});
+
 	});
 });

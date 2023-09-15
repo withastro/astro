@@ -193,21 +193,35 @@ export default defineConfig({
 
 ## WASM module imports
 
-Cloudflare has native support for importing `.wasm` files [directly as ES modules](https://github.com/WebAssembly/esm-integration/tree/main/proposals/esm-integration). You can import a web assembly module in astro with `.wasm?module` syntax. This is in order to differentiate from the built in `.wasm?url` and `.wasm?init` bindings that won't work with cloudflare.
+`wasmModuleImports: boolean`
 
-```typescript
-import { type APIContext, type EndpointOutput } from 'astro';
+Cloudflare has native support for importing `.wasm` files [directly as ES modules](https://github.com/WebAssembly/esm-integration/tree/main/proposals/esm-integration). To enable importing them as modules in the cloudflare build and astro dev server, add `wasmModuleImports: true` to your config.
+
+```diff
+import {defineConfig} from "astro/config";
+import cloudflare from '@astrojs/cloudflare';
+
+export default defineConfig({
+    adapter: cloudflare({
++       wasmModuleImports: true
+    }),
+	  output: 'server'
+})
+```
+
+Once enabled, you can import a web assembly module in astro with a `.wasm?module` import
+
+```javascript
+// pages/add/[a]/[b].js
 import mod from '../util/add.wasm?module';
 
+// instantiate ahead of time to share module
 const addModule: any = new WebAssembly.Instance(mod);
 
-export async function GET(context: APIContext): Promise<EndpointOutput | Response> {
-  return new Response(JSON.stringify({ answer: addModule.exports.add(40, 2) }), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+export async function GET(context) {
+  const a = Number.parseInt(context.params.a!);
+	const b = Number.parseInt(context.params.b!);
+  return new Response(`${a} + ${b} = ${addModule.exports.add(a, b)}`);
 }
 ```
 

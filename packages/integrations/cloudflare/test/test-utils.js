@@ -28,15 +28,15 @@ export async function runCLI(
 	basePath,
 	{
 		silent,
-		retryTimeout = 3,
-		timeoutMillis = 1000,
-		backoffFactor = 3,
+		maxAttempts = 3,
+		timeoutMillis = 2500, // really short because it often seems to just hang on the first try, but work subsequently, no matter the wait
+		backoffFactor = 2, // | - 2.5s -- 5s ---- 10s -> onTimeout
 		onTimeout = (ex) => {
-			new Error(`Timed out starting the wrangler CLI after ${retryTimeout} tries.`, { cause: ex });
+			new Error(`Timed out starting the wrangler CLI after ${maxAttempts} tries.`, { cause: ex });
 		},
 	}
 ) {
-	let triesRemaining = retryTimeout;
+	let triesRemaining = maxAttempts;
 	let timeout = timeoutMillis;
 	let cli;
 	let lastErr;
@@ -58,7 +58,7 @@ export async function runCLI(
 }
 
 async function tryRunCLI(basePath, { silent, timeout }) {
-	const port = await getNextOpenPort(lastPort + 1);
+	const port = await getNextOpenPort(lastPort);
 	lastPort = port;
 
 	const fixtureDir = fileURLToPath(new URL(`${basePath}`, import.meta.url));

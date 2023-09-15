@@ -6,9 +6,11 @@ import { type Plugin } from 'vite';
  * Loads '*.wasm?module' imports as WebAssembly modules, which is the only way to load WASM in cloudflare workers.
  * Current proposal for WASM modules: https://github.com/WebAssembly/esm-integration/tree/main/proposals/esm-integration
  * Cloudflare worker WASM from javascript support: https://developers.cloudflare.com/workers/runtime-apis/webassembly/javascript/
+ * @param disabled - if true throws a helpful error message if wasm is encountered and wasm imports are not enabled,
+ * 								otherwise it will error obscurely in the esbuild and vite builds
  * @returns Vite plugin to load WASM tagged with '?module' as a WASM modules
  */
-export function wasmModuleLoader(): Plugin {
+export function wasmModuleLoader(disabled: boolean): Plugin {
 	const postfix = '.wasm?module';
 	let isDev = false;
 
@@ -29,6 +31,11 @@ export function wasmModuleLoader(): Plugin {
 		load(id, _) {
 			if (!id.endsWith(postfix)) {
 				return;
+			}
+			if (disabled) {
+				throw new Error(
+					`WASM module's cannot be loaded unless you add \`wasmModuleImports: true\` to your astro config.`
+				);
 			}
 
 			const filePath = id.slice(0, -1 * '?module'.length);

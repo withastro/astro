@@ -3,7 +3,8 @@ import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
 	adapter: cloudflare({
-		mode: 'directory'
+		mode: 'directory',
+		wasmModuleImports: true
 	}),
 	output: 'server'
 });

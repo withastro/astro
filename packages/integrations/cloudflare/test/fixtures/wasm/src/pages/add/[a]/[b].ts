@@ -1,6 +1,6 @@
 import { type APIContext, type EndpointOutput } from 'astro';
 // @ts-ignore
-import mod from '../util/add.wasm?module';
+import mod from '../../../util/add.wasm?module';
 
 const addModule: any = new WebAssembly.Instance(mod);
 
@@ -8,8 +8,9 @@ const addModule: any = new WebAssembly.Instance(mod);
 export async function GET(
   context: APIContext
 ): Promise<EndpointOutput | Response> {
-
-  return new Response(JSON.stringify({ answer: addModule.exports.add(40, 2) }), {
+	const a = Number.parseInt(context.params.a!);
+	const b = Number.parseInt(context.params.b!);
+  return new Response(JSON.stringify({ answer: addModule.exports.add(a, b) }), {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
