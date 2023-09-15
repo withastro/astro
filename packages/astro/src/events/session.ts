@@ -2,24 +2,6 @@ import type { AstroUserConfig } from '../@types/astro.js';
 
 const EVENT_SESSION = 'ASTRO_CLI_SESSION_STARTED';
 
-interface ConfigInfo {
-	markdownPlugins: string[];
-	adapter: string | null;
-	integrations: string[];
-	trailingSlash: undefined | 'always' | 'never' | 'ignore';
-	build:
-		| undefined
-		| {
-				format: undefined | 'file' | 'directory';
-		  };
-	markdown:
-		| undefined
-		| {
-				drafts: undefined | boolean;
-				syntaxHighlight: undefined | 'shiki' | 'prism' | false;
-		  };
-}
-
 interface EventPayload {
 	cliCommand: string;
 	config?: ConfigInfo;
@@ -28,42 +10,90 @@ interface EventPayload {
 	optionalIntegrations?: number;
 }
 
-const multiLevelKeys = new Set([
-	'build',
-	'markdown',
-	'markdown.shikiConfig',
-	'server',
-	'vite',
-	'vite.resolve',
-	'vite.css',
-	'vite.json',
-	'vite.server',
-	'vite.server.fs',
-	'vite.build',
-	'vite.preview',
-	'vite.optimizeDeps',
-	'vite.ssr',
-	'vite.worker',
-]);
-function configKeys(obj: Record<string, any> | undefined, parentKey: string): string[] {
-	if (!obj) {
-		return [];
-	}
+// Utility Types
+type ConfigInfoShape<T> = Record<keyof T, string | boolean | string[] | undefined>;
+type ConfigInfoNested<T> = Record<keyof T, string | boolean | string[] | undefined | object>;
+type AssertKeysEqual<X extends ConfigInfoShape<Y>, Y extends Record<keyof X, any>> = never;
+type AssertKeysEqualDeep<X extends ConfigInfoNested<Y>, Y extends Record<keyof X, any>> = never;
 
-	return Object.entries(obj)
-		.map(([key, value]) => {
-			if (typeof value === 'object' && !Array.isArray(value)) {
-				const localKey = parentKey ? parentKey + '.' + key : key;
-				if (multiLevelKeys.has(localKey)) {
-					let keys = configKeys(value, localKey).map((subkey) => key + '.' + subkey);
-					keys.unshift(key);
-					return keys;
-				}
-			}
+// Type Assertions!
+// This will throw if createAnonymousConfigInfo() does not match the AstroUserConfig interface.
+// To fix: Analyze the error and update createAnonymousConfigInfo() below.
+type ConfigInfo = ReturnType<typeof createAnonymousConfigInfo>;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type Assertions = [
+	AssertKeysEqualDeep<ConfigInfo, Required<AstroUserConfig>>,
+	AssertKeysEqual<ConfigInfo['build'], Required<NonNullable<AstroUserConfig['build']>>>,
+	AssertKeysEqual<ConfigInfo['image'], Required<NonNullable<AstroUserConfig['image']>>>,
+	AssertKeysEqual<ConfigInfo['markdown'], Required<NonNullable<AstroUserConfig['markdown']>>>,
+	AssertKeysEqual<
+		ConfigInfo['experimental'],
+		Required<NonNullable<AstroUserConfig['experimental']>>
+	>,
+	AssertKeysEqual<ConfigInfo['legacy'], Required<NonNullable<AstroUserConfig['legacy']>>>,
+];
 
-			return key;
-		})
-		.flat(1);
+/**
+ * This function creates an anonymous "config info" object from the user's config.
+ * All values are sanitized to preserve anonymity.
+ * Complex values should be cast to simple booleans/strings where possible.
+ * `undefined` means that the value is not tracked.
+ * This verbose implementation helps keep the implemetation up-to-date.
+ */
+function createAnonymousConfigInfo(userConfig?: AstroUserConfig) {
+	return {
+		adapter: userConfig?.adapter?.name ?? undefined,
+		build: {
+			format: userConfig?.build?.format,
+			client: undefined,
+			server: undefined,
+			assets: undefined,
+			assetsPrefix: undefined,
+			serverEntry: undefined,
+			redirects: undefined,
+			inlineStylesheets: undefined,
+			excludeMiddleware: undefined,
+			split: undefined,
+		},
+		base: undefined,
+		cacheDir: undefined,
+		compressHTML: undefined,
+		image: {
+			endpoint: undefined,
+			service: undefined,
+			domains: undefined,
+			remotePatterns: undefined,
+		},
+		integrations: userConfig?.integrations
+			?.flat()
+			.map((i) => i && i.name)
+			.filter((i) => i && i.startsWith('@astrojs/')) as string[],
+		markdown: {
+			drafts: undefined,
+			shikiConfig: undefined,
+			syntaxHighlight: userConfig?.markdown?.syntaxHighlight,
+			remarkPlugins: undefined,
+			remarkRehype: undefined,
+			gfm: undefined,
+			smartypants: undefined,
+			rehypePlugins: undefined,
+		},
+		outDir: undefined,
+		output: userConfig?.output,
+		publicDir: undefined,
+		redirects: userConfig?.redirects,
+		root: undefined,
+		scopedStyleStrategy: userConfig?.scopedStyleStrategy,
+		server: undefined,
+		site: undefined,
+		srcDir: undefined,
+		trailingSlash: userConfig?.trailingSlash,
+		vite: undefined,
+		experimental: {
+			optimizeHoistedScript: userConfig?.experimental?.optimizeHoistedScript,
+		},
+		legacy: {},
+	};
 }
 
 export function eventCliSession(
@@ -71,44 +101,12 @@ export function eventCliSession(
 	userConfig?: AstroUserConfig,
 	flags?: Record<string, any>
 ): { eventName: string; payload: EventPayload }[] {
-	// Filter out falsy integrations
-	const configValues = userConfig
-		? {
-				markdownPlugins: [
-					...(userConfig?.markdown?.remarkPlugins?.map((p) =>
-						typeof p === 'string' ? p : typeof p
-					) ?? []),
-					...(userConfig?.markdown?.rehypePlugins?.map((p) =>
-						typeof p === 'string' ? p : typeof p
-					) ?? []),
-				] as string[],
-				adapter: userConfig?.adapter?.name ?? null,
-				integrations: (userConfig?.integrations ?? [])
-					.filter(Boolean)
-					.flat()
-					.map((i: any) => i?.name),
-				trailingSlash: userConfig?.trailingSlash,
-				build: userConfig?.build
-					? {
-							format: userConfig?.build?.format,
-					  }
-					: undefined,
-				markdown: userConfig?.markdown
-					? {
-							drafts: userConfig.markdown?.drafts,
-							syntaxHighlight: userConfig.markdown?.syntaxHighlight,
-					  }
-					: undefined,
-		  }
-		: undefined;
-
 	// Filter out yargs default `_` flag which is the cli command
 	const cliFlags = flags ? Object.keys(flags).filter((name) => name != '_') : undefined;
 
 	const payload: EventPayload = {
 		cliCommand,
-		configKeys: userConfig ? configKeys(userConfig, '') : undefined,
-		config: configValues,
+		config: createAnonymousConfigInfo(userConfig),
 		flags: cliFlags,
 	};
 	return [{ eventName: EVENT_SESSION, payload }];
