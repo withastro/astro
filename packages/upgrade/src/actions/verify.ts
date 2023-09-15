@@ -1,4 +1,4 @@
-import type { Context, PackageInfo } from './context';
+import type { Context, PackageInfo } from './context.js';
 
 import dns from 'node:dns/promises';
 import { existsSync } from 'node:fs';
@@ -60,7 +60,7 @@ async function verifyAstroProject(ctx: Pick<Context, 'cwd' | 'version' | 'packag
 	
 	// Side-effect! Persist dependency info to the shared context
 	collectPackageInfo(ctx, dependencies, devDependencies);
-	ctx.packages.sort((a) => {
+	ctx.packages.sort((a: PackageInfo) => {
 		if (a.name === 'astro') return -1;
 		return 0;
 	})
