@@ -663,4 +663,37 @@ test.describe('View Transitions', () => {
 		locator = page.locator('#click-one');
 		await expect(locator).not.toBeInViewport();
 	});
+
+	test.only('Use the client side router', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/six'));
+		// page six loads the router and automatically uses the router to navigate to page 1
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// nudge to jump to page 2
+		await page.evaluate(() => {
+			window.dispatchEvent(new Event('jumpToTwo'));
+		});
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		// jump to page 3
+		await page.evaluate(() => {
+			// get the router from its fixture park position
+			const goto = window.clientSideRouterForTestsParkedHere;
+			goto('/three');
+		});
+		p = page.locator('#three');
+		await expect(p, 'should have content').toHaveText('Page 3');
+
+		// go back
+		await page.goBack();
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		// no bad things happen when we revisit redirecting to page 6
+		await page.goto(astro.resolveUrl('/six'));
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+	});
 });

@@ -15,7 +15,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		supportsViewTransitions,
 		transitionEnabledOnThisPage,
 		goto,
-	} from 'astro:transitions/router';
+	} from 'astro:transitions/client';
 	export type Fallback = 'none' | 'animate' | 'swap';
 
 	function getFallback(): Fallback {

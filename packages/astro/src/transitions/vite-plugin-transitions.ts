@@ -2,8 +2,8 @@ import * as vite from 'vite';
 
 const virtualModuleId = 'astro:transitions';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
-const routerVirtualModuleId = 'astro:transitions/router';
-const routerResolvedVirtualModuleId = '\0' + routerVirtualModuleId;
+const virtualClientModuleId = 'astro:transitions/client';
+const resolvedVirtualClientModuleId = '\0' + virtualClientModuleId;
 
 // The virtual module for the astro:transitions namespace
 export default function astroTransitions(): vite.Plugin {
@@ -13,8 +13,8 @@ export default function astroTransitions(): vite.Plugin {
 			if (id === virtualModuleId) {
 				return resolvedVirtualModuleId;
 			}
-			if (id === routerVirtualModuleId) {
-				return routerResolvedVirtualModuleId;
+			if (id === virtualClientModuleId) {
+				return resolvedVirtualClientModuleId;
 			}
 		},
 		load(id) {
@@ -24,7 +24,7 @@ export default function astroTransitions(): vite.Plugin {
 				export { default as ViewTransitions } from "astro/components/ViewTransitions.astro";
 			`;
 			}
-			if (id === routerResolvedVirtualModuleId) {
+			if (id === resolvedVirtualClientModuleId) {
 				return `
 				export * from "astro/transitions/router";
 			`;

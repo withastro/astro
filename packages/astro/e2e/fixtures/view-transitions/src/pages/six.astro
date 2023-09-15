@@ -1,0 +1,17 @@
+---
+import Layout from '../components/Layout.astro';
+---
+<Layout>
+	<p id="six">Page 6</p>
+	<a id="click-one" href="/one">test</a>
+	<div id="test">test content</div>
+	<script>
+		import { goto } from "astro:transitions/client";
+
+		window.addEventListener('jumpToTwo', ()=>goto('/two'));
+
+		window.clientSideRouterForTestsParkedHere = goto
+
+		goto('/one');
+	</script>
+</Layout>
