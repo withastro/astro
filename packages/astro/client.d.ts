@@ -126,7 +126,7 @@ declare module 'astro:transitions/client' {
 	type TransitionRouterModule = typeof import('./dist/transitions/router.js');
 	export const supportsViewTransitions: TransitionRouterModule['supportsViewTransitions'];
 	export const transitionEnabledOnThisPage: TransitionRouterModule['transitionEnabledOnThisPage'];
-	export const goto: TransitionRouterModule['goto'];
+	export const navigate: TransitionRouterModule['navigate'];
 }
 
 declare module 'astro:middleware' {

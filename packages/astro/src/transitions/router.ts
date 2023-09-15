@@ -276,7 +276,7 @@ async function updateDOM(doc: Document, loc: URL, state?: State, fallback?: Fall
 	}
 }
 
-async function navigate(dir: Direction, loc: URL, state?: State) {
+async function transition(dir: Direction, loc: URL, state?: State) {
 	let finished: Promise<void>;
 	const href = loc.href;
 	const { html, ok, mediaType, redirected } = await getHTML(href);
@@ -314,7 +314,7 @@ async function navigate(dir: Direction, loc: URL, state?: State) {
 	}
 }
 
-export function goto(href: string) {
+export function navigate(href: string) {
 	const link = new URL(href, location.href);
 	// We do not need to handle same page links because there are no page transitions
 	// Same page means same path and same query params (but different hash)
@@ -337,7 +337,7 @@ export function goto(href: string) {
 		return;
 	}
 	// these are the cases we will handle: same origin, different page
-	navigate('forward', link);
+	transition('forward', link);
 }
 
 addEventListener('popstate', (ev) => {
@@ -375,7 +375,7 @@ addEventListener('popstate', (ev) => {
 	if (state.scrollY < 0) {
 		scrollTo(state.scrollX, -(state.scrollY + 1));
 	} else {
-		navigate(direction, new URL(location.href), state);
+		transition(direction, new URL(location.href), state);
 	}
 });
 

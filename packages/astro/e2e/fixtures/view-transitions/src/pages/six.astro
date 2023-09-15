@@ -6,15 +6,15 @@ import Layout from '../components/Layout.astro';
 	<a id="click-one" href="/one">test</a>
 	<div id="test">test content</div>
 	<script>
-		import { goto } from "astro:transitions/client";
+		import { navigate } from "astro:transitions/client";
 
 		// this is to simulate client side use, will be triggered from test
-		window.addEventListener('jumpToTwo', ()=>goto('/two'));
+		window.addEventListener('jumpToTwo', ()=>navigate('/two'));
 
 		// this is a holder to pick up the router in additional tests
-		window.clientSideRouterForTestsParkedHere = goto
+		window.clientSideRouterForTestsParkedHere = navigate
 
 		// this is the direct use of the router in this page, redirecting to page one 
-		goto('/one');
+		navigate('/one');
 	</script>
 </Layout>

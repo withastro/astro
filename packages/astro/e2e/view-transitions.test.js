@@ -664,7 +664,7 @@ test.describe('View Transitions', () => {
 		await expect(locator).not.toBeInViewport();
 	});
 
-	test.only('Use the client side router', async ({ page, astro }) => {
+	test('Use the client side router', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/six'));
 		// page six loads the router and automatically uses the router to navigate to page 1
 		let p = page.locator('#one');
@@ -680,8 +680,8 @@ test.describe('View Transitions', () => {
 		// jump to page 3
 		await page.evaluate(() => {
 			// get the router from its fixture park position
-			const goto = window.clientSideRouterForTestsParkedHere;
-			goto('/three');
+			const navigate = window.clientSideRouterForTestsParkedHere;
+			navigate('/three');
 		});
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
