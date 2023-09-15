@@ -1,3 +1,17 @@
+export type VercelSpeedInsightsConfig = {
+	enabled: boolean;
+};
+
+export function getSpeedInsightsViteConfig(enabled?: boolean) {
+	if (enabled) {
+		return {
+			define: exposeEnv(['VERCEL_ANALYTICS_ID']),
+		};
+	}
+
+	return {};
+}
+
 /**
  * While Vercel adds the `PUBLIC_` prefix for their `VERCEL_` env vars by default, some env vars
  * like `VERCEL_ANALYTICS_ID` aren't, so handle them here so that it works correctly in runtime.
