@@ -1,21 +1,21 @@
 {
-	"name": "Component Template",
-	"build": {
-		"dockerfile": "../examples.Dockerfile"
-	},
+  "name": "Component Template",
+  "build": {
+    "dockerfile": "../examples.Dockerfile"
+  },
 
-	"workspaceFolder": "/workspaces/astro/examples/component",
+  "workspaceFolder": "/workspaces/astro/examples/component",
 
-	"postCreateCommand": "pnpm install && cd /workspaces/astro && pnpm run build",
+  "postCreateCommand": "pnpm install && cd /workspaces/astro && pnpm run build",
 
-	"waitFor": "postCreateCommand",
+  "waitFor": "postCreateCommand",
 
-	"customizations": {
-		"codespaces": {
-			"openFiles": ["src/MyComponent.astro"]
-		},
-		"vscode": {
-			"extensions": ["astro-build.astro-vscode", "esbenp.prettier-vscode"]
-		}
-	}
+  "customizations": {
+    "codespaces": {
+      "openFiles": ["src/MyComponent.astro"]
+    },
+    "vscode": {
+      "extensions": ["astro-build.astro-vscode", "esbenp.prettier-vscode"]
+    }
+  }
 }

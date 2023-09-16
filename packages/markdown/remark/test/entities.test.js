@@ -1,5 +1,5 @@
-import { createMarkdownProcessor } from '../dist/index.js';
 import { expect } from 'chai';
+import { createMarkdownProcessor } from '../dist/index.js';
 
 describe('entities', async () => {
 	const processor = await createMarkdownProcessor();

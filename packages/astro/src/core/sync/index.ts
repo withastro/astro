@@ -1,8 +1,8 @@
-import { dim } from 'kleur/colors';
 import fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import { createServer, type HMRPayload } from 'vite';
+import { dim } from 'kleur/colors';
+import { type HMRPayload, createServer } from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';

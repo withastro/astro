@@ -1,7 +1,7 @@
 import type { Context } from './context.js';
 
-import { color } from '@astrojs/cli-kit';
 import dns from 'node:dns/promises';
+import { color } from '@astrojs/cli-kit';
 import { bannerAbort, error, info, log } from '../messages.js';
 import { getTemplateTarget } from './template.js';
 

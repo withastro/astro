@@ -1,3 +1,5 @@
+import type { OutgoingHttpHeaders } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -8,8 +10,6 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
-import type { OutgoingHttpHeaders } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
@@ -148,7 +148,7 @@ export interface CLIFlags {
 export interface AstroGlobal<
 	Props extends Record<string, any> = Record<string, any>,
 	Self = AstroComponentFactory,
-	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
+	Params extends Record<string, string | undefined> = Record<string, string | undefined>
 > extends AstroGlobalPartial,
 		AstroSharedContext<Props, Params> {
 	/**
@@ -281,7 +281,7 @@ export interface AstroGlobal<
 }
 
 /** Union type of supported markdown file extensions */
-type MarkdowFileExtension = (typeof SUPPORTED_MARKDOWN_FILE_EXTENSIONS)[number];
+type MarkdowFileExtension = typeof SUPPORTED_MARKDOWN_FILE_EXTENSIONS[number];
 
 export interface AstroGlobalPartial {
 	/**
@@ -1751,7 +1751,7 @@ export interface Page<T = any> {
 export type PaginateFunction = <
 	PaginateData,
 	AdditionalPaginateProps extends Props,
-	AdditionalPaginateParams extends Params,
+	AdditionalPaginateParams extends Params
 >(
 	data: PaginateData[],
 	args?: PaginateOptions<AdditionalPaginateProps, AdditionalPaginateParams>
@@ -1825,7 +1825,7 @@ export type ValidRedirectStatus = 300 | 301 | 302 | 303 | 304 | 307 | 308;
 // Shared types between `Astro` global and API context object
 interface AstroSharedContext<
 	Props extends Record<string, any> = Record<string, any>,
-	RouteParams extends Record<string, string | undefined> = Record<string, string | undefined>,
+	RouteParams extends Record<string, string | undefined> = Record<string, string | undefined>
 > {
 	/**
 	 * The address (usually IP address) of the user. Used with SSR only.
@@ -1864,7 +1864,7 @@ interface AstroSharedContext<
 
 export interface APIContext<
 	Props extends Record<string, any> = Record<string, any>,
-	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>,
+	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>
 > extends AstroSharedContext<Props, Params> {
 	site: URL | undefined;
 	generator: string;
@@ -2009,7 +2009,7 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 
 export type HookParameters<
 	Hook extends keyof AstroIntegration['hooks'],
-	Fn = AstroIntegration['hooks'][Hook],
+	Fn = AstroIntegration['hooks'][Hook]
 > = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
 
 export interface AstroIntegration {

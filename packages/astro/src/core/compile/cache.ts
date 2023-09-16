@@ -1,5 +1,5 @@
 import type { AstroConfig } from '../../@types/astro.js';
-import { compile, type CompileProps, type CompileResult } from './compile.js';
+import { type CompileProps, type CompileResult, compile } from './compile.js';
 
 type CompilationCache = Map<string, CompileResult>;
 

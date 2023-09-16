@@ -2,7 +2,7 @@ import type http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { performance } from 'perf_hooks';
 import enableDestroy from 'server-destroy';
-import { preview, type PreviewServer as VitePreviewServer } from 'vite';
+import { type PreviewServer as VitePreviewServer, preview } from 'vite';
 import type { AstroSettings } from '../../@types/astro.js';
 import type { Logger } from '../logger/core.js';
 import * as msg from '../messages.js';

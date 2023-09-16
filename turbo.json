@@ -1,47 +1,47 @@
 {
-	"$schema": "https://turborepo.org/schema.json",
-	"pipeline": {
-		"build": {
-			"dependsOn": ["^build"],
-			"inputs": [
-				"**/*",
-				"!test/**/*",
-				"!e2e/**/*",
-				"!performance/**/*",
-				"!.astro/**/*",
-				"!.cache/**/*",
-				"!mod.js",
-				"!mod.js.map"
-			],
-			"outputs": ["dist/**/*", "!vendor/**", "mod.js", "mod.js.map"],
-			"outputMode": "new-only"
-		},
-		"build:ci": {
-			"dependsOn": ["^build:ci"],
-			"inputs": [
-				"**/*",
-				"!test/**/*",
-				"!e2e/**/*",
-				"!performance/**/*",
-				"!.astro/**/*",
-				"!.cache/**/*",
-				"!mod.js",
-				"!mod.js.map"
-			],
-			"outputs": ["dist/**/*", "!vendor/**", "mod.js", "mod.js.map"],
-			"outputMode": "new-only"
-		},
-		"dev": {
-			"cache": false,
-			"persistent": true
-		},
-		"test": {
-			"env": ["RUNNER_OS", "NODE_VERSION"],
-			"outputMode": "new-only"
-		},
-		"test:hosted": {
-			"outputMode": "new-only",
-			"cache": false
-		}
-	}
+  "$schema": "https://turborepo.org/schema.json",
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "**/*",
+        "!test/**/*",
+        "!e2e/**/*",
+        "!performance/**/*",
+        "!.astro/**/*",
+        "!.cache/**/*",
+        "!mod.js",
+        "!mod.js.map"
+      ],
+      "outputs": ["dist/**/*", "!vendor/**", "mod.js", "mod.js.map"],
+      "outputMode": "new-only"
+    },
+    "build:ci": {
+      "dependsOn": ["^build:ci"],
+      "inputs": [
+        "**/*",
+        "!test/**/*",
+        "!e2e/**/*",
+        "!performance/**/*",
+        "!.astro/**/*",
+        "!.cache/**/*",
+        "!mod.js",
+        "!mod.js.map"
+      ],
+      "outputs": ["dist/**/*", "!vendor/**", "mod.js", "mod.js.map"],
+      "outputMode": "new-only"
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "test": {
+      "env": ["RUNNER_OS", "NODE_VERSION"],
+      "outputMode": "new-only"
+    },
+    "test:hosted": {
+      "outputMode": "new-only",
+      "cache": false
+    }
+  }
 }

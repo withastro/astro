@@ -1,5 +1,5 @@
 import type { AstroComponentMetadata } from 'astro';
-import { Component as BaseComponent, h, type VNode } from 'preact';
+import { Component as BaseComponent, type VNode, h } from 'preact';
 import { render } from 'preact-render-to-string';
 import { getContext } from './context.js';
 import { restoreSignalsOnProps, serializeSignals } from './signals.js';

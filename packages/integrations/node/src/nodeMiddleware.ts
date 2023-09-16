@@ -1,6 +1,6 @@
-import type { NodeApp } from 'astro/app/node';
 import type { ServerResponse } from 'node:http';
 import type { Readable } from 'stream';
+import type { NodeApp } from 'astro/app/node';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import { responseIterator } from './response-iterator.js';
 import type { ErrorHandlerParams, Options, RequestHandlerParams } from './types.js';

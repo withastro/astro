@@ -12,9 +12,8 @@ export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
 // Name is pretty self descriptive, but it removes the index signature of an object
 export type OmitIndexSignature<ObjectType> = {
-	[KeyType in keyof ObjectType as {} extends Record<KeyType, unknown>
-		? never
-		: KeyType]: ObjectType[KeyType];
+	[KeyType in
+		keyof ObjectType as {} extends Record<KeyType, unknown> ? never : KeyType]: ObjectType[KeyType];
 };
 
 // Transform a string into its kebab case equivalent (camelCase -> kebab-case). Useful for CSS-in-JS to CSS.

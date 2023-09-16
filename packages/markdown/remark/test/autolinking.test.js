@@ -1,5 +1,5 @@
-import { createMarkdownProcessor } from '../dist/index.js';
 import chai from 'chai';
+import { createMarkdownProcessor } from '../dist/index.js';
 
 describe('autolinking', () => {
 	describe('plain md', async () => {

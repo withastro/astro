@@ -1,9 +1,9 @@
 import type {
 	RouteData,
-	SerializedRouteData,
 	SSRComponentMetadata,
 	SSRLoadedRenderer,
 	SSRResult,
+	SerializedRouteData,
 } from '../../@types/astro.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 

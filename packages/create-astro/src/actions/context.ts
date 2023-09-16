@@ -1,7 +1,7 @@
+import os from 'node:os';
 import { prompt } from '@astrojs/cli-kit';
 import { random } from '@astrojs/cli-kit/utils';
 import arg from 'arg';
-import os from 'node:os';
 
 import { getName, getVersion } from '../messages.js';
 

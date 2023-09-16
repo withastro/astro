@@ -21,3 +21,4 @@ pnpm-lock.yaml
 *.mjs
 *.cjs
 *.json
+*.jsonc

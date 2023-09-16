@@ -1,16 +1,16 @@
 import type { IncomingRequestCfProperties } from '@cloudflare/workers-types/experimental';
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import { sep } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
 import { CacheStorage } from '@miniflare/cache';
 import { NoOpLog } from '@miniflare/shared';
 import { MemoryStorage } from '@miniflare/storage-memory';
 import { AstroError } from 'astro/errors';
 import esbuild from 'esbuild';
-import * as fs from 'node:fs';
-import * as os from 'node:os';
-import { sep } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'tiny-glob';
 import { getEnvVars } from './parser.js';
 

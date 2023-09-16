@@ -1,5 +1,5 @@
-import glob from 'fast-glob';
 import { fileURLToPath } from 'node:url';
+import glob from 'fast-glob';
 import type { OutputChunk } from 'rollup';
 import { type Plugin as VitePlugin } from 'vite';
 import { runHookBuildSsr } from '../../../integrations/index.js';
@@ -9,7 +9,7 @@ import { joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
-import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
+import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 

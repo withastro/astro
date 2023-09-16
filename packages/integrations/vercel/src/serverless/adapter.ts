@@ -1,3 +1,5 @@
+import { basename } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type {
 	AstroAdapter,
 	AstroConfig,
@@ -7,24 +9,22 @@ import type {
 } from 'astro';
 import { AstroError } from 'astro/errors';
 import glob from 'fast-glob';
-import { basename } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
-	getAstroImageConfig,
-	getDefaultImageConfig,
 	type DevImageService,
 	type VercelImageConfig,
+	getAstroImageConfig,
+	getDefaultImageConfig,
 } from '../image/shared.js';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
 import {
-	getSpeedInsightsViteConfig,
 	type VercelSpeedInsightsConfig,
+	getSpeedInsightsViteConfig,
 } from '../lib/speed-insights.js';
 import {
-	getInjectableWebAnalyticsContent,
 	type VercelWebAnalyticsConfig,
+	getInjectableWebAnalyticsContent,
 } from '../lib/web-analytics.js';
 import { generateEdgeMiddleware } from './middleware.js';
 
@@ -250,9 +250,7 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 					const getRouteFuncName = (route: RouteData) => route.component.replace('src/pages/', '');
 
 					const getFallbackFuncName = (entryFile: URL) =>
-						basename(entryFile.toString())
-							.replace('entry.', '')
-							.replace(/\.mjs$/, '');
+						basename(entryFile.toString()).replace('entry.', '').replace(/\.mjs$/, '');
 
 					for (const [route, entryFile] of _entryPoints) {
 						const func = route.component.startsWith('src/pages/')

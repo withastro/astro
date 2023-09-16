@@ -1,21 +1,21 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
 import {
-	getAstroImageConfig,
-	getDefaultImageConfig,
 	type DevImageService,
 	type VercelImageConfig,
+	getAstroImageConfig,
+	getDefaultImageConfig,
 } from '../image/shared.js';
 import { emptyDir, getVercelOutput, writeJson } from '../lib/fs.js';
 import { isServerLikeOutput } from '../lib/prerender.js';
 import { getRedirects } from '../lib/redirects.js';
 import {
-	getSpeedInsightsViteConfig,
 	type VercelSpeedInsightsConfig,
+	getSpeedInsightsViteConfig,
 } from '../lib/speed-insights.js';
 import {
-	getInjectableWebAnalyticsContent,
 	type VercelWebAnalyticsConfig,
+	getInjectableWebAnalyticsContent,
 } from '../lib/web-analytics.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/static';

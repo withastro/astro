@@ -1,12 +1,12 @@
-import {
-	createMarkdownProcessor,
-	InvalidAstroDataError,
-	type MarkdownProcessor,
-} from '@astrojs/markdown-remark';
-import matter from 'gray-matter';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+	InvalidAstroDataError,
+	type MarkdownProcessor,
+	createMarkdownProcessor,
+} from '@astrojs/markdown-remark';
+import matter from 'gray-matter';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';

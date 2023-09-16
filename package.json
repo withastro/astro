@@ -15,8 +15,7 @@
     "dev": "turbo run dev --concurrency=40 --parallel --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
     "format": "pnpm run format:code",
     "format:ci": "pnpm run format:imports && pnpm run format:code",
-    "format:code": "prettier -w \"**/*\" --ignore-unknown --cache",
-    "format:imports": "organize-imports-cli ./packages/*/tsconfig.json ./packages/*/*/tsconfig.json",
+    "format:code": "biome check --apply-unsafe ./ && prettier -w \"**/*\" --ignore-unknown --cache",
     "test": "turbo run test --concurrency=1 --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
     "test:match": "cd packages/astro && pnpm run test:match",
     "test:unit": "cd packages/astro && pnpm run test:unit",
@@ -78,6 +77,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.1.0",
+    "@biomejs/biome": "1.2.1",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.26.2",
     "@types/node": "^18.17.8",
