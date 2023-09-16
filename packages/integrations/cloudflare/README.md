@@ -172,7 +172,7 @@ This optional flag enables the Astro dev server to populate environment variable
 
 ```js
 // astro.config.mjs
-import { defineConfig } from 'astro/config';
+import { defineConfig } from 'astro/config;'
 import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
@@ -196,7 +196,7 @@ See [Cloudflare's documentation](https://developers.cloudflare.com/pages/platfor
 
 ## Node.js compatibility
 
-Astro's Cloudflare adapter allows you to use the following Node.js runtime APIs (that are supported by Cloudflare):
+Astro's Cloudflare adapter allows you to use any Node.js runtime API supported by Cloudflare:
 
 - assert
 - AsyncLocalStorage
@@ -212,7 +212,7 @@ Astro's Cloudflare adapter allows you to use the following Node.js runtime APIs 
 To use these APIs, your page or endpoint must be server-side rendered (not pre-rendered) and must use the the `import {} from 'node:*'` import syntax. 
 
 ```js
-// put a file path for the endpoint here
+// pages/api/endpoint.js
 export const prerender = false;
 import { Buffer } from 'node:buffer';
 ```
