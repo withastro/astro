@@ -1,4 +1,9 @@
-import type { Params, RedirectRouteData, RouteData, ValidRedirectStatus } from '../../@types/astro';
+import type {
+	Params,
+	RedirectRouteData,
+	RouteData,
+	ValidRedirectStatus,
+} from '../../@types/astro.js';
 
 export function routeIsRedirect(route: RouteData | undefined): route is RedirectRouteData {
 	return route?.type === 'redirect';

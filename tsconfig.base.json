@@ -1,10 +1,12 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "declaration": true,
     "emitDeclarationOnly": true,
     "strict": true,
-    // All packages are built with ESBuild, so we can use `moduleResolution: 'bundler'`
-    "moduleResolution": "Bundler",
+    "moduleResolution": "Node16",
+    "target": "ES2022",
+    "module": "Node16",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "verbatimModuleSyntax": true

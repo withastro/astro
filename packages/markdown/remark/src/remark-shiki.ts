@@ -1,7 +1,7 @@
 import type * as shiki from 'shiki';
 import { getHighlighter } from 'shiki';
 import { visit } from 'unist-util-visit';
-import type { ShikiConfig } from './types.js';
+import type { RemarkPlugin, ShikiConfig } from './types.js';
 
 /**
  * getHighlighter() is the most expensive step of Shiki. Instead of calling it on every page,
@@ -10,10 +10,11 @@ import type { ShikiConfig } from './types.js';
  */
 const highlighterCacheAsync = new Map<string, Promise<shiki.Highlighter>>();
 
-const remarkShiki = async (
-	{ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig,
-	scopedClassName?: string | null
-) => {
+export function remarkShiki({
+	langs = [],
+	theme = 'github-dark',
+	wrap = false,
+}: ShikiConfig = {}): ReturnType<RemarkPlugin> {
 	const cacheID: string = typeof theme === 'string' ? theme : theme.name;
 	let highlighterAsync = highlighterCacheAsync.get(cacheID);
 	if (!highlighterAsync) {
@@ -35,15 +36,22 @@ const remarkShiki = async (
 		});
 		highlighterCacheAsync.set(cacheID, highlighterAsync);
 	}
-	const highlighter = await highlighterAsync;
 
-	// NOTE: There may be a performance issue here for large sites that use `lang`.
-	// Since this will be called on every page load. Unclear how to fix this.
-	for (const lang of langs) {
-		await highlighter.loadLanguage(lang);
-	}
+	let highlighter: shiki.Highlighter;
 
-	return () => (tree: any) => {
+	return async (tree: any) => {
+		// Lazily assign the highlighter as async can only happen within this function,
+		// and not on `remarkShiki` directly.
+		if (!highlighter) {
+			highlighter = await highlighterAsync!;
+
+			// NOTE: There may be a performance issue here for large sites that use `lang`.
+			// Since this will be called on every page load. Unclear how to fix this.
+			for (const lang of langs) {
+				await highlighter.loadLanguage(lang);
+			}
+		}
+
 		visit(tree, 'code', (node) => {
 			let lang: string;
 
@@ -69,10 +77,7 @@ const remarkShiki = async (
 			// &lt;span class=&quot;line&quot;
 
 			// Replace "shiki" class naming with "astro" and add "is:raw".
-			html = html.replace(
-				/<pre class="(.*?)shiki(.*?)"/,
-				`<pre is:raw class="$1astro-code$2${scopedClassName ? ' ' + scopedClassName : ''}"`
-			);
+			html = html.replace(/<pre class="(.*?)shiki(.*?)"/, `<pre is:raw class="$1astro-code$2"`);
 			// Add "user-select: none;" for "+"/"-" diff symbols
 			if (node.lang === 'diff') {
 				html = html.replace(
@@ -91,16 +96,9 @@ const remarkShiki = async (
 				);
 			}
 
-			// Apply scopedClassName to all nested lines
-			if (scopedClassName) {
-				html = html.replace(/\<span class="line"\>/g, `<span class="line ${scopedClassName}"`);
-			}
-
 			node.type = 'html';
 			node.value = html;
 			node.children = [];
 		});
 	};
-};
-
-export default remarkShiki;
+}

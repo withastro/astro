@@ -1,4 +1,4 @@
-import type { AstroConfig } from '../@types/astro';
+import type { AstroConfig } from '../@types/astro.js';
 import { getOutDirWithinCwd } from '../core/build/common.js';
 
 export function isServerLikeOutput(config: AstroConfig) {

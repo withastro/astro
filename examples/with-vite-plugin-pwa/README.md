@@ -1,6 +1,6 @@
 # Astro Starter Kit: Vite PWA
 
-```
+```sh
 npm create astro@latest -- --template with-vite-plugin-pwa
 ```
 
@@ -14,7 +14,7 @@ npm create astro@latest -- --template with-vite-plugin-pwa
 
 Inside of your Astro project, you'll see the following folders and files:
 
-```
+```text
 /
 ├── public/
 ├── src/

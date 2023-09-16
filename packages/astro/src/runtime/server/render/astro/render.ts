@@ -1,4 +1,4 @@
-import type { RouteData, SSRResult } from '../../../../@types/astro';
+import type { RouteData, SSRResult } from '../../../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../../../core/errors/index.js';
 import { chunkToByteArray, chunkToString, encoder, type RenderDestination } from '../common.js';
 import type { AstroComponentFactory } from './factory.js';

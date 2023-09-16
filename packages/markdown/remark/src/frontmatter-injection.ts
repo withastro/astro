@@ -27,6 +27,15 @@ export function safelyGetAstroData(vfileData: Data): MarkdownAstroData | Invalid
 	return astro;
 }
 
+export function setVfileFrontmatter(vfile: VFile, frontmatter: Record<string, any>) {
+	vfile.data ??= {};
+	vfile.data.astro ??= {};
+	(vfile.data.astro as any).frontmatter = frontmatter;
+}
+
+/**
+ * @deprecated Use `setVfileFrontmatter` instead
+ */
 export function toRemarkInitializeAstroData({
 	userFrontmatter,
 }: {

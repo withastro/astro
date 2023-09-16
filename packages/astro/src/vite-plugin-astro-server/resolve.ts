@@ -1,4 +1,4 @@
-import type { ModuleLoader } from '../core/module-loader';
+import type { ModuleLoader } from '../core/module-loader/index.js';
 import { resolveIdToUrl } from '../core/util.js';
 
 export function createResolve(loader: ModuleLoader, root: URL) {

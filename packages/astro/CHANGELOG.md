@@ -1,5 +1,104 @@
 # astro
 
+## 3.1.0
+
+### Minor Changes
+
+- [#8467](https://github.com/withastro/astro/pull/8467) [`ecc65abbf`](https://github.com/withastro/astro/commit/ecc65abbf9e086c5bbd1973cd4a820082b4e0dc5) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add a new `image.endpoint` setting to allow using a custom endpoint in dev and SSR
+
+- [#8518](https://github.com/withastro/astro/pull/8518) [`2c4fc878b`](https://github.com/withastro/astro/commit/2c4fc878bece36b7fcf1470419c7ce6f1e1e95d0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds support for using AVIF (`.avif`) files with the Image component. Importing an AVIF file will now correctly return the same object shape as other image file types. See the [Image docs](https://docs.astro.build/en/guides/images/#update-existing-img-tags) for more information on the different properties available on the returned object.
+
+- [#8464](https://github.com/withastro/astro/pull/8464) [`c92e0acd7`](https://github.com/withastro/astro/commit/c92e0acd715171b3f4c3294099780e21576648c8) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add types for the object syntax for `style` (ex: `style={{color: 'red'}}`)
+
+### Patch Changes
+
+- [#8532](https://github.com/withastro/astro/pull/8532) [`7522bb491`](https://github.com/withastro/astro/commit/7522bb4914f2f9e8b8f3c743bc9c941fd3aca644) Thanks [@bluwy](https://github.com/bluwy)! - Improve markdown rendering performance by sharing processor instance
+
+- [#8537](https://github.com/withastro/astro/pull/8537) [`f95febf96`](https://github.com/withastro/astro/commit/f95febf96bb97babb28d78994332f5e47f5f637d) Thanks [@martrapp](https://github.com/martrapp)! - bugfix checking media-type in client-side router
+
+- [#8536](https://github.com/withastro/astro/pull/8536) [`b85c8a78a`](https://github.com/withastro/astro/commit/b85c8a78a116dbbddc901438bc0b7a1917dc0238) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Improved error messages around `astro:assets`
+
+- [#7607](https://github.com/withastro/astro/pull/7607) [`45364c345`](https://github.com/withastro/astro/commit/45364c345267429e400baecd1fbc290503f8b13a) Thanks [@FineWolf](https://github.com/FineWolf)! - Add `CollectionKey`, `ContentCollectionKey`, and `DataCollectionKey` exports to `astro:content`
+
+- Updated dependencies [[`d93987824`](https://github.com/withastro/astro/commit/d93987824d3d6b4f58267be21ab8466ee8d5d5f8), [`7522bb491`](https://github.com/withastro/astro/commit/7522bb4914f2f9e8b8f3c743bc9c941fd3aca644)]:
+  - @astrojs/markdown-remark@3.2.0
+
+## 3.0.13
+
+### Patch Changes
+
+- [#8484](https://github.com/withastro/astro/pull/8484) [`78b82bb39`](https://github.com/withastro/astro/commit/78b82bb3929bee5d8d9bd32d65374956ddb05859) Thanks [@bb010g](https://github.com/bb010g)! - fix(astro): add support for `src/content/config.mts` files
+
+- [#8504](https://github.com/withastro/astro/pull/8504) [`5e1099f68`](https://github.com/withastro/astro/commit/5e1099f686abcc7026bd4fa74727f3b311c6d6d6) Thanks [@ematipico](https://github.com/ematipico)! - Minify the HTML of the redicts emitted during the build.
+
+- [#8480](https://github.com/withastro/astro/pull/8480) [`644825845`](https://github.com/withastro/astro/commit/644825845c11c8d100a9b0d16b69a23c165c529e) Thanks [@yamanoku](https://github.com/yamanoku)! - Do not add type="text/css" to inline style tag
+
+- [#8472](https://github.com/withastro/astro/pull/8472) [`fa77fa63d`](https://github.com/withastro/astro/commit/fa77fa63d944f709a37f08be93f0d14fe1d91188) Thanks [@matthewp](https://github.com/matthewp)! - Prevent client:only styles from being removed in dev (View Transitions)
+
+- [#8506](https://github.com/withastro/astro/pull/8506) [`23f9536de`](https://github.com/withastro/astro/commit/23f9536de0456ed2ddc9a77f7aef773ab6a8e73c) Thanks [@mascii](https://github.com/mascii)! - chore: correct description of `attribute` option in `scopedStyleStrategy`
+
+- [#8505](https://github.com/withastro/astro/pull/8505) [`2db9762eb`](https://github.com/withastro/astro/commit/2db9762eb06d8a95021556c64e0cbb56c61352d5) Thanks [@martrapp](https://github.com/martrapp)! - Restore horizontal scroll position on history navigation (view transitions)
+
+- [#8461](https://github.com/withastro/astro/pull/8461) [`435b10549`](https://github.com/withastro/astro/commit/435b10549878281ad2bb60207cb86f312a4a809f) Thanks [@rdwz](https://github.com/rdwz)! - Fix lang unspecified code blocks (markdownlint MD040)
+
+- [#8492](https://github.com/withastro/astro/pull/8492) [`a6a516d94`](https://github.com/withastro/astro/commit/a6a516d9446a50cc32fbd7201b243c63b3a4db43) Thanks [@xiBread](https://github.com/xiBread)! - fix(types): make `image.service` optional
+
+- [#8522](https://github.com/withastro/astro/pull/8522) [`43bc5f2a5`](https://github.com/withastro/astro/commit/43bc5f2a55173218bcfeec50242b72ae999930e2) Thanks [@martrapp](https://github.com/martrapp)! - let view transitions handle same origin redirects
+
+- [#8491](https://github.com/withastro/astro/pull/8491) [`0ca332ba4`](https://github.com/withastro/astro/commit/0ca332ba4ab82cc04872776398952867b0f43d33) Thanks [@martrapp](https://github.com/martrapp)! - Bugfixes for back navigation in the view transition client-side router
+
+## 3.0.12
+
+### Patch Changes
+
+- [#8449](https://github.com/withastro/astro/pull/8449) [`7eea37a07`](https://github.com/withastro/astro/commit/7eea37a075c6abb1de715de76d1911ff41e8ab13) Thanks [@matthewp](https://github.com/matthewp)! - Fix multi-layout head injection
+
+## 3.0.11
+
+### Patch Changes
+
+- [#8441](https://github.com/withastro/astro/pull/8441) [`f66053a1e`](https://github.com/withastro/astro/commit/f66053a1ea0a4e3bdb0b0df12bb1bf56e1ea2618) Thanks [@martrapp](https://github.com/martrapp)! - Only transition between pages where both have ViewTransitions enabled
+
+- [#8443](https://github.com/withastro/astro/pull/8443) [`0fa483283`](https://github.com/withastro/astro/commit/0fa483283e54c94f173838cd558dc0dbdd11e699) Thanks [@the-dijkstra](https://github.com/the-dijkstra)! - Fix "Cannot read properties of null" error in CLI code
+
+- Updated dependencies [[`f3f62a5a2`](https://github.com/withastro/astro/commit/f3f62a5a20f4881bb04f65f192df8e1ccf7fb601)]:
+  - @astrojs/markdown-remark@3.1.0
+
+## 3.0.10
+
+### Patch Changes
+
+- [#8437](https://github.com/withastro/astro/pull/8437) [`b3cf1b327`](https://github.com/withastro/astro/commit/b3cf1b32765c76cfc90e497a68280ad52f02cb1f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix imports of images with uppercased file extensions not working
+
+- [#8440](https://github.com/withastro/astro/pull/8440) [`b92d066b7`](https://github.com/withastro/astro/commit/b92d066b737f64f08a9cf293bd07c9263ef8f32d) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix issue where `renderToFinalDestination` would throw in internal Astro code
+
+## 3.0.9
+
+### Patch Changes
+
+- [#8351](https://github.com/withastro/astro/pull/8351) [`7d95bd9ba`](https://github.com/withastro/astro/commit/7d95bd9baaf755239fd7d35e4813861b2dbccf42) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixed a case where dynamic imports tried to preload inlined stylesheets.
+
+- [#8353](https://github.com/withastro/astro/pull/8353) [`1947ef7a9`](https://github.com/withastro/astro/commit/1947ef7a99ce3d1d6ea797842edd31d5edffa5de) Thanks [@elevatebart](https://github.com/elevatebart)! - Astro will now skip asset optimization when there is a query in the import. Instead, it will let vite deal with it using plugins.
+
+  ```vue
+  <script>
+  // This will not return an optimized asset
+  import Component from './Component.vue?component';
+  </script>
+  ```
+
+- [#8424](https://github.com/withastro/astro/pull/8424) [`61ad70fdc`](https://github.com/withastro/astro/commit/61ad70fdc52035964c43ecdb4cf7468f6c2b61e7) Thanks [@itsmatteomanf](https://github.com/itsmatteomanf)! - Fixes remote assets caching logic to not use expired assets
+
+- [#8306](https://github.com/withastro/astro/pull/8306) [`d2f2a11cd`](https://github.com/withastro/astro/commit/d2f2a11cdb42b0de79be21c798eda8e7e7b2a277) Thanks [@jacobthesheep](https://github.com/jacobthesheep)! - Support detecting Bun when logging messages with package manager information.
+
+- [#8414](https://github.com/withastro/astro/pull/8414) [`5126c6a40`](https://github.com/withastro/astro/commit/5126c6a40f88bff66ee5d3c3a21eea8c4a44ce7a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix missing type for `imageConfig` export from `astro:assets`
+
+- [#8416](https://github.com/withastro/astro/pull/8416) [`48ff7855b`](https://github.com/withastro/astro/commit/48ff7855b238536a3df17cb29335c90029fc41a4) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Installing will no longer fail when Sharp can't be installed
+
+- [#8418](https://github.com/withastro/astro/pull/8418) [`923a443cb`](https://github.com/withastro/astro/commit/923a443cb060a0e936a0e1cc87c0360232f77914) Thanks [@bluwy](https://github.com/bluwy)! - Fix markdown page HMR
+
+- [#8332](https://github.com/withastro/astro/pull/8332) [`8935b3b46`](https://github.com/withastro/astro/commit/8935b3b4672d6c54c7b79e6c4575298f75eeb9f4) Thanks [@martrapp](https://github.com/martrapp)! - Fix scroll position when navigating back from page w/o ViewTransitions
+
 ## 3.0.8
 
 ### Patch Changes

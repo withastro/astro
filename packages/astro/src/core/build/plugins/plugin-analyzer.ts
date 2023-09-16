@@ -1,6 +1,6 @@
 import type { ModuleInfo, PluginContext } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
-import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types';
+import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 

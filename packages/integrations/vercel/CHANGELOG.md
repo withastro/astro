@@ -1,5 +1,65 @@
 # @astrojs/vercel
 
+## 5.0.0
+
+### Major Changes
+
+- [#8445](https://github.com/withastro/astro/pull/8445) [`91380378c`](https://github.com/withastro/astro/commit/91380378cef545656d2c085117fc5f38c9ce4589) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a configuration option `devImageService` to choose which of the built-in image services to use in development. Defaults to `sharp`.
+
+- [#8546](https://github.com/withastro/astro/pull/8546) [`b79e11f3c`](https://github.com/withastro/astro/commit/b79e11f3c480e8e165d5b102adb1f2f8a089f29d) Thanks [@matthewp](https://github.com/matthewp)! - Turn off `functionPerRoute` by default
+
+  In the previous version of `@astrojs/vercel`, the default for `functionPerRoute` was changed to `true`. While this option has several advantages, if you're a free tier user you are likely to run into the limit of 12 functions per deployment. This will result in an error when you attempt to deploy.
+
+  For this reason, the `functionPerRoute` option is now back to defaulting to `false`. It's still a useful option if you have a paid plan and have previously run into issues with your single function exceeding the size limits.
+
+### Minor Changes
+
+- [#8021](https://github.com/withastro/astro/pull/8021) [`2e8726fee`](https://github.com/withastro/astro/commit/2e8726feec2e0d6ba8bd4db941009986e8e34141) Thanks [@chriswdmr](https://github.com/chriswdmr)! - Enable Vercel Speed Insights and Vercel Web Analytics individually.
+  Deprecates the `analytics` property in `astro.config.mjs` in favor of `speedInsights` and `webAnalytics`.
+
+  If you're using the `analytics` property, you'll need to update your config to use the new properties:
+
+  ```diff
+  // astro.config.mjs
+  export default defineConfig({
+  	adapter: vercel({
+  -		analytics: true,
+  +		webAnalytics: {
+  +			enabled: true
+  +		},
+  +		speedInsights: {
+  +			enabled: true
+  +		}
+  	})
+  });
+  ```
+
+  Allow configuration of Web Analytics with all available configuration options.
+  Bumps @vercel/analytics package to the latest version.
+
+### Patch Changes
+
+- Updated dependencies [[`7522bb491`](https://github.com/withastro/astro/commit/7522bb4914f2f9e8b8f3c743bc9c941fd3aca644), [`ecc65abbf`](https://github.com/withastro/astro/commit/ecc65abbf9e086c5bbd1973cd4a820082b4e0dc5), [`2c4fc878b`](https://github.com/withastro/astro/commit/2c4fc878bece36b7fcf1470419c7ce6f1e1e95d0), [`c92e0acd7`](https://github.com/withastro/astro/commit/c92e0acd715171b3f4c3294099780e21576648c8), [`f95febf96`](https://github.com/withastro/astro/commit/f95febf96bb97babb28d78994332f5e47f5f637d), [`b85c8a78a`](https://github.com/withastro/astro/commit/b85c8a78a116dbbddc901438bc0b7a1917dc0238), [`45364c345`](https://github.com/withastro/astro/commit/45364c345267429e400baecd1fbc290503f8b13a)]:
+  - astro@3.1.0
+
+## 4.0.5
+
+### Patch Changes
+
+- [#8452](https://github.com/withastro/astro/pull/8452) [`7ea32c7fb`](https://github.com/withastro/astro/commit/7ea32c7fbf4fc74a3c0fa7319561243c4e262e99) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix Astro's `domains` and `remotePatterns` not being used by Vercel when using Vercel Image Optimization
+
+- Updated dependencies [[`f66053a1e`](https://github.com/withastro/astro/commit/f66053a1ea0a4e3bdb0b0df12bb1bf56e1ea2618), [`0fa483283`](https://github.com/withastro/astro/commit/0fa483283e54c94f173838cd558dc0dbdd11e699)]:
+  - astro@3.0.11
+
+## 4.0.4
+
+### Patch Changes
+
+- [#8408](https://github.com/withastro/astro/pull/8408) [`9ffa1a84e`](https://github.com/withastro/astro/commit/9ffa1a84e81f52d55ffe07826b8b1f10fc023ee9) Thanks [@slawekkolodziej](https://github.com/slawekkolodziej)! - Fix serverless function naming conflicts for routes with identical filenames but different directory structures
+
+- Updated dependencies [[`7d95bd9ba`](https://github.com/withastro/astro/commit/7d95bd9baaf755239fd7d35e4813861b2dbccf42), [`1947ef7a9`](https://github.com/withastro/astro/commit/1947ef7a99ce3d1d6ea797842edd31d5edffa5de), [`61ad70fdc`](https://github.com/withastro/astro/commit/61ad70fdc52035964c43ecdb4cf7468f6c2b61e7), [`d2f2a11cd`](https://github.com/withastro/astro/commit/d2f2a11cdb42b0de79be21c798eda8e7e7b2a277), [`5126c6a40`](https://github.com/withastro/astro/commit/5126c6a40f88bff66ee5d3c3a21eea8c4a44ce7a), [`48ff7855b`](https://github.com/withastro/astro/commit/48ff7855b238536a3df17cb29335c90029fc41a4), [`923a443cb`](https://github.com/withastro/astro/commit/923a443cb060a0e936a0e1cc87c0360232f77914), [`8935b3b46`](https://github.com/withastro/astro/commit/8935b3b4672d6c54c7b79e6c4575298f75eeb9f4)]:
+  - astro@3.0.9
+
 ## 4.0.3
 
 ### Patch Changes
