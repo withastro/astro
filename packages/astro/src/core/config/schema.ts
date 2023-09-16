@@ -140,7 +140,6 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.excludeMiddleware),
 		})
-		.optional()
 		.default({}),
 	server: z.preprocess(
 		// preprocess
@@ -158,7 +157,6 @@ export const AstroConfigSchema = z.object({
 				port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
 				headers: z.custom<OutgoingHttpHeaders>().optional(),
 			})
-			.optional()
 			.default({})
 	),
 	redirects: z
@@ -274,27 +272,11 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.optimizeHoistedScript),
 		})
-		.passthrough()
-		.refine(
-			(d) => {
-				const validKeys = Object.keys(ASTRO_CONFIG_DEFAULTS.experimental);
-				const invalidKeys = Object.keys(d).filter((key) => !validKeys.includes(key));
-				if (invalidKeys.length > 0) return false;
-				return true;
-			},
-			(d) => {
-				const validKeys = Object.keys(ASTRO_CONFIG_DEFAULTS.experimental);
-				const invalidKeys = Object.keys(d).filter((key) => !validKeys.includes(key));
-				return {
-					message: `Invalid experimental key: \`${invalidKeys.join(
-						', '
-					)}\`. \nMake sure the spelling is correct, and that your Astro version supports this experiment.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for more information.`,
-				};
-			}
+		.strict(
+			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`
 		)
-		.optional()
 		.default({}),
-	legacy: z.object({}).optional().default({}),
+	legacy: z.object({}).default({}),
 });
 
 export type AstroConfigType = z.infer<typeof AstroConfigSchema>;

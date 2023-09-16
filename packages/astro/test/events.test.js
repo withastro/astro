@@ -5,44 +5,8 @@ import * as events from '../dist/events/index.js';
 
 describe('Events', () => {
 	describe('eventCliSession()', () => {
-		it('All top-level keys added', () => {
-			const config = {
-				root: 1,
-				srcDir: 2,
-				publicDir: 3,
-				outDir: 4,
-				site: 5,
-				base: 6,
-				trailingSlash: 7,
-				experimental: 8,
-			};
-			const expected = Object.keys(config);
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config
-			);
-			expect(payload.configKeys).to.deep.equal(expected);
-		});
 
-		it('configKeys includes format', () => {
-			const config = {
-				srcDir: 1,
-				build: {
-					format: 'file',
-				},
-			};
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config
-			);
-			expect(payload.configKeys).to.deep.equal(['srcDir', 'build', 'build.format']);
-		});
-
-		it('config.build.format', () => {
+		it('string literal "build.format" is included', () => {
 			const config = {
 				srcDir: 1,
 				build: {
@@ -58,59 +22,8 @@ describe('Events', () => {
 			expect(payload.config.build.format).to.equal('file');
 		});
 
-		it('configKeys includes server props', () => {
-			const config = {
-				srcDir: 1,
-				server: {
-					host: 'example.com',
-					port: 8033,
-				},
-			};
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config
-			);
-			expect(payload.configKeys).to.deep.equal(['srcDir', 'server', 'server.host', 'server.port']);
-		});
 
-		it('configKeys is deep', () => {
-			const config = {
-				publicDir: 1,
-				markdown: {
-					drafts: true,
-					shikiConfig: {
-						lang: 1,
-						theme: 2,
-						wrap: 3,
-					},
-					syntaxHighlight: 'shiki',
-					remarkPlugins: [],
-					rehypePlugins: [],
-				},
-			};
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config
-			);
-			expect(payload.configKeys).to.deep.equal([
-				'publicDir',
-				'markdown',
-				'markdown.drafts',
-				'markdown.shikiConfig',
-				'markdown.shikiConfig.lang',
-				'markdown.shikiConfig.theme',
-				'markdown.shikiConfig.wrap',
-				'markdown.syntaxHighlight',
-				'markdown.remarkPlugins',
-				'markdown.rehypePlugins',
-			]);
-		});
-
-		it('syntaxHighlight', () => {
+		it('string literal "markdown.syntaxHighlight" is included', () => {
 			const config = {
 				markdown: {
 					syntaxHighlight: 'shiki',
@@ -145,233 +58,16 @@ describe('Events', () => {
 				},
 				config
 			);
-			expect(payload.configKeys).is.deep.equal([
-				'root',
-				'vite',
-				'vite.css',
-				'vite.css.modules',
-				'vite.base',
-				'vite.mode',
-				'vite.define',
-				'vite.publicDir',
+			expect(Object.keys(payload.config.vite)).is.deep.equal([
+				'css',
+				'base',
+				'mode',
+				'define',
+				'publicDir',
 			]);
 		});
 
-		it('vite.resolve keys are captured', async () => {
-			const config = {
-				vite: {
-					resolve: {
-						alias: {
-							a: 'b',
-						},
-						dedupe: ['one', 'two'],
-					},
-				},
-			};
-
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config
-			);
-			expect(payload.configKeys).is.deep.equal([
-				'vite',
-				'vite.resolve',
-				'vite.resolve.alias',
-				'vite.resolve.dedupe',
-			]);
-		});
-
-		it('vite.css keys are captured', async () => {
-			const config = {
-				vite: {
-					resolve: {
-						dedupe: ['one', 'two'],
-					},
-					css: {
-						modules: [],
-						postcss: {},
-					},
-				},
-			};
-
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config
-			);
-			expect(payload.configKeys).is.deep.equal([
-				'vite',
-				'vite.resolve',
-				'vite.resolve.dedupe',
-				'vite.css',
-				'vite.css.modules',
-				'vite.css.postcss',
-			]);
-		});
-
-		it('vite.server keys are captured', async () => {
-			const config = {
-				vite: {
-					server: {
-						host: 'example.com',
-						open: true,
-						fs: {
-							strict: true,
-							allow: ['a', 'b'],
-						},
-					},
-				},
-			};
-
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config
-			);
-			expect(payload.configKeys).is.deep.equal([
-				'vite',
-				'vite.server',
-				'vite.server.host',
-				'vite.server.open',
-				'vite.server.fs',
-				'vite.server.fs.strict',
-				'vite.server.fs.allow',
-			]);
-		});
-
-		it('vite.build keys are captured', async () => {
-			const config = {
-				vite: {
-					build: {
-						target: 'one',
-						outDir: 'some/dir',
-						cssTarget: {
-							one: 'two',
-						},
-					},
-				},
-			};
-
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config
-			);
-			expect(payload.configKeys).is.deep.equal([
-				'vite',
-				'vite.build',
-				'vite.build.target',
-				'vite.build.outDir',
-				'vite.build.cssTarget',
-			]);
-		});
-
-		it('vite.preview keys are captured', async () => {
-			const config = {
-				vite: {
-					preview: {
-						host: 'example.com',
-						port: 8080,
-						another: {
-							a: 'b',
-						},
-					},
-				},
-			};
-
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config
-			);
-			expect(payload.configKeys).is.deep.equal([
-				'vite',
-				'vite.preview',
-				'vite.preview.host',
-				'vite.preview.port',
-				'vite.preview.another',
-			]);
-		});
-
-		it('vite.optimizeDeps keys are captured', async () => {
-			const config = {
-				vite: {
-					optimizeDeps: {
-						entries: ['one', 'two'],
-						exclude: ['secret', 'name'],
-					},
-				},
-			};
-
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config
-			);
-			expect(payload.configKeys).is.deep.equal([
-				'vite',
-				'vite.optimizeDeps',
-				'vite.optimizeDeps.entries',
-				'vite.optimizeDeps.exclude',
-			]);
-		});
-
-		it('vite.ssr keys are captured', async () => {
-			const config = {
-				vite: {
-					ssr: {
-						external: ['a'],
-						target: { one: 'two' },
-					},
-				},
-			};
-
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config
-			);
-			expect(payload.configKeys).is.deep.equal([
-				'vite',
-				'vite.ssr',
-				'vite.ssr.external',
-				'vite.ssr.target',
-			]);
-		});
-
-		it('vite.worker keys are captured', async () => {
-			const config = {
-				vite: {
-					worker: {
-						format: { a: 'b' },
-						plugins: ['a', 'b'],
-					},
-				},
-			};
-
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config
-			);
-			expect(payload.configKeys).is.deep.equal([
-				'vite',
-				'vite.worker',
-				'vite.worker.format',
-				'vite.worker.plugins',
-			]);
-		});
-
-		it('falsy integrations', () => {
+		it('falsy integrations are handled', () => {
 			const config = {
 				srcDir: 1,
 				integrations: [null, undefined, false],
@@ -385,12 +81,20 @@ describe('Events', () => {
 			expect(payload.config.integrations.length).to.equal(0);
 		});
 
-		it('finds names for integration arrays', () => {
+		it('only integration names are included', () => {
 			const config = {
 				integrations: [{ name: 'foo' }, [{ name: 'bar' }, { name: 'baz' }]],
 			};
 			const [{ payload }] = events.eventCliSession({ cliCommand: 'dev' }, config);
 			expect(payload.config.integrations).to.deep.equal(['foo', 'bar', 'baz']);
+		});
+
+		it('only adapter name is included', () => {
+			const config = {
+				adapter: {name: 'ADAPTER_NAME'},
+			};
+			const [{ payload }] = events.eventCliSession({ cliCommand: 'dev' }, config);
+			expect(payload.config.adapter).to.equal('ADAPTER_NAME');
 		});
 
 		it('includes cli flags in payload', () => {
