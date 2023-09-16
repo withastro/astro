@@ -172,7 +172,7 @@ This optional flag enables the Astro dev server to populate environment variable
 
 ```js
 // astro.config.mjs
-import { defineConfig } from 'astro/config;'
+import { defineConfig } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
