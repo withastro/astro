@@ -2,7 +2,7 @@
 '@astrojs/cloudflare': minor
 ---
 
-Add support for following Node.js Runtime APIs, which are availabe in [Cloudflare](https://developers.cloudflare.com/workers/runtime-apis/nodejs) using the `node:` syntax.
+Add support for the following Node.js Runtime APIs, which are availabe in [Cloudflare](https://developers.cloudflare.com/workers/runtime-apis/nodejs) using the `node:` syntax.
 
 - assert
 - AsyncLocalStorage
