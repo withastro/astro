@@ -172,7 +172,7 @@ See [Cloudflare's documentation](https://developers.cloudflare.com/pages/platfor
 
 ## Node.js compatibility
 
-Cloudflare offers opt-in support for the following Node.js runtime APIs, and with the Cloudflare Adapter, Astro provides seamless integration for these APIs. To leverage this, ensure that your page or endpoint is set up for Server-Side Rendering (SSR). Cloudflare only supports the `import {} from 'node:*'` import syntax. Additionally, you'll need to enable the Compatibility Flag in Cloudflare. The configuration for this flag may vary based on where you deploy your Astro site. For detailed guidance, please refer to the [Cloudflare documentation](https://developers.cloudflare.com/workers/runtime-apis/nodejs).
+Astro's Cloudflare adapter allows you to use the following Node.js runtime APIs (that are supported by Cloudflare):
 
 - assert
 - AsyncLocalStorage
@@ -184,6 +184,18 @@ Cloudflare offers opt-in support for the following Node.js runtime APIs, and wit
 - Streams
 - StringDecoder
 - util
+
+To use these APIs, your page or endpoint must be server-side rendered (not pre-rendered) and must use the the `import {} from 'node:*'` import syntax. 
+
+```js
+// put a file path for the endpoint here
+export const prerender = false;
+import { Buffer } from 'node:buffer';
+```
+
+Additionally, you'll need to enable the Compatibility Flag in Cloudflare. The configuration for this flag may vary based on where you deploy your Astro site. 
+
+For detailed guidance, please refer to the [Cloudflare documentation](https://developers.cloudflare.com/workers/runtime-apis/nodejs).
 
 ## Troubleshooting
 
