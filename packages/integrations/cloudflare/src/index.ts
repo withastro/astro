@@ -194,7 +194,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					},
 					vite: {
 						// load .wasm files as WebAssembly modules
-						plugins: [wasmModuleLoader(!args?.wasmModuleImports)],
+						plugins: [
+							wasmModuleLoader({
+								disabled: !args?.wasmModuleImports,
+								assetsDirectory: config.build.assets,
+							}),
+						],
 					},
 				});
 			},
@@ -302,7 +307,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					//
 					// Sadly, when wasmModuleImports is enabled, this needs to build esbuild for each depth of routes/entrypoints
 					// independently so that relative import paths to the assets are the correct depth of '../' traversals
-					// This is inefficient, so wasmModuleImports is opt-in
+					// This is inefficient, so wasmModuleImports is opt-in. This could potentially be improved in the future by
+					// taking advantage of the esbuild "onEnd" hook to rewrite import code per entry point relative to where the final
+					// destination of the entrypoint is
 					const entryPathsGroupedByDepth = !args.wasmModuleImports
 						? [entryPaths]
 						: entryPaths
@@ -314,8 +321,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								.values();
 
 					for (const pathsGroup of entryPathsGroupedByDepth) {
-						// for some reason this exports to "entry.pages" instead of "pages" on windows.
-						// look up the pages with relative logic
+						// for some reason this exports to "entry.pages" on windows instead of "pages" on unix environments.
+						// This deduces the name of the "pages" build directory
 						const pagesDirname = relative(fileURLToPath(_buildConfig.server), pathsGroup[0]).split(
 							sep
 						)[0];
@@ -357,7 +364,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							logOverride: {
 								'ignored-bare-import': 'silent',
 							},
-							plugins: !args?.wasmModuleImports ? [] : [rewriteWasmImportPath({ relativePathToAssets })],
+							plugins: !args?.wasmModuleImports
+								? []
+								: [rewriteWasmImportPath({ relativePathToAssets })],
 						});
 					}
 
@@ -663,8 +672,11 @@ function rewriteWasmImportPath({
 	return {
 		name: 'wasm-loader',
 		setup(build) {
-			build.onResolve({ filter: /.*\.wasm$/ }, (args) => {
-				const updatedPath = [relativePathToAssets, basename(args.path)].join('/');
+			build.onResolve({ filter: /.*\.wasm.mjs$/ }, (args) => {
+				const updatedPath = [
+					relativePathToAssets.replaceAll('\\', '/'),
+					basename(args.path).replace(/\.mjs$/, ''),
+				].join('/');
 
 				return {
 					path: updatedPath, // change the reference to the changed module

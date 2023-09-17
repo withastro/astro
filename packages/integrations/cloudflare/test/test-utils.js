@@ -41,13 +41,13 @@ export async function runCLI(
 	let cli;
 	let lastErr;
 	while (triesRemaining > 0) {
-		cli = await tryRunCLI(basePath, { silent, timeout });
+		cli = await tryRunCLI(basePath, { silent, timeout, forceRotatePort: triesRemaining !== maxAttempts });
 		try {
 			await cli.ready;
 			return cli;
 		} catch (err) {
 			lastErr = err;
-			console.error(err.message + ' after ' + timeout + 'ms');
+			console.error((err.message || err.name || err) + ' after ' + timeout + 'ms');
 			cli.stop();
 			triesRemaining -= 1;
 			timeout *= backoffFactor;
@@ -57,8 +57,8 @@ export async function runCLI(
 	return cli;
 }
 
-async function tryRunCLI(basePath, { silent, timeout }) {
-	const port = await getNextOpenPort(lastPort);
+async function tryRunCLI(basePath, { silent, timeout, forceRotatePort = false }) {
+	const port = await getNextOpenPort(lastPort + (forceRotatePort ? 1 : 0));
 	lastPort = port;
 
 	const fixtureDir = fileURLToPath(new URL(`${basePath}`, import.meta.url));
@@ -148,7 +148,7 @@ const isPortOpen = async (port) => {
 			resolve(true);
 			s.close();
 		});
-		s.listen(port);
+		s.listen(port, "0.0.0.0");
 	});
 };
 

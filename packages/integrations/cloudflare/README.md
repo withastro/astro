@@ -209,7 +209,7 @@ export default defineConfig({
 })
 ```
 
-Once enabled, you can import a web assembly module in astro with a `.wasm?module` import
+Once enabled, you can import a web assembly module in astro with a `.wasm?module` import. The integration supports WASM module imports in both server and hybrid mode for a consistent development experience.
 
 ```javascript
 // pages/add/[a]/[b].js
@@ -224,6 +224,8 @@ export async function GET(context) {
   return new Response(`${a} + ${b} = ${addModule.exports.add(a, b)}`);
 }
 ```
+
+
 
 ## Headers, Redirects and function invocation routes
 

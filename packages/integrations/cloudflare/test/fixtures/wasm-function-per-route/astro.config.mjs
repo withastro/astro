@@ -7,5 +7,6 @@ export default defineConfig({
 		functionPerRoute: true,
 		wasmModuleImports: true
 	}),
-	output: 'server'
+	output: 'server',
+	vite: { build: { minify: false } }
 });

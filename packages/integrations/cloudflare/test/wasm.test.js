@@ -2,7 +2,6 @@ import { loadFixture, runCLI } from './test-utils.js';
 import { expect } from 'chai';
 import cloudflare from '../dist/index.js';
 
-
 describe('Wasm import', () => {
 	describe('in cloudflare workerd', () => {
 		/** @type {import('./test-utils.js').Fixture} */
@@ -64,16 +63,23 @@ describe('Wasm import', () => {
 		it('fails to build intelligently when wasm is disabled', async () => {
 			let ex;
 			try {
-				devServer = await fixture.build({ 
+				await fixture.build({
 					adapter: cloudflare({
-						wasmModuleImports: false
+						wasmModuleImports: false,
 					}),
 				});
 			} catch (err) {
-				ex = err
+				ex = err;
 			}
-			expect(ex?.message).to.have.string('add `wasmModuleImports: true` to your astro config')
+			expect(ex?.message).to.have.string('add `wasmModuleImports: true` to your astro config');
 		});
 
+		it('can import wasm in both SSR and SSG pages', async () => {
+			await fixture.build({ output: 'hybrid' });
+			const staticContents = await fixture.readFile('./hybrid');
+			expect(staticContents).to.be.equal('{"answer":21}');
+			const assets = await fixture.readdir('./_astro');
+			expect(assets.map((x) => x.slice(x.lastIndexOf('.')))).to.contain('.wasm');
+		});
 	});
 });
