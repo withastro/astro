@@ -1,6 +1,6 @@
 # Astro + [Vitest](https://vitest.dev/) Example
 
-```
+```sh
 npm create astro@latest -- --template with-vitest
 ```
 

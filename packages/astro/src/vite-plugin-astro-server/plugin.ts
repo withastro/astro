@@ -1,6 +1,6 @@
 import type fs from 'node:fs';
 import type * as vite from 'vite';
-import type { AstroSettings, ManifestData, SSRManifest } from '../@types/astro';
+import type { AstroSettings, ManifestData, SSRManifest } from '../@types/astro.js';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';

@@ -1,5 +1,6 @@
 {
   "name": "root",
+  "type": "module",
   "version": "0.0.0",
   "private": true,
   "repository": {
@@ -14,7 +15,7 @@
     "dev": "turbo run dev --concurrency=40 --parallel --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
     "format": "pnpm run format:code",
     "format:ci": "pnpm run format:imports && pnpm run format:code",
-    "format:code": "prettier -w . --cache",
+    "format:code": "prettier -w \"**/*\" --ignore-unknown --cache",
     "format:imports": "organize-imports-cli ./packages/*/tsconfig.json ./packages/*/*/tsconfig.json",
     "test": "turbo run test --concurrency=1 --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
     "test:match": "cd packages/astro && pnpm run test:match",
@@ -89,7 +90,7 @@
     "eslint-plugin-prettier": "^5.0.0",
     "only-allow": "^1.1.1",
     "organize-imports-cli": "^0.10.0",
-    "prettier": "^3.0.2",
+    "prettier": "^3.0.3",
     "prettier-plugin-astro": "^0.12.0",
     "tiny-glob": "^0.2.9",
     "turbo": "^1.10.12",

@@ -1,6 +1,6 @@
 # Astro + Vue Example
 
-```
+```sh
 npm create astro@latest -- --template framework-vue
 ```
 

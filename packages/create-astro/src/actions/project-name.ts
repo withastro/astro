@@ -1,4 +1,4 @@
-import type { Context } from './context';
+import type { Context } from './context.js';
 
 import { color, generateProjectName } from '@astrojs/cli-kit';
 import path from 'node:path';
@@ -31,7 +31,7 @@ export async function projectName(ctx: Pick<Context, 'cwd' | 'prompt' | 'project
 			},
 		});
 
-		ctx.cwd = name!;
+		ctx.cwd = name!.trim();
 		ctx.projectName = toValidName(name!);
 	} else {
 		let name = ctx.cwd;

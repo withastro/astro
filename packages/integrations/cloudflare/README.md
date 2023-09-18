@@ -150,14 +150,14 @@ declare namespace App {
 }
 ```
 
-## Environment Variables
+### Environment Variables
 
 See Cloudflare's documentation for [working with environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables).
 
 ```js
 // pages/[id].json.js
 
-export function get({ params }) {
+export function GET({ params }) {
   // Access environment variables per request inside a function
   const serverUrl = import.meta.env.SERVER_URL;
   const result = await fetch(serverUrl + "/user/" + params.id);
@@ -165,6 +165,30 @@ export function get({ params }) {
     body: await result.text(),
   };
 }
+```
+
+### `cloudflare.runtime`
+
+`runtime: "off" | "local" | "remote"`
+default `"off"`
+
+This optional flag enables the Astro dev server to populate environment variables and the Cloudflare Request Object, avoiding the need for Wrangler.
+
+- `local`: environment variables are available, but the request object is populated from a static placeholder value.
+- `remote`: environment variables and the live, fetched request object are available.
+- `off`: the Astro dev server will populate neither environment variables nor the request object. Use Wrangler to access Cloudflare bindings and environment variables.
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import cloudflare from '@astrojs/cloudflare';
+
+export default defineConfig({
+  output: 'server',
+  adapter: cloudflare({
+    runtime: 'off' | 'local' | 'remote',
+  }),
+});
 ```
 
 ## Headers, Redirects and function invocation routes

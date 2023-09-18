@@ -19,6 +19,8 @@ process.on('SIGTERM', exit);
 // https://github.com/withastro/docs/blob/main/src/pages/en/install/auto.md
 // if you make any changes to the flow or wording here.
 export async function main() {
+	// Clear console because PNPM startup is super ugly
+	console.clear();
 	// NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 	// to no longer require `--` to pass args and instead pass `--` directly to us. This
 	// broke our arg parser, since `--` is a special kind of flag. Filtering for `--` here

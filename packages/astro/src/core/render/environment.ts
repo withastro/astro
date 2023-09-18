@@ -1,4 +1,4 @@
-import type { RuntimeMode, SSRLoadedRenderer } from '../../@types/astro';
+import type { RuntimeMode, SSRLoadedRenderer } from '../../@types/astro.js';
 import type { Logger } from '../logger/core.js';
 import type { RouteCache } from './route-cache.js';
 

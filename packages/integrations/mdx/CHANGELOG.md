@@ -1,5 +1,90 @@
 # @astrojs/mdx
 
+## 1.1.0
+
+### Minor Changes
+
+- [#8468](https://github.com/withastro/astro/pull/8468) [`a8d72ceae`](https://github.com/withastro/astro/commit/a8d72ceaeed154434923b21c0ae129a72263b8ed) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Support the `img` component export for optimized images. This allows you to customize how optimized images are styled and rendered.
+
+  When rendering an optimized image, Astro will pass the `ImageMetadata` object to your `img` component as the `src` prop. For unoptimized images (i.e. images using URLs or absolute paths), Astro will continue to pass the `src` as a string.
+
+  This example handles both cases and applies custom styling:
+
+  ```astro
+  ---
+  // src/components/MyImage.astro
+  import type { ImageMetadata } from 'astro';
+  import { Image } from 'astro:assets';
+
+  type Props = {
+    src: string | ImageMetadata;
+    alt: string;
+  };
+
+  const { src, alt } = Astro.props;
+  ---
+
+  {
+    typeof src === 'string' ? (
+      <img class="custom-styles" src={src} alt={alt} />
+    ) : (
+      <Image class="custom-styles" {src} {alt} />
+    )
+  }
+
+  <style>
+    .custom-styles {
+      border: 1px solid red;
+    }
+  </style>
+  ```
+
+  Now, this components can be applied to the `img` component props object or file export:
+
+  ```md
+  import MyImage from '../../components/MyImage.astro';
+
+  export const components = { img: MyImage };
+
+  # My MDX article
+  ```
+
+### Patch Changes
+
+- [#8533](https://github.com/withastro/astro/pull/8533) [`74dc3edb3`](https://github.com/withastro/astro/commit/74dc3edb305c49feec49c39082fa836485da8a92) Thanks [@bluwy](https://github.com/bluwy)! - Improve MDX rendering performance by sharing processor instance
+
+- Updated dependencies [[`7522bb491`](https://github.com/withastro/astro/commit/7522bb4914f2f9e8b8f3c743bc9c941fd3aca644), [`ecc65abbf`](https://github.com/withastro/astro/commit/ecc65abbf9e086c5bbd1973cd4a820082b4e0dc5), [`2c4fc878b`](https://github.com/withastro/astro/commit/2c4fc878bece36b7fcf1470419c7ce6f1e1e95d0), [`d93987824`](https://github.com/withastro/astro/commit/d93987824d3d6b4f58267be21ab8466ee8d5d5f8), [`c92e0acd7`](https://github.com/withastro/astro/commit/c92e0acd715171b3f4c3294099780e21576648c8), [`7522bb491`](https://github.com/withastro/astro/commit/7522bb4914f2f9e8b8f3c743bc9c941fd3aca644), [`f95febf96`](https://github.com/withastro/astro/commit/f95febf96bb97babb28d78994332f5e47f5f637d), [`b85c8a78a`](https://github.com/withastro/astro/commit/b85c8a78a116dbbddc901438bc0b7a1917dc0238), [`45364c345`](https://github.com/withastro/astro/commit/45364c345267429e400baecd1fbc290503f8b13a)]:
+  - astro@3.1.0
+  - @astrojs/markdown-remark@3.2.0
+
+## 1.0.3
+
+### Patch Changes
+
+- [#8430](https://github.com/withastro/astro/pull/8430) [`f3f62a5a2`](https://github.com/withastro/astro/commit/f3f62a5a20f4881bb04f65f192df8e1ccf7fb601) Thanks [@bluwy](https://github.com/bluwy)! - Use exported remarkShiki and remarkPrism plugins from `@astrojs/markdown-remark`
+
+- Updated dependencies [[`f3f62a5a2`](https://github.com/withastro/astro/commit/f3f62a5a20f4881bb04f65f192df8e1ccf7fb601), [`f66053a1e`](https://github.com/withastro/astro/commit/f66053a1ea0a4e3bdb0b0df12bb1bf56e1ea2618), [`0fa483283`](https://github.com/withastro/astro/commit/0fa483283e54c94f173838cd558dc0dbdd11e699)]:
+  - @astrojs/markdown-remark@3.1.0
+  - astro@3.0.11
+
+## 1.0.2
+
+### Patch Changes
+
+- [#8438](https://github.com/withastro/astro/pull/8438) [`6df4f3bd9`](https://github.com/withastro/astro/commit/6df4f3bd9d74de47dc8732e7f3b42bef42d2facf) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix errors not having a stacktrace
+
+- Updated dependencies [[`b3cf1b327`](https://github.com/withastro/astro/commit/b3cf1b32765c76cfc90e497a68280ad52f02cb1f), [`b92d066b7`](https://github.com/withastro/astro/commit/b92d066b737f64f08a9cf293bd07c9263ef8f32d)]:
+  - astro@3.0.10
+
+## 1.0.1
+
+### Patch Changes
+
+- [#8405](https://github.com/withastro/astro/pull/8405) [`93a1231f1`](https://github.com/withastro/astro/commit/93a1231f14d97339e38d8a67cf541337960e7d5e) Thanks [@delucis](https://github.com/delucis)! - Add location data to MDX compile errors
+
+- Updated dependencies [[`7d95bd9ba`](https://github.com/withastro/astro/commit/7d95bd9baaf755239fd7d35e4813861b2dbccf42), [`1947ef7a9`](https://github.com/withastro/astro/commit/1947ef7a99ce3d1d6ea797842edd31d5edffa5de), [`61ad70fdc`](https://github.com/withastro/astro/commit/61ad70fdc52035964c43ecdb4cf7468f6c2b61e7), [`d2f2a11cd`](https://github.com/withastro/astro/commit/d2f2a11cdb42b0de79be21c798eda8e7e7b2a277), [`5126c6a40`](https://github.com/withastro/astro/commit/5126c6a40f88bff66ee5d3c3a21eea8c4a44ce7a), [`48ff7855b`](https://github.com/withastro/astro/commit/48ff7855b238536a3df17cb29335c90029fc41a4), [`923a443cb`](https://github.com/withastro/astro/commit/923a443cb060a0e936a0e1cc87c0360232f77914), [`8935b3b46`](https://github.com/withastro/astro/commit/8935b3b4672d6c54c7b79e6c4575298f75eeb9f4)]:
+  - astro@3.0.9
+
 ## 1.0.0
 
 ### Major Changes

@@ -50,8 +50,6 @@ Deno.test({
 			const doc = new DOMParser().parseFromString(html, `text/html`);
 			const style = doc!.querySelector('style');
 
-			assertEquals(style?.getAttribute('type'), 'text/css');
-
 			assert(style?.textContent?.includes('Courier New'));
 		});
 

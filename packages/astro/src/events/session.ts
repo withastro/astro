@@ -1,4 +1,4 @@
-import type { AstroUserConfig } from '../@types/astro';
+import type { AstroUserConfig } from '../@types/astro.js';
 
 const EVENT_SESSION = 'ASTRO_CLI_SESSION_STARTED';
 

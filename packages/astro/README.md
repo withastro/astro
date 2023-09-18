@@ -34,10 +34,10 @@ Having trouble? Get help in the official [Astro Discord](https://astro.build/cha
 
 **New contributors welcome!** Check out our [Contributors Guide](/CONTRIBUTING.md) for help getting started.
 
-Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll help you get your first contribution in no time!
+Join us on [Discord](https://astro.build/chat) to meet other contributors. We'll help you get your first contribution in no time!
 
 ## Sponsors
 
-Astro is generously supported by [Netlify](https://www.netlify.com/), [Vercel](https://vercel.com/), and several other amazing organizations [listed here.](https://astro.build/)
+Astro is generously supported by [Vercel](https://vercel.com/), [storyblok](https://storyblok.com/), and several other amazing organizations [listed here.](https://opencollective.com/astrodotbuild)
 
 [❤️ Sponsor Astro! ❤️](https://github.com/withastro/.github/blob/main/FUNDING.md)
