@@ -68,6 +68,8 @@ Partytown should be ready to go with zero config. If you have an existing 3rd pa
 
 If you open the "Network" tab from [your browser's dev tools](https://developer.chrome.com/docs/devtools/open/), you should see the `partytown` proxy intercepting this request.
 
+To run analytics or ads, you may need extra configuration to allow network requests inside of the Partytown worker thread. See the [Configuration](#configuration) and [Examples](#examples) sections.
+
 ## Configuration
 
 To configure this integration, pass a 'config' object to the `partytown()` function call in `astro.config.mjs`.
@@ -128,7 +130,71 @@ export default defineConfig({
 });
 ```
 
+### config.resolveUrl
+
+Third-party scripts typically send data to external domains. Since Partytown operates in a web worker, every HTTP request requires the correct CORS headers to allow data to be sent.
+
+To solve this, Partytown can proxy requests. Any request can be proxied through the base domain to allow data to be sent to an external source.
+
+```js
+// astro.config.mjs
+export default defineConfig({
+  integrations: [
+    partytown({
+      config: {
+        // Example: Proxy any scripts through the site origin.
+        resolveUrl: function (url, location, type) {
+          if (type === 'script') {
+            const proxyUrl = new URL(location.origin);
+            proxyUrl.searchParams.append('url', url.href);
+            return proxyUrl;
+          }
+          return url;
+        },
+      },
+    }),
+  ],
+});
+```
+
 ## Examples
+
+### Google Tag Manager
+
+To use Google Tag Manager with Partytown, you'll need to set up a proxy and allow forwarding for `dataLayer.push` and `fbq`. The following is an example config for this setup:
+
+```js
+// astro.config.mjs
+export default defineConfig({
+  integrations: [
+    partytown({
+      config: {
+        // Allow proxying requests for Google and Facebook domains
+        resolveUrl: (url, location) => {
+          const proxiedHosts = [
+            'googletagmanager.com',
+            'connect.facebook.net',
+            'googleads.g.doubleclick.net',
+          ];
+
+          // Proxy any allowed hosts through the base domain
+          if (proxiedHosts.includes(url.hostname)) {
+            const proxyUrl = new URL(location.origin);
+            proxyUrl.searchParams.append('url', url.href);
+            return proxyUrl;
+          }
+
+          return url;
+        },
+        // Allow communication for Google Tag Manager and Facebook Pixel
+        forward: ['dataLayer.push', 'fbq'],
+      },
+    }),
+  ],
+});
+```
+
+### Additional Examples
 
 - [Browse projects with Astro Partytown on GitHub](https://github.com/search?q=%22%40astrojs%2Fpartytown%22+path%3A**%2Fpackage.json&type=code) for more examples!
 
