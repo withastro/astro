@@ -41,7 +41,7 @@ const { text: readingTime } = await getReadingTime(article.body);
 		</p>
 	</div>
 
-	<h1 class="p-name">{article.data.title}</h1>
+	<h1 class="p-name">article.data.title}</h1>
 
 	{article.data.categories?.length > 0 && <TagList tags={article.data.categories} />}
 </header>
@@ -93,7 +93,7 @@ const { text: readingTime } = await getReadingTime(article.body);
 
 	@media (min-width: 640px) {
 		.cover {
-		margin-block-end: var(--theme-space-sm);
+			margin-block-end: var(--theme-space-sm);
 		}
 
 		.p-author {

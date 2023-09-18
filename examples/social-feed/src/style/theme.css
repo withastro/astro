@@ -26,6 +26,11 @@
   --theme-shadow-md: 2px 2px 10px rgba(0, 0, 0, 0.1);
   --theme-shadow-lg: 2px 2px 20px rgba(0, 0, 0, 0.2);
 
+	/* Content Sizes */
+	--theme-size-content-1: 30ch;
+	--theme-size-content-2: 45ch;
+	--theme-size-content-3: 65ch;
+
   /* Type Scale */
 	/* @link https://utopia.fyi/type/calculator?c=320,16,1.2,1240,20,1.2,5,2,&s=0.75|0.5|0.25,1.5|2|3|4|6,s-l&g=s,l,xl,12 */
   --theme-text-sm: clamp(0.83rem, calc(0.76rem + 0.36vw), 1.04rem);

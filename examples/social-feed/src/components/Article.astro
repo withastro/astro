@@ -1,6 +1,6 @@
 ---
 import ArticleHeader from './ArticleHeader.astro';
-import type { Article, Post } from '../content/config.js';
+import type { Article } from '../content/config.js';
 
 export interface Props {
 	article: Article;
@@ -13,9 +13,9 @@ const { Content } = await article.render();
 
 <article>
 	<ArticleHeader {article} class="header" />
-		<div class="e-content">
-			<Content />
-		</div>
+	<div class="e-content">
+		<Content />
+	</div>
 </article>
 
 <style>
@@ -24,6 +24,14 @@ const { Content } = await article.render();
 		flex-direction: column;
 		gap: var(--theme-space-lg);
 		padding-block: var(--theme-space-md);
+		width: 100%;
+		max-width: var(--theme-size-content-3);
+		margin-inline: auto;
+	}
+
+	.e-content {
+		max-width: var(--theme-size-content-3);
+		margin-inline: auto;
 	}
 
 	.e-content > :global(* + *) {

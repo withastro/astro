@@ -11,14 +11,16 @@ export interface Props extends HTMLAttributes<'article'> {
 	post: Post;
 }
 
-const { post, ...attrs } = Astro.props;
+const { post, class: className, ...attrs } = Astro.props;
 
 const { pubDate, categories = [] } = post.data;
 const cover = 'cover' in post.data && post.data.cover;
 const title = 'title' in post.data && post.data.title;
+
+const postUrl = `/post/${post.slug}/`;
 ---
 
-<article class="h-entry" {...attrs}>
+<article class:list={['h-entry', className]} transition:name={`card-${post.slug}`} {...attrs}>
 	<header class="p-author h-card">
 		<Image {...settings.avatar} width={120} class="u-photo" />
 		<strong class="p-name">{settings.name}</strong>
@@ -35,12 +37,24 @@ const title = 'title' in post.data && post.data.title;
 		isArticle(post) ? (
 			<p class="p-summary">{post.data.description}</p>
 		) : (
-			post.render().then(({ Content }) => <div class="e-content"><Content /></div>)
+			post.render().then(({ Content }) => (
+				<div class="e-content">
+					<Content />
+				</div>
+			))
 		)
 	}
 	<footer>
-		<a href={`/post/${post.slug}/`} class="u-url">Full {post.collection === 'articles' ? 'article' : 'note'}</a>
-		<a href={`javascript: navigator.clipboard.writeText(window.location.href + "post/${post.slug}/");`}>
+		{
+			Astro.url.pathname !== postUrl && (
+				<a href={`/post/${post.slug}/`} class="u-url">
+					Full {post.collection === 'articles' ? 'article' : 'note'}
+				</a>
+			)
+		}
+		<a
+			href={`javascript: navigator.clipboard.writeText(window.location.href + "post/${post.slug}/");`}
+		>
 			<Icon icon="share" size="1.5rem" />
 			<span class="sr-only">Share this post</span>
 		</a>
@@ -49,6 +63,7 @@ const title = 'title' in post.data && post.data.title;
 
 <style>
 	article {
+		max-width: var(--theme-size-content-2);
 		padding: var(--theme-space-sm) var(--theme-space-sm) var(--theme-space-md);
 		background-color: var(--theme-bg-accent);
 		border-radius: var(--theme-radius-xl);
@@ -65,7 +80,7 @@ const title = 'title' in post.data && post.data.title;
 		row-gap: var(--theme-space-2xs);
 		column-gap: var(--theme-space-sm);
 	}
-	.u-photo {
+	.h-card .u-photo {
 		grid-area: avatar;
 		width: var(--theme-space-xl);
 		height: var(--theme-space-xl);
@@ -94,5 +109,8 @@ const title = 'title' in post.data && post.data.title;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+	}
+	footer > *:only-child {
+		margin-inline-start: auto;
 	}
 </style>

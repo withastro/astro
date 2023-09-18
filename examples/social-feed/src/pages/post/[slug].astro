@@ -31,7 +31,7 @@ const { title } = isArticle(post) && post.data;
 		<span>Back to feed</span>
 	</a>
 
-	{isArticle(post) ? (<Article article={post} />) : (<div class="card"><Card {post} /></div>)}
+	{isArticle(post) ? <Article article={post} /> : <Card {post} class="card" />}
 
 	{
 		(next || prev) && (
@@ -45,7 +45,11 @@ const { title } = isArticle(post) && post.data;
 				{next && (
 					<a href={`/post/${next.slug}`} class="next">
 						<span>Next post</span>
-						<Icon icon="arrow-right" size="var(--theme-space-md)" color="var(--theme-accent-dark)" />
+						<Icon
+							icon="arrow-right"
+							size="var(--theme-space-md)"
+							color="var(--theme-accent-dark)"
+						/>
 					</a>
 				)}
 			</footer>
@@ -68,12 +72,15 @@ const { title } = isArticle(post) && post.data;
 
 	.card {
 		width: 100%;
-		max-width: 60ch;
-		margin-inline: auto;
-		padding-block: var(--theme-space-md);
+		margin: var(--theme-space-md) auto;
 	}
 
-	.prev, .next {
+	.center {
+		margin-inline: auto;
+	}
+
+	.prev,
+	.next {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;

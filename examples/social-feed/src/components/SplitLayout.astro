@@ -16,20 +16,17 @@ const { reverse = false, class: className, ...attrs } = Astro.props;
 	div {
 		display: flex;
 		flex-direction: column;
+		align-items: center;
 		gap: var(--theme-space-lg);
 		margin: 0 auto;
 		width: 100%;
-		max-width: var(--theme-content-width);
+		max-width: var(--theme-size-content-3);
 	}
 
 	@media (min-width: 50em) {
 		div {
-			display: grid;
-			grid-template-columns: 12rem 1fr;
-		}
-
-		div.reverse {
-			grid-template-columns: 1fr 12rem;
+			flex-direction: row;
+			align-items: initial;
 		}
 	}
 </style>

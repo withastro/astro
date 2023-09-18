@@ -1,4 +1,5 @@
 ---
+import { ViewTransitions } from 'astro:transitions';
 import settings from '../settings';
 import '../style/theme.css';
 import '../style/global.css';
@@ -22,6 +23,7 @@ const { title = settings.name } = Astro.props;
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+		<ViewTransitions />
 
 		<!-- Canonical URL -->
 		<link rel="canonical" href={canonicalURL} />
@@ -63,23 +65,27 @@ const { title = settings.name } = Astro.props;
 			<slot />
 		</main>
 		<Footer />
+		<style>
+			html {
+				scrollbar-gutter: stable;
+			}
+
+			body {
+				display: flex;
+				flex-direction: column;
+				gap: var(--theme-space-lg);
+			}
+
+			.header,
+			main {
+				padding-inline: var(--theme-space-sm-lg);
+			}
+
+			main {
+				width: 100%;
+				max-width: 55rem;
+				margin-inline: auto;
+			}
+		</style>
 	</body>
-
-	<style>
-		body {
-			display: flex;
-			flex-direction: column;
-			gap: var(--theme-space-lg);
-		}
-
-		.header, main {
-			padding-inline: var(--theme-space-sm-lg);
-		}
-
-		main {
-			width: 100%;
-			max-width: 55rem;
-			margin-inline: auto;
-		}
-	</style>
 </html>
