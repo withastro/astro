@@ -245,6 +245,8 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 				const filesToInclude = includeFiles?.map((file) => new URL(file, _config.root)) || [];
 				filesToInclude.push(...extraFilesToInclude);
 
+				validateRuntime();
+
 				// Multiple entrypoint support
 				if (_entryPoints.size) {
 					const getRouteFuncName = (route: RouteData) => route.component.replace('src/pages/', '');
@@ -312,7 +314,7 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 	};
 }
 
-function getRuntime() {
+function validateRuntime() {
 	const version = process.version.slice(1); // 'v16.5.0' --> '16.5.0'
 	const major = version.split('.')[0]; // '16.5.0' --> '16'
 	const support = SUPPORTED_NODE_VERSIONS[major];
@@ -322,7 +324,7 @@ function getRuntime() {
 		);
 		console.warn(`[${PACKAGE_NAME}] Your project will use Node.js 18 as the runtime instead.`);
 		console.warn(`[${PACKAGE_NAME}] Consider switching your local version to 18.`);
-		return 'nodejs18.x';
+		return;
 	}
 	if (support.status === 'deprecated') {
 		console.warn(
@@ -335,6 +337,15 @@ function getRuntime() {
 			).format(support.removal)}.`
 		);
 		console.warn(`[${PACKAGE_NAME}] Consider upgrading your local version to 18.`);
+	}
+}
+
+function getRuntime() {
+	const version = process.version.slice(1); // 'v16.5.0' --> '16.5.0'
+	const major = version.split('.')[0]; // '16.5.0' --> '16'
+	const support = SUPPORTED_NODE_VERSIONS[major];
+	if (support === undefined) {
+		return 'nodejs18.x';
 	}
 	return `nodejs${major}.x`;
 }
