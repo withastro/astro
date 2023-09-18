@@ -314,31 +314,35 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 	};
 }
 
+function validateRuntime(major: string) {
+	const support = SUPPORTED_NODE_VERSIONS[major];
+	if (support === undefined) {
+		console.warn(
+			`[${PACKAGE_NAME}] The local Node.js version (${major}) is not supported by Vercel Serverless Functions.`
+		);
+		console.warn(`[${PACKAGE_NAME}] Your project will use Node.js 18 as the runtime instead.`);
+		console.warn(`[${PACKAGE_NAME}] Consider switching your local version to 18.`);
+		return 'nodejs18.x';
+	}
+	if (support.status === 'deprecated') {
+		console.warn(
+			`[${PACKAGE_NAME}] Your project is being built for Node.js ${major} as the runtime.`
+		);
+		console.warn(
+			`[${PACKAGE_NAME}] This version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${new Intl.DateTimeFormat(
+				undefined,
+				{ dateStyle: 'long' }
+			).format(support.removal)}.`
+		);
+		console.warn(`[${PACKAGE_NAME}] Consider upgrading your local version to 18.`);
+	}
+}
+
 function getRuntime(verbose?: boolean) {
 	const version = process.version.slice(1); // 'v16.5.0' --> '16.5.0'
 	const major = version.split('.')[0]; // '16.5.0' --> '16'
 	if (verbose) {
-		const support = SUPPORTED_NODE_VERSIONS[major];
-		if (support === undefined) {
-			console.warn(
-				`[${PACKAGE_NAME}] The local Node.js version (${major}) is not supported by Vercel Serverless Functions.`
-			);
-			console.warn(`[${PACKAGE_NAME}] Your project will use Node.js 18 as the runtime instead.`);
-			console.warn(`[${PACKAGE_NAME}] Consider switching your local version to 18.`);
-			return 'nodejs18.x';
-		}
-		if (support.status === 'deprecated') {
-			console.warn(
-				`[${PACKAGE_NAME}] Your project is being built for Node.js ${major} as the runtime.`
-			);
-			console.warn(
-				`[${PACKAGE_NAME}] This version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${new Intl.DateTimeFormat(
-					undefined,
-					{ dateStyle: 'long' }
-				).format(support.removal)}.`
-			);
-			console.warn(`[${PACKAGE_NAME}] Consider upgrading your local version to 18.`);
-		}
+		validateRuntime(major);
 	}
 	return `nodejs${major}.x`;
 }
