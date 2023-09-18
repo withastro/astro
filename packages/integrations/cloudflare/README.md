@@ -115,8 +115,12 @@ If you're using the `advanced` runtime, you can type the `runtime` object as fol
 /// <reference types="astro/client" />
 import type { AdvancedRuntime } from '@astrojs/cloudflare';
 
+type ENV = {
+  SERVER_URL: string;
+}
+
 declare namespace App {
-  interface Locals extends AdvancedRuntime {
+  interface Locals extends AdvancedRuntime<ENV> {
     user: {
       name: string;
       surname: string;
@@ -132,8 +136,12 @@ If you're using the `directory` runtime, you can type the `runtime` object as fo
 /// <reference types="astro/client" />
 import type { DirectoryRuntime } from '@astrojs/cloudflare';
 
+type ENV = {
+  SERVER_URL: string;
+}
+
 declare namespace App {
-  interface Locals extends DirectoryRuntime {
+  interface Locals extends DirectoryRuntime<ENV> {
     user: {
       name: string;
       surname: string;

@@ -9,13 +9,12 @@ if (!isNode) {
 
 type Env = {
 	ASSETS: { fetch: (req: Request) => Promise<Response> };
-	name: string;
 };
 
-export interface AdvancedRuntime {
+export interface AdvancedRuntime<T extends object = object> {
 	runtime: {
 		waitUntil: (promise: Promise<any>) => void;
-		env: Env;
+		env: Env & T;
 		cf: CFRequest['cf'];
 		caches: typeof caches;
 	};
