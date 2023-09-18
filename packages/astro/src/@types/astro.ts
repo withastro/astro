@@ -48,6 +48,7 @@ export type {
 	ImageQuality,
 	ImageQualityPreset,
 	ImageTransform,
+	UnresolvedImageTransform,
 } from '../assets/types.js';
 export type { RemotePattern } from '../assets/utils/remotePattern.js';
 export type { SSRManifest } from '../core/app/types.js';
