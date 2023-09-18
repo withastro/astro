@@ -324,6 +324,7 @@ function validateRuntime() {
 		);
 		console.warn(`[${PACKAGE_NAME}] Your project will use Node.js 18 as the runtime instead.`);
 		console.warn(`[${PACKAGE_NAME}] Consider switching your local version to 18.`);
+		return 'nodejs18.x';
 	}
 	if (support.status === 'deprecated') {
 		console.warn(
