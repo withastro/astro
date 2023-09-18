@@ -117,7 +117,7 @@ import type { AdvancedRuntime } from '@astrojs/cloudflare';
 
 type ENV = {
   SERVER_URL: string;
-}
+};
 
 declare namespace App {
   interface Locals extends AdvancedRuntime<ENV> {
@@ -138,7 +138,7 @@ import type { DirectoryRuntime } from '@astrojs/cloudflare';
 
 type ENV = {
   SERVER_URL: string;
-}
+};
 
 declare namespace App {
   interface Locals extends DirectoryRuntime<ENV> {
