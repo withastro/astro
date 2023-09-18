@@ -601,7 +601,7 @@ async function generatePath(
 		}
 		// A dynamic redirect, set the location so that integrations know about it.
 		if (pageData.route.type !== 'redirect') {
-			pageData.route.redirect = location;
+			pageData.route.redirect = location.toString();
 		}
 	} else {
 		// If there's no body, do nothing
