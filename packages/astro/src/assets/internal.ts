@@ -67,7 +67,7 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 }
 
 export async function getImage(
-	options: ImageTransform | UnresolvedImageTransform,
+	options: UnresolvedImageTransform,
 	imageConfig: AstroConfig['image']
 ): Promise<GetImageResult> {
 	if (!options || typeof options !== 'object') {
