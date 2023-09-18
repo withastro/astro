@@ -9,11 +9,15 @@ const { tags, ...attrs } = Astro.props;
 ---
 
 <ul {...attrs}>
-	{tags.map((tag) => (
-		<li>
-			<a href={`/category/${tag}/`} rel="category tag" class="p-category">{tag}</a>
-		</li>
-	))}
+	{
+		tags.map((tag) => (
+			<li>
+				<a href={`/category/${tag}/`} rel="category tag" class="p-category">
+					{tag}
+				</a>
+			</li>
+		))
+	}
 </ul>
 
 <style>
@@ -23,7 +27,7 @@ const { tags, ...attrs } = Astro.props;
 		display: flex;
 		gap: var(--theme-space-3xs);
 	}
-	li {
+	.p-category {
 		padding: var(--theme-space-3xs) var(--theme-space-2xs);
 		border-radius: var(--theme-radius-full);
 		background-color: var(--theme-accent-dark);
@@ -31,7 +35,7 @@ const { tags, ...attrs } = Astro.props;
 		font-size: var(--theme-text-sm);
 		font-weight: 500;
 	}
-	li::before {
+	.p-category::before {
 		content: '#';
 	}
 </style>

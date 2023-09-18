@@ -1,6 +1,5 @@
 ---
 import ArticleHeader from './ArticleHeader.astro';
-import SplitLayout from './SplitLayout.astro';
 import type { Article, Post } from '../content/config.js';
 
 export interface Props {
@@ -9,31 +8,14 @@ export interface Props {
 
 const { article } = Astro.props;
 
-const { Content, headings } = await article.render();
+const { Content } = await article.render();
 ---
 
 <article>
 	<ArticleHeader {article} class="header" />
-	<SplitLayout reverse>
 		<div class="e-content">
 			<Content />
 		</div>
-
-		{
-			headings.length > 0 && (
-				<aside>
-					<h3>Table of contents</h3>
-					<ul>
-						{headings.map(({ slug, text }) => (
-							<li>
-								<a href={`${Astro.url.pathname}#${slug}`}>{text}</a>
-							</li>
-						))}
-					</ul>
-				</aside>
-			)
-		}
-	</SplitLayout>
 </article>
 
 <style>
@@ -60,30 +42,7 @@ const { Content, headings } = await article.render();
 		margin-inline: auto;
 	}
 
-	aside {
-		display: none;
-	}
-
-	aside ul {
-		list-style: none;
-		padding: 0;
-		margin-top: var(--theme-space-sm);
-	}
-
-	aside ul > * + * {
-		margin-block-start: var(--theme-space-xs);
-	}
-
-	aside a {
-		font-weight: bold;
-		text-decoration: none;
-	}
-
 	@media (min-width: 50em) {
-		aside {
-			display: block;
-		}
-
 		.e-content > :global(* + *) {
 			margin-block-start: 1.5em;
 		}
