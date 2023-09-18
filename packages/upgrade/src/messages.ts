@@ -1,7 +1,10 @@
 /* eslint no-console: 'off' */
+import type { PackageInfo } from './actions/context.js';
 import { color, label, spinner as load } from '@astrojs/cli-kit';
+import { align } from '@astrojs/cli-kit/utils';
 import detectPackageManager from 'which-pm-runs';
 import { shell } from './shell.js';
+import semverCoerce from 'semver/functions/coerce.js';
 
 // Users might lack access to the global npm registry, this function
 // checks the user's project type and will return the proper npm registry
@@ -61,26 +64,37 @@ export const banner = async () =>
 	);
 
 export const bannerAbort = () =>
-	log(`\n${label('astro', color.bgRed)} ${color.bold('Launch sequence aborted.')}`);
+	log(`\n${label('astro', color.bgRed)} ${color.bold('Integration upgrade aborted.')}`);
 
 export const info = async (prefix: string, text: string, version = '') => {
 	const length = 11 + prefix.length + text.length + version?.length;
+	const symbol = '◼';
 	if (length > stdout.columns) {
-		log(`${' '.repeat(5)} ${color.cyan('◼')}  ${prefix}`);
+		log(`${' '.repeat(5)} ${color.cyan(symbol)}  ${prefix}`);
 		log(`${' '.repeat(9)}${color.dim(text)} ${color.reset(version)}`);
 	} else {
-		log(`${' '.repeat(5)} ${color.cyan('◼')}  ${prefix} ${color.dim(text)} ${color.reset(version)}`);
+		log(`${' '.repeat(5)} ${color.cyan(symbol)}  ${prefix} ${color.dim(text)} ${color.reset(version)}`);
 	}
 }
-export const upgrade = async (prefix: string, text: string, version = '') => {
-	const length = 11 + prefix.length + text.length + version.length;
+export const upgrade = async (packageInfo: PackageInfo, text: string) => {
+	const { name, isMajor = false, targetVersion } = packageInfo;
+	
+	const bg = isMajor ? (v: string) => color.bgYellow(color.black(` ${v} `)) : color.green;
+	const style = isMajor ? color.yellow : color.green;
+	const symbol = isMajor ? '▲' : '●';
+ 	const toVersion = semverCoerce(targetVersion)!;
+	const version = `v${toVersion.version}`;
+
+	const length = 12 + name.length + text.length + version.length;
 	if (length > stdout.columns) {
-		log(`${' '.repeat(5)} ${color.magenta('▲')}  ${prefix}`);
-		log(`${' '.repeat(9)}${color.dim(text)} ${color.magenta(version)}`);
+		log(`${' '.repeat(5)} ${style(symbol)}  ${name}`);
+		log(`${' '.repeat(9)}${color.dim(text)} ${bg(version)}`);
 	} else {
-		log(`${' '.repeat(5)} ${color.magenta('▲')}  ${prefix} ${color.dim(text)} ${color.magenta(version)}`);
+		log(`${' '.repeat(5)} ${style(symbol)}  ${name} ${color.dim(text)} ${bg(version)}`);
 	}
 }
+
+export const title = (text: string) => align(label(text, color.bgYellow, color.black), 'end', 7) + ' ';
 
 export const success = async (prefix: string, text: string) => {
 	const length = 10 + prefix.length + text.length;

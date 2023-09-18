@@ -32,9 +32,11 @@
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {
     "@astrojs/cli-kit": "^0.2.3",
+    "semver": "^7.5.4",
     "which-pm-runs": "^1.1.0"
   },
   "devDependencies": {
+    "@types/semver": "^7.5.2",
     "@types/which-pm-runs": "^1.0.0",
     "arg": "^5.0.2",
     "astro-scripts": "workspace:*",

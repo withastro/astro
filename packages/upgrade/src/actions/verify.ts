@@ -5,6 +5,8 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { color } from '@astrojs/cli-kit';
 import { bannerAbort, error, getRegistry, info, log } from '../messages.js';
+import semverDiff from 'semver/functions/diff.js';
+import semverCoerce from 'semver/functions/coerce.js'
 
 
 export async function verify(
@@ -60,10 +62,6 @@ async function verifyAstroProject(ctx: Pick<Context, 'cwd' | 'version' | 'packag
 	
 	// Side-effect! Persist dependency info to the shared context
 	collectPackageInfo(ctx, dependencies, devDependencies);
-	ctx.packages.sort((a: PackageInfo) => {
-		if (a.name === 'astro') return -1;
-		return 0;
-	})
 	
 	return true;
 }
@@ -122,5 +120,9 @@ async function resolveTargetVersion(packageInfo: PackageInfo, registry: string):
 	}
 	const prefix = packageInfo.targetVersion === 'latest' ? '^' : '';
 	packageInfo.targetVersion = `${prefix}${version}`;
+	const fromVersion = semverCoerce(packageInfo.currentVersion)!;
+	const toVersion = semverCoerce(packageInfo.targetVersion)!;
+	const bump = semverDiff(fromVersion, toVersion);
+	packageInfo.isMajor = bump === 'major';
 }
 

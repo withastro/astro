@@ -21,6 +21,7 @@ export interface PackageInfo {
 	currentVersion: string;
 	targetVersion: string;
 	isDevDependency?: boolean;
+	isMajor?: boolean;
 }
 
 export async function getContext(argv: string[]): Promise<Context> {

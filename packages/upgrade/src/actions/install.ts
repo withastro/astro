@@ -4,12 +4,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { color } from '@astrojs/cli-kit';
-import { celebrations, done, error, info, log, spinner, success, upgrade, banner } from '../messages.js';
+import { celebrations, done, error, info, log, spinner, success, upgrade, banner, title } from '../messages.js';
 import { shell } from '../shell.js';
 import { random, sleep } from '@astrojs/cli-kit/utils';
 
+const pluralize = (n: number) => {
+	if (n === 1) return `One package has`;
+	return `Some packages have`;
+}
+
 export async function install(
-	ctx: Pick<Context, 'version' | 'packages' | 'packageManager' | 'dryRun' | 'cwd'>
+	ctx: Pick<Context, 'version' | 'packages' | 'packageManager' | 'prompt' | 'dryRun' | 'exit' | 'cwd'>
 ) {
 	await banner();
 	log('')
@@ -18,17 +23,30 @@ export async function install(
 	for (const packageInfo of current) {
 		const tag = /^\d/.test(packageInfo.targetVersion) ? packageInfo.targetVersion : packageInfo.targetVersion.slice(1)
 		await info(`${packageInfo.name}`, `is up to date on`, `v${tag}`)
-		await sleep(random(0, 100));
+		await sleep(random(50, 150));
 	}
 	if (toInstall.length === 0 && !ctx.dryRun) {
 		log('')
 		await success(random(celebrations), random(done))
 		return;
 	}
+	const majors: PackageInfo[] = []
 	for (const packageInfo of [...dependencies, ...devDependencies]) {
-		const tag = /^\d/.test(packageInfo.targetVersion) ? packageInfo.targetVersion : packageInfo.targetVersion.slice(1)
-		const word = ctx.dryRun ? 'can' : 'will'
-		await upgrade(`${packageInfo.name}`, `${word} be updated to`,  `v${tag}`)
+		const word = ctx.dryRun ? 'can' : 'will';
+		await upgrade(packageInfo, `${word} be updated to`)
+		if (packageInfo.isMajor) {
+			majors.push(packageInfo)
+		}
+	}
+	if (majors.length > 0) {
+		const { proceed } = await ctx.prompt({
+			name: 'proceed',
+			type: 'confirm',
+			label: title('WARN!'),
+			message: `Continue? ${pluralize(majors.length)} breaking changes!`,
+			initial: true,
+		});
+		if (!proceed) ctx.exit(0);
 	}
 
 	log('')
@@ -65,10 +83,10 @@ async function runInstallCommand(ctx: Pick<Context, 'cwd' | 'packageManager'>, d
 		while: async () => {
 			try {
 				if (dependencies.length > 0) {
-					await shell(ctx.packageManager, ['install', ...dependencies.map(({ name, targetVersion }) => `${name}@${targetVersion}`)], { cwd, timeout: 90_000, stdio: 'ignore' })
+					await shell(ctx.packageManager, ['install', ...dependencies.map(({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`)], { cwd, timeout: 90_000, stdio: 'ignore' })
 				}
 				if (devDependencies.length > 0) {
-					await shell(ctx.packageManager, ['install', '--save-dev', ...devDependencies.map(({ name, targetVersion }) => `${name}@${targetVersion}`)], { cwd, timeout: 90_000, stdio: 'ignore' })
+					await shell(ctx.packageManager, ['install', '--save-dev', ...devDependencies.map(({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`)], { cwd, timeout: 90_000, stdio: 'ignore' })
 				}
 			} catch (e) {
 				const packages = [...dependencies, ...devDependencies].map(({ name, targetVersion }) => `${name}@${targetVersion}`).join(' ')
