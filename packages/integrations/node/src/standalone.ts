@@ -53,7 +53,8 @@ export default function startServer(app: NodeApp, options: Options) {
 			host,
 			removeBase: app.removeBase.bind(app),
 		},
-		handler
+		handler,
+		options.trailingSlash
 	);
 
 	const protocol = server.server instanceof https.Server ? 'https' : 'http';

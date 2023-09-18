@@ -46,6 +46,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 					server: config.build.server?.toString(),
 					host: config.server.host,
 					port: config.server.port,
+					trailingSlash: config.trailingSlash,
 				};
 				setAdapter(getAdapter(_options));
 

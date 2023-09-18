@@ -23,13 +23,14 @@ function parsePathname(pathname: string, host: string | undefined, port: number)
 
 export function createServer(
 	{ client, port, host, removeBase }: CreateServerOptions,
-	handler: http.RequestListener
+	handler: http.RequestListener,
+	trailingSlash: string
 ) {
 	const listener: http.RequestListener = (req, res) => {
 		if (req.url) {
 			let pathname: string | undefined = removeBase(req.url);
 			pathname = pathname[0] === '/' ? pathname : '/' + pathname;
-			const encodedURI = parsePathname(pathname, host, port);
+			let encodedURI = parsePathname(pathname, host, port);
 
 			if (!encodedURI) {
 				res.writeHead(400);
@@ -37,7 +38,21 @@ export function createServer(
 				return res;
 			}
 
-			const stream = send(req, encodedURI, {
+			let pathForSend = encodedURI;
+
+			if (trailingSlash === 'never') {
+				if (pathname.endsWith('/')) {
+					encodedURI = parsePathname(pathname.substring(0, pathname.length - 1), host, port);
+					if (!encodedURI) {
+						res.writeHead(400);
+						res.end('Bad request.');
+						return res;
+					}
+				}
+				pathForSend = encodedURI + '/';
+			}
+
+			const stream = send(req, pathForSend, {
 				root: fileURLToPath(client),
 				dotfiles: pathname.startsWith('/.well-known/') ? 'allow' : 'deny',
 			});
@@ -64,9 +79,11 @@ export function createServer(
 					location = req.url + '/';
 				}
 
-				res.statusCode = 301;
-				res.setHeader('Location', location);
-				res.end(location);
+				if (!pathForSend.endsWith('/')) {
+					res.statusCode = 301;
+					res.setHeader('Location', location);
+					res.end(location);
+				}
 			});
 			stream.on('file', () => {
 				forwardError = true;
