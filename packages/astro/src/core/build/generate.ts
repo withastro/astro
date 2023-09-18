@@ -141,7 +141,6 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		? opts.settings.config.build.server
 		: getOutDirWithinCwd(opts.settings.config.outDir);
 
-
 	const siteURL: string | undefined = opts.settings.config['site'];
 
 	const logger = pipeline.getLogger();
@@ -418,10 +417,10 @@ function getInvalidRouteSegmentError(
 		...AstroErrorData.InvalidDynamicRoute,
 		message: invalidParam
 			? AstroErrorData.InvalidDynamicRoute.message(
-				route.route,
-				JSON.stringify(invalidParam),
-				JSON.stringify(received)
-			)
+					route.route,
+					JSON.stringify(invalidParam),
+					JSON.stringify(received)
+			  )
 			: `Generated path for ${route.route} is invalid.`,
 		hint,
 	});
@@ -492,7 +491,12 @@ function getUrlForPath(
 	return url;
 }
 
-async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeline: BuildPipeline, siteURL: string | undefined) {
+async function generatePath(
+	pathname: string,
+	gopts: GeneratePathOptions,
+	pipeline: BuildPipeline,
+	siteURL: string | undefined
+) {
 	const manifest = pipeline.getManifest();
 	const { mod, scripts: hoistedScripts, styles: _styles, pageData } = gopts;
 
@@ -578,7 +582,7 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		if (!pipeline.getConfig().build.redirects) {
 			return;
 		}
-		const locationSite = getRedirectLocationOrThrow(response.headers)
+		const locationSite = getRedirectLocationOrThrow(response.headers);
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(renderContext.request.url).pathname;
 		// A short delay causes Google to interpret the redirect as temporary.
