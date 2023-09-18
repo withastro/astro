@@ -60,7 +60,8 @@ const preview: CreatePreviewServer = async function ({
 			host,
 			removeBase,
 		},
-		handler
+		handler,
+		'ignore'
 	);
 	const address = getNetworkAddress('http', host, port);
 
