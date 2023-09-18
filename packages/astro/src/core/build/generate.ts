@@ -141,6 +141,9 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		? opts.settings.config.build.server
 		: getOutDirWithinCwd(opts.settings.config.outDir);
 
+
+	const siteURL: string | undefined = opts.settings.config['site'];
+
 	const logger = pipeline.getLogger();
 	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
 	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
@@ -166,7 +169,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 					// forcing to use undefined, so we fail in an expected way if the module is not even there.
 					const ssrEntry = ssrEntryPage?.pageModule;
 					if (ssrEntry) {
-						await generatePage(pageData, ssrEntry, builtPaths, pipeline);
+						await generatePage(pageData, ssrEntry, builtPaths, pipeline, siteURL);
 					} else {
 						throw new Error(
 							`Unable to find the manifest for the module ${ssrEntryURLPage.toString()}. This is unexpected and likely a bug in Astro, please report.`
@@ -174,24 +177,24 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 					}
 				} else {
 					const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
-					await generatePage(pageData, ssrEntry, builtPaths, pipeline);
+					await generatePage(pageData, ssrEntry, builtPaths, pipeline, siteURL);
 				}
 			}
 			if (pageData.route.type === 'redirect') {
 				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, pipeline);
+				await generatePage(pageData, entry, builtPaths, pipeline, siteURL);
 			}
 		}
 	} else {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (pageData.route.type === 'redirect') {
 				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, pipeline);
+				await generatePage(pageData, entry, builtPaths, pipeline, siteURL);
 			} else {
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const entry: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
 
-				await generatePage(pageData, entry, builtPaths, pipeline);
+				await generatePage(pageData, entry, builtPaths, pipeline, siteURL);
 			}
 		}
 	}
@@ -254,7 +257,8 @@ async function generatePage(
 	pageData: PageBuildData,
 	ssrEntry: SinglePageBuiltModule,
 	builtPaths: Set<string>,
-	pipeline: BuildPipeline
+	pipeline: BuildPipeline,
+	siteURL: string | undefined
 ) {
 	let timeStart = performance.now();
 	const logger = pipeline.getLogger();
@@ -313,7 +317,7 @@ async function generatePage(
 	let prevTimeEnd = timeStart;
 	for (let i = 0; i < paths.length; i++) {
 		const path = paths[i];
-		await generatePath(path, generationOptions, pipeline);
+		await generatePath(path, generationOptions, pipeline, siteURL);
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
@@ -414,10 +418,10 @@ function getInvalidRouteSegmentError(
 		...AstroErrorData.InvalidDynamicRoute,
 		message: invalidParam
 			? AstroErrorData.InvalidDynamicRoute.message(
-					route.route,
-					JSON.stringify(invalidParam),
-					JSON.stringify(received)
-			  )
+				route.route,
+				JSON.stringify(invalidParam),
+				JSON.stringify(received)
+			)
 			: `Generated path for ${route.route} is invalid.`,
 		hint,
 	});
@@ -488,7 +492,7 @@ function getUrlForPath(
 	return url;
 }
 
-async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeline: BuildPipeline) {
+async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeline: BuildPipeline, siteURL: string | undefined) {
 	const manifest = pipeline.getManifest();
 	const { mod, scripts: hoistedScripts, styles: _styles, pageData } = gopts;
 
@@ -574,7 +578,8 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		if (!pipeline.getConfig().build.redirects) {
 			return;
 		}
-		const location = getRedirectLocationOrThrow(response.headers);
+		const locationSite = getRedirectLocationOrThrow(response.headers)
+		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(renderContext.request.url).pathname;
 		// A short delay causes Google to interpret the redirect as temporary.
 		// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
