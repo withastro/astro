@@ -70,7 +70,8 @@ export default function configAliasVitePlugin({
 
 	const plugin: VitePlugin = {
 		name: 'astro:tsconfig-alias',
-		enforce: 'pre',
+		// use post to only resolve ids that all other plugins before it can't
+		enforce: 'post',
 		configResolved(config) {
 			patchCreateResolver(config, plugin);
 		},

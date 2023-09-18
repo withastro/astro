@@ -111,8 +111,6 @@ export async function createVite(
 			exclude: ['astro', 'node-fetch'],
 		},
 		plugins: [
-			configAliasVitePlugin({ settings }),
-			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
 			astroVitePlugin({ settings, logger }),
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
@@ -134,6 +132,8 @@ export async function createVite(
 			vitePluginSSRManifest(),
 			astroAssetsPlugin({ settings, logger, mode }),
 			astroTransitions(),
+			configAliasVitePlugin({ settings }),
+			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
