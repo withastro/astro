@@ -75,9 +75,9 @@ const postUrl = `/post/${post.slug}/`;
 	header {
 		display: grid;
 		grid-template-columns: auto auto 1fr;
-		grid-template-areas: 'avatar name nickname' 'avatar tags tags';
+		grid-template-areas: 'avatar name' 'avatar nickname' 'tags tags';
 		align-items: center;
-		row-gap: var(--theme-space-2xs);
+		row-gap: var(--theme-space-3xs);
 		column-gap: var(--theme-space-sm);
 	}
 	.h-card .u-photo {
@@ -99,11 +99,15 @@ const postUrl = `/post/${post.slug}/`;
 	}
 	.tags {
 		grid-area: tags;
+		margin-block-start: var(--theme-space-2xs);
 	}
-	article > img {
+	article > .u-photo {
 		aspect-ratio: 21/9;
 		object-fit: cover;
 		border-radius: var(--theme-radius-lg);
+	}
+	.e-content > :global(* + *) {
+		margin-block-start: 1em;
 	}
 	footer {
 		display: flex;
@@ -112,5 +116,14 @@ const postUrl = `/post/${post.slug}/`;
 	}
 	footer > *:only-child {
 		margin-inline-start: auto;
+	}
+	@media (min-width: 50em) {
+		header {
+			grid-template-areas: 'avatar name nickname' 'avatar tags tags';
+		}
+
+		.tags {
+			margin-block-start: 0;
+		}
 	}
 </style>

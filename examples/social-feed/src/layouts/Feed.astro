@@ -12,26 +12,5 @@ export interface Props extends LayoutProps {}
 		<div>
 			<slot />
 		</div>
-</SplitLayout>
+	</SplitLayout>
 </Layout>
-
-<style>
-	.flex-col {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.wrapper {
-		gap: var(--theme-size-xl);
-		margin: 0 auto;
-		width: 100%;
-		max-width: var(--theme-content-width);
-	}
-
-	@media (min-width: 50em) {
-		.wrapper {
-			display: grid;
-			grid-template-columns: 12rem 1fr;
-		}
-	}
-</style>
