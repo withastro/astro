@@ -28,8 +28,11 @@ export interface ImageMetadata {
 	orientation?: number;
 }
 
+/**
+ * A yet to be resolved image transform. Used by `getImage`
+ */
 export type UnresolvedImageTransform = Omit<ImageTransform, 'src'> & {
-	src: Promise<{ default: ImageMetadata }>;
+	src: ImageMetadata | string | Promise<{ default: ImageMetadata }>;
 };
 
 /**
