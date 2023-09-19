@@ -6,8 +6,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { error, info, spinner, title } from '../messages.js';
 
-export async function template(ctx: Pick<Context, 'template' | 'prompt' | 'dryRun' | 'exit'>) {
-	if (!ctx.template) {
+export async function template(ctx: Pick<Context, 'template' | 'prompt' | 'yes' | 'dryRun' | 'exit'>) {
+	if (ctx.yes) {
+		ctx.template = 'basics';
+		await info('tmpl', `Using ${color.reset(ctx.template)}${color.dim(' as project template')}`);
+	} else if (!ctx.template) {
 		const { template: tmpl } = await ctx.prompt({
 			name: 'template',
 			type: 'select',
