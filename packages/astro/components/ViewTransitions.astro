@@ -174,6 +174,22 @@ const { fallback = 'animate' } = Astro.props as Props;
 				html.setAttribute(name, value)
 			);
 
+			// Replace scripts in both the head and body.
+			for(const s1 of document.scripts) {
+				for (const s2 of doc.scripts) {
+					if (
+						// Inline
+						(s1.textContent && s1.textContent === s2.textContent) ||
+						// External
+						(s1.type === s2.type && s1.src === s2.src)
+					) {
+						s2.remove();
+					} else {
+						s1.remove();
+					}
+				}
+			}
+
 			// Swap head
 			for (const el of Array.from(document.head.children)) {
 				const newEl = persistedHeadElement(el as HTMLElement);
@@ -186,22 +202,9 @@ const { fallback = 'animate' } = Astro.props as Props;
 					el.remove();
 				}
 			}
+
 			// Everything left in the new head is new, append it all.
 			document.head.append(...doc.head.children);
-
-			// Replace scripts
-			for(const s1 of document.scripts) {
-				for (const s2 of doc.scripts) {
-					if (
-						// Inline
-						(s1.textContent && s1.textContent === s2.textContent) ||
-						// External
-						(s1.type === s2.type && s1.src === s2.src)
-					) {
-						s2.remove();
-					}
-				}
-			}
 
 			// Persist elements in the existing body
 			const oldBody = document.body;
