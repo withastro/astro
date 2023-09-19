@@ -626,7 +626,7 @@ export const ExpectedImageOptions = {
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
- * Astro could not find an image you imported. Usually, this is simply caused by a typo in the path.
+ * Astro could not find an image you imported. Often, this is simply caused by a typo in the path.
  *
  * Images in Markdown are relative to the current file. To refer to an image that is located in the same folder as the `.md` file, the path should start with `./`
  */
