@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.2.0
+
+### Minor Changes
+
+- [#8551](https://github.com/withastro/astro/pull/8551) [`1d5b3f079`](https://github.com/withastro/astro/commit/1d5b3f079d0b4aa5a5c46f97b8b724ab88497fbe) Thanks [@jacobthesheep](https://github.com/jacobthesheep)! - Adds `--yes` and `dry-run` flags to project-name and the `yes` flag to template.
+
 ## 4.1.0
 
 ### Minor Changes
