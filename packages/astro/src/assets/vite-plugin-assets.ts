@@ -2,6 +2,7 @@ import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroPluginOptions, ImageTransform } from '../@types/astro.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import {
 	appendForwardSlash,
 	joinPaths,
@@ -125,6 +126,14 @@ export default function assets({
 				}
 				if (assetRegex.test(id)) {
 					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile);
+
+					if (!meta) {
+						throw new AstroError({
+							...AstroErrorData.ImageNotFound,
+							message: AstroErrorData.ImageNotFound.message(id),
+						});
+					}
+
 					return `export default ${JSON.stringify(meta)}`;
 				}
 			},
