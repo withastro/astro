@@ -12,6 +12,8 @@ import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StylesheetAsset, ViteID } from './types.js';
 
 export interface BuildInternals {
+	cache: any;
+
 	/**
 	 * Each CSS module is named with a chunk id derived from the Astro pages they
 	 * are used in by default. It's easy to crawl this relation in the SSR build as
@@ -106,6 +108,8 @@ export function createBuildInternals(): BuildInternals {
 	const hoistedScriptIdToPagesMap = new Map<string, Set<string>>();
 
 	return {
+		cache: [],
+
 		cssModuleToChunkIdMap: new Map(),
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,

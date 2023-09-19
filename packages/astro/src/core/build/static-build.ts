@@ -77,11 +77,40 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const container = createPluginContainer(opts, internals);
 	registerAllPlugins(container);
 
+	// HACK(nate): Begin cache restoration
+	const cacheDir = new URL('./node_modules/.cache/astro/', settings.config.root);
+	const cacheFile = new URL('./build.json', cacheDir);
+	let restore = false;
+	if (fs.existsSync(cacheDir)) {
+		internals.cache = JSON.parse(fs.readFileSync(cacheFile, { encoding: 'utf8' }));
+		restore = true;
+	}
+
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrTime = performance.now();
 	opts.logger.info('build', `Building ${settings.config.output} entrypoints...`);
 	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
 	opts.logger.info('build', dim(`Completed in ${getTimeStat(ssrTime, performance.now())}.`));
+
+	// HACK(nate): write to cache
+	internals.cache = [];
+	for (const output of ssrOutput.output) {
+		const md = output.moduleIds.filter(id => id.endsWith('.md'))
+		if (!!md) {
+			console.log(output.moduleIds);
+			// const { fileName: id, code: content } = output.moduleIds
+			// internals.cache.push({ input, output: { id, content } })
+		}
+	}
+	fs.mkdirSync(cacheDir, { recursive: true });
+	fs.writeFileSync(cacheFile, JSON.stringify(internals.cache), { encoding: 'utf8' });
+
+	if (restore) {
+		console.log('RESTORING CACHE');
+		for (const cached of internals.cache) {
+			fs.writeFileSync(new URL(`./${cached.output.id}`, settings.config.outDir), cached.output.content, { encoding: 'utf8' });
+		}
+	}
 
 	settings.timer.end('SSR build');
 	settings.timer.start('Client build');
@@ -123,7 +152,7 @@ export async function staticBuild(opts: StaticBuildOptions, internals: BuildInte
 		case settings.config.output === 'static': {
 			settings.timer.start('Static generate');
 			await generatePages(opts, internals);
-			await cleanServerOutput(opts);
+			// await cleanServerOutput(opts);
 			settings.timer.end('Static generate');
 			return;
 		}
