@@ -217,7 +217,7 @@ Astro's Cloudflare adapter allows you to use any Node.js runtime API supported b
 - StringDecoder
 - util
 
-To use these APIs, your page or endpoint must be server-side rendered (not pre-rendered) and must use the the `import {} from 'node:*'` import syntax. 
+To use these APIs, your page or endpoint must be server-side rendered (not pre-rendered) and must use the the `import {} from 'node:*'` import syntax.
 
 ```js
 // pages/api/endpoint.js
@@ -225,7 +225,7 @@ export const prerender = false;
 import { Buffer } from 'node:buffer';
 ```
 
-Additionally, you'll need to enable the Compatibility Flag in Cloudflare. The configuration for this flag may vary based on where you deploy your Astro site. 
+Additionally, you'll need to enable the Compatibility Flag in Cloudflare. The configuration for this flag may vary based on where you deploy your Astro site.
 
 For detailed guidance, please refer to the [Cloudflare documentation](https://developers.cloudflare.com/workers/runtime-apis/nodejs).
 
