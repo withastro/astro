@@ -1,5 +1,15 @@
 # astro
 
+## 3.1.1
+
+### Patch Changes
+
+- [#8580](https://github.com/withastro/astro/pull/8580) [`8d361169b`](https://github.com/withastro/astro/commit/8d361169b8e487933d671ce347f0ce74922c80cc) Thanks [@rishi-raj-jain](https://github.com/rishi-raj-jain)! - add hide to style & script generated for island
+
+- [#8568](https://github.com/withastro/astro/pull/8568) [`95b5f6280`](https://github.com/withastro/astro/commit/95b5f6280d124f8d6f866dc3286406c272ee91bf) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix small types issues related to `astro:assets`'s AVIF support and `getImage`
+
+- [#8579](https://github.com/withastro/astro/pull/8579) [`0586e20e8`](https://github.com/withastro/astro/commit/0586e20e8338e077b8eb1a3a96bdd19f5950c22f) Thanks [@rishi-raj-jain](https://github.com/rishi-raj-jain)! - show redirect symbol as of the page
+
 ## 3.1.0
 
 ### Minor Changes
