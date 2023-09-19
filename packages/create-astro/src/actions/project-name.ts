@@ -6,7 +6,9 @@ import { info, log, title } from '../messages.js';
 
 import { isEmpty, toValidName } from './shared.js';
 
-export async function projectName(ctx: Pick<Context, 'cwd' | 'yes' | 'dryRun' | 'prompt' | 'projectName' | 'exit'>) {
+export async function projectName(
+	ctx: Pick<Context, 'cwd' | 'yes' | 'dryRun' | 'prompt' | 'projectName' | 'exit'>
+) {
 	await checkCwd(ctx.cwd);
 
 	if (!ctx.cwd || !isEmpty(ctx.cwd)) {
