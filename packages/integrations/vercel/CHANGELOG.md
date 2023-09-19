@@ -1,5 +1,14 @@
 # @astrojs/vercel
 
+## 5.0.1
+
+### Patch Changes
+
+- [#8581](https://github.com/withastro/astro/pull/8581) [`d0e513f21`](https://github.com/withastro/astro/commit/d0e513f214fe3cb30bab6d98936cda796477f2f8) Thanks [@rishi-raj-jain](https://github.com/rishi-raj-jain)! - log only once in serverless adapter
+
+- Updated dependencies [[`8d361169b`](https://github.com/withastro/astro/commit/8d361169b8e487933d671ce347f0ce74922c80cc), [`95b5f6280`](https://github.com/withastro/astro/commit/95b5f6280d124f8d6f866dc3286406c272ee91bf), [`0586e20e8`](https://github.com/withastro/astro/commit/0586e20e8338e077b8eb1a3a96bdd19f5950c22f)]:
+  - astro@3.1.1
+
 ## 5.0.0
 
 ### Major Changes
