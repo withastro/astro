@@ -79,6 +79,12 @@ describe('Middleware in DEV mode', () => {
 		let html = await res.text();
 		expect(html).to.contain('<h1>it works</h1>');
 	});
+
+	it('should forward cookies set in a component when the middleware returns a new response', async () => {
+		let res = await fixture.fetch('/return-response-cookies');
+		let headers = res.headers;
+		expect(headers.get('set-cookie')).to.not.equal(null);
+	});
 });
 
 describe('Middleware in PROD mode, SSG', () => {
