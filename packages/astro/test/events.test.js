@@ -5,7 +5,6 @@ import * as events from '../dist/events/index.js';
 
 describe('Events', () => {
 	describe('eventCliSession()', () => {
-
 		it('string literal "build.format" is included', () => {
 			const config = {
 				srcDir: 1,
@@ -21,7 +20,6 @@ describe('Events', () => {
 			);
 			expect(payload.config.build.format).to.equal('file');
 		});
-
 
 		it('string literal "markdown.syntaxHighlight" is included', () => {
 			const config = {
@@ -91,7 +89,7 @@ describe('Events', () => {
 
 		it('only adapter name is included', () => {
 			const config = {
-				adapter: {name: 'ADAPTER_NAME'},
+				adapter: { name: 'ADAPTER_NAME' },
 			};
 			const [{ payload }] = events.eventCliSession({ cliCommand: 'dev' }, config);
 			expect(payload.config.adapter).to.equal('ADAPTER_NAME');
