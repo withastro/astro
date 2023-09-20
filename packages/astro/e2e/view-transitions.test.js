@@ -293,12 +293,12 @@ test.describe('View Transitions', () => {
 		locator = page.locator('#click-one-again');
 		await expect(locator).toBeInViewport();
 
-		// Scroll up to top fragment
+		// goto page 1
 		await page.click('#click-one-again');
 		locator = page.locator('#one');
 		await expect(locator).toHaveText('Page 1');
 
-		// Back to middle of the page
+		// Back to middle of the previous page
 		await page.goBack();
 		locator = page.locator('#click-one-again');
 		await expect(locator).toBeInViewport();

@@ -17,6 +17,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		index: number;
 		scrollX: number;
 		scrollY: number;
+		intraPage?: boolean;
 	};
 	type Events = 'astro:page-load' | 'astro:after-swap';
 
@@ -47,7 +48,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		currentHistoryIndex = history.state.index;
 		scrollTo({ left: history.state.scrollX, top: history.state.scrollY });
 	} else if (transitionEnabledOnThisPage()) {
-		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
+		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY, intraPage: false }, '');
 	}
 	const throttle = (cb: (...args: any[]) => any, delay: number) => {
 		let wait = false;
@@ -71,19 +72,28 @@ const { fallback = 'animate' } = Astro.props as Props;
 		};
 	};
 
-	async function fetchHTML(href: string) {
+	// returns the contents of the page or null if the router can't deal with it.
+	async function fetchHTML(
+		href: string
+	): Promise<null | { html: string; redirected?: string; mediaType: DOMParserSupportedType }> {
 		try {
 			const res = await fetch(href);
+			// drop potential charset (+ other name/value pairs) as parser needs the mediaType
+			const mediaType = res.headers.get('content-type')?.replace(/;.*$/, '');
+			// the DOMParser can handle two types of HTML
+			if (mediaType !== 'text/html' && mediaType !== 'application/xhtml+xml') {
+				// everything else (e.g. audio/mp3) will be handled by the browser but not by us
+				return null;
+			}
 			const html = await res.text();
 			return {
-				ok: res.ok,
 				html,
 				redirected: res.redirected ? res.url : undefined,
-				// drop potential charset (+ other name/value pairs) as parser needs the mediaType
-				mediaType: res.headers.get('content-type')?.replace(/;.*$/, ''),
+				mediaType,
 			};
 		} catch (err) {
-			return { ok: false };
+			// can't fetch, let someone else deal with it.
+			return null;
 		}
 	}
 
@@ -129,7 +139,33 @@ const { fallback = 'animate' } = Astro.props as Props;
 		return style.animationIterationCount === 'infinite';
 	}
 
-	async function updateDOM(newDocument: Document, loc: URL, state?: State, fallback?: Fallback) {
+	const updateHistoryAndScrollPosition = (loc) => {
+		if (loc.href !== location.href) {
+			history.pushState({ index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 }, '', loc.href);
+			// now we are on the new page for non-history navigations!
+			// (with history navigation page change happens before popstate is fired)
+		}
+		// freshly loaded pages start from the top
+		// done by replaceWith on body
+		//scrollTo({ left: 0, top: 0, behavior: 'instant' });
+
+		if (loc.hash) {
+			// because we are already on the target page ...
+			// ... what comes next is a intra-page navigation that won't reload the page
+			location.href = loc.href;
+		}
+	};
+
+	// replace head and body of the windows document with contents from newDocument
+	// if !popstate, update the history entry and scroll position according to toLocation
+	// if popState is given, this holds the scroll position for history navigation
+	// if fallback === "animate" then simulate view transitions
+	async function updateDOM(
+		newDocument: Document,
+		toLocation: URL,
+		popState?: State,
+		fallback?: Fallback
+	) {
 		// Check for a head element that should persist and returns it,
 		// either because it has the data attribute or is a link el.
 		const persistedHeadElement = (el: HTMLElement): Element | null => {
@@ -208,6 +244,8 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 			// Persist elements in the existing body
 			const oldBody = document.body;
+
+			// this will reset scroll Position
 			document.body.replaceWith(newDocument.body);
 			for (const el of oldBody.querySelectorAll(`[${PERSIST_ATTR}]`)) {
 				const id = el.getAttribute(PERSIST_ATTR);
@@ -219,22 +257,10 @@ const { fallback = 'animate' } = Astro.props as Props;
 				}
 			}
 
-			if (!state) {
-				history.pushState({ index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 }, '', loc.href);
-				// now we are on the new page for non-history navigations!
-				// (with history navigation page change happens before popstate is fired)
-			}
-			if (!state) {
-				// freshly loaded pages start from the top
-				scrollTo({ left: 0, top: 0, behavior: 'instant' });
-
-				if (loc.hash) {
-					// because we are already on the target page ...
-					// ... what comes next is a intra-page navigation that won't reload the page
-					location.href = loc.href;
-				}
+			if (popState) {
+				scrollTo(popState.scrollX, popState.scrollY); // usings 'auto' scrollBehavior
 			} else {
-				scrollTo(state.scrollX, state.scrollY); // usings 'auto' scrollBehavior
+				updateHistoryAndScrollPosition(toLocation);
 			}
 
 			triggerEvent('astro:after-swap');
@@ -282,21 +308,21 @@ const { fallback = 'animate' } = Astro.props as Props;
 		}
 	}
 
-	async function transition(direction: Direction, toLocation: URL, state?: State) {
+	async function transition(direction: Direction, toLocation: URL, popState?: State) {
 		let finished: Promise<void>;
 		const href = toLocation.href;
-		const { html, ok, mediaType, redirected } = await fetchHTML(href);
-		// if there was a redirection, show the final URL in the browser's address bar
-		if (redirected) {
-			toLocation = new URL(redirected);
-		}
+		const response = await fetchHTML(href);
 		// If there is a problem fetching the new page, just do an MPA navigation to it.
-		if (!ok || !(mediaType === 'text/html' || mediaType === 'application/xhtml+xml')) {
+		if (response === null) {
 			location.href = href;
 			return;
 		}
+		// if there was a redirection, show the final URL in the browser's address bar
+		if (response.redirected) {
+			toLocation = new URL(response.redirected);
+		}
 
-		const newDocument = parser.parseFromString(html, mediaType);
+		const newDocument = parser.parseFromString(response.html, response.mediaType);
 		// The next line might look like a hack,
 		// but it is actually necessary as noscript elements
 		// and their contents are returned as markup by the parser,
@@ -308,20 +334,18 @@ const { fallback = 'animate' } = Astro.props as Props;
 			return;
 		}
 
-		// Now we are sure that we will navigate,
-		// and it is time to create a state for the current page if it is still missing.
-		if (!state) {
-			history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
+		if (!popState) {
+			// save the current scroll position before we change the DOM and transition to the new page
+			history.replaceState({ ...history.state, scrollX, scrollY }, '');
 		}
-
 		document.documentElement.dataset.astroTransition = direction;
 		if (supportsViewTransitions) {
 			// @ts-expect-error: startViewTransition exist
 			finished = document.startViewTransition(() =>
-				updateDOM(newDocument, toLocation, state)
+				updateDOM(newDocument, toLocation, popState)
 			).finished;
 		} else {
-			finished = updateDOM(newDocument, toLocation, state, getFallback());
+			finished = updateDOM(newDocument, toLocation, popState, getFallback());
 		}
 		try {
 			await finished;
@@ -350,8 +374,6 @@ const { fallback = 'animate' } = Astro.props as Props;
 	}
 
 	if (supportsViewTransitions || getFallback() !== 'none') {
-		markScriptsExec();
-
 		document.addEventListener('click', (ev) => {
 			let link = ev.target;
 			if (link instanceof Element && link.tagName !== 'A') {
@@ -373,42 +395,35 @@ const { fallback = 'animate' } = Astro.props as Props;
 				ev.ctrlKey || // new tab (windows)
 				ev.altKey || // download
 				ev.shiftKey || // new window
-				ev.defaultPrevented ||
-				!transitionEnabledOnThisPage()
+				ev.defaultPrevented
 			) {
 				// No page transitions in these cases,
 				// Let the browser standard action handle this
 				return;
 			}
 			ev.preventDefault();
+			navigate(link.href);
+		});
 
-			// We do not need to handle same page links because there are no page transitions
-			// Same page means same path and same query params (but different hash)
-			if (location.pathname === link.pathname && location.search === link.search) {
-				if (link.hash) {
-					location.href = link.href;
-				} else {
-					// Special case: self link without hash
-					// If handed to the browser it will reload the page
-					// But we want to handle it like any other same page navigation
-					// So we scroll to the top of the page but do not start page transitions
-					// push state on the first navigation but not if we were here already
-					if (location.hash) {
-						history.replaceState(
-							{ index: currentHistoryIndex, scrollX, scrollY: -(scrollY + 1) },
-							''
-						);
-						const newState: State = { index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 };
-						history.pushState(newState, '', link.href);
-					}
-					scrollTo({ left: 0, top: 0, behavior: 'instant' });
+		function navigate(href) {
+			// not ours
+			if (!transitionEnabledOnThisPage()) {
+				location.href = href;
+				return;
+			}
+			const toLocation = new URL(href, location.href);
+			if (location.pathname === toLocation.pathname && location.search === toLocation.search) {
+				// mark current position as non transition intra-page scrolling
+				if (location.href !== toLocation.href) {
+					history.replaceState({ ...history.state, intraPage: true }, '');
 				}
+				updateHistoryAndScrollPosition(toLocation);
 				return;
 			}
 
 			// these are the cases we will handle: same origin, different page
-			transition('forward', new URL(link.href));
-		});
+			transition('forward', toLocation);
+		}
 
 		addEventListener('popstate', (ev) => {
 			if (!transitionEnabledOnThisPage() && ev.state) {
@@ -441,12 +456,13 @@ const { fallback = 'animate' } = Astro.props as Props;
 			}
 
 			const state: State = history.state;
-			const nextIndex = state.index;
-			const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
-			currentHistoryIndex = nextIndex;
-			if (state.scrollY < 0) {
-				scrollTo(state.scrollX, -(state.scrollY + 1));
+			if (state.intraPage) {
+				// this is non transition intra-page scrolling
+				scrollTo(state.scrollX, state.scrollY);
 			} else {
+				const nextIndex = state.index;
+				const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
+				currentHistoryIndex = nextIndex;
 				transition(direction, new URL(location.href), state);
 			}
 		});
@@ -469,6 +485,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				{ passive: true, capture: true }
 			);
 		});
+
 		addEventListener('load', onPageLoad);
 		// There's not a good way to record scroll position before a back button.
 		// So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
@@ -478,5 +495,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 		if ('onscrollend' in window) addEventListener('scrollend', updateState);
 		else addEventListener('scroll', throttle(updateState, 300));
+
+		markScriptsExec();
 	}
 </script>
