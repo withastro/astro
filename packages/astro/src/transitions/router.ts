@@ -11,14 +11,6 @@ export const supportsViewTransitions = !!document.startViewTransition;
 export const transitionEnabledOnThisPage = () =>
 	!!document.querySelector('[name="astro-view-transitions-enabled"]');
 
-function getFallback(): Fallback {
-	const el = document.querySelector('[name="astro-view-transitions-fallback"]');
-	if (el) {
-		return el.getAttribute('content') as Fallback;
-	}
-	return 'animate';
-}
-
 // only update history entries that are managed by us
 // leave other entries alone and do not accidently add state.
 const persistState = (state: State) => history.state && history.replaceState(state, '');
@@ -74,6 +66,14 @@ async function getHTML(href: string) {
 	} catch (err) {
 		return { ok: false };
 	}
+}
+
+function getFallback(): Fallback {
+	const el = document.querySelector('[name="astro-view-transitions-fallback"]');
+	if (el) {
+		return el.getAttribute('content') as Fallback;
+	}
+	return 'animate';
 }
 
 function markScriptsExec() {
