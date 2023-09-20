@@ -520,6 +520,22 @@ test.describe('View Transitions', () => {
 		await downloadPromise;
 	});
 
+	test('data-astro-reload not required for non-html content', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+		// Go to page 4
+		await page.goto(astro.resolveUrl('/four'));
+		let p = page.locator('#four');
+		await expect(p, 'should have content').toHaveText('Page 4');
+
+		await page.click('#click-svg');
+		p = page.locator('svg');
+		await expect(p).toBeVisible();
+		expect(loads.length, 'There should be 2 page load').toEqual(2);
+	});
+
 	test('Scroll position is restored on back navigation from page w/o ViewTransitions', async ({
 		page,
 		astro,
