@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
+import type { WithRequired } from '../type-utils.js';
 import type { VALID_INPUT_FORMATS, VALID_OUTPUT_FORMATS } from './consts.js';
 import type { ImageService } from './services/service.js';
 
@@ -27,8 +28,11 @@ export interface ImageMetadata {
 	orientation?: number;
 }
 
+/**
+ * A yet to be resolved image transform. Used by `getImage`
+ */
 export type UnresolvedImageTransform = Omit<ImageTransform, 'src'> & {
-	src: Promise<{ default: ImageMetadata }>;
+	src: ImageMetadata | string | Promise<{ default: ImageMetadata }>;
 };
 
 /**
@@ -50,7 +54,6 @@ export interface GetImageResult {
 	attributes: Record<string, any>;
 }
 
-type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 type ImageSharedProps<T> = T & {
 	/**
 	 * Width of the image, the value of this property will be used to assign the `width` property on the final `img` element.

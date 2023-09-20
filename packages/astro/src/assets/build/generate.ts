@@ -1,6 +1,6 @@
 import fs, { readFileSync } from 'node:fs';
 import { basename, join } from 'node:path/posix';
-import type { BuildPipeline } from '../../core/build/buildPipeline';
+import type { BuildPipeline } from '../../core/build/buildPipeline.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import { getConfiguredImageService, isESMImportedImage } from '../internal.js';
@@ -75,7 +75,7 @@ export async function generateImage(
 			const JSONData = JSON.parse(readFileSync(cachedFileURL, 'utf-8')) as RemoteCacheEntry;
 
 			// If the cache entry is not expired, use it
-			if (JSONData.expires < Date.now()) {
+			if (JSONData.expires > Date.now()) {
 				await fs.promises.writeFile(finalFileURL, Buffer.from(JSONData.data, 'base64'));
 
 				return {

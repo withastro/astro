@@ -2,7 +2,7 @@
 
 This starter showcases the experimental Markdoc integration.
 
-```
+```sh
 npm create astro@latest -- --template with-markdoc
 ```
 
@@ -15,7 +15,7 @@ npm create astro@latest -- --template with-markdoc
 
 Inside of your Astro project, you'll see the following folders and files:
 
-```
+```text
 /
 ├── public/
 ├── src/

@@ -1,4 +1,4 @@
-import type { SSRElement } from '../../../@types/astro';
+import type { SSRElement } from '../../../@types/astro.js';
 import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
 
 import { clsx } from 'clsx';

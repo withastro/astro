@@ -10,4 +10,12 @@ describe('Hosted Netlify Tests', () => {
 
 		expect(image.status).to.equal(200);
 	});
+
+	it('Server returns fresh content', async () => {
+		const responseOne = await fetch(NETLIFY_TEST_URL + '/time');
+
+		const responseTwo = await fetch(NETLIFY_TEST_URL + '/time');
+
+		expect(responseOne.body).to.not.equal(responseTwo.body);
+	});
 });

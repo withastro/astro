@@ -5,8 +5,8 @@ import type {
 	RouteData,
 	SSRElement,
 	SSRManifest,
-} from '../../@types/astro';
-import type { SinglePageBuiltModule } from '../build/types';
+} from '../../@types/astro.js';
+import type { SinglePageBuiltModule } from '../build/types.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
@@ -25,7 +25,7 @@ import {
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
-import type { RouteInfo } from './types';
+import type { RouteInfo } from './types.js';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -121,8 +121,6 @@ export class App {
 		}
 		return pathname;
 	}
-	// Disable no-unused-vars to avoid breaking signature change
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	match(request: Request, _opts: MatchOptions = {}): RouteData | undefined {
 		const url = new URL(request.url);
 		// ignore requests matching public assets

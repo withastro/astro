@@ -1,5 +1,17 @@
 # @astrojs/react
 
+## 3.0.2
+
+### Patch Changes
+
+- [#8455](https://github.com/withastro/astro/pull/8455) [`85fe213fe`](https://github.com/withastro/astro/commit/85fe213fe0e8de3227ac80a41119800c374214f6) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update `experimentalReactChildren` behavior to support void tags
+
+## 3.0.1
+
+### Patch Changes
+
+- [#8428](https://github.com/withastro/astro/pull/8428) [`67e834859`](https://github.com/withastro/astro/commit/67e83485949cf21de62831731111413abf57718c) Thanks [@matthewp](https://github.com/matthewp)! - Fix React dev mode using a base
+
 ## 3.0.0
 
 ### Major Changes

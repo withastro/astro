@@ -115,8 +115,12 @@ If you're using the `advanced` runtime, you can type the `runtime` object as fol
 /// <reference types="astro/client" />
 import type { AdvancedRuntime } from '@astrojs/cloudflare';
 
+type ENV = {
+  SERVER_URL: string;
+};
+
 declare namespace App {
-  interface Locals extends AdvancedRuntime {
+  interface Locals extends AdvancedRuntime<ENV> {
     user: {
       name: string;
       surname: string;
@@ -132,8 +136,12 @@ If you're using the `directory` runtime, you can type the `runtime` object as fo
 /// <reference types="astro/client" />
 import type { DirectoryRuntime } from '@astrojs/cloudflare';
 
+type ENV = {
+  SERVER_URL: string;
+};
+
 declare namespace App {
-  interface Locals extends DirectoryRuntime {
+  interface Locals extends DirectoryRuntime<ENV> {
     user: {
       name: string;
       surname: string;
@@ -142,14 +150,14 @@ declare namespace App {
 }
 ```
 
-## Environment Variables
+### Environment Variables
 
 See Cloudflare's documentation for [working with environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables).
 
 ```js
 // pages/[id].json.js
 
-export function get({ params }) {
+export function GET({ params }) {
   // Access environment variables per request inside a function
   const serverUrl = import.meta.env.SERVER_URL;
   const result = await fetch(serverUrl + "/user/" + params.id);
@@ -157,6 +165,30 @@ export function get({ params }) {
     body: await result.text(),
   };
 }
+```
+
+### `cloudflare.runtime`
+
+`runtime: "off" | "local" | "remote"`
+default `"off"`
+
+This optional flag enables the Astro dev server to populate environment variables and the Cloudflare Request Object, avoiding the need for Wrangler.
+
+- `local`: environment variables are available, but the request object is populated from a static placeholder value.
+- `remote`: environment variables and the live, fetched request object are available.
+- `off`: the Astro dev server will populate neither environment variables nor the request object. Use Wrangler to access Cloudflare bindings and environment variables.
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import cloudflare from '@astrojs/cloudflare';
+
+export default defineConfig({
+  output: 'server',
+  adapter: cloudflare({
+    runtime: 'off' | 'local' | 'remote',
+  }),
+});
 ```
 
 ## Headers, Redirects and function invocation routes
@@ -169,6 +201,33 @@ By default, `@astrojs/cloudflare` will generate a `_routes.json` file with `incl
 This will enable Cloudflare to serve files and process static redirects without a function invocation. Creating a custom `_routes.json` will override this automatic optimization and, if not configured manually, cause function invocations that will count against the request limits of your Cloudflare plan.
 
 See [Cloudflare's documentation](https://developers.cloudflare.com/pages/platform/functions/routing/#create-a-_routesjson-file) for more details.
+
+## Node.js compatibility
+
+Astro's Cloudflare adapter allows you to use any Node.js runtime API supported by Cloudflare:
+
+- assert
+- AsyncLocalStorage
+- Buffer
+- Diagnostics Channel
+- EventEmitter
+- path
+- process
+- Streams
+- StringDecoder
+- util
+
+To use these APIs, your page or endpoint must be server-side rendered (not pre-rendered) and must use the the `import {} from 'node:*'` import syntax.
+
+```js
+// pages/api/endpoint.js
+export const prerender = false;
+import { Buffer } from 'node:buffer';
+```
+
+Additionally, you'll need to enable the Compatibility Flag in Cloudflare. The configuration for this flag may vary based on where you deploy your Astro site.
+
+For detailed guidance, please refer to the [Cloudflare documentation](https://developers.cloudflare.com/workers/runtime-apis/nodejs).
 
 ## Troubleshooting
 

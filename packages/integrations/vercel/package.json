@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "4.0.3",
+  "version": "5.0.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -22,9 +22,10 @@
     "./serverless": "./dist/serverless/adapter.js",
     "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
     "./static": "./dist/static/adapter.js",
-    "./analytics": "./dist/analytics.js",
+    "./speed-insights": "./dist/speed-insights.js",
     "./build-image-service": "./dist/image/build-service.js",
     "./dev-image-service": "./dist/image/dev-service.js",
+    "./squoosh-dev-service": "./dist/image/squoosh-dev-service.js",
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -60,7 +61,7 @@
     "web-vitals": "^3.4.0"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.0.7"
+    "astro": "workspace:^3.1.1"
   },
   "devDependencies": {
     "@types/set-cookie-parser": "^2.4.3",

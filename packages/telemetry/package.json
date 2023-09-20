@@ -2,7 +2,7 @@
   "name": "@astrojs/telemetry",
   "version": "3.0.1",
   "type": "module",
-  "types": "./dist/types/index.d.ts",
+  "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -14,7 +14,7 @@
   "homepage": "https://astro.build",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
+      "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
     "./package.json": "./package.json"

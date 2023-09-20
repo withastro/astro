@@ -6,7 +6,7 @@ interface Props {
 const { title } = Astro.props as Props;
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
@@ -46,8 +46,15 @@ const { title } = Astro.props as Props;
 			}
 
 			:global(code) {
-				font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-					Bitstream Vera Sans Mono, Courier New, monospace;
+				font-family:
+					Menlo,
+					Monaco,
+					Lucida Console,
+					Liberation Mono,
+					DejaVu Sans Mono,
+					Bitstream Vera Sans Mono,
+					Courier New,
+					monospace;
 			}
 		</style>
 	</body>

@@ -1,5 +1,5 @@
-import type { LoaderEvents, ModuleLoader } from '../core/module-loader/index';
-import type { ServerState } from './server-state';
+import type { LoaderEvents, ModuleLoader } from '../core/module-loader/index.js';
+import type { ServerState } from './server-state.js';
 
 import {
 	clearRouteError,

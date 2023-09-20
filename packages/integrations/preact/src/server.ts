@@ -1,10 +1,10 @@
 import type { AstroComponentMetadata } from 'astro';
 import { Component as BaseComponent, h, type VNode } from 'preact';
-import render from 'preact-render-to-string';
+import { render } from 'preact-render-to-string';
 import { getContext } from './context.js';
 import { restoreSignalsOnProps, serializeSignals } from './signals.js';
 import StaticHtml from './static-html.js';
-import type { AstroPreactAttrs, RendererContext } from './types';
+import type { AstroPreactAttrs, RendererContext } from './types.js';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 

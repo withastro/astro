@@ -1,14 +1,14 @@
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
-import type { AstroInlineConfig, AstroSettings } from '../../@types/astro';
+import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { createNodeLogger, createSettings, resolveConfig } from '../config/index.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
 import { formatErrorMessage } from '../messages.js';
-import type { Container } from './container';
+import type { Container } from './container.js';
 import { createContainer, startContainer } from './container.js';
 
 async function createRestartedContainer(

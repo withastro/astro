@@ -48,28 +48,25 @@ declare module 'astro:assets' {
 		 * This is functionally equivalent to using the `<Image />` component, as the component calls this function internally.
 		 */
 		getImage: (
-			options:
-				| import('./dist/assets/types.js').ImageTransform
-				| import('./dist/assets/types.js').UnresolvedImageTransform
+			options: import('./dist/assets/types.js').UnresolvedImageTransform
 		) => Promise<import('./dist/assets/types.js').GetImageResult>;
+		imageConfig: import('./dist/@types/astro.js').AstroConfig['image'];
 		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
 		Image: typeof import('./components/Image.astro').default;
 	};
 
-	type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
-	type Simplify<T> = { [KeyType in keyof T]: T[KeyType] } & {};
-	type ImgAttributes = WithRequired<
+	type ImgAttributes = import('./dist/type-utils.js').WithRequired<
 		Omit<import('./types').HTMLAttributes<'img'>, 'src' | 'width' | 'height'>,
 		'alt'
 	>;
 
-	export type LocalImageProps = Simplify<
+	export type LocalImageProps = import('./dist/type-utils.js').Simplify<
 		import('./dist/assets/types.js').LocalImageProps<ImgAttributes>
 	>;
-	export type RemoteImageProps = Simplify<
+	export type RemoteImageProps = import('./dist/type-utils.js').Simplify<
 		import('./dist/assets/types.js').RemoteImageProps<ImgAttributes>
 	>;
-	export const { getImage, getConfiguredImageService, Image }: AstroAssets;
+	export const { getImage, getConfiguredImageService, imageConfig, Image }: AstroAssets;
 }
 
 type InputFormat = import('./dist/assets/types.js').ImageInputFormat;
@@ -109,6 +106,10 @@ declare module '*.svg' {
 	const metadata: ImageMetadata;
 	export default metadata;
 }
+declare module '*.avif' {
+	const metadata: ImageMetadata;
+	export default metadata;
+}
 
 declare module 'astro:transitions' {
 	type TransitionModule = typeof import('./dist/transitions/index.js');
@@ -127,7 +128,7 @@ declare module 'astro:components' {
 	export * from 'astro/components';
 }
 
-type MD = import('./dist/@types/astro').MarkdownInstance<Record<string, any>>;
+type MD = import('./dist/@types/astro.js').MarkdownInstance<Record<string, any>>;
 interface ExportedMarkdownModuleEntities {
 	frontmatter: MD['frontmatter'];
 	file: MD['file'];
@@ -232,7 +233,7 @@ declare module '*.mdown' {
 }
 
 declare module '*.mdx' {
-	type MDX = import('./dist/@types/astro').MDXInstance<Record<string, any>>;
+	type MDX = import('./dist/@types/astro.js').MDXInstance<Record<string, any>>;
 
 	export const frontmatter: MDX['frontmatter'];
 	export const file: MDX['file'];
@@ -245,7 +246,7 @@ declare module '*.mdx' {
 }
 
 declare module 'astro:ssr-manifest' {
-	export const manifest: import('./dist/@types/astro').SSRManifest;
+	export const manifest: import('./dist/@types/astro.js').SSRManifest;
 }
 
 // Everything below are Vite's types (apart from image types, which are in `client.d.ts`)
