@@ -679,4 +679,22 @@ test.describe('View Transitions', () => {
 		locator = page.locator('#click-one');
 		await expect(locator).not.toBeInViewport();
 	});
+
+	test('body inline scripts do not re-execute on navigation', async ({ page, astro }) => {
+		const errors = [];
+		page.addListener('pageerror', err => {
+			errors.push(err);
+		});
+
+		await page.goto(astro.resolveUrl('/inline-script-one'));
+		let article = page.locator('#counter');
+		await expect(article, 'should have script content').toBeVisible('exists');
+
+		await page.click('#click-one');
+
+		article = page.locator('#counter');
+		await expect(article, 'should have script content').toHaveText('Count: 3');
+
+		expect(errors).toHaveLength(0);
+	});
 });

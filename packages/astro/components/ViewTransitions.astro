@@ -129,31 +129,18 @@ const { fallback = 'animate' } = Astro.props as Props;
 		var noopEl = document.createElement('div');
 	}
 
-	async function updateDOM(doc: Document, loc: URL, state?: State, fallback?: Fallback) {
+	async function updateDOM(newDocument: Document, loc: URL, state?: State, fallback?: Fallback) {
 		// Check for a head element that should persist, either because it has the data
 		// attribute or is a link el.
 		const persistedHeadElement = (el: HTMLElement): Element | null => {
 			const id = el.getAttribute(PERSIST_ATTR);
-			const newEl = id && doc.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
+			const newEl = id && newDocument.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
 			if (newEl) {
 				return newEl;
 			}
 			if (el.matches('link[rel=stylesheet]')) {
 				const href = el.getAttribute('href');
-				return doc.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
-			}
-			if (el.tagName === 'SCRIPT') {
-				let s1 = el as HTMLScriptElement;
-				for (const s2 of doc.scripts) {
-					if (
-						// Inline
-						(s1.textContent && s1.textContent === s2.textContent) ||
-						// External
-						(s1.type === s2.type && s1.src === s2.src)
-					) {
-						return s2;
-					}
-				}
+				return newDocument.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
 			}
 			// Only run this in dev. This will get stripped from production builds and is not needed.
 			if (import.meta.env.DEV) {
@@ -161,7 +148,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 					const devId = el.dataset.viteDevId;
 					// If this same style tag exists, remove it from the new page
 					return (
-						doc.querySelector(`style[data-astro-dev-id="${devId}"]`) ||
+						newDocument.querySelector(`style[data-astro-dev-id="${devId}"]`) ||
 						// Otherwise, keep it anyways. This is client:only styles.
 						noopEl
 					);
@@ -173,7 +160,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		const swap = () => {
 			// noscript tags inside head element are not honored on swap (#7969).
 			// Remove them before swapping.
-			doc.querySelectorAll('head noscript').forEach((el) => el.remove());
+			newDocument.querySelectorAll('head noscript').forEach((el) => el.remove());
 
 			// swap attributes of the html element
 			// - delete all attributes from the current document
@@ -183,9 +170,25 @@ const { fallback = 'animate' } = Astro.props as Props;
 			const astro = [...html.attributes].filter(
 				({ name }) => (html.removeAttribute(name), name.startsWith('data-astro-'))
 			);
-			[...doc.documentElement.attributes, ...astro].forEach(({ name, value }) =>
+			[...newDocument.documentElement.attributes, ...astro].forEach(({ name, value }) =>
 				html.setAttribute(name, value)
 			);
+
+			// Replace scripts in both the head and body.
+			for(const s1 of document.scripts) {
+				for (const s2 of newDocument.scripts) {
+					if (
+						// Inline
+						(s1.textContent && s1.textContent === s2.textContent) ||
+						// External
+						(s1.type === s2.type && s1.src === s2.src)
+					) {
+						s2.remove();
+					} else {
+						s1.remove();
+					}
+				}
+			}
 
 			// Swap head
 			for (const el of Array.from(document.head.children)) {
@@ -199,12 +202,13 @@ const { fallback = 'animate' } = Astro.props as Props;
 					el.remove();
 				}
 			}
+
 			// Everything left in the new head is new, append it all.
-			document.head.append(...doc.head.children);
+			document.head.append(...newDocument.head.children);
 
 			// Persist elements in the existing body
 			const oldBody = document.body;
-			document.body.replaceWith(doc.body);
+			document.body.replaceWith(newDocument.body);
 			for (const el of oldBody.querySelectorAll(`[${PERSIST_ATTR}]`)) {
 				const id = el.getAttribute(PERSIST_ATTR);
 				const newEl = document.querySelector(`[${PERSIST_ATTR}="${id}"]`);
@@ -247,7 +251,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 		// Wait on links to finish, to prevent FOUC
 		const links: Promise<any>[] = [];
-		for (const el of doc.querySelectorAll('head link[rel=stylesheet]')) {
+		for (const el of newDocument.querySelectorAll('head link[rel=stylesheet]')) {
 			// Do not preload links that are already on the page.
 			if (
 				!document.querySelector(
@@ -299,8 +303,8 @@ const { fallback = 'animate' } = Astro.props as Props;
 			return;
 		}
 
-		const doc = parser.parseFromString(html, mediaType);
-		if (!doc.querySelector('[name="astro-view-transitions-enabled"]')) {
+		const newDocument = parser.parseFromString(html, mediaType);
+		if (!newDocument.querySelector('[name="astro-view-transitions-enabled"]')) {
 			location.href = href;
 			return;
 		}
@@ -310,9 +314,9 @@ const { fallback = 'animate' } = Astro.props as Props;
 
 		document.documentElement.dataset.astroTransition = dir;
 		if (supportsViewTransitions) {
-			finished = document.startViewTransition(() => updateDOM(doc, loc, state)).finished;
+			finished = document.startViewTransition(() => updateDOM(newDocument, loc, state)).finished;
 		} else {
-			finished = updateDOM(doc, loc, state, getFallback());
+			finished = updateDOM(newDocument, loc, state, getFallback());
 		}
 		try {
 			await finished;
