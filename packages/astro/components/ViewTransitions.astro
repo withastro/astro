@@ -175,7 +175,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			);
 
 			// Replace scripts in both the head and body.
-			for(const s1 of document.scripts) {
+			for (const s1 of document.scripts) {
 				for (const s2 of newDocument.scripts) {
 					if (
 						// Inline

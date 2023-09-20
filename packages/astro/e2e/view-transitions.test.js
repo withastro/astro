@@ -682,7 +682,7 @@ test.describe('View Transitions', () => {
 
 	test('body inline scripts do not re-execute on navigation', async ({ page, astro }) => {
 		const errors = [];
-		page.addListener('pageerror', err => {
+		page.addListener('pageerror', (err) => {
 			errors.push(err);
 		});
 
