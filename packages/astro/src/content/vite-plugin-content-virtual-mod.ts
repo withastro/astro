@@ -37,6 +37,15 @@ export function astroContentVirtualModPlugin({
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 	const dataEntryExts = getDataEntryExts(settings);
 
+	let contentEntryGlobPath = globWithUnderscoresIgnored(relContentDir, contentEntryExts);
+	// HACK(nate): filter contentEntryGlobPath to simulate incremental build
+	contentEntryGlobPath = [contentEntryGlobPath[0].replace('**/*', '**/a-e*')]
+
+	const dataEntryGlobPath = globWithUnderscoresIgnored(relContentDir, dataEntryExts);
+	/** Note: data collections excluded */ 
+	let renderEntryGlobPath = globWithUnderscoresIgnored(relContentDir, contentEntryExts);
+	renderEntryGlobPath = [renderEntryGlobPath[0].replace('**/*', '**/a-e*')]
+
 	const virtualModContents = fsMod
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 		.replace(
@@ -46,20 +55,15 @@ export function astroContentVirtualModPlugin({
 		.replace('@@CONTENT_DIR@@', relContentDir)
 		.replace(
 			"'@@CONTENT_ENTRY_GLOB_PATH@@'",
-			JSON.stringify(globWithUnderscoresIgnored(relContentDir, contentEntryExts))
+			JSON.stringify(contentEntryGlobPath)
 		)
 		.replace(
 			"'@@DATA_ENTRY_GLOB_PATH@@'",
-			JSON.stringify(globWithUnderscoresIgnored(relContentDir, dataEntryExts))
+			JSON.stringify(dataEntryGlobPath)
 		)
 		.replace(
 			"'@@RENDER_ENTRY_GLOB_PATH@@'",
-			JSON.stringify(
-				globWithUnderscoresIgnored(
-					relContentDir,
-					/** Note: data collections excluded */ contentEntryExts
-				)
-			)
+			JSON.stringify(renderEntryGlobPath)
 		);
 
 	const astroContentVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;

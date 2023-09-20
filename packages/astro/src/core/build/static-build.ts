@@ -97,7 +97,6 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	for (const output of ssrOutput.output) {
 		const md = output.moduleIds.filter(id => id.endsWith('.md'))
 		if (!!md) {
-			console.log(output.moduleIds);
 			// const { fileName: id, code: content } = output.moduleIds
 			// internals.cache.push({ input, output: { id, content } })
 		}
@@ -106,7 +105,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	fs.writeFileSync(cacheFile, JSON.stringify(internals.cache), { encoding: 'utf8' });
 
 	if (restore) {
-		console.log('RESTORING CACHE');
+		// console.log('RESTORING CACHE');
 		for (const cached of internals.cache) {
 			fs.writeFileSync(new URL(`./${cached.output.id}`, settings.config.outDir), cached.output.content, { encoding: 'utf8' });
 		}
