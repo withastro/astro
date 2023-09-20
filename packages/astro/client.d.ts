@@ -120,6 +120,11 @@ declare module 'astro:transitions' {
 	export const ViewTransitions: ViewTransitionsModule['default'];
 }
 
+declare module 'astro:i18n' {
+	type I18nModule = typeof import('./dist/i18n/index.js');
+	export const getI18nBaseUrl: I18nModule['getI18nBaseUrl'];
+}
+
 declare module 'astro:middleware' {
 	export * from 'astro/middleware/namespace';
 }

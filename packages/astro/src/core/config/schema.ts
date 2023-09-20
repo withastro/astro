@@ -271,6 +271,49 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.optimizeHoistedScript),
+			i18n: z.optional(
+				z
+					.object({
+						defaultLocale: z.string(),
+						locales: z.string().array(),
+						fallback: z.record(z.string(), z.string().array()),
+						customDomains: z.record(z.string(), z.string()),
+					})
+					.optional()
+					.refine((i18n) => {
+						if (i18n) {
+							const { defaultLocale, locales, fallback, customDomains } = i18n;
+							if (!locales.includes(defaultLocale)) {
+								return {
+									message: `The default locale \`${defaultLocale}\` is not present in the \`i18n.locales\` array.`,
+								};
+							}
+							for (const [fallbackKey, fallbackArray] of Object.entries(fallback)) {
+								if (!locales.includes(fallbackKey)) {
+									return {
+										message: `The locale \`${fallbackKey}\` key in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+									};
+								}
+
+								for (const fallbackArrayKey of fallbackArray) {
+									if (!locales.includes(fallbackArrayKey)) {
+										return {
+											message: `The locale \`${fallbackArrayKey}\` value in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+										};
+									}
+								}
+							}
+
+							for (const customDomainLocale of Object.keys(customDomains)) {
+								if (!locales.includes(customDomainLocale)) {
+									return {
+										message: `The locale \`${customDomainLocale}\` key in the \`i18n.customDomains\` record doesn't exist in the \`i18n.locales\` array.`,
+									};
+								}
+							}
+						}
+					})
+			),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`

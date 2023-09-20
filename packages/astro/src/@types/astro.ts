@@ -1330,6 +1330,25 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		optimizeHoistedScript?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.i18n
+		 * @type {boolean}
+		 * @version 3.*.*
+		 * @description
+		 * Allows to configure
+		 */
+		i18n?: {
+			// TODO documentation
+			defaultLocale: string;
+			// TODO documentation
+			locales?: string[];
+			// TODO documentation
+			fallback?: Record<string, string[]>;
+			// TODO documentation
+			customDomains?: Record<string, string>;
+		};
 	};
 }
 
