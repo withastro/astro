@@ -183,6 +183,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 		hooks: {
 			'astro:config:setup': ({ config, updateConfig }) => {
 				updateConfig({
+					image: config.image ?? {
+						service: {
+							entrypoint: 'astro/assets/services/noop',
+						},
+					},
 					build: {
 						client: new URL(`.${config.base}`, config.outDir),
 						server: new URL(`.${SERVER_BUILD_FOLDER}`, config.outDir),
