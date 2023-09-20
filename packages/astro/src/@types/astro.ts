@@ -1346,8 +1346,6 @@ export interface AstroUserConfig {
 			locales?: string[];
 			// TODO documentation
 			fallback?: Record<string, string[]>;
-			// TODO documentation
-			customDomains?: Record<string, string>;
 		};
 	};
 }

@@ -11,20 +11,10 @@ export function getI18nBaseUrl(locale: string, config: AstroConfig, logger: Logg
 	}
 	const base = config.base;
 
-	if (config.experimental.i18n.customDomains && config.experimental.i18n.customDomains[locale]) {
-		const customDomain = config.experimental.i18n.customDomains[locale];
-		logger.debug('i18n', `The locale ${locale} is mapped to the custom domain ${customDomain}`);
-		if (base) {
-			return `${customDomain}${base}/`;
-		} else {
-			return `${customDomain}/`;
-		}
+	if (base) {
+		logger.debug('i18n', 'The project has a base directory, using it.');
+		return `${base}/${locale}/`;
 	} else {
-		if (base) {
-			logger.debug('i18n', 'The project has a base directory, using it.');
-			return `${base}/${locale}/`;
-		} else {
-			return `/${locale}/`;
-		}
+		return `/${locale}/`;
 	}
 }
