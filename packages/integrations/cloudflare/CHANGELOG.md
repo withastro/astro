@@ -1,5 +1,15 @@
 # @astrojs/cloudflare
 
+## 7.1.1
+
+### Patch Changes
+
+- [#8560](https://github.com/withastro/astro/pull/8560) [`3da5d8404`](https://github.com/withastro/astro/commit/3da5d8404e56a05da93f6b0a70841acda5ca1a8f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - add the option to type environment variables using a generic
+
+- Updated dependencies [[`8d361169b`](https://github.com/withastro/astro/commit/8d361169b8e487933d671ce347f0ce74922c80cc), [`95b5f6280`](https://github.com/withastro/astro/commit/95b5f6280d124f8d6f866dc3286406c272ee91bf), [`0586e20e8`](https://github.com/withastro/astro/commit/0586e20e8338e077b8eb1a3a96bdd19f5950c22f)]:
+  - astro@3.1.1
+  - @astrojs/underscore-redirects@0.3.0
+
 ## 7.1.0
 
 ### Minor Changes
