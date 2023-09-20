@@ -51,9 +51,9 @@ export default function (app: NodeApp, mode: Options['mode']) {
 				await writeWebResponse(app, res, response);
 			}
 		} catch (err: unknown) {
-			const logger = app.getAdapterLogger()
-			logger.error(`Could not render ${req.url}`)
-			console.error(err)
+			const logger = app.getAdapterLogger();
+			logger.error(`Could not render ${req.url}`);
+			console.error(err);
 			if (!res.headersSent) {
 				res.writeHead(500, `Server error`);
 				res.end();
