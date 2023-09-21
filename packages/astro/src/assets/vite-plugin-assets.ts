@@ -35,9 +35,9 @@ export default function assets({
 				// caused by `getImage()` for markdown components.
 				// https://github.com/rollup/rollup/issues/4708
 				extendManualChunks(outputOptions, {
-					before(id) {
-						if (id.includes('astro/dist/assets/')) {
-							return `astro-assets`;
+					after(id) {
+						if (id.includes('astro/dist/assets/services/')) {
+							return `astro-assets-services`;
 						}
 					},
 				});
