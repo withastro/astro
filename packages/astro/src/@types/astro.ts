@@ -1331,21 +1331,65 @@ export interface AstroUserConfig {
 		 */
 		optimizeHoistedScript?: boolean;
 
+		// TODO review with docs team before merging to `main`
 		/**
 		 * @docs
 		 * @name experimental.i18n
-		 * @type {boolean}
 		 * @version 3.*.*
 		 * @description
-		 * Allows to configure
+		 *
+		 * Allows to configure the beaviour of the i18n routing
 		 */
 		i18n?: {
-			// TODO documentation
+			/**
+			 * @docs
+			 * @name experimental.i18n.defaultLocale
+			 * @type {string}
+			 * @version 3.*.*
+			 * @description
+			 *
+			 * The default locale of your website/application
+			 */
 			defaultLocale: string;
-			// TODO documentation
-			locales?: string[];
-			// TODO documentation
+			/**
+			 * @docs
+			 * @name experimental.i18n.locales
+			 * @type {string[]}
+			 * @version 3.*.*
+			 * @description
+			 *
+			 * A list of locales supported by the website.
+			 */
+			locales: string[];
+
+			/**
+			 * @docs
+			 * @name experimental.i18n.fallback
+			 * @type {Record<string, string[]>}
+			 * @version 3.*.*
+			 * @description
+			 *
+			 * The fallback system of the locales. By default, the fallback system affect the **content only**, and it doesn't
+			 * do any redirects.
+			 *
+			 * This means that when attempting to navigate to a page that hasn't been translated, Astro will pull the content
+			 * from the page of the default locale and render it. No redirects will happen.
+			 */
 			fallback?: Record<string, string[]>;
+
+			/**
+			 * @docs
+			 * @name experimental.i18n.detectBrowserLanguage
+			 * @type {boolean}
+			 * @version 3.*.*
+			 * @description
+			 *
+			 * Whether Astro should detect the language of the browser - usually using the `Accept-Language` header. This is a feature
+			 * that should be supported by the adapter. If detected, the adapter can decide to redirect the user to the localised version of the website.
+			 *
+			 * When set to `true`, you should make sure that the adapter you're using is able to provide this feature to you.
+			 */
+			detectBrowserLanguage: boolean;
 		};
 	};
 }
@@ -1807,6 +1851,11 @@ export type AstroFeatureMap = {
 	 * The adapter can emit static assets
 	 */
 	assets?: AstroAssetsFeature;
+
+	/**
+	 * List of features that orbit around the i18n routing
+	 */
+	i18n?: AstroInternalisationFeature;
 };
 
 export interface AstroAssetsFeature {
@@ -1819,6 +1868,13 @@ export interface AstroAssetsFeature {
 	 * Whether if this adapter deploys files in an environment that is compatible with the library `squoosh`
 	 */
 	isSquooshCompatible?: boolean;
+}
+
+export interface AstroInternalisationFeature {
+	/**
+	 * Wether the adapter is able to detect the language of the browser, usually using the `Accept-Language` header.
+	 */
+	detectBrowserLanguage?: SupportsKind;
 }
 
 export interface AstroAdapter {

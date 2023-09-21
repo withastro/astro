@@ -276,29 +276,32 @@ export const AstroConfigSchema = z.object({
 					.object({
 						defaultLocale: z.string(),
 						locales: z.string().array(),
-						fallback: z.record(z.string(), z.string().array()),
+						fallback: z.record(z.string(), z.string().array()).optional(),
+						detectBrowserLanguage: z.boolean().optional().default(false),
 					})
 					.optional()
 					.refine((i18n) => {
 						if (i18n) {
 							const { defaultLocale, locales, fallback } = i18n;
-							if (!locales.includes(defaultLocale)) {
+							if (locales.includes(defaultLocale)) {
 								return {
 									message: `The default locale \`${defaultLocale}\` is not present in the \`i18n.locales\` array.`,
 								};
 							}
-							for (const [fallbackKey, fallbackArray] of Object.entries(fallback)) {
-								if (!locales.includes(fallbackKey)) {
-									return {
-										message: `The locale \`${fallbackKey}\` key in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
-									};
-								}
-
-								for (const fallbackArrayKey of fallbackArray) {
-									if (!locales.includes(fallbackArrayKey)) {
+							if (fallback) {
+								for (const [fallbackKey, fallbackArray] of Object.entries(fallback)) {
+									if (!locales.includes(fallbackKey)) {
 										return {
-											message: `The locale \`${fallbackArrayKey}\` value in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+											message: `The locale \`${fallbackKey}\` key in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
 										};
+									}
+
+									for (const fallbackArrayKey of fallbackArray) {
+										if (!locales.includes(fallbackArrayKey)) {
+											return {
+												message: `The locale \`${fallbackArrayKey}\` value in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+											};
+										}
 									}
 								}
 							}
