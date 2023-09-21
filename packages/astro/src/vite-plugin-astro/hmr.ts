@@ -90,7 +90,7 @@ export async function handleHotUpdate(
 
 	// Bugfix: sometimes style URLs get normalized and end with `lang.css=`
 	// These will cause full reloads, so filter them out here
-	const mods = ctx.modules.filter((m) => !m.url.endsWith('='));
+	const mods = [...filtered].filter((m) => !m.url.endsWith('='));
 	const file = ctx.file.replace(config.root.pathname, '/');
 
 	// If only styles are changed, remove the component file from the update list
@@ -105,17 +105,6 @@ export async function handleHotUpdate(
 		for (const imp of mod.importedModules) {
 			if (imp.id && isAstroScript(imp.id)) {
 				mods.push(imp);
-			}
-		}
-	}
-
-	// If this is a module that is imported from a <script>, invalidate the Astro
-	// component so that it is cached by the time the script gets transformed.
-	for (const mod of filtered) {
-		if (mod.id && isAstroScript(mod.id) && mod.file) {
-			const astroMod = ctx.server.moduleGraph.getModuleById(mod.file);
-			if (astroMod) {
-				mods.unshift(astroMod);
 			}
 		}
 	}

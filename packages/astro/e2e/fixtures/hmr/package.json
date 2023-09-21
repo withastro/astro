@@ -1,8 +1,9 @@
 {
-  "name": "@e2e/invalidate-script-deps",
+  "name": "@e2e/hmr",
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
-    "astro": "workspace:*"
+    "astro": "workspace:*",
+    "sass": "^1.66.1"
   }
 }
