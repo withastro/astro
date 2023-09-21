@@ -12,9 +12,9 @@ const movie = {
         month: 'long',
         day: 'numeric'
     }),
-    genres: data.genres.map(g => g.name).join(', '),
+    genres: data.genres.map((g: any) => g.name).join(', '),
     crew: data.credits.crew.slice(0,3),
-    cast: data.credits.cast.slice(0,5).map(c => ({
+    cast: data.credits.cast.slice(0,5).map((c: any) => ({
         ...c,
         profile_path: c.profile_path
             ? 'https://image.tmdb.org/t/p/w300/' + c.profile_path
@@ -51,7 +51,7 @@ const movie = {
             <div class="mt-12">
                 <h4 class="text-white font-semibold">Featured Crew</h4>
                 <div class="flex mt-4">
-                    {movie.crew.map(crew => (
+                    {movie.crew.map((crew: any) => (
                         <div class="mr-8">
                             <div>{crew.name}</div>
                             <div class="text-gray-400 text-sm">{crew.job}</div>
@@ -67,7 +67,7 @@ const movie = {
     <div class="container mx-auto px-4 py-16">
         <h2 class="text-4xl font-semibold">Cast</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-        {movie.cast.map(cast => (
+        {movie.cast.map((cast: any) => (
             <div class="mt-8">
                 <span>
                     <img id={`person-photo-${cast.id}`} src={cast.profile_path} alt={cast.name} class="thumbnail hover:opacity-75 transition ease-in-out duration-150">
@@ -88,7 +88,7 @@ const movie = {
     <div class="container mx-auto px-4 py-16">
         <h2 class="text-4xl font-semibold">Images</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        {movie.images.map(image => (
+        {movie.images.map((image: any) => (
             <div class="mt-8">
                     <span>
                         <img src={`https://image.tmdb.org/t/p/w500${image.file_path}`} loading="lazy" alt={movie.name} class="hover:opacity-75 transition ease-in-out duration-150">

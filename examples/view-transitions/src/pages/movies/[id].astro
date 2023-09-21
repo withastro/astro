@@ -4,7 +4,8 @@ import MovieDetails from '../../components/MovieDetails.astro';
 import { getDataEntryById } from 'astro:content';
 
 // Data collection bug?
-const result = await getDataEntryById('movies', '/src/content/movies/'+Astro.params.id);
+const id: any = '/src/content/movies/'+Astro.params.id;
+const result = await getDataEntryById('movies', id);
 const data = result.data.data;
 ---
 
