@@ -70,7 +70,6 @@ declare module 'astro:assets' {
 	export const { getImage, getConfiguredImageService, imageConfig, Image, Picture }: AstroAssets;
 }
 
-type InputFormat = import('./dist/assets/types.js').ImageInputFormat;
 type ImageMetadata = import('./dist/assets/types.js').ImageMetadata;
 
 declare module '*.gif' {
