@@ -13,6 +13,7 @@ import {
 	type AstroComponentFactory,
 } from '../runtime/server/index.js';
 import type { ContentLookupMap } from './utils.js';
+import type { AstroIntegration } from '../@types/astro.js';
 
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
@@ -55,10 +56,7 @@ export function createGetCollection({
 		} else if (collection in dataCollectionToEntryMap) {
 			type = 'data';
 		} else {
-			throw new AstroError({
-				...AstroErrorData.CollectionDoesNotExistError,
-				message: AstroErrorData.CollectionDoesNotExistError.message(collection),
-			});
+			return warnOfEmptyCollection(collection)
 		}
 		const lazyImports = Object.values(
 			type === 'content'
@@ -391,4 +389,17 @@ type PropagatedAssetsModule = {
 
 function isPropagatedAssetsModule(module: any): module is PropagatedAssetsModule {
 	return typeof module === 'object' && module != null && '__astroPropagation' in module;
+}
+
+function warnOfEmptyCollection(collection: string): AstroIntegration {
+	return {
+		name: 'astro-collection',
+		hooks: {
+			'astro:server:start': ({ logger }) => {
+				logger.warn(
+					`The collection **${collection}** does not exist or is empty. Ensure a collection directory with this name exists.`
+				);
+			},
+		},
+	};
 }
