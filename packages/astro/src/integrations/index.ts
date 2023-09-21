@@ -222,7 +222,7 @@ export async function runHookConfigDone({
 							);
 							for (const [featureName, supported] of Object.entries(validationResult)) {
 								// If `supported` / `validationResult[featureName]` only allows boolean,
-								// in theory 'asstes' false, doesn't mean that the feature is not supported, but rather that the chosen image service is unsupported
+								// in theory 'assets' false, doesn't mean that the feature is not supported, but rather that the chosen image service is unsupported
 								// in this case we should not show an error, that the featrue is not supported
 								// if we would refactor the validation to support more than boolean, we could still be able to differentiate between the two cases
 								if (!supported && featureName !== 'assets') {
