@@ -1,0 +1,44 @@
+---
+import { LocalImageProps, RemoteImageProps, getImage } from 'astro:assets';
+import { GetImageResult, ImageOutputFormat } from '../dist/@types/astro';
+import { isESMImportedImage } from '../dist/assets/internal';
+import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
+import { HTMLAttributes } from '../types';
+
+type Props = (LocalImageProps | RemoteImageProps) & {
+	formats: ImageOutputFormat[];
+	fallbackFormat: ImageOutputFormat;
+	pictureAttributes: HTMLAttributes<'picture'>;
+};
+
+const props = Astro.props;
+const optimizedImages: Record<
+	ImageOutputFormat,
+	GetImageResult
+> = await Promise.all(
+	props.formats.map(async (format) => await getImage({ ...props, format: format, widths: props.widths, densities: props.densities }))
+);
+
+const fallbackFormat =
+	props.fallbackFormat ?? isESMImportedImage(props.src)
+		? ['svg', 'gif'].includes(props.src.format)
+			? props.src.format
+			: 'png'
+		: 'png';
+
+const originalImage = await getImage({ ...props, format: fallbackFormat, widths: props.widths, densities: props.densities });
+
+if (props.alt === undefined || props.alt === null) {
+	throw new AstroError(AstroErrorData.ImageMissingAlt);
+}
+---
+
+<picture {...props.pictureAttributes}>
+	{Object.entries(optimizedImages).map(([format, image]) => (
+		<source
+			srcset={image.srcSetValue}
+			type={image.srcSet[0].attributes?.type}
+		/>
+	))}
+	<img src={originalImage.src} {...originalImage.attributes} />
+</picture>
