@@ -22,11 +22,7 @@ export async function emitESMImage(
 		return undefined;
 	}
 
-	const fileMetadata = await imageMetadata(fileData);
-
-	if (!fileMetadata) {
-		return undefined;
-	}
+	const fileMetadata = await imageMetadata(fileData, id);
 
 	const emittedImage: ImageMetadata = {
 		src: '',

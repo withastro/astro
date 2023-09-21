@@ -29,8 +29,8 @@ const qualityTable: Record<
 	// Squoosh's PNG encoder does not support a quality setting, so we can skip that here
 };
 
-async function getRotationForEXIF(inputBuffer: Buffer): Promise<Operation | undefined> {
-	const meta = await imageMetadata(inputBuffer);
+async function getRotationForEXIF(inputBuffer: Buffer, src?: string): Promise<Operation | undefined> {
+	const meta = await imageMetadata(inputBuffer, src);
 	if (!meta) return undefined;
 
 	// EXIF orientations are a bit hard to read, but the numbers are actually standard. See https://exiftool.org/TagNames/EXIF.html for a list.
@@ -63,7 +63,7 @@ const service: LocalImageService = {
 
 		const operations: Operation[] = [];
 
-		const rotation = await getRotationForEXIF(inputBuffer);
+		const rotation = await getRotationForEXIF(inputBuffer, transform.src);
 
 		if (rotation) {
 			operations.push(rotation);
