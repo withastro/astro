@@ -31,12 +31,13 @@ export default function assets({
 		{
 			name: 'astro:assets',
 			outputOptions(outputOptions) {
-				// Specifically split out chunk for asset services to prevent TLA deadlock
+				// Specifically split out chunk for asset files to prevent TLA deadlock
+				// caused by `getImage()` for markdown components.
 				// https://github.com/rollup/rollup/issues/4708
 				extendManualChunks(outputOptions, {
 					before(id) {
-						if (id.includes('astro/dist/assets/services')) {
-							return `astro-assets-services`;
+						if (id.includes('astro/dist/assets/')) {
+							return `astro-assets`;
 						}
 					},
 				});
