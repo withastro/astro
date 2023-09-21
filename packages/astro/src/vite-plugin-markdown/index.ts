@@ -141,7 +141,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 					});
 				}
 
-				const html = updateImageReferences(${JSON.stringify(html)});
+				const html = await updateImageReferences(${JSON.stringify(html)});
 
 				export const frontmatter = ${JSON.stringify(frontmatter)};
 				export const file = ${JSON.stringify(fileId)};
