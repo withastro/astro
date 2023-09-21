@@ -12,7 +12,8 @@ import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
-import { isMarkdownFile, rootRelativePath } from '../core/util.js';
+import { isMarkdownFile } from '../core/util.js';
+import { shorthash } from '../runtime/server/shorthash.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 
@@ -92,12 +93,13 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				const { headings, imagePaths: rawImagePaths, frontmatter } = renderResult.metadata;
 
 				// Resolve all the extracted images from the content
-				const imagePaths: { raw: string; resolved: string }[] = [];
+				const imagePaths: { raw: string; resolved: string; safeName: string }[] = [];
 				for (const imagePath of rawImagePaths.values()) {
 					imagePaths.push({
 						raw: imagePath,
 						resolved:
 							(await this.resolve(imagePath, id))?.id ?? path.join(path.dirname(id), imagePath),
+						safeName: shorthash(imagePath),
 					});
 				}
 
@@ -118,39 +120,28 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 				import { getImage } from "astro:assets";
+				${imagePaths.map((entry) => `import Astro__${entry.safeName} from ${JSON.stringify(entry.raw)};`)}
 
-				export const images = {
-					${imagePaths.map(
-						(entry) =>
-							`'${entry.raw}': await getImageSafely((await import("${entry.raw}")).default, "${
-								entry.raw
-							}", "${rootRelativePath(settings.config.root, entry.resolved)}")`
-					)}
-				}
-
-				async function getImageSafely(imageSrc, imagePath, resolvedImagePath) {
-					if (!imageSrc) {
-						throw new AstroError({
-							...AstroErrorData.MarkdownImageNotFound,
-							message: AstroErrorData.MarkdownImageNotFound.message(
-								imagePath,
-								resolvedImagePath
-							),
-							location: { file: "${id}" },
-						});
+				const images = async function() {
+					return {
+						${imagePaths
+							.map((entry) => `"${entry.raw}": await getImage({src: Astro__${entry.safeName}})`)
+							.join('\n')}
 					}
-
-					return await getImage({src: imageSrc})
 				}
 
-				function updateImageReferences(html) {
-					return html.replaceAll(
-						/__ASTRO_IMAGE_="([^"]+)"/gm,
-						(full, imagePath) => spreadAttributes({src: images[imagePath].src, ...images[imagePath].attributes})
-					);
+				async function updateImageReferences(html) {
+					return images().then((images) => {
+						return html.replaceAll(/__ASTRO_IMAGE_="([^"]+)"/gm, (full, imagePath) =>
+							spreadAttributes({
+								src: images[imagePath].src,
+								...images[imagePath].attributes,
+							})
+						);
+					});
 				}
 
-				const html = updateImageReferences(${JSON.stringify(html)});
+				const html = await updateImageReferences(${JSON.stringify(html)});
 
 				export const frontmatter = ${JSON.stringify(frontmatter)};
 				export const file = ${JSON.stringify(fileId)};

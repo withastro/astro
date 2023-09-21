@@ -72,13 +72,6 @@ export async function getErrorOverlayContent(page) {
 }
 
 /**
- * @returns {Promise<string>}
- */
-export async function getColor(el) {
-	return await el.evaluate((e) => getComputedStyle(e).color);
-}
-
-/**
  * Wait for `astro-island` that contains the `el` to hydrate
  * @param {import('@playwright/test').Page} page
  * @param {import('@playwright/test').Locator} el
