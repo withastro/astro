@@ -8,7 +8,7 @@ describe('Adapter', () => {
 	it("should error if the adapter doesn't support edge middleware", async () => {
 		try {
 			fixture = await loadFixture({
-				root: './fixtures/middleware-dev/',
+				root: './fixtures/middleware space/',
 				output: 'server',
 				build: {
 					excludeMiddleware: true,
@@ -32,7 +32,7 @@ describe('Adapter', () => {
 	it("should error if the adapter doesn't support split build", async () => {
 		try {
 			fixture = await loadFixture({
-				root: './fixtures/middleware-dev/',
+				root: './fixtures/middleware space/',
 				output: 'server',
 				build: {
 					split: true,
