@@ -24,7 +24,6 @@ const { fallback = 'animate' } = Astro.props as Props;
 	// only update history entries that are managed by us
 	// leave other entries alone and do not accidently add state.
 	const persistState = (state: State) => history.state && history.replaceState(state, '');
-	// @ts-expect-error: startViewTransition might exist
 	const supportsViewTransitions = !!document.startViewTransition;
 	const transitionEnabledOnThisPage = () =>
 		!!document.querySelector('[name="astro-view-transitions-enabled"]');
@@ -139,7 +138,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		return style.animationIterationCount === 'infinite';
 	}
 
-	const updateHistoryAndScrollPosition = (toLocation) => {
+	const updateHistoryAndScrollPosition = (toLocation: URL) => {
 		if (toLocation.href !== location.href) {
 			history.pushState(
 				{ index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
@@ -344,7 +343,6 @@ const { fallback = 'animate' } = Astro.props as Props;
 		}
 		document.documentElement.dataset.astroTransition = direction;
 		if (supportsViewTransitions) {
-			// @ts-expect-error: startViewTransition exist
 			finished = document.startViewTransition(() =>
 				updateDOM(newDocument, toLocation, popState)
 			).finished;
@@ -409,7 +407,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			navigate(link.href);
 		});
 
-		function navigate(href) {
+		function navigate(href: string) {
 			// not ours
 			if (!transitionEnabledOnThisPage()) {
 				location.href = href;
@@ -426,9 +424,9 @@ const { fallback = 'animate' } = Astro.props as Props;
 			) {
 				// mark current position as non transition intra-page scrolling
 				if (location.href !== toLocation.href) {
-					history.replaceState({ ...history.state, intraPage: true }, '');
+					history.replaceState({ ...history.state, scrollX, scrollY, intraPage: true }, '');
 					history.pushState(
-						{ index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
+						{ index: ++currentHistoryIndex, scrollX, scrollY },
 						'',
 						toLocation.href
 					);
