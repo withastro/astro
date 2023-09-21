@@ -29,7 +29,10 @@ const qualityTable: Record<
 	// Squoosh's PNG encoder does not support a quality setting, so we can skip that here
 };
 
-async function getRotationForEXIF(inputBuffer: Buffer, src?: string): Promise<Operation | undefined> {
+async function getRotationForEXIF(
+	inputBuffer: Buffer,
+	src?: string
+): Promise<Operation | undefined> {
 	const meta = await imageMetadata(inputBuffer, src);
 	if (!meta) return undefined;
 
