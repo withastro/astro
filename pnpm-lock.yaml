@@ -2847,7 +2847,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/middleware-dev:
+  packages/astro/test/fixtures/middleware space:
     dependencies:
       astro:
         specifier: workspace:*
