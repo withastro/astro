@@ -992,6 +992,15 @@ importers:
         specifier: ^3.3.4
         version: 3.3.4
 
+  packages/astro/e2e/fixtures/hmr:
+    devDependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      sass:
+        specifier: ^1.66.1
+        version: 1.66.1
+
   packages/astro/e2e/fixtures/hydration-race:
     dependencies:
       '@astrojs/preact':
@@ -1003,12 +1012,6 @@ importers:
       preact:
         specifier: ^10.17.1
         version: 10.17.1
-
-  packages/astro/e2e/fixtures/invalidate-script-deps:
-    devDependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
 
   packages/astro/e2e/fixtures/lit-component:
     dependencies:
