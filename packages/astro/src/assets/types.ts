@@ -28,6 +28,12 @@ export interface ImageMetadata {
 	orientation?: number;
 }
 
+export interface SrcSetValue {
+	url: string;
+	descriptor?: string;
+	attributes?: Record<string, string>;
+}
+
 /**
  * A yet to be resolved image transform. Used by `getImage`
  */
@@ -41,6 +47,8 @@ export type UnresolvedImageTransform = Omit<ImageTransform, 'src'> & {
 export type ImageTransform = {
 	src: ImageMetadata | string;
 	width?: number | undefined;
+	widths?: number[] | undefined;
+	densities?: (number | `${number}x`)[] | undefined;
 	height?: number | undefined;
 	quality?: ImageQuality | undefined;
 	format?: ImageOutputFormat | undefined;
@@ -51,6 +59,8 @@ export interface GetImageResult {
 	rawOptions: ImageTransform;
 	options: ImageTransform;
 	src: string;
+	srcSet: SrcSetValue[];
+	srcSetValue: string;
 	attributes: Record<string, any>;
 }
 
@@ -58,7 +68,7 @@ type ImageSharedProps<T> = T & {
 	/**
 	 * Width of the image, the value of this property will be used to assign the `width` property on the final `img` element.
 	 *
-	 * For local images, this value will additionally be used to resize the image to the desired width, taking into account the original aspect ratio of the image.
+	 * This value will additionally be used to resize the image to the desired width, taking into account the original aspect ratio of the image.
 	 *
 	 * **Example**:
 	 * ```astro
@@ -85,6 +95,18 @@ type ImageSharedProps<T> = T & {
 	 * ```
 	 */
 	height?: number | `${number}`;
+	/**
+	 * A list of widths to generate images for. The value of this property will be used to assign the `srcset` property on the final `img` element.
+	 *
+	 * This attribute is incompatible with `densities`.
+	 */
+	widths?: number[];
+	/**
+	 * A list of densities to generate images for. The value of this property will be used to assign the `srcset` property on the final `img` element.
+	 *
+	 * This attribute is incompatible with `widths`.
+	 */
+	densities?: (number | `${number}x`)[];
 };
 
 export type LocalImageProps<T> = ImageSharedProps<T> & {

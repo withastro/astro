@@ -1,7 +1,7 @@
 import type { AstroConfig } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isRemotePath, joinPaths } from '../../core/path.js';
-import { VALID_SUPPORTED_FORMATS } from '../consts.js';
+import { DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import { isESMImportedImage, isRemoteAllowed } from '../internal.js';
 import type { ImageOutputFormat, ImageTransform } from '../types.js';
 
@@ -28,6 +28,12 @@ type ImageConfig<T> = Omit<AstroConfig['image'], 'service'> & {
 	service: { entrypoint: string; config: T };
 };
 
+type SrcSetValue = {
+	transform: ImageTransform;
+	descriptor?: string;
+	attributes?: Record<string, any>;
+};
+
 interface SharedServiceProps<T extends Record<string, any> = Record<string, any>> {
 	/**
 	 * Return the URL to the endpoint or URL your images are generated from.
@@ -38,6 +44,13 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	 *
 	 */
 	getURL: (options: ImageTransform, imageConfig: ImageConfig<T>) => string | Promise<string>;
+	/**
+	 * TODO: Document
+	 */
+	getSrcSet?: (
+		options: ImageTransform,
+		imageConfig: ImageConfig<T>
+	) => SrcSetValue[] | Promise<SrcSetValue[]>;
 	/**
 	 * Return any additional HTML attributes separate from `src` that your service requires to show the image properly.
 	 *
@@ -174,6 +187,11 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				});
 			}
 
+			if (options.widths && options.densities) {
+				console.warn('Cannot use `widths` and `densities` at the same time. Using `densities`.');
+				options.widths = undefined;
+			}
+
 			// We currently do not support processing SVGs, so whenever the input format is a SVG, force the output to also be one
 			if (options.src.format === 'svg') {
 				options.format = 'svg';
@@ -183,30 +201,15 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		// If the user didn't specify a format, we'll default to `webp`. It offers the best ratio of compatibility / quality
 		// In the future, hopefully we can replace this with `avif`, alas, Edge. See https://caniuse.com/avif
 		if (!options.format) {
-			options.format = 'webp';
+			options.format = DEFAULT_OUTPUT_FORMAT;
 		}
 
 		return options;
 	},
 	getHTMLAttributes(options) {
-		let targetWidth = options.width;
-		let targetHeight = options.height;
-		if (isESMImportedImage(options.src)) {
-			const aspectRatio = options.src.width / options.src.height;
-			if (targetHeight && !targetWidth) {
-				// If we have a height but no width, use height to calculate the width
-				targetWidth = Math.round(targetHeight * aspectRatio);
-			} else if (targetWidth && !targetHeight) {
-				// If we have a width but no height, use width to calculate the height
-				targetHeight = Math.round(targetWidth / aspectRatio);
-			} else if (!targetWidth && !targetHeight) {
-				// If we have neither width or height, use the original image's dimensions
-				targetWidth = options.src.width;
-				targetHeight = options.src.height;
-			}
-		}
-
-		const { src, width, height, format, quality, ...attributes } = options;
+		const { targetWidth, targetHeight } = getTargetDimensions(options);
+		const { src, width, height, format, quality, densities, widths, formats, ...attributes } =
+			options;
 
 		return {
 			...attributes,
@@ -215,6 +218,57 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			loading: attributes.loading ?? 'lazy',
 			decoding: attributes.decoding ?? 'async',
 		};
+	},
+	getSrcSet(options) {
+		const srcSet: SrcSetValue[] = [];
+		const { targetWidth, targetHeight } = getTargetDimensions(options);
+		const { widths, densities } = options;
+		const targetFormat = options.format ?? DEFAULT_OUTPUT_FORMAT;
+
+		const aspectRatio = targetWidth / targetHeight;
+		if (densities) {
+			const densityValues = densities.map((density) => {
+				if (typeof density === 'number') {
+					return density;
+				} else {
+					return parseFloat(density);
+				}
+			});
+
+			const densityWidths = densityValues.map((density) => Math.round(targetWidth * density));
+
+			densityWidths.forEach((width, index) => {
+				srcSet.push({
+					transform: {
+						...options,
+						width,
+						height: Math.round(width / aspectRatio),
+						format: targetFormat,
+					},
+					descriptor: `${densityValues[index]}x`,
+					attributes: {
+						type: `image/${targetFormat}`,
+					},
+				});
+			});
+		} else if (widths) {
+			widths.forEach((width) => {
+				srcSet.push({
+					transform: {
+						...options,
+						width,
+						height: Math.round(width / aspectRatio),
+						format: targetFormat,
+					},
+					descriptor: `${width}w`,
+					attributes: {
+						type: `image/${targetFormat}`,
+					},
+				});
+			});
+		}
+
+		return srcSet;
 	},
 	getURL(options, imageConfig) {
 		const searchParams = new URLSearchParams();
@@ -260,3 +314,28 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		return transform;
 	},
 };
+
+function getTargetDimensions(options: ImageTransform) {
+	let targetWidth = options.width;
+	let targetHeight = options.height;
+	if (isESMImportedImage(options.src)) {
+		const aspectRatio = options.src.width / options.src.height;
+		if (targetHeight && !targetWidth) {
+			// If we have a height but no width, use height to calculate the width
+			targetWidth = Math.round(targetHeight * aspectRatio);
+		} else if (targetWidth && !targetHeight) {
+			// If we have a width but no height, use width to calculate the height
+			targetHeight = Math.round(targetWidth / aspectRatio);
+		} else if (!targetWidth && !targetHeight) {
+			// If we have neither width or height, use the original image's dimensions
+			targetWidth = options.src.width;
+			targetHeight = options.src.height;
+		}
+	}
+
+	// TypeScript doesn't know this, but because of previous hooks we always know that targetWidth and targetHeight are defined
+	return {
+		targetWidth: targetWidth!,
+		targetHeight: targetHeight!,
+	};
+}

@@ -6,6 +6,7 @@ import type {
 	GetImageResult,
 	ImageMetadata,
 	ImageTransform,
+	SrcSetValue,
 	UnresolvedImageTransform,
 } from './types.js';
 import { matchHostname, matchPattern } from './utils/remotePattern.js';
@@ -13,7 +14,7 @@ import { matchHostname, matchPattern } from './utils/remotePattern.js';
 export function injectImageEndpoint(settings: AstroSettings) {
 	const endpointEntrypoint = settings.config.image.endpoint ?? 'astro/assets/image-endpoint';
 
-	// TODO: Add a setting to disable the image endpoint
+	// TODO: Add a setting to disable the image endpoint fully
 	settings.injectedRoutes.push({
 		pattern: '/_image',
 		entryPoint: endpointEntrypoint,
@@ -92,22 +93,40 @@ export async function getImage(
 		? await service.validateOptions(resolvedOptions, imageConfig)
 		: resolvedOptions;
 
-	let imageURL = await service.getURL(validatedOptions, imageConfig);
+	// Get all the options for the different srcSets
+	const srcSetTransforms = service.getSrcSet
+		? await service.getSrcSet(validatedOptions, imageConfig)
+		: [];
 
-	// In build and for local services, we need to collect the requested parameters so we can generate the final images
-	if (
-		isLocalService(service) &&
-		globalThis.astroAsset.addStaticImage &&
-		// If `getURL` returned the same URL as the user provided, it means the service doesn't need to do anything
-		!(isRemoteImage(validatedOptions.src) && imageURL === validatedOptions.src)
-	) {
-		imageURL = globalThis.astroAsset.addStaticImage(validatedOptions);
+	let imageURL = await getFinalURL(validatedOptions);
+	let srcSets: SrcSetValue[] = await Promise.all(
+		srcSetTransforms.map(async (srcSet) => ({
+			url: await getFinalURL(srcSet.transform),
+			descriptor: srcSet.descriptor,
+			attributes: srcSet.attributes,
+		}))
+	);
+
+	async function getFinalURL(transform: ImageTransform) {
+		// In build and for local services, we need to collect the requested parameters so we can generate the final images
+		if (
+			isLocalService(service) &&
+			globalThis.astroAsset.addStaticImage &&
+			// If `getURL` returned the same URL as the user provided, it means the service doesn't need to do anything
+			!(isRemoteImage(transform.src) && imageURL === transform.src)
+		) {
+			return globalThis.astroAsset.addStaticImage(transform);
+		} else {
+			return await service.getURL(transform, imageConfig);
+		}
 	}
 
 	return {
 		rawOptions: resolvedOptions,
 		options: validatedOptions,
 		src: imageURL,
+		srcSet: srcSets,
+		srcSetValue: srcSets.map((srcSet) => `${srcSet.url} ${srcSet.descriptor}`).join(', '),
 		attributes:
 			service.getHTMLAttributes !== undefined
 				? service.getHTMLAttributes(validatedOptions, imageConfig)

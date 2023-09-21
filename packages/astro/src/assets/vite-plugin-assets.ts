@@ -42,6 +42,7 @@ export default function assets({
 					export { getConfiguredImageService, isLocalService } from "astro/assets";
 					import { getImage as getImageInternal } from "astro/assets";
 					export { default as Image } from "astro/components/Image.astro";
+					export { default as Picture } from "astro/components/Picture.astro";
 
 					export const imageConfig = ${JSON.stringify(settings.config.image)};
 					export const getImage = async (options) => await getImageInternal(options, imageConfig);

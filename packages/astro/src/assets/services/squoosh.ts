@@ -53,6 +53,7 @@ const service: LocalImageService = {
 	getURL: baseService.getURL,
 	parseURL: baseService.parseURL,
 	getHTMLAttributes: baseService.getHTMLAttributes,
+	getSrcSet: baseService.getSrcSet,
 	async transform(inputBuffer, transformOptions) {
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
 

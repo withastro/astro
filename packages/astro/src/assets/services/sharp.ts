@@ -33,6 +33,7 @@ const sharpService: LocalImageService = {
 	getURL: baseService.getURL,
 	parseURL: baseService.parseURL,
 	getHTMLAttributes: baseService.getHTMLAttributes,
+	getSrcSet: baseService.getSrcSet,
 	async transform(inputBuffer, transformOptions) {
 		if (!sharp) sharp = await loadSharp();
 
