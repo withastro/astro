@@ -247,7 +247,7 @@ describe('Content Collections', () => {
 	describe('With empty collections directory', () => {
 		it('Handles the empty directory correclty', async () => {
 			const fixture = await loadFixture({
-				root: './fixtures/content-collections-empty-dir/'
+				root: './fixtures/content-collections-empty-dir/',
 			});
 			let error;
 			try {
@@ -257,8 +257,8 @@ describe('Content Collections', () => {
 			}
 			expect(error).to.be.undefined;
 			// TODO: try to render a page
-		})
-	})
+		});
+	});
 
 	describe('SSR integration', () => {
 		let app;

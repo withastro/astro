@@ -1,5 +1,6 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { ZodIssueCode, string as zodString } from 'zod';
+import type { AstroIntegration } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 import {
@@ -13,7 +14,6 @@ import {
 	type AstroComponentFactory,
 } from '../runtime/server/index.js';
 import type { ContentLookupMap } from './utils.js';
-import type { AstroIntegration } from '../@types/astro.js';
 
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
@@ -56,7 +56,7 @@ export function createGetCollection({
 		} else if (collection in dataCollectionToEntryMap) {
 			type = 'data';
 		} else {
-			return warnOfEmptyCollection(collection)
+			return warnOfEmptyCollection(collection);
 		}
 		const lazyImports = Object.values(
 			type === 'content'
