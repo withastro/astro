@@ -5,9 +5,9 @@ import type {
 	MiddlewareHandler,
 	MiddlewareNext,
 } from '../../@types/astro.js';
+import { attachCookiesToResponse, responseHasCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Environment } from '../render/index.js';
-import { attachCookiesToResponse, responseHasCookies } from '../cookies/index.js';
 
 /**
  * Utility function that is in charge of calling the middleware.
@@ -112,7 +112,7 @@ export async function callMiddleware<R>(
 }
 
 function ensureCookiesAttached(apiContext: APIContext, response: Response): Response {
-	if(apiContext.cookies !== undefined && !responseHasCookies(response)) {
+	if (apiContext.cookies !== undefined && !responseHasCookies(response)) {
 		attachCookiesToResponse(response, apiContext.cookies);
 	}
 	return response;

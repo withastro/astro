@@ -1,2 +1,6 @@
 export { AstroCookies } from './cookies.js';
-export { attachCookiesToResponse, responseHasCookies, getSetCookiesFromResponse } from './response.js';
+export {
+	attachCookiesToResponse,
+	getSetCookiesFromResponse,
+	responseHasCookies,
+} from './response.js';
