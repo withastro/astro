@@ -61,6 +61,65 @@ export default defineConfig({
 });
 ```
 
+Then, create a `tailwind.config.js` file in your project's root directory. You can use the following command to generate a basic configuration file for you:
+
+```sh
+npx tailwindcss init
+```
+
+Add this basic configuration to your `tailwind.config.js` file:
+
+```js ins={4} "content: ['./src/**/*.{astro,js,ts,tsx,md,mdx}']"
+// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ["./src/**/*.{astro,js,ts,tsx,md,mdx}"],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+:::note
+If you're using any other UI framework, remember to add the extension to the content array. For example, if you're using Vue, you'll need to add `./src/**/*.vue` to the content array.
+:::
+
+Add a directory `styles` to your `src` directory, and create a file called `global.css` inside of it. This is where you can add your own custom CSS styles or directives. For example, you can add a `@layer` directive to add your own custom styles to the `base` layer:
+
+```css
+/* src/styles/global.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+Finally, import your `global.css` file inside your Layout component:
+
+```astro ins={2} "import '../styles/global.css';"
+---
+import "../styles/global.css";
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Astro description" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+```
+
 ## Usage
 
 When you install the integration, Tailwind's utility classes should be ready to go right away. Head to the [Tailwind docs](https://tailwindcss.com/docs/utility-first) to learn how to use Tailwind, and if you see a utility class you want to try, add it to any HTML element to your project!
