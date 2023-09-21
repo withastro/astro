@@ -364,12 +364,8 @@ export function navigate(href: string) {
 	) {
 		// mark current position as non transition intra-page scrolling
 		if (location.href !== toLocation.href) {
-			history.replaceState({ ...history.state, intraPage: true }, '');
-			history.pushState(
-				{ index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
-				'',
-				toLocation.href
-			);
+			history.replaceState({ ...history.state, scrollX, scrollY, intraPage: true }, '');
+			history.pushState({ index: ++currentHistoryIndex, scrollX, scrollY }, '', toLocation.href);
 		}
 		if (toLocation.hash) {
 			location.href = toLocation.href;
