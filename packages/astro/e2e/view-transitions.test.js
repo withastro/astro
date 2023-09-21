@@ -293,12 +293,12 @@ test.describe('View Transitions', () => {
 		locator = page.locator('#click-one-again');
 		await expect(locator).toBeInViewport();
 
-		// Scroll up to top fragment
+		// goto page 1
 		await page.click('#click-one-again');
 		locator = page.locator('#one');
 		await expect(locator).toHaveText('Page 1');
 
-		// Back to middle of the page
+		// Back to middle of the previous page
 		await page.goBack();
 		locator = page.locator('#click-one-again');
 		await expect(locator).toBeInViewport();
@@ -711,5 +711,23 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/six'));
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
+  });
+  
+	test('body inline scripts do not re-execute on navigation', async ({ page, astro }) => {
+		const errors = [];
+		page.addListener('pageerror', (err) => {
+			errors.push(err);
+		});
+
+		await page.goto(astro.resolveUrl('/inline-script-one'));
+		let article = page.locator('#counter');
+		await expect(article, 'should have script content').toBeVisible('exists');
+
+		await page.click('#click-one');
+
+		article = page.locator('#counter');
+		await expect(article, 'should have script content').toHaveText('Count: 3');
+
+		expect(errors).toHaveLength(0);
 	});
 });

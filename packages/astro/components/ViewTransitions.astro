@@ -72,25 +72,24 @@ const { fallback = 'animate' } = Astro.props as Props;
 			ev.preventDefault();
 			navigate(link.href);
 		});
-	
 
-	['mouseenter', 'touchstart', 'focus'].forEach((evName) => {
-		document.addEventListener(
-			evName,
-			(ev) => {
-				if (ev.target instanceof HTMLAnchorElement) {
-					let el = ev.target;
-					if (
-						el.origin === location.origin &&
-						el.pathname !== location.pathname &&
-						transitionEnabledOnThisPage()
-					) {
-						maybePrefetch(el.pathname);
+    ['mouseenter', 'touchstart', 'focus'].forEach((evName) => {
+			document.addEventListener(
+				evName,
+				(ev) => {
+					if (ev.target instanceof HTMLAnchorElement) {
+						let el = ev.target;
+						if (
+							el.origin === location.origin &&
+							el.pathname !== location.pathname &&
+							transitionEnabledOnThisPage()
+						) {
+							maybePrefetch(el.pathname);
+						}
 					}
-				}
-			},
-			{ passive: true, capture: true }
-		);
-	});
+				},
+				{ passive: true, capture: true }
+			);
+		});
 	}
 </script>

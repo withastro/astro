@@ -1,9 +1,17 @@
 # Astro Telemetry
 
-This package is used to collect anonymous telemetry data within the Astro CLI. It is enabled by default. Telemetry data does not contain any personal identifying information and can be disabled via:
+This package is used to collect anonymous telemetry data within the Astro CLI.
+
+It can be disabled in Astro using either method documented below:
 
 ```shell
+# Option 1: Run this to disable telemetry globally across your entire machine.
 astro telemetry disable
 ```
 
-See the [CLI documentation](https://docs.astro.build/en/reference/cli-reference/#astro-telemetry) for more options on configuration telemetry.
+```shell
+# Option 2: The ASTRO_TELEMETRY_DISABLED environment variable disables telemetry when set.
+ASTRO_TELEMETRY_DISABLED=1 astro dev
+```
+
+Visit https://astro.build/telemetry/ for more information about our approach to anonymous telemetry in Astro.
