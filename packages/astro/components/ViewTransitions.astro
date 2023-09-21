@@ -26,6 +26,21 @@ const { fallback = 'animate' } = Astro.props as Props;
 		return 'animate';
 	}
 
+// Prefetching
+	function maybePrefetch(pathname: string) {
+		if (document.querySelector(`link[rel=prefetch][href="${pathname}"]`)) return;
+		// @ts-expect-error: connection might exist
+		if (navigator.connection) {
+			// @ts-expect-error: connection does exist
+			let conn = navigator.connection;
+			if (conn.saveData || /(2|3)g/.test(conn.effectiveType || '')) return;
+		}
+		let link = document.createElement('link');
+		link.setAttribute('rel', 'prefetch');
+		link.setAttribute('href', pathname);
+		document.head.append(link);
+	}
+
 	if (supportsViewTransitions || getFallback() !== 'none') {
 		document.addEventListener('click', (ev) => {
 			let link = ev.target;
@@ -48,8 +63,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 				ev.ctrlKey || // new tab (windows)
 				ev.altKey || // download
 				ev.shiftKey || // new window
-				ev.defaultPrevented ||
-				!transitionEnabledOnThisPage()
+				ev.defaultPrevented
 			) {
 				// No page transitions in these cases,
 				// Let the browser standard action handle this
@@ -58,20 +72,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			ev.preventDefault();
 			navigate(link.href);
 		});
-	}
-
-	// Prefetching
-	function maybePrefetch(pathname: string) {
-		if (document.querySelector(`link[rel=prefetch][href="${pathname}"]`)) return;
-		if (navigator.connection) {
-			let conn = navigator.connection;
-			if (conn.saveData || /(2|3)g/.test(conn.effectiveType || '')) return;
-		}
-		let link = document.createElement('link');
-		link.setAttribute('rel', 'prefetch');
-		link.setAttribute('href', pathname);
-		document.head.append(link);
-	}
+	
 
 	['mouseenter', 'touchstart', 'focus'].forEach((evName) => {
 		document.addEventListener(
@@ -91,4 +92,5 @@ const { fallback = 'animate' } = Astro.props as Props;
 			{ passive: true, capture: true }
 		);
 	});
+	}
 </script>

@@ -4,19 +4,26 @@ type State = {
 	index: number;
 	scrollX: number;
 	scrollY: number;
+	intraPage?: boolean;
 };
 type Events = 'astro:page-load' | 'astro:after-swap';
-
-export const supportsViewTransitions = !!document.startViewTransition;
-export const transitionEnabledOnThisPage = () =>
-	!!document.querySelector('[name="astro-view-transitions-enabled"]');
 
 // only update history entries that are managed by us
 // leave other entries alone and do not accidently add state.
 const persistState = (state: State) => history.state && history.replaceState(state, '');
+// @ts-expect-error: startViewTransition might exist
+export const supportsViewTransitions = !!document.startViewTransition;
+export const transitionEnabledOnThisPage = () =>
+	!!document.querySelector('[name="astro-view-transitions-enabled"]');
 const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
 const onPageLoad = () => triggerEvent('astro:page-load');
 const PERSIST_ATTR = 'data-astro-transition-persist';
+const parser = new DOMParser();
+// explained at its usage
+let noopEl: HTMLDivElement;
+if (import.meta.env.DEV) {
+	noopEl = document.createElement('div');
+}
 
 // The History API does not tell you if navigation is forward or back, so
 // you can figure it using an index. On pushState the index is incremented so you
@@ -28,7 +35,7 @@ if (history.state) {
 	currentHistoryIndex = history.state.index;
 	scrollTo({ left: history.state.scrollX, top: history.state.scrollY });
 } else if (transitionEnabledOnThisPage()) {
-	history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
+	history.replaceState({ index: currentHistoryIndex, scrollX, scrollY, intraPage: false }, '');
 }
 const throttle = (cb: (...args: any[]) => any, delay: number) => {
 	let wait = false;
@@ -52,19 +59,28 @@ const throttle = (cb: (...args: any[]) => any, delay: number) => {
 	};
 };
 
-async function getHTML(href: string) {
+// returns the contents of the page or null if the router can't deal with it.
+async function fetchHTML(
+	href: string
+): Promise<null | { html: string; redirected?: string; mediaType: DOMParserSupportedType }> {
 	try {
 		const res = await fetch(href);
+		// drop potential charset (+ other name/value pairs) as parser needs the mediaType
+		const mediaType = res.headers.get('content-type')?.replace(/;.*$/, '');
+		// the DOMParser can handle two types of HTML
+		if (mediaType !== 'text/html' && mediaType !== 'application/xhtml+xml') {
+			// everything else (e.g. audio/mp3) will be handled by the browser but not by us
+			return null;
+		}
 		const html = await res.text();
 		return {
-			ok: res.ok,
 			html,
 			redirected: res.redirected ? res.url : undefined,
-			// drop potential charset (+ other name/value pairs) as parser needs the mediaType
-			mediaType: res.headers.get('content-type')?.replace(/;.*/, ''),
+			mediaType,
 		};
 	} catch (err) {
-		return { ok: false };
+		// can't fetch, let someone else deal with it.
+		return null;
 	}
 }
 
@@ -86,19 +102,19 @@ function runScripts() {
 	let wait = Promise.resolve();
 	for (const script of Array.from(document.scripts)) {
 		if (script.dataset.astroExec === '') continue;
-		const s = document.createElement('script');
-		s.innerHTML = script.innerHTML;
+		const newScript = document.createElement('script');
+		newScript.innerHTML = script.innerHTML;
 		for (const attr of script.attributes) {
 			if (attr.name === 'src') {
 				const p = new Promise((r) => {
-					s.onload = r;
+					newScript.onload = r;
 				});
 				wait = wait.then(() => p as any);
 			}
-			s.setAttribute(attr.name, attr.value);
+			newScript.setAttribute(attr.name, attr.value);
 		}
-		s.dataset.astroExec = '';
-		script.replaceWith(s);
+		newScript.dataset.astroExec = '';
+		script.replaceWith(newScript);
 	}
 	return wait;
 }
@@ -110,47 +126,60 @@ function isInfinite(animation: Animation) {
 	return style.animationIterationCount === 'infinite';
 }
 
-const parser = new DOMParser();
+const updateHistoryAndScrollPosition = (toLocation) => {
+	if (toLocation.href !== location.href) {
+		history.pushState(
+			{ index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
+			'',
+			toLocation.href
+		);
+		// now we are on the new page for non-history navigations!
+		// (with history navigation page change happens before popstate is fired)
+	}
+	// freshly loaded pages start from the top
+	scrollTo({ left: 0, top: 0, behavior: 'instant' });
 
-// A noop element used to prevent styles from being removed
-let noopEl: HTMLDivElement;
-if (import.meta.env.DEV) {
-	noopEl = document.createElement('div');
-}
+	if (toLocation.hash) {
+		// because we are already on the target page ...
+		// ... what comes next is a intra-page navigation
+		// that won't reload the page but instead scroll to the fragment
+		location.href = toLocation.href;
+	}
+};
 
-async function updateDOM(doc: Document, loc: URL, state?: State, fallback?: Fallback) {
-	// Check for a head element that should persist, either because it has the data
-	// attribute or is a link el.
+// replace head and body of the windows document with contents from newDocument
+// if !popstate, update the history entry and scroll position according to toLocation
+// if popState is given, this holds the scroll position for history navigation
+// if fallback === "animate" then simulate view transitions
+async function updateDOM(
+	newDocument: Document,
+	toLocation: URL,
+	popState?: State,
+	fallback?: Fallback
+) {
+	// Check for a head element that should persist and returns it,
+	// either because it has the data attribute or is a link el.
 	const persistedHeadElement = (el: HTMLElement): Element | null => {
 		const id = el.getAttribute(PERSIST_ATTR);
-		const newEl = id && doc.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
+		const newEl = id && newDocument.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
 		if (newEl) {
 			return newEl;
 		}
 		if (el.matches('link[rel=stylesheet]')) {
 			const href = el.getAttribute('href');
-			return doc.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
+			return newDocument.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
 		}
-		if (el.tagName === 'SCRIPT') {
-			let s1 = el as HTMLScriptElement;
-			for (const s2 of doc.scripts) {
-				if (
-					// Inline
-					(s1.textContent && s1.textContent === s2.textContent) ||
-					// External
-					(s1.type === s2.type && s1.src === s2.src)
-				) {
-					return s2;
-				}
-			}
-		}
-		// Only run this in dev. This will get stripped from production builds and is not needed.
+		// What follows is a fix for an issue (#8472) with missing client:only styles after transition.
+		// That problem exists only in dev mode where styles are injected into the page by Vite.
+		// Returning a noop element ensures that the styles are not removed from the old document.
+		// Guarding the code below with the dev mode check
+		// allows tree shaking to remove this code in production.
 		if (import.meta.env.DEV) {
 			if (el.tagName === 'STYLE' && el.dataset.viteDevId) {
 				const devId = el.dataset.viteDevId;
 				// If this same style tag exists, remove it from the new page
 				return (
-					doc.querySelector(`style[data-astro-dev-id="${devId}"]`) ||
+					newDocument.querySelector(`style[data-astro-dev-id="${devId}"]`) ||
 					// Otherwise, keep it anyways. This is client:only styles.
 					noopEl
 				);
@@ -160,10 +189,6 @@ async function updateDOM(doc: Document, loc: URL, state?: State, fallback?: Fall
 	};
 
 	const swap = () => {
-		// noscript tags inside head element are not honored on swap (#7969).
-		// Remove them before swapping.
-		doc.querySelectorAll('head noscript').forEach((el) => el.remove());
-
 		// swap attributes of the html element
 		// - delete all attributes from the current document
 		// - insert all attributes from doc
@@ -172,9 +197,25 @@ async function updateDOM(doc: Document, loc: URL, state?: State, fallback?: Fall
 		const astro = [...html.attributes].filter(
 			({ name }) => (html.removeAttribute(name), name.startsWith('data-astro-'))
 		);
-		[...doc.documentElement.attributes, ...astro].forEach(({ name, value }) =>
+		[...newDocument.documentElement.attributes, ...astro].forEach(({ name, value }) =>
 			html.setAttribute(name, value)
 		);
+
+		// Replace scripts in both the head and body.
+		for (const s1 of document.scripts) {
+			for (const s2 of newDocument.scripts) {
+				if (
+					// Inline
+					(s1.textContent && s1.textContent === s2.textContent) ||
+					// External
+					(s1.type === s2.type && s1.src === s2.src)
+				) {
+					s2.remove();
+				} else {
+					s1.remove();
+				}
+			}
+		}
 
 		// Swap head
 		for (const el of Array.from(document.head.children)) {
@@ -188,12 +229,15 @@ async function updateDOM(doc: Document, loc: URL, state?: State, fallback?: Fall
 				el.remove();
 			}
 		}
+
 		// Everything left in the new head is new, append it all.
-		document.head.append(...doc.head.children);
+		document.head.append(...newDocument.head.children);
 
 		// Persist elements in the existing body
 		const oldBody = document.body;
-		document.body.replaceWith(doc.body);
+
+		// this will reset scroll Position
+		document.body.replaceWith(newDocument.body);
 		for (const el of oldBody.querySelectorAll(`[${PERSIST_ATTR}]`)) {
 			const id = el.getAttribute(PERSIST_ATTR);
 			const newEl = document.querySelector(`[${PERSIST_ATTR}="${id}"]`);
@@ -204,39 +248,18 @@ async function updateDOM(doc: Document, loc: URL, state?: State, fallback?: Fall
 			}
 		}
 
-		// Simulate scroll behavior of Safari and
-		// Chromium based browsers (Chrome, Edge, Opera, ...)
-		scrollTo({ left: 0, top: 0, behavior: 'instant' });
-
-		let initialScrollX = 0;
-		let initialScrollY = 0;
-		if (!state && loc.hash) {
-			const id = decodeURIComponent(loc.hash.slice(1));
-			const elem = document.getElementById(id);
-			// prefer scrollIntoView() over scrollTo() because it takes scroll-padding into account
-			if (elem) {
-				elem.scrollIntoView();
-				initialScrollX = Math.max(
-					0,
-					elem.offsetLeft + elem.offsetWidth - document.documentElement.clientWidth
-				);
-				initialScrollY = elem.offsetTop;
-			}
-		} else if (state) {
-			scrollTo(state.scrollX, state.scrollY); // usings default scrollBehavior
+		if (popState) {
+			scrollTo(popState.scrollX, popState.scrollY); // usings 'auto' scrollBehavior
+		} else {
+			updateHistoryAndScrollPosition(toLocation);
 		}
-		!state &&
-			history.pushState(
-				{ index: ++currentHistoryIndex, scrollX: initialScrollX, scrollY: initialScrollY },
-				'',
-				loc.href
-			);
+
 		triggerEvent('astro:after-swap');
 	};
 
 	// Wait on links to finish, to prevent FOUC
 	const links: Promise<any>[] = [];
-	for (const el of doc.querySelectorAll('head link[rel=stylesheet]')) {
+	for (const el of newDocument.querySelectorAll('head link[rel=stylesheet]')) {
 		// Do not preload links that are already on the page.
 		if (
 			!document.querySelector(
@@ -276,32 +299,44 @@ async function updateDOM(doc: Document, loc: URL, state?: State, fallback?: Fall
 	}
 }
 
-async function transition(dir: Direction, loc: URL, state?: State) {
+async function transition(direction: Direction, toLocation: URL, popState?: State) {
 	let finished: Promise<void>;
-	const href = loc.href;
-	const { html, ok, mediaType, redirected } = await getHTML(href);
-	// if there was a redirection, show the final URL in the browser's address bar
-	redirected && (loc = new URL(redirected));
+	const href = toLocation.href;
+	const response = await fetchHTML(href);
 	// If there is a problem fetching the new page, just do an MPA navigation to it.
-	if (!ok || !(mediaType === 'text/html' || mediaType === 'application/xhtml+xml')) {
+	if (response === null) {
+		location.href = href;
+		return;
+	}
+	// if there was a redirection, show the final URL in the browser's address bar
+	if (response.redirected) {
+		toLocation = new URL(response.redirected);
+	}
+
+	const newDocument = parser.parseFromString(response.html, response.mediaType);
+	// The next line might look like a hack,
+	// but it is actually necessary as noscript elements
+	// and their contents are returned as markup by the parser,
+	// see https://developer.mozilla.org/en-US/docs/Web/API/DOMParser/parseFromString
+	newDocument.querySelectorAll('noscript').forEach((el) => el.remove());
+
+	if (!newDocument.querySelector('[name="astro-view-transitions-enabled"]')) {
 		location.href = href;
 		return;
 	}
 
-	const doc = parser.parseFromString(html, mediaType);
-	if (!doc.querySelector('[name="astro-view-transitions-enabled"]')) {
-		location.href = href;
-		return;
+	if (!popState) {
+		// save the current scroll position before we change the DOM and transition to the new page
+		history.replaceState({ ...history.state, scrollX, scrollY }, '');
 	}
-
-	// Now we are sure that we will push state, and it is time to create a state if it is still missing.
-	!state && history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
-
-	document.documentElement.dataset.astroTransition = dir;
+	document.documentElement.dataset.astroTransition = direction;
 	if (supportsViewTransitions) {
-		finished = document.startViewTransition(() => updateDOM(doc, loc, state)).finished;
+		// @ts-expect-error: startViewTransition exist
+		finished = document.startViewTransition(() =>
+			updateDOM(newDocument, toLocation, popState)
+		).finished;
 	} else {
-		finished = updateDOM(doc, loc, state, getFallback());
+		finished = updateDOM(newDocument, toLocation, popState, getFallback());
 	}
 	try {
 		await finished;
@@ -314,81 +349,92 @@ async function transition(dir: Direction, loc: URL, state?: State) {
 	}
 }
 
-export function navigate(href: string) {
-	const link = new URL(href, location.href);
-	// We do not need to handle same page links because there are no page transitions
-	// Same page means same path and same query params (but different hash)
-	if (location.pathname === link.pathname && location.search === link.search) {
-		if (link.hash) {
-			location.href = link.href;
+export function navigate(href) {
+	// not ours
+	if (!transitionEnabledOnThisPage()) {
+		location.href = href;
+		return;
+	}
+	const toLocation = new URL(href, location.href);
+	// We do not have page transitions on navigations to the same page (intra-page navigation)
+	// but we want to handle prevent reload on navigation to the same page
+	// Same page means same origin, path and query params (but maybe different hash)
+	if (
+		location.origin === toLocation.origin &&
+		location.pathname === toLocation.pathname &&
+		location.search === toLocation.search
+	) {
+		// mark current position as non transition intra-page scrolling
+		if (location.href !== toLocation.href) {
+			history.replaceState({ ...history.state, intraPage: true }, '');
+			history.pushState(
+				{ index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
+				'',
+				toLocation.href
+			);
+		}
+		if (toLocation.hash) {
+			location.href = toLocation.href;
 		} else {
-			// Special case: self link without hash
-			// If handed to the browser it will reload the page
-			// But we want to handle it like any other same page navigation
-			// So we scroll to the top of the page but do not start page transitions
-			// push state on the first navigation but not if we were here already
-			if (location.hash) {
-				history.replaceState({ index: currentHistoryIndex, scrollX, scrollY: -(scrollY + 1) }, '');
-				const newState: State = { index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 };
-				history.pushState(newState, '', link.href);
-			}
 			scrollTo({ left: 0, top: 0, behavior: 'instant' });
 		}
-		return;
+	} else {
+		transition('forward', toLocation);
 	}
-	// these are the cases we will handle: same origin, different page
-	transition('forward', link);
 }
 
-addEventListener('popstate', (ev) => {
-	if (!transitionEnabledOnThisPage() && ev.state) {
-		// The current page doesn't have View Transitions enabled
-		// but the page we navigate to does (because it set the state).
-		// Do a full page refresh to reload the client-side router from the new page.
-		// Scroll restauration will then happen during the reload when the router's code is re-executed
-		history.scrollRestoration && (history.scrollRestoration = 'manual');
-		location.reload();
-		return;
-	}
-
-	// History entries without state are created by the browser (e.g. for hash links)
-	// Our view transition entries always have state.
-	// Just ignore stateless entries.
-	// The browser will handle navigation fine without our help
-	if (ev.state === null) {
-		if (history.scrollRestoration) {
-			history.scrollRestoration = 'auto';
-		}
-		return;
-	}
-
-	// With the default "auto", the browser will jump to the old scroll position
-	// before the ViewTransition is complete.
-	if (history.scrollRestoration) {
-		history.scrollRestoration = 'manual';
-	}
-
-	const state: State = history.state;
-	const nextIndex = state.index;
-	const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
-	currentHistoryIndex = nextIndex;
-	if (state.scrollY < 0) {
-		scrollTo(state.scrollX, -(state.scrollY + 1));
-	} else {
-		transition(direction, new URL(location.href), state);
-	}
-});
-
-addEventListener('load', onPageLoad);
-// There's not a good way to record scroll position before a back button.
-// So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
-const updateState = () => {
-	persistState({ ...history.state, scrollX, scrollY });
-};
-
-if ('onscrollend' in window) addEventListener('scrollend', updateState);
-else addEventListener('scroll', throttle(updateState, 300));
-
 if (supportsViewTransitions || getFallback() !== 'none') {
+	addEventListener('popstate', (ev) => {
+		if (!transitionEnabledOnThisPage() && ev.state) {
+			// The current page doesn't have View Transitions enabled
+			// but the page we navigate to does (because it set the state).
+			// Do a full page refresh to reload the client-side router from the new page.
+			// Scroll restauration will then happen during the reload when the router's code is re-executed
+			if (history.scrollRestoration) {
+				history.scrollRestoration = 'manual';
+			}
+			location.reload();
+			return;
+		}
+
+		// History entries without state are created by the browser (e.g. for hash links)
+		// Our view transition entries always have state.
+		// Just ignore stateless entries.
+		// The browser will handle navigation fine without our help
+		if (ev.state === null) {
+			if (history.scrollRestoration) {
+				history.scrollRestoration = 'auto';
+			}
+			return;
+		}
+
+		// With the default "auto", the browser will jump to the old scroll position
+		// before the ViewTransition is complete.
+		if (history.scrollRestoration) {
+			history.scrollRestoration = 'manual';
+		}
+
+		const state: State = history.state;
+		if (state.intraPage) {
+			// this is non transition intra-page scrolling
+			scrollTo(state.scrollX, state.scrollY);
+		} else {
+			const nextIndex = state.index;
+			const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
+			currentHistoryIndex = nextIndex;
+			transition(direction, new URL(location.href), state);
+		}
+	});
+
+	addEventListener('load', onPageLoad);
+	// There's not a good way to record scroll position before a back button.
+	// So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
+	const updateState = () => {
+		persistState({ ...history.state, scrollX, scrollY });
+	};
+
+	if ('onscrollend' in window) addEventListener('scrollend', updateState);
+	else addEventListener('scroll', throttle(updateState, 300));
+
 	markScriptsExec();
 }
