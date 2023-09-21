@@ -35,9 +35,11 @@ const { fallback = 'animate' } = Astro.props as Props;
 		div.setAttribute('aria-live', 'assertive');
 		div.setAttribute('aria-atomic', 'true');
 		div.setAttribute('style', 'position:absolute;left:0;top:0;clip:rect(0 0 0 0);clip-path:inset(50%);overflow:hidden;white-space:nowrap;width:1px;height:1px');
-		let title = document.title || document.querySelector('h1')?.textContent || location.pathname;
-		div.textContent = title;
 		document.body.append(div);
+		setTimeout(() => {
+			let title = document.title || document.querySelector('h1')?.textContent || location.pathname;
+			div.textContent = title;
+		});
 	};
 	const PERSIST_ATTR = 'data-astro-transition-persist';
 	const parser = new DOMParser();
