@@ -1,5 +1,11 @@
 # @astrojs/telemetry
 
+## 3.0.2
+
+### Patch Changes
+
+- [#8600](https://github.com/withastro/astro/pull/8600) [`ed54d4644`](https://github.com/withastro/astro/commit/ed54d46449accc99ad117d6b0d50a8905e4d65d7) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Improve config info telemetry
+
 ## 3.0.1
 
 ### Patch Changes
