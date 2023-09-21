@@ -7,6 +7,7 @@ import type {
 } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Environment } from '../render/index.js';
+import { attachCookiesToResponse, responseHasCookies } from '../cookies/index.js';
 
 /**
  * Utility function that is in charge of calling the middleware.
@@ -82,7 +83,7 @@ export async function callMiddleware<R>(
 				if (value instanceof Response === false) {
 					throw new AstroError(AstroErrorData.MiddlewareNotAResponse);
 				}
-				return value as R;
+				return ensureCookiesAttached(apiContext, value as Response);
 			} else {
 				/**
 				 * Here we handle the case where `next` was called and returned nothing.
@@ -105,9 +106,16 @@ export async function callMiddleware<R>(
 			throw new AstroError(AstroErrorData.MiddlewareNotAResponse);
 		} else {
 			// Middleware did not call resolve and returned a value
-			return value as R;
+			return ensureCookiesAttached(apiContext, value as Response);
 		}
 	});
+}
+
+function ensureCookiesAttached(apiContext: APIContext, response: Response): Response {
+	if(apiContext.cookies !== undefined && !responseHasCookies(response)) {
+		attachCookiesToResponse(response, apiContext.cookies);
+	}
+	return response;
 }
 
 function isEndpointOutput(endpointResult: any): endpointResult is EndpointOutput {
