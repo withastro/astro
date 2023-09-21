@@ -139,20 +139,24 @@ const { fallback = 'animate' } = Astro.props as Props;
 		return style.animationIterationCount === 'infinite';
 	}
 
-	const updateHistoryAndScrollPosition = (loc) => {
-		if (loc.href !== location.href) {
-			history.pushState({ index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 }, '', loc.href);
+	const updateHistoryAndScrollPosition = (toLocation) => {
+		if (toLocation.href !== location.href) {
+			history.pushState(
+				{ index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
+				'',
+				toLocation.href
+			);
 			// now we are on the new page for non-history navigations!
 			// (with history navigation page change happens before popstate is fired)
 		}
 		// freshly loaded pages start from the top
-		// done by replaceWith on body
-		//scrollTo({ left: 0, top: 0, behavior: 'instant' });
+		scrollTo({ left: 0, top: 0, behavior: 'instant' });
 
-		if (loc.hash) {
+		if (toLocation.hash) {
 			// because we are already on the target page ...
-			// ... what comes next is a intra-page navigation that won't reload the page
-			location.href = loc.href;
+			// ... what comes next is a intra-page navigation
+			// that won't reload the page but instead scroll to the fragment
+			location.href = toLocation.href;
 		}
 	};
 
@@ -412,17 +416,31 @@ const { fallback = 'animate' } = Astro.props as Props;
 				return;
 			}
 			const toLocation = new URL(href, location.href);
-			if (location.pathname === toLocation.pathname && location.search === toLocation.search) {
+			// We do not have page transitions on navigations to the same page (intra-page navigation)
+			// but we want to handle prevent reload on navigation to the same page
+			// Same page means same origin, path and query params (but maybe different hash)
+			if (
+				location.origin === toLocation.origin &&
+				location.pathname === toLocation.pathname &&
+				location.search === toLocation.search
+			) {
 				// mark current position as non transition intra-page scrolling
 				if (location.href !== toLocation.href) {
 					history.replaceState({ ...history.state, intraPage: true }, '');
+					history.pushState(
+						{ index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
+						'',
+						toLocation.href
+					);
 				}
-				updateHistoryAndScrollPosition(toLocation);
-				return;
+				if (toLocation.hash) {
+					location.href = toLocation.href;
+				} else {
+					scrollTo({ left: 0, top: 0, behavior: 'instant' });
+				}
+			} else {
+				transition('forward', toLocation);
 			}
-
-			// these are the cases we will handle: same origin, different page
-			transition('forward', toLocation);
 		}
 
 		addEventListener('popstate', (ev) => {
