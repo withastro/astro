@@ -11,7 +11,6 @@ type Events = 'astro:page-load' | 'astro:after-swap';
 // only update history entries that are managed by us
 // leave other entries alone and do not accidently add state.
 const persistState = (state: State) => history.state && history.replaceState(state, '');
-// @ts-expect-error: startViewTransition might exist
 export const supportsViewTransitions = !!document.startViewTransition;
 export const transitionEnabledOnThisPage = () =>
 	!!document.querySelector('[name="astro-view-transitions-enabled"]');
@@ -126,7 +125,7 @@ function isInfinite(animation: Animation) {
 	return style.animationIterationCount === 'infinite';
 }
 
-const updateHistoryAndScrollPosition = (toLocation) => {
+const updateHistoryAndScrollPosition = (toLocation: URL) => {
 	if (toLocation.href !== location.href) {
 		history.pushState(
 			{ index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
@@ -331,7 +330,6 @@ async function transition(direction: Direction, toLocation: URL, popState?: Stat
 	}
 	document.documentElement.dataset.astroTransition = direction;
 	if (supportsViewTransitions) {
-		// @ts-expect-error: startViewTransition exist
 		finished = document.startViewTransition(() =>
 			updateDOM(newDocument, toLocation, popState)
 		).finished;
@@ -349,7 +347,7 @@ async function transition(direction: Direction, toLocation: URL, popState?: Stat
 	}
 }
 
-export function navigate(href) {
+export function navigate(href: string) {
 	// not ours
 	if (!transitionEnabledOnThisPage()) {
 		location.href = href;
