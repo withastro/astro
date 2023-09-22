@@ -191,6 +191,49 @@ export default defineConfig({
 });
 ```
 
+## Wasm module imports
+
+`wasmModuleImports: boolean`
+
+default: `false`
+
+Whether or not to import `.wasm` files [directly as ES modules](https://github.com/WebAssembly/esm-integration/tree/main/proposals/esm-integration). 
+
+Add `wasmModuleImports: true` to `astro.config.mjs` to enable in both the Cloudflare build and the Astro dev server. 
+
+```diff
+// astro.config.mjs
+import {defineConfig} from "astro/config";
+import cloudflare from '@astrojs/cloudflare';
+
+export default defineConfig({
+    adapter: cloudflare({
++       wasmModuleImports: true
+    }),
+	  output: 'server'
+})
+```
+
+Once enabled, you can import a web assembly module in Astro with a `.wasm?module` import. 
+
+The following is an example of importing a Wasm module that then responds to requests by adding the request's number parameters together. 
+
+```javascript
+// pages/add/[a]/[b].js
+import mod from '../util/add.wasm?module';
+
+// instantiate ahead of time to share module
+const addModule: any = new WebAssembly.Instance(mod);
+
+export async function GET(context) {
+  const a = Number.parseInt(context.params.a);
+  const b = Number.parseInt(context.params.b);
+  return new Response(`${addModule.exports.add(a, b)}`);
+}
+```
+
+While this example is trivial, Wasm can be used to accelerate computationally intensive operations which do not involve significant I/O such as embedding an image processing library.
+
 ## Headers, Redirects and function invocation routes
 
 Cloudflare has support for adding custom [headers](https://developers.cloudflare.com/pages/platform/headers/), configuring static [redirects](https://developers.cloudflare.com/pages/platform/redirects/) and defining which routes should [invoke functions](https://developers.cloudflare.com/pages/platform/functions/routing/#function-invocation-routes). Cloudflare looks for `_headers`, `_redirects`, and `_routes.json` files in your build output directory to configure these features. This means they should be placed in your Astro project’s `public/` directory.
