@@ -39,7 +39,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		setTimeout(() => {
 			let title = document.title || document.querySelector('h1')?.textContent || location.pathname;
 			div.textContent = title;
-		});
+		}, 60);
 	};
 	const PERSIST_ATTR = 'data-astro-transition-persist';
 	const parser = new DOMParser();
