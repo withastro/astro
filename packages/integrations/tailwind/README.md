@@ -67,7 +67,7 @@ Then, create a `tailwind.config.cjs` file in your project's root directory. You 
 npx tailwindcss init
 ```
 
-Add this basic configuration to your `tailwind.config.cjs` file:
+Finally, add this basic configuration to your `tailwind.config.cjs` file:
 
 ```js ins={4} "content: ['./src/**/*.{astro,js,ts,tsx,md,mdx}']"
 // tailwind.config.cjs
@@ -79,32 +79,6 @@ module.exports = {
   },
   plugins: [],
 }
-```
-
-Finally, import your `base.css` file inside your Layout component:
-
-```astro ins={2} "import '../styles/global.css';"
----
-import "../styles/base.css";
-interface Props {
-  title: string;
-}
-const { title } = Astro.props;
----
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="description" content="Astro description" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
-  </head>
-  <body>
-    <slot />
-  </body>
-</html>
 ```
 
 ## Usage
