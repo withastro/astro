@@ -1,6 +1,5 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { ZodIssueCode, string as zodString } from 'zod';
-import type { AstroIntegration } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 import {
@@ -56,7 +55,9 @@ export function createGetCollection({
 		} else if (collection in dataCollectionToEntryMap) {
 			type = 'data';
 		} else {
-			return warnOfEmptyCollection(collection);
+			// eslint-disable-next-line no-console
+			console.warn(`The collection **${collection}** does not exist or is empty. Ensure a collection directory with this name exists.`);
+			return;
 		}
 		const lazyImports = Object.values(
 			type === 'content'
@@ -389,17 +390,4 @@ type PropagatedAssetsModule = {
 
 function isPropagatedAssetsModule(module: any): module is PropagatedAssetsModule {
 	return typeof module === 'object' && module != null && '__astroPropagation' in module;
-}
-
-function warnOfEmptyCollection(collection: string): AstroIntegration {
-	return {
-		name: 'astro-collection',
-		hooks: {
-			'astro:server:start': ({ logger }) => {
-				logger.warn(
-					`The collection **${collection}** does not exist or is empty. Ensure a collection directory with this name exists.`
-				);
-			},
-		},
-	};
 }
