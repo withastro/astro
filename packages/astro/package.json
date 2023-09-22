@@ -78,7 +78,8 @@
       "default": "./dist/core/middleware/namespace.js"
     },
     "./transitions": "./dist/transitions/index.js",
-    "./transitions/router": "./dist/transitions/router.js"
+    "./transitions": "./dist/transitions/index.js",
+    "./i18n": "./dist/i18n/index.js"
   },
   "imports": {
     "#astro/*": "./dist/*.js"

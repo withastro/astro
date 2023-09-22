@@ -121,6 +121,11 @@ declare module 'astro:transitions/client' {
 	export const navigate: TransitionRouterModule['navigate'];
 }
 
+declare module 'astro:i18n' {
+	type I18nModule = typeof import('./dist/i18n/index.js');
+	export const getI18nBaseUrl: (locale: string) => string;
+}
+
 declare module 'astro:middleware' {
 	export * from 'astro/middleware/namespace';
 }
