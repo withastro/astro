@@ -61,6 +61,26 @@ export default defineConfig({
 });
 ```
 
+Then, create a `tailwind.config.cjs` file in your project's root directory. You can use the following command to generate a basic configuration file for you:
+
+```sh
+npx tailwindcss init
+```
+
+Finally, add this basic configuration to your `tailwind.config.cjs` file:
+
+```js ins={4} "content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}']"
+// tailwind.config.cjs
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
 ## Usage
 
 When you install the integration, Tailwind's utility classes should be ready to go right away. Head to the [Tailwind docs](https://tailwindcss.com/docs/utility-first) to learn how to use Tailwind, and if you see a utility class you want to try, add it to any HTML element to your project!
