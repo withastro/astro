@@ -336,7 +336,7 @@ export function createRouteManifest(
 					.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 					.join('/')}`.toLowerCase();
 				const locale = settings.config.experimental.i18n?.locales.find((currentLocale) => {
-					if (route.startsWith(`/${currentLocale}`)) {
+					if (route.includes(`/${currentLocale}`)) {
 						return currentLocale;
 					}
 				});
@@ -414,7 +414,7 @@ export function createRouteManifest(
 				);
 			}
 			const locale = settings.config.experimental.i18n?.locales.find((currentLocale) => {
-				if (route.startsWith(`/${currentLocale}`)) {
+				if (route.includes(`/${currentLocale}`)) {
 					return currentLocale;
 				}
 			});
@@ -461,7 +461,7 @@ export function createRouteManifest(
 			.join('/')}`.toLowerCase();
 
 		const locale = settings.config.experimental.i18n?.locales.find((currentLocale) => {
-			if (route.startsWith(`/${currentLocale}`)) {
+			if (route.includes(`/${currentLocale}`)) {
 				return currentLocale;
 			}
 		});
