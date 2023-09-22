@@ -27,21 +27,27 @@ export function matchAllRoutes(pathname: string, manifest: ManifestData): RouteD
 export function matchDefaultLocaleRoutes(
 	pathname: string,
 	manifest: ManifestData,
-	config: AstroConfig['experimental']['i18n']
+	config: AstroConfig
 ): RouteData[] {
+	// SAFETY: the function is called upon checking if `experimental.i18n` exists first
+	const i18n = config.experimental.i18n!;
+	const base = config.base;
+
 	const matchedRoutes: RouteData[] = [];
-	// SAFETY: the function is called upon checkin if `experimental.i18n` exists first
-	const defaultLocale = config!.defaultLocale;
+	const defaultLocale = i18n.defaultLocale;
 
 	for (const route of manifest.routes) {
 		// we don't need to check routes that don't belong to the default locale
 		if (route.locale === defaultLocale) {
 			// we check if the current route pathname contains `/en` somewhere
-			if (route.pathname?.includes(`/${defaultLocale}`)) {
+			if (
+				route.pathname?.startsWith(`/${defaultLocale}`) ||
+				route.pathname?.startsWith(`${base}/${defaultLocale}`)
+			) {
 				let localeToReplace;
 				// now we need to check if the locale inside `pathname` is actually one of the locales configured
-				for (const locale of config!.locales) {
-					if (pathname.includes(`/${locale}`)) {
+				for (const locale of i18n.locales) {
+					if (pathname.startsWith(`${base}/${locale}`) || pathname.startsWith(`/${locale}`)) {
 						localeToReplace = locale;
 						break;
 					}

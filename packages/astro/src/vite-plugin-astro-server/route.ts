@@ -57,7 +57,7 @@ export async function matchRoute(
 
 	// if we haven't found any match, we try to fetch the default locale matched route
 	if (matches.length === 0 && config.experimental.i18n) {
-		matches = matchDefaultLocaleRoutes(pathname, manifestData, config.experimental.i18n);
+		matches = matchDefaultLocaleRoutes(pathname, manifestData, config);
 	}
 	const preloadedMatches = await getSortedPreloadedMatches({
 		pipeline,
