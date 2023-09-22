@@ -2,4 +2,4 @@
 'create-astro': patch
 ---
 
-Fix --yes behaviour to prevent it overriding --template
+Fix `--yes` behaviour to prevent it overriding `--template`
