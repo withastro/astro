@@ -69,7 +69,7 @@ npx tailwindcss init
 
 Finally, add this basic configuration to your `tailwind.config.cjs` file:
 
-```js ins={4} "content: ['./src/**/*.{astro,js,ts,tsx,md,mdx}']"
+```js ins={4} "content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}']"
 // tailwind.config.cjs
 /** @type {import('tailwindcss').Config} */
 module.exports = {
