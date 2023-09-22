@@ -1244,3 +1244,14 @@ export const UnsupportedConfigTransformError = {
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
+
+/**
+ * @docs
+ * @message `undefined` has been passed to the `getEntries()` function.
+ * @description
+ * When querying a collection with getEntries(), ensure that an array of entries is passed.
+ */
+export const PassedUndefinedToGetEntriesError = {
+	name: 'PassedUndefinedToGetEntriesError',
+	title: '`undefined` passed to `getEntries()`.',
+} satisfies ErrorData;

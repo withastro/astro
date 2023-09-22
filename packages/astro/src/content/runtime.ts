@@ -238,8 +238,18 @@ export function createGetEntry({
 
 export function createGetEntries(getEntry: ReturnType<typeof createGetEntry>) {
 	return async function getEntries(
-		entries: { collection: string; id: string }[] | { collection: string; slug: string }[]
+		entries:
+			| { collection: string; id: string }[]
+			| { collection: string; slug: string }[]
+			| undefined
 	) {
+		if (!entries) {
+			throw new AstroError({
+				...AstroErrorData.PassedUndefinedToGetEntriesError,
+				message:
+					'`getEntries() requires an array of entries (either { collection: string; id: string }[] or { collection: string; slug: string }[] )`',
+			});
+		}
 		return Promise.all(entries.map((e) => getEntry(e)));
 	};
 }
