@@ -1335,6 +1335,7 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name experimental.i18n
+		 * @type {object}
 		 * @version 3.*.*
 		 * @description
 		 *
