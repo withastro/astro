@@ -78,7 +78,7 @@ module.exports = {
     extend: {},
   },
   plugins: [],
-}
+};
 ```
 
 ## Usage
