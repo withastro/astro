@@ -191,13 +191,18 @@ export default defineConfig({
 });
 ```
 
-## WASM module imports
+## Wasm module imports
 
 `wasmModuleImports: boolean`
 
-Cloudflare has native support for importing `.wasm` files [directly as ES modules](https://github.com/WebAssembly/esm-integration/tree/main/proposals/esm-integration). To enable importing them as modules in the cloudflare build and astro dev server, add `wasmModuleImports: true` to your config.
+default: `false`
+
+Whether or not to import `.wasm` files [directly as ES modules](https://github.com/WebAssembly/esm-integration/tree/main/proposals/esm-integration). 
+
+Add `wasmModuleImports: true` to `astro.config.mjs` to enable in both the Cloudflare build and the Astro dev server. 
 
 ```diff
+// astro.config.mjs
 import {defineConfig} from "astro/config";
 import cloudflare from '@astrojs/cloudflare';
 
@@ -209,7 +214,9 @@ export default defineConfig({
 })
 ```
 
-Once enabled, you can import a web assembly module in astro with a `.wasm?module` import. The integration supports WASM module imports in both server and hybrid mode for a consistent development experience.
+Once enabled, you can import a web assembly module in Astro with a `.wasm?module` import. 
+
+The following is a simple example of importing a Wasm module that then responds to requests by adding the request's number parameters together. A request to `/add/40/2` would return a response of `42`.
 
 ```javascript
 // pages/add/[a]/[b].js
@@ -219,13 +226,13 @@ import mod from '../util/add.wasm?module';
 const addModule: any = new WebAssembly.Instance(mod);
 
 export async function GET(context) {
-  const a = Number.parseInt(context.params.a!);
-	const b = Number.parseInt(context.params.b!);
-  return new Response(`${a} + ${b} = ${addModule.exports.add(a, b)}`);
+  const a = Number.parseInt(context.params.a);
+  const b = Number.parseInt(context.params.b);
+  return new Response(`${addModule.exports.add(a, b)}`);
 }
 ```
 
-
+While this example is trivial, Wasm can be used to accelerate computationally intensive operations which do not involve significant I/O. For example, embedding an image processing library.
 
 ## Headers, Redirects and function invocation routes
 
