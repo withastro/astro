@@ -34,10 +34,10 @@ describe('template', () => {
 		expect(fixture.hasMessage('Using blog as project template')).to.be.true;
 	});
 
-  it('minimal (--yes)', async () => {
-    const context = { template: 'minimal', cwd: '', dryRun: true, yes: true, prompt: () => {} };
-    await template(context);
+	it('minimal (--yes)', async () => {
+		const context = { template: 'minimal', cwd: '', dryRun: true, yes: true, prompt: () => {} };
+		await template(context);
 
-    expect(fixture.hasMessage('Using minimal as project template')).to.be.true;
-  })
+		expect(fixture.hasMessage('Using minimal as project template')).to.be.true;
+	});
 });
