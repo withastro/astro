@@ -1,7 +1,7 @@
 import type { SSRResult } from '../../@types/astro.js';
 import islandScript from './astro-island.prebuilt.js';
 
-const ISLAND_STYLES = `<style style="display:none">astro-island,astro-slot,astro-static-slot{display:contents}</style>`;
+const ISLAND_STYLES = `<style>astro-island,astro-slot,astro-static-slot{display:contents}</style>`;
 
 export function determineIfNeedsHydrationScript(result: SSRResult): boolean {
 	if (result._metadata.hasHydrationScript) {
@@ -36,12 +36,12 @@ export function getPrescripts(result: SSRResult, type: PrescriptType, directive:
 	// deps to be loaded immediately.
 	switch (type) {
 		case 'both':
-			return `${ISLAND_STYLES}<script style="display:none">${getDirectiveScriptText(
+			return `${ISLAND_STYLES}<script>${getDirectiveScriptText(
 				result,
 				directive
 			)};${islandScript}</script>`;
 		case 'directive':
-			return `<script style="display:none">${getDirectiveScriptText(result, directive)}</script>`;
+			return `<script>${getDirectiveScriptText(result, directive)}</script>`;
 	}
 	return '';
 }

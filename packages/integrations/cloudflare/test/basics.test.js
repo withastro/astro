@@ -14,20 +14,22 @@ describe('Basic app', () => {
 		});
 		await fixture.build();
 
-		cli = await runCLI('./fixtures/basics/', { silent: true, port: 8789 });
-		await cli.ready.catch((e) => {
-			console.log(e);
-			// if fail to start, skip for now as it's very flaky
-			this.skip();
+		cli = await runCLI('./fixtures/basics/', {
+			silent: true,
+			onTimeout: (ex) => {
+				console.log(ex);
+				// if fail to start, skip for now as it's very flaky
+				this.skip();
+			},
 		});
 	});
 
 	after(async () => {
-		await cli.stop();
+		await cli?.stop();
 	});
 
 	it('can render', async () => {
-		let res = await fetch(`http://127.0.0.1:8789/`);
+		let res = await fetch(`http://127.0.0.1:${cli.port}/`);
 		expect(res.status).to.equal(200);
 		let html = await res.text();
 		let $ = cheerio.load(html);

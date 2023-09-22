@@ -620,8 +620,42 @@ export const ExpectedImageOptions = {
 	message: (options: string) =>
 		`Expected getImage() parameter to be an object. Received \`${options}\`.`,
 } satisfies ErrorData;
+
 /**
  * @docs
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * @description
+ * Astro could not find an image you imported. Often, this is simply caused by a typo in the path.
+ *
+ * Images in Markdown are relative to the current file. To refer to an image that is located in the same folder as the `.md` file, the path should start with `./`
+ */
+export const ImageNotFound = {
+	name: 'ImageNotFound',
+	title: 'Image not found.',
+	message: (imagePath: string) => `Could not find requested image \`${imagePath}\`. Does it exist?`,
+	hint: 'This is often caused by a typo in the image path. Please make sure the file exists, and is spelled correctly.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message Could not process image metadata for `IMAGE_PATH`.
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * @description
+ * Astro could not process the metadata of an image you imported. This is often caused by a corrupted or malformed image and re-exporting the image from your image editor may fix this issue.
+ */
+export const NoImageMetadata = {
+	name: 'NoImageMetadata',
+	title: 'Could not process image metadata.',
+	message: (imagePath: string | undefined) =>
+		`Could not process image metadata${imagePath ? ' for `${imagePath}`' : ''}.`,
+	hint: 'This is often caused by a corrupted or malformed image. Re-exporting the image from your image editor may fix this issue.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @deprecated This error is no longer Markdown specific and as such, as been replaced by `ImageNotFound`
  * @message
  * Could not find requested image `IMAGE_PATH` at `FULL_IMAGE_PATH`.
  * @see
@@ -640,6 +674,7 @@ export const MarkdownImageNotFound = {
 		}`,
 	hint: 'This is often caused by a typo in the image path. Please make sure the file exists, and is spelled correctly.',
 } satisfies ErrorData;
+
 /**
  * @docs
  * @description

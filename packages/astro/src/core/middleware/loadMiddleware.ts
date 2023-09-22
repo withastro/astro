@@ -12,7 +12,7 @@ export async function loadMiddleware(
 	srcDir: AstroSettings['config']['srcDir']
 ) {
 	// can't use node Node.js builtins
-	let middlewarePath = srcDir.pathname + '/' + MIDDLEWARE_PATH_SEGMENT_NAME;
+	let middlewarePath = `${decodeURI(srcDir.pathname)}${MIDDLEWARE_PATH_SEGMENT_NAME}`;
 	try {
 		const module = await moduleLoader.import(middlewarePath);
 		return module;

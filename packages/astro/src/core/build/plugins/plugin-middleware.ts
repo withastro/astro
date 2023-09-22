@@ -25,7 +25,7 @@ export function vitePluginMiddleware(
 		async resolveId(id) {
 			if (id === MIDDLEWARE_MODULE_ID) {
 				const middlewareId = await this.resolve(
-					`${opts.settings.config.srcDir.pathname}/${MIDDLEWARE_PATH_SEGMENT_NAME}`
+					`${decodeURI(opts.settings.config.srcDir.pathname)}${MIDDLEWARE_PATH_SEGMENT_NAME}`
 				);
 				if (middlewareId) {
 					resolvedMiddlewareId = middlewareId.id;
