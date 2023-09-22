@@ -3,6 +3,7 @@ import { expect } from 'chai';
 
 /** @type {import('./test-utils.js').Fixture} */
 describe('Cloudflare SSR functionPerRoute', () => {
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -13,7 +14,7 @@ describe('Cloudflare SSR functionPerRoute', () => {
 	});
 
 	after(() => {
-		fixture.clean();
+		fixture?.clean();
 	});
 
 	it('generates functions folders inside the project root, and checks that each page is emitted by astro', async () => {

@@ -1,0 +1,9 @@
+{
+  "name": "@test/astro-cloudflare-wasm",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/cloudflare": "workspace:*",
+    "astro": "workspace:*"
+  }
+}
