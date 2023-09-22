@@ -216,7 +216,7 @@ export default defineConfig({
 
 Once enabled, you can import a web assembly module in Astro with a `.wasm?module` import. 
 
-The following is a simple example of importing a Wasm module that then responds to requests by adding the request's number parameters together. A request to `/add/40/2` would return a response of `42`.
+The following is an example of importing a Wasm module that then responds to requests by adding the request's number parameters together. 
 
 ```javascript
 // pages/add/[a]/[b].js
@@ -232,7 +232,7 @@ export async function GET(context) {
 }
 ```
 
-While this example is trivial, Wasm can be used to accelerate computationally intensive operations which do not involve significant I/O. For example, embedding an image processing library.
+While this example is trivial, Wasm can be used to accelerate computationally intensive operations which do not involve significant I/O such as embedding an image processing library.
 
 ## Headers, Redirects and function invocation routes
 
