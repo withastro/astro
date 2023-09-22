@@ -17,20 +17,22 @@ describe('Wrangler Cloudflare Runtime', () => {
 		});
 		await fixture.build();
 
-		cli = await runCLI('./fixtures/cf/', { silent: true, port: 8786 });
-		await cli.ready.catch((e) => {
-			console.log(e);
-			// if fail to start, skip for now as it's very flaky
-			this.skip();
+		cli = await runCLI('./fixtures/cf/', {
+			silent: true,
+			onTimeout: (ex) => {
+				console.log(ex);
+				// if fail to start, skip for now as it's very flaky
+				this.skip();
+			},
 		});
 	});
 
 	after(async () => {
-		await cli.stop();
+		await cli?.stop();
 	});
 
 	it('Load cf and caches API', async () => {
-		let res = await fetch(`http://127.0.0.1:8786/`);
+		let res = await fetch(`http://127.0.0.1:${cli.port}/`);
 		expect(res.status).to.equal(200);
 		let html = await res.text();
 		let $ = cheerio.load(html);
@@ -63,7 +65,7 @@ describe('Astro Cloudflare Runtime', () => {
 	});
 
 	after(async () => {
-		await devServer.stop();
+		await devServer?.stop();
 	});
 
 	it('Populates CF, Vars & Bindings', async () => {

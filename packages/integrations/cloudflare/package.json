@@ -48,7 +48,8 @@
     "dotenv": "^16.3.1",
     "esbuild": "^0.19.2",
     "find-up": "^6.3.0",
-    "tiny-glob": "^0.2.9"
+    "tiny-glob": "^0.2.9",
+    "vite": "^4.4.9"
   },
   "peerDependencies": {
     "astro": "workspace:^3.1.2"
@@ -59,7 +60,6 @@
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
-    "kill-port": "^2.0.1",
     "mocha": "^10.2.0",
     "wrangler": "^3.5.1"
   }

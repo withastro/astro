@@ -2,7 +2,7 @@
 
 This adapter allows Astro to deploy your SSR site to Node targets.
 
-- <strong>[Why Astro Node](#why-astro-node)</strong>
+- <strong>[Why Astro Node.js](#why-astro-nodejs)</strong>
 - <strong>[Installation](#installation)</strong>
 - <strong>[Configuration](#configuration)</strong>
 - <strong>[Usage](#usage)</strong>
@@ -10,7 +10,7 @@ This adapter allows Astro to deploy your SSR site to Node targets.
 - <strong>[Contributing](#contributing)</strong>
 - <strong>[Changelog](#changelog)</strong>
 
-## Why @astrojs/node
+## Why Astro Node.js
 
 If you're using Astro as a static site builder—its behavior out of the box—you don't need an adapter.
 

@@ -310,7 +310,7 @@ describe('astro:image', () => {
 
 			it('Adds the <img> tag', () => {
 				let $img = $('img');
-				expect($img).to.have.a.lengthOf(1);
+				expect($img).to.have.a.lengthOf(2);
 
 				// Verbose test for the full URL to make sure the image went through the full pipeline
 				expect(
