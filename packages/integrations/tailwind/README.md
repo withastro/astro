@@ -158,7 +158,7 @@ error   The `text-special` class does not exist. If `text-special` is a custom c
 
 ```js
 // tailwind.config.mjs
-module.exports = {
+export default {
   // ...
   plugins: [
     function ({ addComponents, theme }) {
