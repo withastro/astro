@@ -1,9 +1,7 @@
 import { loadFixture, runCLI } from './test-utils.js';
 import { expect } from 'chai';
-import * as cheerio from 'cheerio';
-import cloudflare from '../dist/index.js';
 
-describe('Runtime Locals', () => {
+describe('Wasm function per route import', () => {
 	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 	/** @type {import('./test-utils.js').WranglerCLI} */
@@ -11,13 +9,11 @@ describe('Runtime Locals', () => {
 
 	before(async function () {
 		fixture = await loadFixture({
-			root: './fixtures/runtime/',
-			output: 'server',
-			adapter: cloudflare(),
+			root: './fixtures/wasm-function-per-route/',
 		});
 		await fixture.build();
 
-		cli = await runCLI('./fixtures/runtime/', {
+		cli = await runCLI('./fixtures/wasm-function-per-route/', {
 			silent: true,
 			onTimeout: (ex) => {
 				console.log(ex);
@@ -31,14 +27,15 @@ describe('Runtime Locals', () => {
 		await cli?.stop();
 	});
 
-	it('has CF and Caches', async () => {
+	it('can render', async () => {
 		let res = await fetch(`http://127.0.0.1:${cli.port}/`);
 		expect(res.status).to.equal(200);
-		let html = await res.text();
-		let $ = cheerio.load(html);
-		expect($('#env').text()).to.contain('SECRET_STUFF');
-		expect($('#env').text()).to.contain('secret');
-		expect($('#hasRuntime').text()).to.contain('true');
-		expect($('#hasCache').text()).to.equal('true');
+		let json = await res.json();
+		expect(json).to.deep.equal({ answer: 42 });
+
+		res = await fetch(`http://127.0.0.1:${cli.port}/deeply/nested/route`);
+		expect(res.status).to.equal(200);
+		json = await res.json();
+		expect(json).to.deep.equal({ answer: 84 });
 	});
 });

@@ -1,20 +1,19 @@
 import { loadFixture, runCLI } from './test-utils.js';
 import { expect } from 'chai';
-import * as cheerio from 'cheerio';
 
-describe('With SolidJS', () => {
-	/** @type {import('./test-utils').Fixture} */
+describe('Wasm directory mode import', () => {
+	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
-	/** @type {import('./test-utils').WranglerCLI} */
+	/** @type {import('./test-utils.js').WranglerCLI} */
 	let cli;
 
 	before(async function () {
 		fixture = await loadFixture({
-			root: './fixtures/with-solid-js/',
+			root: './fixtures/wasm-directory/',
 		});
 		await fixture.build();
 
-		cli = await runCLI('./fixtures/with-solid-js/', {
+		cli = await runCLI('./fixtures/wasm-directory/', {
 			silent: true,
 			onTimeout: (ex) => {
 				console.log(ex);
@@ -28,11 +27,10 @@ describe('With SolidJS', () => {
 		await cli?.stop();
 	});
 
-	it('renders the solid component', async () => {
+	it('can render', async () => {
 		let res = await fetch(`http://127.0.0.1:${cli.port}/`);
 		expect(res.status).to.equal(200);
-		let html = await res.text();
-		let $ = cheerio.load(html);
-		expect($('.solid').text()).to.equal('Solid Content');
+		const json = await res.json();
+		expect(json).to.deep.equal({ answer: 42 });
 	});
 });
