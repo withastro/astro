@@ -2735,6 +2735,12 @@ importers:
         specifier: ^10.17.1
         version: 10.17.1
 
+  packages/astro/test/fixtures/i18n-routing:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/import-ts-with-js:
     dependencies:
       astro:

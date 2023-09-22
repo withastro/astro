@@ -11,7 +11,7 @@ import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import { createRenderContext, getParamsAndProps, type SSROptions } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
-import { matchAllRoutes } from '../core/routing/index.js';
+import { matchAllRoutes, matchDefaultLocaleRoutes } from '../core/routing/index.js';
 import { isPage, resolveIdToUrl, viteID } from '../core/util.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
@@ -51,8 +51,14 @@ export async function matchRoute(
 	pipeline: DevPipeline
 ): Promise<MatchedRoute | undefined> {
 	const env = pipeline.getEnvironment();
+	const config = pipeline.getConfig();
 	const { routeCache, logger } = env;
-	const matches = matchAllRoutes(pathname, manifestData);
+	let matches = matchAllRoutes(pathname, manifestData);
+
+	// if we haven't found any match, we try to fetch the default locale matched route
+	if (matches.length === 0 && config.experimental.i18n) {
+		matches = matchDefaultLocaleRoutes(pathname, manifestData, config.experimental.i18n);
+	}
 	const preloadedMatches = await getSortedPreloadedMatches({
 		pipeline,
 		matches,

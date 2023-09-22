@@ -276,7 +276,7 @@ export const AstroConfigSchema = z.object({
 					.object({
 						defaultLocale: z.string(),
 						locales: z.string().array(),
-						fallback: z.record(z.string(), z.string().array()).optional(),
+						fallback: z.record(z.string(), z.string().array()).optional().default({}),
 						detectBrowserLanguage: z.boolean().optional().default(false),
 					})
 					.optional()

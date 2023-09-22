@@ -1337,6 +1337,7 @@ export interface AstroUserConfig {
 		 * @name experimental.i18n
 		 * @type {object}
 		 * @version 3.*.*
+		 * @type {object}
 		 * @description
 		 *
 		 * Allows to configure the beaviour of the i18n routing
@@ -2206,6 +2207,7 @@ export interface RouteData {
 	prerender: boolean;
 	redirect?: RedirectConfig;
 	redirectRoute?: RouteData;
+	locale: string | undefined;
 }
 
 export type RedirectRouteData = RouteData & {
