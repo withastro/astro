@@ -18,7 +18,7 @@ export default function astroInternalization({ settings }: AstroInternalization)
 				return `
 					import { getI18nBaseUrl as getI18nBaseUrlInternal } from "astro/i18n";
 								
-					export getI18nUrl = (locale) => getI18nBaseUrlInternal(locale, ${settings.config});
+					export getI18nBaseUrl = (locale) => getI18nBaseUrlInternal(locale, ${settings.config});
 				`;
 			}
 		},

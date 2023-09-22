@@ -122,7 +122,7 @@ declare module 'astro:transitions' {
 
 declare module 'astro:i18n' {
 	type I18nModule = typeof import('./dist/i18n/index.js');
-	export const getI18nBaseUrl: I18nModule['getI18nBaseUrl'];
+	export const getI18nBaseUrl: (locale: string) => string;
 }
 
 declare module 'astro:middleware' {
