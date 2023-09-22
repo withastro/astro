@@ -1,18 +1,22 @@
 import probe from 'probe-image-size';
+import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageInputFormat, ImageMetadata } from '../types.js';
 
-export async function imageMetadata(data: Buffer): Promise<Omit<ImageMetadata, 'src'> | undefined> {
+export async function imageMetadata(
+	data: Buffer,
+	src?: string
+): Promise<Omit<ImageMetadata, 'src'>> {
 	const result = probe.sync(data);
+
 	if (result === null) {
-		throw new Error('Failed to probe image size.');
+		throw new AstroError({
+			...AstroErrorData.NoImageMetadata,
+			message: AstroErrorData.NoImageMetadata.message(src),
+		});
 	}
 
 	const { width, height, type, orientation } = result;
 	const isPortrait = (orientation || 0) >= 5;
-
-	if (!width || !height || !type) {
-		return undefined;
-	}
 
 	return {
 		width: isPortrait ? height : width,

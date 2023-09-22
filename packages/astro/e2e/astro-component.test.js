@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { getColor, testFactory } from './test-utils.js';
+import { testFactory } from './test-utils.js';
 
 const test = testFactory({ root: './fixtures/astro-component/' });
 
@@ -99,7 +99,7 @@ test.describe('Astro component HMR', () => {
 	test('update linked dep Astro style', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 		let h1 = page.locator('#astro-linked-lib');
-		expect(await getColor(h1)).toBe('rgb(255, 0, 0)');
+		await expect(h1).toHaveCSS('color', 'rgb(255, 0, 0)');
 		await Promise.all([
 			page.waitForLoadState('networkidle'),
 			await astro.editFile('../_deps/astro-linked-lib/Component.astro', (content) =>
@@ -107,6 +107,6 @@ test.describe('Astro component HMR', () => {
 			),
 		]);
 		h1 = page.locator('#astro-linked-lib');
-		expect(await getColor(h1)).toBe('rgb(0, 128, 0)');
+		await expect(h1).toHaveCSS('color', 'rgb(0, 128, 0)');
 	});
 });

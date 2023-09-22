@@ -24,6 +24,14 @@ const first = defineMiddleware(async (context, next) => {
 		const /** @type {string} */ html = await newResponse.text();
 		const newhtml = html.replace('<h1>testing</h1>', '<h1>it works</h1>');
 		return new Response(newhtml, { status: 200, headers: response.headers });
+	} else if(context.url.pathname === '/return-response-cookies') {
+		const response = await next();
+    const html = await response.text();
+
+    return new Response(html, {
+        status: 200,
+        headers: response.headers
+    });
 	} else {
 		if (context.url.pathname === '/') {
 			context.cookies.set('foo', 'bar');

@@ -12,7 +12,7 @@ describe('Middleware in DEV mode', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/middleware-dev/',
+			root: './fixtures/middleware space/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -79,6 +79,12 @@ describe('Middleware in DEV mode', () => {
 		let html = await res.text();
 		expect(html).to.contain('<h1>it works</h1>');
 	});
+
+	it('should forward cookies set in a component when the middleware returns a new response', async () => {
+		let res = await fixture.fetch('/return-response-cookies');
+		let headers = res.headers;
+		expect(headers.get('set-cookie')).to.not.equal(null);
+	});
 });
 
 describe('Middleware in PROD mode, SSG', () => {
@@ -116,7 +122,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/middleware-dev/',
+			root: './fixtures/middleware space/',
 			output: 'server',
 			adapter: testAdapter({}),
 		});
@@ -223,7 +229,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 
 	it('the integration should receive the path to the middleware', async () => {
 		fixture = await loadFixture({
-			root: './fixtures/middleware-dev/',
+			root: './fixtures/middleware space/',
 			output: 'server',
 			build: {
 				excludeMiddleware: true,
@@ -275,7 +281,7 @@ describe('Middleware, split middleware option', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/middleware-dev/',
+			root: './fixtures/middleware space/',
 			output: 'server',
 			build: {
 				excludeMiddleware: true,

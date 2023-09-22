@@ -9,7 +9,12 @@ import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import type yargs from 'yargs-parser';
-import { loadTSConfig, resolveConfigPath, resolveRoot } from '../../core/config/index.js';
+import {
+	loadTSConfig,
+	resolveConfig,
+	resolveConfigPath,
+	resolveRoot,
+} from '../../core/config/index.js';
 import {
 	defaultTSConfig,
 	presets,
@@ -23,7 +28,7 @@ import { appendForwardSlash } from '../../core/path.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
-import { createLoggerFromFlags } from '../flags.js';
+import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { generate, parse, t, visit } from './babel.js';
 import { ensureImport } from './imports.js';
 import { wrapDefaultExport } from './wrapper.js';
@@ -87,7 +92,9 @@ async function getRegistry(): Promise<string> {
 }
 
 export async function add(names: string[], { flags }: AddOptions) {
-	telemetry.record(eventCliSession('add'));
+	const inlineConfig = flagsToAstroInlineConfig(flags);
+	const { userConfig } = await resolveConfig(inlineConfig, 'add');
+	telemetry.record(eventCliSession('add', userConfig));
 	applyPolyfill();
 	if (flags.help || names.length === 0) {
 		printHelp({

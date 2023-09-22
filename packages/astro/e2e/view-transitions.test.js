@@ -293,12 +293,12 @@ test.describe('View Transitions', () => {
 		locator = page.locator('#click-one-again');
 		await expect(locator).toBeInViewport();
 
-		// Scroll up to top fragment
+		// goto page 1
 		await page.click('#click-one-again');
 		locator = page.locator('#one');
 		await expect(locator).toHaveText('Page 1');
 
-		// Back to middle of the page
+		// Back to middle of the previous page
 		await page.goBack();
 		locator = page.locator('#click-one-again');
 		await expect(locator).toBeInViewport();
@@ -520,6 +520,22 @@ test.describe('View Transitions', () => {
 		await downloadPromise;
 	});
 
+	test('data-astro-reload not required for non-html content', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+		// Go to page 4
+		await page.goto(astro.resolveUrl('/four'));
+		let p = page.locator('#four');
+		await expect(p, 'should have content').toHaveText('Page 4');
+
+		await page.click('#click-svg');
+		p = page.locator('svg');
+		await expect(p).toBeVisible();
+		expect(loads.length, 'There should be 2 page load').toEqual(2);
+	});
+
 	test('Scroll position is restored on back navigation from page w/o ViewTransitions', async ({
 		page,
 		astro,
@@ -662,5 +678,23 @@ test.describe('View Transitions', () => {
 		await page.click('#click-top');
 		locator = page.locator('#click-one');
 		await expect(locator).not.toBeInViewport();
+	});
+
+	test('body inline scripts do not re-execute on navigation', async ({ page, astro }) => {
+		const errors = [];
+		page.addListener('pageerror', (err) => {
+			errors.push(err);
+		});
+
+		await page.goto(astro.resolveUrl('/inline-script-one'));
+		let article = page.locator('#counter');
+		await expect(article, 'should have script content').toBeVisible('exists');
+
+		await page.click('#click-one');
+
+		article = page.locator('#counter');
+		await expect(article, 'should have script content').toHaveText('Count: 3');
+
+		expect(errors).toHaveLength(0);
 	});
 });
