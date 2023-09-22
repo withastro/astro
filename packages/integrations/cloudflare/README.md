@@ -197,9 +197,9 @@ export default defineConfig({
 
 default: `false`
 
-Whether or not to import `.wasm` files [directly as ES modules](https://github.com/WebAssembly/esm-integration/tree/main/proposals/esm-integration). 
+Whether or not to import `.wasm` files [directly as ES modules](https://github.com/WebAssembly/esm-integration/tree/main/proposals/esm-integration).
 
-Add `wasmModuleImports: true` to `astro.config.mjs` to enable in both the Cloudflare build and the Astro dev server. 
+Add `wasmModuleImports: true` to `astro.config.mjs` to enable in both the Cloudflare build and the Astro dev server.
 
 ```diff
 // astro.config.mjs
@@ -214,9 +214,9 @@ export default defineConfig({
 })
 ```
 
-Once enabled, you can import a web assembly module in Astro with a `.wasm?module` import. 
+Once enabled, you can import a web assembly module in Astro with a `.wasm?module` import.
 
-The following is an example of importing a Wasm module that then responds to requests by adding the request's number parameters together. 
+The following is an example of importing a Wasm module that then responds to requests by adding the request's number parameters together.
 
 ```javascript
 // pages/add/[a]/[b].js

@@ -350,7 +350,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								'node:stream',
 								'node:string_decoder',
 								'node:util',
-							],	
+							],
 							entryPoints: pathsGroup,
 							outbase: absolutePagesDirname,
 							outdir: outputDir,
