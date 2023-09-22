@@ -15,7 +15,7 @@ export function help() {
 				['--no (-n)', 'Skip all prompts by declining defaults.'],
 				['--dry-run', 'Walk through steps without executing.'],
 				['--skip-houston', 'Skip Houston animation.'],
-				['--ref', 'Choose astro Astro branch (default: latest).'],
+				['--ref', 'Choose astro branch (default: latest).'],
 				['--fancy', 'Enable full Unicode support for Windows.'],
 				['--typescript <option>', 'TypeScript option: strict | strictest | relaxed.'],
 			],
