@@ -138,11 +138,7 @@ export function createGetEntryBySlug({
 	};
 }
 
-export function createGetDataEntryById({
-	getEntryImport,
-}: {
-	getEntryImport: GetEntryImport;
-}) {
+export function createGetDataEntryById({ getEntryImport }: { getEntryImport: GetEntryImport }) {
 	return async function getDataEntryById(collection: string, id: string) {
 		const lazyImport = await getEntryImport(collection, id);
 
