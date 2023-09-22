@@ -39,12 +39,12 @@ export function astroContentVirtualModPlugin({
 
 	let contentEntryGlobPath = globWithUnderscoresIgnored(relContentDir, contentEntryExts);
 	// HACK(nate): filter contentEntryGlobPath to simulate incremental build
-	contentEntryGlobPath = [contentEntryGlobPath[0].replace('**/*', '**/a-e*')]
+	// contentEntryGlobPath = [contentEntryGlobPath[0].replace('**/*', '**/a-e*')]
 
 	const dataEntryGlobPath = globWithUnderscoresIgnored(relContentDir, dataEntryExts);
 	/** Note: data collections excluded */ 
 	let renderEntryGlobPath = globWithUnderscoresIgnored(relContentDir, contentEntryExts);
-	renderEntryGlobPath = [renderEntryGlobPath[0].replace('**/*', '**/a-e*')]
+	// renderEntryGlobPath = [renderEntryGlobPath[0].replace('**/*', '**/a-e*')]
 
 	const virtualModContents = fsMod
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')

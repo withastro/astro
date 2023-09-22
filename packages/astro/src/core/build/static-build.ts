@@ -33,6 +33,9 @@ import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 
+function isWatcher(value: unknown): value is vite.Rollup.RollupWatcher {
+	return true;
+}
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
 
@@ -78,13 +81,13 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	registerAllPlugins(container);
 
 	// HACK(nate): Begin cache restoration
-	const cacheDir = new URL('./node_modules/.cache/astro/', settings.config.root);
-	const cacheFile = new URL('./build.json', cacheDir);
-	let restore = false;
-	if (fs.existsSync(cacheDir)) {
-		internals.cache = JSON.parse(fs.readFileSync(cacheFile, { encoding: 'utf8' }));
-		restore = true;
-	}
+	// const cacheDir = new URL('./node_modules/.cache/astro/', settings.config.root);
+	// const cacheFile = new URL('./build.json', cacheDir);
+	// let restore = false;
+	// if (fs.existsSync(cacheDir)) {
+	// 	internals.cache = JSON.parse(fs.readFileSync(cacheFile, { encoding: 'utf8' }));
+	// 	restore = true;
+	// }
 
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrTime = performance.now();
@@ -92,24 +95,38 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
 	opts.logger.info('build', dim(`Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 
-	// HACK(nate): write to cache
-	internals.cache = [];
-	for (const output of ssrOutput.output) {
-		const md = output.moduleIds.filter(id => id.endsWith('.md'))
-		if (!!md) {
-			// const { fileName: id, code: content } = output.moduleIds
-			// internals.cache.push({ input, output: { id, content } })
-		}
+	if (isWatcher(ssrOutput)) {
+		await new Promise<void>(resolve => ssrOutput.on("event", (e) => {
+			if (e.code === "BUNDLE_END") {
+				const timings = e.result.getTimings?.();
+				for (const [key, [elapsed]] of Object.entries(timings!)) {
+					if (elapsed > 50) {
+						console.log(key, `${(elapsed).toFixed(0)}ms`)
+					}
+				}
+				resolve()
+			}
+		}));
+		return;
 	}
-	fs.mkdirSync(cacheDir, { recursive: true });
-	fs.writeFileSync(cacheFile, JSON.stringify(internals.cache), { encoding: 'utf8' });
 
-	if (restore) {
-		// console.log('RESTORING CACHE');
-		for (const cached of internals.cache) {
-			fs.writeFileSync(new URL(`./${cached.output.id}`, settings.config.outDir), cached.output.content, { encoding: 'utf8' });
-		}
-	}
+	// HACK(nate): write to cache
+	// internals.cache = [];
+	// for (const output of ssrOutput.output) {
+	// 	const md = output.moduleIds.filter(id => id.endsWith('.md'))
+	// 	if (!!md) {
+	// 		// const { fileName: id, code: content } = output.moduleIds
+	// 		// internals.cache.push({ input, output: { id, content } })
+	// 	}
+	// }
+	// fs.mkdirSync(cacheDir, { recursive: true });
+	// fs.writeFileSync(cacheFile, JSON.stringify(internals.cache), { encoding: 'utf8' });
+	// if (restore) {
+	// 	// console.log('RESTORING CACHE');
+	// 	for (const cached of internals.cache) {
+	// 		fs.writeFileSync(new URL(`./${cached.output.id}`, settings.config.outDir), cached.output.content, { encoding: 'utf8' });
+	// 	}
+	// }
 
 	settings.timer.end('SSR build');
 	settings.timer.start('Client build');
@@ -194,8 +211,10 @@ async function ssrBuild(
 			manifest: false,
 			outDir: fileURLToPath(out),
 			copyPublicDir: !ssr,
+			watch: {},
 			rollupOptions: {
 				...viteConfig.build?.rollupOptions,
+				perf: true,
 				input: [],
 				output: {
 					format: 'esm',
