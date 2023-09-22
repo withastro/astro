@@ -235,7 +235,7 @@ export async function runHookConfigDone({
 							if (!validationResult.assets) {
 								logger.warn(
 									'astro',
-									`The selected adapter ${adapter.name} does not support image processing. To allow your project to build with the original, unprocessed images, the image service has been automatically switched to the 'noop' option.`
+									`The selected adapter ${adapter.name} does not support image optimization. To allow your project to build with the original, unoptimized images, the image service has been automatically switched to the 'noop' option. See https://docs.astro.build/en/reference/configuration-reference/#imageservice`
 								);
 								settings.config.image.service = {
 									entrypoint: 'astro/assets/services/noop',
