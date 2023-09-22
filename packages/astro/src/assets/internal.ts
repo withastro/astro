@@ -98,27 +98,26 @@ export async function getImage(
 		? await service.getSrcSet(validatedOptions, imageConfig)
 		: [];
 
-	let imageURL = await getFinalURL(validatedOptions);
+	let imageURL = await service.getURL(validatedOptions, imageConfig);
 	let srcSets: SrcSetValue[] = await Promise.all(
 		srcSetTransforms.map(async (srcSet) => ({
-			url: await getFinalURL(srcSet.transform),
+			url: await service.getURL(srcSet.transform, imageConfig),
 			descriptor: srcSet.descriptor,
 			attributes: srcSet.attributes,
 		}))
 	);
 
-	async function getFinalURL(transform: ImageTransform) {
-		// In build and for local services, we need to collect the requested parameters so we can generate the final images
-		if (
-			isLocalService(service) &&
-			globalThis.astroAsset.addStaticImage &&
-			// If `getURL` returned the same URL as the user provided, it means the service doesn't need to do anything
-			!(isRemoteImage(transform.src) && imageURL === transform.src)
-		) {
-			return globalThis.astroAsset.addStaticImage(transform);
-		} else {
-			return await service.getURL(transform, imageConfig);
-		}
+	if (
+		isLocalService(service) &&
+		globalThis.astroAsset.addStaticImage &&
+		!(isRemoteImage(validatedOptions.src) && imageURL === validatedOptions.src)
+	) {
+		imageURL = globalThis.astroAsset.addStaticImage(validatedOptions);
+		srcSets = srcSetTransforms.map((srcSet) => ({
+			url: globalThis.astroAsset.addStaticImage!(srcSet.transform),
+			descriptor: srcSet.descriptor,
+			attributes: srcSet.attributes,
+		}));
 	}
 
 	return {
