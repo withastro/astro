@@ -56,7 +56,9 @@ export function createGetCollection({
 			type = 'data';
 		} else {
 			// eslint-disable-next-line no-console
-			console.warn(`The collection **${collection}** does not exist or is empty. Ensure a collection directory with this name exists.`);
+			console.warn(
+				`The collection **${collection}** does not exist or is empty. Ensure a collection directory with this name exists.`
+			);
 			return;
 		}
 		const lazyImports = Object.values(
