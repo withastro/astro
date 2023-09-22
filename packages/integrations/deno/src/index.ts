@@ -183,6 +183,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					banner: {
 						js: SHIM,
 					},
+					logOverride: {
+						'ignored-bare-import': 'silent'
+					},
 				});
 
 				// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.
