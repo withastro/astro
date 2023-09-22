@@ -41,7 +41,11 @@ export async function runCLI(
 	let cli;
 	let lastErr;
 	while (triesRemaining > 0) {
-		cli = await tryRunCLI(basePath, { silent, timeout, forceRotatePort: triesRemaining !== maxAttempts });
+		cli = await tryRunCLI(basePath, {
+			silent,
+			timeout,
+			forceRotatePort: triesRemaining !== maxAttempts,
+		});
 		try {
 			await cli.ready;
 			return cli;
@@ -148,7 +152,7 @@ const isPortOpen = async (port) => {
 			resolve(true);
 			s.close();
 		});
-		s.listen(port, "0.0.0.0");
+		s.listen(port, '0.0.0.0');
 	});
 };
 
