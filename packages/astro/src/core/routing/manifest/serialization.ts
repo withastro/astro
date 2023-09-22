@@ -32,5 +32,6 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 		redirectRoute: rawRouteData.redirectRoute
 			? deserializeRouteData(rawRouteData.redirectRoute)
 			: undefined,
+		locale: undefined,
 	};
 }
