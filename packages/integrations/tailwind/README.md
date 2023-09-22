@@ -61,19 +61,19 @@ export default defineConfig({
 });
 ```
 
-Then, create a `tailwind.config.js` file in your project's root directory. You can use the following command to generate a basic configuration file for you:
+Then, create a `tailwind.config.cjs` file in your project's root directory. You can use the following command to generate a basic configuration file for you:
 
 ```sh
 npx tailwindcss init
 ```
 
-Add this basic configuration to your `tailwind.config.js` file:
+Add this basic configuration to your `tailwind.config.cjs` file:
 
 ```js ins={4} "content: ['./src/**/*.{astro,js,ts,tsx,md,mdx}']"
-// tailwind.config.js
+// tailwind.config.cjs
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./src/**/*.{astro,js,ts,tsx,md,mdx}"],
+  content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
   theme: {
     extend: {},
   },
@@ -81,24 +81,11 @@ module.exports = {
 }
 ```
 
-:::note
-If you're using any other UI framework, remember to add the extension to the content array. For example, if you're using Vue, you'll need to add `./src/**/*.vue` to the content array.
-:::
-
-Add a directory `styles` to your `src` directory, and create a file called `global.css` inside of it. This is where you can add your own custom CSS styles or directives. For example, you can add a `@layer` directive to add your own custom styles to the `base` layer:
-
-```css
-/* src/styles/global.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-```
-
-Finally, import your `global.css` file inside your Layout component:
+Finally, import your `base.css` file inside your Layout component:
 
 ```astro ins={2} "import '../styles/global.css';"
 ---
-import "../styles/global.css";
+import "../styles/base.css";
 interface Props {
   title: string;
 }
