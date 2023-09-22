@@ -1,5 +1,7 @@
 export type Fallback = 'none' | 'animate' | 'swap';
 export type Direction = 'forward' | 'back';
+export type Options = { history?: 'auto' | 'push' | 'replace' };
+
 type State = {
 	index: number;
 	scrollX: number;
@@ -14,6 +16,8 @@ const persistState = (state: State) => history.state && history.replaceState(sta
 export const supportsViewTransitions = !!document.startViewTransition;
 export const transitionEnabledOnThisPage = () =>
 	!!document.querySelector('[name="astro-view-transitions-enabled"]');
+const samePage = (otherLocation: URL) =>
+	location.pathname === otherLocation.pathname && location.search === otherLocation.search;
 const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
 const onPageLoad = () => triggerEvent('astro:page-load');
 const PERSIST_ATTR = 'data-astro-transition-persist';
@@ -125,24 +129,29 @@ function isInfinite(animation: Animation) {
 	return style.animationIterationCount === 'infinite';
 }
 
-const updateHistoryAndScrollPosition = (toLocation: URL) => {
+const updateHistoryAndScrollPosition = (toLocation: URL, replace: boolean, intraPage: boolean) => {
+	const fresh = !samePage(toLocation);
 	if (toLocation.href !== location.href) {
-		history.pushState(
-			{ index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
-			'',
-			toLocation.href
-		);
+		if (replace) {
+			history.replaceState({ ...history.state }, '', toLocation.href);
+		} else {
+			history.replaceState({ ...history.state, intraPage }, '');
+			history.pushState({ index: ++currentHistoryIndex, scrollX, scrollY }, '', toLocation.href);
+		}
 		// now we are on the new page for non-history navigations!
 		// (with history navigation page change happens before popstate is fired)
+		// freshly loaded pages start from the top
+		if (fresh) {
+			scrollTo({ left: 0, top: 0, behavior: 'instant' });
+		}
 	}
-	// freshly loaded pages start from the top
-	scrollTo({ left: 0, top: 0, behavior: 'instant' });
-
 	if (toLocation.hash) {
 		// because we are already on the target page ...
 		// ... what comes next is a intra-page navigation
 		// that won't reload the page but instead scroll to the fragment
 		location.href = toLocation.href;
+	} else {
+		scrollTo({ left: 0, top: 0, behavior: 'instant' });
 	}
 };
 
@@ -153,6 +162,7 @@ const updateHistoryAndScrollPosition = (toLocation: URL) => {
 async function updateDOM(
 	newDocument: Document,
 	toLocation: URL,
+	options: Options,
 	popState?: State,
 	fallback?: Fallback
 ) {
@@ -205,13 +215,13 @@ async function updateDOM(
 			for (const s2 of newDocument.scripts) {
 				if (
 					// Inline
-					(s1.textContent && s1.textContent === s2.textContent) ||
+					(!s1.src && s1.textContent === s2.textContent) ||
 					// External
-					(s1.type === s2.type && s1.src === s2.src)
+					(s1.src && s1.type === s2.type && s1.src === s2.src)
 				) {
-					s2.remove();
-				} else {
-					s1.remove();
+					// the old script is in the new document: we mark it as executed to prevent re-execution
+					s2.dataset.astroExec = '';
+					break;
 				}
 			}
 		}
@@ -250,7 +260,7 @@ async function updateDOM(
 		if (popState) {
 			scrollTo(popState.scrollX, popState.scrollY); // usings 'auto' scrollBehavior
 		} else {
-			updateHistoryAndScrollPosition(toLocation);
+			updateHistoryAndScrollPosition(toLocation, options.history === 'replace', false);
 		}
 
 		triggerEvent('astro:after-swap');
@@ -298,7 +308,12 @@ async function updateDOM(
 	}
 }
 
-async function transition(direction: Direction, toLocation: URL, popState?: State) {
+async function transition(
+	direction: Direction,
+	toLocation: URL,
+	options: Options,
+	popState?: State
+) {
 	let finished: Promise<void>;
 	const href = toLocation.href;
 	const response = await fetchHTML(href);
@@ -331,10 +346,10 @@ async function transition(direction: Direction, toLocation: URL, popState?: Stat
 	document.documentElement.dataset.astroTransition = direction;
 	if (supportsViewTransitions) {
 		finished = document.startViewTransition(() =>
-			updateDOM(newDocument, toLocation, popState)
+			updateDOM(newDocument, toLocation, options, popState)
 		).finished;
 	} else {
-		finished = updateDOM(newDocument, toLocation, popState, getFallback());
+		finished = updateDOM(newDocument, toLocation, options, popState, getFallback());
 	}
 	try {
 		await finished;
@@ -347,7 +362,7 @@ async function transition(direction: Direction, toLocation: URL, popState?: Stat
 	}
 }
 
-export function navigate(href: string) {
+export function navigate(href: string, options?: Options) {
 	// not ours
 	if (!transitionEnabledOnThisPage()) {
 		location.href = href;
@@ -357,23 +372,11 @@ export function navigate(href: string) {
 	// We do not have page transitions on navigations to the same page (intra-page navigation)
 	// but we want to handle prevent reload on navigation to the same page
 	// Same page means same origin, path and query params (but maybe different hash)
-	if (
-		location.origin === toLocation.origin &&
-		location.pathname === toLocation.pathname &&
-		location.search === toLocation.search
-	) {
-		// mark current position as non transition intra-page scrolling
-		if (location.href !== toLocation.href) {
-			history.replaceState({ ...history.state, scrollX, scrollY, intraPage: true }, '');
-			history.pushState({ index: ++currentHistoryIndex, scrollX, scrollY }, '', toLocation.href);
-		}
-		if (toLocation.hash) {
-			location.href = toLocation.href;
-		} else {
-			scrollTo({ left: 0, top: 0, behavior: 'instant' });
-		}
+	if (location.origin === toLocation.origin && samePage(toLocation)) {
+		updateHistoryAndScrollPosition(toLocation, options?.history === 'replace', true);
 	} else {
-		transition('forward', toLocation);
+		// different origin will be detected by fetch
+		transition('forward', toLocation, options ?? {});
 	}
 }
 
@@ -416,7 +419,7 @@ if (supportsViewTransitions || getFallback() !== 'none') {
 			const nextIndex = state.index;
 			const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
 			currentHistoryIndex = nextIndex;
-			transition(direction, new URL(location.href), state);
+			transition(direction, new URL(location.href), {}, state);
 		}
 	});
 

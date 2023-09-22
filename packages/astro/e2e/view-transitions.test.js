@@ -711,8 +711,8 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/six'));
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
-  });
-  
+	});
+
 	test('body inline scripts do not re-execute on navigation', async ({ page, astro }) => {
 		const errors = [];
 		page.addListener('pageerror', (err) => {
@@ -729,5 +729,53 @@ test.describe('View Transitions', () => {
 		await expect(article, 'should have script content').toHaveText('Count: 3');
 
 		expect(errors).toHaveLength(0);
+	});
+
+	test('replace history', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/one'));
+		// page six loads the router and automatically uses the router to navigate to page 1
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page 2
+		await page.click('#click-two');
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		// replace with long page
+		await page.click('#click-longpage');
+		let article = page.locator('#longpage');
+		await expect(article, 'should have script content').toBeVisible('exists');
+
+		// one step back == #1
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+	});
+
+	test('CSR replace history', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/six'));
+		// page six loads the router and automatically uses the router to navigate to page 1
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// goto #2
+		await page.evaluate(() => {
+			window.clientSideRouterForTestsParkedHere('/two', { history: 'auto' });
+		});
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		// replace with long page
+		await page.evaluate(() => {
+			window.clientSideRouterForTestsParkedHere('/long-page', { history: 'replace' });
+		});
+		let article = page.locator('#longpage');
+		await expect(article, 'should have script content').toBeVisible('exists');
+
+		// one step back == #1
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
 	});
 });
