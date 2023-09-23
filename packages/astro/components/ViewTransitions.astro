@@ -70,7 +70,9 @@ const { fallback = 'animate' } = Astro.props as Props;
 				return;
 			}
 			ev.preventDefault();
-			navigate(link.href);
+			navigate(link.href, {
+				history: link.dataset.astroHistory === 'replace' ? 'replace' : 'auto',
+			});
 		});
 
     ['mouseenter', 'touchstart', 'focus'].forEach((evName) => {
