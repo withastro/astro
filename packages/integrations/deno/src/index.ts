@@ -132,11 +132,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 
 			},
-			'astro:config:setup' ({ updateConfig }) {
-				updateConfig({
-					vite: { ssr: { noExternal: COMPATIBLE_NODE_MODULES } }
-				})
-			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
 					_vite = vite;
