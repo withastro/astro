@@ -488,11 +488,7 @@ function getUrlForPath(
 	return url;
 }
 
-async function generatePath(
-	pathname: string,
-	gopts: GeneratePathOptions,
-	pipeline: BuildPipeline
-) {
+async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeline: BuildPipeline) {
 	const manifest = pipeline.getManifest();
 	const { mod, scripts: hoistedScripts, styles: _styles, pageData } = gopts;
 
@@ -579,7 +575,7 @@ async function generatePath(
 			return;
 		}
 		const locationSite = getRedirectLocationOrThrow(response.headers);
-		const siteURL = pipeline.getConfig().site
+		const siteURL = pipeline.getConfig().site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(renderContext.request.url).pathname;
 		// A short delay causes Google to interpret the redirect as temporary.
