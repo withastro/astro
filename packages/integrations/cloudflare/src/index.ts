@@ -480,9 +480,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				// move cloudflare specific files to the root
 				const cloudflareSpecialFiles = ['_headers', '_redirects', '_routes.json'];
-				if (!isModeDirectory) {
-					cloudflareSpecialFiles.push('_worker.js');
-				}
 
 				if (_config.base !== '/') {
 					for (const file of cloudflareSpecialFiles) {
@@ -495,6 +492,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							// ignore
 						}
 					}
+				}
+
+				// Add also the worker file so it's excluded from the _routes.json generation
+				if (!isModeDirectory) {
+					cloudflareSpecialFiles.push('_worker.js');
 				}
 
 				const routesExists = await fs.promises
