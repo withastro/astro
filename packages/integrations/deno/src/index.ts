@@ -130,6 +130,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						`[@astrojs/deno] Otherwise, this adapter is not required to deploy a static site to Deno.`
 					);
 				}
+
+			},
+			'astro:config:setup' ({ updateConfig }) {
+				updateConfig({
+					vite: { ssr: { noExternal: COMPATIBLE_NODE_MODULES } }
+				})
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
@@ -149,9 +155,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							(vite.resolve.alias as Record<string, string>)[alias.find] = alias.replacement;
 						}
 					}
-					vite.ssr = {
-						noExternal: COMPATIBLE_NODE_MODULES,
-					};
 
 					if (Array.isArray(vite.build.rollupOptions.external)) {
 						vite.build.rollupOptions.external.push(DENO_IMPORTS_SHIM);
