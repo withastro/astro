@@ -95,4 +95,16 @@ describe('Astro Cloudflare Runtime', () => {
 		expect($('#hasPRODBUCKET').text()).to.equal('true');
 		expect($('#hasACCESS').text()).to.equal('true');
 	});
+
+	it('adds KV mocking', async () => {
+		expect(await fixture.pathExists('../.mf/kv')).to.be.true;
+
+		let res = await fixture.fetch('/kv');
+		expect(res.status).to.equal(200);
+		let html = await res.text();
+		let $ = cheerio.load(html);
+		expect($('#hasKV').text()).to.equal('true');
+		expect($('#hasPRODKV').text()).to.equal('true');
+		expect($('#hasACCESS').text()).to.equal('true');
+	});
 });

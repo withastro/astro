@@ -1,5 +1,10 @@
 name = "test"
 
+kv_namespaces = [
+    { binding = "KV", id = "<YOUR_ID>", preview_id = "<YOUR_ID>" },
+    { binding = "KV_PROD", id = "<YOUR_ID>", preview_id = "<YOUR_ID>" }
+]
+
 [vars]
 COOL = "ME"
 
@@ -22,3 +27,4 @@ bucket_name = '<YOUR_BUCKET_NAME>'
 [[r2_buckets]]
 binding = 'R2_PROD' # <~ valid JavaScript variable name
 bucket_name = '<YOUR_BUCKET_NAME>'
+

@@ -162,3 +162,13 @@ export async function getR2Bindings() {
 	);
 	return bindings;
 }
+
+export async function getKVBindings() {
+	const { rawConfig } = parseConfig();
+	if (!rawConfig) return [];
+	if (!rawConfig?.kv_namespaces) return [];
+	const bindings = (rawConfig?.kv_namespaces as []).map(
+		(binding: { binding: string }) => binding.binding
+	);
+	return bindings;
+}
