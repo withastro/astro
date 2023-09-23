@@ -152,3 +152,13 @@ export async function getD1Bindings() {
 	);
 	return bindings;
 }
+
+export async function getR2Bindings() {
+	const { rawConfig } = parseConfig();
+	if (!rawConfig) return [];
+	if (!rawConfig?.r2_buckets) return [];
+	const bindings = (rawConfig?.r2_buckets as []).map(
+		(binding: { binding: string }) => binding.binding
+	);
+	return bindings;
+}

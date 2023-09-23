@@ -14,3 +14,11 @@ binding = "D1_PROD" # Should match preview_database_id
 database_name = "<DATABASE_NAME>"
 database_id = "<unique-ID-for-your-database>"
 preview_database_id = "D1_PROD" # Required for Pages local development
+
+[[r2_buckets]]
+binding = 'R2' # <~ valid JavaScript variable name
+bucket_name = '<YOUR_BUCKET_NAME>'
+
+[[r2_buckets]]
+binding = 'R2_PROD' # <~ valid JavaScript variable name
+bucket_name = '<YOUR_BUCKET_NAME>'

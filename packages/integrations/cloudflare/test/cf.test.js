@@ -83,4 +83,16 @@ describe('Astro Cloudflare Runtime', () => {
 		expect($('#hasPRODDB').text()).to.equal('true');
 		expect($('#hasACCESS').text()).to.equal('true');
 	});
+
+	it('adds R2 mocking', async () => {
+		expect(await fixture.pathExists('../.mf/r2')).to.be.true;
+
+		let res = await fixture.fetch('/r2');
+		expect(res.status).to.equal(200);
+		let html = await res.text();
+		let $ = cheerio.load(html);
+		expect($('#hasBUCKET').text()).to.equal('true');
+		expect($('#hasPRODBUCKET').text()).to.equal('true');
+		expect($('#hasACCESS').text()).to.equal('true');
+	});
 });
