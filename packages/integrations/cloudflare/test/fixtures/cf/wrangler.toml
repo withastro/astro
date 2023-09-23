@@ -2,3 +2,15 @@ name = "test"
 
 [vars]
 COOL = "ME"
+
+[[d1_databases]]
+binding = "D1" # Should match preview_database_id, i.e. available in your Worker on env.DB
+database_name = "<DATABASE_NAME>"
+database_id = "<unique-ID-for-your-database>"
+preview_database_id = "D1" # Required for Pages local development
+
+[[d1_databases]]
+binding = "D1_PROD" # Should match preview_database_id
+database_name = "<DATABASE_NAME>"
+database_id = "<unique-ID-for-your-database>"
+preview_database_id = "D1_PROD" # Required for Pages local development

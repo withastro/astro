@@ -54,11 +54,6 @@ describe('Astro Cloudflare Runtime', () => {
 			adapter: cloudflare({
 				runtime: 'local',
 			}),
-			image: {
-				service: {
-					entrypoint: 'astro/assets/services/noop',
-				},
-			},
 		});
 		process.chdir('./test/fixtures/cf');
 		devServer = await fixture.startDevServer();
@@ -75,5 +70,17 @@ describe('Astro Cloudflare Runtime', () => {
 		let $ = cheerio.load(html);
 		expect($('#hasRuntime').text()).to.equal('true');
 		expect($('#hasCache').text()).to.equal('true');
+	});
+
+	it('adds D1 mocking', async () => {
+		expect(await fixture.pathExists('../.mf/d1')).to.be.true;
+
+		let res = await fixture.fetch('/d1');
+		expect(res.status).to.equal(200);
+		let html = await res.text();
+		let $ = cheerio.load(html);
+		expect($('#hasDB').text()).to.equal('true');
+		expect($('#hasPRODDB').text()).to.equal('true');
+		expect($('#hasACCESS').text()).to.equal('true');
 	});
 });

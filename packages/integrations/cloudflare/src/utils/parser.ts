@@ -12,6 +12,8 @@ import dotenv from 'dotenv';
 import { findUpSync } from 'find-up';
 import * as fs from 'node:fs';
 import { dirname, resolve } from 'node:path';
+import type {} from '@cloudflare/workers-types/experimental';
+let _wrangler: any;
 
 function findWranglerToml(
 	referencePath: string = process.cwd(),
@@ -119,7 +121,9 @@ function getVarsForDev(config: any, configPath: string | undefined): any {
 		return config.vars;
 	}
 }
-export async function getEnvVars() {
+
+function parseConfig() {
+	if (_wrangler) return _wrangler;
 	let rawConfig;
 	const configPath = findWranglerToml(process.cwd(), false); // false = args.experimentalJsonConfig
 	if (!configPath) {
@@ -129,6 +133,22 @@ export async function getEnvVars() {
 	if (configPath?.endsWith('toml')) {
 		rawConfig = parseTOML(fs.readFileSync(configPath).toString(), configPath);
 	}
+	_wrangler = { rawConfig, configPath };
+	return { rawConfig, configPath };
+}
+
+export async function getEnvVars() {
+	const { rawConfig, configPath } = parseConfig();
 	const vars = getVarsForDev(rawConfig, configPath);
 	return vars;
+}
+
+export async function getD1Bindings() {
+	const { rawConfig } = parseConfig();
+	if (!rawConfig) return [];
+	if (!rawConfig?.d1_databases) return [];
+	const bindings = (rawConfig?.d1_databases as []).map(
+		(binding: { binding: string }) => binding.binding
+	);
+	return bindings;
 }

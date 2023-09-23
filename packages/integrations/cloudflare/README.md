@@ -212,7 +212,11 @@ export default defineConfig({
 
 ## Cloudflare runtime
 
-Gives you access to [environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables).
+Gives you access to [environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables), and [Cloudflare bindings](https://developers.cloudflare.com/pages/platform/functions/bindings).
+
+Currently supported bindings:
+
+- [Cloudflare D1](https://developers.cloudflare.com/d1/)
 
 You can access the runtime from Astro components through `Astro.locals` inside any .astro` file.
 
