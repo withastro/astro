@@ -1,6 +1,7 @@
 import type { ComponentInstance, Params, Props, RouteData } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
+import { routeIsRedirect } from '../redirects/index.js';
 import { getParams } from '../routing/params.js';
 import { RouteCache, callGetStaticPaths, findPathItemByKey } from './route-cache.js';
 
@@ -24,6 +25,10 @@ export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise
 
 	// This is a dynamic route, start getting the params
 	const params = getRouteParams(route, pathname) ?? {};
+
+	if (routeIsRedirect(route)) {
+		return [params, {}]
+	}
 
 	validatePrerenderEndpointCollision(route, mod, params);
 
