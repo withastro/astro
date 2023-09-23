@@ -85,13 +85,13 @@ vercel deploy --prebuilt
 
 To configure this adapter, pass an object to the `vercel()` function call in `astro.config.mjs`:
 
-### analytics
+### Web Analytics
 
-**Type:** `boolean`<br>
-**Available for:** Serverless, Static<br>
-**Added in:** `@astrojs/vercel@3.1.0`
+**Type:** `VercelWebAnalyticsConfig`<br>
+**Available for:** Serverless, Edge, Static<br>
+**Added in:** `@astrojs/vercel@3.8.0`
 
-You can enable [Vercel Analytics](https://vercel.com/analytics) (including Web Vitals and Audiences) by setting `analytics: true`. This will inject Vercel’s tracking scripts into all your pages.
+You can enable [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics) by setting `webAnalytics: { enabled: true }`. This will inject Vercel’s tracking scripts into all of your pages.
 
 ```js
 // astro.config.mjs
@@ -101,7 +101,32 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    analytics: true,
+    webAnalytics: {
+      enabled: true,
+    },
+  }),
+});
+```
+
+### Speed Insights
+
+You can enable [Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights) by setting `speedInsights: { enabled: true }`. This will collect and send Web Vital data to Vercel.
+
+**Type:** `VercelSpeedInsightsConfig`<br>
+**Available for:** Serverless, Edge, Static<br>
+**Added in:** `@astrojs/vercel@3.8.0`
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/serverless';
+
+export default defineConfig({
+  output: 'server',
+  adapter: vercel({
+    speedInsights: {
+      enabled: true,
+    },
   }),
 });
 ```
@@ -238,9 +263,11 @@ export default defineConfig({
 
 ### Function bundling configuration
 
-The Vercel adapter splits builds into a separate function per route by default. This helps reduce the size of each function, as it only bundles code used on that page.
+The Vercel adapter combines all of your routes into a single function by default.
 
-You can disable this and build to a single function by setting the `functionPerRoute` configuration option to `false`:
+You also have the option to split builds into a separate function for each route using the `functionPerRoute` option. This reduces the size of each function, meaning you are less likely to exceed the size limit for an individual function. Also, code starts are faster.
+
+Verify that your Vercel plan includes an appropriate number of functions before enabling `functionPerRoute`. For example, Vercel's free tier limits each deployment to no more than 12 functions. If your Vercel plan is insufficient for the number of routes in your project, you will receive an error message during deployment.
 
 ```js
 // astro.config.mjs
@@ -250,7 +277,7 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    functionPerRoute: false,
+    functionPerRoute: true,
   }),
 });
 ```

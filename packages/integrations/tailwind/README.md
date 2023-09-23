@@ -61,6 +61,26 @@ export default defineConfig({
 });
 ```
 
+Then, create a `tailwind.config.cjs` file in your project's root directory. You can use the following command to generate a basic configuration file for you:
+
+```sh
+npx tailwindcss init
+```
+
+Finally, add this basic configuration to your `tailwind.config.cjs` file:
+
+```js ins={4} "content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}']"
+// tailwind.config.cjs
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+```
+
 ## Usage
 
 When you install the integration, Tailwind's utility classes should be ready to go right away. Head to the [Tailwind docs](https://tailwindcss.com/docs/utility-first) to learn how to use Tailwind, and if you see a utility class you want to try, add it to any HTML element to your project!
@@ -140,7 +160,7 @@ You can now [import your own `base.css` as a local stylesheet](https://docs.astr
 ## Examples
 
 - The [Astro Tailwind Starter](https://github.com/withastro/astro/tree/latest/examples/with-tailwindcss?on=github) gets you up and running with a base for your project that uses Tailwind for styling
-- Astro's homepage uses Tailwind. Check out its [Tailwind configuration file](https://github.com/withastro/astro.build/blob/main/tailwind.config.cjs) or an [example component](https://github.com/withastro/astro.build/blob/main/src/components/Checkbox.astro)
+- Astro's homepage uses Tailwind. Check out its [Tailwind configuration file](https://github.com/withastro/astro.build/blob/main/tailwind.config.ts) or an [example component](https://github.com/withastro/astro.build/blob/main/src/components/Checkbox.astro)
 - The [Astro Ink](https://github.com/one-aalam/astro-ink), [Sarissa Blog](https://github.com/iozcelik/SarissaBlogAstroStarter), and [Creek](https://github.com/robertguss/Astro-Theme-Creek) themes use Tailwind for styling
 - [Browse Astro Tailwind projects on GitHub](https://github.com/search?q=%22%40astrojs%2Ftailwind%22%3A+path%3A%2Fpackage.json&type=code) for more examples!
 

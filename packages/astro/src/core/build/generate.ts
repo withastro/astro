@@ -297,7 +297,10 @@ async function generatePage(
 		mod: pageModule,
 	};
 
-	const icon = pageData.route.type === 'page' ? green('▶') : magenta('λ');
+	const icon =
+		pageData.route.type === 'page' || pageData.route.type === 'redirect'
+			? green('▶')
+			: magenta('λ');
 	if (isRelativePath(pageData.route.component)) {
 		logger.info(null, `${icon} ${pageData.route.route}`);
 	} else {

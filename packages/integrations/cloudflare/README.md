@@ -201,8 +201,12 @@ If you're using the `advanced` runtime, you can type the `runtime` object as fol
 /// <reference types="astro/client" />
 import type { AdvancedRuntime } from '@astrojs/cloudflare';
 
+type ENV = {
+  SERVER_URL: string;
+};
+
 declare namespace App {
-  interface Locals extends AdvancedRuntime {
+  interface Locals extends AdvancedRuntime<ENV> {
     user: {
       name: string;
       surname: string;
@@ -218,8 +222,12 @@ If you're using the `directory` runtime, you can type the `runtime` object as fo
 /// <reference types="astro/client" />
 import type { DirectoryRuntime } from '@astrojs/cloudflare';
 
+type ENV = {
+  SERVER_URL: string;
+};
+
 declare namespace App {
-  interface Locals extends DirectoryRuntime {
+  interface Locals extends DirectoryRuntime<ENV> {
     user: {
       name: string;
       surname: string;
@@ -269,6 +277,49 @@ export default defineConfig({
 });
 ```
 
+## Wasm module imports
+
+`wasmModuleImports: boolean`
+
+default: `false`
+
+Whether or not to import `.wasm` files [directly as ES modules](https://github.com/WebAssembly/esm-integration/tree/main/proposals/esm-integration).
+
+Add `wasmModuleImports: true` to `astro.config.mjs` to enable in both the Cloudflare build and the Astro dev server.
+
+```diff
+// astro.config.mjs
+import {defineConfig} from "astro/config";
+import cloudflare from '@astrojs/cloudflare';
+
+export default defineConfig({
+    adapter: cloudflare({
++       wasmModuleImports: true
+    }),
+	  output: 'server'
+})
+```
+
+Once enabled, you can import a web assembly module in Astro with a `.wasm?module` import.
+
+The following is an example of importing a Wasm module that then responds to requests by adding the request's number parameters together.
+
+```javascript
+// pages/add/[a]/[b].js
+import mod from '../util/add.wasm?module';
+
+// instantiate ahead of time to share module
+const addModule: any = new WebAssembly.Instance(mod);
+
+export async function GET(context) {
+  const a = Number.parseInt(context.params.a);
+  const b = Number.parseInt(context.params.b);
+  return new Response(`${addModule.exports.add(a, b)}`);
+}
+```
+
+While this example is trivial, Wasm can be used to accelerate computationally intensive operations which do not involve significant I/O such as embedding an image processing library.
+
 ## Headers, Redirects and function invocation routes
 
 Cloudflare has support for adding custom [headers](https://developers.cloudflare.com/pages/platform/headers/), configuring static [redirects](https://developers.cloudflare.com/pages/platform/redirects/) and defining which routes should [invoke functions](https://developers.cloudflare.com/pages/platform/functions/routing/#function-invocation-routes). Cloudflare looks for `_headers`, `_redirects`, and `_routes.json` files in your build output directory to configure these features. This means they should be placed in your Astro project’s `public/` directory.
@@ -279,6 +330,33 @@ By default, `@astrojs/cloudflare` will generate a `_routes.json` file with `incl
 This will enable Cloudflare to serve files and process static redirects without a function invocation. Creating a custom `_routes.json` will override this automatic optimization and, if not configured manually, cause function invocations that will count against the request limits of your Cloudflare plan.
 
 See [Cloudflare's documentation](https://developers.cloudflare.com/pages/platform/functions/routing/#create-a-_routesjson-file) for more details.
+
+## Node.js compatibility
+
+Astro's Cloudflare adapter allows you to use any Node.js runtime API supported by Cloudflare:
+
+- assert
+- AsyncLocalStorage
+- Buffer
+- Diagnostics Channel
+- EventEmitter
+- path
+- process
+- Streams
+- StringDecoder
+- util
+
+To use these APIs, your page or endpoint must be server-side rendered (not pre-rendered) and must use the the `import {} from 'node:*'` import syntax.
+
+```js
+// pages/api/endpoint.js
+export const prerender = false;
+import { Buffer } from 'node:buffer';
+```
+
+Additionally, you'll need to enable the Compatibility Flag in Cloudflare. The configuration for this flag may vary based on where you deploy your Astro site.
+
+For detailed guidance, please refer to the [Cloudflare documentation](https://developers.cloudflare.com/workers/runtime-apis/nodejs).
 
 ## Troubleshooting
 

@@ -15,10 +15,17 @@ import {
 	type DevImageService,
 	type VercelImageConfig,
 } from '../image/shared.js';
-import { exposeEnv } from '../lib/env.js';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
+import {
+	getSpeedInsightsViteConfig,
+	type VercelSpeedInsightsConfig,
+} from '../lib/speed-insights.js';
+import {
+	getInjectableWebAnalyticsContent,
+	type VercelWebAnalyticsConfig,
+} from '../lib/web-analytics.js';
 import { generateEdgeMiddleware } from './middleware.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
@@ -64,9 +71,14 @@ function getAdapter({
 }
 
 export interface VercelServerlessConfig {
+	/**
+	 * @deprecated
+	 */
+	analytics?: boolean;
+	webAnalytics?: VercelWebAnalyticsConfig;
+	speedInsights?: VercelSpeedInsightsConfig;
 	includeFiles?: string[];
 	excludeFiles?: string[];
-	analytics?: boolean;
 	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
 	devImageService?: DevImageService;
@@ -75,13 +87,15 @@ export interface VercelServerlessConfig {
 }
 
 export default function vercelServerless({
+	analytics,
+	webAnalytics,
+	speedInsights,
 	includeFiles,
 	excludeFiles,
-	analytics,
 	imageService,
 	imagesConfig,
 	devImageService = 'sharp',
-	functionPerRoute = true,
+	functionPerRoute = false,
 	edgeMiddleware = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
@@ -131,12 +145,25 @@ export default function vercelServerless({
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
-			'astro:config:setup': ({ command, config, updateConfig, injectScript }) => {
-				if (command === 'build' && analytics) {
-					injectScript('page', 'import "@astrojs/vercel/analytics"');
+			'astro:config:setup': async ({ command, config, updateConfig, injectScript, logger }) => {
+				if (webAnalytics?.enabled || analytics) {
+					if (analytics) {
+						logger.warn(
+							`The \`analytics\` property is deprecated. Please use the new \`webAnalytics\` and \`speedInsights\` properties instead.`
+						);
+					}
+
+					injectScript(
+						'head-inline',
+						await getInjectableWebAnalyticsContent({
+							mode: command === 'dev' ? 'development' : 'production',
+						})
+					);
+				}
+				if (command === 'build' && (speedInsights?.enabled || analytics)) {
+					injectScript('page', 'import "@astrojs/vercel/speed-insights"');
 				}
 				const outDir = getVercelOutput(config.root);
-				const viteDefine = exposeEnv(['VERCEL_ANALYTICS_ID']);
 				updateConfig({
 					outDir,
 					build: {
@@ -145,7 +172,7 @@ export default function vercelServerless({
 						server: new URL('./dist/', config.root),
 					},
 					vite: {
-						define: viteDefine,
+						...getSpeedInsightsViteConfig(speedInsights?.enabled || analytics),
 						ssr: {
 							external: ['@vercel/nft'],
 						},
@@ -218,6 +245,8 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 				const filesToInclude = includeFiles?.map((file) => new URL(file, _config.root)) || [];
 				filesToInclude.push(...extraFilesToInclude);
 
+				validateRuntime();
+
 				// Multiple entrypoint support
 				if (_entryPoints.size) {
 					const getRouteFuncName = (route: RouteData) => route.component.replace('src/pages/', '');
@@ -285,7 +314,7 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 	};
 }
 
-function getRuntime() {
+function validateRuntime() {
 	const version = process.version.slice(1); // 'v16.5.0' --> '16.5.0'
 	const major = version.split('.')[0]; // '16.5.0' --> '16'
 	const support = SUPPORTED_NODE_VERSIONS[major];
@@ -295,7 +324,7 @@ function getRuntime() {
 		);
 		console.warn(`[${PACKAGE_NAME}] Your project will use Node.js 18 as the runtime instead.`);
 		console.warn(`[${PACKAGE_NAME}] Consider switching your local version to 18.`);
-		return 'nodejs18.x';
+		return;
 	}
 	if (support.status === 'deprecated') {
 		console.warn(
@@ -308,6 +337,15 @@ function getRuntime() {
 			).format(support.removal)}.`
 		);
 		console.warn(`[${PACKAGE_NAME}] Consider upgrading your local version to 18.`);
+	}
+}
+
+function getRuntime() {
+	const version = process.version.slice(1); // 'v16.5.0' --> '16.5.0'
+	const major = version.split('.')[0]; // '16.5.0' --> '16'
+	const support = SUPPORTED_NODE_VERSIONS[major];
+	if (support === undefined) {
+		return 'nodejs18.x';
 	}
 	return `nodejs${major}.x`;
 }

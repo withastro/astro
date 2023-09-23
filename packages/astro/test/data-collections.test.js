@@ -41,6 +41,17 @@ describe('Content Collections - data collections', () => {
 		});
 	});
 
+	describe('getDataEntryById', () => {
+		let json;
+		before(async () => {
+			const rawJson = await fixture.readFile('/translations/by-id.json');
+			json = JSON.parse(rawJson);
+		});
+		it('Grabs the item by the base file name', () => {
+			expect(json.id).to.equal('en');
+		});
+	});
+
 	describe('Authors Entry', () => {
 		for (const authorId of authorIds) {
 			let json;

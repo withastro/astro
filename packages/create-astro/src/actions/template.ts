@@ -6,8 +6,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { error, info, spinner, title } from '../messages.js';
 
-export async function template(ctx: Pick<Context, 'template' | 'prompt' | 'dryRun' | 'exit'>) {
-	if (!ctx.template) {
+export async function template(
+	ctx: Pick<Context, 'template' | 'prompt' | 'yes' | 'dryRun' | 'exit'>
+) {
+	if (!ctx.template && ctx.yes) ctx.template = 'basics';
+
+	if (ctx.template) {
+		await info('tmpl', `Using ${color.reset(ctx.template)}${color.dim(' as project template')}`);
+	} else {
 		const { template: tmpl } = await ctx.prompt({
 			name: 'template',
 			type: 'select',
@@ -21,8 +27,6 @@ export async function template(ctx: Pick<Context, 'template' | 'prompt' | 'dryRu
 			],
 		});
 		ctx.template = tmpl;
-	} else {
-		await info('tmpl', `Using ${color.reset(ctx.template)}${color.dim(' as project template')}`);
 	}
 
 	if (ctx.dryRun) {
