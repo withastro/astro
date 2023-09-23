@@ -23,23 +23,15 @@ function getRenderer() {
 }
 
 function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
-	const virtualModule = 'astro:react:opts';
-	const virtualModuleId = '\0' + virtualModule;
 	return {
 		name: '@astrojs/react:opts',
-		resolveId(id) {
-			if (id === virtualModule) {
-				return virtualModuleId;
-			}
-		},
-		load(id) {
-			if (id === virtualModuleId) {
-				return {
-					code: `export default {
-						experimentalReactChildren: ${JSON.stringify(experimentalReactChildren)}
-					}`,
-				};
-			}
+		enforce: 'pre',
+		config() {
+			return {
+				define: {
+					'import.meta.env.EXPERIMENTAL_REACT_CHILDREN': experimentalReactChildren ? 'true' : 'false',
+				},
+			};
 		},
 	};
 }

@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/server';
 import StaticHtml from './static-html.js';
 import { incrementId } from './context.js';
-import opts from 'astro:react:opts';
 
 const slotName = (str) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 const reactTypeof = Symbol.for('react.element');
@@ -86,7 +85,7 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 		...slots,
 	};
 	const newChildren = children ?? props.children;
-	if (children && opts.experimentalReactChildren) {
+	if (children && import.meta.env.EXPERIMENTAL_REACT_CHILDREN) {
 		const convert = await import('./vnode-children.js').then((mod) => mod.default);
 		newProps.children = convert(children);
 	} else if (newChildren != null) {
