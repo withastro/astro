@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Improve logging unsupported assets image processing in adapters
+Improve the logging of assets for adapters that do not support image optimization
