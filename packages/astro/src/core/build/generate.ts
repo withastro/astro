@@ -141,8 +141,6 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		? opts.settings.config.build.server
 		: getOutDirWithinCwd(opts.settings.config.outDir);
 
-	const siteURL: string | undefined = opts.settings.config['site'];
-
 	const logger = pipeline.getLogger();
 	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
 	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
@@ -168,7 +166,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 					// forcing to use undefined, so we fail in an expected way if the module is not even there.
 					const ssrEntry = ssrEntryPage?.pageModule;
 					if (ssrEntry) {
-						await generatePage(pageData, ssrEntry, builtPaths, pipeline, siteURL);
+						await generatePage(pageData, ssrEntry, builtPaths, pipeline);
 					} else {
 						throw new Error(
 							`Unable to find the manifest for the module ${ssrEntryURLPage.toString()}. This is unexpected and likely a bug in Astro, please report.`
@@ -176,24 +174,24 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 					}
 				} else {
 					const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
-					await generatePage(pageData, ssrEntry, builtPaths, pipeline, siteURL);
+					await generatePage(pageData, ssrEntry, builtPaths, pipeline);
 				}
 			}
 			if (pageData.route.type === 'redirect') {
 				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, pipeline, siteURL);
+				await generatePage(pageData, entry, builtPaths, pipeline);
 			}
 		}
 	} else {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (pageData.route.type === 'redirect') {
 				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, pipeline, siteURL);
+				await generatePage(pageData, entry, builtPaths, pipeline);
 			} else {
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const entry: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
 
-				await generatePage(pageData, entry, builtPaths, pipeline, siteURL);
+				await generatePage(pageData, entry, builtPaths, pipeline);
 			}
 		}
 	}
@@ -256,8 +254,7 @@ async function generatePage(
 	pageData: PageBuildData,
 	ssrEntry: SinglePageBuiltModule,
 	builtPaths: Set<string>,
-	pipeline: BuildPipeline,
-	siteURL: string | undefined
+	pipeline: BuildPipeline
 ) {
 	let timeStart = performance.now();
 	const logger = pipeline.getLogger();
@@ -316,7 +313,7 @@ async function generatePage(
 	let prevTimeEnd = timeStart;
 	for (let i = 0; i < paths.length; i++) {
 		const path = paths[i];
-		await generatePath(path, generationOptions, pipeline, siteURL);
+		await generatePath(path, generationOptions, pipeline);
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
@@ -494,8 +491,7 @@ function getUrlForPath(
 async function generatePath(
 	pathname: string,
 	gopts: GeneratePathOptions,
-	pipeline: BuildPipeline,
-	siteURL: string | undefined
+	pipeline: BuildPipeline
 ) {
 	const manifest = pipeline.getManifest();
 	const { mod, scripts: hoistedScripts, styles: _styles, pageData } = gopts;
@@ -583,6 +579,7 @@ async function generatePath(
 			return;
 		}
 		const locationSite = getRedirectLocationOrThrow(response.headers);
+		const siteURL = pipeline.getConfig().site
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(renderContext.request.url).pathname;
 		// A short delay causes Google to interpret the redirect as temporary.
