@@ -120,13 +120,15 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 				import { getImage } from "astro:assets";
-				${imagePaths.map((entry) => `import Astro__${entry.safeName} from ${JSON.stringify(entry.raw)};`)}
+				${imagePaths
+					.map((entry) => `import Astro__${entry.safeName} from ${JSON.stringify(entry.raw)};`)
+					.join('\n')}
 
 				const images = async function() {
 					return {
 						${imagePaths
 							.map((entry) => `"${entry.raw}": await getImage({src: Astro__${entry.safeName}})`)
-							.join('\n')}
+							.join(',\n')}
 					}
 				}
 
