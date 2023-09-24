@@ -3720,7 +3720,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
-  packages/integrations/cloudflare/test/fixtures/routesJson:
+  packages/integrations/cloudflare/test/fixtures/routes-json:
     dependencies:
       '@astrojs/cloudflare':
         specifier: workspace:*
