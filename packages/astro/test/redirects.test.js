@@ -9,7 +9,7 @@ describe('Astro.redirect', () => {
 	describe('output: "server"', () => {
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/ssr-redirect/',
+				root: './fixtures/redirects/',
 				output: 'server',
 				adapter: testAdapter(),
 				redirects: {
@@ -66,7 +66,7 @@ describe('Astro.redirect', () => {
 			before(async () => {
 				process.env.STATIC_MODE = true;
 				fixture = await loadFixture({
-					root: './fixtures/ssr-redirect/',
+					root: './fixtures/redirects/',
 					output: 'static',
 					redirects: {
 						'/old': '/test',
@@ -157,7 +157,7 @@ describe('Astro.redirect', () => {
 			before(async () => {
 				process.env.STATIC_MODE = true;
 				fixture = await loadFixture({
-					root: './fixtures/ssr-redirect/',
+					root: './fixtures/redirects/',
 					output: 'static',
 					redirects: {
 						'/one': '/',
@@ -183,7 +183,7 @@ describe('Astro.redirect', () => {
 		before(async () => {
 			process.env.STATIC_MODE = true;
 			fixture = await loadFixture({
-				root: './fixtures/ssr-redirect/',
+				root: './fixtures/redirects/',
 				output: 'static',
 				redirects: {
 					'/one': '/',
