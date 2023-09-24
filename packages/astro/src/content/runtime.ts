@@ -138,14 +138,9 @@ export function createGetEntryBySlug({
 	};
 }
 
-export function createGetDataEntryById({
-	dataCollectionToEntryMap,
-}: {
-	dataCollectionToEntryMap: CollectionToEntryMap;
-}) {
+export function createGetDataEntryById({ getEntryImport }: { getEntryImport: GetEntryImport }) {
 	return async function getDataEntryById(collection: string, id: string) {
-		const lazyImport =
-			dataCollectionToEntryMap[collection]?.[/*TODO: filePathToIdMap*/ id + '.json'];
+		const lazyImport = await getEntryImport(collection, id);
 
 		// TODO: AstroError
 		if (!lazyImport) throw new Error(`Entry ${collection} → ${id} was not found.`);
