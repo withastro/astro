@@ -131,7 +131,7 @@ function validateAssetsFeature(
 		isSquooshCompatible = false,
 	} = assets;
 	if (config?.image?.service?.entrypoint === SHARP_SERVICE && !isSharpCompatible) {
-		logger.error(
+		logger.warn(
 			'astro',
 			`The currently selected adapter \`${adapterName}\` is not compatible with the image service "Sharp".`
 		);
@@ -139,7 +139,7 @@ function validateAssetsFeature(
 	}
 
 	if (config?.image?.service?.entrypoint === SQUOOSH_SERVICE && !isSquooshCompatible) {
-		logger.error(
+		logger.warn(
 			'astro',
 			`The currently selected adapter \`${adapterName}\` is not compatible with the image service "Squoosh".`
 		);
