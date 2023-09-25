@@ -21,6 +21,19 @@ export type { DirectoryRuntime } from './server.directory.js';
 type Options = {
 	mode?: 'directory' | 'advanced';
 	functionPerRoute?: boolean;
+	/** Configure automatic `routes.json` generation */
+	routes?: {
+		/** Strategy for generating `include` and `exclude` patterns
+		 * - `auto`: Will use the strategy that generates the least amount of entries.
+		 * - `include`: For each page or endpoint in your application that is not prerendered, an entry in the `include` array will be generated. For each page that is prerendered and whoose path is matched by an `include` entry, an entry in the `exclude` array will be generated.
+		 * - `exclude`: One `"/*"` entry in the `include` array will be generated. For each page that is prerendered, an entry in the `exclude` array will be generated.
+		 * */
+		strategy?: 'auto' | 'include' | 'exclude';
+		/** Additional `include` patterns */
+		include?: string[];
+		/** Additional `exclude` patterns */
+		exclude?: string[];
+	};
 	/**
 	 * 'off': current behaviour (wrangler is needed)
 	 * 'local': use a static req.cf object, and env vars defined in wrangler.toml & .dev.vars (astro dev is enough)
@@ -467,6 +480,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				// move cloudflare specific files to the root
 				const cloudflareSpecialFiles = ['_headers', '_redirects', '_routes.json'];
+
 				if (_config.base !== '/') {
 					for (const file of cloudflareSpecialFiles) {
 						try {
@@ -478,6 +492,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							// ignore
 						}
 					}
+				}
+
+				// Add also the worker file so it's excluded from the _routes.json generation
+				if (!isModeDirectory) {
+					cloudflareSpecialFiles.push('_worker.js');
 				}
 
 				const routesExists = await fs.promises
@@ -587,39 +606,61 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 					staticPathList.push(...routes.filter((r) => r.type === 'redirect').map((r) => r.route));
 
-					// In order to product the shortest list of patterns, we first try to
-					// include all function endpoints, and then exclude all static paths
-					let include = deduplicatePatterns(
-						functionEndpoints.map((endpoint) => endpoint.includePattern)
-					);
-					let exclude = deduplicatePatterns(
-						staticPathList.filter((file: string) =>
-							functionEndpoints.some((endpoint) => endpoint.regexp.test(file))
-						)
-					);
+					const strategy = args?.routes?.strategy ?? 'auto';
+
+					// Strategy `include`: include all function endpoints, and then exclude static paths that would be matched by an include pattern
+					const includeStrategy =
+						strategy === 'exclude'
+							? undefined
+							: {
+									include: deduplicatePatterns(
+										functionEndpoints
+											.map((endpoint) => endpoint.includePattern)
+											.concat(args?.routes?.include ?? [])
+									),
+									exclude: deduplicatePatterns(
+										staticPathList
+											.filter((file: string) =>
+												functionEndpoints.some((endpoint) => endpoint.regexp.test(file))
+											)
+											.concat(args?.routes?.exclude ?? [])
+									),
+							  };
 
 					// Cloudflare requires at least one include pattern:
 					// https://developers.cloudflare.com/pages/platform/functions/routing/#limits
 					// So we add a pattern that we immediately exclude again
-					if (include.length === 0) {
-						include = ['/'];
-						exclude = ['/'];
+					if (includeStrategy?.include.length === 0) {
+						includeStrategy.include = ['/'];
+						includeStrategy.exclude = ['/'];
 					}
 
-					// If using only an exclude list would produce a shorter list of patterns,
-					// we use that instead
-					if (include.length + exclude.length > staticPathList.length) {
-						include = ['/*'];
-						exclude = deduplicatePatterns(staticPathList);
-					}
+					// Strategy `exclude`: include everything, and then exclude all static paths
+					const excludeStrategy =
+						strategy === 'include'
+							? undefined
+							: {
+									include: ['/*'],
+									exclude: deduplicatePatterns(staticPathList.concat(args?.routes?.exclude ?? [])),
+							  };
+
+					const includeStrategyLength = includeStrategy
+						? includeStrategy.include.length + includeStrategy.exclude.length
+						: Infinity;
+
+					const excludeStrategyLength = excludeStrategy
+						? excludeStrategy.include.length + excludeStrategy.exclude.length
+						: Infinity;
+
+					const winningStrategy =
+						includeStrategyLength <= excludeStrategyLength ? includeStrategy : excludeStrategy;
 
 					await fs.promises.writeFile(
 						new URL('./_routes.json', _config.outDir),
 						JSON.stringify(
 							{
 								version: 1,
-								include,
-								exclude,
+								...winningStrategy,
 							},
 							null,
 							2

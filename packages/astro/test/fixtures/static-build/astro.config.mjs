@@ -9,4 +9,7 @@ export default defineConfig({
 	ssr: {
 		noExternal: ['@test/static-build-pkg'],
 	},
+  redirects: {
+    '/old': '/new',
+  },
 });
