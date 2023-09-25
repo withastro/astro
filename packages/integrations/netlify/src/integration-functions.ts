@@ -95,7 +95,6 @@ function netlifyFunctions({
 				const functionsConfigPath = join(fileURLToPath(_config.build.server), "entry.json")
 				await writeFile(functionsConfigPath, JSON.stringify(functionsConfig))
 
-				// await writeFile(_config.build.server)
 				const type = builders ? 'builders' : 'functions';
 				const kind = type ?? 'functions';
 
