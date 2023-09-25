@@ -41,6 +41,14 @@ describe('Static build', () => {
 		await fixture.build({ logger });
 	});
 
+	it('generates canonical redirect page with site prefix', async () => {
+		const html = await fixture.readFile('/old/index.html');
+		const $ = cheerioLoad(html);
+		const link = $('link[rel="canonical"]');
+		const href = link.attr('href');
+		expect(href).to.contain('http');
+	});
+
 	it('Builds out .astro pages', async () => {
 		const html = await fixture.readFile('/index.html');
 		expect(html).to.be.a('string');
