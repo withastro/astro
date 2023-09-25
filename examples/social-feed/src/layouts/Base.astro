@@ -1,5 +1,4 @@
 ---
-import { ViewTransitions } from 'astro:transitions';
 import settings from '../settings';
 import '../style/theme.css';
 import '../style/global.css';
@@ -23,7 +22,6 @@ const { title = settings.name } = Astro.props;
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
-		<ViewTransitions />
 
 		<!-- Canonical URL -->
 		<link rel="canonical" href={canonicalURL} />
