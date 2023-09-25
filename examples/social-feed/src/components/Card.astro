@@ -109,6 +109,9 @@ const postUrl = `/post/${post.slug}/`;
 	.e-content > :global(* + *) {
 		margin-block-start: 1em;
 	}
+	.e-content :global(:where(img, picture, video)) {
+		width: 100%;
+	}
 	footer {
 		display: flex;
 		align-items: center;
