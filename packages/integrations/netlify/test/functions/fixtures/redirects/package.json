@@ -1,0 +1,6 @@
+{
+  "name": "@test/netlify-redirects",
+  "dependencies": {
+    "@astrojs/netlify": "workspace:"
+  }
+}

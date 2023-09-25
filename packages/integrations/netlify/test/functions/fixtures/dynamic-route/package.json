@@ -1,0 +1,6 @@
+{
+  "name": "@test/netlify-dynamic",
+  "dependencies": {
+    "@astrojs/netlify": "workspace:"
+  }
+}

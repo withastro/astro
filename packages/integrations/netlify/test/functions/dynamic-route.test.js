@@ -1,31 +1,22 @@
 import { expect } from 'chai';
-import netlifyAdapter from '../../dist/index.js';
-import { loadFixture, testIntegration } from './test-utils.js';
+import { cli } from './test-utils.js';
+import { fileURLToPath } from 'url';
+import fs from 'fs/promises';
+
+const root = new URL('./fixtures/dynamic-route/', import.meta.url).toString();
 
 describe('Dynamic pages', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-
 	before(async () => {
-		fixture = await loadFixture({
-			root: new URL('./fixtures/dynamic-route/', import.meta.url).toString(),
-			output: 'server',
-			adapter: netlifyAdapter({
-				dist: new URL('./fixtures/dynamic-route/dist/', import.meta.url),
-			}),
-			site: `http://example.com`,
-			integrations: [testIntegration()],
-		});
-		await fixture.build();
+		await cli('build', '--root', fileURLToPath(root));
 	});
 
 	it('Dynamic pages are included in the redirects file', async () => {
-		const redir = await fixture.readFile('/_redirects');
+		const redir = await fs.readFile(new URL('./dist/_redirects', root), 'utf-8');
 		expect(redir).to.match(/\/products\/:id/);
 	});
 
 	it('Prerendered routes are also included using placeholder syntax', async () => {
-		const redir = await fixture.readFile('/_redirects');
+		const redir = await fs.readFile(new URL('./dist/_redirects', root), 'utf-8');
 		expect(redir).to.include('/pets/:cat       /pets/:cat/index.html        200');
 		expect(redir).to.include('/pets/:dog       /pets/:dog/index.html        200');
 		expect(redir).to.include('/pets            /.netlify/functions/entry    200');

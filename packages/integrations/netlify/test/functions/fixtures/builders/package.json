@@ -1,0 +1,6 @@
+{
+  "name": "@test/netlify-builders",
+  "dependencies": {
+    "@astrojs/netlify": "workspace:"
+  }
+}

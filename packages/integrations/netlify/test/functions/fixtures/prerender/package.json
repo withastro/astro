@@ -1,0 +1,6 @@
+{
+  "name": "@test/netlify-prerender",
+  "dependencies": {
+    "@astrojs/netlify": "workspace:"
+  }
+}

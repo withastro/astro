@@ -1,0 +1,6 @@
+{
+  "name": "@test/netlify-split-support",
+  "dependencies": {
+    "@astrojs/netlify": "workspace:"
+  }
+}

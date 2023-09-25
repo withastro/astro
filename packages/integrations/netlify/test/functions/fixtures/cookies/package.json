@@ -1,0 +1,6 @@
+{
+  "name": "@test/netlify-cookies",
+  "dependencies": {
+    "@astrojs/netlify": "workspace:"
+  }
+}

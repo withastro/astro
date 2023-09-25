@@ -1,22 +1,12 @@
 import { expect } from 'chai';
-import { loadFixture, testIntegration } from './test-utils.js';
-import netlifyAdapter from '../../dist/index.js';
+import { cli } from './test-utils.js';
+import { fileURLToPath } from 'url';
+
+const root = new URL('./fixtures/cookies/', import.meta.url).toString();
 
 describe('Cookies', () => {
-	/** @type {import('../../../astro/test/test-utils').Fixture} */
-	let fixture;
-
 	before(async () => {
-		fixture = await loadFixture({
-			root: new URL('./fixtures/cookies/', import.meta.url).toString(),
-			output: 'server',
-			adapter: netlifyAdapter({
-				dist: new URL('./fixtures/cookies/dist/', import.meta.url),
-			}),
-			site: `http://example.com`,
-			integrations: [testIntegration()],
-		});
-		await fixture.build();
+		await cli('build', '--root', fileURLToPath(root));
 	});
 
 	it('Can set multiple', async () => {

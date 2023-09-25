@@ -1,26 +1,18 @@
 import { expect } from 'chai';
-import netlifyAdapter from '../../dist/index.js';
-import { loadFixture, testIntegration } from './test-utils.js';
+import fs from 'fs/promises';
+import { cli } from './test-utils.js';
+import { fileURLToPath } from 'url';
+
+const root = new URL('./fixtures/404/', import.meta.url).toString();
 
 describe('404 page', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({
-			root: new URL('./fixtures/404/', import.meta.url).toString(),
-			output: 'server',
-			adapter: netlifyAdapter({
-				dist: new URL('./fixtures/404/dist/', import.meta.url),
-			}),
-			site: `http://example.com`,
-			integrations: [testIntegration()],
-		});
-		await fixture.build();
+		await cli('build', '--root', fileURLToPath(root));
 	});
 
 	it('404 route is included in the redirect file', async () => {
-		const redir = await fixture.readFile('/_redirects');
+		const redir = await fs.readFile(new URL('./dist/_redirects', root), 'utf-8');
 		const expr = new RegExp('/*    /.netlify/functions/entry    404');
 		expect(redir).to.match(expr);
 	});

@@ -1,11 +1,11 @@
 // @ts-check
 import { fileURLToPath } from 'node:url';
 
-export * from '../../../../astro/test/test-utils.js';
+export * from '../test-utils.js';
 
 /**
  *
- * @returns {import('../../../../astro/dist/types/@types/astro').AstroIntegration}
+ * @returns {import('astro').AstroIntegration}
  */
 export function testIntegration({ setEntryPoints } = {}) {
 	return {

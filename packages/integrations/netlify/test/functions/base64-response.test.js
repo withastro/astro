@@ -1,23 +1,13 @@
 import { expect } from 'chai';
-import { loadFixture, testIntegration } from './test-utils.js';
-import netlifyAdapter from '../../dist/index.js';
+import { cli } from './test-utils.js';
+import { fileURLToPath } from 'url';
+
+const root = new URL('./fixtures/base64-response/', import.meta.url).toString();
 
 describe('Base64 Responses', () => {
-	/** @type {import('../../../astro/test/test-utils').Fixture} */
-	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({
-			root: new URL('./fixtures/base64-response/', import.meta.url).toString(),
-			output: 'server',
-			adapter: netlifyAdapter({
-				dist: new URL('./fixtures/base64-response/dist/', import.meta.url),
-				binaryMediaTypes: ['font/otf'],
-			}),
-			site: `http://example.com`,
-			integrations: [testIntegration()],
-		});
-		await fixture.build();
+		await cli('build', '--root', fileURLToPath(root));
 	});
 
 	it('Can return base64 encoded strings', async () => {

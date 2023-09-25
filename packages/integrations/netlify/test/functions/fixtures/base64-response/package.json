@@ -1,0 +1,6 @@
+{
+  "name": "@test/netlify-base64-response",
+  "dependencies": {
+    "@astrojs/netlify": "workspace:"
+  }
+}

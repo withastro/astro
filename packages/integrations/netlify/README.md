@@ -46,15 +46,15 @@ If you prefer to install the adapter manually instead, complete the following tw
 
 1. Add two new lines to your `astro.config.mjs` project configuration file.
 
-   ```js ins={3, 6-7}
-   // astro.config.mjs
-   import { defineConfig } from 'astro/config';
-   import netlify from '@astrojs/netlify/functions';
-
-   export default defineConfig({
-     output: 'server',
-     adapter: netlify(),
-   });
+   ```diff lang="js"
+     // astro.config.mjs
+     import { defineConfig } from 'astro/config';
+   + import netlify from '@astrojs/netlify/functions';
+     
+     export default defineConfig({
+   +   output: 'server',
+   +   adapter: netlify(),
+     });
    ```
 
 ### Run middleware in Edge Functions
@@ -63,17 +63,17 @@ When deploying to Netlify Functions, you can choose to use an Edge Function to r
 
 To enable this, set the `edgeMiddleware` config option to `true`:
 
-```js ins={9}
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import netlify from '@astrojs/netlify/functions';
+```diff lang="js"
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify/functions';
 
-export default defineConfig({
-  output: 'server',
-  adapter: netlify({
-    edgeMiddleware: true,
-  }),
-});
+  export default defineConfig({
+    output: 'server',
+    adapter: netlify({
++     edgeMiddleware: true,
+    }),
+  });
 ```
 
 #### Pass edge context to your site
@@ -128,6 +128,7 @@ export default defineConfig({
 For static sites you usually don't need an adapter. However, if you use `redirects` configuration in your Astro config, the Netlify adapter can be used to translate this to the proper `_redirects` format.
 
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify/static';
 
@@ -155,6 +156,7 @@ The following example sets a revalidation time of 45, causing Netlify to store t
 
 ```astro
 ---
+// src/pages/index.astro
 import Layout from '../components/Layout.astro';
 
 if (import.meta.env.PROD) {
@@ -206,7 +208,8 @@ export default defineConfig({
 
 And then point to the dist in your `netlify.toml`:
 
-```toml title="netlify.toml"
+```toml 
+# netlify.toml
 [functions]
 directory = "dist/functions"
 ```
@@ -238,9 +241,8 @@ Netlify Functions requires binary data in the `body` to be base64 encoded. The `
 
 We check for common mime types for audio, image, and video files. To include specific mime types that should be treated as binary data, include the `binaryMediaTypes` option with a list of binary mime types.
 
-```js {12}
+```js
 // src/pages/image.jpg.ts
-
 import fs from 'node:fs';
 
 export function GET() {

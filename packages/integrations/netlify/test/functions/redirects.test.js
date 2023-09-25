@@ -1,31 +1,18 @@
 import { expect } from 'chai';
-import netlifyAdapter from '../../dist/index.js';
-import { loadFixture, testIntegration } from './test-utils.js';
+import fs from 'fs/promises';
+import { cli } from './test-utils.js';
+import { fileURLToPath } from 'url';
+
+const root = new URL('../functions/fixtures/redirects/', import.meta.url).toString();
 
 describe('SSG - Redirects', () => {
-	/** @type {import('../../../astro/test/test-utils').Fixture} */
-	let fixture;
-
 	before(async () => {
-		fixture = await loadFixture({
-			root: new URL('../functions/fixtures/redirects/', import.meta.url).toString(),
-			output: 'hybrid',
-			adapter: netlifyAdapter({
-				dist: new URL('../functions/fixtures/redirects/dist/', import.meta.url),
-			}),
-			site: `http://example.com`,
-			integrations: [testIntegration()],
-			redirects: {
-				'/other': '/',
-			},
-		});
-		await fixture.build();
+		await cli('build', '--root', fileURLToPath(root));
 	});
 
 	it('Creates a redirects file', async () => {
-		let redirects = await fixture.readFile('/_redirects');
+		let redirects = await fs.readFile(new URL('./dist/_redirects', root), 'utf-8');
 		let parts = redirects.split(/\s+/);
-		console.log(parts);
 		expect(parts).to.deep.equal([
 			'/other',
 			'/',

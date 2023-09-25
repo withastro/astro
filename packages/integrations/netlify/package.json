@@ -29,32 +29,33 @@
     "dist"
   ],
   "scripts": {
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
-    "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "build": "tsc",
     "test-fn": "mocha --exit --timeout 20000 --file \"./test/setup.js\" test/functions/",
     "test-edge": "deno test --allow-run --allow-read --allow-net --allow-env --allow-write ./test/edge-functions/",
     "test": "pnpm test-fn",
     "test:hosted": "mocha --exit --timeout 30000 test/hosted"
   },
   "dependencies": {
-    "@astrojs/underscore-redirects": "workspace:*",
+    "@astrojs/underscore-redirects": "^0.3.0",
     "@netlify/functions": "^2.0.1",
     "esbuild": "^0.19.2"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.1.4"
+    "astro": "^3.1.4"
   },
   "devDependencies": {
     "@netlify/edge-functions": "^2.0.0",
     "@netlify/edge-handler-types": "^0.34.1",
     "@types/node": "^18.17.8",
-    "astro": "workspace:*",
-    "astro-scripts": "workspace:*",
+    "astro": "^3.1.4",
     "chai": "^4.3.7",
     "chai-jest-snapshot": "^2.0.0",
     "cheerio": "1.0.0-rc.12",
+    "execa": "^8.0.1",
+    "fast-glob": "^3.3.1",
     "mocha": "^10.2.0",
+    "strip-ansi": "^7.1.0",
+    "typescript": "^5.2.2",
     "vite": "^4.4.9"
   },
   "astro": {

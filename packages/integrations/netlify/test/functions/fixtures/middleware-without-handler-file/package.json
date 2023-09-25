@@ -1,0 +1,6 @@
+{
+  "name": "@test/netlify-middleware-without-handler-file",
+  "dependencies": {
+    "@astrojs/netlify": "workspace:"
+  }
+}
