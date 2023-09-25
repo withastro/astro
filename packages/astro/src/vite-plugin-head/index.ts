@@ -45,19 +45,46 @@ export default function configHeadVitePlugin(): vite.Plugin {
 
 	return {
 		name: 'astro:head-metadata',
+		enforce: 'pre',
+		apply: 'serve',
 		configureServer(_server) {
 			server = _server;
 		},
+		resolveId(source, importer) {
+			if(importer) {
+				// Do propagation any time a new module is imported. This is because
+				// A module with propagation might be loaded before one of its parent pages
+				// is loaded, in which case that parent page won't have the in-tree and containsHead
+				// values. Walking up the tree in resolveId ensures that they do
+				return this.resolve(source, importer, { skipSelf: true }).then(result => {
+					if(result) {
+						let info = this.getModuleInfo(result.id);
+						const astro = info && getAstroMetadata(info);
+						if(astro) {
+							if(astro.propagation === 'self' || astro.propagation === 'in-tree') {
+								propagateMetadata.call(this, importer, 'propagation', 'in-tree');
+							}
+							if(astro.containsHead) {
+								propagateMetadata.call(this, importer, 'containsHead', true);
+							}
+						}
+					}
+					return result;
+				});
+			}
+    },
 		transform(source, id) {
 			if (!server) {
 				return;
 			}
 
+			// TODO This could probably be removed now that this is handled in resolveId
 			let info = this.getModuleInfo(id);
 			if (info && getAstroMetadata(info)?.containsHead) {
 				propagateMetadata.call(this, id, 'containsHead', true);
 			}
 
+			// TODO This could probably be removed now that this is handled in resolveId
 			if (info && getAstroMetadata(info)?.propagation === 'self') {
 				const mod = server.moduleGraph.getModuleById(id);
 				for (const parent of mod?.importers ?? []) {
