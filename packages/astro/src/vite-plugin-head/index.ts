@@ -59,8 +59,8 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				return this.resolve(source, importer, { skipSelf: true }).then(result => {
 					if(result) {
 						let info = this.getModuleInfo(result.id);
-						if(info && getAstroMetadata(info)) {
-							const astro = getAstroMetadata(info)!;
+						const astro = info && getAstroMetadata(info);
+						if(astro) {
 							if(astro.propagation === 'self' || astro.propagation === 'in-tree') {
 								propagateMetadata.call(this, importer, 'propagation', 'in-tree');
 							}
