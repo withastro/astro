@@ -1,5 +1,11 @@
 # astro
 
+## 3.1.4
+
+### Patch Changes
+
+- [#8646](https://github.com/withastro/astro/pull/8646) [`69fbf95b2`](https://github.com/withastro/astro/commit/69fbf95b22c0fb0d8e7e5fef9ec61e26cac9767f) Thanks [@matthewp](https://github.com/matthewp)! - Fix cases of head propagation not occuring in dev server
+
 ## 3.1.3
 
 ### Patch Changes
