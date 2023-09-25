@@ -1,5 +1,19 @@
 # @astrojs/cloudflare
 
+## 7.3.0
+
+### Minor Changes
+
+- [#8459](https://github.com/withastro/astro/pull/8459) [`2365c1246`](https://github.com/withastro/astro/commit/2365c124645d5067a12987f205cee23a45d1d13d) Thanks [@schummar](https://github.com/schummar)! - Adds three new config options for `_routes.json` generation: `routes.strategy`, `routes.include`, and `routes.exclude`.
+
+- [#8542](https://github.com/withastro/astro/pull/8542) [`faeead423`](https://github.com/withastro/astro/commit/faeead42325f378f9edac4e081eb7d6d50905136) Thanks [@adrianlyjak](https://github.com/adrianlyjak)! - Add support for loading wasm modules in the cloudflare adapter
+
+### Patch Changes
+
+- Updated dependencies [[`863f5171e`](https://github.com/withastro/astro/commit/863f5171e8e7516c9d72f2e48ea7db1dea71c4f5), [`63141f3f3`](https://github.com/withastro/astro/commit/63141f3f3e4a57d2f55ccfebd7e506ea1033a1ab), [`974d5117a`](https://github.com/withastro/astro/commit/974d5117abc8b47f8225e455b9285c88e305272f), [`cb838b84b`](https://github.com/withastro/astro/commit/cb838b84b457041b0442996f7611b04aa940a620), [`f36c4295b`](https://github.com/withastro/astro/commit/f36c4295be1ef2bcfa4aecb3c59551388419c53d), [`4c4ad9d16`](https://github.com/withastro/astro/commit/4c4ad9d167e8d15ff2c15e3336ede8ca22f646b2)]:
+  - astro@3.1.3
+  - @astrojs/underscore-redirects@0.3.0
+
 ## 7.2.0
 
 ### Minor Changes
