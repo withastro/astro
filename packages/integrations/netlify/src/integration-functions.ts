@@ -1,6 +1,6 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
-import { extname, join } from 'node:path';
 import { writeFile } from 'node:fs/promises';
+import { extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { generateEdgeMiddleware } from './middleware.js';
 import type { Args } from './netlify-functions.js';
@@ -87,13 +87,13 @@ function netlifyFunctions({
 			},
 			'astro:build:done': async ({ routes, dir }) => {
 				const functionsConfig = {
-						version: 1,
-						config: {
-							nodeModuleFormat: "esm"
-						}
-				}
-				const functionsConfigPath = join(fileURLToPath(_config.build.server), "entry.json")
-				await writeFile(functionsConfigPath, JSON.stringify(functionsConfig))
+					version: 1,
+					config: {
+						nodeModuleFormat: 'esm',
+					},
+				};
+				const functionsConfigPath = join(fileURLToPath(_config.build.server), 'entry.json');
+				await writeFile(functionsConfigPath, JSON.stringify(functionsConfig));
 
 				const type = builders ? 'builders' : 'functions';
 				const kind = type ?? 'functions';

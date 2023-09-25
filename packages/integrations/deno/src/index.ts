@@ -130,7 +130,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						`[@astrojs/deno] Otherwise, this adapter is not required to deploy a static site to Deno.`
 					);
 				}
-
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
