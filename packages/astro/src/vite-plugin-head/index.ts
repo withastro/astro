@@ -78,11 +78,13 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				return;
 			}
 
+			// TODO This could probably be removed now that this is handled in resolveId
 			let info = this.getModuleInfo(id);
 			if (info && getAstroMetadata(info)?.containsHead) {
 				propagateMetadata.call(this, id, 'containsHead', true);
 			}
 
+			// TODO This could probably be removed now that this is handled in resolveId
 			if (info && getAstroMetadata(info)?.propagation === 'self') {
 				const mod = server.moduleGraph.getModuleById(id);
 				for (const parent of mod?.importers ?? []) {
