@@ -63,13 +63,20 @@ describe('Astro Cloudflare Runtime', () => {
 		await devServer?.stop();
 	});
 
-	it('Populates CF, Vars & Bindings', async () => {
+	it('adds cf object', async () => {
 		let res = await fixture.fetch('/');
 		expect(res.status).to.equal(200);
 		let html = await res.text();
 		let $ = cheerio.load(html);
-		expect($('#hasRuntime').text()).to.equal('true');
-		expect($('#hasCache').text()).to.equal('true');
+		expect($('#hasCF').text()).to.equal('true');
+	});
+
+	it('adds cache mocking', async () => {
+		let res = await fixture.fetch('/caches');
+		expect(res.status).to.equal(200);
+		let html = await res.text();
+		let $ = cheerio.load(html);
+		expect($('#hasCACHE').text()).to.equal('true');
 	});
 
 	it('adds D1 mocking', async () => {
