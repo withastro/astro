@@ -2028,6 +2028,7 @@ export interface AstroIntegration {
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			addClientDirective: (directive: ClientDirectiveConfig) => void;
+			addIntegration: (integration: AstroIntegration) => void;
 			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
