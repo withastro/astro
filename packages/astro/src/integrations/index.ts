@@ -74,9 +74,8 @@ export async function runHookConfigSetup({
 	let updatedSettings: AstroSettings = { ...settings, config: updatedConfig };
 	let addedClientDirectives = new Map<string, Promise<string>>();
 	let astroJSXRenderer: AstroRenderer | null = null;
-	const integrations = [...settings.config.integrations];
 
-	for (const integration of integrations) {
+	for (const integration of settings.config.integrations) {
 		/**
 		 * By making integration hooks optional, Astro can now ignore null or undefined Integrations
 		 * instead of giving an internal error most people can't read
@@ -130,12 +129,6 @@ export async function runHookConfigSetup({
 						);
 					}
 					addedClientDirectives.set(name, buildClientDirectiveEntrypoint(name, entrypoint));
-				},
-				addIntegration: (newIntegration) => {
-					// Add integration to local array we are currently iterating over.
-					integrations.push(newIntegration);
-					// Add integration to updated config for use later.
-					updatedConfig = mergeConfig(updatedConfig, { integrations: [newIntegration] }) as AstroConfig;
 				},
 				logger: integrationLogger,
 			};
