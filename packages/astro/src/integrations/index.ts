@@ -131,11 +131,11 @@ export async function runHookConfigSetup({
 					}
 					addedClientDirectives.set(name, buildClientDirectiveEntrypoint(name, entrypoint));
 				},
-				addIntegration: (integration) => {
+				addIntegration: (newIntegration) => {
 					// Add integration to local array we are currently iterating over.
-					integrations.push(integration);
+					integrations.push(newIntegration);
 					// Add integration to updated config for use later.
-					updatedConfig = mergeConfig(updatedConfig, { integrations: [integration] }) as AstroConfig;
+					updatedConfig = mergeConfig(updatedConfig, { integrations: [newIntegration] }) as AstroConfig;
 				},
 				logger: integrationLogger,
 			};
