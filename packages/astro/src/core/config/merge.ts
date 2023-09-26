@@ -37,11 +37,6 @@ function mergeConfigRecursively(
 				continue;
 			}
 		}
-		if (key === 'integrations') {
-			// We rely on the array reference remaining the same while iterating over integrations.
-			merged[key].push(...value);
-			continue;
-		}
 
 		if (Array.isArray(existing) || Array.isArray(value)) {
 			merged[key] = [...arraify(existing ?? []), ...arraify(value ?? [])];
