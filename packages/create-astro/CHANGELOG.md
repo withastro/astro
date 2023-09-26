@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.2.1
+
+### Patch Changes
+
+- [#8634](https://github.com/withastro/astro/pull/8634) [`b64dd45c0`](https://github.com/withastro/astro/commit/b64dd45c0d641f9f2ed997e2cbdf8a6b0193195f) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Fix `--yes` behaviour to prevent it overriding `--template`
+
 ## 4.2.0
 
 ### Minor Changes

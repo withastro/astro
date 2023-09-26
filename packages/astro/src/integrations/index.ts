@@ -221,7 +221,11 @@ export async function runHookConfigDone({
 								logger
 							);
 							for (const [featureName, supported] of Object.entries(validationResult)) {
-								if (!supported) {
+								// If `supported` / `validationResult[featureName]` only allows boolean,
+								// in theory 'assets' false, doesn't mean that the feature is not supported, but rather that the chosen image service is unsupported
+								// in this case we should not show an error, that the featrue is not supported
+								// if we would refactor the validation to support more than boolean, we could still be able to differentiate between the two cases
+								if (!supported && featureName !== 'assets') {
 									logger.error(
 										'astro',
 										`The adapter ${adapter.name} doesn't support the feature ${featureName}. Your project won't be built. You should not use it.`
@@ -229,9 +233,9 @@ export async function runHookConfigDone({
 								}
 							}
 							if (!validationResult.assets) {
-								logger.info(
+								logger.warn(
 									'astro',
-									`The selected adapter ${adapter.name} does not support Sharp or Squoosh for image processing. To ensure your project is still able to build, image processing has been disabled.`
+									`The selected adapter ${adapter.name} does not support image optimization. To allow your project to build with the original, unoptimized images, the image service has been automatically switched to the 'noop' option. See https://docs.astro.build/en/reference/configuration-reference/#imageservice`
 								);
 								settings.config.image.service = {
 									entrypoint: 'astro/assets/services/noop',

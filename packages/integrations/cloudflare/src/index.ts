@@ -9,10 +9,11 @@ import { AstroError } from 'astro/errors';
 import esbuild from 'esbuild';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
-import { sep } from 'node:path';
+import { basename, dirname, relative, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'tiny-glob';
 import { getEnvVars } from './parser.js';
+import { wasmModuleLoader } from './wasm-module-loader.js';
 
 export type { AdvancedRuntime } from './server.advanced.js';
 export type { DirectoryRuntime } from './server.directory.js';
@@ -20,17 +21,32 @@ export type { DirectoryRuntime } from './server.directory.js';
 type Options = {
 	mode?: 'directory' | 'advanced';
 	functionPerRoute?: boolean;
+	/** Configure automatic `routes.json` generation */
+	routes?: {
+		/** Strategy for generating `include` and `exclude` patterns
+		 * - `auto`: Will use the strategy that generates the least amount of entries.
+		 * - `include`: For each page or endpoint in your application that is not prerendered, an entry in the `include` array will be generated. For each page that is prerendered and whoose path is matched by an `include` entry, an entry in the `exclude` array will be generated.
+		 * - `exclude`: One `"/*"` entry in the `include` array will be generated. For each page that is prerendered, an entry in the `exclude` array will be generated.
+		 * */
+		strategy?: 'auto' | 'include' | 'exclude';
+		/** Additional `include` patterns */
+		include?: string[];
+		/** Additional `exclude` patterns */
+		exclude?: string[];
+	};
 	/**
 	 * 'off': current behaviour (wrangler is needed)
 	 * 'local': use a static req.cf object, and env vars defined in wrangler.toml & .dev.vars (astro dev is enough)
 	 * 'remote': use a dynamic real-live req.cf object, and env vars defined in wrangler.toml & .dev.vars (astro dev is enough)
 	 */
 	runtime?: 'off' | 'local' | 'remote';
+	wasmModuleImports?: boolean;
 };
 
 interface BuildConfig {
 	server: URL;
 	client: URL;
+	assets: string;
 	serverEntry: string;
 	split?: boolean;
 }
@@ -189,6 +205,15 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						serverEntry: '_worker.mjs',
 						redirects: false,
 					},
+					vite: {
+						// load .wasm files as WebAssembly modules
+						plugins: [
+							wasmModuleLoader({
+								disabled: !args?.wasmModuleImports,
+								assetsDirectory: config.build.assets,
+							}),
+						],
+					},
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
@@ -280,6 +305,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			},
 			'astro:build:done': async ({ pages, routes, dir }) => {
 				const functionsUrl = new URL('functions/', _config.root);
+				const assetsUrl = new URL(_buildConfig.assets, _buildConfig.client);
 
 				if (isModeDirectory) {
 					await fs.promises.mkdir(functionsUrl, { recursive: true });
@@ -291,36 +317,71 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					const entryPaths = entryPointsURL.map((entry) => fileURLToPath(entry));
 					const outputUrl = new URL('$astro', _buildConfig.server);
 					const outputDir = fileURLToPath(outputUrl);
+					//
+					// Sadly, when wasmModuleImports is enabled, this needs to build esbuild for each depth of routes/entrypoints
+					// independently so that relative import paths to the assets are the correct depth of '../' traversals
+					// This is inefficient, so wasmModuleImports is opt-in. This could potentially be improved in the future by
+					// taking advantage of the esbuild "onEnd" hook to rewrite import code per entry point relative to where the final
+					// destination of the entrypoint is
+					const entryPathsGroupedByDepth = !args.wasmModuleImports
+						? [entryPaths]
+						: entryPaths
+								.reduce((sum, thisPath) => {
+									const depthFromRoot = thisPath.split(sep).length;
+									sum.set(depthFromRoot, (sum.get(depthFromRoot) || []).concat(thisPath));
+									return sum;
+								}, new Map<number, string[]>())
+								.values();
 
-					await esbuild.build({
-						target: 'es2020',
-						platform: 'browser',
-						conditions: ['workerd', 'worker', 'browser'],
-						external: [
-							'node:assert',
-							'node:async_hooks',
-							'node:buffer',
-							'node:diagnostics_channel',
-							'node:events',
-							'node:path',
-							'node:process',
-							'node:stream',
-							'node:string_decoder',
-							'node:util',
-						],
-						entryPoints: entryPaths,
-						outdir: outputDir,
-						allowOverwrite: true,
-						format: 'esm',
-						bundle: true,
-						minify: _config.vite?.build?.minify !== false,
-						banner: {
-							js: SHIM,
-						},
-						logOverride: {
-							'ignored-bare-import': 'silent',
-						},
-					});
+					for (const pathsGroup of entryPathsGroupedByDepth) {
+						// for some reason this exports to "entry.pages" on windows instead of "pages" on unix environments.
+						// This deduces the name of the "pages" build directory
+						const pagesDirname = relative(fileURLToPath(_buildConfig.server), pathsGroup[0]).split(
+							sep
+						)[0];
+						const absolutePagesDirname = fileURLToPath(new URL(pagesDirname, _buildConfig.server));
+						const urlWithinFunctions = new URL(
+							relative(absolutePagesDirname, pathsGroup[0]),
+							functionsUrl
+						);
+						const relativePathToAssets = relative(
+							dirname(fileURLToPath(urlWithinFunctions)),
+							fileURLToPath(assetsUrl)
+						);
+						await esbuild.build({
+							target: 'es2020',
+							platform: 'browser',
+							conditions: ['workerd', 'worker', 'browser'],
+							external: [
+								'node:assert',
+								'node:async_hooks',
+								'node:buffer',
+								'node:diagnostics_channel',
+								'node:events',
+								'node:path',
+								'node:process',
+								'node:stream',
+								'node:string_decoder',
+								'node:util',
+							],
+							entryPoints: pathsGroup,
+							outbase: absolutePagesDirname,
+							outdir: outputDir,
+							allowOverwrite: true,
+							format: 'esm',
+							bundle: true,
+							minify: _config.vite?.build?.minify !== false,
+							banner: {
+								js: SHIM,
+							},
+							logOverride: {
+								'ignored-bare-import': 'silent',
+							},
+							plugins: !args?.wasmModuleImports
+								? []
+								: [rewriteWasmImportPath({ relativePathToAssets })],
+						});
+					}
 
 					const outputFiles: Array<string> = await glob(`**/*`, {
 						cwd: outputDir,
@@ -393,6 +454,15 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						logOverride: {
 							'ignored-bare-import': 'silent',
 						},
+						plugins: !args?.wasmModuleImports
+							? []
+							: [
+									rewriteWasmImportPath({
+										relativePathToAssets: isModeDirectory
+											? relative(fileURLToPath(functionsUrl), fileURLToPath(assetsUrl))
+											: relative(fileURLToPath(_buildConfig.client), fileURLToPath(assetsUrl)),
+									}),
+							  ],
 					});
 
 					// Rename to worker.js
@@ -410,6 +480,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				// move cloudflare specific files to the root
 				const cloudflareSpecialFiles = ['_headers', '_redirects', '_routes.json'];
+
 				if (_config.base !== '/') {
 					for (const file of cloudflareSpecialFiles) {
 						try {
@@ -421,6 +492,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							// ignore
 						}
 					}
+				}
+
+				// Add also the worker file so it's excluded from the _routes.json generation
+				if (!isModeDirectory) {
+					cloudflareSpecialFiles.push('_worker.js');
 				}
 
 				const routesExists = await fs.promises
@@ -530,39 +606,61 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 					staticPathList.push(...routes.filter((r) => r.type === 'redirect').map((r) => r.route));
 
-					// In order to product the shortest list of patterns, we first try to
-					// include all function endpoints, and then exclude all static paths
-					let include = deduplicatePatterns(
-						functionEndpoints.map((endpoint) => endpoint.includePattern)
-					);
-					let exclude = deduplicatePatterns(
-						staticPathList.filter((file: string) =>
-							functionEndpoints.some((endpoint) => endpoint.regexp.test(file))
-						)
-					);
+					const strategy = args?.routes?.strategy ?? 'auto';
+
+					// Strategy `include`: include all function endpoints, and then exclude static paths that would be matched by an include pattern
+					const includeStrategy =
+						strategy === 'exclude'
+							? undefined
+							: {
+									include: deduplicatePatterns(
+										functionEndpoints
+											.map((endpoint) => endpoint.includePattern)
+											.concat(args?.routes?.include ?? [])
+									),
+									exclude: deduplicatePatterns(
+										staticPathList
+											.filter((file: string) =>
+												functionEndpoints.some((endpoint) => endpoint.regexp.test(file))
+											)
+											.concat(args?.routes?.exclude ?? [])
+									),
+							  };
 
 					// Cloudflare requires at least one include pattern:
 					// https://developers.cloudflare.com/pages/platform/functions/routing/#limits
 					// So we add a pattern that we immediately exclude again
-					if (include.length === 0) {
-						include = ['/'];
-						exclude = ['/'];
+					if (includeStrategy?.include.length === 0) {
+						includeStrategy.include = ['/'];
+						includeStrategy.exclude = ['/'];
 					}
 
-					// If using only an exclude list would produce a shorter list of patterns,
-					// we use that instead
-					if (include.length + exclude.length > staticPathList.length) {
-						include = ['/*'];
-						exclude = deduplicatePatterns(staticPathList);
-					}
+					// Strategy `exclude`: include everything, and then exclude all static paths
+					const excludeStrategy =
+						strategy === 'include'
+							? undefined
+							: {
+									include: ['/*'],
+									exclude: deduplicatePatterns(staticPathList.concat(args?.routes?.exclude ?? [])),
+							  };
+
+					const includeStrategyLength = includeStrategy
+						? includeStrategy.include.length + includeStrategy.exclude.length
+						: Infinity;
+
+					const excludeStrategyLength = excludeStrategy
+						? excludeStrategy.include.length + excludeStrategy.exclude.length
+						: Infinity;
+
+					const winningStrategy =
+						includeStrategyLength <= excludeStrategyLength ? includeStrategy : excludeStrategy;
 
 					await fs.promises.writeFile(
 						new URL('./_routes.json', _config.outDir),
 						JSON.stringify(
 							{
 								version: 1,
-								include,
-								exclude,
+								...winningStrategy,
 							},
 							null,
 							2
@@ -601,4 +699,31 @@ function deduplicatePatterns(patterns: string[]) {
 
 			return true;
 		});
+}
+
+/**
+ *
+ * @param relativePathToAssets - relative path from the final location for the current esbuild output bundle, to the assets directory.
+ */
+function rewriteWasmImportPath({
+	relativePathToAssets,
+}: {
+	relativePathToAssets: string;
+}): esbuild.Plugin {
+	return {
+		name: 'wasm-loader',
+		setup(build) {
+			build.onResolve({ filter: /.*\.wasm.mjs$/ }, (args) => {
+				const updatedPath = [
+					relativePathToAssets.replaceAll('\\', '/'),
+					basename(args.path).replace(/\.mjs$/, ''),
+				].join('/');
+
+				return {
+					path: updatedPath, // change the reference to the changed module
+					external: true, // mark it as external in the bundle
+				};
+			});
+		},
+	};
 }

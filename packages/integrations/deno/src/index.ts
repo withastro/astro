@@ -149,9 +149,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							(vite.resolve.alias as Record<string, string>)[alias.find] = alias.replacement;
 						}
 					}
-					vite.ssr = {
-						noExternal: COMPATIBLE_NODE_MODULES,
-					};
 
 					if (Array.isArray(vite.build.rollupOptions.external)) {
 						vite.build.rollupOptions.external.push(DENO_IMPORTS_SHIM);
