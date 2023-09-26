@@ -4,7 +4,7 @@ import { FileKind, FileRangeCapabilities, VirtualFile } from '@volar/language-co
 import * as SourceMap from '@volar/source-map';
 import * as muggle from 'muggle-string';
 import type ts from 'typescript/lib/tsserverlibrary';
-import type { HTMLDocument } from 'vscode-html-languageservice';
+import type { HTMLDocument, Node } from 'vscode-html-languageservice';
 import type { AttributeNodeWithPosition } from './compilerUtils.js';
 
 export function extractStylesheets(
@@ -13,36 +13,11 @@ export function extractStylesheets(
 	htmlDocument: HTMLDocument,
 	ast: ParseResult['ast']
 ): VirtualFile[] {
-	const embeddedCSSFiles: VirtualFile['embeddedFiles'] = [];
-	for (const [index, root] of htmlDocument.roots.entries()) {
-		if (root.tag === 'style' && root.startTagEnd !== undefined && root.endTagStart !== undefined) {
-			const styleText = snapshot.getText(root.startTagEnd, root.endTagStart);
-			embeddedCSSFiles.push({
-				fileName: fileName + `.${index}.css`,
-				kind: FileKind.TextFile,
-				snapshot: {
-					getText: (start, end) => styleText.substring(start, end),
-					getLength: () => styleText.length,
-					getChangeRange: () => undefined,
-				},
-				codegenStacks: [],
-				mappings: [
-					{
-						sourceRange: [root.startTagEnd, root.endTagStart],
-						generatedRange: [0, styleText.length],
-						data: FileRangeCapabilities.full,
-					},
-				],
-				capabilities: {
-					diagnostic: false,
-					documentSymbol: true,
-					foldingRange: true,
-					documentFormatting: false,
-				},
-				embeddedFiles: [],
-			});
-		}
-	}
+	const embeddedCSSFiles: VirtualFile[] = findEmbeddedStyles(
+		fileName,
+		snapshot,
+		htmlDocument.roots
+	);
 
 	const inlineStyles = findInlineStyles(ast);
 	if (inlineStyles.length > 0) {
@@ -79,33 +54,69 @@ export function extractStylesheets(
 	return embeddedCSSFiles;
 }
 
-// TODO: Provide completion for classes and IDs
-export function collectClassesAndIdsFromDocument(ast: ParseResult['ast']): string[] {
-	const classesAndIds: string[] = [];
-	function walkDown(parent: ParentNode) {
-		if (!parent.children) return;
+/**
+ * Find all embedded styles in a document.
+ * Embedded styles are styles that are defined in `<style>` tags.
+ */
+function findEmbeddedStyles(
+	fileName: string,
+	snapshot: ts.IScriptSnapshot,
+	roots: Node[]
+): VirtualFile[] {
+	const embeddedCSSFiles: VirtualFile[] = [];
+	let cssIndex = 0;
 
-		parent.children.forEach((child) => {
-			if (is.element(child)) {
-				const classOrIDAttributes = child.attributes
-					.filter((attr) => attr.kind === 'quoted' && (attr.name === 'class' || attr.name === 'id'))
-					.flatMap((attr) => attr.value.split(' '));
+	getEmbeddedCSSInNodes(roots);
 
-				classesAndIds.push(...classOrIDAttributes);
+	function getEmbeddedCSSInNodes(nodes: Node[]) {
+		for (const [_, node] of nodes.entries()) {
+			if (
+				node.tag === 'style' &&
+				node.startTagEnd !== undefined &&
+				node.endTagStart !== undefined
+			) {
+				const styleText = snapshot.getText(node.startTagEnd, node.endTagStart);
+				embeddedCSSFiles.push({
+					fileName: fileName + `.${cssIndex}.css`,
+					kind: FileKind.TextFile,
+					snapshot: {
+						getText: (start, end) => styleText.substring(start, end),
+						getLength: () => styleText.length,
+						getChangeRange: () => undefined,
+					},
+					codegenStacks: [],
+					mappings: [
+						{
+							sourceRange: [node.startTagEnd, node.endTagStart],
+							generatedRange: [0, styleText.length],
+							data: FileRangeCapabilities.full,
+						},
+					],
+					capabilities: {
+						diagnostic: false,
+						documentSymbol: true,
+						foldingRange: true,
+						documentFormatting: false,
+					},
+					embeddedFiles: [],
+				});
+				cssIndex++;
 			}
 
-			if (is.parent(child)) {
-				walkDown(child);
-			}
-		});
+			if (node.children) getEmbeddedCSSInNodes(node.children);
+		}
 	}
 
-	walkDown(ast);
-
-	return classesAndIds;
+	return embeddedCSSFiles;
 }
 
-export function findInlineStyles(ast: ParseResult['ast']): AttributeNodeWithPosition[] {
+/**
+ * Find all inline styles using the Astro AST
+ * Inline styles are styles that are defined in the `style` attribute of an element.
+ * TODO: Merge this with `findEmbeddedCSS`? Unlike scripts, there's no scoping being done here, so merging all of it in
+ * the same virtual file is possible, though it might make mapping more tricky.
+ */
+function findInlineStyles(ast: ParseResult['ast']): AttributeNodeWithPosition[] {
 	const styleAttrs: AttributeNodeWithPosition[] = [];
 
 	// `@astrojs/compiler`'s `walk` method is async, so we can't use it here. Arf
@@ -132,4 +143,30 @@ export function findInlineStyles(ast: ParseResult['ast']): AttributeNodeWithPosi
 	walkDown(ast);
 
 	return styleAttrs;
+}
+
+// TODO: Provide completion for classes and IDs
+export function collectClassesAndIdsFromDocument(ast: ParseResult['ast']): string[] {
+	const classesAndIds: string[] = [];
+	function walkDown(parent: ParentNode) {
+		if (!parent.children) return;
+
+		parent.children.forEach((child) => {
+			if (is.element(child)) {
+				const classOrIDAttributes = child.attributes
+					.filter((attr) => attr.kind === 'quoted' && (attr.name === 'class' || attr.name === 'id'))
+					.flatMap((attr) => attr.value.split(' '));
+
+				classesAndIds.push(...classOrIDAttributes);
+			}
+
+			if (is.parent(child)) {
+				walkDown(child);
+			}
+		});
+	}
+
+	walkDown(ast);
+
+	return classesAndIds;
 }

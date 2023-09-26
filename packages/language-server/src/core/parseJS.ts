@@ -17,44 +17,11 @@ export function extractScriptTags(
 	htmlDocument: HTMLDocument,
 	ast: ParseResult['ast']
 ): VirtualFile[] {
-	const embeddedJSFiles: VirtualFile['embeddedFiles'] = [];
-	for (const [index, root] of htmlDocument.roots.entries()) {
-		if (
-			root.tag === 'script' &&
-			root.startTagEnd !== undefined &&
-			root.endTagStart !== undefined &&
-			isIsolatedScriptTag(root)
-		) {
-			const scriptText = snapshot.getText(root.startTagEnd, root.endTagStart);
-
-			embeddedJSFiles.push({
-				fileName: fileName + `.${index}.mts`,
-				kind: FileKind.TypeScriptHostFile,
-				snapshot: {
-					getText: (start, end) => scriptText.substring(start, end),
-					getLength: () => scriptText.length,
-					getChangeRange: () => undefined,
-				},
-				codegenStacks: [],
-				mappings: [
-					{
-						sourceRange: [root.startTagEnd, root.endTagStart],
-						generatedRange: [0, scriptText.length],
-						data: FileRangeCapabilities.full,
-					},
-				],
-				capabilities: {
-					diagnostic: true,
-					codeAction: true,
-					inlayHint: true,
-					documentSymbol: true,
-					foldingRange: true,
-					documentFormatting: false,
-				},
-				embeddedFiles: [],
-			});
-		}
-	}
+	const embeddedJSFiles: VirtualFile[] = findIsolatedScripts(
+		fileName,
+		snapshot,
+		htmlDocument.roots
+	);
 
 	const javascriptContexts = [
 		...findInlineScripts(htmlDocument, snapshot),
@@ -62,36 +29,83 @@ export function extractScriptTags(
 	].sort((a, b) => a.startOffset - b.startOffset);
 
 	if (javascriptContexts.length > 0) {
-		const codes: muggle.Segment<FileRangeCapabilities>[] = [];
-
-		for (const javascriptContext of javascriptContexts) {
-			codes.push([
-				javascriptContext.content,
-				undefined,
-				javascriptContext.startOffset,
-				FileRangeCapabilities.full,
-			]);
-		}
-
-		const mappings = SourceMap.buildMappings(codes);
-		const text = muggle.toString(codes);
-
-		embeddedJSFiles.push({
-			fileName: fileName + '.inline.mjs',
-			codegenStacks: [],
-			snapshot: {
-				getText: (start, end) => text.substring(start, end),
-				getLength: () => text.length,
-				getChangeRange: () => undefined,
-			},
-			capabilities: FileCapabilities.full,
-			embeddedFiles: [],
-			kind: FileKind.TypeScriptHostFile,
-			mappings,
-		});
+		embeddedJSFiles.push(mergeJSContexts(fileName, javascriptContexts));
 	}
 
 	return embeddedJSFiles;
+}
+
+function isIsolatedScriptTag(scriptTag: Node): boolean {
+	// Using any kind of attributes on the script tag will disable hoisting
+	if (
+		!scriptTag.attributes ||
+		(scriptTag.attributes && Object.entries(scriptTag.attributes).length === 0) ||
+		scriptTag.attributes['type']?.includes('module')
+	) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Get all the isolated scripts in the HTML document
+ * Isolated scripts are scripts that are hoisted by Astro and as such, are isolated from the rest of the code because of the implicit `type="module"`
+ * All the isolated scripts are passed to the TypeScript language server as separate `.mts` files.
+ */
+function findIsolatedScripts(
+	fileName: string,
+	snapshot: ts.IScriptSnapshot,
+	roots: Node[]
+): VirtualFile[] {
+	const embeddedScripts: VirtualFile[] = [];
+	let scriptIndex = 0;
+
+	getEmbeddedScriptsInNodes(roots);
+
+	function getEmbeddedScriptsInNodes(nodes: Node[]) {
+		for (const [_, node] of nodes.entries()) {
+			if (
+				node.tag === 'script' &&
+				node.startTagEnd !== undefined &&
+				node.endTagStart !== undefined &&
+				isIsolatedScriptTag(node)
+			) {
+				const scriptText = snapshot.getText(node.startTagEnd, node.endTagStart);
+				embeddedScripts.push({
+					fileName: fileName + `.${scriptIndex}.mts`,
+					kind: FileKind.TypeScriptHostFile,
+					snapshot: {
+						getText: (start, end) => scriptText.substring(start, end),
+						getLength: () => scriptText.length,
+						getChangeRange: () => undefined,
+					},
+					codegenStacks: [],
+					mappings: [
+						{
+							sourceRange: [node.startTagEnd, node.endTagStart],
+							generatedRange: [0, scriptText.length],
+							data: FileRangeCapabilities.full,
+						},
+					],
+					capabilities: {
+						diagnostic: true,
+						codeAction: true,
+						inlayHint: true,
+						documentSymbol: true,
+						foldingRange: true,
+						documentFormatting: false,
+					},
+					embeddedFiles: [],
+				});
+				scriptIndex++;
+			}
+
+			if (node.children) getEmbeddedScriptsInNodes(node.children);
+		}
+	}
+
+	return embeddedScripts;
 }
 
 interface JavaScriptContext {
@@ -99,23 +113,35 @@ interface JavaScriptContext {
 	startOffset: number;
 }
 
+/**
+ * Get all the inline scripts in the HTML document
+ * Inline scripts are scripts that are not hoisted by Astro and as such, are isolated from the rest of the code.
+ * All the inline scripts are concatenated into a single `.mjs` file and passed to the TypeScript language server.
+ */
 function findInlineScripts(
 	htmlDocument: HTMLDocument,
 	snapshot: ts.IScriptSnapshot
 ): JavaScriptContext[] {
 	const inlineScripts: JavaScriptContext[] = [];
-	for (const [_, root] of htmlDocument.roots.entries()) {
-		if (
-			root.tag === 'script' &&
-			root.startTagEnd !== undefined &&
-			root.endTagStart !== undefined &&
-			!isIsolatedScriptTag(root)
-		) {
-			const scriptText = snapshot.getText(root.startTagEnd, root.endTagStart);
-			inlineScripts.push({
-				startOffset: root.startTagEnd,
-				content: scriptText,
-			});
+
+	getInlineScriptsInNodes(htmlDocument.roots);
+
+	function getInlineScriptsInNodes(nodes: Node[]) {
+		for (const [_, node] of nodes.entries()) {
+			if (
+				node.tag === 'script' &&
+				node.startTagEnd !== undefined &&
+				node.endTagStart !== undefined &&
+				!isIsolatedScriptTag(node)
+			) {
+				const scriptText = snapshot.getText(node.startTagEnd, node.endTagStart);
+				inlineScripts.push({
+					startOffset: node.startTagEnd,
+					content: scriptText,
+				});
+			}
+
+			if (node.children) getInlineScriptsInNodes(node.children);
 		}
 	}
 
@@ -154,20 +180,40 @@ function findEventAttributes(ast: ParseResult['ast']): JavaScriptContext[] {
 	return eventAttrs;
 }
 
-export function isIsolatedScriptTag(scriptTag: Node): boolean {
-	// Using any kind of attributes on the script tag will disable hoisting
-	if (
-		!scriptTag.attributes ||
-		(scriptTag.attributes && Object.entries(scriptTag.attributes).length === 0) ||
-		scriptTag.attributes['type']?.includes('module')
-	) {
-		return true;
+/**
+ * Merge all the inline and non-hoisted scripts into a single `.mjs` file
+ */
+function mergeJSContexts(fileName: string, javascriptContexts: JavaScriptContext[]): VirtualFile {
+	const codes: muggle.Segment<FileRangeCapabilities>[] = [];
+
+	for (const javascriptContext of javascriptContexts) {
+		codes.push([
+			javascriptContext.content,
+			undefined,
+			javascriptContext.startOffset,
+			FileRangeCapabilities.full,
+		]);
 	}
 
-	return false;
+	const mappings = SourceMap.buildMappings(codes);
+	const text = muggle.toString(codes);
+
+	return {
+		fileName: fileName + '.inline.mjs',
+		codegenStacks: [],
+		snapshot: {
+			getText: (start, end) => text.substring(start, end),
+			getLength: () => text.length,
+			getChangeRange: () => undefined,
+		},
+		capabilities: FileCapabilities.full,
+		embeddedFiles: [],
+		kind: FileKind.TypeScriptHostFile,
+		mappings,
+	};
 }
 
-export const htmlEventAttributes = [
+const htmlEventAttributes = [
 	'onabort',
 	'onafterprint',
 	'onauxclick',
