@@ -11,7 +11,6 @@ import {
 	type CompileProps,
 } from '../core/compile/index.js';
 import { isRelativePath } from '../core/path.js';
-import { normalizeFilename } from '../vite-plugin-utils/index.js';
 import { cachedFullCompilation } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
@@ -45,7 +44,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				return null;
 			}
 			// For CSS / hoisted scripts, the main Astro module should already be cached
-			const filename = normalizePath(normalizeFilename(parsedId.filename, config.root));
+			const filename = normalizePath(parsedId.filename);
 			const compileResult = getCachedCompileResult(config, filename);
 			if (!compileResult) {
 				return null;
