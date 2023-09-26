@@ -7,6 +7,7 @@ import { getConfiguredImageService, isESMImportedImage } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
 import type { ImageMetadata, ImageTransform } from '../types.js';
 import { loadRemoteImage, type RemoteCacheEntry } from './remote.js';
+import { getOutDirWithinCwd } from "#astro/core/build/common";
 
 interface GenerationDataUncached {
 	cached: false;
@@ -106,7 +107,7 @@ export async function generateImage(
 		const outDir = isServerLikeOutput(config)
 			? config.build.server
 			: getOutDirWithinCwd(config.outDir);
-		
+
 		imageData = await fs.promises.readFile(
 			new URL(
 				prependForwardSlash(join(outDir.pathname + config.build.assets, basename(originalImagePath))),
