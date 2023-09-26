@@ -67,6 +67,7 @@ describe('Integration API', () => {
 										integrations: [{
 											name: 'dynamically-added',
 											hooks: {
+												// eslint-disable-next-line @typescript-eslint/no-shadow
 												"astro:config:setup": ({ updateConfig }) => {
 													updateConfig({ site });
 												}
