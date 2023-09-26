@@ -2,4 +2,4 @@
 'astro': minor
 ---
 
-Support integrations added by other integrations with `updatConfig()`
+Support integrations added by other integrations with `updateConfig()`
