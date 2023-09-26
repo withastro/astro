@@ -62,14 +62,16 @@ describe('Integration API', () => {
 						{
 							name: 'test',
 							hooks: {
-								"astro:config:setup": ({ addIntegration }) => {
-									addIntegration({
-										name: 'dynamically-added',
-										hooks: {
-											"astro:config:setup": ({ updateConfig }) => {
-												updateConfig({ site });
-											}
-										},
+								"astro:config:setup": ({ updateConfig }) => {
+									updateConfig({
+										integrations: [{
+											name: 'dynamically-added',
+											hooks: {
+												"astro:config:setup": ({ updateConfig }) => {
+													updateConfig({ site });
+												}
+											},
+										}],
 									});
 								}
 							},
