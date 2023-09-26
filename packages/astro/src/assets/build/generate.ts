@@ -49,7 +49,7 @@ export async function generateImage(
 		serverRoot = config.build.server;
 		clientRoot = config.build.client;
 	} else {
-		serverRoot = config.outDir;
+		serverRoot = getOutDirWithinCwd(config.outDir);
 		clientRoot = config.outDir;
 	}
 
@@ -104,13 +104,9 @@ export async function generateImage(
 
 	// If the image is local, we can just read it directly, otherwise we need to download it
 	if (isLocalImage) {
-		const outDir = isServerLikeOutput(config)
-			? config.build.server
-			: getOutDirWithinCwd(config.outDir);
-
 		imageData = await fs.promises.readFile(
 			new URL(
-				prependForwardSlash(join(outDir.pathname + config.build.assets, basename(originalImagePath))),
+				'.' + prependForwardSlash(join(config.build.assets, basename(originalImagePath))),
 				serverRoot
 			)
 		);
