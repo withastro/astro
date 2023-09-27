@@ -7,9 +7,8 @@
 ## 🚀 Getting Started
 
 1. Clone this repository and install dependencies with `npm install`.
-2. Copy `.env.example` as `.env` and add your TMDB API Key.
-3. Start the project locally with npm run dev, or deploy it to your favorite server.
-4. Have fun! ✨
+2. Start the project locally with npm run dev, or deploy it to your favorite server.
+3. Have fun! ✨
 
 ## 🧞 Commands
 
