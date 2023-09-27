@@ -243,8 +243,6 @@ export async function createVite(
 	}
 	result = vite.mergeConfig(result, commandConfig);
 
-	result.customLogger = vite.createLogger(result.logLevel ?? 'warn');
-
 	return result;
 }
 
