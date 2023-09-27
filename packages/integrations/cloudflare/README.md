@@ -75,6 +75,92 @@ export default defineConfig({
 
 Note that this adapter does not support using [Cloudflare Pages Middleware](https://developers.cloudflare.com/pages/platform/functions/middleware/). Astro will bundle the [Astro middleware](https://docs.astro.build/en/guides/middleware/) into each page.
 
+### routes.strategy
+
+`routes.strategy: "auto" | "include" | "exclude"`
+
+default `"auto"`
+
+Determines how `routes.json` will be generated if no [custom `_routes.json`](#custom-_routesjson) is provided.
+
+There are three options available:
+
+- **`"auto"` (default):** Will automatically select the strategy that generates the fewest entries. This should almost always be sufficient, so choose this option unless you have a specific reason not to.
+
+- **`include`:** Pages and endpoints that are not pre-rendered are listed as `include` entries, telling Cloudflare to invoke these routes as functions. `exclude` entries are only used to resolve conflicts. Usually the best strategy when your website has mostly static pages and only a few dynamic pages or endpoints.
+
+  Example: For `src/pages/index.astro` (static), `src/pages/company.astro` (static), `src/pages/users/faq.astro` (static) and `/src/pages/users/[id].astro` (SSR) this will produce the following `_routes.json`:
+
+  ```json
+  {
+    "version": 1,
+    "include": [
+      "/_image", // Astro's image endpoint
+      "/users/*" // Dynamic route
+    ],
+    "exclude": [
+      // Static routes that needs to be exempted from the dynamic wildcard route above
+      "/users/faq/",
+      "/users/faq/index.html"
+    ]
+  }
+  ```
+
+- **`exclude`:** Pre-rendered pages are listed as `exclude` entries (telling Cloudflare to handle these routes as static assets). Usually the best strategy when your website has mostly dynamic pages or endpoints and only a few static pages.
+
+  Example: For the same pages as in the previous example this will produce the following `_routes.json`:
+
+  ```json
+  {
+    "version": 1,
+    "include": [
+      "/*" // Handle everything as function except the routes below
+    ],
+    "exclude": [
+      // All static assets
+      "/",
+      "/company/",
+      "/index.html",
+      "/users/faq/",
+      "/favicon.png",
+      "/company/index.html",
+      "/users/faq/index.html"
+    ]
+  }
+  ```
+
+### routes.include
+
+`routes.include: string[]`
+
+default `[]`
+
+If you want to use the automatic `_routes.json` generation, but want to include additional routes (e.g. when having custom functions in the `functions` folder), you can use the `routes.include` option to add additional routes to the `include` array.
+
+### routes.exclude
+
+`routes.exclude: string[]`
+
+default `[]`
+
+If you want to use the automatic `_routes.json` generation, but want to exclude additional routes, you can use the `routes.exclude` option to add additional routes to the `exclude` array.
+
+The following example automatically generates `_routes.json` while including and excluding additional routes. Note that that is only necessary if you have custom functions in the `functions` folder that are not handled by Astro.
+
+```diff
+// astro.config.mjs
+export default defineConfig({
+    adapter: cloudflare({
+        mode: 'directory',
++       routes: {
++           strategy: 'include',
++           include: ['/users/*'], // handled by custom function: functions/users/[id].js
++           exclude: ['/users/faq'], // handled by static page: pages/users/faq.astro
++       },
+    }),
+});
+```
+
 ## Enabling Preview
 
 In order for preview to work you must install `wrangler`
