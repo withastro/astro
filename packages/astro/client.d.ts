@@ -120,6 +120,13 @@ declare module 'astro:transitions' {
 	export const ViewTransitions: ViewTransitionsModule['default'];
 }
 
+declare module 'astro:transitions/client' {
+	type TransitionRouterModule = typeof import('./dist/transitions/router.js');
+	export const supportsViewTransitions: TransitionRouterModule['supportsViewTransitions'];
+	export const transitionEnabledOnThisPage: TransitionRouterModule['transitionEnabledOnThisPage'];
+	export const navigate: TransitionRouterModule['navigate'];
+}
+
 declare module 'astro:middleware' {
 	export * from 'astro/middleware/namespace';
 }

@@ -1,5 +1,15 @@
 # @astrojs/netlify
 
+## 3.0.2
+
+### Patch Changes
+
+- [#8661](https://github.com/withastro/astro/pull/8661) [`008f7647c`](https://github.com/withastro/astro/commit/008f7647c4788207aab55ab12c734bd80e6df9c5) Thanks [@Skn0tt](https://github.com/Skn0tt)! - fix build failures because of CJS builds and top-level await
+
+- Updated dependencies [[`69fbf95b2`](https://github.com/withastro/astro/commit/69fbf95b22c0fb0d8e7e5fef9ec61e26cac9767f)]:
+  - astro@3.1.4
+  - @astrojs/underscore-redirects@0.3.0
+
 ## 3.0.1
 
 ### Patch Changes

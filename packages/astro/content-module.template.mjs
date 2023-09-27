@@ -70,7 +70,7 @@ export const getEntryBySlug = createGetEntryBySlug({
 });
 
 export const getDataEntryById = createGetDataEntryById({
-	dataCollectionToEntryMap,
+	getEntryImport: createGlobLookup(dataCollectionToEntryMap),
 });
 
 export const getEntry = createGetEntry({

@@ -1,5 +1,14 @@
 # @astrojs/deno
 
+## 5.0.1
+
+### Patch Changes
+
+- [#8652](https://github.com/withastro/astro/pull/8652) [`954cadc1e`](https://github.com/withastro/astro/commit/954cadc1e534079a6fba369629272caa173d40ac) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixed an issue where deno integration broke some frameworks.
+
+- Updated dependencies [[`69fbf95b2`](https://github.com/withastro/astro/commit/69fbf95b22c0fb0d8e7e5fef9ec61e26cac9767f)]:
+  - astro@3.1.4
+
 ## 5.0.0
 
 ### Major Changes
