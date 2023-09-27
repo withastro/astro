@@ -29,28 +29,19 @@ export function createServer(
 ) {
 	const listener: http.RequestListener = (req, res) => {
 		if (req.url) {
-			let pathname: string | undefined = removeBase(req.url);
+			let pathname: string = removeBase(req.url);
 			pathname = pathname[0] === '/' ? pathname : '/' + pathname;
-			let encodedURI = parsePathname(pathname, host, port);
+			const pathnameWithSlash = pathname.endsWith('/') ? pathname : pathname + '/';
+			const pathnameWithoutSlash = pathname.endsWith('/')
+				? pathname.substring(0, pathname.length - 1)
+				: pathname;
+			// Ensure that the url always has the directory path
+			let pathToSend = parsePathname(pathnameWithSlash, host, port);
 
-			if (!encodedURI) {
+			if (!pathToSend) {
 				res.writeHead(400);
 				res.end('Bad request.');
 				return res;
-			}
-
-			let pathToSend = encodedURI;
-
-			if (trailingSlash === 'never') {
-				if (pathname.endsWith('/')) {
-					encodedURI = parsePathname(pathname.substring(0, pathname.length - 1), host, port);
-					if (!encodedURI) {
-						res.writeHead(400);
-						res.end('Bad request.');
-						return res;
-					}
-				}
-				pathToSend = encodedURI + '/';
 			}
 
 			const stream = send(req, pathToSend, {
@@ -71,19 +62,34 @@ export function createServer(
 				handler(req, res);
 			});
 			stream.on('directory', () => {
-				// On directory find, redirect to the trailing slash
-				let location: string;
+				let location: URL;
 				if (req.url!.includes('?')) {
 					const [url = '', search] = req.url!.split('?');
-					location = `${url}/?${search}`;
+					location = new URL(`${url}/?${search}`);
 				} else {
-					location = req.url + '/';
+					location = new URL(req.url + '/');
 				}
-
-				if (!pathToSend.endsWith('/')) {
-					res.statusCode = 301;
-					res.setHeader('Location', location);
-					res.end(location);
+				switch (trailingSlash) {
+					case 'never': {
+						// Redirect to a url with no trailingSlash if the incoming url had a trailingSlash
+						if (pathname.endsWith('/')) {
+							res.statusCode = 301;
+							location.pathname = pathnameWithoutSlash;
+							res.setHeader('Location', location.toString());
+							res.end(location);
+						}
+						break;
+					}
+					case 'always': {
+						// Redirect to a url with trailingSlash if the incoming url did not have a trailingSlash
+						if (!pathname.endsWith('/')) {
+							res.statusCode = 301;
+							location.pathname = pathnameWithSlash;
+							res.setHeader('Location', location.toString());
+							res.end(location);
+						}
+						break;
+					}
 				}
 			});
 			stream.on('file', () => {

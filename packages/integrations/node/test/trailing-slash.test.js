@@ -45,6 +45,7 @@ describe('Trailing Slash In Production', () => {
 		it('redirects each route to have trailing slash', async () => {
 			const res = await fetch(`http://${server.host}:${server.port}/one`);
 			expect(res.url).to.contain('one/');
+			expect(res.status).to.equal(301);
 		});
 	});
 
