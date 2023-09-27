@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Add integrations dynamically
+Support adding integrations dynamically
 
 Astro integrations can now themselves dynamically add and configure additional integrations during set-up. This makes it possible for integration authors to bundle integrations more intelligently for their users.
 
