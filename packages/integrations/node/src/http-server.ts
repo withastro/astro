@@ -1,3 +1,4 @@
+import type { AstroUserConfig } from 'astro/config';
 import https from 'https';
 import fs from 'node:fs';
 import http from 'node:http';
@@ -24,7 +25,7 @@ function parsePathname(pathname: string, host: string | undefined, port: number)
 export function createServer(
 	{ client, port, host, removeBase }: CreateServerOptions,
 	handler: http.RequestListener,
-	trailingSlash: string
+	trailingSlash: AstroUserConfig['trailingSlash']
 ) {
 	const listener: http.RequestListener = (req, res) => {
 		if (req.url) {

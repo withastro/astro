@@ -1,3 +1,4 @@
+import type { AstroUserConfig } from 'astro/config';
 import { IncomingMessage, ServerResponse } from 'node:http';
 
 export interface UserOptions {
@@ -15,7 +16,7 @@ export interface Options extends UserOptions {
 	port: number;
 	server: string;
 	client: string;
-	trailingSlash: string;
+	trailingSlash: AstroUserConfig['trailingSlash'];
 }
 
 export type RequestHandlerParams = [
