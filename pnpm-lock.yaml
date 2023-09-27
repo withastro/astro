@@ -3054,6 +3054,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/redirects:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/reexport-astro-containing-client-component:
     dependencies:
       '@astrojs/preact':
@@ -3334,12 +3340,6 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/ssr-preview:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/ssr-redirect:
     dependencies:
       astro:
         specifier: workspace:*
