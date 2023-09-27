@@ -4,7 +4,7 @@
 
 Add integrations dynamically
 
-Astro integrations can now dynamically add additional integrations during set-up. This makes it possible for integration authors to bundle integrations more intelligently for their users.
+Astro integrations can now themselves dynamically add and configure additional integrations during set-up. This makes it possible for integration authors to bundle integrations more intelligently for their users.
 
 For example, an integration can decide to add Astro’s official sitemap integration if it sees a user hasn’t already configured it:
 
