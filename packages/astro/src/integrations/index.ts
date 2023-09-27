@@ -75,7 +75,10 @@ export async function runHookConfigSetup({
 	let addedClientDirectives = new Map<string, Promise<string>>();
 	let astroJSXRenderer: AstroRenderer | null = null;
 
-	for (const integration of settings.config.integrations) {
+	// eslint-disable-next-line @typescript-eslint/prefer-for-of -- We need a for loop to be able to read integrations pushed while the loop is running.
+	for (let i = 0; i < updatedConfig.integrations.length; i++) {
+		const integration = updatedConfig.integrations[i];
+		
 		/**
 		 * By making integration hooks optional, Astro can now ignore null or undefined Integrations
 		 * instead of giving an internal error most people can't read

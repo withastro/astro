@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { runHookBuildSetup } from '../../../dist/integrations/index.js';
+import { runHookBuildSetup, runHookConfigSetup } from '../../../dist/integrations/index.js';
 import { validateSupportedFeatures } from '../../../dist/integrations/astroFeaturesValidation.js';
 import { defaultLogger } from '../test-utils.js';
 
@@ -29,6 +29,62 @@ describe('Integration API', () => {
 		});
 		expect(updatedViteConfig).to.haveOwnProperty('define');
 	});
+
+	it('runHookConfigSetup can update Astro config', async () => {
+		const site = 'https://test.com/';
+		const updatedSettings = await runHookConfigSetup({
+			logger: defaultLogger,
+			settings: {
+				config: {
+					integrations: [
+						{
+							name: 'test',
+							hooks: {
+								"astro:config:setup": ({ updateConfig }) => {
+									updateConfig({ site });
+								}
+							},
+						},
+					],
+				},
+			},
+		});
+		expect(updatedSettings.config.site).to.equal(site);
+	});
+	
+	it('runHookConfigSetup runs integrations added by another integration', async () => {
+		const site = 'https://test.com/';
+		const updatedSettings = await runHookConfigSetup({
+			logger: defaultLogger,
+			settings: {
+				config: {
+					integrations: [
+						{
+							name: 'test',
+							hooks: {
+								"astro:config:setup": ({ updateConfig }) => {
+									updateConfig({
+										integrations: [{
+											name: 'dynamically-added',
+											hooks: {
+												// eslint-disable-next-line @typescript-eslint/no-shadow
+												"astro:config:setup": ({ updateConfig }) => {
+													updateConfig({ site });
+												}
+											},
+										}],
+									});
+								}
+							},
+						},
+					],
+				},
+			},
+		});
+		expect(updatedSettings.config.site).to.equal(site);
+		expect(updatedSettings.config.integrations.length).to.equal(2);
+	});
+
 });
 
 describe('Astro feature map', function () {
