@@ -26,7 +26,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		return 'animate';
 	}
 
-  // Prefetching
+	// Prefetching
 	function maybePrefetch(pathname: string) {
 		if (document.querySelector(`link[rel=prefetch][href="${pathname}"]`)) return;
 		// @ts-expect-error: connection might exist
@@ -75,7 +75,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			});
 		});
 
-    ['mouseenter', 'touchstart', 'focus'].forEach((evName) => {
+		['mouseenter', 'touchstart', 'focus'].forEach((evName) => {
 			document.addEventListener(
 				evName,
 				(ev) => {
