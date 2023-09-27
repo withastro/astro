@@ -7,6 +7,7 @@ import { getConfiguredImageService, isESMImportedImage } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
 import type { ImageMetadata, ImageTransform } from '../types.js';
 import { loadRemoteImage, type RemoteCacheEntry } from './remote.js';
+import { getOutDirWithinCwd } from "../../core/build/common.js";
 
 interface GenerationDataUncached {
 	cached: false;
@@ -48,7 +49,7 @@ export async function generateImage(
 		serverRoot = config.build.server;
 		clientRoot = config.build.client;
 	} else {
-		serverRoot = config.outDir;
+		serverRoot = getOutDirWithinCwd(config.outDir);
 		clientRoot = config.outDir;
 	}
 
