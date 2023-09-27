@@ -1,0 +1,17 @@
+{
+  "name": "@example/view-transitions",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "devDependencies": {
+    "@astrojs/tailwind": "^5.0.0",
+    "@astrojs/node": "^6.0.0",
+    "astro": "^3.1.1"
+  }
+}

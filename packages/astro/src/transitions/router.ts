@@ -20,6 +20,21 @@ const samePage = (otherLocation: URL) =>
 	location.pathname === otherLocation.pathname && location.search === otherLocation.search;
 const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
 const onPageLoad = () => triggerEvent('astro:page-load');
+const announce = () => {
+	let div = document.createElement('div');
+	div.setAttribute('aria-live', 'assertive');
+	div.setAttribute('aria-atomic', 'true');
+	div.setAttribute('style', 'position:absolute;left:0;top:0;clip:rect(0 0 0 0);clip-path:inset(50%);overflow:hidden;white-space:nowrap;width:1px;height:1px');
+	document.body.append(div);
+	setTimeout(() => {
+		let title = document.title || document.querySelector('h1')?.textContent || location.pathname;
+		div.textContent = title;
+	},
+	// Much thought went into this magic number; the gist is that screen readers
+	// need to see that the element changed and might not do so if it happens
+	// too quickly.
+	60);
+};
 const PERSIST_ATTR = 'data-astro-transition-persist';
 const parser = new DOMParser();
 // explained at its usage
@@ -359,6 +374,7 @@ async function transition(
 		await runScripts();
 		markScriptsExec();
 		onPageLoad();
+		announce();
 	}
 }
 
