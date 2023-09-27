@@ -1,5 +1,6 @@
 {
   "name": "@astrojs/netlify",
   "private": true,
+  "keywords": [],
   "dont_remove": "This is a placeholder for the same of the docs smoke test"
 }
