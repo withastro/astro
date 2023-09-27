@@ -38,7 +38,7 @@ export function createServer(
 				return res;
 			}
 
-			let pathForSend = encodedURI;
+			let pathToSend = encodedURI;
 
 			if (trailingSlash === 'never') {
 				if (pathname.endsWith('/')) {
@@ -49,10 +49,10 @@ export function createServer(
 						return res;
 					}
 				}
-				pathForSend = encodedURI + '/';
+				pathToSend = encodedURI + '/';
 			}
 
-			const stream = send(req, pathForSend, {
+			const stream = send(req, pathToSend, {
 				root: fileURLToPath(client),
 				dotfiles: pathname.startsWith('/.well-known/') ? 'allow' : 'deny',
 			});
@@ -79,7 +79,7 @@ export function createServer(
 					location = req.url + '/';
 				}
 
-				if (!pathForSend.endsWith('/')) {
+				if (!pathToSend.endsWith('/')) {
 					res.statusCode = 301;
 					res.setHeader('Location', location);
 					res.end(location);
