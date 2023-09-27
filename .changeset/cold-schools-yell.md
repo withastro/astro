@@ -6,7 +6,7 @@ Add integrations dynamically
 
 Astro integrations can now themselves dynamically add and configure additional integrations during set-up. This makes it possible for integration authors to bundle integrations more intelligently for their users.
 
-For example, an integration can decide to add Astro’s official sitemap integration if it sees a user hasn’t already configured it:
+In the following example, a custom integration checks whether `@astrojs/sitemap` is already configured. If not, the integration adds Astro’s sitemap integration, passing any desired configuration options:
 
 ```ts
 import sitemap from '@astrojs/sitemap';
