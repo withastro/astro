@@ -60,13 +60,16 @@ declare const Astro: {
 						this.childrenConnectedCallback();
 					} else {
 						// connectedCallback may run *before* children are rendered (ex. HTML streaming)
-						// If SSR children are expected, but not yet rendered,
-						// Wait with a mutation observer
-						new MutationObserver((_, mo) => {
-							mo.disconnect();
-							// Wait until the next macrotask to ensure children are really rendered
-							setTimeout(() => this.childrenConnectedCallback(), 0);
-						}).observe(this, { childList: true });
+						// If SSR children are expected, but not yet rendered, wait for the DOM to finish parsing
+						if (document.readyState === 'interactive' || document.readyState === 'complete') {
+							this.childrenConnectedCallback();
+						} else {
+							document.addEventListener(
+								'DOMContentLoaded',
+								() => this.childrenConnectedCallback(),
+								{ once: true }
+							);
+						}
 					}
 				}
 				async childrenConnectedCallback() {
