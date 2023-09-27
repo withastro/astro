@@ -40,9 +40,9 @@ describe('Integration API', () => {
 						{
 							name: 'test',
 							hooks: {
-								"astro:config:setup": ({ updateConfig }) => {
+								'astro:config:setup': ({ updateConfig }) => {
 									updateConfig({ site });
-								}
+								},
 							},
 						},
 					],
@@ -51,7 +51,7 @@ describe('Integration API', () => {
 		});
 		expect(updatedSettings.config.site).to.equal(site);
 	});
-	
+
 	it('runHookConfigSetup runs integrations added by another integration', async () => {
 		const site = 'https://test.com/';
 		const updatedSettings = await runHookConfigSetup({
@@ -62,19 +62,21 @@ describe('Integration API', () => {
 						{
 							name: 'test',
 							hooks: {
-								"astro:config:setup": ({ updateConfig }) => {
+								'astro:config:setup': ({ updateConfig }) => {
 									updateConfig({
-										integrations: [{
-											name: 'dynamically-added',
-											hooks: {
-												// eslint-disable-next-line @typescript-eslint/no-shadow
-												"astro:config:setup": ({ updateConfig }) => {
-													updateConfig({ site });
-												}
+										integrations: [
+											{
+												name: 'dynamically-added',
+												hooks: {
+													// eslint-disable-next-line @typescript-eslint/no-shadow
+													'astro:config:setup': ({ updateConfig }) => {
+														updateConfig({ site });
+													},
+												},
 											},
-										}],
+										],
 									});
-								}
+								},
 							},
 						},
 					],
@@ -84,7 +86,6 @@ describe('Integration API', () => {
 		expect(updatedSettings.config.site).to.equal(site);
 		expect(updatedSettings.config.integrations.length).to.equal(2);
 	});
-
 });
 
 describe('Astro feature map', function () {
