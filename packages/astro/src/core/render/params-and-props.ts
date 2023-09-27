@@ -27,7 +27,7 @@ export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise
 	const params = getRouteParams(route, pathname) ?? {};
 
 	if (routeIsRedirect(route)) {
-		return [params, {}]
+		return [params, {}];
 	}
 
 	validatePrerenderEndpointCollision(route, mod, params);

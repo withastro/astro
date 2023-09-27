@@ -199,7 +199,7 @@ describe('Astro.redirect', () => {
 				const response = await fixture.fetch('/more/old/hello/world', { redirect: 'manual' });
 				expect(response.headers.get('Location')).to.equal('/more/hello/world');
 			});
-			
+
 			it.skip('falls back to spread rule when dynamic rules should not match', async () => {
 				const response = await fixture.fetch('/more/old/welcome/world', { redirect: 'manual' });
 				expect(response.headers.get('Location')).to.equal('/more/new/welcome/world');
