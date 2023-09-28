@@ -108,7 +108,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest]
-        NODE_VERSION: [18, 20.5.1]
+        NODE_VERSION: [18.17.1, 20.5.1]
         include:
           - os: macos-latest
             NODE_VERSION: 18
