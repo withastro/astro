@@ -186,7 +186,7 @@ export default defineConfig({
 
 ### `runtime`
 
-`runtime: "off" | "local"
+`runtime: "off" | "local"`
 
 default `"off"`
 
