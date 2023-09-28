@@ -1,5 +1,17 @@
 # @astrojs/cloudflare
 
+## 7.3.1
+
+### Patch Changes
+
+- [#7776](https://github.com/withastro/astro/pull/7776) [`f5c617e3a`](https://github.com/withastro/astro/commit/f5c617e3a3ed8f010ff28f0cfe0f322ad54ed6e0) Thanks [@aditsachde](https://github.com/aditsachde)! - Include generated files starting with a dot in \_routes.json
+
+- [#8654](https://github.com/withastro/astro/pull/8654) [`f6ba533df`](https://github.com/withastro/astro/commit/f6ba533df6861e09d39a29f6ef7a80271bbc8d0a) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Refactor codebase to enhance code readability and structure, to prioritize maintainability for long-term.
+
+- Updated dependencies [[`2167ffd72`](https://github.com/withastro/astro/commit/2167ffd72f58904f449ffc6e53581a2d8faf7317), [`408b50c5e`](https://github.com/withastro/astro/commit/408b50c5ea5aba66252424f54788557274a58571), [`2167ffd72`](https://github.com/withastro/astro/commit/2167ffd72f58904f449ffc6e53581a2d8faf7317), [`2167ffd72`](https://github.com/withastro/astro/commit/2167ffd72f58904f449ffc6e53581a2d8faf7317), [`2167ffd72`](https://github.com/withastro/astro/commit/2167ffd72f58904f449ffc6e53581a2d8faf7317), [`e797b6816`](https://github.com/withastro/astro/commit/e797b6816072f63f38d9a91dd2a66765c558d46c), [`824dd4670`](https://github.com/withastro/astro/commit/824dd4670a145c47337eff84a5ae412bf7443117), [`2167ffd72`](https://github.com/withastro/astro/commit/2167ffd72f58904f449ffc6e53581a2d8faf7317), [`cfd895d87`](https://github.com/withastro/astro/commit/cfd895d877fdb7fc69e745665a374fc32cb3ef7d)]:
+  - astro@3.2.0
+  - @astrojs/underscore-redirects@0.3.0
+
 ## 7.3.0
 
 ### Minor Changes
