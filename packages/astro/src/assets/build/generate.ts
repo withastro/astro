@@ -1,6 +1,7 @@
 import fs, { readFileSync } from 'node:fs';
 import { basename, join } from 'node:path/posix';
 import type { BuildPipeline } from '../../core/build/buildPipeline.js';
+import { getOutDirWithinCwd } from '../../core/build/common.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import { getConfiguredImageService, isESMImportedImage } from '../internal.js';
@@ -48,7 +49,7 @@ export async function generateImage(
 		serverRoot = config.build.server;
 		clientRoot = config.build.client;
 	} else {
-		serverRoot = config.outDir;
+		serverRoot = getOutDirWithinCwd(config.outDir);
 		clientRoot = config.outDir;
 	}
 
