@@ -42,15 +42,15 @@ npm install @astrojs/markdoc
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-```js ins={3} "markdoc()"
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import markdoc from '@astrojs/markdoc';
-
-export default defineConfig({
-  // ...
-  integrations: [markdoc()],
-});
+```diff lang="js" "markdoc()"
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
++ import markdoc from '@astrojs/markdoc';
+  export default defineConfig({
+    // ...
+    integrations: [markdoc()],
+    //             ^^^^^^^^^
+  });
 ```
 
 ### Editor Integration
@@ -443,15 +443,16 @@ By default, Markdoc will not recognize HTML markup as semantic content.
 
 To achieve a more Markdown-like experience, where HTML elements can be included alongside your content, set `allowHTML:true` as a `markdoc` integration option. This will enable HTML parsing in Markdoc markup.
 
-```js {7} "allowHTML: true"
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import markdoc from '@astrojs/markdoc';
+```diff lang="js" "allowHTML: true"
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import markdoc from '@astrojs/markdoc';
 
-export default defineConfig({
-  // ...
-  integrations: [markdoc({ allowHTML: true })],
-});
+  export default defineConfig({
+    // ...
++   integrations: [markdoc({ allowHTML: true })],
+    //                       ^^^^^^^^^^^^^^^
+  });
 ```
 
 > **Warning**

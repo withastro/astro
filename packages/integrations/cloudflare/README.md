@@ -25,15 +25,15 @@ npm install @astrojs/cloudflare
 
 2. Add the following to your `astro.config.mjs` file:
 
-```js ins={3, 6-7}
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import cloudflare from '@astrojs/cloudflare';
+```diff lang="ts"
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
++ import cloudflare from '@astrojs/cloudflare';
 
-export default defineConfig({
-  output: 'server',
-  adapter: cloudflare(),
-});
+  export default defineConfig({
++   output: 'server',
++   adapter: cloudflare(),
+  });
 ```
 
 ## Options
@@ -61,16 +61,17 @@ In `directory` mode, the adapter will compile the client-side part of your app t
 
 To instead compile a separate bundle for each page, set the `functionPerPath` option in your Cloudflare adapter config. This option requires some manual maintenance of the `functions` folder. Files emitted by Astro will overwrite existing `functions` files with identical names, so you must choose unique file names for each file you manually add. Additionally, the adapter will never empty the `functions` folder of outdated files, so you must clean up the folder manually when you remove pages.
 
-```diff
-import {defineConfig} from "astro/config";
-import cloudflare from '@astrojs/cloudflare';
+```diff lang="ts"
+  // astro.config.mjs
+  import {defineConfig} from "astro/config";
+  import cloudflare from '@astrojs/cloudflare';
 
-export default defineConfig({
-     adapter: cloudflare({
-        mode: 'directory',
-+       functionPerRoute: true
+  export default defineConfig({
+    adapter: cloudflare({
+      mode: 'directory',
++     functionPerRoute: true
     })
-})
+  })
 ```
 
 Note that this adapter does not support using [Cloudflare Pages Middleware](https://developers.cloudflare.com/pages/platform/functions/middleware/). Astro will bundle the [Astro middleware](https://docs.astro.build/en/guides/middleware/) into each page.
@@ -147,18 +148,18 @@ If you want to use the automatic `_routes.json` generation, but want to exclude 
 
 The following example automatically generates `_routes.json` while including and excluding additional routes. Note that that is only necessary if you have custom functions in the `functions` folder that are not handled by Astro.
 
-```diff
-// astro.config.mjs
-export default defineConfig({
+```diff lang="ts"
+  // astro.config.mjs
+  export default defineConfig({
     adapter: cloudflare({
-        mode: 'directory',
-+       routes: {
-+           strategy: 'include',
-+           include: ['/users/*'], // handled by custom function: functions/users/[id].js
-+           exclude: ['/users/faq'], // handled by static page: pages/users/faq.astro
-+       },
+      mode: 'directory',
++     routes: {
++       strategy: 'include',
++       include: ['/users/*'], // handled by custom function: functions/users/[id].js
++       exclude: ['/users/faq'], // handled by static page: pages/users/faq.astro
++     },
     }),
-});
+  });
 ```
 
 ## Enabling Preview
@@ -287,24 +288,24 @@ Whether or not to import `.wasm` files [directly as ES modules](https://github.c
 
 Add `wasmModuleImports: true` to `astro.config.mjs` to enable in both the Cloudflare build and the Astro dev server.
 
-```diff
-// astro.config.mjs
-import {defineConfig} from "astro/config";
-import cloudflare from '@astrojs/cloudflare';
+```diff lang="ts"
+  // astro.config.mjs
+  import {defineConfig} from "astro/config";
+  import cloudflare from '@astrojs/cloudflare';
 
-export default defineConfig({
+  export default defineConfig({
     adapter: cloudflare({
-+       wasmModuleImports: true
++     wasmModuleImports: true
     }),
-	  output: 'server'
-})
+    output: 'server'
+  })
 ```
 
 Once enabled, you can import a web assembly module in Astro with a `.wasm?module` import.
 
 The following is an example of importing a Wasm module that then responds to requests by adding the request's number parameters together.
 
-```javascript
+```js
 // pages/add/[a]/[b].js
 import mod from '../util/add.wasm?module';
 
@@ -366,19 +367,20 @@ You can also check our [Astro Integration Documentation][astro-integration] for 
 
 ### Meaningful error messages
 
-Currently, errors during running your application in Wrangler are not very useful, due to the minification of your code. For better debugging, you can add `vite.build.minify = false` setting to your `astro.config.js`
+Currently, errors during running your application in Wrangler are not very useful, due to the minification of your code. For better debugging, you can add `vite.build.minify = false` setting to your `astro.config.mjs`.
 
-```js
-export default defineConfig({
-  adapter: cloudflare(),
-  output: 'server',
+```diff lang="js"
+  // astro.config.mjs
+  export default defineConfig({
+    adapter: cloudflare(),
+    output: 'server',
 
-  vite: {
-    build: {
-      minify: false,
-    },
-  },
-});
++   vite: {
++     build: {
++       minify: false,
++     },
++   },
+  });
 ```
 
 ## Contributing

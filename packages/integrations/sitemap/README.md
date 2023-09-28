@@ -48,15 +48,16 @@ npm install @astrojs/sitemap
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-```js ins={3} "sitemap()"
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import sitemap from '@astrojs/sitemap';
+```diff lang="js" "sitemap()"
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
++ import sitemap from '@astrojs/sitemap';
 
-export default defineConfig({
-  // ...
-  integrations: [sitemap()],
-});
+  export default defineConfig({
+    // ...
+    integrations: [sitemap()],
+    //             ^^^^^^^^^
+  });
 ```
 
 ## Usage
@@ -84,19 +85,19 @@ Now, [build your site for production](https://docs.astro.build/en/reference/cli-
 
 After verifying that the sitemaps are built, you can add them to your site's `<head>` and the `robots.txt` file for crawlers to pick up.
 
-```html ins={3}
-<!-- src/layouts/Layout.astro -->
-<head>
-  <link rel="sitemap" href="/sitemap-index.xml" />
-</head>
+```diff lang="html"
+  <!-- src/layouts/Layout.astro -->
+  <head>
++   <link rel="sitemap" href="/sitemap-index.xml" />
+  </head>
 ```
 
-<!-- prettier-ignore -->
-```diff ins={4} title="public/robots.txt"
-User-agent: *
-Allow: /
+```diff
+  # public/robots.txt
+  User-agent: *
+  Allow: /
 
-Sitemap: https://<YOUR SITE>/sitemap-index.xml
++ Sitemap: https://<YOUR SITE>/sitemap-index.xml
 ```
 
 ### Example of generated files for a two-page website
