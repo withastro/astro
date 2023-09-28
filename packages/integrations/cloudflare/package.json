@@ -19,17 +19,12 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
   "exports": {
     ".": "./dist/index.js",
-    "./runtime": {
-      "types": "./runtime.d.ts",
-      "default": "./dist/runtime.js"
-    },
-    "./server.advanced.js": "./dist/server.advanced.js",
-    "./server.directory.js": "./dist/server.directory.js",
+    "./entrypoints/server.advanced.js": "./dist/entrypoints/server.advanced.js",
+    "./entrypoints/server.directory.js": "./dist/entrypoints/server.directory.js",
     "./package.json": "./package.json"
   },
   "files": [
-    "dist",
-    "runtime.d.ts"
+    "dist"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
