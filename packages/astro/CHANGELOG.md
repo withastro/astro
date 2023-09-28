@@ -1,5 +1,68 @@
 # astro
 
+## 3.2.0
+
+### Minor Changes
+
+- [#8672](https://github.com/withastro/astro/pull/8672) [`9b0114c7d`](https://github.com/withastro/astro/commit/9b0114c7d3f82914f4443c865ac38d5859fbbceb) Thanks [@delucis](https://github.com/delucis)! - Support adding integrations dynamically
+
+  Astro integrations can now themselves dynamically add and configure additional integrations during set-up. This makes it possible for integration authors to bundle integrations more intelligently for their users.
+
+  In the following example, a custom integration checks whether `@astrojs/sitemap` is already configured. If not, the integration adds Astro’s sitemap integration, passing any desired configuration options:
+
+  ```ts
+  import sitemap from '@astrojs/sitemap';
+  import type { AstroIntegration } from 'astro';
+
+  const MyIntegration = (): AstroIntegration => {
+    return {
+      name: 'my-integration',
+
+      'astro:config:setup': ({ config, updateConfig }) => {
+        // Look for sitemap in user-configured integrations.
+        const userSitemap = config.integrations.find(
+          ({ name }) => name === '@astrojs/sitemap'
+        );
+
+        if (!userSitemap) {
+          // If sitemap wasn’t found, add it.
+          updateConfig({
+            integrations: [sitemap({ /* opts */ }],
+          });
+        }
+      },
+    };
+  };
+  ```
+
+- [#8571](https://github.com/withastro/astro/pull/8571) [`63bc37f2b`](https://github.com/withastro/astro/commit/63bc37f2b60cf5b093018ae30a2ae3c51da7d22d) Thanks [@martrapp](https://github.com/martrapp)! - View transitions can now be triggered from JavaScript!
+
+  Import the client-side router from "astro:transitions/client" and enjoy your new remote control for navigation:
+
+  ```js
+  import { navigate } from 'astro:transitions/client';
+
+  // Navigate to the selected option automatically.
+  document.querySelector('select').onchange = (ev) => {
+    let href = ev.target.value;
+    navigate(href);
+  };
+  ```
+
+- [#8621](https://github.com/withastro/astro/pull/8621) [`e6be2d814`](https://github.com/withastro/astro/commit/e6be2d8146c3ada274cd3630e15cafc42ce80b2d) Thanks [@matthewp](https://github.com/matthewp)! - Route Announcer in `<ViewTransitions />`
+
+  The View Transitions router now does route announcement. When transitioning between pages with a traditional MPA approach, assistive technologies will announce the page title when the page finishes loading. This does not automatically happen during client-side routing, so visitors relying on these technologies to announce routes are not aware when a page has changed.
+
+  The view transitions route announcer runs after the `astro:page-load` event, looking for the page `<title>` to announce. If one cannot be found, the announcer falls back to the first `<h1>` it finds, or otherwise announces the pathname. We recommend you always include a `<title>` in each page for accessibility.
+
+  See the [View Transitions docs](https://docs.astro.build/en/guides/view-transitions/) for more on how accessibility is handled.
+
+### Patch Changes
+
+- [#8678](https://github.com/withastro/astro/pull/8678) [`e8495c853`](https://github.com/withastro/astro/commit/e8495c853b0fad805173783b5260ab9fb9def2f0) Thanks [@bluwy](https://github.com/bluwy)! - Fix logLevel passed to Vite build
+
+- [#8666](https://github.com/withastro/astro/pull/8666) [`9fe4b9596`](https://github.com/withastro/astro/commit/9fe4b9596988dc8b498825eae266805daf4b435b) Thanks [@nolanlawson](https://github.com/nolanlawson)! - Fix NoImageMetadata image path error message
+
 ## 3.1.4
 
 ### Patch Changes
