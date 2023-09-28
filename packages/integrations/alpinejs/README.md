@@ -67,7 +67,10 @@ The Alpine.js integration does not give you control over how the script is loade
 
 **It is not currently possible to [extend Alpine.js](https://alpinejs.dev/advanced/extending) when using this component.** If you need this feature, consider following [the manual Alpine.js setup](https://alpinejs.dev/essentials/installation) instead using an Astro script tag:
 
-```astro title="src/pages/index.astro"
+```astro
+---
+// src/pages/index.astro
+---
 <!-- Example: Load AlpineJS on a single page. -->
 <script>
   import Alpine from 'alpinejs';

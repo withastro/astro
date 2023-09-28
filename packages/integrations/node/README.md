@@ -43,17 +43,17 @@ If you prefer to install the adapter manually instead, complete the following tw
 
 1. Add two new lines to your `astro.config.mjs` project configuration file.
 
-   ```js ins={3, 6-9}
-   // astro.config.mjs
-   import { defineConfig } from 'astro/config';
-   import node from '@astrojs/node';
-
-   export default defineConfig({
-     output: 'server',
-     adapter: node({
-       mode: 'standalone',
-     }),
-   });
+   ```diff lang="js"
+     // astro.config.mjs
+     import { defineConfig } from 'astro/config';
+   + import node from '@astrojs/node';
+ 
+      export default defineConfig({
+   +   output: 'server',
+   +   adapter: node({
+   +     mode: 'standalone',
+   +   }),
+     });
    ```
 
 ## Configuration
@@ -67,6 +67,7 @@ Controls whether the adapter builds to `middleware` or `standalone` mode.
 - `middleware` mode allows the built output to be used as middleware for another Node.js server, like Express.js or Fastify.
 
   ```js
+  // astro.config.mjs
   import { defineConfig } from 'astro/config';
   import node from '@astrojs/node';
 
@@ -91,6 +92,7 @@ The server entrypoint is built to `./dist/server/entry.mjs` by default. This mod
 For example, with Express:
 
 ```js
+// run-server.mjs
 import express from 'express';
 import { handler as ssrHandler } from './dist/server/entry.mjs';
 
@@ -107,6 +109,7 @@ app.listen(8080);
 Or, with Fastify (>4):
 
 ```js
+// run-server.mjs
 import Fastify from 'fastify';
 import fastifyMiddie from '@fastify/middie';
 import fastifyStatic from '@fastify/static';
@@ -128,6 +131,7 @@ app.listen({ port: 8080 });
 Additionally, you can also pass in an object to be accessed with `Astro.locals` or in Astro middleware:
 
 ```js
+// run-server.mjs
 import express from 'express';
 import { handler as ssrHandler } from './dist/server/entry.mjs';
 
@@ -192,21 +196,20 @@ export $(cat .env.runtime) && astro build
 
 You may see this when running the entry script if it was built with npm or Yarn. This is a known issue that may be fixed in a future release. As a workaround, add `"path-to-regexp"` to the `noExternal` array:
 
-```js ins={9-13}
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
+```diff lang="js"
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import node from '@astrojs/node';
 
-import node from '@astrojs/node';
-
-export default defineConfig({
-  output: 'server',
-  adapter: node(),
-  vite: {
-    ssr: {
-      noExternal: ['path-to-regexp'],
-    },
-  },
-});
+  export default defineConfig({
+    output: 'server',
+    adapter: node(),
++   vite: {
++     ssr: {
++       noExternal: ['path-to-regexp'],
++     },
++   },
+  });
 ```
 
 For more help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
