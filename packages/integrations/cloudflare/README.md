@@ -130,6 +130,7 @@ There are three options available:
   ```
 
 ### `routes.include`
+
 `routes.include: string[]`
 
 default `[]`
@@ -137,6 +138,7 @@ default `[]`
 If you want to use the automatic `_routes.json` generation, but want to include additional routes (e.g. when having custom functions in the `functions` folder), you can use the `routes.include` option to add additional routes to the `include` array.
 
 ### `routes.exclude`
+
 `routes.exclude: string[]`
 
 default `[]`
@@ -220,6 +222,7 @@ You can access the runtime from Astro components through `Astro.locals` inside a
 // src/pages/index.astro
 const runtime = Astro.locals.runtime;
 ---
+
 <pre>{JSON.stringify(runtime.env)}</pre>
 ```
 
