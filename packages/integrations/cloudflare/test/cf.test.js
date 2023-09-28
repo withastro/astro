@@ -114,4 +114,14 @@ describe('Astro Cloudflare Runtime', () => {
 		expect($('#hasPRODKV').text()).to.equal('true');
 		expect($('#hasACCESS').text()).to.equal('true');
 	});
+
+	it('adds DO mocking', async () => {
+		expect(await fixture.pathExists('../.mf/do')).to.be.true;
+
+		let res = await fixture.fetch('/do');
+		expect(res.status).to.equal(200);
+		let html = await res.text();
+		let $ = cheerio.load(html);
+		expect($('#hasDO').text()).to.equal('true');
+	});
 });

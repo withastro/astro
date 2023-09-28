@@ -172,3 +172,20 @@ export async function getKVBindings() {
 	);
 	return bindings;
 }
+
+export function getDOBindings(): Record<
+	string,
+	{ scriptName?: string | undefined; unsafeUniqueKey?: string | undefined; className: string }
+> {
+	const { rawConfig } = parseConfig();
+	if (!rawConfig) return {};
+	if (!rawConfig?.durable_objects) return {};
+	const output = new Object({}) as Record<
+		string,
+		{ scriptName?: string | undefined; unsafeUniqueKey?: string | undefined; className: string }
+	>;
+	for (const binding of rawConfig?.durable_objects.bindings) {
+		Reflect.set(output, binding.name, { className: binding.class_name });
+	}
+	return output;
+}
