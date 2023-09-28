@@ -64,11 +64,26 @@ declare const Astro: {
 						this.childrenConnectedCallback();
 					} else {
 						// connectedCallback may run *before* children are rendered (ex. HTML streaming)
-						// If SSR children are expected, but not yet rendered, wait for event emitted by
-						// the await-children script added as the last child.
-						this.addEventListener('astro:await-children', () => this.childrenConnectedCallback(), {
-							once: true,
+						// If SSR children are expected, but not yet rendered, wait with a mutation observer
+						// for a special marker inserted when rendering islands that signals the end of the island
+						const onConnected = () => {
+							document.removeEventListener('DOMContentLoaded', onConnected);
+							mo.disconnect();
+							this.childrenConnectedCallback();
+						};
+						const mo = new MutationObserver(() => {
+							if (
+								this.lastChild?.nodeType === Node.COMMENT_NODE &&
+								this.lastChild.nodeValue === 'astro:end'
+							) {
+								this.lastChild.remove();
+								onConnected();
+							}
 						});
+						mo.observe(this, { childList: true });
+						// in case the marker comment got stripped and the mutation observer waited indefinitely,
+						// also wait for DOMContentLoaded as a last resort
+						document.addEventListener('DOMContentLoaded', onConnected, { once: true });
 					}
 				}
 				async childrenConnectedCallback() {

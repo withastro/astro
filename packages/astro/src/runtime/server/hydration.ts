@@ -173,14 +173,3 @@ export async function generateHydrateScript(
 
 	return island;
 }
-
-/**
- * Before hydrating components, we need to ensure its children are entirely streamed before we can start hydrating.
- * This script is added to the end of the children to signal the astro-island script that the children is ready.
- */
-export function generateAwaitChildrenScript(): SSRElement {
-	return {
-		children: `document.currentScript.parentElement.dispatchEvent(new CustomEvent('astro:await-children'));document.currentScript.remove()`,
-		props: {},
-	};
-}

@@ -9,11 +9,7 @@ import { createRenderInstruction, type RenderInstruction } from './instruction.j
 import { clsx } from 'clsx';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 import { HTMLBytes, markHTMLString } from '../escape.js';
-import {
-	extractDirectives,
-	generateAwaitChildrenScript,
-	generateHydrateScript,
-} from '../hydration.js';
+import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
 import { isPromise } from '../util.js';
@@ -364,7 +360,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 	if (island.children) {
 		island.props['await-children'] = '';
-		island.children += renderElement('script', generateAwaitChildrenScript(), false);
+		// Marker to signal that Astro island children is completed while streaming
+		island.children += `<!--astro:end-->`;
 	}
 
 	return {
