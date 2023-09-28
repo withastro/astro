@@ -47,7 +47,7 @@ Then, apply this integration to your `astro.config.*` file using the `integratio
   // astro.config.mjs
   import { defineConfig } from 'astro/config';
 + import alpine from '@astrojs/alpinejs';
-  
+
   export default defineConfig({
     // ...
     integrations: [alpine()],
