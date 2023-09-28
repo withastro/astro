@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- [#8672](https://github.com/withastro/astro/pull/8672) [`9b0114c7d`](https://github.com/withastro/astro/commit/9b0114c7d3f82914f4443c865ac38d5859fbbceb) Thanks [@delucis](https://github.com/delucis)! - Support adding integrations dynamically
+- [#8696](https://github.com/withastro/astro/pull/8696) [`2167ffd72`](https://github.com/withastro/astro/commit/2167ffd72f58904f449ffc6e53581a2d8faf7317) Thanks [@matthewp](https://github.com/matthewp)! - Support adding integrations dynamically
 
   Astro integrations can now themselves dynamically add and configure additional integrations during set-up. This makes it possible for integration authors to bundle integrations more intelligently for their users.
 
@@ -35,7 +35,7 @@
   };
   ```
 
-- [#8571](https://github.com/withastro/astro/pull/8571) [`63bc37f2b`](https://github.com/withastro/astro/commit/63bc37f2b60cf5b093018ae30a2ae3c51da7d22d) Thanks [@martrapp](https://github.com/martrapp)! - View transitions can now be triggered from JavaScript!
+- [#8696](https://github.com/withastro/astro/pull/8696) [`2167ffd72`](https://github.com/withastro/astro/commit/2167ffd72f58904f449ffc6e53581a2d8faf7317) Thanks [@matthewp](https://github.com/matthewp)! - View transitions can now be triggered from JavaScript!
 
   Import the client-side router from "astro:transitions/client" and enjoy your new remote control for navigation:
 
@@ -49,7 +49,7 @@
   };
   ```
 
-- [#8621](https://github.com/withastro/astro/pull/8621) [`e6be2d814`](https://github.com/withastro/astro/commit/e6be2d8146c3ada274cd3630e15cafc42ce80b2d) Thanks [@matthewp](https://github.com/matthewp)! - Route Announcer in `<ViewTransitions />`
+- [#8696](https://github.com/withastro/astro/pull/8696) [`2167ffd72`](https://github.com/withastro/astro/commit/2167ffd72f58904f449ffc6e53581a2d8faf7317) Thanks [@matthewp](https://github.com/matthewp)! - Route Announcer in `<ViewTransitions />`
 
   The View Transitions router now does route announcement. When transitioning between pages with a traditional MPA approach, assistive technologies will announce the page title when the page finishes loading. This does not automatically happen during client-side routing, so visitors relying on these technologies to announce routes are not aware when a page has changed.
 
@@ -59,9 +59,17 @@
 
 ### Patch Changes
 
-- [#8678](https://github.com/withastro/astro/pull/8678) [`e8495c853`](https://github.com/withastro/astro/commit/e8495c853b0fad805173783b5260ab9fb9def2f0) Thanks [@bluwy](https://github.com/bluwy)! - Fix logLevel passed to Vite build
+- [#8647](https://github.com/withastro/astro/pull/8647) [`408b50c5e`](https://github.com/withastro/astro/commit/408b50c5ea5aba66252424f54788557274a58571) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixed an issue where configured redirects with dynamic routes did not work in dev mode.
 
-- [#8666](https://github.com/withastro/astro/pull/8666) [`9fe4b9596`](https://github.com/withastro/astro/commit/9fe4b9596988dc8b498825eae266805daf4b435b) Thanks [@nolanlawson](https://github.com/nolanlawson)! - Fix NoImageMetadata image path error message
+- [#8696](https://github.com/withastro/astro/pull/8696) [`2167ffd72`](https://github.com/withastro/astro/commit/2167ffd72f58904f449ffc6e53581a2d8faf7317) Thanks [@matthewp](https://github.com/matthewp)! - Fix logLevel passed to Vite build
+
+- [#8696](https://github.com/withastro/astro/pull/8696) [`2167ffd72`](https://github.com/withastro/astro/commit/2167ffd72f58904f449ffc6e53581a2d8faf7317) Thanks [@matthewp](https://github.com/matthewp)! - Fix NoImageMetadata image path error message
+
+- [#8670](https://github.com/withastro/astro/pull/8670) [`e797b6816`](https://github.com/withastro/astro/commit/e797b6816072f63f38d9a91dd2a66765c558d46c) Thanks [@MichailiK](https://github.com/MichailiK)! - Fix asset optimization failing when outDir is outside the project directory
+
+- [#8684](https://github.com/withastro/astro/pull/8684) [`824dd4670`](https://github.com/withastro/astro/commit/824dd4670a145c47337eff84a5ae412bf7443117) Thanks [@matthewp](https://github.com/matthewp)! - Support content collections with % in filename
+
+- [#8648](https://github.com/withastro/astro/pull/8648) [`cfd895d87`](https://github.com/withastro/astro/commit/cfd895d877fdb7fc69e745665a374fc32cb3ef7d) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixed an issue where a response with status code 404 led to an endless loop of implicit rerouting in dev mode.
 
 ## 3.1.4
 
