@@ -2,4 +2,4 @@
 '@astrojs/cloudflare': minor
 ---
 
-target es2022 instead of es2020 to fix esbuild incompatibility issues
+Change build target from `es2020` to `es2022`, for better support
