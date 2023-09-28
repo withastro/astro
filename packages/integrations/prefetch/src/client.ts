@@ -6,6 +6,7 @@ const events = ['mouseenter', 'touchstart', 'focus'];
 
 const preloaded = new Set<string>();
 const loadedStyles = new Set<string>();
+const loadedImages = new Set<string>();
 
 function shouldPreload({ href }: { href: string }) {
 	try {
@@ -52,7 +53,9 @@ async function preloadHref(link: HTMLAnchorElement) {
 
 		const html = parser.parseFromString(contents, 'text/html');
 		const styles = Array.from(html.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'));
+		const images = Array.from(html.querySelectorAll<HTMLImageElement>('img'));
 
+		
 		await Promise.all(
 			styles
 				.filter((el) => !loadedStyles.has(el.href))
@@ -61,6 +64,15 @@ async function preloadHref(link: HTMLAnchorElement) {
 					return fetch(el.href);
 				})
 		);
+
+		await Promise.all(
+      images
+				.filter((el) => !loadedImages.has(el.src))
+			  .map((el) => {
+          loadedImages.add(el.src);
+          return fetch(el.src);
+        })
+    );
 	} catch {}
 }
 
