@@ -232,7 +232,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							fileURLToPath(assetsUrl)
 						);
 						await esbuild.build({
-							target: 'es2020',
+							target: 'es2022',
 							platform: 'browser',
 							conditions: ['workerd', 'worker', 'browser'],
 							external: [
@@ -313,7 +313,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					const finalBuildUrl = pathToFileURL(buildPath.replace(/\.mjs$/, '.js'));
 
 					await esbuild.build({
-						target: 'es2020',
+						target: 'es2022',
 						platform: 'browser',
 						conditions: ['workerd', 'worker', 'browser'],
 						external: [
