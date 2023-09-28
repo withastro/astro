@@ -44,16 +44,16 @@ If you prefer to install the adapter manually instead, complete the following tw
 1. Add two new lines to your `astro.config.mjs` project configuration file.
 
    ```diff lang="js"
-   // astro.config.mjs
-    import { defineConfig } from 'astro/config';
-   +import node from '@astrojs/node';
-
-   export default defineConfig({
-   + output: 'server',
-   + adapter: node({
-   +  mode: 'standalone',
-   + }),
-   });
+     // astro.config.mjs
+     import { defineConfig } from 'astro/config';
+   + import node from '@astrojs/node';
+ 
+      export default defineConfig({
+   +   output: 'server',
+   +   adapter: node({
+   +     mode: 'standalone',
+   +   }),
+     });
    ```
 
 ## Configuration
@@ -197,19 +197,19 @@ export $(cat .env.runtime) && astro build
 You may see this when running the entry script if it was built with npm or Yarn. This is a known issue that may be fixed in a future release. As a workaround, add `"path-to-regexp"` to the `noExternal` array:
 
 ```diff lang="js"
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import node from '@astrojs/node';
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import node from '@astrojs/node';
 
-export default defineConfig({
-  output: 'server',
-  adapter: node(),
-+ vite: {
-+   ssr: {
-+     noExternal: ['path-to-regexp'],
+  export default defineConfig({
+    output: 'server',
+    adapter: node(),
++   vite: {
++     ssr: {
++       noExternal: ['path-to-regexp'],
++     },
 +   },
-+ },
-});
+  });
 ```
 
 For more help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
