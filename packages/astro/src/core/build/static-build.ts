@@ -197,7 +197,6 @@ async function ssrBuild(
 								}
 							}
 						}
-						//console.log("HERE", name)
 						return `chunks/[name]_[hash].mjs`;
 					},
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
