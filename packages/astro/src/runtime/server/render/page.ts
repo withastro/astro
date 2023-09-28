@@ -58,6 +58,11 @@ export async function renderPage(
 	// Create final response from body
 	const init = result.response;
 	const headers = new Headers(init.headers);
+
+	// We know that the response is always HTML here, so set the Content-Type
+	// will be fine.
+	headers.set('Content-Type', 'text/html; charset=utf-8');
+
 	// For non-streaming, convert string to byte array to calculate Content-Length
 	if (!streaming && typeof body === 'string') {
 		body = encoder.encode(body);
