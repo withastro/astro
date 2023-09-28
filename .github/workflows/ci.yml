@@ -155,7 +155,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-latest]
-        NODE_VERSION: [18]
+        NODE_VERSION: [18.17.1]
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
