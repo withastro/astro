@@ -56,20 +56,19 @@ declare const Astro: {
 					document.addEventListener('astro:after-swap', this.unmount, { once: true });
 				}
 				connectedCallback() {
-					if (!this.hasAttribute('await-children') || this.firstChild) {
+					if (
+						!this.hasAttribute('await-children') ||
+						document.readyState === 'interactive' ||
+						document.readyState === 'complete'
+					) {
 						this.childrenConnectedCallback();
 					} else {
 						// connectedCallback may run *before* children are rendered (ex. HTML streaming)
-						// If SSR children are expected, but not yet rendered, wait for the DOM to finish parsing
-						if (document.readyState === 'interactive' || document.readyState === 'complete') {
-							this.childrenConnectedCallback();
-						} else {
-							document.addEventListener(
-								'DOMContentLoaded',
-								() => this.childrenConnectedCallback(),
-								{ once: true }
-							);
-						}
+						// If SSR children are expected, but not yet rendered, wait for event emitted by
+						// the await-children script added as the last child.
+						this.addEventListener('astro:await-children', () => this.childrenConnectedCallback(), {
+							once: true,
+						});
 					}
 				}
 				async childrenConnectedCallback() {
