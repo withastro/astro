@@ -186,7 +186,7 @@ export default defineConfig({
 
 ### `runtime`
 
-`runtime: "off" | "local" | "remote"`
+`runtime: "off" | "local"`
 
 default `"off"`
 
@@ -194,8 +194,7 @@ Determines whether and how the Cloudflare Runtime is added to `astro dev`.
 
 The Cloudflare Runtime includes [Cloudflare bindings](https://developers.cloudflare.com/pages/platform/functions/bindings), [environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables), and the [cf object](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties). Read more about [accessing the Cloudflare Runtime](#access-to-the-cloudflare-runtime).
 
-- `local`: uses bindings mocking and locally static placeholdes
-- `remote`: uses remote bindings and a live fetched cf object
+- `local`: uses bindings mocking and locally static placeholders
 - `off`: no access to the Cloudflare runtime using `astro dev`. You can alternatively use [Preview with Wrangler](#preview-with-wrangler)
 
 ```diff lang="js"
