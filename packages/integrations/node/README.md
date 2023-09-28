@@ -47,7 +47,7 @@ If you prefer to install the adapter manually instead, complete the following tw
      // astro.config.mjs
      import { defineConfig } from 'astro/config';
    + import node from '@astrojs/node';
- 
+
       export default defineConfig({
    +   output: 'server',
    +   adapter: node({

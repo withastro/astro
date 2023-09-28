@@ -71,6 +71,7 @@ The Alpine.js integration does not give you control over how the script is loade
 ---
 // src/pages/index.astro
 ---
+
 <!-- Example: Load AlpineJS on a single page. -->
 <script>
   import Alpine from 'alpinejs';
