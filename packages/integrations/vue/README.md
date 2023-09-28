@@ -42,15 +42,16 @@ npm install vue
 
 Now, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-```js ins={3} "vue()"
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import vue from '@astrojs/vue';
+```diff lang="js" "vue()"
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
++ import vue from '@astrojs/vue';
 
-export default defineConfig({
-  // ...
-  integrations: [vue()],
-});
+  export default defineConfig({
+    // ...
+    integrations: [vue()],
+    //             ^^^^^
+  });
 ```
 
 ## Getting started
