@@ -111,7 +111,7 @@ class AstroBuilder {
 		});
 
 		if (isServerLikeOutput(this.settings.config)) {
-			this.settings = injectImageEndpoint(this.settings);
+			this.settings = injectImageEndpoint(this.settings, 'build');
 		}
 
 		this.manifest = createRouteManifest({ settings: this.settings }, this.logger);
