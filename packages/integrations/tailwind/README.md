@@ -50,15 +50,16 @@ npm install @astrojs/tailwind tailwindcss
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-```js ins={3} "tailwind()"
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import tailwind from '@astrojs/tailwind';
+```diff lang="js" "tailwind()"
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
++ import tailwind from '@astrojs/tailwind';
 
-export default defineConfig({
-  // ...
-  integrations: [tailwind()],
-});
+  export default defineConfig({
+    // ...
+    integrations: [tailwind()],
+    //             ^^^^^^^^^^
+  });
 ```
 
 Then, create a `tailwind.config.cjs` file in your project's root directory. You can use the following command to generate a basic configuration file for you:
@@ -69,16 +70,16 @@ npx tailwindcss init
 
 Finally, add this basic configuration to your `tailwind.config.cjs` file:
 
-```js ins={4} "content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}']"
-// tailwind.config.cjs
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-};
+```diff lang="js" "content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}']"
+  // tailwind.config.cjs
+  /** @type {import('tailwindcss').Config} */
+  module.exports = {
++   content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
+    theme: {
+      extend: {},
+    },
+    plugins: [],
+  };
 ```
 
 ## Usage
