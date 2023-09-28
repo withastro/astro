@@ -188,8 +188,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			}
 
 			if (options.widths && options.densities) {
-				console.warn('Cannot use `widths` and `densities` at the same time. Using `densities`.');
-				options.widths = undefined;
+				throw new AstroError(AstroErrorData.IncompatibleDescriptorOptions);
 			}
 
 			// We currently do not support processing SVGs, so whenever the input format is a SVG, force the output to also be one
@@ -226,6 +225,9 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		const targetFormat = options.format ?? DEFAULT_OUTPUT_FORMAT;
 
 		const aspectRatio = targetWidth / targetHeight;
+		const imageWidth = isESMImportedImage(options.src) ? options.src.width : options.width;
+		const maxWidth = options.width ?? imageWidth ?? Infinity;
+
 		if (densities) {
 			const densityValues = densities.map((density) => {
 				if (typeof density === 'number') {
@@ -235,14 +237,17 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				}
 			});
 
-			const densityWidths = densityValues.map((density) => Math.round(targetWidth * density));
+			const densityWidths = densityValues
+				.sort()
+				.map((density) => Math.round(targetWidth * density));
 
 			densityWidths.forEach((width, index) => {
+				const maxTargetWidth = Math.min(width, maxWidth);
 				srcSet.push({
 					transform: {
 						...options,
-						width,
-						height: Math.round(width / aspectRatio),
+						width: maxTargetWidth,
+						height: Math.round(maxTargetWidth / aspectRatio),
 						format: targetFormat,
 					},
 					descriptor: `${densityValues[index]}x`,
@@ -253,11 +258,12 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			});
 		} else if (widths) {
 			widths.forEach((width) => {
+				const maxTargetWidth = Math.min(width, maxWidth);
 				srcSet.push({
 					transform: {
 						...options,
 						width,
-						height: Math.round(width / aspectRatio),
+						height: Math.round(maxTargetWidth / aspectRatio),
 						format: targetFormat,
 					},
 					descriptor: `${width}w`,

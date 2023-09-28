@@ -59,8 +59,10 @@ export interface GetImageResult {
 	rawOptions: ImageTransform;
 	options: ImageTransform;
 	src: string;
-	srcSet: SrcSetValue[];
-	srcSetValue: string;
+	srcSet: {
+		values: SrcSetValue[];
+		attribute: string;
+	};
 	attributes: Record<string, any>;
 }
 

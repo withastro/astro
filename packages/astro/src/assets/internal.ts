@@ -124,8 +124,10 @@ export async function getImage(
 		rawOptions: resolvedOptions,
 		options: validatedOptions,
 		src: imageURL,
-		srcSet: srcSets,
-		srcSetValue: srcSets.map((srcSet) => `${srcSet.url} ${srcSet.descriptor}`).join(', '),
+		srcSet: {
+			values: srcSets,
+			attribute: srcSets.map((srcSet) => `${srcSet.url} ${srcSet.descriptor}`).join(', '),
+		},
 		attributes:
 			service.getHTMLAttributes !== undefined
 				? service.getHTMLAttributes(validatedOptions, imageConfig)

@@ -626,6 +626,21 @@ export const ExpectedImageOptions = {
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
+ * Only one of `densities` or `widths` can be specified. Those attributes are used to construct a `srcset` attribute, which cannot have both `x` and `w` descriptors.
+ */
+export const IncompatibleDescriptorOptions = {
+	name: 'IncompatibleDescriptorOptions',
+	title: 'Cannot set both `densities` and `widths`',
+	message:
+		"Only one of `densities` or `widths` can be specified. In most cases, you'll probably want to use only `widths` if you require specific widths.",
+	hint: 'Those attributes are used to construct a `srcset` attribute, which cannot have both `x` and `w` descriptors.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * @description
  * Astro could not find an image you imported. Often, this is simply caused by a typo in the path.
  *
  * Images in Markdown are relative to the current file. To refer to an image that is located in the same folder as the `.md` file, the path should start with `./`

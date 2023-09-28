@@ -6,17 +6,22 @@ import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 import { HTMLAttributes } from '../types';
 
 type Props = (LocalImageProps | RemoteImageProps) & {
-	formats: ImageOutputFormat[];
-	fallbackFormat: ImageOutputFormat;
-	pictureAttributes: HTMLAttributes<'picture'>;
+	formats?: ImageOutputFormat[];
+	fallbackFormat?: ImageOutputFormat;
+	pictureAttributes?: HTMLAttributes<'picture'>;
 };
 
-const props = Astro.props;
-const optimizedImages: Record<
-	ImageOutputFormat,
-	GetImageResult
-> = await Promise.all(
-	props.formats.map(async (format) => await getImage({ ...props, format: format, widths: props.widths, densities: props.densities }))
+const {formats = ["webp"], pictureAttributes = {}, ...props} = Astro.props;
+
+if (props.alt === undefined || props.alt === null) {
+	throw new AstroError(AstroErrorData.ImageMissingAlt);
+}
+
+const optimizedImages: GetImageResult[] = await Promise.all(
+	formats.map(
+		async (format) =>
+			await getImage({ ...props, format: format, widths: props.widths, densities: props.densities })
+	)
 );
 
 const fallbackFormat =
@@ -26,19 +31,24 @@ const fallbackFormat =
 			: 'png'
 		: 'png';
 
-const originalImage = await getImage({ ...props, format: fallbackFormat, widths: props.widths, densities: props.densities });
+const fallbackImage = await getImage({
+	...props,
+	format: fallbackFormat,
+	widths: props.widths,
+	densities: props.densities,
+});
 
-if (props.alt === undefined || props.alt === null) {
-	throw new AstroError(AstroErrorData.ImageMissingAlt);
+const additionalAttributes: Record<string, any> = {};
+if (fallbackImage.srcSet.values.length > 0) {
+	additionalAttributes.srcset = fallbackImage.srcSet.attribute;
 }
 ---
 
-<picture {...props.pictureAttributes}>
-	{Object.entries(optimizedImages).map(([format, image]) => (
-		<source
-			srcset={image.srcSetValue}
-			type={image.srcSet[0].attributes?.type}
-		/>
-	))}
-	<img src={originalImage.src} {...originalImage.attributes} />
+<picture {...pictureAttributes}>
+	{
+		Object.entries(optimizedImages).map(([_, image]) => (
+			<source srcset={`${image.src}, ` + image.srcSet.attribute} type={image.srcSet.values[0].attributes?.type} />
+		))
+	}
+	<img src={fallbackImage.src} {...additionalAttributes} {...fallbackImage.attributes} />
 </picture>
