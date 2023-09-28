@@ -111,9 +111,9 @@ jobs:
         NODE_VERSION: [18, 20.5.1]
         include:
           - os: macos-latest
-            NODE_VERSION: 18.17.1
-          - os: windows-latest
             NODE_VERSION: 18
+          - os: windows-latest
+            NODE_VERSION: 18.17.1
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
