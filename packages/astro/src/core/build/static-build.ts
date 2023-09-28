@@ -189,7 +189,6 @@ async function ssrBuild(
 						// Detect if the chunk name has as % sign that is not encoded.
 						// This is borrowed from Node core: https://github.com/nodejs/node/blob/3838b579e44bf0c2db43171c3ce0da51eb6b05d5/lib/internal/url.js#L1382-L1391
 						// We do this because you cannot import a module with this character in it.
-						// eslint-disable-next-line @typescript-eslint/prefer-for-of
 						for(let i = 0; i < name.length; i++) {
 							if(name[i] === '%') {
 								const third = name.codePointAt(i + 2)! | 0x20;
