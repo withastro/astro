@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers/Pages",
-  "version": "7.3.0",
+  "version": "7.3.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -19,17 +19,12 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
   "exports": {
     ".": "./dist/index.js",
-    "./runtime": {
-      "types": "./runtime.d.ts",
-      "default": "./dist/runtime.js"
-    },
-    "./server.advanced.js": "./dist/server.advanced.js",
-    "./server.directory.js": "./dist/server.directory.js",
+    "./entrypoints/server.advanced.js": "./dist/entrypoints/server.advanced.js",
+    "./entrypoints/server.directory.js": "./dist/entrypoints/server.directory.js",
     "./package.json": "./package.json"
   },
   "files": [
-    "dist",
-    "runtime.d.ts"
+    "dist"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
@@ -52,7 +47,7 @@
     "vite": "^4.4.9"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.1.4"
+    "astro": "workspace:^3.2.0"
   },
   "devDependencies": {
     "@types/iarna__toml": "^2.0.2",
