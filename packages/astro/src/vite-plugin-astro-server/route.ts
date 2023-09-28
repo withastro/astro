@@ -221,19 +221,19 @@ export async function handleRoute({
 	if (response.status === 404 && has404Route(manifestData)) {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
 		if (fourOhFourRoute?.route !== options.route)
-		return handleRoute({
-			...options,
-			matchedRoute: fourOhFourRoute,
-			url: new URL(pathname, url),
-			status: 404,
-			body,
-			origin,
-			pipeline,
-			manifestData,
-			incomingRequest,
-			incomingResponse,
-			manifest,
-		});
+			return handleRoute({
+				...options,
+				matchedRoute: fourOhFourRoute,
+				url: new URL(pathname, url),
+				status: 404,
+				body,
+				origin,
+				pipeline,
+				manifestData,
+				incomingRequest,
+				incomingResponse,
+				manifest,
+			});
 	}
 	if (route.type === 'endpoint') {
 		await writeWebResponse(incomingResponse, response);
