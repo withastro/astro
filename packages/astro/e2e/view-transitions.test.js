@@ -631,7 +631,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('client:only styles are retained on transition', async ({ page, astro }) => {
-		const totalExpectedStyles = 8;
+		const totalExpectedStyles = 7;
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/client-only-one'));
