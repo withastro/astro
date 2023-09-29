@@ -149,16 +149,6 @@ importers:
         specifier: ^3.2.0
         version: link:../../packages/astro
 
-  examples/deno:
-    dependencies:
-      astro:
-        specifier: ^3.2.0
-        version: link:../../packages/astro
-    devDependencies:
-      '@astrojs/deno':
-        specifier: ^5.0.1
-        version: 5.0.1(astro@packages+astro)
-
   examples/framework-alpine:
     dependencies:
       '@astrojs/alpinejs':
@@ -915,12 +905,6 @@ importers:
         version: link:../../..
 
   packages/astro/e2e/fixtures/css:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/e2e/fixtures/css-sourcemaps:
     dependencies:
       astro:
         specifier: workspace:*
@@ -5223,15 +5207,6 @@ packages:
   /@astrojs/compiler@2.1.0:
     resolution: {integrity: sha512-Mp+qrNhly+27bL/Zq8lGeUY+YrdoU0eDfIlAeGIPrzt0PnI/jGpvPUdCaugv4zbCrDkOUScFfcbeEiYumrdJnw==}
     dev: false
-
-  /@astrojs/deno@5.0.1(astro@packages+astro):
-    resolution: {integrity: sha512-nYztGqHqC+q3A9ynjj3gblAkO/ZylDwahjVTx+2DvZgX4U+BJU/gL5BZkNtL+P10opCKJi29NvvVFvk6jwZHmA==}
-    peerDependencies:
-      astro: '*'
-    dependencies:
-      astro: link:packages/astro
-      esbuild: 0.19.2
-    dev: true
 
   /@astrojs/language-server@2.3.0(prettier-plugin-astro@0.12.0)(prettier@3.0.3)(typescript@5.1.6):
     resolution: {integrity: sha512-NFSzszjR4+f0+fTUCuFKXrLWusJFqWvHMrIzHB0lXUE8dt3Dm1Ok9Emrdj3s3BvlguJz05MV9xSIz1puMvomtQ==}

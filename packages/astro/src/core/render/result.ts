@@ -224,7 +224,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			hasDirectives: new Set(),
 			headInTree: false,
 			extraHead: [],
-			propagators: new Map(),
+			propagators: new Set(),
 		},
 	};
 
