@@ -56,7 +56,7 @@
     "./components/*": "./components/*",
     "./assets": "./dist/assets/index.js",
     "./assets/utils": "./dist/assets/utils/index.js",
-    "./assets/image-endpoint": "./dist/assets/image-endpoint.js",
+    "./assets/endpoint/*": "./dist/assets/endpoint/*.js",
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/squoosh": "./dist/assets/services/squoosh.js",
     "./assets/services/noop": "./dist/assets/services/noop.js",
