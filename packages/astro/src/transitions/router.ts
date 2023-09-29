@@ -208,7 +208,7 @@ async function updateDOM(
 				const devId = el.dataset.viteDevId;
 				// If this same style tag exists, remove it from the new page
 				return (
-					newDocument.querySelector(`style[data-astro-dev-id="${devId}"]`) ||
+					newDocument.querySelector(`style[data-vite-dev-id="${devId}"]`) ||
 					// Otherwise, keep it anyways. This is client:only styles.
 					noopEl
 				);
