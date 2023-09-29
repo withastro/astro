@@ -83,7 +83,7 @@ declare const Astro: {
 						mo.observe(this, { childList: true });
 						// in case the marker comment got stripped and the mutation observer waited indefinitely,
 						// also wait for DOMContentLoaded as a last resort
-						document.addEventListener('DOMContentLoaded', onConnected, { once: true });
+						document.addEventListener('DOMContentLoaded', onConnected);
 					}
 				}
 				async childrenConnectedCallback() {
