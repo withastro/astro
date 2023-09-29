@@ -198,6 +198,22 @@ async function updateDOM(
 			const href = el.getAttribute('href');
 			return newDocument.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
 		}
+		// What follows is a fix for an issue (#8472) with missing client:only styles after transition.
+		// That problem exists only in dev mode where styles are injected into the page by Vite.
+		// Returning a noop element ensures that the styles are not removed from the old document.
+		// Guarding the code below with the dev mode check
+		// allows tree shaking to remove this code in production.
+		if (import.meta.env.DEV) {
+			if (el.tagName === 'STYLE' && el.dataset.viteDevId) {
+				const devId = el.dataset.viteDevId;
+				// If this same style tag exists, remove it from the new page
+				return (
+					newDocument.querySelector(`style[data-vite-dev-id="${devId}"]`) ||
+					// Otherwise, keep it anyways. This is client:only styles.
+					noopEl
+				);
+			}
+		}
 		return null;
 	};
 
