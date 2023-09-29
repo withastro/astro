@@ -292,7 +292,9 @@ async function updateDOM(
 		// Do not preload links that are already on the page.
 		if (
 			!document.querySelector(
-				`[${PERSIST_ATTR}="${el.getAttribute(PERSIST_ATTR)}"], link[rel=stylesheet]`
+				`[${PERSIST_ATTR}="${el.getAttribute(
+					PERSIST_ATTR
+				)}"], link[rel=stylesheet][href="${el.getAttribute('href')}"]`
 			)
 		) {
 			const c = document.createElement('link');
