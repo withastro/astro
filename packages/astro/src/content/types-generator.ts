@@ -106,7 +106,8 @@ export async function createContentTypesGenerator({
 		});
 
 		for (const entry of globResult) {
-			const entryURL = new URL(entry.path, contentPaths.contentDir);
+			const fullPath = path.join(fileURLToPath(contentPaths.contentDir), entry.path);
+			const entryURL = pathToFileURL(fullPath);
 			if (entryURL.href.startsWith(contentPaths.config.url.href)) continue;
 			if (entry.dirent.isFile()) {
 				events.push({

@@ -220,19 +220,20 @@ export async function handleRoute({
 	let response = await pipeline.renderRoute(renderContext, mod);
 	if (response.status === 404 && has404Route(manifestData)) {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
-		return handleRoute({
-			...options,
-			matchedRoute: fourOhFourRoute,
-			url: new URL(pathname, url),
-			status: 404,
-			body,
-			origin,
-			pipeline,
-			manifestData,
-			incomingRequest,
-			incomingResponse,
-			manifest,
-		});
+		if (fourOhFourRoute?.route !== options.route)
+			return handleRoute({
+				...options,
+				matchedRoute: fourOhFourRoute,
+				url: new URL(pathname, url),
+				status: 404,
+				body,
+				origin,
+				pipeline,
+				manifestData,
+				incomingRequest,
+				incomingResponse,
+				manifest,
+			});
 	}
 	if (route.type === 'endpoint') {
 		await writeWebResponse(incomingResponse, response);
@@ -342,6 +343,6 @@ function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | undefined {
 	if (matchedRoute.route.route === '/500') return 500;
 }
 
-function has404Route(manifest: ManifestData): RouteData | undefined {
-	return manifest.routes.find((route) => route.route === '/404');
+function has404Route(manifest: ManifestData): boolean {
+	return manifest.routes.some((route) => route.route === '/404');
 }

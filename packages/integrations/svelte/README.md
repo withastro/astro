@@ -42,15 +42,16 @@ npm install svelte
 
 Now, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-```js ins={3} "svelte()"
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import svelte from '@astrojs/svelte';
+```diff lang="js" "svelte()"
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
++ import svelte from '@astrojs/svelte';
 
-export default defineConfig({
-  // ...
-  integrations: [svelte()],
-});
+  export default defineConfig({
+    // ...
+    integrations: [svelte()],
+    //             ^^^^^^^^
+  });
 ```
 
 ## Getting started

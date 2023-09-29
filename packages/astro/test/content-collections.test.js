@@ -54,12 +54,13 @@ describe('Content Collections', () => {
 
 				const ids = json.withSchemaConfig.map((item) => item.id);
 				const publishedDates = json.withSchemaConfig.map((item) => item.data.publishedAt);
-				expect(ids).to.deep.equal(['one.md', 'three.md', 'two.md']);
+				expect(ids).to.deep.equal(['four%.md', 'one.md', 'three.md', 'two.md']);
 				expect(publishedDates.every((date) => date instanceof Date)).to.equal(
 					true,
 					'Not all publishedAt dates are Date objects'
 				);
 				expect(publishedDates.map((date) => date.toISOString())).to.deep.equal([
+					'2021-01-01T00:00:00.000Z',
 					'2021-01-01T00:00:00.000Z',
 					'2021-01-03T00:00:00.000Z',
 					'2021-01-02T00:00:00.000Z',

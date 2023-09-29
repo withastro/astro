@@ -1,0 +1,345 @@
+{
+  "data": {
+    "adult": false,
+    "backdrop_path": "/e8FyMnifoN5BMuRFE97fS1lJZ6S.jpg",
+    "belongs_to_collection": {
+      "id": 1153632,
+      "name": "Darkland Collection",
+      "poster_path": null,
+      "backdrop_path": null
+    },
+    "budget": 0,
+    "genres": [
+      { "id": 28, "name": "Action" },
+      { "id": 53, "name": "Thriller" }
+    ],
+    "homepage": "",
+    "id": 1085218,
+    "imdb_id": "tt20204996",
+    "original_language": "da",
+    "original_title": "Underverden 2",
+    "overview": "Seven years ago, Zaid went to war against the Copenhagen underworld to avenge his dead brother. His identity as a respected doctor of cardiology and life as a family man is but a fading dream, and in prison Zaid suffers the loss of his son Noah, whom he barely knows. When a police agent approaches Zaid and offers him a deal to be released in exchange for infiltrating the Copenhagen underworld, he sees his chance to reclaim the remnants of the family life he left behind. But everything has a price, and Zaid realizes that he has now seriously endangered his son's life. After all, once you become part of the underworld, is there any way out?",
+    "popularity": 524.476,
+    "poster_path": "/c8B4DsVcFVDLVmbpHMHU3RjLNAV.jpg",
+    "production_companies": [
+      {
+        "id": 64293,
+        "logo_path": "/lbYGnir9KeY8NyQZrUFZbf3QDej.png",
+        "name": "Profile Pictures",
+        "origin_country": "DK"
+      }
+    ],
+    "production_countries": [{ "iso_3166_1": "DK", "name": "Denmark" }],
+    "release_date": "2023-04-13",
+    "revenue": 0,
+    "runtime": 110,
+    "spoken_languages": [
+      { "english_name": "Arabic", "iso_639_1": "ar", "name": "العربية" },
+      { "english_name": "Danish", "iso_639_1": "da", "name": "Dansk" }
+    ],
+    "status": "Released",
+    "tagline": "",
+    "title": "Darkland: The Return",
+    "video": false,
+    "vote_average": 6.32,
+    "vote_count": 64,
+    "credits": {
+      "cast": [
+        {
+          "adult": false,
+          "gender": 2,
+          "id": 234907,
+          "known_for_department": "Acting",
+          "name": "Dar Salim",
+          "original_name": "Dar Salim",
+          "popularity": 16.442,
+          "profile_path": "/oTYCqdF6nfZTsvt1fbypi54ydI.jpg",
+          "cast_id": 1,
+          "character": "Zaid",
+          "credit_id": "6429b39701b1ca0113cc2840",
+          "order": 0
+        },
+        {
+          "adult": false,
+          "gender": 1,
+          "id": 90514,
+          "known_for_department": "Acting",
+          "name": "Birgitte Hjort Sørensen",
+          "original_name": "Birgitte Hjort Sørensen",
+          "popularity": 9.741,
+          "profile_path": "/uPak0FlCPdsc9B1pw4bBkuaMLXT.jpg",
+          "cast_id": 2,
+          "character": "Helle",
+          "credit_id": "6429b3d101b1ca00d5e8507e",
+          "order": 1
+        },
+        {
+          "adult": false,
+          "gender": 1,
+          "id": 32682,
+          "known_for_department": "Acting",
+          "name": "Stine Fischer Christensen",
+          "original_name": "Stine Fischer Christensen",
+          "popularity": 3.87,
+          "profile_path": "/6MYODCa28L1IzfhcYTUZUYThoF2.jpg",
+          "cast_id": 3,
+          "character": "Stine",
+          "credit_id": "6429b42c9cc67b05796bcdcc",
+          "order": 2
+        },
+        {
+          "adult": false,
+          "gender": 0,
+          "id": 1178394,
+          "known_for_department": "Acting",
+          "name": "Henrik Vestergaard",
+          "original_name": "Henrik Vestergaard",
+          "popularity": 0.766,
+          "profile_path": "/1Opgkbdkyt1x5iEOLgV3VJ29ZpA.jpg",
+          "cast_id": 4,
+          "character": "Lars",
+          "credit_id": "6429b45401b1ca0097fdfb0f",
+          "order": 3
+        },
+        {
+          "adult": false,
+          "gender": 0,
+          "id": 3236472,
+          "known_for_department": "Acting",
+          "name": "Soheil Bavi",
+          "original_name": "Soheil Bavi",
+          "popularity": 0.6,
+          "profile_path": null,
+          "cast_id": 5,
+          "character": "Muhdir",
+          "credit_id": "6429b4828de0ae00b65514de",
+          "order": 4
+        },
+        {
+          "adult": false,
+          "gender": 0,
+          "id": 3991209,
+          "known_for_department": "Acting",
+          "name": "Jack Pedersen",
+          "original_name": "Jack Pedersen",
+          "popularity": 0.648,
+          "profile_path": null,
+          "cast_id": 6,
+          "character": "Shahin",
+          "credit_id": "6429b4f4ac8e6b00d32aa4eb",
+          "order": 5
+        },
+        {
+          "adult": false,
+          "gender": 0,
+          "id": 2595279,
+          "known_for_department": "Acting",
+          "name": "Mohamed Djeziri",
+          "original_name": "Mohamed Djeziri",
+          "popularity": 0.84,
+          "profile_path": null,
+          "cast_id": 11,
+          "character": "",
+          "credit_id": "64c14243871b340101072cf6",
+          "order": 6
+        },
+        {
+          "adult": false,
+          "gender": 0,
+          "id": 4188787,
+          "known_for_department": "Acting",
+          "name": "Abud Mustafa",
+          "original_name": "Abud Mustafa",
+          "popularity": 0.98,
+          "profile_path": null,
+          "cast_id": 12,
+          "character": "",
+          "credit_id": "64c6c269db8a0000e3286594",
+          "order": 7
+        },
+        {
+          "adult": false,
+          "gender": 0,
+          "id": 4188788,
+          "known_for_department": "Acting",
+          "name": "Ahmad Ayman",
+          "original_name": "Ahmad Ayman",
+          "popularity": 0.6,
+          "profile_path": null,
+          "cast_id": 13,
+          "character": "",
+          "credit_id": "64c6c27f63aad20209a58505",
+          "order": 8
+        },
+        {
+          "adult": false,
+          "gender": 0,
+          "id": 4188789,
+          "known_for_department": "Acting",
+          "name": "Sebastian Nørgaard",
+          "original_name": "Sebastian Nørgaard",
+          "popularity": 0.6,
+          "profile_path": null,
+          "cast_id": 14,
+          "character": "",
+          "credit_id": "64c6c298db8a0000e32865ab",
+          "order": 9
+        },
+        {
+          "adult": false,
+          "gender": 0,
+          "id": 4188791,
+          "known_for_department": "Acting",
+          "name": "Hamed \"Baloosh\" Balosha",
+          "original_name": "Hamed \"Baloosh\" Balosha",
+          "popularity": 0.6,
+          "profile_path": null,
+          "cast_id": 15,
+          "character": "",
+          "credit_id": "64c6c2a3eec5b500ff5262cb",
+          "order": 10
+        },
+        {
+          "adult": false,
+          "gender": 0,
+          "id": 3549264,
+          "known_for_department": "Acting",
+          "name": "Noah Carter",
+          "original_name": "Noah Carter",
+          "popularity": 0.6,
+          "profile_path": null,
+          "cast_id": 16,
+          "character": "",
+          "credit_id": "64c6c2b0cadb6b00c82a2404",
+          "order": 11
+        },
+        {
+          "adult": false,
+          "gender": 0,
+          "id": 4188792,
+          "known_for_department": "Acting",
+          "name": "Asgar Hansen",
+          "original_name": "Asgar Hansen",
+          "popularity": 0.6,
+          "profile_path": null,
+          "cast_id": 17,
+          "character": "",
+          "credit_id": "64c6c2bc30f79c00c781a97c",
+          "order": 12
+        }
+      ],
+      "crew": [
+        {
+          "adult": false,
+          "gender": 0,
+          "id": 1183636,
+          "known_for_department": "Directing",
+          "name": "Fenar Ahmad",
+          "original_name": "Fenar Ahmad",
+          "popularity": 1.646,
+          "profile_path": null,
+          "credit_id": "6429b673c04429026b13a94a",
+          "department": "Directing",
+          "job": "Director"
+        },
+        {
+          "adult": false,
+          "gender": 0,
+          "id": 1183636,
+          "known_for_department": "Directing",
+          "name": "Fenar Ahmad",
+          "original_name": "Fenar Ahmad",
+          "popularity": 1.646,
+          "profile_path": null,
+          "credit_id": "642ed070158c8501263ad755",
+          "department": "Writing",
+          "job": "Writer"
+        },
+        {
+          "adult": false,
+          "gender": 0,
+          "id": 2405913,
+          "known_for_department": "Directing",
+          "name": "Behrouz Bigdeli",
+          "original_name": "Behrouz Bigdeli",
+          "popularity": 0.6,
+          "profile_path": null,
+          "credit_id": "642ed08058361b00f2f13338",
+          "department": "Writing",
+          "job": "Writer"
+        }
+      ]
+    },
+    "videos": { "results": [] },
+    "images": {
+      "backdrops": [
+        {
+          "aspect_ratio": 1.778,
+          "height": 1080,
+          "iso_639_1": "da",
+          "file_path": "/4wVFtesa5YEWuAUHRcxoCN1Y1uN.jpg",
+          "vote_average": 5.172,
+          "vote_count": 1,
+          "width": 1920
+        },
+        {
+          "aspect_ratio": 1.778,
+          "height": 720,
+          "iso_639_1": null,
+          "file_path": "/e8FyMnifoN5BMuRFE97fS1lJZ6S.jpg",
+          "vote_average": 0,
+          "vote_count": 0,
+          "width": 1280
+        },
+        {
+          "aspect_ratio": 1.778,
+          "height": 1116,
+          "iso_639_1": null,
+          "file_path": "/tDT465D3JZiABgz2uug9jCgOUlw.jpg",
+          "vote_average": 0,
+          "vote_count": 0,
+          "width": 1984
+        }
+      ],
+      "logos": [],
+      "posters": [
+        {
+          "aspect_ratio": 0.667,
+          "height": 3000,
+          "iso_639_1": "da",
+          "file_path": "/A8EPXv3SV9qiNCIttIM4ezJRmhW.jpg",
+          "vote_average": 5.312,
+          "vote_count": 1,
+          "width": 2000
+        },
+        {
+          "aspect_ratio": 0.667,
+          "height": 1200,
+          "iso_639_1": "da",
+          "file_path": "/A0cxUcMWBruPknr5ZSePIYFfe7z.jpg",
+          "vote_average": 5.172,
+          "vote_count": 1,
+          "width": 800
+        },
+        {
+          "aspect_ratio": 0.7,
+          "height": 2834,
+          "iso_639_1": "en",
+          "file_path": "/c8B4DsVcFVDLVmbpHMHU3RjLNAV.jpg",
+          "vote_average": 0,
+          "vote_count": 0,
+          "width": 1984
+        },
+        {
+          "aspect_ratio": 0.7,
+          "height": 2834,
+          "iso_639_1": "en",
+          "file_path": "/my1ve6HKygOVNYJBi3A0pRpPm2l.jpg",
+          "vote_average": 0,
+          "vote_count": 0,
+          "width": 1984
+        }
+      ]
+    }
+  }
+}

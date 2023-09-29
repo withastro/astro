@@ -125,7 +125,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
 
   examples/blog:
@@ -140,24 +140,24 @@ importers:
         specifier: ^3.0.0
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
 
   examples/component:
     devDependencies:
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
 
   examples/deno:
     dependencies:
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
     devDependencies:
       '@astrojs/deno':
         specifier: ^5.0.1
-        version: link:../../packages/integrations/deno
+        version: 5.0.1(astro@packages+astro)
 
   examples/framework-alpine:
     dependencies:
@@ -171,7 +171,7 @@ importers:
         specifier: ^3.12.3
         version: 3.12.3
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
 
   examples/framework-lit:
@@ -183,7 +183,7 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
       lit:
         specifier: ^2.8.0
@@ -207,7 +207,7 @@ importers:
         specifier: ^3.0.0
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.17.1
@@ -237,7 +237,7 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1(preact@10.17.1)
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.17.1
@@ -255,7 +255,7 @@ importers:
         specifier: ^18.2.7
         version: 18.2.7
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
       react:
         specifier: ^18.2.0
@@ -270,7 +270,7 @@ importers:
         specifier: ^3.0.1
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.7.11
@@ -282,7 +282,7 @@ importers:
         specifier: ^4.0.2
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.0
@@ -294,7 +294,7 @@ importers:
         specifier: ^3.0.0
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
       vue:
         specifier: ^3.3.4
@@ -306,13 +306,13 @@ importers:
         specifier: ^6.0.1
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
 
   examples/middleware:
@@ -321,7 +321,7 @@ importers:
         specifier: ^6.0.1
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
       html-minifier:
         specifier: ^4.0.0
@@ -330,19 +330,19 @@ importers:
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
 
   examples/non-html-pages:
     dependencies:
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
 
   examples/ssr:
@@ -354,11 +354,23 @@ importers:
         specifier: ^4.0.2
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.0
         version: 4.2.0
+
+  examples/view-transitions:
+    devDependencies:
+      '@astrojs/node':
+        specifier: ^6.0.1
+        version: link:../../packages/integrations/node
+      '@astrojs/tailwind':
+        specifier: ^5.0.0
+        version: link:../../packages/integrations/tailwind
+      astro:
+        specifier: ^3.2.0
+        version: link:../../packages/astro
 
   examples/with-markdoc:
     dependencies:
@@ -366,7 +378,7 @@ importers:
         specifier: ^0.5.0
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
 
   examples/with-markdown-plugins:
@@ -375,7 +387,7 @@ importers:
         specifier: ^3.2.0
         version: link:../../packages/markdown/remark
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
       hast-util-select:
         specifier: ^5.0.5
@@ -396,7 +408,7 @@ importers:
   examples/with-markdown-shiki:
     dependencies:
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -408,7 +420,7 @@ importers:
         specifier: ^3.0.0
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.17.1
@@ -423,7 +435,7 @@ importers:
         specifier: ^0.5.0
         version: 0.5.0(nanostores@0.9.3)(preact@10.17.1)
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.9.3
@@ -444,7 +456,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
       autoprefixer:
         specifier: ^10.4.15
@@ -462,7 +474,7 @@ importers:
   examples/with-vite-plugin-pwa:
     dependencies:
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
       vite-plugin-pwa:
         specifier: 0.16.4
@@ -474,7 +486,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^3.1.4
+        specifier: ^3.2.0
         version: link:../../packages/astro
       vitest:
         specifier: ^0.34.2
@@ -2549,6 +2561,30 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/custom-404-loop-case-1:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/custom-404-loop-case-2:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/custom-404-loop-case-3:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/custom-404-loop-case-4:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/custom-404-md:
     dependencies:
       astro:
@@ -3042,6 +3078,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/redirects:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/reexport-astro-containing-client-component:
     dependencies:
       '@astrojs/preact':
@@ -3322,12 +3364,6 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/ssr-preview:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/ssr-redirect:
     dependencies:
       astro:
         specifier: workspace:*
@@ -3786,49 +3822,6 @@ importers:
         specifier: ^1.7.11
         version: 1.7.11
 
-  packages/integrations/deno:
-    dependencies:
-      esbuild:
-        specifier: ^0.19.2
-        version: 0.19.2
-    devDependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../astro
-      astro-scripts:
-        specifier: workspace:*
-        version: link:../../../scripts
-
-  packages/integrations/deno/test/fixtures/basics:
-    dependencies:
-      '@astrojs/deno':
-        specifier: workspace:*
-        version: link:../../..
-      '@astrojs/mdx':
-        specifier: workspace:*
-        version: link:../../../../mdx
-      '@astrojs/react':
-        specifier: workspace:*
-        version: link:../../../../react
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-      react:
-        specifier: ^18.1.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.1.0
-        version: 18.2.0(react@18.2.0)
-
-  packages/integrations/deno/test/fixtures/dynimport:
-    dependencies:
-      '@astrojs/deno':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-
   packages/integrations/lit:
     dependencies:
       '@lit-labs/ssr':
@@ -4286,57 +4279,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
-  packages/integrations/netlify:
-    dependencies:
-      '@astrojs/underscore-redirects':
-        specifier: workspace:*
-        version: link:../../underscore-redirects
-      '@netlify/functions':
-        specifier: ^2.0.1
-        version: 2.0.1
-      esbuild:
-        specifier: ^0.19.2
-        version: 0.19.2
-    devDependencies:
-      '@netlify/edge-functions':
-        specifier: ^2.0.0
-        version: 2.0.0
-      '@netlify/edge-handler-types':
-        specifier: ^0.34.1
-        version: 0.34.1
-      '@types/node':
-        specifier: ^18.17.8
-        version: 18.17.8
-      astro:
-        specifier: workspace:*
-        version: link:../../astro
-      astro-scripts:
-        specifier: workspace:*
-        version: link:../../../scripts
-      chai:
-        specifier: ^4.3.7
-        version: 4.3.7
-      chai-jest-snapshot:
-        specifier: ^2.0.0
-        version: 2.0.0(chai@4.3.7)
-      cheerio:
-        specifier: 1.0.0-rc.12
-        version: 1.0.0-rc.12
-      mocha:
-        specifier: ^10.2.0
-        version: 10.2.0
-      vite:
-        specifier: ^4.4.9
-        version: 4.4.9(@types/node@18.17.8)(sass@1.66.1)
-
-  packages/integrations/netlify/test/hosted/hosted-astro-project:
-    dependencies:
-      '@astrojs/netlify':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
+  packages/integrations/netlify: {}
 
   packages/integrations/node:
     dependencies:
@@ -5280,6 +5223,15 @@ packages:
   /@astrojs/compiler@2.1.0:
     resolution: {integrity: sha512-Mp+qrNhly+27bL/Zq8lGeUY+YrdoU0eDfIlAeGIPrzt0PnI/jGpvPUdCaugv4zbCrDkOUScFfcbeEiYumrdJnw==}
     dev: false
+
+  /@astrojs/deno@5.0.1(astro@packages+astro):
+    resolution: {integrity: sha512-nYztGqHqC+q3A9ynjj3gblAkO/ZylDwahjVTx+2DvZgX4U+BJU/gL5BZkNtL+P10opCKJi29NvvVFvk6jwZHmA==}
+    peerDependencies:
+      astro: '*'
+    dependencies:
+      astro: link:packages/astro
+      esbuild: 0.19.2
+    dev: true
 
   /@astrojs/language-server@2.3.0(prettier-plugin-astro@0.12.0)(prettier@3.0.3)(typescript@5.1.6):
     resolution: {integrity: sha512-NFSzszjR4+f0+fTUCuFKXrLWusJFqWvHMrIzHB0lXUE8dt3Dm1Ok9Emrdj3s3BvlguJz05MV9xSIz1puMvomtQ==}
@@ -6945,7 +6897,7 @@ packages:
     resolution: {integrity: sha512-JppheLu7S114aEs157fOZDjFqUDpm7eHdq5E8SSR0gUBTEK0cNSHsrSR5a66xs0z3RWuo46QvA3vawp8BxDHvg==}
     dependencies:
       dataloader: 1.4.0
-      node-fetch: 2.6.11
+      node-fetch: 2.6.13
     transitivePeerDependencies:
       - encoding
     dev: true
@@ -7436,17 +7388,6 @@ packages:
       postcss-selector-parser: ^6.0.13
     dependencies:
       postcss-selector-parser: 6.0.13
-    dev: true
-
-  /@deno/shim-deno-test@0.3.3:
-    resolution: {integrity: sha512-Ge0Tnl7zZY0VvEfgsyLhjid8DzI1d0La0dgm+3m0/A8gZXgp5xwlyIyue5e4SCUuVB/3AH/0lun9LcJhhTwmbg==}
-    dev: true
-
-  /@deno/shim-deno@0.10.0:
-    resolution: {integrity: sha512-E7rQ0Hk33V45xQXKEnCxizdSP5C+hhqw1H3xWXsct3kYFWgG93B5gN3LKlyvcxbckt8d67jVa6s+y5duRYawvg==}
-    dependencies:
-      '@deno/shim-deno-test': 0.3.3
-      which: 2.0.2
     dev: true
 
   /@emmetio/abbreviation@2.3.3:
@@ -8334,40 +8275,6 @@ packages:
     dependencies:
       nanostores: 0.9.3
       preact: 10.17.1
-    dev: false
-
-  /@netlify/edge-functions@2.0.0:
-    resolution: {integrity: sha512-mRVGnPNA4YayDLPwnO1ZrcWwBODPj5BQPbx3/FUlQtZ5ow2D+PjMPQr8IcFm0HfMJQgtHZS39p9VS6PRSi1ePw==}
-    engines: {node: ^14.16.0 || >=16.0.0}
-    dependencies:
-      '@deno/shim-deno': 0.10.0
-    dev: true
-
-  /@netlify/edge-handler-types@0.34.1:
-    resolution: {integrity: sha512-YTwn8cw89M4lRTmoUhl9s8ljSGMDt7FOIsxsrx7YrRz/RZlbh4Yuh4RU13DDafDRBEVuRbjGo93cnN621ZfBjA==}
-    dependencies:
-      web-streams-polyfill: 3.2.1
-    dev: true
-
-  /@netlify/functions@2.0.1:
-    resolution: {integrity: sha512-YrgCmz078II0LKknXKj5NbtGBuzek1JC+ZYi4xHcLhZD+HIGlerlmkhnVydWVPoA7fdd2IeSUd9CFFL7bY+y5Q==}
-    engines: {node: '>=14.0.0'}
-    dependencies:
-      '@netlify/serverless-functions-api': 1.7.1
-      is-promise: 4.0.0
-    dev: false
-
-  /@netlify/node-cookies@0.1.0:
-    resolution: {integrity: sha512-OAs1xG+FfLX0LoRASpqzVntVV/RpYkgpI0VrUnw2u0Q1qiZUzcPffxRK8HF3gc4GjuhG5ahOEMJ9bswBiZPq0g==}
-    engines: {node: ^14.16.0 || >=16.0.0}
-    dev: false
-
-  /@netlify/serverless-functions-api@1.7.1:
-    resolution: {integrity: sha512-vF9g62n+BFfBXtWtmVBJ5debyMERVDtuLlMlKDPYBp6QjEuJnaggxczLlRofZ2mtsBXs7mAlna6gIcBswFLJJQ==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    dependencies:
-      '@netlify/node-cookies': 0.1.0
-      urlpattern-polyfill: 8.0.2
     dev: false
 
   /@nodelib/fs.scandir@2.1.5:
@@ -9785,7 +9692,7 @@ packages:
     dependencies:
       call-bind: 1.0.2
       define-properties: 1.2.0
-      es-abstract: 1.21.2
+      es-abstract: 1.22.1
       es-shim-unscopables: 1.0.0
     dev: true
 
@@ -9799,7 +9706,6 @@ packages:
       get-intrinsic: 1.2.1
       is-array-buffer: 3.0.2
       is-shared-array-buffer: 1.0.2
-    dev: false
 
   /arrify@1.0.1:
     resolution: {integrity: sha512-3CYzex9M9FGQjCGMGyi6/31c8GJbgb0qGyrx5HWxPd0aCwh4cB2YjMb2Xf9UuoogrMrlO9cTqnB5rI5GHZTcUA==}
@@ -11284,7 +11190,6 @@ packages:
       typed-array-length: 1.0.4
       unbox-primitive: 1.0.2
       which-typed-array: 1.1.11
-    dev: false
 
   /es-module-lexer@1.3.0:
     resolution: {integrity: sha512-vZK7T0N2CBmBOixhmjdqx2gWVbFZ4DXZ/NyRMZVlJXPa7CyFS+/a4QQsDGDQy9ZfEzxFuNEsMLeQJnKP2p5/JA==}
@@ -12880,10 +12785,6 @@ packages:
     resolution: {integrity: sha512-bCYeRA2rVibKZd+s2625gGnGF/t7DSqDs4dP7CrLA1m7jKWz6pps0LpYLJN8Q64HtmPKJ1hrN3nzPNKFEKOUiQ==}
     dev: true
 
-  /is-promise@4.0.0:
-    resolution: {integrity: sha512-hvpoI6korhJMnej285dSg6nu1+e6uxs7zG3BYAm5byqDsgJNWwxzM6z6iZiAgQR4TJ30JmBTOwqZUw3WlyH3AQ==}
-    dev: false
-
   /is-reference@3.0.1:
     resolution: {integrity: sha512-baJJdQLiYaJdvFbJqXrcGv3WU3QCzBlUcI5QhbesIm6/xPsvmO+2CDoi/GMOFBQEQm+PXkwOPrp9KK5ozZsp2w==}
     dependencies:
@@ -12948,7 +12849,6 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       which-typed-array: 1.1.11
-    dev: false
 
   /is-unicode-supported@0.1.0:
     resolution: {integrity: sha512-knxG2q4UC3u8stRGyAVJCOdxFmv5DZiRcdlIaAQXAbSfJya+OhopNotLQrstBhququ4ZpuKbDc/8S6mgXgPFPw==}
@@ -12991,7 +12891,6 @@ packages:
 
   /isarray@2.0.5:
     resolution: {integrity: sha512-xHjhDr3cNBK0BzdUJSPXZntQUx/mwMS5Rw4A7lPJ90XGAO6ISP/ePDNuo0vhqOZU+UD5JoodwCAAoZQd3FeAKw==}
-    dev: false
 
   /isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
@@ -13512,12 +13411,12 @@ packages:
       '@types/unist': 2.0.7
       decode-named-character-reference: 1.0.2
       mdast-util-to-string: 3.2.0
-      micromark: 3.1.0
-      micromark-util-decode-numeric-character-reference: 1.0.0
-      micromark-util-decode-string: 1.0.2
-      micromark-util-normalize-identifier: 1.0.0
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
+      micromark: 3.2.0
+      micromark-util-decode-numeric-character-reference: 1.1.0
+      micromark-util-decode-string: 1.1.0
+      micromark-util-normalize-identifier: 1.1.0
+      micromark-util-symbol: 1.1.0
+      micromark-util-types: 1.1.0
       unist-util-stringify-position: 3.0.3
       uvu: 0.5.6
     transitivePeerDependencies:
@@ -13548,7 +13447,7 @@ packages:
       '@types/mdast': 3.0.12
       ccount: 2.0.1
       mdast-util-find-and-replace: 2.2.2
-      micromark-util-character: 1.1.0
+      micromark-util-character: 1.2.0
     dev: false
 
   /mdast-util-gfm-footnote@1.0.2:
@@ -13669,7 +13568,7 @@ packages:
       '@types/hast': 2.3.5
       '@types/mdast': 3.0.12
       mdast-util-definitions: 5.1.2
-      micromark-util-sanitize-uri: 1.1.0
+      micromark-util-sanitize-uri: 1.2.0
       trim-lines: 3.0.1
       unist-util-generated: 2.0.1
       unist-util-position: 4.0.4
@@ -13793,24 +13692,24 @@ packages:
       micromark-factory-space: 1.0.0
       micromark-factory-title: 1.0.2
       micromark-factory-whitespace: 1.0.0
-      micromark-util-character: 1.1.0
+      micromark-util-character: 1.2.0
       micromark-util-chunked: 1.0.0
       micromark-util-classify-character: 1.0.0
       micromark-util-html-tag-name: 1.1.0
-      micromark-util-normalize-identifier: 1.0.0
+      micromark-util-normalize-identifier: 1.1.0
       micromark-util-resolve-all: 1.0.0
       micromark-util-subtokenize: 1.0.2
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
+      micromark-util-symbol: 1.1.0
+      micromark-util-types: 1.1.0
       uvu: 0.5.6
 
   /micromark-extension-gfm-autolink-literal@1.0.4:
     resolution: {integrity: sha512-WCssN+M9rUyfHN5zPBn3/f0mIA7tqArHL/EKbv3CZK+LT2rG77FEikIQEqBkv46fOqXQK4NEW/Pc7Z27gshpeg==}
     dependencies:
-      micromark-util-character: 1.1.0
-      micromark-util-sanitize-uri: 1.1.0
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
+      micromark-util-character: 1.2.0
+      micromark-util-sanitize-uri: 1.2.0
+      micromark-util-symbol: 1.1.0
+      micromark-util-types: 1.1.0
     dev: false
 
   /micromark-extension-gfm-footnote@1.1.0:
@@ -13818,11 +13717,11 @@ packages:
     dependencies:
       micromark-core-commonmark: 1.0.6
       micromark-factory-space: 1.0.0
-      micromark-util-character: 1.1.0
-      micromark-util-normalize-identifier: 1.0.0
-      micromark-util-sanitize-uri: 1.1.0
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
+      micromark-util-character: 1.2.0
+      micromark-util-normalize-identifier: 1.1.0
+      micromark-util-sanitize-uri: 1.2.0
+      micromark-util-symbol: 1.1.0
+      micromark-util-types: 1.1.0
       uvu: 0.5.6
     dev: false
 
@@ -13832,8 +13731,8 @@ packages:
       micromark-util-chunked: 1.0.0
       micromark-util-classify-character: 1.0.0
       micromark-util-resolve-all: 1.0.0
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
+      micromark-util-symbol: 1.1.0
+      micromark-util-types: 1.1.0
       uvu: 0.5.6
     dev: false
 
@@ -13841,25 +13740,25 @@ packages:
     resolution: {integrity: sha512-92pq7Q+T+4kXH4M6kL+pc8WU23Z9iuhcqmtYFWdFWjm73ZscFpH2xE28+XFpGWlvgq3LUwcN0XC0PGCicYFpgA==}
     dependencies:
       micromark-factory-space: 1.0.0
-      micromark-util-character: 1.1.0
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
+      micromark-util-character: 1.2.0
+      micromark-util-symbol: 1.1.0
+      micromark-util-types: 1.1.0
       uvu: 0.5.6
     dev: false
 
   /micromark-extension-gfm-tagfilter@1.0.2:
     resolution: {integrity: sha512-5XWB9GbAUSHTn8VPU8/1DBXMuKYT5uOgEjJb8gN3mW0PNW5OPHpSdojoqf+iq1xo7vWzw/P8bAHY0n6ijpXF7g==}
     dependencies:
-      micromark-util-types: 1.0.2
+      micromark-util-types: 1.1.0
     dev: false
 
   /micromark-extension-gfm-task-list-item@1.0.4:
     resolution: {integrity: sha512-9XlIUUVnYXHsFF2HZ9jby4h3npfX10S1coXTnV035QGPgrtNYQq3J6IfIvcCIUAJrrqBVi5BqA/LmaOMJqPwMQ==}
     dependencies:
       micromark-factory-space: 1.0.0
-      micromark-util-character: 1.1.0
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
+      micromark-util-character: 1.2.0
+      micromark-util-symbol: 1.1.0
+      micromark-util-types: 1.1.0
       uvu: 0.5.6
     dev: false
 
@@ -13873,7 +13772,7 @@ packages:
       micromark-extension-gfm-tagfilter: 1.0.2
       micromark-extension-gfm-task-list-item: 1.0.4
       micromark-util-combine-extensions: 1.0.0
-      micromark-util-types: 1.0.2
+      micromark-util-types: 1.1.0
     dev: false
 
   /micromark-extension-math@2.1.1:
@@ -13882,8 +13781,8 @@ packages:
       '@types/katex': 0.16.0
       katex: 0.16.7
       micromark-factory-space: 1.0.0
-      micromark-util-character: 1.1.0
-      micromark-util-symbol: 1.0.1
+      micromark-util-character: 1.2.0
+      micromark-util-symbol: 1.1.0
       micromark-util-types: 1.0.2
       uvu: 0.5.6
     dev: true
@@ -13949,16 +13848,16 @@ packages:
   /micromark-factory-destination@1.0.0:
     resolution: {integrity: sha512-eUBA7Rs1/xtTVun9TmV3gjfPz2wEwgK5R5xcbIM5ZYAtvGF6JkyaDsj0agx8urXnO31tEO6Ug83iVH3tdedLnw==}
     dependencies:
-      micromark-util-character: 1.1.0
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
+      micromark-util-character: 1.2.0
+      micromark-util-symbol: 1.1.0
+      micromark-util-types: 1.1.0
 
   /micromark-factory-label@1.0.2:
     resolution: {integrity: sha512-CTIwxlOnU7dEshXDQ+dsr2n+yxpP0+fn271pu0bwDIS8uqfFcumXpj5mLn3hSC8iw2MUr6Gx8EcKng1dD7i6hg==}
     dependencies:
-      micromark-util-character: 1.1.0
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
+      micromark-util-character: 1.2.0
+      micromark-util-symbol: 1.1.0
+      micromark-util-types: 1.1.0
       uvu: 0.5.6
 
   /micromark-factory-mdx-expression@1.0.8:
@@ -13977,31 +13876,25 @@ packages:
   /micromark-factory-space@1.0.0:
     resolution: {integrity: sha512-qUmqs4kj9a5yBnk3JMLyjtWYN6Mzfcx8uJfi5XAveBniDevmZasdGBba5b4QsvRcAkmvGo5ACmSUmyGiKTLZew==}
     dependencies:
-      micromark-util-character: 1.1.0
-      micromark-util-types: 1.0.2
+      micromark-util-character: 1.2.0
+      micromark-util-types: 1.1.0
 
   /micromark-factory-title@1.0.2:
     resolution: {integrity: sha512-zily+Nr4yFqgMGRKLpTVsNl5L4PMu485fGFDOQJQBl2NFpjGte1e86zC0da93wf97jrc4+2G2GQudFMHn3IX+A==}
     dependencies:
       micromark-factory-space: 1.0.0
-      micromark-util-character: 1.1.0
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
+      micromark-util-character: 1.2.0
+      micromark-util-symbol: 1.1.0
+      micromark-util-types: 1.1.0
       uvu: 0.5.6
 
   /micromark-factory-whitespace@1.0.0:
     resolution: {integrity: sha512-Qx7uEyahU1lt1RnsECBiuEbfr9INjQTGa6Err+gF3g0Tx4YEviPbqqGKNv/NrBaE7dVHdn1bVZKM/n5I/Bak7A==}
     dependencies:
       micromark-factory-space: 1.0.0
-      micromark-util-character: 1.1.0
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
-
-  /micromark-util-character@1.1.0:
-    resolution: {integrity: sha512-agJ5B3unGNJ9rJvADMJ5ZiYjBRyDpzKAOk01Kpi1TKhlT1APx3XZk6eN7RtSz1erbWHC2L8T3xLZ81wdtGRZzg==}
-    dependencies:
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
+      micromark-util-character: 1.2.0
+      micromark-util-symbol: 1.1.0
+      micromark-util-types: 1.1.0
 
   /micromark-util-character@1.2.0:
     resolution: {integrity: sha512-lXraTwcX3yH/vMDaFWCQJP1uIszLVebzUa3ZHdrgxr7KEU/9mL4mVgCpGbyhvNLNlauROiNUq7WN5u7ndbY6xg==}
@@ -14012,14 +13905,14 @@ packages:
   /micromark-util-chunked@1.0.0:
     resolution: {integrity: sha512-5e8xTis5tEZKgesfbQMKRCyzvffRRUX+lK/y+DvsMFdabAicPkkZV6gO+FEWi9RfuKKoxxPwNL+dFF0SMImc1g==}
     dependencies:
-      micromark-util-symbol: 1.0.1
+      micromark-util-symbol: 1.1.0
 
   /micromark-util-classify-character@1.0.0:
     resolution: {integrity: sha512-F8oW2KKrQRb3vS5ud5HIqBVkCqQi224Nm55o5wYLzY/9PwHGXC01tr3d7+TqHHz6zrKQ72Okwtvm/xQm6OVNZA==}
     dependencies:
-      micromark-util-character: 1.1.0
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
+      micromark-util-character: 1.2.0
+      micromark-util-symbol: 1.1.0
+      micromark-util-types: 1.1.0
 
   /micromark-util-combine-extensions@1.0.0:
     resolution: {integrity: sha512-J8H058vFBdo/6+AsjHp2NF7AJ02SZtWaVUjsayNFeAiydTxUwViQPxN0Hf8dp4FmCQi0UUFovFsEyRSUmFH3MA==}
@@ -14027,25 +13920,10 @@ packages:
       micromark-util-chunked: 1.0.0
       micromark-util-types: 1.0.2
 
-  /micromark-util-decode-numeric-character-reference@1.0.0:
-    resolution: {integrity: sha512-OzO9AI5VUtrTD7KSdagf4MWgHMtET17Ua1fIpXTpuhclCqD8egFWo85GxSGvxgkGS74bEahvtM0WP0HjvV0e4w==}
-    dependencies:
-      micromark-util-symbol: 1.0.1
-    dev: false
-
   /micromark-util-decode-numeric-character-reference@1.1.0:
     resolution: {integrity: sha512-m9V0ExGv0jB1OT21mrWcuf4QhP46pH1KkfWy9ZEezqHKAxkj4mPCy3nIH1rkbdMlChLHX531eOrymlwyZIf2iw==}
     dependencies:
       micromark-util-symbol: 1.1.0
-
-  /micromark-util-decode-string@1.0.2:
-    resolution: {integrity: sha512-DLT5Ho02qr6QWVNYbRZ3RYOSSWWFuH3tJexd3dgN1odEuPNxCngTCXJum7+ViRAd9BbdxCvMToPOD/IvVhzG6Q==}
-    dependencies:
-      decode-named-character-reference: 1.0.2
-      micromark-util-character: 1.1.0
-      micromark-util-decode-numeric-character-reference: 1.0.0
-      micromark-util-symbol: 1.0.1
-    dev: false
 
   /micromark-util-decode-string@1.1.0:
     resolution: {integrity: sha512-YphLGCK8gM1tG1bd54azwyrQRjCFcmgj2S2GoJDNnh4vYtnL38JS8M4gpxzOPNyHdNEpheyWXCTnnTDY3N+NVQ==}
@@ -14074,11 +13952,6 @@ packages:
   /micromark-util-html-tag-name@1.1.0:
     resolution: {integrity: sha512-BKlClMmYROy9UiV03SwNmckkjn8QHVaWkqoAqzivabvdGcwNGMMMH/5szAnywmsTBUzDsU57/mFi0sp4BQO6dA==}
 
-  /micromark-util-normalize-identifier@1.0.0:
-    resolution: {integrity: sha512-yg+zrL14bBTFrQ7n35CmByWUTFsgst5JhA4gJYoty4Dqzj4Z4Fr/DHekSS5aLfH9bdlfnSvKAWsAgJhIbogyBg==}
-    dependencies:
-      micromark-util-symbol: 1.0.1
-
   /micromark-util-normalize-identifier@1.1.0:
     resolution: {integrity: sha512-N+w5vhqrBihhjdpM8+5Xsxy71QWqGn7HYNUvch71iV2PM7+E3uWGox1Qp90loa1ephtCxG2ftRV/Conitc6P2Q==}
     dependencies:
@@ -14087,14 +13960,7 @@ packages:
   /micromark-util-resolve-all@1.0.0:
     resolution: {integrity: sha512-CB/AGk98u50k42kvgaMM94wzBqozSzDDaonKU7P7jwQIuH2RU0TeBqGYJz2WY1UdihhjweivStrJ2JdkdEmcfw==}
     dependencies:
-      micromark-util-types: 1.0.2
-
-  /micromark-util-sanitize-uri@1.1.0:
-    resolution: {integrity: sha512-RoxtuSCX6sUNtxhbmsEFQfWzs8VN7cTctmBPvYivo98xb/kDEoTCtJQX5wyzIYEmk/lvNFTat4hL8oW0KndFpg==}
-    dependencies:
-      micromark-util-character: 1.1.0
-      micromark-util-encode: 1.0.1
-      micromark-util-symbol: 1.1.0
+      micromark-util-types: 1.1.0
 
   /micromark-util-sanitize-uri@1.2.0:
     resolution: {integrity: sha512-QO4GXv0XZfWey4pYFndLUKEAktKkG5kZTdUNaTAkzbuJxn2tNBOr+QtxR2XpWaMhbImT2dPzyLrPXLlPhph34A==}
@@ -14107,12 +13973,9 @@ packages:
     resolution: {integrity: sha512-d90uqCnXp/cy4G881Ub4psE57Sf8YD0pim9QdjCRNjfas2M1u6Lbt+XZK9gnHL2XFhnozZiEdCa9CNfXSfQ6xA==}
     dependencies:
       micromark-util-chunked: 1.0.0
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
+      micromark-util-symbol: 1.1.0
+      micromark-util-types: 1.1.0
       uvu: 0.5.6
-
-  /micromark-util-symbol@1.0.1:
-    resolution: {integrity: sha512-oKDEMK2u5qqAptasDAwWDXq0tG9AssVwAx3E9bBF3t/shRIGsWIRG+cGafs2p/SnDSOecnt6hZPCE2o6lHfFmQ==}
 
   /micromark-util-symbol@1.1.0:
     resolution: {integrity: sha512-uEjpEYY6KMs1g7QfJ2eX1SQEV+ZT4rUD3UcF6l57acZvLNK7PBZL+ty82Z1qhK1/yXIY4bdx04FKMgR0g4IAag==}
@@ -14122,30 +13985,6 @@ packages:
 
   /micromark-util-types@1.1.0:
     resolution: {integrity: sha512-ukRBgie8TIAcacscVHSiddHjO4k/q3pnedmzMQ4iwDcK0FtFCohKOlFbaOL/mPgfnPsL3C1ZyxJa4sbWrBl3jg==}
-
-  /micromark@3.1.0:
-    resolution: {integrity: sha512-6Mj0yHLdUZjHnOPgr5xfWIMqMWS12zDN6iws9SLuSz76W8jTtAv24MN4/CL7gJrl5vtxGInkkqDv/JIoRsQOvA==}
-    dependencies:
-      '@types/debug': 4.1.8
-      debug: 4.3.4(supports-color@8.1.1)
-      decode-named-character-reference: 1.0.2
-      micromark-core-commonmark: 1.0.6
-      micromark-factory-space: 1.0.0
-      micromark-util-character: 1.1.0
-      micromark-util-chunked: 1.0.0
-      micromark-util-combine-extensions: 1.0.0
-      micromark-util-decode-numeric-character-reference: 1.0.0
-      micromark-util-encode: 1.0.1
-      micromark-util-normalize-identifier: 1.0.0
-      micromark-util-resolve-all: 1.0.0
-      micromark-util-sanitize-uri: 1.1.0
-      micromark-util-subtokenize: 1.0.2
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
-      uvu: 0.5.6
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
 
   /micromark@3.2.0:
     resolution: {integrity: sha512-uD66tJj54JLYq0De10AhWycZWGQNUvDI55xPgk2sQM5kn1JYlhbCMTtEeT27+vAhW2FBQxLlOmS3pmA7/2z4aA==}
@@ -14496,18 +14335,6 @@ packages:
     resolution: {integrity: sha512-F5kfEj95kX8tkDhUCYdV8dg3/8Olx/94zB8+ZNthFs6Bz31UpUi8Xh40TN3thLwXgrwXry1pEg9lJ++tLWTcqA==}
     dev: false
 
-  /node-fetch@2.6.11:
-    resolution: {integrity: sha512-4I6pdBY1EthSqDmJkiNk3JIT8cswwR9nfeW/cPdUagJYEQG7R95WRH74wpz7ma8Gh/9dI9FP+OU+0E4FvtA55w==}
-    engines: {node: 4.x || >=6.0.0}
-    peerDependencies:
-      encoding: ^0.1.0
-    peerDependenciesMeta:
-      encoding:
-        optional: true
-    dependencies:
-      whatwg-url: 5.0.0
-    dev: true
-
   /node-fetch@2.6.13:
     resolution: {integrity: sha512-StxNAxh15zr77QvvkmveSQ8uCQ4+v5FkvNTj0OESmiHu+VRi/gXArXtkWMElOsOUNLtUEvI4yS+rdtOHZTwlQA==}
     engines: {node: 4.x || >=6.0.0}
@@ -14518,7 +14345,6 @@ packages:
         optional: true
     dependencies:
       whatwg-url: 5.0.0
-    dev: false
 
   /node-fetch@3.3.1:
     resolution: {integrity: sha512-cRVc/kyto/7E5shrWca1Wsea4y6tL9iYJE5FBCius3JQfb/4P4I295PfhgbJQBLTx6lATE4z+wK0rPM4VS2uow==}
@@ -16165,7 +15991,6 @@ packages:
       get-intrinsic: 1.2.1
       has-symbols: 1.0.3
       isarray: 2.0.5
-    dev: false
 
   /safe-buffer@5.2.1:
     resolution: {integrity: sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==}
@@ -17332,7 +17157,6 @@ packages:
       call-bind: 1.0.2
       get-intrinsic: 1.2.1
       is-typed-array: 1.1.12
-    dev: false
 
   /typed-array-byte-length@1.0.0:
     resolution: {integrity: sha512-Or/+kvLxNpeQ9DtSydonMxCx+9ZXOswtwJn17SNLvhptaXYDJvkFFP5zbfU/uLmvnBJlI4yrnXRxpdWH/M5tNA==}
@@ -17342,7 +17166,6 @@ packages:
       for-each: 0.3.3
       has-proto: 1.0.1
       is-typed-array: 1.1.12
-    dev: false
 
   /typed-array-byte-offset@1.0.0:
     resolution: {integrity: sha512-RD97prjEt9EL8YgAgpOkf3O4IF9lhJFr9g0htQkm0rchFp/Vx7LW5Q8fSXXub7BXAODyUQohRMyOc3faCPd0hg==}
@@ -17353,7 +17176,6 @@ packages:
       for-each: 0.3.3
       has-proto: 1.0.1
       is-typed-array: 1.1.12
-    dev: false
 
   /typed-array-length@1.0.4:
     resolution: {integrity: sha512-KjZypGq+I/H7HI5HlOoGHkWUUGq+Q0TPhQurLbyrVrvnKTBgzLhIJ7j6J/XTQOi0d1RjyZ0wdas8bKs2p0x3Ng==}
@@ -17658,10 +17480,6 @@ packages:
 
   /urlpattern-polyfill@4.0.3:
     resolution: {integrity: sha512-DOE84vZT2fEcl9gqCUTcnAw5ZY5Id55ikUcziSUntuEFL3pRvavg5kwDmTEUJkeCHInTlV/HexFomgYnzO5kdQ==}
-    dev: false
-
-  /urlpattern-polyfill@8.0.2:
-    resolution: {integrity: sha512-Qp95D4TPJl1kC9SKigDcqgyM2VDVO4RiJc2d4qe5GrYm+zbIQCWWKAFaJNQ4BhdFeDGwBmAxqJBwWSJDb9T3BQ==}
     dev: false
 
   /util-deprecate@1.0.2:
@@ -18131,6 +17949,7 @@ packages:
   /web-streams-polyfill@3.2.1:
     resolution: {integrity: sha512-e0MO3wdXWKrLbL0DgGnUV7WHVuw9OUvL4hjgnPkIeEvESk74gAITi5G606JtZPp39cd8HA9VQzCIvA49LpPN5Q==}
     engines: {node: '>= 8'}
+    dev: false
 
   /web-vitals@3.4.0:
     resolution: {integrity: sha512-n9fZ5/bG1oeDkyxLWyep0eahrNcPDF6bFqoyispt7xkW0xhDzpUBTgyDKqWDi1twT0MgH4HvvqzpUyh0ZxZV4A==}
@@ -18223,7 +18042,6 @@ packages:
       for-each: 0.3.3
       gopd: 1.0.1
       has-tostringtag: 1.0.0
-    dev: false
 
   /which-typed-array@1.1.9:
     resolution: {integrity: sha512-w9c4xkx6mPidwp7180ckYWfMmvxpjlZuIudNtDf4N/tTAUB8VJbX25qZoAsrtGuYNnGw3pa0AXgbGKRB8/EceA==}
