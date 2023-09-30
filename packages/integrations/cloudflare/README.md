@@ -169,7 +169,7 @@ default: `false`
 
 Whether or not to import `.wasm` files [directly as ES modules](https://github.com/WebAssembly/esm-integration/tree/main/proposals/esm-integration) using the `.wasm?module` import syntax.
 
-Add `wasmModuleImports: true` to `astro.config.mjs` to enable this functionality in both the Cloudflare build and the Astro dev server. [Read more](#use-wasm-modules)
+Add `wasmModuleImports: true` to `astro.config.mjs` to enable this functionality in both the Cloudflare build and the Astro dev server. Read more about [using Wasm modules](#use-wasm-modules)
 
 ```diff lang="js"
 // astro.config.mjs
