@@ -11,8 +11,6 @@ env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_TEST_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_TEST_PROJECT_ID }}
   VERCEL_TOKEN: ${{ secrets.VERCEL_TEST_TOKEN }}
-  NETLIFY_SITE_ID: ${{ secrets.NETLIFY_TEST_SITE_ID }}
-  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TEST_AUTH_TOKEN }}
   FORCE_COLOR: true
 
 jobs:
@@ -43,12 +41,6 @@ jobs:
         run:
           pnpm run build
           vercel --prod --prebuilt
-
-      - name: Deploy Netlify
-        working-directory: ./packages/integrations/netlify/test/hosted/hosted-astro-project
-        run:
-          pnpm run build
-          netlify deploy --prod
 
       - name: Test both hosts
         run:
