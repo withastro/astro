@@ -6,7 +6,12 @@ import { IncomingMessage } from 'node:http';
 import { TLSSocket } from 'node:tls';
 import { deserializeManifest } from './common.js';
 import { App, type MatchOptions } from './index.js';
-export { apply as applyPolyfills } from '../polyfill.js';
+
+// These are dynamic imports because undici did not get tree shaken away otherwise. - arsh
+export const applyPolyfills =
+	import.meta.env.IS_STACKBLITZ
+		? await import('../polyfill.js').then(mod => mod.apply)
+		: await import('../polyfill-prod.js').then(mod => mod.apply);
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 

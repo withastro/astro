@@ -142,6 +142,7 @@ export async function createVite(
 			'import.meta.env.SITE': settings.config.site
 				? JSON.stringify(settings.config.site)
 				: 'undefined',
+			'import.meta.env.IS_STACKBLITZ': process.env.SHELL === '/bin/jsh' && process.versions.webcontainer != null ? 'true' : 'false',
 		},
 		server: {
 			hmr:
