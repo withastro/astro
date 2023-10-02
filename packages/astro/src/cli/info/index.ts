@@ -56,7 +56,8 @@ async function copyToClipboard(text: string) {
 	if (!shouldCopy) return;
 	const command = system === 'darwin' ? 'pbcopy' : 'clip';
 	try {
-		execSync(`echo ${JSON.stringify(text.trim())} | ${command}`, {
+		execSync(command, {
+			input: text.trim(),
 			encoding: 'utf8',
 			stdio: 'ignore',
 		});
