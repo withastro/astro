@@ -7,12 +7,12 @@
  * TODO: Tackle this file, once their is an decision on the upstream request
  */
 
+import type {} from '@cloudflare/workers-types/experimental';
 import TOML from '@iarna/toml';
 import dotenv from 'dotenv';
 import { findUpSync } from 'find-up';
 import * as fs from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import type {} from '@cloudflare/workers-types/experimental';
 let _wrangler: any;
 
 function findWranglerToml(
