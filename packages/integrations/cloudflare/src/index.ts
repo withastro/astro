@@ -1,11 +1,9 @@
 import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
 
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
-import { CacheStorage } from '@miniflare/cache';
-import { NoOpLog } from '@miniflare/shared';
-import { MemoryStorage } from '@miniflare/storage-memory';
 import { AstroError } from 'astro/errors';
 import esbuild from 'esbuild';
+import { Miniflare } from 'miniflare';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import { dirname, relative, sep } from 'node:path';
@@ -14,7 +12,13 @@ import glob from 'tiny-glob';
 import { getAdapter } from './getAdapter.js';
 import { deduplicatePatterns } from './utils/deduplicatePatterns.js';
 import { getCFObject } from './utils/getCFObject.js';
-import { getEnvVars } from './utils/parser.js';
+import {
+	getD1Bindings,
+	getDOBindings,
+	getEnvVars,
+	getKVBindings,
+	getR2Bindings,
+} from './utils/parser.js';
 import { prependForwardSlash } from './utils/prependForwardSlash.js';
 import { rewriteWasmImportPath } from './utils/rewriteWasmImportPath.js';
 import { wasmModuleLoader } from './utils/wasm-module-loader.js';
@@ -55,20 +59,10 @@ interface BuildConfig {
 	split?: boolean;
 }
 
-class StorageFactory {
-	storages = new Map();
-
-	storage(namespace: string) {
-		let storage = this.storages.get(namespace);
-		if (storage) return storage;
-		this.storages.set(namespace, (storage = new MemoryStorage()));
-		return storage;
-	}
-}
-
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
+	let _mf: Miniflare;
 	let _entryPoints = new Map<RouteData, URL>();
 
 	const SERVER_BUILD_FOLDER = '/$server_build/';
@@ -122,7 +116,55 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						try {
 							const cf = await getCFObject(runtimeMode);
 							const vars = await getEnvVars();
+							const D1Bindings = await getD1Bindings();
+							const R2Bindings = await getR2Bindings();
+							const KVBindings = await getKVBindings();
+							const DOBindings = await getDOBindings();
+							let bindingsEnv = new Object({});
 
+							// fix for the error "kj/filesystem-disk-unix.c++:1709: warning: PWD environment variable doesn't match current directory."
+							// note: This mismatch might be primarily due to the test runner.
+							const originalPWD = process.env.PWD;
+							process.env.PWD = process.cwd();
+
+							_mf = new Miniflare({
+								modules: true,
+								script: '',
+								cache: true,
+								cachePersist: true,
+								cacheWarnUsage: true,
+								d1Databases: D1Bindings,
+								d1Persist: true,
+								r2Buckets: R2Bindings,
+								r2Persist: true,
+								kvNamespaces: KVBindings,
+								kvPersist: true,
+								durableObjects: DOBindings,
+								durableObjectsPersist: true,
+							});
+							await _mf.ready;
+
+							for (const D1Binding of D1Bindings) {
+								const db = await _mf.getD1Database(D1Binding);
+								Reflect.set(bindingsEnv, D1Binding, db);
+							}
+							for (const R2Binding of R2Bindings) {
+								const bucket = await _mf.getR2Bucket(R2Binding);
+								Reflect.set(bindingsEnv, R2Binding, bucket);
+							}
+							for (const KVBinding of KVBindings) {
+								const namespace = await _mf.getKVNamespace(KVBinding);
+								Reflect.set(bindingsEnv, KVBinding, namespace);
+							}
+							for (const key in DOBindings) {
+								if (Object.prototype.hasOwnProperty.call(DOBindings, key)) {
+									const DO = await _mf.getDurableObjectNamespace(key);
+									Reflect.set(bindingsEnv, key, DO);
+								}
+							}
+							const mfCache = await _mf.getCaches();
+
+							process.env.PWD = originalPWD;
 							const clientLocalsSymbol = Symbol.for('astro.locals');
 							Reflect.set(req, clientLocalsSymbol, {
 								runtime: {
@@ -136,18 +178,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 										// will be fetched from git dynamically once we support mocking of bindings
 										CF_PAGES_COMMIT_SHA: 'TBA',
 										CF_PAGES_URL: `http://${req.headers.host}`,
+										...bindingsEnv,
 										...vars,
 									},
 									cf: cf,
 									waitUntil: (_promise: Promise<any>) => {
 										return;
 									},
-									caches: new CacheStorage(
-										{ cache: true, cachePersist: false },
-										new NoOpLog(),
-										new StorageFactory(),
-										{}
-									),
+									caches: mfCache,
 								},
 							});
 							next();
@@ -155,6 +193,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							next();
 						}
 					});
+				}
+			},
+			'astro:server:done': async ({ logger }) => {
+				if (_mf) {
+					logger.info('Cleaning up the Miniflare instance, and shutting down the workerd server.');
+					await _mf.dispose();
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {

@@ -293,7 +293,11 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 	}
 
 	// Pass framework CSS in as style tags to be appended to the page.
-	const { urls: styleUrls, stylesMap } = await getStylesForURL(filePath, moduleLoader, mode);
+	const { urls: styleUrls, styles: importedStyles } = await getStylesForURL(
+		filePath,
+		moduleLoader,
+		mode
+	);
 	let links = new Set<SSRElement>();
 	[...styleUrls].forEach((href) => {
 		links.add({
@@ -306,7 +310,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 	});
 
 	let styles = new Set<SSRElement>();
-	[...stylesMap].forEach(([url, content]) => {
+	importedStyles.forEach(({ id, url, content }) => {
 		// Vite handles HMR for styles injected as scripts
 		scripts.add({
 			props: {
@@ -319,7 +323,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 		// should emulate what Vite injects so further HMR works as expected.
 		styles.add({
 			props: {
-				'data-vite-dev-id': url,
+				'data-vite-dev-id': id,
 			},
 			children: content,
 		});

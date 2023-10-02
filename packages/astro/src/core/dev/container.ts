@@ -50,7 +50,7 @@ export async function createContainer({
 		isRestart,
 	});
 
-	settings = injectImageEndpoint(settings);
+	settings = injectImageEndpoint(settings, 'dev');
 
 	const {
 		base,

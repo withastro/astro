@@ -1,5 +1,14 @@
 # @astrojs/markdoc
 
+## 0.5.1
+
+### Patch Changes
+
+- [#8710](https://github.com/withastro/astro/pull/8710) [`4c2bec681`](https://github.com/withastro/astro/commit/4c2bec681b0752e7215b8a32bd2d44bf477adac1) Thanks [@matthewp](https://github.com/matthewp)! - Fixes View transition styles being missing when component used multiple times
+
+- Updated dependencies [[`455af3235`](https://github.com/withastro/astro/commit/455af3235b3268852e6988accecc796f03f6d16e), [`4c2bec681`](https://github.com/withastro/astro/commit/4c2bec681b0752e7215b8a32bd2d44bf477adac1)]:
+  - astro@3.2.2
+
 ## 0.5.0
 
 ### Minor Changes
