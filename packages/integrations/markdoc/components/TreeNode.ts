@@ -92,13 +92,11 @@ export const ComponentNode = createComponent({
 			// `result.propagators` has been moved to `result._metadata.propagators`
 			// TODO: remove this fallback in the next markdoc integration major
 			const propagators = result._metadata.propagators || result.propagators;
-			propagators.add(
-				{
-					init() {
-						return headAndContent;
-					},
-				}
-			);
+			propagators.add({
+				init() {
+					return headAndContent;
+				},
+			});
 
 			return headAndContent;
 		}

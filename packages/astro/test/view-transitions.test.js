@@ -13,7 +13,7 @@ describe('View Transitions styles', () => {
 
 	after(async () => {
 		await devServer.stop();
-	})
+	});
 
 	it('style tag added for each instance of the component', async () => {
 		let res = await fixture.fetch('/multiple');
