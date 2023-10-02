@@ -1,4 +1,4 @@
-name: "Mirror"
+name: Mirror
 
 on:
   push:
@@ -8,16 +8,24 @@ on:
       - "examples/**"
 
 jobs:
-  stat:
+  mirror:
     if: github.repository_owner == 'natemoo-re'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        name:
+          - basics
+          - blog
+          - minimal
     steps:
-      - name: Check out code using Git
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Mirror
+      - name: Setup Mirror (${{ matrix.name }})
         run: |
-          git filter-repo --path examples/minimal
-          git remote set-url origin https://github.com/withastro/astro-template-minimal.git
+          git filter-repo --path examples/${{matrix.name}}
+          git remote set-url origin https://github.com/withastro/template-${{matrix.name}}.git
+          git add .
+          git commit -m "[ci]: mirror from `withastro/astro`"
+          git push --force
