@@ -59,7 +59,6 @@ async function copyToClipboard(text: string) {
 		execSync(command, {
 			input: text.trim(),
 			encoding: 'utf8',
-			stdio: 'ignore',
 		});
 	} catch (e) {
 		console.error(
