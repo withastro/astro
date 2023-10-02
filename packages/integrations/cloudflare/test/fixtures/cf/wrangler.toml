@@ -28,3 +28,10 @@ bucket_name = '<YOUR_BUCKET_NAME>'
 binding = 'R2_PROD' # <~ valid JavaScript variable name
 bucket_name = '<YOUR_BUCKET_NAME>'
 
+[[durable_objects.bindings]]
+name = "DO"
+class_name = "DurableObjectExample"
+
+[[durable_objects.bindings]]
+name = "DO_PROD"
+class_name = "DurableObjectProductionExample"

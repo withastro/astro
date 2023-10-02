@@ -12,7 +12,13 @@ import glob from 'tiny-glob';
 import { getAdapter } from './getAdapter.js';
 import { deduplicatePatterns } from './utils/deduplicatePatterns.js';
 import { getCFObject } from './utils/getCFObject.js';
-import { getD1Bindings, getEnvVars, getKVBindings, getR2Bindings } from './utils/parser.js';
+import {
+	getD1Bindings,
+	getDOBindings,
+	getEnvVars,
+	getKVBindings,
+	getR2Bindings,
+} from './utils/parser.js';
 import { prependForwardSlash } from './utils/prependForwardSlash.js';
 import { rewriteWasmImportPath } from './utils/rewriteWasmImportPath.js';
 import { wasmModuleLoader } from './utils/wasm-module-loader.js';
@@ -113,7 +119,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							const D1Bindings = await getD1Bindings();
 							const R2Bindings = await getR2Bindings();
 							const KVBindings = await getKVBindings();
-
+							const DOBindings = await getDOBindings();
 							let bindingsEnv = new Object({});
 
 							// fix for the error "kj/filesystem-disk-unix.c++:1709: warning: PWD environment variable doesn't match current directory."
@@ -133,6 +139,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								r2Persist: true,
 								kvNamespaces: KVBindings,
 								kvPersist: true,
+								durableObjects: DOBindings,
+								durableObjectsPersist: true,
 							});
 							await _mf.ready;
 
@@ -147,6 +155,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							for (const KVBinding of KVBindings) {
 								const namespace = await _mf.getKVNamespace(KVBinding);
 								Reflect.set(bindingsEnv, KVBinding, namespace);
+							}
+							for (const key in DOBindings) {
+								if (Object.prototype.hasOwnProperty.call(DOBindings, key)) {
+									const DO = await _mf.getDurableObjectNamespace(key);
+									Reflect.set(bindingsEnv, key, DO);
+								}
 							}
 							const mfCache = await _mf.getCaches();
 
