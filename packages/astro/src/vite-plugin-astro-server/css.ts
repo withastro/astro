@@ -49,6 +49,6 @@ export async function getStylesForURL(
 
 	return {
 		urls: importedCssUrls,
-		styles: Object.values(importedStylesMap),
+		styles: [...importedStylesMap.values()],
 	};
 }
