@@ -1,5 +1,25 @@
 # @astrojs/cloudflare
 
+## 7.5.0
+
+### Minor Changes
+
+- [#8655](https://github.com/withastro/astro/pull/8655) [`3dd65bf88`](https://github.com/withastro/astro/commit/3dd65bf8895faedfa4c92599961acca07457c62f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Introduces support for local KV bindings. Enhances development experience by allowing direct integration with `astro dev`.
+
+- [#8655](https://github.com/withastro/astro/pull/8655) [`3dd65bf88`](https://github.com/withastro/astro/commit/3dd65bf8895faedfa4c92599961acca07457c62f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Introduces support for local Durable Objects bindings. Enhances development experience by allowing direct integration with `astro dev`.
+
+- [#8655](https://github.com/withastro/astro/pull/8655) [`3dd65bf88`](https://github.com/withastro/astro/commit/3dd65bf8895faedfa4c92599961acca07457c62f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Introduces support for local D1 bindings. Enhances development experience by allowing direct integration with `astro dev`.
+
+- [#8655](https://github.com/withastro/astro/pull/8655) [`3dd65bf88`](https://github.com/withastro/astro/commit/3dd65bf8895faedfa4c92599961acca07457c62f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Introduces support for local R2 bindings. Enhances development experience by allowing direct integration with `astro dev`.
+
+- [#8655](https://github.com/withastro/astro/pull/8655) [`3dd65bf88`](https://github.com/withastro/astro/commit/3dd65bf8895faedfa4c92599961acca07457c62f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Introduces support for local Caches bindings. Enhances development experience by allowing direct integration with `astro dev`.
+
+### Patch Changes
+
+- Updated dependencies [[`455af3235`](https://github.com/withastro/astro/commit/455af3235b3268852e6988accecc796f03f6d16e), [`4c2bec681`](https://github.com/withastro/astro/commit/4c2bec681b0752e7215b8a32bd2d44bf477adac1)]:
+  - astro@3.2.2
+  - @astrojs/underscore-redirects@0.3.0
+
 ## 7.4.0
 
 ### Minor Changes
