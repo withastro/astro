@@ -28,7 +28,7 @@ export async function getStylesForURL(
 				mode === 'development' && // only inline in development
 				typeof ssrModule?.default === 'string' // ignore JS module styles
 			) {
-				importedStylesMap.set(importedModule.url, ssrModule.default);
+				importedStylesMap.set(importedModule.id ?? importedModule.url, ssrModule.default);
 			} else {
 				// NOTE: We use the `url` property here. `id` would break Windows.
 				importedCssUrls.add(importedModule.url);

@@ -1,5 +1,15 @@
 # astro
 
+## 3.2.1
+
+### Patch Changes
+
+- [#8680](https://github.com/withastro/astro/pull/8680) [`31c59ad8b`](https://github.com/withastro/astro/commit/31c59ad8b6a72f95c98a306ecf92d198c03110b4) Thanks [@bluwy](https://github.com/bluwy)! - Fix hydration on slow connection
+
+- [#8698](https://github.com/withastro/astro/pull/8698) [`47ea310f0`](https://github.com/withastro/astro/commit/47ea310f01d06ed1562c790bec348718a2fa8277) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Use a Node-specific image endpoint to resolve images in dev and Node SSR. This should fix many issues related to getting 404 from the \_image endpoint under certain configurations
+
+- [#8706](https://github.com/withastro/astro/pull/8706) [`345808170`](https://github.com/withastro/astro/commit/345808170fce783ddd3c9a4035a91fa64dcc5f46) Thanks [@bluwy](https://github.com/bluwy)! - Fix duplicated Astro and Vite injected styles
+
 ## 3.2.0
 
 ### Minor Changes

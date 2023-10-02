@@ -56,17 +56,34 @@ declare const Astro: {
 					document.addEventListener('astro:after-swap', this.unmount, { once: true });
 				}
 				connectedCallback() {
-					if (!this.hasAttribute('await-children') || this.firstChild) {
+					if (
+						!this.hasAttribute('await-children') ||
+						document.readyState === 'interactive' ||
+						document.readyState === 'complete'
+					) {
 						this.childrenConnectedCallback();
 					} else {
 						// connectedCallback may run *before* children are rendered (ex. HTML streaming)
-						// If SSR children are expected, but not yet rendered,
-						// Wait with a mutation observer
-						new MutationObserver((_, mo) => {
+						// If SSR children are expected, but not yet rendered, wait with a mutation observer
+						// for a special marker inserted when rendering islands that signals the end of the island
+						const onConnected = () => {
+							document.removeEventListener('DOMContentLoaded', onConnected);
 							mo.disconnect();
-							// Wait until the next macrotask to ensure children are really rendered
-							setTimeout(() => this.childrenConnectedCallback(), 0);
-						}).observe(this, { childList: true });
+							this.childrenConnectedCallback();
+						};
+						const mo = new MutationObserver(() => {
+							if (
+								this.lastChild?.nodeType === Node.COMMENT_NODE &&
+								this.lastChild.nodeValue === 'astro:end'
+							) {
+								this.lastChild.remove();
+								onConnected();
+							}
+						});
+						mo.observe(this, { childList: true });
+						// in case the marker comment got stripped and the mutation observer waited indefinitely,
+						// also wait for DOMContentLoaded as a last resort
+						document.addEventListener('DOMContentLoaded', onConnected);
 					}
 				}
 				async childrenConnectedCallback() {

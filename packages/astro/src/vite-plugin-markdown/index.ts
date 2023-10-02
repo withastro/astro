@@ -16,6 +16,7 @@ import { isMarkdownFile } from '../core/util.js';
 import { shorthash } from '../runtime/server/shorthash.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
+import { getMarkdownCodeForImages, type MarkdownImagePath } from './images.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -95,7 +96,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				const { headings, imagePaths: rawImagePaths, frontmatter } = renderResult.metadata;
 
 				// Resolve all the extracted images from the content
-				const imagePaths: { raw: string; resolved: string; safeName: string }[] = [];
+				const imagePaths: MarkdownImagePath[] = [];
 				for (const imagePath of rawImagePaths.values()) {
 					imagePaths.push({
 						raw: imagePath,
@@ -119,33 +120,14 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 					astroServerRuntimeModulePath
 				)};
 				import { AstroError, AstroErrorData } from ${JSON.stringify(astroErrorModulePath)};
-
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
-				import { getImage } from "astro:assets";
-				${imagePaths
-					.map((entry) => `import Astro__${entry.safeName} from ${JSON.stringify(entry.raw)};`)
-					.join('\n')}
 
-				const images = async function() {
-					return {
-						${imagePaths
-							.map((entry) => `"${entry.raw}": await getImage({src: Astro__${entry.safeName}})`)
-							.join(',\n')}
-					}
+				${
+					// Only include the code relevant to `astro:assets` if there's images in the file
+					imagePaths.length > 0
+						? getMarkdownCodeForImages(imagePaths, html)
+						: `const html = ${JSON.stringify(html)};`
 				}
-
-				async function updateImageReferences(html) {
-					return images().then((images) => {
-						return html.replaceAll(/__ASTRO_IMAGE_="([^"]+)"/gm, (full, imagePath) =>
-							spreadAttributes({
-								src: images[imagePath].src,
-								...images[imagePath].attributes,
-							})
-						);
-					});
-				}
-
-				const html = await updateImageReferences(${JSON.stringify(html)});
 
 				export const frontmatter = ${JSON.stringify(frontmatter)};
 				export const file = ${JSON.stringify(fileId)};
