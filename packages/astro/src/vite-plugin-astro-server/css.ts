@@ -4,14 +4,21 @@ import { viteID } from '../core/util.js';
 import { isBuildableCSSRequest } from './util.js';
 import { crawlGraph } from './vite.js';
 
+interface ImportedStyle {
+	id: string;
+	url: string;
+	content: string;
+}
+
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
 export async function getStylesForURL(
 	filePath: URL,
 	loader: ModuleLoader,
 	mode: RuntimeMode
-): Promise<{ urls: Set<string>; stylesMap: Map<string, string> }> {
+): Promise<{ urls: Set<string>; styles: ImportedStyle[] }> {
 	const importedCssUrls = new Set<string>();
-	const importedStylesMap = new Map<string, string>();
+	// Map of url to injected style object. Use a `url` key to deduplicate styles
+	const importedStylesMap = new Map<string, ImportedStyle>();
 
 	for await (const importedModule of crawlGraph(loader, viteID(filePath), true)) {
 		if (isBuildableCSSRequest(importedModule.url)) {
@@ -28,7 +35,11 @@ export async function getStylesForURL(
 				mode === 'development' && // only inline in development
 				typeof ssrModule?.default === 'string' // ignore JS module styles
 			) {
-				importedStylesMap.set(importedModule.id ?? importedModule.url, ssrModule.default);
+				importedStylesMap.set(importedModule.url, {
+					id: importedModule.id ?? importedModule.url,
+					url: importedModule.url,
+					content: ssrModule.default,
+				});
 			} else {
 				// NOTE: We use the `url` property here. `id` would break Windows.
 				importedCssUrls.add(importedModule.url);
@@ -38,6 +49,6 @@ export async function getStylesForURL(
 
 	return {
 		urls: importedCssUrls,
-		stylesMap: importedStylesMap,
+		styles: [...importedStylesMap.values()],
 	};
 }
