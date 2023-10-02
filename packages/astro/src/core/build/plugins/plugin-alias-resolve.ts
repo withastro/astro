@@ -52,7 +52,7 @@ function matches(pattern: string | RegExp, importee: string) {
 
 export function pluginAliasResolve(internals: BuildInternals): AstroBuildPlugin {
 	return {
-		build: 'client',
+		targets: ['client'],
 		hooks: {
 			'build:before': () => {
 				return {
