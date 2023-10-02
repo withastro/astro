@@ -69,7 +69,7 @@ export function createGetCollection({
 		let entries: any[] = [];
 		// Cache `getCollection()` calls in production only
 		// prevents stale cache in development
-		if (import.meta.env.PROD && cacheEntriesByCollection.has(collection)) {
+		if (!import.meta.env?.DEV && cacheEntriesByCollection.has(collection)) {
 			// Always return a new instance so consumers can safely mutate it
 			entries = [...cacheEntriesByCollection.get(collection)!];
 		} else {
