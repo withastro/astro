@@ -170,7 +170,7 @@ export async function loadFixture(inlineConfig) {
 			try {
 				return await fetch(resolvedUrl, init);
 			} catch (err) {
-				// undici throws a vague error when it fails, so we log the url here to easily debug it
+				// node fetch throws a vague error when it fails, so we log the url here to easily debug it
 				if (err.message?.includes('fetch failed')) {
 					console.error(`[astro test] failed to fetch ${resolvedUrl}`);
 					console.error(err);

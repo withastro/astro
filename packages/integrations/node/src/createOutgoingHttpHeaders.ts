@@ -8,15 +8,12 @@ import type { OutgoingHttpHeaders } from 'node:http';
  * @returns NodeJS OutgoingHttpHeaders object with multiple set-cookie handled as an array of values
  */
 export const createOutgoingHttpHeaders = (
-	webHeaders: Headers | undefined | null
+	headers: Headers | undefined | null
 ): OutgoingHttpHeaders | undefined => {
-	if (!webHeaders) {
+	if (!headers) {
 		return undefined;
 	}
-
-	// re-type to access Header.getSetCookie()
-	const headers = webHeaders as HeadersWithGetSetCookie;
-
+	
 	// at this point, a multi-value'd set-cookie header is invalid (it was concatenated as a single CSV, which is not valid for set-cookie)
 	const nodeHeaders: OutgoingHttpHeaders = Object.fromEntries(headers.entries());
 
@@ -35,8 +32,3 @@ export const createOutgoingHttpHeaders = (
 
 	return nodeHeaders;
 };
-
-interface HeadersWithGetSetCookie extends Headers {
-	// the @astrojs/webapi polyfill makes this available (as of undici@5.19.0), but tsc doesn't pick it up on the built-in Headers type from DOM lib
-	getSetCookie(): string[];
-}

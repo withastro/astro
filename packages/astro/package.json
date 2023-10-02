@@ -168,7 +168,6 @@
     "string-width": "^6.1.0",
     "strip-ansi": "^7.1.0",
     "tsconfig-resolver": "^3.0.1",
-    "undici": "^5.23.0",
     "unist-util-visit": "^4.1.2",
     "vfile": "^5.3.7",
     "vite": "^4.4.9",
