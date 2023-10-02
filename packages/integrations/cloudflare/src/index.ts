@@ -1,9 +1,6 @@
 import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
 
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
-import { CacheStorage } from '@miniflare/cache';
-import { NoOpLog } from '@miniflare/shared';
-import { MemoryStorage } from '@miniflare/storage-memory';
 import { AstroError } from 'astro/errors';
 import esbuild from 'esbuild';
 import { Miniflare } from 'miniflare';
@@ -15,7 +12,13 @@ import glob from 'tiny-glob';
 import { getAdapter } from './getAdapter.js';
 import { deduplicatePatterns } from './utils/deduplicatePatterns.js';
 import { getCFObject } from './utils/getCFObject.js';
-import { getD1Bindings, getEnvVars } from './utils/parser.js';
+import {
+	getD1Bindings,
+	getDOBindings,
+	getEnvVars,
+	getKVBindings,
+	getR2Bindings,
+} from './utils/parser.js';
 import { prependForwardSlash } from './utils/prependForwardSlash.js';
 import { rewriteWasmImportPath } from './utils/rewriteWasmImportPath.js';
 import { wasmModuleLoader } from './utils/wasm-module-loader.js';
@@ -54,17 +57,6 @@ interface BuildConfig {
 	assets: string;
 	serverEntry: string;
 	split?: boolean;
-}
-
-class StorageFactory {
-	storages = new Map();
-
-	storage(namespace: string) {
-		let storage = this.storages.get(namespace);
-		if (storage) return storage;
-		this.storages.set(namespace, (storage = new MemoryStorage()));
-		return storage;
-	}
 }
 
 export default function createIntegration(args?: Options): AstroIntegration {
@@ -125,6 +117,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							const cf = await getCFObject(runtimeMode);
 							const vars = await getEnvVars();
 							const D1Bindings = await getD1Bindings();
+							const R2Bindings = await getR2Bindings();
+							const KVBindings = await getKVBindings();
+							const DOBindings = await getDOBindings();
 							let bindingsEnv = new Object({});
 
 							// fix for the error "kj/filesystem-disk-unix.c++:1709: warning: PWD environment variable doesn't match current directory."
@@ -137,8 +132,15 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								script: '',
 								cache: true,
 								cachePersist: true,
+								cacheWarnUsage: true,
 								d1Databases: D1Bindings,
 								d1Persist: true,
+								r2Buckets: R2Bindings,
+								r2Persist: true,
+								kvNamespaces: KVBindings,
+								kvPersist: true,
+								durableObjects: DOBindings,
+								durableObjectsPersist: true,
 							});
 							await _mf.ready;
 
@@ -146,6 +148,21 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								const db = await _mf.getD1Database(D1Binding);
 								Reflect.set(bindingsEnv, D1Binding, db);
 							}
+							for (const R2Binding of R2Bindings) {
+								const bucket = await _mf.getR2Bucket(R2Binding);
+								Reflect.set(bindingsEnv, R2Binding, bucket);
+							}
+							for (const KVBinding of KVBindings) {
+								const namespace = await _mf.getKVNamespace(KVBinding);
+								Reflect.set(bindingsEnv, KVBinding, namespace);
+							}
+							for (const key in DOBindings) {
+								if (Object.prototype.hasOwnProperty.call(DOBindings, key)) {
+									const DO = await _mf.getDurableObjectNamespace(key);
+									Reflect.set(bindingsEnv, key, DO);
+								}
+							}
+							const mfCache = await _mf.getCaches();
 
 							process.env.PWD = originalPWD;
 							const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -168,12 +185,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 									waitUntil: (_promise: Promise<any>) => {
 										return;
 									},
-									caches: new CacheStorage(
-										{ cache: true, cachePersist: false },
-										new NoOpLog(),
-										new StorageFactory(),
-										{}
-									),
+									caches: mfCache,
 								},
 							});
 							next();

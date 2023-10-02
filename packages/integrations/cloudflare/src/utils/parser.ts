@@ -152,3 +152,40 @@ export async function getD1Bindings() {
 	);
 	return bindings;
 }
+
+export async function getR2Bindings() {
+	const { rawConfig } = parseConfig();
+	if (!rawConfig) return [];
+	if (!rawConfig?.r2_buckets) return [];
+	const bindings = (rawConfig?.r2_buckets as []).map(
+		(binding: { binding: string }) => binding.binding
+	);
+	return bindings;
+}
+
+export async function getKVBindings() {
+	const { rawConfig } = parseConfig();
+	if (!rawConfig) return [];
+	if (!rawConfig?.kv_namespaces) return [];
+	const bindings = (rawConfig?.kv_namespaces as []).map(
+		(binding: { binding: string }) => binding.binding
+	);
+	return bindings;
+}
+
+export function getDOBindings(): Record<
+	string,
+	{ scriptName?: string | undefined; unsafeUniqueKey?: string | undefined; className: string }
+> {
+	const { rawConfig } = parseConfig();
+	if (!rawConfig) return {};
+	if (!rawConfig?.durable_objects) return {};
+	const output = new Object({}) as Record<
+		string,
+		{ scriptName?: string | undefined; unsafeUniqueKey?: string | undefined; className: string }
+	>;
+	for (const binding of rawConfig?.durable_objects.bindings) {
+		Reflect.set(output, binding.name, { className: binding.class_name });
+	}
+	return output;
+}

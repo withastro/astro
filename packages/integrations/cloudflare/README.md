@@ -217,6 +217,9 @@ Gives you access to [environment variables](https://developers.cloudflare.com/pa
 Currently supported bindings:
 
 - [Cloudflare D1](https://developers.cloudflare.com/d1/)
+- [Cloudflare R2](https://developers.cloudflare.com/r2/)
+- [Cloudflare Workers KV](https://developers.cloudflare.com/kv/)
+- [Cloudflare Durable Objects](https://developers.cloudflare.com/durable-objects/)
 
 You can access the runtime from Astro components through `Astro.locals` inside any .astro` file.
 
