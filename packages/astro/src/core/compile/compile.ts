@@ -69,6 +69,12 @@ export async function compile({
 		});
 	}
 
+	if (viteConfig.mode === 'development') {
+		transformResult.clientOnlyComponents.forEach((component) => {
+			transformResult.code += `\nimport '${component.specifier}';\n`;
+		});
+	}
+
 	handleCompileResultErrors(transformResult, cssTransformErrors);
 
 	return {
