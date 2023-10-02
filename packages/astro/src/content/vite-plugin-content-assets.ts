@@ -112,14 +112,14 @@ export function astroConfigBuildPlugin(
 ): AstroBuildPlugin {
 	let ssrPluginContext: any = undefined;
 	return {
-		build: 'ssr',
+		targets: ['server', 'content'],
 		hooks: {
-			'build:before': ({ build }) => {
+			'build:before': ({ target }) => {
 				return {
 					vitePlugin: {
 						name: 'astro:content-build-plugin',
 						generateBundle() {
-							if (build === 'ssr') {
+							if (target === 'server') {
 								ssrPluginContext = this;
 							}
 						},
@@ -206,7 +206,7 @@ export function astroConfigBuildPlugin(
 								)
 							);
 						}
-						mutate(chunk, 'server', newCode);
+						mutate(chunk, ['server'], newCode);
 					}
 				}
 			},

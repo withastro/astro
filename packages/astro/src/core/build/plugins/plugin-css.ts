@@ -2,7 +2,7 @@ import type { GetModuleInfo } from 'rollup';
 import { type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
 import { isBuildableCSSRequest } from '../../../vite-plugin-astro-server/util.js';
 import type { BuildInternals } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin.js';
+import type { AstroBuildPlugin, BuildTarget } from '../plugin.js';
 import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
 
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
@@ -20,7 +20,7 @@ import { extendManualChunks } from './util.js';
 interface PluginOptions {
 	internals: BuildInternals;
 	buildOptions: StaticBuildOptions;
-	target: 'client' | 'server';
+	target: BuildTarget;
 }
 
 /***** ASTRO PLUGIN *****/
@@ -30,13 +30,13 @@ export function pluginCSS(
 	internals: BuildInternals
 ): AstroBuildPlugin {
 	return {
-		build: 'both',
+		targets: ['client', 'server'],
 		hooks: {
-			'build:before': ({ build }) => {
+			'build:before': ({ target }) => {
 				let plugins = rollupPluginAstroBuildCSS({
 					buildOptions: options,
 					internals,
-					target: build === 'ssr' ? 'server' : 'client',
+					target,
 				});
 
 				return {

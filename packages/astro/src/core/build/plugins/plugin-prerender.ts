@@ -40,7 +40,7 @@ export function pluginPrerender(
 	internals: BuildInternals
 ): AstroBuildPlugin {
 	return {
-		build: 'ssr',
+		targets: ['server'],
 		hooks: {
 			'build:before': () => {
 				return {

@@ -5,16 +5,19 @@ import type { StaticBuildOptions, ViteBuildReturn } from './types.js';
 type RollupOutputArray = Extract<ViteBuildReturn, Array<any>>;
 type OutputChunkorAsset = RollupOutputArray[number]['output'][number];
 type OutputChunk = Extract<OutputChunkorAsset, { type: 'chunk' }>;
+export type BuildTarget = 'server' | 'client' | 'content';
 
-type MutateChunk = (chunk: OutputChunk, build: 'server' | 'client', newCode: string) => void;
+type MutateChunk = (chunk: OutputChunk, targets: BuildTarget[], newCode: string) => void;
+
+export interface BuildBeforeHookResult {
+	enforce?: 'after-user-plugins';
+	vitePlugin: VitePlugin | VitePlugin[] | undefined;
+}
 
 export type AstroBuildPlugin = {
-	build: 'ssr' | 'client' | 'both';
+	targets: BuildTarget[];
 	hooks?: {
-		'build:before'?: (opts: { build: 'ssr' | 'client'; input: Set<string> }) => {
-			enforce?: 'after-user-plugins';
-			vitePlugin: VitePlugin | VitePlugin[] | undefined;
-		};
+		'build:before'?: (opts: { target: BuildTarget; input: Set<string> }) => BuildBeforeHookResult | Promise<BuildBeforeHookResult>;
 		'build:post'?: (opts: {
 			ssrOutputs: RollupOutputArray;
 			clientOutputs: RollupOutputArray;
@@ -24,40 +27,32 @@ export type AstroBuildPlugin = {
 };
 
 export function createPluginContainer(options: StaticBuildOptions, internals: BuildInternals) {
-	const clientPlugins: AstroBuildPlugin[] = [];
-	const ssrPlugins: AstroBuildPlugin[] = [];
+	const plugins = new Map<BuildTarget, AstroBuildPlugin[]>();
 	const allPlugins = new Set<AstroBuildPlugin>();
+	for (const target of ['client', 'server', 'content'] satisfies BuildTarget[]) {
+		plugins.set(target, []);
+	}
 
 	return {
 		options,
 		internals,
 		register(plugin: AstroBuildPlugin) {
 			allPlugins.add(plugin);
-			switch (plugin.build) {
-				case 'client': {
-					clientPlugins.push(plugin);
-					break;
-				}
-				case 'ssr': {
-					ssrPlugins.push(plugin);
-					break;
-				}
-				case 'both': {
-					clientPlugins.push(plugin);
-					ssrPlugins.push(plugin);
-					break;
-				}
+			for (const target of plugin.targets) {
+				const targetPlugins = plugins.get(target) ?? [];
+				targetPlugins.push(plugin);
+				plugins.set(target, targetPlugins);
 			}
 		},
 
 		// Hooks
-		runBeforeHook(build: 'ssr' | 'client', input: Set<string>) {
-			let plugins = build === 'ssr' ? ssrPlugins : clientPlugins;
+		async runBeforeHook(target: BuildTarget, input: Set<string>) {
+			let targetPlugins = plugins.get(target) ?? [];
 			let vitePlugins: Array<VitePlugin | VitePlugin[]> = [];
 			let lastVitePlugins: Array<VitePlugin | VitePlugin[]> = [];
-			for (const plugin of plugins) {
+			for (const plugin of targetPlugins) {
 				if (plugin.hooks?.['build:before']) {
-					let result = plugin.hooks['build:before']({ build, input });
+					let result = await plugin.hooks['build:before']({ target, input });
 					if (result.vitePlugin) {
 						vitePlugins.push(result.vitePlugin);
 					}
@@ -74,7 +69,7 @@ export function createPluginContainer(options: StaticBuildOptions, internals: Bu
 			const mutations = new Map<
 				string,
 				{
-					build: 'server' | 'client';
+					targets: BuildTarget[];
 					code: string;
 				}
 			>();
@@ -93,10 +88,10 @@ export function createPluginContainer(options: StaticBuildOptions, internals: Bu
 				clientOutputs.push(clientReturn);
 			}
 
-			const mutate: MutateChunk = (chunk, build, newCode) => {
+			const mutate: MutateChunk = (chunk, targets, newCode) => {
 				chunk.code = newCode;
 				mutations.set(chunk.fileName, {
-					build,
+					targets,
 					code: newCode,
 				});
 			};

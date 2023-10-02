@@ -104,7 +104,7 @@ export function shouldBundleMiddleware(settings: AstroSettings) {
 
 export function pluginPages(opts: StaticBuildOptions, internals: BuildInternals): AstroBuildPlugin {
 	return {
-		build: 'ssr',
+		targets: ['server'],
 		hooks: {
 			'build:before': () => {
 				return {

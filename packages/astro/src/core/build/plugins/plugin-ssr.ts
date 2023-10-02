@@ -97,7 +97,7 @@ export function pluginSSR(
 	const ssr = isServerLikeOutput(options.settings.config);
 	const functionPerRouteEnabled = isFunctionPerRouteEnabled(options.settings.adapter);
 	return {
-		build: 'ssr',
+		targets: ['server'],
 		hooks: {
 			'build:before': () => {
 				let vitePlugin =
@@ -218,7 +218,7 @@ export function pluginSSRSplit(
 	const functionPerRouteEnabled = isFunctionPerRouteEnabled(options.settings.adapter);
 
 	return {
-		build: 'ssr',
+		targets: ['server'],
 		hooks: {
 			'build:before': () => {
 				let vitePlugin =
