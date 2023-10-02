@@ -42,11 +42,6 @@ const announce = () => {
 };
 const PERSIST_ATTR = 'data-astro-transition-persist';
 const parser = new DOMParser();
-// explained at its usage
-let noopEl: HTMLDivElement;
-if (import.meta.env.DEV) {
-	noopEl = document.createElement('div');
-}
 
 // The History API does not tell you if navigation is forward or back, so
 // you can figure it using an index. On pushState the index is incremented so you
