@@ -41,10 +41,22 @@ export async function printInfo({ flags }: InfoOptions) {
 	await copyToClipboard(output.trim());
 }
 
-const SUPPORTED_SYSTEM = new Set(['darwin', 'win32']);
 async function copyToClipboard(text: string) {
 	const system = platform();
-	if (!SUPPORTED_SYSTEM.has(system)) return;
+	let command = '';
+	if (system === 'darwin') {
+		command = 'pbcopy';
+	} else if (system === 'win32') { 
+		command = 'clip';
+	} else {
+		// Unix: check if `xclip` is installed
+		const output = execSync('which xclip', { encoding: 'utf8' });
+		if (output[0] !== '/') {
+			// Did not find a path for xclip, bail out!
+			return;
+		}
+		command = 'xclip -sel clipboard -l 1';
+	}
 
 	console.log();
 	const { shouldCopy } = await prompts({
@@ -54,11 +66,11 @@ async function copyToClipboard(text: string) {
 		initial: true,
 	});
 	if (!shouldCopy) return;
-	const command = system === 'darwin' ? 'pbcopy' : 'clip';
+
 	try {
-		execSync(`echo ${JSON.stringify(text.trim())} | ${command}`, {
+		execSync(command, {
+			input: text.trim(),
 			encoding: 'utf8',
-			stdio: 'ignore',
 		});
 	} catch (e) {
 		console.error(
