@@ -51,5 +51,8 @@
     "mocha": "^10.2.0",
     "node-mocks-http": "^1.13.0",
     "undici": "^5.23.0"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }

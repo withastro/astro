@@ -72,5 +72,8 @@
     "chai-jest-snapshot": "^2.0.0",
     "cheerio": "1.0.0-rc.12",
     "mocha": "^10.2.0"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }
