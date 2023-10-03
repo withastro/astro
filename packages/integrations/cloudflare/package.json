@@ -58,5 +58,8 @@
     "cheerio": "1.0.0-rc.12",
     "mocha": "^10.2.0",
     "wrangler": "^3.5.1"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }
