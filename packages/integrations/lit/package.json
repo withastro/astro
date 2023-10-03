@@ -59,5 +59,8 @@
   "peerDependencies": {
     "@webcomponents/template-shadowroot": "^0.2.1",
     "lit": "^2.7.0"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }
