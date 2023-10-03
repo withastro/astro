@@ -2,4 +2,4 @@
 '@astrojs/markdown-remark': patch
 ---
 
-Remove is:raw from remark Shiki plugin
+Remove `is:raw` from remark Shiki plugin
