@@ -38,5 +38,8 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }
