@@ -46,7 +46,7 @@ async function copyToClipboard(text: string) {
 	let command = '';
 	if (system === 'darwin') {
 		command = 'pbcopy';
-	} else if (system === 'win32') { 
+	} else if (system === 'win32') {
 		command = 'clip';
 	} else {
 		// Unix: check if `xclip` is installed
