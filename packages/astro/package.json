@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "3.2.0",
+  "version": "3.2.2",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -56,7 +56,7 @@
     "./components/*": "./components/*",
     "./assets": "./dist/assets/index.js",
     "./assets/utils": "./dist/assets/utils/index.js",
-    "./assets/image-endpoint": "./dist/assets/image-endpoint.js",
+    "./assets/endpoint/*": "./dist/assets/endpoint/*.js",
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/squoosh": "./dist/assets/services/squoosh.js",
     "./assets/services/noop": "./dist/assets/services/noop.js",
@@ -226,5 +226,8 @@
   "engines": {
     "node": ">=18.14.1",
     "npm": ">=6.14.0"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }

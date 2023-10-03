@@ -2209,7 +2209,7 @@ export interface SSRMetadata {
 	hasRenderedHead: boolean;
 	headInTree: boolean;
 	extraHead: string[];
-	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
+	propagators: Set<AstroComponentInstance>;
 }
 
 /* Preview server stuff */

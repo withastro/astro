@@ -169,7 +169,7 @@ default: `false`
 
 Whether or not to import `.wasm` files [directly as ES modules](https://github.com/WebAssembly/esm-integration/tree/main/proposals/esm-integration) using the `.wasm?module` import syntax.
 
-Add `wasmModuleImports: true` to `astro.config.mjs` to enable this functionality in both the Cloudflare build and the Astro dev server. [Read more](#use-wasm-modules)
+Add `wasmModuleImports: true` to `astro.config.mjs` to enable this functionality in both the Cloudflare build and the Astro dev server. Read more about [using Wasm modules](#use-wasm-modules)
 
 ```diff lang="js"
 // astro.config.mjs
@@ -192,7 +192,7 @@ default `"off"`
 
 Determines whether and how the Cloudflare Runtime is added to `astro dev`.
 
-The Cloudflare Runtime includes [Cloudflare bindings](https://developers.cloudflare.com/pages/platform/functions/bindings), [environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables), and the [cf object](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties). Read more about [accessing the Cloudflare Runtime](#access-to-the-cloudflare-runtime).
+The Cloudflare Runtime includes [Cloudflare bindings](https://developers.cloudflare.com/pages/platform/functions/bindings), [environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables), and the [cf object](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties). Read more about [accessing the Cloudflare Runtime](#cloudflare-runtime).
 
 - `local`: uses bindings mocking and locally static placeholders
 - `off`: no access to the Cloudflare runtime using `astro dev`. You can alternatively use [Preview with Wrangler](#preview-with-wrangler)
@@ -212,7 +212,14 @@ export default defineConfig({
 
 ## Cloudflare runtime
 
-Gives you access to [environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables).
+Gives you access to [environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables), and [Cloudflare bindings](https://developers.cloudflare.com/pages/platform/functions/bindings).
+
+Currently supported bindings:
+
+- [Cloudflare D1](https://developers.cloudflare.com/d1/)
+- [Cloudflare R2](https://developers.cloudflare.com/r2/)
+- [Cloudflare Workers KV](https://developers.cloudflare.com/kv/)
+- [Cloudflare Durable Objects](https://developers.cloudflare.com/durable-objects/)
 
 You can access the runtime from Astro components through `Astro.locals` inside any .astro` file.
 
