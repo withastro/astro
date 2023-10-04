@@ -39,7 +39,6 @@ export function createAPIContext({
 	props,
 	adapterName,
 }: CreateAPIContext): APIContext {
-	initResponseWithEncoding();
 	const context = {
 		cookies: new AstroCookies(request),
 		request,
@@ -92,10 +91,7 @@ export function createAPIContext({
 
 type ResponseParameters = ConstructorParameters<typeof Response>;
 
-export let ResponseWithEncoding: ReturnType<typeof initResponseWithEncoding>;
-// TODO Remove this after StackBlitz supports Node 18.
-let initResponseWithEncoding = () => {
-	class LocalResponseWithEncoding extends Response {
+	export class ResponseWithEncoding extends Response {
 		constructor(
 			body: ResponseParameters[0],
 			init: ResponseParameters[1],
@@ -121,15 +117,6 @@ let initResponseWithEncoding = () => {
 			}
 		}
 	}
-
-	// Set the module scoped variable.
-	ResponseWithEncoding = LocalResponseWithEncoding;
-
-	// Turn this into a noop.
-	initResponseWithEncoding = (() => {}) as any;
-
-	return LocalResponseWithEncoding;
-};
 
 export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>(
 	mod: EndpointHandler,

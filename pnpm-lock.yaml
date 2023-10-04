@@ -628,9 +628,6 @@ importers:
       tsconfig-resolver:
         specifier: ^3.0.1
         version: 3.0.1
-      undici:
-        specifier: ^5.23.0
-        version: 5.23.0
       unist-util-visit:
         specifier: ^4.1.2
         version: 4.1.2
@@ -4307,9 +4304,6 @@ importers:
       node-mocks-http:
         specifier: ^1.13.0
         version: 1.13.0
-      undici:
-        specifier: ^5.23.0
-        version: 5.23.0
 
   packages/integrations/node/test/fixtures/api-route:
     dependencies:
@@ -5005,9 +4999,6 @@ importers:
       is-wsl:
         specifier: ^3.0.0
         version: 3.0.0
-      undici:
-        specifier: ^5.23.0
-        version: 5.23.0
       which-pm-runs:
         specifier: ^1.1.0
         version: 1.1.0
@@ -17276,6 +17267,7 @@ packages:
     engines: {node: '>=14.0'}
     dependencies:
       busboy: 1.6.0
+    dev: true
 
   /unherit@3.0.1:
     resolution: {integrity: sha512-akOOQ/Yln8a2sgcLj4U0Jmx0R5jpIg2IUyRrWOzmEbjBtGzBdHtSeFKgoEcoH4KYIG/Pb8GQ/BwtYm0GCq1Sqg==}
