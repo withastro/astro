@@ -10,6 +10,15 @@ type State = {
 };
 type Events = 'astro:page-load' | 'astro:after-swap';
 
+let viteDevIds: { static: Record<string, string[]>; dynamic: Record<string, string[]> };
+if (import.meta.env.DEV) {
+	// viteDevIds on a page
+	viteDevIds = JSON.parse(
+		sessionStorage.getItem('astro:viteDevIds') || '{"static":{},"dynamic":{}}'
+	);
+}
+const page = (url: { origin: string; pathname: string }) => url.origin + url.pathname;
+
 // only update history entries that are managed by us
 // leave other entries alone and do not accidently add state.
 const persistState = (state: State) => history.state && history.replaceState(state, '');
@@ -42,6 +51,13 @@ const announce = () => {
 };
 const PERSIST_ATTR = 'data-astro-transition-persist';
 const parser = new DOMParser();
+// explained at its usage
+let noopEl: HTMLDivElement;
+let reloadEl: HTMLDivElement;
+if (import.meta.env.DEV) {
+	noopEl = document.createElement('div');
+	reloadEl = document.createElement('div');
+}
 
 // The History API does not tell you if navigation is forward or back, so
 // you can figure it using an index. On pushState the index is incremented so you
@@ -193,6 +209,42 @@ async function updateDOM(
 			const href = el.getAttribute('href');
 			return newDocument.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
 		}
+
+		if (import.meta.env.DEV) {
+			const viteDevId = el.getAttribute('data-vite-dev-id');
+			if (!viteDevId) {
+				return null;
+			}
+			const newDevEl = newDocument.head.querySelector(`[data-vite-dev-id="${viteDevId}"]`);
+			if (newDevEl) {
+				return newDevEl;
+			}
+			// What follows is a fix for an issue (#8472) with missing client:only styles after transition.
+			// That problem exists only in dev mode where styles are injected into the page by Vite.
+			// Returning a noop element ensures that the styles are not removed from the old document.
+			// Guarding the code below with the dev mode check
+			// allows tree shaking to remove this code in production.
+			if (
+				document.querySelector(
+					`[${PERSIST_ATTR}] astro-island[client="only"], astro-island[client="only"][${PERSIST_ATTR}]`
+				)
+			) {
+				const here = page(toLocation);
+				const dynamicViteDevIds = viteDevIds.dynamic[here];
+				if (!dynamicViteDevIds) {
+					console.info(`
+${toLocation.pathname}
+Development mode only: This page uses view transitions with persisted client:only Astro islands.
+On the first transition to this page, Astro did a full page reload to capture the dynamic effects of the client only code.
+`);
+					location.href = toLocation.href;
+					return reloadEl;
+				}
+				if (dynamicViteDevIds?.includes(viteDevId)) {
+					return noopEl;
+				}
+			}
+		}
 		return null;
 	};
 
@@ -228,12 +280,16 @@ async function updateDOM(
 		// Swap head
 		for (const el of Array.from(document.head.children)) {
 			const newEl = persistedHeadElement(el as HTMLElement);
+			if (newEl === reloadEl) {
+				return;
+			}
 			// If the element exists in the document already, remove it
 			// from the new document and leave the current node alone
 			if (newEl) {
 				newEl.remove();
 			} else {
-				// Otherwise remove the element in the head. It doesn't exist in the new page.
+				// Otherwise remove the element from the head.
+				// It doesn't exist in the new page or will be re-inserted after this loop
 				el.remove();
 			}
 		}
@@ -315,6 +371,20 @@ async function transition(
 	options: Options,
 	popState?: State
 ) {
+	if (import.meta.env.DEV) {
+		const thisPageStaticViteDevIds = viteDevIds.static[page(location)];
+		if (thisPageStaticViteDevIds) {
+			const allViteDevIds = new Set<string>();
+			document.head
+				.querySelectorAll('[data-vite-dev-id]')
+				.forEach((el) => allViteDevIds.add(el.getAttribute('data-vite-dev-id')!));
+			viteDevIds.dynamic[page(location)] = [...allViteDevIds].filter(
+				(x) => !thisPageStaticViteDevIds.includes(x)
+			);
+			sessionStorage.setItem('astro:viteDevIds', JSON.stringify(viteDevIds, null, 2));
+		}
+	}
+
 	let finished: Promise<void>;
 	const href = toLocation.href;
 	const response = await fetchHTML(href);
@@ -338,6 +408,14 @@ async function transition(
 	if (!newDocument.querySelector('[name="astro-view-transitions-enabled"]')) {
 		location.href = href;
 		return;
+	}
+	if (import.meta.env.DEV) {
+		const staticViteDevIds = new Set<string>();
+		newDocument.querySelectorAll('head > [data-vite-dev-id]').forEach((el) => {
+			staticViteDevIds.add(el.getAttribute('data-vite-dev-id')!);
+		});
+		viteDevIds.static[page(toLocation)] = [...staticViteDevIds];
+		sessionStorage.setItem('astro:viteDevIds', JSON.stringify(viteDevIds, null, 2));
 	}
 
 	if (!popState) {

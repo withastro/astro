@@ -649,9 +649,14 @@ test.describe('View Transitions', () => {
 	});
 
 	test('client:only styles are retained on transition', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', async (p) => {
+			loads.push(p);
+		});
+
 		const totalExpectedStyles = 7;
 
-		// Go to page 1
+		// Go to page 1 (normal load)
 		await page.goto(astro.resolveUrl('/client-only-one'));
 		let msg = page.locator('.counter-message');
 		await expect(msg).toHaveText('message here');
@@ -659,13 +664,24 @@ test.describe('View Transitions', () => {
 		let styles = await page.locator('style').all();
 		expect(styles.length).toEqual(totalExpectedStyles);
 
+		// Transition to page 2 (will do a full load)
 		await page.click('#click-two');
 
 		let pageTwo = page.locator('#page-two');
 		await expect(pageTwo, 'should have content').toHaveText('Page 2');
 
+		// Transition to page 1 (will do a full load)
+		await page.click('#click-one');
+
+		let pageOne = page.locator('#page-one');
+		await expect(pageOne, 'should have content').toHaveText('Page 1');
+
+		// Transition to page 1 (real transition, no full load)
+		await page.click('#click-two');
+
 		styles = await page.locator('style').all();
 		expect(styles.length).toEqual(totalExpectedStyles, 'style count has not changed');
+		expect(loads.length, 'There should only be 1 page load').toEqual(3);
 	});
 
 	test('Horizontal scroll position restored on back button', async ({ page, astro }) => {
