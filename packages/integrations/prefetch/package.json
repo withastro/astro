@@ -40,5 +40,8 @@
   },
   "dependencies": {
     "throttles": "^1.0.1"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }

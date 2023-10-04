@@ -56,10 +56,13 @@
     "vue": "^3.3.4"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.1.4",
+    "astro": "workspace:^3.2.2",
     "vue": "^3.2.30"
   },
   "engines": {
     "node": ">=18.14.1"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }

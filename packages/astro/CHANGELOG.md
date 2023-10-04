@@ -1,5 +1,94 @@
 # astro
 
+## 3.2.2
+
+### Patch Changes
+
+- [#8724](https://github.com/withastro/astro/pull/8724) [`455af3235`](https://github.com/withastro/astro/commit/455af3235b3268852e6988accecc796f03f6d16e) Thanks [@bluwy](https://github.com/bluwy)! - Fix CSS styles on Windows
+
+- [#8710](https://github.com/withastro/astro/pull/8710) [`4c2bec681`](https://github.com/withastro/astro/commit/4c2bec681b0752e7215b8a32bd2d44bf477adac1) Thanks [@matthewp](https://github.com/matthewp)! - Fixes View transition styles being missing when component used multiple times
+
+## 3.2.1
+
+### Patch Changes
+
+- [#8680](https://github.com/withastro/astro/pull/8680) [`31c59ad8b`](https://github.com/withastro/astro/commit/31c59ad8b6a72f95c98a306ecf92d198c03110b4) Thanks [@bluwy](https://github.com/bluwy)! - Fix hydration on slow connection
+
+- [#8698](https://github.com/withastro/astro/pull/8698) [`47ea310f0`](https://github.com/withastro/astro/commit/47ea310f01d06ed1562c790bec348718a2fa8277) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Use a Node-specific image endpoint to resolve images in dev and Node SSR. This should fix many issues related to getting 404 from the \_image endpoint under certain configurations
+
+- [#8706](https://github.com/withastro/astro/pull/8706) [`345808170`](https://github.com/withastro/astro/commit/345808170fce783ddd3c9a4035a91fa64dcc5f46) Thanks [@bluwy](https://github.com/bluwy)! - Fix duplicated Astro and Vite injected styles
+
+## 3.2.0
+
+### Minor Changes
+
+- [#8696](https://github.com/withastro/astro/pull/8696) [`2167ffd72`](https://github.com/withastro/astro/commit/2167ffd72f58904f449ffc6e53581a2d8faf7317) Thanks [@matthewp](https://github.com/matthewp)! - Support adding integrations dynamically
+
+  Astro integrations can now themselves dynamically add and configure additional integrations during set-up. This makes it possible for integration authors to bundle integrations more intelligently for their users.
+
+  In the following example, a custom integration checks whether `@astrojs/sitemap` is already configured. If not, the integration adds Astro’s sitemap integration, passing any desired configuration options:
+
+  ```ts
+  import sitemap from '@astrojs/sitemap';
+  import type { AstroIntegration } from 'astro';
+
+  const MyIntegration = (): AstroIntegration => {
+    return {
+      name: 'my-integration',
+
+      'astro:config:setup': ({ config, updateConfig }) => {
+        // Look for sitemap in user-configured integrations.
+        const userSitemap = config.integrations.find(
+          ({ name }) => name === '@astrojs/sitemap'
+        );
+
+        if (!userSitemap) {
+          // If sitemap wasn’t found, add it.
+          updateConfig({
+            integrations: [sitemap({ /* opts */ }],
+          });
+        }
+      },
+    };
+  };
+  ```
+
+- [#8696](https://github.com/withastro/astro/pull/8696) [`2167ffd72`](https://github.com/withastro/astro/commit/2167ffd72f58904f449ffc6e53581a2d8faf7317) Thanks [@matthewp](https://github.com/matthewp)! - View transitions can now be triggered from JavaScript!
+
+  Import the client-side router from "astro:transitions/client" and enjoy your new remote control for navigation:
+
+  ```js
+  import { navigate } from 'astro:transitions/client';
+
+  // Navigate to the selected option automatically.
+  document.querySelector('select').onchange = (ev) => {
+    let href = ev.target.value;
+    navigate(href);
+  };
+  ```
+
+- [#8696](https://github.com/withastro/astro/pull/8696) [`2167ffd72`](https://github.com/withastro/astro/commit/2167ffd72f58904f449ffc6e53581a2d8faf7317) Thanks [@matthewp](https://github.com/matthewp)! - Route Announcer in `<ViewTransitions />`
+
+  The View Transitions router now does route announcement. When transitioning between pages with a traditional MPA approach, assistive technologies will announce the page title when the page finishes loading. This does not automatically happen during client-side routing, so visitors relying on these technologies to announce routes are not aware when a page has changed.
+
+  The view transitions route announcer runs after the `astro:page-load` event, looking for the page `<title>` to announce. If one cannot be found, the announcer falls back to the first `<h1>` it finds, or otherwise announces the pathname. We recommend you always include a `<title>` in each page for accessibility.
+
+  See the [View Transitions docs](https://docs.astro.build/en/guides/view-transitions/) for more on how accessibility is handled.
+
+### Patch Changes
+
+- [#8647](https://github.com/withastro/astro/pull/8647) [`408b50c5e`](https://github.com/withastro/astro/commit/408b50c5ea5aba66252424f54788557274a58571) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixed an issue where configured redirects with dynamic routes did not work in dev mode.
+
+- [#8696](https://github.com/withastro/astro/pull/8696) [`2167ffd72`](https://github.com/withastro/astro/commit/2167ffd72f58904f449ffc6e53581a2d8faf7317) Thanks [@matthewp](https://github.com/matthewp)! - Fix logLevel passed to Vite build
+
+- [#8696](https://github.com/withastro/astro/pull/8696) [`2167ffd72`](https://github.com/withastro/astro/commit/2167ffd72f58904f449ffc6e53581a2d8faf7317) Thanks [@matthewp](https://github.com/matthewp)! - Fix NoImageMetadata image path error message
+
+- [#8670](https://github.com/withastro/astro/pull/8670) [`e797b6816`](https://github.com/withastro/astro/commit/e797b6816072f63f38d9a91dd2a66765c558d46c) Thanks [@MichailiK](https://github.com/MichailiK)! - Fix asset optimization failing when outDir is outside the project directory
+
+- [#8684](https://github.com/withastro/astro/pull/8684) [`824dd4670`](https://github.com/withastro/astro/commit/824dd4670a145c47337eff84a5ae412bf7443117) Thanks [@matthewp](https://github.com/matthewp)! - Support content collections with % in filename
+
+- [#8648](https://github.com/withastro/astro/pull/8648) [`cfd895d87`](https://github.com/withastro/astro/commit/cfd895d877fdb7fc69e745665a374fc32cb3ef7d) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixed an issue where a response with status code 404 led to an endless loop of implicit rerouting in dev mode.
+
 ## 3.1.4
 
 ### Patch Changes

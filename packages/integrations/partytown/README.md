@@ -46,22 +46,23 @@ npm install @astrojs/partytown
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-```js
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import partytown from '@astrojs/partytown';
+```diff lang="js" "partytown()"
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
++ import partytown from '@astrojs/partytown';
 
-export default defineConfig({
-  // ...
-  integrations: [partytown()],
-});
+  export default defineConfig({
+    // ...
+    integrations: [partytown()],
+    //             ^^^^^^^^^^^
+  });
 ```
 
 ## Usage
 
 Partytown should be ready to go with zero config. If you have an existing 3rd party script on your site, try adding the `type="text/partytown"` attribute:
 
-```diff
+```diff lang="html"
 -  <script src="fancy-analytics.js"></script>
 +  <script type="text/partytown" src="fancy-analytics.js"></script>
 ```
@@ -79,7 +80,7 @@ export default defineConfig({
   integrations: [
     partytown({
       config: {
-        //options go here
+        // options go here
       },
     }),
   ],

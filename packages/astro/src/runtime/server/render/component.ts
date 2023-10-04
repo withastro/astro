@@ -360,6 +360,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 	if (island.children) {
 		island.props['await-children'] = '';
+		// Marker to signal that Astro island children is completed while streaming
+		island.children += `<!--astro:end-->`;
 	}
 
 	return {

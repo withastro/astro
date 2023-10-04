@@ -1,8 +1,0 @@
-{
-  "name": "@e2e/css-sourcemaps",
-  "version": "0.0.0",
-  "private": true,
-  "dependencies": {
-    "astro": "workspace:*"
-  }
-}

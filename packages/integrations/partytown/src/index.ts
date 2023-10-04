@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import sirv from './sirv.js';
 const resolve = createRequire(import.meta.url).resolve;
 
-type PartytownOptions = {
+export type PartytownOptions = {
 	config?: PartytownConfig;
 };
 
