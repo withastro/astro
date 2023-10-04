@@ -76,8 +76,8 @@ export function remarkShiki({
 			// It would become this before hitting our regexes:
 			// &lt;span class=&quot;line&quot;
 
-			// Replace "shiki" class naming with "astro" and add "is:raw".
-			html = html.replace(/<pre class="(.*?)shiki(.*?)"/, `<pre is:raw class="$1astro-code$2"`);
+			// Replace "shiki" class naming with "astro".
+			html = html.replace(/<pre class="(.*?)shiki(.*?)"/, `<pre class="$1astro-code$2"`);
 			// Add "user-select: none;" for "+"/"-" diff symbols
 			if (node.lang === 'diff') {
 				html = html.replace(

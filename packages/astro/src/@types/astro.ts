@@ -1168,10 +1168,10 @@ export interface AstroUserConfig {
 		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
 		 * ```js
-		 * import rehypeMinifyHtml from 'rehype-minify';
+		 * import { rehypeAccessibleEmojis } from 'rehype-accessible-emojis';
 		 * {
 		 *   markdown: {
-		 *     rehypePlugins: [rehypeMinifyHtml]
+		 *     rehypePlugins: [rehypeAccessibleEmojis]
 		 *   }
 		 * }
 		 * ```
