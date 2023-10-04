@@ -3,6 +3,7 @@ import Layout from '../components/Layout.astro';
 import Island from '../components/Island';
 ---
 <Layout>
+	<p id="page-one">Page 1</p>
 	<a id="click-two" href="/client-only-two">go to page 2</a>
 	<div transition:persist="island">
 		<Island client:only count={5}>message here</Island>
