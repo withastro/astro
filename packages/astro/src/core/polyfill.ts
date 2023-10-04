@@ -1,5 +1,5 @@
-import crypto from 'node:crypto';
 import buffer from 'node:buffer';
+import crypto from 'node:crypto';
 
 export function apply() {
 	// Remove when Node 18 is dropped for Node 20

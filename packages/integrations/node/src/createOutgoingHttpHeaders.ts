@@ -13,7 +13,7 @@ export const createOutgoingHttpHeaders = (
 	if (!headers) {
 		return undefined;
 	}
-	
+
 	// at this point, a multi-value'd set-cookie header is invalid (it was concatenated as a single CSV, which is not valid for set-cookie)
 	const nodeHeaders: OutgoingHttpHeaders = Object.fromEntries(headers.entries());
 
