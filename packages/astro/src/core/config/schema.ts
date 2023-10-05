@@ -32,6 +32,9 @@ const ASTRO_CONFIG_DEFAULTS = {
 	image: {
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 	},
+	devTools: {
+		plugins: [],
+	},
 	compressHTML: true,
 	server: {
 		host: false,
@@ -220,6 +223,9 @@ export const AstroConfigSchema = z.object({
 				.default([]),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
+	devTools: z
+		.object({ plugins: z.array(z.string()).default([]) })
+		.default(ASTRO_CONFIG_DEFAULTS.devTools),
 	markdown: z
 		.object({
 			drafts: z.boolean().default(false),

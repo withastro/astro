@@ -2,5 +2,6 @@
   "compilerOptions": {
     "allowJs": true
   },
+  "include": [".eslintrc.cjs"],
   "extends": "./tsconfig.base.json"
 }

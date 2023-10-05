@@ -282,6 +282,13 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			},
 			children: '',
 		});
+		scripts.add({
+			props: {
+				type: 'module',
+				src: await resolveIdToUrl(moduleLoader, 'astro/runtime/client/dev-overlay/overlay.js'),
+			},
+			children: '',
+		});
 	}
 
 	// TODO: We should allow adding generic HTML elements to the head, not just scripts

@@ -1084,6 +1084,10 @@ export interface AstroUserConfig {
 		remotePatterns?: Partial<RemotePattern>[];
 	};
 
+	devTools?: {
+		plugins: string[];
+	};
+
 	/**
 	 * @docs
 	 * @kind heading
@@ -2262,4 +2266,11 @@ export type ClientDirective = (
 export interface ClientDirectiveConfig {
 	name: string;
 	entrypoint: string;
+}
+
+export interface DevOverlayItem {
+	id: string;
+	name: string;
+	icon: string;
+	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
 }
