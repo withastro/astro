@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -61,7 +61,7 @@
     "web-vitals": "^3.4.0"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.2.2"
+    "astro": "workspace:^3.2.3"
   },
   "devDependencies": {
     "@types/set-cookie-parser": "^2.4.3",
