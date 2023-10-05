@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Fragments', () => {
@@ -40,5 +39,4 @@ describe('Fragments', () => {
 			expect(html.startsWith('<li>')).to.equal(true);
 		});
 	});
-
 });
