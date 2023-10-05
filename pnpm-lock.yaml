@@ -160,7 +160,7 @@ importers:
       solid-js:
         specifier: ^1.7.11
         version: 1.7.11
-        
+
   examples/framework-alpine:
     dependencies:
       '@astrojs/alpinejs':
