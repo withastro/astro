@@ -57,6 +57,18 @@ describe('Markdoc - render', () => {
 
 			await server.stop();
 		});
+
+		it('renders content - with root folder containing space', async () => {
+			const fixture = await getFixture('render with-space');
+			const server = await fixture.startDevServer();
+
+			const res = await fixture.fetch('/');
+			const html = await res.text();
+
+			renderWithRootFolderContainingSpace(html);
+
+			await server.stop();
+		});
 	});
 
 	describe('build', () => {
@@ -94,6 +106,15 @@ describe('Markdoc - render', () => {
 			const html = await fixture.readFile('/index.html');
 
 			renderNullChecks(html);
+		});
+
+		it('renders content - with root folder containing space', async () => {
+			const fixture = await getFixture('render with-space');
+			await fixture.build();
+
+			const html = await fixture.readFile('/index.html');
+
+			renderWithRootFolderContainingSpace(html);
 		});
 	});
 });
@@ -147,4 +168,15 @@ function renderSimpleChecks(html) {
 	expect(h2.textContent).to.equal('Simple post');
 	const p = document.querySelector('p');
 	expect(p.textContent).to.equal('This is a simple Markdoc post.');
+}
+
+/** @param {string} html */
+function renderWithRootFolderContainingSpace(html) {
+	const { document } = parseHTML(html);
+	const h2 = document.querySelector('h2');
+	expect(h2.textContent).to.equal('Simple post with root folder containing a space');
+	const p = document.querySelector('p');
+	expect(p.textContent).to.equal(
+		'This is a simple Markdoc post with root folder containing a space.'
+	);
 }
