@@ -32,16 +32,20 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+      
+      - name: Build Astro
+        run: pnpm turbo build --filter astro --filter @astrojs/vercel 
 
-      - name: Install Hosts CLIs
-        run: pnpm install --global netlify-cli vercel
-
-      - name: Deploy Vercel
+      - name: Build test project
         working-directory: ./packages/integrations/vercel/test/hosted/hosted-astro-project
         run:
           pnpm run build
-          vercel --prod --prebuilt
+      
+      - name: Deploy to Vercel
+        working-directory: ./packages/integrations/vercel/test/hosted/hosted-astro-project
+        run:
+          pnpm dlx vercel --prod --prebuilt
 
-      - name: Test both hosts
+      - name: Test
         run:
           pnpm run test:e2e:hosts
