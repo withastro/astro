@@ -1,5 +1,11 @@
 # @astrojs/lit
 
+## 3.0.1
+
+### Patch Changes
+
+- [#8737](https://github.com/withastro/astro/pull/8737) [`6f60da805`](https://github.com/withastro/astro/commit/6f60da805e0014bc50dd07bef972e91c73560c3c) Thanks [@ematipico](https://github.com/ematipico)! - Add provenance statement when publishing the library from CI
+
 ## 3.0.0
 
 ### Major Changes
