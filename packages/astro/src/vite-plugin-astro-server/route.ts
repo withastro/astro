@@ -12,7 +12,7 @@ import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import { createRenderContext, getParamsAndProps, type SSROptions } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
-import { isPage } from '../core/util.js';
+import { isPage, resolveIdToUrl } from '../core/util.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';

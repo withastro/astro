@@ -44,7 +44,7 @@ export default {
 				tooltip.sections.push({
 					title: 'Props',
 					content: `${Object.entries(islandProps)
-						.map((prop) => `<code>${prop[0]}="${getPropValue(prop[1] as any)}"</code>`)
+						.map((prop) => `<code>${prop[0]}=${getPropValue(prop[1] as any)}</code>`)
 						.join(', ')}`,
 				});
 			}
