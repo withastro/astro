@@ -81,7 +81,8 @@ jobs:
         id: publish
         run: |
           pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }} > publish.output.txt 2>&1
-          test $? -eq 0 || cat publish.output.txt
+          echo "Release complete"
+          cat publish.output.txt
           echo ::set-output name=result::`cat publish.output.txt`
         env:
           # Needs access to publish to npm
