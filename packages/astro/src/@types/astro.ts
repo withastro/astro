@@ -1520,6 +1520,7 @@ export type AsyncRendererComponentFn<U> = (
 export interface ComponentInstance {
 	default: AstroComponentFactory;
 	css?: string[];
+	fragment?: boolean;
 	prerender?: boolean;
 	/**
 	 * Only used for logging if deprecated drafts feature is used
@@ -2191,6 +2192,7 @@ export interface SSRResult {
 	 */
 	clientDirectives: Map<string, string>;
 	compressHTML: boolean;
+	fragment: boolean;
 	/**
 	 * Only used for logging
 	 */
