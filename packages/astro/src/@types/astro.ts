@@ -641,7 +641,7 @@ export interface AstroUserConfig {
 	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
 	 *
 	 * ```js
-	 * import netlify from '@astrojs/node';
+	 * import netlify from '@astrojs/netlify/functions';
 	 * {
 	 *   // Example: Build for Netlify serverless deployment
 	 *   adapter: netlify(),
