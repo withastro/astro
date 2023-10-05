@@ -64,7 +64,7 @@ export function astroContentAssetPropagationPlugin({
 					if (!devModuleLoader.getModuleById(basePath)?.ssrModule) {
 						await devModuleLoader.import(basePath);
 					}
-					const { stylesMap, urls } = await getStylesForURL(
+					const { styles, urls } = await getStylesForURL(
 						pathToFileURL(basePath),
 						devModuleLoader,
 						'development'
@@ -77,7 +77,7 @@ export function astroContentAssetPropagationPlugin({
 					);
 
 					stringifiedLinks = JSON.stringify([...urls]);
-					stringifiedStyles = JSON.stringify([...stylesMap.values()]);
+					stringifiedStyles = JSON.stringify(styles.map((s) => s.content));
 					stringifiedScripts = JSON.stringify([...hoistedScripts]);
 				} else {
 					// Otherwise, use placeholders to inject styles and scripts

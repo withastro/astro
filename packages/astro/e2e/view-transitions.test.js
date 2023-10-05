@@ -20,6 +20,20 @@ function scrollToBottom(page) {
 	});
 }
 
+function collectPreloads(page) {
+	return page.evaluate(() => {
+		window.preloads = [];
+		const observer = new MutationObserver((mutations) => {
+			mutations.forEach((mutation) =>
+				mutation.addedNodes.forEach((node) => {
+					if (node.nodeName === 'LINK' && node.rel === 'preload') preloads.push(node.href);
+				})
+			);
+		});
+		observer.observe(document.head, { childList: true });
+	});
+}
+
 test.describe('View Transitions', () => {
 	test('Moving from page 1 to page 2', async ({ page, astro }) => {
 		const loads = [];
@@ -170,11 +184,15 @@ test.describe('View Transitions', () => {
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
+		await collectPreloads(page);
+
 		// Go to page 2
 		await page.click('#click-two');
 		p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
 		await expect(p, 'imported CSS updated').toHaveCSS('font-size', '24px');
+		const preloads = await page.evaluate(() => window.preloads);
+		expect(preloads.length === 1 && preloads[0].endsWith('/two.css')).toBeTruthy();
 	});
 
 	test('astro:page-load event fires when navigating to new page', async ({ page, astro }) => {
@@ -631,7 +649,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('client:only styles are retained on transition', async ({ page, astro }) => {
-		const totalExpectedStyles = 8;
+		const totalExpectedStyles = 7;
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/client-only-one'));

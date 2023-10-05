@@ -1158,7 +1158,7 @@ export const ContentSchemaContainsSlugError = {
 /**
  * @docs
  * @message A collection queried via `getCollection()` does not exist.
- * @deprecated Collections that do not exist no longer result in an error. A warning is omitted instead.
+ * @deprecated Collections that do not exist no longer result in an error. A warning is given instead.
  * @description
  * When querying a collection, ensure a collection directory with the requested name exists under `src/content/`.
  */

@@ -200,7 +200,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			const inlineConfig = settings.config.build.inlineStylesheets;
 			const { assetsInlineLimit = 4096 } = settings.config.vite?.build ?? {};
 
-			Object.entries(bundle).forEach(([_, stylesheet]) => {
+			Object.entries(bundle).forEach(([id, stylesheet]) => {
 				if (
 					stylesheet.type !== 'asset' ||
 					stylesheet.name?.endsWith('.css') !== true ||
@@ -224,10 +224,15 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					: { type: 'external', src: stylesheet.fileName };
 
 				const pages = Array.from(eachPageData(internals));
+				let sheetAddedToPage = false;
 
 				pages.forEach((pageData) => {
 					const orderingInfo = pagesToCss[pageData.moduleSpecifier]?.[stylesheet.fileName];
-					if (orderingInfo !== undefined) return pageData.styles.push({ ...orderingInfo, sheet });
+					if (orderingInfo !== undefined) {
+						pageData.styles.push({ ...orderingInfo, sheet });
+						sheetAddedToPage = true;
+						return;
+					}
 
 					const propagatedPaths = pagesToPropagatedCss[pageData.moduleSpecifier];
 					if (propagatedPaths === undefined) return;
@@ -243,8 +248,21 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							pageData.propagatedStyles.set(pageInfoId, new Set()).get(pageInfoId)!;
 
 						propagatedStyles.add(sheet);
+						sheetAddedToPage = true;
 					});
 				});
+
+				if (toBeInlined && sheetAddedToPage) {
+					// CSS is already added to all used pages, we can delete it from the bundle
+					// and make sure no chunks reference it via `importedCss` (for Vite preloading)
+					// to avoid duplicate CSS.
+					delete bundle[id];
+					for (const chunk of Object.values(bundle)) {
+						if (chunk.type === 'chunk') {
+							chunk.viteMetadata?.importedCss?.delete(id);
+						}
+					}
+				}
 			});
 		},
 	};

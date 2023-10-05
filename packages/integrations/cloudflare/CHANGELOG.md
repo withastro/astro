@@ -1,5 +1,47 @@
 # @astrojs/cloudflare
 
+## 7.5.1
+
+### Patch Changes
+
+- [#8737](https://github.com/withastro/astro/pull/8737) [`6f60da805`](https://github.com/withastro/astro/commit/6f60da805e0014bc50dd07bef972e91c73560c3c) Thanks [@ematipico](https://github.com/ematipico)! - Add provenance statement when publishing the library from CI
+
+- Updated dependencies [[`6f60da805`](https://github.com/withastro/astro/commit/6f60da805e0014bc50dd07bef972e91c73560c3c), [`d78806dfe`](https://github.com/withastro/astro/commit/d78806dfe0301ea7ffe6c7c1f783bd415ac7cda9), [`d1c75fe15`](https://github.com/withastro/astro/commit/d1c75fe158839699c59728cf3a83888e8c72a459), [`aa265d730`](https://github.com/withastro/astro/commit/aa265d73024422967c1b1c68ad268c419c6c798f), [`78adbc443`](https://github.com/withastro/astro/commit/78adbc4433208458291e36713909762e148e1e5d), [`21e0757ea`](https://github.com/withastro/astro/commit/21e0757ea22a57d344c934045ca19db93b684436), [`357270f2a`](https://github.com/withastro/astro/commit/357270f2a3d0bf2aa634ba7e52e9d17618eff4a7)]:
+  - @astrojs/underscore-redirects@0.3.1
+  - astro@3.2.3
+
+## 7.5.0
+
+### Minor Changes
+
+- [#8655](https://github.com/withastro/astro/pull/8655) [`3dd65bf88`](https://github.com/withastro/astro/commit/3dd65bf8895faedfa4c92599961acca07457c62f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Introduces support for local KV bindings. Enhances development experience by allowing direct integration with `astro dev`.
+
+- [#8655](https://github.com/withastro/astro/pull/8655) [`3dd65bf88`](https://github.com/withastro/astro/commit/3dd65bf8895faedfa4c92599961acca07457c62f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Introduces support for local Durable Objects bindings. Enhances development experience by allowing direct integration with `astro dev`.
+
+- [#8655](https://github.com/withastro/astro/pull/8655) [`3dd65bf88`](https://github.com/withastro/astro/commit/3dd65bf8895faedfa4c92599961acca07457c62f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Introduces support for local D1 bindings. Enhances development experience by allowing direct integration with `astro dev`.
+
+- [#8655](https://github.com/withastro/astro/pull/8655) [`3dd65bf88`](https://github.com/withastro/astro/commit/3dd65bf8895faedfa4c92599961acca07457c62f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Introduces support for local R2 bindings. Enhances development experience by allowing direct integration with `astro dev`.
+
+- [#8655](https://github.com/withastro/astro/pull/8655) [`3dd65bf88`](https://github.com/withastro/astro/commit/3dd65bf8895faedfa4c92599961acca07457c62f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Introduces support for local Caches bindings. Enhances development experience by allowing direct integration with `astro dev`.
+
+### Patch Changes
+
+- Updated dependencies [[`455af3235`](https://github.com/withastro/astro/commit/455af3235b3268852e6988accecc796f03f6d16e), [`4c2bec681`](https://github.com/withastro/astro/commit/4c2bec681b0752e7215b8a32bd2d44bf477adac1)]:
+  - astro@3.2.2
+  - @astrojs/underscore-redirects@0.3.0
+
+## 7.4.0
+
+### Minor Changes
+
+- [#8682](https://github.com/withastro/astro/pull/8682) [`c3572fd5e`](https://github.com/withastro/astro/commit/c3572fd5e0e3864cd728f83502a52e9274793ee2) Thanks [@dario-piotrowicz](https://github.com/dario-piotrowicz)! - Change build target from `es2020` to `es2022`, for better support
+
+### Patch Changes
+
+- Updated dependencies [[`31c59ad8b`](https://github.com/withastro/astro/commit/31c59ad8b6a72f95c98a306ecf92d198c03110b4), [`47ea310f0`](https://github.com/withastro/astro/commit/47ea310f01d06ed1562c790bec348718a2fa8277), [`345808170`](https://github.com/withastro/astro/commit/345808170fce783ddd3c9a4035a91fa64dcc5f46)]:
+  - astro@3.2.1
+  - @astrojs/underscore-redirects@0.3.0
+
 ## 7.3.1
 
 ### Patch Changes

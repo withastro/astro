@@ -12,7 +12,7 @@ import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import { createRenderContext, getParamsAndProps, type SSROptions } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
-import { isPage, resolveIdToUrl, viteID } from '../core/util.js';
+import { isPage } from '../core/util.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
@@ -278,13 +278,6 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 		scripts.add({
 			props: {
 				type: 'module',
-				src: await resolveIdToUrl(moduleLoader, 'astro/runtime/client/hmr.js'),
-			},
-			children: '',
-		});
-		scripts.add({
-			props: {
-				type: 'module',
 				src: await resolveIdToUrl(moduleLoader, 'astro/runtime/client/dev-overlay/overlay.js'),
 			},
 			children: '',
@@ -307,7 +300,11 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 	}
 
 	// Pass framework CSS in as style tags to be appended to the page.
-	const { urls: styleUrls, stylesMap } = await getStylesForURL(filePath, moduleLoader, mode);
+	const { urls: styleUrls, styles: importedStyles } = await getStylesForURL(
+		filePath,
+		moduleLoader,
+		mode
+	);
 	let links = new Set<SSRElement>();
 	[...styleUrls].forEach((href) => {
 		links.add({
@@ -320,7 +317,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 	});
 
 	let styles = new Set<SSRElement>();
-	[...stylesMap].forEach(([url, content]) => {
+	importedStyles.forEach(({ id, url, content }) => {
 		// Vite handles HMR for styles injected as scripts
 		scripts.add({
 			props: {
@@ -329,11 +326,11 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			},
 			children: '',
 		});
-		// But we still want to inject the styles to avoid FOUC
+		// But we still want to inject the styles to avoid FOUC. The style tags
+		// should emulate what Vite injects so further HMR works as expected.
 		styles.add({
 			props: {
-				// Track the ID so we can match it to Vite's injected style later
-				'data-astro-dev-id': viteID(new URL(`.${url}`, settings.config.root)),
+				'data-vite-dev-id': id,
 			},
 			children: content,
 		});

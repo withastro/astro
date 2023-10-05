@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers/Pages",
-  "version": "7.3.1",
+  "version": "7.5.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -36,6 +36,7 @@
   "dependencies": {
     "@astrojs/underscore-redirects": "workspace:*",
     "@cloudflare/workers-types": "^4.20230821.0",
+    "miniflare": "^3.20230918.0",
     "@iarna/toml": "^2.2.5",
     "@miniflare/cache": "^2.14.1",
     "@miniflare/shared": "^2.14.1",
@@ -47,7 +48,7 @@
     "vite": "^4.4.9"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.2.0"
+    "astro": "workspace:^3.2.3"
   },
   "devDependencies": {
     "@types/iarna__toml": "^2.0.2",
@@ -57,5 +58,8 @@
     "cheerio": "1.0.0-rc.12",
     "mocha": "^10.2.0",
     "wrangler": "^3.5.1"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }

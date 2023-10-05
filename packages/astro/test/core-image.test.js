@@ -180,8 +180,6 @@ describe('astro:image', () => {
 				let html = await res.text();
 				$ = cheerio.load(html);
 
-				console.log(html);
-
 				let $img = $('img');
 				expect($img).to.have.a.lengthOf(1);
 
@@ -854,17 +852,14 @@ describe('astro:image', () => {
 				output: 'server',
 				adapter: testAdapter(),
 				image: {
+					endpoint: 'astro/assets/endpoint/node',
 					service: testImageService(),
 				},
 			});
 			await fixture.build();
 		});
 
-		// TODO
-		// This is not working because the image service does a fetch() on the underlying
-		// image and we do not have an HTTP server in these tests. We either need
-		// to start one, or find another way to tell the image service how to load these files.
-		it.skip('dynamic route images are built at response time', async () => {
+		it('dynamic route images are built at response time sss', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			let request = new Request('http://example.com/');
 			let response = await app.render(request);

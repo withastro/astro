@@ -636,7 +636,7 @@ export interface AstroUserConfig {
 	 * @see output
 	 * @description
 	 *
-	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssredge), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
+	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssr), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
 	 *
 	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
 	 *
@@ -1172,10 +1172,10 @@ export interface AstroUserConfig {
 		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
 		 * ```js
-		 * import rehypeMinifyHtml from 'rehype-minify';
+		 * import { rehypeAccessibleEmojis } from 'rehype-accessible-emojis';
 		 * {
 		 *   markdown: {
-		 *     rehypePlugins: [rehypeMinifyHtml]
+		 *     rehypePlugins: [rehypeAccessibleEmojis]
 		 *   }
 		 * }
 		 * ```
@@ -2213,7 +2213,7 @@ export interface SSRMetadata {
 	hasRenderedHead: boolean;
 	headInTree: boolean;
 	extraHead: string[];
-	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
+	propagators: Set<AstroComponentInstance>;
 }
 
 /* Preview server stuff */
