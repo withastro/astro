@@ -72,7 +72,7 @@
     "htmlparser2": "^9.0.0",
     "kleur": "^4.1.5",
     "shiki": "^0.14.3",
-    "zod": "3.21.1"
+    "zod": "3.22.4"
   },
   "peerDependencies": {
     "astro": "workspace:^3.2.3"

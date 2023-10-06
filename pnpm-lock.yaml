@@ -647,12 +647,12 @@ importers:
         specifier: ^21.1.1
         version: 21.1.1
       zod:
-        specifier: 3.21.1
-        version: 3.21.1
+        specifier: 3.22.4
+        version: 3.22.4
     optionalDependencies:
       sharp:
         specifier: ^0.32.5
-        version: 0.32.5
+        version: 0.32.6
     devDependencies:
       '@astrojs/check':
         specifier: ^0.1.0
@@ -3873,8 +3873,8 @@ importers:
         specifier: ^0.14.3
         version: 0.14.3
       zod:
-        specifier: 3.21.1
-        version: 3.21.1
+        specifier: 3.22.4
+        version: 3.22.4
     devDependencies:
       '@astrojs/markdown-remark':
         specifier: workspace:*
@@ -4558,8 +4558,8 @@ importers:
         specifier: ^7.1.1
         version: 7.1.1
       zod:
-        specifier: 3.21.1
-        version: 3.21.1
+        specifier: 3.22.4
+        version: 3.22.4
     devDependencies:
       '@astrojs/node':
         specifier: workspace:*
@@ -14081,7 +14081,7 @@ packages:
       workerd: 1.20230814.1
       ws: 8.13.0
       youch: 3.2.3
-      zod: 3.21.1
+      zod: 3.22.4
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -14103,7 +14103,7 @@ packages:
       workerd: 1.20230904.0
       ws: 8.13.0
       youch: 3.2.3
-      zod: 3.21.1
+      zod: 3.22.4
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -16156,8 +16156,8 @@ packages:
   /setprototypeof@1.2.0:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
 
-  /sharp@0.32.5:
-    resolution: {integrity: sha512-0dap3iysgDkNaPOaOL4X/0akdu0ma62GcdC2NBQ+93eqpePdDdr2/LM0sFdDSMmN7yS+odyZtPsb7tx/cYBKnQ==}
+  /sharp@0.32.6:
+    resolution: {integrity: sha512-KyLTWwgcR9Oe4d9HwCwNM2l7+J0dUQwn/yf7S0EnTtb0eVS4RxO0eUSvxPtzT4F3SY+C4K6fqdv/DO27sJ/v/w==}
     engines: {node: '>=14.15.0'}
     requiresBuild: true
     dependencies:
@@ -18519,8 +18519,8 @@ packages:
       mustache: 4.2.0
       stacktracey: 2.1.8
 
-  /zod@3.21.1:
-    resolution: {integrity: sha512-+dTu2m6gmCbO9Ahm4ZBDapx2O6ZY9QSPXst2WXjcznPMwf2YNpn3RevLx4KkZp1OPW/ouFcoBtBzFz/LeY69oA==}
+  /zod@3.22.4:
+    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
 
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
