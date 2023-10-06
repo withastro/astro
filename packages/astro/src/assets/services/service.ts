@@ -243,34 +243,54 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 			densityWidths.forEach((width, index) => {
 				const maxTargetWidth = Math.min(width, maxWidth);
-				srcSet.push({
+
+				const srcSetValue = {
 					transform: {
 						...options,
-						width: maxTargetWidth,
-						height: Math.round(maxTargetWidth / aspectRatio),
-						format: targetFormat,
 					},
 					descriptor: `${densityValues[index]}x`,
 					attributes: {
 						type: `image/${targetFormat}`,
 					},
-				});
+				};
+
+				// Only set width and height if they are different from the original image
+				if (maxTargetWidth !== imageWidth) {
+					srcSetValue.transform.width = maxTargetWidth;
+					srcSetValue.transform.height = Math.round(maxTargetWidth / aspectRatio);
+				}
+
+				if (targetFormat !== options.format) {
+					srcSetValue.transform.format = targetFormat;
+				}
+
+				srcSet.push();
 			});
 		} else if (widths) {
 			widths.forEach((width) => {
 				const maxTargetWidth = Math.min(width, maxWidth);
-				srcSet.push({
+
+				const srcSetValue = {
 					transform: {
 						...options,
-						width,
-						height: Math.round(maxTargetWidth / aspectRatio),
-						format: targetFormat,
 					},
 					descriptor: `${width}w`,
 					attributes: {
 						type: `image/${targetFormat}`,
 					},
-				});
+				};
+
+				// Only set width and height if they are different from the original image
+				if (maxTargetWidth !== imageWidth) {
+					srcSetValue.transform.width = maxTargetWidth;
+					srcSetValue.transform.height = Math.round(maxTargetWidth / aspectRatio);
+				}
+
+				if (targetFormat !== options.format) {
+					srcSetValue.transform.format = targetFormat;
+				}
+
+				srcSet.push(srcSetValue);
 			});
 		}
 
