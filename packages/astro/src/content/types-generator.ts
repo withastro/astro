@@ -7,7 +7,7 @@ import { normalizePath, type ViteDevServer } from 'vite';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core';
+import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
@@ -106,7 +106,8 @@ export async function createContentTypesGenerator({
 		});
 
 		for (const entry of globResult) {
-			const entryURL = new URL(entry.path, contentPaths.contentDir);
+			const fullPath = path.join(fileURLToPath(contentPaths.contentDir), entry.path);
+			const entryURL = pathToFileURL(fullPath);
 			if (entryURL.href.startsWith(contentPaths.config.url.href)) continue;
 			if (entry.dirent.isFile()) {
 				events.push({

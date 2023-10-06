@@ -54,12 +54,13 @@ describe('Content Collections', () => {
 
 				const ids = json.withSchemaConfig.map((item) => item.id);
 				const publishedDates = json.withSchemaConfig.map((item) => item.data.publishedAt);
-				expect(ids).to.deep.equal(['one.md', 'three.md', 'two.md']);
+				expect(ids).to.deep.equal(['four%.md', 'one.md', 'three.md', 'two.md']);
 				expect(publishedDates.every((date) => date instanceof Date)).to.equal(
 					true,
 					'Not all publishedAt dates are Date objects'
 				);
 				expect(publishedDates.map((date) => date.toISOString())).to.deep.equal([
+					'2021-01-01T00:00:00.000Z',
 					'2021-01-01T00:00:00.000Z',
 					'2021-01-03T00:00:00.000Z',
 					'2021-01-02T00:00:00.000Z',
@@ -214,6 +215,20 @@ describe('Content Collections', () => {
 			expect(error).to.include('**title**: Expected type `"string"`, received "number"');
 		});
 	});
+	describe('With config.mts', () => {
+		it("Errors when frontmatter doesn't match schema", async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/content-collections-with-config-mts/',
+			});
+			let error;
+			try {
+				await fixture.build();
+			} catch (e) {
+				error = e.message;
+			}
+			expect(error).to.include('**title**: Expected type `"string"`, received "number"');
+		});
+	});
 
 	describe('With empty markdown file', () => {
 		it('Throws the right error', async () => {
@@ -227,6 +242,22 @@ describe('Content Collections', () => {
 				error = e.message;
 			}
 			expect(error).to.include('**title**: Required');
+		});
+	});
+
+	describe('With empty collections directory', () => {
+		it('Handles the empty directory correclty', async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/content-collections-empty-dir/',
+			});
+			let error;
+			try {
+				await fixture.build();
+			} catch (e) {
+				error = e.message;
+			}
+			expect(error).to.be.undefined;
+			// TODO: try to render a page
 		});
 	});
 

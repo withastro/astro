@@ -1,20 +1,22 @@
-import { renderMarkdown } from '@astrojs/markdown-remark';
 import {
+	createMarkdownProcessor,
 	InvalidAstroDataError,
-	safelyGetAstroData,
-} from '@astrojs/markdown-remark/dist/internal.js';
+	type MarkdownProcessor,
+} from '@astrojs/markdown-remark';
 import matter from 'gray-matter';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
-import type { AstroSettings } from '../@types/astro';
+import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
-import { isMarkdownFile, rootRelativePath } from '../core/util.js';
+import { isMarkdownFile } from '../core/util.js';
+import { shorthash } from '../runtime/server/shorthash.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
+import { getMarkdownCodeForImages, type MarkdownImagePath } from './images.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -57,9 +59,14 @@ const astroErrorModulePath = normalizePath(
 );
 
 export default function markdown({ settings, logger }: AstroPluginOptions): Plugin {
+	let processor: MarkdownProcessor;
+
 	return {
 		enforce: 'pre',
 		name: 'astro:markdown',
+		async buildStart() {
+			processor = await createMarkdownProcessor(settings.config.markdown);
+		},
 		// Why not the "transform" hook instead of "load" + readFile?
 		// A: Vite transforms all "import.meta.env" references to their values before
 		// passing to the transform hook. This lets us get the truly raw value
@@ -70,33 +77,35 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeMatter(rawFile, id);
 
-				const renderResult = await renderMarkdown(raw.content, {
-					...settings.config.markdown,
-					fileURL: new URL(`file://${fileId}`),
-					frontmatter: raw.data,
-				});
+				const fileURL = pathToFileURL(fileId);
+
+				const renderResult = await processor
+					.render(raw.content, {
+						fileURL,
+						frontmatter: raw.data,
+					})
+					.catch((err) => {
+						// Improve error message for invalid astro data
+						if (err instanceof InvalidAstroDataError) {
+							throw new AstroError(AstroErrorData.InvalidFrontmatterInjectionError);
+						}
+						throw err;
+					});
 
 				let html = renderResult.code;
-				const { headings } = renderResult.metadata;
+				const { headings, imagePaths: rawImagePaths, frontmatter } = renderResult.metadata;
 
 				// Resolve all the extracted images from the content
-				let imagePaths: { raw: string; resolved: string }[] = [];
-				if (renderResult.vfile.data.imagePaths) {
-					for (let imagePath of renderResult.vfile.data.imagePaths.values()) {
-						imagePaths.push({
-							raw: imagePath,
-							resolved:
-								(await this.resolve(imagePath, id))?.id ?? path.join(path.dirname(id), imagePath),
-						});
-					}
+				const imagePaths: MarkdownImagePath[] = [];
+				for (const imagePath of rawImagePaths.values()) {
+					imagePaths.push({
+						raw: imagePath,
+						resolved:
+							(await this.resolve(imagePath, id))?.id ?? path.join(path.dirname(id), imagePath),
+						safeName: shorthash(imagePath),
+					});
 				}
 
-				const astroData = safelyGetAstroData(renderResult.vfile.data);
-				if (astroData instanceof InvalidAstroDataError) {
-					throw new AstroError(AstroErrorData.InvalidFrontmatterInjectionError);
-				}
-
-				const { frontmatter } = astroData;
 				const { layout } = frontmatter;
 
 				if (frontmatter.setup) {
@@ -111,42 +120,14 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 					astroServerRuntimeModulePath
 				)};
 				import { AstroError, AstroErrorData } from ${JSON.stringify(astroErrorModulePath)};
-
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
-				import { getImage } from "astro:assets";
 
-				export const images = {
-					${imagePaths.map(
-						(entry) =>
-							`'${entry.raw}': await getImageSafely((await import("${entry.raw}")).default, "${
-								entry.raw
-							}", "${rootRelativePath(settings.config.root, entry.resolved)}")`
-					)}
+				${
+					// Only include the code relevant to `astro:assets` if there's images in the file
+					imagePaths.length > 0
+						? getMarkdownCodeForImages(imagePaths, html)
+						: `const html = ${JSON.stringify(html)};`
 				}
-
-				async function getImageSafely(imageSrc, imagePath, resolvedImagePath) {
-					if (!imageSrc) {
-						throw new AstroError({
-							...AstroErrorData.MarkdownImageNotFound,
-							message: AstroErrorData.MarkdownImageNotFound.message(
-								imagePath,
-								resolvedImagePath
-							),
-							location: { file: "${id}" },
-						});
-					}
-
-					return await getImage({src: imageSrc})
-				}
-
-				function updateImageReferences(html) {
-					return html.replaceAll(
-						/__ASTRO_IMAGE_="([^"]+)"/gm,
-						(full, imagePath) => spreadAttributes({src: images[imagePath].src, ...images[imagePath].attributes})
-					);
-				}
-
-				const html = updateImageReferences(${JSON.stringify(html)});
 
 				export const frontmatter = ${JSON.stringify(frontmatter)};
 				export const file = ${JSON.stringify(fileId)};

@@ -1,6 +1,6 @@
 import type * as http from 'node:http';
 import type { AddressInfo } from 'node:net';
-import type { AstroInlineConfig, AstroSettings } from '../../@types/astro';
+import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 
 import nodeFs from 'node:fs';
 import * as vite from 'vite';
@@ -50,7 +50,7 @@ export async function createContainer({
 		isRestart,
 	});
 
-	settings = injectImageEndpoint(settings);
+	settings = injectImageEndpoint(settings, 'dev');
 
 	const {
 		base,

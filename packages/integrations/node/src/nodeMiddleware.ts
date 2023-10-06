@@ -1,9 +1,9 @@
 import type { NodeApp } from 'astro/app/node';
 import type { ServerResponse } from 'node:http';
 import type { Readable } from 'stream';
-import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders';
-import { responseIterator } from './response-iterator';
-import type { ErrorHandlerParams, Options, RequestHandlerParams } from './types';
+import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
+import { responseIterator } from './response-iterator.js';
+import type { ErrorHandlerParams, Options, RequestHandlerParams } from './types.js';
 
 // Disable no-unused-vars to avoid breaking signature change
 export default function (app: NodeApp, mode: Options['mode']) {
@@ -51,6 +51,9 @@ export default function (app: NodeApp, mode: Options['mode']) {
 				await writeWebResponse(app, res, response);
 			}
 		} catch (err: unknown) {
+			const logger = app.getAdapterLogger();
+			logger.error(`Could not render ${req.url}`);
+			console.error(err);
 			if (!res.headersSent) {
 				res.writeHead(500, `Server error`);
 				res.end();

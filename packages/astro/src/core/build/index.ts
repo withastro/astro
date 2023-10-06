@@ -9,7 +9,7 @@ import type {
 	AstroSettings,
 	ManifestData,
 	RuntimeMode,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { injectImageEndpoint } from '../../assets/internal.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
@@ -111,7 +111,7 @@ class AstroBuilder {
 		});
 
 		if (isServerLikeOutput(this.settings.config)) {
-			this.settings = injectImageEndpoint(this.settings);
+			this.settings = injectImageEndpoint(this.settings, 'build');
 		}
 
 		this.manifest = createRouteManifest({ settings: this.settings }, this.logger);

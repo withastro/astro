@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { normalizePath, type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
-import type { AstroSettings } from '../@types/astro';
+import type { AstroSettings } from '../@types/astro.js';
 
 type Alias = {
 	find: RegExp;
@@ -70,7 +70,8 @@ export default function configAliasVitePlugin({
 
 	const plugin: VitePlugin = {
 		name: 'astro:tsconfig-alias',
-		enforce: 'pre',
+		// use post to only resolve ids that all other plugins before it can't
+		enforce: 'post',
 		configResolved(config) {
 			patchCreateResolver(config, plugin);
 		},
@@ -100,7 +101,7 @@ export default function configAliasVitePlugin({
  *
  * Vite may simplify this soon: https://github.com/vitejs/vite/pull/10555
  */
-function patchCreateResolver(config: ResolvedConfig, prePlugin: VitePlugin) {
+function patchCreateResolver(config: ResolvedConfig, postPlugin: VitePlugin) {
 	const _createResolver = config.createResolver;
 	// @ts-expect-error override readonly property intentionally
 	config.createResolver = function (...args1: any) {
@@ -124,15 +125,16 @@ function patchCreateResolver(config: ResolvedConfig, prePlugin: VitePlugin) {
 				ssr,
 			};
 
+			const result = await resolver.apply(_createResolver, args2);
+			if (result) return result;
+
 			// @ts-expect-error resolveId exists
-			const resolved = await prePlugin.resolveId.apply(fakePluginContext, [
+			const resolved = await postPlugin.resolveId.apply(fakePluginContext, [
 				id,
 				importer,
 				fakeResolveIdOpts,
 			]);
 			if (resolved) return resolved;
-
-			return resolver.apply(_createResolver, args2);
 		};
 	};
 }

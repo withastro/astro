@@ -1,5 +1,19 @@
 # @astrojs/telemetry
 
+## 3.0.3
+
+### Patch Changes
+
+- [#8737](https://github.com/withastro/astro/pull/8737) [`6f60da805`](https://github.com/withastro/astro/commit/6f60da805e0014bc50dd07bef972e91c73560c3c) Thanks [@ematipico](https://github.com/ematipico)! - Add provenance statement when publishing the library from CI
+
+- [#8729](https://github.com/withastro/astro/pull/8729) [`21e0757ea`](https://github.com/withastro/astro/commit/21e0757ea22a57d344c934045ca19db93b684436) Thanks [@lilnasy](https://github.com/lilnasy)! - Removed an unnecessary dependency.
+
+## 3.0.2
+
+### Patch Changes
+
+- [#8600](https://github.com/withastro/astro/pull/8600) [`ed54d4644`](https://github.com/withastro/astro/commit/ed54d46449accc99ad117d6b0d50a8905e4d65d7) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Improve config info telemetry
+
 ## 3.0.1
 
 ### Patch Changes

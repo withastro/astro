@@ -20,6 +20,20 @@ function scrollToBottom(page) {
 	});
 }
 
+function collectPreloads(page) {
+	return page.evaluate(() => {
+		window.preloads = [];
+		const observer = new MutationObserver((mutations) => {
+			mutations.forEach((mutation) =>
+				mutation.addedNodes.forEach((node) => {
+					if (node.nodeName === 'LINK' && node.rel === 'preload') preloads.push(node.href);
+				})
+			);
+		});
+		observer.observe(document.head, { childList: true });
+	});
+}
+
 test.describe('View Transitions', () => {
 	test('Moving from page 1 to page 2', async ({ page, astro }) => {
 		const loads = [];
@@ -170,11 +184,15 @@ test.describe('View Transitions', () => {
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
+		await collectPreloads(page);
+
 		// Go to page 2
 		await page.click('#click-two');
 		p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
 		await expect(p, 'imported CSS updated').toHaveCSS('font-size', '24px');
+		const preloads = await page.evaluate(() => window.preloads);
+		expect(preloads.length === 1 && preloads[0].endsWith('/two.css')).toBeTruthy();
 	});
 
 	test('astro:page-load event fires when navigating to new page', async ({ page, astro }) => {
@@ -277,6 +295,28 @@ test.describe('View Transitions', () => {
 		await expect(locator).toBeInViewport();
 
 		// Back to middle of the page
+		await page.goBack();
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+	});
+
+	test('Scroll position restored when transitioning back to fragment', async ({ page, astro }) => {
+		// Go to the long page
+		await page.goto(astro.resolveUrl('/long-page'));
+		let locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+
+		// Scroll down to middle fragment
+		await page.click('#click-scroll-down');
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+
+		// goto page 1
+		await page.click('#click-one-again');
+		locator = page.locator('#one');
+		await expect(locator).toHaveText('Page 1');
+
+		// Back to middle of the previous page
 		await page.goBack();
 		locator = page.locator('#click-one-again');
 		await expect(locator).toBeInViewport();
@@ -498,6 +538,22 @@ test.describe('View Transitions', () => {
 		await downloadPromise;
 	});
 
+	test('data-astro-reload not required for non-html content', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+		// Go to page 4
+		await page.goto(astro.resolveUrl('/four'));
+		let p = page.locator('#four');
+		await expect(p, 'should have content').toHaveText('Page 4');
+
+		await page.click('#click-svg');
+		p = page.locator('svg');
+		await expect(p).toBeVisible();
+		expect(loads.length, 'There should be 2 page load').toEqual(2);
+	});
+
 	test('Scroll position is restored on back navigation from page w/o ViewTransitions', async ({
 		page,
 		astro,
@@ -539,6 +595,203 @@ test.describe('View Transitions', () => {
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
 
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+	});
+
+	test('Moving to a page which redirects to another', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page 2
+		await page.click('#click-redirect-two');
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		// go back
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		expect(
+			loads.length,
+			'There should only be the initial page load and two normal transitions'
+		).toEqual(1);
+	});
+
+	test('Redirect to external site causes page load', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to external page
+		await page.click('#click-redirect-external');
+		// doesn't work for playwright when we are too fast
+		await page.waitForTimeout(1000);
+		p = page.locator('h1');
+		await expect(p, 'should have content').toBeVisible();
+
+		expect(loads.length, 'There should be 2 page loads').toEqual(2);
+	});
+
+	test('client:only styles are retained on transition', async ({ page, astro }) => {
+		const totalExpectedStyles = 7;
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/client-only-one'));
+		let msg = page.locator('.counter-message');
+		await expect(msg).toHaveText('message here');
+
+		let styles = await page.locator('style').all();
+		expect(styles.length).toEqual(totalExpectedStyles);
+
+		await page.click('#click-two');
+
+		let pageTwo = page.locator('#page-two');
+		await expect(pageTwo, 'should have content').toHaveText('Page 2');
+
+		styles = await page.locator('style').all();
+		expect(styles.length).toEqual(totalExpectedStyles, 'style count has not changed');
+	});
+
+	test('Horizontal scroll position restored on back button', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/wide-page'));
+		let article = page.locator('#widepage');
+		await expect(article, 'should have script content').toBeVisible('exists');
+
+		let locator = page.locator('#click-one');
+		await expect(locator).not.toBeInViewport();
+
+		await page.click('#click-right');
+		locator = page.locator('#click-one');
+		await expect(locator).toBeInViewport();
+		locator = page.locator('#click-top');
+		await expect(locator).toBeInViewport();
+
+		await page.click('#click-one');
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		await page.goBack();
+		locator = page.locator('#click-one');
+		await expect(locator).toBeInViewport();
+
+		locator = page.locator('#click-top');
+		await expect(locator).toBeInViewport();
+
+		await page.click('#click-top');
+		locator = page.locator('#click-one');
+		await expect(locator).not.toBeInViewport();
+	});
+
+	test('Use the client side router', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/six'));
+		// page six loads the router and automatically uses the router to navigate to page 1
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// nudge to jump to page 2
+		await page.evaluate(() => {
+			window.dispatchEvent(new Event('jumpToTwo'));
+		});
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		// jump to page 3
+		await page.evaluate(() => {
+			// get the router from its fixture park position
+			const navigate = window.clientSideRouterForTestsParkedHere;
+			navigate('/three');
+		});
+		p = page.locator('#three');
+		await expect(p, 'should have content').toHaveText('Page 3');
+
+		// go back
+		await page.goBack();
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		// no bad things happen when we revisit redirecting to page 6
+		await page.goto(astro.resolveUrl('/six'));
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+	});
+
+	test('body inline scripts do not re-execute on navigation', async ({ page, astro }) => {
+		const errors = [];
+		page.addListener('pageerror', (err) => {
+			errors.push(err);
+		});
+
+		await page.goto(astro.resolveUrl('/inline-script-one'));
+		let article = page.locator('#counter');
+		await expect(article, 'should have script content').toBeVisible('exists');
+
+		await page.click('#click-one');
+
+		article = page.locator('#counter');
+		await expect(article, 'should have script content').toHaveText('Count: 3');
+
+		expect(errors).toHaveLength(0);
+	});
+
+	test('replace history', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/one'));
+		// page six loads the router and automatically uses the router to navigate to page 1
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page 2
+		await page.click('#click-two');
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		// replace with long page
+		await page.click('#click-longpage');
+		let article = page.locator('#longpage');
+		await expect(article, 'should have script content').toBeVisible('exists');
+
+		// one step back == #1
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+	});
+
+	test('CSR replace history', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/six'));
+		// page six loads the router and automatically uses the router to navigate to page 1
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// goto #2
+		await page.evaluate(() => {
+			window.clientSideRouterForTestsParkedHere('/two', { history: 'auto' });
+		});
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		// replace with long page
+		await page.evaluate(() => {
+			window.clientSideRouterForTestsParkedHere('/long-page', { history: 'replace' });
+		});
+		let article = page.locator('#longpage');
+		await expect(article, 'should have script content').toBeVisible('exists');
+
+		// one step back == #1
 		await page.goBack();
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');

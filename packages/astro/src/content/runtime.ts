@@ -55,10 +55,11 @@ export function createGetCollection({
 		} else if (collection in dataCollectionToEntryMap) {
 			type = 'data';
 		} else {
-			throw new AstroError({
-				...AstroErrorData.CollectionDoesNotExistError,
-				message: AstroErrorData.CollectionDoesNotExistError.message(collection),
-			});
+			// eslint-disable-next-line no-console
+			console.warn(
+				`The collection **${collection}** does not exist or is empty. Ensure a collection directory with this name exists.`
+			);
+			return;
 		}
 		const lazyImports = Object.values(
 			type === 'content'
@@ -137,14 +138,9 @@ export function createGetEntryBySlug({
 	};
 }
 
-export function createGetDataEntryById({
-	dataCollectionToEntryMap,
-}: {
-	dataCollectionToEntryMap: CollectionToEntryMap;
-}) {
+export function createGetDataEntryById({ getEntryImport }: { getEntryImport: GetEntryImport }) {
 	return async function getDataEntryById(collection: string, id: string) {
-		const lazyImport =
-			dataCollectionToEntryMap[collection]?.[/*TODO: filePathToIdMap*/ id + '.json'];
+		const lazyImport = await getEntryImport(collection, id);
 
 		// TODO: AstroError
 		if (!lazyImport) throw new Error(`Entry ${collection} → ${id} was not found.`);

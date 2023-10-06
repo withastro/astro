@@ -5,7 +5,7 @@ import type { AstroSettings } from '../@types/astro.js';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { getPageDataByViteID, type BuildInternals } from '../core/build/internal.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
-import type { StaticBuildOptions } from '../core/build/types';
+import type { StaticBuildOptions } from '../core/build/types.js';
 import type { ModuleLoader } from '../core/module-loader/loader.js';
 import { createViteLoader } from '../core/module-loader/vite.js';
 import { joinPaths, prependForwardSlash } from '../core/path.js';
@@ -64,7 +64,7 @@ export function astroContentAssetPropagationPlugin({
 					if (!devModuleLoader.getModuleById(basePath)?.ssrModule) {
 						await devModuleLoader.import(basePath);
 					}
-					const { stylesMap, urls } = await getStylesForURL(
+					const { styles, urls } = await getStylesForURL(
 						pathToFileURL(basePath),
 						devModuleLoader,
 						'development'
@@ -77,7 +77,7 @@ export function astroContentAssetPropagationPlugin({
 					);
 
 					stringifiedLinks = JSON.stringify([...urls]);
-					stringifiedStyles = JSON.stringify([...stylesMap.values()]);
+					stringifiedStyles = JSON.stringify(styles.map((s) => s.content));
 					stringifiedScripts = JSON.stringify([...hoistedScripts]);
 				} else {
 					// Otherwise, use placeholders to inject styles and scripts

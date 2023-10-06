@@ -14,17 +14,23 @@ npm create astro@latest
 yarn create astro
 ```
 
+**With PNPM:**
+
+```bash
+pnpm create astro
+```
+
 `create-astro` automatically runs in _interactive_ mode, but you can also specify your project name and template with command line arguments.
 
 ```bash
-# npm 6.x
-npm create astro@latest my-astro-project --template minimal
-
-# npm 7+, extra double-dash is needed:
+# npm
 npm create astro@latest my-astro-project -- --template minimal
 
 # yarn
 yarn create astro my-astro-project --template minimal
+
+# pnpm
+pnpm create astro my-astro-project --template minimal
 ```
 
 [Check out the full list][examples] of example templates, available on GitHub.
@@ -41,13 +47,16 @@ May be provided in place of prompts
 
 | Name                         | Description                                            |
 | :--------------------------- | :----------------------------------------------------- |
+| `--help` (`-h`)              | Display available flags.                               |
 | `--template <name>`          | Specify your template.                                 |
 | `--install` / `--no-install` | Install dependencies (or not).                         |
 | `--git` / `--no-git`         | Initialize git repo (or not).                          |
-| `--yes` (`-y`)               | Skip all prompt by accepting defaults.                 |
-| `--no` (`-n`)                | Skip all prompt by declining defaults.                 |
+| `--yes` (`-y`)               | Skip all prompts by accepting defaults.                |
+| `--no` (`-n`)                | Skip all prompts by declining defaults.                |
 | `--dry-run`                  | Walk through steps without executing.                  |
 | `--skip-houston`             | Skip Houston animation.                                |
+| `--ref`                      | Specify an Astro branch (default: latest).             |
+| `--fancy`                    | Enable full Unicode support for Windows.               |
 | `--typescript <option>`      | TypeScript option: `strict` / `strictest` / `relaxed`. |
 
 [examples]: https://github.com/withastro/astro/tree/main/examples

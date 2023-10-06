@@ -1,5 +1,5 @@
-import type { SSRElement, SSRResult } from '../../../@types/astro';
-import type { StylesheetAsset } from '../../../core/app/types';
+import type { SSRElement, SSRResult } from '../../../@types/astro.js';
+import type { StylesheetAsset } from '../../../core/app/types.js';
 import { renderElement } from './util.js';
 
 export function renderScriptElement({ props, children }: SSRElement) {
@@ -17,6 +17,6 @@ export function renderUniqueStylesheet(result: SSRResult, sheet: StylesheetAsset
 
 	if (sheet.type === 'inline') {
 		if (Array.from(result.styles).some((s) => s.children.includes(sheet.content))) return '';
-		return renderElement('style', { props: { type: 'text/css' }, children: sheet.content });
+		return renderElement('style', { props: {}, children: sheet.content });
 	}
 }

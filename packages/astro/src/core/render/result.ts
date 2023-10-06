@@ -5,7 +5,7 @@ import type {
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
-} from '../../@types/astro';
+} from '../../@types/astro.js';
 import { renderSlotToString, type ComponentSlots } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { chunkToString } from '../../runtime/server/render/index.js';
@@ -224,7 +224,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			hasDirectives: new Set(),
 			headInTree: false,
 			extraHead: [],
-			propagators: new Map(),
+			propagators: new Set(),
 		},
 	};
 

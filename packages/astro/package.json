@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "3.0.12",
+  "version": "3.2.3",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -56,7 +56,7 @@
     "./components/*": "./components/*",
     "./assets": "./dist/assets/index.js",
     "./assets/utils": "./dist/assets/utils/index.js",
-    "./assets/image-endpoint": "./dist/assets/image-endpoint.js",
+    "./assets/endpoint/*": "./dist/assets/endpoint/*.js",
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/squoosh": "./dist/assets/services/squoosh.js",
     "./assets/services/noop": "./dist/assets/services/noop.js",
@@ -77,7 +77,8 @@
       "types": "./dist/core/middleware/namespace.d.ts",
       "default": "./dist/core/middleware/namespace.js"
     },
-    "./transitions": "./dist/transitions/index.js"
+    "./transitions": "./dist/transitions/index.js",
+    "./transitions/router": "./dist/transitions/router.js"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
@@ -157,6 +158,7 @@
     "p-limit": "^4.0.0",
     "path-to-regexp": "^6.2.1",
     "preferred-pm": "^3.1.2",
+    "probe-image-size": "^7.2.3",
     "prompts": "^2.4.2",
     "rehype": "^12.0.1",
     "resolve": "^1.22.4",
@@ -166,7 +168,6 @@
     "string-width": "^6.1.0",
     "strip-ansi": "^7.1.0",
     "tsconfig-resolver": "^3.0.1",
-    "undici": "^5.23.0",
     "unist-util-visit": "^4.1.2",
     "vfile": "^5.3.7",
     "vite": "^4.4.9",
@@ -197,6 +198,7 @@
     "@types/js-yaml": "^4.0.5",
     "@types/mime": "^3.0.1",
     "@types/mocha": "^10.0.1",
+    "@types/probe-image-size": "^7.2.0",
     "@types/prompts": "^2.4.4",
     "@types/resolve": "^1.20.2",
     "@types/send": "^0.17.1",
@@ -223,5 +225,8 @@
   "engines": {
     "node": ">=18.14.1",
     "npm": ">=6.14.0"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }

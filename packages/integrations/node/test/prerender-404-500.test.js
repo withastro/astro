@@ -101,7 +101,7 @@ describe('Prerender 404', () => {
 			const $ = cheerio.load(html);
 
 			// length will be 0 if the stylesheet does not get included
-			expect($('style[type="text/css"]')).to.have.a.lengthOf(1);
+			expect($('style')).to.have.a.lengthOf(1);
 		});
 	});
 

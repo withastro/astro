@@ -13,16 +13,16 @@ import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
-import type { RemotePattern } from '../assets/utils/remotePattern';
-import type { SerializedSSRManifest } from '../core/app/types';
-import type { PageBuildData } from '../core/build/types';
-import type { AstroConfigType } from '../core/config';
-import type { AstroTimer } from '../core/config/timer';
-import type { AstroCookies } from '../core/cookies';
+import type { RemotePattern } from '../assets/utils/remotePattern.js';
+import type { SerializedSSRManifest } from '../core/app/types.js';
+import type { PageBuildData } from '../core/build/types.js';
+import type { AstroConfigType } from '../core/config/index.js';
+import type { AstroTimer } from '../core/config/timer.js';
+import type { AstroCookies } from '../core/cookies/index.js';
 import type { ResponseWithEncoding } from '../core/endpoint/index.js';
-import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core';
-import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
-import type { OmitIndexSignature, Simplify } from '../type-utils';
+import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
+import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
+import type { OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
 export { type AstroIntegrationLogger };
@@ -39,7 +39,7 @@ export type {
 	ExternalImageService,
 	ImageService,
 	LocalImageService,
-} from '../assets/services/service';
+} from '../assets/services/service.js';
 export type {
 	GetImageResult,
 	ImageInputFormat,
@@ -48,10 +48,11 @@ export type {
 	ImageQuality,
 	ImageQualityPreset,
 	ImageTransform,
-} from '../assets/types';
-export type { RemotePattern } from '../assets/utils/remotePattern';
-export type { SSRManifest } from '../core/app/types';
-export type { AstroCookies } from '../core/cookies';
+	UnresolvedImageTransform,
+} from '../assets/types.js';
+export type { RemotePattern } from '../assets/utils/remotePattern.js';
+export type { SSRManifest } from '../core/app/types.js';
+export type { AstroCookies } from '../core/cookies/index.js';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
@@ -618,12 +619,12 @@ export interface AstroUserConfig {
 	 * @description
 	 *
 	 * Specify the strategy used for scoping styles within Astro components. Choose from:
-	 *   - `'where'` 		- Use `:where` selectors, causing no specifity increase.
-	 *   - `'class'` 		- Use class-based selectors, causing a +1 specifity increase.
-	 *   - `'attribute'` 	- Use `data-` attributes, causing no specifity increase.
+	 *   - `'where'` 		- Use `:where` selectors, causing no specificity increase.
+	 *   - `'class'` 		- Use class-based selectors, causing a +1 specificity increase.
+	 *   - `'attribute'` 	- Use `data-` attributes, causing a +1 specificity increase.
 	 *
 	 * Using `'class'` is helpful when you want to ensure that element selectors within an Astro component override global style defaults (e.g. from a global stylesheet).
-	 * Using `'where'` gives you more control over specifity, but requires that you use higher-specifity selectors, layers, and other tools to control which selectors are applied.
+	 * Using `'where'` gives you more control over specificity, but requires that you use higher-specificity selectors, layers, and other tools to control which selectors are applied.
 	 * Using `'attribute'` is useful when you are manipulating the `class` attribute of elements and need to avoid conflicts between your own styling logic and Astro's application of styles.
 	 */
 	scopedStyleStrategy?: 'where' | 'class' | 'attribute';
@@ -635,7 +636,7 @@ export interface AstroUserConfig {
 	 * @see output
 	 * @description
 	 *
-	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssredge), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
+	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssr), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
 	 *
 	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
 	 *
@@ -976,6 +977,28 @@ export interface AstroUserConfig {
 	image?: {
 		/**
 		 * @docs
+		 * @name image.endpoint
+		 * @type {string}
+		 * @default `undefined`
+		 * @version 3.1.0
+		 * @description
+		 * Set the endpoint to use for image optimization in dev and SSR. Set to `undefined` to use the default endpoint.
+		 *
+		 * The endpoint will always be injected at `/_image`.
+		 *
+		 * ```js
+		 * {
+		 *   image: {
+		 *     // Example: Use a custom image endpoint
+		 *     endpoint: './src/image-endpoint.ts',
+		 *   },
+		 * }
+		 * ```
+		 */
+		endpoint?: string;
+
+		/**
+		 * @docs
 		 * @name image.service
 		 * @type {{entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | string, config: Record<string, any>}}
 		 * @default `{entrypoint: 'astro/assets/services/sharp', config?: {}}`
@@ -1145,10 +1168,10 @@ export interface AstroUserConfig {
 		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
 		 * ```js
-		 * import rehypeMinifyHtml from 'rehype-minify';
+		 * import { rehypeAccessibleEmojis } from 'rehype-accessible-emojis';
 		 * {
 		 *   markdown: {
-		 *     rehypePlugins: [rehypeMinifyHtml]
+		 *     rehypePlugins: [rehypeAccessibleEmojis]
 		 *   }
 		 * }
 		 * ```
@@ -2186,7 +2209,7 @@ export interface SSRMetadata {
 	hasRenderedHead: boolean;
 	headInTree: boolean;
 	extraHead: string[];
-	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
+	propagators: Set<AstroComponentInstance>;
 }
 
 /* Preview server stuff */

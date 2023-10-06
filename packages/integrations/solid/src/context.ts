@@ -1,4 +1,4 @@
-import type { RendererContext } from './types';
+import type { RendererContext } from './types.js';
 
 type Context = {
 	id: string;

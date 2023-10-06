@@ -174,6 +174,20 @@ describe('astro:image', () => {
 				expect(res.status).to.equal(200);
 				expect(loading).to.not.be.undefined;
 			});
+
+			it('supports avif', async () => {
+				let res = await fixture.fetch('/avif');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(1);
+
+				let src = $img.attr('src');
+				res = await fixture.fetch(src);
+				expect(res.status).to.equal(200);
+				expect(res.headers.get('content-type')).to.equal('image/avif');
+			});
 		});
 
 		describe('vite-isms', () => {
@@ -294,7 +308,7 @@ describe('astro:image', () => {
 
 			it('Adds the <img> tag', () => {
 				let $img = $('img');
-				expect($img).to.have.a.lengthOf(1);
+				expect($img).to.have.a.lengthOf(2);
 
 				// Verbose test for the full URL to make sure the image went through the full pipeline
 				expect(
@@ -444,6 +458,47 @@ describe('astro:image', () => {
 
 				const $ = cheerio.load(html);
 				expect($('#local img').attr('data-service-config')).to.equal('bar');
+			});
+		});
+
+		describe('custom endpoint', async () => {
+			/** @type {import('./test-utils').DevServer} */
+			let customEndpointDevServer;
+
+			/** @type {import('./test-utils.js').Fixture} */
+			let customEndpointFixture;
+
+			before(async () => {
+				customEndpointFixture = await loadFixture({
+					root: './fixtures/core-image/',
+					image: {
+						endpoint: './src/custom-endpoint.ts',
+						service: testImageService({ foo: 'bar' }),
+						domains: ['avatars.githubusercontent.com'],
+					},
+				});
+
+				customEndpointDevServer = await customEndpointFixture.startDevServer({
+					server: { port: 4324 },
+				});
+			});
+
+			it('custom endpoint works', async () => {
+				const response = await customEndpointFixture.fetch('/');
+				const html = await response.text();
+
+				const $ = cheerio.load(html);
+				const src = $('#local img').attr('src');
+
+				let res = await customEndpointFixture.fetch(src);
+				expect(res.status).to.equal(200);
+				expect(await res.text()).to.equal(
+					"You fool! I'm not a image endpoint at all, I just return this!"
+				);
+			});
+
+			after(async () => {
+				await customEndpointDevServer.stop();
 			});
 		});
 	});
@@ -797,17 +852,14 @@ describe('astro:image', () => {
 				output: 'server',
 				adapter: testAdapter(),
 				image: {
+					endpoint: 'astro/assets/endpoint/node',
 					service: testImageService(),
 				},
 			});
 			await fixture.build();
 		});
 
-		// TODO
-		// This is not working because the image service does a fetch() on the underlying
-		// image and we do not have an HTTP server in these tests. We either need
-		// to start one, or find another way to tell the image service how to load these files.
-		it.skip('dynamic route images are built at response time', async () => {
+		it('dynamic route images are built at response time sss', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			let request = new Request('http://example.com/');
 			let response = await app.render(request);

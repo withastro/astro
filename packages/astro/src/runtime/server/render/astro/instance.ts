@@ -1,4 +1,4 @@
-import type { SSRResult } from '../../../../@types/astro';
+import type { SSRResult } from '../../../../@types/astro.js';
 import type { ComponentSlots } from '../slot.js';
 import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
 
@@ -82,8 +82,8 @@ export function createAstroComponentInstance(
 ) {
 	validateComponentProps(props, displayName);
 	const instance = new AstroComponentInstance(result, props, slots, factory);
-	if (isAPropagatingComponent(result, factory) && !result._metadata.propagators.has(factory)) {
-		result._metadata.propagators.set(factory, instance);
+	if (isAPropagatingComponent(result, factory)) {
+		result._metadata.propagators.add(instance);
 	}
 	return instance;
 }

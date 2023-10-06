@@ -1,5 +1,5 @@
-import type { AstroSettings } from '../@types/astro';
-import type { Logger } from './logger/core';
+import type { AstroSettings } from '../@types/astro.js';
+import type { Logger } from './logger/core.js';
 
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -166,7 +166,7 @@ export async function createVite(
 				{
 					// Typings are imported from 'astro' (e.g. import { Type } from 'astro')
 					find: /^astro$/,
-					replacement: fileURLToPath(new URL('../@types/astro', import.meta.url)),
+					replacement: fileURLToPath(new URL('../@types/astro.js', import.meta.url)),
 				},
 				{
 					find: 'astro:middleware',
@@ -240,8 +240,6 @@ export async function createVite(
 		result = vite.mergeConfig(result, settings.config.vite || {});
 	}
 	result = vite.mergeConfig(result, commandConfig);
-
-	result.customLogger = vite.createLogger(result.logLevel ?? 'warn');
 
 	return result;
 }

@@ -1,6 +1,6 @@
 import type { AstroAdapter, AstroIntegration } from 'astro';
 import { AstroError } from 'astro/errors';
-import type { Options, UserOptions } from './types';
+import type { Options, UserOptions } from './types.js';
 export function getAdapter(options: Options): AstroAdapter {
 	return {
 		name: '@astrojs/node',
@@ -30,8 +30,11 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 	return {
 		name: '@astrojs/node',
 		hooks: {
-			'astro:config:setup': ({ updateConfig }) => {
+			'astro:config:setup': ({ updateConfig, config }) => {
 				updateConfig({
+					image: {
+						endpoint: config.image.endpoint ?? 'astro/assets/endpoint/node',
+					},
 					vite: {
 						ssr: {
 							noExternal: ['@astrojs/node'],

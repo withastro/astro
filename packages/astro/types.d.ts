@@ -1,5 +1,5 @@
 import './astro-jsx';
-import { AstroBuiltinAttributes } from './dist/@types/astro';
+import { AstroBuiltinAttributes } from './dist/@types/astro.js';
 
 /** Any supported HTML or SVG element name, as defined by the HTML specification */
 export type HTMLTag = keyof astroHTML.JSX.DefinedIntrinsicElements;
@@ -8,6 +8,11 @@ export type HTMLAttributes<Tag extends HTMLTag> = Omit<
 	astroHTML.JSX.IntrinsicElements[Tag],
 	keyof Omit<AstroBuiltinAttributes, 'class:list'>
 >;
+
+/**
+ * All the CSS properties available, as defined by the CSS specification
+ */
+export type CSSProperty = keyof astroHTML.JSX.KebabCSSDOMProperties;
 
 type PolymorphicAttributes<P extends { as: HTMLTag }> = Omit<P & HTMLAttributes<P['as']>, 'as'> & {
 	as?: P['as'];

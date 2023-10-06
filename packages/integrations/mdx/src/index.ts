@@ -1,6 +1,4 @@
-import { markdownConfigDefaults } from '@astrojs/markdown-remark';
-import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/internal.js';
-import { compile as mdxCompile, type CompileOptions } from '@mdx-js/mdx';
+import { markdownConfigDefaults, setVfileFrontmatter } from '@astrojs/markdown-remark';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { AstroIntegration, ContentEntryType, HookParameters, SSRError } from 'astro';
 import astroJSXRenderer from 'astro/jsx/renderer.js';
@@ -8,11 +6,15 @@ import { parse as parseESM } from 'es-module-lexer';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
-import { SourceMapGenerator } from 'source-map';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
-import { getRehypePlugins, getRemarkPlugins, recmaInjectImportMetaEnvPlugin } from './plugins.js';
+import { createMdxProcessor } from './plugins.js';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
+import {
+	ASTRO_IMAGE_ELEMENT,
+	ASTRO_IMAGE_IMPORT,
+	USES_ASTRO_IMAGE_FLAG,
+} from './remark-images-to-component.js';
 import { getFileInfo, ignoreStringPlugins, parseFrontmatter } from './utils.js';
 
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
@@ -79,21 +81,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					),
 				});
 
-				const mdxPluginOpts: CompileOptions = {
-					remarkPlugins: await getRemarkPlugins(mdxOptions),
-					rehypePlugins: getRehypePlugins(mdxOptions),
-					recmaPlugins: mdxOptions.recmaPlugins,
-					remarkRehypeOptions: mdxOptions.remarkRehype,
-					jsx: true,
-					jsxImportSource: 'astro',
-					// Note: disable `.md` (and other alternative extensions for markdown files like `.markdown`) support
-					format: 'mdx',
-					mdExtensions: [],
-				};
-
-				let importMetaEnv: Record<string, any> = {
-					SITE: config.site,
-				};
+				let processor: ReturnType<typeof createMdxProcessor>;
 
 				updateConfig({
 					vite: {
@@ -102,7 +90,10 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 								name: '@mdx-js/rollup',
 								enforce: 'pre',
 								configResolved(resolved) {
-									importMetaEnv = { ...importMetaEnv, ...resolved.env };
+									processor = createMdxProcessor(mdxOptions, {
+										sourcemap: !!resolved.build.sourcemap,
+										importMetaEnv: { SITE: config.site, ...resolved.env },
+									});
 
 									// HACK: move ourselves before Astro's JSX plugin to transform things in the right order
 									const jsxPluginIndex = resolved.plugins.findIndex((p) => p.name === 'astro:jsx');
@@ -129,23 +120,13 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									const code = await fs.readFile(fileId, 'utf-8');
 
 									const { data: frontmatter, content: pageContent } = parseFrontmatter(code, id);
+
+									const vfile = new VFile({ value: pageContent, path: id });
+									// Ensure `data.astro` is available to all remark plugins
+									setVfileFrontmatter(vfile, frontmatter);
+
 									try {
-										const compiled = await mdxCompile(new VFile({ value: pageContent, path: id }), {
-											...mdxPluginOpts,
-											elementAttributeNameCase: 'html',
-											remarkPlugins: [
-												// Ensure `data.astro` is available to all remark plugins
-												toRemarkInitializeAstroData({ userFrontmatter: frontmatter }),
-												...(mdxPluginOpts.remarkPlugins ?? []),
-											],
-											recmaPlugins: [
-												...(mdxPluginOpts.recmaPlugins ?? []),
-												() => recmaInjectImportMetaEnvPlugin({ importMetaEnv }),
-											],
-											SourceMapGenerator: config.vite.build?.sourcemap
-												? SourceMapGenerator
-												: undefined,
-										});
+										const compiled = await processor.process(vfile);
 
 										return {
 											code: escapeViteEnvReferences(String(compiled.value)),
@@ -194,12 +175,25 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									if (!moduleExports.find(({ n }) => n === 'Content')) {
 										// If have `export const components`, pass that as props to `Content` as fallback
 										const hasComponents = moduleExports.find(({ n }) => n === 'components');
+										const usesAstroImage = moduleExports.find(
+											({ n }) => n === USES_ASTRO_IMAGE_FLAG
+										);
+
+										let componentsCode = `{ Fragment${
+											hasComponents ? ', ...components' : ''
+										}, ...props.components,`;
+										if (usesAstroImage) {
+											componentsCode += ` ${JSON.stringify(ASTRO_IMAGE_ELEMENT)}: ${
+												hasComponents ? 'components.img ?? ' : ''
+											} props.components?.img ?? ${ASTRO_IMAGE_IMPORT}`;
+										}
+										componentsCode += ' }';
 
 										// Make `Content` the default export so we can wrap `MDXContent` and pass in `Fragment`
 										code = code.replace('export default MDXContent;', '');
 										code += `\nexport const Content = (props = {}) => MDXContent({
 											...props,
-											components: { Fragment${hasComponents ? ', ...components' : ''}, ...props.components },
+											components: ${componentsCode},
 										});
 										export default Content;`;
 									}

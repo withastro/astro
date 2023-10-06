@@ -1,20 +1,23 @@
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
-import type { AstroPluginOptions, ImageTransform } from '../@types/astro';
+import type { AstroPluginOptions, ImageTransform } from '../@types/astro.js';
+import { extendManualChunks } from '../core/build/plugins/util.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import {
 	appendForwardSlash,
 	joinPaths,
 	prependForwardSlash,
 	removeQueryString,
 } from '../core/path.js';
+import { isServerLikeOutput } from '../prerender/utils.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { emitESMImage } from './utils/emitAsset.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
-const assetRegex = new RegExp(`\.(${VALID_INPUT_FORMATS.join('|')})$`, 'i');
+const assetRegex = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})$`, 'i');
 
 export default function assets({
 	settings,
@@ -28,6 +31,18 @@ export default function assets({
 		// Expose the components and different utilities from `astro:assets` and handle serving images from `/_image` in dev
 		{
 			name: 'astro:assets',
+			outputOptions(outputOptions) {
+				// Specifically split out chunk for asset files to prevent TLA deadlock
+				// caused by `getImage()` for markdown components.
+				// https://github.com/rollup/rollup/issues/4708
+				extendManualChunks(outputOptions, {
+					after(id) {
+						if (id.includes('astro/dist/assets/services/')) {
+							return `astro-assets-services`;
+						}
+					},
+				});
+			},
 			async resolveId(id) {
 				if (id === VIRTUAL_SERVICE_ID) {
 					return await this.resolve(settings.config.image.service.entrypoint);
@@ -44,6 +59,13 @@ export default function assets({
 					export { default as Image } from "astro/components/Image.astro";
 
 					export const imageConfig = ${JSON.stringify(settings.config.image)};
+					export const assetsDir = new URL(${JSON.stringify(
+						new URL(
+							isServerLikeOutput(settings.config)
+								? settings.config.build.client
+								: settings.config.outDir
+						)
+					)});
 					export const getImage = async (options) => await getImageInternal(options, imageConfig);
 				`;
 				}
@@ -125,6 +147,14 @@ export default function assets({
 				}
 				if (assetRegex.test(id)) {
 					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile);
+
+					if (!meta) {
+						throw new AstroError({
+							...AstroErrorData.ImageNotFound,
+							message: AstroErrorData.ImageNotFound.message(id),
+						});
+					}
+
 					return `export default ${JSON.stringify(meta)}`;
 				}
 			},

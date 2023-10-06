@@ -594,9 +594,9 @@ export const PrerenderDynamicEndpointPathCollide = {
 export const ExpectedImage = {
 	name: 'ExpectedImage',
 	title: 'Expected src to be an image.',
-	message: (options: string) =>
-		`Expected \`src\` property to be either an ESM imported image or a string with the path of a remote image. Received \`${options}\`.`,
-	hint: 'This error can often happen because of a wrong path. Make sure the path to your image is correct.',
+	message: (src: string, typeofOptions: string, fullOptions: string) =>
+		`Expected \`src\` property for \`getImage\` or \`<Image />\` to be either an ESM imported image or a string with the path of a remote image. Received \`${src}\` (type: \`${typeofOptions}\`).\n\nFull serialized options received: \`${fullOptions}\`.`,
+	hint: "This error can often happen because of a wrong path. Make sure the path to your image is correct. If you're passing an async function, make sure to call and await it.",
 } satisfies ErrorData;
 /**
  * @docs
@@ -620,8 +620,42 @@ export const ExpectedImageOptions = {
 	message: (options: string) =>
 		`Expected getImage() parameter to be an object. Received \`${options}\`.`,
 } satisfies ErrorData;
+
 /**
  * @docs
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * @description
+ * Astro could not find an image you imported. Often, this is simply caused by a typo in the path.
+ *
+ * Images in Markdown are relative to the current file. To refer to an image that is located in the same folder as the `.md` file, the path should start with `./`
+ */
+export const ImageNotFound = {
+	name: 'ImageNotFound',
+	title: 'Image not found.',
+	message: (imagePath: string) => `Could not find requested image \`${imagePath}\`. Does it exist?`,
+	hint: 'This is often caused by a typo in the image path. Please make sure the file exists, and is spelled correctly.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message Could not process image metadata for `IMAGE_PATH`.
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * @description
+ * Astro could not process the metadata of an image you imported. This is often caused by a corrupted or malformed image and re-exporting the image from your image editor may fix this issue.
+ */
+export const NoImageMetadata = {
+	name: 'NoImageMetadata',
+	title: 'Could not process image metadata.',
+	message: (imagePath: string | undefined) =>
+		`Could not process image metadata${imagePath ? ` for \`${imagePath}\`` : ''}.`,
+	hint: 'This is often caused by a corrupted or malformed image. Re-exporting the image from your image editor may fix this issue.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @deprecated This error is no longer Markdown specific and as such, as been replaced by `ImageNotFound`
  * @message
  * Could not find requested image `IMAGE_PATH` at `FULL_IMAGE_PATH`.
  * @see
@@ -640,6 +674,7 @@ export const MarkdownImageNotFound = {
 		}`,
 	hint: 'This is often caused by a typo in the image path. Please make sure the file exists, and is spelled correctly.',
 } satisfies ErrorData;
+
 /**
  * @docs
  * @description
@@ -712,12 +747,15 @@ export const LocalsNotAnObject = {
 		'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
 	hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
 } satisfies ErrorData;
+
 /**
  * @docs
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
- * When using the default image services, `Image`'s and `getImage`'s `src` parameter must be either an imported image or an URL, it cannot be a filepath.
+ * When using the default image services, `Image`'s and `getImage`'s `src` parameter must be either an imported image or an URL, it cannot be a string of a filepath.
+ *
+ * For local images from content collections, you can use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections) to resolve the images.
  *
  * ```astro
  * ---
@@ -728,15 +766,22 @@ export const LocalsNotAnObject = {
  * <!-- GOOD: `src` is the full imported image. -->
  * <Image src={myImage} alt="Cool image" />
  *
- * <!-- BAD: `src` is an image's `src` path instead of the full image. -->
+ * <!-- GOOD: `src` is a URL. -->
+ * <Image src="https://example.com/my_image.png" alt="Cool image" />
+ *
+ * <!-- BAD: `src` is an image's `src` path instead of the full image object. -->
  * <Image src={myImage.src} alt="Cool image" />
+ *
+ * <!-- BAD: `src` is a string filepath. -->
+ * <Image src="../my_image.png" alt="Cool image" />
  * ```
  */
 export const LocalImageUsedWrongly = {
 	name: 'LocalImageUsedWrongly',
-	title: 'ESM imported images must be passed as-is.',
+	title: 'Local images must be imported.',
 	message: (imageFilePath: string) =>
-		`\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or an URL, it cannot be a filepath. Received \`${imageFilePath}\`.`,
+		`\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or an URL, it cannot be a string filepath. Received \`${imageFilePath}\`.`,
+	hint: 'If you want to use an image from your `src` folder, you need to either import it or if the image is coming from a content collection, use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections) See https://docs.astro.build/en/guides/images/#src-required for more information on the `src` property.',
 } satisfies ErrorData;
 
 /**
@@ -1113,6 +1158,7 @@ export const ContentSchemaContainsSlugError = {
 /**
  * @docs
  * @message A collection queried via `getCollection()` does not exist.
+ * @deprecated Collections that do not exist no longer result in an error. A warning is given instead.
  * @description
  * When querying a collection, ensure a collection directory with the requested name exists under `src/content/`.
  */

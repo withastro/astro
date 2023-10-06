@@ -45,15 +45,15 @@ If you prefer to install the adapter manually instead, complete the following tw
 
 1. Add two new lines to your `astro.config.mjs` project configuration file.
 
-   ```js ins={3, 6-7}
-   // astro.config.mjs
-   import { defineConfig } from 'astro/config';
-   import vercel from '@astrojs/vercel/serverless';
+   ```diff lang="js"
+     // astro.config.mjs
+     import { defineConfig } from 'astro/config';
+   + import vercel from '@astrojs/vercel/serverless';
 
-   export default defineConfig({
-     output: 'server',
-     adapter: vercel(),
-   });
+     export default defineConfig({
+   +   output: 'server',
+   +   adapter: vercel(),
+     });
    ```
 
 ### Targets
@@ -85,13 +85,13 @@ vercel deploy --prebuilt
 
 To configure this adapter, pass an object to the `vercel()` function call in `astro.config.mjs`:
 
-### analytics
+### Web Analytics
 
-**Type:** `boolean`<br>
-**Available for:** Serverless, Static<br>
-**Added in:** `@astrojs/vercel@3.1.0`
+**Type:** `VercelWebAnalyticsConfig`<br>
+**Available for:** Serverless, Edge, Static<br>
+**Added in:** `@astrojs/vercel@3.8.0`
 
-You can enable [Vercel Analytics](https://vercel.com/analytics) (including Web Vitals and Audiences) by setting `analytics: true`. This will inject Vercel’s tracking scripts into all your pages.
+You can enable [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics) by setting `webAnalytics: { enabled: true }`. This will inject Vercel’s tracking scripts into all of your pages.
 
 ```js
 // astro.config.mjs
@@ -101,7 +101,32 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    analytics: true,
+    webAnalytics: {
+      enabled: true,
+    },
+  }),
+});
+```
+
+### Speed Insights
+
+You can enable [Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights) by setting `speedInsights: { enabled: true }`. This will collect and send Web Vital data to Vercel.
+
+**Type:** `VercelSpeedInsightsConfig`<br>
+**Available for:** Serverless, Edge, Static<br>
+**Added in:** `@astrojs/vercel@3.8.0`
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/serverless';
+
+export default defineConfig({
+  output: 'server',
+  adapter: vercel({
+    speedInsights: {
+      enabled: true,
+    },
   }),
 });
 ```
@@ -137,7 +162,7 @@ export default defineConfig({
 **Available for:** Serverless, Static
 **Added in:** `@astrojs/vercel@3.3.0`
 
-When enabled, an [Image Service](https://docs.astro.build/en/reference/image-service-reference/) powered by the Vercel Image Optimization API will be automatically configured and used in production. In development, a built-in Squoosh-based service will be used instead.
+When enabled, an [Image Service](https://docs.astro.build/en/reference/image-service-reference/) powered by the Vercel Image Optimization API will be automatically configured and used in production. In development, the image service specified by [`devImageService`](#devimageservice) will be used instead.
 
 ```js
 // astro.config.mjs
@@ -170,6 +195,30 @@ import astroLogo from '../assets/logo.png';
   width="..."
   height="..."
 />
+```
+
+### devImageService
+
+**Type:** `'sharp' | 'squoosh' | string`<br>
+**Available for:** Serverless, Static
+**Added in:** `@astrojs/vercel@3.3.0`
+**Default**: 'sharp'
+
+Allows you to configure which image service to use in development when [imageService](#imageservice) is enabled. This can be useful if you cannot install Sharp's dependencies on your development machine, but using another image service like Squoosh would allow you to preview images in your dev environment. Build is unaffected and will always use Vercel's Image Optimization.
+
+It can also be set to any arbitrary value in order to use a custom image service instead of Astro's built-in ones.
+
+```js
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/serverless';
+
+export default defineConfig({
+  output: 'server',
+  adapter: vercel({
+    imageService: true,
+    devImageService: 'squoosh',
+  }),
+});
 ```
 
 ### includeFiles
@@ -214,9 +263,11 @@ export default defineConfig({
 
 ### Function bundling configuration
 
-The Vercel adapter splits builds into a separate function per route by default. This helps reduce the size of each function, as it only bundles code used on that page.
+The Vercel adapter combines all of your routes into a single function by default.
 
-You can disable this and build to a single function by setting the `functionPerRoute` configuration option to `false`:
+You also have the option to split builds into a separate function for each route using the `functionPerRoute` option. This reduces the size of each function, meaning you are less likely to exceed the size limit for an individual function. Also, code starts are faster.
+
+Verify that your Vercel plan includes an appropriate number of functions before enabling `functionPerRoute`. For example, Vercel's free tier limits each deployment to no more than 12 functions. If your Vercel plan is insufficient for the number of routes in your project, you will receive an error message during deployment.
 
 ```js
 // astro.config.mjs
@@ -226,7 +277,7 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    functionPerRoute: false,
+    functionPerRoute: true,
   }),
 });
 ```

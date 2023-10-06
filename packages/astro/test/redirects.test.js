@@ -9,7 +9,7 @@ describe('Astro.redirect', () => {
 	describe('output: "server"', () => {
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/ssr-redirect/',
+				root: './fixtures/redirects/',
 				output: 'server',
 				adapter: testAdapter(),
 				redirects: {
@@ -66,9 +66,10 @@ describe('Astro.redirect', () => {
 			before(async () => {
 				process.env.STATIC_MODE = true;
 				fixture = await loadFixture({
-					root: './fixtures/ssr-redirect/',
+					root: './fixtures/redirects/',
 					output: 'static',
 					redirects: {
+						'/old': '/test',
 						'/': '/test',
 						'/one': '/test',
 						'/two': '/test',
@@ -77,9 +78,17 @@ describe('Astro.redirect', () => {
 							status: 302,
 							destination: '/test',
 						},
+						'/more/old/[dynamic]': '/more/[dynamic]',
+						'/more/old/[dynamic]/[route]': '/more/[dynamic]/[route]',
+						'/more/old/[...spread]': '/more/new/[...spread]',
 					},
 				});
 				await fixture.build();
+			});
+
+			it("Minifies the HTML emitted when a page that doesn't exist is emitted", async () => {
+				const html = await fixture.readFile('/old/index.html');
+				expect(html).to.not.include('\n');
 			});
 
 			it('Includes the meta refresh tag in Astro.redirect pages', async () => {
@@ -143,6 +152,12 @@ describe('Astro.redirect', () => {
 				expect(html).to.include('http-equiv="refresh');
 				expect(html).to.include('url=/test');
 			});
+
+			it('falls back to spread rule when dynamic rules should not match', async () => {
+				const html = await fixture.readFile('/more/old/welcome/world/index.html');
+				expect(html).to.include('http-equiv="refresh');
+				expect(html).to.include('url=/more/new/welcome/world');
+			});
 		});
 
 		describe('dev', () => {
@@ -151,10 +166,13 @@ describe('Astro.redirect', () => {
 			before(async () => {
 				process.env.STATIC_MODE = true;
 				fixture = await loadFixture({
-					root: './fixtures/ssr-redirect/',
+					root: './fixtures/redirects/',
 					output: 'static',
 					redirects: {
 						'/one': '/',
+						'/more/old/[dynamic]': '/more/[dynamic]',
+						'/more/old/[dynamic]/[route]': '/more/[dynamic]/[route]',
+						'/more/old/[...spread]': '/more/new/[...spread]',
 					},
 				});
 				devServer = await fixture.startDevServer();
@@ -164,11 +182,27 @@ describe('Astro.redirect', () => {
 				await devServer.stop();
 			});
 
-			it('Returns 301', async () => {
+			it('performs simple redirects', async () => {
 				let res = await fixture.fetch('/one', {
 					redirect: 'manual',
 				});
 				expect(res.status).to.equal(301);
+				expect(res.headers.get('Location')).to.equal('/');
+			});
+
+			it('performs dynamic redirects', async () => {
+				const response = await fixture.fetch('/more/old/hello', { redirect: 'manual' });
+				expect(response.headers.get('Location')).to.equal('/more/hello');
+			});
+
+			it('performs dynamic redirects with multiple params', async () => {
+				const response = await fixture.fetch('/more/old/hello/world', { redirect: 'manual' });
+				expect(response.headers.get('Location')).to.equal('/more/hello/world');
+			});
+
+			it.skip('falls back to spread rule when dynamic rules should not match', async () => {
+				const response = await fixture.fetch('/more/old/welcome/world', { redirect: 'manual' });
+				expect(response.headers.get('Location')).to.equal('/more/new/welcome/world');
 			});
 		});
 	});
@@ -177,7 +211,7 @@ describe('Astro.redirect', () => {
 		before(async () => {
 			process.env.STATIC_MODE = true;
 			fixture = await loadFixture({
-				root: './fixtures/ssr-redirect/',
+				root: './fixtures/redirects/',
 				output: 'static',
 				redirects: {
 					'/one': '/',

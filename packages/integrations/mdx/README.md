@@ -42,15 +42,16 @@ npm install @astrojs/mdx
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-```js ins={3} "mdx()"
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import mdx from '@astrojs/mdx';
+```diff lang="js" "mdx()"
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
++ import mdx from '@astrojs/mdx';
 
-export default defineConfig({
-  // ...
-  integrations: [mdx()],
-});
+  export default defineConfig({
+    // ...
+    integrations: [mdx()],
+    //             ^^^^^
+  });
 ```
 
 ### Editor Integration

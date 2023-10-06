@@ -43,15 +43,16 @@ npm install alpinejs @types/alpinejs
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-```js ins={3} "alpine()"
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import alpine from '@astrojs/alpinejs';
+```diff lang="js" "alpine()"
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
++ import alpine from '@astrojs/alpinejs';
 
-export default defineConfig({
-  // ...
-  integrations: [alpine()],
-});
+  export default defineConfig({
+    // ...
+    integrations: [alpine()],
+    //             ^^^^^^^^
+  });
 ```
 
 ## Usage
@@ -66,7 +67,11 @@ The Alpine.js integration does not give you control over how the script is loade
 
 **It is not currently possible to [extend Alpine.js](https://alpinejs.dev/advanced/extending) when using this component.** If you need this feature, consider following [the manual Alpine.js setup](https://alpinejs.dev/essentials/installation) instead using an Astro script tag:
 
-```astro title="src/pages/index.astro"
+```astro
+---
+// src/pages/index.astro
+---
+
 <!-- Example: Load AlpineJS on a single page. -->
 <script>
   import Alpine from 'alpinejs';

@@ -20,7 +20,7 @@ describe('Image', () => {
 	it('has link to vercel in build with proper attributes', async () => {
 		const html = await fixture.readFile('../.vercel/output/static/index.html');
 		const $ = cheerio.load(html);
-		const img = $('img');
+		const img = $('#basic-image img');
 
 		expect(img.attr('src').startsWith('/_vercel/image?url=_astr')).to.be.true;
 		expect(img.attr('loading')).to.equal('lazy');
@@ -56,11 +56,22 @@ describe('Image', () => {
 		it('has link to local image in dev with proper attributes', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerio.load(html);
-			const img = $('img');
+			const img = $('#basic-image img');
 
 			expect(img.attr('src').startsWith('/_image?href=')).to.be.true;
 			expect(img.attr('loading')).to.equal('lazy');
 			expect(img.attr('width')).to.equal('225');
+		});
+
+		it('supports SVGs', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			const $ = cheerio.load(html);
+			const img = $('#svg img');
+			const src = img.attr('src');
+
+			const res = await fixture.fetch(src);
+			expect(res.status).to.equal(200);
+			expect(res.headers.get('content-type')).to.equal('image/svg+xml');
 		});
 	});
 });

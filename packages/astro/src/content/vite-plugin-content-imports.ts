@@ -148,9 +148,15 @@ export const _internal = {
 								hasContentFlag(modUrl, DATA_FLAG) ||
 								Boolean(getContentRendererByViteId(modUrl, settings))
 							) {
-								const mod = await viteServer.moduleGraph.getModuleByUrl(modUrl);
-								if (mod) {
-									viteServer.moduleGraph.invalidateModule(mod);
+								try {
+									const mod = await viteServer.moduleGraph.getModuleByUrl(modUrl);
+									if (mod) {
+										viteServer.moduleGraph.invalidateModule(mod);
+									}
+								} catch (e: any) {
+									// The server may be closed due to a restart caused by this file change
+									if (e.code === 'ERR_CLOSED_SERVER') break;
+									throw e;
 								}
 							}
 						}

@@ -1,6 +1,6 @@
-import type { AstroSettings } from '../../@types/astro';
+import type { AstroSettings } from '../../@types/astro.js';
 import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
-import type { ModuleLoader } from '../module-loader';
+import type { ModuleLoader } from '../module-loader/index.js';
 
 /**
  * It accepts a module loader and the astro settings, and it attempts to load the middlewares defined in the configuration.
@@ -12,7 +12,7 @@ export async function loadMiddleware(
 	srcDir: AstroSettings['config']['srcDir']
 ) {
 	// can't use node Node.js builtins
-	let middlewarePath = srcDir.pathname + '/' + MIDDLEWARE_PATH_SEGMENT_NAME;
+	let middlewarePath = `${decodeURI(srcDir.pathname)}${MIDDLEWARE_PATH_SEGMENT_NAME}`;
 	try {
 		const module = await moduleLoader.import(middlewarePath);
 		return module;
