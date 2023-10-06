@@ -290,6 +290,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								'node:stream',
 								'node:string_decoder',
 								'node:util',
+								'cloudflare:sockets'
 							],
 							entryPoints: pathsGroup,
 							outbase: absolutePagesDirname,
@@ -371,6 +372,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							'node:stream',
 							'node:string_decoder',
 							'node:util',
+							'cloudflare:sockets'
 						],
 						entryPoints: [entryPath],
 						outfile: buildPath,
