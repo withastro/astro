@@ -103,7 +103,7 @@ const html = highlighter.codeToHtml(code, {
 		},
 		root(node) {
 			// theme.id for shiki -> shikiji compat
-			const themeName = typeof theme === 'string' ? theme : (theme as any).id || theme.name;
+			const themeName = typeof theme === 'string' ? theme : theme.name;
 			if (themeName === 'css-variables') {
 				// Replace special color tokens to CSS variables
 				visit(node as any, 'element', (child) => {

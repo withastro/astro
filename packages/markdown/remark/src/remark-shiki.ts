@@ -93,7 +93,7 @@ export function remarkShiki({
 			}
 
 			// theme.id for shiki -> shikiji compat
-			const themeName = typeof theme === 'string' ? theme : (theme as any).id || theme.name;
+			const themeName = typeof theme === 'string' ? theme : theme.name;
 			if (themeName === 'css-variables') {
 				html = html.replace(/style="(.*?)"/g, (m) => replaceCssVariables(m));
 			}
