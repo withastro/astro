@@ -1,9 +1,9 @@
 ---
-import { LocalImageProps, RemoteImageProps, getImage } from 'astro:assets';
-import { GetImageResult, ImageOutputFormat } from '../dist/@types/astro';
+import { getImage, type LocalImageProps, type RemoteImageProps } from 'astro:assets';
+import type { GetImageResult, ImageOutputFormat } from '../dist/@types/astro';
 import { isESMImportedImage } from '../dist/assets/internal';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
-import { HTMLAttributes } from '../types';
+import type { HTMLAttributes } from '../types';
 
 type Props = (LocalImageProps | RemoteImageProps) & {
 	formats?: ImageOutputFormat[];
@@ -11,7 +11,7 @@ type Props = (LocalImageProps | RemoteImageProps) & {
 	pictureAttributes?: HTMLAttributes<'picture'>;
 };
 
-const {formats = ["webp"], pictureAttributes = {}, ...props} = Astro.props;
+const { formats = ['webp'], pictureAttributes = {}, ...props } = Astro.props;
 
 if (props.alt === undefined || props.alt === null) {
 	throw new AstroError(AstroErrorData.ImageMissingAlt);
@@ -47,7 +47,10 @@ if (fallbackImage.srcSet.values.length > 0) {
 <picture {...pictureAttributes}>
 	{
 		Object.entries(optimizedImages).map(([_, image]) => (
-			<source srcset={`${image.src}, ` + image.srcSet.attribute} type={image.srcSet.values[0].attributes?.type} />
+			<source
+				srcset={`${image.src}, ` + image.srcSet.attribute}
+				type={image.srcSet.values[0].attributes?.type}
+			/>
 		))
 	}
 	<img src={fallbackImage.src} {...additionalAttributes} {...fallbackImage.attributes} />

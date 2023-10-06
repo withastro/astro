@@ -97,19 +97,26 @@ type ImageSharedProps<T> = T & {
 	 * ```
 	 */
 	height?: number | `${number}`;
-	/**
-	 * A list of widths to generate images for. The value of this property will be used to assign the `srcset` property on the final `img` element.
-	 *
-	 * This attribute is incompatible with `densities`.
-	 */
-	widths?: number[];
-	/**
-	 * A list of densities to generate images for. The value of this property will be used to assign the `srcset` property on the final `img` element.
-	 *
-	 * This attribute is incompatible with `widths`.
-	 */
-	densities?: (number | `${number}x`)[];
-};
+} & (
+		| {
+				/**
+				 * A list of widths to generate images for. The value of this property will be used to assign the `srcset` property on the final `img` element.
+				 *
+				 * This attribute is incompatible with `densities`.
+				 */
+				widths?: number[];
+				densities?: never;
+		  }
+		| {
+				/**
+				 * A list of densities to generate images for. The value of this property will be used to assign the `srcset` property on the final `img` element.
+				 *
+				 * This attribute is incompatible with `widths`.
+				 */
+				densities?: (number | `${number}x`)[];
+				widths?: never;
+		  }
+	);
 
 export type LocalImageProps<T> = ImageSharedProps<T> & {
 	/**
