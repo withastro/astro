@@ -22,6 +22,7 @@ jobs:
     permissions: 
        contents: read 
        id-token: write
+       issues: write
     steps:
       - name: "Check if user has admin access (only admins can publish snapshot releases)."
         uses: "lannonbr/repo-permission-check-action@2.0.0"
