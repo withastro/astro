@@ -22,7 +22,7 @@ export function shortHashedName(id: string, ctx: { getModuleInfo: GetModuleInfo 
 }
 
 export function createNameHash(baseId: string | undefined, hashIds: string[]): string {
-	const baseName = baseId ? npath.parse(baseId).name : 'index';
+	const baseName = baseId ? prettifyBaseName(npath.parse(baseId).name) : 'index';
 	const hash = crypto.createHash('sha256');
 	for (const id of hashIds) {
 		hash.update(id, 'utf-8');
@@ -54,7 +54,7 @@ export function createSlugger(settings: AstroSettings) {
 				break;
 			}
 
-			const name = npath.parse(npath.basename(dir)).name;
+			const name = prettifyBaseName(npath.parse(npath.basename(dir)).name);
 			key = key.length ? name + sep + key : name;
 			dir = npath.dirname(dir);
 			i++;
@@ -101,4 +101,16 @@ function getFirstParentId(parents: [ModuleInfo, number, number][]) {
 	// If all parents are confusing, just use the first one. Or if there's no
 	// parents, this will return undefined.
 	return parents[0]?.[0].id;
+}
+
+const charsToReplaceRe = /[.\[\]]/g;
+const underscoresRe = /_+/g;
+/**
+ * Prettify base names so they're easier to read:
+ * - index -> index
+ * - [slug] -> _slug_
+ * - [...spread] -> _spread_
+ */
+function prettifyBaseName(str: string) {
+	return str.replace(charsToReplaceRe, '_').replace(underscoresRe, '_');
 }
