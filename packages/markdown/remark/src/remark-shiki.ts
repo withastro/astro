@@ -2,6 +2,24 @@ import { bundledLanguages, getHighlighter, type Highlighter } from 'shikiji';
 import { visit } from 'unist-util-visit';
 import type { RemarkPlugin, ShikiConfig } from './types.js';
 
+const ASTRO_COLOR_REPLACEMENTS: Record<string, string> = {
+	'#000001': 'var(--astro-code-color-text)',
+	'#000002': 'var(--astro-code-color-background)',
+	'#000004': 'var(--astro-code-token-constant)',
+	'#000005': 'var(--astro-code-token-string)',
+	'#000006': 'var(--astro-code-token-comment)',
+	'#000007': 'var(--astro-code-token-keyword)',
+	'#000008': 'var(--astro-code-token-parameter)',
+	'#000009': 'var(--astro-code-token-function)',
+	'#000010': 'var(--astro-code-token-string-expression)',
+	'#000011': 'var(--astro-code-token-punctuation)',
+	'#000012': 'var(--astro-code-token-link)',
+};
+const COLOR_REPLACEMENT_REGEX = new RegExp(
+	`(${Object.keys(ASTRO_COLOR_REPLACEMENTS).join('|')})`,
+	'g'
+);
+
 /**
  * getHighlighter() is the most expensive step of Shiki. Instead of calling it on every page,
  * cache it here as much as possible. Make sure that your highlighters can be cached, state-free.
@@ -74,9 +92,22 @@ export function remarkShiki({
 				);
 			}
 
+			// theme.id for shiki -> shikiji compat
+			const themeName = typeof theme === 'string' ? theme : (theme as any).id || theme.name;
+			if (themeName === 'css-variables') {
+				html = html.replace(/style="(.*?)"/g, (m) => replaceCssVariables(m));
+			}
+
 			node.type = 'html';
 			node.value = html;
 			node.children = [];
 		});
 	};
+}
+
+/**
+ * shiki -> shikiji compat as we need to manually replace it
+ */
+export function replaceCssVariables(str: string) {
+	return str.replace(COLOR_REPLACEMENT_REGEX, (match) => ASTRO_COLOR_REPLACEMENTS[match] || match);
 }

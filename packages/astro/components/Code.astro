@@ -7,7 +7,8 @@ import type {
 	ThemeRegistration,
 	ThemeRegistrationRaw,
 } from 'shikiji';
-import { getCachedHighlighter } from './shiki.js';
+import { visit } from 'unist-util-visit';
+import { getCachedHighlighter, replaceCssVariables } from './shiki.js';
 
 interface Props {
 	/** The code to highlight. Required. */
@@ -98,6 +99,18 @@ const html = highlighter.codeToHtml(code, {
 		code(node) {
 			if (inline) {
 				return node.children[0] as typeof node;
+			}
+		},
+		root(node) {
+			// theme.id for shiki -> shikiji compat
+			const themeName = typeof theme === 'string' ? theme : (theme as any).id || theme.name;
+			if (themeName === 'css-variables') {
+				// Replace special color tokens to CSS variables
+				visit(node as any, 'element', (child) => {
+					if (child.properties?.style) {
+						child.properties.style = replaceCssVariables(child.properties.style);
+					}
+				});
 			}
 		},
 	},

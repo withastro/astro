@@ -4,7 +4,7 @@ import { unescapeHTML } from 'astro/runtime/server/index.js';
 import { bundledLanguages, getHighlighter, type Highlighter } from 'shikiji';
 import type { AstroMarkdocConfig } from '../config.js';
 
-const ASTRO_COLOR_REPLACEMENTS = {
+const ASTRO_COLOR_REPLACEMENTS: Record<string, string> = {
 	'#000001': 'var(--astro-code-color-text)',
 	'#000002': 'var(--astro-code-color-background)',
 	'#000004': 'var(--astro-code-token-constant)',
@@ -16,7 +16,11 @@ const ASTRO_COLOR_REPLACEMENTS = {
 	'#000010': 'var(--astro-code-token-string-expression)',
 	'#000011': 'var(--astro-code-token-punctuation)',
 	'#000012': 'var(--astro-code-token-link)',
-} as const;
+};
+const COLOR_REPLACEMENT_REGEX = new RegExp(
+	`(${Object.keys(ASTRO_COLOR_REPLACEMENTS).join('|')})`,
+	'g'
+);
 
 const PRE_SELECTOR = /<pre class="(.*?)shiki(.*?)"/;
 const LINE_SELECTOR = /<span class="line"><span style="(.*?)">([\+|\-])/g;
@@ -92,10 +96,23 @@ export default async function shiki({
 						);
 					}
 
+					// theme.id for shiki -> shikiji compat
+					const themeName = typeof theme === 'string' ? theme : (theme as any).id || theme.name;
+					if (themeName === 'css-variables') {
+						html = html.replace(/style="(.*?)"/g, (m) => replaceCssVariables(m));
+					}
+
 					// Use `unescapeHTML` to return `HTMLString` for Astro renderer to inline as HTML
 					return unescapeHTML(html) as any;
 				},
 			},
 		},
 	};
+}
+
+/**
+ * shiki -> shikiji compat as we need to manually replace it
+ */
+export function replaceCssVariables(str: string) {
+	return str.replace(COLOR_REPLACEMENT_REGEX, (match) => ASTRO_COLOR_REPLACEMENTS[match] || match);
 }
