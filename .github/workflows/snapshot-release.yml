@@ -19,6 +19,9 @@ jobs:
     name: Create a snapshot release of a pull request
     if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && startsWith(github.event.comment.body, '!preview') }}
     runs-on: ubuntu-latest
+    permissions: 
+       contents: read 
+       id-token: write
     steps:
       - name: "Check if user has admin access (only admins can publish snapshot releases)."
         uses: "lannonbr/repo-permission-check-action@2.0.0"
@@ -80,8 +83,10 @@ jobs:
       - name: Publish Release
         id: publish
         run: |
-          pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }}
+          pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }} > publish.output.txt 2>&1
           echo "Release complete"
+          cat publish.output.txt
+          echo ::set-output name=result::`cat publish.output.txt`
         env:
           # Needs access to publish to npm
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
