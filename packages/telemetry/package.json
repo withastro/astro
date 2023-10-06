@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/telemetry",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -35,7 +35,6 @@
     "dset": "^3.1.2",
     "is-docker": "^3.0.0",
     "is-wsl": "^3.0.0",
-    "undici": "^5.23.0",
     "which-pm-runs": "^1.1.0"
   },
   "devDependencies": {
@@ -49,5 +48,8 @@
   },
   "engines": {
     "node": ">=18.14.1"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }

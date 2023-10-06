@@ -4,7 +4,7 @@ import glob from 'fast-glob';
 import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
 import fs from 'node:fs';
 import path, { extname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as vite from 'vite';
 import type { RouteData } from '../../@types/astro.js';
 import {
@@ -154,7 +154,8 @@ async function ssrBuild(
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
 		mode: viteConfig.mode || 'production',
-		logLevel: opts.viteConfig.logLevel ?? 'error',
+		// Check using `settings...` as `viteConfig` always defaults to `warn` by Astro
+		logLevel: settings.config.vite.logLevel ?? 'error',
 		build: {
 			target: 'esnext',
 			// Vite defaults cssMinify to false in SSR by default, but we want to minify it
@@ -184,6 +185,17 @@ async function ssrBuild(
 						if (name.startsWith('pages/')) {
 							const sanitizedName = name.split('.')[0];
 							return `chunks/${sanitizedName}_[hash].mjs`;
+						}
+						// Detect if the chunk name has as % sign that is not encoded.
+						// This is borrowed from Node core: https://github.com/nodejs/node/blob/3838b579e44bf0c2db43171c3ce0da51eb6b05d5/lib/internal/url.js#L1382-L1391
+						// We do this because you cannot import a module with this character in it.
+						for (let i = 0; i < name.length; i++) {
+							if (name[i] === '%') {
+								const third = name.codePointAt(i + 2)! | 0x20;
+								if (name[i + 1] !== '2' || third !== 102) {
+									return `chunks/${name.replace(/%/g, '_percent_')}_[hash].mjs`;
+								}
+							}
 						}
 						return `chunks/[name]_[hash].mjs`;
 					},
@@ -260,7 +272,8 @@ async function clientBuild(
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
 		mode: viteConfig.mode || 'production',
-		logLevel: 'info',
+		// Check using `settings...` as `viteConfig` always defaults to `warn` by Astro
+		logLevel: settings.config.vite.logLevel ?? 'info',
 		build: {
 			target: 'esnext',
 			...viteConfig.build,
@@ -311,7 +324,8 @@ async function runPostBuildHooks(
 				? build.server
 				: build.client
 			: config.outDir;
-		const fileURL = new URL(fileName, root);
+		const fullPath = path.join(fileURLToPath(root), fileName);
+		const fileURL = pathToFileURL(fullPath);
 		await fs.promises.mkdir(new URL('./', fileURL), { recursive: true });
 		await fs.promises.writeFile(fileURL, mutation.code, 'utf-8');
 	}

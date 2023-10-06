@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers/Pages",
-  "version": "7.2.0",
+  "version": "7.5.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -19,17 +19,12 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
   "exports": {
     ".": "./dist/index.js",
-    "./runtime": {
-      "types": "./runtime.d.ts",
-      "default": "./dist/runtime.js"
-    },
-    "./server.advanced.js": "./dist/server.advanced.js",
-    "./server.directory.js": "./dist/server.directory.js",
+    "./entrypoints/server.advanced.js": "./dist/entrypoints/server.advanced.js",
+    "./entrypoints/server.directory.js": "./dist/entrypoints/server.directory.js",
     "./package.json": "./package.json"
   },
   "files": [
-    "dist",
-    "runtime.d.ts"
+    "dist"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
@@ -41,6 +36,7 @@
   "dependencies": {
     "@astrojs/underscore-redirects": "workspace:*",
     "@cloudflare/workers-types": "^4.20230821.0",
+    "miniflare": "^3.20230918.0",
     "@iarna/toml": "^2.2.5",
     "@miniflare/cache": "^2.14.1",
     "@miniflare/shared": "^2.14.1",
@@ -48,10 +44,11 @@
     "dotenv": "^16.3.1",
     "esbuild": "^0.19.2",
     "find-up": "^6.3.0",
-    "tiny-glob": "^0.2.9"
+    "tiny-glob": "^0.2.9",
+    "vite": "^4.4.9"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.1.2"
+    "astro": "workspace:^3.2.3"
   },
   "devDependencies": {
     "@types/iarna__toml": "^2.0.2",
@@ -59,8 +56,10 @@
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
-    "kill-port": "^2.0.1",
     "mocha": "^10.2.0",
     "wrangler": "^3.5.1"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }

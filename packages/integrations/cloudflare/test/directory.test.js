@@ -4,6 +4,7 @@ import cloudflare from '../dist/index.js';
 
 /** @type {import('./test-utils').Fixture} */
 describe('mode: "directory"', () => {
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
 	before(async () => {

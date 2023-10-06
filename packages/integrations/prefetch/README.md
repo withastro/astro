@@ -41,15 +41,16 @@ npm install @astrojs/prefetch
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-```js ins={3} "prefetch()"
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import prefetch from '@astrojs/prefetch';
+```diff lang="js" "prefetch()"
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
++ import prefetch from '@astrojs/prefetch';
 
-export default defineConfig({
-  // ...
-  integrations: [prefetch()],
-});
+  export default defineConfig({
+    // ...
+    integrations: [prefetch()],
+    //             ^^^^^^^^^^
+  });
 ```
 
 ## Usage

@@ -30,6 +30,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @typedef {Object} Fixture
  * @property {typeof build} build
  * @property {(url: string) => string} resolveUrl
+ * @property {(path: string) => Promise<boolean>} pathExists
  * @property {(url: string, opts: Parameters<typeof fetch>[1]) => Promise<Response>} fetch
  * @property {(path: string) => Promise<string>} readFile
  * @property {(path: string, updater: (content: string) => string) => Promise<void>} writeFile
@@ -169,7 +170,7 @@ export async function loadFixture(inlineConfig) {
 			try {
 				return await fetch(resolvedUrl, init);
 			} catch (err) {
-				// undici throws a vague error when it fails, so we log the url here to easily debug it
+				// node fetch throws a vague error when it fails, so we log the url here to easily debug it
 				if (err.message?.includes('fetch failed')) {
 					console.error(`[astro test] failed to fetch ${resolvedUrl}`);
 					console.error(err);

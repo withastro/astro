@@ -42,15 +42,16 @@ npm install lit @webcomponents/template-shadowroot
 
 Now, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-```js ins={3} "lit()"
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import lit from '@astrojs/lit';
+```diff lang="js" "lit()"
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
++ import lit from '@astrojs/lit';
 
-export default defineConfig({
-  // ...
-  integrations: [lit()],
-});
+  export default defineConfig({
+    // ...
+    integrations: [lit()],
+    //             ^^^^^
+  });
 ```
 
 ## Getting started
@@ -121,15 +122,16 @@ These globals _can_ interfere with other libraries that might use the existence 
 
 Because of this, the Lit integration might not be compatible with these types of libraries. One thing that can help is changing the order of integrations when Lit is interfering with other integrations:
 
-```diff
-import { defineConfig } from 'astro/config';
-import vue from '@astrojs/vue';
-import lit from '@astrojs/lit';
+```diff lang="js"
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import vue from '@astrojs/vue';
+  import lit from '@astrojs/lit';
 
-export default defineConfig({
--  integrations: [vue(), lit()]
-+  integrations: [lit(), vue()]
-});
+  export default defineConfig({
+-   integrations: [vue(), lit()]
++   integrations: [lit(), vue()]
+  });
 ```
 
 The correct order might be different depending on the underlying cause of the problem. This is not guaranteed to fix every issue however, and some libraries cannot be used if you are using the Lit integration because of this.
@@ -138,7 +140,8 @@ The correct order might be different depending on the underlying cause of the pr
 
 When using a [strict package manager](https://pnpm.io/pnpm-vs-npm#npms-flat-tree) like `pnpm`, you may get an error such as `ReferenceError: module is not defined` when running your site. To fix this, hoist Lit dependencies with an `.npmrc` file:
 
-```ini title=".npmrc"
+```ini
+# .npmrc
 public-hoist-pattern[]=*lit*
 ```
 

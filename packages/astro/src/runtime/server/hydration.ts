@@ -122,9 +122,10 @@ export async function generateHydrateScript(
 	const { hydrate, componentUrl, componentExport } = metadata;
 
 	if (!componentExport.value) {
-		throw new Error(
-			`Unable to resolve a valid export for "${metadata.displayName}"! Please open an issue at https://astro.build/issues!`
-		);
+		throw new AstroError({
+			...AstroErrorData.NoMatchingImport,
+			message: AstroErrorData.NoMatchingImport.message(metadata.displayName),
+		});
 	}
 
 	const island: SSRElement = {

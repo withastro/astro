@@ -1,0 +1,15 @@
+---
+const runtime = Astro.locals.runtime;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CACHES</title>
+  </head>
+  <body>
+    <pre id="hasCACHE">{!!runtime.caches}</pre>
+  </body>
+</html>

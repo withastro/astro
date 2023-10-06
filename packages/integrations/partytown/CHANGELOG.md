@@ -1,5 +1,13 @@
 # @astrojs/partytown
 
+## 2.0.1
+
+### Patch Changes
+
+- [#8737](https://github.com/withastro/astro/pull/8737) [`6f60da805`](https://github.com/withastro/astro/commit/6f60da805e0014bc50dd07bef972e91c73560c3c) Thanks [@ematipico](https://github.com/ematipico)! - Add provenance statement when publishing the library from CI
+
+- [#8740](https://github.com/withastro/astro/pull/8740) [`f277ba8b7`](https://github.com/withastro/astro/commit/f277ba8b703037635bc7adee84d51eaf7dafd388) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Expose types for TypeScript users
+
 ## 2.0.0
 
 ### Major Changes

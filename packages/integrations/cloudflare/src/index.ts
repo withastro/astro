@@ -1,178 +1,71 @@
-import type { IncomingRequestCfProperties } from '@cloudflare/workers-types/experimental';
-import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
+import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
 
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
-import { CacheStorage } from '@miniflare/cache';
-import { NoOpLog } from '@miniflare/shared';
-import { MemoryStorage } from '@miniflare/storage-memory';
 import { AstroError } from 'astro/errors';
 import esbuild from 'esbuild';
+import { Miniflare } from 'miniflare';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
-import { sep } from 'node:path';
+import { dirname, relative, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'tiny-glob';
-import { getEnvVars } from './parser.js';
+import { getAdapter } from './getAdapter.js';
+import { deduplicatePatterns } from './utils/deduplicatePatterns.js';
+import { getCFObject } from './utils/getCFObject.js';
+import {
+	getD1Bindings,
+	getDOBindings,
+	getEnvVars,
+	getKVBindings,
+	getR2Bindings,
+} from './utils/parser.js';
+import { prependForwardSlash } from './utils/prependForwardSlash.js';
+import { rewriteWasmImportPath } from './utils/rewriteWasmImportPath.js';
+import { wasmModuleLoader } from './utils/wasm-module-loader.js';
 
-export type { AdvancedRuntime } from './server.advanced.js';
-export type { DirectoryRuntime } from './server.directory.js';
+export type { AdvancedRuntime } from './entrypoints/server.advanced.js';
+export type { DirectoryRuntime } from './entrypoints/server.directory.js';
 
 type Options = {
 	mode?: 'directory' | 'advanced';
 	functionPerRoute?: boolean;
+	/** Configure automatic `routes.json` generation */
+	routes?: {
+		/** Strategy for generating `include` and `exclude` patterns
+		 * - `auto`: Will use the strategy that generates the least amount of entries.
+		 * - `include`: For each page or endpoint in your application that is not prerendered, an entry in the `include` array will be generated. For each page that is prerendered and whoose path is matched by an `include` entry, an entry in the `exclude` array will be generated.
+		 * - `exclude`: One `"/*"` entry in the `include` array will be generated. For each page that is prerendered, an entry in the `exclude` array will be generated.
+		 * */
+		strategy?: 'auto' | 'include' | 'exclude';
+		/** Additional `include` patterns */
+		include?: string[];
+		/** Additional `exclude` patterns */
+		exclude?: string[];
+	};
 	/**
 	 * 'off': current behaviour (wrangler is needed)
 	 * 'local': use a static req.cf object, and env vars defined in wrangler.toml & .dev.vars (astro dev is enough)
 	 * 'remote': use a dynamic real-live req.cf object, and env vars defined in wrangler.toml & .dev.vars (astro dev is enough)
 	 */
 	runtime?: 'off' | 'local' | 'remote';
+	wasmModuleImports?: boolean;
 };
 
 interface BuildConfig {
 	server: URL;
 	client: URL;
+	assets: string;
 	serverEntry: string;
 	split?: boolean;
 }
 
-class StorageFactory {
-	storages = new Map();
-
-	storage(namespace: string) {
-		let storage = this.storages.get(namespace);
-		if (storage) return storage;
-		this.storages.set(namespace, (storage = new MemoryStorage()));
-		return storage;
-	}
-}
-
-export function getAdapter({
-	isModeDirectory,
-	functionPerRoute,
-}: {
-	isModeDirectory: boolean;
-	functionPerRoute: boolean;
-}): AstroAdapter {
-	return isModeDirectory
-		? {
-				name: '@astrojs/cloudflare',
-				serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
-				exports: ['onRequest', 'manifest'],
-				adapterFeatures: {
-					functionPerRoute,
-					edgeMiddleware: false,
-				},
-				supportedAstroFeatures: {
-					hybridOutput: 'stable',
-					staticOutput: 'unsupported',
-					serverOutput: 'stable',
-					assets: {
-						supportKind: 'stable',
-						isSharpCompatible: false,
-						isSquooshCompatible: false,
-					},
-				},
-		  }
-		: {
-				name: '@astrojs/cloudflare',
-				serverEntrypoint: '@astrojs/cloudflare/server.advanced.js',
-				exports: ['default'],
-				supportedAstroFeatures: {
-					hybridOutput: 'stable',
-					staticOutput: 'unsupported',
-					serverOutput: 'stable',
-					assets: {
-						supportKind: 'stable',
-						isSharpCompatible: false,
-						isSquooshCompatible: false,
-					},
-				},
-		  };
-}
-
-async function getCFObject(runtimeMode: string): Promise<IncomingRequestCfProperties | void> {
-	const CF_ENDPOINT = 'https://workers.cloudflare.com/cf.json';
-	const CF_FALLBACK: IncomingRequestCfProperties = {
-		asOrganization: '',
-		asn: 395747,
-		colo: 'DFW',
-		city: 'Austin',
-		region: 'Texas',
-		regionCode: 'TX',
-		metroCode: '635',
-		postalCode: '78701',
-		country: 'US',
-		continent: 'NA',
-		timezone: 'America/Chicago',
-		latitude: '30.27130',
-		longitude: '-97.74260',
-		clientTcpRtt: 0,
-		httpProtocol: 'HTTP/1.1',
-		requestPriority: 'weight=192;exclusive=0',
-		tlsCipher: 'AEAD-AES128-GCM-SHA256',
-		tlsVersion: 'TLSv1.3',
-		tlsClientAuth: {
-			certPresented: '0',
-			certVerified: 'NONE',
-			certRevoked: '0',
-			certIssuerDN: '',
-			certSubjectDN: '',
-			certIssuerDNRFC2253: '',
-			certSubjectDNRFC2253: '',
-			certIssuerDNLegacy: '',
-			certSubjectDNLegacy: '',
-			certSerial: '',
-			certIssuerSerial: '',
-			certSKI: '',
-			certIssuerSKI: '',
-			certFingerprintSHA1: '',
-			certFingerprintSHA256: '',
-			certNotBefore: '',
-			certNotAfter: '',
-		},
-		edgeRequestKeepAliveStatus: 0,
-		hostMetadata: undefined,
-		clientTrustScore: 99,
-		botManagement: {
-			corporateProxy: false,
-			verifiedBot: false,
-			ja3Hash: '25b4882c2bcb50cd6b469ff28c596742',
-			staticResource: false,
-			detectionIds: [],
-			score: 99,
-		},
-	};
-
-	if (runtimeMode === 'local') {
-		return CF_FALLBACK;
-	} else if (runtimeMode === 'remote') {
-		try {
-			const res = await fetch(CF_ENDPOINT);
-			const cfText = await res.text();
-			const storedCf = JSON.parse(cfText);
-			return storedCf;
-		} catch (e: any) {
-			return CF_FALLBACK;
-		}
-	}
-}
-
-const SHIM = `globalThis.process = {
-	argv: [],
-	env: {},
-};`;
-
-const SERVER_BUILD_FOLDER = '/$server_build/';
-
-/**
- * These route types are candiates for being part of the `_routes.json` `include` array.
- */
-const potentialFunctionRouteTypes = ['endpoint', 'page'];
-
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
+	let _mf: Miniflare;
 	let _entryPoints = new Map<RouteData, URL>();
+
+	const SERVER_BUILD_FOLDER = '/$server_build/';
 
 	const isModeDirectory = args?.mode === 'directory';
 	const functionPerRoute = args?.functionPerRoute ?? false;
@@ -189,6 +82,15 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						serverEntry: '_worker.mjs',
 						redirects: false,
 					},
+					vite: {
+						// load .wasm files as WebAssembly modules
+						plugins: [
+							wasmModuleLoader({
+								disabled: !args?.wasmModuleImports,
+								assetsDirectory: config.build.assets,
+							}),
+						],
+					},
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
@@ -196,13 +98,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				_config = config;
 				_buildConfig = config.build;
 
-				if (config.output === 'static') {
+				if (_config.output === 'static') {
 					throw new AstroError(
 						'[@astrojs/cloudflare] `output: "server"` or `output: "hybrid"` is required to use this adapter. Otherwise, this adapter is not necessary to deploy a static site to Cloudflare.'
 					);
 				}
 
-				if (config.base === SERVER_BUILD_FOLDER) {
+				if (_config.base === SERVER_BUILD_FOLDER) {
 					throw new AstroError(
 						'[@astrojs/cloudflare] `base: "${SERVER_BUILD_FOLDER}"` is not allowed. Please change your `base` config to something else.'
 					);
@@ -214,7 +116,55 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						try {
 							const cf = await getCFObject(runtimeMode);
 							const vars = await getEnvVars();
+							const D1Bindings = await getD1Bindings();
+							const R2Bindings = await getR2Bindings();
+							const KVBindings = await getKVBindings();
+							const DOBindings = await getDOBindings();
+							let bindingsEnv = new Object({});
 
+							// fix for the error "kj/filesystem-disk-unix.c++:1709: warning: PWD environment variable doesn't match current directory."
+							// note: This mismatch might be primarily due to the test runner.
+							const originalPWD = process.env.PWD;
+							process.env.PWD = process.cwd();
+
+							_mf = new Miniflare({
+								modules: true,
+								script: '',
+								cache: true,
+								cachePersist: true,
+								cacheWarnUsage: true,
+								d1Databases: D1Bindings,
+								d1Persist: true,
+								r2Buckets: R2Bindings,
+								r2Persist: true,
+								kvNamespaces: KVBindings,
+								kvPersist: true,
+								durableObjects: DOBindings,
+								durableObjectsPersist: true,
+							});
+							await _mf.ready;
+
+							for (const D1Binding of D1Bindings) {
+								const db = await _mf.getD1Database(D1Binding);
+								Reflect.set(bindingsEnv, D1Binding, db);
+							}
+							for (const R2Binding of R2Bindings) {
+								const bucket = await _mf.getR2Bucket(R2Binding);
+								Reflect.set(bindingsEnv, R2Binding, bucket);
+							}
+							for (const KVBinding of KVBindings) {
+								const namespace = await _mf.getKVNamespace(KVBinding);
+								Reflect.set(bindingsEnv, KVBinding, namespace);
+							}
+							for (const key in DOBindings) {
+								if (Object.prototype.hasOwnProperty.call(DOBindings, key)) {
+									const DO = await _mf.getDurableObjectNamespace(key);
+									Reflect.set(bindingsEnv, key, DO);
+								}
+							}
+							const mfCache = await _mf.getCaches();
+
+							process.env.PWD = originalPWD;
 							const clientLocalsSymbol = Symbol.for('astro.locals');
 							Reflect.set(req, clientLocalsSymbol, {
 								runtime: {
@@ -228,18 +178,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 										// will be fetched from git dynamically once we support mocking of bindings
 										CF_PAGES_COMMIT_SHA: 'TBA',
 										CF_PAGES_URL: `http://${req.headers.host}`,
+										...bindingsEnv,
 										...vars,
 									},
 									cf: cf,
 									waitUntil: (_promise: Promise<any>) => {
 										return;
 									},
-									caches: new CacheStorage(
-										{ cache: true, cachePersist: false },
-										new NoOpLog(),
-										new StorageFactory(),
-										{}
-									),
+									caches: mfCache,
 								},
 							});
 							next();
@@ -247,6 +193,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							next();
 						}
 					});
+				}
+			},
+			'astro:server:done': async ({ logger }) => {
+				if (_mf) {
+					logger.info('Cleaning up the Miniflare instance, and shutting down the workerd server.');
+					await _mf.dispose();
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
@@ -280,6 +232,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			},
 			'astro:build:done': async ({ pages, routes, dir }) => {
 				const functionsUrl = new URL('functions/', _config.root);
+				const assetsUrl = new URL(_buildConfig.assets, _buildConfig.client);
 
 				if (isModeDirectory) {
 					await fs.promises.mkdir(functionsUrl, { recursive: true });
@@ -291,36 +244,74 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					const entryPaths = entryPointsURL.map((entry) => fileURLToPath(entry));
 					const outputUrl = new URL('$astro', _buildConfig.server);
 					const outputDir = fileURLToPath(outputUrl);
+					//
+					// Sadly, when wasmModuleImports is enabled, this needs to build esbuild for each depth of routes/entrypoints
+					// independently so that relative import paths to the assets are the correct depth of '../' traversals
+					// This is inefficient, so wasmModuleImports is opt-in. This could potentially be improved in the future by
+					// taking advantage of the esbuild "onEnd" hook to rewrite import code per entry point relative to where the final
+					// destination of the entrypoint is
+					const entryPathsGroupedByDepth = !args.wasmModuleImports
+						? [entryPaths]
+						: entryPaths
+								.reduce((sum, thisPath) => {
+									const depthFromRoot = thisPath.split(sep).length;
+									sum.set(depthFromRoot, (sum.get(depthFromRoot) || []).concat(thisPath));
+									return sum;
+								}, new Map<number, string[]>())
+								.values();
 
-					await esbuild.build({
-						target: 'es2020',
-						platform: 'browser',
-						conditions: ['workerd', 'worker', 'browser'],
-						external: [
-							'node:assert',
-							'node:async_hooks',
-							'node:buffer',
-							'node:diagnostics_channel',
-							'node:events',
-							'node:path',
-							'node:process',
-							'node:stream',
-							'node:string_decoder',
-							'node:util',
-						],
-						entryPoints: entryPaths,
-						outdir: outputDir,
-						allowOverwrite: true,
-						format: 'esm',
-						bundle: true,
-						minify: _config.vite?.build?.minify !== false,
-						banner: {
-							js: SHIM,
-						},
-						logOverride: {
-							'ignored-bare-import': 'silent',
-						},
-					});
+					for (const pathsGroup of entryPathsGroupedByDepth) {
+						// for some reason this exports to "entry.pages" on windows instead of "pages" on unix environments.
+						// This deduces the name of the "pages" build directory
+						const pagesDirname = relative(fileURLToPath(_buildConfig.server), pathsGroup[0]).split(
+							sep
+						)[0];
+						const absolutePagesDirname = fileURLToPath(new URL(pagesDirname, _buildConfig.server));
+						const urlWithinFunctions = new URL(
+							relative(absolutePagesDirname, pathsGroup[0]),
+							functionsUrl
+						);
+						const relativePathToAssets = relative(
+							dirname(fileURLToPath(urlWithinFunctions)),
+							fileURLToPath(assetsUrl)
+						);
+						await esbuild.build({
+							target: 'es2022',
+							platform: 'browser',
+							conditions: ['workerd', 'worker', 'browser'],
+							external: [
+								'node:assert',
+								'node:async_hooks',
+								'node:buffer',
+								'node:diagnostics_channel',
+								'node:events',
+								'node:path',
+								'node:process',
+								'node:stream',
+								'node:string_decoder',
+								'node:util',
+							],
+							entryPoints: pathsGroup,
+							outbase: absolutePagesDirname,
+							outdir: outputDir,
+							allowOverwrite: true,
+							format: 'esm',
+							bundle: true,
+							minify: _config.vite?.build?.minify !== false,
+							banner: {
+								js: `globalThis.process = {
+									argv: [],
+									env: {},
+								};`,
+							},
+							logOverride: {
+								'ignored-bare-import': 'silent',
+							},
+							plugins: !args?.wasmModuleImports
+								? []
+								: [rewriteWasmImportPath({ relativePathToAssets })],
+						});
+					}
 
 					const outputFiles: Array<string> = await glob(`**/*`, {
 						cwd: outputDir,
@@ -366,7 +357,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					const finalBuildUrl = pathToFileURL(buildPath.replace(/\.mjs$/, '.js'));
 
 					await esbuild.build({
-						target: 'es2020',
+						target: 'es2022',
 						platform: 'browser',
 						conditions: ['workerd', 'worker', 'browser'],
 						external: [
@@ -388,11 +379,23 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						bundle: true,
 						minify: _config.vite?.build?.minify !== false,
 						banner: {
-							js: SHIM,
+							js: `globalThis.process = {
+								argv: [],
+								env: {},
+							};`,
 						},
 						logOverride: {
 							'ignored-bare-import': 'silent',
 						},
+						plugins: !args?.wasmModuleImports
+							? []
+							: [
+									rewriteWasmImportPath({
+										relativePathToAssets: isModeDirectory
+											? relative(fileURLToPath(functionsUrl), fileURLToPath(assetsUrl))
+											: relative(fileURLToPath(_buildConfig.client), fileURLToPath(assetsUrl)),
+									}),
+							  ],
 					});
 
 					// Rename to worker.js
@@ -410,6 +413,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				// move cloudflare specific files to the root
 				const cloudflareSpecialFiles = ['_headers', '_redirects', '_routes.json'];
+
 				if (_config.base !== '/') {
 					for (const file of cloudflareSpecialFiles) {
 						try {
@@ -423,6 +427,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					}
 				}
 
+				// Add also the worker file so it's excluded from the _routes.json generation
+				if (!isModeDirectory) {
+					cloudflareSpecialFiles.push('_worker.js');
+				}
+
 				const routesExists = await fs.promises
 					.stat(new URL('./_routes.json', _config.outDir))
 					.then((stat) => stat.isFile())
@@ -430,10 +439,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				// this creates a _routes.json, in case there is none present to enable
 				// cloudflare to handle static files and support _redirects configuration
-				// (without calling the function)
 				if (!routesExists) {
+					/**
+					 * These route types are candiates for being part of the `_routes.json` `include` array.
+					 */
+					const potentialFunctionRouteTypes = ['endpoint', 'page'];
+
 					const functionEndpoints = routes
-						// Certain route types, when their prerender option is set to false, a run on the server as function invocations
+						// Certain route types, when their prerender option is set to false, run on the server as function invocations
 						.filter((route) => potentialFunctionRouteTypes.includes(route.type) && !route.prerender)
 						.map((route) => {
 							const includePattern =
@@ -462,6 +475,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						await glob(`${fileURLToPath(_buildConfig.client)}/**/*`, {
 							cwd: fileURLToPath(_config.outDir),
 							filesOnly: true,
+							dot: true,
 						})
 					)
 						.filter((file: string) => cloudflareSpecialFiles.indexOf(file) < 0)
@@ -530,39 +544,61 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 					staticPathList.push(...routes.filter((r) => r.type === 'redirect').map((r) => r.route));
 
-					// In order to product the shortest list of patterns, we first try to
-					// include all function endpoints, and then exclude all static paths
-					let include = deduplicatePatterns(
-						functionEndpoints.map((endpoint) => endpoint.includePattern)
-					);
-					let exclude = deduplicatePatterns(
-						staticPathList.filter((file: string) =>
-							functionEndpoints.some((endpoint) => endpoint.regexp.test(file))
-						)
-					);
+					const strategy = args?.routes?.strategy ?? 'auto';
+
+					// Strategy `include`: include all function endpoints, and then exclude static paths that would be matched by an include pattern
+					const includeStrategy =
+						strategy === 'exclude'
+							? undefined
+							: {
+									include: deduplicatePatterns(
+										functionEndpoints
+											.map((endpoint) => endpoint.includePattern)
+											.concat(args?.routes?.include ?? [])
+									),
+									exclude: deduplicatePatterns(
+										staticPathList
+											.filter((file: string) =>
+												functionEndpoints.some((endpoint) => endpoint.regexp.test(file))
+											)
+											.concat(args?.routes?.exclude ?? [])
+									),
+							  };
 
 					// Cloudflare requires at least one include pattern:
 					// https://developers.cloudflare.com/pages/platform/functions/routing/#limits
 					// So we add a pattern that we immediately exclude again
-					if (include.length === 0) {
-						include = ['/'];
-						exclude = ['/'];
+					if (includeStrategy?.include.length === 0) {
+						includeStrategy.include = ['/'];
+						includeStrategy.exclude = ['/'];
 					}
 
-					// If using only an exclude list would produce a shorter list of patterns,
-					// we use that instead
-					if (include.length + exclude.length > staticPathList.length) {
-						include = ['/*'];
-						exclude = deduplicatePatterns(staticPathList);
-					}
+					// Strategy `exclude`: include everything, and then exclude all static paths
+					const excludeStrategy =
+						strategy === 'include'
+							? undefined
+							: {
+									include: ['/*'],
+									exclude: deduplicatePatterns(staticPathList.concat(args?.routes?.exclude ?? [])),
+							  };
+
+					const includeStrategyLength = includeStrategy
+						? includeStrategy.include.length + includeStrategy.exclude.length
+						: Infinity;
+
+					const excludeStrategyLength = excludeStrategy
+						? excludeStrategy.include.length + excludeStrategy.exclude.length
+						: Infinity;
+
+					const winningStrategy =
+						includeStrategyLength <= excludeStrategyLength ? includeStrategy : excludeStrategy;
 
 					await fs.promises.writeFile(
 						new URL('./_routes.json', _config.outDir),
 						JSON.stringify(
 							{
 								version: 1,
-								include,
-								exclude,
+								...winningStrategy,
 							},
 							null,
 							2
@@ -572,33 +608,4 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			},
 		},
 	};
-}
-
-function prependForwardSlash(path: string) {
-	return path[0] === '/' ? path : '/' + path;
-}
-
-/**
- * Remove duplicates and redundant patterns from an `include` or `exclude` list.
- * Otherwise Cloudflare will throw an error on deployment. Plus, it saves more entries.
- * E.g. `['/foo/*', '/foo/*', '/foo/bar'] => ['/foo/*']`
- * @param patterns a list of `include` or `exclude` patterns
- * @returns a deduplicated list of patterns
- */
-function deduplicatePatterns(patterns: string[]) {
-	const openPatterns: RegExp[] = [];
-
-	return [...new Set(patterns)]
-		.sort((a, b) => a.length - b.length)
-		.filter((pattern) => {
-			if (openPatterns.some((p) => p.test(pattern))) {
-				return false;
-			}
-
-			if (pattern.endsWith('*')) {
-				openPatterns.push(new RegExp(`^${pattern.replace(/(\*\/)*\*$/g, '.*')}`));
-			}
-
-			return true;
-		});
 }
