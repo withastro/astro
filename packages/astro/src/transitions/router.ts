@@ -13,9 +13,12 @@ type Events = 'astro:page-load' | 'astro:after-swap';
 // only update history entries that are managed by us
 // leave other entries alone and do not accidently add state.
 const persistState = (state: State) => history.state && history.replaceState(state, '');
-export const supportsViewTransitions = !!document.startViewTransition;
+
+export const supportsViewTransitions = import.meta.env.SSR === false && !!document.startViewTransition;
+
 export const transitionEnabledOnThisPage = () =>
-	!!document.querySelector('[name="astro-view-transitions-enabled"]');
+	import.meta.env.SSR === false && !!document.querySelector('[name="astro-view-transitions-enabled"]');
+
 const samePage = (otherLocation: URL) =>
 	location.pathname === otherLocation.pathname && location.search === otherLocation.search;
 const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
@@ -40,13 +43,17 @@ const announce = () => {
 		60
 	);
 };
+
 const PERSIST_ATTR = 'data-astro-transition-persist';
-const parser = new DOMParser();
+
+let parser: DOMParser
 
 // The History API does not tell you if navigation is forward or back, so
 // you can figure it using an index. On pushState the index is incremented so you
 // can use that to determine popstate if going forward or back.
 let currentHistoryIndex = 0;
+
+if (import.meta.env.SSR === false) {
 if (history.state) {
 	// we reloaded a page with history state
 	// (e.g. history navigation from non-transition page or browser reload)
@@ -55,6 +62,8 @@ if (history.state) {
 } else if (transitionEnabledOnThisPage()) {
 	history.replaceState({ index: currentHistoryIndex, scrollX, scrollY, intraPage: false }, '');
 }
+}
+
 const throttle = (cb: (...args: any[]) => any, delay: number) => {
 	let wait = false;
 	// During the waiting time additional events are lost.
@@ -336,6 +345,8 @@ async function transition(
 		toLocation = new URL(response.redirected);
 	}
 
+	parser ??= new DOMParser()
+	
 	const newDocument = parser.parseFromString(response.html, response.mediaType);
 	// The next line might look like a hack,
 	// but it is actually necessary as noscript elements
@@ -373,6 +384,9 @@ async function transition(
 }
 
 export function navigate(href: string, options?: Options) {
+	
+	if (import.meta.env.SSR) return;
+	
 	// not ours
 	if (!transitionEnabledOnThisPage()) {
 		location.href = href;
@@ -390,6 +404,7 @@ export function navigate(href: string, options?: Options) {
 	}
 }
 
+if (import.meta.env.SSR === false) {
 if (supportsViewTransitions || getFallback() !== 'none') {
 	addEventListener('popstate', (ev) => {
 		if (!transitionEnabledOnThisPage() && ev.state) {
@@ -444,4 +459,5 @@ if (supportsViewTransitions || getFallback() !== 'none') {
 	else addEventListener('scroll', throttle(updateState, 300));
 
 	markScriptsExec();
+}
 }
