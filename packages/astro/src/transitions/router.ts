@@ -151,7 +151,11 @@ const updateHistoryAndScrollPosition = (toLocation: URL, replace: boolean, intra
 			history.replaceState({ ...history.state }, '', toLocation.href);
 		} else {
 			history.replaceState({ ...history.state, intraPage }, '');
-			history.pushState({ index: ++currentHistoryIndex, scrollX, scrollY }, '', toLocation.href);
+			history.pushState(
+				{ index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
+				'',
+				toLocation.href
+			);
 		}
 		// now we are on the new page for non-history navigations!
 		// (with history navigation page change happens before popstate is fired)
