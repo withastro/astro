@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix for #8711
+Fix flickering during view transitions
