@@ -146,6 +146,7 @@ function isInfinite(animation: Animation) {
 
 const updateHistoryAndScrollPosition = (toLocation: URL, replace: boolean, intraPage: boolean) => {
 	const fresh = !samePage(toLocation);
+	let scrolledToTop = false;
 	if (toLocation.href !== location.href) {
 		if (replace) {
 			history.replaceState({ ...history.state }, '', toLocation.href);
@@ -162,6 +163,7 @@ const updateHistoryAndScrollPosition = (toLocation: URL, replace: boolean, intra
 		// freshly loaded pages start from the top
 		if (fresh) {
 			scrollTo({ left: 0, top: 0, behavior: 'instant' });
+			scrolledToTop = true;
 		}
 	}
 	if (toLocation.hash) {
@@ -170,7 +172,9 @@ const updateHistoryAndScrollPosition = (toLocation: URL, replace: boolean, intra
 		// that won't reload the page but instead scroll to the fragment
 		location.href = toLocation.href;
 	} else {
-		scrollTo({ left: 0, top: 0, behavior: 'instant' });
+		if (!scrolledToTop) {
+			scrollTo({ left: 0, top: 0, behavior: 'instant' });
+		}
 	}
 };
 
