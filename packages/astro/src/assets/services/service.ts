@@ -264,7 +264,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 					srcSetValue.transform.format = targetFormat;
 				}
 
-				srcSet.push();
+				srcSet.push(srcSetValue);
 			});
 		} else if (widths) {
 			widths.forEach((width) => {
