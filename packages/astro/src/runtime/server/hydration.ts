@@ -15,10 +15,12 @@ export interface HydrationMetadata {
 	componentExport: { value: string };
 }
 
+type Props = Record<string | number | symbol, any>;
+
 interface ExtractedProps {
 	isPage: boolean;
 	hydration: HydrationMetadata | null;
-	props: Record<string | number | symbol, any>;
+	props: Props;
 }
 
 const transitionDirectivesToCopyOnIsland = Object.freeze([
@@ -26,10 +28,18 @@ const transitionDirectivesToCopyOnIsland = Object.freeze([
 	'data-astro-transition-persist',
 ]);
 
+export function withoutTransitionAttributes(props: Props): Props {
+	const res: Props = Object.fromEntries(Object.entries(props).filter(([key]) => !transitionDirectivesToCopyOnIsland.includes(key)));
+	for (const sym of Object.getOwnPropertySymbols(props)) {
+		res[sym] = props[sym];
+	}
+	return res;
+}
+
 // Used to extract the directives, aka `client:load` information about a component.
 // Finds these special props and removes them from what gets passed into the component.
 export function extractDirectives(
-	inputProps: Record<string | number | symbol, any>,
+	inputProps: Props,
 	clientDirectives: SSRResult['clientDirectives']
 ): ExtractedProps {
 	let extracted: ExtractedProps = {

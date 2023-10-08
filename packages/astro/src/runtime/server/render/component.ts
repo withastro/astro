@@ -9,7 +9,7 @@ import { createRenderInstruction, type RenderInstruction } from './instruction.j
 import { clsx } from 'clsx';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 import { HTMLBytes, markHTMLString } from '../escape.js';
-import { extractDirectives, generateHydrateScript } from '../hydration.js';
+import { extractDirectives, generateHydrateScript, withoutTransitionAttributes } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
 import { isPromise } from '../util.js';
@@ -93,6 +93,7 @@ async function renderFrameworkComponent(
 	};
 
 	const { hydration, isPage, props } = extractDirectives(_props, clientDirectives);
+	const propsWithoutTransitionAttributes = withoutTransitionAttributes(props);
 	let html = '';
 	let attrs: Record<string, string> | undefined = undefined;
 
@@ -217,7 +218,7 @@ async function renderFrameworkComponent(
 				({ html, attrs } = await renderer.ssr.renderToStaticMarkup.call(
 					{ result },
 					Component,
-					props,
+					propsWithoutTransitionAttributes,
 					children,
 					metadata
 				));
@@ -242,7 +243,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 			({ html, attrs } = await renderer.ssr.renderToStaticMarkup.call(
 				{ result },
 				Component,
-				props,
+				propsWithoutTransitionAttributes,
 				children,
 				metadata
 			));
