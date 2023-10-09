@@ -404,9 +404,7 @@ export function navigate(href: string, options?: Options) {
 	}
 }
 
-if (import.meta.env.SSR === false) {
-if (supportsViewTransitions || getFallback() !== 'none') {
-	addEventListener('popstate', (ev) => {
+function onPopState(ev: PopStateEvent) {
 		if (!transitionEnabledOnThisPage() && ev.state) {
 			// The current page doesn't have View Transitions enabled
 			// but the page we navigate to does (because it set the state).
@@ -446,8 +444,10 @@ if (supportsViewTransitions || getFallback() !== 'none') {
 			currentHistoryIndex = nextIndex;
 			transition(direction, new URL(location.href), {}, state);
 		}
-	});
+	}
 
+if (import.meta.env.SSR === false && (supportsViewTransitions || getFallback() !== 'none')) {
+	addEventListener('popstate', onPopState);
 	addEventListener('load', onPageLoad);
 	// There's not a good way to record scroll position before a back button.
 	// So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
@@ -460,4 +460,4 @@ if (supportsViewTransitions || getFallback() !== 'none') {
 
 	markScriptsExec();
 }
-}
+
