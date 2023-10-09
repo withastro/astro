@@ -108,6 +108,6 @@ export function remarkShiki({
 /**
  * shiki -> shikiji compat as we need to manually replace it
  */
-export function replaceCssVariables(str: string) {
+function replaceCssVariables(str: string) {
 	return str.replace(COLOR_REPLACEMENT_REGEX, (match) => ASTRO_COLOR_REPLACEMENTS[match] || match);
 }
