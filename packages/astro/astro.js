@@ -32,6 +32,13 @@ async function main() {
 		}
 	}
 
+  // windows drive letters can sometimes be lowercase, which vite cannot process
+  if (process.platform === 'win32') {
+    const cwd = process.cwd()
+    const correctedCwd = cwd.slice(0, 1).toUpperCase() + cwd.slice(1)
+    if (correctedCwd !== cwd) process.chdir(correctedCwd)
+  }
+
 	return import('./dist/cli/index.js')
 		.then(({ cli }) => cli(process.argv))
 		.catch((error) => {
