@@ -25,6 +25,7 @@ const COLOR_REPLACEMENT_REGEX = new RegExp(
 const PRE_SELECTOR = /<pre class="(.*?)shiki(.*?)"/;
 const LINE_SELECTOR = /<span class="line"><span style="(.*?)">([\+|\-])/g;
 const INLINE_STYLE_SELECTOR = /style="(.*?)"/;
+const INLINE_STYLE_SELECTOR_GLOBAL = /style="(.*?)"/g;
 
 /**
  * Note: cache only needed for dev server reloads, internal test suites, and manual calls to `Markdoc.transform` by the user.
@@ -99,7 +100,7 @@ export default async function shiki({
 					// theme.id for shiki -> shikiji compat
 					const themeName = typeof theme === 'string' ? theme : theme.name;
 					if (themeName === 'css-variables') {
-						html = html.replace(/style="(.*?)"/g, (m) => replaceCssVariables(m));
+						html = html.replace(INLINE_STYLE_SELECTOR_GLOBAL, (m) => replaceCssVariables(m));
 					}
 
 					// Use `unescapeHTML` to return `HTMLString` for Astro renderer to inline as HTML
@@ -113,6 +114,6 @@ export default async function shiki({
 /**
  * shiki -> shikiji compat as we need to manually replace it
  */
-export function replaceCssVariables(str: string) {
+function replaceCssVariables(str: string) {
 	return str.replace(COLOR_REPLACEMENT_REGEX, (match) => ASTRO_COLOR_REPLACEMENTS[match] || match);
 }
