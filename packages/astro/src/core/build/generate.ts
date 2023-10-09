@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url';
 import type { OutputAsset, OutputChunk } from 'rollup';
 import type { BufferEncoding } from 'vfile';
 import type {
-	AstroConfig,
 	AstroSettings,
 	ComponentInstance,
 	GetStaticPathsItem,
@@ -58,7 +57,7 @@ import type {
 	StaticBuildOptions,
 	StylesheetAsset,
 } from './types.js';
-import { getTimeStat } from './util.js';
+import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -429,26 +428,6 @@ interface GeneratePathOptions {
 	scripts: { type: 'inline' | 'external'; value: string } | null;
 	styles: StylesheetAsset[];
 	mod: ComponentInstance;
-}
-
-function shouldAppendForwardSlash(
-	trailingSlash: AstroConfig['trailingSlash'],
-	buildFormat: AstroConfig['build']['format']
-): boolean {
-	switch (trailingSlash) {
-		case 'always':
-			return true;
-		case 'never':
-			return false;
-		case 'ignore': {
-			switch (buildFormat) {
-				case 'directory':
-					return true;
-				case 'file':
-					return false;
-			}
-		}
-	}
 }
 
 function addPageName(pathname: string, opts: StaticBuildOptions): void {

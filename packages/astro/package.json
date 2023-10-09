@@ -78,7 +78,7 @@
       "default": "./dist/core/middleware/namespace.js"
     },
     "./transitions": "./dist/transitions/index.js",
-    "./transitions": "./dist/transitions/index.js",
+    "./transitions/router": "./dist/transitions/router.js",
     "./i18n": "./dist/i18n/index.js"
   },
   "imports": {
