@@ -5,11 +5,8 @@ import type { Logger } from '../core/logger/core.js';
 import type { PluginMetadata as AstroPluginMetadata } from './types.js';
 
 import { normalizePath } from 'vite';
-import {
-	cachedCompilation,
-	getCachedCompileResult,
-	type CompileProps,
-} from '../core/compile/index.js';
+import { cachedCompilation, getCachedCompileResult } from '../core/compile/cache.js';
+import type { CompileProps } from '../core/compile/compile.js';
 import { isRelativePath } from '../core/path.js';
 import { normalizeFilename } from '../vite-plugin-utils/index.js';
 import { cachedFullCompilation } from './compile.js';

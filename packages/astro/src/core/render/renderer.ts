@@ -1,5 +1,5 @@
 import type { AstroRenderer, SSRLoadedRenderer } from '../../@types/astro.js';
-import type { ModuleLoader } from '../module-loader/index.js';
+import type { ModuleLoader } from '../module-loader/loader.js';
 
 export async function loadRenderer(
 	renderer: AstroRenderer,

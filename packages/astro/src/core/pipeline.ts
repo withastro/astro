@@ -7,8 +7,9 @@ import type {
 } from '../@types/astro.js';
 import { callEndpoint, createAPIContext } from './endpoint/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
+import type { RenderContext } from './render/context.js';
 import { renderPage } from './render/core.js';
-import { type Environment, type RenderContext } from './render/index.js';
+import type { Environment } from './render/environment.js';
 
 type EndpointResultHandler = (
 	originalRequest: Request,

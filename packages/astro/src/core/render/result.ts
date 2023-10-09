@@ -9,7 +9,7 @@ import type {
 import { renderSlotToString, type ComponentSlots } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { chunkToString } from '../../runtime/server/render/index.js';
-import { AstroCookies } from '../cookies/index.js';
+import { AstroCookies } from '../cookies/cookies.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 

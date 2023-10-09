@@ -1,6 +1,7 @@
 import { transformWithEsbuild, type ESBuildTransformResult } from 'vite';
 import type { AstroConfig } from '../@types/astro.js';
-import { cachedCompilation, type CompileProps, type CompileResult } from '../core/compile/index.js';
+import { cachedCompilation } from '../core/compile/cache.js';
+import type { CompileProps, CompileResult } from '../core/compile/compile.js';
 import type { Logger } from '../core/logger/core.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 

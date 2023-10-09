@@ -7,7 +7,7 @@ import type {
 	SSRManifest,
 } from '../../@types/astro.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
-import { getSetCookiesFromResponse } from '../cookies/index.js';
+import { getSetCookiesFromResponse } from '../cookies/response.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
 import {
@@ -15,8 +15,9 @@ import {
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '../path.js';
-import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { createEnvironment, createRenderContext, type RenderContext } from '../render/index.js';
+import { RedirectSinglePageBuiltModule } from '../redirects/component.js';
+import { createRenderContext, type RenderContext } from '../render/context.js';
+import { createEnvironment } from '../render/environment.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createAssetLink,

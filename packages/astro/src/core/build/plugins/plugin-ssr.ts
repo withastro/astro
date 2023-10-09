@@ -4,7 +4,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { AstroAdapter, AstroConfig } from '../../../@types/astro.js';
 import { isFunctionPerRouteEnabled } from '../../../integrations/index.js';
 import { isServerLikeOutput } from '../../../prerender/utils.js';
-import { routeIsRedirect } from '../../redirects/index.js';
+import { routeIsRedirect } from '../../redirects/helpers.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';

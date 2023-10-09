@@ -6,10 +6,10 @@ import type {
 	SSRManifest,
 } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
-import type { ModuleLoader } from '../core/module-loader/index.js';
+import type { ModuleLoader } from '../core/module-loader/loader.js';
 import { Pipeline } from '../core/pipeline.js';
-import type { Environment } from '../core/render/index.js';
-import { createEnvironment, loadRenderer } from '../core/render/index.js';
+import { createEnvironment, type Environment } from '../core/render/environment.js';
+import { loadRenderer } from '../core/render/renderer.js';
 import { RouteCache } from '../core/render/route-cache.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { createResolve } from './resolve.js';

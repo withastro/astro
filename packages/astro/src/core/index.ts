@@ -4,7 +4,7 @@ import type { AstroInlineConfig } from '../@types/astro.js';
 import { default as _build } from './build/index.js';
 import { default as _sync } from './sync/index.js';
 
-export { default as dev } from './dev/index.js';
+export { default as dev } from './dev/dev.js';
 export { default as preview } from './preview/index.js';
 
 /**

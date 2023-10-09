@@ -1,7 +1,7 @@
 import { extname } from 'node:path';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../../@types/astro.js';
-import { routeIsRedirect } from '../../redirects/index.js';
+import { routeIsRedirect } from '../../redirects/helpers.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';

@@ -2,7 +2,7 @@ import { bold } from 'kleur/colors';
 import fs from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
-import type { InlineConfig, ViteDevServer } from 'vite';
+import { mergeConfig, type InlineConfig, type ViteDevServer } from 'vite';
 import type {
 	AstroAdapter,
 	AstroConfig,
@@ -16,8 +16,7 @@ import type {
 } from '../@types/astro.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
-import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
-import { mergeConfig } from '../core/config/index.js';
+import { buildClientDirectiveEntrypoint } from '../core/client-directive/build.js';
 import { AstroIntegrationLogger, type Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { validateSupportedFeatures } from './astroFeaturesValidation.js';

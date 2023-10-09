@@ -33,8 +33,9 @@ import { runHookBuildGenerated } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { RedirectSinglePageBuiltModule, getRedirectLocationOrThrow } from '../redirects/index.js';
-import { createRenderContext } from '../render/index.js';
+import { RedirectSinglePageBuiltModule } from '../redirects/component.js';
+import { getRedirectLocationOrThrow } from '../redirects/validate.js';
+import { createRenderContext } from '../render/context.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
 	createAssetLink,

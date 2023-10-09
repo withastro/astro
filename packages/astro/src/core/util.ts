@@ -5,7 +5,7 @@ import { normalizePath } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
-import type { ModuleLoader } from './module-loader/index.js';
+import type { ModuleLoader } from './module-loader/loader.js';
 import { prependForwardSlash, removeTrailingForwardSlash, slash } from './path.js';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */

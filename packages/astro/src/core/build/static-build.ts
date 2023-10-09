@@ -19,7 +19,7 @@ import { runHookBuildSetup } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { routeIsRedirect } from '../redirects/index.js';
+import { routeIsRedirect } from '../redirects/helpers.js';
 import { getOutDirWithinCwd } from './common.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';

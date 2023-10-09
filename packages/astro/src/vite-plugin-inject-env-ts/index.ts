@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizePath, type Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
-import { getContentPaths, getDotAstroTypeReference } from '../content/index.js';
+import { getContentPaths, getDotAstroTypeReference } from '../content/utils.js';
 import { type Logger } from '../core/logger/core.js';
 
 export function getEnvTsPath({ srcDir }: { srcDir: URL }) {

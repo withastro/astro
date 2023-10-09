@@ -4,7 +4,7 @@ import { execSync } from 'node:child_process';
 import { arch, platform } from 'node:os';
 import prompts from 'prompts';
 import type yargs from 'yargs-parser';
-import { resolveConfig } from '../../core/config/index.js';
+import { resolveConfig } from '../../core/config/config.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
 import { flagsToAstroInlineConfig } from '../flags.js';
 

@@ -1,6 +1,6 @@
 import { cyan } from 'kleur/colors';
 import type yargs from 'yargs-parser';
-import devServer from '../../core/dev/index.js';
+import devServer from '../../core/dev/dev.js';
 import { printHelp } from '../../core/messages.js';
 import { flagsToAstroInlineConfig } from '../flags.js';
 

@@ -27,7 +27,7 @@ import { createVite } from '../create-vite.js';
 import { Logger, levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
-import { createRouteManifest } from '../routing/index.js';
+import { createRouteManifest } from '../routing/manifest/create.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';

@@ -1,5 +1,5 @@
 import type { SSRElement } from '../@types/astro.js';
-import type { ModuleInfo, ModuleLoader } from '../core/module-loader/index.js';
+import type { ModuleInfo, ModuleLoader } from '../core/module-loader/loader.js';
 import { createModuleScriptElementWithSrc } from '../core/render/ssr-element.js';
 import { rootRelativePath, viteID } from '../core/util.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types.js';

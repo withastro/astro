@@ -5,9 +5,9 @@ import type {
 	MiddlewareHandler,
 	MiddlewareNext,
 } from '../../@types/astro.js';
-import { attachCookiesToResponse, responseHasCookies } from '../cookies/index.js';
+import { attachCookiesToResponse, responseHasCookies } from '../cookies/response.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Environment } from '../render/index.js';
+import type { Environment } from '../render/environment.js';
 
 /**
  * Utility function that is in charge of calling the middleware.

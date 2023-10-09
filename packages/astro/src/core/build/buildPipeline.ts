@@ -4,7 +4,7 @@ import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
 import { Logger } from '../logger/core.js';
 import { Pipeline } from '../pipeline.js';
-import { createEnvironment } from '../render/index.js';
+import { createEnvironment } from '../render/environment.js';
 import { createAssetLink } from '../render/ssr-element.js';
 import type { BuildInternals } from './internal.js';
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';

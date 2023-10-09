@@ -1,10 +1,10 @@
 import type http from 'node:http';
 import type { ErrorWithMetadata } from '../core/errors/index.js';
-import type { ModuleLoader } from '../core/module-loader/index.js';
 
 import { Readable } from 'stream';
-import { getSetCookiesFromResponse } from '../core/cookies/index.js';
+import { getSetCookiesFromResponse } from '../core/cookies/response.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
+import type { ModuleLoader } from '../core/module-loader/loader.js';
 import notFoundTemplate from '../template/4xx.js';
 
 export async function handle404Response(

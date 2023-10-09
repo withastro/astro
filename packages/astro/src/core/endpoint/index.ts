@@ -1,18 +1,20 @@
 import mime from 'mime';
-import type {
-	APIContext,
-	EndpointHandler,
-	EndpointOutput,
-	MiddlewareEndpointHandler,
-	MiddlewareHandler,
-	Params,
+import {
+	type APIContext,
+	type EndpointHandler,
+	type EndpointOutput,
+	type MiddlewareEndpointHandler,
+	type MiddlewareHandler,
+	type Params,
 } from '../../@types/astro.js';
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
-import { AstroCookies, attachCookiesToResponse } from '../cookies/index.js';
+import { AstroCookies } from '../cookies/cookies.js';
+import { attachCookiesToResponse } from '../cookies/response.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
-import type { Environment, RenderContext } from '../render/index.js';
+import type { RenderContext } from '../render/context.js';
+import type { Environment } from '../render/environment.js';
 
 const encoder = new TextEncoder();
 

@@ -5,7 +5,7 @@ import type { Logger } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 import babel from '@babel/core';
-import { CONTENT_FLAG, PROPAGATED_ASSET_FLAG } from '../content/index.js';
+import { CONTENT_FLAG, PROPAGATED_ASSET_FLAG } from '../content/consts.js';
 import { astroEntryPrefix } from '../core/build/plugins/plugin-component-entry.js';
 import { removeQueryString } from '../core/path.js';
 import tagExportsPlugin from './tag.js';

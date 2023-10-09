@@ -9,9 +9,11 @@ import type {
 } from '../@types/astro.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
-import { createRenderContext, getParamsAndProps, type SSROptions } from '../core/render/index.js';
+import { createRenderContext } from '../core/render/context.js';
+import type { SSROptions } from '../core/render/index.js';
+import { getParamsAndProps } from '../core/render/params-and-props.js';
 import { createRequest } from '../core/request.js';
-import { matchAllRoutes } from '../core/routing/index.js';
+import { matchAllRoutes } from '../core/routing/match.js';
 import { isPage } from '../core/util.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';

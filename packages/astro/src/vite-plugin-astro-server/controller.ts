@@ -1,4 +1,4 @@
-import type { LoaderEvents, ModuleLoader } from '../core/module-loader/index.js';
+import type { LoaderEvents, ModuleLoader } from '../core/module-loader/loader.js';
 import type { ServerState } from './server-state.js';
 
 import {

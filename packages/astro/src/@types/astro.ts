@@ -16,9 +16,9 @@ import type * as vite from 'vite';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
-import type { AstroConfigType } from '../core/config/index.js';
+import type { AstroConfigType } from '../core/config/schema.js';
 import type { AstroTimer } from '../core/config/timer.js';
-import type { AstroCookies } from '../core/cookies/index.js';
+import type { AstroCookies } from '../core/cookies/cookies.js';
 import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
@@ -52,7 +52,7 @@ export type {
 } from '../assets/types.js';
 export type { RemotePattern } from '../assets/utils/remotePattern.js';
 export type { SSRManifest } from '../core/app/types.js';
-export type { AstroCookies } from '../core/cookies/index.js';
+export type { AstroCookies };
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;

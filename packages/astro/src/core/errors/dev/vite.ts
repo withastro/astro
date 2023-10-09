@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { getHighlighter } from 'shiki';
 import type { ErrorPayload } from 'vite';
-import type { ModuleLoader } from '../../module-loader/index.js';
+import type { ModuleLoader } from '../../module-loader/loader.js';
 import { FailedToLoadModuleSSR, InvalidGlob, MdxIntegrationMissingError } from '../errors-data.js';
 import { AstroError, type ErrorWithMetadata } from '../errors.js';
 import { createSafeError } from '../utils.js';

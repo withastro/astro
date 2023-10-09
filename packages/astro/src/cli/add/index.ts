@@ -9,14 +9,10 @@ import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import type yargs from 'yargs-parser';
-import {
-	loadTSConfig,
-	resolveConfig,
-	resolveConfigPath,
-	resolveRoot,
-} from '../../core/config/index.js';
+import { resolveConfig, resolveConfigPath, resolveRoot } from '../../core/config/config.js';
 import {
 	defaultTSConfig,
+	loadTSConfig,
 	presets,
 	updateTSConfigForFramework,
 	type frameworkWithTSSettings,

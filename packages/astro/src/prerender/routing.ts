@@ -1,5 +1,6 @@
 import type { AstroSettings, ComponentInstance, RouteData } from '../@types/astro.js';
-import { RedirectComponentInstance, routeIsRedirect } from '../core/redirects/index.js';
+import { RedirectComponentInstance } from '../core/redirects/component.js';
+import { routeIsRedirect } from '../core/redirects/helpers.js';
 import type DevPipeline from '../vite-plugin-astro-server/devPipeline.js';
 import { preload } from '../vite-plugin-astro-server/index.js';
 import { getPrerenderStatus } from './metadata.js';

@@ -6,7 +6,7 @@ import { runHookBuildSsr } from '../../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types.js';
 import { joinPaths, prependForwardSlash } from '../../path.js';
-import { serializeRouteData } from '../../routing/index.js';
+import { serializeRouteData } from '../../routing/manifest/serialization.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
