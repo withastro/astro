@@ -80,7 +80,7 @@
     "./transitions": "./dist/transitions/index.js",
     "./transitions/router": "./dist/transitions/router.js",
     "./prefetch": "./dist/prefetch/index.js",
-    "./i18n": "./dist/i18n/index.js",
+    "./i18n": "./dist/i18n/index.js"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
