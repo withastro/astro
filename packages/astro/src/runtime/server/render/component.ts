@@ -9,7 +9,7 @@ import { createRenderInstruction, type RenderInstruction } from './instruction.j
 import { clsx } from 'clsx';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 import { HTMLBytes, markHTMLString } from '../escape.js';
-import { extractDirectives, generateHydrateScript, withoutTransitionAttributes } from '../hydration.js';
+import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
 import { isPromise } from '../util.js';
@@ -92,8 +92,7 @@ async function renderFrameworkComponent(
 		displayName,
 	};
 
-	const { hydration, isPage, props } = extractDirectives(_props, clientDirectives);
-	const propsWithoutTransitionAttributes = withoutTransitionAttributes(props);
+	const { hydration, isPage, props, propsWithoutTransitionAttributes } = extractDirectives(_props, clientDirectives);
 	let html = '';
 	let attrs: Record<string, string> | undefined = undefined;
 

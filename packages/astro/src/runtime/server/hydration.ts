@@ -12,7 +12,7 @@ export interface HydrationMetadata {
 	directive: string;
 	value: string;
 	componentUrl: string;
-	componentExport: { value: string };
+	componentExport: { value: string; };
 }
 
 type Props = Record<string | number | symbol, any>;
@@ -21,6 +21,7 @@ interface ExtractedProps {
 	isPage: boolean;
 	hydration: HydrationMetadata | null;
 	props: Props;
+	propsWithoutTransitionAttributes: Props;
 }
 
 const transitionDirectivesToCopyOnIsland = Object.freeze([
@@ -28,13 +29,6 @@ const transitionDirectivesToCopyOnIsland = Object.freeze([
 	'data-astro-transition-persist',
 ]);
 
-export function withoutTransitionAttributes(props: Props): Props {
-	const res: Props = Object.fromEntries(Object.entries(props).filter(([key]) => !transitionDirectivesToCopyOnIsland.includes(key)));
-	for (const sym of Object.getOwnPropertySymbols(props)) {
-		res[sym] = props[sym];
-	}
-	return res;
-}
 
 // Used to extract the directives, aka `client:load` information about a component.
 // Finds these special props and removes them from what gets passed into the component.
@@ -46,6 +40,7 @@ export function extractDirectives(
 		isPage: false,
 		hydration: null,
 		props: {},
+		propsWithoutTransitionAttributes: {},
 	};
 	for (const [key, value] of Object.entries(inputProps)) {
 		if (key.startsWith('server:')) {
@@ -106,10 +101,14 @@ export function extractDirectives(
 			}
 		} else {
 			extracted.props[key] = value;
+			if (!transitionDirectivesToCopyOnIsland.includes(key)) {
+				extracted.propsWithoutTransitionAttributes[key] = value;
+			}
 		}
 	}
 	for (const sym of Object.getOwnPropertySymbols(inputProps)) {
 		extracted.props[sym] = inputProps[sym];
+		extracted.propsWithoutTransitionAttributes[sym] = inputProps[sym];
 	}
 
 	return extracted;
