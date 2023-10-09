@@ -30,6 +30,7 @@ import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
 import { joinPaths } from './path.js';
+import astroInternalization from '../i18n/vite-plugin-i18n.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -136,6 +137,7 @@ export async function createVite(
 			astroAssetsPlugin({ settings, logger, mode }),
 			astroTransitions(),
 			astroDevOverlay({ settings, logger }),
+			!!settings.config.experimental.i18n && astroInternalization({ settings, logger }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
