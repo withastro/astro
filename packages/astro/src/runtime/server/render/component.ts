@@ -92,7 +92,10 @@ async function renderFrameworkComponent(
 		displayName,
 	};
 
-	const { hydration, isPage, props, propsWithoutTransitionAttributes } = extractDirectives(_props, clientDirectives);
+	const { hydration, isPage, props, propsWithoutTransitionAttributes } = extractDirectives(
+		_props,
+		clientDirectives
+	);
 	let html = '';
 	let attrs: Record<string, string> | undefined = undefined;
 
