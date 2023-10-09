@@ -67,7 +67,7 @@ export class Pipeline {
 	 */
 	async renderRoute(
 		renderContext: RenderContext,
-		componentInstance: ComponentInstance
+		componentInstance: ComponentInstance | undefined
 	): Promise<Response> {
 		const result = await this.#tryRenderRoute(
 			renderContext,
@@ -100,7 +100,8 @@ export class Pipeline {
 	async #tryRenderRoute<MiddlewareReturnType = Response>(
 		renderContext: Readonly<RenderContext>,
 		env: Readonly<Environment>,
-		mod: Readonly<ComponentInstance>,
+		mod: Readonly<ComponentInstance> | undefined,
+
 		onRequest?: MiddlewareHandler<MiddlewareReturnType>
 	): Promise<Response> {
 		const apiContext = createAPIContext({
@@ -113,6 +114,7 @@ export class Pipeline {
 
 		switch (renderContext.route.type) {
 			case 'page':
+			case 'fallback':
 			case 'redirect': {
 				if (onRequest) {
 					return await callMiddleware<Response>(
@@ -138,13 +140,7 @@ export class Pipeline {
 				}
 			}
 			case 'endpoint': {
-				const result = await callEndpoint(
-					mod as any as EndpointHandler,
-					env,
-					renderContext,
-					onRequest
-				);
-				return result;
+				return await callEndpoint(mod as any as EndpointHandler, env, renderContext, onRequest);
 			}
 			default:
 				throw new Error(`Couldn't find route of type [${renderContext.route.type}]`);
