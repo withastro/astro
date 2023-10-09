@@ -586,7 +586,7 @@ export interface AstroUserConfig {
 	* 
 	* Additionally, Astro will internally manipulate the configured value of `config.base` before making it available to integrations. The value of `config.base` as read by integrations will also be determined by your `trailingSlash` configuration in the same way.
 	 *
-	 * This means with a configuration like this:
+	 	 * In the example below, the values of `import.meta.env.BASE_URL` and `config.base` when processed will both be `/docs`:
 	 * ```js
 	 * {
 	 * 	 base: '/docs/',
@@ -594,9 +594,7 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 *
-	 * `import.meta.env.BASE_URL` and `config.base` will be `/docs`.
-	 *
-	 * In a configuration like this:
+	 * In the example below, the values of `import.meta.env.BASE_URL` and `config.base` when processed will both be `/docs/`:
 	 *
 	 * ```js
 	 * {
@@ -604,8 +602,6 @@ export interface AstroUserConfig {
 	 * 	 trailingSlash: "always"
 	 * }
 	 * ```
-	 *
-	 * `import.meta.env.BASE_URL` and `config.base` will be `/docs/`.
 	 */
 	base?: string;
 
