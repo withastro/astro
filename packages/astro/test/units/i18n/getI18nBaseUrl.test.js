@@ -12,7 +12,7 @@ describe('getI18nBaseUrl', () => {
 			experimental: {
 				i18n: {
 					defaultLocale: 'en',
-					locales: ['en', 'es'],
+					locales: ['en', 'en_US', 'es'],
 				},
 			},
 		};
@@ -39,7 +39,7 @@ describe('getI18nBaseUrl', () => {
 
 		expect(
 			getI18nBaseUrl({
-				locale: 'en-US',
+				locale: 'en_US',
 				base: '/blog/',
 				locales: config.experimental.i18n.locales,
 				trailingSlash: 'always',
@@ -69,7 +69,7 @@ describe('getI18nBaseUrl', () => {
 
 		expect(
 			getI18nBaseUrl({
-				locale: 'en-US',
+				locale: 'en_US',
 				base: '/blog/',
 				locales: config.experimental.i18n.locales,
 				trailingSlash: 'always',
