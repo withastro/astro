@@ -580,7 +580,28 @@ export interface AstroUserConfig {
 	 *
 	 * When using this option, all of your static asset imports and URLs should add the base as a prefix. You can access this value via `import.meta.env.BASE_URL`.
 	 *
-	 * The value of `import.meta.env.BASE_URL` respects your `trailingSlash` config and will include a trailing slash if you explicitly include one or if `trailingSlash: "always"` is set. If `trailingSlash: "never"` is set, `BASE_URL` will not include a trailing slash, even if `base` includes one.
+	 * The value of `import.meta.env.BASE_URL` and configuration value `config.base` respects your `trailingSlash` config and will include a trailing slash if you explicitly include one or if `trailingSlash: "always"` is set. If `trailingSlash: "never"` is set, `BASE_URL` will not include a trailing slash, even if `base` includes one.
+	 *
+	 * This means with a configuration like this:
+	 * ```js
+	 * {
+	 * 	 base: '/docs/',
+	 * 	 trailingSlash: "never"
+	 * }
+	 * ```
+	 *
+	 * `import.meta.env.BASE_URL` and `config.base` will be `/docs`.
+	 *
+	 * In a configuration like this:
+	 *
+	 * ```js
+	 * {
+	 * 	 base: '/docs',
+	 * 	 trailingSlash: "always"
+	 * }
+	 * ```
+	 *
+	 * `import.meta.env.BASE_URL` and `config.base` will be `/docs/`.
 	 */
 	base?: string;
 
