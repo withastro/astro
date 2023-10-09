@@ -14,7 +14,7 @@ type GetI18nBaseUrl = {
  * The base URL
  */
 export function getI18nBaseUrl({ locale, base, locales, trailingSlash, format }: GetI18nBaseUrl) {
-	if (!locale.includes(locale)) {
+	if (!locales.includes(locale)) {
 		throw new AstroError({
 			...MissingLocale,
 			message: MissingLocale.message(locale, locales),
