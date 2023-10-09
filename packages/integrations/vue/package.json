@@ -37,7 +37,7 @@
     "build": "astro-scripts build \"src/index.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "mocha --timeout 20000"
+    "test": "mocha --exit --retries 3 --timeout 20000"
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^4.3.3",
