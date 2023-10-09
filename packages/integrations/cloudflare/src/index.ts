@@ -49,6 +49,16 @@ type Options = {
 	 */
 	runtime?: 'off' | 'local' | 'remote';
 	wasmModuleImports?: boolean;
+	/**
+	* Additional externals to add to esbuild. Note that the external property adds to the existing list.
+	*/
+	esbuild?: {
+		external?: string[];
+	}
+	/**
+	* Additional config options to provide to the miniflare initialization object. Note that the options property adds to the existing list.
+	*/
+	miniflare?: object;
 };
 
 interface BuildConfig {
@@ -141,6 +151,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								kvPersist: true,
 								durableObjects: DOBindings,
 								durableObjectsPersist: true,
+								...(args?.miniflare || {}),
 							});
 							await _mf.ready;
 
@@ -290,7 +301,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								'node:stream',
 								'node:string_decoder',
 								'node:util',
+								'node:crypto',
 								'cloudflare:*',
+								...(args?.esbuild?.external || []),
 							],
 							entryPoints: pathsGroup,
 							outbase: absolutePagesDirname,
@@ -372,7 +385,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							'node:stream',
 							'node:string_decoder',
 							'node:util',
+							'node:crypto',
 							'cloudflare:*',
+							...(args?.esbuild?.external || [])
 						],
 						entryPoints: [entryPath],
 						outfile: buildPath,
