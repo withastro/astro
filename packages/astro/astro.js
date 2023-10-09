@@ -36,7 +36,7 @@ async function main() {
   if (process.platform === 'win32') {
     const cwd = process.cwd()
     const correctedCwd = cwd.slice(0, 1).toUpperCase() + cwd.slice(1)
-    process.chdir(correctedCwd)
+    if (correctedCwd !== cwd) process.chdir(correctedCwd)
   }
 
 	return import('./dist/cli/index.js')
