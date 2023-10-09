@@ -359,7 +359,7 @@ Additionally, you'll need to enable the Compatibility Flag in Cloudflare. The co
 
 ## Cloudflare module support
 
-All Cloudflare namespaced packages (like `cloudflare:sockets`) are whitelisted for use. Note that the package `cloudflare:sockets` does not work locally without using Wrangler dev mode.
+All Cloudflare namespaced packages (e.g. `cloudflare:sockets`) are allowlisted for use. Note that the package `cloudflare:sockets` does not work locally without using Wrangler dev mode.
 
 ## Preview with Wrangler
 
