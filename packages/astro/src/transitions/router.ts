@@ -17,7 +17,7 @@ const persistState = (state: State) => history.state && history.replaceState(sta
 export const supportsViewTransitions = import.meta.env.SSR === false && !!document.startViewTransition;
 
 export const transitionEnabledOnThisPage = () =>
-	import.meta.env.SSR === false && !!document.querySelector('[name="astro-view-transitions-enabled"]');
+    supportsViewTransitions && !!document.querySelector('[name="astro-view-transitions-enabled"]');
 
 const samePage = (otherLocation: URL) =>
 	location.pathname === otherLocation.pathname && location.search === otherLocation.search;
@@ -53,7 +53,7 @@ let parser: DOMParser
 // can use that to determine popstate if going forward or back.
 let currentHistoryIndex = 0;
 
-if (import.meta.env.SSR === false) {
+if (supportsViewTransitions) {
 if (history.state) {
 	// we reloaded a page with history state
 	// (e.g. history navigation from non-transition page or browser reload)
@@ -385,7 +385,7 @@ async function transition(
 
 export function navigate(href: string, options?: Options) {
 	
-	if (import.meta.env.SSR) return;
+	if (!supportsViewTransitions) return;
 	
 	// not ours
 	if (!transitionEnabledOnThisPage()) {
@@ -446,7 +446,7 @@ function onPopState(ev: PopStateEvent) {
 		}
 	}
 
-if (import.meta.env.SSR === false && (supportsViewTransitions || getFallback() !== 'none')) {
+if (supportsViewTransitions && getFallback() !== 'none') {
 	addEventListener('popstate', onPopState);
 	addEventListener('load', onPageLoad);
 	// There's not a good way to record scroll position before a back button.
