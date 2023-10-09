@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { resolveConfig } from '../../../dist/core/config/index.js';
+import { resolveConfig } from '../../../dist/core/config/config.js';
 
 describe('resolveConfig', () => {
 	it('resolves relative inline root correctly', async () => {

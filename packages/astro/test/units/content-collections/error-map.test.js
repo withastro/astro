@@ -1,5 +1,5 @@
 import { z } from '../../../zod.mjs';
-import { errorMap } from '../../../dist/content/index.js';
+import { errorMap } from '../../../dist/content/error-map.js';
 import { fixLineEndings } from '../../test-utils.js';
 import { expect } from 'chai';
 

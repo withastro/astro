@@ -1,9 +1,9 @@
 import { expect } from 'chai';
-import { createLoader } from '../../../dist/core/module-loader/index.js';
+import { createLoader } from '../../../dist/core/module-loader/loader.js';
 import {
 	createController,
 	runWithErrorHandling,
-} from '../../../dist/vite-plugin-astro-server/index.js';
+} from '../../../dist/vite-plugin-astro-server/controller.js';
 
 describe('vite-plugin-astro-server', () => {
 	describe('controller', () => {

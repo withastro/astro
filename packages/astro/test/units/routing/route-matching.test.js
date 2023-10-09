@@ -4,7 +4,8 @@ import {
 	createRequestAndResponse,
 	defaultLogger,
 } from '../test-utils.js';
-import { createRouteManifest, matchAllRoutes } from '../../../dist/core/routing/index.js';
+import { createRouteManifest } from '../../../dist/core/routing/manifest/create.js';
+import { matchAllRoutes } from '../../../dist/core/routing/match.js';
 import { fileURLToPath } from 'node:url';
 import { createViteLoader } from '../../../dist/core/module-loader/vite.js';
 import { expect } from 'chai';

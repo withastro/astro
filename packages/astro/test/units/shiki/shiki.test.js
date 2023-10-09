@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { fileURLToPath } from 'node:url';
-import { createContainer } from '../../../dist/core/dev/index.js';
-import { createViteLoader } from '../../../dist/core/module-loader/index.js';
+import { createContainer } from '../../../dist/core/dev/container.js';
+import { createViteLoader } from '../../../dist/core/module-loader/vite.js';
 import { createBasicSettings, defaultLogger } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);

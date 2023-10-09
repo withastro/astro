@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { fileURLToPath } from 'node:url';
-import { loadTSConfig, updateTSConfigForFramework } from '../../../dist/core/config/index.js';
+import { loadTSConfig, updateTSConfigForFramework } from '../../../dist/core/config/tsconfig.js';
 import * as path from 'node:path';
 import * as tsr from 'tsconfig-resolver';
 

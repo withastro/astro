@@ -3,9 +3,9 @@ import * as cheerio from 'cheerio';
 import { fileURLToPath } from 'node:url';
 
 import {
-	createContainerWithAutomaticRestart,
 	startContainer,
-} from '../../../dist/core/dev/index.js';
+} from '../../../dist/core/dev/container.js';
+import { createContainerWithAutomaticRestart } from '../../../dist/core/dev/restart.js';
 import { createFs, createRequestAndResponse, triggerFSEvent } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);

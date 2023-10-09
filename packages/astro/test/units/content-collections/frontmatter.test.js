@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import nodeFS from 'node:fs';
 import path from 'node:path';
 
-import { attachContentServerListeners } from '../../../dist/content/index.js';
+import { attachContentServerListeners } from '../../../dist/content/server-listeners.js';
 import { createFs, runInContainer, triggerFSEvent } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);

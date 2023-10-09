@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { AstroCookies } from '../../../dist/core/cookies/index.js';
+import { AstroCookies } from '../../../dist/core/cookies/cookies.js';
 import { apply as applyPolyfill } from '../../../dist/core/polyfill.js';
 
 applyPolyfill();

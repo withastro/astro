@@ -1,8 +1,8 @@
-import { resolveConfig } from 'vite';
 import { expect } from 'chai';
-import { cachedCompilation } from '../../../dist/core/compile/index.js';
-import { AggregateError } from '../../../dist/core/errors/index.js';
 import { pathToFileURL } from 'node:url';
+import { resolveConfig } from 'vite';
+import { cachedCompilation } from '../../../dist/core/compile/cache.js';
+import { AggregateError } from '../../../dist/core/errors/index.js';
 
 describe('astro/src/core/compile', () => {
 	describe('Invalid CSS', () => {

@@ -9,7 +9,8 @@ import {
 	renderHead,
 	Fragment,
 } from '../../../dist/runtime/server/index.js';
-import { createRenderContext, tryRenderRoute } from '../../../dist/core/render/index.js';
+import { createRenderContext } from '../../../dist/core/render/context.js';
+import { tryRenderRoute } from "../../../dist/core/render/core.js";
 import { createBasicEnvironment } from '../test-utils.js';
 import * as cheerio from 'cheerio';
 

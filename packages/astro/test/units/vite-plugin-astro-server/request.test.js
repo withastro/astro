@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { createLoader } from '../../../dist/core/module-loader/index.js';
-import { createRouteManifest } from '../../../dist/core/routing/index.js';
+import { createLoader } from '../../../dist/core/module-loader/loader.js';
+import { createRouteManifest } from '../../../dist/core/routing/manifest/create.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createController, handleRequest } from '../../../dist/vite-plugin-astro-server/index.js';
 import {

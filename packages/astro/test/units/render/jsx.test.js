@@ -8,10 +8,11 @@ import {
 import { jsx } from '../../../dist/jsx-runtime/index.js';
 import {
 	createRenderContext,
-	tryRenderRoute,
-	loadRenderer,
-} from '../../../dist/core/render/index.js';
-import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
+} from '../../../dist/core/render/context.js';
+import { tryRenderRoute } from "../../../dist/core/render/core.js";
+import { loadRenderer } from '../../../dist/core/render/renderer.js';
+import { createAstroJSXComponent } from '../../../dist/jsx/component.js';
+import { default as jsxRenderer } from "../../../dist/jsx/renderer.js";
 import { createBasicEnvironment } from '../test-utils.js';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });

@@ -12,7 +12,8 @@ import sync from '../dist/core/sync/index.js';
 import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.js';
 import { getVirtualModulePageNameFromPath } from '../dist/core/build/plugins/util.js';
 import { makeSplitEntryPointFileName } from '../dist/core/build/static-build.js';
-import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
+import { resolveConfig } from '../dist/core/config/config.js';
+import { mergeConfig } from "../dist/core/config/merge.js";
 import { nodeLogDestination } from '../dist/core/logger/node.js';
 
 // Disable telemetry when running tests
