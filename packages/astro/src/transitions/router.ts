@@ -19,7 +19,7 @@ const inBrowser = import.meta.env.SSR === false;
 export const supportsViewTransitions = inBrowser && !!document.startViewTransition;
 
 export const transitionEnabledOnThisPage = () =>
-    supportsViewTransitions && !!document.querySelector('[name="astro-view-transitions-enabled"]');
+    inBrowser && !!document.querySelector('[name="astro-view-transitions-enabled"]');
 
 const samePage = (otherLocation: URL) =>
 	location.pathname === otherLocation.pathname && location.search === otherLocation.search;
