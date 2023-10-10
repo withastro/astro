@@ -284,6 +284,8 @@ export async function handleRoute({
 		} else if (onRequest) {
 			pipeline.setMiddlewareFunction(onRequest);
 		}
+	} else if (onRequest) {
+		pipeline.setMiddlewareFunction(onRequest);
 	}
 
 	let response = await pipeline.renderRoute(renderContext, mod);
