@@ -14,7 +14,9 @@ type Events = 'astro:page-load' | 'astro:after-swap';
 // leave other entries alone and do not accidently add state.
 const persistState = (state: State) => history.state && history.replaceState(state, '');
 
-export const supportsViewTransitions = import.meta.env.SSR === false && !!document.startViewTransition;
+const inBrowser = import.meta.env.SSR === false;
+
+export const supportsViewTransitions = inBrowser && !!document.startViewTransition;
 
 export const transitionEnabledOnThisPage = () =>
     supportsViewTransitions && !!document.querySelector('[name="astro-view-transitions-enabled"]');
@@ -387,7 +389,7 @@ let navigateOnServerWarned = false;
 
 export function navigate(href: string, options?: Options) {
 	
-	if (import.meta.env.SSR) {
+	if (inBrowser === false) {
 		if (!navigateOnServerWarned) {
 			// instantiate an error for the stacktrace to show to user.
 			const warning = new Error("The view transtions client API was called during a server side render. This may be unintentional as the navigate() function is expected to be called in response to user interactions. Please make sure that your usage is correct.");
@@ -457,7 +459,7 @@ function onPopState(ev: PopStateEvent) {
 		}
 	}
 
-if (import.meta.env.SSR == false) {
+if (inBrowser) {
 if (supportsViewTransitions || getFallback() !== 'none') {
 	addEventListener('popstate', onPopState);
 	addEventListener('load', onPageLoad);
