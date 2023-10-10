@@ -71,7 +71,7 @@ export async function loadTSConfig(
 		['jsconfig.json', 'tsconfig.json'].map((configName) =>
 			// `tsconfck` expects its first argument to be a file path, not a directory path, so we'll fake one
 			find(join(safeCwd, './dummy.txt'), {
-				root: findUp ? root : undefined,
+				root: findUp ? undefined : root,
 				configName: configName,
 			})
 		)
