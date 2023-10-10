@@ -335,11 +335,6 @@ export function createRouteManifest(
 				const route = `/${segments
 					.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 					.join('/')}`.toLowerCase();
-				const locale = settings.config.experimental.i18n?.locales.find((currentLocale) => {
-					if (route.includes(`/${currentLocale}`)) {
-						return currentLocale;
-					}
-				});
 				routes.push({
 					route,
 					type: item.isPage ? 'page' : 'endpoint',
@@ -350,7 +345,6 @@ export function createRouteManifest(
 					generate,
 					pathname: pathname || undefined,
 					prerender,
-					locale,
 				});
 			}
 		});
@@ -413,11 +407,6 @@ export function createRouteManifest(
 					`An integration attempted to inject a route that is already used in your project: "${route}" at "${component}". \nThis route collides with: "${collision.component}".`
 				);
 			}
-			const locale = settings.config.experimental.i18n?.locales.find((currentLocale) => {
-				if (route.includes(`/${currentLocale}`)) {
-					return currentLocale;
-				}
-			});
 
 			// the routes array was already sorted by priority,
 			// pushing to the front of the list ensure that injected routes
@@ -432,7 +421,6 @@ export function createRouteManifest(
 				generate,
 				pathname: pathname || void 0,
 				prerender: prerenderInjected ?? prerender,
-				locale,
 			});
 		});
 
@@ -460,11 +448,6 @@ export function createRouteManifest(
 			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 			.join('/')}`.toLowerCase();
 
-		const locale = settings.config.experimental.i18n?.locales.find((currentLocale) => {
-			if (route.includes(`/${currentLocale}`)) {
-				return currentLocale;
-			}
-		});
 		const routeData: RouteData = {
 			type: 'redirect',
 			route,
@@ -477,7 +460,6 @@ export function createRouteManifest(
 			prerender: false,
 			redirect: to,
 			redirectRoute: routes.find((r) => r.route === to),
-			locale,
 		};
 
 		const lastSegmentIsDynamic = (r: RouteData) => !!r.segments.at(-1)?.at(-1)?.dynamic;
