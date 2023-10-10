@@ -339,6 +339,7 @@ Astro's Cloudflare adapter allows you to use any Node.js runtime API supported b
 - assert
 - AsyncLocalStorage
 - Buffer
+- Crypto
 - Diagnostics Channel
 - EventEmitter
 - path
