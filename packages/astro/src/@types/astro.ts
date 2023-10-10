@@ -1386,7 +1386,7 @@ export interface AstroUserConfig {
 			 * @version 3.*.*
 			 * @description
 			 *
-			 * Controls the fallback system of the internalisation:
+			 * Controls the fallback system of the internationalisation:
 			 *  - `none`: Astro will do nothing and will return `404` if a translated page isn't translated;
 			 *  - `redirect`: Astro will do a redirect to the fallback language if the translated page returns a `404`;
 			 *  - `render`: currently unsupported by Astro
@@ -1872,7 +1872,7 @@ export type AstroFeatureMap = {
 	/**
 	 * List of features that orbit around the i18n routing
 	 */
-	i18n?: AstroInternalisationFeature;
+	i18n?: AstroInternationalisationFeature;
 };
 
 export interface AstroAssetsFeature {
@@ -1887,7 +1887,7 @@ export interface AstroAssetsFeature {
 	isSquooshCompatible?: boolean;
 }
 
-export interface AstroInternalisationFeature {
+export interface AstroInternationalisationFeature {
 	/**
 	 * Wether the adapter is able to detect the language of the browser, usually using the `Accept-Language` header.
 	 */
