@@ -457,7 +457,8 @@ function onPopState(ev: PopStateEvent) {
 		}
 	}
 
-if (supportsViewTransitions && getFallback() !== 'none') {
+if (import.meta.env.SSR == false) {
+if (supportsViewTransitions || getFallback() !== 'none') {
 	addEventListener('popstate', onPopState);
 	addEventListener('load', onPageLoad);
 	// There's not a good way to record scroll position before a back button.
@@ -471,4 +472,4 @@ if (supportsViewTransitions && getFallback() !== 'none') {
 
 	markScriptsExec();
 }
-
+}
