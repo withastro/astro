@@ -11,8 +11,6 @@ if (!isNode) {
 	process.env = getProcessEnvProxy();
 }
 
-declare const caches: CacheStorage;
-
 type Env = {
 	ASSETS: { fetch: (req: Request) => Promise<Response> };
 };
@@ -22,7 +20,7 @@ export interface AdvancedRuntime<T extends object = object> {
 		waitUntil: (promise: Promise<any>) => void;
 		env: Env & T;
 		cf: CFRequest['cf'];
-		caches: typeof caches;
+		caches: CacheStorage;
 	};
 }
 
@@ -56,7 +54,7 @@ export function createExports(manifest: SSRManifest) {
 					},
 					env: env,
 					cf: request.cf,
-					caches: caches,
+					caches: caches as unknown as CacheStorage,
 				},
 			};
 

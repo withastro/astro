@@ -6,14 +6,12 @@ import { getProcessEnvProxy, isNode } from '../util.js';
 if (!isNode) {
 	process.env = getProcessEnvProxy();
 }
-
-declare const caches: CacheStorage;
 export interface DirectoryRuntime<T extends object = object> {
 	runtime: {
 		waitUntil: (promise: Promise<any>) => void;
 		env: EventContext<unknown, string, unknown>['env'] & T;
 		cf: CFRequest['cf'];
-		caches: typeof caches;
+		caches: CacheStorage;
 	};
 }
 
@@ -49,7 +47,7 @@ export function createExports(manifest: SSRManifest) {
 					},
 					env: context.env,
 					cf: request.cf,
-					caches: caches,
+					caches: caches as unknown as CacheStorage,
 				},
 			};
 
