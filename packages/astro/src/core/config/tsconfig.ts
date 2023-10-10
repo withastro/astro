@@ -58,24 +58,28 @@ type TSConfigResult<T = {}> = Promise<
 
 /**
  * Load a tsconfig.json or jsconfig.json is the former is not found
- * @param cwd Directory to start from
- * @param resolve Determine if the function should go up directories like TypeScript would
+ * @param root The root directory to search in, defaults to `process.cwd()`.
+ * @param findUp Whether to search for the config file in parent directories, by default only the root directory is searched.
  */
 export async function loadTSConfig(
-	cwd: string | undefined
+	root: string | undefined,
+	findUp = false
 ): Promise<TSConfigResult<{ rawConfig: TSConfckParseResult }>> {
-	const safeCwd = cwd ?? process.cwd();
+	const safeCwd = root ?? process.cwd();
 
 	const [jsconfig, tsconfig] = await Promise.all(
 		['jsconfig.json', 'tsconfig.json'].map((configName) =>
-			// `tsconfck` expects its first argument to be a file path, not a directory path, so we fake one
-			find(join(safeCwd, './dummy.txt'), { root: cwd, configName: configName })
+			// `tsconfck` expects its first argument to be a file path, not a directory path, so we'll fake one
+			find(join(safeCwd, './dummy.txt'), {
+				root: findUp ? root : undefined,
+				configName: configName,
+			})
 		)
 	);
 
 	// If we have both files, prefer tsconfig.json
 	if (tsconfig) {
-		const parsedConfig = await safeParse(tsconfig, { root: cwd });
+		const parsedConfig = await safeParse(tsconfig, { root: root });
 
 		if (typeof parsedConfig === 'string') {
 			return parsedConfig;
@@ -85,7 +89,7 @@ export async function loadTSConfig(
 	}
 
 	if (jsconfig) {
-		const parsedConfig = await safeParse(jsconfig, { root: cwd });
+		const parsedConfig = await safeParse(jsconfig, { root: root });
 
 		if (typeof parsedConfig === 'string') {
 			return parsedConfig;

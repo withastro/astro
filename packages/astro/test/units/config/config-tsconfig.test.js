@@ -14,7 +14,7 @@ describe('TSConfig handling', () => {
 		});
 
 		it('can resolve tsconfig.json up directories', async () => {
-			const config = await loadTSConfig(path.join(cwd, 'nested-folder'));
+			const config = await loadTSConfig(cwd);
 
 			expect(config).to.not.be.undefined;
 			expect(config.tsconfigFile).to.equal(path.join(cwd, 'tsconfig.json'));
@@ -39,19 +39,19 @@ describe('TSConfig handling', () => {
 	});
 
 	describe('tsconfig / jsconfig updates', () => {
-		it('can update a tsconfig with a framework config', () => {
-			const config = loadTSConfig(cwd);
-			const updatedConfig = updateTSConfigForFramework(config.config, 'react');
+		it('can update a tsconfig with a framework config', async () => {
+			const config = await loadTSConfig(cwd);
+			const updatedConfig = updateTSConfigForFramework(config.tsconfig, 'react');
 
-			expect(config.config).to.not.equal('react-jsx');
+			expect(config.tsconfig).to.not.equal('react-jsx');
 			expect(updatedConfig.compilerOptions.jsx).to.equal('react-jsx');
 		});
 
-		it('produce no changes on invalid frameworks', () => {
-			const config = loadTSConfig(cwd);
-			const updatedConfig = updateTSConfigForFramework(config.config, 'doesnt-exist');
+		it('produce no changes on invalid frameworks', async () => {
+			const config = await loadTSConfig(cwd);
+			const updatedConfig = updateTSConfigForFramework(config.tsconfig, 'doesnt-exist');
 
-			expect(config.config).to.deep.equal(updatedConfig);
+			expect(config.tsconfig).to.deep.equal(updatedConfig);
 		});
 	});
 });
