@@ -1283,5 +1283,11 @@ export const MissingLocale = {
 	},
 } satisfies ErrorData;
 
+export const CantRenderPage = {
+	name: 'CantRenderPage',
+	title: "Astro can't render the route.",
+	message: "You tried to render a route that isn't a redirect and doesn't have any component.",
+} satisfies ErrorData;
+
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
