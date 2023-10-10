@@ -45,7 +45,10 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	 */
 	getURL: (options: ImageTransform, imageConfig: ImageConfig<T>) => string | Promise<string>;
 	/**
-	 * TODO: Document
+	 * Generate additional `srcset` values for the image.
+	 *
+	 * While in most cases this is exclusively used for `srcset`, it can also be used in a more generic way to generate
+	 * multiple variants of the same image. For instance, you can use this to generate multiple aspect ratios or multiple formats.
 	 */
 	getSrcSet?: (
 		options: ImageTransform,
@@ -226,8 +229,9 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 		const aspectRatio = targetWidth / targetHeight;
 		const imageWidth = isESMImportedImage(options.src) ? options.src.width : options.width;
-		const maxWidth = options.width ?? imageWidth ?? Infinity;
+		const maxWidth = imageWidth ?? Infinity;
 
+		// REFACTOR: Could we merge these two blocks?
 		if (densities) {
 			const densityValues = densities.map((density) => {
 				if (typeof density === 'number') {
@@ -244,9 +248,12 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			densityWidths.forEach((width, index) => {
 				const maxTargetWidth = Math.min(width, maxWidth);
 
+				// If the user passed dimensions, we don't want to add it to the srcset
+				const { width: transformWidth, height: transformHeight, ...rest } = options;
+
 				const srcSetValue = {
 					transform: {
-						...options,
+						...rest,
 					},
 					descriptor: `${densityValues[index]}x`,
 					attributes: {
@@ -254,7 +261,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 					},
 				};
 
-				// Only set width and height if they are different from the original image
+				// Only set width and height if they are different from the original image, to avoid duplicated final images
 				if (maxTargetWidth !== imageWidth) {
 					srcSetValue.transform.width = maxTargetWidth;
 					srcSetValue.transform.height = Math.round(maxTargetWidth / aspectRatio);
@@ -270,9 +277,11 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			widths.forEach((width) => {
 				const maxTargetWidth = Math.min(width, maxWidth);
 
+				const { width: transformWidth, height: transformHeight, ...rest } = options;
+
 				const srcSetValue = {
 					transform: {
-						...options,
+						...rest,
 					},
 					descriptor: `${width}w`,
 					attributes: {
@@ -280,7 +289,6 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 					},
 				};
 
-				// Only set width and height if they are different from the original image
 				if (maxTargetWidth !== imageWidth) {
 					srcSetValue.transform.width = maxTargetWidth;
 					srcSetValue.transform.height = Math.round(maxTargetWidth / aspectRatio);

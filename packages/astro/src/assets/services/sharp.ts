@@ -50,9 +50,9 @@ const sharpService: LocalImageService = {
 
 		// Never resize using both width and height at the same time, prioritizing width.
 		if (transform.height && !transform.width) {
-			result.resize({ height: transform.height });
+			result.resize({ height: Math.round(transform.height) });
 		} else if (transform.width) {
-			result.resize({ width: transform.width });
+			result.resize({ width: Math.round(transform.width) });
 		}
 
 		if (transform.format) {
