@@ -1,7 +1,7 @@
 import type {
 	Request as CFRequest,
-	ExecutionContext,
 	CacheStorage,
+	ExecutionContext,
 } from '@cloudflare/workers-types';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';

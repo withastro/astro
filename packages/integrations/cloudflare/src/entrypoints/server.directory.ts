@@ -1,4 +1,4 @@
-import type { Request as CFRequest, EventContext, CacheStorage } from '@cloudflare/workers-types';
+import type { Request as CFRequest, CacheStorage, EventContext } from '@cloudflare/workers-types';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { getProcessEnvProxy, isNode } from '../util.js';
