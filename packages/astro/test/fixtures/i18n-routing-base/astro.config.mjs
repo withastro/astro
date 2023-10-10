@@ -7,10 +7,7 @@ export default defineConfig({
 			defaultLocale: 'en',
 			locales: [
 				'en', 'pt', 'it'
-			],
-			fallback: {
-				'pt-BR': ['pt']
-			}
+			]
 		}
 	}
 })

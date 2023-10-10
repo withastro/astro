@@ -377,10 +377,9 @@ describe('Development Routing', () => {
 			expect(await response2.text()).includes('Hola mundo');
 		});
 
-		it("should render the default locale if there isn't a fallback and the route is missing", async () => {
+		it("should NOT render the default locale if there isn't a fallback and the route is missing", async () => {
 			const response = await fixture.fetch('/it/start');
-			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Hello');
+			expect(response.status).to.equal(404);
 		});
 
 		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
@@ -426,7 +425,65 @@ describe('Development Routing', () => {
 			expect(await response2.text()).includes('Hola mundo');
 		});
 
-		it("should render the default locale if there isn't a fallback and the route is missing", async () => {
+		it("should NOT render the default locale if there isn't a fallback and the route is missing", async () => {
+			const response = await fixture.fetch('/new-site/it/start');
+			expect(response.status).to.equal(404);
+		});
+
+		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
+			const response = await fixture.fetch('/new-site/fr/start');
+			expect(response.status).to.equal(404);
+		});
+	});
+
+	describe('i18n routing with fallback [redirect]', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-fallback/',
+				experimental: {
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'pt', 'it'],
+						fallback: {
+							it: ['en'],
+						},
+						fallbackControl: 'redirect',
+					},
+				},
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('should render the en locale', async () => {
+			const response = await fixture.fetch('/new-site/en/start');
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Hello');
+
+			const response2 = await fixture.fetch('/new-site/en/blog/1');
+			expect(response2.status).to.equal(200);
+			expect(await response2.text()).includes('Hello world');
+		});
+
+		it('should render localised page correctly', async () => {
+			const response = await fixture.fetch('/new-site/pt/start');
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Hola');
+
+			const response2 = await fixture.fetch('/new-site/pt/blog/1');
+			expect(response2.status).to.equal(200);
+			expect(await response2.text()).includes('Hola mundo');
+		});
+
+		it('should render the english locale, which is the first fallback', async () => {
 			const response = await fixture.fetch('/new-site/it/start');
 			expect(response.status).to.equal(200);
 			expect(await response.text()).includes('Hello');
