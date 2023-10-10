@@ -28,7 +28,9 @@ export default (element) =>
 				return content;
 			},
 		});
-		await setup(app);
+		if (typeof setup === 'function') {
+			await setup(app);
+		}
 		app.mount(element, isHydrate);
 
 		element.addEventListener('astro:unmount', () => app.unmount(), { once: true });

@@ -21,7 +21,9 @@ async function renderToStaticMarkup(Component, inputProps, slotted, metadata) {
 			});
 	}
 	const app = createSSRApp({ render: () => h(Component, props, slots) });
-	await setup(app);
+	if (typeof setup === 'function') {
+		await setup(app);
+	}
 	const html = await renderToString(app);
 	return { html };
 }
