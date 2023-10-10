@@ -383,17 +383,17 @@ async function transition(
 	}
 }
 
-let navigateOnSeverWarned = false;
+let navigateOnServerWarned = false;
 
 export function navigate(href: string, options?: Options) {
 	
 	if (import.meta.env.SSR) {
-		if (!navigateOnSeverWarned) {
+		if (!navigateOnServerWarned) {
 			// instantiate an error for the stacktrace to show to user.
 			const warning = new Error("The view transtions client API was called during a server side render. This may be unintentional as the navigate() function is expected to be called in response to user interactions. Please make sure that your usage is correct.");
 			warning.name = "Warning";
 			console.warn(warning);
-			navigateOnSeverWarned = true;
+			navigateOnServerWarned = true;
 		}
 		return;
 	}
