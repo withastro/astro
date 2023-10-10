@@ -94,7 +94,7 @@ https://user-images.githubusercontent.com/4033662/169918388-8ed153b2-0ba0-4b24-b
 
 ### Configuring Tailwind
 
-If you used the Quick Install instructions and said yes to each prompt, you'll see a `tailwind.config.cjs` file in your project's root directory. Use this file for your Tailwind configuration changes. You can learn how to customize Tailwind using this file [in the Tailwind docs](https://tailwindcss.com/docs/configuration).
+If you used the Quick Install instructions and said yes to each prompt, you'll see a `tailwind.config.mjs` file in your project's root directory. Use this file for your Tailwind configuration changes. You can learn how to customize Tailwind using this file [in the Tailwind docs](https://tailwindcss.com/docs/configuration).
 
 If it isn't there, you add your own `tailwind.config.(js|cjs|mjs)` file to the root directory and the integration will use its configurations. This can be great if you already have Tailwind configured in another project and want to bring those settings over to this one.
 
@@ -178,8 +178,8 @@ error   The `text-special` class does not exist. If `text-special` is a custom c
 [Instead of using `@layer` directives in a global stylesheet](https://tailwindcss.com/docs/functions-and-directives#using-apply-with-per-component-css), define your custom styles by adding a plugin to your Tailwind config to fix it:
 
 ```js
-// tailwind.config.cjs
-module.exports = {
+// tailwind.config.mjs
+export default {
   // ...
   plugins: [
     function ({ addComponents, theme }) {

@@ -50,7 +50,7 @@ const ALIASES = new Map([
 ]);
 const ASTRO_CONFIG_STUB = `import { defineConfig } from 'astro/config';\n\nexport default defineConfig({});`;
 const TAILWIND_CONFIG_STUB = `/** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
 	content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
 	theme: {
 		extend: {},
@@ -160,7 +160,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 						'./tailwind.config.mjs',
 						'./tailwind.config.js',
 					],
-					defaultConfigFile: './tailwind.config.cjs',
+					defaultConfigFile: './tailwind.config.mjs',
 					defaultConfigContent: TAILWIND_CONFIG_STUB,
 				});
 			}

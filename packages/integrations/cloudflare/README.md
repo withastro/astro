@@ -357,6 +357,10 @@ import { Buffer } from 'node:buffer';
 
 Additionally, you'll need to enable the Compatibility Flag in Cloudflare. The configuration for this flag may vary based on where you deploy your Astro site. For detailed guidance, please refer to the [Cloudflare documentation on enabling Node.js compatibility](https://developers.cloudflare.com/workers/runtime-apis/nodejs).
 
+## Cloudflare module support
+
+All Cloudflare namespaced packages (e.g. `cloudflare:sockets`) are allowlisted for use. Note that the package `cloudflare:sockets` does not work locally without using Wrangler dev mode.
+
 ## Preview with Wrangler
 
 To use [`wrangler`](https://developers.cloudflare.com/workers/wrangler/) to run your application locally, update the preview script:

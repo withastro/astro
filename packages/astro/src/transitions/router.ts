@@ -42,11 +42,6 @@ const announce = () => {
 };
 const PERSIST_ATTR = 'data-astro-transition-persist';
 const parser = new DOMParser();
-// explained at its usage
-let noopEl: HTMLDivElement;
-if (import.meta.env.DEV) {
-	noopEl = document.createElement('div');
-}
 
 // The History API does not tell you if navigation is forward or back, so
 // you can figure it using an index. On pushState the index is incremented so you
@@ -151,18 +146,24 @@ function isInfinite(animation: Animation) {
 
 const updateHistoryAndScrollPosition = (toLocation: URL, replace: boolean, intraPage: boolean) => {
 	const fresh = !samePage(toLocation);
+	let scrolledToTop = false;
 	if (toLocation.href !== location.href) {
 		if (replace) {
 			history.replaceState({ ...history.state }, '', toLocation.href);
 		} else {
 			history.replaceState({ ...history.state, intraPage }, '');
-			history.pushState({ index: ++currentHistoryIndex, scrollX, scrollY }, '', toLocation.href);
+			history.pushState(
+				{ index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
+				'',
+				toLocation.href
+			);
 		}
 		// now we are on the new page for non-history navigations!
 		// (with history navigation page change happens before popstate is fired)
 		// freshly loaded pages start from the top
 		if (fresh) {
 			scrollTo({ left: 0, top: 0, behavior: 'instant' });
+			scrolledToTop = true;
 		}
 	}
 	if (toLocation.hash) {
@@ -171,7 +172,9 @@ const updateHistoryAndScrollPosition = (toLocation: URL, replace: boolean, intra
 		// that won't reload the page but instead scroll to the fragment
 		location.href = toLocation.href;
 	} else {
-		scrollTo({ left: 0, top: 0, behavior: 'instant' });
+		if (!scrolledToTop) {
+			scrollTo({ left: 0, top: 0, behavior: 'instant' });
+		}
 	}
 };
 
@@ -197,22 +200,6 @@ async function updateDOM(
 		if (el.matches('link[rel=stylesheet]')) {
 			const href = el.getAttribute('href');
 			return newDocument.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
-		}
-		// What follows is a fix for an issue (#8472) with missing client:only styles after transition.
-		// That problem exists only in dev mode where styles are injected into the page by Vite.
-		// Returning a noop element ensures that the styles are not removed from the old document.
-		// Guarding the code below with the dev mode check
-		// allows tree shaking to remove this code in production.
-		if (import.meta.env.DEV) {
-			if (el.tagName === 'STYLE' && el.dataset.viteDevId) {
-				const devId = el.dataset.viteDevId;
-				// If this same style tag exists, remove it from the new page
-				return (
-					newDocument.querySelector(`style[data-vite-dev-id="${devId}"]`) ||
-					// Otherwise, keep it anyways. This is client:only styles.
-					noopEl
-				);
-			}
 		}
 		return null;
 	};

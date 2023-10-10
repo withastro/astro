@@ -1,5 +1,3 @@
-import * as crypto from 'node:crypto';
-import * as npath from 'node:path';
 import type { GetModuleInfo } from 'rollup';
 import { type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
 import { isBuildableCSSRequest } from '../../../vite-plugin-astro-server/util.js';
@@ -93,7 +91,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							if (new URL(pageInfo.id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)) {
 								// Split delayed assets to separate modules
 								// so they can be injected where needed
-								const chunkId = createNameHash(id, [id]);
+								const chunkId = assetName.createNameHash(id, [id]);
 								internals.cssModuleToChunkIdMap.set(id, chunkId);
 								return chunkId;
 							}
@@ -271,17 +269,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 }
 
 /***** UTILITY FUNCTIONS *****/
-
-function createNameHash(baseId: string, hashIds: string[]): string {
-	const baseName = baseId ? npath.parse(baseId).name : 'index';
-	const hash = crypto.createHash('sha256');
-	for (const id of hashIds) {
-		hash.update(id, 'utf-8');
-	}
-	const h = hash.digest('hex').slice(0, 8);
-	const proposedName = baseName + '.' + h;
-	return proposedName;
-}
 
 function* getParentClientOnlys(
 	id: string,

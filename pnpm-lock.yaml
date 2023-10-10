@@ -3531,9 +3531,18 @@ importers:
 
   packages/astro/test/fixtures/view-transitions:
     dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
       astro:
         specifier: workspace:*
         version: link:../../..
+      react:
+        specifier: ^18.1.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.1.0
+        version: 18.2.0(react@18.2.0)
 
   packages/astro/test/fixtures/virtual-astro-file:
     dependencies:

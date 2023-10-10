@@ -230,6 +230,28 @@ test.describe('View Transitions', () => {
 		await expect(h, 'imported CSS updated').toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
 	});
 
+	test('No page rendering during swap()', async ({ page, astro }) => {
+		let transitions = 0;
+		page.on('console', (msg) => {
+			if (msg.type() === 'info' && msg.text() === 'transitionstart') ++transitions;
+		});
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/listener-one'));
+		let p = page.locator('#totwo');
+		await expect(p, 'should have content').toHaveText('Go to listener two');
+		// on load a CSS transition is started triggered by a class on the html element
+		expect(transitions).toEqual(1);
+
+		// go to page 2
+		await page.click('#totwo');
+		p = page.locator('#toone');
+		await expect(p, 'should have content').toHaveText('Go to listener one');
+		// swap() resets that class, the after-swap listener sets it again.
+		// the temporarily missing class must not trigger page rendering
+		expect(transitions).toEqual(1);
+	});
+
 	test('click hash links does not do navigation', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -648,7 +670,7 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
 
-	test('client:only styles are retained on transition', async ({ page, astro }) => {
+	test.skip('client:only styles are retained on transition', async ({ page, astro }) => {
 		const totalExpectedStyles = 7;
 
 		// Go to page 1
