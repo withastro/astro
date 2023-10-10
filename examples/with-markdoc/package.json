@@ -12,6 +12,6 @@
   },
   "dependencies": {
     "@astrojs/markdoc": "^0.5.2",
-    "astro": "^3.2.3"
+    "astro": "^3.2.4"
   }
 }
