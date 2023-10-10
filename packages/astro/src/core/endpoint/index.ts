@@ -57,7 +57,9 @@ export function createAPIContext({
 		ResponseWithEncoding,
 		url: new URL(request.url),
 		get clientAddress() {
-			if (!(clientAddressSymbol in request)) {
+			if (clientAddressSymbol in request) {
+				return Reflect.get(request, clientAddressSymbol) as string;
+			}
 				if (adapterName) {
 					throw new AstroError({
 						...AstroErrorData.ClientAddressNotAvailable,
@@ -66,16 +68,8 @@ export function createAPIContext({
 				} else {
 					throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
 				}
-			}
-
-			return Reflect.get(request, clientAddressSymbol);
 		},
-	} as APIContext;
-
-	// We define a custom property, so we can check the value passed to locals
-	Object.defineProperty(context, 'locals', {
-		enumerable: true,
-		get() {
+		get locals() {
 			let locals = Reflect.get(request, clientLocalsSymbol)
 			
 			if (locals === undefined) {
@@ -89,14 +83,16 @@ export function createAPIContext({
 			
 			return locals;
 		},
-		set(val) {
+		// We define a custom property, so we can check the value passed to locals
+		set locals(val) {
 			if (typeof val !== 'object') {
 				throw new AstroError(AstroErrorData.LocalsNotAnObject);
 			} else {
 				Reflect.set(request, clientLocalsSymbol, val);
 			}
 		},
-	});
+	} satisfies APIContext;
+
 	return context;
 }
 
