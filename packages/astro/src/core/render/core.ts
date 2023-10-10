@@ -13,9 +13,12 @@ import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
 import { createResult } from './result.js';
+import { AstroError } from '../errors/index.js';
+import { CantRenderPage } from '../errors/errors-data.js';
+import { routeIsFallback } from '../redirects/helpers.js';
 
 export type RenderPage = {
-	mod: ComponentInstance;
+	mod: ComponentInstance | undefined;
 	renderContext: RenderContext;
 	env: Environment;
 	cookies: AstroCookies;
@@ -29,6 +32,11 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 				location: redirectRouteGenerate(renderContext.route, renderContext.params),
 			},
 		});
+		// TODO: check this one
+	} else if (routeIsFallback(renderContext.route)) {
+		return new Response(null);
+	} else if (!mod) {
+		throw new AstroError(CantRenderPage);
 	}
 
 	// Validate the page component before rendering the page
