@@ -9,9 +9,14 @@ import type {
 } from '../@types/astro.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
-import { createRenderContext, getParamsAndProps, type SSROptions } from '../core/render/index.js';
+import {
+	createRenderContext,
+	getParamsAndProps,
+	type RenderContext,
+	type SSROptions,
+} from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
-import { matchAllRoutes, matchDefaultLocaleRoutes } from '../core/routing/index.js';
+import { matchAllRoutes } from '../core/routing/index.js';
 import { isPage } from '../core/util.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
@@ -23,6 +28,8 @@ import { preload } from './index.js';
 import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { getScriptsForURL } from './scripts.js';
+import { createI18nMiddleware } from '../i18n/middleware.js';
+import { sequence } from '../core/middleware/index.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -51,14 +58,9 @@ export async function matchRoute(
 	pipeline: DevPipeline
 ): Promise<MatchedRoute | undefined> {
 	const env = pipeline.getEnvironment();
-	const config = pipeline.getConfig();
 	const { routeCache, logger } = env;
 	let matches = matchAllRoutes(pathname, manifestData);
 
-	// if we haven't found any match, we try to fetch the default locale matched route
-	if (matches.length === 0 && config.experimental.i18n) {
-		matches = matchDefaultLocaleRoutes(pathname, manifestData, config);
-	}
 	const preloadedMatches = await getSortedPreloadedMatches({
 		pipeline,
 		matches,
@@ -163,70 +165,133 @@ export async function handleRoute({
 	const config = pipeline.getConfig();
 	const moduleLoader = pipeline.getModuleLoader();
 	const { logger } = env;
-	if (!matchedRoute) {
+	if (!matchedRoute && !config.experimental.i18n) {
 		return handle404Response(origin, incomingRequest, incomingResponse);
 	}
 
-	const filePath: URL | undefined = matchedRoute.filePath;
-	const { route, preloadedComponent } = matchedRoute;
 	const buildingToSSR = isServerLikeOutput(config);
 
-	// Headers are only available when using SSR.
-	const request = createRequest({
-		url,
-		headers: buildingToSSR ? incomingRequest.headers : new Headers(),
-		method: incomingRequest.method,
-		body,
-		logger,
-		ssr: buildingToSSR,
-		clientAddress: buildingToSSR ? incomingRequest.socket.remoteAddress : undefined,
-		locals: Reflect.get(incomingRequest, clientLocalsSymbol), // Allows adapters to pass in locals in dev mode.
-	});
-
-	// Set user specified headers to response object.
-	for (const [name, value] of Object.entries(config.server.headers ?? {})) {
-		if (value) incomingResponse.setHeader(name, value);
-	}
-
-	const options: SSROptions = {
-		env,
-		filePath,
-		preload: preloadedComponent,
-		pathname,
-		request,
-		route,
-	};
+	let request: Request;
+	let renderContext: RenderContext;
+	let mod: ComponentInstance | undefined = undefined;
+	let options: SSROptions | undefined = undefined;
+	let route: RouteData;
 	const middleware = await loadMiddleware(moduleLoader, settings.config.srcDir);
-	if (middleware) {
-		options.middleware = middleware;
+
+	if (!matchedRoute) {
+		if (config.experimental.i18n) {
+			const locales = config.experimental.i18n.locales;
+			const pathNameHasLocale = pathname
+				.split('/')
+				.filter(Boolean)
+				.some((segment) => {
+					return locales.includes(segment);
+				});
+			if (!pathNameHasLocale) {
+				return handle404Response(origin, incomingRequest, incomingResponse);
+			}
+			request = createRequest({
+				url,
+				headers: buildingToSSR ? incomingRequest.headers : new Headers(),
+				logger,
+				ssr: buildingToSSR,
+			});
+			route = {
+				component: '',
+				generate(_data: any): string {
+					return '';
+				},
+				params: [],
+				pattern: new RegExp(''),
+				prerender: false,
+				segments: [],
+				type: 'fallback',
+				route: '',
+			};
+			renderContext = await createRenderContext({
+				request,
+				pathname,
+				env,
+				mod,
+				route,
+			});
+		} else {
+			return handle404Response(origin, incomingRequest, incomingResponse);
+		}
+	} else {
+		const filePath: URL | undefined = matchedRoute.filePath;
+		const { preloadedComponent } = matchedRoute;
+		route = matchedRoute.route;
+		// Headers are only available when using SSR.
+		request = createRequest({
+			url,
+			headers: buildingToSSR ? incomingRequest.headers : new Headers(),
+			method: incomingRequest.method,
+			body,
+			logger,
+			ssr: buildingToSSR,
+			clientAddress: buildingToSSR ? incomingRequest.socket.remoteAddress : undefined,
+			locals: Reflect.get(incomingRequest, clientLocalsSymbol), // Allows adapters to pass in locals in dev mode.
+		});
+
+		// Set user specified headers to response object.
+		for (const [name, value] of Object.entries(config.server.headers ?? {})) {
+			if (value) incomingResponse.setHeader(name, value);
+		}
+
+		options = {
+			env,
+			filePath,
+			preload: preloadedComponent,
+			pathname,
+			request,
+			route,
+		};
+		if (middleware) {
+			options.middleware = middleware;
+		}
+
+		mod = options.preload;
+
+		const { scripts, links, styles, metadata } = await getScriptsAndStyles({
+			pipeline,
+			filePath: options.filePath,
+		});
+
+		renderContext = await createRenderContext({
+			request: options.request,
+			pathname: options.pathname,
+			scripts,
+			links,
+			styles,
+			componentMetadata: metadata,
+			route: options.route,
+			mod,
+			env,
+		});
 	}
-	const mod = options.preload;
 
-	const { scripts, links, styles, metadata } = await getScriptsAndStyles({
-		pipeline,
-		filePath: options.filePath,
-	});
+	const onRequest = middleware?.onRequest as MiddlewareEndpointHandler | undefined;
+	if (config.experimental.i18n) {
+		const i18Middleware = createI18nMiddleware(config, logger);
 
-	const renderContext = await createRenderContext({
-		request: options.request,
-		pathname: options.pathname,
-		scripts,
-		links,
-		styles,
-		componentMetadata: metadata,
-		route: options.route,
-		mod,
-		env,
-	});
-	const onRequest = options.middleware?.onRequest as MiddlewareEndpointHandler | undefined;
-	if (onRequest) {
+		if (i18Middleware) {
+			if (onRequest) {
+				pipeline.setMiddlewareFunction(sequence(i18Middleware, onRequest));
+			} else {
+				pipeline.setMiddlewareFunction(i18Middleware);
+			}
+		} else if (onRequest) {
+			pipeline.setMiddlewareFunction(onRequest);
+		}
+	} else if (onRequest) {
 		pipeline.setMiddlewareFunction(onRequest);
 	}
 
 	let response = await pipeline.renderRoute(renderContext, mod);
 	if (response.status === 404 && has404Route(manifestData)) {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
-		if (fourOhFourRoute?.route !== options.route)
+		if (options && fourOhFourRoute?.route !== options.route)
 			return handleRoute({
 				...options,
 				matchedRoute: fourOhFourRoute,
