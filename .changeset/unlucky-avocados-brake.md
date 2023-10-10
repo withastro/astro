@@ -2,4 +2,4 @@
 '@astrojs/cloudflare': patch
 ---
 
-add cloudflare cachestorage types to server entrypoints
+fixes `AdvancedRuntime` & `DirectoryRuntime` types to work woth Cloudflare caches
