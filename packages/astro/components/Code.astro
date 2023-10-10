@@ -81,6 +81,7 @@ const html = highlighter.codeToHtml(code, {
 				node.tagName = 'code';
 			}
 
+			// Cast to string as shikiji will always pass them as strings instead of any other types
 			const classValue = (node.properties.class as string) ?? '';
 			const styleValue = (node.properties.style as string) ?? '';
 
