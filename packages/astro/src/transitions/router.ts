@@ -55,7 +55,7 @@ let parser: DOMParser
 // can use that to determine popstate if going forward or back.
 let currentHistoryIndex = 0;
 
-if (supportsViewTransitions) {
+if (inBrowser) {
 if (history.state) {
 	// we reloaded a page with history state
 	// (e.g. history navigation from non-transition page or browser reload)
