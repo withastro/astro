@@ -1,4 +1,4 @@
-import type { Request as CFRequest, EventContext } from '@cloudflare/workers-types';
+import type { Request as CFRequest, EventContext, CacheStorage } from '@cloudflare/workers-types';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { getProcessEnvProxy, isNode } from '../util.js';
@@ -6,13 +6,12 @@ import { getProcessEnvProxy, isNode } from '../util.js';
 if (!isNode) {
 	process.env = getProcessEnvProxy();
 }
-
 export interface DirectoryRuntime<T extends object = object> {
 	runtime: {
 		waitUntil: (promise: Promise<any>) => void;
 		env: EventContext<unknown, string, unknown>['env'] & T;
 		cf: CFRequest['cf'];
-		caches: typeof caches;
+		caches: CacheStorage;
 	};
 }
 
@@ -48,7 +47,7 @@ export function createExports(manifest: SSRManifest) {
 					},
 					env: context.env,
 					cf: request.cf,
-					caches: caches,
+					caches: caches as unknown as CacheStorage,
 				},
 			};
 

@@ -1,4 +1,8 @@
-import type { Request as CFRequest, ExecutionContext } from '@cloudflare/workers-types';
+import type {
+	Request as CFRequest,
+	ExecutionContext,
+	CacheStorage,
+} from '@cloudflare/workers-types';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { getProcessEnvProxy, isNode } from '../util.js';
@@ -16,7 +20,7 @@ export interface AdvancedRuntime<T extends object = object> {
 		waitUntil: (promise: Promise<any>) => void;
 		env: Env & T;
 		cf: CFRequest['cf'];
-		caches: typeof caches;
+		caches: CacheStorage;
 	};
 }
 
@@ -50,7 +54,7 @@ export function createExports(manifest: SSRManifest) {
 					},
 					env: env,
 					cf: request.cf,
-					caches: caches,
+					caches: caches as unknown as CacheStorage,
 				},
 			};
 
