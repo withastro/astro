@@ -755,12 +755,12 @@ test.describe('View Transitions', () => {
 
 	test('Use the client side router in framework components', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/client-load'));
-		
+
 		// the button is set to naviagte() to /two
 		const button = page.locator('#react-client-load-navigate-button');
 
 		await expect(button, 'should have content').toHaveText('Navigate to `/two`');
-		
+
 		await button.click();
 
 		const p = page.locator('#two');
