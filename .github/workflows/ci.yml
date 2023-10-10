@@ -133,11 +133,6 @@ jobs:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
 
-      - name: Use Deno
-        uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.35.0
-
       - name: Install dependencies
         run: pnpm install
 

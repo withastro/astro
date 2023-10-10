@@ -52,8 +52,6 @@ Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll 
 | [@astrojs/svelte](packages/integrations/svelte)         | [![astro version](https://img.shields.io/npm/v/@astrojs/svelte.svg?label=%20)](packages/integrations/svelte/CHANGELOG.md)         |
 | [@astrojs/vue](packages/integrations/vue)               | [![astro version](https://img.shields.io/npm/v/@astrojs/vue.svg?label=%20)](packages/integrations/vue/CHANGELOG.md)               |
 | [@astrojs/lit](packages/integrations/lit)               | [![astro version](https://img.shields.io/npm/v/@astrojs/lit.svg?label=%20)](packages/integrations/lit/CHANGELOG.md)               |
-| [@astrojs/deno](packages/integrations/deno)             | [![astro version](https://img.shields.io/npm/v/@astrojs/deno.svg?label=%20)](packages/integrations/deno/CHANGELOG.md)             |
-| [@astrojs/netlify](packages/integrations/netlify)       | [![astro version](https://img.shields.io/npm/v/@astrojs/netlify.svg?label=%20)](packages/integrations/netlify/CHANGELOG.md)       |
 | [@astrojs/node](packages/integrations/node)             | [![astro version](https://img.shields.io/npm/v/@astrojs/node.svg?label=%20)](packages/integrations/node/CHANGELOG.md)             |
 | [@astrojs/vercel](packages/integrations/vercel)         | [![astro version](https://img.shields.io/npm/v/@astrojs/vercel.svg?label=%20)](packages/integrations/vercel/CHANGELOG.md)         |
 | [@astrojs/cloudflare](packages/integrations/cloudflare) | [![astro version](https://img.shields.io/npm/v/@astrojs/cloudflare.svg?label=%20)](packages/integrations/cloudflare/CHANGELOG.md) |
