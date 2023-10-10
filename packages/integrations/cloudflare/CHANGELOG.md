@@ -1,5 +1,17 @@
 # @astrojs/cloudflare
 
+## 7.5.2
+
+### Patch Changes
+
+- [#8766](https://github.com/withastro/astro/pull/8766) [`054c5c644`](https://github.com/withastro/astro/commit/054c5c6447d79dd4ea7ab6ce0f9ec836abebd211) Thanks [@jadbox](https://github.com/jadbox)! - Adds `cloudflare:sockets` compile support
+
+- [#8788](https://github.com/withastro/astro/pull/8788) [`0ab6bad7d`](https://github.com/withastro/astro/commit/0ab6bad7dffd413c975ab00e545f8bc150f6a92f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Adds support for `node:crypto`
+
+- Updated dependencies [[`160d1cd75`](https://github.com/withastro/astro/commit/160d1cd755e70af1d8ec294d01dd2cb32d60db50), [`30de32436`](https://github.com/withastro/astro/commit/30de324361bc261956eb9fc08fe60a82ff602a9b), [`c4a7ec425`](https://github.com/withastro/astro/commit/c4a7ec4255e7acb9555cb8bb74ea13c5fbb2ac17), [`c24f70d91`](https://github.com/withastro/astro/commit/c24f70d91601dd3a6b5a84f04d61824e775e9b44), [`93b092266`](https://github.com/withastro/astro/commit/93b092266febfad16a48575f8eee12d5910bf071), [`29cdfa024`](https://github.com/withastro/astro/commit/29cdfa024886dd581cb207586f7dfec6966bdd4e), [`eaed844ea`](https://github.com/withastro/astro/commit/eaed844ea8f2f52e0c9caa40bb3ec7377e10595f)]:
+  - astro@3.2.4
+  - @astrojs/underscore-redirects@0.3.1
+
 ## 7.5.1
 
 ### Patch Changes
