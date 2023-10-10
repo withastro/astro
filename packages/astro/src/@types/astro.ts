@@ -1491,6 +1491,21 @@ export interface AstroUserConfig {
 
 			/**
 			 * @docs
+			 * @name experimental.i18n.fallbackControl
+			 * @type {"none" | "render" | "redirect"}
+			 * @version 3.*.*
+			 * @description
+			 *
+			 * Controls the fallback system of the internationalisation:
+			 *  - `none`: Astro will do nothing and will return `404` if a translated page isn't translated;
+			 *  - `redirect`: Astro will do a redirect to the fallback language if the translated page returns a `404`;
+			 *  - `render`: currently unsupported by Astro
+			 *
+			 */
+			fallbackControl: 'none' | 'render' | 'redirect';
+
+			/**
+			 * @docs
 			 * @name experimental.i18n.detectBrowserLanguage
 			 * @type {boolean}
 			 * @version 3.*.*
@@ -1969,7 +1984,7 @@ export type AstroFeatureMap = {
 	/**
 	 * List of features that orbit around the i18n routing
 	 */
-	i18n?: AstroInternalisationFeature;
+	i18n?: AstroInternationalisationFeature;
 };
 
 export interface AstroAssetsFeature {
@@ -1984,7 +1999,7 @@ export interface AstroAssetsFeature {
 	isSquooshCompatible?: boolean;
 }
 
-export interface AstroInternalisationFeature {
+export interface AstroInternationalisationFeature {
 	/**
 	 * Wether the adapter is able to detect the language of the browser, usually using the `Accept-Language` header.
 	 */
@@ -2291,7 +2306,13 @@ export interface AstroPluginOptions {
 	logger: Logger;
 }
 
-export type RouteType = 'page' | 'endpoint' | 'redirect';
+/**
+ * - page: a route that lives in the file system, usually an Astro component
+ * - endpoint: a route that lives in the file system, usually a JS file that exposes endpoints methods
+ * - redirect: a route points to another route that lives in the file system
+ * - fallback: a route that doesn't exist in the file system that needs to be handled with other means, usually the middleware
+ */
+export type RouteType = 'page' | 'endpoint' | 'redirect' | 'fallback';
 
 export interface RoutePart {
 	content: string;
@@ -2320,7 +2341,6 @@ export interface RouteData {
 	prerender: boolean;
 	redirect?: RedirectConfig;
 	redirectRoute?: RouteData;
-	locale: string | undefined;
 }
 
 export type RedirectRouteData = RouteData & {

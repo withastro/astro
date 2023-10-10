@@ -16,7 +16,7 @@ import { validateDynamicRouteModule, validateGetStaticPathsResult } from '../rou
 import { generatePaginateFunction } from './paginate.js';
 
 interface CallGetStaticPathsOptions {
-	mod: ComponentInstance;
+	mod: ComponentInstance | undefined;
 	route: RouteData;
 	routeCache: RouteCache;
 	logger: Logger;
@@ -33,7 +33,9 @@ export async function callGetStaticPaths({
 	const cached = routeCache.get(route);
 	if (cached?.staticPaths) return cached.staticPaths;
 
-	validateDynamicRouteModule(mod, { ssr, route });
+	if (mod) {
+		validateDynamicRouteModule(mod, { ssr, route });
+	}
 
 	// No static paths in SSR mode. Return an empty RouteCacheEntry.
 	if (ssr && !route.prerender) {
@@ -42,22 +44,26 @@ export async function callGetStaticPaths({
 		return entry;
 	}
 
+	let staticPaths: GetStaticPathsResult = [];
 	// Add a check here to make TypeScript happy.
 	// This is already checked in validateDynamicRouteModule().
-	if (!mod.getStaticPaths) {
-		throw new Error('Unexpected Error.');
-	}
+	if (mod) {
+		if (!mod.getStaticPaths) {
+			throw new Error('Unexpected Error.');
+		}
 
-	// Calculate your static paths.
-	let staticPaths: GetStaticPathsResult = [];
-	staticPaths = await mod.getStaticPaths({
-		// Q: Why the cast?
-		// A: So users downstream can have nicer typings, we have to make some sacrifice in our internal typings, which necessitate a cast here
-		paginate: generatePaginateFunction(route) as PaginateFunction,
-		rss() {
-			throw new AstroError(AstroErrorData.GetStaticPathsRemovedRSSHelper);
-		},
-	});
+		if (mod) {
+			// Calculate your static paths.
+			staticPaths = await mod.getStaticPaths({
+				// Q: Why the cast?
+				// A: So users downstream can have nicer typings, we have to make some sacrifice in our internal typings, which necessitate a cast here
+				paginate: generatePaginateFunction(route) as PaginateFunction,
+				rss() {
+					throw new AstroError(AstroErrorData.GetStaticPathsRemovedRSSHelper);
+				},
+			});
+		}
+	}
 
 	validateGetStaticPathsResult(staticPaths, logger, route);
 

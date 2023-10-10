@@ -34,7 +34,7 @@ export type CreateRenderContextArgs = Partial<
 > & {
 	route: RouteData;
 	request: RenderContext['request'];
-	mod: ComponentInstance;
+	mod: ComponentInstance | undefined;
 	env: Environment;
 };
 
