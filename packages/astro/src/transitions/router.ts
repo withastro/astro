@@ -387,7 +387,7 @@ let navigateOnSeverWarned = false;
 
 export function navigate(href: string, options?: Options) {
 	
-	if (!supportsViewTransitions) {
+	if (import.meta.env.SSR) {
 		if (!navigateOnSeverWarned) {
 			// instantiate an error for the stacktrace to show to user.
 			const warning = new Error("The view transtions client API was called during a server side render. This may be unintentional as the navigate() function is expected to be called in response to user interactions. Please make sure that your usage is correct.");
