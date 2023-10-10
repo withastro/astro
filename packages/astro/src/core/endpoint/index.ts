@@ -76,7 +76,18 @@ export function createAPIContext({
 	Object.defineProperty(context, 'locals', {
 		enumerable: true,
 		get() {
-			return Reflect.get(request, clientLocalsSymbol);
+			let locals = Reflect.get(request, clientLocalsSymbol)
+			
+			if (locals === undefined) {
+				locals = {}
+				Reflect.set(request, clientLocalsSymbol, locals)
+			}
+			
+			if (typeof locals !== 'object') {
+				throw new AstroError(AstroErrorData.LocalsNotAnObject);
+			}
+			
+			return locals;
 		},
 		set(val) {
 			if (typeof val !== 'object') {
