@@ -102,18 +102,24 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 	};
 }
 
-export function createSettings(config: AstroConfig, cwd?: string): AstroSettings {
-	const tsconfig = loadTSConfig(cwd);
+export async function createSettings(config: AstroConfig, cwd?: string): Promise<AstroSettings> {
+	const tsconfig = await loadTSConfig(cwd);
 	const settings = createBaseSettings(config);
 
-	const watchFiles = tsconfig?.exists ? [tsconfig.path, ...tsconfig.extendedPaths] : [];
-
+	let watchFiles = [];
 	if (cwd) {
 		watchFiles.push(fileURLToPath(new URL('./package.json', pathToFileURL(cwd))));
 	}
 
-	settings.tsConfig = tsconfig?.config;
-	settings.tsConfigPath = tsconfig?.path;
+	if (typeof tsconfig !== 'string') {
+		watchFiles.push(
+			...[tsconfig.tsconfigFile, ...(tsconfig.extended ?? []).map((e) => e.tsconfigFile)]
+		);
+		settings.tsConfig = tsconfig.tsconfig;
+		settings.tsConfigPath = tsconfig.tsconfigFile;
+	}
+
 	settings.watchFiles = watchFiles;
+
 	return settings;
 }

@@ -169,7 +169,7 @@ default: `false`
 
 Whether or not to import `.wasm` files [directly as ES modules](https://github.com/WebAssembly/esm-integration/tree/main/proposals/esm-integration) using the `.wasm?module` import syntax.
 
-Add `wasmModuleImports: true` to `astro.config.mjs` to enable this functionality in both the Cloudflare build and the Astro dev server. Read more about [using Wasm modules](#use-wasm-modules)
+Add `wasmModuleImports: true` to `astro.config.mjs` to enable this functionality in both the Cloudflare build and the Astro dev server. Read more about [using Wasm modules](#use-wasm-modules).
 
 ```diff lang="js"
 // astro.config.mjs
@@ -221,7 +221,7 @@ Currently supported bindings:
 - [Cloudflare Workers KV](https://developers.cloudflare.com/kv/)
 - [Cloudflare Durable Objects](https://developers.cloudflare.com/durable-objects/)
 
-You can access the runtime from Astro components through `Astro.locals` inside any .astro` file.
+You can access the runtime from Astro components through `Astro.locals` inside any `.astro` file.
 
 ```astro
 ---
@@ -339,6 +339,7 @@ Astro's Cloudflare adapter allows you to use any Node.js runtime API supported b
 - assert
 - AsyncLocalStorage
 - Buffer
+- Crypto
 - Diagnostics Channel
 - EventEmitter
 - path
@@ -356,6 +357,10 @@ import { Buffer } from 'node:buffer';
 ```
 
 Additionally, you'll need to enable the Compatibility Flag in Cloudflare. The configuration for this flag may vary based on where you deploy your Astro site. For detailed guidance, please refer to the [Cloudflare documentation on enabling Node.js compatibility](https://developers.cloudflare.com/workers/runtime-apis/nodejs).
+
+## Cloudflare module support
+
+All Cloudflare namespaced packages (e.g. `cloudflare:sockets`) are allowlisted for use. Note that the package `cloudflare:sockets` does not work locally without using Wrangler dev mode.
 
 ## Preview with Wrangler
 
