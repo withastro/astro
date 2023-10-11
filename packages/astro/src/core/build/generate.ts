@@ -261,7 +261,7 @@ async function generatePage(
 	const pageInfo = getPageDataByComponent(pipeline.getInternals(), pageData.route.component);
 
 	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
-	const linkIds: [] = [];
+	const links = [...pageInfo?.preload.modules ?? []].map(href => ({ rel: 'modulepreload' as const, href }));
 	const scripts = pageInfo?.hoistedScript ?? null;
 	const styles = pageData.styles
 		.sort(cssOrder)
@@ -291,7 +291,7 @@ async function generatePage(
 
 	const generationOptions: Readonly<GeneratePathOptions> = {
 		pageData,
-		linkIds,
+		links,
 		scripts,
 		styles,
 		mod: pageModule,
@@ -425,7 +425,10 @@ function getInvalidRouteSegmentError(
 
 interface GeneratePathOptions {
 	pageData: PageBuildData;
-	linkIds: string[];
+	links: Array<{
+		rel: 'modulepreload'
+		href: string
+	}>;
 	scripts: { type: 'inline' | 'external'; value: string } | null;
 	styles: StylesheetAsset[];
 	mod: ComponentInstance;
@@ -490,7 +493,7 @@ function getUrlForPath(
 
 async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeline: BuildPipeline) {
 	const manifest = pipeline.getManifest();
-	const { mod, scripts: hoistedScripts, styles: _styles, pageData } = gopts;
+	const { mod, links: _links, scripts: hoistedScripts, styles: _styles, pageData } = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	if (pageData.route.type === 'page') {
@@ -500,7 +503,7 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 	pipeline.getEnvironment().logger.debug('build', `Generating: ${pathname}`);
 
 	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
-	const links = new Set<never>();
+	const links = new Set(_links.map(props => ({ props, children: '' })));
 	const scripts = createModuleScriptsSet(
 		hoistedScripts ? [hoistedScripts] : [],
 		manifest.base,

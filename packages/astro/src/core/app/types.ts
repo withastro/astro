@@ -16,7 +16,10 @@ export type StylesheetAsset =
 export interface RouteInfo {
 	routeData: RouteData;
 	file: string;
-	links: string[];
+	links: Array<{
+		href: string
+		rel: 'modulepreload'
+	}>;
 	scripts: // Integration injected
 	(
 		| { children: string; stage: string }

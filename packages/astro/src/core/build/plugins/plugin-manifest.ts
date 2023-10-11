@@ -210,7 +210,7 @@ function buildManifest(
 		}
 
 		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
-		const links: [] = [];
+		const links = [...pageData.preload.modules].map(href => ({ rel: 'modulepreload' as const, href }));
 
 		const styles = pageData.styles
 			.sort(cssOrder)

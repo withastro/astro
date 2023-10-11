@@ -212,11 +212,11 @@ export class App {
 				env: this.#pipeline.env,
 				mod: handler as any,
 			});
-		} else {
+		}
 			const pathname = prependForwardSlash(this.removeBase(url.pathname));
 			const info = this.#routeDataToRouteInfo.get(routeData)!;
 			// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
-			const links = new Set<never>();
+			const links = new Set(info.links.map(props => ({ props, children: '' })));
 			const styles = createStylesheetElementSet(info.styles);
 
 			let scripts = new Set<SSRElement>();
@@ -245,7 +245,6 @@ export class App {
 				mod,
 				env: this.#pipeline.env,
 			});
-		}
 	}
 
 	/**

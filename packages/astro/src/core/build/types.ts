@@ -25,6 +25,11 @@ export interface PageBuildData {
 	component: ComponentPath;
 	route: RouteData;
 	moduleSpecifier: string;
+	preload: {
+		modules: Set<string>
+		fonts: Set<string>
+		styles: Set<string>
+	};
 	propagatedStyles: Map<string, Set<StylesheetAsset>>;
 	propagatedScripts: Map<string, Set<string>>;
 	hoistedScript: { type: 'inline' | 'external'; value: string } | undefined;

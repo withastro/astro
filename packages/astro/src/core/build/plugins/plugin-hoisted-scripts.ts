@@ -67,14 +67,17 @@ export function vitePluginHoistedScripts(
 			});
 
 			for (const [id, output] of considerInlining.entries()) {
+				
 				const canBeInlined =
 					importedByOtherScripts.has(output.fileName) === false &&
 					output.imports.length === 0 &&
 					output.dynamicImports.length === 0 &&
 					Buffer.byteLength(output.code) <= assetInlineLimit;
+				
 				let removeFromBundle = false;
-				const facadeId = output.facadeModuleId!;
-				const pages = internals.hoistedScriptIdToPagesMap.get(facadeId)!;
+				
+				const pages = internals.hoistedScriptIdToPagesMap.get(output.facadeModuleId!)!;
+				
 				for (const pathname of pages) {
 					const vid = viteID(new URL('.' + pathname, settings.config.root));
 					const pageInfo = getPageDataByViteID(internals, vid);
@@ -90,6 +93,10 @@ export function vitePluginHoistedScripts(
 								type: 'external',
 								value: id,
 							};
+						}
+						
+						for (const importedScript of output.imports) {
+							pageInfo.preload.modules.add(importedScript)
 						}
 					}
 				}
