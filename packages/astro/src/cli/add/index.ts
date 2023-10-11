@@ -848,25 +848,31 @@ async function updateTSConfig(
 		return UpdateResult.none;
 	}
 
-	const inputConfig = loadTSConfig(cwd, false);
-	const configFileName = inputConfig.exists ? inputConfig.path.split('/').pop() : 'tsconfig.json';
+	let inputConfig = await loadTSConfig(cwd);
+	let inputConfigText = '';
 
-	if (inputConfig.reason === 'invalid-config') {
+	if (inputConfig === 'invalid-config' || inputConfig === 'unknown-error') {
 		return UpdateResult.failure;
+	} else if (inputConfig === 'missing-config') {
+		logger.debug('add', "Couldn't find tsconfig.json or jsconfig.json, generating one");
+		inputConfig = {
+			tsconfig: defaultTSConfig,
+			tsconfigFile: path.join(cwd, 'tsconfig.json'),
+			rawConfig: { tsconfig: defaultTSConfig, tsconfigFile: path.join(cwd, 'tsconfig.json') },
+		};
+	} else {
+		inputConfigText = JSON.stringify(inputConfig.rawConfig.tsconfig, null, 2);
 	}
 
-	if (inputConfig.reason === 'not-found') {
-		logger.debug('add', "Couldn't find tsconfig.json or jsconfig.json, generating one");
-	}
+	const configFileName = path.basename(inputConfig.tsconfigFile);
 
 	const outputConfig = updateTSConfigForFramework(
-		inputConfig.exists ? inputConfig.config : defaultTSConfig,
+		inputConfig.rawConfig.tsconfig,
 		firstIntegrationWithTSSettings
 	);
 
-	const input = inputConfig.exists ? JSON.stringify(inputConfig.config, null, 2) : '';
 	const output = JSON.stringify(outputConfig, null, 2);
-	const diff = getDiffContent(input, output);
+	const diff = getDiffContent(inputConfigText, output);
 
 	if (!diff) {
 		return UpdateResult.none;
@@ -906,7 +912,7 @@ async function updateTSConfig(
 	}
 
 	if (await askToContinue({ flags })) {
-		await fs.writeFile(inputConfig?.path ?? path.join(cwd, 'tsconfig.json'), output, {
+		await fs.writeFile(inputConfig.tsconfigFile, output, {
 			encoding: 'utf-8',
 		});
 		logger.debug('add', `Updated ${configFileName} file`);

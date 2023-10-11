@@ -63,6 +63,11 @@ export async function renderPage(
 		body = encoder.encode(body);
 		headers.set('Content-Length', body.byteLength.toString());
 	}
+	// TODO: Revisit if user should manually set charset by themselves in Astro 4
+	// This code preserves the existing behaviour for markdown pages since Astro 2
+	if (route?.component.endsWith('.md')) {
+		headers.set('Content-Type', 'text/html; charset=utf-8');
+	}
 	const response = new Response(body, { ...init, headers });
 	return response;
 }

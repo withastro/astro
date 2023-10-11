@@ -6,6 +6,7 @@ import type {
 	GetImageResult,
 	ImageMetadata,
 	ImageTransform,
+	SrcSetValue,
 	UnresolvedImageTransform,
 } from './types.js';
 import { matchHostname, matchPattern } from './utils/remotePattern.js';
@@ -93,22 +94,41 @@ export async function getImage(
 		? await service.validateOptions(resolvedOptions, imageConfig)
 		: resolvedOptions;
 
-	let imageURL = await service.getURL(validatedOptions, imageConfig);
+	// Get all the options for the different srcSets
+	const srcSetTransforms = service.getSrcSet
+		? await service.getSrcSet(validatedOptions, imageConfig)
+		: [];
 
-	// In build and for local services, we need to collect the requested parameters so we can generate the final images
+	let imageURL = await service.getURL(validatedOptions, imageConfig);
+	let srcSets: SrcSetValue[] = await Promise.all(
+		srcSetTransforms.map(async (srcSet) => ({
+			url: await service.getURL(srcSet.transform, imageConfig),
+			descriptor: srcSet.descriptor,
+			attributes: srcSet.attributes,
+		}))
+	);
+
 	if (
 		isLocalService(service) &&
 		globalThis.astroAsset.addStaticImage &&
-		// If `getURL` returned the same URL as the user provided, it means the service doesn't need to do anything
 		!(isRemoteImage(validatedOptions.src) && imageURL === validatedOptions.src)
 	) {
 		imageURL = globalThis.astroAsset.addStaticImage(validatedOptions);
+		srcSets = srcSetTransforms.map((srcSet) => ({
+			url: globalThis.astroAsset.addStaticImage!(srcSet.transform),
+			descriptor: srcSet.descriptor,
+			attributes: srcSet.attributes,
+		}));
 	}
 
 	return {
 		rawOptions: resolvedOptions,
 		options: validatedOptions,
 		src: imageURL,
+		srcSet: {
+			values: srcSets,
+			attribute: srcSets.map((srcSet) => `${srcSet.url} ${srcSet.descriptor}`).join(', '),
+		},
 		attributes:
 			service.getHTMLAttributes !== undefined
 				? await service.getHTMLAttributes(validatedOptions, imageConfig)

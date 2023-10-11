@@ -59,7 +59,7 @@ export default async function build(
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
 
-	const settings = createSettings(astroConfig, fileURLToPath(astroConfig.root));
+	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	const builder = new AstroBuilder(settings, {
 		...options,
