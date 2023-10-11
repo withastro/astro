@@ -74,7 +74,6 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 	vercel: '@astrojs/vercel/serverless',
 	cloudflare: '@astrojs/cloudflare',
 	node: '@astrojs/node',
-	deno: '@astrojs/deno',
 };
 
 // Users might lack access to the global npm registry, this function
