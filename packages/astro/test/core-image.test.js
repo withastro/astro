@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { basename } from 'node:path';
 import { Writable } from 'node:stream';
+import parseSrcset from 'parse-srcset';
 import { removeDir } from '../dist/core/fs/index.js';
 import { Logger } from '../dist/core/logger/core.js';
 import testAdapter from './test-adapter.js';
@@ -187,6 +188,36 @@ describe('astro:image', () => {
 				res = await fixture.fetch(src);
 				expect(res.status).to.equal(200);
 				expect(res.headers.get('content-type')).to.equal('image/avif');
+			});
+
+			it('has a working Picture component', async () => {
+				let res = await fixture.fetch('/picturecomponent');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				// Densities
+				let $img = $('#picture-density-2-format img');
+				let $picture = $('#picture-density-2-format picture');
+				let $source = $('#picture-density-2-format source');
+				expect($img).to.have.a.lengthOf(1);
+				expect($picture).to.have.a.lengthOf(1);
+				expect($source).to.have.a.lengthOf(2);
+
+				const srcset = parseSrcset($source.attr('srcset'));
+				expect(srcset.every((src) => src.url.startsWith('/_image'))).to.equal(true);
+				expect(srcset.map((src) => src.d)).to.deep.equal([undefined, 2]);
+
+				// Widths
+				$img = $('#picture-widths img');
+				$picture = $('#picture-widths picture');
+				$source = $('#picture-widths source');
+				expect($img).to.have.a.lengthOf(1);
+				expect($picture).to.have.a.lengthOf(1);
+				expect($source).to.have.a.lengthOf(1);
+
+				const srcset2 = parseSrcset($source.attr('srcset'));
+				expect(srcset2.every((src) => src.url.startsWith('/_image'))).to.equal(true);
+				expect(srcset2.map((src) => src.w)).to.deep.equal([undefined, 207]);
 			});
 		});
 
@@ -700,6 +731,26 @@ describe('astro:image', () => {
 			const src = $img.attr('src');
 			const data = await fixture.readFile(src, null);
 			expect(data).to.be.an.instanceOf(Buffer);
+		});
+
+		it('Picture component images are written', async () => {
+			const html = await fixture.readFile('/picturecomponent/index.html');
+			const $ = cheerio.load(html);
+			let $img = $('img');
+			let $source = $('source');
+
+			expect($img).to.have.a.lengthOf(1);
+			expect($source).to.have.a.lengthOf(2);
+
+			const srcset = parseSrcset($source.attr('srcset'));
+			let hasExistingSrc = await Promise.all(
+				srcset.map(async (src) => {
+					const data = await fixture.readFile(src.url, null);
+					return data instanceof Buffer;
+				})
+			);
+
+			expect(hasExistingSrc.every((src) => src === true)).to.deep.equal(true);
 		});
 
 		it('markdown images are written', async () => {

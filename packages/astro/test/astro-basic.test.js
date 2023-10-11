@@ -3,23 +3,31 @@ import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Astro basics', () => {
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	let previewServer;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-basic/',
 		});
-		await fixture.build();
-		previewServer = await fixture.preview();
-	});
-
-	// important: close preview server (free up port and connection)
-	after(async () => {
-		await previewServer.stop();
 	});
 
 	describe('build', () => {
+		let previewServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/astro-basic/',
+			});
+			await fixture.build();
+			previewServer = await fixture.preview();
+		});
+
+		// important: close preview server (free up port and connection)
+		after(async () => {
+			await previewServer.stop();
+		});
+
 		it('Can load page', async () => {
 			const html = await fixture.readFile(`/index.html`);
 			const $ = cheerio.load(html);
@@ -108,39 +116,87 @@ describe('Astro basics', () => {
 			const $ = cheerio.load(html);
 			expect($('#rendered-order').text()).to.eq('Rendered order: A, B');
 		});
-	});
 
-	it('Supports void elements whose name is a string (#2062)', async () => {
-		const html = await fixture.readFile('/input/index.html');
-		const $ = cheerio.load(html);
-
-		// <Input />
-		expect($('body > :nth-child(1)').prop('outerHTML')).to.equal('<input>');
-
-		// <Input type="password" />
-		expect($('body > :nth-child(2)').prop('outerHTML')).to.equal('<input type="password">');
-
-		// <Input type="text" />
-		expect($('body > :nth-child(3)').prop('outerHTML')).to.equal('<input type="text">');
-
-		// <Input type="select"><option>option</option></Input>
-		expect($('body > :nth-child(4)').prop('outerHTML')).to.equal(
-			'<select><option>option</option></select>'
-		);
-
-		// <Input type="textarea">textarea</Input>
-		expect($('body > :nth-child(5)').prop('outerHTML')).to.equal('<textarea>textarea</textarea>');
-	});
-
-	describe('preview', () => {
-		it('returns 200 for valid URLs', async () => {
-			const result = await fixture.fetch('/');
-			expect(result.status).to.equal(200);
+		it('renders markdown in utf-8 by default', async () => {
+			const html = await fixture.readFile('/chinese-encoding-md/index.html');
+			const $ = cheerio.load(html);
+			expect($('h1').text()).to.equal('我的第一篇博客文章');
 		});
 
-		it('returns 404 for invalid URLs', async () => {
-			const result = await fixture.fetch('/bad-url');
-			expect(result.status).to.equal(404);
+		it('renders MDX in utf-8 by default', async () => {
+			const html = await fixture.readFile('/chinese-encoding-mdx/index.html');
+			const $ = cheerio.load(html);
+			expect($('h1').text()).to.equal('我的第一篇博客文章');
+		});
+
+		it('Supports void elements whose name is a string (#2062)', async () => {
+			const html = await fixture.readFile('/input/index.html');
+			const $ = cheerio.load(html);
+
+			// <Input />
+			expect($('body > :nth-child(1)').prop('outerHTML')).to.equal('<input>');
+
+			// <Input type="password" />
+			expect($('body > :nth-child(2)').prop('outerHTML')).to.equal('<input type="password">');
+
+			// <Input type="text" />
+			expect($('body > :nth-child(3)').prop('outerHTML')).to.equal('<input type="text">');
+
+			// <Input type="select"><option>option</option></Input>
+			expect($('body > :nth-child(4)').prop('outerHTML')).to.equal(
+				'<select><option>option</option></select>'
+			);
+
+			// <Input type="textarea">textarea</Input>
+			expect($('body > :nth-child(5)').prop('outerHTML')).to.equal('<textarea>textarea</textarea>');
+		});
+
+		describe('preview', () => {
+			it('returns 200 for valid URLs', async () => {
+				const result = await fixture.fetch('/');
+				expect(result.status).to.equal(200);
+			});
+
+			it('returns 404 for invalid URLs', async () => {
+				const result = await fixture.fetch('/bad-url');
+				expect(result.status).to.equal(404);
+			});
+		});
+	});
+
+	describe('development', () => {
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+
+		before(async () => {
+			devServer = await fixture.startDevServer();
+		});
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('Renders markdown in utf-8 by default', async () => {
+			const res = await fixture.fetch('/chinese-encoding-md');
+			expect(res.status).to.equal(200);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			expect($('h1').text()).to.equal('我的第一篇博客文章');
+			const isUtf8 =
+				res.headers.get('content-type').includes('charset=utf-8') ||
+				html.includes('<meta charset="utf-8">');
+			expect(isUtf8).to.be.true;
+		});
+
+		it('Renders MDX in utf-8 by default', async () => {
+			const res = await fixture.fetch('/chinese-encoding-mdx');
+			expect(res.status).to.equal(200);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			expect($('h1').text()).to.equal('我的第一篇博客文章');
+			const isUtf8 =
+				res.headers.get('content-type').includes('charset=utf-8') ||
+				html.includes('<meta charset="utf-8">');
+			expect(isUtf8).to.be.true;
 		});
 	});
 });

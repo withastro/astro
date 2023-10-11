@@ -213,6 +213,7 @@
     "mocha": "^10.2.0",
     "network-information-types": "^0.1.1",
     "node-mocks-http": "^1.13.0",
+    "parse-srcset": "^1.0.2",
     "rehype-autolink-headings": "^6.1.1",
     "rehype-slug": "^5.0.1",
     "rehype-toc": "^3.0.2",
