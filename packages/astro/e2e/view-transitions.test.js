@@ -838,14 +838,19 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/page-with-persistent-form'));
 		let locator = page.locator('h2');
 		await expect(locator, 'should have content').toHaveText('Form 1');
-		locator = page.locator('#input');
-		await locator.type('hello');
-		await expect(locator).toBeFocused();
 
-		await page.click('#submit');
+		locator = page.locator('#input');
+		await locator.type('Hello');
+		await expect(locator).toBeFocused();
+		await locator.press('Enter');
+
+		await page.waitForURL(/.*name=Hello/);
 		locator = page.locator('h2');
 		await expect(locator, 'should have content').toHaveText('Form 1');
 		locator = page.locator('#input');
 		await expect(locator).toBeFocused();
+
+		await locator.type(' World');
+		await expect(locator).toHaveValue('Hello World');
 	});
 });

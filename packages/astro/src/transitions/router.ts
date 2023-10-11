@@ -215,6 +215,45 @@ async function updateDOM(
 		return null;
 	};
 
+	type SavedFocus = {
+		activeElement: HTMLElement | null;
+		start?: number | null;
+		end?: number | null;
+	};
+
+	const saveFocus = (): SavedFocus => {
+		const activeElement = document.activeElement as HTMLElement;
+		// The element that currently has the focus is part of a DOM tree
+		// that will survive the transition to the new document.
+		// Save the element and the cursor position
+		if (activeElement?.closest('[data-astro-transition-persist]')) {
+			if (
+				activeElement instanceof HTMLInputElement ||
+				activeElement instanceof HTMLTextAreaElement
+			) {
+				const start = activeElement.selectionStart;
+				const end = activeElement.selectionEnd;
+				return { activeElement, start, end };
+			}
+			return { activeElement };
+		} else {
+			return { activeElement: null };
+		}
+	};
+
+	const restoreFocus = ({ activeElement, start, end }: SavedFocus) => {
+		if (activeElement) {
+			activeElement.focus();
+			if (
+				activeElement instanceof HTMLInputElement ||
+				activeElement instanceof HTMLTextAreaElement
+			) {
+				activeElement.selectionStart = start!;
+				activeElement.selectionEnd = end!;
+			}
+		}
+	};
+
 	const swap = () => {
 		// swap attributes of the html element
 		// - delete all attributes from the current document
@@ -263,6 +302,8 @@ async function updateDOM(
 		// Persist elements in the existing body
 		const oldBody = document.body;
 
+		const savedFocus = saveFocus();
+
 		// this will reset scroll Position
 		document.body.replaceWith(newDocument.body);
 		for (const el of oldBody.querySelectorAll(`[${PERSIST_ATTR}]`)) {
@@ -274,6 +315,8 @@ async function updateDOM(
 				newEl.replaceWith(el);
 			}
 		}
+
+		restoreFocus(savedFocus);
 
 		if (popState) {
 			scrollTo(popState.scrollX, popState.scrollY); // usings 'auto' scrollBehavior
