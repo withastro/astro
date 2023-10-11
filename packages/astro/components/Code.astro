@@ -1,7 +1,14 @@
 ---
-import type * as shiki from 'shiki';
-import { renderToHtml } from 'shiki';
-import { getHighlighter } from './Shiki.js';
+import type {
+	BuiltinLanguage,
+	BuiltinTheme,
+	LanguageRegistration,
+	SpecialLanguage,
+	ThemeRegistration,
+	ThemeRegistrationRaw,
+} from 'shikiji';
+import { visit } from 'unist-util-visit';
+import { getCachedHighlighter, replaceCssVariables } from './shiki.js';
 
 interface Props {
 	/** The code to highlight. Required. */
@@ -13,7 +20,7 @@ interface Props {
 	 *
 	 * @default "plaintext"
 	 */
-	lang?: shiki.Lang | shiki.ILanguageRegistration;
+	lang?: BuiltinLanguage | SpecialLanguage | LanguageRegistration;
 	/**
 	 * The styling theme.
 	 * Supports all themes listed here: https://github.com/shikijs/shiki/blob/main/docs/themes.md#all-themes
@@ -21,7 +28,7 @@ interface Props {
 	 *
 	 * @default "github-dark"
 	 */
-	theme?: shiki.IThemeRegistration;
+	theme?: BuiltinTheme | ThemeRegistration | ThemeRegistrationRaw;
 	/**
 	 * Enable word wrapping.
 	 *  - true: enabled.
@@ -47,41 +54,65 @@ const {
 	inline = false,
 } = Astro.props;
 
-// 1. Get the shiki syntax highlighter
-const highlighter = await getHighlighter({
-	theme,
-	// Load custom lang if passed an object, otherwise load the default
-	langs: typeof lang !== 'string' ? [lang] : undefined,
+// shiki -> shikiji compat
+if (typeof lang === 'object') {
+	// `id` renamed to `name
+	if ((lang as any).id && !lang.name) {
+		lang.name = (lang as any).id;
+	}
+	// `grammar` flattened to lang itself
+	if ((lang as any).grammar) {
+		Object.assign(lang, (lang as any).grammar);
+	}
+}
+
+const highlighter = await getCachedHighlighter({
+	langs: [lang],
+	themes: [theme],
 });
 
-// 2. Turn code into shiki theme tokens
-const tokens = highlighter.codeToThemedTokens(code, typeof lang === 'string' ? lang : lang.id);
-
-// 3. Get shiki theme object
-const _theme = highlighter.getTheme();
-
-// 4. Render the theme tokens as html
-const html = renderToHtml(tokens, {
-	themeName: _theme.name,
-	fg: _theme.fg,
-	bg: _theme.bg,
-	elements: {
-		pre({ className, style, children }) {
+const html = highlighter.codeToHtml(code, {
+	lang: typeof lang === 'string' ? lang : lang.name,
+	theme,
+	transforms: {
+		pre(node) {
 			// Swap to `code` tag if inline
-			const tag = inline ? 'code' : 'pre';
+			if (inline) {
+				node.tagName = 'code';
+			}
+
+			// Cast to string as shikiji will always pass them as strings instead of any other types
+			const classValue = (node.properties.class as string) ?? '';
+			const styleValue = (node.properties.style as string) ?? '';
+
 			// Replace "shiki" class naming with "astro-code"
-			className = className.replace(/shiki/g, 'astro-code');
+			node.properties.class = classValue.replace(/shiki/g, 'astro-code');
+
 			// Handle code wrapping
 			// if wrap=null, do nothing.
 			if (wrap === false) {
-				style += '; overflow-x: auto;';
+				node.properties.style = styleValue + '; overflow-x: auto;';
 			} else if (wrap === true) {
-				style += '; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
+				node.properties.style =
+					styleValue + '; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
 			}
-			return `<${tag} class="${className}" style="${style}" tabindex="0">${children}</${tag}>`;
 		},
-		code({ children }) {
-			return inline ? children : `<code>${children}</code>`;
+		code(node) {
+			if (inline) {
+				return node.children[0] as typeof node;
+			}
+		},
+		root(node) {
+			// theme.id for shiki -> shikiji compat
+			const themeName = typeof theme === 'string' ? theme : theme.name;
+			if (themeName === 'css-variables') {
+				// Replace special color tokens to CSS variables
+				visit(node as any, 'element', (child) => {
+					if (child.properties?.style) {
+						child.properties.style = replaceCssVariables(child.properties.style);
+					}
+				});
+			}
 		},
 	},
 });

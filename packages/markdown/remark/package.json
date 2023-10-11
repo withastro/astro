@@ -41,7 +41,7 @@
     "remark-parse": "^10.0.2",
     "remark-rehype": "^10.1.0",
     "remark-smartypants": "^2.0.0",
-    "shiki": "^0.14.3",
+    "shikiji": "^0.6.8",
     "unified": "^10.1.2",
     "unist-util-visit": "^4.1.2",
     "vfile": "^5.3.7"

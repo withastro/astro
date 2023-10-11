@@ -71,7 +71,7 @@
     "gray-matter": "^4.0.3",
     "htmlparser2": "^9.0.0",
     "kleur": "^4.1.5",
-    "shiki": "^0.14.3",
+    "shikiji": "^0.6.8",
     "zod": "3.21.1"
   },
   "peerDependencies": {
