@@ -851,9 +851,9 @@ async function updateTSConfig(
 	let inputConfig = await loadTSConfig(cwd);
 	let inputConfigText = '';
 
-	if (inputConfig === 'invalid-config') {
+	if (inputConfig === 'invalid-config' || inputConfig === 'unknown-error') {
 		return UpdateResult.failure;
-	} else if (inputConfig === 'missing-config' || inputConfig === 'unknown-error') {
+	} else if (inputConfig === 'missing-config') {
 		logger.debug('add', "Couldn't find tsconfig.json or jsconfig.json, generating one");
 		inputConfig = {
 			tsconfig: defaultTSConfig,
