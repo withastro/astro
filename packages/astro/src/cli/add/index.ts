@@ -864,7 +864,7 @@ async function updateTSConfig(
 		inputConfigText = JSON.stringify(inputConfig.rawConfig.tsconfig, null, 2);
 	}
 
-	const configFileName = inputConfig.tsconfigFile.split('/').pop();
+	const configFileName = path.basename(inputConfig.tsconfigFile);
 
 	const outputConfig = updateTSConfigForFramework(
 		inputConfig.rawConfig.tsconfig,
