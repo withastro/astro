@@ -131,7 +131,7 @@ export async function getImage(
 		},
 		attributes:
 			service.getHTMLAttributes !== undefined
-				? service.getHTMLAttributes(validatedOptions, imageConfig)
+				? await service.getHTMLAttributes(validatedOptions, imageConfig)
 				: {},
 	};
 }

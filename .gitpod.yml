@@ -1,6 +1,4 @@
 ---
-image:
-  file: .Dockerfile
 # Commands to start on workspace startup
 tasks:
   - before: |

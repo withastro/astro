@@ -1,4 +1,4 @@
-import type { GetModuleInfo } from 'rollup';
+import type { GetModuleInfo, ModuleInfo } from 'rollup';
 
 import crypto from 'node:crypto';
 import npath from 'node:path';
@@ -6,20 +6,29 @@ import type { AstroSettings } from '../../@types/astro.js';
 import { viteID } from '../util.js';
 import { getTopLevelPages } from './graph.js';
 
+// These pages could be used as base names for the chunk hashed name, but they are confusing
+// and should be avoided it possible
+const confusingBaseNames = ['404', '500'];
+
 // The short name for when the hash can be included
 // We could get rid of this and only use the createSlugger implementation, but this creates
 // slightly prettier names.
 export function shortHashedName(id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
 	const parents = Array.from(getTopLevelPages(id, ctx));
-	const firstParentId = parents[0]?.[0].id;
-	const firstParentName = firstParentId ? npath.parse(firstParentId).name : 'index';
+	return createNameHash(
+		getFirstParentId(parents),
+		parents.map(([page]) => page.id)
+	);
+}
 
+export function createNameHash(baseId: string | undefined, hashIds: string[]): string {
+	const baseName = baseId ? prettifyBaseName(npath.parse(baseId).name) : 'index';
 	const hash = crypto.createHash('sha256');
-	for (const [page] of parents) {
-		hash.update(page.id, 'utf-8');
+	for (const id of hashIds) {
+		hash.update(id, 'utf-8');
 	}
 	const h = hash.digest('hex').slice(0, 8);
-	const proposedName = firstParentName + '.' + h;
+	const proposedName = baseName + '.' + h;
 	return proposedName;
 }
 
@@ -34,7 +43,7 @@ export function createSlugger(settings: AstroSettings) {
 			.map(([page]) => page.id)
 			.sort()
 			.join('-');
-		const firstParentId = parents[0]?.[0].id || indexPage;
+		const firstParentId = getFirstParentId(parents) || indexPage;
 
 		// Use the last two segments, for ex /docs/index
 		let dir = firstParentId;
@@ -45,7 +54,7 @@ export function createSlugger(settings: AstroSettings) {
 				break;
 			}
 
-			const name = npath.parse(npath.basename(dir)).name;
+			const name = prettifyBaseName(npath.parse(npath.basename(dir)).name);
 			key = key.length ? name + sep + key : name;
 			dir = npath.dirname(dir);
 			i++;
@@ -75,4 +84,33 @@ export function createSlugger(settings: AstroSettings) {
 
 		return name;
 	};
+}
+
+/**
+ * Find the first parent id from `parents` where its name is not confusing.
+ * Returns undefined if there's no parents.
+ */
+function getFirstParentId(parents: [ModuleInfo, number, number][]) {
+	for (const parent of parents) {
+		const id = parent[0].id;
+		const baseName = npath.parse(id).name;
+		if (!confusingBaseNames.includes(baseName)) {
+			return id;
+		}
+	}
+	// If all parents are confusing, just use the first one. Or if there's no
+	// parents, this will return undefined.
+	return parents[0]?.[0].id;
+}
+
+const charsToReplaceRe = /[.\[\]]/g;
+const underscoresRe = /_+/g;
+/**
+ * Prettify base names so they're easier to read:
+ * - index -> index
+ * - [slug] -> _slug_
+ * - [...spread] -> _spread_
+ */
+function prettifyBaseName(str: string) {
+	return str.replace(charsToReplaceRe, '_').replace(underscoresRe, '_');
 }
