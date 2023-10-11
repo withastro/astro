@@ -56,6 +56,12 @@ export class Pipeline {
 	}
 
 	/**
+	 * Ensure that a route is rendered without its corresponding middleware.
+	 */
+	unsetMiddlewareFunction() {
+		this.#onRequest = undefined;
+	}
+	/**
 	 * Returns the current environment
 	 */
 	getEnvironment(): Readonly<Environment> {
