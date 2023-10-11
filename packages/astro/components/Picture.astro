@@ -48,8 +48,10 @@ if (fallbackImage.srcSet.values.length > 0) {
 	{
 		Object.entries(optimizedImages).map(([_, image]) => (
 			<source
-				srcset={`${image.src}${image.srcSet.values.length > 0 ? ' , ' + image.srcSet.attribute : ''}`}
-				type={"image/" + image.options.format}
+				srcset={`${image.src}${
+					image.srcSet.values.length > 0 ? ' , ' + image.srcSet.attribute : ''
+				}`}
+				type={'image/' + image.options.format}
 			/>
 		))
 	}
