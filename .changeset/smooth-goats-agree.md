@@ -16,16 +16,20 @@ import { Image } from "astro";
 import myImage from "./my-image.jpg";
 ---
 
-<Image src={myImage} width={myImage.width / 2} densities={[2]} alt="My cool image"  />
+<Image src={myImage} width={myImage.width / 2} densities={[1.5, 2]} alt="My cool image"  />
 ```
 
 ```html
-<img src="..." srcset="... 2x, ... 3x" alt="My cool image" />
+<img
+  src="/_astro/my_image.hash.webp"
+  srcset="/_astro/my_image.hash.webp 1.5x, /_astro/my_image.hash.webp 2x"
+  alt="My cool image"
+/>
 ```
 
 ## Picture component
 
-The experimental `<Picture />` component can be used to generate a `<picture>` element with multiple `<source>` elements. 
+The experimental `<Picture />` component can be used to generate a `<picture>` element with multiple `<source>` elements.
 
 The example below uses `format` property to generate a `<source>` in each of the specified image formats:
 
