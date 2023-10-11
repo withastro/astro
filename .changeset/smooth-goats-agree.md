@@ -8,7 +8,8 @@ Adds experimental support for generating `srcset` attributes and a new `<Picture
 
 Two new properties have been added to `Image` and `getImage()`: `densities` and `widths`.
 
-These props can be used to generate a `srcset` attribute with multiple sources. For example:
+These properties can be used to generate a `srcset` attribute, either based on absolute widths in pixels (e.g. [300, 600, 900]) or pixel density descriptors (e.g. `["2x"]` or `[1.5, 2]`).
+
 
 ```astro
 ---
