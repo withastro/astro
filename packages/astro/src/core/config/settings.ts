@@ -112,12 +112,14 @@ export async function createSettings(config: AstroConfig, cwd?: string): Promise
 	}
 
 	if (typeof tsconfig !== 'string') {
-		watchFiles = [tsconfig.tsconfigFile, ...(tsconfig.extended ?? []).map((e) => e.tsconfigFile)];
-
-		settings.watchFiles = watchFiles;
+		watchFiles.push(
+			...[tsconfig.tsconfigFile, ...(tsconfig.extended ?? []).map((e) => e.tsconfigFile)]
+		);
 		settings.tsConfig = tsconfig.tsconfig;
 		settings.tsConfigPath = tsconfig.tsconfigFile;
 	}
+
+	settings.watchFiles = watchFiles;
 
 	return settings;
 }
