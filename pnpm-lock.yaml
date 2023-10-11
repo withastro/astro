@@ -1750,6 +1750,9 @@ importers:
 
   packages/astro/test/fixtures/astro-basic:
     dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
       '@astrojs/preact':
         specifier: workspace:*
         version: link:../../../../integrations/preact
