@@ -68,6 +68,7 @@ async function bundle(files) {
 		sourcemap: false,
 		target: ['es2018'],
 		outdir: 'out',
+		external: ['astro:*'],
 		metafile: true,
 	})
 
