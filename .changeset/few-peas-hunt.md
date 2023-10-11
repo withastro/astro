@@ -4,7 +4,9 @@
 'astro': minor
 ---
 
-Update the internal `shiki` syntax highlighter to `shikiji`, an ESM-focused alternative that simplifies bundling and maintenance. There are no new options and changes to how you author code blocks and syntax highlighting.
+Updates the internal `shiki` syntax highlighter to `shikiji`, an ESM-focused alternative that simplifies bundling and maintenance. 
+
+There are no new options and no changes to how you author code blocks and syntax highlighting.
 
 **Potentially breaking change:** While this refactor should be transparent for most projects, the transition to `shikiji` now produces a smaller HTML markup by attaching a fallback `color` style to the `pre` or `code` element, instead of to the line `span` directly. For example:
 
