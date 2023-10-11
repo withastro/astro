@@ -32,7 +32,7 @@ import myImage from "./my-image.jpg";
 
 The experimental `<Picture />` component can be used to generate a `<picture>` element with multiple `<source>` elements.
 
-The example below uses `format` property to generate a `<source>` in each of the specified image formats:
+The example below uses the `format` property to generate a `<source>` in each of the specified image formats:
 
 ```astro
 ---
