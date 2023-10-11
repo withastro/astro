@@ -788,7 +788,7 @@ test.describe('View Transitions', () => {
 
 	test('replace history', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/one'));
-		// page six loads the router and automatically uses the router to navigate to page 1
+
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
@@ -832,5 +832,25 @@ test.describe('View Transitions', () => {
 		await page.goBack();
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
+	});
+
+	test('Keep focus on transition', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/page-with-persistent-form'));
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Form 1');
+
+		locator = page.locator('#input');
+		await locator.type('Hello');
+		await expect(locator).toBeFocused();
+		await locator.press('Enter');
+
+		await page.waitForURL(/.*name=Hello/);
+		locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Form 1');
+		locator = page.locator('#input');
+		await expect(locator).toBeFocused();
+
+		await locator.type(' World');
+		await expect(locator).toHaveValue('Hello World');
 	});
 });
