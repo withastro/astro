@@ -2,11 +2,11 @@
 'astro': minor
 ---
 
-Add support for generating multiple widths when using the Image component and a Picture component for supporting multiple formats.
+Adds experimental support for generating `srcset` attributes and a new `<Picture />` component.
 
 ## `srcset` support
 
-Two new properties have been added to `Image` and `getImage`: `densities` and `widths`.
+Two new properties have been added to `Image` and `getImage()`: `densities` and `widths`.
 
 These props can be used to generate a `srcset` attribute with multiple sources. For example:
 
@@ -25,7 +25,9 @@ import myImage from "./my-image.jpg";
 
 ## Picture component
 
-The `Picture` component can be used to generate a `<picture>` element with multiple sources. It can be used as follow:
+The experimental `<Picture />` component can be used to generate a `<picture>` element with multiple `<source>` elements. 
+
+The example below uses `format` property to generate a `<source>` in each of the specified image formats:
 
 ```astro
 ---
@@ -36,7 +38,7 @@ import myImage from "./my-image.jpg";
 <Picture src={myImage} formats={["avif", "webp"]} alt="My super image in multiple formats!" />
 ```
 
-The above code will generate the following:
+The above code will generate the following HTML, and allow the browser to determine the best image to display:
 
 ```html
 <picture>

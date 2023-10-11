@@ -109,7 +109,7 @@ type ImageSharedProps<T> = T & {
 		  }
 		| {
 				/**
-				 * A list of densities to generate images for. The value of this property will be used to assign the `srcset` property on the final `img` element.
+				 * A list of pixel densities to generate images for. The value of this property will be used to assign the `srcset` property on the final `img` element.
 				 *
 				 * This attribute is incompatible with `widths`.
 				 */
