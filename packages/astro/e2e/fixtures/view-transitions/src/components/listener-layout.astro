@@ -1,0 +1,34 @@
+---
+import { ViewTransitions } from 'astro:transitions';
+---
+<html>
+	<head>
+		<ViewTransitions/>
+	</head>
+	<body>
+		<p>Local transitions</p>
+		<slot/>
+		<script>
+			document.addEventListener("astro:after-swap", () => {
+				document.querySelector("p").addEventListener("transitionstart", () => {
+					console.info("transitionstart");
+				});
+				document.documentElement.setAttribute("class", "blue");
+			});
+			document.dispatchEvent(new Event("astro:after-swap"));
+		</script>
+	</body>
+	<style>
+		p {
+			transition: background-color 1s;
+		}
+		p {
+			background-color: #0ee;
+			color: red;
+		}
+		.blue p {
+			background-color: #ee0;
+			color: blue;
+		}
+	</style>
+</html>
