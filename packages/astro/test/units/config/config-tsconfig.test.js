@@ -1,68 +1,57 @@
 import { expect } from 'chai';
+import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadTSConfig, updateTSConfigForFramework } from '../../../dist/core/config/index.js';
-import * as path from 'node:path';
-import * as tsr from 'tsconfig-resolver';
 
 const cwd = fileURLToPath(new URL('../../fixtures/tsconfig-handling/', import.meta.url));
 
 describe('TSConfig handling', () => {
-	beforeEach(() => {
-		// `tsconfig-resolver` has a weird internal cache that only vaguely respect its own rules when not resolving
-		// so we need to clear it before each test or we'll get false positives. This should only be relevant in tests.
-		tsr.clearCache();
-	});
-
 	describe('tsconfig / jsconfig loading', () => {
-		it('can load tsconfig.json', () => {
-			const config = loadTSConfig(cwd);
+		it('can load tsconfig.json', async () => {
+			const config = await loadTSConfig(cwd);
 
-			expect(config.exists).to.equal(true);
-			expect(config.config.files).to.deep.equal(['im-a-test']);
+			expect(config).to.not.be.undefined;
 		});
 
-		it('can resolve tsconfig.json up directories', () => {
-			const config = loadTSConfig(path.join(cwd, 'nested-folder'));
+		it('can resolve tsconfig.json up directories', async () => {
+			const config = await loadTSConfig(cwd);
 
-			expect(config.exists).to.equal(true);
-			expect(config.path).to.equal(path.join(cwd, 'tsconfig.json'));
-			expect(config.config.files).to.deep.equal(['im-a-test']);
+			expect(config).to.not.be.undefined;
+			expect(config.tsconfigFile).to.equal(path.join(cwd, 'tsconfig.json'));
+			expect(config.tsconfig.files).to.deep.equal(['im-a-test']);
 		});
 
-		it('can fallback to jsconfig.json if tsconfig.json does not exists', () => {
-			const config = loadTSConfig(path.join(cwd, 'jsconfig'), false);
+		it('can fallback to jsconfig.json if tsconfig.json does not exists', async () => {
+			const config = await loadTSConfig(path.join(cwd, 'jsconfig'));
 
-			expect(config.exists).to.equal(true);
-			expect(config.path).to.equal(path.join(cwd, 'jsconfig', 'jsconfig.json'));
-			expect(config.config.files).to.deep.equal(['im-a-test-js']);
+			expect(config).to.not.be.undefined;
+			expect(config.tsconfigFile).to.equal(path.join(cwd, 'jsconfig', 'jsconfig.json'));
+			expect(config.tsconfig.files).to.deep.equal(['im-a-test-js']);
 		});
 
-		it('properly return errors when not resolving', () => {
-			const invalidConfig = loadTSConfig(path.join(cwd, 'invalid'), false);
-			const missingConfig = loadTSConfig(path.join(cwd, 'missing'), false);
+		it('properly return errors when not resolving', async () => {
+			const invalidConfig = await loadTSConfig(path.join(cwd, 'invalid'));
+			const missingConfig = await loadTSConfig(path.join(cwd, 'missing'));
 
-			expect(invalidConfig.exists).to.equal(false);
-			expect(invalidConfig.reason).to.equal('invalid-config');
-
-			expect(missingConfig.exists).to.equal(false);
-			expect(missingConfig.reason).to.equal('not-found');
+			expect(invalidConfig).to.equal('invalid-config');
+			expect(missingConfig).to.equal('missing-config');
 		});
 	});
 
 	describe('tsconfig / jsconfig updates', () => {
-		it('can update a tsconfig with a framework config', () => {
-			const config = loadTSConfig(cwd);
-			const updatedConfig = updateTSConfigForFramework(config.config, 'react');
+		it('can update a tsconfig with a framework config', async () => {
+			const config = await loadTSConfig(cwd);
+			const updatedConfig = updateTSConfigForFramework(config.tsconfig, 'react');
 
-			expect(config.config).to.not.equal('react-jsx');
+			expect(config.tsconfig).to.not.equal('react-jsx');
 			expect(updatedConfig.compilerOptions.jsx).to.equal('react-jsx');
 		});
 
-		it('produce no changes on invalid frameworks', () => {
-			const config = loadTSConfig(cwd);
-			const updatedConfig = updateTSConfigForFramework(config.config, 'doesnt-exist');
+		it('produce no changes on invalid frameworks', async () => {
+			const config = await loadTSConfig(cwd);
+			const updatedConfig = updateTSConfigForFramework(config.tsconfig, 'doesnt-exist');
 
-			expect(config.config).to.deep.equal(updatedConfig);
+			expect(config.tsconfig).to.deep.equal(updatedConfig);
 		});
 	});
 });

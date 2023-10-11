@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { getHighlighter } from 'shiki';
+import { codeToHtml } from 'shikiji';
 import type { ErrorPayload } from 'vite';
 import type { ModuleLoader } from '../../module-loader/index.js';
 import { FailedToLoadModuleSSR, InvalidGlob, MdxIntegrationMissingError } from '../errors-data.js';
@@ -139,7 +139,6 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 
 	const docslink = getDocsForError(err);
 
-	const highlighter = await getHighlighter({ theme: 'css-variables' });
 	let highlighterLang = err.loc?.file?.split('.').pop();
 	if (ALTERNATIVE_JS_EXTS.includes(highlighterLang ?? '')) {
 		highlighterLang = 'js';
@@ -148,8 +147,10 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 		highlighterLang = 'md';
 	}
 	const highlightedCode = err.fullCode
-		? highlighter.codeToHtml(err.fullCode, {
+		? await codeToHtml(err.fullCode, {
+				// @ts-expect-error always assume that shiki can accept the lang string
 				lang: highlighterLang,
+				theme: 'css-variables',
 				lineOptions: err.loc?.line ? [{ line: err.loc.line, classes: ['error-line'] }] : undefined,
 		  })
 		: undefined;
