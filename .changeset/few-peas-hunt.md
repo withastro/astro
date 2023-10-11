@@ -4,9 +4,9 @@
 'astro': minor
 ---
 
-Update internal `shiki` syntax highlighter to `shikiji`. Existing docs on `shiki` still stays the same, but `shikiji` will help make bundling simpler and easier to maintain.
+Update the internal `shiki` syntax highlighter to `shikiji`, an ESM-focused alternative that simplifies bundling and maintenance. There are no new options and changes to how you author code blocks and syntax highlighting.
 
-`shikiji` also produces a smaller HTML output by attaching fallback `color` styles on the `pre` or `code` element instead of to the line `span` directly. For example:
+**Potentially breaking change:** While this refactor should be transparent for most projects, the transition to `shikiji` now produces a smaller HTML markup by attaching a fallback `color` style to the `pre` or `code` element, instead of to the line `span` directly. For example:
 
 Before:
 
@@ -28,4 +28,4 @@ After:
 </code>
 ```
 
-This shouldn't affect most existing styles as assigning a color to `span` or `.line` didn't work before, but if you did create this style anyways, it may now indirectly affect syntax highlighting. 
+This does not affect the colors as the `span` will inherit the `color` from the parent, but if you're relying on a specific HTML markup, please check your site carefully after upgrading to verify the styles.
