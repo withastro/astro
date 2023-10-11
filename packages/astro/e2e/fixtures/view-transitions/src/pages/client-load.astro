@@ -1,0 +1,12 @@
+---
+import ClickToNavigate from "../components/ClickToNavigate.jsx"
+import { ViewTransitions } from "astro:transitions";
+---
+<html>
+	<head>
+		<ViewTransitions />
+	</head>
+	<body>
+		<ClickToNavigate id="react-client-load-navigate-button" to="/two" client:load/>
+	</body>
+</html>
