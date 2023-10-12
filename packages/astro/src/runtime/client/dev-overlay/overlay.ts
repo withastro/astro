@@ -8,19 +8,33 @@ import { DevOverlayHighlight, DevOverlayTooltip, DevOverlayWindow } from './ui-t
 
 type DevOverlayItem = DevOverlayItemDefinition & {
 	active: boolean;
-	inited: boolean;
+	status: 'ready' | 'loading' | 'error';
 	eventTarget: EventTarget;
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
+	const WS_EVENT_NAME = 'astro-dev-overlay';
+
 	const builtinPlugins: DevOverlayItem[] = [
 		astroDevToolPlugin,
 		astroXrayPlugin,
 		astroAuditPlugin,
-	].map((plugin) => ({ ...plugin, active: false, inited: false, eventTarget: new EventTarget() }));
-	const customPluginsImports = (await loadDevToolsPlugins()) as DevOverlayItem[];
+	].map((plugin) => ({
+		...plugin,
+		active: false,
+		status: 'loading',
+		eventTarget: new EventTarget(),
+	}));
+	const customPluginsImports = (await loadDevToolsPlugins()) as DevOverlayItemDefinition[];
 	const customPlugins: DevOverlayItem[] = [];
-	customPlugins.push(...customPluginsImports.map((plugin) => ({ ...plugin, active: false })));
+	customPlugins.push(
+		...customPluginsImports.map((plugin) => ({
+			...plugin,
+			active: false,
+			status: 'loading' as const,
+			eventTarget: new EventTarget(),
+		}))
+	);
 
 	const plugins: DevOverlayItem[] = [...builtinPlugins, ...customPlugins];
 
@@ -94,7 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			<div id="bar-container">
 				${builtinPlugins.map((plugin) => this.getPluginTemplate(plugin)).join('')}
 				<div class="separator"></div>
-				${customPluginsImports.map((plugin) => this.getPluginTemplate(plugin)).join('')}
+				${customPlugins.map((plugin) => this.getPluginTemplate(plugin)).join('')}
 			</div>
 		</div>`;
 
@@ -114,23 +128,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 					const plugin = this.getPluginById(id);
 					if (!plugin) return;
-					const shadowRoot = this.getPluginCanvasById(plugin.id)!.shadowRoot!;
-					if (!plugin.inited) {
-						await plugin.init?.(shadowRoot, plugin.eventTarget);
-						plugin.inited = true;
+
+					if (plugin.status === 'loading') {
+						await this.initPlugin(plugin);
 					}
 
 					this.togglePluginStatus(plugin);
-					plugin.eventTarget.dispatchEvent(
-						new CustomEvent('plugin-toggle', {
-							detail: {
-								state: plugin.active,
-								plugin,
-							},
-						})
-					);
 				});
 			});
+		}
+
+		async initPlugin(plugin: DevOverlayItem) {
+			const shadowRoot = this.getPluginCanvasById(plugin.id)!.shadowRoot!;
+
+			try {
+				await plugin.init?.(shadowRoot, plugin.eventTarget);
+				plugin.status = 'ready';
+
+				if (import.meta.hot) {
+					import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:init`, { msg: 'Hey!' });
+				}
+			} catch (e) {
+				console.error(`Failed to init plugin ${plugin.id}, error: ${e}`);
+				plugin.status = 'error';
+			}
 		}
 
 		getPluginTemplate(plugin: DevOverlayItem) {
@@ -153,6 +174,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 			if (!target) return;
 			target.classList.toggle('active', plugin.active);
 			this.getPluginCanvasById(plugin.id)?.toggleAttribute('data-active', plugin.active);
+
+			plugin.eventTarget.dispatchEvent(
+				new CustomEvent('plugin-toggle', {
+					detail: {
+						state: plugin.active,
+						plugin,
+					},
+				})
+			);
+
+			if (import.meta.hot) {
+				import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:toggle`, { state: plugin.active });
+			}
 		}
 	}
 
