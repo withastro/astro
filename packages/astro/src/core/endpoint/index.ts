@@ -60,27 +60,27 @@ export function createAPIContext({
 			if (clientAddressSymbol in request) {
 				return Reflect.get(request, clientAddressSymbol) as string;
 			}
-				if (adapterName) {
-					throw new AstroError({
-						...AstroErrorData.ClientAddressNotAvailable,
-						message: AstroErrorData.ClientAddressNotAvailable.message(adapterName),
-					});
-				} else {
-					throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
-				}
+			if (adapterName) {
+				throw new AstroError({
+					...AstroErrorData.ClientAddressNotAvailable,
+					message: AstroErrorData.ClientAddressNotAvailable.message(adapterName),
+				});
+			} else {
+				throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
+			}
 		},
 		get locals() {
-			let locals = Reflect.get(request, clientLocalsSymbol)
-			
+			let locals = Reflect.get(request, clientLocalsSymbol);
+
 			if (locals === undefined) {
-				locals = {}
-				Reflect.set(request, clientLocalsSymbol, locals)
+				locals = {};
+				Reflect.set(request, clientLocalsSymbol, locals);
 			}
-			
+
 			if (typeof locals !== 'object') {
 				throw new AstroError(AstroErrorData.LocalsNotAnObject);
 			}
-			
+
 			return locals;
 		},
 		// We define a custom property, so we can check the value passed to locals
