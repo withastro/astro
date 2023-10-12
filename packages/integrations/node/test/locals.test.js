@@ -37,7 +37,7 @@ describe('API routes', () => {
 			url: '/from-node-middleware',
 		});
 
-		handler(req, res, undefined, "locals");
+		handler(req, res, undefined, 'locals');
 		req.send();
 
 		await done;
@@ -46,7 +46,7 @@ describe('API routes', () => {
 
 	it('Can use locals added by astro middleware', async () => {
 		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
-		
+
 		const { req, res, text } = createRequestAndResponse({
 			url: '/from-astro-middleware',
 		});
