@@ -36,7 +36,7 @@ export default async function build() {
 				name: 'umd2esm',
 				setup(pluginBuild) {
 					pluginBuild.onResolve(
-						{ filter: /^(vscode-.*|estree-walker|jsonc-parser)/ },
+						{ filter: /^(vscode-.*-languageservice|jsonc-parser)/ },
 						(buildArgs) => {
 							const pathUmdMay = require.resolve(buildArgs.path, { paths: [buildArgs.resolveDir] });
 							// Call twice the replace is to solve the problem of the path in Windows
