@@ -125,13 +125,13 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
 
   examples/blog:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^1.1.1
+        specifier: ^1.1.2
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
         specifier: ^3.0.0
@@ -140,13 +140,13 @@ importers:
         specifier: ^3.0.1
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
 
   examples/component:
     devDependencies:
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
 
   examples/framework-alpine:
@@ -161,7 +161,7 @@ importers:
         specifier: ^3.12.3
         version: 3.12.3
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
 
   examples/framework-lit:
@@ -173,7 +173,7 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
       lit:
         specifier: ^2.8.0
@@ -197,7 +197,7 @@ importers:
         specifier: ^3.0.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.17.1
@@ -227,7 +227,7 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1(preact@10.17.1)
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.17.1
@@ -245,7 +245,7 @@ importers:
         specifier: ^18.2.7
         version: 18.2.7
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
       react:
         specifier: ^18.2.0
@@ -260,7 +260,7 @@ importers:
         specifier: ^3.0.2
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.7.11
@@ -272,7 +272,7 @@ importers:
         specifier: ^4.0.3
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.0
@@ -284,7 +284,7 @@ importers:
         specifier: ^3.0.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
       vue:
         specifier: ^3.3.4
@@ -296,13 +296,13 @@ importers:
         specifier: ^6.0.3
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
 
   examples/middleware:
@@ -311,7 +311,7 @@ importers:
         specifier: ^6.0.3
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
       html-minifier:
         specifier: ^4.0.0
@@ -320,19 +320,19 @@ importers:
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
 
   examples/non-html-pages:
     dependencies:
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
 
   examples/ssr:
@@ -344,7 +344,7 @@ importers:
         specifier: ^4.0.3
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.0
@@ -359,25 +359,25 @@ importers:
         specifier: ^5.0.2
         version: link:../../packages/integrations/tailwind
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
 
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
-        specifier: ^0.5.2
+        specifier: ^0.6.0
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
 
   examples/with-markdown-plugins:
     dependencies:
       '@astrojs/markdown-remark':
-        specifier: ^3.2.1
+        specifier: ^3.3.0
         version: link:../../packages/markdown/remark
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
       hast-util-select:
         specifier: ^5.0.5
@@ -398,19 +398,19 @@ importers:
   examples/with-markdown-shiki:
     dependencies:
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
 
   examples/with-mdx:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^1.1.1
+        specifier: ^1.1.2
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
         specifier: ^3.0.1
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.17.1
@@ -425,7 +425,7 @@ importers:
         specifier: ^0.5.0
         version: 0.5.0(nanostores@0.9.3)(preact@10.17.1)
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.9.3
@@ -437,7 +437,7 @@ importers:
   examples/with-tailwindcss:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^1.1.1
+        specifier: ^1.1.2
         version: link:../../packages/integrations/mdx
       '@astrojs/tailwind':
         specifier: ^5.0.2
@@ -446,7 +446,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
       autoprefixer:
         specifier: ^10.4.15
@@ -464,7 +464,7 @@ importers:
   examples/with-vite-plugin-pwa:
     dependencies:
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
       vite-plugin-pwa:
         specifier: 0.16.4
@@ -476,7 +476,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^3.2.4
+        specifier: ^3.3.0
         version: link:../../packages/astro
       vitest:
         specifier: ^0.34.2
@@ -627,7 +627,7 @@ importers:
         version: 7.1.0
       tsconfck:
         specifier: 3.0.0-next.9
-        version: 3.0.0-next.9
+        version: 3.0.0-next.9(typescript@5.1.6)
       unist-util-visit:
         specifier: ^4.1.2
         version: 4.1.2
@@ -636,7 +636,7 @@ importers:
         version: 5.3.7
       vite:
         specifier: ^4.4.9
-        version: 4.4.9(sass@1.66.1)
+        version: 4.4.9(@types/node@18.17.8)(sass@1.66.1)
       vitefu:
         specifier: ^0.2.4
         version: 0.2.4(vite@4.4.9)
@@ -656,7 +656,7 @@ importers:
     devDependencies:
       '@astrojs/check':
         specifier: ^0.1.0
-        version: 0.1.0
+        version: 0.1.0(prettier-plugin-astro@0.12.0)(prettier@3.0.3)(typescript@5.1.6)
       '@playwright/test':
         specifier: ^1.37.1
         version: 1.37.1
@@ -5172,22 +5172,6 @@ packages:
       lite-youtube-embed: 0.2.0
     dev: false
 
-  /@astrojs/check@0.1.0:
-    resolution: {integrity: sha512-tgjq+Vehgv0dwdsRlT4ai3QgT3etn8W5C4E4dvQ0Xe9ccwjKdMTWmpty5exfBtHLLAAOvwe5/OkYQsQ9OyKoVw==}
-    hasBin: true
-    peerDependencies:
-      typescript: ^5.0.0
-    dependencies:
-      '@astrojs/language-server': 2.3.0
-      chokidar: 3.5.3
-      fast-glob: 3.3.1
-      kleur: 4.1.5
-      yargs: 17.7.2
-    transitivePeerDependencies:
-      - prettier
-      - prettier-plugin-astro
-    dev: true
-
   /@astrojs/check@0.1.0(prettier-plugin-astro@0.12.0)(prettier@3.0.3)(typescript@5.1.6):
     resolution: {integrity: sha512-tgjq+Vehgv0dwdsRlT4ai3QgT3etn8W5C4E4dvQ0Xe9ccwjKdMTWmpty5exfBtHLLAAOvwe5/OkYQsQ9OyKoVw==}
     hasBin: true
@@ -5225,40 +5209,6 @@ packages:
   /@astrojs/compiler@2.1.0:
     resolution: {integrity: sha512-Mp+qrNhly+27bL/Zq8lGeUY+YrdoU0eDfIlAeGIPrzt0PnI/jGpvPUdCaugv4zbCrDkOUScFfcbeEiYumrdJnw==}
     dev: false
-
-  /@astrojs/language-server@2.3.0:
-    resolution: {integrity: sha512-NFSzszjR4+f0+fTUCuFKXrLWusJFqWvHMrIzHB0lXUE8dt3Dm1Ok9Emrdj3s3BvlguJz05MV9xSIz1puMvomtQ==}
-    hasBin: true
-    peerDependencies:
-      prettier: ^3.0.0
-      prettier-plugin-astro: '>=0.11.0'
-    peerDependenciesMeta:
-      prettier:
-        optional: true
-      prettier-plugin-astro:
-        optional: true
-    dependencies:
-      '@astrojs/compiler': 1.5.7
-      '@jridgewell/sourcemap-codec': 1.4.15
-      '@volar/kit': 1.10.0
-      '@volar/language-core': 1.10.0
-      '@volar/language-server': 1.10.0
-      '@volar/language-service': 1.10.0
-      '@volar/source-map': 1.10.0
-      '@volar/typescript': 1.10.0
-      fast-glob: 3.3.1
-      muggle-string: 0.3.1
-      volar-service-css: 0.0.11(@volar/language-service@1.10.0)
-      volar-service-emmet: 0.0.11(@volar/language-service@1.10.0)
-      volar-service-html: 0.0.11(@volar/language-service@1.10.0)
-      volar-service-prettier: 0.0.11(@volar/language-service@1.10.0)
-      volar-service-typescript: 0.0.11(@volar/language-service@1.10.0)(@volar/typescript@1.10.0)
-      volar-service-typescript-twoslash-queries: 0.0.11(@volar/language-service@1.10.0)
-      vscode-html-languageservice: 5.0.6
-      vscode-uri: 3.0.7
-    transitivePeerDependencies:
-      - typescript
-    dev: true
 
   /@astrojs/language-server@2.3.0(prettier-plugin-astro@0.12.0)(prettier@3.0.3)(typescript@5.1.6):
     resolution: {integrity: sha512-NFSzszjR4+f0+fTUCuFKXrLWusJFqWvHMrIzHB0lXUE8dt3Dm1Ok9Emrdj3s3BvlguJz05MV9xSIz1puMvomtQ==}
@@ -9371,17 +9321,6 @@ packages:
       loupe: 2.3.6
       pretty-format: 29.6.3
     dev: false
-
-  /@volar/kit@1.10.0:
-    resolution: {integrity: sha512-3ijH2Gqe8kWnij58rwaBID22J/b+VT457ZEf5TwyPDqHTrfNCZIVitpdD5WlLD4Wy/D0Vymwj2ct9TNc1hkOmQ==}
-    peerDependencies:
-      typescript: '*'
-    dependencies:
-      '@volar/language-service': 1.10.0
-      typesafe-path: 0.2.2
-      vscode-languageserver-textdocument: 1.0.8
-      vscode-uri: 3.0.7
-    dev: true
 
   /@volar/kit@1.10.0(typescript@5.1.6):
     resolution: {integrity: sha512-3ijH2Gqe8kWnij58rwaBID22J/b+VT457ZEf5TwyPDqHTrfNCZIVitpdD5WlLD4Wy/D0Vymwj2ct9TNc1hkOmQ==}
@@ -17199,7 +17138,7 @@ packages:
       code-block-writer: 12.0.0
     dev: true
 
-  /tsconfck@3.0.0-next.9:
+  /tsconfck@3.0.0-next.9(typescript@5.1.6):
     resolution: {integrity: sha512-bgVlu3qcRUZpm9Au1IHiPDkb8XU+72bRkXrBaJsiAjIlixtkbKLe4q1odrrqG0rVHvh0Q4R3adT/nh1FwzftXA==}
     engines: {node: ^18 || >=20}
     hasBin: true
@@ -17208,6 +17147,8 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+    dependencies:
+      typescript: 5.1.6
     dev: false
 
   /tsconfig-resolver@3.0.1:
@@ -17959,42 +17900,6 @@ packages:
       fsevents: 2.3.3
     dev: false
 
-  /vite@4.4.9(sass@1.66.1):
-    resolution: {integrity: sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': '>= 14'
-      less: '*'
-      lightningcss: ^1.21.0
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      lightningcss:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      esbuild: 0.18.20
-      postcss: 8.4.28
-      rollup: 3.28.1
-      sass: 1.66.1
-    optionalDependencies:
-      fsevents: 2.3.3
-    dev: false
-
   /vitefu@0.2.4(vite@4.4.9):
     resolution: {integrity: sha512-fanAXjSaf9xXtOOeno8wZXIhgia+CZury481LsDaV++lSvcU2R9Ch2bPh3PYFyoHW+w9LqAeYRISVQjUIew14g==}
     peerDependencies:
@@ -18003,7 +17908,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 4.4.9(sass@1.66.1)
+      vite: 4.4.9(@types/node@18.17.8)(sass@1.66.1)
     dev: false
 
   /vitest@0.34.2:
@@ -18108,20 +18013,6 @@ packages:
       '@volar/language-service': 1.10.0
       vscode-html-languageservice: 5.0.6
       vscode-uri: 3.0.7
-    dev: true
-
-  /volar-service-prettier@0.0.11(@volar/language-service@1.10.0):
-    resolution: {integrity: sha512-A4vEU5BUitNNAySb+t/fCjEoL01uYUkoe/Fe5UxR3JJbdgr2nTeXb5IlW90/1vzmnTKZznadJV4i1SoAf2CRbg==}
-    peerDependencies:
-      '@volar/language-service': ~1.10.0
-      prettier: ^2.2 || ^3.0
-    peerDependenciesMeta:
-      '@volar/language-service':
-        optional: true
-      prettier:
-        optional: true
-    dependencies:
-      '@volar/language-service': 1.10.0
     dev: true
 
   /volar-service-prettier@0.0.11(@volar/language-service@1.10.0)(prettier@3.0.3):
