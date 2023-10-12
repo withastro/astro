@@ -59,6 +59,8 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat } from './util.js';
+import OS from 'node:os';
+import pLimit from 'p-limit';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -196,21 +198,26 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		}
 	}
 
+	const cpuCount = OS.cpus().length;
 	const staticImageList = getStaticImageList();
+	const limit = pLimit(cpuCount);
 
 	if (staticImageList.size)
 		logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`);
-	let count = 0;
-	for (const imageData of staticImageList.entries()) {
-		count++;
-		await generateImage(
-			pipeline,
-			imageData[1].options,
-			imageData[1].path,
-			count,
-			staticImageList.size
-		);
-	}
+
+	await Promise.all(
+		Array.from(staticImageList.entries()).map((imageData, count) =>
+			limit(() =>
+				generateImage(
+					pipeline,
+					imageData[1].options,
+					imageData[1].path,
+					count,
+					staticImageList.size
+				)
+			)
+		)
+	);
 
 	delete globalThis?.astroAsset?.addStaticImage;
 
@@ -414,10 +421,10 @@ function getInvalidRouteSegmentError(
 		...AstroErrorData.InvalidDynamicRoute,
 		message: invalidParam
 			? AstroErrorData.InvalidDynamicRoute.message(
-					route.route,
-					JSON.stringify(invalidParam),
-					JSON.stringify(received)
-			  )
+				route.route,
+				JSON.stringify(invalidParam),
+				JSON.stringify(received)
+			)
 			: `Generated path for ${route.route} is invalid.`,
 		hint,
 	});
