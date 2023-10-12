@@ -229,7 +229,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 		const aspectRatio = targetWidth / targetHeight;
 		const imageWidth = isESMImportedImage(options.src) ? options.src.width : options.width;
-		const maxWidth = imageWidth ?? Infinity;
+		const maxWidth = isESMImportedImage(options.src) ? imageWidth ?? Infinity : Infinity;
 
 		// REFACTOR: Could we merge these two blocks?
 		if (densities) {
@@ -261,8 +261,9 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 					},
 				};
 
-				// Only set width and height if they are different from the original image, to avoid duplicated final images
-				if (maxTargetWidth !== imageWidth) {
+				// Only set width and height if they are different from the original image or if the image is remote
+				// to avoid duplicated final images
+				if (!isESMImportedImage(options.src) || maxTargetWidth !== imageWidth) {
 					srcSetValue.transform.width = maxTargetWidth;
 					srcSetValue.transform.height = Math.round(maxTargetWidth / aspectRatio);
 				}
