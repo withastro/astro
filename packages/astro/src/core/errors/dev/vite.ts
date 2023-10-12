@@ -8,7 +8,7 @@ import { AstroError, type ErrorWithMetadata } from '../errors.js';
 import { createSafeError } from '../utils.js';
 import type { SSRLoadedRenderer } from './../../../@types/astro.js';
 import { getDocsForError, renderErrorMarkdown } from './utils.js';
-import { replaceCssVariables } from '../../../../components/shiki.js';
+import { replaceCssVariables } from '../../shiki.js';
 
 export function enhanceViteSSRError({
 	error,

@@ -1,7 +1,8 @@
-import { getHighlighter } from 'shikiji';
+import { type Highlighter, getHighlighter } from 'shikiji';
 
-/** @type {Record<string, string>} */
-const ASTRO_COLOR_REPLACEMENTS = {
+type HighlighterOptions = NonNullable<Parameters<typeof getHighlighter>[0]>;
+
+const ASTRO_COLOR_REPLACEMENTS: Record<string, string> = {
 	'#000001': 'var(--astro-code-color-text)',
 	'#000002': 'var(--astro-code-color-background)',
 	'#000004': 'var(--astro-code-token-constant)',
@@ -24,18 +25,12 @@ const cachedHighlighters = new Map();
 
 /**
  * shiki -> shikiji compat as we need to manually replace it
- * @param {string} str
  */
-export function replaceCssVariables(str) {
+export function replaceCssVariables(str: string) {
 	return str.replace(COLOR_REPLACEMENT_REGEX, (match) => ASTRO_COLOR_REPLACEMENTS[match] || match);
 }
 
-/**
- *
- * @param {NonNullable<Parameters<typeof getHighlighter>[0]>} opts
- * @returns {Promise<import('shikiji').Highlighter>}
- */
-export function getCachedHighlighter(opts) {
+export function getCachedHighlighter(opts: HighlighterOptions): Promise<Highlighter> {
 	// Always sort keys before stringifying to make sure objects match regardless of parameter ordering
 	const key = JSON.stringify(opts, Object.keys(opts).sort());
 
