@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.2.0
+
+### Minor Changes
+
+- 9381e1d: Update dependencies
+
 ## 1.1.3
 
 ### Patch Changes

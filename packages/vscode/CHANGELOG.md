@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.4.0
+
+### Minor Changes
+
+- 9381e1d: Update dependencies
+
 ## 2.3.4
 
 ### Patch Changes
