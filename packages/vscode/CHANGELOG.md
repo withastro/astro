@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.3.4
+
+### Patch Changes
+
+- 4046fb8: Fix intellisense not working in nested script and style tags
+
 ## 2.3.3
 
 ### Patch Changes

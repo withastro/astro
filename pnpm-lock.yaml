@@ -232,7 +232,7 @@ importers:
         version: 0.12.0
     devDependencies:
       '@astrojs/language-server':
-        specifier: ^2.3.3
+        specifier: ^2.3.4
         version: link:../language-server
       '@astrojs/ts-plugin':
         specifier: ^1.1.3
