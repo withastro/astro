@@ -31,6 +31,19 @@ describe('API routes', () => {
 		expect(html).to.contain('<h1>bar</h1>');
 	});
 
+	it('Throws an error when provided non-objects as locals', async () => {
+		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		let { req, res, done } = createRequestAndResponse({
+			url: '/from-node-middleware',
+		});
+
+		handler(req, res, undefined, "locals");
+		req.send();
+
+		await done;
+		expect(res).to.deep.include({ statusCode: 500 });
+	});
+
 	it('Can use locals added by astro middleware', async () => {
 		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
 		
