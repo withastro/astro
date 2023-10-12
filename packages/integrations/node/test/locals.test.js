@@ -15,11 +15,10 @@ describe('API routes', () => {
 		await fixture.build();
 	});
 
-	it('Can render locals in page', async () => {
+	it('Can use locals added by node middleware', async () => {
 		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
 		let { req, res, text } = createRequestAndResponse({
-			method: 'POST',
-			url: '/foo',
+			url: '/from-node-middleware',
 		});
 
 		let locals = { foo: 'bar' };
@@ -30,6 +29,34 @@ describe('API routes', () => {
 		let html = await text();
 
 		expect(html).to.contain('<h1>bar</h1>');
+	});
+
+	it('Throws an error when provided non-objects as locals', async () => {
+		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		let { req, res, done } = createRequestAndResponse({
+			url: '/from-node-middleware',
+		});
+
+		handler(req, res, undefined, "locals");
+		req.send();
+
+		await done;
+		expect(res).to.deep.include({ statusCode: 500 });
+	});
+
+	it('Can use locals added by astro middleware', async () => {
+		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		
+		const { req, res, text } = createRequestAndResponse({
+			url: '/from-astro-middleware',
+		});
+
+		handler(req, res, () => {});
+		req.send();
+
+		const html = await text();
+
+		expect(html).to.contain('<h1>baz</h1>');
 	});
 
 	it('Can access locals in API', async () => {
