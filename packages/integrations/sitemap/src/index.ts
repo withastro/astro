@@ -100,8 +100,8 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						.map((p) => {
 							if (p.pathname !== '' && !finalSiteUrl.pathname.endsWith('/'))
 								finalSiteUrl.pathname += '/';
-							const path = finalSiteUrl.pathname + p.pathname;
-							return new URL(path, finalSiteUrl).href;
+							const fullPath = finalSiteUrl.pathname + p.pathname;
+							return new URL(fullPath, finalSiteUrl).href;
 						});
 
 					let routeUrls = routes.reduce<string[]>((urls, r) => {
@@ -117,9 +117,9 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							 * remove the initial slash from relative pathname
 							 * because `finalSiteUrl` always has trailing slash
 							 */
-							const path = finalSiteUrl.pathname + r.generate(r.pathname).substring(1);
+							const fullPath = finalSiteUrl.pathname + r.generate(r.pathname).substring(1);
 
-							let newUrl = new URL(path, finalSiteUrl).href;
+							let newUrl = new URL(fullPath, finalSiteUrl).href;
 
 							if (config.trailingSlash === 'never') {
 								urls.push(newUrl);
