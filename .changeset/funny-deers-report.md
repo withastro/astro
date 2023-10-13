@@ -2,4 +2,4 @@
 '@astrojs/sitemap': patch
 ---
 
-Added OUTPUT directory to the sitemap build command
+Display output directory in the sitemap build result
