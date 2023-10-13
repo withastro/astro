@@ -1,16 +1,11 @@
 import debugPackage from 'debug';
-import { bold, cyan, dim, red, reset, yellow } from 'kleur/colors';
-import * as readline from 'node:readline';
 import { Writable } from 'node:stream';
-import stringWidth from 'string-width';
-import { dateTimeFormat, error, info, warn } from './core.js';
+import { getEventPrefix, levels, type LogMessage } from './core.js';
 
 type ConsoleStream = Writable & {
 	fd: 1 | 2;
 };
 
-let lastMessage: string;
-let lastMessageCount = 1;
 export const nodeLogDestination = new Writable({
 	objectMode: true,
 	write(event: LogMessage, _, callback) {
@@ -18,96 +13,24 @@ export const nodeLogDestination = new Writable({
 		if (levels[event.level] < levels['error']) {
 			dest = process.stdout;
 		}
-
-		function getPrefix() {
-			let prefix = '';
-			let label = event.label;
-			if (label) {
-				// hide timestamp when type is undefined
-				prefix += dim(dateTimeFormat.format(new Date()) + ' ');
-				if (event.level === 'info') {
-					label = bold(cyan(`[${label}]`));
-				} else if (event.level === 'warn') {
-					label = bold(yellow(`[${label}]`));
-				} else if (event.level === 'error') {
-					label = bold(red(`[${label}]`));
-				}
-
-				prefix += `${label} `;
-			}
-			return reset(prefix);
-		}
-
-		// console.log({msg: event.message, args: event.args});
-		let message = event.message;
-		// For repeat messages, only update the message counter
-		if (message === lastMessage) {
-			lastMessageCount++;
-			if (levels[event.level] < levels['error']) {
-				let lines = 1;
-				let len = stringWidth(`${getPrefix()}${message}`);
-				let cols = (dest as unknown as typeof process.stdout).columns;
-				if (len > cols) {
-					lines = Math.ceil(len / cols);
-				}
-				for (let i = 0; i < lines; i++) {
-					readline.clearLine(dest, 0);
-					readline.cursorTo(dest, 0);
-					readline.moveCursor(dest, 0, -1);
-				}
-			}
-			message = `${message} ${yellow(`(x${lastMessageCount})`)}`;
+		if (event.label === 'SKIP_FORMAT') {
+			dest.write(event.message + '\n');
 		} else {
-			lastMessage = message;
-			lastMessageCount = 1;
+			dest.write(getEventPrefix(event) + ' ' + event.message + '\n');
 		}
-
-		dest.write(getPrefix());
-		dest.write(message);
-		dest.write('\n');
 		callback();
 	},
 });
 
-interface LogWritable<T> {
-	write: (chunk: T) => boolean;
-}
-
-export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
-export type LoggerEvent = 'info' | 'warn' | 'error';
-
-export interface LogOptions {
-	dest?: LogWritable<LogMessage>;
-	level?: LoggerLevel;
-}
-
-export const nodeLogOptions: Required<LogOptions> = {
-	dest: nodeLogDestination,
-	level: 'info',
-};
-
-export interface LogMessage {
-	label: string | null;
-	level: LoggerLevel;
-	message: string;
-}
-
-export const levels: Record<LoggerLevel, number> = {
-	debug: 20,
-	info: 30,
-	warn: 40,
-	error: 50,
-	silent: 90,
-};
-
 const debuggers: Record<string, debugPackage.Debugger['log']> = {};
+
 /**
  * Emit a message only shown in debug mode.
  * Astro (along with many of its dependencies) uses the `debug` package for debug logging.
  * You can enable these logs with the `DEBUG=astro:*` environment variable.
  * More info https://github.com/debug-js/debug#environment-variables
  */
-export function debug(type: string, ...messages: Array<any>) {
+function debug(type: string, ...messages: Array<any>) {
 	const namespace = `astro:${type}`;
 	debuggers[namespace] = debuggers[namespace] || debugPackage(namespace);
 	return debuggers[namespace](...messages);
@@ -115,13 +38,6 @@ export function debug(type: string, ...messages: Array<any>) {
 
 // This is gross, but necessary since we are depending on globals.
 (globalThis as any)._astroGlobalDebug = debug;
-
-// A default logger for when too lazy to pass LogOptions around.
-export const logger = {
-	info: info.bind(null, nodeLogOptions),
-	warn: warn.bind(null, nodeLogOptions),
-	error: error.bind(null, nodeLogOptions),
-};
 
 export function enableVerboseLogging() {
 	debug('cli', '--verbose flag enabled! Enabling: DEBUG="*,-babel"');

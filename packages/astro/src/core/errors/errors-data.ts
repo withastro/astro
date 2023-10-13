@@ -1260,3 +1260,12 @@ export const UnsupportedConfigTransformError = {
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
+
+// Test area, ignore or TODO I'm not sure yet!
+export const StaticHeadersNotAvailable = {
+	name: 'StaticHeadersNotAvailable',
+	title: '`Astro.request.headers` is not available in static mode.',
+	message:
+		"`Astro.request.headers` is only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
+	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project for more information on how to enable SSR.',
+} satisfies ErrorData;

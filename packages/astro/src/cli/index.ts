@@ -109,11 +109,6 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			await update(subcommand, { flags });
 			return;
 		}
-		case 'sync': {
-			const { sync } = await import('./sync/index.js');
-			const exitCode = await sync({ flags });
-			return process.exit(exitCode);
-		}
 	}
 
 	// In verbose/debug mode, we log the debug logs asap before any potential errors could appear
@@ -130,9 +125,15 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	const { notify } = await import('./telemetry/index.js');
 	await notify();
 
-	// These commands uses the logging and user config. All commands are assumed to have been handled
+	// These commands uses the logging and user config.
+	// All commands are assumed to have been handled
 	// by the end of this switch statement.
 	switch (cmd) {
+		case 'sync': {
+			const { sync } = await import('./sync/index.js');
+			const exitCode = await sync({ flags });
+			return process.exit(exitCode);
+		}
 		case 'add': {
 			const { add } = await import('./add/index.js');
 			const packages = flags._.slice(3) as string[];
@@ -179,6 +180,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 export async function cli(args: string[]) {
 	const flags = yargs(args);
 	const cmd = resolveCommand(flags);
+
 	try {
 		await runCommand(cmd, flags);
 	} catch (err) {

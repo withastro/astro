@@ -1,3 +1,4 @@
+import { bold } from 'kleur/colors';
 import fs, { readFileSync } from 'node:fs';
 import { basename, join } from 'node:path/posix';
 import type { BuildPipeline } from '../../core/build/buildPipeline.js';
@@ -30,19 +31,8 @@ export async function generateImage(
 ): Promise<GenerationData | undefined> {
 	const config = pipeline.getConfig();
 	const logger = pipeline.getLogger();
-	let useCache = true;
 	const assetsCacheDir = new URL('assets/', config.cacheDir);
-
-	// Ensure that the cache directory exists
-	try {
-		await fs.promises.mkdir(assetsCacheDir, { recursive: true });
-	} catch (err) {
-		logger.warn(
-			'astro:assets',
-			`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${err}`
-		);
-		useCache = false;
-	}
+	await fs.promises.mkdir(assetsCacheDir, { recursive: true });
 
 	let serverRoot: URL, clientRoot: URL;
 	if (isServerLikeOutput(config)) {
@@ -68,7 +58,6 @@ export async function generateImage(
 	try {
 		if (isLocalImage) {
 			await fs.promises.copyFile(cachedFileURL, finalFileURL);
-
 			return {
 				cached: true,
 			};
@@ -78,7 +67,6 @@ export async function generateImage(
 			// If the cache entry is not expired, use it
 			if (JSONData.expires > Date.now()) {
 				await fs.promises.writeFile(finalFileURL, Buffer.from(JSONData.data, 'base64'));
-
 				return {
 					cached: true,
 				};
@@ -123,24 +111,19 @@ export async function generateImage(
 
 	try {
 		// Write the cache entry
-		if (useCache) {
-			if (isLocalImage) {
-				await fs.promises.writeFile(cachedFileURL, resultData.data);
-			} else {
-				await fs.promises.writeFile(
-					cachedFileURL,
-					JSON.stringify({
-						data: Buffer.from(resultData.data).toString('base64'),
-						expires: resultData.expires,
-					})
-				);
-			}
+		if (isLocalImage) {
+			await fs.promises.writeFile(cachedFileURL, resultData.data);
+		} else {
+			await fs.promises.writeFile(
+				cachedFileURL,
+				JSON.stringify({
+					data: Buffer.from(resultData.data).toString('base64'),
+					expires: resultData.expires,
+				})
+			);
 		}
 	} catch (e) {
-		logger.warn(
-			'astro:assets',
-			`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${e}`
-		);
+		logger.warn('astro:assets', `Could not write ${bold(originalImagePath)} to cache: ${e}`);
 	} finally {
 		// Write the final file
 		await fs.promises.writeFile(finalFileURL, resultData.data);

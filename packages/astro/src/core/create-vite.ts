@@ -1,6 +1,7 @@
+import stripAnsi from 'strip-ansi';
 import type { AstroSettings } from '../@types/astro.js';
 import type { Logger } from './logger/core.js';
-
+import type { Logger as ViteLogger } from 'vite';
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
@@ -19,7 +20,6 @@ import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
 import astroHeadPlugin from '../vite-plugin-head/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
-import { astroInjectEnvTsPlugin } from '../vite-plugin-inject-env-ts/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
@@ -61,6 +61,14 @@ const ONLY_DEV_EXTERNAL = [
 	'string-width',
 ];
 
+// const originalLoggerError = logger.warn
+
+// logger.warn = (msg, options) => {
+//   // Ignore empty CSS files warning
+//   if (msg.includes('vite:css') && msg.includes(' is empty')) return
+//   loggerWarn(msg, options)
+// }
+
 /** Return a common starting point for all Vite actions */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
@@ -98,11 +106,27 @@ export async function createVite(
 		},
 	});
 
+	const viteCustomLogger: ViteLogger = {
+		...vite.createLogger(),
+		info: (msg) => logger.info('vite', msg),
+		warn: (msg) => logger.warn('vite', msg),
+		error: (_msg) => {
+			const msg = stripAnsi(_msg);
+			if (msg.startsWith('Error when evaluating SSR module')) {
+				// safe to ignore, this error is immediately thrown by Vite
+				// and then handled by our own logger.
+				return;
+			}
+			logger.error('vite', msg);
+		},
+	};
+
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', settings.config.root)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
 		logLevel: 'warn', // log warnings and errors only
+		customLogger: viteCustomLogger,
 		appType: 'custom',
 		optimizeDeps: {
 			entries: ['src/**/*'],
@@ -125,7 +149,6 @@ export async function createVite(
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPlugin(),
 			astroScannerPlugin({ settings, logger }),
-			astroInjectEnvTsPlugin({ settings, logger, fs }),
 			astroContentVirtualModPlugin({ settings }),
 			astroContentImportPlugin({ fs, settings }),
 			astroContentAssetPropagationPlugin({ mode, settings }),

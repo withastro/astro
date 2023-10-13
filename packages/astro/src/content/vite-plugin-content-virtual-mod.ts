@@ -41,7 +41,7 @@ export function astroContentVirtualModPlugin({
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 		.replace(
 			'@@COLLECTION_NAME_BY_REFERENCE_KEY@@',
-			new URL('reference-map.json', contentPaths.cacheDir).pathname
+			new URL('reference-map.json', contentPaths.dotAstroDir).pathname
 		)
 		.replace('@@CONTENT_DIR@@', relContentDir)
 		.replace(

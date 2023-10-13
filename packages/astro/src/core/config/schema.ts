@@ -22,7 +22,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	srcDir: './src',
 	publicDir: './public',
 	outDir: './dist',
-	cacheDir: './node_modules/.astro',
+	cacheDir: './.astro/cache',
 	base: '/',
 	trailingSlash: 'ignore',
 	build: {

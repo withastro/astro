@@ -1,9 +1,6 @@
-import { bold, cyan, dim, red, reset, yellow } from 'kleur/colors';
 import type { LogMessage } from './core.js';
-import { dateTimeFormat, levels } from './core.js';
+import { getEventPrefix, levels } from './core.js';
 
-let lastMessage: string;
-let lastMessageCount = 1;
 export const consoleLogDestination = {
 	write(event: LogMessage) {
 		// eslint-disable-next-line no-console
@@ -12,37 +9,7 @@ export const consoleLogDestination = {
 			// eslint-disable-next-line no-console
 			dest = console.log;
 		}
-
-		function getPrefix() {
-			let prefix = '';
-			let type = event.label;
-			if (type) {
-				// hide timestamp when type is undefined
-				prefix += dim(dateTimeFormat.format(new Date()) + ' ');
-				if (event.level === 'info') {
-					type = bold(cyan(`[${type}]`));
-				} else if (event.level === 'warn') {
-					type = bold(yellow(`[${type}]`));
-				} else if (event.level === 'error') {
-					type = bold(red(`[${type}]`));
-				}
-
-				prefix += `${type} `;
-			}
-			return reset(prefix);
-		}
-
-		let message = event.message;
-		// For repeat messages, only update the message counter
-		if (message === lastMessage) {
-			lastMessageCount++;
-			message = `${message} ${yellow(`(x${lastMessageCount})`)}`;
-		} else {
-			lastMessage = message;
-			lastMessageCount = 1;
-		}
-		const outMessage = getPrefix() + message;
-		dest(outMessage);
+		dest(getEventPrefix(event) + ' ' + event.message);
 		return true;
 	},
 };

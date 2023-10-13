@@ -8,7 +8,6 @@ import {
 	type CompileResult,
 } from '../core/compile/index.js';
 import type { Logger } from '../core/logger/core.js';
-import * as msg from '../core/messages.js';
 import { isAstroScript } from './query.js';
 
 const PKG_PREFIX = fileURLToPath(new URL('../../', import.meta.url));
@@ -91,11 +90,10 @@ export async function handleHotUpdate(
 	// Bugfix: sometimes style URLs get normalized and end with `lang.css=`
 	// These will cause full reloads, so filter them out here
 	const mods = [...filtered].filter((m) => !m.url.endsWith('='));
-	const file = ctx.file.replace(config.root.pathname, '/');
 
 	// If only styles are changed, remove the component file from the update list
 	if (isStyleOnlyChange) {
-		logger.info('astro', msg.hmr({ file, style: true }));
+		logger.debug('astro', 'style-only change');
 		// remove base file and hoisted scripts
 		return mods.filter((mod) => mod.id !== ctx.file && !mod.id?.endsWith('.ts'));
 	}
@@ -111,11 +109,8 @@ export async function handleHotUpdate(
 
 	// TODO: Svelte files should be marked as `isSelfAccepting` but they don't appear to be
 	const isSelfAccepting = mods.every((m) => m.isSelfAccepting || m.url.endsWith('.svelte'));
-	if (isSelfAccepting) {
-		if (/astro\.config\.[cm][jt]s$/.test(file)) return mods;
-		logger.info('astro', msg.hmr({ file }));
-	} else {
-		logger.info('astro', msg.reload({ file }));
+	if (!isSelfAccepting) {
+		logger.debug('astro', 'full page reload triggered');
 	}
 
 	return mods;

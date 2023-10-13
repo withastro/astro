@@ -1,15 +1,18 @@
-import { dim } from 'kleur/colors';
+import { bold, dim } from 'kleur/colors';
 import fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { createServer, type HMRPayload } from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { createContentTypesGenerator } from '../../content/index.js';
-import { globalContentConfigObserver } from '../../content/utils.js';
+import {
+	globalContentConfigObserver,
+	setUpEnvDts,
+	setupDotAstroDirectory,
+} from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigSetup } from '../../integrations/index.js';
-import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
@@ -52,6 +55,9 @@ export default async function sync(
 		logger: logger,
 		command: 'build',
 	});
+
+	await setupDotAstroDirectory({ settings, logger, fs: options?.fs ?? fsMod });
+	await setUpEnvDts({ settings, logger, fs: options?.fs ?? fsMod });
 
 	return await syncInternal(settings, { ...options, logger });
 }
@@ -117,7 +123,7 @@ export async function syncInternal(
 			switch (typesResult.reason) {
 				case 'no-content-dir':
 				default:
-					logger.info('content', 'No content directory found. Skipping type generation.');
+					logger.debug('content', 'No content directory found. Skipping type generation.');
 					return 0;
 			}
 		}
@@ -137,8 +143,10 @@ export async function syncInternal(
 		await tempViteServer.close();
 	}
 
-	logger.info('content', `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
-	await setUpEnvTs({ settings, logger, fs: fs ?? fsMod });
+	logger.info(
+		null,
+		`${bold('.astro/')} metadata generated. ${dim(getTimeStat(timerStart, performance.now()))}`
+	);
 
 	return 0;
 }
