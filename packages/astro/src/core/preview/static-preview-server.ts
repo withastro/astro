@@ -42,7 +42,7 @@ export default async function createStaticPreviewServer(
 		});
 	} catch (err) {
 		if (err instanceof Error) {
-			logger.error('astro', err.stack || err.message);
+			logger.error(null, err.stack || err.message);
 		}
 		throw err;
 	}
@@ -51,7 +51,7 @@ export default async function createStaticPreviewServer(
 
 	// Log server start URLs
 	logger.info(
-		null,
+		'SKIP_FORMAT',
 		msg.serverStart({
 			startupTime: performance.now() - startServerTime,
 			resolvedUrls: previewServer.resolvedUrls ?? { local: [], network: [] },

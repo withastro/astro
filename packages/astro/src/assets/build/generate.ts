@@ -58,7 +58,7 @@ export async function prepareAssetsGenerationEnv(
 		await fs.promises.mkdir(assetsCacheDir, { recursive: true });
 	} catch (err) {
 		logger.warn(
-			'astro:assets',
+			null,
 			`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${err}`
 		);
 		useCache = false;

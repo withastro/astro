@@ -1,5 +1,4 @@
-import * as colors from 'kleur/colors';
-import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
+import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
 import fs from 'node:fs';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -149,7 +148,7 @@ export function chunkIsPage(
 }
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
-	const timer = performance.now();
+	const generatePagesTimer = performance.now();
 	const ssr = isServerLikeOutput(opts.settings.config);
 	let manifest: SSRManifest;
 	if (ssr) {
@@ -179,7 +178,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	}
 
 	const verb = ssr ? 'prerendering' : 'generating';
-	logger.info(null, `\n${bgGreen(black(` ${verb} static routes `))}`);
+	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
 	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
 	if (ssr) {
@@ -223,12 +222,14 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			}
 		}
 	}
-
-	logger.info(null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
+	logger.info(
+		null,
+		green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`)
+	);
 
 	const staticImageList = getStaticImageList();
 	if (staticImageList.size) {
-		logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`);
+		logger.info('SKIP_FORMAT', `${bgGreen(black(` generating optimized images `))}`);
 
 		const totalCount = Array.from(staticImageList.values())
 			.map((x) => x.transforms.size)
@@ -244,7 +245,10 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 
 		await queue.onIdle();
 		const assetsTimeEnd = performance.now();
-		logger.info(null, dim(`Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
+		logger.info(
+			null,
+			green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`)
+		);
 
 		delete globalThis?.astroAsset?.addStaticImage;
 	}
@@ -299,11 +303,11 @@ async function generatePage(
 		);
 	}
 	const pageModule = await pageModulePromise();
+	// TODO: Remove in Astro 4.0
 	if (shouldSkipDraft(pageModule, pipeline.getSettings())) {
 		logger.info(null, `${magenta('⚠️')}  Skipping draft ${pageData.route.component}`);
-		// TODO: Remove in Astro 4.0
 		logger.warn(
-			'astro',
+			null,
 			`The drafts feature is deprecated. You should migrate to content collections instead. See https://docs.astro.build/en/guides/content-collections/#filtering-collection-queries for more information.`
 		);
 		return;
@@ -321,7 +325,7 @@ async function generatePage(
 		pageData.route.type === 'page' ||
 		pageData.route.type === 'redirect' ||
 		pageData.route.type === 'fallback'
-			? green('▶')
+			? blue('▶')
 			: magenta('λ');
 	if (isRelativePath(pageData.route.component)) {
 		logger.info(null, `${icon} ${pageData.route.route}`);
@@ -338,10 +342,10 @@ async function generatePage(
 		await generatePath(path, generationOptions, pipeline);
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(prevTimeEnd, timeEnd);
-		const timeIncrease = `(+${timeChange})`;
+		const timeIncrease = `(${timeChange})`;
 		const filePath = getOutputFilename(pipeline.getConfig(), path, pageData.route.type);
 		const lineIcon = i === paths.length - 1 ? '└─' : '├─';
-		logger.info(null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
+		logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
 		prevTimeEnd = timeEnd;
 	}
 }
@@ -367,14 +371,14 @@ async function getPathsForRoute(
 			logger,
 			ssr: isServerLikeOutput(opts.settings.config),
 		}).catch((err) => {
-			logger.debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
+			logger.debug('build', `├── ${bold(red('✗'))} ${route.component}`);
 			throw err;
 		});
 
 		const label = staticPaths.length === 1 ? 'page' : 'pages';
 		logger.debug(
 			'build',
-			`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(
+			`├── ${bold(green('✔'))} ${route.component} → ${magenta(
 				`[${staticPaths.length} ${label}]`
 			)}`
 		);

@@ -1,10 +1,10 @@
 import type * as vite from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 
+import { bold } from 'kleur/colors';
 import * as fs from 'node:fs';
 import type { Logger } from '../core/logger/core.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
-import { log404 } from './common.js';
 import { writeHtmlResponse } from './response.js';
 
 export function baseMiddleware(
@@ -28,13 +28,11 @@ export function baseMiddleware(
 		}
 
 		if (pathname === '/' || pathname === '/index.html') {
-			log404(logger, pathname);
 			const html = subpathNotUsedTemplate(devRoot, pathname);
 			return writeHtmlResponse(res, 404, html);
 		}
 
 		if (req.headers.accept?.includes('text/html')) {
-			log404(logger, pathname);
 			const html = notFoundTemplate({
 				statusCode: 404,
 				title: 'Not found',
@@ -45,13 +43,16 @@ export function baseMiddleware(
 		}
 
 		// Check to see if it's in public and if so 404
+		// TODO: Remove redirect, turn this warning into an error in Astro 4.0
 		const publicPath = new URL('.' + req.url, config.publicDir);
 		fs.stat(publicPath, (_err, stats) => {
 			if (stats) {
 				const expectedLocation = new URL('.' + url, devRootURL).pathname;
 				logger.warn(
-					'dev',
-					`Requests for items in your public folder must also include your base. ${url} should be ${expectedLocation}. Omitting the base will break in production.`
+					'router',
+					`Request URLs for ${bold(
+						'public/'
+					)} assets must also include your base. "${expectedLocation}" expected, but received "${url}".`
 				);
 				res.writeHead(301, {
 					Location: expectedLocation,
