@@ -177,7 +177,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						limit: entryLimit,
 						gzip: false,
 					});
-					logger.success(`\`${OUTFILE}\` is created.`);
+					logger.success(`\`${OUTFILE}\` created at \`${fileURLToPath(dir)}`);
 				} catch (err) {
 					if (err instanceof ZodError) {
 						logger.warn(formatConfigErrorMessage(err));
