@@ -1,4 +1,4 @@
-import { type Highlighter, getHighlighter } from 'shikiji';
+import { getHighlighter, type Highlighter } from 'shikiji';
 
 type HighlighterOptions = NonNullable<Parameters<typeof getHighlighter>[0]>;
 
