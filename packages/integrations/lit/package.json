@@ -47,6 +47,11 @@
     "@lit-labs/ssr-dom-shim": "^1.1.1",
     "parse5": "^7.1.2"
   },
+  "overrides": {
+    "@lit-labs/ssr": {
+      "@lit-labs/ssr-client": "1.1.3"
+    }
+  },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
