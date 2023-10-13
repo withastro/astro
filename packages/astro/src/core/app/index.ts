@@ -272,7 +272,6 @@ export class App {
 				return this.#mergeResponses(response, originalResponse, override);
 			}
 			const mod = await this.#getModuleForRoute(errorRouteData);
-			let usedMiddleware = false;
 			try {
 				const newRenderContext = await this.#createRenderContext(
 					url,
@@ -284,16 +283,16 @@ export class App {
 				const page = (await mod.page()) as any;
 				if (runMiddleware && mod.onRequest) {
 					this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
-					usedMiddleware = true;
 				}
 				if (!runMiddleware) {
+					// make sure middleware set by other requests is cleared out
 					this.#pipeline.unsetMiddlewareFunction();
 				}
 				const response = await this.#pipeline.renderRoute(newRenderContext, page);
 				return this.#mergeResponses(response, originalResponse);
 			} catch {
 				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
-				if (runMiddleware && usedMiddleware) {
+				if (runMiddleware && mod.onRequest) {
 					return this.#renderError(request, { status, response: originalResponse, runMiddleware: false });
 				}
 			}
