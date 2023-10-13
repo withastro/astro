@@ -33,8 +33,8 @@ export default {
 			el.style.position = 'absolute';
 
 			const rect = originalElement.getBoundingClientRect();
-			el.style.top = `${Math.max(rect.top - 10, 0)}px`;
-			el.style.left = `${Math.max(rect.left - 10, 0)}px`;
+			el.style.top = `${Math.max(rect.top + window.scrollY - 10, 0)}px`;
+			el.style.left = `${Math.max(rect.left + window.scrollX - 10, 0)}px`;
 			el.style.width = `${rect.width + 15}px`;
 			el.style.height = `${rect.height + 15}px`;
 
@@ -65,15 +65,16 @@ export default {
 				},
 			];
 
-			tooltip.style.position = 'absolute';
-			tooltip.style.top = `${rect.height}px`;
-			tooltip.style.left = `${Math.max(rect.left - 10, 5)}px`;
-			tooltip.style.margin = '0';
-
 			el.appendChild(tooltip);
-
 			el.addEventListener('mouseover', () => {
 				tooltip.dialog.show();
+
+				const dialogRect = tooltip.dialog.getBoundingClientRect();
+				if (rect.top < dialogRect.height) {
+					tooltip.style.top = `${rect.height + 15}px`;
+				} else {
+					tooltip.style.top = `${-dialogRect.height}px`;
+				}
 			});
 
 			el.addEventListener('mouseout', () => {

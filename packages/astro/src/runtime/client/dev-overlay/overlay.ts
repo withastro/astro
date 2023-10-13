@@ -113,6 +113,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 		</div>`;
 
 			this.attachClickEvents();
+
+			// Init plugin lazily
+			if ('requestIdleCallback' in window) {
+				window.requestIdleCallback(async () => {
+					await Promise.all(
+						plugins
+							.filter((plugin) => plugin.status === 'loading')
+							.map((plugin) => this.initPlugin(plugin))
+					);
+				});
+			}
 		}
 
 		attachClickEvents() {
@@ -139,9 +150,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 		}
 
 		async initPlugin(plugin: DevOverlayItem) {
+			if (plugin.status === 'ready') return;
+
 			const shadowRoot = this.getPluginCanvasById(plugin.id)!.shadowRoot!;
 
 			try {
+				console.log(`Initing plugin ${plugin.id}`);
 				await plugin.init?.(shadowRoot, plugin.eventTarget);
 				plugin.status = 'ready';
 

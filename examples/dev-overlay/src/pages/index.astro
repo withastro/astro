@@ -13,11 +13,15 @@ import { HelloWorld } from '../../components/Component';
 	<body style="background-color: sandybrown;">
 		<h1>Astro</h1>
 
-		<h2>Audit</h2>
 		<img src="/astro-logo.png" />
 
 		<h2>Components</h2>
 		<HelloWorld text="No hydration" />
 		<HelloWorld text="client:load Hydrated" client:load name="hello" />
+
+		<div style="height: 600px"></div>
+
+		<HelloWorld text="client:load Hydrated" client:load name="hello" />
+		<img src="/astro-logo.png" />
 	</body>
 </html>

@@ -1,9 +1,9 @@
 export class DevOverlayWindow extends HTMLElement {
-	title: string;
+	windowTitle?: string;
+	windowIcon?: string;
 
 	constructor() {
 		super();
-		this.title = 'World';
 	}
 
 	async connectedCallback() {
@@ -20,7 +20,9 @@ export class DevOverlayWindow extends HTMLElement {
 			</style>
 
 			<div id="astro-dev-window">
-				<h1>${this.title}</h1>
+				<h1>${this.windowIcon ?? ''}${this.windowTitle ?? ''}</h1>
+
+				<hr />
 			</div>
 		`;
 	}
@@ -28,6 +30,7 @@ export class DevOverlayWindow extends HTMLElement {
 
 interface DevOverlayTooltipSection {
 	title?: string;
+	inlineTitle?: string;
 	icon?: string;
 	content?: string;
 	clickAction?: () => void;
@@ -56,6 +59,7 @@ export class DevOverlayTooltip extends HTMLElement {
 				font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 				font-size: 14px;
 				margin: 0;
+				z-index: 9999999;
 			}
 
 			dialog svg {
@@ -74,8 +78,13 @@ export class DevOverlayTooltip extends HTMLElement {
 			}
 
 			.modal-title {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			.modal-main-title {
 				font-weight: bold;
-				display: inline-block;
 			}
 
 			.modal-title + div {
@@ -101,6 +110,7 @@ export class DevOverlayTooltip extends HTMLElement {
 			}
 			`;
 
+		this.style.position = 'absolute';
 		this.sections.forEach((section, index) => {
 			const el = document.createElement('section');
 			if (section.clickAction) {
@@ -109,8 +119,12 @@ export class DevOverlayTooltip extends HTMLElement {
 			}
 
 			el.innerHTML = `
-				${section.icon ? `${section.icon}` : ''}
-				${section.title ? `<span class="modal-title">${section.title}</span>` : ''}
+				${
+					section.title
+						? `<div class="modal-title"><span class="modal-main-title">
+						${section.icon ?? ''}${section.title}</span>${section.inlineTitle ?? ''}</div>`
+						: ''
+				}
 				${section.content ? `<div>${section.content}</div>` : ''}
 				${section.clickDescription ? `<span class="modal-cta">${section.clickDescription}</span>` : ''}
 			`;
