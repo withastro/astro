@@ -1,5 +1,6 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
 import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import {
 	EnumChangefreq,
 	simpleSitemapAndIndex,
@@ -169,15 +170,15 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							return;
 						}
 					}
-
+					const destDir = fileURLToPath(dir);
 					await simpleSitemapAndIndex({
 						hostname: finalSiteUrl.href,
-						destinationDir: fileURLToPath(dir),
+						destinationDir: destDir,
 						sourceData: urlData,
 						limit: entryLimit,
 						gzip: false,
 					});
-					logger.success(`\`${OUTFILE}\` created at \`${fileURLToPath(dir)}`);
+					logger.success(`\`${OUTFILE}\` created at \`${path.relative(process.cwd(), destDir)}\``);
 				} catch (err) {
 					if (err instanceof ZodError) {
 						logger.warn(formatConfigErrorMessage(err));
