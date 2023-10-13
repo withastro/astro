@@ -9,6 +9,12 @@ interface DevOptions {
 }
 
 export async function dev({ flags }: DevOptions) {
+	// Gracefully handle ctrl+c as a successful exit.
+	// This prevents tools like PNPM from showing scary
+	// red "ELIFECYCLE  Command failed." error messages.
+	process.on('SIGINT', function () {
+		process.exit(0);
+	});
 	if (flags.help || flags.h) {
 		printHelp({
 			commandName: 'astro dev',

@@ -121,8 +121,8 @@ export async function createContainerWithAutomaticRestart({
 		},
 	};
 
-	async function handleServerRestart(logMsg: string) {
-		logger.info('astro', logMsg + '\n');
+	async function handleServerRestart(logMsg = '') {
+		logger.info('astro', (logMsg + ' Restarting...').trim());
 		const container = restart.container;
 		const result = await restartContainer(container);
 		if (result instanceof Error) {
@@ -150,13 +150,13 @@ export async function createContainerWithAutomaticRestart({
 	// Set up watches
 	function addWatches() {
 		const watcher = restart.container.viteServer.watcher;
-		watcher.on('change', handleChangeRestart('Configuration updated. Restarting...'));
-		watcher.on('unlink', handleChangeRestart('Configuration removed. Restarting...'));
-		watcher.on('add', handleChangeRestart('Configuration added. Restarting...'));
+		watcher.on('change', handleChangeRestart('Configuration file updated.'));
+		watcher.on('unlink', handleChangeRestart('Configuration file removed.'));
+		watcher.on('add', handleChangeRestart('Configuration file added.'));
 
 		// Restart the Astro dev server instead of Vite's when the API is called by plugins.
 		// Ignore the `forceOptimize` parameter for now.
-		restart.container.viteServer.restart = () => handleServerRestart('Restarting...');
+		restart.container.viteServer.restart = () => handleServerRestart();
 	}
 	addWatches();
 	return restart;

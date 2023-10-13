@@ -8,6 +8,7 @@ import type {
 } from '../../../@types/astro.js';
 import type { Logger } from '../../logger/core.js';
 
+import { bold } from 'kleur/colors';
 import { createRequire } from 'module';
 import nodeFs from 'node:fs';
 import path from 'node:path';
@@ -233,8 +234,6 @@ export function createRouteManifest(
 	const localFs = fsMod ?? nodeFs;
 	const prerender = getPrerenderDefault(settings.config);
 
-	const foundInvalidFileExtensions = new Set<string>();
-
 	function walk(
 		fs: typeof nodeFs,
 		dir: string,
@@ -258,10 +257,12 @@ export function createRouteManifest(
 			}
 			// filter out "foo.astro_tmp" files, etc
 			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
-				if (!foundInvalidFileExtensions.has(ext)) {
-					foundInvalidFileExtensions.add(ext);
-					logger.warn('astro', `Invalid file extension for Pages: ${ext}`);
-				}
+				logger.warn(
+					'astro',
+					`Unsupported file type ${bold(
+						resolved
+					)} found. Prefix filename with an underscore (\`_\`) to ignore.`
+				);
 
 				return;
 			}
@@ -357,7 +358,6 @@ export function createRouteManifest(
 		walk(localFs, fileURLToPath(pages), [], []);
 	} else if (settings.injectedRoutes.length === 0) {
 		const pagesDirRootRelative = pages.href.slice(settings.config.root.href.length);
-
 		logger.warn('astro', `Missing pages directory: ${pagesDirRootRelative}`);
 	}
 

@@ -16,7 +16,9 @@ import type {
 import { VALID_INPUT_FORMATS } from '../assets/consts.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 
+import { bold } from 'kleur/colors';
 import { formatYAMLException, isYAMLException } from '../core/errors/utils.js';
+import type { Logger } from '../core/logger/core.js';
 import { CONTENT_FLAGS, CONTENT_TYPES_FILE } from './consts.js';
 import { errorMap } from './error-map.js';
 import { createImage } from './runtime-assets.js';
@@ -40,15 +42,6 @@ export const collectionConfigParser = z.union([
 		schema: z.any().optional(),
 	}),
 ]);
-
-export function getDotAstroTypeReference({ root, srcDir }: { root: URL; srcDir: URL }) {
-	const { cacheDir } = getContentPaths({ root, srcDir });
-	const contentTypesRelativeToSrcDir = normalizePath(
-		path.relative(fileURLToPath(srcDir), fileURLToPath(new URL(CONTENT_TYPES_FILE, cacheDir)))
-	);
-
-	return `/// <reference path=${JSON.stringify(contentTypesRelativeToSrcDir)} />`;
-}
 
 export const contentConfigParser = z.object({
 	collections: z.record(collectionConfigParser),
@@ -422,8 +415,8 @@ export function contentObservable(initialCtx: ContentCtx): ContentObservable {
 
 export type ContentPaths = {
 	contentDir: URL;
-	assetsDir: URL;
-	cacheDir: URL;
+	dotAstroDir: URL;
+	dotAstroTypes: URL;
 	typesTemplate: URL;
 	virtualModTemplate: URL;
 	config: {
@@ -438,10 +431,11 @@ export function getContentPaths(
 ): ContentPaths {
 	const configStats = search(fs, srcDir);
 	const pkgBase = new URL('../../', import.meta.url);
+	const dotAstroDir = new URL('.astro/', root);
 	return {
-		cacheDir: new URL('.astro/', root),
+		dotAstroDir,
+		dotAstroTypes: new URL(CONTENT_TYPES_FILE, dotAstroDir),
 		contentDir: new URL('./content/', srcDir),
-		assetsDir: new URL('./assets/', srcDir),
 		typesTemplate: new URL('content-types.template.d.ts', pkgBase),
 		virtualModTemplate: new URL('content-module.template.mjs', pkgBase),
 		config: configStats,
@@ -497,4 +491,86 @@ export function getExtGlob(exts: string[]) {
 		? // Wrapping {...} breaks when there is only one extension
 		  exts[0]
 		: `{${exts.join(',')}}`;
+}
+
+export function getEnvTsPath({ srcDir }: { srcDir: URL }) {
+	return new URL('env.d.ts', srcDir);
+}
+
+export async function setupDotAstroDirectory({
+	settings,
+	fs,
+}: {
+	settings: AstroSettings;
+	logger: Logger;
+	fs: typeof fsMod;
+}) {
+	const contentPaths = getContentPaths(settings.config, fs);
+	await fs.promises.mkdir(settings.config.cacheDir, { recursive: true }).catch(() => null);
+	await fs.promises.mkdir(contentPaths.dotAstroDir, { recursive: true }).catch(() => null);
+	// Note: Use `flag: 'wx'` here to avoid overwriting an existing types file.
+	await fs.promises
+		.writeFile(contentPaths.dotAstroTypes, '// Empty.', {
+			flag: 'wx',
+			encoding: 'utf-8',
+		})
+		.catch(() => null);
+}
+
+function generateEnvDtsContents(config: AstroSettings['config']) {
+	const relativeContentTypes = normalizePath(
+		path.relative(
+			fileURLToPath(config.srcDir),
+			fileURLToPath(getContentPaths(config).dotAstroTypes)
+		)
+	);
+	return (
+		`
+// Astro Environment TS Declarations File
+//
+// WARN: DO NOT CHANGE OR DELETE THIS FILE MANUALLY!
+// The "src/env.d.ts" file is created and maintained by Astro.
+// Any changes to this file will be automatically overwritten.
+// To define your own custom types, create a new "*.d.ts" file
+// in your project (ex: src/types.d.ts).
+
+/// <reference path=${JSON.stringify(relativeContentTypes)} />
+/// <reference types="astro/client" />`.trim() + '\n'
+	);
+}
+
+export async function setUpEnvDts({
+	settings,
+	logger,
+	fs,
+}: {
+	settings: AstroSettings;
+	logger: Logger;
+	fs: typeof fsMod;
+}) {
+	const envTsPath = getEnvTsPath(settings.config);
+	const envTsPathRelativetoRoot = normalizePath(
+		path.relative(fileURLToPath(settings.config.root), fileURLToPath(envTsPath))
+	);
+	const actualEnvDtsContents = await fs.promises.readFile(envTsPath, 'utf-8').catch(() => null);
+	const expectedEnvDtsContents = generateEnvDtsContents(settings.config);
+
+	if (!actualEnvDtsContents) {
+		await fs.promises.mkdir(settings.config.srcDir, { recursive: true });
+		await fs.promises.writeFile(envTsPath, expectedEnvDtsContents, 'utf-8');
+		logger.info(
+			'content',
+			`Adding missing ${bold(
+				envTsPathRelativetoRoot
+			)} types file to project. This file is needed for proper TypeScript support in your project.`
+		);
+		return;
+	}
+
+	if (actualEnvDtsContents !== expectedEnvDtsContents) {
+		await fs.promises.writeFile(envTsPath, expectedEnvDtsContents, 'utf-8');
+		logger.info('content', `Detected ${bold(envTsPathRelativetoRoot)} as outdated. Updating...`);
+	}
+
+	logger.debug('content', `${bold(envTsPathRelativetoRoot)} up-to-date.`);
 }

@@ -63,7 +63,8 @@ export async function callMiddleware<R>(
 		if (isEndpointOutput(value)) {
 			logger.warn(
 				'middleware',
-				'Using simple endpoints can cause unexpected issues in the chain of middleware functions.' +
+				apiContext.url.pathname +
+					' Using simple endpoints can cause unexpected issues in the chain of middleware functions.' +
 					`\nIt's strongly suggested to use full ${bold('Response')} objects.`
 			);
 		}

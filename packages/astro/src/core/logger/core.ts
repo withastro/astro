@@ -1,7 +1,7 @@
-import { dim } from 'kleur/colors';
+import { blue, bold, dim, red, yellow } from 'kleur/colors';
 import stringWidth from 'string-width';
 
-interface LogWritable<T> {
+export interface LogWritable<T> {
 	write: (chunk: T) => boolean;
 }
 
@@ -25,6 +25,7 @@ export const dateTimeFormat = new Intl.DateTimeFormat([], {
 	hour: '2-digit',
 	minute: '2-digit',
 	second: '2-digit',
+	hour12: false,
 });
 
 export interface LogMessage {
@@ -98,6 +99,27 @@ function padStr(str: string, len: number) {
 	return str + spaces;
 }
 
+export function getEventPrefix({ level, label }: LogMessage) {
+	const timestamp = `${dateTimeFormat.format(new Date())}`;
+	const prefix = [timestamp];
+	if (level === 'error' || level === 'warn') {
+		prefix.push(`[${level}]`);
+	}
+	if (label) {
+		prefix.push(`[${label}]`);
+	}
+	if (level === 'error') {
+		return red(bold(prefix.join(' ')));
+	}
+	if (level === 'warn') {
+		return yellow(bold(prefix.join(' ')));
+	}
+	if (prefix.length === 1) {
+		return dim(prefix[0]);
+	}
+	return dim(prefix[0]) + ' ' + blue(prefix.splice(1).join(' '));
+}
+
 export let defaultLogLevel: LoggerLevel;
 if (typeof process !== 'undefined') {
 	// This could be a shimmed environment so we don't know that `process` is the full
@@ -142,7 +164,7 @@ export class Logger {
 	error(label: string | null, message: string) {
 		error(this.options, label, message);
 	}
-	debug(label: string | null, message: string, ...args: any[]) {
+	debug(label: string, message: string, ...args: any[]) {
 		debug(this.options, label, message, args);
 	}
 

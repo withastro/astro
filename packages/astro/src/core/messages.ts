@@ -1,10 +1,10 @@
 import {
-	bgCyan,
 	bgGreen,
 	bgRed,
 	bgWhite,
 	bgYellow,
 	black,
+	blue,
 	bold,
 	cyan,
 	dim,
@@ -22,36 +22,29 @@ import {
 	CompilerError,
 	type ErrorWithMetadata,
 } from './errors/index.js';
-import { emoji, padMultilineString } from './util.js';
-
-const PREFIX_PADDING = 6;
+import { padMultilineString } from './util.js';
 
 /** Display  */
 export function req({
 	url,
+	method,
 	statusCode,
 	reqTime,
 }: {
 	url: string;
 	statusCode: number;
+	method?: string;
 	reqTime?: number;
 }): string {
-	let color = dim;
-	if (statusCode >= 500) color = red;
-	else if (statusCode >= 400) color = yellow;
-	else if (statusCode >= 300) color = dim;
-	else if (statusCode >= 200) color = green;
-	return `${bold(color(`${statusCode}`.padStart(PREFIX_PADDING)))} ${url.padStart(40)} ${
-		reqTime ? dim(Math.round(reqTime) + 'ms') : ''
-	}`.trim();
-}
-
-export function reload({ file }: { file: string }): string {
-	return `${green('reload'.padStart(PREFIX_PADDING))} ${file}`;
-}
-
-export function hmr({ file, style = false }: { file: string; style?: boolean }): string {
-	return `${green('update'.padStart(PREFIX_PADDING))} ${file}${style ? ` ${dim('style')}` : ''}`;
+	const color = statusCode >= 400 ? red : statusCode >= 300 ? yellow : blue;
+	return (
+		color(`[${statusCode}]`) +
+		` ` +
+		(method && method !== 'GET' ? color(method) + ' ' : '') +
+		url +
+		` ` +
+		(reqTime ? dim(Math.round(reqTime) + 'ms') : '')
+	);
 }
 
 /** Display server host and startup time */
@@ -60,13 +53,11 @@ export function serverStart({
 	resolvedUrls,
 	host,
 	base,
-	isRestart = false,
 }: {
 	startupTime: number;
 	resolvedUrls: ResolvedServerUrls;
 	host: string | boolean;
 	base: string;
-	isRestart?: boolean;
 }): string {
 	// PACKAGE_VERSION is injected at build-time
 	const version = process.env.PACKAGE_VERSION ?? '0.0.0';
@@ -75,10 +66,10 @@ export function serverStart({
 	const emptyPrefix = ' '.repeat(11);
 
 	const localUrlMessages = resolvedUrls.local.map((url, i) => {
-		return `${i === 0 ? localPrefix : emptyPrefix}${bold(cyan(new URL(url).origin + base))}`;
+		return `${i === 0 ? localPrefix : emptyPrefix}${cyan(new URL(url).origin + base)}`;
 	});
 	const networkUrlMessages = resolvedUrls.network.map((url, i) => {
-		return `${i === 0 ? networkPrefix : emptyPrefix}${bold(cyan(new URL(url).origin + base))}`;
+		return `${i === 0 ? networkPrefix : emptyPrefix}${cyan(new URL(url).origin + base)}`;
 	});
 
 	if (networkUrlMessages.length === 0) {
@@ -91,58 +82,58 @@ export function serverStart({
 	}
 
 	const messages = [
-		`${emoji('🚀 ', '')}${bgGreen(black(` astro `))} ${green(`v${version}`)} ${dim(
-			`${isRestart ? 're' : ''}started in ${Math.round(startupTime)}ms`
-		)}`,
+		'',
+		`${bgGreen(bold(` astro `))} ${green(`v${version}`)} ${dim(`ready in`)} ${Math.round(
+			startupTime
+		)} ${dim('ms')}`,
 		'',
 		...localUrlMessages,
 		...networkUrlMessages,
 		'',
 	];
-	return messages
-		.filter((msg) => typeof msg === 'string')
-		.map((msg) => `  ${msg}`)
-		.join('\n');
+	return messages.filter((msg) => typeof msg === 'string').join('\n');
 }
 
-export function telemetryNotice(packageManager = 'npm') {
-	const headline = `${cyan('◆')} Astro collects completely anonymous usage data.`;
-	const why = dim('  This optional program helps shape our roadmap.');
-	const disable = dim(`  Run \`${packageManager} run astro telemetry disable\` to opt-out.`);
-	const details = `  Details: ${underline('https://astro.build/telemetry')}`;
-	return [headline, why, disable, details].map((v) => '  ' + v).join('\n');
+export function telemetryNotice() {
+	const headline = blue(`▶ Astro collects anonymous usage data.`);
+	const why = '  This information helps us improve Astro.';
+	const disable = `  Run "astro telemetry disable" to opt-out.`;
+	const details = `  ${cyan(underline('https://astro.build/telemetry'))}`;
+	return [headline, why, disable, details].join('\n');
 }
 
 export function telemetryEnabled() {
-	return `${green('◉')} Anonymous telemetry is now ${bgGreen(black(' enabled '))}\n  ${dim(
-		'Thank you for improving Astro!'
-	)}\n`;
+	return [
+		green('▶ Anonymous telemetry ') + bgGreen(' enabled '),
+		`  Thank you for helping us improve Astro!`,
+		``,
+	].join('\n');
 }
 
 export function telemetryDisabled() {
-	return `${yellow('◯')} Anonymous telemetry is now ${bgYellow(black(' disabled '))}\n  ${dim(
-		"We won't ever record your usage data."
-	)}\n`;
+	return [
+		green('▶ Anonymous telemetry ') + bgGreen(' disabled '),
+		`  Astro is no longer collecting anonymous usage data.`,
+		``,
+	].join('\n');
 }
 
 export function telemetryReset() {
-	return `${cyan('◆')} Anonymous telemetry has been ${bgCyan(black(' reset '))}\n  ${dim(
-		'You may be prompted again.'
-	)}\n`;
+	return [green('▶ Anonymous telemetry preferences reset.'), ``].join('\n');
 }
 
 export function fsStrictWarning() {
-	return yellow(
-		'⚠️ Serving with vite.server.fs.strict: false. Note that all files on your machine will be accessible to anyone on your network!'
-	);
+	const title = yellow('▶ ' + `${bold('vite.server.fs.strict')} has been disabled!`);
+	const subtitle = `  All files on your machine may be accessible on your network.`;
+	return `${title}\n${subtitle}\n`;
 }
 
 export function prerelease({ currentVersion }: { currentVersion: string }) {
-	const tag = currentVersion.split('-').slice(1).join('-').replace(/\..*$/, '');
+	const tag = currentVersion.split('-').slice(1).join('-').replace(/\..*$/, '') || 'unknown';
 	const badge = bgYellow(black(` ${tag} `));
-	const headline = yellow(`▶ This is a ${badge} prerelease build`);
-	const warning = `  Feedback? ${underline('https://astro.build/issues')}`;
-	return [headline, warning, ''].map((msg) => `  ${msg}`).join('\n');
+	const title = yellow('▶ ' + `This is a ${badge} prerelease build!`);
+	const subtitle = `  Report issues here: ${cyan(underline('https://astro.build/issues'))}`;
+	return `${title}\n${subtitle}\n`;
 }
 
 export function success(message: string, tip?: string) {
@@ -196,28 +187,29 @@ export function formatConfigErrorMessage(err: ZodError) {
 	)}`;
 }
 
-export function formatErrorMessage(err: ErrorWithMetadata, args: string[] = []): string {
+export function formatDetailedErrorMessage(err: ErrorWithMetadata): string {
+	const output = [];
 	const isOurError = AstroError.is(err) || CompilerError.is(err) || AstroUserError.is(err);
 
-	args.push(
+	output.push(
 		`${bgRed(black(` error `))}${red(
 			padMultilineString(isOurError ? renderErrorMarkdown(err.message, 'cli') : err.message)
 		)}`
 	);
 	if (err.hint) {
-		args.push(`  ${bold('Hint:')}`);
-		args.push(
+		output.push(`  ${bold('Hint:')}`);
+		output.push(
 			yellow(padMultilineString(isOurError ? renderErrorMarkdown(err.hint, 'cli') : err.hint, 4))
 		);
 	}
 	const docsLink = getDocsForError(err);
 	if (docsLink) {
-		args.push(`  ${bold('Error reference:')}`);
-		args.push(`    ${underline(docsLink)}`);
+		output.push(`  ${bold('Error reference:')}`);
+		output.push(`    ${underline(docsLink)}`);
 	}
 	if (err.id || err.loc?.file) {
-		args.push(`  ${bold('File:')}`);
-		args.push(
+		output.push(`  ${bold('File:')}`);
+		output.push(
 			red(
 				`    ${err.id ?? err.loc?.file}${
 					err.loc?.line && err.loc.column ? `:${err.loc.line}:${err.loc.column}` : ''
@@ -226,28 +218,60 @@ export function formatErrorMessage(err: ErrorWithMetadata, args: string[] = []):
 		);
 	}
 	if (err.frame) {
-		args.push(`  ${bold('Code:')}`);
-		args.push(red(padMultilineString(err.frame.trim(), 4)));
+		output.push(`  ${bold('Code:')}`);
+		output.push(red(padMultilineString(err.frame.trim(), 4)));
 	}
-	if (args.length === 1 && err.stack) {
-		args.push(dim(err.stack));
+	if (output.length === 1 && err.stack) {
+		output.push(dim(err.stack));
 	} else if (err.stack) {
-		args.push(`  ${bold('Stacktrace:')}`);
-		args.push(dim(err.stack));
-		args.push(``);
+		output.push(`  ${bold('Stacktrace:')}`);
+		output.push(dim(err.stack));
+		output.push(``);
 	}
 
 	if (err.cause) {
-		args.push(`  ${bold('Cause:')}`);
+		output.push(`  ${bold('Cause:')}`);
 		if (err.cause instanceof Error) {
-			args.push(dim(err.cause.stack ?? err.cause.toString()));
+			output.push(dim(err.cause.stack ?? err.cause.toString()));
 		} else {
-			args.push(JSON.stringify(err.cause));
+			output.push(JSON.stringify(err.cause));
 		}
 
-		args.push(``);
+		output.push(``);
 	}
-	return args.join('\n');
+	return output.join('\n');
+}
+
+export function formatErrorMessage(err: ErrorWithMetadata): string {
+	if (err.id || err.loc?.file) {
+		const prettyLocation = `at ${err.id ?? err.loc?.file}${
+			err.loc?.line && err.loc.column ? `:${err.loc.line}:${err.loc.column}` : ''
+		}`;
+		return (
+			err.message +
+			'\n  ' +
+			dim(prettyLocation) +
+			'\n  ' +
+			dim('See full error details in the browser.')
+		);
+	}
+	if (err.stack) {
+		const [, ...rest] = err.stack.split('\n');
+		// Grab every string from the user's codebase, exit when you hit node_modules or astro/dist
+		const relevantStackIndex = rest.findIndex(
+			(line) => line.includes('node_modules') || line.includes('astro/dist')
+		);
+		// If the error occurred inside of a dependency, grab the entire stack.
+		const relevantStack = relevantStackIndex <= 0 ? rest : rest.splice(0, relevantStackIndex);
+		return (
+			err.message +
+			'\n' +
+			dim(relevantStack.join('\n')) +
+			'\n    ' +
+			dim('See full error details in the browser.')
+		);
+	}
+	return err.message;
 }
 
 export function printHelp({
