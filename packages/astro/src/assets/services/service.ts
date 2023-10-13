@@ -223,15 +223,25 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 	},
 	getSrcSet(options) {
 		const srcSet: SrcSetValue[] = [];
-		const { targetWidth, targetHeight } = getTargetDimensions(options);
+		const { targetWidth } = getTargetDimensions(options);
 		const { widths, densities } = options;
 		const targetFormat = options.format ?? DEFAULT_OUTPUT_FORMAT;
 
-		const aspectRatio = targetWidth / targetHeight;
-		const imageWidth = isESMImportedImage(options.src) ? options.src.width : options.width;
-		const maxWidth = isESMImportedImage(options.src) ? imageWidth ?? Infinity : Infinity;
+		// For remote images, we don't know the original image's dimensions, so we'll use the user's specified width as a maximum width
+		let imageWidth = options.width;
+		let maxWidth = Infinity;
 
-		// REFACTOR: Could we merge these two blocks?
+		// However, if it's an imported image, we can use the original image's width as a maximum width
+		if (isESMImportedImage(options.src)) {
+			imageWidth = options.src.width;
+			maxWidth = imageWidth ?? Infinity;
+		}
+
+		// If the user passed dimensions, we don't want to add it to the srcset
+		const { width: transformWidth, height: transformHeight, src, ...rest } = options;
+
+		// Collect widths to generate from specified densities or widths
+		const allWidths: { width: number; descriptor: `${number}x` | `${number}w` }[] = [];
 		if (densities) {
 			const densityValues = densities.map((density) => {
 				if (typeof density === 'number') {
@@ -245,66 +255,46 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				.sort()
 				.map((density) => Math.round(targetWidth * density));
 
-			densityWidths.forEach((width, index) => {
-				const maxTargetWidth = Math.min(width, maxWidth);
-
-				// If the user passed dimensions, we don't want to add it to the srcset
-				const { width: transformWidth, height: transformHeight, ...rest } = options;
-
-				let srcSetValue = {
-					transform: {},
-					descriptor: `${densityValues[index]}x`,
-					attributes: {
-						type: `image/${targetFormat}`
-					}
-				};
-
-				// Only set width and height if they are different from the original image or if the image is remote
-				// to avoid duplicated final images
-				if (!isESMImportedImage(options.src) || maxTargetWidth !== imageWidth) {
-					srcSetValue.transform = {
-						width: maxTargetWidth,
-						height: Math.round(maxTargetWidth / aspectRatio),
-						...rest
-					};
-				} else {
-					srcSetValue.transform = { ...rest };
-				}
-
-				if (targetFormat !== options.format) {
-					srcSetValue.transform.format = targetFormat;
-				}
-
-				srcSet.push(srcSetValue);
-			});
+			allWidths.push(
+				...densityWidths.map((width, index) => ({
+					width,
+					descriptor: `${densityValues[index]}x` as const,
+				}))
+			);
 		} else if (widths) {
-			widths.forEach((width) => {
-				const maxTargetWidth = Math.min(width, maxWidth);
-
-				const { width: transformWidth, height: transformHeight, ...rest } = options;
-
-				const srcSetValue = {
-					transform: {
-						...rest,
-					},
-					descriptor: `${width}w`,
-					attributes: {
-						type: `image/${targetFormat}`,
-					},
-				};
-
-				if (maxTargetWidth !== imageWidth) {
-					srcSetValue.transform.width = maxTargetWidth;
-					srcSetValue.transform.height = Math.round(maxTargetWidth / aspectRatio);
-				}
-
-				if (targetFormat !== options.format) {
-					srcSetValue.transform.format = targetFormat;
-				}
-
-				srcSet.push(srcSetValue);
-			});
+			allWidths.push(...widths.map((width) => ({ width, descriptor: `${width}w` as const })));
 		}
+
+		// Caution: The logic below is a bit tricky, as we need to make sure we don't generate the same image multiple times
+		// When making changes, make sure to test with different combinations of local/remote images widths, densities, and dimensions etc.
+		allWidths.forEach(({ width, descriptor }) => {
+			const maxTargetWidth = Math.min(width, maxWidth);
+
+			const transform: ImageTransform = {
+				src: options.src,
+				...rest,
+			};
+
+			// Only set the width if it's different from the original image's width, to avoid generating the same image multiple times
+			if (maxTargetWidth !== imageWidth) {
+				transform.width = maxTargetWidth;
+			} else {
+				// If the width is the same as the original image's width, and we have both dimensions, it probably means
+				// it's a remote image, so we'll use the user's specified dimensions to avoid recreating the original image unnecessarily
+				if (options.width && options.height) {
+					transform.width = options.width;
+					transform.height = options.height;
+				}
+			}
+
+			srcSet.push({
+				transform: transform,
+				descriptor: descriptor,
+				attributes: {
+					type: `image/${targetFormat}`,
+				},
+			});
+		});
 
 		return srcSet;
 	},
