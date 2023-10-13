@@ -41,6 +41,9 @@ export interface RenderErrorOptions {
 	routeData?: RouteData;
 	response?: Response;
 	status: 404 | 500;
+	/**
+	 * Whether to call onRequest() while rendering the error page
+	*/
 	runMiddleware?: boolean;
 }
 
