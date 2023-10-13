@@ -839,8 +839,8 @@ describe('astro:image', () => {
 				.map((path) => basename(path))
 				.sort();
 			const cachedImages = [
-				...(await fixture.glob('../node_modules/.astro/assets/**/*.webp')),
-				...(await fixture.glob('../node_modules/.astro/assets/**/*.json')),
+				...(await fixture.glob('../.astro/cache/assets/**/*.webp')),
+				...(await fixture.glob('../.astro/cache/assets/**/*.json')),
 			]
 				.map((path) => basename(path).replace('.webp.json', '.webp'))
 				.sort();

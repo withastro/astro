@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { removeLeadingForwardSlash, slash } from '../../path.js';
-import { resolvePages } from '../../util.js';
+import { resolvePagesDirectory } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
 const require = createRequire(import.meta.url);
 
@@ -351,7 +351,7 @@ export function createRouteManifest(
 	}
 
 	const { config } = settings;
-	const pages = resolvePages(config);
+	const pages = resolvePagesDirectory(config);
 
 	if (localFs.existsSync(pages)) {
 		walk(localFs, fileURLToPath(pages), [], []);

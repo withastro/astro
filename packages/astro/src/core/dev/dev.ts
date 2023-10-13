@@ -5,6 +5,7 @@ import { performance } from 'perf_hooks';
 import type * as vite from 'vite';
 import type { AstroInlineConfig } from '../../@types/astro.js';
 import { attachContentServerListeners } from '../../content/index.js';
+import { setupEnvDts, setupDotAstroDirectory } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
 import * as msg from '../messages.js';
 import { startContainer } from './container.js';
@@ -52,6 +53,8 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		logger.warn(null, msg.fsStrictWarning());
 	}
 
+	await setupDotAstroDirectory({ settings: restart.container.settings, logger, fs });
+	await setupEnvDts({ settings: restart.container.settings, logger, fs });
 	await attachContentServerListeners(restart.container);
 
 	return {

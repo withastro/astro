@@ -7,20 +7,24 @@ import type { Plugin } from 'vite';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { appendForwardSlash } from '../core/path.js';
-import { rootRelativePath } from '../core/util.js';
+import {
+	resolveAstroPackageDirectory,
+	resolveDotAstroDirectory,
+	rootRelativePath,
+} from '../core/util.js';
 import { VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	getContentEntryIdAndSlug,
-	getContentPaths,
-	getDataEntryExts,
+	getDataEntryExtensions,
 	getDataEntryId,
 	getEntryCollectionName,
-	getEntryConfigByExtMap,
+	getEntryConfigByExtensionMap,
 	getEntrySlug,
 	getEntryType,
 	getExtGlob,
 	type ContentLookupMap,
-	type ContentPaths,
+	resolveContentDirectory,
+	findContentConfigFile,
 } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
@@ -30,34 +34,41 @@ interface AstroContentVirtualModPluginParams {
 export function astroContentVirtualModPlugin({
 	settings,
 }: AstroContentVirtualModPluginParams): Plugin {
-	const contentPaths = getContentPaths(settings.config);
-	const relContentDir = rootRelativePath(settings.config.root, contentPaths.contentDir);
+	const contentDirectory = resolveContentDirectory(settings.config);
+	const dotAstroDirectory = resolveDotAstroDirectory(settings.config);
+	const contentConfigStats = findContentConfigFile(fsMod, settings.config);
+	const virtualModuleTemplate = new URL(
+		'content-module.template.mjs',
+		resolveAstroPackageDirectory()
+	);
 
-	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
-	const contentEntryExts = [...contentEntryConfigByExt.keys()];
-	const dataEntryExts = getDataEntryExts(settings);
+	const relContentDir = rootRelativePath(settings.config.root, contentDirectory);
+
+	const contentEntryConfigByExtension = getEntryConfigByExtensionMap(settings.contentEntryTypes);
+	const contentEntryExtensions = [...contentEntryConfigByExtension.keys()];
+	const dataEntryExtensions = getDataEntryExtensions(settings);
 
 	const virtualModContents = fsMod
-		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
+		.readFileSync(virtualModuleTemplate, 'utf-8')
 		.replace(
 			'@@COLLECTION_NAME_BY_REFERENCE_KEY@@',
-			new URL('reference-map.json', contentPaths.cacheDir).pathname
+			new URL('reference-map.json', dotAstroDirectory).pathname
 		)
 		.replace('@@CONTENT_DIR@@', relContentDir)
 		.replace(
 			"'@@CONTENT_ENTRY_GLOB_PATH@@'",
-			JSON.stringify(globWithUnderscoresIgnored(relContentDir, contentEntryExts))
+			JSON.stringify(globWithUnderscoresIgnored(relContentDir, contentEntryExtensions))
 		)
 		.replace(
 			"'@@DATA_ENTRY_GLOB_PATH@@'",
-			JSON.stringify(globWithUnderscoresIgnored(relContentDir, dataEntryExts))
+			JSON.stringify(globWithUnderscoresIgnored(relContentDir, dataEntryExtensions))
 		)
 		.replace(
 			"'@@RENDER_ENTRY_GLOB_PATH@@'",
 			JSON.stringify(
 				globWithUnderscoresIgnored(
 					relContentDir,
-					/** Note: data collections excluded */ contentEntryExts
+					/** Note: data collections excluded */ contentEntryExtensions
 				)
 			)
 		);
@@ -75,9 +86,10 @@ export function astroContentVirtualModPlugin({
 			if (id === astroContentVirtualModuleId) {
 				const stringifiedLookupMap = await getStringifiedLookupMap({
 					fs: fsMod,
-					contentPaths,
-					contentEntryConfigByExt,
-					dataEntryExts,
+					contentDirectory,
+					contentConfigFileUrl: contentConfigStats.url,
+					contentEntryConfigByExtension,
+					dataEntryExtensions,
 					root: settings.config.root,
 				});
 
@@ -98,25 +110,26 @@ export function astroContentVirtualModPlugin({
  * @see `content-module.template.mjs`
  */
 export async function getStringifiedLookupMap({
-	contentPaths,
-	contentEntryConfigByExt,
-	dataEntryExts,
+	contentDirectory,
+	contentConfigFileUrl,
+	contentEntryConfigByExtension,
+	dataEntryExtensions,
 	root,
 	fs,
 }: {
-	contentEntryConfigByExt: Map<string, ContentEntryType>;
-	dataEntryExts: string[];
-	contentPaths: Pick<ContentPaths, 'contentDir' | 'config'>;
+	contentDirectory: URL;
+	contentConfigFileUrl: URL;
+	contentEntryConfigByExtension: Map<string, ContentEntryType>;
+	dataEntryExtensions: string[];
 	root: URL;
 	fs: typeof fsMod;
 }) {
-	const { contentDir } = contentPaths;
-	const relContentDir = rootRelativePath(root, contentDir, false);
-	const contentEntryExts = [...contentEntryConfigByExt.keys()];
+	const relContentDir = rootRelativePath(root, contentDirectory, false);
+	const contentEntryExtensions = [...contentEntryConfigByExtension.keys()];
 
 	let lookupMap: ContentLookupMap = {};
 	const contentGlob = await glob(
-		`${relContentDir}**/*${getExtGlob([...dataEntryExts, ...contentEntryExts])}`,
+		`${relContentDir}**/*${getExtGlob([...dataEntryExtensions, ...contentEntryExtensions])}`,
 		{
 			absolute: true,
 			cwd: fileURLToPath(root),
@@ -135,12 +148,21 @@ export async function getStringifiedLookupMap({
 	for (const filePath of contentGlob) {
 		promises.push(
 			limit(async () => {
-				const entryType = getEntryType(filePath, contentPaths, contentEntryExts, dataEntryExts);
+				const entryType = getEntryType({
+					entryPath: filePath,
+					contentEntryExtensions,
+					dataEntryExtensions,
+					contentDirectory,
+					contentConfigFileUrl,
+				});
 				// Globbed ignored or unsupported entry.
 				// Logs warning during type generation, should ignore in lookup map.
 				if (entryType !== 'content' && entryType !== 'data') return;
 
-				const collection = getEntryCollectionName({ contentDir, entry: pathToFileURL(filePath) });
+				const collection = getEntryCollectionName({
+					contentDirectory,
+					entry: pathToFileURL(filePath),
+				});
 				if (!collection) throw UnexpectedLookupMapError;
 
 				if (lookupMap[collection]?.type && lookupMap[collection].type !== entryType) {
@@ -151,12 +173,12 @@ export async function getStringifiedLookupMap({
 				}
 
 				if (entryType === 'content') {
-					const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
+					const contentEntryType = contentEntryConfigByExtension.get(extname(filePath));
 					if (!contentEntryType) throw UnexpectedLookupMapError;
 
 					const { id, slug: generatedSlug } = await getContentEntryIdAndSlug({
 						entry: pathToFileURL(filePath),
-						contentDir,
+						contentDirectory,
 						collection,
 					});
 					const slug = await getEntrySlug({
@@ -185,7 +207,11 @@ export async function getStringifiedLookupMap({
 						},
 					};
 				} else {
-					const id = getDataEntryId({ entry: pathToFileURL(filePath), contentDir, collection });
+					const id = getDataEntryId({
+						entry: pathToFileURL(filePath),
+						contentDirectory,
+						collection,
+					});
 					lookupMap[collection] = {
 						type: 'data',
 						entries: {
@@ -208,12 +234,12 @@ const UnexpectedLookupMapError = new AstroError({
 	message: `Unexpected error while parsing content entry IDs and slugs.`,
 });
 
-function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
+function globWithUnderscoresIgnored(relContentDirectory: string, exts: string[]): string[] {
 	const extGlob = getExtGlob(exts);
-	const contentDir = appendForwardSlash(relContentDir);
+	const contentDirectory = appendForwardSlash(relContentDirectory);
 	return [
-		`${contentDir}**/*${extGlob}`,
-		`!${contentDir}**/_*/**/*${extGlob}`,
-		`!${contentDir}**/_*${extGlob}`,
+		`${contentDirectory}**/*${extGlob}`,
+		`!${contentDirectory}**/_*/**/*${extGlob}`,
+		`!${contentDirectory}**/_*${extGlob}`,
 	];
 }

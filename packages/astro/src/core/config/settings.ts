@@ -2,7 +2,6 @@ import yaml from 'js-yaml';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroConfig, AstroSettings } from '../../@types/astro.js';
-import { getContentPaths } from '../../content/index.js';
 import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
 import { getDefaultClientDirectives } from '../client-directive/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -10,9 +9,10 @@ import { formatYAMLException, isYAMLException } from '../errors/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
+import { resolveContentDirectory } from '../../content/utils.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
-	const { contentDir } = getContentPaths(config);
+	const contentDirectory = resolveContentDirectory(config);
 	return {
 		config,
 		tsConfig: undefined,
@@ -29,7 +29,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 					if (contents === undefined || contents === '') return { data: {} };
 
 					const pathRelToContentDir = path.relative(
-						fileURLToPath(contentDir),
+						fileURLToPath(contentDirectory),
 						fileURLToPath(fileUrl)
 					);
 					let data;
@@ -71,7 +71,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 						return { data, rawData };
 					} catch (e) {
 						const pathRelToContentDir = path.relative(
-							fileURLToPath(contentDir),
+							fileURLToPath(contentDirectory),
 							fileURLToPath(fileUrl)
 						);
 						const formattedError = isYAMLException(e)

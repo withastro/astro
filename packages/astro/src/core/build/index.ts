@@ -11,6 +11,7 @@ import type {
 	RuntimeMode,
 } from '../../@types/astro.js';
 import { injectImageEndpoint } from '../../assets/internal.js';
+import { setupEnvDts, setupDotAstroDirectory } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import {
@@ -60,7 +61,9 @@ export default async function build(
 	telemetry.record(eventCliSession('build', userConfig));
 
 	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
-
+	await setupDotAstroDirectory({settings: settings, logger, fs});
+	await setupEnvDts({settings: settings, logger, fs});
+	
 	const builder = new AstroBuilder(settings, {
 		...options,
 		logger,

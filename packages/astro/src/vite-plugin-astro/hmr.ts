@@ -10,9 +10,10 @@ import {
 import type { Logger } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { isAstroScript } from './query.js';
+import { resolveAstroPackageDirectory } from '../core/util.js';
 
-const PKG_PREFIX = fileURLToPath(new URL('../../', import.meta.url));
-const E2E_PREFIX = fileURLToPath(new URL('../../e2e', import.meta.url));
+const PKG_PREFIX = fileURLToPath(resolveAstroPackageDirectory());
+const E2E_PREFIX = fileURLToPath(new URL('./e2e', resolveAstroPackageDirectory()));
 const isPkgFile = (id: string | null) => {
 	return id?.startsWith(PKG_PREFIX) && !id.startsWith(E2E_PREFIX);
 };

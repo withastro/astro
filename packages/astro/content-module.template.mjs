@@ -11,14 +11,14 @@ import {
 
 export { z } from 'astro/zod';
 
-const contentDir = '@@CONTENT_DIR@@';
+const contentDirectory = '@@CONTENT_DIR@@';
 
 const contentEntryGlob = import.meta.glob('@@CONTENT_ENTRY_GLOB_PATH@@', {
 	query: { astroContentCollectionEntry: true },
 });
 const contentCollectionToEntryMap = createCollectionToGlobResultMap({
 	globResult: contentEntryGlob,
-	contentDir,
+	contentDirectory,
 });
 
 const dataEntryGlob = import.meta.glob('@@DATA_ENTRY_GLOB_PATH@@', {
@@ -26,11 +26,11 @@ const dataEntryGlob = import.meta.glob('@@DATA_ENTRY_GLOB_PATH@@', {
 });
 const dataCollectionToEntryMap = createCollectionToGlobResultMap({
 	globResult: dataEntryGlob,
-	contentDir,
+	contentDirectory,
 });
 const collectionToEntryMap = createCollectionToGlobResultMap({
 	globResult: { ...contentEntryGlob, ...dataEntryGlob },
-	contentDir,
+	contentDirectory,
 });
 
 let lookupMap = {};
@@ -50,7 +50,7 @@ const renderEntryGlob = import.meta.glob('@@RENDER_ENTRY_GLOB_PATH@@', {
 });
 const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 	globResult: renderEntryGlob,
-	contentDir,
+	contentDirectory,
 });
 
 export function defineCollection(config) {

@@ -16,10 +16,17 @@ import type {
 import { VALID_INPUT_FORMATS } from '../assets/consts.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 
+import { bold } from 'kleur/colors';
 import { formatYAMLException, isYAMLException } from '../core/errors/utils.js';
-import { CONTENT_FLAGS, CONTENT_TYPES_FILE } from './consts.js';
+import type { Logger } from '../core/logger/core.js';
+import { CONTENT_FLAGS } from './consts.js';
 import { errorMap } from './error-map.js';
 import { createImage } from './runtime-assets.js';
+import {
+	resolveDotAstroDirectory,
+	resolveDotAstroTypesFile,
+	resolveEnvDtsFile,
+} from '../core/util.js';
 
 /**
  * Amap from a collection + slug to the local file path.
@@ -40,15 +47,6 @@ export const collectionConfigParser = z.union([
 		schema: z.any().optional(),
 	}),
 ]);
-
-export function getDotAstroTypeReference({ root, srcDir }: { root: URL; srcDir: URL }) {
-	const { cacheDir } = getContentPaths({ root, srcDir });
-	const contentTypesRelativeToSrcDir = normalizePath(
-		path.relative(fileURLToPath(srcDir), fileURLToPath(new URL(CONTENT_TYPES_FILE, cacheDir)))
-	);
-
-	return `/// <reference path=${JSON.stringify(contentTypesRelativeToSrcDir)} />`;
-}
 
 export const contentConfigParser = z.object({
 	collections: z.record(collectionConfigParser),
@@ -159,15 +157,15 @@ export async function getEntryData(
 	return data;
 }
 
-export function getContentEntryExts(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
+export function getContentEntryExtensions(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
 	return settings.contentEntryTypes.map((t) => t.extensions).flat();
 }
 
-export function getDataEntryExts(settings: Pick<AstroSettings, 'dataEntryTypes'>) {
+export function getDataEntryExtensions(settings: Pick<AstroSettings, 'dataEntryTypes'>) {
 	return settings.dataEntryTypes.map((t) => t.extensions).flat();
 }
 
-export function getEntryConfigByExtMap<TEntryType extends ContentEntryType | DataEntryType>(
+export function getEntryConfigByExtensionMap<TEntryType extends ContentEntryType | DataEntryType>(
 	entryTypes: TEntryType[]
 ): Map<string, TEntryType> {
 	const map = new Map<string, TEntryType>();
@@ -180,11 +178,14 @@ export function getEntryConfigByExtMap<TEntryType extends ContentEntryType | Dat
 }
 
 export function getEntryCollectionName({
-	contentDir,
+	contentDirectory,
 	entry,
-}: Pick<ContentPaths, 'contentDir'> & { entry: string | URL }) {
+}: {
+	entry: string | URL;
+	contentDirectory: URL;
+}) {
 	const entryPath = typeof entry === 'string' ? entry : fileURLToPath(entry);
-	const rawRelativePath = path.relative(fileURLToPath(contentDir), entryPath);
+	const rawRelativePath = path.relative(fileURLToPath(contentDirectory), entryPath);
 	const collectionName = path.dirname(rawRelativePath).split(path.sep)[0];
 	const isOutsideCollection =
 		!collectionName || collectionName === '' || collectionName === '..' || collectionName === '.';
@@ -198,10 +199,14 @@ export function getEntryCollectionName({
 
 export function getDataEntryId({
 	entry,
-	contentDir,
+	contentDirectory,
 	collection,
-}: Pick<ContentPaths, 'contentDir'> & { entry: URL; collection: string }): string {
-	const relativePath = getRelativeEntryPath(entry, collection, contentDir);
+}: {
+	entry: URL;
+	contentDirectory: URL;
+	collection: string;
+}): string {
+	const relativePath = getRelativeEntryPath(entry, collection, contentDirectory);
 	const withoutFileExt = normalizePath(relativePath).replace(
 		new RegExp(path.extname(relativePath) + '$'),
 		''
@@ -212,13 +217,17 @@ export function getDataEntryId({
 
 export function getContentEntryIdAndSlug({
 	entry,
-	contentDir,
+	contentDirectory,
 	collection,
-}: Pick<ContentPaths, 'contentDir'> & { entry: URL; collection: string }): {
+}: {
+	entry: URL;
+	contentDirectory: URL;
+	collection: string;
+}): {
 	id: string;
 	slug: string;
 } {
-	const relativePath = getRelativeEntryPath(entry, collection, contentDir);
+	const relativePath = getRelativeEntryPath(entry, collection, contentDirectory);
 	const withoutFileExt = relativePath.replace(new RegExp(path.extname(relativePath) + '$'), '');
 	const rawSlugSegments = withoutFileExt.split(path.sep);
 
@@ -236,32 +245,39 @@ export function getContentEntryIdAndSlug({
 	return res;
 }
 
-function getRelativeEntryPath(entry: URL, collection: string, contentDir: URL) {
-	const relativeToContent = path.relative(fileURLToPath(contentDir), fileURLToPath(entry));
+function getRelativeEntryPath(entry: URL, collection: string, contentDirectory: URL) {
+	const relativeToContent = path.relative(fileURLToPath(contentDirectory), fileURLToPath(entry));
 	const relativeToCollection = path.relative(collection, relativeToContent);
 	return relativeToCollection;
 }
 
-export function getEntryType(
-	entryPath: string,
-	paths: Pick<ContentPaths, 'config' | 'contentDir'>,
-	contentFileExts: string[],
-	dataFileExts: string[]
-): 'content' | 'data' | 'config' | 'ignored' | 'unsupported' {
+export function getEntryType({
+	entryPath,
+	contentEntryExtensions,
+	dataEntryExtensions,
+	contentDirectory,
+	contentConfigFileUrl,
+}: {
+	entryPath: string;
+	contentEntryExtensions: string[];
+	dataEntryExtensions: string[];
+	contentDirectory: URL;
+	contentConfigFileUrl: URL;
+}): 'content' | 'data' | 'config' | 'ignored' | 'unsupported' {
 	const { ext, base } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);
 
 	if (
-		hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir) ||
+		hasUnderscoreBelowContentDirectoryPath(fileUrl, contentDirectory) ||
 		isOnIgnoreList(base) ||
 		isImageAsset(ext)
 	) {
 		return 'ignored';
-	} else if (contentFileExts.includes(ext)) {
+	} else if (contentEntryExtensions.includes(ext)) {
 		return 'content';
-	} else if (dataFileExts.includes(ext)) {
+	} else if (dataEntryExtensions.includes(ext)) {
 		return 'data';
-	} else if (fileUrl.href === paths.config.url.href) {
+	} else if (fileUrl.href === contentConfigFileUrl.href) {
 		return 'config';
 	} else {
 		return 'unsupported';
@@ -279,11 +295,8 @@ function isImageAsset(fileExt: string) {
 	return VALID_INPUT_FORMATS.includes(fileExt.slice(1) as ImageInputFormat);
 }
 
-export function hasUnderscoreBelowContentDirectoryPath(
-	fileUrl: URL,
-	contentDir: ContentPaths['contentDir']
-): boolean {
-	const parts = fileUrl.pathname.replace(contentDir.pathname, '').split('/');
+function hasUnderscoreBelowContentDirectoryPath(fileUrl: URL, contentDirectory: URL): boolean {
+	const parts = fileUrl.pathname.replace(contentDirectory.pathname, '').split('/');
 	for (const part of parts) {
 		if (part.startsWith('_')) return true;
 	}
@@ -331,7 +344,7 @@ export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[numb
 	return flags.has(flag);
 }
 
-export async function loadContentConfig({
+async function loadContentConfig({
 	fs,
 	settings,
 	viteServer,
@@ -340,12 +353,12 @@ export async function loadContentConfig({
 	settings: AstroSettings;
 	viteServer: ViteDevServer;
 }): Promise<ContentConfig | undefined> {
-	const contentPaths = getContentPaths(settings.config, fs);
+	const contentConfigStats = findContentConfigFile(fs, settings.config);
 	let unparsedConfig;
-	if (!contentPaths.config.exists) {
+	if (!contentConfigStats.exists) {
 		return undefined;
 	}
-	const configPathname = fileURLToPath(contentPaths.config.url);
+	const configPathname = fileURLToPath(contentConfigStats.url);
 	unparsedConfig = await viteServer.ssrLoadModule(configPathname);
 
 	const config = contentConfigParser.safeParse(unparsedConfig);
@@ -420,36 +433,13 @@ export function contentObservable(initialCtx: ContentCtx): ContentObservable {
 	};
 }
 
-export type ContentPaths = {
-	contentDir: URL;
-	assetsDir: URL;
-	cacheDir: URL;
-	typesTemplate: URL;
-	virtualModTemplate: URL;
-	config: {
-		exists: boolean;
-		url: URL;
-	};
-};
-
-export function getContentPaths(
-	{ srcDir, root }: Pick<AstroConfig, 'root' | 'srcDir'>,
-	fs: typeof fsMod = fsMod
-): ContentPaths {
-	const configStats = search(fs, srcDir);
-	const pkgBase = new URL('../../', import.meta.url);
-	return {
-		cacheDir: new URL('.astro/', root),
-		contentDir: new URL('./content/', srcDir),
-		assetsDir: new URL('./assets/', srcDir),
-		typesTemplate: new URL('content-types.template.d.ts', pkgBase),
-		virtualModTemplate: new URL('content-module.template.mjs', pkgBase),
-		config: configStats,
-	};
+export function resolveContentDirectory(config: AstroConfig) {
+	return new URL('./content/', config.srcDir);
 }
-function search(fs: typeof fsMod, srcDir: URL) {
+
+export function findContentConfigFile(fs: typeof fsMod, config: AstroConfig) {
 	const paths = ['config.mjs', 'config.js', 'config.mts', 'config.ts'].map(
-		(p) => new URL(`./content/${p}`, srcDir)
+		(p) => new URL(`./content/${p}`, config.srcDir)
 	);
 	for (const file of paths) {
 		if (fs.existsSync(file)) {
@@ -497,4 +487,82 @@ export function getExtGlob(exts: string[]) {
 		? // Wrapping {...} breaks when there is only one extension
 		  exts[0]
 		: `{${exts.join(',')}}`;
+}
+
+export async function setupDotAstroDirectory({
+	settings,
+	fs,
+}: {
+	settings: AstroSettings;
+	logger: Logger;
+	fs: typeof fsMod;
+}) {
+	await fs.promises.mkdir(settings.config.cacheDir, { recursive: true }).catch(() => null);
+	await fs.promises
+		.mkdir(resolveDotAstroDirectory(settings.config), { recursive: true })
+		.catch(() => null);
+	// Note: Use `flag: 'wx'` here to avoid overwriting an existing types file.
+	await fs.promises
+		.writeFile(resolveDotAstroTypesFile(settings.config), '// Empty.', {
+			flag: 'wx',
+			encoding: 'utf-8',
+		})
+		.catch(() => null);
+}
+
+function generateEnvDtsContents(config: AstroSettings['config']) {
+	const relativeContentTypes = normalizePath(
+		path.relative(fileURLToPath(config.srcDir), fileURLToPath(resolveDotAstroTypesFile(config)))
+	);
+	return (
+		`
+// Autogenerated: Astro "env.d.ts" TypeScript Declaration File
+//
+// ▶ WARN: DO NOT CHANGE OR DELETE THIS FILE MANUALLY!
+// - This file is automatically generated for you by Astro.
+// - It is safe to check into version control (git, etc.)
+// - Any changes to this file WILL be automatically overwritten.
+//
+// To define your own custom type declarations, create a new 
+// "*.d.ts" file in your project directory (ex: "src/types.d.ts").
+
+/// <reference path=${JSON.stringify(relativeContentTypes)} />
+/// <reference types="astro/client" />`.trim() + '\n'
+	);
+}
+
+export async function setupEnvDts({
+	settings,
+	logger,
+	fs,
+}: {
+	settings: AstroSettings;
+	logger: Logger;
+	fs: typeof fsMod;
+}) {
+	const envTsPath = resolveEnvDtsFile(settings.config);
+	const envTsPathRelativetoRoot = normalizePath(
+		path.relative(fileURLToPath(settings.config.root), fileURLToPath(envTsPath))
+	);
+	const actualEnvDtsContents = await fs.promises.readFile(envTsPath, 'utf-8').catch(() => null);
+	const expectedEnvDtsContents = generateEnvDtsContents(settings.config);
+
+	if (!actualEnvDtsContents) {
+		await fs.promises.mkdir(settings.config.srcDir, { recursive: true });
+		await fs.promises.writeFile(envTsPath, expectedEnvDtsContents, 'utf-8');
+		logger.info(
+			'content',
+			`Adding missing ${bold(
+				envTsPathRelativetoRoot
+			)} types file to project. This file is needed for proper TypeScript support in your project.`
+		);
+		return;
+	}
+
+	if (actualEnvDtsContents !== expectedEnvDtsContents) {
+		await fs.promises.writeFile(envTsPath, expectedEnvDtsContents, 'utf-8');
+		logger.info('content', `Detected ${bold(envTsPathRelativetoRoot)} as outdated. Updating...`);
+	}
+
+	logger.debug('content', `${bold(envTsPathRelativetoRoot)} up-to-date.`);
 }

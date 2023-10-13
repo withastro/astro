@@ -17,13 +17,12 @@ import { AstroErrorData } from '../core/errors/index.js';
 import { escapeViteEnvReferences } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG, DATA_FLAG } from './consts.js';
 import {
-	getContentEntryExts,
+	getContentEntryExtensions,
 	getContentEntryIdAndSlug,
-	getContentPaths,
-	getDataEntryExts,
+	getDataEntryExtensions,
 	getDataEntryId,
 	getEntryCollectionName,
-	getEntryConfigByExtMap,
+	getEntryConfigByExtensionMap,
 	getEntryData,
 	getEntryType,
 	globalContentConfigObserver,
@@ -31,6 +30,8 @@ import {
 	parseEntrySlug,
 	reloadContentConfigObserver,
 	type ContentConfig,
+	resolveContentDirectory,
+	findContentConfigFile,
 } from './utils.js';
 
 function getContentRendererByViteId(
@@ -66,13 +67,13 @@ export function astroContentImportPlugin({
 	fs: typeof fsMod;
 	settings: AstroSettings;
 }): Plugin[] {
-	const contentPaths = getContentPaths(settings.config, fs);
-	const contentEntryExts = getContentEntryExts(settings);
-	const dataEntryExts = getDataEntryExts(settings);
+	const contentEntryExtensions = getContentEntryExtensions(settings);
+	const dataEntryExtensions = getDataEntryExtensions(settings);
 
-	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
-	const dataEntryConfigByExt = getEntryConfigByExtMap(settings.dataEntryTypes);
-	const { contentDir } = contentPaths;
+	const contentEntryConfigByExtension = getEntryConfigByExtensionMap(settings.contentEntryTypes);
+	const dataEntryConfigByExt = getEntryConfigByExtensionMap(settings.dataEntryTypes);
+	const contentDirectory = resolveContentDirectory(settings.config);
+	const contentConfigFile = findContentConfigFile(fs, settings.config);
 
 	const plugins: Plugin[] = [
 		{
@@ -85,7 +86,7 @@ export function astroContentImportPlugin({
 					const { id, data, collection, _internal } = await getDataEntryModule({
 						fileId,
 						entryConfigByExt: dataEntryConfigByExt,
-						contentDir,
+						contentDirectory,
 						config: settings.config,
 						fs,
 						pluginContext: this,
@@ -106,8 +107,8 @@ export const _internal = {
 					const fileId = viteId.split('?')[0];
 					const { id, slug, collection, body, data, _internal } = await getContentEntryModule({
 						fileId,
-						entryConfigByExt: contentEntryConfigByExt,
-						contentDir,
+						entryConfigByExt: contentEntryConfigByExtension,
+						contentDirectory,
 						config: settings.config,
 						fs,
 						pluginContext: this,
@@ -129,9 +130,15 @@ export const _internal = {
 				}
 			},
 			configureServer(viteServer) {
-				viteServer.watcher.on('all', async (event, entry) => {
+				viteServer.watcher.on('all', async (event, entryPath) => {
 					if (CHOKIDAR_MODIFIED_EVENTS.includes(event)) {
-						const entryType = getEntryType(entry, contentPaths, contentEntryExts, dataEntryExts);
+						const entryType = getEntryType({
+							entryPath,
+							contentEntryExtensions,
+							dataEntryExtensions,
+							contentDirectory,
+							contentConfigFileUrl: contentConfigFile.url,
+						});
 						if (!COLLECTION_TYPES_TO_INVALIDATE_ON.includes(entryType)) return;
 
 						// The content config could depend on collection entries via `reference()`.
@@ -185,7 +192,7 @@ export const _internal = {
 type GetEntryModuleParams<TEntryType extends ContentEntryType | DataEntryType> = {
 	fs: typeof fsMod;
 	fileId: string;
-	contentDir: URL;
+	contentDirectory: URL;
 	pluginContext: PluginContext;
 	entryConfigByExt: Map<string, TEntryType>;
 	config: AstroConfig;
@@ -194,7 +201,7 @@ type GetEntryModuleParams<TEntryType extends ContentEntryType | DataEntryType> =
 async function getContentEntryModule(
 	params: GetEntryModuleParams<ContentEntryType>
 ): Promise<ContentEntryModule> {
-	const { fileId, contentDir, pluginContext } = params;
+	const { fileId, contentDirectory, pluginContext } = params;
 	const { collectionConfig, entryConfig, entry, rawContents, collection } =
 		await getEntryModuleBaseInfo(params);
 
@@ -208,7 +215,11 @@ async function getContentEntryModule(
 		contents: rawContents,
 	});
 	const _internal = { filePath: fileId, rawData };
-	const { id, slug: generatedSlug } = getContentEntryIdAndSlug({ entry, contentDir, collection });
+	const { id, slug: generatedSlug } = getContentEntryIdAndSlug({
+		entry,
+		contentDirectory,
+		collection,
+	});
 
 	const slug = parseEntrySlug({
 		id,
@@ -240,7 +251,7 @@ async function getContentEntryModule(
 async function getDataEntryModule(
 	params: GetEntryModuleParams<DataEntryType>
 ): Promise<DataEntryModule> {
-	const { fileId, contentDir, pluginContext } = params;
+	const { fileId, contentDirectory, pluginContext } = params;
 	const { collectionConfig, entryConfig, entry, rawContents, collection } =
 		await getEntryModuleBaseInfo(params);
 
@@ -249,7 +260,7 @@ async function getDataEntryModule(
 		contents: rawContents,
 	});
 	const _internal = { filePath: fileId, rawData };
-	const id = getDataEntryId({ entry, contentDir, collection });
+	const id = getDataEntryId({ entry, contentDirectory, collection });
 
 	const data = collectionConfig
 		? await getEntryData(
@@ -274,7 +285,7 @@ async function getDataEntryModule(
 async function getEntryModuleBaseInfo<TEntryType extends ContentEntryType | DataEntryType>({
 	fileId,
 	entryConfigByExt,
-	contentDir,
+	contentDirectory,
 	fs,
 }: GetEntryModuleParams<TEntryType>) {
 	const contentConfig = await getContentConfigFromGlobal();
@@ -300,7 +311,7 @@ async function getEntryModuleBaseInfo<TEntryType extends ContentEntryType | Data
 		});
 	}
 	const entry = pathToFileURL(fileId);
-	const collection = getEntryCollectionName({ entry, contentDir });
+	const collection = getEntryCollectionName({ entry, contentDirectory });
 	if (collection === undefined) throw new AstroError(AstroErrorData.UnknownContentCollectionError);
 
 	const collectionConfig = contentConfig?.collections[collection];

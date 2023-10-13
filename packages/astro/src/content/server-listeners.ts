@@ -8,7 +8,7 @@ import { loadTSConfig } from '../core/config/tsconfig.js';
 import type { Logger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { createContentTypesGenerator } from './types-generator.js';
-import { getContentPaths, globalContentConfigObserver, type ContentPaths } from './utils.js';
+import { globalContentConfigObserver, resolveContentDirectory, findContentConfigFile } from './utils.js';
 
 interface ContentServerListenerParams {
 	fs: typeof fsMod;
@@ -23,22 +23,21 @@ export async function attachContentServerListeners({
 	logger,
 	settings,
 }: ContentServerListenerParams) {
-	const contentPaths = getContentPaths(settings.config, fs);
-
-	if (fs.existsSync(contentPaths.contentDir)) {
+	const contentDirectory = resolveContentDirectory(settings.config);
+	if (fs.existsSync(contentDirectory)) {
 		logger.info(
 			'content',
 			`Watching ${cyan(
-				contentPaths.contentDir.href.replace(settings.config.root.href, '')
+				contentDirectory.href.replace(settings.config.root.href, '')
 			)} for changes`
 		);
-		const maybeTsConfigStats = await getTSConfigStatsWhenAllowJsFalse({ contentPaths, settings });
+		const maybeTsConfigStats = await getTSConfigStatsWhenAllowJsFalse(settings, fs);
 		if (maybeTsConfigStats) warnAllowJsIsFalse({ ...maybeTsConfigStats, logger });
 		await attachListeners();
 	} else {
 		viteServer.watcher.on('addDir', contentDirListener);
 		async function contentDirListener(dir: string) {
-			if (appendForwardSlash(pathToFileURL(dir).href) === contentPaths.contentDir.href) {
+			if (appendForwardSlash(pathToFileURL(dir).href) === contentDirectory.href) {
 				logger.info('content', `Content dir found. Watching for changes`);
 				await attachListeners();
 				viteServer.watcher.removeListener('addDir', contentDirListener);
@@ -96,15 +95,10 @@ See ${bold('https://www.typescriptlang.org/tsconfig#allowJs')} for more informat
 	);
 }
 
-async function getTSConfigStatsWhenAllowJsFalse({
-	contentPaths,
-	settings,
-}: {
-	contentPaths: ContentPaths;
-	settings: AstroSettings;
-}) {
+async function getTSConfigStatsWhenAllowJsFalse(settings: AstroSettings, fs: typeof fsMod) {
+	const contentConfigStats = findContentConfigFile(fs, settings.config);
 	const isContentConfigJsFile = ['.js', '.mjs'].some((ext) =>
-		contentPaths.config.url.pathname.endsWith(ext)
+		contentConfigStats.url.pathname.endsWith(ext)
 	);
 	if (!isContentConfigJsFile) return;
 
@@ -114,7 +108,7 @@ async function getTSConfigStatsWhenAllowJsFalse({
 	const tsConfigFileName = inputConfig.tsconfigFile.split(path.sep).pop();
 	if (!tsConfigFileName) return;
 
-	const contentConfigFileName = contentPaths.config.url.pathname.split(path.sep).pop()!;
+	const contentConfigFileName = contentConfigStats.url.pathname.split(path.sep).pop()!;
 	const allowJSOption = inputConfig.tsconfig.compilerOptions?.allowJs;
 	if (allowJSOption) return;
 

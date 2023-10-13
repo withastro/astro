@@ -9,21 +9,26 @@ import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
-import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
+import { VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	getContentEntryIdAndSlug,
-	getContentPaths,
-	getDataEntryExts,
+	getDataEntryExtensions,
 	getDataEntryId,
 	getEntryCollectionName,
-	getEntryConfigByExtMap,
+	getEntryConfigByExtensionMap,
 	getEntrySlug,
 	getEntryType,
 	reloadContentConfigObserver,
 	type ContentConfig,
 	type ContentObservable,
-	type ContentPaths,
+	resolveContentDirectory,
+	findContentConfigFile,
 } from './utils.js';
+import {
+	resolveAstroPackageDirectory,
+	resolveDotAstroDirectory,
+	resolveDotAstroTypesFile,
+} from '../core/util.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
@@ -73,30 +78,32 @@ export async function createContentTypesGenerator({
 	viteServer,
 }: CreateContentGeneratorParams) {
 	const collectionEntryMap: CollectionEntryMap = {};
-	const contentPaths = getContentPaths(settings.config, fs);
-	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
-	const contentEntryExts = [...contentEntryConfigByExt.keys()];
-	const dataEntryExts = getDataEntryExts(settings);
+	const contentEntryConfigByExtension = getEntryConfigByExtensionMap(settings.contentEntryTypes);
+	const contentEntryExtensions = [...contentEntryConfigByExtension.keys()];
+	const dataEntryExtensions = getDataEntryExtensions(settings);
+	const contentConfigStats = findContentConfigFile(fs, settings.config);
+	const contentDirectory = resolveContentDirectory(settings.config);
+	const typesTemplate = new URL('content-types.template.d.ts', resolveAstroPackageDirectory());
 
 	let events: EventWithOptions[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
 
-	const typeTemplateContent = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
+	const typeTemplateContent = await fs.promises.readFile(typesTemplate, 'utf-8');
 
 	async function init(): Promise<
 		{ typesGenerated: true } | { typesGenerated: false; reason: 'no-content-dir' }
 	> {
-		if (!fs.existsSync(contentPaths.contentDir)) {
+		if (!fs.existsSync(contentDirectory)) {
 			return { typesGenerated: false, reason: 'no-content-dir' };
 		}
 
 		events.push({
-			type: { name: 'add', entry: contentPaths.config.url },
+			type: { name: 'add', entry: contentConfigStats.url },
 			opts: { logLevel: 'warn' },
 		});
 
 		const globResult = await glob('**', {
-			cwd: fileURLToPath(contentPaths.contentDir),
+			cwd: fileURLToPath(contentDirectory),
 			fs: {
 				readdir: fs.readdir.bind(fs),
 				readdirSync: fs.readdirSync.bind(fs),
@@ -106,9 +113,9 @@ export async function createContentTypesGenerator({
 		});
 
 		for (const entry of globResult) {
-			const fullPath = path.join(fileURLToPath(contentPaths.contentDir), entry.path);
+			const fullPath = path.join(fileURLToPath(contentDirectory), entry.path);
 			const entryURL = pathToFileURL(fullPath);
-			if (entryURL.href.startsWith(contentPaths.config.url.href)) continue;
+			if (entryURL.href.startsWith(contentConfigStats.url.href)) continue;
 			if (entry.dirent.isFile()) {
 				events.push({
 					type: { name: 'add', entry: entryURL },
@@ -130,7 +137,7 @@ export async function createContentTypesGenerator({
 
 		if (event.name === 'addDir' || event.name === 'unlinkDir') {
 			const collection = normalizePath(
-				path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry))
+				path.relative(fileURLToPath(contentDirectory), fileURLToPath(event.entry))
 			);
 			const collectionKey = JSON.stringify(collection);
 			// If directory is multiple levels deep, it is not a collection. Ignore event.
@@ -152,12 +159,13 @@ export async function createContentTypesGenerator({
 			}
 			return { shouldGenerateTypes: true };
 		}
-		const fileType = getEntryType(
-			fileURLToPath(event.entry),
-			contentPaths,
-			contentEntryExts,
-			dataEntryExts
-		);
+		const fileType = getEntryType({
+			entryPath: fileURLToPath(event.entry),
+			contentEntryExtensions,
+			dataEntryExtensions,
+			contentDirectory,
+			contentConfigFileUrl: contentConfigStats.url,
+		});
 		if (fileType === 'ignored') {
 			return { shouldGenerateTypes: false };
 		}
@@ -172,7 +180,7 @@ export async function createContentTypesGenerator({
 			}
 			const { id } = getContentEntryIdAndSlug({
 				entry: event.entry,
-				contentDir: contentPaths.contentDir,
+				contentDirectory,
 				collection: '',
 			});
 			return {
@@ -182,16 +190,15 @@ export async function createContentTypesGenerator({
 		}
 
 		const { entry } = event;
-		const { contentDir } = contentPaths;
 
-		const collection = getEntryCollectionName({ entry, contentDir });
+		const collection = getEntryCollectionName({ entry, contentDirectory });
 		if (collection === undefined) {
 			if (['info', 'warn'].includes(logLevel)) {
 				logger.warn(
 					'content',
 					`${cyan(
 						normalizePath(
-							path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry))
+							path.relative(fileURLToPath(contentDirectory), fileURLToPath(event.entry))
 						)
 					)} must be nested in a collection directory. Skipping.`
 				);
@@ -200,7 +207,7 @@ export async function createContentTypesGenerator({
 		}
 
 		if (fileType === 'data') {
-			const id = getDataEntryId({ entry, contentDir, collection });
+			const id = getDataEntryId({ entry, contentDirectory, collection });
 			const collectionKey = JSON.stringify(collection);
 			const entryKey = JSON.stringify(id);
 
@@ -241,9 +248,13 @@ export async function createContentTypesGenerator({
 			}
 		}
 
-		const contentEntryType = contentEntryConfigByExt.get(path.extname(event.entry.pathname));
+		const contentEntryType = contentEntryConfigByExtension.get(path.extname(event.entry.pathname));
 		if (!contentEntryType) return { shouldGenerateTypes: false };
-		const { id, slug: generatedSlug } = getContentEntryIdAndSlug({ entry, contentDir, collection });
+		const { id, slug: generatedSlug } = getContentEntryIdAndSlug({
+			entry,
+			contentDirectory,
+			collection,
+		});
 
 		const collectionKey = JSON.stringify(collection);
 		if (!(collectionKey in collectionEntryMap)) {
@@ -316,7 +327,7 @@ export async function createContentTypesGenerator({
 			},
 			opts,
 		};
-		if (!event.type.entry.pathname.startsWith(contentPaths.contentDir.pathname)) return;
+		if (!event.type.entry.pathname.startsWith(contentDirectory.pathname)) return;
 
 		events.push(event);
 
@@ -361,8 +372,9 @@ export async function createContentTypesGenerator({
 		if (eventResponses.some((r) => r.shouldGenerateTypes)) {
 			await writeContentFiles({
 				fs,
+				settings,
+				contentConfigFileUrl: contentConfigStats.url,
 				collectionEntryMap,
-				contentPaths,
 				typeTemplateContent,
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 				contentEntryTypes: settings.contentEntryTypes,
@@ -392,7 +404,8 @@ function invalidateVirtualMod(viteServer: ViteDevServer) {
 
 async function writeContentFiles({
 	fs,
-	contentPaths,
+	settings,
+	contentConfigFileUrl,
 	collectionEntryMap,
 	typeTemplateContent,
 	contentEntryTypes,
@@ -400,7 +413,8 @@ async function writeContentFiles({
 	viteServer,
 }: {
 	fs: typeof fsMod;
-	contentPaths: ContentPaths;
+	settings: AstroSettings;
+	contentConfigFileUrl: URL;
 	collectionEntryMap: CollectionEntryMap;
 	typeTemplateContent: string;
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
@@ -468,12 +482,9 @@ async function writeContentFiles({
 		}
 	}
 
-	if (!fs.existsSync(contentPaths.cacheDir)) {
-		fs.mkdirSync(contentPaths.cacheDir, { recursive: true });
-	}
-
+	const dotAstroDirectory = resolveDotAstroDirectory(settings.config);
 	let configPathRelativeToCacheDir = normalizePath(
-		path.relative(contentPaths.cacheDir.pathname, contentPaths.config.url.pathname)
+		path.relative(dotAstroDirectory.pathname, contentConfigFileUrl.pathname)
 	);
 	if (!isRelativePath(configPathRelativeToCacheDir))
 		configPathRelativeToCacheDir = './' + configPathRelativeToCacheDir;
@@ -495,10 +506,8 @@ async function writeContentFiles({
 		contentConfig ? `typeof import(${JSON.stringify(configPathRelativeToCacheDir)})` : 'never'
 	);
 
-	await fs.promises.writeFile(
-		new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir),
-		typeTemplateContent
-	);
+	fs.mkdirSync(dotAstroDirectory, { recursive: true });
+	await fs.promises.writeFile(resolveDotAstroTypesFile(settings.config), typeTemplateContent);
 }
 
 function warnNonexistentCollections({
