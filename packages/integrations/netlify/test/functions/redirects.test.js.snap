@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SSG - Redirects Creates a redirects file 1`] = `
+"/other              /                            301
+/nope               /.netlify/functions/entry    200
+/                   /.netlify/functions/entry    200
+/_image             /.netlify/functions/entry    200
+/team/articles/*    /.netlify/functions/entry    200"
+`;

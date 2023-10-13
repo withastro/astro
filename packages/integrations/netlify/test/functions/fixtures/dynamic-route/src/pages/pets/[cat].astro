@@ -1,0 +1,27 @@
+---
+export const prerender = true
+
+export function getStaticPaths() {
+  return [
+    {
+		params: {cat: 'cat1'},
+		props: {cat: 'cat1'}
+	},
+    {
+		params: {cat: 'cat2'},
+		props: {cat: 'cat2'}
+	},
+    {
+		params: {cat: 'cat3'},
+		props: {cat: 'cat3'}
+	},
+  ];
+}
+
+const { cat } = Astro.props;
+
+---
+
+<div>Good cat, {cat}!</div>
+
+<a href="/">back</a>
