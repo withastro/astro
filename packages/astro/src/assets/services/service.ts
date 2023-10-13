@@ -206,6 +206,10 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			options.format = DEFAULT_OUTPUT_FORMAT;
 		}
 
+		// Sometimes users will pass number generated from division, which can result in floating point numbers
+		if (options.width) options.width = Math.round(options.width);
+		if (options.height) options.height = Math.round(options.height);
+
 		return options;
 	},
 	getHTMLAttributes(options) {
