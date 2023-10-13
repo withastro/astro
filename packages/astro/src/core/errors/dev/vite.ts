@@ -8,6 +8,7 @@ import { AstroError, type ErrorWithMetadata } from '../errors.js';
 import { createSafeError } from '../utils.js';
 import type { SSRLoadedRenderer } from './../../../@types/astro.js';
 import { getDocsForError, renderErrorMarkdown } from './utils.js';
+import { replaceCssVariables } from '../../shiki.js';
 
 export function enhanceViteSSRError({
 	error,
@@ -124,6 +125,7 @@ export interface AstroErrorPayload {
 // Map these to `.js` during error highlighting.
 const ALTERNATIVE_JS_EXTS = ['cjs', 'mjs'];
 const ALTERNATIVE_MD_EXTS = ['mdoc'];
+const INLINE_STYLE_SELECTOR_GLOBAL = /style="(.*?)"/g;
 
 /**
  * Generate a payload for Vite's error overlay
@@ -146,7 +148,7 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 	if (ALTERNATIVE_MD_EXTS.includes(highlighterLang ?? '')) {
 		highlighterLang = 'md';
 	}
-	const highlightedCode = err.fullCode
+	let highlightedCode = err.fullCode
 		? await codeToHtml(err.fullCode, {
 				// @ts-expect-error always assume that shiki can accept the lang string
 				lang: highlighterLang,
@@ -154,6 +156,12 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 				lineOptions: err.loc?.line ? [{ line: err.loc.line, classes: ['error-line'] }] : undefined,
 		  })
 		: undefined;
+
+	if (highlightedCode) {
+		highlightedCode = highlightedCode.replace(INLINE_STYLE_SELECTOR_GLOBAL, (m) =>
+			replaceCssVariables(m)
+		);
+	}
 
 	return {
 		type: 'error',
