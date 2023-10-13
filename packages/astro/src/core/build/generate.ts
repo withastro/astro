@@ -1,7 +1,9 @@
 import * as colors from 'kleur/colors';
 import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
 import fs from 'node:fs';
+import OS from 'node:os';
 import { fileURLToPath } from 'node:url';
+import pLimit from 'p-limit';
 import type { OutputAsset, OutputChunk } from 'rollup';
 import type { BufferEncoding } from 'vfile';
 import type {
@@ -59,8 +61,6 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat } from './util.js';
-import OS from 'node:os';
-import pLimit from 'p-limit';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -198,28 +198,22 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		}
 	}
 
-	const cpuCount = OS.cpus().length;
 	const staticImageList = getStaticImageList();
-	const limit = pLimit(cpuCount);
+	let imageCount = 0;
 
-	if (staticImageList.size)
+	if (staticImageList.size) {
+		const cpuCount = OS.cpus().length;
+		const limit = pLimit(cpuCount);
 		logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`);
 
-	await Promise.all(
-		Array.from(staticImageList.entries()).map((imageData, count) =>
-			limit(() =>
-				generateImage(
-					pipeline,
-					imageData[1].options,
-					imageData[1].path,
-					count,
-					staticImageList.size
-				)
+		await Promise.all(
+			Array.from(staticImageList.entries()).map((imageData) =>
+				limit(() => generateImage(imageData[1].options, imageData[1].path, staticImageList.size))
 			)
-		)
-	);
+		);
 
-	delete globalThis?.astroAsset?.addStaticImage;
+		delete globalThis?.astroAsset?.addStaticImage;
+	}
 
 	await runHookBuildGenerated({
 		config: opts.settings.config,
@@ -227,34 +221,28 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	});
 
 	logger.info(null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
-}
 
-async function generateImage(
-	pipeline: BuildPipeline,
-	transform: ImageTransform,
-	path: string,
-	count: number,
-	totalCount: number
-) {
-	const logger = pipeline.getLogger();
-	let timeStart = performance.now();
-	const generationData = await generateImageInternal(pipeline, transform, path);
+	async function generateImage(transform: ImageTransform, path: string, totalCount: number) {
+		let timeStart = performance.now();
+		const generationData = await generateImageInternal(pipeline, transform, path);
 
-	if (!generationData) {
-		return;
+		if (!generationData) {
+			return;
+		}
+
+		const timeEnd = performance.now();
+		const timeChange = getTimeStat(timeStart, timeEnd);
+		const timeIncrease = `(+${timeChange})`;
+		const statsText = generationData.cached
+			? `(reused cache entry)`
+			: `(before: ${generationData.weight.before}kB, after: ${generationData.weight.after}kB)`;
+		const counter = `(${imageCount}/${totalCount})`;
+		logger.info(
+			null,
+			`  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)} ${dim(counter)}`
+		);
+		imageCount++;
 	}
-
-	const timeEnd = performance.now();
-	const timeChange = getTimeStat(timeStart, timeEnd);
-	const timeIncrease = `(+${timeChange})`;
-	const statsText = generationData.cached
-		? `(reused cache entry)`
-		: `(before: ${generationData.weight.before}kB, after: ${generationData.weight.after}kB)`;
-	const counter = `(${count}/${totalCount})`;
-	logger.info(
-		null,
-		`  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)} ${dim(counter)}`
-	);
 }
 
 async function generatePage(
@@ -421,10 +409,10 @@ function getInvalidRouteSegmentError(
 		...AstroErrorData.InvalidDynamicRoute,
 		message: invalidParam
 			? AstroErrorData.InvalidDynamicRoute.message(
-				route.route,
-				JSON.stringify(invalidParam),
-				JSON.stringify(received)
-			)
+					route.route,
+					JSON.stringify(invalidParam),
+					JSON.stringify(received)
+			  )
 			: `Generated path for ${route.route} is invalid.`,
 		hint,
 	});
