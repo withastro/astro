@@ -251,21 +251,24 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				// If the user passed dimensions, we don't want to add it to the srcset
 				const { width: transformWidth, height: transformHeight, ...rest } = options;
 
-				const srcSetValue = {
-					transform: {
-						...rest,
-					},
+				let srcSetValue = {
+					transform: {},
 					descriptor: `${densityValues[index]}x`,
 					attributes: {
-						type: `image/${targetFormat}`,
-					},
+						type: `image/${targetFormat}`
+					}
 				};
 
 				// Only set width and height if they are different from the original image or if the image is remote
 				// to avoid duplicated final images
 				if (!isESMImportedImage(options.src) || maxTargetWidth !== imageWidth) {
-					srcSetValue.transform.width = maxTargetWidth;
-					srcSetValue.transform.height = Math.round(maxTargetWidth / aspectRatio);
+					srcSetValue.transform = {
+						width: maxTargetWidth,
+						height: Math.round(maxTargetWidth / aspectRatio),
+						...rest
+					};
+				} else {
+					srcSetValue.transform = { ...rest };
 				}
 
 				if (targetFormat !== options.format) {
