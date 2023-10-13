@@ -206,7 +206,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.resolve ||= {};
 					vite.resolve.alias ||= {};
 
-					const aliases = [{ find: 'react-dom/server', replacement: 'react-dom/server.browser' }];
+					const aliases = [
+						{
+							find: 'react-dom/server',
+							replacement: 'react-dom/server.browser',
+						},
+					];
 
 					if (Array.isArray(vite.resolve.alias)) {
 						vite.resolve.alias = [...vite.resolve.alias, ...aliases];

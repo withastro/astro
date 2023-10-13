@@ -27,20 +27,15 @@
     "dist"
   ],
   "scripts": {
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
-    "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "build": "tsc",
     "test": "mocha --exit --timeout 30000 test/",
     "test:match": "mocha --exit --timeout 30000 -g"
   },
   "dependencies": {
-    "@astrojs/underscore-redirects": "workspace:*",
+    "@astrojs/underscore-redirects": "^0.3.0",
     "@cloudflare/workers-types": "^4.20230821.0",
-    "miniflare": "^3.20230918.0",
+    "miniflare": "3.20231010.0",
     "@iarna/toml": "^2.2.5",
-    "@miniflare/cache": "^2.14.1",
-    "@miniflare/shared": "^2.14.1",
-    "@miniflare/storage-memory": "^2.14.1",
     "dotenv": "^16.3.1",
     "esbuild": "^0.19.2",
     "find-up": "^6.3.0",
@@ -51,13 +46,15 @@
     "astro": "workspace:^3.3.0"
   },
   "devDependencies": {
+    "execa": "^8.0.1",
+    "fast-glob": "^3.3.1",
     "@types/iarna__toml": "^2.0.2",
-    "astro": "workspace:*",
-    "astro-scripts": "workspace:*",
+    "strip-ansi": "^7.1.0",
+    "astro": "^3.2.3",
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
     "mocha": "^10.2.0",
-    "wrangler": "^3.5.1"
+    "wrangler": "^3.11.0"
   },
   "publishConfig": {
     "provenance": true

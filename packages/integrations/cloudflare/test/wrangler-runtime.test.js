@@ -3,10 +3,11 @@ import * as cheerio from "cheerio";
 import { fileURLToPath } from "node:url";
 import { astroCli, wranglerCli } from "./_test-utils.js";
 
-const root = new URL("./fixtures/with-solid-js/", import.meta.url);
+const root = new URL("./fixtures/wrangler-runtime/", import.meta.url);
 
-describe("With SolidJS", () => {
+describe("Runtime Wrangler", () => {
   let wrangler;
+
   before(async () => {
     await astroCli(fileURLToPath(root), "build");
 
@@ -30,11 +31,31 @@ describe("With SolidJS", () => {
     }, 1000);
   });
 
-  it("renders the solid component", async () => {
+  it("exists", async () => {
     let res = await fetch(`http://127.0.0.1:8788/`);
-    expect(res.status).to.equal(200);
     let html = await res.text();
     let $ = cheerio.load(html);
-    expect($(".solid").text()).to.equal("Solid Content");
+    expect($("#hasRuntime").text()).to.contain("true");
+  });
+
+  it("has environment variables", async () => {
+    let res = await fetch(`http://127.0.0.1:8788/`);
+    let html = await res.text();
+    let $ = cheerio.load(html);
+    expect($("#hasENV").text()).to.contain("true");
+  });
+
+  it("has Cloudflare request object", async () => {
+    let res = await fetch(`http://127.0.0.1:8788/`);
+    let html = await res.text();
+    let $ = cheerio.load(html);
+    expect($("#hasCF").text()).to.contain("true");
+  });
+
+  it("has Cloudflare cache", async () => {
+    let res = await fetch(`http://127.0.0.1:8788/`);
+    let html = await res.text();
+    let $ = cheerio.load(html);
+    expect($("#hasCACHES").text()).to.contain("true");
   });
 });

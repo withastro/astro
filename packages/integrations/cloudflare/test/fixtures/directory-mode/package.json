@@ -1,5 +1,5 @@
 {
-  "name": "@test/astro-cloudflare-wasm",
+  "name": "@test/astro-cloudflare-directory-mode",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

@@ -1,9 +1,9 @@
 {
-  "name": "@test/astro-cloudflare-runtime",
+  "name": "@test/astro-cloudflare-wrangler-runtime",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
     "@astrojs/cloudflare": "workspace:*",
-    "astro": "workspace:*"
+    "astro": "^3.2.3"
   }
 }

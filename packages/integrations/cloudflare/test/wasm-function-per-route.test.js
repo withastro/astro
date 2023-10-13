@@ -1,41 +1,43 @@
-import { loadFixture, runCLI } from './test-utils.js';
-import { expect } from 'chai';
+import { expect } from "chai";
+import { fileURLToPath } from "node:url";
+import { astroCli, wranglerCli } from "./_test-utils.js";
 
-describe('Wasm function per route import', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
-	/** @type {import('./test-utils.js').WranglerCLI} */
-	let cli;
+const root = new URL("./fixtures/wasm-function-per-route/", import.meta.url);
 
-	before(async function () {
-		fixture = await loadFixture({
-			root: './fixtures/wasm-function-per-route/',
-		});
-		await fixture.build();
+describe("Wasm function per route import", () => {
+  let wrangler;
+  before(async () => {
+    await astroCli(fileURLToPath(root), "build");
 
-		cli = await runCLI('./fixtures/wasm-function-per-route/', {
-			silent: true,
-			onTimeout: (ex) => {
-				console.log(ex);
-				// if fail to start, skip for now as it's very flaky
-				this.skip();
-			},
-		});
-	});
+    wrangler = wranglerCli(fileURLToPath(root));
+    await new Promise((resolve) => {
+      wrangler.stdout.on("data", (data) => {
+        console.log("[stdout]", data.toString());
+        if (data.toString().includes("http://127.0.0.1:8788")) resolve();
+      });
+      wrangler.stderr.on("data", (data) => {
+        console.log("[stderr]", data.toString());
+      });
+    });
+  });
 
-	after(async () => {
-		await cli?.stop();
-	});
+  after((done) => {
+    wrangler.kill();
+    setTimeout(() => {
+      console.log("CLEANED");
+      done();
+    }, 1000);
+  });
 
-	it('can render', async () => {
-		let res = await fetch(`http://127.0.0.1:${cli.port}/`);
-		expect(res.status).to.equal(200);
-		let json = await res.json();
-		expect(json).to.deep.equal({ answer: 42 });
+  it("can render", async () => {
+    let res = await fetch(`http://127.0.0.1:8788/`);
+    expect(res.status).to.equal(200);
+    let json = await res.json();
+    expect(json).to.deep.equal({ answer: 42 });
 
-		res = await fetch(`http://127.0.0.1:${cli.port}/deeply/nested/route`);
-		expect(res.status).to.equal(200);
-		json = await res.json();
-		expect(json).to.deep.equal({ answer: 84 });
-	});
+    res = await fetch(`http://127.0.0.1:8788/deeply/nested/route`);
+    expect(res.status).to.equal(200);
+    json = await res.json();
+    expect(json).to.deep.equal({ answer: 84 });
+  });
 });

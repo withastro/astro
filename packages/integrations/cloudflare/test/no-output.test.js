@@ -1,20 +1,14 @@
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
+import { fileURLToPath } from 'node:url';
+import { astroCli } from './_test-utils.js';
+
+const root = new URL('./fixtures/no-output/', import.meta.url);
 
 describe('Missing output config', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/no-output/',
-		});
-	});
-
 	it('throws during the build', async () => {
 		let error = undefined;
 		try {
-			await fixture.build();
+			await astroCli(fileURLToPath(root), 'build');
 		} catch (err) {
 			error = err;
 		}

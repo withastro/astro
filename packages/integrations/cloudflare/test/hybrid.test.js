@@ -3,9 +3,9 @@ import { astroCli } from './_test-utils.js';
 import { expect } from 'chai';
 import { fileURLToPath } from 'url';
 
-const root = new URL('./fixtures/prerender/', import.meta.url);
+const root = new URL('./fixtures/hybrid/', import.meta.url);
 
-describe('Prerendering', () => {
+describe('Hybrid rendering', () => {
 	before(async () => {
 		await astroCli(fileURLToPath(root), 'build');
 	});
@@ -15,7 +15,7 @@ describe('Prerendering', () => {
 
 		expect(foundRoutes).to.deep.equal({
 			version: 1,
-			include: ['/', '/_image'],
+			include: ['/one', '/_image'],
 			exclude: [],
 		});
 	});
