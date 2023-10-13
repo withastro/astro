@@ -19,5 +19,5 @@ export function hashTransform(transform: ImageTransform, imageService: string) {
 	// Extract the fields we want to hash
 	const { alt, class: className, style, widths, densities, ...rest } = transform;
 	const hashFields = { ...rest, imageService };
-	return shorthash(JSON.stringify(hashFields));
+	return shorthash(JSON.stringify(hashFields, Object.keys(hashFields).sort()));
 }
