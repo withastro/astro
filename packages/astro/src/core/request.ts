@@ -1,4 +1,5 @@
 import type { IncomingHttpHeaders } from 'node:http';
+import { AstroError, AstroErrorData } from './errors/index.js';
 import type { Logger } from './logger/core.js';
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
@@ -49,17 +50,12 @@ export function createRequest({
 	});
 
 	if (!ssr) {
-		// Warn when accessing headers in SSG mode
-		const _headers = request.headers;
+		// Throw when accessing headers in SSG mode
 		const headersDesc = Object.getOwnPropertyDescriptor(request, 'headers') || {};
 		Object.defineProperty(request, 'headers', {
 			...headersDesc,
 			get() {
-				logger.warn(
-					'ssg',
-					`Headers are not exposed in static (SSG) output mode. To enable headers: set \`output: "server"\` in your config file.`
-				);
-				return _headers;
+				throw new AstroError(AstroErrorData.StaticHeadersNotAvailable);
 			},
 		});
 	} else if (clientAddress) {

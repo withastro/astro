@@ -1,5 +1,4 @@
-import * as colors from 'kleur/colors';
-import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
+import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { OutputAsset, OutputChunk } from 'rollup';
@@ -119,8 +118,29 @@ export function chunkIsPage(
 	return false;
 }
 
+async function generateImages(pipeline: BuildPipeline) {
+	const staticImageList = getStaticImageList();
+	if (staticImageList.size === 0) {
+		return;
+	}
+
+	const logger = pipeline.getLogger();
+	const generateImagesTimer = performance.now();
+	logger.info('SKIP_FORMAT', `${bgGreen(black(` generating optimized images `))}`);
+	for (const imageData of staticImageList.entries()) {
+		await generateImage(
+			pipeline,
+			imageData[1].options,
+			imageData[1].path,
+		);
+	}
+	logger.info(
+		null,
+		green(`✓ Completed in ${getTimeStat(generateImagesTimer, performance.now())}.\n`)
+	);
+}
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
-	const timer = performance.now();
+	const generatePagesTimer = performance.now();
 	const ssr = isServerLikeOutput(opts.settings.config);
 	let manifest: SSRManifest;
 	if (ssr) {
@@ -150,7 +170,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	}
 
 	const verb = ssr ? 'prerendering' : 'generating';
-	logger.info(null, `\n${bgGreen(black(` ${verb} static routes `))}`);
+	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
 	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
 	if (ssr) {
@@ -195,39 +215,25 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			}
 		}
 	}
+	logger.info(
+		null,
+		green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`)
+	);
 
-	const staticImageList = getStaticImageList();
-
-	if (staticImageList.size)
-		logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`);
-	let count = 0;
-	for (const imageData of staticImageList.entries()) {
-		count++;
-		await generateImage(
-			pipeline,
-			imageData[1].options,
-			imageData[1].path,
-			count,
-			staticImageList.size
-		);
-	}
-
+	// Generate optimized images, if any.
+	await generateImages(pipeline);
 	delete globalThis?.astroAsset?.addStaticImage;
 
 	await runHookBuildGenerated({
 		config: opts.settings.config,
 		logger: pipeline.getLogger(),
 	});
-
-	logger.info(null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 }
 
 async function generateImage(
 	pipeline: BuildPipeline,
 	transform: ImageTransform,
 	path: string,
-	count: number,
-	totalCount: number
 ) {
 	const logger = pipeline.getLogger();
 	let timeStart = performance.now();
@@ -238,16 +244,12 @@ async function generateImage(
 	}
 
 	const timeEnd = performance.now();
-	const timeChange = getTimeStat(timeStart, timeEnd);
-	const timeIncrease = `(+${timeChange})`;
 	const statsText = generationData.cached
-		? `(reused cache entry)`
-		: `(before: ${generationData.weight.before}kB, after: ${generationData.weight.after}kB)`;
-	const counter = `(${count}/${totalCount})`;
-	logger.info(
-		null,
-		`  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)} ${dim(counter)}`
-	);
+		? `(cached)`
+		: `(before: ${generationData.weight.before}kB, after: ${
+				generationData.weight.after
+		  }kB, ${getTimeStat(timeStart, timeEnd)})`;
+	logger.info(null, `${blue('▶')} ${path} ${dim(statsText)}`);
 }
 
 async function generatePage(
@@ -299,7 +301,7 @@ async function generatePage(
 
 	const icon =
 		pageData.route.type === 'page' || pageData.route.type === 'redirect'
-			? green('▶')
+			? blue('▶')
 			: magenta('λ');
 	if (isRelativePath(pageData.route.component)) {
 		logger.info(null, `${icon} ${pageData.route.route}`);
@@ -316,10 +318,10 @@ async function generatePage(
 		await generatePath(path, generationOptions, pipeline);
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(prevTimeEnd, timeEnd);
-		const timeIncrease = `(+${timeChange})`;
+		const timeIncrease = `(${timeChange})`;
 		const filePath = getOutputFilename(pipeline.getConfig(), path, pageData.route.type);
 		const lineIcon = i === paths.length - 1 ? '└─' : '├─';
-		logger.info(null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
+		logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
 		prevTimeEnd = timeEnd;
 	}
 }
@@ -345,16 +347,14 @@ async function getPathsForRoute(
 			logger,
 			ssr: isServerLikeOutput(opts.settings.config),
 		}).catch((err) => {
-			logger.debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
+			logger.debug('build', `├── ${bold(red('✗'))} ${route.component}`);
 			throw err;
 		});
 
 		const label = staticPaths.length === 1 ? 'page' : 'pages';
 		logger.debug(
 			'build',
-			`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(
-				`[${staticPaths.length} ${label}]`
-			)}`
+			`├── ${bold(green('✔'))} ${route.component} → ${magenta(`[${staticPaths.length} ${label}]`)}`
 		);
 
 		paths = staticPaths

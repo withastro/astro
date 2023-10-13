@@ -1,4 +1,4 @@
-import { bold } from 'kleur/colors';
+import { bold, cyan, underline } from 'kleur/colors';
 import fs from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
@@ -24,17 +24,24 @@ import { validateSupportedFeatures } from './astroFeaturesValidation.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
+	hookName,
 	hookResult,
 	timeoutMs = 3000,
 	logger,
 }: {
 	name: string;
+	hookName: string;
 	hookResult: T | Promise<T>;
 	timeoutMs?: number;
 	logger: Logger;
 }): Promise<T> {
 	const timeout = setTimeout(() => {
-		logger.info('build', `Waiting for the ${bold(name)} integration...`);
+		logger.info(
+			'build',
+			`Waiting for integration ${bold(JSON.stringify(name))}, hook ${bold(
+				JSON.stringify(hookName)
+			)}...`
+		);
 	}, timeoutMs);
 	const result = await hookResult;
 	clearTimeout(timeout);
@@ -171,6 +178,7 @@ export async function runHookConfigSetup({
 
 			await withTakingALongTimeMsg({
 				name: integration.name,
+				hookName: 'astro:config:setup',
 				hookResult: integration.hooks['astro:config:setup'](hooks),
 				logger,
 			});
@@ -202,6 +210,7 @@ export async function runHookConfigDone({
 		if (integration?.hooks?.['astro:config:done']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
+				hookName: 'astro:config:done',
 				hookResult: integration.hooks['astro:config:done']({
 					config: settings.config,
 					setAdapter(adapter) {
@@ -238,7 +247,13 @@ export async function runHookConfigDone({
 							if (!validationResult.assets) {
 								logger.warn(
 									'astro',
-									`The selected adapter ${adapter.name} does not support image optimization. To allow your project to build with the original, unoptimized images, the image service has been automatically switched to the 'noop' option. See https://docs.astro.build/en/reference/configuration-reference/#imageservice`
+									`The selected adapter ${
+										adapter.name
+									} does not support image optimization. The image service has been automatically set to 'noop'. See: ${cyan(
+										underline(
+											'https://docs.astro.build/en/reference/configuration-reference/#imageservice'
+										)
+									)}`
 								);
 								settings.config.image.service = {
 									entrypoint: 'astro/assets/services/noop',
@@ -269,6 +284,7 @@ export async function runHookServerSetup({
 		if (integration?.hooks?.['astro:server:setup']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
+				hookName: 'astro:server:setup',
 				hookResult: integration.hooks['astro:server:setup']({
 					server,
 					logger: getLogger(integration, logger),
@@ -292,6 +308,7 @@ export async function runHookServerStart({
 		if (integration?.hooks?.['astro:server:start']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
+				hookName: 'astro:server:start',
 				hookResult: integration.hooks['astro:server:start']({
 					address,
 					logger: getLogger(integration, logger),
@@ -313,6 +330,7 @@ export async function runHookServerDone({
 		if (integration?.hooks?.['astro:server:done']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
+				hookName: 'astro:server:done',
 				hookResult: integration.hooks['astro:server:done']({
 					logger: getLogger(integration, logger),
 				}),
@@ -335,6 +353,7 @@ export async function runHookBuildStart({
 
 			await withTakingALongTimeMsg({
 				name: integration.name,
+				hookName: 'astro:build:start',
 				hookResult: integration.hooks['astro:build:start']({ logger }),
 				logger: logging,
 			});
@@ -361,6 +380,7 @@ export async function runHookBuildSetup({
 		if (integration?.hooks?.['astro:build:setup']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
+				hookName: 'astro:build:setup',
 				hookResult: integration.hooks['astro:build:setup']({
 					vite,
 					pages,
@@ -397,6 +417,7 @@ export async function runHookBuildSsr({
 		if (integration?.hooks?.['astro:build:ssr']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
+				hookName: 'astro:build:ssr',
 				hookResult: integration.hooks['astro:build:ssr']({
 					manifest,
 					entryPoints,
@@ -422,6 +443,7 @@ export async function runHookBuildGenerated({
 		if (integration?.hooks?.['astro:build:generated']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
+				hookName: 'astro:build:generated',
 				hookResult: integration.hooks['astro:build:generated']({
 					dir,
 					logger: getLogger(integration, logger),
@@ -449,6 +471,7 @@ export async function runHookBuildDone({ config, pages, routes, logging }: RunHo
 
 			await withTakingALongTimeMsg({
 				name: integration.name,
+				hookName: 'astro:build:done',
 				hookResult: integration.hooks['astro:build:done']({
 					pages: pages.map((p) => ({ pathname: p })),
 					dir,

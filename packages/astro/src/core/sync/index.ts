@@ -117,7 +117,7 @@ export async function syncInternal(
 			switch (typesResult.reason) {
 				case 'no-content-dir':
 				default:
-					logger.info('content', 'No content directory found. Skipping type generation.');
+					logger.debug('content', 'No content directory found. Skipping type generation.');
 					return 0;
 			}
 		}

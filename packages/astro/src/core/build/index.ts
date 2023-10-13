@@ -1,4 +1,4 @@
-import * as colors from 'kleur/colors';
+import { blue, bold, green } from 'kleur/colors';
 import fs from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
@@ -142,10 +142,11 @@ class AstroBuilder {
 		await runHookBuildStart({ config: this.settings.config, logging: this.logger });
 		this.validateConfig();
 
-		this.logger.info('build', `output target: ${colors.green(this.settings.config.output)}`);
-		if (this.settings.adapter) {
-			this.logger.info('build', `deploy adapter: ${colors.green(this.settings.adapter.name)}`);
-		}
+		this.logger.info('build', `output: ${blue('"' + this.settings.config.output + '"')}`);
+		this.logger.info('build', `outDir: ${blue(fileURLToPath(this.settings.config.outDir))}`);
+		// if (this.settings.adapter) {
+		this.logger.info('build', `adapter: ${blue('@vercel/serverless')}`);
+		// }
 		this.logger.info('build', 'Collecting build info...');
 		this.timer.loadStart = performance.now();
 		const { assets, allPages } = await collectPagesData({
@@ -164,7 +165,7 @@ class AstroBuilder {
 		this.timer.buildStart = performance.now();
 		this.logger.info(
 			'build',
-			colors.dim(`Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
+			green(`✓ Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
 		);
 
 		const opts: StaticBuildOptions = {
@@ -235,6 +236,7 @@ class AstroBuilder {
 			);
 		}
 
+		// TODO: Remove in Astro 4.0
 		if (config.build.split === true) {
 			if (config.output === 'static') {
 				this.logger.warn(
@@ -277,12 +279,12 @@ class AstroBuilder {
 
 		let messages: string[] = [];
 		if (buildMode === 'static') {
-			messages = [`${pageCount} page(s) built in`, colors.bold(total)];
+			messages = [`${pageCount} page(s) built in`, bold(total)];
 		} else {
-			messages = ['Server built in', colors.bold(total)];
+			messages = ['Server built in', bold(total)];
 		}
 
 		logger.info('build', messages.join(' '));
-		logger.info('build', `${colors.bold('Complete!')}`);
+		logger.info('build', `${bold('Complete!')}`);
 	}
 }

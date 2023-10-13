@@ -1,7 +1,7 @@
 import { teardown } from '@astrojs/compiler';
 import * as eslexer from 'es-module-lexer';
 import glob from 'fast-glob';
-import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
+import { bgGreen, bgMagenta, black, green } from 'kleur/colors';
 import fs from 'node:fs';
 import path, { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -81,7 +81,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const ssrTime = performance.now();
 	opts.logger.info('build', `Building ${settings.config.output} entrypoints...`);
 	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
-	opts.logger.info('build', dim(`Completed in ${getTimeStat(ssrTime, performance.now())}.`));
+	opts.logger.info('build', green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 
 	settings.timer.end('SSR build');
 	settings.timer.start('Client build');
@@ -252,7 +252,6 @@ async function clientBuild(
 	container: AstroBuildPluginContainer
 ) {
 	const { settings, viteConfig } = opts;
-	const timer = performance.now();
 	const ssr = isServerLikeOutput(settings.config);
 	const out = ssr ? settings.config.build.client : getOutDirWithinCwd(settings.config.outDir);
 
@@ -267,7 +266,7 @@ async function clientBuild(
 	}
 
 	const { lastVitePlugins, vitePlugins } = container.runBeforeHook('client', input);
-	opts.logger.info(null, `\n${bgGreen(black(' building client '))}`);
+	opts.logger.info('SKIP_FORMAT', `\n${bgGreen(black(' building client (vite) '))}`);
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
@@ -306,7 +305,6 @@ async function clientBuild(
 	});
 
 	const buildResult = await vite.build(viteBuildConfig);
-	opts.logger.info(null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 	return buildResult;
 }
 

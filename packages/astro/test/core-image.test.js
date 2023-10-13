@@ -660,7 +660,6 @@ describe('astro:image', () => {
 			logs.length = 0;
 			let res = await fixture.fetch('/post');
 			await res.text();
-
 			expect(logs).to.have.a.lengthOf(1);
 			expect(logs[0].message).to.contain('Could not find requested image');
 		});

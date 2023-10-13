@@ -51,7 +51,7 @@ export default async function createStaticPreviewServer(
 
 	// Log server start URLs
 	logger.info(
-		null,
+		'SKIP_FORMAT',
 		msg.serverStart({
 			startupTime: performance.now() - startServerTime,
 			resolvedUrls: previewServer.resolvedUrls,
