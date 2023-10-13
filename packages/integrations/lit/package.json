@@ -50,11 +50,11 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "chai": "^4.3.10",
+    "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
     "lit": "^3.0.0",
     "mocha": "^10.2.0",
-    "sass": "^1.69.3"
+    "sass": "^1.66.1"
   },
   "peerDependencies": {
     "@webcomponents/template-shadowroot": "^0.2.1",
