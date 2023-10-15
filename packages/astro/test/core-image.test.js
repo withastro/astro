@@ -217,7 +217,7 @@ describe('astro:image', () => {
 
 				const srcset2 = parseSrcset($source.attr('srcset'));
 				expect(srcset2.every((src) => src.url.startsWith('/_image'))).to.equal(true);
-				expect(srcset2.map((src) => src.w)).to.deep.equal([undefined, 207]);
+				expect(srcset2.map((src) => src.w)).to.deep.equal([207]);
 			});
 
 			it('properly deduplicate srcset images', async () => {
