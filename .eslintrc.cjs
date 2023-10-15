@@ -17,7 +17,12 @@ module.exports = {
     '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
     '@typescript-eslint/no-unused-vars': [
       'error',
-      { argsIgnorePattern: '^_', ignoreRestSiblings: true },
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      },
     ],
     'no-only-tests/no-only-tests': 'error',
     '@typescript-eslint/no-shadow': ['error'],

@@ -156,6 +156,7 @@
     "mime": "^3.0.0",
     "ora": "^7.0.1",
     "p-limit": "^4.0.0",
+    "p-queue": "^7.4.1",
     "path-to-regexp": "^6.2.1",
     "preferred-pm": "^3.1.2",
     "probe-image-size": "^7.2.3",

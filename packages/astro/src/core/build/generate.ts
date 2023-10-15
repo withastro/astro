@@ -1,9 +1,9 @@
 import * as colors from 'kleur/colors';
 import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
 import fs from 'node:fs';
-import OS from 'node:os';
+import os from 'node:os';
 import { fileURLToPath } from 'node:url';
-import pLimit from 'p-limit';
+import PQueue from 'p-queue';
 import type { OutputAsset, OutputChunk } from 'rollup';
 import type { BufferEncoding } from 'vfile';
 import type {
@@ -11,7 +11,6 @@ import type {
 	AstroSettings,
 	ComponentInstance,
 	GetStaticPathsItem,
-	ImageTransform,
 	MiddlewareEndpointHandler,
 	RouteData,
 	RouteType,
@@ -20,8 +19,9 @@ import type {
 	SSRManifest,
 } from '../../@types/astro.js';
 import {
-	generateImage as generateImageInternal,
+	generateImagesForPath,
 	getStaticImageList,
+	prepareAssetsGeneration,
 } from '../../assets/build/generate.js';
 import { hasPrerenderedPages, type BuildInternals } from '../../core/build/internal.js';
 import {
@@ -198,19 +198,23 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		}
 	}
 
+	logger.info(null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
+
 	const staticImageList = getStaticImageList();
-	let imageCount = 0;
-
 	if (staticImageList.size) {
-		const cpuCount = OS.cpus().length;
-		const limit = pLimit(cpuCount);
 		logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`);
+		const cpuCount = os.cpus().length;
+		const assetsCreationEnvironment = await prepareAssetsGeneration(pipeline);
+		const queue = new PQueue({ concurrency: cpuCount });
 
-		await Promise.all(
-			Array.from(staticImageList.entries()).map((imageData) =>
-				limit(() => generateImage(imageData[1].options, imageData[1].path, staticImageList.size))
-			)
-		);
+		const assetsTimer = performance.now();
+		for (const [originalPath, transforms] of staticImageList) {
+			await generateImagesForPath(originalPath, transforms, assetsCreationEnvironment, queue);
+		}
+
+		await queue.onIdle();
+		const assetsTimeEnd = performance.now();
+		logger.info(null, dim(`Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
 
 		delete globalThis?.astroAsset?.addStaticImage;
 	}
@@ -219,30 +223,6 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		config: opts.settings.config,
 		logger: pipeline.getLogger(),
 	});
-
-	logger.info(null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
-
-	async function generateImage(transform: ImageTransform, path: string, totalCount: number) {
-		let timeStart = performance.now();
-		const generationData = await generateImageInternal(pipeline, transform, path);
-
-		if (!generationData) {
-			return;
-		}
-
-		const timeEnd = performance.now();
-		const timeChange = getTimeStat(timeStart, timeEnd);
-		const timeIncrease = `(+${timeChange})`;
-		const statsText = generationData.cached
-			? `(reused cache entry)`
-			: `(before: ${generationData.weight.before}kB, after: ${generationData.weight.after}kB)`;
-		const counter = `(${imageCount}/${totalCount})`;
-		logger.info(
-			null,
-			`  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)} ${dim(counter)}`
-		);
-		imageCount++;
-	}
 }
 
 async function generatePage(

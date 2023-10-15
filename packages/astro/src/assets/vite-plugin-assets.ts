@@ -12,6 +12,7 @@ import {
 } from '../core/path.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
+import { isESMImportedImage } from './internal.js';
 import { emitESMImage } from './utils/emitAsset.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
@@ -80,27 +81,35 @@ export default function assets({
 					if (!globalThis.astroAsset.staticImages) {
 						globalThis.astroAsset.staticImages = new Map<
 							string,
-							{ path: string; options: ImageTransform }
+							Map<string, { finalPath: string; transform: ImageTransform }>
 						>();
 					}
 
+					const originalImagePath = isESMImportedImage(options.src) ? options.src.src : options.src;
 					const hash = hashTransform(options, settings.config.image.service.entrypoint);
 
-					let filePath: string;
-					if (globalThis.astroAsset.staticImages.has(hash)) {
-						filePath = globalThis.astroAsset.staticImages.get(hash)!.path;
+					let finalFilePath: string;
+					let transformsForPath = globalThis.astroAsset.staticImages.get(originalImagePath);
+					let transformForHash = transformsForPath?.get(hash);
+					if (transformsForPath && transformForHash) {
+						finalFilePath = transformForHash.finalPath;
 					} else {
-						filePath = prependForwardSlash(
+						finalFilePath = prependForwardSlash(
 							joinPaths(settings.config.build.assets, propsToFilename(options, hash))
 						);
 
-						globalThis.astroAsset.staticImages.set(hash, { path: filePath, options: options });
+						if (!transformsForPath) {
+							globalThis.astroAsset.staticImages.set(originalImagePath, new Map());
+							transformsForPath = globalThis.astroAsset.staticImages.get(originalImagePath)!;
+						}
+
+						transformsForPath.set(hash, { finalPath: finalFilePath, transform: options });
 					}
 
 					if (settings.config.build.assetsPrefix) {
-						return joinPaths(settings.config.build.assetsPrefix, filePath);
+						return joinPaths(settings.config.build.assetsPrefix, finalFilePath);
 					} else {
-						return prependForwardSlash(joinPaths(settings.config.base, filePath));
+						return prependForwardSlash(joinPaths(settings.config.base, finalFilePath));
 					}
 				};
 			},
