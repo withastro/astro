@@ -78,7 +78,7 @@ export default defineConfig({
 
 Note that unlike other configuration options, `site` is set in the root `defineConfig` object, rather than inside the `sitemap()` call.
 
-Now, [build your site for production](https://docs.astro.build/en/reference/cli-reference/#astro-build) via the `astro build` command. You should find your sitemap under `dist/` for both `sitemap-index.xml` and `sitemap-0.xml`!
+Now, [build your site for production](https://docs.astro.build/en/reference/cli-reference/#astro-build) via the `astro build` command. You should find both `sitemap-index.xml` and `sitemap-0.xml` in your output directory—by default, `/dist`.
 
 > **Warning**
 > If you forget to add a `site`, you'll get a friendly warning when you build, and the `sitemap-index.xml` file won't be generated.
