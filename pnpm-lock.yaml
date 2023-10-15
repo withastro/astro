@@ -626,8 +626,8 @@ importers:
         specifier: ^7.1.0
         version: 7.1.0
       tsconfck:
-        specifier: 3.0.0-next.9
-        version: 3.0.0-next.9(typescript@5.1.6)
+        specifier: ^3.0.0
+        version: 3.0.0(typescript@5.1.6)
       unist-util-visit:
         specifier: ^4.1.2
         version: 4.1.2
@@ -17138,8 +17138,8 @@ packages:
       code-block-writer: 12.0.0
     dev: true
 
-  /tsconfck@3.0.0-next.9(typescript@5.1.6):
-    resolution: {integrity: sha512-bgVlu3qcRUZpm9Au1IHiPDkb8XU+72bRkXrBaJsiAjIlixtkbKLe4q1odrrqG0rVHvh0Q4R3adT/nh1FwzftXA==}
+  /tsconfck@3.0.0(typescript@5.1.6):
+    resolution: {integrity: sha512-w3wnsIrJNi7avf4Zb0VjOoodoO0woEqGgZGQm+LHH9przdUI+XDKsWAXwxHA1DaRTjeuZNcregSzr7RaA8zG9A==}
     engines: {node: ^18 || >=20}
     hasBin: true
     peerDependencies:
