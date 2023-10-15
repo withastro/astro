@@ -26,11 +26,12 @@ interface GenerationDataCached {
 
 type GenerationData = GenerationDataUncached | GenerationDataCached;
 
-export async function prepareAssetsGeneration(pipeline: BuildPipeline) {
+export async function prepareAssetsGenerationEnv(pipeline: BuildPipeline, totalCount: number) {
 	const config = pipeline.getConfig();
 	const logger = pipeline.getLogger();
 	let useCache = true;
 	const assetsCacheDir = new URL('assets/', config.cacheDir);
+	const count = { total: totalCount, current: 1 };
 
 	// Ensure that the cache directory exists
 	try {
@@ -54,6 +55,7 @@ export async function prepareAssetsGeneration(pipeline: BuildPipeline) {
 
 	return {
 		logger,
+		count,
 		useCache,
 		assetsCacheDir,
 		serverRoot,
@@ -66,7 +68,7 @@ export async function prepareAssetsGeneration(pipeline: BuildPipeline) {
 export async function generateImagesForPath(
 	originalFilePath: string,
 	transforms: Map<string, { finalPath: string; transform: ImageTransform }>,
-	env: Awaited<ReturnType<typeof prepareAssetsGeneration>>,
+	env: Awaited<ReturnType<typeof prepareAssetsGenerationEnv>>,
 	queue: PQueue
 ) {
 	const originalImageData = await loadImage(originalFilePath, env);
@@ -95,7 +97,12 @@ export async function generateImagesForPath(
 		const statsText = generationData.cached
 			? `(reused cache entry)`
 			: `(before: ${generationData.weight.before}kB, after: ${generationData.weight.after}kB)`;
-		env.logger.info(null, `  ${green('▶')} ${filepath} ${dim(statsText)} ${dim(timeIncrease)}`);
+		const count = `(${env.count.current}/${env.count.total})`;
+		env.logger.info(
+			null,
+			`  ${green('▶')} ${filepath} ${dim(statsText)} ${dim(timeIncrease)} ${dim(count)}`
+		);
+		env.count.current++;
 	}
 
 	async function generateImageInternal(
@@ -205,7 +212,7 @@ export function getStaticImageList(): NonNullable<typeof globalThis.astroAsset.s
 
 async function loadImage(
 	path: string,
-	env: Awaited<ReturnType<typeof prepareAssetsGeneration>>
+	env: Awaited<ReturnType<typeof prepareAssetsGenerationEnv>>
 ): Promise<{ data: Buffer; expires: number }> {
 	if (isRemotePath(path)) {
 		const remoteImage = await loadRemoteImage(path);

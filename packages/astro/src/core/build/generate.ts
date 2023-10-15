@@ -21,7 +21,7 @@ import type {
 import {
 	generateImagesForPath,
 	getStaticImageList,
-	prepareAssetsGeneration,
+	prepareAssetsGenerationEnv,
 } from '../../assets/build/generate.js';
 import { hasPrerenderedPages, type BuildInternals } from '../../core/build/internal.js';
 import {
@@ -203,8 +203,12 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const staticImageList = getStaticImageList();
 	if (staticImageList.size) {
 		logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`);
+
+		const totalCount = Array.from(staticImageList.values())
+			.map((x) => x.size)
+			.reduce((a, b) => a + b, 0);
 		const cpuCount = os.cpus().length;
-		const assetsCreationEnvironment = await prepareAssetsGeneration(pipeline);
+		const assetsCreationEnvironment = await prepareAssetsGenerationEnv(pipeline, totalCount);
 		const queue = new PQueue({ concurrency: cpuCount });
 
 		const assetsTimer = performance.now();
