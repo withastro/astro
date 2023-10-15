@@ -25,11 +25,12 @@ const optimizedImages: GetImageResult[] = await Promise.all(
 );
 
 const fallbackFormat =
-	props.fallbackFormat ?? isESMImportedImage(props.src)
+	props.fallbackFormat ??
+	(isESMImportedImage(props.src)
 		? ['svg', 'gif'].includes(props.src.format)
 			? props.src.format
 			: 'png'
-		: 'png';
+		: 'png');
 
 const fallbackImage = await getImage({
 	...props,
