@@ -68,16 +68,16 @@ const style = /* css */ `
     --toggle-border-color: #C3CADB;
 
   /* Syntax Highlighting */
-  --shiki-color-text: #000000;
-  --shiki-token-constant: #4ca48f;
-  --shiki-token-string: #9f722a;
-  --shiki-token-comment: #8490b5;
-  --shiki-token-keyword: var(--accent);
-  --shiki-token-parameter: #aa0000;
-  --shiki-token-function: #4ca48f;
-  --shiki-token-string-expression: #9f722a;
-  --shiki-token-punctuation: #ffffff;
-  --shiki-token-link: #9f722a;
+  --astro-code-color-text: #000000;
+  --astro-code-token-constant: #4ca48f;
+  --astro-code-token-string: #9f722a;
+  --astro-code-token-comment: #8490b5;
+  --astro-code-token-keyword: var(--accent);
+  --astro-code-token-parameter: #aa0000;
+  --astro-code-token-function: #4ca48f;
+  --astro-code-token-string-expression: #9f722a;
+  --astro-code-token-punctuation: #ffffff;
+  --astro-code-token-link: #9f722a;
 }
 
 :host(.astro-dark) {
@@ -121,16 +121,16 @@ const style = /* css */ `
   --toggle-border-color: #3D4663;
 
   /* Syntax Highlighting */
-  --shiki-color-text: #ffffff;
-  --shiki-token-constant: #90f4e3;
-  --shiki-token-string: #f4cf90;
-  --shiki-token-comment: #8490b5;
-  --shiki-token-keyword: var(--accent);
-  --shiki-token-parameter: #aa0000;
-  --shiki-token-function: #90f4e3;
-  --shiki-token-string-expression: #f4cf90;
-  --shiki-token-punctuation: #ffffff;
-  --shiki-token-link: #f4cf90;
+  --astro-code-color-text: #ffffff;
+  --astro-code-token-constant: #90f4e3;
+  --astro-code-token-string: #f4cf90;
+  --astro-code-token-comment: #8490b5;
+  --astro-code-token-keyword: var(--accent);
+  --astro-code-token-parameter: #aa0000;
+  --astro-code-token-function: #90f4e3;
+  --astro-code-token-string-expression: #f4cf90;
+  --astro-code-token-punctuation: #ffffff;
+  --astro-code-token-link: #f4cf90;
 }
 
 #theme-toggle-wrapper{
