@@ -11,7 +11,7 @@ type Props = (LocalImageProps | RemoteImageProps) & {
 	pictureAttributes?: HTMLAttributes<'picture'>;
 };
 
-const { formats = ['webp'], pictureAttributes = {}, ...props } = Astro.props;
+const { formats = ['webp'], pictureAttributes = {}, fallbackFormat, ...props } = Astro.props;
 
 if (props.alt === undefined || props.alt === null) {
 	throw new AstroError(AstroErrorData.ImageMissingAlt);
@@ -24,16 +24,14 @@ const optimizedImages: GetImageResult[] = await Promise.all(
 	)
 );
 
-const fallbackFormat =
-	props.fallbackFormat ?? isESMImportedImage(props.src)
-		? ['svg', 'gif'].includes(props.src.format)
-			? props.src.format
-			: 'png'
-		: 'png';
+let resultFallbackFormat = fallbackFormat ?? 'png';
+if (isESMImportedImage(props.src) && ['gif', 'svg'].includes(props.src.format)) {
+	resultFallbackFormat = props.src.format;
+}
 
 const fallbackImage = await getImage({
 	...props,
-	format: fallbackFormat,
+	format: resultFallbackFormat,
 	widths: props.widths,
 	densities: props.densities,
 });

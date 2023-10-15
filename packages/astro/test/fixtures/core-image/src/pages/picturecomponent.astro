@@ -10,3 +10,7 @@ import myImage from "../assets/penguin1.jpg";
 <div id="picture-widths">
 <Picture src={myImage} width={Math.round(myImage.width / 2)} alt="A penguin" widths={[myImage.width]} />
 </div>
+
+<div id="picture-fallback">
+<Picture src={myImage} fallbackFormat="jpeg" alt="A penguin" />
+</div>

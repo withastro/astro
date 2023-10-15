@@ -195,8 +195,16 @@ describe('astro:image', () => {
 				let html = await res.text();
 				$ = cheerio.load(html);
 
+				// Fallback format
+				let $img = $('#picture-fallback img');
+				expect($img).to.have.a.lengthOf(1);
+
+				const imageURL = new URL($img.attr('src'), 'http://localhost');
+				expect(imageURL.searchParams.get('f')).to.equal('jpeg');
+				expect($img.attr('fallbackformat')).to.be.undefined;
+
 				// Densities
-				let $img = $('#picture-density-2-format img');
+				$img = $('#picture-density-2-format img');
 				let $picture = $('#picture-density-2-format picture');
 				let $source = $('#picture-density-2-format source');
 				expect($img).to.have.a.lengthOf(1);
