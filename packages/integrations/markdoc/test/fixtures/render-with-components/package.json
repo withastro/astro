@@ -5,8 +5,5 @@
   "dependencies": {
     "@astrojs/markdoc": "workspace:*",
     "astro": "workspace:*"
-  },
-  "devDependencies": {
-    "shiki": "^0.14.3"
   }
 }

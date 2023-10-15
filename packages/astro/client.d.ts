@@ -53,6 +53,7 @@ declare module 'astro:assets' {
 		imageConfig: import('./dist/@types/astro.js').AstroConfig['image'];
 		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
 		Image: typeof import('./components/Image.astro').default;
+		Picture: typeof import('./components/Picture.astro').default;
 	};
 
 	type ImgAttributes = import('./dist/type-utils.js').WithRequired<
@@ -66,17 +67,10 @@ declare module 'astro:assets' {
 	export type RemoteImageProps = import('./dist/type-utils.js').Simplify<
 		import('./dist/assets/types.js').RemoteImageProps<ImgAttributes>
 	>;
-	export const { getImage, getConfiguredImageService, imageConfig, Image }: AstroAssets;
+	export const { getImage, getConfiguredImageService, imageConfig, Image, Picture }: AstroAssets;
 }
 
-type InputFormat = import('./dist/assets/types.js').ImageInputFormat;
-
-interface ImageMetadata {
-	src: string;
-	width: number;
-	height: number;
-	format: InputFormat;
-}
+type ImageMetadata = import('./dist/assets/types.js').ImageMetadata;
 
 declare module '*.gif' {
 	const metadata: ImageMetadata;

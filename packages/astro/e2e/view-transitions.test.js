@@ -753,6 +753,21 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
 
+	test('Use the client side router in framework components', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/client-load'));
+
+		// the button is set to naviagte() to /two
+		const button = page.locator('#react-client-load-navigate-button');
+
+		await expect(button, 'should have content').toHaveText('Navigate to `/two`');
+
+		await button.click();
+
+		const p = page.locator('#two');
+
+		await expect(p, 'should have content').toHaveText('Page 2');
+	});
+
 	test('body inline scripts do not re-execute on navigation', async ({ page, astro }) => {
 		const errors = [];
 		page.addListener('pageerror', (err) => {
@@ -773,7 +788,7 @@ test.describe('View Transitions', () => {
 
 	test('replace history', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/one'));
-		// page six loads the router and automatically uses the router to navigate to page 1
+
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
@@ -817,5 +832,25 @@ test.describe('View Transitions', () => {
 		await page.goBack();
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
+	});
+
+	test('Keep focus on transition', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/page-with-persistent-form'));
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Form 1');
+
+		locator = page.locator('#input');
+		await locator.type('Hello');
+		await expect(locator).toBeFocused();
+		await locator.press('Enter');
+
+		await page.waitForURL(/.*name=Hello/);
+		locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Form 1');
+		locator = page.locator('#input');
+		await expect(locator).toBeFocused();
+
+		await locator.type(' World');
+		await expect(locator).toHaveValue('Hello World');
 	});
 });

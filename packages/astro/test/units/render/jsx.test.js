@@ -45,7 +45,7 @@ describe('core/render', () => {
 
 			const mod = createAstroModule(Page);
 			const ctx = await createRenderContext({
-				route: { type: 'page', pathname: '/index' },
+				route: { type: 'page', pathname: '/index', component: 'src/pages/index.mdx' },
 				request: new Request('http://example.com/'),
 				env,
 				mod,
@@ -91,7 +91,7 @@ describe('core/render', () => {
 
 			const mod = createAstroModule(Page);
 			const ctx = await createRenderContext({
-				route: { type: 'page', pathname: '/index' },
+				route: { type: 'page', pathname: '/index', component: 'src/pages/index.mdx' },
 				request: new Request('http://example.com/'),
 				env,
 				mod,
@@ -117,7 +117,7 @@ describe('core/render', () => {
 
 			const mod = createAstroModule(Page);
 			const ctx = await createRenderContext({
-				route: { type: 'page', pathname: '/index' },
+				route: { type: 'page', pathname: '/index', component: 'src/pages/index.mdx' },
 				request: new Request('http://example.com/'),
 				env,
 				mod,

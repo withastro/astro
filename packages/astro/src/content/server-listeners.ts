@@ -32,7 +32,7 @@ export async function attachContentServerListeners({
 				contentPaths.contentDir.href.replace(settings.config.root.href, '')
 			)} for changes`
 		);
-		const maybeTsConfigStats = getTSConfigStatsWhenAllowJsFalse({ contentPaths, settings });
+		const maybeTsConfigStats = await getTSConfigStatsWhenAllowJsFalse({ contentPaths, settings });
 		if (maybeTsConfigStats) warnAllowJsIsFalse({ ...maybeTsConfigStats, logger });
 		await attachListeners();
 	} else {
@@ -96,7 +96,7 @@ See ${bold('https://www.typescriptlang.org/tsconfig#allowJs')} for more informat
 	);
 }
 
-function getTSConfigStatsWhenAllowJsFalse({
+async function getTSConfigStatsWhenAllowJsFalse({
 	contentPaths,
 	settings,
 }: {
@@ -108,15 +108,15 @@ function getTSConfigStatsWhenAllowJsFalse({
 	);
 	if (!isContentConfigJsFile) return;
 
-	const inputConfig = loadTSConfig(fileURLToPath(settings.config.root), false);
-	const tsConfigFileName = inputConfig.exists && inputConfig.path.split(path.sep).pop();
+	const inputConfig = await loadTSConfig(fileURLToPath(settings.config.root));
+	if (typeof inputConfig === 'string') return;
+
+	const tsConfigFileName = inputConfig.tsconfigFile.split(path.sep).pop();
 	if (!tsConfigFileName) return;
 
 	const contentConfigFileName = contentPaths.config.url.pathname.split(path.sep).pop()!;
-	const allowJSOption = inputConfig?.config?.compilerOptions?.allowJs;
-	const hasAllowJs =
-		allowJSOption === true || (tsConfigFileName === 'jsconfig.json' && allowJSOption !== false);
-	if (hasAllowJs) return;
+	const allowJSOption = inputConfig.tsconfig.compilerOptions?.allowJs;
+	if (allowJSOption) return;
 
 	return { tsConfigFileName, contentConfigFileName };
 }
