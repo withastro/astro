@@ -47,6 +47,8 @@ const announce = () => {
 };
 
 const PERSIST_ATTR = 'data-astro-transition-persist';
+const VITE_ID = 'data-vite-dev-id';
+const CLIENT_ONLY = '?client-only=';
 
 let parser: DOMParser;
 
@@ -202,8 +204,10 @@ async function updateDOM(
 ) {
 	// Check for a head element that should persist and returns it,
 	// either because it has the data attribute or is a link el.
-	const persistedHeadElement = (el: HTMLElement): Element | null => {
+	// Returns null if the element is not part of the new head, undefined if it should be left alone.
+	const persistedHeadElement = (el: HTMLElement): Element | null | undefined => {
 		const id = el.getAttribute(PERSIST_ATTR);
+		if (id === '') return undefined;
 		const newEl = id && newDocument.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
 		if (newEl) {
 			return newEl;
@@ -226,7 +230,7 @@ async function updateDOM(
 		// The element that currently has the focus is part of a DOM tree
 		// that will survive the transition to the new document.
 		// Save the element and the cursor position
-		if (activeElement?.closest('[data-astro-transition-persist]')) {
+		if (activeElement?.closest(`[${PERSIST_ATTR}]`)) {
 			if (
 				activeElement instanceof HTMLInputElement ||
 				activeElement instanceof HTMLTextAreaElement
@@ -290,7 +294,7 @@ async function updateDOM(
 			// from the new document and leave the current node alone
 			if (newEl) {
 				newEl.remove();
-			} else {
+			} else if (newEl === null) {
 				// Otherwise remove the element in the head. It doesn't exist in the new page.
 				el.remove();
 			}
@@ -332,11 +336,9 @@ async function updateDOM(
 	for (const el of newDocument.querySelectorAll('head link[rel=stylesheet]')) {
 		// Do not preload links that are already on the page.
 		if (
-			!document.querySelector(
-				`[${PERSIST_ATTR}="${el.getAttribute(
-					PERSIST_ATTR
-				)}"], link[rel=stylesheet][href="${el.getAttribute('href')}"]`
-			)
+			!document.querySelector(`
+			[${PERSIST_ATTR}="${el.getAttribute(PERSIST_ATTR)}"], 
+			link[rel=stylesheet][href="${el.getAttribute('href')}"]`)
 		) {
 			const c = document.createElement('link');
 			c.setAttribute('rel', 'preload');
@@ -403,6 +405,8 @@ async function transition(
 		location.href = href;
 		return;
 	}
+
+	if (import.meta.env.DEV) await prepareForClientOnlyComponents(newDocument, toLocation);
 
 	if (!popState) {
 		// save the current scroll position before we change the DOM and transition to the new page
@@ -517,5 +521,47 @@ if (inBrowser) {
 		else addEventListener('scroll', throttle(updateState, 300));
 
 		markScriptsExec();
+	}
+}
+
+// Client:only components get their styles when they are hydrated.
+// They do not have their stylesheets in the DOM when the page is parsed from the file.
+// Persistent client:only components want to keep the styles
+// that Vite dynamically inserted into the current page.
+// Therefore, we identify these styles and mark them as persistent.
+async function prepareForClientOnlyComponents(newDocument: Document, _toLocation: URL) {
+	const persistentClientOnlyComponents = `
+	[${PERSIST_ATTR}] astro-island[client=only][component-url],
+										astro-island[client=only][component-url][${PERSIST_ATTR}]`;
+	const newPersistIds = [...newDocument.querySelectorAll(persistentClientOnlyComponents)].map(
+		(el) => el.closest(`[${PERSIST_ATTR}]`)!.getAttribute(PERSIST_ATTR)
+	);
+
+	// For all components that move to the next page: Add a random query parameter to their URL
+	const urls = new Set<string>();
+	for (const component of document.querySelectorAll(persistentClientOnlyComponents)) {
+		const id = component.closest(`[${PERSIST_ATTR}]`)!.getAttribute(PERSIST_ATTR);
+		if (newPersistIds.includes(id)) {
+			const componentURL = component.getAttribute('component-url')!;
+			const sixRandomChars = Math.random().toString(36).slice(2, 8);
+			const url = `${componentURL}${CLIENT_ONLY}${sixRandomChars}`;
+			urls.add(url);
+		}
+	}
+	// Import the URLs with the random query parameter and see which styles are loaded as a side effect.
+	await Promise.allSettled([...urls].map((url) => import(/* @vite-ignore */ url)));
+	// This can lead to new style elements in the header with viteDevId=xyz?client-only=... .
+	// (with empty content). These tell us: keep entries with viteDevId=xyz for the next page.
+
+	// Mark all those viteDevId=xyz styles as persistent
+	document.head
+		.querySelectorAll(`[${PERSIST_ATTR}=""]`)
+		.forEach((el) => el.removeAttribute(PERSIST_ATTR));
+	const usedOnNextPage = document.head.querySelectorAll(`style[${VITE_ID}*="${CLIENT_ONLY}"]`);
+	for (const style of usedOnNextPage) {
+		const id = style.getAttribute(VITE_ID)?.replace(/\?client-only=.*$/, '');
+		document.head.querySelectorAll(`style[${VITE_ID}="${id}"]`).forEach((keep) => {
+			keep.setAttribute(PERSIST_ATTR, '');
+		});
 	}
 }
