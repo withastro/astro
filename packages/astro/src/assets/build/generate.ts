@@ -2,14 +2,17 @@ import { dim, green } from 'kleur/colors';
 import fs, { readFileSync } from 'node:fs';
 import { basename, join } from 'node:path/posix';
 import PQueue from 'p-queue';
+import type { AstroConfig } from '../../@types/astro.js';
 import type { BuildPipeline } from '../../core/build/buildPipeline.js';
 import { getOutDirWithinCwd } from '../../core/build/common.js';
 import { getTimeStat } from '../../core/build/util.js';
+import type { Logger } from '../../core/logger/core.js';
 import { isRemotePath, prependForwardSlash } from '../../core/path.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
+import type { MapValue } from '../../type-utils.js';
 import { getConfiguredImageService, isESMImportedImage } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
-import type { ImageMetadata, ImageTransform } from '../types.js';
+import type { AssetsGlobalStaticImagesList, ImageMetadata, ImageTransform } from '../types.js';
 import { loadRemoteImage, type RemoteCacheEntry } from './remote.js';
 
 interface GenerationDataUncached {
@@ -26,7 +29,23 @@ interface GenerationDataCached {
 
 type GenerationData = GenerationDataUncached | GenerationDataCached;
 
-export async function prepareAssetsGenerationEnv(pipeline: BuildPipeline, totalCount: number) {
+type AssetEnv = {
+	logger: Logger;
+	count: { total: number; current: number };
+	useCache: boolean;
+	assetsCacheDir: URL;
+	serverRoot: URL;
+	clientRoot: URL;
+	imageConfig: AstroConfig['image'];
+	assetsFolder: AstroConfig['build']['assets'];
+};
+
+type ImageData = { data: Buffer; expires: number };
+
+export async function prepareAssetsGenerationEnv(
+	pipeline: BuildPipeline,
+	totalCount: number
+): Promise<AssetEnv> {
 	const config = pipeline.getConfig();
 	const logger = pipeline.getLogger();
 	let useCache = true;
@@ -67,8 +86,8 @@ export async function prepareAssetsGenerationEnv(pipeline: BuildPipeline, totalC
 
 export async function generateImagesForPath(
 	originalFilePath: string,
-	transforms: Map<string, { finalPath: string; transform: ImageTransform }>,
-	env: Awaited<ReturnType<typeof prepareAssetsGenerationEnv>>,
+	transforms: MapValue<AssetsGlobalStaticImagesList>,
+	env: AssetEnv,
 	queue: PQueue
 ) {
 	const originalImageData = await loadImage(originalFilePath, env);
@@ -80,7 +99,7 @@ export async function generateImagesForPath(
 	}
 
 	async function generateImage(
-		originalImage: { data: Buffer; expires: number },
+		originalImage: ImageData,
 		filepath: string,
 		options: ImageTransform
 	) {
@@ -106,7 +125,7 @@ export async function generateImagesForPath(
 	}
 
 	async function generateImageInternal(
-		originalImage: { data: Buffer; expires: number },
+		originalImage: ImageData,
 		filepath: string,
 		options: ImageTransform
 	): Promise<GenerationData | undefined> {
@@ -202,7 +221,7 @@ export async function generateImagesForPath(
 	}
 }
 
-export function getStaticImageList(): NonNullable<typeof globalThis.astroAsset.staticImages> {
+export function getStaticImageList(): AssetsGlobalStaticImagesList {
 	if (!globalThis?.astroAsset?.staticImages) {
 		return new Map();
 	}
@@ -210,10 +229,7 @@ export function getStaticImageList(): NonNullable<typeof globalThis.astroAsset.s
 	return globalThis.astroAsset.staticImages;
 }
 
-async function loadImage(
-	path: string,
-	env: Awaited<ReturnType<typeof prepareAssetsGenerationEnv>>
-): Promise<{ data: Buffer; expires: number }> {
+async function loadImage(path: string, env: AssetEnv): Promise<ImageData> {
 	if (isRemotePath(path)) {
 		const remoteImage = await loadRemoteImage(path);
 		return {

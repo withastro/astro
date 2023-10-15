@@ -8,12 +8,17 @@ export type ImageQuality = ImageQualityPreset | number;
 export type ImageInputFormat = (typeof VALID_INPUT_FORMATS)[number];
 export type ImageOutputFormat = (typeof VALID_OUTPUT_FORMATS)[number] | (string & {});
 
+export type AssetsGlobalStaticImagesList = Map<
+	string,
+	Map<string, { finalPath: string; transform: ImageTransform }>
+>;
+
 declare global {
 	// eslint-disable-next-line no-var
 	var astroAsset: {
 		imageService?: ImageService;
 		addStaticImage?: ((options: ImageTransform) => string) | undefined;
-		staticImages?: Map<string, Map<string, { finalPath: string; transform: ImageTransform }>>;
+		staticImages?: AssetsGlobalStaticImagesList;
 	};
 }
 
