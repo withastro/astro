@@ -85,7 +85,9 @@ export default function assets({
 						>();
 					}
 
-					const originalImagePath = isESMImportedImage(options.src) ? options.src.src : options.src;
+					const originalImagePath = (
+						isESMImportedImage(options.src) ? options.src.src : options.src
+					).replace(settings.config.build.assetsPrefix || '', '');
 					const hash = hashTransform(options, settings.config.image.service.entrypoint);
 
 					let finalFilePath: string;
