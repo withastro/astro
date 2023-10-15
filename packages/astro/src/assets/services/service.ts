@@ -238,7 +238,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		// However, if it's an imported image, we can use the original image's width as a maximum width
 		if (isESMImportedImage(options.src)) {
 			imageWidth = options.src.width;
-			maxWidth = imageWidth ?? Infinity;
+			maxWidth = imageWidth;
 		}
 
 		// If the user passed dimensions, we don't want to add it to the srcset
