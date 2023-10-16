@@ -8,11 +8,13 @@ import { etag } from '../utils/etag.js';
 // @ts-expect-error
 import { assetsDir, imageConfig } from 'astro:assets';
 
+function replaceFileSystemReferences(src: string) {
+	return os.platform().includes('win32') ? src.replace(/^\/@fs\//, '') : src.replace(/^\/@fs/, '');
+}
+
 async function loadLocalImage(src: string, url: URL) {
 	const filePath = import.meta.env.DEV
-		? removeQueryString(os.platform().includes('win32')
-    ? src.replace(/^\/@fs\//, '')
-    : src.replace(/^\/@fs/, ''))
+		? removeQueryString(replaceFileSystemReferences(src))
 		: new URL('.' + src, assetsDir);
 	let buffer: Buffer | undefined = undefined;
 
