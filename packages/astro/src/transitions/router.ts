@@ -532,6 +532,10 @@ async function prepareForClientOnlyComponents(newDocument: Document, _toLocation
 	[${PERSIST_ATTR}] astro-island[client=only],
 										astro-island[client=only][${PERSIST_ATTR}]`;
 
+	document.head
+		.querySelectorAll(`[${PERSIST_ATTR}='']`)
+		.forEach((el) => el.removeAttribute(PERSIST_ATTR));
+	
 	// transition:persist values on the next page
 	const newPersistIds = [...newDocument.querySelectorAll(PERSISTENT_CLIENT_ONLY)].map((el) =>
 		el.closest(`[${PERSIST_ATTR}]`)!.getAttribute(PERSIST_ATTR)
