@@ -12,7 +12,7 @@ describe('_routes.json generation', () => {
 
 					before(async () => {
 						fixture = await loadFixture({
-							root: import.meta.resolve('./fixtures/routes-json/'),
+							root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
 							srcDir: './src/mixed',
 							adapter: cloudflare({
 								mode,
@@ -39,7 +39,7 @@ describe('_routes.json generation', () => {
 
 					before(async () => {
 						fixture = await loadFixture({
-							root: import.meta.resolve('./fixtures/routes-json/'),
+							root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
 							srcDir: './src/dynamicOnly',
 							adapter: cloudflare({
 								mode,
@@ -66,7 +66,7 @@ describe('_routes.json generation', () => {
 
 					before(async () => {
 						fixture = await loadFixture({
-							root: import.meta.resolve('./fixtures/routes-json/'),
+							root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
 							srcDir: './src/staticOnly',
 							adapter: cloudflare({
 								mode,
@@ -93,7 +93,7 @@ describe('_routes.json generation', () => {
 
 					before(async () => {
 						fixture = await loadFixture({
-							root: import.meta.resolve('./fixtures/routes-json/'),
+							root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
 							srcDir: './src/dynamicOnly',
 							adapter: cloudflare({
 								mode,
@@ -121,7 +121,7 @@ describe('_routes.json generation', () => {
 
 					before(async () => {
 						fixture = await loadFixture({
-							root: import.meta.resolve('./fixtures/routes-json/'),
+							root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
 							srcDir: './src/staticOnly',
 							adapter: cloudflare({
 								mode,
@@ -149,7 +149,7 @@ describe('_routes.json generation', () => {
 
 					before(async () => {
 						fixture = await loadFixture({
-							root: import.meta.resolve('./fixtures/routes-json/'),
+							root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
 							srcDir: './src/mixed',
 							adapter: cloudflare({
 								mode,
@@ -180,7 +180,7 @@ describe('_routes.json generation', () => {
 
 					before(async () => {
 						fixture = await loadFixture({
-							root: import.meta.resolve('./fixtures/routes-json/'),
+							root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
 							srcDir: './src/mixed',
 							adapter: cloudflare({
 								mode,
