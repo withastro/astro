@@ -1,0 +1,12 @@
+---
+const runtime = Astro.locals.runtime;
+---
+<html>
+	<head>
+		<title>Testing</title>
+	</head>
+	<body>
+		<h1>Testing</h1>
+		<div id="hasCF">{!!runtime.cf?.colo}</div>
+	</body>
+</html>
