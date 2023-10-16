@@ -58,18 +58,18 @@
   can tell Astro if it can support it.
 
   ```ts
-  import { AstroIntegration } from "./astro";
+  import { AstroIntegration } from './astro';
 
   function myIntegration(): AstroIntegration {
     return {
-      name: "astro-awesome-list",
+      name: 'astro-awesome-list',
       // new feature map
       supportedAstroFeatures: {
-        hybridOutput: "experimental",
-        staticOutput: "stable",
-        serverOutput: "stable",
+        hybridOutput: 'experimental',
+        staticOutput: 'stable',
+        serverOutput: 'stable',
         assets: {
-          supportKind: "stable",
+          supportKind: 'stable',
           isSharpCompatible: false,
           isSquooshCompatible: false,
         },
@@ -176,18 +176,18 @@
   can tell Astro if it can support it.
 
   ```ts
-  import { AstroIntegration } from "./astro";
+  import { AstroIntegration } from './astro';
 
   function myIntegration(): AstroIntegration {
     return {
-      name: "astro-awesome-list",
+      name: 'astro-awesome-list',
       // new feature map
       supportedAstroFeatures: {
-        hybridOutput: "experimental",
-        staticOutput: "stable",
-        serverOutput: "stable",
+        hybridOutput: 'experimental',
+        staticOutput: 'stable',
+        serverOutput: 'stable',
         assets: {
-          supportKind: "stable",
+          supportKind: 'stable',
           isSharpCompatible: false,
           isSquooshCompatible: false,
         },
@@ -303,11 +303,11 @@
 
   ```js
   // astro.config.mjs
-  import { defineConfig } from "astro/config";
-  import netlify from "@astrojs/netlify/functions";
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify/functions';
 
   export default defineConfig({
-    output: "server",
+    output: 'server',
     adapter: netlify(),
     build: {
       split: true,
@@ -558,14 +558,14 @@
   The ability to customize SSR build configuration more granularly is now available in Astro. You can now customize the output folder for `server` (the server code for SSR), `client` (your client-side JavaScript and assets), and `serverEntry` (the name of the entrypoint server module). Here are the defaults:
 
   ```js
-  import { defineConfig } from "astro/config";
+  import { defineConfig } from 'astro/config';
 
   export default defineConfig({
-    output: "server",
+    output: 'server',
     build: {
-      server: "./dist/server/",
-      client: "./dist/client/",
-      serverEntry: "entry.mjs",
+      server: './dist/server/',
+      client: './dist/client/',
+      serverEntry: 'entry.mjs',
     },
   });
   ```
@@ -579,12 +579,12 @@
   ```js
   export default function myIntegration() {
     return {
-      name: "my-integration",
+      name: 'my-integration',
       hooks: {
-        "astro:config:setup": ({ updateConfig }) => {
+        'astro:config:setup': ({ updateConfig }) => {
           updateConfig({
             build: {
-              server: "...",
+              server: '...',
             },
           });
         },
@@ -629,12 +629,12 @@
 
   ```js
   export function post({ cookies }) {
-    cookies.set("loggedIn", false);
+    cookies.set('loggedIn', false);
 
     return new Response(null, {
       status: 302,
       headers: {
-        Location: "/login",
+        Location: '/login',
       },
     });
   }
@@ -885,8 +885,8 @@
   This change adds a Netlify adapter that uses Netlify Functions. You can use it like so:
 
   ```js
-  import { defineConfig } from "astro/config";
-  import netlify from "@astrojs/netlify/functions";
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify/functions';
 
   export default defineConfig({
     adapter: netlify(),
