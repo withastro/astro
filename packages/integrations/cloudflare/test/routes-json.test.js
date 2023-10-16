@@ -1,13 +1,15 @@
 import { expect } from 'chai';
-import { astroCli } from './_test-utils.js';
+import { loadFixture } from 'test-utils';
+import cloudflare from '../dist/index.js';
 
-const root = new URL('./fixtures/routes-json/', import.meta.url);
-
+/** @type {import('./test-utils.js').Fixture} */
 describe('_routes.json generation', () => {
 	for (const mode of ['directory', 'advanced']) {
 		for (const functionPerRoute of [false, true]) {
 			describe(`with mode=${mode}, functionPerRoute=${functionPerRoute}`, () => {
 				describe('of both functions and static files', () => {
+					let fixture;
+
 					before(async () => {
 						fixture = await loadFixture({
 							root: './fixtures/routes-json/',
