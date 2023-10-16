@@ -560,7 +560,7 @@ export const UnsupportedImageFormat = {
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
- * Astro does not currently supporting converting between vector (such as SVGs) and raster (such as PNGs and JPEGs) images.x
+ * Astro does not currently supporting converting between vector (such as SVGs) and raster (such as PNGs and JPEGs) images.
  */
 export const UnsupportedImageConversion = {
 	name: 'UnsupportedImageConversion',
