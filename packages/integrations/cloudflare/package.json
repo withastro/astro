@@ -1,4 +1,5 @@
 {
+  "//comment": "test changeset-bot",
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers/Pages",
   "version": "7.5.3",
@@ -8,14 +9,14 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
-    "directory": "packages/integrations/cloudflare"
+    "url": "https://github.com/withastro/adapters.git",
+    "directory": "packages/cloudflare"
   },
   "keywords": [
     "withastro",
     "astro-adapter"
   ],
-  "bugs": "https://github.com/withastro/astro/issues",
+  "bugs": "https://github.com/withastro/adapters/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
   "exports": {
     ".": "./dist/index.js",
