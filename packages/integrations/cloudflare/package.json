@@ -55,7 +55,7 @@
     "cheerio": "1.0.0-rc.12",
     "mocha": "^10.2.0",
     "wrangler": "^3.11.0",
-    "test-utils": "workspace:*"
+    "@astrojs/test-utils": "workspace:*"
   },
   "publishConfig": {
     "provenance": true

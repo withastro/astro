@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { loadFixture } from 'test-utils';
+import { loadFixture } from '@astrojs/test-utils';
 import cloudflare from '../dist/index.js';
 
 /** @type {import('./test-utils.js').Fixture} */
