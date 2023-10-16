@@ -1,4 +1,4 @@
-import type { AstroAdapter } from 'astro';
+import type { AstroAdapter, AstroFeatureMap } from 'astro';
 
 export function getAdapter({
 	isModeDirectory,
@@ -7,7 +7,7 @@ export function getAdapter({
 	isModeDirectory: boolean;
 	functionPerRoute: boolean;
 }): AstroAdapter {
-	const astroFeatures = {
+	const astroFeatures: AstroFeatureMap = {
 		hybridOutput: 'stable',
 		staticOutput: 'unsupported',
 		serverOutput: 'stable',
@@ -16,7 +16,7 @@ export function getAdapter({
 			isSharpCompatible: false,
 			isSquooshCompatible: false,
 		},
-	} satisfies AstroFeatureMap;
+	};
 
 	if (isModeDirectory) {
 		return {
