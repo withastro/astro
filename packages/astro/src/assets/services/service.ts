@@ -231,7 +231,8 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		const { widths, densities } = options;
 		const targetFormat = options.format ?? DEFAULT_OUTPUT_FORMAT;
 
-		// For remote images, we don't know the original image's dimensions, so we'll use the user's specified width as a maximum width
+		// For remote images, we don't know the original image's dimensions, so we cannot know the maximum width
+		// It is ultimately the user's responsibility to make sure they don't request images larger than the original
 		let imageWidth = options.width;
 		let maxWidth = Infinity;
 
@@ -241,12 +242,18 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			maxWidth = imageWidth;
 		}
 
-		// If the user passed dimensions, we don't want to add it to the srcset
-		const { width: transformWidth, height: transformHeight, src, ...rest } = options;
+		// Since `widths` and `densities` ultimately control the width and height of the image,
+		// we don't want the dimensions the user specified, we'll create those ourselves.
+		const {
+			width: transformWidth,
+			height: transformHeight,
+			...transformWithoutDimensions
+		} = options;
 
 		// Collect widths to generate from specified densities or widths
-		const allWidths: { width: number; descriptor: `${number}x` | `${number}w` }[] = [];
+		const allWidths: { maxTargetWidth: number; descriptor: `${number}x` | `${number}w` }[] = [];
 		if (densities) {
+			// Densities can either be specified as numbers, or descriptors (ex: '1x'), we'll convert them all to numbers
 			const densityValues = densities.map((density) => {
 				if (typeof density === 'number') {
 					return density;
@@ -255,50 +262,51 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				}
 			});
 
+			// Calculate the widths for each density, rounding to avoid floats.
 			const densityWidths = densityValues
 				.sort()
 				.map((density) => Math.round(targetWidth * density));
 
 			allWidths.push(
 				...densityWidths.map((width, index) => ({
-					width,
+					maxTargetWidth: Math.min(width, maxWidth),
 					descriptor: `${densityValues[index]}x` as const,
 				}))
 			);
 		} else if (widths) {
-			allWidths.push(...widths.map((width) => ({ width, descriptor: `${width}w` as const })));
+			allWidths.push(
+				...widths.map((width) => ({
+					maxTargetWidth: Math.min(width, maxWidth),
+					descriptor: `${width}w` as const,
+				}))
+			);
 		}
 
 		// Caution: The logic below is a bit tricky, as we need to make sure we don't generate the same image multiple times
 		// When making changes, make sure to test with different combinations of local/remote images widths, densities, and dimensions etc.
-		allWidths.forEach(({ width, descriptor }) => {
-			const maxTargetWidth = Math.min(width, maxWidth);
-
-			const transform: ImageTransform = {
-				src: options.src,
-				...rest,
-			};
+		for (const { maxTargetWidth, descriptor } of allWidths) {
+			const srcSetTransform: ImageTransform = { ...transformWithoutDimensions };
 
 			// Only set the width if it's different from the original image's width, to avoid generating the same image multiple times
 			if (maxTargetWidth !== imageWidth) {
-				transform.width = maxTargetWidth;
+				srcSetTransform.width = maxTargetWidth;
 			} else {
 				// If the width is the same as the original image's width, and we have both dimensions, it probably means
 				// it's a remote image, so we'll use the user's specified dimensions to avoid recreating the original image unnecessarily
 				if (options.width && options.height) {
-					transform.width = options.width;
-					transform.height = options.height;
+					srcSetTransform.width = options.width;
+					srcSetTransform.height = options.height;
 				}
 			}
 
 			srcSet.push({
-				transform: transform,
-				descriptor: descriptor,
+				transform: srcSetTransform,
+				descriptor,
 				attributes: {
 					type: `image/${targetFormat}`,
 				},
 			});
-		});
+		}
 
 		return srcSet;
 	},
@@ -347,6 +355,17 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 	},
 };
 
+/**
+ * Returns the final dimensions of an image based on the user's options.
+ *
+ * For local images:
+ * - If the user specified both width and height, we'll use those.
+ * - If the user specified only one of them, we'll use the original image's aspect ratio to calculate the other.
+ * - If the user didn't specify either, we'll use the original image's dimensions.
+ *
+ * For remote images:
+ * - Widths and heights are always required, so we'll use the user's specified width and height.
+ */
 function getTargetDimensions(options: ImageTransform) {
 	let targetWidth = options.width;
 	let targetHeight = options.height;
