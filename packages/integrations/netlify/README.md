@@ -50,7 +50,7 @@ If you prefer to install the adapter manually instead, complete the following tw
      // astro.config.mjs
      import { defineConfig } from 'astro/config';
    + import netlify from '@astrojs/netlify/functions';
-     
+
      export default defineConfig({
    +   output: 'server',
    +   adapter: netlify(),
@@ -86,9 +86,15 @@ In this example, `visitorCountry` and `hasEdgeMiddleware` would both be added to
 
 ```ts
 // src/netlify-edge-middleware.ts
-import type { Context } from 'https://edge.netlify.com';
+import type { Context } from "https://edge.netlify.com";
 
-export default function ({ request, context }: { request: Request; context: Context }) {
+export default function ({
+  request,
+  context,
+}: {
+  request: Request;
+  context: Context;
+}) {
   // Return serializable data to add to Astro.locals
   return {
     visitorCountry: context.geo.country.name,
@@ -112,11 +118,11 @@ The Netlify adapter builds to a single function by default. Astro 2.7 added supp
 
 ```js
 // astro.config.mjs
-import { defineConfig } from 'astro/config';
-import netlify from '@astrojs/netlify/functions';
+import { defineConfig } from "astro/config";
+import netlify from "@astrojs/netlify/functions";
 
 export default defineConfig({
-  output: 'server',
+  output: "server",
   adapter: netlify({
     functionPerRoute: true,
   }),
@@ -129,14 +135,14 @@ For static sites you usually don't need an adapter. However, if you use `redirec
 
 ```js
 // astro.config.mjs
-import { defineConfig } from 'astro/config';
-import netlify from '@astrojs/netlify/static';
+import { defineConfig } from "astro/config";
+import netlify from "@astrojs/netlify/static";
 
 export default defineConfig({
   adapter: netlify(),
 
   redirects: {
-    '/blog/old-post': '/blog/new-post',
+    "/blog/old-post": "/blog/new-post",
   },
 });
 ```
@@ -195,20 +201,20 @@ We build to the `dist` directory at the base of your project. To change this, us
 
 ```js
 // astro.config.mjs
-import { defineConfig } from 'astro/config';
-import netlify from '@astrojs/netlify/functions';
+import { defineConfig } from "astro/config";
+import netlify from "@astrojs/netlify/functions";
 
 export default defineConfig({
-  output: 'server',
+  output: "server",
   adapter: netlify({
-    dist: new URL('./dist/', import.meta.url),
+    dist: new URL("./dist/", import.meta.url),
   }),
 });
 ```
 
 And then point to the dist in your `netlify.toml`:
 
-```toml 
+```toml
 # netlify.toml
 [functions]
 directory = "dist/functions"
@@ -220,11 +226,11 @@ You can enable On-demand Builders using the `builders` option:
 
 ```js
 // astro.config.mjs
-import { defineConfig } from 'astro/config';
-import netlify from '@astrojs/netlify/functions';
+import { defineConfig } from "astro/config";
+import netlify from "@astrojs/netlify/functions";
 
 export default defineConfig({
-  output: 'server',
+  output: "server",
   adapter: netlify({
     builders: true,
   }),
@@ -243,16 +249,16 @@ We check for common mime types for audio, image, and video files. To include spe
 
 ```js
 // src/pages/image.jpg.ts
-import fs from 'node:fs';
+import fs from "node:fs";
 
 export function GET() {
-  const buffer = fs.readFileSync('../image.jpg');
+  const buffer = fs.readFileSync("../image.jpg");
 
   // Return the buffer directly, @astrojs/netlify will base64 encode the body
   return new Response(buffer, {
     status: 200,
     headers: {
-      'content-type': 'image/jpeg',
+      "content-type": "image/jpeg",
     },
   });
 }
