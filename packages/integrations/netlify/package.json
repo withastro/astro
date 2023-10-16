@@ -41,13 +41,13 @@
     "esbuild": "^0.19.2"
   },
   "peerDependencies": {
-    "astro": "^3.1.4"
+    "astro": "^3.3.0"
   },
   "devDependencies": {
     "@netlify/edge-functions": "^2.0.0",
     "@netlify/edge-handler-types": "^0.34.1",
     "@types/node": "^18.17.8",
-    "astro": "^3.1.4",
+    "astro": "^3.3.0",
     "chai": "^4.3.7",
     "chai-jest-snapshot": "^2.0.0",
     "cheerio": "1.0.0-rc.12",
@@ -56,7 +56,8 @@
     "mocha": "^10.2.0",
     "strip-ansi": "^7.1.0",
     "typescript": "^5.2.2",
-    "vite": "^4.4.9"
+    "vite": "^4.4.9",
+    "test-utils": "workspace:*"
   },
   "astro": {
     "external": true
