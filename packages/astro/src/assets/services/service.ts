@@ -198,6 +198,13 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			if (options.src.format === 'svg') {
 				options.format = 'svg';
 			}
+
+			if (
+				(options.src.format === 'svg' && options.format !== 'svg') ||
+				(options.src.format !== 'svg' && options.format === 'svg')
+			) {
+				throw new AstroError(AstroErrorData.UnsupportedImageConversion);
+			}
 		}
 
 		// If the user didn't specify a format, we'll default to `webp`. It offers the best ratio of compatibility / quality

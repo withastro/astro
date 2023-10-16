@@ -554,6 +554,21 @@ export const UnsupportedImageFormat = {
 		)} are supported by our image services.`,
 	hint: "Using an `img` tag directly instead of the `Image` component might be what you're looking for.",
 } satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * @description
+ * Astro does not currently supporting converting between vector (such as SVGs) and raster (such as PNGs and JPEGs) images.
+ */
+export const UnsupportedImageConversion = {
+	name: 'UnsupportedImageConversion',
+	title: 'Unsupported image conversion',
+	message:
+		'Converting between vector (such as SVGs) and raster (such as PNGs and JPEGs) images is not currently supported.',
+} satisfies ErrorData;
+
 /**
  * @docs
  * @see

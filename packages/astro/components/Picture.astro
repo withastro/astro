@@ -11,7 +11,16 @@ type Props = (LocalImageProps | RemoteImageProps) & {
 	pictureAttributes?: HTMLAttributes<'picture'>;
 };
 
-const { formats = ['webp'], pictureAttributes = {}, ...props } = Astro.props;
+const defaultFormats = ['webp'] as const;
+const defaultFallbackFormat = 'png' as const;
+
+// Certain formats don't want PNG fallbacks:
+// - GIF will typically want to stay as a gif, either for animation or for the lower amount of colors
+// - SVGs can't be converted to raster formats in most cases
+// For those, we'll use the original format as the fallback instead.
+const specialFormatsFallback = ['gif', 'svg'] as const;
+
+const { formats = defaultFormats, pictureAttributes = {}, fallbackFormat, ...props } = Astro.props;
 
 if (props.alt === undefined || props.alt === null) {
 	throw new AstroError(AstroErrorData.ImageMissingAlt);
@@ -24,16 +33,18 @@ const optimizedImages: GetImageResult[] = await Promise.all(
 	)
 );
 
-const fallbackFormat =
-	props.fallbackFormat ?? isESMImportedImage(props.src)
-		? ['svg', 'gif'].includes(props.src.format)
-			? props.src.format
-			: 'png'
-		: 'png';
+let resultFallbackFormat = fallbackFormat ?? defaultFallbackFormat;
+if (
+	!fallbackFormat &&
+	isESMImportedImage(props.src) &&
+	specialFormatsFallback.includes(props.src.format)
+) {
+	resultFallbackFormat = props.src.format;
+}
 
 const fallbackImage = await getImage({
 	...props,
-	format: fallbackFormat,
+	format: resultFallbackFormat,
 	widths: props.widths,
 	densities: props.densities,
 });
