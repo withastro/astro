@@ -42,7 +42,7 @@ export interface RenderErrorOptions {
 	response?: Response;
 	status: 404 | 500;
 	/**
-	 * Whether to call onRequest() while rendering the error page
+	 * Whether to call onRequest() while rendering the error page. Defaults to true.
 	*/
 	runMiddleware?: boolean;
 }
