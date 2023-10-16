@@ -3821,10 +3821,10 @@ importers:
   packages/integrations/lit:
     dependencies:
       '@lit-labs/ssr':
-        specifier: ^3.1.5
-        version: 3.1.5
+        specifier: 3.1.7
+        version: 3.1.7
       '@lit-labs/ssr-client':
-        specifier: ^1.1.3
+        specifier: 1.1.3
         version: 1.1.3
       '@lit-labs/ssr-dom-shim':
         specifier: ^1.1.1
@@ -8132,19 +8132,19 @@ packages:
   /@lit-labs/ssr-dom-shim@1.1.1:
     resolution: {integrity: sha512-kXOeFbfCm4fFf2A3WwVEeQj55tMZa8c8/f9AKHMobQMkzNUfUj+antR3fRPaZJawsa1aZiP/Da3ndpZrwEe4rQ==}
 
-  /@lit-labs/ssr@3.1.5:
-    resolution: {integrity: sha512-OvjM3CZGPRjZTIAgWvLCXS3sFj574rXfAzhtzQjgHYNxTuRy+LMfKpgeu8xF7PywdcOniVaLZuGKF4WS7YI7hA==}
+  /@lit-labs/ssr@3.1.7:
+    resolution: {integrity: sha512-eoH2Ech9lvk3VCMbG6d0yRqCJOD1Zs+ZKBRuGIxOG2OQoNYtQg8JV5JPeRhlx9OKy/wVAGPtIaWDL25n4mVjYQ==}
     engines: {node: '>=13.9.0'}
     dependencies:
       '@lit-labs/ssr-client': 1.1.3
       '@lit-labs/ssr-dom-shim': 1.1.1
       '@lit/reactive-element': 1.6.1
-      '@parse5/tools': 0.1.0
+      '@parse5/tools': 0.3.0
       '@types/node': 16.18.42
       enhanced-resolve: 5.14.0
       lit: 2.8.0
       lit-element: 3.3.2
-      lit-html: 2.7.4
+      lit-html: 2.8.0
       node-fetch: 3.3.1
       parse5: 7.1.2
     dev: false
@@ -8423,8 +8423,8 @@ packages:
       '@octokit/openapi-types': 18.0.0
     dev: true
 
-  /@parse5/tools@0.1.0:
-    resolution: {integrity: sha512-VB9+4BsFoS+4HdB/Ph9jD4FHQt7GyiWESVNfBSh8Eu54LujWyy+NySGLjg8GZFWSZcESG72F67LjgmKZDZCvPg==}
+  /@parse5/tools@0.3.0:
+    resolution: {integrity: sha512-zxRyTHkqb7WQMV8kTNBKWb1BeOFUKXBXTBWuxg9H9hfvQB3IwP6Iw2U75Ia5eyRxPNltmY7E8YAlz6zWwUnjKg==}
     dependencies:
       parse5: 7.1.2
     dev: false
@@ -13245,12 +13245,6 @@ packages:
       '@lit-labs/ssr-dom-shim': 1.1.1
       '@lit/reactive-element': 1.6.1
       lit-html: 2.8.0
-
-  /lit-html@2.7.4:
-    resolution: {integrity: sha512-/Jw+FBpeEN+z8X6PJva5n7+0MzCVAH2yypN99qHYYkq8bI+j7I39GH+68Z/MZD6rGKDK9RpzBw7CocfmHfq6+g==}
-    dependencies:
-      '@types/trusted-types': 2.0.3
-    dev: false
 
   /lit-html@2.8.0:
     resolution: {integrity: sha512-o9t+MQM3P4y7M7yNzqAyjp7z+mQGa4NS4CxiyLqFPyFWyc4O+nodLrkrxSaCTrla6M5YOLaT3RpbbqjszB5g3Q==}
