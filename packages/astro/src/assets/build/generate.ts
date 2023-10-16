@@ -103,12 +103,8 @@ export async function generateImagesForPath(
 		filepath: string,
 		options: ImageTransform
 	) {
-		let timeStart = performance.now();
+		const timeStart = performance.now();
 		const generationData = await generateImageInternal(originalImage, filepath, options);
-
-		if (!generationData) {
-			return;
-		}
 
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(timeStart, timeEnd);
@@ -128,7 +124,7 @@ export async function generateImagesForPath(
 		originalImage: ImageData,
 		filepath: string,
 		options: ImageTransform
-	): Promise<GenerationData | undefined> {
+	): Promise<GenerationData> {
 		const isLocalImage = isESMImportedImage(options.src);
 		const finalFileURL = new URL('.' + filepath, env.clientRoot);
 
@@ -147,6 +143,14 @@ export async function generateImagesForPath(
 			} else {
 				const JSONData = JSON.parse(readFileSync(cachedFileURL, 'utf-8')) as RemoteCacheEntry;
 
+				if (!JSONData.data || !JSONData.expires) {
+					await fs.promises.unlink(cachedFileURL);
+
+					throw new Error(
+						`Malformed cache entry for ${filepath}, cache will be regenerated for this file.`
+					);
+				}
+
 				// If the cache entry is not expired, use it
 				if (JSONData.expires > Date.now()) {
 					await fs.promises.writeFile(finalFileURL, Buffer.from(JSONData.data, 'base64'));
@@ -154,6 +158,8 @@ export async function generateImagesForPath(
 					return {
 						cached: true,
 					};
+				} else {
+					await fs.promises.unlink(cachedFileURL);
 				}
 			}
 		} catch (e: any) {
