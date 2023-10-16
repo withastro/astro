@@ -57,14 +57,13 @@ if (fallbackImage.srcSet.values.length > 0) {
 
 <picture {...pictureAttributes}>
 	{
-		Object.entries(optimizedImages).map(([_, image]) => (
-			<source
-				srcset={`${image.src}${
-					image.srcSet.values.length > 0 ? ' , ' + image.srcSet.attribute : ''
-				}`}
-				type={'image/' + image.options.format}
-			/>
-		))
+		Object.entries(optimizedImages).map(([_, image]) => {
+			const srcsetAttribute =
+				props.densities || (!props.densities && !props.widths)
+					? `${image.src}${image.srcSet.values.length > 0 ? ', ' + image.srcSet.attribute : ''}`
+					: image.srcSet.attribute;
+			return <source srcset={srcsetAttribute} type={'image/' + image.options.format} />;
+		})
 	}
 	<img src={fallbackImage.src} {...additionalAttributes} {...fallbackImage.attributes} />
 </picture>

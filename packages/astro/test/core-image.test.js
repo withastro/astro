@@ -225,7 +225,61 @@ describe('astro:image', () => {
 
 				const srcset2 = parseSrcset($source.attr('srcset'));
 				expect(srcset2.every((src) => src.url.startsWith('/_image'))).to.equal(true);
-				expect(srcset2.map((src) => src.w)).to.deep.equal([undefined, 207]);
+				expect(srcset2.map((src) => src.w)).to.deep.equal([207]);
+			});
+
+			it('properly deduplicate srcset images', async () => {
+				let res = await fixture.fetch('/srcset');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				let localImage = $('#local-3-images img');
+				expect(
+					new Set([
+						...parseSrcset(localImage.attr('srcset')).map((src) => src.url),
+						localImage.attr('src'),
+					]).size
+				).to.equal(3);
+
+				let remoteImage = $('#remote-3-images img');
+				expect(
+					new Set([
+						...parseSrcset(remoteImage.attr('srcset')).map((src) => src.url),
+						remoteImage.attr('src'),
+					]).size
+				).to.equal(3);
+
+				let local1x = $('#local-1x img');
+				expect(
+					new Set([
+						...parseSrcset(local1x.attr('srcset')).map((src) => src.url),
+						local1x.attr('src'),
+					]).size
+				).to.equal(1);
+
+				let remote1x = $('#remote-1x img');
+				expect(
+					new Set([
+						...parseSrcset(remote1x.attr('srcset')).map((src) => src.url),
+						remote1x.attr('src'),
+					]).size
+				).to.equal(1);
+
+				let local2Widths = $('#local-2-widths img');
+				expect(
+					new Set([
+						...parseSrcset(local2Widths.attr('srcset')).map((src) => src.url),
+						local2Widths.attr('src'),
+					]).size
+				).to.equal(2);
+
+				let remote2Widths = $('#remote-2-widths img');
+				expect(
+					new Set([
+						...parseSrcset(remote2Widths.attr('srcset')).map((src) => src.url),
+						remote2Widths.attr('src'),
+					]).size
+				).to.equal(2);
 			});
 		});
 
