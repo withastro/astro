@@ -103,9 +103,26 @@ declare const Astro: {
 					Astro[directive]!(
 						async () => {
 							const rendererUrl = this.getAttribute('renderer-url');
+							let componentUrl = this.getAttribute('component-url')!;
+							let styleSheetsAsSideEffect;
+
+							const regenerateStyles = this.closest(
+								'[data-astro-transition-persist][data-astro-regenerate-styles]'
+							);
+							if (directive === 'only' && regenerateStyles) {
+								// the view transition router sets regenerateStyles in DEV mode only
+								regenerateStyles.removeAttribute('data-astro-regenerate-styles');
+								const sixRandomChars = Math.random().toString(36).slice(2, 8);
+								styleSheetsAsSideEffect = `${componentUrl}${
+									componentUrl.includes('?') ? '&' : '?'
+								}client-only=${sixRandomChars}`;
+								await import(componentUrl);
+							}
 							const [componentModule, { default: hydrator }] = await Promise.all([
-								import(this.getAttribute('component-url')!),
+								import(componentUrl),
 								rendererUrl ? import(rendererUrl) : () => () => {},
+								// we are only interested in the side effect of reloading imported styles in DEV mode
+								styleSheetsAsSideEffect ? import(styleSheetsAsSideEffect) : () => () => {},
 							]);
 							const componentExport = this.getAttribute('component-export') || 'default';
 							if (!componentExport.includes('.')) {

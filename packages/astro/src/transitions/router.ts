@@ -48,7 +48,6 @@ const announce = () => {
 
 const PERSIST_ATTR = 'data-astro-transition-persist';
 const VITE_ID = 'data-vite-dev-id';
-const CLIENT_ONLY = '?client-only=';
 
 let parser: DOMParser;
 
@@ -310,16 +309,19 @@ async function updateDOM(
 
 		// this will reset scroll Position
 		document.body.replaceWith(newDocument.body);
+
 		for (const el of oldBody.querySelectorAll(`[${PERSIST_ATTR}]`)) {
 			const id = el.getAttribute(PERSIST_ATTR);
 			const newEl = document.querySelector(`[${PERSIST_ATTR}="${id}"]`);
 			if (newEl) {
 				// The element exists in the new page, replace it with the element
 				// from the old page so that state is preserved.
+
+				// signal the custom component script for astro-islands to reload imported style-sheets
+				if (import.meta.env.DEV) el.setAttribute('data-astro-regenerate-styles', '');
 				newEl.replaceWith(el);
 			}
 		}
-
 		restoreFocus(savedFocus);
 
 		if (popState) {
@@ -337,7 +339,7 @@ async function updateDOM(
 		// Do not preload links that are already on the page.
 		if (
 			!document.querySelector(`
-			[${PERSIST_ATTR}="${el.getAttribute(PERSIST_ATTR)}"], 
+			[${PERSIST_ATTR}="${el.getAttribute(PERSIST_ATTR)}"],
 			link[rel=stylesheet][href="${el.getAttribute('href')}"]`)
 		) {
 			const c = document.createElement('link');
@@ -524,44 +526,30 @@ if (inBrowser) {
 	}
 }
 
-// Client:only components get their styles when they are hydrated.
-// They do not have their stylesheets in the DOM when the page is parsed from the file.
-// Persistent client:only components want to keep the styles
-// that Vite dynamically inserted into the current page.
-// Therefore, we identify these styles and mark them as persistent.
+// For all Vue & Svelte components that move to the next page, mark their embedded styles as persistent.
 async function prepareForClientOnlyComponents(newDocument: Document, _toLocation: URL) {
-	const persistentClientOnlyComponents = `
-	[${PERSIST_ATTR}] astro-island[client=only][component-url],
-										astro-island[client=only][component-url][${PERSIST_ATTR}]`;
-	const newPersistIds = [...newDocument.querySelectorAll(persistentClientOnlyComponents)].map(
-		(el) => el.closest(`[${PERSIST_ATTR}]`)!.getAttribute(PERSIST_ATTR)
+	const PERSISTENT_CLIENT_ONLY = `
+	[${PERSIST_ATTR}] astro-island[client=only],
+										astro-island[client=only][${PERSIST_ATTR}]`;
+
+	// transition:persist values on the next page
+	const newPersistIds = [...newDocument.querySelectorAll(PERSISTENT_CLIENT_ONLY)].map((el) =>
+		el.closest(`[${PERSIST_ATTR}]`)!.getAttribute(PERSIST_ATTR)
 	);
-
-	// For all components that move to the next page: Add a random query parameter to their URL
-	const urls = new Set<string>();
-	for (const component of document.querySelectorAll(persistentClientOnlyComponents)) {
+	// transition:persist values on the current page
+	for (const component of document.querySelectorAll(PERSISTENT_CLIENT_ONLY)) {
 		const id = component.closest(`[${PERSIST_ATTR}]`)!.getAttribute(PERSIST_ATTR);
+		// on both pages
 		if (newPersistIds.includes(id)) {
+			// Vue or Svelte component?
 			const componentURL = component.getAttribute('component-url')!;
-			const sixRandomChars = Math.random().toString(36).slice(2, 8);
-			const url = `${componentURL}${CLIENT_ONLY}${sixRandomChars}`;
-			urls.add(url);
+			const match = componentURL.match(/\.(vue|svlete)$/);
+			if (match) {
+				// Mark the style sheet of the component as persistent
+				const selector = `style[${VITE_ID}*='${componentURL}?${match[1]}&type=style&']`;
+				const styles = document.head.querySelectorAll(selector);
+				styles.forEach((el) => el.setAttribute(PERSIST_ATTR, ''));
+			}
 		}
-	}
-	// Import the URLs with the random query parameter and see which styles are loaded as a side effect.
-	await Promise.allSettled([...urls].map((url) => import(/* @vite-ignore */ url)));
-	// This can lead to new style elements in the header with viteDevId=xyz?client-only=... .
-	// (with empty content). These tell us: keep entries with viteDevId=xyz for the next page.
-
-	// Mark all those viteDevId=xyz styles as persistent
-	document.head
-		.querySelectorAll(`[${PERSIST_ATTR}=""]`)
-		.forEach((el) => el.removeAttribute(PERSIST_ATTR));
-	const usedOnNextPage = document.head.querySelectorAll(`style[${VITE_ID}*="${CLIENT_ONLY}"]`);
-	for (const style of usedOnNextPage) {
-		const id = style.getAttribute(VITE_ID)?.replace(/\?client-only=.*$/, '');
-		document.head.querySelectorAll(`style[${VITE_ID}="${id}"]`).forEach((keep) => {
-			keep.setAttribute(PERSIST_ATTR, '');
-		});
 	}
 }

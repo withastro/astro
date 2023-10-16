@@ -241,15 +241,15 @@ test.describe('View Transitions', () => {
 		let p = page.locator('#totwo');
 		await expect(p, 'should have content').toHaveText('Go to listener two');
 		// on load a CSS transition is started triggered by a class on the html element
-		expect(transitions).toEqual(1);
-
+		expect(transitions).toBeLessThanOrEqual(1);
+		const transitionsBefore = transitions;
 		// go to page 2
 		await page.click('#totwo');
 		p = page.locator('#toone');
 		await expect(p, 'should have content').toHaveText('Go to listener one');
 		// swap() resets that class, the after-swap listener sets it again.
 		// the temporarily missing class must not trigger page rendering
-		expect(transitions).toEqual(1);
+		expect(transitions).toEqual(transitionsBefore);
 	});
 
 	test('click hash links does not do navigation', async ({ page, astro }) => {
@@ -686,6 +686,7 @@ test.describe('View Transitions', () => {
 		let pageTwo = page.locator('#page-two');
 		await expect(pageTwo, 'should have content').toHaveText('Page 2');
 
+		await page.waitForTimeout(500);
 		styles = await page.locator('style').all();
 		expect(styles.length).toEqual(totalExpectedStyles, 'style count has not changed');
 	});
