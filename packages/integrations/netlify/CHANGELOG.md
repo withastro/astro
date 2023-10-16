@@ -1,11 +1,5 @@
 # @astrojs/netlify
 
-## 3.0.3
-
-### Patch Changes
-
-- [#17](https://github.com/withastro/adapters/pull/17) [`9f83129`](https://github.com/withastro/adapters/commit/9f831295ad3665bbe6fcfaed0867759d361d431f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Updates repository information
-
 ## 3.0.2
 
 ### Patch Changes
