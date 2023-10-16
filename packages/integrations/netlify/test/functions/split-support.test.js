@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import netlifyAdapter from '../../dist/index.js';
 import { testIntegration } from './test-utils.js';
-import { loadFixture } from 'test-utils';
+import { loadFixture } from '@astrojs/test-utils';
 
 describe('Split support', () => {
 	/** @type {import('./test-utils').Fixture} */

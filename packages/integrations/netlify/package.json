@@ -57,7 +57,7 @@
     "strip-ansi": "^7.1.0",
     "typescript": "^5.2.2",
     "vite": "^4.4.9",
-    "test-utils": "workspace:*"
+    "@astrojs/test-utils": "workspace:*"
   },
   "astro": {
     "external": true
