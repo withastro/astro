@@ -21,7 +21,8 @@ describe('Function per Route', () => {
 		expect(existsSync(fileURLToPath(new URL('functions/blog/[post].js', root)))).to.be.true;
 		expect(existsSync(fileURLToPath(new URL('functions/[person]/[car].js', root)))).to.be.true;
 		expect(existsSync(fileURLToPath(new URL('functions/files/[[path]].js', root)))).to.be.true;
-		expect(existsSync(fileURLToPath(new URL('functions/[language]/files/[[path]].js', root)))).to.be.true;
+		expect(existsSync(fileURLToPath(new URL('functions/[language]/files/[[path]].js', root)))).to.be
+			.true;
 		expect(existsSync(fileURLToPath(new URL('functions/trpc/[trpc].js', root)))).to.be.true;
 		expect(existsSync(fileURLToPath(new URL('functions/javascript.js', root)))).to.be.true;
 		expect(existsSync(fileURLToPath(new URL('functions/test.json.js', root)))).to.be.true;

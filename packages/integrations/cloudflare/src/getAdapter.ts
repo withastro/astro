@@ -1,4 +1,4 @@
-import type { AstroAdapter, AstroFeatureMap } from 'astro';
+import type { AstroAdapter } from 'astro';
 
 export function getAdapter({
 	isModeDirectory,
