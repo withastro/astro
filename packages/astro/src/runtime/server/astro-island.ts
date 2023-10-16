@@ -106,6 +106,9 @@ declare const Astro: {
 							let componentUrl = this.getAttribute('component-url')!;
 							let styleSheetsAsSideEffect;
 
+							// Persistent client:only components lose their imported styles during view transitions
+							// Importing the component again will re-import the styles
+							// A random number in the query string will convince the browser that these are all new files
 							const regenerateStyles = this.closest(
 								'[data-astro-transition-persist][data-astro-regenerate-styles]'
 							);
@@ -116,7 +119,6 @@ declare const Astro: {
 								styleSheetsAsSideEffect = `${componentUrl}${
 									componentUrl.includes('?') ? '&' : '?'
 								}client-only=${sixRandomChars}`;
-								await import(componentUrl);
 							}
 							const [componentModule, { default: hydrator }] = await Promise.all([
 								import(componentUrl),
