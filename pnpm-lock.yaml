@@ -2689,12 +2689,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/fragments:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/get-static-paths-pages:
     dependencies:
       astro:
@@ -2947,6 +2941,12 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/parallel:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/partials:
     dependencies:
       astro:
         specifier: workspace:*

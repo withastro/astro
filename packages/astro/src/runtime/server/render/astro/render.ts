@@ -33,7 +33,7 @@ export async function renderToString(
 			// Automatic doctype insertion for pages
 			if (isPage && !renderedFirstPageChunk) {
 				renderedFirstPageChunk = true;
-				if (!result.fragment && !/<!doctype html/i.test(String(chunk))) {
+				if (!result.partial && !/<!doctype html/i.test(String(chunk))) {
 					const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
 					str += doctype;
 				}
@@ -84,7 +84,7 @@ export async function renderToReadableStream(
 					// Automatic doctype insertion for pages
 					if (isPage && !renderedFirstPageChunk) {
 						renderedFirstPageChunk = true;
-						if (!result.fragment && !/<!doctype html/i.test(String(chunk))) {
+						if (!result.partial && !/<!doctype html/i.test(String(chunk))) {
 							const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
 							controller.enqueue(encoder.encode(doctype));
 						}

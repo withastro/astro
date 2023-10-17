@@ -31,7 +31,7 @@ export interface CreateResultArgs {
 	renderers: SSRLoadedRenderer[];
 	clientDirectives: Map<string, string>;
 	compressHTML: boolean;
-	fragment: boolean;
+	partial: boolean;
 	resolve: (s: string) => Promise<string>;
 	/**
 	 * Used for `Astro.site`
@@ -156,7 +156,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		renderers: args.renderers,
 		clientDirectives: args.clientDirectives,
 		compressHTML: args.compressHTML,
-		fragment: args.fragment,
+		partial: args.partial,
 		pathname: args.pathname,
 		cookies,
 		/** This function returns the `Astro` faux-global */

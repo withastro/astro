@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
-describe('Fragments', () => {
+describe('Partials', () => {
 	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/fragments/',
+			root: './fixtures/partials/',
 		});
 	});
 
@@ -24,7 +24,7 @@ describe('Fragments', () => {
 		});
 
 		it('is only the written HTML', async () => {
-			const html = await fixture.fetch('/fragments/item/').then((res) => res.text());
+			const html = await fixture.fetch('/partials/item/').then((res) => res.text());
 			expect(html.startsWith('<li>')).to.equal(true);
 		});
 	});
@@ -35,7 +35,7 @@ describe('Fragments', () => {
 		});
 
 		it('is only the written HTML', async () => {
-			const html = await fixture.readFile('/fragments/item/index.html');
+			const html = await fixture.readFile('/partials/item/index.html');
 			expect(html.startsWith('<li>')).to.equal(true);
 		});
 	});

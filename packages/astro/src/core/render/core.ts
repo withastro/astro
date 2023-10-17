@@ -49,7 +49,7 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		clientDirectives: env.clientDirectives,
 		compressHTML: env.compressHTML,
 		request: renderContext.request,
-		fragment: !!mod.fragment,
+		partial: !!mod.partial,
 		site: env.site,
 		scripts: renderContext.scripts,
 		ssr: env.ssr,
