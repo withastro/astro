@@ -9,6 +9,7 @@ import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
 import DevPipeline from './devPipeline.js';
 import { handleRequest } from './request.js';
+import type { SSRManifestI18n } from '../core/app/types.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -85,6 +86,15 @@ export default function createVitePluginAstroServer({
  * @param renderers
  */
 export function createDevelopmentManifest(settings: AstroSettings): SSRManifest {
+	let i18nManifest: SSRManifestI18n | undefined = undefined;
+	if (settings.config.experimental.i18n) {
+		i18nManifest = {
+			fallback: settings.config.experimental.i18n.fallback,
+			fallbackControl: settings.config.experimental.i18n.fallbackControl,
+			defaultLocale: settings.config.experimental.i18n.defaultLocale,
+			locales: settings.config.experimental.i18n.locales,
+		};
+	}
 	return {
 		compressHTML: settings.config.compressHTML,
 		assets: new Set(),
@@ -99,5 +109,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			? new URL(settings.config.base, settings.config.site).toString()
 			: settings.config.site,
 		componentMetadata: new Map(),
+		i18n: i18nManifest,
 	};
 }
