@@ -9,8 +9,11 @@ import { joinPaths } from '../../path.js';
 import { fileURLToPath } from 'node:url';
 import type { ContentLookupMap } from '../../../content/utils.js';
 import { CONTENT_RENDER_FLAG } from '../../../content/consts.js';
+import glob from 'fast-glob';
+import { dirname } from 'node:path';
 
-function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap): VitePlugin {
+function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap, _internals: BuildInternals): VitePlugin {
+
 	return {
 		name: '@astro/plugin-build-content',
 
@@ -33,10 +36,6 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 			return newOptions;
 		},
 
-		resolveId(id) {
-			console.log(id);
-		},
-
 		async generateBundle() {
 			const content = await generateContentEntryFile({ settings: opts.settings, fs: fsMod, lookupMap });
 			this.emitFile({
@@ -44,6 +43,42 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 				code: content,
 				fileName: 'content/index.mjs'
 			})
+		},
+
+		async writeBundle(options, bundle) {
+			const dist = options.dir!
+			const cache = dist.replace('dist', 'node_modules/.astro/content-cache')
+			const callbacks: (() => void)[] = [];
+			if (fsMod.existsSync(cache)) {
+				const cachedFiles = await glob('**/*', {
+					cwd: cache,
+					onlyFiles: true
+				})
+				for (const file of cachedFiles) {
+					const filePath = joinPaths(dist, file);
+					const cachePath = joinPaths(cache, file);
+					callbacks.push(() => {
+						fsMod.mkdirSync(dirname(filePath), { recursive: true })
+						fsMod.copyFileSync(cachePath, filePath, fsMod.constants.COPYFILE_FICLONE)
+					})
+				}
+			} else {
+				fsMod.mkdirSync(cache, { recursive: true })
+				for (const [file, chunk] of Object.entries(bundle)) {
+					const cachePath = joinPaths(cache, file);
+					callbacks.push(() => {
+						fsMod.mkdirSync(dirname(cachePath), { recursive: true })
+						if (chunk.type === 'chunk') {
+							fsMod.writeFileSync(cachePath, chunk.code, { encoding: 'utf8' })
+						} else {
+							fsMod.writeFileSync(cachePath, chunk.source)
+						}
+					})
+				}
+			}
+			for (const cb of callbacks) {
+				cb();
+			}
 		}
 	};
 }
@@ -53,7 +88,7 @@ function collectionTypeToFlag(type: 'content' | 'data') {
 	return `astro${name}CollectionEntry`
 }
 
-export function pluginContent(opts: StaticBuildOptions, _internals: BuildInternals): AstroBuildPlugin {
+export function pluginContent(opts: StaticBuildOptions, internals: BuildInternals): AstroBuildPlugin {
 	return {
 		targets: ['content'],
 		hooks: {
@@ -62,9 +97,9 @@ export function pluginContent(opts: StaticBuildOptions, _internals: BuildInterna
 				const lookupMap = await generateLookupMap({ settings: opts.settings, fs: fsMod });
 				
 				return {
-					vitePlugin: vitePluginContent(opts, lookupMap),
+					vitePlugin: vitePluginContent(opts, lookupMap, internals),
 				};
-			},
+			}
 		},
 	};
 }

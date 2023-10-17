@@ -6,7 +6,7 @@ import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { appendForwardSlash, joinPaths, removeFileExtension, removeLeadingForwardSlash, slash } from '../core/path.js';
+import { appendForwardSlash, removeFileExtension, removeLeadingForwardSlash, slash } from '../core/path.js';
 import { rootRelativePath } from '../core/util.js';
 import { VIRTUAL_MODULE_ID } from './consts.js';
 import {
@@ -70,7 +70,7 @@ export async function generateContentEntryFile({
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 	const dataEntryExts = getDataEntryExts(settings);
 
-	const [contentEntryGlobResult, dataEntryGlobResult, renderEntryGlobResult] = await Promise.all([contentEntryExts, dataEntryExts, contentEntryExts].map((exts, i) => getStringifiedGlobResult(settings, exts, i === 2 ? '.render.mjs' : undefined)));
+	const [contentEntryGlobResult, dataEntryGlobResult, renderEntryGlobResult] = await Promise.all([contentEntryExts, dataEntryExts, contentEntryExts].map((exts, i) => getStringifiedGlobResult(settings, exts, i === 2 ? '.entry.mjs' : undefined)));
 
 	const virtualModContents = fs
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')

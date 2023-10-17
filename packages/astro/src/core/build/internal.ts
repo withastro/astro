@@ -30,6 +30,10 @@ export interface BuildInternals {
 	// Used to render pages with the correct specifiers.
 	entrySpecifierToBundleMap: Map<string, string>;
 
+	// A mapping of all specifiers referenced by the ssrBuild to their final location.
+	// This allows the contentBuild to externalize any shared assets!
+	serverModulesToOutputFile: Map<string, URL>;
+
 	/**
 	 * A map to get a specific page's bundled output file.
 	 */
@@ -110,6 +114,7 @@ export function createBuildInternals(): BuildInternals {
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,
 		entrySpecifierToBundleMap: new Map<string, string>(),
+		serverModulesToOutputFile: new Map<string, URL>(),
 		pageToBundleMap: new Map<string, string>(),
 		pagesByComponent: new Map(),
 		pageOptionsByPage: new Map(),
