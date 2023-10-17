@@ -13,9 +13,14 @@ type Events = 'astro:page-load' | 'astro:after-swap';
 // only update history entries that are managed by us
 // leave other entries alone and do not accidently add state.
 const persistState = (state: State) => history.state && history.replaceState(state, '');
-export const supportsViewTransitions = !!document.startViewTransition;
+
+const inBrowser = import.meta.env.SSR === false;
+
+export const supportsViewTransitions = inBrowser && !!document.startViewTransition;
+
 export const transitionEnabledOnThisPage = () =>
-	!!document.querySelector('[name="astro-view-transitions-enabled"]');
+	inBrowser && !!document.querySelector('[name="astro-view-transitions-enabled"]');
+
 const samePage = (otherLocation: URL) =>
 	location.pathname === otherLocation.pathname && location.search === otherLocation.search;
 const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
@@ -40,26 +45,27 @@ const announce = () => {
 		60
 	);
 };
+
 const PERSIST_ATTR = 'data-astro-transition-persist';
-const parser = new DOMParser();
-// explained at its usage
-let noopEl: HTMLDivElement;
-if (import.meta.env.DEV) {
-	noopEl = document.createElement('div');
-}
+
+let parser: DOMParser;
 
 // The History API does not tell you if navigation is forward or back, so
 // you can figure it using an index. On pushState the index is incremented so you
 // can use that to determine popstate if going forward or back.
 let currentHistoryIndex = 0;
-if (history.state) {
-	// we reloaded a page with history state
-	// (e.g. history navigation from non-transition page or browser reload)
-	currentHistoryIndex = history.state.index;
-	scrollTo({ left: history.state.scrollX, top: history.state.scrollY });
-} else if (transitionEnabledOnThisPage()) {
-	history.replaceState({ index: currentHistoryIndex, scrollX, scrollY, intraPage: false }, '');
+
+if (inBrowser) {
+	if (history.state) {
+		// we reloaded a page with history state
+		// (e.g. history navigation from non-transition page or browser reload)
+		currentHistoryIndex = history.state.index;
+		scrollTo({ left: history.state.scrollX, top: history.state.scrollY });
+	} else if (transitionEnabledOnThisPage()) {
+		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY, intraPage: false }, '');
+	}
 }
+
 const throttle = (cb: (...args: any[]) => any, delay: number) => {
 	let wait = false;
 	// During the waiting time additional events are lost.
@@ -151,18 +157,24 @@ function isInfinite(animation: Animation) {
 
 const updateHistoryAndScrollPosition = (toLocation: URL, replace: boolean, intraPage: boolean) => {
 	const fresh = !samePage(toLocation);
+	let scrolledToTop = false;
 	if (toLocation.href !== location.href) {
 		if (replace) {
 			history.replaceState({ ...history.state }, '', toLocation.href);
 		} else {
 			history.replaceState({ ...history.state, intraPage }, '');
-			history.pushState({ index: ++currentHistoryIndex, scrollX, scrollY }, '', toLocation.href);
+			history.pushState(
+				{ index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
+				'',
+				toLocation.href
+			);
 		}
 		// now we are on the new page for non-history navigations!
 		// (with history navigation page change happens before popstate is fired)
 		// freshly loaded pages start from the top
 		if (fresh) {
 			scrollTo({ left: 0, top: 0, behavior: 'instant' });
+			scrolledToTop = true;
 		}
 	}
 	if (toLocation.hash) {
@@ -171,7 +183,9 @@ const updateHistoryAndScrollPosition = (toLocation: URL, replace: boolean, intra
 		// that won't reload the page but instead scroll to the fragment
 		location.href = toLocation.href;
 	} else {
-		scrollTo({ left: 0, top: 0, behavior: 'instant' });
+		if (!scrolledToTop) {
+			scrollTo({ left: 0, top: 0, behavior: 'instant' });
+		}
 	}
 };
 
@@ -198,23 +212,46 @@ async function updateDOM(
 			const href = el.getAttribute('href');
 			return newDocument.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
 		}
-		// What follows is a fix for an issue (#8472) with missing client:only styles after transition.
-		// That problem exists only in dev mode where styles are injected into the page by Vite.
-		// Returning a noop element ensures that the styles are not removed from the old document.
-		// Guarding the code below with the dev mode check
-		// allows tree shaking to remove this code in production.
-		if (import.meta.env.DEV) {
-			if (el.tagName === 'STYLE' && el.dataset.viteDevId) {
-				const devId = el.dataset.viteDevId;
-				// If this same style tag exists, remove it from the new page
-				return (
-					newDocument.querySelector(`style[data-vite-dev-id="${devId}"]`) ||
-					// Otherwise, keep it anyways. This is client:only styles.
-					noopEl
-				);
+		return null;
+	};
+
+	type SavedFocus = {
+		activeElement: HTMLElement | null;
+		start?: number | null;
+		end?: number | null;
+	};
+
+	const saveFocus = (): SavedFocus => {
+		const activeElement = document.activeElement as HTMLElement;
+		// The element that currently has the focus is part of a DOM tree
+		// that will survive the transition to the new document.
+		// Save the element and the cursor position
+		if (activeElement?.closest('[data-astro-transition-persist]')) {
+			if (
+				activeElement instanceof HTMLInputElement ||
+				activeElement instanceof HTMLTextAreaElement
+			) {
+				const start = activeElement.selectionStart;
+				const end = activeElement.selectionEnd;
+				return { activeElement, start, end };
+			}
+			return { activeElement };
+		} else {
+			return { activeElement: null };
+		}
+	};
+
+	const restoreFocus = ({ activeElement, start, end }: SavedFocus) => {
+		if (activeElement) {
+			activeElement.focus();
+			if (
+				activeElement instanceof HTMLInputElement ||
+				activeElement instanceof HTMLTextAreaElement
+			) {
+				activeElement.selectionStart = start!;
+				activeElement.selectionEnd = end!;
 			}
 		}
-		return null;
 	};
 
 	const swap = () => {
@@ -265,6 +302,8 @@ async function updateDOM(
 		// Persist elements in the existing body
 		const oldBody = document.body;
 
+		const savedFocus = saveFocus();
+
 		// this will reset scroll Position
 		document.body.replaceWith(newDocument.body);
 		for (const el of oldBody.querySelectorAll(`[${PERSIST_ATTR}]`)) {
@@ -276,6 +315,8 @@ async function updateDOM(
 				newEl.replaceWith(el);
 			}
 		}
+
+		restoreFocus(savedFocus);
 
 		if (popState) {
 			scrollTo(popState.scrollX, popState.scrollY); // usings 'auto' scrollBehavior
@@ -349,6 +390,8 @@ async function transition(
 		toLocation = new URL(response.redirected);
 	}
 
+	parser ??= new DOMParser();
+
 	const newDocument = parser.parseFromString(response.html, response.mediaType);
 	// The next line might look like a hack,
 	// but it is actually necessary as noscript elements
@@ -385,7 +428,22 @@ async function transition(
 	}
 }
 
+let navigateOnServerWarned = false;
+
 export function navigate(href: string, options?: Options) {
+	if (inBrowser === false) {
+		if (!navigateOnServerWarned) {
+			// instantiate an error for the stacktrace to show to user.
+			const warning = new Error(
+				'The view transtions client API was called during a server side render. This may be unintentional as the navigate() function is expected to be called in response to user interactions. Please make sure that your usage is correct.'
+			);
+			warning.name = 'Warning';
+			console.warn(warning);
+			navigateOnServerWarned = true;
+		}
+		return;
+	}
+
 	// not ours
 	if (!transitionEnabledOnThisPage()) {
 		location.href = href;
@@ -403,58 +461,61 @@ export function navigate(href: string, options?: Options) {
 	}
 }
 
-if (supportsViewTransitions || getFallback() !== 'none') {
-	addEventListener('popstate', (ev) => {
-		if (!transitionEnabledOnThisPage() && ev.state) {
-			// The current page doesn't have View Transitions enabled
-			// but the page we navigate to does (because it set the state).
-			// Do a full page refresh to reload the client-side router from the new page.
-			// Scroll restauration will then happen during the reload when the router's code is re-executed
-			if (history.scrollRestoration) {
-				history.scrollRestoration = 'manual';
-			}
-			location.reload();
-			return;
-		}
-
-		// History entries without state are created by the browser (e.g. for hash links)
-		// Our view transition entries always have state.
-		// Just ignore stateless entries.
-		// The browser will handle navigation fine without our help
-		if (ev.state === null) {
-			if (history.scrollRestoration) {
-				history.scrollRestoration = 'auto';
-			}
-			return;
-		}
-
-		// With the default "auto", the browser will jump to the old scroll position
-		// before the ViewTransition is complete.
+function onPopState(ev: PopStateEvent) {
+	if (!transitionEnabledOnThisPage() && ev.state) {
+		// The current page doesn't have View Transitions enabled
+		// but the page we navigate to does (because it set the state).
+		// Do a full page refresh to reload the client-side router from the new page.
+		// Scroll restauration will then happen during the reload when the router's code is re-executed
 		if (history.scrollRestoration) {
 			history.scrollRestoration = 'manual';
 		}
+		location.reload();
+		return;
+	}
 
-		const state: State = history.state;
-		if (state.intraPage) {
-			// this is non transition intra-page scrolling
-			scrollTo(state.scrollX, state.scrollY);
-		} else {
-			const nextIndex = state.index;
-			const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
-			currentHistoryIndex = nextIndex;
-			transition(direction, new URL(location.href), {}, state);
+	// History entries without state are created by the browser (e.g. for hash links)
+	// Our view transition entries always have state.
+	// Just ignore stateless entries.
+	// The browser will handle navigation fine without our help
+	if (ev.state === null) {
+		if (history.scrollRestoration) {
+			history.scrollRestoration = 'auto';
 		}
-	});
+		return;
+	}
 
-	addEventListener('load', onPageLoad);
-	// There's not a good way to record scroll position before a back button.
-	// So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
-	const updateState = () => {
-		persistState({ ...history.state, scrollX, scrollY });
-	};
+	// With the default "auto", the browser will jump to the old scroll position
+	// before the ViewTransition is complete.
+	if (history.scrollRestoration) {
+		history.scrollRestoration = 'manual';
+	}
 
-	if ('onscrollend' in window) addEventListener('scrollend', updateState);
-	else addEventListener('scroll', throttle(updateState, 300));
+	const state: State = history.state;
+	if (state.intraPage) {
+		// this is non transition intra-page scrolling
+		scrollTo(state.scrollX, state.scrollY);
+	} else {
+		const nextIndex = state.index;
+		const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
+		currentHistoryIndex = nextIndex;
+		transition(direction, new URL(location.href), {}, state);
+	}
+}
 
-	markScriptsExec();
+if (inBrowser) {
+	if (supportsViewTransitions || getFallback() !== 'none') {
+		addEventListener('popstate', onPopState);
+		addEventListener('load', onPageLoad);
+		// There's not a good way to record scroll position before a back button.
+		// So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
+		const updateState = () => {
+			persistState({ ...history.state, scrollX, scrollY });
+		};
+
+		if ('onscrollend' in window) addEventListener('scrollend', updateState);
+		else addEventListener('scroll', throttle(updateState, 300));
+
+		markScriptsExec();
+	}
 }

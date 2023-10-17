@@ -14,6 +14,7 @@ export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 		root: typeof flags.root === 'string' ? flags.root : undefined,
 		site: typeof flags.site === 'string' ? flags.site : undefined,
 		base: typeof flags.base === 'string' ? flags.base : undefined,
+		outDir: typeof flags.outDir === 'string' ? flags.outDir : undefined,
 		markdown: {
 			drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
 		},

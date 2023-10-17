@@ -56,6 +56,7 @@ const service: LocalImageService = {
 	getURL: baseService.getURL,
 	parseURL: baseService.parseURL,
 	getHTMLAttributes: baseService.getHTMLAttributes,
+	getSrcSet: baseService.getSrcSet,
 	async transform(inputBuffer, transformOptions) {
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
 
@@ -76,12 +77,12 @@ const service: LocalImageService = {
 		if (transform.height && !transform.width) {
 			operations.push({
 				type: 'resize',
-				height: transform.height,
+				height: Math.round(transform.height),
 			});
 		} else if (transform.width) {
 			operations.push({
 				type: 'resize',
-				width: transform.width,
+				width: Math.round(transform.width),
 			});
 		}
 

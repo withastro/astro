@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { basename } from 'node:path';
 import { Writable } from 'node:stream';
+import parseSrcset from 'parse-srcset';
 import { removeDir } from '../dist/core/fs/index.js';
 import { Logger } from '../dist/core/logger/core.js';
 import testAdapter from './test-adapter.js';
@@ -187,6 +188,98 @@ describe('astro:image', () => {
 				res = await fixture.fetch(src);
 				expect(res.status).to.equal(200);
 				expect(res.headers.get('content-type')).to.equal('image/avif');
+			});
+
+			it('has a working Picture component', async () => {
+				let res = await fixture.fetch('/picturecomponent');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				// Fallback format
+				let $img = $('#picture-fallback img');
+				expect($img).to.have.a.lengthOf(1);
+
+				const imageURL = new URL($img.attr('src'), 'http://localhost');
+				expect(imageURL.searchParams.get('f')).to.equal('jpeg');
+				expect($img.attr('fallbackformat')).to.be.undefined;
+
+				// Densities
+				$img = $('#picture-density-2-format img');
+				let $picture = $('#picture-density-2-format picture');
+				let $source = $('#picture-density-2-format source');
+				expect($img).to.have.a.lengthOf(1);
+				expect($picture).to.have.a.lengthOf(1);
+				expect($source).to.have.a.lengthOf(2);
+
+				const srcset = parseSrcset($source.attr('srcset'));
+				expect(srcset.every((src) => src.url.startsWith('/_image'))).to.equal(true);
+				expect(srcset.map((src) => src.d)).to.deep.equal([undefined, 2]);
+
+				// Widths
+				$img = $('#picture-widths img');
+				$picture = $('#picture-widths picture');
+				$source = $('#picture-widths source');
+				expect($img).to.have.a.lengthOf(1);
+				expect($picture).to.have.a.lengthOf(1);
+				expect($source).to.have.a.lengthOf(1);
+
+				const srcset2 = parseSrcset($source.attr('srcset'));
+				expect(srcset2.every((src) => src.url.startsWith('/_image'))).to.equal(true);
+				expect(srcset2.map((src) => src.w)).to.deep.equal([207]);
+			});
+
+			it('properly deduplicate srcset images', async () => {
+				let res = await fixture.fetch('/srcset');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				let localImage = $('#local-3-images img');
+				expect(
+					new Set([
+						...parseSrcset(localImage.attr('srcset')).map((src) => src.url),
+						localImage.attr('src'),
+					]).size
+				).to.equal(3);
+
+				let remoteImage = $('#remote-3-images img');
+				expect(
+					new Set([
+						...parseSrcset(remoteImage.attr('srcset')).map((src) => src.url),
+						remoteImage.attr('src'),
+					]).size
+				).to.equal(3);
+
+				let local1x = $('#local-1x img');
+				expect(
+					new Set([
+						...parseSrcset(local1x.attr('srcset')).map((src) => src.url),
+						local1x.attr('src'),
+					]).size
+				).to.equal(1);
+
+				let remote1x = $('#remote-1x img');
+				expect(
+					new Set([
+						...parseSrcset(remote1x.attr('srcset')).map((src) => src.url),
+						remote1x.attr('src'),
+					]).size
+				).to.equal(1);
+
+				let local2Widths = $('#local-2-widths img');
+				expect(
+					new Set([
+						...parseSrcset(local2Widths.attr('srcset')).map((src) => src.url),
+						local2Widths.attr('src'),
+					]).size
+				).to.equal(2);
+
+				let remote2Widths = $('#remote-2-widths img');
+				expect(
+					new Set([
+						...parseSrcset(remote2Widths.attr('srcset')).map((src) => src.url),
+						remote2Widths.attr('src'),
+					]).size
+				).to.equal(2);
 			});
 		});
 
@@ -700,6 +793,26 @@ describe('astro:image', () => {
 			const src = $img.attr('src');
 			const data = await fixture.readFile(src, null);
 			expect(data).to.be.an.instanceOf(Buffer);
+		});
+
+		it('Picture component images are written', async () => {
+			const html = await fixture.readFile('/picturecomponent/index.html');
+			const $ = cheerio.load(html);
+			let $img = $('img');
+			let $source = $('source');
+
+			expect($img).to.have.a.lengthOf(1);
+			expect($source).to.have.a.lengthOf(2);
+
+			const srcset = parseSrcset($source.attr('srcset'));
+			let hasExistingSrc = await Promise.all(
+				srcset.map(async (src) => {
+					const data = await fixture.readFile(src.url, null);
+					return data instanceof Buffer;
+				})
+			);
+
+			expect(hasExistingSrc.every((src) => src === true)).to.deep.equal(true);
 		});
 
 		it('markdown images are written', async () => {

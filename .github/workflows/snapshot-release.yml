@@ -19,6 +19,11 @@ jobs:
     name: Create a snapshot release of a pull request
     if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && startsWith(github.event.comment.body, '!preview') }}
     runs-on: ubuntu-latest
+    permissions: 
+      contents: read 
+      id-token: write
+      issues: write
+      pull-requests: write
     steps:
       - name: "Check if user has admin access (only admins can publish snapshot releases)."
         uses: "lannonbr/repo-permission-check-action@2.0.0"
