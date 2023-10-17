@@ -14,11 +14,16 @@ import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
 import { isPromise } from '../util.js';
 import {
-	createAstroComponentInstance,
 	isAstroComponentFactory,
-	renderTemplate,
 	type AstroComponentFactory,
-} from './astro/index.js';
+} from './astro/factory.js';
+import {
+	createAstroComponentInstance
+} from './astro/instance.js'
+import {
+	renderTemplate,
+} from './astro/render-template.js';
+
 import {
 	Fragment,
 	Renderer,
