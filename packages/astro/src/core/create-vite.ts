@@ -135,7 +135,7 @@ export async function createVite(
 			vitePluginSSRManifest(),
 			astroAssetsPlugin({ settings, logger, mode }),
 			astroTransitions(),
-			!!settings.config.experimental.i18n && astroInternalization({ settings, logger }),
+			!!settings.config.experimental.i18n && astroInternalization({ settings }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

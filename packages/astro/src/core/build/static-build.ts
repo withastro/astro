@@ -148,7 +148,6 @@ async function ssrBuild(
 	const routes = Object.values(allPages)
 		.flat()
 		.map((pageData) => pageData.route);
-
 	const { lastVitePlugins, vitePlugins } = container.runBeforeHook('ssr', input);
 
 	const viteBuildConfig: vite.InlineConfig = {
