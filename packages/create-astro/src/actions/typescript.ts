@@ -1,8 +1,7 @@
 import type { Context } from './context.js';
 
 import { color } from '@astrojs/cli-kit';
-import fs from 'node:fs';
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import stripJsonComments from 'strip-json-comments';
 import { error, info, spinner, title, typescriptByDefault } from '../messages.js';
@@ -39,7 +38,7 @@ export async function typescript(
 	} else {
 		if (!['strict', 'strictest', 'relaxed', 'default', 'base'].includes(ts)) {
 			if (!ctx.dryRun) {
-				fs.rmSync(ctx.cwd, { recursive: true, force: true });
+				rm(ctx.cwd, { recursive: true, force: true });
 			}
 			error(
 				'Error',
