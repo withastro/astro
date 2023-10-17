@@ -65,6 +65,7 @@ import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 import { createI18nMiddleware } from '../../i18n/middleware.js';
 import { sequence } from '../middleware/index.js';
 import { routeIsFallback } from '../redirects/helpers.js';
+import type { SSRManifestI18n } from '../app/types.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -296,7 +297,7 @@ async function generatePage(
 
 	const pageModulePromise = ssrEntry.page;
 	const onRequest = ssrEntry.onRequest;
-	const i18nMiddleware = createI18nMiddleware(config, logger);
+	const i18nMiddleware = createI18nMiddleware(pipeline.getManifest().i18n);
 	if (config.experimental.i18n && i18nMiddleware) {
 		if (onRequest) {
 			pipeline.setMiddlewareFunction(
@@ -640,6 +641,15 @@ export function createBuildManifest(
 	internals: BuildInternals,
 	renderers: SSRLoadedRenderer[]
 ): SSRManifest {
+	let i18nManifest: SSRManifestI18n | undefined = undefined;
+	if (settings.config.experimental.i18n) {
+		i18nManifest = {
+			fallback: settings.config.experimental.i18n.fallback,
+			fallbackControl: settings.config.experimental.i18n.fallbackControl,
+			defaultLocale: settings.config.experimental.i18n.defaultLocale,
+			locales: settings.config.experimental.i18n.locales,
+		};
+	}
 	return {
 		assets: new Set(),
 		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
@@ -654,5 +664,6 @@ export function createBuildManifest(
 			? new URL(settings.config.base, settings.config.site).toString()
 			: settings.config.site,
 		componentMetadata: internals.componentMetadata,
+		i18n: i18nManifest,
 	};
 }

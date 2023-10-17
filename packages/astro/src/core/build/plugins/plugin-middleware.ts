@@ -17,7 +17,7 @@ export function vitePluginMiddleware(
 	let resolvedMiddlewareId: string;
 	return {
 		name: '@astro/plugin-middleware',
-
+		enforce: 'post',
 		options(options) {
 			return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
 		},
