@@ -42,7 +42,7 @@ export default async function createStaticPreviewServer(
 		});
 	} catch (err) {
 		if (err instanceof Error) {
-			logger.error('astro', err.stack || err.message);
+			logger.error(null, err.stack || err.message);
 		}
 		throw err;
 	}

@@ -222,7 +222,7 @@ export async function runHookConfigDone({
 						if (!adapter.supportedAstroFeatures) {
 							// NOTE: throw an error in Astro 4.0
 							logger.warn(
-								'astro',
+								null,
 								`The adapter ${adapter.name} doesn't provide a feature map. From Astro 3.0, an adapter can provide a feature map. Not providing a feature map will cause an error in Astro 4.0.`
 							);
 						} else {
@@ -239,14 +239,14 @@ export async function runHookConfigDone({
 								// if we would refactor the validation to support more than boolean, we could still be able to differentiate between the two cases
 								if (!supported && featureName !== 'assets') {
 									logger.error(
-										'astro',
+										null,
 										`The adapter ${adapter.name} doesn't support the feature ${featureName}. Your project won't be built. You should not use it.`
 									);
 								}
 							}
 							if (!validationResult.assets) {
 								logger.warn(
-									'astro',
+									null,
 									`The selected adapter ${
 										adapter.name
 									} does not support image optimization. The image service has been automatically set to 'noop'. See: ${cyan(

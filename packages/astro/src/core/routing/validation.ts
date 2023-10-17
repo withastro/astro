@@ -79,16 +79,16 @@ export function validateGetStaticPathsResult(
 		for (const [key, val] of Object.entries(pathObject.params)) {
 			if (!(typeof val === 'undefined' || typeof val === 'string' || typeof val === 'number')) {
 				logger.warn(
-					'getStaticPaths',
-					`invalid path param: ${key}. A string, number or undefined value was expected, but got \`${JSON.stringify(
+					'router',
+					`getStaticPaths() returned an invalid path param: "${key}". A string, number or undefined value was expected, but got \`${JSON.stringify(
 						val
 					)}\`.`
 				);
 			}
 			if (typeof val === 'string' && val === '') {
 				logger.warn(
-					'getStaticPaths',
-					`invalid path param: ${key}. \`undefined\` expected for an optional param, but got empty string.`
+					'router',
+					`getStaticPaths() returned an invalid path param: "${key}". \`undefined\` expected for an optional param, but got empty string.`
 				);
 			}
 		}

@@ -82,7 +82,7 @@ export async function restartContainer(container: Container): Promise<Container 
 			},
 		});
 		container.restartInFlight = false;
-		logger.error('astro', 'Continuing with previous valid configuration\n');
+		logger.error(null, 'Continuing with previous valid configuration\n');
 		return error;
 	}
 }
@@ -122,7 +122,7 @@ export async function createContainerWithAutomaticRestart({
 	};
 
 	async function handleServerRestart(logMsg = '') {
-		logger.info('astro', (logMsg + ' Restarting...').trim());
+		logger.info(null, (logMsg + ' Restarting...').trim());
 		const container = restart.container;
 		const result = await restartContainer(container);
 		if (result instanceof Error) {

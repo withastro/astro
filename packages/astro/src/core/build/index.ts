@@ -240,24 +240,24 @@ class AstroBuilder {
 		if (config.build.split === true) {
 			if (config.output === 'static') {
 				this.logger.warn(
-					'configuration',
+					'config',
 					'The option `build.split` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
 				);
 			}
 			this.logger.warn(
-				'configuration',
+				'deprecated',
 				'The option `build.split` is deprecated. Use the adapter options.'
 			);
 		}
 		if (config.build.excludeMiddleware === true) {
 			if (config.output === 'static') {
 				this.logger.warn(
-					'configuration',
+					'config',
 					'The option `build.excludeMiddleware` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
 				);
 			}
 			this.logger.warn(
-				'configuration',
+				'deprecated',
 				'The option `build.excludeMiddleware` is deprecated. Use the adapter options.'
 			);
 		}

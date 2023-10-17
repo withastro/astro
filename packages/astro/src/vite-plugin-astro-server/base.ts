@@ -49,7 +49,7 @@ export function baseMiddleware(
 			if (stats) {
 				const expectedLocation = new URL('.' + url, devRootURL).pathname;
 				logger.warn(
-					'dev',
+					'router',
 					`Request URLs for ${bold(
 						'public/'
 					)} assets must also include your base. "${expectedLocation}" expected, but received "${url}".`

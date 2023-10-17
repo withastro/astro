@@ -26,7 +26,7 @@ export async function getPackage<T>(
 		packageImport = await import(packageName);
 	} catch (e) {
 		logger.info(
-			'',
+			null,
 			`To continue, Astro requires the following dependency to be installed: ${bold(packageName)}.`
 		);
 		const result = await installPackage([packageName, ...otherDeps], options, logger);

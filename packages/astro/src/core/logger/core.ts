@@ -7,6 +7,27 @@ export interface LogWritable<T> {
 
 export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
 
+/**
+ * Defined logger labels. Add more as needed, but keep them high-level & reusable, 
+ * rather than specific to a single command, function, use, etc. The label will be 
+ * shown in the log message to the user, so it should be relevant.
+ */ 
+export type LoggerLabel =
+	| 'add'
+	| 'build'
+	| 'check'
+	| 'config'
+	| 'content'
+	| 'deprecated'
+	| 'markdown'
+	| 'router'
+	| 'types'
+	| 'vite'
+	| 'watch'
+	// SKIP_FORMAT: A special label that tells the logger not to apply any formatting.
+	// Useful for messages that are already formatted, like the server start message.
+	| 'SKIP_FORMAT';
+
 export interface LogOptions {
 	dest: LogWritable<LogMessage>;
 	level: LoggerLevel;
@@ -99,6 +120,11 @@ function padStr(str: string, len: number) {
 	return str + spaces;
 }
 
+/**
+ * Get the prefix for a log message. 
+ * This includes the timestamp, log level, and label all properly formatted
+ * with colors.
+ */
 export function getEventPrefix({ level, label }: LogMessage) {
 	const timestamp = `${dateTimeFormat.format(new Date())}`;
 	const prefix = [timestamp];
@@ -155,16 +181,16 @@ export class Logger {
 		this.options = options;
 	}
 
-	info(label: string | null, message: string) {
+	info(label: LoggerLabel | null, message: string) {
 		info(this.options, label, message);
 	}
-	warn(label: string | null, message: string) {
+	warn(label: LoggerLabel | null, message: string) {
 		warn(this.options, label, message);
 	}
-	error(label: string | null, message: string) {
+	error(label: LoggerLabel | null, message: string) {
 		error(this.options, label, message);
 	}
-	debug(label: string, message: string, ...args: any[]) {
+	debug(label: LoggerLabel, message: string, ...args: any[]) {
 		debug(this.options, label, message, args);
 	}
 

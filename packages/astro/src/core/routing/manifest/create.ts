@@ -258,7 +258,7 @@ export function createRouteManifest(
 			// filter out "foo.astro_tmp" files, etc
 			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
 				logger.warn(
-					'astro',
+					null,
 					`Unsupported file type ${bold(
 						resolved
 					)} found. Prefix filename with an underscore (\`_\`) to ignore.`
@@ -358,7 +358,7 @@ export function createRouteManifest(
 		walk(localFs, fileURLToPath(pages), [], []);
 	} else if (settings.injectedRoutes.length === 0) {
 		const pagesDirRootRelative = pages.href.slice(settings.config.root.href.length);
-		logger.warn('astro', `Missing pages directory: ${pagesDirRootRelative}`);
+		logger.warn(null, `Missing pages directory: ${pagesDirRootRelative}`);
 	}
 
 	settings.injectedRoutes

@@ -38,7 +38,7 @@ export async function generateImage(
 		await fs.promises.mkdir(assetsCacheDir, { recursive: true });
 	} catch (err) {
 		logger.warn(
-			'astro:assets',
+			null,
 			`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${err}`
 		);
 		useCache = false;
@@ -138,7 +138,7 @@ export async function generateImage(
 		}
 	} catch (e) {
 		logger.warn(
-			'astro:assets',
+			null,
 			`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${e}`
 		);
 	} finally {

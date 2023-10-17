@@ -42,7 +42,7 @@ export function createRequest({
 	Object.defineProperties(request, {
 		params: {
 			get() {
-				logger.warn('deprecation', `Astro.request.params has been moved to Astro.params`);
+				logger.warn('deprecated', `Astro.request.params has been moved to Astro.params`);
 				return undefined;
 			},
 		},
@@ -56,7 +56,7 @@ export function createRequest({
 			...headersDesc,
 			get() {
 				logger.warn(
-					'ssg',
+					null,
 					`\`Astro.request.headers\` is not available in "static" output mode. To enable header access: set \`output: "server"\` or \`output: "hybrid"\` in your config file.`
 				);
 				return _headers;

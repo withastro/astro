@@ -53,7 +53,7 @@ export default function astroScannerPlugin({
 				KNOWN_FILE_EXTENSIONS.includes(extname(filename))
 			) {
 				logger.warn(
-					'getStaticPaths',
+					'router',
 					`getStaticPaths() ignored in dynamic page ${bold(
 						rootRelativePath(settings.config.root, fileURL, true)
 					)}. Add \`export const prerender = true;\` to prerender the page as static HTML during the build process.`

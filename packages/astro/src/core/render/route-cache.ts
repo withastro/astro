@@ -103,7 +103,7 @@ export class RouteCache {
 		// isn't invisible and developer can track down the issue.
 		if (this.mode === 'production' && this.cache[route.component]?.staticPaths) {
 			this.logger.warn(
-				'routeCache',
+				null,
 				`Internal Warning: route cache overwritten. (${route.component})`
 			);
 		}
@@ -126,5 +126,5 @@ export function findPathItemByKey(
 	if (matchedStaticPath) {
 		return matchedStaticPath;
 	}
-	logger.debug('findPathItemByKey', `Unexpected cache miss looking for ${paramsKey}`);
+	logger.debug('router', `findPathItemByKey() - Unexpected cache miss looking for ${paramsKey}`);
 }

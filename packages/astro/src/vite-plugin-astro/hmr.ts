@@ -93,7 +93,7 @@ export async function handleHotUpdate(
 
 	// If only styles are changed, remove the component file from the update list
 	if (isStyleOnlyChange) {
-		logger.debug('astro', 'style-only change');
+		logger.debug('watch', 'style-only change');
 		// remove base file and hoisted scripts
 		return mods.filter((mod) => mod.id !== ctx.file && !mod.id?.endsWith('.ts'));
 	}
@@ -110,7 +110,7 @@ export async function handleHotUpdate(
 	// TODO: Svelte files should be marked as `isSelfAccepting` but they don't appear to be
 	const isSelfAccepting = mods.every((m) => m.isSelfAccepting || m.url.endsWith('.svelte'));
 	if (!isSelfAccepting) {
-		logger.debug('astro', 'full page reload triggered');
+		logger.debug('watch', 'full page reload triggered');
 	}
 
 	return mods;

@@ -117,7 +117,7 @@ export async function syncInternal(
 			switch (typesResult.reason) {
 				case 'no-content-dir':
 				default:
-					logger.debug('content', 'No content directory found. Skipping type generation.');
+					logger.debug('types', 'No content directory found. Skipping type generation.');
 					return 0;
 			}
 		}
@@ -137,7 +137,7 @@ export async function syncInternal(
 		await tempViteServer.close();
 	}
 
-	logger.info('content', `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
+	logger.info(null, `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 	await setUpEnvTs({ settings, logger, fs: fs ?? fsMod });
 
 	return 0;

@@ -103,7 +103,7 @@ export async function matchRoute(
 		const possibleRoutes = matches.flatMap((route) => route.component);
 
 		pipeline.logger.warn(
-			'getStaticPaths',
+			'router',
 			`${AstroErrorData.NoMatchingStaticPathFound.message(
 				pathname
 			)}\n\n${AstroErrorData.NoMatchingStaticPathFound.hint(possibleRoutes)}`
