@@ -1,6 +1,6 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
-import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
 	EnumChangefreq,
 	simpleSitemapAndIndex,
