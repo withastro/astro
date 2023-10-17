@@ -330,7 +330,7 @@ export function pluginAnalyzer(
 	internals: BuildInternals
 ): AstroBuildPlugin {
 	return {
-		targets: ['server'],
+		targets: ['server', 'content'],
 		hooks: {
 			'build:before': () => {
 				return {
