@@ -294,7 +294,7 @@ async function contentBuild(
 								return `${entryFileName}.render.mjs`;
 							}
 						}
-						return '[name].mjs';
+						return '[name].[hash].mjs';
 					},
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames(info) {
@@ -304,7 +304,7 @@ async function contentBuild(
 						const distRelative = url.toString().replace(settings.config.srcDir.toString(), '')
 						let entryFileName = removeFileExtension(distRelative);
 						if (distRelative.startsWith('file://')) {
-							return `[name].mjs`;
+							return `[name].[hash].mjs`;
 						}
 						// TODO: figure out how to externalize `astro` internals
 						if (flags[0] === PROPAGATED_ASSET_FLAG) {

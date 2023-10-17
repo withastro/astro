@@ -88,7 +88,7 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 		load(id) {
 			if (id === resolvedVirtualEmptyModuleId) {
 				return {
-					code: `// empty\nexport default {}`
+					code: `// intentionally left empty!\nexport default {}`
 				}
 			}
 		},
@@ -117,9 +117,9 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 			const callbacks: (() => void)[] = [];
 			if (fsMod.existsSync(cache)) {
 				const topLevelCachedFiles = await glob('*.mjs', {
-						cwd: fileURLToPath(cache),
-						onlyFiles: true,
-					});
+					cwd: fileURLToPath(cache),
+					onlyFiles: true,
+				});
 				for (const file of topLevelCachedFiles) {
 					const filePath = joinPaths(dist, file);
 					const cachePath = new URL(file, cache);
