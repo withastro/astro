@@ -135,7 +135,7 @@ export async function generateImagesForPath(
 		// Check if we have a cached entry first
 		try {
 			if (isLocalImage) {
-				await fs.promises.copyFile(cachedFileURL, finalFileURL);
+				await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
 
 				return {
 					cached: true,
