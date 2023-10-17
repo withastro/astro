@@ -22,7 +22,7 @@ import {
 } from './astro/instance.js'
 import {
 	renderTemplate,
-} from './astro/render-template.js';
+} from './astro/index.js';
 
 import {
 	Fragment,
