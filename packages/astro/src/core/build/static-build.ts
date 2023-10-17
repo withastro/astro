@@ -232,8 +232,6 @@ async function ssrBuild(
 		plugins: [...vitePlugins, ...(viteConfig.plugins || []), ...lastVitePlugins],
 		envPrefix: viteConfig.envPrefix ?? 'PUBLIC_',
 		base: settings.config.base,
-		// Tell Vite not to combine config from vite.config.js with our provided inline config
-		configFile: false,
 	};
 
 	const updatedViteBuildConfig = await runHookBuildSetup({
