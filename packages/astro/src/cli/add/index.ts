@@ -725,10 +725,10 @@ async function fetchPackageJson(
 	const packageName = `${scope ? `${scope}/` : ''}${name}`;
 	const registry = await getRegistry();
 	const res = await fetch(`${registry}/${packageName}/${tag}`);
-	if (res.status === 404) {
-		return new Error();
-	} else {
+	if (res.status >= 200 && res.status < 300) {
 		return await res.json();
+	} else {
+		return new Error();
 	}
 }
 
