@@ -11,6 +11,16 @@ export type RenderHeadInstruction = {
 	type: 'head';
 };
 
+/**
+ * Render a renderer-specific hydration script before the first component of that
+ * framework
+ */
+export type RendererHydrationInstruction = {
+	type: 'renderer-hydration';
+	rendererName: string;
+	render: () => string;
+};
+
 export type MaybeRenderHeadInstruction = {
 	type: 'maybe-head';
 };
@@ -18,11 +28,15 @@ export type MaybeRenderHeadInstruction = {
 export type RenderInstruction =
 	| RenderDirectiveInstruction
 	| RenderHeadInstruction
-	| MaybeRenderHeadInstruction;
+	| MaybeRenderHeadInstruction
+	| RendererHydrationInstruction;
 
 export function createRenderInstruction(
 	instruction: RenderDirectiveInstruction
 ): RenderDirectiveInstruction;
+export function createRenderInstruction(
+	instruction: RendererHydrationInstruction
+): RendererHydrationInstruction;
 export function createRenderInstruction(instruction: RenderHeadInstruction): RenderHeadInstruction;
 export function createRenderInstruction(
 	instruction: MaybeRenderHeadInstruction

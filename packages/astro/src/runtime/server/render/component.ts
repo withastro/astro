@@ -375,6 +375,15 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 				}
 			}
 			destination.write(createRenderInstruction({ type: 'directive', hydration }));
+			if (hydration.directive !== 'only' && renderer?.ssr.renderHydrationScript) {
+				destination.write(
+					createRenderInstruction({
+						type: 'renderer-hydration',
+						rendererName: renderer.name,
+						render: renderer?.ssr.renderHydrationScript,
+					})
+				);
+			}
 			destination.write(markHTMLString(renderElement('astro-island', island, false)));
 		},
 	};

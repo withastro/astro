@@ -102,57 +102,16 @@ async function renderToStaticMarkup(
 		}
 	};
 
-	let prepend = '';
-	let componentHtml: string | undefined = undefined;
-
-	if (needsHydrate && renderStrategy === 'async') {
-		if (!ctx.hasSolidHydrationScript) {
-			// The hydration script needs to come before to the first hydrating component of the page.
-			//
-			// One way to this would be to prepend the rendered output, eg:
-			//
-			// html += generateHydrationScript();
-			//
-			// However, in certain situations, nested components may be rendered depth-first, causing SolidJS
-			// to put the hydration script in the wrong spot.
-			//
-			// Therefore we prefer to render to the extraHead when it is available.
-			// Sometimes, the head has already been rendered, so  in those cases
-			// we add the hydration script right before the component for now.
-			// For example, in the following test, the head is already rendered before
-			// this function is called:
-			//
-			// packages/astro/e2e/fixtures/nested-in-solid/package.json
-
-			// NOTE: It seems that components on a page may be rendered in parallel using Promise.all()
-			// or similar. To try to get the hydration script as high up as possibile, if not in the <head>
-			// itself, this code block is intentionally written *before* the first `await` in the function.
-
-			if (this.result._metadata.hasRenderedHead) {
-				prepend = generateHydrationScript();
-			} else {
-				this.result._metadata.extraHead.push(generateHydrationScript());
-			}
-
-			ctx.hasSolidHydrationScript = true;
-		}
-	}
-
-	if (renderStrategy === 'async') {
-		componentHtml = await renderToStringAsync(renderFn, { renderId });
-	} else {
-		componentHtml = renderToString(renderFn, { renderId });
-	}
+	const componentHtml =
+		renderStrategy === 'async'
+			? await renderToStringAsync(renderFn, { renderId })
+			: renderToString(renderFn, { renderId });
 
 	return {
 		attrs: {
 			'data-solid-render-id': renderId,
 		},
-		// componentHtml should in theory always be a string, but non-Solid components may
-		// return undefined. The check() function relies on this to check if the component
-		// is a solid component, thus we must check that componentHtml is actually a string
-		// and not just blindly concategate it with a a hydration script.
-		html: typeof componentHtml === 'string' ? prepend + componentHtml : componentHtml,
+		html: componentHtml,
 	};
 }
 
@@ -160,4 +119,5 @@ export default {
 	check,
 	renderToStaticMarkup,
 	supportsAstroStaticSlot: true,
+	renderHydrationScript: () => generateHydrationScript(),
 };

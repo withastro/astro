@@ -105,6 +105,19 @@ describe('Solid component', () => {
 				'Position of first hydration event'
 			);
 		});
+
+		it('Injects hydration script before any SolidJS components in the HTML, even if render order is reversed by delay', async () => {
+			const html = await fixture.readFile('deferred/index.html');
+			const firstHydrationScriptAt = String(html).indexOf('_$HY=');
+			const firstHydrationEventAt = String(html).indexOf('_$HY.set');
+			console.log('Position of hydration script ', firstHydrationScriptAt);
+			const hydrationScriptCount = countHydrationScripts(html);
+			expect(hydrationScriptCount).to.be.equal(1);
+			expect(firstHydrationScriptAt).to.be.lessThan(
+				firstHydrationEventAt,
+				'Position of first hydration event'
+			);
+		});
 	});
 
 	if (isWindows) return;

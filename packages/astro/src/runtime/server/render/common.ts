@@ -89,6 +89,13 @@ function stringifyChunk(
 				}
 				return renderAllHeadContent(result);
 			}
+			case 'renderer-hydration': {
+				if (!result._metadata.hasRendererSpecificHydrationScript[instruction.rendererName]) {
+					result._metadata.hasRendererSpecificHydrationScript[instruction.rendererName] = true;
+					return instruction.render();
+				}
+				return '';
+			}
 			default: {
 				throw new Error(`Unknown chunk type: ${(chunk as any).type}`);
 			}
