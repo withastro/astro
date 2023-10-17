@@ -60,11 +60,9 @@ function getParts(part: string, file: string) {
 	return result;
 }
 
-function getPattern(
-	segments: RoutePart[][],
-	base: string,
-	addTrailingSlash: AstroConfig['trailingSlash']
-) {
+function getPattern(segments: RoutePart[][], config: AstroConfig) {
+	const base = config.base;
+	const addTrailingSlash = config.trailingSlash;
 	const pathname = segments
 		.map((segment) => {
 			if (segment.length === 1 && segment[0].spread) {
@@ -327,7 +325,7 @@ export function createRouteManifest(
 				components.push(item.file);
 				const component = item.file;
 				const trailingSlash = item.isPage ? settings.config.trailingSlash : 'never';
-				const pattern = getPattern(segments, settings.config.base, trailingSlash);
+				const pattern = getPattern(segments, settings.config);
 				const generate = getRouteGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -388,7 +386,7 @@ export function createRouteManifest(
 			const isPage = type === 'page';
 			const trailingSlash = isPage ? config.trailingSlash : 'never';
 
-			const pattern = getPattern(segments, settings.config.base, trailingSlash);
+			const pattern = getPattern(segments, settings.config);
 			const generate = getRouteGenerator(segments, trailingSlash);
 			const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 				? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -435,7 +433,7 @@ export function createRouteManifest(
 				return getParts(s, from);
 			});
 
-		const pattern = getPattern(segments, settings.config.base, trailingSlash);
+		const pattern = getPattern(segments, settings.config);
 		const generate = getRouteGenerator(segments, trailingSlash);
 		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -486,6 +484,54 @@ export function createRouteManifest(
 		// Didn't find a good place, insert last
 		routes.push(routeData);
 	});
+
+	if (settings.config.experimental.i18n) {
+		let fallback = Object.entries(settings.config.experimental.i18n.fallback);
+		if (fallback.length > 0) {
+			for (const [fallbackLocale, fallbackLocaleList] of fallback) {
+				for (const fallbackLocaleEntry of fallbackLocaleList) {
+					const fallbackToRoutes = routes.filter((r) =>
+						r.component.includes(`/${fallbackLocaleEntry}`)
+					);
+					const fallbackFromRoutes = routes.filter((r) =>
+						r.component.includes(`/${fallbackLocale}`)
+					);
+
+					for (const fallbackToRoute of fallbackToRoutes) {
+						const hasRoute = fallbackFromRoutes.some((r) =>
+							r.component.replace(`/${fallbackLocaleEntry}`, `/${fallbackLocale}`)
+						);
+
+						if (!hasRoute) {
+							const pathname = fallbackToRoute.pathname?.replace(
+								`/${fallbackLocaleEntry}`,
+								`/${fallbackLocale}`
+							);
+							const route = fallbackToRoute.route?.replace(
+								`/${fallbackLocaleEntry}`,
+								`/${fallbackLocale}`
+							);
+
+							const segments = removeLeadingForwardSlash(route)
+								.split(path.posix.sep)
+								.filter(Boolean)
+								.map((s: string) => {
+									validateSegment(s);
+									return getParts(s, route);
+								});
+							routes.push({
+								...fallbackToRoute,
+								pathname,
+								route,
+								pattern: getPattern(segments, config),
+								type: 'fallback',
+							});
+						}
+					}
+				}
+			}
+		}
+	}
 
 	return {
 		routes,
