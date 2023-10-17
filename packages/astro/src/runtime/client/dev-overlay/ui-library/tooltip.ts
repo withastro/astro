@@ -1,37 +1,9 @@
-export class DevOverlayWindow extends HTMLElement {
-	windowTitle?: string;
-	windowIcon?: string;
+import { getIconElement, type Icon } from './icons.js';
 
-	constructor() {
-		super();
-	}
-
-	async connectedCallback() {
-		const shadow = this.attachShadow({ mode: 'closed' });
-		shadow.innerHTML = `
-			<style>
-				#astro-dev-window {
-					background: linear-gradient(0deg, #13151A, #13151A), linear-gradient(0deg, #343841, #343841);
-				}
-
-				#astro-dev-window h1 {
-					color: #fff;
-				}
-			</style>
-
-			<div id="astro-dev-window">
-				<h1>${this.windowIcon ?? ''}${this.windowTitle ?? ''}</h1>
-
-				<hr />
-			</div>
-		`;
-	}
-}
-
-interface DevOverlayTooltipSection {
+export interface DevOverlayTooltipSection {
 	title?: string;
 	inlineTitle?: string;
-	icon?: string;
+	icon?: Icon | (string & NonNullable<unknown>);
 	content?: string;
 	clickAction?: () => void;
 	clickDescription?: string;
@@ -39,18 +11,20 @@ interface DevOverlayTooltipSection {
 
 export class DevOverlayTooltip extends HTMLElement {
 	sections: DevOverlayTooltipSection[] = [];
-	dialog: HTMLDialogElement;
+	shadowRoot: ShadowRoot;
 
 	constructor() {
 		super();
-		this.dialog = document.createElement('dialog');
+
+		this.shadowRoot = this.attachShadow({ mode: 'closed' });
 	}
 
 	connectedCallback() {
-		this.style.width = '100%';
-		this.innerHTML = `
+		this.shadowRoot.innerHTML = `
 			<style>
-			dialog {
+			:host {
+				position: absolute;
+				display: none;
 				color: white;
 				background: linear-gradient(0deg, #310A65, #310A65), linear-gradient(0deg, #7118E2, #7118E2);
 				border: 1px solid rgba(113, 24, 226, 1);
@@ -60,20 +34,26 @@ export class DevOverlayTooltip extends HTMLElement {
 				font-size: 14px;
 				margin: 0;
 				z-index: 9999999;
+				max-width: 45ch;
+				width: fit-content;
 			}
 
-			dialog svg {
+			:host([data-show="true"]) {
+				display: block;
+			}
+
+			svg {
 				vertical-align: bottom;
 				margin-right: 4px;
 			}
 
-			dialog hr {
+			hr {
 				border: 1px solid rgba(136, 58, 234, 0.33);
 				padding: 0;
 				margin: 0;
 			}
 
-			dialog section {
+			section {
 				padding: 8px;
 			}
 
@@ -101,6 +81,10 @@ export class DevOverlayTooltip extends HTMLElement {
 				background: rgba(113, 24, 226, 1);
 			}
 
+			.clickable-section:hover {
+				cursor: pointer;
+			}
+
 			code {
 				background: rgba(136, 58, 234, 0.33);
 				font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -110,53 +94,49 @@ export class DevOverlayTooltip extends HTMLElement {
 			}
 			`;
 
-		this.style.position = 'absolute';
+		const fragment = new DocumentFragment();
 		this.sections.forEach((section, index) => {
-			const el = document.createElement('section');
+			const sectionElement = document.createElement('section');
 			if (section.clickAction) {
-				el.classList.add('clickable-section');
-				el.addEventListener('click', section.clickAction);
+				sectionElement.classList.add('clickable-section');
+				sectionElement.addEventListener('click', section.clickAction);
 			}
 
-			el.innerHTML = `
+			sectionElement.innerHTML = `
 				${
 					section.title
 						? `<div class="modal-title"><span class="modal-main-title">
-						${section.icon ?? ''}${section.title}</span>${section.inlineTitle ?? ''}</div>`
+						${section.icon ? this.getElementForIcon(section.icon) : ''}${section.title}</span>${
+							section.inlineTitle ?? ''
+						}</div>`
 						: ''
 				}
 				${section.content ? `<div>${section.content}</div>` : ''}
 				${section.clickDescription ? `<span class="modal-cta">${section.clickDescription}</span>` : ''}
 			`;
-			this.dialog.appendChild(el);
+			fragment.appendChild(sectionElement);
 
 			if (index < this.sections.length - 1) {
-				this.dialog.appendChild(document.createElement('hr'));
+				fragment.appendChild(document.createElement('hr'));
 			}
 		});
 
-		this.appendChild(this.dialog);
-	}
-}
-
-export class DevOverlayHighlight extends HTMLElement {
-	constructor() {
-		super();
-		this.attachShadow({ mode: 'open' });
+		this.shadowRoot.appendChild(fragment);
 	}
 
-	connectedCallback() {
-		this.innerHTML = `
-			<style>
-				astro-overlay-highlight {
-					background: linear-gradient(180deg, rgba(224, 204, 250, 0.33) 0%, rgba(224, 204, 250, 0.0825) 100%);
-					border: 1px solid rgba(113, 24, 226, 1);
-					border-radius: 4px;
-					display: block;
-					width: 100%;
-					height: 100%;
-				}
-			</style>
-		`;
+	getElementForIcon(icon: Icon | (string & NonNullable<unknown>)) {
+		if (icon.startsWith('astro:')) {
+			const iconElement = getIconElement(icon);
+			iconElement?.style.setProperty('width', '16px');
+			iconElement?.style.setProperty('height', '16px');
+
+			return iconElement?.outerHTML;
+		} else {
+			const iconElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+			iconElement.setAttribute('viewBox', '0 0 16 16');
+			iconElement.innerHTML = icon;
+
+			return iconElement.outerHTML;
+		}
 	}
 }

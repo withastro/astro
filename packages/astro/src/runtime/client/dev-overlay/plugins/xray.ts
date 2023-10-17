@@ -1,5 +1,6 @@
 import type { DevOverlayItem } from '../../../../@types/astro.js';
-import type { DevOverlayTooltip } from '../ui-toolkit.js';
+import type { DevOverlayHighlight } from '../ui-library/highlight.js';
+import type { DevOverlayTooltip } from '../ui-library/tooltip.js';
 import xrayIcon from './xray.svg.js';
 
 export default {
@@ -7,7 +8,7 @@ export default {
 	name: 'Xray',
 	icon: xrayIcon,
 	init(canvas, eventTarget) {
-		let islandsOverlays: { el: HTMLDivElement; island: HTMLElement }[] = [];
+		let islandsOverlays: { highlightElement: DevOverlayHighlight; island: HTMLElement }[] = [];
 
 		eventTarget.addEventListener('plugin-toggle', ((event: CustomEvent) => {
 			if (event.detail.state === true) {
@@ -16,10 +17,10 @@ export default {
 		}) as EventListener);
 
 		window.addEventListener('scroll', () => {
-			islandsOverlays.forEach(({ el, island: islandElement }) => {
+			islandsOverlays.forEach(({ highlightElement, island: islandElement }) => {
 				const newRect = islandElement.getBoundingClientRect();
-				el.style.top = `${Math.max(newRect.top + window.scrollY - 10, 0)}px`;
-				el.style.left = `${Math.max(newRect.left + window.scrollX - 10, 0)}px`;
+				highlightElement.style.top = `${Math.max(newRect.top + window.scrollY - 10, 0)}px`;
+				highlightElement.style.left = `${Math.max(newRect.left + window.scrollX - 10, 0)}px`;
 			});
 		});
 
@@ -29,8 +30,7 @@ export default {
 			islandsOverlays = [];
 
 			islands.forEach((island) => {
-				const el = document.createElement('div');
-				el.style.position = 'absolute';
+				const highlight = document.createElement('astro-overlay-highlight') as DevOverlayHighlight;
 
 				const computedStyle = window.getComputedStyle(island);
 				const islandElement = (island.children[0] as HTMLElement) || island;
@@ -41,15 +41,11 @@ export default {
 				}
 
 				const rect = islandElement.getBoundingClientRect();
-				el.style.top = `${Math.max(rect.top + window.scrollY - 10, 0)}px`;
-				el.style.left = `${Math.max(rect.left + window.scrollX - 10, 0)}px`;
 
-				el.style.width = `${rect.width + 15}px`;
-				el.style.height = `${rect.height + 15}px`;
-
-				el.innerHTML = `
-				<astro-overlay-highlight></astro-overlay-highlight>
-			`;
+				highlight.style.top = `${Math.max(rect.top + window.scrollY - 10, 0)}px`;
+				highlight.style.left = `${Math.max(rect.left + window.scrollX - 10, 0)}px`;
+				highlight.style.width = `${rect.width + 15}px`;
+				highlight.style.height = `${rect.height + 15}px`;
 
 				const islandProps = island.getAttribute('props')
 					? JSON.parse(island.getAttribute('props')!)
@@ -83,31 +79,35 @@ export default {
 					},
 				});
 
-				el.appendChild(tooltip);
-				el.addEventListener('mouseover', () => {
-					tooltip.dialog.show();
+				highlight.shadowRoot.appendChild(tooltip);
 
-					const dialogRect = tooltip.dialog.getBoundingClientRect();
-					if (rect.top < dialogRect.height) {
-						tooltip.style.top = `${rect.height + 15}px`;
+				highlight.addEventListener('mouseover', () => {
+					tooltip.dataset.show = 'true';
+					const originalRect = islandElement.getBoundingClientRect();
+					const dialogRect = tooltip.getBoundingClientRect();
+
+					// If the tooltip is going to be off the screen, show it above the element instead
+					if (originalRect.top < dialogRect.height) {
+						// Not enough space above, show below
+						tooltip.style.top = `${originalRect.height + 15}px`;
 					} else {
-						tooltip.style.top = `${-dialogRect.height}px`;
+						tooltip.style.top = `${-tooltip.offsetHeight}px`;
 					}
 				});
 
-				el.addEventListener('mouseout', () => {
-					tooltip.dialog.close();
+				highlight.addEventListener('mouseout', () => {
+					tooltip.dataset.show = 'false';
 				});
 
-				canvas.appendChild(el);
-				islandsOverlays.push({ el: el, island: islandElement });
+				canvas.appendChild(highlight);
+				islandsOverlays.push({ highlightElement: highlight, island: islandElement });
 			});
 
 			window.addEventListener('scroll', () => {
-				islandsOverlays.forEach(({ el, island: islandElement }) => {
+				islandsOverlays.forEach(({ highlightElement, island: islandElement }) => {
 					const newRect = islandElement.getBoundingClientRect();
-					el.style.top = `${Math.max(newRect.top + window.scrollY - 10, 0)}px`;
-					el.style.left = `${Math.max(newRect.left + window.scrollX - 10, 0)}px`;
+					highlightElement.style.top = `${Math.max(newRect.top + window.scrollY - 10, 0)}px`;
+					highlightElement.style.left = `${Math.max(newRect.left + window.scrollX - 10, 0)}px`;
 				});
 			});
 		}

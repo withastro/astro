@@ -1,10 +1,13 @@
+/* eslint-disable no-console */
 // @ts-expect-error
 import { loadDevToolsPlugins } from 'astro:dev-tools';
 import type { DevOverlayItem as DevOverlayItemDefinition } from '../../../@types/astro.js';
 import astroDevToolPlugin from './plugins/astro.js';
 import astroAuditPlugin from './plugins/audit.js';
 import astroXrayPlugin from './plugins/xray.js';
-import { DevOverlayHighlight, DevOverlayTooltip, DevOverlayWindow } from './ui-toolkit.js';
+import { DevOverlayHighlight } from './ui-library/highlight.js';
+import { DevOverlayTooltip } from './ui-library/tooltip.js';
+import { DevOverlayWindow } from './ui-library/window.js';
 
 type DevOverlayItem = DevOverlayItemDefinition & {
 	active: boolean;
@@ -37,6 +40,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 	);
 
 	const plugins: DevOverlayItem[] = [...builtinPlugins, ...customPlugins];
+
+	for (const plugin of plugins) {
+		plugin.eventTarget.addEventListener('plugin-notification', (evt) => {
+			const target = overlay.shadowRoot?.querySelector(`[data-plugin-id="${plugin.id}"]`);
+			if (!target) return;
+
+			let newState = undefined;
+			if (evt instanceof CustomEvent) {
+				newState = evt.detail.state;
+			}
+			target.querySelector('.notification')?.toggleAttribute('data-active', newState);
+		});
+	}
 
 	class AstroDevOverlay extends HTMLElement {
 		shadowRoot: ShadowRoot;
@@ -78,8 +94,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 				cursor: pointer;
 			}
 
+			#dev-overlay #bar-container .item:hover {
+				border-color: rgba(27, 30, 36, 1);
+			}
+
 			#dev-overlay #bar-container .item.active {
 				background: rgba(71, 78, 94, 1);
+			}
+
+			#dev-overlay #bar-container .item.active .notification {
+				border-color: rgba(71, 78, 94, 1);
+			}
+
+			#dev-overlay .item .icon {
+				position: relative;
 			}
 
 			#dev-overlay .item svg {
@@ -87,6 +115,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 				height: 24px;
 				display: block;
 				margin: auto;
+			}
+
+			#dev-overlay .item .notification {
+				display: none;
+				position: absolute;
+				top: -2px;
+				right: 0;
+				width: 8px;
+				height: 8px;
+				border-radius: 9999px;
+				border: 1px solid rgba(19, 21, 26, 1);
+				background: #B33E66;
+			}
+
+			#dev-overlay .item .notification[data-active] {
+				display: block;
 			}
 
 			#dev-overlay #bar-container {
@@ -97,6 +141,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 			#dev-overlay .separator {
 				background: rgba(52, 56, 65, 1);
 				width: 1px;
+			}
+
+			astro-overlay-plugin-canvas {
+				position: absolute;
+				top: 0;
+				left: 0;
 			}
 
 			astro-overlay-plugin-canvas:not([data-active]) {
@@ -155,7 +205,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			const shadowRoot = this.getPluginCanvasById(plugin.id)!.shadowRoot!;
 
 			try {
-				console.log(`Initing plugin ${plugin.id}`);
+				console.info(`Initing plugin ${plugin.id}`);
 				await plugin.init?.(shadowRoot, plugin.eventTarget);
 				plugin.status = 'ready';
 
@@ -170,7 +220,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		getPluginTemplate(plugin: DevOverlayItem) {
 			return `<div class="item" data-plugin-id="${plugin.id}">
-				<div class="icon">${plugin.icon}</div>
+				<div class="icon">${plugin.icon}<div class="notification"></div></div>
 			</div>`;
 		}
 
