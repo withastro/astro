@@ -32,8 +32,7 @@ import { RESOLVED_SPLIT_MODULE_ID, RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plug
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
-import { hasContentFlag } from '../../content/utils.js';
-import { CONTENT_FLAGS, CONTENT_RENDER_FLAG, PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
+import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -79,25 +78,18 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const container = createPluginContainer(opts, internals);
 	registerAllPlugins(container);
 
-	let buildContent = async () => {
-		const contentTime = performance.now();
-		opts.logger.info('content', `Building collections...`);
-		await contentBuild(opts, internals, new Set(), container);
-		opts.logger.info('content', dim(`Completed in ${getTimeStat(contentTime, performance.now())}.`));	
-	}
+	// Build your project (SSR application code, assets, client JS, etc.)
+	const ssrTime = performance.now();
+	opts.logger.info('build', `Building ${settings.config.output} entrypoints...`);
+	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
+	opts.logger.info('build', dim(`Completed in ${getTimeStat(ssrTime, performance.now())}.`));
+	settings.timer.end('SSR build');
 
-	let ssrOutput: any;
-	let buildServer = async () => {
-		// Build your project (SSR application code, assets, client JS, etc.)
-		const ssrTime = performance.now();
-		opts.logger.info('build', `Building ${settings.config.output} entrypoints...`);
-		ssrOutput = await ssrBuild(opts, internals, pageInput, container);
-		opts.logger.info('build', dim(`Completed in ${getTimeStat(ssrTime, performance.now())}.`));
-
-		settings.timer.end('SSR build');	
-	}
-
-	await Promise.all([buildContent(), buildServer()]);
+	// Build `astro:content` collections
+	const contentTime = performance.now();
+	opts.logger.info('content', `Building collections...`);
+	await contentBuild(opts, internals, new Set(), container);
+	opts.logger.info('content', dim(`Completed in ${getTimeStat(contentTime, performance.now())}.`));
 
 	settings.timer.start('Client build');
 
@@ -185,6 +177,7 @@ async function ssrBuild(
 				...viteConfig.build?.rollupOptions,
 				input: [],
 				output: {
+					hoistTransitiveImports: false,
 					format: 'esm',
 					// Server chunks can't go in the assets (_astro) folder
 					// We need to keep these separate
@@ -267,7 +260,6 @@ async function contentBuild(
 	container: AstroBuildPluginContainer
 ) {
 	const { settings, viteConfig } = opts;
-	const ssr = isServerLikeOutput(settings.config);
 	const out = getOutputDirectory(settings.config);
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('content', input);
 
@@ -285,20 +277,24 @@ async function contentBuild(
 			emptyOutDir: false,
 			manifest: false,
 			outDir: fileURLToPath(out),
-			copyPublicDir: !ssr,
+			copyPublicDir: false,
 			rollupOptions: {
 				...viteConfig.build?.rollupOptions,
 				input: [],
 				output: {
+					hoistTransitiveImports: false,
 					format: 'esm',
 					chunkFileNames(info) {
 						if (info.moduleIds.length === 1) {
-							const url = pathToFileURL(info.moduleIds[0]);
-							const distRelative = url.toString().replace(settings.config.srcDir.toString(), '')
-							let entryFileName = removeFileExtension(distRelative);
-							return `${entryFileName}.render.mjs`;
+							const moduleId = info.moduleIds[0];
+							if (moduleId.includes('/content/docs/')) {
+								const url = pathToFileURL(info.moduleIds[0]);
+								const distRelative = url.toString().replace(settings.config.srcDir.toString(), '')
+								const entryFileName = removeFileExtension(distRelative);
+								return `${entryFileName}.render.mjs`;
+							}
 						}
-						return '[name]_[hash].mjs';
+						return '[name].mjs';
 					},
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames(info) {
@@ -309,13 +305,11 @@ async function contentBuild(
 
 						let entryFileName = removeFileExtension(distRelative);
 						if (flags[0] === PROPAGATED_ASSET_FLAG) {
-							entryFileName += `.assets`
-						} else if (flags[0] === CONTENT_RENDER_FLAG) {
-							entryFileName += '.render'
+							entryFileName += `.entry`
 						}
 						return `${entryFileName}.mjs`;
 					},
-					assetFileNames: `${settings.config.build.assets}/[name].[extname]`,
+					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 				},
 			},
 			ssr: true,
@@ -596,7 +590,7 @@ export function makeAstroPageEntryPointFileName(
  * 2. We split the file path using the file system separator and attempt to retrieve the last entry
  * 3. The last entry should be the file
  * 4. We prepend the file name with `entry.`
- * 5. We built the file path again, using the new entry built in the previous step
+ * 5. We built the file path again, using the new en3built in the previous step
  *
  * @param facadeModuleId
  * @param opts

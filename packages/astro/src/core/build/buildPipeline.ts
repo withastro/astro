@@ -26,6 +26,7 @@ export class BuildPipeline extends Pipeline {
 		manifest: SSRManifest
 	) {
 		const ssr = isServerLikeOutput(staticBuildOptions.settings.config);
+		const resolveCache = new Map<string, string>();
 		super(
 			createEnvironment({
 				adapterName: manifest.adapterName,
@@ -35,16 +36,22 @@ export class BuildPipeline extends Pipeline {
 				clientDirectives: manifest.clientDirectives,
 				compressHTML: manifest.compressHTML,
 				async resolve(specifier: string) {
+					if (resolveCache.has(specifier)) {
+						return resolveCache.get(specifier)!;
+					}
 					const hashedFilePath = manifest.entryModules[specifier];
 					if (typeof hashedFilePath !== 'string' || hashedFilePath === '') {
 						// If no "astro:scripts/before-hydration.js" script exists in the build,
 						// then we can assume that no before-hydration scripts are needed.
 						if (specifier === BEFORE_HYDRATION_SCRIPT_ID) {
+							resolveCache.set(specifier, '');
 							return '';
 						}
 						throw new Error(`Cannot find the built path for ${specifier}`);
 					}
-					return createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
+					const assetLink = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
+					resolveCache.set(specifier, assetLink);
+					return assetLink;
 				},
 				routeCache: staticBuildOptions.routeCache,
 				site: manifest.site,
