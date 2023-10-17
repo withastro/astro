@@ -42,9 +42,9 @@ export interface RenderErrorOptions {
 	response?: Response;
 	status: 404 | 500;
 	/**
-	 * Whether to call onRequest() while rendering the error page. Defaults to true.
+	 * Whether to skip onRequest() while rendering the error page. Defaults to false.
 	*/
-	runMiddleware?: boolean;
+	skipMiddleware?: boolean;
 }
 
 export class App {
@@ -256,7 +256,7 @@ export class App {
 	 * If it is a known error code, try sending the according page (e.g. 404.astro / 500.astro).
 	 * This also handles pre-rendered /404 or /500 routes
 	 */
-	async #renderError(request: Request, { status, response: originalResponse, runMiddleware = true }: RenderErrorOptions): Promise<Response> {
+	async #renderError(request: Request, { status, response: originalResponse, skipMiddleware = false }: RenderErrorOptions): Promise<Response> {
 		const errorRouteData = matchRoute('/' + status, this.#manifestData);
 		const url = new URL(request.url);
 		if (errorRouteData) {
@@ -284,10 +284,10 @@ export class App {
 					status
 				);
 				const page = (await mod.page()) as any;
-				if (runMiddleware && mod.onRequest) {
+				if (skipMiddleware === false && mod.onRequest) {
 					this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
 				}
-				if (!runMiddleware) {
+				if (skipMiddleware) {
 					// make sure middleware set by other requests is cleared out
 					this.#pipeline.unsetMiddlewareFunction();
 				}
@@ -295,8 +295,8 @@ export class App {
 				return this.#mergeResponses(response, originalResponse);
 			} catch {
 				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
-				if (runMiddleware && mod.onRequest) {
-					return this.#renderError(request, { status, response: originalResponse, runMiddleware: false });
+				if (skipMiddleware === false && mod.onRequest) {
+					return this.#renderError(request, { status, response: originalResponse, skipMiddleware: true });
 				}
 			}
 		}
