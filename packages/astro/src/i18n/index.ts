@@ -1,7 +1,7 @@
 import { AstroError } from '../core/errors/index.js';
 import { MissingLocale } from '../core/errors/errors-data.js';
-import type { AstroConfig } from '../@types/astro.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
+import type { AstroConfig } from '../@types/astro.js';
 
 type GetI18nBaseUrl = {
 	locale: string;
