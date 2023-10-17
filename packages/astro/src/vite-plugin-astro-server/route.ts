@@ -273,7 +273,7 @@ export async function handleRoute({
 
 	const onRequest = middleware?.onRequest as MiddlewareEndpointHandler | undefined;
 	if (config.experimental.i18n) {
-		const i18Middleware = createI18nMiddleware(config, logger);
+		const i18Middleware = createI18nMiddleware(config.experimental.i18n);
 
 		if (i18Middleware) {
 			if (onRequest) {

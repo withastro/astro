@@ -5,11 +5,12 @@ import { type Plugin as VitePlugin } from 'vite';
 import { runHookBuildSsr } from '../../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types.js';
+import type { SSRManifestI18n } from '../../app/types.js';
 import { joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
-import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
+import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 
@@ -237,8 +238,17 @@ function buildManifest(
 		// Set this to an empty string so that the runtime knows not to try and load this.
 		entryModules[BEFORE_HYDRATION_SCRIPT_ID] = '';
 	}
+	let i18nManifest: SSRManifestI18n | undefined = undefined;
+	if (settings.config.experimental.i18n) {
+		i18nManifest = {
+			fallback: settings.config.experimental.i18n.fallback,
+			fallbackControl: settings.config.experimental.i18n.fallbackControl,
+			locales: settings.config.experimental.i18n.locales,
+			defaultLocale: settings.config.experimental.i18n.defaultLocale,
+		};
+	}
 
-	const ssrManifest: SerializedSSRManifest = {
+	return {
 		adapterName: opts.settings.adapter?.name ?? '',
 		routes,
 		site: settings.config.site,
@@ -250,7 +260,6 @@ function buildManifest(
 		clientDirectives: Array.from(settings.clientDirectives),
 		entryModules,
 		assets: staticFiles.map(prefixAssetPath),
+		i18n: i18nManifest,
 	};
-
-	return ssrManifest;
 }
