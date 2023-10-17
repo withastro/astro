@@ -308,10 +308,10 @@ export const AstroConfigSchema = z.object({
 					.object({
 						defaultLocale: z.string(),
 						locales: z.string().array(),
-						fallback: z.record(z.string(), z.string().array()).optional().default({}),
+						fallback: z.record(z.string(), z.string().array()).optional(),
 						detectBrowserLanguage: z.boolean().optional().default(false),
 						// TODO: properly add default when the feature goes of experimental
-						fallbackControl: z.enum(['none', 'redirect', 'render']).optional().default('none'),
+						fallbackControl: z.enum(['none', 'redirect', 'render']).optional(),
 					})
 					.optional()
 					.superRefine((i18n, ctx) => {
