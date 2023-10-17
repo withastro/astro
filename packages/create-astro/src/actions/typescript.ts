@@ -5,10 +5,14 @@ import { readFile, writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import stripJsonComments from 'strip-json-comments';
 import { error, info, spinner, title, typescriptByDefault } from '../messages.js';
+import { shell } from '../shell.js';
 
-export async function typescript(
-	ctx: Pick<Context, 'typescript' | 'yes' | 'prompt' | 'dryRun' | 'cwd' | 'exit'>
-) {
+type PickedTypeScriptContext = Pick<
+	Context,
+	'typescript' | 'yes' | 'prompt' | 'dryRun' | 'cwd' | 'exit' | 'packageManager' | 'install'
+>;
+
+export async function typescript(ctx: PickedTypeScriptContext) {
 	let ts = ctx.typescript ?? (typeof ctx.yes !== 'undefined' ? 'strict' : undefined);
 	if (ts === undefined) {
 		const { useTs } = await ctx.prompt({
@@ -61,7 +65,7 @@ export async function typescript(
 			start: 'TypeScript customizing...',
 			end: 'TypeScript customized',
 			while: () =>
-				setupTypeScript(ts!, { cwd: ctx.cwd }).catch((e) => {
+				setupTypeScript(ts!, ctx).catch((e) => {
 					error('error', e);
 					process.exit(1);
 				}),
@@ -71,17 +75,28 @@ export async function typescript(
 }
 
 const FILES_TO_UPDATE = {
-	'package.json': async (file: string, overrides: { value: string }) => {
+	'package.json': async (
+		file: string,
+		options: { value: string; ctx: PickedTypeScriptContext }
+	) => {
 		// do not add astro check command to build script if option is not strictest
-		if (overrides.value !== 'strictest') return;
+		if (options.value !== 'strictest') return;
 
 		try {
+			// add required dependencies for astro check
+			if (options.ctx.install)
+				await shell(options.ctx.packageManager, ['install', '@astro/check', 'typescript'], {
+					cwd: path.dirname(file),
+					stdio: 'ignore',
+				});
+
+			// inject addtional command to build script
 			const data = await readFile(file, { encoding: 'utf-8' });
 			const indent = /(^\s+)/m.exec(data)?.[1] ?? '\t';
-
 			const parsedPackageJson = JSON.parse(data);
 
 			const buildScript = parsedPackageJson.scripts?.build;
+			console.log(buildScript)
 			// in case of any other template already have astro checks defined, we don't want to override it
 			if (typeof buildScript === 'string' && !buildScript.includes('astro check')) {
 				const newPackageJson = Object.assign(parsedPackageJson, {
@@ -98,13 +113,13 @@ const FILES_TO_UPDATE = {
 			if (err instanceof Error) throw new Error(err.message);
 		}
 	},
-	'tsconfig.json': async (file: string, overrides: { value: string }) => {
+	'tsconfig.json': async (file: string, options: { value: string }) => {
 		try {
 			const data = await readFile(file, { encoding: 'utf-8' });
 			const templateTSConfig = JSON.parse(stripJsonComments(data));
 			if (templateTSConfig && typeof templateTSConfig === 'object') {
 				const result = Object.assign(templateTSConfig, {
-					extends: `astro/tsconfigs/${overrides.value}`,
+					extends: `astro/tsconfigs/${options.value}`,
 				});
 
 				await writeFile(file, JSON.stringify(result, null, 2));
@@ -118,17 +133,17 @@ const FILES_TO_UPDATE = {
 				// If the template doesn't have a tsconfig.json, let's add one instead
 				await writeFile(
 					file,
-					JSON.stringify({ extends: `astro/tsconfigs/${overrides.value}` }, null, 2)
+					JSON.stringify({ extends: `astro/tsconfigs/${options.value}` }, null, 2)
 				);
 			}
 		}
 	},
 };
 
-export async function setupTypeScript(value: string, { cwd }: { cwd: string }) {
+export async function setupTypeScript(value: string, ctx: PickedTypeScriptContext) {
 	await Promise.all(
 		Object.entries(FILES_TO_UPDATE).map(async ([file, update]) =>
-			update(path.resolve(path.join(cwd, file)), { value })
+			update(path.resolve(path.join(ctx.cwd, file)), { value, ctx })
 		)
 	);
 }
