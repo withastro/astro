@@ -106,7 +106,7 @@ export async function getContentEntryType({
 import { createGetHeadings, createContentComponent } from '@astrojs/markdoc/runtime';
 ${
 	markdocConfigUrl
-		? `import markdocConfig from ${JSON.stringify(decodeURI(markdocConfigUrl.pathname))};`
+		? `import markdocConfig from ${JSON.stringify(fileURLToPath(markdocConfigUrl))};`
 		: 'const markdocConfig = {};'
 }
 
@@ -230,11 +230,9 @@ function getStringifiedImports(
 			? `{ ${config.namedExport} as ${componentNamePrefix + toImportName(key)} }`
 			: componentNamePrefix + toImportName(key);
 		const resolvedPath =
-			config.type === 'local' ? new URL(config.path, root).pathname : config.path;
+			config.type === 'local' ? fileURLToPath(new URL(config.path, root)) : config.path;
 
-		stringifiedComponentImports += `import ${importName} from ${JSON.stringify(
-			decodeURI(resolvedPath)
-		)};\n`;
+		stringifiedComponentImports += `import ${importName} from ${JSON.stringify(resolvedPath)};\n`;
 	}
 	return stringifiedComponentImports;
 }
