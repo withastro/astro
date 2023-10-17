@@ -15,10 +15,13 @@ export interface HydrationMetadata {
 	componentExport: { value: string };
 }
 
+type Props = Record<string | number | symbol, any>;
+
 interface ExtractedProps {
 	isPage: boolean;
 	hydration: HydrationMetadata | null;
-	props: Record<string | number | symbol, any>;
+	props: Props;
+	propsWithoutTransitionAttributes: Props;
 }
 
 const transitionDirectivesToCopyOnIsland = Object.freeze([
@@ -29,13 +32,14 @@ const transitionDirectivesToCopyOnIsland = Object.freeze([
 // Used to extract the directives, aka `client:load` information about a component.
 // Finds these special props and removes them from what gets passed into the component.
 export function extractDirectives(
-	inputProps: Record<string | number | symbol, any>,
+	inputProps: Props,
 	clientDirectives: SSRResult['clientDirectives']
 ): ExtractedProps {
 	let extracted: ExtractedProps = {
 		isPage: false,
 		hydration: null,
 		props: {},
+		propsWithoutTransitionAttributes: {},
 	};
 	for (const [key, value] of Object.entries(inputProps)) {
 		if (key.startsWith('server:')) {
@@ -96,10 +100,14 @@ export function extractDirectives(
 			}
 		} else {
 			extracted.props[key] = value;
+			if (!transitionDirectivesToCopyOnIsland.includes(key)) {
+				extracted.propsWithoutTransitionAttributes[key] = value;
+			}
 		}
 	}
 	for (const sym of Object.getOwnPropertySymbols(inputProps)) {
 		extracted.props[sym] = inputProps[sym];
+		extracted.propsWithoutTransitionAttributes[sym] = inputProps[sym];
 	}
 
 	return extracted;
@@ -122,9 +130,10 @@ export async function generateHydrateScript(
 	const { hydrate, componentUrl, componentExport } = metadata;
 
 	if (!componentExport.value) {
-		throw new Error(
-			`Unable to resolve a valid export for "${metadata.displayName}"! Please open an issue at https://astro.build/issues!`
-		);
+		throw new AstroError({
+			...AstroErrorData.NoMatchingImport,
+			message: AstroErrorData.NoMatchingImport.message(metadata.displayName),
+		});
 	}
 
 	const island: SSRElement = {

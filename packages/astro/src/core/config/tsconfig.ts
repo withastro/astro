@@ -1,13 +1,19 @@
-import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import * as tsr from 'tsconfig-resolver';
+import {
+	TSConfckParseError,
+	find,
+	parse,
+	type TSConfckParseOptions,
+	type TSConfckParseResult,
+} from 'tsconfck';
+import type { CompilerOptions, TypeAcquisition } from 'typescript';
 
-export const defaultTSConfig: tsr.TsConfigJson = { extends: 'astro/tsconfigs/base' };
+export const defaultTSConfig: TSConfig = { extends: 'astro/tsconfigs/base' };
 
 export type frameworkWithTSSettings = 'vue' | 'react' | 'preact' | 'solid-js';
 // The following presets unfortunately cannot be inside the specific integrations, as we need
 // them even in cases where the integrations are not installed
-export const presets = new Map<frameworkWithTSSettings, tsr.TsConfigJson>([
+export const presets = new Map<frameworkWithTSSettings, TSConfig>([
 	[
 		'vue', // Settings needed for template intellisense when using Volar
 		{
@@ -45,52 +51,78 @@ export const presets = new Map<frameworkWithTSSettings, tsr.TsConfigJson>([
 	],
 ]);
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+type TSConfigResult<T = {}> = Promise<
+	(TSConfckParseResult & T) | 'invalid-config' | 'missing-config' | 'unknown-error'
+>;
+
 /**
  * Load a tsconfig.json or jsconfig.json is the former is not found
- * @param cwd Directory to start from
- * @param resolve Determine if the function should go up directories like TypeScript would
+ * @param root The root directory to search in, defaults to `process.cwd()`.
+ * @param findUp Whether to search for the config file in parent directories, by default only the root directory is searched.
  */
-export function loadTSConfig(cwd: string | undefined, resolve = true): tsr.TsConfigResult {
-	cwd = cwd ?? process.cwd();
-	let config = tsr.tsconfigResolverSync({
-		cwd,
-		filePath: resolve ? undefined : cwd,
-		ignoreExtends: !resolve,
-	});
+export async function loadTSConfig(
+	root: string | undefined,
+	findUp = false
+): Promise<TSConfigResult<{ rawConfig: TSConfckParseResult }>> {
+	const safeCwd = root ?? process.cwd();
 
-	// When a direct filepath is provided to `tsconfigResolver`, it'll instead return invalid-config even when
-	// the file does not exists. We'll manually handle this so we can provide better errors to users
-	if (!resolve && config.reason === 'invalid-config' && !existsSync(join(cwd, 'tsconfig.json'))) {
-		config = { reason: 'not-found', path: undefined, exists: false };
-	}
+	const [jsconfig, tsconfig] = await Promise.all(
+		['jsconfig.json', 'tsconfig.json'].map((configName) =>
+			// `tsconfck` expects its first argument to be a file path, not a directory path, so we'll fake one
+			find(join(safeCwd, './dummy.txt'), {
+				root: findUp ? undefined : root,
+				configName: configName,
+			})
+		)
+	);
 
-	// If we couldn't find a tsconfig.json, try to load a jsconfig.json instead
-	if (config.reason === 'not-found') {
-		const jsconfig = tsr.tsconfigResolverSync({
-			cwd,
-			filePath: resolve ? undefined : cwd,
-			searchName: 'jsconfig.json',
-			ignoreExtends: !resolve,
-		});
+	// If we have both files, prefer tsconfig.json
+	if (tsconfig) {
+		const parsedConfig = await safeParse(tsconfig, { root: root });
 
-		if (
-			!resolve &&
-			jsconfig.reason === 'invalid-config' &&
-			!existsSync(join(cwd, 'jsconfig.json'))
-		) {
-			return { reason: 'not-found', path: undefined, exists: false };
+		if (typeof parsedConfig === 'string') {
+			return parsedConfig;
 		}
 
-		return jsconfig;
+		return { ...parsedConfig, rawConfig: parsedConfig.extended?.[0] ?? parsedConfig.tsconfig };
 	}
 
-	return config;
+	if (jsconfig) {
+		const parsedConfig = await safeParse(jsconfig, { root: root });
+
+		if (typeof parsedConfig === 'string') {
+			return parsedConfig;
+		}
+
+		return { ...parsedConfig, rawConfig: parsedConfig.extended?.[0] ?? parsedConfig.tsconfig };
+	}
+
+	return 'missing-config';
+}
+
+async function safeParse(tsconfigPath: string, options: TSConfckParseOptions = {}): TSConfigResult {
+	try {
+		const parseResult = await parse(tsconfigPath, options);
+
+		if (parseResult.tsconfig == null) {
+			return 'missing-config';
+		}
+
+		return parseResult;
+	} catch (e) {
+		if (e instanceof TSConfckParseError) {
+			return 'invalid-config';
+		}
+
+		return 'unknown-error';
+	}
 }
 
 export function updateTSConfigForFramework(
-	target: tsr.TsConfigJson,
+	target: TSConfig,
 	framework: frameworkWithTSSettings
-): tsr.TsConfigJson {
+): TSConfig {
 	if (!presets.has(framework)) {
 		return target;
 	}
@@ -119,4 +151,33 @@ function deepMergeObjects<T extends Record<string, any>>(a: T, b: T): T {
 	}
 
 	return merged;
+}
+
+// The code below is adapted from `pkg-types`
+// `pkg-types` offer more types and utilities, but since we only want the TSConfig type, we'd rather avoid adding a dependency.
+// https://github.com/unjs/pkg-types/blob/78328837d369d0145a8ddb35d7fe1fadda4bfadf/src/types/tsconfig.ts
+// See https://github.com/unjs/pkg-types/blob/78328837d369d0145a8ddb35d7fe1fadda4bfadf/LICENSE for license information
+
+export type StripEnums<T extends Record<string, any>> = {
+	[K in keyof T]: T[K] extends boolean
+		? T[K]
+		: T[K] extends string
+		? T[K]
+		: T[K] extends object
+		? T[K]
+		: T[K] extends Array<any>
+		? T[K]
+		: T[K] extends undefined
+		? undefined
+		: any;
+};
+
+export interface TSConfig {
+	compilerOptions?: StripEnums<CompilerOptions>;
+	compileOnSave?: boolean;
+	extends?: string;
+	files?: string[];
+	include?: string[];
+	exclude?: string[];
+	typeAcquisition?: TypeAcquisition;
 }

@@ -1,0 +1,69 @@
+---
+import { getImage, type LocalImageProps, type RemoteImageProps } from 'astro:assets';
+import type { GetImageResult, ImageOutputFormat } from '../dist/@types/astro';
+import { isESMImportedImage } from '../dist/assets/internal';
+import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
+import type { HTMLAttributes } from '../types';
+
+type Props = (LocalImageProps | RemoteImageProps) & {
+	formats?: ImageOutputFormat[];
+	fallbackFormat?: ImageOutputFormat;
+	pictureAttributes?: HTMLAttributes<'picture'>;
+};
+
+const defaultFormats = ['webp'] as const;
+const defaultFallbackFormat = 'png' as const;
+
+// Certain formats don't want PNG fallbacks:
+// - GIF will typically want to stay as a gif, either for animation or for the lower amount of colors
+// - SVGs can't be converted to raster formats in most cases
+// For those, we'll use the original format as the fallback instead.
+const specialFormatsFallback = ['gif', 'svg'] as const;
+
+const { formats = defaultFormats, pictureAttributes = {}, fallbackFormat, ...props } = Astro.props;
+
+if (props.alt === undefined || props.alt === null) {
+	throw new AstroError(AstroErrorData.ImageMissingAlt);
+}
+
+const optimizedImages: GetImageResult[] = await Promise.all(
+	formats.map(
+		async (format) =>
+			await getImage({ ...props, format: format, widths: props.widths, densities: props.densities })
+	)
+);
+
+let resultFallbackFormat = fallbackFormat ?? defaultFallbackFormat;
+if (
+	!fallbackFormat &&
+	isESMImportedImage(props.src) &&
+	specialFormatsFallback.includes(props.src.format)
+) {
+	resultFallbackFormat = props.src.format;
+}
+
+const fallbackImage = await getImage({
+	...props,
+	format: resultFallbackFormat,
+	widths: props.widths,
+	densities: props.densities,
+});
+
+const additionalAttributes: Record<string, any> = {};
+if (fallbackImage.srcSet.values.length > 0) {
+	additionalAttributes.srcset = fallbackImage.srcSet.attribute;
+}
+---
+
+<picture {...pictureAttributes}>
+	{
+		Object.entries(optimizedImages).map(([_, image]) => {
+			const srcsetAttribute =
+				props.densities || (!props.densities && !props.widths)
+					? `${image.src}${image.srcSet.values.length > 0 ? ', ' + image.srcSet.attribute : ''}`
+					: image.srcSet.attribute;
+			return <source srcset={srcsetAttribute} type={'image/' + image.options.format} />;
+		})
+	}
+	<img src={fallbackImage.src} {...additionalAttributes} {...fallbackImage.attributes} />
+</picture>

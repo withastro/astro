@@ -3,7 +3,6 @@
 
 // ISOMORPHIC FILE: NO TOP-LEVEL IMPORT/REQUIRE() ALLOWED
 // This file has to run as both ESM and CJS on older Node.js versions
-// Needed for Stackblitz: https://github.com/stackblitz/webcontainer-core/issues/281
 
 const CI_INSTRUCTIONS = {
 	NETLIFY: 'https://docs.netlify.com/configure-builds/manage-dependencies/#node-js-and-javascript',
@@ -16,15 +15,11 @@ const CI_INSTRUCTIONS = {
 const engines = '>=18.14.1';
 const skipSemverCheckIfAbove = 19;
 
-// HACK (2023-08-18) Stackblitz does not support Node 18 yet, so we'll fake Node 16 support for some time until it's supported
-// TODO: Remove when Node 18 is supported on Stackblitz
-const isStackblitz = process.env.SHELL === '/bin/jsh' && process.versions.webcontainer != null;
-
 /** `astro *` */
 async function main() {
 	const version = process.versions.node;
 	// Fast-path for higher Node.js versions
-	if (!isStackblitz && (parseInt(version) || 0) <= skipSemverCheckIfAbove) {
+	if ((parseInt(version) || 0) <= skipSemverCheckIfAbove) {
 		try {
 			const semver = await import('semver');
 			if (!semver.satisfies(version, engines)) {
@@ -35,6 +30,13 @@ async function main() {
 			await errorNodeUnsupported();
 			return;
 		}
+	}
+
+	// windows drive letters can sometimes be lowercase, which vite cannot process
+	if (process.platform === 'win32') {
+		const cwd = process.cwd();
+		const correctedCwd = cwd.slice(0, 1).toUpperCase() + cwd.slice(1);
+		if (correctedCwd !== cwd) process.chdir(correctedCwd);
 	}
 
 	return import('./dist/cli/index.js')

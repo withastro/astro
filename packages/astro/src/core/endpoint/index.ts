@@ -39,7 +39,6 @@ export function createAPIContext({
 	props,
 	adapterName,
 }: CreateAPIContext): APIContext {
-	initResponseWithEncoding();
 	const context = {
 		cookies: new AstroCookies(request),
 		request,
@@ -58,78 +57,69 @@ export function createAPIContext({
 		ResponseWithEncoding,
 		url: new URL(request.url),
 		get clientAddress() {
-			if (!(clientAddressSymbol in request)) {
-				if (adapterName) {
-					throw new AstroError({
-						...AstroErrorData.ClientAddressNotAvailable,
-						message: AstroErrorData.ClientAddressNotAvailable.message(adapterName),
-					});
-				} else {
-					throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
-				}
+			if (clientAddressSymbol in request) {
+				return Reflect.get(request, clientAddressSymbol) as string;
+			}
+			if (adapterName) {
+				throw new AstroError({
+					...AstroErrorData.ClientAddressNotAvailable,
+					message: AstroErrorData.ClientAddressNotAvailable.message(adapterName),
+				});
+			} else {
+				throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
+			}
+		},
+		get locals() {
+			let locals = Reflect.get(request, clientLocalsSymbol);
+
+			if (locals === undefined) {
+				locals = {};
+				Reflect.set(request, clientLocalsSymbol, locals);
 			}
 
-			return Reflect.get(request, clientAddressSymbol);
-		},
-	} as APIContext;
+			if (typeof locals !== 'object') {
+				throw new AstroError(AstroErrorData.LocalsNotAnObject);
+			}
 
-	// We define a custom property, so we can check the value passed to locals
-	Object.defineProperty(context, 'locals', {
-		enumerable: true,
-		get() {
-			return Reflect.get(request, clientLocalsSymbol);
+			return locals;
 		},
-		set(val) {
+		// We define a custom property, so we can check the value passed to locals
+		set locals(val) {
 			if (typeof val !== 'object') {
 				throw new AstroError(AstroErrorData.LocalsNotAnObject);
 			} else {
 				Reflect.set(request, clientLocalsSymbol, val);
 			}
 		},
-	});
+	} satisfies APIContext;
+
 	return context;
 }
 
 type ResponseParameters = ConstructorParameters<typeof Response>;
 
-export let ResponseWithEncoding: ReturnType<typeof initResponseWithEncoding>;
-// TODO Remove this after StackBlitz supports Node 18.
-let initResponseWithEncoding = () => {
-	class LocalResponseWithEncoding extends Response {
-		constructor(
-			body: ResponseParameters[0],
-			init: ResponseParameters[1],
-			encoding?: BufferEncoding
-		) {
-			// If a body string is given, try to encode it to preserve the behaviour as simple objects.
-			// We don't do the full handling as simple objects so users can control how headers are set instead.
-			if (typeof body === 'string') {
-				// In NodeJS, we can use Buffer.from which supports all BufferEncoding
-				if (typeof Buffer !== 'undefined' && Buffer.from) {
-					body = Buffer.from(body, encoding);
-				}
-				// In non-NodeJS, use the web-standard TextEncoder for utf-8 strings
-				else if (encoding == null || encoding === 'utf8' || encoding === 'utf-8') {
-					body = encoder.encode(body);
-				}
+export class ResponseWithEncoding extends Response {
+	constructor(body: ResponseParameters[0], init: ResponseParameters[1], encoding?: BufferEncoding) {
+		// If a body string is given, try to encode it to preserve the behaviour as simple objects.
+		// We don't do the full handling as simple objects so users can control how headers are set instead.
+		if (typeof body === 'string') {
+			// In NodeJS, we can use Buffer.from which supports all BufferEncoding
+			if (typeof Buffer !== 'undefined' && Buffer.from) {
+				body = Buffer.from(body, encoding);
 			}
-
-			super(body, init);
-
-			if (encoding) {
-				this.headers.set('X-Astro-Encoding', encoding);
+			// In non-NodeJS, use the web-standard TextEncoder for utf-8 strings
+			else if (encoding == null || encoding === 'utf8' || encoding === 'utf-8') {
+				body = encoder.encode(body);
 			}
 		}
+
+		super(body, init);
+
+		if (encoding) {
+			this.headers.set('X-Astro-Encoding', encoding);
+		}
 	}
-
-	// Set the module scoped variable.
-	ResponseWithEncoding = LocalResponseWithEncoding;
-
-	// Turn this into a noop.
-	initResponseWithEncoding = (() => {}) as any;
-
-	return LocalResponseWithEncoding;
-};
+}
 
 export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>(
 	mod: EndpointHandler,

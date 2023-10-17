@@ -53,14 +53,15 @@ npm install preact
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-```js ins={3} "preact()"
+```diff lang="js" "preact()"
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
-import preact from '@astrojs/preact';
++ import preact from '@astrojs/preact';
 
 export default defineConfig({
   // ...
   integrations: [preact()],
+  //             ^^^^^^^^
 });
 ```
 
@@ -93,6 +94,7 @@ import preact from '@astrojs/preact';
 
 export default defineConfig({
   integrations: [preact({ compat: true })],
+  //                      ^^^^^^^^^^^^
 });
 ```
 
@@ -100,8 +102,7 @@ With the `compat` option enabled, the Preact integration will render React compo
 
 When importing React component libraries, in order to swap out the `react` and `react-dom` dependencies as `preact/compat`, you can use [`overrides`](https://docs.npmjs.com/cli/v8/configuring-npm/package-json#overrides) to do so.
 
-```json
-// package.json
+```json title="package.json"
 {
   "overrides": {
     "react": "npm:@preact/compat@latest",
@@ -126,6 +127,7 @@ Use the `include` (required) and `exclude` (optional) configuration options to s
 We recommend placing common framework components in the same folder (e.g. `/components/react/` and `/components/solid/`) to make specifying your includes easier, but this is not required:
 
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
 import react from '@astrojs/react';

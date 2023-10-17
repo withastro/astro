@@ -1,14 +1,21 @@
-import type { RehypePlugin, RemarkPlugin, RemarkRehype } from '@astrojs/markdown-remark';
+import type {
+	RehypePlugin,
+	RemarkPlugin,
+	RemarkRehype,
+	ShikiConfig,
+} from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
-import type { ILanguageRegistration, IShikiTheme, Theme } from 'shiki';
+import { bundledThemes, type BuiltinTheme } from 'shikiji';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro.js';
 
 import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { BUNDLED_THEMES } from 'shiki';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+
+type ShikiLangs = NonNullable<ShikiConfig['langs']>;
+type ShikiTheme = NonNullable<ShikiConfig['theme']>;
 
 const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
@@ -228,11 +235,30 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.syntaxHighlight),
 			shikiConfig: z
 				.object({
-					langs: z.custom<ILanguageRegistration>().array().default([]),
+					langs: z
+						.custom<ShikiLangs[number]>()
+						.array()
+						.transform((langs) => {
+							for (const lang of langs) {
+								// shiki -> shikiji compat
+								if (typeof lang === 'object') {
+									// `id` renamed to `name
+									if ((lang as any).id && !lang.name) {
+										lang.name = (lang as any).id;
+									}
+									// `grammar` flattened to lang itself
+									if ((lang as any).grammar) {
+										Object.assign(lang, (lang as any).grammar);
+									}
+								}
+							}
+							return langs;
+						})
+						.default([]),
 					theme: z
-						.enum(BUNDLED_THEMES as [Theme, ...Theme[]])
-						.or(z.custom<IShikiTheme>())
-						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme! as Theme),
+						.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
+						.or(z.custom<ShikiTheme>())
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme as BuiltinTheme),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
 				})
 				.default({}),

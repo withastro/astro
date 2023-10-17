@@ -22,6 +22,9 @@ jobs:
     name: Changelog PR or Release
     if: ${{ github.repository_owner == 'withastro' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - uses: actions/checkout@v3
 

@@ -11,13 +11,13 @@ import type * as babel from '@babel/core';
 import type { OutgoingHttpHeaders } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
-import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import type { AstroConfigType } from '../core/config/index.js';
 import type { AstroTimer } from '../core/config/timer.js';
+import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
@@ -636,7 +636,7 @@ export interface AstroUserConfig {
 	 * @see output
 	 * @description
 	 *
-	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssredge), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
+	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssr), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
 	 *
 	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
 	 *
@@ -1168,10 +1168,10 @@ export interface AstroUserConfig {
 		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
 		 * ```js
-		 * import rehypeMinifyHtml from 'rehype-minify';
+		 * import { rehypeAccessibleEmojis } from 'rehype-accessible-emojis';
 		 * {
 		 *   markdown: {
-		 *     rehypePlugins: [rehypeMinifyHtml]
+		 *     rehypePlugins: [rehypeAccessibleEmojis]
 		 *   }
 		 * }
 		 * ```
@@ -1503,7 +1503,7 @@ export interface AstroSettings {
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
-	tsConfig: TsConfigJson | undefined;
+	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
 	timer: AstroTimer;
@@ -2209,7 +2209,7 @@ export interface SSRMetadata {
 	hasRenderedHead: boolean;
 	headInTree: boolean;
 	extraHead: string[];
-	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
+	propagators: Set<AstroComponentInstance>;
 }
 
 /* Preview server stuff */

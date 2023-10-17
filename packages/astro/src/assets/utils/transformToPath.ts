@@ -1,3 +1,4 @@
+import { deterministicString } from 'deterministic-object-hash';
 import { basename, extname } from 'node:path';
 import { removeQueryString } from '../../core/path.js';
 import { shorthash } from '../../runtime/server/shorthash.js';
@@ -16,8 +17,8 @@ export function propsToFilename(transform: ImageTransform, hash: string) {
 }
 
 export function hashTransform(transform: ImageTransform, imageService: string) {
-	// take everything from transform except alt, which is not used in the hash
-	const { alt, ...rest } = transform;
+	// Extract the fields we want to hash
+	const { alt, class: className, style, widths, densities, ...rest } = transform;
 	const hashFields = { ...rest, imageService };
-	return shorthash(JSON.stringify(hashFields));
+	return shorthash(deterministicString(hashFields));
 }

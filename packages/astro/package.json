@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "3.1.4",
+  "version": "3.3.1",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -56,7 +56,7 @@
     "./components/*": "./components/*",
     "./assets": "./dist/assets/index.js",
     "./assets/utils": "./dist/assets/utils/index.js",
-    "./assets/image-endpoint": "./dist/assets/image-endpoint.js",
+    "./assets/endpoint/*": "./dist/assets/endpoint/*.js",
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/squoosh": "./dist/assets/services/squoosh.js",
     "./assets/services/noop": "./dist/assets/services/noop.js",
@@ -139,6 +139,7 @@
     "common-ancestor-path": "^1.0.1",
     "cookie": "^0.5.0",
     "debug": "^4.3.4",
+    "deterministic-object-hash": "^1.3.1",
     "devalue": "^4.3.2",
     "diff": "^5.1.0",
     "es-module-lexer": "^1.3.0",
@@ -164,11 +165,10 @@
     "resolve": "^1.22.4",
     "semver": "^7.5.4",
     "server-destroy": "^1.0.1",
-    "shiki": "^0.14.3",
+    "shikiji": "^0.6.8",
     "string-width": "^6.1.0",
     "strip-ansi": "^7.1.0",
-    "tsconfig-resolver": "^3.0.1",
-    "undici": "^5.23.0",
+    "tsconfck": "^3.0.0",
     "unist-util-visit": "^4.1.2",
     "vfile": "^5.3.7",
     "vite": "^4.4.9",
@@ -212,8 +212,8 @@
     "eol": "^0.9.1",
     "memfs": "^4.2.1",
     "mocha": "^10.2.0",
-    "network-information-types": "^0.1.1",
     "node-mocks-http": "^1.13.0",
+    "parse-srcset": "^1.0.2",
     "rehype-autolink-headings": "^6.1.1",
     "rehype-slug": "^5.0.1",
     "rehype-toc": "^3.0.2",
@@ -226,5 +226,8 @@
   "engines": {
     "node": ">=18.14.1",
     "npm": ">=6.14.0"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }

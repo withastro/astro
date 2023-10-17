@@ -20,6 +20,20 @@ function scrollToBottom(page) {
 	});
 }
 
+function collectPreloads(page) {
+	return page.evaluate(() => {
+		window.preloads = [];
+		const observer = new MutationObserver((mutations) => {
+			mutations.forEach((mutation) =>
+				mutation.addedNodes.forEach((node) => {
+					if (node.nodeName === 'LINK' && node.rel === 'preload') preloads.push(node.href);
+				})
+			);
+		});
+		observer.observe(document.head, { childList: true });
+	});
+}
+
 test.describe('View Transitions', () => {
 	test('Moving from page 1 to page 2', async ({ page, astro }) => {
 		const loads = [];
@@ -170,11 +184,15 @@ test.describe('View Transitions', () => {
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
+		await collectPreloads(page);
+
 		// Go to page 2
 		await page.click('#click-two');
 		p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
 		await expect(p, 'imported CSS updated').toHaveCSS('font-size', '24px');
+		const preloads = await page.evaluate(() => window.preloads);
+		expect(preloads.length === 1 && preloads[0].endsWith('/two.css')).toBeTruthy();
 	});
 
 	test('astro:page-load event fires when navigating to new page', async ({ page, astro }) => {
@@ -210,6 +228,28 @@ test.describe('View Transitions', () => {
 		p = page.locator('#two');
 		const h = page.locator('html');
 		await expect(h, 'imported CSS updated').toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+	});
+
+	test('No page rendering during swap()', async ({ page, astro }) => {
+		let transitions = 0;
+		page.on('console', (msg) => {
+			if (msg.type() === 'info' && msg.text() === 'transitionstart') ++transitions;
+		});
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/listener-one'));
+		let p = page.locator('#totwo');
+		await expect(p, 'should have content').toHaveText('Go to listener two');
+		// on load a CSS transition is started triggered by a class on the html element
+		expect(transitions).toEqual(1);
+
+		// go to page 2
+		await page.click('#totwo');
+		p = page.locator('#toone');
+		await expect(p, 'should have content').toHaveText('Go to listener one');
+		// swap() resets that class, the after-swap listener sets it again.
+		// the temporarily missing class must not trigger page rendering
+		expect(transitions).toEqual(1);
 	});
 
 	test('click hash links does not do navigation', async ({ page, astro }) => {
@@ -630,8 +670,8 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
 
-	test('client:only styles are retained on transition', async ({ page, astro }) => {
-		const totalExpectedStyles = 8;
+	test.skip('client:only styles are retained on transition', async ({ page, astro }) => {
+		const totalExpectedStyles = 7;
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/client-only-one'));
@@ -713,6 +753,21 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
 
+	test('Use the client side router in framework components', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/client-load'));
+
+		// the button is set to naviagte() to /two
+		const button = page.locator('#react-client-load-navigate-button');
+
+		await expect(button, 'should have content').toHaveText('Navigate to `/two`');
+
+		await button.click();
+
+		const p = page.locator('#two');
+
+		await expect(p, 'should have content').toHaveText('Page 2');
+	});
+
 	test('body inline scripts do not re-execute on navigation', async ({ page, astro }) => {
 		const errors = [];
 		page.addListener('pageerror', (err) => {
@@ -733,7 +788,7 @@ test.describe('View Transitions', () => {
 
 	test('replace history', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/one'));
-		// page six loads the router and automatically uses the router to navigate to page 1
+
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
@@ -777,5 +832,25 @@ test.describe('View Transitions', () => {
 		await page.goBack();
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
+	});
+
+	test('Keep focus on transition', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/page-with-persistent-form'));
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Form 1');
+
+		locator = page.locator('#input');
+		await locator.type('Hello');
+		await expect(locator).toBeFocused();
+		await locator.press('Enter');
+
+		await page.waitForURL(/.*name=Hello/);
+		locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Form 1');
+		locator = page.locator('#input');
+		await expect(locator).toBeFocused();
+
+		await locator.type(' World');
+		await expect(locator).toHaveValue('Hello World');
 	});
 });

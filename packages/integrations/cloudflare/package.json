@@ -1,66 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
-  "description": "Deploy your site to Cloudflare Workers/Pages",
-  "version": "7.3.0",
-  "type": "module",
-  "types": "./dist/index.d.ts",
-  "author": "withastro",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/withastro/astro.git",
-    "directory": "packages/integrations/cloudflare"
-  },
-  "keywords": [
-    "withastro",
-    "astro-adapter"
-  ],
-  "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
-  "exports": {
-    ".": "./dist/index.js",
-    "./runtime": {
-      "types": "./runtime.d.ts",
-      "default": "./dist/runtime.js"
-    },
-    "./server.advanced.js": "./dist/server.advanced.js",
-    "./server.directory.js": "./dist/server.directory.js",
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "dist",
-    "runtime.d.ts"
-  ],
-  "scripts": {
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
-    "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "mocha --exit --timeout 30000 test/",
-    "test:match": "mocha --exit --timeout 30000 -g"
-  },
-  "dependencies": {
-    "@astrojs/underscore-redirects": "workspace:*",
-    "@cloudflare/workers-types": "^4.20230821.0",
-    "@iarna/toml": "^2.2.5",
-    "@miniflare/cache": "^2.14.1",
-    "@miniflare/shared": "^2.14.1",
-    "@miniflare/storage-memory": "^2.14.1",
-    "dotenv": "^16.3.1",
-    "esbuild": "^0.19.2",
-    "find-up": "^6.3.0",
-    "tiny-glob": "^0.2.9",
-    "vite": "^4.4.9"
-  },
-  "peerDependencies": {
-    "astro": "workspace:^3.1.4"
-  },
-  "devDependencies": {
-    "@types/iarna__toml": "^2.0.2",
-    "astro": "workspace:*",
-    "astro-scripts": "workspace:*",
-    "chai": "^4.3.7",
-    "cheerio": "1.0.0-rc.12",
-    "mocha": "^10.2.0",
-    "wrangler": "^3.5.1"
-  }
+  "version": "0.0.0",
+  "private": true,
+  "keywords": [],
+  "dont_remove": "This is a placeholder for the sake of the docs smoke test"
 }

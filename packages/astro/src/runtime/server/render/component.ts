@@ -92,7 +92,10 @@ async function renderFrameworkComponent(
 		displayName,
 	};
 
-	const { hydration, isPage, props } = extractDirectives(_props, clientDirectives);
+	const { hydration, isPage, props, propsWithoutTransitionAttributes } = extractDirectives(
+		_props,
+		clientDirectives
+	);
 	let html = '';
 	let attrs: Record<string, string> | undefined = undefined;
 
@@ -217,7 +220,7 @@ async function renderFrameworkComponent(
 				({ html, attrs } = await renderer.ssr.renderToStaticMarkup.call(
 					{ result },
 					Component,
-					props,
+					propsWithoutTransitionAttributes,
 					children,
 					metadata
 				));
@@ -242,7 +245,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 			({ html, attrs } = await renderer.ssr.renderToStaticMarkup.call(
 				{ result },
 				Component,
-				props,
+				propsWithoutTransitionAttributes,
 				children,
 				metadata
 			));
@@ -360,6 +363,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 	if (island.children) {
 		island.props['await-children'] = '';
+		// Marker to signal that Astro island children is completed while streaming
+		island.children += `<!--astro:end-->`;
 	}
 
 	return {

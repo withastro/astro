@@ -1,8 +1,9 @@
 import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { getHighlighter } from 'shiki';
+import { codeToHtml } from 'shikiji';
 import type { ErrorPayload } from 'vite';
 import type { ModuleLoader } from '../../module-loader/index.js';
+import { replaceCssVariables } from '../../shiki.js';
 import { FailedToLoadModuleSSR, InvalidGlob, MdxIntegrationMissingError } from '../errors-data.js';
 import { AstroError, type ErrorWithMetadata } from '../errors.js';
 import { createSafeError } from '../utils.js';
@@ -124,6 +125,7 @@ export interface AstroErrorPayload {
 // Map these to `.js` during error highlighting.
 const ALTERNATIVE_JS_EXTS = ['cjs', 'mjs'];
 const ALTERNATIVE_MD_EXTS = ['mdoc'];
+const INLINE_STYLE_SELECTOR_GLOBAL = /style="(.*?)"/g;
 
 /**
  * Generate a payload for Vite's error overlay
@@ -139,7 +141,6 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 
 	const docslink = getDocsForError(err);
 
-	const highlighter = await getHighlighter({ theme: 'css-variables' });
 	let highlighterLang = err.loc?.file?.split('.').pop();
 	if (ALTERNATIVE_JS_EXTS.includes(highlighterLang ?? '')) {
 		highlighterLang = 'js';
@@ -147,12 +148,20 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 	if (ALTERNATIVE_MD_EXTS.includes(highlighterLang ?? '')) {
 		highlighterLang = 'md';
 	}
-	const highlightedCode = err.fullCode
-		? highlighter.codeToHtml(err.fullCode, {
+	let highlightedCode = err.fullCode
+		? await codeToHtml(err.fullCode, {
+				// @ts-expect-error always assume that shiki can accept the lang string
 				lang: highlighterLang,
+				theme: 'css-variables',
 				lineOptions: err.loc?.line ? [{ line: err.loc.line, classes: ['error-line'] }] : undefined,
 		  })
 		: undefined;
+
+	if (highlightedCode) {
+		highlightedCode = highlightedCode.replace(INLINE_STYLE_SELECTOR_GLOBAL, (m) =>
+			replaceCssVariables(m)
+		);
+	}
 
 	return {
 		type: 'error',

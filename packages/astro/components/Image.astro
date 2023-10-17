@@ -23,6 +23,12 @@ if (typeof props.height === 'string') {
 }
 
 const image = await getImage(props);
+
+const additionalAttributes: Record<string, any> = {};
+
+if (image.srcSet.values.length > 0) {
+	additionalAttributes.srcset = image.srcSet.attribute;
+}
 ---
 
-<img src={image.src} {...image.attributes} />
+<img src={image.src} {...additionalAttributes} {...image.attributes} />

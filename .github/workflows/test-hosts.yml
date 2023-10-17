@@ -11,8 +11,6 @@ env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_TEST_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_TEST_PROJECT_ID }}
   VERCEL_TOKEN: ${{ secrets.VERCEL_TEST_TOKEN }}
-  NETLIFY_SITE_ID: ${{ secrets.NETLIFY_TEST_SITE_ID }}
-  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TEST_AUTH_TOKEN }}
   FORCE_COLOR: true
 
 jobs:
@@ -34,22 +32,20 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+      
+      - name: Build Astro
+        run: pnpm turbo build --filter astro --filter @astrojs/vercel 
 
-      - name: Install Hosts CLIs
-        run: pnpm install --global netlify-cli vercel
-
-      - name: Deploy Vercel
+      - name: Build test project
         working-directory: ./packages/integrations/vercel/test/hosted/hosted-astro-project
         run:
           pnpm run build
-          vercel --prod --prebuilt
-
-      - name: Deploy Netlify
-        working-directory: ./packages/integrations/netlify/test/hosted/hosted-astro-project
+      
+      - name: Deploy to Vercel
+        working-directory: ./packages/integrations/vercel/test/hosted/hosted-astro-project
         run:
-          pnpm run build
-          netlify deploy --prod
+          pnpm dlx vercel --prod --prebuilt
 
-      - name: Test both hosts
+      - name: Test
         run:
           pnpm run test:e2e:hosts

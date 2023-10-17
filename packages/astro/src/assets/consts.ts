@@ -24,4 +24,5 @@ export const VALID_SUPPORTED_FORMATS = [
 	'svg',
 	'avif',
 ] as const;
+export const DEFAULT_OUTPUT_FORMAT = 'webp' as const;
 export const VALID_OUTPUT_FORMATS = ['avif', 'png', 'webp', 'jpeg', 'jpg', 'svg'] as const;

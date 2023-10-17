@@ -42,15 +42,16 @@ npm install solid-js
 
 Now, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-```js ins={3} "solid()"
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import solid from '@astrojs/solid-js';
+```diff lang="js" "solid()"
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
++ import solid from '@astrojs/solid-js';
 
-export default defineConfig({
-  // ...
-  integrations: [solid()],
-});
+  export default defineConfig({
+    // ...
+    integrations: [solid()],
+    //             ^^^^^^^
+  });
 ```
 
 ## Getting started
@@ -72,6 +73,7 @@ Use the `include` (required) and `exclude` (optional) configuration options to s
 We recommend placing common framework components in the same folder (e.g. `/components/react/` and `/components/solid/`) to make specifying your includes easier, but this is not required:
 
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
 import react from '@astrojs/react';

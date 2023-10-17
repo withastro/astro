@@ -113,7 +113,7 @@ jobs:
           - os: macos-latest
             NODE_VERSION: 18
           - os: windows-latest
-            NODE_VERSION: 18
+            NODE_VERSION: 18.17.1
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -133,11 +133,6 @@ jobs:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
 
-      - name: Use Deno
-        uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.35.0
-
       - name: Install dependencies
         run: pnpm install
 
@@ -155,7 +150,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-latest]
-        NODE_VERSION: [18]
+        NODE_VERSION: [18.17.1]
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}

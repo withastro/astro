@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/sitemap",
   "description": "Generate a sitemap for your Astro site",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -43,5 +43,8 @@
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
     "xml2js": "0.6.2"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }

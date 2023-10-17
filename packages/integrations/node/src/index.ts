@@ -30,8 +30,11 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 	return {
 		name: '@astrojs/node',
 		hooks: {
-			'astro:config:setup': ({ updateConfig }) => {
+			'astro:config:setup': ({ updateConfig, config }) => {
 				updateConfig({
+					image: {
+						endpoint: config.image.endpoint ?? 'astro/assets/endpoint/node',
+					},
 					vite: {
 						ssr: {
 							noExternal: ['@astrojs/node'],

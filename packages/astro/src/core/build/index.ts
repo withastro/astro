@@ -59,7 +59,7 @@ export default async function build(
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
 
-	const settings = createSettings(astroConfig, fileURLToPath(astroConfig.root));
+	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	const builder = new AstroBuilder(settings, {
 		...options,
@@ -111,7 +111,7 @@ class AstroBuilder {
 		});
 
 		if (isServerLikeOutput(this.settings.config)) {
-			this.settings = injectImageEndpoint(this.settings);
+			this.settings = injectImageEndpoint(this.settings, 'build');
 		}
 
 		this.manifest = createRouteManifest({ settings: this.settings }, this.logger);

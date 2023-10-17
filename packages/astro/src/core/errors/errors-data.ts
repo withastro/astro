@@ -554,6 +554,21 @@ export const UnsupportedImageFormat = {
 		)} are supported by our image services.`,
 	hint: "Using an `img` tag directly instead of the `Image` component might be what you're looking for.",
 } satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * @description
+ * Astro does not currently supporting converting between vector (such as SVGs) and raster (such as PNGs and JPEGs) images.
+ */
+export const UnsupportedImageConversion = {
+	name: 'UnsupportedImageConversion',
+	title: 'Unsupported image conversion',
+	message:
+		'Converting between vector (such as SVGs) and raster (such as PNGs and JPEGs) images is not currently supported.',
+} satisfies ErrorData;
+
 /**
  * @docs
  * @see
@@ -619,6 +634,21 @@ export const ExpectedImageOptions = {
 	title: 'Expected image options.',
 	message: (options: string) =>
 		`Expected getImage() parameter to be an object. Received \`${options}\`.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * @description
+ * Only one of `densities` or `widths` can be specified. Those attributes are used to construct a `srcset` attribute, which cannot have both `x` and `w` descriptors.
+ */
+export const IncompatibleDescriptorOptions = {
+	name: 'IncompatibleDescriptorOptions',
+	title: 'Cannot set both `densities` and `widths`',
+	message:
+		"Only one of `densities` or `widths` can be specified. In most cases, you'll probably want to use only `widths` if you require specific widths.",
+	hint: 'Those attributes are used to construct a `srcset` attribute, which cannot have both `x` and `w` descriptors.',
 } satisfies ErrorData;
 
 /**
@@ -1158,7 +1188,7 @@ export const ContentSchemaContainsSlugError = {
 /**
  * @docs
  * @message A collection queried via `getCollection()` does not exist.
- * @deprecated Collections that do not exist no longer result in an error. A warning is omitted instead.
+ * @deprecated Collections that do not exist no longer result in an error. A warning is given instead.
  * @description
  * When querying a collection, ensure a collection directory with the requested name exists under `src/content/`.
  */
