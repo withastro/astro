@@ -34,7 +34,11 @@ import { runHookBuildGenerated } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { RedirectSinglePageBuiltModule, getRedirectLocationOrThrow } from '../redirects/index.js';
+import {
+	RedirectSinglePageBuiltModule,
+	getRedirectLocationOrThrow,
+	routeIsRedirect,
+} from '../redirects/index.js';
 import { createRenderContext } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
@@ -60,6 +64,9 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import { createI18nMiddleware } from '../../i18n/middleware.js';
+import { sequence } from '../middleware/index.js';
+import { routeIsFallback } from '../redirects/helpers.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -71,6 +78,26 @@ async function getEntryForRedirectRoute(
 	outFolder: URL
 ): Promise<SinglePageBuiltModule> {
 	if (route.type !== 'redirect') {
+		throw new Error(`Expected a redirect route.`);
+	}
+	if (route.redirectRoute) {
+		const filePath = getEntryFilePathFromComponentPath(internals, route.redirectRoute.component);
+		if (filePath) {
+			const url = createEntryURL(filePath, outFolder);
+			const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
+			return ssrEntryPage;
+		}
+	}
+
+	return RedirectSinglePageBuiltModule;
+}
+
+async function getEntryForFallbackRoute(
+	route: RouteData,
+	internals: BuildInternals,
+	outFolder: URL
+): Promise<SinglePageBuiltModule> {
+	if (route.type !== 'fallback') {
 		throw new Error(`Expected a redirect route.`);
 	}
 	if (route.redirectRoute) {
@@ -178,15 +205,14 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 					await generatePage(pageData, ssrEntry, builtPaths, pipeline);
 				}
 			}
-			if (pageData.route.type === 'redirect') {
-				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, pipeline);
-			}
 		}
 	} else {
 		for (const [pageData, filePath] of pagesToGenerate) {
-			if (pageData.route.type === 'redirect') {
+			if (routeIsRedirect(pageData.route)) {
 				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
+				await generatePage(pageData, entry, builtPaths, pipeline);
+			} else if (routeIsFallback(pageData.route)) {
+				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);
 				await generatePage(pageData, entry, builtPaths, pipeline);
 			} else {
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
@@ -236,6 +262,7 @@ async function generatePage(
 ) {
 	let timeStart = performance.now();
 	const logger = pipeline.getLogger();
+	const config = pipeline.getConfig();
 	const pageInfo = getPageDataByComponent(pipeline.getInternals(), pageData.route.component);
 
 	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
@@ -248,7 +275,16 @@ async function generatePage(
 
 	const pageModulePromise = ssrEntry.page;
 	const onRequest = ssrEntry.onRequest;
-	if (onRequest) {
+	const i18nMiddleware = createI18nMiddleware(config, logger);
+	if (config.experimental.i18n && i18nMiddleware) {
+		if (onRequest) {
+			pipeline.setMiddlewareFunction(
+				sequence(i18nMiddleware, onRequest as MiddlewareEndpointHandler)
+			);
+		} else {
+			pipeline.setMiddlewareFunction(i18nMiddleware);
+		}
+	} else if (onRequest) {
 		pipeline.setMiddlewareFunction(onRequest as MiddlewareEndpointHandler);
 	}
 	if (!pageModulePromise) {
@@ -276,7 +312,9 @@ async function generatePage(
 	};
 
 	const icon =
-		pageData.route.type === 'page' || pageData.route.type === 'redirect'
+		pageData.route.type === 'page' ||
+		pageData.route.type === 'redirect' ||
+		pageData.route.type === 'fallback'
 			? green('▶')
 			: magenta('λ');
 	if (isRelativePath(pageData.route.component)) {
