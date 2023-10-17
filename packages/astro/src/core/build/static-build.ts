@@ -32,7 +32,7 @@ import { RESOLVED_SPLIT_MODULE_ID, RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plug
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
-import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
+import { CONTENT_RENDER_FLAG, PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -287,7 +287,8 @@ async function contentBuild(
 					chunkFileNames(info) {
 						if (info.moduleIds.length === 1) {
 							const moduleId = info.moduleIds[0];
-							if (moduleId.includes('/content/docs/')) {
+							// TODO: don't hardcode this
+							if (moduleId.includes('/content/')) {
 								const url = pathToFileURL(info.moduleIds[0]);
 								const distRelative = url.toString().replace(settings.config.srcDir.toString(), '')
 								const entryFileName = removeFileExtension(distRelative);
@@ -302,10 +303,16 @@ async function contentBuild(
 						const flags = Array.from(params.keys());
 						const url = pathToFileURL(info.moduleIds[0]);
 						const distRelative = url.toString().replace(settings.config.srcDir.toString(), '')
-
 						let entryFileName = removeFileExtension(distRelative);
+						if (distRelative.startsWith('file://')) {
+							return `[name].mjs`;
+						}
+						// TODO: figure out how to externalize `astro` internals
 						if (flags[0] === PROPAGATED_ASSET_FLAG) {
 							entryFileName += `.entry`
+						}
+						if (flags[0] === CONTENT_RENDER_FLAG) {
+							entryFileName += '.render';
 						}
 						return `${entryFileName}.mjs`;
 					},
