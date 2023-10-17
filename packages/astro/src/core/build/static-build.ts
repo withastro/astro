@@ -30,7 +30,7 @@ import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
 import { RESOLVED_SPLIT_MODULE_ID, RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
-import type { PageBuildData, StaticBuildOptions } from './types.js';
+import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
@@ -46,23 +46,20 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	// The pages to be built for rendering purposes.
 	const pageInput = new Set<string>();
 
-	// A map of each page .astro file, to the PageBuildData which contains information
-	// about that page, such as its paths.
-	const facadeIdToPageDataMap = new Map<string, PageBuildData>();
-
 	// Build internals needed by the CSS plugin
 	const internals = createBuildInternals();
 
-	for (const [component, pageData] of Object.entries(allPages)) {
-		const astroModuleURL = new URL('./' + component, settings.config.root);
-		const astroModuleId = prependForwardSlash(component);
+	for (const [component, pageDataList] of Object.entries(allPages)) {
+		for (const pageData of pageDataList) {
+			const astroModuleURL = new URL('./' + component, settings.config.root);
+			const astroModuleId = prependForwardSlash(component);
 
-		// Track the page data in internals
-		trackPageData(internals, component, pageData, astroModuleId, astroModuleURL);
+			// Track the page data in internals
+			trackPageData(internals, component, pageData, astroModuleId, astroModuleURL);
 
-		if (!routeIsRedirect(pageData.route)) {
-			pageInput.add(astroModuleId);
-			facadeIdToPageDataMap.set(fileURLToPath(astroModuleURL), pageData);
+			if (!routeIsRedirect(pageData.route)) {
+				pageInput.add(astroModuleId);
+			}
 		}
 	}
 
@@ -148,7 +145,10 @@ async function ssrBuild(
 	const { allPages, settings, viteConfig } = opts;
 	const ssr = isServerLikeOutput(settings.config);
 	const out = getOutputDirectory(settings.config);
-	const routes = Object.values(allPages).map((pd) => pd.route);
+	const routes = Object.values(allPages)
+		.flat()
+		.map((pageData) => pageData.route);
+
 	const { lastVitePlugins, vitePlugins } = container.runBeforeHook('ssr', input);
 
 	const viteBuildConfig: vite.InlineConfig = {

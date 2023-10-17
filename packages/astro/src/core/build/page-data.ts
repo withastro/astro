@@ -47,15 +47,29 @@ export async function collectPagesData(
 				clearInterval(routeCollectionLogTimeout);
 			}, 10000);
 			builtPaths.add(route.pathname);
-			allPages[route.component] = {
-				component: route.component,
-				route,
-				moduleSpecifier: '',
-				styles: [],
-				propagatedStyles: new Map(),
-				propagatedScripts: new Map(),
-				hoistedScript: undefined,
-			};
+			if (allPages[route.component]) {
+				allPages[route.component].push({
+					component: route.component,
+					route,
+					moduleSpecifier: '',
+					styles: [],
+					propagatedStyles: new Map(),
+					propagatedScripts: new Map(),
+					hoistedScript: undefined,
+				});
+			} else {
+				allPages[route.component] = [
+					{
+						component: route.component,
+						route,
+						moduleSpecifier: '',
+						styles: [],
+						propagatedStyles: new Map(),
+						propagatedScripts: new Map(),
+						hoistedScript: undefined,
+					},
+				];
+			}
 
 			clearInterval(routeCollectionLogTimeout);
 			if (settings.config.output === 'static') {
@@ -70,18 +84,31 @@ export async function collectPagesData(
 			continue;
 		}
 		// dynamic route:
-		allPages[route.component] = {
-			component: route.component,
-			route,
-			moduleSpecifier: '',
-			styles: [],
-			propagatedStyles: new Map(),
-			propagatedScripts: new Map(),
-			hoistedScript: undefined,
-		};
+		if (allPages[route.component]) {
+			allPages[route.component].push({
+				component: route.component,
+				route,
+				moduleSpecifier: '',
+				styles: [],
+				propagatedStyles: new Map(),
+				propagatedScripts: new Map(),
+				hoistedScript: undefined,
+			});
+		} else {
+			allPages[route.component] = [
+				{
+					component: route.component,
+					route,
+					moduleSpecifier: '',
+					styles: [],
+					propagatedStyles: new Map(),
+					propagatedScripts: new Map(),
+					hoistedScript: undefined,
+				},
+			];
+		}
 	}
 
 	clearInterval(dataCollectionLogTimeout);
-
 	return { assets, allPages };
 }
