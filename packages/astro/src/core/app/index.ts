@@ -26,6 +26,8 @@ import {
 import { matchRoute } from '../routing/match.js';
 import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
 import type { RouteInfo } from './types.js';
+import { createI18nMiddleware } from '../../i18n/middleware.js';
+import { sequence } from '../middleware/index.js';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -164,8 +166,19 @@ export class App {
 		);
 		let response;
 		try {
-			if (mod.onRequest) {
-				this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
+			let i18nMiddleware = createI18nMiddleware(this.#manifest.i18n);
+			if (i18nMiddleware) {
+				if (mod.onRequest) {
+					this.#pipeline.setMiddlewareFunction(
+						sequence(i18nMiddleware, mod.onRequest as MiddlewareEndpointHandler)
+					);
+				} else {
+					this.#pipeline.setMiddlewareFunction(i18nMiddleware);
+				}
+			} else {
+				if (mod.onRequest) {
+					this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
+				}
 			}
 			response = await this.#pipeline.renderRoute(renderContext, pageModule);
 		} catch (err: any) {

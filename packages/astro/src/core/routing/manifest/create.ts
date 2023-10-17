@@ -485,7 +485,7 @@ export function createRouteManifest(
 		routes.push(routeData);
 	});
 
-	if (settings.config.experimental.i18n) {
+	if (settings.config.experimental.i18n && settings.config.experimental.i18n.fallback) {
 		let fallback = Object.entries(settings.config.experimental.i18n.fallback);
 		if (fallback.length > 0) {
 			for (const [fallbackLocale, fallbackLocaleList] of fallback) {
@@ -523,6 +523,7 @@ export function createRouteManifest(
 								...fallbackToRoute,
 								pathname,
 								route,
+								segments,
 								pattern: getPattern(segments, config),
 								type: 'fallback',
 							});
