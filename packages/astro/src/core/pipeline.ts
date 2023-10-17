@@ -56,7 +56,7 @@ export class Pipeline {
 	}
 
 	/**
-	 * Ensure that a route is rendered without its corresponding middleware.
+	 * Removes the current middleware function. Subsequent requests won't trigger any middleware.
 	 */
 	unsetMiddlewareFunction() {
 		this.#onRequest = undefined;
