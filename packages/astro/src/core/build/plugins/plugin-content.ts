@@ -88,18 +88,26 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 		load(id) {
 			if (id === resolvedVirtualEmptyModuleId) {
 				return {
-					code: '/* empty */'
+					code: `// empty\nexport default {}`
 				}
 			}
 		},
 
-		async generateBundle() {
+		async generateBundle(_, bundle) {
 			const content = await generateContentEntryFile({ settings: opts.settings, fs: fsMod, lookupMap });
 			this.emitFile({
 				type: 'prebuilt-chunk',
 				code: content,
 				fileName: 'content/index.mjs'
 			})
+
+			Object.keys(bundle).forEach(key => {
+				const mod = bundle[key];
+				if (mod.type === 'asset') return;
+				if (mod.facadeModuleId === resolvedVirtualEmptyModuleId) {
+					delete bundle[key];
+				}
+			});
 		},
 
 		async writeBundle(options, bundle) {
