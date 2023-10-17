@@ -200,7 +200,7 @@ class AstroBuilder {
 			pages: pageNames,
 			routes: Object.values(allPages)
 				.flat()
-				.map((pd) => pd.route),
+				.map((pageData) => pageData.route),
 			logging: this.logger,
 		});
 
