@@ -80,12 +80,11 @@ const FILES_TO_UPDATE = {
 		options: { value: string; ctx: PickedTypeScriptContext }
 	) => {
 		// do not add astro check command to build script if option is not strictest
-		if (options.value !== 'strictest') return;
 
 		try {
 			// add required dependencies for astro check
 			if (options.ctx.install)
-				await shell(options.ctx.packageManager, ['install', '@astro/check', 'typescript'], {
+				await shell(options.ctx.packageManager, ['install', '@astrojs/check', 'typescript'], {
 					cwd: path.dirname(file),
 					stdio: 'ignore',
 				});
