@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 import { typescript, setupTypeScript } from '../dist/index.js';
 import { setup } from './utils.js';
+import { describe } from 'node:test';
 
 describe('typescript', () => {
 	const fixture = setup();
@@ -82,7 +83,7 @@ describe('typescript', () => {
 	});
 });
 
-describe('typescript: setup', () => {
+describe('typescript: setup tsconfig', () => {
 	it('none', async () => {
 		const root = new URL('./fixtures/empty/', import.meta.url);
 		const tsconfig = new URL('./tsconfig.json', root);
@@ -102,5 +103,25 @@ describe('typescript: setup', () => {
 			extends: 'astro/tsconfigs/strict',
 		});
 		fs.writeFileSync(tsconfig, `{}`);
+	});
+});
+
+describe('typescript: setup package', () => {
+	it('none', async () => {
+		const root = new URL('./fixtures/empty/', import.meta.url);
+		const packageJson = new URL('./package.json', root);
+
+		await setupTypeScript('strictest', { cwd: fileURLToPath(root) });
+		expect(fs.existsSync(packageJson)).to.be.false;
+	});
+
+	it('none', async () => {
+		const root = new URL('./fixtures/not-empty/', import.meta.url);
+		const packageJson = new URL('./package.json', root);
+
+		await setupTypeScript('strictest', { cwd: fileURLToPath(root) });
+		expect(JSON.parse(fs.readFileSync(packageJson, { encoding: 'utf-8' })).scripts.build).to.be.eq(
+			'astro check && astro build'
+		);
 	});
 });
