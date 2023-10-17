@@ -3,6 +3,9 @@ import MainHead from '../components/MainHead.astro';
 import Nav from '../components/Nav/index.jsx';
 import { test as ssrConfigTest } from '@test/static-build-pkg';
 let allPosts = await Astro.glob('./posts/*.md');
+
+// Note that this just tests a warning
+Astro.request.headers;
 ---
 <html>
 <head>
