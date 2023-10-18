@@ -260,8 +260,11 @@ async function contentBuild(
 	container: AstroBuildPluginContainer
 ) {
 	const { settings, viteConfig } = opts;
-	const out = getOutputDirectory(settings.config);
+	const out = new URL('./content/', getOutputDirectory(settings.config));
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('content', input);
+	const userOutputConfig = (Array.isArray(viteConfig.build?.rollupOptions?.output) ? viteConfig.build?.rollupOptions?.output.at(0) : viteConfig.build?.rollupOptions?.output) ?? {};
+	const userChunkFileNames = userOutputConfig.chunkFileNames ?? '[name]_[hash].mjs';
+	const userEntryFileNames = userOutputConfig.entryFileNames ?? '[name].mjs';
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
@@ -290,21 +293,26 @@ async function contentBuild(
 							// TODO: don't hardcode this
 							if (moduleId.includes('/content/')) {
 								const url = pathToFileURL(info.moduleIds[0]);
-								const distRelative = url.toString().replace(settings.config.srcDir.toString(), '')
+								const distRelative = url.toString().replace(new URL('./content/', settings.config.srcDir).toString(), '')
 								const entryFileName = removeFileExtension(distRelative);
 								return `${entryFileName}.render.mjs`;
 							}
 						}
-						return '[name].[hash].mjs';
+						if (info.name === 'astro') return `astro.mjs`;
+						if (typeof userChunkFileNames === 'string') return userChunkFileNames;
+						if (typeof userChunkFileNames === 'function') return userChunkFileNames(info);
+						return '[name]_[hash].mjs';
 					},
-					...viteConfig.build?.rollupOptions?.output,
+					...userOutputConfig,
 					entryFileNames(info) {
 						const params = new URLSearchParams(info.moduleIds[0].split('?').pop() ?? '');
 						const flags = Array.from(params.keys());
 						const url = pathToFileURL(info.moduleIds[0]);
-						const distRelative = url.toString().replace(settings.config.srcDir.toString(), '')
+						const distRelative = url.toString().replace(new URL('./content/', settings.config.srcDir).toString(), '')
 						let entryFileName = removeFileExtension(distRelative);
 						if (distRelative.startsWith('file://')) {
+							if (typeof userEntryFileNames === 'string') return userEntryFileNames;
+							if (typeof userEntryFileNames === 'function') return userEntryFileNames(info);
 							return `[name].[hash].mjs`;
 						}
 						// TODO: figure out how to externalize `astro` internals
@@ -508,12 +516,12 @@ async function cleanServerOutput(opts: StaticBuildOptions) {
 	}
 }
 
-async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles = false) {
+export async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles = false) {
 	const files = await glob('**/*', {
 		cwd: fileURLToPath(fromFolder),
 		dot: includeDotfiles,
 	});
-
+	if (files.length === 0) return;
 	await Promise.all(
 		files.map(async (filename) => {
 			const from = new URL(filename, fromFolder);
