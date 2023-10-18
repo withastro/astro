@@ -75,18 +75,35 @@ export interface VercelServerlessConfig {
 	 * @deprecated
 	 */
 	analytics?: boolean;
+
+	/** Configuration for [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics). */
 	webAnalytics?: VercelWebAnalyticsConfig;
+
+	/** Configuration for [Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights). */
 	speedInsights?: VercelSpeedInsightsConfig;
+
+	/** Force files to be bundled with your function. This is helpful when you notice missing files. */
 	includeFiles?: string[];
+
+	/** Exclude any files from the bundling process that would otherwise be included. */
 	excludeFiles?: string[];
+
+	/** When enabled, an Image Service powered by the Vercel Image Optimization API will be automatically configured and used in production. In development, the image service specified by devImageService will be used instead. */
 	imageService?: boolean;
+
+	/** Configuration options for [Vercel’s Image Optimization API](https://vercel.com/docs/concepts/image-optimization). See [Vercel’s image configuration documentation](https://vercel.com/docs/build-output-api/v3/configuration#images) for a complete list of supported parameters. */
 	imagesConfig?: VercelImageConfig;
+
+	/** Allows you to configure which image service to use in development when imageService is enabled. */
 	devImageService?: DevImageService;
+
+	/** Whether to create the Vercel Edge middleware from an Astro middleware in your code base. */
 	edgeMiddleware?: boolean;
+	
+	/** Whether to split builds into a separate function for each route. */
 	functionPerRoute?: boolean;
-	/**
-	 * Maximum duration (in seconds) that will be allowed for the Serverless Function.
-	 */
+
+	/** Maximum duration (in seconds) that will be allowed for the Serverless Function. */
 	maxDuration?: number;
 }
 
