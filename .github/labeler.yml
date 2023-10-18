@@ -35,3 +35,8 @@
 
 'pkg: vue':
 - packages/integrations/vue/**
+
+'documentation pr':
+- README.md
+- packages/astro/src/@types/astro.ts
+- packages/astro/src/core/errors/errors-data.ts
