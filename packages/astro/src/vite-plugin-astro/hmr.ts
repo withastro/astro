@@ -95,7 +95,7 @@ export async function handleHotUpdate(
 	if (!file.startsWith('/')) {
 		file = `/${file}`
 	}
-	file = file.replace(config.root.pathname, '/')
+	file = file.replaceAll(' ', '%20').replace(config.root.pathname, '/')
 
 	// If only styles are changed, remove the component file from the update list
 	if (isStyleOnlyChange) {
