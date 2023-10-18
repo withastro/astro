@@ -54,6 +54,34 @@ export function astroContentVirtualModPlugin({
 	};
 }
 
+const IS_DEV = process.env.NODE_ENV !== 'production';
+// TODO: ugh this is not a nice abstraction. Come up with something better!
+function getContentExtension(index: number) {
+	if (IS_DEV) {
+		if (index === 0) {
+			return `?astroContentCollectionEntry`;
+		}
+		if (index === 1) {
+			return `?astroDataCollectionEntry`
+		}
+
+		if (index === 2) {
+			return `?astroRenderContent`
+		}
+	}
+
+	if (index === 0) {
+		return undefined;
+	}
+	if (index === 1) {
+		return ``
+	}
+
+	if (index === 2) {
+		return `.entry.mjs`
+	}
+}
+
 export async function generateContentEntryFile({
 	settings,
 	fs,
@@ -70,7 +98,7 @@ export async function generateContentEntryFile({
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 	const dataEntryExts = getDataEntryExts(settings);
 
-	const [contentEntryGlobResult, dataEntryGlobResult, renderEntryGlobResult] = await Promise.all([contentEntryExts, dataEntryExts, contentEntryExts].map((exts, i) => getStringifiedGlobResult(settings, exts, i === 2 ? '.entry.mjs' : undefined)));
+	const [contentEntryGlobResult, dataEntryGlobResult, renderEntryGlobResult] = await Promise.all([contentEntryExts, dataEntryExts, contentEntryExts].map((exts, i) => getStringifiedGlobResult(settings, exts, getContentExtension(i))));
 
 	const virtualModContents = fs
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
@@ -225,8 +253,11 @@ async function getStringifiedGlobResult(settings: AstroSettings, exts: string[],
 	})
 
 	let str = '{';
+	// TODO: cleanup this dev vs prod difference! Relying on NODE_ENV is probably a bad idea?
+	const prefix = IS_DEV ? contentPaths.contentDir.toString().replace(settings.config.root.toString(), '/') : './';
+	const strip = IS_DEV ? (v: string) => v : removeFileExtension;
 	for (const file of files) {
-		const importSpecifier = `./${removeFileExtension(removeLeadingForwardSlash(slash(file.path)))}${importExtension}`;
+		const importSpecifier = `${prefix}${strip(removeLeadingForwardSlash(slash(file.path)))}${importExtension}`;
 		const srcRelativePath = new URL(`./${slash(file.path)}`, contentPaths.contentDir).toString().replace(settings.config.root.toString(), '/')
 		str += `\n  "${srcRelativePath}": () => import("${importSpecifier}"),`
 	}
