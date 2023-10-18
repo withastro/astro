@@ -190,7 +190,6 @@ export function pluginContent(opts: StaticBuildOptions, internals: BuildInternal
 		targets: ['content'],
 		hooks: {
 			async 'build:before'() {
-				// TODO: filter lookupMap based on file hashes
 				const lookupMap = await generateLookupMap({ settings: opts.settings, fs: fsMod });
 				
 				return {
