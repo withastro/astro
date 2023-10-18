@@ -119,6 +119,8 @@ describe('Middleware API in PROD mode, SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let middlewarePath;
+	/** @type {import('../src/core/app/index').App} */
+	let app;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -127,10 +129,10 @@ describe('Middleware API in PROD mode, SSR', () => {
 			adapter: testAdapter({}),
 		});
 		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
 	});
 
 	it('should render locals data', async () => {
-		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/');
 		const response = await app.render(request);
 		const html = await response.text();
@@ -139,7 +141,6 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	it('should change locals data based on URL', async () => {
-		const app = await fixture.loadTestAdapterApp();
 		let response = await app.render(new Request('http://example.com/'));
 		let html = await response.text();
 		let $ = cheerio.load(html);
@@ -152,14 +153,12 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	it('should successfully redirect to another page', async () => {
-		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/redirect');
 		const response = await app.render(request);
 		expect(response.status).to.equal(302);
 	});
 
 	it('should call a second middleware', async () => {
-		const app = await fixture.loadTestAdapterApp();
 		const response = await app.render(new Request('http://example.com/second'));
 		const html = await response.text();
 		const $ = cheerio.load(html);
@@ -167,7 +166,6 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	it('should successfully create a new response', async () => {
-		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/rewrite');
 		const response = await app.render(request);
 		const html = await response.text();
@@ -177,14 +175,12 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	it('should return a new response that is a 500', async () => {
-		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/broken-500');
 		const response = await app.render(request);
 		expect(response.status).to.equal(500);
 	});
 
 	it('should successfully render a page if the middleware calls only next() and returns nothing', async () => {
-		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/not-interested');
 		const response = await app.render(request);
 		const html = await response.text();
@@ -192,8 +188,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 		expect($('p').html()).to.equal('Not interested');
 	});
 
-	it("should throws an error when the middleware doesn't call next or doesn't return a response", async () => {
-		const app = await fixture.loadTestAdapterApp();
+	it("should throw an error when the middleware doesn't call next or doesn't return a response", async () => {
 		const request = new Request('http://example.com/does-nothing');
 		const response = await app.render(request);
 		const html = await response.text();
@@ -202,7 +197,6 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	it('should correctly work for API endpoints that return a Response object', async () => {
-		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/api/endpoint');
 		const response = await app.render(request);
 		expect(response.status).to.equal(200);
@@ -210,7 +204,6 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	it('should correctly manipulate the response coming from API endpoints (not simple)', async () => {
-		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/api/endpoint');
 		const response = await app.render(request);
 		const text = await response.text();
@@ -218,13 +211,23 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	it('should correctly call the middleware function for 404', async () => {
-		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/funky-url');
 		const routeData = app.match(request, { matchNotFound: true });
 		const response = await app.render(request, routeData);
 		const text = await response.text();
 		expect(text.includes('Error')).to.be.true;
 		expect(text.includes('bar')).to.be.true;
+	});
+
+	it('should render 500.astro when the middleware throws an error', async () => {
+		const request = new Request('http://example.com/throw');
+		const routeData = app.match(request, { matchNotFound: true });
+		
+		const response = await app.render(request, routeData);
+		expect(response).to.deep.include({ status: 500 });
+
+		const text = await response.text();
+		expect(text).to.include("<h1>There was an error rendering the page.</h1>")
 	});
 
 	it('the integration should receive the path to the middleware', async () => {
