@@ -23,8 +23,7 @@ export function createI18nMiddleware(
 			const urlLocale = separators.find((s) => locales.includes(s));
 
 			if (urlLocale && fallbackKeys.includes(urlLocale)) {
-				// TODO: correctly handle chain of fallback
-				const fallbackLocale = i18n.fallback[urlLocale][0];
+				const fallbackLocale = i18n.fallback[urlLocale];
 				const newPathname = url.pathname.replace(`/${urlLocale}`, `/${fallbackLocale}`);
 				return context.redirect(newPathname);
 			}

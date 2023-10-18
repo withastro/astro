@@ -488,46 +488,40 @@ export function createRouteManifest(
 	if (settings.config.experimental.i18n && settings.config.experimental.i18n.fallback) {
 		let fallback = Object.entries(settings.config.experimental.i18n.fallback);
 		if (fallback.length > 0) {
-			for (const [fallbackLocale, fallbackLocaleList] of fallback) {
-				for (const fallbackLocaleEntry of fallbackLocaleList) {
-					const fallbackToRoutes = routes.filter((r) =>
-						r.component.includes(`/${fallbackLocaleEntry}`)
-					);
-					const fallbackFromRoutes = routes.filter((r) =>
-						r.component.includes(`/${fallbackLocale}`)
-					);
+			for (const [fallbackFrom, fallbackTo] of fallback) {
+				const fallbackToRoutes = routes.filter((r) => r.component.includes(`/${fallbackTo}`));
+				const fallbackFromRoutes = routes.filter((r) => r.component.includes(`/${fallbackFrom}`));
 
-					for (const fallbackToRoute of fallbackToRoutes) {
-						const hasRoute = fallbackFromRoutes.some((r) =>
-							r.component.replace(`/${fallbackLocaleEntry}`, `/${fallbackLocale}`)
+				for (const fallbackToRoute of fallbackToRoutes) {
+					const hasRoute = fallbackFromRoutes.find((r) => {
+						return (
+							r.component.replace(`/${fallbackTo}`, `/${fallbackFrom}`) ===
+							fallbackToRoute.component
 						);
+					});
 
-						if (!hasRoute) {
-							const pathname = fallbackToRoute.pathname?.replace(
-								`/${fallbackLocaleEntry}`,
-								`/${fallbackLocale}`
-							);
-							const route = fallbackToRoute.route?.replace(
-								`/${fallbackLocaleEntry}`,
-								`/${fallbackLocale}`
-							);
+					if (!hasRoute) {
+						const pathname = fallbackToRoute.pathname?.replace(
+							`/${fallbackTo}`,
+							`/${fallbackFrom}`
+						);
+						const route = fallbackToRoute.route?.replace(`/${fallbackTo}`, `/${fallbackFrom}`);
 
-							const segments = removeLeadingForwardSlash(route)
-								.split(path.posix.sep)
-								.filter(Boolean)
-								.map((s: string) => {
-									validateSegment(s);
-									return getParts(s, route);
-								});
-							routes.push({
-								...fallbackToRoute,
-								pathname,
-								route,
-								segments,
-								pattern: getPattern(segments, config),
-								type: 'fallback',
+						const segments = removeLeadingForwardSlash(route)
+							.split(path.posix.sep)
+							.filter(Boolean)
+							.map((s: string) => {
+								validateSegment(s);
+								return getParts(s, route);
 							});
-						}
+						routes.push({
+							...fallbackToRoute,
+							pathname,
+							route,
+							segments,
+							pattern: getPattern(segments, config),
+							type: 'fallback',
+						});
 					}
 				}
 			}
