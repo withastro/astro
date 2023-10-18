@@ -222,12 +222,12 @@ describe('Middleware API in PROD mode, SSR', () => {
 	it('should render 500.astro when the middleware throws an error', async () => {
 		const request = new Request('http://example.com/throw');
 		const routeData = app.match(request, { matchNotFound: true });
-		
+
 		const response = await app.render(request, routeData);
 		expect(response).to.deep.include({ status: 500 });
 
 		const text = await response.text();
-		expect(text).to.include("<h1>There was an error rendering the page.</h1>")
+		expect(text).to.include('<h1>There was an error rendering the page.</h1>');
 	});
 
 	it('the integration should receive the path to the middleware', async () => {
