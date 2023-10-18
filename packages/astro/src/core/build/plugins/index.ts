@@ -14,6 +14,7 @@ import { pluginMiddleware } from './plugin-middleware.js';
 import { pluginPages } from './plugin-pages.js';
 import { pluginPrerender } from './plugin-prerender.js';
 import { pluginRenderers } from './plugin-renderers.js';
+import { pluginChunks } from './plugin-chunks.js';
 import { pluginSSR, pluginSSRSplit } from './plugin-ssr.js';
 
 export function registerAllPlugins({ internals, options, register }: AstroBuildPluginContainer) {
@@ -34,4 +35,5 @@ export function registerAllPlugins({ internals, options, register }: AstroBuildP
 	register(pluginSSR(options, internals));
 	register(pluginSSRSplit(options, internals));
 	register(pluginExternalize());
+	register(pluginChunks());
 }
