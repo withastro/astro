@@ -83,7 +83,6 @@ export function enhanceViteSSRError({
 			if (globPattern) {
 				safeError.message = InvalidGlob.message(globPattern);
 				safeError.name = 'InvalidGlob';
-				safeError.hint = InvalidGlob.hint;
 				safeError.title = InvalidGlob.title;
 
 				const line = lns.findIndex((ln) => ln.includes(globPattern));
