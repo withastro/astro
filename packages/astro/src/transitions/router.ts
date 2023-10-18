@@ -205,14 +205,9 @@ async function updateDOM(
 	// either because it has the data attribute or is a link el.
 	// Returns null if the element is not part of the new head, undefined if it should be left alone.
 	const persistedHeadElement = (el: HTMLElement): Element | null | undefined => {
-		const vid = el.getAttribute(VITE_ID);
-		let newEl = vid && newDocument.head.querySelector(`[${VITE_ID}="${vid}"]`);
-		if (newEl) {
-			return newEl;
-		}
 		const id = el.getAttribute(PERSIST_ATTR);
 		if (id === '') return undefined;
-		newEl = id && newDocument.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
+		const newEl = id && newDocument.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
 		if (newEl) {
 			return newEl;
 		}
@@ -340,9 +335,11 @@ async function updateDOM(
 	for (const el of newDocument.querySelectorAll('head link[rel=stylesheet]')) {
 		// Do not preload links that are already on the page.
 		if (
-			!document.querySelector(`
-			[${PERSIST_ATTR}="${el.getAttribute(PERSIST_ATTR)}"],
-			link[rel=stylesheet][href="${el.getAttribute('href')}"]`)
+			!document.querySelector(
+				`[${PERSIST_ATTR}="${el.getAttribute(
+					PERSIST_ATTR
+				)}"], link[rel=stylesheet][href="${el.getAttribute('href')}"]`
+			)
 		) {
 			const c = document.createElement('link');
 			c.setAttribute('rel', 'preload');
@@ -554,7 +551,7 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 			// mark those style in the current head as persistent
 			viteIds.forEach((id) => {
 				const style = document.head.querySelector(`style[${VITE_ID}="${id}"]`);
-				if (style) {
+				if (style && !newDocument.head.querySelector(`style[${VITE_ID}="${id}"]`)) {
 					style.setAttribute(PERSIST_ATTR, '');
 				}
 			});
