@@ -98,6 +98,73 @@ export default defineConfig({
 });
 ```
 
+## Rendering strategy
+
+Hydrating SolidJS components are automatically wrapped in Suspense boundaries and rendered on the server using the [renderToStringAsync](https://www.solidjs.com/docs/latest/api#rendertostringasync) function. This means that lazy components will be resolved and rendered on the server. For example the following source files:
+
+```tsx
+// HelloAstro.tsx
+export default function HelloAstro() {
+  return <div>Hello Astro</div>;
+}
+```
+
+```tsx
+// LazyHelloAstro.tsx
+import { lazy } from 'solid-js';
+export const LazyHelloAstro = lazy(() => import('./HelloAstro'));
+```
+
+<!-- prettier-ignore -->
+```astro
+// hello.astro
+import { LazyHelloAstro } from './LazyHelloAstro.tsx';
+---
+<LazyHelloAstro />
+```
+
+Will be rendered into the server's HTML output as
+
+```html
+<div>Hello Astro</div>
+```
+
+Resources will also be resolved. For example:
+
+```tsx
+// CharacterName.tsx
+function CharacterName() {
+  const [name] = createResource(() =>
+    fetch('https://swapi.dev/api/people/1')
+      .then((result) => result.json())
+      .then((data) => data.name)
+  );
+
+  return <div>Name: {name()}</div>;
+}
+```
+
+<!-- prettier-ignore -->
+```astro
+// character.astro
+---
+<CharacterName />
+```
+
+Will generate the following HTML output:
+
+```html
+<div>Name: Luke Skywalker</div>
+```
+
+### Wrapping in Suspense
+
+Server-only or hydrating components are automatically wrapped in top level Suspense boundaries, so it is not necessary to add a top level Suspense boundary around async components.
+
+Non-hydrating [`client:only` components](https://docs.astro.build/en/reference/directives-reference/#clientonly) are not automatically wrapped in Suspense boundaries.
+
+Feel free to add additional Suspense boundaries according to your preference.
+
 ## Troubleshooting
 
 For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
