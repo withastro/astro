@@ -53,20 +53,6 @@ export const StaticRedirectNotAvailable = {
 /**
  * @docs
  * @see
- * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project)
- * - [Astro.request](https://docs.astro.build/en/reference/api-reference/#astrorequest)
- * @description
- * Request headers via the `Astro.request.headers` property are only available when [Server-side rendering](/en/guides/server-side-rendering/) is enabled.
- */
-export const StaticHeadersNotAvailable = {
-	name: 'StaticHeadersNotAvailable',
-	title: '`Astro.request.headers` is not available in static output mode.',
-	message:
-		"`Astro.request.headers` is only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
-} satisfies ErrorData;
-/**
- * @docs
- * @see
  * - [Official integrations](https://docs.astro.build/en/guides/integrations-guide/#official-integrations)
  * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
  * @description
