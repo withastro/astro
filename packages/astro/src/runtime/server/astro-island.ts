@@ -103,28 +103,9 @@ declare const Astro: {
 					Astro[directive]!(
 						async () => {
 							const rendererUrl = this.getAttribute('renderer-url');
-							let componentUrl = this.getAttribute('component-url')!;
-							let styleSheetsAsSideEffect;
-
-							// Persistent client:only components lose their imported styles during view transitions
-							// Importing the component again will re-import the styles
-							// A random number in the query string will convince the browser that these are all new files
-							const regenerateStyles = this.closest(
-								'[data-astro-transition-persist][data-astro-regenerate-styles]'
-							);
-							if (directive === 'only' && regenerateStyles) {
-								// the view transition router sets regenerateStyles in DEV mode only
-								regenerateStyles.removeAttribute('data-astro-regenerate-styles');
-								const sixRandomChars = Math.random().toString(36).slice(2, 8);
-								styleSheetsAsSideEffect = `${componentUrl}${
-									componentUrl.includes('?') ? '&' : '?'
-								}client-only=${sixRandomChars}`;
-							}
 							const [componentModule, { default: hydrator }] = await Promise.all([
-								import(componentUrl),
+								import(this.getAttribute('component-url')!),
 								rendererUrl ? import(rendererUrl) : () => () => {},
-								// we are only interested in the side effect of reloading imported styles in DEV mode
-								styleSheetsAsSideEffect ? import(styleSheetsAsSideEffect) : () => () => {},
 							]);
 							const componentExport = this.getAttribute('component-export') || 'default';
 							if (!componentExport.includes('.')) {
@@ -201,7 +182,7 @@ declare const Astro: {
 						client: this.getAttribute('client'),
 					});
 					this.removeAttribute('ssr');
-					this.dispatchEvent(new CustomEvent('astro:hydrate'));
+					this.dispatchEvent(new CustomEvent('astro:hydrate', { bubbles: true }));
 				};
 				attributeChangedCallback() {
 					this.hydrate();

@@ -205,9 +205,14 @@ async function updateDOM(
 	// either because it has the data attribute or is a link el.
 	// Returns null if the element is not part of the new head, undefined if it should be left alone.
 	const persistedHeadElement = (el: HTMLElement): Element | null | undefined => {
+		const vid = el.getAttribute(VITE_ID);
+		let newEl = vid && newDocument.head.querySelector(`[${VITE_ID}="${vid}"]`);
+		if (newEl) {
+			return newEl;
+		}
 		const id = el.getAttribute(PERSIST_ATTR);
 		if (id === '') return undefined;
-		const newEl = id && newDocument.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
+		newEl = id && newDocument.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
 		if (newEl) {
 			return newEl;
 		}
@@ -316,9 +321,6 @@ async function updateDOM(
 			if (newEl) {
 				// The element exists in the new page, replace it with the element
 				// from the old page so that state is preserved.
-
-				// signal the custom component script for astro-islands to reload imported style-sheets
-				if (import.meta.env.DEV) el.setAttribute('data-astro-regenerate-styles', '');
 				newEl.replaceWith(el);
 			}
 		}
@@ -526,34 +528,36 @@ if (inBrowser) {
 	}
 }
 
-// For all Vue & Svelte components that move to the next page, mark their embedded styles as persistent.
-async function prepareForClientOnlyComponents(newDocument: Document, _toLocation: URL) {
-	const PERSISTENT_CLIENT_ONLY = `
-	[${PERSIST_ATTR}] astro-island[client=only],
-										astro-island[client=only][${PERSIST_ATTR}]`;
-
-	document.head
-		.querySelectorAll(`[${PERSIST_ATTR}='']`)
-		.forEach((el) => el.removeAttribute(PERSIST_ATTR));
-	
-	// transition:persist values on the next page
-	const newPersistIds = [...newDocument.querySelectorAll(PERSISTENT_CLIENT_ONLY)].map((el) =>
-		el.closest(`[${PERSIST_ATTR}]`)!.getAttribute(PERSIST_ATTR)
-	);
-	// transition:persist values on the current page
-	for (const component of document.querySelectorAll(PERSISTENT_CLIENT_ONLY)) {
-		const id = component.closest(`[${PERSIST_ATTR}]`)!.getAttribute(PERSIST_ATTR);
-		// on both pages
-		if (newPersistIds.includes(id)) {
-			// Vue or Svelte component?
-			const componentURL = component.getAttribute('component-url')!;
-			const match = componentURL.match(/\.(vue|svlete)$/);
-			if (match) {
-				// Mark the style sheet of the component as persistent
-				const selector = `style[${VITE_ID}*='${componentURL}?${match[1]}&type=style&']`;
-				const styles = document.head.querySelectorAll(selector);
-				styles.forEach((el) => el.setAttribute(PERSIST_ATTR, ''));
-			}
+// Keep all styles that are potentially created by client:only components
+// and required on the next page
+async function prepareForClientOnlyComponents(newDocument: Document, toLocation: URL) {
+	const islands = newDocument.body.querySelectorAll("astro-island[client='only']");
+	if (islands) {
+		// load the next page with an empty module loader cache
+		const nextPage = document.createElement('iframe');
+		nextPage.setAttribute('src', toLocation.href);
+		nextPage.style.display = 'none';
+		document.body.append(nextPage);
+		let counter = 0;
+		await new Promise((r) => {
+			nextPage.contentWindow?.addEventListener('astro:hydrate', () => {
+				if (++counter === islands.length) r(0);
+			});
+			setInterval(r, 1000);
+		});
+		const nextHead = nextPage.contentDocument?.head;
+		if (nextHead) {
+			// collect the vite ids of all styles that we may still need
+			const viteIds = [...nextHead.querySelectorAll(`style[${VITE_ID}]`)].map((style) =>
+				style.getAttribute(VITE_ID)
+			);
+			// mark those style in the current head as persistent
+			viteIds.forEach((id) => {
+				const style = document.head.querySelector(`style[${VITE_ID}="${id}"]`);
+				if (style) {
+					style.setAttribute(PERSIST_ATTR, '');
+				}
+			});
 		}
 	}
 }
