@@ -91,11 +91,9 @@ export async function handleHotUpdate(
 	// Bugfix: sometimes style URLs get normalized and end with `lang.css=`
 	// These will cause full reloads, so filter them out here
 	const mods = [...filtered].filter((m) => !m.url.endsWith('='));
-	let file = ctx.file;
-	if (!file.startsWith('/')) {
-		file = `/${file}`
-	}
-	file = file.replaceAll(' ', '%20').replace(config.root.pathname, '/')
+	const file = fileURLToPath(`file:///${ctx.file}`)
+		.replace(fileURLToPath(config.root), '/')
+		.replace(/\\/g, '/');
 
 	// If only styles are changed, remove the component file from the update list
 	if (isStyleOnlyChange) {
