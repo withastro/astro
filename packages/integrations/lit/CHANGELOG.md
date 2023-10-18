@@ -1,5 +1,11 @@
 # @astrojs/lit
 
+## 3.0.2
+
+### Patch Changes
+
+- [#8826](https://github.com/withastro/astro/pull/8826) [`754c40f6e`](https://github.com/withastro/astro/commit/754c40f6ed941a61362d221915568c04ae85d6ad) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixed an issue where an incompatible version of lit was installed.
+
 ## 3.0.1
 
 ### Patch Changes
