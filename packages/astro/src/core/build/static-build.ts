@@ -33,6 +33,7 @@ import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 import { CONTENT_RENDER_FLAG, PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
+import { generateLookupMap } from '../../content/vite-plugin-content-virtual-mod.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -86,11 +87,14 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	settings.timer.end('SSR build');
 
 	// Build `astro:content` collections
-	const contentTime = performance.now();
-	opts.logger.info('content', `Building collections...`);
-	await contentBuild(opts, internals, new Set(), container);
-	opts.logger.info('content', dim(`Completed in ${getTimeStat(contentTime, performance.now())}.`));
-
+	const shouldDoContentBuild = await needsContentBuild(opts);
+	if (shouldDoContentBuild) {
+		const contentTime = performance.now();
+		opts.logger.info('content', `Building collections...`);
+		await contentBuild(opts, internals, new Set(), container);
+		opts.logger.info('content', dim(`Completed in ${getTimeStat(contentTime, performance.now())}.`));
+	}
+	
 	settings.timer.start('Client build');
 
 	const rendererClientEntrypoints = settings.renderers
@@ -251,6 +255,11 @@ async function ssrBuild(
 	});
 
 	return await vite.build(updatedViteBuildConfig);
+}
+
+async function needsContentBuild(opts: StaticBuildOptions) {
+	const lookupMap = await generateLookupMap({ settings: opts.settings, fs });
+	return Object.keys(lookupMap).length > 0
 }
 
 async function contentBuild(
