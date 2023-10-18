@@ -1,5 +1,5 @@
 ---
-'astro': patch
+'astro': minor
 ---
 
 Refactor content collections generation
