@@ -112,43 +112,6 @@ export default function vercelServerless({
 
 	const NTF_CACHE = Object.create(null);
 
-	async function createFunctionFolder(
-		funcName: string,
-		entry: URL,
-		inc: URL[],
-		logger: AstroIntegrationLogger,
-		options: { maxDuration?: number }
-	) {
-		const functionFolder = new URL(`./functions/${funcName}.func/`, _config.outDir);
-
-		// Copy necessary files (e.g. node_modules/)
-		const { handler } = await copyDependenciesToFunction(
-			{
-				entry,
-				outDir: functionFolder,
-				includeFiles: inc,
-				excludeFiles: excludeFiles?.map((file) => new URL(file, _config.root)) || [],
-				logger,
-			},
-			NTF_CACHE
-		);
-
-		// Enable ESM
-		// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
-		await writeJson(new URL(`./package.json`, functionFolder), {
-			type: 'module',
-		});
-
-		// Serverless function config
-		// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
-		await writeJson(new URL(`./.vc-config.json`, functionFolder), {
-			runtime: getRuntime(),
-			handler,
-			launcherType: 'Nodejs',
-			maxDuration: options.maxDuration,
-		});
-	}
-
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
@@ -268,20 +231,32 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 							? getRouteFuncName(route)
 							: getFallbackFuncName(entryFile);
 
-						await createFunctionFolder(func, entryFile, filesToInclude, logger, { maxDuration });
+						await createFunctionFolder({
+							functionName: func,
+							entry: entryFile,
+							config: _config,
+							logger,
+							NTF_CACHE,
+							includeFiles: filesToInclude,
+							excludeFiles,
+							maxDuration
+						});
 						routeDefinitions.push({
 							src: route.pattern.source,
 							dest: func,
 						});
 					}
 				} else {
-					await createFunctionFolder(
-						'render',
-						new URL(serverEntry, buildTempFolder),
-						filesToInclude,
+					await createFunctionFolder({
+						functionName: 'render',
+						entry: new URL(serverEntry, buildTempFolder),
+						config: _config,
 						logger,
-						{ maxDuration }
-					);
+						NTF_CACHE,
+						includeFiles: filesToInclude,
+						excludeFiles,
+						maxDuration
+					});
 					routeDefinitions.push({ src: '/.*', dest: 'render' });
 				}
 
@@ -320,6 +295,57 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 			},
 		},
 	};
+}
+
+interface CreateFunctionFolderArgs {
+	functionName: string
+	entry: URL
+	config: AstroConfig
+	logger: AstroIntegrationLogger
+	NTF_CACHE: any
+	includeFiles: URL[]
+	excludeFiles?: string[]
+	maxDuration?: number
+}
+
+async function createFunctionFolder({
+	functionName,
+	entry,
+	config,
+	logger,
+	NTF_CACHE,
+	includeFiles,
+	excludeFiles,
+	maxDuration,
+}: CreateFunctionFolderArgs) {
+	const functionFolder = new URL(`./functions/${functionName}.func/`, config.outDir);
+
+	// Copy necessary files (e.g. node_modules/)
+	const { handler } = await copyDependenciesToFunction(
+		{
+			entry,
+			outDir: functionFolder,
+			includeFiles,
+			excludeFiles: excludeFiles?.map((file) => new URL(file, config.root)) || [],
+			logger,
+		},
+		NTF_CACHE
+	);
+
+	// Enable ESM
+	// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
+	await writeJson(new URL(`./package.json`, functionFolder), {
+		type: 'module',
+	});
+
+	// Serverless function config
+	// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
+	await writeJson(new URL(`./.vc-config.json`, functionFolder), {
+		runtime: getRuntime(),
+		handler,
+		launcherType: 'Nodejs',
+		maxDuration,
+	});
 }
 
 function validateRuntime() {
