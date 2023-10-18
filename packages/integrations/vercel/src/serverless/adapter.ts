@@ -84,6 +84,10 @@ export interface VercelServerlessConfig {
 	devImageService?: DevImageService;
 	edgeMiddleware?: boolean;
 	functionPerRoute?: boolean;
+	/**
+	 * Maximum duration (in seconds) that will be allowed for the Serverless Function.
+	 */
+	maxDuration?: number;
 }
 
 export default function vercelServerless({
@@ -97,6 +101,7 @@ export default function vercelServerless({
 	devImageService = 'sharp',
 	functionPerRoute = false,
 	edgeMiddleware = false,
+	maxDuration,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
@@ -111,7 +116,8 @@ export default function vercelServerless({
 		funcName: string,
 		entry: URL,
 		inc: URL[],
-		logger: AstroIntegrationLogger
+		logger: AstroIntegrationLogger,
+		options: { maxDuration?: number }
 	) {
 		const functionFolder = new URL(`./functions/${funcName}.func/`, _config.outDir);
 
@@ -139,6 +145,7 @@ export default function vercelServerless({
 			runtime: getRuntime(),
 			handler,
 			launcherType: 'Nodejs',
+			maxDuration: options.maxDuration,
 		});
 	}
 
@@ -261,7 +268,7 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 							? getRouteFuncName(route)
 							: getFallbackFuncName(entryFile);
 
-						await createFunctionFolder(func, entryFile, filesToInclude, logger);
+						await createFunctionFolder(func, entryFile, filesToInclude, logger, { maxDuration });
 						routeDefinitions.push({
 							src: route.pattern.source,
 							dest: func,
@@ -272,7 +279,8 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 						'render',
 						new URL(serverEntry, buildTempFolder),
 						filesToInclude,
-						logger
+						logger,
+						{ maxDuration }
 					);
 					routeDefinitions.push({ src: '/.*', dest: 'render' });
 				}
