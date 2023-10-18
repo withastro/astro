@@ -7,11 +7,10 @@ import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { generateContentEntryFile, generateLookupMap } from '../../../content/vite-plugin-content-virtual-mod.js';
 import { joinPaths } from '../../path.js';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { ContentLookupMap } from '../../../content/utils.js';
 import { CONTENT_RENDER_FLAG } from '../../../content/consts.js';
-import glob from 'fast-glob';
-import { dirname } from 'node:path';
+import { copyFiles } from '../static-build.js';
 import pLimit from 'p-limit';
 
 const CONTENT_CACHE_DIR = './content/';
@@ -62,6 +61,8 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 				await fsMod.promises.writeFile(contentManifestFile, JSON.stringify(newManifest), { encoding: 'utf8' });
 				entries = getEntriesFromManifests(oldManifest, newManifest);
 
+				console.log(`Building ${entries.buildFromSource.length} changed files...`)
+
 				for (const { type, entry } of entries.buildFromSource) {
 					const fileURL = joinPaths(opts.settings.config.root.toString(), entry);
 					const input = fileURLToPath(fileURL);
@@ -93,14 +94,13 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 			}
 		},
 
-		async generateBundle(_, bundle) {
+		async generateBundle(options, bundle) {
 			const content = await generateContentEntryFile({ settings: opts.settings, fs: fsMod, lookupMap });
 			this.emitFile({
 				type: 'prebuilt-chunk',
 				code: content,
-				fileName: 'content/index.mjs'
+				fileName: '.entry.mjs'
 			})
-
 			Object.keys(bundle).forEach(key => {
 				const mod = bundle[key];
 				if (mod.type === 'asset') return;
@@ -110,58 +110,22 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 			});
 		},
 
-		async writeBundle(options, bundle) {
-			const dist = options.dir!
+		async writeBundle(options) {
+			const dist = new URL(pathToFileURL(options.dir!).toString() + '/');
 			const cache = contentEntryCacheDir;
+			const cacheTmp = new URL('./.tmp/', cache);
 
-			const callbacks: (() => void)[] = [];
-			if (fsMod.existsSync(cache)) {
-				const topLevelCachedFiles = await glob('*.mjs', {
-					cwd: fileURLToPath(cache),
-					onlyFiles: true,
-				});
-				for (const file of topLevelCachedFiles) {
-					const filePath = joinPaths(dist, file);
-					const cachePath = new URL(file, cache);
-					callbacks.push(() => {
-						fsMod.mkdirSync(dirname(filePath), { recursive: true })
-						fsMod.copyFileSync(cachePath, filePath, fsMod.constants.COPYFILE_FICLONE)
-					})
-				}
-				for (const { entry } of entries.restoreFromCache) {
-					const contentDir = `/src/content/`;
-					const entryName = entry.replace(contentDir, '').replace(/\..*$/, '');
-					const cachedFiles = await glob([`**/${entryName}.mjs`, `**/${entryName}.entry.mjs`, `**/${entryName}.render.mjs`], {
-						cwd: fileURLToPath(cache),
-						onlyFiles: true,
-					});
-					for (const file of cachedFiles) {
-						const filePath = joinPaths(dist, file);
-						const cachePath = new URL(file, cache);
-						callbacks.push(() => {
-							fsMod.mkdirSync(dirname(filePath), { recursive: true })
-							fsMod.copyFileSync(cachePath, filePath, fsMod.constants.COPYFILE_FICLONE)
-						})
-					}
-				}
-			}
-			
+			const cacheExists = fsMod.existsSync(cache);
 			fsMod.mkdirSync(cache, { recursive: true })
-			for (const [file, chunk] of Object.entries(bundle)) {
-				const cachePath = new URL(file, cache);
-				callbacks.push(() => {
-					fsMod.mkdirSync(new URL('./', cachePath), { recursive: true })
-					if (chunk.type === 'chunk') {
-						fsMod.writeFileSync(cachePath, chunk.code, { encoding: 'utf8' })
-					} else {
-						fsMod.writeFileSync(cachePath, chunk.source)
-					}
-				})
+			await fsMod.promises.mkdir(cacheTmp, { recursive: true });
+			await copyFiles(dist, cacheTmp, true);
+			
+			if (cacheExists) {
+				await copyFiles(contentEntryCacheDir, dist, false)
 			}
 
-			for (const cb of callbacks) {
-				cb();
-			}
+			await copyFiles(cacheTmp, contentEntryCacheDir);
+			await fsMod.promises.rm(cacheTmp, { recursive: true, force: true });
 		}
 	};
 }
