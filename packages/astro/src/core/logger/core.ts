@@ -123,22 +123,25 @@ function padStr(str: string, len: number) {
 /**
  * Get the prefix for a log message. 
  * This includes the timestamp, log level, and label all properly formatted
- * with colors.
+ * with colors. This is shared across different loggers, so it's defined here.
  */
 export function getEventPrefix({ level, label }: LogMessage) {
 	const timestamp = `${dateTimeFormat.format(new Date())}`;
-	const prefix = [timestamp];
+	const prefix = [];
 	if (level === 'error' || level === 'warn') {
-		prefix.push(`[${level}]`);
+		prefix.push(bold(timestamp));
+		prefix.push(`[${level.toUpperCase()}]`);
+	} else {
+		prefix.push(timestamp);
 	}
 	if (label) {
 		prefix.push(`[${label}]`);
 	}
 	if (level === 'error') {
-		return red(bold(prefix.join(' ')));
+		return red(prefix.join(' '));
 	}
 	if (level === 'warn') {
-		return yellow(bold(prefix.join(' ')));
+		return yellow(prefix.join(' '));
 	}
 	if (prefix.length === 1) {
 		return dim(prefix[0]);

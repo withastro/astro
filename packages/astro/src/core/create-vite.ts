@@ -1,11 +1,9 @@
-import stripAnsi from 'strip-ansi';
-import type { AstroSettings } from '../@types/astro.js';
-import type { Logger } from './logger/core.js';
-import type { Logger as ViteLogger } from 'vite';
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import type { Logger as ViteLogger } from 'vite';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
+import type { AstroSettings } from '../@types/astro.js';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
 import {
 	astroContentAssetPropagationPlugin,
@@ -28,8 +26,8 @@ import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
+import type { Logger } from './logger/core.js';
 import { joinPaths } from './path.js';
-import { isAstroError } from './errors/errors.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -101,22 +99,13 @@ export async function createVite(
 
 	const viteCustomLogger: ViteLogger = {
 		...vite.createLogger('warn'),
+		// All error log messages are also thrown as real errors,
+		// so we can safely ignore them here and let the error handler
+		// log them for the user instead.
+		error: (msg) => logger.debug('vite', 'ERROR ' + msg),
+		// Warnings are usually otherwise ignored by Vite, so it's
+		// important that we catch and log them here.
 		warn: (msg) => logger.warn('vite', msg),
-		error: (_msg, options) => {
-			const msg = stripAnsi(_msg);
-			if (msg.startsWith('Error when evaluating SSR module')) {
-				// safe to ignore, this error is immediately thrown by Vite
-				// and then handled by our own logger.
-				return;
-			}
-			if (options && options.error && isAstroError(options.error)) {
-				// safe to assume that Astro errors are always handled by
-				// Astro, and that we would never expect Vite to be responsible
-				// for logging them for us.
-				return;
-			}
-			logger.error('vite', msg);
-		},
 	};
 
 	// Start with the Vite configuration that Astro core needs
