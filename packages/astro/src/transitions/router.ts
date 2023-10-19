@@ -527,33 +527,49 @@ if (inBrowser) {
 
 // Keep all styles that are potentially created by client:only components
 // and required on the next page
+//eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function prepareForClientOnlyComponents(newDocument: Document, toLocation: URL) {
-	const islands = newDocument.body.querySelectorAll("astro-island[client='only']");
-	if (islands) {
-		// load the next page with an empty module loader cache
+	if (
+		// Any persisted client:only component on the next page?
+		newDocument.body.querySelector(
+			`[${PERSIST_ATTR}]  astro-island[client='only'], 
+													astro-island[client='only'][${PERSIST_ATTR}]`
+		)
+	) {
+		// Load the next page with an empty module loader cache
 		const nextPage = document.createElement('iframe');
 		nextPage.setAttribute('src', toLocation.href);
 		nextPage.style.display = 'none';
 		document.body.append(nextPage);
-		let counter = 0;
-		await new Promise((r) => {
-			nextPage.contentWindow?.addEventListener('astro:hydrate', () => {
-				if (++counter === islands.length) r(0);
-			});
-			setInterval(r, 1000);
-		});
+		await hydrationDone(nextPage);
+
 		const nextHead = nextPage.contentDocument?.head;
 		if (nextHead) {
-			// collect the vite ids of all styles that we may still need
+			// Collect the vite ids of all styles present in the next head
 			const viteIds = [...nextHead.querySelectorAll(`style[${VITE_ID}]`)].map((style) =>
 				style.getAttribute(VITE_ID)
 			);
-			// mark those style in the current head as persistent
+			// Mark those styles as persistent in the current head,
+			// if they came from hydration and not from the newDocument
 			viteIds.forEach((id) => {
 				const style = document.head.querySelector(`style[${VITE_ID}="${id}"]`);
 				if (style && !newDocument.head.querySelector(`style[${VITE_ID}="${id}"]`)) {
 					style.setAttribute(PERSIST_ATTR, '');
 				}
+			});
+		}
+
+		// return a promise that resolves when all astro-islands are hydrated
+		async function hydrationDone(loadingPage: HTMLIFrameElement) {
+			await new Promise(
+				(r) => loadingPage.contentWindow?.addEventListener('load', r, { once: true })
+			);
+			return new Promise<void>(async (r) => {
+				for (let count = 0; count <= 20; ++count) {
+					if (!loadingPage.contentDocument!.body.querySelector('astro-island[ssr]')) break;
+					await new Promise((r2) => setTimeout(r2, 50));
+				}
+				r();
 			});
 		}
 	}

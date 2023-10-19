@@ -182,7 +182,7 @@ declare const Astro: {
 						client: this.getAttribute('client'),
 					});
 					this.removeAttribute('ssr');
-					this.dispatchEvent(new CustomEvent('astro:hydrate', { bubbles: true }));
+					this.dispatchEvent(new CustomEvent('astro:hydrate'));
 				};
 				attributeChangedCallback() {
 					this.hydrate();
