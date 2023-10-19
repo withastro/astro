@@ -11,6 +11,8 @@ const EMPTY_MIDDLEWARE = '\0empty-middleware';
 
 export function vitePluginMiddleware(settings: AstroSettings): VitePlugin {
 	let viteCommand: 'build' | 'serve' = 'serve';
+	let resolvedMiddlewareId: string | undefined = undefined;
+	const hasIntegrationMiddleware = () => settings.middleware.pre.length > 0 || settings.middleware.post.length > 0;
 
 	return {
 		name: '@astro/plugin-middleware',
@@ -22,7 +24,17 @@ export function vitePluginMiddleware(settings: AstroSettings): VitePlugin {
 
 		async resolveId(id) {
 			if (id === MIDDLEWARE_MODULE_ID) {
-				return MIDDLEWARE_MODULE_ID;
+				const middlewareId = await this.resolve(
+					`${decodeURI(settings.config.srcDir.pathname)}${MIDDLEWARE_PATH_SEGMENT_NAME}`
+				);
+				if (middlewareId) {
+					resolvedMiddlewareId = middlewareId.id;
+					return MIDDLEWARE_MODULE_ID;
+				} else if(hasIntegrationMiddleware()) {
+					return MIDDLEWARE_MODULE_ID;
+				} else {
+					return EMPTY_MIDDLEWARE;
+				}
 			}
 			if (id === EMPTY_MIDDLEWARE) {
 				return EMPTY_MIDDLEWARE;
@@ -33,16 +45,6 @@ export function vitePluginMiddleware(settings: AstroSettings): VitePlugin {
 			if (id === EMPTY_MIDDLEWARE) {
 				return 'export const onRequest = undefined';
 			} else if (id === MIDDLEWARE_MODULE_ID) {
-				let resolvedMiddlewareId: string;
-				const middlewareId = await this.resolve(
-					`${decodeURI(settings.config.srcDir.pathname)}${MIDDLEWARE_PATH_SEGMENT_NAME}`
-				);
-				if (middlewareId) {
-					resolvedMiddlewareId = middlewareId.id;
-				} else {
-					resolvedMiddlewareId = EMPTY_MIDDLEWARE;
-				}
-
 				// In the build, tell Vite to emit this file
 				if(viteCommand === 'build') {
 					this.emitFile({
