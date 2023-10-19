@@ -1,0 +1,11 @@
+---
+import Layout from '../components/Layout.astro';
+import Island from '../components/Island';
+import VueCounter from '../components/VueCounter.vue';
+import SvelteCounter from '../components/SvelteCounter.svelte';
+---
+<Layout>
+	<p id="page-four">Page 4</p>
+		<VueCounter client:only="vue">Vue</VueCounter>
+		<SvelteCounter client:only="svelte">Svelte</SvelteCounter>
+</Layout>
