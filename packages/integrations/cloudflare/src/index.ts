@@ -166,7 +166,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								modules: true,
 								script: '',
 								cache: true,
-								cachePersist: true,
+								cachePersist: `${typedRuntimeMode.persistTo}/cache`,
 								cacheWarnUsage: true,
 								d1Databases: D1Bindings,
 								d1Persist: `${typedRuntimeMode.persistTo}/d1`,
