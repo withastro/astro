@@ -686,7 +686,6 @@ test.describe('View Transitions', () => {
 		let pageTwo = page.locator('#page-two');
 		await expect(pageTwo, 'should have content').toHaveText('Page 2');
 
-		await page.waitForTimeout(500);
 		styles = await page.locator('style').all();
 		expect(styles.length).toEqual(totalExpectedStyles, 'style count has not changed');
 	});
