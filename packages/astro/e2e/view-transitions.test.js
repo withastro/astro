@@ -694,8 +694,8 @@ test.describe('View Transitions', () => {
 		const totalExpectedStyles_page_four = 7;
 
 		await page.goto(astro.resolveUrl('/client-only-three'));
-		let msg = page.locator('.counter-message');
-		await expect(msg).toHaveText('message here');
+		let msg = page.locator('#name');
+		await expect(msg).toHaveText('client-only-three');
 		await page.waitForTimeout(400); // await hydration
 
 		let styles = await page.locator('style').all();
