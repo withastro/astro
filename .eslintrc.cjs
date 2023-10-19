@@ -16,7 +16,7 @@ module.exports = {
     // These off/configured-differently-by-default rules fit well for us
     '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
     '@typescript-eslint/no-unused-vars': [
-      'error',
+      'warn',
       { argsIgnorePattern: '^_', ignoreRestSiblings: true },
     ],
     'no-only-tests/no-only-tests': 'error',
