@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/preact": "workspace:*",
+    "@astrojs/preact": "*",
     "@test/react-lib": "workspace:*",
-    "astro": "workspace:*",
+    "astro": "*",
     "preact": "^10.17.1"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/solid-js",
+  "name": "testing-ci-ortsa-solid-js",
   "version": "3.0.2",
   "description": "Use Solid components within Astro",
   "type": "module",
@@ -38,7 +38,7 @@
     "vite-plugin-solid": "^2.7.0"
   },
   "devDependencies": {
-    "astro": "workspace:*",
+    "astro": "workspace:testing-ci-ortsa@*",
     "astro-scripts": "workspace:*",
     "solid-js": "^1.7.11"
   },

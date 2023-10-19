@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/react": "workspace:*",
-    "@astrojs/svelte": "workspace:*",
+    "@astrojs/react": "*",
+    "@astrojs/svelte": "*",
     "@test/astro-client-only-pkg": "file:./pkg",
-    "astro": "workspace:*",
+    "astro": "*",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "svelte": "^4.2.0"

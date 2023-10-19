@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/lit": "workspace:*",
+    "@astrojs/lit": "*",
     "@webcomponents/template-shadowroot": "^0.2.1",
-    "astro": "workspace:*",
+    "astro": "*",
     "lit": "^2.8.0"
   }
 }

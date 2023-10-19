@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/lit",
+  "name": "testing-ci-ortsa-lit",
   "version": "3.0.2",
   "description": "Use Lit components within Astro",
   "type": "module",
@@ -53,7 +53,7 @@
     }
   },
   "devDependencies": {
-    "astro": "workspace:*",
+    "astro": "workspace:testing-ci-ortsa@*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",

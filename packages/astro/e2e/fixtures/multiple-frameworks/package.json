@@ -3,13 +3,13 @@
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
-    "@astrojs/lit": "workspace:*",
-    "@astrojs/preact": "workspace:*",
-    "@astrojs/react": "workspace:*",
-    "@astrojs/solid-js": "workspace:*",
-    "@astrojs/svelte": "workspace:*",
-    "@astrojs/vue": "workspace:*",
-    "astro": "workspace:*"
+    "@astrojs/lit": "*",
+    "@astrojs/preact": "*",
+    "@astrojs/react": "*",
+    "@astrojs/solid-js": "*",
+    "@astrojs/svelte": "*",
+    "@astrojs/vue": "*",
+    "astro": "*"
   },
   "dependencies": {
     "@webcomponents/template-shadowroot": "^0.2.1",

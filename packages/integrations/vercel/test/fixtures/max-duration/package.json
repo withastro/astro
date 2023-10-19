@@ -3,8 +3,8 @@
     "version": "0.0.0",
     "private": true,
     "dependencies": {
-        "@astrojs/vercel": "workspace:*",
-        "astro": "workspace:*"
+        "@astrojs/vercel": "*",
+        "astro": "*"
     }
 }
   

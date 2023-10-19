@@ -2,9 +2,9 @@
   "name": "@test/mdx-plus-react",
   "private": true,
   "dependencies": {
-    "@astrojs/mdx": "workspace:*",
-    "@astrojs/react": "workspace:*",
-    "astro": "workspace:*",
+    "@astrojs/mdx": "*",
+    "@astrojs/react": "*",
+    "astro": "*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   }

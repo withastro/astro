@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/telemetry",
+  "name": "testing-ci-ortsa-telemetry",
   "version": "3.0.3",
   "type": "module",
   "types": "./dist/index.d.ts",

@@ -4,6 +4,6 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "astro": "workspace:*"
+    "astro": "*"
   }
 }

@@ -2,8 +2,8 @@
   "name": "@test/mdx-page",
   "private": true,
   "dependencies": {
-    "@astrojs/mdx": "workspace:*",
-    "astro": "workspace:*",
+    "@astrojs/mdx": "*",
+    "astro": "*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   }

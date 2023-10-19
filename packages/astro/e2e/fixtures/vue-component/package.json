@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/mdx": "workspace:*",
-    "@astrojs/vue": "workspace:*",
-    "astro": "workspace:*",
+    "@astrojs/mdx": "*",
+    "@astrojs/vue": "*",
+    "astro": "*",
     "vue": "^3.3.4"
   }
 }

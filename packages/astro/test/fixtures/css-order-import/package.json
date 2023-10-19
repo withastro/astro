@@ -2,8 +2,8 @@
   "name": "@test/css-order-import",
   "private": true,
   "dependencies": {
-    "@astrojs/react": "workspace:*",
-    "astro": "workspace:*",
+    "@astrojs/react": "*",
+    "astro": "*",
     "react": "^18.1.0",
     "react-dom": "^18.1.0"
   }

@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/internal-helpers",
+  "name": "testing-ci-ortsa-internal-helpers",
   "description": "Internal helpers used by core Astro packages.",
   "version": "0.2.1",
   "type": "module",

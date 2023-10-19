@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/solid-js": "workspace:*",
-    "astro": "workspace:*",
+    "@astrojs/solid-js": "*",
+    "astro": "*",
     "solid-js": "^1.7.11"
   }
 }

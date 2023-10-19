@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "astro": "workspace:*",
-    "@astrojs/vue": "workspace:*",
+    "astro": "*",
+    "@astrojs/vue": "*",
     "vite-svg-loader": "4.0.0"
   }
 }

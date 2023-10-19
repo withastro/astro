@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/rss",
+  "name": "testing-ci-ortsa-rss",
   "description": "Add RSS feeds to your Astro projects",
   "version": "3.0.0",
   "type": "module",
@@ -30,8 +30,8 @@
     "@types/chai": "^4.3.5",
     "@types/chai-as-promised": "^7.1.5",
     "@types/mocha": "^10.0.1",
-    "astro": "workspace:*",
-    "astro-scripts": "workspace:*",
+    "astro": "*",
+    "astro-scripts": "*",
     "chai": "^4.3.7",
     "chai-as-promised": "^7.1.1",
     "chai-xml": "^0.4.1",

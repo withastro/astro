@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/markdown-remark",
+  "name": "testing-ci-ortsa-markdown-remark",
   "version": "3.3.0",
   "type": "module",
   "author": "withastro",
@@ -28,7 +28,7 @@
     "test": "mocha --exit --timeout 20000"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.3.0"
+    "astro": "workspace:testing-ci-ortsa@^3.3.0"
   },
   "dependencies": {
     "@astrojs/prism": "^3.0.0",

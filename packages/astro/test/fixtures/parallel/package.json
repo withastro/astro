@@ -7,6 +7,6 @@
     "dev": "astro dev"
   },
   "dependencies": {
-    "astro": "workspace:*"
+    "astro": "*"
   }
 }
