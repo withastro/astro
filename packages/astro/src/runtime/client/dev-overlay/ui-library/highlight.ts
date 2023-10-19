@@ -1,7 +1,7 @@
-import { getIconElement, type Icon } from './icons.js';
+import { getIconElement, isDefinedIcon, type Icon } from './icons.js';
 
 export class DevOverlayHighlight extends HTMLElement {
-	icon: Icon | (string & NonNullable<unknown>) = '';
+	icon?: Icon;
 
 	shadowRoot: ShadowRoot;
 
@@ -44,7 +44,7 @@ export class DevOverlayHighlight extends HTMLElement {
 			iconContainer.classList.add('icon');
 
 			let iconElement;
-			if (this.icon.startsWith('astro:')) {
+			if (isDefinedIcon(this.icon)) {
 				iconElement = getIconElement(this.icon);
 				iconElement?.style.setProperty('width', '16px');
 				iconElement?.style.setProperty('height', '16px');

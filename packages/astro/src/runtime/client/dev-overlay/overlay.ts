@@ -5,6 +5,7 @@ import type { DevOverlayItem as DevOverlayItemDefinition } from '../../../@types
 import astroDevToolPlugin from './plugins/astro.js';
 import astroAuditPlugin from './plugins/audit.js';
 import astroXrayPlugin from './plugins/xray.js';
+import { DevOverlayCard } from './ui-library/card.js';
 import { DevOverlayHighlight } from './ui-library/highlight.js';
 import { DevOverlayTooltip } from './ui-library/tooltip.js';
 import { DevOverlayWindow } from './ui-library/window.js';
@@ -269,10 +270,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	customElements.define('astro-dev-overlay', AstroDevOverlay);
-	customElements.define('astro-dev-overlay-window', DevOverlayWindow);
+	customElements.define('astro-overlay-window', DevOverlayWindow);
 	customElements.define('astro-overlay-plugin-canvas', DevOverlayCanvas);
 	customElements.define('astro-overlay-tooltip', DevOverlayTooltip);
 	customElements.define('astro-overlay-highlight', DevOverlayHighlight);
+	customElements.define('astro-overlay-card', DevOverlayCard);
 
 	const overlay = document.createElement('astro-dev-overlay');
 	overlay.style.zIndex = '999999';

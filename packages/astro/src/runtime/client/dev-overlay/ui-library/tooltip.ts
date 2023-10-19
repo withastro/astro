@@ -1,9 +1,9 @@
-import { getIconElement, type Icon } from './icons.js';
+import { getIconElement, isDefinedIcon, type Icon } from './icons.js';
 
 export interface DevOverlayTooltipSection {
 	title?: string;
 	inlineTitle?: string;
-	icon?: Icon | (string & NonNullable<unknown>);
+	icon?: Icon;
 	content?: string;
 	clickAction?: () => void;
 	clickDescription?: string;
@@ -125,7 +125,7 @@ export class DevOverlayTooltip extends HTMLElement {
 	}
 
 	getElementForIcon(icon: Icon | (string & NonNullable<unknown>)) {
-		if (icon.startsWith('astro:')) {
+		if (isDefinedIcon(icon)) {
 			const iconElement = getIconElement(icon);
 			iconElement?.style.setProperty('width', '16px');
 			iconElement?.style.setProperty('height', '16px');
