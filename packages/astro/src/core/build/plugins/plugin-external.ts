@@ -1,8 +1,8 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroBuildPlugin } from '../plugin.js';
+import type { AstroBuildPlugin, BuildTarget } from '../plugin.js';
 import { slash, removeLeadingForwardSlash } from '../../path.js';
 
-export function vitePluginExternalize(): VitePlugin {
+export function vitePluginExternalize({ target }: { target: BuildTarget }): VitePlugin {
 	const MODULE_ID = `astro:content`;
 	const VIRTUAL_MODULE_ID = `\0${MODULE_ID}`;
 
@@ -17,6 +17,9 @@ export function vitePluginExternalize(): VitePlugin {
 		},
 		renderChunk(code, chunk) {
 			if (chunk.imports.find(name => name === VIRTUAL_MODULE_ID)) {
+				if (target === 'content') {
+					return code.replaceAll(VIRTUAL_MODULE_ID, `./.entry.mjs`);
+				}
 				// We want to generate a relative path and avoid a hardcoded absolute path in the output!
 				const steps = removeLeadingForwardSlash(slash(chunk.fileName)).split('/').length - 1;
 				const prefix = '../'.repeat(steps) || './';
@@ -31,9 +34,9 @@ export function pluginExternalize(): AstroBuildPlugin {
 	return {
 		targets: ['server', 'content'],
 		hooks: {
-			'build:before': () => {
+			'build:before': ({ target }) => {
 				return {
-					vitePlugin: vitePluginExternalize(),
+					vitePlugin: vitePluginExternalize({ target }),
 				};
 			},
 		},
