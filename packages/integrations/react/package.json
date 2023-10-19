@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/react",
+  "name": "testing-ci-ortsa-react",
   "description": "Use React components within Astro",
   "version": "3.0.3",
   "type": "module",
@@ -51,7 +51,7 @@
   "devDependencies": {
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
-    "astro": "workspace:*",
+    "astro": "workspace:testing-ci-ortsa@*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",

@@ -15,7 +15,7 @@
     "HelloReact.jsx"
   ],
   "devDependencies": {
-    "astro": "workspace:*"
+    "astro": "*"
   },
   "dependencies": {
     "preact": "^10.17.1",

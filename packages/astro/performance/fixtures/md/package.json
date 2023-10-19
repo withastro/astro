@@ -14,11 +14,11 @@
   "author": "",
   "license": "unlicensed",
   "dependencies": {
-    "@astrojs/react": "workspace:*",
+    "@astrojs/react": "*",
     "@performance/utils": "workspace:*",
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
-    "astro": "workspace:*",
+    "astro": "*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   }

@@ -4,6 +4,6 @@
   "private": true,
   "dependencies": {
     "@test/astro-font-awesome-package": "file:packages/font-awesome",
-    "astro": "workspace:*"
+    "astro": "*"
   }
 }

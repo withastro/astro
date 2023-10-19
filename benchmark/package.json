@@ -7,10 +7,10 @@
     "astro-benchmark": "./index.js"
   },
   "dependencies": {
-    "@astrojs/mdx": "workspace:*",
-    "@astrojs/node": "workspace:*",
-    "@benchmark/timer": "workspace:*",
-    "astro": "workspace:*",
+    "@astrojs/mdx": "*",
+    "@astrojs/node": "*",
+    "@benchmark/timer": "*",
+    "astro": "*",
     "autocannon": "^7.12.0",
     "execa": "^8.0.1",
     "markdown-table": "^3.0.3",

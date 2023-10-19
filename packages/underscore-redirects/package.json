@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/underscore-redirects",
+  "name": "testing-ci-ortsa-underscore-redirects",
   "description": "Utilities to generate _redirects files in Astro projects",
   "version": "0.3.1",
   "type": "module",
@@ -30,7 +30,7 @@
   "devDependencies": {
     "@types/chai": "^4.3.5",
     "@types/mocha": "^10.0.1",
-    "astro": "workspace:*",
+    "astro": "*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "mocha": "^10.2.0"

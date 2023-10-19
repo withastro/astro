@@ -52,7 +52,7 @@
     "test:hosted": "mocha --exit --timeout 30000 test/hosted"
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/internal-helpers": "*",
     "@vercel/analytics": "^1.0.2",
     "@vercel/nft": "^0.23.1",
     "esbuild": "^0.19.2",
@@ -61,12 +61,12 @@
     "web-vitals": "^3.4.0"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.3.2"
+    "astro": "^3.3.2"
   },
   "devDependencies": {
     "@types/set-cookie-parser": "^2.4.3",
     "@vercel/edge": "^1.0.0",
-    "astro": "workspace:*",
+    "astro": "*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "chai-jest-snapshot": "^2.0.0",

@@ -2,6 +2,6 @@
   "name": "@test/css-order-dynamic-import",
   "private": true,
   "dependencies": {
-    "astro": "workspace:*"
+    "astro": "*"
   }
 }

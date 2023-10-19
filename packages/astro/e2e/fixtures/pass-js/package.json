@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
-    "@astrojs/react": "workspace:*",
-    "astro": "workspace:*"
+    "@astrojs/react": "*",
+    "astro": "*"
   },
   "dependencies": {
     "react": "^18.1.0",

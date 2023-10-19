@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/preact": "workspace:*",
-    "astro": "workspace:*",
+    "@astrojs/preact": "*",
+    "astro": "*",
     "preact": "^10.17.1"
   }
 }

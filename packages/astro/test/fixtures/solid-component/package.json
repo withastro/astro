@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/solid-js": "workspace:*",
+    "@astrojs/solid-js": "*",
     "@solidjs/router": "^0.8.3",
     "@test/solid-jsx-component": "file:./deps/solid-jsx-component",
-    "astro": "workspace:*",
+    "astro": "*",
     "solid-js": "^1.7.11"
   }
 }

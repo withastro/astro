@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/sitemap",
+  "name": "testing-ci-ortsa-sitemap",
   "description": "Generate a sitemap for your Astro site",
   "version": "3.0.2",
   "type": "module",
@@ -37,8 +37,8 @@
     "zod": "3.21.1"
   },
   "devDependencies": {
-    "@astrojs/node": "workspace:*",
-    "astro": "workspace:*",
+    "@astrojs/node": "workspace:testing-ci-ortsa-node@*",
+    "astro": "workspace:testing-ci-ortsa@*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",

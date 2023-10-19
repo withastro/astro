@@ -63,8 +63,8 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "workspace:*",
-    "@astrojs/prism": "workspace:*",
+    "@astrojs/internal-helpers": "*",
+    "@astrojs/prism": "*",
     "@markdoc/markdoc": "^0.3.0",
     "esbuild": "^0.19.2",
     "github-slugger": "^2.0.0",
@@ -75,15 +75,15 @@
     "zod": "3.21.1"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.3.2"
+    "astro": "^3.3.2"
   },
   "devDependencies": {
-    "@astrojs/markdown-remark": "workspace:*",
+    "@astrojs/markdown-remark": "*",
     "@types/chai": "^4.3.5",
     "@types/html-escaper": "^3.0.0",
     "@types/markdown-it": "^13.0.0",
     "@types/mocha": "^10.0.1",
-    "astro": "workspace:*",
+    "astro": "*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "devalue": "^4.3.2",

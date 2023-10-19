@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
-    "astro": "workspace:*",
+    "astro": "*",
     "sass": "^1.66.1"
   }
 }

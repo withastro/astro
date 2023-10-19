@@ -11,6 +11,6 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "workspace:*"
+    "astro": "*"
   }
 }

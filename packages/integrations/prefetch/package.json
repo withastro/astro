@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/prefetch",
+  "name": "testing-ci-ortsa-prefetch",
   "description": "Prefetch page navigations in your Astro site",
   "version": "0.4.1",
   "type": "module",
@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.37.1",
-    "astro": "workspace:*",
+    "astro": "*",
     "astro-scripts": "workspace:*"
   },
   "dependencies": {

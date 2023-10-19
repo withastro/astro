@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/vue": "workspace:*",
-    "astro": "workspace:*",
+    "@astrojs/vue": "*",
+    "astro": "*",
     "vue": "^3.3.4"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/alpinejs",
+  "name": "testing-ci-ortsa-alpinejs",
   "description": "Use Alpine within Astro",
   "version": "0.3.1",
   "type": "module",
@@ -37,7 +37,7 @@
     "alpinejs": "^3.0.0"
   },
   "devDependencies": {
-    "astro": "workspace:*",
+    "astro": "*",
     "astro-scripts": "workspace:*"
   },
   "publishConfig": {

@@ -1,5 +1,5 @@
 {
-  "name": "astro",
+  "name": "testing-ci-ortsa",
   "version": "3.3.2",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
@@ -121,9 +121,9 @@
   },
   "dependencies": {
     "@astrojs/compiler": "^2.1.0",
-    "@astrojs/internal-helpers": "workspace:*",
-    "@astrojs/markdown-remark": "workspace:*",
-    "@astrojs/telemetry": "workspace:*",
+    "@astrojs/internal-helpers": "*",
+    "@astrojs/markdown-remark": "*",
+    "@astrojs/telemetry": "*",
     "@babel/core": "^7.22.10",
     "@babel/generator": "^7.22.10",
     "@babel/parser": "^7.22.10",

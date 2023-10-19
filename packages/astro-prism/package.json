@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/prism",
+  "name": "testing-ci-ortsa-prism",
   "version": "3.0.0",
   "description": "Add Prism syntax highlighting support to your Astro site",
   "author": "withastro",

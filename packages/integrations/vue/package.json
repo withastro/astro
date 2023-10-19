@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/vue",
+  "name": "testing-ci-ortsa-vue",
   "version": "3.0.1",
   "description": "Use Vue components within Astro",
   "type": "module",
@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",
-    "astro": "workspace:*",
+    "astro": "workspace:testing-ci-ortsa@*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "linkedom": "^0.15.1",
@@ -56,7 +56,7 @@
     "vue": "^3.3.4"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.3.2",
+    "astro": "workspace:testing-ci-ortsa@^3.3.2",
     "vue": "^3.2.30"
   },
   "engines": {

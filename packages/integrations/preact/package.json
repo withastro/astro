@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/preact",
+  "name": "testing-ci-ortsa-preact",
   "description": "Use Preact components within Astro",
   "version": "3.0.1",
   "type": "module",
@@ -43,7 +43,7 @@
     "preact-render-to-string": "^6.2.1"
   },
   "devDependencies": {
-    "astro": "workspace:*",
+    "astro": "*",
     "astro-scripts": "workspace:*",
     "preact": "^10.17.1"
   },

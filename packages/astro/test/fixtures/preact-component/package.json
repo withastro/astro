@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/preact": "workspace:*",
+    "@astrojs/preact": "*",
     "@preact/signals": "1.2.1",
-    "astro": "workspace:*",
+    "astro": "*",
     "preact": "^10.17.1"
   }
 }
