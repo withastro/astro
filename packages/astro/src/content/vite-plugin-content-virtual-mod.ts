@@ -3,7 +3,7 @@ import fsMod from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import pLimit from 'p-limit';
-import type { Plugin } from 'vite';
+import { transformWithEsbuild, type Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { appendForwardSlash, removeFileExtension, removeLeadingForwardSlash, slash } from '../core/path.js';
@@ -87,11 +87,15 @@ export async function generateContentEntryFile({
 	const contentPaths = getContentPaths(settings.config);
 	const relContentDir = rootRelativePath(settings.config.root, contentPaths.contentDir);
 
-	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
-	const contentEntryExts = [...contentEntryConfigByExt.keys()];
-	const dataEntryExts = getDataEntryExts(settings);
+	// const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
+	// const contentEntryExts = [...contentEntryConfigByExt.keys()];
+	// const dataEntryExts = getDataEntryExts(settings);
 
-	const [contentEntryGlobResult, dataEntryGlobResult, renderEntryGlobResult] = await Promise.all([contentEntryExts, dataEntryExts, contentEntryExts].map((exts, i) => getStringifiedGlobResult(settings, exts, getContentExtension(i))));
+	const contentEntryGlobResult = getStringifiedCollectionFromLookup('content', relContentDir, lookupMap);
+	const dataEntryGlobResult = getStringifiedCollectionFromLookup('data', relContentDir, lookupMap);
+	const renderEntryGlobResult = getStringifiedCollectionFromLookup('render', relContentDir, lookupMap);
+
+	// const [contentEntryGlobResult, dataEntryGlobResult, renderEntryGlobResult] = await Promise.all([contentEntryExts, dataEntryExts, contentEntryExts].map((exts, i) => getStringifiedGlobResult(settings, exts, lookupMap, getContentExtension(i))));
 
 	const virtualModContents = fs
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
@@ -115,6 +119,23 @@ export async function generateContentEntryFile({
 	return virtualModContents;
 }
 
+function getStringifiedCollectionFromLookup(wantedType: 'content' | 'data' | 'render', relContentDir: string, lookupMap: ContentLookupMap) {
+	let str = '{';
+	// TODO: cleanup this dev vs prod difference! Relying on NODE_ENV is probably a bad idea?
+	const prefix = IS_DEV ? '/' : './';
+	const suffix = IS_DEV ? '' : wantedType === 'render' ? '.entry.mjs' : '.mjs';
+	const strip = IS_DEV ? (v: string) => v : (v: string) => `${removeFileExtension(v)}${suffix}`;
+	for (const { type, entries } of Object.values(lookupMap)) {
+		if (type === wantedType || wantedType === 'render' && type === 'content') {
+			for (const slug of Object.values(entries)) {
+				str += `\n  "${slug}": () => import("${strip(slug.replace(relContentDir, prefix))}"),`
+			}
+		}
+	}
+	str += '\n}'
+	return str;
+}
+
 /**
  * Generate a map from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
@@ -129,12 +150,19 @@ export async function generateLookupMap({
 }) {
 	const { root } = settings.config;
 	const contentPaths = getContentPaths(settings.config);
+	if (!contentPaths.config.exists) return {};
 	const relContentDir = rootRelativePath(root, contentPaths.contentDir, false);
 
 	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 	const dataEntryExts = getDataEntryExts(settings);
 
 	const { contentDir } = contentPaths;
+	
+	// TODO: this is a hack to avoid loading the actual config file. Is there a better way?
+	const possibleConfigFiles = await glob("config.*", { absolute: true, cwd: fileURLToPath(contentPaths.contentDir), fs: fsMod })
+	const [filename] = possibleConfigFiles;
+	const { code: configCode } = await transformWithEsbuild(fsMod.readFileSync(filename, { encoding: 'utf8' }), filename);
+
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 
 	let lookupMap: ContentLookupMap = {};
@@ -166,6 +194,11 @@ export async function generateLookupMap({
 
 				const collection = getEntryCollectionName({ contentDir, entry: pathToFileURL(filePath) });
 				if (!collection) throw UnexpectedLookupMapError;
+				// TODO: Extremely naive lookup that collection name is referenced in the config
+				// This could fail for any number of reasons.
+				if (!configCode.includes(collection)) {
+					return;
+				}
 
 				if (lookupMap[collection]?.type && lookupMap[collection].type !== entryType) {
 					throw new AstroError({
@@ -223,7 +256,6 @@ export async function generateLookupMap({
 	}
 
 	await Promise.all(promises);
-
 	return lookupMap;
 }
 
@@ -232,7 +264,7 @@ const UnexpectedLookupMapError = new AstroError({
 	message: `Unexpected error while parsing content entry IDs and slugs.`,
 });
 
-async function getStringifiedGlobResult(settings: AstroSettings, exts: string[], importExtension = '.mjs'): Promise<string> {
+async function getStringifiedGlobResult(settings: AstroSettings, exts: string[], lookupMap: ContentLookupMap, importExtension = '.mjs'): Promise<string> {
 	const pattern = globWithUnderscoresIgnored('./', exts);
 	const contentPaths = getContentPaths(settings.config);
 
@@ -245,6 +277,8 @@ async function getStringifiedGlobResult(settings: AstroSettings, exts: string[],
 		onlyFiles: true,
 		objectMode: true,
 	})
+
+	console.log(lookupMap);
 
 	let str = '{';
 	// TODO: cleanup this dev vs prod difference! Relying on NODE_ENV is probably a bad idea?
