@@ -1,5 +1,13 @@
 # @astrojs/cloudflare
 
+## 7.6.1
+
+### Patch Changes
+
+- [#28](https://github.com/withastro/adapters/pull/28) [`1665a39`](https://github.com/withastro/adapters/commit/1665a3913373d02e73a3557bc045d1f0158979b6) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes missing persistence setting for `cache`
+
+- [#30](https://github.com/withastro/adapters/pull/30) [`625c41b`](https://github.com/withastro/adapters/commit/625c41b4b69058933e1d14f1c153574a992c0519) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes a regression introduced in 7.6.0, which breaks when no argument is set
+
 ## 7.6.0
 
 ### Minor Changes
