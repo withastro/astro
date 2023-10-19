@@ -26,6 +26,7 @@ import { wasmModuleLoader } from './utils/wasm-module-loader.js';
 export type { AdvancedRuntime } from './entrypoints/server.advanced.js';
 export type { DirectoryRuntime } from './entrypoints/server.directory.js';
 
+type CF_RUNTIME = { mode: 'off' } | { mode: 'remote' } | { mode: 'local'; persistTo: string };
 type Options = {
 	mode?: 'directory' | 'advanced';
 	functionPerRoute?: boolean;
@@ -43,11 +44,18 @@ type Options = {
 		exclude?: string[];
 	};
 	/**
+	 * Going forward only the object API should be used. The modes work as known before:
 	 * 'off': current behaviour (wrangler is needed)
 	 * 'local': use a static req.cf object, and env vars defined in wrangler.toml & .dev.vars (astro dev is enough)
 	 * 'remote': use a dynamic real-live req.cf object, and env vars defined in wrangler.toml & .dev.vars (astro dev is enough)
 	 */
-	runtime?: 'off' | 'local' | 'remote';
+	runtime?:
+		| 'off'
+		| 'local'
+		| 'remote'
+		| { mode: 'off' }
+		| { mode: 'remote' }
+		| { mode: 'local'; persistTo?: string };
 	wasmModuleImports?: boolean;
 };
 
@@ -59,6 +67,14 @@ interface BuildConfig {
 	split?: boolean;
 }
 
+const RUNTIME_WARNING = `You are using a deprecated string format for the \`runtime\` API. Please update to the current format for better support. 
+
+Example:
+Old Format: 'local'
+Current Format: { mode: 'local', persistTo: '.wrangler/state/v3' }
+
+Please refer to our runtime documentation for more details on the format. https://docs.astro.build/en/guides/integrations-guide/cloudflare/#runtime`;
+
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
@@ -69,7 +85,21 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 	const isModeDirectory = args?.mode === 'directory';
 	const functionPerRoute = args?.functionPerRoute ?? false;
-	const runtimeMode = args?.runtime ?? 'off';
+
+	let runtimeMode: CF_RUNTIME = { mode: 'off' };
+	if (args?.runtime === 'remote') {
+		runtimeMode = { mode: 'remote' };
+	} else if (args?.runtime === 'local') {
+		runtimeMode = { mode: 'local', persistTo: '.wrangler/state/v3' };
+	} else if (
+		typeof args?.runtime === 'object' &&
+		args?.runtime.mode === 'local' &&
+		args.runtime.persistTo === undefined
+	) {
+		runtimeMode = { mode: 'local', persistTo: '.wrangler/state/v3' };
+	} else {
+		runtimeMode = args?.runtime as CF_RUNTIME;
+	}
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -93,7 +123,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					},
 				});
 			},
-			'astro:config:done': ({ setAdapter, config }) => {
+			'astro:config:done': ({ setAdapter, config, logger }) => {
 				setAdapter(getAdapter({ isModeDirectory, functionPerRoute }));
 				_config = config;
 				_buildConfig = config.build;
@@ -109,12 +139,17 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						'[@astrojs/cloudflare] `base: "${SERVER_BUILD_FOLDER}"` is not allowed. Please change your `base` config to something else.'
 					);
 				}
+
+				if (typeof args?.runtime === 'string') {
+					logger.warn(RUNTIME_WARNING);
+				}
 			},
 			'astro:server:setup': ({ server }) => {
-				if (runtimeMode !== 'off') {
+				if (runtimeMode.mode === 'local') {
+					const typedRuntimeMode = runtimeMode;
 					server.middlewares.use(async function middleware(req, res, next) {
 						try {
-							const cf = await getCFObject(runtimeMode);
+							const cf = await getCFObject(typedRuntimeMode.mode);
 							const vars = await getEnvVars();
 							const D1Bindings = await getD1Bindings();
 							const R2Bindings = await getR2Bindings();
@@ -134,13 +169,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								cachePersist: true,
 								cacheWarnUsage: true,
 								d1Databases: D1Bindings,
-								d1Persist: true,
+								d1Persist: `${typedRuntimeMode.persistTo}/d1`,
 								r2Buckets: R2Bindings,
-								r2Persist: true,
+								r2Persist: `${typedRuntimeMode.persistTo}/r2`,
 								kvNamespaces: KVBindings,
-								kvPersist: true,
+								kvPersist: `${typedRuntimeMode.persistTo}/kv`,
 								durableObjects: DOBindings,
-								durableObjectsPersist: true,
+								durableObjectsPersist: `${typedRuntimeMode.persistTo}/do`,
 							});
 							await _mf.ready;
 

@@ -5,5 +5,8 @@
   "dependencies": {
     "@astrojs/cloudflare": "workspace:*",
     "astro": "^3.2.3"
+  },
+  "devDependencies": {
+    "wrangler": "^3.13.1"
   }
 }

@@ -186,16 +186,24 @@ export default defineConfig({
 
 ### `runtime`
 
-`runtime: "off" | "local"`
+`runtime: { mode: "off" | "local", persistTo: string }`
 
-default `"off"`
+default `{ mode: 'off', persistTo: '' }`
 
 Determines whether and how the Cloudflare Runtime is added to `astro dev`.
 
 The Cloudflare Runtime includes [Cloudflare bindings](https://developers.cloudflare.com/pages/platform/functions/bindings), [environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables), and the [cf object](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties). Read more about [accessing the Cloudflare Runtime](#cloudflare-runtime).
 
+The `mode` property defines how the runtime is added to `astro dev`:
+
 - `local`: uses bindings mocking and locally static placeholders
 - `off`: no access to the Cloudflare runtime using `astro dev`. You can alternatively use [Preview with Wrangler](#preview-with-wrangler)
+
+The `persistTo` property defines where the local runtime is persisted to when using `mode: local`. This value is a directory relative to your `astro dev` execution path.
+
+The default value is set to `.wrangler/state/v3` to match the default path Wrangler uses. This means both tools are able to access and use the local state.
+
+Whichever directory is set in `persistTo`, `.wrangler` or your custom value, must be added to `.gitignore`.
 
 ```diff lang="js"
 // astro.config.mjs
@@ -205,7 +213,7 @@ import cloudflare from '@astrojs/cloudflare';
 export default defineConfig({
   output: 'server',
   adapter: cloudflare({
-+   runtime: 'local',
++   runtime: { mode: 'local' },
   }),
 });
 ```
