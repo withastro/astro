@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes the terminal HMR path
+Fixed an issue where the dev server logged the full file path on updates.
