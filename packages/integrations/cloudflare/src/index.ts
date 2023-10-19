@@ -97,7 +97,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 		args.runtime.persistTo === undefined
 	) {
 		runtimeMode = { mode: 'local', persistTo: '.wrangler/state/v3' };
-	} else {
+	} else if (args?.runtime) {
 		runtimeMode = args?.runtime as CF_RUNTIME;
 	}
 
