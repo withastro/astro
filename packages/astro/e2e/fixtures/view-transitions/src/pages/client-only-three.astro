@@ -10,11 +10,7 @@ import SvelteCounter from '../components/SvelteCounter.svelte';
 		<!-- intentional client:load, see /client-only-one for client:only -->
 		<Island id="one" client:load count={5}>message here</Island>
 	</div>
-	<div transition:persist="vue">
 		<VueCounter client:only="vue">Vue</VueCounter>
-	</div>
-	<div transition:persist="svelte">
 		<SvelteCounter client:only="svelte">Svelte</SvelteCounter>
-	</div>
 	<p id="name">client-only-three</p>
 </Layout>

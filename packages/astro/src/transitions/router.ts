@@ -529,13 +529,8 @@ if (inBrowser) {
 // Keep all styles that are potentially created by client:only components
 // and required on the next page
 async function prepareForClientOnlyComponents(newDocument: Document, toLocation: URL) {
-	if (
-		// Any persisted client:only component on the next page?
-		newDocument.body.querySelector(
-			`[${PERSIST_ATTR}]  astro-island[client='only'],
-													astro-island[client='only'][${PERSIST_ATTR}]`
-		)
-	) {
+	// Any client:only component on the next page?
+	if (newDocument.body.querySelector(`astro-island[client='only']`)) {
 		// Load the next page with an empty module loader cache
 		const nextPage = document.createElement('iframe');
 		nextPage.setAttribute('src', toLocation.href);
@@ -569,6 +564,7 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 			await new Promise(
 				(r) => loadingPage.contentWindow?.addEventListener('load', r, { once: true })
 			);
+
 			return new Promise<void>(async (r) => {
 				for (let count = 0; count <= 20; ++count) {
 					if (!loadingPage.contentDocument!.body.querySelector('astro-island[ssr]')) break;

@@ -691,7 +691,7 @@ test.describe('View Transitions', () => {
 
 	test('client:only styles are retained on transition (2/2)', async ({ page, astro }) => {
 		const totalExpectedStyles_page_three = 10;
-		const totalExpectedStyles_page_four = 7;
+		const totalExpectedStyles_page_four = 8;
 
 		await page.goto(astro.resolveUrl('/client-only-three'));
 		let msg = page.locator('#name');
