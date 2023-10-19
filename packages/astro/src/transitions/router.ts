@@ -443,6 +443,7 @@ export function navigate(href: string, options?: Options) {
 				'The view transtions client API was called during a server side render. This may be unintentional as the navigate() function is expected to be called in response to user interactions. Please make sure that your usage is correct.'
 			);
 			warning.name = 'Warning';
+			// eslint-disable-next-line no-console
 			console.warn(warning);
 			navigateOnServerWarned = true;
 		}
@@ -527,7 +528,6 @@ if (inBrowser) {
 
 // Keep all styles that are potentially created by client:only components
 // and required on the next page
-//eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function prepareForClientOnlyComponents(newDocument: Document, toLocation: URL) {
 	if (
 		// Any persisted client:only component on the next page?
