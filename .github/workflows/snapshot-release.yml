@@ -76,8 +76,13 @@ jobs:
       - name: Bump Package Versions
         id: changesets
         run: |
-          pnpm exec changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }} > changesets.output.txt 2>&1
-          echo ::set-output name=result::`cat changesets.output.txt`
+          pnpm exec changeset status --output changesets.output.json 2>&1
+          pnpm exec changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }} > changesets-version.output.txt 2>&1
+          {
+            echo 'result<<__EOF'
+            cat changesets.output.json
+            echo __EOF
+          } >> "$GITHUB_OUTPUT"
         env:
           # Needs access to run the script
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -88,7 +93,11 @@ jobs:
           pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }} > publish.output.txt 2>&1
           echo "Release complete"
           cat publish.output.txt
-          echo ::set-output name=result::`cat publish.output.txt`
+          {
+            echo 'result<<__EOF'
+            cat publish.output.txt
+            echo __EOF
+          } >> "$GITHUB_OUTPUT"
         env:
           # Needs access to publish to npm
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -97,10 +106,23 @@ jobs:
       - name: Pull Request Notification
         uses: actions/github-script@v6
         env:
+          RELEASES: ${{ steps.changesets.outputs.result }}
           MESSAGE: ${{ steps.publish.outputs.result }}
         with:
           script: |
             console.log(process.env.MESSAGE);
+            const changeset = JSON.parse(process.env.RELEASES);
+            const message = 'The following packages have been released:'
+            for (const release of changeset.releases) {
+              if (release.type === 'none') continue;
+              message += `\n- ${release.name}@${release.newVersion}`;
+            }
+            message += '\n';
+            message += '<details><summary>Build Log</summary>\n\n```\n';
+            message += process.env.message;
+            message += '\n```\n\n</details>';
+
+            
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
