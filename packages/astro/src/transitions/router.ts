@@ -532,7 +532,7 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 	if (
 		// Any persisted client:only component on the next page?
 		newDocument.body.querySelector(
-			`[${PERSIST_ATTR}]  astro-island[client='only'], 
+			`[${PERSIST_ATTR}]  astro-island[client='only'],
 													astro-island[client='only'][${PERSIST_ATTR}]`
 		)
 	) {
@@ -549,6 +549,10 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 			const viteIds = [...nextHead.querySelectorAll(`style[${VITE_ID}]`)].map((style) =>
 				style.getAttribute(VITE_ID)
 			);
+			// Clear former persist marks
+			document.head
+				.querySelectorAll(`style[${PERSIST_ATTR}=""]`)
+				.forEach((s) => s.removeAttribute(PERSIST_ATTR));
 			// Mark those styles as persistent in the current head,
 			// if they came from hydration and not from the newDocument
 			viteIds.forEach((id) => {

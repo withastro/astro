@@ -670,10 +670,9 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
 
-	test('client:only styles are retained on transition', async ({ page, astro }) => {
+	test('client:only styles are retained on transition (1/2)', async ({ page, astro }) => {
 		const totalExpectedStyles = 8;
 
-		// Go to page 1
 		await page.goto(astro.resolveUrl('/client-only-one'));
 		let msg = page.locator('.counter-message');
 		await expect(msg).toHaveText('message here');
@@ -688,6 +687,27 @@ test.describe('View Transitions', () => {
 
 		styles = await page.locator('style').all();
 		expect(styles.length).toEqual(totalExpectedStyles, 'style count has not changed');
+	});
+
+	test('client:only styles are retained on transition (2/2)', async ({ page, astro }) => {
+		const totalExpectedStyles_page_three = 10;
+		const totalExpectedStyles_page_four = 7;
+
+		await page.goto(astro.resolveUrl('/client-only-three'));
+		let msg = page.locator('.counter-message');
+		await expect(msg).toHaveText('message here');
+		await page.waitForTimeout(400); // await hydration
+
+		let styles = await page.locator('style').all();
+		expect(styles.length).toEqual(totalExpectedStyles_page_three);
+
+		await page.click('#click-four');
+
+		let pageTwo = page.locator('#page-four');
+		await expect(pageTwo, 'should have content').toHaveText('Page 4');
+
+		styles = await page.locator('style').all();
+		expect(styles.length).toEqual(totalExpectedStyles_page_four, 'style count has not changed');
 	});
 
 	test('Horizontal scroll position restored on back button', async ({ page, astro }) => {
