@@ -70,13 +70,6 @@ function getContentExtension(index: number) {
 		}
 	}
 
-	if (index === 0) {
-		return undefined;
-	}
-	if (index === 1) {
-		return ``
-	}
-
 	if (index === 2) {
 		return `.entry.mjs`
 	}
@@ -155,7 +148,8 @@ export async function generateLookupMap({
 				readdirSync: fs.readdirSync.bind(fs),
 			},
 		}
-	);
+	)
+	
 
 	// Run 10 at a time to prevent `await getEntrySlug` from accessing the filesystem all at once.
 	// Each await shouldn't take too long for the work to be noticably slow too.
