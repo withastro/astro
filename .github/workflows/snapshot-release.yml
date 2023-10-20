@@ -113,7 +113,7 @@ jobs:
             try {
               changeset = JSON.parse(process.env.RELEASES);
             } catch (e) {}
-            const message = 'The following packages have been released:'
+            let message = 'The following packages have been released:'
             for (const release of changeset.releases) {
               if (release.type === 'none') continue;
               message += `\n- ${release.name}@${release.newVersion}`;
