@@ -20,7 +20,13 @@ export default function astroInternalization({ settings }: AstroInternalization)
 		load(id) {
 			if (id === resolvedVirtualModuleId) {
 				return `
-					import { getI18nBaseUrl as getI18nBaseUrlInternal, getLocalesBaseUrl as _getLocalesBaseUrl } from "astro/i18n";
+					import { 
+						getLocaleRelativeUrl as _getLocaleRelativeUrl, 
+						getLocaleRelativeUrlList as _getLocaleRelativeUrlList,
+						getLocaleAbsoluteUrl as _getLocaleAbsoluteUrl, 
+						getLocaleAbsoluteUrlList as _getLocaleAbsoluteUrlList,
+						 
+					} from "astro/i18n";
 					
 					const defaultLocale = ${JSON.stringify(settings.config.experimental.i18n!.defaultLocale)};
 					const locales = ${JSON.stringify(settings.config.experimental.i18n!.locales)};
@@ -28,9 +34,12 @@ export default function astroInternalization({ settings }: AstroInternalization)
 					const base =  ${JSON.stringify(settings.config.base)};
 					const trailingSlash =  ${JSON.stringify(settings.config.trailingSlash)};
 					const format =  ${JSON.stringify(settings.config.build.format)};
+					const site = ${JSON.stringify(settings.config.site)};
 					
-					export const getI18nBaseUrl = (locale) => getI18nBaseUrlInternal({ locale, base, locales, trailingSlash, format });
-					export const getLocalesBaseUrl = () => _getLocalesBaseUrl({ base, locales, trailingSlash, format });
+					export const getLocaleRelativeUrl = (locale) => _getLocaleRelativeUrl({ locale, base, locales, trailingSlash, format });
+					export const getLocaleRelativeUrlList = () => _getLocaleRelativeUrlList({ base, locales, trailingSlash, format });
+					export const getLocaleAbsoluteUrl = (locale) => _getLocaleAbsoluteUrl({ locale, base, locales, trailingSlash, format, site });
+					export const getLocaleAbsoluteUrlList = () => _getLocaleAbsoluteUrlList({ base, locales, trailingSlash, format, site });
 				`;
 			}
 		},
