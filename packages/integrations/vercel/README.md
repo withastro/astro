@@ -266,9 +266,9 @@ export default defineConfig({
 **Type:** `number`<br>
 **Available for:** Serverless
 
-Use this property to extend or limit the maximum duration (in seconds) that the Serverless Function can run before timing out. See [Vercel documentation](https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration) to find out the valid range for your plan. 
+Use this property to extend or limit the maximum duration (in seconds) that Serverless Functions can run before timing out. See the [Vercel documentation](https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration) for the default and maximum limit for your account plan. 
 
-```js
+```diff lang="js"
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel/serverless';
