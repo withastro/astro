@@ -34,7 +34,7 @@ export function renderAllHeadContent(result: SSRResult) {
 		.filter(uniqueElements)
 		.map((link) => renderElement('link', link, false));
 
-	let content = links.join('\n') + styles.join('\n') + scripts.join('\n');
+	let content = styles.join('\n') + links.join('\n') + scripts.join('\n');
 
 	if (result._metadata.extraHead.length > 0) {
 		for (const part of result._metadata.extraHead) {
