@@ -106,7 +106,7 @@ export default function assets({
 			},
 			// In build, rewrite paths to ESM imported images in code to their final location
 			async renderChunk(code) {
-				const assetUrlRE = /__ASTRO_ASSET_IMAGE__([a-z\d]{8})__(?:_(.*?)__)?/g;
+				const assetUrlRE = /__ASTRO_ASSET_IMAGE__([\w$]{8})__(?:_(.*?)__)?/g;
 
 				let match;
 				let s;
