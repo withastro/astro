@@ -27,7 +27,6 @@ import {
 	type VercelWebAnalyticsConfig,
 } from '../lib/web-analytics.js';
 import { generateEdgeMiddleware } from './middleware.js';
-import { type } from 'node:os';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
 export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
