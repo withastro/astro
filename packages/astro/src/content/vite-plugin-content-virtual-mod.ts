@@ -1,12 +1,12 @@
 import glob from 'fast-glob';
-import fsMod from 'node:fs';
+import nodeFs from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import pLimit from 'p-limit';
 import { transformWithEsbuild, type Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { appendForwardSlash, removeFileExtension, removeLeadingForwardSlash, slash } from '../core/path.js';
+import { removeFileExtension } from '../core/path.js';
 import { rootRelativePath } from '../core/util.js';
 import { VIRTUAL_MODULE_ID } from './consts.js';
 import {
@@ -24,10 +24,12 @@ import {
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
+	fs: typeof nodeFs
 }
 
 export function astroContentVirtualModPlugin({
 	settings,
+	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
 	const astroContentVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -42,9 +44,9 @@ export function astroContentVirtualModPlugin({
 			if (id === astroContentVirtualModuleId) {
 				const lookupMap = await generateLookupMap({
 					settings,
-					fs: fsMod,
+					fs,
 				});
-				const code = await generateContentEntryFile({ settings, fs: fsMod, lookupMap });
+				const code = await generateContentEntryFile({ settings, fs, lookupMap });
 
 				return {
 					code
@@ -55,25 +57,6 @@ export function astroContentVirtualModPlugin({
 }
 
 const IS_DEV = process.env.NODE_ENV !== 'production';
-// TODO: ugh this is not a nice abstraction. Come up with something better!
-function getContentExtension(index: number) {
-	if (IS_DEV) {
-		if (index === 0) {
-			return `?astroContentCollectionEntry`;
-		}
-		if (index === 1) {
-			return `?astroDataCollectionEntry`
-		}
-
-		if (index === 2) {
-			return `?astroRenderContent`
-		}
-	}
-
-	if (index === 2) {
-		return `.entry.mjs`
-	}
-}
 
 export async function generateContentEntryFile({
 	settings,
@@ -81,7 +64,7 @@ export async function generateContentEntryFile({
 	lookupMap,
 }: {
 	settings: AstroSettings;
-	fs: typeof fsMod;
+	fs: typeof nodeFs;
 	lookupMap: ContentLookupMap
 }) {
 	const contentPaths = getContentPaths(settings.config);
@@ -146,7 +129,7 @@ export async function generateLookupMap({
 	fs,
 }: {
 	settings: AstroSettings;
-	fs: typeof fsMod;
+	fs: typeof nodeFs;
 }) {
 	const { root } = settings.config;
 	const contentPaths = getContentPaths(settings.config);
@@ -159,9 +142,9 @@ export async function generateLookupMap({
 	const { contentDir } = contentPaths;
 	
 	// TODO: this is a hack to avoid loading the actual config file. Is there a better way?
-	const possibleConfigFiles = await glob("config.*", { absolute: true, cwd: fileURLToPath(contentPaths.contentDir), fs: fsMod })
+	const possibleConfigFiles = await glob("config.*", { absolute: true, cwd: fileURLToPath(contentPaths.contentDir), fs })
 	const [filename] = possibleConfigFiles;
-	const { code: configCode } = await transformWithEsbuild(fsMod.readFileSync(filename, { encoding: 'utf8' }), filename);
+	const { code: configCode } = await transformWithEsbuild(fs.readFileSync(filename, { encoding: 'utf8' }), filename);
 
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 
@@ -263,43 +246,3 @@ const UnexpectedLookupMapError = new AstroError({
 	...AstroErrorData.UnknownContentCollectionError,
 	message: `Unexpected error while parsing content entry IDs and slugs.`,
 });
-
-async function getStringifiedGlobResult(settings: AstroSettings, exts: string[], lookupMap: ContentLookupMap, importExtension = '.mjs'): Promise<string> {
-	const pattern = globWithUnderscoresIgnored('./', exts);
-	const contentPaths = getContentPaths(settings.config);
-
-	const files = await glob(pattern, {
-		cwd: fileURLToPath(contentPaths.contentDir),
-		fs: {
-			readdir: fsMod.readdir.bind(fsMod),
-			readdirSync: fsMod.readdirSync.bind(fsMod),
-		},
-		onlyFiles: true,
-		objectMode: true,
-	})
-
-	console.log(lookupMap);
-
-	let str = '{';
-	// TODO: cleanup this dev vs prod difference! Relying on NODE_ENV is probably a bad idea?
-	const prefix = IS_DEV ? contentPaths.contentDir.toString().replace(settings.config.root.toString(), '/') : './';
-	const strip = IS_DEV ? (v: string) => v : removeFileExtension;
-	for (const file of files) {
-		const importSpecifier = `${prefix}${strip(removeLeadingForwardSlash(slash(file.path)))}${importExtension}`;
-		const srcRelativePath = new URL(`./${slash(file.path)}`, contentPaths.contentDir).toString().replace(settings.config.root.toString(), '/')
-		str += `\n  "${srcRelativePath}": () => import("${importSpecifier}"),`
-	}
-	str += '\n}'
-
-	return str;
-}
-
-function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
-	const extGlob = getExtGlob(exts);
-	const contentDir = appendForwardSlash(relContentDir);
-	return [
-		`${contentDir}**/*${extGlob}`,
-		`!${contentDir}**/_*/**/*${extGlob}`,
-		`!${contentDir}**/_*${extGlob}`,
-	];
-}
