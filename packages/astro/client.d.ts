@@ -125,10 +125,12 @@ declare module 'astro:i18n' {
 	type I18nModule = typeof import('./dist/i18n/index.js');
 
 	// TODO: documentation
-	export const getI18nBaseUrl: (locale: string) => string;
+	export const getLocaleRelativeUrl: (locale: string) => string;
+	export const getLocaleAbsoluteUrl: (locale: string) => string;
 
 	// TODO: documentation
-	export const getLocalesBaseUrl: () => string[];
+	export const getLocaleRelativeUrlList: () => string[];
+	export const getLocaleAbsoluteUrlList: () => string[];
 }
 
 declare module 'astro:middleware' {
