@@ -1084,7 +1084,7 @@ export interface AstroUserConfig {
 		remotePatterns?: Partial<RemotePattern>[];
 	};
 
-	devTools?: {
+	devOverlay?: {
 		plugins: string[];
 	};
 
@@ -1334,6 +1334,25 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		optimizeHoistedScript?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.devOverlay
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 3.4.0
+		 * @description
+		 * Enable a dev overlay in development mode. This overlay allows you to inspect your page islands, see helpful audits on performance and accessibility and more.
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 * 		devOverlay: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		devOverlay?: boolean;
 	};
 }
 

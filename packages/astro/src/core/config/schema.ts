@@ -39,7 +39,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	image: {
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 	},
-	devTools: {
+	devOverlay: {
 		plugins: [],
 	},
 	compressHTML: true,
@@ -58,6 +58,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	redirects: {},
 	experimental: {
 		optimizeHoistedScript: false,
+		devOverlay: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -230,9 +231,9 @@ export const AstroConfigSchema = z.object({
 				.default([]),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
-	devTools: z
+	devOverlay: z
 		.object({ plugins: z.array(z.string()).default([]) })
-		.default(ASTRO_CONFIG_DEFAULTS.devTools),
+		.default(ASTRO_CONFIG_DEFAULTS.devOverlay),
 	markdown: z
 		.object({
 			drafts: z.boolean().default(false),
@@ -303,6 +304,7 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.optimizeHoistedScript),
+			devOverlay: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.devOverlay),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`
