@@ -12,7 +12,7 @@ defaults:
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
-  FORCE_COLOR: true
+  FORCE_COLOR: 1
 
 jobs:
   snapshot-release:
@@ -85,6 +85,9 @@ jobs:
         env:
           # Needs access to run the script
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Disable color
+          FORCE_COLOR: 0
+          NO_COLOR: 1
 
       - name: Publish Release
         id: publish
@@ -100,6 +103,9 @@ jobs:
           # Needs access to publish to npm
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Disable color
+          FORCE_COLOR: 0
+          NO_COLOR: 1
 
       - name: Pull Request Notification
         uses: actions/github-script@v6
