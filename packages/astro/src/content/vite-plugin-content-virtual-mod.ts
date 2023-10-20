@@ -80,7 +80,7 @@ export async function generateContentEntryFile({
 
 	// const [contentEntryGlobResult, dataEntryGlobResult, renderEntryGlobResult] = await Promise.all([contentEntryExts, dataEntryExts, contentEntryExts].map((exts, i) => getStringifiedGlobResult(settings, exts, lookupMap, getContentExtension(i))));
 
-	const virtualModContents = fs
+	const virtualModContents = nodeFs
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
 		.replace(
