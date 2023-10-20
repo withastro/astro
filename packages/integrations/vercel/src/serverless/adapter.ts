@@ -103,7 +103,7 @@ export interface VercelServerlessConfig {
 	/** Whether to split builds into a separate function for each route. */
 	functionPerRoute?: boolean;
 
-	/** Maximum duration (in seconds) that the function can for before timing out. See [Vercel documentation](https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration) for the allowed values for your plan. */
+	/** The maximum duration (in seconds) that Serverless Functions can run before timing out. See the [Vercel documentation](https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration) for the default and maximum limit for your account plan. */
 	maxDuration?: number;
 }
 
