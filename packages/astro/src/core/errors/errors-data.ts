@@ -144,8 +144,8 @@ export const MissingMediaQueryDirective = {
  * @docs
  * @message Unable to render `COMPONENT_NAME`. There are `RENDERER_COUNT` renderer(s) configured in your `astro.config.mjs` file, but none were able to server-side render `COMPONENT_NAME`.
  * @see
- * - [Configuring a UI framework integration](https://docs.astro.build/en/core-concepts/framework-components/)
- * - [List of all official UI framework integrations](https://docs.astro.build/en/guides/integrations-guide/#official-integrations)
+ * - [Frameworks components](https://docs.astro.build/en/core-concepts/framework-components/)
+ * - [UI Frameworks](https://docs.astro.build/en/guides/integrations-guide/#official-integrations)
  * @description
  * None of the installed integrations were able to render the component you imported. Make sure to install the appropriate integration for the type of component you are trying to include in your page.
  *
@@ -369,10 +369,10 @@ export const GetStaticPathsInvalidRouteParam = {
  * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
  * - [Server-side Rendering](https://docs.astro.build/en/guides/server-side-rendering/)
  * @description
- * In [Static Mode](https://docs.astro.build/en/core-concepts/routing/#static-ssg-mode), all routes must be determined at build time. 
+ * In [Static Mode](https://docs.astro.build/en/core-concepts/routing/#static-ssg-mode), all routes must be determined at build time.
  * Dynamic routes must `export` a `getStaticPaths()` function to tell Astro which paths must be generated at build time. This can happen
  * when you are building a static site, or when you are prerendering a certain route with `export const prerender = true`.
- * To resolve, either add a `getStaticPaths()` function to your page or set \`output: "server"\` or \`output: "hybrid"\` in your Astro 
+ * To resolve, either add a `getStaticPaths()` function to your page or set \`output: "server"\` or \`output: "hybrid"\` in your Astro
  * configuration file to switch the entire project over to a non-static, server build.
  */
 export const GetStaticPathsRequired = {
@@ -474,7 +474,7 @@ export const PageNumberParamNotFound = {
  * - [Images](https://docs.astro.build/en/guides/images/)
  * - [Image component](https://docs.astro.build/en/guides/images/#image--astroassets)
  * - [Image component#alt](https://docs.astro.build/en/guides/images/#alt-required)
- * - [<img> alt="" attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#alt)
+ * - [<img> alt attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#alt)
  * @description
  * The `alt` property allows you to provide descriptive alt text to users of screen readers and other assistive technologies. In order to ensure your images are accessible, the `Image` component requires that an `alt` be specified.
  *
@@ -482,10 +482,12 @@ export const PageNumberParamNotFound = {
  */
 export const ImageMissingAlt = {
 	name: 'ImageMissingAlt',
-	title: 'Missing alt property.',
-	message: 'The alt property is required.',
-	hint: 'Use alt="" if image is not a key part of page content.',
+	title: 'Image missing required "alt" property.',
+	message:
+		'Image missing "alt" property. "alt" text is required to describe important images on the page.',
+	hint: 'Use an empty string ("") for decorative images.',
 } satisfies ErrorData;
+
 /**
  * @docs
  * @see
@@ -498,8 +500,7 @@ export const ImageMissingAlt = {
 export const InvalidImageService = {
 	name: 'InvalidImageService',
 	title: 'Error while loading image service.',
-	message:
-		'There was an error loading the configured image service.',
+	message: 'There was an error loading the configured image service.',
 } satisfies ErrorData;
 /**
  * @docs
@@ -603,7 +604,7 @@ export const ExpectedImage = {
 	title: 'Expected src to be an image.',
 	message: (src: string, typeofOptions: string, fullOptions: string) =>
 		`Expected \`src\` property for \`getImage\` or \`<Image />\` to be either an ESM imported image or a string with the path of a remote image. Received \`${src}\` (type: \`${typeofOptions}\`).\n\nFull serialized options received: \`${fullOptions}\`.`,
-	hint: "Is your `src` path correct? If passing an async function, make sure to call and await it.",
+	hint: 'Is your `src` path correct? If passing an async function, make sure to call and await it.',
 } satisfies ErrorData;
 /**
  * @docs
@@ -656,7 +657,7 @@ export const ImageNotFound = {
 	name: 'ImageNotFound',
 	title: 'Image not found.',
 	message: (imagePath: string) => `Could not find requested image \`${imagePath}\`.`,
-	hint: 'Does the file exist?'
+	hint: 'Does the file exist?',
 } satisfies ErrorData;
 
 /**
@@ -694,7 +695,7 @@ export const MarkdownImageNotFound = {
 		`Could not find requested image \`${imagePath}\`${
 			fullImagePath ? ` at \`${fullImagePath}\`.` : '.'
 		}`,
-	hint: 'Does the file exist?'
+	hint: 'Does the file exist?',
 } satisfies ErrorData;
 
 /**
@@ -801,9 +802,9 @@ export const LocalsNotAnObject = {
  */
 export const LocalImageUsedWrongly = {
 	name: 'LocalImageUsedWrongly',
-	title: 'Local images must be imported.',
+	title: 'Local image "src" value not supported.',
 	message: (imageFilePath: string) =>
-		`\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or a URL, it cannot be a string filepath. Received \`${imageFilePath}\`.`,
+		`Image "src" value not supported. Local images must be imported with the ESM "import" keyword or the "image()" schema helper in a content collection. Received "${imageFilePath}".`,
 } satisfies ErrorData;
 
 /**
@@ -1029,7 +1030,7 @@ export const MdxIntegrationMissingError = {
 /**
  * @docs
  * @see
- * - [Configuration Reference](https://docs.astro.build/en/reference/configuration-reference/)
+ * - [Configuration reference](https://docs.astro.build/en/reference/configuration-reference/)
  * @description
  * Astro encountered an unknown error loading your Astro configuration file.
  * This is often caused by a syntax error in your config and the message should offer more information.
@@ -1063,7 +1064,8 @@ export const ConfigNotFound = {
 export const ConfigLegacyKey = {
 	name: 'ConfigLegacyKey',
 	title: 'Legacy configuration detected.',
-	message: (legacyConfigKey: string) => `Legacy configuration detected: \`${legacyConfigKey}\`. update your configuration to the new format.`,
+	message: (legacyConfigKey: string) =>
+		`Legacy configuration detected: \`${legacyConfigKey}\`. update your configuration to the new format.`,
 } satisfies ErrorData;
 /**
  * @docs
