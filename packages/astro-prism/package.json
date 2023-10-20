@@ -8,7 +8,7 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "https://github.com/lilnasy/astro.git",
     "directory": "packages/astro-prism"
   },
   "homepage": "https://docs.astro.build/en/reference/api-reference/#prism-",

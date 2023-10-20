@@ -5,7 +5,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git"
+    "url": "https://github.com/lilnasy/astro.git"
   },
   "scripts": {
     "release": "pnpm run build && changeset publish",
