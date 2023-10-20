@@ -92,7 +92,7 @@ jobs:
           cat version.output.json
 
           echo "status<<$EOF" >> $GITHUB_OUTPUT
-          echo "$(cat version.output.json)" >> $GITHUB_OUTPUT
+          echo "$(cat version.output.txt)" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
         env:
           # Needs access to run the script
