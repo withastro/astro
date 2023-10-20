@@ -17,7 +17,7 @@ env:
 jobs:
   snapshot-release:
     name: Create a snapshot release of a pull request
-    if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && startsWith(github.event.comment.body, '!preview') }}
+    if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && contains(fromJSON('["!preview", "/preview", "!snapshot", "/snapshot"]'), github.event.comment.body) }}
     runs-on: ubuntu-latest
     permissions: 
       contents: read 
@@ -37,14 +37,19 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const splitComment = context.payload.comment.body.split(' ');
-            splitComment.length !== 2 && (github.rest.issues.createComment({
+            const { body } = context.payload.comment;
+            const PREVIEW_RE = /^[!\/](?:preview|snapshot)\s+(\S*)\s*$/gim;
+            const [_, name] = PREVIEW_RE.exec(body) ?? [];
+            if (name) return name;
+
+            const error = 'Invalid command. Expected: "/preview <snapshot-name>"'
+            github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Invalid comment format. Expected: "!preview <one-word-snapshot-name>"',
-            }) || core.setFailed('Invalid comment format. Expected: "!preview <one-word-snapshot-name>"'));
-            return splitComment[1].trim();
+              body: error,
+            })
+            core.setFailed(error)
           result-encoding: string
 
       - name: resolve pr refs
@@ -76,11 +81,18 @@ jobs:
       - name: Bump Package Versions
         id: changesets
         run: |
-          pnpm exec changeset status --output changesets.output.json 2>&1
-          pnpm exec changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }} > changesets-version.output.txt 2>&1
+          pnpm exec changeset status --output status.output.json 2>&1
+          pnpm exec changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }} > version.output.txt 2>&1
+
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "result<<$EOF" >> $GITHUB_OUTPUT
-          echo "$(cat changesets.output.json)" >> $GITHUB_OUTPUT
+
+          echo "version<<$EOF" >> $GITHUB_OUTPUT
+          echo "$(cat version.output.json)" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+          cat version.output.json
+
+          echo "status<<$EOF" >> $GITHUB_OUTPUT
+          echo "$(cat status.output.json)" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
         env:
           # Needs access to run the script
@@ -92,13 +104,20 @@ jobs:
       - name: Publish Release
         id: publish
         run: |
-          pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }} > publish.output.txt 2>&1
-          echo "Release complete"
-          cat publish.output.txt
+          pnpm run build --log-prefix=none > build.output.txt 2>&1
+          pnpm exec changeset publish --tag experimental--${{ steps.getSnapshotName.outputs.result }} > publish.output.txt 2>&1
+
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "result<<$EOF" >> $GITHUB_OUTPUT
+
+          echo "build<<$EOF" >> $GITHUB_OUTPUT
+          echo "$(cat build.output.txt)" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+          cat build.output.txt
+
+          echo "publish<<$EOF" >> $GITHUB_OUTPUT
           echo "$(cat publish.output.txt)" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
+          cat publish.output.txt
         env:
           # Needs access to publish to npm
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -111,24 +130,33 @@ jobs:
         uses: actions/github-script@v6
         env:
           TAG: ${{ steps.getSnapshotName.outputs.result }}
-          RELEASES: ${{ steps.changesets.outputs.result }}
-          MESSAGE: ${{ steps.publish.outputs.result }}
+          STATUS_DATA: ${{ steps.changesets.outputs.status }}
+          VERSION_LOG: ${{ steps.changesets.outputs.version }}
+          BUILD_LOG: ${{ steps.publish.outputs.build }}
+          PUBLISH_LOG: ${{ steps.publish.outputs.publish }}
         with:
           script: |
-            console.log(process.env.MESSAGE);
             let changeset = { releases: [] };
             try {
-              changeset = JSON.parse(process.env.RELEASES);
+              changeset = JSON.parse(process.env.STATUS_DATA);
             } catch (e) {}
-            let message = 'The following packages have been released:'
+            let message = 'Snapshots have been released for the following packages:'
             for (const release of changeset.releases) {
               if (release.type === 'none') continue;
-              message += `\n- ${release.name}@next--${process.env.TAG}`;
+              message += `\n- \`${release.name}@experimental--${process.env.TAG}\``;
             }
-            message += '\n';
-            message += '<details><summary>Build Log</summary>\n\n```sh\n';
-            message += process.env.MESSAGE;
-            message += '\n```\n\n</details>';
+
+            function details(title, body) {
+              message += '\n';
+              message += `<details><summary><strong>${title}</strong></summary>`
+              message += '\n\n```sh\n';
+              message += body;
+              message += '\n```\n\n</details>';
+            }
+
+            details('Version Log', process.env.VERSION_LOG);
+            details('Build Log', process.env.BUILD_LOG);
+            details('Publish Log', process.env.PUBLISH_LOG);
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
