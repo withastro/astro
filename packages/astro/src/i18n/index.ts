@@ -2,6 +2,7 @@ import { AstroError } from '../core/errors/index.js';
 import { MissingLocale } from '../core/errors/errors-data.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import type { AstroConfig } from '../@types/astro.js';
+import { joinPaths } from '@astrojs/internal-helpers/path';
 
 type GetLocaleRelativeUrl = {
 	locale: string;
@@ -45,11 +46,7 @@ export function getLocaleRelativeUrl({
 export function getLocaleAbsoluteUrl({ site, ...rest }: GetLocaleAbsoluteUrl) {
 	const locale = getLocaleRelativeUrl(rest);
 	if (site) {
-		if (site.endsWith('/') || locale.startsWith('/')) {
-			return `${site}${locale}`;
-		} else {
-			return `${site}/${locale}`;
-		}
+		return joinPaths(site, locale);
 	} else {
 		return locale;
 	}
@@ -82,11 +79,7 @@ export function getLocaleAbsoluteUrlList({ site, ...rest }: GetLocaleAbsoluteUrl
 	const locales = getLocaleRelativeUrlList(rest);
 	return locales.map((locale) => {
 		if (site) {
-			if (site.endsWith('/') || locale.startsWith('/')) {
-				return `${site}${locale}`;
-			} else {
-				return `${site}/${locale}`;
-			}
+			return joinPaths(site, locale);
 		} else {
 			return locale;
 		}
