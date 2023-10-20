@@ -125,7 +125,7 @@ jobs:
               message += `\n- ${release.name}@${release.newVersion}`;
             }
             message += '\n';
-            message += '<details><summary>Build Log</summary>\n\n```\n';
+            message += '<details><summary>Build Log</summary>\n\n```sh\n';
             message += process.env.message;
             message += '\n```\n\n</details>';
 
@@ -133,5 +133,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '```\n' + process.env.MESSAGE + '\n```',
+              body: message,
             })
