@@ -110,6 +110,7 @@ jobs:
       - name: Pull Request Notification
         uses: actions/github-script@v6
         env:
+          TAG: ${{ steps.getSnapshotName.outputs.result }}
           RELEASES: ${{ steps.changesets.outputs.result }}
           MESSAGE: ${{ steps.publish.outputs.result }}
         with:
@@ -122,11 +123,11 @@ jobs:
             let message = 'The following packages have been released:'
             for (const release of changeset.releases) {
               if (release.type === 'none') continue;
-              message += `\n- ${release.name}@${release.newVersion}`;
+              message += `\n- ${release.name}@next--${process.env.TAG}`;
             }
             message += '\n';
             message += '<details><summary>Build Log</summary>\n\n```sh\n';
-            message += process.env.message;
+            message += process.env.MESSAGE;
             message += '\n```\n\n</details>';
 
             github.rest.issues.createComment({
