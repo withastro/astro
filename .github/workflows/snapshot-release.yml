@@ -78,11 +78,10 @@ jobs:
         run: |
           pnpm exec changeset status --output changesets.output.json 2>&1
           pnpm exec changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }} > changesets-version.output.txt 2>&1
-          {
-            echo 'result<<__EOF'
-            cat changesets.output.json
-            echo __EOF
-          } >> "$GITHUB_OUTPUT"
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "result<<$EOF" >> $GITHUB_OUTPUT
+          echo "$(cat changesets.output.json)" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
         env:
           # Needs access to run the script
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -93,11 +92,10 @@ jobs:
           pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }} > publish.output.txt 2>&1
           echo "Release complete"
           cat publish.output.txt
-          {
-            echo 'result<<__EOF'
-            cat publish.output.txt
-            echo __EOF
-          } >> "$GITHUB_OUTPUT"
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "result<<$EOF" >> $GITHUB_OUTPUT
+          echo "$(cat publish.output.txt)" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
         env:
           # Needs access to publish to npm
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -111,7 +109,10 @@ jobs:
         with:
           script: |
             console.log(process.env.MESSAGE);
-            const changeset = JSON.parse(process.env.RELEASES);
+            let changeset = { releases: [] };
+            try {
+              changeset = JSON.parse(process.env.RELEASES);
+            } catch (e) {}
             const message = 'The following packages have been released:'
             for (const release of changeset.releases) {
               if (release.type === 'none') continue;
@@ -122,7 +123,6 @@ jobs:
             message += process.env.message;
             message += '\n```\n\n</details>';
 
-            
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
