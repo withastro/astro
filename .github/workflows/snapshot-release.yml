@@ -98,7 +98,7 @@ jobs:
       - name: Publish Release
         id: publish
         run: |
-          pnpm run build --log-prefix=none > build.output.txt 2>&1
+          GITHUB_ACTIONS=0 pnpm run build > build.output.txt 2>&1
           pnpm exec changeset publish --tag experimental--${{ steps.getSnapshotName.outputs.result }} > publish.output.txt 2>&1
 
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
@@ -142,7 +142,7 @@ jobs:
             function details(title, body) {
               message += '\n';
               message += `<details><summary><strong>${title}</strong></summary>`
-              message += '\n\n```sh\n';
+              message += '\n\n```\n';
               message += body;
               message += '\n```\n\n</details>';
             }
