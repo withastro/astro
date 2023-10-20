@@ -45,7 +45,7 @@ export default {
 
 			const rect = originalElement.getBoundingClientRect();
 
-			highlight.icon = 'astro:warning';
+			highlight.icon = 'warning';
 
 			highlight.style.top = `${Math.max(rect.top + window.scrollY - 10, 0)}px`;
 			highlight.style.left = `${Math.max(rect.left + window.scrollX - 10, 0)}px`;
@@ -55,7 +55,7 @@ export default {
 			const tooltip = document.createElement('astro-overlay-tooltip') as DevOverlayTooltip;
 			tooltip.sections = [
 				{
-					icon: 'astro:warning',
+					icon: 'warning',
 					title: rule.title,
 				},
 				{
