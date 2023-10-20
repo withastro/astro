@@ -27,6 +27,7 @@ import {
 	type VercelWebAnalyticsConfig,
 } from '../lib/web-analytics.js';
 import { generateEdgeMiddleware } from './middleware.js';
+import { type } from 'node:os';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
 export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
@@ -103,7 +104,7 @@ export interface VercelServerlessConfig {
 	/** Whether to split builds into a separate function for each route. */
 	functionPerRoute?: boolean;
 
-	/** Maximum duration (in seconds) that will be allowed for the Serverless Function. */
+	/** Maximum duration (in seconds) that the function can for before timing out. See [Vercel documentation](https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration) for the allowed values for your plan. */
 	maxDuration?: number;
 }
 
@@ -120,6 +121,16 @@ export default function vercelServerless({
 	edgeMiddleware = false,
 	maxDuration,
 }: VercelServerlessConfig = {}): AstroIntegration {
+
+	if (maxDuration) {
+		if (typeof maxDuration !== 'number') {
+			throw new TypeError(`maxDuration must be a number`, { cause: maxDuration });
+		}
+		if (maxDuration <= 0) {
+			throw new TypeError(`maxDuration must be a positive number`, { cause: maxDuration });
+		}
+	}
+
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
 	let serverEntry: string;
@@ -133,6 +144,12 @@ export default function vercelServerless({
 		name: PACKAGE_NAME,
 		hooks: {
 			'astro:config:setup': async ({ command, config, updateConfig, injectScript, logger }) => {
+
+				if (maxDuration && maxDuration > 900) {
+					logger.warn(`maxDuration is set to ${maxDuration} seconds, which is longer than the maximum allowed duration of 900 seconds.`)
+					logger.warn(`Please make sure that your plan allows for this duration. See https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration for more information.`)
+				}
+
 				if (webAnalytics?.enabled || analytics) {
 					if (analytics) {
 						logger.warn(
