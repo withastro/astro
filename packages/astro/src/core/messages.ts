@@ -204,14 +204,14 @@ function formatErrorStackTrace(err: Error | ErrorWithMetadata, isBrowserAvailabl
 			const prettyLocation = `    at ${errorId?? errorLoc?.file}${
 				errorLoc?.line && errorLoc.column ? `:${errorLoc.line}:${errorLoc.column}` : ''
 			}`;
-			return prettyLocation + '\n    [...] See full stack trace in the browser window.';
+			return prettyLocation + '\n    [...] See full stack trace in the browser.';
 		} else {
 			return stackLines.join('\n');
 		}
 	}
 	// If the error occurred inside of a dependency, grab the entire stack.
 	// Otherwise, only grab the part of the stack that is relevant to the user's codebase.
-	return stackLines.splice(0, irrelevantStackIndex).join('\n') + '\n    [...] See full stack trace in the browser window.';
+	return stackLines.splice(0, irrelevantStackIndex).join('\n') + '\n    [...] See full stack trace in the browser.';
 }
 
 export function formatErrorMessage(err: ErrorWithMetadata, isBrowserAvailable = false): string {

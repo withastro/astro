@@ -802,9 +802,9 @@ export const LocalsNotAnObject = {
  */
 export const LocalImageUsedWrongly = {
 	name: 'LocalImageUsedWrongly',
-	title: 'Local image "src" value not supported.',
+	title: 'Local image "src" string value not supported.',
 	message: (imageFilePath: string) =>
-		`Image "src" value not supported. Local images must be imported with the ESM "import" keyword or the "image()" schema helper in a content collection. Received "${imageFilePath}".`,
+		`Local image "src" string value not supported. Received ${JSON.stringify(imageFilePath)}. Local images must use the ESM "import" keyword or the "image()" schema helper in content collection frontmatter.`,
 } satisfies ErrorData;
 
 /**
