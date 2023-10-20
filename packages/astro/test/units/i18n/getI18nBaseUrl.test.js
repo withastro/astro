@@ -1,7 +1,12 @@
-import { getI18nBaseUrl, getLocalesBaseUrl } from '../../../dist/i18n/index.js';
+import {
+	getLocaleRelativeUrl,
+	getLocaleRelativeUrlList,
+	getLocaleAbsoluteUrl,
+	getLocaleAbsoluteUrlList,
+} from '../../../dist/i18n/index.js';
 import { expect } from 'chai';
 
-describe('getI18nBaseUrl', () => {
+describe('getLocaleRelativeUrl', () => {
 	it('should correctly return the URL with the base', () => {
 		/**
 		 *
@@ -19,7 +24,7 @@ describe('getI18nBaseUrl', () => {
 
 		// directory format
 		expect(
-			getI18nBaseUrl({
+			getLocaleRelativeUrl({
 				locale: 'en',
 				base: '/blog/',
 				locales: config.experimental.i18n.locales,
@@ -28,7 +33,7 @@ describe('getI18nBaseUrl', () => {
 			})
 		).to.eq('/blog/en/');
 		expect(
-			getI18nBaseUrl({
+			getLocaleRelativeUrl({
 				locale: 'es',
 				base: '/blog/',
 				locales: config.experimental.i18n.locales,
@@ -38,7 +43,7 @@ describe('getI18nBaseUrl', () => {
 		).to.eq('/blog/es/');
 
 		expect(
-			getI18nBaseUrl({
+			getLocaleRelativeUrl({
 				locale: 'en_US',
 				base: '/blog/',
 				locales: config.experimental.i18n.locales,
@@ -49,7 +54,7 @@ describe('getI18nBaseUrl', () => {
 
 		// file format
 		expect(
-			getI18nBaseUrl({
+			getLocaleRelativeUrl({
 				locale: 'en',
 				base: '/blog/',
 				locales: config.experimental.i18n.locales,
@@ -58,7 +63,7 @@ describe('getI18nBaseUrl', () => {
 			})
 		).to.eq('/blog/en/');
 		expect(
-			getI18nBaseUrl({
+			getLocaleRelativeUrl({
 				locale: 'es',
 				base: '/blog/',
 				locales: config.experimental.i18n.locales,
@@ -68,7 +73,7 @@ describe('getI18nBaseUrl', () => {
 		).to.eq('/blog/es/');
 
 		expect(
-			getI18nBaseUrl({
+			getLocaleRelativeUrl({
 				locale: 'en_US',
 				base: '/blog/',
 				locales: config.experimental.i18n.locales,
@@ -93,7 +98,7 @@ describe('getI18nBaseUrl', () => {
 		};
 
 		expect(
-			getI18nBaseUrl({
+			getLocaleRelativeUrl({
 				locale: 'en',
 				base: '/',
 				locales: config.experimental.i18n.locales,
@@ -102,7 +107,7 @@ describe('getI18nBaseUrl', () => {
 			})
 		).to.eq('/en/');
 		expect(
-			getI18nBaseUrl({
+			getLocaleRelativeUrl({
 				locale: 'es',
 				base: '/',
 				locales: config.experimental.i18n.locales,
@@ -127,7 +132,7 @@ describe('getI18nBaseUrl', () => {
 		};
 		// directory format
 		expect(
-			getI18nBaseUrl({
+			getLocaleRelativeUrl({
 				locale: 'en',
 				base: '/blog',
 				locales: config.experimental.i18n.locales,
@@ -136,7 +141,7 @@ describe('getI18nBaseUrl', () => {
 			})
 		).to.eq('/blog/en');
 		expect(
-			getI18nBaseUrl({
+			getLocaleRelativeUrl({
 				locale: 'es',
 				base: '/blog/',
 				locales: config.experimental.i18n.locales,
@@ -146,7 +151,7 @@ describe('getI18nBaseUrl', () => {
 		).to.eq('/blog/es/');
 
 		expect(
-			getI18nBaseUrl({
+			getLocaleRelativeUrl({
 				locale: 'en',
 				base: '/blog/',
 				locales: config.experimental.i18n.locales,
@@ -157,7 +162,7 @@ describe('getI18nBaseUrl', () => {
 
 		// directory file
 		expect(
-			getI18nBaseUrl({
+			getLocaleRelativeUrl({
 				locale: 'en',
 				base: '/blog',
 				locales: config.experimental.i18n.locales,
@@ -166,7 +171,7 @@ describe('getI18nBaseUrl', () => {
 			})
 		).to.eq('/blog/en');
 		expect(
-			getI18nBaseUrl({
+			getLocaleRelativeUrl({
 				locale: 'es',
 				base: '/blog/',
 				locales: config.experimental.i18n.locales,
@@ -176,7 +181,7 @@ describe('getI18nBaseUrl', () => {
 		).to.eq('/blog/es/');
 
 		expect(
-			getI18nBaseUrl({
+			getLocaleRelativeUrl({
 				locale: 'en',
 				// ignore + file => no trailing slash
 				base: '/blog',
@@ -203,7 +208,7 @@ describe('getI18nBaseUrl', () => {
 		};
 
 		expect(
-			getI18nBaseUrl({
+			getLocaleRelativeUrl({
 				locale: 'en_US',
 				base: '/blog/',
 				locales: config.experimental.i18n.locales,
@@ -213,7 +218,7 @@ describe('getI18nBaseUrl', () => {
 		).to.eq('/blog/en-us/');
 
 		expect(
-			getI18nBaseUrl({
+			getLocaleRelativeUrl({
 				locale: 'en_AU',
 				base: '/blog/',
 				locales: config.experimental.i18n.locales,
@@ -224,7 +229,7 @@ describe('getI18nBaseUrl', () => {
 	});
 });
 
-describe('getLocalesBaseUrl', () => {
+describe('getLocaleRelativeUrlList', () => {
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: never]', () => {
 		/**
 		 *
@@ -240,7 +245,7 @@ describe('getLocalesBaseUrl', () => {
 		};
 		// directory format
 		expect(
-			getLocalesBaseUrl({
+			getLocaleRelativeUrlList({
 				locale: 'en',
 				base: '/blog',
 				locales: config.experimental.i18n.locales,
@@ -265,7 +270,7 @@ describe('getLocalesBaseUrl', () => {
 		};
 		// directory format
 		expect(
-			getLocalesBaseUrl({
+			getLocaleRelativeUrlList({
 				locale: 'en',
 				base: '/blog/',
 				locales: config.experimental.i18n.locales,
@@ -290,7 +295,7 @@ describe('getLocalesBaseUrl', () => {
 		};
 		// directory format
 		expect(
-			getLocalesBaseUrl({
+			getLocaleRelativeUrlList({
 				locale: 'en',
 				base: '/blog/',
 				locales: config.experimental.i18n.locales,
@@ -315,7 +320,7 @@ describe('getLocalesBaseUrl', () => {
 		};
 		// directory format
 		expect(
-			getLocalesBaseUrl({
+			getLocaleRelativeUrlList({
 				locale: 'en',
 				base: '/blog',
 				locales: config.experimental.i18n.locales,
@@ -340,7 +345,7 @@ describe('getLocalesBaseUrl', () => {
 		};
 		// directory format
 		expect(
-			getLocalesBaseUrl({
+			getLocaleRelativeUrlList({
 				locale: 'en',
 				base: '/blog',
 				locales: config.experimental.i18n.locales,
@@ -365,7 +370,7 @@ describe('getLocalesBaseUrl', () => {
 		};
 		// directory format
 		expect(
-			getLocalesBaseUrl({
+			getLocaleRelativeUrlList({
 				locale: 'en',
 				base: '/blog/',
 				locales: config.experimental.i18n.locales,
@@ -373,5 +378,418 @@ describe('getLocalesBaseUrl', () => {
 				format: 'directory',
 			})
 		).to.have.members(['/blog/en/', '/blog/en-us/', '/blog/es/']);
+	});
+});
+
+describe('getLocaleAbsoluteUrl', () => {
+	it('should correctly return the URL with the base', () => {
+		/**
+		 *
+		 * @type {import("../../../dist/@types").AstroUserConfig}
+		 */
+		const config = {
+			base: '/blog',
+			experimental: {
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'en_US', 'es'],
+				},
+			},
+		};
+
+		// directory format
+		expect(
+			getLocaleAbsoluteUrl({
+				locale: 'en',
+				base: '/blog/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'always',
+				format: 'directory',
+				site: 'https://example.com',
+			})
+		).to.eq('https://example.com/blog/en/');
+		expect(
+			getLocaleAbsoluteUrl({
+				locale: 'es',
+				base: '/blog/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'always',
+				format: 'directory',
+				site: 'https://example.com',
+			})
+		).to.eq('https://example.com/blog/es/');
+
+		expect(
+			getLocaleAbsoluteUrl({
+				locale: 'en_US',
+				base: '/blog/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'always',
+				format: 'directory',
+				site: 'https://example.com',
+			})
+		).to.throw;
+
+		// file format
+		expect(
+			getLocaleAbsoluteUrl({
+				locale: 'en',
+				base: '/blog/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'always',
+				format: 'file',
+				site: 'https://example.com',
+			})
+		).to.eq('https://example.com/blog/en/');
+		expect(
+			getLocaleAbsoluteUrl({
+				locale: 'es',
+				base: '/blog/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'always',
+				format: 'file',
+				site: 'https://example.com',
+			})
+		).to.eq('https://example.com/blog/es/');
+
+		expect(
+			getLocaleAbsoluteUrl({
+				locale: 'en_US',
+				base: '/blog/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'always',
+				format: 'file',
+				site: 'https://example.com',
+			})
+		).to.throw;
+	});
+
+	it('should correctly return the URL without base', () => {
+		/**
+		 *
+		 * @type {import("../../../dist/@types").AstroUserConfig}
+		 */
+		const config = {
+			experimental: {
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'es'],
+				},
+			},
+		};
+
+		expect(
+			getLocaleRelativeUrl({
+				locale: 'en',
+				base: '/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'always',
+				format: 'directory',
+				site: 'https://example.com',
+			})
+		).to.eq('/en/');
+		expect(
+			getLocaleRelativeUrl({
+				locale: 'es',
+				base: '/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'always',
+				format: 'directory',
+				site: 'https://example.com',
+			})
+		).to.eq('/es/');
+	});
+
+	it('should correctly handle the trailing slash', () => {
+		/**
+		 *
+		 * @type {import("../../../dist/@types").AstroUserConfig}
+		 */
+		const config = {
+			experimental: {
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'es'],
+				},
+			},
+		};
+		// directory format
+		expect(
+			getLocaleRelativeUrl({
+				locale: 'en',
+				base: '/blog',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'never',
+				format: 'directory',
+			})
+		).to.eq('/blog/en');
+		expect(
+			getLocaleRelativeUrl({
+				locale: 'es',
+				base: '/blog/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'always',
+				format: 'directory',
+			})
+		).to.eq('/blog/es/');
+
+		expect(
+			getLocaleRelativeUrl({
+				locale: 'en',
+				base: '/blog/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'ignore',
+				format: 'directory',
+			})
+		).to.eq('/blog/en/');
+
+		// directory file
+		expect(
+			getLocaleRelativeUrl({
+				locale: 'en',
+				base: '/blog',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'never',
+				format: 'file',
+			})
+		).to.eq('/blog/en');
+		expect(
+			getLocaleRelativeUrl({
+				locale: 'es',
+				base: '/blog/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'always',
+				format: 'file',
+			})
+		).to.eq('/blog/es/');
+
+		expect(
+			getLocaleRelativeUrl({
+				locale: 'en',
+				// ignore + file => no trailing slash
+				base: '/blog',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'ignore',
+				format: 'file',
+			})
+		).to.eq('/blog/en');
+	});
+
+	it('should normalize locales', () => {
+		/**
+		 *
+		 * @type {import("../../../dist/@types").AstroUserConfig}
+		 */
+		const config = {
+			base: '/blog',
+			experimental: {
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'en_US', 'en_AU'],
+				},
+			},
+		};
+
+		expect(
+			getLocaleRelativeUrl({
+				locale: 'en_US',
+				base: '/blog/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'always',
+				format: 'directory',
+			})
+		).to.eq('/blog/en-us/');
+
+		expect(
+			getLocaleRelativeUrl({
+				locale: 'en_AU',
+				base: '/blog/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'always',
+				format: 'directory',
+			})
+		).to.eq('/blog/en-au/');
+	});
+});
+
+describe('getLocaleAbsoluteUrlList', () => {
+	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: never]', () => {
+		/**
+		 *
+		 * @type {import("../../../dist/@types").AstroUserConfig}
+		 */
+		const config = {
+			experimental: {
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'en_US', 'es'],
+				},
+			},
+		};
+		// directory format
+		expect(
+			getLocaleAbsoluteUrlList({
+				locale: 'en',
+				base: '/blog',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'never',
+				format: 'directory',
+				site: 'https://example.com',
+			})
+		).to.have.members([
+			'https://example.com/blog/en',
+			'https://example.com/blog/en-us',
+			'https://example.com/blog/es',
+		]);
+	});
+
+	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: always]', () => {
+		/**
+		 *
+		 * @type {import("../../../dist/@types").AstroUserConfig}
+		 */
+		const config = {
+			experimental: {
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'en_US', 'es'],
+				},
+			},
+		};
+		// directory format
+		expect(
+			getLocaleAbsoluteUrlList({
+				locale: 'en',
+				base: '/blog/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'always',
+				format: 'directory',
+				site: 'https://example.com',
+			})
+		).to.have.members([
+			'https://example.com/blog/en/',
+			'https://example.com/blog/en-us/',
+			'https://example.com/blog/es/',
+		]);
+	});
+
+	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: always]', () => {
+		/**
+		 *
+		 * @type {import("../../../dist/@types").AstroUserConfig}
+		 */
+		const config = {
+			experimental: {
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'en_US', 'es'],
+				},
+			},
+		};
+		// directory format
+		expect(
+			getLocaleAbsoluteUrlList({
+				locale: 'en',
+				base: '/blog/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'always',
+				format: 'file',
+				site: 'https://example.com',
+			})
+		).to.have.members([
+			'https://example.com/blog/en/',
+			'https://example.com/blog/en-us/',
+			'https://example.com/blog/es/',
+		]);
+	});
+
+	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: never]', () => {
+		/**
+		 *
+		 * @type {import("../../../dist/@types").AstroUserConfig}
+		 */
+		const config = {
+			experimental: {
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'en_US', 'es'],
+				},
+			},
+		};
+		// directory format
+		expect(
+			getLocaleAbsoluteUrlList({
+				locale: 'en',
+				base: '/blog',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'never',
+				format: 'file',
+				site: 'https://example.com',
+			})
+		).to.have.members([
+			'https://example.com/blog/en',
+			'https://example.com/blog/en-us',
+			'https://example.com/blog/es',
+		]);
+	});
+
+	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: ignore]', () => {
+		/**
+		 *
+		 * @type {import("../../../dist/@types").AstroUserConfig}
+		 */
+		const config = {
+			experimental: {
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'en_US', 'es'],
+				},
+			},
+		};
+		// directory format
+		expect(
+			getLocaleAbsoluteUrlList({
+				locale: 'en',
+				base: '/blog',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'ignore',
+				format: 'file',
+				site: 'https://example.com',
+			})
+		).to.have.members([
+			'https://example.com/blog/en',
+			'https://example.com/blog/en-us',
+			'https://example.com/blog/es',
+		]);
+	});
+
+	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: ignore]', () => {
+		/**
+		 *
+		 * @type {import("../../../dist/@types").AstroUserConfig}
+		 */
+		const config = {
+			experimental: {
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'en_US', 'es'],
+				},
+			},
+		};
+		// directory format
+		expect(
+			getLocaleAbsoluteUrlList({
+				locale: 'en',
+				base: '/blog/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'ignore',
+				format: 'directory',
+				site: 'https://example.com',
+			})
+		).to.have.members([
+			'https://example.com/blog/en/',
+			'https://example.com/blog/en-us/',
+			'https://example.com/blog/es/',
+		]);
 	});
 });
