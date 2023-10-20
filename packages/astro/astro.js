@@ -18,6 +18,8 @@ const skipSemverCheckIfAbove = 19;
 /** `astro *` */
 async function main() {
 	const version = process.versions.node;
+
+	console.log(`Running astro on Node ${version}`)
 	// Fast-path for higher Node.js versions
 	if ((parseInt(version) || 0) <= skipSemverCheckIfAbove) {
 		try {
