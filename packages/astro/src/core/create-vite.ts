@@ -129,7 +129,7 @@ export async function createVite(
 			astroHeadPlugin(),
 			astroScannerPlugin({ settings, logger }),
 			astroInjectEnvTsPlugin({ settings, logger, fs }),
-			astroContentVirtualModPlugin({ settings }),
+			astroContentVirtualModPlugin({ fs, settings }),
 			astroContentImportPlugin({ fs, settings }),
 			astroContentAssetPropagationPlugin({ mode, settings }),
 			vitePluginSSRManifest(),
