@@ -79,8 +79,6 @@ const FILES_TO_UPDATE = {
 		file: string,
 		options: { value: string; ctx: PickedTypeScriptContext }
 	) => {
-		// do not add astro check command to build script if option is not strictest
-
 		try {
 			// add required dependencies for astro check
 			if (options.ctx.install)
