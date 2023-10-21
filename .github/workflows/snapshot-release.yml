@@ -17,7 +17,7 @@ env:
 jobs:
   snapshot-release:
     name: Create a snapshot release of a pull request
-    if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && contains(fromJSON('["!preview", "/preview", "!snapshot", "/snapshot"]'), github.event.comment.body) }}
+    if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && (contains(github.event.comment.body, '!preview') || contains(github.event.comment.body, '/preview') || contains(github.event.comment.body, '!snapshot') || contains(github.event.comment.body, '/snapshot')) }}
     runs-on: ubuntu-latest
     permissions: 
       contents: read 
