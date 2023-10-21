@@ -18,6 +18,8 @@ const first = defineMiddleware(async (context, next) => {
 		return new Response(JSON.stringify(object), {
 			headers: response.headers,
 		});
+	} else if (context.url.pathname === '/throw') {
+		throw new Error;
 	} else if (context.url.pathname === '/clone') {
 		const response = await next();
 		const newResponse = response.clone();

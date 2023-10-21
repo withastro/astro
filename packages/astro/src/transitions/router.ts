@@ -47,6 +47,7 @@ const announce = () => {
 };
 
 const PERSIST_ATTR = 'data-astro-transition-persist';
+const VITE_ID = 'data-vite-dev-id';
 
 let parser: DOMParser;
 
@@ -202,8 +203,10 @@ async function updateDOM(
 ) {
 	// Check for a head element that should persist and returns it,
 	// either because it has the data attribute or is a link el.
-	const persistedHeadElement = (el: HTMLElement): Element | null => {
+	// Returns null if the element is not part of the new head, undefined if it should be left alone.
+	const persistedHeadElement = (el: HTMLElement): Element | null | undefined => {
 		const id = el.getAttribute(PERSIST_ATTR);
+		if (id === '') return undefined;
 		const newEl = id && newDocument.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
 		if (newEl) {
 			return newEl;
@@ -226,7 +229,7 @@ async function updateDOM(
 		// The element that currently has the focus is part of a DOM tree
 		// that will survive the transition to the new document.
 		// Save the element and the cursor position
-		if (activeElement?.closest('[data-astro-transition-persist]')) {
+		if (activeElement?.closest(`[${PERSIST_ATTR}]`)) {
 			if (
 				activeElement instanceof HTMLInputElement ||
 				activeElement instanceof HTMLTextAreaElement
@@ -290,7 +293,7 @@ async function updateDOM(
 			// from the new document and leave the current node alone
 			if (newEl) {
 				newEl.remove();
-			} else {
+			} else if (newEl === null) {
 				// Otherwise remove the element in the head. It doesn't exist in the new page.
 				el.remove();
 			}
@@ -306,6 +309,7 @@ async function updateDOM(
 
 		// this will reset scroll Position
 		document.body.replaceWith(newDocument.body);
+
 		for (const el of oldBody.querySelectorAll(`[${PERSIST_ATTR}]`)) {
 			const id = el.getAttribute(PERSIST_ATTR);
 			const newEl = document.querySelector(`[${PERSIST_ATTR}="${id}"]`);
@@ -315,7 +319,6 @@ async function updateDOM(
 				newEl.replaceWith(el);
 			}
 		}
-
 		restoreFocus(savedFocus);
 
 		if (popState) {
@@ -404,6 +407,8 @@ async function transition(
 		return;
 	}
 
+	if (import.meta.env.DEV) await prepareForClientOnlyComponents(newDocument, toLocation);
+
 	if (!popState) {
 		// save the current scroll position before we change the DOM and transition to the new page
 		history.replaceState({ ...history.state, scrollX, scrollY }, '');
@@ -438,6 +443,7 @@ export function navigate(href: string, options?: Options) {
 				'The view transtions client API was called during a server side render. This may be unintentional as the navigate() function is expected to be called in response to user interactions. Please make sure that your usage is correct.'
 			);
 			warning.name = 'Warning';
+			// eslint-disable-next-line no-console
 			console.warn(warning);
 			navigateOnServerWarned = true;
 		}
@@ -517,5 +523,55 @@ if (inBrowser) {
 		else addEventListener('scroll', throttle(updateState, 300));
 
 		markScriptsExec();
+	}
+}
+
+// Keep all styles that are potentially created by client:only components
+// and required on the next page
+async function prepareForClientOnlyComponents(newDocument: Document, toLocation: URL) {
+	// Any client:only component on the next page?
+	if (newDocument.body.querySelector(`astro-island[client='only']`)) {
+		// Load the next page with an empty module loader cache
+		const nextPage = document.createElement('iframe');
+		nextPage.setAttribute('src', toLocation.href);
+		nextPage.style.display = 'none';
+		document.body.append(nextPage);
+		await hydrationDone(nextPage);
+
+		const nextHead = nextPage.contentDocument?.head;
+		if (nextHead) {
+			// Clear former persist marks
+			document.head
+				.querySelectorAll(`style[${PERSIST_ATTR}=""]`)
+				.forEach((s) => s.removeAttribute(PERSIST_ATTR));
+
+			// Collect the vite ids of all styles present in the next head
+			const viteIds = [...nextHead.querySelectorAll(`style[${VITE_ID}]`)].map((style) =>
+				style.getAttribute(VITE_ID)
+			);
+			// Mark styles of the current head as persistent
+			// if they come from hydration and not from the newDocument
+			viteIds.forEach((id) => {
+				const style = document.head.querySelector(`style[${VITE_ID}="${id}"]`);
+				if (style && !newDocument.head.querySelector(`style[${VITE_ID}="${id}"]`)) {
+					style.setAttribute(PERSIST_ATTR, '');
+				}
+			});
+		}
+
+		// return a promise that resolves when all astro-islands are hydrated
+		async function hydrationDone(loadingPage: HTMLIFrameElement) {
+			await new Promise(
+				(r) => loadingPage.contentWindow?.addEventListener('load', r, { once: true })
+			);
+
+			return new Promise<void>(async (r) => {
+				for (let count = 0; count <= 20; ++count) {
+					if (!loadingPage.contentDocument!.body.querySelector('astro-island[ssr]')) break;
+					await new Promise((r2) => setTimeout(r2, 50));
+				}
+				r();
+			});
+		}
 	}
 }

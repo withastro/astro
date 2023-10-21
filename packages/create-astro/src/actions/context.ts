@@ -94,7 +94,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		projectName,
 		template,
 		ref: ref ?? 'latest',
-		hat: fancy ? random(['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦']) : undefined,
+		hat: random(['🎃', '👻', '🕯️']), //fancy ? random(['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦']) : undefined,
 		yes,
 		install: install ?? (noInstall ? false : undefined),
 		git: git ?? (noGit ? false : undefined),
