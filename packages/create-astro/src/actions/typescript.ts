@@ -95,7 +95,7 @@ const FILES_TO_UPDATE = {
 			const parsedPackageJson = JSON.parse(data);
 
 			const buildScript = parsedPackageJson.scripts?.build;
-			console.log(buildScript)
+
 			// in case of any other template already have astro checks defined, we don't want to override it
 			if (typeof buildScript === 'string' && !buildScript.includes('astro check')) {
 				const newPackageJson = Object.assign(parsedPackageJson, {
