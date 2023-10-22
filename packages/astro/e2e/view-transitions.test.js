@@ -241,6 +241,7 @@ test.describe('View Transitions', () => {
 		let p = page.locator('#totwo');
 		await expect(p, 'should have content').toHaveText('Go to listener two');
 		// on load a CSS transition is started triggered by a class on the html element
+		await page.waitForTimeout(500);
 		expect(transitions).toBeLessThanOrEqual(1);
 		const transitionsBefore = transitions;
 		// go to page 2
@@ -696,7 +697,7 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/client-only-three'));
 		let msg = page.locator('#name');
 		await expect(msg).toHaveText('client-only-three');
-		await page.waitForTimeout(400); // await hydration
+		await page.waitForTimeout(1000); // await hydration
 
 		let styles = await page.locator('style').all();
 		expect(styles.length).toEqual(totalExpectedStyles_page_three);
