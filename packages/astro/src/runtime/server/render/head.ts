@@ -34,6 +34,12 @@ export function renderAllHeadContent(result: SSRResult) {
 		.filter(uniqueElements)
 		.map((link) => renderElement('link', link, false));
 
+	// Order styles -> links -> scripts similar to src/content/runtime.ts
+	// The order is usually fine as the ordering between these groups are mutually exclusive,
+	// except for CSS styles and CSS stylesheet links. However CSS stylesheet links usually
+	// consist of CSS modules which should naturally take precedence over CSS styles, so the
+	// order will still work. In prod, all CSS are stylesheet links.
+	// In the future, it may be better to have only an array of head elements to avoid these assumptions.
 	let content = styles.join('\n') + links.join('\n') + scripts.join('\n');
 
 	if (result._metadata.extraHead.length > 0) {
