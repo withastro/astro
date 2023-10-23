@@ -2,4 +2,4 @@
 '@astrojs/react': patch
 ---
 
-Fix for experimentalReactChildren
+Fixes client hydration in islands when using experimentalReactChildren
