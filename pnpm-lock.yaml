@@ -149,18 +149,6 @@ importers:
         specifier: ^3.2.4
         version: link:../../packages/astro
 
-  examples/dev-overlay:
-    dependencies:
-      '@astrojs/solid-js':
-        specifier: ^3.0.1
-        version: link:../../packages/integrations/solid
-      astro:
-        specifier: ^3.2.3
-        version: link:../../packages/astro
-      solid-js:
-        specifier: ^1.7.11
-        version: 1.7.11
-
   examples/framework-alpine:
     dependencies:
       '@astrojs/alpinejs':
