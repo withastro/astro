@@ -679,7 +679,7 @@ test.describe('View Transitions', () => {
 
 		await expect(p, 'should have content').toBeVisible();
 		await page.waitForURL('http://example.com');
-		await page.waitForFunction((loads) => loads.length === 2, loads);
+		await page.waitForFunction((arr) => arr.length === 2, loads);
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
 
