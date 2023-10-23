@@ -1,4 +1,7 @@
 {
   "name": "@test/create-astro-not-empty",
-  "private": true
+  "private": true,
+  "scripts": {
+    "build": "astro build"
+  }
 }
