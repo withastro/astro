@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { projectName } from '../dist/index.js';
 import { setup } from './utils.js';
 
-describe('project name', () => {
+describe('project name', async () => {
 	const fixture = setup();
 
 	it('pass in name', async () => {
