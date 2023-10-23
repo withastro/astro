@@ -114,7 +114,7 @@ describe('[DEV] i18n routing', () => {
 						defaultLocale: 'en',
 						locales: ['en', 'pt', 'it'],
 						fallback: {
-							it: ['en'],
+							it: 'en',
 						},
 						fallbackControl: 'redirect',
 					},
@@ -127,12 +127,12 @@ describe('[DEV] i18n routing', () => {
 			await devServer.stop();
 		});
 
-		it('should render the en locale', async () => {
-			const response = await fixture.fetch('/new-site/en/start');
+		it('should render the default locale without prefix', async () => {
+			const response = await fixture.fetch('/new-site/start');
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Hello');
+			expect(await response.text()).includes('Start');
 
-			const response2 = await fixture.fetch('/new-site/en/blog/1');
+			const response2 = await fixture.fetch('/new-site/blog/1');
 			expect(response2.status).to.equal(200);
 			expect(await response2.text()).includes('Hello world');
 		});
@@ -140,7 +140,7 @@ describe('[DEV] i18n routing', () => {
 		it('should render localised page correctly', async () => {
 			const response = await fixture.fetch('/new-site/pt/start');
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Hola');
+			expect(await response.text()).includes('Oi essa e start');
 
 			const response2 = await fixture.fetch('/new-site/pt/blog/1');
 			expect(response2.status).to.equal(200);
@@ -150,7 +150,7 @@ describe('[DEV] i18n routing', () => {
 		it('should redirect to the english locale, which is the first fallback', async () => {
 			const response = await fixture.fetch('/new-site/it/start');
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Hello');
+			expect(await response.text()).includes('Start');
 		});
 
 		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
@@ -281,7 +281,7 @@ describe('[SSG] i18n routing', () => {
 						defaultLocale: 'en',
 						locales: ['en', 'pt', 'it'],
 						fallback: {
-							it: ['en'],
+							it: 'en',
 						},
 						fallbackControl: 'redirect',
 					},
@@ -291,11 +291,11 @@ describe('[SSG] i18n routing', () => {
 		});
 
 		it('should render the en locale', async () => {
-			let html = await fixture.readFile('/en/start/index.html');
+			let html = await fixture.readFile('/start/index.html');
 			let $ = cheerio.load(html);
-			expect($('body').text()).includes('Hello');
+			expect($('body').text()).includes('Start');
 
-			html = await fixture.readFile('/en/blog/1/index.html');
+			html = await fixture.readFile('/blog/1/index.html');
 			$ = cheerio.load(html);
 			expect($('body').text()).includes('Hello world');
 		});
@@ -303,7 +303,7 @@ describe('[SSG] i18n routing', () => {
 		it('should render localised page correctly', async () => {
 			let html = await fixture.readFile('/pt/start/index.html');
 			let $ = cheerio.load(html);
-			expect($('body').text()).includes('Hola');
+			expect($('body').text()).includes('Oi essa e start');
 
 			html = await fixture.readFile('/pt/blog/1/index.html');
 			$ = cheerio.load(html);
@@ -314,7 +314,7 @@ describe('[SSG] i18n routing', () => {
 			const html = await fixture.readFile('/it/start/index.html');
 			expect(html).to.include('http-equiv="refresh');
 			console.log(html);
-			expect(html).to.include('url=/new-site/en/start');
+			expect(html).to.include('url=/new-site/start');
 		});
 
 		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
@@ -398,7 +398,7 @@ describe('[SSR] i18n routing', () => {
 			let request = new Request('http://example.com/new-site/pt/start');
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Hola');
+			expect(await response.text()).includes('Oi essa e start');
 		});
 
 		it("should NOT render the default locale if there isn't a fallback and the route is missing", async () => {
@@ -420,7 +420,7 @@ describe('[SSR] i18n routing', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/i18n-routing/',
+				root: './fixtures/i18n-routing-fallback/',
 				output: 'server',
 				adapter: testAdapter(),
 				experimental: {
@@ -428,7 +428,7 @@ describe('[SSR] i18n routing', () => {
 						defaultLocale: 'en',
 						locales: ['en', 'pt', 'it'],
 						fallback: {
-							it: ['en'],
+							it: 'en',
 						},
 						fallbackControl: 'redirect',
 					},
@@ -439,24 +439,24 @@ describe('[SSR] i18n routing', () => {
 		});
 
 		it('should render the en locale', async () => {
-			let request = new Request('http://example.com/new-site/en/start');
+			let request = new Request('http://example.com/new-site/start');
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Hello');
+			expect(await response.text()).includes('Start');
 		});
 
 		it('should render localised page correctly', async () => {
 			let request = new Request('http://example.com/new-site/pt/start');
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Hola');
+			expect(await response.text()).includes('Oi essa e start');
 		});
 
 		it('should redirect to the english locale, which is the first fallback', async () => {
 			let request = new Request('http://example.com/new-site/it/start');
 			let response = await app.render(request);
 			expect(response.status).to.equal(302);
-			expect(response.headers.get('location')).to.equal('/new-site/en/start');
+			expect(response.headers.get('location')).to.equal('/new-site/start');
 		});
 
 		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
