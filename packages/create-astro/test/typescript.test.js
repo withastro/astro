@@ -123,9 +123,9 @@ describe('typescript: setup package', () => {
 		const root = new URL('./fixtures/not-empty/', import.meta.url);
 		const packageJson = new URL('./package.json', root);
 
-		expect(
-			JSON.parse(fs.readFileSync(packageJson, { encoding: 'utf-8' })).scripts.build
-		).to.be.eq('astro build');
+		expect(JSON.parse(fs.readFileSync(packageJson, { encoding: 'utf-8' })).scripts.build).to.be.eq(
+			'astro build'
+		);
 		await setupTypeScript('strictest', { cwd: fileURLToPath(root), install: false });
 		expect(JSON.parse(fs.readFileSync(packageJson, { encoding: 'utf-8' })).scripts.build).to.be.eq(
 			'astro check && astro build'
