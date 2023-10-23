@@ -18,6 +18,6 @@
     "astro": "^3.3.3"
   },
   "peerDependencies": {
-    "astro": "^2.0.0-beta.0"
+    "astro": "^3.0.0"
   }
 }
