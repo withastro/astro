@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.3.0
+
+### Minor Changes
+
+- [#8846](https://github.com/withastro/astro/pull/8846) [`3baab3d93`](https://github.com/withastro/astro/commit/3baab3d93b8d16517cb089b0fa2c4028f21e780f) Thanks [@ElianCodes](https://github.com/ElianCodes)! - feat: make Houston wear scary hats and say new things for spooky season
+
 ## 4.2.1
 
 ### Patch Changes
