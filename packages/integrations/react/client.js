@@ -29,7 +29,7 @@ function createReactElementFromDOMElement(element) {
 	);
 }
 
-function getChildren(experimentalReactChildren, childString) {
+function getChildren(childString, experimentalReactChildren) {
 	if(experimentalReactChildren && childString) {
 		let children = [];
 		let template = document.createElement('template');
@@ -59,7 +59,7 @@ export default (element) =>
 		const componentEl = createElement(
 			Component,
 			props,
-			getChildren(element.hasAttribute('data-react-children'), children)
+			getChildren(children, element.hasAttribute('data-react-children'))
 		);
 		const rootKey = isAlreadyHydrated(element);
 		// HACK: delete internal react marker for nested components to suppress aggressive warnings
