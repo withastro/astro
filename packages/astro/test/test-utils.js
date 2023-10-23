@@ -99,6 +99,8 @@ export async function loadFixture(inlineConfig) {
 
 	// Silent by default during tests to not pollute the console output
 	inlineConfig.logLevel = 'silent';
+	inlineConfig.vite ??= {};
+	inlineConfig.vite.logLevel = 'silent';
 
 	let root = inlineConfig.root;
 	// Handle URL, should already be absolute so just convert to path

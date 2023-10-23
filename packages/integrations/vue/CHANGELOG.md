@@ -1,5 +1,14 @@
 # @astrojs/vue
 
+## 3.0.2
+
+### Patch Changes
+
+- [#8860](https://github.com/withastro/astro/pull/8860) [`65c7bd149`](https://github.com/withastro/astro/commit/65c7bd149cf9024f8026a73426d51c76be543cc4) Thanks [@bluwy](https://github.com/bluwy)! - Fix Vue component HMR when updating the script tag
+
+- Updated dependencies [[`5ea6ee0ed`](https://github.com/withastro/astro/commit/5ea6ee0ed494c792a4c94928a83c5c85b9b6ac32), [`5c888c10b`](https://github.com/withastro/astro/commit/5c888c10b712ca60a23e66b88af8051b54b42323), [`ad2bb9155`](https://github.com/withastro/astro/commit/ad2bb9155997380d0880b0c6c7b12f079a031d48), [`326e17893`](https://github.com/withastro/astro/commit/326e178933f7a22f4e897b763832619f168b53dd)]:
+  - astro@3.3.3
+
 ## 3.0.1
 
 ### Patch Changes

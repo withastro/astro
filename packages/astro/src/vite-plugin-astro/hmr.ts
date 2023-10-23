@@ -1,3 +1,4 @@
+import { slash } from '@astrojs/internal-helpers/path';
 import { fileURLToPath } from 'node:url';
 import type { HmrContext, ModuleNode } from 'vite';
 import type { AstroConfig } from '../@types/astro.js';
@@ -91,7 +92,7 @@ export async function handleHotUpdate(
 	// Bugfix: sometimes style URLs get normalized and end with `lang.css=`
 	// These will cause full reloads, so filter them out here
 	const mods = [...filtered].filter((m) => !m.url.endsWith('='));
-	const file = ctx.file.replace(config.root.pathname, '/');
+	const file = ctx.file.replace(slash(fileURLToPath(config.root)), '/');
 
 	// If only styles are changed, remove the component file from the update list
 	if (isStyleOnlyChange) {

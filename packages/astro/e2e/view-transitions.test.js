@@ -241,15 +241,15 @@ test.describe('View Transitions', () => {
 		let p = page.locator('#totwo');
 		await expect(p, 'should have content').toHaveText('Go to listener two');
 		// on load a CSS transition is started triggered by a class on the html element
-		expect(transitions).toEqual(1);
-
+		expect(transitions).toBeLessThanOrEqual(1);
+		const transitionsBefore = transitions;
 		// go to page 2
 		await page.click('#totwo');
 		p = page.locator('#toone');
 		await expect(p, 'should have content').toHaveText('Go to listener one');
 		// swap() resets that class, the after-swap listener sets it again.
 		// the temporarily missing class must not trigger page rendering
-		expect(transitions).toEqual(1);
+		expect(transitions).toEqual(transitionsBefore);
 	});
 
 	test('click hash links does not do navigation', async ({ page, astro }) => {
@@ -670,10 +670,9 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
 
-	test.skip('client:only styles are retained on transition', async ({ page, astro }) => {
-		const totalExpectedStyles = 7;
+	test('client:only styles are retained on transition (1/2)', async ({ page, astro }) => {
+		const totalExpectedStyles = 8;
 
-		// Go to page 1
 		await page.goto(astro.resolveUrl('/client-only-one'));
 		let msg = page.locator('.counter-message');
 		await expect(msg).toHaveText('message here');
@@ -688,6 +687,27 @@ test.describe('View Transitions', () => {
 
 		styles = await page.locator('style').all();
 		expect(styles.length).toEqual(totalExpectedStyles, 'style count has not changed');
+	});
+
+	test('client:only styles are retained on transition (2/2)', async ({ page, astro }) => {
+		const totalExpectedStyles_page_three = 10;
+		const totalExpectedStyles_page_four = 8;
+
+		await page.goto(astro.resolveUrl('/client-only-three'));
+		let msg = page.locator('#name');
+		await expect(msg).toHaveText('client-only-three');
+		await page.waitForTimeout(400); // await hydration
+
+		let styles = await page.locator('style').all();
+		expect(styles.length).toEqual(totalExpectedStyles_page_three);
+
+		await page.click('#click-four');
+
+		let pageTwo = page.locator('#page-four');
+		await expect(pageTwo, 'should have content').toHaveText('Page 4');
+
+		styles = await page.locator('style').all();
+		expect(styles.length).toEqual(totalExpectedStyles_page_four, 'style count has not changed');
 	});
 
 	test('Horizontal scroll position restored on back button', async ({ page, astro }) => {
@@ -788,7 +808,7 @@ test.describe('View Transitions', () => {
 
 	test('replace history', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/one'));
-		// page six loads the router and automatically uses the router to navigate to page 1
+
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
@@ -832,5 +852,25 @@ test.describe('View Transitions', () => {
 		await page.goBack();
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
+	});
+
+	test('Keep focus on transition', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/page-with-persistent-form'));
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Form 1');
+
+		locator = page.locator('#input');
+		await locator.type('Hello');
+		await expect(locator).toBeFocused();
+		await locator.press('Enter');
+
+		await page.waitForURL(/.*name=Hello/);
+		locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Form 1');
+		locator = page.locator('#input');
+		await expect(locator).toBeFocused();
+
+		await locator.type(' World');
+		await expect(locator).toHaveValue('Hello World');
 	});
 });

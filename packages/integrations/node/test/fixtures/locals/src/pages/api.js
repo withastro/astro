@@ -1,6 +1,6 @@
 
-export async function post({ locals }) {
-	let out = { ...locals };
+export async function POST({ locals }) {
+	const out = { ...locals };
 
 	return new Response(JSON.stringify(out), {
 		headers: {
