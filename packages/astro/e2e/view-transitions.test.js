@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { testFactory, waitForHydrate } from './test-utils.js';
 
 const test = testFactory({ root: './fixtures/view-transitions/' });
 
@@ -231,26 +231,37 @@ test.describe('View Transitions', () => {
 	});
 
 	test('No page rendering during swap()', async ({ page, astro }) => {
-		let transitions = 0;
-		page.on('console', (msg) => {
-			if (msg.type() === 'info' && msg.text() === 'transitionstart') ++transitions;
-		});
+		// This has been a problem with theme switchers (e.g. for drakmode)
+		// Swap() should not trigger any page renders and give users the chance to
+		// correct attributes in the astro:after-swap handler before they become visible
 
-		// Go to page 1
+		// This test uses a CSS animation to detect page rendering
+		// The test succeeds if no additional animation beside those of the
+		// view transition is triggered during swap()
+
 		await page.goto(astro.resolveUrl('/listener-one'));
 		let p = page.locator('#totwo');
 		await expect(p, 'should have content').toHaveText('Go to listener two');
-		// on load a CSS transition is started triggered by a class on the html element
-		await page.waitForTimeout(500);
-		expect(transitions).toBeLessThanOrEqual(1);
-		const transitionsBefore = transitions;
+
+		// setting the blue class on the html element triggers a CSS animation
+		let animations = await page.evaluate(async () => {
+			document.documentElement.classList.add('blue');
+			return document.getAnimations({ subtree: true });
+		});
+		expect(animations.length).toEqual(1);
+
 		// go to page 2
 		await page.click('#totwo');
 		p = page.locator('#toone');
 		await expect(p, 'should have content').toHaveText('Go to listener one');
-		// swap() resets that class, the after-swap listener sets it again.
-		// the temporarily missing class must not trigger page rendering
-		expect(transitions).toEqual(transitionsBefore);
+		// swap() resets the "blue" class, as it is not set in the static html of page 2
+		// The astro:after-swap listener (defined in the layout) sets it again.
+		// The temporarily missing class must not trigger page rendering
+		animations = await page.evaluate(async () => {
+			return document.getAnimations({ subtree: true });
+		});
+		// we only expect the animations from the view transition
+		expect(animations.length).toEqual(2);
 	});
 
 	test('click hash links does not do navigation', async ({ page, astro }) => {
@@ -664,10 +675,11 @@ test.describe('View Transitions', () => {
 		// go to external page
 		await page.click('#click-redirect-external');
 		// doesn't work for playwright when we are too fast
-		await page.waitForTimeout(1000);
 		p = page.locator('h1');
-		await expect(p, 'should have content').toBeVisible();
 
+		await expect(p, 'should have content').toBeVisible();
+		await page.waitForURL('http://example.com');
+		await page.waitForFunction((loads) => loads.length === 2, loads);
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
 
@@ -697,7 +709,8 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/client-only-three'));
 		let msg = page.locator('#name');
 		await expect(msg).toHaveText('client-only-three');
-		await page.waitForTimeout(1000); // await hydration
+		await waitForHydrate(page, page.getByText('Vue'));
+		await waitForHydrate(page, page.getByText('Svelte'));
 
 		let styles = await page.locator('style').all();
 		expect(styles.length).toEqual(totalExpectedStyles_page_three);
