@@ -2,4 +2,4 @@
 '@astrojs/markdoc': minor
 ---
 
-Added allowIndentation as a markdoc integration option to enable better readability
+Added ignoreIndentation as a markdoc integration option to enable better readability of source code.

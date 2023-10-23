@@ -458,21 +458,21 @@ To achieve a more Markdown-like experience, where HTML elements can be included 
 > **Warning**
 > When `allowHTML` is enabled, HTML markup inside Markdoc documents will be rendered as actual HTML elements (including `<script>`), making attack vectors like XSS possible. Ensure that any HTML markup comes from trusted sources.
 
-### `allowIndentation`
+### `ignoreIndentation`
 
 By default, any content that is indented by four spaces is treated as a code block. Unfortunately, this behavior makes it difficult to use arbitrary levels of indentation to improve the readability of documents with complex structure.
 
-When using nested tags in Markdoc, it can be helpful to indent the content inside of tags so that the level of depth is clear. To support arbitrary indentation, we have to disable the indent-based code blocks and modify several other markdown-it parsing rules that account for indent-based code blocks. These changes can be applied by enabling the allowIndentation option.
+When using nested tags in Markdoc, it can be helpful to indent the content inside of tags so that the level of depth is clear. To support arbitrary indentation, we have to disable the indent-based code blocks and modify several other markdown-it parsing rules that account for indent-based code blocks. These changes can be applied by enabling the ignoreIndentation option.
 
-```diff lang="js" "allowIndentation: true"
+```diff lang="js" "ignoreIndentation: true"
   // astro.config.mjs
   import { defineConfig } from 'astro/config';
   import markdoc from '@astrojs/markdoc';
 
   export default defineConfig({
     // ...
-+   integrations: [markdoc({ allowIndentation: true })],
-    //                       ^^^^^^^^^^^^^^^^^^^^^^
++   integrations: [markdoc({ ignoreIndentation: true })],
+    //                       ^^^^^^^^^^^^^^^^^^^^^^^
   });
 ```
 

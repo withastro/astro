@@ -20,7 +20,7 @@ export function getMarkdocTokenizer(options: MarkdocIntegrationOptions | undefin
 			// enable HTML token detection in markdown-it
 			tokenizerOptions.html = true;
 		}
-		if (options?.allowIndentation) {
+		if (options?.ignoreIndentation) {
 			// allow indentation so nested Markdoc tags can be formatted for better readability
 			tokenizerOptions.allowIndentation = true;
 		}

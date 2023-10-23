@@ -3,5 +3,5 @@ import markdoc from '@astrojs/markdoc';
 
 // https://astro.build/config
 export default defineConfig({
-	integrations: [markdoc({ allowIndentation: true })],
+	integrations: [markdoc({ ignoreIndentation: true })],
 });
