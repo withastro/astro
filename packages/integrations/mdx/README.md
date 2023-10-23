@@ -56,15 +56,9 @@ Then, apply this integration to your `astro.config.*` file using the `integratio
 
 ### Editor Integration
 
-[VS Code](https://code.visualstudio.com/) supports Markdown by default. However, for MDX editor support, you may wish to add the following setting in your VSCode config. This ensures authoring MDX files provides a Markdown-like editor experience.
+For editor support in [VS Code](https://code.visualstudio.com/), install the [`unifiedjs.vscode-mdx`](https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx) extension.
 
-```json title=".vscode/settings.json"
-{
-  "files.associations": {
-    "*.mdx": "markdown"
-  }
-}
-```
+For other editors, use the [MDX language server](https://github.com/mdx-js/mdx-analyzer/tree/main/packages/language-server).
 
 ## Usage
 
