@@ -42,7 +42,7 @@ export async function typescript(ctx: PickedTypeScriptContext) {
 	} else {
 		if (!['strict', 'strictest', 'relaxed', 'default', 'base'].includes(ts)) {
 			if (!ctx.dryRun) {
-				rm(ctx.cwd, { recursive: true, force: true });
+				await rm(ctx.cwd, { recursive: true, force: true });
 			}
 			error(
 				'Error',
