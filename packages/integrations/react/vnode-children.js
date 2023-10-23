@@ -16,7 +16,7 @@ export default function convert(children) {
 		} else if (node.type === ELEMENT_NODE) {
 			const { class: className, ...props } = node.attributes;
 			// NOTE: do not manually pass `children`, React handles this internally
-			newNode = createElement(node.name, { ...props, className, key: `${id}-${key++}` });
+			newNode = createElement(node.name, { ...props, className, key: `${id}-${key++}` }, []);
 			nodeMap.set(node, newNode);
 			if (parent) {
 				const newParent = nodeMap.get(parent);
