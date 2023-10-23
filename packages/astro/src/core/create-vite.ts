@@ -16,7 +16,7 @@ import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.j
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
-import astroDevTools from '../vite-plugin-dev-tools/vite-plugin-dev-tools.js';
+import astroDevOverlay from '../vite-plugin-dev-tools/vite-plugin-dev-overlay.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
 import astroHeadPlugin from '../vite-plugin-head/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
@@ -133,7 +133,7 @@ export async function createVite(
 			vitePluginSSRManifest(),
 			astroAssetsPlugin({ settings, logger, mode }),
 			astroTransitions(),
-			astroDevTools({ settings, logger }),
+			astroDevOverlay({ settings, logger }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

@@ -1,12 +1,13 @@
 /* eslint-disable no-console */
 // @ts-expect-error
-import { loadDevToolsPlugins } from 'astro:dev-tools';
+import { loadDevOverlayPlugins } from 'astro:dev-overlay';
 import type { DevOverlayItem as DevOverlayItemDefinition } from '../../../@types/astro.js';
 import astroDevToolPlugin from './plugins/astro.js';
 import astroAuditPlugin from './plugins/audit.js';
 import astroXrayPlugin from './plugins/xray.js';
 import { DevOverlayCard } from './ui-library/card.js';
 import { DevOverlayHighlight } from './ui-library/highlight.js';
+import { getIconElement } from './ui-library/icons.js';
 import { DevOverlayTooltip } from './ui-library/tooltip.js';
 import { DevOverlayWindow } from './ui-library/window.js';
 
@@ -29,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		status: 'loading',
 		eventTarget: new EventTarget(),
 	}));
-	const customPluginsImports = (await loadDevToolsPlugins()) as DevOverlayItemDefinition[];
+	const customPluginsImports = (await loadDevOverlayPlugins()) as DevOverlayItemDefinition[];
 	const customPlugins: DevOverlayItem[] = [];
 	customPlugins.push(
 		...customPluginsImports.map((plugin) => ({
@@ -67,12 +68,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 		async connectedCallback() {
 			this.shadowRoot.innerHTML = `
     <style>
-      #dev-overlay {
-				display: inline-block;
+			#dev-overlay {
 				position: fixed;
 				bottom: 7.5%;
-				left: 50%;
+				left: calc(50% + 32px);
 				transform: translate(-50%, 0%);
+				z-index: 999999;
+				display: flex;
+				gap: 8px;
+				align-items: center;
+			}
+
+      #dev-bar {
 				height: 56px;
 				overflow: hidden;
 
@@ -80,45 +87,44 @@ document.addEventListener('DOMContentLoaded', async () => {
 				box-shadow: 0px 0px 0px 0px #13151A4D;
 				border: 1px solid #343841;
 				border-radius: 9999px;
-				z-index: 999999;
 			}
 
-			#dev-overlay .item {
+			#dev-bar .item {
 				display: flex;
 				justify-content: center;
 				align-items: center;
 				width: 64px;
 			}
 
-			#dev-overlay #bar-container .item:hover {
+			#dev-bar #bar-container .item:hover {
 				background: rgba(27, 30, 36, 1);
 				cursor: pointer;
 			}
 
-			#dev-overlay #bar-container .item:hover {
+			#dev-bar #bar-container .item:hover {
 				border-color: rgba(27, 30, 36, 1);
 			}
 
-			#dev-overlay #bar-container .item.active {
+			#dev-bar #bar-container .item.active {
 				background: rgba(71, 78, 94, 1);
 			}
 
-			#dev-overlay #bar-container .item.active .notification {
+			#dev-bar #bar-container .item.active .notification {
 				border-color: rgba(71, 78, 94, 1);
 			}
 
-			#dev-overlay .item .icon {
+			#dev-bar .item .icon {
 				position: relative;
 			}
 
-			#dev-overlay .item svg {
+			#dev-bar .item svg {
 				width: 24px;
 				height: 24px;
 				display: block;
 				margin: auto;
 			}
 
-			#dev-overlay .item .notification {
+			#dev-bar .item .notification {
 				display: none;
 				position: absolute;
 				top: -2px;
@@ -130,16 +136,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 				background: #B33E66;
 			}
 
-			#dev-overlay .item .notification[data-active] {
+			#dev-bar .item .notification[data-active] {
 				display: block;
 			}
 
-			#dev-overlay #bar-container {
+			#dev-bar #bar-container {
 				height: 100%;
 				display: flex;
 			}
 
-			#dev-overlay .separator {
+			#dev-bar .separator {
 				background: rgba(52, 56, 65, 1);
 				width: 1px;
 			}
@@ -153,14 +159,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 			astro-overlay-plugin-canvas:not([data-active]) {
 				display: none;
 			}
+
+			#minimize-button {
+				width: 32px;
+				height: 32px;
+				background: rgba(255, 255, 255, 0.75);
+				border-radius: 9999px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+
+			#minimize-button svg {
+				width: 16px;
+				height: 16px;
+			}
     </style>
 
-    <div id="dev-overlay">
-			<div id="bar-container">
-				${builtinPlugins.map((plugin) => this.getPluginTemplate(plugin)).join('')}
-				<div class="separator"></div>
-				${customPlugins.map((plugin) => this.getPluginTemplate(plugin)).join('')}
+		<div id="dev-overlay">
+			<div id="dev-bar">
+				<div id="bar-container">
+					${builtinPlugins.map((plugin) => this.getPluginTemplate(plugin)).join('')}
+					<div class="separator"></div>
+					${customPlugins.map((plugin) => this.getPluginTemplate(plugin)).join('')}
+				</div>
 			</div>
+			<div id="minimize-button">${getIconElement('arrow-down')?.outerHTML}</div>
 		</div>`;
 
 			this.attachClickEvents();
@@ -211,7 +235,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				plugin.status = 'ready';
 
 				if (import.meta.hot) {
-					import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:init`, { msg: 'Hey!' });
+					import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:init`);
 				}
 			} catch (e) {
 				console.error(`Failed to init plugin ${plugin.id}, error: ${e}`);
@@ -253,6 +277,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 				import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:toggle`, { state: plugin.active });
 			}
 		}
+
+		showMinimizeButton() {}
 	}
 
 	class DevOverlayCanvas extends HTMLElement {

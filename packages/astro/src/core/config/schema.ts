@@ -39,9 +39,6 @@ const ASTRO_CONFIG_DEFAULTS = {
 	image: {
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 	},
-	devOverlay: {
-		plugins: [],
-	},
 	compressHTML: true,
 	server: {
 		host: false,
@@ -231,9 +228,6 @@ export const AstroConfigSchema = z.object({
 				.default([]),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
-	devOverlay: z
-		.object({ plugins: z.array(z.string()).default([]) })
-		.default(ASTRO_CONFIG_DEFAULTS.devOverlay),
 	markdown: z
 		.object({
 			drafts: z.boolean().default(false),
