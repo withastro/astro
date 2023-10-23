@@ -2,4 +2,4 @@
 'create-astro': minor
 ---
 
-Automatically setup `astro check` command when configuring TypeScript
+Automatically installs the required dependencies to run the `astro check` command when TypeScript mode is selected.
