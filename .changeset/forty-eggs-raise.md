@@ -2,4 +2,4 @@
 '@astrojs/partytown': patch
 ---
 
-Allows overriding the `lib` option
+Adds the ability to override the `lib` option in `astro.config.mjs`
