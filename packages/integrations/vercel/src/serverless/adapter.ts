@@ -99,7 +99,7 @@ export interface VercelServerlessConfig {
 
 	/** Whether to create the Vercel Edge middleware from an Astro middleware in your code base. */
 	edgeMiddleware?: boolean;
-	
+
 	/** Whether to split builds into a separate function for each route. */
 	functionPerRoute?: boolean;
 
@@ -120,7 +120,6 @@ export default function vercelServerless({
 	edgeMiddleware = false,
 	maxDuration,
 }: VercelServerlessConfig = {}): AstroIntegration {
-
 	if (maxDuration) {
 		if (typeof maxDuration !== 'number') {
 			throw new TypeError(`maxDuration must be a number`, { cause: maxDuration });
@@ -143,10 +142,13 @@ export default function vercelServerless({
 		name: PACKAGE_NAME,
 		hooks: {
 			'astro:config:setup': async ({ command, config, updateConfig, injectScript, logger }) => {
-
 				if (maxDuration && maxDuration > 900) {
-					logger.warn(`maxDuration is set to ${maxDuration} seconds, which is longer than the maximum allowed duration of 900 seconds.`)
-					logger.warn(`Please make sure that your plan allows for this duration. See https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration for more information.`)
+					logger.warn(
+						`maxDuration is set to ${maxDuration} seconds, which is longer than the maximum allowed duration of 900 seconds.`
+					);
+					logger.warn(
+						`Please make sure that your plan allows for this duration. See https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration for more information.`
+					);
 				}
 
 				if (webAnalytics?.enabled || analytics) {
@@ -272,7 +274,7 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 							NTF_CACHE,
 							includeFiles: filesToInclude,
 							excludeFiles,
-							maxDuration
+							maxDuration,
 						});
 						routeDefinitions.push({
 							src: route.pattern.source,
@@ -288,7 +290,7 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 						NTF_CACHE,
 						includeFiles: filesToInclude,
 						excludeFiles,
-						maxDuration
+						maxDuration,
 					});
 					routeDefinitions.push({ src: '/.*', dest: 'render' });
 				}
@@ -331,14 +333,14 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 }
 
 interface CreateFunctionFolderArgs {
-	functionName: string
-	entry: URL
-	config: AstroConfig
-	logger: AstroIntegrationLogger
-	NTF_CACHE: any
-	includeFiles: URL[]
-	excludeFiles?: string[]
-	maxDuration?: number
+	functionName: string;
+	entry: URL;
+	config: AstroConfig;
+	logger: AstroIntegrationLogger;
+	NTF_CACHE: any;
+	includeFiles: URL[];
+	excludeFiles?: string[];
+	maxDuration?: number;
 }
 
 async function createFunctionFolder({
