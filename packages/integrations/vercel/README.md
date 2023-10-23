@@ -320,7 +320,7 @@ This is an opt-in feature, and the `edgeMiddleware` option needs to be set to `t
 ```js
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
-import vercel from '@astrojs/vercel';
+import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
