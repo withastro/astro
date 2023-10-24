@@ -135,7 +135,7 @@ declare module 'astro:i18n' {
 	 *
 	 * ## Errors
 	 *
-	 * It throws an error if the locale doesn't exist in the
+	 * It throws an error if the locale doesn't exist in the list of locales defined in the configuration.
 	 *
 	 * ## Examples
 	 *
@@ -160,7 +160,7 @@ declare module 'astro:i18n' {
 	 *
 	 * ## Errors
 	 *
-	 * It throws an error if the locale doesn't exist in the
+	 * It throws an error if the locale doesn't exist in the list of locales defined in the configuration.
 	 *
 	 * ## Examples
 	 *

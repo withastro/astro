@@ -14,11 +14,11 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 
 export type GetLocaleOptions = {
 	/**
-	 * If the locale needs to be normalized
+	 * It makes the locale URL-friendly by replacing underscores with dashes, and making the locale lower case.
 	 */
 	normalizeLocale?: boolean;
 	/**
-	 * An optional path to prepend to `locale`
+	 * An optional path to add after the `locale`
 	 */
 	path?: string;
 	/**
