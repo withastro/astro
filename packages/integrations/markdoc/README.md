@@ -478,17 +478,17 @@ When using nested tags in Markdoc, it can be helpful to indent the content insid
 
 ```md
 # Welcome to Markdoc with indented tags 👋
+
 # Note: Can use either spaces or tabs for indentation
 
 {% custom-tag %}
-  {% custom-tag %}
-    ### Tags can be indented for better readability
+{% custom-tag %} ### Tags can be indented for better readability
 
     {% another-custom-tag %}
       This is easier to follow when there is a lot of nesting
     {% /another-custom-tag %}
 
-  {% /custom-tag %}
+{% /custom-tag %}
 {% /custom-tag %}
 ```
 

@@ -56,7 +56,6 @@ describe('Markdoc - render', () => {
 			renderIndentedComponentsChecks(html);
 
 			await server.stop();
-
 		});
 
 		it('renders content - with `render: null` in document', async () => {
