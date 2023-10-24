@@ -34,7 +34,9 @@ export function remarkShiki({
 	wrap = false,
 }: ShikiConfig = {}): ReturnType<RemarkPlugin> {
 	const cacheId =
-		Object.values(themes).map((t) => typeof t === 'string' ? t : t.name ?? '').join(',') +
+		Object.values(themes)
+			.map((t) => (typeof t === 'string' ? t : t.name ?? ''))
+			.join(',') +
 		(typeof theme === 'string' ? theme : theme.name ?? '') +
 		langs.map((l) => l.name ?? (l as any).id).join(',');
 

@@ -13,10 +13,10 @@ describe('shiki syntax highlighting', () => {
 		const processor = await createMarkdownProcessor({
 			shikiConfig: {
 				themes: {
-					'light': 'github-light',
-					'dark': 'github-dark'
-				}
-			}
+					light: 'github-light',
+					dark: 'github-dark',
+				},
+			},
 		});
 		const { code } = await processor.render('```\ntest\n```');
 
@@ -26,5 +26,5 @@ describe('shiki syntax highlighting', () => {
 		// dark theme is there:
 		chai.expect(code).to.contain('--shiki-dark-bg:');
 		chai.expect(code).to.contain('github-dark');
-	})
+	});
 });
