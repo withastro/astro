@@ -398,7 +398,7 @@ describe('[SSR] i18n routing', () => {
 			let request = new Request('http://example.com/new-site/pt/start');
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Oi essa e start');
+			expect(await response.text()).includes('Hola');
 		});
 
 		it("should NOT render the default locale if there isn't a fallback and the route is missing", async () => {
