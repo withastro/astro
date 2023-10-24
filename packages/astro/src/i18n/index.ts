@@ -2,14 +2,29 @@ import { AstroError } from '../core/errors/index.js';
 import { MissingLocale } from '../core/errors/errors-data.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import type { AstroConfig } from '../@types/astro.js';
-import { joinPaths } from '@astrojs/internal-helpers/path';
+import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
 
-type GetLocaleRelativeUrl = {
+type GetLocaleRelativeUrl = GetLocaleOptions & {
 	locale: string;
 	base: string;
 	locales: string[];
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
+};
+
+export type GetLocaleOptions = {
+	/**
+	 * If the locale needs to be normalized
+	 */
+	normalizeLocale?: boolean;
+	/**
+	 * An optional path to prepend to `locale`
+	 */
+	path?: string;
+	/**
+	 *  An optional path to prepend to `locale`
+	 */
+	prependWith?: string;
 };
 
 type GetLocaleAbsoluteUrl = GetLocaleRelativeUrl & {
@@ -24,6 +39,9 @@ export function getLocaleRelativeUrl({
 	locales,
 	trailingSlash,
 	format,
+	path,
+	prependWith,
+	normalizeLocale = false,
 }: GetLocaleRelativeUrl) {
 	if (!locales.includes(locale)) {
 		throw new AstroError({
@@ -32,11 +50,11 @@ export function getLocaleRelativeUrl({
 		});
 	}
 
-	const normalizedLocale = normalizeLocale(locale);
+	const normalizedLocale = normalizeTheLocale(locale, normalizeLocale);
 	if (shouldAppendForwardSlash(trailingSlash, format)) {
-		return `${base}${normalizedLocale}/`;
+		return appendForwardSlash(joinPaths(base, prependWith, normalizedLocale, path));
 	} else {
-		return `${base}/${normalizedLocale}`;
+		return joinPaths(base, prependWith, normalizedLocale, path);
 	}
 }
 
@@ -52,7 +70,7 @@ export function getLocaleAbsoluteUrl({ site, ...rest }: GetLocaleAbsoluteUrl) {
 	}
 }
 
-type GetLocalesBaseUrl = {
+type GetLocalesBaseUrl = GetLocaleOptions & {
 	base: string;
 	locales: string[];
 	trailingSlash: AstroConfig['trailingSlash'];
@@ -64,13 +82,16 @@ export function getLocaleRelativeUrlList({
 	locales,
 	trailingSlash,
 	format,
+	path,
+	prependWith,
+	normalizeLocale = false,
 }: GetLocalesBaseUrl) {
 	return locales.map((locale) => {
-		const normalizedLocale = normalizeLocale(locale);
+		const normalizedLocale = normalizeTheLocale(locale, normalizeLocale);
 		if (shouldAppendForwardSlash(trailingSlash, format)) {
-			return `${base}${normalizedLocale}/`;
+			return appendForwardSlash(joinPaths(base, prependWith, normalizedLocale, path));
 		} else {
-			return `${base}/${normalizedLocale}`;
+			return joinPaths(base, prependWith, normalizedLocale, path);
 		}
 	});
 }
@@ -92,6 +113,9 @@ export function getLocaleAbsoluteUrlList({ site, ...rest }: GetLocaleAbsoluteUrl
  * - replaces the `_` with a `-`;
  * - transforms all letters to be lower case;
  */
-function normalizeLocale(locale: string): string {
+function normalizeTheLocale(locale: string, shouldNormalize: boolean): string {
+	if (!shouldNormalize) {
+		return locale;
+	}
 	return locale.replaceAll('_', '-').toLowerCase();
 }
