@@ -4,6 +4,7 @@ import type { AllPagesData } from './types.js';
 
 import * as colors from 'kleur/colors';
 import { debug } from '../logger/core.js';
+import { eachPageFromAllPages } from './internal.js';
 
 export interface CollectPagesDataOptions {
 	settings: AstroSettings;
