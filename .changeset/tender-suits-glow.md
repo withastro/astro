@@ -2,4 +2,4 @@
 '@astrojs/markdown-remark': patch
 ---
 
-Add experimental support for shikiji's multiple theme support.
+Adds experimental support for multiple themes in `shikiji`.
