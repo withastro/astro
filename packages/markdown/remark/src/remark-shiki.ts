@@ -30,9 +30,11 @@ const highlighterCacheAsync = new Map<string, Promise<Highlighter>>();
 export function remarkShiki({
 	langs = [],
 	theme = 'github-dark',
-	themes = {},
+	experimentalThemes = {},
 	wrap = false,
 }: ShikiConfig = {}): ReturnType<RemarkPlugin> {
+	const themes = experimentalThemes;
+
 	const cacheId =
 		Object.values(themes)
 			.map((t) => (typeof t === 'string' ? t : t.name ?? ''))

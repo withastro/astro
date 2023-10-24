@@ -42,7 +42,7 @@ export type RemarkRehype = Omit<RemarkRehypeOptions, 'handlers' | 'unknownHandle
 export interface ShikiConfig {
 	langs?: LanguageRegistration[];
 	theme?: BuiltinTheme | ThemeRegistration | ThemeRegistrationRaw;
-	themes?: Record<string, BuiltinTheme | ThemeRegistration | ThemeRegistrationRaw>;
+	experimentalThemes?: Record<string, BuiltinTheme | ThemeRegistration | ThemeRegistrationRaw>;
 	wrap?: boolean | null;
 }
 
