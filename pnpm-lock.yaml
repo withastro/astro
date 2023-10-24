@@ -3869,6 +3869,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/markdoc/test/fixtures/render-with-indented-components:
+    dependencies:
+      '@astrojs/markdoc':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/markdoc/test/fixtures/variables:
     dependencies:
       '@astrojs/markdoc':
@@ -4642,6 +4651,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/vercel/test/fixtures/redirects:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/vercel/test/fixtures/redirects-serverless:
     dependencies:
       '@astrojs/vercel':
         specifier: workspace:*
