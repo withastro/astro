@@ -46,6 +46,18 @@ describe('Markdoc - render', () => {
 			await server.stop();
 		});
 
+		it('renders content - with indented components', async () => {
+			const fixture = await getFixture('render-with-indented-components');
+			const server = await fixture.startDevServer();
+
+			const res = await fixture.fetch('/');
+			const html = await res.text();
+
+			renderIndentedComponentsChecks(html);
+
+			await server.stop();
+		});
+
 		it('renders content - with `render: null` in document', async () => {
 			const fixture = await getFixture('render-null');
 			const server = await fixture.startDevServer();
@@ -87,6 +99,15 @@ describe('Markdoc - render', () => {
 			renderComponentsChecks(html);
 		});
 
+		it('renders content - with indented components', async () => {
+			const fixture = await getFixture('render-with-indented-components');
+			await fixture.build();
+
+			const html = await fixture.readFile('/index.html');
+
+			renderIndentedComponentsChecks(html);
+		});
+
 		it('renders content - with `render: null` in document', async () => {
 			const fixture = await getFixture('render-null');
 			await fixture.build();
@@ -118,6 +139,26 @@ function renderComponentsChecks(html) {
 	const marquee = document.querySelector('marquee');
 	expect(marquee).to.not.be.null;
 	expect(marquee.hasAttribute('data-custom-marquee')).to.equal(true);
+
+	// Renders Astro Code component
+	const pre = document.querySelector('pre');
+	expect(pre).to.not.be.null;
+	expect(pre.className).to.equal('astro-code github-dark');
+}
+
+/** @param {string} html */
+function renderIndentedComponentsChecks(html) {
+	const { document } = parseHTML(html);
+	const h2 = document.querySelector('h2');
+	expect(h2.textContent).to.equal('Post with indented components');
+
+	// Renders custom shortcode components
+	const marquees = document.querySelectorAll('marquee');
+	expect(marquees.length).to.equal(2);
+
+	// Renders h3
+	const h3 = document.querySelector('h3');
+	expect(h3.textContent).to.equal('I am an h3!');
 
 	// Renders Astro Code component
 	const pre = document.querySelector('pre');
