@@ -11,6 +11,7 @@ import { ViewTransitions } from 'astro:transitions';
 		<script>
 			document.addEventListener("astro:after-swap", () => {
 				document.documentElement.setAttribute("class", "blue");
+				document.documentElement.setAttribute("animations", "" + document.getAnimations().length);
 			});
 		</script>
 	</body>

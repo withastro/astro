@@ -246,7 +246,7 @@ test.describe('View Transitions', () => {
 		// setting the blue class on the html element triggers a CSS animation
 		let animations = await page.evaluate(async () => {
 			document.documentElement.classList.add('blue');
-			return document.getAnimations({ subtree: true });
+			return document.getAnimations();
 		});
 		expect(animations.length).toEqual(1);
 
@@ -255,13 +255,13 @@ test.describe('View Transitions', () => {
 		p = page.locator('#toone');
 		await expect(p, 'should have content').toHaveText('Go to listener one');
 		// swap() resets the "blue" class, as it is not set in the static html of page 2
-		// The astro:after-swap listener (defined in the layout) sets it again.
-		// The temporarily missing class must not trigger page rendering
-		animations = await page.evaluate(async () => {
-			return document.getAnimations({ subtree: true });
-		});
-		// we only expect the animations from the view transition
-		expect(animations.length).toEqual(2);
+		// The astro:after-swap listener (defined in the layout) sets it to "blue" again.
+		// The temporarily missing class must not trigger page rendering.
+
+		// When the after-swap listener starts, no animations should be running
+		// after-swap listener sets animations to document.getAnimations().length
+		// and we expect this to be zero
+		await expect(page.locator('html')).toHaveAttribute('animations', '0');
 	});
 
 	test('click hash links does not do navigation', async ({ page, astro }) => {
