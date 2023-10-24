@@ -1,5 +1,14 @@
 # @astrojs/mdx
 
+## 1.1.3
+
+### Patch Changes
+
+- [#8897](https://github.com/withastro/astro/pull/8897) [`5a3d46da1`](https://github.com/withastro/astro/commit/5a3d46da1e80f62a29eaf464eeb87c626cc5593f) Thanks [@remcohaszing](https://github.com/remcohaszing)! - Update the README to suggest that users install the [official MDX extension](https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx) for [VS Code](https://code.visualstudio.com/).
+
+- Updated dependencies [[`26b77b8fe`](https://github.com/withastro/astro/commit/26b77b8fef0e03bfc5550aecaa1f56a4fc1cd297)]:
+  - astro@3.3.4
+
 ## 1.1.2
 
 ### Patch Changes
