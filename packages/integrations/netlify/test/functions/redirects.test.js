@@ -40,11 +40,12 @@ describe('SSG - Redirects', () => {
 	});
 
 	it('Does not create .html files', async () => {
+		let hasErrored = false;
 		try {
 			await fixture.readFile('/other/index.html');
-			expect(false).to.equal(true, 'this file should not exist');
 		} catch {
-			expect(true).to.equal(true);
+			hasErrored = true;
 		}
+		expect(hasErrored).to.equal(true, 'this file should not exist');
 	});
 });
