@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.4.1
+
+### Patch Changes
+
+- [#8911](https://github.com/withastro/astro/pull/8911) [`b236d88ad`](https://github.com/withastro/astro/commit/b236d88addc48d784bd60119fe45750dda900f16) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Ensure an existing template's `package.json` `scripts` are respected when modifying `build`.
+
 ## 4.4.0
 
 ### Minor Changes
