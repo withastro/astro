@@ -1,6 +1,7 @@
 import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
 
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
+import { passthroughImageService } from 'astro/config';
 import { AstroError } from 'astro/errors';
 import esbuild from 'esbuild';
 import { Miniflare } from 'miniflare';
@@ -104,7 +105,17 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
-			'astro:config:setup': ({ config, updateConfig }) => {
+			'astro:config:setup': ({ config, updateConfig, logger }) => {
+				let imageConfigOverwrite = false;
+				if (
+					config.image.service.entrypoint === 'astro/assets/services/sharp' ||
+					config.image.service.entrypoint === 'astro/assets/services/squoosh'
+				) {
+					logger.warn(
+						`The current configuration does not support image optimization. To allow your project to build with the original, unoptimized images, the image service has been automatically switched to the 'noop' option. See https://docs.astro.build/en/reference/configuration-reference/#imageservice`
+					);
+					imageConfigOverwrite = true;
+				}
 				updateConfig({
 					build: {
 						client: new URL(`.${config.base}`, config.outDir),
@@ -121,6 +132,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							}),
 						],
 					},
+					image: imageConfigOverwrite ? passthroughImageService() : config.image,
 				});
 			},
 			'astro:config:done': ({ setAdapter, config, logger }) => {
