@@ -105,7 +105,7 @@ describe('Config Validation', () => {
 							defaultLocale: 'en',
 							locales: ['es', 'en'],
 							fallback: {
-								es: ['it'],
+								es: 'it',
 							},
 						},
 					},
@@ -126,7 +126,7 @@ describe('Config Validation', () => {
 							defaultLocale: 'en',
 							locales: ['es', 'en'],
 							fallback: {
-								it: ['en'],
+								it: 'en',
 							},
 						},
 					},
