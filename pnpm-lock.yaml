@@ -82,8 +82,8 @@ importers:
   packages/language-server:
     dependencies:
       '@astrojs/compiler':
-        specifier: 1.5.7
-        version: 1.5.7
+        specifier: ^2.2.1
+        version: 2.2.1
       '@jridgewell/sourcemap-codec':
         specifier: ^1.4.15
         version: 1.4.15
@@ -176,8 +176,8 @@ importers:
   packages/ts-plugin:
     dependencies:
       '@astrojs/compiler':
-        specifier: 1.5.7
-        version: 1.5.7
+        specifier: ^2.2.1
+        version: 2.2.1
       '@jridgewell/sourcemap-codec':
         specifier: ^1.4.15
         version: 1.4.15
@@ -216,8 +216,8 @@ importers:
   packages/vscode:
     dependencies:
       '@astrojs/compiler':
-        specifier: 1.5.7
-        version: 1.5.7
+        specifier: ^2.2.1
+        version: 2.2.1
       prettier:
         specifier: ^3.0.0
         version: 3.0.0
@@ -294,9 +294,8 @@ packages:
     resolution: {integrity: sha512-dFU7GAMbpTUGPkRoCoMQrGFlTe3qIiQMSOxIXp/nB1Do4My9uogjEmBHdR5Cwr4i6rc5/1R3Od9v8kU/pkHXGQ==}
     dev: false
 
-  /@astrojs/compiler@2.2.0:
-    resolution: {integrity: sha512-JvmckEJgg8uXUw8Rs6VZDvN7LcweCHOdcxsCXpC+4KMDC9FaB5t9EH/NooSE+hu/rnACEhsXA3FKmf9wnhb7hA==}
-    dev: true
+  /@astrojs/compiler@2.2.1:
+    resolution: {integrity: sha512-NJ1lWKzMkyEjE3W5NpPNAVot4/PLF5om/P6ekxNu3iLS05CaYFTcp7WpYMjdCC252b7wkNVAs45FNkVQ+RHW/g==}
 
   /@astrojs/internal-helpers@0.2.1:
     resolution: {integrity: sha512-06DD2ZnItMwUnH81LBLco3tWjcZ1lGU9rLCCBaeUCGYe9cI0wKyY2W3kDyoW1I6GmcWgt1fu+D1CTvz+FIKf8A==}
@@ -2396,7 +2395,7 @@ packages:
     engines: {node: '>=18.14.1', npm: '>=6.14.0'}
     hasBin: true
     dependencies:
-      '@astrojs/compiler': 2.2.0
+      '@astrojs/compiler': 2.2.1
       '@astrojs/internal-helpers': 0.2.1
       '@astrojs/markdown-remark': 3.3.0(astro@3.3.0)
       '@astrojs/telemetry': 3.0.3
