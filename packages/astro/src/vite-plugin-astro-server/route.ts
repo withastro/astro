@@ -1,4 +1,5 @@
 import type http from 'node:http';
+import { fileURLToPath } from 'node:url';
 import type {
 	ComponentInstance,
 	ManifestData,
@@ -283,6 +284,14 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 					src: await resolveIdToUrl(moduleLoader, 'astro/runtime/client/dev-overlay/overlay.js'),
 				},
 				children: '',
+			});
+
+			// Additional data for the dev overlay
+			scripts.add({
+				props: {},
+				children: `window.__astro_dev_overlay__ = {root: ${JSON.stringify(
+					fileURLToPath(settings.config.root)
+				)}}`,
 			});
 		}
 	}

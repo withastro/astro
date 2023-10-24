@@ -2312,3 +2312,10 @@ export interface DevOverlayPlugin {
 	icon: string;
 	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
 }
+
+export type DevOverlayMetadata = Window &
+	typeof globalThis & {
+		__astro_dev_overlay__: {
+			root: string;
+		};
+	};

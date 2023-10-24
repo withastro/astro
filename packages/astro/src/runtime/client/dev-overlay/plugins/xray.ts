@@ -1,4 +1,4 @@
-import type { DevOverlayPlugin } from '../../../../@types/astro.js';
+import type { DevOverlayMetadata, DevOverlayPlugin } from '../../../../@types/astro.js';
 import type { DevOverlayHighlight } from '../ui-library/highlight.js';
 import type { DevOverlayTooltip } from '../ui-library/tooltip.js';
 
@@ -79,8 +79,14 @@ export default {
 					tooltip.sections.push({
 						content: islandComponentPath,
 						clickDescription: 'Click to go to file',
-						clickAction() {
-							// TODO: Implement this
+						async clickAction() {
+							await fetch(
+								'/__open-in-editor?file=' +
+									encodeURIComponent(
+										(window as DevOverlayMetadata).__astro_dev_overlay__.root +
+											islandComponentPath.slice(1)
+									)
+							);
 						},
 					});
 				}
