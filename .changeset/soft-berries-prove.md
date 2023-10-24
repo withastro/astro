@@ -2,4 +2,4 @@
 'create-astro': patch
 ---
 
-Skip cleanup after template download failed if the path is `.`, `./` or starts with `../`.
+No longer attempts to delete the directory after a template download fails if the path is `.`, `./` or starts with `../`.
