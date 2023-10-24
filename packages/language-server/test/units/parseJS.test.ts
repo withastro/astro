@@ -20,4 +20,20 @@ describe('parseJS - Can find all the scripts in an Astro file', () => {
 
 		expect(scriptTags.length).to.equal(2);
 	});
+
+	it('Ignore JSON scripts', () => {
+		const input = `<script type="application/json">{foo: "bar"}</script>`;
+		const snapshot = ts.ScriptSnapshot.fromString(input);
+		const html = parseHTML('something/something/hello.astro', snapshot, 0);
+		const astroAst = getAstroMetadata(input).ast;
+
+		const scriptTags = extractScriptTags(
+			'something/something/hello.astro',
+			snapshot,
+			html.htmlDocument,
+			astroAst
+		);
+
+		expect(scriptTags.length).to.equal(0);
+	});
 });

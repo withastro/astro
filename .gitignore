@@ -8,6 +8,7 @@ package-lock.json
 .vscode-test/
 *.vsix
 packages/vscode/meta.json
+.tool-versions
 
 # .vscode files other than at top-level
 **/.vscode

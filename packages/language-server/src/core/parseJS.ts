@@ -115,7 +115,7 @@ interface JavaScriptContext {
 
 /**
  * Get all the inline scripts in the HTML document
- * Inline scripts are scripts that are not hoisted by Astro and as such, are isolated from the rest of the code.
+ * Inline scripts are scripts that are not hoisted by Astro and as such, are not isolated from the rest of the code.
  * All the inline scripts are concatenated into a single `.mjs` file and passed to the TypeScript language server.
  */
 function findInlineScripts(
@@ -132,6 +132,7 @@ function findInlineScripts(
 				node.tag === 'script' &&
 				node.startTagEnd !== undefined &&
 				node.endTagStart !== undefined &&
+				!isJSON(node.attributes?.type) &&
 				!isIsolatedScriptTag(node)
 			) {
 				const scriptText = snapshot.getText(node.startTagEnd, node.endTagStart);
@@ -146,6 +147,24 @@ function findInlineScripts(
 	}
 
 	return inlineScripts;
+}
+
+/**
+ * Include both MIME JSON types and `importmap` and `speculationrules` script types
+ * See MIME Types -> https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+ * See Script Types -> https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type
+ */
+const JSON_TYPES = ['application/json', 'application/ld+json', 'importmap', 'speculationrules'];
+
+/**
+ * Check if the script has a type, and if it's included in JSON_TYPES above.
+ * @param type Found in the `type` attribute of the script tag
+ */
+function isJSON(type: string | null | undefined): boolean {
+	if (!type) return false;
+
+	// HTML attributes are quoted, slice " and ' at the start and end of the string
+	return JSON_TYPES.includes(type.slice(1, -1));
 }
 
 function findEventAttributes(ast: ParseResult['ast']): JavaScriptContext[] {
