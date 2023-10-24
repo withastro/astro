@@ -56,7 +56,7 @@ Then, apply this integration to your `astro.config.*` file using the `integratio
 
 ### Editor Integration
 
-For editor support in [VS Code](https://code.visualstudio.com/), install the [`unifiedjs.vscode-mdx`](https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx) extension.
+For editor support in [VS Code](https://code.visualstudio.com/), install the [official MDX extension](https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx).
 
 For other editors, use the [MDX language server](https://github.com/mdx-js/mdx-analyzer/tree/main/packages/language-server).
 
