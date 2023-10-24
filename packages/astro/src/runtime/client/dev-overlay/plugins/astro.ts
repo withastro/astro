@@ -12,7 +12,7 @@ export default {
 		const astroWindow = document.createElement('astro-overlay-window') as DevOverlayWindow;
 
 		astroWindow.windowTitle = 'Astro';
-		astroWindow.icon = 'astro:logo';
+		astroWindow.windowIcon = 'astro:logo';
 
 		astroWindow.innerHTML = `
 			<style>

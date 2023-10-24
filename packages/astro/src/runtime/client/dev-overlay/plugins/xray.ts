@@ -9,27 +9,12 @@ export default {
 	id: 'astro:xray',
 	name: 'Xray',
 	icon: icon,
-	init(canvas, eventTarget) {
+	init(canvas) {
 		let islandsOverlays: { highlightElement: DevOverlayHighlight; island: HTMLElement }[] = [];
-
-		eventTarget.addEventListener('plugin-toggle', ((event: CustomEvent) => {
-			if (event.detail.state === true) {
-				addIslandsOverlay();
-			}
-		}) as EventListener);
-
-		window.addEventListener('scroll', () => {
-			islandsOverlays.forEach(({ highlightElement, island: islandElement }) => {
-				const newRect = islandElement.getBoundingClientRect();
-				highlightElement.style.top = `${Math.max(newRect.top + window.scrollY - 10, 0)}px`;
-				highlightElement.style.left = `${Math.max(newRect.left + window.scrollX - 10, 0)}px`;
-			});
-		});
+		addIslandsOverlay();
 
 		function addIslandsOverlay() {
-			canvas.innerHTML = '';
 			const islands = document.querySelectorAll<HTMLElement>('astro-island');
-			islandsOverlays = [];
 
 			islands.forEach((island) => {
 				const computedStyle = window.getComputedStyle(island);
@@ -57,6 +42,7 @@ export default {
 				const tooltip = document.createElement('astro-overlay-tooltip') as DevOverlayTooltip;
 				tooltip.sections = [];
 
+				// Add the component client's directive if we have one
 				if (islandClientDirective) {
 					tooltip.sections.push({
 						title: 'Client directive',
@@ -64,6 +50,7 @@ export default {
 					});
 				}
 
+				// Add the props if we have any
 				if (Object.keys(islandProps).length > 0) {
 					tooltip.sections.push({
 						title: 'Props',
@@ -73,13 +60,15 @@ export default {
 					});
 				}
 
+				// Add a click action to go to the file
 				const islandComponentPath = island.getAttribute('component-url');
-
 				if (islandComponentPath) {
 					tooltip.sections.push({
 						content: islandComponentPath,
 						clickDescription: 'Click to go to file',
 						async clickAction() {
+							// NOTE: The path here has to be absolute and without any errors (no double slashes etc)
+							// or Vite will silently fail to open the file. Quite annoying.
 							await fetch(
 								'/__open-in-editor?file=' +
 									encodeURIComponent(
@@ -115,17 +104,20 @@ export default {
 				islandsOverlays.push({ highlightElement: highlight, island: islandElement });
 			});
 
-			window.addEventListener('scroll', () => {
-				islandsOverlays.forEach(({ highlightElement, island: islandElement }) => {
-					const newRect = islandElement.getBoundingClientRect();
-					highlightElement.style.top = `${Math.max(newRect.top + window.scrollY - 10, 0)}px`;
-					highlightElement.style.left = `${Math.max(newRect.left + window.scrollX - 10, 0)}px`;
+			['scroll', 'resize'].forEach((event) => {
+				window.addEventListener(event, () => {
+					islandsOverlays.forEach(({ highlightElement, island: islandElement }) => {
+						const newRect = islandElement.getBoundingClientRect();
+						highlightElement.style.top = `${Math.max(newRect.top + window.scrollY - 10, 0)}px`;
+						highlightElement.style.left = `${Math.max(newRect.left + window.scrollX - 10, 0)}px`;
+						highlightElement.style.width = `${newRect.width + 15}px`;
+						highlightElement.style.height = `${newRect.height + 15}px`;
+					});
 				});
 			});
 		}
 
 		function getPropValue(prop: [number, any]) {
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const [_, value] = prop;
 			return JSON.stringify(value, null, 2);
 		}

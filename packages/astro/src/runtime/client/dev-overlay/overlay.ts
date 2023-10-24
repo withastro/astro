@@ -49,10 +49,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 			const target = overlay.shadowRoot?.querySelector(`[data-plugin-id="${plugin.id}"]`);
 			if (!target) return;
 
-			let newState = undefined;
+			let newState = true;
 			if (evt instanceof CustomEvent) {
-				newState = evt.detail.state;
+				newState = evt.detail.state ?? true;
 			}
+
 			target.querySelector('.notification')?.toggleAttribute('data-active', newState);
 		});
 	}
@@ -231,12 +232,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 			// Init plugin lazily
 			if ('requestIdleCallback' in window) {
 				window.requestIdleCallback(async () => {
-					await Promise.all(
-						plugins
-							.filter((plugin) => plugin.status === 'loading')
-							.map((plugin) => this.initPlugin(plugin))
-					);
+					await this.initAllPlugins();
 				});
+			} else {
+				// Fallback to setTimeout for.. Safari...
+				setTimeout(async () => {
+					await this.initAllPlugins();
+				}, 200);
 			}
 		}
 
@@ -313,6 +315,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 					}
 				});
 			}
+		}
+
+		async initAllPlugins() {
+			await Promise.all(
+				plugins
+					.filter((plugin) => plugin.status === 'loading')
+					.map((plugin) => this.initPlugin(plugin))
+			);
 		}
 
 		async initPlugin(plugin: DevOverlayPlugin) {

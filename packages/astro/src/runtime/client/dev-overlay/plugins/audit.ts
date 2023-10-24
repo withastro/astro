@@ -23,14 +23,15 @@ export default {
 	name: 'Audit',
 	icon: icon,
 	init(canvas, eventTarget) {
-		let hasTriggeredRule = false;
+		let audits: { highlightElement: DevOverlayHighlight; auditedElement: HTMLElement }[] = [];
+
 		selectorBasedRules.forEach((rule) => {
 			document.querySelectorAll(rule.selector).forEach((el) => {
 				createAuditProblem(rule, el);
 			});
 		});
 
-		if (hasTriggeredRule) {
+		if (audits.length > 0) {
 			eventTarget.dispatchEvent(
 				new CustomEvent('plugin-notification', {
 					detail: {
@@ -48,8 +49,6 @@ export default {
 			if (targetedElement.offsetParent === null || computedStyle.display === 'none') {
 				return;
 			}
-
-			hasTriggeredRule = true;
 
 			const highlight = document.createElement('astro-overlay-highlight') as DevOverlayHighlight;
 			highlight.icon = 'warning';
@@ -102,6 +101,19 @@ export default {
 			});
 
 			canvas.appendChild(highlight);
+			audits.push({ highlightElement: highlight, auditedElement: originalElement as HTMLElement });
+
+			['scroll', 'resize'].forEach((event) => {
+				window.addEventListener(event, () => {
+					audits.forEach(({ highlightElement, auditedElement }) => {
+						const newRect = auditedElement.getBoundingClientRect();
+						highlightElement.style.top = `${Math.max(newRect.top + window.scrollY - 10, 0)}px`;
+						highlightElement.style.left = `${Math.max(newRect.left + window.scrollX - 10, 0)}px`;
+						highlightElement.style.width = `${newRect.width + 15}px`;
+						highlightElement.style.height = `${newRect.height + 15}px`;
+					});
+				});
+			});
 		}
 	},
 } satisfies DevOverlayPlugin;
