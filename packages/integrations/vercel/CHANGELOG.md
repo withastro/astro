@@ -1,5 +1,27 @@
 # @astrojs/vercel
 
+## 5.1.0
+
+### Minor Changes
+
+- [#8867](https://github.com/withastro/astro/pull/8867) [`b209e5335`](https://github.com/withastro/astro/commit/b209e533584521c55f88b929f28ea9d5189045f9) Thanks [@lilnasy](https://github.com/lilnasy)! - You can now configure how long your functions can run before timing out.
+
+  ```diff
+  export default defineConfig({
+      output: "server",
+      adapter: vercel({
+  +       maxDuration: 60
+      }),
+  });
+  ```
+
+### Patch Changes
+
+- [#8896](https://github.com/withastro/astro/pull/8896) [`5dd1ed50b`](https://github.com/withastro/astro/commit/5dd1ed50b2f9428946b0b273e0ce8f13c19aa3b5) Thanks [@bluwy](https://github.com/bluwy)! - Prevents the Vercel serverless adapter from generating static redirect pages in hybrid mode
+
+- Updated dependencies [[`26b77b8fe`](https://github.com/withastro/astro/commit/26b77b8fef0e03bfc5550aecaa1f56a4fc1cd297)]:
+  - astro@3.3.4
+
 ## 5.0.2
 
 ### Patch Changes
