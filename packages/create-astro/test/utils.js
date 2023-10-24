@@ -38,17 +38,16 @@ const resetNotEmptyFixture = async () => {
 	const packagePath = new URL('./fixtures/not-empty/package.json', import.meta.url);
 	const tsconfigPath = new URL('./fixtures/not-empty/tsconfig.json', import.meta.url);
 
-	const packageJsonData = JSON.parse(await fs.promises.readFile(packagePath, { encoding: 'utf-8' }));
-	const overriddenPackageJson = Object.assign(
-		packageJsonData,
-		{
-			scripts: {
-				dev: 'astro dev',
-				build: 'astro build',
-				preview: 'astro preview'
-			}
-		}
-	)
+	const packageJsonData = JSON.parse(
+		await fs.promises.readFile(packagePath, { encoding: 'utf-8' })
+	);
+	const overriddenPackageJson = Object.assign(packageJsonData, {
+		scripts: {
+			dev: 'astro dev',
+			build: 'astro build',
+			preview: 'astro preview',
+		},
+	});
 
 	return Promise.all([
 		fs.promises.writeFile(packagePath, JSON.stringify(overriddenPackageJson, null, 2), {
