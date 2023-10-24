@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 // @ts-expect-error
 import { loadDevOverlayPlugins } from 'astro:dev-overlay';
-import type { DevOverlayItem as DevOverlayItemDefinition } from '../../../@types/astro.js';
+import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@types/astro.js';
 import astroDevToolPlugin from './plugins/astro.js';
 import astroAuditPlugin from './plugins/audit.js';
 import astroXrayPlugin from './plugins/xray.js';
@@ -11,7 +11,7 @@ import { getIconElement } from './ui-library/icons.js';
 import { DevOverlayTooltip } from './ui-library/tooltip.js';
 import { DevOverlayWindow } from './ui-library/window.js';
 
-type DevOverlayItem = DevOverlayItemDefinition & {
+type DevOverlayPlugin = DevOverlayPluginDefinition & {
 	active: boolean;
 	status: 'ready' | 'loading' | 'error';
 	eventTarget: EventTarget;
@@ -20,7 +20,7 @@ type DevOverlayItem = DevOverlayItemDefinition & {
 document.addEventListener('DOMContentLoaded', async () => {
 	const WS_EVENT_NAME = 'astro-dev-overlay';
 
-	const builtinPlugins: DevOverlayItem[] = [
+	const builtinPlugins: DevOverlayPlugin[] = [
 		astroDevToolPlugin,
 		astroXrayPlugin,
 		astroAuditPlugin,
@@ -30,8 +30,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 		status: 'loading',
 		eventTarget: new EventTarget(),
 	}));
-	const customPluginsImports = (await loadDevOverlayPlugins()) as DevOverlayItemDefinition[];
-	const customPlugins: DevOverlayItem[] = [];
+
+	const customPluginsImports = (await loadDevOverlayPlugins()) as DevOverlayPluginDefinition[];
+	const customPlugins: DevOverlayPlugin[] = [];
 	customPlugins.push(
 		...customPluginsImports.map((plugin) => ({
 			...plugin,
@@ -41,7 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		}))
 	);
 
-	const plugins: DevOverlayItem[] = [...builtinPlugins, ...customPlugins];
+	const plugins: DevOverlayPlugin[] = [...builtinPlugins, ...customPlugins];
 
 	for (const plugin of plugins) {
 		plugin.eventTarget.addEventListener('plugin-notification', (evt) => {
@@ -59,14 +60,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 	class AstroDevOverlay extends HTMLElement {
 		shadowRoot: ShadowRoot;
 		hoverTimeout: number | undefined;
-		isHidden: () => boolean;
+		isHidden: () => boolean = () => this.devOverlay?.hasAttribute('data-hidden') ?? true;
 		devOverlay: HTMLDivElement | undefined;
 
 		constructor() {
 			super();
 			this.shadowRoot = this.attachShadow({ mode: 'closed' });
-
-			this.isHidden = () => this.devOverlay?.hasAttribute('data-hidden') ?? true;
 		}
 
 		// connect component
@@ -316,7 +315,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			}
 		}
 
-		async initPlugin(plugin: DevOverlayItem) {
+		async initPlugin(plugin: DevOverlayPlugin) {
 			if (plugin.status === 'ready') return;
 
 			const shadowRoot = this.getPluginCanvasById(plugin.id)!.shadowRoot!;
@@ -335,7 +334,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			}
 		}
 
-		getPluginTemplate(plugin: DevOverlayItem) {
+		getPluginTemplate(plugin: DevOverlayPlugin) {
 			return `<button class="item" data-plugin-id="${plugin.id}">
 				<div class="icon">${plugin.icon}<div class="notification"></div></div>
 			</button>`;
@@ -349,7 +348,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			return this.shadowRoot.querySelector(`astro-overlay-plugin-canvas[data-plugin-id="${id}"]`);
 		}
 
-		togglePluginStatus(plugin: DevOverlayItem, status?: boolean) {
+		togglePluginStatus(plugin: DevOverlayPlugin, status?: boolean) {
 			plugin.active = status ?? !plugin.active;
 			const target = this.shadowRoot.querySelector(`[data-plugin-id="${plugin.id}"]`);
 			if (!target) return;

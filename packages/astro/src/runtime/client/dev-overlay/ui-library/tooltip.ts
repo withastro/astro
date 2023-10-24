@@ -5,7 +5,7 @@ export interface DevOverlayTooltipSection {
 	inlineTitle?: string;
 	icon?: Icon;
 	content?: string;
-	clickAction?: () => void;
+	clickAction?: () => void | Promise<void>;
 	clickDescription?: string;
 }
 
@@ -15,8 +15,7 @@ export class DevOverlayTooltip extends HTMLElement {
 
 	constructor() {
 		super();
-
-		this.shadowRoot = this.attachShadow({ mode: 'closed' });
+		this.shadowRoot = this.attachShadow({ mode: 'open' });
 	}
 
 	connectedCallback() {
@@ -99,7 +98,9 @@ export class DevOverlayTooltip extends HTMLElement {
 			const sectionElement = document.createElement('section');
 			if (section.clickAction) {
 				sectionElement.classList.add('clickable-section');
-				sectionElement.addEventListener('click', section.clickAction);
+				sectionElement.addEventListener('click', async () => {
+					await section.clickAction!();
+				});
 			}
 
 			sectionElement.innerHTML = `
@@ -125,18 +126,18 @@ export class DevOverlayTooltip extends HTMLElement {
 	}
 
 	getElementForIcon(icon: Icon | (string & NonNullable<unknown>)) {
+		let iconElement;
 		if (isDefinedIcon(icon)) {
-			const iconElement = getIconElement(icon);
-			iconElement?.style.setProperty('width', '16px');
-			iconElement?.style.setProperty('height', '16px');
-
-			return iconElement?.outerHTML;
+			iconElement = getIconElement(icon);
 		} else {
-			const iconElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+			iconElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 			iconElement.setAttribute('viewBox', '0 0 16 16');
 			iconElement.innerHTML = icon;
-
-			return iconElement.outerHTML;
 		}
+
+		iconElement?.style.setProperty('width', '16px');
+		iconElement?.style.setProperty('height', '16px');
+
+		return iconElement?.outerHTML ?? '';
 	}
 }

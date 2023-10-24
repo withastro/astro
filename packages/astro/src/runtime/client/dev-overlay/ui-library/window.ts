@@ -1,16 +1,20 @@
 import { getIconElement, isDefinedIcon, type Icon } from './icons.js';
 
 export class DevOverlayWindow extends HTMLElement {
-	windowTitle?: string;
-	windowIcon?: Icon;
+	windowTitle?: string | undefined | null;
+	icon?: Icon | undefined | null;
+	shadowRoot: ShadowRoot;
 
 	constructor() {
 		super();
+		this.shadowRoot = this.attachShadow({ mode: 'open' });
+
+		this.windowTitle = this.getAttribute('window-title');
+		this.icon = this.hasAttribute('icon') ? (this.getAttribute('icon') as Icon) : undefined;
 	}
 
 	async connectedCallback() {
-		const shadow = this.attachShadow({ mode: 'closed' });
-		shadow.innerHTML = `
+		this.shadowRoot.innerHTML = `
 			<style>
 				:host {
 					display: flex;
@@ -47,7 +51,7 @@ export class DevOverlayWindow extends HTMLElement {
 				}
 			</style>
 
-			<h1>${this.windowIcon ? this.getElementForIcon(this.windowIcon) : ''}${this.windowTitle ?? ''}</h1>
+			<h1>${this.icon ? this.getElementForIcon(this.icon) : ''}${this.windowTitle ?? ''}</h1>
 			<hr />
 			<slot />
 		`;

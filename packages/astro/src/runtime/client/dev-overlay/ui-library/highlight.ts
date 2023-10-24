@@ -1,13 +1,15 @@
 import { getIconElement, isDefinedIcon, type Icon } from './icons.js';
 
 export class DevOverlayHighlight extends HTMLElement {
-	icon?: Icon;
+	icon?: Icon | undefined | null;
 
 	shadowRoot: ShadowRoot;
 
 	constructor() {
 		super();
-		this.shadowRoot = this.attachShadow({ mode: 'closed' });
+		this.shadowRoot = this.attachShadow({ mode: 'open' });
+
+		this.icon = this.hasAttribute('icon') ? (this.getAttribute('icon') as Icon) : undefined;
 
 		this.shadowRoot.innerHTML = `
 			<style>
@@ -46,8 +48,6 @@ export class DevOverlayHighlight extends HTMLElement {
 			let iconElement;
 			if (isDefinedIcon(this.icon)) {
 				iconElement = getIconElement(this.icon);
-				iconElement?.style.setProperty('width', '16px');
-				iconElement?.style.setProperty('height', '16px');
 			} else {
 				iconElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 				iconElement.setAttribute('viewBox', '0 0 16 16');
@@ -55,6 +55,9 @@ export class DevOverlayHighlight extends HTMLElement {
 			}
 
 			if (iconElement) {
+				iconElement?.style.setProperty('width', '16px');
+				iconElement?.style.setProperty('height', '16px');
+
 				iconContainer.appendChild(iconElement);
 				this.shadowRoot.appendChild(iconContainer);
 			}

@@ -2306,7 +2306,7 @@ export interface ClientDirectiveConfig {
 	entrypoint: string;
 }
 
-export interface DevOverlayItem {
+export interface DevOverlayPlugin {
 	id: string;
 	name: string;
 	icon: string;

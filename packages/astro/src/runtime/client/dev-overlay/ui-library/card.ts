@@ -2,26 +2,21 @@ import { getIconElement, isDefinedIcon, type Icon } from './icons.js';
 
 export class DevOverlayCard extends HTMLElement {
 	icon?: Icon;
-	link?: string;
+	link?: string | undefined | null;
+	shadowRoot: ShadowRoot;
 
 	constructor() {
 		super();
+		this.shadowRoot = this.attachShadow({ mode: 'open' });
 
-		if (this.hasAttribute('link')) {
-			this.link = this.getAttribute('link')!;
-		}
-
-		if (this.hasAttribute('icon')) {
-			this.icon = this.getAttribute('icon') as Icon;
-		}
+		this.link = this.getAttribute('link');
+		this.icon = this.hasAttribute('icon') ? (this.getAttribute('icon') as Icon) : undefined;
 	}
 
 	connectedCallback() {
-		const shadow = this.attachShadow({ mode: 'closed' });
-
 		const element = this.link ? 'a' : 'button';
 
-		shadow.innerHTML = `
+		this.shadowRoot.innerHTML = `
 			<style>
 				a, button {
 					display: block;
@@ -60,18 +55,18 @@ export class DevOverlayCard extends HTMLElement {
 	}
 
 	getElementForIcon(icon: Icon) {
+		let iconElement;
 		if (isDefinedIcon(icon)) {
-			const iconElement = getIconElement(icon);
-			iconElement?.style.setProperty('height', '24px');
-			iconElement?.style.setProperty('width', '24px');
-			return iconElement?.outerHTML;
+			iconElement = getIconElement(icon);
 		} else {
-			const iconElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+			iconElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 			iconElement.setAttribute('viewBox', '0 0 16 16');
-			iconElement?.style.setProperty('height', '24px');
-			iconElement?.style.setProperty('width', '24px');
 			iconElement.innerHTML = icon;
-			return iconElement.outerHTML;
 		}
+
+		iconElement?.style.setProperty('height', '24px');
+		iconElement?.style.setProperty('width', '24px');
+
+		return iconElement?.outerHTML ?? '';
 	}
 }
