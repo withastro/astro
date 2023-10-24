@@ -1,5 +1,12 @@
 # @astrojs/language-server
 
+## 2.4.1
+
+### Patch Changes
+
+- 0e9861e: Fix errors on JSON script tags
+- bae3749: Fix usage of prettier plugins without prettier-plugin-astro
+
 ## 2.4.0
 
 ### Minor Changes
