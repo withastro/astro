@@ -103,9 +103,9 @@ export const plugin: LanguageServerPlugin = (
 						];
 
 						return {
+							...resolvedConfig,
 							plugins: plugins,
 							parser: 'astro',
-							...resolvedConfig,
 						};
 					},
 				});
