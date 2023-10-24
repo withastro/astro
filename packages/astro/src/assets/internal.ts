@@ -110,6 +110,7 @@ export async function getImage(
 
 	if (
 		isLocalService(service) &&
+		globalThis.astroAsset?.isStaticImage?.(validatedOptions) &&
 		globalThis.astroAsset.addStaticImage &&
 		!(isRemoteImage(validatedOptions.src) && imageURL === validatedOptions.src)
 	) {

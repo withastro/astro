@@ -213,6 +213,10 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			options.format = DEFAULT_OUTPUT_FORMAT;
 		}
 
+		if (!options.transform) {
+			options.transform = 'eager';
+		}
+
 		// Sometimes users will pass number generated from division, which can result in floating point numbers
 		if (options.width) options.width = Math.round(options.width);
 		if (options.height) options.height = Math.round(options.height);
@@ -221,8 +225,18 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 	},
 	getHTMLAttributes(options) {
 		const { targetWidth, targetHeight } = getTargetDimensions(options);
-		const { src, width, height, format, quality, densities, widths, formats, ...attributes } =
-			options;
+		const {
+			src,
+			width,
+			height,
+			format,
+			quality,
+			densities,
+			widths,
+			formats,
+			transform,
+			...attributes
+		} = options;
 
 		return {
 			...attributes,
@@ -337,7 +351,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		};
 
 		Object.entries(params).forEach(([param, key]) => {
-			options[key] && searchParams.append(param, options[key].toString());
+			key in options && searchParams.append(param, options[key].toString());
 		});
 
 		const imageEndpoint = joinPaths(import.meta.env.BASE_URL, '/_image');

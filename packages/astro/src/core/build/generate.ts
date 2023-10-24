@@ -145,6 +145,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
 	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
 	if (ssr && !hasPrerenderedPages(internals)) {
+		delete globalThis?.astroAsset?.isStaticImage;
 		delete globalThis?.astroAsset?.addStaticImage;
 		return;
 	}
@@ -212,6 +213,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		);
 	}
 
+	delete globalThis?.astroAsset?.isStaticImage;
 	delete globalThis?.astroAsset?.addStaticImage;
 
 	await runHookBuildGenerated({

@@ -12,6 +12,7 @@ declare global {
 	// eslint-disable-next-line no-var
 	var astroAsset: {
 		imageService?: ImageService;
+		isStaticImage?: ((options: ImageTransform) => boolean) | undefined;
 		addStaticImage?: ((options: ImageTransform) => string) | undefined;
 		staticImages?: Map<string, { path: string; options: ImageTransform }>;
 	};
@@ -52,6 +53,7 @@ export type ImageTransform = {
 	height?: number | undefined;
 	quality?: ImageQuality | undefined;
 	format?: ImageOutputFormat | undefined;
+	transform?: 'eager' | 'lazy';
 	[key: string]: any;
 };
 
@@ -97,6 +99,22 @@ type ImageSharedProps<T> = T & {
 	 * ```
 	 */
 	height?: number | `${number}`;
+
+	/**
+	 * When `output: hybrid` **only**, otherwise it will be ignored. Defaults to 'eager'.
+	 * This allows to choose if the image will be transformed at build (eager) or at runtime (lazy).
+	 *
+	 * This can be useful when:
+	 * 1. having a very large number of images which are unlikely to be visited often and for which you'd prefer to have them processed on demand, rather than increasing your build time (typically, page 4 and further of a paginated list)
+	 * 2. deploying to a provider which has efficient dynamic cdn/cache layer (such as aws cloudfront) and you'd prefer to generate/cache the images dynamically depending on the size requested.
+	 *
+	 * **Example**:
+	 * ```astro
+	 * <Image src={...} height={300} alt="..." transform={pagination < 4 ? 'eager' : 'lazy'} />
+	 * <Image src={...} height={300} alt="..." transform="lazy" />
+	 * ```
+	 */
+	transform?: 'eager' | 'lazy';
 } & (
 		| {
 				/**

@@ -76,6 +76,12 @@ export default function assets({
 					return;
 				}
 
+				const { output } = settings.config;
+
+				globalThis.astroAsset.isStaticImage = (options) => {
+					return output !== 'hybrid' || options.transform !== 'lazy';
+				};
+
 				globalThis.astroAsset.addStaticImage = (options) => {
 					if (!globalThis.astroAsset.staticImages) {
 						globalThis.astroAsset.staticImages = new Map<
