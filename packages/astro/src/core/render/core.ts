@@ -32,9 +32,12 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 				location: redirectRouteGenerate(renderContext.route, renderContext.params),
 			},
 		});
-		// TODO: check this one
 	} else if (routeIsFallback(renderContext.route)) {
-		return new Response(null);
+		// We return a 404 because fallback routes don't exist.
+		// It's responsibility of the middleware to catch them and re-route the requests
+		return new Response(null, {
+			status: 404,
+		});
 	} else if (!mod) {
 		throw new AstroError(CantRenderPage);
 	}

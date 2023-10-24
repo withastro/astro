@@ -53,7 +53,7 @@ export type SSRManifest = {
 };
 
 export type SSRManifestI18n = {
-	fallback?: Record<string, string[]>;
+	fallback?: Record<string, string>;
 	fallbackControl?: 'none' | 'redirect' | 'render';
 	locales: string[];
 	defaultLocale: string;

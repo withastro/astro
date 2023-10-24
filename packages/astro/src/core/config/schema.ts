@@ -302,7 +302,7 @@ export const AstroConfigSchema = z.object({
 					.object({
 						defaultLocale: z.string(),
 						locales: z.string().array(),
-						fallback: z.record(z.string(), z.string().array()).optional(),
+						fallback: z.record(z.string(), z.string()).optional(),
 						detectBrowserLanguage: z.boolean().optional().default(false),
 						// TODO: properly add default when the feature goes of experimental
 						fallbackControl: z.enum(['none', 'redirect', 'render']).optional(),
@@ -318,21 +318,19 @@ export const AstroConfigSchema = z.object({
 								});
 							}
 							if (fallback) {
-								for (const [fallbackKey, fallbackArray] of Object.entries(fallback)) {
-									if (!locales.includes(fallbackKey)) {
+								for (const [fallbackFrom, fallbackTo] of Object.entries(fallback)) {
+									if (!locales.includes(fallbackFrom)) {
 										ctx.addIssue({
 											code: z.ZodIssueCode.custom,
-											message: `The locale \`${fallbackKey}\` key in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+											message: `The locale \`${fallbackFrom}\` key in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
 										});
 									}
 
-									for (const fallbackArrayKey of fallbackArray) {
-										if (!locales.includes(fallbackArrayKey)) {
-											ctx.addIssue({
-												code: z.ZodIssueCode.custom,
-												message: `The locale \`${fallbackArrayKey}\` value in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
-											});
-										}
+									if (!locales.includes(fallbackTo)) {
+										ctx.addIssue({
+											code: z.ZodIssueCode.custom,
+											message: `The locale \`${fallbackTo}\` value in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+										});
 									}
 								}
 							}
