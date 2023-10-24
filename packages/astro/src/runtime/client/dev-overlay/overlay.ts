@@ -58,10 +58,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	class AstroDevOverlay extends HTMLElement {
 		shadowRoot: ShadowRoot;
+		hoverTimeout: number | undefined;
+		isHidden: () => boolean;
+		devOverlay: HTMLDivElement | undefined;
 
 		constructor() {
 			super();
 			this.shadowRoot = this.attachShadow({ mode: 'closed' });
+
+			this.isHidden = () => this.devOverlay?.hasAttribute('data-hidden') ?? true;
 		}
 
 		// connect component
@@ -77,11 +82,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 				display: flex;
 				gap: 8px;
 				align-items: center;
+				transition: bottom 0.2s ease-in-out;
+				pointer-events: none;
+			}
+
+			#dev-overlay[data-hidden] {
+				bottom: -40px;
+			}
+
+			#dev-overlay[data-hidden]:hover, #dev-overlay[data-hidden]:focus-within {
+				bottom: -35px;
+				cursor: pointer;
+			}
+
+			#dev-overlay[data-hidden] #minimize-button {
+				visibility: hidden;
 			}
 
       #dev-bar {
 				height: 56px;
 				overflow: hidden;
+				pointer-events: auto;
 
 				background: linear-gradient(180deg, #13151A 0%, rgba(19, 21, 26, 0.88) 100%);
 				box-shadow: 0px 0px 0px 0px #13151A4D;
@@ -94,15 +115,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 				justify-content: center;
 				align-items: center;
 				width: 64px;
+				border: 0;
+				background: transparent;
+				color: white;
+				font-family: system-ui, sans-serif;
+				font-size: 1rem;
+				line-height: 1.2;
+				white-space: nowrap;
+				text-decoration: none;
+				padding: 0;
+				margin: 0;
 			}
 
-			#dev-bar #bar-container .item:hover {
+			#dev-bar #bar-container .item:hover, #dev-bar #bar-container .item:focus {
 				background: rgba(27, 30, 36, 1);
 				cursor: pointer;
-			}
-
-			#dev-bar #bar-container .item:hover {
-				border-color: rgba(27, 30, 36, 1);
 			}
 
 			#dev-bar #bar-container .item.active {
@@ -168,6 +195,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 				display: flex;
 				justify-content: center;
 				align-items: center;
+				opacity: 0;
+				transition: opacity 0.2s ease-in-out;
+				pointer-events: auto;
+				border: 0;
+				color: white;
+				font-family: system-ui, sans-serif;
+				font-size: 1rem;
+				line-height: 1.2;
+				white-space: nowrap;
+				text-decoration: none;
+				padding: 0;
+				margin: 0;
 			}
 
 			#minimize-button svg {
@@ -184,10 +223,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 					${customPlugins.map((plugin) => this.getPluginTemplate(plugin)).join('')}
 				</div>
 			</div>
-			<div id="minimize-button">${getIconElement('arrow-down')?.outerHTML}</div>
+			<button id="minimize-button">${getIconElement('arrow-down')?.outerHTML}</button>
 		</div>`;
 
-			this.attachClickEvents();
+			this.devOverlay = this.shadowRoot.querySelector<HTMLDivElement>('#dev-overlay')!;
+			this.attachEvents();
 
 			// Init plugin lazily
 			if ('requestIdleCallback' in window) {
@@ -201,9 +241,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 			}
 		}
 
-		attachClickEvents() {
+		attachEvents() {
 			const items = this.shadowRoot.querySelectorAll<HTMLDivElement>('.item');
-			if (!items) return;
 			items.forEach((item) => {
 				item.addEventListener('click', async (e) => {
 					const target = e.currentTarget;
@@ -222,6 +261,59 @@ document.addEventListener('DOMContentLoaded', async () => {
 					this.togglePluginStatus(plugin);
 				});
 			});
+
+			const minimizeButton = this.shadowRoot.querySelector<HTMLDivElement>('#minimize-button');
+			if (minimizeButton && this.devOverlay) {
+				minimizeButton.addEventListener('click', () => {
+					this.toggleOverlay(false);
+					this.toggleMinimizeButton(false);
+				});
+			}
+
+			const devBar = this.shadowRoot.querySelector<HTMLDivElement>('#dev-bar');
+			if (devBar) {
+				// On hover:
+				// - If the overlay is hidden, show it after 1s
+				// - If the overlay is visible, show the minimize button after 1s
+				(['mouseenter', 'focusin'] as const).forEach((event) => {
+					devBar.addEventListener(event, () => {
+						if (this.hoverTimeout) {
+							window.clearTimeout(this.hoverTimeout);
+						}
+
+						if (this.isHidden()) {
+							this.hoverTimeout = window.setTimeout(() => {
+								this.toggleOverlay(true);
+							}, 1000);
+						} else {
+							this.hoverTimeout = window.setTimeout(() => {
+								this.toggleMinimizeButton(true);
+							}, 1000);
+						}
+					});
+				});
+
+				// On unhover:
+				// - Reset every timeout, as to avoid showing the overlay/minimize button when the user didn't really want to hover
+				devBar.addEventListener('mouseleave', () => {
+					if (this.hoverTimeout) {
+						window.clearTimeout(this.hoverTimeout);
+					}
+				});
+
+				// On click, show the overlay if it's hidden, it's likely the user wants to interact with it
+				devBar.addEventListener('click', () => {
+					if (!this.isHidden()) return;
+					this.toggleOverlay(true);
+				});
+
+				devBar.addEventListener('keyup', (event) => {
+					if (event.code === 'Space' || event.code === 'Enter') {
+						if (!this.isHidden()) return;
+						this.toggleOverlay(true);
+					}
+				});
+			}
 		}
 
 		async initPlugin(plugin: DevOverlayItem) {
@@ -244,9 +336,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 		}
 
 		getPluginTemplate(plugin: DevOverlayItem) {
-			return `<div class="item" data-plugin-id="${plugin.id}">
+			return `<button class="item" data-plugin-id="${plugin.id}">
 				<div class="icon">${plugin.icon}<div class="notification"></div></div>
-			</div>`;
+			</button>`;
 		}
 
 		getPluginById(id: string) {
@@ -278,7 +370,48 @@ document.addEventListener('DOMContentLoaded', async () => {
 			}
 		}
 
-		showMinimizeButton() {}
+		toggleMinimizeButton(newStatus?: boolean) {
+			const minimizeButton = this.shadowRoot.querySelector<HTMLDivElement>('#minimize-button');
+			if (!minimizeButton) return;
+
+			if (newStatus !== undefined) {
+				if (newStatus === true) {
+					minimizeButton.removeAttribute('inert');
+					minimizeButton.style.opacity = '1';
+				} else {
+					minimizeButton.setAttribute('inert', '');
+					minimizeButton.style.opacity = '0';
+				}
+			} else {
+				minimizeButton.toggleAttribute('inert');
+				minimizeButton.style.opacity = minimizeButton.hasAttribute('inert') ? '0' : '1';
+			}
+		}
+
+		toggleOverlay(newStatus?: boolean) {
+			const barContainer = this.shadowRoot.querySelector<HTMLDivElement>('#bar-container');
+			const devBar = this.shadowRoot.querySelector<HTMLDivElement>('#dev-bar');
+
+			if (newStatus !== undefined) {
+				if (newStatus === true) {
+					this.devOverlay?.removeAttribute('data-hidden');
+					barContainer?.removeAttribute('inert');
+					devBar?.removeAttribute('tabindex');
+				} else {
+					this.devOverlay?.setAttribute('data-hidden', '');
+					barContainer?.setAttribute('inert', '');
+					devBar?.setAttribute('tabindex', '0');
+				}
+			} else {
+				this.devOverlay?.toggleAttribute('data-hidden');
+				barContainer?.toggleAttribute('inert');
+				if (this.isHidden()) {
+					devBar?.setAttribute('tabindex', '0');
+				} else {
+					devBar?.removeAttribute('tabindex');
+				}
+			}
+		}
 	}
 
 	class DevOverlayCanvas extends HTMLElement {
