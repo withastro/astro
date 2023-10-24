@@ -165,6 +165,8 @@ You can now [import your own `base.css` as a local stylesheet](https://docs.astr
 - The [Astro Ink](https://github.com/one-aalam/astro-ink), [Sarissa Blog](https://github.com/iozcelik/SarissaBlogAstroStarter), and [Creek](https://github.com/robertguss/Astro-Theme-Creek) themes use Tailwind for styling
 - [Browse Astro Tailwind projects on GitHub](https://github.com/search?q=%22%40astrojs%2Ftailwind%22%3A+path%3A%2Fpackage.json&type=code) for more examples!
 
+## Styling Rendered Markdown
+
 ## Troubleshooting
 
 ### Class does not exist with `@apply` directives
