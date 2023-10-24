@@ -39,7 +39,7 @@ export const markdownConfigDefaults: Omit<Required<AstroMarkdownOptions>, 'draft
 	shikiConfig: {
 		langs: [],
 		theme: 'github-dark',
-		themes: {},
+		experimentalThemes: {},
 		wrap: false,
 	},
 	remarkPlugins: [],
