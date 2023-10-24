@@ -1,5 +1,15 @@
 # create-astro
 
+## 4.4.0
+
+### Minor Changes
+
+- [#8853](https://github.com/withastro/astro/pull/8853) [`ce807a2bf`](https://github.com/withastro/astro/commit/ce807a2bfef325683bfdb01065a73c4e2b0a5fe5) Thanks [@rayriffy](https://github.com/rayriffy)! - Automatically installs the required dependencies to run the astro check command when the user indicates they plan to write TypeScript.
+
+### Patch Changes
+
+- [#8841](https://github.com/withastro/astro/pull/8841) [`f2dd895d7`](https://github.com/withastro/astro/commit/f2dd895d71e0fccfbc1b98890ceefb69f32524d5) Thanks [@Genteure](https://github.com/Genteure)! - No longer attempts to delete the directory after a template download fails if the path is `.`, `./` or starts with `../`.
+
 ## 4.3.0
 
 ### Minor Changes

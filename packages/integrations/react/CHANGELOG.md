@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 3.0.4
+
+### Patch Changes
+
+- [#8898](https://github.com/withastro/astro/pull/8898) [`4dee38711`](https://github.com/withastro/astro/commit/4dee38711cbf83efb5e12fbfa8e69e2495c49acf) Thanks [@matthewp](https://github.com/matthewp)! - Fixes client hydration in islands when using experimentalReactChildren
+
 ## 3.0.3
 
 ### Patch Changes
