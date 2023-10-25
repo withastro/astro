@@ -158,14 +158,75 @@ export default defineConfig({
 
 You can now [import your own `base.css` as a local stylesheet](https://docs.astro.build/en/guides/styling/#import-a-local-stylesheet).
 
+## Styling Rendered Markdown
+
+You can use the `@tailwindcss/typography` plugin to style rendered Markdown from sources such as Astro's [**content collections**](https://docs.astro.build/en/guides/content-collections/).
+
+### Setup
+
+First, install `@tailwindcss/typography` from npm using your preferred package manager.
+
+```bash
+npm install -D @tailwindcss/typography 
+```
+
+Then, add the package as a plugin within the Tailwind configuration.
+
+```diff lang="js"
+// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+
+module.exports = {
+  theme: {
+    // ...
+  },
+  plugins: [
++   require('@tailwindcss/typography'),
+    // ...
+  ],
+}
+```
+
+### Making a Prose Component
+
+With the power of `@tailwindcss/typography`, you can use the `prose`-related utility classes to style text in child nodes. For consistent application of Tailwind classes to your rendered Markdown, we recommend creating a dedicated component. Here is an example of such a component, called `<Prose>`.
+
+```astro
+// src/components/Prose.astro
+---
+---
+<div class="prose dark:prose-invert prose-h1:font-bold prose-h1:text-xl prose-a:text-blue-600 prose-p:text-justify prose-img:rounded-xl prose-headings:underline mx-auto">
+  <slot />
+</div>
+```
+
+You can use this component like so:
+
+```astro
+// src/pages/index.astro
+---
+import Prose from "../components/Prose.astro";
+import Layout from "../layouts/Layout.astro";
+import { getEntry } from 'astro:content';
+
+const entry = await getEntry('collection', 'entry');
+const RenderedMarkdown = await entry.render();
+---
+<Layout>
+  <Prose>
+    <RenderedMarkdown />
+  </Prose>
+</Layout>
+```
+
+You can view a live example of this code <a href="https://stackblitz.com/edit/withastro-astro-scvyma?file=src%2Fpages%2Findex.astro" target="_blank">here on StackBlitz</a>
+
 ## Examples
 
 - The [Astro Tailwind Starter](https://github.com/withastro/astro/tree/latest/examples/with-tailwindcss?on=github) gets you up and running with a base for your project that uses Tailwind for styling
 - Astro's homepage uses Tailwind. Check out its [Tailwind configuration file](https://github.com/withastro/astro.build/blob/main/tailwind.config.ts) or an [example component](https://github.com/withastro/astro.build/blob/main/src/components/Checkbox.astro)
 - The [Astro Ink](https://github.com/one-aalam/astro-ink), [Sarissa Blog](https://github.com/iozcelik/SarissaBlogAstroStarter), and [Creek](https://github.com/robertguss/Astro-Theme-Creek) themes use Tailwind for styling
 - [Browse Astro Tailwind projects on GitHub](https://github.com/search?q=%22%40astrojs%2Ftailwind%22%3A+path%3A%2Fpackage.json&type=code) for more examples!
-
-## Styling Rendered Markdown
 
 ## Troubleshooting
 
