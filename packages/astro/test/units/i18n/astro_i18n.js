@@ -215,6 +215,17 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 			})
+		).to.eq('/blog/en_US/');
+
+		expect(
+			getLocaleRelativeUrl({
+				locale: 'en_US',
+				base: '/blog/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'always',
+				format: 'directory',
+				normalizeLocale: true,
+			})
 		).to.eq('/blog/en-us/');
 
 		expect(
@@ -225,7 +236,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 			})
-		).to.eq('/blog/en-au/');
+		).to.eq('/blog/en_AU/');
 	});
 });
 
@@ -252,7 +263,7 @@ describe('getLocaleRelativeUrlList', () => {
 				trailingSlash: 'never',
 				format: 'directory',
 			})
-		).to.have.members(['/blog/en', '/blog/en-us', '/blog/es']);
+		).to.have.members(['/blog/en', '/blog/en_US', '/blog/es']);
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: always]', () => {
@@ -277,7 +288,7 @@ describe('getLocaleRelativeUrlList', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 			})
-		).to.have.members(['/blog/en/', '/blog/en-us/', '/blog/es/']);
+		).to.have.members(['/blog/en/', '/blog/en_US/', '/blog/es/']);
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: always]', () => {
@@ -302,7 +313,7 @@ describe('getLocaleRelativeUrlList', () => {
 				trailingSlash: 'always',
 				format: 'file',
 			})
-		).to.have.members(['/blog/en/', '/blog/en-us/', '/blog/es/']);
+		).to.have.members(['/blog/en/', '/blog/en_US/', '/blog/es/']);
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: never]', () => {
@@ -327,7 +338,7 @@ describe('getLocaleRelativeUrlList', () => {
 				trailingSlash: 'never',
 				format: 'file',
 			})
-		).to.have.members(['/blog/en', '/blog/en-us', '/blog/es']);
+		).to.have.members(['/blog/en', '/blog/en_US', '/blog/es']);
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: ignore]', () => {
@@ -352,7 +363,7 @@ describe('getLocaleRelativeUrlList', () => {
 				trailingSlash: 'ignore',
 				format: 'file',
 			})
-		).to.have.members(['/blog/en', '/blog/en-us', '/blog/es']);
+		).to.have.members(['/blog/en', '/blog/en_US', '/blog/es']);
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: ignore]', () => {
@@ -377,7 +388,7 @@ describe('getLocaleRelativeUrlList', () => {
 				trailingSlash: 'ignore',
 				format: 'directory',
 			})
-		).to.have.members(['/blog/en/', '/blog/en-us/', '/blog/es/']);
+		).to.have.members(['/blog/en/', '/blog/en_US/', '/blog/es/']);
 	});
 });
 
@@ -598,7 +609,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 			})
-		).to.eq('/blog/en-us/');
+		).to.eq('/blog/en_US/');
 
 		expect(
 			getLocaleRelativeUrl({
@@ -608,7 +619,18 @@ describe('getLocaleAbsoluteUrl', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 			})
-		).to.eq('/blog/en-au/');
+		).to.eq('/blog/en_AU/');
+
+		expect(
+			getLocaleRelativeUrl({
+				locale: 'en_US',
+				base: '/blog/',
+				locales: config.experimental.i18n.locales,
+				trailingSlash: 'always',
+				format: 'directory',
+				normalizeLocale: true,
+			})
+		).to.eq('/blog/en-us/');
 	});
 });
 
@@ -638,7 +660,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 			})
 		).to.have.members([
 			'https://example.com/blog/en',
-			'https://example.com/blog/en-us',
+			'https://example.com/blog/en_US',
 			'https://example.com/blog/es',
 		]);
 	});
@@ -668,7 +690,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 			})
 		).to.have.members([
 			'https://example.com/blog/en/',
-			'https://example.com/blog/en-us/',
+			'https://example.com/blog/en_US/',
 			'https://example.com/blog/es/',
 		]);
 	});
@@ -698,7 +720,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 			})
 		).to.have.members([
 			'https://example.com/blog/en/',
-			'https://example.com/blog/en-us/',
+			'https://example.com/blog/en_US/',
 			'https://example.com/blog/es/',
 		]);
 	});
@@ -728,7 +750,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 			})
 		).to.have.members([
 			'https://example.com/blog/en',
-			'https://example.com/blog/en-us',
+			'https://example.com/blog/en_US',
 			'https://example.com/blog/es',
 		]);
 	});
@@ -758,7 +780,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 			})
 		).to.have.members([
 			'https://example.com/blog/en',
-			'https://example.com/blog/en-us',
+			'https://example.com/blog/en_US',
 			'https://example.com/blog/es',
 		]);
 	});
@@ -788,7 +810,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 			})
 		).to.have.members([
 			'https://example.com/blog/en/',
-			'https://example.com/blog/en-us/',
+			'https://example.com/blog/en_US/',
 			'https://example.com/blog/es/',
 		]);
 	});
