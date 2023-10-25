@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Partials
+Page Partials
 
 Any page component can now be identified as a *partial*, allowing you fetch them in the client in order to replace only parts of the page. Partials are used in conjuction with a rendering library, like htmx or Stimulus or even just jQuery.
 
