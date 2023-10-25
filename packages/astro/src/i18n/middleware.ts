@@ -3,12 +3,8 @@ import type { SSRManifest } from '../@types/astro.js';
 import type { Environment } from '../core/render/index.js';
 
 // Checks if the pathname doesn't have any locale, exception for the defaultLocale, which is ignored on purpose
-function checkIsLocaleFree(pathname: string, locales: string[], defaultLocale: string): boolean {
+function checkIsLocaleFree(pathname: string, locales: string[]): boolean {
 	for (const locale of locales) {
-		if (locale === defaultLocale) {
-			continue;
-		}
-
 		if (pathname.includes(`/${locale}`)) {
 			return false;
 		}
@@ -35,7 +31,7 @@ export function createI18nMiddleware(
 		if (response instanceof Response) {
 			const separators = url.pathname.split('/');
 			const pathnameContainsDefaultLocale = url.pathname.includes(`/${i18n.defaultLocale}`);
-			const isLocaleFree = checkIsLocaleFree(url.pathname, i18n.locales, i18n.defaultLocale);
+			const isLocaleFree = checkIsLocaleFree(url.pathname, i18n.locales);
 			if (i18n.routingStrategy === 'prefix-expect-default' && pathnameContainsDefaultLocale) {
 				const content = await response.text();
 				const newLocation = url.pathname.replace(`/${i18n.defaultLocale}`, '');
@@ -46,11 +42,9 @@ export function createI18nMiddleware(
 				});
 			}
 			// Astro can't know where the default locale is supposed to be, so it returns a 404 with no content.
-			else if (
-				i18n.routingStrategy === 'prefix-always' &&
-				!pathnameContainsDefaultLocale &&
-				isLocaleFree
-			) {
+			// TODO: decide what's the best approach in another PR. With `prefix-always` all routes should have the locale unless opt-out (this is for later).
+			// TODO: What's best? 404 or hard error?
+			else if (i18n.routingStrategy === 'prefix-always' && isLocaleFree) {
 				return new Response(null, {
 					status: 404,
 					headers: response.headers,

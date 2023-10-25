@@ -6,8 +6,10 @@ export default defineConfig({
 			defaultLocale: 'en',
 			locales: [
 				'en', 'pt', 'it'
-			]
-		}
+			],
+			routingStrategy: "prefix-expect-default"
+		},
+		
 	},
 	base: "/new-site"
 })
