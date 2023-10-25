@@ -2,7 +2,12 @@
 'astro': minor
 ---
 
-Add an experimental Dev Overlay. This overlay allows you to inspect your page islands, see helpful audits on performance and accessibility, and more.
+
+Dev Overlay (experimental)
+
+Provides a new dev tool for your browser preview that allows you to inspect your page islands, see helpful audits on performance and accessibility, and more.
+
+Also provides a new Dev Tool Overlay Plugin API to allow you to add new features and third-party integrations to the existing dev overlay.
 
 
 You can enable access to the dev overlay and its API by adding the following flag to your Astro config:
