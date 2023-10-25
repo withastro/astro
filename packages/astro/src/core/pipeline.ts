@@ -56,6 +56,12 @@ export class Pipeline {
 	}
 
 	/**
+	 * Removes the current middleware function. Subsequent requests won't trigger any middleware.
+	 */
+	unsetMiddlewareFunction() {
+		this.#onRequest = undefined;
+	}
+	/**
 	 * Returns the current environment
 	 */
 	getEnvironment(): Readonly<Environment> {

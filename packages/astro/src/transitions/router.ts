@@ -12,7 +12,8 @@ type Events = 'astro:page-load' | 'astro:after-swap';
 
 // only update history entries that are managed by us
 // leave other entries alone and do not accidently add state.
-const persistState = (state: State) => history.state && history.replaceState(state, '');
+const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) =>
+	history.state && history.replaceState({ ...history.state, ...positions }, '');
 
 const inBrowser = import.meta.env.SSR === false;
 
@@ -47,6 +48,7 @@ const announce = () => {
 };
 
 const PERSIST_ATTR = 'data-astro-transition-persist';
+const VITE_ID = 'data-vite-dev-id';
 
 let parser: DOMParser;
 
@@ -57,11 +59,13 @@ let currentHistoryIndex = 0;
 
 if (inBrowser) {
 	if (history.state) {
-		// we reloaded a page with history state
+		// Here we reloaded a page with history state
 		// (e.g. history navigation from non-transition page or browser reload)
 		currentHistoryIndex = history.state.index;
 		scrollTo({ left: history.state.scrollX, top: history.state.scrollY });
 	} else if (transitionEnabledOnThisPage()) {
+		// This page is loaded from the browser addressbar or via a link from extern,
+		// it needs a state in the history
 		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY, intraPage: false }, '');
 	}
 }
@@ -121,12 +125,6 @@ function getFallback(): Fallback {
 	return 'animate';
 }
 
-function markScriptsExec() {
-	for (const script of document.scripts) {
-		script.dataset.astroExec = '';
-	}
-}
-
 function runScripts() {
 	let wait = Promise.resolve();
 	for (const script of Array.from(document.scripts)) {
@@ -155,7 +153,9 @@ function isInfinite(animation: Animation) {
 	return style.animationIterationCount === 'infinite';
 }
 
-const updateHistoryAndScrollPosition = (toLocation: URL, replace: boolean, intraPage: boolean) => {
+// Add a new entry to the browser history. This also sets the new page in the browser addressbar.
+// Sets the scroll position according to the hash fragment of the new location.
+const moveToLocation = (toLocation: URL, replace: boolean, intraPage: boolean) => {
 	const fresh = !samePage(toLocation);
 	let scrolledToTop = false;
 	if (toLocation.href !== location.href) {
@@ -189,6 +189,32 @@ const updateHistoryAndScrollPosition = (toLocation: URL, replace: boolean, intra
 	}
 };
 
+function stylePreloadLinks(newDocument: Document) {
+	const links: Promise<any>[] = [];
+	for (const el of newDocument.querySelectorAll('head link[rel=stylesheet]')) {
+		// Do not preload links that are already on the page.
+		if (
+			!document.querySelector(
+				`[${PERSIST_ATTR}="${el.getAttribute(
+					PERSIST_ATTR
+				)}"], link[rel=stylesheet][href="${el.getAttribute('href')}"]`
+			)
+		) {
+			const c = document.createElement('link');
+			c.setAttribute('rel', 'preload');
+			c.setAttribute('as', 'style');
+			c.setAttribute('href', el.getAttribute('href')!);
+			links.push(
+				new Promise<any>((resolve) => {
+					['load', 'error'].forEach((evName) => c.addEventListener(evName, resolve));
+					document.head.append(c);
+				})
+			);
+		}
+	}
+	return links;
+}
+
 // replace head and body of the windows document with contents from newDocument
 // if !popstate, update the history entry and scroll position according to toLocation
 // if popState is given, this holds the scroll position for history navigation
@@ -202,6 +228,7 @@ async function updateDOM(
 ) {
 	// Check for a head element that should persist and returns it,
 	// either because it has the data attribute or is a link el.
+	// Returns null if the element is not part of the new head, undefined if it should be left alone.
 	const persistedHeadElement = (el: HTMLElement): Element | null => {
 		const id = el.getAttribute(PERSIST_ATTR);
 		const newEl = id && newDocument.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
@@ -226,7 +253,7 @@ async function updateDOM(
 		// The element that currently has the focus is part of a DOM tree
 		// that will survive the transition to the new document.
 		// Save the element and the cursor position
-		if (activeElement?.closest('[data-astro-transition-persist]')) {
+		if (activeElement?.closest(`[${PERSIST_ATTR}]`)) {
 			if (
 				activeElement instanceof HTMLInputElement ||
 				activeElement instanceof HTMLTextAreaElement
@@ -306,6 +333,7 @@ async function updateDOM(
 
 		// this will reset scroll Position
 		document.body.replaceWith(newDocument.body);
+
 		for (const el of oldBody.querySelectorAll(`[${PERSIST_ATTR}]`)) {
 			const id = el.getAttribute(PERSIST_ATTR);
 			const newEl = document.querySelector(`[${PERSIST_ATTR}="${id}"]`);
@@ -315,41 +343,18 @@ async function updateDOM(
 				newEl.replaceWith(el);
 			}
 		}
-
 		restoreFocus(savedFocus);
 
 		if (popState) {
 			scrollTo(popState.scrollX, popState.scrollY); // usings 'auto' scrollBehavior
 		} else {
-			updateHistoryAndScrollPosition(toLocation, options.history === 'replace', false);
+			moveToLocation(toLocation, options.history === 'replace', false);
 		}
 
 		triggerEvent('astro:after-swap');
 	};
 
-	// Wait on links to finish, to prevent FOUC
-	const links: Promise<any>[] = [];
-	for (const el of newDocument.querySelectorAll('head link[rel=stylesheet]')) {
-		// Do not preload links that are already on the page.
-		if (
-			!document.querySelector(
-				`[${PERSIST_ATTR}="${el.getAttribute(
-					PERSIST_ATTR
-				)}"], link[rel=stylesheet][href="${el.getAttribute('href')}"]`
-			)
-		) {
-			const c = document.createElement('link');
-			c.setAttribute('rel', 'preload');
-			c.setAttribute('as', 'style');
-			c.setAttribute('href', el.getAttribute('href')!);
-			links.push(
-				new Promise<any>((resolve) => {
-					['load', 'error'].forEach((evName) => c.addEventListener(evName, resolve));
-					document.head.append(c);
-				})
-			);
-		}
-	}
+	const links = stylePreloadLinks(newDocument);
 	links.length && (await Promise.all(links));
 
 	if (fallback === 'animate') {
@@ -360,12 +365,9 @@ async function updateDOM(
 			.getAnimations()
 			.filter((a) => !currentAnimations.includes(a) && !isInfinite(a));
 		const finished = Promise.all(newAnimations.map((a) => a.finished));
-		const fallbackSwap = () => {
-			swap();
-			document.documentElement.dataset.astroTransitionFallback = 'new';
-		};
 		await finished;
-		fallbackSwap();
+		swap();
+		document.documentElement.dataset.astroTransitionFallback = 'new';
 	} else {
 		swap();
 	}
@@ -404,6 +406,8 @@ async function transition(
 		return;
 	}
 
+	if (import.meta.env.DEV) await prepareForClientOnlyComponents(newDocument, toLocation);
+
 	if (!popState) {
 		// save the current scroll position before we change the DOM and transition to the new page
 		history.replaceState({ ...history.state, scrollX, scrollY }, '');
@@ -422,7 +426,6 @@ async function transition(
 		// skip this for the moment as it tends to stop fallback animations
 		// document.documentElement.removeAttribute('data-astro-transition');
 		await runScripts();
-		markScriptsExec();
 		onPageLoad();
 		announce();
 	}
@@ -438,6 +441,7 @@ export function navigate(href: string, options?: Options) {
 				'The view transtions client API was called during a server side render. This may be unintentional as the navigate() function is expected to be called in response to user interactions. Please make sure that your usage is correct.'
 			);
 			warning.name = 'Warning';
+			// eslint-disable-next-line no-console
 			console.warn(warning);
 			navigateOnServerWarned = true;
 		}
@@ -454,7 +458,7 @@ export function navigate(href: string, options?: Options) {
 	// but we want to handle prevent reload on navigation to the same page
 	// Same page means same origin, path and query params (but maybe different hash)
 	if (location.origin === toLocation.origin && samePage(toLocation)) {
-		updateHistoryAndScrollPosition(toLocation, options?.history === 'replace', true);
+		moveToLocation(toLocation, options?.history === 'replace', true);
 	} else {
 		// different origin will be detected by fetch
 		transition('forward', toLocation, options ?? {});
@@ -503,19 +507,69 @@ function onPopState(ev: PopStateEvent) {
 	}
 }
 
+// There's not a good way to record scroll position before a back button.
+// So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
+const onScroll = () => {
+	updateScrollPosition({ scrollX, scrollY });
+};
+
 if (inBrowser) {
 	if (supportsViewTransitions || getFallback() !== 'none') {
 		addEventListener('popstate', onPopState);
 		addEventListener('load', onPageLoad);
-		// There's not a good way to record scroll position before a back button.
-		// So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
-		const updateState = () => {
-			persistState({ ...history.state, scrollX, scrollY });
-		};
+		if ('onscrollend' in window) addEventListener('scrollend', onScroll);
+		else addEventListener('scroll', throttle(onScroll, 300));
+	}
+	for (const script of document.scripts) {
+		script.dataset.astroExec = '';
+	}
+}
 
-		if ('onscrollend' in window) addEventListener('scrollend', updateState);
-		else addEventListener('scroll', throttle(updateState, 300));
+// Keep all styles that are potentially created by client:only components
+// and required on the next page
+async function prepareForClientOnlyComponents(newDocument: Document, toLocation: URL) {
+	// Any client:only component on the next page?
+	if (newDocument.body.querySelector(`astro-island[client='only']`)) {
+		// Load the next page with an empty module loader cache
+		const nextPage = document.createElement('iframe');
+		nextPage.setAttribute('src', toLocation.href);
+		nextPage.style.display = 'none';
+		document.body.append(nextPage);
+		await hydrationDone(nextPage);
 
-		markScriptsExec();
+		const nextHead = nextPage.contentDocument?.head;
+		if (nextHead) {
+			// Clear former persist marks
+			document.head
+				.querySelectorAll(`style[${PERSIST_ATTR}=""]`)
+				.forEach((s) => s.removeAttribute(PERSIST_ATTR));
+
+			// Collect the vite ids of all styles present in the next head
+			const viteIds = [...nextHead.querySelectorAll(`style[${VITE_ID}]`)].map((style) =>
+				style.getAttribute(VITE_ID)
+			);
+			// Copy required styles to the new document if they are from hydration.
+			viteIds.forEach((id) => {
+				const style = document.head.querySelector(`style[${VITE_ID}="${id}"]`);
+				if (style && !newDocument.head.querySelector(`style[${VITE_ID}="${id}"]`)) {
+					newDocument.head.appendChild(style);
+				}
+			});
+		}
+
+		// return a promise that resolves when all astro-islands are hydrated
+		async function hydrationDone(loadingPage: HTMLIFrameElement) {
+			await new Promise(
+				(r) => loadingPage.contentWindow?.addEventListener('load', r, { once: true })
+			);
+
+			return new Promise<void>(async (r) => {
+				for (let count = 0; count <= 20; ++count) {
+					if (!loadingPage.contentDocument!.body.querySelector('astro-island[ssr]')) break;
+					await new Promise((r2) => setTimeout(r2, 50));
+				}
+				r();
+			});
+		}
 	}
 }

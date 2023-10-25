@@ -75,15 +75,36 @@ export interface VercelServerlessConfig {
 	 * @deprecated
 	 */
 	analytics?: boolean;
+
+	/** Configuration for [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics). */
 	webAnalytics?: VercelWebAnalyticsConfig;
+
+	/** Configuration for [Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights). */
 	speedInsights?: VercelSpeedInsightsConfig;
+
+	/** Force files to be bundled with your function. This is helpful when you notice missing files. */
 	includeFiles?: string[];
+
+	/** Exclude any files from the bundling process that would otherwise be included. */
 	excludeFiles?: string[];
+
+	/** When enabled, an Image Service powered by the Vercel Image Optimization API will be automatically configured and used in production. In development, the image service specified by devImageService will be used instead. */
 	imageService?: boolean;
+
+	/** Configuration options for [Vercel’s Image Optimization API](https://vercel.com/docs/concepts/image-optimization). See [Vercel’s image configuration documentation](https://vercel.com/docs/build-output-api/v3/configuration#images) for a complete list of supported parameters. */
 	imagesConfig?: VercelImageConfig;
+
+	/** Allows you to configure which image service to use in development when imageService is enabled. */
 	devImageService?: DevImageService;
+
+	/** Whether to create the Vercel Edge middleware from an Astro middleware in your code base. */
 	edgeMiddleware?: boolean;
+
+	/** Whether to split builds into a separate function for each route. */
 	functionPerRoute?: boolean;
+
+	/** The maximum duration (in seconds) that Serverless Functions can run before timing out. See the [Vercel documentation](https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration) for the default and maximum limit for your account plan. */
+	maxDuration?: number;
 }
 
 export default function vercelServerless({
@@ -97,7 +118,17 @@ export default function vercelServerless({
 	devImageService = 'sharp',
 	functionPerRoute = false,
 	edgeMiddleware = false,
+	maxDuration,
 }: VercelServerlessConfig = {}): AstroIntegration {
+	if (maxDuration) {
+		if (typeof maxDuration !== 'number') {
+			throw new TypeError(`maxDuration must be a number`, { cause: maxDuration });
+		}
+		if (maxDuration <= 0) {
+			throw new TypeError(`maxDuration must be a positive number`, { cause: maxDuration });
+		}
+	}
+
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
 	let serverEntry: string;
@@ -107,45 +138,19 @@ export default function vercelServerless({
 
 	const NTF_CACHE = Object.create(null);
 
-	async function createFunctionFolder(
-		funcName: string,
-		entry: URL,
-		inc: URL[],
-		logger: AstroIntegrationLogger
-	) {
-		const functionFolder = new URL(`./functions/${funcName}.func/`, _config.outDir);
-
-		// Copy necessary files (e.g. node_modules/)
-		const { handler } = await copyDependenciesToFunction(
-			{
-				entry,
-				outDir: functionFolder,
-				includeFiles: inc,
-				excludeFiles: excludeFiles?.map((file) => new URL(file, _config.root)) || [],
-				logger,
-			},
-			NTF_CACHE
-		);
-
-		// Enable ESM
-		// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
-		await writeJson(new URL(`./package.json`, functionFolder), {
-			type: 'module',
-		});
-
-		// Serverless function config
-		// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
-		await writeJson(new URL(`./.vc-config.json`, functionFolder), {
-			runtime: getRuntime(),
-			handler,
-			launcherType: 'Nodejs',
-		});
-	}
-
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
 			'astro:config:setup': async ({ command, config, updateConfig, injectScript, logger }) => {
+				if (maxDuration && maxDuration > 900) {
+					logger.warn(
+						`maxDuration is set to ${maxDuration} seconds, which is longer than the maximum allowed duration of 900 seconds.`
+					);
+					logger.warn(
+						`Please make sure that your plan allows for this duration. See https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration for more information.`
+					);
+				}
+
 				if (webAnalytics?.enabled || analytics) {
 					if (analytics) {
 						logger.warn(
@@ -170,6 +175,7 @@ export default function vercelServerless({
 						serverEntry: 'entry.mjs',
 						client: new URL('./static/', outDir),
 						server: new URL('./dist/', config.root),
+						redirects: false,
 					},
 					vite: {
 						...getSpeedInsightsViteConfig(speedInsights?.enabled || analytics),
@@ -261,19 +267,32 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 							? getRouteFuncName(route)
 							: getFallbackFuncName(entryFile);
 
-						await createFunctionFolder(func, entryFile, filesToInclude, logger);
+						await createFunctionFolder({
+							functionName: func,
+							entry: entryFile,
+							config: _config,
+							logger,
+							NTF_CACHE,
+							includeFiles: filesToInclude,
+							excludeFiles,
+							maxDuration,
+						});
 						routeDefinitions.push({
 							src: route.pattern.source,
 							dest: func,
 						});
 					}
 				} else {
-					await createFunctionFolder(
-						'render',
-						new URL(serverEntry, buildTempFolder),
-						filesToInclude,
-						logger
-					);
+					await createFunctionFolder({
+						functionName: 'render',
+						entry: new URL(serverEntry, buildTempFolder),
+						config: _config,
+						logger,
+						NTF_CACHE,
+						includeFiles: filesToInclude,
+						excludeFiles,
+						maxDuration,
+					});
 					routeDefinitions.push({ src: '/.*', dest: 'render' });
 				}
 
@@ -312,6 +331,57 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 			},
 		},
 	};
+}
+
+interface CreateFunctionFolderArgs {
+	functionName: string;
+	entry: URL;
+	config: AstroConfig;
+	logger: AstroIntegrationLogger;
+	NTF_CACHE: any;
+	includeFiles: URL[];
+	excludeFiles?: string[];
+	maxDuration?: number;
+}
+
+async function createFunctionFolder({
+	functionName,
+	entry,
+	config,
+	logger,
+	NTF_CACHE,
+	includeFiles,
+	excludeFiles,
+	maxDuration,
+}: CreateFunctionFolderArgs) {
+	const functionFolder = new URL(`./functions/${functionName}.func/`, config.outDir);
+
+	// Copy necessary files (e.g. node_modules/)
+	const { handler } = await copyDependenciesToFunction(
+		{
+			entry,
+			outDir: functionFolder,
+			includeFiles,
+			excludeFiles: excludeFiles?.map((file) => new URL(file, config.root)) || [],
+			logger,
+		},
+		NTF_CACHE
+	);
+
+	// Enable ESM
+	// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
+	await writeJson(new URL(`./package.json`, functionFolder), {
+		type: 'module',
+	});
+
+	// Serverless function config
+	// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
+	await writeJson(new URL(`./.vc-config.json`, functionFolder), {
+		runtime: getRuntime(),
+		handler,
+		launcherType: 'Nodejs',
+		maxDuration,
+	});
 }
 
 function validateRuntime() {

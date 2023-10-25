@@ -700,7 +700,11 @@ async function tryToInstallIntegrations({
 						...inheritedFlags,
 						...installCommand.dependencies,
 					],
-					{ cwd }
+					{
+						cwd,
+						// reset NODE_ENV to ensure install command run in dev mode
+						env: { NODE_ENV: undefined },
+					}
 				);
 				spinner.succeed();
 				return UpdateResult.updated;
