@@ -12,7 +12,7 @@ describe('[DEV] i18n routing', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/i18n-routing/',
+				root: './fixtures/i18n-routing-prefix-always/',
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -24,7 +24,7 @@ describe('[DEV] i18n routing', () => {
 		it('should render the en locale', async () => {
 			const response = await fixture.fetch('/en/start');
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Hello');
+			expect(await response.text()).includes('Start');
 
 			const response2 = await fixture.fetch('/en/blog/1');
 			expect(response2.status).to.equal(200);
@@ -34,7 +34,7 @@ describe('[DEV] i18n routing', () => {
 		it('should render localised page correctly', async () => {
 			const response = await fixture.fetch('/pt/start');
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Hola');
+			expect(await response.text()).includes('Oi essa e start');
 
 			const response2 = await fixture.fetch('/pt/blog/1');
 			expect(response2.status).to.equal(200);
@@ -100,7 +100,7 @@ describe('[DEV] i18n routing', () => {
 		});
 	});
 
-	describe('i18n routing with fallback [redirect]', () => {
+	describe('i18n routing with routing strategy [prefix-expect-default]', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 		/** @type {import('./test-utils').DevServer} */
@@ -116,7 +116,130 @@ describe('[DEV] i18n routing', () => {
 						fallback: {
 							it: 'en',
 						},
-						fallbackControl: 'redirect',
+						routingStrategy: 'prefix-expect-default',
+					},
+				},
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('should render the default locale without prefix', async () => {
+			const response = await fixture.fetch('/new-site/start');
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Start');
+
+			const response2 = await fixture.fetch('/new-site/blog/1');
+			expect(response2.status).to.equal(200);
+			expect(await response2.text()).includes('Hello world');
+		});
+
+		it('should render localised page correctly', async () => {
+			const response = await fixture.fetch('/new-site/pt/start');
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Oi essa e start');
+
+			const response2 = await fixture.fetch('/new-site/pt/blog/1');
+			expect(response2.status).to.equal(200);
+			expect(await response2.text()).includes('Hola mundo');
+		});
+
+		it('should redirect to the english locale, which is the first fallback', async () => {
+			const response = await fixture.fetch('/new-site/it/start');
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Start');
+		});
+
+		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
+			const response = await fixture.fetch('/new-site/fr/start');
+			expect(response.status).to.equal(404);
+		});
+	});
+
+	describe('i18n routing with routing strategy [prefix-always]', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-prefix-always/',
+				experimental: {
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'pt', 'it'],
+					},
+				},
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('should not render the default locale without prefix', async () => {
+			const response = await fixture.fetch('/new-site/start');
+			expect(response.status).to.equal(404);
+			expect(await response.text()).not.includes('Start');
+
+			const response2 = await fixture.fetch('/new-site/blog/1');
+			expect(response2.status).to.equal(404);
+			expect(await response2.text()).not.includes('Hello world');
+		});
+
+		it('should render the default locale with prefix', async () => {
+			const response = await fixture.fetch('/new-site/en/start');
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Start');
+
+			const response2 = await fixture.fetch('/new-site/en/blog/1');
+			expect(response2.status).to.equal(200);
+			expect(await response2.text()).includes('Hello world');
+		});
+
+		it('should render localised page correctly', async () => {
+			const response = await fixture.fetch('/new-site/pt/start');
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Oi essa e start');
+
+			const response2 = await fixture.fetch('/new-site/pt/blog/1');
+			expect(response2.status).to.equal(200);
+			expect(await response2.text()).includes('Hola mundo');
+		});
+
+		it('should not redirect to the english locale', async () => {
+			const response = await fixture.fetch('/new-site/it/start');
+			expect(response.status).to.equal(404);
+		});
+
+		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
+			const response = await fixture.fetch('/new-site/fr/start');
+			expect(response.status).to.equal(404);
+		});
+	});
+
+	describe('i18n routing fallback', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-fallback/',
+				experimental: {
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'pt', 'it'],
+						fallback: {
+							it: 'en',
+						},
+						routingStrategy: 'prefix-expect-default',
 					},
 				},
 			});
@@ -167,7 +290,7 @@ describe('[SSG] i18n routing', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/i18n-routing/',
+				root: './fixtures/i18n-routing-prefix-always/',
 			});
 			await fixture.build();
 		});
@@ -175,7 +298,7 @@ describe('[SSG] i18n routing', () => {
 		it('should render the en locale', async () => {
 			let html = await fixture.readFile('/en/start/index.html');
 			let $ = cheerio.load(html);
-			expect($('body').text()).includes('Hello');
+			expect($('body').text()).includes('Start');
 
 			html = await fixture.readFile('/en/blog/1/index.html');
 			$ = cheerio.load(html);
@@ -185,7 +308,7 @@ describe('[SSG] i18n routing', () => {
 		it('should render localised page correctly', async () => {
 			let html = await fixture.readFile('/pt/start/index.html');
 			let $ = cheerio.load(html);
-			expect($('body').text()).includes('Hola');
+			expect($('body').text()).includes('Oi essa e start');
 
 			html = await fixture.readFile('/pt/blog/1/index.html');
 			$ = cheerio.load(html);
@@ -283,7 +406,6 @@ describe('[SSG] i18n routing', () => {
 						fallback: {
 							it: 'en',
 						},
-						fallbackControl: 'redirect',
 					},
 				},
 			});
@@ -338,7 +460,7 @@ describe('[SSR] i18n routing', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/i18n-routing/',
+				root: './fixtures/i18n-routing-prefix-always/',
 				output: 'server',
 				adapter: testAdapter(),
 			});
@@ -350,14 +472,14 @@ describe('[SSR] i18n routing', () => {
 			let request = new Request('http://example.com/en/start');
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Hello');
+			expect(await response.text()).includes('Start');
 		});
 
 		it('should render localised page correctly', async () => {
 			let request = new Request('http://example.com/pt/start');
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Hola');
+			expect(await response.text()).includes('Oi essa e start');
 		});
 
 		it("should NOT render the default locale if there isn't a fallback and the route is missing", async () => {
@@ -379,7 +501,7 @@ describe('[SSR] i18n routing', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/i18n-routing/',
+				root: './fixtures/i18n-routing-prefix-always/',
 				output: 'server',
 				adapter: testAdapter(),
 			});
@@ -391,14 +513,14 @@ describe('[SSR] i18n routing', () => {
 			let request = new Request('http://example.com/new-site/en/start');
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Hello');
+			expect(await response.text()).includes('Start');
 		});
 
 		it('should render localised page correctly', async () => {
 			let request = new Request('http://example.com/new-site/pt/start');
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Hola');
+			expect(await response.text()).includes('Oi essa e start');
 		});
 
 		it("should NOT render the default locale if there isn't a fallback and the route is missing", async () => {
@@ -414,7 +536,7 @@ describe('[SSR] i18n routing', () => {
 		});
 	});
 
-	describe('i18n routing with fallback [redirect]', () => {
+	describe('i18n routing with fallback', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 
@@ -430,7 +552,6 @@ describe('[SSR] i18n routing', () => {
 						fallback: {
 							it: 'en',
 						},
-						fallbackControl: 'redirect',
 					},
 				},
 			});

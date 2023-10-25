@@ -2773,12 +2773,6 @@ importers:
         specifier: ^10.17.1
         version: 10.17.1
 
-  packages/astro/test/fixtures/i18n-routing:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/i18n-routing-base:
     dependencies:
       astro:
@@ -2786,6 +2780,18 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/i18n-routing-fallback:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/i18n-routing-prefix-always:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/i18n-routing-prefix-expect-default:
     dependencies:
       astro:
         specifier: workspace:*

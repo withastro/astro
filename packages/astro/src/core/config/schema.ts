@@ -305,7 +305,10 @@ export const AstroConfigSchema = z.object({
 						fallback: z.record(z.string(), z.string()).optional(),
 						detectBrowserLanguage: z.boolean().optional().default(false),
 						// TODO: properly add default when the feature goes of experimental
-						fallbackControl: z.enum(['none', 'redirect', 'render']).optional(),
+						routingStrategy: z
+							.enum(['prefix-always', 'prefix-expect-default'])
+							.optional()
+							.default('prefix-expect-default'),
 					})
 					.optional()
 					.superRefine((i18n, ctx) => {

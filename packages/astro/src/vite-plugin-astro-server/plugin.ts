@@ -90,7 +90,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 	if (settings.config.experimental.i18n) {
 		i18nManifest = {
 			fallback: settings.config.experimental.i18n.fallback,
-			fallbackControl: settings.config.experimental.i18n.fallbackControl,
+			routingStrategy: settings.config.experimental.i18n.routingStrategy,
 			defaultLocale: settings.config.experimental.i18n.defaultLocale,
 			locales: settings.config.experimental.i18n.locales,
 		};

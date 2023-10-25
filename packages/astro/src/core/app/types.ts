@@ -54,7 +54,7 @@ export type SSRManifest = {
 
 export type SSRManifestI18n = {
 	fallback?: Record<string, string>;
-	fallbackControl?: 'none' | 'redirect' | 'render';
+	routingStrategy?: 'prefix-always' | 'prefix-expect-default';
 	locales: string[];
 	defaultLocale: string;
 };

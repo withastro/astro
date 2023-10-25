@@ -31,10 +31,7 @@ export function shouldAppendForwardSlash(
 export function i18nHasFallback(config: AstroConfig): boolean {
 	if (config.experimental.i18n && config.experimental.i18n.fallback) {
 		// we have some fallback and the control is not none
-		return (
-			Object.keys(config.experimental.i18n.fallback).length > 0 &&
-			config.experimental.i18n.fallbackControl !== 'none'
-		);
+		return Object.keys(config.experimental.i18n.fallback).length > 0;
 	}
 
 	return false;

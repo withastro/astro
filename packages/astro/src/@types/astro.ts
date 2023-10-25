@@ -1381,14 +1381,14 @@ export interface AstroUserConfig {
 			 * @version 3.*.*
 			 * @description
 			 *
-			 * A list of locales supported by the website.
+			 * A list of locales supported in your website/application.
 			 */
 			locales: string[];
 
 			/**
 			 * @docs
 			 * @name experimental.i18n.fallback
-			 * @type {Record<string, string[]>}
+			 * @type {Record<string, string>}
 			 * @version 3.*.*
 			 * @description
 			 *
@@ -1402,18 +1402,18 @@ export interface AstroUserConfig {
 
 			/**
 			 * @docs
-			 * @name experimental.i18n.fallbackControl
-			 * @type {"none" | "render" | "redirect"}
+			 * @name experimental.i18n.routingStrategy
+			 * @type {'prefix-always' | 'prefix-expect-default'}
+			 * @default {'prefix-expect-default'}
 			 * @version 3.*.*
 			 * @description
 			 *
-			 * Controls the fallback system of the internationalisation:
-			 *  - `none`: Astro will do nothing and will return `404` if a translated page isn't translated;
-			 *  - `redirect`: Astro will do a redirect to the fallback language if the translated page returns a `404`;
-			 *  - `render`: currently unsupported by Astro
+			 * Controls the routing strategy:
+			 *  - `prefix-expect-default`: This is the default value. When used, Astro will identify those routes that belong to the default locale and execute a redirect a route stripped of that locale.
+			 *  - `prefix-always`: When used,
 			 *
 			 */
-			fallbackControl: 'none' | 'render' | 'redirect';
+			routingStrategy: 'prefix-always' | 'prefix-expect-default';
 
 			/**
 			 * @docs
@@ -1427,7 +1427,7 @@ export interface AstroUserConfig {
 			 *
 			 * When set to `true`, you should make sure that the adapter you're using is able to provide this feature to you.
 			 */
-			detectBrowserLanguage: boolean;
+			detectBrowserLanguage?: boolean;
 		};
 	};
 }
