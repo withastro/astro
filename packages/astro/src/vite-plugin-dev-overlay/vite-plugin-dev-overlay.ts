@@ -1,4 +1,3 @@
-import type { PluginContext } from 'rollup';
 import type * as vite from 'vite';
 import type { AstroPluginOptions } from '../@types/astro.js';
 
@@ -15,25 +14,14 @@ export default function astroDevOverlay({ settings }: AstroPluginOptions): vite.
 		},
 		async load(id) {
 			if (id === resolvedVirtualModuleId) {
-				const resolvedPlugins = await Promise.all(
-					settings.devOverlayPlugins.map((plugin) => resolvePlugin.call(this, plugin))
-				);
-
 				return `
 					export const loadDevOverlayPlugins = async () => {
-						return [${resolvedPlugins.map((plugin) => `(await import('${plugin}')).default`).join(',')}];
+						return [${settings.devOverlayPlugins
+							.map((plugin) => `(await import('${plugin}')).default`)
+							.join(',')}];
 					};
 				`;
 			}
 		},
 	};
-}
-
-async function resolvePlugin(this: PluginContext, plugin: string): Promise<string> {
-	const resolvedId = await this.resolve(plugin)
-		.then((res) => res?.id)
-		.catch(() => undefined);
-	if (!resolvedId) return plugin;
-
-	return resolvedId;
 }
