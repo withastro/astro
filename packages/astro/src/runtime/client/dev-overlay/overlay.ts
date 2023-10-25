@@ -137,7 +137,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 				border-top-left-radius: 9999px;
 				border-bottom-left-radius: 9999px;
 			}
-			
 
 			#dev-bar .item:last-of-type {
 				border-top-right-radius: 9999px;
@@ -223,6 +222,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 			#minimize-button svg {
 				width: 16px;
 				height: 16px;
+			}
+
+			.sr-only {
+				position: absolute;
+				width: 1px;
+				height: 1px;
+				padding: 0;
+				margin: -1px;
+				overflow: hidden;
+				clip: rect(0, 0, 0, 0);
+				white-space: nowrap;
+				border-width: 0;
 			}
     </style>
 
@@ -358,6 +369,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		getPluginTemplate(plugin: DevOverlayPlugin) {
 			return `<button class="item" data-plugin-id="${plugin.id}">
 				<div class="icon">${plugin.icon}<div class="notification"></div></div>
+				<span class="sr-only">${plugin.name}</span>
 			</button>`;
 		}
 
