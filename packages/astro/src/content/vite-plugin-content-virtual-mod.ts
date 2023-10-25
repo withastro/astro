@@ -8,7 +8,7 @@ import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { removeFileExtension } from '../core/path.js';
 import { rootRelativePath } from '../core/util.js';
-import { VIRTUAL_MODULE_ID } from './consts.js';
+import { CONTENT_FLAG, CONTENT_RENDER_FLAG, DATA_FLAG, VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	getContentEntryIdAndSlug,
 	getContentPaths,
@@ -104,14 +104,24 @@ export async function generateContentEntryFile({
 
 function getStringifiedCollectionFromLookup(wantedType: 'content' | 'data' | 'render', relContentDir: string, lookupMap: ContentLookupMap) {
 	let str = '{';
-	// TODO: cleanup this dev vs prod difference! Relying on NODE_ENV is probably a bad idea?
-	const prefix = IS_DEV ? '/' : './';
-	const suffix = IS_DEV ? '' : wantedType === 'render' ? '.entry.mjs' : '.mjs';
-	const strip = IS_DEV ? (v: string) => v : (v: string) => `${removeFileExtension(v)}${suffix}`;
+	// In dev, we don't need to normalize the import specifier at all. Vite handles it.
+	let normalize = (slug: string) => slug;
+	// For prod builds, we need to transform from `/src/content/**/*.{md,mdx,json,yaml}` to a relative `./**/*.mjs` import
+	if (process.env.NODE_ENV === 'production') {
+		const suffix = wantedType === 'render' ? '.entry.mjs' : '.mjs';
+		normalize = (slug: string) => `${removeFileExtension(slug).replace(relContentDir, './')}${suffix}`
+	} else {
+		let suffix = '';
+		if (wantedType === 'content') suffix = CONTENT_FLAG;
+		else if (wantedType === 'data') suffix = DATA_FLAG;
+		else if (wantedType === 'render') suffix = CONTENT_RENDER_FLAG;
+
+		normalize = (slug: string) => `${slug}?${suffix}`
+	}
 	for (const { type, entries } of Object.values(lookupMap)) {
 		if (type === wantedType || wantedType === 'render' && type === 'content') {
 			for (const slug of Object.values(entries)) {
-				str += `\n  "${slug}": () => import("${strip(slug.replace(relContentDir, prefix))}"),`
+				str += `\n  "${slug}": () => import("${normalize(slug)}"),`
 			}
 		}
 	}
@@ -141,10 +151,11 @@ export async function generateLookupMap({
 
 	const { contentDir } = contentPaths;
 	
-	// TODO: this is a hack to avoid loading the actual config file. Is there a better way?
+	// TODO: this is a hack to avoid loading the actual config file. Ideally this would use the actual Vite server.
 	const possibleConfigFiles = await glob("config.*", { absolute: true, cwd: fileURLToPath(contentPaths.contentDir), fs })
 	const [filename] = possibleConfigFiles;
-	const { code: configCode } = await transformWithEsbuild(fs.readFileSync(filename, { encoding: 'utf8' }), filename);
+	let { code: configCode } = await transformWithEsbuild(fs.readFileSync(filename, { encoding: 'utf8' }), filename);
+	configCode = configCode.replaceAll(/["']astro\:content["']/g, '"astro/content/runtime"');
 
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 
@@ -154,13 +165,9 @@ export async function generateLookupMap({
 		{
 			absolute: true,
 			cwd: fileURLToPath(root),
-			fs: {
-				readdir: fs.readdir.bind(fs),
-				readdirSync: fs.readdirSync.bind(fs),
-			},
+			fs,
 		}
 	)
-	
 
 	// Run 10 at a time to prevent `await getEntrySlug` from accessing the filesystem all at once.
 	// Each await shouldn't take too long for the work to be noticably slow too.
