@@ -19,6 +19,7 @@ type DevOverlayPlugin = DevOverlayPluginDefinition & {
 
 document.addEventListener('DOMContentLoaded', async () => {
 	const WS_EVENT_NAME = 'astro-dev-overlay';
+	const HOVER_DELAY = 750;
 
 	const builtinPlugins: DevOverlayPlugin[] = [
 		astroDevToolPlugin,
@@ -223,6 +224,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 				margin: 0;
 			}
 
+			#minimize-button:hover, #minimize-button:focus {
+				cursor: pointer;
+				background: rgba(255, 255, 255, 0.90);
+			}
+
 			#minimize-button svg {
 				width: 16px;
 				height: 16px;
@@ -300,8 +306,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 			const devBar = this.shadowRoot.querySelector<HTMLDivElement>('#dev-bar');
 			if (devBar) {
 				// On hover:
-				// - If the overlay is hidden, show it after 1s
-				// - If the overlay is visible, show the minimize button after 1s
+				// - If the overlay is hidden, show it after the hover delay
+				// - If the overlay is visible, show the minimize button after the hover delay
 				(['mouseenter', 'focusin'] as const).forEach((event) => {
 					devBar.addEventListener(event, () => {
 						if (this.hoverTimeout) {
@@ -311,20 +317,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 						if (this.isHidden()) {
 							this.hoverTimeout = window.setTimeout(() => {
 								this.toggleOverlay(true);
-							}, 1000);
+							}, HOVER_DELAY);
 						} else {
 							this.hoverTimeout = window.setTimeout(() => {
 								this.toggleMinimizeButton(true);
-							}, 1000);
+							}, HOVER_DELAY);
 						}
 					});
 				});
 
 				// On unhover:
 				// - Reset every timeout, as to avoid showing the overlay/minimize button when the user didn't really want to hover
+				// - If the overlay is visible, hide the minimize button after the hover delay
 				devBar.addEventListener('mouseleave', () => {
 					if (this.hoverTimeout) {
 						window.clearTimeout(this.hoverTimeout);
+					}
+
+					if (!this.isHidden()) {
+						this.hoverTimeout = window.setTimeout(() => {
+							this.toggleMinimizeButton(false);
+						}, HOVER_DELAY);
 					}
 				});
 
