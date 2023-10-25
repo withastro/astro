@@ -16,3 +16,7 @@ export const partial = true;
 
 <li>This is a single list item.</li>
 ```
+
+Other valid page files that can export a value (e.g. `.mdx`) can also be marked as partials.
+
+Read more about [Astro page partials](/en/core-concepts/astro-pages/#partials) in our documentation.
