@@ -7,7 +7,7 @@ import astroAuditPlugin from './plugins/audit.js';
 import astroXrayPlugin from './plugins/xray.js';
 import { DevOverlayCard } from './ui-library/card.js';
 import { DevOverlayHighlight } from './ui-library/highlight.js';
-import { getIconElement } from './ui-library/icons.js';
+import { getIconElement, isDefinedIcon, type Icon } from './ui-library/icons.js';
 import { DevOverlayTooltip } from './ui-library/tooltip.js';
 import { DevOverlayWindow } from './ui-library/window.js';
 
@@ -125,6 +125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				text-decoration: none;
 				padding: 0;
 				margin: 0;
+				overflow: hidden;
 			}
 
 			#dev-bar #bar-container .item:hover, #dev-bar #bar-container .item:focus {
@@ -152,6 +153,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 			#dev-bar .item .icon {
 				position: relative;
+				max-width: 24px;
+				max-height: 24px;
+				user-select: none;
 			}
 
 			#dev-bar .item svg {
@@ -368,9 +372,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		getPluginTemplate(plugin: DevOverlayPlugin) {
 			return `<button class="item" data-plugin-id="${plugin.id}">
-				<div class="icon">${plugin.icon}<div class="notification"></div></div>
+				<div class="icon">${this.getPluginIcon(plugin.icon)}<div class="notification"></div></div>
 				<span class="sr-only">${plugin.name}</span>
 			</button>`;
+		}
+
+		getPluginIcon(icon: Icon) {
+			if (isDefinedIcon(icon)) {
+				return getIconElement(icon)?.outerHTML;
+			}
+
+			return icon;
 		}
 
 		getPluginById(id: string) {

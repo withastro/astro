@@ -21,6 +21,7 @@ import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
+import type { Icon } from '../runtime/client/dev-overlay/ui-library/icons.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
 import type { OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
@@ -2309,7 +2310,7 @@ export interface ClientDirectiveConfig {
 export interface DevOverlayPlugin {
 	id: string;
 	name: string;
-	icon: string;
+	icon: Icon;
 	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
 }
 
