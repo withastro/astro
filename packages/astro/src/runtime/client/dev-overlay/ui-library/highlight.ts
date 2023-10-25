@@ -58,8 +58,8 @@ export class DevOverlayHighlight extends HTMLElement {
 				iconElement?.style.setProperty('width', '16px');
 				iconElement?.style.setProperty('height', '16px');
 
-				iconContainer.appendChild(iconElement);
-				this.shadowRoot.appendChild(iconContainer);
+				iconContainer.append(iconElement);
+				this.shadowRoot.append(iconContainer);
 			}
 		}
 	}

@@ -56,7 +56,7 @@ export default {
 			const tooltip = buildAuditTooltip(rule);
 			attachTooltipToHighlight(highlight, tooltip, originalElement);
 
-			canvas.appendChild(highlight);
+			canvas.append(highlight);
 			audits.push({ highlightElement: highlight, auditedElement: originalElement as HTMLElement });
 
 			(['scroll', 'resize'] as const).forEach((event) => {

@@ -24,7 +24,7 @@ export function attachTooltipToHighlight(
 	tooltip: HTMLElement,
 	originalElement: Element
 ) {
-	highlight.shadowRoot.appendChild(tooltip);
+	highlight.shadowRoot.append(tooltip);
 
 	(['mouseover', 'focus'] as const).forEach((event) => {
 		highlight.addEventListener(event, () => {

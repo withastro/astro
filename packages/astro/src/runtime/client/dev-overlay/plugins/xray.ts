@@ -31,7 +31,7 @@ export default {
 				const tooltip = buildIslandTooltip(island);
 				attachTooltipToHighlight(highlight, tooltip, islandElement);
 
-				canvas.appendChild(highlight);
+				canvas.append(highlight);
 				islandsOverlays.push({ highlightElement: highlight, island: islandElement });
 			});
 

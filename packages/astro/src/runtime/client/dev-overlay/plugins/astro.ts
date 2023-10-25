@@ -64,6 +64,6 @@ export default {
 			</div>
 		`;
 
-		canvas.appendChild(astroWindow);
+		canvas.append(astroWindow);
 	},
 } satisfies DevOverlayPlugin;

@@ -481,12 +481,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	const overlay = document.createElement('astro-dev-overlay');
 	overlay.style.zIndex = '999999';
-	document.body.appendChild(overlay);
+	document.body.append(overlay);
 
 	// Create plugin canvases
 	plugins.forEach((plugin) => {
 		const pluginCanvas = document.createElement('astro-overlay-plugin-canvas');
 		pluginCanvas.dataset.pluginId = plugin.id;
-		overlay.shadowRoot?.appendChild(pluginCanvas);
+		overlay.shadowRoot?.append(pluginCanvas);
 	});
 });

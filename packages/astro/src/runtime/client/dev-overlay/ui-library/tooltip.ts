@@ -129,14 +129,14 @@ export class DevOverlayTooltip extends HTMLElement {
 				${section.content ? `<div>${section.content}</div>` : ''}
 				${section.clickDescription ? `<span class="modal-cta">${section.clickDescription}</span>` : ''}
 			`;
-			fragment.appendChild(sectionElement);
+			fragment.append(sectionElement);
 
 			if (index < this.sections.length - 1) {
-				fragment.appendChild(document.createElement('hr'));
+				fragment.append(document.createElement('hr'));
 			}
 		});
 
-		this.shadowRoot.appendChild(fragment);
+		this.shadowRoot.append(fragment);
 	}
 
 	getElementForIcon(icon: Icon | (string & NonNullable<unknown>)) {
