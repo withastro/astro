@@ -38,5 +38,10 @@ describe('Partials', () => {
 			const html = await fixture.readFile('/partials/item/index.html');
 			expect(html.startsWith('<li>')).to.equal(true);
 		});
+
+		it('Works with mdx', async () => {
+			const html = await fixture.readFile('/partials/docs/index.html');
+			expect(html.startsWith('<h1')).to.equal(true);
+		});
 	});
 });
