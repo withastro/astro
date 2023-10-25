@@ -135,7 +135,7 @@ declare module 'astro:i18n' {
 	 *
 	 * ## Errors
 	 *
-	 * It throws an error if the locale doesn't exist in the list of locales defined in the configuration.
+	 * Throws an error if the locale doesn't exist in the list of locales defined in the configuration.
 	 *
 	 * ## Examples
 	 *
@@ -160,7 +160,7 @@ declare module 'astro:i18n' {
 	 *
 	 * ## Errors
 	 *
-	 * It throws an error if the locale doesn't exist in the list of locales defined in the configuration.
+	 * Throws an error if the locale doesn't exist in the list of locales defined in the configuration.
 	 *
 	 * ## Examples
 	 *
@@ -180,14 +180,14 @@ declare module 'astro:i18n' {
 	 * @param {import('./dist/i18n/index.js').GetLocaleOptions} options Customise the generated path
 	 * @return {string[]}
 	 *
-	 * It works like `getLocaleRelativeUrl` but it emits the relative URLs for ALL locales:
+	 * Works like `getLocaleRelativeUrl` but it emits the relative URLs for ALL locales:
 	 */
 	export const getLocaleRelativeUrlList: (options?: GetLocaleOptions) => string[];
 	/**
 	 * @param {import('./dist/i18n/index.js').GetLocaleOptions} options Customise the generated path
 	 * @return {string[]}
 	 *
-	 * It works like `getLocaleAbsoluteUrl` but it emits the absolute URLs for ALL locales:
+	 * Works like `getLocaleAbsoluteUrl` but it emits the absolute URLs for ALL locales:
 	 */
 	export const getLocaleAbsoluteUrlList: (options?: GetLocaleOptions) => string[];
 }
