@@ -35,6 +35,7 @@ export class DevOverlayTooltip extends HTMLElement {
 				z-index: 9999999;
 				max-width: 45ch;
 				width: fit-content;
+				min-width: 27ch;
 			}
 
 			:host([data-show="true"]) {
@@ -78,6 +79,16 @@ export class DevOverlayTooltip extends HTMLElement {
 
 			.clickable-section {
 				background: rgba(113, 24, 226, 1);
+				padding: 8px;
+				border: 0;
+				color: white;
+				font-family: system-ui, sans-serif;
+				text-align: left;
+				line-height: 1.2;
+				white-space: nowrap;
+				text-decoration: none;
+				margin: 0;
+				width: 100%;
 			}
 
 			.clickable-section:hover {
@@ -95,7 +106,10 @@ export class DevOverlayTooltip extends HTMLElement {
 
 		const fragment = new DocumentFragment();
 		this.sections.forEach((section, index) => {
-			const sectionElement = document.createElement('section');
+			const sectionElement = section.clickAction
+				? document.createElement('button')
+				: document.createElement('section');
+
 			if (section.clickAction) {
 				sectionElement.classList.add('clickable-section');
 				sectionElement.addEventListener('click', async () => {
