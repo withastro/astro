@@ -125,6 +125,9 @@ export async function runHookConfigSetup({
 				addWatchFile: (path) => {
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
 				},
+				addDevOverlayPlugin: (entrypoint) => {
+					updatedSettings.devOverlayPlugins.push(entrypoint);
+				},
 				addClientDirective: ({ name, entrypoint }) => {
 					if (updatedSettings.clientDirectives.has(name) || addedClientDirectives.has(name)) {
 						throw new Error(

@@ -1,5 +1,7 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { builtinModules } = require('module');
 
+/** @type {import("@types/eslint").Linter.Config} */
 module.exports = {
   extends: [
     'plugin:@typescript-eslint/recommended-type-checked',
@@ -72,6 +74,12 @@ module.exports = {
             patterns: ['node:*'],
           },
         ],
+      },
+    },
+    {
+      files: ['packages/astro/src/runtime/client/**/*.ts'],
+      env: {
+        browser: true,
       },
     },
     {
