@@ -9,6 +9,7 @@ import {
 	createReference,
 } from 'astro/content/runtime';
 
+export { defineCollection } from 'astro/content/runtime';
 export { z } from 'astro/zod';
 
 const contentDir = '@@CONTENT_DIR@@';
@@ -46,11 +47,6 @@ const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 	globResult: renderEntryGlob,
 	contentDir,
 });
-
-export function defineCollection(config) {
-	if (!config.type) config.type = 'content';
-	return config;
-}
 
 export const getCollection = createGetCollection({
 	contentCollectionToEntryMap,
