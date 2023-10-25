@@ -54,7 +54,7 @@ Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll 
 | [@astrojs/lit](packages/integrations/lit)               | [![astro version](https://img.shields.io/npm/v/@astrojs/lit.svg?label=%20)](packages/integrations/lit/CHANGELOG.md)               |
 | [@astrojs/node](packages/integrations/node)             | [![astro version](https://img.shields.io/npm/v/@astrojs/node.svg?label=%20)](packages/integrations/node/CHANGELOG.md)             |
 | [@astrojs/vercel](packages/integrations/vercel)         | [![astro version](https://img.shields.io/npm/v/@astrojs/vercel.svg?label=%20)](packages/integrations/vercel/CHANGELOG.md)         |
-| [@astrojs/cloudflare](packages/integrations/cloudflare) | [![astro version](https://img.shields.io/npm/v/@astrojs/cloudflare.svg?label=%20)](packages/integrations/cloudflare/CHANGELOG.md) |
+| [@astrojs/cloudflare](https://github.com/withastro/adapters/blob/main/packages/cloudflare) | [![astro version](https://img.shields.io/npm/v/@astrojs/cloudflare.svg?label=%20)](https://github.com/withastro/adapters/blob/main/packages/cloudflare/CHANGELOG.md) |
 | [@astrojs/partytown](packages/integrations/partytown)   | [![astro version](https://img.shields.io/npm/v/@astrojs/partytown.svg?label=%20)](packages/integrations/partytown/CHANGELOG.md)   |
 | [@astrojs/sitemap](packages/integrations/sitemap)       | [![astro version](https://img.shields.io/npm/v/@astrojs/sitemap.svg?label=%20)](packages/integrations/sitemap/CHANGELOG.md)       |
 | [@astrojs/tailwind](packages/integrations/tailwind)     | [![astro version](https://img.shields.io/npm/v/@astrojs/tailwind.svg?label=%20)](packages/integrations/tailwind/CHANGELOG.md)     |
