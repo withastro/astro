@@ -5,6 +5,8 @@ export function createHighlight(rect: DOMRect, icon?: Icon) {
 	const highlight = document.createElement('astro-overlay-highlight') as DevOverlayHighlight;
 	if (icon) highlight.icon = icon;
 
+	highlight.tabIndex = 0;
+
 	positionHighlight(highlight, rect);
 	return highlight;
 }
