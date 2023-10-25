@@ -130,8 +130,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 			#dev-bar #bar-container .item:hover, #dev-bar #bar-container .item:focus {
 				background: rgba(27, 30, 36, 1);
 				cursor: pointer;
+				outline-offset: -3px;
 			}
 
+			#dev-bar .item:first-of-type {
+				border-top-left-radius: 9999px;
+				border-bottom-left-radius: 9999px;
+			}
+			
+
+			#dev-bar .item:last-of-type {
+				border-top-right-radius: 9999px;
+				border-bottom-right-radius: 9999px;
+			}
 			#dev-bar #bar-container .item.active {
 				background: rgba(71, 78, 94, 1);
 			}

@@ -91,7 +91,7 @@ export default {
 					// Not enough space above, show below
 					tooltip.style.top = `${originalRect.height + 15}px`;
 				} else {
-					tooltip.style.top = `${-tooltip.offsetHeight}px`;
+					tooltip.style.top = `-${tooltip.offsetHeight}px`;
 				}
 			});
 
