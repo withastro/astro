@@ -36,11 +36,11 @@ export default function astroInternalization({ settings }: AstroInternalization)
 					const format =  ${JSON.stringify(settings.config.build.format)};
 					const site = ${JSON.stringify(settings.config.site)};
 					
-					export const getLocaleRelativeUrl = (locale, opts) => _getLocaleRelativeUrl({ locale, base, locales, trailingSlash, format, ...opts });
-					export const getLocaleAbsoluteUrl = (locale, opts) => _getLocaleAbsoluteUrl({ locale, base, locales, trailingSlash, format, site, ...opts });
+					export const getLocaleRelativeUrl = (locale, path, opts) => _getLocaleRelativeUrl({ locale, path, base, locales, trailingSlash, format, ...opts });
+					export const getLocaleAbsoluteUrl = (locale, path, opts) => _getLocaleAbsoluteUrl({ locale, path, base, locales, trailingSlash, format, site, ...opts });
 					
-					export const getLocaleRelativeUrlList = (opts) => _getLocaleRelativeUrlList({ base, locales, trailingSlash, format, ...opts });
-					export const getLocaleAbsoluteUrlList = (opts) => _getLocaleAbsoluteUrlList({ base, locales, trailingSlash, format, site, ...opts });
+					export const getLocaleRelativeUrlList = (path, opts) => _getLocaleRelativeUrlList({ base, path, locales, trailingSlash, format, ...opts });
+					export const getLocaleAbsoluteUrlList = (path, opts) => _getLocaleAbsoluteUrlList({ base, path, locales, trailingSlash, format, site, ...opts });
 				`;
 			}
 		},
