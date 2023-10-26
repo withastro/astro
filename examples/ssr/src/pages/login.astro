@@ -14,7 +14,8 @@ import Container from '../components/Container.astro';
 
 		<script type="module" is:inline>
 			document.addEventListener('DOMContentLoaded', () => {
-				const form = document.querySelector('form') as HTMLFormElement;
+				const form = document.querySelector('form');
+				if (!form) throw new Error('Form not found');
 				form.addEventListener('submit', (e) => {
 					e.preventDefault();
 					const formData = new FormData(form);
@@ -26,9 +27,10 @@ import Container from '../components/Container.astro';
 					})
 						.then((res) => res.json())
 						.then(() => {
-							const result = document.querySelector('#result')
+							const result = document.querySelector('#result');
 							if (result) {
-								result.innerHTML = 'Progressive login was successful! you will be redirected to the store in 3 seconds';
+								result.innerHTML =
+									'Progressive login was successful! you will be redirected to the store in 3 seconds';
 								setTimeout(() => (location.href = '/'), 3000);
 							}
 						});
