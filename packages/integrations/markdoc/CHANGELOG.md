@@ -1,5 +1,16 @@
 # @astrojs/markdoc
 
+## 0.7.0
+
+### Minor Changes
+
+- [#8802](https://github.com/withastro/astro/pull/8802) [`73b8d60f8`](https://github.com/withastro/astro/commit/73b8d60f8c3eeae74035202b0ea0d4848e736c7d) Thanks [@AndyClifford](https://github.com/AndyClifford)! - Added ignoreIndentation as a markdoc integration option to enable better readability of source code.
+
+### Patch Changes
+
+- Updated dependencies [[`26b77b8fe`](https://github.com/withastro/astro/commit/26b77b8fef0e03bfc5550aecaa1f56a4fc1cd297)]:
+  - astro@3.3.4
+
 ## 0.6.0
 
 ### Minor Changes

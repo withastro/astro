@@ -1,5 +1,27 @@
 # create-astro
 
+## 4.4.1
+
+### Patch Changes
+
+- [#8911](https://github.com/withastro/astro/pull/8911) [`b236d88ad`](https://github.com/withastro/astro/commit/b236d88addc48d784bd60119fe45750dda900f16) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Ensure an existing template's `package.json` `scripts` are respected when modifying `build`.
+
+## 4.4.0
+
+### Minor Changes
+
+- [#8853](https://github.com/withastro/astro/pull/8853) [`ce807a2bf`](https://github.com/withastro/astro/commit/ce807a2bfef325683bfdb01065a73c4e2b0a5fe5) Thanks [@rayriffy](https://github.com/rayriffy)! - Automatically installs the required dependencies to run the astro check command when the user indicates they plan to write TypeScript.
+
+### Patch Changes
+
+- [#8841](https://github.com/withastro/astro/pull/8841) [`f2dd895d7`](https://github.com/withastro/astro/commit/f2dd895d71e0fccfbc1b98890ceefb69f32524d5) Thanks [@Genteure](https://github.com/Genteure)! - No longer attempts to delete the directory after a template download fails if the path is `.`, `./` or starts with `../`.
+
+## 4.3.0
+
+### Minor Changes
+
+- [#8846](https://github.com/withastro/astro/pull/8846) [`3baab3d93`](https://github.com/withastro/astro/commit/3baab3d93b8d16517cb089b0fa2c4028f21e780f) Thanks [@ElianCodes](https://github.com/ElianCodes)! - feat: make Houston wear scary hats and say new things for spooky season
+
 ## 4.2.1
 
 ### Patch Changes

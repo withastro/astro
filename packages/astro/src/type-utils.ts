@@ -27,3 +27,6 @@ export type KebabKeys<T> = { [K in keyof T as K extends string ? Kebab<K> : K]: 
 
 // Similar to `keyof`, gets the type of all the values of an object
 export type ValueOf<T> = T[keyof T];
+
+// Gets the type of the values of a Map
+export type MapValue<T> = T extends Map<any, infer V> ? V : never;

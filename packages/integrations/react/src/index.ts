@@ -7,7 +7,6 @@ export type ReactIntegrationOptions = Pick<ViteReactPluginOptions, 'include' | '
 	experimentalReactChildren?: boolean;
 };
 
-// @ts-expect-error
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
 
 function getRenderer() {
@@ -66,7 +65,6 @@ function getViteConfiguration({
 					: '@astrojs/react/server-v17.js',
 			],
 		},
-		// @ts-expect-error
 		plugins: [react({ include, exclude }), optionsPlugin(!!experimentalReactChildren)],
 		resolve: {
 			dedupe: ['react', 'react-dom', 'react-dom/server'],

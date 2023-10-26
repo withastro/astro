@@ -25,7 +25,7 @@ describe('astro:ssr-manifest', () => {
 		const html = await response.text();
 
 		const $ = cheerio.load(html);
-		expect($('#assets').text()).to.equal('["/_astro/index.a8a337e4.css"]');
+		expect($('#assets').text()).to.match(/\["\/_astro\/index.([\w-]{8})\.css"\]/);
 	});
 
 	it('includes compressHTML', async () => {
