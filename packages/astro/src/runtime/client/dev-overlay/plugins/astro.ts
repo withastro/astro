@@ -6,7 +6,7 @@ export default {
 	name: 'Astro',
 	icon: 'astro:logo',
 	init(canvas) {
-		const astroWindow = document.createElement('astro-overlay-window') as DevOverlayWindow;
+		const astroWindow = document.createElement('astro-dev-overlay-window') as DevOverlayWindow;
 
 		astroWindow.windowTitle = 'Astro';
 		astroWindow.windowIcon = 'astro:logo';
@@ -19,7 +19,7 @@ export default {
 					justify-content: center;
 				}
 
-				#buttons-container astro-overlay-card {
+				#buttons-container astro-dev-overlay-card {
 					flex: 1;
 				}
 
@@ -53,8 +53,8 @@ export default {
 				<div>
 					<p>Welcome to Astro!</p>
 					<div id="buttons-container">
-						<astro-overlay-card icon="astro:logo" link="https://github.com/withastro/astro/issues/new/choose">Report an issue</astro-overlay-card>
-						<astro-overlay-card icon="astro:logo" link="https://docs.astro.build/en/getting-started/">View Astro Docs</astro-overlay-card>
+						<astro-dev-overlay-card icon="astro:logo" link="https://github.com/withastro/astro/issues/new/choose">Report an issue</astro-dev-overlay-card>
+						<astro-dev-overlay-card icon="astro:logo" link="https://docs.astro.build/en/getting-started/">View Astro Docs</astro-dev-overlay-card>
 					</div>
 				</div>
 				<footer>
