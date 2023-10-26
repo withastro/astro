@@ -172,7 +172,7 @@ declare module 'astro:i18n' {
 	 *
 	 * ```js
 	 * import { getLocaleAbsoluteUrl } from "astro:i18n";
-	 * getLocaleAbsoluteUrl("es""); // https://example.com/es
+	 * getLocaleAbsoluteUrl("es"); // https://example.com/es
 	 * getLocaleAbsoluteUrl("es", "getting-started"); // https://example.com/es/getting-started
 	 * getLocaleAbsoluteUrl("es", "getting-started", { prependWith: "blog" }); // https://example.com/blog/es/getting-started
 	 * getLocaleAbsoluteUrl("es_US", "getting-started", { prependWith: "blog", normalizeLocale: true }); // https://example.com/blog/es-us/getting-started
