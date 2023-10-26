@@ -928,6 +928,18 @@ importers:
         specifier: ^18.0.0
         version: 18.2.0(react@18.2.0)
 
+  packages/astro/e2e/fixtures/dev-overlay:
+    dependencies:
+      '@astrojs/preact':
+        specifier: workspace:*
+        version: link:../../../../integrations/preact
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      preact:
+        specifier: ^10.17.1
+        version: 10.18.1
+
   packages/astro/e2e/fixtures/error-cyclic:
     dependencies:
       '@astrojs/preact':

@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		constructor() {
 			super();
-			this.shadowRoot = this.attachShadow({ mode: 'closed' });
+			this.shadowRoot = this.attachShadow({ mode: 'open' });
 		}
 
 		// connect component
@@ -476,7 +476,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		constructor() {
 			super();
-			this.shadowRoot = this.attachShadow({ mode: 'closed' });
+			this.shadowRoot = this.attachShadow({ mode: 'open' });
 		}
 
 		// connect component
