@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Rename dev overlay UI Toolkit component names
+Renames dev overlay UI Toolkit component names for consistency.
