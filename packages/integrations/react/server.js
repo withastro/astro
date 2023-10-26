@@ -53,7 +53,7 @@ async function check(Component, props, children) {
 }
 
 async function getNodeWritable() {
-	let nodeStreamBuiltinModuleName = 'stream';
+	let nodeStreamBuiltinModuleName = 'node:stream';
 	let { Writable } = await import(/* @vite-ignore */ nodeStreamBuiltinModuleName);
 	return Writable;
 }
