@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 7.6.2
+
+### Patch Changes
+
+- [#33](https://github.com/withastro/adapters/pull/33) [`78baf24`](https://github.com/withastro/adapters/commit/78baf24c34f155305bcb5116e14373d4ddf58ce9) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes override of a valid `astro:assets` image service configuration. Now overrides are only applied when the configuration is known to be incompatible with Cloudflare.
+
 ## 7.6.1
 
 ### Patch Changes
