@@ -1410,7 +1410,7 @@ export interface AstroUserConfig {
 			 *
 			 * Controls the routing strategy:
 			 *  - `prefix-expect-default`: This is the default value. When used, Astro will identify those routes that belong to the default locale and execute a redirect a route stripped of that locale.
-			 *  - `prefix-always`: When used,
+			 *  - `prefix-always`: When used, all URLs need to contains a locale prefix. Astro will return a 404 for any route that doesn't fullfill the requirements.
 			 *
 			 */
 			routingStrategy: 'prefix-always' | 'prefix-expect-default';
