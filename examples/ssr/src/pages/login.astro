@@ -14,10 +14,9 @@ import Container from '../components/Container.astro';
 
 		<script type="module" is:inline>
 			document.addEventListener('DOMContentLoaded', () => {
-				console.log('loaded');
-				document.querySelector('form').addEventListener('submit', (e) => {
+				const form = document.querySelector('form') as HTMLFormElement;
+				form.addEventListener('submit', (e) => {
 					e.preventDefault();
-					const form = e.target;
 					const formData = new FormData(form);
 					const data = Object.fromEntries(formData);
 
@@ -26,10 +25,12 @@ import Container from '../components/Container.astro';
 						body: JSON.stringify(data),
 					})
 						.then((res) => res.json())
-						.then((data) => {
-							document.querySelector('#result').innerHTML =
-								'Progressive login was successful! you will be redirected to the store in 3 seconds';
-							setTimeout(() => (location.href = '/'), 3000);
+						.then(() => {
+							const result = document.querySelector('#result')
+							if (result) {
+								result.innerHTML = 'Progressive login was successful! you will be redirected to the store in 3 seconds';
+								setTimeout(() => (location.href = '/'), 3000);
+							}
 						});
 				});
 			});
