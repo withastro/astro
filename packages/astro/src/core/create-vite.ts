@@ -1,4 +1,5 @@
 import type { AstroSettings } from '../@types/astro.js';
+import { ignoreFiles } from './ignore-files.js';
 import type { Logger } from './logger/core.js';
 
 import nodeFs from 'node:fs';
@@ -67,8 +68,10 @@ export async function createVite(
 	commandConfig: vite.InlineConfig,
 	{ settings, logger, mode, command, fs = nodeFs }: CreateViteOptions
 ): Promise<vite.InlineConfig> {
-	const astroPkgsConfig = await crawlFrameworkPkgs({
-		root: fileURLToPath(settings.config.root),
+	const root =  fileURLToPath(settings.config.root);
+	
+	const [ignoreWatch, astroPkgsConfig] = await Promise.all([ignoreFiles(root), crawlFrameworkPkgs({
+		root,
 		isBuild: mode === 'build',
 		viteUserConfig: settings.config.vite,
 		isFrameworkPkgByJson(pkgJson) {
@@ -97,8 +100,8 @@ export async function createVite(
 				return undefined;
 			}
 		},
-	});
-
+	})]);
+	
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {
 		// Tell Vite not to combine config from vite.config.js with our provided inline config
@@ -156,7 +159,7 @@ export async function createVite(
 			},
 			watch: {
 				// Prevent watching during the build to speed it up
-				ignored: mode === 'build' ? ['**'] : undefined,
+				ignored: mode === 'build' ? ['**'] : ignoreWatch,
 			},
 		},
 		resolve: {
