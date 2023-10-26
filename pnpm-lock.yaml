@@ -4795,6 +4795,15 @@ importers:
         specifier: 4.0.0
         version: 4.0.0
 
+  packages/integrations/vue/test/fixtures/basics:
+    dependencies:
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/internal-helpers:
     devDependencies:
       astro-scripts:
