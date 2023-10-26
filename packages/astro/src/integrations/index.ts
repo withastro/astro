@@ -125,6 +125,9 @@ export async function runHookConfigSetup({
 				addWatchFile: (path) => {
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
 				},
+				addDevOverlayPlugin: (entrypoint) => {
+					updatedSettings.devOverlayPlugins.push(entrypoint);
+				},
 				addClientDirective: ({ name, entrypoint }) => {
 					if (updatedSettings.clientDirectives.has(name) || addedClientDirectives.has(name)) {
 						throw new Error(
@@ -234,16 +237,6 @@ export async function runHookConfigDone({
 										`The adapter ${adapter.name} doesn't support the feature ${featureName}. Your project won't be built. You should not use it.`
 									);
 								}
-							}
-							if (!validationResult.assets) {
-								logger.warn(
-									'astro',
-									`The selected adapter ${adapter.name} does not support image optimization. To allow your project to build with the original, unoptimized images, the image service has been automatically switched to the 'noop' option. See https://docs.astro.build/en/reference/configuration-reference/#imageservice`
-								);
-								settings.config.image.service = {
-									entrypoint: 'astro/assets/services/noop',
-									config: {},
-								};
 							}
 						}
 						settings.adapter = adapter;

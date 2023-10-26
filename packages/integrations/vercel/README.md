@@ -261,6 +261,26 @@ export default defineConfig({
 });
 ```
 
+### maxDuration
+
+**Type:** `number`<br>
+**Available for:** Serverless
+
+Use this property to extend or limit the maximum duration (in seconds) that Serverless Functions can run before timing out. See the [Vercel documentation](https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration) for the default and maximum limit for your account plan.
+
+```diff lang="js"
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/serverless';
+
+export default defineConfig({
+    output: "server",
+    adapter: vercel({
++       maxDuration: 60
+    }),
+});
+```
+
 ### Function bundling configuration
 
 The Vercel adapter combines all of your routes into a single function by default.
