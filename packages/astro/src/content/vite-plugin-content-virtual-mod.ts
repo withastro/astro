@@ -3,7 +3,7 @@ import nodeFs from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import pLimit from 'p-limit';
-import { transformWithEsbuild, type Plugin } from 'vite';
+import { type Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { removeFileExtension } from '../core/path.js';
@@ -115,7 +115,6 @@ function getStringifiedCollectionFromLookup(wantedType: 'content' | 'data' | 're
 		if (wantedType === 'content') suffix = CONTENT_FLAG;
 		else if (wantedType === 'data') suffix = DATA_FLAG;
 		else if (wantedType === 'render') suffix = CONTENT_RENDER_FLAG;
-
 		normalize = (slug: string) => `${slug}?${suffix}`
 	}
 	for (const { type, entries } of Object.values(lookupMap)) {
@@ -150,12 +149,6 @@ export async function generateLookupMap({
 	const dataEntryExts = getDataEntryExts(settings);
 
 	const { contentDir } = contentPaths;
-	
-	// TODO: this is a hack to avoid loading the actual config file. Ideally this would use the actual Vite server.
-	const possibleConfigFiles = await glob("config.*", { absolute: true, cwd: fileURLToPath(contentPaths.contentDir), fs })
-	const [filename] = possibleConfigFiles;
-	let { code: configCode } = await transformWithEsbuild(fs.readFileSync(filename, { encoding: 'utf8' }), filename);
-	configCode = configCode.replaceAll(/["']astro\:content["']/g, '"astro/content/runtime"');
 
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 
@@ -184,11 +177,6 @@ export async function generateLookupMap({
 
 				const collection = getEntryCollectionName({ contentDir, entry: pathToFileURL(filePath) });
 				if (!collection) throw UnexpectedLookupMapError;
-				// TODO: Extremely naive lookup that collection name is referenced in the config
-				// This could fail for any number of reasons.
-				if (!configCode.includes(collection)) {
-					return;
-				}
 
 				if (lookupMap[collection]?.type && lookupMap[collection].type !== entryType) {
 					throw new AstroError({
