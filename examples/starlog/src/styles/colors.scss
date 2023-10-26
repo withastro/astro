@@ -1,0 +1,64 @@
+
+@function color($color,$tone){
+
+    // @warn map-get($palette,$color);
+
+    @if map-has-key($palette,$color){
+        $color: map-get($palette,$color);
+
+            @if map-has-key($color,$tone){
+                $tone: map-get($color,$tone);
+                @return $tone;
+            }
+
+            @warn "unknown tone `#{$tone}` in color";
+            @return null;        
+    }
+
+    @warn "unknown color `#{$color}` in palette";
+    @return null;
+   
+}
+
+$white: #ffffff;
+$palette: (
+    purple: (  
+        50: #F2E8FD,
+        100: #E6D1FA,
+        200: #CFA3F5,
+        300: #BA75F0,
+        400: #A846EC,
+        500: #9818E7,
+        600: #7B13B4,
+        700: #5B0E81,
+        800: #3A084E,
+        900: #15031C,
+        950: #020002
+    ),
+    orange: (
+        50: #FBF0EA,
+        100: #F8E3D9,
+        200: #F2CAB7,
+        300: #ECB194,
+        400: #E59872,
+        500: #DF7F4F,
+        600: #D05F26,
+        700: #A1491D,
+        800: #713315,
+        900: #421E0C,
+        950: #2A1308
+        ),
+    gray: (  
+        50: #F6F6F9,
+        100: #E6E7EF,
+        200: #C7C9DB,
+        300: #A8ABC7,
+        400: #898EB4,
+        500: #6A71A0,
+        600: #545B83,
+        700: #404664,
+        800: #2C3145,
+        900: #181B26,
+        950: #0E1016
+    )
+);
