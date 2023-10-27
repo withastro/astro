@@ -57,6 +57,11 @@ export class DevOverlayTooltip extends HTMLElement {
 				padding: 8px;
 			}
 
+			.section-content {
+				max-height: 250px;
+    		overflow-y: scroll;
+			}
+
 			.modal-title {
 				display: flex;
 				justify-content: space-between;
@@ -126,7 +131,7 @@ export class DevOverlayTooltip extends HTMLElement {
 						}</div>`
 						: ''
 				}
-				${section.content ? `<div>${section.content}</div>` : ''}
+				${section.content ? `<div class="section-content">${section.content}</div>` : ''}
 				${section.clickDescription ? `<span class="modal-cta">${section.clickDescription}</span>` : ''}
 			`;
 			fragment.append(sectionElement);
