@@ -30,7 +30,7 @@ export class DevOverlayWindow extends HTMLElement {
 					font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 					color: rgba(204, 206, 216, 1);
 					position: fixed;
-					z-index: 9999999999;
+					z-index: 999999999;
 					top: 55%;
 					left: 50%;
 					transform: translate(-50%, -50%);

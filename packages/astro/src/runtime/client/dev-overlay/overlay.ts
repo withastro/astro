@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		constructor() {
 			super();
-			this.shadowRoot = this.attachShadow({ mode: 'closed' });
+			this.shadowRoot = this.attachShadow({ mode: 'open' });
 		}
 
 		// connect component
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				bottom: 7.5%;
 				left: calc(50% + 32px);
 				transform: translate(-50%, 0%);
-				z-index: 999999;
+				z-index: 9999999999;
 				display: flex;
 				gap: 8px;
 				align-items: center;
@@ -478,7 +478,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		constructor() {
 			super();
-			this.shadowRoot = this.attachShadow({ mode: 'closed' });
+			this.shadowRoot = this.attachShadow({ mode: 'open' });
 		}
 
 		// connect component
