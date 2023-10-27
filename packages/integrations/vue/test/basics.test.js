@@ -20,5 +20,4 @@ describe('Basics', () => {
 		expect(bar).not.to.be.undefined;
 		expect(bar.getAttribute('slot')).to.be.null;
 	});
-
 });
