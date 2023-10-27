@@ -27,8 +27,8 @@ export default function createPlugin(options?: PartytownOptions): AstroIntegrati
 			'astro:config:setup': ({ config: _config, command, injectScript }) => {
 				const lib = `${appendForwardSlash(_config.base)}~partytown/`;
 				const partytownConfig = {
-					...options?.config,
 					lib,
+					...options?.config,
 					debug: options?.config?.debug ?? command === 'dev',
 				};
 				partytownSnippetHtml = partytownSnippet(partytownConfig);
