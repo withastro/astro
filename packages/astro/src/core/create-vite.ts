@@ -1,5 +1,4 @@
 import type { AstroSettings } from '../@types/astro.js';
-import { ignoreFiles } from './ignore-files.js';
 import type { Logger } from './logger/core.js';
 
 import nodeFs from 'node:fs';
@@ -31,6 +30,7 @@ import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
 import { joinPaths } from './path.js';
+import { getGitignorePaths } from './get-gitignore-paths.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -70,7 +70,7 @@ export async function createVite(
 ): Promise<vite.InlineConfig> {
 	const root =  fileURLToPath(settings.config.root);
 	
-	const [ignoreWatch, astroPkgsConfig] = await Promise.all([ignoreFiles(root), crawlFrameworkPkgs({
+	const [ignoreWatch, astroPkgsConfig] = await Promise.all([getGitignorePaths(root), crawlFrameworkPkgs({
 		root,
 		isBuild: mode === 'build',
 		viteUserConfig: settings.config.vite,
