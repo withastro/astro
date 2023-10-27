@@ -21,6 +21,7 @@ import {
 	getExtGlob,
 	type ContentLookupMap,
 } from './utils.js';
+import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -32,12 +33,21 @@ export function astroContentVirtualModPlugin({
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
 	const astroContentVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
-
+	let IS_DEV = false;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
+		enforce: 'pre',
+		configResolved(config) {
+			IS_DEV = config.mode === 'development'
+		},
 		resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
-				return astroContentVirtualModuleId;
+				if (IS_DEV) {
+					return astroContentVirtualModuleId;
+				} else {
+					// In production, we will build this file ourselves
+					return { id: astroContentVirtualModuleId, external: true }
+				}
 			}
 		},
 		async load(id) {
@@ -49,14 +59,29 @@ export function astroContentVirtualModPlugin({
 				const code = await generateContentEntryFile({ settings, fs, lookupMap });
 
 				return {
-					code
+					code,
+					meta: {
+						astro: {
+							hydratedComponents: [],
+							clientOnlyComponents: [],
+							scripts: [],
+							containsHead: true,
+							propagation: 'in-tree',
+							pageOptions: {}
+						}
+					} satisfies AstroPluginMetadata
 				};
 			}
 		},
+		renderChunk(code, chunk) {
+			if (code.includes(astroContentVirtualModuleId)) {
+				const depth = chunk.fileName.split('/').length - 1;
+				const prefix = depth > 0 ? '../'.repeat(depth) : './';
+				return code.replaceAll(astroContentVirtualModuleId, `${prefix}content/entry.mjs`);
+			}
+		}
 	};
 }
-
-const IS_DEV = process.env.NODE_ENV !== 'production';
 
 export async function generateContentEntryFile({
 	settings,
@@ -70,15 +95,9 @@ export async function generateContentEntryFile({
 	const contentPaths = getContentPaths(settings.config);
 	const relContentDir = rootRelativePath(settings.config.root, contentPaths.contentDir);
 
-	// const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
-	// const contentEntryExts = [...contentEntryConfigByExt.keys()];
-	// const dataEntryExts = getDataEntryExts(settings);
-
 	const contentEntryGlobResult = getStringifiedCollectionFromLookup('content', relContentDir, lookupMap);
 	const dataEntryGlobResult = getStringifiedCollectionFromLookup('data', relContentDir, lookupMap);
 	const renderEntryGlobResult = getStringifiedCollectionFromLookup('render', relContentDir, lookupMap);
-
-	// const [contentEntryGlobResult, dataEntryGlobResult, renderEntryGlobResult] = await Promise.all([contentEntryExts, dataEntryExts, contentEntryExts].map((exts, i) => getStringifiedGlobResult(settings, exts, lookupMap, getContentExtension(i))));
 
 	const virtualModContents = nodeFs
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')

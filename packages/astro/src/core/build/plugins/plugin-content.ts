@@ -12,6 +12,7 @@ import type { ContentLookupMap } from '../../../content/utils.js';
 import { CONTENT_RENDER_FLAG } from '../../../content/consts.js';
 import { copyFiles } from '../static-build.js';
 import pLimit from 'p-limit';
+import { extendManualChunks } from './util.js';
 
 const CONTENT_CACHE_DIR = './content/';
 const CONTENT_MANIFEST_FILE = './manifest.json';
@@ -46,7 +47,7 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 		try {
 			const data = fsMod.readFileSync(contentManifestFile, { encoding: 'utf8' });
 			oldManifest = JSON.parse(data);
-		} catch {}
+		} catch { }
 	}
 
 	return {
@@ -80,6 +81,14 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 			return newOptions;
 		},
 
+		outputOptions(outputOptions) {
+			extendManualChunks(outputOptions, {
+				after(id, meta) {
+					console.log(id);
+				},
+			});
+		},
+
 		resolveId(id) {
 			if (id === virtualEmptyModuleId) {
 				return resolvedVirtualEmptyModuleId;
@@ -99,7 +108,7 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 			this.emitFile({
 				type: 'prebuilt-chunk',
 				code: content,
-				fileName: '.entry.mjs'
+				fileName: 'content/entry.mjs'
 			})
 			Object.keys(bundle).forEach(key => {
 				const mod = bundle[key];
@@ -110,23 +119,6 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 			});
 		},
 
-		async writeBundle(options) {
-			const dist = new URL(pathToFileURL(options.dir!).toString() + '/');
-			const cache = contentEntryCacheDir;
-			const cacheTmp = new URL('./.tmp/', cache);
-
-			const cacheExists = fsMod.existsSync(cache);
-			fsMod.mkdirSync(cache, { recursive: true })
-			await fsMod.promises.mkdir(cacheTmp, { recursive: true });
-			await copyFiles(dist, cacheTmp, true);
-			
-			if (cacheExists) {
-				await copyFiles(contentEntryCacheDir, dist, false)
-			}
-
-			await copyFiles(cacheTmp, contentEntryCacheDir);
-			await fsMod.promises.rm(cacheTmp, { recursive: true, force: true });
-		}
 	};
 }
 
@@ -187,14 +179,39 @@ function collectionTypeToFlag(type: 'content' | 'data') {
 
 export function pluginContent(opts: StaticBuildOptions, internals: BuildInternals): AstroBuildPlugin {
 	return {
-		targets: ['content'],
+		targets: ['server'],
 		hooks: {
 			async 'build:before'() {
 				const lookupMap = await generateLookupMap({ settings: opts.settings, fs: fsMod });
-				
+
 				return {
 					vitePlugin: vitePluginContent(opts, lookupMap, internals),
 				};
+			},
+			async 'build:post'({ ssrOutputs }) {
+				for (const { output } of ssrOutputs) {
+					for (const chunk of output) {
+						if (chunk.type === 'chunk') {
+							console.log(chunk);
+						}
+					}
+				}
+				// TODO: restore from cache
+				// const dist = new URL(pathToFileURL(options.dir!).toString() + '/');
+				// const cache = contentEntryCacheDir;
+				// const cacheTmp = new URL('./.tmp/', cache);
+
+				// const cacheExists = fsMod.existsSync(cache);
+				// fsMod.mkdirSync(cache, { recursive: true })
+				// await fsMod.promises.mkdir(cacheTmp, { recursive: true });
+				// await copyFiles(dist, cacheTmp, true);
+
+				// if (cacheExists) {
+				// 	await copyFiles(contentEntryCacheDir, dist, false)
+				// }
+
+				// await copyFiles(cacheTmp, contentEntryCacheDir);
+				// await fsMod.promises.rm(cacheTmp, { recursive: true, force: true });
 			}
 		},
 	};
