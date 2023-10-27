@@ -192,13 +192,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 				width: 1px;
 			}
 
-			astro-overlay-plugin-canvas {
+			astro-dev-overlay-plugin-canvas {
 				position: absolute;
 				top: 0;
 				left: 0;
 			}
 
-			astro-overlay-plugin-canvas:not([data-active]) {
+			astro-dev-overlay-plugin-canvas:not([data-active]) {
 				display: none;
 			}
 
@@ -403,7 +403,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 		}
 
 		getPluginCanvasById(id: string) {
-			return this.shadowRoot.querySelector(`astro-overlay-plugin-canvas[data-plugin-id="${id}"]`);
+			return this.shadowRoot.querySelector(
+				`astro-dev-overlay-plugin-canvas[data-plugin-id="${id}"]`
+			);
 		}
 
 		togglePluginStatus(plugin: DevOverlayPlugin, status?: boolean) {
@@ -486,11 +488,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	customElements.define('astro-dev-overlay', AstroDevOverlay);
-	customElements.define('astro-overlay-window', DevOverlayWindow);
-	customElements.define('astro-overlay-plugin-canvas', DevOverlayCanvas);
-	customElements.define('astro-overlay-tooltip', DevOverlayTooltip);
-	customElements.define('astro-overlay-highlight', DevOverlayHighlight);
-	customElements.define('astro-overlay-card', DevOverlayCard);
+	customElements.define('astro-dev-overlay-window', DevOverlayWindow);
+	customElements.define('astro-dev-overlay-plugin-canvas', DevOverlayCanvas);
+	customElements.define('astro-dev-overlay-tooltip', DevOverlayTooltip);
+	customElements.define('astro-dev-overlay-highlight', DevOverlayHighlight);
+	customElements.define('astro-dev-overlay-card', DevOverlayCard);
 
 	const overlay = document.createElement('astro-dev-overlay');
 	overlay.style.zIndex = '999999';
@@ -498,7 +500,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	// Create plugin canvases
 	plugins.forEach((plugin) => {
-		const pluginCanvas = document.createElement('astro-overlay-plugin-canvas');
+		const pluginCanvas = document.createElement('astro-dev-overlay-plugin-canvas');
 		pluginCanvas.dataset.pluginId = plugin.id;
 		overlay.shadowRoot?.append(pluginCanvas);
 	});

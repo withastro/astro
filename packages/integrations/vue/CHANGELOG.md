@@ -209,7 +209,7 @@
   });
   ```
 
-  ```js
+  ```ts
   // src/pages/_app.ts
   import type { App } from 'vue';
   import i18nPlugin from '../plugins/i18n';
