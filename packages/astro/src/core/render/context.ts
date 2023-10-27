@@ -92,7 +92,7 @@ type BrowserLocale = {
  * Complex example: `fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5`
  *
  */
-function parseLocale(header: string): BrowserLocale[] {
+export function parseLocale(header: string): BrowserLocale[] {
 	// Any language, early return
 	if (header === '*') {
 		return [{ locale: header, qualityValue: undefined }];
@@ -116,7 +116,7 @@ function parseLocale(header: string): BrowserLocale[] {
 		if (qualityValue && qualityValue.startsWith('q=')) {
 			const qualityValueAsFloat = Number.parseFloat(qualityValue.slice('q='.length));
 			// The previous operation can return a `NaN`, so we check if it is a safe operation
-			if (Number.isNaN(qualityValue)) {
+			if (Number.isNaN(qualityValueAsFloat) || qualityValueAsFloat > 1) {
 				result.push({
 					locale: localeName,
 					qualityValue: undefined,

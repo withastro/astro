@@ -3,8 +3,8 @@ import {
 	getLocaleRelativeUrlList,
 	getLocaleAbsoluteUrl,
 	getLocaleAbsoluteUrlList,
-	parseLocale,
 } from '../../../dist/i18n/index.js';
+import { parseLocale } from '../../../dist/core/render/context.js';
 import { expect } from 'chai';
 
 describe('getLocaleRelativeUrl', () => {
@@ -833,6 +833,22 @@ describe('parse accept-header', () => {
 			{ locale: 'en', qualityValue: 0.8 },
 			{ locale: 'de', qualityValue: 0.7 },
 			{ locale: '*', qualityValue: 0.5 },
+		]);
+	});
+
+	it('should not return incorrect quality values', () => {
+		expect(parseLocale('wrong')).to.have.deep.members([
+			{ locale: 'wrong', qualityValue: undefined },
+		]);
+		expect(parseLocale('fr;f=0.7')).to.have.deep.members([
+			{ locale: 'fr', qualityValue: undefined },
+		]);
+		expect(parseLocale('fr;q=something')).to.have.deep.members([
+			{ locale: 'fr', qualityValue: undefined },
+		]);
+
+		expect(parseLocale('fr;q=1000')).to.have.deep.members([
+			{ locale: 'fr', qualityValue: undefined },
 		]);
 	});
 });
