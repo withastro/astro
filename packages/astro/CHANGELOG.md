@@ -22,7 +22,7 @@
 
   Other valid page files that can export a value (e.g. `.mdx`) can also be marked as partials.
 
-  Read more about [Astro page partials](/en/core-concepts/astro-pages/#partials) in our documentation.
+  Read more about [Astro page partials](https://docs.astro.build/en/core-concepts/astro-pages/#page-partials) in our documentation.
 
 - [#8821](https://github.com/withastro/astro/pull/8821) [`4740d761a`](https://github.com/withastro/astro/commit/4740d761aeb526dbd79517ebe8cd934f90b17f7c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Improved image optimization performance
 
