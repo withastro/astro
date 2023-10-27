@@ -1,5 +1,21 @@
 # @astrojs/telemetry
 
+## 3.0.4
+
+### Patch Changes
+
+- [#8900](https://github.com/withastro/astro/pull/8900) [`341ef6578`](https://github.com/withastro/astro/commit/341ef6578528a00f89bf6da5e4243b0fde272816) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Track if the Astro CLI is running in a [`TTY`](nodejs.org/api/process.html#a-note-on-process-io) context.
+
+  This information helps us better understand scripted use of Astro vs. direct terminal use of Astro CLI by a user, especially the `astro dev` command.
+
+## 3.0.3
+
+### Patch Changes
+
+- [#8737](https://github.com/withastro/astro/pull/8737) [`6f60da805`](https://github.com/withastro/astro/commit/6f60da805e0014bc50dd07bef972e91c73560c3c) Thanks [@ematipico](https://github.com/ematipico)! - Add provenance statement when publishing the library from CI
+
+- [#8729](https://github.com/withastro/astro/pull/8729) [`21e0757ea`](https://github.com/withastro/astro/commit/21e0757ea22a57d344c934045ca19db93b684436) Thanks [@lilnasy](https://github.com/lilnasy)! - Removed an unnecessary dependency.
+
 ## 3.0.2
 
 ### Patch Changes

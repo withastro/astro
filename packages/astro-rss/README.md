@@ -64,7 +64,7 @@ export function get(context) {
     // provide a base URL for RSS <item> links
     site: context.site,
     // list of `<item>`s in output xml
-    items: [...],
+    items: [],
     // (optional) absolute path to XSL stylesheet in your project
     stylesheet: '/rss-styles.xsl',
     // (optional) inject custom xml
@@ -72,7 +72,7 @@ export function get(context) {
     // (optional) add arbitrary metadata to opening <rss> tag
     xmlns: { h: 'http://www.w3.org/TR/html4/' },
     // (optional) add trailing slashes to URLs (default: true)
-    trailingSlash: false
+    trailingSlash: false,
   });
 }
 ```
@@ -98,9 +98,10 @@ The base URL to use when generating RSS item links. We recommend using the [endp
 ```ts
 import rss from '@astrojs/rss';
 
-export const get = (context) => rss({
+export const get = (context) =>
+  rss({
     site: context.site,
-    ...
+    // ...
   });
 ```
 

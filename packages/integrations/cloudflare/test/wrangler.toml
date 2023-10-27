@@ -1,6 +1,0 @@
-# for tests only
-
-send_metrics = false
-
-[vars]
-SECRET_STUFF = "secret"

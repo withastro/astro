@@ -77,13 +77,13 @@ function stringifyChunk(
 				}
 			}
 			case 'head': {
-				if (result._metadata.hasRenderedHead) {
+				if (result._metadata.hasRenderedHead || result.partial) {
 					return '';
 				}
 				return renderAllHeadContent(result);
 			}
 			case 'maybe-head': {
-				if (result._metadata.hasRenderedHead || result._metadata.headInTree) {
+				if (result._metadata.hasRenderedHead || result._metadata.headInTree || result.partial) {
 					return '';
 				}
 				return renderAllHeadContent(result);

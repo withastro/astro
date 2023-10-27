@@ -50,7 +50,7 @@ async function getViteConfiguration(
 type TailwindOptions = {
 	/**
 	 * Path to your tailwind config file
-	 * @default 'tailwind.config.js'
+	 * @default 'tailwind.config.mjs'
 	 */
 	configFile?: string;
 	/**

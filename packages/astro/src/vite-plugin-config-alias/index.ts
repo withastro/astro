@@ -1,4 +1,5 @@
 import path from 'node:path';
+import type { CompilerOptions } from 'typescript';
 import { normalizePath, type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 
@@ -12,7 +13,7 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	const { tsConfig, tsConfigPath } = settings;
 	if (!tsConfig || !tsConfigPath || !tsConfig.compilerOptions) return null;
 
-	const { baseUrl, paths } = tsConfig.compilerOptions;
+	const { baseUrl, paths } = tsConfig.compilerOptions as CompilerOptions;
 	if (!baseUrl) return null;
 
 	// resolve the base url from the configuration file directory

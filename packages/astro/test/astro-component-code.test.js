@@ -15,7 +15,7 @@ describe('<Code>', () => {
 		const $ = cheerio.load(html);
 		expect($('pre')).to.have.lengthOf(1);
 		expect($('pre').attr('style')).to.equal(
-			'background-color: #24292e; overflow-x: auto;',
+			'background-color:#24292e;color:#e1e4e8; overflow-x: auto;',
 			'applies default and overflow'
 		);
 		expect($('pre > code')).to.have.lengthOf(1);
@@ -40,7 +40,7 @@ describe('<Code>', () => {
 		expect($('pre')).to.have.lengthOf(1);
 		expect($('pre').attr('class')).to.equal('astro-code nord');
 		expect($('pre').attr('style')).to.equal(
-			'background-color: #2e3440ff; overflow-x: auto;',
+			'background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;',
 			'applies custom theme'
 		);
 	});
@@ -52,7 +52,7 @@ describe('<Code>', () => {
 			expect($('pre')).to.have.lengthOf(1);
 			// test: applies wrap overflow
 			expect($('pre').attr('style')).to.equal(
-				'background-color: #24292e; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;'
+				'background-color:#24292e;color:#e1e4e8; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;'
 			);
 		}
 		{
@@ -60,14 +60,16 @@ describe('<Code>', () => {
 			const $ = cheerio.load(html);
 			expect($('pre')).to.have.lengthOf(1);
 			// test: applies wrap overflow
-			expect($('pre').attr('style')).to.equal('background-color: #24292e; overflow-x: auto;');
+			expect($('pre').attr('style')).to.equal(
+				'background-color:#24292e;color:#e1e4e8; overflow-x: auto;'
+			);
 		}
 		{
 			let html = await fixture.readFile('/wrap-null/index.html');
 			const $ = cheerio.load(html);
 			expect($('pre')).to.have.lengthOf(1);
 			// test: applies wrap overflow
-			expect($('pre').attr('style')).to.equal('background-color: #24292e');
+			expect($('pre').attr('style')).to.equal('background-color:#24292e;color:#e1e4e8');
 		}
 	});
 
@@ -81,12 +83,12 @@ describe('<Code>', () => {
 				.map((i, f) => (f.attribs ? f.attribs.style : 'no style found'))
 				.toArray()
 		).to.deep.equal([
-			'background-color: var(--astro-code-color-background); overflow-x: auto;',
-			'color: var(--astro-code-token-constant)',
-			'color: var(--astro-code-token-function)',
-			'color: var(--astro-code-color-text)',
-			'color: var(--astro-code-token-string-expression)',
-			'color: var(--astro-code-color-text)',
+			'background-color:var(--astro-code-color-background);color:var(--astro-code-color-text); overflow-x: auto;',
+			'color:var(--astro-code-token-constant)',
+			'color:var(--astro-code-token-function)',
+			'color:var(--astro-code-color-text)',
+			'color:var(--astro-code-token-string-expression)',
+			'color:var(--astro-code-color-text)',
 		]);
 	});
 

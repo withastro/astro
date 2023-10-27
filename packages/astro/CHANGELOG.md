@@ -1,5 +1,247 @@
 # astro
 
+## 3.4.0
+
+### Minor Changes
+
+- [#8755](https://github.com/withastro/astro/pull/8755) [`fe4079f05`](https://github.com/withastro/astro/commit/fe4079f05ba21c0f3a167f8e3f55eff705506bd2) Thanks [@matthewp](https://github.com/matthewp)! - Page Partials
+
+  A page component can now be identified as a **partial** page, which will render its HTML content without including a `<! DOCTYPE html>` declaration nor any `<head>` content.
+
+  A rendering library, like htmx or Stimulus or even just jQuery can access partial content on the client to dynamically update only parts of a page.
+
+  Pages marked as partials do not have a `doctype` or any head content included in the rendered result. You can mark any page as a partial by setting this option:
+
+  ```astro
+  ---
+  export const partial = true;
+  ---
+
+  <li>This is a single list item.</li>
+  ```
+
+  Other valid page files that can export a value (e.g. `.mdx`) can also be marked as partials.
+
+  Read more about [Astro page partials](https://docs.astro.build/en/core-concepts/astro-pages/#page-partials) in our documentation.
+
+- [#8821](https://github.com/withastro/astro/pull/8821) [`4740d761a`](https://github.com/withastro/astro/commit/4740d761aeb526dbd79517ebe8cd934f90b17f7c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Improved image optimization performance
+
+  Astro will now generate optimized images concurrently at build time, which can significantly speed up build times for sites with many images. Additionally, Astro will now reuse the same buffer for all variants of an image. This should improve performance for websites with many variants of the same image, especially when using remote images.
+
+  No code changes are required to take advantage of these improvements.
+
+- [#8757](https://github.com/withastro/astro/pull/8757) [`e99586787`](https://github.com/withastro/astro/commit/e99586787b6b53d35daf0195ab9835326cea464a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Dev Overlay (experimental)
+
+  Provides a new dev overlay for your browser preview that allows you to inspect your page islands, see helpful audits on performance and accessibility, and more. A Dev Overlay Plugin API is also included to allow you to add new features and third-party integrations to it.
+
+  You can enable access to the dev overlay and its API by adding the following flag to your Astro config:
+
+  ```ts
+  // astro.config.mjs
+  export default {
+    experimental: {
+      devOverlay: true,
+    },
+  };
+  ```
+
+  Read the [Dev Overlay Plugin API documentation](https://docs.astro.build/en/reference/dev-overlay-plugin-reference/) for information about building your own plugins to integrate with Astro's dev overlay.
+
+- [#8880](https://github.com/withastro/astro/pull/8880) [`8c3d4a859`](https://github.com/withastro/astro/commit/8c3d4a859aec0b94cabd14cc56b5bf3e5e973e36) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Moves the logic for overriding the image service out of core and into adapters. Also fixes a regression where a valid `astro:assets` image service configuration could be overridden.
+
+## 3.3.4
+
+### Patch Changes
+
+- [#8877](https://github.com/withastro/astro/pull/8877) [`26b77b8fe`](https://github.com/withastro/astro/commit/26b77b8fef0e03bfc5550aecaa1f56a4fc1cd297) Thanks [@bluwy](https://github.com/bluwy)! - Fixes CSS modules ordering by rendering styles before links
+
+- Updated dependencies [[`341ef6578`](https://github.com/withastro/astro/commit/341ef6578528a00f89bf6da5e4243b0fde272816)]:
+  - @astrojs/telemetry@3.0.4
+
+## 3.3.3
+
+### Patch Changes
+
+- [#8870](https://github.com/withastro/astro/pull/8870) [`5ea6ee0ed`](https://github.com/withastro/astro/commit/5ea6ee0ed494c792a4c94928a83c5c85b9b6ac32) Thanks [@xstevenyung](https://github.com/xstevenyung)! - prevent production install on astro add cmd
+
+- [#8840](https://github.com/withastro/astro/pull/8840) [`5c888c10b`](https://github.com/withastro/astro/commit/5c888c10b712ca60a23e66b88af8051b54b42323) Thanks [@martrapp](https://github.com/martrapp)! - Fixes styles of `client:only` components not persisting during view transitions in dev mode
+
+- [#8814](https://github.com/withastro/astro/pull/8814) [`ad2bb9155`](https://github.com/withastro/astro/commit/ad2bb9155997380d0880b0c6c7b12f079a031d48) Thanks [@lilnasy](https://github.com/lilnasy)! - Fix an issue where `500.astro` did not render when the middleware threw an error.
+
+- [#8863](https://github.com/withastro/astro/pull/8863) [`326e17893`](https://github.com/withastro/astro/commit/326e178933f7a22f4e897b763832619f168b53dd) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes an issue where the dev server logged the full file path on updates.
+
+## 3.3.2
+
+### Patch Changes
+
+- [#8852](https://github.com/withastro/astro/pull/8852) [`2c18e2d12`](https://github.com/withastro/astro/commit/2c18e2d127516c2130cf50369885a30af0190d58) Thanks [@rayriffy](https://github.com/rayriffy)! - Only use Vite config from astro.config.mjs as source of truth
+
+- [#8828](https://github.com/withastro/astro/pull/8828) [`11f45b9a3`](https://github.com/withastro/astro/commit/11f45b9a3216f60317e1c54bb3e6c4e9e0add342) Thanks [@rishi-raj-jain](https://github.com/rishi-raj-jain)! - fix file system path references
+
+- [#8779](https://github.com/withastro/astro/pull/8779) [`2b8a459a6`](https://github.com/withastro/astro/commit/2b8a459a6ae82c7a1d278ef263e316841295e7d6) Thanks [@ematipico](https://github.com/ematipico)! - Enriches the explanation of the `base` configuration with examples.
+
+## 3.3.1
+
+### Patch Changes
+
+- [#8823](https://github.com/withastro/astro/pull/8823) [`8946f2a25`](https://github.com/withastro/astro/commit/8946f2a256edf1aca6a7bb0db1f6ea9ce9493253) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix duplicate images being created in some cases when using densities and/or widths
+
+- [#8842](https://github.com/withastro/astro/pull/8842) [`b405b039a`](https://github.com/withastro/astro/commit/b405b039a6824590e4ad63605f19f0925b4b88ce) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes Picture component not taking into account the fallback format specified
+
+- [#8827](https://github.com/withastro/astro/pull/8827) [`ce3025cfa`](https://github.com/withastro/astro/commit/ce3025cfa27a38199f81fb783a68fe1190c1d09e) Thanks [@rishi-raj-jain](https://github.com/rishi-raj-jain)! - better error handling there whenever we don't get a normal 200 response
+
+- [#8817](https://github.com/withastro/astro/pull/8817) [`f8de1983b`](https://github.com/withastro/astro/commit/f8de1983bde3ecfed3ab61abf0aa9f967b0d86ce) Thanks [@bluwy](https://github.com/bluwy)! - Fix error overlay syntax highlighting
+
+- [#8838](https://github.com/withastro/astro/pull/8838) [`2f9e2083d`](https://github.com/withastro/astro/commit/2f9e2083d5783c9980cd8b9d69165128f0a5ae19) Thanks [@dominikg](https://github.com/dominikg)! - deps: unpin and update tsconfck from `3.0.0-next.9` to `^3.0.0`
+
+- [#8823](https://github.com/withastro/astro/pull/8823) [`8946f2a25`](https://github.com/withastro/astro/commit/8946f2a256edf1aca6a7bb0db1f6ea9ce9493253) Thanks [@Princesseuh](https://github.com/Princesseuh)! - fix remote srcset images not being resized
+
+## 3.3.0
+
+### Minor Changes
+
+- [#8808](https://github.com/withastro/astro/pull/8808) [`2993055be`](https://github.com/withastro/astro/commit/2993055bed2764c31ff4b4f55b81ab6b1ae6b401) Thanks [@delucis](https://github.com/delucis)! - Adds support for an `--outDir` CLI flag to `astro build`
+
+- [#8502](https://github.com/withastro/astro/pull/8502) [`c4270e476`](https://github.com/withastro/astro/commit/c4270e47681ee2453f3fea07fed7b238645fd6ea) Thanks [@bluwy](https://github.com/bluwy)! - Updates the internal `shiki` syntax highlighter to `shikiji`, an ESM-focused alternative that simplifies bundling and maintenance.
+
+  There are no new options and no changes to how you author code blocks and syntax highlighting.
+
+  **Potentially breaking change:** While this refactor should be transparent for most projects, the transition to `shikiji` now produces a smaller HTML markup by attaching a fallback `color` style to the `pre` or `code` element, instead of to the line `span` directly. For example:
+
+  Before:
+
+  ```html
+  <code class="astro-code" style="background-color: #24292e">
+    <pre>
+      <span class="line" style="color: #e1e4e8">my code</span>
+    </pre>
+  </code>
+  ```
+
+  After:
+
+  ```html
+  <code class="astro-code" style="background-color: #24292e; color: #e1e4e8">
+    <pre>
+      <span class="line">my code<span>
+    </pre>
+  </code>
+  ```
+
+  This does not affect the colors as the `span` will inherit the `color` from the parent, but if you're relying on a specific HTML markup, please check your site carefully after upgrading to verify the styles.
+
+- [#8798](https://github.com/withastro/astro/pull/8798) [`f369fa250`](https://github.com/withastro/astro/commit/f369fa25055a3497ebaf61c88fb0e8af56c73212) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixed `tsconfig.json`'s new array format for `extends` not working. This was done by migrating Astro to use [`tsconfck`](https://github.com/dominikg/tsconfck) instead of [`tsconfig-resolver`](https://github.com/ifiokjr/tsconfig-resolver) to find and parse `tsconfig.json` files.
+
+- [#8620](https://github.com/withastro/astro/pull/8620) [`b2ae9ee0c`](https://github.com/withastro/astro/commit/b2ae9ee0c42b11ffc1d3f070d1d5ac881aef84ed) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds experimental support for generating `srcset` attributes and a new `<Picture />` component.
+
+  ## `srcset` support
+
+  Two new properties have been added to `Image` and `getImage()`: `densities` and `widths`.
+
+  These properties can be used to generate a `srcset` attribute, either based on absolute widths in pixels (e.g. [300, 600, 900]) or pixel density descriptors (e.g. `["2x"]` or `[1.5, 2]`).
+
+  ```astro
+  ---
+  import { Image } from 'astro';
+  import myImage from './my-image.jpg';
+  ---
+
+  <Image src={myImage} width={myImage.width / 2} densities={[1.5, 2]} alt="My cool image" />
+  ```
+
+  ```html
+  <img
+    src="/_astro/my_image.hash.webp"
+    srcset="/_astro/my_image.hash.webp 1.5x, /_astro/my_image.hash.webp 2x"
+    alt="My cool image"
+  />
+  ```
+
+  ## Picture component
+
+  The experimental `<Picture />` component can be used to generate a `<picture>` element with multiple `<source>` elements.
+
+  The example below uses the `format` property to generate a `<source>` in each of the specified image formats:
+
+  ```astro
+  ---
+  import { Picture } from 'astro:assets';
+  import myImage from './my-image.jpg';
+  ---
+
+  <Picture src={myImage} formats={['avif', 'webp']} alt="My super image in multiple formats!" />
+  ```
+
+  The above code will generate the following HTML, and allow the browser to determine the best image to display:
+
+  ```html
+  <picture>
+    <source srcset="..." type="image/avif" />
+    <source srcset="..." type="image/webp" />
+    <img src="..." alt="My super image in multiple formats!" />
+  </picture>
+  ```
+
+  The `Picture` component takes all the same props as the `Image` component, including the new `densities` and `widths` properties.
+
+### Patch Changes
+
+- [#8771](https://github.com/withastro/astro/pull/8771) [`bd5aa1cd3`](https://github.com/withastro/astro/commit/bd5aa1cd35ecbd2784f30dd836ff814684fee02b) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixed an issue where the transitions router did not work within framework components.
+
+- [#8800](https://github.com/withastro/astro/pull/8800) [`391729686`](https://github.com/withastro/astro/commit/391729686bcc8404a7dd48c5987ee380daf3200f) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixed an issue where attempting to assign a variable onto locals threw an error.
+
+- [#8795](https://github.com/withastro/astro/pull/8795) [`f999365b8`](https://github.com/withastro/astro/commit/f999365b8248b8b14f3743e68a42d450d06acff3) Thanks [@bluwy](https://github.com/bluwy)! - Fix markdown page charset to be utf-8 by default (same as Astro 2)
+
+- [#8810](https://github.com/withastro/astro/pull/8810) [`0abff97fe`](https://github.com/withastro/astro/commit/0abff97fed3db14be3c75ff9ece3aab67c4ba783) Thanks [@jacobthesheep](https://github.com/jacobthesheep)! - Remove `network-information-types` package since TypeScript supports Network Information API natively.
+
+- [#8813](https://github.com/withastro/astro/pull/8813) [`3bef32f81`](https://github.com/withastro/astro/commit/3bef32f81c56bc600ca307f1bd40787e23e625a5) Thanks [@martrapp](https://github.com/martrapp)! - Save and restore focus for persisted input elements during view transitions
+
+- Updated dependencies [[`c4270e476`](https://github.com/withastro/astro/commit/c4270e47681ee2453f3fea07fed7b238645fd6ea)]:
+  - @astrojs/markdown-remark@3.3.0
+
+## 3.2.4
+
+### Patch Changes
+
+- [#8638](https://github.com/withastro/astro/pull/8638) [`160d1cd75`](https://github.com/withastro/astro/commit/160d1cd755e70af1d8ec294d01dd2cb32d60db50) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - The `@astrojs/tailwind` integration now creates a `tailwind.config.mjs` file by default
+
+- [#8767](https://github.com/withastro/astro/pull/8767) [`30de32436`](https://github.com/withastro/astro/commit/30de324361bc261956eb9fc08fe60a82ff602a9b) Thanks [@martrapp](https://github.com/martrapp)! - Revert fix #8472
+
+  [#8472](https://github.com/withastro/astro/pull/8472) caused some style files from previous pages to not be cleanly deleted on view transitions. For a discussion of a future fix for the original issue [#8144](https://github.com/withastro/astro/issues/8114) see [#8745](https://github.com/withastro/astro/pull/8745).
+
+- [#8741](https://github.com/withastro/astro/pull/8741) [`c4a7ec425`](https://github.com/withastro/astro/commit/c4a7ec4255e7acb9555cb8bb74ea13c5fbb2ac17) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixed an issue on Windows where lowercase drive letters in current working directory led to missing scripts and styles.
+
+- [#8772](https://github.com/withastro/astro/pull/8772) [`c24f70d91`](https://github.com/withastro/astro/commit/c24f70d91601dd3a6b5a84f04d61824e775e9b44) Thanks [@martrapp](https://github.com/martrapp)! - Fix flickering during view transitions
+
+- [#8754](https://github.com/withastro/astro/pull/8754) [`93b092266`](https://github.com/withastro/astro/commit/93b092266febfad16a48575f8eee12d5910bf071) Thanks [@bluwy](https://github.com/bluwy)! - Make CSS chunk names less confusing
+
+- [#8776](https://github.com/withastro/astro/pull/8776) [`29cdfa024`](https://github.com/withastro/astro/commit/29cdfa024886dd581cb207586f7dfec6966bdd4e) Thanks [@martrapp](https://github.com/martrapp)! - Fix transition attributes on islands
+
+- [#8773](https://github.com/withastro/astro/pull/8773) [`eaed844ea`](https://github.com/withastro/astro/commit/eaed844ea8f2f52e0c9caa40bb3ec7377e10595f) Thanks [@sumimakito](https://github.com/sumimakito)! - Fix an issue where HTML attributes do not render if getHTMLAttributes in an image service returns a Promise
+
+## 3.2.3
+
+### Patch Changes
+
+- [#8737](https://github.com/withastro/astro/pull/8737) [`6f60da805`](https://github.com/withastro/astro/commit/6f60da805e0014bc50dd07bef972e91c73560c3c) Thanks [@ematipico](https://github.com/ematipico)! - Add provenance statement when publishing the library from CI
+
+- [#8747](https://github.com/withastro/astro/pull/8747) [`d78806dfe`](https://github.com/withastro/astro/commit/d78806dfe0301ea7ffe6c7c1f783bd415ac7cda9) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve error message when user attempts to render a dynamic component reference
+
+- [#8736](https://github.com/withastro/astro/pull/8736) [`d1c75fe15`](https://github.com/withastro/astro/commit/d1c75fe158839699c59728cf3a83888e8c72a459) Thanks [@bluwy](https://github.com/bluwy)! - Fix `tsconfig.json` update causing the server to crash
+
+- [#8743](https://github.com/withastro/astro/pull/8743) [`aa265d730`](https://github.com/withastro/astro/commit/aa265d73024422967c1b1c68ad268c419c6c798f) Thanks [@bluwy](https://github.com/bluwy)! - Remove unused CSS output files when inlined
+
+- [#8700](https://github.com/withastro/astro/pull/8700) [`78adbc443`](https://github.com/withastro/astro/commit/78adbc4433208458291e36713909762e148e1e5d) Thanks [@jacobthesheep](https://github.com/jacobthesheep)! - Update link for Netlify SSR
+
+- [#8729](https://github.com/withastro/astro/pull/8729) [`21e0757ea`](https://github.com/withastro/astro/commit/21e0757ea22a57d344c934045ca19db93b684436) Thanks [@lilnasy](https://github.com/lilnasy)! - Node-based adapters now create less server-side javascript
+
+- [#8730](https://github.com/withastro/astro/pull/8730) [`357270f2a`](https://github.com/withastro/astro/commit/357270f2a3d0bf2aa634ba7e52e9d17618eff4a7) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve `astro info` copy to clipboard compatability
+
+- Updated dependencies [[`21f482657`](https://github.com/withastro/astro/commit/21f4826576c2c812a1604e18717799da3470decd), [`6f60da805`](https://github.com/withastro/astro/commit/6f60da805e0014bc50dd07bef972e91c73560c3c), [`21e0757ea`](https://github.com/withastro/astro/commit/21e0757ea22a57d344c934045ca19db93b684436)]:
+  - @astrojs/markdown-remark@3.2.1
+  - @astrojs/internal-helpers@0.2.1
+  - @astrojs/telemetry@3.0.3
+
 ## 3.2.2
 
 ### Patch Changes
@@ -2414,12 +2656,12 @@
 
   ```js
   import { defineConfig } from 'astro/config';
-  export defaultdefineConfig({
-     output: 'hybrid',
-         experimental: {
-         hybridOutput: true,
-     },
-  })
+  export default defineConfig({
+    output: 'hybrid',
+    experimental: {
+      hybridOutput: true,
+    },
+  });
   ```
 
   Then add `export const prerender =  false` to any page or endpoint you want to opt-out of pre-rendering.

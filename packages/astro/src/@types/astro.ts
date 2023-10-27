@@ -11,16 +11,17 @@ import type * as babel from '@babel/core';
 import type { OutgoingHttpHeaders } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
-import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import type { AstroConfigType } from '../core/config/index.js';
 import type { AstroTimer } from '../core/config/timer.js';
+import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
+import type { Icon } from '../runtime/client/dev-overlay/ui-library/icons.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
 import type { OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
@@ -580,7 +581,28 @@ export interface AstroUserConfig {
 	 *
 	 * When using this option, all of your static asset imports and URLs should add the base as a prefix. You can access this value via `import.meta.env.BASE_URL`.
 	 *
-	 * The value of `import.meta.env.BASE_URL` respects your `trailingSlash` config and will include a trailing slash if you explicitly include one or if `trailingSlash: "always"` is set. If `trailingSlash: "never"` is set, `BASE_URL` will not include a trailing slash, even if `base` includes one.
+	 * The value of `import.meta.env.BASE_URL` will be determined by your `trailingSlash` config, no matter what value you have set for `base`.
+	 *
+	 * A trailing slash is always included if `trailingSlash: "always"` is set. If `trailingSlash: "never"` is set, `BASE_URL` will not include a trailing slash, even if `base` includes one.
+	 *
+	 * Additionally, Astro will internally manipulate the configured value of `config.base` before making it available to integrations. The value of `config.base` as read by integrations will also be determined by your `trailingSlash` configuration in the same way.
+	 *
+	 * In the example below, the values of `import.meta.env.BASE_URL` and `config.base` when processed will both be `/docs`:
+	 * ```js
+	 * {
+	 * 	 base: '/docs/',
+	 * 	 trailingSlash: "never"
+	 * }
+	 * ```
+	 *
+	 * In the example below, the values of `import.meta.env.BASE_URL` and `config.base` when processed will both be `/docs/`:
+	 *
+	 * ```js
+	 * {
+	 * 	 base: '/docs',
+	 * 	 trailingSlash: "always"
+	 * }
+	 * ```
 	 */
 	base?: string;
 
@@ -636,7 +658,7 @@ export interface AstroUserConfig {
 	 * @see output
 	 * @description
 	 *
-	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssredge), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
+	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssr), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
 	 *
 	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
 	 *
@@ -1330,6 +1352,25 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		optimizeHoistedScript?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.devOverlay
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 3.4.0
+		 * @description
+		 * Enable a dev overlay in development mode. This overlay allows you to inspect your page islands, see helpful audits on performance and accessibility, and more.
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 * 		devOverlay: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		devOverlay?: boolean;
 	};
 }
 
@@ -1503,7 +1544,8 @@ export interface AstroSettings {
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
-	tsConfig: TsConfigJson | undefined;
+	devOverlayPlugins: string[];
+	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
 	timer: AstroTimer;
@@ -1520,6 +1562,7 @@ export type AsyncRendererComponentFn<U> = (
 export interface ComponentInstance {
 	default: AstroComponentFactory;
 	css?: string[];
+	partial?: boolean;
 	prerender?: boolean;
 	/**
 	 * Only used for logging if deprecated drafts feature is used
@@ -2028,6 +2071,7 @@ export interface AstroIntegration {
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			addClientDirective: (directive: ClientDirectiveConfig) => void;
+			addDevOverlayPlugin: (entrypoint: string) => void;
 			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
@@ -2191,6 +2235,7 @@ export interface SSRResult {
 	 */
 	clientDirectives: Map<string, string>;
 	compressHTML: boolean;
+	partial: boolean;
 	/**
 	 * Only used for logging
 	 */
@@ -2263,3 +2308,17 @@ export interface ClientDirectiveConfig {
 	name: string;
 	entrypoint: string;
 }
+
+export interface DevOverlayPlugin {
+	id: string;
+	name: string;
+	icon: Icon;
+	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
+}
+
+export type DevOverlayMetadata = Window &
+	typeof globalThis & {
+		__astro_dev_overlay__: {
+			root: string;
+		};
+	};

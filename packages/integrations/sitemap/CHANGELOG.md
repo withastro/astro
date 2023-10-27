@@ -1,5 +1,17 @@
 # @astrojs/sitemap
 
+## 3.0.2
+
+### Patch Changes
+
+- [#8824](https://github.com/withastro/astro/pull/8824) [`10b103820`](https://github.com/withastro/astro/commit/10b103820e22e51dcfb0592c542cdf2c5eeb2f52) Thanks [@silent1mezzo](https://github.com/silent1mezzo)! - Display output directory in the sitemap build result
+
+## 3.0.1
+
+### Patch Changes
+
+- [#8737](https://github.com/withastro/astro/pull/8737) [`6f60da805`](https://github.com/withastro/astro/commit/6f60da805e0014bc50dd07bef972e91c73560c3c) Thanks [@ematipico](https://github.com/ematipico)! - Add provenance statement when publishing the library from CI
+
 ## 3.0.0
 
 ### Major Changes

@@ -1,11 +1,10 @@
 import Markdoc from '@markdoc/markdoc';
 import type { ShikiConfig } from 'astro';
 import { unescapeHTML } from 'astro/runtime/server/index.js';
-import type * as shikiTypes from 'shiki';
-import { getHighlighter } from 'shiki';
+import { bundledLanguages, getHighlighter, type Highlighter } from 'shikiji';
 import type { AstroMarkdocConfig } from '../config.js';
 
-const ASTRO_COLOR_REPLACEMENTS = {
+const ASTRO_COLOR_REPLACEMENTS: Record<string, string> = {
 	'#000001': 'var(--astro-code-color-text)',
 	'#000002': 'var(--astro-code-color-background)',
 	'#000004': 'var(--astro-code-token-constant)',
@@ -18,37 +17,37 @@ const ASTRO_COLOR_REPLACEMENTS = {
 	'#000011': 'var(--astro-code-token-punctuation)',
 	'#000012': 'var(--astro-code-token-link)',
 };
+const COLOR_REPLACEMENT_REGEX = new RegExp(
+	`(${Object.keys(ASTRO_COLOR_REPLACEMENTS).join('|')})`,
+	'g'
+);
 
 const PRE_SELECTOR = /<pre class="(.*?)shiki(.*?)"/;
 const LINE_SELECTOR = /<span class="line"><span style="(.*?)">([\+|\-])/g;
 const INLINE_STYLE_SELECTOR = /style="(.*?)"/;
+const INLINE_STYLE_SELECTOR_GLOBAL = /style="(.*?)"/g;
 
 /**
  * Note: cache only needed for dev server reloads, internal test suites, and manual calls to `Markdoc.transform` by the user.
  * Otherwise, `shiki()` is only called once per build, NOT once per page, so a cache isn't needed!
  */
-const highlighterCache = new Map<string, shikiTypes.Highlighter>();
+const highlighterCache = new Map<string, Highlighter>();
 
 export default async function shiki({
 	langs = [],
 	theme = 'github-dark',
 	wrap = false,
 }: ShikiConfig = {}): Promise<AstroMarkdocConfig> {
-	const cacheID: string = typeof theme === 'string' ? theme : theme.name;
-	if (!highlighterCache.has(cacheID)) {
-		highlighterCache.set(
-			cacheID,
-			await getHighlighter({ theme }).then((hl) => {
-				hl.setColorReplacements(ASTRO_COLOR_REPLACEMENTS);
-				return hl;
-			})
-		);
+	const cacheId = typeof theme === 'string' ? theme : theme.name || '';
+	let highlighter = highlighterCache.get(cacheId)!;
+	if (!highlighter) {
+		highlighter = await getHighlighter({
+			langs: langs.length ? langs : Object.keys(bundledLanguages),
+			themes: [theme],
+		});
+		highlighterCache.set(cacheId, highlighter);
 	}
-	const highlighter = highlighterCache.get(cacheID)!;
 
-	for (const lang of langs) {
-		await highlighter.loadLanguage(lang);
-	}
 	return {
 		nodes: {
 			fence: {
@@ -72,7 +71,7 @@ export default async function shiki({
 						lang = 'plaintext';
 					}
 
-					let html = highlighter.codeToHtml(attributes.content, { lang });
+					let html = highlighter.codeToHtml(attributes.content, { lang, theme });
 
 					// Q: Could these regexes match on a user's inputted code blocks?
 					// A: Nope! All rendered HTML is properly escaped.
@@ -98,10 +97,23 @@ export default async function shiki({
 						);
 					}
 
+					// theme.id for shiki -> shikiji compat
+					const themeName = typeof theme === 'string' ? theme : theme.name;
+					if (themeName === 'css-variables') {
+						html = html.replace(INLINE_STYLE_SELECTOR_GLOBAL, (m) => replaceCssVariables(m));
+					}
+
 					// Use `unescapeHTML` to return `HTMLString` for Astro renderer to inline as HTML
 					return unescapeHTML(html) as any;
 				},
 			},
 		},
 	};
+}
+
+/**
+ * shiki -> shikiji compat as we need to manually replace it
+ */
+function replaceCssVariables(str: string) {
+	return str.replace(COLOR_REPLACEMENT_REGEX, (match) => ASTRO_COLOR_REPLACEMENTS[match] || match);
 }
