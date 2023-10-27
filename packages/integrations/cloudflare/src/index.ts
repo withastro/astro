@@ -132,7 +132,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							}),
 						],
 					},
-					image: imageConfigOverwrite ? passthroughImageService() : config.image,
+					image: imageConfigOverwrite
+						? { ...config.image, service: passthroughImageService() }
+						: config.image,
 				});
 			},
 			'astro:config:done': ({ setAdapter, config, logger }) => {
