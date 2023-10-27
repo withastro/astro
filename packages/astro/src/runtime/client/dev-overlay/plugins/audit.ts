@@ -70,7 +70,7 @@ export default {
 		}
 
 		function buildAuditTooltip(rule: AuditRule) {
-			const tooltip = document.createElement('astro-overlay-tooltip') as DevOverlayTooltip;
+			const tooltip = document.createElement('astro-dev-overlay-tooltip') as DevOverlayTooltip;
 			tooltip.sections = [
 				{
 					icon: 'warning',

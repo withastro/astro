@@ -46,7 +46,7 @@ export default {
 		}
 
 		function buildIslandTooltip(island: HTMLElement) {
-			const tooltip = document.createElement('astro-overlay-tooltip') as DevOverlayTooltip;
+			const tooltip = document.createElement('astro-dev-overlay-tooltip') as DevOverlayTooltip;
 			tooltip.sections = [];
 
 			const islandProps = island.getAttribute('props')
