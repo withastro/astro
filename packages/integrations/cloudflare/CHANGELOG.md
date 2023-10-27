@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 7.6.3
+
+### Patch Changes
+
+- [#46](https://github.com/withastro/adapters/pull/46) [`1611ff7`](https://github.com/withastro/adapters/commit/1611ff7cf8e94d5f5267b6a86fca535eedaa5651) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes a regression introduced in 7.6.2, which breaks building
+
 ## 7.6.2
 
 ### Patch Changes
