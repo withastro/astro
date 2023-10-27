@@ -10,6 +10,7 @@ import type {
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import {
+	computeCurrentLocale,
 	createRenderContext,
 	getParamsAndProps,
 	type RenderContext,
@@ -258,6 +259,11 @@ export async function handleRoute({
 			filePath: options.filePath,
 		});
 
+		let currentLocale: undefined | string = undefined;
+		if (pipeline.getConfig().experimental.i18n) {
+			currentLocale = computeCurrentLocale(options.request);
+		}
+
 		renderContext = await createRenderContext({
 			request: options.request,
 			pathname: options.pathname,
@@ -268,6 +274,7 @@ export async function handleRoute({
 			route: options.route,
 			mod,
 			env,
+			currentLocale,
 		});
 	}
 

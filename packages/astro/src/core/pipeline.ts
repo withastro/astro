@@ -107,7 +107,6 @@ export class Pipeline {
 		renderContext: Readonly<RenderContext>,
 		env: Readonly<Environment>,
 		mod: Readonly<ComponentInstance> | undefined,
-
 		onRequest?: MiddlewareHandler<MiddlewareReturnType>
 	): Promise<Response> {
 		const apiContext = createAPIContext({
@@ -116,6 +115,7 @@ export class Pipeline {
 			props: renderContext.props,
 			site: env.site,
 			adapterName: env.adapterName,
+			currentLocale: renderContext.currentLocale,
 		});
 
 		switch (renderContext.route.type) {

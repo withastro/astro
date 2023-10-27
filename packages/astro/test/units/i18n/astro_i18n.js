@@ -3,6 +3,7 @@ import {
 	getLocaleRelativeUrlList,
 	getLocaleAbsoluteUrl,
 	getLocaleAbsoluteUrlList,
+	parseLocale,
 } from '../../../dist/i18n/index.js';
 import { expect } from 'chai';
 
@@ -812,6 +813,26 @@ describe('getLocaleAbsoluteUrlList', () => {
 			'https://example.com/blog/en/',
 			'https://example.com/blog/en_US/',
 			'https://example.com/blog/es/',
+		]);
+	});
+});
+
+describe('parse accept-header', () => {
+	it('should be parsed correctly', () => {
+		expect(parseLocale('*')).to.have.deep.members([{ locale: '*', qualityValue: undefined }]);
+		expect(parseLocale('fr')).to.have.deep.members([{ locale: 'fr', qualityValue: undefined }]);
+		expect(parseLocale('fr;q=0.6')).to.have.deep.members([{ locale: 'fr', qualityValue: 0.6 }]);
+		expect(parseLocale('fr;q=0.6,fr-CA;q=0.5')).to.have.deep.members([
+			{ locale: 'fr', qualityValue: 0.6 },
+			{ locale: 'fr-CA', qualityValue: 0.5 },
+		]);
+
+		expect(parseLocale('fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5')).to.have.deep.members([
+			{ locale: 'fr-CH', qualityValue: undefined },
+			{ locale: 'fr', qualityValue: 0.9 },
+			{ locale: 'en', qualityValue: 0.8 },
+			{ locale: 'de', qualityValue: 0.7 },
+			{ locale: '*', qualityValue: 0.5 },
 		]);
 	});
 });

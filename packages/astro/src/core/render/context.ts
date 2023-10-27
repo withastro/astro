@@ -27,6 +27,7 @@ export interface RenderContext {
 	params: Params;
 	props: Props;
 	locals?: object;
+	currentLocale: string | undefined;
 }
 
 export type CreateRenderContextArgs = Partial<
@@ -57,6 +58,7 @@ export async function createRenderContext(
 		pathname,
 		params,
 		props,
+		currentLocale: options.currentLocale,
 	};
 
 	// We define a custom property, so we can check the value passed to locals
@@ -75,4 +77,94 @@ export async function createRenderContext(
 	});
 
 	return context;
+}
+
+type BrowserLocale = {
+	locale: string;
+	qualityValue: number | undefined;
+};
+
+/**
+ * Parses the value of the `Accept-Header` language:
+ *
+ * More info: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language
+ *
+ * Complex example: `fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5`
+ *
+ */
+function parseLocale(header: string): BrowserLocale[] {
+	// Any language, early return
+	if (header === '*') {
+		return [{ locale: header, qualityValue: undefined }];
+	}
+	const result: BrowserLocale[] = [];
+	// we split by `,` and trim the white spaces
+	const localeValues = header.split(',').map((str) => str.trim());
+
+	for (const localeValue of localeValues) {
+		// split the locale name from the quality value
+		const split = localeValue.split(';').map((str) => str.trim());
+		const localeName: string = split[0];
+		const qualityValue: string | undefined = split[1];
+
+		if (!split) {
+			// invalid value
+			continue;
+		}
+
+		// we check if the quality value is present, and it is actually `q=`
+		if (qualityValue && qualityValue.startsWith('q=')) {
+			const qualityValueAsFloat = Number.parseFloat(qualityValue.slice('q='.length));
+			// The previous operation can return a `NaN`, so we check if it is a safe operation
+			if (Number.isNaN(qualityValue)) {
+				result.push({
+					locale: localeName,
+					qualityValue: undefined,
+				});
+			} else {
+				result.push({
+					locale: localeName,
+					qualityValue: qualityValueAsFloat,
+				});
+			}
+		} else {
+			result.push({
+				locale: localeName,
+				qualityValue: undefined,
+			});
+		}
+	}
+
+	return result;
+}
+
+/**
+ * Set the current locale by parsing the value passed from the `Accept-Header`.
+ *
+ * If multiple locales are present in the header, they are sorted by their quality value and the highest is selected as current locale.
+ *
+ */
+export function computeCurrentLocale(request: Request): string | undefined {
+	const acceptHeader = request.headers.get('Accept-Language');
+	if (acceptHeader) {
+		const result = parseLocale(acceptHeader);
+		if (result) {
+			result.sort((a, b) => {
+				if (a.qualityValue && b.qualityValue) {
+					if (a.qualityValue > b.qualityValue) {
+						return -1;
+					} else if (a.qualityValue < b.qualityValue) {
+						return 1;
+					}
+				}
+				return 0;
+			});
+			const firstResult = result.at(0);
+			if (firstResult) {
+				if (firstResult.locale !== '*') {
+					return firstResult.locale;
+				}
+			}
+		}
+	}
 }

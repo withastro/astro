@@ -1,6 +1,5 @@
 import type { MiddlewareEndpointHandler } from '../@types/astro.js';
 import type { SSRManifest } from '../@types/astro.js';
-import type { Environment } from '../core/render/index.js';
 
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n']
@@ -11,7 +10,7 @@ export function createI18nMiddleware(
 	const locales = i18n.locales;
 
 	return async (context, next) => {
-		if (!i18n.fallback || !i18n.fallback) {
+		if (!i18n.fallback) {
 			return await next();
 		}
 		const response = await next();
