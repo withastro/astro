@@ -16,6 +16,7 @@ import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.j
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
+import astroDevOverlay from '../vite-plugin-dev-overlay/vite-plugin-dev-overlay.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
 import astroHeadPlugin from '../vite-plugin-head/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
@@ -100,6 +101,8 @@ export async function createVite(
 
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {
+		// Tell Vite not to combine config from vite.config.js with our provided inline config
+		configFile: false,
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', settings.config.root)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
 		logLevel: 'warn', // log warnings and errors only
@@ -132,6 +135,7 @@ export async function createVite(
 			vitePluginSSRManifest(),
 			astroAssetsPlugin({ settings, logger, mode }),
 			astroTransitions(),
+			astroDevOverlay({ settings, logger }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

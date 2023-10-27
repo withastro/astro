@@ -39,3 +39,16 @@ test('test the async vue component in mdx', async ({ page, astro }) => {
 
 	await expect(label, 'component not hydrated').toHaveText('2');
 });
+
+test('hmr works', async ({ page, astro }) => {
+	await page.goto(astro.resolveUrl('/'));
+
+	const span = page.locator('#state');
+	await expect(span).toHaveText('Count is 1');
+
+	await astro.editFile('./src/components/State.vue', (content) =>
+		content.replace('ref(1)', 'ref(2)')
+	);
+
+	await expect(span).toHaveText('Count is 2');
+});

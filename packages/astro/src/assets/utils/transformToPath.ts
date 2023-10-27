@@ -1,3 +1,4 @@
+import { deterministicString } from 'deterministic-object-hash';
 import { basename, extname } from 'node:path';
 import { removeQueryString } from '../../core/path.js';
 import { shorthash } from '../../runtime/server/shorthash.js';
@@ -19,5 +20,5 @@ export function hashTransform(transform: ImageTransform, imageService: string) {
 	// Extract the fields we want to hash
 	const { alt, class: className, style, widths, densities, ...rest } = transform;
 	const hashFields = { ...rest, imageService };
-	return shorthash(JSON.stringify(hashFields));
+	return shorthash(deterministicString(hashFields));
 }

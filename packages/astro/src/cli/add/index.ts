@@ -700,7 +700,11 @@ async function tryToInstallIntegrations({
 						...inheritedFlags,
 						...installCommand.dependencies,
 					],
-					{ cwd }
+					{
+						cwd,
+						// reset NODE_ENV to ensure install command run in dev mode
+						env: { NODE_ENV: undefined },
+					}
 				);
 				spinner.succeed();
 				return UpdateResult.updated;
@@ -725,10 +729,10 @@ async function fetchPackageJson(
 	const packageName = `${scope ? `${scope}/` : ''}${name}`;
 	const registry = await getRegistry();
 	const res = await fetch(`${registry}/${packageName}/${tag}`);
-	if (res.status === 404) {
-		return new Error();
-	} else {
+	if (res.status >= 200 && res.status < 300) {
 		return await res.json();
+	} else {
+		return new Error();
 	}
 }
 

@@ -1,4 +1,5 @@
 import type http from 'node:http';
+import { fileURLToPath } from 'node:url';
 import type {
 	ComponentInstance,
 	ManifestData,
@@ -12,7 +13,7 @@ import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import { createRenderContext, getParamsAndProps, type SSROptions } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
-import { isPage } from '../core/util.js';
+import { isPage, resolveIdToUrl } from '../core/util.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
@@ -275,6 +276,24 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',
 		});
+
+		if (settings.config.experimental.devOverlay) {
+			scripts.add({
+				props: {
+					type: 'module',
+					src: await resolveIdToUrl(moduleLoader, 'astro/runtime/client/dev-overlay/overlay.js'),
+				},
+				children: '',
+			});
+
+			// Additional data for the dev overlay
+			scripts.add({
+				props: {},
+				children: `window.__astro_dev_overlay__ = {root: ${JSON.stringify(
+					fileURLToPath(settings.config.root)
+				)}}`,
+			});
+		}
 	}
 
 	// TODO: We should allow adding generic HTML elements to the head, not just scripts
