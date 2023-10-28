@@ -17,7 +17,7 @@ pnpm i @astrojs/rss
 
 ## Example usage
 
-The `@astrojs/rss` package provides helpers for generating RSS feeds within [Astro endpoints][astro-endpoints]. This unlocks both static builds _and_ on-demand generation when using an [SSR adapter](https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project).
+The `@astrojs/rss` package provides helpers for generating RSS feeds within [Astro endpoints][astro-endpoints]. This unlocks both static builds _and_ on-demand generation when using an [SSR adapter](https://docs.astro.build/en/guides/server-side-rendering/).
 
 For instance, say you need to generate an RSS feed for all posts under `src/content/blog/` using content collections.
 
