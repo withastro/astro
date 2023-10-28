@@ -747,6 +747,9 @@ importers:
       eol:
         specifier: ^0.9.1
         version: 0.9.1
+      mdast-util-to-hast:
+        specifier: 12.3.0
+        version: 12.3.0
       memfs:
         specifier: ^4.2.1
         version: 4.6.0

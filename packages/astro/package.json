@@ -211,6 +211,7 @@
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
     "eol": "^0.9.1",
+    "mdast-util-to-hast": "12.3.0",
     "memfs": "^4.2.1",
     "mocha": "^10.2.0",
     "node-mocks-http": "^1.13.0",
