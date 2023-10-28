@@ -2,4 +2,4 @@
 'create-astro': patch
 ---
 
-Fix TypeScript installation issue with yarn
+Fixes TypeScript installation issue with yarn
