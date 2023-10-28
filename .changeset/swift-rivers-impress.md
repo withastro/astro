@@ -4,4 +4,4 @@
 'astro': patch
 ---
 
-Upgrade zod to 3.22.4
+Upgrades Zod to 3.22.4
