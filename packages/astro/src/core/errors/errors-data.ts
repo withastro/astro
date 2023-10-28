@@ -407,7 +407,6 @@ export const ReservedSlotName = {
  * @docs
  * @see
  * - [Server-side Rendering](https://docs.astro.build/en/guides/server-side-rendering/)
- * - [Adding an Adapter](https://docs.astro.build/en/guides/server-side-rendering/)
  * @description
  * To use server-side rendering, an adapter needs to be installed so Astro knows how to generate the proper output for your targeted deployment platform.
  */
