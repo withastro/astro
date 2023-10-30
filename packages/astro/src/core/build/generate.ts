@@ -113,6 +113,26 @@ async function getEntryForFallbackRoute(
 	return RedirectSinglePageBuiltModule;
 }
 
+async function getEntryForFallbackRoute(
+	route: RouteData,
+	internals: BuildInternals,
+	outFolder: URL
+): Promise<SinglePageBuiltModule> {
+	if (route.type !== 'fallback') {
+		throw new Error(`Expected a redirect route.`);
+	}
+	if (route.redirectRoute) {
+		const filePath = getEntryFilePathFromComponentPath(internals, route.redirectRoute.component);
+		if (filePath) {
+			const url = createEntryURL(filePath, outFolder);
+			const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
+			return ssrEntryPage;
+		}
+	}
+
+	return RedirectSinglePageBuiltModule;
+}
+
 function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
 	return (
 		// Drafts are disabled
@@ -211,6 +231,9 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (routeIsRedirect(pageData.route)) {
 				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
+				await generatePage(pageData, entry, builtPaths, pipeline);
+			} else if (routeIsFallback(pageData.route)) {
+				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);
 				await generatePage(pageData, entry, builtPaths, pipeline);
 			} else if (routeIsFallback(pageData.route)) {
 				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);

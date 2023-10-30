@@ -1,5 +1,6 @@
 import type { MiddlewareEndpointHandler } from '../@types/astro.js';
 import type { SSRManifest } from '../@types/astro.js';
+import type { Environment } from '../core/render/index.js';
 
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n']
