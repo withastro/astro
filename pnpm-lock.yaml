@@ -586,6 +586,9 @@ importers:
       magic-string:
         specifier: ^0.30.3
         version: 0.30.3
+      mdast-util-to-hast:
+        specifier: 12.3.0
+        version: 12.3.0
       mime:
         specifier: ^3.0.0
         version: 3.0.0
@@ -653,8 +656,8 @@ importers:
         specifier: ^21.1.1
         version: 21.1.1
       zod:
-        specifier: 3.21.1
-        version: 3.21.1
+        specifier: ^3.22.4
+        version: 3.22.4
     optionalDependencies:
       sharp:
         specifier: ^0.32.5
@@ -3778,8 +3781,8 @@ importers:
         specifier: ^0.6.8
         version: 0.6.8
       zod:
-        specifier: 3.21.1
-        version: 3.21.1
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@astrojs/markdown-remark':
         specifier: workspace:*
@@ -4477,8 +4480,8 @@ importers:
         specifier: ^7.1.1
         version: 7.1.1
       zod:
-        specifier: 3.21.1
-        version: 3.21.1
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@astrojs/node':
         specifier: workspace:*
@@ -13353,7 +13356,7 @@ packages:
       micromark-factory-space: 1.0.0
       micromark-util-character: 1.2.0
       micromark-util-symbol: 1.1.0
-      micromark-util-types: 1.0.2
+      micromark-util-types: 1.1.0
       uvu: 0.5.6
     dev: true
 
@@ -13495,7 +13498,7 @@ packages:
     resolution: {integrity: sha512-J8H058vFBdo/6+AsjHp2NF7AJ02SZtWaVUjsayNFeAiydTxUwViQPxN0Hf8dp4FmCQi0UUFovFsEyRSUmFH3MA==}
     dependencies:
       micromark-util-chunked: 1.0.0
-      micromark-util-types: 1.0.2
+      micromark-util-types: 1.1.0
 
   /micromark-util-decode-numeric-character-reference@1.1.0:
     resolution: {integrity: sha512-m9V0ExGv0jB1OT21mrWcuf4QhP46pH1KkfWy9ZEezqHKAxkj4mPCy3nIH1rkbdMlChLHX531eOrymlwyZIf2iw==}
@@ -13572,9 +13575,6 @@ packages:
   /micromark-util-symbol@2.0.0:
     resolution: {integrity: sha512-8JZt9ElZ5kyTnO94muPxIGS8oyElRJaiJO8EzV6ZSyGQ1Is8xwl4Q45qU5UOg+bGH4AikWziz0iN4sFLWs8PGw==}
     dev: false
-
-  /micromark-util-types@1.0.2:
-    resolution: {integrity: sha512-DCfg/T8fcrhrRKTPjRrw/5LLvdGV7BHySf/1LOZx7TzWZdYRjogNtyNq885z3nNallwr3QUKARjqvHqX1/7t+w==}
 
   /micromark-util-types@1.1.0:
     resolution: {integrity: sha512-ukRBgie8TIAcacscVHSiddHjO4k/q3pnedmzMQ4iwDcK0FtFCohKOlFbaOL/mPgfnPsL3C1ZyxJa4sbWrBl3jg==}
@@ -17999,8 +17999,8 @@ packages:
     engines: {node: '>=12.20'}
     dev: false
 
-  /zod@3.21.1:
-    resolution: {integrity: sha512-+dTu2m6gmCbO9Ahm4ZBDapx2O6ZY9QSPXst2WXjcznPMwf2YNpn3RevLx4KkZp1OPW/ouFcoBtBzFz/LeY69oA==}
+  /zod@3.22.4:
+    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
     dev: false
 
   /zwitch@2.0.4:
