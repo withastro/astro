@@ -57,12 +57,15 @@ export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 			return ret?.id;
 		},
 		getModuleById(id) {
+			console.log("getModuleById", id)
 			return viteServer.moduleGraph.getModuleById(id);
 		},
 		getModulesByFile(file) {
+			console.log("getModuleByFile", file)
 			return viteServer.moduleGraph.getModulesByFile(file);
 		},
 		getModuleInfo(id) {
+			console.log("getModuleInfo", id)
 			return viteServer.pluginContainer.getModuleInfo(id);
 		},
 		eachModule(cb) {
