@@ -175,6 +175,7 @@ export default function vercelServerless({
 						serverEntry: 'entry.mjs',
 						client: new URL('./static/', outDir),
 						server: new URL('./dist/', config.root),
+						redirects: false,
 					},
 					vite: {
 						...getSpeedInsightsViteConfig(speedInsights?.enabled || analytics),

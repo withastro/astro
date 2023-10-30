@@ -21,6 +21,7 @@ import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
+import type { Icon } from '../runtime/client/dev-overlay/ui-library/icons.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
 import type { OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
@@ -219,7 +220,7 @@ export interface AstroGlobal<
 	 * }
 	 * ```
 	 *
-	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
+	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/)
 	 */
 	redirect: AstroSharedContext['redirect'];
 	/**
@@ -1352,6 +1353,25 @@ export interface AstroUserConfig {
 		 */
 		optimizeHoistedScript?: boolean;
 
+		/**
+		 * @docs
+		 * @name experimental.devOverlay
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 3.4.0
+		 * @description
+		 * Enable a dev overlay in development mode. This overlay allows you to inspect your page islands, see helpful audits on performance and accessibility, and more.
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 * 		devOverlay: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		devOverlay?: boolean;
+
 		// TODO review with docs team before merging to `main`
 		/**
 		 * @docs
@@ -1602,6 +1622,7 @@ export interface AstroSettings {
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
+	devOverlayPlugins: string[];
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
@@ -1619,6 +1640,7 @@ export type AsyncRendererComponentFn<U> = (
 export interface ComponentInstance {
 	default: AstroComponentFactory;
 	css?: string[];
+	partial?: boolean;
 	prerender?: boolean;
 	/**
 	 * Only used for logging if deprecated drafts feature is used
@@ -2150,6 +2172,7 @@ export interface AstroIntegration {
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			addClientDirective: (directive: ClientDirectiveConfig) => void;
+			addDevOverlayPlugin: (entrypoint: string) => void;
 			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
@@ -2319,6 +2342,7 @@ export interface SSRResult {
 	 */
 	clientDirectives: Map<string, string>;
 	compressHTML: boolean;
+	partial: boolean;
 	/**
 	 * Only used for logging
 	 */
@@ -2391,3 +2415,17 @@ export interface ClientDirectiveConfig {
 	name: string;
 	entrypoint: string;
 }
+
+export interface DevOverlayPlugin {
+	id: string;
+	name: string;
+	icon: Icon;
+	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
+}
+
+export type DevOverlayMetadata = Window &
+	typeof globalThis & {
+		__astro_dev_overlay__: {
+			root: string;
+		};
+	};

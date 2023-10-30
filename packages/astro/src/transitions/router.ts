@@ -12,7 +12,8 @@ type Events = 'astro:page-load' | 'astro:after-swap';
 
 // only update history entries that are managed by us
 // leave other entries alone and do not accidently add state.
-const persistState = (state: State) => history.state && history.replaceState(state, '');
+const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) =>
+	history.state && history.replaceState({ ...history.state, ...positions }, '');
 
 const inBrowser = import.meta.env.SSR === false;
 
@@ -58,11 +59,13 @@ let currentHistoryIndex = 0;
 
 if (inBrowser) {
 	if (history.state) {
-		// we reloaded a page with history state
+		// Here we reloaded a page with history state
 		// (e.g. history navigation from non-transition page or browser reload)
 		currentHistoryIndex = history.state.index;
 		scrollTo({ left: history.state.scrollX, top: history.state.scrollY });
 	} else if (transitionEnabledOnThisPage()) {
+		// This page is loaded from the browser addressbar or via a link from extern,
+		// it needs a state in the history
 		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY, intraPage: false }, '');
 	}
 }
@@ -122,12 +125,6 @@ function getFallback(): Fallback {
 	return 'animate';
 }
 
-function markScriptsExec() {
-	for (const script of document.scripts) {
-		script.dataset.astroExec = '';
-	}
-}
-
 function runScripts() {
 	let wait = Promise.resolve();
 	for (const script of Array.from(document.scripts)) {
@@ -156,7 +153,9 @@ function isInfinite(animation: Animation) {
 	return style.animationIterationCount === 'infinite';
 }
 
-const updateHistoryAndScrollPosition = (toLocation: URL, replace: boolean, intraPage: boolean) => {
+// Add a new entry to the browser history. This also sets the new page in the browser addressbar.
+// Sets the scroll position according to the hash fragment of the new location.
+const moveToLocation = (toLocation: URL, replace: boolean, intraPage: boolean) => {
 	const fresh = !samePage(toLocation);
 	let scrolledToTop = false;
 	if (toLocation.href !== location.href) {
@@ -190,6 +189,32 @@ const updateHistoryAndScrollPosition = (toLocation: URL, replace: boolean, intra
 	}
 };
 
+function stylePreloadLinks(newDocument: Document) {
+	const links: Promise<any>[] = [];
+	for (const el of newDocument.querySelectorAll('head link[rel=stylesheet]')) {
+		// Do not preload links that are already on the page.
+		if (
+			!document.querySelector(
+				`[${PERSIST_ATTR}="${el.getAttribute(
+					PERSIST_ATTR
+				)}"], link[rel=stylesheet][href="${el.getAttribute('href')}"]`
+			)
+		) {
+			const c = document.createElement('link');
+			c.setAttribute('rel', 'preload');
+			c.setAttribute('as', 'style');
+			c.setAttribute('href', el.getAttribute('href')!);
+			links.push(
+				new Promise<any>((resolve) => {
+					['load', 'error'].forEach((evName) => c.addEventListener(evName, resolve));
+					document.head.append(c);
+				})
+			);
+		}
+	}
+	return links;
+}
+
 // replace head and body of the windows document with contents from newDocument
 // if !popstate, update the history entry and scroll position according to toLocation
 // if popState is given, this holds the scroll position for history navigation
@@ -204,9 +229,8 @@ async function updateDOM(
 	// Check for a head element that should persist and returns it,
 	// either because it has the data attribute or is a link el.
 	// Returns null if the element is not part of the new head, undefined if it should be left alone.
-	const persistedHeadElement = (el: HTMLElement): Element | null | undefined => {
+	const persistedHeadElement = (el: HTMLElement): Element | null => {
 		const id = el.getAttribute(PERSIST_ATTR);
-		if (id === '') return undefined;
 		const newEl = id && newDocument.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
 		if (newEl) {
 			return newEl;
@@ -293,7 +317,7 @@ async function updateDOM(
 			// from the new document and leave the current node alone
 			if (newEl) {
 				newEl.remove();
-			} else if (newEl === null) {
+			} else {
 				// Otherwise remove the element in the head. It doesn't exist in the new page.
 				el.remove();
 			}
@@ -324,35 +348,13 @@ async function updateDOM(
 		if (popState) {
 			scrollTo(popState.scrollX, popState.scrollY); // usings 'auto' scrollBehavior
 		} else {
-			updateHistoryAndScrollPosition(toLocation, options.history === 'replace', false);
+			moveToLocation(toLocation, options.history === 'replace', false);
 		}
 
 		triggerEvent('astro:after-swap');
 	};
 
-	// Wait on links to finish, to prevent FOUC
-	const links: Promise<any>[] = [];
-	for (const el of newDocument.querySelectorAll('head link[rel=stylesheet]')) {
-		// Do not preload links that are already on the page.
-		if (
-			!document.querySelector(
-				`[${PERSIST_ATTR}="${el.getAttribute(
-					PERSIST_ATTR
-				)}"], link[rel=stylesheet][href="${el.getAttribute('href')}"]`
-			)
-		) {
-			const c = document.createElement('link');
-			c.setAttribute('rel', 'preload');
-			c.setAttribute('as', 'style');
-			c.setAttribute('href', el.getAttribute('href')!);
-			links.push(
-				new Promise<any>((resolve) => {
-					['load', 'error'].forEach((evName) => c.addEventListener(evName, resolve));
-					document.head.append(c);
-				})
-			);
-		}
-	}
+	const links = stylePreloadLinks(newDocument);
 	links.length && (await Promise.all(links));
 
 	if (fallback === 'animate') {
@@ -363,12 +365,9 @@ async function updateDOM(
 			.getAnimations()
 			.filter((a) => !currentAnimations.includes(a) && !isInfinite(a));
 		const finished = Promise.all(newAnimations.map((a) => a.finished));
-		const fallbackSwap = () => {
-			swap();
-			document.documentElement.dataset.astroTransitionFallback = 'new';
-		};
 		await finished;
-		fallbackSwap();
+		swap();
+		document.documentElement.dataset.astroTransitionFallback = 'new';
 	} else {
 		swap();
 	}
@@ -427,7 +426,6 @@ async function transition(
 		// skip this for the moment as it tends to stop fallback animations
 		// document.documentElement.removeAttribute('data-astro-transition');
 		await runScripts();
-		markScriptsExec();
 		onPageLoad();
 		announce();
 	}
@@ -460,7 +458,7 @@ export function navigate(href: string, options?: Options) {
 	// but we want to handle prevent reload on navigation to the same page
 	// Same page means same origin, path and query params (but maybe different hash)
 	if (location.origin === toLocation.origin && samePage(toLocation)) {
-		updateHistoryAndScrollPosition(toLocation, options?.history === 'replace', true);
+		moveToLocation(toLocation, options?.history === 'replace', true);
 	} else {
 		// different origin will be detected by fetch
 		transition('forward', toLocation, options ?? {});
@@ -509,20 +507,21 @@ function onPopState(ev: PopStateEvent) {
 	}
 }
 
+// There's not a good way to record scroll position before a back button.
+// So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
+const onScroll = () => {
+	updateScrollPosition({ scrollX, scrollY });
+};
+
 if (inBrowser) {
 	if (supportsViewTransitions || getFallback() !== 'none') {
 		addEventListener('popstate', onPopState);
 		addEventListener('load', onPageLoad);
-		// There's not a good way to record scroll position before a back button.
-		// So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
-		const updateState = () => {
-			persistState({ ...history.state, scrollX, scrollY });
-		};
-
-		if ('onscrollend' in window) addEventListener('scrollend', updateState);
-		else addEventListener('scroll', throttle(updateState, 300));
-
-		markScriptsExec();
+		if ('onscrollend' in window) addEventListener('scrollend', onScroll);
+		else addEventListener('scroll', throttle(onScroll, 300));
+	}
+	for (const script of document.scripts) {
+		script.dataset.astroExec = '';
 	}
 }
 
@@ -549,12 +548,11 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 			const viteIds = [...nextHead.querySelectorAll(`style[${VITE_ID}]`)].map((style) =>
 				style.getAttribute(VITE_ID)
 			);
-			// Mark styles of the current head as persistent
-			// if they come from hydration and not from the newDocument
+			// Copy required styles to the new document if they are from hydration.
 			viteIds.forEach((id) => {
 				const style = document.head.querySelector(`style[${VITE_ID}="${id}"]`);
 				if (style && !newDocument.head.querySelector(`style[${VITE_ID}="${id}"]`)) {
-					style.setAttribute(PERSIST_ATTR, '');
+					newDocument.head.appendChild(style);
 				}
 			});
 		}

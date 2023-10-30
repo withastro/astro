@@ -55,6 +55,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	redirects: {},
 	experimental: {
 		optimizeHoistedScript: false,
+		devOverlay: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -297,6 +298,7 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.optimizeHoistedScript),
+			devOverlay: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.devOverlay),
 			i18n: z.optional(
 				z
 					.object({
