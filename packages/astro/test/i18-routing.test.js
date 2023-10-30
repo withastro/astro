@@ -100,7 +100,7 @@ describe('[DEV] i18n routing', () => {
 		});
 	});
 
-	describe('i18n routing with routing strategy [prefix-expect-default]', () => {
+	describe('i18n routing with routing strategy [prefix-other-locales]', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 		/** @type {import('./test-utils').DevServer} */
@@ -108,7 +108,7 @@ describe('[DEV] i18n routing', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/i18n-routing-prefix-expect-default/',
+				root: './fixtures/i18n-routing-prefix-other-locales/',
 				experimental: {
 					i18n: {
 						defaultLocale: 'en',
@@ -238,7 +238,7 @@ describe('[DEV] i18n routing', () => {
 						fallback: {
 							it: 'en',
 						},
-						routingStrategy: 'prefix-expect-default',
+						routingStrategy: 'prefix-other-locales',
 					},
 				},
 			});
@@ -391,13 +391,13 @@ describe('[SSG] i18n routing', () => {
 		});
 	});
 
-	describe('i18n routing with routing strategy [prefix-expect-default]', () => {
+	describe('i18n routing with routing strategy [prefix-other-locales]', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/i18n-routing-prefix-expect-default/',
+				root: './fixtures/i18n-routing-prefix-other-locales/',
 			});
 			await fixture.build();
 		});
@@ -643,13 +643,13 @@ describe('[SSR] i18n routing', () => {
 		});
 	});
 
-	describe('i18n routing with routing strategy [prefix-expect-default]', () => {
+	describe('i18n routing with routing strategy [prefix-other-locales]', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/i18n-routing-prefix-expect-default/',
+				root: './fixtures/i18n-routing-prefix-other-locales/',
 				output: 'server',
 				adapter: testAdapter(),
 			});

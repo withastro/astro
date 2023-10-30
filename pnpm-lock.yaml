@@ -2791,7 +2791,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/i18n-routing-prefix-expect-default:
+  packages/astro/test/fixtures/i18n-routing-prefix-other-locales:
     dependencies:
       astro:
         specifier: workspace:*

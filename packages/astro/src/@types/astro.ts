@@ -1403,17 +1403,19 @@ export interface AstroUserConfig {
 			/**
 			 * @docs
 			 * @name experimental.i18n.routingStrategy
-			 * @type {'prefix-always' | 'prefix-expect-default'}
-			 * @default {'prefix-expect-default'}
+			 * @type {'prefix-always' | 'prefix-other-locales'}
+			 * @default {'prefix-other-locales'}
 			 * @version 3.*.*
 			 * @description
 			 *
 			 * Controls the routing strategy:
-			 *  - `prefix-expect-default`: This is the default value. When used, Astro will identify those routes that belong to the default locale and execute a redirect a route stripped of that locale.
+			 *  - `prefix-other-locales`: This is the default value. When used, Astro will identify those routes that belong to the default locale and execute a redirect a route stripped of that locale.
+			 *		Use `example.com/[lang]/content/` for every route.
 			 *  - `prefix-always`: When used, all URLs need to contains a locale prefix. Astro will return a 404 for any route that doesn't fullfill the requirements.
+			 * 		Use `example.com/[lang]/content/` for all non-default languages, but `example.com/content` for the default locale/.
 			 *
 			 */
-			routingStrategy: 'prefix-always' | 'prefix-expect-default';
+			routingStrategy: 'prefix-always' | 'prefix-other-locales';
 
 			/**
 			 * @docs

@@ -306,9 +306,9 @@ export const AstroConfigSchema = z.object({
 						detectBrowserLanguage: z.boolean().optional().default(false),
 						// TODO: properly add default when the feature goes of experimental
 						routingStrategy: z
-							.enum(['prefix-always', 'prefix-expect-default'])
+							.enum(['prefix-always', 'prefix-other-locales'])
 							.optional()
-							.default('prefix-expect-default'),
+							.default('prefix-other-locales'),
 					})
 					.optional()
 					.superRefine((i18n, ctx) => {

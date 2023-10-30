@@ -32,7 +32,7 @@ export function createI18nMiddleware(
 			const separators = url.pathname.split('/');
 			const pathnameContainsDefaultLocale = url.pathname.includes(`/${i18n.defaultLocale}`);
 			const isLocaleFree = checkIsLocaleFree(url.pathname, i18n.locales);
-			if (i18n.routingStrategy === 'prefix-expect-default' && pathnameContainsDefaultLocale) {
+			if (i18n.routingStrategy === 'prefix-other-locales' && pathnameContainsDefaultLocale) {
 				const content = await response.text();
 				const newLocation = url.pathname.replace(`/${i18n.defaultLocale}`, '');
 				response.headers.set('Location', newLocation);

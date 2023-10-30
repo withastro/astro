@@ -7,7 +7,7 @@ export default defineConfig({
 			locales: [
 				'en', 'pt', 'it'
 			],
-			routingStrategy: "prefix-expect-default"
+			routingStrategy: "prefix-other-locales"
 		},
 		
 	},
