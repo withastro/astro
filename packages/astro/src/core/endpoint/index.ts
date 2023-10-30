@@ -12,7 +12,7 @@ import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachCookiesToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
-import type { Environment, RenderContext } from '../render/index.js';
+import { type Environment, type RenderContext, computePreferredLocale } from '../render/index.js';
 
 const encoder = new TextEncoder();
 
@@ -25,6 +25,7 @@ type CreateAPIContext = {
 	site?: string;
 	props: Record<string, any>;
 	adapterName?: string;
+	preferredLocale: string | undefined;
 };
 
 /**
@@ -38,6 +39,7 @@ export function createAPIContext({
 	site,
 	props,
 	adapterName,
+	preferredLocale,
 }: CreateAPIContext): APIContext {
 	const context = {
 		cookies: new AstroCookies(request),
@@ -55,6 +57,7 @@ export function createAPIContext({
 			});
 		},
 		ResponseWithEncoding,
+		preferredLocale: preferredLocale,
 		url: new URL(request.url),
 		get clientAddress() {
 			if (clientAddressSymbol in request) {
@@ -125,7 +128,8 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	mod: EndpointHandler,
 	env: Environment,
 	ctx: RenderContext,
-	onRequest?: MiddlewareHandler<MiddlewareResult> | undefined
+	onRequest?: MiddlewareHandler<MiddlewareResult> | undefined,
+	currentLocale?: undefined | string
 ): Promise<Response> {
 	const context = createAPIContext({
 		request: ctx.request,
@@ -133,6 +137,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 		props: ctx.props,
 		site: env.site,
 		adapterName: env.adapterName,
+		preferredLocale: currentLocale,
 	});
 
 	let response;

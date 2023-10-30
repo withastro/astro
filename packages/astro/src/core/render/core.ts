@@ -67,6 +67,7 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		status: renderContext.status ?? 200,
 		cookies,
 		locals: renderContext.locals ?? {},
+		preferredLocale: renderContext.preferredLocale,
 	});
 
 	// TODO: Remove in Astro 4.0
@@ -93,69 +94,4 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 	}
 
 	return response;
-}
-
-/**
- * It attempts to render a route. A route can be a:
- * - page
- * - redirect
- * - endpoint
- *
- * ## Errors
- *
- * It throws an error if the page can't be rendered.
- * @deprecated Use the pipeline instead
- */
-export async function tryRenderRoute<MiddlewareReturnType = Response>(
-	renderContext: Readonly<RenderContext>,
-	env: Readonly<Environment>,
-	mod: Readonly<ComponentInstance>,
-	onRequest?: MiddlewareHandler<MiddlewareReturnType>
-): Promise<Response> {
-	const apiContext = createAPIContext({
-		request: renderContext.request,
-		params: renderContext.params,
-		props: renderContext.props,
-		site: env.site,
-		adapterName: env.adapterName,
-	});
-
-	switch (renderContext.route.type) {
-		case 'page':
-		case 'redirect': {
-			if (onRequest) {
-				return await callMiddleware<Response>(
-					env.logger,
-					onRequest as MiddlewareResponseHandler,
-					apiContext,
-					() => {
-						return renderPage({
-							mod,
-							renderContext,
-							env,
-							cookies: apiContext.cookies,
-						});
-					}
-				);
-			} else {
-				return await renderPage({
-					mod,
-					renderContext,
-					env,
-					cookies: apiContext.cookies,
-				});
-			}
-		}
-		case 'endpoint': {
-			const result = await callEndpoint(
-				mod as any as EndpointHandler,
-				env,
-				renderContext,
-				onRequest
-			);
-			return result;
-		}
-		default:
-			throw new Error(`Couldn't find route of type [${renderContext.route.type}]`);
-	}
 }

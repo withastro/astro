@@ -11,7 +11,7 @@ export function createI18nMiddleware(
 	const locales = i18n.locales;
 
 	return async (context, next) => {
-		if (!i18n.fallback || !i18n.fallback) {
+		if (!i18n.fallback) {
 			return await next();
 		}
 		const response = await next();
