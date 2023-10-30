@@ -84,15 +84,6 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
 	opts.logger.info('build', dim(`Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 	settings.timer.end('SSR build');
-
-	// Build `astro:content` collections
-	// const shouldDoContentBuild = await needsContentBuild(opts);
-	// if (shouldDoContentBuild) {
-	// 	const contentTime = performance.now();
-	// 	opts.logger.info('content', `Building collections...`);
-	// 	await contentBuild(opts, internals, new Set(), container);
-	// 	opts.logger.info('content', dim(`Completed in ${getTimeStat(contentTime, performance.now())}.`));
-	// }
 	
 	settings.timer.start('Client build');
 

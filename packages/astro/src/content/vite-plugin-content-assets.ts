@@ -112,7 +112,7 @@ export function astroConfigBuildPlugin(
 ): AstroBuildPlugin {
 	let ssrPluginContext: any = undefined;
 	return {
-		targets: ['server', 'content'],
+		targets: ['server'],
 		hooks: {
 			'build:before': ({ target }) => {
 				return {
