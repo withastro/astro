@@ -176,7 +176,7 @@
     "vitefu": "^0.2.4",
     "which-pm": "^2.1.1",
     "yargs-parser": "^21.1.1",
-    "zod": "3.22.4"
+    "zod": "^3.22.4"
   },
   "optionalDependencies": {
     "sharp": "^0.32.5"

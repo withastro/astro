@@ -653,7 +653,7 @@ importers:
         specifier: ^21.1.1
         version: 21.1.1
       zod:
-        specifier: 3.22.4
+        specifier: ^3.22.4
         version: 3.22.4
     optionalDependencies:
       sharp:
@@ -3763,7 +3763,7 @@ importers:
         specifier: ^0.6.8
         version: 0.6.10
       zod:
-        specifier: 3.22.4
+        specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
       '@astrojs/markdown-remark':
@@ -4462,7 +4462,7 @@ importers:
         specifier: ^7.1.1
         version: 7.1.1
       zod:
-        specifier: 3.22.4
+        specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
       '@astrojs/node':
