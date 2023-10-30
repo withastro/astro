@@ -39,7 +39,7 @@ import {
 	getRedirectLocationOrThrow,
 	routeIsRedirect,
 } from '../redirects/index.js';
-import { createRenderContext } from '../render/index.js';
+import { computePreferredLocale, createRenderContext } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -211,6 +211,12 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (routeIsRedirect(pageData.route)) {
 				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
+				await generatePage(pageData, entry, builtPaths, pipeline);
+			} else if (routeIsFallback(pageData.route)) {
+				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);
+				await generatePage(pageData, entry, builtPaths, pipeline);
+			} else if (routeIsFallback(pageData.route)) {
+				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);
 				await generatePage(pageData, entry, builtPaths, pipeline);
 			} else if (routeIsFallback(pageData.route)) {
 				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);
@@ -536,14 +542,19 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		pageData.route.type
 	);
 
+	const request = createRequest({
+		url,
+		headers: new Headers(),
+		logger: pipeline.getLogger(),
+		ssr,
+	});
+	let currentLocale: undefined | string = undefined;
+	if (pipeline.getConfig().experimental.i18n) {
+		currentLocale = computePreferredLocale(request);
+	}
 	const renderContext = await createRenderContext({
 		pathname,
-		request: createRequest({
-			url,
-			headers: new Headers(),
-			logger: pipeline.getLogger(),
-			ssr,
-		}),
+		request,
 		componentMetadata: manifest.componentMetadata,
 		scripts,
 		styles,
@@ -551,6 +562,7 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		route: pageData.route,
 		env: pipeline.getEnvironment(),
 		mod,
+		preferredLocale: currentLocale,
 	});
 
 	let body: string | Uint8Array;
