@@ -220,7 +220,7 @@ export interface AstroGlobal<
 	 * }
 	 * ```
 	 *
-	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
+	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/)
 	 */
 	redirect: AstroSharedContext['redirect'];
 	/**
