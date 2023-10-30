@@ -1,7 +1,5 @@
 # Contributing
 
-> See the [overview video](https://www.loom.com/share/609f7b61795349328730f14e1ae2166e) on how the extension works.
-
 ## Setup
 
 All Astro projects use [pnpm](https://pnpm.io/) and [Turbo](https://turborepo.org/) to enable development in a monorepo. Once you've cloned the project install dependencies and do an initial build:
@@ -20,6 +18,9 @@ During the normal course of development on the VSCode extension you'll want to r
 ```shell
 pnpm dev
 ```
+
+> [!NOTE] 
+> If you haven't ran `pnpm build` or `pnpm dev` already, you may see some errors related to some files being missing. This is normal on a first run, and you can safely ignore these errors.
 
 ### Start Debugger
 

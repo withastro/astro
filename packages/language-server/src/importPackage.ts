@@ -43,7 +43,7 @@ function importEditorIntegration<T>(packageName: string, fromPath: string): T | 
 			return require(main) as T;
 		} catch (e) {
 			console.error(
-				`Couldn't load editor module from ${pkgPath}. Make sure you're using at least version v0.2.1 of the corresponding integration`
+				`Couldn't load editor module from ${pkgPath}. Make sure you're using at least version v0.2.1 of the corresponding integration. Reason: ${e}`
 			);
 
 			return undefined;
