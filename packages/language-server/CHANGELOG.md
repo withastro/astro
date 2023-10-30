@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.5.1
+
+### Patch Changes
+
+- 89d4613: Show full reason why an editor integration might have failed loading
+
 ## 2.5.0
 
 ### Minor Changes
