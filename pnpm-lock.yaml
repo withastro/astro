@@ -586,6 +586,9 @@ importers:
       magic-string:
         specifier: ^0.30.3
         version: 0.30.5
+      mdast-util-to-hast:
+        specifier: 12.3.0
+        version: 12.3.0
       mime:
         specifier: ^3.0.0
         version: 3.0.0
@@ -653,8 +656,8 @@ importers:
         specifier: ^21.1.1
         version: 21.1.1
       zod:
-        specifier: 3.21.1
-        version: 3.21.1
+        specifier: ^3.22.4
+        version: 3.22.4
     optionalDependencies:
       sharp:
         specifier: ^0.32.5
@@ -3760,8 +3763,8 @@ importers:
         specifier: ^0.6.8
         version: 0.6.10
       zod:
-        specifier: 3.21.1
-        version: 3.21.1
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@astrojs/markdown-remark':
         specifier: workspace:*
@@ -4459,8 +4462,8 @@ importers:
         specifier: ^7.1.1
         version: 7.1.1
       zod:
-        specifier: 3.21.1
-        version: 3.21.1
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@astrojs/node':
         specifier: workspace:*
@@ -17836,8 +17839,8 @@ packages:
     engines: {node: '>=12.20'}
     dev: false
 
-  /zod@3.21.1:
-    resolution: {integrity: sha512-+dTu2m6gmCbO9Ahm4ZBDapx2O6ZY9QSPXst2WXjcznPMwf2YNpn3RevLx4KkZp1OPW/ouFcoBtBzFz/LeY69oA==}
+  /zod@3.22.4:
+    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
     dev: false
 
   /zwitch@2.0.4:
