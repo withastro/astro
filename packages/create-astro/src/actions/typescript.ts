@@ -82,12 +82,12 @@ const FILES_TO_UPDATE = {
 		try {
 			// add required dependencies for astro check
 			if (options.ctx.install)
-				await shell(options.ctx.packageManager, ['install', '@astrojs/check', 'typescript'], {
+				await shell(options.ctx.packageManager, ['add', '@astrojs/check', 'typescript'], {
 					cwd: path.dirname(file),
 					stdio: 'ignore',
 				});
 
-			// inject addtional command to build script
+			// inject additional command to build script
 			const data = await readFile(file, { encoding: 'utf-8' });
 			const indent = /(^\s+)/m.exec(data)?.[1] ?? '\t';
 			const parsedPackageJson = JSON.parse(data);
