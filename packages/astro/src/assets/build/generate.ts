@@ -95,13 +95,13 @@ function getFullImagePath(originalFilePath: string, env: AssetEnv): URL {
 
 export async function generateImagesForPath(
 	originalFilePath: string,
-	transforms: MapValue<AssetsGlobalStaticImagesList>,
+	transformsAndPath: MapValue<AssetsGlobalStaticImagesList>,
 	env: AssetEnv,
 	queue: PQueue
 ) {
 	const originalImageData = await loadImage(originalFilePath, env);
 
-	for (const [_, transform] of transforms.transforms) {
+	for (const [_, transform] of transformsAndPath.transforms) {
 		queue.add(async () =>
 			generateImage(originalImageData, transform.finalPath, transform.transform)
 		);
@@ -112,7 +112,7 @@ export async function generateImagesForPath(
 	if (
 		!env.isSSR &&
 		!isRemotePath(originalFilePath) &&
-		!globalThis.astroAsset.referencedImages?.has(transforms.originalSrcPath)
+		!globalThis.astroAsset.referencedImages?.has(transformsAndPath.originalSrcPath)
 	) {
 		try {
 			await fs.promises.unlink(getFullImagePath(originalFilePath, env));
