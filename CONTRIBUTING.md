@@ -19,7 +19,7 @@ During the normal course of development on the VSCode extension you'll want to r
 pnpm dev
 ```
 
-> [!NOTE] 
+> [!NOTE]
 > If you haven't ran `pnpm build` or `pnpm dev` already, you may see some errors related to some files being missing. This is normal on a first run, and you can safely ignore these errors.
 
 ### Start Debugger
