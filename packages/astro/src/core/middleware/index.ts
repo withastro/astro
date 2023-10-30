@@ -29,7 +29,7 @@ function createContext({ request, params }: CreateContext) {
 		params: params ?? {},
 		props: {},
 		site: undefined,
-		currentLocale: undefined,
+		preferredLocale: undefined,
 	});
 }
 

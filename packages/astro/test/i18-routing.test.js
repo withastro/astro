@@ -466,7 +466,7 @@ describe('[SSR] i18n routing', () => {
 		});
 	});
 
-	describe('i18n routing current locale', () => {
+	describe('i18n routing preferred locale', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 
@@ -481,7 +481,7 @@ describe('[SSR] i18n routing', () => {
 		});
 
 		it('should not render the locale when the value is *', async () => {
-			let request = new Request('http://example.com/new-site/current-locale', {
+			let request = new Request('http://example.com/new-site/preferred-locale', {
 				headers: {
 					'Accept-Language': '*',
 				},
@@ -492,7 +492,7 @@ describe('[SSR] i18n routing', () => {
 		});
 
 		it('should render the locale fr', async () => {
-			let request = new Request('http://example.com/new-site/current-locale', {
+			let request = new Request('http://example.com/new-site/preferred-locale', {
 				headers: {
 					'Accept-Language': 'fr',
 				},
@@ -503,7 +503,7 @@ describe('[SSR] i18n routing', () => {
 		});
 
 		it('should render the locale fr-AU', async () => {
-			let request = new Request('http://example.com/new-site/current-locale', {
+			let request = new Request('http://example.com/new-site/preferred-locale', {
 				headers: {
 					'Accept-Language': 'fr;q=0.1,fr-AU;q=0.9',
 				},

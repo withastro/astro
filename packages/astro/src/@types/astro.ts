@@ -1976,7 +1976,7 @@ interface AstroSharedContext<
 	/**
 	 * The current locale that is computed from the `Accept-Language` header of the browser (**SSR Only**).
 	 */
-	currentLocale: string | undefined;
+	preferredLocale: string | undefined;
 }
 
 export interface APIContext<
@@ -2083,7 +2083,7 @@ export interface APIContext<
 	 * Available only when `experimental.i18n` enabled.
 	 *
 	 */
-	currentLocale: string | undefined;
+	preferredLocale: string | undefined;
 }
 
 export type EndpointOutput =

@@ -1,6 +1,6 @@
 import type { AstroMiddlewareInstance, ComponentInstance, RouteData } from '../../@types/astro.js';
 import type { Environment } from './environment.js';
-export { createRenderContext, computeCurrentLocale } from './context.js';
+export { createRenderContext, computePreferredLocale } from './context.js';
 export type { RenderContext } from './context.js';
 export { createEnvironment } from './environment.js';
 export { getParamsAndProps } from './params-and-props.js';

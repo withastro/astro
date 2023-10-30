@@ -27,7 +27,7 @@ export interface RenderContext {
 	params: Params;
 	props: Props;
 	locals?: object;
-	currentLocale: string | undefined;
+	preferredLocale: string | undefined;
 }
 
 export type CreateRenderContextArgs = Partial<
@@ -58,7 +58,7 @@ export async function createRenderContext(
 		pathname,
 		params,
 		props,
-		currentLocale: options.currentLocale,
+		preferredLocale: options.preferredLocale,
 	};
 
 	// We define a custom property, so we can check the value passed to locals
@@ -144,7 +144,7 @@ export function parseLocale(header: string): BrowserLocale[] {
  * If multiple locales are present in the header, they are sorted by their quality value and the highest is selected as current locale.
  *
  */
-export function computeCurrentLocale(request: Request): string | undefined {
+export function computePreferredLocale(request: Request): string | undefined {
 	const acceptHeader = request.headers.get('Accept-Language');
 	if (acceptHeader) {
 		const result = parseLocale(acceptHeader);

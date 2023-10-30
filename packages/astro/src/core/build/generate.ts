@@ -37,7 +37,7 @@ import {
 	getRedirectLocationOrThrow,
 	routeIsRedirect,
 } from '../redirects/index.js';
-import { computeCurrentLocale, createRenderContext } from '../render/index.js';
+import { computePreferredLocale, createRenderContext } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -565,7 +565,7 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 	});
 	let currentLocale: undefined | string = undefined;
 	if (pipeline.getConfig().experimental.i18n) {
-		currentLocale = computeCurrentLocale(request);
+		currentLocale = computePreferredLocale(request);
 	}
 	const renderContext = await createRenderContext({
 		pathname,
@@ -577,7 +577,7 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		route: pageData.route,
 		env: pipeline.getEnvironment(),
 		mod,
-		currentLocale,
+		preferredLocale: currentLocale,
 	});
 
 	let body: string | Uint8Array;

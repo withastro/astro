@@ -12,7 +12,7 @@ import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachCookiesToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
-import { type Environment, type RenderContext, computeCurrentLocale } from '../render/index.js';
+import { type Environment, type RenderContext, computePreferredLocale } from '../render/index.js';
 
 const encoder = new TextEncoder();
 
@@ -25,7 +25,7 @@ type CreateAPIContext = {
 	site?: string;
 	props: Record<string, any>;
 	adapterName?: string;
-	currentLocale: string | undefined;
+	preferredLocale: string | undefined;
 };
 
 /**
@@ -39,7 +39,7 @@ export function createAPIContext({
 	site,
 	props,
 	adapterName,
-	currentLocale,
+	preferredLocale,
 }: CreateAPIContext): APIContext {
 	const context = {
 		cookies: new AstroCookies(request),
@@ -57,7 +57,7 @@ export function createAPIContext({
 			});
 		},
 		ResponseWithEncoding,
-		currentLocale,
+		preferredLocale: preferredLocale,
 		url: new URL(request.url),
 		get clientAddress() {
 			if (clientAddressSymbol in request) {
@@ -137,7 +137,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 		props: ctx.props,
 		site: env.site,
 		adapterName: env.adapterName,
-		currentLocale,
+		preferredLocale: currentLocale,
 	});
 
 	let response;

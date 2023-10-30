@@ -17,7 +17,7 @@ import {
 } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import {
-	computeCurrentLocale,
+	computePreferredLocale,
 	createEnvironment,
 	createRenderContext,
 	type RenderContext,
@@ -224,7 +224,7 @@ export class App {
 	): Promise<RenderContext> {
 		let currentLocale: undefined | string = undefined;
 		if (this.#manifest.i18n) {
-			currentLocale = computeCurrentLocale(request);
+			currentLocale = computePreferredLocale(request);
 		}
 		if (routeData.type === 'endpoint') {
 			const pathname = '/' + this.removeBase(url.pathname);
@@ -238,7 +238,7 @@ export class App {
 				status,
 				env: this.#pipeline.env,
 				mod: handler as any,
-				currentLocale,
+				preferredLocale: currentLocale,
 			});
 		} else {
 			const pathname = prependForwardSlash(this.removeBase(url.pathname));
@@ -272,7 +272,7 @@ export class App {
 				status,
 				mod,
 				env: this.#pipeline.env,
-				currentLocale,
+				preferredLocale: currentLocale,
 			});
 		}
 	}
