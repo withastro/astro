@@ -10,7 +10,10 @@ export type ImageOutputFormat = (typeof VALID_OUTPUT_FORMATS)[number] | (string 
 
 export type AssetsGlobalStaticImagesList = Map<
 	string,
-	Map<string, { finalPath: string; transform: ImageTransform }>
+	{
+		originalSrcPath: string;
+		transforms: Map<string, { finalPath: string; transform: ImageTransform }>;
+	}
 >;
 
 declare global {
@@ -19,6 +22,7 @@ declare global {
 		imageService?: ImageService;
 		addStaticImage?: ((options: ImageTransform) => string) | undefined;
 		staticImages?: AssetsGlobalStaticImagesList;
+		referencedImages?: Set<string>;
 	};
 }
 

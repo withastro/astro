@@ -359,6 +359,22 @@ function stringifyEntryData(data: Record<string, any>): string {
 			if (value instanceof URL) {
 				return `new URL(${JSON.stringify(value.href)})`;
 			}
+
+			// For Astro assets, add a proxy to track references
+			if (typeof value === 'object' && 'ASTRO_ASSET' in value) {
+				const { ASTRO_ASSET, ...asset } = value;
+				return `
+					new Proxy(${JSON.stringify(asset)}, {
+						get(target, name, receiver) {
+							if (name === 'clone') {
+								return structuredClone(target);
+							}
+							globalThis.astroAsset.referencedImages.add(target.fsPath);
+							return target[name];
+						}
+					})
+				`;
+			}
 		});
 	} catch (e) {
 		if (e instanceof Error) {

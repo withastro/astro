@@ -31,6 +31,7 @@ type GenerationData = GenerationDataUncached | GenerationDataCached;
 
 type AssetEnv = {
 	logger: Logger;
+	isSSR: boolean;
 	count: { total: number; current: number };
 	useCache: boolean;
 	assetsCacheDir: URL;
@@ -74,6 +75,7 @@ export async function prepareAssetsGenerationEnv(
 
 	return {
 		logger,
+		isSSR: isServerLikeOutput(config),
 		count,
 		useCache,
 		assetsCacheDir,
@@ -84,6 +86,13 @@ export async function prepareAssetsGenerationEnv(
 	};
 }
 
+function getFullImagePath(originalFilePath: string, env: AssetEnv): URL {
+	return new URL(
+		'.' + prependForwardSlash(join(env.assetsFolder, basename(originalFilePath))),
+		env.serverRoot
+	);
+}
+
 export async function generateImagesForPath(
 	originalFilePath: string,
 	transforms: MapValue<AssetsGlobalStaticImagesList>,
@@ -92,10 +101,24 @@ export async function generateImagesForPath(
 ) {
 	const originalImageData = await loadImage(originalFilePath, env);
 
-	for (const [_, transform] of transforms) {
+	for (const [_, transform] of transforms.transforms) {
 		queue.add(async () =>
 			generateImage(originalImageData, transform.finalPath, transform.transform)
 		);
+	}
+
+	// In SSR, we cannot know if an image is referenced in a server-rendered page, so we can't delete anything
+	// For instance, the same image could be referenced in both a server-rendered page and build-time-rendered page
+	if (
+		!env.isSSR &&
+		!isRemotePath(originalFilePath) &&
+		!globalThis.astroAsset.referencedImages?.has(transforms.originalSrcPath)
+	) {
+		try {
+			await fs.promises.unlink(getFullImagePath(originalFilePath, env));
+		} catch (e) {
+			/* No-op, it's okay if we fail to delete one of the file, we're not too picky. */
+		}
 	}
 
 	async function generateImage(
@@ -245,9 +268,7 @@ async function loadImage(path: string, env: AssetEnv): Promise<ImageData> {
 	}
 
 	return {
-		data: await fs.promises.readFile(
-			new URL('.' + prependForwardSlash(join(env.assetsFolder, basename(path))), env.serverRoot)
-		),
+		data: await fs.promises.readFile(getFullImagePath(path, env)),
 		expires: 0,
 	};
 }

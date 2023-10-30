@@ -90,6 +90,15 @@ export async function getImage(
 				: options.src,
 	};
 
+	// Clone the `src` object if it's an ESM import so that we don't refer to any properties of the original object
+	// Causing our generate step to think the image is used outside of the image optimization pipeline
+	const clonedSrc = isESMImportedImage(resolvedOptions.src)
+		? // @ts-expect-error - clone is a private, hidden prop
+		  resolvedOptions.src.clone ?? resolvedOptions.src
+		: resolvedOptions.src;
+
+	resolvedOptions.src = clonedSrc;
+
 	const validatedOptions = service.validateOptions
 		? await service.validateOptions(resolvedOptions, imageConfig)
 		: resolvedOptions;
