@@ -1,5 +1,16 @@
 # @astrojs/check
 
+## 0.3.0
+
+### Minor Changes
+
+- f4402eb: Add intellisense for Astro.self, add auto inferring of props for `getStaticPaths`
+
+### Patch Changes
+
+- Updated dependencies [f4402eb]
+  - @astrojs/language-server@2.5.0
+
 ## 0.2.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.5.0
+
+### Minor Changes
+
+- f4402eb: Add intellisense for Astro.self, add auto inferring of props for `getStaticPaths`
+
 ## 2.4.1
 
 ### Patch Changes

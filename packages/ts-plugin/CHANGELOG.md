@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.3.0
+
+### Minor Changes
+
+- f4402eb: Add intellisense for Astro.self, add auto inferring of props for `getStaticPaths`
+
 ## 1.2.0
 
 ### Minor Changes
