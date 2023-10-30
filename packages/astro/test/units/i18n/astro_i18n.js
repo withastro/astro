@@ -4,6 +4,7 @@ import {
 	getLocaleAbsoluteUrl,
 	getLocaleAbsoluteUrlList,
 } from '../../../dist/i18n/index.js';
+import { parseLocale } from '../../../dist/core/render/context.js';
 import { expect } from 'chai';
 
 describe('getLocaleRelativeUrl', () => {
@@ -812,6 +813,42 @@ describe('getLocaleAbsoluteUrlList', () => {
 			'https://example.com/blog/en/',
 			'https://example.com/blog/en_US/',
 			'https://example.com/blog/es/',
+		]);
+	});
+});
+
+describe('parse accept-header', () => {
+	it('should be parsed correctly', () => {
+		expect(parseLocale('*')).to.have.deep.members([{ locale: '*', qualityValue: undefined }]);
+		expect(parseLocale('fr')).to.have.deep.members([{ locale: 'fr', qualityValue: undefined }]);
+		expect(parseLocale('fr;q=0.6')).to.have.deep.members([{ locale: 'fr', qualityValue: 0.6 }]);
+		expect(parseLocale('fr;q=0.6,fr-CA;q=0.5')).to.have.deep.members([
+			{ locale: 'fr', qualityValue: 0.6 },
+			{ locale: 'fr-CA', qualityValue: 0.5 },
+		]);
+
+		expect(parseLocale('fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5')).to.have.deep.members([
+			{ locale: 'fr-CH', qualityValue: undefined },
+			{ locale: 'fr', qualityValue: 0.9 },
+			{ locale: 'en', qualityValue: 0.8 },
+			{ locale: 'de', qualityValue: 0.7 },
+			{ locale: '*', qualityValue: 0.5 },
+		]);
+	});
+
+	it('should not return incorrect quality values', () => {
+		expect(parseLocale('wrong')).to.have.deep.members([
+			{ locale: 'wrong', qualityValue: undefined },
+		]);
+		expect(parseLocale('fr;f=0.7')).to.have.deep.members([
+			{ locale: 'fr', qualityValue: undefined },
+		]);
+		expect(parseLocale('fr;q=something')).to.have.deep.members([
+			{ locale: 'fr', qualityValue: undefined },
+		]);
+
+		expect(parseLocale('fr;q=1000')).to.have.deep.members([
+			{ locale: 'fr', qualityValue: undefined },
 		]);
 	});
 });

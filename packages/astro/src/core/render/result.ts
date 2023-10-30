@@ -31,6 +31,7 @@ export interface CreateResultArgs {
 	renderers: SSRLoadedRenderer[];
 	clientDirectives: Map<string, string>;
 	compressHTML: boolean;
+	partial: boolean;
 	resolve: (s: string) => Promise<string>;
 	/**
 	 * Used for `Astro.site`
@@ -44,6 +45,7 @@ export interface CreateResultArgs {
 	status: number;
 	locals: App.Locals;
 	cookies?: AstroCookies;
+	preferredLocale: string | undefined;
 }
 
 function getFunctionExpression(slot: any) {
@@ -123,7 +125,7 @@ class Slots {
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { params, request, resolve, locals } = args;
+	const { params, request, resolve, locals, preferredLocale } = args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
@@ -155,6 +157,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		renderers: args.renderers,
 		clientDirectives: args.clientDirectives,
 		compressHTML: args.compressHTML,
+		partial: args.partial,
 		pathname: args.pathname,
 		cookies,
 		/** This function returns the `Astro` faux-global */
@@ -195,6 +198,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				locals,
 				request,
 				url,
+				preferredLocale: preferredLocale,
 				redirect(path, status) {
 					// If the response is already sent, error as we cannot proceed with the redirect.
 					if ((request as any)[responseSentSymbol]) {

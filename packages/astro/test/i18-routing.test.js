@@ -775,4 +775,52 @@ describe('[SSR] i18n routing', () => {
 			expect(response.status).to.equal(404);
 		});
 	});
+
+	describe('i18n routing preferred locale', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing/',
+				output: 'server',
+				adapter: testAdapter(),
+			});
+			await fixture.build();
+			app = await fixture.loadTestAdapterApp();
+		});
+
+		it('should not render the locale when the value is *', async () => {
+			let request = new Request('http://example.com/new-site/preferred-locale', {
+				headers: {
+					'Accept-Language': '*',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Locale: none');
+		});
+
+		it('should render the locale fr', async () => {
+			let request = new Request('http://example.com/new-site/preferred-locale', {
+				headers: {
+					'Accept-Language': 'fr',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Locale: fr');
+		});
+
+		it('should render the locale fr-AU', async () => {
+			let request = new Request('http://example.com/new-site/preferred-locale', {
+				headers: {
+					'Accept-Language': 'fr;q=0.1,fr-AU;q=0.9',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Locale: fr-AU');
+		});
+	});
 });

@@ -1,5 +1,63 @@
 # astro
 
+## 3.4.0
+
+### Minor Changes
+
+- [#8755](https://github.com/withastro/astro/pull/8755) [`fe4079f05`](https://github.com/withastro/astro/commit/fe4079f05ba21c0f3a167f8e3f55eff705506bd2) Thanks [@matthewp](https://github.com/matthewp)! - Page Partials
+
+  A page component can now be identified as a **partial** page, which will render its HTML content without including a `<! DOCTYPE html>` declaration nor any `<head>` content.
+
+  A rendering library, like htmx or Stimulus or even just jQuery can access partial content on the client to dynamically update only parts of a page.
+
+  Pages marked as partials do not have a `doctype` or any head content included in the rendered result. You can mark any page as a partial by setting this option:
+
+  ```astro
+  ---
+  export const partial = true;
+  ---
+
+  <li>This is a single list item.</li>
+  ```
+
+  Other valid page files that can export a value (e.g. `.mdx`) can also be marked as partials.
+
+  Read more about [Astro page partials](https://docs.astro.build/en/core-concepts/astro-pages/#page-partials) in our documentation.
+
+- [#8821](https://github.com/withastro/astro/pull/8821) [`4740d761a`](https://github.com/withastro/astro/commit/4740d761aeb526dbd79517ebe8cd934f90b17f7c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Improved image optimization performance
+
+  Astro will now generate optimized images concurrently at build time, which can significantly speed up build times for sites with many images. Additionally, Astro will now reuse the same buffer for all variants of an image. This should improve performance for websites with many variants of the same image, especially when using remote images.
+
+  No code changes are required to take advantage of these improvements.
+
+- [#8757](https://github.com/withastro/astro/pull/8757) [`e99586787`](https://github.com/withastro/astro/commit/e99586787b6b53d35daf0195ab9835326cea464a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Dev Overlay (experimental)
+
+  Provides a new dev overlay for your browser preview that allows you to inspect your page islands, see helpful audits on performance and accessibility, and more. A Dev Overlay Plugin API is also included to allow you to add new features and third-party integrations to it.
+
+  You can enable access to the dev overlay and its API by adding the following flag to your Astro config:
+
+  ```ts
+  // astro.config.mjs
+  export default {
+    experimental: {
+      devOverlay: true,
+    },
+  };
+  ```
+
+  Read the [Dev Overlay Plugin API documentation](https://docs.astro.build/en/reference/dev-overlay-plugin-reference/) for information about building your own plugins to integrate with Astro's dev overlay.
+
+- [#8880](https://github.com/withastro/astro/pull/8880) [`8c3d4a859`](https://github.com/withastro/astro/commit/8c3d4a859aec0b94cabd14cc56b5bf3e5e973e36) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Moves the logic for overriding the image service out of core and into adapters. Also fixes a regression where a valid `astro:assets` image service configuration could be overridden.
+
+## 3.3.4
+
+### Patch Changes
+
+- [#8877](https://github.com/withastro/astro/pull/8877) [`26b77b8fe`](https://github.com/withastro/astro/commit/26b77b8fef0e03bfc5550aecaa1f56a4fc1cd297) Thanks [@bluwy](https://github.com/bluwy)! - Fixes CSS modules ordering by rendering styles before links
+
+- Updated dependencies [[`341ef6578`](https://github.com/withastro/astro/commit/341ef6578528a00f89bf6da5e4243b0fde272816)]:
+  - @astrojs/telemetry@3.0.4
+
 ## 3.3.3
 
 ### Patch Changes
@@ -2598,12 +2656,12 @@
 
   ```js
   import { defineConfig } from 'astro/config';
-  export defaultdefineConfig({
-     output: 'hybrid',
-         experimental: {
-         hybridOutput: true,
-     },
-  })
+  export default defineConfig({
+    output: 'hybrid',
+    experimental: {
+      hybridOutput: true,
+    },
+  });
   ```
 
   Then add `export const prerender =  false` to any page or endpoint you want to opt-out of pre-rendering.

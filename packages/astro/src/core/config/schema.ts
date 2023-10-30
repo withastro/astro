@@ -14,6 +14,10 @@ import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
+// This import is required to appease TypeScript!
+// See https://github.com/withastro/astro/pull/8762
+import 'mdast-util-to-hast';
+
 type ShikiLangs = NonNullable<ShikiConfig['langs']>;
 type ShikiTheme = NonNullable<ShikiConfig['theme']>;
 
@@ -55,6 +59,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	redirects: {},
 	experimental: {
 		optimizeHoistedScript: false,
+		devOverlay: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -297,6 +302,7 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.optimizeHoistedScript),
+			devOverlay: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.devOverlay),
 			i18n: z.optional(
 				z
 					.object({
@@ -305,11 +311,10 @@ export const AstroConfigSchema = z.object({
 						fallback: z.record(z.string(), z.string()).optional(),
 						detectBrowserLanguage: z.boolean().optional().default(false),
 						// TODO: properly add default when the feature goes of experimental
-						routingStrategy: z
-							.enum(['prefix-always', 'prefix-other-locales'])
-							.optional()
-							.default('prefix-other-locales'),
-					})
+                        routingStrategy: z
+                            .enum(['prefix-always', 'prefix-other-locales'])
+                            .optional()
+                            .default('prefix-other-locales'),					})
 					.optional()
 					.superRefine((i18n, ctx) => {
 						if (i18n) {

@@ -42,8 +42,6 @@ export function createI18nMiddleware(
 				});
 			}
 			// Astro can't know where the default locale is supposed to be, so it returns a 404 with no content.
-			// TODO: decide what's the best approach in another PR. With `prefix-always` all routes should have the locale unless opt-out (this is for later).
-			// TODO: What's best? 404 or hard error?
 			else if (i18n.routingStrategy === 'prefix-always' && isLocaleFree) {
 				return new Response(null, {
 					status: 404,

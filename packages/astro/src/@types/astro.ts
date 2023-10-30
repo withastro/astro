@@ -21,6 +21,7 @@ import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
+import type { Icon } from '../runtime/client/dev-overlay/ui-library/icons.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
 import type { OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
@@ -219,7 +220,7 @@ export interface AstroGlobal<
 	 * }
 	 * ```
 	 *
-	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
+	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/)
 	 */
 	redirect: AstroSharedContext['redirect'];
 	/**
@@ -1352,6 +1353,25 @@ export interface AstroUserConfig {
 		 */
 		optimizeHoistedScript?: boolean;
 
+		/**
+		 * @docs
+		 * @name experimental.devOverlay
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 3.4.0
+		 * @description
+		 * Enable a dev overlay in development mode. This overlay allows you to inspect your page islands, see helpful audits on performance and accessibility, and more.
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 * 		devOverlay: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		devOverlay?: boolean;
+
 		// TODO review with docs team before merging to `main`
 		/**
 		 * @docs
@@ -1381,14 +1401,14 @@ export interface AstroUserConfig {
 			 * @version 3.*.*
 			 * @description
 			 *
-			 * A list of locales supported in your website/application.
+			 * A list of locales supported by the website.
 			 */
 			locales: string[];
 
 			/**
 			 * @docs
 			 * @name experimental.i18n.fallback
-			 * @type {Record<string, string>}
+			 * @type {Record<string, string[]>}
 			 * @version 3.*.*
 			 * @description
 			 *
@@ -1400,22 +1420,22 @@ export interface AstroUserConfig {
 			 */
 			fallback?: Record<string, string[]>;
 
-			/**
-			 * @docs
-			 * @name experimental.i18n.routingStrategy
-			 * @type {'prefix-always' | 'prefix-other-locales'}
-			 * @default {'prefix-other-locales'}
-			 * @version 3.*.*
-			 * @description
-			 *
-			 * Controls the routing strategy:
-			 *  - `prefix-other-locales`: This is the default value. When used, Astro will identify those routes that belong to the default locale and execute a redirect a route stripped of that locale.
-			 *		Use `example.com/[lang]/content/` for every route.
-			 *  - `prefix-always`: When used, all URLs need to contains a locale prefix. Astro will return a 404 for any route that doesn't fullfill the requirements.
-			 * 		Use `example.com/[lang]/content/` for all non-default languages, but `example.com/content` for the default locale/.
-			 *
-			 */
-			routingStrategy: 'prefix-always' | 'prefix-other-locales';
+            /**
+             * @docs
+             * @name experimental.i18n.routingStrategy
+             * @type {'prefix-always' | 'prefix-other-locales'}
+             * @default {'prefix-other-locales'}
+             * @version 3.*.*
+             * @description
+             *
+             * Controls the routing strategy:
+             *  - `prefix-other-locales`: This is the default value. When used, Astro will identify those routes that belong to the default locale and execute a redirect a route stripped of that locale.
+             *		Use `example.com/[lang]/content/` for every route.
+             *  - `prefix-always`: When used, all URLs need to contains a locale prefix. Astro will return a 404 for any route that doesn't fullfill the requirements.
+             * 		Use `example.com/[lang]/content/` for all non-default languages, but `example.com/content` for the default locale/.
+             *
+             */
+            routingStrategy: 'prefix-always' | 'prefix-other-locales';
 
 			/**
 			 * @docs
@@ -1429,7 +1449,7 @@ export interface AstroUserConfig {
 			 *
 			 * When set to `true`, you should make sure that the adapter you're using is able to provide this feature to you.
 			 */
-			detectBrowserLanguage?: boolean;
+			detectBrowserLanguage: boolean;
 		};
 	};
 }
@@ -1604,6 +1624,7 @@ export interface AstroSettings {
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
+	devOverlayPlugins: string[];
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
@@ -1621,6 +1642,7 @@ export type AsyncRendererComponentFn<U> = (
 export interface ComponentInstance {
 	default: AstroComponentFactory;
 	css?: string[];
+	partial?: boolean;
 	prerender?: boolean;
 	/**
 	 * Only used for logging if deprecated drafts feature is used
@@ -1974,6 +1996,11 @@ interface AstroSharedContext<
 	 * Object accessed via Astro middleware
 	 */
 	locals: App.Locals;
+
+	/**
+	 * The current locale that is computed from the `Accept-Language` header of the browser (**SSR Only**).
+	 */
+	preferredLocale: string | undefined;
 }
 
 export interface APIContext<
@@ -2075,6 +2102,12 @@ export interface APIContext<
 	 */
 	locals: App.Locals;
 	ResponseWithEncoding: typeof ResponseWithEncoding;
+
+	/**
+	 * Available only when `experimental.i18n` enabled.
+	 *
+	 */
+	preferredLocale: string | undefined;
 }
 
 export type EndpointOutput =
@@ -2141,6 +2174,7 @@ export interface AstroIntegration {
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			addClientDirective: (directive: ClientDirectiveConfig) => void;
+			addDevOverlayPlugin: (entrypoint: string) => void;
 			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
@@ -2310,6 +2344,7 @@ export interface SSRResult {
 	 */
 	clientDirectives: Map<string, string>;
 	compressHTML: boolean;
+	partial: boolean;
 	/**
 	 * Only used for logging
 	 */
@@ -2382,3 +2417,17 @@ export interface ClientDirectiveConfig {
 	name: string;
 	entrypoint: string;
 }
+
+export interface DevOverlayPlugin {
+	id: string;
+	name: string;
+	icon: Icon;
+	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
+}
+
+export type DevOverlayMetadata = Window &
+	typeof globalThis & {
+		__astro_dev_overlay__: {
+			root: string;
+		};
+	};
