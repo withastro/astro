@@ -7,9 +7,10 @@ describe('Static Assets', () => {
 
 	const VALID_CACHE_CONTROL = 'public, max-age=31536000, immutable';
 
-	async function build({ adapter, assets }) {
+	async function build({ adapter, assets, output }) {
 		fixture = await loadFixture({
 			root: './fixtures/static-assets/',
+			output,
 			adapter,
 			build: {
 				assets,
@@ -38,31 +39,31 @@ describe('Static Assets', () => {
 	}
 
 	describe('static adapter', async () => {
-		const adapter = await import('@astrojs/vercel/static');
+		const { default: vercel } = await import('@astrojs/vercel/static');
 
 		it('has cache control', async () => {
-			await build({ adapter });
+			await build({ adapter: vercel() });
 			checkValidCacheControl();
 		});
 
 		it('has cache control other assets', async () => {
 			const assets = '_foo';
-			await build({ adapter, assets });
+			await build({ adapter: vercel(), assets });
 			checkValidCacheControl(assets);
 		});
 	});
 
 	describe('serverless adapter', async () => {
-		const adapter = await import('@astrojs/vercel/serverless');
+		const { default: vercel } = await import('@astrojs/vercel/serverless');
 
 		it('has cache control', async () => {
-			await build({ adapter });
+			await build({ output: "server", adapter: vercel() });
 			checkValidCacheControl();
 		});
 
 		it('has cache control other assets', async () => {
 			const assets = '_foo';
-			await build({ adapter, assets });
+			await build({ output: "server", adapter: vercel(), assets });
 			checkValidCacheControl(assets);
 		});
 	});
