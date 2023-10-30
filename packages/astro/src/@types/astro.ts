@@ -1994,6 +1994,11 @@ interface AstroSharedContext<
 	 * Object accessed via Astro middleware
 	 */
 	locals: App.Locals;
+
+	/**
+	 * The current locale that is computed from the `Accept-Language` header of the browser (**SSR Only**).
+	 */
+	preferredLocale: string | undefined;
 }
 
 export interface APIContext<
@@ -2095,6 +2100,12 @@ export interface APIContext<
 	 */
 	locals: App.Locals;
 	ResponseWithEncoding: typeof ResponseWithEncoding;
+
+	/**
+	 * Available only when `experimental.i18n` enabled.
+	 *
+	 */
+	preferredLocale: string | undefined;
 }
 
 export type EndpointOutput =

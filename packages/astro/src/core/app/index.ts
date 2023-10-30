@@ -16,7 +16,12 @@ import {
 	removeTrailingForwardSlash,
 } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { createEnvironment, createRenderContext, type RenderContext } from '../render/index.js';
+import {
+	computePreferredLocale,
+	createEnvironment,
+	createRenderContext,
+	type RenderContext,
+} from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -217,10 +222,15 @@ export class App {
 		page: SinglePageBuiltModule,
 		status = 200
 	): Promise<RenderContext> {
+		let currentLocale: undefined | string = undefined;
+		if (this.#manifest.i18n) {
+			currentLocale = computePreferredLocale(request);
+		}
 		if (routeData.type === 'endpoint') {
 			const pathname = '/' + this.removeBase(url.pathname);
 			const mod = await page.page();
 			const handler = mod as unknown as EndpointHandler;
+
 			return await createRenderContext({
 				request,
 				pathname,
@@ -228,6 +238,7 @@ export class App {
 				status,
 				env: this.#pipeline.env,
 				mod: handler as any,
+				preferredLocale: currentLocale,
 			});
 		} else {
 			const pathname = prependForwardSlash(this.removeBase(url.pathname));
@@ -261,6 +272,7 @@ export class App {
 				status,
 				mod,
 				env: this.#pipeline.env,
+				preferredLocale: currentLocale,
 			});
 		}
 	}
