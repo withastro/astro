@@ -586,6 +586,9 @@ importers:
       magic-string:
         specifier: ^0.30.3
         version: 0.30.5
+      mdast-util-to-hast:
+        specifier: 12.3.0
+        version: 12.3.0
       mime:
         specifier: ^3.0.0
         version: 3.0.0
@@ -747,9 +750,6 @@ importers:
       eol:
         specifier: ^0.9.1
         version: 0.9.1
-      mdast-util-to-hast:
-        specifier: 12.3.0
-        version: 12.3.0
       memfs:
         specifier: ^4.2.1
         version: 4.6.0
