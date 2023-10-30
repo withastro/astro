@@ -534,6 +534,36 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @name prefetch
+	 * @type {boolean | PrefetchOptions}
+	 * @description
+	 * Enable prefetching for your site. A prefetch script is automatically added to every page
+	 * in the project. Just add the `data-astro-prefetch` attribute to any `<a />` links on your page
+	 * and you're ready to go!
+	 */
+
+	/**
+	 * @docs
+	 * @name prefetch.prefetchAll
+	 * @type {boolean}
+	 * @description
+	 * Enable prefetching for all links by default, similar to all `<a />` links having the `data-astro-prefetch`
+	 * attribute set. You can disable prefetching individually by setting `data-astro-prefetch="false"` on a link.
+	 */
+
+	/**
+	 * @docs
+	 * @name prefetch.defaultStrategy
+	 * @type {'tap' | 'hover' | 'viewport'}
+	 * @default `'hover'`
+	 * @description
+	 * The default prefetch strategy to use when the `data-astro-prefetch` attribute (no value) is set on a link.
+	 * You can select a different strategy for individual links by setting, e.g. `data-astro-prefetch="viewport"`.
+	 */
+	prefetch?: boolean | PrefetchOptions;
+
+	/**
+	 * @docs
 	 * @name site
 	 * @type {string}
 	 * @description
@@ -2322,3 +2352,25 @@ export type DevOverlayMetadata = Window &
 			root: string;
 		};
 	};
+
+export interface PrefetchOptions {
+	/**
+	 * @docs
+	 * @name prefetch.prefetchAll
+	 * @type {boolean}
+	 * @description
+	 * Enable prefetching for all links by default, similar to all `<a />` links having the `data-astro-prefetch`
+	 * attribute set. You can disable prefetching individually by setting `data-astro-prefetch="false"` on a link.
+	 */
+	prefetchAll?: boolean;
+	/**
+	 * @docs
+	 * @name prefetch.defaultStrategy
+	 * @type {'tap' | 'hover' | 'viewport'}
+	 * @default `'hover'`
+	 * @description
+	 * The default prefetch strategy to use when the `data-astro-prefetch` attribute (no value) is set on a link.
+	 * You can select a different strategy for individual links by setting, e.g. `data-astro-prefetch="viewport"`.
+	 */
+	defaultStrategy?: 'tap' | 'hover' | 'viewport';
+}

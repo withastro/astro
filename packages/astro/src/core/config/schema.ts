@@ -187,6 +187,15 @@ export const AstroConfigSchema = z.object({
 			])
 		)
 		.default(ASTRO_CONFIG_DEFAULTS.redirects),
+	prefetch: z
+		.union([
+			z.boolean(),
+			z.object({
+				prefetchAll: z.boolean().optional(),
+				defaultStrategy: z.enum(['tap', 'hover', 'viewport']).optional(),
+			}),
+		])
+		.optional(),
 	image: z
 		.object({
 			endpoint: z.string().optional(),

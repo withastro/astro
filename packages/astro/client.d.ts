@@ -121,6 +121,12 @@ declare module 'astro:transitions/client' {
 	export const navigate: TransitionRouterModule['navigate'];
 }
 
+declare module 'astro:prefetch' {
+	type PrefetchModule = typeof import('./dist/prefetch/index.js');
+	export const prefetch: PrefetchModule['prefetch'];
+	export type PrefetchOptions = PrefetchModule['PrefetchOptions'];
+}
+
 declare module 'astro:middleware' {
 	export * from 'astro/middleware/namespace';
 }
