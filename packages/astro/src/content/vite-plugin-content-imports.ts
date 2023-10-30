@@ -12,8 +12,10 @@ import type {
 	DataEntryModule,
 	DataEntryType,
 } from '../@types/astro.js';
+import { getProxyCode } from '../assets/utils/proxy.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
+import { isServerLikeOutput } from '../prerender/utils.js';
 import { escapeViteEnvReferences } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG, DATA_FLAG } from './consts.js';
 import {
@@ -94,7 +96,7 @@ export function astroContentImportPlugin({
 					const code = escapeViteEnvReferences(`
 export const id = ${JSON.stringify(id)};
 export const collection = ${JSON.stringify(collection)};
-export const data = ${stringifyEntryData(data)};
+export const data = ${stringifyEntryData(data, isServerLikeOutput(settings.config))};
 export const _internal = {
 	type: 'data',
 	filePath: ${JSON.stringify(_internal.filePath)},
@@ -118,7 +120,7 @@ export const _internal = {
 						export const collection = ${JSON.stringify(collection)};
 						export const slug = ${JSON.stringify(slug)};
 						export const body = ${JSON.stringify(body)};
-						export const data = ${stringifyEntryData(data)};
+						export const data = ${stringifyEntryData(data, isServerLikeOutput(settings.config))};
 						export const _internal = {
 							type: 'content',
 							filePath: ${JSON.stringify(_internal.filePath)},
@@ -352,7 +354,7 @@ async function getContentConfigFromGlobal() {
 }
 
 /** Stringify entry `data` at build time to be used as a Vite module */
-function stringifyEntryData(data: Record<string, any>): string {
+function stringifyEntryData(data: Record<string, any>, isSSR: boolean): string {
 	try {
 		return devalue.uneval(data, (value) => {
 			// Add support for URL objects
@@ -363,17 +365,7 @@ function stringifyEntryData(data: Record<string, any>): string {
 			// For Astro assets, add a proxy to track references
 			if (typeof value === 'object' && 'ASTRO_ASSET' in value) {
 				const { ASTRO_ASSET, ...asset } = value;
-				return `
-					new Proxy(${JSON.stringify(asset)}, {
-						get(target, name, receiver) {
-							if (name === 'clone') {
-								return structuredClone(target);
-							}
-							globalThis.astroAsset.referencedImages.add(target.fsPath);
-							return target[name];
-						}
-					})
-				`;
+				return getProxyCode(asset, isSSR);
 			}
 		});
 	} catch (e) {

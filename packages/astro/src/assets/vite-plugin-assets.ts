@@ -14,6 +14,7 @@ import { isServerLikeOutput } from '../prerender/utils.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { isESMImportedImage } from './internal.js';
 import { emitESMImage } from './utils/emitAsset.js';
+import { getProxyCode } from './utils/proxy.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
@@ -187,19 +188,7 @@ export default function assets({
 					}
 
 					return `
-					export default new Proxy(${JSON.stringify(meta)}, {
-						get(target, name, receiver) {
-							if (name === 'clone') {
-								return structuredClone(target);
-							}
-							${
-								!isServerLikeOutput(settings.config)
-									? 'globalThis.astroAsset.referencedImages.add(target.fsPath);'
-									: ''
-							}
-							return target[name];
-						}
-					});`;
+					export default ${getProxyCode(meta, isServerLikeOutput(settings.config))}`;
 				}
 			},
 		},
