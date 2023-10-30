@@ -97,10 +97,9 @@ export default function assets({
 					).replace(settings.config.build.assetsPrefix || '', '');
 
 					// This, however, is the real original path, in `src` and all.
-					const originalSrcPath: string = isESMImportedImage(options.src)
-						? // @ts-expect-error - `fsPath` is private for now.
-						  options.src.fsPath
-						: undefined;
+					const originalSrcPath = isESMImportedImage(options.src)
+						? options.src.fsPath
+						: options.src;
 
 					const hash = hashTransform(options, settings.config.image.service.entrypoint);
 

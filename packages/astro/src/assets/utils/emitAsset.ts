@@ -24,7 +24,7 @@ export async function emitESMImage(
 
 	const fileMetadata = await imageMetadata(fileData, id);
 
-	const emittedImage: ImageMetadata = {
+	const emittedImage: Omit<ImageMetadata, 'fsPath'> = {
 		src: '',
 		...fileMetadata,
 	};
@@ -57,7 +57,7 @@ export async function emitESMImage(
 		emittedImage.src = `/@fs` + prependForwardSlash(fileURLToNormalizedPath(url));
 	}
 
-	return emittedImage;
+	return emittedImage as ImageMetadata;
 }
 
 function fileURLToNormalizedPath(filePath: URL): string {
