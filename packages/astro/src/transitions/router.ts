@@ -537,7 +537,8 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 			(newDocument.doctype ? '<!DOCTYPE html>' : '') + newDocument.documentElement.outerHTML;
 		nextPage.style.display = 'none';
 		document.body.append(nextPage);
-		// @ts-ignore silence the iframes console
+		// silence the iframe's console
+		// @ts-ignore
 		nextPage.contentWindow!.console = Object.keys(console).reduce((acc: any, key) => {
 			acc[key] = () => {};
 			return acc;
