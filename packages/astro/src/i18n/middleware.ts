@@ -2,6 +2,17 @@ import type { MiddlewareEndpointHandler } from '../@types/astro.js';
 import type { SSRManifest } from '../@types/astro.js';
 import type { Environment } from '../core/render/index.js';
 
+// Checks if the pathname doesn't have any locale, exception for the defaultLocale, which is ignored on purpose
+function checkIsLocaleFree(pathname: string, locales: string[]): boolean {
+	for (const locale of locales) {
+		if (pathname.includes(`/${locale}`)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n']
 ): MiddlewareEndpointHandler | undefined {
@@ -11,7 +22,7 @@ export function createI18nMiddleware(
 	const locales = i18n.locales;
 
 	return async (context, next) => {
-		if (!i18n.fallback) {
+		if (!i18n) {
 			return await next();
 		}
 		const response = await next();
@@ -19,8 +30,9 @@ export function createI18nMiddleware(
 		const url = context.url;
 		if (response instanceof Response) {
 			const separators = url.pathname.split('/');
-			const fallbackWithRedirect = i18n.fallbackControl === 'redirect';
-			if (fallbackWithRedirect && url.pathname.includes(`/${i18n.defaultLocale}`)) {
+			const pathnameContainsDefaultLocale = url.pathname.includes(`/${i18n.defaultLocale}`);
+			const isLocaleFree = checkIsLocaleFree(url.pathname, i18n.locales);
+			if (i18n.routingStrategy === 'prefix-other-locales' && pathnameContainsDefaultLocale) {
 				const content = await response.text();
 				const newLocation = url.pathname.replace(`/${i18n.defaultLocale}`, '');
 				response.headers.set('Location', newLocation);
@@ -29,7 +41,14 @@ export function createI18nMiddleware(
 					headers: response.headers,
 				});
 			}
-			if (fallbackWithRedirect && response.status >= 300) {
+			// Astro can't know where the default locale is supposed to be, so it returns a 404 with no content.
+			else if (i18n.routingStrategy === 'prefix-always' && isLocaleFree) {
+				return new Response(null, {
+					status: 404,
+					headers: response.headers,
+				});
+			}
+			if (response.status >= 300 && i18n.fallback) {
 				const fallbackKeys = i18n.fallback ? Object.keys(i18n.fallback) : [];
 
 				const urlLocale = separators.find((s) => locales.includes(s));

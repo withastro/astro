@@ -221,6 +221,9 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			} else if (routeIsFallback(pageData.route)) {
 				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);
 				await generatePage(pageData, entry, builtPaths, pipeline);
+			} else if (routeIsFallback(pageData.route)) {
+				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);
+				await generatePage(pageData, entry, builtPaths, pipeline);
 			} else {
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const entry: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
@@ -636,7 +639,7 @@ export function createBuildManifest(
 	if (settings.config.experimental.i18n) {
 		i18nManifest = {
 			fallback: settings.config.experimental.i18n.fallback,
-			fallbackControl: settings.config.experimental.i18n.fallbackControl,
+			routingStrategy: settings.config.experimental.i18n.routingStrategy,
 			defaultLocale: settings.config.experimental.i18n.defaultLocale,
 			locales: settings.config.experimental.i18n.locales,
 		};

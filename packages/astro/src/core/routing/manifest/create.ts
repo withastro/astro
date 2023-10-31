@@ -486,7 +486,7 @@ export function createRouteManifest(
 	});
 	const i18n = settings.config.experimental.i18n;
 
-	if (i18n && i18n.fallback && i18n.fallbackControl === 'redirect') {
+	if (i18n && i18n.fallback) {
 		let fallback = Object.entries(i18n.fallback);
 
 		// A map like: locale => RouteData[]
