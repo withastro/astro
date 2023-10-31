@@ -32,8 +32,8 @@ import { RESOLVED_SPLIT_MODULE_ID, RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plug
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
-import { CONTENT_RENDER_FLAG, PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
-import { generateLookupMap } from '../../content/vite-plugin-content-virtual-mod.js';
+import { hasAnyContentFlag } from '../../content/utils.js';
+import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -85,15 +85,6 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
 	opts.logger.info('build', dim(`Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 	settings.timer.end('SSR build');
-
-	// Build `astro:content` collections
-	const shouldDoContentBuild = await needsContentBuild(opts);
-	if (shouldDoContentBuild) {
-		const contentTime = performance.now();
-		opts.logger.info('content', `Building collections...`);
-		await contentBuild(opts, internals, new Set(), container);
-		opts.logger.info('content', dim(`Completed in ${getTimeStat(contentTime, performance.now())}.`));
-	}
 	
 	settings.timer.start('Client build');
 
@@ -187,6 +178,13 @@ async function ssrBuild(
 					// We need to keep these separate
 					chunkFileNames(chunkInfo) {
 						const { name } = chunkInfo;
+
+						if (name.includes('/content/')) {
+							const parts = name.split('/');
+							if (parts.at(1) === 'content') {
+								return parts.slice(1).join('/');
+							}
+						}
 						// Sometimes chunks have the `@_@astro` suffix due to SSR logic. Remove it!
 						// TODO: refactor our build logic to avoid this
 						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
@@ -209,7 +207,7 @@ async function ssrBuild(
 								}
 							}
 						}
-						return `chunks/[name]_[hash].mjs`;
+						return `chunks/[name].mjs`;
 					},
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
@@ -228,112 +226,16 @@ async function ssrBuild(
 							return 'renderers.mjs';
 						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
 							return 'manifest_[hash].mjs';
+						} else if (chunkInfo.facadeModuleId && hasAnyContentFlag(chunkInfo.facadeModuleId)) {
+							const [srcRelative, flag] = chunkInfo.facadeModuleId.split('/src/')[1].split('?');
+							if (flag === PROPAGATED_ASSET_FLAG) {
+								return `${removeFileExtension(srcRelative)}.entry.mjs`;
+							}
+							return `${removeFileExtension(srcRelative)}.mjs`;
 						} else {
 							return '[name].mjs';
 						}
 					},
-				},
-			},
-			ssr: true,
-			ssrEmitAssets: true,
-			// improve build performance
-			minify: false,
-			modulePreload: { polyfill: false },
-			reportCompressedSize: false,
-		},
-		plugins: [...vitePlugins, ...(viteConfig.plugins || []), ...lastVitePlugins],
-		envPrefix: viteConfig.envPrefix ?? 'PUBLIC_',
-		base: settings.config.base,
-	};
-
-	const updatedViteBuildConfig = await runHookBuildSetup({
-		config: settings.config,
-		pages: internals.pagesByComponent,
-		vite: viteBuildConfig,
-		target: 'server',
-		logger: opts.logger,
-	});
-
-	return await vite.build(updatedViteBuildConfig);
-}
-
-async function needsContentBuild(opts: StaticBuildOptions) {
-	const lookupMap = await generateLookupMap({ settings: opts.settings, fs });
-	return Object.keys(lookupMap).length > 0
-}
-
-async function contentBuild(
-	opts: StaticBuildOptions,
-	internals: BuildInternals,
-	input: Set<string>,
-	container: AstroBuildPluginContainer
-) {
-	const { settings, viteConfig } = opts;
-	const out = new URL('./content/', getOutputDirectory(settings.config));
-	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('content', input);
-	const userOutputConfig = (Array.isArray(viteConfig.build?.rollupOptions?.output) ? viteConfig.build?.rollupOptions?.output.at(0) : viteConfig.build?.rollupOptions?.output) ?? {};
-	const userChunkFileNames = userOutputConfig.chunkFileNames ?? '[name]_[hash].mjs';
-	const userEntryFileNames = userOutputConfig.entryFileNames ?? '[name].mjs';
-
-	const viteBuildConfig: vite.InlineConfig = {
-		...viteConfig,
-		mode: viteConfig.mode || 'production',
-		// Check using `settings...` as `viteConfig` always defaults to `warn` by Astro
-		logLevel: settings.config.vite.logLevel ?? 'error',
-		build: {
-			target: 'esnext',
-			// Vite defaults cssMinify to false in SSR by default, but we want to minify it
-			// as the CSS generated are used and served to the client.
-			cssMinify: viteConfig.build?.minify == null ? true : !!viteConfig.build?.minify,
-			...viteConfig.build,
-			emptyOutDir: false,
-			manifest: false,
-			outDir: fileURLToPath(out),
-			copyPublicDir: false,
-			rollupOptions: {
-				...viteConfig.build?.rollupOptions,
-				input: [],
-				output: {
-					hoistTransitiveImports: false,
-					format: 'esm',
-					chunkFileNames(info) {
-						if (info.moduleIds.length === 1) {
-							const moduleId = info.moduleIds[0];
-							// TODO: don't hardcode this
-							if (moduleId.includes('/content/')) {
-								const url = pathToFileURL(info.moduleIds[0]);
-								const distRelative = url.toString().replace(new URL('./content/', settings.config.srcDir).toString(), '')
-								const entryFileName = removeFileExtension(distRelative);
-								return `${entryFileName}.render.mjs`;
-							}
-						}
-						if (info.name === 'astro') return `astro.mjs`;
-						if (typeof userChunkFileNames === 'string') return userChunkFileNames;
-						if (typeof userChunkFileNames === 'function') return userChunkFileNames(info);
-						return '[name]_[hash].mjs';
-					},
-					...userOutputConfig,
-					entryFileNames(info) {
-						const params = new URLSearchParams(info.moduleIds[0].split('?').pop() ?? '');
-						const flags = Array.from(params.keys());
-						const url = pathToFileURL(info.moduleIds[0]);
-						const distRelative = url.toString().replace(new URL('./content/', settings.config.srcDir).toString(), '')
-						let entryFileName = removeFileExtension(distRelative);
-						if (distRelative.startsWith('file://')) {
-							if (typeof userEntryFileNames === 'string') return userEntryFileNames;
-							if (typeof userEntryFileNames === 'function') return userEntryFileNames(info);
-							return `[name].[hash].mjs`;
-						}
-						// TODO: figure out how to externalize `astro` internals
-						if (flags[0] === PROPAGATED_ASSET_FLAG) {
-							entryFileName += `.entry`
-						}
-						if (flags[0] === CONTENT_RENDER_FLAG) {
-							entryFileName += '.render';
-						}
-						return `${entryFileName}.mjs`;
-					},
-					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 				},
 			},
 			ssr: true,

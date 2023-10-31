@@ -19,7 +19,7 @@ export function vitePluginChunks(): VitePlugin {
 
 export function pluginChunks(): AstroBuildPlugin {
 	return {
-		targets: ['server', 'content'],
+		targets: ['server'],
 		hooks: {
 			'build:before': () => {
 				return {
