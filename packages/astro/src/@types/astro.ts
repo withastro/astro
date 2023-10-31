@@ -1429,7 +1429,7 @@ export interface AstroUserConfig {
              * @description
              *
              * Controls the routing strategy:
-             *  - `prefix-other-locales`: This is the default value. When used, Astro will identify those routes that belong to the default locale and execute a redirect a route stripped of that locale.
+             *  - `prefix-other-locales`: This is the default value. When used, Astro will identify those routes that belong to the default locale and execute a redirect to a route stripped of that locale.
              *		Use `example.com/[lang]/content/` for every route.
              *  - `prefix-always`: When used, all URLs need to contains a locale prefix. Astro will return a 404 for any route that doesn't fullfill the requirements.
              * 		Use `example.com/[lang]/content/` for all non-default languages, but `example.com/content` for the default locale/.
