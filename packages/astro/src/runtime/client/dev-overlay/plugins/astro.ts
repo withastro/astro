@@ -1,12 +1,11 @@
 import type { DevOverlayPlugin } from '../../../../@types/astro.js';
-import type { DevOverlayWindow } from '../ui-library/window.js';
 
 export default {
 	id: 'astro',
 	name: 'Astro',
 	icon: 'astro:logo',
 	init(canvas) {
-		const astroWindow = document.createElement('astro-dev-overlay-window') as DevOverlayWindow;
+		const astroWindow = document.createElement('astro-dev-overlay-window');
 
 		astroWindow.windowTitle = 'Astro';
 		astroWindow.windowIcon = 'astro:logo';
