@@ -60,29 +60,24 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 
 		async options(options) {
 			let newOptions = Object.assign({}, options);
+			newManifest = await generateContentManifest(opts, lookupMap);
+			await fsMod.promises.mkdir(new URL('./', contentManifestFile), { recursive: true });
+			await fsMod.promises.writeFile(contentManifestFile, JSON.stringify(newManifest), { encoding: 'utf8' });
+			entries = getEntriesFromManifests(oldManifest, newManifest);
 
-			if (opts.settings.config.output === 'static') {
-				newManifest = await generateContentManifest(opts, lookupMap);
-				await fsMod.promises.mkdir(new URL('./', contentManifestFile), { recursive: true });
-				await fsMod.promises.writeFile(contentManifestFile, JSON.stringify(newManifest), { encoding: 'utf8' });
-				entries = getEntriesFromManifests(oldManifest, newManifest);
-
-				console.log(`Building ${entries.buildFromSource.length} changed files...`)
-
-				for (const { type, entry } of entries.buildFromSource) {
-					const fileURL = joinPaths(opts.settings.config.root.toString(), entry);
-					const input = fileURLToPath(fileURL);
-					const inputs = [`${input}?${collectionTypeToFlag(type)}`];
-					if (type === 'content') {
-						inputs.push(`${input}?${CONTENT_RENDER_FLAG}`)
-					}
-					newOptions = addRollupInput(newOptions, inputs);
+			for (const { type, entry } of entries.buildFromSource) {
+				const fileURL = joinPaths(opts.settings.config.root.toString(), entry);
+				const input = fileURLToPath(fileURL);
+				const inputs = [`${input}?${collectionTypeToFlag(type)}`];
+				if (type === 'content') {
+					inputs.push(`${input}?${CONTENT_RENDER_FLAG}`)
 				}
+				newOptions = addRollupInput(newOptions, inputs);
+			}
 
-				if (entries.buildFromSource.length === 0) {
-					newOptions = addRollupInput(newOptions, [virtualEmptyModuleId])
-					injectedEmptyFile = true;
-				}
+			if (entries.buildFromSource.length === 0) {
+				newOptions = addRollupInput(newOptions, [virtualEmptyModuleId])
+				injectedEmptyFile = true;
 			}
 			return newOptions;
 		},
@@ -106,7 +101,6 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 								suffix = '.entry.mjs';
 							}
 							id = removeLeadingForwardSlash(removeFileExtension(id.replace(srcPath, '/'))) + suffix;
-							console.log(suffix, id);
 							return id;
 						}
 					}
@@ -118,7 +112,6 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 			if (id === virtualEmptyModuleId) {
 				return resolvedVirtualEmptyModuleId;
 			}
-			
 		},
 
 		async load(id) {
@@ -237,6 +230,9 @@ export function pluginContent(opts: StaticBuildOptions, internals: BuildInternal
 		targets: ['server'],
 		hooks: {
 			async 'build:before'() {
+				if (!opts.settings.config.experimental.contentCollectionCache) {
+					return { vitePlugin: undefined };
+				}
 				if (isServerLikeOutput(opts.settings.config)) {
 					return { vitePlugin: undefined };
 				}

@@ -171,14 +171,14 @@ async function ssrBuild(
 				...viteConfig.build?.rollupOptions,
 				input: [],
 				output: {
-					hoistTransitiveImports: false,
+					hoistTransitiveImports: !settings.config.experimental.contentCollectionCache,
 					format: 'esm',
 					// Server chunks can't go in the assets (_astro) folder
 					// We need to keep these separate
 					chunkFileNames(chunkInfo) {
 						const { name } = chunkInfo;
 
-						if (name.includes('/content/')) {
+						if (settings.config.experimental.contentCollectionCache && name.includes('/content/')) {
 							const parts = name.split('/');
 							if (parts.at(1) === 'content') {
 								return parts.slice(1).join('/');
@@ -206,7 +206,10 @@ async function ssrBuild(
 								}
 							}
 						}
-						return `chunks/[name].mjs`;
+						if (settings.config.experimental.contentCollectionCache) {
+							return `chunks/[name].mjs`;
+						}
+						return `chunks/[name]_[hash].mjs`;
 					},
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
@@ -225,7 +228,7 @@ async function ssrBuild(
 							return 'renderers.mjs';
 						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
 							return 'manifest_[hash].mjs';
-						} else if (chunkInfo.facadeModuleId && hasAnyContentFlag(chunkInfo.facadeModuleId)) {
+						} else if (settings.config.experimental.contentCollectionCache && chunkInfo.facadeModuleId && hasAnyContentFlag(chunkInfo.facadeModuleId)) {
 							const [srcRelative, flag] = chunkInfo.facadeModuleId.split('/src/')[1].split('?');
 							if (flag === PROPAGATED_ASSET_FLAG) {
 								return `${removeFileExtension(srcRelative)}.entry.mjs`;

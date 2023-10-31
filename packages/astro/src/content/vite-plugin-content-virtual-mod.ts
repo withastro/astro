@@ -6,7 +6,7 @@ import pLimit from 'p-limit';
 import { type Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { removeFileExtension } from '../core/path.js';
+import { appendForwardSlash, removeFileExtension } from '../core/path.js';
 import { rootRelativePath } from '../core/util.js';
 import { CONTENT_FLAG, CONTENT_RENDER_FLAG, DATA_FLAG, VIRTUAL_MODULE_ID } from './consts.js';
 import {
@@ -44,6 +44,9 @@ export function astroContentVirtualModPlugin({
 		},
 		resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
+				if (!settings.config.experimental.contentCollectionCache) {
+					return astroContentVirtualModuleId;
+				}
 				if (IS_DEV || IS_SERVER) {
 					return astroContentVirtualModuleId;
 				} else {
@@ -76,6 +79,9 @@ export function astroContentVirtualModPlugin({
 			}
 		},
 		renderChunk(code, chunk) {
+			if (!settings.config.experimental.contentCollectionCache) {
+				return;
+			}
 			if (code.includes(astroContentVirtualModuleId)) {
 				const depth = chunk.fileName.split('/').length - 1;
 				const prefix = depth > 0 ? '../'.repeat(depth) : './';
@@ -96,9 +102,22 @@ export async function generateContentEntryFile({
 	const contentPaths = getContentPaths(settings.config);
 	const relContentDir = rootRelativePath(settings.config.root, contentPaths.contentDir);
 
-	const contentEntryGlobResult = getStringifiedCollectionFromLookup('content', relContentDir, lookupMap);
-	const dataEntryGlobResult = getStringifiedCollectionFromLookup('data', relContentDir, lookupMap);
-	const renderEntryGlobResult = getStringifiedCollectionFromLookup('render', relContentDir, lookupMap);
+	let contentEntryGlobResult: string;
+	let dataEntryGlobResult: string;
+	let renderEntryGlobResult: string;
+	if (!settings.config.experimental.contentCollectionCache) {
+		const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
+		const contentEntryExts = [...contentEntryConfigByExt.keys()];
+		const dataEntryExts = getDataEntryExts(settings);
+		const createGlob = (value: string[], flag: string) => `import.meta.glob(${JSON.stringify(value)}, { query: { ${flag}: true } })`
+		contentEntryGlobResult = createGlob(globWithUnderscoresIgnored(relContentDir, contentEntryExts), CONTENT_FLAG);
+		dataEntryGlobResult = createGlob(globWithUnderscoresIgnored(relContentDir, dataEntryExts), DATA_FLAG);
+		renderEntryGlobResult = createGlob(globWithUnderscoresIgnored(relContentDir, contentEntryExts), CONTENT_RENDER_FLAG);
+	} else {
+		contentEntryGlobResult = getStringifiedCollectionFromLookup('content', relContentDir, lookupMap);
+		dataEntryGlobResult = getStringifiedCollectionFromLookup('data', relContentDir, lookupMap);
+		renderEntryGlobResult = getStringifiedCollectionFromLookup('render', relContentDir, lookupMap);
+	}
 
 	const virtualModContents = nodeFs
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
@@ -162,7 +181,6 @@ export async function generateLookupMap({
 }) {
 	const { root } = settings.config;
 	const contentPaths = getContentPaths(settings.config);
-	if (!contentPaths.config.exists) return {};
 	const relContentDir = rootRelativePath(root, contentPaths.contentDir, false);
 
 	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
@@ -255,6 +273,16 @@ export async function generateLookupMap({
 
 	await Promise.all(promises);
 	return lookupMap;
+}
+
+function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
+	const extGlob = getExtGlob(exts);
+	const contentDir = appendForwardSlash(relContentDir);
+	return [
+		`${contentDir}**/*${extGlob}`,
+		`!${contentDir}**/_*/**/*${extGlob}`,
+		`!${contentDir}**/_*${extGlob}`,
+	];
 }
 
 const UnexpectedLookupMapError = new AstroError({
