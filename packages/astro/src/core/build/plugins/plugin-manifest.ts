@@ -242,7 +242,7 @@ function buildManifest(
 	if (settings.config.experimental.i18n) {
 		i18nManifest = {
 			fallback: settings.config.experimental.i18n.fallback,
-			fallbackControl: settings.config.experimental.i18n.fallbackControl,
+			routingStrategy: settings.config.experimental.i18n.routingStrategy,
 			locales: settings.config.experimental.i18n.locales,
 			defaultLocale: settings.config.experimental.i18n.defaultLocale,
 		};

@@ -1489,20 +1489,22 @@ export interface AstroUserConfig {
 			 */
 			fallback?: Record<string, string[]>;
 
-			/**
-			 * @docs
-			 * @name experimental.i18n.fallbackControl
-			 * @type {"none" | "render" | "redirect"}
-			 * @version 3.*.*
-			 * @description
-			 *
-			 * Controls the fallback system of the internationalisation:
-			 *  - `none`: Astro will do nothing and will return `404` if a translated page isn't translated;
-			 *  - `redirect`: Astro will do a redirect to the fallback language if the translated page returns a `404`;
-			 *  - `render`: currently unsupported by Astro
-			 *
-			 */
-			fallbackControl: 'none' | 'render' | 'redirect';
+            /**
+             * @docs
+             * @name experimental.i18n.routingStrategy
+             * @type {'prefix-always' | 'prefix-other-locales'}
+             * @default {'prefix-other-locales'}
+             * @version 3.*.*
+             * @description
+             *
+             * Controls the routing strategy:
+             *  - `prefix-other-locales`: This is the default value. When used, Astro will identify those routes that belong to the default locale and execute a redirect to a route stripped of that locale.
+             *		Use `example.com/[lang]/content/` for every route.
+             *  - `prefix-always`: When used, all URLs need to contains a locale prefix. Astro will return a 404 for any route that doesn't fullfill the requirements.
+             * 		Use `example.com/[lang]/content/` for all non-default languages, but `example.com/content` for the default locale/.
+             *
+             */
+            routingStrategy: 'prefix-always' | 'prefix-other-locales';
 
 			/**
 			 * @docs
