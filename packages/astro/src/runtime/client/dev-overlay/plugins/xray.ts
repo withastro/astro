@@ -1,6 +1,5 @@
 import type { DevOverlayMetadata, DevOverlayPlugin } from '../../../../@types/astro.js';
 import type { DevOverlayHighlight } from '../ui-library/highlight.js';
-import type { DevOverlayTooltip } from '../ui-library/tooltip.js';
 import { attachTooltipToHighlight, createHighlight, positionHighlight } from './utils/highlight.js';
 
 const icon =
@@ -12,9 +11,18 @@ export default {
 	icon: icon,
 	init(canvas) {
 		let islandsOverlays: { highlightElement: DevOverlayHighlight; island: HTMLElement }[] = [];
+
 		addIslandsOverlay();
 
+		document.addEventListener('astro:after-swap', addIslandsOverlay);
+		document.addEventListener('astro:page-load', refreshIslandsOverlayPositions);
+
 		function addIslandsOverlay() {
+			islandsOverlays.forEach(({ highlightElement }) => {
+				highlightElement.remove();
+			});
+			islandsOverlays = [];
+
 			const islands = document.querySelectorAll<HTMLElement>('astro-island');
 
 			islands.forEach((island) => {
@@ -22,6 +30,7 @@ export default {
 				const islandElement = (island.children[0] as HTMLElement) || island;
 
 				// If the island is hidden, don't show an overlay on it
+				// TODO: For `client:only` islands, it might not have finished loading yet, so we should wait for that
 				if (islandElement.offsetParent === null || computedStyle.display === 'none') {
 					return;
 				}
@@ -36,17 +45,19 @@ export default {
 			});
 
 			(['scroll', 'resize'] as const).forEach((event) => {
-				window.addEventListener(event, () => {
-					islandsOverlays.forEach(({ highlightElement, island: islandElement }) => {
-						const newRect = islandElement.getBoundingClientRect();
-						positionHighlight(highlightElement, newRect);
-					});
-				});
+				window.addEventListener(event, refreshIslandsOverlayPositions);
+			});
+		}
+
+		function refreshIslandsOverlayPositions() {
+			islandsOverlays.forEach(({ highlightElement, island: islandElement }) => {
+				const rect = islandElement.getBoundingClientRect();
+				positionHighlight(highlightElement, rect);
 			});
 		}
 
 		function buildIslandTooltip(island: HTMLElement) {
-			const tooltip = document.createElement('astro-dev-overlay-tooltip') as DevOverlayTooltip;
+			const tooltip = document.createElement('astro-dev-overlay-tooltip');
 			tooltip.sections = [];
 
 			const islandProps = island.getAttribute('props')
