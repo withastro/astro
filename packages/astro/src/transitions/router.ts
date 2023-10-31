@@ -30,10 +30,7 @@ const announce = () => {
 	let div = document.createElement('div');
 	div.setAttribute('aria-live', 'assertive');
 	div.setAttribute('aria-atomic', 'true');
-	div.setAttribute(
-		'style',
-		'position:absolute;left:0;top:0;clip:rect(0 0 0 0);clip-path:inset(50%);overflow:hidden;white-space:nowrap;width:1px;height:1px'
-	);
+	div.className = 'astro-route-announcer';
 	document.body.append(div);
 	setTimeout(
 		() => {
