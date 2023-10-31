@@ -1,4 +1,5 @@
 import type { Plugin as VitePlugin } from 'vite';
+import type { Logger } from '../logger/core.js';
 import { getOutputDirectory } from '../../prerender/utils.js';
 import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
 import { addRollupInput } from '../build/add-rollup-input.js';
@@ -9,7 +10,13 @@ import type { AstroSettings } from '../../@types/astro.js';
 export const MIDDLEWARE_MODULE_ID = '@astro-middleware';
 const EMPTY_MIDDLEWARE = '\0empty-middleware';
 
-export function vitePluginMiddleware(settings: AstroSettings): VitePlugin {
+export function vitePluginMiddleware({
+	logger,
+	settings
+}: {
+	logger: Logger,
+	settings: AstroSettings
+}): VitePlugin {
 	let viteCommand: 'build' | 'serve' = 'serve';
 	let resolvedMiddlewareId: string | undefined = undefined;
 	const hasIntegrationMiddleware = () => settings.middleware.pre.length > 0 || settings.middleware.post.length > 0;
@@ -55,8 +62,15 @@ export function vitePluginMiddleware(settings: AstroSettings): VitePlugin {
 					});
 				}
 
-				let preMiddleware = createMiddlewareImports(settings.middleware.pre, 'pre');
-				let postMiddleware = createMiddlewareImports(settings.middleware.post, 'post');
+				const preMiddleware = createMiddlewareImports(settings.middleware.pre, 'pre');
+				const postMiddleware = createMiddlewareImports(settings.middleware.post, 'post');
+				
+				if(settings.middleware.pre.length > 0) {
+					logger.debug('middleware', `Integration have added middleware that will run before yours.`)
+				}
+				if(settings.middleware.post.length > 0) {
+					logger.debug('middleware', `Integrations have added middleware that will run after yours.`)
+				}
 
 				const source = `
 import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';
