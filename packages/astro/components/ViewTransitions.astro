@@ -3,13 +3,18 @@ type Fallback = 'none' | 'animate' | 'swap';
 
 export interface Props {
 	fallback?: Fallback;
+	form?: boolean;
 }
 
-const { fallback = 'animate' } = Astro.props as Props;
+const { fallback = 'animate', form: handleForms } = Astro.props as Props;
 ---
 
 <meta name="astro-view-transitions-enabled" content="true" />
 <meta name="astro-view-transitions-fallback" content={fallback} />
+{ handleForms ?
+	<meta name="astro-view-transitions-forms" content="true" /> :
+	''
+}
 <script>
 	import {
 		supportsViewTransitions,
@@ -24,6 +29,10 @@ const { fallback = 'animate' } = Astro.props as Props;
 			return el.getAttribute('content') as Fallback;
 		}
 		return 'animate';
+	}
+
+	function isReloadEl(el: HTMLElement): boolean {
+		return el.dataset.astroReload !== undefined;
 	}
 
 	// Prefetching
@@ -53,7 +62,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			if (
 				!link ||
 				!(link instanceof HTMLAnchorElement) ||
-				link.dataset.astroReload !== undefined ||
+				isReloadEl(link) ||
 				link.hasAttribute('download') ||
 				!link.href ||
 				(link.target && link.target !== '_self') ||
@@ -74,6 +83,36 @@ const { fallback = 'animate' } = Astro.props as Props;
 				history: link.dataset.astroHistory === 'replace' ? 'replace' : 'auto',
 			});
 		});
+
+		if(document.querySelector('[name="astro-view-transitions-forms"]')) {
+			document.addEventListener('submit', (ev) => {
+				let el = ev.target as HTMLElement;
+				if (
+				el.tagName !== 'FORM' ||
+					isReloadEl(el)
+				) {
+					return;
+				}
+
+				const form = el as HTMLFormElement;
+				const formData = new FormData(form);
+				const params = new URLSearchParams(formData as any); // TS is wrong here
+				let action = form.action;
+				const init: RequestInit = {
+					method: form.method,
+					redirect: 'follow'
+				} satisfies RequestInit;
+				if(form.method === 'get') {
+					const url = new URL(action);
+					url.search = params.toString();
+					action = url.toString();
+				} else {
+					init.body = params;
+				}
+				ev.preventDefault();
+				navigate(action, { init });
+			});
+		}
 
 		['mouseenter', 'touchstart', 'focus'].forEach((evName) => {
 			document.addEventListener(

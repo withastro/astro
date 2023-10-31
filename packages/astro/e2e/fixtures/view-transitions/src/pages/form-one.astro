@@ -1,0 +1,11 @@
+---
+import Layout from '../components/Layout.astro';
+const method = Astro.url.searchParams.get('method') ?? 'POST';
+---
+<Layout>
+	<h2>Contact Form</h2>
+	<form action="/contact" method={method}>
+		<input type="hidden" name="name" value="Testing">
+		<input type="submit" value="Submit" id="submit">
+	</form>
+</Layout>

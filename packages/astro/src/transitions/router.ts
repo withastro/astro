@@ -1,6 +1,9 @@
 export type Fallback = 'none' | 'animate' | 'swap';
 export type Direction = 'forward' | 'back';
-export type Options = { history?: 'auto' | 'push' | 'replace' };
+export type Options = {
+	history?: 'auto' | 'push' | 'replace';
+	init?: RequestInit;
+};
 
 type State = {
 	index: number;
@@ -94,10 +97,11 @@ const throttle = (cb: (...args: any[]) => any, delay: number) => {
 
 // returns the contents of the page or null if the router can't deal with it.
 async function fetchHTML(
-	href: string
+	href: string,
+	init?: RequestInit
 ): Promise<null | { html: string; redirected?: string; mediaType: DOMParserSupportedType }> {
 	try {
-		const res = await fetch(href);
+		const res = await fetch(href, init);
 		// drop potential charset (+ other name/value pairs) as parser needs the mediaType
 		const mediaType = res.headers.get('content-type')?.replace(/;.*$/, '');
 		// the DOMParser can handle two types of HTML
@@ -381,7 +385,7 @@ async function transition(
 ) {
 	let finished: Promise<void>;
 	const href = toLocation.href;
-	const response = await fetchHTML(href);
+	const response = await fetchHTML(href, options.init);
 	// If there is a problem fetching the new page, just do an MPA navigation to it.
 	if (response === null) {
 		location.href = href;
