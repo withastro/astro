@@ -532,9 +532,17 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 	if (newDocument.body.querySelector(`astro-island[client='only']`)) {
 		// Load the next page with an empty module loader cache
 		const nextPage = document.createElement('iframe');
-		nextPage.setAttribute('src', toLocation.href);
+		// do not fetch the file from the server, but use the current newDocument
+		nextPage.srcdoc =
+			(newDocument.doctype ? '<!DOCTYPE html>' : '') + newDocument.documentElement.outerHTML;
 		nextPage.style.display = 'none';
 		document.body.append(nextPage);
+		// silence the iframe's console
+		// @ts-ignore
+		nextPage.contentWindow!.console = Object.keys(console).reduce((acc: any, key) => {
+			acc[key] = () => {};
+			return acc;
+		}, {});
 		await hydrationDone(nextPage);
 
 		const nextHead = nextPage.contentDocument?.head;
@@ -552,7 +560,7 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 			viteIds.forEach((id) => {
 				const style = document.head.querySelector(`style[${VITE_ID}="${id}"]`);
 				if (style && !newDocument.head.querySelector(`style[${VITE_ID}="${id}"]`)) {
-					newDocument.head.appendChild(style);
+					newDocument.head.appendChild(style.cloneNode(true));
 				}
 			});
 		}
