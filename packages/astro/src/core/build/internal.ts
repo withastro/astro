@@ -110,7 +110,6 @@ export function createBuildInternals(): BuildInternals {
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,
 		entrySpecifierToBundleMap: new Map<string, string>(),
-		serverModulesToOutputFile: new Map<string, URL>(),
 		pageToBundleMap: new Map<string, string>(),
 		pagesByComponent: new Map(),
 		pageOptionsByPage: new Map(),
