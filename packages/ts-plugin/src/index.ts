@@ -4,9 +4,9 @@ import {
 	decorateLanguageServiceHost,
 	searchExternalFiles,
 } from '@volar/typescript';
+import * as semver from 'semver';
 import type ts from 'typescript/lib/tsserverlibrary';
 import { getLanguageModule } from './language.js';
-import * as semver from 'semver';
 
 const externalFiles = new WeakMap<ts.server.Project, string[]>();
 
@@ -41,8 +41,8 @@ const init: ts.server.PluginModuleFactory = (modules) => {
 		getExternalFiles(project, updateLevel = 0) {
 			if (
 				// @ts-expect-error wait for TS 5.3
-				updateLevel >= (1 satisfies ts.ProgramUpdateLevel.RootNamesAndUpdate)
-				|| !externalFiles.has(project)
+				updateLevel >= (1 satisfies ts.ProgramUpdateLevel.RootNamesAndUpdate) ||
+				!externalFiles.has(project)
 			) {
 				const oldFiles = externalFiles.get(project);
 				const newFiles = searchExternalFiles(ts, project, ['.astro']);
