@@ -19,13 +19,21 @@ export type CreateContext = {
 	 * Optional parameters
 	 */
 	params?: Params;
+
+	/**
+	 * A list of locales that are supported by the user
+	 */
+	userDefinedLocales?: string[];
 };
 
 /**
  * Creates a context to be passed to Astro middleware `onRequest` function.
  */
-function createContext({ request, params }: CreateContext) {
-	const [preferredLocaleList, preferredLocale] = computePreferredLocales(request);
+function createContext({ request, params, userDefinedLocales = [] }: CreateContext) {
+	const [preferredLocaleList, preferredLocale] = computePreferredLocales(
+		request,
+		userDefinedLocales
+	);
 	return createAPIContext({
 		request,
 		params: params ?? {},

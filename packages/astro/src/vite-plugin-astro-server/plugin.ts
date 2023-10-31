@@ -93,7 +93,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			routingStrategy: settings.config.experimental.i18n.routingStrategy,
 			defaultLocale: settings.config.experimental.i18n.defaultLocale,
 			locales: settings.config.experimental.i18n.locales,
-			redirectToPreferredLanguage: settings.config.experimental.i18n.redirectToPreferredLanguage,
 		};
 	}
 	return {

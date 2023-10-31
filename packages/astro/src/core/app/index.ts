@@ -225,7 +225,7 @@ export class App {
 		let preferredLocale: undefined | string = undefined;
 		let preferredLocaleList: undefined | string[] = undefined;
 		if (this.#manifest.i18n) {
-			const result = computePreferredLocales(request);
+			const result = computePreferredLocales(request, this.#manifest.i18n.locales);
 			preferredLocaleList = result[0];
 			preferredLocale = result[1];
 		}
@@ -265,6 +265,7 @@ export class App {
 				}
 			}
 			const mod = await page.page();
+
 			return await createRenderContext({
 				request,
 				pathname,

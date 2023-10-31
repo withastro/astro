@@ -553,8 +553,9 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 	});
 	let preferredLocale: undefined | string = undefined;
 	let preferredLocaleList: undefined | string[] = undefined;
-	if (pipeline.getConfig().experimental.i18n) {
-		const result = computePreferredLocales(request);
+	const i18n = pipeline.getConfig().experimental.i18n;
+	if (i18n) {
+		const result = computePreferredLocales(request, i18n.locales);
 		preferredLocaleList = result[0];
 		preferredLocale = result[1];
 	}
@@ -646,7 +647,6 @@ export function createBuildManifest(
 			routingStrategy: settings.config.experimental.i18n.routingStrategy,
 			defaultLocale: settings.config.experimental.i18n.defaultLocale,
 			locales: settings.config.experimental.i18n.locales,
-			redirectToPreferredLanguage: settings.config.experimental.i18n.redirectToPreferredLanguage,
 		};
 	}
 	return {

@@ -1,5 +1,7 @@
 ---
 const locale = Astro.preferredLocale;
+const localeList = Astro.preferredLocaleList;
+
 ---
 
 <html>
@@ -8,5 +10,6 @@ const locale = Astro.preferredLocale;
 </head>
 <body>
 	Locale: {locale ? locale : "none"}
+	Locale list: {localeList.length > 0 ? localeList.join(", ") : "empty"}
 </body>
 </html>

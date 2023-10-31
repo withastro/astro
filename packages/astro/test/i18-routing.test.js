@@ -801,107 +801,42 @@ describe('[SSR] i18n routing', () => {
 			expect(await response.text()).includes('Locale: none');
 		});
 
-		it('should render the locale fr', async () => {
+		it('should render the locale pt', async () => {
 			let request = new Request('http://example.com/preferred-locale', {
 				headers: {
-					'Accept-Language': 'fr',
+					'Accept-Language': 'pt',
 				},
 			});
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Locale: fr');
+			expect(await response.text()).includes('Locale: pt');
 		});
 
-		it('should render the locale fr-AU', async () => {
+		it('should render empty locales', async () => {
 			let request = new Request('http://example.com/preferred-locale', {
 				headers: {
 					'Accept-Language': 'fr;q=0.1,fr-AU;q=0.9',
 				},
 			});
 			let response = await app.render(request);
+			const text = await response.text();
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Locale: fr-AU');
-		});
-	});
-
-	describe('redirect to preferred language', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
-
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/i18n-routing-redirect-preferred-language/',
-				output: 'server',
-				adapter: testAdapter(),
-			});
-			await fixture.build();
-			app = await fixture.loadTestAdapterApp();
+			console.log(text);
+			expect(text).includes('Locale: none');
+			expect(text).includes('Locale list: empty');
 		});
 
-		it('should not redirect when the preferred language is *', async () => {
-			let request = new Request('http://example.com/', {
+		it('should render none as preferred locale, but have a list of locales that correspond to the initial locales', async () => {
+			let request = new Request('http://example.com/preferred-locale', {
 				headers: {
 					'Accept-Language': '*',
 				},
 			});
 			let response = await app.render(request);
+			const text = await response.text();
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Hello');
-		});
-
-		it('should redirect to the PT page', async () => {
-			let request = new Request('http://example.com/', {
-				headers: {
-					'Accept-Language': 'pt',
-				},
-			});
-			let response = await app.render(request);
-			expect(response.status).to.equal(302);
-			expect(response.headers.get('Location')).to.equal('/pt');
-		});
-
-		it('should redirect to the PT page because it is the locale that has the highest quality value ', async () => {
-			let request = new Request('http://example.com/', {
-				headers: {
-					'Accept-Language': 'fr;q=0.1,pt;q=0.9',
-				},
-			});
-			let response = await app.render(request);
-			expect(response.status).to.equal(302);
-			expect(response.headers.get('Location')).to.equal('/pt');
-		});
-
-		it('should redirect to the PT page because the locale is part of the preferred languages, even though its quality value is not the hightest', async () => {
-			let request = new Request('http://example.com/', {
-				headers: {
-					'Accept-Language': 'en_AU;q=0.5,pt;q=0.1',
-				},
-			});
-			let response = await app.render(request);
-			expect(response.status).to.equal(302);
-			expect(response.headers.get('Location')).to.equal('/pt');
-		});
-
-		it('should NOT redirect the the locale because the preferred language is not supported by the configuration', async () => {
-			let request = new Request('http://example.com/', {
-				headers: {
-					'Accept-Language': 'fr',
-				},
-			});
-			let response = await app.render(request);
-			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Hello');
-		});
-
-		it('should NOT redirect the the locale because we are browsing a URL that is not the root', async () => {
-			let request = new Request('http://example.com/en/end', {
-				headers: {
-					'Accept-Language': 'fr',
-				},
-			});
-			let response = await app.render(request);
-			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('End');
+			expect(text).includes('Locale: none');
+			expect(text).includes('Locale list: en, pt, it');
 		});
 	});
 });

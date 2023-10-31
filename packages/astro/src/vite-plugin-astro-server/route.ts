@@ -261,8 +261,9 @@ export async function handleRoute({
 
 		let preferredLocale: undefined | string = undefined;
 		let preferredLocaleList: undefined | string[] = undefined;
-		if (pipeline.getConfig().experimental.i18n) {
-			const result = computePreferredLocales(options.request);
+		const i18n = pipeline.getConfig().experimental.i18n;
+		if (i18n) {
+			const result = computePreferredLocales(options.request, i18n.locales);
 			preferredLocaleList = result[0];
 			preferredLocale = result[1];
 		}

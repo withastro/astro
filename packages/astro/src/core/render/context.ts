@@ -147,7 +147,8 @@ export function parseLocale(header: string): BrowserLocale[] {
  *
  */
 export function computePreferredLocales(
-	request: Request
+	request: Request,
+	locales: string[]
 ): [preferredLocaleList: string[] | undefined, preferredLocale: string | undefined] {
 	const acceptHeader = request.headers.get('Accept-Language');
 	const result: [preferredLocaleList: string[] | undefined, preferredLocale: string | undefined] = [
@@ -155,9 +156,14 @@ export function computePreferredLocales(
 		undefined,
 	];
 	if (acceptHeader) {
-		const parsedResult = parseLocale(acceptHeader);
-		if (parsedResult) {
-			parsedResult.sort((a, b) => {
+		const parsedResult = parseLocale(acceptHeader)
+			.filter((browserLocale) => {
+				if (browserLocale.locale !== '*') {
+					return locales.includes(browserLocale.locale);
+				}
+				return true;
+			})
+			.sort((a, b) => {
 				if (a.qualityValue && b.qualityValue) {
 					if (a.qualityValue > b.qualityValue) {
 						return -1;
@@ -167,14 +173,20 @@ export function computePreferredLocales(
 				}
 				return 0;
 			});
+
+		// SAFETY: bang operator is safe because checked by the previous condition
+		if (parsedResult.length === 1 && parsedResult.at(0)!.locale === '*') {
+			result[0] = locales;
+		} else {
 			result[0] = parsedResult.map((item) => {
 				return item.locale;
 			});
-			const firstResult = parsedResult.at(0);
-			if (firstResult) {
-				if (firstResult.locale !== '*') {
-					result[1] = firstResult.locale;
-				}
+		}
+
+		const firstResult = parsedResult.at(0);
+		if (firstResult) {
+			if (firstResult.locale !== '*') {
+				result[1] = firstResult.locale;
 			}
 		}
 	}

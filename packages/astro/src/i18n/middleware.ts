@@ -24,18 +24,8 @@ export function createI18nMiddleware(
 			return await next();
 		}
 
-		const { locales, defaultLocale, redirectToPreferredLanguage, fallback } = i18n;
+		const { locales, defaultLocale, fallback } = i18n;
 		const url = context.url;
-
-		if (redirectToPreferredLanguage && context.preferredLocaleList) {
-			if (url.pathname === '/' || url.pathname.startsWith(`/${defaultLocale}`)) {
-				for (const preferredLocale of context.preferredLocaleList) {
-					if (locales.includes(preferredLocale)) {
-						return context.redirect(`/${preferredLocale}`);
-					}
-				}
-			}
-		}
 
 		const response = await next();
 
@@ -59,7 +49,7 @@ export function createI18nMiddleware(
 					headers: response.headers,
 				});
 			}
-			if (response.status >= 300 && i18n.fallback) {
+			if (response.status >= 300 && fallback) {
 				const fallbackKeys = i18n.fallback ? Object.keys(i18n.fallback) : [];
 
 				const urlLocale = separators.find((s) => locales.includes(s));
