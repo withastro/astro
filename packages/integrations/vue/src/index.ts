@@ -45,7 +45,12 @@ function virtualAppEntrypoint(options?: Options) {
 		load(id: string) {
 			if (id === resolvedVirtualModuleId) {
 				if (options?.appEntrypoint) {
-					return `export { default as setup } from "${options.appEntrypoint}";`;
+					return `
+						import __setup from "${options.appEntrypoint}";
+						export const setup = (app) => {
+							__setup?.(app);
+						};
+					`;
 				}
 				return `export const setup = () => {};`;
 			}

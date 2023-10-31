@@ -1,6 +1,6 @@
 import { h, createSSRApp } from 'vue';
 import { renderToString } from 'vue/server-renderer';
-import { setup } from 'virtual:@astrojs/vue/app';
+import virtualVueApp from 'virtual:@astrojs/vue/app';
 import StaticHtml from './static-html.js';
 
 function check(Component) {
@@ -21,8 +21,8 @@ async function renderToStaticMarkup(Component, inputProps, slotted, metadata) {
 			});
 	}
 	const app = createSSRApp({ render: () => h(Component, props, slots) });
-	if (typeof setup === 'function') {
-		await setup(app);
+	if (typeof virtualVueApp?.setup === 'function') {
+		await virtualVueApp.setup(app);
 	}
 	const html = await renderToString(app);
 	return { html };
