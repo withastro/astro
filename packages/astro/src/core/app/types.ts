@@ -57,6 +57,7 @@ export type SSRManifestI18n = {
 	routingStrategy?: 'prefix-always' | 'prefix-other-locales';
 	locales: string[];
 	defaultLocale: string;
+	redirectToPreferredLanguage: boolean;
 };
 
 export type SerializedSSRManifest = Omit<

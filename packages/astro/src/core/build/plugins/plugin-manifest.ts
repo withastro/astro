@@ -245,6 +245,7 @@ function buildManifest(
 			routingStrategy: settings.config.experimental.i18n.routingStrategy,
 			locales: settings.config.experimental.i18n.locales,
 			defaultLocale: settings.config.experimental.i18n.defaultLocale,
+			redirectToPreferredLanguage: settings.config.experimental.i18n.redirectToPreferredLanguage,
 		};
 	}
 

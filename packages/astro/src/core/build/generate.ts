@@ -39,7 +39,7 @@ import {
 	getRedirectLocationOrThrow,
 	routeIsRedirect,
 } from '../redirects/index.js';
-import { computePreferredLocale, createRenderContext } from '../render/index.js';
+import { computePreferredLocales, createRenderContext } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -551,9 +551,12 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		logger: pipeline.getLogger(),
 		ssr,
 	});
-	let currentLocale: undefined | string = undefined;
+	let preferredLocale: undefined | string = undefined;
+	let preferredLocaleList: undefined | string[] = undefined;
 	if (pipeline.getConfig().experimental.i18n) {
-		currentLocale = computePreferredLocale(request);
+		const result = computePreferredLocales(request);
+		preferredLocaleList = result[0];
+		preferredLocale = result[1];
 	}
 	const renderContext = await createRenderContext({
 		pathname,
@@ -565,7 +568,8 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		route: pageData.route,
 		env: pipeline.getEnvironment(),
 		mod,
-		preferredLocale: currentLocale,
+		preferredLocale,
+		preferredLocaleList,
 	});
 
 	let body: string | Uint8Array;
@@ -642,6 +646,7 @@ export function createBuildManifest(
 			routingStrategy: settings.config.experimental.i18n.routingStrategy,
 			defaultLocale: settings.config.experimental.i18n.defaultLocale,
 			locales: settings.config.experimental.i18n.locales,
+			redirectToPreferredLanguage: settings.config.experimental.i18n.redirectToPreferredLanguage,
 		};
 	}
 	return {

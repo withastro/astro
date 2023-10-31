@@ -1439,17 +1439,29 @@ export interface AstroUserConfig {
 
 			/**
 			 * @docs
-			 * @name experimental.i18n.detectBrowserLanguage
+			 * @name experimental.i18n.redirectToPreferredLanguage
 			 * @type {boolean}
+			 * @default {false}
 			 * @version 3.*.*
 			 * @description
 			 *
-			 * Whether Astro should detect the language of the browser - usually using the `Accept-Language` header. This is a feature
-			 * that should be supported by the adapter. If detected, the adapter can decide to redirect the user to the localised version of the website.
+			 * If enabled, Astro will redirect the user to their preferred language. The preferred language is determined by
+			 * reading the header `Accept-Language`, usually sent by the browser.
 			 *
-			 * When set to `true`, you should make sure that the adapter you're using is able to provide this feature to you.
+			 * Sometimes, the browser of the user is set to accept *multiple* locales with a [quality value].
+			 * Astro will do a redirect to the first locale that matches `i18n.locales`.
+			 *
+			 * The redirect occurs only when:
+			 * - the user navigates the root `/` or the root of the `i18n.defaultLocale`;
+			 * - the preferred locale exists in the list `i18n.locales;
+			 *
+			 * When the user navigates any page of the root that isn't the index, Astro won't do any redirect.
+			 *
+			 * This behaviour is available only in SSR.
+			 *
+			 * [quality value]: https://developer.mozilla.org/en-US/docs/Glossary/Quality_values
 			 */
-			detectBrowserLanguage: boolean;
+			redirectToPreferredLanguage: boolean;
 		};
 	};
 }
@@ -2001,6 +2013,12 @@ interface AstroSharedContext<
 	 * The current locale that is computed from the `Accept-Language` header of the browser (**SSR Only**).
 	 */
 	preferredLocale: string | undefined;
+
+	/**
+	 * The list of locales computed from the `Accept-Language` header of the browser, sorted by quality value (**SSR Only**).
+	 */
+
+	preferredLocaleList: string[] | undefined;
 }
 
 export interface APIContext<
@@ -2105,9 +2123,19 @@ export interface APIContext<
 
 	/**
 	 * Available only when `experimental.i18n` enabled.
+	 * It represents the preferred locale by the browser of the user that has the highest [quality value].
 	 *
+	 * [quality value]: https://developer.mozilla.org/en-US/docs/Glossary/Quality_values
 	 */
 	preferredLocale: string | undefined;
+
+	/**
+	 * Available only when `experimental.i18n` enabled.
+	 * It represents the list of the preferred locales of the browser. They are sorted by their [quality value].
+	 *
+	 * [quality value]: https://developer.mozilla.org/en-US/docs/Glossary/Quality_values
+	 */
+	preferredLocaleList: string[] | undefined;
 }
 
 export type EndpointOutput =

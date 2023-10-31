@@ -46,6 +46,7 @@ export interface CreateResultArgs {
 	locals: App.Locals;
 	cookies?: AstroCookies;
 	preferredLocale: string | undefined;
+	preferredLocaleList: string[] | undefined;
 }
 
 function getFunctionExpression(slot: any) {

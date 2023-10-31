@@ -6,7 +6,8 @@ export default defineConfig({
 			defaultLocale: 'en',
 			locales: [
 				'en', 'pt', 'it'
-			]
+			],
+			redirectToPreferredLanguage: true
 		}
 	},
 })

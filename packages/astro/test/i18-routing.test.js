@@ -561,7 +561,7 @@ describe('[SSG] i18n routing', () => {
 
 describe('[SSR] i18n routing', () => {
 	let app;
-	describe('i18n routing', () => {
+	describe('default', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 
@@ -602,7 +602,7 @@ describe('[SSR] i18n routing', () => {
 		});
 	});
 
-	describe('i18n routing, with base', () => {
+	describe('with base', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 
@@ -617,7 +617,7 @@ describe('[SSR] i18n routing', () => {
 		});
 
 		it('should render the en locale', async () => {
-			let request = new Request('http://example.com/new-site/en/start');
+			let request = new Request('http://example.com/en/start');
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
 			expect(await response.text()).includes('Start');
@@ -706,26 +706,26 @@ describe('[SSR] i18n routing', () => {
 		});
 
 		it('should render localised page correctly', async () => {
-			let request = new Request('http://example.com/new-site/pt/start');
+			let request = new Request('http://example.com/pt/start');
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
 			expect(await response.text()).includes('Oi essa e start');
 		});
 
 		it("should NOT render the default locale if there isn't a fallback and the route is missing", async () => {
-			let request = new Request('http://example.com/new-site/it/start');
+			let request = new Request('http://example.com/it/start');
 			let response = await app.render(request);
 			expect(response.status).to.equal(404);
 		});
 
 		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
-			let request = new Request('http://example.com/new-site/fr/start');
+			let request = new Request('http://example.com/fr/start');
 			let response = await app.render(request);
 			expect(response.status).to.equal(404);
 		});
 	});
 
-	describe('i18n routing with fallback', () => {
+	describe('with fallback', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 
@@ -776,7 +776,7 @@ describe('[SSR] i18n routing', () => {
 		});
 	});
 
-	describe('i18n routing preferred locale', () => {
+	describe('preferred locale', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 
@@ -791,7 +791,7 @@ describe('[SSR] i18n routing', () => {
 		});
 
 		it('should not render the locale when the value is *', async () => {
-			let request = new Request('http://example.com/new-site/preferred-locale', {
+			let request = new Request('http://example.com/preferred-locale', {
 				headers: {
 					'Accept-Language': '*',
 				},
@@ -802,7 +802,7 @@ describe('[SSR] i18n routing', () => {
 		});
 
 		it('should render the locale fr', async () => {
-			let request = new Request('http://example.com/new-site/preferred-locale', {
+			let request = new Request('http://example.com/preferred-locale', {
 				headers: {
 					'Accept-Language': 'fr',
 				},
@@ -813,7 +813,7 @@ describe('[SSR] i18n routing', () => {
 		});
 
 		it('should render the locale fr-AU', async () => {
-			let request = new Request('http://example.com/new-site/preferred-locale', {
+			let request = new Request('http://example.com/preferred-locale', {
 				headers: {
 					'Accept-Language': 'fr;q=0.1,fr-AU;q=0.9',
 				},
@@ -821,6 +821,87 @@ describe('[SSR] i18n routing', () => {
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
 			expect(await response.text()).includes('Locale: fr-AU');
+		});
+	});
+
+	describe('redirect to preferred language', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-redirect-preferred-language/',
+				output: 'server',
+				adapter: testAdapter(),
+			});
+			await fixture.build();
+			app = await fixture.loadTestAdapterApp();
+		});
+
+		it('should not redirect when the preferred language is *', async () => {
+			let request = new Request('http://example.com/', {
+				headers: {
+					'Accept-Language': '*',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Hello');
+		});
+
+		it('should redirect to the PT page', async () => {
+			let request = new Request('http://example.com/', {
+				headers: {
+					'Accept-Language': 'pt',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(302);
+			expect(response.headers.get('Location')).to.equal('/pt');
+		});
+
+		it('should redirect to the PT page because it is the locale that has the highest quality value ', async () => {
+			let request = new Request('http://example.com/', {
+				headers: {
+					'Accept-Language': 'fr;q=0.1,pt;q=0.9',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(302);
+			expect(response.headers.get('Location')).to.equal('/pt');
+		});
+
+		it('should redirect to the PT page because the locale is part of the preferred languages, even though its quality value is not the hightest', async () => {
+			let request = new Request('http://example.com/', {
+				headers: {
+					'Accept-Language': 'en_AU;q=0.5,pt;q=0.1',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(302);
+			expect(response.headers.get('Location')).to.equal('/pt');
+		});
+
+		it('should NOT redirect the the locale because the preferred language is not supported by the configuration', async () => {
+			let request = new Request('http://example.com/', {
+				headers: {
+					'Accept-Language': 'fr',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Hello');
+		});
+
+		it('should NOT redirect the the locale because we are browsing a URL that is not the root', async () => {
+			let request = new Request('http://example.com/en/end', {
+				headers: {
+					'Accept-Language': 'fr',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('End');
 		});
 	});
 });
