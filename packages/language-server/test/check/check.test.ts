@@ -13,7 +13,7 @@ describe('AstroCheck', async () => {
 		this.timeout(50000);
 		checker = new AstroCheck(
 			path.resolve(__dirname, 'fixture'),
-			require.resolve('typescript/lib/tsserverlibrary.js'),
+			require.resolve('typescript/lib/typescript.js'),
 			undefined
 		);
 		result = await checker.lint({});

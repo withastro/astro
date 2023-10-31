@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import ts from 'typescript/lib/tsserverlibrary.js';
+import ts from 'typescript/lib/typescript.js';
 import { getAstroMetadata } from '../../src/core/parseAstro.js';
 import { parseHTML } from '../../src/core/parseHTML.js';
 import { extractScriptTags } from '../../src/core/parseJS.js';

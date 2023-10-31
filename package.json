@@ -28,7 +28,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^3.0.0",
     "turbo": "1.10.2",
-    "typescript": "~5.1.3",
+    "typescript": "^5.2.2",
     "organize-imports-cli": "^0.10.0"
   },
   "engines": {
