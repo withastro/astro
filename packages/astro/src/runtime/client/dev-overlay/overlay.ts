@@ -363,7 +363,7 @@ export class AstroDevOverlay extends HTMLElement {
 			plugin.status = 'ready';
 
 			if (import.meta.hot) {
-				import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:init`);
+				import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:initialized`);
 			}
 		} catch (e) {
 			console.error(`Failed to init plugin ${plugin.id}, error: ${e}`);
@@ -402,7 +402,7 @@ export class AstroDevOverlay extends HTMLElement {
 		this.getPluginCanvasById(plugin.id)?.toggleAttribute('data-active', plugin.active);
 
 		plugin.eventTarget.dispatchEvent(
-			new CustomEvent('plugin-toggle', {
+			new CustomEvent('plugin-toggled', {
 				detail: {
 					state: plugin.active,
 					plugin,
@@ -411,7 +411,7 @@ export class AstroDevOverlay extends HTMLElement {
 		);
 
 		if (import.meta.hot) {
-			import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:toggle`, { state: plugin.active });
+			import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:toggled`, { state: plugin.active });
 		}
 	}
 

@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		};
 
 		// Events plugins can send to the overlay to update their status
-		eventTarget.addEventListener('plugin-notification', (evt) => {
+		eventTarget.addEventListener('toggle-notification', (evt) => {
 			const target = overlay.shadowRoot?.querySelector(`[data-plugin-id="${plugin.id}"]`);
 			if (!target) return;
 
@@ -61,6 +61,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 			}
 
 			target.querySelector('.notification')?.toggleAttribute('data-active', newState);
+		});
+
+		eventTarget.addEventListener('toggle-plugin', (evt) => {
+			let newState = undefined;
+			if (evt instanceof CustomEvent) {
+				newState = evt.detail.state ?? true;
+			}
+
+			overlay.togglePluginStatus(plugin, newState);
 		});
 
 		return plugin;
