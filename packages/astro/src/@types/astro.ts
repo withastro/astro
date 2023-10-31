@@ -1371,6 +1371,25 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		devOverlay?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.contentCollectionCache
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 3.5.0
+		 * @description
+		 * Enables a persistent cache for content collections when building in static mode.
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 * 		contentCollectionCache: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		contentCollectionCache?: boolean;
 	};
 }
 
