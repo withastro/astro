@@ -79,6 +79,9 @@ export function astroContentVirtualModPlugin({
 			}
 		},
 		renderChunk(code, chunk) {
+			if (!settings.config.experimental.contentCollectionCache) {
+				return;
+			}
 			if (code.includes(astroContentVirtualModuleId)) {
 				const depth = chunk.fileName.split('/').length - 1;
 				const prefix = depth > 0 ? '../'.repeat(depth) : './';
@@ -178,7 +181,6 @@ export async function generateLookupMap({
 }) {
 	const { root } = settings.config;
 	const contentPaths = getContentPaths(settings.config);
-	if (!contentPaths.config.exists) return {};
 	const relContentDir = rootRelativePath(root, contentPaths.contentDir, false);
 
 	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
