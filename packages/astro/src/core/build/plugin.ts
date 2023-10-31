@@ -5,7 +5,7 @@ import type { StaticBuildOptions, ViteBuildReturn } from './types.js';
 type RollupOutputArray = Extract<ViteBuildReturn, Array<any>>;
 type OutputChunkorAsset = RollupOutputArray[number]['output'][number];
 type OutputChunk = Extract<OutputChunkorAsset, { type: 'chunk' }>;
-export type BuildTarget = 'server' | 'client' | 'content';
+export type BuildTarget = 'server' | 'client';
 
 type MutateChunk = (chunk: OutputChunk, targets: BuildTarget[], newCode: string) => void;
 
@@ -29,7 +29,7 @@ export type AstroBuildPlugin = {
 export function createPluginContainer(options: StaticBuildOptions, internals: BuildInternals) {
 	const plugins = new Map<BuildTarget, AstroBuildPlugin[]>();
 	const allPlugins = new Set<AstroBuildPlugin>();
-	for (const target of ['client', 'server', 'content'] satisfies BuildTarget[]) {
+	for (const target of ['client', 'server'] satisfies BuildTarget[]) {
 		plugins.set(target, []);
 	}
 

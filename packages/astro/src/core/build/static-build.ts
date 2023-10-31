@@ -172,7 +172,7 @@ async function ssrBuild(
 				...viteConfig.build?.rollupOptions,
 				input: [],
 				output: {
-					hoistTransitiveImports: false,
+					hoistTransitiveImports: !settings.config.experimental.contentCollectionCache,
 					format: 'esm',
 					// Server chunks can't go in the assets (_astro) folder
 					// We need to keep these separate
@@ -207,7 +207,10 @@ async function ssrBuild(
 								}
 							}
 						}
-						return `chunks/[name].mjs`;
+						if (settings.config.experimental.contentCollectionCache) {
+							return `chunks/[name].mjs`;
+						}
+						return `chunks/[name]_[hash].mjs`;
 					},
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
