@@ -1,4 +1,4 @@
-import type { Plugin as VitePlugin } from 'vite';
+import { normalizePath, type Plugin as VitePlugin } from 'vite';
 import fsMod from 'node:fs';
 import { createHash } from 'node:crypto';
 import { addRollupInput } from '../add-rollup-input.js';
@@ -6,16 +6,17 @@ import { type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { generateContentEntryFile, generateLookupMap } from '../../../content/vite-plugin-content-virtual-mod.js';
-import { joinPaths } from '../../path.js';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { ContentLookupMap } from '../../../content/utils.js';
-import { CONTENT_RENDER_FLAG } from '../../../content/consts.js';
+import { joinPaths, removeFileExtension, removeLeadingForwardSlash } from '../../path.js';
+import { fileURLToPath } from 'node:url';
+import { type ContentLookupMap, hasContentFlag } from '../../../content/utils.js';
+import { CONTENT_RENDER_FLAG, PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { copyFiles } from '../static-build.js';
 import pLimit from 'p-limit';
+import { extendManualChunks } from './util.js';
+import { isServerLikeOutput } from '../../../prerender/utils.js';
 
 const CONTENT_CACHE_DIR = './content/';
 const CONTENT_MANIFEST_FILE = './manifest.json';
-const CONTENT_ENTRY_CACHE_DIR = './entries/';
 // IMPORTANT: Update this version when making significant changes to the manifest format.
 // Only manifests generated with the same version number can be compared.
 const CONTENT_MANIFEST_VERSION = 0;
@@ -34,19 +35,24 @@ const virtualEmptyModuleId = `virtual:empty-content`;
 const resolvedVirtualEmptyModuleId = `\0${virtualEmptyModuleId}`;
 
 function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap, _internals: BuildInternals): VitePlugin {
-	const { cacheDir } = opts.settings.config;
+	const { config } = opts.settings;
+	const { cacheDir } = config;
+	const distRoot = config.outDir;
+	const distContentRoot = new URL('./content/', config.outDir);
 	const contentCacheDir = new URL(CONTENT_CACHE_DIR, cacheDir);
 	const contentManifestFile = new URL(CONTENT_MANIFEST_FILE, contentCacheDir);
-	const contentEntryCacheDir = new URL(CONTENT_ENTRY_CACHE_DIR, contentCacheDir);
+	const cache = contentCacheDir;
+	const cacheTmp = new URL('./.tmp/', cache);
 	let oldManifest: ContentManifest = { version: -1, entries: [] }
 	let newManifest: ContentManifest = { version: -1, entries: [] }
 	let entries: ContentEntries;
+	let injectedEmptyFile = false;
 
 	if (fsMod.existsSync(contentManifestFile)) {
 		try {
 			const data = fsMod.readFileSync(contentManifestFile, { encoding: 'utf8' });
 			oldManifest = JSON.parse(data);
-		} catch {}
+		} catch { }
 	}
 
 	return {
@@ -75,18 +81,47 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 
 				if (entries.buildFromSource.length === 0) {
 					newOptions = addRollupInput(newOptions, [virtualEmptyModuleId])
+					injectedEmptyFile = true;
 				}
 			}
 			return newOptions;
+		},
+
+		outputOptions(outputOptions) {
+			const rootPath = normalizePath(fileURLToPath(opts.settings.config.root));
+			const srcPath = normalizePath(fileURLToPath(opts.settings.config.srcDir));
+			extendManualChunks(outputOptions, {
+				after(id, meta) {
+					if (id.startsWith(srcPath) && id.slice(srcPath.length).startsWith('content')) {
+						const info = meta.getModuleInfo(id);
+						if (info?.dynamicImporters.length === 1 && hasContentFlag(info.dynamicImporters[0], PROPAGATED_ASSET_FLAG)) {
+							const [srcRelativePath] = id.replace(rootPath, '/').split('?');
+							return `${removeLeadingForwardSlash(removeFileExtension(srcRelativePath))}.render.mjs`;
+						}
+						const [srcRelativePath, flag] = id.replace(rootPath, '/').split('?');
+						const collectionEntry = findEntryFromSrcRelativePath(lookupMap, srcRelativePath);
+						if (collectionEntry) {
+							let suffix = '.mjs';
+							if (flag === PROPAGATED_ASSET_FLAG) {
+								suffix = '.entry.mjs';
+							}
+							id = removeLeadingForwardSlash(removeFileExtension(id.replace(srcPath, '/'))) + suffix;
+							console.log(suffix, id);
+							return id;
+						}
+					}
+				}
+			});
 		},
 
 		resolveId(id) {
 			if (id === virtualEmptyModuleId) {
 				return resolvedVirtualEmptyModuleId;
 			}
+			
 		},
 
-		load(id) {
+		async load(id) {
 			if (id === resolvedVirtualEmptyModuleId) {
 				return {
 					code: `// intentionally left empty!\nexport default {}`
@@ -94,13 +129,14 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 			}
 		},
 
-		async generateBundle(options, bundle) {
-			const content = await generateContentEntryFile({ settings: opts.settings, fs: fsMod, lookupMap });
+		async generateBundle(_options, bundle) {
+			const code = await generateContentEntryFile({ settings: opts.settings, fs: fsMod, lookupMap });
 			this.emitFile({
 				type: 'prebuilt-chunk',
-				code: content,
-				fileName: '.entry.mjs'
+				code,
+				fileName: 'content/entry.mjs'
 			})
+			if (!injectedEmptyFile) return;
 			Object.keys(bundle).forEach(key => {
 				const mod = bundle[key];
 				if (mod.type === 'asset') return;
@@ -110,24 +146,35 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 			});
 		},
 
-		async writeBundle(options) {
-			const dist = new URL(pathToFileURL(options.dir!).toString() + '/');
-			const cache = contentEntryCacheDir;
-			const cacheTmp = new URL('./.tmp/', cache);
-
+		async writeBundle() {
 			const cacheExists = fsMod.existsSync(cache);
 			fsMod.mkdirSync(cache, { recursive: true })
 			await fsMod.promises.mkdir(cacheTmp, { recursive: true });
-			await copyFiles(dist, cacheTmp, true);
-			
+			await copyFiles(distContentRoot, cacheTmp, true);
 			if (cacheExists) {
-				await copyFiles(contentEntryCacheDir, dist, false)
+				await copyFiles(contentCacheDir, distRoot, false);
 			}
-
-			await copyFiles(cacheTmp, contentEntryCacheDir);
+			await copyFiles(cacheTmp, contentCacheDir);
 			await fsMod.promises.rm(cacheTmp, { recursive: true, force: true });
 		}
 	};
+}
+
+const entryCache = new Map<string, string>();
+function findEntryFromSrcRelativePath(lookupMap: ContentLookupMap, srcRelativePath: string) {
+	let value = entryCache.get(srcRelativePath);
+	if (value) return value;
+	for (const collection of Object.values(lookupMap)) {
+		for (const entry of Object.values(collection)) {
+			for (const entryFile of Object.values(entry)) {
+				if (entryFile === srcRelativePath) {
+					value = entryFile;
+					entryCache.set(srcRelativePath, entryFile);
+					return value;
+				}
+			}
+		}
+	}
 }
 
 interface ContentEntries {
@@ -187,15 +234,19 @@ function collectionTypeToFlag(type: 'content' | 'data') {
 
 export function pluginContent(opts: StaticBuildOptions, internals: BuildInternals): AstroBuildPlugin {
 	return {
-		targets: ['content'],
+		targets: ['server'],
 		hooks: {
 			async 'build:before'() {
+				if (isServerLikeOutput(opts.settings.config)) {
+					return { vitePlugin: undefined };
+				}
+
 				const lookupMap = await generateLookupMap({ settings: opts.settings, fs: fsMod });
-				
+
 				return {
 					vitePlugin: vitePluginContent(opts, lookupMap, internals),
 				};
-			}
+			},
 		},
 	};
 }
