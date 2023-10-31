@@ -22,6 +22,7 @@ import {
 	type ContentLookupMap,
 } from './utils.js';
 import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
+import { isServerLikeOutput } from '../prerender/utils.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -34,6 +35,7 @@ export function astroContentVirtualModPlugin({
 }: AstroContentVirtualModPluginParams): Plugin {
 	const astroContentVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 	let IS_DEV = false;
+	const IS_SERVER = isServerLikeOutput(settings.config);
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
@@ -42,10 +44,10 @@ export function astroContentVirtualModPlugin({
 		},
 		resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
-				if (IS_DEV) {
+				if (IS_DEV || IS_SERVER) {
 					return astroContentVirtualModuleId;
 				} else {
-					// In production, we will build this file ourselves
+					// For SSG (production), we will build this file ourselves
 					return { id: astroContentVirtualModuleId, external: true }
 				}
 			}
@@ -85,7 +87,6 @@ export function astroContentVirtualModPlugin({
 
 export async function generateContentEntryFile({
 	settings,
-	fs,
 	lookupMap,
 }: {
 	settings: AstroSettings;

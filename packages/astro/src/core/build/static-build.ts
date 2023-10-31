@@ -33,6 +33,7 @@ import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 import { hasAnyContentFlag } from '../../content/utils.js';
+import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -177,6 +178,13 @@ async function ssrBuild(
 					// We need to keep these separate
 					chunkFileNames(chunkInfo) {
 						const { name } = chunkInfo;
+
+						if (name.includes('/content/')) {
+							const parts = name.split('/');
+							if (parts.at(1) === 'content') {
+								return parts.slice(1).join('/');
+							}
+						}
 						// Sometimes chunks have the `@_@astro` suffix due to SSR logic. Remove it!
 						// TODO: refactor our build logic to avoid this
 						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
@@ -199,7 +207,7 @@ async function ssrBuild(
 								}
 							}
 						}
-						return `chunks/[name]_[hash].mjs`;
+						return `chunks/[name].mjs`;
 					},
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
@@ -219,7 +227,10 @@ async function ssrBuild(
 						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
 							return 'manifest_[hash].mjs';
 						} else if (chunkInfo.facadeModuleId && hasAnyContentFlag(chunkInfo.facadeModuleId)) {
-							const srcRelative = chunkInfo.facadeModuleId.split('/src/')[1].split('?')[0];
+							const [srcRelative, flag] = chunkInfo.facadeModuleId.split('/src/')[1].split('?');
+							if (flag === PROPAGATED_ASSET_FLAG) {
+								return `${removeFileExtension(srcRelative)}.entry.mjs`;
+							}
 							return `${removeFileExtension(srcRelative)}.mjs`;
 						} else {
 							return '[name].mjs';
