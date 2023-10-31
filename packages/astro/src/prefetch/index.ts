@@ -6,6 +6,7 @@
 const debug = import.meta.env.DEV ? console.debug : undefined;
 const inBrowser = import.meta.env.SSR === false;
 const prefetchedUrls = new Set<string>();
+const listenedAnchors = new WeakSet<HTMLAnchorElement>();
 
 // User-defined config for prefetch
 // @ts-expect-error injected by vite-plugin-prefetch
@@ -69,32 +70,43 @@ function initTapStrategy() {
  */
 function initHoverStrategy() {
 	let timeout: number;
-	let listenedElements = new WeakSet<HTMLAnchorElement>();
 
-	document.body.addEventListener('focusin', handleHoverIn, { passive: true });
+	// Handle focus listeners
+	document.body.addEventListener(
+		'focusin',
+		(e) => {
+			if (elMatchesStrategy(e.target, 'hover')) {
+				handleHoverIn(e);
+			}
+		},
+		{ passive: true }
+	);
 	document.body.addEventListener('focusout', handleHoverOut, { passive: true });
 
+	// Handle hover listeners. Re-run each time on page load.
 	onPageLoad(() => {
 		for (const anchor of document.getElementsByTagName('a')) {
-			if (listenedElements.has(anchor)) continue;
-			listenedElements.add(anchor);
-			anchor.addEventListener('mouseenter', handleHoverIn, { passive: true });
-			anchor.addEventListener('mouseleave', handleHoverOut, { passive: true });
+			// Skip if already listening
+			if (listenedAnchors.has(anchor)) continue;
+			// Add listeners for anchors matching the strategy
+			if (elMatchesStrategy(anchor, 'hover')) {
+				listenedAnchors.add(anchor);
+				anchor.addEventListener('mouseenter', handleHoverIn, { passive: true });
+				anchor.addEventListener('mouseleave', handleHoverOut, { passive: true });
+			}
 		}
 	});
 
 	function handleHoverIn(e: Event) {
-		if (elMatchesStrategy(e.target, 'hover')) {
-			const href = e.target.href;
+		const href = (e.target as HTMLAnchorElement).href;
 
-			// Debounce hover prefetches by 80ms
-			if (timeout) {
-				clearTimeout(timeout);
-			}
-			timeout = setTimeout(() => {
-				prefetch(href, { with: 'fetch' });
-			}, 80) as unknown as number;
+		// Debounce hover prefetches by 80ms
+		if (timeout) {
+			clearTimeout(timeout);
 		}
+		timeout = setTimeout(() => {
+			prefetch(href, { with: 'fetch' });
+		}, 80) as unknown as number;
 	}
 
 	// Cancel prefetch if the user hovers away
@@ -111,25 +123,43 @@ function initHoverStrategy() {
  */
 function initViewportStrategy() {
 	let observer: IntersectionObserver;
-	let listenedElements = new WeakSet<HTMLAnchorElement>();
+	const timeouts = new WeakMap<HTMLAnchorElement, number>();
 
 	onPageLoad(() => {
 		observer ??= new IntersectionObserver((entries) => {
 			for (const entry of entries) {
+				const anchor = entry.target as HTMLAnchorElement;
+				const timeout = timeouts.get(anchor);
+				// Prefetch if intersecting
 				if (entry.isIntersecting) {
-					const anchor = entry.target as HTMLAnchorElement;
-					if (elMatchesStrategy(anchor, 'viewport')) {
-						observer.unobserve(anchor);
-						prefetch(anchor.href, { with: 'link' });
+					// Debounce viewport prefetches by 300ms
+					if (timeout) {
+						clearTimeout(timeout);
+					}
+					timeouts.set(
+						anchor,
+						setTimeout(() => {
+							observer.unobserve(anchor);
+							prefetch(anchor.href, { with: 'link' });
+						}, 300) as unknown as number
+					);
+				} else {
+					if (timeout) {
+						clearTimeout(timeout);
+						timeouts.delete(anchor);
 					}
 				}
 			}
 		});
 
 		for (const anchor of document.getElementsByTagName('a')) {
-			if (listenedElements.has(anchor)) continue;
-			listenedElements.add(anchor);
-			observer.observe(anchor);
+			// Skip if already listening
+			if (listenedAnchors.has(anchor)) continue;
+			// Observe for anchors matching the strategy
+			if (elMatchesStrategy(anchor, 'viewport')) {
+				listenedAnchors.add(anchor);
+				observer.observe(anchor);
+			}
 		}
 	});
 }

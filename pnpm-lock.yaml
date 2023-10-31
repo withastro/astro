@@ -1393,6 +1393,12 @@ importers:
         specifier: ^10.17.1
         version: 10.18.1
 
+  packages/astro/e2e/fixtures/prefetch:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/e2e/fixtures/react-component:
     dependencies:
       '@astrojs/mdx':
