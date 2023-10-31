@@ -1,5 +1,5 @@
 import { h, createSSRApp, createApp, Suspense } from 'vue';
-import virtualVueApp from 'virtual:@astrojs/vue/app';
+import * as virtualApp from 'virtual:@astrojs/vue/app';
 import StaticHtml from './static-html.js';
 
 export default (element) =>
@@ -29,8 +29,9 @@ export default (element) =>
 			},
 		});
 
-		if (typeof virtualVueApp?.setup === 'function') {
-			await virtualVueApp.setup(app);
+		const setup = virtualApp.default;
+		if (typeof setup === 'function') {
+			await setup(app);
 		}
 		app.mount(element, isHydrate);
 
