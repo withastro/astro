@@ -14,3 +14,9 @@ export default {
   },
 };
 ```
+
+When this experimental feature is enabled, you can bypass the local build cache by passing the `--force` flag to `astro build`.
+
+```
+astro build --force
+```
