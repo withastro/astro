@@ -36,4 +36,27 @@ describe('parseJS - Can find all the scripts in an Astro file', () => {
 
 		expect(scriptTags.length).to.equal(0);
 	});
+
+	it('returns the proper capabilities for inline script tags', () => {
+		const input = `<script is:inline>console.log('hi')</script>`;
+		const snapshot = ts.ScriptSnapshot.fromString(input);
+		const html = parseHTML('something/something/hello.astro', snapshot, 0);
+		const astroAst = getAstroMetadata(input).ast;
+
+		const scriptTags = extractScriptTags(
+			'something/something/hello.astro',
+			snapshot,
+			html.htmlDocument,
+			astroAst
+		);
+
+		expect(scriptTags[0].capabilities).to.deep.equal({
+			diagnostic: true,
+			foldingRange: true,
+			documentFormatting: false,
+			documentSymbol: true,
+			codeAction: true,
+			inlayHint: true,
+		});
+	});
 });

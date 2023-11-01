@@ -1,11 +1,6 @@
 import type { ParentNode, ParseResult } from '@astrojs/compiler/types';
 import { is } from '@astrojs/compiler/utils';
-import {
-	FileCapabilities,
-	FileKind,
-	FileRangeCapabilities,
-	VirtualFile,
-} from '@volar/language-core';
+import { FileKind, FileRangeCapabilities, VirtualFile } from '@volar/language-core';
 import * as SourceMap from '@volar/source-map';
 import * as muggle from 'muggle-string';
 import type ts from 'typescript/lib/tsserverlibrary';
@@ -225,7 +220,14 @@ function mergeJSContexts(fileName: string, javascriptContexts: JavaScriptContext
 			getLength: () => text.length,
 			getChangeRange: () => undefined,
 		},
-		capabilities: FileCapabilities.full,
+		capabilities: {
+			codeAction: true,
+			diagnostic: true,
+			documentFormatting: false,
+			documentSymbol: true,
+			foldingRange: true,
+			inlayHint: true,
+		},
 		embeddedFiles: [],
 		kind: FileKind.TypeScriptHostFile,
 		mappings,
