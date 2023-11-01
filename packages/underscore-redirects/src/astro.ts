@@ -100,7 +100,7 @@ export function createRedirectsFromAstroRoutes({
 				}
 				_redirects.add({
 					dynamic: true,
-					input: `${base}${route.pattern}`,
+					input: `${base}${pattern}`,
 					target,
 					status: route.type === 'redirect' ? 301 : 200,
 					weight: 1,
@@ -108,7 +108,7 @@ export function createRedirectsFromAstroRoutes({
 			} else {
 				_redirects.add({
 					dynamic: true,
-					input: `${base}${route.pattern}`,
+					input: `${base}${pattern}`,
 					target: dynamicTarget,
 					status: 200,
 					weight: 1,
