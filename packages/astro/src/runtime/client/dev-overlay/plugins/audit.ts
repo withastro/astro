@@ -1,6 +1,5 @@
 import type { DevOverlayPlugin } from '../../../../@types/astro.js';
 import type { DevOverlayHighlight } from '../ui-library/highlight.js';
-import type { DevOverlayTooltip } from '../ui-library/tooltip.js';
 import { attachTooltipToHighlight, createHighlight, positionHighlight } from './utils/highlight.js';
 
 const icon =
@@ -26,20 +25,39 @@ export default {
 	init(canvas, eventTarget) {
 		let audits: { highlightElement: DevOverlayHighlight; auditedElement: HTMLElement }[] = [];
 
-		selectorBasedRules.forEach((rule) => {
-			document.querySelectorAll(rule.selector).forEach((el) => {
-				createAuditProblem(rule, el);
-			});
-		});
+		lint();
 
-		if (audits.length > 0) {
-			eventTarget.dispatchEvent(
-				new CustomEvent('plugin-notification', {
-					detail: {
-						state: true,
-					},
-				})
-			);
+		document.addEventListener('astro:after-swap', lint);
+		document.addEventListener('astro:page-load', refreshLintPositions);
+
+		function lint() {
+			audits.forEach(({ highlightElement }) => {
+				highlightElement.remove();
+			});
+			audits = [];
+
+			selectorBasedRules.forEach((rule) => {
+				document.querySelectorAll(rule.selector).forEach((el) => {
+					createAuditProblem(rule, el);
+				});
+			});
+
+			if (audits.length > 0) {
+				eventTarget.dispatchEvent(
+					new CustomEvent('plugin-notification', {
+						detail: {
+							state: true,
+						},
+					})
+				);
+			}
+		}
+
+		function refreshLintPositions() {
+			audits.forEach(({ highlightElement, auditedElement }) => {
+				const rect = auditedElement.getBoundingClientRect();
+				positionHighlight(highlightElement, rect);
+			});
 		}
 
 		function createAuditProblem(rule: AuditRule, originalElement: Element) {
@@ -60,17 +78,12 @@ export default {
 			audits.push({ highlightElement: highlight, auditedElement: originalElement as HTMLElement });
 
 			(['scroll', 'resize'] as const).forEach((event) => {
-				window.addEventListener(event, () => {
-					audits.forEach(({ highlightElement, auditedElement }) => {
-						const newRect = auditedElement.getBoundingClientRect();
-						positionHighlight(highlightElement, newRect);
-					});
-				});
+				window.addEventListener(event, refreshLintPositions);
 			});
 		}
 
 		function buildAuditTooltip(rule: AuditRule) {
-			const tooltip = document.createElement('astro-dev-overlay-tooltip') as DevOverlayTooltip;
+			const tooltip = document.createElement('astro-dev-overlay-tooltip');
 			tooltip.sections = [
 				{
 					icon: 'warning',

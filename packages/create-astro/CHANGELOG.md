@@ -1,5 +1,15 @@
 # create-astro
 
+## 4.5.0
+
+### Minor Changes
+
+- [#8959](https://github.com/withastro/astro/pull/8959) [`6169b6e56`](https://github.com/withastro/astro/commit/6169b6e56152b1ba944416d85551994788cfb887) Thanks [@ElianCodes](https://github.com/ElianCodes)! - Undo the halloween theme and restore `fancy` behaviour
+
+### Patch Changes
+
+- [#8939](https://github.com/withastro/astro/pull/8939) [`71455c16c`](https://github.com/withastro/astro/commit/71455c16c371aaca4b5a551b713a77c6820efd78) Thanks [@wktk](https://github.com/wktk)! - Fixes TypeScript installation issue with yarn
+
 ## 4.4.1
 
 ### Patch Changes
