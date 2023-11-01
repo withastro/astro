@@ -47,9 +47,10 @@ describe('Experimental Content Collections cache inlineStylesheets', () => {
 
 describe('Experimental Content Collections cache - inlineStylesheets to never in server output', () => {
 	let app;
+	let fixture;
 
 	before(async () => {
-		const fixture = await loadFixture({
+		fixture = await loadFixture({
 			// inconsequential config that differs between tests
 			// to bust cache and prevent modules and their state
 			// from being reused
