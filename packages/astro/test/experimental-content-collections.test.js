@@ -293,9 +293,10 @@ describe('Experimental Content Collections cache', () => {
 
 	describe('SSR integration', () => {
 		let app;
+		let fixture;
 
 		before(async () => {
-			const fixture = await loadFixture({
+			fixture = await loadFixture({
 				root: './fixtures/content-ssr-integration/',
 				output: 'server',
 				adapter: testAdapter(),

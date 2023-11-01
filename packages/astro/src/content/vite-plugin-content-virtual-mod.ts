@@ -61,7 +61,7 @@ export function astroContentVirtualModPlugin({
 					settings,
 					fs,
 				});
-				const code = await generateContentEntryFile({ settings, fs, lookupMap });
+				const code = await generateContentEntryFile({ settings, fs, lookupMap, IS_DEV, IS_SERVER });
 
 				return {
 					code,
@@ -94,10 +94,14 @@ export function astroContentVirtualModPlugin({
 export async function generateContentEntryFile({
 	settings,
 	lookupMap,
+	IS_DEV,
+	IS_SERVER
 }: {
 	settings: AstroSettings;
 	fs: typeof nodeFs;
 	lookupMap: ContentLookupMap
+	IS_DEV: boolean;
+	IS_SERVER: boolean;
 }) {
 	const contentPaths = getContentPaths(settings.config);
 	const relContentDir = rootRelativePath(settings.config.root, contentPaths.contentDir);
@@ -105,7 +109,7 @@ export async function generateContentEntryFile({
 	let contentEntryGlobResult: string;
 	let dataEntryGlobResult: string;
 	let renderEntryGlobResult: string;
-	if (!settings.config.experimental.contentCollectionCache) {
+	if (IS_DEV || IS_SERVER || !settings.config.experimental.contentCollectionCache) {
 		const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 		const contentEntryExts = [...contentEntryConfigByExt.keys()];
 		const dataEntryExts = getDataEntryExts(settings);
