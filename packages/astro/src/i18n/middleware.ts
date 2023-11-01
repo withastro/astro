@@ -37,8 +37,8 @@ export function createI18nMiddleware(
 				const content = await response.text();
 				const newLocation = url.pathname.replace(`/${defaultLocale}`, '');
 				response.headers.set('Location', newLocation);
-				return new Response(content, {
-					status: 302,
+				return new Response(null, {
+					status: 404,
 					headers: response.headers,
 				});
 			}
