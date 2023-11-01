@@ -28,7 +28,7 @@ const kebab = (k: string) =>
 	k.toLowerCase() === k ? k : k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
 const toStyleString = (obj: Record<string, any>) =>
 	Object.entries(obj)
-		.filter(([k, v]) => typeof v === 'string' && v.trim() || typeof v === 'number')
+		.filter(([k, v]) => (typeof v === 'string' && v.trim()) || typeof v === 'number')
 		.map(([k, v]) => {
 			if (k[0] !== '-' && k[1] !== '-') return `${kebab(k)}:${v}`;
 			return `${k}:${v}`;
