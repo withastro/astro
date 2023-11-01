@@ -68,6 +68,7 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		cookies,
 		locals: renderContext.locals ?? {},
 		preferredLocale: renderContext.preferredLocale,
+		preferredLocaleList: renderContext.preferredLocaleList,
 	});
 
 	// TODO: Remove in Astro 4.0
