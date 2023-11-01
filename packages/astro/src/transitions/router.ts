@@ -515,7 +515,7 @@ if (inBrowser) {
 		addEventListener('popstate', onPopState);
 		addEventListener('load', onPageLoad);
 		if ('onscrollend' in window) addEventListener('scrollend', onScroll);
-		else addEventListener('scroll', throttle(onScroll, 300));
+		else addEventListener('scroll', throttle(onScroll, 350));
 	}
 	for (const script of document.scripts) {
 		script.dataset.astroExec = '';
