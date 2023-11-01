@@ -28,6 +28,7 @@ export interface RenderContext {
 	props: Props;
 	locals?: object;
 	preferredLocale: string | undefined;
+	preferredLocaleList: string[] | undefined;
 }
 
 export type CreateRenderContextArgs = Partial<
@@ -59,6 +60,7 @@ export async function createRenderContext(
 		params,
 		props,
 		preferredLocale: options.preferredLocale,
+		preferredLocaleList: options.preferredLocaleList,
 	};
 
 	// We define a custom property, so we can check the value passed to locals
@@ -144,12 +146,24 @@ export function parseLocale(header: string): BrowserLocale[] {
  * If multiple locales are present in the header, they are sorted by their quality value and the highest is selected as current locale.
  *
  */
-export function computePreferredLocale(request: Request): string | undefined {
+export function computePreferredLocales(
+	request: Request,
+	locales: string[]
+): [preferredLocaleList: string[] | undefined, preferredLocale: string | undefined] {
 	const acceptHeader = request.headers.get('Accept-Language');
+	const result: [preferredLocaleList: string[] | undefined, preferredLocale: string | undefined] = [
+		undefined,
+		undefined,
+	];
 	if (acceptHeader) {
-		const result = parseLocale(acceptHeader);
-		if (result) {
-			result.sort((a, b) => {
+		const parsedResult = parseLocale(acceptHeader)
+			.filter((browserLocale) => {
+				if (browserLocale.locale !== '*') {
+					return locales.includes(browserLocale.locale);
+				}
+				return true;
+			})
+			.sort((a, b) => {
 				if (a.qualityValue && b.qualityValue) {
 					if (a.qualityValue > b.qualityValue) {
 						return -1;
@@ -159,12 +173,23 @@ export function computePreferredLocale(request: Request): string | undefined {
 				}
 				return 0;
 			});
-			const firstResult = result.at(0);
-			if (firstResult) {
-				if (firstResult.locale !== '*') {
-					return firstResult.locale;
-				}
+
+		// SAFETY: bang operator is safe because checked by the previous condition
+		if (parsedResult.length === 1 && parsedResult.at(0)!.locale === '*') {
+			result[0] = locales;
+		} else {
+			result[0] = parsedResult.map((item) => {
+				return item.locale;
+			});
+		}
+
+		const firstResult = parsedResult.at(0);
+		if (firstResult) {
+			if (firstResult.locale !== '*') {
+				result[1] = firstResult.locale;
 			}
 		}
 	}
+
+	return result;
 }

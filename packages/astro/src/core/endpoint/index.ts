@@ -12,7 +12,7 @@ import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachCookiesToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
-import { type Environment, type RenderContext, computePreferredLocale } from '../render/index.js';
+import { type Environment, type RenderContext, computePreferredLocales } from '../render/index.js';
 
 const encoder = new TextEncoder();
 
@@ -26,6 +26,7 @@ type CreateAPIContext = {
 	props: Record<string, any>;
 	adapterName?: string;
 	preferredLocale: string | undefined;
+	preferredLocaleList: string[] | undefined;
 };
 
 /**
@@ -40,6 +41,7 @@ export function createAPIContext({
 	props,
 	adapterName,
 	preferredLocale,
+	preferredLocaleList,
 }: CreateAPIContext): APIContext {
 	const context = {
 		cookies: new AstroCookies(request),
@@ -58,6 +60,7 @@ export function createAPIContext({
 		},
 		ResponseWithEncoding,
 		preferredLocale: preferredLocale,
+		preferredLocaleList: preferredLocaleList,
 		url: new URL(request.url),
 		get clientAddress() {
 			if (clientAddressSymbol in request) {
@@ -128,8 +131,9 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	mod: EndpointHandler,
 	env: Environment,
 	ctx: RenderContext,
-	onRequest?: MiddlewareHandler<MiddlewareResult> | undefined,
-	currentLocale?: undefined | string
+	onRequest: MiddlewareHandler<MiddlewareResult> | undefined,
+	preferredLocale: undefined | string,
+	preferredLocaleList: undefined | string[]
 ): Promise<Response> {
 	const context = createAPIContext({
 		request: ctx.request,
@@ -137,7 +141,8 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 		props: ctx.props,
 		site: env.site,
 		adapterName: env.adapterName,
-		preferredLocale: currentLocale,
+		preferredLocale,
+		preferredLocaleList,
 	});
 
 	let response;

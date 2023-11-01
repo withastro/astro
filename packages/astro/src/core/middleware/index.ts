@@ -1,6 +1,7 @@
 import type { MiddlewareEndpointHandler, Params } from '../../@types/astro.js';
 import { createAPIContext } from '../endpoint/index.js';
 import { sequence } from './sequence.js';
+import { computePreferredLocales } from '../render/index.js';
 
 function defineMiddleware(fn: MiddlewareEndpointHandler) {
 	return fn;
@@ -18,18 +19,28 @@ export type CreateContext = {
 	 * Optional parameters
 	 */
 	params?: Params;
+
+	/**
+	 * A list of locales that are supported by the user
+	 */
+	userDefinedLocales?: string[];
 };
 
 /**
  * Creates a context to be passed to Astro middleware `onRequest` function.
  */
-function createContext({ request, params }: CreateContext) {
+function createContext({ request, params, userDefinedLocales = [] }: CreateContext) {
+	const [preferredLocaleList, preferredLocale] = computePreferredLocales(
+		request,
+		userDefinedLocales
+	);
 	return createAPIContext({
 		request,
 		params: params ?? {},
 		props: {},
 		site: undefined,
-		preferredLocale: undefined,
+		preferredLocale,
+		preferredLocaleList,
 	});
 }
 
