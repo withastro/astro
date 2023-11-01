@@ -1,5 +1,11 @@
 # @astrojs/underscore-redirects
 
+## 0.3.3
+
+### Patch Changes
+
+- [#8979](https://github.com/withastro/astro/pull/8979) [`0ee7c9aac`](https://github.com/withastro/astro/commit/0ee7c9aac9d0dbe727edb91ce944d607947aa242) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes a regression which used the wrong pattern for dynamic pages
+
 ## 0.3.2
 
 ### Patch Changes
