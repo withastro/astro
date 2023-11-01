@@ -1,5 +1,21 @@
 # astro
 
+## 3.4.1
+
+### Patch Changes
+
+- [#8966](https://github.com/withastro/astro/pull/8966) [`262cef248`](https://github.com/withastro/astro/commit/262cef2487c7494bd8d23b4ab27bfcdf1870a111) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix Dev Overlay not working properly when view transitions are enabled
+
+- [#8932](https://github.com/withastro/astro/pull/8932) [`5fed432b0`](https://github.com/withastro/astro/commit/5fed432b0c3c84542a3d1b2952d183e9cbe3fa0e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixed window component appearing over the dev overlay on small windows. Added a maximum length to sections of the tooltip component
+
+- [#8965](https://github.com/withastro/astro/pull/8965) [`430c470ac`](https://github.com/withastro/astro/commit/430c470ace5cfae5f53b530df54c0dc7e2046aaa) Thanks [@matthewp](https://github.com/matthewp)! - Move VT route announcer styles to a class
+
+  Doing so allows stricter CSP policies.
+
+- [#8762](https://github.com/withastro/astro/pull/8762) [`35cd810f0`](https://github.com/withastro/astro/commit/35cd810f0f988010fbb8e6d7ab205de5d816e2b2) Thanks [@evadecker](https://github.com/evadecker)! - Upgrades Zod to 3.22.4
+
+- [#8928](https://github.com/withastro/astro/pull/8928) [`ca90b47cf`](https://github.com/withastro/astro/commit/ca90b47cfc5e00f5065cf461e2fe50db62215e49) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Renames dev overlay UI Toolkit component names for consistency.
+
 ## 3.4.0
 
 ### Minor Changes

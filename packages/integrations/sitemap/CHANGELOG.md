@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 3.0.3
+
+### Patch Changes
+
+- [#8762](https://github.com/withastro/astro/pull/8762) [`35cd810f0`](https://github.com/withastro/astro/commit/35cd810f0f988010fbb8e6d7ab205de5d816e2b2) Thanks [@evadecker](https://github.com/evadecker)! - Upgrades Zod to 3.22.4
+
 ## 3.0.2
 
 ### Patch Changes
