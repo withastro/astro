@@ -59,7 +59,7 @@ export class DevOverlayTooltip extends HTMLElement {
 
 			.section-content {
 				max-height: 250px;
-    		overflow-y: scroll;
+    		overflow-y: auto;
 			}
 
 			.modal-title {

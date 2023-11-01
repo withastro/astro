@@ -15,12 +15,23 @@ test.afterAll(async () => {
 	await devServer.stop();
 });
 
-test.describe('Dev Overlay zzz', () => {
+test.describe('Dev Overlay', () => {
 	test('dev overlay exists in the page', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const devOVerlay = page.locator('astro-dev-overlay');
 		await expect(devOVerlay).toHaveCount(1);
+	});
+
+	test('shows plugin name on hover', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const overlay = page.locator('astro-dev-overlay');
+		const pluginButton = overlay.locator('button[data-plugin-id="astro"]');
+		const pluginButtonTooltip = pluginButton.locator('.item-tooltip');
+		await pluginButton.hover();
+
+		await expect(pluginButtonTooltip).toBeVisible();
 	});
 
 	test('can open Astro plugin', async ({ page, astro }) => {
