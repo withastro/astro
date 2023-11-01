@@ -1,4 +1,5 @@
 import type { Plugin as VitePlugin } from 'vite';
+import { normalizePath } from 'vite';
 import type { Logger } from '../logger/core.js';
 import { getOutputDirectory } from '../../prerender/utils.js';
 import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
@@ -98,7 +99,7 @@ function createMiddlewareImports(entrypoints: string[], prefix: string): { raw: 
 	let index = 0;
 	for(const entrypoint of entrypoints) {
 		const name = `_${prefix}_${index}`;
-		raw += `import { onRequest as ${name} } from '${entrypoint}';\n`;
+		raw += `import { onRequest as ${name} } from '${normalizePath(entrypoint)}';\n`;
 		imports.push({
 			identifier: name
 		});
