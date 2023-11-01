@@ -5,7 +5,7 @@ export interface Props {
 	fallback?: Fallback;
 }
 
-const { fallback = 'animate' } = Astro.props as Props;
+const { fallback = 'animate' } = Astro.props;
 ---
 <style is:global>
 /* Route announcer */

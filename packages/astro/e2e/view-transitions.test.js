@@ -684,7 +684,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('client:only styles are retained on transition (1/2)', async ({ page, astro }) => {
-		const totalExpectedStyles = 8;
+		const totalExpectedStyles = 9;
 
 		await page.goto(astro.resolveUrl('/client-only-one'));
 		let msg = page.locator('.counter-message');
@@ -703,8 +703,8 @@ test.describe('View Transitions', () => {
 	});
 
 	test('client:only styles are retained on transition (2/2)', async ({ page, astro }) => {
-		const totalExpectedStyles_page_three = 10;
-		const totalExpectedStyles_page_four = 8;
+		const totalExpectedStyles_page_three = 11;
+		const totalExpectedStyles_page_four = 9;
 
 		await page.goto(astro.resolveUrl('/client-only-three'));
 		let msg = page.locator('#name');
