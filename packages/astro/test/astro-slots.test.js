@@ -152,11 +152,11 @@ describe('Slots', () => {
 		{
 			const html = await fixture.readFile('/rendered-multiple-times/index.html');
 			const $ = cheerio.load(html);
-			
+
 			const elements = $('div');
 			expect(elements).to.have.lengthOf(10);
 
-			const [ first, second, third ] = elements;
+			const [first, second, third] = elements;
 
 			expect(first.children[0].data).to.not.equal(second.children[0].data);
 			expect(second.children[0].data).to.not.equal(third.children[0].data);

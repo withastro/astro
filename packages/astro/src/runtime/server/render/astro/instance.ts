@@ -40,7 +40,7 @@ export class AstroComponentInstance {
 					didRender = true;
 					return value;
 				}
-				// render afresh for the advanced use-case where the same slot is rendered multiple times 
+				// render afresh for the advanced use-case where the same slot is rendered multiple times
 				return slots[name](result);
 			};
 		}
