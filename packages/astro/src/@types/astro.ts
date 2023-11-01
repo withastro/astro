@@ -1505,20 +1505,6 @@ export interface AstroUserConfig {
              *
              */
             routingStrategy: 'prefix-always' | 'prefix-other-locales';
-
-			/**
-			 * @docs
-			 * @name experimental.i18n.detectBrowserLanguage
-			 * @type {boolean}
-			 * @version 3.*.*
-			 * @description
-			 *
-			 * Whether Astro should detect the language of the browser - usually using the `Accept-Language` header. This is a feature
-			 * that should be supported by the adapter. If detected, the adapter can decide to redirect the user to the localised version of the website.
-			 *
-			 * When set to `true`, you should make sure that the adapter you're using is able to provide this feature to you.
-			 */
-			detectBrowserLanguage: boolean;
 		};
 	};
 }
@@ -2070,6 +2056,12 @@ interface AstroSharedContext<
 	 * The current locale that is computed from the `Accept-Language` header of the browser (**SSR Only**).
 	 */
 	preferredLocale: string | undefined;
+
+	/**
+	 * The list of locales computed from the `Accept-Language` header of the browser, sorted by quality value (**SSR Only**).
+	 */
+
+	preferredLocaleList: string[] | undefined;
 }
 
 export interface APIContext<
@@ -2173,10 +2165,32 @@ export interface APIContext<
 	ResponseWithEncoding: typeof ResponseWithEncoding;
 
 	/**
-	 * Available only when `experimental.i18n` enabled.
+	 * Available only when `experimental.i18n` enabled and in SSR.
 	 *
+	 * It represents the preferred locale of the user. It's computed by checking the supported locales in `i18n.locales`
+	 * and locales supported by the users's browser via the header `Accept-Language`
+	 *
+	 * For example, given `i18n.locales` equals to `['fr', 'de']`, and the `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
+	 * `Astro.preferredLanguage` will be `fr` because `en` is not supported, its [quality value] is the highest.
+	 *
+	 * [quality value]: https://developer.mozilla.org/en-US/docs/Glossary/Quality_values
 	 */
 	preferredLocale: string | undefined;
+
+	/**
+	 * Available only when `experimental.i18n` enabled and in SSR.
+	 *
+	 * It represents the list of the preferred locales that are supported by the application. The list is sorted via [quality value].
+	 *
+	 * For example, given `i18n.locales` equals to `['fr', 'pt', 'de']`, and the `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
+	 * `Astro.preferredLocaleList` will be equal to `['fs', 'de']` because `en` isn't supported, and `pt` isn't part of the locales contained in the
+	 * header.
+	 *
+	 * When the `Accept-Header` is `*`, the original `i18n.locales` are returned. The value `*` means no preferences, so Astro returns all the supported locales.
+	 *
+	 * [quality value]: https://developer.mozilla.org/en-US/docs/Glossary/Quality_values
+	 */
+	preferredLocaleList: string[] | undefined;
 }
 
 export type EndpointOutput =

@@ -46,6 +46,7 @@ export interface CreateResultArgs {
 	locals: App.Locals;
 	cookies?: AstroCookies;
 	preferredLocale: string | undefined;
+	preferredLocaleList: string[] | undefined;
 }
 
 function getFunctionExpression(slot: any) {
@@ -125,7 +126,7 @@ class Slots {
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { params, request, resolve, locals, preferredLocale } = args;
+	const { params, request, resolve, locals, preferredLocale, preferredLocaleList } = args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
@@ -198,7 +199,8 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				locals,
 				request,
 				url,
-				preferredLocale: preferredLocale,
+				preferredLocale,
+				preferredLocaleList,
 				redirect(path, status) {
 					// If the response is already sent, error as we cannot proceed with the redirect.
 					if ((request as any)[responseSentSymbol]) {
