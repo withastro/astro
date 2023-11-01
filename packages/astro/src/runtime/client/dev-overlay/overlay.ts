@@ -97,7 +97,7 @@ export class AstroDevOverlay extends HTMLElement {
 				overflow: hidden;
 			}
 
-			#dev-bar #bar-container .item:hover, #dev-bar #bar-container .item:focus {
+			#dev-bar #bar-container .item:hover, #dev-bar #bar-container .item:focus-visible {
 				background: rgba(27, 30, 36, 1);
 				cursor: pointer;
 				outline-offset: -3px;
@@ -114,6 +114,33 @@ export class AstroDevOverlay extends HTMLElement {
 			}
 			#dev-bar #bar-container .item.active {
 				background: rgba(71, 78, 94, 1);
+			}
+
+			#dev-bar .item-tooltip {
+				background: linear-gradient(0deg, #13151A, #13151A), linear-gradient(0deg, #343841, #343841);
+				border: 1px solid rgba(52, 56, 65, 1);
+				border-radius: 4px;
+				padding: 4px 8px;
+				position: absolute;
+				top: -40px;
+				opacity: 0;
+				transition: opacity 0.2s ease-in-out 0s;
+				pointer-events: none;
+			}
+
+			#dev-bar .item-tooltip::after{
+				content: '';
+				position: absolute;
+				left: calc(50% - 5px);
+				bottom: -6px;
+				border-left: 5px solid transparent;
+				border-right: 5px solid transparent;
+				border-top: 5px solid #343841;
+			}
+
+			#dev-bar .item:hover .item-tooltip, #dev-bar .item:not(.active):focus-visible .item-tooltip {
+				transition: opacity 0.2s ease-in-out 200ms;
+				opacity: 1;
 			}
 
 			#dev-bar #bar-container .item.active .notification {
@@ -374,7 +401,7 @@ export class AstroDevOverlay extends HTMLElement {
 	getPluginTemplate(plugin: DevOverlayPlugin) {
 		return `<button class="item" data-plugin-id="${plugin.id}">
 				<div class="icon">${this.getPluginIcon(plugin.icon)}<div class="notification"></div></div>
-				<span class="sr-only">${plugin.name}</span>
+				<span class="item-tooltip">${plugin.name}</span>
 			</button>`;
 	}
 
