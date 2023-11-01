@@ -136,6 +136,14 @@ describe('[DEV] i18n routing', () => {
 			expect(await response2.text()).includes('Hello world');
 		});
 
+		it('should return 404 when route contains the default locale', async () => {
+			const response = await fixture.fetch('/new-site/en/start');
+			expect(response.status).to.equal(404);
+
+			const response2 = await fixture.fetch('/new-site/en/blog/1');
+			expect(response2.status).to.equal(404);
+		});
+
 		it('should render localised page correctly', async () => {
 			const response = await fixture.fetch('/new-site/pt/start');
 			expect(response.status).to.equal(200);
@@ -412,6 +420,17 @@ describe('[SSG] i18n routing', () => {
 			expect($('body').text()).includes('Hello world');
 		});
 
+		it('should return 404 when route contains the default locale', async () => {
+			try {
+				await fixture.readFile('/start/en/index.html');
+				// failed
+				return false;
+			} catch {
+				// success
+				return true;
+			}
+		});
+
 		it('should render localised page correctly', async () => {
 			let html = await fixture.readFile('/pt/start/index.html');
 			let $ = cheerio.load(html);
@@ -542,7 +561,6 @@ describe('[SSG] i18n routing', () => {
 		it('should redirect to the english locale, which is the first fallback', async () => {
 			const html = await fixture.readFile('/it/start/index.html');
 			expect(html).to.include('http-equiv="refresh');
-			console.log(html);
 			expect(html).to.include('url=/new-site/start');
 		});
 
@@ -662,6 +680,12 @@ describe('[SSR] i18n routing', () => {
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
 			expect(await response.text()).includes('Start');
+		});
+
+		it('should return 404 if route contains the default locale', async () => {
+			let request = new Request('http://example.com/new-site/en/start');
+			let response = await app.render(request);
+			expect(response.status).to.equal(404);
 		});
 
 		it('should render localised page correctly', async () => {
