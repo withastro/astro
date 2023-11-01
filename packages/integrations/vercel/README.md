@@ -286,7 +286,9 @@ export default defineConfig({
 **Type:** `boolean`<br>
 **Available for:** Serverless
 
-Use this property to set whether the serverless function will stream the response to the browser.
+Determines whether or not the serverless function will stream its response to the browser, sending components as they are rendered.
+
+The default value is `false`. Set this value to `true` in your Vercel adapter configuration to enable streaming.
 
 ```diff lang="js"
 // astro.config.mjs
