@@ -1,5 +1,15 @@
 # astro
 
+## 3.4.2
+
+### Patch Changes
+
+- [#8977](https://github.com/withastro/astro/pull/8977) [`40a061679`](https://github.com/withastro/astro/commit/40a06167976a29798a0b9e7eab64dd39f4ab6521) Thanks [@matthewp](https://github.com/matthewp)! - Prevent route announcer from being visible
+
+- [#8929](https://github.com/withastro/astro/pull/8929) [`2da33b7a1`](https://github.com/withastro/astro/commit/2da33b7a13cf964595f758e3e4a865fd97d0943e) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where rendering the same slot multiple times invoked it only once.
+
+- [#8978](https://github.com/withastro/astro/pull/8978) [`cc3278bb6`](https://github.com/withastro/astro/commit/cc3278bb69738c4e0c7811d683ead71bea6f46c1) Thanks [@Princesseuh](https://github.com/Princesseuh)! - In the dev overlay, add a tooltip showing the currently hovered / focused plugin's name
+
 ## 3.4.1
 
 ### Patch Changes
