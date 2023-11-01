@@ -281,7 +281,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			scripts.add({
 				props: {
 					type: 'module',
-					src: await resolveIdToUrl(moduleLoader, 'astro/runtime/client/dev-overlay/overlay.js'),
+					src: await resolveIdToUrl(moduleLoader, 'astro/runtime/client/dev-overlay/entrypoint.js'),
 				},
 				children: '',
 			});
