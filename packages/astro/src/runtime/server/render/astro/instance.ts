@@ -31,8 +31,18 @@ export class AstroComponentInstance {
 		this.factory = factory;
 		this.slotValues = {};
 		for (const name in slots) {
-			const value = slots[name](result);
-			this.slotValues[name] = () => value;
+			// prerender the slots eagerly to make collection entries propagate styles and scripts
+			let didRender = false;
+			let value = slots[name](result);
+			this.slotValues[name] = () => {
+				// use prerendered value only once
+				if (!didRender) {
+					didRender = true;
+					return value;
+				}
+				// render afresh for the advanced use-case where the same slot is rendered multiple times
+				return slots[name](result);
+			};
 		}
 	}
 

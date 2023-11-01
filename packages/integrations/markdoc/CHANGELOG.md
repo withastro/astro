@@ -1,5 +1,13 @@
 # @astrojs/markdoc
 
+## 0.7.1
+
+### Patch Changes
+
+- [#8759](https://github.com/withastro/astro/pull/8759) [`01c801108`](https://github.com/withastro/astro/commit/01c801108f1f5429436e4fc930018bf96ed31f79) Thanks [@lutaok](https://github.com/lutaok)! - Fix build process on markdoc integration when root folder contains spaces
+
+- [#8762](https://github.com/withastro/astro/pull/8762) [`35cd810f0`](https://github.com/withastro/astro/commit/35cd810f0f988010fbb8e6d7ab205de5d816e2b2) Thanks [@evadecker](https://github.com/evadecker)! - Upgrades Zod to 3.22.4
+
 ## 0.7.0
 
 ### Minor Changes
