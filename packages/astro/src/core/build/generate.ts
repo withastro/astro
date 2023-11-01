@@ -39,7 +39,7 @@ import {
 	getRedirectLocationOrThrow,
 	routeIsRedirect,
 } from '../redirects/index.js';
-import { computePreferredLocale, createRenderContext } from '../render/index.js';
+import { computePreferredLocales, createRenderContext } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -551,9 +551,13 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		logger: pipeline.getLogger(),
 		ssr,
 	});
-	let currentLocale: undefined | string = undefined;
-	if (pipeline.getConfig().experimental.i18n) {
-		currentLocale = computePreferredLocale(request);
+	let preferredLocale: undefined | string = undefined;
+	let preferredLocaleList: undefined | string[] = undefined;
+	const i18n = pipeline.getConfig().experimental.i18n;
+	if (i18n) {
+		const result = computePreferredLocales(request, i18n.locales);
+		preferredLocaleList = result[0];
+		preferredLocale = result[1];
 	}
 	const renderContext = await createRenderContext({
 		pathname,
@@ -565,7 +569,8 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		route: pageData.route,
 		env: pipeline.getEnvironment(),
 		mod,
-		preferredLocale: currentLocale,
+		preferredLocale,
+		preferredLocaleList,
 	});
 
 	let body: string | Uint8Array;
