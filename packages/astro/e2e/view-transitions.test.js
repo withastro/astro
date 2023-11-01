@@ -887,4 +887,18 @@ test.describe('View Transitions', () => {
 		await locator.type(' World');
 		await expect(locator).toHaveValue('Hello World');
 	});
+
+	test('Route announcer is invisible on page transition', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/no-directive-one'));
+
+		let locator = page.locator('#one');
+		await expect(locator, 'should have content').toHaveText('One');
+
+		await page.click('a');
+		locator = page.locator('#two');
+		await expect(locator, 'should have content').toHaveText('Two');
+
+		let announcer = page.locator('.astro-route-announcer');
+		await expect(announcer, 'should have content').toHaveCSS('width', '1px');
+	});
 });
