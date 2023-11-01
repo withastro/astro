@@ -281,28 +281,6 @@ export default defineConfig({
 });
 ```
 
-### streaming
-
-**Type:** `boolean`<br>
-**Available for:** Serverless
-
-Determines whether or not the serverless function will stream its response to the browser, sending components as they are rendered.
-
-The default value is `false`. Set this value to `true` in your Vercel adapter configuration to enable streaming.
-
-```diff lang="js"
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import vercel from '@astrojs/vercel/serverless';
-
-export default defineConfig({
-    output: "server",
-    adapter: vercel({
-+       streaming: true
-    }),
-});
-```
-
 ### Function bundling configuration
 
 The Vercel adapter combines all of your routes into a single function by default.

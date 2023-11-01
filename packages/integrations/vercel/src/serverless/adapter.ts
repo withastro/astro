@@ -105,9 +105,6 @@ export interface VercelServerlessConfig {
 
 	/** The maximum duration (in seconds) that Serverless Functions can run before timing out. See the [Vercel documentation](https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration) for the default and maximum limit for your account plan. */
 	maxDuration?: number;
-
-	/** Whether to allow the serverless function to stream the response to the browser. */
-	streaming?: boolean;
 }
 
 export default function vercelServerless({
@@ -122,7 +119,6 @@ export default function vercelServerless({
 	functionPerRoute = false,
 	edgeMiddleware = false,
 	maxDuration,
-	streaming,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	if (maxDuration) {
 		if (typeof maxDuration !== 'number') {
@@ -280,7 +276,6 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 							includeFiles: filesToInclude,
 							excludeFiles,
 							maxDuration,
-							streaming,
 						});
 						routeDefinitions.push({
 							src: route.pattern.source,
@@ -297,7 +292,6 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 						includeFiles: filesToInclude,
 						excludeFiles,
 						maxDuration,
-						streaming,
 					});
 					routeDefinitions.push({ src: '/.*', dest: 'render' });
 				}
@@ -348,7 +342,6 @@ interface CreateFunctionFolderArgs {
 	includeFiles: URL[];
 	excludeFiles?: string[];
 	maxDuration: number | undefined;
-	streaming: boolean | undefined;
 }
 
 async function createFunctionFolder({
@@ -360,7 +353,6 @@ async function createFunctionFolder({
 	includeFiles,
 	excludeFiles,
 	maxDuration,
-	streaming,
 }: CreateFunctionFolderArgs) {
 	const functionFolder = new URL(`./functions/${functionName}.func/`, config.outDir);
 
@@ -389,7 +381,7 @@ async function createFunctionFolder({
 		handler,
 		launcherType: 'Nodejs',
 		maxDuration,
-		supportsResponseStreaming: streaming,
+		supportsResponseStreaming: true,
 	});
 }
 
