@@ -122,9 +122,7 @@ declare module 'astro:transitions/client' {
 }
 
 declare module 'astro:prefetch' {
-	type PrefetchModule = typeof import('./dist/prefetch/index.js');
-	export const prefetch: PrefetchModule['prefetch'];
-	export type PrefetchOptions = PrefetchModule['PrefetchOptions'];
+	export { prefetch, PrefetchOptions } from 'astro/prefetch';
 }
 
 declare module 'astro:middleware' {

@@ -13,9 +13,18 @@
     <br>
     <a id="prefetch-hover" href="/prefetch-hover" data-astro-prefetch="hover">hover</a>
     <br>
+    <button id="prefetch-manual">manual</button>
+    <br>
     <span>Scroll down to trigger viewport prefetch</span>
     <!-- Large empty space to test viewport -->
     <div style="height: 1000px;"></div>
     <a id="prefetch-viewport" href="/prefetch-viewport" data-astro-prefetch="viewport">viewport</a>
+    <script>
+      // @ts-nocheck
+      import { prefetch } from 'astro:prefetch'
+      document.getElementById('prefetch-manual').addEventListener('click', () => {
+        prefetch('/prefetch-manual', { with: 'link' })
+      })
+    </script>
   </body>
 </html>

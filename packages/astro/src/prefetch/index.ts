@@ -35,13 +35,6 @@ export function init(opts?: InitOptions) {
 
 	debug?.(`[astro] Initializing prefetch script`);
 
-	// Skip prefetch if prefer data saving
-	if ('connection' in navigator) {
-		// untyped
-		const conn = navigator.connection as any;
-		if (conn.saveData || /(2|3)g/.test(conn.effectiveType)) return;
-	}
-
 	// In the future, perhaps we can enable treeshaking specific unused strategies
 	initTapStrategy();
 	initHoverStrategy();
@@ -174,7 +167,15 @@ export interface PrefetchOptions {
 }
 
 /**
- * @param url a full URL string to prefetch
+ * Prefetch a URL so it's cached when the user navigates to it.
+ *
+ * @param url A full or partial URL string based on the current `location.href`. They are only fetched if:
+ *   - The user is online
+ *   - The user is not in data saver mode
+ *   - The URL is within the same origin
+ *   - The URL is not the current page
+ *   - The URL has not already been prefetched
+ * @param opts Additional options for prefetching.
  */
 export function prefetch(url: string, opts?: PrefetchOptions) {
 	if (!canPrefetchUrl(url)) return;
@@ -199,9 +200,17 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 }
 
 function canPrefetchUrl(url: string) {
+	// Skip prefetch if offline
 	if (!navigator.onLine) return false;
+	if ('connection' in navigator) {
+		// Untyped Chrome-only feature: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/connection
+		const conn = navigator.connection as any;
+		// Skip prefetch if using data saver mode or slow connection
+		if (conn.saveData || /(2|3)g/.test(conn.effectiveType)) return false;
+	}
+	// Else check if URL is within the same origin, not the current page, and not already prefetched
 	try {
-		const urlObj = new URL(url);
+		const urlObj = new URL(url, location.href);
 		return (
 			location.origin === urlObj.origin &&
 			location.pathname !== urlObj.pathname &&

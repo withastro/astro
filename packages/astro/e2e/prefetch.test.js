@@ -42,7 +42,7 @@ test.describe('Prefetch (default)', () => {
 		await page.goto(astro.resolveUrl('/'));
 		expect(reqUrls).not.toContainEqual('/prefetch-tap');
 		await Promise.all([
-			page.waitForEvent('request'), // wait prefetch debug log after next action
+			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-tap').click(),
 		]);
 		expect(reqUrls).toContainEqual('/prefetch-tap');
@@ -52,7 +52,7 @@ test.describe('Prefetch (default)', () => {
 		await page.goto(astro.resolveUrl('/'));
 		expect(reqUrls).not.toContainEqual('/prefetch-hover');
 		await Promise.all([
-			page.waitForEvent('request'), // wait prefetch debug log after next action
+			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-hover').hover(),
 		]);
 		expect(reqUrls).toContainEqual('/prefetch-hover');
@@ -63,11 +63,26 @@ test.describe('Prefetch (default)', () => {
 		expect(reqUrls).not.toContainEqual('/prefetch-viewport');
 		// Scroll down to show the element
 		await Promise.all([
-			page.waitForEvent('request'), // wait prefetch debug log after next action
+			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-viewport').scrollIntoViewIfNeeded(),
 		]);
 		expect(reqUrls).toContainEqual('/prefetch-viewport');
 		expect(page.locator('link[rel="prefetch"][href$="/prefetch-viewport"]')).toBeDefined();
+	});
+
+	test('manual prefetch() works once', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+		expect(reqUrls).not.toContainEqual('/prefetch-manual');
+		await Promise.all([
+			page.waitForEvent('request'), // wait prefetch request
+			page.locator('#prefetch-manual').click(),
+		]);
+		expect(reqUrls).toContainEqual('/prefetch-manual');
+		expect(page.locator('link[rel="prefetch"][href$="/prefetch-manual"]')).toBeDefined();
+
+		// prefetch again should have no effect
+		await page.locator('#prefetch-manual').click();
+		expect(reqUrls.filter((u) => u.includes('/prefetch-manual')).length).toEqual(1);
 	});
 });
 
@@ -103,7 +118,7 @@ test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'tap')", () => {
 		await page.goto(astro.resolveUrl('/'));
 		expect(reqUrls).not.toContainEqual('/prefetch-default');
 		await Promise.all([
-			page.waitForEvent('request'), // wait prefetch debug log after next action
+			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-default').click(),
 		]);
 		expect(reqUrls).toContainEqual('/prefetch-default');
@@ -118,7 +133,7 @@ test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'tap')", () => {
 		await page.goto(astro.resolveUrl('/'));
 		expect(reqUrls).not.toContainEqual('/prefetch-tap');
 		await Promise.all([
-			page.waitForEvent('request'), // wait prefetch debug log after next action
+			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-tap').click(),
 		]);
 		expect(reqUrls).toContainEqual('/prefetch-tap');
@@ -128,7 +143,7 @@ test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'tap')", () => {
 		await page.goto(astro.resolveUrl('/'));
 		expect(reqUrls).not.toContainEqual('/prefetch-hover');
 		await Promise.all([
-			page.waitForEvent('request'), // wait prefetch debug log after next action
+			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-hover').hover(),
 		]);
 		expect(reqUrls).toContainEqual('/prefetch-hover');
@@ -139,7 +154,7 @@ test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'tap')", () => {
 		expect(reqUrls).not.toContainEqual('/prefetch-viewport');
 		// Scroll down to show the element
 		await Promise.all([
-			page.waitForEvent('request'), // wait prefetch debug log after next action
+			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-viewport').scrollIntoViewIfNeeded(),
 		]);
 		expect(reqUrls).toContainEqual('/prefetch-viewport');

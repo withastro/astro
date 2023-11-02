@@ -1,7 +1,7 @@
 import * as vite from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 
-const virtualModuleId = 'astro:internal-prefetch';
+const virtualModuleId = 'astro:prefetch';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
 const prefetchInternalModuleFsSubpath = 'astro/dist/prefetch/index.js';
 
@@ -21,15 +21,23 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 		});
 	}
 
+	// Throw a normal error instead of an AstroError as Vite captures this in the plugin lifecycle
+	// and would generate a different stack trace itself through esbuild.
+	const throwPrefetchNotEnabledError = () => {
+		throw new Error('You need to enable the `prefetch` Astro config to import `astro:prefetch`');
+	};
+
 	return {
 		name: 'astro:prefetch',
 		async resolveId(id) {
-			if (prefetch && id === virtualModuleId) {
+			if (id === virtualModuleId) {
+				if (!prefetch) throwPrefetchNotEnabledError();
 				return resolvedVirtualModuleId;
 			}
 		},
 		load(id) {
-			if (prefetch && id === resolvedVirtualModuleId) {
+			if (id === resolvedVirtualModuleId) {
+				if (!prefetch) throwPrefetchNotEnabledError();
 				return `export { prefetch } from "astro/prefetch";`;
 			}
 		},
