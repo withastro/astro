@@ -13,12 +13,19 @@ __@my-package/middleware.js__
 ```js
 import { defineMiddleware } from 'astro:middleware';
 
-export const onRequest = defineMiddleware(async (context, request) => {
-  if(context.url.pathname === '/some-test-path') {
-    return Response.json({
-      ok: true
+export const onRequest = defineMiddleware(async (context, next) => {
+  const response = await next();
+
+  if(response.headers.get('content-type') === 'text/html') {
+    let html = await response.text();
+    html = minify(html);
+    return new Response(html, {
+      status: response.status,
+      headers: response.headers
     });
   }
+
+  return response;
 });
 ```
 
