@@ -932,7 +932,7 @@ describe('astro:image', () => {
 			expect(isReusingCache).to.be.true;
 		});
 
-		describe('custom service in build zzzz', () => {
+		describe('custom service in build', () => {
 			it('uses configured hashes properties', async () => {
 				await fixture.build();
 				const html = await fixture.readFile('/imageDeduplication/index.html');
