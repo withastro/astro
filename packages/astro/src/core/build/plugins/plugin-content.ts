@@ -123,7 +123,7 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 		},
 
 		async generateBundle(_options, bundle) {
-			const code = await generateContentEntryFile({ settings: opts.settings, fs: fsMod, lookupMap });
+			const code = await generateContentEntryFile({ settings: opts.settings, fs: fsMod, lookupMap, IS_DEV: false, IS_SERVER: false });
 			this.emitFile({
 				type: 'prebuilt-chunk',
 				code,
