@@ -82,6 +82,15 @@ export default async function build(
 		mode: inlineConfig.mode,
 	});
 	await builder.run();
+	if (astroConfig.experimental.contentCollectionCache && options.force) {
+		// Ensure cache is removed if `--force` is passed.
+		// TODO: pass `force` down to avoid writing cache in the first place
+		const contentCacheDir = new URL('./content/', astroConfig.cacheDir);
+		if (fs.existsSync(contentCacheDir)) {
+			logger.warn('content', 'clearing cache');
+			await fs.promises.rm(contentCacheDir, { force: true, recursive: true })
+		}
+	}
 }
 
 interface AstroBuilderOptions extends BuildOptions {
