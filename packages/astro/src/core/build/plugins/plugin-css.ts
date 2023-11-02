@@ -93,6 +93,12 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								// so they can be injected where needed
 								const chunkId = assetName.createNameHash(id, [id]);
 								internals.cssModuleToChunkIdMap.set(id, chunkId);
+								if (options.buildOptions.settings.config.experimental.contentCollectionCache) {
+									// TODO: Handle inlining?
+									const propagatedStyles = internals.propagatedStylesMap.get(pageInfo.id) ?? new Set();
+									propagatedStyles.add({ type: 'external', src: chunkId });
+									internals.propagatedStylesMap.set(pageInfo.id, propagatedStyles);
+								}
 								return chunkId;
 							}
 						}
@@ -242,8 +248,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						if (pageData.styles.some((s) => s.sheet === sheet)) return;
 
 						const propagatedStyles =
-							pageData.propagatedStyles.get(pageInfoId) ??
-							pageData.propagatedStyles.set(pageInfoId, new Set()).get(pageInfoId)!;
+							internals.propagatedStylesMap.get(pageInfoId) ??
+							internals.propagatedStylesMap.set(pageInfoId, new Set()).get(pageInfoId)!;
 
 						propagatedStyles.add(sheet);
 						sheetAddedToPage = true;

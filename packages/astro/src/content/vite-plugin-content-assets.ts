@@ -1,6 +1,6 @@
 import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import type { Plugin } from 'vite';
+import type { Plugin, Rollup } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { getPageDataByViteID, type BuildInternals } from '../core/build/internal.js';
@@ -110,7 +110,7 @@ export function astroConfigBuildPlugin(
 	options: StaticBuildOptions,
 	internals: BuildInternals
 ): AstroBuildPlugin {
-	let ssrPluginContext: any = undefined;
+	let ssrPluginContext: Rollup.PluginContext | undefined = undefined;
 	return {
 		targets: ['server'],
 		hooks: {
@@ -144,24 +144,43 @@ export function astroConfigBuildPlugin(
 						let entryLinks = new Set<string>();
 						let entryScripts = new Set<string>();
 
-						for (const id of Object.keys(chunk.modules)) {
-							for (const [pageInfo] of walkParentInfos(id, ssrPluginContext)) {
-								if (moduleIsTopLevelPage(pageInfo)) {
-									const pageViteID = pageInfo.id;
-									const pageData = getPageDataByViteID(internals, pageViteID);
-									if (!pageData) continue;
-
-									const _entryCss = pageData.propagatedStyles?.get(id);
-									const _entryScripts = pageData.propagatedScripts?.get(id);
-									if (_entryCss) {
-										for (const value of _entryCss) {
-											if (value.type === 'inline') entryStyles.add(value.content);
-											if (value.type === 'external') entryLinks.add(value.src);
-										}
+						if (options.settings.config.experimental.contentCollectionCache) {
+							// TODO: hoisted scripts are still handled on the pageData rather than the asset propagation point
+							for (const id of chunk.moduleIds) {
+								const _entryCss = internals.propagatedStylesMap.get(id);
+								const _entryScripts = internals.propagatedScriptsMap.get(id);
+								if (_entryCss) {
+									for (const value of _entryCss) {
+										if (value.type === 'inline') entryStyles.add(value.content);
+										if (value.type === 'external') entryLinks.add(value.src);
 									}
-									if (_entryScripts) {
-										for (const value of _entryScripts) {
-											entryScripts.add(value);
+								}
+								if (_entryScripts) {
+									for (const value of _entryScripts) {
+										entryScripts.add(value);
+									}
+								}
+							}
+						} else {
+							for (const id of Object.keys(chunk.modules)) {
+								for (const [pageInfo] of walkParentInfos(id, ssrPluginContext!)) {
+									if (moduleIsTopLevelPage(pageInfo)) {
+										const pageViteID = pageInfo.id;
+										const pageData = getPageDataByViteID(internals, pageViteID);
+										if (!pageData) continue;
+
+										const _entryCss = pageData.propagatedStyles?.get(id);
+										const _entryScripts = pageData.propagatedScripts?.get(id);
+										if (_entryCss) {
+											for (const value of _entryCss) {
+												if (value.type === 'inline') entryStyles.add(value.content);
+												if (value.type === 'external') entryLinks.add(value.src);
+											}
+										}
+										if (_entryScripts) {
+											for (const value of _entryScripts) {
+												entryScripts.add(value);
+											}
 										}
 									}
 								}
