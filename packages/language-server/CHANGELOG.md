@@ -1,5 +1,13 @@
 # @astrojs/language-server
 
+## 2.5.2
+
+### Patch Changes
+
+- bd3d933: Fix formatting sometimes causing the code to become invalid inside inline events (onclick, onload...)
+- ee41dce: Add support for TypeScript 5.3
+- 19217c4: Automatically flatten inferred unions from `getStaticPaths` into each other so that divergent props don't need to be manually discriminated before destructuring.
+
 ## 2.5.1
 
 ### Patch Changes

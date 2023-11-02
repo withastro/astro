@@ -1,5 +1,12 @@
 # @astrojs/ts-plugin
 
+## 1.3.1
+
+### Patch Changes
+
+- ee41dce: Add support for TypeScript 5.3
+- 19217c4: Automatically flatten inferred unions from `getStaticPaths` into each other so that divergent props don't need to be manually discriminated before destructuring.
+
 ## 1.3.0
 
 ### Minor Changes

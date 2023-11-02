@@ -1,5 +1,16 @@
 # @astrojs/check
 
+## 0.3.1
+
+### Patch Changes
+
+- ee41dce: Add support for TypeScript 5.3
+- 19217c4: Automatically flatten inferred unions from `getStaticPaths` into each other so that divergent props don't need to be manually discriminated before destructuring.
+- Updated dependencies [bd3d933]
+- Updated dependencies [ee41dce]
+- Updated dependencies [19217c4]
+  - @astrojs/language-server@2.5.2
+
 ## 0.3.0
 
 ### Minor Changes
