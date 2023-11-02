@@ -33,7 +33,7 @@
     "test:match": "mocha --exit --timeout 30000 -g"
   },
   "dependencies": {
-    "@astrojs/underscore-redirects": "^0.3.0",
+    "@astrojs/underscore-redirects": "^0.3.3",
     "@cloudflare/workers-types": "^4.20230821.0",
     "miniflare": "3.20231010.0",
     "@iarna/toml": "^2.2.5",
