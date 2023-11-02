@@ -33,11 +33,18 @@ export interface ImageMetadata {
 	orientation?: number;
 }
 
-export interface SrcSetValue {
-	url: string;
+/**
+ * A yet to be completed with an url `SrcSetValue`. Other hooks will only see a resolved value, where the URL of the image has been added.
+ */
+export type UnresolvedSrcSetValue = {
+	transform: ImageTransform;
 	descriptor?: string;
-	attributes?: Record<string, string>;
-}
+	attributes?: Record<string, any>;
+};
+
+export type SrcSetValue = UnresolvedSrcSetValue & {
+	url: string;
+};
 
 /**
  * A yet to be resolved image transform. Used by `getImage`

@@ -103,6 +103,7 @@ export async function getImage(
 	let imageURL = await service.getURL(validatedOptions, imageConfig);
 	let srcSets: SrcSetValue[] = await Promise.all(
 		srcSetTransforms.map(async (srcSet) => ({
+			transform: srcSet.transform,
 			url: await service.getURL(srcSet.transform, imageConfig),
 			descriptor: srcSet.descriptor,
 			attributes: srcSet.attributes,
@@ -117,6 +118,7 @@ export async function getImage(
 		const propsToHash = service.propertiesToHash ?? DEFAULT_HASH_PROPS;
 		imageURL = globalThis.astroAsset.addStaticImage(validatedOptions, propsToHash);
 		srcSets = srcSetTransforms.map((srcSet) => ({
+			transform: srcSet.transform,
 			url: globalThis.astroAsset.addStaticImage!(srcSet.transform, propsToHash),
 			descriptor: srcSet.descriptor,
 			attributes: srcSet.attributes,
