@@ -248,8 +248,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						if (pageData.styles.some((s) => s.sheet === sheet)) return;
 
 						const propagatedStyles =
-							internals.propagatedStylesMap.get(pageInfoId) ??
-							internals.propagatedStylesMap.set(pageInfoId, new Set()).get(pageInfoId)!;
+							pageData.propagatedStyles.get(pageInfoId) ??
+							pageData.propagatedStyles.set(pageInfoId, new Set()).get(pageInfoId)!;
 
 						propagatedStyles.add(sheet);
 						sheetAddedToPage = true;
