@@ -222,6 +222,9 @@ describe('astro:image', () => {
 				expect($img).to.have.a.lengthOf(1);
 				expect($picture).to.have.a.lengthOf(1);
 				expect($source).to.have.a.lengthOf(1);
+				expect($source.attr('sizes')).to.equal(
+					'(max-width: 448px) 400px, (max-width: 810px) 750px, 1050px'
+				);
 
 				const srcset2 = parseSrcset($source.attr('srcset'));
 				expect(srcset2.every((src) => src.url.startsWith('/_image'))).to.equal(true);
