@@ -25,6 +25,7 @@ export function hashTransform(
 	const hashFields = propertiesToHash.reduce(
 		(acc, prop) => {
 			// It's possible for `transform[prop]` here to be undefined, or null, but that's fine because it's still consistent
+			// between different transforms. (ex: every transform without a height will explicitly have a `height: undefined` property)
 			acc[prop] = transform[prop];
 			return acc;
 		},

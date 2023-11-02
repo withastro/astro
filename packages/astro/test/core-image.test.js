@@ -931,6 +931,29 @@ describe('astro:image', () => {
 
 			expect(isReusingCache).to.be.true;
 		});
+
+		describe('custom service in build zzzz', () => {
+			it('uses configured hashes properties', async () => {
+				await fixture.build();
+				const html = await fixture.readFile('/imageDeduplication/index.html');
+
+				const $ = cheerio.load(html);
+
+				const allTheSamePath = $('#all-the-same img')
+					.map((_, el) => $(el).attr('src'))
+					.get();
+
+				expect(allTheSamePath.every((path) => path === allTheSamePath[0])).to.equal(true);
+
+				const useCustomHashProperty = $('#use-data img')
+					.map((_, el) => $(el).attr('src'))
+					.get();
+				expect(useCustomHashProperty.every((path) => path === useCustomHashProperty[0])).to.equal(
+					false
+				);
+				expect(useCustomHashProperty[1]).to.not.equal(allTheSamePath[0]);
+			});
+		});
 	});
 
 	describe('dev ssr', () => {
