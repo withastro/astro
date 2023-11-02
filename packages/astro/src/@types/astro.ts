@@ -544,6 +544,11 @@ export interface AstroUserConfig {
 	 * Enable prefetching for your site. A prefetch script is automatically added to every page
 	 * in the project. Just add the `data-astro-prefetch` attribute to any `<a />` links on your page
 	 * and you're ready to go!
+	 *
+	 * If you use [View Transitions](https://docs.astro.build/en/guides/view-transitions/), prefetch will
+	 * be enabled automatically with a default of `{ prefetchAll: true }`, which enables prefetching for all links.
+	 * You can configure this option to override the defaults, and even set `false` to disable prefetching
+	 * completely when using View Transitions.
 	 */
 
 	/**
