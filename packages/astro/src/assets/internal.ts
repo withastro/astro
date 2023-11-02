@@ -1,6 +1,7 @@
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { DEFAULT_HASH_PROPS } from './consts.js';
 import { isLocalService, type ImageService } from './services/service.js';
 import type {
 	GetImageResult,
@@ -113,9 +114,10 @@ export async function getImage(
 		globalThis.astroAsset.addStaticImage &&
 		!(isRemoteImage(validatedOptions.src) && imageURL === validatedOptions.src)
 	) {
-		imageURL = globalThis.astroAsset.addStaticImage(validatedOptions);
+		const propsToHash = service.propertiesToHash ?? DEFAULT_HASH_PROPS;
+		imageURL = globalThis.astroAsset.addStaticImage(validatedOptions, propsToHash);
 		srcSets = srcSetTransforms.map((srcSet) => ({
-			url: globalThis.astroAsset.addStaticImage!(srcSet.transform),
+			url: globalThis.astroAsset.addStaticImage!(srcSet.transform, propsToHash),
 			descriptor: srcSet.descriptor,
 			attributes: srcSet.attributes,
 		}));

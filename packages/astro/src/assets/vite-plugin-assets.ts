@@ -77,7 +77,7 @@ export default function assets({
 					return;
 				}
 
-				globalThis.astroAsset.addStaticImage = (options) => {
+				globalThis.astroAsset.addStaticImage = (options, hashProperties) => {
 					if (!globalThis.astroAsset.staticImages) {
 						globalThis.astroAsset.staticImages = new Map<
 							string,
@@ -88,7 +88,11 @@ export default function assets({
 					const originalImagePath = (
 						isESMImportedImage(options.src) ? options.src.src : options.src
 					).replace(settings.config.build.assetsPrefix || '', '');
-					const hash = hashTransform(options, settings.config.image.service.entrypoint);
+					const hash = hashTransform(
+						options,
+						settings.config.image.service.entrypoint,
+						hashProperties
+					);
 
 					let finalFilePath: string;
 					let transformsForPath = globalThis.astroAsset.staticImages.get(originalImagePath);

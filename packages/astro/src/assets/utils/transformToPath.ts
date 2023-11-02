@@ -16,9 +16,19 @@ export function propsToFilename(transform: ImageTransform, hash: string) {
 	return `/${filename}_${hash}${outputExt}`;
 }
 
-export function hashTransform(transform: ImageTransform, imageService: string) {
+export function hashTransform(
+	transform: ImageTransform,
+	imageService: string,
+	propertiesToHash: string[]
+) {
 	// Extract the fields we want to hash
-	const { alt, class: className, style, widths, densities, ...rest } = transform;
-	const hashFields = { ...rest, imageService };
+	const hashFields = propertiesToHash.reduce(
+		(acc, prop) => {
+			// It's possible for `transform[prop]` here to be undefined, or null, but that's fine because it's still consistent
+			acc[prop] = transform[prop];
+			return acc;
+		},
+		{ imageService } as Record<string, unknown>
+	);
 	return shorthash(deterministicString(hashFields));
 }
