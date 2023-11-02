@@ -8,7 +8,7 @@ import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { appendForwardSlash, removeFileExtension } from '../core/path.js';
 import { rootRelativePath } from '../core/util.js';
-import { CONTENT_FLAG, CONTENT_RENDER_FLAG, DATA_FLAG, VIRTUAL_MODULE_ID } from './consts.js';
+import { CONTENT_FLAG, CONTENT_RENDER_FLAG, DATA_FLAG, VIRTUAL_MODULE_ID, RESOLVED_VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	getContentEntryIdAndSlug,
 	getContentPaths,
@@ -33,7 +33,6 @@ export function astroContentVirtualModPlugin({
 	settings,
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
-	const astroContentVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 	let IS_DEV = false;
 	const IS_SERVER = isServerLikeOutput(settings.config);
 	return {
@@ -45,18 +44,18 @@ export function astroContentVirtualModPlugin({
 		resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
 				if (!settings.config.experimental.contentCollectionCache) {
-					return astroContentVirtualModuleId;
+					return RESOLVED_VIRTUAL_MODULE_ID;
 				}
 				if (IS_DEV || IS_SERVER) {
-					return astroContentVirtualModuleId;
+					return RESOLVED_VIRTUAL_MODULE_ID;
 				} else {
 					// For SSG (production), we will build this file ourselves
-					return { id: astroContentVirtualModuleId, external: true }
+					return { id: RESOLVED_VIRTUAL_MODULE_ID, external: true }
 				}
 			}
 		},
 		async load(id) {
-			if (id === astroContentVirtualModuleId) {
+			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
 				const lookupMap = await generateLookupMap({
 					settings,
 					fs,
@@ -82,10 +81,10 @@ export function astroContentVirtualModPlugin({
 			if (!settings.config.experimental.contentCollectionCache) {
 				return;
 			}
-			if (code.includes(astroContentVirtualModuleId)) {
+			if (code.includes(RESOLVED_VIRTUAL_MODULE_ID)) {
 				const depth = chunk.fileName.split('/').length - 1;
 				const prefix = depth > 0 ? '../'.repeat(depth) : './';
-				return code.replaceAll(astroContentVirtualModuleId, `${prefix}content/entry.mjs`);
+				return code.replaceAll(RESOLVED_VIRTUAL_MODULE_ID, `${prefix}content/entry.mjs`);
 			}
 		}
 	};
