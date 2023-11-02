@@ -237,7 +237,7 @@
     "vscode-tmgrammar-test": "^0.1.2"
   },
   "dependencies": {
-    "@astrojs/compiler": "^2.2.1",
+    "@astrojs/compiler": "^2.2.2",
     "prettier": "^3.0.0",
     "prettier-plugin-astro": "^0.12.0"
   }
