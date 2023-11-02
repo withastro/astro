@@ -169,7 +169,7 @@ export function astroConfigBuildPlugin(
 										const pageData = getPageDataByViteID(internals, pageViteID);
 										if (!pageData) continue;
 
-										const _entryCss = pageData.propagatedStyles?.get(id);
+										const _entryCss = internals.propagatedStylesMap?.get(id);
 										const _entryScripts = pageData.propagatedScripts?.get(id);
 										if (_entryCss) {
 											for (const value of _entryCss) {
