@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 7.6.4
+
+### Patch Changes
+
+- [#51](https://github.com/withastro/adapters/pull/51) [`acf4c82`](https://github.com/withastro/adapters/commit/acf4c824f8e066d25d94ddf59a486083586567c4) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Updates dependencies
+
 ## 7.6.3
 
 ### Patch Changes
