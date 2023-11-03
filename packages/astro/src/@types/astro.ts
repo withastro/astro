@@ -1422,7 +1422,7 @@ export interface AstroUserConfig {
 			 *
 			 * #### Examples
 			 *
-			 * In this example, we configure Astro to redirect pages that belong to the `pt` locale to their `es` version, and pages that belong to the `fr` locale to their `en` version.
+			 * The following example configures your content fallback strategy to redirect unavailable pages in `/pt/` to their `es` version, and unavailable pages in `/fr/` to their `en` version. Unavailable `/es/` pages will return a 404.
 			 *
 			 * ```js
 			 * export defualt defineConfig({
