@@ -126,7 +126,7 @@ class Slots {
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { params, request, resolve, locals, locales } = args;
+	const { params, request, resolve, locals } = args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
@@ -146,6 +146,8 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 	// Astro.cookies is defined lazily to avoid the cost on pages that do not use it.
 	let cookies: AstroCookies | undefined = args.cookies;
+	let preferredLocale: string | undefined = undefined;
+	let preferredLocaleList: string[] | undefined = undefined;
 
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then
@@ -195,15 +197,25 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					return cookies;
 				},
 				get preferredLocale(): string | undefined {
-					if (locales) {
-						return computePreferredLocale(request, locales);
+					if (preferredLocale) {
+						return preferredLocale;
 					}
+					if (args.locales) {
+						preferredLocale = computePreferredLocale(request, args.locales);
+						return preferredLocale;
+					}
+
 					return undefined;
 				},
 				get preferredLocaleList(): string[] | undefined {
-					if (locales) {
-						return computePreferredLocaleList(request, locales);
+					if (preferredLocaleList) {
+						return preferredLocaleList;
 					}
+					if (args.locales) {
+						preferredLocaleList = computePreferredLocaleList(request, args.locales);
+						return preferredLocaleList;
+					}
+
 					return undefined;
 				},
 				params,
