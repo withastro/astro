@@ -29,7 +29,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 });
 ```
 
-__@my-package/integration.js__
+__my-package/integration.js__
 
 ```js
 export function myIntegration() {
@@ -38,7 +38,7 @@ export function myIntegration() {
     hooks: {
       'astro:config:setup': ({ addMiddleware }) => {
         addMiddleware({
-          entrypoint: '@my-package/middleware',
+          entrypoint: 'my-package/middleware',
           order: 'pre'
         });
       }
