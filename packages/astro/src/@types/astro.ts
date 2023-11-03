@@ -1446,7 +1446,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name experimental.i18n
 		 * @type {object}
-		 * @version 3.*.*
+		 * @version 3.5.0
 		 * @type {object}
 		 * @description
 		 *
@@ -1457,7 +1457,7 @@ export interface AstroUserConfig {
 			 * @docs
 			 * @name experimental.i18n.defaultLocale
 			 * @type {string}
-			 * @version 3.*.*
+			 * @version 3.5.0
 			 * @description
 			 *
 			 * The default locale of your website/application
@@ -1467,7 +1467,7 @@ export interface AstroUserConfig {
 			 * @docs
 			 * @name experimental.i18n.locales
 			 * @type {string[]}
-			 * @version 3.*.*
+			 * @version 3.5.0
 			 * @description
 			 *
 			 * A list of all locales supported by the website. e.g. `['en', 'fr', 'es']` This list should/should not include the `defaultLocale`.
@@ -1477,37 +1477,53 @@ export interface AstroUserConfig {
 			/**
 			 * @docs
 			 * @name experimental.i18n.fallback
-			 * @type {Record<string, string[]>}
-			 * @version 3.*.*
+			 * @type {Record<string, string>}
+			 * @version 3.5.0
 			 * @description
 			 *
-			 * The fallback system of the locales. By default, the fallback system affect the **content only**, and it doesn't
-			 * do any redirects.
+			 * The content fallback strategy when navigating to pages in non-default languages that do not exist. (e.g. a translated page has not been created).
 			 *
-			 * This means that when attempting to navigate to a page that hasn't been translated, Astro will pull the content
-			 * from the page of the default locale and render it. No redirects will happen.
+			 * This a plain object, where a key is a locale that hasn't traslated pages, and the corresponding value is the locale where you want to redirect the missing page to.
+			 *
+			 * #### Examples
+			 *
+			 * The following example configures your content fallback strategy to redirect unavailable pages in `/pt/` to their `es` version, and unavailable pages in `/fr/` to their `en` version. Unavailable `/es/` pages will return a 404.
+			 *
+			 * ```js
+			 * export defualt defineConfig({
+			 * 	experimental: {
+			 * 		i18n: {
+			 * 			defuaultLocale: "en",
+			 * 			locales: ["en", "fr", "pt", "es"],
+			 * 			fallback: {
+			 * 				pt: "es",
+			 * 			  fr: "en"
+			 * 			}
+			 * 		}
+			 * 	}
+			 * })
+			 * ```
 			 */
-			fallback?: Record<string, string[]>;
+			fallback?: Record<string, string>;
 
-            /**
-             * @docs
-             * @name experimental.i18n.routingStrategy
-             * @type {'prefix-always' | 'prefix-other-locales'}
-             * @default {'prefix-other-locales'}
-             * @version 3.*.*
-             * @description
-             *
-             * Controls the routing strategy to determine your site URLs.
-             *
-             *  - `prefix-other-locales` (default): Only non-default languages will display a language prefix. The `defaultLocale` will not show a language prefix.
-             * URLs will be of the form `example.com/[lang]/content/` for all non-default languages, but `example.com/content/` for the default locale.
-     
-             *  - `prefix-always`: All URLs will display a language prefix.
-             *  URLs will be of the form `example.com/[lang]/content/` for every route, including the default language.
-             *
-             * Note: Astro requires all content to exist within a `/[lang]/` folder, even for the default language.
-             */
-            routingStrategy: 'prefix-always' | 'prefix-other-locales';
+			/**
+			 * @docs
+			 * @name experimental.i18n.routingStrategy
+			 * @type {'prefix-always' | 'prefix-other-locales'}
+			 * @default {'prefix-other-locales'}
+			 * @version 3.5.0
+			 * @description
+			 *
+			 * Controls the routing strategy to determine your site URLs.
+			 *
+			 *  - `prefix-other-locales`(default): Only non-default languages will display a language prefix. The `defaultLocale` will not show a language prefix.
+			 *    URLs will be of the form `example.com/[lang]/content/` for all non-default languages, but `example.com/content/` for the default locale.
+			 *  - `prefix-always`: All URLs will display a language prefix.
+			 *    URLs will be of the form `example.com/[lang]/content/` for every route, including the default language.
+			 *
+			 * Note: Astro requires all content to exist within a `/[lang]/` folder, even for the default language.
+			 */
+			routingStrategy: 'prefix-always' | 'prefix-other-locales';
 		};
 	};
 }

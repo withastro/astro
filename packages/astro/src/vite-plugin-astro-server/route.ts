@@ -11,7 +11,8 @@ import type {
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import {
-	computePreferredLocales,createRenderContext,
+	computePreferredLocales,
+	createRenderContext,
 	getParamsAndProps,
 	type RenderContext,
 	type SSROptions,
