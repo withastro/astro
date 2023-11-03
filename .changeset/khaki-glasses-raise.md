@@ -8,7 +8,7 @@ It's now possible in Astro for an integration to add middleware on behalf of the
 
 For integration authors, there is a new `addMiddleware` function in the `astro:config:setup` hook. This function allows you to specify a middleware module and the order in which it should be applied:
 
-__@my-package/middleware.js__
+__my-package/middleware.js__
 
 ```js
 import { defineMiddleware } from 'astro:middleware';
