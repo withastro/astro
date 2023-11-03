@@ -1385,7 +1385,7 @@ export interface AstroUserConfig {
 		 * @type {object}
 		 * @description
 		 *
-		 * Allows to configure the beaviour of the i18n routing
+		 * Configures experimental i18n routing and allows you to specify some customization options.
 		 */
 		i18n?: {
 			/**
