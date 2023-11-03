@@ -1449,14 +1449,14 @@ export interface AstroUserConfig {
 			 * @version 3.5.0
 			 * @description
 			 *
-			 * Controls the routing strategyto determine your site URLs.
-             *
+			 * Controls the routing strategy to determine your site URLs.
+			 *
 			 *  - `prefix-other-locales`(default): Only non-default languages will display a language prefix. The `defaultLocale` will not show a language prefix.
-			 *		URLs will be of the form `example.com/[lang]/content/` for all non-default languages, but `example.com/content/` for the default locale.
+			 *    URLs will be of the form `example.com/[lang]/content/` for all non-default languages, but `example.com/content/` for the default locale.
 			 *  - `prefix-always`: All URLs will display a language prefix.
-             *  URLs will be of the form `example.com/[lang]/content/` for every route, including the default language.
-             *
-             * Note: Astro requires all content to exist within a `/[lang]/` folder, even for the default language.
+			 *    URLs will be of the form `example.com/[lang]/content/` for every route, including the default language.
+			 *
+			 * Note: Astro requires all content to exist within a `/[lang]/` folder, even for the default language.
 			 */
 			routingStrategy: 'prefix-always' | 'prefix-other-locales';
 		};
