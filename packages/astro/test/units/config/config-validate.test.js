@@ -138,5 +138,26 @@ describe('Config Validation', () => {
 				"The locale `it` key in the `i18n.fallback` record doesn't exist in the `i18n.locales` array."
 			);
 		});
+
+		it('errors if a fallback key contains the default locale', async () => {
+			const configError = await validateConfig(
+				{
+					experimental: {
+						i18n: {
+							defaultLocale: 'en',
+							locales: ['es', 'en'],
+							fallback: {
+								en: 'es',
+							},
+						},
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal(
+				"You can't use the default locale as a key. The default locale can only be used as value."
+			);
+		});
 	});
 });
