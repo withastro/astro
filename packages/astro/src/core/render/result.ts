@@ -12,6 +12,7 @@ import { chunkToString } from '../../runtime/server/render/index.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
+import { computePreferredLocale, computePreferredLocaleList } from './context.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
@@ -45,8 +46,7 @@ export interface CreateResultArgs {
 	status: number;
 	locals: App.Locals;
 	cookies?: AstroCookies;
-	preferredLocale: string | undefined;
-	preferredLocaleList: string[] | undefined;
+	locales: string[] | undefined;
 }
 
 function getFunctionExpression(slot: any) {
@@ -126,7 +126,7 @@ class Slots {
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { params, request, resolve, locals, preferredLocale, preferredLocaleList } = args;
+	const { params, request, resolve, locals, locales } = args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
@@ -194,13 +194,23 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					result.cookies = cookies;
 					return cookies;
 				},
+				get preferredLocale(): string | undefined {
+					if (locales) {
+						return computePreferredLocale(request, locales);
+					}
+					return undefined;
+				},
+				get preferredLocaleList(): string[] | undefined {
+					if (locales) {
+						return computePreferredLocaleList(request, locales);
+					}
+					return undefined;
+				},
 				params,
 				props,
 				locals,
 				request,
 				url,
-				preferredLocale,
-				preferredLocaleList,
 				redirect(path, status) {
 					// If the response is already sent, error as we cannot proceed with the redirect.
 					if ((request as any)[responseSentSymbol]) {

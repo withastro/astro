@@ -11,7 +11,6 @@ import type {
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import {
-	computePreferredLocales,
 	createRenderContext,
 	getParamsAndProps,
 	type RenderContext,
@@ -260,14 +259,7 @@ export async function handleRoute({
 			filePath: options.filePath,
 		});
 
-		let preferredLocale: undefined | string = undefined;
-		let preferredLocaleList: undefined | string[] = undefined;
 		const i18n = pipeline.getConfig().experimental.i18n;
-		if (i18n) {
-			const result = computePreferredLocales(options.request, i18n.locales);
-			preferredLocaleList = result[0];
-			preferredLocale = result[1];
-		}
 
 		renderContext = await createRenderContext({
 			request: options.request,
@@ -279,8 +271,7 @@ export async function handleRoute({
 			route: options.route,
 			mod,
 			env,
-			preferredLocale,
-			preferredLocaleList,
+			locales: i18n ? i18n.locales : undefined,
 		});
 	}
 

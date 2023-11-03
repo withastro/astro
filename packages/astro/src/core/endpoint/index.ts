@@ -12,7 +12,8 @@ import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachCookiesToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
-import { type Environment, type RenderContext, computePreferredLocales } from '../render/index.js';
+import { type Environment, type RenderContext } from '../render/index.js';
+import { computePreferredLocale, computePreferredLocaleList } from '../render/context.js';
 
 const encoder = new TextEncoder();
 
@@ -25,8 +26,7 @@ type CreateAPIContext = {
 	site?: string;
 	props: Record<string, any>;
 	adapterName?: string;
-	preferredLocale: string | undefined;
-	preferredLocaleList: string[] | undefined;
+	locales: string[] | undefined;
 };
 
 /**
@@ -40,8 +40,7 @@ export function createAPIContext({
 	site,
 	props,
 	adapterName,
-	preferredLocale,
-	preferredLocaleList,
+	locales,
 }: CreateAPIContext): APIContext {
 	const context = {
 		cookies: new AstroCookies(request),
@@ -59,8 +58,18 @@ export function createAPIContext({
 			});
 		},
 		ResponseWithEncoding,
-		preferredLocale: preferredLocale,
-		preferredLocaleList: preferredLocaleList,
+		get preferredLocale(): string | undefined {
+			if (locales) {
+				return computePreferredLocale(request, locales);
+			}
+			return undefined;
+		},
+		get preferredLocaleList(): string[] | undefined {
+			if (locales) {
+				return computePreferredLocaleList(request, locales);
+			}
+			return undefined;
+		},
 		url: new URL(request.url),
 		get clientAddress() {
 			if (clientAddressSymbol in request) {
@@ -132,8 +141,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	env: Environment,
 	ctx: RenderContext,
 	onRequest: MiddlewareHandler<MiddlewareResult> | undefined,
-	preferredLocale: undefined | string,
-	preferredLocaleList: undefined | string[]
+	locales: undefined | string[]
 ): Promise<Response> {
 	const context = createAPIContext({
 		request: ctx.request,
@@ -141,8 +149,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 		props: ctx.props,
 		site: env.site,
 		adapterName: env.adapterName,
-		preferredLocale,
-		preferredLocaleList,
+		locales,
 	});
 
 	let response;
