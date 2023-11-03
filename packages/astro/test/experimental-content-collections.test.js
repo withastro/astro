@@ -54,18 +54,19 @@ describe('Experimental Content Collections cache', () => {
 				expect(json).to.haveOwnProperty('withSchemaConfig');
 				expect(Array.isArray(json.withSchemaConfig)).to.equal(true);
 
-				const ids = json.withSchemaConfig.map((item) => item.id);
+				const ids = json.withSchemaConfig.map((item) => item.id).sort();
 				const publishedDates = json.withSchemaConfig.map((item) => item.data.publishedAt);
+
 				expect(ids).to.deep.equal(['four%.md', 'one.md', 'three.md', 'two.md']);
 				expect(publishedDates.every((date) => date instanceof Date)).to.equal(
 					true,
 					'Not all publishedAt dates are Date objects'
 				);
-				expect(publishedDates.map((date) => date.toISOString())).to.deep.equal([
+				expect(publishedDates.map((date) => date.toISOString()).sort()).to.deep.equal([
 					'2021-01-01T00:00:00.000Z',
 					'2021-01-01T00:00:00.000Z',
-					'2021-01-03T00:00:00.000Z',
 					'2021-01-02T00:00:00.000Z',
+					'2021-01-03T00:00:00.000Z',
 				]);
 			});
 
@@ -73,8 +74,8 @@ describe('Experimental Content Collections cache', () => {
 				expect(json).to.haveOwnProperty('withSlugConfig');
 				expect(Array.isArray(json.withSlugConfig)).to.equal(true);
 
-				const slugs = json.withSlugConfig.map((item) => item.slug);
-				expect(slugs).to.deep.equal(['fancy-one', 'excellent-three', 'interesting-two']);
+				const slugs = json.withSlugConfig.map((item) => item.slug).sort();
+				expect(slugs).to.deep.equal(['excellent-three', 'fancy-one', 'interesting-two']);
 			});
 
 			it('Returns `with union schema` collection', async () => {

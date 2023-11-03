@@ -14,6 +14,7 @@ import { copyFiles } from '../static-build.js';
 import pLimit from 'p-limit';
 import { extendManualChunks } from './util.js';
 import { isServerLikeOutput } from '../../../prerender/utils.js';
+import { encodeName } from '../util.js';
 
 const CONTENT_CACHE_DIR = './content/';
 const CONTENT_MANIFEST_FILE = './manifest.json';
@@ -66,7 +67,7 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 			entries = getEntriesFromManifests(oldManifest, newManifest);
 
 			for (const { type, entry } of entries.buildFromSource) {
-				const fileURL = joinPaths(opts.settings.config.root.toString(), entry);
+				const fileURL = encodeURI(joinPaths(opts.settings.config.root.toString(), entry));
 				const input = fileURLToPath(fileURL);
 				const inputs = [`${input}?${collectionTypeToFlag(type)}`];
 				if (type === 'content') {
@@ -91,7 +92,8 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 						const info = meta.getModuleInfo(id);
 						if (info?.dynamicImporters.length === 1 && hasContentFlag(info.dynamicImporters[0], PROPAGATED_ASSET_FLAG)) {
 							const [srcRelativePath] = id.replace(rootPath, '/').split('?');
-							return `${removeLeadingForwardSlash(removeFileExtension(srcRelativePath))}.render.mjs`;
+							const resultId = encodeName(`${removeLeadingForwardSlash(removeFileExtension(srcRelativePath))}.render.mjs`);
+							return resultId;
 						}
 						const [srcRelativePath, flag] = id.replace(rootPath, '/').split('?');
 						const collectionEntry = findEntryFromSrcRelativePath(lookupMap, srcRelativePath);
@@ -100,7 +102,7 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 							if (flag === PROPAGATED_ASSET_FLAG) {
 								suffix = '.entry.mjs';
 							}
-							id = removeLeadingForwardSlash(removeFileExtension(id.replace(srcPath, '/'))) + suffix;
+							id = removeLeadingForwardSlash(removeFileExtension(encodeName(id.replace(srcPath, '/')))) + suffix;
 							return id;
 						}
 					}
@@ -204,11 +206,11 @@ async function generateContentManifest(opts: StaticBuildOptions, lookupMap: Cont
 	for (const [collection, { type, entries }] of Object.entries(lookupMap)) {
 		for (const entry of Object.values(entries)) {
 			const key: ContentManifestKey = { collection, type, entry };
-			const fileURL = new URL(joinPaths(opts.settings.config.root.toString(), entry));
+			const fileURL = new URL(encodeURI(joinPaths(opts.settings.config.root.toString(), entry)));
 			promises.push(limit(async () => {
 				const data = await fsMod.promises.readFile(fileURL, { encoding: 'utf8' });
 				manifest.entries.push([key, checksum(data)])
-			}))
+			}));
 		}
 	}
 

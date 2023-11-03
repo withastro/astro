@@ -8,6 +8,7 @@ import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { appendForwardSlash, removeFileExtension } from '../core/path.js';
 import { rootRelativePath } from '../core/util.js';
+import { encodeName } from '../core/build/util.js';
 import { CONTENT_FLAG, CONTENT_RENDER_FLAG, DATA_FLAG, VIRTUAL_MODULE_ID, RESOLVED_VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	getContentEntryIdAndSlug,
@@ -151,7 +152,7 @@ function getStringifiedCollectionFromLookup(wantedType: 'content' | 'data' | 're
 	// For prod builds, we need to transform from `/src/content/**/*.{md,mdx,json,yaml}` to a relative `./**/*.mjs` import
 	if (process.env.NODE_ENV === 'production') {
 		const suffix = wantedType === 'render' ? '.entry.mjs' : '.mjs';
-		normalize = (slug: string) => `${removeFileExtension(slug).replace(relContentDir, './')}${suffix}`
+		normalize = (slug: string) => `${removeFileExtension(encodeName(slug)).replace(relContentDir, './')}${suffix}`
 	} else {
 		let suffix = '';
 		if (wantedType === 'content') suffix = CONTENT_FLAG;

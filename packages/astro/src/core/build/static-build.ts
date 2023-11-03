@@ -31,7 +31,7 @@ import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
 import { RESOLVED_SPLIT_MODULE_ID, RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
-import { getTimeStat } from './util.js';
+import { encodeName, getTimeStat } from './util.js';
 import { hasAnyContentFlag } from '../../content/utils.js';
 import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 
@@ -181,7 +181,7 @@ async function ssrBuild(
 						if (settings.config.experimental.contentCollectionCache && name.includes('/content/')) {
 							const parts = name.split('/');
 							if (parts.at(1) === 'content') {
-								return parts.slice(1).join('/');
+								return encodeName(parts.slice(1).join('/'));
 							}
 						}
 						// Sometimes chunks have the `@_@astro` suffix due to SSR logic. Remove it!
@@ -195,21 +195,11 @@ async function ssrBuild(
 							const sanitizedName = name.split('.')[0];
 							return `chunks/${sanitizedName}_[hash].mjs`;
 						}
-						// Detect if the chunk name has as % sign that is not encoded.
-						// This is borrowed from Node core: https://github.com/nodejs/node/blob/3838b579e44bf0c2db43171c3ce0da51eb6b05d5/lib/internal/url.js#L1382-L1391
-						// We do this because you cannot import a module with this character in it.
-						for (let i = 0; i < name.length; i++) {
-							if (name[i] === '%') {
-								const third = name.codePointAt(i + 2)! | 0x20;
-								if (name[i + 1] !== '2' || third !== 102) {
-									return `chunks/${name.replace(/%/g, '_percent_')}_[hash].mjs`;
-								}
-							}
-						}
+						const encoded = encodeName(name);
 						if (settings.config.experimental.contentCollectionCache) {
-							return `chunks/[name].mjs`;
+							return `chunks/${encoded}.mjs`;
 						}
-						return `chunks/[name]_[hash].mjs`;
+						return `chunks/${encoded}_[hash].mjs`;
 					},
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
@@ -231,9 +221,9 @@ async function ssrBuild(
 						} else if (settings.config.experimental.contentCollectionCache && chunkInfo.facadeModuleId && hasAnyContentFlag(chunkInfo.facadeModuleId)) {
 							const [srcRelative, flag] = chunkInfo.facadeModuleId.split('/src/')[1].split('?');
 							if (flag === PROPAGATED_ASSET_FLAG) {
-								return `${removeFileExtension(srcRelative)}.entry.mjs`;
+								return encodeName(`${removeFileExtension(srcRelative)}.entry.mjs`);
 							}
-							return `${removeFileExtension(srcRelative)}.mjs`;
+							return encodeName(`${removeFileExtension(srcRelative)}.mjs`);
 						} else {
 							return '[name].mjs';
 						}
@@ -436,13 +426,16 @@ export async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles 
 	});
 	if (files.length === 0) return;
 	await Promise.all(
-		files.map(async (filename) => {
+		files.map(async function copyFile(filename) {
 			const from = new URL(filename, fromFolder);
 			const to = new URL(filename, toFolder);
 			const lastFolder = new URL('./', to);
 			return fs.promises
 				.mkdir(lastFolder, { recursive: true })
-				.then(() => fs.promises.copyFile(from, to, fs.constants.COPYFILE_FICLONE));
+				.then(async function fsCopyFile() {
+					const p = await fs.promises.copyFile(from, to, fs.constants.COPYFILE_FICLONE);
+					return p;
+				});
 		})
 	);
 }
@@ -463,7 +456,7 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 
 	if (files.length > 0) {
 		await Promise.all(
-			files.map(async (filename) => {
+			files.map(async function moveAsset(filename) {
 				const currentUrl = new URL(filename, appendForwardSlash(serverAssets.toString()));
 				const clientUrl = new URL(filename, appendForwardSlash(clientAssets.toString()));
 				const dir = new URL(path.parse(clientUrl.href).dir);
