@@ -310,10 +310,11 @@ export const AstroConfigSchema = z.object({
 						locales: z.string().array(),
 						fallback: z.record(z.string(), z.string()).optional(),
 						// TODO: properly add default when the feature goes of experimental
-                        routingStrategy: z
-                            .enum(['prefix-always', 'prefix-other-locales'])
-                            .optional()
-                            .default('prefix-other-locales'),					})
+						routingStrategy: z
+							.enum(['prefix-always', 'prefix-other-locales'])
+							.optional()
+							.default('prefix-other-locales'),
+					})
 					.optional()
 					.superRefine((i18n, ctx) => {
 						if (i18n) {
@@ -330,6 +331,13 @@ export const AstroConfigSchema = z.object({
 										ctx.addIssue({
 											code: z.ZodIssueCode.custom,
 											message: `The locale \`${fallbackFrom}\` key in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+										});
+									}
+
+									if (fallbackFrom === defaultLocale) {
+										ctx.addIssue({
+											code: z.ZodIssueCode.custom,
+											message: `You can't use the default locale as a key. The default locale can only be used as value.`,
 										});
 									}
 
