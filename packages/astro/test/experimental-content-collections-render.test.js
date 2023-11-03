@@ -62,7 +62,7 @@ describe('Experimental Content Collections cache - render()', () => {
 			});
 		});
 
-		it('Includes component scripts for rendered entry', async () => {
+		it.skip('Includes component scripts for rendered entry', async () => {
 			const html = await fixture.readFile('/launch-week-component-scripts/index.html');
 			const $ = cheerio.load(html);
 

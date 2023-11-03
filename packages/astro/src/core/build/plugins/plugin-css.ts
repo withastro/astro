@@ -93,7 +93,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								// so they can be injected where needed
 								const chunkId = assetName.createNameHash(id, [id]);
 								internals.cssModuleToChunkIdMap.set(id, chunkId);
-								if (options.buildOptions.settings.config.experimental.contentCollectionCache) {
+								if (options.buildOptions.settings.config.output === 'static' && options.buildOptions.settings.config.experimental.contentCollectionCache) {
 									// TODO: Handle inlining?
 									const propagatedStyles = internals.propagatedStylesMap.get(pageInfo.id) ?? new Set();
 									propagatedStyles.add({ type: 'external', src: chunkId });
