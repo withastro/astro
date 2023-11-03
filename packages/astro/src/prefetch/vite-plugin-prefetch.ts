@@ -4,6 +4,7 @@ import type { AstroSettings } from '../@types/astro.js';
 const virtualModuleId = 'astro:prefetch';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
 const prefetchInternalModuleFsSubpath = 'astro/dist/prefetch/index.js';
+const prefetchCode = `import { init } from 'astro/prefetch';init()`;
 
 export default function astroPrefetch({ settings }: { settings: AstroSettings }): vite.Plugin {
 	const prefetchOption = settings.config.prefetch;
@@ -13,7 +14,8 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 			: {}
 		: undefined;
 
-	if (prefetch) {
+	// Check against existing scripts as this plugin could be called multiple times
+	if (prefetch && settings.scripts.every((s) => s.content !== prefetchCode)) {
 		// Inject prefetch script to all pages
 		settings.scripts.push({
 			stage: 'page',
