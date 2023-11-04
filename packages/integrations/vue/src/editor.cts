@@ -6,7 +6,7 @@ export function toTSX(code: string, className: string): string {
 	// NOTE: As you can expect, using regexes for this is not exactly the most reliable way of doing things
 	// However, I couldn't figure out a way to do it using Vue's compiler, I tried looking at how Volar does it, but I
 	// didn't really understand everything happening there and it seemed to be pretty Volar-specific. I do believe
-	// someone more knowledgable on Vue's internals could figure it out, but since this solution is good enough for most
+	// someone more knowledgeable on Vue's internals could figure it out, but since this solution is good enough for most
 	// Vue components (and it's an improvement over, well, nothing), it's alright, I think
 	try {
 		const parsedResult = parse(code);
@@ -18,12 +18,16 @@ export function toTSX(code: string, className: string): string {
 			`;
 		}
 
+		// Vue supports 2 type of script blocks: setup and non-setup
+		const regularScriptBlockContent = parsedResult.descriptor.script?.content ?? '';
+
 		if (parsedResult.descriptor.scriptSetup) {
 			const definePropsType =
 				parsedResult.descriptor.scriptSetup.content.match(/defineProps<([\s\S]+)>/m);
 
 			if (definePropsType) {
 				result = `
+						${regularScriptBlockContent}
 						${parsedResult.descriptor.scriptSetup.content}
 
 						export default function ${className}__AstroComponent_(_props: ${definePropsType[1]}): any {
@@ -37,6 +41,8 @@ export function toTSX(code: string, className: string): string {
 				if (defineProps) {
 					result = `
 					import { defineProps } from '@vue/runtime-core';
+
+					${regularScriptBlockContent}
 
 					const Props = ${defineProps[0]}
 
