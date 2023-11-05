@@ -20,23 +20,27 @@ export function toTSX(code: string, className: string): string {
 
 		// Vue supports 2 type of script blocks: setup and non-setup
 		const regularScriptBlockContent = parsedResult.descriptor.script?.content ?? '';
+		const { scriptSetup } = parsedResult.descriptor;
 
-		if (parsedResult.descriptor.scriptSetup) {
-			const definePropsType =
-				parsedResult.descriptor.scriptSetup.content.match(/defineProps<([\s\S]+)>/m);
+		if (scriptSetup) {
+			const definePropsType = scriptSetup.content.match(/defineProps<([\S\s]+?)>\s?\(\)/m);
+			const propsGeneric = scriptSetup.attrs.generic;
+			const propsGenericType = propsGeneric ? `<${propsGeneric}>` : '';
 
 			if (definePropsType) {
 				result = `
 						${regularScriptBlockContent}
-						${parsedResult.descriptor.scriptSetup.content}
+						${scriptSetup.content}
 
-						export default function ${className}__AstroComponent_(_props: ${definePropsType[1]}): any {
+						export default function ${className}__AstroComponent_${propsGenericType}(_props: ${definePropsType[1]}): any {
 							<div></div>
 						}
 				`;
 			} else {
-				const defineProps =
-					parsedResult.descriptor.scriptSetup.content.match(/defineProps\([\s\S]+\)/m);
+				// TODO. Find a way to support generics when using defineProps without passing explicit types.
+				// Right now something like this `defineProps({ prop: { type: Array as PropType<T[]> } })`
+				//  won't be correctly typed in Astro.
+				const defineProps = scriptSetup.content.match(/defineProps\([\s\S]+\)/m);
 
 				if (defineProps) {
 					result = `
@@ -46,7 +50,7 @@ export function toTSX(code: string, className: string): string {
 
 					const Props = ${defineProps[0]}
 
-					export default function ${className}__AstroComponent_(_props: typeof Props): any {
+					export default function ${className}__AstroComponent_${propsGenericType}(_props: typeof Props): any {
 						<div></div>
 					}
 				`;
