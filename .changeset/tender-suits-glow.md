@@ -1,5 +1,6 @@
 ---
-'@astrojs/markdown-remark': patch
+'@astrojs/markdown-remark': minor
+'astro': minor
 ---
 
-Adds experimental support for multiple themes in `shikiji`.
+Adds experimental support for multiple shiki themes with the new `markdown.shikiConfig.experimentalThemes` option.
