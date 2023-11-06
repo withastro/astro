@@ -1460,7 +1460,7 @@ export interface AstroUserConfig {
 			 * @version 3.5.0
 			 * @description
 			 *
-			 * The default locale of your website/application
+			 * The default locale of your website/application. This is a required field.
 			 */
 			defaultLocale: string;
 			/**
@@ -1470,7 +1470,9 @@ export interface AstroUserConfig {
 			 * @version 3.5.0
 			 * @description
 			 *
-			 * A list of all locales supported by the website. e.g. `['en', 'fr', 'es']` This list should also include the `defaultLocale`.
+			 * A list of all locales supported by the website. e.g. `['en', 'fr', 'es']` This list should also include the `defaultLocale`. This is a required field.
+			 *
+			 * No particular language format or syntax is enforced, but your folder structure must match exactly the locales in the list.
 			 */
 			locales: string[];
 

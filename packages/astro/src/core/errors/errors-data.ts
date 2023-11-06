@@ -1285,7 +1285,9 @@ export const MissingLocale = {
 export const CantRenderPage = {
 	name: 'CantRenderPage',
 	title: "Astro can't render the route.",
-	message: "Astro cannot find any content to render for this route. There is no file or redirect associated with this route.",
+	message:
+		'Astro cannot find any content to render for this route. There is no file or redirect associated with this route.',
+	hint: 'If you expect to find a route here, this may be an Astro bug. Please file an issue/restart the dev server',
 } satisfies ErrorData;
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
