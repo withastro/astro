@@ -1,10 +1,10 @@
 import type * as hast from 'hast';
 import type * as mdast from 'mdast';
 import type {
-	one as Handler,
-	all as Handlers,
 	Options as RemarkRehypeOptions,
 } from 'remark-rehype';
+import type { Nodes } from "mdast";
+import type { Handler } from "mdast-util-to-hast";
 import type {
 	BuiltinTheme,
 	LanguageRegistration,
@@ -35,8 +35,9 @@ export type RehypePlugin<PluginParameters extends any[] = any[]> = unified.Plugi
 export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
 
 export type RemarkRehype = Omit<RemarkRehypeOptions, 'handlers' | 'unknownHandler'> & {
-	handlers?: typeof Handlers;
-	handler?: typeof Handler;
+	// ref: https://github.com/syntax-tree/mdast-util-to-hast#handlers
+	handlers?: Partial<Record<Nodes['type'], Handler>>;
+	handler?: Handler;
 };
 
 export interface ShikiConfig {
