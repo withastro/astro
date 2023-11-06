@@ -24,3 +24,12 @@ fin
 ```unknown
 This language does not exist
 ```
+
+```caddy
+example.com {
+	root * /var/www/wordpress
+	encode gzip
+	php_fastcgi unix//run/php/php-version-fpm.sock
+	file_server
+}
+```
