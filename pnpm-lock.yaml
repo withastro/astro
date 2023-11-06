@@ -4864,8 +4864,8 @@ importers:
         specifier: ^11.0.0
         version: 11.0.0
       remark-smartypants:
-        specifier: file:~/remark-smartypants/
-        version: file:../remark-smartypants
+        specifier: ^2.0.0
+        version: 2.0.0
       shikiji:
         specifier: ^0.6.8
         version: 0.6.10
@@ -8445,12 +8445,6 @@ packages:
     resolution: {integrity: sha512-cpO6PPMz4E++zxP2Vhp/3KVl2Nbtj+Iksb25rlRinG7mphu2zmCIKWWlqdsx1NwJEISogR2eeZTD7JqLOCzaiw==}
     dependencies:
       '@types/unist': 2.0.9
-    dev: false
-
-  /@types/nlcst@2.0.2:
-    resolution: {integrity: sha512-KWZlauWPWzQoBV/ECkIXHMyTn8Ck8HF5D3537T06vga1MkxZN0X5f5JElsvmy7QlMxInNJYIM9JhjliRbQItHQ==}
-    dependencies:
-      '@types/unist': 3.0.1
     dev: false
 
   /@types/node@12.20.55:
@@ -14114,12 +14108,6 @@ packages:
       '@types/nlcst': 1.0.3
     dev: false
 
-  /nlcst-to-string@4.0.0:
-    resolution: {integrity: sha512-YKLBCcUYKAg0FNlOBT6aI91qFmSiFKiluk655WzPF+DDMA02qIyy8uiRqI8QXtcFpEvll12LpL5MXqEmAZ+dcA==}
-    dependencies:
-      '@types/nlcst': 2.0.2
-    dev: false
-
   /no-case@2.3.2:
     resolution: {integrity: sha512-rmTZ9kz+f3rCvK2TD1Ue/oZlns7OGoIWP4fc3llxxRXlOkHKoWPPWJOfFYpITabSow43QJbRIoHQXtt10VldyQ==}
     dependencies:
@@ -14512,17 +14500,6 @@ packages:
       nlcst-to-string: 3.1.1
       unist-util-modify-children: 3.1.1
       unist-util-visit-children: 2.0.2
-    dev: false
-
-  /parse-latin@7.0.0:
-    resolution: {integrity: sha512-mhHgobPPua5kZ98EF4HWiH167JWBfl4pvAIXXdbaVohtK7a6YBOy56kvhCqduqyo/f3yrHFWmqmiMg/BkBkYYQ==}
-    dependencies:
-      '@types/nlcst': 2.0.2
-      '@types/unist': 3.0.1
-      nlcst-to-string: 4.0.0
-      unist-util-modify-children: 4.0.0
-      unist-util-visit-children: 3.0.0
-      vfile: 6.0.1
     dev: false
 
   /parse-numeric-range@1.3.0:
@@ -15743,14 +15720,6 @@ packages:
       unified: 10.1.2
     dev: false
 
-  /retext-latin@4.0.0:
-    resolution: {integrity: sha512-hv9woG7Fy0M9IlRQloq/N6atV82NxLGveq+3H2WOi79dtIYWN8OaxogDm77f8YnVXJL2VD3bbqowu5E3EMhBYA==}
-    dependencies:
-      '@types/nlcst': 2.0.2
-      parse-latin: 7.0.0
-      unified: 11.0.4
-    dev: false
-
   /retext-smartypants@5.2.0:
     resolution: {integrity: sha512-Do8oM+SsjrbzT2UNIKgheP0hgUQTDDQYyZaIY3kfq0pdFzoPk+ZClYJ+OERNXveog4xf1pZL4PfRxNoVL7a/jw==}
     dependencies:
@@ -15758,14 +15727,6 @@ packages:
       nlcst-to-string: 3.1.1
       unified: 10.1.2
       unist-util-visit: 4.1.2
-    dev: false
-
-  /retext-smartypants@6.0.0:
-    resolution: {integrity: sha512-p4IGo+vNJxomZ3pRgCXpeZQ+iX9CPyiuGkkvkVfPt5SKwNTjttTg2PRO/jXIz2+UcF2QNtRkdedNxWevNWTRYw==}
-    dependencies:
-      '@types/nlcst': 2.0.2
-      nlcst-to-string: 4.0.0
-      unist-util-visit: 5.0.0
     dev: false
 
   /retext-stringify@3.1.0:
@@ -15776,14 +15737,6 @@ packages:
       unified: 10.1.2
     dev: false
 
-  /retext-stringify@4.0.0:
-    resolution: {integrity: sha512-rtfN/0o8kL1e+78+uxPTqu1Klt0yPzKuQ2BfWwwfgIUSayyzxpM1PJzkKt4V8803uB9qSy32MvI7Xep9khTpiA==}
-    dependencies:
-      '@types/nlcst': 2.0.2
-      nlcst-to-string: 4.0.0
-      unified: 11.0.4
-    dev: false
-
   /retext@8.1.0:
     resolution: {integrity: sha512-N9/Kq7YTn6ZpzfiGW45WfEGJqFf1IM1q8OsRa1CGzIebCJBNCANDRmOrholiDRGKo/We7ofKR4SEvcGAWEMD3Q==}
     dependencies:
@@ -15791,15 +15744,6 @@ packages:
       retext-latin: 3.1.0
       retext-stringify: 3.1.0
       unified: 10.1.2
-    dev: false
-
-  /retext@9.0.0:
-    resolution: {integrity: sha512-sbMDcpHCNjvlheSgMfEcVrZko3cDzdbe1x/e7G66dFp0Ff7Mldvi2uv6JkJQzdRcvLYE8CA8Oe8siQx8ZOgTcA==}
-    dependencies:
-      '@types/nlcst': 2.0.2
-      retext-latin: 4.0.0
-      retext-stringify: 4.0.0
-      unified: 11.0.4
     dev: false
 
   /retimer@3.0.0:
@@ -17240,13 +17184,6 @@ packages:
       array-iterate: 2.0.1
     dev: false
 
-  /unist-util-modify-children@4.0.0:
-    resolution: {integrity: sha512-+tdN5fGNddvsQdIzUF3Xx82CU9sMM+fA0dLgR9vOmT0oPT2jH+P1nd5lSqfCfXAw+93NhcXNY2qqvTUtE4cQkw==}
-    dependencies:
-      '@types/unist': 3.0.1
-      array-iterate: 2.0.1
-    dev: false
-
   /unist-util-position-from-estree@1.1.2:
     resolution: {integrity: sha512-poZa0eXpS+/XpoQwGwl79UUdea4ol2ZuCYguVaJS4qzIOMDzbqz8a3erUCOmubSZkaOuGamb3tX790iwOIROww==}
     dependencies:
@@ -17292,12 +17229,6 @@ packages:
     resolution: {integrity: sha512-+LWpMFqyUwLGpsQxpumsQ9o9DG2VGLFrpz+rpVXYIEdPy57GSy5HioC0g3bg/8WP9oCLlapQtklOzQ8uLS496Q==}
     dependencies:
       '@types/unist': 2.0.9
-    dev: false
-
-  /unist-util-visit-children@3.0.0:
-    resolution: {integrity: sha512-RgmdTfSBOg04sdPcpTSD1jzoNBjt9a80/ZCzp5cI9n1qPzLZWF9YdvWGN2zmTumP1HWhXKdUWexjy/Wy/lJ7tA==}
-    dependencies:
-      '@types/unist': 3.0.1
     dev: false
 
   /unist-util-visit-parents@2.1.2:
@@ -18367,17 +18298,6 @@ packages:
 
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
-
-  file:../remark-smartypants:
-    resolution: {directory: ../remark-smartypants, type: directory}
-    name: remark-smartypants
-    engines: {node: '>=16.0.0'}
-    dependencies:
-      retext: 9.0.0
-      retext-smartypants: 6.0.0
-      unified: 11.0.4
-      unist-util-visit: 5.0.0
-    dev: false
 
   file:packages/astro/test/fixtures/astro-client-only/pkg:
     resolution: {directory: packages/astro/test/fixtures/astro-client-only/pkg, type: directory}
