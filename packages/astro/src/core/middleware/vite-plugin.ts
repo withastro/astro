@@ -1,6 +1,5 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { normalizePath } from 'vite';
-import type { Logger } from '../logger/core.js';
 import { getOutputDirectory } from '../../prerender/utils.js';
 import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
 import { addRollupInput } from '../build/add-rollup-input.js';
@@ -12,21 +11,19 @@ export const MIDDLEWARE_MODULE_ID = '@astro-middleware';
 const EMPTY_MIDDLEWARE = '\0empty-middleware';
 
 export function vitePluginMiddleware({
-	logger,
 	settings
 }: {
-	logger: Logger,
 	settings: AstroSettings
 }): VitePlugin {
-	let viteCommand: 'build' | 'serve' = 'serve';
+	let isCommandBuild = false;
 	let resolvedMiddlewareId: string | undefined = undefined;
-	const hasIntegrationMiddleware = () => settings.middleware.pre.length > 0 || settings.middleware.post.length > 0;
+	const hasIntegrationMiddleware = settings.middlewares.pre.length > 0 || settings.middlewares.post.length > 0;
 
 	return {
 		name: '@astro/plugin-middleware',
 
 		config(opts, { command }) {
-			viteCommand = command;
+			isCommandBuild = command === 'build';
 			return opts;
 		},
 
@@ -38,7 +35,7 @@ export function vitePluginMiddleware({
 				if (middlewareId) {
 					resolvedMiddlewareId = middlewareId.id;
 					return MIDDLEWARE_MODULE_ID;
-				} else if(hasIntegrationMiddleware()) {
+				} else if(hasIntegrationMiddleware) {
 					return MIDDLEWARE_MODULE_ID;
 				} else {
 					return EMPTY_MIDDLEWARE;
@@ -54,7 +51,7 @@ export function vitePluginMiddleware({
 				return 'export const onRequest = undefined';
 			} else if (id === MIDDLEWARE_MODULE_ID) {
 				// In the build, tell Vite to emit this file
-				if(viteCommand === 'build') {
+				if(isCommandBuild) {
 					this.emitFile({
 						type: 'chunk',
 						preserveSignature: 'strict',
@@ -63,25 +60,18 @@ export function vitePluginMiddleware({
 					});
 				}
 
-				const preMiddleware = createMiddlewareImports(settings.middleware.pre, 'pre');
-				const postMiddleware = createMiddlewareImports(settings.middleware.post, 'post');
-				
-				if(settings.middleware.pre.length > 0) {
-					logger.debug('middleware', `Integrations have added middleware that will run before yours.`)
-				}
-				if(settings.middleware.post.length > 0) {
-					logger.debug('middleware', `Integrations have added middleware that will run after yours.`)
-				}
+				const preMiddleware = createMiddlewareImports(settings.middlewares.pre, 'pre');
+				const postMiddleware = createMiddlewareImports(settings.middlewares.post, 'post');
 
 				const source = `
 import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';
 import { sequence } from 'astro:middleware';
-${preMiddleware.raw}${postMiddleware.raw}
+${preMiddleware.importsCode}${postMiddleware.importsCode}
 
 export const onRequest = sequence(
-	${preMiddleware.imports.map(n => n.identifier).join(',')}${preMiddleware.imports.length ? ',' : ''}
-	userOnRequest${postMiddleware.imports.length ? ',' : ''}
-	${postMiddleware.imports.map(n => n.identifier).join(',')}
+	${preMiddleware.sequenceCode}${preMiddleware.sequenceCode ? ',' : ''}
+	userOnRequest${postMiddleware.sequenceCode ? ',' : ''}
+	${postMiddleware.sequenceCode}
 );
 `.trim();
 
@@ -91,24 +81,23 @@ export const onRequest = sequence(
 	};
 }
 
-type MiddlewareImport = { identifier: string };
-
-function createMiddlewareImports(entrypoints: string[], prefix: string): { raw: string; imports: MiddlewareImport[] } {
-	let imports: MiddlewareImport[] = [];
-	let raw = '';
+function createMiddlewareImports(entrypoints: string[], prefix: string): {
+	importsCode: string
+	sequenceCode: string
+} {
+	let importsRaw = '';
+	let sequenceRaw = '';
 	let index = 0;
 	for(const entrypoint of entrypoints) {
 		const name = `_${prefix}_${index}`;
-		raw += `import { onRequest as ${name} } from '${normalizePath(entrypoint)}';\n`;
-		imports.push({
-			identifier: name
-		});
+		importsRaw += `import { onRequest as ${name} } from '${normalizePath(entrypoint)}';\n`;
+		sequenceRaw += `${index > 0 ? ',' : ''}${name}`
 		index++;
 	}
 
 	return {
-		raw,
-		imports
+		importsCode: importsRaw,
+		sequenceCode: sequenceRaw
 	};
 }
 
@@ -125,10 +114,7 @@ export function vitePluginMiddlewareBuild(
 
 		writeBundle(_, bundle) {
 			for (const [chunkName, chunk] of Object.entries(bundle)) {
-				if (chunk.type === 'asset') {
-					continue;
-				}
-				if (chunk.fileName === 'middleware.mjs') {
+				if (chunk.type !== 'asset' && chunk.fileName === 'middleware.mjs') {
 					const outputDirectory = getOutputDirectory(opts.settings.config);
 					internals.middlewareEntryPoint = new URL(chunkName, outputDirectory);
 				}

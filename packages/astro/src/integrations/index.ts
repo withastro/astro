@@ -137,12 +137,15 @@ export async function runHookConfigSetup({
 					addedClientDirectives.set(name, buildClientDirectiveEntrypoint(name, entrypoint));
 				},
 				addMiddleware: ({ order, entrypoint }) => {
-					if(typeof updatedSettings.middleware[order] === 'undefined') {
+					if(typeof updatedSettings.middlewares[order] === 'undefined') {
 						throw new Error(
 							`The "${integration.name}" integration is trying to add middleware but did not specify an order.`
 						);
 					}
-					updatedSettings.middleware[order].push(entrypoint);
+					logger.debug('middleware', `The integration ${integration.name} has added middleware that runs ${
+						order === 'pre' ? 'before' : 'after'
+					} any application middleware you define.`);
+					updatedSettings.middlewares[order].push(entrypoint);
 				},
 				logger: integrationLogger,
 			};

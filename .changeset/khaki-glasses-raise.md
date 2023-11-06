@@ -28,7 +28,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 });
 ```
 
-You can now add your integration's middleware either before or after...
+You can now add your integration's middleware and specify that it runs eithe before or after the application's own defined middleware (defined in `src/middleware.{js,ts}`)
+
 ```js
 // my-package/integration.js
 export function myIntegration() {
