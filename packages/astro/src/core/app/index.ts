@@ -166,7 +166,7 @@ export class App {
 		);
 		let response;
 		try {
-			let i18nMiddleware = createI18nMiddleware(this.#manifest.i18n);
+			let i18nMiddleware = createI18nMiddleware(this.#manifest.i18n, this.#manifest.base);
 			if (i18nMiddleware) {
 				if (mod.onRequest) {
 					this.#pipeline.setMiddlewareFunction(

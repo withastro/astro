@@ -215,15 +215,6 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			} else if (routeIsFallback(pageData.route)) {
 				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);
 				await generatePage(pageData, entry, builtPaths, pipeline);
-			} else if (routeIsFallback(pageData.route)) {
-				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, pipeline);
-			} else if (routeIsFallback(pageData.route)) {
-				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, pipeline);
-			} else if (routeIsFallback(pageData.route)) {
-				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, pipeline);
 			} else {
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const entry: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
@@ -285,7 +276,10 @@ async function generatePage(
 
 	const pageModulePromise = ssrEntry.page;
 	const onRequest = ssrEntry.onRequest;
-	const i18nMiddleware = createI18nMiddleware(pipeline.getManifest().i18n);
+	const i18nMiddleware = createI18nMiddleware(
+		pipeline.getManifest().i18n,
+		pipeline.getManifest().base
+	);
 	if (config.experimental.i18n && i18nMiddleware) {
 		if (onRequest) {
 			pipeline.setMiddlewareFunction(
