@@ -407,7 +407,9 @@ async function transition(
 	// see https://developer.mozilla.org/en-US/docs/Web/API/DOMParser/parseFromString
 	newDocument.querySelectorAll('noscript').forEach((el) => el.remove());
 
-	if (!newDocument.querySelector('[name="astro-view-transitions-enabled"]')) {
+	// If ViewTransitions is not enabled on the incoming page, do a full page load to it.
+	// Unless this was a form submission, in which case we do not want to trigger another mutation.
+	if (!newDocument.querySelector('[name="astro-view-transitions-enabled"]') && !options.formData) {
 		location.href = href;
 		return;
 	}

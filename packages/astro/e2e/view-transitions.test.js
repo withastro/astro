@@ -931,6 +931,28 @@ test.describe('View Transitions', () => {
 			'There should be only 1 page load. No additional loads for the form submission'
 		).toEqual(1);
 	});
+
+	test('form POST when there is an error shows the error', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', async (p) => {
+			loads.push(p);
+		});
+
+		await page.goto(astro.resolveUrl('/form-one?throw'));
+
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Contact Form');
+
+		// Submit the form
+		await page.click('#submit');
+		const overlay = page.locator('vite-error-overlay');
+		await expect(overlay).toBeVisible();
+
+		expect(
+			loads.length,
+			'There should be only 1 page load. No additional loads for the form submission'
+		).toEqual(1);
+	});
 	
 	test('Route announcer is invisible on page transition', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/no-directive-one'));
