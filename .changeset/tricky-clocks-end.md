@@ -1,5 +1,5 @@
 ---
-'@astrojs/vercel': major
+'@astrojs/vercel': minor
 ---
 
 The Vercel adapter now streams responses!
