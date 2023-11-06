@@ -146,8 +146,8 @@ declare module 'astro:i18n' {
 	 * import { getLocaleRelativeUrl } from "astro:i18n";
 	 * getLocaleRelativeUrl("es"); // /es
 	 * getLocaleRelativeUrl("es", "getting-started"); // /es/getting-started
-	 * getLocaleRelativeUrl("es", "getting-started", { prependWith: "blog" }); // /blog/es/getting-started
-	 * getLocaleRelativeUrl("es_US", "getting-started", { prependWith: "blog", normalizeLocale: true }); // /blog/es-us/getting-started
+	 * getLocaleRelativeUrl("es_US", "getting-started", { prependWith: "blog" }); // /blog/es-us/getting-started
+	 * getLocaleRelativeUrl("es_US", "getting-started", { prependWith: "blog", normalizeLocale: false }); // /blog/es_US/getting-started
 	 * ```
 	 */
 	export const getLocaleRelativeUrl: (
@@ -178,8 +178,8 @@ declare module 'astro:i18n' {
 	 * import { getLocaleAbsoluteUrl } from "astro:i18n";
 	 * getLocaleAbsoluteUrl("es"); // https://example.com/es
 	 * getLocaleAbsoluteUrl("es", "getting-started"); // https://example.com/es/getting-started
-	 * getLocaleAbsoluteUrl("es", "getting-started", { prependWith: "blog" }); // https://example.com/blog/es/getting-started
-	 * getLocaleAbsoluteUrl("es_US", "getting-started", { prependWith: "blog", normalizeLocale: true }); // https://example.com/blog/es-us/getting-started
+	 * getLocaleAbsoluteUrl("es_US", "getting-started", { prependWith: "blog" }); // https://example.com/blog/es-us/getting-started
+	 * getLocaleAbsoluteUrl("es_US", "getting-started", { prependWith: "blog", normalizeLocale: false }); // https://example.com/blog/es_US/getting-started
 	 * ```
 	 */
 	export const getLocaleAbsoluteUrl: (
