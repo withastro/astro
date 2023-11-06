@@ -115,8 +115,7 @@ export class Pipeline {
 			props: renderContext.props,
 			site: env.site,
 			adapterName: env.adapterName,
-			preferredLocale: renderContext.preferredLocale,
-			preferredLocaleList: renderContext.preferredLocaleList,
+			locales: renderContext.locales,
 		});
 
 		switch (renderContext.route.type) {
@@ -152,8 +151,7 @@ export class Pipeline {
 					env,
 					renderContext,
 					onRequest,
-					renderContext.preferredLocale,
-					renderContext.preferredLocaleList
+					renderContext.locales
 				);
 			}
 			default:
