@@ -10,6 +10,8 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 	locales: string[];
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
+	routingStrategy?: 'prefix-always' | 'prefix-other-locales';
+	defaultLocale: string;
 };
 
 export type GetLocaleOptions = {
@@ -43,6 +45,8 @@ export function getLocaleRelativeUrl({
 	path,
 	prependWith,
 	normalizeLocale = true,
+	routingStrategy = 'prefix-other-locales',
+	defaultLocale,
 }: GetLocaleRelativeUrl) {
 	if (!locales.includes(locale)) {
 		throw new AstroError({
@@ -50,12 +54,18 @@ export function getLocaleRelativeUrl({
 			message: MissingLocale.message(locale, locales),
 		});
 	}
+	const pathsToJoin = [base, prependWith];
+	if (routingStrategy === 'prefix-always') {
+		pathsToJoin.push(normalizeTheLocale(locale, normalizeLocale));
+	} else if (locale !== defaultLocale) {
+		pathsToJoin.push(normalizeTheLocale(locale, normalizeLocale));
+	}
+	pathsToJoin.push(path);
 
-	const normalizedLocale = normalizeTheLocale(locale, normalizeLocale);
 	if (shouldAppendForwardSlash(trailingSlash, format)) {
-		return appendForwardSlash(joinPaths(base, prependWith, normalizedLocale, path));
+		return appendForwardSlash(joinPaths(...pathsToJoin));
 	} else {
-		return joinPaths(base, prependWith, normalizedLocale, path);
+		return joinPaths(...pathsToJoin);
 	}
 }
 
@@ -76,6 +86,8 @@ type GetLocalesBaseUrl = GetLocaleOptions & {
 	locales: string[];
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
+	routingStrategy?: 'prefix-always' | 'prefix-other-locales';
+	defaultLocale: string;
 };
 
 export function getLocaleRelativeUrlList({
@@ -86,13 +98,21 @@ export function getLocaleRelativeUrlList({
 	path,
 	prependWith,
 	normalizeLocale = false,
+	routingStrategy = 'prefix-other-locales',
+	defaultLocale,
 }: GetLocalesBaseUrl) {
 	return locales.map((locale) => {
-		const normalizedLocale = normalizeTheLocale(locale, normalizeLocale);
+		const pathsToJoin = [base, prependWith];
+		if (routingStrategy === 'prefix-always') {
+			pathsToJoin.push(normalizeTheLocale(locale, normalizeLocale));
+		} else if (locale !== defaultLocale) {
+			pathsToJoin.push(normalizeTheLocale(locale, normalizeLocale));
+		}
+		pathsToJoin.push(path);
 		if (shouldAppendForwardSlash(trailingSlash, format)) {
-			return appendForwardSlash(joinPaths(base, prependWith, normalizedLocale, path));
+			return appendForwardSlash(joinPaths(...pathsToJoin));
 		} else {
-			return joinPaths(base, prependWith, normalizedLocale, path);
+			return joinPaths(...pathsToJoin);
 		}
 	});
 }
