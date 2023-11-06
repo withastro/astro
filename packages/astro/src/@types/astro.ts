@@ -1510,7 +1510,7 @@ export interface AstroUserConfig {
 			 * @docs
 			 * @name experimental.i18n.routingStrategy
 			 * @type {'prefix-always' | 'prefix-other-locales'}
-			 * @default {'prefix-other-locales'}
+			 * @default 'prefix-other-locales'
 			 * @version 3.5.0
 			 * @description
 			 *
