@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix DEV mode on Safari when view transitioning to `client:only` components
+Fixes an error in dev mode on Safari where view transitions prevented navigating to pages with `client:only` components
