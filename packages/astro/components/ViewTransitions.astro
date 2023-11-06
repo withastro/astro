@@ -3,10 +3,10 @@ type Fallback = 'none' | 'animate' | 'swap';
 
 export interface Props {
 	fallback?: Fallback;
-	form?: boolean;
+	handleForms?: boolean;
 }
 
-const { fallback = 'animate', form: handleForms } = Astro.props as Props;
+const { fallback = 'animate', handleForms } = Astro.props as Props;
 ---
 
 <meta name="astro-view-transitions-enabled" content="true" />
