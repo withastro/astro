@@ -541,13 +541,13 @@ export interface AstroUserConfig {
 	 * @name prefetch
 	 * @type {boolean | PrefetchOptions}
 	 * @description
-	 * Enable prefetching for links on your site to provide faster page transitions. 
-	 * (Enabled by default on pages using the `<ViewTransitions />` router. Set `prefetch:false` to opt out of this behaviour.)
-	 * 
-	 * This configuration automatically adds a prefetch script to every page in the project 
-	 * giving you access to the `data-astro-prefetch` attribute. 
+	 * Enable prefetching for links on your site to provide faster page transitions.
+	 * (Enabled by default on pages using the `<ViewTransitions />` router. Set `prefetch: false` to opt out of this behaviour.)
+	 *
+	 * This configuration automatically adds a prefetch script to every page in the project
+	 * giving you access to the `data-astro-prefetch` attribute.
 	 * Add this attribute to any `<a />` link on your page to enable prefetching for that page.
-	 * 
+	 *
 	 * ```html
 	 * <a href="/about" data-astro-prefetch>About</a>
 	 * ```
@@ -563,11 +563,12 @@ export interface AstroUserConfig {
 	 * @description
 	 * Enable prefetching for all links, including those without the `data-astro-prefetch` attribute.
 	 * This value defaults to `true` when using the `<ViewTransitions />` router. Otherwise, the default value is `false`.
-	 * 
+	 *
 	 * ```js
 	 * prefetch: {
 	 * 	prefetchAll: true
 	 * }
+	 * ```
 	 *
 	 * When set to `true`, you can disable prefetching individually by setting `data-astro-prefetch="false"` on any individual links.
 	 *
@@ -583,15 +584,15 @@ export interface AstroUserConfig {
 	 * @default `'hover'`
 	 * @description
 	 * The default prefetch strategy to use when the `data-astro-prefetch` attribute is set on a link with no value.
-	 * 
+	 *
 	 * - `'tap'`: Prefetch just before you click on the link.
 	 * - `'hover'`: Prefetch when you hover over or focus on the link. (default)
 	 * - `'viewport'`: Prefetch as the links enter the viewport.
-	 * 
+	 *
 	 * You can override this default value and select a different strategy for any individual link by setting a value on the attribute.
 	 *
 	 * ```html
-	 *  `<a href="/about" data-astro-prefetch="viewport">About</a>`
+	 * <a href="/about" data-astro-prefetch="viewport">About</a>
 	 * ```
 	 */
 	prefetch?: boolean | PrefetchOptions;
@@ -2403,8 +2404,20 @@ export interface PrefetchOptions {
 	 * @name prefetch.prefetchAll
 	 * @type {boolean}
 	 * @description
-	 * Enable prefetching for all links by default, similar to all `<a />` links having the `data-astro-prefetch`
-	 * attribute set. You can disable prefetching individually by setting `data-astro-prefetch="false"` on a link.
+	 * Enable prefetching for all links, including those without the `data-astro-prefetch` attribute.
+	 * This value defaults to `true` when using the `<ViewTransitions />` router. Otherwise, the default value is `false`.
+	 *
+	 * ```js
+	 * prefetch: {
+	 * 	prefetchAll: true
+	 * }
+	 * ```
+	 *
+	 * When set to `true`, you can disable prefetching individually by setting `data-astro-prefetch="false"` on any individual links.
+	 *
+	 * ```html
+	 * <a href="/about" data-astro-prefetch="false">About</a>
+	 *```
 	 */
 	prefetchAll?: boolean;
 	/**
@@ -2413,8 +2426,17 @@ export interface PrefetchOptions {
 	 * @type {'tap' | 'hover' | 'viewport'}
 	 * @default `'hover'`
 	 * @description
-	 * The default prefetch strategy to use when the `data-astro-prefetch` attribute (no value) is set on a link.
-	 * You can select a different strategy for individual links by setting, e.g. `data-astro-prefetch="viewport"`.
+	 * The default prefetch strategy to use when the `data-astro-prefetch` attribute is set on a link with no value.
+	 *
+	 * - `'tap'`: Prefetch just before you click on the link.
+	 * - `'hover'`: Prefetch when you hover over or focus on the link. (default)
+	 * - `'viewport'`: Prefetch as the links enter the viewport.
+	 *
+	 * You can override this default value and select a different strategy for any individual link by setting a value on the attribute.
+	 *
+	 * ```html
+	 * <a href="/about" data-astro-prefetch="viewport">About</a>
+	 * ```
 	 */
 	defaultStrategy?: 'tap' | 'hover' | 'viewport';
 }
