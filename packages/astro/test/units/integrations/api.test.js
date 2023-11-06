@@ -30,6 +30,33 @@ describe('Integration API', () => {
 		expect(updatedViteConfig).to.haveOwnProperty('define');
 	});
 
+	it('runHookBuildSetup should return updated config', async () => {
+		let updatedInternalConfig;
+		const updatedViteConfig = await runHookBuildSetup({
+			config: {
+				integrations: [
+					{
+						name: 'test',
+						hooks: {
+							'astro:build:setup'({ updateConfig }) {
+								updatedConfig = updateConfig({
+									define: {
+										foo: 'bar',
+									},
+								});
+							},
+						},
+					},
+				],
+			},
+			vite: {},
+			logger: defaultLogger,
+			pages: new Map(),
+			target: 'server',
+		});
+		expect(updatedViteConfig).to.be.deepEquals(updatedInternalConfig);
+	});
+
 	it('runHookConfigSetup can update Astro config', async () => {
 		const site = 'https://test.com/';
 		const updatedSettings = await runHookConfigSetup({
