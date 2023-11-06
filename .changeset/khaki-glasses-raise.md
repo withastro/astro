@@ -4,7 +4,7 @@
 
 ## Integration Hooks to add Middleware
 
-It's now possible in Astro for an integration to add middleware on behalf of the user. Previously when a 3rd party wanted to provide middleware the user would need to create a `src/middleware.ts` file themselves. Now adding 3rd party middleware is as easy as adding a new integration.
+It's now possible in Astro for an integration to add middleware on behalf of the user. Previously when a third party wanted to provide middleware, the user would need to create a `src/middleware.ts` file themselves. Now, adding third-party middleware is as easy as adding a new integration.
 
 For integration authors, there is a new `addMiddleware` function in the `astro:config:setup` hook. This function allows you to specify a middleware module and the order in which it should be applied:
 
