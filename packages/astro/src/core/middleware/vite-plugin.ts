@@ -67,7 +67,7 @@ export function vitePluginMiddleware({
 				const postMiddleware = createMiddlewareImports(settings.middleware.post, 'post');
 				
 				if(settings.middleware.pre.length > 0) {
-					logger.debug('middleware', `Integration have added middleware that will run before yours.`)
+					logger.debug('middleware', `Integrations have added middleware that will run before yours.`)
 				}
 				if(settings.middleware.post.length > 0) {
 					logger.debug('middleware', `Integrations have added middleware that will run after yours.`)
