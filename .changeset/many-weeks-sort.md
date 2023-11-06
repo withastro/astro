@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Form support in ViewTransitions router
+Form support in View Transitions router
 
 The `<ViewTransitions />` router can now handle form submissions, allowing you to retain stateful UI. This feature is opt-in for semver reasons and can be enabled by adding the `handleForms` prop to the component like so:
 
