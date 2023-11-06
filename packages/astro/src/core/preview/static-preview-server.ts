@@ -73,6 +73,7 @@ export default async function createStaticPreviewServer(
 		port: settings.config.server.port,
 		closed,
 		// In Vite 5, `httpServer` may be a `Http2SecureServer`, but we know we are only starting a HTTP server
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 		server: previewServer.httpServer as http.Server,
 		stop: async () => {
 			await new Promise((resolve, reject) => {
