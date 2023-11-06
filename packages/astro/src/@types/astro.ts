@@ -1416,9 +1416,9 @@ export interface AstroUserConfig {
 			 * @version 3.5.0
 			 * @description
 			 *
-			 * The content fallback strategy when navigating to pages in non-default languages that do not exist. (e.g. a translated page has not been created).
+			 * The fallback strategy when navigating to pages that do not exist (e.g. a translated page has not been created).
 			 *
-			 * This a plain object, where a key is a locale that hasn't traslated pages, and the corresponding value is the locale where you want to redirect the missing page to.
+			 * Use this object to declare a fallback `locale` route for each language you support. If no fallback is specified, then unavailable pages will return a 404.
 			 *
 			 * #### Examples
 			 *
