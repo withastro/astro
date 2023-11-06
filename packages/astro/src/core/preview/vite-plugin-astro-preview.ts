@@ -1,11 +1,13 @@
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import type { Plugin } from 'vite';
+import type { Connect, Plugin } from 'vite';
+import { version } from 'vite';
 import type { AstroSettings } from '../../@types/astro.js';
 import { notFoundTemplate, subpathNotUsedTemplate } from '../../template/4xx.js';
 import { stripBase } from './util.js';
 
 const HAS_FILE_EXTENSION_REGEXP = /^.*\.[^\\]+$/;
+const IS_VITE_5 = version.startsWith('5.');
 
 export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 	const { base, outDir, trailingSlash } = settings.config;
@@ -50,7 +52,7 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 			});
 
 			return () => {
-				server.middlewares.use((req, res) => {
+				const fourOhFourMiddleware: Connect.NextHandleFunction = (req, res) => {
 					const errorPagePath = fileURLToPath(outDir + '/404.html');
 					if (fs.existsSync(errorPagePath)) {
 						res.statusCode = 404;
@@ -61,7 +63,19 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 						res.statusCode = 404;
 						res.end(notFoundTemplate(pathname, 'Not Found'));
 					}
-				});
+				};
+
+				// Vite 5 has its own 404 middleware, we replace it with ours instead.
+				if (IS_VITE_5) {
+					for (const middleware of server.middlewares.stack) {
+						// This hardcoded name will not break between Vite versions
+						if ((middleware.handle as Connect.HandleFunction).name === 'vite404Middleware') {
+							middleware.handle = fourOhFourMiddleware;
+						}
+					}
+				} else {
+					server.middlewares.use(fourOhFourMiddleware);
+				}
 			};
 		},
 	};

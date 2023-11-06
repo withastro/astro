@@ -50,7 +50,9 @@ export default function astroScriptsPlugin({ settings }: { settings: AstroSettin
 		},
 		buildStart() {
 			const hasHydrationScripts = settings.scripts.some((s) => s.stage === 'before-hydration');
-			if (hasHydrationScripts && env?.command === 'build' && !env?.ssrBuild) {
+			// @ts-expect-error Vite 5 renamed `ssrBuild` to `isSsrBuild`
+			const isSsrBuild = env?.ssrBuild || env?.isSsrBuild;
+			if (hasHydrationScripts && env?.command === 'build' && !isSsrBuild) {
 				this.emitFile({
 					type: 'chunk',
 					id: BEFORE_HYDRATION_SCRIPT_ID,

@@ -3,7 +3,7 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isRemotePath, joinPaths } from '../../core/path.js';
 import { DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import { isESMImportedImage, isRemoteAllowed } from '../internal.js';
-import type { ImageOutputFormat, ImageTransform } from '../types.js';
+import type { ImageOutputFormat, ImageTransform, UnresolvedSrcSetValue } from '../types.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -28,12 +28,6 @@ type ImageConfig<T> = Omit<AstroConfig['image'], 'service'> & {
 	service: { entrypoint: string; config: T };
 };
 
-type SrcSetValue = {
-	transform: ImageTransform;
-	descriptor?: string;
-	attributes?: Record<string, any>;
-};
-
 interface SharedServiceProps<T extends Record<string, any> = Record<string, any>> {
 	/**
 	 * Return the URL to the endpoint or URL your images are generated from.
@@ -53,7 +47,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	getSrcSet?: (
 		options: ImageTransform,
 		imageConfig: ImageConfig<T>
-	) => SrcSetValue[] | Promise<SrcSetValue[]>;
+	) => UnresolvedSrcSetValue[] | Promise<UnresolvedSrcSetValue[]>;
 	/**
 	 * Return any additional HTML attributes separate from `src` that your service requires to show the image properly.
 	 *
@@ -233,7 +227,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		};
 	},
 	getSrcSet(options) {
-		const srcSet: SrcSetValue[] = [];
+		const srcSet: UnresolvedSrcSetValue[] = [];
 		const { targetWidth } = getTargetDimensions(options);
 		const { widths, densities } = options;
 		const targetFormat = options.format ?? DEFAULT_OUTPUT_FORMAT;

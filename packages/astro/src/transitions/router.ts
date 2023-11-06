@@ -33,10 +33,7 @@ const announce = () => {
 	let div = document.createElement('div');
 	div.setAttribute('aria-live', 'assertive');
 	div.setAttribute('aria-atomic', 'true');
-	div.setAttribute(
-		'style',
-		'position:absolute;left:0;top:0;clip:rect(0 0 0 0);clip-path:inset(50%);overflow:hidden;white-space:nowrap;width:1px;height:1px'
-	);
+	div.className = 'astro-route-announcer';
 	document.body.append(div);
 	setTimeout(
 		() => {
@@ -527,7 +524,7 @@ if (inBrowser) {
 		addEventListener('popstate', onPopState);
 		addEventListener('load', onPageLoad);
 		if ('onscrollend' in window) addEventListener('scrollend', onScroll);
-		else addEventListener('scroll', throttle(onScroll, 300));
+		else addEventListener('scroll', throttle(onScroll, 350), { passive: true });
 	}
 	for (const script of document.scripts) {
 		script.dataset.astroExec = '';
@@ -541,9 +538,17 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 	if (newDocument.body.querySelector(`astro-island[client='only']`)) {
 		// Load the next page with an empty module loader cache
 		const nextPage = document.createElement('iframe');
-		nextPage.setAttribute('src', toLocation.href);
+		// do not fetch the file from the server, but use the current newDocument
+		nextPage.srcdoc =
+			(newDocument.doctype ? '<!DOCTYPE html>' : '') + newDocument.documentElement.outerHTML;
 		nextPage.style.display = 'none';
 		document.body.append(nextPage);
+		// silence the iframe's console
+		// @ts-ignore
+		nextPage.contentWindow!.console = Object.keys(console).reduce((acc: any, key) => {
+			acc[key] = () => {};
+			return acc;
+		}, {});
 		await hydrationDone(nextPage);
 
 		const nextHead = nextPage.contentDocument?.head;
@@ -561,7 +566,7 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 			viteIds.forEach((id) => {
 				const style = document.head.querySelector(`style[${VITE_ID}="${id}"]`);
 				if (style && !newDocument.head.querySelector(`style[${VITE_ID}="${id}"]`)) {
-					newDocument.head.appendChild(style);
+					newDocument.head.appendChild(style.cloneNode(true));
 				}
 			});
 		}
