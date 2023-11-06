@@ -42,6 +42,9 @@ export function createAPIContext({
 	adapterName,
 	locales,
 }: CreateAPIContext): APIContext {
+	let preferredLocale: string | undefined = undefined;
+	let preferredLocaleList: string[] | undefined = undefined;
+
 	const context = {
 		cookies: new AstroCookies(request),
 		request,
@@ -59,15 +62,25 @@ export function createAPIContext({
 		},
 		ResponseWithEncoding,
 		get preferredLocale(): string | undefined {
-			if (locales) {
-				return computePreferredLocale(request, locales);
+			if (preferredLocale) {
+				return preferredLocale;
 			}
+			if (locales) {
+				preferredLocale = computePreferredLocale(request, locales);
+				return preferredLocale;
+			}
+
 			return undefined;
 		},
 		get preferredLocaleList(): string[] | undefined {
-			if (locales) {
-				return computePreferredLocaleList(request, locales);
+			if (preferredLocaleList) {
+				return preferredLocaleList;
 			}
+			if (locales) {
+				preferredLocaleList = computePreferredLocaleList(request, locales);
+				return preferredLocaleList;
+			}
+
 			return undefined;
 		},
 		url: new URL(request.url),
