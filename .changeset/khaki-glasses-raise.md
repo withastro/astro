@@ -28,9 +28,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 });
 ```
 
-__my-package/integration.js__
-
 ```js
+// my-package/integration.js
 export function myIntegration() {
   return {
     name: 'my-integration',
