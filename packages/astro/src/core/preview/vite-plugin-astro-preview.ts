@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import type { Connect, Plugin } from 'vite';
 import { version } from 'vite';
-import type { Plugin, Connect } from 'vite';
 import type { AstroSettings } from '../../@types/astro.js';
 import { notFoundTemplate, subpathNotUsedTemplate } from '../../template/4xx.js';
 import { stripBase } from './util.js';
