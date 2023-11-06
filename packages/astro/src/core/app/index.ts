@@ -16,12 +16,7 @@ import {
 	removeTrailingForwardSlash,
 } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import {
-	computePreferredLocales,
-	createEnvironment,
-	createRenderContext,
-	type RenderContext,
-} from '../render/index.js';
+import { createEnvironment, createRenderContext, type RenderContext } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -222,13 +217,6 @@ export class App {
 		page: SinglePageBuiltModule,
 		status = 200
 	): Promise<RenderContext> {
-		let preferredLocale: undefined | string = undefined;
-		let preferredLocaleList: undefined | string[] = undefined;
-		if (this.#manifest.i18n) {
-			const result = computePreferredLocales(request, this.#manifest.i18n.locales);
-			preferredLocaleList = result[0];
-			preferredLocale = result[1];
-		}
 		if (routeData.type === 'endpoint') {
 			const pathname = '/' + this.removeBase(url.pathname);
 			const mod = await page.page();
@@ -241,8 +229,7 @@ export class App {
 				status,
 				env: this.#pipeline.env,
 				mod: handler as any,
-				preferredLocale,
-				preferredLocaleList,
+				locales: this.#manifest.i18n ? this.#manifest.i18n.locales : undefined,
 			});
 		} else {
 			const pathname = prependForwardSlash(this.removeBase(url.pathname));
@@ -277,8 +264,7 @@ export class App {
 				status,
 				mod,
 				env: this.#pipeline.env,
-				preferredLocale,
-				preferredLocaleList,
+				locales: this.#manifest.i18n ? this.#manifest.i18n.locales : undefined,
 			});
 		}
 	}

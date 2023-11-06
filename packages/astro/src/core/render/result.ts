@@ -12,6 +12,7 @@ import { chunkToString } from '../../runtime/server/render/index.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
+import { computePreferredLocale, computePreferredLocaleList } from './context.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
@@ -45,8 +46,7 @@ export interface CreateResultArgs {
 	status: number;
 	locals: App.Locals;
 	cookies?: AstroCookies;
-	preferredLocale: string | undefined;
-	preferredLocaleList: string[] | undefined;
+	locales: string[] | undefined;
 }
 
 function getFunctionExpression(slot: any) {
@@ -126,7 +126,7 @@ class Slots {
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { params, request, resolve, locals, preferredLocale, preferredLocaleList } = args;
+	const { params, request, resolve, locals } = args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
@@ -146,6 +146,8 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 	// Astro.cookies is defined lazily to avoid the cost on pages that do not use it.
 	let cookies: AstroCookies | undefined = args.cookies;
+	let preferredLocale: string | undefined = undefined;
+	let preferredLocaleList: string[] | undefined = undefined;
 
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then
@@ -194,13 +196,33 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					result.cookies = cookies;
 					return cookies;
 				},
+				get preferredLocale(): string | undefined {
+					if (preferredLocale) {
+						return preferredLocale;
+					}
+					if (args.locales) {
+						preferredLocale = computePreferredLocale(request, args.locales);
+						return preferredLocale;
+					}
+
+					return undefined;
+				},
+				get preferredLocaleList(): string[] | undefined {
+					if (preferredLocaleList) {
+						return preferredLocaleList;
+					}
+					if (args.locales) {
+						preferredLocaleList = computePreferredLocaleList(request, args.locales);
+						return preferredLocaleList;
+					}
+
+					return undefined;
+				},
 				params,
 				props,
 				locals,
 				request,
 				url,
-				preferredLocale,
-				preferredLocaleList,
 				redirect(path, status) {
 					// If the response is already sent, error as we cannot proceed with the redirect.
 					if ((request as any)[responseSentSymbol]) {
