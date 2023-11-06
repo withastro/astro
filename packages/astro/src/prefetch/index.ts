@@ -5,13 +5,16 @@
 // eslint-disable-next-line no-console
 const debug = import.meta.env.DEV ? console.debug : undefined;
 const inBrowser = import.meta.env.SSR === false;
+// Track prefetched URLs so we don't prefetch twice
 const prefetchedUrls = new Set<string>();
+// Track listened anchors so we don't attach duplicated listeners
 const listenedAnchors = new WeakSet<HTMLAnchorElement>();
 
-// User-defined config for prefetch
-// @ts-expect-error injected by vite-plugin-prefetch
+// User-defined config for prefetch. The values are injected by vite-plugin-prefetch
+// and can be undefined if not configured. But it will be set a fallback value in `init()`.
+// @ts-expect-error injected global
 let prefetchAll: boolean = __PREFETCH_PREFETCH_ALL__;
-// @ts-expect-error injected by vite-plugin-prefetch
+// @ts-expect-error injected global
 let defaultStrategy: string = __PREFETCH_DEFAULT_STRATEGY__;
 
 interface InitOptions {
@@ -21,19 +24,22 @@ interface InitOptions {
 
 let inited = false;
 /**
- * Initialize the prefetch script, only works once
+ * Initialize the prefetch script, only works once.
+ *
+ * @param defaultOpts Default options for prefetching if not already set by the user config.
  */
-export function init(opts?: InitOptions) {
+export function init(defaultOpts?: InitOptions) {
 	if (!inBrowser) return;
-
-	prefetchAll ??= opts?.prefetchAll ?? false;
-	defaultStrategy ??= opts?.defaultStrategy ?? 'hover';
 
 	// Init only once
 	if (inited) return;
 	inited = true;
 
 	debug?.(`[astro] Initializing prefetch script`);
+
+	// Fallback default values if not set by user config
+	prefetchAll ??= defaultOpts?.prefetchAll ?? false;
+	defaultStrategy ??= defaultOpts?.defaultStrategy ?? 'hover';
 
 	// In the future, perhaps we can enable treeshaking specific unused strategies
 	initTapStrategy();
@@ -53,7 +59,7 @@ function initTapStrategy() {
 					prefetch(e.target.href, { with: 'fetch' });
 				}
 			},
-			{ passive: true, once: true }
+			{ passive: true }
 		);
 	}
 }
@@ -116,42 +122,48 @@ function initHoverStrategy() {
  */
 function initViewportStrategy() {
 	let observer: IntersectionObserver;
-	const timeouts = new WeakMap<HTMLAnchorElement, number>();
 
 	onPageLoad(() => {
-		observer ??= new IntersectionObserver((entries) => {
-			for (const entry of entries) {
-				const anchor = entry.target as HTMLAnchorElement;
-				const timeout = timeouts.get(anchor);
-				// Prefetch if intersecting
-				if (entry.isIntersecting) {
-					// Debounce viewport prefetches by 300ms
-					if (timeout) {
-						clearTimeout(timeout);
-					}
-					timeouts.set(
-						anchor,
-						setTimeout(() => {
-							observer.unobserve(anchor);
-							prefetch(anchor.href, { with: 'link' });
-						}, 300) as unknown as number
-					);
-				} else {
-					if (timeout) {
-						clearTimeout(timeout);
-						timeouts.delete(anchor);
-					}
-				}
-			}
-		});
-
 		for (const anchor of document.getElementsByTagName('a')) {
 			// Skip if already listening
 			if (listenedAnchors.has(anchor)) continue;
 			// Observe for anchors matching the strategy
 			if (elMatchesStrategy(anchor, 'viewport')) {
 				listenedAnchors.add(anchor);
+				observer ??= createViewportIntersectionObserver();
 				observer.observe(anchor);
+			}
+		}
+	});
+}
+
+function createViewportIntersectionObserver() {
+	const timeouts = new WeakMap<HTMLAnchorElement, number>();
+
+	return new IntersectionObserver((entries, observer) => {
+		for (const entry of entries) {
+			const anchor = entry.target as HTMLAnchorElement;
+			const timeout = timeouts.get(anchor);
+			// Prefetch if intersecting
+			if (entry.isIntersecting) {
+				// Debounce viewport prefetches by 300ms
+				if (timeout) {
+					clearTimeout(timeout);
+				}
+				timeouts.set(
+					anchor,
+					setTimeout(() => {
+						observer.unobserve(anchor);
+						timeouts.delete(anchor);
+						prefetch(anchor.href, { with: 'link' });
+					}, 300) as unknown as number
+				);
+			} else {
+				// If exited viewport but haven't prefetched, cancel it
+				if (timeout) {
+					clearTimeout(timeout);
+					timeouts.delete(anchor);
+				}
 			}
 		}
 	});
