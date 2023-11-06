@@ -54,7 +54,7 @@ export default async function createStaticPreviewServer(
 		null,
 		msg.serverStart({
 			startupTime: performance.now() - startServerTime,
-			resolvedUrls: previewServer.resolvedUrls,
+			resolvedUrls: previewServer.resolvedUrls ?? { local: [], network: [] },
 			host: settings.config.server.host,
 			base: settings.config.base,
 		})
@@ -72,7 +72,8 @@ export default async function createStaticPreviewServer(
 		host: getResolvedHostForHttpServer(settings.config.server.host),
 		port: settings.config.server.port,
 		closed,
-		server: previewServer.httpServer,
+		// In Vite 5, `httpServer` may be a `Http2SecureServer`, but we know we are only starting a HTTP server
+		server: previewServer.httpServer as http.Server,
 		stop: async () => {
 			await new Promise((resolve, reject) => {
 				previewServer.httpServer.destroy((err) => (err ? reject(err) : resolve(undefined)));
