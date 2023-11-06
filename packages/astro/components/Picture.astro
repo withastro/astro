@@ -18,7 +18,7 @@ const defaultFallbackFormat = 'png' as const;
 // - GIF will typically want to stay as a gif, either for animation or for the lower amount of colors
 // - SVGs can't be converted to raster formats in most cases
 // For those, we'll use the original format as the fallback instead.
-const specialFormatsFallback = ['gif', 'svg'] as const;
+const specialFormatsFallback = ['gif', 'svg', 'jpg', 'jpeg'] as const;
 
 const { formats = defaultFormats, pictureAttributes = {}, fallbackFormat, ...props } = Astro.props;
 
