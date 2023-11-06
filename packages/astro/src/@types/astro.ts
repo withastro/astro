@@ -1470,7 +1470,7 @@ export interface AstroUserConfig {
 			 * @version 3.5.0
 			 * @description
 			 *
-			 * A list of all locales supported by the website. e.g. `['en', 'fr', 'es']` This list should/should not include the `defaultLocale`.
+			 * A list of all locales supported by the website. e.g. `['en', 'fr', 'es']` This list should also include the `defaultLocale`.
 			 */
 			locales: string[];
 
