@@ -54,7 +54,7 @@ describe('Integration API', () => {
 			pages: new Map(),
 			target: 'server',
 		});
-		expect(updatedViteConfig).to.be.deepEquals(updatedInternalConfig);
+		expect(updatedViteConfig).to.be.deep.equal(updatedInternalConfig);
 	});
 
 	it('runHookConfigSetup can update Astro config', async () => {
