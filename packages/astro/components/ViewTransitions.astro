@@ -21,6 +21,7 @@ const { fallback = 'animate', form: handleForms } = Astro.props as Props;
 		transitionEnabledOnThisPage,
 		navigate,
 	} from 'astro:transitions/client';
+import type { Options } from 'astro:transitions/client';
 	export type Fallback = 'none' | 'animate' | 'swap';
 
 	function getFallback(): Fallback {
@@ -96,21 +97,18 @@ const { fallback = 'animate', form: handleForms } = Astro.props as Props;
 
 				const form = el as HTMLFormElement;
 				const formData = new FormData(form);
-				const params = new URLSearchParams(formData as any); // TS is wrong here
 				let action = form.action;
-				const init: RequestInit = {
-					method: form.method,
-					redirect: 'follow'
-				} satisfies RequestInit;
+				const options: Options = {};
 				if(form.method === 'get') {
+					const params = new URLSearchParams(formData as any);
 					const url = new URL(action);
 					url.search = params.toString();
 					action = url.toString();
 				} else {
-					init.body = params;
+					options.formData = formData;
 				}
 				ev.preventDefault();
-				navigate(action, { init });
+				navigate(action, options);
 			});
 		}
 

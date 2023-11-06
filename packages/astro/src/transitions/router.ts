@@ -2,7 +2,7 @@ export type Fallback = 'none' | 'animate' | 'swap';
 export type Direction = 'forward' | 'back';
 export type Options = {
 	history?: 'auto' | 'push' | 'replace';
-	init?: RequestInit;
+	formData?: FormData;
 };
 
 type State = {
@@ -385,7 +385,12 @@ async function transition(
 ) {
 	let finished: Promise<void>;
 	const href = toLocation.href;
-	const response = await fetchHTML(href, options.init);
+	const init: RequestInit = {};
+	if(options.formData) {
+		init.method = 'POST';
+		init.body = options.formData;
+	}
+	const response = await fetchHTML(href, init);
 	// If there is a problem fetching the new page, just do an MPA navigation to it.
 	if (response === null) {
 		location.href = href;
