@@ -39,7 +39,7 @@ describe('Integration API', () => {
 						name: 'test',
 						hooks: {
 							'astro:build:setup'({ updateConfig }) {
-								updatedConfig = updateConfig({
+								updatedInternalConfig = updateConfig({
 									define: {
 										foo: 'bar',
 									},
