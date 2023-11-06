@@ -118,6 +118,7 @@ export async function runHookConfigSetup({
 				},
 				updateConfig: (newConfig) => {
 					updatedConfig = mergeConfig(updatedConfig, newConfig) as AstroConfig;
+					return { ...updatedConfig };
 				},
 				injectRoute: (injectRoute) => {
 					updatedSettings.injectedRoutes.push(injectRoute);
@@ -360,6 +361,7 @@ export async function runHookBuildSetup({
 					target,
 					updateConfig: (newConfig) => {
 						updatedConfig = mergeConfig(updatedConfig, newConfig);
+						return { ...updatedConfig };
 					},
 					logger: getLogger(integration, logger),
 				}),
