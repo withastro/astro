@@ -15,14 +15,15 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 export type GetLocaleOptions = {
 	/**
 	 * Makes the locale URL-friendly by replacing underscores with dashes, and converting the locale to lower case.
+	 * @default true
 	 */
 	normalizeLocale?: boolean;
 	/**
-	 * An optional path to add after the `locale`
+	 * An optional path to add after the `locale`.
 	 */
 	path?: string;
 	/**
-	 *  An optional path to prepend to `locale`
+	 *  An optional path to prepend to `locale`.
 	 */
 	prependWith?: string;
 };
@@ -41,7 +42,7 @@ export function getLocaleRelativeUrl({
 	format,
 	path,
 	prependWith,
-	normalizeLocale = false,
+	normalizeLocale = true,
 }: GetLocaleRelativeUrl) {
 	if (!locales.includes(locale)) {
 		throw new AstroError({

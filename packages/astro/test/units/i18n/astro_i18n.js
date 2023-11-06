@@ -193,7 +193,7 @@ describe('getLocaleRelativeUrl', () => {
 		).to.eq('/blog/en');
 	});
 
-	it('should normalize locales', () => {
+	it('should normalize locales by default', () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}
@@ -216,7 +216,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 			})
-		).to.eq('/blog/en_US/');
+		).to.eq('/blog/en-us/');
 
 		expect(
 			getLocaleRelativeUrl({
@@ -225,9 +225,9 @@ describe('getLocaleRelativeUrl', () => {
 				locales: config.experimental.i18n.locales,
 				trailingSlash: 'always',
 				format: 'directory',
-				normalizeLocale: true,
+				normalizeLocale: false,
 			})
-		).to.eq('/blog/en-us/');
+		).to.eq('/blog/en_US/');
 
 		expect(
 			getLocaleRelativeUrl({
@@ -237,7 +237,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 			})
-		).to.eq('/blog/en_AU/');
+		).to.eq('/blog/en-au/');
 	});
 });
 
