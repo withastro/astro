@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 3.0.3
+
+### Patch Changes
+
+- [#8930](https://github.com/withastro/astro/pull/8930) [`c77f55d9c`](https://github.com/withastro/astro/commit/c77f55d9c075569be018dc1fb5a42c932b9071c7) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an issue where Astro slot names were being rendered as attributes in components. Astro slot names will no longer be sent as props to framework components.
+
 ## 3.0.2
 
 ### Patch Changes
