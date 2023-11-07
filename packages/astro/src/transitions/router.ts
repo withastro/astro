@@ -529,9 +529,8 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 	if (newDocument.body.querySelector(`astro-island[client='only']`)) {
 		// Load the next page with an empty module loader cache
 		const nextPage = document.createElement('iframe');
-		// do not fetch the file from the server, but use the current newDocument
-		nextPage.srcdoc =
-			(newDocument.doctype ? '<!DOCTYPE html>' : '') + newDocument.documentElement.outerHTML;
+		// with srcdoc resolving imports does not work on webkit browsers
+		nextPage.src = toLocation.href;
 		nextPage.style.display = 'none';
 		document.body.append(nextPage);
 		// silence the iframe's console

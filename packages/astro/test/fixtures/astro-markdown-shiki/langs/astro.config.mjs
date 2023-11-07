@@ -13,6 +13,14 @@ export default {
 					grammar: riGrammar,
 					aliases: ['ri'],
 				},
+				{
+					id: 'caddy',
+					scopeName: 'source.Caddyfile',
+					// shiki compat: resolves from astro package directory.
+					// careful as astro is linked, this relative path is based on astro/packages/astro.
+					// it's weird but we're testing to prevent regressions.
+					path: './test/fixtures/astro-markdown-shiki/langs/src/caddyfile.tmLanguage.json',
+				},
 			],
 		},
 	},
