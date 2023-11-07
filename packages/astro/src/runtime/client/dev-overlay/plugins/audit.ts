@@ -1,4 +1,4 @@
-import type { DevOverlayPlugin } from '../../../../@types/astro.js';
+import type { DevOverlayMetadata, DevOverlayPlugin } from '../../../../@types/astro.js';
 import type { DevOverlayHighlight } from '../ui-library/highlight.js';
 import { attachTooltipToHighlight, createHighlight, positionHighlight } from './utils/highlight.js';
 
@@ -71,7 +71,7 @@ export default {
 
 			const rect = originalElement.getBoundingClientRect();
 			const highlight = createHighlight(rect, 'warning');
-			const tooltip = buildAuditTooltip(rule);
+			const tooltip = buildAuditTooltip(rule, originalElement);
 			attachTooltipToHighlight(highlight, tooltip, originalElement);
 
 			canvas.append(highlight);
@@ -82,8 +82,9 @@ export default {
 			});
 		}
 
-		function buildAuditTooltip(rule: AuditRule) {
+		function buildAuditTooltip(rule: AuditRule, element: Element) {
 			const tooltip = document.createElement('astro-dev-overlay-tooltip');
+
 			tooltip.sections = [
 				{
 					icon: 'warning',
@@ -92,14 +93,27 @@ export default {
 				{
 					content: rule.message,
 				},
-				// TODO: Add a link to the file
-				// Needs https://github.com/withastro/compiler/pull/375
-				// {
-				// 	content: '/src/somewhere/component.astro',
-				// 	clickDescription: 'Click to go to file',
-				// 	clickAction() {},
-				// },
 			];
+
+			const elementFile = element.getAttribute('data-astro-source-file');
+			const elementPosition = element.getAttribute('data-astro-source-loc');
+
+			if (elementFile) {
+				const elementFileWithPosition =
+					elementFile + (elementPosition ? ':' + elementPosition : '');
+
+				tooltip.sections.push({
+					content: elementFileWithPosition.slice(
+						(window as DevOverlayMetadata).__astro_dev_overlay__.root.length - 1 // We want to keep the final slash, so minus one.
+					),
+					clickDescription: 'Click to go to file',
+					async clickAction() {
+						// NOTE: The path here has to be absolute and without any errors (no double slashes etc)
+						// or Vite will silently fail to open the file. Quite annoying.
+						await fetch('/__open-in-editor?file=' + encodeURIComponent(elementFileWithPosition));
+					},
+				});
+			}
 
 			return tooltip;
 		}
