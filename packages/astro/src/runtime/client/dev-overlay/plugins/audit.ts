@@ -115,7 +115,7 @@ export default {
 			}
 
 			// If the element is an image, wait for it to load
-			if ('loading' in originalElement) {
+			if (originalElement.nodeName === 'IMG' && !(originalElement as HTMLImageElement).complete) {
 				await (originalElement as HTMLImageElement).decode();
 			}
 
