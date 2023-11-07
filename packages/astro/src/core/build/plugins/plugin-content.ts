@@ -39,7 +39,7 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 	const { config } = opts.settings;
 	const { cacheDir } = config;
 	const distRoot = config.outDir;
-	const distContentRoot = new URL('./content/', config.outDir);
+	const distContentRoot = new URL('./content/', distRoot);
 	const contentCacheDir = new URL(CONTENT_CACHE_DIR, cacheDir);
 	const contentManifestFile = new URL(CONTENT_MANIFEST_FILE, contentCacheDir);
 	const cache = contentCacheDir;
@@ -147,7 +147,7 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 			await fsMod.promises.mkdir(cacheTmp, { recursive: true });
 			await copyFiles(distContentRoot, cacheTmp, true);
 			if (cacheExists) {
-				await copyFiles(contentCacheDir, distRoot, false);
+				await copyFiles(contentCacheDir, distContentRoot, false);
 			}
 			await copyFiles(cacheTmp, contentCacheDir);
 			await fsMod.promises.rm(cacheTmp, { recursive: true, force: true });
