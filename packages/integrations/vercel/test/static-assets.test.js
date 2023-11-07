@@ -57,13 +57,13 @@ describe('Static Assets', () => {
 		const { default: vercel } = await import('@astrojs/vercel/serverless');
 
 		it('has cache control', async () => {
-			await build({ output: "server", adapter: vercel() });
+			await build({ output: 'server', adapter: vercel() });
 			checkValidCacheControl();
 		});
 
 		it('has cache control other assets', async () => {
 			const assets = '_foo';
-			await build({ output: "server", adapter: vercel(), assets });
+			await build({ output: 'server', adapter: vercel(), assets });
 			checkValidCacheControl(assets);
 		});
 	});
