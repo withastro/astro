@@ -237,9 +237,10 @@ describe('Setting inlineStylesheets to always in static output', () => {
 
 describe('Setting inlineStylesheets to always in server output', () => {
 	let app;
+	let fixture;
 
 	before(async () => {
-		const fixture = await loadFixture({
+		fixture = await loadFixture({
 			// inconsequential config that differs between tests
 			// to bust cache and prevent modules and their state
 			// from being reused
