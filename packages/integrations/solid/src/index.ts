@@ -1,4 +1,4 @@
-import type { AstroIntegration, AstroRenderer } from 'astro';
+import type { AstroConfig, AstroIntegration, AstroRenderer, RecursivePartial } from 'astro';
 import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
 
 async function getViteConfiguration(isDev: boolean, { include, exclude }: Options = {}) {
@@ -34,7 +34,7 @@ async function getViteConfiguration(isDev: boolean, { include, exclude }: Option
 		ssr: {
 			external: ['babel-preset-solid'],
 		},
-	};
+	} satisfies RecursivePartial<AstroConfig['vite']>;
 }
 
 function getRenderer(): AstroRenderer {
