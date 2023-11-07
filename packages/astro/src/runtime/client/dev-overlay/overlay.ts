@@ -432,8 +432,6 @@ export class AstroDevOverlay extends HTMLElement {
 		pluginCanvas.style.display = plugin.active ? 'block' : 'none';
 
 		window.requestAnimationFrame(() => {
-			console.log('Requesting animation frame');
-			console.log(plugin.active);
 			pluginCanvas.toggleAttribute('data-active', plugin.active);
 			plugin.eventTarget.dispatchEvent(
 				new CustomEvent('plugin-toggled', {

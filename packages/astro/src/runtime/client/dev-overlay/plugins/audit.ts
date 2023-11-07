@@ -23,15 +23,15 @@ export default {
 	id: 'astro:audit',
 	name: 'Audit',
 	icon: icon,
-	init(canvas, eventTarget) {
+	async init(canvas, eventTarget) {
 		let audits: { highlightElement: DevOverlayHighlight; auditedElement: HTMLElement }[] = [];
 
-		lint();
+		await lint();
 
-		document.addEventListener('astro:after-swap', lint);
-		document.addEventListener('astro:page-load', refreshLintPositions);
+		document.addEventListener('astro:after-swap', async () => lint());
+		document.addEventListener('astro:page-load', async () => refreshLintPositions);
 
-		function lint() {
+		async function lint() {
 			initStyle();
 
 			audits.forEach(({ highlightElement }) => {
@@ -40,11 +40,13 @@ export default {
 			audits = [];
 			canvas.getElementById('no-audit')?.remove();
 
-			selectorBasedRules.forEach((rule) => {
-				document.querySelectorAll(rule.selector).forEach((el) => {
-					createAuditProblem(rule, el);
-				});
-			});
+			for (const rule of selectorBasedRules) {
+				const elements = document.querySelectorAll(rule.selector);
+
+				for (const element of elements) {
+					await createAuditProblem(rule, element);
+				}
+			}
 
 			if (audits.length > 0) {
 				eventTarget.dispatchEvent(
@@ -103,13 +105,18 @@ export default {
 			});
 		}
 
-		function createAuditProblem(rule: AuditRule, originalElement: Element) {
+		async function createAuditProblem(rule: AuditRule, originalElement: Element) {
 			const computedStyle = window.getComputedStyle(originalElement);
 			const targetedElement = (originalElement.children[0] as HTMLElement) || originalElement;
 
 			// If the element is hidden, don't do anything
 			if (targetedElement.offsetParent === null || computedStyle.display === 'none') {
 				return;
+			}
+
+			// If the element is an image, wait for it to load
+			if ('loading' in originalElement) {
+				await (originalElement as HTMLImageElement).decode();
 			}
 
 			const rect = originalElement.getBoundingClientRect();
