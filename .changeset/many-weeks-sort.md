@@ -23,7 +23,7 @@ import { ViewTransitions } from 'astro:transitions';
 </html>
 ```
 
-Like with links, you can opt-out of the router handling a submission on a per-form basis with the `data-astro-reload` property:
+Just as with links, if you don't want the routing handling a form submission, you can opt out on a per-form basis with the `data-astro-reload` property:
 
 ```astro
 ---
