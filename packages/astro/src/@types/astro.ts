@@ -2055,11 +2055,11 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 	};
 }
 
-export type RecursivePartial<T> = {
+export type DeepPartial<T> = {
 	[P in keyof T]?: T[P] extends (infer U)[]
-		? RecursivePartial<U>[]
+		? DeepPartial<U>[]
 		: T[P] extends object | undefined
-		? RecursivePartial<T[P]>
+		? DeepPartial<T[P]>
 		: T[P];
 };
 
@@ -2077,7 +2077,7 @@ export interface AstroIntegration {
 			config: AstroConfig;
 			command: 'dev' | 'build' | 'preview';
 			isRestart: boolean;
-			updateConfig: (newConfig: RecursivePartial<AstroConfig>) => AstroConfig;
+			updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
 			addRenderer: (renderer: AstroRenderer) => void;
 			addWatchFile: (path: URL | string) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
