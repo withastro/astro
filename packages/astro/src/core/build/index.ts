@@ -44,7 +44,7 @@ export interface BuildOptions {
 	teardownCompiler?: boolean;
 
 	/**
-	 * If `experimental.contentCollectionsCache` is enabled, this flag will clear the cache before building
+	 * If `experimental.contentCollectionCache` is enabled, this flag will clear the cache before building
 	 *
 	 * @internal not part of our public api
 	 * @default false
