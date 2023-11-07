@@ -8,9 +8,10 @@ import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { bundledThemes, type BuiltinTheme } from 'shikiji';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro.js';
 
+import fs from 'node:fs';
 import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
@@ -256,8 +257,27 @@ export const AstroConfigSchema = z.object({
 							for (const lang of langs) {
 								// shiki -> shikiji compat
 								if (typeof lang === 'object') {
-									// `id` renamed to `name
-									if ((lang as any).id && !lang.name) {
+									// shikiji does not support `path`
+									// https://github.com/shikijs/shiki/blob/facb6ff37996129626f8066a5dccb4608e45f649/packages/shiki/src/loader.ts#L98
+									const langPath = (lang as any).path;
+									if (langPath) {
+										// shiki resolves path from within its package directory :shrug:
+										const astroRoot = fileURLToPath(new URL('../../../', import.meta.url));
+										const normalizedPath = path.isAbsolute(langPath)
+											? langPath
+											: path.resolve(astroRoot, langPath);
+										try {
+											const content = fs.readFileSync(normalizedPath, 'utf-8');
+											const parsed = JSON.parse(content);
+											Object.assign(lang, parsed);
+										} catch (e) {
+											throw new Error(`Unable to find language file at ${normalizedPath}`, {
+												cause: e,
+											});
+										}
+									}
+									// `id` renamed to `name` (always override)
+									if ((lang as any).id) {
 										lang.name = (lang as any).id;
 									}
 									// `grammar` flattened to lang itself

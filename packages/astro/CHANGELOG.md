@@ -1,5 +1,13 @@
 # astro
 
+## 3.4.3
+
+### Patch Changes
+
+- [#8981](https://github.com/withastro/astro/pull/8981) [`ab7e745cc`](https://github.com/withastro/astro/commit/ab7e745cc9abd592aa631bffb35880221e7ac89c) Thanks [@matthewp](https://github.com/matthewp)! - Increase the scroll restoration throttle time
+
+- [#8940](https://github.com/withastro/astro/pull/8940) [`937522fb7`](https://github.com/withastro/astro/commit/937522fb70be522378268d04e6bb20d8dc401c0b) Thanks [@MarvinXu](https://github.com/MarvinXu)! - Omit nullish and falsy (non-zero) values when stringifying object-form `style` attributes in Astro files
+
 ## 3.4.2
 
 ### Patch Changes
