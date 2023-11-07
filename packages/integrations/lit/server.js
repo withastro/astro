@@ -62,7 +62,7 @@ function* render(Component, attrs, slots) {
 	const shadowContents = instance.renderShadow({
 		elementRenderers: [LitElementRenderer],
 		customElementInstanceStack: [instance],
-		customElementHostStack: [],
+		customElementHostStack: [instance],
 		deferHydration: false,
 	});
 	if (shadowContents !== undefined) {
