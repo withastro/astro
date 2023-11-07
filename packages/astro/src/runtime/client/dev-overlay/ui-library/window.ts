@@ -34,6 +34,7 @@ export class DevOverlayWindow extends HTMLElement {
 					top: 55%;
 					left: 50%;
 					transform: translate(-50%, -50%);
+					box-shadow: 0px 0px 0px 0px rgba(19, 21, 26, 0.30), 0px 1px 2px 0px rgba(19, 21, 26, 0.29), 0px 4px 4px 0px rgba(19, 21, 26, 0.26), 0px 10px 6px 0px rgba(19, 21, 26, 0.15), 0px 17px 7px 0px rgba(19, 21, 26, 0.04), 0px 26px 7px 0px rgba(19, 21, 26, 0.01);
 				}
 
 				h1 {

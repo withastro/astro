@@ -1,5 +1,6 @@
 import type { DevOverlayPlugin } from '../../../../@types/astro.js';
 import type { DevOverlayHighlight } from '../ui-library/highlight.js';
+import { getIconElement } from '../ui-library/icons.js';
 import { attachTooltipToHighlight, createHighlight, positionHighlight } from './utils/highlight.js';
 
 const icon =
@@ -31,10 +32,13 @@ export default {
 		document.addEventListener('astro:page-load', refreshLintPositions);
 
 		function lint() {
+			initStyle();
+
 			audits.forEach(({ highlightElement }) => {
 				highlightElement.remove();
 			});
 			audits = [];
+			canvas.getElementById('no-audit')?.remove();
 
 			selectorBasedRules.forEach((rule) => {
 				document.querySelectorAll(rule.selector).forEach((el) => {
@@ -44,16 +48,55 @@ export default {
 
 			if (audits.length > 0) {
 				eventTarget.dispatchEvent(
-					new CustomEvent('plugin-notification', {
+					new CustomEvent('toggle-notification', {
 						detail: {
 							state: true,
 						},
 					})
 				);
+			} else {
+				eventTarget.dispatchEvent(
+					new CustomEvent('toggle-notification', {
+						detail: {
+							state: false,
+						},
+					})
+				);
+
+				const noAuditBlock = document.createElement('div');
+				noAuditBlock.id = 'no-audit';
+
+				const noAuditIcon = getIconElement('check-circle');
+				const text = document.createElement('div');
+				text.textContent = 'No issues found!';
+
+				if (noAuditIcon) {
+					noAuditIcon.style.width = '24px';
+					noAuditBlock.append(noAuditIcon);
+				}
+				noAuditBlock.append(text);
+
+				canvas.append(noAuditBlock);
 			}
+
+			(['scroll', 'resize'] as const).forEach((event) => {
+				window.addEventListener(event, refreshLintPositions);
+			});
 		}
 
 		function refreshLintPositions() {
+			const noAuditBlock = canvas.getElementById('no-audit');
+			if (noAuditBlock) {
+				const devOverlayRect = document
+					.querySelector('astro-dev-overlay')
+					?.shadowRoot.querySelector('#dev-overlay')
+					?.getBoundingClientRect();
+
+				noAuditBlock.style.top = `${
+					(devOverlayRect?.top ?? 0) - (devOverlayRect?.height ?? 0) - 16
+				}px`;
+			}
+
 			audits.forEach(({ highlightElement, auditedElement }) => {
 				const rect = auditedElement.getBoundingClientRect();
 				positionHighlight(highlightElement, rect);
@@ -76,10 +119,6 @@ export default {
 
 			canvas.append(highlight);
 			audits.push({ highlightElement: highlight, auditedElement: originalElement as HTMLElement });
-
-			(['scroll', 'resize'] as const).forEach((event) => {
-				window.addEventListener(event, refreshLintPositions);
-			});
 		}
 
 		function buildAuditTooltip(rule: AuditRule) {
@@ -103,5 +142,51 @@ export default {
 
 			return tooltip;
 		}
+
+		function initStyle() {
+			const devOverlayRect = document
+				.querySelector('astro-dev-overlay')
+				?.shadowRoot.querySelector('#dev-overlay')
+				?.getBoundingClientRect();
+
+			const style = document.createElement('style');
+			style.textContent = `
+			:host {
+				opacity: 0;
+				transition: opacity 0.1s ease-in-out;
+			}
+
+			:host([data-active]) {
+				opacity: 1;
+			}
+
+			#no-audit {
+				border: 1px solid rgba(113, 24, 226, 1);
+				background-color: #310A65;
+				box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.30), 0px 1px 2px 0px rgba(0, 0, 0, 0.29), 0px 4px 4px 0px rgba(0, 0, 0, 0.26), 0px 10px 6px 0px rgba(0, 0, 0, 0.15), 0px 17px 7px 0px rgba(0, 0, 0, 0.04), 0px 26px 7px 0px rgba(0, 0, 0, 0.01);
+				color: white;
+				text-align: center;
+				border-radius: 4px;
+				padding: 8px;
+				font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+				position: fixed;
+				transform: translate(-50%, 0);
+				top: ${(devOverlayRect?.top ?? 0) - (devOverlayRect?.height ?? 0) - 16}px;
+				left: calc(50% + 12px);
+				width: 200px;
+			}
+		`;
+
+			canvas.append(style);
+		}
+	},
+	async beforeTogglingOff(canvas) {
+		canvas.host?.removeAttribute('data-active');
+
+		await new Promise((resolve) => {
+			canvas.host.addEventListener('transitionend', resolve);
+		});
+
+		return true;
 	},
 } satisfies DevOverlayPlugin;
