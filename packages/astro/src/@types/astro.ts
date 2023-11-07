@@ -1495,7 +1495,7 @@ export interface AstroUserConfig {
 			 * export defualt defineConfig({
 			 * 	experimental: {
 			 * 		i18n: {
-			 * 			defuaultLocale: "en",
+			 * 			defaultLocale: "en",
 			 * 			locales: ["en", "fr", "pt", "es"],
 			 * 			fallback: {
 			 * 				pt: "es",
