@@ -2055,6 +2055,14 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 	};
 }
 
+export type RecursivePartial<T> = {
+	[P in keyof T]?: T[P] extends (infer U)[]
+		? RecursivePartial<U>[]
+		: T[P] extends object | undefined
+		? RecursivePartial<T[P]>
+		: T[P];
+};
+
 export type HookParameters<
 	Hook extends keyof AstroIntegration['hooks'],
 	Fn = AstroIntegration['hooks'][Hook],
@@ -2069,7 +2077,7 @@ export interface AstroIntegration {
 			config: AstroConfig;
 			command: 'dev' | 'build' | 'preview';
 			isRestart: boolean;
-			updateConfig: (newConfig: Record<string, any>) => void;
+			updateConfig: (newConfig: RecursivePartial<AstroConfig>) => AstroConfig;
 			addRenderer: (renderer: AstroRenderer) => void;
 			addWatchFile: (path: URL | string) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
