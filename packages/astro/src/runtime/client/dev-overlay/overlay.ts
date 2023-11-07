@@ -412,18 +412,22 @@ export class AstroDevOverlay extends HTMLElement {
 		);
 	}
 
-	async togglePluginStatus(plugin: DevOverlayPlugin, status?: boolean) {
+	/**
+	 * @param plugin The plugin to toggle the status of
+	 * @param newStatus Optionally, force the plugin into a specific state
+	 */
+	async togglePluginStatus(plugin: DevOverlayPlugin, newStatus?: boolean) {
 		const pluginCanvas = this.getPluginCanvasById(plugin.id);
 		if (!pluginCanvas) return;
 
-		if (plugin.active && !status && plugin.beforeTogglingOff) {
+		if (plugin.active && !newStatus && plugin.beforeTogglingOff) {
 			const shouldToggleOff = await plugin.beforeTogglingOff(pluginCanvas.shadowRoot!);
 
 			// If the plugin returned false, don't toggle it off, maybe the plugin showed a confirmation dialog or similar
 			if (!shouldToggleOff) return;
 		}
 
-		plugin.active = status ?? !plugin.active;
+		plugin.active = newStatus ?? !plugin.active;
 		const target = this.shadowRoot.querySelector(`[data-plugin-id="${plugin.id}"]`);
 		if (!target) return;
 		target.classList.toggle('active', plugin.active);
@@ -446,6 +450,9 @@ export class AstroDevOverlay extends HTMLElement {
 		}
 	}
 
+	/**
+	 * @param newStatus Optionally, force the minimize button into a specific state
+	 */
 	toggleMinimizeButton(newStatus?: boolean) {
 		const minimizeButton = this.shadowRoot.querySelector<HTMLDivElement>('#minimize-button');
 		if (!minimizeButton) return;
