@@ -2,41 +2,62 @@
 'astro': minor
 ---
 
-Add experimental support for i18n routing. Enable the routing by adding the mandatory fields to the configuration:
+Experimental support for i18n routing. 
+
+Astro's experimental i18n routing allows you to add your multilingual content with support for configuring a default language and URL path convention, computing relative page URLs, and accepting preferred languages provided by your visitor's browser browser.
+
+Enable the experimental routing option by adding an `i18n` object to your Astro configuration with a default location and a list of all languages to support:
 
 ```js
 // astro.config.mjs
 import {defineConfig} from "astro/config";
 
 export default defineConfig({
-    experiemntal: {
+    experimental: {
         i18n: {
             defaultLocale: "en",
-            locales: ["en", "en_AU", "es", "pt", "fr"]
+            locales: ["en", "es", "pt_BR"]
         }
     }
 })
 ```
 
-The properties `defaultLocale` and `locales` are mandatory, and `locales` must contain the `defaultLocale`.
+Organize your content folders by locale, including your `defaultLocale` and `src/pages/index.astro` will now automatically default to the `index.astro` file of your default language.
 
-Now, all routes that **don't** contain a prefix (locale) in their URL will belong to the `defaultLocale`, and the translated routes will have to have a prefix in their URL: `/en_AU`, `/es`, `/pt`, `/fr`.
+```
+├── src
+│   ├── pages
+│   │   ├── en
+│   │   │   ├── about.astro
+│   │   │   ├── index.astro
+│   │   ├── es
+│   │   │   ├── about.astro
+│   │   │   ├── index.astro
+│   │   ├── pt_BR
+│   │   │   ├── about.astro
+│   │   │   ├── index.astro
+│   ├── index.astro
 
-You have access to a new virtual module called `astro:i18n`, which exposes utility functions to create correct URLs, which are computed based on your configuration.
+```
+
+Compute relative URLs for your links with `getLocaleRelativeURL` from the new `astro:i18n` module:
 
 ```astro
 ---
 import {getLocaleRelativeUrl} from "astro:i18n";
-const aboutUrl = getLocaleRelativeUrl("en_AU", "getting-started");
-console.log(aboutUrl); // will log "/en-au/getting-started
+const aboutUrl = getLocaleRelativeUrl("pt_Br", "about");
 ---
+<p>Learn more <a href={aboutURL}>About</a> this site!</p>
 ```
 
-You have access to two new properties in the `Astro` global: `Astro.preferredLocale` and `Astro.preferredLocaleList`. These are locales computed from the `Accept-Langauge` header, and supported by your website. You will never receive locales that aren't configured in your website.
+Enabling i18n routing also provides two new properties for browser language detection: `Astro.preferredLocale` and `Astro.preferredLocaleList`. These combine the browser's `Accept-Langauge` header, and your site's list of supported languages and can be used to automatically respect your visitor's preferred languages.
 
 ```astro
 ---
 const preferredLocale = Astro.preferredLocale;
 const preferredLocaleList = Astro.preferredLocaleList;
 ---
+NEED A USAGE EXAMPLE HERE
 ```
+
+Read more about Astro's [experimental i18n routing](https://docs.astro.build/en/guides/i18n-routing/#browser-language-detection) in our documentation.

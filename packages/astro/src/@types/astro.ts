@@ -1405,7 +1405,7 @@ export interface AstroUserConfig {
 			 * @version 3.5.0
 			 * @description
 			 *
-			 * A list of all locales supported by the website. e.g. `['en', 'fr', 'es']` This list should also include the `defaultLocale`. This is a required field.
+			 * A list of all locales supported by the website (e.g. `['en', 'es', 'pt_BR']`). This list should also include the `defaultLocale`. This is a required field.
 			 *
 			 * No particular language format or syntax is enforced, but your folder structure must match exactly the locales in the list.
 			 */
@@ -1422,7 +1422,7 @@ export interface AstroUserConfig {
 			 *
 			 * Use this object to declare a fallback `locale` route for each language you support. If no fallback is specified, then unavailable pages will return a 404.
 			 *
-			 * #### Examples
+			 * #### Example
 			 *
 			 * The following example configures your content fallback strategy to redirect unavailable pages in `/pt/` to their `es` version, and unavailable pages in `/fr/` to their `en` version. Unavailable `/es/` pages will return a 404.
 			 *
