@@ -101,7 +101,11 @@ export default function assets({
 						? options.src.fsPath
 						: options.src;
 
-					const hash = hashTransform(options, settings.config.image.service.entrypoint, hashProperties);
+					const hash = hashTransform(
+						options,
+						settings.config.image.service.entrypoint,
+						hashProperties
+					);
 
 					let finalFilePath: string;
 					let transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalImagePath);
