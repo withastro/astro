@@ -4803,6 +4803,9 @@ importers:
       chai:
         specifier: ^4.3.7
         version: 4.3.10
+      cheerio:
+        specifier: 1.0.0-rc.12
+        version: 1.0.0-rc.12
       linkedom:
         specifier: ^0.15.1
         version: 0.15.6
