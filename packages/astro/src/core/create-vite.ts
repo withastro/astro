@@ -11,6 +11,7 @@ import {
 	astroContentImportPlugin,
 	astroContentVirtualModPlugin,
 } from '../content/index.js';
+import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
 import astroTransitions from '../transitions/vite-plugin-transitions.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
@@ -134,7 +135,8 @@ export async function createVite(
 			astroContentAssetPropagationPlugin({ mode, settings }),
 			vitePluginSSRManifest(),
 			astroAssetsPlugin({ settings, logger, mode }),
-			astroTransitions(),
+			astroPrefetch({ settings }),
+			astroTransitions({ settings }),
 			astroDevOverlay({ settings, logger }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
