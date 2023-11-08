@@ -1,7 +1,7 @@
 import type { AstroConfig } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isRemotePath, joinPaths } from '../../core/path.js';
-import { DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
+import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import { isESMImportedImage, isRemoteAllowed } from '../internal.js';
 import type { ImageOutputFormat, ImageTransform, UnresolvedSrcSetValue } from '../types.js';
 
@@ -100,6 +100,13 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 		transform: LocalImageTransform,
 		imageConfig: ImageConfig<T>
 	) => Promise<{ data: Buffer; format: ImageOutputFormat }>;
+
+	/**
+	 * A list of properties that should be used to generate the hash for the image.
+	 *
+	 * Generally, this should be all the properties that can change the result of the image. By default, this is `src`, `width`, `height`, `quality`, and `format`.
+	 */
+	propertiesToHash?: string[];
 }
 
 export type BaseServiceTransform = {
@@ -131,6 +138,7 @@ export type BaseServiceTransform = {
  *
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
+	propertiesToHash: DEFAULT_HASH_PROPS,
 	validateOptions(options) {
 		// `src` is missing or is `undefined`.
 		if (!options.src || (typeof options.src !== 'string' && typeof options.src !== 'object')) {

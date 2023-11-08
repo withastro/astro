@@ -5,7 +5,7 @@ import type { ImageInputFormat, ImageMetadata } from '../types.js';
 export async function imageMetadata(
 	data: Buffer,
 	src?: string
-): Promise<Omit<ImageMetadata, 'src'>> {
+): Promise<Omit<ImageMetadata, 'src' | 'fsPath'>> {
 	const result = probe.sync(data);
 
 	if (result === null) {
