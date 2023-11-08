@@ -27,17 +27,14 @@ Organize your content folders by locale, including your `defaultLocale` and `src
 ```
 ├── src
 │   ├── pages
-│   │   ├── en
-│   │   │   ├── about.astro
-│   │   │   ├── index.astro
+│   │   ├── about.astro
+│   │   ├── index.astro
 │   │   ├── es
 │   │   │   ├── about.astro
 │   │   │   ├── index.astro
 │   │   ├── pt_BR
 │   │   │   ├── about.astro
 │   │   │   ├── index.astro
-│   ├── index.astro
-
 ```
 
 Compute relative URLs for your links with `getLocaleRelativeURL` from the new `astro:i18n` module:
