@@ -223,7 +223,7 @@ function getEntriesFromManifests(oldManifest: ContentManifest, newManifest: Cont
 }
 
 async function generateContentManifest(opts: StaticBuildOptions, lookupMap: ContentLookupMap): Promise<ContentManifest> {
-	let manifest: ContentManifest = { version: CONTENT_MANIFEST_VERSION, entries: [], serverEntries: [], clientEntries: [], exports: {} };
+	let manifest: ContentManifest = { version: CONTENT_MANIFEST_VERSION, entries: [], serverEntries: [], clientEntries: [] };
 	const limit = pLimit(10);
 	const promises: Promise<void>[] = [];
 
