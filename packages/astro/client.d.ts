@@ -119,6 +119,7 @@ declare module 'astro:transitions/client' {
 	export const supportsViewTransitions: TransitionRouterModule['supportsViewTransitions'];
 	export const transitionEnabledOnThisPage: TransitionRouterModule['transitionEnabledOnThisPage'];
 	export const navigate: TransitionRouterModule['navigate'];
+	export type Options = import('./dist/transitions/router.js').Options;
 }
 
 declare module 'astro:prefetch' {
