@@ -41,11 +41,13 @@ export class DevOverlayWindow extends HTMLElement {
 					margin: 0;
 					font-weight: 600;
 					color: #fff;
+					display: flex;
+					align-items: center;
 				}
 
 				h1 svg {
-					vertical-align: text-bottom;
 					margin-right: 8px;
+					height: 1em;
 				}
 
 				hr {

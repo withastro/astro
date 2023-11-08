@@ -235,14 +235,21 @@ export class AstroDevOverlay extends HTMLElement {
 			<div id="dev-bar">
 				<div id="bar-container">
 					${this.plugins
-						.filter((plugin) => plugin.builtIn)
+						.filter((plugin) => plugin.builtIn && plugin.id !== 'astro:settings')
 						.map((plugin) => this.getPluginTemplate(plugin))
 						.join('')}
+					${
+						this.plugins.filter((plugin) => !plugin.builtIn).length > 0
+							? `<div class="separator"></div>${this.plugins
+									.filter((plugin) => !plugin.builtIn)
+									.map((plugin) => this.getPluginTemplate(plugin))
+									.join('')}`
+							: ''
+					}
 					<div class="separator"></div>
-					${this.plugins
-						.filter((plugin) => !plugin.builtIn)
-						.map((plugin) => this.getPluginTemplate(plugin))
-						.join('')}
+					${this.getPluginTemplate(
+						this.plugins.find((plugin) => plugin.builtIn && plugin.id === 'astro:settings')!
+					)}
 				</div>
 			</div>
 			<button id="minimize-button">${getIconElement('arrow-down')?.outerHTML}</button>
