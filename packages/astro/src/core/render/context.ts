@@ -9,6 +9,7 @@ import type {
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Environment } from './environment.js';
 import { getParamsAndProps } from './params-and-props.js';
+import { normalizeTheLocale } from '../../i18n/index.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -139,10 +140,11 @@ export function parseLocale(header: string): BrowserLocale[] {
 }
 
 function sortAndFilterLocales(browserLocaleList: BrowserLocale[], locales: string[]) {
+	const normalizedLocales = locales.map(normalizeTheLocale);
 	return browserLocaleList
 		.filter((browserLocale) => {
 			if (browserLocale.locale !== '*') {
-				return locales.includes(browserLocale.locale);
+				return normalizedLocales.includes(normalizeTheLocale(browserLocale.locale));
 			}
 			return true;
 		})
@@ -173,7 +175,9 @@ export function computePreferredLocale(request: Request, locales: string[]): str
 		const firstResult = browserLocaleList.at(0);
 		if (firstResult) {
 			if (firstResult.locale !== '*') {
-				result = firstResult.locale;
+				result = locales.find(
+					(locale) => normalizeTheLocale(locale) === normalizeTheLocale(firstResult.locale)
+				);
 			}
 		}
 	}
@@ -190,10 +194,16 @@ export function computePreferredLocaleList(request: Request, locales: string[]) 
 		// SAFETY: bang operator is safe because checked by the previous condition
 		if (browserLocaleList.length === 1 && browserLocaleList.at(0)!.locale === '*') {
 			return locales;
-		} else {
-			result = browserLocaleList.map((item) => {
-				return item.locale;
-			});
+		} else if (browserLocaleList.length > 0) {
+			result = [];
+			for (const browserLocale of browserLocaleList) {
+				const found = locales.find(
+					(l) => normalizeTheLocale(l) === normalizeTheLocale(browserLocale.locale)
+				);
+				if (found) {
+					result.push(found);
+				}
+			}
 		}
 	}
 
