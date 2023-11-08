@@ -30,7 +30,11 @@ interface ContentManifestKey {
 interface ContentManifest {
 	version: number;
 	entries: [ContentManifestKey, string][];
+	// Tracks components that should be included in the server build
+	// When the cache is restored, these might no longer be referenced
 	serverEntries: string[];
+	// Tracks components that should be passed to the client build
+	// When the cache is restored, these might no longer be referenced
 	clientEntries: string[];
 }
 
@@ -73,18 +77,23 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 			newManifest = await generateContentManifest(opts, lookupMap);
 			entries = getEntriesFromManifests(oldManifest, newManifest);
 
+			// Of the cached entries, these ones need to be rebuilt
 			for (const { type, entry } of entries.buildFromSource) {
 				const fileURL = encodeURI(joinPaths(opts.settings.config.root.toString(), entry));
 				const input = fileURLToPath(fileURL);
+				// Adds `/src/content/blog/post-1.md?astroContentCollectionEntry` as a top-level input
 				const inputs = [`${input}?${collectionTypeToFlag(type)}`];
 				if (type === 'content') {
+					// Content entries also need to include the version with the RENDER flag
 					inputs.push(`${input}?${CONTENT_RENDER_FLAG}`)
 				}
 				newOptions = addRollupInput(newOptions, inputs);
 			}
+			// Restores cached chunks from the previous build
 			if (fsMod.existsSync(cachedChunks)) {
 				await copyFiles(cachedChunks, distChunks, true);
 			}
+			// If nothing needs to be rebuilt, we inject a fake entrypoint to appease Rollup
 			if (entries.buildFromSource.length === 0) {
 				newOptions = addRollupInput(newOptions, [virtualEmptyModuleId])
 				injectedEmptyFile = true;
@@ -151,12 +160,17 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 		},
 
 		async writeBundle() {
+			// These are stored in the manifest to ensure that they are included in the build
+			// in case they aren't referenced _outside_ of the cached content.
+			// We can use this info in the manifest to run a proper client build again.
 			const clientComponents = new Set([
 				...oldManifest.clientEntries,
 				...internals.discoveredHydratedComponents.keys(),
 				...internals.discoveredClientOnlyComponents.keys(),
 				...internals.discoveredScripts,
 			])
+			// Likewise, these are server modules that might not be referenced
+			// once the cached items are excluded from the build process
 			const serverComponents = new Set([
 				...oldManifest.serverEntries,
 				...internals.discoveredHydratedComponents.keys(),
