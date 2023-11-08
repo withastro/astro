@@ -14,6 +14,7 @@ import { isServerLikeOutput } from '../prerender/utils.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { isESMImportedImage } from './internal.js';
 import { emitESMImage } from './utils/emitAsset.js';
+import { getProxyCode } from './utils/proxy.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
@@ -26,7 +27,9 @@ export default function assets({
 }: AstroPluginOptions & { mode: string }): vite.Plugin[] {
 	let resolvedConfig: vite.ResolvedConfig;
 
-	globalThis.astroAsset = {};
+	globalThis.astroAsset = {
+		referencedImages: new Set(),
+	};
 
 	return [
 		// Expose the components and different utilities from `astro:assets` and handle serving images from `/_image` in dev
@@ -81,22 +84,28 @@ export default function assets({
 					if (!globalThis.astroAsset.staticImages) {
 						globalThis.astroAsset.staticImages = new Map<
 							string,
-							Map<string, { finalPath: string; transform: ImageTransform }>
+							{
+								originalSrcPath: string;
+								transforms: Map<string, { finalPath: string; transform: ImageTransform }>;
+							}
 						>();
 					}
 
-					const originalImagePath = (
+					// Rollup will copy the file to the output directory, this refer to this final path, not to the original path
+					const finalOriginalImagePath = (
 						isESMImportedImage(options.src) ? options.src.src : options.src
 					).replace(settings.config.build.assetsPrefix || '', '');
-					const hash = hashTransform(
-						options,
-						settings.config.image.service.entrypoint,
-						hashProperties
-					);
+
+					// This, however, is the real original path, in `src` and all.
+					const originalSrcPath = isESMImportedImage(options.src)
+						? options.src.fsPath
+						: options.src;
+
+					const hash = hashTransform(options, settings.config.image.service.entrypoint, hashProperties);
 
 					let finalFilePath: string;
-					let transformsForPath = globalThis.astroAsset.staticImages.get(originalImagePath);
-					let transformForHash = transformsForPath?.get(hash);
+					let transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalImagePath);
+					let transformForHash = transformsForPath?.transforms.get(hash);
 					if (transformsForPath && transformForHash) {
 						finalFilePath = transformForHash.finalPath;
 					} else {
@@ -105,11 +114,17 @@ export default function assets({
 						);
 
 						if (!transformsForPath) {
-							globalThis.astroAsset.staticImages.set(originalImagePath, new Map());
-							transformsForPath = globalThis.astroAsset.staticImages.get(originalImagePath)!;
+							globalThis.astroAsset.staticImages.set(finalOriginalImagePath, {
+								originalSrcPath: originalSrcPath,
+								transforms: new Map(),
+							});
+							transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalImagePath)!;
 						}
 
-						transformsForPath.set(hash, { finalPath: finalFilePath, transform: options });
+						transformsForPath.transforms.set(hash, {
+							finalPath: finalFilePath,
+							transform: options,
+						});
 					}
 
 					if (settings.config.build.assetsPrefix) {
@@ -171,7 +186,8 @@ export default function assets({
 						});
 					}
 
-					return `export default ${JSON.stringify(meta)}`;
+					return `
+					export default ${getProxyCode(meta, isServerLikeOutput(settings.config))}`;
 				}
 			},
 		},

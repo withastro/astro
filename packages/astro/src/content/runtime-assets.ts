@@ -22,7 +22,7 @@ export function createImage(pluginContext: PluginContext, entryFilePath: string)
 				return z.never();
 			}
 
-			return metadata;
+			return { ...metadata, ASTRO_ASSET: true };
 		});
 	};
 }
