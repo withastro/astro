@@ -9,7 +9,7 @@ export function vitePluginChunks(): VitePlugin {
             extendManualChunks(outputOptions, {
                 after(id) {
                     if (id.includes('astro/dist/runtime/server/')) {
-                        return 'astro'
+                        return 'astro/server'
                     }
                 },
             });
