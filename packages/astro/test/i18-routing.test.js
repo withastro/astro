@@ -881,5 +881,36 @@ describe('[SSR] i18n routing', () => {
 			expect(text).includes('Locale: none');
 			expect(text).includes('Locale list: en, pt, it');
 		});
+
+		describe('in case the configured locales use underscores', () => {
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing/',
+					output: 'server',
+					adapter: testAdapter(),
+					experimental: {
+						i18n: {
+							defaultLocale: 'en',
+							locales: ['en_AU', 'pt_BR', 'es_US'],
+						},
+					},
+				});
+				await fixture.build();
+				app = await fixture.loadTestAdapterApp();
+			});
+
+			it('they should be still considered when parsing the Accept-Language header', async () => {
+				let request = new Request('http://example.com/preferred-locale', {
+					headers: {
+						'Accept-Language': 'en-AU;q=0.1,pt-BR;q=0.9',
+					},
+				});
+				let response = await app.render(request);
+				const text = await response.text();
+				expect(response.status).to.equal(200);
+				expect(text).includes('Locale: pt_BR');
+				expect(text).includes('Locale list: pt_BR, en_AU');
+			});
+		});
 	});
 });

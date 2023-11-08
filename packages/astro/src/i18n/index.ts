@@ -55,10 +55,11 @@ export function getLocaleRelativeUrl({
 		});
 	}
 	const pathsToJoin = [base, prependWith];
+	const normalizedLocale = normalizeLocale ? normalizeTheLocale(locale) : locale;
 	if (routingStrategy === 'prefix-always') {
-		pathsToJoin.push(normalizeTheLocale(locale, normalizeLocale));
+		pathsToJoin.push(normalizedLocale);
 	} else if (locale !== defaultLocale) {
-		pathsToJoin.push(normalizeTheLocale(locale, normalizeLocale));
+		pathsToJoin.push(normalizedLocale);
 	}
 	pathsToJoin.push(path);
 
@@ -103,10 +104,12 @@ export function getLocaleRelativeUrlList({
 }: GetLocalesBaseUrl) {
 	return locales.map((locale) => {
 		const pathsToJoin = [base, prependWith];
+		const normalizedLocale = normalizeLocale ? normalizeTheLocale(locale) : locale;
+
 		if (routingStrategy === 'prefix-always') {
-			pathsToJoin.push(normalizeTheLocale(locale, normalizeLocale));
+			pathsToJoin.push(normalizedLocale);
 		} else if (locale !== defaultLocale) {
-			pathsToJoin.push(normalizeTheLocale(locale, normalizeLocale));
+			pathsToJoin.push(normalizedLocale);
 		}
 		pathsToJoin.push(path);
 		if (shouldAppendForwardSlash(trailingSlash, format)) {
@@ -134,9 +137,6 @@ export function getLocaleAbsoluteUrlList({ site, ...rest }: GetLocaleAbsoluteUrl
  * - replaces the `_` with a `-`;
  * - transforms all letters to be lower case;
  */
-function normalizeTheLocale(locale: string, shouldNormalize: boolean): string {
-	if (!shouldNormalize) {
-		return locale;
-	}
+export function normalizeTheLocale(locale: string): string {
 	return locale.replaceAll('_', '-').toLowerCase();
 }
