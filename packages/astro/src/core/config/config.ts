@@ -45,6 +45,11 @@ export async function validateConfig(
 		throw e;
 	}
 
+	// TODO: fix inlineStylesheets behavior with content collection cache
+	if (result.build.inlineStylesheets !== 'auto' && result.experimental.contentCollectionCache) {
+		result.experimental.contentCollectionCache = false;
+	}
+
 	// If successful, return the result as a verified AstroConfig object.
 	return result;
 }
