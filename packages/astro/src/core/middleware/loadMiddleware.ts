@@ -6,9 +6,7 @@ import { MIDDLEWARE_MODULE_ID } from './vite-plugin.js';
  *
  * If not middlewares were not set, the function returns an empty array.
  */
-export async function loadMiddleware(
-	moduleLoader: ModuleLoader,
-) {
+export async function loadMiddleware(moduleLoader: ModuleLoader) {
 	try {
 		const module = await moduleLoader.import(MIDDLEWARE_MODULE_ID);
 		return module;

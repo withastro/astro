@@ -1701,7 +1701,7 @@ export interface AstroSettings {
 	 */
 	clientDirectives: Map<string, string>;
 	devOverlayPlugins: string[];
-	middlewares: { pre: string[]; post: string[]; };
+	middlewares: { pre: string[]; post: string[] };
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];

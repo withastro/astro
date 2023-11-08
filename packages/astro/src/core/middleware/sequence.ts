@@ -7,7 +7,7 @@ import { defineMiddleware } from './index.js';
  * It accepts one or more middleware handlers and makes sure that they are run in sequence.
  */
 export function sequence(...handlers: MiddlewareEndpointHandler[]): MiddlewareEndpointHandler {
-	const filtered = handlers.filter(h => !!h);
+	const filtered = handlers.filter((h) => !!h);
 	const length = filtered.length;
 	if (!length) {
 		const handler: MiddlewareEndpointHandler = defineMiddleware((context, next) => {
