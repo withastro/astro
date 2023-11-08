@@ -7,7 +7,7 @@ Form support in View Transitions router
 The `<ViewTransitions />` router can now handle form submissions, allowing the same animated transitions and stateful UI retention on form posts that are already available on `<a>` links. With this addition, your Astro project can have animations in all of these scenarios:
 
 - Clicking links between pages.
-- Making stateful changes in forms (i.e. updating site preferences).
+- Making stateful changes in forms (e.g. updating site preferences).
 - Manually triggering navigation via the `navigate()` API.
 
 This feature is opt-in for semver reasons and can be enabled by adding the `handleForms` prop to the `<ViewTransitions /> component:
