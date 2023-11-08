@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "3.3.3",
+  "version": "3.4.4",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -78,7 +78,8 @@
       "default": "./dist/core/middleware/namespace.js"
     },
     "./transitions": "./dist/transitions/index.js",
-    "./transitions/router": "./dist/transitions/router.js"
+    "./transitions/router": "./dist/transitions/router.js",
+    "./prefetch": "./dist/prefetch/index.js"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
@@ -154,9 +155,11 @@
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.4",
     "magic-string": "^0.30.3",
+    "mdast-util-to-hast": "12.3.0",
     "mime": "^3.0.0",
     "ora": "^7.0.1",
     "p-limit": "^4.0.0",
+    "p-queue": "^7.4.1",
     "path-to-regexp": "^6.2.1",
     "preferred-pm": "^3.1.2",
     "probe-image-size": "^7.2.3",
@@ -175,7 +178,7 @@
     "vitefu": "^0.2.4",
     "which-pm": "^2.1.1",
     "yargs-parser": "^21.1.1",
-    "zod": "3.21.1"
+    "zod": "^3.22.4"
   },
   "optionalDependencies": {
     "sharp": "^0.32.5"

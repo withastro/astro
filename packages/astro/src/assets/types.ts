@@ -8,12 +8,21 @@ export type ImageQuality = ImageQualityPreset | number;
 export type ImageInputFormat = (typeof VALID_INPUT_FORMATS)[number];
 export type ImageOutputFormat = (typeof VALID_OUTPUT_FORMATS)[number] | (string & {});
 
+export type AssetsGlobalStaticImagesList = Map<
+	string,
+	{
+		originalSrcPath: string;
+		transforms: Map<string, { finalPath: string; transform: ImageTransform }>;
+	}
+>;
+
 declare global {
 	// eslint-disable-next-line no-var
 	var astroAsset: {
 		imageService?: ImageService;
-		addStaticImage?: ((options: ImageTransform) => string) | undefined;
-		staticImages?: Map<string, { path: string; options: ImageTransform }>;
+		addStaticImage?: ((options: ImageTransform, hashProperties: string[]) => string) | undefined;
+		staticImages?: AssetsGlobalStaticImagesList;
+		referencedImages?: Set<string>;
 	};
 }
 
@@ -26,13 +35,22 @@ export interface ImageMetadata {
 	height: number;
 	format: ImageInputFormat;
 	orientation?: number;
+	/** @internal */
+	fsPath: string;
 }
 
-export interface SrcSetValue {
-	url: string;
+/**
+ * A yet to be completed with an url `SrcSetValue`. Other hooks will only see a resolved value, where the URL of the image has been added.
+ */
+export type UnresolvedSrcSetValue = {
+	transform: ImageTransform;
 	descriptor?: string;
-	attributes?: Record<string, string>;
-}
+	attributes?: Record<string, any>;
+};
+
+export type SrcSetValue = UnresolvedSrcSetValue & {
+	url: string;
+};
 
 /**
  * A yet to be resolved image transform. Used by `getImage`

@@ -175,6 +175,7 @@ export default function vercelServerless({
 						serverEntry: 'entry.mjs',
 						client: new URL('./static/', outDir),
 						server: new URL('./dist/', config.root),
+						redirects: false,
 					},
 					vite: {
 						...getSpeedInsightsViteConfig(speedInsights?.enabled || analytics),
@@ -340,7 +341,7 @@ interface CreateFunctionFolderArgs {
 	NTF_CACHE: any;
 	includeFiles: URL[];
 	excludeFiles?: string[];
-	maxDuration?: number;
+	maxDuration: number | undefined;
 }
 
 async function createFunctionFolder({
@@ -380,6 +381,7 @@ async function createFunctionFolder({
 		handler,
 		launcherType: 'Nodejs',
 		maxDuration,
+		supportsResponseStreaming: true,
 	});
 }
 

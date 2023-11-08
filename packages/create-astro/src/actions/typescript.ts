@@ -82,12 +82,12 @@ const FILES_TO_UPDATE = {
 		try {
 			// add required dependencies for astro check
 			if (options.ctx.install)
-				await shell(options.ctx.packageManager, ['install', '@astrojs/check', 'typescript'], {
+				await shell(options.ctx.packageManager, ['add', '@astrojs/check', 'typescript'], {
 					cwd: path.dirname(file),
 					stdio: 'ignore',
 				});
 
-			// inject addtional command to build script
+			// inject additional command to build script
 			const data = await readFile(file, { encoding: 'utf-8' });
 			const indent = /(^\s+)/m.exec(data)?.[1] ?? '\t';
 			const parsedPackageJson = JSON.parse(data);
@@ -96,13 +96,9 @@ const FILES_TO_UPDATE = {
 
 			// in case of any other template already have astro checks defined, we don't want to override it
 			if (typeof buildScript === 'string' && !buildScript.includes('astro check')) {
-				const newPackageJson = Object.assign(parsedPackageJson, {
-					scripts: {
-						build: 'astro check && ' + buildScript,
-					},
-				});
-
-				await writeFile(file, JSON.stringify(newPackageJson, null, indent), 'utf-8');
+				// Mutate the existing object to avoid changing user-defined script order
+				parsedPackageJson.scripts.build = `astro check && ${buildScript}`;
+				await writeFile(file, JSON.stringify(parsedPackageJson, null, indent), 'utf-8');
 			}
 		} catch (err) {
 			// if there's no package.json (which is very unlikely), then do nothing

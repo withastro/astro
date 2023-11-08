@@ -1,5 +1,17 @@
 # @astrojs/vue
 
+## 3.0.4
+
+### Patch Changes
+
+- [#8998](https://github.com/withastro/astro/pull/8998) [`14e586cc7`](https://github.com/withastro/astro/commit/14e586cc77570b08afae5eeef605e978fec287d8) Thanks [@minht11](https://github.com/minht11)! - Adds editor support for Vue non setup script blocks and Vue 3.3 generics.
+
+## 3.0.3
+
+### Patch Changes
+
+- [#8930](https://github.com/withastro/astro/pull/8930) [`c77f55d9c`](https://github.com/withastro/astro/commit/c77f55d9c075569be018dc1fb5a42c932b9071c7) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an issue where Astro slot names were being rendered as attributes in components. Astro slot names will no longer be sent as props to framework components.
+
 ## 3.0.2
 
 ### Patch Changes
@@ -209,7 +221,7 @@
   });
   ```
 
-  ```js
+  ```ts
   // src/pages/_app.ts
   import type { App } from 'vue';
   import i18nPlugin from '../plugins/i18n';

@@ -1,6 +1,7 @@
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { DEFAULT_HASH_PROPS } from './consts.js';
 import { isLocalService, type ImageService } from './services/service.js';
 import type {
 	GetImageResult,
@@ -90,6 +91,15 @@ export async function getImage(
 				: options.src,
 	};
 
+	// Clone the `src` object if it's an ESM import so that we don't refer to any properties of the original object
+	// Causing our generate step to think the image is used outside of the image optimization pipeline
+	const clonedSrc = isESMImportedImage(resolvedOptions.src)
+		? // @ts-expect-error - clone is a private, hidden prop
+		  resolvedOptions.src.clone ?? resolvedOptions.src
+		: resolvedOptions.src;
+
+	resolvedOptions.src = clonedSrc;
+
 	const validatedOptions = service.validateOptions
 		? await service.validateOptions(resolvedOptions, imageConfig)
 		: resolvedOptions;
@@ -102,6 +112,7 @@ export async function getImage(
 	let imageURL = await service.getURL(validatedOptions, imageConfig);
 	let srcSets: SrcSetValue[] = await Promise.all(
 		srcSetTransforms.map(async (srcSet) => ({
+			transform: srcSet.transform,
 			url: await service.getURL(srcSet.transform, imageConfig),
 			descriptor: srcSet.descriptor,
 			attributes: srcSet.attributes,
@@ -113,9 +124,11 @@ export async function getImage(
 		globalThis.astroAsset.addStaticImage &&
 		!(isRemoteImage(validatedOptions.src) && imageURL === validatedOptions.src)
 	) {
-		imageURL = globalThis.astroAsset.addStaticImage(validatedOptions);
+		const propsToHash = service.propertiesToHash ?? DEFAULT_HASH_PROPS;
+		imageURL = globalThis.astroAsset.addStaticImage(validatedOptions, propsToHash);
 		srcSets = srcSetTransforms.map((srcSet) => ({
-			url: globalThis.astroAsset.addStaticImage!(srcSet.transform),
+			transform: srcSet.transform,
+			url: globalThis.astroAsset.addStaticImage!(srcSet.transform, propsToHash),
 			descriptor: srcSet.descriptor,
 			attributes: srcSet.attributes,
 		}));

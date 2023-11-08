@@ -1,5 +1,35 @@
 # @astrojs/vercel
 
+## 5.2.0
+
+### Minor Changes
+
+- [#8879](https://github.com/withastro/astro/pull/8879) [`754e4fd31`](https://github.com/withastro/astro/commit/754e4fd31ce49eadb2cf4951e941a48d11d10e73) Thanks [@lilnasy](https://github.com/lilnasy)! - The Vercel adapter now streams responses!
+
+  This brings better performance to your visitors by showing them content as it is rendered. The browser can also start loading the required stylesheets and scripts much sooner, which ultimately results in faster full page loads.
+
+## 5.1.0
+
+### Minor Changes
+
+- [#8867](https://github.com/withastro/astro/pull/8867) [`b209e5335`](https://github.com/withastro/astro/commit/b209e533584521c55f88b929f28ea9d5189045f9) Thanks [@lilnasy](https://github.com/lilnasy)! - You can now configure how long your functions can run before timing out.
+
+  ```diff
+  export default defineConfig({
+      output: "server",
+      adapter: vercel({
+  +       maxDuration: 60
+      }),
+  });
+  ```
+
+### Patch Changes
+
+- [#8896](https://github.com/withastro/astro/pull/8896) [`5dd1ed50b`](https://github.com/withastro/astro/commit/5dd1ed50b2f9428946b0b273e0ce8f13c19aa3b5) Thanks [@bluwy](https://github.com/bluwy)! - Prevents the Vercel serverless adapter from generating static redirect pages in hybrid mode
+
+- Updated dependencies [[`26b77b8fe`](https://github.com/withastro/astro/commit/26b77b8fef0e03bfc5550aecaa1f56a4fc1cd297)]:
+  - astro@3.3.4
+
 ## 5.0.2
 
 ### Patch Changes
@@ -531,12 +561,12 @@
 
   ```js
   import { defineConfig } from 'astro/config';
-  export defaultdefineConfig({
-     output: 'hybrid',
-         experimental: {
-         hybridOutput: true,
-     },
-  })
+  export default defineConfig({
+    output: 'hybrid',
+    experimental: {
+      hybridOutput: true,
+    },
+  });
   ```
 
   Then add `export const prerender =  false` to any page or endpoint you want to opt-out of pre-rendering.

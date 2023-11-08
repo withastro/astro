@@ -84,6 +84,8 @@ describe('typescript', () => {
 });
 
 describe('typescript: setup tsconfig', () => {
+	beforeEach(() => resetFixtures());
+
 	it('none', async () => {
 		const root = new URL('./fixtures/empty/', import.meta.url);
 		const tsconfig = new URL('./tsconfig.json', root);
@@ -92,8 +94,6 @@ describe('typescript: setup tsconfig', () => {
 		expect(JSON.parse(fs.readFileSync(tsconfig, { encoding: 'utf-8' }))).to.deep.eq({
 			extends: 'astro/tsconfigs/strict',
 		});
-
-		await resetFixtures();
 	});
 
 	it('exists', async () => {
@@ -103,20 +103,18 @@ describe('typescript: setup tsconfig', () => {
 		expect(JSON.parse(fs.readFileSync(tsconfig, { encoding: 'utf-8' }))).to.deep.eq({
 			extends: 'astro/tsconfigs/strict',
 		});
-
-		await resetFixtures();
 	});
 });
 
 describe('typescript: setup package', () => {
+	beforeEach(() => resetFixtures());
+
 	it('none', async () => {
 		const root = new URL('./fixtures/empty/', import.meta.url);
 		const packageJson = new URL('./package.json', root);
 
 		await setupTypeScript('strictest', { cwd: fileURLToPath(root), install: false });
 		expect(fs.existsSync(packageJson)).to.be.false;
-
-		await resetFixtures();
 	});
 
 	it('none', async () => {
@@ -127,10 +125,12 @@ describe('typescript: setup package', () => {
 			'astro build'
 		);
 		await setupTypeScript('strictest', { cwd: fileURLToPath(root), install: false });
-		expect(JSON.parse(fs.readFileSync(packageJson, { encoding: 'utf-8' })).scripts.build).to.be.eq(
-			'astro check && astro build'
-		);
+		const { scripts } = JSON.parse(fs.readFileSync(packageJson, { encoding: 'utf-8' }));
 
-		await resetFixtures();
+		expect(Object.keys(scripts)).to.deep.eq(
+			['dev', 'build', 'preview'],
+			'does not override existing scripts'
+		);
+		expect(scripts.build).to.eq('astro check && astro build', 'prepends astro check command');
 	});
 });

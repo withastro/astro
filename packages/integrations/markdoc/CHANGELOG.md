@@ -1,5 +1,24 @@
 # @astrojs/markdoc
 
+## 0.7.1
+
+### Patch Changes
+
+- [#8759](https://github.com/withastro/astro/pull/8759) [`01c801108`](https://github.com/withastro/astro/commit/01c801108f1f5429436e4fc930018bf96ed31f79) Thanks [@lutaok](https://github.com/lutaok)! - Fix build process on markdoc integration when root folder contains spaces
+
+- [#8762](https://github.com/withastro/astro/pull/8762) [`35cd810f0`](https://github.com/withastro/astro/commit/35cd810f0f988010fbb8e6d7ab205de5d816e2b2) Thanks [@evadecker](https://github.com/evadecker)! - Upgrades Zod to 3.22.4
+
+## 0.7.0
+
+### Minor Changes
+
+- [#8802](https://github.com/withastro/astro/pull/8802) [`73b8d60f8`](https://github.com/withastro/astro/commit/73b8d60f8c3eeae74035202b0ea0d4848e736c7d) Thanks [@AndyClifford](https://github.com/AndyClifford)! - Added ignoreIndentation as a markdoc integration option to enable better readability of source code.
+
+### Patch Changes
+
+- Updated dependencies [[`26b77b8fe`](https://github.com/withastro/astro/commit/26b77b8fef0e03bfc5550aecaa1f56a4fc1cd297)]:
+  - astro@3.3.4
+
 ## 0.6.0
 
 ### Minor Changes

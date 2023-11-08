@@ -98,6 +98,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		scripts: [],
 		clientDirectives: getDefaultClientDirectives(),
 		watchFiles: [],
+		devOverlayPlugins: [],
 		timer: new AstroTimer(),
 	};
 }

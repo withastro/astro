@@ -9,6 +9,7 @@
     "module": "Node16",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "stripInternal": true
   }
 }

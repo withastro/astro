@@ -21,6 +21,11 @@ import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
+import type { AstroDevOverlay, DevOverlayCanvas } from '../runtime/client/dev-overlay/overlay.js';
+import type { DevOverlayHighlight } from '../runtime/client/dev-overlay/ui-library/highlight.js';
+import type { Icon } from '../runtime/client/dev-overlay/ui-library/icons.js';
+import type { DevOverlayTooltip } from '../runtime/client/dev-overlay/ui-library/tooltip.js';
+import type { DevOverlayWindow } from '../runtime/client/dev-overlay/ui-library/window.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
 import type { OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
@@ -219,7 +224,7 @@ export interface AstroGlobal<
 	 * }
 	 * ```
 	 *
-	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
+	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/)
 	 */
 	redirect: AstroSharedContext['redirect'];
 	/**
@@ -530,6 +535,71 @@ export interface AstroUserConfig {
 	 * ```
 	 */
 	redirects?: Record<string, RedirectConfig>;
+
+	/**
+	 * @docs
+	 * @name prefetch
+	 * @type {boolean | object}
+	 * @description
+	 * Enable prefetching for links on your site to provide faster page transitions.
+	 * (Enabled by default on pages using the `<ViewTransitions />` router. Set `prefetch: false` to opt out of this behaviour.)
+	 *
+	 * This configuration automatically adds a prefetch script to every page in the project
+	 * giving you access to the `data-astro-prefetch` attribute.
+	 * Add this attribute to any `<a />` link on your page to enable prefetching for that page.
+	 *
+	 * ```html
+	 * <a href="/about" data-astro-prefetch>About</a>
+	 * ```
+	 * Further customize the default prefetching behavior using the [`prefetch.defaultStrategy`](#prefetchdefaultstrategy) and [`prefetch.prefetchAll`](#prefetchprefetchall) options.
+	 *
+	 * See the [Prefetch guide](https://docs.astro.build/en/guides/prefetch/) for more information.
+	 */
+	prefetch?:
+		| boolean
+		| {
+				/**
+				 * @docs
+				 * @name prefetch.prefetchAll
+				 * @type {boolean}
+				 * @description
+				 * Enable prefetching for all links, including those without the `data-astro-prefetch` attribute.
+				 * This value defaults to `true` when using the `<ViewTransitions />` router. Otherwise, the default value is `false`.
+				 *
+				 * ```js
+				 * prefetch: {
+				 * 	prefetchAll: true
+				 * }
+				 * ```
+				 *
+				 * When set to `true`, you can disable prefetching individually by setting `data-astro-prefetch="false"` on any individual links.
+				 *
+				 * ```html
+				 * <a href="/about" data-astro-prefetch="false">About</a>
+				 *```
+				 */
+				prefetchAll?: boolean;
+
+				/**
+				 * @docs
+				 * @name prefetch.defaultStrategy
+				 * @type {'tap' | 'hover' | 'viewport'}
+				 * @default `'hover'`
+				 * @description
+				 * The default prefetch strategy to use when the `data-astro-prefetch` attribute is set on a link with no value.
+				 *
+				 * - `'tap'`: Prefetch just before you click on the link.
+				 * - `'hover'`: Prefetch when you hover over or focus on the link. (default)
+				 * - `'viewport'`: Prefetch as the links enter the viewport.
+				 *
+				 * You can override this default value and select a different strategy for any individual link by setting a value on the attribute.
+				 *
+				 * ```html
+				 * <a href="/about" data-astro-prefetch="viewport">About</a>
+				 * ```
+				 */
+				defaultStrategy?: 'tap' | 'hover' | 'viewport';
+		  };
 
 	/**
 	 * @docs
@@ -1351,6 +1421,25 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		optimizeHoistedScript?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.devOverlay
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 3.4.0
+		 * @description
+		 * Enable a dev overlay in development mode. This overlay allows you to inspect your page islands, see helpful audits on performance and accessibility, and more.
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 * 		devOverlay: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		devOverlay?: boolean;
 	};
 }
 
@@ -1524,6 +1613,7 @@ export interface AstroSettings {
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
+	devOverlayPlugins: string[];
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
@@ -1541,6 +1631,7 @@ export type AsyncRendererComponentFn<U> = (
 export interface ComponentInstance {
 	default: AstroComponentFactory;
 	css?: string[];
+	partial?: boolean;
 	prerender?: boolean;
 	/**
 	 * Only used for logging if deprecated drafts feature is used
@@ -2049,6 +2140,7 @@ export interface AstroIntegration {
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			addClientDirective: (directive: ClientDirectiveConfig) => void;
+			addDevOverlayPlugin: (entrypoint: string) => void;
 			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
@@ -2212,6 +2304,7 @@ export interface SSRResult {
 	 */
 	clientDirectives: Map<string, string>;
 	compressHTML: boolean;
+	partial: boolean;
 	/**
 	 * Only used for logging
 	 */
@@ -2283,4 +2376,29 @@ export type ClientDirective = (
 export interface ClientDirectiveConfig {
 	name: string;
 	entrypoint: string;
+}
+
+export interface DevOverlayPlugin {
+	id: string;
+	name: string;
+	icon: Icon;
+	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
+	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
+}
+
+export type DevOverlayMetadata = Window &
+	typeof globalThis & {
+		__astro_dev_overlay__: {
+			root: string;
+		};
+	};
+
+declare global {
+	interface HTMLElementTagNameMap {
+		'astro-dev-overlay': AstroDevOverlay;
+		'astro-dev-overlay-window': DevOverlayWindow;
+		'astro-dev-overlay-plugin-canvas': DevOverlayCanvas;
+		'astro-dev-overlay-tooltip': DevOverlayTooltip;
+		'astro-dev-overlay-highlight': DevOverlayHighlight;
+	}
 }

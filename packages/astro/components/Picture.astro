@@ -17,8 +17,9 @@ const defaultFallbackFormat = 'png' as const;
 // Certain formats don't want PNG fallbacks:
 // - GIF will typically want to stay as a gif, either for animation or for the lower amount of colors
 // - SVGs can't be converted to raster formats in most cases
+// - JPEGs compress photographs and high-noise images better than PNG in most cases
 // For those, we'll use the original format as the fallback instead.
-const specialFormatsFallback = ['gif', 'svg'] as const;
+const specialFormatsFallback = ['gif', 'svg', 'jpg', 'jpeg'] as const;
 
 const { formats = defaultFormats, pictureAttributes = {}, fallbackFormat, ...props } = Astro.props;
 
@@ -49,9 +50,16 @@ const fallbackImage = await getImage({
 	densities: props.densities,
 });
 
-const additionalAttributes: Record<string, any> = {};
+const imgAdditionalAttributes: HTMLAttributes<'img'> = {};
+const sourceAdditionaAttributes: HTMLAttributes<'source'> = {};
+
+// Propagate the `sizes` attribute to the `source` elements
+if (props.sizes) {
+	sourceAdditionaAttributes.sizes = props.sizes;
+}
+
 if (fallbackImage.srcSet.values.length > 0) {
-	additionalAttributes.srcset = fallbackImage.srcSet.attribute;
+	imgAdditionalAttributes.srcset = fallbackImage.srcSet.attribute;
 }
 ---
 
@@ -62,8 +70,14 @@ if (fallbackImage.srcSet.values.length > 0) {
 				props.densities || (!props.densities && !props.widths)
 					? `${image.src}${image.srcSet.values.length > 0 ? ', ' + image.srcSet.attribute : ''}`
 					: image.srcSet.attribute;
-			return <source srcset={srcsetAttribute} type={'image/' + image.options.format} />;
+			return (
+				<source
+					srcset={srcsetAttribute}
+					type={'image/' + image.options.format}
+					{...sourceAdditionaAttributes}
+				/>
+			);
 		})
 	}
-	<img src={fallbackImage.src} {...additionalAttributes} {...fallbackImage.attributes} />
+	<img src={fallbackImage.src} {...imgAdditionalAttributes} {...fallbackImage.attributes} />
 </picture>

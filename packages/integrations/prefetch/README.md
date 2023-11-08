@@ -1,5 +1,7 @@
 # @astrojs/prefetch 🔗
 
+> NOTE: `@astrojs/prefetch` is deprecated. Use the `prefetch` feature in Astro 3.5 instead. Check out the [migration guide](https://docs.astro.build/en/guides/prefetch/#migrating-from-astrojsprefetch).
+
 - <strong>[Why Prefetch?](#why-prefetch)</strong>
 - <strong>[Installation](#installation)</strong>
 - <strong>[Usage](#usage)</strong>

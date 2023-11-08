@@ -1,5 +1,109 @@
 # astro
 
+## 3.4.4
+
+### Patch Changes
+
+- [#9000](https://github.com/withastro/astro/pull/9000) [`35739d01e`](https://github.com/withastro/astro/commit/35739d01e9cc4fa31a8b85201feecf29c747eca9) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an error in dev mode on Safari where view transitions prevented navigating to pages with `client:only` components
+
+- [#9014](https://github.com/withastro/astro/pull/9014) [`d979b8f0a`](https://github.com/withastro/astro/commit/d979b8f0a82c12f2a844c429982207c88fe13ae6) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add animations, shadows and general styling tweaks to the Dev Overlay to better match the intended design.
+
+- [#8996](https://github.com/withastro/astro/pull/8996) [`3988bbcc9`](https://github.com/withastro/astro/commit/3988bbcc9ead0b9af60b8a8749a0ad25c686bde3) Thanks [@bluwy](https://github.com/bluwy)! - Adds compatibility for shiki languages with the `path` property
+
+- [#8986](https://github.com/withastro/astro/pull/8986) [`910eb00fe`](https://github.com/withastro/astro/commit/910eb00fe0b70ca80bd09520ae100e8c78b675b5) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix `sizes` attribute not being present on `source` elements when using it on the Picture component
+
+## 3.4.3
+
+### Patch Changes
+
+- [#8981](https://github.com/withastro/astro/pull/8981) [`ab7e745cc`](https://github.com/withastro/astro/commit/ab7e745cc9abd592aa631bffb35880221e7ac89c) Thanks [@matthewp](https://github.com/matthewp)! - Increase the scroll restoration throttle time
+
+- [#8940](https://github.com/withastro/astro/pull/8940) [`937522fb7`](https://github.com/withastro/astro/commit/937522fb70be522378268d04e6bb20d8dc401c0b) Thanks [@MarvinXu](https://github.com/MarvinXu)! - Omit nullish and falsy (non-zero) values when stringifying object-form `style` attributes in Astro files
+
+## 3.4.2
+
+### Patch Changes
+
+- [#8977](https://github.com/withastro/astro/pull/8977) [`40a061679`](https://github.com/withastro/astro/commit/40a06167976a29798a0b9e7eab64dd39f4ab6521) Thanks [@matthewp](https://github.com/matthewp)! - Prevent route announcer from being visible
+
+- [#8929](https://github.com/withastro/astro/pull/8929) [`2da33b7a1`](https://github.com/withastro/astro/commit/2da33b7a13cf964595f758e3e4a865fd97d0943e) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where rendering the same slot multiple times invoked it only once.
+
+- [#8978](https://github.com/withastro/astro/pull/8978) [`cc3278bb6`](https://github.com/withastro/astro/commit/cc3278bb69738c4e0c7811d683ead71bea6f46c1) Thanks [@Princesseuh](https://github.com/Princesseuh)! - In the dev overlay, add a tooltip showing the currently hovered / focused plugin's name
+
+## 3.4.1
+
+### Patch Changes
+
+- [#8966](https://github.com/withastro/astro/pull/8966) [`262cef248`](https://github.com/withastro/astro/commit/262cef2487c7494bd8d23b4ab27bfcdf1870a111) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix Dev Overlay not working properly when view transitions are enabled
+
+- [#8932](https://github.com/withastro/astro/pull/8932) [`5fed432b0`](https://github.com/withastro/astro/commit/5fed432b0c3c84542a3d1b2952d183e9cbe3fa0e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixed window component appearing over the dev overlay on small windows. Added a maximum length to sections of the tooltip component
+
+- [#8965](https://github.com/withastro/astro/pull/8965) [`430c470ac`](https://github.com/withastro/astro/commit/430c470ace5cfae5f53b530df54c0dc7e2046aaa) Thanks [@matthewp](https://github.com/matthewp)! - Move VT route announcer styles to a class
+
+  Doing so allows stricter CSP policies.
+
+- [#8762](https://github.com/withastro/astro/pull/8762) [`35cd810f0`](https://github.com/withastro/astro/commit/35cd810f0f988010fbb8e6d7ab205de5d816e2b2) Thanks [@evadecker](https://github.com/evadecker)! - Upgrades Zod to 3.22.4
+
+- [#8928](https://github.com/withastro/astro/pull/8928) [`ca90b47cf`](https://github.com/withastro/astro/commit/ca90b47cfc5e00f5065cf461e2fe50db62215e49) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Renames dev overlay UI Toolkit component names for consistency.
+
+## 3.4.0
+
+### Minor Changes
+
+- [#8755](https://github.com/withastro/astro/pull/8755) [`fe4079f05`](https://github.com/withastro/astro/commit/fe4079f05ba21c0f3a167f8e3f55eff705506bd2) Thanks [@matthewp](https://github.com/matthewp)! - Page Partials
+
+  A page component can now be identified as a **partial** page, which will render its HTML content without including a `<! DOCTYPE html>` declaration nor any `<head>` content.
+
+  A rendering library, like htmx or Stimulus or even just jQuery can access partial content on the client to dynamically update only parts of a page.
+
+  Pages marked as partials do not have a `doctype` or any head content included in the rendered result. You can mark any page as a partial by setting this option:
+
+  ```astro
+  ---
+  export const partial = true;
+  ---
+
+  <li>This is a single list item.</li>
+  ```
+
+  Other valid page files that can export a value (e.g. `.mdx`) can also be marked as partials.
+
+  Read more about [Astro page partials](https://docs.astro.build/en/core-concepts/astro-pages/#page-partials) in our documentation.
+
+- [#8821](https://github.com/withastro/astro/pull/8821) [`4740d761a`](https://github.com/withastro/astro/commit/4740d761aeb526dbd79517ebe8cd934f90b17f7c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Improved image optimization performance
+
+  Astro will now generate optimized images concurrently at build time, which can significantly speed up build times for sites with many images. Additionally, Astro will now reuse the same buffer for all variants of an image. This should improve performance for websites with many variants of the same image, especially when using remote images.
+
+  No code changes are required to take advantage of these improvements.
+
+- [#8757](https://github.com/withastro/astro/pull/8757) [`e99586787`](https://github.com/withastro/astro/commit/e99586787b6b53d35daf0195ab9835326cea464a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Dev Overlay (experimental)
+
+  Provides a new dev overlay for your browser preview that allows you to inspect your page islands, see helpful audits on performance and accessibility, and more. A Dev Overlay Plugin API is also included to allow you to add new features and third-party integrations to it.
+
+  You can enable access to the dev overlay and its API by adding the following flag to your Astro config:
+
+  ```ts
+  // astro.config.mjs
+  export default {
+    experimental: {
+      devOverlay: true,
+    },
+  };
+  ```
+
+  Read the [Dev Overlay Plugin API documentation](https://docs.astro.build/en/reference/dev-overlay-plugin-reference/) for information about building your own plugins to integrate with Astro's dev overlay.
+
+- [#8880](https://github.com/withastro/astro/pull/8880) [`8c3d4a859`](https://github.com/withastro/astro/commit/8c3d4a859aec0b94cabd14cc56b5bf3e5e973e36) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Moves the logic for overriding the image service out of core and into adapters. Also fixes a regression where a valid `astro:assets` image service configuration could be overridden.
+
+## 3.3.4
+
+### Patch Changes
+
+- [#8877](https://github.com/withastro/astro/pull/8877) [`26b77b8fe`](https://github.com/withastro/astro/commit/26b77b8fef0e03bfc5550aecaa1f56a4fc1cd297) Thanks [@bluwy](https://github.com/bluwy)! - Fixes CSS modules ordering by rendering styles before links
+
+- Updated dependencies [[`341ef6578`](https://github.com/withastro/astro/commit/341ef6578528a00f89bf6da5e4243b0fde272816)]:
+  - @astrojs/telemetry@3.0.4
+
 ## 3.3.3
 
 ### Patch Changes
@@ -2598,12 +2702,12 @@
 
   ```js
   import { defineConfig } from 'astro/config';
-  export defaultdefineConfig({
-     output: 'hybrid',
-         experimental: {
-         hybridOutput: true,
-     },
-  })
+  export default defineConfig({
+    output: 'hybrid',
+    experimental: {
+      hybridOutput: true,
+    },
+  });
   ```
 
   Then add `export const prerender =  false` to any page or endpoint you want to opt-out of pre-rendering.
