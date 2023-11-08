@@ -967,4 +967,19 @@ test.describe('View Transitions', () => {
 		let announcer = page.locator('.astro-route-announcer');
 		await expect(announcer, 'should have content').toHaveCSS('width', '1px');
 	});
+
+	test('should prefetch on hover by default', async ({ page, astro }) => {
+		/** @type {string[]} */
+		const reqUrls = [];
+		page.on('request', (req) => {
+			reqUrls.push(new URL(req.url()).pathname);
+		});
+		await page.goto(astro.resolveUrl('/prefetch'));
+		expect(reqUrls).not.toContainEqual('/one');
+		await Promise.all([
+			page.waitForEvent('request'), // wait prefetch request
+			page.locator('#prefetch-one').hover(),
+		]);
+		expect(reqUrls).toContainEqual('/one');
+	});
 });

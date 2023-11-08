@@ -192,6 +192,15 @@ export const AstroConfigSchema = z.object({
 			])
 		)
 		.default(ASTRO_CONFIG_DEFAULTS.redirects),
+	prefetch: z
+		.union([
+			z.boolean(),
+			z.object({
+				prefetchAll: z.boolean().optional(),
+				defaultStrategy: z.enum(['tap', 'hover', 'viewport']).optional(),
+			}),
+		])
+		.optional(),
 	image: z
 		.object({
 			endpoint: z.string().optional(),
@@ -283,7 +292,14 @@ export const AstroConfigSchema = z.object({
 					theme: z
 						.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
 						.or(z.custom<ShikiTheme>())
-						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme as BuiltinTheme),
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme!),
+					experimentalThemes: z
+						.record(
+							z
+								.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
+								.or(z.custom<ShikiTheme>())
+						)
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.experimentalThemes!),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
 				})
 				.default({}),

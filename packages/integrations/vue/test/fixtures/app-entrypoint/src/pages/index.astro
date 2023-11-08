@@ -1,5 +1,8 @@
 ---
 import Foo from '../components/Foo.vue';
+import MultipleScriptBlocks, { doubleNumber } from '../components/MultipleScriptBlocks.vue';
+import GenericComponent from '../components/Generics.vue';
+import GenericsAndBlocks, { customFormatter } from '../components/GenericsAndBlocks.vue';
 ---
 
 <html>
@@ -8,5 +11,13 @@ import Foo from '../components/Foo.vue';
 	</head>
 	<body>
 		<Foo client:load />
+
+		<MultipleScriptBlocks value={1}>
+			{doubleNumber(2)}
+		</MultipleScriptBlocks>
+
+		<GenericComponent value={'generic'} />
+
+		<GenericsAndBlocks value={1} formatter={customFormatter} />
 	</body>
 </html>
