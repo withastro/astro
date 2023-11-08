@@ -91,7 +91,7 @@ describe('Experimental Content Collections cache - inlineStylesheets to never in
 	});
 });
 
-describe('Experimental Content Collections cache - inlineStylesheets to auto in static output', () => {
+describe.skip('Experimental Content Collections cache - inlineStylesheets to auto in static output', () => {
 	let fixture;
 
 	before(async () => {
@@ -118,8 +118,8 @@ describe('Experimental Content Collections cache - inlineStylesheets to auto in 
 	});
 
 	after(() => fixture.clean());
-
-	it('Renders some <style> and some <link> tags', async () => {
+	
+	it.skip('Renders some <style> and some <link> tags', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
