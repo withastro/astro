@@ -28,6 +28,8 @@ export class DevOverlayCard extends HTMLElement {
 					font-weight: 600;
 					line-height: 19px;
 					text-decoration: none;
+					background-color: #13151A;
+					box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.10), 0px 1px 2px 0px rgba(0, 0, 0, 0.10), 0px 4px 4px 0px rgba(0, 0, 0, 0.09), 0px 10px 6px 0px rgba(0, 0, 0, 0.05), 0px 17px 7px 0px rgba(0, 0, 0, 0.01), 0px 26px 7px 0px rgba(0, 0, 0, 0.00);
 				}
 
 				a:hover, button:hover {

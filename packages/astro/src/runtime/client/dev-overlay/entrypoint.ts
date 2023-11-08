@@ -63,13 +63,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 			target.querySelector('.notification')?.toggleAttribute('data-active', newState);
 		});
 
-		eventTarget.addEventListener('toggle-plugin', (evt) => {
+		eventTarget.addEventListener('toggle-plugin', async (evt) => {
 			let newState = undefined;
 			if (evt instanceof CustomEvent) {
 				newState = evt.detail.state ?? true;
 			}
 
-			overlay.togglePluginStatus(plugin, newState);
+			await overlay.togglePluginStatus(plugin, newState);
 		});
 
 		return plugin;
