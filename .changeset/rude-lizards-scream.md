@@ -16,14 +16,13 @@ export default defineConfig({
     experimental: {
         i18n: {
             defaultLocale: "en",
-            locales: ["en", "es", "pt_BR"]
+            locales: ["en", "es", "pt-br"]
         }
     }
 })
 ```
 
-Organize your content folders by locale, including your `defaultLocale` and `src/pages/index.astro` will now automatically default to the `index.astro` file of your default language.
-
+Organize your content folders by locale depending on your `i18n.routingStrategy`, and Astro will handle generating your routes and showing your preferred URLs to your visitors.
 ```
 ├── src
 │   ├── pages
@@ -32,7 +31,7 @@ Organize your content folders by locale, including your `defaultLocale` and `src
 │   │   ├── es
 │   │   │   ├── about.astro
 │   │   │   ├── index.astro
-│   │   ├── pt_BR
+│   │   ├── pt-br
 │   │   │   ├── about.astro
 │   │   │   ├── index.astro
 ```
@@ -42,7 +41,7 @@ Compute relative URLs for your links with `getLocaleRelativeURL` from the new `a
 ```astro
 ---
 import {getLocaleRelativeUrl} from "astro:i18n";
-const aboutUrl = getLocaleRelativeUrl("pt_Br", "about");
+const aboutUrl = getLocaleRelativeUrl("pt-br", "about");
 ---
 <p>Learn more <a href={aboutURL}>About</a> this site!</p>
 ```
