@@ -15,7 +15,7 @@ export default {
 };
 ```
 
-When this experimental feature is enabled, the files generated from your content collections will be stored in the [`cacheDir`](https://docs.astro.build/en/reference/configuration-reference/#cachedir) and reused between builds. 
+When this experimental feature is enabled, the files generated from your content collections will be stored in the [`cacheDir`](https://docs.astro.build/en/reference/configuration-reference/#cachedir) (by default, `node_modules/.astro`) and reused between builds. Most CI environments automatically restore files in `node_modules/` by default.
 
 In our internal testing on the real world [Astro Docs](https://github.com/withastro/docs) project, this feature reduces the bundling step of `astro build` from **133.20s** to **10.46s**, about 92% faster. The end-to-end `astro build` process used to take **4min 58s** and now takes just over `1min` for a total reduction of 80%.
 
