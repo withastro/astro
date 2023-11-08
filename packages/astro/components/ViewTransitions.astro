@@ -25,11 +25,9 @@ const { fallback = 'animate' } = Astro.props;
 <meta name="astro-view-transitions-enabled" content="true" />
 <meta name="astro-view-transitions-fallback" content={fallback} />
 <script>
-	import {
-		supportsViewTransitions,
-		transitionEnabledOnThisPage,
-		navigate,
-	} from 'astro:transitions/client';
+	import { supportsViewTransitions, navigate } from 'astro:transitions/client';
+	// NOTE: import from `astro/prefetch` as `astro:prefetch` requires the `prefetch` config to be enabled
+	import { init } from 'astro/prefetch';
 	export type Fallback = 'none' | 'animate' | 'swap';
 
 	function getFallback(): Fallback {
@@ -38,21 +36,6 @@ const { fallback = 'animate' } = Astro.props;
 			return el.getAttribute('content') as Fallback;
 		}
 		return 'animate';
-	}
-
-	// Prefetching
-	function maybePrefetch(pathname: string) {
-		if (document.querySelector(`link[rel=prefetch][href="${pathname}"]`)) return;
-		// @ts-expect-error: connection might exist
-		if (navigator.connection) {
-			// @ts-expect-error: connection does exist
-			let conn = navigator.connection;
-			if (conn.saveData || /(2|3)g/.test(conn.effectiveType || '')) return;
-		}
-		let link = document.createElement('link');
-		link.setAttribute('rel', 'prefetch');
-		link.setAttribute('href', pathname);
-		document.head.append(link);
 	}
 
 	if (supportsViewTransitions || getFallback() !== 'none') {
@@ -89,23 +72,9 @@ const { fallback = 'animate' } = Astro.props;
 			});
 		});
 
-		['mouseenter', 'touchstart', 'focus'].forEach((evName) => {
-			document.addEventListener(
-				evName,
-				(ev) => {
-					if (ev.target instanceof HTMLAnchorElement) {
-						let el = ev.target;
-						if (
-							el.origin === location.origin &&
-							el.pathname !== location.pathname &&
-							transitionEnabledOnThisPage()
-						) {
-							maybePrefetch(el.pathname);
-						}
-					}
-				},
-				{ passive: true, capture: true }
-			);
-		});
+		// @ts-expect-error injected by vite-plugin-transitions for treeshaking
+		if (!__PREFETCH_DISABLED__) {
+			init({ prefetchAll: true });
+		}
 	}
 </script>
