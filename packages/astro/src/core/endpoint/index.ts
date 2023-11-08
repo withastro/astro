@@ -12,8 +12,8 @@ import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachCookiesToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
-import { type Environment, type RenderContext } from '../render/index.js';
 import { computePreferredLocale, computePreferredLocaleList } from '../render/context.js';
+import { type Environment, type RenderContext } from '../render/index.js';
 
 const encoder = new TextEncoder();
 

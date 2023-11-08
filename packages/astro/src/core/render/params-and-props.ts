@@ -1,10 +1,10 @@
 import type { ComponentInstance, Params, Props, RouteData } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
+import { routeIsFallback } from '../redirects/helpers.js';
 import { routeIsRedirect } from '../redirects/index.js';
 import { getParams } from '../routing/params.js';
 import { RouteCache, callGetStaticPaths, findPathItemByKey } from './route-cache.js';
-import { routeIsFallback } from '../redirects/helpers.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance | undefined;

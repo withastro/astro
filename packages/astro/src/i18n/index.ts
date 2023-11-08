@@ -1,8 +1,8 @@
-import { AstroError } from '../core/errors/index.js';
-import { MissingLocale } from '../core/errors/errors-data.js';
-import { shouldAppendForwardSlash } from '../core/build/util.js';
-import type { AstroConfig } from '../@types/astro.js';
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
+import type { AstroConfig } from '../@types/astro.js';
+import { shouldAppendForwardSlash } from '../core/build/util.js';
+import { MissingLocale } from '../core/errors/errors-data.js';
+import { AstroError } from '../core/errors/index.js';
 
 type GetLocaleRelativeUrl = GetLocaleOptions & {
 	locale: string;

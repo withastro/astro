@@ -30,10 +30,14 @@ import {
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
+import { createI18nMiddleware } from '../../i18n/middleware.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
+import type { SSRManifestI18n } from '../app/types.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { sequence } from '../middleware/index.js';
+import { routeIsFallback } from '../redirects/helpers.js';
 import {
 	RedirectSinglePageBuiltModule,
 	getRedirectLocationOrThrow,
@@ -64,10 +68,6 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
-import { createI18nMiddleware } from '../../i18n/middleware.js';
-import { sequence } from '../middleware/index.js';
-import { routeIsFallback } from '../redirects/helpers.js';
-import type { SSRManifestI18n } from '../app/types.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);

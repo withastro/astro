@@ -9,6 +9,7 @@ import type {
 	SSRManifest,
 } from '../@types/astro.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
+import { sequence } from '../core/middleware/index.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import {
 	createRenderContext,
@@ -19,6 +20,7 @@ import {
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { isPage, resolveIdToUrl } from '../core/util.js';
+import { createI18nMiddleware } from '../i18n/middleware.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
@@ -29,8 +31,6 @@ import { preload } from './index.js';
 import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { getScriptsForURL } from './scripts.js';
-import { createI18nMiddleware } from '../i18n/middleware.js';
-import { sequence } from '../core/middleware/index.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 

@@ -6,10 +6,12 @@ import type {
 	SSRElement,
 	SSRManifest,
 } from '../../@types/astro.js';
+import { createI18nMiddleware } from '../../i18n/middleware.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
+import { sequence } from '../middleware/index.js';
 import {
 	collapseDuplicateSlashes,
 	prependForwardSlash,
@@ -26,8 +28,6 @@ import {
 import { matchRoute } from '../routing/match.js';
 import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
 import type { RouteInfo } from './types.js';
-import { createI18nMiddleware } from '../../i18n/middleware.js';
-import { sequence } from '../middleware/index.js';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');

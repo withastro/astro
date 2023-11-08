@@ -4,6 +4,7 @@ import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
 import { Logger } from '../logger/core.js';
 import { Pipeline } from '../pipeline.js';
+import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { createEnvironment } from '../render/index.js';
 import { createAssetLink } from '../render/ssr-element.js';
 import type { BuildInternals } from './internal.js';
@@ -11,7 +12,6 @@ import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types.js';
-import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { i18nHasFallback } from './util.js';
 
 /**

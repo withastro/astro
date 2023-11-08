@@ -3,7 +3,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../../@types/astro.js';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
-import { type BuildInternals, eachPageFromAllPages } from '../internal.js';
+import { eachPageFromAllPages, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';

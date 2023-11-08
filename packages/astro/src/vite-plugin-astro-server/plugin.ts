@@ -1,6 +1,7 @@
 import type fs from 'node:fs';
 import type * as vite from 'vite';
 import type { AstroSettings, ManifestData, SSRManifest } from '../@types/astro.js';
+import type { SSRManifestI18n } from '../core/app/types.js';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
@@ -9,7 +10,6 @@ import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
 import DevPipeline from './devPipeline.js';
 import { handleRequest } from './request.js';
-import type { SSRManifestI18n } from '../core/app/types.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
