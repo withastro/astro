@@ -30,3 +30,13 @@ export type ValueOf<T> = T[keyof T];
 
 // Gets the type of the values of a Map
 export type MapValue<T> = T extends Map<any, infer V> ? V : never;
+
+// Allow the user to create a type where all keys are optional.
+// Useful for functions where props are merged.
+export type DeepPartial<T> = {
+	[P in keyof T]?: T[P] extends (infer U)[]
+		? DeepPartial<U>[]
+		: T[P] extends object | undefined
+		? DeepPartial<T[P]>
+		: T[P];
+};

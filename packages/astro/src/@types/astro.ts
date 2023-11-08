@@ -27,7 +27,7 @@ import type { Icon } from '../runtime/client/dev-overlay/ui-library/icons.js';
 import type { DevOverlayTooltip } from '../runtime/client/dev-overlay/ui-library/tooltip.js';
 import type { DevOverlayWindow } from '../runtime/client/dev-overlay/ui-library/window.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
-import type { OmitIndexSignature, Simplify } from '../type-utils.js';
+import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
 export { type AstroIntegrationLogger };
@@ -2054,14 +2054,6 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 		supportsAstroStaticSlot?: boolean;
 	};
 }
-
-export type DeepPartial<T> = {
-	[P in keyof T]?: T[P] extends (infer U)[]
-		? DeepPartial<U>[]
-		: T[P] extends object | undefined
-		? DeepPartial<T[P]>
-		: T[P];
-};
 
 export type HookParameters<
 	Hook extends keyof AstroIntegration['hooks'],

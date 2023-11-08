@@ -1,4 +1,4 @@
-import type { AstroConfig, AstroIntegration, AstroRenderer, DeepPartial } from 'astro';
+import type { AstroConfig, AstroIntegration, AstroRenderer } from 'astro';
 import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
 
 async function getViteConfiguration(isDev: boolean, { include, exclude }: Options = {}) {
@@ -34,7 +34,7 @@ async function getViteConfiguration(isDev: boolean, { include, exclude }: Option
 		ssr: {
 			external: ['babel-preset-solid'],
 		},
-	} satisfies DeepPartial<AstroConfig['vite']>;
+	} satisfies AstroConfig['vite'];
 }
 
 function getRenderer(): AstroRenderer {
