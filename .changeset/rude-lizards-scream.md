@@ -60,4 +60,4 @@ const preferredLocaleList = Astro.preferredLocaleList;
 NEED A USAGE EXAMPLE HERE
 ```
 
-Read more about Astro's [experimental i18n routing](https://docs.astro.build/en/guides/i18n-routing/#browser-language-detection) in our documentation.
+Read more about Astro's [experimental i18n routing](https://docs.astro.build/en/guides/internationalization/) in our documentation.
