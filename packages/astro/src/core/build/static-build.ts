@@ -90,6 +90,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 		.filter((a) => typeof a === 'string') as string[];
 
 	const clientInput = new Set([
+		...internals.cachedClientEntries,
 		...internals.discoveredHydratedComponents.keys(),
 		...internals.discoveredClientOnlyComponents.keys(),
 		...rendererClientEntrypoints,
@@ -150,6 +151,7 @@ async function ssrBuild(
 	const routes = Object.values(allPages)
 		.flat()
 		.map((pageData) => pageData.route);
+	const isContentCache = !ssr && settings.config.experimental.contentCollectionCache;
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('server', input);
 
 	const viteBuildConfig: vite.InlineConfig = {
@@ -171,14 +173,20 @@ async function ssrBuild(
 				...viteConfig.build?.rollupOptions,
 				input: [],
 				output: {
-					hoistTransitiveImports: !settings.config.experimental.contentCollectionCache,
+					hoistTransitiveImports: isContentCache,
 					format: 'esm',
+					minifyInternalExports: !isContentCache,
 					// Server chunks can't go in the assets (_astro) folder
 					// We need to keep these separate
 					chunkFileNames(chunkInfo) {
 						const { name } = chunkInfo;
+						const prefix = 'chunks/';
+						let suffix = '_[hash].mjs';
+						if (isContentCache) {
+							suffix = '.mjs';
+						}
 
-						if (settings.config.experimental.contentCollectionCache && name.includes('/content/')) {
+						if (isContentCache && name.includes('/content/')) {
 							const parts = name.split('/');
 							if (parts.at(1) === 'content') {
 								return encodeName(parts.slice(1).join('/'));
@@ -188,18 +196,15 @@ async function ssrBuild(
 						// TODO: refactor our build logic to avoid this
 						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
 							const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
-							return `chunks/${sanitizedName}_[hash].mjs`;
+							return [prefix, sanitizedName, suffix].join('');
 						}
 						// Injected routes include "pages/[name].[ext]" already. Clean those up!
 						if (name.startsWith('pages/')) {
 							const sanitizedName = name.split('.')[0];
-							return `chunks/${sanitizedName}_[hash].mjs`;
+							return [prefix, sanitizedName, suffix].join('');
 						}
 						const encoded = encodeName(name);
-						if (settings.config.experimental.contentCollectionCache) {
-							return `chunks/${encoded}.mjs`;
-						}
-						return `chunks/${encoded}_[hash].mjs`;
+						return [prefix, encoded, suffix].join('')
 					},
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,

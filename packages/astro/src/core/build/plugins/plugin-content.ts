@@ -30,22 +30,30 @@ interface ContentManifestKey {
 interface ContentManifest {
 	version: number;
 	entries: [ContentManifestKey, string][];
+	serverEntries: string[];
+	clientEntries: string[];
 }
 
 const virtualEmptyModuleId = `virtual:empty-content`;
 const resolvedVirtualEmptyModuleId = `\0${virtualEmptyModuleId}`;
 
-function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap, _internals: BuildInternals): VitePlugin {
+function createContentManifest(): ContentManifest {
+	return { version: -1, entries: [], serverEntries: [], clientEntries: [] };
+}
+
+function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap, internals: BuildInternals): VitePlugin {
 	const { config } = opts.settings;
 	const { cacheDir } = config;
 	const distRoot = config.outDir;
 	const distContentRoot = new URL('./content/', distRoot);
+	const cachedChunks = new URL('./chunks/', opts.settings.config.cacheDir);
+	const distChunks = new URL('./chunks/', opts.settings.config.outDir);
 	const contentCacheDir = new URL(CONTENT_CACHE_DIR, cacheDir);
 	const contentManifestFile = new URL(CONTENT_MANIFEST_FILE, contentCacheDir);
 	const cache = contentCacheDir;
 	const cacheTmp = new URL('./.tmp/', cache);
-	let oldManifest: ContentManifest = { version: -1, entries: [] }
-	let newManifest: ContentManifest = { version: -1, entries: [] }
+	let oldManifest = createContentManifest();
+	let newManifest = createContentManifest();
 	let entries: ContentEntries;
 	let injectedEmptyFile = false;
 
@@ -53,6 +61,7 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 		try {
 			const data = fsMod.readFileSync(contentManifestFile, { encoding: 'utf8' });
 			oldManifest = JSON.parse(data);
+			internals.cachedClientEntries = oldManifest.clientEntries;
 		} catch { }
 	}
 
@@ -62,8 +71,6 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 		async options(options) {
 			let newOptions = Object.assign({}, options);
 			newManifest = await generateContentManifest(opts, lookupMap);
-			await fsMod.promises.mkdir(new URL('./', contentManifestFile), { recursive: true });
-			await fsMod.promises.writeFile(contentManifestFile, JSON.stringify(newManifest), { encoding: 'utf8' });
 			entries = getEntriesFromManifests(oldManifest, newManifest);
 
 			for (const { type, entry } of entries.buildFromSource) {
@@ -75,7 +82,9 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 				}
 				newOptions = addRollupInput(newOptions, inputs);
 			}
-
+			if (fsMod.existsSync(cachedChunks)) {
+				await copyFiles(cachedChunks, distChunks, true);
+			}
 			if (entries.buildFromSource.length === 0) {
 				newOptions = addRollupInput(newOptions, [virtualEmptyModuleId])
 				injectedEmptyFile = true;
@@ -87,7 +96,7 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 			const rootPath = normalizePath(fileURLToPath(opts.settings.config.root));
 			const srcPath = normalizePath(fileURLToPath(opts.settings.config.srcDir));
 			extendManualChunks(outputOptions, {
-				after(id, meta) {
+				before(id, meta) {
 					if (id.startsWith(srcPath) && id.slice(srcPath.length).startsWith('content')) {
 						const info = meta.getModuleInfo(id);
 						if (info?.dynamicImporters.length === 1 && hasContentFlag(info.dynamicImporters[0], PROPAGATED_ASSET_FLAG)) {
@@ -142,6 +151,21 @@ function vitePluginContent(opts: StaticBuildOptions, lookupMap: ContentLookupMap
 		},
 
 		async writeBundle() {
+			const clientComponents = new Set([
+				...oldManifest.clientEntries,
+				...internals.discoveredHydratedComponents.keys(),
+				...internals.discoveredClientOnlyComponents.keys(),
+				...internals.discoveredScripts,
+			])
+			const serverComponents = new Set([
+				...oldManifest.serverEntries,
+				...internals.discoveredHydratedComponents.keys(),
+			]);
+			newManifest.serverEntries = Array.from(serverComponents);
+			newManifest.clientEntries = Array.from(clientComponents);
+			await fsMod.promises.mkdir(contentCacheDir, { recursive: true });
+			await fsMod.promises.writeFile(contentManifestFile, JSON.stringify(newManifest), { encoding: 'utf8' });
+
 			const cacheExists = fsMod.existsSync(cache);
 			fsMod.mkdirSync(cache, { recursive: true })
 			await fsMod.promises.mkdir(cacheTmp, { recursive: true });
@@ -199,7 +223,7 @@ function getEntriesFromManifests(oldManifest: ContentManifest, newManifest: Cont
 }
 
 async function generateContentManifest(opts: StaticBuildOptions, lookupMap: ContentLookupMap): Promise<ContentManifest> {
-	let manifest: ContentManifest = { version: CONTENT_MANIFEST_VERSION, entries: [] };
+	let manifest: ContentManifest = { version: CONTENT_MANIFEST_VERSION, entries: [], serverEntries: [], clientEntries: [], exports: {} };
 	const limit = pLimit(10);
 	const promises: Promise<void>[] = [];
 
@@ -228,6 +252,9 @@ function collectionTypeToFlag(type: 'content' | 'data') {
 }
 
 export function pluginContent(opts: StaticBuildOptions, internals: BuildInternals): AstroBuildPlugin {
+	const cachedChunks = new URL('./chunks/', opts.settings.config.cacheDir);
+	const distChunks = new URL('./chunks/', opts.settings.config.outDir);
+
 	return {
 		targets: ['server'],
 		hooks: {
@@ -240,11 +267,22 @@ export function pluginContent(opts: StaticBuildOptions, internals: BuildInternal
 				}
 
 				const lookupMap = await generateLookupMap({ settings: opts.settings, fs: fsMod });
-
 				return {
 					vitePlugin: vitePluginContent(opts, lookupMap, internals),
 				};
 			},
+
+			async 'build:post'() {
+				if (!opts.settings.config.experimental.contentCollectionCache) {
+					return;
+				}
+				if (isServerLikeOutput(opts.settings.config)) {
+					return;
+				}
+				if (fsMod.existsSync(distChunks)) {
+					await copyFiles(distChunks, cachedChunks, true);
+				}
+			}
 		},
 	};
 }

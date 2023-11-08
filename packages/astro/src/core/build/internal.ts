@@ -89,6 +89,8 @@ export interface BuildInternals {
 	 */
 	discoveredScripts: Set<string>;
 
+	cachedClientEntries: string[];
+
 	propagatedStylesMap: Map<string, Set<StylesheetAsset>>;
 	propagatedScriptsMap: Map<string, Set<string>>;
 
@@ -117,6 +119,7 @@ export function createBuildInternals(): BuildInternals {
 	const hoistedScriptIdToPagesMap = new Map<string, Set<string>>();
 
 	return {
+		cachedClientEntries: [],
 		cssModuleToChunkIdMap: new Map(),
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,
