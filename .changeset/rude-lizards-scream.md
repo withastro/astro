@@ -52,12 +52,4 @@ const aboutUrl = getLocaleRelativeUrl("pt_Br", "about");
 
 Enabling i18n routing also provides two new properties for browser language detection: `Astro.preferredLocale` and `Astro.preferredLocaleList`. These combine the browser's `Accept-Langauge` header, and your site's list of supported languages and can be used to automatically respect your visitor's preferred languages.
 
-```astro
----
-const preferredLocale = Astro.preferredLocale;
-const preferredLocaleList = Astro.preferredLocaleList;
----
-NEED A USAGE EXAMPLE HERE
-```
-
 Read more about Astro's [experimental i18n routing](https://docs.astro.build/en/guides/internationalization/) in our documentation.
