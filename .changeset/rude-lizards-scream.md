@@ -4,7 +4,7 @@
 
 Experimental support for i18n routing. 
 
-Astro's experimental i18n routing allows you to add your multilingual content with support for configuring a default language and URL path convention, computing relative page URLs, and accepting preferred languages provided by your visitor's browser browser.
+Astro's experimental i18n routing API allows you to add your multilingual content with support for configuring a default language, computing relative page URLs, and accepting preferred languages provided by your visitor's browser. You can also specify fallback languages on a per-language basis so that your visitors can always be directed to existing content on your site.
 
 Enable the experimental routing option by adding an `i18n` object to your Astro configuration with a default location and a list of all languages to support:
 
