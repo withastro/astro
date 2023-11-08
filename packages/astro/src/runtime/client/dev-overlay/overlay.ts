@@ -51,7 +51,7 @@ export class AstroDevOverlay extends HTMLElement {
 				display: flex;
 				gap: 8px;
 				align-items: center;
-				transition: bottom 0.2s ease-in-out;
+				transition: bottom 0.35s cubic-bezier(0.485, -0.050, 0.285, 1.505);
 				pointer-events: none;
 			}
 
@@ -72,11 +72,10 @@ export class AstroDevOverlay extends HTMLElement {
 				height: 56px;
 				overflow: hidden;
 				pointer-events: auto;
-
 				background: linear-gradient(180deg, #13151A 0%, rgba(19, 21, 26, 0.88) 100%);
-				box-shadow: 0px 0px 0px 0px #13151A4D;
 				border: 1px solid #343841;
 				border-radius: 9999px;
+				box-shadow: 0px 0px 0px 0px rgba(19, 21, 26, 0.30), 0px 1px 2px 0px rgba(19, 21, 26, 0.29), 0px 4px 4px 0px rgba(19, 21, 26, 0.26), 0px 10px 6px 0px rgba(19, 21, 26, 0.15), 0px 17px 7px 0px rgba(19, 21, 26, 0.04), 0px 26px 7px 0px rgba(19, 21, 26, 0.01);
 			}
 
 			#dev-bar .item {
@@ -187,16 +186,6 @@ export class AstroDevOverlay extends HTMLElement {
 				width: 1px;
 			}
 
-			astro-dev-overlay-plugin-canvas {
-				position: absolute;
-				top: 0;
-				left: 0;
-			}
-
-			astro-dev-overlay-plugin-canvas:not([data-active]) {
-				display: none;
-			}
-
 			#minimize-button {
 				width: 32px;
 				height: 32px;
@@ -263,7 +252,7 @@ export class AstroDevOverlay extends HTMLElement {
 		}
 
 		// Create plugin canvases
-		this.plugins.forEach((plugin) => {
+		this.plugins.forEach(async (plugin) => {
 			if (!this.hasBeenInitialized) {
 				console.log(`Creating plugin canvas for ${plugin.id}`);
 				const pluginCanvas = document.createElement('astro-dev-overlay-plugin-canvas');
@@ -271,7 +260,7 @@ export class AstroDevOverlay extends HTMLElement {
 				this.shadowRoot?.append(pluginCanvas);
 			}
 
-			this.togglePluginStatus(plugin, plugin.active);
+			await this.togglePluginStatus(plugin, plugin.active);
 		});
 
 		// Init plugin lazily - This is safe to do here because only plugins that are not initialized yet will be affected
@@ -306,7 +295,7 @@ export class AstroDevOverlay extends HTMLElement {
 					await this.initPlugin(plugin);
 				}
 
-				this.togglePluginStatus(plugin);
+				await this.togglePluginStatus(plugin);
 			});
 		});
 
@@ -418,30 +407,52 @@ export class AstroDevOverlay extends HTMLElement {
 	}
 
 	getPluginCanvasById(id: string) {
-		return this.shadowRoot.querySelector(`astro-dev-overlay-plugin-canvas[data-plugin-id="${id}"]`);
+		return this.shadowRoot.querySelector<HTMLElement>(
+			`astro-dev-overlay-plugin-canvas[data-plugin-id="${id}"]`
+		);
 	}
 
-	togglePluginStatus(plugin: DevOverlayPlugin, status?: boolean) {
-		plugin.active = status ?? !plugin.active;
+	/**
+	 * @param plugin The plugin to toggle the status of
+	 * @param newStatus Optionally, force the plugin into a specific state
+	 */
+	async togglePluginStatus(plugin: DevOverlayPlugin, newStatus?: boolean) {
+		const pluginCanvas = this.getPluginCanvasById(plugin.id);
+		if (!pluginCanvas) return;
+
+		if (plugin.active && !newStatus && plugin.beforeTogglingOff) {
+			const shouldToggleOff = await plugin.beforeTogglingOff(pluginCanvas.shadowRoot!);
+
+			// If the plugin returned false, don't toggle it off, maybe the plugin showed a confirmation dialog or similar
+			if (!shouldToggleOff) return;
+		}
+
+		plugin.active = newStatus ?? !plugin.active;
 		const target = this.shadowRoot.querySelector(`[data-plugin-id="${plugin.id}"]`);
 		if (!target) return;
 		target.classList.toggle('active', plugin.active);
-		this.getPluginCanvasById(plugin.id)?.toggleAttribute('data-active', plugin.active);
+		pluginCanvas.style.display = plugin.active ? 'block' : 'none';
 
-		plugin.eventTarget.dispatchEvent(
-			new CustomEvent('plugin-toggled', {
-				detail: {
-					state: plugin.active,
-					plugin,
-				},
-			})
-		);
+		window.requestAnimationFrame(() => {
+			pluginCanvas.toggleAttribute('data-active', plugin.active);
+			plugin.eventTarget.dispatchEvent(
+				new CustomEvent('plugin-toggled', {
+					detail: {
+						state: plugin.active,
+						plugin,
+					},
+				})
+			);
+		});
 
 		if (import.meta.hot) {
 			import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:toggled`, { state: plugin.active });
 		}
 	}
 
+	/**
+	 * @param newStatus Optionally, force the minimize button into a specific state
+	 */
 	toggleMinimizeButton(newStatus?: boolean) {
 		const minimizeButton = this.shadowRoot.querySelector<HTMLDivElement>('#minimize-button');
 		if (!minimizeButton) return;
@@ -492,5 +503,16 @@ export class DevOverlayCanvas extends HTMLElement {
 	constructor() {
 		super();
 		this.shadowRoot = this.attachShadow({ mode: 'open' });
+	}
+
+	connectedCallback() {
+		this.shadowRoot.innerHTML = `
+		<style>
+			:host {
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+		</style>`;
 	}
 }

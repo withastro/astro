@@ -18,6 +18,7 @@ export default {
 		document.addEventListener('astro:page-load', refreshIslandsOverlayPositions);
 
 		function addIslandsOverlay() {
+			initStyle();
 			islandsOverlays.forEach(({ highlightElement }) => {
 				highlightElement.remove();
 			});
@@ -110,5 +111,30 @@ export default {
 			const [_, value] = prop;
 			return JSON.stringify(value, null, 2);
 		}
+
+		function initStyle() {
+			const style = document.createElement('style');
+			style.textContent = `
+			:host {
+				opacity: 0;
+				transition: opacity 0.1s ease-in-out;
+			}
+
+			:host([data-active]) {
+				opacity: 1;
+			}
+		`;
+
+			canvas.append(style);
+		}
+	},
+	async beforeTogglingOff(canvas) {
+		canvas.host?.removeAttribute('data-active');
+
+		await new Promise((resolve) => {
+			canvas.host.addEventListener('transitionend', resolve);
+		});
+
+		return true;
 	},
 } satisfies DevOverlayPlugin;
