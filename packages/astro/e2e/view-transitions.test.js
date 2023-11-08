@@ -953,7 +953,7 @@ test.describe('View Transitions', () => {
 			'There should be only 1 page load. No additional loads for the form submission'
 		).toEqual(1);
 	});
-	
+
 	test('Route announcer is invisible on page transition', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/no-directive-one'));
 

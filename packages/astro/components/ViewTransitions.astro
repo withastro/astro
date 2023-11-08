@@ -25,12 +25,9 @@ const { fallback = 'animate', handleForms } = Astro.props;
 </style>
 <meta name="astro-view-transitions-enabled" content="true" />
 <meta name="astro-view-transitions-fallback" content={fallback} />
-{ handleForms ?
-	<meta name="astro-view-transitions-forms" content="true" /> :
-	''
-}
+{handleForms ? <meta name="astro-view-transitions-forms" content="true" /> : ''}
 <script>
-import type { Options } from 'astro:transitions/client';
+	import type { Options } from 'astro:transitions/client';
 	import { supportsViewTransitions, navigate } from 'astro:transitions/client';
 	// NOTE: import from `astro/prefetch` as `astro:prefetch` requires the `prefetch` config to be enabled
 	import { init } from 'astro/prefetch';
@@ -83,13 +80,10 @@ import type { Options } from 'astro:transitions/client';
 			});
 		});
 
-		if(document.querySelector('[name="astro-view-transitions-forms"]')) {
+		if (document.querySelector('[name="astro-view-transitions-forms"]')) {
 			document.addEventListener('submit', (ev) => {
 				let el = ev.target as HTMLElement;
-				if (
-				el.tagName !== 'FORM' ||
-					isReloadEl(el)
-				) {
+				if (el.tagName !== 'FORM' || isReloadEl(el)) {
 					return;
 				}
 
@@ -97,7 +91,7 @@ import type { Options } from 'astro:transitions/client';
 				const formData = new FormData(form);
 				let action = form.action;
 				const options: Options = {};
-				if(form.method === 'get') {
+				if (form.method === 'get') {
 					const params = new URLSearchParams(formData as any);
 					const url = new URL(action);
 					url.search = params.toString();

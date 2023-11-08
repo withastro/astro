@@ -383,7 +383,7 @@ async function transition(
 	let finished: Promise<void>;
 	const href = toLocation.href;
 	const init: RequestInit = {};
-	if(options.formData) {
+	if (options.formData) {
 		init.method = 'POST';
 		init.body = options.formData;
 	}
