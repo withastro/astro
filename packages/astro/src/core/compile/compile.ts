@@ -46,6 +46,7 @@ export async function compile({
 			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
 			resultScopedSlot: true,
 			transitionsAnimationURL: 'astro/components/viewtransitions.css',
+			annotateSourceFile: !viteConfig.isProduction && astroConfig.experimental.devOverlay,
 			preprocessStyle: createStylePreprocessor({
 				filename,
 				viteConfig,
