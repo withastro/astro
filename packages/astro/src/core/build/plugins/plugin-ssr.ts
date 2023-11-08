@@ -7,6 +7,7 @@ import { isServerLikeOutput } from '../../../prerender/utils.js';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
+import { eachPageFromAllPages } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugin-manifest.js';
@@ -42,7 +43,7 @@ function vitePluginSSR(
 				let i = 0;
 				const pageMap: string[] = [];
 
-				for (const [path, pageData] of Object.entries(allPages)) {
+				for (const [path, pageData] of eachPageFromAllPages(allPages)) {
 					if (routeIsRedirect(pageData.route)) {
 						continue;
 					}
@@ -148,7 +149,7 @@ function vitePluginSSRSplit(
 			if (options.settings.config.build.split || functionPerRouteEnabled) {
 				const inputs = new Set<string>();
 
-				for (const [path, pageData] of Object.entries(options.allPages)) {
+				for (const [path, pageData] of eachPageFromAllPages(options.allPages)) {
 					if (routeIsRedirect(pageData.route)) {
 						continue;
 					}
@@ -294,7 +295,7 @@ function storeEntryPoint(
 	fileName: string
 ) {
 	const componentPath = getPathFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, moduleKey);
-	for (const [page, pageData] of Object.entries(options.allPages)) {
+	for (const [page, pageData] of eachPageFromAllPages(options.allPages)) {
 		if (componentPath == page) {
 			const publicPath = fileURLToPath(options.settings.config.build.server);
 			internals.entryPoints.set(pageData.route, pathToFileURL(join(publicPath, fileName)));

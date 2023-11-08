@@ -6,10 +6,12 @@ import type {
 	SSRElement,
 	SSRManifest,
 } from '../../@types/astro.js';
+import { createI18nMiddleware } from '../../i18n/middleware.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
+import { sequence } from '../middleware/index.js';
 import {
 	collapseDuplicateSlashes,
 	prependForwardSlash,
@@ -164,8 +166,19 @@ export class App {
 		);
 		let response;
 		try {
-			if (mod.onRequest) {
-				this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
+			let i18nMiddleware = createI18nMiddleware(this.#manifest.i18n, this.#manifest.base);
+			if (i18nMiddleware) {
+				if (mod.onRequest) {
+					this.#pipeline.setMiddlewareFunction(
+						sequence(i18nMiddleware, mod.onRequest as MiddlewareEndpointHandler)
+					);
+				} else {
+					this.#pipeline.setMiddlewareFunction(i18nMiddleware);
+				}
+			} else {
+				if (mod.onRequest) {
+					this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
+				}
 			}
 			response = await this.#pipeline.renderRoute(renderContext, pageModule);
 		} catch (err: any) {
@@ -208,6 +221,7 @@ export class App {
 			const pathname = '/' + this.removeBase(url.pathname);
 			const mod = await page.page();
 			const handler = mod as unknown as EndpointHandler;
+
 			return await createRenderContext({
 				request,
 				pathname,
@@ -215,6 +229,7 @@ export class App {
 				status,
 				env: this.#pipeline.env,
 				mod: handler as any,
+				locales: this.#manifest.i18n ? this.#manifest.i18n.locales : undefined,
 			});
 		} else {
 			const pathname = prependForwardSlash(this.removeBase(url.pathname));
@@ -237,6 +252,7 @@ export class App {
 				}
 			}
 			const mod = await page.page();
+
 			return await createRenderContext({
 				request,
 				pathname,
@@ -248,6 +264,7 @@ export class App {
 				status,
 				mod,
 				env: this.#pipeline.env,
+				locales: this.#manifest.i18n ? this.#manifest.i18n.locales : undefined,
 			});
 		}
 	}

@@ -2,6 +2,7 @@ import type { Rollup } from 'vite';
 import type { RouteData, SSRResult } from '../../@types/astro.js';
 import type { PageOptions } from '../../vite-plugin-astro/types.js';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
+import { routeIsFallback } from '../redirects/helpers.js';
 import { viteID } from '../util.js';
 import {
 	ASTRO_PAGE_RESOLVED_MODULE_ID,
@@ -9,7 +10,7 @@ import {
 } from './plugins/plugin-pages.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
-import type { PageBuildData, StylesheetAsset, ViteID } from './types.js';
+import type { AllPagesData, PageBuildData, StylesheetAsset, ViteID } from './types.js';
 
 export interface BuildInternals {
 	/**
@@ -37,8 +38,15 @@ export interface BuildInternals {
 
 	/**
 	 * A map for page-specific information.
+	 * // TODO: Remove in Astro 4.0
+	 * @deprecated
 	 */
 	pagesByComponent: Map<string, PageBuildData>;
+
+	/**
+	 * TODO: Use this in Astro 4.0
+	 */
+	pagesByComponents: Map<string, PageBuildData[]>;
 
 	/**
 	 * A map for page-specific output.
@@ -112,6 +120,7 @@ export function createBuildInternals(): BuildInternals {
 		entrySpecifierToBundleMap: new Map<string, string>(),
 		pageToBundleMap: new Map<string, string>(),
 		pagesByComponent: new Map(),
+		pagesByComponents: new Map(),
 		pageOptionsByPage: new Map(),
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
@@ -134,7 +143,16 @@ export function trackPageData(
 	componentURL: URL
 ): void {
 	pageData.moduleSpecifier = componentModuleId;
-	internals.pagesByComponent.set(component, pageData);
+	if (!routeIsFallback(pageData.route)) {
+		internals.pagesByComponent.set(component, pageData);
+	}
+	const list = internals.pagesByComponents.get(component);
+	if (list) {
+		list.push(pageData);
+		internals.pagesByComponents.set(component, list);
+	} else {
+		internals.pagesByComponents.set(component, [pageData]);
+	}
 	internals.pagesByViteID.set(viteID(componentURL), pageData);
 }
 
@@ -228,6 +246,14 @@ export function hasPageDataByViteID(internals: BuildInternals, viteid: ViteID): 
 
 export function* eachPageData(internals: BuildInternals) {
 	yield* internals.pagesByComponent.values();
+}
+
+export function* eachPageFromAllPages(allPages: AllPagesData): Generator<[string, PageBuildData]> {
+	for (const [path, list] of Object.entries(allPages)) {
+		for (const pageData of list) {
+			yield [path, pageData];
+		}
+	}
 }
 
 export function* eachPageDataFromEntryPoint(

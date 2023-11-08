@@ -1,9 +1,9 @@
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { readFileSync, existsSync } from 'node:fs';
+import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Middleware in DEV mode', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -77,7 +77,7 @@ describe('Middleware in DEV mode', () => {
 	it('should be able to clone the response', async () => {
 		let res = await fixture.fetch('/clone');
 		let html = await res.text();
-		expect(html).to.contain('<h1>it works</h1>');
+		expect(html).to.contain('it works');
 	});
 
 	it('should forward cookies set in a component when the middleware returns a new response', async () => {

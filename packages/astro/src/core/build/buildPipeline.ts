@@ -4,6 +4,7 @@ import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
 import { Logger } from '../logger/core.js';
 import { Pipeline } from '../pipeline.js';
+import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { createEnvironment } from '../render/index.js';
 import { createAssetLink } from '../render/ssr-element.js';
 import type { BuildInternals } from './internal.js';
@@ -11,6 +12,7 @@ import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types.js';
+import { i18nHasFallback } from './util.js';
 
 /**
  * This pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
@@ -154,11 +156,17 @@ export class BuildPipeline extends Pipeline {
 				pages.set(pageData, filePath);
 			}
 		}
-		for (const [path, pageData] of this.#internals.pagesByComponent.entries()) {
-			if (pageData.route.type === 'redirect') {
-				pages.set(pageData, path);
+
+		for (const [path, pageDataList] of this.#internals.pagesByComponents.entries()) {
+			for (const pageData of pageDataList) {
+				if (routeIsRedirect(pageData.route)) {
+					pages.set(pageData, path);
+				} else if (routeIsFallback(pageData.route) && i18nHasFallback(this.getConfig())) {
+					pages.set(pageData, path);
+				}
 			}
 		}
+
 		return pages;
 	}
 

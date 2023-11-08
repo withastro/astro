@@ -30,9 +30,15 @@ const highlighterCacheAsync = new Map<string, Promise<Highlighter>>();
 export function remarkShiki({
 	langs = [],
 	theme = 'github-dark',
+	experimentalThemes = {},
 	wrap = false,
 }: ShikiConfig = {}): ReturnType<RemarkPlugin> {
+	const themes = experimentalThemes;
+
 	const cacheId =
+		Object.values(themes)
+			.map((t) => (typeof t === 'string' ? t : t.name ?? ''))
+			.join(',') +
 		(typeof theme === 'string' ? theme : theme.name ?? '') +
 		langs.map((l) => l.name ?? (l as any).id).join(',');
 
@@ -40,7 +46,7 @@ export function remarkShiki({
 	if (!highlighterAsync) {
 		highlighterAsync = getHighlighter({
 			langs: langs.length ? langs : Object.keys(bundledLanguages),
-			themes: [theme],
+			themes: Object.values(themes).length ? Object.values(themes) : [theme],
 		});
 		highlighterCacheAsync.set(cacheId, highlighterAsync);
 	}
@@ -64,7 +70,8 @@ export function remarkShiki({
 				lang = 'plaintext';
 			}
 
-			let html = highlighter.codeToHtml(node.value, { lang, theme });
+			let themeOptions = Object.values(themes).length ? { themes } : { theme };
+			let html = highlighter.codeToHtml(node.value, { ...themeOptions, lang });
 
 			// Q: Couldn't these regexes match on a user's inputted code blocks?
 			// A: Nope! All rendered HTML is properly escaped.

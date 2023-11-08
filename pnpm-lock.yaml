@@ -125,7 +125,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
 
   examples/blog:
@@ -137,16 +137,16 @@ importers:
         specifier: ^3.0.0
         version: link:../../packages/astro-rss
       '@astrojs/sitemap':
-        specifier: ^3.0.2
+        specifier: ^3.0.3
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
 
   examples/component:
     devDependencies:
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
 
   examples/framework-alpine:
@@ -161,7 +161,7 @@ importers:
         specifier: ^3.12.3
         version: 3.13.2
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
 
   examples/framework-lit:
@@ -173,7 +173,7 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
       lit:
         specifier: ^2.8.0
@@ -194,10 +194,10 @@ importers:
         specifier: ^4.0.3
         version: link:../../packages/integrations/svelte
       '@astrojs/vue':
-        specifier: ^3.0.2
+        specifier: ^3.0.4
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
       preact:
         specifier: ^10.17.1
@@ -227,7 +227,7 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1(preact@10.18.1)
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
       preact:
         specifier: ^10.17.1
@@ -245,7 +245,7 @@ importers:
         specifier: ^18.2.7
         version: 18.2.14
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
       react:
         specifier: ^18.2.0
@@ -260,7 +260,7 @@ importers:
         specifier: ^3.0.2
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.7.11
@@ -272,7 +272,7 @@ importers:
         specifier: ^4.0.3
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.0
@@ -281,10 +281,10 @@ importers:
   examples/framework-vue:
     dependencies:
       '@astrojs/vue':
-        specifier: ^3.0.2
+        specifier: ^3.0.4
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
       vue:
         specifier: ^3.3.4
@@ -296,13 +296,13 @@ importers:
         specifier: ^6.0.3
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
 
   examples/middleware:
@@ -311,7 +311,7 @@ importers:
         specifier: ^6.0.3
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
       html-minifier:
         specifier: ^4.0.0
@@ -320,19 +320,19 @@ importers:
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
 
   examples/non-html-pages:
     dependencies:
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
 
   examples/ssr:
@@ -344,7 +344,7 @@ importers:
         specifier: ^4.0.3
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.0
@@ -359,16 +359,16 @@ importers:
         specifier: ^5.0.2
         version: link:../../packages/integrations/tailwind
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
 
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
-        specifier: ^0.7.0
+        specifier: ^0.7.1
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
 
   examples/with-markdown-plugins:
@@ -377,7 +377,7 @@ importers:
         specifier: ^3.3.0
         version: link:../../packages/markdown/remark
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
       hast-util-select:
         specifier: ^5.0.5
@@ -398,7 +398,7 @@ importers:
   examples/with-markdown-shiki:
     dependencies:
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -410,7 +410,7 @@ importers:
         specifier: ^3.0.1
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
       preact:
         specifier: ^10.17.1
@@ -425,7 +425,7 @@ importers:
         specifier: ^0.5.0
         version: 0.5.0(nanostores@0.9.4)(preact@10.18.1)
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.9.3
@@ -446,7 +446,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.2
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
       autoprefixer:
         specifier: ^10.4.15
@@ -464,7 +464,7 @@ importers:
   examples/with-vite-plugin-pwa:
     dependencies:
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
       vite-plugin-pwa:
         specifier: 0.16.4
@@ -476,7 +476,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^3.4.0
+        specifier: ^3.4.4
         version: link:../../packages/astro
       vitest:
         specifier: ^0.34.2
@@ -485,8 +485,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^2.1.0
-        version: 2.2.1
+        specifier: ^2.3.0
+        version: 2.3.0
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -1395,6 +1395,12 @@ importers:
       preact:
         specifier: ^10.17.1
         version: 10.18.1
+
+  packages/astro/e2e/fixtures/prefetch:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
 
   packages/astro/e2e/fixtures/react-component:
     dependencies:
@@ -2790,6 +2796,42 @@ importers:
       preact:
         specifier: ^10.17.1
         version: 10.18.1
+
+  packages/astro/test/fixtures/i18n-routing:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/i18n-routing-base:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/i18n-routing-fallback:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/i18n-routing-prefix-always:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/i18n-routing-prefix-other-locales:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/i18n-routing-redirect-preferred-language:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
 
   packages/astro/test/fixtures/import-ts-with-js:
     dependencies:
@@ -4731,6 +4773,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/vercel/test/fixtures/streaming:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/vercel/test/fixtures/with-speed-insights-enabled/output-as-server:
     dependencies:
       '@astrojs/vercel':
@@ -4794,6 +4845,9 @@ importers:
       chai:
         specifier: ^4.3.7
         version: 4.3.10
+      cheerio:
+        specifier: 1.0.0-rc.12
+        version: 1.0.0-rc.12
       linkedom:
         specifier: ^0.15.1
         version: 0.15.6
@@ -5129,8 +5183,8 @@ packages:
     resolution: {integrity: sha512-o/ObKgtMzl8SlpIdzaxFnt7SATKPxu4oIP/1NL+HDJRzxfJcAkOTAb/ZKMRyULbz4q+1t2/DAebs2Z1QairkZw==}
     dev: true
 
-  /@astrojs/compiler@2.2.1:
-    resolution: {integrity: sha512-NJ1lWKzMkyEjE3W5NpPNAVot4/PLF5om/P6ekxNu3iLS05CaYFTcp7WpYMjdCC252b7wkNVAs45FNkVQ+RHW/g==}
+  /@astrojs/compiler@2.3.0:
+    resolution: {integrity: sha512-pxYRAaRdMS6XUll8lbFM+Lr0DI1HKIDT+VpiC+S+9di5H/nmm3znZOgdMlLiMxADot+56eps+M1BvtKfQremXA==}
     dev: false
 
   /@astrojs/language-server@2.4.0(prettier-plugin-astro@0.12.0)(prettier@3.0.3)(typescript@5.1.6):
