@@ -1993,7 +1993,7 @@ export type AstroFeatureMap = {
 	/**
 	 * List of features that orbit around the i18n routing
 	 */
-	i18n?: AstroInternationalisationFeature;
+	i18n?: AstroInternationalizationFeature;
 };
 
 export interface AstroAssetsFeature {
@@ -2008,9 +2008,9 @@ export interface AstroAssetsFeature {
 	isSquooshCompatible?: boolean;
 }
 
-export interface AstroInternationalisationFeature {
+export interface AstroInternationalizationFeature {
 	/**
-	 * Wether the adapter is able to detect the language of the browser, usually using the `Accept-Language` header.
+	 * Whether the adapter is able to detect the language of the browser, usually using the `Accept-Language` header.
 	 */
 	detectBrowserLanguage?: SupportsKind;
 }

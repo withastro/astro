@@ -4,11 +4,13 @@ import type { AstroSettings } from '../@types/astro.js';
 const virtualModuleId = 'astro:i18n';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
 
-type AstroInternalization = {
+type AstroInternationalization = {
 	settings: AstroSettings;
 };
 
-export default function astroInternalization({ settings }: AstroInternalization): vite.Plugin {
+export default function astroInternationalization({
+	settings,
+}: AstroInternationalization): vite.Plugin {
 	return {
 		name: 'astro:i18n',
 		enforce: 'pre',

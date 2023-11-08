@@ -1,14 +1,6 @@
-import type {
-	AstroCookies,
-	ComponentInstance,
-	EndpointHandler,
-	MiddlewareHandler,
-	MiddlewareResponseHandler,
-} from '../../@types/astro.js';
+import type { AstroCookies, ComponentInstance } from '../../@types/astro.js';
 import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachCookiesToResponse } from '../cookies/index.js';
-import { callEndpoint, createAPIContext } from '../endpoint/index.js';
-import { callMiddleware } from '../middleware/callMiddleware.js';
 import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../redirects/index.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
