@@ -7,7 +7,8 @@ import { defineMiddleware } from './index.js';
  * It accepts one or more middleware handlers and makes sure that they are run in sequence.
  */
 export function sequence(...handlers: MiddlewareEndpointHandler[]): MiddlewareEndpointHandler {
-	const length = handlers.length;
+	const filtered = handlers.filter(h => !!h);
+	const length = filtered.length;
 	if (!length) {
 		const handler: MiddlewareEndpointHandler = defineMiddleware((context, next) => {
 			return next();
@@ -19,7 +20,7 @@ export function sequence(...handlers: MiddlewareEndpointHandler[]): MiddlewareEn
 		return applyHandle(0, context);
 
 		function applyHandle(i: number, handleContext: APIContext) {
-			const handle = handlers[i];
+			const handle = filtered[i];
 			// @ts-expect-error
 			// SAFETY: Usually `next` always returns something in user land, but in `sequence` we are actually
 			// doing a loop over all the `next` functions, and eventually we call the last `next` that returns the `Response`.

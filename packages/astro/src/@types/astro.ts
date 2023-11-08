@@ -1701,6 +1701,7 @@ export interface AstroSettings {
 	 */
 	clientDirectives: Map<string, string>;
 	devOverlayPlugins: string[];
+	middlewares: { pre: string[]; post: string[]; };
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
@@ -2279,6 +2280,7 @@ export interface AstroIntegration {
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			addClientDirective: (directive: ClientDirectiveConfig) => void;
 			addDevOverlayPlugin: (entrypoint: string) => void;
+			addMiddleware: (mid: AstroIntegrationMiddleware) => void;
 			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
@@ -2347,6 +2349,11 @@ export type MiddlewareNextResponse = MiddlewareNext<Response>;
 // remember to update `plugin-page.ts` too, to add that function as a no-op function.
 export type AstroMiddlewareInstance<R> = {
 	onRequest?: MiddlewareHandler<R>;
+};
+
+export type AstroIntegrationMiddleware = {
+	order: 'pre' | 'post';
+	entrypoint: string;
 };
 
 export interface AstroPluginOptions {
