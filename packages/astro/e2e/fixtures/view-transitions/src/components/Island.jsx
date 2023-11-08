@@ -6,7 +6,7 @@ export default function Counter({ children, count: initialCount, id }) {
 	const [count, setCount] = useState(initialCount);
 	const add = () => setCount((i) => i + 1);
 	const subtract = () => setCount((i) => i - 1);
-
+	console.log("Component logs something to the console");
 	return (
 		<>
 			<div id={id} className="counter">

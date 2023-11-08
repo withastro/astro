@@ -26,7 +26,13 @@ export default function astroTransitions(): vite.Plugin {
 			}
 			if (id === resolvedVirtualClientModuleId) {
 				return `
-				export * from "astro/transitions/router";
+				export { navigate } from "astro/transitions/router";
+				export * from "astro/transitions/types";
+				export { supportsViewTransitions, supportsNavigationAPI, transitionEnabledOnThisPage, getFallback } from "astro/transitions/util";
+				export {
+					TRANSITION_PREPARE, isTransitionPrepareEvent, TransitionPrepareEvent, TRANSITION_BEFORE_SWAP, isTransitionBeforeSwapEvent, TransitionBeforeSwapEvent, 
+					TRANSITION_AFTER_SWAP, TRANSITION_PAGE_LOAD
+				} from "astro/transitions/events";
 			`;
 			}
 		},

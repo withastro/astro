@@ -1,0 +1,30 @@
+---
+import {ViewTransitions } from "astro:transitions"
+---
+<html>
+	<head>
+		<ViewTransitions />
+	</head>
+	<body>
+	<form method="POST">
+    <button name="stars" value="1">1 Star</button>
+		<button name="stars" value="2">2 Stars</button>
+    <button name="stars" value="3">3 Stars</button>
+	</form>
+	<script>
+	import { navigate, fetchHTML } from "astro:transitions/client";
+	
+
+		const form = document.querySelector('form')!;
+		form.addEventListener('submit', async (event) => {
+			event.preventDefault();
+			const data = new FormData(form);
+			const value = data.get('stars');
+			console.log(await fetchHTML(`/forms/`));
+			navigate(`/forms/?stars=${value}`);
+		});
+
+
+	</script>
+	</body>
+</html>

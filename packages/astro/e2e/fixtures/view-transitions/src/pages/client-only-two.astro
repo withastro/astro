@@ -7,4 +7,7 @@ import Island from '../components/Island';
 	<div transition:persist="island">
 		<Island id="two" client:only="react" count={5}>message here</Island>
 	</div>
+	<script is:inline>
+	console.log("Page logs something to console")
+	</script>
 </Layout>

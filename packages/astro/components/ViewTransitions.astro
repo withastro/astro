@@ -1,11 +1,11 @@
 ---
-type Fallback = 'none' | 'animate' | 'swap';
-
+import { Fallback } from 'astro:transitions/client';
 export interface Props {
 	fallback?: Fallback;
+	intraPageTransitions?: boolean;
 }
 
-const { fallback = 'animate' } = Astro.props;
+const { fallback = 'animate', intraPageTransitions = false } = Astro.props;
 ---
 
 <style is:global>
@@ -24,21 +24,35 @@ const { fallback = 'animate' } = Astro.props;
 </style>
 <meta name="astro-view-transitions-enabled" content="true" />
 <meta name="astro-view-transitions-fallback" content={fallback} />
+{intraPageTransitions && <meta name="astro-view-transitions-intra-page" content="true" />}
+
+{
+	/*  Not yet 
+<script is:inline>
+	// If we can use and want to use Navigation API,
+	// we set up this hook to be the first listener in the chain
+	// see navigation-adapter.ts for the view transitions side of this connection
+
+	// This inline script in the head executes earlier than a handler in a module could attach
+	if (window.navigation?.currentEntry?.getState) {
+		// this test might have detected a browser's native API or a good enough polyfill
+		window.navigation.addEventListener('navigate', (e) => {
+			document.dispatchEvent(new CustomEvent('astro:connect', { detail: e }));
+		});
+	}
+</script>
+*/
+}
+
 <script>
 	import {
-		supportsViewTransitions,
 		transitionEnabledOnThisPage,
+		supportsViewTransitions,
+		supportsNavigationAPI,
+		getFallback,
 		navigate,
 	} from 'astro:transitions/client';
-	export type Fallback = 'none' | 'animate' | 'swap';
-
-	function getFallback(): Fallback {
-		const el = document.querySelector('[name="astro-view-transitions-fallback"]');
-		if (el) {
-			return el.getAttribute('content') as Fallback;
-		}
-		return 'animate';
-	}
+	import { navigationHook } from '../dist/transitions/events.js';
 
 	// Prefetching
 	function maybePrefetch(pathname: string) {
@@ -61,34 +75,39 @@ const { fallback = 'animate' } = Astro.props;
 			if (link instanceof Element && link.tagName !== 'A') {
 				link = link.closest('a');
 			}
-			// This check verifies that the click is happening on an anchor
-			// that is going to another page within the same origin. Basically it determines
-			// same-origin navigation, but omits special key combos for new tabs, etc.
-			if (
-				!link ||
-				!(link instanceof HTMLAnchorElement) ||
-				link.dataset.astroReload !== undefined ||
-				link.hasAttribute('download') ||
-				!link.href ||
-				(link.target && link.target !== '_self') ||
-				link.origin !== location.origin ||
-				ev.button !== 0 || // left clicks only
-				ev.metaKey || // new tab (mac)
-				ev.ctrlKey || // new tab (windows)
-				ev.altKey || // download
-				ev.shiftKey || // new window
-				ev.defaultPrevented
-			) {
-				// No page transitions in these cases,
-				// Let the browser standard action handle this
-				return;
+			// As of Nov 2023, sourceElement has not yet made it into the spec: https://github.com/w3ctag/design-reviews/issues/867
+			navigationHook.sourceElement = link;
+			if (!supportsNavigationAPI) {
+				// This check verifies that the click is happening on an anchor
+				// that is going to another page within the same origin. Basically it determines
+				// same-origin navigation, but omits special key combos for new tabs, etc.
+				if (
+					!link ||
+					!(link instanceof HTMLAnchorElement) ||
+					link.dataset.astroReload !== undefined ||
+					link.hasAttribute('download') ||
+					!link.href ||
+					(link.target && link.target !== '_self') ||
+					link.origin !== location.origin ||
+					ev.button !== 0 || // left clicks only
+					ev.metaKey || // new tab (mac)
+					ev.ctrlKey || // new tab (windows)
+					ev.altKey || // download
+					ev.shiftKey || // new window
+					ev.defaultPrevented
+				) {
+					// No page transitions in these cases,
+					// Let the browser standard action handle this
+					return;
+				}
+				ev.preventDefault();
+				navigate(link.href, {
+					history: link.dataset.astroHistory === 'replace' ? 'replace' : 'auto',
+				});
 			}
-			ev.preventDefault();
-			navigate(link.href, {
-				history: link.dataset.astroHistory === 'replace' ? 'replace' : 'auto',
-			});
 		});
-
+	}
+	if (supportsViewTransitions || getFallback() !== 'none') {
 		['mouseenter', 'touchstart', 'focus'].forEach((evName) => {
 			document.addEventListener(
 				evName,

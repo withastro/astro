@@ -115,10 +115,29 @@ declare module 'astro:transitions' {
 }
 
 declare module 'astro:transitions/client' {
-	type TransitionRouterModule = typeof import('./dist/transitions/router.js');
-	export const supportsViewTransitions: TransitionRouterModule['supportsViewTransitions'];
-	export const transitionEnabledOnThisPage: TransitionRouterModule['transitionEnabledOnThisPage'];
+	type TransitionRouterModule = typeof import('./src/transitions/router.js');
+	export const navigation: TransitionRouterModule['navigation'];
 	export const navigate: TransitionRouterModule['navigate'];
+
+	type TransitionUtilModule = typeof import('./src/transitions/util.js');
+	export const supportsViewTransitions: TransitionUtilModule['supportsViewTransitions'];
+	export const supportsNavigationAPI: TransitionUtilModule['supportsNavigationAPI'];
+	export const getFallback: TransitionUtilModule['getFallback'];
+	export const transitionEnabledOnThisPage: TransitionUtilModule['transitionEnabledOnThisPage'];
+
+	export type Fallback = import('./src/transitions/types.ts').Fallback;
+	export type Direction = import('./src/transitions/types.ts').Direction;
+
+	type EventModule = typeof import('./src/transitions/events.js');
+	export const TRANSITION_PREPARE: EventModule['TRANSITION_PREPARE'];
+	export type TransitionPrepareEvent = import('./src/transitions/events.ts').TransitionPrepareEvent;
+	export const isTransitionPrepareEvent: EventModule['isTransitionPrepareEvent'];
+	export const TRANSITION_BEFORE_SWAP: EventModule['TRANSITION_BEFORE_SWAP'];
+	export type TransitionBeforeSwapEvent =
+		import('./src/transitions/events.ts').TransitionBeforeSwapEvent;
+	export const isTransitionBeforeSwapEvent: EventModule['isTransitionBeforeSwapEvent'];
+	export const TRANSITION_AFTER_SWAP: EventModule['TRANSITION_AFTER_SWAP'];
+	export const TRANSITION_PAGE_LOAD: EventModule['TRANSITION_PAGE_LOAD'];
 }
 
 declare module 'astro:middleware' {

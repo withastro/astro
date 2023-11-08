@@ -78,7 +78,10 @@
       "default": "./dist/core/middleware/namespace.js"
     },
     "./transitions": "./dist/transitions/index.js",
-    "./transitions/router": "./dist/transitions/router.js"
+    "./transitions/types": "./dist/transitions/types.js",
+    "./transitions/util": "./dist/transitions/util.js",
+    "./transitions/router": "./dist/transitions/router.js",
+    "./transitions/events": "./dist/transitions/events.js"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
@@ -193,6 +196,7 @@
     "@types/cookie": "^0.5.1",
     "@types/debug": "^4.1.8",
     "@types/diff": "^5.0.3",
+    "@types/dom-navigation": "^1.0.2",
     "@types/dom-view-transitions": "^1.0.1",
     "@types/estree": "^1.0.1",
     "@types/hast": "^2.3.5",
