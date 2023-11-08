@@ -187,7 +187,7 @@ export function computePreferredLocale(request: Request, locales: string[]): str
 
 export function computePreferredLocaleList(request: Request, locales: string[]) {
 	const acceptHeader = request.headers.get('Accept-Language');
-	let result: string[] | undefined = undefined;
+	let result: string[] = [];
 	if (acceptHeader) {
 		const browserLocaleList = sortAndFilterLocales(parseLocale(acceptHeader), locales);
 
@@ -195,7 +195,6 @@ export function computePreferredLocaleList(request: Request, locales: string[]) 
 		if (browserLocaleList.length === 1 && browserLocaleList.at(0)!.locale === '*') {
 			return locales;
 		} else if (browserLocaleList.length > 0) {
-			result = [];
 			for (const browserLocale of browserLocaleList) {
 				const found = locales.find(
 					(l) => normalizeTheLocale(l) === normalizeTheLocale(browserLocale.locale)
