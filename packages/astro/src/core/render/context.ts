@@ -9,6 +9,7 @@ import type {
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Environment } from './environment.js';
 import { getParamsAndProps } from './params-and-props.js';
+import { normalizeTheLocale } from '../../i18n/index.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -27,6 +28,7 @@ export interface RenderContext {
 	params: Params;
 	props: Props;
 	locals?: object;
+	locales: string[] | undefined;
 }
 
 export type CreateRenderContextArgs = Partial<
@@ -34,7 +36,7 @@ export type CreateRenderContextArgs = Partial<
 > & {
 	route: RouteData;
 	request: RenderContext['request'];
-	mod: ComponentInstance;
+	mod: ComponentInstance | undefined;
 	env: Environment;
 };
 
@@ -57,6 +59,7 @@ export async function createRenderContext(
 		pathname,
 		params,
 		props,
+		locales: options.locales,
 	};
 
 	// We define a custom property, so we can check the value passed to locals
@@ -75,4 +78,133 @@ export async function createRenderContext(
 	});
 
 	return context;
+}
+
+type BrowserLocale = {
+	locale: string;
+	qualityValue: number | undefined;
+};
+
+/**
+ * Parses the value of the `Accept-Header` language:
+ *
+ * More info: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language
+ *
+ * Complex example: `fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5`
+ *
+ */
+export function parseLocale(header: string): BrowserLocale[] {
+	// Any language, early return
+	if (header === '*') {
+		return [{ locale: header, qualityValue: undefined }];
+	}
+	const result: BrowserLocale[] = [];
+	// we split by `,` and trim the white spaces
+	const localeValues = header.split(',').map((str) => str.trim());
+
+	for (const localeValue of localeValues) {
+		// split the locale name from the quality value
+		const split = localeValue.split(';').map((str) => str.trim());
+		const localeName: string = split[0];
+		const qualityValue: string | undefined = split[1];
+
+		if (!split) {
+			// invalid value
+			continue;
+		}
+
+		// we check if the quality value is present, and it is actually `q=`
+		if (qualityValue && qualityValue.startsWith('q=')) {
+			const qualityValueAsFloat = Number.parseFloat(qualityValue.slice('q='.length));
+			// The previous operation can return a `NaN`, so we check if it is a safe operation
+			if (Number.isNaN(qualityValueAsFloat) || qualityValueAsFloat > 1) {
+				result.push({
+					locale: localeName,
+					qualityValue: undefined,
+				});
+			} else {
+				result.push({
+					locale: localeName,
+					qualityValue: qualityValueAsFloat,
+				});
+			}
+		} else {
+			result.push({
+				locale: localeName,
+				qualityValue: undefined,
+			});
+		}
+	}
+
+	return result;
+}
+
+function sortAndFilterLocales(browserLocaleList: BrowserLocale[], locales: string[]) {
+	const normalizedLocales = locales.map(normalizeTheLocale);
+	return browserLocaleList
+		.filter((browserLocale) => {
+			if (browserLocale.locale !== '*') {
+				return normalizedLocales.includes(normalizeTheLocale(browserLocale.locale));
+			}
+			return true;
+		})
+		.sort((a, b) => {
+			if (a.qualityValue && b.qualityValue) {
+				if (a.qualityValue > b.qualityValue) {
+					return -1;
+				} else if (a.qualityValue < b.qualityValue) {
+					return 1;
+				}
+			}
+			return 0;
+		});
+}
+
+/**
+ * Set the current locale by parsing the value passed from the `Accept-Header`.
+ *
+ * If multiple locales are present in the header, they are sorted by their quality value and the highest is selected as current locale.
+ *
+ */
+export function computePreferredLocale(request: Request, locales: string[]): string | undefined {
+	const acceptHeader = request.headers.get('Accept-Language');
+	let result: string | undefined = undefined;
+	if (acceptHeader) {
+		const browserLocaleList = sortAndFilterLocales(parseLocale(acceptHeader), locales);
+
+		const firstResult = browserLocaleList.at(0);
+		if (firstResult) {
+			if (firstResult.locale !== '*') {
+				result = locales.find(
+					(locale) => normalizeTheLocale(locale) === normalizeTheLocale(firstResult.locale)
+				);
+			}
+		}
+	}
+
+	return result;
+}
+
+export function computePreferredLocaleList(request: Request, locales: string[]) {
+	const acceptHeader = request.headers.get('Accept-Language');
+	let result: string[] = [];
+	if (acceptHeader) {
+		const browserLocaleList = sortAndFilterLocales(parseLocale(acceptHeader), locales);
+
+		// SAFETY: bang operator is safe because checked by the previous condition
+		if (browserLocaleList.length === 1 && browserLocaleList.at(0)!.locale === '*') {
+			return locales;
+		} else if (browserLocaleList.length > 0) {
+			for (const browserLocale of browserLocaleList) {
+				const found = locales.find(
+					(l) => normalizeTheLocale(l) === normalizeTheLocale(browserLocale.locale)
+				);
+				if (found) {
+					result.push(found);
+				}
+			}
+		}
+	}
+
+	return result;
 }

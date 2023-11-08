@@ -1272,5 +1272,23 @@ export const UnsupportedConfigTransformError = {
 	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
 } satisfies ErrorData;
 
+export const MissingLocale = {
+	name: 'MissingLocaleError',
+	title: 'The provided locale does not exist.',
+	message: (locale: string, locales: string[]) => {
+		return `The locale \`${locale}\` does not exist in the configured locales. Available locales: ${locales.join(
+			', '
+		)}.`;
+	},
+} satisfies ErrorData;
+
+export const CantRenderPage = {
+	name: 'CantRenderPage',
+	title: "Astro can't render the route.",
+	message:
+		'Astro cannot find any content to render for this route. There is no file or redirect associated with this route.',
+	hint: 'If you expect to find a route here, this may be an Astro bug. Please file an issue/restart the dev server',
+} satisfies ErrorData;
+
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;

@@ -339,6 +339,55 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.optimizeHoistedScript),
 			devOverlay: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.devOverlay),
+			i18n: z.optional(
+				z
+					.object({
+						defaultLocale: z.string(),
+						locales: z.string().array(),
+						fallback: z.record(z.string(), z.string()).optional(),
+						// TODO: properly add default when the feature goes of experimental
+						routingStrategy: z
+							.enum(['prefix-always', 'prefix-other-locales'])
+							.optional()
+							.default('prefix-other-locales'),
+					})
+					.optional()
+					.superRefine((i18n, ctx) => {
+						if (i18n) {
+							const { defaultLocale, locales, fallback } = i18n;
+							if (!locales.includes(defaultLocale)) {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message: `The default locale \`${defaultLocale}\` is not present in the \`i18n.locales\` array.`,
+								});
+							}
+							if (fallback) {
+								for (const [fallbackFrom, fallbackTo] of Object.entries(fallback)) {
+									if (!locales.includes(fallbackFrom)) {
+										ctx.addIssue({
+											code: z.ZodIssueCode.custom,
+											message: `The locale \`${fallbackFrom}\` key in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+										});
+									}
+
+									if (fallbackFrom === defaultLocale) {
+										ctx.addIssue({
+											code: z.ZodIssueCode.custom,
+											message: `You can't use the default locale as a key. The default locale can only be used as value.`,
+										});
+									}
+
+									if (!locales.includes(fallbackTo)) {
+										ctx.addIssue({
+											code: z.ZodIssueCode.custom,
+											message: `The locale \`${fallbackTo}\` value in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+										});
+									}
+								}
+							}
+						}
+					})
+			),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`

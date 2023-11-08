@@ -7,7 +7,6 @@ import PQueue from 'p-queue';
 import type { OutputAsset, OutputChunk } from 'rollup';
 import type { BufferEncoding } from 'vfile';
 import type {
-	AstroConfig,
 	AstroSettings,
 	ComponentInstance,
 	GetStaticPathsItem,
@@ -35,7 +34,11 @@ import { runHookBuildGenerated } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { RedirectSinglePageBuiltModule, getRedirectLocationOrThrow } from '../redirects/index.js';
+import {
+	RedirectSinglePageBuiltModule,
+	getRedirectLocationOrThrow,
+	routeIsRedirect,
+} from '../redirects/index.js';
 import { createRenderContext } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
@@ -60,7 +63,11 @@ import type {
 	StaticBuildOptions,
 	StylesheetAsset,
 } from './types.js';
-import { getTimeStat } from './util.js';
+import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import { createI18nMiddleware } from '../../i18n/middleware.js';
+import { sequence } from '../middleware/index.js';
+import { routeIsFallback } from '../redirects/helpers.js';
+import type { SSRManifestI18n } from '../app/types.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -72,6 +79,26 @@ async function getEntryForRedirectRoute(
 	outFolder: URL
 ): Promise<SinglePageBuiltModule> {
 	if (route.type !== 'redirect') {
+		throw new Error(`Expected a redirect route.`);
+	}
+	if (route.redirectRoute) {
+		const filePath = getEntryFilePathFromComponentPath(internals, route.redirectRoute.component);
+		if (filePath) {
+			const url = createEntryURL(filePath, outFolder);
+			const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
+			return ssrEntryPage;
+		}
+	}
+
+	return RedirectSinglePageBuiltModule;
+}
+
+async function getEntryForFallbackRoute(
+	route: RouteData,
+	internals: BuildInternals,
+	outFolder: URL
+): Promise<SinglePageBuiltModule> {
+	if (route.type !== 'fallback') {
 		throw new Error(`Expected a redirect route.`);
 	}
 	if (route.redirectRoute) {
@@ -179,15 +206,14 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 					await generatePage(pageData, ssrEntry, builtPaths, pipeline);
 				}
 			}
-			if (pageData.route.type === 'redirect') {
-				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, pipeline);
-			}
 		}
 	} else {
 		for (const [pageData, filePath] of pagesToGenerate) {
-			if (pageData.route.type === 'redirect') {
+			if (routeIsRedirect(pageData.route)) {
 				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
+				await generatePage(pageData, entry, builtPaths, pipeline);
+			} else if (routeIsFallback(pageData.route)) {
+				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);
 				await generatePage(pageData, entry, builtPaths, pipeline);
 			} else {
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
@@ -237,6 +263,7 @@ async function generatePage(
 ) {
 	let timeStart = performance.now();
 	const logger = pipeline.getLogger();
+	const config = pipeline.getConfig();
 	const pageInfo = getPageDataByComponent(pipeline.getInternals(), pageData.route.component);
 
 	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
@@ -249,7 +276,19 @@ async function generatePage(
 
 	const pageModulePromise = ssrEntry.page;
 	const onRequest = ssrEntry.onRequest;
-	if (onRequest) {
+	const i18nMiddleware = createI18nMiddleware(
+		pipeline.getManifest().i18n,
+		pipeline.getManifest().base
+	);
+	if (config.experimental.i18n && i18nMiddleware) {
+		if (onRequest) {
+			pipeline.setMiddlewareFunction(
+				sequence(i18nMiddleware, onRequest as MiddlewareEndpointHandler)
+			);
+		} else {
+			pipeline.setMiddlewareFunction(i18nMiddleware);
+		}
+	} else if (onRequest) {
 		pipeline.setMiddlewareFunction(onRequest as MiddlewareEndpointHandler);
 	}
 	if (!pageModulePromise) {
@@ -277,7 +316,9 @@ async function generatePage(
 	};
 
 	const icon =
-		pageData.route.type === 'page' || pageData.route.type === 'redirect'
+		pageData.route.type === 'page' ||
+		pageData.route.type === 'redirect' ||
+		pageData.route.type === 'fallback'
 			? green('▶')
 			: magenta('λ');
 	if (isRelativePath(pageData.route.component)) {
@@ -410,26 +451,6 @@ interface GeneratePathOptions {
 	mod: ComponentInstance;
 }
 
-function shouldAppendForwardSlash(
-	trailingSlash: AstroConfig['trailingSlash'],
-	buildFormat: AstroConfig['build']['format']
-): boolean {
-	switch (trailingSlash) {
-		case 'always':
-			return true;
-		case 'never':
-			return false;
-		case 'ignore': {
-			switch (buildFormat) {
-				case 'directory':
-					return true;
-				case 'file':
-					return false;
-			}
-		}
-	}
-}
-
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	const trailingSlash = opts.settings.config.trailingSlash;
 	const buildFormat = opts.settings.config.build.format;
@@ -518,14 +539,16 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		pageData.route.type
 	);
 
+	const request = createRequest({
+		url,
+		headers: new Headers(),
+		logger: pipeline.getLogger(),
+		ssr,
+	});
+	const i18n = pipeline.getConfig().experimental.i18n;
 	const renderContext = await createRenderContext({
 		pathname,
-		request: createRequest({
-			url,
-			headers: new Headers(),
-			logger: pipeline.getLogger(),
-			ssr,
-		}),
+		request,
 		componentMetadata: manifest.componentMetadata,
 		scripts,
 		styles,
@@ -533,6 +556,7 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		route: pageData.route,
 		env: pipeline.getEnvironment(),
 		mod,
+		locales: i18n ? i18n.locales : undefined,
 	});
 
 	let body: string | Uint8Array;
@@ -602,6 +626,15 @@ export function createBuildManifest(
 	internals: BuildInternals,
 	renderers: SSRLoadedRenderer[]
 ): SSRManifest {
+	let i18nManifest: SSRManifestI18n | undefined = undefined;
+	if (settings.config.experimental.i18n) {
+		i18nManifest = {
+			fallback: settings.config.experimental.i18n.fallback,
+			routingStrategy: settings.config.experimental.i18n.routingStrategy,
+			defaultLocale: settings.config.experimental.i18n.defaultLocale,
+			locales: settings.config.experimental.i18n.locales,
+		};
+	}
 	return {
 		assets: new Set(),
 		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
@@ -616,5 +649,6 @@ export function createBuildManifest(
 			? new URL(settings.config.base, settings.config.site).toString()
 			: settings.config.site,
 		componentMetadata: internals.componentMetadata,
+		i18n: i18nManifest,
 	};
 }

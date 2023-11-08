@@ -1440,6 +1440,93 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		devOverlay?: boolean;
+
+		// TODO review with docs team before merging to `main`
+		/**
+		 * @docs
+		 * @name experimental.i18n
+		 * @type {object}
+		 * @version 3.5.0
+		 * @type {object}
+		 * @description
+		 *
+		 * Configures experimental i18n routing and allows you to specify some customization options.
+		 */
+		i18n?: {
+			/**
+			 * @docs
+			 * @name experimental.i18n.defaultLocale
+			 * @type {string}
+			 * @version 3.5.0
+			 * @description
+			 *
+			 * The default locale of your website/application. This is a required field.
+			 */
+			defaultLocale: string;
+			/**
+			 * @docs
+			 * @name experimental.i18n.locales
+			 * @type {string[]}
+			 * @version 3.5.0
+			 * @description
+			 *
+			 * A list of all locales supported by the website (e.g. `['en', 'es', 'pt_BR']`). This list should also include the `defaultLocale`. This is a required field.
+			 *
+			 * No particular language format or syntax is enforced, but your folder structure must match exactly the locales in the list.
+			 */
+			locales: string[];
+
+			/**
+			 * @docs
+			 * @name experimental.i18n.fallback
+			 * @type {Record<string, string>}
+			 * @version 3.5.0
+			 * @description
+			 *
+			 * The fallback strategy when navigating to pages that do not exist (e.g. a translated page has not been created).
+			 *
+			 * Use this object to declare a fallback `locale` route for each language you support. If no fallback is specified, then unavailable pages will return a 404.
+			 *
+			 * #### Example
+			 *
+			 * The following example configures your content fallback strategy to redirect unavailable pages in `/pt/` to their `es` version, and unavailable pages in `/fr/` to their `en` version. Unavailable `/es/` pages will return a 404.
+			 *
+			 * ```js
+			 * export defualt defineConfig({
+			 * 	experimental: {
+			 * 		i18n: {
+			 * 			defaultLocale: "en",
+			 * 			locales: ["en", "fr", "pt", "es"],
+			 * 			fallback: {
+			 * 				pt: "es",
+			 * 			  fr: "en"
+			 * 			}
+			 * 		}
+			 * 	}
+			 * })
+			 * ```
+			 */
+			fallback?: Record<string, string>;
+
+			/**
+			 * @docs
+			 * @name experimental.i18n.routingStrategy
+			 * @type {'prefix-always' | 'prefix-other-locales'}
+			 * @default 'prefix-other-locales'
+			 * @version 3.5.0
+			 * @description
+			 *
+			 * Controls the routing strategy to determine your site URLs.
+			 *
+			 *  - `prefix-other-locales`(default): Only non-default languages will display a language prefix. The `defaultLocale` will not show a language prefix.
+			 *    URLs will be of the form `example.com/[lang]/content/` for all non-default languages, but `example.com/content/` for the default locale.
+			 *  - `prefix-always`: All URLs will display a language prefix.
+			 *    URLs will be of the form `example.com/[lang]/content/` for every route, including the default language.
+			 *
+			 * Note: Astro requires all content to exist within a `/[lang]/` folder, even for the default language.
+			 */
+			routingStrategy: 'prefix-always' | 'prefix-other-locales';
+		};
 	};
 }
 
@@ -1902,6 +1989,11 @@ export type AstroFeatureMap = {
 	 * The adapter can emit static assets
 	 */
 	assets?: AstroAssetsFeature;
+
+	/**
+	 * List of features that orbit around the i18n routing
+	 */
+	i18n?: AstroInternationalizationFeature;
 };
 
 export interface AstroAssetsFeature {
@@ -1914,6 +2006,13 @@ export interface AstroAssetsFeature {
 	 * Whether if this adapter deploys files in an environment that is compatible with the library `squoosh`
 	 */
 	isSquooshCompatible?: boolean;
+}
+
+export interface AstroInternationalizationFeature {
+	/**
+	 * Whether the adapter is able to detect the language of the browser, usually using the `Accept-Language` header.
+	 */
+	detectBrowserLanguage?: SupportsKind;
 }
 
 export interface AstroAdapter {
@@ -1973,6 +2072,17 @@ interface AstroSharedContext<
 	 * Object accessed via Astro middleware
 	 */
 	locals: App.Locals;
+
+	/**
+	 * The current locale that is computed from the `Accept-Language` header of the browser (**SSR Only**).
+	 */
+	preferredLocale: string | undefined;
+
+	/**
+	 * The list of locales computed from the `Accept-Language` header of the browser, sorted by quality value (**SSR Only**).
+	 */
+
+	preferredLocaleList: string[] | undefined;
 }
 
 export interface APIContext<
@@ -2074,6 +2184,34 @@ export interface APIContext<
 	 */
 	locals: App.Locals;
 	ResponseWithEncoding: typeof ResponseWithEncoding;
+
+	/**
+	 * Available only when `experimental.i18n` enabled and in SSR.
+	 *
+	 * It represents the preferred locale of the user. It's computed by checking the supported locales in `i18n.locales`
+	 * and locales supported by the users's browser via the header `Accept-Language`
+	 *
+	 * For example, given `i18n.locales` equals to `['fr', 'de']`, and the `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
+	 * `Astro.preferredLanguage` will be `fr` because `en` is not supported, its [quality value] is the highest.
+	 *
+	 * [quality value]: https://developer.mozilla.org/en-US/docs/Glossary/Quality_values
+	 */
+	preferredLocale: string | undefined;
+
+	/**
+	 * Available only when `experimental.i18n` enabled and in SSR.
+	 *
+	 * It represents the list of the preferred locales that are supported by the application. The list is sorted via [quality value].
+	 *
+	 * For example, given `i18n.locales` equals to `['fr', 'pt', 'de']`, and the `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
+	 * `Astro.preferredLocaleList` will be equal to `['fs', 'de']` because `en` isn't supported, and `pt` isn't part of the locales contained in the
+	 * header.
+	 *
+	 * When the `Accept-Header` is `*`, the original `i18n.locales` are returned. The value `*` means no preferences, so Astro returns all the supported locales.
+	 *
+	 * [quality value]: https://developer.mozilla.org/en-US/docs/Glossary/Quality_values
+	 */
+	preferredLocaleList: string[] | undefined;
 }
 
 export type EndpointOutput =
@@ -2216,7 +2354,13 @@ export interface AstroPluginOptions {
 	logger: Logger;
 }
 
-export type RouteType = 'page' | 'endpoint' | 'redirect';
+/**
+ * - page: a route that lives in the file system, usually an Astro component
+ * - endpoint: a route that lives in the file system, usually a JS file that exposes endpoints methods
+ * - redirect: a route points to another route that lives in the file system
+ * - fallback: a route that doesn't exist in the file system that needs to be handled with other means, usually the middleware
+ */
+export type RouteType = 'page' | 'endpoint' | 'redirect' | 'fallback';
 
 export interface RoutePart {
 	content: string;
