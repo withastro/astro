@@ -80,7 +80,7 @@ export default function assets({
 					return;
 				}
 
-				globalThis.astroAsset.addStaticImage = (options) => {
+				globalThis.astroAsset.addStaticImage = (options, hashProperties) => {
 					if (!globalThis.astroAsset.staticImages) {
 						globalThis.astroAsset.staticImages = new Map<
 							string,
@@ -101,7 +101,7 @@ export default function assets({
 						? options.src.fsPath
 						: options.src;
 
-					const hash = hashTransform(options, settings.config.image.service.entrypoint);
+					const hash = hashTransform(options, settings.config.image.service.entrypoint, hashProperties);
 
 					let finalFilePath: string;
 					let transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalImagePath);

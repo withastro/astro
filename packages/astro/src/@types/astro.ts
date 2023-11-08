@@ -2318,6 +2318,7 @@ export interface DevOverlayPlugin {
 	name: string;
 	icon: Icon;
 	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
+	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
 }
 
 export type DevOverlayMetadata = Window &

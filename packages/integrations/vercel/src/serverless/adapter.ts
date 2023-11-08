@@ -341,7 +341,7 @@ interface CreateFunctionFolderArgs {
 	NTF_CACHE: any;
 	includeFiles: URL[];
 	excludeFiles?: string[];
-	maxDuration?: number;
+	maxDuration: number | undefined;
 }
 
 async function createFunctionFolder({
@@ -381,6 +381,7 @@ async function createFunctionFolder({
 		handler,
 		launcherType: 'Nodejs',
 		maxDuration,
+		supportsResponseStreaming: true,
 	});
 }
 
