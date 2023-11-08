@@ -145,6 +145,7 @@ async function ssrBuild(
 	input: Set<string>,
 	container: AstroBuildPluginContainer
 ) {
+	const buildID = Date.now().toString();
 	const { allPages, settings, viteConfig } = opts;
 	const ssr = isServerLikeOutput(settings.config);
 	const out = getOutputDirectory(settings.config);
@@ -180,9 +181,11 @@ async function ssrBuild(
 					// We need to keep these separate
 					chunkFileNames(chunkInfo) {
 						const { name } = chunkInfo;
-						const prefix = 'chunks/';
+						let prefix = 'chunks/';
 						let suffix = '_[hash].mjs';
+						
 						if (isContentCache) {
+							prefix += `${buildID}/`;
 							suffix = '.mjs';
 						}
 
