@@ -751,7 +751,7 @@ importers:
         specifier: ^0.9.1
         version: 0.9.1
       memfs:
-        specifier: ^4.2.1
+        specifier: ^4.6.0
         version: 4.6.0
       mocha:
         specifier: ^10.2.0
@@ -12550,8 +12550,8 @@ packages:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
     dev: true
 
-  /json-joy@9.6.0:
-    resolution: {integrity: sha512-vJtJD89T0OOZFMaENe95xKCOdibMev/lELkclTdhZxLplwbBPxneWNuctUPizk2nLqtGfBxwCXVO42G9LBoFBA==}
+  /json-joy@9.9.1:
+    resolution: {integrity: sha512-/d7th2nbQRBQ/nqTkBe6KjjvDciSwn9UICmndwk3Ed/Bk9AqkTRm4PnLVfXG4DKbT0rEY0nKnwE7NqZlqKE6kg==}
     engines: {node: '>=10.0'}
     hasBin: true
     peerDependencies:
@@ -13146,7 +13146,7 @@ packages:
     peerDependencies:
       tslib: '2'
     dependencies:
-      json-joy: 9.6.0
+      json-joy: 9.9.1
       thingies: 1.12.0
     transitivePeerDependencies:
       - quill-delta
