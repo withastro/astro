@@ -194,10 +194,7 @@ export function astroConfigBuildPlugin(
 								JSON.stringify(Array.from(entryStyles))
 							);
 						} else {
-							newCode = newCode.replace(
-								JSON.stringify(STYLES_PLACEHOLDER),
-								"[]"
-							);
+							newCode = newCode.replace(JSON.stringify(STYLES_PLACEHOLDER), '[]');
 						}
 						if (entryLinks.size) {
 							newCode = newCode.replace(
@@ -205,10 +202,7 @@ export function astroConfigBuildPlugin(
 								JSON.stringify(Array.from(entryLinks).map(prependBase))
 							);
 						} else {
-							newCode = newCode.replace(
-								JSON.stringify(LINKS_PLACEHOLDER),
-								"[]"
-							);
+							newCode = newCode.replace(JSON.stringify(LINKS_PLACEHOLDER), '[]');
 						}
 						if (entryScripts.size) {
 							const entryFileNames = new Set<string>();
@@ -235,10 +229,7 @@ export function astroConfigBuildPlugin(
 								)
 							);
 						} else {
-							newCode = newCode.replace(
-								JSON.stringify(SCRIPTS_PLACEHOLDER),
-								"[]"
-							);
+							newCode = newCode.replace(JSON.stringify(SCRIPTS_PLACEHOLDER), '[]');
 						}
 						mutate(chunk, ['server'], newCode);
 					}

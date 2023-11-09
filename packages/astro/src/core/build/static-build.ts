@@ -7,6 +7,8 @@ import path, { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as vite from 'vite';
 import type { RouteData } from '../../@types/astro.js';
+import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
+import { hasAnyContentFlag } from '../../content/utils.js';
 import {
 	createBuildInternals,
 	eachPageData,
@@ -32,8 +34,6 @@ import { RESOLVED_SPLIT_MODULE_ID, RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plug
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat } from './util.js';
-import { hasAnyContentFlag } from '../../content/utils.js';
-import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -82,7 +82,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
 	opts.logger.info('build', dim(`Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 	settings.timer.end('SSR build');
-	
+
 	settings.timer.start('Client build');
 
 	const rendererClientEntrypoints = settings.renderers
@@ -183,7 +183,7 @@ async function ssrBuild(
 						const { name } = chunkInfo;
 						let prefix = 'chunks/';
 						let suffix = '_[hash].mjs';
-						
+
 						if (isContentCache) {
 							prefix += `${buildID}/`;
 							suffix = '.mjs';
@@ -207,7 +207,7 @@ async function ssrBuild(
 							return [prefix, sanitizedName, suffix].join('');
 						}
 						const encoded = encodeName(name);
-						return [prefix, encoded, suffix].join('')
+						return [prefix, encoded, suffix].join('');
 					},
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
@@ -226,7 +226,11 @@ async function ssrBuild(
 							return 'renderers.mjs';
 						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
 							return 'manifest_[hash].mjs';
-						} else if (settings.config.experimental.contentCollectionCache && chunkInfo.facadeModuleId && hasAnyContentFlag(chunkInfo.facadeModuleId)) {
+						} else if (
+							settings.config.experimental.contentCollectionCache &&
+							chunkInfo.facadeModuleId &&
+							hasAnyContentFlag(chunkInfo.facadeModuleId)
+						) {
 							const [srcRelative, flag] = chunkInfo.facadeModuleId.split('/src/')[1].split('?');
 							if (flag === PROPAGATED_ASSET_FLAG) {
 								return encodeName(`${removeFileExtension(srcRelative)}.entry.mjs`);
@@ -438,12 +442,10 @@ export async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles 
 			const from = new URL(filename, fromFolder);
 			const to = new URL(filename, toFolder);
 			const lastFolder = new URL('./', to);
-			return fs.promises
-				.mkdir(lastFolder, { recursive: true })
-				.then(async function fsCopyFile() {
-					const p = await fs.promises.copyFile(from, to, fs.constants.COPYFILE_FICLONE);
-					return p;
-				});
+			return fs.promises.mkdir(lastFolder, { recursive: true }).then(async function fsCopyFile() {
+				const p = await fs.promises.copyFile(from, to, fs.constants.COPYFILE_FICLONE);
+				return p;
+			});
 		})
 	);
 }

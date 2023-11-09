@@ -18,8 +18,8 @@ describe('Experimental Content Collections cache inlineStylesheets', () => {
 				inlineStylesheets: 'never',
 			},
 			experimental: {
-				contentCollectionCache: true
-			}
+				contentCollectionCache: true,
+			},
 		});
 		await fixture.build();
 	});
@@ -62,8 +62,8 @@ describe('Experimental Content Collections cache - inlineStylesheets to never in
 				inlineStylesheets: 'never',
 			},
 			experimental: {
-				contentCollectionCache: true
-			}
+				contentCollectionCache: true,
+			},
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
@@ -111,14 +111,14 @@ describe.skip('Experimental Content Collections cache - inlineStylesheets to aut
 				},
 			},
 			experimental: {
-				contentCollectionCache: true
-			}
+				contentCollectionCache: true,
+			},
 		});
 		await fixture.build();
 	});
 
 	after(() => fixture.clean());
-	
+
 	it.skip('Renders some <style> and some <link> tags', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
@@ -162,8 +162,8 @@ describe('Setting inlineStylesheets to auto in server output', () => {
 				},
 			},
 			experimental: {
-				contentCollectionCache: true
-			}
+				contentCollectionCache: true,
+			},
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
@@ -209,8 +209,8 @@ describe('Setting inlineStylesheets to always in static output', () => {
 				inlineStylesheets: 'always',
 			},
 			experimental: {
-				contentCollectionCache: true
-			}
+				contentCollectionCache: true,
+			},
 		});
 		await fixture.build();
 	});
@@ -252,8 +252,8 @@ describe('Setting inlineStylesheets to always in server output', () => {
 				inlineStylesheets: 'always',
 			},
 			experimental: {
-				contentCollectionCache: true
-			}
+				contentCollectionCache: true,
+			},
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();

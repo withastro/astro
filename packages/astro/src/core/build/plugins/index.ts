@@ -3,6 +3,7 @@ import { astroHeadBuildPlugin } from '../../../vite-plugin-head/index.js';
 import type { AstroBuildPluginContainer } from '../plugin.js';
 import { pluginAliasResolve } from './plugin-alias-resolve.js';
 import { pluginAnalyzer } from './plugin-analyzer.js';
+import { pluginChunks } from './plugin-chunks.js';
 import { pluginComponentEntry } from './plugin-component-entry.js';
 import { pluginContent } from './plugin-content.js';
 import { pluginCSS } from './plugin-css.js';
@@ -13,7 +14,6 @@ import { pluginMiddleware } from './plugin-middleware.js';
 import { pluginPages } from './plugin-pages.js';
 import { pluginPrerender } from './plugin-prerender.js';
 import { pluginRenderers } from './plugin-renderers.js';
-import { pluginChunks } from './plugin-chunks.js';
 import { pluginSSR, pluginSSRSplit } from './plugin-ssr.js';
 
 export function registerAllPlugins({ internals, options, register }: AstroBuildPluginContainer) {

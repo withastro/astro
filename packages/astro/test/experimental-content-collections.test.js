@@ -9,7 +9,10 @@ describe('Experimental Content Collections cache', () => {
 	describe('Query', () => {
 		let fixture;
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/content-collections/', experimental: { contentCollectionCache: true } });
+			fixture = await loadFixture({
+				root: './fixtures/content-collections/',
+				experimental: { contentCollectionCache: true },
+			});
 			await fixture.build();
 		});
 
@@ -27,13 +30,15 @@ describe('Experimental Content Collections cache', () => {
 				expect(Array.isArray(json.withoutConfig)).to.equal(true);
 
 				const ids = json.withoutConfig.map((item) => item.id).sort();
-				expect(ids).to.deep.equal([
-					'columbia.md',
-					'endeavour.md',
-					'enterprise.md',
-					// Spaces allowed in IDs
-					'promo/launch week.mdx',
-				].sort());
+				expect(ids).to.deep.equal(
+					[
+						'columbia.md',
+						'endeavour.md',
+						'enterprise.md',
+						// Spaces allowed in IDs
+						'promo/launch week.mdx',
+					].sort()
+				);
 			});
 
 			it('Handles spaces in `without config` slugs', async () => {
@@ -41,13 +46,15 @@ describe('Experimental Content Collections cache', () => {
 				expect(Array.isArray(json.withoutConfig)).to.equal(true);
 
 				const slugs = json.withoutConfig.map((item) => item.slug).sort();
-				expect(slugs).to.deep.equal([
-					'columbia',
-					'endeavour',
-					'enterprise',
-					// "launch week.mdx" is converted to "launch-week.mdx"
-					'promo/launch-week',
-				].sort());
+				expect(slugs).to.deep.equal(
+					[
+						'columbia',
+						'endeavour',
+						'enterprise',
+						// "launch week.mdx" is converted to "launch-week.mdx"
+						'promo/launch-week',
+					].sort()
+				);
 			});
 
 			it('Returns `with schema` collection', async () => {
@@ -163,9 +170,12 @@ describe('Experimental Content Collections cache', () => {
 		let fixture;
 
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/content-static-paths-integration/', experimental: {
-					contentCollectionCache: true
-				} });
+			fixture = await loadFixture({
+				root: './fixtures/content-static-paths-integration/',
+				experimental: {
+					contentCollectionCache: true,
+				},
+			});
 			await fixture.build();
 		});
 
@@ -198,16 +208,19 @@ describe('Experimental Content Collections cache', () => {
 
 	describe('With spaces in path', () => {
 		it('Does not throw', async () => {
-			const fixture = await loadFixture({ root: './fixtures/content with spaces in folder name/', experimental: {
-					contentCollectionCache: true
-				} });
+			const fixture = await loadFixture({
+				root: './fixtures/content with spaces in folder name/',
+				experimental: {
+					contentCollectionCache: true,
+				},
+			});
 			let error = null;
 			try {
 				await fixture.build();
 			} catch (e) {
 				error = e.message;
 			} finally {
-				await fixture.clean()
+				await fixture.clean();
 			}
 			expect(error).to.be.null;
 		});
@@ -217,8 +230,8 @@ describe('Experimental Content Collections cache', () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-with-config-mjs/',
 				experimental: {
-					contentCollectionCache: true
-				}
+					contentCollectionCache: true,
+				},
 			});
 			let error;
 			try {
@@ -226,7 +239,7 @@ describe('Experimental Content Collections cache', () => {
 			} catch (e) {
 				error = e.message;
 			} finally {
-				await fixture.clean()
+				await fixture.clean();
 			}
 			expect(error).to.include('**title**: Expected type `"string"`, received "number"');
 		});
@@ -236,8 +249,8 @@ describe('Experimental Content Collections cache', () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-with-config-mts/',
 				experimental: {
-					contentCollectionCache: true
-				}
+					contentCollectionCache: true,
+				},
 			});
 			let error;
 			try {
@@ -245,7 +258,7 @@ describe('Experimental Content Collections cache', () => {
 			} catch (e) {
 				error = e.message;
 			} finally {
-				await fixture.clean()
+				await fixture.clean();
 			}
 			expect(error).to.include('**title**: Expected type `"string"`, received "number"');
 		});
@@ -256,8 +269,8 @@ describe('Experimental Content Collections cache', () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-empty-md-file/',
 				experimental: {
-					contentCollectionCache: true
-				}
+					contentCollectionCache: true,
+				},
 			});
 			let error;
 			try {
@@ -265,7 +278,7 @@ describe('Experimental Content Collections cache', () => {
 			} catch (e) {
 				error = e.message;
 			} finally {
-				await fixture.clean()
+				await fixture.clean();
 			}
 			expect(error).to.include('**title**: Required');
 		});
@@ -276,8 +289,8 @@ describe('Experimental Content Collections cache', () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-empty-dir/',
 				experimental: {
-					contentCollectionCache: true
-				}
+					contentCollectionCache: true,
+				},
 			});
 			let error;
 			try {
@@ -285,7 +298,7 @@ describe('Experimental Content Collections cache', () => {
 			} catch (e) {
 				error = e.message;
 			} finally {
-				await fixture.clean()
+				await fixture.clean();
 			}
 			expect(error).to.be.undefined;
 			// TODO: try to render a page
@@ -305,8 +318,8 @@ describe('Experimental Content Collections cache', () => {
 					plugins: [preventNodeBuiltinDependencyPlugin()],
 				},
 				experimental: {
-					contentCollectionCache: true
-				}
+					contentCollectionCache: true,
+				},
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();
