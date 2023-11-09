@@ -1450,7 +1450,7 @@ export interface AstroUserConfig {
 		 * @description
 		 *
 		 * Configures experimental i18n routing and allows you to specify some customization options.
-	   *
+		 *
 		 * See our guide for more information on [internationalization in Astro](/en/guides/internationalization/)
 		 */
 		i18n?: {
@@ -1462,7 +1462,7 @@ export interface AstroUserConfig {
 			 * @description
 			 *
 			 * The default locale of your website/application. This is a required field.
-       * 
+			 *
 			 * No particular language format or syntax is enforced, but we suggest using lower-case and hyphens as needed (e.g. "es", "pt-br") for greatest compatibility.
 			 */
 			defaultLocale: string;
@@ -1521,12 +1521,12 @@ export interface AstroUserConfig {
 			 *
 			 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language:
 			 *
-			 *  - `prefix-other-locales`(default): Only non-default languages will display a language prefix. 
-		   *    The `defaultLocale` will not show a language prefix and content files do not exist in a localized folder.
+			 *  - `prefix-other-locales`(default): Only non-default languages will display a language prefix.
+			 *    The `defaultLocale` will not show a language prefix and content files do not exist in a localized folder.
 			 *    URLs will be of the form `example.com/[locale]/content/` for all non-default languages, but `example.com/content/` for the default locale.
 			 *  - `prefix-always`: All URLs will display a language prefix.
 			 *    URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
-		   *    Localized folders are used for every language, including the default.
+			 *    Localized folders are used for every language, including the default.
 			 *
 			 */
 			routingStrategy?: 'prefix-always' | 'prefix-other-locales';
