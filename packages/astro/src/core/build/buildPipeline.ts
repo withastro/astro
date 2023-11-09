@@ -161,7 +161,11 @@ export class BuildPipeline extends Pipeline {
 			for (const pageData of pageDataList) {
 				if (routeIsRedirect(pageData.route)) {
 					pages.set(pageData, path);
-				} else if (routeIsFallback(pageData.route) && i18nHasFallback(this.getConfig())) {
+				} else if (
+					routeIsFallback(pageData.route) &&
+					(i18nHasFallback(this.getConfig()) ||
+						(routeIsFallback(pageData.route) && pageData.route.route === '/'))
+				) {
 					pages.set(pageData, path);
 				}
 			}

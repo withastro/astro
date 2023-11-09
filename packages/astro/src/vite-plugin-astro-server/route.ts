@@ -187,7 +187,7 @@ export async function handleRoute({
 				.some((segment) => {
 					return locales.includes(segment);
 				});
-			if (!pathNameHasLocale) {
+			if (!pathNameHasLocale && pathname !== '/') {
 				return handle404Response(origin, incomingRequest, incomingResponse);
 			}
 			request = createRequest({
