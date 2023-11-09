@@ -83,7 +83,7 @@ export function pluginManifest(
 	internals: BuildInternals
 ): AstroBuildPlugin {
 	return {
-		build: 'ssr',
+		targets: ['server'],
 		hooks: {
 			'build:before': () => {
 				return {
@@ -111,7 +111,7 @@ export function pluginManifest(
 						: undefined,
 				});
 				const code = injectManifest(manifest, internals.manifestEntryChunk);
-				mutate(internals.manifestEntryChunk, 'server', code);
+				mutate(internals.manifestEntryChunk, ['server'], code);
 			},
 		},
 	};

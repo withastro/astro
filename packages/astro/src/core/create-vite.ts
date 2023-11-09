@@ -31,6 +31,7 @@ import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
+import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
 
 interface CreateViteOptions {
@@ -131,9 +132,10 @@ export async function createVite(
 			astroHeadPlugin(),
 			astroScannerPlugin({ settings, logger }),
 			astroInjectEnvTsPlugin({ settings, logger, fs }),
-			astroContentVirtualModPlugin({ settings }),
+			astroContentVirtualModPlugin({ fs, settings }),
 			astroContentImportPlugin({ fs, settings }),
 			astroContentAssetPropagationPlugin({ mode, settings }),
+			vitePluginMiddleware({ settings }),
 			vitePluginSSRManifest(),
 			astroAssetsPlugin({ settings, logger, mode }),
 			astroPrefetch({ settings }),

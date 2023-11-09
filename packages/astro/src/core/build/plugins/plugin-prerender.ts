@@ -12,16 +12,12 @@ function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals
 
 		outputOptions(outputOptions) {
 			extendManualChunks(outputOptions, {
-				after(id, meta) {
-					// Split the Astro runtime into a separate chunk for readability
-					if (id.includes('astro/dist/runtime')) {
-						return 'astro';
-					}
+				before(id, meta) {
 					const pageInfo = internals.pagesByViteID.get(id);
 					if (pageInfo) {
 						// prerendered pages should be split into their own chunk
 						// Important: this can't be in the `pages/` directory!
-						if (getPrerenderMetadata(meta.getModuleInfo(id))) {
+						if (getPrerenderMetadata(meta.getModuleInfo(id)!)) {
 							pageInfo.route.prerender = true;
 							return 'prerender';
 						}
@@ -40,7 +36,7 @@ export function pluginPrerender(
 	internals: BuildInternals
 ): AstroBuildPlugin {
 	return {
-		build: 'ssr',
+		targets: ['server'],
 		hooks: {
 			'build:before': () => {
 				return {

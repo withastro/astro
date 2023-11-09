@@ -4,5 +4,8 @@
   "private": true,
   "dependencies": {
     "astro": "workspace:*"
+  },
+  "exports": {
+    "./integration-middleware.js": "./integration-middleware.js"
   }
 }

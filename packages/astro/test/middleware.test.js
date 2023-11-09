@@ -85,6 +85,20 @@ describe('Middleware in DEV mode', () => {
 		let headers = res.headers;
 		expect(headers.get('set-cookie')).to.not.equal(null);
 	});
+
+	describe('Integration hooks', () => {
+		it('Integration middleware marked as "pre" runs', async () => {
+			let res = await fixture.fetch('/integration-pre');
+			let json = await res.json();
+			expect(json.pre).to.equal('works');
+		});
+
+		it('Integration middleware marked as "post" runs', async () => {
+			let res = await fixture.fetch('/integration-post');
+			let json = await res.json();
+			expect(json.post).to.equal('works');
+		});
+	});
 });
 
 describe('Middleware in PROD mode, SSG', () => {

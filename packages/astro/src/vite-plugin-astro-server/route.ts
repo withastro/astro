@@ -162,7 +162,6 @@ export async function handleRoute({
 	manifest,
 }: HandleRoute): Promise<void> {
 	const env = pipeline.getEnvironment();
-	const settings = pipeline.getSettings();
 	const config = pipeline.getConfig();
 	const moduleLoader = pipeline.getModuleLoader();
 	const { logger } = env;
@@ -177,7 +176,7 @@ export async function handleRoute({
 	let mod: ComponentInstance | undefined = undefined;
 	let options: SSROptions | undefined = undefined;
 	let route: RouteData;
-	const middleware = await loadMiddleware(moduleLoader, settings.config.srcDir);
+	const middleware = await loadMiddleware(moduleLoader);
 
 	if (!matchedRoute) {
 		if (config.experimental.i18n) {
@@ -188,7 +187,8 @@ export async function handleRoute({
 				.some((segment) => {
 					return locales.includes(segment);
 				});
-			if (!pathNameHasLocale) {
+			// Even when we have `config.base`, the pathname is still `/` because it gets stripped before
+			if (!pathNameHasLocale && pathname !== '/') {
 				return handle404Response(origin, incomingRequest, incomingResponse);
 			}
 			request = createRequest({

@@ -42,7 +42,8 @@ export default function assets({
 				extendManualChunks(outputOptions, {
 					after(id) {
 						if (id.includes('astro/dist/assets/services/')) {
-							return `astro-assets-services`;
+							// By convention, library code is emitted to the `chunks/astro/*` directory
+							return `astro/assets-service`;
 						}
 					},
 				});

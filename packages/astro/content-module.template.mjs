@@ -9,21 +9,18 @@ import {
 	createReference,
 } from 'astro/content/runtime';
 
+export { defineCollection } from 'astro/content/runtime';
 export { z } from 'astro/zod';
 
 const contentDir = '@@CONTENT_DIR@@';
 
-const contentEntryGlob = import.meta.glob('@@CONTENT_ENTRY_GLOB_PATH@@', {
-	query: { astroContentCollectionEntry: true },
-});
+const contentEntryGlob = '@@CONTENT_ENTRY_GLOB_PATH@@';
 const contentCollectionToEntryMap = createCollectionToGlobResultMap({
 	globResult: contentEntryGlob,
 	contentDir,
 });
 
-const dataEntryGlob = import.meta.glob('@@DATA_ENTRY_GLOB_PATH@@', {
-	query: { astroDataCollectionEntry: true },
-});
+const dataEntryGlob = '@@DATA_ENTRY_GLOB_PATH@@';
 const dataCollectionToEntryMap = createCollectionToGlobResultMap({
 	globResult: dataEntryGlob,
 	contentDir,
@@ -45,18 +42,11 @@ function createGlobLookup(glob) {
 	};
 }
 
-const renderEntryGlob = import.meta.glob('@@RENDER_ENTRY_GLOB_PATH@@', {
-	query: { astroRenderContent: true },
-});
+const renderEntryGlob = '@@RENDER_ENTRY_GLOB_PATH@@'
 const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 	globResult: renderEntryGlob,
 	contentDir,
 });
-
-export function defineCollection(config) {
-	if (!config.type) config.type = 'content';
-	return config;
-}
 
 export const getCollection = createGetCollection({
 	contentCollectionToEntryMap,
