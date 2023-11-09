@@ -6,7 +6,7 @@ export async function imageMetadata(
 	data: Uint8Array,
 	src?: string
 ): Promise<Omit<ImageMetadata, 'src' | 'fsPath'>> {
-	// @ts-expect-error probe-image-size types are wrong, it does accept Uint8Array. From the README: "Sync version can eat arrays, typed arrays and buffers.""
+	// @ts-expect-error probe-image-size types are wrong, it does accept Uint8Array. From the README: "Sync version can eat arrays, typed arrays and buffers."
 	const result = probe.sync(data);
 
 	if (result === null) {
