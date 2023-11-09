@@ -36,7 +36,7 @@ export default function astroInternationalization({
 					const site = ${JSON.stringify(settings.config.site)};
 					const i18n = ${JSON.stringify(settings.config.experimental.i18n)};
 					
-					export const getLocaleRelativeUrl = (locale, path = "", opts) => _getLocaleRelativeUrl({ 
+					export const getRelativeLocaleUrl = (locale, path = "", opts) => _getLocaleRelativeUrl({ 
 						locale,
 						path, 
 						base, 
@@ -45,7 +45,7 @@ export default function astroInternationalization({
 						...i18n,
 						...opts 
 					});
-					export const getLocaleAbsoluteUrl = (locale, path = "", opts) => _getLocaleAbsoluteUrl({ 
+					export const getAbsoluteLocaleUrl = (locale, path = "", opts) => _getLocaleAbsoluteUrl({ 
 						locale, 
 						path, 
 						base, 
@@ -56,9 +56,9 @@ export default function astroInternationalization({
 						...opts 
 					});
 					
-					export const getLocaleRelativeUrlList = (path = "", opts) => _getLocaleRelativeUrlList({ 
+					export const getRelativeLocaleUrlList = (path = "", opts) => _getLocaleRelativeUrlList({ 
 						base, path, trailingSlash, format, ...i18n, ...opts });
-					export const getLocaleAbsoluteUrlList = (path = "", opts) => _getLocaleAbsoluteUrlList({ base, path, trailingSlash, format, site, ...i18n, ...opts });
+					export const getAbsoluteLocaleUrlList = (path = "", opts) => _getLocaleAbsoluteUrlList({ base, path, trailingSlash, format, site, ...i18n, ...opts });
 				`;
 			}
 		},

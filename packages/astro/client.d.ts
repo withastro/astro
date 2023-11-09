@@ -144,14 +144,14 @@ declare module 'astro:i18n' {
 	 * ## Examples
 	 *
 	 * ```js
-	 * import { getLocaleRelativeUrl } from "astro:i18n";
-	 * getLocaleRelativeUrl("es"); // /es
-	 * getLocaleRelativeUrl("es", "getting-started"); // /es/getting-started
-	 * getLocaleRelativeUrl("es_US", "getting-started", { prependWith: "blog" }); // /blog/es-us/getting-started
-	 * getLocaleRelativeUrl("es_US", "getting-started", { prependWith: "blog", normalizeLocale: false }); // /blog/es_US/getting-started
+	 * import { getRelativeLocaleUrl } from "astro:i18n";
+	 * getRelativeLocaleUrl("es"); // /es
+	 * getRelativeLocaleUrl("es", "getting-started"); // /es/getting-started
+	 * getRelativeLocaleUrl("es_US", "getting-started", { prependWith: "blog" }); // /blog/es-us/getting-started
+	 * getRelativeLocaleUrl("es_US", "getting-started", { prependWith: "blog", normalizeLocale: false }); // /blog/es_US/getting-started
 	 * ```
 	 */
-	export const getLocaleRelativeUrl: (
+	export const getRelativeLocaleUrl: (
 		locale: string,
 		path?: string,
 		options?: GetLocaleOptions
@@ -176,14 +176,14 @@ declare module 'astro:i18n' {
 	 * If `site` is `https://example.com`:
 	 *
 	 * ```js
-	 * import { getLocaleAbsoluteUrl } from "astro:i18n";
-	 * getLocaleAbsoluteUrl("es"); // https://example.com/es
-	 * getLocaleAbsoluteUrl("es", "getting-started"); // https://example.com/es/getting-started
-	 * getLocaleAbsoluteUrl("es_US", "getting-started", { prependWith: "blog" }); // https://example.com/blog/es-us/getting-started
-	 * getLocaleAbsoluteUrl("es_US", "getting-started", { prependWith: "blog", normalizeLocale: false }); // https://example.com/blog/es_US/getting-started
+	 * import { getAbsoluteLocaleUrl } from "astro:i18n";
+	 * getAbsoluteLocaleUrl("es"); // https://example.com/es
+	 * getAbsoluteLocaleUrl("es", "getting-started"); // https://example.com/es/getting-started
+	 * getAbsoluteLocaleUrl("es_US", "getting-started", { prependWith: "blog" }); // https://example.com/blog/es-us/getting-started
+	 * getAbsoluteLocaleUrl("es_US", "getting-started", { prependWith: "blog", normalizeLocale: false }); // https://example.com/blog/es_US/getting-started
 	 * ```
 	 */
-	export const getLocaleAbsoluteUrl: (
+	export const getAbsoluteLocaleUrl: (
 		locale: string,
 		path?: string,
 		options?: GetLocaleOptions
@@ -194,17 +194,17 @@ declare module 'astro:i18n' {
 	 * @param {import('./dist/i18n/index.js').GetLocaleOptions} options Customise the generated path
 	 * @return {string[]}
 	 *
-	 * Works like `getLocaleRelativeUrl` but it emits the relative URLs for ALL locales:
+	 * Works like `getRelativeLocaleUrl` but it emits the relative URLs for ALL locales:
 	 */
-	export const getLocaleRelativeUrlList: (path?: string, options?: GetLocaleOptions) => string[];
+	export const getRelativeLocaleUrlList: (path?: string, options?: GetLocaleOptions) => string[];
 	/**
 	 * @param {string} [path=""] An optional path to add after the `locale`.
 	 * @param {import('./dist/i18n/index.js').GetLocaleOptions} options Customise the generated path
 	 * @return {string[]}
 	 *
-	 * Works like `getLocaleAbsoluteUrl` but it emits the absolute URLs for ALL locales:
+	 * Works like `getAbsoluteLocaleUrl` but it emits the absolute URLs for ALL locales:
 	 */
-	export const getLocaleAbsoluteUrlList: (path?: string, options?: GetLocaleOptions) => string[];
+	export const getAbsoluteLocaleUrlList: (path?: string, options?: GetLocaleOptions) => string[];
 }
 
 declare module 'astro:middleware' {

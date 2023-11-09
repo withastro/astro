@@ -36,12 +36,12 @@ Organize your content folders by locale depending on your `i18n.routingStrategy`
 │   │   │   ├── index.astro
 ```
 
-Compute relative URLs for your links with `getLocaleRelativeURL` from the new `astro:i18n` module:
+Compute relative URLs for your links with `getRelativeLocaleUrl` from the new `astro:i18n` module:
 
 ```astro
 ---
-import {getLocaleRelativeUrl} from "astro:i18n";
-const aboutUrl = getLocaleRelativeUrl("pt-br", "about");
+import {getRelativeLocaleUrl} from "astro:i18n";
+const aboutUrl = getRelativeLocaleUrl("pt-br", "about");
 ---
 <p>Learn more <a href={aboutURL}>About</a> this site!</p>
 ```
