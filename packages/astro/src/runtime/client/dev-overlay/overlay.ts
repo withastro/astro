@@ -328,7 +328,7 @@ export class AstroDevOverlay extends HTMLElement {
 					if (this.isHidden()) {
 						this.hoverTimeout = window.setTimeout(() => {
 							this.toggleOverlay(true);
-						}, this.HOVER_DELAY);
+						}, this.HOVER_DELAY + 200); // Slightly higher delay here to prevent users opening the overlay by accident
 					} else {
 						this.hoverTimeout = window.setTimeout(() => {
 							this.toggleMinimizeButton(true);

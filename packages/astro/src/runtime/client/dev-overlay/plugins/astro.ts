@@ -1,5 +1,5 @@
 import type { DevOverlayPlugin } from '../../../../@types/astro.js';
-import { createWindowWithTransition } from './utils/window.js';
+import { createWindowWithTransition, waitForTransition } from './utils/window.js';
 
 export default {
 	id: 'astro',
@@ -71,12 +71,6 @@ export default {
 		}
 	},
 	async beforeTogglingOff(canvas) {
-		canvas.host?.removeAttribute('data-active');
-
-		await new Promise((resolve) => {
-			canvas.host.addEventListener('transitionend', resolve);
-		});
-
-		return true;
+		return await waitForTransition(canvas);
 	},
 } satisfies DevOverlayPlugin;

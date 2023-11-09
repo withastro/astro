@@ -41,3 +41,13 @@ export function createWindowWithTransition(
 
 	return fragment;
 }
+
+export async function waitForTransition(canvas: ShadowRoot): Promise<boolean> {
+	canvas.host?.removeAttribute('data-active');
+
+	await new Promise((resolve) => {
+		canvas.host.addEventListener('transitionend', resolve);
+	});
+
+	return true;
+}
