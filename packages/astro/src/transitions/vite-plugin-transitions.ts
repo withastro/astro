@@ -27,7 +27,14 @@ export default function astroTransitions({ settings }: { settings: AstroSettings
 			}
 			if (id === resolvedVirtualClientModuleId) {
 				return `
-				export * from "astro/transitions/router";
+				export { navigate, supportsViewTransitions, transitionEnabledOnThisPage } from "astro/transitions/router";
+				export * from "astro/transitions/types";
+				export {
+					TRANSITION_BEFORE_PREPARATION, isTransitionBeforePreparationEvent, TransitionBeforePreparationEvent,
+					TRANSITION_AFTER_PREPARATION,
+					TRANSITION_BEFORE_SWAP, isTransitionBeforeSwapEvent, TransitionBeforeSwapEvent,
+					TRANSITION_AFTER_SWAP, TRANSITION_PAGE_LOAD
+				} from "astro/transitions/events";
 			`;
 			}
 		},

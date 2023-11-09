@@ -116,10 +116,30 @@ declare module 'astro:transitions' {
 
 declare module 'astro:transitions/client' {
 	type TransitionRouterModule = typeof import('./dist/transitions/router.js');
-	export const supportsViewTransitions: TransitionRouterModule['supportsViewTransitions'];
-	export const transitionEnabledOnThisPage: TransitionRouterModule['transitionEnabledOnThisPage'];
 	export const navigate: TransitionRouterModule['navigate'];
-	export type Options = import('./dist/transitions/router.js').Options;
+
+	type TransitionUtilModule = typeof import('./dist/transitions/util.js');
+	export const supportsViewTransitions: TransitionUtilModule['supportsViewTransitions'];
+	export const getFallback: TransitionUtilModule['getFallback'];
+	export const transitionEnabledOnThisPage: TransitionUtilModule['transitionEnabledOnThisPage'];
+
+	export type Fallback = import('./dist/transitions/types.ts').Fallback;
+	export type Direction = import('./dist/transitions/types.ts').Direction;
+	export type NavigationTypeString = import('./dist/transitions/types.ts').NavigationTypeString;
+	export type Options = import('./dist/transitions/types.ts').Options;
+
+	type EventModule = typeof import('./dist/transitions/events.js');
+	export const TRANSITION_BEFORE_PREPARATION: EventModule['TRANSITION_BEFORE_PREPARATION'];
+	export const TRANSITION_AFTER_PREPARATION: EventModule['TRANSITION_AFTER_PREPARATION'];
+	export const TRANSITION_BEFORE_SWAP: EventModule['TRANSITION_BEFORE_SWAP'];
+	export const TRANSITION_AFTER_SWAP: EventModule['TRANSITION_AFTER_SWAP'];
+	export const TRANSITION_PAGE_LOAD: EventModule['TRANSITION_PAGE_LOAD'];
+	export type TransitionBeforePreparationEvent =
+		import('./dist/transitions/events.ts').TransitionBeforePreparationEvent;
+	export type TransitionBeforeSwapEvent =
+		import('./dist/transitions/events.ts').TransitionBeforeSwapEvent;
+	export const isTransitionBeforePreparationEvent: EventModule['isTransitionBeforePreparationEvent'];
+	export const isTransitionBeforeSwapEvent: EventModule['isTransitionBeforeSwapEvent'];
 }
 
 declare module 'astro:prefetch' {

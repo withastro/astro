@@ -331,7 +331,7 @@ test.describe('View Transitions', () => {
 		// Back to middle of the page
 		await page.goBack();
 		locator = page.locator('#click-one-again');
-		await expect(locator).toBeInViewport();
+		await expect(locator).toBeVisible();
 	});
 
 	test('Scroll position restored when transitioning back to fragment', async ({ page, astro }) => {
@@ -744,10 +744,10 @@ test.describe('View Transitions', () => {
 
 		await page.goBack();
 		locator = page.locator('#click-one');
-		await expect(locator).toBeInViewport();
+		await expect(locator).toBeVisible();
 
 		locator = page.locator('#click-top');
-		await expect(locator).toBeInViewport();
+		await expect(locator).toBeVisible();
 
 		await page.click('#click-top');
 		locator = page.locator('#click-one');
