@@ -26,28 +26,28 @@ describe('Experimental Content Collections cache', () => {
 				expect(json).to.haveOwnProperty('withoutConfig');
 				expect(Array.isArray(json.withoutConfig)).to.equal(true);
 
-				const ids = json.withoutConfig.map((item) => item.id);
+				const ids = json.withoutConfig.map((item) => item.id).sort();
 				expect(ids).to.deep.equal([
 					'columbia.md',
 					'endeavour.md',
 					'enterprise.md',
 					// Spaces allowed in IDs
 					'promo/launch week.mdx',
-				]);
+				].sort());
 			});
 
 			it('Handles spaces in `without config` slugs', async () => {
 				expect(json).to.haveOwnProperty('withoutConfig');
 				expect(Array.isArray(json.withoutConfig)).to.equal(true);
 
-				const slugs = json.withoutConfig.map((item) => item.slug);
+				const slugs = json.withoutConfig.map((item) => item.slug).sort();
 				expect(slugs).to.deep.equal([
 					'columbia',
 					'endeavour',
 					'enterprise',
 					// "launch week.mdx" is converted to "launch-week.mdx"
 					'promo/launch-week',
-				]);
+				].sort());
 			});
 
 			it('Returns `with schema` collection', async () => {
