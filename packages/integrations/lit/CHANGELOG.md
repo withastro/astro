@@ -1,5 +1,11 @@
 # @astrojs/lit
 
+## 3.0.3
+
+### Patch Changes
+
+- [#9018](https://github.com/withastro/astro/pull/9018) [`23c9a30ad`](https://github.com/withastro/astro/commit/23c9a30ad859398d62a013d639b5b2716b583331) Thanks [@augustjk](https://github.com/augustjk)! - Fix hydration ordering of nested custom elements. Child components will now wait for their parents to hydrate before hydrating themselves.
+
 ## 3.0.2
 
 ### Patch Changes
