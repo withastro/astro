@@ -693,6 +693,9 @@ importers:
       '@types/diff':
         specifier: ^5.0.3
         version: 5.0.7
+      '@types/dom-navigation':
+        specifier: ^1.0.2
+        version: 1.0.2
       '@types/dom-view-transitions':
         specifier: ^1.0.1
         version: 1.0.3
@@ -8311,6 +8314,10 @@ packages:
 
   /@types/dlv@1.1.3:
     resolution: {integrity: sha512-u6JdAm9wje4n7vqkK9F6nQI18xSO+MVfXz6RMgN4acJmSZMlV7ZRrEQg4d1wmiQ2txg2xArpc68RS6p4JecVNg==}
+    dev: true
+
+  /@types/dom-navigation@1.0.2:
+    resolution: {integrity: sha512-5OchCMi8lg4FYeDG6cW+IpBn8iTKbgdGbC0Nj6er01tiw0c4WOUnTEQXSu1OqnfK13k+oaFvNQ8QAju5+2uiBw==}
     dev: true
 
   /@types/dom-view-transitions@1.0.3:
