@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': patch
 ---
 
 Use UInt8Array instead of Buffer for both the input and return values of the `transform()` hook of the Image Service API to ensure compatibility with non-Node runtimes.
