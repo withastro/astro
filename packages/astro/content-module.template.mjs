@@ -42,7 +42,7 @@ function createGlobLookup(glob) {
 	};
 }
 
-const renderEntryGlob = '@@RENDER_ENTRY_GLOB_PATH@@'
+const renderEntryGlob = '@@RENDER_ENTRY_GLOB_PATH@@';
 const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 	globResult: renderEntryGlob,
 	contentDir,

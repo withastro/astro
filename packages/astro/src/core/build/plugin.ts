@@ -17,7 +17,10 @@ export interface BuildBeforeHookResult {
 export type AstroBuildPlugin = {
 	targets: BuildTarget[];
 	hooks?: {
-		'build:before'?: (opts: { target: BuildTarget; input: Set<string> }) => BuildBeforeHookResult | Promise<BuildBeforeHookResult>;
+		'build:before'?: (opts: {
+			target: BuildTarget;
+			input: Set<string>;
+		}) => BuildBeforeHookResult | Promise<BuildBeforeHookResult>;
 		'build:post'?: (opts: {
 			ssrOutputs: RollupOutputArray;
 			clientOutputs: RollupOutputArray;

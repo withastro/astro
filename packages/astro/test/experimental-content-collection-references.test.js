@@ -6,7 +6,10 @@ describe('Experimental Content Collections cache - references', () => {
 	let fixture;
 	let devServer;
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/content-collection-references/', experimental: { contentCollectionCache: true } });
+		fixture = await loadFixture({
+			root: './fixtures/content-collection-references/',
+			experimental: { contentCollectionCache: true },
+		});
 	});
 
 	after(() => fixture.clean());

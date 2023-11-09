@@ -389,7 +389,10 @@ export const AstroConfigSchema = z.object({
 						}
 					})
 			),
-			contentCollectionCache: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
+			contentCollectionCache: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`

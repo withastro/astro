@@ -5,11 +5,19 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import pLimit from 'p-limit';
 import { type Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
+import { encodeName } from '../core/build/util.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { appendForwardSlash, removeFileExtension } from '../core/path.js';
 import { rootRelativePath } from '../core/util.js';
-import { encodeName } from '../core/build/util.js';
-import { CONTENT_FLAG, CONTENT_RENDER_FLAG, DATA_FLAG, VIRTUAL_MODULE_ID, RESOLVED_VIRTUAL_MODULE_ID } from './consts.js';
+import { isServerLikeOutput } from '../prerender/utils.js';
+import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
+import {
+	CONTENT_FLAG,
+	CONTENT_RENDER_FLAG,
+	DATA_FLAG,
+	RESOLVED_VIRTUAL_MODULE_ID,
+	VIRTUAL_MODULE_ID,
+} from './consts.js';
 import {
 	getContentEntryIdAndSlug,
 	getContentPaths,
@@ -22,12 +30,10 @@ import {
 	getExtGlob,
 	type ContentLookupMap,
 } from './utils.js';
-import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
-import { isServerLikeOutput } from '../prerender/utils.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
-	fs: typeof nodeFs
+	fs: typeof nodeFs;
 }
 
 export function astroContentVirtualModPlugin({
@@ -40,7 +46,7 @@ export function astroContentVirtualModPlugin({
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
 		configResolved(config) {
-			IS_DEV = config.mode === 'development'
+			IS_DEV = config.mode === 'development';
 		},
 		resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
@@ -51,7 +57,7 @@ export function astroContentVirtualModPlugin({
 					return RESOLVED_VIRTUAL_MODULE_ID;
 				} else {
 					// For SSG (production), we will build this file ourselves
-					return { id: RESOLVED_VIRTUAL_MODULE_ID, external: true }
+					return { id: RESOLVED_VIRTUAL_MODULE_ID, external: true };
 				}
 			}
 		},
@@ -72,9 +78,9 @@ export function astroContentVirtualModPlugin({
 							scripts: [],
 							containsHead: true,
 							propagation: 'in-tree',
-							pageOptions: {}
-						}
-					} satisfies AstroPluginMetadata
+							pageOptions: {},
+						},
+					} satisfies AstroPluginMetadata,
 				};
 			}
 		},
@@ -87,7 +93,7 @@ export function astroContentVirtualModPlugin({
 				const prefix = depth > 0 ? '../'.repeat(depth) : './';
 				return code.replaceAll(RESOLVED_VIRTUAL_MODULE_ID, `${prefix}content/entry.mjs`);
 			}
-		}
+		},
 	};
 }
 
@@ -95,11 +101,11 @@ export async function generateContentEntryFile({
 	settings,
 	lookupMap,
 	IS_DEV,
-	IS_SERVER
+	IS_SERVER,
 }: {
 	settings: AstroSettings;
 	fs: typeof nodeFs;
-	lookupMap: ContentLookupMap
+	lookupMap: ContentLookupMap;
 	IS_DEV: boolean;
 	IS_SERVER: boolean;
 }) {
@@ -113,12 +119,26 @@ export async function generateContentEntryFile({
 		const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 		const contentEntryExts = [...contentEntryConfigByExt.keys()];
 		const dataEntryExts = getDataEntryExts(settings);
-		const createGlob = (value: string[], flag: string) => `import.meta.glob(${JSON.stringify(value)}, { query: { ${flag}: true } })`
-		contentEntryGlobResult = createGlob(globWithUnderscoresIgnored(relContentDir, contentEntryExts), CONTENT_FLAG);
-		dataEntryGlobResult = createGlob(globWithUnderscoresIgnored(relContentDir, dataEntryExts), DATA_FLAG);
-		renderEntryGlobResult = createGlob(globWithUnderscoresIgnored(relContentDir, contentEntryExts), CONTENT_RENDER_FLAG);
+		const createGlob = (value: string[], flag: string) =>
+			`import.meta.glob(${JSON.stringify(value)}, { query: { ${flag}: true } })`;
+		contentEntryGlobResult = createGlob(
+			globWithUnderscoresIgnored(relContentDir, contentEntryExts),
+			CONTENT_FLAG
+		);
+		dataEntryGlobResult = createGlob(
+			globWithUnderscoresIgnored(relContentDir, dataEntryExts),
+			DATA_FLAG
+		);
+		renderEntryGlobResult = createGlob(
+			globWithUnderscoresIgnored(relContentDir, contentEntryExts),
+			CONTENT_RENDER_FLAG
+		);
 	} else {
-		contentEntryGlobResult = getStringifiedCollectionFromLookup('content', relContentDir, lookupMap);
+		contentEntryGlobResult = getStringifiedCollectionFromLookup(
+			'content',
+			relContentDir,
+			lookupMap
+		);
 		dataEntryGlobResult = getStringifiedCollectionFromLookup('data', relContentDir, lookupMap);
 		renderEntryGlobResult = getStringifiedCollectionFromLookup('render', relContentDir, lookupMap);
 	}
@@ -126,48 +146,42 @@ export async function generateContentEntryFile({
 	const virtualModContents = nodeFs
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
-		.replace(
-			"'@@CONTENT_ENTRY_GLOB_PATH@@'",
-			contentEntryGlobResult
-		)
-		.replace(
-			"'@@DATA_ENTRY_GLOB_PATH@@'",
-			dataEntryGlobResult
-		)
-		.replace(
-			"'@@RENDER_ENTRY_GLOB_PATH@@'",
-			renderEntryGlobResult
-		).replace(
-			'/* @@LOOKUP_MAP_ASSIGNMENT@@ */',
-			`lookupMap = ${JSON.stringify(lookupMap)};`
-		);
+		.replace("'@@CONTENT_ENTRY_GLOB_PATH@@'", contentEntryGlobResult)
+		.replace("'@@DATA_ENTRY_GLOB_PATH@@'", dataEntryGlobResult)
+		.replace("'@@RENDER_ENTRY_GLOB_PATH@@'", renderEntryGlobResult)
+		.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`);
 
 	return virtualModContents;
 }
 
-function getStringifiedCollectionFromLookup(wantedType: 'content' | 'data' | 'render', relContentDir: string, lookupMap: ContentLookupMap) {
+function getStringifiedCollectionFromLookup(
+	wantedType: 'content' | 'data' | 'render',
+	relContentDir: string,
+	lookupMap: ContentLookupMap
+) {
 	let str = '{';
 	// In dev, we don't need to normalize the import specifier at all. Vite handles it.
 	let normalize = (slug: string) => slug;
 	// For prod builds, we need to transform from `/src/content/**/*.{md,mdx,json,yaml}` to a relative `./**/*.mjs` import
 	if (process.env.NODE_ENV === 'production') {
 		const suffix = wantedType === 'render' ? '.entry.mjs' : '.mjs';
-		normalize = (slug: string) => `${removeFileExtension(encodeName(slug)).replace(relContentDir, './')}${suffix}`
+		normalize = (slug: string) =>
+			`${removeFileExtension(encodeName(slug)).replace(relContentDir, './')}${suffix}`;
 	} else {
 		let suffix = '';
 		if (wantedType === 'content') suffix = CONTENT_FLAG;
 		else if (wantedType === 'data') suffix = DATA_FLAG;
 		else if (wantedType === 'render') suffix = CONTENT_RENDER_FLAG;
-		normalize = (slug: string) => `${slug}?${suffix}`
+		normalize = (slug: string) => `${slug}?${suffix}`;
 	}
 	for (const { type, entries } of Object.values(lookupMap)) {
-		if (type === wantedType || wantedType === 'render' && type === 'content') {
+		if (type === wantedType || (wantedType === 'render' && type === 'content')) {
 			for (const slug of Object.values(entries)) {
-				str += `\n  "${slug}": () => import("${normalize(slug)}"),`
+				str += `\n  "${slug}": () => import("${normalize(slug)}"),`;
 			}
 		}
 	}
-	str += '\n}'
+	str += '\n}';
 	return str;
 }
 
@@ -202,7 +216,7 @@ export async function generateLookupMap({
 			cwd: fileURLToPath(root),
 			fs,
 		}
-	)
+	);
 
 	// Run 10 at a time to prevent `await getEntrySlug` from accessing the filesystem all at once.
 	// Each await shouldn't take too long for the work to be noticably slow too.

@@ -16,8 +16,8 @@ describe('Experimental Content Collections cache - render()', () => {
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
 				experimental: {
-					contentCollectionCache: true
-				}
+					contentCollectionCache: true,
+				},
 			});
 			await fixture.build();
 		});
@@ -116,8 +116,8 @@ describe('Experimental Content Collections cache - render()', () => {
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
 				experimental: {
-					contentCollectionCache: true
-				}
+					contentCollectionCache: true,
+				},
 			});
 			await fixture.build();
 		});
@@ -209,8 +209,8 @@ describe('Experimental Content Collections cache - render()', () => {
 			fixture = await loadFixture({
 				root: './fixtures/content/',
 				experimental: {
-					contentCollectionCache: true
-				}
+					contentCollectionCache: true,
+				},
 			});
 			devServer = await fixture.startDevServer();
 		});
