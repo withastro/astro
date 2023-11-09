@@ -1,0 +1,17 @@
+---
+import { getRelativeLocaleUrl } from "astro:i18n";
+
+let about = getRelativeLocaleUrl("pt", "about");
+
+---
+
+<html>
+<head>
+    <title>Astro</title>
+</head>
+    <body>
+        Virtual module doesn't break
+    
+        About: {about}
+    </body>
+</html>

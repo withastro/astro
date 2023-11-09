@@ -3,6 +3,31 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 
+describe('astro:i18n virtual module', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	/** @type {import('./test-utils').DevServer} */
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('correctly imports the functions', async () => {
+		const response = await fixture.fetch('/virtual-module');
+		expect(response.status).to.equal(200);
+		const text = await response.text();
+		expect(text).includes("Virtual module doesn't break");
+		expect(text).includes('About: /pt/about');
+	});
+});
 describe('[DEV] i18n routing', () => {
 	describe('i18n routing', () => {
 		/** @type {import('./test-utils').Fixture} */
