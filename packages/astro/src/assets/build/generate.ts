@@ -41,7 +41,7 @@ type AssetEnv = {
 	assetsFolder: AstroConfig['build']['assets'];
 };
 
-type ImageData = { data: Buffer; expires: number };
+type ImageData = { data: Uint8Array; expires: number };
 
 export async function prepareAssetsGenerationEnv(
 	pipeline: BuildPipeline,

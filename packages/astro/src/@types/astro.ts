@@ -1525,7 +1525,7 @@ export interface AstroUserConfig {
 			 *
 			 * Note: Astro requires all content to exist within a `/[lang]/` folder, even for the default language.
 			 */
-			routingStrategy: 'prefix-always' | 'prefix-other-locales';
+			routingStrategy?: 'prefix-always' | 'prefix-other-locales';
 		};
 		/**
 		 * @docs
