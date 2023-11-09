@@ -187,6 +187,7 @@ export async function handleRoute({
 				.some((segment) => {
 					return locales.includes(segment);
 				});
+			// Even when we have `config.base`, the pathname is still `/` because it gets stripped before
 			if (!pathNameHasLocale && pathname !== '/') {
 				return handle404Response(origin, incomingRequest, incomingResponse);
 			}
