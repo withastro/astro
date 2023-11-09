@@ -13,7 +13,7 @@ import {
 	type BuildInternals,
 } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
-import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
+import { appendForwardSlash, prependForwardSlash, removeFileExtension } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
@@ -31,7 +31,9 @@ import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
 import { RESOLVED_SPLIT_MODULE_ID, RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
-import { getTimeStat } from './util.js';
+import { encodeName, getTimeStat } from './util.js';
+import { hasAnyContentFlag } from '../../content/utils.js';
+import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -79,8 +81,8 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	opts.logger.info('build', `Building ${settings.config.output} entrypoints...`);
 	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
 	opts.logger.info('build', dim(`Completed in ${getTimeStat(ssrTime, performance.now())}.`));
-
 	settings.timer.end('SSR build');
+	
 	settings.timer.start('Client build');
 
 	const rendererClientEntrypoints = settings.renderers
@@ -88,6 +90,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 		.filter((a) => typeof a === 'string') as string[];
 
 	const clientInput = new Set([
+		...internals.cachedClientEntries,
 		...internals.discoveredHydratedComponents.keys(),
 		...internals.discoveredClientOnlyComponents.keys(),
 		...rendererClientEntrypoints,
@@ -142,13 +145,15 @@ async function ssrBuild(
 	input: Set<string>,
 	container: AstroBuildPluginContainer
 ) {
+	const buildID = Date.now().toString();
 	const { allPages, settings, viteConfig } = opts;
 	const ssr = isServerLikeOutput(settings.config);
 	const out = getOutputDirectory(settings.config);
 	const routes = Object.values(allPages)
 		.flat()
 		.map((pageData) => pageData.route);
-	const { lastVitePlugins, vitePlugins } = container.runBeforeHook('ssr', input);
+	const isContentCache = !ssr && settings.config.experimental.contentCollectionCache;
+	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('server', input);
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
@@ -169,34 +174,40 @@ async function ssrBuild(
 				...viteConfig.build?.rollupOptions,
 				input: [],
 				output: {
+					hoistTransitiveImports: isContentCache,
 					format: 'esm',
+					minifyInternalExports: !isContentCache,
 					// Server chunks can't go in the assets (_astro) folder
 					// We need to keep these separate
 					chunkFileNames(chunkInfo) {
 						const { name } = chunkInfo;
+						let prefix = 'chunks/';
+						let suffix = '_[hash].mjs';
+						
+						if (isContentCache) {
+							prefix += `${buildID}/`;
+							suffix = '.mjs';
+						}
+
+						if (isContentCache && name.includes('/content/')) {
+							const parts = name.split('/');
+							if (parts.at(1) === 'content') {
+								return encodeName(parts.slice(1).join('/'));
+							}
+						}
 						// Sometimes chunks have the `@_@astro` suffix due to SSR logic. Remove it!
 						// TODO: refactor our build logic to avoid this
 						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
 							const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
-							return `chunks/${sanitizedName}_[hash].mjs`;
+							return [prefix, sanitizedName, suffix].join('');
 						}
 						// Injected routes include "pages/[name].[ext]" already. Clean those up!
 						if (name.startsWith('pages/')) {
 							const sanitizedName = name.split('.')[0];
-							return `chunks/${sanitizedName}_[hash].mjs`;
+							return [prefix, sanitizedName, suffix].join('');
 						}
-						// Detect if the chunk name has as % sign that is not encoded.
-						// This is borrowed from Node core: https://github.com/nodejs/node/blob/3838b579e44bf0c2db43171c3ce0da51eb6b05d5/lib/internal/url.js#L1382-L1391
-						// We do this because you cannot import a module with this character in it.
-						for (let i = 0; i < name.length; i++) {
-							if (name[i] === '%') {
-								const third = name.codePointAt(i + 2)! | 0x20;
-								if (name[i + 1] !== '2' || third !== 102) {
-									return `chunks/${name.replace(/%/g, '_percent_')}_[hash].mjs`;
-								}
-							}
-						}
-						return `chunks/[name]_[hash].mjs`;
+						const encoded = encodeName(name);
+						return [prefix, encoded, suffix].join('')
 					},
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
@@ -215,6 +226,12 @@ async function ssrBuild(
 							return 'renderers.mjs';
 						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
 							return 'manifest_[hash].mjs';
+						} else if (settings.config.experimental.contentCollectionCache && chunkInfo.facadeModuleId && hasAnyContentFlag(chunkInfo.facadeModuleId)) {
+							const [srcRelative, flag] = chunkInfo.facadeModuleId.split('/src/')[1].split('?');
+							if (flag === PROPAGATED_ASSET_FLAG) {
+								return encodeName(`${removeFileExtension(srcRelative)}.entry.mjs`);
+							}
+							return encodeName(`${removeFileExtension(srcRelative)}.mjs`);
 						} else {
 							return '[name].mjs';
 						}
@@ -265,7 +282,7 @@ async function clientBuild(
 		return null;
 	}
 
-	const { lastVitePlugins, vitePlugins } = container.runBeforeHook('client', input);
+	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('client', input);
 	opts.logger.info(null, `\n${bgGreen(black(' building client '))}`);
 
 	const viteBuildConfig: vite.InlineConfig = {
@@ -319,7 +336,7 @@ async function runPostBuildHooks(
 	const build = container.options.settings.config.build;
 	for (const [fileName, mutation] of mutations) {
 		const root = isServerLikeOutput(config)
-			? mutation.build === 'server'
+			? mutation.targets.includes('server')
 				? build.server
 				: build.client
 			: config.outDir;
@@ -410,20 +427,23 @@ async function cleanServerOutput(opts: StaticBuildOptions) {
 	}
 }
 
-async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles = false) {
+export async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles = false) {
 	const files = await glob('**/*', {
 		cwd: fileURLToPath(fromFolder),
 		dot: includeDotfiles,
 	});
-
+	if (files.length === 0) return;
 	await Promise.all(
-		files.map(async (filename) => {
+		files.map(async function copyFile(filename) {
 			const from = new URL(filename, fromFolder);
 			const to = new URL(filename, toFolder);
 			const lastFolder = new URL('./', to);
 			return fs.promises
 				.mkdir(lastFolder, { recursive: true })
-				.then(() => fs.promises.copyFile(from, to));
+				.then(async function fsCopyFile() {
+					const p = await fs.promises.copyFile(from, to, fs.constants.COPYFILE_FICLONE);
+					return p;
+				});
 		})
 	);
 }
@@ -444,7 +464,7 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 
 	if (files.length > 0) {
 		await Promise.all(
-			files.map(async (filename) => {
+			files.map(async function moveAsset(filename) {
 				const currentUrl = new URL(filename, appendForwardSlash(serverAssets.toString()));
 				const clientUrl = new URL(filename, appendForwardSlash(clientAssets.toString()));
 				const dir = new URL(path.parse(clientUrl.href).dir);
@@ -499,7 +519,7 @@ export function makeAstroPageEntryPointFileName(
  * 2. We split the file path using the file system separator and attempt to retrieve the last entry
  * 3. The last entry should be the file
  * 4. We prepend the file name with `entry.`
- * 5. We built the file path again, using the new entry built in the previous step
+ * 5. We built the file path again, using the new en3built in the previous step
  *
  * @param facadeModuleId
  * @param opts

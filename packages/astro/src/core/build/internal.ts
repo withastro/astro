@@ -89,6 +89,11 @@ export interface BuildInternals {
 	 */
 	discoveredScripts: Set<string>;
 
+	cachedClientEntries: string[];
+
+	propagatedStylesMap: Map<string, Set<StylesheetAsset>>;
+	propagatedScriptsMap: Map<string, Set<string>>;
+
 	// A list of all static files created during the build. Used for SSR.
 	staticFiles: Set<string>;
 	// The SSR entry chunk. Kept in internals to share between ssr/client build steps
@@ -114,6 +119,7 @@ export function createBuildInternals(): BuildInternals {
 	const hoistedScriptIdToPagesMap = new Map<string, Set<string>>();
 
 	return {
+		cachedClientEntries: [],
 		cssModuleToChunkIdMap: new Map(),
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,
@@ -124,6 +130,9 @@ export function createBuildInternals(): BuildInternals {
 		pageOptionsByPage: new Map(),
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
+
+		propagatedStylesMap: new Map(),
+		propagatedScriptsMap: new Map(),
 
 		discoveredHydratedComponents: new Map(),
 		discoveredClientOnlyComponents: new Map(),

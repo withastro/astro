@@ -108,7 +108,7 @@ export function pluginHoistedScripts(
 	internals: BuildInternals
 ): AstroBuildPlugin {
 	return {
-		build: 'client',
+		targets: ['client'],
 		hooks: {
 			'build:before': () => {
 				return {
