@@ -1457,6 +1457,7 @@ export interface AstroUserConfig {
 		i18n?: {
 			/**
 			 * @docs
+		   * @kind h4
 			 * @name experimental.i18n.defaultLocale
 			 * @type {string}
 			 * @version 3.5.0
@@ -1469,6 +1470,7 @@ export interface AstroUserConfig {
 			defaultLocale: string;
 			/**
 			 * @docs
+       * @kind h4
 			 * @name experimental.i18n.locales
 			 * @type {string[]}
 			 * @version 3.5.0
@@ -1482,6 +1484,7 @@ export interface AstroUserConfig {
 
 			/**
 			 * @docs
+		   * @kind h4
 			 * @name experimental.i18n.fallback
 			 * @type {Record<string, string>}
 			 * @version 3.5.0
@@ -1514,6 +1517,7 @@ export interface AstroUserConfig {
 
 			/**
 			 * @docs
+		   * @kind h4
 			 * @name experimental.i18n.routingStrategy
 			 * @type {'prefix-always' | 'prefix-other-locales'}
 			 * @default 'prefix-other-locales'
