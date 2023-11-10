@@ -59,19 +59,29 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 
 				const preMiddleware = createMiddlewareImports(settings.middlewares.pre, 'pre');
 				const postMiddleware = createMiddlewareImports(settings.middlewares.post, 'post');
+				const userMiddleware = {
+					importsCode: resolvedMiddlewareId ? `import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';` : undefined,
+					sequenceCode: resolvedMiddlewareId ? 'userOnRequest' : undefined
+				};
+
+				const importsCode = [
+					preMiddleware.importsCode,
+					userMiddleware.importsCode,
+					postMiddleware.importsCode
+				].filter(Boolean).join('\n');
+
+				const sequenceCode = [
+					preMiddleware.sequenceCode,
+					userMiddleware.sequenceCode,
+					postMiddleware.sequenceCode
+				].filter(Boolean).join(', ');
 
 				const source = `
-import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';
 import { sequence } from 'astro:middleware';
-${preMiddleware.importsCode}${postMiddleware.importsCode}
+${importsCode}
 
-export const onRequest = sequence(
-	${preMiddleware.sequenceCode}${preMiddleware.sequenceCode ? ',' : ''}
-	userOnRequest${postMiddleware.sequenceCode ? ',' : ''}
-	${postMiddleware.sequenceCode}
-);
+export const onRequest = sequence(${sequenceCode});
 `.trim();
-
 				return source;
 			}
 		},
