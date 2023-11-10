@@ -935,6 +935,18 @@ describe('astro:image', () => {
 			expect(isReusingCache).to.be.true;
 		});
 
+		it('client images are written to build', async () => {
+			const html = await fixture.readFile('/client/index.html');
+			const $ = cheerio.load(html);
+			let $script = $('script');
+
+			// Find image
+			const regex = /src:"([^"]*)/gm;
+			const imageSrc = regex.exec($script.html())[1];
+			const data = await fixture.readFile(imageSrc, null);
+			expect(data).to.be.an.instanceOf(Buffer);
+		});
+
 		describe('custom service in build', () => {
 			it('uses configured hashes properties', async () => {
 				await fixture.build();

@@ -10,6 +10,7 @@ describe('getStaticPaths support', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/static/',
+			trailingSlash: 'always',
 		});
 		await fixture.build();
 
@@ -32,5 +33,10 @@ describe('getStaticPaths support', () => {
 
 	it('includes numerical pages', () => {
 		expect(urls).to.include('http://example.com/123/');
+	});
+
+	it('should render the endpoint', async () => {
+		const page = await fixture.readFile('./it/manifest');
+		expect(page).to.contain('I\'m a route in the "it" language.');
 	});
 });
