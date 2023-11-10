@@ -99,6 +99,31 @@ describe('Middleware in DEV mode', () => {
 			expect(json.post).to.equal('works');
 		});
 	});
+
+	describe('Integration hooks with no user middleware', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/middleware-no-user-middleware/',
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('Integration middleware marked as "pre" runs', async () => {
+			let res = await fixture.fetch('/pre');
+			let json = await res.json();
+			expect(json.pre).to.equal('works');
+		});
+
+		it('Integration middleware marked as "post" runs', async () => {
+			let res = await fixture.fetch('/post');
+			let json = await res.json();
+			expect(json.post).to.equal('works');
+		});
+	});
 });
 
 describe('Middleware in PROD mode, SSG', () => {
