@@ -77,7 +77,7 @@ export class DevOverlayWindow extends HTMLElement {
 					height: 1em;
 				}
 
-				hr {
+				hr, ::slotted(hr) {
 					border: 1px solid rgba(27, 30, 36, 1);
 					margin: 1em 0;
 				}
