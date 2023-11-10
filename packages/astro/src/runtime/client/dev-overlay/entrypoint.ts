@@ -1,5 +1,6 @@
 import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@types/astro.js';
 import { type AstroDevOverlay, type DevOverlayPlugin } from './overlay.js';
+import { settings } from './settings.js';
 
 let overlay: AstroDevOverlay;
 
@@ -65,7 +66,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 				newState = evt.detail.state ?? true;
 			}
 
-			target.querySelector('.notification')?.toggleAttribute('data-active', newState);
+			if (settings.config.showPluginNotifications === false) {
+				target.querySelector('.notification')?.toggleAttribute('data-active', newState);
+			}
 		});
 
 		eventTarget.addEventListener('toggle-plugin', async (evt) => {

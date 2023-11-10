@@ -1,6 +1,6 @@
 export class DevOverlayToggle extends HTMLElement {
 	shadowRoot: ShadowRoot;
-	inputId?: string;
+	input: HTMLInputElement;
 
 	constructor() {
 		super();
@@ -41,12 +41,12 @@ export class DevOverlayToggle extends HTMLElement {
 			}
 		</style>
 		`;
-		const checkbox = document.createElement('input');
-		checkbox.type = 'checkbox';
 
-		if (this.hasAttribute('input-id') || this.inputId) {
-			checkbox.id = this.getAttribute('input-id') ?? this.inputId ?? '';
-		}
-		this.shadowRoot.append(checkbox);
+		this.input = document.createElement('input');
+	}
+
+	connectedCallback() {
+		this.input.type = 'checkbox';
+		this.shadowRoot.append(this.input);
 	}
 }

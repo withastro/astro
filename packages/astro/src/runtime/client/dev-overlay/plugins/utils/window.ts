@@ -3,7 +3,8 @@ import type { Icon } from '../../ui-library/icons.js';
 export function createWindowWithTransition(
 	title: string,
 	icon: Icon,
-	content: string
+	windowContent: string,
+	addedNodes: Node[] = []
 ): DocumentFragment {
 	const fragment = document.createDocumentFragment();
 
@@ -35,7 +36,9 @@ export function createWindowWithTransition(
 	const window = document.createElement('astro-dev-overlay-window');
 	window.windowTitle = title;
 	window.windowIcon = icon;
-	window.innerHTML = content;
+	window.innerHTML = windowContent;
+
+	window.append(...addedNodes);
 
 	fragment.append(window);
 

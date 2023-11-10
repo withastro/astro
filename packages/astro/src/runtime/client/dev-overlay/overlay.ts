@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@types/astro.js';
+import { settings } from './settings.js';
 import { getIconElement, isDefinedIcon, type Icon } from './ui-library/icons.js';
 
 export type DevOverlayPlugin = DevOverlayPluginDefinition & {
@@ -261,7 +262,8 @@ export class AstroDevOverlay extends HTMLElement {
 		// Create plugin canvases
 		this.plugins.forEach(async (plugin) => {
 			if (!this.hasBeenInitialized) {
-				console.log(`Creating plugin canvas for ${plugin.id}`);
+				if (settings.config.verbose) console.log(`Creating plugin canvas for ${plugin.id}`);
+
 				const pluginCanvas = document.createElement('astro-dev-overlay-plugin-canvas');
 				pluginCanvas.dataset.pluginId = plugin.id;
 				this.shadowRoot?.append(pluginCanvas);
@@ -381,7 +383,8 @@ export class AstroDevOverlay extends HTMLElement {
 		const shadowRoot = this.getPluginCanvasById(plugin.id)!.shadowRoot!;
 
 		try {
-			console.info(`Initializing plugin ${plugin.id}`);
+			if (settings.config.verbose) console.info(`Initializing plugin ${plugin.id}`);
+
 			await plugin.init?.(shadowRoot, plugin.eventTarget);
 			plugin.status = 'ready';
 
