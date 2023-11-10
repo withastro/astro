@@ -91,7 +91,7 @@ To configure this adapter, pass an object to the `vercel()` function call in `as
 **Available for:** Serverless, Edge, Static<br>
 **Added in:** `@astrojs/vercel@3.8.0`
 
-You can enable [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics) by setting `webAnalytics: { enabled: true }`. This will inject Vercel’s tracking scripts into all of your pages.
+You can enable [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics) by setting `analytics: true`. This will inject Vercel’s tracking scripts into all of your pages.
 
 ```js
 // astro.config.mjs
@@ -101,9 +101,7 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    webAnalytics: {
-      enabled: true,
-    },
+   analytics: true,
   }),
 });
 ```
