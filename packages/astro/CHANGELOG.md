@@ -1,5 +1,11 @@
 # astro
 
+## 3.5.2
+
+### Patch Changes
+
+- [#9057](https://github.com/withastro/astro/pull/9057) [`1bc331968`](https://github.com/withastro/astro/commit/1bc3319686808292322ea3f7e5df3b4a37357111) Thanks [@ematipico](https://github.com/ematipico)! - Correctly infer the presence of an user middleware
+
 ## 3.5.1
 
 ### Patch Changes
