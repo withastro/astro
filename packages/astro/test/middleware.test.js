@@ -101,6 +101,31 @@ describe('Middleware in DEV mode', () => {
 	});
 });
 
+describe('Integration hooks', () => {
+
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/middleware-from-integration/',
+		});
+		await fixture.build();
+	});
+	
+	it('Integration middleware marked as "pre" runs', async () => {
+		let res = await fixture.fetch('/integration-pre');
+		let json = await res.json();
+		expect(json.pre).to.equal('works');
+	});
+
+	it('Integration middleware marked as "post" runs', async () => {
+		let res = await fixture.fetch('/integration-post');
+		let json = await res.json();
+		expect(json.post).to.equal('works');
+	});
+})
+
 describe('Middleware in PROD mode, SSG', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
