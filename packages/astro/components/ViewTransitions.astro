@@ -89,7 +89,8 @@ const { fallback = 'animate', handleForms } = Astro.props;
 
 				const form = el as HTMLFormElement;
 				const formData = new FormData(form);
-				let action = form.action;
+				// Use the form action, if defined, otherwise fallback to current path.
+				let action = form.action ?? location.pathname;
 				const options: Options = {};
 				if (form.method === 'get') {
 					const params = new URLSearchParams(formData as any);

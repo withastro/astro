@@ -465,7 +465,7 @@ export function navigate(href: string, options?: Options) {
 	// We do not have page transitions on navigations to the same page (intra-page navigation)
 	// but we want to handle prevent reload on navigation to the same page
 	// Same page means same origin, path and query params (but maybe different hash)
-	if (location.origin === toLocation.origin && samePage(toLocation)) {
+	if (location.origin === toLocation.origin && samePage(toLocation) && !options?.formData) {
 		moveToLocation(toLocation, options?.history === 'replace', true);
 	} else {
 		// different origin will be detected by fetch
