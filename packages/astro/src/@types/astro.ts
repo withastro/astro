@@ -538,6 +538,7 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @kind heading
 	 * @name prefetch
 	 * @type {boolean | object}
 	 * @description
@@ -1443,6 +1444,7 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
+	   * @kind heading
 		 * @name experimental.i18n
 		 * @type {object}
 		 * @version 3.5.0
