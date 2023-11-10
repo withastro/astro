@@ -1,5 +1,19 @@
 # astro
 
+## 3.5.1
+
+### Patch Changes
+
+- [#9037](https://github.com/withastro/astro/pull/9037) [`ea71975ec`](https://github.com/withastro/astro/commit/ea71975ec0c99f407f0e2fd0c248a959284d2068) Thanks [@sarah11918](https://github.com/sarah11918)! - Updates i18n configuration reference
+
+- [#9051](https://github.com/withastro/astro/pull/9051) [`15b84ccb9`](https://github.com/withastro/astro/commit/15b84ccb9859b070e30030015fca0de090a7b079) Thanks [@ematipico](https://github.com/ematipico)! - Fix a regression where endpoints were incorrectly processed during SSG build when `trailingSlash: "always"`
+
+- [#9042](https://github.com/withastro/astro/pull/9042) [`7dedd17fc`](https://github.com/withastro/astro/commit/7dedd17fc4c48aba31d9d39a10a94cd271b19746) Thanks [@rishi-raj-jain](https://github.com/rishi-raj-jain)! - Safely bail when the `xclip` command does not exist on Linux when trying to copy to clipboard with `astro info`
+
+- [#9050](https://github.com/withastro/astro/pull/9050) [`bf0286e50`](https://github.com/withastro/astro/commit/bf0286e50c09f8b5a08af63d7837add69af9b7e4) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix --verbose flag not working
+
+- [#9049](https://github.com/withastro/astro/pull/9049) [`49b82edb2`](https://github.com/withastro/astro/commit/49b82edb2c0d5058ec1adaed33d8b027220091c1) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix image errors when images were used on the client
+
 ## 3.5.0
 
 ### Minor Changes
