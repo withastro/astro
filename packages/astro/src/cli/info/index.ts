@@ -57,10 +57,9 @@ async function copyToClipboard(text: string) {
 				return;
 			}
 			command = 'xclip -sel clipboard -l 1';
-		}
-		catch (e) {
+		} catch (e) {
 			// Did not find xclip, bail out!
-			return
+			return;
 		}
 	}
 
