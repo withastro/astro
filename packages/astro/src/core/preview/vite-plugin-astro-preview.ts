@@ -24,7 +24,8 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 					return;
 				}
 
-				const pathname = stripBase(req.url!, base);
+				let strippedPathname = stripBase(req.url!, base);
+        const pathname = new URL(strippedPathname, 'https://test.com').pathname
 				const isRoot = pathname === '/';
 
 				// Validate trailingSlash
