@@ -60,9 +60,12 @@ function getParts(part: string, file: string) {
 	return result;
 }
 
-function getPattern(segments: RoutePart[][], config: AstroConfig) {
+function getPattern(
+	segments: RoutePart[][],
+	config: AstroConfig,
+	addTrailingSlash: AstroConfig['trailingSlash']
+) {
 	const base = config.base;
-	const addTrailingSlash = config.trailingSlash;
 	const pathname = segments
 		.map((segment) => {
 			if (segment.length === 1 && segment[0].spread) {
@@ -325,7 +328,7 @@ export function createRouteManifest(
 				components.push(item.file);
 				const component = item.file;
 				const trailingSlash = item.isPage ? settings.config.trailingSlash : 'never';
-				const pattern = getPattern(segments, settings.config);
+				const pattern = getPattern(segments, settings.config, trailingSlash);
 				const generate = getRouteGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -386,7 +389,7 @@ export function createRouteManifest(
 			const isPage = type === 'page';
 			const trailingSlash = isPage ? config.trailingSlash : 'never';
 
-			const pattern = getPattern(segments, settings.config);
+			const pattern = getPattern(segments, settings.config, trailingSlash);
 			const generate = getRouteGenerator(segments, trailingSlash);
 			const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 				? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -433,7 +436,7 @@ export function createRouteManifest(
 				return getParts(s, from);
 			});
 
-		const pattern = getPattern(segments, settings.config);
+		const pattern = getPattern(segments, settings.config, trailingSlash);
 		const generate = getRouteGenerator(segments, trailingSlash);
 		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -551,7 +554,7 @@ export function createRouteManifest(
 						pathname,
 						route,
 						segments,
-						pattern: getPattern(segments, config),
+						pattern: getPattern(segments, config, config.trailingSlash),
 						type: 'fallback',
 					});
 				}
@@ -624,7 +627,7 @@ export function createRouteManifest(
 								pathname,
 								route,
 								segments,
-								pattern: getPattern(segments, config),
+								pattern: getPattern(segments, config, config.trailingSlash),
 								type: 'fallback',
 							});
 						}

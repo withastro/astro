@@ -31,11 +31,14 @@ export async function callGetStaticPaths({
 	ssr,
 }: CallGetStaticPathsOptions): Promise<GetStaticPathsResultKeyed> {
 	const cached = routeCache.get(route);
-	if (cached?.staticPaths) return cached.staticPaths;
-
-	if (mod) {
-		validateDynamicRouteModule(mod, { ssr, route });
+	if (!mod) {
+		throw new Error('This is an error caused by Astro and not your code. Please file an issue.');
 	}
+	if (cached?.staticPaths) {
+		return cached.staticPaths;
+	}
+
+	validateDynamicRouteModule(mod, { ssr, route });
 
 	// No static paths in SSR mode. Return an empty RouteCacheEntry.
 	if (ssr && !route.prerender) {
@@ -47,23 +50,19 @@ export async function callGetStaticPaths({
 	let staticPaths: GetStaticPathsResult = [];
 	// Add a check here to make TypeScript happy.
 	// This is already checked in validateDynamicRouteModule().
-	if (mod) {
-		if (!mod.getStaticPaths) {
-			throw new Error('Unexpected Error.');
-		}
-
-		if (mod) {
-			// Calculate your static paths.
-			staticPaths = await mod.getStaticPaths({
-				// Q: Why the cast?
-				// A: So users downstream can have nicer typings, we have to make some sacrifice in our internal typings, which necessitate a cast here
-				paginate: generatePaginateFunction(route) as PaginateFunction,
-				rss() {
-					throw new AstroError(AstroErrorData.GetStaticPathsRemovedRSSHelper);
-				},
-			});
-		}
+	if (!mod.getStaticPaths) {
+		throw new Error('Unexpected Error.');
 	}
+
+	// Calculate your static paths.
+	staticPaths = await mod.getStaticPaths({
+		// Q: Why the cast?
+		// A: So users downstream can have nicer typings, we have to make some sacrifice in our internal typings, which necessitate a cast here
+		paginate: generatePaginateFunction(route) as PaginateFunction,
+		rss() {
+			throw new AstroError(AstroErrorData.GetStaticPathsRemovedRSSHelper);
+		},
+	});
 
 	validateGetStaticPathsResult(staticPaths, logger, route);
 

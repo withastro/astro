@@ -27,17 +27,16 @@ export async function dependencies(
 		await spinner({
 			start: `Installing dependencies with ${ctx.packageManager}...`,
 			end: 'Dependencies installed',
-			while: () => {
-				return install({ packageManager: ctx.packageManager, cwd: ctx.cwd }).catch((e) => {
-					error('error', e);
-					error(
-						'error',
-						`Dependencies failed to install, please run ${color.bold(
-							ctx.packageManager + ' install'
-						)}  to install them manually after setup.`
-					);
-				});
+			onError: (e) => {
+				error('error', e);
+				error(
+					'error',
+					`Dependencies failed to install, please run ${color.bold(
+						ctx.packageManager + ' install'
+					)} to install them manually after setup.`
+				);
 			},
+			while: () => install({ packageManager: ctx.packageManager, cwd: ctx.cwd }),
 		});
 	} else {
 		await info(
