@@ -1494,7 +1494,7 @@ export interface AstroUserConfig {
 			 *
 			 * Use this object to declare a fallback `locale` route for each language you support. If no fallback is specified, then unavailable pages will return a 404.
 			 *
-			 * #### Example
+			 * ##### Example
 			 *
 			 * The following example configures your content fallback strategy to redirect unavailable pages in `/pt-br/` to their `es` version, and unavailable pages in `/fr/` to their `en` version. Unavailable `/es/` pages will return a 404.
 			 *
