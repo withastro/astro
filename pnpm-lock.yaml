@@ -3700,8 +3700,8 @@ importers:
   packages/create-astro:
     dependencies:
       '@astrojs/cli-kit':
-        specifier: ^0.3.0
-        version: 0.3.0
+        specifier: ^0.3.1
+        version: 0.3.1
       giget:
         specifier: 1.1.2
         version: 1.1.2
@@ -5166,8 +5166,8 @@ packages:
       - prettier-plugin-astro
     dev: true
 
-  /@astrojs/cli-kit@0.3.0:
-    resolution: {integrity: sha512-nil0Kz2xuzR3xQX+FVHg2W8g+FvbeUeoCeU53duQjAFuHRJrbqWRmgfjYeM6f2780dsSuGiYMXmY+IaJqaqiaw==}
+  /@astrojs/cli-kit@0.3.1:
+    resolution: {integrity: sha512-BEzf3gudr4XrrrInJKD+GSS5O+GXRTukLUpOfgqdTSq6d48EWVhigNHobmlQGbpa9FEAw+sZmvmHmhS29QhnwA==}
     engines: {node: '>=18.14.1'}
     dependencies:
       chalk: 5.3.0
