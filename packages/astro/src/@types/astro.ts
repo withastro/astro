@@ -539,7 +539,7 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name prefetch
+	 * @name Prefetch Options
 	 * @type {boolean | object}
 	 * @description
 	 * Enable prefetching for links on your site to provide faster page transitions.
