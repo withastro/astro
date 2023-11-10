@@ -106,21 +106,27 @@ describe('Integration hooks', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
+	/** @type {import('../src/core/app/index').App} */
+	let app;
+
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-from-integration/',
+			output: 'server',
+			adapter: testAdapter({}),
 		});
 		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
 	});
-	
+
 	it('Integration middleware marked as "pre" runs', async () => {
-		let res = await fixture.fetch('/integration-pre');
+		let res = await app.render(new Request('http://example.com/integration-pre'));
 		let json = await res.json();
 		expect(json.pre).to.equal('works');
 	});
 
 	it('Integration middleware marked as "post" runs', async () => {
-		let res = await fixture.fetch('/integration-post');
+		let res = await app.render(new Request('http://example.com/integration-post'));
 		let json = await res.json();
 		expect(json.post).to.equal('works');
 	});
