@@ -1,6 +1,9 @@
 export type Fallback = 'none' | 'animate' | 'swap';
 export type Direction = 'forward' | 'back';
-export type Options = { history?: 'auto' | 'push' | 'replace' };
+export type Options = {
+	history?: 'auto' | 'push' | 'replace';
+	formData?: FormData;
+};
 
 type State = {
 	index: number;
@@ -30,10 +33,7 @@ const announce = () => {
 	let div = document.createElement('div');
 	div.setAttribute('aria-live', 'assertive');
 	div.setAttribute('aria-atomic', 'true');
-	div.setAttribute(
-		'style',
-		'position:absolute;left:0;top:0;clip:rect(0 0 0 0);clip-path:inset(50%);overflow:hidden;white-space:nowrap;width:1px;height:1px'
-	);
+	div.className = 'astro-route-announcer';
 	document.body.append(div);
 	setTimeout(
 		() => {
@@ -94,10 +94,11 @@ const throttle = (cb: (...args: any[]) => any, delay: number) => {
 
 // returns the contents of the page or null if the router can't deal with it.
 async function fetchHTML(
-	href: string
+	href: string,
+	init?: RequestInit
 ): Promise<null | { html: string; redirected?: string; mediaType: DOMParserSupportedType }> {
 	try {
-		const res = await fetch(href);
+		const res = await fetch(href, init);
 		// drop potential charset (+ other name/value pairs) as parser needs the mediaType
 		const mediaType = res.headers.get('content-type')?.replace(/;.*$/, '');
 		// the DOMParser can handle two types of HTML
@@ -381,7 +382,12 @@ async function transition(
 ) {
 	let finished: Promise<void>;
 	const href = toLocation.href;
-	const response = await fetchHTML(href);
+	const init: RequestInit = {};
+	if (options.formData) {
+		init.method = 'POST';
+		init.body = options.formData;
+	}
+	const response = await fetchHTML(href, init);
 	// If there is a problem fetching the new page, just do an MPA navigation to it.
 	if (response === null) {
 		location.href = href;
@@ -401,7 +407,9 @@ async function transition(
 	// see https://developer.mozilla.org/en-US/docs/Web/API/DOMParser/parseFromString
 	newDocument.querySelectorAll('noscript').forEach((el) => el.remove());
 
-	if (!newDocument.querySelector('[name="astro-view-transitions-enabled"]')) {
+	// If ViewTransitions is not enabled on the incoming page, do a full page load to it.
+	// Unless this was a form submission, in which case we do not want to trigger another mutation.
+	if (!newDocument.querySelector('[name="astro-view-transitions-enabled"]') && !options.formData) {
 		location.href = href;
 		return;
 	}
@@ -518,7 +526,7 @@ if (inBrowser) {
 		addEventListener('popstate', onPopState);
 		addEventListener('load', onPageLoad);
 		if ('onscrollend' in window) addEventListener('scrollend', onScroll);
-		else addEventListener('scroll', throttle(onScroll, 300));
+		else addEventListener('scroll', throttle(onScroll, 350), { passive: true });
 	}
 	for (const script of document.scripts) {
 		script.dataset.astroExec = '';
@@ -532,9 +540,16 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 	if (newDocument.body.querySelector(`astro-island[client='only']`)) {
 		// Load the next page with an empty module loader cache
 		const nextPage = document.createElement('iframe');
-		nextPage.setAttribute('src', toLocation.href);
+		// with srcdoc resolving imports does not work on webkit browsers
+		nextPage.src = toLocation.href;
 		nextPage.style.display = 'none';
 		document.body.append(nextPage);
+		// silence the iframe's console
+		// @ts-ignore
+		nextPage.contentWindow!.console = Object.keys(console).reduce((acc: any, key) => {
+			acc[key] = () => {};
+			return acc;
+		}, {});
 		await hydrationDone(nextPage);
 
 		const nextHead = nextPage.contentDocument?.head;
@@ -552,7 +567,7 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 			viteIds.forEach((id) => {
 				const style = document.head.querySelector(`style[${VITE_ID}="${id}"]`);
 				if (style && !newDocument.head.querySelector(`style[${VITE_ID}="${id}"]`)) {
-					newDocument.head.appendChild(style);
+					newDocument.head.appendChild(style.cloneNode(true));
 				}
 			});
 		}

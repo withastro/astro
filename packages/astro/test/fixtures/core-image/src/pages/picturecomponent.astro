@@ -8,7 +8,7 @@ import myImage from "../assets/penguin1.jpg";
 </div>
 
 <div id="picture-widths">
-<Picture src={myImage} width={Math.round(myImage.width / 2)} alt="A penguin" widths={[myImage.width]} />
+<Picture src={myImage} width={Math.round(myImage.width / 2)} alt="A penguin" widths={[myImage.width]} sizes="(max-width: 448px) 400px, (max-width: 810px) 750px, 1050px" />
 </div>
 
 <div id="picture-fallback">

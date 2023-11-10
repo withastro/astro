@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -78,7 +78,9 @@
       "default": "./dist/core/middleware/namespace.js"
     },
     "./transitions": "./dist/transitions/index.js",
-    "./transitions/router": "./dist/transitions/router.js"
+    "./transitions/router": "./dist/transitions/router.js",
+    "./prefetch": "./dist/prefetch/index.js",
+    "./i18n": "./dist/i18n/index.js"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
@@ -120,7 +122,7 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^2.1.0",
+    "@astrojs/compiler": "^2.3.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
@@ -154,6 +156,7 @@
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.4",
     "magic-string": "^0.30.3",
+    "mdast-util-to-hast": "12.3.0",
     "mime": "^3.0.0",
     "ora": "^7.0.1",
     "p-limit": "^4.0.0",
@@ -176,7 +179,7 @@
     "vitefu": "^0.2.4",
     "which-pm": "^2.1.1",
     "yargs-parser": "^21.1.1",
-    "zod": "3.21.1"
+    "zod": "^3.22.4"
   },
   "optionalDependencies": {
     "sharp": "^0.32.5"
@@ -211,7 +214,7 @@
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
     "eol": "^0.9.1",
-    "memfs": "^4.2.1",
+    "memfs": "^4.6.0",
     "mocha": "^10.2.0",
     "node-mocks-http": "^1.13.0",
     "parse-srcset": "^1.0.2",

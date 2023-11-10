@@ -1,21 +1,16 @@
-import type {
-	AstroCookies,
-	ComponentInstance,
-	EndpointHandler,
-	MiddlewareHandler,
-	MiddlewareResponseHandler,
-} from '../../@types/astro.js';
+import type { AstroCookies, ComponentInstance } from '../../@types/astro.js';
 import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachCookiesToResponse } from '../cookies/index.js';
-import { callEndpoint, createAPIContext } from '../endpoint/index.js';
-import { callMiddleware } from '../middleware/callMiddleware.js';
+import { CantRenderPage } from '../errors/errors-data.js';
+import { AstroError } from '../errors/index.js';
+import { routeIsFallback } from '../redirects/helpers.js';
 import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../redirects/index.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
 import { createResult } from './result.js';
 
 export type RenderPage = {
-	mod: ComponentInstance;
+	mod: ComponentInstance | undefined;
 	renderContext: RenderContext;
 	env: Environment;
 	cookies: AstroCookies;
@@ -29,6 +24,14 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 				location: redirectRouteGenerate(renderContext.route, renderContext.params),
 			},
 		});
+	} else if (routeIsFallback(renderContext.route)) {
+		// We return a 404 because fallback routes don't exist.
+		// It's responsibility of the middleware to catch them and re-route the requests
+		return new Response(null, {
+			status: 404,
+		});
+	} else if (!mod) {
+		throw new AstroError(CantRenderPage);
 	}
 
 	// Validate the page component before rendering the page
@@ -56,6 +59,7 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		status: renderContext.status ?? 200,
 		cookies,
 		locals: renderContext.locals ?? {},
+		locales: renderContext.locales,
 	});
 
 	// TODO: Remove in Astro 4.0
@@ -82,69 +86,4 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 	}
 
 	return response;
-}
-
-/**
- * It attempts to render a route. A route can be a:
- * - page
- * - redirect
- * - endpoint
- *
- * ## Errors
- *
- * It throws an error if the page can't be rendered.
- * @deprecated Use the pipeline instead
- */
-export async function tryRenderRoute<MiddlewareReturnType = Response>(
-	renderContext: Readonly<RenderContext>,
-	env: Readonly<Environment>,
-	mod: Readonly<ComponentInstance>,
-	onRequest?: MiddlewareHandler<MiddlewareReturnType>
-): Promise<Response> {
-	const apiContext = createAPIContext({
-		request: renderContext.request,
-		params: renderContext.params,
-		props: renderContext.props,
-		site: env.site,
-		adapterName: env.adapterName,
-	});
-
-	switch (renderContext.route.type) {
-		case 'page':
-		case 'redirect': {
-			if (onRequest) {
-				return await callMiddleware<Response>(
-					env.logger,
-					onRequest as MiddlewareResponseHandler,
-					apiContext,
-					() => {
-						return renderPage({
-							mod,
-							renderContext,
-							env,
-							cookies: apiContext.cookies,
-						});
-					}
-				);
-			} else {
-				return await renderPage({
-					mod,
-					renderContext,
-					env,
-					cookies: apiContext.cookies,
-				});
-			}
-		}
-		case 'endpoint': {
-			const result = await callEndpoint(
-				mod as any as EndpointHandler,
-				env,
-				renderContext,
-				onRequest
-			);
-			return result;
-		}
-		default:
-			throw new Error(`Couldn't find route of type [${renderContext.route.type}]`);
-	}
 }

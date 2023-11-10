@@ -222,6 +222,9 @@ describe('astro:image', () => {
 				expect($img).to.have.a.lengthOf(1);
 				expect($picture).to.have.a.lengthOf(1);
 				expect($source).to.have.a.lengthOf(1);
+				expect($source.attr('sizes')).to.equal(
+					'(max-width: 448px) 400px, (max-width: 810px) 750px, 1050px'
+				);
 
 				const srcset2 = parseSrcset($source.attr('srcset'));
 				expect(srcset2.every((src) => src.url.startsWith('/_image'))).to.equal(true);
@@ -930,6 +933,41 @@ describe('astro:image', () => {
 			);
 
 			expect(isReusingCache).to.be.true;
+		});
+
+		it('client images are written to build', async () => {
+			const html = await fixture.readFile('/client/index.html');
+			const $ = cheerio.load(html);
+			let $script = $('script');
+
+			// Find image
+			const regex = /src:"([^"]*)/gm;
+			const imageSrc = regex.exec($script.html())[1];
+			const data = await fixture.readFile(imageSrc, null);
+			expect(data).to.be.an.instanceOf(Buffer);
+		});
+
+		describe('custom service in build', () => {
+			it('uses configured hashes properties', async () => {
+				await fixture.build();
+				const html = await fixture.readFile('/imageDeduplication/index.html');
+
+				const $ = cheerio.load(html);
+
+				const allTheSamePath = $('#all-the-same img')
+					.map((_, el) => $(el).attr('src'))
+					.get();
+
+				expect(allTheSamePath.every((path) => path === allTheSamePath[0])).to.equal(true);
+
+				const useCustomHashProperty = $('#use-data img')
+					.map((_, el) => $(el).attr('src'))
+					.get();
+				expect(useCustomHashProperty.every((path) => path === useCustomHashProperty[0])).to.equal(
+					false
+				);
+				expect(useCustomHashProperty[1]).to.not.equal(allTheSamePath[0]);
+			});
 		});
 	});
 

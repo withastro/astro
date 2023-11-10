@@ -3,19 +3,35 @@ type Fallback = 'none' | 'animate' | 'swap';
 
 export interface Props {
 	fallback?: Fallback;
+	handleForms?: boolean;
 }
 
-const { fallback = 'animate' } = Astro.props as Props;
+const { fallback = 'animate', handleForms } = Astro.props;
 ---
 
+<style is:global>
+	/* Route announcer */
+	.astro-route-announcer {
+		position: absolute;
+		left: 0;
+		top: 0;
+		clip: rect(0 0 0 0);
+		clip-path: inset(50%);
+		overflow: hidden;
+		white-space: nowrap;
+		width: 1px;
+		height: 1px;
+	}
+</style>
 <meta name="astro-view-transitions-enabled" content="true" />
 <meta name="astro-view-transitions-fallback" content={fallback} />
+{handleForms ? <meta name="astro-view-transitions-forms" content="true" /> : ''}
 <script>
-	import {
-		supportsViewTransitions,
-		transitionEnabledOnThisPage,
-		navigate,
-	} from 'astro:transitions/client';
+	import type { Options } from 'astro:transitions/client';
+	import { supportsViewTransitions, navigate } from 'astro:transitions/client';
+	// NOTE: import from `astro/prefetch` as `astro:prefetch` requires the `prefetch` config to be enabled
+	import { init } from 'astro/prefetch';
+
 	export type Fallback = 'none' | 'animate' | 'swap';
 
 	function getFallback(): Fallback {
@@ -26,19 +42,8 @@ const { fallback = 'animate' } = Astro.props as Props;
 		return 'animate';
 	}
 
-	// Prefetching
-	function maybePrefetch(pathname: string) {
-		if (document.querySelector(`link[rel=prefetch][href="${pathname}"]`)) return;
-		// @ts-expect-error: connection might exist
-		if (navigator.connection) {
-			// @ts-expect-error: connection does exist
-			let conn = navigator.connection;
-			if (conn.saveData || /(2|3)g/.test(conn.effectiveType || '')) return;
-		}
-		let link = document.createElement('link');
-		link.setAttribute('rel', 'prefetch');
-		link.setAttribute('href', pathname);
-		document.head.append(link);
+	function isReloadEl(el: HTMLElement): boolean {
+		return el.dataset.astroReload !== undefined;
 	}
 
 	if (supportsViewTransitions || getFallback() !== 'none') {
@@ -53,7 +58,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			if (
 				!link ||
 				!(link instanceof HTMLAnchorElement) ||
-				link.dataset.astroReload !== undefined ||
+				isReloadEl(link) ||
 				link.hasAttribute('download') ||
 				!link.href ||
 				(link.target && link.target !== '_self') ||
@@ -75,23 +80,33 @@ const { fallback = 'animate' } = Astro.props as Props;
 			});
 		});
 
-		['mouseenter', 'touchstart', 'focus'].forEach((evName) => {
-			document.addEventListener(
-				evName,
-				(ev) => {
-					if (ev.target instanceof HTMLAnchorElement) {
-						let el = ev.target;
-						if (
-							el.origin === location.origin &&
-							el.pathname !== location.pathname &&
-							transitionEnabledOnThisPage()
-						) {
-							maybePrefetch(el.pathname);
-						}
-					}
-				},
-				{ passive: true, capture: true }
-			);
-		});
+		if (document.querySelector('[name="astro-view-transitions-forms"]')) {
+			document.addEventListener('submit', (ev) => {
+				let el = ev.target as HTMLElement;
+				if (el.tagName !== 'FORM' || isReloadEl(el)) {
+					return;
+				}
+
+				const form = el as HTMLFormElement;
+				const formData = new FormData(form);
+				let action = form.action;
+				const options: Options = {};
+				if (form.method === 'get') {
+					const params = new URLSearchParams(formData as any);
+					const url = new URL(action);
+					url.search = params.toString();
+					action = url.toString();
+				} else {
+					options.formData = formData;
+				}
+				ev.preventDefault();
+				navigate(action, options);
+			});
+		}
+
+		// @ts-expect-error injected by vite-plugin-transitions for treeshaking
+		if (!__PREFETCH_DISABLED__) {
+			init({ prefetchAll: true });
+		}
 	}
 </script>

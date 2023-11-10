@@ -1,9 +1,9 @@
 import type { AstroConfig } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isRemotePath, joinPaths } from '../../core/path.js';
-import { DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
+import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import { isESMImportedImage, isRemoteAllowed } from '../internal.js';
-import type { ImageOutputFormat, ImageTransform } from '../types.js';
+import type { ImageOutputFormat, ImageTransform, UnresolvedSrcSetValue } from '../types.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -28,12 +28,6 @@ type ImageConfig<T> = Omit<AstroConfig['image'], 'service'> & {
 	service: { entrypoint: string; config: T };
 };
 
-type SrcSetValue = {
-	transform: ImageTransform;
-	descriptor?: string;
-	attributes?: Record<string, any>;
-};
-
 interface SharedServiceProps<T extends Record<string, any> = Record<string, any>> {
 	/**
 	 * Return the URL to the endpoint or URL your images are generated from.
@@ -53,7 +47,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	getSrcSet?: (
 		options: ImageTransform,
 		imageConfig: ImageConfig<T>
-	) => SrcSetValue[] | Promise<SrcSetValue[]>;
+	) => UnresolvedSrcSetValue[] | Promise<UnresolvedSrcSetValue[]>;
 	/**
 	 * Return any additional HTML attributes separate from `src` that your service requires to show the image properly.
 	 *
@@ -102,10 +96,17 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 	 * final image format of the optimized image.
 	 */
 	transform: (
-		inputBuffer: Buffer,
+		inputBuffer: Uint8Array,
 		transform: LocalImageTransform,
 		imageConfig: ImageConfig<T>
-	) => Promise<{ data: Buffer; format: ImageOutputFormat }>;
+	) => Promise<{ data: Uint8Array; format: ImageOutputFormat }>;
+
+	/**
+	 * A list of properties that should be used to generate the hash for the image.
+	 *
+	 * Generally, this should be all the properties that can change the result of the image. By default, this is `src`, `width`, `height`, `quality`, and `format`.
+	 */
+	propertiesToHash?: string[];
 }
 
 export type BaseServiceTransform = {
@@ -137,6 +138,7 @@ export type BaseServiceTransform = {
  *
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
+	propertiesToHash: DEFAULT_HASH_PROPS,
 	validateOptions(options) {
 		// `src` is missing or is `undefined`.
 		if (!options.src || (typeof options.src !== 'string' && typeof options.src !== 'object')) {
@@ -233,7 +235,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		};
 	},
 	getSrcSet(options) {
-		const srcSet: SrcSetValue[] = [];
+		const srcSet: UnresolvedSrcSetValue[] = [];
 		const { targetWidth } = getTargetDimensions(options);
 		const { widths, densities } = options;
 		const targetFormat = options.format ?? DEFAULT_OUTPUT_FORMAT;

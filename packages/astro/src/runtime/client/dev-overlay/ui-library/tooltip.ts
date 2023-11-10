@@ -36,6 +36,7 @@ export class DevOverlayTooltip extends HTMLElement {
 				max-width: 45ch;
 				width: fit-content;
 				min-width: 27ch;
+				box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.30), 0px 1px 2px 0px rgba(0, 0, 0, 0.29), 0px 4px 4px 0px rgba(0, 0, 0, 0.26), 0px 10px 6px 0px rgba(0, 0, 0, 0.15), 0px 17px 7px 0px rgba(0, 0, 0, 0.04), 0px 26px 7px 0px rgba(0, 0, 0, 0.01);
 			}
 
 			:host([data-show="true"]) {
@@ -55,6 +56,11 @@ export class DevOverlayTooltip extends HTMLElement {
 
 			section {
 				padding: 8px;
+			}
+
+			.section-content {
+				max-height: 250px;
+    		overflow-y: auto;
 			}
 
 			.modal-title {
@@ -126,7 +132,7 @@ export class DevOverlayTooltip extends HTMLElement {
 						}</div>`
 						: ''
 				}
-				${section.content ? `<div>${section.content}</div>` : ''}
+				${section.content ? `<div class="section-content">${section.content}</div>` : ''}
 				${section.clickDescription ? `<span class="modal-cta">${section.clickDescription}</span>` : ''}
 			`;
 			fragment.append(sectionElement);

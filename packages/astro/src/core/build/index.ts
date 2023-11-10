@@ -42,6 +42,14 @@ export interface BuildOptions {
 	 * @default true
 	 */
 	teardownCompiler?: boolean;
+
+	/**
+	 * If `experimental.contentCollectionCache` is enabled, this flag will clear the cache before building
+	 *
+	 * @internal not part of our public api
+	 * @default false
+	 */
+	force?: boolean;
 }
 
 /**
@@ -52,12 +60,19 @@ export interface BuildOptions {
  */
 export default async function build(
 	inlineConfig: AstroInlineConfig,
-	options?: BuildOptions
+	options: BuildOptions = {}
 ): Promise<void> {
 	applyPolyfill();
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
+	if (astroConfig.experimental.contentCollectionCache && options.force) {
+		const contentCacheDir = new URL('./content/', astroConfig.cacheDir);
+		if (fs.existsSync(contentCacheDir)) {
+			logger.warn('content', 'clearing cache');
+			await fs.promises.rm(contentCacheDir, { force: true, recursive: true });
+		}
+	}
 
 	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
@@ -198,7 +213,9 @@ class AstroBuilder {
 		await runHookBuildDone({
 			config: this.settings.config,
 			pages: pageNames,
-			routes: Object.values(allPages).map((pd) => pd.route),
+			routes: Object.values(allPages)
+				.flat()
+				.map((pageData) => pageData.route),
 			logging: this.logger,
 		});
 

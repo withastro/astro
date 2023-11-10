@@ -30,10 +30,11 @@ export class DevOverlayWindow extends HTMLElement {
 					font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 					color: rgba(204, 206, 216, 1);
 					position: fixed;
-					z-index: 9999999999;
+					z-index: 999999999;
 					top: 55%;
 					left: 50%;
 					transform: translate(-50%, -50%);
+					box-shadow: 0px 0px 0px 0px rgba(19, 21, 26, 0.30), 0px 1px 2px 0px rgba(19, 21, 26, 0.29), 0px 4px 4px 0px rgba(19, 21, 26, 0.26), 0px 10px 6px 0px rgba(19, 21, 26, 0.15), 0px 17px 7px 0px rgba(19, 21, 26, 0.04), 0px 26px 7px 0px rgba(19, 21, 26, 0.01);
 				}
 
 				h1 {

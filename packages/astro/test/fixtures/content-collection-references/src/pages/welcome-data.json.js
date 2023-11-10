@@ -14,12 +14,10 @@ export async function GET() {
 	const rawRelatedPosts = await getEntries(welcomePost.data.relatedPosts ?? []);
 	const relatedPosts = rawRelatedPosts.map(({ render /** filter out render() function */, ...p }) => p);
 
-	return {
-		body: JSON.stringify({
-			welcomePost,
-			banner,
-			author,
-			relatedPosts,
-		})
-	}
+	return Response.json({
+		welcomePost,
+		banner,
+		author,
+		relatedPosts,
+	})
 }

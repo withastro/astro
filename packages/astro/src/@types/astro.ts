@@ -21,7 +21,11 @@ import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
+import type { AstroDevOverlay, DevOverlayCanvas } from '../runtime/client/dev-overlay/overlay.js';
+import type { DevOverlayHighlight } from '../runtime/client/dev-overlay/ui-library/highlight.js';
 import type { Icon } from '../runtime/client/dev-overlay/ui-library/icons.js';
+import type { DevOverlayTooltip } from '../runtime/client/dev-overlay/ui-library/tooltip.js';
+import type { DevOverlayWindow } from '../runtime/client/dev-overlay/ui-library/window.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
 import type { OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
@@ -220,7 +224,7 @@ export interface AstroGlobal<
 	 * }
 	 * ```
 	 *
-	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
+	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/)
 	 */
 	redirect: AstroSharedContext['redirect'];
 	/**
@@ -531,6 +535,71 @@ export interface AstroUserConfig {
 	 * ```
 	 */
 	redirects?: Record<string, RedirectConfig>;
+
+	/**
+	 * @docs
+	 * @name prefetch
+	 * @type {boolean | object}
+	 * @description
+	 * Enable prefetching for links on your site to provide faster page transitions.
+	 * (Enabled by default on pages using the `<ViewTransitions />` router. Set `prefetch: false` to opt out of this behaviour.)
+	 *
+	 * This configuration automatically adds a prefetch script to every page in the project
+	 * giving you access to the `data-astro-prefetch` attribute.
+	 * Add this attribute to any `<a />` link on your page to enable prefetching for that page.
+	 *
+	 * ```html
+	 * <a href="/about" data-astro-prefetch>About</a>
+	 * ```
+	 * Further customize the default prefetching behavior using the [`prefetch.defaultStrategy`](#prefetchdefaultstrategy) and [`prefetch.prefetchAll`](#prefetchprefetchall) options.
+	 *
+	 * See the [Prefetch guide](https://docs.astro.build/en/guides/prefetch/) for more information.
+	 */
+	prefetch?:
+		| boolean
+		| {
+				/**
+				 * @docs
+				 * @name prefetch.prefetchAll
+				 * @type {boolean}
+				 * @description
+				 * Enable prefetching for all links, including those without the `data-astro-prefetch` attribute.
+				 * This value defaults to `true` when using the `<ViewTransitions />` router. Otherwise, the default value is `false`.
+				 *
+				 * ```js
+				 * prefetch: {
+				 * 	prefetchAll: true
+				 * }
+				 * ```
+				 *
+				 * When set to `true`, you can disable prefetching individually by setting `data-astro-prefetch="false"` on any individual links.
+				 *
+				 * ```html
+				 * <a href="/about" data-astro-prefetch="false">About</a>
+				 *```
+				 */
+				prefetchAll?: boolean;
+
+				/**
+				 * @docs
+				 * @name prefetch.defaultStrategy
+				 * @type {'tap' | 'hover' | 'viewport'}
+				 * @default `'hover'`
+				 * @description
+				 * The default prefetch strategy to use when the `data-astro-prefetch` attribute is set on a link with no value.
+				 *
+				 * - `'tap'`: Prefetch just before you click on the link.
+				 * - `'hover'`: Prefetch when you hover over or focus on the link. (default)
+				 * - `'viewport'`: Prefetch as the links enter the viewport.
+				 *
+				 * You can override this default value and select a different strategy for any individual link by setting a value on the attribute.
+				 *
+				 * ```html
+				 * <a href="/about" data-astro-prefetch="viewport">About</a>
+				 * ```
+				 */
+				defaultStrategy?: 'tap' | 'hover' | 'viewport';
+		  };
 
 	/**
 	 * @docs
@@ -1371,6 +1440,115 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		devOverlay?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.i18n
+		 * @type {object}
+		 * @version 3.5.0
+		 * @type {object}
+		 * @description
+		 *
+		 * Configures experimental i18n routing and allows you to specify some customization options.
+		 *
+		 * See our guide for more information on [internationalization in Astro](/en/guides/internationalization/)
+		 */
+		i18n?: {
+			/**
+			 * @docs
+			 * @name experimental.i18n.defaultLocale
+			 * @type {string}
+			 * @version 3.5.0
+			 * @description
+			 *
+			 * The default locale of your website/application. This is a required field.
+			 *
+			 * No particular language format or syntax is enforced, but we suggest using lower-case and hyphens as needed (e.g. "es", "pt-br") for greatest compatibility.
+			 */
+			defaultLocale: string;
+			/**
+			 * @docs
+			 * @name experimental.i18n.locales
+			 * @type {string[]}
+			 * @version 3.5.0
+			 * @description
+			 *
+			 * A list of all locales supported by the website (e.g. `['en', 'es', 'pt-br']`). This list should also include the `defaultLocale`. This is a required field.
+			 *
+			 * No particular language format or syntax is enforced, but your folder structure must match exactly the locales in the list.
+			 */
+			locales: string[];
+
+			/**
+			 * @docs
+			 * @name experimental.i18n.fallback
+			 * @type {Record<string, string>}
+			 * @version 3.5.0
+			 * @description
+			 *
+			 * The fallback strategy when navigating to pages that do not exist (e.g. a translated page has not been created).
+			 *
+			 * Use this object to declare a fallback `locale` route for each language you support. If no fallback is specified, then unavailable pages will return a 404.
+			 *
+			 * #### Example
+			 *
+			 * The following example configures your content fallback strategy to redirect unavailable pages in `/pt-br/` to their `es` version, and unavailable pages in `/fr/` to their `en` version. Unavailable `/es/` pages will return a 404.
+			 *
+			 * ```js
+			 * export defualt defineConfig({
+			 * 	experimental: {
+			 * 		i18n: {
+			 * 			defaultLocale: "en",
+			 * 			locales: ["en", "fr", "pt-br", "es"],
+			 * 			fallback: {
+			 * 				pt: "es",
+			 * 			  fr: "en"
+			 * 			}
+			 * 		}
+			 * 	}
+			 * })
+			 * ```
+			 */
+			fallback?: Record<string, string>;
+
+			/**
+			 * @docs
+			 * @name experimental.i18n.routingStrategy
+			 * @type {'prefix-always' | 'prefix-other-locales'}
+			 * @default 'prefix-other-locales'
+			 * @version 3.5.0
+			 * @description
+			 *
+			 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language:
+			 *
+			 *  - `prefix-other-locales`(default): Only non-default languages will display a language prefix.
+			 *    The `defaultLocale` will not show a language prefix and content files do not exist in a localized folder.
+			 *    URLs will be of the form `example.com/[locale]/content/` for all non-default languages, but `example.com/content/` for the default locale.
+			 *  - `prefix-always`: All URLs will display a language prefix.
+			 *    URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
+			 *    Localized folders are used for every language, including the default.
+			 *
+			 */
+			routingStrategy?: 'prefix-always' | 'prefix-other-locales';
+		};
+		/**
+		 * @docs
+		 * @name experimental.contentCollectionCache
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 3.5.0
+		 * @description
+		 * Enables a persistent cache for content collections when building in static mode.
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 * 		contentCollectionCache: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		contentCollectionCache?: boolean;
 	};
 }
 
@@ -1545,6 +1723,7 @@ export interface AstroSettings {
 	 */
 	clientDirectives: Map<string, string>;
 	devOverlayPlugins: string[];
+	middlewares: { pre: string[]; post: string[] };
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
@@ -1833,6 +2012,11 @@ export type AstroFeatureMap = {
 	 * The adapter can emit static assets
 	 */
 	assets?: AstroAssetsFeature;
+
+	/**
+	 * List of features that orbit around the i18n routing
+	 */
+	i18n?: AstroInternationalizationFeature;
 };
 
 export interface AstroAssetsFeature {
@@ -1845,6 +2029,13 @@ export interface AstroAssetsFeature {
 	 * Whether if this adapter deploys files in an environment that is compatible with the library `squoosh`
 	 */
 	isSquooshCompatible?: boolean;
+}
+
+export interface AstroInternationalizationFeature {
+	/**
+	 * Whether the adapter is able to detect the language of the browser, usually using the `Accept-Language` header.
+	 */
+	detectBrowserLanguage?: SupportsKind;
 }
 
 export interface AstroAdapter {
@@ -1904,6 +2095,17 @@ interface AstroSharedContext<
 	 * Object accessed via Astro middleware
 	 */
 	locals: App.Locals;
+
+	/**
+	 * The current locale that is computed from the `Accept-Language` header of the browser (**SSR Only**).
+	 */
+	preferredLocale: string | undefined;
+
+	/**
+	 * The list of locales computed from the `Accept-Language` header of the browser, sorted by quality value (**SSR Only**).
+	 */
+
+	preferredLocaleList: string[] | undefined;
 }
 
 export interface APIContext<
@@ -2005,6 +2207,34 @@ export interface APIContext<
 	 */
 	locals: App.Locals;
 	ResponseWithEncoding: typeof ResponseWithEncoding;
+
+	/**
+	 * Available only when `experimental.i18n` enabled and in SSR.
+	 *
+	 * It represents the preferred locale of the user. It's computed by checking the supported locales in `i18n.locales`
+	 * and locales supported by the users's browser via the header `Accept-Language`
+	 *
+	 * For example, given `i18n.locales` equals to `['fr', 'de']`, and the `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
+	 * `Astro.preferredLanguage` will be `fr` because `en` is not supported, its [quality value] is the highest.
+	 *
+	 * [quality value]: https://developer.mozilla.org/en-US/docs/Glossary/Quality_values
+	 */
+	preferredLocale: string | undefined;
+
+	/**
+	 * Available only when `experimental.i18n` enabled and in SSR.
+	 *
+	 * It represents the list of the preferred locales that are supported by the application. The list is sorted via [quality value].
+	 *
+	 * For example, given `i18n.locales` equals to `['fr', 'pt', 'de']`, and the `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
+	 * `Astro.preferredLocaleList` will be equal to `['fs', 'de']` because `en` isn't supported, and `pt` isn't part of the locales contained in the
+	 * header.
+	 *
+	 * When the `Accept-Header` is `*`, the original `i18n.locales` are returned. The value `*` means no preferences, so Astro returns all the supported locales.
+	 *
+	 * [quality value]: https://developer.mozilla.org/en-US/docs/Glossary/Quality_values
+	 */
+	preferredLocaleList: string[] | undefined;
 }
 
 export type EndpointOutput =
@@ -2072,6 +2302,7 @@ export interface AstroIntegration {
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			addClientDirective: (directive: ClientDirectiveConfig) => void;
 			addDevOverlayPlugin: (entrypoint: string) => void;
+			addMiddleware: (mid: AstroIntegrationMiddleware) => void;
 			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
@@ -2142,12 +2373,23 @@ export type AstroMiddlewareInstance<R> = {
 	onRequest?: MiddlewareHandler<R>;
 };
 
+export type AstroIntegrationMiddleware = {
+	order: 'pre' | 'post';
+	entrypoint: string;
+};
+
 export interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: Logger;
 }
 
-export type RouteType = 'page' | 'endpoint' | 'redirect';
+/**
+ * - page: a route that lives in the file system, usually an Astro component
+ * - endpoint: a route that lives in the file system, usually a JS file that exposes endpoints methods
+ * - redirect: a route points to another route that lives in the file system
+ * - fallback: a route that doesn't exist in the file system that needs to be handled with other means, usually the middleware
+ */
+export type RouteType = 'page' | 'endpoint' | 'redirect' | 'fallback';
 
 export interface RoutePart {
 	content: string;
@@ -2314,6 +2556,7 @@ export interface DevOverlayPlugin {
 	name: string;
 	icon: Icon;
 	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
+	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
 }
 
 export type DevOverlayMetadata = Window &
@@ -2322,3 +2565,13 @@ export type DevOverlayMetadata = Window &
 			root: string;
 		};
 	};
+
+declare global {
+	interface HTMLElementTagNameMap {
+		'astro-dev-overlay': AstroDevOverlay;
+		'astro-dev-overlay-window': DevOverlayWindow;
+		'astro-dev-overlay-plugin-canvas': DevOverlayCanvas;
+		'astro-dev-overlay-tooltip': DevOverlayTooltip;
+		'astro-dev-overlay-highlight': DevOverlayHighlight;
+	}
+}

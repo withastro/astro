@@ -119,6 +119,92 @@ declare module 'astro:transitions/client' {
 	export const supportsViewTransitions: TransitionRouterModule['supportsViewTransitions'];
 	export const transitionEnabledOnThisPage: TransitionRouterModule['transitionEnabledOnThisPage'];
 	export const navigate: TransitionRouterModule['navigate'];
+	export type Options = import('./dist/transitions/router.js').Options;
+}
+
+declare module 'astro:prefetch' {
+	export { prefetch, PrefetchOptions } from 'astro/prefetch';
+}
+
+declare module 'astro:i18n' {
+	export type GetLocaleOptions = import('./dist/i18n/index.js').GetLocaleOptions;
+
+	/**
+	 * @param {string} locale A locale
+	 * @param {string} [path=""] An optional path to add after the `locale`.
+	 * @param {import('./dist/i18n/index.js').GetLocaleOptions} options Customise the generated path
+	 * @return {string}
+	 *
+	 * Returns a _relative_ path with passed locale.
+	 *
+	 * ## Errors
+	 *
+	 * Throws an error if the locale doesn't exist in the list of locales defined in the configuration.
+	 *
+	 * ## Examples
+	 *
+	 * ```js
+	 * import { getRelativeLocaleUrl } from "astro:i18n";
+	 * getRelativeLocaleUrl("es"); // /es
+	 * getRelativeLocaleUrl("es", "getting-started"); // /es/getting-started
+	 * getRelativeLocaleUrl("es_US", "getting-started", { prependWith: "blog" }); // /blog/es-us/getting-started
+	 * getRelativeLocaleUrl("es_US", "getting-started", { prependWith: "blog", normalizeLocale: false }); // /blog/es_US/getting-started
+	 * ```
+	 */
+	export const getRelativeLocaleUrl: (
+		locale: string,
+		path?: string,
+		options?: GetLocaleOptions
+	) => string;
+
+	/**
+	 *
+	 * @param {string} locale A locale
+	 * @param {string} [path=""] An optional path to add after the `locale`.
+	 * @param {import('./dist/i18n/index.js').GetLocaleOptions} options Customise the generated path
+	 * @return {string}
+	 *
+	 * Returns an absolute path with the passed locale. The behaviour is subject to change based on `site` configuration.
+	 * If _not_ provided, the function will return a _relative_ URL.
+	 *
+	 * ## Errors
+	 *
+	 * Throws an error if the locale doesn't exist in the list of locales defined in the configuration.
+	 *
+	 * ## Examples
+	 *
+	 * If `site` is `https://example.com`:
+	 *
+	 * ```js
+	 * import { getAbsoluteLocaleUrl } from "astro:i18n";
+	 * getAbsoluteLocaleUrl("es"); // https://example.com/es
+	 * getAbsoluteLocaleUrl("es", "getting-started"); // https://example.com/es/getting-started
+	 * getAbsoluteLocaleUrl("es_US", "getting-started", { prependWith: "blog" }); // https://example.com/blog/es-us/getting-started
+	 * getAbsoluteLocaleUrl("es_US", "getting-started", { prependWith: "blog", normalizeLocale: false }); // https://example.com/blog/es_US/getting-started
+	 * ```
+	 */
+	export const getAbsoluteLocaleUrl: (
+		locale: string,
+		path?: string,
+		options?: GetLocaleOptions
+	) => string;
+
+	/**
+	 * @param {string} [path=""] An optional path to add after the `locale`.
+	 * @param {import('./dist/i18n/index.js').GetLocaleOptions} options Customise the generated path
+	 * @return {string[]}
+	 *
+	 * Works like `getRelativeLocaleUrl` but it emits the relative URLs for ALL locales:
+	 */
+	export const getRelativeLocaleUrlList: (path?: string, options?: GetLocaleOptions) => string[];
+	/**
+	 * @param {string} [path=""] An optional path to add after the `locale`.
+	 * @param {import('./dist/i18n/index.js').GetLocaleOptions} options Customise the generated path
+	 * @return {string[]}
+	 *
+	 * Works like `getAbsoluteLocaleUrl` but it emits the absolute URLs for ALL locales:
+	 */
+	export const getAbsoluteLocaleUrlList: (path?: string, options?: GetLocaleOptions) => string[];
 }
 
 declare module 'astro:middleware' {

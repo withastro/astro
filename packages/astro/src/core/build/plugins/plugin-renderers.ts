@@ -48,7 +48,7 @@ export function vitePluginRenderers(opts: StaticBuildOptions): VitePlugin {
 
 export function pluginRenderers(opts: StaticBuildOptions): AstroBuildPlugin {
 	return {
-		build: 'ssr',
+		targets: ['server'],
 		hooks: {
 			'build:before': () => {
 				return {

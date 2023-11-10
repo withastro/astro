@@ -204,6 +204,14 @@ export async function loadFixture(inlineConfig) {
 				recursive: true,
 				force: true,
 			});
+			const contentCache = new URL('./node_modules/.astro/content', config.root);
+			if (fs.existsSync(contentCache)) {
+				await fs.promises.rm(contentCache, {
+					maxRetries: 10,
+					recursive: true,
+					force: true,
+				});
+			}
 		},
 		loadTestAdapterApp: async (streaming) => {
 			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);

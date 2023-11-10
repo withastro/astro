@@ -1,6 +1,7 @@
 ---
 import { getImage, type LocalImageProps, type RemoteImageProps } from 'astro:assets';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
+import type { HTMLAttributes } from '../types';
 
 // The TypeScript diagnostic for JSX props uses the last member of the union to suggest props, so it would be better for
 // LocalImageProps to be last. Unfortunately, when we do this the error messages that remote images get are complete nonsense
@@ -24,8 +25,7 @@ if (typeof props.height === 'string') {
 
 const image = await getImage(props);
 
-const additionalAttributes: Record<string, any> = {};
-
+const additionalAttributes: HTMLAttributes<'img'> = {};
 if (image.srcSet.values.length > 0) {
 	additionalAttributes.srcset = image.srcSet.attribute;
 }

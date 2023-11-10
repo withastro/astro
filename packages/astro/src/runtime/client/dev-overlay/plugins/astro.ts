@@ -1,17 +1,46 @@
 import type { DevOverlayPlugin } from '../../../../@types/astro.js';
-import type { DevOverlayWindow } from '../ui-library/window.js';
 
 export default {
 	id: 'astro',
 	name: 'Astro',
 	icon: 'astro:logo',
 	init(canvas) {
-		const astroWindow = document.createElement('astro-overlay-window') as DevOverlayWindow;
+		createWindow();
 
-		astroWindow.windowTitle = 'Astro';
-		astroWindow.windowIcon = 'astro:logo';
+		document.addEventListener('astro:after-swap', createWindow);
 
-		astroWindow.innerHTML = `
+		function createWindow() {
+			const style = document.createElement('style');
+			style.textContent = `
+			:host {
+				opacity: 0;
+				transition: opacity 0.15s ease-in-out;
+			}
+
+			:host([data-active]) {
+				opacity: 1;
+			}
+
+			@media screen and (prefers-reduced-motion: no-preference) {
+				:host astro-dev-overlay-window {
+					transform: translateY(55px) translate(-50%, -50%);
+					transition: transform 0.15s ease-in-out;
+					transform-origin: center bottom;
+				}
+
+				:host([data-active]) astro-dev-overlay-window {
+					transform: translateY(0) translate(-50%, -50%);
+				}
+			}
+		`;
+			canvas.append(style);
+
+			const astroWindow = document.createElement('astro-dev-overlay-window');
+
+			astroWindow.windowTitle = 'Astro';
+			astroWindow.windowIcon = 'astro:logo';
+
+			astroWindow.innerHTML = `
 			<style>
 				#buttons-container {
 					display: flex;
@@ -19,7 +48,7 @@ export default {
 					justify-content: center;
 				}
 
-				#buttons-container astro-overlay-card {
+				#buttons-container astro-dev-overlay-card {
 					flex: 1;
 				}
 
@@ -53,17 +82,27 @@ export default {
 				<div>
 					<p>Welcome to Astro!</p>
 					<div id="buttons-container">
-						<astro-overlay-card icon="astro:logo" link="https://github.com/withastro/astro/issues/new/choose">Report an issue</astro-overlay-card>
-						<astro-overlay-card icon="astro:logo" link="https://docs.astro.build/en/getting-started/">View Astro Docs</astro-overlay-card>
+						<astro-dev-overlay-card icon="bug" link="https://github.com/withastro/astro/issues/new/choose">Report an issue</astro-dev-overlay-card>
+						<astro-dev-overlay-card icon="file-search" link="https://docs.astro.build/en/getting-started/">View Astro Docs</astro-dev-overlay-card>
 					</div>
 				</div>
 				<footer>
-					<a href="https://discord.gg/astro" target="_blank">Join the Astro Discord</a>
-					<a href="https://astro.build" target="_blank">Visit Astro.build</a>
+					<a href="https://astro.build/chat" target="_blank">Join us on Discord</a>
+					<a href="https://astro.build" target="_blank">Visit the Astro website</a>
 				</footer>
 			</div>
 		`;
 
-		canvas.append(astroWindow);
+			canvas.append(astroWindow);
+		}
+	},
+	async beforeTogglingOff(canvas) {
+		canvas.host?.removeAttribute('data-active');
+
+		await new Promise((resolve) => {
+			canvas.host.addEventListener('transitionend', resolve);
+		});
+
+		return true;
 	},
 } satisfies DevOverlayPlugin;

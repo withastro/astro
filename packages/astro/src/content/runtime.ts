@@ -19,6 +19,11 @@ type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
 type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImport>;
 
+export function defineCollection(config: any) {
+	if (!config.type) config.type = 'content';
+	return config;
+}
+
 export function createCollectionToGlobResultMap({
 	globResult,
 	contentDir,
@@ -69,7 +74,7 @@ export function createGetCollection({
 		let entries: any[] = [];
 		// Cache `getCollection()` calls in production only
 		// prevents stale cache in development
-		if (import.meta.env.PROD && cacheEntriesByCollection.has(collection)) {
+		if (!import.meta.env?.DEV && cacheEntriesByCollection.has(collection)) {
 			// Always return a new instance so consumers can safely mutate it
 			entries = [...cacheEntriesByCollection.get(collection)!];
 		} else {
