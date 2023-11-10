@@ -49,13 +49,19 @@ async function copyToClipboard(text: string) {
 	} else if (system === 'win32') {
 		command = 'clip';
 	} else {
-		// Unix: check if `xclip` is installed
-		const output = execSync('which xclip', { encoding: 'utf8' });
-		if (output[0] !== '/') {
-			// Did not find a path for xclip, bail out!
-			return;
+		try {
+			// Unix: check if `xclip` is installed
+			const output = execSync('which xclip', { encoding: 'utf8' });
+			if (output[0] !== '/') {
+				// Did not find a path for xclip, bail out!
+				return;
+			}
+			command = 'xclip -sel clipboard -l 1';
 		}
-		command = 'xclip -sel clipboard -l 1';
+		catch (e) {
+			// Did not find xclip, bail out!
+			return
+		}
 	}
 
 	console.log();
