@@ -36,9 +36,7 @@ export async function dependencies(
 					)} to install them manually after setup.`
 				);
 			},
-			while: () => {
-				return install({ packageManager: ctx.packageManager, cwd: ctx.cwd }).catch((e) => { throw e });
-			},
+			while: () => install({ packageManager: ctx.packageManager, cwd: ctx.cwd }),
 		});
 	} else {
 		await info(
