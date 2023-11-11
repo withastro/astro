@@ -118,6 +118,7 @@
     "test:unit:match": "mocha --exit --timeout 30000 ./test/units/**/*.test.js -g",
     "test": "pnpm run test:unit && mocha --exit --timeout 30000 --ignore **/lit-element.test.js && mocha --timeout 30000 **/lit-element.test.js",
     "test:match": "mocha --timeout 30000 -g",
+    "test:match2": "mocha --timeout 30000",
     "test:e2e": "playwright test",
     "test:e2e:match": "playwright test -g"
   },

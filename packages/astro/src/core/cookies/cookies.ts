@@ -1,16 +1,10 @@
-import type { CookieSerializeOptions } from 'cookie';
+import type { CookieSerializeOptions, CookieParseOptions } from 'cookie';
 import { parse, serialize } from 'cookie';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
-interface AstroCookieSetOptions {
-	domain?: string;
-	expires?: Date;
-	httpOnly?: boolean;
-	maxAge?: number;
-	path?: string;
-	sameSite?: boolean | 'lax' | 'none' | 'strict';
-	secure?: boolean;
-}
+export type AstroCookieSetOptions = CookieSerializeOptions
+
+export type AstroCookieGetOptions = CookieParseOptions;
 
 type AstroCookieDeleteOptions = Pick<AstroCookieSetOptions, 'domain' | 'path'>;
 
@@ -97,7 +91,7 @@ class AstroCookies implements AstroCookiesInterface {
 	 * @param key The cookie to get.
 	 * @returns An object containing the cookie value as well as convenience methods for converting its value.
 	 */
-	get(key: string): AstroCookie | undefined {
+	get(key: string, options: AstroCookieGetOptions | undefined = undefined): AstroCookie | undefined {
 		// Check for outgoing Set-Cookie values first
 		if (this.#outgoing?.has(key)) {
 			let [serializedValue, , isSetValue] = this.#outgoing.get(key)!;
@@ -108,7 +102,7 @@ class AstroCookies implements AstroCookiesInterface {
 			}
 		}
 
-		const values = this.#ensureParsed();
+		const values = this.#ensureParsed(options);
 		if (key in values) {
 			const value = values[key];
 			return new AstroCookie(value);
@@ -121,12 +115,12 @@ class AstroCookies implements AstroCookiesInterface {
 	 * @param key The cookie to check for.
 	 * @returns
 	 */
-	has(key: string): boolean {
+	has(key: string, options: AstroCookieGetOptions | undefined = undefined): boolean {
 		if (this.#outgoing?.has(key)) {
 			let [, , isSetValue] = this.#outgoing.get(key)!;
 			return isSetValue;
 		}
-		const values = this.#ensureParsed();
+		const values = this.#ensureParsed(options);
 		return !!values[key];
 	}
 
@@ -185,9 +179,9 @@ class AstroCookies implements AstroCookiesInterface {
 		}
 	}
 
-	#ensureParsed(): Record<string, string> {
+	#ensureParsed(options: AstroCookieGetOptions | undefined = undefined): Record<string, string> {
 		if (!this.#requestValues) {
-			this.#parse();
+			this.#parse(options);
 		}
 		if (!this.#requestValues) {
 			this.#requestValues = {};
@@ -202,13 +196,13 @@ class AstroCookies implements AstroCookiesInterface {
 		return this.#outgoing;
 	}
 
-	#parse() {
+	#parse(options: AstroCookieGetOptions | undefined = undefined) {
 		const raw = this.#request.headers.get('cookie');
 		if (!raw) {
 			return;
 		}
 
-		this.#requestValues = parse(raw);
+		this.#requestValues = parse(raw, options);
 	}
 }
 
