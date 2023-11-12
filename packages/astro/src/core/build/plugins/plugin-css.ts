@@ -59,7 +59,9 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const pagesToCss: Record<string, Record<string, { order: number; depth: number }>> = {};
 	const pagesToPropagatedCss: Record<string, Record<string, Set<string>>> = {};
 
-	const isContentCollectionCache = options.buildOptions.settings.config.output === 'static' && options.buildOptions.settings.config.experimental.contentCollectionCache;
+	const isContentCollectionCache =
+		options.buildOptions.settings.config.output === 'static' &&
+		options.buildOptions.settings.config.experimental.contentCollectionCache;
 
 	const cssBuildPlugin: VitePlugin = {
 		name: 'astro:rollup-plugin-build-css',

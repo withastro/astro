@@ -101,7 +101,7 @@ describe('Content Collections', () => {
 				const $ = cheerio.load(html);
 				expect($('style').text()).to.include('content:"works!"');
 			});
-		})
+		});
 
 		describe('Entry', () => {
 			let json;
