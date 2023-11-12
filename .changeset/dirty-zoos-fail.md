@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix namespace label in debug logger
+Fix display of debug messages when using the `--verbose` flag
