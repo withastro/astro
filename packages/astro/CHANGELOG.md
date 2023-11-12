@@ -1,5 +1,11 @@
 # astro
 
+## 3.5.3
+
+### Patch Changes
+
+- [#9069](https://github.com/withastro/astro/pull/9069) [`50164f5e3`](https://github.com/withastro/astro/commit/50164f5e37cdc6ad81216627d8edb2a98ed37491) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix a regression introduced in 3.5.0 related to content collection styles
+
 ## 3.5.2
 
 ### Patch Changes
