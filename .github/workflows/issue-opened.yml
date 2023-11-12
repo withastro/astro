@@ -1,0 +1,11 @@
+name: Label issues
+on:
+  issues:
+    types:
+      - reopened
+      - opened
+
+jobs:
+  label_issues:
+    if: github.repository_owner == 'withastro'
+    uses: withastro/automation/.github/workflows/issue-opened.yml@main

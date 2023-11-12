@@ -1,0 +1,13 @@
+name: Issue Labeled
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  reply_labelled:
+    if: github.repository_owner == 'withastro'
+    uses: withastro/automation/.github/workflows/issue-labeled.yml@main
+    with:
+      repro_message_content: |
+        Hello @${{ github.event.issue.user.login }}. Please provide a [minimal reproduction](https://stackoverflow.com/help/minimal-reproducible-example) using a GitHub repository or at least sharing the file where the issue happen. Issues marked with `needs repro` will be closed if they have no activity within 3 days.
