@@ -88,7 +88,7 @@ const { fallback = 'animate', handleForms } = Astro.props;
 				}
 
 				const form = el as HTMLFormElement;
-				const submitter: HTMLButtonElement | null = ev.submitter as any;
+				const submitter = ev.submitter;
 				const formData = new FormData(form);
 				// Use the form action, if defined, otherwise fallback to current path.
 				let action = submitter?.getAttribute('formaction') ?? form.action ?? location.pathname;
