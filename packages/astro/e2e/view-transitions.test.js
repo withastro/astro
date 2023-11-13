@@ -1004,4 +1004,16 @@ test.describe('View Transitions', () => {
 			'There should be only 1 page load. No additional loads for the form submission'
 		).toEqual(1);
 	});
+
+	test('forms are overridden by formmethod and formaction', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/form-three'));
+
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Contact Form');
+
+		// Submit the form
+		await page.click('#submit');
+		const result = page.locator('#three-result');
+		await expect(result, 'should have content').toHaveText('Got: Testing');
+	});
 });

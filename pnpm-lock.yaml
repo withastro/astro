@@ -667,8 +667,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0(prettier-plugin-astro@0.12.0)(prettier@3.0.3)(typescript@5.1.6)
       '@playwright/test':
-        specifier: ^1.37.1
-        version: 1.39.0
+        specifier: 1.40.0-alpha-nov-13-2023
+        version: 1.40.0-alpha-nov-13-2023
       '@types/babel__generator':
         specifier: ^7.6.4
         version: 7.6.6
@@ -8061,6 +8061,14 @@ packages:
       playwright: 1.39.0
     dev: true
 
+  /@playwright/test@1.40.0-alpha-nov-13-2023:
+    resolution: {integrity: sha512-qb5AzKN2pf14C4AT90ps3VGbDhx1/9LnzzT+D2TBZQ/vRUUvacvxxhjieelFKvw+FN4BIXFnEs2bNecc37Jyww==}
+    engines: {node: '>=16'}
+    hasBin: true
+    dependencies:
+      playwright: 1.40.0-alpha-nov-13-2023
+    dev: true
+
   /@preact/preset-vite@2.6.0(preact@10.18.1):
     resolution: {integrity: sha512-5nztNzXbCpqyVum/K94nB2YQ5PTnvWdz4u7/X0jc8+kLyskSSpkNUxLQJeI90zfGSFIX1Ibj2G2JIS/mySHWYQ==}
     peerDependencies:
@@ -14360,12 +14368,28 @@ packages:
     hasBin: true
     dev: true
 
+  /playwright-core@1.40.0-alpha-nov-13-2023:
+    resolution: {integrity: sha512-EVClUNNwgSh7y161ACuTQ6ULzb51dgBVbvLSGBd6lBtcb5DZ3gwG6TZLU6UrE4KNSeMxZTBsXlFlrasR6L6G3w==}
+    engines: {node: '>=16'}
+    hasBin: true
+    dev: true
+
   /playwright@1.39.0:
     resolution: {integrity: sha512-naE5QT11uC/Oiq0BwZ50gDmy8c8WLPRTEWuSSFVG2egBka/1qMoSqYQcROMT9zLwJ86oPofcTH2jBY/5wWOgIw==}
     engines: {node: '>=16'}
     hasBin: true
     dependencies:
       playwright-core: 1.39.0
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
+  /playwright@1.40.0-alpha-nov-13-2023:
+    resolution: {integrity: sha512-/jHChcF6JXbFaL1YpZvNlXaFDfCJiXPyzooNo4TTp4yUG0vtq0b7r8jSOwmC1AcByIr4tIYkC0nOjn2TjvPlYw==}
+    engines: {node: '>=16'}
+    hasBin: true
+    dependencies:
+      playwright-core: 1.40.0-alpha-nov-13-2023
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
