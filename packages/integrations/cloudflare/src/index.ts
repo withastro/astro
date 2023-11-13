@@ -1,7 +1,6 @@
 import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
 
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
-import { passthroughImageService } from 'astro/config';
 import { AstroError } from 'astro/errors';
 import esbuild from 'esbuild';
 import { Miniflare } from 'miniflare';
@@ -13,6 +12,7 @@ import glob from 'tiny-glob';
 import { getAdapter } from './getAdapter.js';
 import { deduplicatePatterns } from './utils/deduplicatePatterns.js';
 import { getCFObject } from './utils/getCFObject.js';
+import { prepareImageConfig } from './utils/image-config.js';
 import {
 	getD1Bindings,
 	getDOBindings,
@@ -31,6 +31,7 @@ type CF_RUNTIME = { mode: 'off' } | { mode: 'remote' } | { mode: 'local'; persis
 type Options = {
 	mode?: 'directory' | 'advanced';
 	functionPerRoute?: boolean;
+	imageService?: 'passthrough' | 'cloudflare';
 	/** Configure automatic `routes.json` generation */
 	routes?: {
 		/** Strategy for generating `include` and `exclude` patterns
@@ -105,17 +106,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
-			'astro:config:setup': ({ config, updateConfig, logger }) => {
-				let imageConfigOverwrite = false;
-				if (
-					config.image.service.entrypoint === 'astro/assets/services/sharp' ||
-					config.image.service.entrypoint === 'astro/assets/services/squoosh'
-				) {
-					logger.warn(
-						`The current configuration does not support image optimization. To allow your project to build with the original, unoptimized images, the image service has been automatically switched to the 'noop' option. See https://docs.astro.build/en/reference/configuration-reference/#imageservice`
-					);
-					imageConfigOverwrite = true;
-				}
+			'astro:config:setup': ({ command, config, updateConfig, logger }) => {
 				updateConfig({
 					build: {
 						client: new URL(`.${config.base}`, config.outDir),
@@ -132,9 +123,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							}),
 						],
 					},
-					image: imageConfigOverwrite
-						? { ...config.image, service: passthroughImageService() }
-						: config.image,
+					image: prepareImageConfig(args?.imageService ?? 'DEFAULT', config.image, command, logger),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config, logger }) => {

@@ -161,6 +161,15 @@ The following example automatically generates `_routes.json` while including and
   });
 ```
 
+### `imageService`
+
+`imageService: "passthrough" | "cloudflare"`
+
+Determines which image service is used by the adapter. The adapter will default to `passthrough` mode when an incompatible image service is configured. Otherwise, it will use the globally configured image service:
+
+- **`cloudflare`:** Uses the [Cloudflare Image Resizing](https://developers.cloudflare.com/images/image-resizing/) service.
+- **`passthrough`:** Uses the existing [`noop`](https://docs.astro.build/en/guides/images/#configure-no-op-passthrough-service) service.
+
 ### `wasmModuleImports`
 
 `wasmModuleImports: boolean`

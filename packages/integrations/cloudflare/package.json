@@ -22,6 +22,7 @@
     ".": "./dist/index.js",
     "./entrypoints/server.advanced.js": "./dist/entrypoints/server.advanced.js",
     "./entrypoints/server.directory.js": "./dist/entrypoints/server.directory.js",
+    "./image-service": "./dist/entrypoints/image-service.js",
     "./package.json": "./package.json"
   },
   "files": [
@@ -34,28 +35,28 @@
   },
   "dependencies": {
     "@astrojs/underscore-redirects": "^0.3.3",
-    "@cloudflare/workers-types": "^4.20230821.0",
-    "miniflare": "3.20231010.0",
+    "@cloudflare/workers-types": "^4.20231025.0",
+    "miniflare": "3.20231025.1",
     "@iarna/toml": "^2.2.5",
     "dotenv": "^16.3.1",
-    "esbuild": "^0.19.2",
+    "esbuild": "^0.19.5",
     "find-up": "^6.3.0",
     "tiny-glob": "^0.2.9",
-    "vite": "^4.4.9"
+    "vite": "^4.5.0"
   },
   "peerDependencies": {
-    "astro": "workspace:^3.3.0"
+    "astro": "^3.4.3"
   },
   "devDependencies": {
     "execa": "^8.0.1",
     "fast-glob": "^3.3.1",
     "@types/iarna__toml": "^2.0.2",
     "strip-ansi": "^7.1.0",
-    "astro": "^3.2.3",
-    "chai": "^4.3.7",
+    "astro": "^3.4.3",
+    "chai": "^4.3.10",
     "cheerio": "1.0.0-rc.12",
     "mocha": "^10.2.0",
-    "wrangler": "^3.11.0",
+    "wrangler": "^3.15.0",
     "@astrojs/test-utils": "workspace:*"
   },
   "publishConfig": {

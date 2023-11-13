@@ -4,7 +4,7 @@ import { astroCli, wranglerCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/wasm-directory/', import.meta.url);
 
-describe('Wasm directory mode import', () => {
+describe('WasmDirectoryImport', () => {
 	let wrangler;
 	before(async () => {
 		await astroCli(fileURLToPath(root), 'build');

@@ -4,7 +4,7 @@ import { astroCli, wranglerCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/wasm-function-per-route/', import.meta.url);
 
-describe('Wasm function per route import', () => {
+describe('WasmFunctionPerRouteImport', () => {
 	let wrangler;
 	before(async () => {
 		await astroCli(fileURLToPath(root), 'build');

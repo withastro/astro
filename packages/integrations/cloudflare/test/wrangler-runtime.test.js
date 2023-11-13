@@ -5,7 +5,7 @@ import { astroCli, wranglerCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/wrangler-runtime/', import.meta.url);
 
-describe('Runtime Wrangler', () => {
+describe('WragnlerRuntime', () => {
 	let wrangler;
 
 	before(async () => {

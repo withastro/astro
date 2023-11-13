@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { astroCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/dev-runtime/', import.meta.url);
-describe('Runtime Astro Dev', () => {
+describe('DevRuntime', () => {
 	let cli;
 	before(async () => {
 		cli = astroCli(fileURLToPath(root), 'dev', '--host', '127.0.0.1');

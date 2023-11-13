@@ -4,7 +4,7 @@ import { astroCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/no-output/', import.meta.url);
 
-describe('Missing output config', () => {
+describe('MissingOutputConfig', () => {
 	it('throws during the build', async () => {
 		let error = undefined;
 		try {
