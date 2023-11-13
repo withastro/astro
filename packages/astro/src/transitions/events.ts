@@ -1,3 +1,4 @@
+import { updateScrollPosition } from './router.js';
 import type { Direction, NavigationTypeString } from './types.js';
 
 export const TRANSITION_BEFORE_PREPARATION = 'astro:before-preparation';
@@ -6,7 +7,10 @@ export const TRANSITION_BEFORE_SWAP = 'astro:before-swap';
 export const TRANSITION_AFTER_SWAP = 'astro:after-swap';
 export const TRANSITION_PAGE_LOAD = 'astro:page-load';
 
-type Events = 'astro:page-load' | 'astro:after-swap';
+type Events =
+	| typeof TRANSITION_AFTER_PREPARATION
+	| typeof TRANSITION_AFTER_SWAP
+	| typeof TRANSITION_PAGE_LOAD;
 export const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
 export const onPageLoad = () => triggerEvent(TRANSITION_PAGE_LOAD);
 
@@ -18,6 +22,7 @@ class BeforeEvent extends Event {
 	to: URL;
 	direction: Direction | string;
 	readonly navigationType: NavigationTypeString;
+	readonly sourceElement: Element | undefined;
 	readonly info: any;
 	newDocument: Document;
 
@@ -28,6 +33,7 @@ class BeforeEvent extends Event {
 		to: URL,
 		direction: Direction | string,
 		navigationType: NavigationTypeString,
+		sourceElement: Element | undefined,
 		info: any,
 		newDocument: Document
 	) {
@@ -36,6 +42,7 @@ class BeforeEvent extends Event {
 		this.to = to;
 		this.direction = direction;
 		this.navigationType = navigationType;
+		this.sourceElement = sourceElement;
 		this.info = info;
 		this.newDocument = newDocument;
 
@@ -44,6 +51,7 @@ class BeforeEvent extends Event {
 			to: { enumerable: true, writable: true },
 			direction: { enumerable: true, writable: true },
 			navigationType: { enumerable: true },
+			sourceElement: { enumerable: true },
 			info: { enumerable: true },
 			newDocument: { enumerable: true, writable: true },
 		});
@@ -65,6 +73,7 @@ export class TransitionBeforePreparationEvent extends BeforeEvent {
 		to: URL,
 		direction: Direction | string,
 		navigationType: NavigationTypeString,
+		sourceElement: Element | undefined,
 		info: any,
 		newDocument: Document,
 		formData: FormData | undefined,
@@ -77,6 +86,7 @@ export class TransitionBeforePreparationEvent extends BeforeEvent {
 			to,
 			direction,
 			navigationType,
+			sourceElement,
 			info,
 			newDocument
 		);
@@ -112,6 +122,7 @@ export class TransitionBeforeSwapEvent extends BeforeEvent {
 			afterPreparation.to,
 			afterPreparation.direction,
 			afterPreparation.navigationType,
+			afterPreparation.sourceElement,
 			afterPreparation.info,
 			afterPreparation.newDocument
 		);
@@ -132,6 +143,7 @@ export async function doPreparation(
 	to: URL,
 	direction: Direction | string,
 	navigationType: NavigationTypeString,
+	sourceElement: Element | undefined,
 	info: any,
 	formData: FormData | undefined,
 	defaultLoader: (event: TransitionBeforePreparationEvent) => Promise<void>
@@ -141,14 +153,22 @@ export async function doPreparation(
 		to,
 		direction,
 		navigationType,
+		sourceElement,
 		info,
 		window.document,
 		formData,
 		defaultLoader
 	);
-	document.dispatchEvent(event);
-	await event.loader();
-	document.dispatchEvent(new Event(TRANSITION_AFTER_PREPARATION));
+	if (document.dispatchEvent(event)) {
+		await event.loader();
+		if (!event.defaultPrevented) {
+			triggerEvent(TRANSITION_AFTER_PREPARATION);
+			if (event.navigationType !== 'traverse') {
+				// save the current scroll position before we change the DOM and transition to the new page
+				updateScrollPosition({ scrollX, scrollY });
+			}
+		}
+	}
 	return event;
 }
 
@@ -160,6 +180,5 @@ export async function doSwap(
 	const event = new TransitionBeforeSwapEvent(afterPreparation, viewTransition, defaultSwap);
 	document.dispatchEvent(event);
 	event.swap();
-	document.dispatchEvent(new Event(TRANSITION_AFTER_SWAP));
 	return event;
 }

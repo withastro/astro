@@ -4,9 +4,10 @@ type Fallback = 'none' | 'animate' | 'swap';
 export interface Props {
 	fallback?: Fallback;
 	handleForms?: boolean;
+	intraPageTransitions?: boolean;
 }
 
-const { fallback = 'animate', handleForms } = Astro.props;
+const { fallback = 'animate', handleForms, intraPageTransitions } = Astro.props;
 ---
 
 <style is:global>
@@ -26,13 +27,15 @@ const { fallback = 'animate', handleForms } = Astro.props;
 <meta name="astro-view-transitions-enabled" content="true" />
 <meta name="astro-view-transitions-fallback" content={fallback} />
 {handleForms ? <meta name="astro-view-transitions-forms" content="true" /> : ''}
+{intraPageTransitions && <meta name="astro-view-transitions-intra-page" content="true" />}
 <script>
 	import type { Options } from 'astro:transitions/client';
 	import { supportsViewTransitions, navigate } from 'astro:transitions/client';
 	// NOTE: import from `astro/prefetch` as `astro:prefetch` requires the `prefetch` config to be enabled
+	// @ts-ignore
 	import { init } from 'astro/prefetch';
 
-	export type Fallback = 'none' | 'animate' | 'swap';
+	type Fallback = 'none' | 'animate' | 'swap';
 
 	function getFallback(): Fallback {
 		const el = document.querySelector('[name="astro-view-transitions-fallback"]');
@@ -77,6 +80,7 @@ const { fallback = 'animate', handleForms } = Astro.props;
 			ev.preventDefault();
 			navigate(link.href, {
 				history: link.dataset.astroHistory === 'replace' ? 'replace' : 'auto',
+				sourceElement: link,
 			});
 		});
 
@@ -90,7 +94,7 @@ const { fallback = 'animate', handleForms } = Astro.props;
 				const form = el as HTMLFormElement;
 				const formData = new FormData(form);
 				let action = form.action;
-				const options: Options = {};
+				const options: Options = { sourceElement: ev.submitter ?? form };
 				if (form.method === 'get') {
 					const params = new URLSearchParams(formData as any);
 					const url = new URL(action);

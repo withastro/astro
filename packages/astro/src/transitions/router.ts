@@ -16,7 +16,7 @@ type Events = 'astro:page-load' | 'astro:after-swap';
 
 // only update history entries that are managed by us
 // leave other entries alone and do not accidently add state.
-const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) =>
+export const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) =>
 	history.state && history.replaceState({ ...history.state, ...positions }, '');
 
 const inBrowser = import.meta.env.SSR === false;
@@ -27,7 +27,9 @@ export const transitionEnabledOnThisPage = () =>
 	inBrowser && !!document.querySelector('[name="astro-view-transitions-enabled"]');
 
 const samePage = (thisLocation: URL, otherLocation: URL) =>
-	thisLocation.pathname === otherLocation.pathname && thisLocation.search === otherLocation.search;
+	thisLocation.origin === otherLocation.origin &&
+	thisLocation.pathname === otherLocation.pathname &&
+	thisLocation.search === otherLocation.search;
 
 const allowIntraPageTransitions = () =>
 	inBrowser && !!document.querySelector('[name="astro-view-transitions-intra-page"]');
@@ -63,6 +65,9 @@ const announce = () => {
 };
 
 const PERSIST_ATTR = 'data-astro-transition-persist';
+const DIRECTION_ATTR = 'data-astro-transition';
+const OLD_NEW_ATTR = 'data-astro-transition-fallback';
+
 const VITE_ID = 'data-vite-dev-id';
 
 let parser: DOMParser;
@@ -81,7 +86,7 @@ if (inBrowser) {
 	} else if (transitionEnabledOnThisPage()) {
 		// This page is loaded from the browser addressbar or via a link from extern,
 		// it needs a state in the history
-		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY, intraPage: false }, '');
+		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
 	}
 }
 
@@ -165,8 +170,7 @@ function runScripts() {
 // Add a new entry to the browser history. This also sets the new page in the browser addressbar.
 // Sets the scroll position according to the hash fragment of the new location.
 const moveToLocation = (to: URL, from: URL, options: Options, historyState?: State) => {
-	const onSamePage = samePage(from, to);
-	const intraPage = onSamePage && from.origin === to.origin;
+	const intraPage = samePage(from, to);
 
 	let scrolledToTop = false;
 	if (to.href !== location.href && !historyState) {
@@ -381,20 +385,24 @@ async function updateDOM(
 		}
 		// Trigger the animations
 		const currentAnimations = document.getAnimations();
-		document.documentElement.dataset.astroTransitionFallback = phase;
-		const newAnimations = document
-			.getAnimations()
-			.filter((a) => !currentAnimations.includes(a) && !isInfinite(a));
+		document.documentElement.setAttribute(OLD_NEW_ATTR, phase);
+		const nextAnimations = document.getAnimations();
+		const newAnimations = nextAnimations.filter(
+			(a) => !currentAnimations.includes(a) && !isInfinite(a)
+		);
 		return Promise.all(newAnimations.map((a) => a.finished));
 	}
 
-	if (fallback === 'animate' && !skipTransition) {
-		await animate('old');
+	if (!skipTransition) {
+		document.documentElement.setAttribute(DIRECTION_ATTR, preparationEvent.direction);
+
+		if (fallback === 'animate') {
+			await animate('old');
+		}
 	}
 
 	const swapEvent = await doSwap(preparationEvent, viewTransition!, defaultSwap);
-	document.documentElement.dataset.astroTransition = swapEvent.direction;
-	moveToLocation(preparationEvent.to, preparationEvent.from, options, historyState);
+	moveToLocation(swapEvent.to, swapEvent.from, options, historyState);
 	triggerEvent(TRANSITION_AFTER_SWAP);
 
 	if (fallback === 'animate' && !skipTransition) {
@@ -419,111 +427,120 @@ async function transition(
 		to,
 		direction,
 		navigationType,
+		options.sourceElement,
 		options.info,
 		options.formData,
 		defaultLoader
 	);
+	if (prepEvent.defaultPrevented) {
+		location.href = to.href;
+		return;
+	}
+
+	function pageMustReload(preparationEvent: TransitionBeforePreparationEvent) {
+		return (
+			preparationEvent.to.hash === '' ||
+			!samePage(preparationEvent.from, preparationEvent.to) ||
+			preparationEvent.sourceElement instanceof HTMLFormElement
+		);
+	}
 
 	async function defaultLoader(preparationEvent: TransitionBeforePreparationEvent) {
-		const href = preparationEvent.to.href;
-		const init: RequestInit = {};
-		if (preparationEvent.formData) {
-			init.method = 'POST';
-			init.body = preparationEvent.formData;
-		}
-		const response = await fetchHTML(href, init);
-		// If there is a problem fetching the new page, just do an MPA navigation to it.
-		if (response === null) {
-			location.href = href;
-			return;
-		}
-		// if there was a redirection, show the final URL in the browser's address bar
-		if (response.redirected) {
-			preparationEvent.to = new URL(response.redirected);
-		}
+		if (pageMustReload(preparationEvent)) {
+			const href = preparationEvent.to.href;
+			const init: RequestInit = {};
+			if (preparationEvent.formData) {
+				init.method = 'POST';
+				init.body = preparationEvent.formData;
+			}
+			const response = await fetchHTML(href, init);
+			// If there is a problem fetching the new page, just do an MPA navigation to it.
+			if (response === null) {
+				preparationEvent.preventDefault();
+				return;
+			}
+			// if there was a redirection, show the final URL in the browser's address bar
+			if (response.redirected) {
+				preparationEvent.to = new URL(response.redirected);
+			}
 
-		parser ??= new DOMParser();
+			parser ??= new DOMParser();
 
-		preparationEvent.newDocument = parser.parseFromString(response.html, response.mediaType);
-		// The next line might look like a hack,
-		// but it is actually necessary as noscript elements
-		// and their contents are returned as markup by the parser,
-		// see https://developer.mozilla.org/en-US/docs/Web/API/DOMParser/parseFromString
-		preparationEvent.newDocument.querySelectorAll('noscript').forEach((el) => el.remove());
+			preparationEvent.newDocument = parser.parseFromString(response.html, response.mediaType);
+			// The next line might look like a hack,
+			// but it is actually necessary as noscript elements
+			// and their contents are returned as markup by the parser,
+			// see https://developer.mozilla.org/en-US/docs/Web/API/DOMParser/parseFromString
+			preparationEvent.newDocument.querySelectorAll('noscript').forEach((el) => el.remove());
 
-		// If ViewTransitions is not enabled on the incoming page, do a full page load to it.
-		// Unless this was a form submission, in which case we do not want to trigger another mutation.
-		if (
-			!preparationEvent.newDocument.querySelector('[name="astro-view-transitions-enabled"]') &&
-			!preparationEvent.formData
-		) {
-			location.href = href;
-			return;
-		}
+			// If ViewTransitions is not enabled on the incoming page, do a full page load to it.
+			// Unless this was a form submission, in which case we do not want to trigger another mutation.
+			if (
+				!preparationEvent.newDocument.querySelector('[name="astro-view-transitions-enabled"]') &&
+				!preparationEvent.formData
+			) {
+				preparationEvent.preventDefault();
+				return;
+			}
 
-		const links = preloadStyleLinks(preparationEvent.newDocument);
-		links.length && (await Promise.all(links));
+			const links = preloadStyleLinks(preparationEvent.newDocument);
+			links.length && (await Promise.all(links));
 
-		if (import.meta.env.DEV)
-			await prepareForClientOnlyComponents(preparationEvent.newDocument, preparationEvent.to);
-
-		if (preparationEvent.navigationType !== 'traverse') {
-			// save the current scroll position before we change the DOM and transition to the new page
-			updateScrollPosition({ scrollX, scrollY });
-		}
-	}
-
-	{
-		document.documentElement.dataset.astroTransition = prepEvent.direction;
-		skipTransition = false;
-		if (supportsViewTransitions) {
-			viewTransition = document.startViewTransition(
-				async () => await updateDOM(prepEvent, options, historyState)
-			);
+			if (import.meta.env.DEV)
+				await prepareForClientOnlyComponents(preparationEvent.newDocument, preparationEvent.to);
 		} else {
-			const updateDone = (async () => {
-				// immediatelly paused to setup the ViewTransition object for Fallback mode
-				await new Promise((r) => setTimeout(r));
-				await updateDOM(prepEvent, options, historyState, getFallback());
-			})();
-
-			// When the updateDone promise is settled,
-			// we have run and awaited all swap functions and the after-swap event
-			// This qualifies for "updateCallbackDone".
-			//
-			// For the build in ViewTransition, "ready" settles shortly after "updateCallbackDone",
-			// i.e. after all pseudo elements are created and the animation is about to start.
-			// In simulation mode the "old" animation starts before swap,
-			// the "new" animation starts after swap. That is not really comparable.
-			// Thus we go with "very, very shortly after updateCallbackDone" and make both equal.
-			//
-			// "finished" resolves after all animations are done.
-
-			viewTransition = {
-				updateCallbackDone: updateDone, // this is about correct
-				ready: updateDone, // good enough
-				finished: new Promise((r) => (viewTransitionFinished = r)), // see end of updateDOM
-				skipTransition: () => {
-					skipTransition = true;
-				},
-			};
+			preparationEvent.newDocument = document;
+			return;
 		}
-		if (samePage(prepEvent.from, prepEvent.to) && !allowIntraPageTransitions) {
-			viewTransition.skipTransition();
-		}
-
-		viewTransition.updateCallbackDone.then(async () => {
-			await runScripts();
-			onPageLoad();
-			announce();
-		});
-		viewTransition.finished.then(() => {
-			document.documentElement.removeAttribute('data-astro-transition'); // direction
-			document.documentElement.removeAttribute('data-astro-transition-fallback'); // new or old
-			//		viewTransition = undefined;
-		});
-		await viewTransition.updateCallbackDone;
 	}
+
+	skipTransition = false;
+	if (supportsViewTransitions) {
+		viewTransition = document.startViewTransition(
+			async () => await updateDOM(prepEvent, options, historyState)
+		);
+	} else {
+		const updateDone = (async () => {
+			// immediatelly paused to setup the ViewTransition object for Fallback mode
+			await new Promise((r) => setTimeout(r));
+			await updateDOM(prepEvent, options, historyState, getFallback());
+		})();
+
+		// When the updateDone promise is settled,
+		// we have run and awaited all swap functions and the after-swap event
+		// This qualifies for "updateCallbackDone".
+		//
+		// For the build in ViewTransition, "ready" settles shortly after "updateCallbackDone",
+		// i.e. after all pseudo elements are created and the animation is about to start.
+		// In simulation mode the "old" animation starts before swap,
+		// the "new" animation starts after swap. That is not really comparable.
+		// Thus we go with "very, very shortly after updateCallbackDone" and make both equal.
+		//
+		// "finished" resolves after all animations are done.
+
+		viewTransition = {
+			updateCallbackDone: updateDone, // this is about correct
+			ready: updateDone, // good enough
+			finished: new Promise((r) => (viewTransitionFinished = r)), // see end of updateDOM
+			skipTransition: () => {
+				skipTransition = true;
+			},
+		};
+	}
+	if (samePage(prepEvent.from, prepEvent.to) && !allowIntraPageTransitions) {
+		viewTransition.skipTransition();
+	}
+
+	viewTransition.ready.then(async () => {
+		await runScripts();
+		onPageLoad();
+		announce();
+	});
+	viewTransition.finished.then(() => {
+		document.documentElement.removeAttribute(DIRECTION_ATTR);
+		document.documentElement.removeAttribute(OLD_NEW_ATTR);
+	});
+	await viewTransition.ready;
 }
 
 let navigateOnServerWarned = false;

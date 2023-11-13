@@ -113,13 +113,18 @@ class ViewTransitionStyleSheet {
 	}
 
 	addAnimationPair(
-		direction: 'forwards' | 'backwards',
+		direction: 'forwards' | 'backwards' | string,
 		image: 'old' | 'new',
 		rules: TransitionAnimation | TransitionAnimation[]
 	) {
 		const { scope, name } = this;
 		const animation = stringifyAnimation(rules);
-		const prefix = direction === 'backwards' ? `[data-astro-transition=back]` : '';
+		const prefix =
+			direction === 'backwards'
+				? `[data-astro-transition=back]`
+				: direction === 'forwards'
+				? ''
+				: `[data-astro-transition=${direction}]`;
 		this.addRule('modern', `${prefix}::view-transition-${image}(${name}) { ${animation} }`);
 		this.addRule(
 			'fallback',

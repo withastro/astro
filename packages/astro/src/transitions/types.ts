@@ -6,4 +6,5 @@ export type Options = {
 	info?: any;
 	state?: any;
 	formData?: FormData;
+	sourceElement?: Element; // more than HTMLElement, e.g. SVGAElement
 };
