@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Supports formmethod and formaction for form overrides
+Supports `formmethod` and `formaction` for form overrides
