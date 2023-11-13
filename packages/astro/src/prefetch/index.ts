@@ -245,7 +245,7 @@ function elMatchesStrategy(el: EventTarget | null, strategy: string): el is HTML
 
 	// Fallback to tap strategy if using data saver mode or slow connection
 	if ((attrValue != null || prefetchAll) && isSlowConnection()) {
-		return strategy === "tap";
+		return strategy === 'tap';
 	}
 
 	// If anchor has no dataset but we want to prefetch all, or has dataset but no value,
