@@ -159,5 +159,47 @@ describe('Config Validation', () => {
 				"You can't use the default locale as a key. The default locale can only be used as value."
 			);
 		});
+
+		it('errors if a domains key does not exist', async () => {
+			const configError = await validateConfig(
+				{
+					experimental: {
+						i18n: {
+							defaultLocale: 'en',
+							locales: ['es', 'en'],
+							domains: {
+								lorem: 'https://example.com',
+							},
+						},
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal(
+				"The locale `lorem` key in the `i18n.domains` record doesn't exist in the `i18n.locales` array."
+			);
+		});
+
+		it('errors if a domains value is not an URL', async () => {
+			const configError = await validateConfig(
+				{
+					experimental: {
+						i18n: {
+							defaultLocale: 'en',
+							locales: ['es', 'en'],
+							domains: {
+								en: 'www.example.com',
+							},
+						},
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal(
+				"The domain value must be a valid URL, and it has to start with 'https' or 'http'."
+			);
+		});
 	});
 });
