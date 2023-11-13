@@ -256,6 +256,7 @@ function buildManifest(
 		routes,
 		site: settings.config.site,
 		base: settings.config.base,
+		trailingSlash: settings.config.trailingSlash,
 		compressHTML: settings.config.compressHTML,
 		assetsPrefix: settings.config.build.assetsPrefix,
 		componentMetadata: Array.from(internals.componentMetadata),
