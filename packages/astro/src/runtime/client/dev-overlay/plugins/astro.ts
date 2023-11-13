@@ -1,4 +1,5 @@
 import type { DevOverlayPlugin } from '../../../../@types/astro.js';
+import { createWindowWithTransition, waitForTransition } from './utils/window.js';
 
 export default {
 	id: 'astro',
@@ -10,38 +11,10 @@ export default {
 		document.addEventListener('astro:after-swap', createWindow);
 
 		function createWindow() {
-			const style = document.createElement('style');
-			style.textContent = `
-			:host {
-				opacity: 0;
-				transition: opacity 0.15s ease-in-out;
-			}
-
-			:host([data-active]) {
-				opacity: 1;
-			}
-
-			@media screen and (prefers-reduced-motion: no-preference) {
-				:host astro-dev-overlay-window {
-					transform: translateY(55px) translate(-50%, -50%);
-					transition: transform 0.15s ease-in-out;
-					transform-origin: center bottom;
-				}
-
-				:host([data-active]) astro-dev-overlay-window {
-					transform: translateY(0) translate(-50%, -50%);
-				}
-			}
-		`;
-			canvas.append(style);
-
-			const astroWindow = document.createElement('astro-dev-overlay-window');
-
-			astroWindow.windowTitle = 'Astro';
-			astroWindow.windowIcon = 'astro:logo';
-
-			astroWindow.innerHTML = `
-			<style>
+			const window = createWindowWithTransition(
+				'Astro',
+				'astro:logo',
+				`<style>
 				#buttons-container {
 					display: flex;
 					gap: 16px;
@@ -91,18 +64,13 @@ export default {
 					<a href="https://astro.build" target="_blank">Visit the Astro website</a>
 				</footer>
 			</div>
-		`;
+		`
+			);
 
-			canvas.append(astroWindow);
+			canvas.append(window);
 		}
 	},
 	async beforeTogglingOff(canvas) {
-		canvas.host?.removeAttribute('data-active');
-
-		await new Promise((resolve) => {
-			canvas.host.addEventListener('transitionend', resolve);
-		});
-
-		return true;
+		return await waitForTransition(canvas);
 	},
 } satisfies DevOverlayPlugin;

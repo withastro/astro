@@ -1,5 +1,6 @@
 import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@types/astro.js';
 import { type AstroDevOverlay, type DevOverlayPlugin } from './overlay.js';
+import { settings } from './settings.js';
 
 let overlay: AstroDevOverlay;
 
@@ -9,22 +10,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 		{ default: astroDevToolPlugin },
 		{ default: astroAuditPlugin },
 		{ default: astroXrayPlugin },
+		{ default: astroSettingsPlugin },
 		{ AstroDevOverlay, DevOverlayCanvas },
 		{ DevOverlayCard },
 		{ DevOverlayHighlight },
 		{ DevOverlayTooltip },
 		{ DevOverlayWindow },
+		{ DevOverlayToggle },
 	] = await Promise.all([
 		// @ts-expect-error
 		import('astro:dev-overlay'),
 		import('./plugins/astro.js'),
 		import('./plugins/audit.js'),
 		import('./plugins/xray.js'),
+		import('./plugins/settings.js'),
 		import('./overlay.js'),
 		import('./ui-library/card.js'),
 		import('./ui-library/highlight.js'),
 		import('./ui-library/tooltip.js'),
 		import('./ui-library/window.js'),
+		import('./ui-library/toggle.js'),
 	]);
 
 	// Register custom elements
@@ -34,6 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	customElements.define('astro-dev-overlay-tooltip', DevOverlayTooltip);
 	customElements.define('astro-dev-overlay-highlight', DevOverlayHighlight);
 	customElements.define('astro-dev-overlay-card', DevOverlayCard);
+	customElements.define('astro-dev-overlay-toggle', DevOverlayToggle);
 
 	overlay = document.createElement('astro-dev-overlay');
 
@@ -60,7 +66,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 				newState = evt.detail.state ?? true;
 			}
 
-			target.querySelector('.notification')?.toggleAttribute('data-active', newState);
+			if (settings.config.showPluginNotifications === false) {
+				target.querySelector('.notification')?.toggleAttribute('data-active', newState);
+			}
 		});
 
 		eventTarget.addEventListener('toggle-plugin', async (evt) => {
@@ -77,8 +85,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	const customPluginsDefinitions = (await loadDevOverlayPlugins()) as DevOverlayPluginDefinition[];
 	const plugins: DevOverlayPlugin[] = [
-		...[astroDevToolPlugin, astroXrayPlugin, astroAuditPlugin].map((pluginDef) =>
-			preparePlugin(pluginDef, true)
+		...[astroDevToolPlugin, astroXrayPlugin, astroAuditPlugin, astroSettingsPlugin].map(
+			(pluginDef) => preparePlugin(pluginDef, true)
 		),
 		...customPluginsDefinitions.map((pluginDef) => preparePlugin(pluginDef, false)),
 	];
