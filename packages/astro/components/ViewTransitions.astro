@@ -92,10 +92,14 @@ const { fallback = 'animate', handleForms, intraPageTransitions } = Astro.props;
 				}
 
 				const form = el as HTMLFormElement;
+				const submitter = ev.submitter;
 				const formData = new FormData(form);
-				let action = form.action;
-				const options: Options = { sourceElement: ev.submitter ?? form };
-				if (form.method === 'get') {
+				// Use the form action, if defined, otherwise fallback to current path.
+				let action = submitter?.getAttribute('formaction') ?? form.action ?? location.pathname;
+				const method = submitter?.getAttribute('formmethod') ?? form.method;
+
+				const options: Options = { sourceElement: submitter ?? form };
+				if (method === 'get') {
 					const params = new URLSearchParams(formData as any);
 					const url = new URL(action);
 					url.search = params.toString();

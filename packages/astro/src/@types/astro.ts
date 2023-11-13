@@ -24,6 +24,7 @@ import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger
 import type { AstroDevOverlay, DevOverlayCanvas } from '../runtime/client/dev-overlay/overlay.js';
 import type { DevOverlayHighlight } from '../runtime/client/dev-overlay/ui-library/highlight.js';
 import type { Icon } from '../runtime/client/dev-overlay/ui-library/icons.js';
+import type { DevOverlayToggle } from '../runtime/client/dev-overlay/ui-library/toggle.js';
 import type { DevOverlayTooltip } from '../runtime/client/dev-overlay/ui-library/tooltip.js';
 import type { DevOverlayWindow } from '../runtime/client/dev-overlay/ui-library/window.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
@@ -541,71 +542,6 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @name prefetch
-	 * @type {boolean | object}
-	 * @description
-	 * Enable prefetching for links on your site to provide faster page transitions.
-	 * (Enabled by default on pages using the `<ViewTransitions />` router. Set `prefetch: false` to opt out of this behaviour.)
-	 *
-	 * This configuration automatically adds a prefetch script to every page in the project
-	 * giving you access to the `data-astro-prefetch` attribute.
-	 * Add this attribute to any `<a />` link on your page to enable prefetching for that page.
-	 *
-	 * ```html
-	 * <a href="/about" data-astro-prefetch>About</a>
-	 * ```
-	 * Further customize the default prefetching behavior using the [`prefetch.defaultStrategy`](#prefetchdefaultstrategy) and [`prefetch.prefetchAll`](#prefetchprefetchall) options.
-	 *
-	 * See the [Prefetch guide](https://docs.astro.build/en/guides/prefetch/) for more information.
-	 */
-	prefetch?:
-		| boolean
-		| {
-				/**
-				 * @docs
-				 * @name prefetch.prefetchAll
-				 * @type {boolean}
-				 * @description
-				 * Enable prefetching for all links, including those without the `data-astro-prefetch` attribute.
-				 * This value defaults to `true` when using the `<ViewTransitions />` router. Otherwise, the default value is `false`.
-				 *
-				 * ```js
-				 * prefetch: {
-				 * 	prefetchAll: true
-				 * }
-				 * ```
-				 *
-				 * When set to `true`, you can disable prefetching individually by setting `data-astro-prefetch="false"` on any individual links.
-				 *
-				 * ```html
-				 * <a href="/about" data-astro-prefetch="false">About</a>
-				 *```
-				 */
-				prefetchAll?: boolean;
-
-				/**
-				 * @docs
-				 * @name prefetch.defaultStrategy
-				 * @type {'tap' | 'hover' | 'viewport'}
-				 * @default `'hover'`
-				 * @description
-				 * The default prefetch strategy to use when the `data-astro-prefetch` attribute is set on a link with no value.
-				 *
-				 * - `'tap'`: Prefetch just before you click on the link.
-				 * - `'hover'`: Prefetch when you hover over or focus on the link. (default)
-				 * - `'viewport'`: Prefetch as the links enter the viewport.
-				 *
-				 * You can override this default value and select a different strategy for any individual link by setting a value on the attribute.
-				 *
-				 * ```html
-				 * <a href="/about" data-astro-prefetch="viewport">About</a>
-				 * ```
-				 */
-				defaultStrategy?: 'tap' | 'hover' | 'viewport';
-		  };
-
-	/**
-	 * @docs
 	 * @name site
 	 * @type {string}
 	 * @description
@@ -981,6 +917,72 @@ export interface AstroUserConfig {
 		 */
 		excludeMiddleware?: boolean;
 	};
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Prefetch Options
+	 * @type {boolean | object}
+	 * @description
+	 * Enable prefetching for links on your site to provide faster page transitions.
+	 * (Enabled by default on pages using the `<ViewTransitions />` router. Set `prefetch: false` to opt out of this behaviour.)
+	 *
+	 * This configuration automatically adds a prefetch script to every page in the project
+	 * giving you access to the `data-astro-prefetch` attribute.
+	 * Add this attribute to any `<a />` link on your page to enable prefetching for that page.
+	 *
+	 * ```html
+	 * <a href="/about" data-astro-prefetch>About</a>
+	 * ```
+	 * Further customize the default prefetching behavior using the [`prefetch.defaultStrategy`](#prefetchdefaultstrategy) and [`prefetch.prefetchAll`](#prefetchprefetchall) options.
+	 *
+	 * See the [Prefetch guide](https://docs.astro.build/en/guides/prefetch/) for more information.
+	 */
+	prefetch?:
+		| boolean
+		| {
+				/**
+				 * @docs
+				 * @name prefetch.prefetchAll
+				 * @type {boolean}
+				 * @description
+				 * Enable prefetching for all links, including those without the `data-astro-prefetch` attribute.
+				 * This value defaults to `true` when using the `<ViewTransitions />` router. Otherwise, the default value is `false`.
+				 *
+				 * ```js
+				 * prefetch: {
+				 * 	prefetchAll: true
+				 * }
+				 * ```
+				 *
+				 * When set to `true`, you can disable prefetching individually by setting `data-astro-prefetch="false"` on any individual links.
+				 *
+				 * ```html
+				 * <a href="/about" data-astro-prefetch="false">About</a>
+				 *```
+				 */
+				prefetchAll?: boolean;
+
+				/**
+				 * @docs
+				 * @name prefetch.defaultStrategy
+				 * @type {'tap' | 'hover' | 'viewport'}
+				 * @default `'hover'`
+				 * @description
+				 * The default prefetch strategy to use when the `data-astro-prefetch` attribute is set on a link with no value.
+				 *
+				 * - `'tap'`: Prefetch just before you click on the link.
+				 * - `'hover'`: Prefetch when you hover over or focus on the link. (default)
+				 * - `'viewport'`: Prefetch as the links enter the viewport.
+				 *
+				 * You can override this default value and select a different strategy for any individual link by setting a value on the attribute.
+				 *
+				 * ```html
+				 * <a href="/about" data-astro-prefetch="viewport">About</a>
+				 * ```
+				 */
+				defaultStrategy?: 'tap' | 'hover' | 'viewport';
+		  };
 
 	/**
 	 * @docs
@@ -1444,7 +1446,6 @@ export interface AstroUserConfig {
 		 */
 		devOverlay?: boolean;
 
-		// TODO review with docs team before merging to `main`
 		/**
 		 * @docs
 		 * @name experimental.i18n
@@ -1454,26 +1455,32 @@ export interface AstroUserConfig {
 		 * @description
 		 *
 		 * Configures experimental i18n routing and allows you to specify some customization options.
+		 *
+		 * See our guide for more information on [internationalization in Astro](/en/guides/internationalization/)
 		 */
 		i18n?: {
 			/**
 			 * @docs
+			 * @kind h4
 			 * @name experimental.i18n.defaultLocale
 			 * @type {string}
 			 * @version 3.5.0
 			 * @description
 			 *
 			 * The default locale of your website/application. This is a required field.
+			 *
+			 * No particular language format or syntax is enforced, but we suggest using lower-case and hyphens as needed (e.g. "es", "pt-br") for greatest compatibility.
 			 */
 			defaultLocale: string;
 			/**
 			 * @docs
+			 * @kind h4
 			 * @name experimental.i18n.locales
 			 * @type {string[]}
 			 * @version 3.5.0
 			 * @description
 			 *
-			 * A list of all locales supported by the website (e.g. `['en', 'es', 'pt_BR']`). This list should also include the `defaultLocale`. This is a required field.
+			 * A list of all locales supported by the website (e.g. `['en', 'es', 'pt-br']`). This list should also include the `defaultLocale`. This is a required field.
 			 *
 			 * No particular language format or syntax is enforced, but your folder structure must match exactly the locales in the list.
 			 */
@@ -1481,6 +1488,7 @@ export interface AstroUserConfig {
 
 			/**
 			 * @docs
+			 * @kind h4
 			 * @name experimental.i18n.fallback
 			 * @type {Record<string, string>}
 			 * @version 3.5.0
@@ -1490,16 +1498,16 @@ export interface AstroUserConfig {
 			 *
 			 * Use this object to declare a fallback `locale` route for each language you support. If no fallback is specified, then unavailable pages will return a 404.
 			 *
-			 * #### Example
+			 * ##### Example
 			 *
-			 * The following example configures your content fallback strategy to redirect unavailable pages in `/pt/` to their `es` version, and unavailable pages in `/fr/` to their `en` version. Unavailable `/es/` pages will return a 404.
+			 * The following example configures your content fallback strategy to redirect unavailable pages in `/pt-br/` to their `es` version, and unavailable pages in `/fr/` to their `en` version. Unavailable `/es/` pages will return a 404.
 			 *
 			 * ```js
 			 * export defualt defineConfig({
 			 * 	experimental: {
 			 * 		i18n: {
 			 * 			defaultLocale: "en",
-			 * 			locales: ["en", "fr", "pt", "es"],
+			 * 			locales: ["en", "fr", "pt-br", "es"],
 			 * 			fallback: {
 			 * 				pt: "es",
 			 * 			  fr: "en"
@@ -1513,23 +1521,43 @@ export interface AstroUserConfig {
 
 			/**
 			 * @docs
+			 * @kind h4
 			 * @name experimental.i18n.routingStrategy
 			 * @type {'prefix-always' | 'prefix-other-locales'}
 			 * @default 'prefix-other-locales'
 			 * @version 3.5.0
 			 * @description
 			 *
-			 * Controls the routing strategy to determine your site URLs.
+			 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language:
 			 *
-			 *  - `prefix-other-locales`(default): Only non-default languages will display a language prefix. The `defaultLocale` will not show a language prefix.
-			 *    URLs will be of the form `example.com/[lang]/content/` for all non-default languages, but `example.com/content/` for the default locale.
+			 *  - `prefix-other-locales`(default): Only non-default languages will display a language prefix.
+			 *    The `defaultLocale` will not show a language prefix and content files do not exist in a localized folder.
+			 *    URLs will be of the form `example.com/[locale]/content/` for all non-default languages, but `example.com/content/` for the default locale.
 			 *  - `prefix-always`: All URLs will display a language prefix.
-			 *    URLs will be of the form `example.com/[lang]/content/` for every route, including the default language.
+			 *    URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
+			 *    Localized folders are used for every language, including the default.
 			 *
-			 * Note: Astro requires all content to exist within a `/[lang]/` folder, even for the default language.
 			 */
-			routingStrategy: 'prefix-always' | 'prefix-other-locales';
+			routingStrategy?: 'prefix-always' | 'prefix-other-locales';
 		};
+		/**
+		 * @docs
+		 * @name experimental.contentCollectionCache
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 3.5.0
+		 * @description
+		 * Enables a persistent cache for content collections when building in static mode.
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 * 		contentCollectionCache: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		contentCollectionCache?: boolean;
 	};
 }
 
@@ -2554,5 +2582,6 @@ declare global {
 		'astro-dev-overlay-plugin-canvas': DevOverlayCanvas;
 		'astro-dev-overlay-tooltip': DevOverlayTooltip;
 		'astro-dev-overlay-highlight': DevOverlayHighlight;
+		'astro-dev-overlay-toggle': DevOverlayToggle;
 	}
 }

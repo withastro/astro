@@ -326,6 +326,15 @@ export function parseFrontmatter(fileContents: string) {
  */
 export const globalContentConfigObserver = contentObservable({ status: 'init' });
 
+export function hasAnyContentFlag(viteId: string): boolean {
+	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
+	const flag = Array.from(flags.keys()).at(0);
+	if (typeof flag !== 'string') {
+		return false;
+	}
+	return CONTENT_FLAGS.includes(flag as any);
+}
+
 export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[number]): boolean {
 	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
 	return flags.has(flag);

@@ -3,6 +3,31 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 
+describe('astro:i18n virtual module', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	/** @type {import('./test-utils').DevServer} */
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('correctly imports the functions', async () => {
+		const response = await fixture.fetch('/virtual-module');
+		expect(response.status).to.equal(200);
+		const text = await response.text();
+		expect(text).includes("Virtual module doesn't break");
+		expect(text).includes('About: /pt/about');
+	});
+});
 describe('[DEV] i18n routing', () => {
 	describe('i18n routing', () => {
 		/** @type {import('./test-utils').Fixture} */
@@ -228,6 +253,26 @@ describe('[DEV] i18n routing', () => {
 			const response = await fixture.fetch('/new-site/fr/start');
 			expect(response.status).to.equal(404);
 		});
+
+		describe('[trailingSlash: always]', () => {
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing-prefix-always/',
+					trailingSlash: 'always',
+				});
+				devServer = await fixture.startDevServer();
+			});
+
+			after(async () => {
+				await devServer.stop();
+			});
+
+			it('should redirect to the index of the default locale', async () => {
+				const response = await fixture.fetch('/new-site/');
+				expect(response.status).to.equal(200);
+				expect(await response.text()).includes('Hello');
+			});
+		});
 	});
 
 	describe('i18n routing fallback', () => {
@@ -289,7 +334,6 @@ describe('[DEV] i18n routing', () => {
 		});
 	});
 });
-
 describe('[SSG] i18n routing', () => {
 	describe('i18n routing', () => {
 		/** @type {import('./test-utils').Fixture} */
@@ -522,6 +566,21 @@ describe('[SSG] i18n routing', () => {
 				return true;
 			}
 		});
+
+		describe('[trailingSlash: always]', () => {
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing-prefix-always/',
+					trailingSlash: 'always',
+				});
+			});
+
+			it('should redirect to the index of the default locale', async () => {
+				const html = await fixture.readFile('/index.html');
+				expect(html).to.include('http-equiv="refresh');
+				expect(html).to.include('url=/new-site/en');
+			});
+		});
 	});
 
 	describe('i18n routing with fallback', () => {
@@ -582,7 +641,6 @@ describe('[SSG] i18n routing', () => {
 		});
 	});
 });
-
 describe('[SSR] i18n routing', () => {
 	let app;
 	describe('default', () => {
@@ -766,6 +824,26 @@ describe('[SSR] i18n routing', () => {
 			let request = new Request('http://example.com/fr/start');
 			let response = await app.render(request);
 			expect(response.status).to.equal(404);
+		});
+
+		describe('[trailingSlash: always]', () => {
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing-prefix-always/',
+					output: 'server',
+					adapter: testAdapter(),
+					trailingSlash: 'always',
+				});
+				await fixture.build();
+				app = await fixture.loadTestAdapterApp();
+			});
+
+			it('should redirect to the index of the default locale', async () => {
+				let request = new Request('http://example.com/new-site/');
+				let response = await app.render(request);
+				expect(response.status).to.equal(302);
+				expect(response.headers.get('location')).to.equal('/new-site/en/');
+			});
 		});
 	});
 

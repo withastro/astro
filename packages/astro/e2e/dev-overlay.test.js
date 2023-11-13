@@ -98,4 +98,23 @@ test.describe('Dev Overlay', () => {
 		await expect(auditHighlight).not.toBeVisible();
 		await expect(auditHighlightTooltip).not.toBeVisible();
 	});
+
+	test('can open Settings plugin', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const overlay = page.locator('astro-dev-overlay');
+		const pluginButton = overlay.locator('button[data-plugin-id="astro:settings"]');
+		await pluginButton.click();
+
+		const settingsPluginCanvas = overlay.locator(
+			'astro-dev-overlay-plugin-canvas[data-plugin-id="astro:settings"]'
+		);
+		const settingsWindow = settingsPluginCanvas.locator('astro-dev-overlay-window');
+		await expect(settingsWindow).toHaveCount(1);
+		await expect(settingsWindow).toBeVisible();
+
+		// Toggle plugin off
+		await pluginButton.click();
+		await expect(settingsWindow).not.toBeVisible();
+	});
 });

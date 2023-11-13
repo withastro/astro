@@ -278,7 +278,8 @@ async function generatePage(
 	const onRequest = ssrEntry.onRequest;
 	const i18nMiddleware = createI18nMiddleware(
 		pipeline.getManifest().i18n,
-		pipeline.getManifest().base
+		pipeline.getManifest().base,
+		pipeline.getManifest().trailingSlash
 	);
 	if (config.experimental.i18n && i18nMiddleware) {
 		if (onRequest) {
@@ -636,6 +637,7 @@ export function createBuildManifest(
 		};
 	}
 	return {
+		trailingSlash: settings.config.trailingSlash,
 		assets: new Set(),
 		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
 		routes: [],

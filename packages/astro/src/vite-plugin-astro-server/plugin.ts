@@ -96,6 +96,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		};
 	}
 	return {
+		trailingSlash: settings.config.trailingSlash,
 		compressHTML: settings.config.compressHTML,
 		assets: new Set(),
 		entryModules: {},
