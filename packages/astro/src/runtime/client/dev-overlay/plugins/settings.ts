@@ -12,7 +12,7 @@ interface SettingRow {
 
 const settingsRows = [
 	{
-		name: 'Disable notifications?',
+		name: 'Disable notifications',
 		description: 'Notification bubbles will not be shown when this is enabled.',
 		input: 'checkbox',
 		settingKey: 'showPluginNotifications',
@@ -23,7 +23,7 @@ const settingsRows = [
 		},
 	},
 	{
-		name: 'Verbose logging?',
+		name: 'Verbose logging',
 		description: 'Log additional information to the console.',
 		input: 'checkbox',
 		settingKey: 'verbose',
@@ -63,7 +63,12 @@ export default {
 						font-size: 16px;
 						font-weight: 400;
 						color: white;
-						margin-bottom: 0.25rem;
+						margin-bottom: 0;
+					}
+
+					label {
+						font-size: 15px;
+						line-height: 1.5rem;
 					}
 				</style>
 				<h2>General</h2>
