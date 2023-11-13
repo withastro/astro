@@ -280,8 +280,10 @@ export async function handleRoute({
 		const i18Middleware = createI18nMiddleware(
 			config.experimental.i18n,
 			config.base,
-			config.trailingSlash
-		);
+			config.trailingSlash,
+            manifest.routes
+
+        );
 
 		if (i18Middleware) {
 			if (onRequest) {

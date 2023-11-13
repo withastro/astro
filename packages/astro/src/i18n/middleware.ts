@@ -1,5 +1,6 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
 import type { MiddlewareEndpointHandler, SSRManifest } from '../@types/astro.js';
+import type { RouteInfo } from '../core/app/types.js';
 
 // Checks if the pathname doesn't have any locale, exception for the defaultLocale, which is ignored on purpose
 function checkIsLocaleFree(pathname: string, locales: string[]): boolean {
@@ -15,19 +16,29 @@ function checkIsLocaleFree(pathname: string, locales: string[]): boolean {
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
 	base: SSRManifest['base'],
-	trailingSlash: SSRManifest['trailingSlash']
+	trailingSlash: SSRManifest['trailingSlash'],
+
+    routes: SSRManifest['routes']
 ): MiddlewareEndpointHandler | undefined {
 	if (!i18n) {
 		return undefined;
 	}
+
+	const pageRoutes = routes.filter((route) => {
+		return route.routeData.type === 'page';
+	});
 
 	return async (context, next) => {
 		if (!i18n) {
 			return await next();
 		}
 
-		const { locales, defaultLocale, fallback } = i18n;
 		const url = context.url;
+		if (!isPathnameARoutePage(pageRoutes, url.pathname)) {
+			return await next();
+		}
+
+		const { locales, defaultLocale, fallback } = i18n;
 
 		const response = await next();
 
@@ -82,4 +93,15 @@ export function createI18nMiddleware(
 
 		return response;
 	};
+}
+
+/**
+ * Check whether the pathname of the current request belongs to a route of type page.
+ * @param pageRoutes
+ * @param pathname
+ */
+function isPathnameARoutePage(pageRoutes: RouteInfo[], pathname: string) {
+	return pageRoutes.some((route) => {
+		return route.routeData.route === pathname;
+	});
 }

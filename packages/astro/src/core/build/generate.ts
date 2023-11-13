@@ -279,7 +279,8 @@ async function generatePage(
 	const i18nMiddleware = createI18nMiddleware(
 		pipeline.getManifest().i18n,
 		pipeline.getManifest().base,
-		pipeline.getManifest().trailingSlash
+		pipeline.getManifest().trailingSlash,
+		pipeline.getManifest().routes
 	);
 	if (config.experimental.i18n && i18nMiddleware) {
 		if (onRequest) {

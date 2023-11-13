@@ -169,8 +169,10 @@ export class App {
 			let i18nMiddleware = createI18nMiddleware(
 				this.#manifest.i18n,
 				this.#manifest.base,
-				this.#manifest.trailingSlash
-			);
+				this.#manifest.routes,
+                this.#manifest.trailingSlash
+
+            );
 			if (i18nMiddleware) {
 				if (mod.onRequest) {
 					this.#pipeline.setMiddlewareFunction(
