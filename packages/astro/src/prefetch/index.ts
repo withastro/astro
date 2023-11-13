@@ -56,7 +56,7 @@ function initTapStrategy() {
 			event,
 			(e) => {
 				if (elMatchesStrategy(e.target, 'tap')) {
-					prefetch(e.target.href, { with: 'fetch' });
+					prefetch(e.target.href, { with: 'fetch', ignoreSlowConnection: true });
 				}
 			},
 			{ passive: true }
@@ -104,7 +104,7 @@ function initHoverStrategy() {
 			clearTimeout(timeout);
 		}
 		timeout = setTimeout(() => {
-			prefetch(href, { with: 'fetch' });
+			prefetch(href, { with: 'fetch', ignoreSlowConnection: true });
 		}, 80) as unknown as number;
 	}
 
@@ -155,7 +155,7 @@ function createViewportIntersectionObserver() {
 					setTimeout(() => {
 						observer.unobserve(anchor);
 						timeouts.delete(anchor);
-						prefetch(anchor.href, { with: 'link' });
+						prefetch(anchor.href, { with: 'link', ignoreSlowConnection: true });
 					}, 300) as unknown as number
 				);
 			} else {
@@ -176,6 +176,10 @@ export interface PrefetchOptions {
 	 * - `'fetch'`: use `fetch()`, has higher loading priority.
 	 */
 	with?: 'link' | 'fetch';
+	/**
+	 * Should prefetch even on data saver mode or slow connection. (default `false`)
+	 */
+	ignoreSlowConnection?: boolean;
 }
 
 /**
@@ -190,7 +194,8 @@ export interface PrefetchOptions {
  * @param opts Additional options for prefetching.
  */
 export function prefetch(url: string, opts?: PrefetchOptions) {
-	if (!canPrefetchUrl(url)) return;
+	const ignoreSlowConnection = opts?.ignoreSlowConnection ?? false;
+	if (!canPrefetchUrl(url, ignoreSlowConnection)) return;
 	prefetchedUrls.add(url);
 
 	const priority = opts?.with ?? 'link';
@@ -211,15 +216,11 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 	}
 }
 
-function canPrefetchUrl(url: string) {
+function canPrefetchUrl(url: string, ignoreSlowConnection: boolean) {
 	// Skip prefetch if offline
 	if (!navigator.onLine) return false;
-	if ('connection' in navigator) {
-		// Untyped Chrome-only feature: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/connection
-		const conn = navigator.connection as any;
-		// Skip prefetch if using data saver mode or slow connection
-		if (conn.saveData || /(2|3)g/.test(conn.effectiveType)) return false;
-	}
+	// Skip prefetch if using data saver mode or slow connection
+	if (!ignoreSlowConnection && isSlowConnection()) return false;
 	// Else check if URL is within the same origin, not the current page, and not already prefetched
 	try {
 		const urlObj = new URL(url, location.href);
@@ -241,6 +242,12 @@ function elMatchesStrategy(el: EventTarget | null, strategy: string): el is HTML
 	if (attrValue === 'false') {
 		return false;
 	}
+
+	// Fallback to tap strategy if using data saver mode or slow connection
+	if ((attrValue != null || prefetchAll) && isSlowConnection()) {
+		return strategy === "tap";
+	}
+
 	// If anchor has no dataset but we want to prefetch all, or has dataset but no value,
 	// check against fallback default strategy
 	if ((attrValue == null && prefetchAll) || attrValue === '') {
@@ -251,6 +258,15 @@ function elMatchesStrategy(el: EventTarget | null, strategy: string): el is HTML
 		return true;
 	}
 	// Else, no match
+	return false;
+}
+
+function isSlowConnection() {
+	if ('connection' in navigator) {
+		// Untyped Chrome-only feature: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/connection
+		const conn = navigator.connection as any;
+		return conn.saveData || /(2|3)g/.test(conn.effectiveType);
+	}
 	return false;
 }
 
