@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.5.1
+
+### Patch Changes
+
+- [#9048](https://github.com/withastro/astro/pull/9048) [`1e97708cd`](https://github.com/withastro/astro/commit/1e97708cda779510d638abaefdb4abf707b697e3) Thanks [@skirianov](https://github.com/skirianov)! - Fixes an issue where a successful "Dependencies installed" message is displayed even when installing dependencies fails.
+
 ## 4.5.0
 
 ### Minor Changes

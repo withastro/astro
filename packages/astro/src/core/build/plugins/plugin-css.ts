@@ -2,7 +2,7 @@ import type { GetModuleInfo } from 'rollup';
 import { type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
 import { isBuildableCSSRequest } from '../../../vite-plugin-astro-server/util.js';
 import type { BuildInternals } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin.js';
+import type { AstroBuildPlugin, BuildTarget } from '../plugin.js';
 import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
 
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
@@ -20,7 +20,7 @@ import { extendManualChunks } from './util.js';
 interface PluginOptions {
 	internals: BuildInternals;
 	buildOptions: StaticBuildOptions;
-	target: 'client' | 'server';
+	target: BuildTarget;
 }
 
 /***** ASTRO PLUGIN *****/
@@ -30,13 +30,13 @@ export function pluginCSS(
 	internals: BuildInternals
 ): AstroBuildPlugin {
 	return {
-		build: 'both',
+		targets: ['client', 'server'],
 		hooks: {
-			'build:before': ({ build }) => {
+			'build:before': ({ target }) => {
 				let plugins = rollupPluginAstroBuildCSS({
 					buildOptions: options,
 					internals,
-					target: build === 'ssr' ? 'server' : 'client',
+					target,
 				});
 
 				return {
@@ -58,6 +58,10 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	// stylesheet filenames are kept in here until "post", when they are rendered and ready to be inlined
 	const pagesToCss: Record<string, Record<string, { order: number; depth: number }>> = {};
 	const pagesToPropagatedCss: Record<string, Record<string, Set<string>>> = {};
+
+	const isContentCollectionCache =
+		options.buildOptions.settings.config.output === 'static' &&
+		options.buildOptions.settings.config.experimental.contentCollectionCache;
 
 	const cssBuildPlugin: VitePlugin = {
 		name: 'astro:rollup-plugin-build-css',
@@ -93,6 +97,13 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								// so they can be injected where needed
 								const chunkId = assetName.createNameHash(id, [id]);
 								internals.cssModuleToChunkIdMap.set(id, chunkId);
+								if (isContentCollectionCache) {
+									// TODO: Handle inlining?
+									const propagatedStyles =
+										internals.propagatedStylesMap.get(pageInfo.id) ?? new Set();
+									propagatedStyles.add({ type: 'external', src: chunkId });
+									internals.propagatedStylesMap.set(pageInfo.id, propagatedStyles);
+								}
 								return chunkId;
 							}
 						}
@@ -241,9 +252,16 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						// return early if the stylesheet needing propagation has already been included
 						if (pageData.styles.some((s) => s.sheet === sheet)) return;
 
-						const propagatedStyles =
-							pageData.propagatedStyles.get(pageInfoId) ??
-							pageData.propagatedStyles.set(pageInfoId, new Set()).get(pageInfoId)!;
+						let propagatedStyles: Set<StylesheetAsset>;
+						if (isContentCollectionCache) {
+							propagatedStyles =
+								internals.propagatedStylesMap.get(pageInfoId) ??
+								internals.propagatedStylesMap.set(pageInfoId, new Set()).get(pageInfoId)!;
+						} else {
+							propagatedStyles =
+								pageData.propagatedStyles.get(pageInfoId) ??
+								pageData.propagatedStyles.set(pageInfoId, new Set()).get(pageInfoId)!;
+						}
 
 						propagatedStyles.add(sheet);
 						sheetAddedToPage = true;

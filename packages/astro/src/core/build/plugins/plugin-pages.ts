@@ -3,7 +3,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../../@types/astro.js';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
-import { type BuildInternals } from '../internal.js';
+import { eachPageFromAllPages, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
@@ -42,7 +42,7 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 			if (opts.settings.config.output === 'static') {
 				const inputs = new Set<string>();
 
-				for (const [path, pageData] of Object.entries(opts.allPages)) {
+				for (const [path, pageData] of eachPageFromAllPages(opts.allPages)) {
 					if (routeIsRedirect(pageData.route)) {
 						continue;
 					}
@@ -104,7 +104,7 @@ export function shouldBundleMiddleware(settings: AstroSettings) {
 
 export function pluginPages(opts: StaticBuildOptions, internals: BuildInternals): AstroBuildPlugin {
 	return {
-		build: 'ssr',
+		targets: ['server'],
 		hooks: {
 			'build:before': () => {
 				return {

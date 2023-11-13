@@ -1,4 +1,4 @@
-import { sequence, defineMiddleware } from 'astro:middleware';
+import { defineMiddleware, sequence } from 'astro:middleware';
 
 const first = defineMiddleware(async (context, next) => {
 	if (context.request.url.includes('/lorem')) {
@@ -24,7 +24,7 @@ const first = defineMiddleware(async (context, next) => {
 		const response = await next();
 		const newResponse = response.clone();
 		const /** @type {string} */ html = await newResponse.text();
-		const newhtml = html.replace('<h1>testing</h1>', '<h1>it works</h1>');
+		const newhtml = html.replace('testing', 'it works');
 		return new Response(newhtml, { status: 200, headers: response.headers });
 	} else if(context.url.pathname === '/return-response-cookies') {
 		const response = await next();

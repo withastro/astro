@@ -1,6 +1,9 @@
 export type Fallback = 'none' | 'animate' | 'swap';
 export type Direction = 'forward' | 'back';
-export type Options = { history?: 'auto' | 'push' | 'replace' };
+export type Options = {
+	history?: 'auto' | 'push' | 'replace';
+	formData?: FormData;
+};
 
 type State = {
 	index: number;
@@ -91,10 +94,11 @@ const throttle = (cb: (...args: any[]) => any, delay: number) => {
 
 // returns the contents of the page or null if the router can't deal with it.
 async function fetchHTML(
-	href: string
+	href: string,
+	init?: RequestInit
 ): Promise<null | { html: string; redirected?: string; mediaType: DOMParserSupportedType }> {
 	try {
-		const res = await fetch(href);
+		const res = await fetch(href, init);
 		// drop potential charset (+ other name/value pairs) as parser needs the mediaType
 		const mediaType = res.headers.get('content-type')?.replace(/;.*$/, '');
 		// the DOMParser can handle two types of HTML
@@ -378,7 +382,12 @@ async function transition(
 ) {
 	let finished: Promise<void>;
 	const href = toLocation.href;
-	const response = await fetchHTML(href);
+	const init: RequestInit = {};
+	if (options.formData) {
+		init.method = 'POST';
+		init.body = options.formData;
+	}
+	const response = await fetchHTML(href, init);
 	// If there is a problem fetching the new page, just do an MPA navigation to it.
 	if (response === null) {
 		location.href = href;
@@ -398,7 +407,9 @@ async function transition(
 	// see https://developer.mozilla.org/en-US/docs/Web/API/DOMParser/parseFromString
 	newDocument.querySelectorAll('noscript').forEach((el) => el.remove());
 
-	if (!newDocument.querySelector('[name="astro-view-transitions-enabled"]')) {
+	// If ViewTransitions is not enabled on the incoming page, do a full page load to it.
+	// Unless this was a form submission, in which case we do not want to trigger another mutation.
+	if (!newDocument.querySelector('[name="astro-view-transitions-enabled"]') && !options.formData) {
 		location.href = href;
 		return;
 	}
@@ -435,7 +446,7 @@ export function navigate(href: string, options?: Options) {
 		if (!navigateOnServerWarned) {
 			// instantiate an error for the stacktrace to show to user.
 			const warning = new Error(
-				'The view transtions client API was called during a server side render. This may be unintentional as the navigate() function is expected to be called in response to user interactions. Please make sure that your usage is correct.'
+				'The view transitions client API was called during a server side render. This may be unintentional as the navigate() function is expected to be called in response to user interactions. Please make sure that your usage is correct.'
 			);
 			warning.name = 'Warning';
 			// eslint-disable-next-line no-console
@@ -452,9 +463,10 @@ export function navigate(href: string, options?: Options) {
 	}
 	const toLocation = new URL(href, location.href);
 	// We do not have page transitions on navigations to the same page (intra-page navigation)
+	// *unless* they are form posts which have side-effects and so need to happen
 	// but we want to handle prevent reload on navigation to the same page
 	// Same page means same origin, path and query params (but maybe different hash)
-	if (location.origin === toLocation.origin && samePage(toLocation)) {
+	if (location.origin === toLocation.origin && samePage(toLocation) && !options?.formData) {
 		moveToLocation(toLocation, options?.history === 'replace', true);
 	} else {
 		// different origin will be detected by fetch

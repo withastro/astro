@@ -4,6 +4,7 @@ import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
 import { Logger } from '../logger/core.js';
 import { Pipeline } from '../pipeline.js';
+import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { createEnvironment } from '../render/index.js';
 import { createAssetLink } from '../render/ssr-element.js';
 import type { BuildInternals } from './internal.js';
@@ -11,6 +12,7 @@ import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types.js';
+import { i18nHasFallback } from './util.js';
 
 /**
  * This pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
@@ -26,6 +28,7 @@ export class BuildPipeline extends Pipeline {
 		manifest: SSRManifest
 	) {
 		const ssr = isServerLikeOutput(staticBuildOptions.settings.config);
+		const resolveCache = new Map<string, string>();
 		super(
 			createEnvironment({
 				adapterName: manifest.adapterName,
@@ -35,16 +38,22 @@ export class BuildPipeline extends Pipeline {
 				clientDirectives: manifest.clientDirectives,
 				compressHTML: manifest.compressHTML,
 				async resolve(specifier: string) {
+					if (resolveCache.has(specifier)) {
+						return resolveCache.get(specifier)!;
+					}
 					const hashedFilePath = manifest.entryModules[specifier];
 					if (typeof hashedFilePath !== 'string' || hashedFilePath === '') {
 						// If no "astro:scripts/before-hydration.js" script exists in the build,
 						// then we can assume that no before-hydration scripts are needed.
 						if (specifier === BEFORE_HYDRATION_SCRIPT_ID) {
+							resolveCache.set(specifier, '');
 							return '';
 						}
 						throw new Error(`Cannot find the built path for ${specifier}`);
 					}
-					return createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
+					const assetLink = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
+					resolveCache.set(specifier, assetLink);
+					return assetLink;
 				},
 				routeCache: staticBuildOptions.routeCache,
 				site: manifest.site,
@@ -154,11 +163,21 @@ export class BuildPipeline extends Pipeline {
 				pages.set(pageData, filePath);
 			}
 		}
-		for (const [path, pageData] of this.#internals.pagesByComponent.entries()) {
-			if (pageData.route.type === 'redirect') {
-				pages.set(pageData, path);
+
+		for (const [path, pageDataList] of this.#internals.pagesByComponents.entries()) {
+			for (const pageData of pageDataList) {
+				if (routeIsRedirect(pageData.route)) {
+					pages.set(pageData, path);
+				} else if (
+					routeIsFallback(pageData.route) &&
+					(i18nHasFallback(this.getConfig()) ||
+						(routeIsFallback(pageData.route) && pageData.route.route === '/'))
+				) {
+					pages.set(pageData, path);
+				}
 			}
 		}
+
 		return pages;
 	}
 

@@ -4,6 +4,7 @@ export const CONTENT_FLAG = 'astroContentCollectionEntry';
 export const DATA_FLAG = 'astroDataCollectionEntry';
 
 export const VIRTUAL_MODULE_ID = 'astro:content';
+export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 export const LINKS_PLACEHOLDER = '@@ASTRO-LINKS@@';
 export const STYLES_PLACEHOLDER = '@@ASTRO-STYLES@@';
 export const SCRIPTS_PLACEHOLDER = '@@ASTRO-SCRIPTS@@';

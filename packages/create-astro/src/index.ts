@@ -20,6 +20,7 @@ process.on('SIGTERM', exit);
 // if you make any changes to the flow or wording here.
 export async function main() {
 	// Clear console because PNPM startup is super ugly
+	// eslint-disable-next-line no-console
 	console.clear();
 	// NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 	// to no longer require `--` to pass args and instead pass `--` directly to us. This

@@ -42,7 +42,8 @@ export default function assets({
 				extendManualChunks(outputOptions, {
 					after(id) {
 						if (id.includes('astro/dist/assets/services/')) {
-							return `astro-assets-services`;
+							// By convention, library code is emitted to the `chunks/astro/*` directory
+							return `astro/assets-service`;
 						}
 					},
 				});
@@ -174,7 +175,7 @@ export default function assets({
 			configResolved(viteConfig) {
 				resolvedConfig = viteConfig;
 			},
-			async load(id) {
+			async load(id, options) {
 				// If our import has any query params, we'll let Vite handle it
 				// See https://github.com/withastro/astro/issues/8333
 				if (id !== removeQueryString(id)) {
@@ -190,8 +191,18 @@ export default function assets({
 						});
 					}
 
-					return `
-					export default ${getProxyCode(meta, isServerLikeOutput(settings.config))}`;
+					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.
+					// Since you cannot use image optimization on the client anyway, it's safe to assume that if the user imported
+					// an image on the client, it should be present in the final build.
+					if (options?.ssr) {
+						return `export default ${getProxyCode(meta, isServerLikeOutput(settings.config))}`;
+					} else {
+						if (!globalThis.astroAsset.referencedImages)
+							globalThis.astroAsset.referencedImages = new Set();
+
+						globalThis.astroAsset.referencedImages.add(meta.fsPath);
+						return `export default ${JSON.stringify(meta)}`;
+					}
 				}
 			},
 		},

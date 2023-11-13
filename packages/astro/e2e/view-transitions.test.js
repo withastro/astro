@@ -888,6 +888,72 @@ test.describe('View Transitions', () => {
 		await expect(locator).toHaveValue('Hello World');
 	});
 
+	test('form POST that redirects to another page is handled', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', async (p) => {
+			loads.push(p);
+		});
+
+		await page.goto(astro.resolveUrl('/form-one'));
+
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Contact Form');
+
+		// Submit the form
+		await page.click('#submit');
+		const span = page.locator('#contact-name');
+		await expect(span, 'should have content').toHaveText('Testing');
+
+		expect(
+			loads.length,
+			'There should be only 1 page load. No additional loads for the form submission'
+		).toEqual(1);
+	});
+
+	test('form GET that redirects to another page is handled', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', async (p) => {
+			loads.push(p);
+		});
+
+		await page.goto(astro.resolveUrl('/form-one?method=get'));
+
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Contact Form');
+
+		// Submit the form
+		await page.click('#submit');
+		const span = page.locator('#contact-name');
+		await expect(span, 'should have content').toHaveText('Testing');
+
+		expect(
+			loads.length,
+			'There should be only 1 page load. No additional loads for the form submission'
+		).toEqual(1);
+	});
+
+	test('form POST when there is an error shows the error', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', async (p) => {
+			loads.push(p);
+		});
+
+		await page.goto(astro.resolveUrl('/form-one?throw'));
+
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Contact Form');
+
+		// Submit the form
+		await page.click('#submit');
+		const overlay = page.locator('vite-error-overlay');
+		await expect(overlay).toBeVisible();
+
+		expect(
+			loads.length,
+			'There should be only 1 page load. No additional loads for the form submission'
+		).toEqual(1);
+	});
+
 	test('Route announcer is invisible on page transition', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/no-directive-one'));
 
@@ -900,5 +966,42 @@ test.describe('View Transitions', () => {
 
 		let announcer = page.locator('.astro-route-announcer');
 		await expect(announcer, 'should have content').toHaveCSS('width', '1px');
+	});
+
+	test('should prefetch on hover by default', async ({ page, astro }) => {
+		/** @type {string[]} */
+		const reqUrls = [];
+		page.on('request', (req) => {
+			reqUrls.push(new URL(req.url()).pathname);
+		});
+		await page.goto(astro.resolveUrl('/prefetch'));
+		expect(reqUrls).not.toContainEqual('/one');
+		await Promise.all([
+			page.waitForEvent('request'), // wait prefetch request
+			page.locator('#prefetch-one').hover(),
+		]);
+		expect(reqUrls).toContainEqual('/one');
+	});
+
+	test('form POST with no action handler', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', async (p) => {
+			loads.push(p);
+		});
+
+		await page.goto(astro.resolveUrl('/form-two'));
+
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Contact Form');
+
+		// Submit the form
+		await page.click('#submit');
+		const span = page.locator('#contact-name');
+		await expect(span, 'should have content').toHaveText('Testing');
+
+		expect(
+			loads.length,
+			'There should be only 1 page load. No additional loads for the form submission'
+		).toEqual(1);
 	});
 });

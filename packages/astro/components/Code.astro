@@ -33,6 +33,11 @@ interface Props {
 	 */
 	theme?: BuiltinTheme | ThemeRegistration | ThemeRegistrationRaw;
 	/**
+	 * Multiple themes to style with -- alternative to "theme" option.
+	 * Supports all themes found above; see https://github.com/antfu/shikiji#lightdark-dual-themes for more information.
+	 */
+	experimentalThemes?: Record<string, BuiltinTheme | ThemeRegistration | ThemeRegistrationRaw>;
+	/**
 	 * Enable word wrapping.
 	 *  - true: enabled.
 	 *  - false: disabled.
@@ -53,6 +58,7 @@ const {
 	code,
 	lang = 'plaintext',
 	theme = 'github-dark',
+	experimentalThemes = {},
 	wrap = false,
 	inline = false,
 } = Astro.props;
@@ -88,12 +94,15 @@ if (typeof lang === 'object') {
 
 const highlighter = await getCachedHighlighter({
 	langs: [lang],
-	themes: [theme],
+	themes: Object.values(experimentalThemes).length ? Object.values(experimentalThemes) : [theme],
 });
 
+const themeOptions = Object.values(experimentalThemes).length
+	? { themes: experimentalThemes }
+	: { theme };
 const html = highlighter.codeToHtml(code, {
 	lang: typeof lang === 'string' ? lang : lang.name,
-	theme,
+	...themeOptions,
 	transforms: {
 		pre(node) {
 			// Swap to `code` tag if inline
@@ -123,6 +132,10 @@ const html = highlighter.codeToHtml(code, {
 			}
 		},
 		root(node) {
+			if (Object.values(experimentalThemes).length) {
+				return;
+			}
+
 			// theme.id for shiki -> shikiji compat
 			const themeName = typeof theme === 'string' ? theme : theme.name;
 			if (themeName === 'css-variables') {

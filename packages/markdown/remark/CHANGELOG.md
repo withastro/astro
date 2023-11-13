@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 3.4.0
+
+### Minor Changes
+
+- [#8903](https://github.com/withastro/astro/pull/8903) [`c5010aad3`](https://github.com/withastro/astro/commit/c5010aad3475669648dc939e00f88bbb52489d0d) Thanks [@horo-fox](https://github.com/horo-fox)! - Adds experimental support for multiple shiki themes with the new `markdown.shikiConfig.experimentalThemes` option.
+
 ## 3.3.0
 
 ### Minor Changes

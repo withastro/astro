@@ -1,0 +1,7 @@
+---
+import Layout from '../components/Layout.astro';
+const name = Astro.url.searchParams.get('name');
+---
+<Layout>
+	<div>Submitted contact: <span id="contact-name">{name}</span></div>
+</Layout>

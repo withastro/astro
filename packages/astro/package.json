@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "3.4.4",
+  "version": "3.5.3",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -78,7 +78,9 @@
       "default": "./dist/core/middleware/namespace.js"
     },
     "./transitions": "./dist/transitions/index.js",
-    "./transitions/router": "./dist/transitions/router.js"
+    "./transitions/router": "./dist/transitions/router.js",
+    "./prefetch": "./dist/prefetch/index.js",
+    "./i18n": "./dist/i18n/index.js"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
@@ -120,7 +122,7 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^2.1.0",
+    "@astrojs/compiler": "^2.3.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
@@ -212,7 +214,7 @@
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
     "eol": "^0.9.1",
-    "memfs": "^4.2.1",
+    "memfs": "^4.6.0",
     "mocha": "^10.2.0",
     "node-mocks-http": "^1.13.0",
     "parse-srcset": "^1.0.2",
