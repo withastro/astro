@@ -280,7 +280,7 @@ async function generatePage(
 		pipeline.getManifest().i18n,
 		pipeline.getManifest().base,
 		pipeline.getManifest().trailingSlash,
-		pipeline.getManifest().routes
+		pipeline.getManifest().routes.map((route) => route.routeData)
 	);
 	if (config.experimental.i18n && i18nMiddleware) {
 		if (onRequest) {

@@ -1038,7 +1038,7 @@ describe('i18n routing does not break assets and endpoints', () => {
 		});
 
 		it('should return the expected data', async () => {
-			let request = new Request('http://example.com/new-site/api/test');
+			let request = new Request('http://example.com/new-site/test.json');
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
 			expect(await response.text()).includes('lorem');

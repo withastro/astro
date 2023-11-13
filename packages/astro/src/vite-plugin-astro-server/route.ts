@@ -281,9 +281,8 @@ export async function handleRoute({
 			config.experimental.i18n,
 			config.base,
 			config.trailingSlash,
-            manifest.routes
-
-        );
+			manifestData.routes
+		);
 
 		if (i18Middleware) {
 			if (onRequest) {
