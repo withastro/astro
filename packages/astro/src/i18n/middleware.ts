@@ -1,5 +1,5 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
-import type { AstroConfig, MiddlewareEndpointHandler, SSRManifest } from '../@types/astro.js';
+import type { MiddlewareEndpointHandler, SSRManifest } from '../@types/astro.js';
 
 // Checks if the pathname doesn't have any locale, exception for the defaultLocale, which is ignored on purpose
 function checkIsLocaleFree(pathname: string, locales: string[]): boolean {
