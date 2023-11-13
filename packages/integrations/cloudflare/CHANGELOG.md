@@ -1,5 +1,13 @@
 # @astrojs/cloudflare
 
+## 7.7.0
+
+### Minor Changes
+
+- [#34](https://github.com/withastro/adapters/pull/34) [`4e1060b`](https://github.com/withastro/adapters/commit/4e1060b9b6bc758a3163f6a9b7d5074954a83e22) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Adds an `imageService` adapter option to configure which image service is used. Read more in the [Cloudflare adapter docs](https://docs.astro.build/en/guides/integrations-guide/cloudflare/).
+
+- [#34](https://github.com/withastro/adapters/pull/34) [`4e1060b`](https://github.com/withastro/adapters/commit/4e1060b9b6bc758a3163f6a9b7d5074954a83e22) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Adds support for using Cloudflare's Image Resizing service as an external image service in Astro. See [Cloudflare's image docs](https://developers.cloudflare.com/images/image-resizing/) for more information about pricing and features.
+
 ## 7.6.4
 
 ### Patch Changes
