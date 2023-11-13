@@ -20,6 +20,7 @@ export function redirectRouteGenerate(redirectRoute: RouteData, data: Params): s
 	if (typeof routeData !== 'undefined') {
 		return routeData?.generate(data) || routeData?.pathname || '/';
 	} else if (typeof route === 'string') {
+		console.log({ data, pattern: route});
 		return route;
 	} else if (typeof route === 'undefined') {
 		return '/';
