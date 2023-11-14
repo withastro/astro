@@ -24,12 +24,14 @@
     "./editor": "./dist/editor.cjs",
     "./*": "./*",
     "./client.js": "./client.js",
+    "./client-v5.js": "./client-v5.js",
     "./server.js": "./server.js",
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
     "client.js",
+    "client-v5.js",
     "server.js"
   ],
   "scripts": {
@@ -38,7 +40,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@sveltejs/vite-plugin-svelte": "^2.4.5",
+    "@sveltejs/vite-plugin-svelte": "^2.5.2",
     "svelte2tsx": "^0.6.20"
   },
   "devDependencies": {
@@ -49,7 +51,7 @@
   },
   "peerDependencies": {
     "astro": "^3.0.0",
-    "svelte": "^3.55.0 || ^4.0.0"
+    "svelte": "^3.55.0 || ^4.0.0 || ^5.0.0-next.1"
   },
   "engines": {
     "node": ">=18.14.1"
