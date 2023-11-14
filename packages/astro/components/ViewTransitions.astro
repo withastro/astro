@@ -4,10 +4,9 @@ type Fallback = 'none' | 'animate' | 'swap';
 export interface Props {
 	fallback?: Fallback;
 	handleForms?: boolean;
-	intraPageTransitions?: boolean;
 }
 
-const { fallback = 'animate', handleForms, intraPageTransitions } = Astro.props;
+const { fallback = 'animate', handleForms } = Astro.props;
 ---
 
 <style is:global>
@@ -27,12 +26,10 @@ const { fallback = 'animate', handleForms, intraPageTransitions } = Astro.props;
 <meta name="astro-view-transitions-enabled" content="true" />
 <meta name="astro-view-transitions-fallback" content={fallback} />
 {handleForms ? <meta name="astro-view-transitions-forms" content="true" /> : ''}
-{intraPageTransitions && <meta name="astro-view-transitions-intra-page" content="true" />}
 <script>
 	import type { Options } from 'astro:transitions/client';
 	import { supportsViewTransitions, navigate } from 'astro:transitions/client';
 	// NOTE: import from `astro/prefetch` as `astro:prefetch` requires the `prefetch` config to be enabled
-	// @ts-ignore
 	import { init } from 'astro/prefetch';
 
 	type Fallback = 'none' | 'animate' | 'swap';
