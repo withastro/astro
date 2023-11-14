@@ -104,7 +104,7 @@ function initHoverStrategy() {
 			clearTimeout(timeout);
 		}
 		timeout = setTimeout(() => {
-			prefetch(href, { with: 'fetch', ignoreSlowConnection: true });
+			prefetch(href, { with: 'fetch' });
 		}, 80) as unknown as number;
 	}
 
@@ -155,7 +155,7 @@ function createViewportIntersectionObserver() {
 					setTimeout(() => {
 						observer.unobserve(anchor);
 						timeouts.delete(anchor);
-						prefetch(anchor.href, { with: 'link', ignoreSlowConnection: true });
+						prefetch(anchor.href, { with: 'link' });
 					}, 300) as unknown as number
 				);
 			} else {
@@ -244,8 +244,8 @@ function elMatchesStrategy(el: EventTarget | null, strategy: string): el is HTML
 	}
 
 	// Fallback to tap strategy if using data saver mode or slow connection
-	if ((attrValue != null || prefetchAll) && isSlowConnection()) {
-		return strategy === 'tap';
+	if (strategy === 'tap' && (attrValue != null || prefetchAll) && isSlowConnection()) {
+		return true;
 	}
 
 	// If anchor has no dataset but we want to prefetch all, or has dataset but no value,
