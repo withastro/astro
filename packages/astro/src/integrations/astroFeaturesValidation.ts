@@ -24,7 +24,7 @@ const ALL_UNSUPPORTED: Required<AstroFeatureMap> = {
 	hybridOutput: UNSUPPORTED,
 	assets: UNSUPPORTED_ASSETS_FEATURE,
 	i18n: {
-		detectBrowserLanguage: UNSUPPORTED,
+		domain: UNSUPPORTED,
 	},
 };
 
