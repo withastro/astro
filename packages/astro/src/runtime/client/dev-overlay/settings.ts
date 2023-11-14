@@ -1,10 +1,10 @@
 export interface Settings {
-	showPluginNotifications: boolean;
+	disablePluginNotification: boolean;
 	verbose: boolean;
 }
 
 export const defaultSettings = {
-	showPluginNotifications: true,
+	disablePluginNotification: false,
 	verbose: false,
 } satisfies Settings;
 

@@ -49,4 +49,12 @@ export class DevOverlayToggle extends HTMLElement {
 		this.input.type = 'checkbox';
 		this.shadowRoot.append(this.input);
 	}
+
+	get value() {
+		return this.input.value;
+	}
+
+	set value(val) {
+		this.input.value = val;
+	}
 }
