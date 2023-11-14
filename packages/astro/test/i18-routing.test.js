@@ -991,6 +991,73 @@ describe('[SSR] i18n routing', () => {
 			});
 		});
 	});
+
+	describe('current locale', () => {
+		describe('with [prefix-other-locales]', () => {
+			/** @type {import('./test-utils').Fixture} */
+			let fixture;
+
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing/',
+					output: 'server',
+					adapter: testAdapter(),
+				});
+				await fixture.build();
+				app = await fixture.loadTestAdapterApp();
+			});
+
+			it('should return the default locale', async () => {
+				let request = new Request('http://example.com/current-locale', {});
+				let response = await app.render(request);
+				expect(response.status).to.equal(200);
+				expect(await response.text()).includes('Current Locale: en');
+			});
+
+			it('should return the default locale of the current URL', async () => {
+				let request = new Request('http://example.com/pt/start', {});
+				let response = await app.render(request);
+				expect(response.status).to.equal(200);
+				expect(await response.text()).includes('Current Locale: pt');
+			});
+
+			it('should return the default locale when a route is dynamic', async () => {
+				let request = new Request('http://example.com/dynamic/lorem', {});
+				let response = await app.render(request);
+				expect(response.status).to.equal(200);
+				expect(await response.text()).includes('Current Locale: en');
+			});
+		});
+
+		describe('with [prefix-always]', () => {
+			/** @type {import('./test-utils').Fixture} */
+			let fixture;
+
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing-prefix-always/',
+					output: 'server',
+					adapter: testAdapter(),
+				});
+				await fixture.build();
+				app = await fixture.loadTestAdapterApp();
+			});
+
+			it('should return the locale of the current URL (en)', async () => {
+				let request = new Request('http://example.com/en/start', {});
+				let response = await app.render(request);
+				expect(response.status).to.equal(200);
+				expect(await response.text()).includes('Current Locale: en');
+			});
+
+			it('should return the locale of the current URL (pt)', async () => {
+				let request = new Request('http://example.com/pt/start', {});
+				let response = await app.render(request);
+				expect(response.status).to.equal(200);
+				expect(await response.text()).includes('Current Locale: pt');
+			});
+		});
+	});
 });
 
 describe('i18n routing does not break assets and endpoints', () => {

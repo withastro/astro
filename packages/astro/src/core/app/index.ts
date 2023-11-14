@@ -234,7 +234,9 @@ export class App {
 				status,
 				env: this.#pipeline.env,
 				mod: handler as any,
-				locales: this.#manifest.i18n ? this.#manifest.i18n.locales : undefined,
+				locales: this.#manifest.i18n?.locales,
+				routingStrategy: this.#manifest.i18n?.routingStrategy,
+				defaultLocale: this.#manifest.i18n?.defaultLocale,
 			});
 		} else {
 			const pathname = prependForwardSlash(this.removeBase(url.pathname));
@@ -269,7 +271,9 @@ export class App {
 				status,
 				mod,
 				env: this.#pipeline.env,
-				locales: this.#manifest.i18n ? this.#manifest.i18n.locales : undefined,
+				locales: this.#manifest.i18n?.locales,
+				routingStrategy: this.#manifest.i18n?.routingStrategy,
+				defaultLocale: this.#manifest.i18n?.defaultLocale,
 			});
 		}
 	}

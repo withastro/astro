@@ -29,6 +29,8 @@ export interface RenderContext {
 	props: Props;
 	locals?: object;
 	locales: string[] | undefined;
+	defaultLocale: string | undefined;
+	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined;
 }
 
 export type CreateRenderContextArgs = Partial<
@@ -60,6 +62,8 @@ export async function createRenderContext(
 		params,
 		props,
 		locales: options.locales,
+		routingStrategy: options.routingStrategy,
+		defaultLocale: options.defaultLocale,
 	};
 
 	// We define a custom property, so we can check the value passed to locals
@@ -207,4 +211,22 @@ export function computePreferredLocaleList(request: Request, locales: string[]) 
 	}
 
 	return result;
+}
+
+export function computeCurrentLocale(
+	request: Request,
+	locales: string[],
+	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined,
+	defaultLocale: string | undefined
+): undefined | string {
+	const requestUrl = new URL(request.url);
+	for (const segment of requestUrl.pathname.split('/')) {
+		if (locales.includes(segment)) {
+			return segment;
+		}
+	}
+	if (routingStrategy === 'prefix-other-locales') {
+		return defaultLocale;
+	}
+	return undefined;
 }

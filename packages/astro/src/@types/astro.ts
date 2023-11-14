@@ -2112,6 +2112,11 @@ interface AstroSharedContext<
 	 */
 
 	preferredLocaleList: string[] | undefined;
+
+	/**
+	 * The current locale computed from the URL of the request. It matches the locales in `i18n.locales`, and returns `undefined` otherwise.
+	 */
+	currentLocale: string | undefined;
 }
 
 export interface APIContext<
@@ -2241,6 +2246,11 @@ export interface APIContext<
 	 * [quality value]: https://developer.mozilla.org/en-US/docs/Glossary/Quality_values
 	 */
 	preferredLocaleList: string[] | undefined;
+
+	/**
+	 * The current locale computed from the URL of the request. It matches the locales in `i18n.locales`, and returns `undefined` otherwise.
+	 */
+	currentLocale: string | undefined;
 }
 
 export type EndpointOutput =

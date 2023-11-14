@@ -12,7 +12,11 @@ import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachCookiesToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
-import { computePreferredLocale, computePreferredLocaleList } from '../render/context.js';
+import {
+	computeCurrentLocale,
+	computePreferredLocale,
+	computePreferredLocaleList,
+} from '../render/context.js';
 import { type Environment, type RenderContext } from '../render/index.js';
 
 const encoder = new TextEncoder();
@@ -27,6 +31,8 @@ type CreateAPIContext = {
 	props: Record<string, any>;
 	adapterName?: string;
 	locales: string[] | undefined;
+	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined;
+	defaultLocale: string | undefined;
 };
 
 /**
@@ -41,9 +47,12 @@ export function createAPIContext({
 	props,
 	adapterName,
 	locales,
+	routingStrategy,
+	defaultLocale,
 }: CreateAPIContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
+	let currentLocale: string | undefined = undefined;
 
 	const context = {
 		cookies: new AstroCookies(request),
@@ -79,6 +88,19 @@ export function createAPIContext({
 			if (locales) {
 				preferredLocaleList = computePreferredLocaleList(request, locales);
 				return preferredLocaleList;
+			}
+
+			return undefined;
+		},
+		get currentLocale(): string | undefined {
+			if (currentLocale) {
+				return currentLocale;
+			}
+			if (locales) {
+				currentLocale = computeCurrentLocale(request, locales, routingStrategy, defaultLocale);
+				if (currentLocale) {
+					return currentLocale;
+				}
 			}
 
 			return undefined;
@@ -153,8 +175,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	mod: EndpointHandler,
 	env: Environment,
 	ctx: RenderContext,
-	onRequest: MiddlewareHandler<MiddlewareResult> | undefined,
-	locales: undefined | string[]
+	onRequest: MiddlewareHandler<MiddlewareResult> | undefined
 ): Promise<Response> {
 	const context = createAPIContext({
 		request: ctx.request,
@@ -162,7 +183,9 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 		props: ctx.props,
 		site: env.site,
 		adapterName: env.adapterName,
-		locales,
+		routingStrategy: ctx.routingStrategy,
+		defaultLocale: ctx.defaultLocale,
+		locales: ctx.locales,
 	});
 
 	let response;

@@ -558,7 +558,9 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		route: pageData.route,
 		env: pipeline.getEnvironment(),
 		mod,
-		locales: i18n ? i18n.locales : undefined,
+		locales: i18n?.locales,
+		routingStrategy: i18n?.routingStrategy,
+		defaultLocale: i18n?.defaultLocale,
 	});
 
 	let body: string | Uint8Array;
