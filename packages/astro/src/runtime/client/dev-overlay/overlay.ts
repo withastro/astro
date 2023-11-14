@@ -23,7 +23,7 @@ export class AstroDevOverlay extends HTMLElement {
 	plugins: DevOverlayPlugin[] = [];
 	HOVER_DELAY = 750;
 	hasBeenInitialized = false;
-	customPluginsToShow = 1;
+	customPluginsToShow = 3;
 
 	constructor() {
 		super();
