@@ -1546,7 +1546,7 @@ export interface AstroUserConfig {
 			 * @version 3.6.0
 			 * @description
 			 *
-			 * Maps a locale
+			 * Maps a locale to a domain (or sub-domain). When a locale is mapped to a domain, all the URLs that belong to it will respond to `https://fr.example.com/blog` and not to `/fr/blog`.
 			 *
 			 * ```js
 			 * export defualt defineConfig({
