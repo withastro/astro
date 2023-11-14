@@ -32,6 +32,7 @@ export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export { remarkCollectImages } from './remark-collect-images.js';
 export { remarkPrism } from './remark-prism.js';
 export { remarkShiki } from './remark-shiki.js';
+export { createShikiHighlighter, replaceCssVariables, type ShikiHighlighter } from './shiki.js';
 export * from './types.js';
 
 export const markdownConfigDefaults: Omit<Required<AstroMarkdownOptions>, 'drafts'> = {

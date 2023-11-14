@@ -1,4 +1,4 @@
-import { joinPaths } from '@astrojs/internal-helpers/path';
+import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
 import type { MiddlewareEndpointHandler, SSRManifest } from '../@types/astro.js';
 
 // Checks if the pathname doesn't have any locale, exception for the defaultLocale, which is ignored on purpose
@@ -14,7 +14,8 @@ function checkIsLocaleFree(pathname: string, locales: string[]): boolean {
 
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
-	base: SSRManifest['base']
+	base: SSRManifest['base'],
+	trailingSlash: SSRManifest['trailingSlash']
 ): MiddlewareEndpointHandler | undefined {
 	if (!i18n) {
 		return undefined;
@@ -42,8 +43,12 @@ export function createI18nMiddleware(
 					headers: response.headers,
 				});
 			} else if (i18n.routingStrategy === 'prefix-always') {
-				if (url.pathname === base || url.pathname === base + '/') {
-					return context.redirect(`${joinPaths(base, i18n.defaultLocale)}`);
+				if (url.pathname === base + '/' || url.pathname === base) {
+					if (trailingSlash === 'always') {
+						return context.redirect(`${appendForwardSlash(joinPaths(base, i18n.defaultLocale))}`);
+					} else {
+						return context.redirect(`${joinPaths(base, i18n.defaultLocale)}`);
+					}
 				}
 
 				// Astro can't know where the default locale is supposed to be, so it returns a 404 with no content.

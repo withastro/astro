@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 3.5.0
+
+### Minor Changes
+
+- [#9083](https://github.com/withastro/astro/pull/9083) [`4537ecf0d`](https://github.com/withastro/astro/commit/4537ecf0d060f89cb8c000338a7fc5f4197a88c8) Thanks [@bluwy](https://github.com/bluwy)! - Exports `createShikiHighlighter` for low-level syntax highlighting usage
+
 ## 3.4.0
 
 ### Minor Changes
