@@ -11,6 +11,8 @@ type AstroInternationalization = {
 export default function astroInternationalization({
 	settings,
 }: AstroInternationalization): vite.Plugin {
+	let isCommandBuild = false;
+
 	return {
 		name: 'astro:i18n',
 		enforce: 'pre',
@@ -18,6 +20,11 @@ export default function astroInternationalization({
 			if (id === virtualModuleId) {
 				return resolvedVirtualModuleId;
 			}
+		},
+
+		config(opts, { command }) {
+			isCommandBuild = command === 'build';
+			return opts;
 		},
 		load(id) {
 			if (id === resolvedVirtualModuleId) {
@@ -35,13 +42,14 @@ export default function astroInternationalization({
 					const format =  ${JSON.stringify(settings.config.build.format)};
 					const site = ${JSON.stringify(settings.config.site)};
 					const i18n = ${JSON.stringify(settings.config.experimental.i18n)};
+					const isBuild = ${isCommandBuild};
 					
 					export const getRelativeLocaleUrl = (locale, path = "", opts) => _getLocaleRelativeUrl({ 
 						locale,
 						path, 
 						base, 
 						trailingSlash, 
-						format,
+						format,					
 						...i18n,
 						...opts 
 					});
@@ -52,13 +60,16 @@ export default function astroInternationalization({
 						trailingSlash, 
 						format, 
 						site, 
+						isBuild,
 						...i18n,
 						...opts 
 					});
 					
 					export const getRelativeLocaleUrlList = (path = "", opts) => _getLocaleRelativeUrlList({ 
 						base, path, trailingSlash, format, ...i18n, ...opts });
-					export const getAbsoluteLocaleUrlList = (path = "", opts) => _getLocaleAbsoluteUrlList({ base, path, trailingSlash, format, site, ...i18n, ...opts });
+					export const getAbsoluteLocaleUrlList = (path = "", opts) => _getLocaleAbsoluteUrlList({ 
+						base, path, trailingSlash, format, site, isBuild, ...i18n, ...opts 
+					});
 				`;
 			}
 		},

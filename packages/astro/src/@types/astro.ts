@@ -1536,6 +1536,33 @@ export interface AstroUserConfig {
 			 *
 			 */
 			routingStrategy?: 'prefix-always' | 'prefix-other-locales';
+
+			/**
+			 * @docs
+			 * @kind h4
+			 * @name experimental.i18n.domains
+			 * @type {Record<string, string> }
+			 * @default '{}'
+			 * @version 3.6.0
+			 * @description
+			 *
+			 * Maps a locale
+			 *
+			 * ```js
+			 * export defualt defineConfig({
+			 *    experimental: {
+			 *        i18n: {
+			 *            defaultLocale: "en",
+			 *            locales: ["en", "fr", "pt-br", "es"],
+			 *            domains: {
+			 *                fr: "https://fr.example.com",
+			 *            }
+			 *        }
+			 *    }
+			 * })
+			 * ```
+			 */
+			domains?: Record<string, string>;
 		};
 		/**
 		 * @docs

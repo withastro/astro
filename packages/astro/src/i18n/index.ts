@@ -12,6 +12,8 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 	format: AstroConfig['build']['format'];
 	routingStrategy?: 'prefix-always' | 'prefix-other-locales';
 	defaultLocale: string;
+	domains: Record<string, string>;
+	path: string;
 };
 
 export type GetLocaleOptions = {
@@ -21,10 +23,6 @@ export type GetLocaleOptions = {
 	 */
 	normalizeLocale?: boolean;
 	/**
-	 * An optional path to add after the `locale`.
-	 */
-	path?: string;
-	/**
 	 *  An optional path to prepend to `locale`.
 	 */
 	prependWith?: string;
@@ -32,6 +30,7 @@ export type GetLocaleOptions = {
 
 type GetLocaleAbsoluteUrl = GetLocaleRelativeUrl & {
 	site: AstroConfig['site'];
+	isBuild: boolean;
 };
 /**
  * The base URL
@@ -73,17 +72,31 @@ export function getLocaleRelativeUrl({
 /**
  * The absolute URL
  */
-export function getLocaleAbsoluteUrl({ site, ...rest }: GetLocaleAbsoluteUrl) {
-	const locale = getLocaleRelativeUrl(rest);
-	if (site) {
-		return joinPaths(site, locale);
+export function getLocaleAbsoluteUrl({ site, isBuild, ...rest }: GetLocaleAbsoluteUrl) {
+	const localeUrl = getLocaleRelativeUrl(rest);
+	const { domains, locale } = rest;
+	let URL;
+	if (isBuild) {
+		const base = domains[locale];
+		URL = joinPaths(base, localeUrl.replace(`/${rest.locale}`, ''));
 	} else {
-		return locale;
+		if (site) {
+			URL = joinPaths(site, localeUrl);
+		} else {
+			URL = localeUrl;
+		}
+	}
+
+	if (shouldAppendForwardSlash(rest.trailingSlash, rest.format)) {
+		return appendForwardSlash(URL);
+	} else {
+		return URL;
 	}
 }
 
 type GetLocalesBaseUrl = GetLocaleOptions & {
 	base: string;
+	path: string;
 	locales: string[];
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];

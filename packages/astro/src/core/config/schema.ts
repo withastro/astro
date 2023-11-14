@@ -397,11 +397,18 @@ export const AstroConfigSchema = z.object({
 								}
 							}
 							if (domains) {
-								for (const [domainKey] of Object.entries(domains)) {
+								for (const [domainKey, domainValue] of Object.entries(domains)) {
 									if (!locales.includes(domainKey)) {
 										ctx.addIssue({
 											code: z.ZodIssueCode.custom,
 											message: `The locale \`${domainKey}\` key in the \`i18n.domains\` record doesn't exist in the \`i18n.locales\` array.`,
+										});
+									}
+									const domainUrl = new URL(domainValue);
+									if (domainUrl.pathname !== '/') {
+										ctx.addIssue({
+											code: z.ZodIssueCode.custom,
+											message: `The URL \`${domainValue}\` must contain only the origin. A subsequent pathname isn't allowed here. Remove \`${domainUrl.pathname}\`.`,
 										});
 									}
 								}

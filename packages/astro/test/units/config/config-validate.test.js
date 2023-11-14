@@ -201,5 +201,26 @@ describe('Config Validation', () => {
 				"The domain value must be a valid URL, and it has to start with 'https' or 'http'."
 			);
 		});
+
+		it('errors if a domain is a URL with a pathname that is not the home', async () => {
+			const configError = await validateConfig(
+				{
+					experimental: {
+						i18n: {
+							defaultLocale: 'en',
+							locales: ['es', 'en'],
+							domains: {
+								en: 'https://www.example.com/blog/page/',
+							},
+						},
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal(
+				"The URL `https://www.example.com/blog/page/` must contain only the origin. A subsequent pathname isn't allowed here. Remove `/blog/page/`."
+			);
+		});
 	});
 });
