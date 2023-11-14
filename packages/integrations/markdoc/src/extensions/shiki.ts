@@ -1,5 +1,5 @@
-import Markdoc from '@markdoc/markdoc';
 import { createShikiHighlighter } from '@astrojs/markdown-remark';
+import Markdoc from '@markdoc/markdoc';
 import type { ShikiConfig } from 'astro';
 import { unescapeHTML } from 'astro/runtime/server/index.js';
 import type { AstroMarkdocConfig } from '../config.js';

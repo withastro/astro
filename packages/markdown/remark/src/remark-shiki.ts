@@ -1,6 +1,6 @@
 import { visit } from 'unist-util-visit';
-import type { RemarkPlugin, ShikiConfig } from './types.js';
 import { createShikiHighlighter, type ShikiHighlighter } from './shiki.js';
+import type { RemarkPlugin, ShikiConfig } from './types.js';
 
 export function remarkShiki(config?: ShikiConfig): ReturnType<RemarkPlugin> {
 	let highlighterAsync: Promise<ShikiHighlighter> | undefined;

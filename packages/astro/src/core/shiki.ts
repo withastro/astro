@@ -1,7 +1,7 @@
 import {
 	createShikiHighlighter,
-	type ShikiHighlighter,
 	type ShikiConfig,
+	type ShikiHighlighter,
 } from '@astrojs/markdown-remark';
 
 // Caches Promise<ShikiHighlighter> for reuse when the same theme and langs are provided

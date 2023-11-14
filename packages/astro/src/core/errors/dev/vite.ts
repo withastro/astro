@@ -1,8 +1,8 @@
+import { replaceCssVariables } from '@astrojs/markdown-remark';
 import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { codeToHtml } from 'shikiji';
 import type { ErrorPayload } from 'vite';
-import { replaceCssVariables } from '@astrojs/markdown-remark';
 import type { ModuleLoader } from '../../module-loader/index.js';
 import { FailedToLoadModuleSSR, InvalidGlob, MdxIntegrationMissingError } from '../errors-data.js';
 import { AstroError, type ErrorWithMetadata } from '../errors.js';
