@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-fix preview server pathname parse
+Fixes preview server `trailingSlash` handling for request URLs with query strings
