@@ -1,5 +1,28 @@
 # astro
 
+## 3.5.4
+
+### Patch Changes
+
+- [#9085](https://github.com/withastro/astro/pull/9085) [`fc66ecff1`](https://github.com/withastro/astro/commit/fc66ecff18a20dd436026cb8e75bcc8b5ab0e681) Thanks [@ematipico](https://github.com/ematipico)! - When redirecting to the default root locale, Astro middleare should take into consideration the value of `trailingSlash`
+
+- [#9067](https://github.com/withastro/astro/pull/9067) [`c6e449c5b`](https://github.com/withastro/astro/commit/c6e449c5b3e6e994b362b9ce441c8a1a81129f23) Thanks [@danielhajduk](https://github.com/danielhajduk)! - Fixes display of debug messages when using the `--verbose` flag
+
+- [#9075](https://github.com/withastro/astro/pull/9075) [`c5dc8f2ec`](https://github.com/withastro/astro/commit/c5dc8f2ec9c8c1bbbffabed9eeb12d151aefb81e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix Passthrough image service generating multiple images with the same content in certain cases
+
+- [#9083](https://github.com/withastro/astro/pull/9083) [`4537ecf0d`](https://github.com/withastro/astro/commit/4537ecf0d060f89cb8c000338a7fc5f4197a88c8) Thanks [@bluwy](https://github.com/bluwy)! - Uses new `createShikiHighlighter` API from `@astrojs/markdown-remark` to avoid code duplication
+
+- [#9084](https://github.com/withastro/astro/pull/9084) [`045e5ec97`](https://github.com/withastro/astro/commit/045e5ec9793a4ba2e3f0248d734246eb033225e8) Thanks [@matthewp](https://github.com/matthewp)! - Supports `formmethod` and `formaction` for form overrides
+
+- [#9087](https://github.com/withastro/astro/pull/9087) [`b895113a0`](https://github.com/withastro/astro/commit/b895113a0ae347ecd81bd8866ae2d816ea20836b) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes the regression which broke bundling of image service for pre-rendered pages, which was introduced by [#8854](https://github.com/withastro/astro/pull/8854)
+
+- [#9058](https://github.com/withastro/astro/pull/9058) [`5ef89ef33`](https://github.com/withastro/astro/commit/5ef89ef33e0dc4621db947b6889b3c563eb56a78) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add a new settings panel to the dev overlay
+
+- [#9045](https://github.com/withastro/astro/pull/9045) [`84312f24f`](https://github.com/withastro/astro/commit/84312f24f8af2098b0831cf2361ea3d37761d3d3) Thanks [@rishi-raj-jain](https://github.com/rishi-raj-jain)! - Fixes preview server `trailingSlash` handling for request URLs with query strings
+
+- Updated dependencies [[`4537ecf0d`](https://github.com/withastro/astro/commit/4537ecf0d060f89cb8c000338a7fc5f4197a88c8)]:
+  - @astrojs/markdown-remark@3.5.0
+
 ## 3.5.3
 
 ### Patch Changes
