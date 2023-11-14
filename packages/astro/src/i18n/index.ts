@@ -111,7 +111,7 @@ export function getLocaleRelativeUrlList({
 	format,
 	path,
 	prependWith,
-	normalizeLocale = false,
+	normalizeLocale = true,
 	routingStrategy = 'prefix-other-locales',
 	defaultLocale,
 }: GetLocalesBaseUrl) {
@@ -133,13 +133,50 @@ export function getLocaleRelativeUrlList({
 	});
 }
 
-export function getLocaleAbsoluteUrlList({ site, ...rest }: GetLocaleAbsoluteUrl) {
-	const locales = getLocaleRelativeUrlList(rest);
-	return locales.map((locale) => {
-		if (site) {
-			return joinPaths(site, locale);
+export function getLocaleAbsoluteUrlList({
+	base,
+	locales,
+	trailingSlash,
+	format,
+	path,
+	prependWith,
+	normalizeLocale = true,
+	routingStrategy = 'prefix-other-locales',
+	defaultLocale,
+	isBuild,
+	domains,
+	site,
+}: GetLocaleAbsoluteUrl) {
+	return locales.map((currentLocale) => {
+		const pathsToJoin = [];
+		const normalizedLocale = normalizeLocale ? normalizeTheLocale(currentLocale) : currentLocale;
+		const domainBase = domains ? domains[currentLocale] : undefined;
+		if (isBuild && domainBase) {
+			if (domainBase) {
+				pathsToJoin.push(domains[currentLocale]);
+			} else {
+				pathsToJoin.push(site);
+			}
+			pathsToJoin.push(base);
+			pathsToJoin.push(prependWith);
 		} else {
-			return locale;
+			if (site) {
+				pathsToJoin.push(site);
+			}
+			pathsToJoin.push(base);
+			pathsToJoin.push(prependWith);
+			if (routingStrategy === 'prefix-always') {
+				pathsToJoin.push(normalizedLocale);
+			} else if (currentLocale !== defaultLocale) {
+				pathsToJoin.push(normalizedLocale);
+			}
+		}
+
+		pathsToJoin.push(path);
+		if (shouldAppendForwardSlash(trailingSlash, format)) {
+			return appendForwardSlash(joinPaths(...pathsToJoin));
+		} else {
+			return joinPaths(...pathsToJoin);
 		}
 	});
 }
