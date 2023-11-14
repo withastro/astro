@@ -24,6 +24,7 @@ import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger
 import type { AstroDevOverlay, DevOverlayCanvas } from '../runtime/client/dev-overlay/overlay.js';
 import type { DevOverlayHighlight } from '../runtime/client/dev-overlay/ui-library/highlight.js';
 import type { Icon } from '../runtime/client/dev-overlay/ui-library/icons.js';
+import type { DevOverlayToggle } from '../runtime/client/dev-overlay/ui-library/toggle.js';
 import type { DevOverlayTooltip } from '../runtime/client/dev-overlay/ui-library/tooltip.js';
 import type { DevOverlayWindow } from '../runtime/client/dev-overlay/ui-library/window.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
@@ -1499,7 +1500,7 @@ export interface AstroUserConfig {
 			 * The following example configures your content fallback strategy to redirect unavailable pages in `/pt-br/` to their `es` version, and unavailable pages in `/fr/` to their `en` version. Unavailable `/es/` pages will return a 404.
 			 *
 			 * ```js
-			 * export defualt defineConfig({
+			 * export default defineConfig({
 			 * 	experimental: {
 			 * 		i18n: {
 			 * 			defaultLocale: "en",
@@ -2578,5 +2579,6 @@ declare global {
 		'astro-dev-overlay-plugin-canvas': DevOverlayCanvas;
 		'astro-dev-overlay-tooltip': DevOverlayTooltip;
 		'astro-dev-overlay-highlight': DevOverlayHighlight;
+		'astro-dev-overlay-toggle': DevOverlayToggle;
 	}
 }
