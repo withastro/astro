@@ -1,14 +1,17 @@
 import type { Options } from '@sveltejs/vite-plugin-svelte';
 import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import { VERSION } from 'svelte/compiler';
 import type { AstroIntegration, AstroRenderer } from 'astro';
 import { fileURLToPath } from 'node:url';
 import type { UserConfig } from 'vite';
 
+const isSvelte5 = Number.parseInt(VERSION.split('.').at(0)!) >= 5;
+
 function getRenderer(): AstroRenderer {
 	return {
 		name: '@astrojs/svelte',
-		clientEntrypoint: '@astrojs/svelte/client.js',
-		serverEntrypoint: '@astrojs/svelte/server.js',
+		clientEntrypoint: isSvelte5 ? '@astrojs/svelte/client-v5.js' : '@astrojs/svelte/client.js',
+		serverEntrypoint: isSvelte5 ? '@astrojs/svelte/server-v5.js' : '@astrojs/svelte/server.js',
 	};
 }
 
@@ -37,8 +40,14 @@ async function getViteConfiguration({
 }: ViteConfigurationArgs): Promise<UserConfig> {
 	const defaultOptions: Partial<Options> = {
 		emitCss: true,
-		compilerOptions: { dev: isDev, hydratable: true },
+		compilerOptions: { dev: isDev },
 	};
+
+	// `hydratable` does not need to be set in Svelte 5 as it's always hydratable by default
+	if (!isSvelte5) {
+		// @ts-ignore ignore Partial type above
+		defaultOptions.compilerOptions.hydratable = true;
+	}
 
 	// Disable hot mode during the build
 	if (!isDev) {
@@ -69,8 +78,8 @@ async function getViteConfiguration({
 
 	return {
 		optimizeDeps: {
-			include: ['@astrojs/svelte/client.js'],
-			exclude: ['@astrojs/svelte/server.js'],
+			include: [isSvelte5 ? '@astrojs/svelte/client-v5.js' : '@astrojs/svelte/client.js'],
+			exclude: [isSvelte5 ? '@astrojs/svelte/server-v5.js' : '@astrojs/svelte/server.js'],
 		},
 		plugins: [svelte(resolvedOptions)],
 	};
