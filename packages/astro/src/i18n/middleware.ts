@@ -1,6 +1,9 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
 import type { MiddlewareEndpointHandler, RouteData, SSRManifest } from '../@types/astro.js';
 import type { RouteInfo } from '../core/app/types.js';
+import type { PipelineHookFunction } from '../core/pipeline.js';
+
+const routeDataSymbol = Symbol.for('astro.routeData');
 
 // Checks if the pathname doesn't have any locale, exception for the defaultLocale, which is ignored on purpose
 function checkIsLocaleFree(pathname: string, locales: string[]): boolean {
@@ -16,34 +19,30 @@ function checkIsLocaleFree(pathname: string, locales: string[]): boolean {
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
 	base: SSRManifest['base'],
-	trailingSlash: SSRManifest['trailingSlash'],
-	routes: RouteData[]
+	trailingSlash: SSRManifest['trailingSlash']
 ): MiddlewareEndpointHandler | undefined {
 	if (!i18n) {
 		return undefined;
 	}
-
-	// we get all the routes that aren't pages
-	const nonPagesRoutes = routes.filter((route) => {
-		return route.type !== 'page';
-	});
 
 	return async (context, next) => {
 		if (!i18n) {
 			return await next();
 		}
 
-		const url = context.url;
-		// We get the pathname
-		// Internally, Astro removes the `base` from the manifest data of the routes.
-		// We have to make sure that we remove it from the pathname of the request
-		let astroPathname = url.pathname;
-		if (astroPathname.startsWith(base) && base !== '/') {
-			astroPathname = astroPathname.slice(base.length);
+		const routeData = Reflect.get(context.request, routeDataSymbol);
+		if (routeData) {
+			// If the route we're processing is not a page, then we ignore it
+			if (
+				(routeData as RouteData).type !== 'page' &&
+				(routeData as RouteData).type !== 'fallback'
+			) {
+				return await next();
+			}
 		}
 
+		const url = context.url;
 		const { locales, defaultLocale, fallback } = i18n;
-
 		const response = await next();
 
 		if (response instanceof Response) {
@@ -58,11 +57,6 @@ export function createI18nMiddleware(
 					headers: response.headers,
 				});
 			} else if (i18n.routingStrategy === 'prefix-always') {
-				// We want to do this check only here, because `prefix-other-locales` assumes that non localized folder are valid
-				if (shouldSkipRoute(astroPathname, nonPagesRoutes, locales)) {
-					return await next();
-				}
-
 				if (url.pathname === base + '/' || url.pathname === base) {
 					if (trailingSlash === 'always') {
 						return context.redirect(`${appendForwardSlash(joinPaths(base, i18n.defaultLocale))}`);
@@ -105,21 +99,8 @@ export function createI18nMiddleware(
 }
 
 /**
- * Checks whether a route should be skipped from the middleware logic. A route should be not be skipped when:
- * - it's the home
- * - it contains any locale
- * - the pathname belongs to a route that is not a page
+ * This pipeline hook attaches a `RouteData` object to the `Request`
  */
-function shouldSkipRoute(pathname: string, pageRoutes: RouteData[], locales: string[]) {
-	if (!pathname.length || pathname === '/') {
-		return false;
-	}
-
-	if (locales.some((locale) => pathname.includes(`/${locale}`))) {
-		return false;
-	}
-
-	return pageRoutes.some((route) => {
-		return !route.pattern.test(pathname);
-	});
-}
+export const i18nPipelineHook: PipelineHookFunction = (ctx) => {
+	Reflect.set(ctx.request, routeDataSymbol, ctx.route);
+};

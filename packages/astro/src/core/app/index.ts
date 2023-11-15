@@ -6,7 +6,7 @@ import type {
 	SSRElement,
 	SSRManifest,
 } from '../../@types/astro.js';
-import { createI18nMiddleware } from '../../i18n/middleware.js';
+import { createI18nMiddleware, i18nPipelineHook } from '../../i18n/middleware.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
@@ -169,8 +169,7 @@ export class App {
 			let i18nMiddleware = createI18nMiddleware(
 				this.#manifest.i18n,
 				this.#manifest.base,
-				this.#manifest.trailingSlash,
-				this.#manifest.routes.map((route) => route.routeData)
+				this.#manifest.trailingSlash
 			);
 			if (i18nMiddleware) {
 				if (mod.onRequest) {
@@ -180,6 +179,7 @@ export class App {
 				} else {
 					this.#pipeline.setMiddlewareFunction(i18nMiddleware);
 				}
+				this.#pipeline.onBeforeRenderRoute(i18nPipelineHook);
 			} else {
 				if (mod.onRequest) {
 					this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);

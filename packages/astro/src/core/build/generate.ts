@@ -30,7 +30,7 @@ import {
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
-import { createI18nMiddleware } from '../../i18n/middleware.js';
+import { createI18nMiddleware, i18nPipelineHook } from '../../i18n/middleware.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
@@ -279,8 +279,7 @@ async function generatePage(
 	const i18nMiddleware = createI18nMiddleware(
 		pipeline.getManifest().i18n,
 		pipeline.getManifest().base,
-		pipeline.getManifest().trailingSlash,
-		pipeline.getManifest().routes.map((route) => route.routeData)
+		pipeline.getManifest().trailingSlash
 	);
 	if (config.experimental.i18n && i18nMiddleware) {
 		if (onRequest) {
@@ -290,6 +289,7 @@ async function generatePage(
 		} else {
 			pipeline.setMiddlewareFunction(i18nMiddleware);
 		}
+		pipeline.onBeforeRenderRoute(i18nPipelineHook);
 	} else if (onRequest) {
 		pipeline.setMiddlewareFunction(onRequest as MiddlewareEndpointHandler);
 	}
