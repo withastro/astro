@@ -221,8 +221,10 @@ export function computeCurrentLocale(
 ): undefined | string {
 	const requestUrl = new URL(request.url);
 	for (const segment of requestUrl.pathname.split('/')) {
-		if (locales.includes(segment)) {
-			return segment;
+		for (const locale of locales) {
+			if (normalizeTheLocale(locale) === normalizeTheLocale(segment)) {
+				return locale;
+			}
 		}
 	}
 	if (routingStrategy === 'prefix-other-locales') {
