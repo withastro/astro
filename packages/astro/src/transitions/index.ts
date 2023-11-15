@@ -1,7 +1,5 @@
-import type {
-	TransitionAnimationPair,
-	TransitionStrictDirectionalAnimations,
-} from '../@types/astro.js';
+import type { TransitionAnimationPair, TransitionDirectionalAnimations } from '../@types/astro.js';
+export { createAnimationScope } from '../runtime/server/transition.js';
 
 const EASE_IN_OUT_QUART = 'cubic-bezier(0.76, 0, 0.24, 1)';
 
@@ -9,7 +7,7 @@ export function slide({
 	duration,
 }: {
 	duration?: string | number;
-} = {}): TransitionStrictDirectionalAnimations {
+} = {}): TransitionDirectionalAnimations {
 	return {
 		forwards: {
 			old: [
@@ -53,7 +51,7 @@ export function fade({
 	duration,
 }: {
 	duration?: string | number;
-} = {}): TransitionStrictDirectionalAnimations {
+} = {}): TransitionDirectionalAnimations {
 	const anim = {
 		old: {
 			name: 'astroFadeOut',

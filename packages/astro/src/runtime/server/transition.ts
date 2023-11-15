@@ -1,7 +1,9 @@
 import type {
 	SSRResult,
 	TransitionAnimation,
+	TransitionAnimationPair,
 	TransitionAnimationValue,
+	TransitionDirectionalAnimations,
 } from '../../@types/astro.js';
 import { fade, slide } from '../../transitions/index.js';
 import { markHTMLString } from './escape.js';
@@ -34,6 +36,19 @@ const getAnimations = (name: TransitionAnimationValue) => {
 	if (typeof name === 'object') return name;
 };
 
+const addPairs = (
+	animations: TransitionDirectionalAnimations | Record<string, TransitionAnimationPair>,
+	stylesheet: ViewTransitionStyleSheet
+) => {
+	for (const [direction, images] of Object.entries(animations) as Entries<typeof animations>) {
+		for (const [image, rules] of Object.entries(images) as Entries<
+			(typeof animations)[typeof direction]
+		>) {
+			stylesheet.addAnimationPair(direction, image, rules);
+		}
+	}
+};
+
 export function renderTransition(
 	result: SSRResult,
 	hash: string,
@@ -48,13 +63,7 @@ export function renderTransition(
 
 	const animations = getAnimations(animationName);
 	if (animations) {
-		for (const [direction, images] of Object.entries(animations) as Entries<typeof animations>) {
-			for (const [image, rules] of Object.entries(images) as Entries<
-				(typeof animations)[typeof direction]
-			>) {
-				sheet.addAnimationPair(direction, image, rules);
-			}
-		}
+		addPairs(animations, sheet);
 	} else if (animationName === 'none') {
 		sheet.addFallback('old', 'animation: none; mix-blend-mode: normal;');
 		sheet.addModern('old', 'animation: none; opacity: 0; mix-blend-mode: normal;');
@@ -63,6 +72,20 @@ export function renderTransition(
 
 	result._metadata.extraHead.push(markHTMLString(`<style>${sheet.toString()}</style>`));
 	return scope;
+}
+
+export function createAnimationScope(
+	transitionName: string,
+	animations: Record<string, TransitionAnimationPair>
+) {
+	const hash = Math.random().toString(36).slice(2, 8);
+	const scope = `astro-${hash}`;
+	const sheet = new ViewTransitionStyleSheet(scope, transitionName);
+
+	addPairs(animations, sheet);
+
+	const styles = `<style>${sheet.toString()}</style>`;
+	return { scope, styles };
 }
 
 class ViewTransitionStyleSheet {

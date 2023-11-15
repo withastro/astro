@@ -31,9 +31,6 @@ const samePage = (thisLocation: URL, otherLocation: URL) =>
 	thisLocation.pathname === otherLocation.pathname &&
 	thisLocation.search === otherLocation.search;
 
-const allowIntraPageTransitions = () =>
-	inBrowser && !!document.querySelector('[name="astro-view-transitions-intra-page"]');
-
 // When we traverse the history, the window.location is already set to the new location.
 // This variable tells us where we came from
 let originalLocation: URL;
@@ -399,6 +396,9 @@ async function updateDOM(
 		if (fallback === 'animate') {
 			await animate('old');
 		}
+	} else {
+		// that's what Chrome does
+		throw new DOMException('Transition was skipped');
 	}
 
 	const swapEvent = await doSwap(preparationEvent, viewTransition!, defaultSwap);
@@ -422,6 +422,12 @@ async function transition(
 		: options.history === 'replace'
 		? 'replace'
 		: 'push';
+
+	if (samePage(from, to) && !options.formData /* not yet: && to.hash*/) {
+		moveToLocation(to, from, options, historyState);
+		return;
+	}
+
 	const prepEvent = await doPreparation(
 		from,
 		to,
@@ -527,9 +533,6 @@ async function transition(
 			},
 		};
 	}
-	if (samePage(prepEvent.from, prepEvent.to) && !allowIntraPageTransitions) {
-		viewTransition.skipTransition();
-	}
 
 	viewTransition.ready.then(async () => {
 		await runScripts();
@@ -545,7 +548,7 @@ async function transition(
 
 let navigateOnServerWarned = false;
 
-export function navigate(href: string, options?: Options) {
+export async function navigate(href: string, options?: Options) {
 	if (inBrowser === false) {
 		if (!navigateOnServerWarned) {
 			// instantiate an error for the stacktrace to show to user.
@@ -565,7 +568,7 @@ export function navigate(href: string, options?: Options) {
 		location.href = href;
 		return;
 	}
-	transition('forward', originalLocation, new URL(href, location.href), options ?? {});
+	await transition('forward', originalLocation, new URL(href, location.href), options ?? {});
 }
 
 function onPopState(ev: PopStateEvent) {

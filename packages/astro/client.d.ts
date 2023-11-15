@@ -109,6 +109,7 @@ declare module 'astro:transitions' {
 	type TransitionModule = typeof import('./dist/transitions/index.js');
 	export const slide: TransitionModule['slide'];
 	export const fade: TransitionModule['fade'];
+	export const createAnimationScope: TransitionModule['createAnimationScope'];
 
 	type ViewTransitionsModule = typeof import('./components/ViewTransitions.astro');
 	export const ViewTransitions: ViewTransitionsModule['default'];

@@ -82,20 +82,17 @@ export interface TransitionAnimationPair {
 	new: TransitionAnimation | TransitionAnimation[];
 }
 
-export interface TransitionStrictDirectionalAnimations {
+export interface TransitionDirectionalAnimations {
 	forwards: TransitionAnimationPair;
 	backwards: TransitionAnimationPair;
 }
-
-export type TransitionFreeDirectionalAnimations = Record<string, TransitionAnimationPair>;
 
 export type TransitionAnimationValue =
 	| 'initial'
 	| 'slide'
 	| 'fade'
 	| 'none'
-	| TransitionStrictDirectionalAnimations
-	| TransitionFreeDirectionalAnimations;
+	| TransitionDirectionalAnimations;
 
 // Allow users to extend this for astro-jsx.d.ts
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
