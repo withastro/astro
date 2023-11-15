@@ -78,9 +78,9 @@ async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: 
 	if (webResponse.body) {
 		try {
 			const reader = webResponse.body.getReader();
-			res.on("close", () => {
+			res.on('close', () => {
 				reader.cancel();
-			})
+			});
 			let result = await reader.read();
 			while (!result.done) {
 				res.write(result.value);
