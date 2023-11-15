@@ -160,9 +160,9 @@ class AstroBuilder {
 
 		this.logger.info('build', `output: ${blue('"' + this.settings.config.output + '"')}`);
 		this.logger.info('build', `outDir: ${blue(fileURLToPath(this.settings.config.outDir))}`);
-		// if (this.settings.adapter) {
-		this.logger.info('build', `adapter: ${blue('@vercel/serverless')}`);
-		// }
+		if (this.settings.adapter) {
+		  this.logger.info('build', `adapter: ${blue('@vercel/serverless')}`);
+		}
 		this.logger.info('build', 'Collecting build info...');
 		this.timer.loadStart = performance.now();
 		const { assets, allPages } = await collectPagesData({
