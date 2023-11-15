@@ -84,7 +84,7 @@ export function createAnimationScope(
 
 	addPairs(animations, sheet);
 
-	const styles = `<style>${sheet.toString()}</style>`;
+	const styles = `${sheet.toString()}`;
 	return { scope, styles };
 }
 
