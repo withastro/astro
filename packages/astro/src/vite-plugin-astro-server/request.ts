@@ -102,7 +102,7 @@ export async function handleRequest({
 
 			telemetry.record(eventError({ cmd: 'dev', err: errorWithMetadata, isFatal: false }));
 
-			pipeline.logger.error(null, msg.formatErrorMessage(errorWithMetadata, true));
+			pipeline.logger.error(null, msg.formatErrorMessage(errorWithMetadata));
 			handle500Response(moduleLoader, incomingResponse, errorWithMetadata);
 
 			return err;
