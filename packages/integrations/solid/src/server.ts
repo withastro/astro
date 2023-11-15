@@ -104,7 +104,14 @@ async function renderToStaticMarkup(
 
 	const componentHtml =
 		renderStrategy === 'async'
-			? await renderToStringAsync(renderFn, { renderId })
+			? await renderToStringAsync(renderFn, {
+					renderId,
+					// New setting since Solid 1.8.4 that fixes an errant hydration event appearing in
+					// server only components. Not available in TypeScript types yet.
+					// https://github.com/solidjs/solid/issues/1931
+					// https://github.com/ryansolid/dom-expressions/commit/e09e255ac725fd59195aa0f3918065d4bd974e6b
+					...({ noScripts: !needsHydrate } as any),
+			  })
 			: renderToString(renderFn, { renderId });
 
 	return {
