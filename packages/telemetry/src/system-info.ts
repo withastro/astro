@@ -40,6 +40,9 @@ export type SystemInfo = {
 	memoryInMb: number;
 	isDocker: boolean;
 	isTTY: boolean;
+	stdoutName: string | undefined;
+	stdoutColumns: number | undefined;
+	stdoutRows: number | undefined;
 	isWSL: boolean;
 	isCI: boolean;
 	ciName: string | null;
@@ -68,9 +71,13 @@ export function getSystemInfo(versions: { viteVersion: string; astroVersion: str
 		cpuModel: cpus.length ? cpus[0].model : null,
 		cpuSpeed: cpus.length ? cpus[0].speed : null,
 		memoryInMb: Math.trunc(os.totalmem() / Math.pow(1024, 2)),
+		// Stdout information
+		isTTY: process.stdout.isTTY,
+		stdoutName: process.env.TERM_PROGRAM,
+		stdoutColumns: process.stdout.columns,
+		stdoutRows: process.stdout.rows,
 		// Environment information
 		isDocker: isDocker(),
-		isTTY: process.stdout.isTTY,
 		isWSL,
 		isCI,
 		ciName,
