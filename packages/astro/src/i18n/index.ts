@@ -75,22 +75,22 @@ export function getLocaleRelativeUrl({
 export function getLocaleAbsoluteUrl({ site, isBuild, ...rest }: GetLocaleAbsoluteUrl) {
 	const localeUrl = getLocaleRelativeUrl(rest);
 	const { domains, locale } = rest;
-	let URL;
+	let url;
 	if (isBuild) {
 		const base = domains[locale];
-		URL = joinPaths(base, localeUrl.replace(`/${rest.locale}`, ''));
+		url = joinPaths(base, localeUrl.replace(`/${rest.locale}`, ''));
 	} else {
 		if (site) {
-			URL = joinPaths(site, localeUrl);
+			url = joinPaths(site, localeUrl);
 		} else {
-			URL = localeUrl;
+			url = localeUrl;
 		}
 	}
 
 	if (shouldAppendForwardSlash(rest.trailingSlash, rest.format)) {
-		return appendForwardSlash(URL);
+		return appendForwardSlash(url);
 	} else {
-		return URL;
+		return url;
 	}
 }
 
