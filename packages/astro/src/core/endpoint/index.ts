@@ -98,12 +98,9 @@ export function createAPIContext({
 			}
 			if (locales) {
 				currentLocale = computeCurrentLocale(request, locales, routingStrategy, defaultLocale);
-				if (currentLocale) {
-					return currentLocale;
-				}
 			}
 
-			return undefined;
+			return currentLocale;
 		},
 		url: new URL(request.url),
 		get clientAddress() {
