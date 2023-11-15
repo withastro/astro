@@ -992,3 +992,56 @@ describe('[SSR] i18n routing', () => {
 		});
 	});
 });
+
+describe('i18n routing does not break assets and endpoints', () => {
+	describe('assets', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image-base/',
+				experimental: {
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'es'],
+					},
+				},
+				base: '/blog',
+			});
+			await fixture.build();
+		});
+
+		it('should render the image', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const src = $('#local img').attr('src');
+			expect(src.length).to.be.greaterThan(0);
+			expect(src.startsWith('/blog')).to.be.true;
+		});
+	});
+
+	describe('endpoint', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		let app;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-prefix-always/',
+				output: 'server',
+				adapter: testAdapter(),
+			});
+			await fixture.build();
+			app = await fixture.loadTestAdapterApp();
+		});
+
+		it('should return the expected data', async () => {
+			let request = new Request('http://example.com/new-site/test.json');
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('lorem');
+		});
+	});
+});

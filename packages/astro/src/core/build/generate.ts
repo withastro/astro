@@ -30,7 +30,7 @@ import {
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
-import { createI18nMiddleware } from '../../i18n/middleware.js';
+import { createI18nMiddleware, i18nPipelineHook } from '../../i18n/middleware.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
@@ -289,6 +289,7 @@ async function generatePage(
 		} else {
 			pipeline.setMiddlewareFunction(i18nMiddleware);
 		}
+		pipeline.onBeforeRenderRoute(i18nPipelineHook);
 	} else if (onRequest) {
 		pipeline.setMiddlewareFunction(onRequest as MiddlewareEndpointHandler);
 	}
