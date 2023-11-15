@@ -40,7 +40,7 @@
     "./import-meta": "./import-meta.d.ts",
     "./astro-jsx": "./astro-jsx.d.ts",
     "./tsconfigs/*.json": "./tsconfigs/*",
-    "./tsconfigs/*": "./tsconfigs/*.json",
+    "./tsconfigs/*": "./tsconfigs/*",
     "./jsx/*": "./dist/jsx/*",
     "./jsx-runtime": "./dist/jsx-runtime/index.js",
     "./compiler-runtime": "./dist/runtime/compiler/index.js",
