@@ -346,6 +346,16 @@ export const AstroConfigSchema = z.object({
 						defaultLocale: z.string(),
 						locales: z.string().array(),
 						fallback: z.record(z.string(), z.string()).optional(),
+						domains: z
+							.record(
+								z.string(),
+								z
+									.string()
+									.url(
+										"The domain value must be a valid URL, and it has to start with 'https' or 'http'."
+									)
+							)
+							.optional(),
 						// TODO: properly add default when the feature goes of experimental
 						routingStrategy: z
 							.enum(['prefix-always', 'prefix-other-locales'])
@@ -355,7 +365,7 @@ export const AstroConfigSchema = z.object({
 					.optional()
 					.superRefine((i18n, ctx) => {
 						if (i18n) {
-							const { defaultLocale, locales, fallback } = i18n;
+							const { defaultLocale, locales, fallback, domains } = i18n;
 							if (!locales.includes(defaultLocale)) {
 								ctx.addIssue({
 									code: z.ZodIssueCode.custom,
@@ -383,6 +393,27 @@ export const AstroConfigSchema = z.object({
 											code: z.ZodIssueCode.custom,
 											message: `The locale \`${fallbackTo}\` value in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
 										});
+									}
+								}
+							}
+							if (domains) {
+								for (const [domainKey, domainValue] of Object.entries(domains)) {
+									if (!locales.includes(domainKey)) {
+										ctx.addIssue({
+											code: z.ZodIssueCode.custom,
+											message: `The locale \`${domainKey}\` key in the \`i18n.domains\` record doesn't exist in the \`i18n.locales\` array.`,
+										});
+									}
+									try {
+										const domainUrl = new URL(domainValue);
+										if (domainUrl.pathname !== '/') {
+											ctx.addIssue({
+												code: z.ZodIssueCode.custom,
+												message: `The URL \`${domainValue}\` must contain only the origin. A subsequent pathname isn't allowed here. Remove \`${domainUrl.pathname}\`.`,
+											});
+										}
+									} catch {
+										// no need to catch the error
 									}
 								}
 							}

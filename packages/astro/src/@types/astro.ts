@@ -1536,6 +1536,33 @@ export interface AstroUserConfig {
 			 *
 			 */
 			routingStrategy?: 'prefix-always' | 'prefix-other-locales';
+
+			/**
+			 * @docs
+			 * @kind h4
+			 * @name experimental.i18n.domains
+			 * @type {Record<string, string> }
+			 * @default '{}'
+			 * @version 3.6.0
+			 * @description
+			 *
+			 * Maps a locale to a domain (or sub-domain). When a locale is mapped to a domain, all the URLs that belong to it will respond to `https://fr.example.com/blog` and not to `/fr/blog`.
+			 *
+			 * ```js
+			 * export defualt defineConfig({
+			 *    experimental: {
+			 *        i18n: {
+			 *            defaultLocale: "en",
+			 *            locales: ["en", "fr", "pt-br", "es"],
+			 *            domains: {
+			 *                fr: "https://fr.example.com",
+			 *            }
+			 *        }
+			 *    }
+			 * })
+			 * ```
+			 */
+			domains?: Record<string, string>;
 		};
 		/**
 		 * @docs
@@ -2039,9 +2066,9 @@ export interface AstroAssetsFeature {
 
 export interface AstroInternationalizationFeature {
 	/**
-	 * Whether the adapter is able to detect the language of the browser, usually using the `Accept-Language` header.
+	 * The adapter should be able to create the proper redirects
 	 */
-	detectBrowserLanguage?: SupportsKind;
+	domain?: SupportsKind;
 }
 
 export interface AstroAdapter {
