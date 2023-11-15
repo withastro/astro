@@ -30,14 +30,14 @@ export default (element) => {
 
 function createSlotDefinition(key, children) {
 	/**
-	 * @param {Comment} $$anchor
+	 * @param {Comment} $$anchor A comment node for slots in Svelte 5
 	 */
-	return ($$anchor, _$$props) => {
-		// $$anchor is a comment node for slots in Svelte 5
+	return ($$anchor, _$$slotProps) => {
+		const parent = $$anchor.parentNode;
 		const el = document.createElement('div');
 		el.innerHTML = `<astro-slot${
 			key === 'default' ? '' : ` name="${key}"`
 		}>${children}</astro-slot>`;
-		$$anchor.replaceWith(el.children[0]);
+		parent.insertBefore(el.children[0], $$anchor);
 	};
 }
