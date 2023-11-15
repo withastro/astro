@@ -5,7 +5,7 @@ import type { AstroIntegration, AstroRenderer } from 'astro';
 import { fileURLToPath } from 'node:url';
 import type { UserConfig } from 'vite';
 
-const isSvelte5 = VERSION.startsWith('5');
+const isSvelte5 = Number.parseInt(VERSION.split('.').at(0)) >= 5;
 
 function getRenderer(): AstroRenderer {
 	return {
