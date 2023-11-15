@@ -1,8 +1,8 @@
 import type { Options } from '@sveltejs/vite-plugin-svelte';
 import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import { VERSION } from 'svelte/compiler';
 import type { AstroIntegration, AstroRenderer } from 'astro';
 import { fileURLToPath } from 'node:url';
+import { VERSION } from 'svelte/compiler';
 import type { UserConfig } from 'vite';
 
 const isSvelte5 = Number.parseInt(VERSION.split('.').at(0)!) >= 5;
