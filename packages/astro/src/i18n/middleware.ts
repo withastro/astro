@@ -1,6 +1,5 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
 import type { MiddlewareEndpointHandler, RouteData, SSRManifest } from '../@types/astro.js';
-import type { RouteInfo } from '../core/app/types.js';
 import type { PipelineHookFunction } from '../core/pipeline.js';
 
 const routeDataSymbol = Symbol.for('astro.routeData');
