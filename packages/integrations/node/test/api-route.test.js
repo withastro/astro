@@ -102,7 +102,7 @@ describe('API routes', () => {
 		req.send();
 
 		await new Promise((resolve) => setTimeout(resolve, 500));
-		res.emit("close");
+		res.emit('close');
 
 		await done;
 
