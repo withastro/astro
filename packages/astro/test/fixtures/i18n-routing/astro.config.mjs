@@ -6,7 +6,10 @@ export default defineConfig({
 			defaultLocale: 'en',
 			locales: [
 				'en', 'pt', 'it'
-			]
+			],
+			domains: {
+				it: "https://it.example.com"
+			}
 		}
 	},
 })

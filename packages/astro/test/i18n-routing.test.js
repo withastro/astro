@@ -26,6 +26,24 @@ describe('astro:i18n virtual module', () => {
 		const text = await response.text();
 		expect(text).includes("Virtual module doesn't break");
 		expect(text).includes('About: /pt/about');
+		expect(text).includes('About it: /it/about');
+	});
+
+	describe('absolute URLs', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing/',
+			});
+			await fixture.build();
+		});
+
+		it('correctly renders the absolute URL', async () => {
+			const html = await fixture.readFile('/virtual-module/index.html');
+			let $ = cheerio.load(html);
+
+			expect($('body').text()).includes("Virtual module doesn't break");
+			expect($('body').text()).includes('About it: https://it.example.com/about');
+		});
 	});
 });
 describe('[DEV] i18n routing', () => {
