@@ -1009,4 +1009,30 @@ describe('[SSR] i18n routing', () => {
 			});
 		});
 	});
+
+	describe('i18n routing with routing strategy [subdomain]', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-subdomain/',
+				output: 'server',
+				adapter: testAdapter(),
+			});
+			await fixture.build();
+			app = await fixture.loadTestAdapterApp();
+		});
+
+		it('should render the en locale', async () => {
+			let request = new Request('http://example.pt/new-site/start', {
+				headers: {
+					'X-Forwarded-Host': 'https://example.pt',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Oi essa e start\n');
+		});
+	});
 });

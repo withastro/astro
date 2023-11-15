@@ -634,6 +634,7 @@ export function createBuildManifest(
 			routingStrategy: settings.config.experimental.i18n.routingStrategy,
 			defaultLocale: settings.config.experimental.i18n.defaultLocale,
 			locales: settings.config.experimental.i18n.locales,
+			domainLookupTable: {},
 		};
 	}
 	return {

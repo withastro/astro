@@ -131,8 +131,29 @@ export class App {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
 		if (this.#manifest.assets.has(url.pathname)) return undefined;
-		const pathname = prependForwardSlash(this.removeBase(url.pathname));
-		const routeData = matchRoute(pathname, this.#manifestData);
+		let pathname;
+		if (this.#manifest.i18n && this.#manifest.i18n.routingStrategy === 'domain') {
+			const host = request.headers.get('X-Forwarded-Host');
+			if (host) {
+				try {
+					let hostUrl = new URL(this.removeBase(url.pathname), host);
+					const maybePathname = this.#manifest.i18n.domainLookupTable[hostUrl.toString()];
+					if (maybePathname) {
+						pathname = maybePathname;
+					}
+				} catch (e) {
+					// waiting to decide what to do here
+					// eslint-disable-next-line no-console
+					console.error(e);
+					// TODO: What kind of error should we try? This happens if we have an invalid value inside the X-Forwarded-Host header
+				}
+			}
+		}
+		if (!pathname) {
+			pathname = prependForwardSlash(this.removeBase(url.pathname));
+		}
+		let routeData = matchRoute(pathname, this.#manifestData);
+
 		// missing routes fall-through, prerendered are handled by static layer
 		if (!routeData || routeData.prerender) return undefined;
 		return routeData;

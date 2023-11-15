@@ -55,9 +55,10 @@ export type SSRManifest = {
 
 export type SSRManifestI18n = {
 	fallback?: Record<string, string>;
-	routingStrategy?: 'prefix-always' | 'prefix-other-locales';
+	routingStrategy?: 'prefix-always' | 'prefix-other-locales' | 'domain';
 	locales: string[];
 	defaultLocale: string;
+	domainLookupTable: Record<string, string>;
 };
 
 export type SerializedSSRManifest = Omit<
