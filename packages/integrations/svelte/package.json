@@ -26,13 +26,15 @@
     "./client.js": "./client.js",
     "./client-v5.js": "./client-v5.js",
     "./server.js": "./server.js",
+    "./server-v5.js": "./server-v5.js",
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
     "client.js",
     "client-v5.js",
-    "server.js"
+    "server.js",
+    "server-v5.js"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/index.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",

@@ -5,13 +5,13 @@ import type { AstroIntegration, AstroRenderer } from 'astro';
 import { fileURLToPath } from 'node:url';
 import type { UserConfig } from 'vite';
 
-const isSvelte5 = Number.parseInt(VERSION.split('.').at(0)) >= 5;
+const isSvelte5 = Number.parseInt(VERSION.split('.').at(0)!) >= 5;
 
 function getRenderer(): AstroRenderer {
 	return {
 		name: '@astrojs/svelte',
 		clientEntrypoint: isSvelte5 ? '@astrojs/svelte/client-v5.js' : '@astrojs/svelte/client.js',
-		serverEntrypoint: '@astrojs/svelte/server.js',
+		serverEntrypoint: isSvelte5 ? '@astrojs/svelte/server-v5.js' : '@astrojs/svelte/server.js',
 	};
 }
 
@@ -43,8 +43,9 @@ async function getViteConfiguration({
 		compilerOptions: { dev: isDev },
 	};
 
+	// `hydratable` does not need to be set in Svelte 5 as it's always hydratable by default
 	if (!isSvelte5) {
-		// @ts-ignore
+		// @ts-ignore ignore Partial type above
 		defaultOptions.compilerOptions.hydratable = true;
 	}
 
@@ -78,7 +79,7 @@ async function getViteConfiguration({
 	return {
 		optimizeDeps: {
 			include: [isSvelte5 ? '@astrojs/svelte/client-v5.js' : '@astrojs/svelte/client.js'],
-			exclude: ['@astrojs/svelte/server.js'],
+			exclude: [isSvelte5 ? '@astrojs/svelte/server-v5.js' : '@astrojs/svelte/server.js'],
 		},
 		plugins: [svelte(resolvedOptions)],
 	};

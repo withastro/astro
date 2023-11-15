@@ -1,13 +1,5 @@
-import { VERSION } from 'svelte/compiler';
-
-const isSvelte5 = VERSION.startsWith('5');
-
 function check(Component) {
-	if (isSvelte5) {
-		return Component.toString().includes('$$payload');
-	} else {
-		return Component['render'] && Component['$$render'];
-	}
+	return Component['render'] && Component['$$render'];
 }
 
 function needsHydration(metadata) {
@@ -22,18 +14,7 @@ async function renderToStaticMarkup(Component, props, slotted, metadata) {
 		slots[key] = () =>
 			`<${tagName}${key === 'default' ? '' : ` name="${key}"`}>${value}</${tagName}>`;
 	}
-	let html;
-	if (isSvelte5) {
-		const { render } = await import('svelte/server');
-		html = render(Component, {
-			props: {
-				...props,
-				$$slots: slots,
-			},
-		}).html;
-	} else {
-		html = Component.render(props, { $$slots: slots }).html;
-	}
+	const { html } = Component.render(props, { $$slots: slots });
 	return { html };
 }
 
