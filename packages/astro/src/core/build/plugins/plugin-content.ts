@@ -1,5 +1,4 @@
-import { createHash } from 'node:crypto';
-import fsMod from 'node:fs';
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import pLimit from 'p-limit';
 import { normalizePath, type Plugin as VitePlugin } from 'vite';
@@ -18,9 +17,22 @@ import { copyFiles } from '../static-build.js';
 import type { StaticBuildOptions } from '../types.js';
 import { encodeName } from '../util.js';
 import { extendManualChunks } from './util.js';
+import { isTrackableModule, checksum, ModuleGraph, ModuleNode, resolvePackageVersion } from './cache/module-graph.js';
+import { createRequire } from 'node:module';
 
-const CONTENT_CACHE_DIR = './content/';
-const CONTENT_MANIFEST_FILE = './manifest.json';
+function getEntrypointsFromModuleNode(input: ModuleNode): ModuleNode[] {
+	const result = new Set<ModuleNode>(input.isEntry ? [input] : []);
+	for (const importer of input.importers.values()) {
+		if (result.has(importer)) break;
+		for (const node of getEntrypointsFromModuleNode(importer)) {
+			result.add(node);
+		}
+	}
+	return Array.from(result);
+}
+
+const BUILD_CACHE_DIR = './build/';
+const BUILD_MANIFEST_FILE = './astro.manifest.json';
 // IMPORTANT: Update this version when making significant changes to the manifest format.
 // Only manifests generated with the same version number can be compared.
 const CONTENT_MANIFEST_VERSION = 0;
@@ -48,6 +60,157 @@ function createContentManifest(): ContentManifest {
 	return { version: -1, entries: [], serverEntries: [], clientEntries: [] };
 }
 
+function vitePluginModuleGraph(opts: StaticBuildOptions, lookupMap: ContentLookupMap): VitePlugin {
+	const graph = new ModuleGraph(opts.settings.config.root);
+	const rootPath = fileURLToPath(opts.settings.config.root);
+	const require = createRequire(opts.settings.config.root);
+	const packageResolutions = new Map<string, string>();
+
+	const { config } = opts.settings;
+	const { cacheDir } = config;
+	const buildCacheDir = new URL(BUILD_CACHE_DIR, cacheDir);
+	const buildManifestFile = new URL(BUILD_MANIFEST_FILE, buildCacheDir);
+
+	function resolveId(id: string): string {
+		// Intentionally using `||` instead of `??` here to catch empty strings
+		return packageResolutions.get(id) || graph.normalizeId(id);
+	}
+
+	const content = graph.get('astro:content');
+	for (const { entries } of Object.values(lookupMap)) {
+		for (const entrypoint of Object.values(entries)) {
+			const node = graph.get(entrypoint);
+			graph.checksums.set(graph.normalizeId(entrypoint), checksum(new URL(`./${entrypoint}`, opts.settings.config.root)));
+			graph.addEntrypoint(entrypoint);
+			node.addImporter('astro:content');
+			content.addImport(entrypoint)
+		}
+	}
+
+	let oldModuleGraph: ModuleGraph | undefined;
+
+	const plugin: VitePlugin = {
+		name: 'astro:module-graph',
+		enforce: 'post',
+		options(options) {
+			if (Array.isArray(options.plugins)) {
+				const index = options.plugins.findIndex(v => typeof v === 'object' && !Array.isArray(v) && v && v.name === 'astro:module-graph');
+				options.plugins.splice(index, 1);
+				options.plugins.splice(0, 0, plugin);
+			}
+
+			if (fs.existsSync(buildManifestFile)) {
+				const oldManifest = fs.readFileSync(buildManifestFile, { encoding: 'utf8' })
+				oldModuleGraph = new ModuleGraph(opts.settings.config.root);
+				oldModuleGraph.rehydrate(JSON.parse(oldManifest));
+				if (oldModuleGraph.version !== ModuleGraph.currentVersion) {
+					fs.rmSync(buildManifestFile);
+					return;
+				}
+				let invalidatedNodes = new Set<ModuleNode>();
+				for (let [id, oldChecksum] of oldModuleGraph.checksums) {
+					if (id.startsWith('dep:')) {
+						id = id.replace(/^dep\:/, '');
+						const newChecksum = resolvePackageVersion(id, require);
+						if (newChecksum === oldChecksum) continue;
+					} else {
+						const fileURL = new URL('./' + id, opts.settings.config.root);
+						const newChecksum = checksum(fileURL);
+						if (newChecksum === oldChecksum) continue;
+					}
+					invalidatedNodes.add(oldModuleGraph.get(id));
+				}
+				
+				const invalidatedEntrypoints = new Set<ModuleNode>();
+				console.log('      node', Array.from(invalidatedNodes).map(n => n.id));
+				for (const invalidatedNode of invalidatedNodes) {
+					for (const entrypoint of getEntrypointsFromModuleNode(invalidatedNode)) {
+						invalidatedEntrypoints.add(entrypoint);
+					}
+				}
+				console.log('entrypoint', Array.from(invalidatedEntrypoints).map(n => n.id));
+			}
+		},
+		async resolveId(id, importer) {
+			const resolution = await this.resolve(id, importer, { skipSelf: true });
+			if (resolution?.id) {
+				const resolvedId = resolution.id;
+				if (!isTrackableModule(resolvedId)) return;
+				if (graph.checksums.has(resolvedId) || graph.checksums.has(`dep:${resolvedId}`)) return;
+				if (resolvedId.startsWith(rootPath) && !resolvedId.includes('node_modules')) {
+					graph.checksums.set(graph.normalizeId(resolvedId), checksum(graph.normalizeId(resolvedId)));
+					return;
+				}
+				if (packageResolutions.has(resolvedId)) return;
+				let packageSpecifier = id;
+				if (id.startsWith('.')) {
+					if (importer && packageResolutions.has(importer)) {
+						packageResolutions.set(resolvedId, packageResolutions.get(importer)!);
+					}
+					return;
+				}
+				if (id.startsWith('@')) {
+					packageSpecifier = id.split('/').slice(0, 2).join('/');
+				} else {
+					packageSpecifier = id.split('/').at(0)!;
+				}
+				packageResolutions.set(resolvedId, packageSpecifier);
+				if (graph.checksums.has(`dep:${packageSpecifier}`)) {
+					return;
+				}
+				try {
+					// External packages will not be resolved
+					// We try to resolve their package.json version
+					const pkgInfo = require(`${packageSpecifier}/package.json`);
+					if (pkgInfo.version) {
+						graph.checksums.set(`dep:${packageSpecifier}`, pkgInfo.version);
+					}
+				} catch {}
+			}
+		},
+		async buildEnd() {
+			for (let moduleId of this.getModuleIds()) {
+				let isPackage = false;
+				const info = this.getModuleInfo(moduleId);
+				if (!info) continue;
+				if (!isTrackableModule(info.id)) continue;
+				const id = graph.normalizeId(resolveId(moduleId))
+				if (packageResolutions.has(id)) {
+					isPackage = true;
+				}
+				const node = graph.get(id);
+				const isEntry = info.dynamicImporters.find(n => n.startsWith('\0@astro-page:'));
+				if (isEntry) {
+					graph.addEntrypoint(id);
+				}
+				for (const importer of info.importers) {
+					if (!isTrackableModule(importer)) continue;
+					node.addImporter(resolveId(importer));
+				}
+				for (const importer of info.dynamicImporters) {
+					if (!isTrackableModule(importer)) continue;
+					node.addImporter(resolveId(importer));
+				}
+				if (isPackage) continue;
+				for (const imported of info.importedIds) {
+					if (!isTrackableModule(imported)) continue;
+					node.addImport(resolveId(imported));
+				}
+				for (const imported of info.dynamicallyImportedIds) {
+					if (!isTrackableModule(imported)) continue;
+					node.addImport(resolveId(imported));
+				}
+			}
+
+			await fs.promises.mkdir(new URL('./', buildManifestFile), { recursive: true });
+			await fs.promises.writeFile(buildManifestFile, JSON.stringify(graph), {
+				encoding: 'utf8',
+			});
+		}
+	}
+	return plugin;
+}
+
 function vitePluginContent(
 	opts: StaticBuildOptions,
 	lookupMap: ContentLookupMap,
@@ -56,56 +219,67 @@ function vitePluginContent(
 	const { config } = opts.settings;
 	const { cacheDir } = config;
 	const distRoot = config.outDir;
-	const distContentRoot = new URL('./content/', distRoot);
-	const cachedChunks = new URL('./chunks/', opts.settings.config.cacheDir);
-	const distChunks = new URL('./chunks/', opts.settings.config.outDir);
-	const contentCacheDir = new URL(CONTENT_CACHE_DIR, cacheDir);
-	const contentManifestFile = new URL(CONTENT_MANIFEST_FILE, contentCacheDir);
-	const cache = contentCacheDir;
-	const cacheTmp = new URL('./.tmp/', cache);
-	let oldManifest = createContentManifest();
+	const buildCacheDir = new URL(BUILD_CACHE_DIR, cacheDir);
+	// const contentManifestFile = new URL(BUILD_MANIFEST_FILE, buildCacheDir);
+	// let oldManifest = createContentManifest();
 	let newManifest = createContentManifest();
-	let entries: ContentEntries;
+	// let entries: ContentEntries;
 	let injectedEmptyFile = false;
 
-	if (fsMod.existsSync(contentManifestFile)) {
-		try {
-			const data = fsMod.readFileSync(contentManifestFile, { encoding: 'utf8' });
-			oldManifest = JSON.parse(data);
-			internals.cachedClientEntries = oldManifest.clientEntries;
-		} catch {}
-	}
+	// if (fsMod.existsSync(contentManifestFile)) {
+	// 	try {
+	// 		const data = fsMod.readFileSync(contentManifestFile, { encoding: 'utf8' });
+	// 		oldManifest = JSON.parse(data);
+	// 		internals.cachedClientEntries = oldManifest.clientEntries;
+	// 	} catch {}
+	// }
 
 	return {
 		name: '@astro/plugin-build-content',
 
 		async options(options) {
 			let newOptions = Object.assign({}, options);
-			newManifest = await generateContentManifest(opts, lookupMap);
-			entries = getEntriesFromManifests(oldManifest, newManifest);
-
-			// Of the cached entries, these ones need to be rebuilt
-			for (const { type, entry } of entries.buildFromSource) {
-				const fileURL = encodeURI(joinPaths(opts.settings.config.root.toString(), entry));
-				const input = fileURLToPath(fileURL);
-				// Adds `/src/content/blog/post-1.md?astroContentCollectionEntry` as a top-level input
-				const inputs = [`${input}?${collectionTypeToFlag(type)}`];
-				if (type === 'content') {
-					// Content entries also need to include the version with the RENDER flag
-					inputs.push(`${input}?${CONTENT_RENDER_FLAG}`);
+			// newManifest = await generateContentManifest(opts, lookupMap);
+			// entries = getEntriesFromManifests(oldManifest, newManifest);
+			const inputs: string[] = [];
+			
+			// 	newOptions = addRollupInput(newOptions, inputs);
+			for (const { type, entries: collectionEntries } of Object.values(lookupMap)) {
+				for (const entrypoint of Object.values(collectionEntries)) {
+					const fileURL = encodeURI(joinPaths(opts.settings.config.root.toString(), entrypoint));
+					const input = fileURLToPath(fileURL);
+					inputs.push(`${input}?${collectionTypeToFlag(type)}`);
+					if (type === 'content') {
+						// Content entries also need to include the version with the RENDER flag
+						inputs.push(`${input}?${CONTENT_RENDER_FLAG}`);
+					}
 				}
-				newOptions = addRollupInput(newOptions, inputs);
 			}
-			// Restores cached chunks from the previous build
-			if (fsMod.existsSync(cachedChunks)) {
-				await copyFiles(cachedChunks, distChunks, true);
-			}
-			// If nothing needs to be rebuilt, we inject a fake entrypoint to appease Rollup
-			if (entries.buildFromSource.length === 0) {
-				newOptions = addRollupInput(newOptions, [virtualEmptyModuleId]);
-				injectedEmptyFile = true;
-			}
+			newOptions = addRollupInput(newOptions, inputs);
 			return newOptions;
+
+			// // Of the cached entries, these ones need to be rebuilt
+			// for (const { type, entry } of entries.buildFromSource) {
+			// 	const fileURL = encodeURI(joinPaths(opts.settings.config.root.toString(), entry));
+			// 	const input = fileURLToPath(fileURL);
+			// 	// Adds `/src/content/blog/post-1.md?astroContentCollectionEntry` as a top-level input
+			// 	const inputs = [`${input}?${collectionTypeToFlag(type)}`];
+			// 	if (type === 'content') {
+			// 		// Content entries also need to include the version with the RENDER flag
+			// 		inputs.push(`${input}?${CONTENT_RENDER_FLAG}`);
+			// 	}
+			// 	newOptions = addRollupInput(newOptions, inputs);
+			// }
+			// // Restores cached chunks from the previous build
+			// if (fsMod.existsSync(buildCacheDir)) {
+			// 	await copyFiles(buildCacheDir, distRoot, true);
+			// }
+			// // If nothing needs to be rebuilt, we inject a fake entrypoint to appease Rollup
+			// if (entries.buildFromSource.length === 0) {
+			// 	newOptions = addRollupInput(newOptions, [virtualEmptyModuleId]);
+			// 	injectedEmptyFile = true;
+			// }
+			// return newOptions;
 		},
 
 		outputOptions(outputOptions) {
@@ -160,7 +334,7 @@ function vitePluginContent(
 		async generateBundle(_options, bundle) {
 			const code = await generateContentEntryFile({
 				settings: opts.settings,
-				fs: fsMod,
+				fs: fs,
 				lookupMap,
 				IS_DEV: false,
 				IS_SERVER: false,
@@ -185,7 +359,6 @@ function vitePluginContent(
 			// in case they aren't referenced _outside_ of the cached content.
 			// We can use this info in the manifest to run a proper client build again.
 			const clientComponents = new Set([
-				...oldManifest.clientEntries,
 				...internals.discoveredHydratedComponents.keys(),
 				...internals.discoveredClientOnlyComponents.keys(),
 				...internals.discoveredScripts,
@@ -193,25 +366,15 @@ function vitePluginContent(
 			// Likewise, these are server modules that might not be referenced
 			// once the cached items are excluded from the build process
 			const serverComponents = new Set([
-				...oldManifest.serverEntries,
 				...internals.discoveredHydratedComponents.keys(),
 			]);
 			newManifest.serverEntries = Array.from(serverComponents);
 			newManifest.clientEntries = Array.from(clientComponents);
-			await fsMod.promises.mkdir(contentCacheDir, { recursive: true });
-			await fsMod.promises.writeFile(contentManifestFile, JSON.stringify(newManifest), {
-				encoding: 'utf8',
-			});
-
-			const cacheExists = fsMod.existsSync(cache);
-			fsMod.mkdirSync(cache, { recursive: true });
-			await fsMod.promises.mkdir(cacheTmp, { recursive: true });
-			await copyFiles(distContentRoot, cacheTmp, true);
-			if (cacheExists) {
-				await copyFiles(contentCacheDir, distContentRoot, false);
-			}
-			await copyFiles(cacheTmp, contentCacheDir);
-			await fsMod.promises.rm(cacheTmp, { recursive: true, force: true });
+			// await fsMod.promises.mkdir(new URL('./', contentManifestFile), { recursive: true });
+			// await fsMod.promises.writeFile(contentManifestFile, JSON.stringify(newManifest), {
+			// 	encoding: 'utf8',
+			// });
+			await copyFiles(distRoot, buildCacheDir);
 		},
 	};
 }
@@ -277,25 +440,21 @@ async function generateContentManifest(
 	const limit = pLimit(10);
 	const promises: Promise<void>[] = [];
 
-	for (const [collection, { type, entries }] of Object.entries(lookupMap)) {
-		for (const entry of Object.values(entries)) {
-			const key: ContentManifestKey = { collection, type, entry };
-			const fileURL = new URL(encodeURI(joinPaths(opts.settings.config.root.toString(), entry)));
-			promises.push(
-				limit(async () => {
-					const data = await fsMod.promises.readFile(fileURL, { encoding: 'utf8' });
-					manifest.entries.push([key, checksum(data)]);
-				})
-			);
-		}
-	}
+	// for (const [collection, { type, entries }] of Object.entries(lookupMap)) {
+	// 	for (const entry of Object.values(entries)) {
+	// 		const key: ContentManifestKey = { collection, type, entry };
+	// 		const fileURL = new URL(encodeURI(joinPaths(opts.settings.config.root.toString(), entry)));
+	// 		promises.push(
+	// 			limit(async () => {
+	// 				const data = await fsMod.promises.readFile(fileURL, { encoding: 'utf8' });
+	// 				// manifest.entries.push([key, checksum(data)]);
+	// 			})
+	// 		);
+	// 	}
+	// }
 
 	await Promise.all(promises);
 	return manifest;
-}
-
-function checksum(data: string): string {
-	return createHash('sha1').update(data).digest('base64');
 }
 
 function collectionTypeToFlag(type: 'content' | 'data') {
@@ -307,8 +466,8 @@ export function pluginContent(
 	opts: StaticBuildOptions,
 	internals: BuildInternals
 ): AstroBuildPlugin {
-	const cachedChunks = new URL('./chunks/', opts.settings.config.cacheDir);
-	const distChunks = new URL('./chunks/', opts.settings.config.outDir);
+	const buildCacheDir = new URL(BUILD_CACHE_DIR, opts.settings.config.cacheDir);
+	const outDir = opts.settings.config.outDir;
 
 	return {
 		targets: ['server'],
@@ -320,24 +479,15 @@ export function pluginContent(
 				if (isServerLikeOutput(opts.settings.config)) {
 					return { vitePlugin: undefined };
 				}
+				if (fs.existsSync(buildCacheDir)) {
+					await copyFiles(buildCacheDir, outDir, true);
+				}
 
-				const lookupMap = await generateLookupMap({ settings: opts.settings, fs: fsMod });
+				const lookupMap = await generateLookupMap({ settings: opts.settings, fs: fs });
 				return {
-					vitePlugin: vitePluginContent(opts, lookupMap, internals),
+					vitePlugin: [vitePluginModuleGraph(opts, lookupMap), vitePluginContent(opts, lookupMap, internals)],
 				};
-			},
-
-			async 'build:post'() {
-				if (!opts.settings.config.experimental.contentCollectionCache) {
-					return;
-				}
-				if (isServerLikeOutput(opts.settings.config)) {
-					return;
-				}
-				if (fsMod.existsSync(distChunks)) {
-					await copyFiles(distChunks, cachedChunks, true);
-				}
-			},
+			}
 		},
 	};
 }
