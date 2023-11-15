@@ -22,12 +22,11 @@ Message:
 - Begin with **what happened** and **why**. (ex: `Could not use {feature} because Server-side Rendering is not enabled.`)
 - Then, **describe the action the user should take**. (ex: `Update your Astro config with `output: 'server'` to enable Server-side Rendering.`)
 - Although this does not need to be as brief as the `title`, try to keep sentences short, clear and direct to give the reader all the necessary information quickly as possible.
+- Instead of writing a longer message, consider using a `hint`.
 
 Hint:
 
-- A `hint` can be used to display additional information that might help the user resolve their issue.
-- A good hint points the user towards a possible solution. "Did you mean X?" is an example of a good hint.
-- Don't use a hint to link to docs, or include additional documentation about the error. Instead, make sure that good documentation is included in the `@docs` JSDoc, which the user will automatically see a link to in their formatted error logging.
+- A `hint` can be used for any additional info that might help the user. (ex: a link to the documentation, or a common cause)
 
 **Writing Style**
 

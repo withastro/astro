@@ -69,8 +69,9 @@ export default async function build(
 	if (astroConfig.experimental.contentCollectionCache && options.force) {
 		const contentCacheDir = new URL('./content/', astroConfig.cacheDir);
 		if (fs.existsSync(contentCacheDir)) {
-			logger.warn('content', 'clearing cache');
+			logger.debug('content', 'clearing content cache');
 			await fs.promises.rm(contentCacheDir, { force: true, recursive: true });
+			logger.warn('content', 'content cache cleared (force)');
 		}
 	}
 

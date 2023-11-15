@@ -231,7 +231,7 @@ export async function generateImagesForPath(
 			}
 		} catch (e) {
 			env.logger.warn(
-				'astro:assets',
+				null,
 				`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${e}`
 			);
 		} finally {

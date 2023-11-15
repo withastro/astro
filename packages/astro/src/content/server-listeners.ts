@@ -39,7 +39,7 @@ export async function attachContentServerListeners({
 		viteServer.watcher.on('addDir', contentDirListener);
 		async function contentDirListener(dir: string) {
 			if (appendForwardSlash(pathToFileURL(dir).href) === contentPaths.contentDir.href) {
-				logger.debug('content', `Content dir found. Watching for changes`);
+				logger.debug('content', `Content directory found. Watching for changes`);
 				await attachListeners();
 				viteServer.watcher.removeListener('addDir', contentDirListener);
 			}
