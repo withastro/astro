@@ -25,13 +25,13 @@ async function renderToStaticMarkup(Component, props, slotted, metadata) {
 		}
 	}
 
-	const html = render(Component, {
+	const { html } = render(Component, {
 		props: {
 			...props,
 			children,
 			$$slots,
 		},
-	}).html;
+	});
 	return { html };
 }
 
