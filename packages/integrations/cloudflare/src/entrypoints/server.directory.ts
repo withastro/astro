@@ -32,8 +32,7 @@ export function createExports(manifest: SSRManifest) {
 			return env.ASSETS.fetch(request);
 		}
 
-		let routeData = app.match(request, { matchNotFound: true });
-		if (routeData) {
+		let routeData = app.match(request);
 			Reflect.set(
 				request,
 				Symbol.for('astro.clientAddress'),
@@ -60,12 +59,6 @@ export function createExports(manifest: SSRManifest) {
 			}
 
 			return response;
-		}
-
-		return new Response(null, {
-			status: 404,
-			statusText: 'Not found',
-		});
 	};
 
 	return { onRequest, manifest };
