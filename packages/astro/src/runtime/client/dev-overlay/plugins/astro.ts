@@ -37,7 +37,7 @@ export default {
 
 			if (event.detail.state === true) {
 				if (!integrationData)
-					integrationData = fetch(
+					fetch(
 						'https://astro-build-git-fix-cors-astrodotbuild.vercel.app/api/v1/integrations/?limit=5&categories%5B%5D=featured',
 						{ cache: 'no-cache' }
 					)
@@ -256,7 +256,6 @@ export default {
 			for (const integration of integrationData.data) {
 				const integrationComponent = document.createElement('astro-dev-overlay-card');
 				integrationComponent.link = integration.homepageUrl;
-				console.log(integration);
 				integrationComponent.innerHTML = `
 				<div class="integration-container">
 					<div class="integration-image"><img src="${integration.image}" alt="${integration.title}" /></div>
