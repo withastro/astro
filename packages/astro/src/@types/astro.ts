@@ -2434,16 +2434,21 @@ export interface RouteData {
 	prerender: boolean;
 	redirect?: RedirectConfig;
 	redirectRoute?: RouteData;
+	fallbackRoutes: RouteData[];
 }
 
 export type RedirectRouteData = RouteData & {
 	redirect: string;
 };
 
-export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern' | 'redirectRoute'> & {
+export type SerializedRouteData = Omit<
+	RouteData,
+	'generate' | 'pattern' | 'redirectRoute' | 'fallbackRoutes'
+> & {
 	generate: undefined;
 	pattern: string;
 	redirectRoute: SerializedRouteData | undefined;
+	fallbackRoutes: SerializedRouteData[];
 	_meta: {
 		trailingSlash: AstroConfig['trailingSlash'];
 	};

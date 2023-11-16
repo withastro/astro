@@ -639,6 +639,12 @@ describe('[SSG] i18n routing', () => {
 				return true;
 			}
 		});
+
+		it('should render the page with client scripts', async () => {
+			let html = await fixture.readFile('/index.html');
+			let $ = cheerio.load(html);
+			expect($('script').text()).includes('console.log("this is a script")');
+		});
 	});
 });
 describe('[SSR] i18n routing', () => {

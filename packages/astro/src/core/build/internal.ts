@@ -38,15 +38,8 @@ export interface BuildInternals {
 
 	/**
 	 * A map for page-specific information.
-	 * // TODO: Remove in Astro 4.0
-	 * @deprecated
 	 */
 	pagesByComponent: Map<string, PageBuildData>;
-
-	/**
-	 * TODO: Use this in Astro 4.0
-	 */
-	pagesByComponents: Map<string, PageBuildData[]>;
 
 	/**
 	 * A map for page-specific output.
@@ -126,7 +119,6 @@ export function createBuildInternals(): BuildInternals {
 		entrySpecifierToBundleMap: new Map<string, string>(),
 		pageToBundleMap: new Map<string, string>(),
 		pagesByComponent: new Map(),
-		pagesByComponents: new Map(),
 		pageOptionsByPage: new Map(),
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
@@ -152,16 +144,7 @@ export function trackPageData(
 	componentURL: URL
 ): void {
 	pageData.moduleSpecifier = componentModuleId;
-	if (!routeIsFallback(pageData.route)) {
-		internals.pagesByComponent.set(component, pageData);
-	}
-	const list = internals.pagesByComponents.get(component);
-	if (list) {
-		list.push(pageData);
-		internals.pagesByComponents.set(component, list);
-	} else {
-		internals.pagesByComponents.set(component, [pageData]);
-	}
+	internals.pagesByComponent.set(component, pageData);
 	internals.pagesByViteID.set(viteID(componentURL), pageData);
 }
 
@@ -258,10 +241,8 @@ export function* eachPageData(internals: BuildInternals) {
 }
 
 export function* eachPageFromAllPages(allPages: AllPagesData): Generator<[string, PageBuildData]> {
-	for (const [path, list] of Object.entries(allPages)) {
-		for (const pageData of list) {
-			yield [path, pageData];
-		}
+	for (const [path, pageData] of Object.entries(allPages)) {
+		yield [path, pageData];
 	}
 }
 
