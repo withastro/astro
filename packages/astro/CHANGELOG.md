@@ -1,5 +1,13 @@
 # astro
 
+## 3.5.5
+
+### Patch Changes
+
+- [#9091](https://github.com/withastro/astro/pull/9091) [`536c6c9fd`](https://github.com/withastro/astro/commit/536c6c9fd3d65d1a60bbc8b924c5939f27541d41) Thanks [@ematipico](https://github.com/ematipico)! - The `routingStrategy` `prefix-always` should not force its logic to endpoints. This fixes some regression with `astro:assets` and `@astrojs/rss`.
+
+- [#9102](https://github.com/withastro/astro/pull/9102) [`60e8210b0`](https://github.com/withastro/astro/commit/60e8210b0ce5bc512aff72a32322ba7937a411b0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - In the dev overlay, when there's too many plugins enabled at once, some of the plugins will now be hidden in a separate sub menu to avoid the bar becoming too long
+
 ## 3.5.4
 
 ### Patch Changes
