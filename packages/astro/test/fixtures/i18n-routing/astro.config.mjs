@@ -9,7 +9,8 @@ export default defineConfig({
 			],
 			domains: {
 				it: "https://it.example.com"
-			}
+			},
+			routingStrategy: "domain"
 		}
 	},
 })
