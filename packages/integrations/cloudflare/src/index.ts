@@ -490,12 +490,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					/**
 					 * These route types are candiates for being part of the `_routes.json` `include` array.
 					 */
+					let notFoundIsSSR = false;
 					const potentialFunctionRouteTypes = ['endpoint', 'page'];
-
 					const functionEndpoints = routes
 						// Certain route types, when their prerender option is set to false, run on the server as function invocations
 						.filter((route) => potentialFunctionRouteTypes.includes(route.type) && !route.prerender)
 						.map((route) => {
+							if (route.component === 'src/pages/404.astro' && route.prerender === false)
+								notFoundIsSSR = true;
 							const includePattern =
 								'/' +
 								route.segments
@@ -637,8 +639,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						? excludeStrategy.include.length + excludeStrategy.exclude.length
 						: Infinity;
 
-					const winningStrategy =
-						includeStrategyLength <= excludeStrategyLength ? includeStrategy : excludeStrategy;
+					const winningStrategy = notFoundIsSSR
+						? excludeStrategy
+						: includeStrategyLength <= excludeStrategyLength
+						? includeStrategy
+						: excludeStrategy;
 
 					await fs.promises.writeFile(
 						new URL('./_routes.json', _config.outDir),
