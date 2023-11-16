@@ -13,7 +13,9 @@ import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
 import { sequence } from '../middleware/index.js';
 import {
+	appendForwardSlash,
 	collapseDuplicateSlashes,
+	joinPaths,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '../path.js';
@@ -28,6 +30,7 @@ import {
 import { matchRoute } from '../routing/match.js';
 import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
 import type { RouteInfo } from './types.js';
+import { shouldAppendForwardSlash } from '../build/util.js';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -136,10 +139,12 @@ export class App {
 			const host = request.headers.get('X-Forwarded-Host');
 			if (host) {
 				try {
-					let hostUrl = new URL(this.removeBase(url.pathname), host);
-					const maybePathname = this.#manifest.i18n.domainLookupTable[hostUrl.toString()];
-					if (maybePathname) {
-						pathname = maybePathname;
+					const locale = this.#manifest.i18n.domainLookupTable[host];
+					if (locale) {
+						pathname = prependForwardSlash(joinPaths(locale, this.removeBase(url.pathname)));
+						if (url.pathname.endsWith('/')) {
+							pathname = appendForwardSlash(pathname);
+						}
 					}
 				} catch (e) {
 					// waiting to decide what to do here

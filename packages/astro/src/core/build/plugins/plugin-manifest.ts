@@ -17,6 +17,7 @@ import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { shouldAppendForwardSlash } from '../util.js';
+import { normalizeTheLocale } from '../../../i18n/index.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
@@ -236,31 +237,15 @@ function buildManifest(
 			styles,
 			routeData: serializeRouteData(route, settings.config.trailingSlash),
 		});
+	}
 
-		/**
-		 * logic meant for i18n domain support, where we fill the lookup table
-		 */
-		const i18n = settings.config.experimental.i18n;
-		if (i18n && i18n.domains && i18n.routingStrategy === 'domain') {
-			// Domain routing strategy assumes that the locale starts at the beginning of the path, so it's safe to get the first item
-			// This is something like /es/guides/getting-started
-			const segments = route.route.split('/');
-			const pathnameLocale = segments[1];
-			const maybeLocaleDomain = i18n.domains[pathnameLocale];
-			if (maybeLocaleDomain) {
-				// This is something like guides/getting-started
-				let pathnameWithoutLocale = segments
-					.filter((segment) => segment !== pathnameLocale)
-					.slice(1)
-					.join('/');
-				if (shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format)) {
-					pathnameWithoutLocale = appendForwardSlash(pathnameWithoutLocale);
-				}
-				// We build a URL object like this: https://es.example.com/guides/getting-started
-				const domainPath = new URL(pathnameWithoutLocale, maybeLocaleDomain);
-				// We map  https://es.example.com/guides/getting-started -> /es/guides/getting-started
-				domainLookupTable[domainPath.toString()] = route.route;
-			}
+	/**
+	 * logic meant for i18n domain support, where we fill the lookup table
+	 */
+	const i18n = settings.config.experimental.i18n;
+	if (i18n && i18n.domains && i18n.routingStrategy === 'domain') {
+		for (const [locale, domainValue] of Object.entries(i18n.domains)) {
+			domainLookupTable[domainValue] = normalizeTheLocale(locale);
 		}
 	}
 
