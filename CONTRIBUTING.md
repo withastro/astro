@@ -247,7 +247,7 @@ If you have gotten permission from the core contributors, you can enter into pre
 - Run: `pnpm exec changeset pre enter next` in the project root
 - Create a new PR from the changes created by this command
 - Review, approve, and more the PR to enter prerelease mode.
-- If successful, The "Version Packages" PR (if one exists) will now say "Version Packages (next)".
+- If successful, The "[ci] release" PR (if one exists) will now say "[ci] release (next)".
 
 ### Exiting prerelease mode
 
@@ -256,7 +256,7 @@ Exiting prerelease mode should happen once an experimental release is ready to g
 - Run: `pnpm exec changeset pre exit` in the project root
 - Create a new PR from the changes created by this command.
 - Review, approve, and more the PR to enter prerelease mode.
-- If successful, The "Version Packages (next)" PR (if one exists) will now say "Version Packages".
+- If successful, The "[ci] release (next)" PR (if one exists) will now say "[ci] release".
 
 ### Releasing `astro@latest` while in prerelease mode
 
