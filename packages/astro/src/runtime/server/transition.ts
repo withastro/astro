@@ -84,8 +84,7 @@ export function createAnimationScope(
 
 	addPairs(animations, sheet);
 
-	const styles = `${sheet.toString()}`;
-	return { scope, styles };
+	return { scope, styles: sheet.toString().replaceAll('"', '') };
 }
 
 class ViewTransitionStyleSheet {
