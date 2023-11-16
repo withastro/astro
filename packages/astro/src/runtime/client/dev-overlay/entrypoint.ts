@@ -12,11 +12,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 		{ default: astroXrayPlugin },
 		{ default: astroSettingsPlugin },
 		{ AstroDevOverlay, DevOverlayCanvas },
-		{ DevOverlayCard },
-		{ DevOverlayHighlight },
-		{ DevOverlayTooltip },
-		{ DevOverlayWindow },
-		{ DevOverlayToggle },
+		{
+			DevOverlayCard,
+			DevOverlayHighlight,
+			DevOverlayTooltip,
+			DevOverlayWindow,
+			DevOverlayToggle,
+			DevOverlayButton,
+			DevOverlayBadge,
+			DevOverlayIcon,
+		},
 	] = await Promise.all([
 		// @ts-expect-error
 		import('astro:dev-overlay'),
@@ -25,11 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		import('./plugins/xray.js'),
 		import('./plugins/settings.js'),
 		import('./overlay.js'),
-		import('./ui-library/card.js'),
-		import('./ui-library/highlight.js'),
-		import('./ui-library/tooltip.js'),
-		import('./ui-library/window.js'),
-		import('./ui-library/toggle.js'),
+		import('./ui-library/index.js'),
 	]);
 
 	// Register custom elements
@@ -40,6 +41,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 	customElements.define('astro-dev-overlay-highlight', DevOverlayHighlight);
 	customElements.define('astro-dev-overlay-card', DevOverlayCard);
 	customElements.define('astro-dev-overlay-toggle', DevOverlayToggle);
+	customElements.define('astro-dev-overlay-button', DevOverlayButton);
+	customElements.define('astro-dev-overlay-badge', DevOverlayBadge);
+	customElements.define('astro-dev-overlay-icon', DevOverlayIcon);
 
 	overlay = document.createElement('astro-dev-overlay');
 

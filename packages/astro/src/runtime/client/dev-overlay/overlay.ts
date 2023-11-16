@@ -199,7 +199,7 @@ export class AstroDevOverlay extends HTMLElement {
 				transition: opacity 0.2s ease-in-out;
 				pointer-events: auto;
 				border: 0;
-				color: white;
+				color: #13151A;
 				font-family: system-ui, sans-serif;
 				font-size: 1rem;
 				line-height: 1.2;

@@ -22,11 +22,17 @@ import type { AstroCookies } from '../core/cookies/index.js';
 import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
 import type { AstroDevOverlay, DevOverlayCanvas } from '../runtime/client/dev-overlay/overlay.js';
-import type { DevOverlayHighlight } from '../runtime/client/dev-overlay/ui-library/highlight.js';
 import type { Icon } from '../runtime/client/dev-overlay/ui-library/icons.js';
-import type { DevOverlayToggle } from '../runtime/client/dev-overlay/ui-library/toggle.js';
-import type { DevOverlayTooltip } from '../runtime/client/dev-overlay/ui-library/tooltip.js';
-import type { DevOverlayWindow } from '../runtime/client/dev-overlay/ui-library/window.js';
+import type {
+	DevOverlayBadge,
+	DevOverlayButton,
+	DevOverlayCard,
+	DevOverlayHighlight,
+	DevOverlayIcon,
+	DevOverlayToggle,
+	DevOverlayTooltip,
+	DevOverlayWindow,
+} from '../runtime/client/dev-overlay/ui-library/index.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
 import type { OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
@@ -2569,6 +2575,7 @@ export type DevOverlayMetadata = Window &
 	typeof globalThis & {
 		__astro_dev_overlay__: {
 			root: string;
+			version: string;
 		};
 	};
 
@@ -2580,5 +2587,9 @@ declare global {
 		'astro-dev-overlay-tooltip': DevOverlayTooltip;
 		'astro-dev-overlay-highlight': DevOverlayHighlight;
 		'astro-dev-overlay-toggle': DevOverlayToggle;
+		'astro-dev-overlay-badge': DevOverlayBadge;
+		'astro-dev-overlay-button': DevOverlayButton;
+		'astro-dev-overlay-icon': DevOverlayIcon;
+		'astro-dev-overlay-card': DevOverlayCard;
 	}
 }
