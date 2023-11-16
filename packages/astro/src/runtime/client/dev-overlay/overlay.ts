@@ -7,6 +7,9 @@ export type DevOverlayPlugin = DevOverlayPluginDefinition & {
 	builtIn: boolean;
 	active: boolean;
 	status: 'ready' | 'loading' | 'error';
+	notification: {
+		state: boolean;
+	};
 	eventTarget: EventTarget;
 };
 
@@ -20,6 +23,7 @@ export class AstroDevOverlay extends HTMLElement {
 	plugins: DevOverlayPlugin[] = [];
 	HOVER_DELAY = 750;
 	hasBeenInitialized = false;
+	customPluginsToShow = 3;
 
 	constructor() {
 		super();
@@ -164,8 +168,8 @@ export class AstroDevOverlay extends HTMLElement {
 			#dev-bar .item .notification {
 				display: none;
 				position: absolute;
-				top: -2px;
-				right: 0;
+				top: -4px;
+				right: -6px;
 				width: 8px;
 				height: 8px;
 				border-radius: 9999px;
@@ -236,15 +240,25 @@ export class AstroDevOverlay extends HTMLElement {
 			<div id="dev-bar">
 				<div id="bar-container">
 					${this.plugins
-						.filter((plugin) => plugin.builtIn && plugin.id !== 'astro:settings')
+						.filter(
+							(plugin) => plugin.builtIn && !['astro:settings', 'astro:more'].includes(plugin.id)
+						)
 						.map((plugin) => this.getPluginTemplate(plugin))
 						.join('')}
 					${
 						this.plugins.filter((plugin) => !plugin.builtIn).length > 0
 							? `<div class="separator"></div>${this.plugins
 									.filter((plugin) => !plugin.builtIn)
+									.slice(0, this.customPluginsToShow)
 									.map((plugin) => this.getPluginTemplate(plugin))
 									.join('')}`
+							: ''
+					}
+					${
+						this.plugins.filter((plugin) => !plugin.builtIn).length > this.customPluginsToShow
+							? this.getPluginTemplate(
+									this.plugins.find((plugin) => plugin.builtIn && plugin.id === 'astro:more')!
+							  )
 							: ''
 					}
 					<div class="separator"></div>
@@ -438,9 +452,19 @@ export class AstroDevOverlay extends HTMLElement {
 		}
 
 		plugin.active = newStatus ?? !plugin.active;
-		const target = this.shadowRoot.querySelector(`[data-plugin-id="${plugin.id}"]`);
-		if (!target) return;
-		target.classList.toggle('active', plugin.active);
+		const mainBarButton = this.shadowRoot.querySelector(`[data-plugin-id="${plugin.id}"]`);
+		const moreBarButton = this.getPluginCanvasById('astro:more')?.shadowRoot?.querySelector(
+			`[data-plugin-id="${plugin.id}"]`
+		);
+
+		if (mainBarButton) {
+			mainBarButton.classList.toggle('active', plugin.active);
+		}
+
+		if (moreBarButton) {
+			moreBarButton.classList.toggle('active', plugin.active);
+		}
+
 		pluginCanvas.style.display = plugin.active ? 'block' : 'none';
 
 		window.requestAnimationFrame(() => {

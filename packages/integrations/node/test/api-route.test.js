@@ -89,4 +89,23 @@ describe('API routes', () => {
 		let [out] = await done;
 		expect(new Uint8Array(out.buffer)).to.deep.equal(expectedDigest);
 	});
+
+	it('Can bail on streaming', async () => {
+		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		let { req, res, done } = createRequestAndResponse({
+			url: '/streaming',
+		});
+
+		let locals = { cancelledByTheServer: false };
+
+		handler(req, res, () => {}, locals);
+		req.send();
+
+		await new Promise((resolve) => setTimeout(resolve, 500));
+		res.emit('close');
+
+		await done;
+
+		expect(locals).to.deep.include({ cancelledByTheServer: true });
+	});
 });
