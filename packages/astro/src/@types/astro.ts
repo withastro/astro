@@ -35,6 +35,7 @@ import type {
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
 import type { OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type { AstroPreferences } from '../preferences/index.js';
 
 export { type AstroIntegrationLogger };
 
@@ -1678,6 +1679,7 @@ export interface AstroAdapterFeatures {
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
+	preferences: AstroPreferences;
 	injectedRoutes: InjectedRoute[];
 	resolvedInjectedRoutes: ResolvedInjectedRoute[];
 	pageExtensions: string[];
