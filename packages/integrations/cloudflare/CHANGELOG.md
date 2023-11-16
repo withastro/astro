@@ -1,5 +1,13 @@
 # @astrojs/cloudflare
 
+## 7.7.1
+
+### Patch Changes
+
+- [#69](https://github.com/withastro/adapters/pull/69) [`473e9fa`](https://github.com/withastro/adapters/commit/473e9fabdc2f5a87daf6a71c8869e8430903590f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes a regression which caused the adapter to falsely generate `_routes.json` for on-demand rendered 404 pages, which causes unexpected behavior in Cloudflare's SPA routing.
+
+- [#66](https://github.com/withastro/adapters/pull/66) [`5b62509`](https://github.com/withastro/adapters/commit/5b625096c7115aa0496a6c7053c4226c8fd118f3) Thanks [@ToxiWoxi](https://github.com/ToxiWoxi)! - Fixes a regression which caused the adapter to falsely return an empty 404 response, caused by an upstream change https://github.com/withastro/astro/pull/7754.
+
 ## 7.7.0
 
 ### Minor Changes
