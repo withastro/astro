@@ -1,5 +1,11 @@
 # @astrojs/markdoc
 
+## 0.7.2
+
+### Patch Changes
+
+- [#9083](https://github.com/withastro/astro/pull/9083) [`4537ecf0d`](https://github.com/withastro/astro/commit/4537ecf0d060f89cb8c000338a7fc5f4197a88c8) Thanks [@bluwy](https://github.com/bluwy)! - Uses new `createShikiHighlighter` API from `@astrojs/markdown-remark` to avoid code duplication
+
 ## 0.7.1
 
 ### Patch Changes

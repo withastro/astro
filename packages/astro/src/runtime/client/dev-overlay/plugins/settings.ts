@@ -15,10 +15,10 @@ const settingsRows = [
 		name: 'Disable notifications',
 		description: 'Notification bubbles will not be shown when this is enabled.',
 		input: 'checkbox',
-		settingKey: 'showPluginNotifications',
+		settingKey: 'disablePluginNotification',
 		changeEvent: (evt: Event) => {
 			if (evt.currentTarget instanceof HTMLInputElement) {
-				settings.updateSetting('showPluginNotifications', evt.currentTarget.checked);
+				settings.updateSetting('disablePluginNotification', evt.currentTarget.checked);
 			}
 		},
 	},

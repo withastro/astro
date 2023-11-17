@@ -20,7 +20,7 @@ import {
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { isPage, resolveIdToUrl } from '../core/util.js';
-import { createI18nMiddleware } from '../i18n/middleware.js';
+import { createI18nMiddleware, i18nPipelineHook } from '../i18n/middleware.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
@@ -215,6 +215,9 @@ export async function handleRoute({
 				env,
 				mod,
 				route,
+				locales: manifest.i18n?.locales,
+				routingStrategy: manifest.i18n?.routingStrategy,
+				defaultLocale: manifest.i18n?.defaultLocale,
 			});
 		} else {
 			return handle404Response(origin, incomingRequest, incomingResponse);
@@ -271,7 +274,9 @@ export async function handleRoute({
 			route: options.route,
 			mod,
 			env,
-			locales: i18n ? i18n.locales : undefined,
+			locales: i18n?.locales,
+			routingStrategy: i18n?.routingStrategy,
+			defaultLocale: i18n?.defaultLocale,
 		});
 	}
 
@@ -289,6 +294,7 @@ export async function handleRoute({
 			} else {
 				pipeline.setMiddlewareFunction(i18Middleware);
 			}
+			pipeline.onBeforeRenderRoute(i18nPipelineHook);
 		} else if (onRequest) {
 			pipeline.setMiddlewareFunction(onRequest);
 		}

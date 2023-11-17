@@ -6,7 +6,7 @@ import type {
 	SSRElement,
 	SSRManifest,
 } from '../../@types/astro.js';
-import { createI18nMiddleware } from '../../i18n/middleware.js';
+import { createI18nMiddleware, i18nPipelineHook } from '../../i18n/middleware.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
@@ -179,6 +179,7 @@ export class App {
 				} else {
 					this.#pipeline.setMiddlewareFunction(i18nMiddleware);
 				}
+				this.#pipeline.onBeforeRenderRoute(i18nPipelineHook);
 			} else {
 				if (mod.onRequest) {
 					this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
@@ -233,7 +234,9 @@ export class App {
 				status,
 				env: this.#pipeline.env,
 				mod: handler as any,
-				locales: this.#manifest.i18n ? this.#manifest.i18n.locales : undefined,
+				locales: this.#manifest.i18n?.locales,
+				routingStrategy: this.#manifest.i18n?.routingStrategy,
+				defaultLocale: this.#manifest.i18n?.defaultLocale,
 			});
 		} else {
 			const pathname = prependForwardSlash(this.removeBase(url.pathname));
@@ -268,7 +271,9 @@ export class App {
 				status,
 				mod,
 				env: this.#pipeline.env,
-				locales: this.#manifest.i18n ? this.#manifest.i18n.locales : undefined,
+				locales: this.#manifest.i18n?.locales,
+				routingStrategy: this.#manifest.i18n?.routingStrategy,
+				defaultLocale: this.#manifest.i18n?.defaultLocale,
 			});
 		}
 	}
