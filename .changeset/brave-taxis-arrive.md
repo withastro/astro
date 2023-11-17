@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': patch
 ---
 
-Add more cli add package error message.
+Adds a warning if `astro add` fetches a package but returns a non-404 status
