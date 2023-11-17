@@ -30,7 +30,6 @@ import {
 import { matchRoute } from '../routing/match.js';
 import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
 import type { RouteInfo } from './types.js';
-import { shouldAppendForwardSlash } from '../build/util.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
 export { deserializeManifest } from './common.js';
 
@@ -135,12 +134,33 @@ export class App {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
 		if (this.#manifest.assets.has(url.pathname)) return undefined;
-		let pathname;
+		let pathname = this.#computePathnameFromDomain(request);
+		if (!pathname) {
+			pathname = prependForwardSlash(this.removeBase(url.pathname));
+		}
+		let routeData = matchRoute(pathname, this.#manifestData);
+
+		// missing routes fall-through, pre rendered are handled by static layer
+		if (!routeData || routeData.prerender) return undefined;
+		return routeData;
+	}
+
+	#computePathnameFromDomain(request: Request): string | undefined {
+		let pathname: string | undefined = undefined;
+		const url = new URL(request.url);
+
 		if (this.#manifest.i18n && this.#manifest.i18n.routingStrategy === 'domain') {
 			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
 			let host = request.headers.get('X-Forwarded-Host');
 			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto
 			let protocol = request.headers.get('X-Forwarded-Proto');
+			if (protocol) {
+				// this header doesn't have the colum at the end, so we added to be in line with URL#protocol, which has it
+				protocol = protocol + ':';
+			} else {
+				// we fall back to the protocol of the request
+				protocol = url.protocol;
+			}
 			if (!host) {
 				// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Host
 				host = request.headers.get('Host');
@@ -151,7 +171,7 @@ export class App {
 				host = host.split(':')[0];
 				try {
 					let locale;
-					const hostAsUrl = new URL('', `${protocol}://${host}`);
+					const hostAsUrl = new URL('', `${protocol}//${host}`);
 					for (const [domainKey, localeValue] of Object.entries(
 						this.#manifest.i18n.domainLookupTable
 					)) {
@@ -178,20 +198,13 @@ export class App {
 					}
 				} catch (e) {
 					// waiting to decide what to do here
-					// eslint-disable-next-line no-console
 					// TODO: What kind of error should we try? This happens if we have an invalid value inside the X-Forwarded-Host and X-Forwarded-Proto headers
+					// eslint-disable-next-line no-console
 					console.error(e);
 				}
 			}
 		}
-		if (!pathname) {
-			pathname = prependForwardSlash(this.removeBase(url.pathname));
-		}
-		let routeData = matchRoute(pathname, this.#manifestData);
-
-		// missing routes fall-through, pre rendered are handled by static layer
-		if (!routeData || routeData.prerender) return undefined;
-		return routeData;
+		return pathname;
 	}
 
 	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {

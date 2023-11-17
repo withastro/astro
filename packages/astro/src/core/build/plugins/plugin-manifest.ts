@@ -9,14 +9,13 @@ import type {
 	SerializedRouteInfo,
 	SerializedSSRManifest,
 } from '../../app/types.js';
-import { appendForwardSlash, joinPaths, prependForwardSlash } from '../../path.js';
+import { joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
-import { shouldAppendForwardSlash } from '../util.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';

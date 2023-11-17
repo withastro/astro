@@ -1048,8 +1048,20 @@ describe('[SSR] i18n routing', () => {
 			expect(await response.text()).includes('Oi essa e start\n');
 		});
 
-		it('should render a 404 because we could not compute the domain', async () => {
+		it('should render the en locale when Host header is passed and it has the port', async () => {
 			let request = new Request('http://example.pt/new-site/start', {
+				headers: {
+					Host: 'example.pt:8080',
+					'X-Forwarded-Proto': 'https',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Oi essa e start\n');
+		});
+
+		it('should render when the protocol header we fallback to the one of the host', async () => {
+			let request = new Request('https://example.pt/new-site/start', {
 				headers: {
 					Host: 'example.pt',
 				},
