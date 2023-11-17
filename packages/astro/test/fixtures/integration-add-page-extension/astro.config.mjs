@@ -1,4 +1,4 @@
-import { defineConfig } from 'rollup'
+import { defineConfig } from 'astro/config'
 import test from './integration.js'
 
 export default defineConfig({

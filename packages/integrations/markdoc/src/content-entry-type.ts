@@ -6,8 +6,7 @@ import matter from 'gray-matter';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type * as rollup from 'rollup';
-import type { ErrorPayload as ViteErrorPayload } from 'vite';
+import type { ErrorPayload as ViteErrorPayload, Rollup } from 'vite';
 import type { ComponentConfig } from './config.js';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
 import type { MarkdocConfigResult } from './load-config.js';
@@ -174,7 +173,7 @@ function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string })
 async function emitOptimizedImages(
 	nodeChildren: Node[],
 	ctx: {
-		pluginContext: rollup.PluginContext;
+		pluginContext: Rollup.PluginContext;
 		filePath: string;
 		astroConfig: AstroConfig;
 	}
