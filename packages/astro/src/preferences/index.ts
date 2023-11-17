@@ -22,12 +22,15 @@ export interface PreferenceOptions {
 	location?: 'global' | 'project';
 }
 
+export type PreferenceKey = DotKeys<Preferences>;
+
 export interface AstroPreferences {
-	get<Key extends DotKeys<Preferences>>(key: Key, opts?: PreferenceOptions): GetDotKey<Preferences, Key>;
-	set<Key extends DotKeys<Preferences>>(key: Key, value: GetDotKey<Preferences, Key>, opts?: PreferenceOptions): void;
+	get<Key extends PreferenceKey>(key: Key, opts?: PreferenceOptions): Promise<GetDotKey<Preferences, Key>>;
+	set<Key extends PreferenceKey>(key: Key, value: GetDotKey<Preferences, Key>, opts?: PreferenceOptions): Promise<void>;
+	getAll(opts?: PreferenceOptions): Promise<Record<string, any>>;
 }
 
-export function isValidKey(key: string): key is DotKeys<Preferences> {
+export function isValidKey(key: string): key is PreferenceKey {
 	return dget(DEFAULT_PREFERENCES, key) !== undefined;
 }
 export function coerce(key: string, value: string | number) {
@@ -49,13 +52,17 @@ export default function createPreferences(config: AstroConfig): AstroPreferences
 	const stores = { global, project };
 
 	return {
-		get(key, { location } = {}) {
+		async get(key, { location } = {}) {
 			if (!location) return project.get(key) ?? global.get(key) ?? dget(DEFAULT_PREFERENCES, key);
 			return stores[location].get(key);
 		},
-		set(key, value, { location = 'project' } = {}) {
+		async set(key, value, { location = 'project' } = {}) {
 			stores[location].set(key, value);
-		}
+		},
+		async getAll({ location } = {}) {
+			if (!location) return Object.assign({}, stores['global'].getAll(), stores['project'].getAll());
+			return stores[location].getAll();
+		},
 	}
 }
 

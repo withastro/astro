@@ -110,6 +110,30 @@ export function telemetryEnabled() {
 	].join('\n');
 }
 
+export function preferenceEnabled(name: string) {
+	return `${green('◉')} ${name} is now ${bgGreen(black(' enabled '))}\n`;
+}
+
+export function preferenceSet(name: string, value: any) {
+	return `${green('◉')} ${name} has been set to ${bgGreen(black(` ${JSON.stringify(value)} `))}\n`;
+}
+
+export function preferenceGet(name: string, value: any) {
+	return `${green('◉')} ${name} is set to ${bgGreen(black(` ${JSON.stringify(value)} `))}\n`;
+}
+
+export function preferenceDefault(name: string, value: any) {
+	return `${yellow('◯')} ${name} has not been set. It defaults to ${bgYellow(black(` ${JSON.stringify(value)} `))}\n`;
+}
+
+export function preferenceDisabled(name: string) {
+	return `${yellow('◯')} ${name} is now ${bgYellow(black(' disabled '))}\n`;
+}
+
+export function preferenceReset(name: string) {
+	return `${cyan('◆')} ${name} has been reset ${bgCyan(black(' reset '))}\n`;
+}
+
 export function telemetryDisabled() {
 	return [
 		green('▶ Anonymous telemetry ') + bgGreen(' disabled '),

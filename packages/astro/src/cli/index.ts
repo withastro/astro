@@ -14,7 +14,7 @@ type CLICommand =
 	| 'sync'
 	| 'check'
 	| 'info'
-	| 'config'
+	| 'preferences'
 	| 'telemetry';
 
 /** Display --help flag */
@@ -34,7 +34,7 @@ async function printAstroHelp() {
 				['info', 'List info about your current Astro setup.'],
 				['preview', 'Preview your build locally.'],
 				['sync', 'Generate content collection types.'],
-				['config', 'Configure user preferences.'],
+				['preferences', 'Configure user preferences.'],
 				['telemetry', 'Configure telemetry settings.'],
 			],
 			'Global Flags': [
@@ -66,7 +66,7 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
 		'add',
 		'sync',
 		'telemetry',
-		'config',
+		'preferences',
 		'dev',
 		'build',
 		'preview',
@@ -117,10 +117,10 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			const exitCode = await sync({ flags });
 			return process.exit(exitCode);
 		}
-		case 'config': {
-			const { config } = await import('./config/index.js');
-			const [key, value] = flags._.slice(3).map(v => v.toString());
-			const exitCode = await config(key, value, { flags });
+		case 'preferences': {
+			const { preferences } = await import('./preferences/index.js');
+			const [subcommand, key, value] = flags._.slice(3).map(v => v.toString());
+			const exitCode = await preferences(subcommand, key, value, { flags });
 			return process.exit(exitCode);
 		}
 	}

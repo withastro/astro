@@ -54,4 +54,7 @@ export class PreferenceStore {
 		dset(this.store, key, value);
 		this.write();
 	}
+	getAll(): Record<string, any> {
+		return this.store;
+	}
 }
