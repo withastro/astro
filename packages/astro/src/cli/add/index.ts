@@ -732,7 +732,7 @@ async function fetchPackageJson(
 	if (res.status >= 200 && res.status < 300) {
 		return await res.json();
 	} else {
-		return new Error();
+		return new Error(`status: ${res.status} Get ${registry}/${packageName}/${tag} error`);
 	}
 }
 
@@ -754,6 +754,9 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 				} else {
 					const firstPartyPkgCheck = await fetchPackageJson('@astrojs', name, tag);
 					if (firstPartyPkgCheck instanceof Error) {
+						spinner.warn(
+							yellow(firstPartyPkgCheck.message)
+						);
 						spinner.warn(
 							yellow(`${bold(integration)} is not an official Astro package. Use at your own risk!`)
 						);
