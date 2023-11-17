@@ -890,7 +890,7 @@ describe('[SSR] i18n routing', () => {
 			expect(await response.text()).includes('Oi essa e start');
 		});
 
-		it.only('should redirect to the english locale, which is the first fallback', async () => {
+		it('should redirect to the english locale, which is the first fallback', async () => {
 			let request = new Request('http://example.com/new-site/it/start');
 			let response = await app.render(request);
 			console.log(await response.text());

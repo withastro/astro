@@ -2,7 +2,6 @@ import type { Rollup } from 'vite';
 import type { RouteData, SSRResult } from '../../@types/astro.js';
 import type { PageOptions } from '../../vite-plugin-astro/types.js';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
-import { routeIsFallback } from '../redirects/helpers.js';
 import { viteID } from '../util.js';
 import {
 	ASTRO_PAGE_RESOLVED_MODULE_ID,
