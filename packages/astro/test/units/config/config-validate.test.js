@@ -170,6 +170,7 @@ describe('Config Validation', () => {
 							domains: {
 								lorem: 'https://example.com',
 							},
+							routingStrategy: 'domain',
 						},
 					},
 				},
