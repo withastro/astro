@@ -10,6 +10,7 @@ interface CreateServerOptions {
 	port: number;
 	host: string | undefined;
 	removeBase: (pathname: string) => string;
+	assets: string;
 }
 
 function parsePathname(pathname: string, host: string | undefined, port: number) {
@@ -22,9 +23,16 @@ function parsePathname(pathname: string, host: string | undefined, port: number)
 }
 
 export function createServer(
-	{ client, port, host, removeBase }: CreateServerOptions,
+	{ client, port, host, removeBase, assets }: CreateServerOptions,
 	handler: http.RequestListener
 ) {
+	// The `base` is removed before passed to this function, so we don't
+	// need to check for it here.
+	const assetsPrefix = `/${assets}/`;
+	function isImmutableAsset(pathname: string) {
+		return pathname.startsWith(assetsPrefix);
+	}
+
 	const listener: http.RequestListener = (req, res) => {
 		if (req.url) {
 			let pathname: string | undefined = removeBase(req.url);
@@ -53,6 +61,12 @@ export function createServer(
 				}
 				// File not found, forward to the SSR handler
 				handler(req, res);
+			});
+			stream.on('headers', (_res: http.ServerResponse<http.IncomingMessage>) => {
+				if(isImmutableAsset(encodedURI)) {
+					// Taken from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#immutable
+					_res.setHeader('Cache-Control', 'public, max-age=604800, immutable')
+				}
 			});
 			stream.on('directory', () => {
 				// On directory find, redirect to the trailing slash

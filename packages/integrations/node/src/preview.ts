@@ -17,11 +17,13 @@ const preview: CreatePreviewServer = async function ({
 	type ServerModule = ReturnType<typeof createExports>;
 	type MaybeServerModule = Partial<ServerModule>;
 	let ssrHandler: ServerModule['handler'];
+	let options: ServerModule['options'];
 	try {
 		process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 		const ssrModule: MaybeServerModule = await import(serverEntrypoint.toString());
 		if (typeof ssrModule.handler === 'function') {
 			ssrHandler = ssrModule.handler;
+			options = ssrModule.options!;
 		} else {
 			throw new AstroError(
 				`The server entrypoint doesn't have a handler. Are you sure this is the right file?`
@@ -59,6 +61,7 @@ const preview: CreatePreviewServer = async function ({
 			port,
 			host,
 			removeBase,
+			assets: options.assets,
 		},
 		handler
 	);
