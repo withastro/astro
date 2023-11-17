@@ -2,4 +2,4 @@
 '@astrojs/node': minor
 ---
 
-Support immutable cache headers on \_astro assets
+Automatically set immutable cache headers for assets served from the `/_astro` directory
