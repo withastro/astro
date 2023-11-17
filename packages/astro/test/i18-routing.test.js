@@ -1024,15 +1024,38 @@ describe('[SSR] i18n routing', () => {
 			app = await fixture.loadTestAdapterApp();
 		});
 
-		it('should render the en locale', async () => {
+		it('should render the en locale when X-Forwarded-Host header is passed', async () => {
 			let request = new Request('http://example.pt/new-site/start', {
 				headers: {
-					'X-Forwarded-Host': 'https://example.pt',
+					'X-Forwarded-Host': 'example.pt',
+					'X-Forwarded-Proto': 'https',
 				},
 			});
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
 			expect(await response.text()).includes('Oi essa e start\n');
+		});
+
+		it('should render the en locale when Host header is passed', async () => {
+			let request = new Request('http://example.pt/new-site/start', {
+				headers: {
+					Host: 'example.pt',
+					'X-Forwarded-Proto': 'https',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Oi essa e start\n');
+		});
+
+		it('should render a 404 because we could not compute the domain', async () => {
+			let request = new Request('http://example.pt/new-site/start', {
+				headers: {
+					Host: 'example.pt',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(404);
 		});
 	});
 });

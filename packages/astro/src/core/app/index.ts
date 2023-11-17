@@ -31,6 +31,7 @@ import { matchRoute } from '../routing/match.js';
 import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
 import type { RouteInfo } from './types.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
+import { normalizeTheLocale } from '../../i18n/index.js';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -136,12 +137,41 @@ export class App {
 		if (this.#manifest.assets.has(url.pathname)) return undefined;
 		let pathname;
 		if (this.#manifest.i18n && this.#manifest.i18n.routingStrategy === 'domain') {
-			const host = request.headers.get('X-Forwarded-Host');
-			if (host) {
+			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
+			let host = request.headers.get('X-Forwarded-Host');
+			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto
+			let protocol = request.headers.get('X-Forwarded-Proto');
+			if (!host) {
+				// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Host
+				host = request.headers.get('Host');
+			}
+			// If we don't have a host and a protocol, it's impossible to proceed
+			if (host && protocol) {
+				// The header might have a port in their name, so we remove it
+				host = host.split(':')[0];
 				try {
-					const locale = this.#manifest.i18n.domainLookupTable[host];
+					let locale;
+					const hostAsUrl = new URL('', `${protocol}://${host}`);
+					for (const [domainKey, localeValue] of Object.entries(
+						this.#manifest.i18n.domainLookupTable
+					)) {
+						// This operation should be safe because we force the protocol via zod inside the configuration
+						// If not, then it means that the manifest was tampered
+						const domainKeyAsUrl = new URL('', domainKey);
+
+						if (
+							hostAsUrl.host === domainKeyAsUrl.host &&
+							hostAsUrl.protocol === domainKeyAsUrl.protocol
+						) {
+							locale = localeValue;
+							break;
+						}
+					}
+
 					if (locale) {
-						pathname = prependForwardSlash(joinPaths(locale, this.removeBase(url.pathname)));
+						pathname = prependForwardSlash(
+							joinPaths(normalizeTheLocale(locale), this.removeBase(url.pathname))
+						);
 						if (url.pathname.endsWith('/')) {
 							pathname = appendForwardSlash(pathname);
 						}
@@ -149,8 +179,8 @@ export class App {
 				} catch (e) {
 					// waiting to decide what to do here
 					// eslint-disable-next-line no-console
+					// TODO: What kind of error should we try? This happens if we have an invalid value inside the X-Forwarded-Host and X-Forwarded-Proto headers
 					console.error(e);
-					// TODO: What kind of error should we try? This happens if we have an invalid value inside the X-Forwarded-Host header
 				}
 			}
 		}
@@ -159,7 +189,7 @@ export class App {
 		}
 		let routeData = matchRoute(pathname, this.#manifestData);
 
-		// missing routes fall-through, prerendered are handled by static layer
+		// missing routes fall-through, pre rendered are handled by static layer
 		if (!routeData || routeData.prerender) return undefined;
 		return routeData;
 	}
