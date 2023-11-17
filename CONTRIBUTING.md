@@ -2,8 +2,8 @@
 
 We welcome contributions of any size and skill level. As an open source project, we believe in giving back to our contributors and are happy to help with guidance on PRs, technical writing, and turning any feature idea into a reality.
 
-> **Tip for new contributors:**
-> Take a look at [https://github.com/firstcontributions/first-contributions](https://github.com/firstcontributions/first-contributions) for helpful information on contributing
+> [!Tip]
+> **For new contributors:** Take a look at [https://github.com/firstcontributions/first-contributions](https://github.com/firstcontributions/first-contributions) for helpful information on contributing
 
 ## Quick Guide
 
@@ -46,7 +46,8 @@ To get started, create a codespace for this repository by clicking this 👇
 
 Your new codespace will open in a web-based version of Visual Studio Code. All development dependencies will be preinstalled, and the tests will run automatically ensuring you've got a green base from which to start working.
 
-**Note**: Dev containers is now an open spec which is supported by [GitHub Codespaces](https://github.com/codespaces) and [other supporting tools](https://containers.dev/supporting).
+> [!Note]
+> Dev containers is now an open spec which is supported by [GitHub Codespaces](https://github.com/codespaces) and [other supporting tools](https://containers.dev/supporting).
 
 ### Development
 
@@ -187,7 +188,7 @@ Understanding in which environment code runs, and at which stage in the process,
 
 Active Astro development happens on the [`main`](https://github.com/withastro/astro/tree/main) branch. `main` always reflects the latest code.
 
-> **Note:**
+> [!Note]
 > During certain periods, we put `main` into a [**prerelease**](https://github.com/changesets/changesets/blob/main/docs/prereleases.md#prereleases) state. Read more about [Releasing Astro](#releasing-astro).
 
 ### `latest`
@@ -198,7 +199,8 @@ By default, `create-astro` and [astro.new](https://astro.new) point to this bran
 
 ## Releasing Astro
 
-_Note: Only [core maintainers (L3+)](https://github.com/withastro/.github/blob/main/GOVERNANCE.md#level-3-l3---core) can release new versions of Astro._
+> [!Note]
+> _Only [core maintainers (L3+)](https://github.com/withastro/.github/blob/main/GOVERNANCE.md#level-3-l3---core) can release new versions of Astro._
 
 The repo is set up with automatic releases, using the changeset GitHub action & bot.
 
