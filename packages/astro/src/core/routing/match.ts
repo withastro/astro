@@ -2,10 +2,11 @@ import type { ManifestData, RouteData } from '../../@types/astro.js';
 
 /** Find matching route from pathname */
 export function matchRoute(pathname: string, manifest: ManifestData): RouteData | undefined {
+	const decodedPathname = decodeURI(pathname);
 	return manifest.routes.find((route) => {
 		return (
-			route.pattern.test(decodeURI(pathname)) ||
-			route.fallbackRoutes.some((fallbackRoute) => fallbackRoute.pattern.test(decodeURI(pathname)))
+			route.pattern.test(decodedPathname) ||
+			route.fallbackRoutes.some((fallbackRoute) => fallbackRoute.pattern.test(decodedPathname))
 		);
 	});
 }
