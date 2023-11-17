@@ -51,17 +51,15 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	// Build internals needed by the CSS plugin
 	const internals = createBuildInternals();
 
-	for (const [component, pageDataList] of Object.entries(allPages)) {
-		for (const pageData of pageDataList) {
-			const astroModuleURL = new URL('./' + component, settings.config.root);
-			const astroModuleId = prependForwardSlash(component);
+	for (const [component, pageData] of Object.entries(allPages)) {
+		const astroModuleURL = new URL('./' + component, settings.config.root);
+		const astroModuleId = prependForwardSlash(component);
 
-			// Track the page data in internals
-			trackPageData(internals, component, pageData, astroModuleId, astroModuleURL);
+		// Track the page data in internals
+		trackPageData(internals, component, pageData, astroModuleId, astroModuleURL);
 
-			if (!routeIsRedirect(pageData.route)) {
-				pageInput.add(astroModuleId);
-			}
+		if (!routeIsRedirect(pageData.route)) {
+			pageInput.add(astroModuleId);
 		}
 	}
 
@@ -149,9 +147,7 @@ async function ssrBuild(
 	const { allPages, settings, viteConfig } = opts;
 	const ssr = isServerLikeOutput(settings.config);
 	const out = getOutputDirectory(settings.config);
-	const routes = Object.values(allPages)
-		.flat()
-		.map((pageData) => pageData.route);
+	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
 	const isContentCache = !ssr && settings.config.experimental.contentCollectionCache;
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('server', input);
 

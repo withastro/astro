@@ -13,6 +13,9 @@ export function serializeRouteData(
 		redirectRoute: routeData.redirectRoute
 			? serializeRouteData(routeData.redirectRoute, trailingSlash)
 			: undefined,
+		fallbackRoutes: routeData.fallbackRoutes.map((fallbackRoute) => {
+			return serializeRouteData(fallbackRoute, trailingSlash);
+		}),
 		_meta: { trailingSlash },
 	};
 }
@@ -32,5 +35,8 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 		redirectRoute: rawRouteData.redirectRoute
 			? deserializeRouteData(rawRouteData.redirectRoute)
 			: undefined,
+		fallbackRoutes: rawRouteData.fallbackRoutes.map((fallback) => {
+			return deserializeRouteData(fallback);
+		}),
 	};
 }
