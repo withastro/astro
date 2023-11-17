@@ -1195,4 +1195,66 @@ describe('i18n routing does not break assets and endpoints', () => {
 			expect(await response.text()).includes('lorem');
 		});
 	});
+
+	describe('i18n routing with routing strategy [subdomain]', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-subdomain/',
+				output: 'server',
+				adapter: testAdapter(),
+			});
+			await fixture.build();
+			app = await fixture.loadTestAdapterApp();
+		});
+
+		it('should render the en locale when X-Forwarded-Host header is passed', async () => {
+			let request = new Request('http://example.pt/new-site/start', {
+				headers: {
+					'X-Forwarded-Host': 'example.pt',
+					'X-Forwarded-Proto': 'https',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Oi essa e start\n');
+		});
+
+		it('should render the en locale when Host header is passed', async () => {
+			let request = new Request('http://example.pt/new-site/start', {
+				headers: {
+					Host: 'example.pt',
+					'X-Forwarded-Proto': 'https',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Oi essa e start\n');
+		});
+
+		it('should render the en locale when Host header is passed and it has the port', async () => {
+			let request = new Request('http://example.pt/new-site/start', {
+				headers: {
+					Host: 'example.pt:8080',
+					'X-Forwarded-Proto': 'https',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Oi essa e start\n');
+		});
+
+		it('should render when the protocol header we fallback to the one of the host', async () => {
+			let request = new Request('https://example.pt/new-site/start', {
+				headers: {
+					Host: 'example.pt',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Oi essa e start\n');
+		});
+	});
 });

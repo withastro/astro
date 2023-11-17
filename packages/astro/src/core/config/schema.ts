@@ -356,16 +356,15 @@ export const AstroConfigSchema = z.object({
 									)
 							)
 							.optional(),
-						// TODO: properly add default when the feature goes of experimental
 						routingStrategy: z
-							.enum(['prefix-always', 'prefix-other-locales'])
+							.enum(['prefix-always', 'prefix-other-locales', 'domain'])
 							.optional()
 							.default('prefix-other-locales'),
 					})
 					.optional()
 					.superRefine((i18n, ctx) => {
 						if (i18n) {
-							const { defaultLocale, locales, fallback, domains } = i18n;
+							const { defaultLocale, locales, fallback, domains, routingStrategy } = i18n;
 							if (!locales.includes(defaultLocale)) {
 								ctx.addIssue({
 									code: z.ZodIssueCode.custom,
@@ -397,6 +396,16 @@ export const AstroConfigSchema = z.object({
 								}
 							}
 							if (domains) {
+								const entries = Object.entries(domains);
+								if (entries.length > 0) {
+									if (routingStrategy !== 'domain') {
+										ctx.addIssue({
+											code: z.ZodIssueCode.custom,
+											message: `When specifying some domains, the property \`i18n.routingStrategy\` must be set to \`"domain"\`.`,
+										});
+									}
+								}
+
 								for (const [domainKey, domainValue] of Object.entries(domains)) {
 									if (!locales.includes(domainKey)) {
 										ctx.addIssue({

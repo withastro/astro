@@ -1520,7 +1520,7 @@ export interface AstroUserConfig {
 			 * @docs
 			 * @kind h4
 			 * @name experimental.i18n.routingStrategy
-			 * @type {'prefix-always' | 'prefix-other-locales'}
+			 * @type {'prefix-always' | 'prefix-other-locales' | 'domain'}
 			 * @default 'prefix-other-locales'
 			 * @version 3.5.0
 			 * @description
@@ -1533,9 +1533,12 @@ export interface AstroUserConfig {
 			 *  - `prefix-always`: All URLs will display a language prefix.
 			 *    URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
 			 *    Localized folders are used for every language, including the default.
+			 *  - `domain`: SSR only, it enables support for different domains. When a locale is mapped to domain, all the URLs won't have the language prefix.
+			 *    You map `fr` to `fr.example.com`, if you want a to have a blog page to look like `fr.example.com/blog` instead of `example.com/fr/blog`.
+			 *    The localised folders be must in the `src/pages/` folder.
 			 *
 			 */
-			routingStrategy?: 'prefix-always' | 'prefix-other-locales';
+			routingStrategy?: 'prefix-always' | 'prefix-other-locales' | 'domain';
 
 			/**
 			 * @docs
@@ -1556,7 +1559,8 @@ export interface AstroUserConfig {
 			 *            locales: ["en", "fr", "pt-br", "es"],
 			 *            domains: {
 			 *                fr: "https://fr.example.com",
-			 *            }
+			 *            },
+			 *            routingStrategy: "domain"
 			 *        }
 			 *    }
 			 * })

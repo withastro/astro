@@ -16,6 +16,7 @@ import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
+import { normalizeTheLocale } from '../../../i18n/index.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
@@ -161,6 +162,7 @@ function buildManifest(
 	const { settings } = opts;
 
 	const routes: SerializedRouteInfo[] = [];
+	const domainLookupTable: Record<string, string> = {};
 	const entryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
 	if (settings.scripts.some((script) => script.stage === 'page')) {
 		staticFiles.push(entryModules[PAGE_SCRIPT_ID]);
@@ -236,6 +238,16 @@ function buildManifest(
 		});
 	}
 
+	/**
+	 * logic meant for i18n domain support, where we fill the lookup table
+	 */
+	const i18n = settings.config.experimental.i18n;
+	if (i18n && i18n.domains && i18n.routingStrategy === 'domain') {
+		for (const [locale, domainValue] of Object.entries(i18n.domains)) {
+			domainLookupTable[domainValue] = normalizeTheLocale(locale);
+		}
+	}
+
 	// HACK! Patch this special one.
 	if (!(BEFORE_HYDRATION_SCRIPT_ID in entryModules)) {
 		// Set this to an empty string so that the runtime knows not to try and load this.
@@ -248,6 +260,7 @@ function buildManifest(
 			routingStrategy: settings.config.experimental.i18n.routingStrategy,
 			locales: settings.config.experimental.i18n.locales,
 			defaultLocale: settings.config.experimental.i18n.defaultLocale,
+			domainLookupTable,
 		};
 	}
 
