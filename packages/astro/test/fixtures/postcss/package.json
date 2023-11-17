@@ -9,11 +9,11 @@
     "astro": "workspace:*",
     "autoprefixer": "^10.4.15",
     "postcss": "^8.4.28",
-    "solid-js": "^1.7.11",
-    "svelte": "^4.2.0",
-    "vue": "^3.3.4"
+    "solid-js": "^1.8.5",
+    "svelte": "^4.2.5",
+    "vue": "^3.3.8"
   },
   "devDependencies": {
-    "postcss-preset-env": "^9.1.1"
+    "postcss-preset-env": "^9.3.0"
   }
 }

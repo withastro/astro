@@ -14,6 +14,6 @@
     "@astrojs/mdx": "^1.1.5",
     "@astrojs/preact": "^3.0.1",
     "astro": "^3.5.5",
-    "preact": "^10.17.1"
+    "preact": "^10.19.2"
   }
 }

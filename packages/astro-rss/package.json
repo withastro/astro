@@ -27,9 +27,9 @@
     "test": "mocha --exit --timeout 20000"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.5",
-    "@types/chai-as-promised": "^7.1.5",
-    "@types/mocha": "^10.0.1",
+    "@types/chai": "^4.3.10",
+    "@types/chai-as-promised": "^7.1.8",
+    "@types/mocha": "^10.0.4",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",

@@ -34,7 +34,7 @@
     "test:match": "playwright test -g"
   },
   "devDependencies": {
-    "@playwright/test": "^1.37.1",
+    "@playwright/test": "^1.40.0",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*"
   },

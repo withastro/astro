@@ -65,13 +65,13 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/prism": "workspace:*",
-    "@markdoc/markdoc": "^0.3.0",
+    "@markdoc/markdoc": "^0.3.5",
     "esbuild": "^0.19.2",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
     "htmlparser2": "^9.0.0",
     "kleur": "^4.1.5",
-    "shikiji": "^0.6.8",
+    "shikiji": "^0.6.13",
     "zod": "^3.22.4"
   },
   "peerDependencies": {
@@ -79,15 +79,15 @@
   },
   "devDependencies": {
     "@astrojs/markdown-remark": "workspace:*",
-    "@types/chai": "^4.3.5",
-    "@types/html-escaper": "^3.0.0",
-    "@types/markdown-it": "^13.0.0",
-    "@types/mocha": "^10.0.1",
+    "@types/chai": "^4.3.10",
+    "@types/html-escaper": "^3.0.2",
+    "@types/markdown-it": "^13.0.6",
+    "@types/mocha": "^10.0.4",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "devalue": "^4.3.2",
-    "linkedom": "^0.15.1",
+    "linkedom": "^0.16.4",
     "mocha": "^10.2.0",
     "vite": "^5.0.0"
   },
