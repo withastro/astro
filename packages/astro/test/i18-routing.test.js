@@ -1067,7 +1067,8 @@ describe('[SSR] i18n routing', () => {
 				},
 			});
 			let response = await app.render(request);
-			expect(response.status).to.equal(404);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Oi essa e start\n');
 		});
 	});
 });
