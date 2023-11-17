@@ -175,7 +175,7 @@
     "tsconfck": "^3.0.0",
     "unist-util-visit": "^4.1.2",
     "vfile": "^5.3.7",
-    "vite": "^4.4.9",
+    "vite": "^5.0.0",
     "vitefu": "^0.2.4",
     "which-pm": "^2.1.1",
     "yargs-parser": "^21.1.1",
@@ -222,7 +222,7 @@
     "rehype-slug": "^5.0.1",
     "rehype-toc": "^3.0.2",
     "remark-code-titles": "^0.1.2",
-    "rollup": "^3.28.1",
+    "rollup": "^4.4.1",
     "sass": "^1.66.1",
     "srcset-parse": "^1.1.0",
     "unified": "^10.1.2"

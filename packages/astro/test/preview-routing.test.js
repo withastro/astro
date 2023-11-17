@@ -1,12 +1,7 @@
 import { expect } from 'chai';
-import { version } from 'vite';
 import { loadFixture } from './test-utils.js';
 
-const IS_VITE_5 = version.startsWith('5.');
-
-// Skip in Vite 5 as it changes how HTML files are served. We may want to review aligning
-// trailingSlash and build.format to avoid potential footguns in Astro 4
-(IS_VITE_5 ? describe.skip : describe)('Preview Routing', function () {
+describe('Preview Routing', function () {
 	describe('build format: directory', () => {
 		describe('Subpath without trailing slash and trailingSlash: never', () => {
 			/** @type {import('./test-utils').Fixture} */
