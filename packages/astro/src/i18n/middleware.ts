@@ -72,11 +72,13 @@ export function createI18nMiddleware(
 					});
 				}
 			}
+			console.log('here', response.status);
 			if (response.status >= 300 && fallback) {
 				const fallbackKeys = i18n.fallback ? Object.keys(i18n.fallback) : [];
 
 				const urlLocale = separators.find((s) => locales.includes(s));
 
+				console.log('and here');
 				if (urlLocale && fallbackKeys.includes(urlLocale)) {
 					const fallbackLocale = fallback[urlLocale];
 					let newPathname: string;
