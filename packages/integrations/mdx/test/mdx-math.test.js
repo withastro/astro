@@ -4,7 +4,7 @@ import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 import remarkMath from 'remark-math';
 import rehypeMathjaxSvg from 'rehype-mathjax';
-import rehypeMathjaxChtml from 'rehype-mathjax/chtml.js';
+import rehypeMathjaxChtml from 'rehype-mathjax/chtml';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-math/', import.meta.url);
 

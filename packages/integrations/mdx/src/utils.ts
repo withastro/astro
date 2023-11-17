@@ -1,10 +1,10 @@
-import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { Options as AcornOpts } from 'acorn';
 import { parse } from 'acorn';
 import type { AstroConfig, SSRError } from 'astro';
 import matter from 'gray-matter';
 import { bold, yellow } from 'kleur/colors';
 import type { MdxjsEsm } from 'mdast-util-mdx';
+import type { PluggableList } from 'unified';
 
 function appendForwardSlash(path: string) {
 	return path.endsWith('/') ? path : path + '/';
@@ -75,8 +75,8 @@ export function jsToTreeNode(
 		type: 'mdxjsEsm',
 		value: '',
 		data: {
+			// @ts-expect-error `parse` return types is incompatible but it should work in runtime
 			estree: {
-				body: [],
 				...parse(jsString, acornOpts),
 				type: 'Program',
 				sourceType: 'module',

@@ -23,8 +23,7 @@ export const createOutgoingHttpHeaders = (
 
 	// if there is > 1 set-cookie header, we have to fix it to be an array of values
 	if (headers.has('set-cookie')) {
-		// @ts-expect-error
-		const cookieHeaders = headers.getSetCookie() as string[];
+		const cookieHeaders = headers.getSetCookie();
 		if (cookieHeaders.length > 1) {
 			// the Headers.entries() API already normalized all header names to lower case so we can safely index this as 'set-cookie'
 			nodeHeaders['set-cookie'] = cookieHeaders;

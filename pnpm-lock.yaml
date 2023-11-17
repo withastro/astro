@@ -4905,6 +4905,9 @@ importers:
       mdast-util-definitions:
         specifier: ^6.0.0
         version: 6.0.0
+      mdast-util-to-hast:
+        specifier: 13.0.2
+        version: 13.0.2
       rehype-raw:
         specifier: ^7.0.0
         version: 7.0.0

@@ -15,7 +15,7 @@ export function remarkImageToComponent() {
 		const importsStatements: MdxjsEsm[] = [];
 		const importedImages = new Map<string, string>();
 
-		visit(tree, 'image', (node: Image, index: number | null, parent: Parent | null) => {
+		visit(tree, 'image', (node: Image, index: number | undefined, parent: Parent | null) => {
 			// Use the imagePaths set from the remark-collect-images so we don't have to duplicate the logic for
 			// checking if an image should be imported or not
 			if (file.data.imagePaths?.has(node.url)) {

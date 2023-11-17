@@ -5,7 +5,6 @@ import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import PQueue from 'p-queue';
 import type { OutputAsset, OutputChunk } from 'rollup';
-import type { BufferEncoding } from 'vfile';
 import type {
 	AstroSettings,
 	ComponentInstance,
