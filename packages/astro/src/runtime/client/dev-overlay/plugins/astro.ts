@@ -33,14 +33,14 @@ export default {
 		document.addEventListener('astro:after-swap', createWindow);
 
 		eventTarget.addEventListener('plugin-toggled', async (event) => {
+			resetDebugButton();
 			if (!(event instanceof CustomEvent)) return;
 
 			if (event.detail.state === true) {
 				if (!integrationData)
-					fetch(
-						'https://astro-build-git-fix-cors-astrodotbuild.vercel.app/api/v1/integrations/?limit=5&categories%5B%5D=featured',
-						{ cache: 'no-cache' }
-					)
+					fetch('https://astro.build/api/v1/integrations/?limit=5&categories%5B%5D=featured', {
+						cache: 'no-cache',
+					})
 						.then((res) => res.json())
 						.then((data) => {
 							integrationData = data;
@@ -132,10 +132,33 @@ export default {
 					font-size: 18px;
 				}
 
+				a {
+					color: rgba(224, 204, 250, 1);
+				}
+
+				a:hover {
+					color: #f4ecfd;
+				}
+
 				#integration-list-wrapper {
-					overflow: scroll;
+					overflow-x: auto;
+    			overflow-y: hidden;
 					width: calc(100% + 24px);
 					padding-bottom: 1em;
+					height: 210px;
+    			box-sizing: border-box;
+				}
+
+				#integration-list-wrapper::-webkit-scrollbar {
+					width: 5px;
+					height: 8px;
+					background-color: rgba(255, 255, 255, 0.08); /* or add it to the track */
+					margin-right: 1em;
+				}
+
+				#integration-list-wrapper::-webkit-scrollbar-thumb {
+					background-color: rgba(255, 255, 255, 0.3);
+					border-radius: 4px;
 				}
 
 				#integration-list {
@@ -143,11 +166,28 @@ export default {
 					display: flex;
 					gap: 16px;
 					padding-bottom: 1em;
+					width: 100%;
+    			padding-right: 42em;
 				}
 
-				#integration-list astro-dev-overlay-card {
+				#integration-list astro-dev-overlay-card, .integration-skeleton {
 					min-width: 240px;
 					height: 160px;
+				}
+
+				.integration-skeleton {
+					animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+					background-color: rgba(35, 38, 45, 1);
+    			border-radius: 8px;
+				}
+
+				@keyframes pulse {
+					0%, 100% {
+						opacity: 1;
+					}
+					50% {
+						opacity: .5;
+					}
 				}
 
 				#integration-list astro-dev-overlay-card .integration-image {
@@ -179,7 +219,7 @@ export default {
 					flex-direction: column;
 					gap: 0.7em;
 					flex: 1;
-					text-wrap: nowrap;
+					white-space: nowrap;
 					font-weight: 600;
 					color: white;
 				}
@@ -197,13 +237,14 @@ export default {
 				#integration-list astro-dev-overlay-card svg {
 					width: 24px;
 					height: 24px;
-					vertical-align: middle;
+					vertical-align: bottom;
 				}
 
 				#integration-list astro-dev-overlay-card h3 {
 					margin: 0;
 					margin-bottom: 8px;
     			color: white;
+					white-space: nowrap;
 				}
 
 				#integration-list astro-dev-overlay-card p {
@@ -218,16 +259,22 @@ export default {
 					(window as DevOverlayMetadata).__astro_dev_overlay__.version
 				}</astro-dev-overlay-badge>
 				</section>
-				<astro-dev-overlay-button>Open Astro</astro-dev-overlay-button>
+				<astro-dev-overlay-button id="copy-debug-button">Get debug info <astro-dev-overlay-icon icon="copy" /></astro-dev-overlay-button>
 			</header>
 			<hr />
 
 			<div id="main-container">
 				<div>
 					<header><h2>Top integrations</h2><a href="">View all</a></header>
-					<div id="integration-list-wrapper">
-						<section id="integration-list">Placeholder</section>
-					</div>
+						<div id="integration-list-wrapper">
+							<section id="integration-list">
+								<div class="integration-skeleton"></div>
+								<div class="integration-skeleton"></div>
+								<div class="integration-skeleton"></div>
+								<div class="integration-skeleton"></div>
+								<div class="integration-skeleton"></div>
+							</section>
+						</div>
 				</div>
 				<section id="links">
 				${links
@@ -243,7 +290,24 @@ export default {
 		`
 			);
 
+			const copyDebugButton =
+				windowComponent.querySelector<HTMLButtonElement>('#copy-debug-button');
+
+			copyDebugButton?.addEventListener('click', () => {
+				navigator.clipboard.writeText(
+					'```\n' + (window as DevOverlayMetadata).__astro_dev_overlay__.debugInfo + '\n```'
+				);
+				copyDebugButton.textContent = 'Copied to clipboard';
+			});
+
 			canvas.append(windowComponent);
+		}
+
+		function resetDebugButton() {
+			const copyDebugButton = canvas.querySelector<HTMLButtonElement>('#copy-debug-button');
+			if (!copyDebugButton) return;
+
+			copyDebugButton.innerHTML = 'Get debug info <astro-dev-overlay-icon icon="copy" />';
 		}
 
 		function refreshIntegrationList() {
@@ -256,17 +320,40 @@ export default {
 			for (const integration of integrationData.data) {
 				const integrationComponent = document.createElement('astro-dev-overlay-card');
 				integrationComponent.link = integration.homepageUrl;
-				integrationComponent.innerHTML = `
-				<div class="integration-container">
-					<div class="integration-image"><img src="${integration.image}" alt="${integration.title}" /></div>
-					<h3>${integration.title} ${
-						integration.official || integration.categories.includes('official')
-							? '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 21 20"><rect width="19" height="19" x="1.16602" y=".5" fill="url(#paint0_linear_917_1096)" fill-opacity=".33" rx="9.5"/><path fill="#fff" d="M15.139 6.80657c-.062-.06248-.1357-.11208-.217-.14592-.0812-.03385-.1683-.05127-.2563-.05127-.0881 0-.1752.01742-.2564.05127-.0813.03384-.155.08344-.217.14592L9.22566 11.7799 7.13899 9.68657c-.06435-.06216-.14031-.11103-.22355-.14383-.08323-.03281-.17211-.04889-.26157-.04735-.08945.00155-.17773.0207-.25978.05637a.68120694.68120694 0 0 0-.21843.15148c-.06216.06435-.11104.14031-.14384.22355-.0328.08321-.04889.17211-.04734.26161.00154.0894.0207.1777.05636.2597.03566.0821.08714.1563.15148.2185l2.56 2.56c.06198.0625.13571.1121.21695.1459s.16838.0513.25639.0513c.088 0 .17514-.0175.25638-.0513s.15497-.0834.21695-.1459L15.139 7.78657c.0677-.06242.1217-.13819.1586-.22253.0369-.08433.056-.1754.056-.26747 0-.09206-.0191-.18313-.056-.26747-.0369-.08433-.0909-.1601-.1586-.22253Z"/><rect width="19" height="19" x="1.16602" y=".5" stroke="url(#paint1_linear_917_1096)" rx="9.5"/><defs><linearGradient id="paint0_linear_917_1096" x1="20.666" x2="-3.47548" y1=".00000136" y2="10.1345" gradientUnits="userSpaceOnUse"><stop stop-color="#4AF2C8"/><stop offset="1" stop-color="#2F4CB3"/></linearGradient><linearGradient id="paint1_linear_917_1096" x1="20.666" x2="-3.47548" y1=".00000136" y2="10.1345" gradientUnits="userSpaceOnUse"><stop stop-color="#4AF2C8"/><stop offset="1" stop-color="#2F4CB3"/></linearGradient></defs></svg>'
-							: ''
-					}</h3>
-					<p>${integration.description}</p>
-				</div>
-				`;
+
+				const integrationContainer = document.createElement('div');
+				integrationContainer.className = 'integration-container';
+
+				const integrationImage = document.createElement('div');
+				integrationImage.className = 'integration-image';
+				const img = document.createElement('img');
+
+				if (integration.image) {
+					img.src = integration.image;
+				} else {
+					img.src = 'https://astro.build/favicon.ico';
+				}
+
+				img.alt = integration.title;
+				integrationImage.append(img);
+				integrationContainer.append(integrationImage);
+
+				let integrationTitle = document.createElement('h3');
+				integrationTitle.textContent = integration.title;
+				if (integration.official || integration.categories.includes('official')) {
+					integrationTitle.innerHTML +=
+						' <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 21 20"><rect width="19" height="19" x="1.16602" y=".5" fill="url(#paint0_linear_917_1096)" fill-opacity=".33" rx="9.5"/><path fill="#fff" d="M15.139 6.80657c-.062-.06248-.1357-.11208-.217-.14592-.0812-.03385-.1683-.05127-.2563-.05127-.0881 0-.1752.01742-.2564.05127-.0813.03384-.155.08344-.217.14592L9.22566 11.7799 7.13899 9.68657c-.06435-.06216-.14031-.11103-.22355-.14383-.08323-.03281-.17211-.04889-.26157-.04735-.08945.00155-.17773.0207-.25978.05637a.68120694.68120694 0 0 0-.21843.15148c-.06216.06435-.11104.14031-.14384.22355-.0328.08321-.04889.17211-.04734.26161.00154.0894.0207.1777.05636.2597.03566.0821.08714.1563.15148.2185l2.56 2.56c.06198.0625.13571.1121.21695.1459s.16838.0513.25639.0513c.088 0 .17514-.0175.25638-.0513s.15497-.0834.21695-.1459L15.139 7.78657c.0677-.06242.1217-.13819.1586-.22253.0369-.08433.056-.1754.056-.26747 0-.09206-.0191-.18313-.056-.26747-.0369-.08433-.0909-.1601-.1586-.22253Z"/><rect width="19" height="19" x="1.16602" y=".5" stroke="url(#paint1_linear_917_1096)" rx="9.5"/><defs><linearGradient id="paint0_linear_917_1096" x1="20.666" x2="-3.47548" y1=".00000136" y2="10.1345" gradientUnits="userSpaceOnUse"><stop stop-color="#4AF2C8"/><stop offset="1" stop-color="#2F4CB3"/></linearGradient><linearGradient id="paint1_linear_917_1096" x1="20.666" x2="-3.47548" y1=".00000136" y2="10.1345" gradientUnits="userSpaceOnUse"><stop stop-color="#4AF2C8"/><stop offset="1" stop-color="#2F4CB3"/></linearGradient></defs></svg>';
+				}
+				integrationContainer.append(integrationTitle);
+
+				const integrationDescription = document.createElement('p');
+				integrationDescription.textContent =
+					integration.description.length > 90
+						? integration.description.slice(0, 90) + '…'
+						: integration.description;
+
+				integrationContainer.append(integrationDescription);
+				integrationComponent.append(integrationContainer);
 
 				fragment.append(integrationComponent);
 			}

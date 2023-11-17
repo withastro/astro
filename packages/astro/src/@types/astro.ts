@@ -2586,6 +2586,7 @@ export type DevOverlayMetadata = Window &
 		__astro_dev_overlay__: {
 			root: string;
 			version: string;
+			debugInfo: string;
 		};
 	};
 

@@ -9,6 +9,7 @@ import type {
 	SSRElement,
 	SSRManifest,
 } from '../@types/astro.js';
+import { getInfoOutput } from '../cli/info/index.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { sequence } from '../core/middleware/index.js';
@@ -375,7 +376,10 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			const additionalMetadata: DevOverlayMetadata['__astro_dev_overlay__'] = {
 				root: fileURLToPath(settings.config.root),
 				version: ASTRO_VERSION,
+				debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),
 			};
+
+			settings.config;
 
 			// Additional data for the dev overlay
 			scripts.add({

@@ -24,6 +24,13 @@ export class DevOverlayButton extends HTMLElement {
 					border: 1px solid transparent;
 					color: #fff;
 					border-radius: 4px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+				}
+
+				button:hover {
+					cursor: pointer;
 				}
 
 				.button--small {
@@ -63,6 +70,13 @@ export class DevOverlayButton extends HTMLElement {
 				.button--red {
 					background: rgba(179, 62, 102, 1);
 					border-color: rgba(249, 196, 215, 0.33);
+				}
+
+				::slotted(astro-dev-overlay-icon) {
+					display: inline-block;
+					height: 1em;
+					width: 1em;
+					margin-left: 0.5em;
 				}
 			</style>
 

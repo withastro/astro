@@ -4,6 +4,7 @@ import { execSync } from 'node:child_process';
 import { arch, platform } from 'node:os';
 import prompts from 'prompts';
 import type yargs from 'yargs-parser';
+import type { AstroConfig, AstroUserConfig } from '../../@types/astro.js';
 import { resolveConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
 import { flagsToAstroInlineConfig } from '../flags.js';
@@ -12,7 +13,13 @@ interface InfoOptions {
 	flags: yargs.Arguments;
 }
 
-export async function printInfo({ flags }: InfoOptions) {
+export async function getInfoOutput({
+	userConfig,
+	print,
+}: {
+	userConfig: AstroUserConfig | AstroConfig;
+	print: boolean;
+}): Promise<string> {
 	const rows: Array<[string, string | string[]]> = [
 		['Astro', `v${ASTRO_VERSION}`],
 		['Node', process.version],
@@ -20,9 +27,7 @@ export async function printInfo({ flags }: InfoOptions) {
 		['Package Manager', getPackageManager()],
 	];
 
-	const inlineConfig = flagsToAstroInlineConfig(flags);
 	try {
-		const { userConfig } = await resolveConfig(inlineConfig, 'info');
 		rows.push(['Output', userConfig.output ?? 'static']);
 		rows.push(['Adapter', userConfig.adapter?.name ?? 'none']);
 		const integrations = (userConfig?.integrations ?? [])
@@ -35,10 +40,17 @@ export async function printInfo({ flags }: InfoOptions) {
 
 	let output = '';
 	for (const [label, value] of rows) {
-		output += printRow(label, value);
+		output += printRow(label, value, print);
 	}
 
-	await copyToClipboard(output.trim());
+	return output.trim();
+}
+
+export async function printInfo({ flags }: InfoOptions) {
+	const { userConfig } = await resolveConfig(flagsToAstroInlineConfig(flags), 'info');
+	const output = await getInfoOutput({ userConfig, print: true });
+
+	await copyToClipboard(output);
 }
 
 async function copyToClipboard(text: string) {
@@ -105,7 +117,7 @@ function getPackageManager() {
 }
 
 const MAX_PADDING = 25;
-function printRow(label: string, value: string | string[]) {
+function printRow(label: string, value: string | string[], print: boolean) {
 	const padding = MAX_PADDING - label.length;
 	const [first, ...rest] = Array.isArray(value) ? value : [value];
 	let plaintext = `${label}${' '.repeat(padding)}${first}`;
@@ -117,6 +129,8 @@ function printRow(label: string, value: string | string[]) {
 		}
 	}
 	plaintext += '\n';
-	console.log(richtext);
+	if (print) {
+		console.log(richtext);
+	}
 	return plaintext;
 }
