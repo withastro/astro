@@ -187,59 +187,74 @@ export function formatConfigErrorMessage(err: ZodError) {
 	)}`;
 }
 
+// a regex to match the first line of a stack trace
+const STACK_LINE_REGEXP = /^\s+at /g;
+const IRRELEVANT_STACK_REGEXP = /(node_modules|astro[\/\\]dist)/g;
+function formatErrorStackTrace(err: Error | ErrorWithMetadata, showFullStacktrace: boolean): string {
+	const stackLines = (err.stack || '').split('\n').filter((line) => STACK_LINE_REGEXP.test(line));
+	// If full details are required, just return the entire stack trace.
+	if (showFullStacktrace) {
+		return stackLines.join('\n');
+	}
+	// Grab every string from the user's codebase, exit when you hit node_modules or astro/dist
+	const irrelevantStackIndex = stackLines.findIndex((line) => IRRELEVANT_STACK_REGEXP.test(line));
+	if (irrelevantStackIndex <= 0) {
+		const errorId = (err as ErrorWithMetadata).id;
+		const errorLoc = (err as ErrorWithMetadata).loc;
+		if (errorId|| errorLoc?.file) {
+			const prettyLocation = `    at ${errorId?? errorLoc?.file}${
+				errorLoc?.line && errorLoc.column ? `:${errorLoc.line}:${errorLoc.column}` : ''
+			}`;
+			return prettyLocation + '\n    [...] See full stack trace in the browser, or rerun with --verbose.';
+		} else {
+			return stackLines.join('\n');
+		}
+	}
+	// If the error occurred inside of a dependency, grab the entire stack.
+	// Otherwise, only grab the part of the stack that is relevant to the user's codebase.
+	return stackLines.splice(0, irrelevantStackIndex).join('\n') + '\n    [...] See full stack trace in the browser, or rerun with --verbose.';
+}
 
-export function formatErrorMessage(err: ErrorWithMetadata, args: string[] = []): string {
+export function formatErrorMessage(err: ErrorWithMetadata, showFullStacktrace: boolean): string {
 	const isOurError = AstroError.is(err) || CompilerError.is(err) || AstroUserError.is(err);
+	let message = '';
+	if (isOurError) {
+		message += red(`[${err.name}]`) + ' ' + renderErrorMarkdown(err.message, 'cli');
+	} else {
+		message += err.message;
+	}
+	const output = [message];
 
-	args.push(
-		`${bgRed(black(` error `))}${red(
-			padMultilineString(isOurError ? renderErrorMarkdown(err.message, 'cli') : err.message)
-		)}`
-	);
 	if (err.hint) {
-		args.push(`  ${bold('Hint:')}`);
-		args.push(
-			yellow(padMultilineString(isOurError ? renderErrorMarkdown(err.hint, 'cli') : err.hint, 4))
+		output.push(`  ${bold('Hint:')}`);
+		output.push(
+			yellow(padMultilineString(renderErrorMarkdown(err.hint, 'cli'), 4))
 		);
 	}
+
 	const docsLink = getDocsForError(err);
 	if (docsLink) {
-		args.push(`  ${bold('Error reference:')}`);
-		args.push(`    ${underline(docsLink)}`);
+		output.push(`  ${bold('Error reference:')}`);
+		output.push(`    ${cyan(underline(docsLink))}`);
 	}
-	if (err.id || err.loc?.file) {
-		args.push(`  ${bold('File:')}`);
-		args.push(
-			red(
-				`    ${err.id ?? err.loc?.file}${
-					err.loc?.line && err.loc.column ? `:${err.loc.line}:${err.loc.column}` : ''
-				}`
-			)
-		);
-	}
-	if (err.frame) {
-		args.push(`  ${bold('Code:')}`);
-		args.push(red(padMultilineString(err.frame.trim(), 4)));
-	}
-	if (args.length === 1 && err.stack) {
-		args.push(dim(err.stack));
-	} else if (err.stack) {
-		args.push(`  ${bold('Stacktrace:')}`);
-		args.push(dim(err.stack));
-		args.push(``);
+
+	if (err.stack) {
+		output.push(`  ${bold('Stack trace:')}`);
+		output.push(dim(formatErrorStackTrace(err, showFullStacktrace)));
 	}
 
 	if (err.cause) {
-		args.push(`  ${bold('Cause:')}`);
+		output.push(`  ${bold('Caused by:')}`);
+		let causeMessage = '  ';
 		if (err.cause instanceof Error) {
-			args.push(dim(err.cause.stack ?? err.cause.toString()));
+			causeMessage += err.cause.message + '\n' + formatErrorStackTrace(err.cause, showFullStacktrace);
 		} else {
-			args.push(JSON.stringify(err.cause));
+			causeMessage += (JSON.stringify(err.cause));
 		}
-
-		args.push(``);
+		output.push(dim(causeMessage));
 	}
-	return args.join('\n');
+	
+	return output.join('\n');
 }
 
 export function printHelp({

@@ -20,7 +20,7 @@ export async function throwAndExit(cmd: string, err: unknown) {
 
 	const errorWithMetadata = collectErrorMetadata(createSafeError(err));
 	telemetryPromise = telemetry.record(eventError({ cmd, err: errorWithMetadata, isFatal: true }));
-	errorMessage = formatErrorMessage(errorWithMetadata);
+	errorMessage = formatErrorMessage(errorWithMetadata, true);
 
 	// Timeout the error reporter (very short) because the user is waiting.
 	// NOTE(fks): It is better that we miss some events vs. holding too long.
