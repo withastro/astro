@@ -30,7 +30,7 @@ import {
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
-import { createI18nMiddleware } from '../../i18n/middleware.js';
+import { createI18nMiddleware, i18nPipelineHook } from '../../i18n/middleware.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
@@ -289,6 +289,7 @@ async function generatePage(
 		} else {
 			pipeline.setMiddlewareFunction(i18nMiddleware);
 		}
+		pipeline.onBeforeRenderRoute(i18nPipelineHook);
 	} else if (onRequest) {
 		pipeline.setMiddlewareFunction(onRequest as MiddlewareEndpointHandler);
 	}
@@ -324,6 +325,9 @@ async function generatePage(
 			: magenta('λ');
 	if (isRelativePath(pageData.route.component)) {
 		logger.info(null, `${icon} ${pageData.route.route}`);
+		for (const fallbackRoute of pageData.route.fallbackRoutes) {
+			logger.info(null, `${icon} ${fallbackRoute.route}`);
+		}
 	} else {
 		logger.info(null, `${icon} ${pageData.route.component}`);
 	}
@@ -345,6 +349,13 @@ async function generatePage(
 	}
 }
 
+function* eachRouteInRouteData(data: PageBuildData) {
+	yield data.route;
+	for (const fallbackRoute of data.route.fallbackRoutes) {
+		yield fallbackRoute;
+	}
+}
+
 async function getPathsForRoute(
 	pageData: PageBuildData,
 	mod: ComponentInstance,
@@ -357,56 +368,65 @@ async function getPathsForRoute(
 	if (pageData.route.pathname) {
 		paths.push(pageData.route.pathname);
 		builtPaths.add(pageData.route.pathname);
+		for (const virtualRoute of pageData.route.fallbackRoutes) {
+			if (virtualRoute.pathname) {
+				paths.push(virtualRoute.pathname);
+				builtPaths.add(virtualRoute.pathname);
+			}
+		}
 	} else {
-		const route = pageData.route;
-		const staticPaths = await callGetStaticPaths({
-			mod,
-			route,
-			routeCache: opts.routeCache,
-			logger,
-			ssr: isServerLikeOutput(opts.settings.config),
-		}).catch((err) => {
-			logger.debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
-			throw err;
-		});
-
-		const label = staticPaths.length === 1 ? 'page' : 'pages';
-		logger.debug(
-			'build',
-			`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(
-				`[${staticPaths.length} ${label}]`
-			)}`
-		);
-
-		paths = staticPaths
-			.map((staticPath) => {
-				try {
-					return route.generate(staticPath.params);
-				} catch (e) {
-					if (e instanceof TypeError) {
-						throw getInvalidRouteSegmentError(e, route, staticPath);
-					}
-					throw e;
-				}
-			})
-			.filter((staticPath) => {
-				// The path hasn't been built yet, include it
-				if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
-					return true;
-				}
-
-				// The path was already built once. Check the manifest to see if
-				// this route takes priority for the final URL.
-				// NOTE: The same URL may match multiple routes in the manifest.
-				// Routing priority needs to be verified here for any duplicate
-				// paths to ensure routing priority rules are enforced in the final build.
-				const matchedRoute = matchRoute(staticPath, opts.manifest);
-				return matchedRoute === route;
+		for (const route of eachRouteInRouteData(pageData)) {
+			const staticPaths = await callGetStaticPaths({
+				mod,
+				route,
+				routeCache: opts.routeCache,
+				logger,
+				ssr: isServerLikeOutput(opts.settings.config),
+			}).catch((err) => {
+				logger.debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
+				throw err;
 			});
 
-		// Add each path to the builtPaths set, to avoid building it again later.
-		for (const staticPath of paths) {
-			builtPaths.add(removeTrailingForwardSlash(staticPath));
+			const label = staticPaths.length === 1 ? 'page' : 'pages';
+			logger.debug(
+				'build',
+				`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(
+					`[${staticPaths.length} ${label}]`
+				)}`
+			);
+
+			paths.push(
+				...staticPaths
+					.map((staticPath) => {
+						try {
+							return route.generate(staticPath.params);
+						} catch (e) {
+							if (e instanceof TypeError) {
+								throw getInvalidRouteSegmentError(e, route, staticPath);
+							}
+							throw e;
+						}
+					})
+					.filter((staticPath) => {
+						// The path hasn't been built yet, include it
+						if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
+							return true;
+						}
+
+						// The path was already built once. Check the manifest to see if
+						// this route takes priority for the final URL.
+						// NOTE: The same URL may match multiple routes in the manifest.
+						// Routing priority needs to be verified here for any duplicate
+						// paths to ensure routing priority rules are enforced in the final build.
+						const matchedRoute = matchRoute(staticPath, opts.manifest);
+						return matchedRoute === route;
+					})
+			);
+
+			// Add each path to the builtPaths set, to avoid building it again later.
+			for (const staticPath of paths) {
+				builtPaths.add(removeTrailingForwardSlash(staticPath));
+			}
 		}
 	}
 
@@ -493,99 +513,102 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 	const manifest = pipeline.getManifest();
 	const { mod, scripts: hoistedScripts, styles: _styles, pageData } = gopts;
 
-	// This adds the page name to the array so it can be shown as part of stats.
-	if (pageData.route.type === 'page') {
-		addPageName(pathname, pipeline.getStaticBuildOptions());
-	}
-
-	pipeline.getEnvironment().logger.debug('build', `Generating: ${pathname}`);
-
-	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
-	const links = new Set<never>();
-	const scripts = createModuleScriptsSet(
-		hoistedScripts ? [hoistedScripts] : [],
-		manifest.base,
-		manifest.assetsPrefix
-	);
-	const styles = createStylesheetElementSet(_styles, manifest.base, manifest.assetsPrefix);
-
-	if (pipeline.getSettings().scripts.some((script) => script.stage === 'page')) {
-		const hashedFilePath = pipeline.getInternals().entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
-		if (typeof hashedFilePath !== 'string') {
-			throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
+	for (const route of eachRouteInRouteData(pageData)) {
+		// This adds the page name to the array so it can be shown as part of stats.
+		if (route.type === 'page') {
+			addPageName(pathname, pipeline.getStaticBuildOptions());
 		}
-		const src = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
-		scripts.add({
-			props: { type: 'module', src },
-			children: '',
-		});
-	}
 
-	// Add all injected scripts to the page.
-	for (const script of pipeline.getSettings().scripts) {
-		if (script.stage === 'head-inline') {
+		pipeline.getEnvironment().logger.debug('build', `Generating: ${pathname}`);
+
+		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
+		const links = new Set<never>();
+		const scripts = createModuleScriptsSet(
+			hoistedScripts ? [hoistedScripts] : [],
+			manifest.base,
+			manifest.assetsPrefix
+		);
+		const styles = createStylesheetElementSet(_styles, manifest.base, manifest.assetsPrefix);
+
+		if (pipeline.getSettings().scripts.some((script) => script.stage === 'page')) {
+			const hashedFilePath = pipeline.getInternals().entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
+			if (typeof hashedFilePath !== 'string') {
+				throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
+			}
+			const src = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
 			scripts.add({
-				props: {},
-				children: script.content,
+				props: { type: 'module', src },
+				children: '',
 			});
 		}
-	}
 
-	const ssr = isServerLikeOutput(pipeline.getConfig());
-	const url = getUrlForPath(
-		pathname,
-		pipeline.getConfig().base,
-		pipeline.getStaticBuildOptions().origin,
-		pipeline.getConfig().build.format,
-		pageData.route.type
-	);
-
-	const request = createRequest({
-		url,
-		headers: new Headers(),
-		logger: pipeline.getLogger(),
-		ssr,
-	});
-	const i18n = pipeline.getConfig().experimental.i18n;
-	const renderContext = await createRenderContext({
-		pathname,
-		request,
-		componentMetadata: manifest.componentMetadata,
-		scripts,
-		styles,
-		links,
-		route: pageData.route,
-		env: pipeline.getEnvironment(),
-		mod,
-		locales: i18n ? i18n.locales : undefined,
-	});
-
-	let body: string | Uint8Array;
-	let encoding: BufferEncoding | undefined;
-
-	let response: Response;
-	try {
-		response = await pipeline.renderRoute(renderContext, mod);
-	} catch (err) {
-		if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
-			(err as SSRError).id = pageData.component;
+		// Add all injected scripts to the page.
+		for (const script of pipeline.getSettings().scripts) {
+			if (script.stage === 'head-inline') {
+				scripts.add({
+					props: {},
+					children: script.content,
+				});
+			}
 		}
-		throw err;
-	}
 
-	if (response.status >= 300 && response.status < 400) {
-		// If redirects is set to false, don't output the HTML
-		if (!pipeline.getConfig().build.redirects) {
-			return;
+		const ssr = isServerLikeOutput(pipeline.getConfig());
+		const url = getUrlForPath(
+			pathname,
+			pipeline.getConfig().base,
+			pipeline.getStaticBuildOptions().origin,
+			pipeline.getConfig().build.format,
+			route.type
+		);
+
+		const request = createRequest({
+			url,
+			headers: new Headers(),
+			logger: pipeline.getLogger(),
+			ssr,
+		});
+		const i18n = pipeline.getConfig().experimental.i18n;
+		const renderContext = await createRenderContext({
+			pathname,
+			request,
+			componentMetadata: manifest.componentMetadata,
+			scripts,
+			styles,
+			links,
+			route,
+			env: pipeline.getEnvironment(),
+			mod,
+			locales: i18n?.locales,
+			routingStrategy: i18n?.routingStrategy,
+			defaultLocale: i18n?.defaultLocale,
+		});
+
+		let body: string | Uint8Array;
+		let encoding: BufferEncoding | undefined;
+
+		let response: Response;
+		try {
+			response = await pipeline.renderRoute(renderContext, mod);
+		} catch (err) {
+			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
+				(err as SSRError).id = pageData.component;
+			}
+			throw err;
 		}
-		const locationSite = getRedirectLocationOrThrow(response.headers);
-		const siteURL = pipeline.getConfig().site;
-		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
-		const fromPath = new URL(renderContext.request.url).pathname;
-		// A short delay causes Google to interpret the redirect as temporary.
-		// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
-		const delay = response.status === 302 ? 2 : 0;
-		body = `<!doctype html>
+
+		if (response.status >= 300 && response.status < 400) {
+			// If redirects is set to false, don't output the HTML
+			if (!pipeline.getConfig().build.redirects) {
+				return;
+			}
+			const locationSite = getRedirectLocationOrThrow(response.headers);
+			const siteURL = pipeline.getConfig().site;
+			const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
+			const fromPath = new URL(renderContext.request.url).pathname;
+			// A short delay causes Google to interpret the redirect as temporary.
+			// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
+			const delay = response.status === 302 ? 2 : 0;
+			body = `<!doctype html>
 <title>Redirecting to: ${location}</title>
 <meta http-equiv="refresh" content="${delay};url=${location}">
 <meta name="robots" content="noindex">
@@ -593,26 +616,27 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 <body>
 	<a href="${location}">Redirecting from <code>${fromPath}</code> to <code>${location}</code></a>
 </body>`;
-		if (pipeline.getConfig().compressHTML === true) {
-			body = body.replaceAll('\n', '');
+			if (pipeline.getConfig().compressHTML === true) {
+				body = body.replaceAll('\n', '');
+			}
+			// A dynamic redirect, set the location so that integrations know about it.
+			if (route.type !== 'redirect') {
+				route.redirect = location.toString();
+			}
+		} else {
+			// If there's no body, do nothing
+			if (!response.body) return;
+			body = Buffer.from(await response.arrayBuffer());
+			encoding = (response.headers.get('X-Astro-Encoding') as BufferEncoding | null) ?? 'utf-8';
 		}
-		// A dynamic redirect, set the location so that integrations know about it.
-		if (pageData.route.type !== 'redirect') {
-			pageData.route.redirect = location.toString();
-		}
-	} else {
-		// If there's no body, do nothing
-		if (!response.body) return;
-		body = Buffer.from(await response.arrayBuffer());
-		encoding = (response.headers.get('X-Astro-Encoding') as BufferEncoding | null) ?? 'utf-8';
+
+		const outFolder = getOutFolder(pipeline.getConfig(), pathname, route.type);
+		const outFile = getOutFile(pipeline.getConfig(), outFolder, pathname, route.type);
+		route.distURL = outFile;
+
+		await fs.promises.mkdir(outFolder, { recursive: true });
+		await fs.promises.writeFile(outFile, body, encoding);
 	}
-
-	const outFolder = getOutFolder(pipeline.getConfig(), pathname, pageData.route.type);
-	const outFile = getOutFile(pipeline.getConfig(), outFolder, pathname, pageData.route.type);
-	pageData.route.distURL = outFile;
-
-	await fs.promises.mkdir(outFolder, { recursive: true });
-	await fs.promises.writeFile(outFile, body, encoding);
 }
 
 /**

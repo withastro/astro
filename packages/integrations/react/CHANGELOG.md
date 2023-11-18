@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 3.0.5
+
+### Patch Changes
+
+- [#8925](https://github.com/withastro/astro/pull/8925) [`ac5633b8f`](https://github.com/withastro/astro/commit/ac5633b8f615fe90ea419e00c5c771d00783a6e2) Thanks [@brandonsdebt](https://github.com/brandonsdebt)! - Uses `node:stream` during server rendering for compatibility with Cloudflare
+
 ## 3.0.4
 
 ### Patch Changes

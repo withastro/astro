@@ -731,8 +731,11 @@ async function fetchPackageJson(
 	const res = await fetch(`${registry}/${packageName}/${tag}`);
 	if (res.status >= 200 && res.status < 300) {
 		return await res.json();
-	} else {
+	} else if (res.status === 404) {
+		// 404 means the package doesn't exist, so we don't need an error message here
 		return new Error();
+	} else {
+		return new Error(`Failed to fetch ${registry}/${packageName}/${tag} - GET ${res.status}`);
 	}
 }
 
@@ -754,6 +757,9 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 				} else {
 					const firstPartyPkgCheck = await fetchPackageJson('@astrojs', name, tag);
 					if (firstPartyPkgCheck instanceof Error) {
+						if (firstPartyPkgCheck.message) {
+							spinner.warn(yellow(firstPartyPkgCheck.message));
+						}
 						spinner.warn(
 							yellow(`${bold(integration)} is not an official Astro package. Use at your own risk!`)
 						);
@@ -780,6 +786,9 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 				if (pkgType === 'third-party') {
 					const thirdPartyPkgCheck = await fetchPackageJson(scope, name, tag);
 					if (thirdPartyPkgCheck instanceof Error) {
+						if (thirdPartyPkgCheck.message) {
+							spinner.warn(yellow(thirdPartyPkgCheck.message));
+						}
 						throw new Error(`Unable to fetch ${bold(integration)}. Does the package exist?`);
 					} else {
 						pkgJson = thirdPartyPkgCheck as any;

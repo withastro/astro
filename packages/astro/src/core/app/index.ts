@@ -6,7 +6,7 @@ import type {
 	SSRElement,
 	SSRManifest,
 } from '../../@types/astro.js';
-import { createI18nMiddleware } from '../../i18n/middleware.js';
+import { createI18nMiddleware, i18nPipelineHook } from '../../i18n/middleware.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
@@ -127,6 +127,13 @@ export class App {
 		}
 		return pathname;
 	}
+
+	#getPathnameFromRequest(request: Request): string {
+		const url = new URL(request.url);
+		const pathname = prependForwardSlash(this.removeBase(url.pathname));
+		return pathname;
+	}
+
 	match(request: Request, _opts: MatchOptions = {}): RouteData | undefined {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
@@ -151,7 +158,8 @@ export class App {
 		}
 
 		Reflect.set(request, clientLocalsSymbol, locals ?? {});
-		const defaultStatus = this.#getDefaultStatusCode(routeData.route);
+		const pathname = this.#getPathnameFromRequest(request);
+		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
 		const mod = await this.#getModuleForRoute(routeData);
 
 		const pageModule = (await mod.page()) as any;
@@ -179,6 +187,7 @@ export class App {
 				} else {
 					this.#pipeline.setMiddlewareFunction(i18nMiddleware);
 				}
+				this.#pipeline.onBeforeRenderRoute(i18nPipelineHook);
 			} else {
 				if (mod.onRequest) {
 					this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
@@ -233,7 +242,9 @@ export class App {
 				status,
 				env: this.#pipeline.env,
 				mod: handler as any,
-				locales: this.#manifest.i18n ? this.#manifest.i18n.locales : undefined,
+				locales: this.#manifest.i18n?.locales,
+				routingStrategy: this.#manifest.i18n?.routingStrategy,
+				defaultLocale: this.#manifest.i18n?.defaultLocale,
 			});
 		} else {
 			const pathname = prependForwardSlash(this.removeBase(url.pathname));
@@ -268,7 +279,9 @@ export class App {
 				status,
 				mod,
 				env: this.#pipeline.env,
-				locales: this.#manifest.i18n ? this.#manifest.i18n.locales : undefined,
+				locales: this.#manifest.i18n?.locales,
+				routingStrategy: this.#manifest.i18n?.routingStrategy,
+				defaultLocale: this.#manifest.i18n?.defaultLocale,
 			});
 		}
 	}
@@ -364,8 +377,15 @@ export class App {
 		});
 	}
 
-	#getDefaultStatusCode(route: string): number {
-		route = removeTrailingForwardSlash(route);
+	#getDefaultStatusCode(routeData: RouteData, pathname: string): number {
+		if (!routeData.pattern.exec(pathname)) {
+			for (const fallbackRoute of routeData.fallbackRoutes) {
+				if (fallbackRoute.pattern.test(pathname)) {
+					return 302;
+				}
+			}
+		}
+		const route = removeTrailingForwardSlash(routeData.route);
 		if (route.endsWith('/404')) return 404;
 		if (route.endsWith('/500')) return 500;
 		return 200;
