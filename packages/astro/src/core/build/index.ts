@@ -161,7 +161,7 @@ class AstroBuilder {
 		this.logger.info('build', `output: ${blue('"' + this.settings.config.output + '"')}`);
 		this.logger.info('build', `directory: ${blue(fileURLToPath(this.settings.config.outDir))}`);
 		if (this.settings.adapter) {
-		  this.logger.info('build', `adapter: ${colors.green(this.settings.adapter.name)}`);
+		  this.logger.info('build', `adapter: ${green(this.settings.adapter.name)}`);
 		}
 		this.logger.info('build', 'Collecting build info...');
 		this.timer.loadStart = performance.now();
