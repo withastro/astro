@@ -1,5 +1,5 @@
 import glob from 'fast-glob';
-import { cyan } from 'kleur/colors';
+import { bold, cyan } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -56,13 +56,6 @@ type CreateContentGeneratorParams = {
 	fs: typeof fsMod;
 };
 
-type EventOpts = { logLevel: 'info' | 'warn' };
-
-type EventWithOptions = {
-	type: ContentEvent;
-	opts: EventOpts | undefined;
-};
-
 class UnsupportedFileTypeError extends Error {}
 
 export async function createContentTypesGenerator({
@@ -78,7 +71,7 @@ export async function createContentTypesGenerator({
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 	const dataEntryExts = getDataEntryExts(settings);
 
-	let events: EventWithOptions[] = [];
+	let events: ContentEvent[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
 
 	const typeTemplateContent = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
@@ -90,10 +83,7 @@ export async function createContentTypesGenerator({
 			return { typesGenerated: false, reason: 'no-content-dir' };
 		}
 
-		events.push({
-			type: { name: 'add', entry: contentPaths.config.url },
-			opts: { logLevel: 'warn' },
-		});
+		events.push({ name: 'add', entry: contentPaths.config.url });
 
 		const globResult = await glob('**', {
 			cwd: fileURLToPath(contentPaths.contentDir),
@@ -110,12 +100,9 @@ export async function createContentTypesGenerator({
 			const entryURL = pathToFileURL(fullPath);
 			if (entryURL.href.startsWith(contentPaths.config.url.href)) continue;
 			if (entry.dirent.isFile()) {
-				events.push({
-					type: { name: 'add', entry: entryURL },
-					opts: { logLevel: 'warn' },
-				});
+				events.push({ name: 'add', entry: entryURL });
 			} else if (entry.dirent.isDirectory()) {
-				events.push({ type: { name: 'addDir', entry: entryURL }, opts: { logLevel: 'warn' } });
+				events.push({ name: 'addDir', entry: entryURL });
 			}
 		}
 		await runEvents();
@@ -123,11 +110,8 @@ export async function createContentTypesGenerator({
 	}
 
 	async function handleEvent(
-		event: ContentEvent,
-		opts?: EventOpts
+		event: ContentEvent
 	): Promise<{ shouldGenerateTypes: boolean; error?: Error }> {
-		const logLevel = opts?.logLevel ?? 'info';
-
 		if (event.name === 'addDir' || event.name === 'unlinkDir') {
 			const collection = normalizePath(
 				path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry))
@@ -140,9 +124,7 @@ export async function createContentTypesGenerator({
 			switch (event.name) {
 				case 'addDir':
 					collectionEntryMap[JSON.stringify(collection)] = { type: 'unknown', entries: {} };
-					if (logLevel === 'info') {
-						logger.info('content', `${cyan(collection)} collection added`);
-					}
+					logger.debug('content', `${cyan(collection)} collection added`);
 					break;
 				case 'unlinkDir':
 					if (collectionKey in collectionEntryMap) {
@@ -186,16 +168,14 @@ export async function createContentTypesGenerator({
 
 		const collection = getEntryCollectionName({ entry, contentDir });
 		if (collection === undefined) {
-			if (['info', 'warn'].includes(logLevel)) {
-				logger.warn(
-					'content',
-					`${cyan(
-						normalizePath(
-							path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry))
-						)
-					)} must be nested in a collection directory. Skipping.`
-				);
-			}
+			logger.warn(
+				'content',
+				`${bold(
+					normalizePath(
+						path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry))
+					)
+				)} must live in a ${bold('content/...')} collection subdirectory.`
+			);
 			return { shouldGenerateTypes: false };
 		}
 
@@ -308,22 +288,19 @@ export async function createContentTypesGenerator({
 		}
 	}
 
-	function queueEvent(rawEvent: RawContentEvent, opts?: EventOpts) {
+	function queueEvent(rawEvent: RawContentEvent) {
 		const event = {
-			type: {
-				entry: pathToFileURL(rawEvent.entry),
-				name: rawEvent.name,
-			},
-			opts,
+			entry: pathToFileURL(rawEvent.entry),
+			name: rawEvent.name,
 		};
-		if (!event.type.entry.pathname.startsWith(contentPaths.contentDir.pathname)) return;
+		if (!event.entry.pathname.startsWith(contentPaths.contentDir.pathname)) return;
 
 		events.push(event);
 
 		debounceTimeout && clearTimeout(debounceTimeout);
 		const runEventsSafe = async () => {
 			try {
-				await runEvents(opts);
+				await runEvents();
 			} catch {
 				// Prevent frontmatter errors from crashing the server. The errors
 				// are still reported on page reflects as desired.
@@ -333,29 +310,24 @@ export async function createContentTypesGenerator({
 		debounceTimeout = setTimeout(runEventsSafe, 50 /* debounce to batch chokidar events */);
 	}
 
-	async function runEvents(opts?: EventOpts) {
-		const logLevel = opts?.logLevel ?? 'info';
+	async function runEvents() {
 		const eventResponses = [];
 
 		for (const event of events) {
-			const response = await handleEvent(event.type, event.opts);
+			const response = await handleEvent(event);
 			eventResponses.push(response);
 		}
 
 		events = [];
-		let unsupportedFiles = [];
 		for (const response of eventResponses) {
 			if (response.error instanceof UnsupportedFileTypeError) {
-				unsupportedFiles.push(response.error.message);
+				logger.warn(
+					'content',
+					`Unsupported file type ${bold(
+						response.error.message
+					)} found. Prefix filename with an underscore (\`_\`) to ignore.`
+				);
 			}
-		}
-		if (unsupportedFiles.length > 0 && ['info', 'warn'].includes(logLevel)) {
-			logger.warn(
-				'content',
-				`Unsupported file types found. Prefix with an underscore (\`_\`) to ignore:\n- ${unsupportedFiles.join(
-					'\n'
-				)}`
-			);
 		}
 		const observable = contentConfigObserver.get();
 		if (eventResponses.some((r) => r.shouldGenerateTypes)) {
@@ -369,7 +341,7 @@ export async function createContentTypesGenerator({
 				viteServer,
 			});
 			invalidateVirtualMod(viteServer);
-			if (observable.status === 'loaded' && ['info', 'warn'].includes(logLevel)) {
+			if (observable.status === 'loaded') {
 				warnNonexistentCollections({
 					logger,
 					contentConfig: observable.config,
@@ -475,6 +447,7 @@ async function writeContentFiles({
 	let configPathRelativeToCacheDir = normalizePath(
 		path.relative(contentPaths.cacheDir.pathname, contentPaths.config.url.pathname)
 	);
+
 	if (!isRelativePath(configPathRelativeToCacheDir))
 		configPathRelativeToCacheDir = './' + configPathRelativeToCacheDir;
 
@@ -514,9 +487,9 @@ function warnNonexistentCollections({
 		if (!collectionEntryMap[JSON.stringify(configuredCollection)]) {
 			logger.warn(
 				'content',
-				`The ${JSON.stringify(
-					configuredCollection
-				)} collection does not have an associated folder in your \`content\` directory. Make sure the folder exists, or check your content config for typos.`
+				`The ${bold(configuredCollection)} collection is defined but no ${bold(
+					'content/' + configuredCollection
+				)} folder exists in the content directory. Create a new folder for the collection, or check your content configuration file for typos.`
 			);
 		}
 	}

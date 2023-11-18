@@ -1,11 +1,33 @@
-import { dim } from 'kleur/colors';
+import { blue, bold, dim, red, yellow } from 'kleur/colors';
 import stringWidth from 'string-width';
 
-interface LogWritable<T> {
+export interface LogWritable<T> {
 	write: (chunk: T) => boolean;
 }
 
 export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
+
+/**
+ * Defined logger labels. Add more as needed, but keep them high-level & reusable, 
+ * rather than specific to a single command, function, use, etc. The label will be 
+ * shown in the log message to the user, so it should be relevant.
+ */ 
+export type LoggerLabel =
+	| 'add'
+	| 'build'
+	| 'check'
+	| 'config'
+	| 'content'
+	| 'deprecated'
+	| 'markdown'
+	| 'router'
+	| 'types'
+	| 'vite'
+	| 'watch'
+	| 'middleware'
+	// SKIP_FORMAT: A special label that tells the logger not to apply any formatting.
+	// Useful for messages that are already formatted, like the server start message.
+	| 'SKIP_FORMAT';
 
 export interface LogOptions {
 	dest: LogWritable<LogMessage>;
@@ -25,6 +47,7 @@ export const dateTimeFormat = new Intl.DateTimeFormat([], {
 	hour: '2-digit',
 	minute: '2-digit',
 	second: '2-digit',
+	hour12: false,
 });
 
 export interface LogMessage {
@@ -98,6 +121,35 @@ function padStr(str: string, len: number) {
 	return str + spaces;
 }
 
+/**
+ * Get the prefix for a log message. 
+ * This includes the timestamp, log level, and label all properly formatted
+ * with colors. This is shared across different loggers, so it's defined here.
+ */
+export function getEventPrefix({ level, label }: LogMessage) {
+	const timestamp = `${dateTimeFormat.format(new Date())}`;
+	const prefix = [];
+	if (level === 'error' || level === 'warn') {
+		prefix.push(bold(timestamp));
+		prefix.push(`[${level.toUpperCase()}]`);
+	} else {
+		prefix.push(timestamp);
+	}
+	if (label) {
+		prefix.push(`[${label}]`);
+	}
+	if (level === 'error') {
+		return red(prefix.join(' '));
+	}
+	if (level === 'warn') {
+		return yellow(prefix.join(' '));
+	}
+	if (prefix.length === 1) {
+		return dim(prefix[0]);
+	}
+	return dim(prefix[0]) + ' ' + blue(prefix.splice(1).join(' '));
+}
+
 export let defaultLogLevel: LoggerLevel;
 if (typeof process !== 'undefined') {
 	// This could be a shimmed environment so we don't know that `process` is the full
@@ -133,16 +185,16 @@ export class Logger {
 		this.options = options;
 	}
 
-	info(label: string | null, message: string) {
+	info(label: LoggerLabel | null, message: string) {
 		info(this.options, label, message);
 	}
-	warn(label: string | null, message: string) {
+	warn(label: LoggerLabel | null, message: string) {
 		warn(this.options, label, message);
 	}
-	error(label: string | null, message: string) {
+	error(label: LoggerLabel | null, message: string) {
 		error(this.options, label, message);
 	}
-	debug(label: string | null, ...messages: any[]) {
+	debug(label: LoggerLabel, ...messages: any[]) {
 		debug(label, ...messages);
 	}
 

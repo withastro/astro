@@ -184,7 +184,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	if (response instanceof Response) {
 		if (isEndpointSSR && response.headers.get('X-Astro-Encoding')) {
 			env.logger.warn(
-				'ssr',
+				null,
 				'`ResponseWithEncoding` is ignored in SSR. Please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.'
 			);
 		}
@@ -196,21 +196,21 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 
 	// TODO: Remove in Astro 4.0
 	env.logger.warn(
-		'astro',
+		null,
 		`${ctx.route.component} returns a simple object which is deprecated. Please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.`
 	);
 
 	if (isEndpointSSR) {
 		if (response.hasOwnProperty('headers')) {
 			env.logger.warn(
-				'ssr',
+				null,
 				'Setting headers is not supported when returning an object. Please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.'
 			);
 		}
 
 		if (response.encoding) {
 			env.logger.warn(
-				'ssr',
+				null,
 				'`encoding` is ignored in SSR. To return a charset other than UTF-8, please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.'
 			);
 		}

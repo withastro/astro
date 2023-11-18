@@ -1,10 +1,9 @@
-import type { AstroSettings } from '../@types/astro.js';
-import type { Logger } from './logger/core.js';
-
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import type { Logger as ViteLogger } from 'vite';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
+import type { AstroSettings } from '../@types/astro.js';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
 import {
 	astroContentAssetPropagationPlugin,
@@ -31,6 +30,7 @@ import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
+import type { Logger } from './logger/core.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
 
@@ -102,6 +102,17 @@ export async function createVite(
 		},
 	});
 
+	const viteCustomLogger: ViteLogger = {
+		...vite.createLogger('warn'),
+		// All error log messages are also thrown as real errors,
+		// so we can safely ignore them here and let the error handler
+		// log them for the user instead.
+		error: (msg) => logger.debug('vite', 'ERROR ' + msg),
+		// Warnings are usually otherwise ignored by Vite, so it's
+		// important that we catch and log them here.
+		warn: (msg) => logger.warn('vite', msg),
+	};
+
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {
 		// Tell Vite not to combine config from vite.config.js with our provided inline config
@@ -109,6 +120,7 @@ export async function createVite(
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', settings.config.root)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
 		logLevel: 'warn', // log warnings and errors only
+		customLogger: viteCustomLogger,
 		appType: 'custom',
 		optimizeDeps: {
 			entries: ['src/**/*'],

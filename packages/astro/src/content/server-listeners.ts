@@ -1,4 +1,4 @@
-import { bold, cyan } from 'kleur/colors';
+import { bold, cyan, underline } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -26,7 +26,7 @@ export async function attachContentServerListeners({
 	const contentPaths = getContentPaths(settings.config, fs);
 
 	if (fs.existsSync(contentPaths.contentDir)) {
-		logger.info(
+		logger.debug(
 			'content',
 			`Watching ${cyan(
 				contentPaths.contentDir.href.replace(settings.config.root.href, '')
@@ -39,7 +39,7 @@ export async function attachContentServerListeners({
 		viteServer.watcher.on('addDir', contentDirListener);
 		async function contentDirListener(dir: string) {
 			if (appendForwardSlash(pathToFileURL(dir).href) === contentPaths.contentDir.href) {
-				logger.info('content', `Content dir found. Watching for changes`);
+				logger.debug('content', `Content directory found. Watching for changes`);
 				await attachListeners();
 				viteServer.watcher.removeListener('addDir', contentDirListener);
 			}
@@ -55,7 +55,7 @@ export async function attachContentServerListeners({
 			contentConfigObserver: globalContentConfigObserver,
 		});
 		await contentGenerator.init();
-		logger.info('content', 'Types generated');
+		logger.debug('content', 'Types generated');
 
 		viteServer.watcher.on('add', (entry) => {
 			contentGenerator.queueEvent({ name: 'add', entry });
@@ -90,9 +90,9 @@ function warnAllowJsIsFalse({
 			'true'
 		)} in your ${bold(tsConfigFileName)} file to have autocompletion in your ${bold(
 			contentConfigFileName
-		)} file.
-See ${bold('https://www.typescriptlang.org/tsconfig#allowJs')} for more information.
-			`
+		)} file. See ${underline(
+			cyan('https://www.typescriptlang.org/tsconfig#allowJs')
+		)} for more information.`
 	);
 }
 

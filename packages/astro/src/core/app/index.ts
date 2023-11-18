@@ -190,7 +190,7 @@ export class App {
 			if (err instanceof EndpointNotFoundError) {
 				return this.#renderError(request, { status: 404, response: err.originalResponse });
 			} else {
-				this.#logger.error('ssr', err.stack || err.message || String(err));
+				this.#logger.error(null, err.stack || err.message || String(err));
 				return this.#renderError(request, { status: 500 });
 			}
 		}

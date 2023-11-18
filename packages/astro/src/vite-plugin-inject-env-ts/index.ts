@@ -57,7 +57,7 @@ export async function setUpEnvTs({
 				'types="astro/client"'
 			);
 			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
-			logger.info('assets', `Removed ${bold(envTsPathRelativetoRoot)} types`);
+			logger.info('types', `Removed ${bold(envTsPathRelativetoRoot)} type declarations`);
 		}
 
 		if (!fs.existsSync(dotAstroDir))
@@ -68,7 +68,7 @@ export async function setUpEnvTs({
 		if (!typesEnvContents.includes(expectedTypeReference)) {
 			typesEnvContents = `${expectedTypeReference}\n${typesEnvContents}`;
 			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
-			logger.info('content', `Added ${bold(envTsPathRelativetoRoot)} types`);
+			logger.info('types', `Added ${bold(envTsPathRelativetoRoot)} type declarations`);
 		}
 	} else {
 		// Otherwise, inject the `env.d.ts` file
@@ -81,6 +81,6 @@ export async function setUpEnvTs({
 
 		await fs.promises.mkdir(settings.config.srcDir, { recursive: true });
 		await fs.promises.writeFile(envTsPath, referenceDefs.join('\n'), 'utf-8');
-		logger.info('astro', `Added ${bold(envTsPathRelativetoRoot)} types`);
+		logger.info('types', `Added ${bold(envTsPathRelativetoRoot)} type declarations`);
 	}
 }

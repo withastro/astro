@@ -1,3 +1,4 @@
+import { bold } from 'kleur/colors';
 import type { APIContext, EndpointHandler, Params } from '../../@types/astro.js';
 import type { Logger } from '../../core/logger/core.js';
 
@@ -7,7 +8,7 @@ function getHandlerFromModule(mod: EndpointHandler, method: string, logger: Logg
 	// TODO: remove in Astro 4.0
 	if (mod[lowerCaseMethod]) {
 		logger.warn(
-			'astro',
+			null,
 			`Lower case endpoint names are deprecated and will not be supported in Astro 4.0. Rename the endpoint ${lowerCaseMethod} to ${method}.`
 		);
 	}
@@ -44,15 +45,18 @@ export async function renderEndpoint(
 	ssr: boolean,
 	logger: Logger
 ) {
-	const { request } = context;
+	const { request, url } = context;
 
 	const chosenMethod = request.method?.toUpperCase();
 	const handler = getHandlerFromModule(mod, chosenMethod, logger);
 	// TODO: remove the 'get' check in Astro 4.0
 	if (!ssr && ssr === false && chosenMethod && chosenMethod !== 'GET' && chosenMethod !== 'get') {
-		// eslint-disable-next-line no-console
-		console.warn(`
-${chosenMethod} requests are not available when building a static site. Update your config to \`output: 'server'\` or \`output: 'hybrid'\` with an \`export const prerender = false\` to handle ${chosenMethod} requests.`);
+		logger.warn(
+			null,
+			`${url.pathname} ${bold(
+				chosenMethod
+			)} requests are not available for a static site. Update your config to \`output: 'server'\` or \`output: 'hybrid'\` to enable.`
+		);
 	}
 	if (!handler || typeof handler !== 'function') {
 		// No handler found, so this should be a 404. Using a custom header
