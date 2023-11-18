@@ -30,7 +30,8 @@ export interface PageBuildData {
 	hoistedScript: { type: 'inline' | 'external'; value: string } | undefined;
 	styles: Array<{ depth: number; order: number; sheet: StylesheetAsset }>;
 }
-export type AllPagesData = Record<ComponentPath, PageBuildData[]>;
+
+export type AllPagesData = Record<ComponentPath, PageBuildData>;
 
 /** Options for the static build */
 export interface StaticBuildOptions {

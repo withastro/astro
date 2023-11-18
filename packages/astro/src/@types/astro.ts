@@ -2112,6 +2112,11 @@ interface AstroSharedContext<
 	 */
 
 	preferredLocaleList: string[] | undefined;
+
+	/**
+	 * The current locale computed from the URL of the request. It matches the locales in `i18n.locales`, and returns `undefined` otherwise.
+	 */
+	currentLocale: string | undefined;
 }
 
 export interface APIContext<
@@ -2241,6 +2246,11 @@ export interface APIContext<
 	 * [quality value]: https://developer.mozilla.org/en-US/docs/Glossary/Quality_values
 	 */
 	preferredLocaleList: string[] | undefined;
+
+	/**
+	 * The current locale computed from the URL of the request. It matches the locales in `i18n.locales`, and returns `undefined` otherwise.
+	 */
+	currentLocale: string | undefined;
 }
 
 export type EndpointOutput =
@@ -2424,16 +2434,21 @@ export interface RouteData {
 	prerender: boolean;
 	redirect?: RedirectConfig;
 	redirectRoute?: RouteData;
+	fallbackRoutes: RouteData[];
 }
 
 export type RedirectRouteData = RouteData & {
 	redirect: string;
 };
 
-export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern' | 'redirectRoute'> & {
+export type SerializedRouteData = Omit<
+	RouteData,
+	'generate' | 'pattern' | 'redirectRoute' | 'fallbackRoutes'
+> & {
 	generate: undefined;
 	pattern: string;
 	redirectRoute: SerializedRouteData | undefined;
+	fallbackRoutes: SerializedRouteData[];
 	_meta: {
 		trailingSlash: AstroConfig['trailingSlash'];
 	};

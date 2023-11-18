@@ -208,6 +208,7 @@ export async function handleRoute({
 				segments: [],
 				type: 'fallback',
 				route: '',
+				fallbackRoutes: [],
 			};
 			renderContext = await createRenderContext({
 				request,
@@ -215,6 +216,9 @@ export async function handleRoute({
 				env,
 				mod,
 				route,
+				locales: manifest.i18n?.locales,
+				routingStrategy: manifest.i18n?.routingStrategy,
+				defaultLocale: manifest.i18n?.defaultLocale,
 			});
 		} else {
 			return handle404Response(origin, incomingRequest, incomingResponse);
@@ -271,7 +275,9 @@ export async function handleRoute({
 			route: options.route,
 			mod,
 			env,
-			locales: i18n ? i18n.locales : undefined,
+			locales: i18n?.locales,
+			routingStrategy: i18n?.routingStrategy,
+			defaultLocale: i18n?.defaultLocale,
 		});
 	}
 
