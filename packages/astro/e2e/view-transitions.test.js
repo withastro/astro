@@ -1016,4 +1016,47 @@ test.describe('View Transitions', () => {
 		const result = page.locator('#three-result');
 		await expect(result, 'should have content').toHaveText('Got: Testing');
 	});
+
+	test('click on an svg anchor should trigger navigation', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+
+		await page.goto(astro.resolveUrl('/non-html-anchor'));
+		let locator = page.locator('#insidesvga');
+		await expect(locator, 'should have attribute').toHaveAttribute('x', '10');
+		await page.click('#svga');
+		const p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
+	test('click inside an svg anchor should trigger navigation', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+		await page.goto(astro.resolveUrl('/non-html-anchor'));
+		let locator = page.locator('#insidesvga');
+		await expect(locator, 'should have content').toHaveText('text within a svga');
+		await page.click('#insidesvga');
+		const p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
+	test('click on an area in an image map should trigger navigation', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+		await page.goto(astro.resolveUrl('/non-html-anchor'));
+		let locator = page.locator('#area');
+		await expect(locator, 'should have attribute').toHaveAttribute('shape', 'default');
+		await page.click('#logo');
+		const p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
 });
