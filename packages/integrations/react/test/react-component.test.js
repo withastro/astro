@@ -113,6 +113,12 @@ describe('React Components', () => {
 			const $ = cheerioLoad(html);
 			expect($('[data-react-children]')).to.have.lengthOf(1);
 		});
+
+		it('Lists missing the `key` prop produce warning instead of erroring', async () => {
+			const html = await fixture.readFile('/list-warning/index.html');
+			const $ = cheerioLoad(html);
+			expect($('ul li')).to.have.lengthOf(5);
+		});
 	});
 
 	if (isWindows) return;

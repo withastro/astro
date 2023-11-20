@@ -15,7 +15,7 @@ function errorIsComingFromPreactComponent(err) {
 	);
 }
 
-async function check(Component, props, children) {
+async function check(Component) {
 	// Note: there are packages that do some unholy things to create "components".
 	// Checking the $$typeof property catches most of these patterns.
 	if (typeof Component === 'object') {
@@ -27,29 +27,7 @@ async function check(Component, props, children) {
 		return React.Component.isPrototypeOf(Component) || React.PureComponent.isPrototypeOf(Component);
 	}
 
-	let error = null;
-	let isReactComponent = false;
-	function Tester(...args) {
-		try {
-			const vnode = Component(...args);
-			if (vnode && vnode['$$typeof'] === reactTypeof) {
-				isReactComponent = true;
-			}
-		} catch (err) {
-			if (!errorIsComingFromPreactComponent(err)) {
-				error = err;
-			}
-		}
-
-		return React.createElement('div');
-	}
-
-	await renderToStaticMarkup(Tester, props, children, {});
-
-	if (error) {
-		throw error;
-	}
-	return isReactComponent;
+	return true;
 }
 
 async function getNodeWritable() {

@@ -4495,10 +4495,10 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       react:
-        specifier: ^18.1.0
+        specifier: ^18.2.0
         version: 18.2.0
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
       vue:
         specifier: ^3.3.4
