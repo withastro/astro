@@ -1,5 +1,5 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
-import type { AstroConfig } from '../@types/astro.js';
+import type { AstroConfig, Locales } from '../@types/astro.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { MissingLocale } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
@@ -7,7 +7,7 @@ import { AstroError } from '../core/errors/index.js';
 type GetLocaleRelativeUrl = GetLocaleOptions & {
 	locale: string;
 	base: string;
-	locales: string[];
+	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
 	routingStrategy?: 'prefix-always' | 'prefix-other-locales';
@@ -39,7 +39,7 @@ type GetLocaleAbsoluteUrl = GetLocaleRelativeUrl & {
 export function getLocaleRelativeUrl({
 	locale,
 	base,
-	locales,
+	locales: _locales,
 	trailingSlash,
 	format,
 	path,
@@ -48,6 +48,7 @@ export function getLocaleRelativeUrl({
 	routingStrategy = 'prefix-other-locales',
 	defaultLocale,
 }: GetLocaleRelativeUrl) {
+	const locales = toPathLocales(_locales);
 	if (!locales.includes(locale)) {
 		throw new AstroError({
 			...MissingLocale,
@@ -84,7 +85,7 @@ export function getLocaleAbsoluteUrl({ site, ...rest }: GetLocaleAbsoluteUrl) {
 
 type GetLocalesBaseUrl = GetLocaleOptions & {
 	base: string;
-	locales: string[];
+	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
 	routingStrategy?: 'prefix-always' | 'prefix-other-locales';
@@ -93,7 +94,7 @@ type GetLocalesBaseUrl = GetLocaleOptions & {
 
 export function getLocaleRelativeUrlList({
 	base,
-	locales,
+	locales: _locales,
 	trailingSlash,
 	format,
 	path,
@@ -102,6 +103,7 @@ export function getLocaleRelativeUrlList({
 	routingStrategy = 'prefix-other-locales',
 	defaultLocale,
 }: GetLocalesBaseUrl) {
+	const locales = toPathLocales(_locales);
 	return locales.map((locale) => {
 		const pathsToJoin = [base, prependWith];
 		const normalizedLocale = normalizeLocale ? normalizeTheLocale(locale) : locale;
@@ -139,4 +141,34 @@ export function getLocaleAbsoluteUrlList({ site, ...rest }: GetLocaleAbsoluteUrl
  */
 export function normalizeTheLocale(locale: string): string {
 	return locale.replaceAll('_', '-').toLowerCase();
+}
+
+/**
+ * Returns an array of only locales, by picking the `path`
+ */
+export function toPathLocales(locales: Locales): string[] {
+	return locales.map((locale) => {
+		if (typeof locale === 'string') {
+			return locale;
+		} else {
+			return locale.path;
+		}
+	});
+}
+
+/**
+ * Returns an array of only locales, by picking the `code`
+ */
+export function toCodeLocales(locales: Locales): string[] {
+	const codes: string[] = [];
+	for (const locale of locales) {
+		if (typeof locale === 'string') {
+			codes.push(locale);
+		} else {
+			for (const code of locale.codes) {
+				codes.push(code);
+			}
+		}
+	}
+	return codes;
 }

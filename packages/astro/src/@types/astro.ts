@@ -1473,7 +1473,7 @@ export interface AstroUserConfig {
 			 * @docs
 			 * @kind h4
 			 * @name experimental.i18n.locales
-			 * @type {string[]}
+			 * @type {(string | { path: string; code: string[] })[]}
 			 * @version 3.5.0
 			 * @description
 			 *
@@ -1481,7 +1481,7 @@ export interface AstroUserConfig {
 			 *
 			 * No particular language format or syntax is enforced, but your folder structure must match exactly the locales in the list.
 			 */
-			locales: string[];
+			locales: (string | { path: string; code: string[] })[];
 
 			/**
 			 * @docs
@@ -2043,6 +2043,8 @@ export interface AstroInternationalizationFeature {
 	 */
 	detectBrowserLanguage?: SupportsKind;
 }
+
+export type Locales = (string | { codes: string[]; path: string })[];
 
 export interface AstroAdapter {
 	name: string;
