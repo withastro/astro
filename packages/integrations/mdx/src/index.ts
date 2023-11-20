@@ -190,7 +190,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 										componentsCode += ' }';
 
 										// Make `Content` the default export so we can wrap `MDXContent` and pass in `Fragment`
-										code = code.replace('export default MDXContent;', '');
+										code = code.replace('export default function MDXContent', 'function MDXContent');
 										code += `\nexport const Content = (props = {}) => MDXContent({
 											...props,
 											components: ${componentsCode},

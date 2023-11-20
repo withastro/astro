@@ -15,7 +15,7 @@ describe('Astro Markdown without remark-rehype config', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		expect($('#footnote-label').text()).to.equal('Footnotes');
-		expect($('.data-footnote-backref').first().attr('aria-label')).to.equal('Back to content');
+		expect($('.data-footnote-backref').first().attr('aria-label')).to.equal('Back to reference 1');
 	});
 });
 
