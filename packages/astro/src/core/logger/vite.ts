@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'url';
 import stripAnsi from 'strip-ansi';
 import type { Logger as ViteLogger, Rollup } from 'vite';
+import { isAstroError } from '../errors/errors.js';
 import type { Logger as AstroLogger } from './core.js';
 
 const PKG_PREFIX = fileURLToPath(new URL('../../../', import.meta.url));
@@ -22,7 +23,6 @@ export function createViteLogger(astroLogger: AstroLogger): ViteLogger {
 
 	const logger: ViteLogger = {
 		hasWarned: false,
-
 		info(msg) {
 			const stripped = stripAnsi(msg);
 			let m;
@@ -58,10 +58,13 @@ export function createViteLogger(astroLogger: AstroLogger): ViteLogger {
 		},
 		error(msg, opts) {
 			logger.hasWarned = true;
+
+			const err = opts?.error;
+			if (err) loggedErrors.add(err);
+			// Astro errors are already logged by us, skip logging
+			if (err && isAstroError(err)) return;
+
 			astroLogger.error('vite', msg);
-			if (opts?.error) {
-				loggedErrors.add(opts.error);
-			}
 		},
 		// Don't allow clear screen
 		clearScreen: () => {},
