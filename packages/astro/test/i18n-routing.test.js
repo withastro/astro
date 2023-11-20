@@ -646,6 +646,65 @@ describe('[SSG] i18n routing', () => {
 			expect($('script').text()).includes('console.log("this is a script")');
 		});
 	});
+
+	describe('i18n routing with fallback and [prefix-always]', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-prefix-always/',
+				experimental: {
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'pt', 'it'],
+						fallback: {
+							it: 'en',
+						},
+						routingStrategy: 'prefix-always',
+					},
+				},
+			});
+			await fixture.build();
+		});
+
+		it('should render the en locale', async () => {
+			let html = await fixture.readFile('/it/start/index.html');
+			expect(html).to.include('http-equiv="refresh');
+			expect(html).to.include('url=/new-site/en/start');
+		});
+	});
+
+	describe('i18n routing with fallback and redirect', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-fallback/',
+				redirects: {
+					'/': '/en',
+				},
+				experimental: {
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'pt', 'it'],
+						fallback: {
+							it: 'en',
+						},
+					},
+				},
+			});
+			await fixture.build();
+		});
+
+		it('should render the en locale', async () => {
+			let html = await fixture.readFile('/index.html');
+			let $ = cheerio.load(html);
+			expect(html).to.include('http-equiv="refresh');
+			expect(html).to.include('Redirecting to: /en');
+		});
+	});
 });
 describe('[SSR] i18n routing', () => {
 	let app;
