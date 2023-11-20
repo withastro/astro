@@ -38,7 +38,7 @@ export default {
 
 			if (event.detail.state === true) {
 				if (!integrationData)
-					fetch('https://astro.build/api/v1/integrations/?limit=5&categories%5B%5D=featured', {
+					fetch('https://astro.build/api/v1/dev-overlay/', {
 						cache: 'no-cache',
 					})
 						.then((res) => res.json())
@@ -69,7 +69,7 @@ export default {
 				{
 					icon: 'star',
 					name: 'Star on GitHub',
-					link: 'https://astro.build/chat',
+					link: 'https://github.com/withastro/astro',
 				},
 				{
 					icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14"><path fill="currentColor" d="M14.3451 1.9072c-1.0375-.47613-2.1323-.81595-3.257-1.010998-.0102-.001716-.0207-.000234-.03.004243s-.017.011728-.022.020757c-.141.249998-.297.576998-.406.832998-1.2124-.18399-2.44561-.18399-3.658 0-.12159-.28518-.25914-.56328-.412-.832998-.00513-.00893-.01285-.016098-.02213-.02056-.00928-.004462-.0197-.00601-.02987-.00444-1.125.193998-2.22.533998-3.257 1.010998-.00888.00339-.0163.00975-.021.018-2.074 3.099-2.643004 6.122-2.364004 9.107.001.014.01.028.021.037 1.207724.8946 2.558594 1.5777 3.995004 2.02.01014.0032.02103.0031.03111-.0003.01007-.0034.01878-.01.02489-.0187.308-.42.582-.863.818-1.329.00491-.0096.0066-.0205.0048-.0312-.00181-.0106-.007-.0204-.0148-.0278-.00517-.0049-.0113-.0086-.018-.011-.43084-.1656-.84811-.3645-1.248-.595-.01117-.0063-.01948-.0167-.0232-.029-.00373-.0123-.00258-.0255.0032-.037.0034-.0074.00854-.014.015-.019.084-.063.168-.129.248-.195.00706-.0057.01554-.0093.02453-.0106.00898-.0012.01813 0 .02647.0036 2.619 1.196 5.454 1.196 8.041 0 .0086-.0037.0181-.0051.0275-.0038.0093.0012.0181.0049.0255.0108.08.066.164.132.248.195.0068.005.0123.0116.0159.0192.0036.0076.0053.016.0049.0244-.0003.0084-.0028.0166-.0072.0238-.0043.0072-.0104.0133-.0176.0176-.399.2326-.8168.4313-1.249.594-.0069.0025-.0132.0065-.0183.0117-.0052.0051-.0092.0114-.0117.0183-.0023.0067-.0032.0138-.0027.0208.0005.0071.0024.0139.0057.0202.24.465.515.909.817 1.329.0061.0087.0148.0153.0249.0187.0101.0034.021.0035.0311.0003 1.4388-.441 2.7919-1.1241 4.001-2.02.0061-.0042.0111-.0097.0147-.0161.0037-.0064.0058-.0135.0063-.0209.334-3.451-.559-6.449-2.366-9.106-.0018-.00439-.0045-.00834-.008-.01162-.0034-.00327-.0075-.00578-.012-.00738Zm-8.198 7.307c-.789 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612Zm5.316 0c-.788 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612Z"/></svg>',
@@ -141,19 +141,65 @@ export default {
 				}
 
 				#integration-list-wrapper {
+					position: relative;
+					--offset: 24px;
 					overflow-x: auto;
-    			overflow-y: hidden;
-					width: calc(100% + 24px);
+					overflow-y: hidden;
+					margin-left: calc(var(--offset) * -1);
+					margin-right: calc(var(--offset) * -1);
+					padding-left: var(--offset);
+					padding-right: var(--offset);
 					padding-bottom: 1em;
 					height: 210px;
-    			box-sizing: border-box;
+				}
+
+				/* Pseudo-elements to fade cards as they scroll out of viewport */
+				#integration-list-wrapper::before,
+				#integration-list-wrapper::after {
+					content: '';
+					height: 192px;
+					display: block;
+					position: fixed;
+					width: var(--offset);
+					top: 106px;
+					background: red;
+				}
+
+				#integration-list-wrapper::before {
+					left: -1px;
+					border-left: 1px solid rgba(52, 56, 65, 1);
+					background: linear-gradient(to right, rgba(19, 21, 26, 1), rgba(19, 21, 26, 0));
+				}
+
+				#integration-list-wrapper::after {
+					right: -1px;
+					border-right: 1px solid rgba(52, 56, 65, 1);
+					background: linear-gradient(to left, rgba(19, 21, 26, 1), rgba(19, 21, 26, 0));
 				}
 
 				#integration-list-wrapper::-webkit-scrollbar {
 					width: 5px;
 					height: 8px;
 					background-color: rgba(255, 255, 255, 0.08); /* or add it to the track */
-					margin-right: 1em;
+					border-radius: 4px;
+				}
+
+				/* This is wild but gives us a gap on either side of the container */
+				#integration-list-wrapper::-webkit-scrollbar-button:start:decrement,
+				#integration-list-wrapper::-webkit-scrollbar-button:end:increment {
+					display: block;
+					width: 24px;
+					background-color: #13151A;
+				}
+
+				/* Removes arrows on both sides */
+				#integration-list-wrapper::-webkit-scrollbar-button:horizontal:start:increment,
+				#integration-list-wrapper::-webkit-scrollbar-button:horizontal:end:decrement {
+					display: none;
+				}
+
+				#integration-list-wrapper::-webkit-scrollbar-track-piece {
+					border-radius: 4px;
 				}
 
 				#integration-list-wrapper::-webkit-scrollbar-thumb {
@@ -166,8 +212,14 @@ export default {
 					display: flex;
 					gap: 16px;
 					padding-bottom: 1em;
-					width: 100%;
-    			padding-right: 42em;
+				}
+
+				#integration-list::after {
+					content: " ";
+					display: inline-block;
+					white-space: pre;
+					width: 1px;
+					height: 1px;
 				}
 
 				#integration-list astro-dev-overlay-card, .integration-skeleton {
@@ -176,9 +228,9 @@ export default {
 				}
 
 				.integration-skeleton {
-					animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+					animation: pulse 2s calc(var(--i, 0) * 250ms) cubic-bezier(0.4, 0, 0.6, 1) infinite;
 					background-color: rgba(35, 38, 45, 1);
-    			border-radius: 8px;
+					border-radius: 8px;
 				}
 
 				@keyframes pulse {
@@ -207,6 +259,7 @@ export default {
 				}
 
 				#links {
+					margin: auto 0;
 					display: flex;
 					justify-content: center;
 					gap: 24px;
@@ -265,14 +318,14 @@ export default {
 
 			<div id="main-container">
 				<div>
-					<header><h2>Top integrations</h2><a href="">View all</a></header>
+					<header><h2>Top integrations</h2><a href="https://astro.build/integrations/">View all</a></header>
 						<div id="integration-list-wrapper">
 							<section id="integration-list">
-								<div class="integration-skeleton"></div>
-								<div class="integration-skeleton"></div>
-								<div class="integration-skeleton"></div>
-								<div class="integration-skeleton"></div>
-								<div class="integration-skeleton"></div>
+								<div class="integration-skeleton" style="--i:0;"></div>
+								<div class="integration-skeleton" style="--i:1;"></div>
+								<div class="integration-skeleton" style="--i:2;"></div>
+								<div class="integration-skeleton" style="--i:3;"></div>
+								<div class="integration-skeleton" style="--i:4;"></div>
 							</section>
 						</div>
 				</div>
