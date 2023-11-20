@@ -9,10 +9,10 @@ import * as msg from '../../core/messages.js';
 import { flagsToAstroInlineConfig } from '../flags.js';
 import { resolveConfig } from '../../core/config/config.js';
 import { createSettings } from '../../core/config/settings.js';
-import { isValidKey, coerce, type PreferenceKey } from '../../preferences/index.js';
-import { error, log } from '../../core/logger/core.js';
+import { isValidKey, type PreferenceKey } from '../../preferences/index.js';
+import { error } from '../../core/logger/core.js';
 import { nodeLogOptions } from '../../core/logger/node.js';
-import { DEFAULT_PREFERENCES, type Preferences } from '../../preferences/defaults.js';
+import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
 import dlv from 'dlv';
 
 
@@ -29,7 +29,7 @@ function isValidSubcommand(subcommand: string): subcommand is Subcommand {
 
 export async function preferences(subcommand: string, key: string, value: string | undefined, { flags }: PreferencesOptions): Promise<number> {
 	if (!isValidSubcommand(subcommand) || flags?.help || flags?.h) {
-		printHelp({
+		msg.printHelp({
 			commandName: 'astro preferences',
 			usage: 'set [key] [:value]',
 			tables: {
