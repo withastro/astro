@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'node:url';
 import type { HmrContext, ModuleNode } from 'vite';
 import type { AstroConfig } from '../@types/astro.js';
 import {
@@ -8,13 +7,8 @@ import {
 	type CompileResult,
 } from '../core/compile/index.js';
 import type { Logger } from '../core/logger/core.js';
+import { isAstroSrcFile } from '../core/logger/vite.js';
 import { isAstroScript } from './query.js';
-
-const PKG_PREFIX = fileURLToPath(new URL('../../', import.meta.url));
-const E2E_PREFIX = fileURLToPath(new URL('../../e2e', import.meta.url));
-const isPkgFile = (id: string | null) => {
-	return id?.startsWith(PKG_PREFIX) && !id.startsWith(E2E_PREFIX);
-};
 
 export interface HandleHotUpdateOptions {
 	config: AstroConfig;
@@ -45,7 +39,7 @@ export async function handleHotUpdate(
 	}
 
 	// Skip monorepo files to avoid console spam
-	if (isPkgFile(ctx.file)) {
+	if (isAstroSrcFile(ctx.file)) {
 		return;
 	}
 
@@ -55,7 +49,7 @@ export async function handleHotUpdate(
 	const files = new Set<string>();
 	for (const mod of ctx.modules) {
 		// Skip monorepo files to avoid console spam
-		if (isPkgFile(mod.id ?? mod.file)) {
+		if (isAstroSrcFile(mod.id ?? mod.file)) {
 			filtered.delete(mod);
 			continue;
 		}
