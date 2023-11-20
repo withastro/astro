@@ -1,4 +1,3 @@
-import { slash } from '@astrojs/internal-helpers/path';
 import { fileURLToPath } from 'node:url';
 import type { HmrContext, ModuleNode } from 'vite';
 import type { AstroConfig } from '../@types/astro.js';
@@ -106,12 +105,6 @@ export async function handleHotUpdate(
 				mods.push(imp);
 			}
 		}
-	}
-
-	// TODO: Svelte files should be marked as `isSelfAccepting` but they don't appear to be
-	const isSelfAccepting = mods.every((m) => m.isSelfAccepting || m.url.endsWith('.svelte'));
-	if (!isSelfAccepting) {
-		logger.debug('watch', 'full page reload triggered');
 	}
 
 	return mods;

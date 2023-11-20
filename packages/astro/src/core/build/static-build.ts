@@ -159,8 +159,7 @@ async function ssrBuild(
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
 		mode: viteConfig.mode || 'production',
-		// Check using `settings...` as `viteConfig` always defaults to `warn` by Astro
-		logLevel: settings.config.vite.logLevel ?? 'error',
+		logLevel: viteConfig.logLevel ?? 'error',
 		build: {
 			target: 'esnext',
 			// Vite defaults cssMinify to false in SSR by default, but we want to minify it
@@ -292,8 +291,6 @@ async function clientBuild(
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
 		mode: viteConfig.mode || 'production',
-		// Check using `settings...` as `viteConfig` always defaults to `warn` by Astro
-		logLevel: settings.config.vite.logLevel ?? 'info',
 		build: {
 			target: 'esnext',
 			...viteConfig.build,
