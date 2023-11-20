@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'url';
 import stripAnsi from 'strip-ansi';
-import type { Logger as ViteLogger, Rollup } from 'vite';
+import type { Logger as ViteLogger, Rollup, LogLevel } from 'vite';
 import { isAstroError } from '../errors/errors.js';
-import type { Logger as AstroLogger } from './core.js';
+import { isLogLevelEnabled, type Logger as AstroLogger } from './core.js';
 
 const PKG_PREFIX = fileURLToPath(new URL('../../../', import.meta.url));
 const E2E_PREFIX = fileURLToPath(new URL('../../../e2e', import.meta.url));
@@ -17,13 +17,18 @@ const viteHmrUpdateMsg = /hmr update (.*)/;
 // capture "vite v5.0.0 building SSR bundle for production..." and "vite v5.0.0 building for production..." messages
 const viteBuildMsg = /vite.*building.*for production/;
 
-export function createViteLogger(astroLogger: AstroLogger): ViteLogger {
+export function createViteLogger(
+	astroLogger: AstroLogger,
+	viteLogLevel: LogLevel = 'info'
+): ViteLogger {
 	const warnedMessages = new Set<string>();
 	const loggedErrors = new WeakSet<Error | Rollup.RollupError>();
 
 	const logger: ViteLogger = {
 		hasWarned: false,
 		info(msg) {
+			if (!isLogLevelEnabled(viteLogLevel, 'info')) return;
+
 			const stripped = stripAnsi(msg);
 			let m;
 			// Rewrite HMR page reload message
@@ -47,16 +52,22 @@ export function createViteLogger(astroLogger: AstroLogger): ViteLogger {
 			}
 		},
 		warn(msg) {
+			if (!isLogLevelEnabled(viteLogLevel, 'warn')) return;
+
 			logger.hasWarned = true;
 			astroLogger.warn('vite', msg);
 		},
 		warnOnce(msg) {
+			if (!isLogLevelEnabled(viteLogLevel, 'warn')) return;
+
 			if (warnedMessages.has(msg)) return;
 			logger.hasWarned = true;
 			astroLogger.warn('vite', msg);
 			warnedMessages.add(msg);
 		},
 		error(msg, opts) {
+			if (!isLogLevelEnabled(viteLogLevel, 'error')) return;
+
 			logger.hasWarned = true;
 
 			const err = opts?.error;

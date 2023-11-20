@@ -108,7 +108,7 @@ export async function createVite(
 		configFile: false,
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', settings.config.root)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
-		customLogger: createViteLogger(logger),
+		customLogger: createViteLogger(logger, settings.config.vite.logLevel),
 		appType: 'custom',
 		optimizeDeps: {
 			entries: ['src/**/*'],

@@ -75,11 +75,15 @@ export function log(opts: LogOptions, level: LoggerLevel, label: string | null, 
 	};
 
 	// test if this level is enabled or not
-	if (levels[logLevel] > levels[level]) {
+	if (!isLogLevelEnabled(logLevel, level)) {
 		return; // do nothing
 	}
 
 	dest.write(event);
+}
+
+export function isLogLevelEnabled(configuredLogLevel: LoggerLevel, level: LoggerLevel) {
+	return levels[configuredLogLevel] <= levels[level];
 }
 
 /** Emit a user-facing message. Useful for UI and other console messages. */
