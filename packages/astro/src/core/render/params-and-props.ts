@@ -50,7 +50,7 @@ export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise
 		throw new AstroError({
 			...AstroErrorData.NoMatchingStaticPathFound,
 			message: AstroErrorData.NoMatchingStaticPathFound.message(pathname),
-			hint: AstroErrorData.NoMatchingStaticPathFound.hint([route.route]),
+			hint: AstroErrorData.NoMatchingStaticPathFound.hint([route.component]),
 		});
 	}
 
