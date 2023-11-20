@@ -34,7 +34,7 @@
   "dependencies": {
     "autoprefixer": "^10.4.15",
     "postcss": "^8.4.28",
-    "postcss-load-config": "^4.0.1"
+    "postcss-load-config": "^4.0.2"
   },
   "devDependencies": {
     "astro": "workspace:*",

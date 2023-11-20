@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "arg": "^5.0.2",
-    "esbuild": "^0.19.2",
+    "esbuild": "^0.19.6",
     "globby": "^14.0.0",
     "kleur": "^4.1.4",
     "p-limit": "^5.0.0",
