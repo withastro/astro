@@ -13,6 +13,8 @@ export function isAstroSrcFile(id: string | null) {
 const vitePageReloadMsg = /page reload (.*)( \(.*\))?/;
 // capture "hmr update some/Component.vue" messages
 const viteHmrUpdateMsg = /hmr update (.*)/;
+// capture "vite v5.0.0 building SSR bundle for production..." and "vite v5.0.0 building for production..." messages
+const viteBuildMsg = /vite.*building.*for production/;
 
 export function createViteLogger(astroLogger: AstroLogger): ViteLogger {
 	const warnedMessages = new Set<string>();
@@ -34,6 +36,10 @@ export function createViteLogger(astroLogger: AstroLogger): ViteLogger {
 			else if ((m = viteHmrUpdateMsg.exec(stripped))) {
 				if (isAstroSrcFile(m[1])) return;
 				astroLogger.info('watch', m[1]);
+			}
+			// Don't log Vite build messages
+			else if (viteBuildMsg.test(stripped)) {
+				// noop
 			}
 			// Fallback
 			else {
