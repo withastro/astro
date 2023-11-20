@@ -38,6 +38,6 @@ describe('Assets', () => {
 		const fileURL = $('a').attr('href');
 		response = await fixture.fetch(fileURL);
 		cacheControl = response.headers.get('cache-control');
-		expect(cacheControl).to.equal('public, max-age=604800, immutable');
+		expect(cacheControl).to.equal('public, max-age=31536000, immutable');
 	});
 });
