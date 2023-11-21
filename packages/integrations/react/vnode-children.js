@@ -8,11 +8,10 @@ export default function convert(children) {
 	let key = 0;
 
 	function createReactElementFromNode(node) {
-		const childVnodes = Array.isArray(node.children) && node.children.length
-			? node.children
-					.map((child) => createReactElementFromNode(child))
-					.filter(Boolean)
-			: undefined;
+		const childVnodes =
+			Array.isArray(node.children) && node.children.length
+				? node.children.map((child) => createReactElementFromNode(child)).filter(Boolean)
+				: undefined;
 
 		if (node.type === DOCUMENT_NODE) {
 			return createElement(Fragment, {}, childVnodes);
