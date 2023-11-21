@@ -178,13 +178,13 @@ export class App {
 				host = host.split(':')[0];
 				try {
 					let locale;
-					const hostAsUrl = new URL('', `${protocol}//${host}`);
+					const hostAsUrl = new URL(`${protocol}//${host}`);
 					for (const [domainKey, localeValue] of Object.entries(
 						this.#manifest.i18n.domainLookupTable
 					)) {
 						// This operation should be safe because we force the protocol via zod inside the configuration
 						// If not, then it means that the manifest was tampered
-						const domainKeyAsUrl = new URL('', domainKey);
+						const domainKeyAsUrl = new URL(domainKey);
 
 						if (
 							hostAsUrl.host === domainKeyAsUrl.host &&

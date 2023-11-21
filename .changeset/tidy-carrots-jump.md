@@ -4,7 +4,7 @@
 'astro': patch
 ---
 
-Add experimental support for i18n domain routing:
+Adds experimental support for a new i18n domain routing strategy (`"domain"`) that allows you to configure different domains for certain locales:
 
 ```js
 // astro.config.mjs
