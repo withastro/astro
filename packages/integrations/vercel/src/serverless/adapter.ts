@@ -66,6 +66,9 @@ function getAdapter({
 				isSharpCompatible: true,
 				isSquooshCompatible: true,
 			},
+			i18n: {
+				domain: 'experimental',
+			},
 		},
 	};
 }

@@ -17,6 +17,9 @@ export function getAdapter(options: Options): AstroAdapter {
 				isSharpCompatible: true,
 				isSquooshCompatible: true,
 			},
+			i18n: {
+				domain: 'experimental',
+			},
 		},
 	};
 }

@@ -2,6 +2,7 @@ import type {
 	AstroGlobal,
 	AstroGlobalPartial,
 	Params,
+	RoutingStrategy,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
@@ -52,7 +53,7 @@ export interface CreateResultArgs {
 	cookies?: AstroCookies;
 	locales: string[] | undefined;
 	defaultLocale: string | undefined;
-	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined;
+	routingStrategy: RoutingStrategy;
 }
 
 function getFunctionExpression(slot: any) {

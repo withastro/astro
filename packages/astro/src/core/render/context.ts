@@ -3,6 +3,7 @@ import type {
 	Params,
 	Props,
 	RouteData,
+	RoutingStrategy,
 	SSRElement,
 	SSRResult,
 } from '../../@types/astro.js';
@@ -30,7 +31,7 @@ export interface RenderContext {
 	locals?: object;
 	locales: string[] | undefined;
 	defaultLocale: string | undefined;
-	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined;
+	routingStrategy: 'prefix-always' | 'prefix-other-locales' | 'domain' | undefined;
 }
 
 export type CreateRenderContextArgs = Partial<
@@ -216,7 +217,7 @@ export function computePreferredLocaleList(request: Request, locales: string[]) 
 export function computeCurrentLocale(
 	request: Request,
 	locales: string[],
-	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined,
+	routingStrategy: RoutingStrategy,
 	defaultLocale: string | undefined
 ): undefined | string {
 	const requestUrl = new URL(request.url);

@@ -2628,3 +2628,5 @@ declare global {
 		'astro-dev-overlay-toggle': DevOverlayToggle;
 	}
 }
+
+export type RoutingStrategy = 'prefix-always' | 'prefix-other-locales' | 'domain' | undefined;

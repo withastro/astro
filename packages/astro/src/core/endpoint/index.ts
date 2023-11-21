@@ -6,6 +6,7 @@ import type {
 	MiddlewareEndpointHandler,
 	MiddlewareHandler,
 	Params,
+	RoutingStrategy,
 } from '../../@types/astro.js';
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
@@ -31,7 +32,7 @@ type CreateAPIContext = {
 	props: Record<string, any>;
 	adapterName?: string;
 	locales: string[] | undefined;
-	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined;
+	routingStrategy: RoutingStrategy;
 	defaultLocale: string | undefined;
 };
 
