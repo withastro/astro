@@ -16,9 +16,12 @@ type Events = 'astro:page-load' | 'astro:after-swap';
 
 // only update history entries that are managed by us
 // leave other entries alone and do not accidently add state.
-export const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) =>
-	history.state && history.replaceState({ ...history.state, ...positions }, '');
-
+export const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) => {
+	if (history.state) {
+		history.scrollRestoration = 'manual';
+		history.replaceState({ ...history.state, ...positions }, '');
+	}
+};
 const inBrowser = import.meta.env.SSR === false;
 
 export const supportsViewTransitions = inBrowser && !!document.startViewTransition;
@@ -84,6 +87,7 @@ if (inBrowser) {
 		// This page is loaded from the browser addressbar or via a link from extern,
 		// it needs a state in the history
 		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
+		history.scrollRestoration = 'manual';
 	}
 }
 
@@ -190,6 +194,7 @@ const moveToLocation = (to: URL, from: URL, options: Options, historyState?: Sta
 				to.href
 			);
 		}
+		history.scrollRestoration = 'manual';
 	}
 	// now we are on the new page for non-history navigations!
 	// (with history navigation page change happens before popstate is fired)
@@ -424,6 +429,9 @@ async function transition(
 		: 'push';
 
 	if (samePage(from, to) && !options.formData /* not yet: && to.hash*/) {
+		if (navigationType !== 'traverse') {
+			updateScrollPosition({ scrollX, scrollY });
+		}
 		moveToLocation(to, from, options, historyState);
 		return;
 	}
@@ -576,10 +584,6 @@ function onPopState(ev: PopStateEvent) {
 		// The current page doesn't have View Transitions enabled
 		// but the page we navigate to does (because it set the state).
 		// Do a full page refresh to reload the client-side router from the new page.
-		// Scroll restauration will then happen during the reload when the router's code is re-executed
-		if (history.scrollRestoration) {
-			history.scrollRestoration = 'manual';
-		}
 		location.reload();
 		return;
 	}
@@ -589,18 +593,8 @@ function onPopState(ev: PopStateEvent) {
 	// Just ignore stateless entries.
 	// The browser will handle navigation fine without our help
 	if (ev.state === null) {
-		if (history.scrollRestoration) {
-			history.scrollRestoration = 'auto';
-		}
 		return;
 	}
-
-	// With the default "auto", the browser will jump to the old scroll position
-	// before the ViewTransition is complete.
-	if (history.scrollRestoration) {
-		history.scrollRestoration = 'manual';
-	}
-
 	const state: State = history.state;
 	const nextIndex = state.index;
 	const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
