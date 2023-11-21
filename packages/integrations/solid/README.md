@@ -98,38 +98,11 @@ export default defineConfig({
 });
 ```
 
-## Rendering strategy
+## Async rendering strategy
 
-Hydrating SolidJS components are automatically wrapped in Suspense boundaries and rendered on the server using the [renderToStringAsync](https://www.solidjs.com/docs/latest/api#rendertostringasync) function. This means that lazy components will be resolved and rendered on the server. For example the following source files:
+Hydrating SolidJS components are automatically wrapped in Suspense boundaries and rendered on the server using the [`renderToStringAsync`](https://www.solidjs.com/docs/latest/api#rendertostringasync) function.
 
-```tsx
-// HelloAstro.tsx
-export default function HelloAstro() {
-  return <div>Hello Astro</div>;
-}
-```
-
-```tsx
-// LazyHelloAstro.tsx
-import { lazy } from 'solid-js';
-export const LazyHelloAstro = lazy(() => import('./HelloAstro'));
-```
-
-<!-- prettier-ignore -->
-```astro
-// hello.astro
-import { LazyHelloAstro } from './LazyHelloAstro.tsx';
----
-<LazyHelloAstro />
-```
-
-Will be rendered into the server's HTML output as
-
-```html
-<div>Hello Astro</div>
-```
-
-Resources will also be resolved. For example:
+This means that resources will be resolved on the server. For example, if a component fetches remote data using `createResource`, the remote data will be included in the initial server-rendered HTML:
 
 ```tsx
 // CharacterName.tsx
@@ -140,26 +113,21 @@ function CharacterName() {
       .then((data) => data.name)
   );
 
-  return <div>Name: {name()}</div>;
+  return (
+    <>
+      <h2>Name:</h2>
+      {/* Luke Skywalker */}
+      <div>{name()}</div>
+    </>
+  );
 }
 ```
 
-<!-- prettier-ignore -->
-```astro
-// character.astro
----
-<CharacterName />
-```
-
-Will generate the following HTML output:
-
-```html
-<div>Name: Luke Skywalker</div>
-```
+Similarly, Solid's [lazy components](https://www.solidjs.com/tutorial/async_lazy) will also be resolved and included in the initial server-rendered HTML.
 
 ### Wrapping in Suspense
 
-Server-only or hydrating components are automatically wrapped in top level Suspense boundaries, so it is not necessary to add a top level Suspense boundary around async components.
+Server-only or hydrating components are automatically wrapped in top-level Suspense boundaries, so it is not necessary to add a top-level Suspense boundary around async components.
 
 Non-hydrating [`client:only` components](https://docs.astro.build/en/reference/directives-reference/#clientonly) are not automatically wrapped in Suspense boundaries.
 
