@@ -228,7 +228,7 @@ export function computeCurrentLocale(
 			}
 		}
 	}
-	if (routingStrategy === 'prefix-other-locales') {
+	if (routingStrategy === 'prefix-other-locales' || routingStrategy === 'domain') {
 		return defaultLocale;
 	}
 	return undefined;

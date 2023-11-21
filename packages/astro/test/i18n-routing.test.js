@@ -1199,6 +1199,7 @@ describe('i18n routing does not break assets and endpoints', () => {
 	describe('i18n routing with routing strategy [subdomain]', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
+		let app;
 
 		before(async () => {
 			fixture = await loadFixture({
