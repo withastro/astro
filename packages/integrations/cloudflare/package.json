@@ -45,7 +45,7 @@
     "vite": "^4.5.0"
   },
   "peerDependencies": {
-    "astro": "^3.4.3"
+    "astro": "^3.0.0"
   },
   "devDependencies": {
     "execa": "^8.0.1",
