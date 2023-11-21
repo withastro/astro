@@ -1,8 +1,18 @@
 import { getIconElement, isDefinedIcon, type Icon } from './icons.js';
 
 export class DevOverlayIcon extends HTMLElement {
-	icon?: Icon = undefined;
+	_icon: Icon | undefined = undefined;
 	shadowRoot: ShadowRoot;
+
+	get icon() {
+		return this._icon;
+	}
+	set icon(name: Icon | undefined) {
+		this._icon = name;
+		this.shadowRoot.innerHTML = `<style>svg { width: 100%; height: 100%;}</style>\n${this.getIconHTML(
+			this._icon
+		)}`;
+	}
 
 	constructor() {
 		super();
@@ -10,10 +20,6 @@ export class DevOverlayIcon extends HTMLElement {
 		this.shadowRoot = this.attachShadow({ mode: 'open' });
 
 		if (this.hasAttribute('icon')) this.icon = this.getAttribute('icon') as Icon;
-
-		this.shadowRoot.innerHTML = `<style>svg { width: 100%; height: 100%;}</style>\n${this.getIconHTML(
-			this.icon
-		)}`;
 	}
 
 	getIconHTML(icon: Icon | undefined) {
