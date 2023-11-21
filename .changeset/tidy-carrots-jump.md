@@ -24,8 +24,13 @@ export default defineConfig({
 })
 ```
 
-When this routing strategy is enabled and you run `astro build` command, the URLs emitted by `getAbsoluteLocaleUrl` and `getAbsoluteLocaleUrlList` will be different:
+With `routingStrategy: "domain"` configured, the URLs for your built site, including the URLs emitted by `getAbsoluteLocaleUrl()` and `getAbsoluteLocaleUrlList()`, will follow the pattern set for each locale individually.
 
-- `/fr/about` will become `https://fr.example.com/about`;
-- `/es/about` will become `https://example.es/about`;
-- `/en/about` will **stay** as is because we haven't configured any domain;
+For any `locales` not configured in `domains`, the fallback URLs created will follow `prefix-other-locales`, and create a `/[locale]/` path for all non-default languages.
+
+For the above configuration:
+
+- The file `/fr/about.astro` will create the URL `https://fr.example.com/about`;
+- The file `/es/about.astro` will create the URL `https://example.es/about`;
+- the file `/ja/about/astro` will create the URL `https://example.com/ja/about`.
+- The file `/en/about.astro` will create the URL `https://example.com/about`.
