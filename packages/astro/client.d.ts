@@ -106,7 +106,7 @@ declare module '*.avif' {
 }
 
 declare module 'astro:transitions' {
-	type TransitionModule = typeof import('./dist/transitions/index.js');
+	type TransitionModule = typeof import('./dist/virtual-modules/transitions.js');
 	export const slide: TransitionModule['slide'];
 	export const fade: TransitionModule['fade'];
 
@@ -115,24 +115,24 @@ declare module 'astro:transitions' {
 }
 
 declare module 'astro:transitions/client' {
-	type TransitionRouterModule = typeof import('./dist/transitions/router.js');
+	type TransitionRouterModule = typeof import('./dist/virtual-modules/transitions-router.js');
 	export const supportsViewTransitions: TransitionRouterModule['supportsViewTransitions'];
 	export const transitionEnabledOnThisPage: TransitionRouterModule['transitionEnabledOnThisPage'];
 	export const navigate: TransitionRouterModule['navigate'];
-	export type Options = import('./dist/transitions/router.js').Options;
+	export type Options = import('./dist/virtual-modules/transitions-router.js').Options;
 }
 
 declare module 'astro:prefetch' {
-	export { prefetch, PrefetchOptions } from 'astro/prefetch';
+	export { prefetch, PrefetchOptions } from 'astro/virtual-modules/prefetch.js';
 }
 
 declare module 'astro:i18n' {
-	export type GetLocaleOptions = import('./dist/i18n/index.js').GetLocaleOptions;
+	export type GetLocaleOptions = import('./dist/virtual-modules/i18n.js').GetLocaleOptions;
 
 	/**
 	 * @param {string} locale A locale
 	 * @param {string} [path=""] An optional path to add after the `locale`.
-	 * @param {import('./dist/i18n/index.js').GetLocaleOptions} options Customise the generated path
+	 * @param {import('./dist/virtual-modules/i18n.js').GetLocaleOptions} options Customise the generated path
 	 * @return {string}
 	 *
 	 * Returns a _relative_ path with passed locale.
@@ -161,7 +161,7 @@ declare module 'astro:i18n' {
 	 *
 	 * @param {string} locale A locale
 	 * @param {string} [path=""] An optional path to add after the `locale`.
-	 * @param {import('./dist/i18n/index.js').GetLocaleOptions} options Customise the generated path
+	 * @param {import('./dist/virtual-modules/i18n.js').GetLocaleOptions} options Customise the generated path
 	 * @return {string}
 	 *
 	 * Returns an absolute path with the passed locale. The behaviour is subject to change based on `site` configuration.
@@ -191,7 +191,7 @@ declare module 'astro:i18n' {
 
 	/**
 	 * @param {string} [path=""] An optional path to add after the `locale`.
-	 * @param {import('./dist/i18n/index.js').GetLocaleOptions} options Customise the generated path
+	 * @param {import('./dist/virtual-modules/i18n.jss').GetLocaleOptions} options Customise the generated path
 	 * @return {string[]}
 	 *
 	 * Works like `getRelativeLocaleUrl` but it emits the relative URLs for ALL locales:
@@ -199,7 +199,7 @@ declare module 'astro:i18n' {
 	export const getRelativeLocaleUrlList: (path?: string, options?: GetLocaleOptions) => string[];
 	/**
 	 * @param {string} [path=""] An optional path to add after the `locale`.
-	 * @param {import('./dist/i18n/index.js').GetLocaleOptions} options Customise the generated path
+	 * @param {import('./dist/virtual-modules/i18n.js').GetLocaleOptions} options Customise the generated path
 	 * @return {string[]}
 	 *
 	 * Works like `getAbsoluteLocaleUrl` but it emits the absolute URLs for ALL locales:
@@ -208,7 +208,7 @@ declare module 'astro:i18n' {
 }
 
 declare module 'astro:middleware' {
-	export * from 'astro/middleware/namespace';
+	export * from 'astro/virtual-modules/middleware.js';
 }
 
 declare module 'astro:components' {
