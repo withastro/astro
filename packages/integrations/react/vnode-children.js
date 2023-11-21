@@ -8,17 +8,10 @@ export default function convert(children) {
 	let key = 0;
 
 	function createReactElementFromNode(node) {
-		const childVnodes = Array.isArray(node.children)
+		const childVnodes = Array.isArray(node.children) && node.children.length
 			? node.children
-					.map((child) => {
-						if (child.type === ELEMENT_NODE) {
-							return createReactElementFromNode(child);
-						} else if (child.type === TEXT_NODE) {
-							// 0-length text gets omitted in JSX
-							return child.value.trim() ? child.value : undefined;
-						}
-					})
-					.filter((n) => !!n)
+					.map((child) => createReactElementFromNode(child))
+					.filter(Boolean)
 			: undefined;
 
 		if (node.type === DOCUMENT_NODE) {
@@ -26,6 +19,9 @@ export default function convert(children) {
 		} else if (node.type === ELEMENT_NODE) {
 			const { class: className, ...props } = node.attributes;
 			return createElement(node.name, { ...props, className, key: `${id}-${key++}` }, childVnodes);
+		} else if (node.type === TEXT_NODE) {
+			// 0-length text gets omitted in JSX
+			return node.value.trim() ? node.value : undefined;
 		}
 	}
 

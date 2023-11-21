@@ -4473,6 +4473,9 @@ importers:
       cheerio:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
+      mocha:
+        specifier: ^10.2.0
+        version: 10.2.0
       react:
         specifier: ^18.1.0
         version: 18.2.0
