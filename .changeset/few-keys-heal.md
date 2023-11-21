@@ -13,4 +13,4 @@ astro:before-swap // Control how the DOM is updated to match the new page
 
 The `astro:before-*` events allow you to change properties and strategies of the view transition implementation.
 The `astro:after-*` events allow you to make changes to the current DOM before and after the transition. 
-Head over to [View Transition docs](https://docs.astro.build/en/guides/view-transitions/) to find out more about the events!
+Head over to docs to see [the full view transitions lifecycle](https://docs.astro.build/en/guides/view-transitions/#lifecycle-events) including these new events!
