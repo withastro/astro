@@ -1,10 +1,7 @@
 import type * as hast from 'hast';
 import type * as mdast from 'mdast';
-import type {
-	one as Handler,
-	all as Handlers,
-	Options as RemarkRehypeOptions,
-} from 'remark-rehype';
+import type { Options as RemarkRehypeOptions } from 'remark-rehype';
+import type { State } from 'mdast-util-to-hast';
 import type {
 	BuiltinTheme,
 	LanguageRegistration,
@@ -13,6 +10,9 @@ import type {
 } from 'shikiji';
 import type * as unified from 'unified';
 import type { VFile } from 'vfile';
+
+type Handler = State['one'];
+type Handlers = State['all'];
 
 export type { Node } from 'unist';
 
@@ -35,8 +35,8 @@ export type RehypePlugin<PluginParameters extends any[] = any[]> = unified.Plugi
 export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
 
 export type RemarkRehype = Omit<RemarkRehypeOptions, 'handlers' | 'unknownHandler'> & {
-	handlers?: typeof Handlers;
-	handler?: typeof Handler;
+	handlers?: Handlers;
+	handler?: Handler;
 };
 
 export interface ShikiConfig {

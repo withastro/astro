@@ -79,7 +79,7 @@ describe('MDX with Astro Markdown remark-rehype config', () => {
 
 		expect(document.querySelector('#footnote-label').textContent).to.equal('Catatan kaki');
 		expect(document.querySelector('.data-footnote-backref').getAttribute('aria-label')).to.equal(
-			'Back to content'
+			'Back to reference 1'
 		);
 	});
 });
