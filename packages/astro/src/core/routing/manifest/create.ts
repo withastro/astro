@@ -603,22 +603,22 @@ export function createRouteManifest(
 						if (!hasRoute) {
 							let pathname: string | undefined;
 							let route: string;
-							if (
-								fallbackToLocale === i18n.defaultLocale &&
-								i18n.routingStrategy === 'prefix-other-locales'
-							) {
+							if (fallbackToLocale === i18n.defaultLocale) {
 								if (fallbackToRoute.pathname) {
 									pathname = `/${fallbackFromLocale}${fallbackToRoute.pathname}`;
 								}
 								route = `/${fallbackFromLocale}${fallbackToRoute.route}`;
 							} else {
-								pathname = fallbackToRoute.pathname
-									?.replace(`/${fallbackToLocale}/`, `/${fallbackFromLocale}/`)
-									.replace(`/${fallbackToLocale}`, `/${fallbackFromLocale}`);
-								route = fallbackToRoute.route
-									.replace(`/${fallbackToLocale}`, `/${fallbackFromLocale}`)
-									.replace(`/${fallbackToLocale}/`, `/${fallbackFromLocale}/`);
+								pathname = fallbackToRoute.pathname?.replace(
+									`/${fallbackToLocale}`,
+									`/${fallbackFromLocale}`
+								);
+								route = fallbackToRoute.route.replace(
+									`/${fallbackToLocale}`,
+									`/${fallbackFromLocale}`
+								);
 							}
+
 							const segments = removeLeadingForwardSlash(route)
 								.split(path.posix.sep)
 								.filter(Boolean)
@@ -626,7 +626,7 @@ export function createRouteManifest(
 									validateSegment(s);
 									return getParts(s, route);
 								});
-							const generate = getRouteGenerator(segments, config.trailingSlash);
+
 							const index = routes.findIndex((r) => r === fallbackToRoute);
 							if (index) {
 								const fallbackRoute: RouteData = {
@@ -634,7 +634,6 @@ export function createRouteManifest(
 									pathname,
 									route,
 									segments,
-									generate,
 									pattern: getPattern(segments, config, config.trailingSlash),
 									type: 'fallback',
 									fallbackRoutes: [],

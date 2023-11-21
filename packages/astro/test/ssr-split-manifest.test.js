@@ -109,6 +109,7 @@ describe('astro:ssr-manifest, split', () => {
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);
 			const html = await response.text();
+			console.log(html);
 			expect(html.includes('<title>Testing</title>')).to.be.true;
 		});
 	});
