@@ -127,14 +127,12 @@ export async function runHookConfigSetup({
 					updatedConfig = mergeConfig(updatedConfig, newConfig) as AstroConfig;
 				},
 				injectRoute: (injectRoute) => {
-					// @ts-expect-error entryPoint is no longer typed as it's deprecated
-					if (injectRoute.entryPoint) {
+					if ('entryPoint' in injectRoute) {
 						logger.warn(
 							null,
 							`The injected route "${injectRoute.pattern}" by ${integration.name} specifies the entry point with the "entryPoint" property. This property is deprecated, please use "entrypoint" instead.`
 						);
-						// @ts-expect-error same as above
-						injectRoute.entrypoint = injectRoute.entryPoint;
+						injectRoute.entrypoint = injectRoute.entryPoint as string;
 					}
 					updatedSettings.injectedRoutes.push(injectRoute);
 				},
