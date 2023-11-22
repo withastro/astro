@@ -268,15 +268,15 @@ export function* eachPageFromAllPages(allPages: AllPagesData): Generator<[string
 export function* eachPageDataFromEntryPoint(
 	internals: BuildInternals
 ): Generator<[PageBuildData, string]> {
-	for (const [entryPoint, filePath] of internals.entrySpecifierToBundleMap) {
+	for (const [entrypoint, filePath] of internals.entrySpecifierToBundleMap) {
 		// virtual pages can be emitted with different prefixes:
 		// - the classic way are pages emitted with prefix ASTRO_PAGE_RESOLVED_MODULE_ID -> plugin-pages
 		// - pages emitted using `build.split`, in this case pages are emitted with prefix RESOLVED_SPLIT_MODULE_ID
 		if (
-			entryPoint.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
-			entryPoint.includes(RESOLVED_SPLIT_MODULE_ID)
+			entrypoint.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
+			entrypoint.includes(RESOLVED_SPLIT_MODULE_ID)
 		) {
-			const [, pageName] = entryPoint.split(':');
+			const [, pageName] = entrypoint.split(':');
 			const pageData = internals.pagesByComponent.get(
 				`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`
 			);

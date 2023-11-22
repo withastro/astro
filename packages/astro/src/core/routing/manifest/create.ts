@@ -184,13 +184,13 @@ function comparator(a: Item, b: Item) {
 
 function injectedRouteToItem(
 	{ config, cwd }: { config: AstroConfig; cwd?: string },
-	{ pattern, entryPoint }: InjectedRoute
+	{ pattern, entrypoint }: InjectedRoute
 ): Item {
 	let resolved: string;
 	try {
-		resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
+		resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
 	} catch (e) {
-		resolved = fileURLToPath(new URL(entryPoint, config.root));
+		resolved = fileURLToPath(new URL(entrypoint, config.root));
 	}
 
 	const ext = path.extname(pattern);
@@ -368,12 +368,12 @@ export function createRouteManifest(
 			comparator(injectedRouteToItem({ config, cwd }, a), injectedRouteToItem({ config, cwd }, b))
 		)
 		.reverse() // prepend to the routes array from lowest to highest priority
-		.forEach(({ pattern: name, entryPoint, prerender: prerenderInjected }) => {
+		.forEach(({ pattern: name, entrypoint, prerender: prerenderInjected }) => {
 			let resolved: string;
 			try {
-				resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
+				resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
 			} catch (e) {
-				resolved = fileURLToPath(new URL(entryPoint, config.root));
+				resolved = fileURLToPath(new URL(entrypoint, config.root));
 			}
 			const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
 

@@ -18,7 +18,7 @@ describe('Dynamic pages in SSR', () => {
 						'astro:config:setup': ({ injectRoute }) => {
 							injectRoute({
 								pattern: '/path-alias/[id]',
-								entryPoint: './src/pages/api/products/[id].js',
+								entrypoint: './src/pages/api/products/[id].js',
 							});
 						},
 					},
