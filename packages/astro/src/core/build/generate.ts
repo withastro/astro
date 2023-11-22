@@ -363,11 +363,13 @@ async function getPathsForRoute(
 				throw err;
 			});
 
-		const label = staticPaths.length === 1 ? 'page' : 'pages';
-		logger.debug(
-			'build',
-			`├── ${bold(green('✔'))} ${route.component} → ${magenta(`[${staticPaths.length} ${label}]`)}`
-		);
+			const label = staticPaths.length === 1 ? 'page' : 'pages';
+			logger.debug(
+				'build',
+				`├── ${bold(green('✔'))} ${route.component} → ${magenta(
+					`[${staticPaths.length} ${label}]`
+				)}`
+			);
 
 			paths.push(
 				...staticPaths
