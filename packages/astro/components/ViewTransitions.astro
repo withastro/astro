@@ -33,7 +33,7 @@ const { fallback = 'animate', handleForms } = Astro.props;
 	// @ts-ignore
 	import { init } from 'astro/prefetch';
 
-	export type Fallback = 'none' | 'animate' | 'swap';
+	type Fallback = 'none' | 'animate' | 'swap';
 
 	function getFallback(): Fallback {
 		const el = document.querySelector('[name="astro-view-transitions-fallback"]');
@@ -85,6 +85,7 @@ const { fallback = 'animate', handleForms } = Astro.props;
 			ev.preventDefault();
 			navigate(href, {
 				history: link.dataset.astroHistory === 'replace' ? 'replace' : 'auto',
+				sourceElement: link,
 			});
 		});
 
@@ -102,7 +103,7 @@ const { fallback = 'animate', handleForms } = Astro.props;
 				let action = submitter?.getAttribute('formaction') ?? form.action ?? location.pathname;
 				const method = submitter?.getAttribute('formmethod') ?? form.method;
 
-				const options: Options = {};
+				const options: Options = { sourceElement: submitter ?? form };
 				if (method === 'get') {
 					const params = new URLSearchParams(formData as any);
 					const url = new URL(action);
