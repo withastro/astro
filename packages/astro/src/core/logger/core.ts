@@ -142,8 +142,8 @@ export class Logger {
 	error(label: string | null, message: string) {
 		error(this.options, label, message);
 	}
-	debug(label: string | null, message: string, ...args: any[]) {
-		debug(this.options, label, message, args);
+	debug(label: string | null, ...messages: any[]) {
+		debug(label, ...messages);
 	}
 
 	level() {
@@ -181,6 +181,6 @@ export class AstroIntegrationLogger {
 		error(this.options, this.label, message);
 	}
 	debug(message: string) {
-		debug(this.options, this.label, message);
+		debug(this.label, message);
 	}
 }

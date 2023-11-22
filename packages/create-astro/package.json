@@ -1,6 +1,6 @@
 {
   "name": "create-astro",
-  "version": "4.5.0",
+  "version": "4.5.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -31,7 +31,7 @@
   "//a": "MOST PACKAGES SHOULD GO IN DEV_DEPENDENCIES! THEY WILL BE BUNDLED.",
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {
-    "@astrojs/cli-kit": "^0.3.0",
+    "@astrojs/cli-kit": "^0.3.1",
     "giget": "1.1.2"
   },
   "devDependencies": {

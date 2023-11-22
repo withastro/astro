@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 
-export async function post({ request }: { request: Request }) {
+export async function POST({ request }: { request: Request }) {
 	const hash = crypto.createHash('sha256');
 
     const iterable = request.body as unknown as AsyncIterable<Uint8Array>;

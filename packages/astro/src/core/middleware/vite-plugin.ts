@@ -15,6 +15,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 	let resolvedMiddlewareId: string | undefined = undefined;
 	const hasIntegrationMiddleware =
 		settings.middlewares.pre.length > 0 || settings.middlewares.post.length > 0;
+	let userMiddlewareIsPresent = false;
 
 	return {
 		name: '@astro/plugin-middleware',
@@ -29,6 +30,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				const middlewareId = await this.resolve(
 					`${decodeURI(settings.config.srcDir.pathname)}${MIDDLEWARE_PATH_SEGMENT_NAME}`
 				);
+				userMiddlewareIsPresent = !!middlewareId;
 				if (middlewareId) {
 					resolvedMiddlewareId = middlewareId.id;
 					return MIDDLEWARE_MODULE_ID;
@@ -61,13 +63,17 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				const postMiddleware = createMiddlewareImports(settings.middlewares.post, 'post');
 
 				const source = `
-import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';
+				${
+					userMiddlewareIsPresent
+						? `import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';`
+						: ''
+				}
 import { sequence } from 'astro:middleware';
 ${preMiddleware.importsCode}${postMiddleware.importsCode}
 
 export const onRequest = sequence(
 	${preMiddleware.sequenceCode}${preMiddleware.sequenceCode ? ',' : ''}
-	userOnRequest${postMiddleware.sequenceCode ? ',' : ''}
+	${userMiddlewareIsPresent ? `userOnRequest${postMiddleware.sequenceCode ? ',' : ''}` : ''}
 	${postMiddleware.sequenceCode}
 );
 `.trim();

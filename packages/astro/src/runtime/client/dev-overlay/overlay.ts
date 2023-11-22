@@ -1,11 +1,15 @@
 /* eslint-disable no-console */
 import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@types/astro.js';
+import { settings } from './settings.js';
 import { getIconElement, isDefinedIcon, type Icon } from './ui-library/icons.js';
 
 export type DevOverlayPlugin = DevOverlayPluginDefinition & {
 	builtIn: boolean;
 	active: boolean;
 	status: 'ready' | 'loading' | 'error';
+	notification: {
+		state: boolean;
+	};
 	eventTarget: EventTarget;
 };
 
@@ -19,6 +23,7 @@ export class AstroDevOverlay extends HTMLElement {
 	plugins: DevOverlayPlugin[] = [];
 	HOVER_DELAY = 750;
 	hasBeenInitialized = false;
+	customPluginsToShow = 3;
 
 	constructor() {
 		super();
@@ -163,8 +168,8 @@ export class AstroDevOverlay extends HTMLElement {
 			#dev-bar .item .notification {
 				display: none;
 				position: absolute;
-				top: -2px;
-				right: 0;
+				top: -4px;
+				right: -6px;
 				width: 8px;
 				height: 8px;
 				border-radius: 9999px;
@@ -235,14 +240,31 @@ export class AstroDevOverlay extends HTMLElement {
 			<div id="dev-bar">
 				<div id="bar-container">
 					${this.plugins
-						.filter((plugin) => plugin.builtIn)
+						.filter(
+							(plugin) => plugin.builtIn && !['astro:settings', 'astro:more'].includes(plugin.id)
+						)
 						.map((plugin) => this.getPluginTemplate(plugin))
 						.join('')}
+					${
+						this.plugins.filter((plugin) => !plugin.builtIn).length > 0
+							? `<div class="separator"></div>${this.plugins
+									.filter((plugin) => !plugin.builtIn)
+									.slice(0, this.customPluginsToShow)
+									.map((plugin) => this.getPluginTemplate(plugin))
+									.join('')}`
+							: ''
+					}
+					${
+						this.plugins.filter((plugin) => !plugin.builtIn).length > this.customPluginsToShow
+							? this.getPluginTemplate(
+									this.plugins.find((plugin) => plugin.builtIn && plugin.id === 'astro:more')!
+							  )
+							: ''
+					}
 					<div class="separator"></div>
-					${this.plugins
-						.filter((plugin) => !plugin.builtIn)
-						.map((plugin) => this.getPluginTemplate(plugin))
-						.join('')}
+					${this.getPluginTemplate(
+						this.plugins.find((plugin) => plugin.builtIn && plugin.id === 'astro:settings')!
+					)}
 				</div>
 			</div>
 			<button id="minimize-button">${getIconElement('arrow-down')?.outerHTML}</button>
@@ -254,7 +276,8 @@ export class AstroDevOverlay extends HTMLElement {
 		// Create plugin canvases
 		this.plugins.forEach(async (plugin) => {
 			if (!this.hasBeenInitialized) {
-				console.log(`Creating plugin canvas for ${plugin.id}`);
+				if (settings.config.verbose) console.log(`Creating plugin canvas for ${plugin.id}`);
+
 				const pluginCanvas = document.createElement('astro-dev-overlay-plugin-canvas');
 				pluginCanvas.dataset.pluginId = plugin.id;
 				this.shadowRoot?.append(pluginCanvas);
@@ -321,7 +344,7 @@ export class AstroDevOverlay extends HTMLElement {
 					if (this.isHidden()) {
 						this.hoverTimeout = window.setTimeout(() => {
 							this.toggleOverlay(true);
-						}, this.HOVER_DELAY);
+						}, this.HOVER_DELAY + 200); // Slightly higher delay here to prevent users opening the overlay by accident
 					} else {
 						this.hoverTimeout = window.setTimeout(() => {
 							this.toggleMinimizeButton(true);
@@ -374,7 +397,8 @@ export class AstroDevOverlay extends HTMLElement {
 		const shadowRoot = this.getPluginCanvasById(plugin.id)!.shadowRoot!;
 
 		try {
-			console.info(`Initializing plugin ${plugin.id}`);
+			if (settings.config.verbose) console.info(`Initializing plugin ${plugin.id}`);
+
 			await plugin.init?.(shadowRoot, plugin.eventTarget);
 			plugin.status = 'ready';
 
@@ -428,9 +452,19 @@ export class AstroDevOverlay extends HTMLElement {
 		}
 
 		plugin.active = newStatus ?? !plugin.active;
-		const target = this.shadowRoot.querySelector(`[data-plugin-id="${plugin.id}"]`);
-		if (!target) return;
-		target.classList.toggle('active', plugin.active);
+		const mainBarButton = this.shadowRoot.querySelector(`[data-plugin-id="${plugin.id}"]`);
+		const moreBarButton = this.getPluginCanvasById('astro:more')?.shadowRoot?.querySelector(
+			`[data-plugin-id="${plugin.id}"]`
+		);
+
+		if (mainBarButton) {
+			mainBarButton.classList.toggle('active', plugin.active);
+		}
+
+		if (moreBarButton) {
+			moreBarButton.classList.toggle('active', plugin.active);
+		}
+
 		pluginCanvas.style.display = plugin.active ? 'block' : 'none';
 
 		window.requestAnimationFrame(() => {

@@ -76,7 +76,7 @@ export function astroContentVirtualModPlugin({
 							hydratedComponents: [],
 							clientOnlyComponents: [],
 							scripts: [],
-							containsHead: true,
+							containsHead: false,
 							propagation: 'in-tree',
 							pageOptions: {},
 						},

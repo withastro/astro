@@ -15,6 +15,12 @@ type EndpointResultHandler = (
 	result: Response
 ) => Promise<Response> | Response;
 
+type PipelineHooks = {
+	before: PipelineHookFunction[];
+};
+
+export type PipelineHookFunction = (ctx: RenderContext, mod: ComponentInstance | undefined) => void;
+
 /**
  * This is the basic class of a pipeline.
  *
@@ -23,6 +29,9 @@ type EndpointResultHandler = (
 export class Pipeline {
 	env: Environment;
 	#onRequest?: MiddlewareEndpointHandler;
+	#hooks: PipelineHooks = {
+		before: [],
+	};
 	/**
 	 * The handler accepts the *original* `Request` and result returned by the endpoint.
 	 * It must return a `Response`.
@@ -75,6 +84,9 @@ export class Pipeline {
 		renderContext: RenderContext,
 		componentInstance: ComponentInstance | undefined
 	): Promise<Response> {
+		for (const hook of this.#hooks.before) {
+			hook(renderContext, componentInstance);
+		}
 		const result = await this.#tryRenderRoute(
 			renderContext,
 			this.env,
@@ -116,6 +128,8 @@ export class Pipeline {
 			site: env.site,
 			adapterName: env.adapterName,
 			locales: renderContext.locales,
+			routingStrategy: renderContext.routingStrategy,
+			defaultLocale: renderContext.defaultLocale,
 		});
 
 		switch (renderContext.route.type) {
@@ -146,16 +160,18 @@ export class Pipeline {
 				}
 			}
 			case 'endpoint': {
-				return await callEndpoint(
-					mod as any as EndpointHandler,
-					env,
-					renderContext,
-					onRequest,
-					renderContext.locales
-				);
+				return await callEndpoint(mod as any as EndpointHandler, env, renderContext, onRequest);
 			}
 			default:
 				throw new Error(`Couldn't find route of type [${renderContext.route.type}]`);
 		}
+	}
+
+	/**
+	 * Store a function that will be called before starting the rendering phase.
+	 * @param fn
+	 */
+	onBeforeRenderRoute(fn: PipelineHookFunction) {
+		this.#hooks.before.push(fn);
 	}
 }

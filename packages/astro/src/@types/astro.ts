@@ -24,6 +24,7 @@ import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger
 import type { AstroDevOverlay, DevOverlayCanvas } from '../runtime/client/dev-overlay/overlay.js';
 import type { DevOverlayHighlight } from '../runtime/client/dev-overlay/ui-library/highlight.js';
 import type { Icon } from '../runtime/client/dev-overlay/ui-library/icons.js';
+import type { DevOverlayToggle } from '../runtime/client/dev-overlay/ui-library/toggle.js';
 import type { DevOverlayTooltip } from '../runtime/client/dev-overlay/ui-library/tooltip.js';
 import type { DevOverlayWindow } from '../runtime/client/dev-overlay/ui-library/window.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
@@ -538,71 +539,6 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @name prefetch
-	 * @type {boolean | object}
-	 * @description
-	 * Enable prefetching for links on your site to provide faster page transitions.
-	 * (Enabled by default on pages using the `<ViewTransitions />` router. Set `prefetch: false` to opt out of this behaviour.)
-	 *
-	 * This configuration automatically adds a prefetch script to every page in the project
-	 * giving you access to the `data-astro-prefetch` attribute.
-	 * Add this attribute to any `<a />` link on your page to enable prefetching for that page.
-	 *
-	 * ```html
-	 * <a href="/about" data-astro-prefetch>About</a>
-	 * ```
-	 * Further customize the default prefetching behavior using the [`prefetch.defaultStrategy`](#prefetchdefaultstrategy) and [`prefetch.prefetchAll`](#prefetchprefetchall) options.
-	 *
-	 * See the [Prefetch guide](https://docs.astro.build/en/guides/prefetch/) for more information.
-	 */
-	prefetch?:
-		| boolean
-		| {
-				/**
-				 * @docs
-				 * @name prefetch.prefetchAll
-				 * @type {boolean}
-				 * @description
-				 * Enable prefetching for all links, including those without the `data-astro-prefetch` attribute.
-				 * This value defaults to `true` when using the `<ViewTransitions />` router. Otherwise, the default value is `false`.
-				 *
-				 * ```js
-				 * prefetch: {
-				 * 	prefetchAll: true
-				 * }
-				 * ```
-				 *
-				 * When set to `true`, you can disable prefetching individually by setting `data-astro-prefetch="false"` on any individual links.
-				 *
-				 * ```html
-				 * <a href="/about" data-astro-prefetch="false">About</a>
-				 *```
-				 */
-				prefetchAll?: boolean;
-
-				/**
-				 * @docs
-				 * @name prefetch.defaultStrategy
-				 * @type {'tap' | 'hover' | 'viewport'}
-				 * @default `'hover'`
-				 * @description
-				 * The default prefetch strategy to use when the `data-astro-prefetch` attribute is set on a link with no value.
-				 *
-				 * - `'tap'`: Prefetch just before you click on the link.
-				 * - `'hover'`: Prefetch when you hover over or focus on the link. (default)
-				 * - `'viewport'`: Prefetch as the links enter the viewport.
-				 *
-				 * You can override this default value and select a different strategy for any individual link by setting a value on the attribute.
-				 *
-				 * ```html
-				 * <a href="/about" data-astro-prefetch="viewport">About</a>
-				 * ```
-				 */
-				defaultStrategy?: 'tap' | 'hover' | 'viewport';
-		  };
-
-	/**
-	 * @docs
 	 * @name site
 	 * @type {string}
 	 * @description
@@ -978,6 +914,72 @@ export interface AstroUserConfig {
 		 */
 		excludeMiddleware?: boolean;
 	};
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Prefetch Options
+	 * @type {boolean | object}
+	 * @description
+	 * Enable prefetching for links on your site to provide faster page transitions.
+	 * (Enabled by default on pages using the `<ViewTransitions />` router. Set `prefetch: false` to opt out of this behaviour.)
+	 *
+	 * This configuration automatically adds a prefetch script to every page in the project
+	 * giving you access to the `data-astro-prefetch` attribute.
+	 * Add this attribute to any `<a />` link on your page to enable prefetching for that page.
+	 *
+	 * ```html
+	 * <a href="/about" data-astro-prefetch>About</a>
+	 * ```
+	 * Further customize the default prefetching behavior using the [`prefetch.defaultStrategy`](#prefetchdefaultstrategy) and [`prefetch.prefetchAll`](#prefetchprefetchall) options.
+	 *
+	 * See the [Prefetch guide](https://docs.astro.build/en/guides/prefetch/) for more information.
+	 */
+	prefetch?:
+		| boolean
+		| {
+				/**
+				 * @docs
+				 * @name prefetch.prefetchAll
+				 * @type {boolean}
+				 * @description
+				 * Enable prefetching for all links, including those without the `data-astro-prefetch` attribute.
+				 * This value defaults to `true` when using the `<ViewTransitions />` router. Otherwise, the default value is `false`.
+				 *
+				 * ```js
+				 * prefetch: {
+				 * 	prefetchAll: true
+				 * }
+				 * ```
+				 *
+				 * When set to `true`, you can disable prefetching individually by setting `data-astro-prefetch="false"` on any individual links.
+				 *
+				 * ```html
+				 * <a href="/about" data-astro-prefetch="false">About</a>
+				 *```
+				 */
+				prefetchAll?: boolean;
+
+				/**
+				 * @docs
+				 * @name prefetch.defaultStrategy
+				 * @type {'tap' | 'hover' | 'viewport'}
+				 * @default `'hover'`
+				 * @description
+				 * The default prefetch strategy to use when the `data-astro-prefetch` attribute is set on a link with no value.
+				 *
+				 * - `'tap'`: Prefetch just before you click on the link.
+				 * - `'hover'`: Prefetch when you hover over or focus on the link. (default)
+				 * - `'viewport'`: Prefetch as the links enter the viewport.
+				 *
+				 * You can override this default value and select a different strategy for any individual link by setting a value on the attribute.
+				 *
+				 * ```html
+				 * <a href="/about" data-astro-prefetch="viewport">About</a>
+				 * ```
+				 */
+				defaultStrategy?: 'tap' | 'hover' | 'viewport';
+		  };
 
 	/**
 	 * @docs
@@ -1456,6 +1458,7 @@ export interface AstroUserConfig {
 		i18n?: {
 			/**
 			 * @docs
+			 * @kind h4
 			 * @name experimental.i18n.defaultLocale
 			 * @type {string}
 			 * @version 3.5.0
@@ -1468,6 +1471,7 @@ export interface AstroUserConfig {
 			defaultLocale: string;
 			/**
 			 * @docs
+			 * @kind h4
 			 * @name experimental.i18n.locales
 			 * @type {string[]}
 			 * @version 3.5.0
@@ -1481,6 +1485,7 @@ export interface AstroUserConfig {
 
 			/**
 			 * @docs
+			 * @kind h4
 			 * @name experimental.i18n.fallback
 			 * @type {Record<string, string>}
 			 * @version 3.5.0
@@ -1490,12 +1495,12 @@ export interface AstroUserConfig {
 			 *
 			 * Use this object to declare a fallback `locale` route for each language you support. If no fallback is specified, then unavailable pages will return a 404.
 			 *
-			 * #### Example
+			 * ##### Example
 			 *
 			 * The following example configures your content fallback strategy to redirect unavailable pages in `/pt-br/` to their `es` version, and unavailable pages in `/fr/` to their `en` version. Unavailable `/es/` pages will return a 404.
 			 *
 			 * ```js
-			 * export defualt defineConfig({
+			 * export default defineConfig({
 			 * 	experimental: {
 			 * 		i18n: {
 			 * 			defaultLocale: "en",
@@ -1513,6 +1518,7 @@ export interface AstroUserConfig {
 
 			/**
 			 * @docs
+			 * @kind h4
 			 * @name experimental.i18n.routingStrategy
 			 * @type {'prefix-always' | 'prefix-other-locales'}
 			 * @default 'prefix-other-locales'
@@ -2106,6 +2112,11 @@ interface AstroSharedContext<
 	 */
 
 	preferredLocaleList: string[] | undefined;
+
+	/**
+	 * The current locale computed from the URL of the request. It matches the locales in `i18n.locales`, and returns `undefined` otherwise.
+	 */
+	currentLocale: string | undefined;
 }
 
 export interface APIContext<
@@ -2235,6 +2246,11 @@ export interface APIContext<
 	 * [quality value]: https://developer.mozilla.org/en-US/docs/Glossary/Quality_values
 	 */
 	preferredLocaleList: string[] | undefined;
+
+	/**
+	 * The current locale computed from the URL of the request. It matches the locales in `i18n.locales`, and returns `undefined` otherwise.
+	 */
+	currentLocale: string | undefined;
 }
 
 export type EndpointOutput =
@@ -2418,16 +2434,21 @@ export interface RouteData {
 	prerender: boolean;
 	redirect?: RedirectConfig;
 	redirectRoute?: RouteData;
+	fallbackRoutes: RouteData[];
 }
 
 export type RedirectRouteData = RouteData & {
 	redirect: string;
 };
 
-export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern' | 'redirectRoute'> & {
+export type SerializedRouteData = Omit<
+	RouteData,
+	'generate' | 'pattern' | 'redirectRoute' | 'fallbackRoutes'
+> & {
 	generate: undefined;
 	pattern: string;
 	redirectRoute: SerializedRouteData | undefined;
+	fallbackRoutes: SerializedRouteData[];
 	_meta: {
 		trailingSlash: AstroConfig['trailingSlash'];
 	};
@@ -2573,5 +2594,6 @@ declare global {
 		'astro-dev-overlay-plugin-canvas': DevOverlayCanvas;
 		'astro-dev-overlay-tooltip': DevOverlayTooltip;
 		'astro-dev-overlay-highlight': DevOverlayHighlight;
+		'astro-dev-overlay-toggle': DevOverlayToggle;
 	}
 }

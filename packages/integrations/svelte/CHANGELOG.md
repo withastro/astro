@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 4.0.4
+
+### Patch Changes
+
+- [#9098](https://github.com/withastro/astro/pull/9098) [`a600c1483`](https://github.com/withastro/astro/commit/a600c14837fd18c4c4c3330c0195cd47b0b73df9) Thanks [@bluwy](https://github.com/bluwy)! - Adds experimental support for Svelte 5
+
 ## 4.0.3
 
 ### Patch Changes
