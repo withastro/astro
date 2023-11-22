@@ -102,7 +102,7 @@ export async function createMarkdownProcessor(
 	}
 
 	// Remark -> Rehype
-	parser.use(remarkRehype as any, {
+	parser.use(remarkRehype, {
 		allowDangerousHtml: true,
 		passThrough: [],
 		...remarkRehypeOptions,
