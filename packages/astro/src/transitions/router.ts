@@ -1,11 +1,11 @@
 import {
-	doPreparation,
-	TransitionBeforeSwapEvent,
-	type TransitionBeforePreparationEvent,
-	doSwap,
 	TRANSITION_AFTER_SWAP,
+	TransitionBeforeSwapEvent,
+	doPreparation,
+	doSwap,
+	type TransitionBeforePreparationEvent,
 } from './events.js';
-import type { Fallback, Direction, Options } from './types.js';
+import type { Direction, Fallback, Options } from './types.js';
 
 type State = {
 	index: number;
