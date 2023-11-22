@@ -109,6 +109,7 @@ declare module 'astro:transitions' {
 	type TransitionModule = typeof import('./dist/virtual-modules/transitions.js');
 	export const slide: TransitionModule['slide'];
 	export const fade: TransitionModule['fade'];
+	export const createAnimationScope: TransitionModule['createAnimationScope'];
 
 	type ViewTransitionsModule = typeof import('./components/ViewTransitions.astro');
 	export const ViewTransitions: ViewTransitionsModule['default'];
@@ -116,10 +117,30 @@ declare module 'astro:transitions' {
 
 declare module 'astro:transitions/client' {
 	type TransitionRouterModule = typeof import('./dist/virtual-modules/transitions-router.js');
-	export const supportsViewTransitions: TransitionRouterModule['supportsViewTransitions'];
-	export const transitionEnabledOnThisPage: TransitionRouterModule['transitionEnabledOnThisPage'];
 	export const navigate: TransitionRouterModule['navigate'];
-	export type Options = import('./dist/virtual-modules/transitions-router.js').Options;
+
+	type TransitionUtilModule = typeof import('./dist/virtual-modules/transitions-util.js');
+	export const supportsViewTransitions: TransitionUtilModule['supportsViewTransitions'];
+	export const getFallback: TransitionUtilModule['getFallback'];
+	export const transitionEnabledOnThisPage: TransitionUtilModule['transitionEnabledOnThisPage'];
+
+	export type Fallback = import('./dist/virtual-modules/transitions-types.js').Fallback;
+	export type Direction = import('./dist/virtual-modules/transitions-types.ts').Direction;
+	export type NavigationTypeString = import('./dist/virtual-modules/transitions-types.js').NavigationTypeString;
+	export type Options = import('./dist/virtual-modules/transitions-types.js').Options;
+
+	type EventModule = typeof import('./dist/virtual-modules/transitions-events.js');
+	export const TRANSITION_BEFORE_PREPARATION: EventModule['TRANSITION_BEFORE_PREPARATION'];
+	export const TRANSITION_AFTER_PREPARATION: EventModule['TRANSITION_AFTER_PREPARATION'];
+	export const TRANSITION_BEFORE_SWAP: EventModule['TRANSITION_BEFORE_SWAP'];
+	export const TRANSITION_AFTER_SWAP: EventModule['TRANSITION_AFTER_SWAP'];
+	export const TRANSITION_PAGE_LOAD: EventModule['TRANSITION_PAGE_LOAD'];
+	export type TransitionBeforePreparationEvent =
+		import('./dist/virtual-modules/transitions-events.js').TransitionBeforePreparationEvent;
+	export type TransitionBeforeSwapEvent =
+		import('./dist/virtual-modules/transitions-events.js').TransitionBeforeSwapEvent;
+	export const isTransitionBeforePreparationEvent: EventModule['isTransitionBeforePreparationEvent'];
+	export const isTransitionBeforeSwapEvent: EventModule['isTransitionBeforeSwapEvent'];
 }
 
 declare module 'astro:prefetch' {

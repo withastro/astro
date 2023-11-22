@@ -164,17 +164,15 @@ export class BuildPipeline extends Pipeline {
 			}
 		}
 
-		for (const [path, pageDataList] of this.#internals.pagesByComponents.entries()) {
-			for (const pageData of pageDataList) {
-				if (routeIsRedirect(pageData.route)) {
-					pages.set(pageData, path);
-				} else if (
-					routeIsFallback(pageData.route) &&
-					(i18nHasFallback(this.getConfig()) ||
-						(routeIsFallback(pageData.route) && pageData.route.route === '/'))
-				) {
-					pages.set(pageData, path);
-				}
+		for (const [path, pageData] of this.#internals.pagesByComponent.entries()) {
+			if (routeIsRedirect(pageData.route)) {
+				pages.set(pageData, path);
+			} else if (
+				routeIsFallback(pageData.route) &&
+				(i18nHasFallback(this.getConfig()) ||
+					(routeIsFallback(pageData.route) && pageData.route.route === '/'))
+			) {
+				pages.set(pageData, path);
 			}
 		}
 

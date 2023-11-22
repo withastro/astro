@@ -128,6 +128,8 @@ export class Pipeline {
 			site: env.site,
 			adapterName: env.adapterName,
 			locales: renderContext.locales,
+			routingStrategy: renderContext.routingStrategy,
+			defaultLocale: renderContext.defaultLocale,
 		});
 
 		switch (renderContext.route.type) {
@@ -158,13 +160,7 @@ export class Pipeline {
 				}
 			}
 			case 'endpoint': {
-				return await callEndpoint(
-					mod as any as EndpointHandler,
-					env,
-					renderContext,
-					onRequest,
-					renderContext.locales
-				);
+				return await callEndpoint(mod as any as EndpointHandler, env, renderContext, onRequest);
 			}
 			default:
 				throw new Error(`Couldn't find route of type [${renderContext.route.type}]`);

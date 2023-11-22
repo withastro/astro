@@ -35,6 +35,8 @@ function createContext({ request, params, userDefinedLocales = [] }: CreateConte
 		props: {},
 		site: undefined,
 		locales: userDefinedLocales,
+		defaultLocale: undefined,
+		routingStrategy: undefined,
 	});
 }
 
