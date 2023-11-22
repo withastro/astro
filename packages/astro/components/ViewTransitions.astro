@@ -29,8 +29,8 @@ const { fallback = 'animate', handleForms } = Astro.props;
 <script>
 	import type { Options } from 'astro:transitions/client';
 	import { supportsViewTransitions, navigate } from 'astro:transitions/client';
-	// NOTE: import from `astro/prefetch` as `astro:prefetch` requires the `prefetch` config to be enabled
-	import { init } from 'astro/prefetch';
+	// NOTE: import from `astro/virtual-modules/prefetch.js` as `astro:prefetch` requires the `prefetch` config to be enabled
+	import { init } from 'astro/virtual-modules/prefetch.js';
 
 	export type Fallback = 'none' | 'animate' | 'swap';
 

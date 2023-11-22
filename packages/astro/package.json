@@ -22,10 +22,7 @@
         "./dist/core/app/*"
       ],
       "middleware": [
-        "./dist/core/middleware/index.d.ts"
-      ],
-      "middleware/namespace": [
-        "./dist/core/middleware/namespace.d.ts"
+        "./dist/virtual-modules/middleware.d.ts"
       ]
     }
   },
@@ -73,14 +70,7 @@
       "types": "./dist/core/middleware/index.d.ts",
       "default": "./dist/core/middleware/index.js"
     },
-    "./middleware/namespace": {
-      "types": "./dist/core/middleware/namespace.d.ts",
-      "default": "./dist/core/middleware/namespace.js"
-    },
-    "./transitions": "./dist/transitions/index.js",
-    "./transitions/router": "./dist/transitions/router.js",
-    "./prefetch": "./dist/prefetch/index.js",
-    "./i18n": "./dist/i18n/index.js"
+    "./virtual-modules/*": "./dist/virtual-modules/*"
   },
   "imports": {
     "#astro/*": "./dist/*.js"

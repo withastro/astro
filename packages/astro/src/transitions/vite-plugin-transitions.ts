@@ -21,13 +21,13 @@ export default function astroTransitions({ settings }: { settings: AstroSettings
 		load(id) {
 			if (id === resolvedVirtualModuleId) {
 				return `
-				export * from "astro/transitions";
+				export * from "astro/virtual-modules/transitions.js";
 				export { default as ViewTransitions } from "astro/components/ViewTransitions.astro";
 			`;
 			}
 			if (id === resolvedVirtualClientModuleId) {
 				return `
-				export * from "astro/transitions/router";
+				export * from "astro/virtual-modules/transitions-router.js";
 			`;
 			}
 		},
