@@ -886,33 +886,6 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
-
-		/**
-		 * @docs
-		 * @name build.split
-		 * @type {boolean}
-		 * @default `false`
-		 * @deprecated Deprecated since version 3.0.
-		 * @description
-		 * The build config option `build.split` has been replaced by the adapter configuration option [`functionPerRoute`](/en/reference/adapter-reference/#functionperroute).
-		 *
-		 * Please see your [SSR adapter's documentation](/en/guides/integrations-guide/#official-integrations) for using `functionPerRoute` to define how your SSR code is bundled.
-		 *
-		 */
-		split?: boolean;
-
-		/**
-		 * @docs
-		 * @name build.excludeMiddleware
-		 * @type {boolean}
-		 * @default `false`
-		 * @deprecated Deprecated since version 3.0.
-		 * @description
-		 * The build config option `build.excludeMiddleware` has been replaced by the adapter configuration option [`edgeMiddleware`](/en/reference/adapter-reference/#edgemiddleware).
-		 *
-		 * Please see your [SSR adapter's documentation](/en/guides/integrations-guide/#official-integrations) for using `edgeMiddleware` to define whether or not any SSR middleware code will be bundled when built.
-		 */
-		excludeMiddleware?: boolean;
 	};
 
 	/**
@@ -1183,28 +1156,6 @@ export interface AstroUserConfig {
 	 * @name Markdown Options
 	 */
 	markdown?: {
-		/**
-		 * @docs
-		 * @name markdown.drafts
-		 * @type {boolean}
-		 * @default `false`
-		 * @deprecated Deprecated since version 3.0. Use content collections instead.
-		 * @description
-		 * Control whether Markdown draft pages should be included in the build.
-		 *
-		 * A Markdown page is considered a draft if it includes `draft: true` in its frontmatter. Draft pages are always included & visible during development (`astro dev`) but by default they will not be included in your final build.
-		 *
-		 * ```js
-		 * {
-		 *   markdown: {
-		 *     // Example: Include all drafts in your final build
-		 *     drafts: true,
-		 *   }
-		 * }
-		 * ```
-		 */
-		drafts?: boolean;
-
 		/**
 		 * @docs
 		 * @name markdown.shikiConfig
@@ -2056,7 +2007,7 @@ export interface AstroAdapter {
 	 *
 	 * If the adapter is not able to handle certain configurations, Astro will throw an error.
 	 */
-	supportedAstroFeatures?: AstroFeatureMap;
+	supportedAstroFeatures: AstroFeatureMap;
 }
 
 type Body = string;

@@ -92,10 +92,6 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 }
 
 export function shouldBundleMiddleware(settings: AstroSettings) {
-	// TODO: Remove in Astro 4.0
-	if (settings.config.build.excludeMiddleware === true) {
-		return false;
-	}
 	if (settings.adapter?.adapterFeatures?.edgeMiddleware === true) {
 		return false;
 	}

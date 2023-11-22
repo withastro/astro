@@ -17,17 +17,6 @@ const UNSUPPORTED_ASSETS_FEATURE: AstroAssetsFeature = {
 	isSharpCompatible: false,
 };
 
-// NOTE: remove for Astro 4.0
-const ALL_UNSUPPORTED: Required<AstroFeatureMap> = {
-	serverOutput: UNSUPPORTED,
-	staticOutput: UNSUPPORTED,
-	hybridOutput: UNSUPPORTED,
-	assets: UNSUPPORTED_ASSETS_FEATURE,
-	i18n: {
-		detectBrowserLanguage: UNSUPPORTED,
-	},
-};
-
 type ValidationResult = {
 	[Property in keyof AstroFeatureMap]: boolean;
 };
@@ -41,7 +30,7 @@ type ValidationResult = {
  */
 export function validateSupportedFeatures(
 	adapterName: string,
-	featureMap: AstroFeatureMap = ALL_UNSUPPORTED,
+	featureMap: AstroFeatureMap,
 	config: AstroConfig,
 	logger: Logger
 ): ValidationResult {
@@ -105,18 +94,21 @@ function validateSupportKind(
 }
 
 function featureIsUnsupported(adapterName: string, logger: Logger, featureName: string) {
-	logger.error(
-		'config',
-		`The feature ${featureName} is not supported (used by ${adapterName}).`
-	);
+	logger.error('config', `The feature ${featureName} is not supported (used by ${adapterName}).`);
 }
 
 function featureIsExperimental(adapterName: string, logger: Logger) {
-	logger.warn('config', `The feature is experimental and subject to change (used by ${adapterName}).`);
+	logger.warn(
+		'config',
+		`The feature is experimental and subject to change (used by ${adapterName}).`
+	);
 }
 
 function featureIsDeprecated(adapterName: string, logger: Logger) {
-	logger.warn('config', `The feature is deprecated and will be removed in the future (used by ${adapterName}).`);
+	logger.warn(
+		'config',
+		`The feature is deprecated and will be removed in the future (used by ${adapterName}).`
+	);
 }
 
 const SHARP_SERVICE = 'astro/assets/services/sharp';
