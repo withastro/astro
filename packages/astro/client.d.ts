@@ -191,7 +191,7 @@ declare module 'astro:i18n' {
 
 	/**
 	 * @param {string} [path=""] An optional path to add after the `locale`.
-	 * @param {import('./dist/virtual-modules/i18n.jss').GetLocaleOptions} options Customise the generated path
+	 * @param {import('./dist/virtual-modules/i18n.js').GetLocaleOptions} options Customise the generated path
 	 * @return {string[]}
 	 *
 	 * Works like `getRelativeLocaleUrl` but it emits the relative URLs for ALL locales:
