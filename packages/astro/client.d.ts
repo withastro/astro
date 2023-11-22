@@ -1,4 +1,4 @@
-/// <reference path="./import-meta.d.ts" />
+/// <reference types="vite/types/import-meta.d.ts" />
 
 // eslint-disable-next-line  @typescript-eslint/no-namespace
 declare namespace App {
