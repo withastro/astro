@@ -133,7 +133,7 @@ describe('dev container', () => {
 								'astro:config:setup': ({ injectRoute }) => {
 									injectRoute({
 										pattern: '/another-[slug]',
-										entryPoint: './src/components/test.astro',
+										entrypoint: './src/components/test.astro',
 									});
 								},
 							},
@@ -184,7 +184,7 @@ describe('dev container', () => {
 								'astro:config:setup': ({ injectRoute }) => {
 									injectRoute({
 										pattern: '/404',
-										entryPoint: './src/components/404.astro',
+										entrypoint: './src/components/404.astro',
 									});
 								},
 							},
