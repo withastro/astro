@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixed view transition issue on webKit browsers that prevented scrolling to #fragments 
+Fixes a view transition issue on webKit browsers that prevented scrolling to #fragments 
