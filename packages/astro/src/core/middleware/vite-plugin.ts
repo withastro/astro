@@ -7,7 +7,7 @@ import type { BuildInternals } from '../build/internal.js';
 import type { StaticBuildOptions } from '../build/types.js';
 import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
 
-export const MIDDLEWARE_MODULE_ID = '@astro-middleware';
+export const MIDDLEWARE_MODULE_ID = '\0astro-internal:middleware';
 const EMPTY_MIDDLEWARE = '\0empty-middleware';
 
 export function vitePluginMiddleware({ settings }: { settings: AstroSettings }): VitePlugin {
