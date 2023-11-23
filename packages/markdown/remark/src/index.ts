@@ -35,7 +35,7 @@ export { remarkShiki } from './remark-shiki.js';
 export { createShikiHighlighter, replaceCssVariables, type ShikiHighlighter } from './shiki.js';
 export * from './types.js';
 
-export const markdownConfigDefaults: Omit<Required<AstroMarkdownOptions>, 'drafts'> = {
+export const markdownConfigDefaults: Required<AstroMarkdownOptions> = {
 	syntaxHighlight: 'shiki',
 	shikiConfig: {
 		langs: [],

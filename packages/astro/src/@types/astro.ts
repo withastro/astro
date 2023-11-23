@@ -143,7 +143,6 @@ export interface CLIFlags {
 	host?: string | boolean;
 	port?: number;
 	config?: string;
-	drafts?: boolean;
 	open?: boolean;
 }
 
@@ -1700,10 +1699,6 @@ export interface ComponentInstance {
 	css?: string[];
 	partial?: boolean;
 	prerender?: boolean;
-	/**
-	 * Only used for logging if deprecated drafts feature is used
-	 */
-	frontmatter?: Record<string, any>;
 	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 
@@ -2096,7 +2091,7 @@ export interface APIContext<
 	 *   ];
 	 * }
 	 *
-	 * export async function get({ params }) {
+	 * export async function GET({ params }) {
 	 *  return {
 	 * 	  body: `Hello user ${params.id}!`,
 	 *  }
@@ -2119,7 +2114,7 @@ export interface APIContext<
 	 *   ];
 	 * }
 	 *
-	 * export function get({ props }) {
+	 * export function GET({ props }) {
 	 *   return {
 	 *     body: `Hello ${props.name}!`,
 	 *   }
@@ -2135,7 +2130,7 @@ export interface APIContext<
 	 * Example usage:
 	 * ```ts
 	 * // src/pages/secret.ts
-	 * export function get({ redirect }) {
+	 * export function GET({ redirect }) {
 	 *   return redirect('/login');
 	 * }
 	 * ```

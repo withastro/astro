@@ -82,7 +82,6 @@ const rssOptionsValidator = z.object({
 			return items;
 		}),
 	xmlns: z.record(z.string()).optional(),
-	drafts: z.boolean().default(false),
 	stylesheet: z.union([z.string(), z.boolean()]).optional(),
 	customData: z.string().optional(),
 	trailingSlash: z.boolean().default(true),
@@ -149,10 +148,7 @@ export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeed
 
 /** Generate RSS 2.0 feed */
 async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
-	const { site } = rssOptions;
-	const items = rssOptions.drafts
-		? rssOptions.items
-		: rssOptions.items.filter((item) => !item.draft);
+	const { items, site } = rssOptions;
 
 	const xmlOptions = {
 		ignoreAttributes: false,

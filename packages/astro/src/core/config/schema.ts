@@ -226,7 +226,6 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.image),
 	markdown: z
 		.object({
-			drafts: z.boolean().default(false),
 			syntaxHighlight: z
 				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.syntaxHighlight),
