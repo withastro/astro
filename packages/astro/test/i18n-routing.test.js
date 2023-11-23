@@ -701,7 +701,6 @@ describe('[SSG] i18n routing', () => {
 
 		it('should render the en locale', async () => {
 			let html = await fixture.readFile('/index.html');
-			let $ = cheerio.load(html);
 			expect(html).to.include('http-equiv="refresh');
 			expect(html).to.include('Redirecting to: /en');
 		});
@@ -953,9 +952,8 @@ describe('[SSR] i18n routing', () => {
 		it('should redirect to the english locale, which is the first fallback', async () => {
 			let request = new Request('http://example.com/new-site/it/start');
 			let response = await app.render(request);
-			console.log(await response.text());
-			// expect(response.status).to.equal(302);
-			// expect(response.headers.get('location')).to.equal('/new-site/start');
+			expect(response.status).to.equal(302);
+			expect(response.headers.get('location')).to.equal('/new-site/start');
 		});
 
 		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
