@@ -19,7 +19,7 @@ export function injectImageEndpoint(settings: AstroSettings, mode: 'dev' | 'buil
 
 	settings.injectedRoutes.push({
 		pattern: '/_image',
-		entryPoint: endpointEntrypoint,
+		entrypoint: endpointEntrypoint,
 		prerender: false,
 	});
 
