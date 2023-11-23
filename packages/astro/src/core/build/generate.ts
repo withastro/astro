@@ -8,7 +8,6 @@ import type {
 	AstroSettings,
 	ComponentInstance,
 	GetStaticPathsItem,
-	MiddlewareEndpointHandler,
 	RouteData,
 	RouteType,
 	SSRError,
@@ -244,10 +243,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 
 		await queue.onIdle();
 		const assetsTimeEnd = performance.now();
-		logger.info(
-			null,
-			green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`)
-		);
+		logger.info(null, green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
 
 		delete globalThis?.astroAsset?.addStaticImage;
 	}
@@ -286,15 +282,13 @@ async function generatePage(
 	);
 	if (config.experimental.i18n && i18nMiddleware) {
 		if (onRequest) {
-			pipeline.setMiddlewareFunction(
-				sequence(i18nMiddleware, onRequest as MiddlewareEndpointHandler)
-			);
+			pipeline.setMiddlewareFunction(sequence(i18nMiddleware, onRequest));
 		} else {
 			pipeline.setMiddlewareFunction(i18nMiddleware);
 		}
 		pipeline.onBeforeRenderRoute(i18nPipelineHook);
 	} else if (onRequest) {
-		pipeline.setMiddlewareFunction(onRequest as MiddlewareEndpointHandler);
+		pipeline.setMiddlewareFunction(onRequest);
 	}
 	if (!pageModulePromise) {
 		throw new Error(
@@ -390,13 +384,13 @@ async function getPathsForRoute(
 				throw err;
 			});
 
-		const label = staticPaths.length === 1 ? 'page' : 'pages';
-		logger.debug(
-			'build',
-			`├── ${bold(green('✔'))} ${route.component} → ${magenta(
-				`[${staticPaths.length} ${label}]`
-			)}`
-		);
+			const label = staticPaths.length === 1 ? 'page' : 'pages';
+			logger.debug(
+				'build',
+				`├── ${bold(green('✔'))} ${route.component} → ${magenta(
+					`[${staticPaths.length} ${label}]`
+				)}`
+			);
 
 			paths.push(
 				...staticPaths
@@ -587,7 +581,6 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		});
 
 		let body: string | Uint8Array;
-		let encoding: BufferEncoding | undefined;
 
 		let response: Response;
 		try {
@@ -630,7 +623,6 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 			// If there's no body, do nothing
 			if (!response.body) return;
 			body = Buffer.from(await response.arrayBuffer());
-			encoding = (response.headers.get('X-Astro-Encoding') as BufferEncoding | null) ?? 'utf-8';
 		}
 
 		const outFolder = getOutFolder(pipeline.getConfig(), pathname, route.type);
@@ -638,7 +630,7 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		route.distURL = outFile;
 
 		await fs.promises.mkdir(outFolder, { recursive: true });
-		await fs.promises.writeFile(outFile, body, encoding);
+		await fs.promises.writeFile(outFile, body);
 	}
 }
 

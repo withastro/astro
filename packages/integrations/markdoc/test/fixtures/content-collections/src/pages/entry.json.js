@@ -4,7 +4,5 @@ import { stripRenderFn } from '../../utils.js';
 
 export async function get() {
 	const post = await getEntryBySlug('blog', 'post-1');
-	return {
-		body: stringify(stripRenderFn(post)),
-	};
+	return new Response(stringify(stripRenderFn(post)));
 }

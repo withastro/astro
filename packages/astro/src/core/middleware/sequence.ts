@@ -1,4 +1,4 @@
-import type { APIContext, MiddlewareEndpointHandler } from '../../@types/astro.js';
+import type { APIContext, MiddlewareHandler } from '../../@types/astro.js';
 import { defineMiddleware } from './index.js';
 
 // From SvelteKit: https://github.com/sveltejs/kit/blob/master/packages/kit/src/exports/hooks/sequence.js
@@ -6,11 +6,11 @@ import { defineMiddleware } from './index.js';
  *
  * It accepts one or more middleware handlers and makes sure that they are run in sequence.
  */
-export function sequence(...handlers: MiddlewareEndpointHandler[]): MiddlewareEndpointHandler {
+export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 	const filtered = handlers.filter((h) => !!h);
 	const length = filtered.length;
 	if (!length) {
-		const handler: MiddlewareEndpointHandler = defineMiddleware((context, next) => {
+		const handler: MiddlewareHandler = defineMiddleware((context, next) => {
 			return next();
 		});
 		return handler;
