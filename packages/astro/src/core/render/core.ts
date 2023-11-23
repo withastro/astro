@@ -76,7 +76,7 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		result,
 		Component,
 		renderContext.props,
-		null,
+		{},
 		env.streaming,
 		renderContext.route
 	);
