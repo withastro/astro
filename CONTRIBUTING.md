@@ -200,7 +200,7 @@ By default, `create-astro` and [astro.new](https://astro.new) point to this bran
 ## Releasing Astro
 
 > [!Note]
-> _Only [core maintainers (L3+)](https://github.com/withastro/.github/blob/main/GOVERNANCE.md#level-3-l3---core) can release new versions of Astro._
+> Only [core maintainers (L3+)](https://github.com/withastro/.github/blob/main/GOVERNANCE.md#level-3-l3---core) can release new versions of Astro.
 
 The repo is set up with automatic releases, using the changeset GitHub action & bot.
 
