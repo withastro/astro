@@ -226,7 +226,7 @@ function canPrefetchUrl(url: string, ignoreSlowConnection: boolean) {
 		const urlObj = new URL(url, location.href);
 		return (
 			location.origin === urlObj.origin &&
-			location.pathname !== urlObj.pathname &&
+			(location.pathname !== urlObj.pathname || location.search !== urlObj.search) &&
 			!prefetchedUrls.has(url)
 		);
 	} catch {}
