@@ -1,12 +1,13 @@
 import type { ComponentInstance, Params, Props, RouteData } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
+import { routeIsFallback } from '../redirects/helpers.js';
 import { routeIsRedirect } from '../redirects/index.js';
 import { getParams } from '../routing/params.js';
 import { RouteCache, callGetStaticPaths, findPathItemByKey } from './route-cache.js';
 
 interface GetParamsAndPropsOptions {
-	mod: ComponentInstance;
+	mod: ComponentInstance | undefined;
 	route?: RouteData | undefined;
 	routeCache: RouteCache;
 	pathname: string;
@@ -26,11 +27,13 @@ export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise
 	// This is a dynamic route, start getting the params
 	const params = getRouteParams(route, pathname) ?? {};
 
-	if (routeIsRedirect(route)) {
+	if (routeIsRedirect(route) || routeIsFallback(route)) {
 		return [params, {}];
 	}
 
-	validatePrerenderEndpointCollision(route, mod, params);
+	if (mod) {
+		validatePrerenderEndpointCollision(route, mod, params);
+	}
 
 	// During build, the route cache should already be populated.
 	// During development, the route cache is filled on-demand and may be empty.

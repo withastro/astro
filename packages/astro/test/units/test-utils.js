@@ -78,6 +78,14 @@ class VirtualVolumeWithFallback extends VirtualVolume {
 			}
 		});
 	}
+
+	readFileSync(p, ...args) {
+		try {
+			return super.readFileSync(p, ...args);
+		} catch (e) {
+			return realFS.readFileSync(p, ...args);
+		}
+	}
 }
 
 export function createFs(json, root, VolumeImpl = VirtualVolume) {

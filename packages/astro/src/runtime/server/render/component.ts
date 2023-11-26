@@ -13,12 +13,10 @@ import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
 import { isPromise } from '../util.js';
-import {
-	createAstroComponentInstance,
-	isAstroComponentFactory,
-	renderTemplate,
-	type AstroComponentFactory,
-} from './astro/index.js';
+import { isAstroComponentFactory, type AstroComponentFactory } from './astro/factory.js';
+import { renderTemplate } from './astro/index.js';
+import { createAstroComponentInstance } from './astro/instance.js';
+
 import {
 	Fragment,
 	Renderer,

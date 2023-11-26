@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "3.4.3",
+  "version": "3.6.0",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -78,7 +78,11 @@
       "default": "./dist/core/middleware/namespace.js"
     },
     "./transitions": "./dist/transitions/index.js",
-    "./transitions/router": "./dist/transitions/router.js"
+    "./transitions/events": "./dist/transitions/events.js",
+    "./transitions/router": "./dist/transitions/router.js",
+    "./transitions/types": "./dist/transitions/types.js",
+    "./prefetch": "./dist/prefetch/index.js",
+    "./i18n": "./dist/i18n/index.js"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
@@ -120,7 +124,7 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^2.1.0",
+    "@astrojs/compiler": "^2.3.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
@@ -184,7 +188,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.1.0",
-    "@playwright/test": "^1.37.1",
+    "@playwright/test": "1.40.0-alpha-nov-13-2023",
     "@types/babel__generator": "^7.6.4",
     "@types/babel__traverse": "^7.20.1",
     "@types/chai": "^4.3.5",
@@ -212,7 +216,7 @@
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
     "eol": "^0.9.1",
-    "memfs": "^4.2.1",
+    "memfs": "^4.6.0",
     "mocha": "^10.2.0",
     "node-mocks-http": "^1.13.0",
     "parse-srcset": "^1.0.2",

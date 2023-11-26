@@ -14,7 +14,7 @@ async function loadRemoteImage(src: URL) {
 			return undefined;
 		}
 
-		return Buffer.from(await res.arrayBuffer());
+		return await res.arrayBuffer();
 	} catch (err: unknown) {
 		return undefined;
 	}
@@ -38,7 +38,7 @@ export const GET: APIRoute = async ({ request }) => {
 			throw new Error('Incorrect transform returned by `parseURL`');
 		}
 
-		let inputBuffer: Buffer | undefined = undefined;
+		let inputBuffer: ArrayBuffer | undefined = undefined;
 
 		const sourceUrl = isRemotePath(transform.src)
 			? new URL(transform.src)
@@ -54,7 +54,11 @@ export const GET: APIRoute = async ({ request }) => {
 			return new Response('Not Found', { status: 404 });
 		}
 
-		const { data, format } = await imageService.transform(inputBuffer, transform, imageConfig);
+		const { data, format } = await imageService.transform(
+			new Uint8Array(inputBuffer),
+			transform,
+			imageConfig
+		);
 
 		return new Response(data, {
 			status: 200,

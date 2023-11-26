@@ -77,7 +77,7 @@ export function normalizeEntryId(id: string): string {
 
 export function pluginComponentEntry(internals: BuildInternals): AstroBuildPlugin {
 	return {
-		build: 'client',
+		targets: ['client'],
 		hooks: {
 			'build:before': () => {
 				return {

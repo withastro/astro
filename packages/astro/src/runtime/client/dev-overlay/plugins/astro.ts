@@ -1,17 +1,20 @@
 import type { DevOverlayPlugin } from '../../../../@types/astro.js';
+import { createWindowWithTransition, waitForTransition } from './utils/window.js';
 
 export default {
 	id: 'astro',
 	name: 'Astro',
 	icon: 'astro:logo',
 	init(canvas) {
-		const astroWindow = document.createElement('astro-dev-overlay-window');
+		createWindow();
 
-		astroWindow.windowTitle = 'Astro';
-		astroWindow.windowIcon = 'astro:logo';
+		document.addEventListener('astro:after-swap', createWindow);
 
-		astroWindow.innerHTML = `
-			<style>
+		function createWindow() {
+			const window = createWindowWithTransition(
+				'Astro',
+				'astro:logo',
+				`<style>
 				#buttons-container {
 					display: flex;
 					gap: 16px;
@@ -52,17 +55,22 @@ export default {
 				<div>
 					<p>Welcome to Astro!</p>
 					<div id="buttons-container">
-						<astro-dev-overlay-card icon="astro:logo" link="https://github.com/withastro/astro/issues/new/choose">Report an issue</astro-dev-overlay-card>
-						<astro-dev-overlay-card icon="astro:logo" link="https://docs.astro.build/en/getting-started/">View Astro Docs</astro-dev-overlay-card>
+						<astro-dev-overlay-card icon="bug" link="https://github.com/withastro/astro/issues/new/choose">Report an issue</astro-dev-overlay-card>
+						<astro-dev-overlay-card icon="file-search" link="https://docs.astro.build/en/getting-started/">View Astro Docs</astro-dev-overlay-card>
 					</div>
 				</div>
 				<footer>
-					<a href="https://discord.gg/astro" target="_blank">Join the Astro Discord</a>
-					<a href="https://astro.build" target="_blank">Visit Astro.build</a>
+					<a href="https://astro.build/chat" target="_blank">Join us on Discord</a>
+					<a href="https://astro.build" target="_blank">Visit the Astro website</a>
 				</footer>
 			</div>
-		`;
+		`
+			);
 
-		canvas.append(astroWindow);
+			canvas.append(window);
+		}
+	},
+	async beforeTogglingOff(canvas) {
+		return await waitForTransition(canvas);
 	},
 } satisfies DevOverlayPlugin;

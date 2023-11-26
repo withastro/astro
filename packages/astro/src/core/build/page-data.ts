@@ -47,6 +47,7 @@ export async function collectPagesData(
 				clearInterval(routeCollectionLogTimeout);
 			}, 10000);
 			builtPaths.add(route.pathname);
+
 			allPages[route.component] = {
 				component: route.component,
 				route,
@@ -70,6 +71,7 @@ export async function collectPagesData(
 			continue;
 		}
 		// dynamic route:
+
 		allPages[route.component] = {
 			component: route.component,
 			route,
@@ -82,6 +84,5 @@ export async function collectPagesData(
 	}
 
 	clearInterval(dataCollectionLogTimeout);
-
 	return { assets, allPages };
 }

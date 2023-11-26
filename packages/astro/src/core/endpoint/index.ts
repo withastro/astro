@@ -12,7 +12,12 @@ import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachCookiesToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
-import type { Environment, RenderContext } from '../render/index.js';
+import {
+	computeCurrentLocale,
+	computePreferredLocale,
+	computePreferredLocaleList,
+} from '../render/context.js';
+import { type Environment, type RenderContext } from '../render/index.js';
 
 const encoder = new TextEncoder();
 
@@ -25,6 +30,9 @@ type CreateAPIContext = {
 	site?: string;
 	props: Record<string, any>;
 	adapterName?: string;
+	locales: string[] | undefined;
+	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined;
+	defaultLocale: string | undefined;
 };
 
 /**
@@ -38,7 +46,14 @@ export function createAPIContext({
 	site,
 	props,
 	adapterName,
+	locales,
+	routingStrategy,
+	defaultLocale,
 }: CreateAPIContext): APIContext {
+	let preferredLocale: string | undefined = undefined;
+	let preferredLocaleList: string[] | undefined = undefined;
+	let currentLocale: string | undefined = undefined;
+
 	const context = {
 		cookies: new AstroCookies(request),
 		request,
@@ -55,6 +70,38 @@ export function createAPIContext({
 			});
 		},
 		ResponseWithEncoding,
+		get preferredLocale(): string | undefined {
+			if (preferredLocale) {
+				return preferredLocale;
+			}
+			if (locales) {
+				preferredLocale = computePreferredLocale(request, locales);
+				return preferredLocale;
+			}
+
+			return undefined;
+		},
+		get preferredLocaleList(): string[] | undefined {
+			if (preferredLocaleList) {
+				return preferredLocaleList;
+			}
+			if (locales) {
+				preferredLocaleList = computePreferredLocaleList(request, locales);
+				return preferredLocaleList;
+			}
+
+			return undefined;
+		},
+		get currentLocale(): string | undefined {
+			if (currentLocale) {
+				return currentLocale;
+			}
+			if (locales) {
+				currentLocale = computeCurrentLocale(request, locales, routingStrategy, defaultLocale);
+			}
+
+			return currentLocale;
+		},
 		url: new URL(request.url),
 		get clientAddress() {
 			if (clientAddressSymbol in request) {
@@ -125,7 +172,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	mod: EndpointHandler,
 	env: Environment,
 	ctx: RenderContext,
-	onRequest?: MiddlewareHandler<MiddlewareResult> | undefined
+	onRequest: MiddlewareHandler<MiddlewareResult> | undefined
 ): Promise<Response> {
 	const context = createAPIContext({
 		request: ctx.request,
@@ -133,6 +180,9 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 		props: ctx.props,
 		site: env.site,
 		adapterName: env.adapterName,
+		routingStrategy: ctx.routingStrategy,
+		defaultLocale: ctx.defaultLocale,
+		locales: ctx.locales,
 	});
 
 	let response;

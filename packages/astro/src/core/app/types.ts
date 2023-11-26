@@ -37,6 +37,7 @@ export type SSRManifest = {
 	routes: RouteInfo[];
 	site?: string;
 	base: string;
+	trailingSlash: 'always' | 'never' | 'ignore';
 	compressHTML: boolean;
 	assetsPrefix?: string;
 	renderers: SSRLoadedRenderer[];
@@ -49,6 +50,14 @@ export type SSRManifest = {
 	componentMetadata: SSRResult['componentMetadata'];
 	pageModule?: SinglePageBuiltModule;
 	pageMap?: Map<ComponentPath, ImportComponentInstance>;
+	i18n: SSRManifestI18n | undefined;
+};
+
+export type SSRManifestI18n = {
+	fallback?: Record<string, string>;
+	routingStrategy?: 'prefix-always' | 'prefix-other-locales';
+	locales: string[];
+	defaultLocale: string;
 };
 
 export type SerializedSSRManifest = Omit<
@@ -60,8 +69,3 @@ export type SerializedSSRManifest = Omit<
 	componentMetadata: [string, SSRComponentMetadata][];
 	clientDirectives: [string, string][];
 };
-
-export type AdapterCreateExports<T = any> = (
-	manifest: SSRManifest,
-	args?: T
-) => Record<string, any>;

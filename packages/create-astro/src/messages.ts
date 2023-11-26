@@ -31,6 +31,7 @@ export async function say(messages: string | string[], { clear = false, hat = ''
 export async function spinner(args: {
 	start: string;
 	end: string;
+	onError?: (error: any) => void;
 	while: (...args: any) => Promise<any>;
 }) {
 	await load(args, { stdout });

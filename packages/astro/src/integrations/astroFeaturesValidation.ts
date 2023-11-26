@@ -23,6 +23,9 @@ const ALL_UNSUPPORTED: Required<AstroFeatureMap> = {
 	staticOutput: UNSUPPORTED,
 	hybridOutput: UNSUPPORTED,
 	assets: UNSUPPORTED_ASSETS_FEATURE,
+	i18n: {
+		detectBrowserLanguage: UNSUPPORTED,
+	},
 };
 
 type ValidationResult = {

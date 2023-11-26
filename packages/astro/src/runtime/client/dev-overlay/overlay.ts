@@ -1,11 +1,15 @@
 /* eslint-disable no-console */
 import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@types/astro.js';
+import { settings } from './settings.js';
 import { getIconElement, isDefinedIcon, type Icon } from './ui-library/icons.js';
 
 export type DevOverlayPlugin = DevOverlayPluginDefinition & {
 	builtIn: boolean;
 	active: boolean;
 	status: 'ready' | 'loading' | 'error';
+	notification: {
+		state: boolean;
+	};
 	eventTarget: EventTarget;
 };
 
@@ -19,6 +23,7 @@ export class AstroDevOverlay extends HTMLElement {
 	plugins: DevOverlayPlugin[] = [];
 	HOVER_DELAY = 750;
 	hasBeenInitialized = false;
+	customPluginsToShow = 3;
 
 	constructor() {
 		super();
@@ -51,7 +56,7 @@ export class AstroDevOverlay extends HTMLElement {
 				display: flex;
 				gap: 8px;
 				align-items: center;
-				transition: bottom 0.2s ease-in-out;
+				transition: bottom 0.35s cubic-bezier(0.485, -0.050, 0.285, 1.505);
 				pointer-events: none;
 			}
 
@@ -72,11 +77,10 @@ export class AstroDevOverlay extends HTMLElement {
 				height: 56px;
 				overflow: hidden;
 				pointer-events: auto;
-
 				background: linear-gradient(180deg, #13151A 0%, rgba(19, 21, 26, 0.88) 100%);
-				box-shadow: 0px 0px 0px 0px #13151A4D;
 				border: 1px solid #343841;
 				border-radius: 9999px;
+				box-shadow: 0px 0px 0px 0px rgba(19, 21, 26, 0.30), 0px 1px 2px 0px rgba(19, 21, 26, 0.29), 0px 4px 4px 0px rgba(19, 21, 26, 0.26), 0px 10px 6px 0px rgba(19, 21, 26, 0.15), 0px 17px 7px 0px rgba(19, 21, 26, 0.04), 0px 26px 7px 0px rgba(19, 21, 26, 0.01);
 			}
 
 			#dev-bar .item {
@@ -164,8 +168,8 @@ export class AstroDevOverlay extends HTMLElement {
 			#dev-bar .item .notification {
 				display: none;
 				position: absolute;
-				top: -2px;
-				right: 0;
+				top: -4px;
+				right: -6px;
 				width: 8px;
 				height: 8px;
 				border-radius: 9999px;
@@ -185,16 +189,6 @@ export class AstroDevOverlay extends HTMLElement {
 			#dev-bar .separator {
 				background: rgba(52, 56, 65, 1);
 				width: 1px;
-			}
-
-			astro-dev-overlay-plugin-canvas {
-				position: absolute;
-				top: 0;
-				left: 0;
-			}
-
-			astro-dev-overlay-plugin-canvas:not([data-active]) {
-				display: none;
 			}
 
 			#minimize-button {
@@ -246,14 +240,31 @@ export class AstroDevOverlay extends HTMLElement {
 			<div id="dev-bar">
 				<div id="bar-container">
 					${this.plugins
-						.filter((plugin) => plugin.builtIn)
+						.filter(
+							(plugin) => plugin.builtIn && !['astro:settings', 'astro:more'].includes(plugin.id)
+						)
 						.map((plugin) => this.getPluginTemplate(plugin))
 						.join('')}
+					${
+						this.plugins.filter((plugin) => !plugin.builtIn).length > 0
+							? `<div class="separator"></div>${this.plugins
+									.filter((plugin) => !plugin.builtIn)
+									.slice(0, this.customPluginsToShow)
+									.map((plugin) => this.getPluginTemplate(plugin))
+									.join('')}`
+							: ''
+					}
+					${
+						this.plugins.filter((plugin) => !plugin.builtIn).length > this.customPluginsToShow
+							? this.getPluginTemplate(
+									this.plugins.find((plugin) => plugin.builtIn && plugin.id === 'astro:more')!
+							  )
+							: ''
+					}
 					<div class="separator"></div>
-					${this.plugins
-						.filter((plugin) => !plugin.builtIn)
-						.map((plugin) => this.getPluginTemplate(plugin))
-						.join('')}
+					${this.getPluginTemplate(
+						this.plugins.find((plugin) => plugin.builtIn && plugin.id === 'astro:settings')!
+					)}
 				</div>
 			</div>
 			<button id="minimize-button">${getIconElement('arrow-down')?.outerHTML}</button>
@@ -263,15 +274,16 @@ export class AstroDevOverlay extends HTMLElement {
 		}
 
 		// Create plugin canvases
-		this.plugins.forEach((plugin) => {
+		this.plugins.forEach(async (plugin) => {
 			if (!this.hasBeenInitialized) {
-				console.log(`Creating plugin canvas for ${plugin.id}`);
+				if (settings.config.verbose) console.log(`Creating plugin canvas for ${plugin.id}`);
+
 				const pluginCanvas = document.createElement('astro-dev-overlay-plugin-canvas');
 				pluginCanvas.dataset.pluginId = plugin.id;
 				this.shadowRoot?.append(pluginCanvas);
 			}
 
-			this.togglePluginStatus(plugin, plugin.active);
+			await this.togglePluginStatus(plugin, plugin.active);
 		});
 
 		// Init plugin lazily - This is safe to do here because only plugins that are not initialized yet will be affected
@@ -306,7 +318,7 @@ export class AstroDevOverlay extends HTMLElement {
 					await this.initPlugin(plugin);
 				}
 
-				this.togglePluginStatus(plugin);
+				await this.togglePluginStatus(plugin);
 			});
 		});
 
@@ -332,7 +344,7 @@ export class AstroDevOverlay extends HTMLElement {
 					if (this.isHidden()) {
 						this.hoverTimeout = window.setTimeout(() => {
 							this.toggleOverlay(true);
-						}, this.HOVER_DELAY);
+						}, this.HOVER_DELAY + 200); // Slightly higher delay here to prevent users opening the overlay by accident
 					} else {
 						this.hoverTimeout = window.setTimeout(() => {
 							this.toggleMinimizeButton(true);
@@ -385,7 +397,8 @@ export class AstroDevOverlay extends HTMLElement {
 		const shadowRoot = this.getPluginCanvasById(plugin.id)!.shadowRoot!;
 
 		try {
-			console.info(`Initializing plugin ${plugin.id}`);
+			if (settings.config.verbose) console.info(`Initializing plugin ${plugin.id}`);
+
 			await plugin.init?.(shadowRoot, plugin.eventTarget);
 			plugin.status = 'ready';
 
@@ -418,30 +431,62 @@ export class AstroDevOverlay extends HTMLElement {
 	}
 
 	getPluginCanvasById(id: string) {
-		return this.shadowRoot.querySelector(`astro-dev-overlay-plugin-canvas[data-plugin-id="${id}"]`);
+		return this.shadowRoot.querySelector<HTMLElement>(
+			`astro-dev-overlay-plugin-canvas[data-plugin-id="${id}"]`
+		);
 	}
 
-	togglePluginStatus(plugin: DevOverlayPlugin, status?: boolean) {
-		plugin.active = status ?? !plugin.active;
-		const target = this.shadowRoot.querySelector(`[data-plugin-id="${plugin.id}"]`);
-		if (!target) return;
-		target.classList.toggle('active', plugin.active);
-		this.getPluginCanvasById(plugin.id)?.toggleAttribute('data-active', plugin.active);
+	/**
+	 * @param plugin The plugin to toggle the status of
+	 * @param newStatus Optionally, force the plugin into a specific state
+	 */
+	async togglePluginStatus(plugin: DevOverlayPlugin, newStatus?: boolean) {
+		const pluginCanvas = this.getPluginCanvasById(plugin.id);
+		if (!pluginCanvas) return;
 
-		plugin.eventTarget.dispatchEvent(
-			new CustomEvent('plugin-toggled', {
-				detail: {
-					state: plugin.active,
-					plugin,
-				},
-			})
+		if (plugin.active && !newStatus && plugin.beforeTogglingOff) {
+			const shouldToggleOff = await plugin.beforeTogglingOff(pluginCanvas.shadowRoot!);
+
+			// If the plugin returned false, don't toggle it off, maybe the plugin showed a confirmation dialog or similar
+			if (!shouldToggleOff) return;
+		}
+
+		plugin.active = newStatus ?? !plugin.active;
+		const mainBarButton = this.shadowRoot.querySelector(`[data-plugin-id="${plugin.id}"]`);
+		const moreBarButton = this.getPluginCanvasById('astro:more')?.shadowRoot?.querySelector(
+			`[data-plugin-id="${plugin.id}"]`
 		);
+
+		if (mainBarButton) {
+			mainBarButton.classList.toggle('active', plugin.active);
+		}
+
+		if (moreBarButton) {
+			moreBarButton.classList.toggle('active', plugin.active);
+		}
+
+		pluginCanvas.style.display = plugin.active ? 'block' : 'none';
+
+		window.requestAnimationFrame(() => {
+			pluginCanvas.toggleAttribute('data-active', plugin.active);
+			plugin.eventTarget.dispatchEvent(
+				new CustomEvent('plugin-toggled', {
+					detail: {
+						state: plugin.active,
+						plugin,
+					},
+				})
+			);
+		});
 
 		if (import.meta.hot) {
 			import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:toggled`, { state: plugin.active });
 		}
 	}
 
+	/**
+	 * @param newStatus Optionally, force the minimize button into a specific state
+	 */
 	toggleMinimizeButton(newStatus?: boolean) {
 		const minimizeButton = this.shadowRoot.querySelector<HTMLDivElement>('#minimize-button');
 		if (!minimizeButton) return;
@@ -492,5 +537,16 @@ export class DevOverlayCanvas extends HTMLElement {
 	constructor() {
 		super();
 		this.shadowRoot = this.attachShadow({ mode: 'open' });
+	}
+
+	connectedCallback() {
+		this.shadowRoot.innerHTML = `
+		<style>
+			:host {
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+		</style>`;
 	}
 }

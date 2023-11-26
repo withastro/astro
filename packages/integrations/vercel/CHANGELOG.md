@@ -1,5 +1,13 @@
 # @astrojs/vercel
 
+## 5.2.0
+
+### Minor Changes
+
+- [#8879](https://github.com/withastro/astro/pull/8879) [`754e4fd31`](https://github.com/withastro/astro/commit/754e4fd31ce49eadb2cf4951e941a48d11d10e73) Thanks [@lilnasy](https://github.com/lilnasy)! - The Vercel adapter now streams responses!
+
+  This brings better performance to your visitors by showing them content as it is rendered. The browser can also start loading the required stylesheets and scripts much sooner, which ultimately results in faster full page loads.
+
 ## 5.1.0
 
 ### Minor Changes

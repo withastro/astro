@@ -14,6 +14,7 @@ import { isServerLikeOutput } from '../prerender/utils.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { isESMImportedImage } from './internal.js';
 import { emitESMImage } from './utils/emitAsset.js';
+import { getProxyCode } from './utils/proxy.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
@@ -26,7 +27,9 @@ export default function assets({
 }: AstroPluginOptions & { mode: string }): vite.Plugin[] {
 	let resolvedConfig: vite.ResolvedConfig;
 
-	globalThis.astroAsset = {};
+	globalThis.astroAsset = {
+		referencedImages: new Set(),
+	};
 
 	return [
 		// Expose the components and different utilities from `astro:assets` and handle serving images from `/_image` in dev
@@ -39,7 +42,8 @@ export default function assets({
 				extendManualChunks(outputOptions, {
 					after(id) {
 						if (id.includes('astro/dist/assets/services/')) {
-							return `astro-assets-services`;
+							// By convention, library code is emitted to the `chunks/astro/*` directory
+							return `astro/assets-service`;
 						}
 					},
 				});
@@ -77,22 +81,36 @@ export default function assets({
 					return;
 				}
 
-				globalThis.astroAsset.addStaticImage = (options) => {
+				globalThis.astroAsset.addStaticImage = (options, hashProperties) => {
 					if (!globalThis.astroAsset.staticImages) {
 						globalThis.astroAsset.staticImages = new Map<
 							string,
-							Map<string, { finalPath: string; transform: ImageTransform }>
+							{
+								originalSrcPath: string;
+								transforms: Map<string, { finalPath: string; transform: ImageTransform }>;
+							}
 						>();
 					}
 
-					const originalImagePath = (
+					// Rollup will copy the file to the output directory, this refer to this final path, not to the original path
+					const finalOriginalImagePath = (
 						isESMImportedImage(options.src) ? options.src.src : options.src
 					).replace(settings.config.build.assetsPrefix || '', '');
-					const hash = hashTransform(options, settings.config.image.service.entrypoint);
+
+					// This, however, is the real original path, in `src` and all.
+					const originalSrcPath = isESMImportedImage(options.src)
+						? options.src.fsPath
+						: options.src;
+
+					const hash = hashTransform(
+						options,
+						settings.config.image.service.entrypoint,
+						hashProperties
+					);
 
 					let finalFilePath: string;
-					let transformsForPath = globalThis.astroAsset.staticImages.get(originalImagePath);
-					let transformForHash = transformsForPath?.get(hash);
+					let transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalImagePath);
+					let transformForHash = transformsForPath?.transforms.get(hash);
 					if (transformsForPath && transformForHash) {
 						finalFilePath = transformForHash.finalPath;
 					} else {
@@ -101,11 +119,17 @@ export default function assets({
 						);
 
 						if (!transformsForPath) {
-							globalThis.astroAsset.staticImages.set(originalImagePath, new Map());
-							transformsForPath = globalThis.astroAsset.staticImages.get(originalImagePath)!;
+							globalThis.astroAsset.staticImages.set(finalOriginalImagePath, {
+								originalSrcPath: originalSrcPath,
+								transforms: new Map(),
+							});
+							transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalImagePath)!;
 						}
 
-						transformsForPath.set(hash, { finalPath: finalFilePath, transform: options });
+						transformsForPath.transforms.set(hash, {
+							finalPath: finalFilePath,
+							transform: options,
+						});
 					}
 
 					if (settings.config.build.assetsPrefix) {
@@ -151,7 +175,7 @@ export default function assets({
 			configResolved(viteConfig) {
 				resolvedConfig = viteConfig;
 			},
-			async load(id) {
+			async load(id, options) {
 				// If our import has any query params, we'll let Vite handle it
 				// See https://github.com/withastro/astro/issues/8333
 				if (id !== removeQueryString(id)) {
@@ -167,7 +191,18 @@ export default function assets({
 						});
 					}
 
-					return `export default ${JSON.stringify(meta)}`;
+					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.
+					// Since you cannot use image optimization on the client anyway, it's safe to assume that if the user imported
+					// an image on the client, it should be present in the final build.
+					if (options?.ssr) {
+						return `export default ${getProxyCode(meta, isServerLikeOutput(settings.config))}`;
+					} else {
+						if (!globalThis.astroAsset.referencedImages)
+							globalThis.astroAsset.referencedImages = new Set();
+
+						globalThis.astroAsset.referencedImages.add(meta.fsPath);
+						return `export default ${JSON.stringify(meta)}`;
+					}
 				}
 			},
 		},

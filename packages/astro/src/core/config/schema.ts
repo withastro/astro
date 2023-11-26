@@ -61,6 +61,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		optimizeHoistedScript: false,
 		devOverlay: false,
+		contentCollectionCache: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -192,6 +193,15 @@ export const AstroConfigSchema = z.object({
 			])
 		)
 		.default(ASTRO_CONFIG_DEFAULTS.redirects),
+	prefetch: z
+		.union([
+			z.boolean(),
+			z.object({
+				prefetchAll: z.boolean().optional(),
+				defaultStrategy: z.enum(['tap', 'hover', 'viewport']).optional(),
+			}),
+		])
+		.optional(),
 	image: z
 		.object({
 			endpoint: z.string().optional(),
@@ -283,7 +293,14 @@ export const AstroConfigSchema = z.object({
 					theme: z
 						.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
 						.or(z.custom<ShikiTheme>())
-						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme as BuiltinTheme),
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme!),
+					experimentalThemes: z
+						.record(
+							z
+								.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
+								.or(z.custom<ShikiTheme>())
+						)
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.experimentalThemes!),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
 				})
 				.default({}),
@@ -323,6 +340,59 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.optimizeHoistedScript),
 			devOverlay: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.devOverlay),
+			i18n: z.optional(
+				z
+					.object({
+						defaultLocale: z.string(),
+						locales: z.string().array(),
+						fallback: z.record(z.string(), z.string()).optional(),
+						// TODO: properly add default when the feature goes of experimental
+						routingStrategy: z
+							.enum(['prefix-always', 'prefix-other-locales'])
+							.optional()
+							.default('prefix-other-locales'),
+					})
+					.optional()
+					.superRefine((i18n, ctx) => {
+						if (i18n) {
+							const { defaultLocale, locales, fallback } = i18n;
+							if (!locales.includes(defaultLocale)) {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message: `The default locale \`${defaultLocale}\` is not present in the \`i18n.locales\` array.`,
+								});
+							}
+							if (fallback) {
+								for (const [fallbackFrom, fallbackTo] of Object.entries(fallback)) {
+									if (!locales.includes(fallbackFrom)) {
+										ctx.addIssue({
+											code: z.ZodIssueCode.custom,
+											message: `The locale \`${fallbackFrom}\` key in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+										});
+									}
+
+									if (fallbackFrom === defaultLocale) {
+										ctx.addIssue({
+											code: z.ZodIssueCode.custom,
+											message: `You can't use the default locale as a key. The default locale can only be used as value.`,
+										});
+									}
+
+									if (!locales.includes(fallbackTo)) {
+										ctx.addIssue({
+											code: z.ZodIssueCode.custom,
+											message: `The locale \`${fallbackTo}\` value in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+										});
+									}
+								}
+							}
+						}
+					})
+			),
+			contentCollectionCache: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`

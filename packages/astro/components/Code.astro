@@ -10,8 +10,7 @@ import type {
 	ThemeRegistration,
 	ThemeRegistrationRaw,
 } from 'shikiji';
-import { visit } from 'unist-util-visit';
-import { getCachedHighlighter, replaceCssVariables } from '../dist/core/shiki.js';
+import { getCachedHighlighter } from '../dist/core/shiki.js';
 
 interface Props {
 	/** The code to highlight. Required. */
@@ -33,6 +32,11 @@ interface Props {
 	 */
 	theme?: BuiltinTheme | ThemeRegistration | ThemeRegistrationRaw;
 	/**
+	 * Multiple themes to style with -- alternative to "theme" option.
+	 * Supports all themes found above; see https://github.com/antfu/shikiji#lightdark-dual-themes for more information.
+	 */
+	experimentalThemes?: Record<string, BuiltinTheme | ThemeRegistration | ThemeRegistrationRaw>;
+	/**
 	 * Enable word wrapping.
 	 *  - true: enabled.
 	 *  - false: disabled.
@@ -53,6 +57,7 @@ const {
 	code,
 	lang = 'plaintext',
 	theme = 'github-dark',
+	experimentalThemes = {},
 	wrap = false,
 	inline = false,
 } = Astro.props;
@@ -88,53 +93,13 @@ if (typeof lang === 'object') {
 
 const highlighter = await getCachedHighlighter({
 	langs: [lang],
-	themes: [theme],
+	theme,
+	experimentalThemes,
+	wrap,
 });
 
-const html = highlighter.codeToHtml(code, {
-	lang: typeof lang === 'string' ? lang : lang.name,
-	theme,
-	transforms: {
-		pre(node) {
-			// Swap to `code` tag if inline
-			if (inline) {
-				node.tagName = 'code';
-			}
-
-			// Cast to string as shikiji will always pass them as strings instead of any other types
-			const classValue = (node.properties.class as string) ?? '';
-			const styleValue = (node.properties.style as string) ?? '';
-
-			// Replace "shiki" class naming with "astro-code"
-			node.properties.class = classValue.replace(/shiki/g, 'astro-code');
-
-			// Handle code wrapping
-			// if wrap=null, do nothing.
-			if (wrap === false) {
-				node.properties.style = styleValue + '; overflow-x: auto;';
-			} else if (wrap === true) {
-				node.properties.style =
-					styleValue + '; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
-			}
-		},
-		code(node) {
-			if (inline) {
-				return node.children[0] as typeof node;
-			}
-		},
-		root(node) {
-			// theme.id for shiki -> shikiji compat
-			const themeName = typeof theme === 'string' ? theme : theme.name;
-			if (themeName === 'css-variables') {
-				// Replace special color tokens to CSS variables
-				visit(node as any, 'element', (child) => {
-					if (child.properties?.style) {
-						child.properties.style = replaceCssVariables(child.properties.style);
-					}
-				});
-			}
-		},
-	},
+const html = highlighter.highlight(code, typeof lang === 'string' ? lang : lang.name, {
+	inline,
 });
 ---
 

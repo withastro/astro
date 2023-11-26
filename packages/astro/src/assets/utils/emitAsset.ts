@@ -24,10 +24,17 @@ export async function emitESMImage(
 
 	const fileMetadata = await imageMetadata(fileData, id);
 
-	const emittedImage: ImageMetadata = {
+	const emittedImage: Omit<ImageMetadata, 'fsPath'> = {
 		src: '',
 		...fileMetadata,
 	};
+
+	// Private for now, we generally don't want users to rely on filesystem paths, but we need it so that we can maybe remove the original asset from the build if it's unused.
+	Object.defineProperty(emittedImage, 'fsPath', {
+		enumerable: false,
+		writable: false,
+		value: url,
+	});
 
 	// Build
 	if (!watchMode) {
@@ -50,7 +57,7 @@ export async function emitESMImage(
 		emittedImage.src = `/@fs` + prependForwardSlash(fileURLToNormalizedPath(url));
 	}
 
-	return emittedImage;
+	return emittedImage as ImageMetadata;
 }
 
 function fileURLToNormalizedPath(filePath: URL): string {

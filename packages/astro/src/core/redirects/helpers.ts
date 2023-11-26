@@ -9,6 +9,10 @@ export function routeIsRedirect(route: RouteData | undefined): route is Redirect
 	return route?.type === 'redirect';
 }
 
+export function routeIsFallback(route: RouteData | undefined): route is RedirectRouteData {
+	return route?.type === 'fallback';
+}
+
 export function redirectRouteGenerate(redirectRoute: RouteData, data: Params): string {
 	const routeData = redirectRoute.redirectRoute;
 	const route = redirectRoute.redirect;

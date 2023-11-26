@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 6.0.4
+
+### Patch Changes
+
+- [#9071](https://github.com/withastro/astro/pull/9071) [`c9487138d`](https://github.com/withastro/astro/commit/c9487138d6d8fd39c8c8512239b6724cf2b275ff) Thanks [@pilcrowOnPaper](https://github.com/pilcrowOnPaper)! - Fixes a bug where the response stream would not cancel when the connection closed
+
 ## 6.0.3
 
 ### Patch Changes

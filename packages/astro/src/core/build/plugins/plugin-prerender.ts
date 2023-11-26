@@ -21,7 +21,7 @@ function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals
 					if (pageInfo) {
 						// prerendered pages should be split into their own chunk
 						// Important: this can't be in the `pages/` directory!
-						if (getPrerenderMetadata(meta.getModuleInfo(id))) {
+						if (getPrerenderMetadata(meta.getModuleInfo(id)!)) {
 							pageInfo.route.prerender = true;
 							return 'prerender';
 						}
@@ -40,7 +40,7 @@ export function pluginPrerender(
 	internals: BuildInternals
 ): AstroBuildPlugin {
 	return {
-		build: 'ssr',
+		targets: ['server'],
 		hooks: {
 			'build:before': () => {
 				return {

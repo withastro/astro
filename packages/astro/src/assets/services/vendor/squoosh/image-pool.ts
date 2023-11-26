@@ -19,7 +19,7 @@ const getWorker = execOnce(() => {
 
 type DecodeParams = {
 	operation: 'decode';
-	buffer: Buffer;
+	buffer: Uint8Array;
 };
 type ResizeParams = {
 	operation: 'resize';
@@ -86,7 +86,7 @@ function handleJob(params: JobMessage) {
 }
 
 export async function processBuffer(
-	buffer: Buffer,
+	buffer: Uint8Array,
 	operations: Operation[],
 	encoding: ImageOutputFormat,
 	quality?: number

@@ -2,6 +2,7 @@ import { baseService, type LocalImageService } from './service.js';
 
 // Empty service used for platforms that neither support Squoosh or Sharp.
 const noopService: LocalImageService = {
+	propertiesToHash: ['src'],
 	validateOptions: baseService.validateOptions,
 	getURL: baseService.getURL,
 	parseURL: baseService.parseURL,

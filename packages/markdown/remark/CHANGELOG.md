@@ -1,5 +1,17 @@
 # @astrojs/markdown-remark
 
+## 3.5.0
+
+### Minor Changes
+
+- [#9083](https://github.com/withastro/astro/pull/9083) [`4537ecf0d`](https://github.com/withastro/astro/commit/4537ecf0d060f89cb8c000338a7fc5f4197a88c8) Thanks [@bluwy](https://github.com/bluwy)! - Exports `createShikiHighlighter` for low-level syntax highlighting usage
+
+## 3.4.0
+
+### Minor Changes
+
+- [#8903](https://github.com/withastro/astro/pull/8903) [`c5010aad3`](https://github.com/withastro/astro/commit/c5010aad3475669648dc939e00f88bbb52489d0d) Thanks [@horo-fox](https://github.com/horo-fox)! - Adds experimental support for multiple shiki themes with the new `markdown.shikiConfig.experimentalThemes` option.
+
 ## 3.3.0
 
 ### Minor Changes

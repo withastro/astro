@@ -26,5 +26,5 @@ export async function build({ flags }: BuildOptions) {
 
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 
-	await _build(inlineConfig);
+	await _build(inlineConfig, { force: flags.force ?? false });
 }

@@ -25,7 +25,7 @@ describe('Partials', () => {
 
 		it('is only the written HTML', async () => {
 			const html = await fixture.fetch('/partials/item/').then((res) => res.text());
-			expect(html.startsWith('<li>')).to.equal(true);
+			expect(html.startsWith('<li')).to.equal(true);
 		});
 	});
 
