@@ -30,7 +30,7 @@ pnpm dlx @astrojs/upgrade
 
 It is possible to pass a specific `tag` to resolve packages against. If not included, `@astrojs/upgrade` looks for the `latest` tag.
 
-As an example, Astro often releases `beta` versions prior to an upcoming major release. Your project could be updated by running the following commands.
+For example, Astro often releases `beta` versions prior to an upcoming major release. Upgrade an existing Astro project and it's dependencies to the `beta` version using one of the following commands:
 
 **With NPM:**
 
