@@ -19,6 +19,7 @@ export interface Output {
 const text = (stream: NodeJS.ReadableStream | Readable | null) =>
 	stream ? textFromStream(stream).then((t) => t.trimEnd()) : '';
 
+let signal: AbortSignal;
 export async function shell(
 	command: string,
 	flags: string[],
@@ -27,12 +28,20 @@ export async function shell(
 	let child: ChildProcess;
 	let stdout = '';
 	let stderr = '';
+	if (!signal) {
+		const controller = new AbortController();
+		// Ensure spawned process is cancelled on exit
+		process.once('beforeexit', () => controller.abort());
+		process.once('exit', () => controller.abort());
+		signal = controller.signal;
+	}
 	try {
 		child = spawn(command, flags, {
 			cwd: opts.cwd,
 			shell: true,
 			stdio: opts.stdio,
 			timeout: opts.timeout,
+			signal
 		});
 		const done = new Promise((resolve) => child.on('close', resolve));
 		[stdout, stderr] = await Promise.all([text(child.stdout), text(child.stderr)]);
