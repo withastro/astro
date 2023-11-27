@@ -28,5 +28,21 @@
     "@astrojs/telemetry": "3.0.4",
     "@astrojs/underscore-redirects": "0.3.3"
   },
-  "changesets": []
+  "changesets": [
+    "beige-jokes-report",
+    "calm-baboons-watch",
+    "clever-beds-notice",
+    "giant-snails-perform",
+    "khaki-fans-sell",
+    "light-ties-poke",
+    "modern-candles-sip",
+    "plenty-candles-help",
+    "rude-hairs-whisper",
+    "shiny-trees-sip",
+    "short-deers-whisper",
+    "slow-hornets-try",
+    "sour-games-burn",
+    "wicked-sloths-develop",
+    "wild-apricots-rescue"
+  ]
 }

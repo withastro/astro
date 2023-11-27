@@ -8,10 +8,10 @@ export interface LogWritable<T> {
 export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
 
 /**
- * Defined logger labels. Add more as needed, but keep them high-level & reusable, 
- * rather than specific to a single command, function, use, etc. The label will be 
+ * Defined logger labels. Add more as needed, but keep them high-level & reusable,
+ * rather than specific to a single command, function, use, etc. The label will be
  * shown in the log message to the user, so it should be relevant.
- */ 
+ */
 export type LoggerLabel =
 	| 'add'
 	| 'build'
@@ -122,7 +122,7 @@ function padStr(str: string, len: number) {
 }
 
 /**
- * Get the prefix for a log message. 
+ * Get the prefix for a log message.
  * This includes the timestamp, log level, and label all properly formatted
  * with colors. This is shared across different loggers, so it's defined here.
  */

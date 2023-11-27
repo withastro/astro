@@ -126,7 +126,8 @@ declare module 'astro:transitions/client' {
 
 	export type Fallback = import('./dist/virtual-modules/transitions-types.js').Fallback;
 	export type Direction = import('./dist/virtual-modules/transitions-types.ts').Direction;
-	export type NavigationTypeString = import('./dist/virtual-modules/transitions-types.js').NavigationTypeString;
+	export type NavigationTypeString =
+		import('./dist/virtual-modules/transitions-types.js').NavigationTypeString;
 	export type Options = import('./dist/virtual-modules/transitions-types.js').Options;
 
 	type EventModule = typeof import('./dist/virtual-modules/transitions-events.js');

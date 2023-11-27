@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.5.2-beta.0
+
+### Patch Changes
+
+- [#9105](https://github.com/withastro/astro/pull/9105) [`6201bbe96`](https://github.com/withastro/astro/commit/6201bbe96c2a083fb201e4a43a9bd88499821a3e) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Stop clearing the console on start
+
 ## 4.5.1
 
 ### Patch Changes
