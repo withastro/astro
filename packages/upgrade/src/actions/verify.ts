@@ -4,7 +4,7 @@ import dns from 'node:dns/promises';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { color } from '@astrojs/cli-kit';
-import { bannerAbort, error, getRegistry, info, log } from '../messages.js';
+import { bannerAbort, error, getRegistry, info, log, newline } from '../messages.js';
 import semverDiff from 'semver/functions/diff.js';
 import semverCoerce from 'semver/functions/coerce.js';
 import semverParse from 'semver/functions/parse.js';
@@ -19,7 +19,7 @@ export async function verify(
 		const online = await isOnline(registry);
 		if (!online) {
 			bannerAbort();
-			log('');
+			newline();
 			error('error', `Unable to connect to the internet.`);
 			ctx.exit(1);
 		}
@@ -30,7 +30,7 @@ export async function verify(
 	const ok = await verifyVersions(ctx, registry);
 	if (!ok) {
 		bannerAbort();
-		log('');
+		newline();
 		error('error', `Version ${color.reset(ctx.version)} ${color.dim('could not be found!')}`);
 		await info('check', 'https://github.com/withastro/astro/releases');
 		ctx.exit(1);

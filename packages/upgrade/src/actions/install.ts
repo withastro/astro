@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { color, say } from '@astrojs/cli-kit';
-import { pluralize, celebrations, done, error, info, log, spinner, success, upgrade, banner, title, changelog, warn, bye } from '../messages.js';
+import { pluralize, celebrations, done, error, info, log, spinner, success, upgrade, banner, title, changelog, warn, bye, newline } from '../messages.js';
 import { shell } from '../shell.js';
 import { random, sleep } from '@astrojs/cli-kit/utils';
 
@@ -12,7 +12,7 @@ export async function install(
 	ctx: Pick<Context, 'version' | 'packages' | 'packageManager' | 'prompt' | 'dryRun' | 'exit' | 'cwd'>
 ) {
 	await banner();
-	log('')
+	newline();
 	const { current, dependencies, devDependencies } = filterPackages(ctx);
 	const toInstall = [...dependencies, ...devDependencies];
 	for (const packageInfo of current.sort(sortPackages)) {
@@ -21,7 +21,7 @@ export async function install(
 		await sleep(random(50, 150));
 	}
 	if (toInstall.length === 0 && !ctx.dryRun) {
-		log('')
+		newline()
 		await success(random(celebrations), random(done));
 		return;
 	}
@@ -45,7 +45,7 @@ export async function install(
 			return ctx.exit(0);
 		}
 		
-		log('');
+		newline();
 		
 		await warn('check', `Be sure to follow the ${pluralize('CHANGELOG', majors.length)}.`);
 		for (const pkg of majors.sort(sortPackages)) {
@@ -53,7 +53,7 @@ export async function install(
 		}
 	}
 
-	log('')
+	newline()
 	if (ctx.dryRun) {
 		await info('--dry-run', `Skipping dependency installation`);
 	} else {
@@ -105,7 +105,7 @@ async function runInstallCommand(ctx: Pick<Context, 'cwd' | 'packageManager' | '
 				}
 			} catch {
 				const packages = [...dependencies, ...devDependencies].map(({ name, targetVersion }) => `${name}@${targetVersion}`).join(' ')
-				log('');
+				newline();
 				error(
 					'error',
 					`Dependencies failed to install, please run the following command manually:\n${color.bold(`${ctx.packageManager} install ${packages}`)}`

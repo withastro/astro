@@ -75,6 +75,9 @@ export const bye = [
 ]
 
 export const log = (message: string) => stdout.write(message + '\n');
+
+export const newline = () => stdout.write('\n');
+
 export const banner = async () =>
 	log(
 		`\n${label('astro', color.bgGreen, color.black)}  ${color.bold('Integration upgrade in progress.')}`
