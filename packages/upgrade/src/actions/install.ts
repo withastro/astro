@@ -7,6 +7,7 @@ import { color, say } from '@astrojs/cli-kit';
 import { pluralize, celebrations, done, error, info, log, spinner, success, upgrade, banner, title, changelog, warn, bye, newline } from '../messages.js';
 import { shell } from '../shell.js';
 import { random, sleep } from '@astrojs/cli-kit/utils';
+import { satisfies } from 'semver';
 
 export async function install(
 	ctx: Pick<Context, 'version' | 'packages' | 'packageManager' | 'prompt' | 'dryRun' | 'exit' | 'cwd'>
@@ -78,6 +79,10 @@ function filterPackages(ctx: Pick<Context, 'packages'>) {
 	return { current, dependencies, devDependencies }
 }
 
+/**
+  * An `Array#sort` comparator function to normalize how packages are displayed.
+  * This only changes how the packages are displayed in the CLI, it is not persisted to `package.json`.
+  */
 function sortPackages(a: PackageInfo, b: PackageInfo): number {
 	if (a.isMajor && !b.isMajor) return 1;
 	if (b.isMajor && !a.isMajor) return -1;
