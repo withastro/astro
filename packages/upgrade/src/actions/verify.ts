@@ -91,12 +91,16 @@ function collectPackageInfo(ctx: Pick<Context, 'version' | 'packages'>, dependen
 	}
 }
 
-async function verifyVersions(ctx: Pick<Context, 'version' | 'packages'>, registry: string) {
+async function verifyVersions(ctx: Pick<Context, 'version' | 'packages' | 'exit'>, registry: string) {
 	const tasks: Promise<void>[] = [];
 	for (const packageInfo of ctx.packages) {
 		tasks.push(resolveTargetVersion(packageInfo, registry));
 	}
-	await Promise.all(tasks);
+	try {
+		await Promise.all(tasks);
+	} catch {
+		return false;
+	}
 	for (const packageInfo of ctx.packages) {
 		if (!packageInfo.targetVersion) {
 			return false;
@@ -107,6 +111,9 @@ async function verifyVersions(ctx: Pick<Context, 'version' | 'packages'>, regist
 
 async function resolveTargetVersion(packageInfo: PackageInfo, registry: string): Promise<void> {
 	const packageMetadata = await fetch(`${registry}/${packageInfo.name}`, { headers: { accept: 'application/vnd.npm.install-v1+json' }});
+	if (packageMetadata.status >= 400) {
+		throw new Error(`Unable to resolve "${packageInfo.name}"`);
+	}
 	const { "dist-tags": distTags } = await packageMetadata.json();
 	let version = distTags[packageInfo.targetVersion];
 	if (version) {
@@ -129,6 +136,8 @@ async function resolveTargetVersion(packageInfo: PackageInfo, registry: string):
 		if (packageInfo.name === 'astro') {
 			const upgradeGuide = `https://docs.astro.build/en/guides/upgrade-to/v${toVersion.major}/`;
 			const docsRes = await fetch(upgradeGuide);
+			// OK if this request fails, it's probably a prerelease without a public migration guide.
+			// In that case, we should fallback to the CHANGELOG check below.
 			if (docsRes.status === 200) {
 				packageInfo.changelogURL = upgradeGuide;
 				packageInfo.changelogTitle = `Upgrade to Astro v${toVersion.major}`;
@@ -136,6 +145,9 @@ async function resolveTargetVersion(packageInfo: PackageInfo, registry: string):
 			}
 		}
 		const latestMetadata = await fetch(`${registry}/${packageInfo.name}/latest`);
+		if (latestMetadata.status >= 400) {
+			throw new Error(`Unable to resolve "${packageInfo.name}"`);
+		}
 		const { repository } = await latestMetadata.json();
 		const branch = bump === 'premajor' ? 'next' : 'main';
 		packageInfo.changelogURL = extractChangelogURLFromRepository(repository, version, branch);
