@@ -187,7 +187,6 @@ export function formatConfigErrorMessage(err: ZodError) {
 	)}`;
 }
 
-
 export function formatErrorMessage(err: ErrorWithMetadata, args: string[] = []): string {
 	const isOurError = AstroError.is(err) || CompilerError.is(err) || AstroUserError.is(err);
 
