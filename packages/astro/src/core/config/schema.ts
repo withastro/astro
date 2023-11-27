@@ -38,8 +38,6 @@ const ASTRO_CONFIG_DEFAULTS = {
 		serverEntry: 'entry.mjs',
 		redirects: true,
 		inlineStylesheets: 'auto',
-		split: false,
-		excludeMiddleware: false,
 	},
 	image: {
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
@@ -51,10 +49,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 		open: false,
 	},
 	integrations: [],
-	markdown: {
-		drafts: false,
-		...markdownConfigDefaults,
-	},
+	markdown: markdownConfigDefaults,
 	vite: {},
 	legacy: {},
 	redirects: {},
@@ -139,20 +134,6 @@ export const AstroConfigSchema = z.object({
 				.enum(['always', 'auto', 'never'])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
-
-			/**
-			 * @deprecated
-			 * Use the adapter feature instead
-			 */
-			split: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.split),
-			/**
-			 * @deprecated
-			 * Use the adapter feature instead
-			 */
-			excludeMiddleware: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.build.excludeMiddleware),
 		})
 		.default({}),
 	server: z.preprocess(
@@ -245,7 +226,6 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.image),
 	markdown: z
 		.object({
-			drafts: z.boolean().default(false),
 			syntaxHighlight: z
 				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.syntaxHighlight),
@@ -452,12 +432,6 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.enum(['always', 'auto', 'never'])
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
-
-				split: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.split),
-				excludeMiddleware: z
-					.boolean()
-					.optional()
-					.default(ASTRO_CONFIG_DEFAULTS.build.excludeMiddleware),
 			})
 			.optional()
 			.default({}),
