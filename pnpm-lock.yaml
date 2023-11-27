@@ -5040,6 +5040,40 @@ importers:
         specifier: ^10.2.0
         version: 10.2.0
 
+  packages/upgrade:
+    dependencies:
+      '@astrojs/cli-kit':
+        specifier: ^0.2.3
+        version: 0.2.3
+      semver:
+        specifier: ^7.5.4
+        version: 7.5.4
+      which-pm-runs:
+        specifier: ^1.1.0
+        version: 1.1.0
+    devDependencies:
+      '@types/semver':
+        specifier: ^7.5.2
+        version: 7.5.4
+      '@types/which-pm-runs':
+        specifier: ^1.0.0
+        version: 1.0.1
+      arg:
+        specifier: ^5.0.2
+        version: 5.0.2
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../scripts
+      chai:
+        specifier: ^4.3.7
+        version: 4.3.10
+      mocha:
+        specifier: ^10.2.0
+        version: 10.2.0
+      terminal-link:
+        specifier: ^3.0.0
+        version: 3.0.0
+
   scripts:
     dependencies:
       arg:
@@ -5174,6 +5208,14 @@ packages:
       - prettier
       - prettier-plugin-astro
     dev: true
+
+  /@astrojs/cli-kit@0.2.3:
+    resolution: {integrity: sha512-MjB42mpIG/F2rFtdp4f3NylFCILuFSib2yITSq65fRaDFn8+UC8EMh6T7Jr3YqHAbUY5r8V8QWNgH4keOEO2BA==}
+    dependencies:
+      chalk: 5.3.0
+      log-update: 5.0.1
+      sisteransi: 1.0.5
+    dev: false
 
   /@astrojs/cli-kit@0.3.1:
     resolution: {integrity: sha512-BEzf3gudr4XrrrInJKD+GSS5O+GXRTukLUpOfgqdTSq6d48EWVhigNHobmlQGbpa9FEAw+sZmvmHmhS29QhnwA==}
@@ -9204,7 +9246,6 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       type-fest: 1.4.0
-    dev: false
 
   /ansi-regex@3.0.1:
     resolution: {integrity: sha512-+O9Jct8wf++lXxxFc4hc8LsjaSq0HFzzL7cVsw8pRDIPdjKD2mT4ytDZlLuSBZ4cLKZFXIrMGO7DbQCtMJJMKw==}
@@ -16172,6 +16213,14 @@ packages:
     dependencies:
       has-flag: 4.0.0
 
+  /supports-hyperlinks@2.3.0:
+    resolution: {integrity: sha512-RpsAZlpWcDwOPQA22aCH4J0t7L8JmAvsCxfOSEwm7cQs3LshN36QaTkwd70DnBOXDWGssw2eUoc8CaRWT0XunA==}
+    engines: {node: '>=8'}
+    dependencies:
+      has-flag: 4.0.0
+      supports-color: 7.2.0
+    dev: true
+
   /supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
@@ -16356,6 +16405,14 @@ packages:
   /term-size@2.2.1:
     resolution: {integrity: sha512-wK0Ri4fOGjv/XPy8SBHZChl8CM7uMc5VML7SqiQ0zG7+J5Vr+RMQDoHa2CNT6KHUnTGIXH34UDMkPzAUyapBZg==}
     engines: {node: '>=8'}
+    dev: true
+
+  /terminal-link@3.0.0:
+    resolution: {integrity: sha512-flFL3m4wuixmf6IfhFJd1YPiLiMuxEc8uHRM1buzIeZPm22Au2pDqBJQgdo7n1WfPU1ONFGv7YDwpFBmHGF6lg==}
+    engines: {node: '>=12'}
+    dependencies:
+      ansi-escapes: 5.0.0
+      supports-hyperlinks: 2.3.0
     dev: true
 
   /terser@5.22.0:
