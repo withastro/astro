@@ -57,6 +57,7 @@ async function install({ packageManager, cwd }: { packageManager: string; cwd: s
  * Unfortunately this hack is required to run `yarn install`.
  *
  * The empty `yarn.lock` file is immediately overwritten by the installation process.
+ * See https://github.com/withastro/astro/pull/8028
  */
 async function ensureYarnLock({ cwd }: { cwd: string }) {
 	const yarnLock = path.join(cwd, 'yarn.lock');
