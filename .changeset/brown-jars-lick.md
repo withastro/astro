@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-fix: links with same path but different search params not prefetched
+Fixes an issue where links with the same pathname as the current page, but different search params, were not prefetched.
