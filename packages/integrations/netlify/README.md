@@ -80,7 +80,7 @@ To enable this, set the `edgeMiddleware` config option to `true`:
 
 Netlify Edge Functions provide a [context object](https://docs.netlify.com/edge-functions/api/#netlify-specific-context-object) including metadata about the request, such as a user’s IP, geolocation data, and cookies.
 
-To expose values from this context to your site, create a `netlify-edge-middleware.ts` (or `.js`) file in your project’s [source directory](https://docs.astro.build/en/reference/configuration-reference/#srcdir). This file must export a function that returns the data to add to [Astro’s `locals` object](https://docs.astro.build/en/guides/middleware/#locals), which is available in middleware and Astro routes.
+To expose values from this context to your site, create a `netlify-edge-middleware.ts` (or `.js`) file in your project’s [source directory](https://docs.astro.build/en/reference/configuration-reference/#srcdir). This file must export a function that returns the data to add to [Astro’s `locals` object](https://docs.astro.build/en/reference/api-reference/#astrolocals), which is available in middleware and Astro routes.
 
 In this example, `visitorCountry` and `hasEdgeMiddleware` would both be added to Astro’s `locals` object:
 
@@ -150,7 +150,7 @@ Once you run `astro build` there will be a `dist/_redirects` file. Netlify will 
 
 [Netlify On-demand Builders](https://docs.netlify.com/configure-builds/on-demand-builders/) are serverless functions used to generate web content as needed that’s automatically cached on Netlify’s Edge CDN. You can enable these functions using the [`builders` configuration](#builders).
 
-By default, all pages will be rendered on first visit and the rendered result will be reused for every subsequent visit until you redeploy. To set a revalidation time, call the [`runtime.setBuildersTtl(ttl)` local](https://docs.astro.build/en/guides/middleware/#locals) with the duration (in seconds).
+By default, all pages will be rendered on first visit and the rendered result will be reused for every subsequent visit until you redeploy. To set a revalidation time, call the [`runtime.setBuildersTtl(ttl)` local](https://docs.astro.build/en/reference/api-reference/#astrolocals) with the duration (in seconds).
 
 The following example sets a revalidation time of 45, causing Netlify to store the rendered HTML for 45 seconds.
 
