@@ -252,7 +252,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 	it('should correctly call the middleware function for 404', async () => {
 		const request = new Request('http://example.com/funky-url');
 		const routeData = app.match(request);
-		const response = await app.render(request, routeData);
+		const response = await app.render(request, { routeData });
 		const text = await response.text();
 		expect(text.includes('Error')).to.be.true;
 		expect(text.includes('bar')).to.be.true;
