@@ -2,9 +2,18 @@
 'astro': major
 ---
 
-The adapter API now offers a simpler signature for rendering. The `render()` method on App now accepts an `options` object.
+In the Integration API, the `app.render()` method of the `App` class has been simplified.
 
+Instead of two optional arguments, it now takes a single optional argument that is an object with two optional properties: `routeData` and `locals`.
 ```diff
+ app.render(request)
+
+- app.render(request, routeData)
++ app.render(request, { routeData })
+
+- app.render(request, routeData, locals)
++ app.render(request, { routeData, locals })
+
 - app.render(request, undefined, locals)
 + app.render(request, { locals })
 ```
