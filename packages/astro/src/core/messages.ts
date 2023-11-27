@@ -3,6 +3,7 @@ import {
 	bgRed,
 	bgWhite,
 	bgYellow,
+	bgCyan,
 	black,
 	blue,
 	bold,
