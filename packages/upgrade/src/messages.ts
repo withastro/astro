@@ -4,7 +4,7 @@ import { color, label, spinner as load } from '@astrojs/cli-kit';
 import { align } from '@astrojs/cli-kit/utils';
 import detectPackageManager from 'which-pm-runs';
 import { shell } from './shell.js';
-import semverCoerce from 'semver/functions/coerce.js';
+import semverParse from 'semver/functions/parse.js';
 import terminalLink from 'terminal-link';
 
 // Users might lack access to the global npm registry, this function
@@ -103,7 +103,7 @@ export const upgrade = async (packageInfo: PackageInfo, text: string) => {
 	const bg = isMajor ? (v: string) => color.bgYellow(color.black(` ${v} `)) : color.green;
 	const style = isMajor ? color.yellow : color.green;
 	const symbol = isMajor ? '▲' : '●';
- 	const toVersion = semverCoerce(targetVersion)!;
+	const toVersion = semverParse(targetVersion)!;
 	const version = `v${toVersion.version}`;
 
 	const length = 12 + name.length + text.length + version.length;

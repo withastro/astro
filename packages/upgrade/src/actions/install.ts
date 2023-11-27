@@ -87,7 +87,7 @@ function sortPackages(a: PackageInfo, b: PackageInfo): number {
 	return a.name.localeCompare(b.name);
 }
 
-async function runInstallCommand(ctx: Pick<Context, 'cwd' | 'packageManager'>, dependencies: PackageInfo[], devDependencies: PackageInfo[]) {
+async function runInstallCommand(ctx: Pick<Context, 'cwd' | 'packageManager' | 'exit'>, dependencies: PackageInfo[], devDependencies: PackageInfo[]) {
 	const cwd = fileURLToPath(ctx.cwd);
 	if (ctx.packageManager === 'yarn') await ensureYarnLock({ cwd });
 
@@ -97,18 +97,19 @@ async function runInstallCommand(ctx: Pick<Context, 'cwd' | 'packageManager'>, d
 		while: async () => {
 			try {
 				if (dependencies.length > 0) {
-					await shell(ctx.packageManager, ['install', ...dependencies.map(({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`)], { cwd, timeout: 90_000, stdio: 'ignore' })
+					await shell(ctx.packageManager, ['install', ...dependencies.map(({ name, targetVersion }) => `${name}@${(targetVersion).replace(/^\^/, '')}`)], { cwd, timeout: 90_000, stdio: 'ignore' })
 				}
 				if (devDependencies.length > 0) {
-					await shell(ctx.packageManager, ['install', '--save-dev', ...devDependencies.map(({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`)], { cwd, timeout: 90_000, stdio: 'ignore' })
+					await shell(ctx.packageManager, ['install', '--save-dev', ...devDependencies.map(({ name, targetVersion }) => `${name}@${(targetVersion).replace(/^\^/, '')}`)], { cwd, timeout: 90_000, stdio: 'ignore' })
 				}
-			} catch (e) {
+			} catch {
 				const packages = [...dependencies, ...devDependencies].map(({ name, targetVersion }) => `${name}@${targetVersion}`).join(' ')
+				log('');
 				error(
 					'error',
 					`Dependencies failed to install, please run the following command manually:\n${color.bold(`${ctx.packageManager} install ${packages}`)}`
 				);
-				throw e;
+				return ctx.exit(1);
 			}
 		},
 	});

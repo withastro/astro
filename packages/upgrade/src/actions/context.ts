@@ -20,6 +20,7 @@ export interface PackageInfo {
 	name: string;
 	currentVersion: string;
 	targetVersion: string;
+	tag?: string;
 	isDevDependency?: boolean;
 	isMajor?: boolean;
 	changelogURL?: string;

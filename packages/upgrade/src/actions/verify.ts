@@ -6,7 +6,8 @@ import { readFile } from 'node:fs/promises';
 import { color } from '@astrojs/cli-kit';
 import { bannerAbort, error, getRegistry, info, log } from '../messages.js';
 import semverDiff from 'semver/functions/diff.js';
-import semverCoerce from 'semver/functions/coerce.js'
+import semverCoerce from 'semver/functions/coerce.js';
+import semverParse from 'semver/functions/parse.js';
 
 
 export async function verify(
@@ -105,28 +106,25 @@ async function verifyVersions(ctx: Pick<Context, 'version' | 'packages'>, regist
 }
 
 async function resolveTargetVersion(packageInfo: PackageInfo, registry: string): Promise<void> {
-	const res = await fetch(`${registry}/${packageInfo.name}/${packageInfo.targetVersion}`);
-	const { status } = res;
-	if (status >= 400) {
-		if (packageInfo.targetVersion === 'latest') {
-			packageInfo.targetVersion = '';
-			return;
-		} else {
-			// Mutate targetVersion so it is resolved properly elsewhere
-			packageInfo.targetVersion = 'latest';
-			return resolveTargetVersion(packageInfo, registry);
-		}
+	const packageMetadata = await fetch(`${registry}/${packageInfo.name}`, { headers: { accept: 'application/vnd.npm.install-v1+json' }});
+	const { "dist-tags": distTags } = await packageMetadata.json();
+	let version = distTags[packageInfo.targetVersion];
+	if (version) {
+		packageInfo.tag = packageInfo.targetVersion;
+		packageInfo.targetVersion = version;
+	} else {
+		packageInfo.targetVersion = 'latest';
+		version = distTags.latest;
 	}
-	const { version, repository } = await res.json()
 	if (packageInfo.currentVersion === version) {
 		return;
 	}
 	const prefix = packageInfo.targetVersion === 'latest' ? '^' : '';
 	packageInfo.targetVersion = `${prefix}${version}`;
 	const fromVersion = semverCoerce(packageInfo.currentVersion)!;
-	const toVersion = semverCoerce(packageInfo.targetVersion)!;
+	const toVersion = semverParse(version)!;
 	const bump = semverDiff(fromVersion, toVersion);
-	if (bump === 'major') {
+	if ((bump === 'major' && toVersion.prerelease.length === 0) || bump === 'premajor') {
 		packageInfo.isMajor = true;
 		if (packageInfo.name === 'astro') {
 			const upgradeGuide = `https://docs.astro.build/en/guides/upgrade-to/v${toVersion.major}/`;
@@ -137,13 +135,19 @@ async function resolveTargetVersion(packageInfo: PackageInfo, registry: string):
 				return;
 			}
 		}
-
-		packageInfo.changelogURL = extractChangelogURLFromRepository(repository, version);
+		const latestMetadata = await fetch(`${registry}/${packageInfo.name}/latest`);
+		const { repository } = await latestMetadata.json();
+		const branch = bump === 'premajor' ? 'next' : 'main';
+		packageInfo.changelogURL = extractChangelogURLFromRepository(repository, version, branch);
 		packageInfo.changelogTitle = 'CHANGELOG';
+	} else {
+		// Dependency updates should not include the specific dist-tag
+		// since they are just for compatability
+		packageInfo.tag = undefined;
 	}
 }
 
-function extractChangelogURLFromRepository(repository: Record<string, string>, version: string) {
-	return repository.url.replace('git+', '').replace('.git', '') + '/blob/main/' + repository.directory + '/CHANGELOG.md#' + version.replace(/\./g, '')
+function extractChangelogURLFromRepository(repository: Record<string, string>, version: string, branch = 'main') {
+	return repository.url.replace('git+', '').replace('.git', '') + `/blob/${branch}/` + repository.directory + '/CHANGELOG.md#' + version.replace(/\./g, '')
 }
 
