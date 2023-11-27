@@ -1,10 +1,4 @@
-import type {
-	AstroMarkdownOptions,
-	MarkdownProcessor,
-	MarkdownRenderingOptions,
-	MarkdownRenderingResult,
-	MarkdownVFile,
-} from './types.js';
+import type { AstroMarkdownOptions, MarkdownProcessor, MarkdownVFile } from './types.js';
 
 import {
 	InvalidAstroDataError,
@@ -150,39 +144,8 @@ export async function createMarkdownProcessor(
 					imagePaths: result.data.imagePaths ?? new Set(),
 					frontmatter: astroData.frontmatter ?? {},
 				},
-				// Compat for `renderMarkdown` only. Do not use!
-				__renderMarkdownCompat: {
-					result,
-				},
 			};
 		},
-	};
-}
-
-/**
- * Shared utility for rendering markdown
- *
- * @deprecated Use `createMarkdownProcessor` instead for better performance
- */
-export async function renderMarkdown(
-	content: string,
-	opts: MarkdownRenderingOptions
-): Promise<MarkdownRenderingResult> {
-	const processor = await createMarkdownProcessor(opts);
-
-	const result = await processor.render(content, {
-		fileURL: opts.fileURL,
-		frontmatter: opts.frontmatter,
-	});
-
-	return {
-		code: result.code,
-		metadata: {
-			headings: result.metadata.headings,
-			source: content,
-			html: result.code,
-		},
-		vfile: (result as any).__renderMarkdownCompat.result,
 	};
 }
 
