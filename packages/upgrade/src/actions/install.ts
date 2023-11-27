@@ -67,7 +67,8 @@ function filterPackages(ctx: Pick<Context, 'packages'>) {
 	const devDependencies: PackageInfo[] = [];
 	for (const packageInfo of ctx.packages) {
 		const { currentVersion, targetVersion, isDevDependency } = packageInfo;
-		if (currentVersion === targetVersion) {
+		// Remove prefix from `currentVersion` before comparing
+		if (currentVersion.replace(/^\D+/, '') === targetVersion) {
 			current.push(packageInfo);
 		} else {
 			const arr = isDevDependency ? devDependencies : dependencies;
