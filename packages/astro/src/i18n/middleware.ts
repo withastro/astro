@@ -6,7 +6,7 @@ import type {
 	SSRManifest,
 } from '../@types/astro.js';
 import type { PipelineHookFunction } from '../core/pipeline.js';
-import { normalizeTheLocale } from './index.js';
+import { getPathByLocale, normalizeTheLocale } from './index.js';
 
 const routeDataSymbol = Symbol.for('astro.routeData');
 
@@ -19,10 +19,8 @@ function pathnameHasLocale(pathname: string, locales: Locales): boolean {
 				if (normalizeTheLocale(segment) === normalizeTheLocale(locale)) {
 					return true;
 				}
-			} else {
-				if (segment === locale.path) {
-					return true;
-				}
+			} else if (segment === locale.path) {
+				return true;
 			}
 		}
 	}
@@ -105,13 +103,15 @@ export function createI18nMiddleware(
 
 				if (urlLocale && fallbackKeys.includes(urlLocale)) {
 					const fallbackLocale = fallback[urlLocale];
+					// the user might have configured the locale using the granular locales, so we want to retrieve its corresponding path instead
+					const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
 					let newPathname: string;
 					// If a locale falls back to the default locale, we want to **remove** the locale because
 					// the default locale doesn't have a prefix
-					if (fallbackLocale === defaultLocale) {
+					if (pathFallbackLocale === defaultLocale) {
 						newPathname = url.pathname.replace(`/${urlLocale}`, ``);
 					} else {
-						newPathname = url.pathname.replace(`/${urlLocale}`, `/${fallbackLocale}`);
+						newPathname = url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
 					}
 
 					return context.redirect(newPathname);

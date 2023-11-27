@@ -103,7 +103,7 @@ export function getLocaleRelativeUrlList({
 	routingStrategy = 'prefix-other-locales',
 	defaultLocale,
 }: GetLocalesBaseUrl) {
-	const locales = peekPaths(_locales);
+	const locales = toPaths(_locales);
 	return locales.map((locale) => {
 		const pathsToJoin = [base, prependWith];
 		const normalizedLocale = normalizeLocale ? normalizeTheLocale(locale) : locale;
@@ -134,6 +134,45 @@ export function getLocaleAbsoluteUrlList({ site, ...rest }: GetLocaleAbsoluteUrl
 }
 
 /**
+ * Given a locale (code), it returns its corresponding path
+ * @param locale
+ * @param locales
+ */
+export function getPathByLocale(locale: string, locales: Locales) {
+	for (const loopLocale of locales) {
+		if (typeof loopLocale === 'string') {
+			if (loopLocale === locale) {
+				return loopLocale;
+			}
+		} else {
+			for (const code of loopLocale.codes) {
+				if (code === locale) {
+					return loopLocale.path;
+				}
+			}
+		}
+	}
+}
+
+/**
+ * An utility function that retrieves the preferred locale that correspond to a path.
+ *
+ * @param locale
+ * @param locales
+ */
+export function getLocaleByPath(path: string, locales: Locales): string | undefined {
+	for (const locale of locales) {
+		if (typeof locale !== 'string') {
+			// the first code is the one that user usually wants
+			const code = locale.codes.at(0);
+			return code;
+		}
+		1;
+	}
+	return undefined;
+}
+
+/**
  *
  * Given a locale, this function:
  * - replaces the `_` with a `-`;
@@ -144,24 +183,10 @@ export function normalizeTheLocale(locale: string): string {
 }
 
 /**
- * Returns an array of only locales, by picking the `path`
- */
-export function toPathLocales(locales: Locales): string[] {
-	const codes: string[] = [];
-	for (const locale of locales) {
-		if (typeof locale === 'string') {
-			codes.push(locale);
-		} else {
-			codes.push(...locale.codes);
-		}
-	}
-	return codes;
-}
-
-/**
  * Returns an array of only locales, by picking the `code`
+ * @param locales
  */
-export function toCodeLocales(locales: Locales): string[] {
+export function toCodes(locales: Locales): string[] {
 	const codes: string[] = [];
 	for (const locale of locales) {
 		if (typeof locale === 'string') {
@@ -175,7 +200,11 @@ export function toCodeLocales(locales: Locales): string[] {
 	return codes;
 }
 
-function peekPaths(locales: Locales): string[] {
+/**
+ * It returns the array of paths
+ * @param locales
+ */
+export function toPaths(locales: Locales): string[] {
 	return locales.map((loopLocale) => {
 		if (typeof loopLocale === 'string') {
 			return loopLocale;

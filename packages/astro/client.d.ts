@@ -226,6 +226,69 @@ declare module 'astro:i18n' {
 	 * Works like `getAbsoluteLocaleUrl` but it emits the absolute URLs for ALL locales:
 	 */
 	export const getAbsoluteLocaleUrlList: (path?: string, options?: GetLocaleOptions) => string[];
+
+	/**
+	 * A function that return the `path` associated to a locale (defined as code). It's particularly useful in case you decide
+	 * to use locales that are broken down in paths and codes.
+	 *
+	 * @param {string} code The code of the locale
+	 * @returns {string} The path associated to the locale
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 *
+	 * export default defineConfig({
+	 * 	i18n: {
+	 * 		locales: [
+	 * 			{ codes: ["it", "it-VT"], path: "italiano" },
+	 * 			"es"
+	 * 		]
+	 * 	}
+	 * })
+	 * ```
+	 *
+	 * ```js
+	 * import { getPathByLocale } from "astro:i18n";
+	 * getPathByLocale("it"); // returns "italiano"
+	 * getPathByLocale("it-VT"); // returns "italiano"
+	 * getPathByLocale("es"); // returns "es"
+	 * ```
+	 */
+	export const getPathByLocale: (code: string) => string;
+
+	/**
+	 * A function that returns the preferred locale given a certain path. This is particularly useful if you configure a locale using
+	 * `path` and `codes`. When you define multiple `code`, this function will return the first code of the array.
+	 *
+	 * Astro will treat the first code as the one that the user prefers.
+	 *
+	 * @param {string} path The path that maps to a locale
+	 * @returns {string} The path associated to the locale
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 *
+	 * export default defineConfig({
+	 * 	i18n: {
+	 * 		locales: [
+	 * 			{ codes: ["it-VT", "it"], path: "italiano" },
+	 * 			"es"
+	 * 		]
+	 * 	}
+	 * })
+	 * ```
+	 *
+	 * ```js
+	 * import { getLocaleByPath } from "astro:i18n";
+	 * getLocaleByPath("italiano"); // returns "it-VT" because that's the first code configured
+	 * getLocaleByPath("es"); // returns "es"
+	 * ```
+	 */
+	export const getLocaleByPath: (path: string) => string;
 }
 
 declare module 'astro:middleware' {
