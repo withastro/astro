@@ -41,7 +41,9 @@ export async function install(
 			message: `${pluralize(['One package has', 'Some packages have'], majors.length)} breaking changes. Continue?`,
 			initial: true,
 		});
-		if (!proceed) ctx.exit(0);
+		if (!proceed) {
+			return ctx.exit(0);
+		}
 		
 		log('');
 		
