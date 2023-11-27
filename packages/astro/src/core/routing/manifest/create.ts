@@ -17,6 +17,7 @@ import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
+import { getPathByLocale } from '../../../i18n/index.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -502,7 +503,21 @@ export function createRouteManifest(
 
 		// First loop
 		// We loop over the locales minus the default locale and add only the routes that contain `/<locale>`.
-		for (const locale of i18n.locales.filter((loc) => loc !== i18n.defaultLocale)) {
+		const filteredLocales = i18n.locales
+			.filter((loc) => {
+				if (typeof loc === 'string') {
+					return loc !== i18n.defaultLocale;
+				} else {
+					return loc.path !== i18n.defaultLocale;
+				}
+			})
+			.map((locale) => {
+				if (typeof locale === 'string') {
+					return locale;
+				}
+				return locale.path;
+			});
+		for (const locale of filteredLocales) {
 			for (const route of setRoutes) {
 				if (!route.route.includes(`/${locale}`)) {
 					continue;
@@ -569,8 +584,12 @@ export function createRouteManifest(
 			let fallback = Object.entries(i18n.fallback);
 
 			if (fallback.length > 0) {
-				for (const [fallbackFromLocale, fallbackToLocale] of fallback) {
+				for (const [_fallbackFromLocale, fallbackToLocale] of fallback) {
 					let fallbackToRoutes;
+					const fallbackFromLocale = getPathByLocale(_fallbackFromLocale, i18n.locales);
+					if (!fallbackFromLocale) {
+						continue;
+					}
 					if (fallbackToLocale === i18n.defaultLocale) {
 						fallbackToRoutes = routesByLocale.get(i18n.defaultLocale);
 					} else {
