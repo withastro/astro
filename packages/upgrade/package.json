@@ -40,6 +40,7 @@
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
+    "strip-ansi": "^7.1.0",
     "terminal-link": "^3.0.0"
   },
   "engines": {
