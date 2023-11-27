@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import type {
 	ComponentInstance,
 	ManifestData,
-	MiddlewareEndpointHandler,
+	MiddlewareHandler,
 	RouteData,
 	SSRElement,
 	SSRManifest,
@@ -288,7 +288,7 @@ export async function handleRoute({
 		});
 	}
 
-	const onRequest = middleware?.onRequest as MiddlewareEndpointHandler | undefined;
+	const onRequest = middleware?.onRequest as MiddlewareHandler | undefined;
 	if (config.experimental.i18n) {
 		const i18Middleware = createI18nMiddleware(
 			config.experimental.i18n,

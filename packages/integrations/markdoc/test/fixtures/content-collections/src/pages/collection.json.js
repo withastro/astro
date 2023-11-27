@@ -4,7 +4,5 @@ import { stripAllRenderFn } from '../../utils.js';
 
 export async function GET() {
 	const posts = await getCollection('blog');
-	return {
-		body: stringify(stripAllRenderFn(posts))
-	};
+	return new Response(stringify(stripAllRenderFn(posts)));
 }

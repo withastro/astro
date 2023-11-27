@@ -1,7 +1,6 @@
 import type {
 	EndpointHandler,
 	ManifestData,
-	MiddlewareEndpointHandler,
 	RouteData,
 	SSRElement,
 	SSRManifest,
@@ -181,16 +180,14 @@ export class App {
 			);
 			if (i18nMiddleware) {
 				if (mod.onRequest) {
-					this.#pipeline.setMiddlewareFunction(
-						sequence(i18nMiddleware, mod.onRequest as MiddlewareEndpointHandler)
-					);
+					this.#pipeline.setMiddlewareFunction(sequence(i18nMiddleware, mod.onRequest));
 				} else {
 					this.#pipeline.setMiddlewareFunction(i18nMiddleware);
 				}
 				this.#pipeline.onBeforeRenderRoute(i18nPipelineHook);
 			} else {
 				if (mod.onRequest) {
-					this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
+					this.#pipeline.setMiddlewareFunction(mod.onRequest);
 				}
 			}
 			response = await this.#pipeline.renderRoute(renderContext, pageModule);
@@ -322,7 +319,7 @@ export class App {
 				);
 				const page = (await mod.page()) as any;
 				if (skipMiddleware === false && mod.onRequest) {
-					this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
+					this.#pipeline.setMiddlewareFunction(mod.onRequest);
 				}
 				if (skipMiddleware) {
 					// make sure middleware set by other requests is cleared out
@@ -367,8 +364,8 @@ export class App {
 		const status = override?.status
 			? override.status
 			: oldResponse.status === 200
-			? newResponse.status
-			: oldResponse.status;
+			  ? newResponse.status
+			  : oldResponse.status;
 
 		return new Response(newResponse.body, {
 			status,

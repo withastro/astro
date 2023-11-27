@@ -24,5 +24,5 @@ export interface SSROptions {
 	/**
 	 * Optional middlewares
 	 */
-	middleware?: AstroMiddlewareInstance<unknown>;
+	middleware?: AstroMiddlewareInstance;
 }

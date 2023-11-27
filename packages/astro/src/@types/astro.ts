@@ -19,7 +19,6 @@ import type { AstroConfigType } from '../core/config/index.js';
 import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
-import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
 import type { AstroDevOverlay, DevOverlayCanvas } from '../runtime/client/dev-overlay/overlay.js';
 import type { DevOverlayHighlight } from '../runtime/client/dev-overlay/ui-library/highlight.js';
@@ -2005,8 +2004,6 @@ export interface AstroAdapter {
 	supportedAstroFeatures: AstroFeatureMap;
 }
 
-type Body = string;
-
 export type ValidRedirectStatus = 300 | 301 | 302 | 303 | 304 | 307 | 308;
 
 // Shared types between `Astro` global and API context object
@@ -2163,7 +2160,6 @@ export interface APIContext<
 	 * ```
 	 */
 	locals: App.Locals;
-	ResponseWithEncoding: typeof ResponseWithEncoding;
 
 	/**
 	 * Available only when `experimental.i18n` enabled and in SSR.
@@ -2199,22 +2195,12 @@ export interface APIContext<
 	currentLocale: string | undefined;
 }
 
-export type EndpointOutput =
-	| {
-			body: Body;
-			encoding?: BufferEncoding;
-	  }
-	| {
-			body: Uint8Array;
-			encoding: 'binary';
-	  };
-
 export type APIRoute<Props extends Record<string, any> = Record<string, any>> = (
 	context: APIContext<Props>
-) => EndpointOutput | Response | Promise<EndpointOutput | Response>;
+) => Response | Promise<Response>;
 
 export interface EndpointHandler {
-	[method: string]: APIRoute | ((params: Params, request: Request) => EndpointOutput | Response);
+	[method: string]: APIRoute | ((params: Params, request: Request) => Response);
 }
 
 export type Props = Record<string, unknown>;
@@ -2319,20 +2305,16 @@ export interface AstroIntegration {
 	};
 }
 
-export type MiddlewareNext<R> = () => Promise<R>;
-export type MiddlewareHandler<R> = (
+export type MiddlewareNext = () => Promise<Response>;
+export type MiddlewareHandler = (
 	context: APIContext,
-	next: MiddlewareNext<R>
-) => Promise<R> | R | Promise<void> | void;
-
-export type MiddlewareResponseHandler = MiddlewareHandler<Response>;
-export type MiddlewareEndpointHandler = MiddlewareHandler<Response | EndpointOutput>;
-export type MiddlewareNextResponse = MiddlewareNext<Response>;
+	next: MiddlewareNext
+) => Promise<Response> | Response | Promise<void> | void;
 
 // NOTE: when updating this file with other functions,
 // remember to update `plugin-page.ts` too, to add that function as a no-op function.
-export type AstroMiddlewareInstance<R> = {
-	onRequest?: MiddlewareHandler<R>;
+export type AstroMiddlewareInstance = {
+	onRequest?: MiddlewareHandler;
 };
 
 export type AstroIntegrationMiddleware = {
