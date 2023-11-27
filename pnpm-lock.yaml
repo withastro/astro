@@ -5080,7 +5080,7 @@ importers:
   packages/upgrade/test/fixtures/basic:
     dependencies:
       astro:
-        specifier: ^1.0.0
+        specifier: 1.0.0
         version: 1.0.0
 
   scripts:
