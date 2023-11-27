@@ -1,5 +1,6 @@
 import type { RouteData } from '../../@types/astro.js';
 import type { SerializedSSRManifest, SSRManifest } from './types.js';
+import type { RenderOptions } from './index.js';
 
 import * as fs from 'node:fs';
 import { IncomingMessage } from 'node:http';
@@ -116,11 +117,27 @@ export class NodeApp extends App {
 		}
 		return super.match(req);
 	}
-	render(req: NodeIncomingMessage | Request, routeData?: RouteData, locals?: object) {
+	render(request: NodeIncomingMessage | Request, options?: RenderOptions): Promise<Response>
+	render(request: NodeIncomingMessage | Request, routeData?: RouteData, locals?: object): Promise<Response>
+	render(req: NodeIncomingMessage | Request, routeDataOrOptions?: RouteData | RenderOptions, locals?: object) {
+		let routeData: RouteData | undefined;
+		
+		if (routeDataOrOptions && ('routeData' in routeDataOrOptions || 'locals' in routeDataOrOptions)) {
+			if ('routeData' in routeDataOrOptions) {
+				routeData = routeDataOrOptions.routeData;
+			}
+			if ('locals' in routeDataOrOptions) {
+				locals = routeDataOrOptions.locals;
+			}
+		}
+		else {
+			routeData = routeDataOrOptions as RouteData;
+		}
+		
 		if (!(req instanceof Request)) {
 			req = createRequestFromNodeRequest(req);
 		}
-		return super.render(req, routeData, locals);
+		return super.render(req, { routeData, locals });
 	}
 }
 
