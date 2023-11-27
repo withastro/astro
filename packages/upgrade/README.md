@@ -2,6 +2,8 @@
 
 A command-line tool for upgrading your Astro integrations and dependencies.
 
+You can run this command in your terminal to upgrade your official Astro integrations at the same time you upgrade your version of Astro.
+
 ## Usage
 
 `@astrojs/upgrade` should not be added as a dependency to your project, but run as a temporary executable whenever you want to upgrade using [`npx`](https://docs.npmjs.com/cli/v10/commands/npx) or [`dlx`](https://pnpm.io/cli/dlx).
