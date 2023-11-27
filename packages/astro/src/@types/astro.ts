@@ -142,7 +142,6 @@ export interface CLIFlags {
 	host?: string | boolean;
 	port?: number;
 	config?: string;
-	drafts?: boolean;
 	open?: boolean;
 }
 
@@ -885,33 +884,6 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
-
-		/**
-		 * @docs
-		 * @name build.split
-		 * @type {boolean}
-		 * @default `false`
-		 * @deprecated Deprecated since version 3.0.
-		 * @description
-		 * The build config option `build.split` has been replaced by the adapter configuration option [`functionPerRoute`](/en/reference/adapter-reference/#functionperroute).
-		 *
-		 * Please see your [SSR adapter's documentation](/en/guides/integrations-guide/#official-integrations) for using `functionPerRoute` to define how your SSR code is bundled.
-		 *
-		 */
-		split?: boolean;
-
-		/**
-		 * @docs
-		 * @name build.excludeMiddleware
-		 * @type {boolean}
-		 * @default `false`
-		 * @deprecated Deprecated since version 3.0.
-		 * @description
-		 * The build config option `build.excludeMiddleware` has been replaced by the adapter configuration option [`edgeMiddleware`](/en/reference/adapter-reference/#edgemiddleware).
-		 *
-		 * Please see your [SSR adapter's documentation](/en/guides/integrations-guide/#official-integrations) for using `edgeMiddleware` to define whether or not any SSR middleware code will be bundled when built.
-		 */
-		excludeMiddleware?: boolean;
 	};
 
 	/**
@@ -1182,28 +1154,6 @@ export interface AstroUserConfig {
 	 * @name Markdown Options
 	 */
 	markdown?: {
-		/**
-		 * @docs
-		 * @name markdown.drafts
-		 * @type {boolean}
-		 * @default `false`
-		 * @deprecated Deprecated since version 3.0. Use content collections instead.
-		 * @description
-		 * Control whether Markdown draft pages should be included in the build.
-		 *
-		 * A Markdown page is considered a draft if it includes `draft: true` in its frontmatter. Draft pages are always included & visible during development (`astro dev`) but by default they will not be included in your final build.
-		 *
-		 * ```js
-		 * {
-		 *   markdown: {
-		 *     // Example: Include all drafts in your final build
-		 *     drafts: true,
-		 *   }
-		 * }
-		 * ```
-		 */
-		drafts?: boolean;
-
 		/**
 		 * @docs
 		 * @name markdown.shikiConfig
@@ -1748,10 +1698,6 @@ export interface ComponentInstance {
 	css?: string[];
 	partial?: boolean;
 	prerender?: boolean;
-	/**
-	 * Only used for logging if deprecated drafts feature is used
-	 */
-	frontmatter?: Record<string, any>;
 	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 
@@ -2055,7 +2001,7 @@ export interface AstroAdapter {
 	 *
 	 * If the adapter is not able to handle certain configurations, Astro will throw an error.
 	 */
-	supportedAstroFeatures?: AstroFeatureMap;
+	supportedAstroFeatures: AstroFeatureMap;
 }
 
 export type ValidRedirectStatus = 300 | 301 | 302 | 303 | 304 | 307 | 308;
@@ -2142,7 +2088,7 @@ export interface APIContext<
 	 *   ];
 	 * }
 	 *
-	 * export async function get({ params }) {
+	 * export async function GET({ params }) {
 	 *  return {
 	 * 	  body: `Hello user ${params.id}!`,
 	 *  }
@@ -2165,7 +2111,7 @@ export interface APIContext<
 	 *   ];
 	 * }
 	 *
-	 * export function get({ props }) {
+	 * export function GET({ props }) {
 	 *   return {
 	 *     body: `Hello ${props.name}!`,
 	 *   }
@@ -2181,7 +2127,7 @@ export interface APIContext<
 	 * Example usage:
 	 * ```ts
 	 * // src/pages/secret.ts
-	 * export function get({ redirect }) {
+	 * export function GET({ redirect }) {
 	 *   return redirect('/login');
 	 * }
 	 * ```

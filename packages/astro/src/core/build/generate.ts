@@ -110,16 +110,6 @@ async function getEntryForFallbackRoute(
 	return RedirectSinglePageBuiltModule;
 }
 
-function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
-	return (
-		// Drafts are disabled
-		!settings.config.markdown.drafts &&
-		// This is a draft post
-		'frontmatter' in pageModule &&
-		(pageModule as any).frontmatter?.draft === true
-	);
-}
-
 // Gives back a facadeId that is relative to the root.
 // ie, src/pages/index.astro instead of /Users/name..../src/pages/index.astro
 export function rootRelativeFacadeId(facadeId: string, settings: AstroSettings): string {
@@ -184,11 +174,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			if (pageData.route.prerender) {
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const ssrEntryPage = await import(ssrEntryURLPage.toString());
-				if (
-					// TODO: remove in Astro 4.0
-					opts.settings.config.build.split ||
-					opts.settings.adapter?.adapterFeatures?.functionPerRoute
-				) {
+				if (opts.settings.adapter?.adapterFeatures?.functionPerRoute) {
 					// forcing to use undefined, so we fail in an expected way if the module is not even there.
 					const ssrEntry = ssrEntryPage?.pageModule;
 					if (ssrEntry) {
@@ -296,16 +282,6 @@ async function generatePage(
 		);
 	}
 	const pageModule = await pageModulePromise();
-	// TODO: Remove in Astro 4.0
-	if (shouldSkipDraft(pageModule, pipeline.getSettings())) {
-		logger.info(null, `${magenta('⚠️')}  Skipping draft ${pageData.route.component}`);
-		logger.warn(
-			null,
-			`The drafts feature is deprecated. You should migrate to content collections instead. See https://docs.astro.build/en/guides/content-collections/#filtering-collection-queries for more information.`
-		);
-		return;
-	}
-
 	const generationOptions: Readonly<GeneratePathOptions> = {
 		pageData,
 		linkIds,

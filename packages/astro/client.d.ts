@@ -242,8 +242,6 @@ interface ExportedMarkdownModuleEntities {
 	file: MD['file'];
 	url: MD['url'];
 	getHeadings: MD['getHeadings'];
-	/** @deprecated Renamed to `getHeadings()` */
-	getHeaders: () => void;
 	Content: MD['Content'];
 	rawContent: MD['rawContent'];
 	compiledContent: MD['compiledContent'];

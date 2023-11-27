@@ -244,10 +244,8 @@ export async function runHookConfigDone({
 							);
 						}
 						if (!adapter.supportedAstroFeatures) {
-							// NOTE: throw an error in Astro 4.0
-							logger.warn(
-								null,
-								`The adapter ${adapter.name} doesn't provide a feature map. From Astro 3.0, an adapter can provide a feature map. Not providing a feature map will cause an error in Astro 4.0.`
+							throw new Error(
+								`The adapter ${adapter.name} doesn't provide a feature map. It is required in Astro 4.0.`
 							);
 						} else {
 							const validationResult = validateSupportedFeatures(

@@ -194,7 +194,6 @@ const moveToLocation = (to: URL, from: URL, options: Options, historyState?: Sta
 				to.href
 			);
 		}
-		history.scrollRestoration = 'manual';
 	}
 	// now we are on the new page for non-history navigations!
 	// (with history navigation page change happens before popstate is fired)
@@ -213,12 +212,14 @@ const moveToLocation = (to: URL, from: URL, options: Options, historyState?: Sta
 			// because we are already on the target page ...
 			// ... what comes next is a intra-page navigation
 			// that won't reload the page but instead scroll to the fragment
+			history.scrollRestoration = 'auto';
 			location.href = to.href;
 		} else {
 			if (!scrolledToTop) {
 				scrollTo({ left: 0, top: 0, behavior: 'instant' });
 			}
 		}
+		history.scrollRestoration = 'manual';
 	}
 };
 

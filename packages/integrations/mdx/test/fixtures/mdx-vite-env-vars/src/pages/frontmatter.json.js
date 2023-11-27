@@ -1,5 +1,5 @@
 import { frontmatter } from './vite-env-vars.mdx';
 
-export function get() {
+export function GET() {
 	return Response.json(frontmatter);
 }

@@ -71,11 +71,6 @@ function getAdapter({
 }
 
 export interface VercelServerlessConfig {
-	/**
-	 * @deprecated
-	 */
-	analytics?: boolean;
-
 	/** Configuration for [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics). */
 	webAnalytics?: VercelWebAnalyticsConfig;
 
@@ -108,7 +103,6 @@ export interface VercelServerlessConfig {
 }
 
 export default function vercelServerless({
-	analytics,
 	webAnalytics,
 	speedInsights,
 	includeFiles,
@@ -151,13 +145,7 @@ export default function vercelServerless({
 					);
 				}
 
-				if (webAnalytics?.enabled || analytics) {
-					if (analytics) {
-						logger.warn(
-							`The \`analytics\` property is deprecated. Please use the new \`webAnalytics\` and \`speedInsights\` properties instead.`
-						);
-					}
-
+				if (webAnalytics?.enabled) {
 					injectScript(
 						'head-inline',
 						await getInjectableWebAnalyticsContent({
@@ -165,7 +153,7 @@ export default function vercelServerless({
 						})
 					);
 				}
-				if (command === 'build' && (speedInsights?.enabled || analytics)) {
+				if (command === 'build' && speedInsights?.enabled) {
 					injectScript('page', 'import "@astrojs/vercel/speed-insights"');
 				}
 				const outDir = getVercelOutput(config.root);
@@ -178,7 +166,7 @@ export default function vercelServerless({
 						redirects: false,
 					},
 					vite: {
-						...getSpeedInsightsViteConfig(speedInsights?.enabled || analytics),
+						...getSpeedInsightsViteConfig(speedInsights?.enabled),
 						ssr: {
 							external: ['@vercel/nft'],
 						},
