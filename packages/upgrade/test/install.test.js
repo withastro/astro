@@ -152,9 +152,10 @@ describe('install', () => {
 		expect(fixture.hasMessage('▲  b can be updated to  v7.0.0')).to.be.true;
 		expect(prompted).to.be.true;
 		expect(exitCode).to.be.undefined;
-		expect(fixture.hasMessage('CHECK   Be sure to follow the CHANGELOGs.')).to.be.true;
-		expect(fixture.hasMessage('a CHANGELOG')).to.be.true;
-		expect(fixture.hasMessage('b CHANGELOG')).to.be.true;
+		const [changelog, a, b] = fixture.messages().slice(-5);
+		expect(changelog).to.match(/^CHECK/);
+		expect(a).to.match(/^a/);
+		expect(b).to.match(/^b/);
 	});
 
 	it('current patch minor major', async () => {
@@ -203,5 +204,8 @@ describe('install', () => {
 		expect(prompted).to.be.true;
 		expect(exitCode).to.be.undefined;
 		expect(fixture.hasMessage('CHECK   Be sure to follow the CHANGELOG.')).to.be.true;
+		const [changelog, major] = fixture.messages().slice(-4);
+		expect(changelog).to.match(/^CHECK/);
+		expect(major).to.match(/^major/);
 	});
 });
