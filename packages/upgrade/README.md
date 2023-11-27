@@ -1,21 +1,51 @@
 # @astrojs/upgrade
 
-## Upgrade utility for Astro projects
+A command-line tool for upgrading your Astro integrations and dependencies.
+
+## Usage
+
+`@astrojs/upgrade` should not be added as a dependency to your project, but run as a temporary executable using [`npx`](https://docs.npmjs.com/cli/v10/commands/npx) or [`dlx`](https://pnpm.io/cli/dlx).
 
 **With NPM:**
 
 ```bash
-npm exec @astrojs/upgrade
+npx @astrojs/upgrade
 ```
 
 **With Yarn:**
 
 ```bash
-yarn exec @astrojs/upgrade
+yarn dlx @astrojs/upgrade
 ```
 
 **With PNPM:**
 
 ```bash
-pnpm exec @astrojs/upgrade
+pnpm dlx @astrojs/upgrade
+```
+
+## Options
+
+### tag (optional)
+
+It is possible to pass a specific `tag` to resolve packages against. If not included, `@astrojs/upgrade` looks for the `latest` tag.
+
+As an example, Astro often releases `beta` versions prior to an upcoming major release. Your project could be updated by running the following commands.
+
+**With NPM:**
+
+```bash
+npx @astrojs/upgrade beta
+```
+
+**With Yarn:**
+
+```bash
+yarn dlx @astrojs/upgrade beta
+```
+
+**With PNPM:**
+
+```bash
+pnpm dlx @astrojs/upgrade beta
 ```
