@@ -31,7 +31,8 @@
   "dependencies": {
     "@astrojs/cli-kit": "^0.2.3",
     "semver": "^7.5.4",
-    "which-pm-runs": "^1.1.0"
+    "which-pm-runs": "^1.1.0",
+    "terminal-link": "^3.0.0"
   },
   "devDependencies": {
     "@types/semver": "^7.5.2",
@@ -40,8 +41,7 @@
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
-    "strip-ansi": "^7.1.0",
-    "terminal-link": "^3.0.0"
+    "strip-ansi": "^7.1.0"
   },
   "engines": {
     "node": ">=18.14.1"
