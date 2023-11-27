@@ -36,7 +36,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 			'-h': '--help',
 		},
 		{ argv, permissive: true }
-	)
+	);
 
 	const packageManager = detectPackageManager()?.name ?? 'npm';
 	const { _: [version = 'latest'] = [], '--help': help = false, '--dry-run': dryRun } = flags;
@@ -52,5 +52,5 @@ export async function getContext(argv: string[]): Promise<Context> {
 		exit(code) {
 			process.exit(code);
 		},
-	} satisfies Context
+	} satisfies Context;
 }

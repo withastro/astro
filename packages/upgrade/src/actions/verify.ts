@@ -1,14 +1,13 @@
 import type { Context, PackageInfo } from './context.js';
 
+import { color } from '@astrojs/cli-kit';
 import dns from 'node:dns/promises';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import { color } from '@astrojs/cli-kit';
-import { bannerAbort, error, getRegistry, info, log, newline } from '../messages.js';
-import semverDiff from 'semver/functions/diff.js';
 import semverCoerce from 'semver/functions/coerce.js';
+import semverDiff from 'semver/functions/diff.js';
 import semverParse from 'semver/functions/parse.js';
-
+import { bannerAbort, error, getRegistry, info, newline } from '../messages.js';
 
 export async function verify(
 	ctx: Pick<Context, 'version' | 'packages' | 'cwd' | 'dryRun' | 'exit'>
@@ -49,21 +48,21 @@ function safeJSONParse(value: string) {
 	try {
 		return JSON.parse(value);
 	} catch {}
-	return {}
+	return {};
 }
 
 async function verifyAstroProject(ctx: Pick<Context, 'cwd' | 'version' | 'packages'>) {
 	const packageJson = new URL('./package.json', ctx.cwd);
-    if (!existsSync(packageJson)) return false;
+	if (!existsSync(packageJson)) return false;
 	const contents = await readFile(packageJson, { encoding: 'utf-8' });
 	if (!contents.includes('astro')) return false;
 
-	const { dependencies = {}, devDependencies = {} } = safeJSONParse(contents)
+	const { dependencies = {}, devDependencies = {} } = safeJSONParse(contents);
 	if (dependencies['astro'] === undefined && devDependencies['astro'] === undefined) return false;
-	
+
 	// Side-effect! Persist dependency info to the shared context
 	collectPackageInfo(ctx, dependencies, devDependencies);
-	
+
 	return true;
 }
 
@@ -71,14 +70,18 @@ function isAstroPackage(name: string) {
 	return name === 'astro' || name.startsWith('@astrojs/');
 }
 
-function collectPackageInfo(ctx: Pick<Context, 'version' | 'packages'>, dependencies: Record<string, string>, devDependencies: Record<string, string>) {
+function collectPackageInfo(
+	ctx: Pick<Context, 'version' | 'packages'>,
+	dependencies: Record<string, string>,
+	devDependencies: Record<string, string>
+) {
 	for (const [name, currentVersion] of Object.entries(dependencies)) {
 		if (!isAstroPackage(name)) continue;
 		ctx.packages.push({
 			name,
 			currentVersion,
 			targetVersion: ctx.version,
-		})
+		});
 	}
 	for (const [name, currentVersion] of Object.entries(devDependencies)) {
 		if (!isAstroPackage(name)) continue;
@@ -86,12 +89,15 @@ function collectPackageInfo(ctx: Pick<Context, 'version' | 'packages'>, dependen
 			name,
 			currentVersion,
 			targetVersion: ctx.version,
-			isDevDependency: true
-		})
+			isDevDependency: true,
+		});
 	}
 }
 
-async function verifyVersions(ctx: Pick<Context, 'version' | 'packages' | 'exit'>, registry: string) {
+async function verifyVersions(
+	ctx: Pick<Context, 'version' | 'packages' | 'exit'>,
+	registry: string
+) {
 	const tasks: Promise<void>[] = [];
 	for (const packageInfo of ctx.packages) {
 		tasks.push(resolveTargetVersion(packageInfo, registry));
@@ -110,11 +116,13 @@ async function verifyVersions(ctx: Pick<Context, 'version' | 'packages' | 'exit'
 }
 
 async function resolveTargetVersion(packageInfo: PackageInfo, registry: string): Promise<void> {
-	const packageMetadata = await fetch(`${registry}/${packageInfo.name}`, { headers: { accept: 'application/vnd.npm.install-v1+json' }});
+	const packageMetadata = await fetch(`${registry}/${packageInfo.name}`, {
+		headers: { accept: 'application/vnd.npm.install-v1+json' },
+	});
 	if (packageMetadata.status >= 400) {
 		throw new Error(`Unable to resolve "${packageInfo.name}"`);
 	}
-	const { "dist-tags": distTags } = await packageMetadata.json();
+	const { 'dist-tags': distTags } = await packageMetadata.json();
 	let version = distTags[packageInfo.targetVersion];
 	if (version) {
 		packageInfo.tag = packageInfo.targetVersion;
@@ -159,7 +167,16 @@ async function resolveTargetVersion(packageInfo: PackageInfo, registry: string):
 	}
 }
 
-function extractChangelogURLFromRepository(repository: Record<string, string>, version: string, branch = 'main') {
-	return repository.url.replace('git+', '').replace('.git', '') + `/blob/${branch}/` + repository.directory + '/CHANGELOG.md#' + version.replace(/\./g, '')
+function extractChangelogURLFromRepository(
+	repository: Record<string, string>,
+	version: string,
+	branch = 'main'
+) {
+	return (
+		repository.url.replace('git+', '').replace('.git', '') +
+		`/blob/${branch}/` +
+		repository.directory +
+		'/CHANGELOG.md#' +
+		version.replace(/\./g, '')
+	);
 }
-

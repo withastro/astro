@@ -38,7 +38,7 @@ const resetBasicFixture = async () => {
 	);
 	const overriddenPackageJson = Object.assign(packageJsonData, {
 		dependencies: {
-			astro: '1.0.0'
+			astro: '1.0.0',
 		},
 	});
 
@@ -49,5 +49,4 @@ const resetBasicFixture = async () => {
 	]);
 };
 
-export const resetFixtures = () =>
-	Promise.allSettled([resetBasicFixture()]);
+export const resetFixtures = () => Promise.allSettled([resetBasicFixture()]);

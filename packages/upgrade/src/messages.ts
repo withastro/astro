@@ -1,11 +1,11 @@
 /* eslint no-console: 'off' */
-import type { PackageInfo } from './actions/context.js';
 import { color, label, spinner as load } from '@astrojs/cli-kit';
 import { align } from '@astrojs/cli-kit/utils';
-import detectPackageManager from 'which-pm-runs';
-import { shell } from './shell.js';
 import semverParse from 'semver/functions/parse.js';
 import terminalLink from 'terminal-link';
+import detectPackageManager from 'which-pm-runs';
+import type { PackageInfo } from './actions/context.js';
+import { shell } from './shell.js';
 
 // Users might lack access to the global npm registry, this function
 // checks the user's project type and will return the proper npm registry
@@ -51,28 +51,28 @@ export const celebrations = [
 	'Nice.',
 	'Wonderful.',
 	'Lovely!',
-	'Lookin\' good.',
-	'Awesome.'
-]
+	"Lookin' good.",
+	'Awesome.',
+];
 
 export const done = [
-	'You\'re on the latest and greatest.',
+	"You're on the latest and greatest.",
 	'Your integrations are up-to-date.',
 	'Everything is current.',
 	'Everything is up to date.',
 	'Integrations are all up to date.',
 	'Everything is on the latest and greatest.',
 	'Integrations are up to date.',
-]
+];
 
 export const bye = [
 	'Thanks for using Astro!',
 	'Have fun building!',
 	'Take it easy, astronaut!',
-	'Can\'t wait to see what you build.',
+	"Can't wait to see what you build.",
 	'Good luck out there.',
 	'See you around, astronaut.',
-]
+];
 
 export const log = (message: string) => stdout.write(message + '\n');
 
@@ -80,7 +80,9 @@ export const newline = () => stdout.write('\n');
 
 export const banner = async () =>
 	log(
-		`\n${label('astro', color.bgGreen, color.black)}  ${color.bold('Integration upgrade in progress.')}`
+		`\n${label('astro', color.bgGreen, color.black)}  ${color.bold(
+			'Integration upgrade in progress.'
+		)}`
 	);
 
 export const bannerAbort = () =>
@@ -88,7 +90,7 @@ export const bannerAbort = () =>
 
 export const warn = async (prefix: string, text: string) => {
 	log(`${label(prefix, color.bgCyan, color.black)}  ${text}`);
-}
+};
 
 export const info = async (prefix: string, text: string, version = '') => {
 	const length = 11 + prefix.length + text.length + version?.length;
@@ -97,12 +99,14 @@ export const info = async (prefix: string, text: string, version = '') => {
 		log(`${' '.repeat(5)} ${color.cyan(symbol)}  ${prefix}`);
 		log(`${' '.repeat(9)}${color.dim(text)} ${color.reset(version)}`);
 	} else {
-		log(`${' '.repeat(5)} ${color.cyan(symbol)}  ${prefix} ${color.dim(text)} ${color.reset(version)}`);
+		log(
+			`${' '.repeat(5)} ${color.cyan(symbol)}  ${prefix} ${color.dim(text)} ${color.reset(version)}`
+		);
 	}
-}
+};
 export const upgrade = async (packageInfo: PackageInfo, text: string) => {
 	const { name, isMajor = false, targetVersion } = packageInfo;
-	
+
 	const bg = isMajor ? (v: string) => color.bgYellow(color.black(` ${v} `)) : color.green;
 	const style = isMajor ? color.yellow : color.green;
 	const symbol = isMajor ? '▲' : '●';
@@ -116,17 +120,18 @@ export const upgrade = async (packageInfo: PackageInfo, text: string) => {
 	} else {
 		log(`${' '.repeat(5)} ${style(symbol)}  ${name} ${color.dim(text)} ${bg(version)}`);
 	}
-}
+};
 
-export const title = (text: string) => align(label(text, color.bgYellow, color.black), 'end', 7) + ' ';
+export const title = (text: string) =>
+	align(label(text, color.bgYellow, color.black), 'end', 7) + ' ';
 
 export const success = async (prefix: string, text: string) => {
 	const length = 10 + prefix.length + text.length;
 	if (length > stdout.columns) {
-		log(`${' '.repeat(5)} ${color.green("✔")}  ${prefix}`);
+		log(`${' '.repeat(5)} ${color.green('✔')}  ${prefix}`);
 		log(`${' '.repeat(9)}${color.dim(text)}`);
 	} else {
-		log(`${' '.repeat(5)} ${color.green("✔")}  ${prefix} ${color.dim(text)}`);
+		log(`${' '.repeat(5)} ${color.green('✔')}  ${prefix} ${color.dim(text)}`);
 	}
 };
 

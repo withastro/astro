@@ -9,7 +9,7 @@ describe('install', () => {
 		version: 'latest',
 		packageManager: 'npm',
 		dryRun: true,
-	}
+	};
 
 	it('up to date', async () => {
 		const context = {
@@ -19,8 +19,8 @@ describe('install', () => {
 					name: 'astro',
 					currentVersion: '1.0.0',
 					targetVersion: '1.0.0',
-				}
-			]
+				},
+			],
 		};
 		await install(context);
 		expect(fixture.hasMessage('◼  astro is up to date on v1.0.0')).to.be.true;
@@ -34,8 +34,8 @@ describe('install', () => {
 					name: 'astro',
 					currentVersion: '1.0.0',
 					targetVersion: '1.0.1',
-				}
-			]
+				},
+			],
 		};
 		await install(context);
 		expect(fixture.hasMessage('●  astro can be updated to v1.0.1')).to.be.true;
@@ -49,8 +49,8 @@ describe('install', () => {
 					name: 'astro',
 					currentVersion: '1.0.0',
 					targetVersion: '1.2.0',
-				}
-			]
+				},
+			],
 		};
 		await install(context);
 		expect(fixture.hasMessage('●  astro can be updated to v1.2.0')).to.be.true;
@@ -61,9 +61,9 @@ describe('install', () => {
 		let exitCode;
 		const context = {
 			...ctx,
-			prompt: () => { 
+			prompt: () => {
 				prompted = true;
-				return { proceed: false }
+				return { proceed: false };
 			},
 			exit: (code) => {
 				exitCode = code;
@@ -75,9 +75,9 @@ describe('install', () => {
 					targetVersion: '2.0.0',
 					isMajor: true,
 					changelogTitle: 'CHANGELOG',
-					changelogURL: 'https://example.com'
-				}
-			]
+					changelogURL: 'https://example.com',
+				},
+			],
 		};
 		await install(context);
 		expect(fixture.hasMessage('▲  astro can be updated to  v2.0.0')).to.be.true;
@@ -91,9 +91,9 @@ describe('install', () => {
 		let exitCode;
 		const context = {
 			...ctx,
-			prompt: () => { 
+			prompt: () => {
 				prompted = true;
-				return { proceed: true }
+				return { proceed: true };
 			},
 			exit: (code) => {
 				exitCode = code;
@@ -105,9 +105,9 @@ describe('install', () => {
 					targetVersion: '2.0.0',
 					isMajor: true,
 					changelogTitle: 'CHANGELOG',
-					changelogURL: 'https://example.com'
-				}
-			]
+					changelogURL: 'https://example.com',
+				},
+			],
 		};
 		await install(context);
 		expect(fixture.hasMessage('▲  astro can be updated to  v2.0.0')).to.be.true;
@@ -121,9 +121,9 @@ describe('install', () => {
 		let exitCode;
 		const context = {
 			...ctx,
-			prompt: () => { 
+			prompt: () => {
 				prompted = true;
-				return { proceed: true }
+				return { proceed: true };
 			},
 			exit: (code) => {
 				exitCode = code;
@@ -135,7 +135,7 @@ describe('install', () => {
 					targetVersion: '2.0.0',
 					isMajor: true,
 					changelogTitle: 'CHANGELOG',
-					changelogURL: 'https://example.com'
+					changelogURL: 'https://example.com',
 				},
 				{
 					name: 'b',
@@ -143,9 +143,9 @@ describe('install', () => {
 					targetVersion: '7.0.0',
 					isMajor: true,
 					changelogTitle: 'CHANGELOG',
-					changelogURL: 'https://example.com'
-				}
-			]
+					changelogURL: 'https://example.com',
+				},
+			],
 		};
 		await install(context);
 		expect(fixture.hasMessage('▲  a can be updated to  v2.0.0')).to.be.true;
@@ -163,9 +163,9 @@ describe('install', () => {
 		let exitCode;
 		const context = {
 			...ctx,
-			prompt: () => { 
+			prompt: () => {
 				prompted = true;
-				return { proceed: true }
+				return { proceed: true };
 			},
 			exit: (code) => {
 				exitCode = code;
@@ -192,9 +192,9 @@ describe('install', () => {
 					targetVersion: '3.0.0',
 					isMajor: true,
 					changelogTitle: 'CHANGELOG',
-					changelogURL: 'https://example.com'
-				}
-			]
+					changelogURL: 'https://example.com',
+				},
+			],
 		};
 		await install(context);
 		expect(fixture.hasMessage('◼  current is up to date on v1.0.0')).to.be.true;

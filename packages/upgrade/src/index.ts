@@ -1,7 +1,7 @@
 import { getContext } from './actions/context.js';
 
-import { install } from './actions/install.js';
 import { help } from './actions/help.js';
+import { install } from './actions/install.js';
 import { verify } from './actions/verify.js';
 import { setStdout } from './messages.js';
 
@@ -21,10 +21,7 @@ export async function main() {
 		return;
 	}
 
-	const steps = [
-		verify,
-		install,
-	];
+	const steps = [verify, install];
 
 	for (const step of steps) {
 		await step(ctx);
@@ -32,9 +29,4 @@ export async function main() {
 	process.exit(0);
 }
 
-export {
-	install,
-	getContext,
-	setStdout,
-	verify,
-};
+export { getContext, install, setStdout, verify };

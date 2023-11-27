@@ -1,9 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": [
-    "src",
-    "index.d.ts"
-  ],
+  "include": ["src", "index.d.ts"],
   "compilerOptions": {
     "allowJs": true,
     "emitDeclarationOnly": false,

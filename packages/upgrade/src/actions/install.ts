@@ -1,37 +1,56 @@
 import type { Context, PackageInfo } from './context.js';
 
+import { color, say } from '@astrojs/cli-kit';
+import { random, sleep } from '@astrojs/cli-kit/utils';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { color, say } from '@astrojs/cli-kit';
-import { pluralize, celebrations, done, error, info, log, spinner, success, upgrade, banner, title, changelog, warn, bye, newline } from '../messages.js';
+import {
+	banner,
+	bye,
+	celebrations,
+	changelog,
+	done,
+	error,
+	info,
+	newline,
+	pluralize,
+	spinner,
+	success,
+	title,
+	upgrade,
+	warn,
+} from '../messages.js';
 import { shell } from '../shell.js';
-import { random, sleep } from '@astrojs/cli-kit/utils';
-import { satisfies } from 'semver';
 
 export async function install(
-	ctx: Pick<Context, 'version' | 'packages' | 'packageManager' | 'prompt' | 'dryRun' | 'exit' | 'cwd'>
+	ctx: Pick<
+		Context,
+		'version' | 'packages' | 'packageManager' | 'prompt' | 'dryRun' | 'exit' | 'cwd'
+	>
 ) {
 	await banner();
 	newline();
 	const { current, dependencies, devDependencies } = filterPackages(ctx);
 	const toInstall = [...dependencies, ...devDependencies].sort(sortPackages);
 	for (const packageInfo of current.sort(sortPackages)) {
-		const tag = /^\d/.test(packageInfo.targetVersion) ? packageInfo.targetVersion : packageInfo.targetVersion.slice(1)
-		await info(`${packageInfo.name}`, `is up to date on`, `v${tag}`)
+		const tag = /^\d/.test(packageInfo.targetVersion)
+			? packageInfo.targetVersion
+			: packageInfo.targetVersion.slice(1);
+		await info(`${packageInfo.name}`, `is up to date on`, `v${tag}`);
 		await sleep(random(50, 150));
 	}
 	if (toInstall.length === 0 && !ctx.dryRun) {
-		newline()
+		newline();
 		await success(random(celebrations), random(done));
 		return;
 	}
-	const majors: PackageInfo[] = []
+	const majors: PackageInfo[] = [];
 	for (const packageInfo of toInstall) {
 		const word = ctx.dryRun ? 'can' : 'will';
-		await upgrade(packageInfo, `${word} be updated to`)
+		await upgrade(packageInfo, `${word} be updated to`);
 		if (packageInfo.isMajor) {
-			majors.push(packageInfo)
+			majors.push(packageInfo);
 		}
 	}
 	if (majors.length > 0) {
@@ -39,22 +58,25 @@ export async function install(
 			name: 'proceed',
 			type: 'confirm',
 			label: title('wait'),
-			message: `${pluralize(['One package has', 'Some packages have'], majors.length)} breaking changes. Continue?`,
+			message: `${pluralize(
+				['One package has', 'Some packages have'],
+				majors.length
+			)} breaking changes. Continue?`,
 			initial: true,
 		});
 		if (!proceed) {
 			return ctx.exit(0);
 		}
-		
+
 		newline();
-		
+
 		await warn('check', `Be sure to follow the ${pluralize('CHANGELOG', majors.length)}.`);
 		for (const pkg of majors.sort(sortPackages)) {
 			await changelog(pkg.name, pkg.changelogTitle!, pkg.changelogURL!);
 		}
 	}
 
-	newline()
+	newline();
 	if (ctx.dryRun) {
 		await info('--dry-run', `Skipping dependency installation`);
 	} else {
@@ -76,13 +98,13 @@ function filterPackages(ctx: Pick<Context, 'packages'>) {
 			arr.push(packageInfo);
 		}
 	}
-	return { current, dependencies, devDependencies }
+	return { current, dependencies, devDependencies };
 }
 
 /**
-  * An `Array#sort` comparator function to normalize how packages are displayed.
-  * This only changes how the packages are displayed in the CLI, it is not persisted to `package.json`.
-  */
+ * An `Array#sort` comparator function to normalize how packages are displayed.
+ * This only changes how the packages are displayed in the CLI, it is not persisted to `package.json`.
+ */
 function sortPackages(a: PackageInfo, b: PackageInfo): number {
 	if (a.isMajor && !b.isMajor) return 1;
 	if (b.isMajor && !a.isMajor) return -1;
@@ -93,7 +115,11 @@ function sortPackages(a: PackageInfo, b: PackageInfo): number {
 	return a.name.localeCompare(b.name);
 }
 
-async function runInstallCommand(ctx: Pick<Context, 'cwd' | 'packageManager' | 'exit'>, dependencies: PackageInfo[], devDependencies: PackageInfo[]) {
+async function runInstallCommand(
+	ctx: Pick<Context, 'cwd' | 'packageManager' | 'exit'>,
+	dependencies: PackageInfo[],
+	devDependencies: PackageInfo[]
+) {
 	const cwd = fileURLToPath(ctx.cwd);
 	if (ctx.packageManager === 'yarn') await ensureYarnLock({ cwd });
 
@@ -103,17 +129,40 @@ async function runInstallCommand(ctx: Pick<Context, 'cwd' | 'packageManager' | '
 		while: async () => {
 			try {
 				if (dependencies.length > 0) {
-					await shell(ctx.packageManager, ['install', ...dependencies.map(({ name, targetVersion }) => `${name}@${(targetVersion).replace(/^\^/, '')}`)], { cwd, timeout: 90_000, stdio: 'ignore' })
+					await shell(
+						ctx.packageManager,
+						[
+							'install',
+							...dependencies.map(
+								({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`
+							),
+						],
+						{ cwd, timeout: 90_000, stdio: 'ignore' }
+					);
 				}
 				if (devDependencies.length > 0) {
-					await shell(ctx.packageManager, ['install', '--save-dev', ...devDependencies.map(({ name, targetVersion }) => `${name}@${(targetVersion).replace(/^\^/, '')}`)], { cwd, timeout: 90_000, stdio: 'ignore' })
+					await shell(
+						ctx.packageManager,
+						[
+							'install',
+							'--save-dev',
+							...devDependencies.map(
+								({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`
+							),
+						],
+						{ cwd, timeout: 90_000, stdio: 'ignore' }
+					);
 				}
 			} catch {
-				const packages = [...dependencies, ...devDependencies].map(({ name, targetVersion }) => `${name}@${targetVersion}`).join(' ')
+				const packages = [...dependencies, ...devDependencies]
+					.map(({ name, targetVersion }) => `${name}@${targetVersion}`)
+					.join(' ');
 				newline();
 				error(
 					'error',
-					`Dependencies failed to install, please run the following command manually:\n${color.bold(`${ctx.packageManager} install ${packages}`)}`
+					`Dependencies failed to install, please run the following command manually:\n${color.bold(
+						`${ctx.packageManager} install ${packages}`
+					)}`
 				);
 				return ctx.exit(1);
 			}

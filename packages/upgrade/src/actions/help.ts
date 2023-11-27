@@ -8,7 +8,7 @@ export function help() {
 		tables: {
 			Flags: [
 				['--help (-h)', 'See all available flags.'],
-				['--dry-run', 'Walk through steps without executing.']
+				['--dry-run', 'Walk through steps without executing.'],
 			],
 		},
 	});
