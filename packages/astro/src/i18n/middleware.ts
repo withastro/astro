@@ -1,18 +1,33 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
-import type { MiddlewareEndpointHandler, RouteData, SSRManifest } from '../@types/astro.js';
+import type {
+	Locales,
+	MiddlewareEndpointHandler,
+	RouteData,
+	SSRManifest,
+} from '../@types/astro.js';
 import type { PipelineHookFunction } from '../core/pipeline.js';
+import { normalizeTheLocale } from './index.js';
 
 const routeDataSymbol = Symbol.for('astro.routeData');
 
-// Checks if the pathname doesn't have any locale, exception for the defaultLocale, which is ignored on purpose
-function checkIsLocaleFree(pathname: string, locales: string[]): boolean {
-	for (const locale of locales) {
-		if (pathname.includes(`/${locale}`)) {
-			return false;
+// Checks if the pathname doesn't have any locale, exception for the defaultLocale, which is ignored on purpose.
+function pathnameHasLocale(pathname: string, locales: Locales): boolean {
+	const segments = pathname.split('/');
+	for (const segment of segments) {
+		for (const locale of locales) {
+			if (typeof locale === 'string') {
+				if (normalizeTheLocale(segment) === normalizeTheLocale(locale)) {
+					return true;
+				}
+			} else {
+				if (segment === locale.path) {
+					return true;
+				}
+			}
 		}
 	}
 
-	return true;
+	return false;
 }
 
 export function createI18nMiddleware(
@@ -45,9 +60,7 @@ export function createI18nMiddleware(
 		const response = await next();
 
 		if (response instanceof Response) {
-			const separators = url.pathname.split('/');
 			const pathnameContainsDefaultLocale = url.pathname.includes(`/${defaultLocale}`);
-			const isLocaleFree = checkIsLocaleFree(url.pathname, i18n.locales);
 			if (i18n.routingStrategy === 'prefix-other-locales' && pathnameContainsDefaultLocale) {
 				const newLocation = url.pathname.replace(`/${defaultLocale}`, '');
 				response.headers.set('Location', newLocation);
@@ -65,7 +78,7 @@ export function createI18nMiddleware(
 				}
 
 				// Astro can't know where the default locale is supposed to be, so it returns a 404 with no content.
-				else if (isLocaleFree) {
+				else if (!pathnameHasLocale(url.pathname, i18n.locales)) {
 					return new Response(null, {
 						status: 404,
 						headers: response.headers,
@@ -75,7 +88,20 @@ export function createI18nMiddleware(
 			if (response.status >= 300 && fallback) {
 				const fallbackKeys = i18n.fallback ? Object.keys(i18n.fallback) : [];
 
-				const urlLocale = separators.find((s) => locales.includes(s));
+				// we split the URL using the `/`, and then check in the returned array we have the locale
+				const segments = url.pathname.split('/');
+				const urlLocale = segments.find((segment) => {
+					for (const locale of locales) {
+						if (typeof locale === 'string') {
+							if (locale === segment) {
+								return true;
+							}
+						} else if (locale.path === segment) {
+							return true;
+						}
+					}
+					return false;
+				});
 
 				if (urlLocale && fallbackKeys.includes(urlLocale)) {
 					const fallbackLocale = fallback[urlLocale];

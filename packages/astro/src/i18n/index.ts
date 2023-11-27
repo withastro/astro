@@ -48,15 +48,15 @@ export function getLocaleRelativeUrl({
 	routingStrategy = 'prefix-other-locales',
 	defaultLocale,
 }: GetLocaleRelativeUrl) {
-	const locales = toPathLocales(_locales);
-	if (!locales.includes(locale)) {
+	const codeToUse = peekCodePathToUse(_locales, locale);
+	if (!codeToUse) {
 		throw new AstroError({
 			...MissingLocale,
-			message: MissingLocale.message(locale, locales),
+			message: MissingLocale.message(locale),
 		});
 	}
 	const pathsToJoin = [base, prependWith];
-	const normalizedLocale = normalizeLocale ? normalizeTheLocale(locale) : locale;
+	const normalizedLocale = normalizeLocale ? normalizeTheLocale(codeToUse) : codeToUse;
 	if (routingStrategy === 'prefix-always') {
 		pathsToJoin.push(normalizedLocale);
 	} else if (locale !== defaultLocale) {
@@ -103,7 +103,7 @@ export function getLocaleRelativeUrlList({
 	routingStrategy = 'prefix-other-locales',
 	defaultLocale,
 }: GetLocalesBaseUrl) {
-	const locales = toPathLocales(_locales);
+	const locales = peekPaths(_locales);
 	return locales.map((locale) => {
 		const pathsToJoin = [base, prependWith];
 		const normalizedLocale = normalizeLocale ? normalizeTheLocale(locale) : locale;
@@ -147,13 +147,15 @@ export function normalizeTheLocale(locale: string): string {
  * Returns an array of only locales, by picking the `path`
  */
 export function toPathLocales(locales: Locales): string[] {
-	return locales.map((locale) => {
+	const codes: string[] = [];
+	for (const locale of locales) {
 		if (typeof locale === 'string') {
-			return locale;
+			codes.push(locale);
 		} else {
-			return locale.path;
+			codes.push(...locale.codes);
 		}
-	});
+	}
+	return codes;
 }
 
 /**
@@ -171,4 +173,32 @@ export function toCodeLocales(locales: Locales): string[] {
 		}
 	}
 	return codes;
+}
+
+function peekPaths(locales: Locales): string[] {
+	return locales.map((loopLocale) => {
+		if (typeof loopLocale === 'string') {
+			return loopLocale;
+		} else {
+			return loopLocale.path;
+		}
+	});
+}
+
+function peekCodePathToUse(locales: Locales, locale: string): undefined | string {
+	for (const loopLocale of locales) {
+		if (typeof loopLocale === 'string') {
+			if (loopLocale === locale) {
+				return loopLocale;
+			}
+		} else {
+			for (const code of loopLocale.codes) {
+				if (code === locale) {
+					return loopLocale.path;
+				}
+			}
+		}
+	}
+
+	return undefined;
 }

@@ -18,7 +18,15 @@ describe('getLocaleRelativeUrl', () => {
 			experimental: {
 				i18n: {
 					defaultLocale: 'en',
-					locales: ['en', 'en_US', 'es'],
+					locales: [
+						'en',
+						'en_US',
+						'es',
+						{
+							path: 'italiano',
+							codes: ['it', 'it-VA'],
+						},
+					],
 				},
 			},
 		};
@@ -82,6 +90,16 @@ describe('getLocaleRelativeUrl', () => {
 				format: 'file',
 			})
 		).to.throw;
+
+		expect(
+			getLocaleRelativeUrl({
+				locale: 'it-VA',
+				base: '/blog/',
+				...config.experimental.i18n,
+				trailingSlash: 'always',
+				format: 'file',
+			})
+		).to.eq('/blog/italiano/');
 	});
 
 	it('should correctly return the URL without base', () => {
@@ -127,7 +145,14 @@ describe('getLocaleRelativeUrl', () => {
 			experimental: {
 				i18n: {
 					defaultLocale: 'en',
-					locales: ['en', 'es'],
+					locales: [
+						'en',
+						'es',
+						{
+							path: 'italiano',
+							codes: ['it', 'it-VA'],
+						},
+					],
 				},
 			},
 		};
@@ -150,6 +175,16 @@ describe('getLocaleRelativeUrl', () => {
 				format: 'directory',
 			})
 		).to.eq('/blog/es/');
+
+		expect(
+			getLocaleRelativeUrl({
+				locale: 'it-VA',
+				base: '/blog/',
+				...config.experimental.i18n,
+				trailingSlash: 'always',
+				format: 'file',
+			})
+		).to.eq('/blog/italiano/');
 
 		expect(
 			getLocaleRelativeUrl({
@@ -328,7 +363,15 @@ describe('getLocaleRelativeUrlList', () => {
 			experimental: {
 				i18n: {
 					defaultLocale: 'en',
-					locales: ['en', 'en_US', 'es'],
+					locales: [
+						'en',
+						'en_US',
+						'es',
+						{
+							path: 'italiano',
+							codes: ['it', 'it-VA'],
+						},
+					],
 				},
 			},
 		};
@@ -341,7 +384,7 @@ describe('getLocaleRelativeUrlList', () => {
 				trailingSlash: 'never',
 				format: 'directory',
 			})
-		).to.have.members(['/blog', '/blog/en_US', '/blog/es']);
+		).to.have.members(['/blog', '/blog/en_US', '/blog/es', '/blog/italiano']);
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: always]', () => {
@@ -353,7 +396,15 @@ describe('getLocaleRelativeUrlList', () => {
 			experimental: {
 				i18n: {
 					defaultLocale: 'en',
-					locales: ['en', 'en_US', 'es'],
+					locales: [
+						'en',
+						'en_US',
+						'es',
+						{
+							path: 'italiano',
+							codes: ['it', 'it-VA'],
+						},
+					],
 				},
 			},
 		};
@@ -366,7 +417,7 @@ describe('getLocaleRelativeUrlList', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 			})
-		).to.have.members(['/blog/', '/blog/en_US/', '/blog/es/']);
+		).to.have.members(['/blog/', '/blog/en_US/', '/blog/es/', '/blog/italiano/']);
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: always]', () => {
@@ -507,7 +558,15 @@ describe('getLocaleAbsoluteUrl', () => {
 			experimental: {
 				i18n: {
 					defaultLocale: 'en',
-					locales: ['en', 'en_US', 'es'],
+					locales: [
+						'en',
+						'en_US',
+						'es',
+						{
+							path: 'italiano',
+							codes: ['it', 'it-VA'],
+						},
+					],
 				},
 			},
 		};
@@ -577,6 +636,16 @@ describe('getLocaleAbsoluteUrl', () => {
 				site: 'https://example.com',
 			})
 		).to.throw;
+		expect(
+			getLocaleAbsoluteUrl({
+				locale: 'it-VA',
+				base: '/blog/',
+				...config.experimental.i18n,
+				trailingSlash: 'always',
+				format: 'file',
+				site: 'https://example.com',
+			})
+		).to.eq('https://example.com/blog/italiano/');
 	});
 
 	it('should correctly return the URL without base', () => {
@@ -588,7 +657,14 @@ describe('getLocaleAbsoluteUrl', () => {
 			experimental: {
 				i18n: {
 					defaultLocale: 'en',
-					locales: ['en', 'es'],
+					locales: [
+						'en',
+						'es',
+						{
+							path: 'italiano',
+							codes: ['it', 'it-VA'],
+						},
+					],
 				},
 			},
 		};
@@ -613,6 +689,16 @@ describe('getLocaleAbsoluteUrl', () => {
 				site: 'https://example.com',
 			})
 		).to.eq('https://example.com/es/');
+		expect(
+			getLocaleAbsoluteUrl({
+				locale: 'it-VT',
+				base: '/',
+				...config.experimental.i18n,
+				trailingSlash: 'always',
+				format: 'directory',
+				site: 'https://example.com',
+			})
+		).to.eq('https://example.com/italiano/');
 	});
 
 	it('should correctly handle the trailing slash', () => {
@@ -837,7 +923,15 @@ describe('getLocaleAbsoluteUrlList', () => {
 			experimental: {
 				i18n: {
 					defaultLocale: 'en',
-					locales: ['en', 'en_US', 'es'],
+					locales: [
+						'en',
+						'en_US',
+						'es',
+						{
+							path: 'italiano',
+							codes: ['it', 'it-VA'],
+						},
+					],
 				},
 			},
 		};
@@ -855,6 +949,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 			'https://example.com/blog',
 			'https://example.com/blog/en_US',
 			'https://example.com/blog/es',
+			'https://example.com/blog/italiano',
 		]);
 	});
 
@@ -897,7 +992,15 @@ describe('getLocaleAbsoluteUrlList', () => {
 			experimental: {
 				i18n: {
 					defaultLocale: 'en',
-					locales: ['en', 'en_US', 'es'],
+					locales: [
+						'en',
+						'en_US',
+						'es',
+						{
+							path: 'italiano',
+							codes: ['it', 'it-VA'],
+						},
+					],
 				},
 			},
 		};
@@ -915,6 +1018,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 			'https://example.com/blog/',
 			'https://example.com/blog/en_US/',
 			'https://example.com/blog/es/',
+			'https://example.com/blog/italiano/',
 		]);
 	});
 

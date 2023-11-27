@@ -26,6 +26,7 @@ describe('astro:i18n virtual module', () => {
 		const text = await response.text();
 		expect(text).includes("Virtual module doesn't break");
 		expect(text).includes('About: /pt/about');
+		expect(text).includes('About spanish: /spanish/about');
 	});
 });
 describe('[DEV] i18n routing', () => {

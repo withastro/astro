@@ -2,6 +2,7 @@
 import { getRelativeLocaleUrl } from "astro:i18n";
 
 let about = getRelativeLocaleUrl("pt", "about");
+let spanish = getRelativeLocaleUrl("es", "about");
 
 ---
 
@@ -13,5 +14,6 @@ let about = getRelativeLocaleUrl("pt", "about");
         Virtual module doesn't break
     
         About: {about}
+        About spanish: {spanish}
     </body>
 </html>
