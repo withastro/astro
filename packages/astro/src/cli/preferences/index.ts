@@ -6,12 +6,10 @@ import { cyan } from 'kleur/colors';
 import { fileURLToPath } from 'node:url';
 
 import * as msg from '../../core/messages.js';
-import { flagsToAstroInlineConfig } from '../flags.js';
+import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { resolveConfig } from '../../core/config/config.js';
 import { createSettings } from '../../core/config/settings.js';
 import { isValidKey, type PreferenceKey } from '../../preferences/index.js';
-import { error } from '../../core/logger/core.js';
-import { nodeLogOptions } from '../../core/logger/node.js';
 import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
 import dlv from 'dlv';
 
@@ -46,6 +44,7 @@ export async function preferences(subcommand: string, key: string, value: string
 	}
 
 	const inlineConfig = flagsToAstroInlineConfig(flags);
+	const logger = createLoggerFromFlags(flags);
 	const { astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev');
 	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 	const opts: SubcommandOptions = {
@@ -62,14 +61,14 @@ export async function preferences(subcommand: string, key: string, value: string
 	}
 
 	if (!isValidKey(key)) {
-		error(nodeLogOptions, 'preferences', `Unknown preference "${key}"\n`);
+		logger.error('preferences', `Unknown preference "${key}"\n`);
 		return 1;
 	}
 
 	if (subcommand === 'set' && value === undefined) {
 		const type = typeof dlv(DEFAULT_PREFERENCES, key);
 		// TODO: better error message
-		error(nodeLogOptions, 'preferences', `Please provide a ${type} value for "${key}"\n`);
+		logger.error('preferences', `Please provide a ${type} value for "${key}"\n`);
 		return 1;
 	}
 
