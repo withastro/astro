@@ -14,7 +14,7 @@ export async function install(
 	await banner();
 	newline();
 	const { current, dependencies, devDependencies } = filterPackages(ctx);
-	const toInstall = [...dependencies, ...devDependencies];
+	const toInstall = [...dependencies, ...devDependencies].sort(sortPackages);
 	for (const packageInfo of current.sort(sortPackages)) {
 		const tag = /^\d/.test(packageInfo.targetVersion) ? packageInfo.targetVersion : packageInfo.targetVersion.slice(1)
 		await info(`${packageInfo.name}`, `is up to date on`, `v${tag}`)
@@ -26,7 +26,7 @@ export async function install(
 		return;
 	}
 	const majors: PackageInfo[] = []
-	for (const packageInfo of [...dependencies, ...devDependencies].sort(sortPackages)) {
+	for (const packageInfo of toInstall) {
 		const word = ctx.dryRun ? 'can' : 'will';
 		await upgrade(packageInfo, `${word} be updated to`)
 		if (packageInfo.isMajor) {
