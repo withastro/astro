@@ -106,15 +106,18 @@ async function verifyVersions(ctx: Pick<Context, 'version' | 'packages'>, regist
 
 async function resolveTargetVersion(packageInfo: PackageInfo, registry: string): Promise<void> {
 	const res = await fetch(`${registry}/${packageInfo.name}/${packageInfo.targetVersion}`);
-	const { code, version } = await res.json()
-	if (code === 'ResourceNotFound') {
+	const { status } = res;
+	if (status >= 400) {
 		if (packageInfo.targetVersion === 'latest') {
 			packageInfo.targetVersion = '';
 			return;
 		} else {
-			return resolveTargetVersion({ ...packageInfo, targetVersion: 'latest' }, registry);
+			// Mutate targetVersion so it is resolved properly elsewhere
+			packageInfo.targetVersion = 'latest';
+			return resolveTargetVersion(packageInfo, registry);
 		}
 	}
+	const { version, repository } = await res.json()
 	if (packageInfo.currentVersion === version) {
 		return;
 	}
@@ -123,6 +126,24 @@ async function resolveTargetVersion(packageInfo: PackageInfo, registry: string):
 	const fromVersion = semverCoerce(packageInfo.currentVersion)!;
 	const toVersion = semverCoerce(packageInfo.targetVersion)!;
 	const bump = semverDiff(fromVersion, toVersion);
-	packageInfo.isMajor = bump === 'major';
+	if (bump === 'major') {
+		packageInfo.isMajor = true;
+		if (packageInfo.name === 'astro') {
+			const upgradeGuide = `https://docs.astro.build/en/guides/upgrade-to/v${toVersion.major}/`;
+			const docsRes = await fetch(upgradeGuide);
+			if (docsRes.status === 200) {
+				packageInfo.changelogURL = upgradeGuide;
+				packageInfo.changelogTitle = `Upgrade to Astro v${toVersion.major}`;
+				return;
+			}
+		}
+
+		packageInfo.changelogURL = extractChangelogURLFromRepository(repository, version);
+		packageInfo.changelogTitle = 'CHANGELOG';
+	}
+}
+
+function extractChangelogURLFromRepository(repository: Record<string, string>, version: string) {
+	return repository.url.replace('git+', '').replace('.git', '') + '/blob/main/' + repository.directory + '/CHANGELOG.md#' + version.replace(/\./g, '')
 }
 

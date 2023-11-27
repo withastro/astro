@@ -22,6 +22,8 @@ export interface PackageInfo {
 	targetVersion: string;
 	isDevDependency?: boolean;
 	isMajor?: boolean;
+	changelogURL?: string;
+	changelogTitle?: string;
 }
 
 export async function getContext(argv: string[]): Promise<Context> {

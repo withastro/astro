@@ -3,15 +3,10 @@ import type { Context, PackageInfo } from './context.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { color } from '@astrojs/cli-kit';
-import { celebrations, done, error, info, log, spinner, success, upgrade, banner, title } from '../messages.js';
+import { color, say } from '@astrojs/cli-kit';
+import { pluralize, celebrations, done, error, info, log, spinner, success, upgrade, banner, title, changelog, warn, bye } from '../messages.js';
 import { shell } from '../shell.js';
 import { random, sleep } from '@astrojs/cli-kit/utils';
-
-const pluralize = (n: number) => {
-	if (n === 1) return `One package has`;
-	return `Some packages have`;
-}
 
 export async function install(
 	ctx: Pick<Context, 'version' | 'packages' | 'packageManager' | 'prompt' | 'dryRun' | 'exit' | 'cwd'>
@@ -20,18 +15,18 @@ export async function install(
 	log('')
 	const { current, dependencies, devDependencies } = filterPackages(ctx);
 	const toInstall = [...dependencies, ...devDependencies];
-	for (const packageInfo of current) {
+	for (const packageInfo of current.sort(sortPackages)) {
 		const tag = /^\d/.test(packageInfo.targetVersion) ? packageInfo.targetVersion : packageInfo.targetVersion.slice(1)
 		await info(`${packageInfo.name}`, `is up to date on`, `v${tag}`)
 		await sleep(random(50, 150));
 	}
 	if (toInstall.length === 0 && !ctx.dryRun) {
 		log('')
-		await success(random(celebrations), random(done))
+		await success(random(celebrations), random(done));
 		return;
 	}
 	const majors: PackageInfo[] = []
-	for (const packageInfo of [...dependencies, ...devDependencies]) {
+	for (const packageInfo of [...dependencies, ...devDependencies].sort(sortPackages)) {
 		const word = ctx.dryRun ? 'can' : 'will';
 		await upgrade(packageInfo, `${word} be updated to`)
 		if (packageInfo.isMajor) {
@@ -42,11 +37,18 @@ export async function install(
 		const { proceed } = await ctx.prompt({
 			name: 'proceed',
 			type: 'confirm',
-			label: title('WARN!'),
-			message: `Continue? ${pluralize(majors.length)} breaking changes!`,
+			label: title('WAIT'),
+			message: `${pluralize(['One package has', 'Some packages have'], majors.length)} breaking changes. Continue?`,
 			initial: true,
 		});
 		if (!proceed) ctx.exit(0);
+		
+		log('');
+		
+		await warn('CHECK', `Be sure to follow the ${pluralize('CHANGELOG', majors.length)}.`);
+		for (const pkg of majors.sort(sortPackages)) {
+			await changelog(pkg.name, pkg.changelogTitle!, pkg.changelogURL!);
+		}
 	}
 
 	log('')
@@ -73,13 +75,23 @@ function filterPackages(ctx: Pick<Context, 'packages'>) {
 	return { current, dependencies, devDependencies }
 }
 
+function sortPackages(a: PackageInfo, b: PackageInfo): number {
+	if (a.isMajor && !b.isMajor) return 1;
+	if (b.isMajor && !a.isMajor) return -1;
+	if (a.name === 'astro') return -1;
+	if (b.name === 'astro') return 1;
+	if (a.name.startsWith('@astrojs') && !b.name.startsWith('@astrojs')) return -1;
+	if (b.name.startsWith('@astrojs') && !a.name.startsWith('@astrojs')) return 1;
+	return a.name.localeCompare(b.name);
+}
+
 async function runInstallCommand(ctx: Pick<Context, 'cwd' | 'packageManager'>, dependencies: PackageInfo[], devDependencies: PackageInfo[]) {
 	const cwd = fileURLToPath(ctx.cwd);
 	if (ctx.packageManager === 'yarn') await ensureYarnLock({ cwd });
 
 	await spinner({
 		start: `Installing dependencies with ${ctx.packageManager}...`,
-		end: random(done),
+		end: `Installed dependencies!`,
 		while: async () => {
 			try {
 				if (dependencies.length > 0) {
@@ -98,6 +110,8 @@ async function runInstallCommand(ctx: Pick<Context, 'cwd' | 'packageManager'>, d
 			}
 		},
 	});
+
+	await say([`${random(celebrations)} ${random(done)}`, random(bye)], { clear: false });
 }
 
 async function ensureYarnLock({ cwd }: { cwd: string }) {

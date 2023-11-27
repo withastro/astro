@@ -5,6 +5,7 @@ import { align } from '@astrojs/cli-kit/utils';
 import detectPackageManager from 'which-pm-runs';
 import { shell } from './shell.js';
 import semverCoerce from 'semver/functions/coerce.js';
+import terminalLink from 'terminal-link';
 
 // Users might lack access to the global npm registry, this function
 // checks the user's project type and will return the proper npm registry
@@ -34,6 +35,12 @@ export async function spinner(args: {
 	await load(args, { stdout });
 }
 
+export function pluralize(word: string | [string, string], n: number) {
+	const [singular, plural] = Array.isArray(word) ? word : [word, word + 's'];
+	if (n === 1) return singular;
+	return plural;
+}
+
 export const celebrations = [
 	'Beautiful.',
 	'Excellent!',
@@ -50,11 +57,21 @@ export const celebrations = [
 
 export const done = [
 	'You\'re on the latest and greatest.',
+	'Your integrations are up-to-date.',
 	'Everything is current.',
+	'Everything is up to date.',
 	'Integrations are all up to date.',
-	'All done. Thanks for using Astro!',
-	'Integrations up to date. Enjoy building!',
-	'All set, everything is up to date.',
+	'Everything is on the latest and greatest.',
+	'Integrations are up to date.',
+]
+
+export const bye = [
+	'Thanks for using Astro!',
+	'Have fun building!',
+	'Take it easy, astronaut!',
+	'Can\'t wait to see what you build.',
+	'Good luck out there.',
+	'See you around, astronaut.',
 ]
 
 export const log = (message: string) => stdout.write(message + '\n');
@@ -65,6 +82,10 @@ export const banner = async () =>
 
 export const bannerAbort = () =>
 	log(`\n${label('astro', color.bgRed)} ${color.bold('Integration upgrade aborted.')}`);
+
+export const warn = async (prefix: string, text: string) => {
+	log(`${label(prefix, color.bgCyan, color.black)}  ${text}`);
+}
 
 export const info = async (prefix: string, text: string, version = '') => {
 	const length = 11 + prefix.length + text.length + version?.length;
@@ -112,6 +133,20 @@ export const error = async (prefix: string, text: string) => {
 		log(`${' '.repeat(9)}${color.dim(text)}`);
 	} else {
 		log(`${' '.repeat(5)} ${color.red('▲')}  ${color.red(prefix)} ${color.dim(text)}`);
+	}
+};
+
+export const changelog = async (name: string, text: string, url: string) => {
+	const link = terminalLink(text, url, { fallback: () => url });
+	const linkLength = terminalLink.isSupported ? text.length : url.length;
+	const symbol = ' ';
+
+	const length = 12 + name.length + linkLength;
+	if (length > stdout.columns) {
+		log(`${' '.repeat(5)} ${symbol}  ${name}`);
+		log(`${' '.repeat(9)}${color.cyan(color.underline(link))}`);
+	} else {
+		log(`${' '.repeat(5)} ${symbol}  ${name} ${color.cyan(color.underline(link))}`);
 	}
 };
 
