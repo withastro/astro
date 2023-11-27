@@ -37,7 +37,7 @@ export async function install(
 		const { proceed } = await ctx.prompt({
 			name: 'proceed',
 			type: 'confirm',
-			label: title('WAIT'),
+			label: title('wait'),
 			message: `${pluralize(['One package has', 'Some packages have'], majors.length)} breaking changes. Continue?`,
 			initial: true,
 		});
@@ -47,7 +47,7 @@ export async function install(
 		
 		log('');
 		
-		await warn('CHECK', `Be sure to follow the ${pluralize('CHANGELOG', majors.length)}.`);
+		await warn('check', `Be sure to follow the ${pluralize('CHANGELOG', majors.length)}.`);
 		for (const pkg of majors.sort(sortPackages)) {
 			await changelog(pkg.name, pkg.changelogTitle!, pkg.changelogURL!);
 		}

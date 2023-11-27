@@ -83,7 +83,7 @@ describe('install', () => {
 		expect(fixture.hasMessage('▲  astro can be updated to  v2.0.0')).to.be.true;
 		expect(prompted).to.be.true;
 		expect(exitCode).to.eq(0);
-		expect(fixture.hasMessage('CHECK   Be sure to follow the CHANGELOG.')).to.be.false;
+		expect(fixture.hasMessage('check   Be sure to follow the CHANGELOG.')).to.be.false;
 	});
 
 	it('major (accept)', async () => {
@@ -113,7 +113,7 @@ describe('install', () => {
 		expect(fixture.hasMessage('▲  astro can be updated to  v2.0.0')).to.be.true;
 		expect(prompted).to.be.true;
 		expect(exitCode).to.be.undefined;
-		expect(fixture.hasMessage('CHECK   Be sure to follow the CHANGELOG.')).to.be.true;
+		expect(fixture.hasMessage('check   Be sure to follow the CHANGELOG.')).to.be.true;
 	});
 
 	it('multiple major', async () => {
@@ -153,7 +153,7 @@ describe('install', () => {
 		expect(prompted).to.be.true;
 		expect(exitCode).to.be.undefined;
 		const [changelog, a, b] = fixture.messages().slice(-5);
-		expect(changelog).to.match(/^CHECK/);
+		expect(changelog).to.match(/^check/);
 		expect(a).to.match(/^a/);
 		expect(b).to.match(/^b/);
 	});
@@ -203,9 +203,9 @@ describe('install', () => {
 		expect(fixture.hasMessage('▲  major can be updated to  v3.0.0')).to.be.true;
 		expect(prompted).to.be.true;
 		expect(exitCode).to.be.undefined;
-		expect(fixture.hasMessage('CHECK   Be sure to follow the CHANGELOG.')).to.be.true;
+		expect(fixture.hasMessage('check   Be sure to follow the CHANGELOG.')).to.be.true;
 		const [changelog, major] = fixture.messages().slice(-4);
-		expect(changelog).to.match(/^CHECK/);
+		expect(changelog).to.match(/^check/);
 		expect(major).to.match(/^major/);
 	});
 });
