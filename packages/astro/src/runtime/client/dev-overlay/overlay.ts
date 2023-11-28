@@ -528,6 +528,13 @@ export class AstroDevOverlay extends HTMLElement {
 				devBar?.removeAttribute('tabindex');
 			}
 		}
+
+		// Dispatch an event to plugins so they can react accordingly to the overlay being minimized/maximized
+		this.plugins.forEach((plugin) => {
+			plugin.eventTarget.dispatchEvent(
+				new CustomEvent('overlay-toggled', { detail: { state: !this.isHidden() } })
+			);
+		});
 	}
 }
 
