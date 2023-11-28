@@ -123,28 +123,12 @@ export class NodeApp extends App {
 	 * See https://github.com/withastro/astro/pull/9199 for more information.
 	 */
 	render(request: NodeIncomingMessage | Request, routeData?: RouteData, locals?: object): Promise<Response>
-	render(req: NodeIncomingMessage | Request, routeDataOrOptions?: RouteData | RenderOptions, locals?: object) {
-		let routeData: RouteData | undefined;
-		
-		if (routeDataOrOptions && ('routeData' in routeDataOrOptions || 'locals' in routeDataOrOptions)) {
-			if ('routeData' in routeDataOrOptions) {
-				routeData = routeDataOrOptions.routeData;
-			}
-			if ('locals' in routeDataOrOptions) {
-				locals = routeDataOrOptions.locals;
-			}
-		}
-		else {
-			routeData = routeDataOrOptions as RouteData | undefined;
-			if (routeDataOrOptions || locals) {
-				super.logRenderOptionsDeprecationWarning();
-			}
-		}
-		
+	render(req: NodeIncomingMessage | Request, routeDataOrOptions?: RouteData | RenderOptions, maybeLocals?: object) {
 		if (!(req instanceof Request)) {
 			req = createRequestFromNodeRequest(req);
 		}
-		return super.render(req, { routeData, locals });
+		// @ts-expect-error The call would have succeeded against the implementation, but implementation signatures of overloads are not externally visible.
+		return super.render(req, routeDataOrOptions, maybeLocals);
 	}
 }
 
