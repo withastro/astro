@@ -1,0 +1,7 @@
+{
+  "name": "@test/astro-upgrade-basic",
+  "private": true,
+  "dependencies": {
+    "astro": "1.0.0"
+  }
+}

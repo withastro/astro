@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import nodejs from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
 
-describe('API routes', () => {
+describe('Bad URLs', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let devPreview;
