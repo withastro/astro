@@ -2,7 +2,7 @@
 'astro': major
 ---
 
-In the Integration API, the `app.render()` method of the `App` class has been simplified.
+This change only affects maintainers of third-party adapters. In the Integration API, the `app.render()` method of the `App` class has been simplified. 
 
 Instead of two optional arguments, it now takes a single optional argument that is an object with two optional properties: `routeData` and `locals`.
 ```diff
