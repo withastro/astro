@@ -16,7 +16,8 @@ test.describe('Prefetch (default)', () => {
 
 	test.beforeEach(async ({ page }) => {
 		page.on('request', (req) => {
-			reqUrls.push(new URL(req.url()).pathname);
+			const urlObj = new URL(req.url());
+			reqUrls.push(urlObj.pathname + urlObj.search);
 		});
 	});
 
@@ -36,6 +37,16 @@ test.describe('Prefetch (default)', () => {
 	test('data-astro-prefetch="false" should not prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 		expect(reqUrls).not.toContainEqual('/prefetch-false');
+	});
+
+	test('Link with search param should prefetch', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+		expect(reqUrls).not.toContainEqual('/?search-param=true');
+		await Promise.all([
+			page.waitForEvent('request'), // wait prefetch request
+			page.locator('#prefetch-search-param').hover(),
+		]);
+		expect(reqUrls).toContainEqual('/?search-param=true');
 	});
 
 	test('data-astro-prefetch="tap" should prefetch on tap', async ({ page, astro }) => {
@@ -102,7 +113,8 @@ test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'tap')", () => {
 
 	test.beforeEach(async ({ page }) => {
 		page.on('request', (req) => {
-			reqUrls.push(new URL(req.url()).pathname);
+			const urlObj = new URL(req.url());
+			reqUrls.push(urlObj.pathname + urlObj.search);
 		});
 	});
 
@@ -127,6 +139,16 @@ test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'tap')", () => {
 	test('data-astro-prefetch="false" should not prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 		expect(reqUrls).not.toContainEqual('/prefetch-false');
+	});
+
+	test('Link with search param should prefetch', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+		expect(reqUrls).not.toContainEqual('/?search-param=true');
+		await Promise.all([
+			page.waitForEvent('request'), // wait prefetch request
+			page.locator('#prefetch-search-param').hover(),
+		]);
+		expect(reqUrls).toContainEqual('/?search-param=true');
 	});
 
 	test('data-astro-prefetch="tap" should prefetch on tap', async ({ page, astro }) => {
