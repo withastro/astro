@@ -1,5 +1,11 @@
 # @astrojs/upgrade
 
+## 0.1.1
+
+### Patch Changes
+
+- [#9213](https://github.com/withastro/astro/pull/9213) [`54e57fe9d`](https://github.com/withastro/astro/commit/54e57fe9d7600c888fc7b0bc3f5dbca5543f36cd) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix unhandled error when running `@astrojs/upgrade beta` outside of a monorepo
+
 ## 0.1.0
 
 ### Minor Changes
