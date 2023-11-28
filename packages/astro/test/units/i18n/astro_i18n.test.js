@@ -636,6 +636,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				...config.experimental.i18n,
 				trailingSlash: 'never',
 				format: 'directory',
+				site: 'https://example.com',
 			})
 		).to.eq('https://example.com/blog');
 		expect(
@@ -645,6 +646,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				...config.experimental.i18n,
 				trailingSlash: 'always',
 				format: 'directory',
+				site: 'https://example.com',
 			})
 		).to.eq('https://example.com/blog/es/');
 
@@ -655,6 +657,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				...config.experimental.i18n,
 				trailingSlash: 'ignore',
 				format: 'directory',
+				site: 'https://example.com',
 			})
 		).to.eq('https://example.com/blog/');
 
@@ -666,6 +669,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				...config.experimental.i18n,
 				trailingSlash: 'never',
 				format: 'file',
+				site: 'https://example.com',
 			})
 		).to.eq('https://example.com/blog');
 		expect(
@@ -675,6 +679,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				...config.experimental.i18n,
 				trailingSlash: 'always',
 				format: 'file',
+				site: 'https://example.com',
 			})
 		).to.eq('https://example.com/blog/es/');
 
@@ -686,6 +691,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				...config.experimental.i18n,
 				trailingSlash: 'ignore',
 				format: 'file',
+				site: 'https://example.com',
 			})
 		).to.eq('https://example.com/blog');
 	});

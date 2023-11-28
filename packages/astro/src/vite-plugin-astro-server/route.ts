@@ -2,12 +2,15 @@ import type http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type {
 	ComponentInstance,
+	DevOverlayMetadata,
 	ManifestData,
 	MiddlewareHandler,
 	RouteData,
 	SSRElement,
 	SSRManifest,
 } from '../@types/astro.js';
+import { getInfoOutput } from '../cli/info/index.js';
+import { ASTRO_VERSION } from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { sequence } from '../core/middleware/index.js';
 import { req } from '../core/messages.js';
@@ -390,12 +393,18 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 				children: '',
 			});
 
+			const additionalMetadata: DevOverlayMetadata['__astro_dev_overlay__'] = {
+				root: fileURLToPath(settings.config.root),
+				version: ASTRO_VERSION,
+				debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),
+			};
+
+			settings.config;
+
 			// Additional data for the dev overlay
 			scripts.add({
 				props: {},
-				children: `window.__astro_dev_overlay__ = {root: ${JSON.stringify(
-					fileURLToPath(settings.config.root)
-				)}}`,
+				children: `window.__astro_dev_overlay__ = ${JSON.stringify(additionalMetadata)}`,
 			});
 		}
 	}

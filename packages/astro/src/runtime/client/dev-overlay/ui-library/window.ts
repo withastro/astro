@@ -1,18 +1,9 @@
-import { getIconElement, isDefinedIcon, type Icon } from './icons.js';
-
 export class DevOverlayWindow extends HTMLElement {
-	windowTitle?: string | undefined | null;
-	windowIcon?: Icon | undefined | null;
 	shadowRoot: ShadowRoot;
 
 	constructor() {
 		super();
 		this.shadowRoot = this.attachShadow({ mode: 'open' });
-
-		this.windowTitle = this.getAttribute('window-title');
-		this.windowIcon = this.hasAttribute('window-icon')
-			? (this.getAttribute('window-icon') as Icon)
-			: undefined;
 	}
 
 	async connectedCallback() {
@@ -43,15 +34,6 @@ export class DevOverlayWindow extends HTMLElement {
 					color: #fff;
 				}
 
-				#window-title {
-					display: flex;
-					align-items: center;
-					font-weight: 600;
-					color: #fff;
-					margin: 0;
-					font-size: 22px;
-				}
-
 				::slotted(h1) {
 					font-size: 22px;
 				}
@@ -72,37 +54,13 @@ export class DevOverlayWindow extends HTMLElement {
 					font-size: 14px;
 				}
 
-				#window-title svg {
-					margin-right: 8px;
-					height: 1em;
-				}
-
 				hr, ::slotted(hr) {
 					border: 1px solid rgba(27, 30, 36, 1);
 					margin: 1em 0;
 				}
 			</style>
 
-			<h1 id="window-title">${this.windowIcon ? this.getElementForIcon(this.windowIcon) : ''}${
-				this.windowTitle ?? ''
-			}</h1>
-			<hr />
 			<slot />
 		`;
-	}
-
-	getElementForIcon(icon: Icon) {
-		if (isDefinedIcon(icon)) {
-			const iconElement = getIconElement(icon);
-			iconElement?.style.setProperty('height', '1em');
-
-			return iconElement?.outerHTML;
-		} else {
-			const iconElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-			iconElement.setAttribute('viewBox', '0 0 16 16');
-			iconElement.innerHTML = icon;
-
-			return iconElement.outerHTML;
-		}
 	}
 }
