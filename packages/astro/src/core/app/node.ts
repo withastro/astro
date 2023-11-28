@@ -118,6 +118,10 @@ export class NodeApp extends App {
 		return super.match(req);
 	}
 	render(request: NodeIncomingMessage | Request, options?: RenderOptions): Promise<Response>
+	/**
+	 * @deprecated Instead of passing `RouteData` and locals individually, pass an object with `routeData` and `locals` properties.
+	 * See https://github.com/withastro/astro/pull/9199 for more information.
+	 */
 	render(request: NodeIncomingMessage | Request, routeData?: RouteData, locals?: object): Promise<Response>
 	render(req: NodeIncomingMessage | Request, routeDataOrOptions?: RouteData | RenderOptions, locals?: object) {
 		let routeData: RouteData | undefined;
@@ -131,7 +135,10 @@ export class NodeApp extends App {
 			}
 		}
 		else {
-			routeData = routeDataOrOptions as RouteData;
+			routeData = routeDataOrOptions as RouteData | undefined;
+			if (routeDataOrOptions || locals) {
+				super.logRenderOptionsDeprecationWarning();
+			}
 		}
 		
 		if (!(req instanceof Request)) {

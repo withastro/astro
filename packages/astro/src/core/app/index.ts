@@ -64,6 +64,7 @@ export class App {
 	#baseWithoutTrailingSlash: string;
 	#pipeline: SSRRoutePipeline;
 	#adapterLogger: AstroIntegrationLogger;
+	#renderOptionsDeprecationWarningShown = false;
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
@@ -147,6 +148,10 @@ export class App {
 	}
 
 	async render(request: Request, options?: RenderOptions): Promise<Response>
+	/**
+	 * @deprecated Instead of passing `RouteData` and locals individually, pass an object with `routeData` and `locals` properties.
+	 * See https://github.com/withastro/astro/pull/9199 for more information.
+	 */
 	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response>
 	async render(request: Request, routeDataOrOptions?: RouteData | RenderOptions, locals?: object): Promise<Response> {
 		let routeData: RouteData | undefined;
@@ -160,7 +165,10 @@ export class App {
 			}
 		}
 		else {
-			routeData = routeDataOrOptions as RouteData;
+			routeData = routeDataOrOptions as RouteData | undefined;
+			if (routeDataOrOptions || locals) {
+				this.logRenderOptionsDeprecationWarning();
+			}
 		}
 
 		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
@@ -228,6 +236,12 @@ export class App {
 			return response;
 		}
 		return response;
+	}
+
+	logRenderOptionsDeprecationWarning() {
+		if (this.#renderOptionsDeprecationWarningShown) return;
+		this.#logger.warn("deprecated", `The adapter ${this.#manifest.adapterName} is using a deprecated signature of the 'app.render()' method. From Astro 4.0, locals and routeData are provided as properties on an optional object to this method. Using the old signature will cause an error in Astro 5.0. See https://github.com/withastro/astro/pull/9199 for more information.`)
+		this.#renderOptionsDeprecationWarningShown = true;
 	}
 
 	setCookieHeaders(response: Response) {
