@@ -63,9 +63,9 @@ export function createServer(
 				handler(req, res);
 			});
 			stream.on('headers', (_res: http.ServerResponse<http.IncomingMessage>) => {
-				if(isImmutableAsset(encodedURI)) {
+				if (isImmutableAsset(encodedURI)) {
 					// Taken from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#immutable
-					_res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+					_res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
 				}
 			});
 			stream.on('directory', () => {
