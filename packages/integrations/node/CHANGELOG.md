@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 6.1.0
+
+### Minor Changes
+
+- [#9125](https://github.com/withastro/astro/pull/9125) [`8f1d50957`](https://github.com/withastro/astro/commit/8f1d509574f5ee5d77816a13d89ce452dce403ff) Thanks [@matthewp](https://github.com/matthewp)! - Automatically sets immutable cache headers for assets served from the `/_astro` directory.
+
 ## 6.0.4
 
 ### Patch Changes
