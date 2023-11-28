@@ -6,7 +6,7 @@ export function getAdapter(options: Options): AstroAdapter {
 		name: '@astrojs/node',
 		serverEntrypoint: '@astrojs/node/server.js',
 		previewEntrypoint: '@astrojs/node/preview.js',
-		exports: ['handler', 'startServer'],
+		exports: ['handler', 'startServer', 'options'],
 		args: options,
 		supportedAstroFeatures: {
 			hybridOutput: 'stable',
@@ -49,6 +49,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 					server: config.build.server?.toString(),
 					host: config.server.host,
 					port: config.server.port,
+					assets: config.build.assets,
 				};
 				setAdapter(getAdapter(_options));
 
