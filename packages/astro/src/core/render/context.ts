@@ -29,7 +29,7 @@ export interface RenderContext {
 	params: Params;
 	props: Props;
 	locals?: object;
-	locales: string[] | undefined;
+	locales: Locales | undefined;
 	defaultLocale: string | undefined;
 	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined;
 }
@@ -198,7 +198,7 @@ export function computePreferredLocale(request: Request, locales: Locales): stri
 	return result;
 }
 
-export function computePreferredLocaleList(request: Request, locales: Locales) {
+export function computePreferredLocaleList(request: Request, locales: Locales): string[] {
 	const acceptHeader = request.headers.get('Accept-Language');
 	let result: string[] = [];
 	if (acceptHeader) {
@@ -206,7 +206,14 @@ export function computePreferredLocaleList(request: Request, locales: Locales) {
 
 		// SAFETY: bang operator is safe because checked by the previous condition
 		if (browserLocaleList.length === 1 && browserLocaleList.at(0)!.locale === '*') {
-			return locales;
+			return locales.map((locale) => {
+				if (typeof locale === 'string') {
+					return locale;
+				} else {
+					// SAFETY: codes is never empty
+					return locale.codes.at(0)!;
+				}
+			});
 		} else if (browserLocaleList.length > 0) {
 			for (const browserLocale of browserLocaleList) {
 				for (const loopLocale of locales) {
@@ -231,15 +238,21 @@ export function computePreferredLocaleList(request: Request, locales: Locales) {
 
 export function computeCurrentLocale(
 	request: Request,
-	locales: string[],
+	locales: Locales,
 	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined,
 	defaultLocale: string | undefined
 ): undefined | string {
 	const requestUrl = new URL(request.url);
 	for (const segment of requestUrl.pathname.split('/')) {
 		for (const locale of locales) {
-			if (normalizeTheLocale(locale) === normalizeTheLocale(segment)) {
-				return locale;
+			if (typeof locale === 'string') {
+				if (normalizeTheLocale(locale) === normalizeTheLocale(segment)) {
+					return locale;
+				}
+			} else {
+				if (locale.path === segment) {
+					return locale.codes.at(0);
+				}
 			}
 		}
 	}

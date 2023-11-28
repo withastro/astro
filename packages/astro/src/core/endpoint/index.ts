@@ -3,6 +3,7 @@ import type {
 	APIContext,
 	EndpointHandler,
 	EndpointOutput,
+	Locales,
 	MiddlewareEndpointHandler,
 	MiddlewareHandler,
 	Params,
@@ -30,7 +31,7 @@ type CreateAPIContext = {
 	site?: string;
 	props: Record<string, any>;
 	adapterName?: string;
-	locales: string[] | undefined;
+	locales: Locales | undefined;
 	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined;
 	defaultLocale: string | undefined;
 };
