@@ -1,7 +1,6 @@
 /* eslint no-console: 'off' */
 import { color, label, spinner as load } from '@astrojs/cli-kit';
 import { align } from '@astrojs/cli-kit/utils';
-import semverParse from 'semver/functions/parse.js';
 import terminalLink from 'terminal-link';
 import detectPackageManager from 'which-pm-runs';
 import type { PackageInfo } from './actions/context.js';
@@ -110,8 +109,8 @@ export const upgrade = async (packageInfo: PackageInfo, text: string) => {
 	const bg = isMajor ? (v: string) => color.bgYellow(color.black(` ${v} `)) : color.green;
 	const style = isMajor ? color.yellow : color.green;
 	const symbol = isMajor ? '▲' : '●';
-	const toVersion = semverParse(targetVersion)!;
-	const version = `v${toVersion.version}`;
+	const toVersion = targetVersion.replace(/^\D+/, '');
+	const version = `v${toVersion}`;
 
 	const length = 12 + name.length + text.length + version.length;
 	if (length > stdout.columns) {
