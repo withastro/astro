@@ -9,9 +9,7 @@ export class DevOverlayIcon extends HTMLElement {
 	}
 	set icon(name: Icon | undefined) {
 		this._icon = name;
-		this.shadowRoot.innerHTML = `<style>svg { width: 100%; height: 100%;}</style>\n${this.getIconHTML(
-			this._icon
-		)}`;
+		this.buildTemplate();
 	}
 
 	constructor() {
@@ -19,7 +17,11 @@ export class DevOverlayIcon extends HTMLElement {
 
 		this.shadowRoot = this.attachShadow({ mode: 'open' });
 
-		if (this.hasAttribute('icon')) this.icon = this.getAttribute('icon') as Icon;
+		if (this.hasAttribute('icon')) {
+			this.icon = this.getAttribute('icon') as Icon;
+		} else {
+			this.buildTemplate();
+		}
 	}
 
 	getIconHTML(icon: Icon | undefined) {
@@ -29,5 +31,11 @@ export class DevOverlayIcon extends HTMLElement {
 
 		// If the icon that was passed isn't one of the predefined one, assume that they're passing it in as a slot
 		return '<slot />';
+	}
+
+	buildTemplate() {
+		this.shadowRoot.innerHTML = `<style>svg { width: 100%; height: 100%;}</style>\n${this.getIconHTML(
+			this._icon
+		)}`;
 	}
 }
