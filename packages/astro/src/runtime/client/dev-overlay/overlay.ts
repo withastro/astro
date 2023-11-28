@@ -138,7 +138,6 @@ export class AstroDevOverlay extends HTMLElement {
 				pointer-events: none;
 			}
 
-			@
 
 			#dev-bar .item-tooltip::after{
 				content: '';
