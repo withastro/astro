@@ -33,10 +33,6 @@ interface Item {
 	routeSuffix: string;
 }
 
-interface ManifestRouteData extends RouteData {
-	isIndex: boolean;
-}
-
 function countOccurrences(needle: string, haystack: string) {
 	let count = 0;
 	for (const hay of haystack) {
@@ -193,7 +189,7 @@ function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]
  *   For example, `/bar` is sorted before `/foo`.
  *   The definition of "alphabetically" is dependent on the default locale of the running system.
  */
-function routeComparator(a: ManifestRouteData, b: ManifestRouteData) {
+function routeComparator(a: RouteData, b: RouteData) {
 	// For sorting purposes, an index route is considered to have one more segment than the URL it represents.
 	const aLength = a.isIndex ? a.segments.length + 1 : a.segments.length;
 	const bLength = b.isIndex ? b.segments.length + 1 : b.segments.length;
@@ -250,9 +246,9 @@ export interface CreateRouteManifestParams {
 function createFileBasedRoutes(
 	{ settings, cwd, fsMod }: CreateRouteManifestParams,
 	logger: Logger
-): ManifestRouteData[] {
+): RouteData[] {
 	const components: string[] = [];
-	const routes: ManifestRouteData[] = [];
+	const routes: RouteData[] = [];
 	const validPageExtensions = new Set<string>([
 		'.astro',
 		...SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
@@ -393,7 +389,7 @@ function createFileBasedRoutes(
 	return routes;
 }
 
-type PrioritizedRoutesData = Record<RoutePriorityOverride, ManifestRouteData[]>;
+type PrioritizedRoutesData = Record<RoutePriorityOverride, RouteData[]>;
 
 function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): PrioritizedRoutesData {
 	const { config } = settings;
@@ -639,7 +635,7 @@ export function createRouteManifest(
 
 	const redirectRoutes = createRedirectRoutes(params, routeMap, logger);
 
-	const routes: ManifestRouteData[] = [
+	const routes: RouteData[] = [
 		...injectedRoutes['legacy'].sort(routeComparator),
 		...[...fileBasedRoutes, ...injectedRoutes['normal'], ...redirectRoutes['normal']].sort(
 			routeComparator
@@ -675,8 +671,8 @@ export function createRouteManifest(
 
 		// In this block of code we group routes based on their locale
 
-		// A map like: locale => ManifestRouteData[]
-		const routesByLocale = new Map<string, ManifestRouteData[]>();
+		// A map like: locale => RouteData[]
+		const routesByLocale = new Map<string, RouteData[]>();
 		// This type is here only as a helper. We copy the routes and make them unique, so we don't "process" the same route twice.
 		// The assumption is that a route in the file system belongs to only one locale.
 		const setRoutes = new Set(routes.filter((route) => route.type === 'page'));

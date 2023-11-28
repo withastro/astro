@@ -47,6 +47,12 @@ describe('build.format', () => {
 				let $ = cheerio.load(html);
 				expect($('#another').attr('href')).to.equal('/nested/another/');
 			});
+
+			it('index files are written as index.html', async () => {
+				let html = await fixture.readFile('/nested/index.html');
+				let $ = cheerio.load(html);
+				expect($('h1').text()).to.equal('Testing');
+			});
 		});
 	});
 });

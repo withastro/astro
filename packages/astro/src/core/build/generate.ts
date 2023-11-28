@@ -448,7 +448,7 @@ function getUrlForPath(
 	pathname: string,
 	base: string,
 	origin: string,
-	format: 'directory' | 'file',
+	format: 'directory' | 'file' | 'preserve',
 	routeType: RouteType
 ): URL {
 	/**
@@ -601,8 +601,8 @@ async function generatePath(
 		body = Buffer.from(await response.arrayBuffer());
 	}
 
-	const outFolder = getOutFolder(pipeline.getConfig(), pathname, route.type);
-	const outFile = getOutFile(pipeline.getConfig(), outFolder, pathname, route.type);
+	const outFolder = getOutFolder(pipeline.getConfig(), pathname, route);
+	const outFile = getOutFile(pipeline.getConfig(), outFolder, pathname, route);
 	route.distURL = outFile;
 
 	await fs.promises.mkdir(outFolder, { recursive: true });

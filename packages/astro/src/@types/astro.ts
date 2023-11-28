@@ -733,12 +733,13 @@ export interface AstroUserConfig {
 		 * Control the output file format of each page. This value may be set by an adapter for you.
 		 *   - If `'file'`, Astro will generate an HTML file (ex: "/foo.html") for each page.
 		 *   - If `'directory'`, Astro will generate a directory with a nested `index.html` file (ex: "/foo/index.html") for each page.
+		 *   - If `'preserve'`, Astro will generate HTML files exactly as they appear in your source folder (ex: "foo/index.astro" becomes "foo/index.html" but "foo.astro" does not)
 		 *
 		 * ```js
 		 * {
 		 *   build: {
 		 *     // Example: Generate `page.html` instead of `page/index.html` during build.
-		 *     format: 'file'
+		 *     format: 'preserve'
 		 *   }
 		 * }
 		 * ```
@@ -756,7 +757,7 @@ export interface AstroUserConfig {
 		 * - `directory` - Set `trailingSlash: 'always'`
 		 * - `file` - Set `trailingSlash: 'never'`
 		 */
-		format?: 'file' | 'directory';
+		format?: 'file' | 'directory' | 'preserve';
 		/**
 		 * @docs
 		 * @name build.client
@@ -2553,6 +2554,7 @@ export interface RouteData {
 	redirect?: RedirectConfig;
 	redirectRoute?: RouteData;
 	fallbackRoutes: RouteData[];
+	isIndex: boolean;
 }
 
 export type RedirectRouteData = RouteData & {
