@@ -1,5 +1,11 @@
 # astro
 
+## 3.6.3
+
+### Patch Changes
+
+- [#9193](https://github.com/withastro/astro/pull/9193) [`0dc99c9a2`](https://github.com/withastro/astro/commit/0dc99c9a28fcb6b46db49eefac6afa415875edcb) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Prevents the Code component from crashing if the lang isn't supported by falling back to `plaintext`.
+
 ## 3.6.2
 
 ### Patch Changes
