@@ -1473,7 +1473,7 @@ export interface AstroUserConfig {
 			 * @docs
 			 * @kind h4
 			 * @name experimental.i18n.locales
-			 * @type {(string | { path: string; codes: string[] })[]}
+			 * @type {Locales}
 			 * @version 3.5.0
 			 * @description
 			 *
