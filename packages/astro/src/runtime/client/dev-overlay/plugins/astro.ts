@@ -315,6 +315,12 @@ export default {
 				#integration-list astro-dev-overlay-card p {
 					font-size: 14px;
 				}
+
+				@media (forced-colors: active) {
+					svg path[fill="#fff"] {
+						fill: black;
+					}
+				}
 			</style>
 
 			<header>

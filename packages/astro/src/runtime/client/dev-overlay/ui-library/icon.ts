@@ -34,7 +34,19 @@ export class DevOverlayIcon extends HTMLElement {
 	}
 
 	buildTemplate() {
-		this.shadowRoot.innerHTML = `<style>svg { width: 100%; height: 100%;}</style>\n${this.getIconHTML(
+		this.shadowRoot.innerHTML = `
+			<style>
+				svg {
+					width: 100%;
+					height: 100%;
+				}
+
+				@media (forced-colors: active) {
+					svg path[fill="#fff"] {
+						fill: black;
+					}
+				}
+			</style>\n${this.getIconHTML(
 			this._icon
 		)}`;
 	}
