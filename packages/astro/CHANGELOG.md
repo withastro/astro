@@ -1,5 +1,11 @@
 # astro
 
+## 3.6.2
+
+### Patch Changes
+
+- [#9189](https://github.com/withastro/astro/pull/9189) [`d90714fc3`](https://github.com/withastro/astro/commit/d90714fc3dd7c3eab0a6b29319b0b666bb04b678) Thanks [@SpencerWhitehead7](https://github.com/SpencerWhitehead7)! - Fixes an issue where links with the same pathname as the current page, but different search params, were not prefetched.
+
 ## 3.6.1
 
 ### Patch Changes
