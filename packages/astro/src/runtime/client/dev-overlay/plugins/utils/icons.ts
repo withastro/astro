@@ -39,5 +39,5 @@ const iconColors = [
 ];
 
 export function colorForIntegration() {
-    return randomFromArray(iconColors)
+	return randomFromArray(iconColors);
 }

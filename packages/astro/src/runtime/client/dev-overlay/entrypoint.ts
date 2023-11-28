@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		import('./plugins/settings.js'),
 		import('./overlay.js'),
 		import('./ui-library/index.js'),
-    import('./ui-library/icons.js'),
+		import('./ui-library/icons.js'),
 	]);
 
 	// Register custom elements
