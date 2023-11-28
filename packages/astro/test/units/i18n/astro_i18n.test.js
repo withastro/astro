@@ -691,7 +691,7 @@ describe('getLocaleAbsoluteUrl', () => {
 		).to.eq('https://example.com/es/');
 		expect(
 			getLocaleAbsoluteUrl({
-				locale: 'it-VT',
+				locale: 'it-VA',
 				base: '/',
 				...config.experimental.i18n,
 				trailingSlash: 'always',

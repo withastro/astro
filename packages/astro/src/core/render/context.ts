@@ -187,7 +187,7 @@ export function computePreferredLocale(request: Request, locales: Locales): stri
 				} else {
 					for (const currentCode of currentLocale.codes) {
 						if (normalizeTheLocale(currentCode) === normalizeTheLocale(firstResult.locale)) {
-							result = currentCode;
+							result = currentLocale.path;
 						}
 					}
 				}

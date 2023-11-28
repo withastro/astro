@@ -97,7 +97,7 @@ describe('Config Validation', () => {
 			);
 		});
 
-		it('errors if the default locale is not in path', async () => {
+		it('errors if codes are empty', async () => {
 			const configError = await validateConfig(
 				{
 					experimental: {
@@ -116,9 +116,7 @@ describe('Config Validation', () => {
 				process.cwd()
 			).catch((err) => err);
 			expect(configError instanceof z.ZodError).to.equal(true);
-			expect(configError.errors[0].message).to.equal(
-				'The default locale `uk` is not present in the `i18n.locales` array.'
-			);
+			expect(configError.errors[0].message).to.equal('Array must contain at least 1 element(s)');
 		});
 
 		it('errors if the default locale is not in path', async () => {
@@ -131,7 +129,7 @@ describe('Config Validation', () => {
 								'es',
 								{
 									path: 'something',
-									codes: ['en'],
+									codes: ['en-UK'],
 								},
 							],
 						},

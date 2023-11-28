@@ -535,6 +535,9 @@ export function createRouteManifest(
 
 		// we loop over the remaining routes and add them to the default locale
 		for (const route of setRoutes) {
+			if (route.type !== 'page') {
+				continue;
+			}
 			const currentRoutes = routesByLocale.get(i18n.defaultLocale);
 			if (currentRoutes) {
 				currentRoutes.push(route);
@@ -584,12 +587,12 @@ export function createRouteManifest(
 			let fallback = Object.entries(i18n.fallback);
 
 			if (fallback.length > 0) {
-				for (const [_fallbackFromLocale, fallbackToLocale] of fallback) {
+				for (const [fallbackFromLocale, fallbackToLocale] of fallback) {
 					let fallbackToRoutes;
-					const fallbackFromLocale = getPathByLocale(_fallbackFromLocale, i18n.locales);
-					if (!fallbackFromLocale) {
-						continue;
-					}
+					// const fallbackFromLocale = getPathByLocale(_fallbackFromLocale, i18n.locales);
+					// if (!fallbackFromLocale) {
+					// 	continue;
+					// }
 					if (fallbackToLocale === i18n.defaultLocale) {
 						fallbackToRoutes = routesByLocale.get(i18n.defaultLocale);
 					} else {
