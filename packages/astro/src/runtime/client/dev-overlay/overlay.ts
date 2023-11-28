@@ -75,7 +75,7 @@ export class AstroDevOverlay extends HTMLElement {
 				visibility: hidden;
 			}
 
-      #dev-bar {
+			#dev-bar {
 				height: 56px;
 				overflow: hidden;
 				pointer-events: auto;
@@ -236,7 +236,7 @@ export class AstroDevOverlay extends HTMLElement {
 				white-space: nowrap;
 				border-width: 0;
 			}
-    </style>
+		</style>
 
 		<div id="dev-overlay">
 			<div id="dev-bar">
