@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "3.5.5",
+  "version": "3.6.1",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -78,7 +78,9 @@
       "default": "./dist/core/middleware/namespace.js"
     },
     "./transitions": "./dist/transitions/index.js",
+    "./transitions/events": "./dist/transitions/events.js",
     "./transitions/router": "./dist/transitions/router.js",
+    "./transitions/types": "./dist/transitions/types.js",
     "./prefetch": "./dist/prefetch/index.js",
     "./i18n": "./dist/i18n/index.js"
   },

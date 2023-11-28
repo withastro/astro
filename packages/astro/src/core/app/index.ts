@@ -127,6 +127,13 @@ export class App {
 		}
 		return pathname;
 	}
+
+	#getPathnameFromRequest(request: Request): string {
+		const url = new URL(request.url);
+		const pathname = prependForwardSlash(this.removeBase(url.pathname));
+		return pathname;
+	}
+
 	match(request: Request, _opts: MatchOptions = {}): RouteData | undefined {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
@@ -151,7 +158,8 @@ export class App {
 		}
 
 		Reflect.set(request, clientLocalsSymbol, locals ?? {});
-		const defaultStatus = this.#getDefaultStatusCode(routeData.route);
+		const pathname = this.#getPathnameFromRequest(request);
+		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
 		const mod = await this.#getModuleForRoute(routeData);
 
 		const pageModule = (await mod.page()) as any;
@@ -369,8 +377,15 @@ export class App {
 		});
 	}
 
-	#getDefaultStatusCode(route: string): number {
-		route = removeTrailingForwardSlash(route);
+	#getDefaultStatusCode(routeData: RouteData, pathname: string): number {
+		if (!routeData.pattern.exec(pathname)) {
+			for (const fallbackRoute of routeData.fallbackRoutes) {
+				if (fallbackRoute.pattern.test(pathname)) {
+					return 302;
+				}
+			}
+		}
+		const route = removeTrailingForwardSlash(routeData.route);
 		if (route.endsWith('/404')) return 404;
 		if (route.endsWith('/500')) return 500;
 		return 200;

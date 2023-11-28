@@ -346,6 +346,7 @@ export function createRouteManifest(
 					generate,
 					pathname: pathname || undefined,
 					prerender,
+					fallbackRoutes: [],
 				});
 			}
 		});
@@ -422,6 +423,7 @@ export function createRouteManifest(
 				generate,
 				pathname: pathname || void 0,
 				prerender: prerenderInjected ?? prerender,
+				fallbackRoutes: [],
 			});
 		});
 
@@ -461,6 +463,7 @@ export function createRouteManifest(
 			prerender: false,
 			redirect: to,
 			redirectRoute: routes.find((r) => r.route === to),
+			fallbackRoutes: [],
 		};
 
 		const lastSegmentIsDynamic = (r: RouteData) => !!r.segments.at(-1)?.at(-1)?.dynamic;
@@ -549,6 +552,7 @@ export function createRouteManifest(
 							validateSegment(s);
 							return getParts(s, route);
 						});
+
 					routes.push({
 						...indexDefaultRoute,
 						pathname,
@@ -622,14 +626,21 @@ export function createRouteManifest(
 									validateSegment(s);
 									return getParts(s, route);
 								});
-							routes.push({
-								...fallbackToRoute,
-								pathname,
-								route,
-								segments,
-								pattern: getPattern(segments, config, config.trailingSlash),
-								type: 'fallback',
-							});
+
+							const index = routes.findIndex((r) => r === fallbackToRoute);
+							if (index) {
+								const fallbackRoute: RouteData = {
+									...fallbackToRoute,
+									pathname,
+									route,
+									segments,
+									pattern: getPattern(segments, config, config.trailingSlash),
+									type: 'fallback',
+									fallbackRoutes: [],
+								};
+								const routeData = routes[index];
+								routeData.fallbackRoutes.push(fallbackRoute);
+							}
 						}
 					}
 				}

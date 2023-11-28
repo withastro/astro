@@ -199,7 +199,6 @@ describe('dev container', () => {
 					container.handle(r.req, r.res);
 					await r.done;
 					const doc = await r.text();
-					console.log(doc);
 					expect(doc).to.match(/Regular page/);
 					expect(r.res.statusCode).to.equal(200);
 				}

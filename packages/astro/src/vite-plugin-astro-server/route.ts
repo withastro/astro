@@ -211,6 +211,7 @@ export async function handleRoute({
 				segments: [],
 				type: 'fallback',
 				route: '',
+				fallbackRoutes: [],
 			};
 			renderContext = await createRenderContext({
 				request,

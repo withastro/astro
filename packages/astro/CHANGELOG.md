@@ -1,5 +1,61 @@
 # astro
 
+## 3.6.1
+
+### Patch Changes
+
+- [#9173](https://github.com/withastro/astro/pull/9173) [`04fdc1c61`](https://github.com/withastro/astro/commit/04fdc1c613171409ed1a2bd887326e26cdb8b5ef) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where having a middleware prevented the SSR app from being deployed on Netlify.
+
+- [#9186](https://github.com/withastro/astro/pull/9186) [`607542c7c`](https://github.com/withastro/astro/commit/607542c7cf9fe9813c06f1d96615d6c793262d22) Thanks [@martrapp](https://github.com/martrapp)! - Fixes a view transition issue on webKit browsers that prevented scrolling to #fragments
+
+## 3.6.0
+
+### Minor Changes
+
+- [#9090](https://github.com/withastro/astro/pull/9090) [`c87223c21`](https://github.com/withastro/astro/commit/c87223c21ab5d515fb8f04ee10be5c0ca51e0b29) Thanks [@martrapp](https://github.com/martrapp)! - Take full control over the behavior of view transitions!
+
+  Three new events now complement the existing `astro:after-swap` and `astro:page-load` events:
+
+  ```javascript
+  'astro:before-preparation'; // Control how the DOM and other resources of the target page are loaded
+  'astro:after-preparation'; // Last changes before taking off? Remove that loading indicator? Here you go!
+  'astro:before-swap'; // Control how the DOM is updated to match the new page
+  ```
+
+  The `astro:before-*` events allow you to change properties and strategies of the view transition implementation.
+  The `astro:after-*` events are notifications that a phase is complete.
+  Head over to docs to see [the full view transitions lifecycle](https://docs.astro.build/en/guides/view-transitions/#lifecycle-events) including these new events!
+
+- [#9092](https://github.com/withastro/astro/pull/9092) [`0ea4bd47e`](https://github.com/withastro/astro/commit/0ea4bd47e0d7cc98c43568a55aa87da772bd2e0a) Thanks [@smitbarmase](https://github.com/smitbarmase)! - Changes the fallback prefetch behavior on slow connections and when data saver mode is enabled. Instead of disabling prefetch entirely, the `tap` strategy will be used.
+
+- [#9166](https://github.com/withastro/astro/pull/9166) [`cba6cf32d`](https://github.com/withastro/astro/commit/cba6cf32d9bf1f5c3268808f185a4824d6fbd7f4) Thanks [@matthewp](https://github.com/matthewp)! - The Picture component is no longer experimental
+
+  The `<Picture />` component, part of `astro:assets`, has exited experimental status and is now recommended for use. There are no code changes to the component, and no upgrade to your project is necessary.
+
+  This is only a change in documentation/recommendation. If you were waiting to use the `<Picture />` component until it had exited the experimental stage, wait no more!
+
+- [#9092](https://github.com/withastro/astro/pull/9092) [`0ea4bd47e`](https://github.com/withastro/astro/commit/0ea4bd47e0d7cc98c43568a55aa87da772bd2e0a) Thanks [@smitbarmase](https://github.com/smitbarmase)! - Adds a `ignoreSlowConnection` option to the `prefetch()` API to prefetch even on data saver mode or slow connection.
+
+## 3.5.7
+
+### Patch Changes
+
+- [#9157](https://github.com/withastro/astro/pull/9157) [`7ff8d62bf`](https://github.com/withastro/astro/commit/7ff8d62bf861694067491ff17d01b1b0f6809d6b) Thanks [@ematipico](https://github.com/ematipico)! - Revert fix around fallback system, which broken injected styles
+
+## 3.5.6
+
+### Patch Changes
+
+- [#9121](https://github.com/withastro/astro/pull/9121) [`f4efd1c80`](https://github.com/withastro/astro/commit/f4efd1c808476c7e60fe00fcfb86276cf14fee79) Thanks [@peng](https://github.com/peng)! - Adds a warning if `astro add` fetches a package but returns a non-404 status
+
+- [#9142](https://github.com/withastro/astro/pull/9142) [`7d55cf68d`](https://github.com/withastro/astro/commit/7d55cf68d89cb46bfb89a109b09af61be8431c89) Thanks [@ematipico](https://github.com/ematipico)! - Consistely emit fallback routes in the correct folders.
+
+- [#9119](https://github.com/withastro/astro/pull/9119) [`306781795`](https://github.com/withastro/astro/commit/306781795d5f4b755bbdf650a937f1f3c00030bd) Thanks [@ematipico](https://github.com/ematipico)! - Fix a flaw in the i18n fallback logic, where the routes didn't preserve their metadata, such as hoisted scripts
+
+- [#9140](https://github.com/withastro/astro/pull/9140) [`7742fd7dc`](https://github.com/withastro/astro/commit/7742fd7dc26533c6f7cd497b00b72de935c57628) Thanks [@martrapp](https://github.com/martrapp)! - View Transitions: handle clicks on SVGAElements and image maps"
+
+- [#9101](https://github.com/withastro/astro/pull/9101) [`e3dce215a`](https://github.com/withastro/astro/commit/e3dce215a5ea06bcff1b21027e5613e6518c69d4) Thanks [@ematipico](https://github.com/ematipico)! - Add a new property `Astro.currentLocale`, available when `i18n` is enabled.
+
 ## 3.5.5
 
 ### Patch Changes
