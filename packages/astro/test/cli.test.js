@@ -106,7 +106,7 @@ describe('astro cli', () => {
 
 		expect(messages[0]).to.contain('astro');
 		expect(messages[0]).to.contain(pkgVersion);
-		expect(messages[0]).to.contain('started in');
+		expect(messages[0]).to.contain('ready in');
 	});
 
 	['dev', 'preview'].forEach((cmd) => {

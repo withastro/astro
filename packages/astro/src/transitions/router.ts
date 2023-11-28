@@ -426,8 +426,8 @@ async function transition(
 	const navigationType = historyState
 		? 'traverse'
 		: options.history === 'replace'
-		? 'replace'
-		: 'push';
+		  ? 'replace'
+		  : 'push';
 
 	if (samePage(from, to) && !options.formData /* not yet: && to.hash*/) {
 		if (navigationType !== 'traverse') {

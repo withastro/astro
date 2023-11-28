@@ -10,7 +10,6 @@ import {
 import { ZodError } from 'zod';
 
 import { generateSitemap } from './generate-sitemap.js';
-import { Logger } from './utils/logger.js';
 import { validateOptions } from './validate-options.js';
 
 export { EnumChangefreq as ChangeFreqEnum } from 'sitemap';
@@ -62,7 +61,6 @@ function isStatusCodePage(pathname: string): boolean {
 
 const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 	let config: AstroConfig;
-	const logger = new Logger(PKG_NAME);
 
 	return {
 		name: PKG_NAME,
@@ -72,7 +70,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 				config = cfg;
 			},
 
-			'astro:build:done': async ({ dir, routes, pages }) => {
+			'astro:build:done': async ({ dir, routes, pages, logger }) => {
 				try {
 					if (!config.site) {
 						logger.warn(
@@ -178,7 +176,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						limit: entryLimit,
 						gzip: false,
 					});
-					logger.success(`\`${OUTFILE}\` created at \`${path.relative(process.cwd(), destDir)}\``);
+					logger.info(`\`${OUTFILE}\` created at \`${path.relative(process.cwd(), destDir)}\``);
 				} catch (err) {
 					if (err instanceof ZodError) {
 						logger.warn(formatConfigErrorMessage(err));

@@ -102,10 +102,7 @@ export function pluginSSR(
 		hooks: {
 			'build:before': () => {
 				let vitePlugin =
-					ssr &&
-					// TODO: Remove in Astro 4.0
-					options.settings.config.build.split === false &&
-					functionPerRouteEnabled === false
+					ssr && functionPerRouteEnabled === false
 						? vitePluginSSR(internals, options.settings.adapter!, options)
 						: undefined;
 
@@ -119,7 +116,7 @@ export function pluginSSR(
 					return;
 				}
 
-				if (options.settings.config.build.split || functionPerRouteEnabled) {
+				if (functionPerRouteEnabled) {
 					return;
 				}
 
@@ -146,7 +143,7 @@ function vitePluginSSRSplit(
 		name: '@astrojs/vite-plugin-astro-ssr-split',
 		enforce: 'post',
 		options(opts) {
-			if (options.settings.config.build.split || functionPerRouteEnabled) {
+			if (functionPerRouteEnabled) {
 				const inputs = new Set<string>();
 
 				for (const [path, pageData] of eachPageFromAllPages(options.allPages)) {
@@ -223,7 +220,7 @@ export function pluginSSRSplit(
 		hooks: {
 			'build:before': () => {
 				let vitePlugin =
-					ssr && (options.settings.config.build.split || functionPerRouteEnabled)
+					ssr && functionPerRouteEnabled
 						? vitePluginSSRSplit(internals, options.settings.adapter!, options)
 						: undefined;
 
@@ -240,7 +237,7 @@ function generateSSRCode(config: AstroConfig, adapter: AstroAdapter) {
 	const imports: string[] = [];
 	const contents: string[] = [];
 	let pageMap;
-	if (config.build.split || isFunctionPerRouteEnabled(adapter)) {
+	if (isFunctionPerRouteEnabled(adapter)) {
 		pageMap = 'pageModule';
 	} else {
 		pageMap = 'pageMap';

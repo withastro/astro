@@ -10,14 +10,9 @@ describe('Adapter', () => {
 			fixture = await loadFixture({
 				root: './fixtures/middleware space/',
 				output: 'server',
-				build: {
-					excludeMiddleware: true,
-				},
 				adapter: testAdapter({
 					extendAdapter: {
-						supportsFeatures: {
-							edgeMiddleware: 'Unsupported',
-						},
+						supportedAstroFeatures: {},
 					},
 				}),
 			});
@@ -34,14 +29,9 @@ describe('Adapter', () => {
 			fixture = await loadFixture({
 				root: './fixtures/middleware space/',
 				output: 'server',
-				build: {
-					split: true,
-				},
 				adapter: testAdapter({
 					extendAdapter: {
-						supportsFeatures: {
-							functionPerPage: 'Unsupported',
-						},
+						supportedAstroFeatures: {},
 					},
 				}),
 			});

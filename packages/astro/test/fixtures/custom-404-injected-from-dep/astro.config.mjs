@@ -9,7 +9,7 @@ export default defineConfig({
         'astro:config:setup': ({ injectRoute }) => {
           injectRoute({
             pattern: '404',
-            entryPoint: '@test/custom-404-pkg/404.astro',
+            entrypoint: '@test/custom-404-pkg/404.astro',
           });
         },
       },

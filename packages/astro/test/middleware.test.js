@@ -277,6 +277,11 @@ describe('Middleware API in PROD mode, SSR', () => {
 				excludeMiddleware: true,
 			},
 			adapter: testAdapter({
+				extendAdapter: {
+					adapterFeatures: {
+						edgeMiddleware: true,
+					},
+				},
 				setMiddlewareEntryPoint(entryPointsOrMiddleware) {
 					middlewarePath = entryPointsOrMiddleware;
 				},
@@ -317,7 +322,9 @@ describe('Middleware with tailwind', () => {
 	});
 });
 
-describe('Middleware, split middleware option', () => {
+// `loadTestAdapterApp()` does not understand how to load the page with `functionPerRoute`
+// since there's no `entry.mjs`. Skip for now.
+describe.skip('Middleware supports functionPerRoute feature', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
@@ -325,10 +332,13 @@ describe('Middleware, split middleware option', () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware space/',
 			output: 'server',
-			build: {
-				excludeMiddleware: true,
-			},
-			adapter: testAdapter({}),
+			adapter: testAdapter({
+				extendAdapter: {
+					adapterFeatures: {
+						functionPerRoute: true,
+					},
+				},
+			}),
 		});
 		await fixture.build();
 	});

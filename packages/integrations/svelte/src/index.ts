@@ -73,6 +73,7 @@ async function getViteConfiguration({
 	}
 
 	if (!resolvedOptions.preprocess && !(await svelteConfigHasPreprocess(root))) {
+		// @ts-expect-error there's a bug with the types where the first arg should be optional
 		resolvedOptions.preprocess = vitePreprocess();
 	}
 
