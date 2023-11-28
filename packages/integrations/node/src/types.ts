@@ -15,6 +15,7 @@ export interface Options extends UserOptions {
 	port: number;
 	server: string;
 	client: string;
+	assets: string;
 }
 
 export type RequestHandlerParams = [
