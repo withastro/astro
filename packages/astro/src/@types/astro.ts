@@ -2363,6 +2363,7 @@ export interface RouteData {
 	redirect?: RedirectConfig;
 	redirectRoute?: RouteData;
 	fallbackRoutes: RouteData[];
+	index: boolean;
 }
 
 export type RedirectRouteData = RouteData & {

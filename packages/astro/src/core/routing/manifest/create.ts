@@ -347,6 +347,7 @@ export function createRouteManifest(
 					generate,
 					pathname: pathname || undefined,
 					prerender,
+					index: item.isIndex,
 					fallbackRoutes: [],
 				});
 			}
@@ -424,6 +425,7 @@ export function createRouteManifest(
 				pathname: pathname || void 0,
 				prerender: prerenderInjected ?? prerender,
 				fallbackRoutes: [],
+				index: false,
 			});
 		});
 
@@ -464,6 +466,7 @@ export function createRouteManifest(
 			redirect: to,
 			redirectRoute: routes.find((r) => r.route === to),
 			fallbackRoutes: [],
+			index: false,
 		};
 
 		const lastSegmentIsDynamic = (r: RouteData) => !!r.segments.at(-1)?.at(-1)?.dynamic;
