@@ -36,7 +36,6 @@ const responseSentSymbol = Symbol.for('astro.responseSent');
 const STATUS_CODES = new Set([404, 500]);
 
 export interface MatchOptions {
-	matchNotFound?: boolean | undefined;
 }
 export interface RenderErrorOptions {
 	routeData?: RouteData;
