@@ -16,8 +16,8 @@ describe('Assets', () => {
 			vite: {
 				build: {
 					assetsInlineLimit: 0,
-				}
-			}
+				},
+			},
 		});
 		await fixture.build();
 		devPreview = await fixture.preview();
