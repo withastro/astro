@@ -132,7 +132,7 @@ export function preferenceDisabled(name: string) {
 }
 
 export function preferenceReset(name: string) {
-	return `${cyan('◆')} ${name} has been reset ${bgCyan(black(' reset '))}\n`;
+	return `${cyan('◆')} ${name} has been ${bgCyan(black(' reset '))}\n`;
 }
 
 export function telemetryDisabled() {
