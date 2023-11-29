@@ -138,13 +138,19 @@ export default {
 					async clickAction() {
 						// NOTE: The path here has to be absolute and without any errors (no double slashes etc)
 						// or Vite will silently fail to open the file. Quite annoying.
-						await fetch(
+						const handle = window.open(
 							'/__open-in-editor?file=' +
 								encodeURIComponent(
 									(window as DevOverlayMetadata).__astro_dev_overlay__.root +
 										islandComponentPath.slice(1)
 								)
-						);
+						, '_blank');
+						if (handle) {
+							// Wait a bit so the Vite server can handle the request
+							await new Promise(resolve => setTimeout(resolve, 50))
+							// Close the new tab
+							handle.close();
+						}
 					},
 				});
 			}
