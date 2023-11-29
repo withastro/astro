@@ -14,7 +14,7 @@ import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
 import dlv from 'dlv';
 // @ts-expect-error flattie types are mispackaged
 import { flattie } from 'flattie';
-import { format, formatWithOptions } from 'node:util';
+import { formatWithOptions } from 'node:util';
 
 interface PreferencesOptions {
 	flags: yargs.Arguments;
@@ -146,7 +146,7 @@ async function listPreferences(settings: AstroSettings, { location, json }: Subc
 	const store = await settings.preferences.getAll({ location });
 	if (json) {
 		console.log(JSON.stringify(store, null, 2));
-		return;
+		return 0;
 	}
 	const flattened = flattie(store);
 	const table = formatTable(flattened, ['Preference', 'Value']);
