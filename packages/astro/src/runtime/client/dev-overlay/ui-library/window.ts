@@ -23,10 +23,17 @@ export class DevOverlayWindow extends HTMLElement {
 					color: rgba(204, 206, 216, 1);
 					position: fixed;
 					z-index: 999999999;
-					top: 55%;
+					/* -7.5em is a magic number that seems to keep it anchored with the dev bar */
+					bottom: calc(7.5% + -150px);
 					left: 50%;
 					transform: translate(-50%, -50%);
 					box-shadow: 0px 0px 0px 0px rgba(19, 21, 26, 0.30), 0px 1px 2px 0px rgba(19, 21, 26, 0.29), 0px 4px 4px 0px rgba(19, 21, 26, 0.26), 0px 10px 6px 0px rgba(19, 21, 26, 0.15), 0px 17px 7px 0px rgba(19, 21, 26, 0.04), 0px 26px 7px 0px rgba(19, 21, 26, 0.01);
+				}
+
+				@media (forced-colors: active) {
+					:host {
+						background: white;
+					}
 				}
 
 				::slotted(h1), ::slotted(h2), ::slotted(h3), ::slotted(h4), ::slotted(h5) {
