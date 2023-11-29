@@ -10,7 +10,7 @@ export default defineConfig({
       i18n: {
 -          routingStrategy: "prefix-always",
 +          routing: {
-+              prefixDefaultLocale: false,
++              prefixDefaultLocale: true,
 +          }  
       }
   }
@@ -23,7 +23,7 @@ export default defineConfig({
       i18n: {
 -          routingStrategy: "prefix-other-locales",
 +          routing: {
-+              prefixDefaultLocale: true,
++              prefixDefaultLocale: false,
 +          }  
       }
   }
