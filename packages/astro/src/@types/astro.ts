@@ -1546,7 +1546,6 @@ export interface AstroUserConfig {
 				prefixDefaultLocale: boolean;
 
 				/**
-				 * @docs
 				 * @name experimental.i18n.routing.strategy
 				 * @type {"pathname"}
 				 * @default `"pathname"`

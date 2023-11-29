@@ -355,7 +355,7 @@ export const AstroConfigSchema = z.object({
 							})
 							.default({})
 							.transform((routing) => {
-								let strategy;
+								let strategy: RoutingStrategies;
 								switch (routing.strategy) {
 									case 'pathname': {
 										if (routing.prefixDefaultLocale === true) {
@@ -365,7 +365,7 @@ export const AstroConfigSchema = z.object({
 										}
 									}
 								}
-								return strategy as RoutingStrategies;
+								return strategy;
 							}),
 					})
 					.optional()
