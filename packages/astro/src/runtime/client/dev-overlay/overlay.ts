@@ -35,8 +35,10 @@ export class AstroDevOverlay extends HTMLElement {
 	async connectedCallback() {
 		if (!this.hasBeenInitialized) {
 			this.shadowRoot.innerHTML = `
-    <style>
+			<style>	
 			:host {
+				/* Important! Reset all inherited styles to initial */
+				all: initial;
 				z-index: 999999;
 				view-transition-name: astro-dev-overlay;
 				display: contents;
@@ -44,7 +46,7 @@ export class AstroDevOverlay extends HTMLElement {
 
 			::view-transition-old(astro-dev-overlay),
 			::view-transition-new(astro-dev-overlay) {
-  			animation: none;
+				animation: none;
 			}
 
 			#dev-overlay {
@@ -73,7 +75,7 @@ export class AstroDevOverlay extends HTMLElement {
 				visibility: hidden;
 			}
 
-      #dev-bar {
+			#dev-bar {
 				height: 56px;
 				overflow: hidden;
 				pointer-events: auto;
@@ -253,7 +255,7 @@ export class AstroDevOverlay extends HTMLElement {
 				white-space: nowrap;
 				border-width: 0;
 			}
-    </style>
+		</style>
 
 		<div id="dev-overlay">
 			<div id="dev-bar">
