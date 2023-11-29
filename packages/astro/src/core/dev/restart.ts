@@ -29,6 +29,9 @@ async function createRestartedContainer(
 	return newContainer;
 }
 
+const configRE = new RegExp(`.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$`);
+const preferencesRE = new RegExp(`.*\.astro\/settings\.json$`);
+
 export function shouldRestartContainer(
 	{ settings, inlineConfig, restartInFlight }: Container,
 	changedFile: string
@@ -43,9 +46,9 @@ export function shouldRestartContainer(
 	}
 	// Otherwise, watch for any astro.config.* file changes in project root
 	else {
-		const exp = new RegExp(`.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$`);
 		const normalizedChangedFile = vite.normalizePath(changedFile);
-		shouldRestart = exp.test(normalizedChangedFile);
+		shouldRestart = configRE.test(normalizedChangedFile) || preferencesRE.test(normalizedChangedFile);
+
 	}
 
 	if (!shouldRestart && settings.watchFiles.length > 0) {
