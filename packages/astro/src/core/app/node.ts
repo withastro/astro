@@ -1,5 +1,6 @@
 import type { RouteData } from '../../@types/astro.js';
 import type { SerializedSSRManifest, SSRManifest } from './types.js';
+import type { RenderOptions } from './index.js';
 
 import * as fs from 'node:fs';
 import { IncomingMessage } from 'node:http';
@@ -116,11 +117,18 @@ export class NodeApp extends App {
 		}
 		return super.match(req);
 	}
-	render(req: NodeIncomingMessage | Request, routeData?: RouteData, locals?: object) {
+	render(request: NodeIncomingMessage | Request, options?: RenderOptions): Promise<Response>
+	/**
+	 * @deprecated Instead of passing `RouteData` and locals individually, pass an object with `routeData` and `locals` properties.
+	 * See https://github.com/withastro/astro/pull/9199 for more information.
+	 */
+	render(request: NodeIncomingMessage | Request, routeData?: RouteData, locals?: object): Promise<Response>
+	render(req: NodeIncomingMessage | Request, routeDataOrOptions?: RouteData | RenderOptions, maybeLocals?: object) {
 		if (!(req instanceof Request)) {
 			req = createRequestFromNodeRequest(req);
 		}
-		return super.render(req, routeData, locals);
+		// @ts-expect-error The call would have succeeded against the implementation, but implementation signatures of overloads are not externally visible.
+		return super.render(req, routeDataOrOptions, maybeLocals);
 	}
 }
 
