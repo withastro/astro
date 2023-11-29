@@ -2,7 +2,7 @@
 import type yargs from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro.js';
 
-import { cyan } from 'kleur/colors';
+import { cyan, bold } from 'kleur/colors';
 import { fileURLToPath } from 'node:url';
 
 import * as msg from '../../core/messages.js';
@@ -12,7 +12,9 @@ import { createSettings } from '../../core/config/settings.js';
 import { isValidKey, type PreferenceKey } from '../../preferences/index.js';
 import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
 import dlv from 'dlv';
-
+// @ts-expect-error flattie types are mispackaged
+import { flattie } from 'flattie';
+import { format, formatWithOptions } from 'node:util';
 
 interface PreferencesOptions {
 	flags: yargs.Arguments;
@@ -139,12 +141,61 @@ async function resetPreference(settings: AstroSettings, key: PreferenceKey, { lo
 	return 1;
 }
 
+
 async function listPreferences(settings: AstroSettings, { location, json }: SubcommandOptions) {
 	const store = await settings.preferences.getAll({ location });
 	if (json) {
 		console.log(JSON.stringify(store, null, 2));
+		return;
 	}
-	// TODO: pretty print
-	console.log(JSON.stringify(store, null, 2));
+	const flattened = flattie(store);
+	const table = formatTable(flattened, ['Preference', 'Value']);
+	console.log(table);
 	return 0;
 }
+
+const chars = {
+	h: '─',
+	hThick: '━',
+	hThickCross: '┿',
+	v: '│',
+	vRight: '├',
+	vRightThick: '┝',
+	vLeft: '┤',
+	vLeftThick: '┥',
+	hTop: '┴',
+	hBottom: '┬',
+	topLeft: '╭',
+	topRight: '╮',
+	bottomLeft: '╰',
+	bottomRight: '╯',
+}
+
+function formatTable(object: Record<string, string | number | boolean>, columnLabels: [string, string]) {
+	const [colA, colB] = columnLabels;
+	const colALength = [colA, ...Object.keys(object)].reduce(longest, 0) + 3;
+	const colBLength = [colB, ...Object.values(object)].reduce(longest, 0) + 3;
+	function formatRow(i: number, a: string, b: string | number | boolean, style: (value: string | number | boolean) => string = (v) => v.toString()): string {
+		return `${chars.v} ${style(a)} ${space(colALength - a.length - 2)} ${chars.v} ${style(b)} ${space(colBLength - b.toString().length - 3)} ${chars.v}`
+	}
+	const top = `${chars.topLeft}${chars.h.repeat(colALength + 1)}${chars.hBottom}${chars.h.repeat(colBLength)}${chars.topRight}`
+	const bottom = `${chars.bottomLeft}${chars.h.repeat(colALength + 1)}${chars.hTop}${chars.h.repeat(colBLength)}${chars.bottomRight}`
+	const divider = `${chars.vRightThick}${chars.hThick.repeat(colALength + 1)}${chars.hThickCross}${chars.hThick.repeat(colBLength)}${chars.vLeftThick}`
+	const rows: string[] = [top, formatRow(-1, colA, colB, bold), divider];
+	let i = 0;
+	for (const [key, value] of Object.entries(object)) {
+		rows.push(formatRow(i, key, value, (v) => formatWithOptions({ colors: true }, v)));
+		i++;
+	}
+	rows.push(bottom);
+	return rows.join('\n');
+}
+
+function space(len: number) {
+	return ' '.repeat(len);
+}
+
+const longest = (a: number, b: string | number | boolean) => {
+	const { length: len } = b.toString();
+	return a > len ? a : len;
+};

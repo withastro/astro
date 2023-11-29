@@ -571,6 +571,9 @@ importers:
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2
+      flattie:
+        specifier: ^1.1.0
+        version: 1.1.0
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -12225,6 +12228,11 @@ packages:
   /flatted@3.2.9:
     resolution: {integrity: sha512-36yxDn5H7OFZQla0/jFJmbIKTdZAQHngCedGxiMmpNfEZM0sdEeT+WczLQrjK6D7o2aiyLYDnkw0R3JK0Qv1RQ==}
     dev: true
+
+  /flattie@1.1.0:
+    resolution: {integrity: sha512-xU99gDEnciIwJdGcBmNHnzTJ/w5AT+VFJOu6sTB6WM8diOYNA3Sa+K1DiEBQ7XH4QikQq3iFW1U+jRVcotQnBw==}
+    engines: {node: '>=8'}
+    dev: false
 
   /for-each@0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
