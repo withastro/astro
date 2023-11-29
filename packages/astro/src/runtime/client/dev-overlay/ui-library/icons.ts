@@ -5,10 +5,12 @@ export function isDefinedIcon(icon: Icon): icon is DefinedIcon {
 	return icon in icons;
 }
 
+export function getIconElement(name: DefinedIcon): SVGElement;
+export function getIconElement(name: string & NonNullable<unknown>): undefined;
 export function getIconElement(
-	name: keyof typeof icons | (string & NonNullable<unknown>)
+	name: DefinedIcon | (string & NonNullable<unknown>)
 ): SVGElement | undefined {
-	const icon = icons[name as keyof typeof icons];
+	const icon = icons[name as DefinedIcon];
 
 	if (!icon) {
 		return undefined;
