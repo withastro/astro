@@ -25,17 +25,21 @@ const settingsRows = [
 				}
 
 				settings.updateSetting('disablePluginNotification', evt.currentTarget.checked);
+				const action = evt.currentTarget.checked ? 'enabled' : 'disabled';
+				settings.log(`Plugin notification badges ${action}`);
 			}
 		},
 	},
 	{
 		name: 'Verbose logging',
-		description: 'Log additional information to the console.',
+		description: 'Logs dev overlay events in the browser console.',
 		input: 'checkbox',
 		settingKey: 'verbose',
 		changeEvent: (evt: Event) => {
 			if (evt.currentTarget instanceof HTMLInputElement) {
 				settings.updateSetting('verbose', evt.currentTarget.checked);
+				const action = evt.currentTarget.checked ? 'enabled' : 'disabled';
+				settings.log(`Verbose logging ${action}`);
 			}
 		},
 	},
