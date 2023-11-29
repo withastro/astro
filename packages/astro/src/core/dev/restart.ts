@@ -71,7 +71,7 @@ export async function restartContainer(container: Container): Promise<Container 
 		const error = createSafeError(_err);
 		// Print all error messages except ZodErrors from AstroConfig as the pre-logged error is sufficient
 		if (!isAstroConfigZodError(_err)) {
-			logger.error('config', formatErrorMessage(collectErrorMetadata(error)) + '\n');
+			logger.error('config', formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n');
 		}
 		// Inform connected clients of the config error
 		container.viteServer.ws.send({
