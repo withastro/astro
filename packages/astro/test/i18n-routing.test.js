@@ -664,7 +664,7 @@ describe('[SSG] i18n routing', () => {
 							it: 'en',
 						},
 						routing: {
-							prefixDefaultLocale: false,
+							prefixDefaultLocale: true,
 						},
 					},
 				},
