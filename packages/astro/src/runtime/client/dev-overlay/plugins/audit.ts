@@ -71,7 +71,6 @@ export default {
 				const noAuditIcon = getIconElement('check-circle');
 				const text = document.createElement('div');
 				text.textContent = 'No issues found!';
-				text.role = 'alert';
 
 				if (noAuditIcon) {
 					noAuditIcon.style.width = '24px';
