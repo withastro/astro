@@ -2,19 +2,20 @@
 import type yargs from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro.js';
 
-import { cyan, bold } from 'kleur/colors';
+import { bold } from 'kleur/colors';
 import { fileURLToPath } from 'node:url';
 
 import * as msg from '../../core/messages.js';
 import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { resolveConfig } from '../../core/config/config.js';
 import { createSettings } from '../../core/config/settings.js';
-import { isValidKey, type PreferenceKey } from '../../preferences/index.js';
+import { coerce, isValidKey, type PreferenceKey } from '../../preferences/index.js';
 import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
 import dlv from 'dlv';
 // @ts-expect-error flattie types are mispackaged
 import { flattie } from 'flattie';
 import { formatWithOptions } from 'node:util';
+import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
 
 interface PreferencesOptions {
 	flags: yargs.Arguments;
@@ -31,16 +32,21 @@ export async function preferences(subcommand: string, key: string, value: string
 	if (!isValidSubcommand(subcommand) || flags?.help || flags?.h) {
 		msg.printHelp({
 			commandName: 'astro preferences',
-			usage: 'set [key] [:value]',
+			usage: '[command]',
 			tables: {
+				Commands: [
+					['list', 'Pretty print all current preferences'],
+					['list --json', 'Log all current preferences as a JSON object'],
+					['get [key]', 'Log current preference value'],
+					['set [key] [value]', 'Update preference value'],
+					['reset [key]', 'Reset preference value to default'],
+					['enable [key]', 'Set a boolean preference to true'],
+					['disable [key]', 'Set a boolean preference to false'],
+				],
 				Flags: [
-					['--global', 'Change setting value globally.'],
-					['--help (-h)', 'See all available flags.'],
+					['--global', 'Scope command to global preferences (all Astro projects) rather than the current project'],
 				],
 			},
-			description: `Starts a local server to serve your static dist/ directory. Check ${cyan(
-				'https://docs.astro.build/en/reference/cli-reference/#astro-preview'
-			)} for more information.`,
 		});
 		return 0;
 	}
@@ -69,8 +75,7 @@ export async function preferences(subcommand: string, key: string, value: string
 
 	if (subcommand === 'set' && value === undefined) {
 		const type = typeof dlv(DEFAULT_PREFERENCES, key);
-		// TODO: better error message
-		logger.error('preferences', `Please provide a ${type} value for "${key}"\n`);
+		console.error(msg.formatErrorMessage(collectErrorMetadata(new Error(`Please provide a ${type} value for "${key}"`))));
 		return 1;
 	}
 
@@ -92,14 +97,21 @@ interface SubcommandOptions {
 // Default `location` to "project" to avoid reading default preferencesa
 async function getPreference(settings: AstroSettings, key: PreferenceKey, { location = 'project' }: SubcommandOptions) {
 	try {
-		const value = await settings.preferences.get(key, { location });
-		// TODO: guard against printing objects
-		if (value !== undefined) {
-			console.log(msg.preferenceGet(key, value));
-		} else {
+		let value = await settings.preferences.get(key, { location });
+		if (value && typeof value === 'object' && !Array.isArray(value)) {
+			if (Object.keys(value).length === 0) {
+				value = dlv(DEFAULT_PREFERENCES, key);
+				console.log(msg.preferenceDefaultIntro(key));
+			}
+			prettyPrint({ [key]: value });
+			return 0;
+		}
+		if (value === undefined) {
 			const defaultValue = await settings.preferences.get(key);
 			console.log(msg.preferenceDefault(key, defaultValue));
+			return 0;
 		}
+		console.log(msg.preferenceGet(key, value));
 		return 0;
 	} catch {}
 	return 1;
@@ -107,11 +119,21 @@ async function getPreference(settings: AstroSettings, key: PreferenceKey, { loca
 
 async function setPreference(settings: AstroSettings, key: PreferenceKey, value: unknown, { location }: SubcommandOptions) {
 	try {
-		await settings.preferences.set(key, value as any, { location });
+		const defaultType = typeof dlv(DEFAULT_PREFERENCES, key);
+		if (typeof coerce(key, value) !== defaultType) {
+			throw new Error(`${key} expects a "${defaultType}" value!`)
+		}
+
+		await settings.preferences.set(key, coerce(key, value), { location });
 		console.log(msg.preferenceSet(key, value))
 		return 0;
-	} catch {}
-	return 1;
+	} catch (e) {
+		if (e instanceof Error) {
+			console.error(msg.formatErrorMessage(collectErrorMetadata(e)));
+			return 1;
+		}
+		throw e;
+	}
 }
 
 async function enablePreference(settings: AstroSettings, key: PreferenceKey, { location }: SubcommandOptions) {
@@ -148,10 +170,14 @@ async function listPreferences(settings: AstroSettings, { location, json }: Subc
 		console.log(JSON.stringify(store, null, 2));
 		return 0;
 	}
-	const flattened = flattie(store);
+	prettyPrint(store);
+	return 0;
+}
+
+function prettyPrint(value: Record<string, string | number | boolean>) {
+	const flattened = flattie(value);
 	const table = formatTable(flattened, ['Preference', 'Value']);
 	console.log(table);
-	return 0;
 }
 
 const chars = {

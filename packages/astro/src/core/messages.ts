@@ -123,6 +123,10 @@ export function preferenceGet(name: string, value: any) {
 	return `${green('◉')} ${name} is set to ${bgGreen(black(` ${JSON.stringify(value)} `))}\n`;
 }
 
+export function preferenceDefaultIntro(name: string) {
+	return `${yellow('◯')} ${name} has not been set. It defaults to\n`;
+}
+
 export function preferenceDefault(name: string, value: any) {
 	return `${yellow('◯')} ${name} has not been set. It defaults to ${bgYellow(black(` ${JSON.stringify(value)} `))}\n`;
 }

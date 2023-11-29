@@ -33,7 +33,7 @@ export interface AstroPreferences {
 export function isValidKey(key: string): key is PreferenceKey {
 	return dget(DEFAULT_PREFERENCES, key) !== undefined;
 }
-export function coerce(key: string, value: string | number) {
+export function coerce(key: string, value: unknown) {
 	const type = typeof dget(DEFAULT_PREFERENCES, key);
 	switch (type) {
 		case 'string': return value;
@@ -43,7 +43,7 @@ export function coerce(key: string, value: string | number) {
 			if (value === 'false' || value === 0) return false;
 		}
 	}
-	throw new Error(`Unable to convert "${value}" to a ${type} for "${key}".`)
+	return value as any;
 }
 
 export default function createPreferences(config: AstroConfig): AstroPreferences {
