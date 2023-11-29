@@ -12,8 +12,8 @@ import type {
 import { getInfoOutput } from '../cli/info/index.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
-import { sequence } from '../core/middleware/index.js';
 import { req } from '../core/messages.js';
+import { sequence } from '../core/middleware/index.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import {
 	createRenderContext,
@@ -384,7 +384,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			children: '',
 		});
 
-		if (settings.config.experimental.devOverlay) {
+		if (settings.config.devOverlay.enabled) {
 			scripts.add({
 				props: {
 					type: 'module',
@@ -394,12 +394,11 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			});
 
 			const additionalMetadata: DevOverlayMetadata['__astro_dev_overlay__'] = {
+				defaultState: settings.config.devOverlay.defaultState,
 				root: fileURLToPath(settings.config.root),
 				version: ASTRO_VERSION,
 				debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),
 			};
-
-			settings.config;
 
 			// Additional data for the dev overlay
 			scripts.add({

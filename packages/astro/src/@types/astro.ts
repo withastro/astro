@@ -1157,6 +1157,34 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
+	 * @name Dev Overlay Options
+	 */
+	devOverlay: {
+		/**
+		 * @docs
+		 * @name devOverlay.enabled
+		 * @type {boolean}
+		 * @default `true`
+		 * @description
+		 * Whether to enable the dev overlay. This overlay allows you to inspect your page islands, see helpful audits on performance and accessibility, and more.
+		 *
+		 * This option is scoped to the entire project, to only disable the overlay for yourself, run `npm run astro preferences disable devOverlay`. To disable the overlay for all your Astro projects, run `npm run astro preferences disable devOverlay --global`.
+		 */
+		enabled: boolean;
+		/**
+		 * @docs
+		 * @name devOverlay.defaultState
+		 * @type {'minimized' | 'expanded'}
+		 * @default `minimized`
+		 * @description
+		 * Whether the dev overlay should be expanded or minimized by default.
+		 */
+		defaultState: 'minimized' | 'expanded';
+	};
+
+	/**
+	 * @docs
+	 * @kind heading
 	 * @name Markdown Options
 	 */
 	markdown?: {
@@ -1378,25 +1406,6 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		optimizeHoistedScript?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.devOverlay
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 3.4.0
-		 * @description
-		 * Enable a dev overlay in development mode. This overlay allows you to inspect your page islands, see helpful audits on performance and accessibility, and more.
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 * 		devOverlay: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		devOverlay?: boolean;
 
 		/**
 		 * @docs
@@ -2517,6 +2526,7 @@ export interface DevOverlayPlugin {
 export type DevOverlayMetadata = Window &
 	typeof globalThis & {
 		__astro_dev_overlay__: {
+			defaultState: AstroConfig['devOverlay']['defaultState'];
 			root: string;
 			version: string;
 			debugInfo: string;
