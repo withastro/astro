@@ -8,6 +8,11 @@
   <br/><br/>
 </p>
 
+![Testing Status](https://github.com/withastro/astro/actions/workflows/test-hosts.yml/badge.svg)
+![Build Status](https://github.com/withastro/astro/actions/workflows/ci.yml/badge.svg)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/withastro/astro/blob/main/LICENSE)
+[![npm version](https://badge.fury.io/js/astro.svg)](https://badge.fury.io/js/astro)
+
 ## Install
 
 The **recommended** way to install the latest version of Astro is by running the command below:
