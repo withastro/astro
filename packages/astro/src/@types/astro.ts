@@ -1159,7 +1159,7 @@ export interface AstroUserConfig {
 	 * @kind heading
 	 * @name Dev Overlay Options
 	 */
-	devOverlay: {
+	devOverlay?: {
 		/**
 		 * @docs
 		 * @name devOverlay.enabled
