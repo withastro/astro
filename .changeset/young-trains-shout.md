@@ -1,0 +1,5 @@
+---
+'astro': patch
+---
+
+Break `routingStrategy`
