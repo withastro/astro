@@ -15,6 +15,19 @@ export function createHighlight(rect: DOMRect, icon?: Icon) {
 	return highlight;
 }
 
+export function getHighlightZIndex(el: Element) {
+	let highestZIndex = 0;
+	let current: Element | ParentNode | null = el;
+	while(current) {
+		let zIndex = Number(getComputedStyle(el).zIndex);
+		if(!Number.isNaN(zIndex) && zIndex > highestZIndex) {
+			highestZIndex = zIndex;
+		}
+		current = current.parentNode;
+	}
+	return highestZIndex + 1;
+}
+
 export function positionHighlight(highlight: DevOverlayHighlight, rect: DOMRect) {
 	highlight.style.display = 'block';
 	// Make an highlight that is 10px bigger than the element on all sides
