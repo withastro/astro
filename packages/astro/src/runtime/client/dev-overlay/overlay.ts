@@ -83,6 +83,12 @@ export class AstroDevOverlay extends HTMLElement {
 				box-shadow: 0px 0px 0px 0px rgba(19, 21, 26, 0.30), 0px 1px 2px 0px rgba(19, 21, 26, 0.29), 0px 4px 4px 0px rgba(19, 21, 26, 0.26), 0px 10px 6px 0px rgba(19, 21, 26, 0.15), 0px 17px 7px 0px rgba(19, 21, 26, 0.04), 0px 26px 7px 0px rgba(19, 21, 26, 0.01);
 			}
 
+			@media (forced-colors: active) {
+				#dev-bar {
+					background: white;
+				}
+			}
+
 			#dev-bar .item {
 				display: flex;
 				justify-content: center;
@@ -132,6 +138,7 @@ export class AstroDevOverlay extends HTMLElement {
 				pointer-events: none;
 			}
 
+
 			#dev-bar .item-tooltip::after{
 				content: '';
 				position: absolute;
@@ -145,6 +152,12 @@ export class AstroDevOverlay extends HTMLElement {
 			#dev-bar .item:hover .item-tooltip, #dev-bar .item:not(.active):focus-visible .item-tooltip {
 				transition: opacity 0.2s ease-in-out 200ms;
 				opacity: 1;
+			}
+
+			@media (forced-colors: active) {
+				#dev-bar .item:hover .item-tooltip, #dev-bar .item:not(.active):focus-visible .item-tooltip {
+					background: white;
+				}
 			}
 
 			#dev-bar #bar-container .item.active .notification {
@@ -163,6 +176,12 @@ export class AstroDevOverlay extends HTMLElement {
 				height: 24px;
 				display: block;
 				margin: auto;
+			}
+
+			@media (forced-colors: active) {
+				#dev-bar .item svg path[fill="#fff"] {
+					fill: black;
+				}
 			}
 
 			#dev-bar .item .notification {
