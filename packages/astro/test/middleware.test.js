@@ -251,7 +251,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 
 	it('should correctly call the middleware function for 404', async () => {
 		const request = new Request('http://example.com/funky-url');
-		const routeData = app.match(request, { matchNotFound: true });
+		const routeData = app.match(request);
 		const response = await app.render(request, routeData);
 		const text = await response.text();
 		expect(text.includes('Error')).to.be.true;
@@ -260,7 +260,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 
 	it('should render 500.astro when the middleware throws an error', async () => {
 		const request = new Request('http://example.com/throw');
-		const routeData = app.match(request, { matchNotFound: true });
+		const routeData = app.match(request);
 
 		const response = await app.render(request, routeData);
 		expect(response).to.deep.include({ status: 500 });
