@@ -291,7 +291,9 @@ describe('[DEV] i18n routing', () => {
 						fallback: {
 							it: 'en',
 						},
-						routingStrategy: 'prefix-other-locales',
+						routing: {
+							prefixDefaultLocale: false,
+						},
 					},
 				},
 			});
@@ -661,7 +663,9 @@ describe('[SSG] i18n routing', () => {
 						fallback: {
 							it: 'en',
 						},
-						routingStrategy: 'prefix-always',
+						routing: {
+							prefixDefaultLocale: false,
+						},
 					},
 				},
 			});
