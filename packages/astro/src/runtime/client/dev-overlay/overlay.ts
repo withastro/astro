@@ -103,7 +103,7 @@ export class AstroDevOverlay extends HTMLElement {
 				display: flex;
 				justify-content: center;
 				align-items: center;
-				width: 42px;
+				width: 44px;
 				border: 0;
 				background: transparent;
 				color: white;
@@ -127,14 +127,14 @@ export class AstroDevOverlay extends HTMLElement {
 			#dev-bar .item:first-of-type {
 				border-top-left-radius: 9999px;
 				border-bottom-left-radius: 9999px;
-				width: 40px;
+				width: 42px;
 				padding-left: 4px;
 			}
 		
 			#dev-bar .item:last-of-type {
 				border-top-right-radius: 9999px;
 				border-bottom-right-radius: 9999px;
-				width: 40px;
+				width: 42px;
 				padding-right: 4px;
 			}
 			#dev-bar #bar-container .item.active {
@@ -182,18 +182,24 @@ export class AstroDevOverlay extends HTMLElement {
 		
 			#dev-bar .item .icon {
 				position: relative;
-				max-width: 18px;
-				max-height: 18px;
+				max-width: 20px;
+				max-height: 20px;
 				user-select: none;
 			}
 		
 			#dev-bar .item svg {
-				width: 18px;
-				height: 18px;
+				width: 20px;
+				height: 20px;
 				display: block;
 				margin: auto;
 			}
-		
+
+			@media (forced-colors: active) {
+				#dev-bar .item svg path[fill="#fff"] {
+					fill: black;
+				}
+			}
+
 			#dev-bar .item .notification {
 				display: none;
 				position: absolute;

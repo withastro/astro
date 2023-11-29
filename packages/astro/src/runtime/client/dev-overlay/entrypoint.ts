@@ -165,8 +165,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 					#dropdown .icon {
 						position: relative;
-						height: 18px;
-						width: 18px;
+						height: 20px;
+						width: 20px;
 						padding: 1px;
 						margin-right: 0.5em;
 					}
