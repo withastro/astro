@@ -3,10 +3,14 @@ type Fallback = 'none' | 'animate' | 'swap';
 
 export interface Props {
 	fallback?: Fallback;
+	/** @deprecated handleForms is enabled by default in Astro 4.0
+	 *
+	 * Set `data-astro-reload` on your form to opt-out of the default behavior.
+	 */
 	handleForms?: boolean;
 }
 
-const { fallback = 'animate', handleForms } = Astro.props;
+const { fallback = 'animate' } = Astro.props;
 ---
 
 <style is:global>
@@ -25,7 +29,6 @@ const { fallback = 'animate', handleForms } = Astro.props;
 </style>
 <meta name="astro-view-transitions-enabled" content="true" />
 <meta name="astro-view-transitions-fallback" content={fallback} />
-{handleForms ? <meta name="astro-view-transitions-forms" content="true" /> : ''}
 <script>
 	import type { Options } from 'astro:transitions/client';
 	import { supportsViewTransitions, navigate } from 'astro:transitions/client';
@@ -89,33 +92,31 @@ const { fallback = 'animate', handleForms } = Astro.props;
 			});
 		});
 
-		if (document.querySelector('[name="astro-view-transitions-forms"]')) {
-			document.addEventListener('submit', (ev) => {
-				let el = ev.target as HTMLElement;
-				if (el.tagName !== 'FORM' || isReloadEl(el)) {
-					return;
-				}
+		document.addEventListener('submit', (ev) => {
+			let el = ev.target as HTMLElement;
+			if (el.tagName !== 'FORM' || isReloadEl(el)) {
+				return;
+			}
 
-				const form = el as HTMLFormElement;
-				const submitter = ev.submitter;
-				const formData = new FormData(form);
-				// Use the form action, if defined, otherwise fallback to current path.
-				let action = submitter?.getAttribute('formaction') ?? form.action ?? location.pathname;
-				const method = submitter?.getAttribute('formmethod') ?? form.method;
+			const form = el as HTMLFormElement;
+			const submitter = ev.submitter;
+			const formData = new FormData(form);
+			// Use the form action, if defined, otherwise fallback to current path.
+			let action = submitter?.getAttribute('formaction') ?? form.action ?? location.pathname;
+			const method = submitter?.getAttribute('formmethod') ?? form.method;
 
-				const options: Options = { sourceElement: submitter ?? form };
-				if (method === 'get') {
-					const params = new URLSearchParams(formData as any);
-					const url = new URL(action);
-					url.search = params.toString();
-					action = url.toString();
-				} else {
-					options.formData = formData;
-				}
-				ev.preventDefault();
-				navigate(action, options);
-			});
-		}
+			const options: Options = { sourceElement: submitter ?? form };
+			if (method === 'get') {
+				const params = new URLSearchParams(formData as any);
+				const url = new URL(action);
+				url.search = params.toString();
+				action = url.toString();
+			} else {
+				options.formData = formData;
+			}
+			ev.preventDefault();
+			navigate(action, options);
+		});
 
 		// @ts-expect-error injected by vite-plugin-transitions for treeshaking
 		if (!__PREFETCH_DISABLED__) {
