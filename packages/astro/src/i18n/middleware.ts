@@ -81,8 +81,8 @@ export function createI18nMiddleware(
 					const fallbackLocale = fallback[urlLocale];
 					let newPathname: string;
 					// If a locale falls back to the default locale, we want to **remove** the locale because
-					// the default locale doesn't have a prefix
-					if (fallbackLocale === defaultLocale) {
+					// the default locale doesn't have a prefix, but _only_ if prefix-always is false
+					if (fallbackLocale === defaultLocale && i18n.routingStrategy !== 'prefix-always') {
 						newPathname = url.pathname.replace(`/${urlLocale}`, ``);
 					} else {
 						newPathname = url.pathname.replace(`/${urlLocale}`, `/${fallbackLocale}`);
