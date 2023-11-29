@@ -128,7 +128,9 @@ export function preferenceDefaultIntro(name: string) {
 }
 
 export function preferenceDefault(name: string, value: any) {
-	return `${yellow('◯')} ${name} has not been set. It defaults to ${bgYellow(black(` ${JSON.stringify(value)} `))}\n`;
+	return `${yellow('◯')} ${name} has not been set. It defaults to ${bgYellow(
+		black(` ${JSON.stringify(value)} `)
+	)}\n`;
 }
 
 export function preferenceDisabled(name: string) {
@@ -219,7 +221,10 @@ export function formatConfigErrorMessage(err: ZodError) {
 // a regex to match the first line of a stack trace
 const STACK_LINE_REGEXP = /^\s+at /g;
 const IRRELEVANT_STACK_REGEXP = /(node_modules|astro[\/\\]dist)/g;
-function formatErrorStackTrace(err: Error | ErrorWithMetadata, showFullStacktrace: boolean): string {
+function formatErrorStackTrace(
+	err: Error | ErrorWithMetadata,
+	showFullStacktrace: boolean
+): string {
 	const stackLines = (err.stack || '').split('\n').filter((line) => STACK_LINE_REGEXP.test(line));
 	// If full details are required, just return the entire stack trace.
 	if (showFullStacktrace) {
@@ -230,18 +235,23 @@ function formatErrorStackTrace(err: Error | ErrorWithMetadata, showFullStacktrac
 	if (irrelevantStackIndex <= 0) {
 		const errorId = (err as ErrorWithMetadata).id;
 		const errorLoc = (err as ErrorWithMetadata).loc;
-		if (errorId|| errorLoc?.file) {
-			const prettyLocation = `    at ${errorId?? errorLoc?.file}${
+		if (errorId || errorLoc?.file) {
+			const prettyLocation = `    at ${errorId ?? errorLoc?.file}${
 				errorLoc?.line && errorLoc.column ? `:${errorLoc.line}:${errorLoc.column}` : ''
 			}`;
-			return prettyLocation + '\n    [...] See full stack trace in the browser, or rerun with --verbose.';
+			return (
+				prettyLocation + '\n    [...] See full stack trace in the browser, or rerun with --verbose.'
+			);
 		} else {
 			return stackLines.join('\n');
 		}
 	}
 	// If the error occurred inside of a dependency, grab the entire stack.
 	// Otherwise, only grab the part of the stack that is relevant to the user's codebase.
-	return stackLines.splice(0, irrelevantStackIndex).join('\n') + '\n    [...] See full stack trace in the browser, or rerun with --verbose.';
+	return (
+		stackLines.splice(0, irrelevantStackIndex).join('\n') +
+		'\n    [...] See full stack trace in the browser, or rerun with --verbose.'
+	);
 }
 
 export function formatErrorMessage(err: ErrorWithMetadata, showFullStacktrace: boolean): string {
@@ -256,9 +266,7 @@ export function formatErrorMessage(err: ErrorWithMetadata, showFullStacktrace: b
 
 	if (err.hint) {
 		output.push(`  ${bold('Hint:')}`);
-		output.push(
-			yellow(padMultilineString(renderErrorMarkdown(err.hint, 'cli'), 4))
-		);
+		output.push(yellow(padMultilineString(renderErrorMarkdown(err.hint, 'cli'), 4)));
 	}
 
 	const docsLink = getDocsForError(err);
@@ -276,13 +284,14 @@ export function formatErrorMessage(err: ErrorWithMetadata, showFullStacktrace: b
 		output.push(`  ${bold('Caused by:')}`);
 		let causeMessage = '  ';
 		if (err.cause instanceof Error) {
-			causeMessage += err.cause.message + '\n' + formatErrorStackTrace(err.cause, showFullStacktrace);
+			causeMessage +=
+				err.cause.message + '\n' + formatErrorStackTrace(err.cause, showFullStacktrace);
 		} else {
-			causeMessage += (JSON.stringify(err.cause));
+			causeMessage += JSON.stringify(err.cause);
 		}
 		output.push(dim(causeMessage));
 	}
-	
+
 	return output.join('\n');
 }
 

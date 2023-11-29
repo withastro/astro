@@ -47,8 +47,8 @@ export function shouldRestartContainer(
 	// Otherwise, watch for any astro.config.* file changes in project root
 	else {
 		const normalizedChangedFile = vite.normalizePath(changedFile);
-		shouldRestart = configRE.test(normalizedChangedFile) || preferencesRE.test(normalizedChangedFile);
-
+		shouldRestart =
+			configRE.test(normalizedChangedFile) || preferencesRE.test(normalizedChangedFile);
 	}
 
 	if (!shouldRestart && settings.watchFiles.length > 0) {
@@ -74,7 +74,10 @@ export async function restartContainer(container: Container): Promise<Container 
 		const error = createSafeError(_err);
 		// Print all error messages except ZodErrors from AstroConfig as the pre-logged error is sufficient
 		if (!isAstroConfigZodError(_err)) {
-			logger.error('config', formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n');
+			logger.error(
+				'config',
+				formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n'
+			);
 		}
 		// Inform connected clients of the config error
 		container.viteServer.ws.send({
