@@ -979,7 +979,9 @@ describe('[SSR] i18n routing', () => {
 							fallback: {
 								it: 'en',
 							},
-							routingStrategy: 'prefix-always',
+							routing: {
+								prefixDefaultLocale: true,
+							},
 						},
 					},
 				});
