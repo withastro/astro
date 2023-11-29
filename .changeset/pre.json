@@ -26,7 +26,27 @@
     "@astrojs/internal-helpers": "0.2.1",
     "@astrojs/markdown-remark": "3.5.0",
     "@astrojs/telemetry": "3.0.4",
-    "@astrojs/underscore-redirects": "0.3.3"
+    "@astrojs/underscore-redirects": "0.3.3",
+    "@astrojs/upgrade": "0.0.1"
   },
-  "changesets": []
+  "changesets": [
+    "angry-swans-fry",
+    "beige-jokes-report",
+    "brown-jars-lick",
+    "calm-baboons-watch",
+    "clever-beds-notice",
+    "giant-snails-perform",
+    "khaki-fans-sell",
+    "light-ties-poke",
+    "modern-candles-sip",
+    "plenty-candles-help",
+    "rude-hairs-whisper",
+    "shiny-trees-sip",
+    "short-deers-whisper",
+    "slow-hornets-try",
+    "sour-games-burn",
+    "tasty-dryers-bathe",
+    "wicked-sloths-develop",
+    "wild-apricots-rescue"
+  ]
 }

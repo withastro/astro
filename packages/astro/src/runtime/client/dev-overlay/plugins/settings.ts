@@ -46,9 +46,11 @@ export default {
 
 		function createSettingsWindow() {
 			const window = createWindowWithTransition(
-				'Settings',
-				'gear',
 				`<style>
+					header {
+						display: flex;
+					}
+
 					h2, h3 {
 						margin-top: 0;
 					}
@@ -70,7 +72,29 @@ export default {
 						font-size: 15px;
 						line-height: 1.5rem;
 					}
+
+					h1 {
+						display: flex;
+						align-items: center;
+						gap: 8px;
+						font-weight: 600;
+						color: #fff;
+						margin: 0;
+						font-size: 22px;
+					}
+
+					astro-dev-overlay-icon {
+						width: 1em;
+   					height: 1em;
+    				display: block;
+					}
 				</style>
+				<header>
+					<h1><astro-dev-overlay-icon icon="gear"></astro-dev-overlay-icon> Settings</h1>
+				</header>
+
+				<hr />
+
 				<h2>General</h2>
 				`,
 				settingsRows.flatMap((setting) => [

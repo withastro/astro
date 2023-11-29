@@ -35,8 +35,10 @@ export class AstroDevOverlay extends HTMLElement {
 	async connectedCallback() {
 		if (!this.hasBeenInitialized) {
 			this.shadowRoot.innerHTML = `
-    <style>
+			<style>	
 			:host {
+				/* Important! Reset all inherited styles to initial */
+				all: initial;
 				z-index: 999999;
 				view-transition-name: astro-dev-overlay;
 				display: contents;
@@ -44,7 +46,7 @@ export class AstroDevOverlay extends HTMLElement {
 
 			::view-transition-old(astro-dev-overlay),
 			::view-transition-new(astro-dev-overlay) {
-  			animation: none;
+				animation: none;
 			}
 
 			#dev-overlay {
@@ -73,7 +75,7 @@ export class AstroDevOverlay extends HTMLElement {
 				visibility: hidden;
 			}
 
-      #dev-bar {
+			#dev-bar {
 				height: 56px;
 				overflow: hidden;
 				pointer-events: auto;
@@ -81,6 +83,12 @@ export class AstroDevOverlay extends HTMLElement {
 				border: 1px solid #343841;
 				border-radius: 9999px;
 				box-shadow: 0px 0px 0px 0px rgba(19, 21, 26, 0.30), 0px 1px 2px 0px rgba(19, 21, 26, 0.29), 0px 4px 4px 0px rgba(19, 21, 26, 0.26), 0px 10px 6px 0px rgba(19, 21, 26, 0.15), 0px 17px 7px 0px rgba(19, 21, 26, 0.04), 0px 26px 7px 0px rgba(19, 21, 26, 0.01);
+			}
+
+			@media (forced-colors: active) {
+				#dev-bar {
+					background: white;
+				}
 			}
 
 			#dev-bar .item {
@@ -132,6 +140,7 @@ export class AstroDevOverlay extends HTMLElement {
 				pointer-events: none;
 			}
 
+
 			#dev-bar .item-tooltip::after{
 				content: '';
 				position: absolute;
@@ -145,6 +154,12 @@ export class AstroDevOverlay extends HTMLElement {
 			#dev-bar .item:hover .item-tooltip, #dev-bar .item:not(.active):focus-visible .item-tooltip {
 				transition: opacity 0.2s ease-in-out 200ms;
 				opacity: 1;
+			}
+
+			@media (forced-colors: active) {
+				#dev-bar .item:hover .item-tooltip, #dev-bar .item:not(.active):focus-visible .item-tooltip {
+					background: white;
+				}
 			}
 
 			#dev-bar #bar-container .item.active .notification {
@@ -163,6 +178,12 @@ export class AstroDevOverlay extends HTMLElement {
 				height: 24px;
 				display: block;
 				margin: auto;
+			}
+
+			@media (forced-colors: active) {
+				#dev-bar .item svg path[fill="#fff"] {
+					fill: black;
+				}
 			}
 
 			#dev-bar .item .notification {
@@ -203,7 +224,7 @@ export class AstroDevOverlay extends HTMLElement {
 				transition: opacity 0.2s ease-in-out;
 				pointer-events: auto;
 				border: 0;
-				color: white;
+				color: #13151A;
 				font-family: system-ui, sans-serif;
 				font-size: 1rem;
 				line-height: 1.2;
@@ -234,7 +255,7 @@ export class AstroDevOverlay extends HTMLElement {
 				white-space: nowrap;
 				border-width: 0;
 			}
-    </style>
+		</style>
 
 		<div id="dev-overlay">
 			<div id="dev-bar">

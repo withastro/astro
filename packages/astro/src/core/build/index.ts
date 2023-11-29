@@ -161,7 +161,7 @@ class AstroBuilder {
 		this.logger.info('build', `output: ${blue('"' + this.settings.config.output + '"')}`);
 		this.logger.info('build', `directory: ${blue(fileURLToPath(this.settings.config.outDir))}`);
 		if (this.settings.adapter) {
-		  this.logger.info('build', `adapter: ${green(this.settings.adapter.name)}`);
+			this.logger.info('build', `adapter: ${green(this.settings.adapter.name)}`);
 		}
 		this.logger.info('build', 'Collecting build info...');
 		this.timer.loadStart = performance.now();
@@ -251,32 +251,6 @@ class AstroBuilder {
 		if (config.outDir.toString() === config.root.toString()) {
 			throw new Error(
 				`the outDir cannot be the root folder. Please build to a folder such as dist.`
-			);
-		}
-
-		// TODO: Remove in Astro 4.0
-		if (config.build.split === true) {
-			if (config.output === 'static') {
-				this.logger.warn(
-					'config',
-					'The option `build.split` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
-				);
-			}
-			this.logger.warn(
-				'deprecated',
-				'The option `build.split` is deprecated. Use the adapter options.'
-			);
-		}
-		if (config.build.excludeMiddleware === true) {
-			if (config.output === 'static') {
-				this.logger.warn(
-					'config',
-					'The option `build.excludeMiddleware` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
-				);
-			}
-			this.logger.warn(
-				'deprecated',
-				'The option `build.excludeMiddleware` is deprecated. Use the adapter options.'
 			);
 		}
 	}

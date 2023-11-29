@@ -2,34 +2,10 @@ import { bold } from 'kleur/colors';
 import type { APIContext, EndpointHandler, Params } from '../../@types/astro.js';
 import type { Logger } from '../../core/logger/core.js';
 
-function getHandlerFromModule(mod: EndpointHandler, method: string, logger: Logger) {
-	const lowerCaseMethod = method.toLowerCase();
-
-	// TODO: remove in Astro 4.0
-	if (mod[lowerCaseMethod]) {
-		logger.warn(
-			null,
-			`Lower case endpoint names are deprecated and will not be supported in Astro 4.0. Rename the endpoint ${lowerCaseMethod} to ${method}.`
-		);
-	}
+function getHandlerFromModule(mod: EndpointHandler, method: string) {
 	// If there was an exact match on `method`, return that function.
 	if (mod[method]) {
 		return mod[method];
-	}
-
-	// TODO: remove in Astro 4.0
-	if (mod[lowerCaseMethod]) {
-		return mod[lowerCaseMethod];
-	}
-	// TODO: remove in Astro 4.0
-	// Handle `del` instead of `delete`, since `delete` is a reserved word in JS.
-	if (method === 'delete' && mod['del']) {
-		return mod['del'];
-	}
-	// TODO: remove in Astro 4.0
-	// If a single `all` handler was used, return that function.
-	if (mod['all']) {
-		return mod['all'];
 	}
 	if (mod['ALL']) {
 		return mod['ALL'];
@@ -48,9 +24,8 @@ export async function renderEndpoint(
 	const { request, url } = context;
 
 	const chosenMethod = request.method?.toUpperCase();
-	const handler = getHandlerFromModule(mod, chosenMethod, logger);
-	// TODO: remove the 'get' check in Astro 4.0
-	if (!ssr && ssr === false && chosenMethod && chosenMethod !== 'GET' && chosenMethod !== 'get') {
+	const handler = getHandlerFromModule(mod, chosenMethod);
+	if (!ssr && ssr === false && chosenMethod && chosenMethod !== 'GET') {
 		logger.warn(
 			null,
 			`${url.pathname} ${bold(

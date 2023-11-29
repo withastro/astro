@@ -43,7 +43,6 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			base: restart.container.settings.config.base,
 		})
 	);
-	
 
 	const currentVersion = process.env.PACKAGE_VERSION ?? '0.0.0';
 	if (currentVersion.includes('-')) {

@@ -59,7 +59,7 @@
     "cheerio": "1.0.0-rc.12",
     "lit": "^2.8.0",
     "mocha": "^10.2.0",
-    "sass": "^1.66.1"
+    "sass": "^1.69.5"
   },
   "peerDependencies": {
     "@webcomponents/template-shadowroot": "^0.2.1",

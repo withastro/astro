@@ -2,12 +2,15 @@ import type http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type {
 	ComponentInstance,
+	DevOverlayMetadata,
 	ManifestData,
-	MiddlewareEndpointHandler,
+	MiddlewareHandler,
 	RouteData,
 	SSRElement,
 	SSRManifest,
 } from '../@types/astro.js';
+import { getInfoOutput } from '../cli/info/index.js';
+import { ASTRO_VERSION } from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { sequence } from '../core/middleware/index.js';
 import { req } from '../core/messages.js';
@@ -215,6 +218,7 @@ export async function handleRoute({
 				segments: [],
 				type: 'fallback',
 				route: '',
+				fallbackRoutes: [],
 			};
 			renderContext = await createRenderContext({
 				request,
@@ -222,6 +226,9 @@ export async function handleRoute({
 				env,
 				mod,
 				route,
+				locales: manifest.i18n?.locales,
+				routingStrategy: manifest.i18n?.routingStrategy,
+				defaultLocale: manifest.i18n?.defaultLocale,
 			});
 		} else {
 			return handle404Response(origin, incomingRequest, incomingResponse);
@@ -278,11 +285,13 @@ export async function handleRoute({
 			route: options.route,
 			mod,
 			env,
-			locales: i18n ? i18n.locales : undefined,
+			locales: i18n?.locales,
+			routingStrategy: i18n?.routingStrategy,
+			defaultLocale: i18n?.defaultLocale,
 		});
 	}
 
-	const onRequest = middleware?.onRequest as MiddlewareEndpointHandler | undefined;
+	const onRequest = middleware?.onRequest as MiddlewareHandler | undefined;
 	if (config.experimental.i18n) {
 		const i18Middleware = createI18nMiddleware(
 			config.experimental.i18n,
@@ -384,12 +393,18 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 				children: '',
 			});
 
+			const additionalMetadata: DevOverlayMetadata['__astro_dev_overlay__'] = {
+				root: fileURLToPath(settings.config.root),
+				version: ASTRO_VERSION,
+				debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),
+			};
+
+			settings.config;
+
 			// Additional data for the dev overlay
 			scripts.add({
 				props: {},
-				children: `window.__astro_dev_overlay__ = {root: ${JSON.stringify(
-					fileURLToPath(settings.config.root)
-				)}}`,
+				children: `window.__astro_dev_overlay__ = ${JSON.stringify(additionalMetadata)}`,
 			});
 		}
 	}

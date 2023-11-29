@@ -8,7 +8,6 @@ export const rssSchema = z.object({
 		.refine((value) => !isNaN(value.getTime())),
 	description: z.string().optional(),
 	customData: z.string().optional(),
-	draft: z.boolean().optional(),
 	categories: z.array(z.string()).optional(),
 	author: z.string().optional(),
 	commentsUrl: z.string().optional(),

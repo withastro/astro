@@ -142,15 +142,15 @@ export class BuildPipeline extends Pipeline {
 	retrieveRoutesToGenerate(): Map<PageBuildData, string> {
 		const pages = new Map<PageBuildData, string>();
 
-		for (const [entryPoint, filePath] of this.#internals.entrySpecifierToBundleMap) {
+		for (const [entrypoint, filePath] of this.#internals.entrySpecifierToBundleMap) {
 			// virtual pages can be emitted with different prefixes:
 			// - the classic way are pages emitted with prefix ASTRO_PAGE_RESOLVED_MODULE_ID -> plugin-pages
 			// - pages emitted using `build.split`, in this case pages are emitted with prefix RESOLVED_SPLIT_MODULE_ID
 			if (
-				entryPoint.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
-				entryPoint.includes(RESOLVED_SPLIT_MODULE_ID)
+				entrypoint.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
+				entrypoint.includes(RESOLVED_SPLIT_MODULE_ID)
 			) {
-				const [, pageName] = entryPoint.split(':');
+				const [, pageName] = entrypoint.split(':');
 				const pageData = this.#internals.pagesByComponent.get(
 					`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`
 				);
@@ -164,17 +164,15 @@ export class BuildPipeline extends Pipeline {
 			}
 		}
 
-		for (const [path, pageDataList] of this.#internals.pagesByComponents.entries()) {
-			for (const pageData of pageDataList) {
-				if (routeIsRedirect(pageData.route)) {
-					pages.set(pageData, path);
-				} else if (
-					routeIsFallback(pageData.route) &&
-					(i18nHasFallback(this.getConfig()) ||
-						(routeIsFallback(pageData.route) && pageData.route.route === '/'))
-				) {
-					pages.set(pageData, path);
-				}
+		for (const [path, pageData] of this.#internals.pagesByComponent.entries()) {
+			if (routeIsRedirect(pageData.route)) {
+				pages.set(pageData, path);
+			} else if (
+				routeIsFallback(pageData.route) &&
+				(i18nHasFallback(this.getConfig()) ||
+					(routeIsFallback(pageData.route) && pageData.route.route === '/'))
+			) {
+				pages.set(pageData, path);
 			}
 		}
 

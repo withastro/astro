@@ -184,13 +184,13 @@ function comparator(a: Item, b: Item) {
 
 function injectedRouteToItem(
 	{ config, cwd }: { config: AstroConfig; cwd?: string },
-	{ pattern, entryPoint }: InjectedRoute
+	{ pattern, entrypoint }: InjectedRoute
 ): Item {
 	let resolved: string;
 	try {
-		resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
+		resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
 	} catch (e) {
-		resolved = fileURLToPath(new URL(entryPoint, config.root));
+		resolved = fileURLToPath(new URL(entrypoint, config.root));
 	}
 
 	const ext = path.extname(pattern);
@@ -347,6 +347,7 @@ export function createRouteManifest(
 					generate,
 					pathname: pathname || undefined,
 					prerender,
+					fallbackRoutes: [],
 				});
 			}
 		});
@@ -368,12 +369,12 @@ export function createRouteManifest(
 			comparator(injectedRouteToItem({ config, cwd }, a), injectedRouteToItem({ config, cwd }, b))
 		)
 		.reverse() // prepend to the routes array from lowest to highest priority
-		.forEach(({ pattern: name, entryPoint, prerender: prerenderInjected }) => {
+		.forEach(({ pattern: name, entrypoint, prerender: prerenderInjected }) => {
 			let resolved: string;
 			try {
-				resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
+				resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
 			} catch (e) {
-				resolved = fileURLToPath(new URL(entryPoint, config.root));
+				resolved = fileURLToPath(new URL(entrypoint, config.root));
 			}
 			const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
 
@@ -422,6 +423,7 @@ export function createRouteManifest(
 				generate,
 				pathname: pathname || void 0,
 				prerender: prerenderInjected ?? prerender,
+				fallbackRoutes: [],
 			});
 		});
 
@@ -461,6 +463,7 @@ export function createRouteManifest(
 			prerender: false,
 			redirect: to,
 			redirectRoute: routes.find((r) => r.route === to),
+			fallbackRoutes: [],
 		};
 
 		const lastSegmentIsDynamic = (r: RouteData) => !!r.segments.at(-1)?.at(-1)?.dynamic;
@@ -549,6 +552,7 @@ export function createRouteManifest(
 							validateSegment(s);
 							return getParts(s, route);
 						});
+
 					routes.push({
 						...indexDefaultRoute,
 						pathname,
@@ -622,14 +626,21 @@ export function createRouteManifest(
 									validateSegment(s);
 									return getParts(s, route);
 								});
-							routes.push({
-								...fallbackToRoute,
-								pathname,
-								route,
-								segments,
-								pattern: getPattern(segments, config, config.trailingSlash),
-								type: 'fallback',
-							});
+
+							const index = routes.findIndex((r) => r === fallbackToRoute);
+							if (index) {
+								const fallbackRoute: RouteData = {
+									...fallbackToRoute,
+									pathname,
+									route,
+									segments,
+									pattern: getPattern(segments, config, config.trailingSlash),
+									type: 'fallback',
+									fallbackRoutes: [],
+								};
+								const routeData = routes[index];
+								routeData.fallbackRoutes.push(fallbackRoute);
+							}
 						}
 					}
 				}
