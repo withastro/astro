@@ -35,6 +35,11 @@ const responseSentSymbol = Symbol.for('astro.responseSent');
 
 const STATUS_CODES = new Set([404, 500]);
 
+export interface RenderOptions {
+	routeData?: RouteData;
+	locals?: object;
+}
+
 export interface RenderErrorOptions {
 	routeData?: RouteData;
 	response?: Response;
@@ -59,6 +64,7 @@ export class App {
 	#baseWithoutTrailingSlash: string;
 	#pipeline: SSRRoutePipeline;
 	#adapterLogger: AstroIntegrationLogger;
+	#renderOptionsDeprecationWarningShown = false;
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
@@ -141,7 +147,32 @@ export class App {
 		return routeData;
 	}
 
-	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {
+	async render(request: Request, options?: RenderOptions): Promise<Response>
+	/**
+	 * @deprecated Instead of passing `RouteData` and locals individually, pass an object with `routeData` and `locals` properties.
+	 * See https://github.com/withastro/astro/pull/9199 for more information.
+	 */
+	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response>
+	async render(request: Request, routeDataOrOptions?: RouteData | RenderOptions, maybeLocals?: object): Promise<Response> {
+		let routeData: RouteData | undefined;
+		let locals: object | undefined;
+		
+		if (routeDataOrOptions && ('routeData' in routeDataOrOptions || 'locals' in routeDataOrOptions)) {
+			if ('routeData' in routeDataOrOptions) {
+				routeData = routeDataOrOptions.routeData;
+			}
+			if ('locals' in routeDataOrOptions) {
+				locals = routeDataOrOptions.locals;
+			}
+		}
+		else {
+			routeData = routeDataOrOptions as RouteData | undefined;
+			locals = maybeLocals;
+			if (routeDataOrOptions || locals) {
+				this.#logRenderOptionsDeprecationWarning();
+			}
+		}
+
 		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
 		if (request.url !== collapseDuplicateSlashes(request.url)) {
 			request = new Request(collapseDuplicateSlashes(request.url), request);
@@ -152,7 +183,6 @@ export class App {
 		if (!routeData) {
 			return this.#renderError(request, { status: 404 });
 		}
-
 		Reflect.set(request, clientLocalsSymbol, locals ?? {});
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
@@ -208,6 +238,12 @@ export class App {
 			return response;
 		}
 		return response;
+	}
+
+	#logRenderOptionsDeprecationWarning() {
+		if (this.#renderOptionsDeprecationWarningShown) return;
+		this.#logger.warn("deprecated", `The adapter ${this.#manifest.adapterName} is using a deprecated signature of the 'app.render()' method. From Astro 4.0, locals and routeData are provided as properties on an optional object to this method. Using the old signature will cause an error in Astro 5.0. See https://github.com/withastro/astro/pull/9199 for more information.`)
+		this.#renderOptionsDeprecationWarningShown = true;
 	}
 
 	setCookieHeaders(response: Response) {
