@@ -1477,7 +1477,7 @@ export interface AstroUserConfig {
 			 * @version 3.5.0
 			 * @description
 			 *
-			 * A list of all locales supported by the website (e.g. `['en', 'es', 'pt-br']`). This list should also include the `defaultLocale`. This is a required field.
+			 * A list of all locales supported by the website, include the `defaultLocale`. This is a required field.
 			 *
 			 * No particular language format or syntax is enforced, but your folder structure must match exactly the locales in the list.
 			 */

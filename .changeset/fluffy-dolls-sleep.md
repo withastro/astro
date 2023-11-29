@@ -4,7 +4,7 @@
 
 Adds a new way to configure the `i18n.locales` array.
 
-Developers can now assign a custom path that can span multiple language codes:
+Developers can now assign a custom URL path prefix that can span multiple language codes:
 
 ```js
 // astro.config.mjs
@@ -13,7 +13,9 @@ export default defineConfig({
       i18n: {
           defaultLocale: "english",
           locales: [
-            { path: "english", codes: ["en", "en-US"]}
+            "de",
+            { path: "english", codes: ["en", "en-US"]},
+            "fr",
           ],
           routingStrategy: "prefix-always"
       }
@@ -21,4 +23,4 @@ export default defineConfig({
 })
 ```
 
-With this setting, the URL of the default locale will be start with `/english`. When computing `Astro.preferredLocale`, Astro will use the `codes`.
+With the above configuration, the URL prefix of the default locale will be `/english/`. When computing `Astro.preferredLocale`, Astro will use the `codes`.
