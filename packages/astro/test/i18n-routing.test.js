@@ -961,6 +961,35 @@ describe('[SSR] i18n routing', () => {
 			let response = await app.render(request);
 			expect(response.status).to.equal(404);
 		});
+
+		describe('with routing strategy [prefix-always]', () => {
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing-fallback/',
+					output: 'server',
+					adapter: testAdapter(),
+					experimental: {
+						i18n: {
+							defaultLocale: 'en',
+							locales: ['en', 'pt', 'it'],
+							fallback: {
+								it: 'en',
+							},
+							routingStrategy: 'prefix-always',
+						},
+					},
+				});
+				await fixture.build();
+				app = await fixture.loadTestAdapterApp();
+			});
+
+			it('should redirect to the english locale, which is the first fallback', async () => {
+				let request = new Request('http://example.com/new-site/it/start');
+				let response = await app.render(request);
+				expect(response.status).to.equal(302);
+				expect(response.headers.get('location')).to.equal('/new-site/en/start');
+			});
+		});
 	});
 
 	describe('preferred locale', () => {
