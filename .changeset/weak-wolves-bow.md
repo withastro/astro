@@ -2,4 +2,4 @@
 'astro': major
 ---
 
-Removes depreacted `app.match()` option, `matchNotFound`
+Removes deprecated `app.match()` option, `matchNotFound`
