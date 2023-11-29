@@ -1,7 +1,12 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/astro-envs/' });
+const test = testFactory({
+	root: './fixtures/astro-envs/',
+	devOverlay: {
+		enabled: false,
+	}
+});
 
 let devServer;
 

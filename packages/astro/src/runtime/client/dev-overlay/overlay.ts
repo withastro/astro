@@ -1,5 +1,8 @@
 /* eslint-disable no-console */
-import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@types/astro.js';
+import type {
+	DevOverlayMetadata,
+	DevOverlayPlugin as DevOverlayPluginDefinition,
+} from '../../../@types/astro.js';
 import { settings } from './settings.js';
 import { getIconElement, isDefinedIcon, type Icon } from './ui-library/icons.js';
 
@@ -23,6 +26,7 @@ export class AstroDevOverlay extends HTMLElement {
 	plugins: DevOverlayPlugin[] = [];
 	HOVER_DELAY = 750;
 	hasBeenInitialized = false;
+	// TODO: This should be dynamic based on the screen size or at least configurable, erika - 2023-11-29
 	customPluginsToShow = 3;
 
 	constructor() {
@@ -257,7 +261,12 @@ export class AstroDevOverlay extends HTMLElement {
 			}
 		</style>
 
-		<div id="dev-overlay">
+		<div id="dev-overlay"${
+			((window as DevOverlayMetadata)?.__astro_dev_overlay__?.defaultState ?? 'minimized') ===
+			'minimized'
+				? ' data-hidden '
+				: ''
+		}>
 			<div id="dev-bar">
 				<div id="bar-container">
 					${this.plugins
