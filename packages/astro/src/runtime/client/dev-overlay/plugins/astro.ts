@@ -324,13 +324,13 @@ export default {
 					(window as DevOverlayMetadata).__astro_dev_overlay__.version
 				}</astro-dev-overlay-badge>
 				</section>
-				<astro-dev-overlay-button id="copy-debug-button">Get debug info <astro-dev-overlay-icon icon="copy" /></astro-dev-overlay-button>
+				<astro-dev-overlay-button id="copy-debug-button">Copy debug info <astro-dev-overlay-icon icon="copy" /></astro-dev-overlay-button>
 			</header>
 			<hr />
 
 			<div id="main-container">
 				<div>
-					<header><h2>Top integrations</h2><a href="https://astro.build/integrations/">View all</a></header>
+					<header><h2>Top integrations</h2><a href="https://astro.build/integrations/" target="_blank">View all</a></header>
 						<div id="integration-list-wrapper">
 							<section id="integration-list">
 								<div class="integration-skeleton" style="--i:0;"></div>
@@ -345,7 +345,7 @@ export default {
 				${links
 					.map(
 						(link) =>
-							`<a href="${link.link}"><astro-dev-overlay-icon ${
+							`<a href="${link.link}" target="_blank"><astro-dev-overlay-icon ${
 								isDefinedIcon(link.icon) ? `icon="${link.icon}">` : `>${link.icon}`
 							}</astro-dev-overlay-icon>${link.name}</a>`
 					)
@@ -362,7 +362,11 @@ export default {
 				navigator.clipboard.writeText(
 					'```\n' + (window as DevOverlayMetadata).__astro_dev_overlay__.debugInfo + '\n```'
 				);
-				copyDebugButton.textContent = 'Copied to clipboard';
+				copyDebugButton.textContent = 'Copied to clipboard!';
+
+				setTimeout(() => {
+					resetDebugButton();
+				}, 3500);
 			});
 
 			canvas.append(windowComponent);
@@ -372,7 +376,7 @@ export default {
 			const copyDebugButton = canvas.querySelector<HTMLButtonElement>('#copy-debug-button');
 			if (!copyDebugButton) return;
 
-			copyDebugButton.innerHTML = 'Get debug info <astro-dev-overlay-icon icon="copy" />';
+			copyDebugButton.innerHTML = 'Copy debug info <astro-dev-overlay-icon icon="copy" />';
 		}
 
 		function refreshIntegrationList() {
