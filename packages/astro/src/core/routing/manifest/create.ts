@@ -499,7 +499,11 @@ export function createRouteManifest(
 		const routesByLocale = new Map<string, RouteData[]>();
 		// This type is here only as a helper. We copy the routes and make them unique, so we don't "process" the same route twice.
 		// The assumption is that a route in the file system belongs to only one locale.
-		const setRoutes = new Set(routes);
+		const setRoutes = new Set(
+			routes.filter((route) => {
+				return route.type === 'page';
+			})
+		);
 
 		// First loop
 		// We loop over the locales minus the default locale and add only the routes that contain `/<locale>`.
@@ -507,9 +511,8 @@ export function createRouteManifest(
 			.filter((loc) => {
 				if (typeof loc === 'string') {
 					return loc !== i18n.defaultLocale;
-				} else {
-					return loc.path !== i18n.defaultLocale;
 				}
+				return loc.path !== i18n.defaultLocale;
 			})
 			.map((locale) => {
 				if (typeof locale === 'string') {
@@ -535,9 +538,6 @@ export function createRouteManifest(
 
 		// we loop over the remaining routes and add them to the default locale
 		for (const route of setRoutes) {
-			if (route.type !== 'page') {
-				continue;
-			}
 			const currentRoutes = routesByLocale.get(i18n.defaultLocale);
 			if (currentRoutes) {
 				currentRoutes.push(route);
@@ -589,10 +589,6 @@ export function createRouteManifest(
 			if (fallback.length > 0) {
 				for (const [fallbackFromLocale, fallbackToLocale] of fallback) {
 					let fallbackToRoutes;
-					// const fallbackFromLocale = getPathByLocale(_fallbackFromLocale, i18n.locales);
-					// if (!fallbackFromLocale) {
-					// 	continue;
-					// }
 					if (fallbackToLocale === i18n.defaultLocale) {
 						fallbackToRoutes = routesByLocale.get(i18n.defaultLocale);
 					} else {
