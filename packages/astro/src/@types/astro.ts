@@ -1481,7 +1481,7 @@ export interface AstroUserConfig {
 			 *
 			 * No particular language format or syntax is enforced, but your folder structure must match exactly the locales in the list.
 			 */
-			locales: (string | { path: string; codes: string[] })[];
+			locales: Locales;
 
 			/**
 			 * @docs

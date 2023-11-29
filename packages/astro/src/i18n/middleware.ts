@@ -10,7 +10,7 @@ import { getPathByLocale, normalizeTheLocale } from './index.js';
 
 const routeDataSymbol = Symbol.for('astro.routeData');
 
-// Checks if the pathname doesn't have any locale, exception for the defaultLocale, which is ignored on purpose.
+// Checks if the pathname has any locale, exception for the defaultLocale, which is ignored on purpose.
 function pathnameHasLocale(pathname: string, locales: Locales): boolean {
 	const segments = pathname.split('/');
 	for (const segment of segments) {

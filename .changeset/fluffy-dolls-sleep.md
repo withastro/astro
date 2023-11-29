@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Add a new way to configure the `i18n.locales` array.
+Adds a new way to configure the `i18n.locales` array.
 
 Developers can now assign a custom path that can span multiple language codes:
 
@@ -13,7 +13,7 @@ export default defineConfig({
       i18n: {
           defaultLocale: "english",
           locales: [
-            { path: "ensligh", codes: ["en", "en-US"]}
+            { path: "english", codes: ["en", "en-US"]}
           ],
           routingStrategy: "prefix-always"
       }
