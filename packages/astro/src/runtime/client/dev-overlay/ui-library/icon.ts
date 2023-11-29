@@ -46,8 +46,6 @@ export class DevOverlayIcon extends HTMLElement {
 						fill: black;
 					}
 				}
-			</style>\n${this.getIconHTML(
-			this._icon
-		)}`;
+			</style>\n${this.getIconHTML(this._icon)}`;
 	}
 }

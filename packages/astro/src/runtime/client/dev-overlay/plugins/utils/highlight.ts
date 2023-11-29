@@ -18,9 +18,9 @@ export function createHighlight(rect: DOMRect, icon?: Icon) {
 export function getHighlightZIndex(el: Element) {
 	let highestZIndex = 0;
 	let current: Element | ParentNode | null = el;
-	while(current instanceof Element) {
+	while (current instanceof Element) {
 		let zIndex = Number(getComputedStyle(current).zIndex);
-		if(!Number.isNaN(zIndex) && zIndex > highestZIndex) {
+		if (!Number.isNaN(zIndex) && zIndex > highestZIndex) {
 			highestZIndex = zIndex;
 		}
 		current = current.parentNode;

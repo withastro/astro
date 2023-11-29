@@ -147,25 +147,31 @@ export class App {
 		return routeData;
 	}
 
-	async render(request: Request, options?: RenderOptions): Promise<Response>
+	async render(request: Request, options?: RenderOptions): Promise<Response>;
 	/**
 	 * @deprecated Instead of passing `RouteData` and locals individually, pass an object with `routeData` and `locals` properties.
 	 * See https://github.com/withastro/astro/pull/9199 for more information.
 	 */
-	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response>
-	async render(request: Request, routeDataOrOptions?: RouteData | RenderOptions, maybeLocals?: object): Promise<Response> {
+	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response>;
+	async render(
+		request: Request,
+		routeDataOrOptions?: RouteData | RenderOptions,
+		maybeLocals?: object
+	): Promise<Response> {
 		let routeData: RouteData | undefined;
 		let locals: object | undefined;
-		
-		if (routeDataOrOptions && ('routeData' in routeDataOrOptions || 'locals' in routeDataOrOptions)) {
+
+		if (
+			routeDataOrOptions &&
+			('routeData' in routeDataOrOptions || 'locals' in routeDataOrOptions)
+		) {
 			if ('routeData' in routeDataOrOptions) {
 				routeData = routeDataOrOptions.routeData;
 			}
 			if ('locals' in routeDataOrOptions) {
 				locals = routeDataOrOptions.locals;
 			}
-		}
-		else {
+		} else {
 			routeData = routeDataOrOptions as RouteData | undefined;
 			locals = maybeLocals;
 			if (routeDataOrOptions || locals) {
@@ -242,7 +248,10 @@ export class App {
 
 	#logRenderOptionsDeprecationWarning() {
 		if (this.#renderOptionsDeprecationWarningShown) return;
-		this.#logger.warn("deprecated", `The adapter ${this.#manifest.adapterName} is using a deprecated signature of the 'app.render()' method. From Astro 4.0, locals and routeData are provided as properties on an optional object to this method. Using the old signature will cause an error in Astro 5.0. See https://github.com/withastro/astro/pull/9199 for more information.`)
+		this.#logger.warn(
+			'deprecated',
+			`The adapter ${this.#manifest.adapterName} is using a deprecated signature of the 'app.render()' method. From Astro 4.0, locals and routeData are provided as properties on an optional object to this method. Using the old signature will cause an error in Astro 5.0. See https://github.com/withastro/astro/pull/9199 for more information.`
+		);
 		this.#renderOptionsDeprecationWarningShown = true;
 	}
 

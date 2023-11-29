@@ -384,7 +384,10 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			children: '',
 		});
 
-		if (settings.config.devOverlay.enabled && await settings.preferences.get('devOverlay.enabled')) {
+		if (
+			settings.config.devOverlay.enabled &&
+			(await settings.preferences.get('devOverlay.enabled'))
+		) {
 			scripts.add({
 				props: {
 					type: 'module',

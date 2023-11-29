@@ -5,7 +5,7 @@ const test = testFactory({
 	root: './fixtures/astro-envs/',
 	devOverlay: {
 		enabled: false,
-	}
+	},
 });
 
 let devServer;

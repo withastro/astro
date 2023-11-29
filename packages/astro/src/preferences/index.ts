@@ -9,14 +9,18 @@ import dget from 'dlv';
 import { DEFAULT_PREFERENCES, type Preferences } from './defaults.js';
 import { PreferenceStore } from './store.js';
 
-type DotKeys<T> = T extends object ? { [K in keyof T]:
-  `${Exclude<K, symbol>}${DotKeys<T[K]> extends never ? "" : `.${DotKeys<T[K]>}`}`
-}[keyof T] : never
+type DotKeys<T> = T extends object
+	? {
+			[K in keyof T]: `${Exclude<K, symbol>}${DotKeys<T[K]> extends never
+				? ''
+				: `.${DotKeys<T[K]>}`}`;
+	  }[keyof T]
+	: never;
 
 export type GetDotKey<
-  T extends Record<string | number, any>,
-  K extends string
-> = K extends `${infer U}.${infer Rest}` ? GetDotKey<T[U], Rest> : T[K]
+	T extends Record<string | number, any>,
+	K extends string,
+> = K extends `${infer U}.${infer Rest}` ? GetDotKey<T[U], Rest> : T[K];
 
 export interface PreferenceOptions {
 	location?: 'global' | 'project';
@@ -25,8 +29,15 @@ export interface PreferenceOptions {
 export type PreferenceKey = DotKeys<Preferences>;
 
 export interface AstroPreferences {
-	get<Key extends PreferenceKey>(key: Key, opts?: PreferenceOptions): Promise<GetDotKey<Preferences, Key>>;
-	set<Key extends PreferenceKey>(key: Key, value: GetDotKey<Preferences, Key>, opts?: PreferenceOptions): Promise<void>;
+	get<Key extends PreferenceKey>(
+		key: Key,
+		opts?: PreferenceOptions
+	): Promise<GetDotKey<Preferences, Key>>;
+	set<Key extends PreferenceKey>(
+		key: Key,
+		value: GetDotKey<Preferences, Key>,
+		opts?: PreferenceOptions
+	): Promise<void>;
 	getAll(opts?: PreferenceOptions): Promise<Record<string, any>>;
 }
 
@@ -36,8 +47,10 @@ export function isValidKey(key: string): key is PreferenceKey {
 export function coerce(key: string, value: unknown) {
 	const type = typeof dget(DEFAULT_PREFERENCES, key);
 	switch (type) {
-		case 'string': return value;
-		case 'number': return Number(value);
+		case 'string':
+			return value;
+		case 'number':
+			return Number(value);
 		case 'boolean': {
 			if (value === 'true' || value === 1) return true;
 			if (value === 'false' || value === 0) return false;
@@ -60,12 +73,12 @@ export default function createPreferences(config: AstroConfig): AstroPreferences
 			stores[location].set(key, value);
 		},
 		async getAll({ location } = {}) {
-			if (!location) return Object.assign({}, stores['global'].getAll(), stores['project'].getAll());
+			if (!location)
+				return Object.assign({}, stores['global'].getAll(), stores['project'].getAll());
 			return stores[location].getAll();
 		},
-	}
+	};
 }
-
 
 // Adapted from https://github.com/sindresorhus/env-paths
 export function getGlobalPreferenceDir() {

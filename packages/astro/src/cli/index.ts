@@ -119,7 +119,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 		case 'preferences': {
 			const { preferences } = await import('./preferences/index.js');
-			const [subcommand, key, value] = flags._.slice(3).map(v => v.toString());
+			const [subcommand, key, value] = flags._.slice(3).map((v) => v.toString());
 			const exitCode = await preferences(subcommand, key, value, { flags });
 			return process.exit(exitCode);
 		}

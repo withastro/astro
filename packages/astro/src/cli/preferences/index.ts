@@ -21,14 +21,27 @@ interface PreferencesOptions {
 	flags: yargs.Arguments;
 }
 
-const PREFERENCES_SUBCOMMANDS = ['get', 'set', 'enable', 'disable', 'delete', 'reset', 'list'] as const;
-export type Subcommand = typeof PREFERENCES_SUBCOMMANDS[number];
+const PREFERENCES_SUBCOMMANDS = [
+	'get',
+	'set',
+	'enable',
+	'disable',
+	'delete',
+	'reset',
+	'list',
+] as const;
+export type Subcommand = (typeof PREFERENCES_SUBCOMMANDS)[number];
 
 function isValidSubcommand(subcommand: string): subcommand is Subcommand {
 	return PREFERENCES_SUBCOMMANDS.includes(subcommand as Subcommand);
 }
 
-export async function preferences(subcommand: string, key: string, value: string | undefined, { flags }: PreferencesOptions): Promise<number> {
+export async function preferences(
+	subcommand: string,
+	key: string,
+	value: string | undefined,
+	{ flags }: PreferencesOptions
+): Promise<number> {
 	if (!isValidSubcommand(subcommand) || flags?.help || flags?.h) {
 		msg.printHelp({
 			commandName: 'astro preferences',
@@ -44,7 +57,10 @@ export async function preferences(subcommand: string, key: string, value: string
 					['disable [key]', 'Set a boolean preference to false'],
 				],
 				Flags: [
-					['--global', 'Scope command to global preferences (all Astro projects) rather than the current project'],
+					[
+						'--global',
+						'Scope command to global preferences (all Astro projects) rather than the current project',
+					],
 				],
 			},
 		});
@@ -57,8 +73,8 @@ export async function preferences(subcommand: string, key: string, value: string
 	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 	const opts: SubcommandOptions = {
 		location: flags.global ? 'global' : undefined,
-		json: flags.json
-	}
+		json: flags.json,
+	};
 
 	if (subcommand === 'list') {
 		return listPreferences(settings, opts);
@@ -75,17 +91,27 @@ export async function preferences(subcommand: string, key: string, value: string
 
 	if (subcommand === 'set' && value === undefined) {
 		const type = typeof dlv(DEFAULT_PREFERENCES, key);
-		console.error(msg.formatErrorMessage(collectErrorMetadata(new Error(`Please provide a ${type} value for "${key}"`)), true));
+		console.error(
+			msg.formatErrorMessage(
+				collectErrorMetadata(new Error(`Please provide a ${type} value for "${key}"`)),
+				true
+			)
+		);
 		return 1;
 	}
 
 	switch (subcommand) {
-		case 'get': return getPreference(settings, key, opts);
-		case 'set': return setPreference(settings, key, value, opts);
+		case 'get':
+			return getPreference(settings, key, opts);
+		case 'set':
+			return setPreference(settings, key, value, opts);
 		case 'reset':
-		case 'delete': return resetPreference(settings, key, opts);
-		case 'enable': return enablePreference(settings, key, opts);
-		case 'disable': return disablePreference(settings, key, opts);
+		case 'delete':
+			return resetPreference(settings, key, opts);
+		case 'enable':
+			return enablePreference(settings, key, opts);
+		case 'disable':
+			return disablePreference(settings, key, opts);
 	}
 }
 
@@ -95,7 +121,11 @@ interface SubcommandOptions {
 }
 
 // Default `location` to "project" to avoid reading default preferencesa
-async function getPreference(settings: AstroSettings, key: PreferenceKey, { location = 'project' }: SubcommandOptions) {
+async function getPreference(
+	settings: AstroSettings,
+	key: PreferenceKey,
+	{ location = 'project' }: SubcommandOptions
+) {
 	try {
 		let value = await settings.preferences.get(key, { location });
 		if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -117,15 +147,20 @@ async function getPreference(settings: AstroSettings, key: PreferenceKey, { loca
 	return 1;
 }
 
-async function setPreference(settings: AstroSettings, key: PreferenceKey, value: unknown, { location }: SubcommandOptions) {
+async function setPreference(
+	settings: AstroSettings,
+	key: PreferenceKey,
+	value: unknown,
+	{ location }: SubcommandOptions
+) {
 	try {
 		const defaultType = typeof dlv(DEFAULT_PREFERENCES, key);
 		if (typeof coerce(key, value) !== defaultType) {
-			throw new Error(`${key} expects a "${defaultType}" value!`)
+			throw new Error(`${key} expects a "${defaultType}" value!`);
 		}
 
 		await settings.preferences.set(key, coerce(key, value), { location });
-		console.log(msg.preferenceSet(key, value))
+		console.log(msg.preferenceSet(key, value));
 		return 0;
 	} catch (e) {
 		if (e instanceof Error) {
@@ -136,33 +171,44 @@ async function setPreference(settings: AstroSettings, key: PreferenceKey, value:
 	}
 }
 
-async function enablePreference(settings: AstroSettings, key: PreferenceKey, { location }: SubcommandOptions) {
+async function enablePreference(
+	settings: AstroSettings,
+	key: PreferenceKey,
+	{ location }: SubcommandOptions
+) {
 	try {
 		await settings.preferences.set(key, true, { location });
-		console.log(msg.preferenceEnabled(key.replace('.enabled', '')))
+		console.log(msg.preferenceEnabled(key.replace('.enabled', '')));
 		return 0;
 	} catch {}
 	return 1;
 }
 
-async function disablePreference(settings: AstroSettings, key: PreferenceKey, { location }: SubcommandOptions) {
+async function disablePreference(
+	settings: AstroSettings,
+	key: PreferenceKey,
+	{ location }: SubcommandOptions
+) {
 	try {
 		await settings.preferences.set(key, false, { location });
-		console.log(msg.preferenceDisabled(key.replace('.enabled', '')))
+		console.log(msg.preferenceDisabled(key.replace('.enabled', '')));
 		return 0;
 	} catch {}
 	return 1;
 }
 
-async function resetPreference(settings: AstroSettings, key: PreferenceKey, { location }: SubcommandOptions) {
+async function resetPreference(
+	settings: AstroSettings,
+	key: PreferenceKey,
+	{ location }: SubcommandOptions
+) {
 	try {
 		await settings.preferences.set(key, undefined as any, { location });
-		console.log(msg.preferenceReset(key))
+		console.log(msg.preferenceReset(key));
 		return 0;
 	} catch {}
 	return 1;
 }
-
 
 async function listPreferences(settings: AstroSettings, { location, json }: SubcommandOptions) {
 	const store = await settings.preferences.getAll({ location });
@@ -195,18 +241,34 @@ const chars = {
 	topRight: '╮',
 	bottomLeft: '╰',
 	bottomRight: '╯',
-}
+};
 
-function formatTable(object: Record<string, string | number | boolean>, columnLabels: [string, string]) {
+function formatTable(
+	object: Record<string, string | number | boolean>,
+	columnLabels: [string, string]
+) {
 	const [colA, colB] = columnLabels;
 	const colALength = [colA, ...Object.keys(object)].reduce(longest, 0) + 3;
 	const colBLength = [colB, ...Object.values(object)].reduce(longest, 0) + 3;
-	function formatRow(i: number, a: string, b: string | number | boolean, style: (value: string | number | boolean) => string = (v) => v.toString()): string {
-		return `${chars.v} ${style(a)} ${space(colALength - a.length - 2)} ${chars.v} ${style(b)} ${space(colBLength - b.toString().length - 3)} ${chars.v}`
+	function formatRow(
+		i: number,
+		a: string,
+		b: string | number | boolean,
+		style: (value: string | number | boolean) => string = (v) => v.toString()
+	): string {
+		return `${chars.v} ${style(a)} ${space(colALength - a.length - 2)} ${chars.v} ${style(
+			b
+		)} ${space(colBLength - b.toString().length - 3)} ${chars.v}`;
 	}
-	const top = `${chars.topLeft}${chars.h.repeat(colALength + 1)}${chars.hBottom}${chars.h.repeat(colBLength)}${chars.topRight}`
-	const bottom = `${chars.bottomLeft}${chars.h.repeat(colALength + 1)}${chars.hTop}${chars.h.repeat(colBLength)}${chars.bottomRight}`
-	const divider = `${chars.vRightThick}${chars.hThick.repeat(colALength + 1)}${chars.hThickCross}${chars.hThick.repeat(colBLength)}${chars.vLeftThick}`
+	const top = `${chars.topLeft}${chars.h.repeat(colALength + 1)}${chars.hBottom}${chars.h.repeat(
+		colBLength
+	)}${chars.topRight}`;
+	const bottom = `${chars.bottomLeft}${chars.h.repeat(colALength + 1)}${chars.hTop}${chars.h.repeat(
+		colBLength
+	)}${chars.bottomRight}`;
+	const divider = `${chars.vRightThick}${chars.hThick.repeat(colALength + 1)}${
+		chars.hThickCross
+	}${chars.hThick.repeat(colBLength)}${chars.vLeftThick}`;
 	const rows: string[] = [top, formatRow(-1, colA, colB, bold), divider];
 	let i = 0;
 	for (const [key, value] of Object.entries(object)) {

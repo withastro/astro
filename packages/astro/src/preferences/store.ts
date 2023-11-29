@@ -6,7 +6,10 @@ import path from 'node:path';
 export class PreferenceStore {
 	private file: string;
 
-	constructor(private dir: string, filename = 'settings.json') {
+	constructor(
+		private dir: string,
+		filename = 'settings.json'
+	) {
 		this.file = path.join(this.dir, filename);
 	}
 
