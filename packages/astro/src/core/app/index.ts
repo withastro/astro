@@ -35,9 +35,6 @@ const responseSentSymbol = Symbol.for('astro.responseSent');
 
 const STATUS_CODES = new Set([404, 500]);
 
-export interface MatchOptions {
-	matchNotFound?: boolean | undefined;
-}
 export interface RenderErrorOptions {
 	routeData?: RouteData;
 	response?: Response;
@@ -133,7 +130,7 @@ export class App {
 		return pathname;
 	}
 
-	match(request: Request, _opts: MatchOptions = {}): RouteData | undefined {
+	match(request: Request): RouteData | undefined {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
 		if (this.#manifest.assets.has(url.pathname)) return undefined;

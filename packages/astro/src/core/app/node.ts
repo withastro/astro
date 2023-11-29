@@ -5,7 +5,7 @@ import * as fs from 'node:fs';
 import { IncomingMessage } from 'node:http';
 import { TLSSocket } from 'node:tls';
 import { deserializeManifest } from './common.js';
-import { App, type MatchOptions } from './index.js';
+import { App } from './index.js';
 export { apply as applyPolyfills } from '../polyfill.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
@@ -108,13 +108,13 @@ class NodeIncomingMessage extends IncomingMessage {
 }
 
 export class NodeApp extends App {
-	match(req: NodeIncomingMessage | Request, opts: MatchOptions = {}) {
+	match(req: NodeIncomingMessage | Request) {
 		if (!(req instanceof Request)) {
 			req = createRequestFromNodeRequest(req, {
 				emptyBody: true,
 			});
 		}
-		return super.match(req, opts);
+		return super.match(req);
 	}
 	render(req: NodeIncomingMessage | Request, routeData?: RouteData, locals?: object) {
 		if (!(req instanceof Request)) {
