@@ -75,7 +75,7 @@ export async function preferences(subcommand: string, key: string, value: string
 
 	if (subcommand === 'set' && value === undefined) {
 		const type = typeof dlv(DEFAULT_PREFERENCES, key);
-		console.error(msg.formatErrorMessage(collectErrorMetadata(new Error(`Please provide a ${type} value for "${key}"`))));
+		console.error(msg.formatErrorMessage(collectErrorMetadata(new Error(`Please provide a ${type} value for "${key}"`)), true));
 		return 1;
 	}
 
@@ -129,7 +129,7 @@ async function setPreference(settings: AstroSettings, key: PreferenceKey, value:
 		return 0;
 	} catch (e) {
 		if (e instanceof Error) {
-			console.error(msg.formatErrorMessage(collectErrorMetadata(e)));
+			console.error(msg.formatErrorMessage(collectErrorMetadata(e), true));
 			return 1;
 		}
 		throw e;
