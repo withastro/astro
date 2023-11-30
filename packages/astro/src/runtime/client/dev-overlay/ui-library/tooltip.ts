@@ -35,7 +35,7 @@ export class DevOverlayTooltip extends HTMLElement {
 				z-index: 9999999;
 				max-width: 45ch;
 				width: fit-content;
-				min-width: 27ch;
+				min-width: 30ch;
 				box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.30), 0px 1px 2px 0px rgba(0, 0, 0, 0.29), 0px 4px 4px 0px rgba(0, 0, 0, 0.26), 0px 10px 6px 0px rgba(0, 0, 0, 0.15), 0px 17px 7px 0px rgba(0, 0, 0, 0.04), 0px 26px 7px 0px rgba(0, 0, 0, 0.01);
 			}
 

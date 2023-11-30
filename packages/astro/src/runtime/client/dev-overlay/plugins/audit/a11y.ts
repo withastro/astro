@@ -1,22 +1,29 @@
 import type { AuditRuleWithSelector } from './index.js';
 
-// `a:not([href])`
-// `area:not([alt])`
-// `iframe:not([title])`
-// `img:not([alt])`
-// `object:not([title])`
-// const a11y_required_attributes = {
-// 	a: ['href'],
-// 	area: ['alt', 'aria-label', 'aria-labelledby'],
-// 	// html-has-lang
-// 	html: ['lang'],
-// 	// iframe-has-title
-// 	iframe: ['title'],
-// 	img: ['alt'],
-// 	object: ['title', 'aria-label', 'aria-labelledby']
-// };
+const a11y_required_attributes = {
+	a: ['href'],
+	area: ['alt', 'aria-label', 'aria-labelledby'],
+	// html-has-lang
+	html: ['lang'],
+	// iframe-has-title
+	iframe: ['title'],
+	img: ['alt'],
+	object: ['title', 'aria-label', 'aria-labelledby'],
+};
 
-const interactiveElements = ['button', 'details', 'embed', 'iframe', 'label', 'select', 'textarea']
+const interactiveElements = ['button', 'details', 'embed', 'iframe', 'label', 'select', 'textarea'];
+
+const a11y_required_content = [
+	// anchor-has-content
+	'a',
+	// heading-has-content
+	'h1',
+	'h2',
+	'h3',
+	'h4',
+	'h5',
+	'h6',
+];
 
 export const a11y: AuditRuleWithSelector[] = [
 	{
@@ -74,7 +81,7 @@ export const a11y: AuditRuleWithSelector[] = [
 		message:
 			'Screen readers already announce `img` elements as an image. There is no need to use words such as _image_, _photo_, and/or _picture_.',
 		selector: 'img[alt]:not([aria-hidden])',
-		match: (img: HTMLImageElement) => /\b(image|picture|photo)\b/i.test(img.alt)
+		match: (img: HTMLImageElement) => /\b(image|picture|photo)\b/i.test(img.alt),
 	},
 	{
 		code: 'a11y-incorrect-aria-attribute-type',
@@ -86,14 +93,12 @@ export const a11y: AuditRuleWithSelector[] = [
 		code: 'a11y-invalid-attribute',
 		title: 'Enforce that attributes important for accessibility have a valid value',
 		message: "For example, `href` should not be empty, `'#'`, or `javascript:`.",
-		selector: "a[href='']",
-	},
-	{
-		code: 'a11y-interactive-supports-focus',
-		title:
-			'Enforce that elements with an interactive role and interactive handlers (mouse or key press) must be focusable or tabbable',
-		message: 'For example',
-		selector: "div[role='button'][keypress]",
+		selector: 'a[href]',
+		match(element) {
+			const href = element.getAttribute('href');
+			if (!href) return true;
+			if (href === '' || href === '#' || /^\W*javascript:/i.test(href)) return true;
+		},
 	},
 	{
 		code: 'a11y-label-has-associated-control',
@@ -106,32 +111,57 @@ export const a11y: AuditRuleWithSelector[] = [
 		title: 'Providing captions for media is essential for deaf users to follow along',
 		message:
 			'Captions should be a transcription or translation of the dialogue, sound effects, relevant musical cues, and other relevant audio information. Not only is this important for accessibility, but can also be useful for all users in the case that the media is unavailable (similar to `alt` text on an image when an image is unable to load). The captions should contain all important and relevant information to understand the corresponding media. This may mean that the captions are not a 1:1 mapping of the dialogue in the media content. However, captions are not necessary for video components with the `muted` attribute.',
-		selector: "video track[kind='captions']",
+		selector: 'video:not([muted])',
 	},
 	{
 		code: 'a11y-misplaced-role',
 		title: 'Certain reserved DOM elements do not support ARIA roles, states and properties',
 		message:
 			'This is often because they are not visible, for example `meta`, `html`, `script`, `style`. This rule enforces that these DOM elements do not contain the `role` props.',
-		selector: "meta[role='tooltip']",
+		selector: ':is(meta, html, script, style)[role]',
 	},
 	{
 		code: 'a11y-misplaced-scope',
 		title: 'The scope attribute should only be used on `<th>` elements',
 		message: 'The scope attribute should only be used on `<th>` elements.',
-		selector: "div[scope='row']",
+		selector: ':not(th)[scope]',
 	},
 	{
 		code: 'a11y-missing-attribute',
-		title: 'Enforce that attributes required for accessibility are present on an element',
-		message: 'The HTML element should include a "lang" attribute',
-		selector: 'a:not([href])',
+		title: 'Required attributes are missing from this element',
+		message: (element) => {
+			const requiredAttributes =
+				a11y_required_attributes[element.localName as keyof typeof a11y_required_attributes];
+
+			const missingAttributes = requiredAttributes.filter(
+				(attribute) => !element.hasAttribute(attribute)
+			);
+
+			return `${element.localName} element is missing required attributes: ${missingAttributes.join(
+				', '
+			)} `;
+		},
+		selector: Object.keys(a11y_required_attributes).join(','),
+		match(element) {
+			const requiredAttributes =
+				a11y_required_attributes[element.localName as keyof typeof a11y_required_attributes];
+
+			if (!requiredAttributes) return true;
+			for (const attribute of requiredAttributes) {
+				if (!element.hasAttribute(attribute)) return true;
+			}
+
+			return false;
+		},
 	},
 	{
 		code: 'a11y-missing-content',
 		title: 'Enforce that heading elements (`h1`, `h2`, etc.) and anchors have content',
 		message: 'and that the content is accessible to screen readers',
-		selector: "a[href='/foo']",
+		selector: [...a11y_required_content, 'a'].join(','),
+		match(element) {
+			if (!element.textContent) return true;
+		},
 	},
 	{
 		code: 'a11y-mouse-events-have-key-events',
@@ -175,7 +205,7 @@ export const a11y: AuditRuleWithSelector[] = [
 		title:
 			'Tab key navigation should be limited to elements on the page that can be interacted with',
 		message: 'This is to avoid confusing experiences for keyboard users.',
-		selector: "[tabindex]",
+		selector: '[tabindex]',
 	},
 	{
 		code: 'a11y-no-static-element-interactions',
@@ -221,7 +251,7 @@ export const a11y: AuditRuleWithSelector[] = [
 		title: 'Elements with ARIA roles must use a valid, non-abstract ARIA role',
 		message:
 			'A reference to role definitions can be found at [WAI-ARIA](https://www.w3.org/TR/wai-aria/#role_definitions) site.',
-		selector: "div[role='toooltip']",
+		selector: "div[role='tooltip']",
 	},
 ];
 
@@ -230,28 +260,8 @@ const ariaAttributes = new Set(
 		' '
 	)
 );
-const a11y_required_attributes = {
-	a: ['href'],
-	area: ['alt', 'aria-label', 'aria-labelledby'],
-	// html-has-lang
-	html: ['lang'],
-	// iframe-has-title
-	iframe: ['title'],
-	img: ['alt'],
-	object: ['title', 'aria-label', 'aria-labelledby'],
-};
+
 const a11y_distracting_elements = ['blink', 'marquee'];
-const a11y_required_content = [
-	// anchor-has-content
-	'a',
-	// heading-has-content
-	'h1',
-	'h2',
-	'h3',
-	'h4',
-	'h5',
-	'h6',
-];
 const a11y_labelable = [
 	'button',
 	'input',

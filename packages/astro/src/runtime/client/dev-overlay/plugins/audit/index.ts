@@ -187,10 +187,10 @@ export default {
 			tooltip.sections = [
 				{
 					icon: 'warning',
-					title,
+					title: escapeHtml(title),
 				},
 				{
-					content: message,
+					content: escapeHtml(message),
 				},
 			];
 
@@ -215,6 +215,15 @@ export default {
 			}
 
 			return tooltip;
+		}
+
+		function escapeHtml(unsafe) {
+			return unsafe
+				.replace(/&/g, '&amp;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;')
+				.replace(/"/g, '&quot;')
+				.replace(/'/g, '&#039;');
 		}
 	},
 } satisfies DevOverlayPlugin;
