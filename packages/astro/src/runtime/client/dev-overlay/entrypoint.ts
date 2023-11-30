@@ -2,7 +2,6 @@ import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@t
 import { type AstroDevOverlay, type DevOverlayPlugin } from './overlay.js';
 
 import { settings } from './settings.js';
-import type { Icon } from './ui-library/icons.js';
 
 let overlay: AstroDevOverlay;
 
@@ -13,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		{ default: astroAuditPlugin },
 		{ default: astroXrayPlugin },
 		{ default: astroSettingsPlugin },
-		{ AstroDevOverlay, DevOverlayCanvas },
+		{ AstroDevOverlay, DevOverlayCanvas, getPluginIcon },
 		{
 			DevOverlayCard,
 			DevOverlayHighlight,
@@ -188,8 +187,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 					button.setAttribute('data-plugin-id', plugin.id);
 
 					const iconContainer = document.createElement('div');
-					const iconElement = getPluginIcon(plugin.icon);
-					iconContainer.append(iconElement);
+					const iconElement = document.createElement('template');
+					iconElement.innerHTML = getPluginIcon(plugin.icon);
+					iconContainer.append(iconElement.content.cloneNode(true));
 
 					const notification = document.createElement('div');
 					notification.classList.add('notification');
@@ -224,14 +224,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 				}
 
 				canvas.append(dropdown);
-
-				function getPluginIcon(icon: Icon) {
-					if (isDefinedIcon(icon)) {
-						return getIconElement(icon)!;
-					}
-
-					return icon;
-				}
 			}
 		},
 	} satisfies DevOverlayPluginDefinition;
