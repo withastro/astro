@@ -1,3 +1,4 @@
+import type * as vite from 'vite';
 import type { AstroPluginOptions } from '../@types/astro.js';
 
 const VIRTUAL_MODULE_ID = 'astro:dev-overlay';

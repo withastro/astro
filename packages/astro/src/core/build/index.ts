@@ -2,6 +2,7 @@ import { blue, bold, green } from 'kleur/colors';
 import fs from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
+import type * as vite from 'vite';
 import type {
 	AstroConfig,
 	AstroInlineConfig,

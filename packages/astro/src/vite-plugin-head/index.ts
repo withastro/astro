@@ -1,4 +1,5 @@
 import type { ModuleInfo } from 'rollup';
+import type * as vite from 'vite';
 import type { SSRComponentMetadata, SSRResult } from '../@types/astro.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
