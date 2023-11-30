@@ -1,7 +1,5 @@
 /* eslint-disable no-console */
-import type {
-	DevOverlayPlugin as DevOverlayPluginDefinition,
-} from '../../../@types/astro.js';
+import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@types/astro.js';
 import { settings } from './settings.js';
 import { getIconElement, isDefinedIcon, type Icon } from './ui-library/icons.js';
 
