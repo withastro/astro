@@ -8,7 +8,7 @@ overrides:
   organize-imports-cli>ts-morph: ^19.0.0
   tsconfig-resolver>type-fest: 3.0.0
 
-packageExtensionsChecksum: 01871422d489547c532184effb134b35
+packageExtensionsChecksum: 2d0a8c56e33c7d11bb9ef3c997d67c33
 
 importers:
 
@@ -13581,6 +13581,13 @@ packages:
       quill-delta: ^5
       rxjs: '7'
       tslib: '2'
+    peerDependenciesMeta:
+      quill-delta:
+        optional: true
+      rxjs:
+        optional: true
+      tslib:
+        optional: true
     dependencies:
       arg: 5.0.2
       hyperdyperid: 1.2.0
@@ -14334,6 +14341,9 @@ packages:
     engines: {node: '>= 4.0.0'}
     peerDependencies:
       tslib: '2'
+    peerDependenciesMeta:
+      tslib:
+        optional: true
     dependencies:
       json-joy: 9.9.1
       thingies: 1.12.0
@@ -16683,6 +16693,9 @@ packages:
     engines: {node: '>=16'}
     peerDependencies:
       shiki: 0.x
+    peerDependenciesMeta:
+      shiki:
+        optional: true
     dependencies:
       hash-obj: 4.0.0
       hast-util-to-string: 2.0.0
@@ -18049,6 +18062,9 @@ packages:
     engines: {node: '>=10.18'}
     peerDependencies:
       tslib: ^2
+    peerDependenciesMeta:
+      tslib:
+        optional: true
     dev: true
 
   /throttles@1.0.1:
@@ -18878,6 +18894,9 @@ packages:
     resolution: {integrity: sha512-EUfcuqk1NomuacwiuL3mvCfinkm4XN0AHN8BXG737eDlhC0jnp5jxdCxakV+juP/YhhjV5tq/c/bLcm3waWv4Q==}
     peerDependencies:
       vue: '>=3.2.13'
+    peerDependenciesMeta:
+      vue:
+        optional: true
     dependencies:
       svgo: 3.0.4
     dev: false
