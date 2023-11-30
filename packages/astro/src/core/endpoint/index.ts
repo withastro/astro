@@ -1,11 +1,7 @@
-import type { APIContext, EndpointHandler, MiddlewareHandler, Params } from '../../@types/astro.js';
-import mime from 'mime';
 import type {
 	APIContext,
 	EndpointHandler,
-	EndpointOutput,
 	Locales,
-	MiddlewareEndpointHandler,
 	MiddlewareHandler,
 	Params,
 } from '../../@types/astro.js';

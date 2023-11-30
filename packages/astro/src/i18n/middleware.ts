@@ -1,10 +1,5 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
-import type {
-	Locales,
-	MiddlewareEndpointHandler,
-	RouteData,
-	SSRManifest,
-} from '../@types/astro.js';
+import type { Locales, MiddlewareHandler, RouteData, SSRManifest } from '../@types/astro.js';
 import type { PipelineHookFunction } from '../core/pipeline.js';
 import { getPathByLocale, normalizeTheLocale } from './index.js';
 
