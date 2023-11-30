@@ -1,16 +1,13 @@
-import * as colors from 'kleur/colors';
-import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
+import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
 import fs from 'node:fs';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import PQueue from 'p-queue';
 import type { OutputAsset, OutputChunk } from 'rollup';
-import type { BufferEncoding } from 'vfile';
 import type {
 	AstroSettings,
 	ComponentInstance,
 	GetStaticPathsItem,
-	MiddlewareEndpointHandler,
 	RouteData,
 	RouteType,
 	SSRError,
@@ -113,16 +110,6 @@ async function getEntryForFallbackRoute(
 	return RedirectSinglePageBuiltModule;
 }
 
-function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
-	return (
-		// Drafts are disabled
-		!settings.config.markdown.drafts &&
-		// This is a draft post
-		'frontmatter' in pageModule &&
-		(pageModule as any).frontmatter?.draft === true
-	);
-}
-
 // Gives back a facadeId that is relative to the root.
 // ie, src/pages/index.astro instead of /Users/name..../src/pages/index.astro
 export function rootRelativeFacadeId(facadeId: string, settings: AstroSettings): string {
@@ -149,7 +136,7 @@ export function chunkIsPage(
 }
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
-	const timer = performance.now();
+	const generatePagesTimer = performance.now();
 	const ssr = isServerLikeOutput(opts.settings.config);
 	let manifest: SSRManifest;
 	if (ssr) {
@@ -179,7 +166,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	}
 
 	const verb = ssr ? 'prerendering' : 'generating';
-	logger.info(null, `\n${bgGreen(black(` ${verb} static routes `))}`);
+	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
 	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
 	if (ssr) {
@@ -187,11 +174,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			if (pageData.route.prerender) {
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const ssrEntryPage = await import(ssrEntryURLPage.toString());
-				if (
-					// TODO: remove in Astro 4.0
-					opts.settings.config.build.split ||
-					opts.settings.adapter?.adapterFeatures?.functionPerRoute
-				) {
+				if (opts.settings.adapter?.adapterFeatures?.functionPerRoute) {
 					// forcing to use undefined, so we fail in an expected way if the module is not even there.
 					const ssrEntry = ssrEntryPage?.pageModule;
 					if (ssrEntry) {
@@ -223,12 +206,14 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			}
 		}
 	}
-
-	logger.info(null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
+	logger.info(
+		null,
+		green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`)
+	);
 
 	const staticImageList = getStaticImageList();
 	if (staticImageList.size) {
-		logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`);
+		logger.info('SKIP_FORMAT', `${bgGreen(black(` generating optimized images `))}`);
 
 		const totalCount = Array.from(staticImageList.values())
 			.map((x) => x.transforms.size)
@@ -244,7 +229,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 
 		await queue.onIdle();
 		const assetsTimeEnd = performance.now();
-		logger.info(null, dim(`Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
+		logger.info(null, green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
 
 		delete globalThis?.astroAsset?.addStaticImage;
 	}
@@ -283,15 +268,13 @@ async function generatePage(
 	);
 	if (config.experimental.i18n && i18nMiddleware) {
 		if (onRequest) {
-			pipeline.setMiddlewareFunction(
-				sequence(i18nMiddleware, onRequest as MiddlewareEndpointHandler)
-			);
+			pipeline.setMiddlewareFunction(sequence(i18nMiddleware, onRequest));
 		} else {
 			pipeline.setMiddlewareFunction(i18nMiddleware);
 		}
 		pipeline.onBeforeRenderRoute(i18nPipelineHook);
 	} else if (onRequest) {
-		pipeline.setMiddlewareFunction(onRequest as MiddlewareEndpointHandler);
+		pipeline.setMiddlewareFunction(onRequest);
 	}
 	if (!pageModulePromise) {
 		throw new Error(
@@ -299,16 +282,6 @@ async function generatePage(
 		);
 	}
 	const pageModule = await pageModulePromise();
-	if (shouldSkipDraft(pageModule, pipeline.getSettings())) {
-		logger.info(null, `${magenta('⚠️')}  Skipping draft ${pageData.route.component}`);
-		// TODO: Remove in Astro 4.0
-		logger.warn(
-			'astro',
-			`The drafts feature is deprecated. You should migrate to content collections instead. See https://docs.astro.build/en/guides/content-collections/#filtering-collection-queries for more information.`
-		);
-		return;
-	}
-
 	const generationOptions: Readonly<GeneratePathOptions> = {
 		pageData,
 		linkIds,
@@ -321,7 +294,7 @@ async function generatePage(
 		pageData.route.type === 'page' ||
 		pageData.route.type === 'redirect' ||
 		pageData.route.type === 'fallback'
-			? green('▶')
+			? blue('▶')
 			: magenta('λ');
 	if (isRelativePath(pageData.route.component)) {
 		logger.info(null, `${icon} ${pageData.route.route}`);
@@ -341,10 +314,10 @@ async function generatePage(
 		await generatePath(path, generationOptions, pipeline);
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(prevTimeEnd, timeEnd);
-		const timeIncrease = `(+${timeChange})`;
+		const timeIncrease = `(${timeChange})`;
 		const filePath = getOutputFilename(pipeline.getConfig(), path, pageData.route.type);
 		const lineIcon = i === paths.length - 1 ? '└─' : '├─';
-		logger.info(null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
+		logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
 		prevTimeEnd = timeEnd;
 	}
 }
@@ -383,14 +356,14 @@ async function getPathsForRoute(
 				logger,
 				ssr: isServerLikeOutput(opts.settings.config),
 			}).catch((err) => {
-				logger.debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
+				logger.debug('build', `├── ${bold(red('✗'))} ${route.component}`);
 				throw err;
 			});
 
 			const label = staticPaths.length === 1 ? 'page' : 'pages';
 			logger.debug(
 				'build',
-				`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(
+				`├── ${bold(green('✔'))} ${route.component} → ${magenta(
 					`[${staticPaths.length} ${label}]`
 				)}`
 			);
@@ -584,7 +557,6 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		});
 
 		let body: string | Uint8Array;
-		let encoding: BufferEncoding | undefined;
 
 		let response: Response;
 		try {
@@ -627,7 +599,6 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 			// If there's no body, do nothing
 			if (!response.body) return;
 			body = Buffer.from(await response.arrayBuffer());
-			encoding = (response.headers.get('X-Astro-Encoding') as BufferEncoding | null) ?? 'utf-8';
 		}
 
 		const outFolder = getOutFolder(pipeline.getConfig(), pathname, route.type);
@@ -635,7 +606,7 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 		route.distURL = outFile;
 
 		await fs.promises.mkdir(outFolder, { recursive: true });
-		await fs.promises.writeFile(outFile, body, encoding);
+		await fs.promises.writeFile(outFile, body);
 	}
 }
 

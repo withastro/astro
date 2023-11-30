@@ -33,8 +33,7 @@ async function getViteConfiguration(
 	const postcssOptions = postcssConfigResult?.options ?? {};
 	const postcssPlugins = postcssConfigResult?.plugins?.slice() ?? [];
 
-	// @ts-expect-error Tailwind plugin types are wrong
-	postcssPlugins.push(tailwindPlugin(tailwindConfigPath) as ResultPlugin);
+	postcssPlugins.push(tailwindPlugin(tailwindConfigPath));
 	postcssPlugins.push(autoprefixerPlugin());
 
 	return {

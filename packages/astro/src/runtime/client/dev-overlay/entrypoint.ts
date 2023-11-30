@@ -2,7 +2,6 @@ import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@t
 import { type AstroDevOverlay, type DevOverlayPlugin } from './overlay.js';
 
 import { settings } from './settings.js';
-import type { Icon } from './ui-library/icons.js';
 
 let overlay: AstroDevOverlay;
 
@@ -13,12 +12,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 		{ default: astroAuditPlugin },
 		{ default: astroXrayPlugin },
 		{ default: astroSettingsPlugin },
-		{ AstroDevOverlay, DevOverlayCanvas },
-		{ DevOverlayCard },
-		{ DevOverlayHighlight },
-		{ DevOverlayTooltip },
-		{ DevOverlayWindow },
-		{ DevOverlayToggle },
+		{ AstroDevOverlay, DevOverlayCanvas, getPluginIcon },
+		{
+			DevOverlayCard,
+			DevOverlayHighlight,
+			DevOverlayTooltip,
+			DevOverlayWindow,
+			DevOverlayToggle,
+			DevOverlayButton,
+			DevOverlayBadge,
+			DevOverlayIcon,
+		},
 		{ getIconElement, isDefinedIcon },
 	] = await Promise.all([
 		// @ts-expect-error
@@ -28,11 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		import('./plugins/xray.js'),
 		import('./plugins/settings.js'),
 		import('./overlay.js'),
-		import('./ui-library/card.js'),
-		import('./ui-library/highlight.js'),
-		import('./ui-library/tooltip.js'),
-		import('./ui-library/window.js'),
-		import('./ui-library/toggle.js'),
+		import('./ui-library/index.js'),
 		import('./ui-library/icons.js'),
 	]);
 
@@ -44,6 +44,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 	customElements.define('astro-dev-overlay-highlight', DevOverlayHighlight);
 	customElements.define('astro-dev-overlay-card', DevOverlayCard);
 	customElements.define('astro-dev-overlay-toggle', DevOverlayToggle);
+	customElements.define('astro-dev-overlay-button', DevOverlayButton);
+	customElements.define('astro-dev-overlay-badge', DevOverlayBadge);
+	customElements.define('astro-dev-overlay-icon', DevOverlayIcon);
 
 	overlay = document.createElement('astro-dev-overlay');
 
@@ -84,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				newState = evt.detail.state ?? true;
 			}
 
-			await overlay.togglePluginStatus(plugin, newState);
+			await overlay.setPluginStatus(plugin, newState);
 		});
 
 		return plugin;
@@ -109,9 +112,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 						border: 1px solid rgba(52, 56, 65, 1);
 						border-radius: 12px;
 						box-shadow: 0px 0px 0px 0px rgba(19, 21, 26, 0.30), 0px 1px 2px 0px rgba(19, 21, 26, 0.29), 0px 4px 4px 0px rgba(19, 21, 26, 0.26), 0px 10px 6px 0px rgba(19, 21, 26, 0.15), 0px 17px 7px 0px rgba(19, 21, 26, 0.04), 0px 26px 7px 0px rgba(19, 21, 26, 0.01);
-						width: 180px;
+						width: 192px;
 						padding: 8px;
 						z-index: 9999999999;
+						transform: translate(-50%, 0%);
+						position: fixed;
+						bottom: 72px;
+						left: 50%;
 					}
 
 					.notification {
@@ -135,20 +142,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 						background: transparent;
 						color: white;
 						font-family: system-ui, sans-serif;
-						font-size: 16px;
-						line-height: 1.2;
+						font-size: 14px;
 						white-space: nowrap;
 						text-decoration: none;
 						margin: 0;
 						display: flex;
-    				align-items: center;
+						align-items: center;
 						width: 100%;
 						padding: 8px;
 						border-radius: 8px;
 					}
 
 					#dropdown button:hover, #dropdown button:focus-visible {
-						background: rgba(27, 30, 36, 1);
+						background: #FFFFFF20;
 						cursor: pointer;
 					}
 
@@ -158,8 +164,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 					#dropdown .icon {
 						position: relative;
-						height: 24px;
-						width: 24px;
+						height: 20px;
+						width: 20px;
+						padding: 1px;
 						margin-right: 0.5em;
 					}
 
@@ -180,8 +187,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 					button.setAttribute('data-plugin-id', plugin.id);
 
 					const iconContainer = document.createElement('div');
-					const iconElement = getPluginIcon(plugin.icon);
-					iconContainer.append(iconElement);
+					const iconElement = document.createElement('template');
+					iconElement.innerHTML = getPluginIcon(plugin.icon);
+					iconContainer.append(iconElement.content.cloneNode(true));
 
 					const notification = document.createElement('div');
 					notification.classList.add('notification');
@@ -197,9 +205,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 					buttonContainer.append(button);
 
 					dropdown.append(buttonContainer);
-
-					eventTarget.addEventListener('plugin-toggled', positionDropdown);
-					window.addEventListener('resize', positionDropdown);
 
 					plugin.eventTarget.addEventListener('toggle-notification', (evt) => {
 						if (!(evt instanceof CustomEvent)) return;
@@ -219,29 +224,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 				}
 
 				canvas.append(dropdown);
-
-				function getPluginIcon(icon: Icon) {
-					if (isDefinedIcon(icon)) {
-						return getIconElement(icon)!;
-					}
-
-					return icon;
-				}
-
-				function positionDropdown() {
-					const moreButtonRect = overlay.shadowRoot
-						.querySelector('[data-plugin-id="astro:more"]')
-						?.getBoundingClientRect();
-					const dropdownRect = dropdown.getBoundingClientRect();
-
-					if (moreButtonRect && dropdownRect) {
-						dropdown.style.position = 'absolute';
-						dropdown.style.top = `${moreButtonRect.top - dropdownRect.height - 12}px`;
-						dropdown.style.left = `${
-							moreButtonRect.left + moreButtonRect.width - dropdownRect.width
-						}px`;
-					}
-				}
 			}
 		},
 	} satisfies DevOverlayPluginDefinition;

@@ -105,7 +105,6 @@ describe('Events', () => {
 				config: 'path/to/config.mjs',
 				experimentalSsr: true,
 				experimentalIntegrations: true,
-				drafts: true,
 			};
 			const [{ payload }] = events.eventCliSession(
 				{
@@ -122,7 +121,6 @@ describe('Events', () => {
 				'config',
 				'experimentalSsr',
 				'experimentalIntegrations',
-				'drafts',
 			]);
 		});
 	});

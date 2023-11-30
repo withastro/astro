@@ -133,7 +133,7 @@ describe('Astro feature map', function () {
 	it('should not support the feature when not provided', () => {
 		let result = validateSupportedFeatures(
 			'test',
-			undefined,
+			{},
 			{
 				output: 'hybrid',
 			},

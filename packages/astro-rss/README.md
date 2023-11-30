@@ -28,7 +28,7 @@ Start by [adding a `site` to your project's `astro.config` for link generation](
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
 
-export async function get(context) {
+export async function GET(context) {
   const posts = await getCollection('blog');
   return rss({
     title: 'Buzz’s Blog',
@@ -55,7 +55,7 @@ Read **[Astro's RSS docs][astro-rss]** for more on using content collections, an
 The `rss` default export offers a number of configuration options. Here's a quick reference:
 
 ```js
-export function get(context) {
+export function GET(context) {
   return rss({
     // `<title>` field in output xml
     title: 'Buzz’s Blog',
@@ -98,7 +98,7 @@ The base URL to use when generating RSS item links. We recommend using the [endp
 ```ts
 import rss from '@astrojs/rss';
 
-export const get = (context) =>
+export const GET = (context) =>
   rss({
     site: context.site,
     // ...
@@ -112,14 +112,6 @@ Type: `RSSFeedItem[] (required)`
 A list of formatted RSS feed items. See [Astro's RSS items documentation](https://docs.astro.build/en/guides/rss/#generating-items) for usage examples to choose the best option for you.
 
 When providing a formatted RSS item list, see the [`RSSFeedItem` type reference](#rssfeeditem).
-
-### drafts
-
-Type: `boolean (optional)`
-
-**Deprecated**: Manually filter `items` instead.
-
-Set `drafts: true` to include [draft posts](https://docs.astro.build/en/guides/markdown-content/#draft-pages) in the feed output. By default, this option is `false` and draft posts are not included.
 
 ### stylesheet
 
@@ -136,7 +128,7 @@ A string of valid XML to be injected between your feed's `<description>` and `<i
 ```js
 import rss from '@astrojs/rss';
 
-export const get = () => rss({
+export const GET = () => rss({
     ...
     customData: '<language>en-us</language>',
   });
@@ -181,7 +173,7 @@ By default, the library will add trailing slashes to the emitted URLs. To preven
 ```js
 import rss from '@astrojs/rss';
 
-export const get = () =>
+export const GET = () =>
   rss({
     trailingSlash: false,
   });
@@ -361,7 +353,7 @@ This function assumes, but does not verify, you are globbing for items inside `s
 // src/pages/rss.xml.js
 import rss, { pagesGlobToRssItems } from '@astrojs/rss';
 
-export async function get(context) {
+export async function GET(context) {
   return rss({
     title: 'Buzz’s Blog',
     description: 'A humble Astronaut’s guide to the stars',
@@ -379,7 +371,7 @@ As `rss()` returns a `Response`, you can also use `getRssString()` to get the RS
 // src/pages/rss.xml.js
 import { getRssString } from '@astrojs/rss';
 
-export async function get(context) {
+export async function GET(context) {
   const rssString = await getRssString({
     title: 'Buzz’s Blog',
     ...

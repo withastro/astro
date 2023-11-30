@@ -42,7 +42,7 @@ export default async function createStaticPreviewServer(
 		});
 	} catch (err) {
 		if (err instanceof Error) {
-			logger.error('astro', err.stack || err.message);
+			logger.error(null, err.stack || err.message);
 		}
 		throw err;
 	}
@@ -51,7 +51,7 @@ export default async function createStaticPreviewServer(
 
 	// Log server start URLs
 	logger.info(
-		null,
+		'SKIP_FORMAT',
 		msg.serverStart({
 			startupTime: performance.now() - startServerTime,
 			resolvedUrls: previewServer.resolvedUrls ?? { local: [], network: [] },
@@ -72,8 +72,6 @@ export default async function createStaticPreviewServer(
 		host: getResolvedHostForHttpServer(settings.config.server.host),
 		port: settings.config.server.port,
 		closed,
-		// In Vite 5, `httpServer` may be a `Http2SecureServer`, but we know we are only starting a HTTP server
-		// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 		server: previewServer.httpServer as http.Server,
 		stop: async () => {
 			await new Promise((resolve, reject) => {
