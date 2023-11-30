@@ -1,4 +1,5 @@
 import { green } from 'kleur/colors';
+import type * as vite from 'vite';
 import fs from 'node:fs';
 import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
