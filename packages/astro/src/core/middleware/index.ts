@@ -1,8 +1,8 @@
-import type { MiddlewareEndpointHandler, Params } from '../../@types/astro.js';
+import type { MiddlewareHandler, Params } from '../../@types/astro.js';
 import { createAPIContext } from '../endpoint/index.js';
 import { sequence } from './sequence.js';
 
-function defineMiddleware(fn: MiddlewareEndpointHandler) {
+function defineMiddleware(fn: MiddlewareHandler) {
 	return fn;
 }
 
@@ -35,6 +35,8 @@ function createContext({ request, params, userDefinedLocales = [] }: CreateConte
 		props: {},
 		site: undefined,
 		locales: userDefinedLocales,
+		defaultLocale: undefined,
+		routingStrategy: undefined,
 	});
 }
 

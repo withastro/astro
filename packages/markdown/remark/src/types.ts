@@ -40,7 +40,6 @@ export interface ShikiConfig {
 }
 
 export interface AstroMarkdownOptions {
-	drafts?: boolean;
 	syntaxHighlight?: 'shiki' | 'prism' | false;
 	shikiConfig?: ShikiConfig;
 	remarkPlugins?: RemarkPlugins;

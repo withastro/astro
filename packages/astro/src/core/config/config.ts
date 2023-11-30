@@ -67,7 +67,6 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		config: typeof flags.config === 'string' ? flags.config : undefined,
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
-		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
 	};
 }
 

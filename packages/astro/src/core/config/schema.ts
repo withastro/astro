@@ -8,10 +8,9 @@ import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { bundledThemes, type BuiltinTheme } from 'shikiji';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro.js';
 
-import fs from 'node:fs';
 import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
@@ -38,11 +37,13 @@ const ASTRO_CONFIG_DEFAULTS = {
 		serverEntry: 'entry.mjs',
 		redirects: true,
 		inlineStylesheets: 'auto',
-		split: false,
-		excludeMiddleware: false,
 	},
 	image: {
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
+	},
+	devOverlay: {
+		enabled: true,
+		defaultState: 'minimized',
 	},
 	compressHTML: true,
 	server: {
@@ -51,16 +52,12 @@ const ASTRO_CONFIG_DEFAULTS = {
 		open: false,
 	},
 	integrations: [],
-	markdown: {
-		drafts: false,
-		...markdownConfigDefaults,
-	},
+	markdown: markdownConfigDefaults,
 	vite: {},
 	legacy: {},
 	redirects: {},
 	experimental: {
 		optimizeHoistedScript: false,
-		devOverlay: false,
 		contentCollectionCache: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
@@ -139,20 +136,6 @@ export const AstroConfigSchema = z.object({
 				.enum(['always', 'auto', 'never'])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
-
-			/**
-			 * @deprecated
-			 * Use the adapter feature instead
-			 */
-			split: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.split),
-			/**
-			 * @deprecated
-			 * Use the adapter feature instead
-			 */
-			excludeMiddleware: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.build.excludeMiddleware),
 		})
 		.default({}),
 	server: z.preprocess(
@@ -243,9 +226,16 @@ export const AstroConfigSchema = z.object({
 				.default([]),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
+	devOverlay: z
+		.object({
+			enabled: z.boolean().default(ASTRO_CONFIG_DEFAULTS.devOverlay.enabled),
+			defaultState: z
+				.enum(['minimized', 'expanded'])
+				.default(ASTRO_CONFIG_DEFAULTS.devOverlay.defaultState),
+		})
+		.default(ASTRO_CONFIG_DEFAULTS.devOverlay),
 	markdown: z
 		.object({
-			drafts: z.boolean().default(false),
 			syntaxHighlight: z
 				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.syntaxHighlight),
@@ -258,25 +248,6 @@ export const AstroConfigSchema = z.object({
 							for (const lang of langs) {
 								// shiki -> shikiji compat
 								if (typeof lang === 'object') {
-									// shikiji does not support `path`
-									// https://github.com/shikijs/shiki/blob/facb6ff37996129626f8066a5dccb4608e45f649/packages/shiki/src/loader.ts#L98
-									const langPath = (lang as any).path;
-									if (langPath) {
-										// shiki resolves path from within its package directory :shrug:
-										const astroRoot = fileURLToPath(new URL('../../../', import.meta.url));
-										const normalizedPath = path.isAbsolute(langPath)
-											? langPath
-											: path.resolve(astroRoot, langPath);
-										try {
-											const content = fs.readFileSync(normalizedPath, 'utf-8');
-											const parsed = JSON.parse(content);
-											Object.assign(lang, parsed);
-										} catch (e) {
-											throw new Error(`Unable to find language file at ${normalizedPath}`, {
-												cause: e,
-											});
-										}
-									}
 									// `id` renamed to `name` (always override)
 									if ((lang as any).id) {
 										lang.name = (lang as any).id;
@@ -339,7 +310,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.optimizeHoistedScript),
-			devOverlay: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.devOverlay),
 			i18n: z.optional(
 				z
 					.object({
@@ -452,12 +422,6 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.enum(['always', 'auto', 'never'])
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
-
-				split: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.split),
-				excludeMiddleware: z
-					.boolean()
-					.optional()
-					.default(ASTRO_CONFIG_DEFAULTS.build.excludeMiddleware),
 			})
 			.optional()
 			.default({}),

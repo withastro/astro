@@ -127,6 +127,13 @@ export async function runHookConfigSetup({
 					updatedConfig = mergeConfig(updatedConfig, newConfig) as AstroConfig;
 				},
 				injectRoute: (injectRoute) => {
+					if (injectRoute.entrypoint == null && 'entryPoint' in injectRoute) {
+						logger.warn(
+							null,
+							`The injected route "${injectRoute.pattern}" by ${integration.name} specifies the entry point with the "entryPoint" property. This property is deprecated, please use "entrypoint" instead.`
+						);
+						injectRoute.entrypoint = injectRoute.entryPoint as string;
+					}
 					updatedSettings.injectedRoutes.push(injectRoute);
 				},
 				addWatchFile: (path) => {
@@ -237,10 +244,8 @@ export async function runHookConfigDone({
 							);
 						}
 						if (!adapter.supportedAstroFeatures) {
-							// NOTE: throw an error in Astro 4.0
-							logger.warn(
-								null,
-								`The adapter ${adapter.name} doesn't provide a feature map. From Astro 3.0, an adapter can provide a feature map. Not providing a feature map will cause an error in Astro 4.0.`
+							throw new Error(
+								`The adapter ${adapter.name} doesn't provide a feature map. It is required in Astro 4.0.`
 							);
 						} else {
 							const validationResult = validateSupportedFeatures(

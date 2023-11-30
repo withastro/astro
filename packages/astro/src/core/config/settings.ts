@@ -10,11 +10,14 @@ import { formatYAMLException, isYAMLException } from '../errors/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
+import createPreferences from '../../preferences/index.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	const { contentDir } = getContentPaths(config);
+	const preferences = createPreferences(config);
 	return {
 		config,
+		preferences,
 		tsConfig: undefined,
 		tsConfigPath: undefined,
 		adapter: undefined,

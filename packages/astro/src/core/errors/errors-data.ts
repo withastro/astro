@@ -490,9 +490,10 @@ export const PageNumberParamNotFound = {
  */
 export const ImageMissingAlt = {
 	name: 'ImageMissingAlt',
-	title: 'Missing alt property.',
-	message: 'The alt property is required.',
-	hint: "The `alt` property is important for the purpose of accessibility, without it users using screen readers or other assistive technologies won't be able to understand what your image is supposed to represent. See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#attr-alt for more information.",
+	title: 'Image missing required "alt" property.',
+	message:
+		'Image missing "alt" property. "alt" text is required to describe important images on the page.',
+	hint: 'Use an empty string ("") for decorative images.',
 } satisfies ErrorData;
 /**
  * @docs
