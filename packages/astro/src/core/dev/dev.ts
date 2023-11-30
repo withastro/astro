@@ -1,15 +1,14 @@
+import { green } from 'kleur/colors';
 import fs from 'node:fs';
 import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { performance } from 'perf_hooks';
-import type * as vite from 'vite';
 import type { AstroInlineConfig } from '../../@types/astro.js';
 import { attachContentServerListeners } from '../../content/index.js';
 import { telemetry } from '../../events/index.js';
 import * as msg from '../messages.js';
 import { startContainer } from './container.js';
 import { createContainerWithAutomaticRestart } from './restart.js';
-import { green } from 'kleur/colors';
 
 export interface DevServer {
 	address: AddressInfo;

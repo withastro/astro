@@ -1,4 +1,3 @@
-import * as vite from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 
 const virtualModuleId = 'astro:transitions';

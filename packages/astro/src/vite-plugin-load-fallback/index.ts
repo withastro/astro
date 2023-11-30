@@ -1,6 +1,5 @@
 import nodeFs from 'node:fs';
 import npath from 'node:path';
-import type * as vite from 'vite';
 import { slash } from '../core/path.js';
 import { cleanUrl } from '../vite-plugin-utils/index.js';
 

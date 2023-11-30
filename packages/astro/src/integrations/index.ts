@@ -1,4 +1,4 @@
-import { bold, cyan, underline } from 'kleur/colors';
+import { bold } from 'kleur/colors';
 import fs from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';

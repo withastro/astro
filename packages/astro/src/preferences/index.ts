@@ -1,9 +1,9 @@
 import type { AstroConfig } from '../@types/astro.js';
 
-import { fileURLToPath } from 'node:url';
 import os from 'node:os';
-import process from 'node:process';
 import path from 'node:path';
+import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 
 import dget from 'dlv';
 import { DEFAULT_PREFERENCES, type Preferences } from './defaults.js';

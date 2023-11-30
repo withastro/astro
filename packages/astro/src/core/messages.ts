@@ -1,9 +1,9 @@
 import {
+	bgCyan,
 	bgGreen,
 	bgRed,
 	bgWhite,
 	bgYellow,
-	bgCyan,
 	black,
 	blue,
 	bold,

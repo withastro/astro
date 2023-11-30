@@ -1,4 +1,3 @@
-import { slash } from '@astrojs/internal-helpers/path';
 import { fileURLToPath } from 'node:url';
 import type { HmrContext, ModuleNode } from 'vite';
 import type { AstroConfig } from '../@types/astro.js';

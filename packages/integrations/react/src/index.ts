@@ -1,7 +1,6 @@
 import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
 import type { AstroIntegration } from 'astro';
 import { version as ReactVersion } from 'react-dom';
-import type * as vite from 'vite';
 
 export type ReactIntegrationOptions = Pick<ViteReactPluginOptions, 'include' | 'exclude'> & {
 	experimentalReactChildren?: boolean;

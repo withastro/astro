@@ -1,5 +1,4 @@
 import MagicString from 'magic-string';
-import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroPluginOptions, ImageTransform } from '../@types/astro.js';
 import { extendManualChunks } from '../core/build/plugins/util.js';

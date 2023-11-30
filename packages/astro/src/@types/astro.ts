@@ -20,6 +20,7 @@ import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
+import type { AstroPreferences } from '../preferences/index.js';
 import type { AstroDevOverlay, DevOverlayCanvas } from '../runtime/client/dev-overlay/overlay.js';
 import type { Icon } from '../runtime/client/dev-overlay/ui-library/icons.js';
 import type {
@@ -35,7 +36,6 @@ import type {
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
-import type { AstroPreferences } from '../preferences/index.js';
 
 export { type AstroIntegrationLogger };
 

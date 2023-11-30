@@ -6,7 +6,7 @@ import matter from 'gray-matter';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { ErrorPayload as ViteErrorPayload, Rollup } from 'vite';
+import type { Rollup, ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
 import type { MarkdocConfigResult } from './load-config.js';

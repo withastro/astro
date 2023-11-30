@@ -1,4 +1,3 @@
-import type * as vite from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 
 import { bold } from 'kleur/colors';
