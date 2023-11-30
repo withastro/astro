@@ -180,7 +180,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 		props: ctx.props,
 		site: env.site,
 		adapterName: env.adapterName,
-		routingStrategy: ctx.routingStrategy,
+		routingStrategy: ctx.routing,
 		defaultLocale: ctx.defaultLocale,
 		locales: ctx.locales,
 	});

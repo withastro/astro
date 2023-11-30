@@ -65,6 +65,8 @@ const ASTRO_CONFIG_DEFAULTS = {
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
+type RoutingStrategies = 'prefix-always' | 'prefix-other-locales';
+
 export const AstroConfigSchema = z.object({
 	root: z
 		.string()
@@ -346,11 +348,25 @@ export const AstroConfigSchema = z.object({
 						defaultLocale: z.string(),
 						locales: z.string().array(),
 						fallback: z.record(z.string(), z.string()).optional(),
-						// TODO: properly add default when the feature goes of experimental
-						routingStrategy: z
-							.enum(['prefix-always', 'prefix-other-locales'])
-							.optional()
-							.default('prefix-other-locales'),
+						routing: z
+							.object({
+								prefixDefaultLocale: z.boolean().default(false),
+								strategy: z.enum(['pathname']).default('pathname'),
+							})
+							.default({})
+							.transform((routing) => {
+								let strategy: RoutingStrategies;
+								switch (routing.strategy) {
+									case 'pathname': {
+										if (routing.prefixDefaultLocale === true) {
+											strategy = 'prefix-always';
+										} else {
+											strategy = 'prefix-other-locales';
+										}
+									}
+								}
+								return strategy;
+							}),
 					})
 					.optional()
 					.superRefine((i18n, ctx) => {

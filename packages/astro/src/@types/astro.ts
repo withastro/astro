@@ -1519,23 +1519,43 @@ export interface AstroUserConfig {
 			/**
 			 * @docs
 			 * @kind h4
-			 * @name experimental.i18n.routingStrategy
-			 * @type {'prefix-always' | 'prefix-other-locales'}
-			 * @default 'prefix-other-locales'
-			 * @version 3.5.0
+			 * @name experimental.i18n.routing
+			 * @type {Routing}
+			 * @version 3.7.0
 			 * @description
 			 *
-			 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language:
-			 *
-			 *  - `prefix-other-locales`(default): Only non-default languages will display a language prefix.
-			 *    The `defaultLocale` will not show a language prefix and content files do not exist in a localized folder.
-			 *    URLs will be of the form `example.com/[locale]/content/` for all non-default languages, but `example.com/content/` for the default locale.
-			 *  - `prefix-always`: All URLs will display a language prefix.
-			 *    URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
-			 *    Localized folders are used for every language, including the default.
-			 *
+			 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language.
 			 */
-			routingStrategy?: 'prefix-always' | 'prefix-other-locales';
+			routing?: {
+				/**
+				 * @docs
+				 * @name experimental.i18n.routing.prefixDefaultLocale
+				 * @type {boolean}
+				 * @default `false`
+				 * @version 3.7.0
+				 * @description
+				 *
+				 * When `false`, only non-default languages will display a language prefix.
+				 * The `defaultLocale` will not show a language prefix and content files do not exist in a localized folder.
+				 *  URLs will be of the form `example.com/[locale]/content/` for all non-default languages, but `example.com/content/` for the default locale.
+				 *
+				 * When `true`, all URLs will display a language prefix.
+				 * URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
+				 * Localized folders are used for every language, including the default.
+				 */
+				prefixDefaultLocale: boolean;
+
+				/**
+				 * @name experimental.i18n.routing.strategy
+				 * @type {"pathname"}
+				 * @default `"pathname"`
+				 * @version 3.7.0
+				 * @description
+				 *
+				 * - `"pathanme": The strategy is applied to the pathname of the URLs
+				 */
+				strategy: 'pathname';
+			};
 		};
 		/**
 		 * @docs
@@ -2253,6 +2273,10 @@ export interface APIContext<
 	currentLocale: string | undefined;
 }
 
+type Routing = {
+	prefixDefaultLocale: boolean;
+	strategy: 'pathname';
+};
 export type EndpointOutput =
 	| {
 			body: Body;
