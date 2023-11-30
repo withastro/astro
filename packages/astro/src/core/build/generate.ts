@@ -257,38 +257,13 @@ async function generatePage(
 
 	// Calculate information of the page, like scripts, links and styles
 	const hoistedScripts = pageInfo?.hoistedScript ?? null;
-	const moduleStyles = pageData.styles
+	const styles = pageData.styles
 		.sort(cssOrder)
 		.map(({ sheet }) => sheet)
 		.reduce(mergeInlineCss, []);
 	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
-	const links = new Set<never>();
-	const styles = createStylesheetElementSet(moduleStyles, manifest.base, manifest.assetsPrefix);
-	const scripts = createModuleScriptsSet(
-		hoistedScripts ? [hoistedScripts] : [],
-		manifest.base,
-		manifest.assetsPrefix
-	);
-	if (pipeline.getSettings().scripts.some((script) => script.stage === 'page')) {
-		const hashedFilePath = pipeline.getInternals().entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
-		if (typeof hashedFilePath !== 'string') {
-			throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
-		}
-		const src = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
-		scripts.add({
-			props: { type: 'module', src },
-			children: '',
-		});
-	}
-	// Add all injected scripts to the page.
-	for (const script of pipeline.getSettings().scripts) {
-		if (script.stage === 'head-inline') {
-			scripts.add({
-				props: {},
-				children: script.content,
-			});
-		}
-	}
+	const linkIds: [] = [];
+	const scripts = pageInfo?.hoistedScript ?? null;
 	// prepare the middleware
 	const i18nMiddleware = createI18nMiddleware(
 		pipeline.getManifest().i18n,
@@ -311,7 +286,13 @@ async function generatePage(
 		);
 	}
 	const pageModule = await pageModulePromise();
-
+	const generationOptions: Readonly<GeneratePathOptions> = {
+		pageData,
+		linkIds,
+		scripts,
+		styles,
+		mod: pageModule,
+	};
 	// Now we explode the routes. A route render itself, and it can render its fallbacks (i18n routing)
 	for (const route of eachRouteInRouteData(pageData)) {
 		// Get paths for the route, calling getStaticPaths if needed.
@@ -321,7 +302,7 @@ async function generatePage(
 		for (let i = 0; i < paths.length; i++) {
 			const path = paths[i];
 			pipeline.getEnvironment().logger.debug('build', `Generating: ${path}`);
-			await generatePath(path, pipeline, route, links, scripts, styles, pageModule);
+			await generatePath(path, pipeline, generationOptions, route);
 			const timeEnd = performance.now();
 			const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 			const timeIncrease = `(+${timeChange})`;
@@ -373,9 +354,7 @@ async function getPathsForRoute(
 		const label = staticPaths.length === 1 ? 'page' : 'pages';
 		logger.debug(
 			'build',
-			`├── ${bold(green('✔'))} ${route.component} → ${magenta(
-				`[${staticPaths.length} ${label}]`
-			)}`
+			`├── ${bold(green('✔'))} ${route.component} → ${magenta(`[${staticPaths.length} ${label}]`)}`
 		);
 
 		paths = staticPaths
@@ -489,18 +468,53 @@ function getUrlForPath(
 	return url;
 }
 
+interface GeneratePathOptions {
+	pageData: PageBuildData;
+	linkIds: string[];
+	scripts: { type: 'inline' | 'external'; value: string } | null;
+	styles: StylesheetAsset[];
+	mod: ComponentInstance;
+}
 async function generatePath(
 	pathname: string,
 	pipeline: BuildPipeline,
-	route: RouteData,
-	links: Set<never>,
-	scripts: Set<SSRElement>,
-	styles: Set<SSRElement>,
-	mod: ComponentInstance
+	gopts: GeneratePathOptions,
+	route: RouteData
 ) {
+	const { mod, scripts: hoistedScripts, styles: _styles, pageData } = gopts;
 	const manifest = pipeline.getManifest();
 	const logger = pipeline.getLogger();
 	pipeline.getEnvironment().logger.debug('build', `Generating: ${pathname}`);
+
+	const links = new Set<never>();
+	const scripts = createModuleScriptsSet(
+		hoistedScripts ? [hoistedScripts] : [],
+		manifest.base,
+		manifest.assetsPrefix
+	);
+	const styles = createStylesheetElementSet(_styles, manifest.base, manifest.assetsPrefix);
+
+	if (pipeline.getSettings().scripts.some((script) => script.stage === 'page')) {
+		const hashedFilePath = pipeline.getInternals().entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
+		if (typeof hashedFilePath !== 'string') {
+			throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
+		}
+		const src = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
+		scripts.add({
+			props: { type: 'module', src },
+			children: '',
+		});
+	}
+
+	// Add all injected scripts to the page.
+	for (const script of pipeline.getSettings().scripts) {
+		if (script.stage === 'head-inline') {
+			scripts.add({
+				props: {},
+				children: script.content,
+			});
+		}
+	}
 
 	const icon =
 		route.type === 'page' || route.type === 'redirect' || route.type === 'fallback'
@@ -549,7 +563,7 @@ async function generatePath(
 		defaultLocale: i18n?.defaultLocale,
 	});
 
-		let body: string | Uint8Array;
+	let body: string | Uint8Array;
 
 	let response: Response;
 	try {
@@ -581,18 +595,18 @@ async function generatePath(
 <body>
 	<a href="${location}">Redirecting from <code>${fromPath}</code> to <code>${location}</code></a>
 </body>`;
-			if (pipeline.getConfig().compressHTML === true) {
-				body = body.replaceAll('\n', '');
-			}
-			// A dynamic redirect, set the location so that integrations know about it.
-			if (route.type !== 'redirect') {
-				route.redirect = location.toString();
-			}
-		} else {
-			// If there's no body, do nothing
-			if (!response.body) return;
-			body = Buffer.from(await response.arrayBuffer());
+		if (pipeline.getConfig().compressHTML === true) {
+			body = body.replaceAll('\n', '');
 		}
+		// A dynamic redirect, set the location so that integrations know about it.
+		if (route.type !== 'redirect') {
+			route.redirect = location.toString();
+		}
+	} else {
+		// If there's no body, do nothing
+		if (!response.body) return;
+		body = Buffer.from(await response.arrayBuffer());
+	}
 
 	const outFolder = getOutFolder(pipeline.getConfig(), pathname, route.type);
 	const outFile = getOutFile(pipeline.getConfig(), outFolder, pathname, route.type);

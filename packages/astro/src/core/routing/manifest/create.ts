@@ -605,7 +605,7 @@ export function createRouteManifest(
 							let route: string;
 							if (
 								fallbackToLocale === i18n.defaultLocale &&
-								i18n.routingStrategy === 'prefix-other-locales'
+								i18n.routing === 'prefix-other-locales'
 							) {
 								if (fallbackToRoute.pathname) {
 									pathname = `/${fallbackFromLocale}${fallbackToRoute.pathname}`;
@@ -628,7 +628,7 @@ export function createRouteManifest(
 								});
 							const generate = getRouteGenerator(segments, config.trailingSlash);
 							const index = routes.findIndex((r) => r === fallbackToRoute);
-							if (index) {
+							if (index >= 0) {
 								const fallbackRoute: RouteData = {
 									...fallbackToRoute,
 									pathname,
