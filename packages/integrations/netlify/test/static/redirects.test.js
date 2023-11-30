@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { loadFixture, testIntegration } from './test-utils.js';
 import { netlifyStatic } from '../../dist/index.js';
+import { loadFixture, testIntegration } from './test-utils.js';
 
 describe('SSG - Redirects', () => {
 	/** @type {import('../../../astro/test/test-utils').Fixture} */

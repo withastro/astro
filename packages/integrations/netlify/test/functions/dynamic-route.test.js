@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import { cli } from './test-utils.js';
 import { fileURLToPath } from 'url';
+import { expect } from 'chai';
 import fs from 'fs/promises';
+import { cli } from './test-utils.js';
 
 const root = new URL('./fixtures/dynamic-route/', import.meta.url).toString();
 

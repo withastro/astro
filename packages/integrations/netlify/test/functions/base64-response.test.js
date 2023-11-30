@@ -1,6 +1,6 @@
+import { fileURLToPath } from 'url';
 import { expect } from 'chai';
 import { cli } from './test-utils.js';
-import { fileURLToPath } from 'url';
 
 const root = new URL('./fixtures/base64-response/', import.meta.url).toString();
 

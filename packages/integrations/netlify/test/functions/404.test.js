@@ -1,7 +1,7 @@
+import { fileURLToPath } from 'url';
 import { expect } from 'chai';
 import fs from 'fs/promises';
 import { cli } from './test-utils.js';
-import { fileURLToPath } from 'url';
 
 const root = new URL('./fixtures/404/', import.meta.url).toString();
 

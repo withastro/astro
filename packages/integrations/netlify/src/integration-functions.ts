@@ -1,7 +1,7 @@
-import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 import { writeFile } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 import { generateEdgeMiddleware } from './middleware.js';
 import type { Args } from './netlify-functions.js';
 import { createRedirects } from './shared.js';

@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'url';
-import { cli } from './test-utils.js';
-import fs from 'fs/promises';
 import { expect } from 'chai';
+import fs from 'fs/promises';
+import { cli } from './test-utils.js';
 
 describe('Middleware', () => {
 	it('with edge handle file, should successfully build the middleware', async () => {
