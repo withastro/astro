@@ -39,8 +39,8 @@ function debug(type: string, ...messages: Array<any>) {
 (globalThis as any)._astroGlobalDebug = debug;
 
 export function enableVerboseLogging() {
-	debugPackage.enable('*,-babel');
-	debug('cli', '--verbose flag enabled! Enabling: DEBUG="*,-babel"');
+	debugPackage.enable('astro:*,vite:*');
+	debug('cli', '--verbose flag enabled! Enabling: DEBUG="astro:*,vite:*"');
 	debug(
 		'cli',
 		'Tip: Set the DEBUG env variable directly for more control. Example: "DEBUG=astro:*,vite:* astro build".'

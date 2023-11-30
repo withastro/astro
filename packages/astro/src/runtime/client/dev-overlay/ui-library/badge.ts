@@ -38,8 +38,8 @@ export class DevOverlayBadge extends HTMLElement {
 				}
 
 				.badge--gray {
-					color: rgba(233, 234, 238, 1);
-					border-color: rgba(145, 152, 173, 1);
+					color: rgba(191, 193, 201, 1);
+					border-color: rgba(191, 193, 201, 1);
 				}
 
 				.badge--purple {

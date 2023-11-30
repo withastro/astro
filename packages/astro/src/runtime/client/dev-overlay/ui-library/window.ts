@@ -16,23 +16,28 @@ export class DevOverlayWindow extends HTMLElement {
 					background: linear-gradient(0deg, #13151A, #13151A), linear-gradient(0deg, #343841, #343841);
 					border: 1px solid rgba(52, 56, 65, 1);
 					width: min(640px, 100%);
-					height: 480px;
+					max-height: 480px;
 					border-radius: 12px;
 					padding: 24px;
 					font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-					color: rgba(204, 206, 216, 1);
+					color: rgba(191, 193, 201, 1);
 					position: fixed;
 					z-index: 999999999;
-					/* -7.5em is a magic number that seems to keep it anchored with the dev bar */
-					bottom: calc(7.5% + -150px);
+					bottom: 72px;
 					left: 50%;
-					transform: translate(-50%, -50%);
+					transform: translateX(-50%);
 					box-shadow: 0px 0px 0px 0px rgba(19, 21, 26, 0.30), 0px 1px 2px 0px rgba(19, 21, 26, 0.29), 0px 4px 4px 0px rgba(19, 21, 26, 0.26), 0px 10px 6px 0px rgba(19, 21, 26, 0.15), 0px 17px 7px 0px rgba(19, 21, 26, 0.04), 0px 26px 7px 0px rgba(19, 21, 26, 0.01);
 				}
 
 				@media (forced-colors: active) {
 					:host {
 						background: white;
+					}
+				}
+				
+				@media (max-width: 640px) {
+					:host {
+						border-radius: 0;
 					}
 				}
 

@@ -1,6 +1,6 @@
 import type { DevOverlayPlugin } from '../../../../@types/astro.js';
 import { settings, type Settings } from '../settings.js';
-import { createWindowWithTransition, waitForTransition } from './utils/window.js';
+import { createWindowElement } from './utils/window.js';
 
 interface SettingRow {
 	name: string;
@@ -13,7 +13,7 @@ interface SettingRow {
 const settingsRows = [
 	{
 		name: 'Disable notifications',
-		description: 'Notification bubbles will not be shown when this is enabled.',
+		description: 'Hide notification badges in the toolbar.',
 		input: 'checkbox',
 		settingKey: 'disablePluginNotification',
 		changeEvent: (evt: Event) => {
@@ -37,7 +37,7 @@ const settingsRows = [
 
 export default {
 	id: 'astro:settings',
-	name: 'Overlay settings',
+	name: 'Settings',
 	icon: 'gear',
 	init(canvas) {
 		createSettingsWindow();
@@ -45,8 +45,11 @@ export default {
 		document.addEventListener('astro:after-swap', createSettingsWindow);
 
 		function createSettingsWindow() {
-			const window = createWindowWithTransition(
+			const windowElement = createWindowElement(
 				`<style>
+					:host astro-dev-overlay-window {
+						height: 480px;
+					}
 					header {
 						display: flex;
 					}
@@ -69,7 +72,7 @@ export default {
 					}
 
 					label {
-						font-size: 15px;
+						font-size: 14px;
 						line-height: 1.5rem;
 					}
 
@@ -96,13 +99,13 @@ export default {
 				<hr />
 
 				<h2>General</h2>
-				`,
-				settingsRows.flatMap((setting) => [
-					getElementForSettingAsString(setting),
-					document.createElement('hr'),
-				])
+				`
 			);
-			canvas.append(window);
+			for (const settingsRow of settingsRows) {
+				windowElement.append(getElementForSettingAsString(settingsRow));
+				windowElement.append(document.createElement('hr'));
+			}
+			canvas.append(windowElement);
 
 			function getElementForSettingAsString(setting: SettingRow) {
 				const label = document.createElement('label');
@@ -123,8 +126,5 @@ export default {
 				return label;
 			}
 		}
-	},
-	async beforeTogglingOff(canvas) {
-		return await waitForTransition(canvas);
 	},
 } satisfies DevOverlayPlugin;

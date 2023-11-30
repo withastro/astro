@@ -117,13 +117,21 @@ export class NodeApp extends App {
 		}
 		return super.match(req);
 	}
-	render(request: NodeIncomingMessage | Request, options?: RenderOptions): Promise<Response>
+	render(request: NodeIncomingMessage | Request, options?: RenderOptions): Promise<Response>;
 	/**
 	 * @deprecated Instead of passing `RouteData` and locals individually, pass an object with `routeData` and `locals` properties.
 	 * See https://github.com/withastro/astro/pull/9199 for more information.
 	 */
-	render(request: NodeIncomingMessage | Request, routeData?: RouteData, locals?: object): Promise<Response>
-	render(req: NodeIncomingMessage | Request, routeDataOrOptions?: RouteData | RenderOptions, maybeLocals?: object) {
+	render(
+		request: NodeIncomingMessage | Request,
+		routeData?: RouteData,
+		locals?: object
+	): Promise<Response>;
+	render(
+		req: NodeIncomingMessage | Request,
+		routeDataOrOptions?: RouteData | RenderOptions,
+		maybeLocals?: object
+	) {
 		if (!(req instanceof Request)) {
 			req = createRequestFromNodeRequest(req);
 		}

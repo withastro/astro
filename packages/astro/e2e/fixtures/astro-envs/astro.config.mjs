@@ -5,5 +5,8 @@ import vue from '@astrojs/vue';
 export default defineConfig({
 	site: 'http://example.com',
 	base: '/blog',
+	devOverlay: {
+		enabled: false,
+	},
 	integrations: [vue()],
 });
