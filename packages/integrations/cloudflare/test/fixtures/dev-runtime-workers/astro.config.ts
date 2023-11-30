@@ -5,6 +5,7 @@ export default defineConfig({
 	adapter: cloudflare({
 		runtime: {
 			mode: 'local',
+			type: 'workers',
 		},
 	}),
 	output: 'server',

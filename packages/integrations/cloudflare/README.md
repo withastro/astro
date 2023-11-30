@@ -195,24 +195,46 @@ export default defineConfig({
 
 ### `runtime`
 
-`runtime: { mode: "off" | "local", persistTo: string }`
+See Cloudflare's repository for more type information about [CF_BINDING](https://github.com/cloudflare/workers-sdk/blob/eaa16db25103d26ef31499634a31b86caccdf7aa/packages/wrangler/src/api/startDevWorker/types.ts#L190-L219)
+
+`runtime: { mode: 'off' } | { mode: 'local'; type: 'pages'; persistTo?: string; bindings?: Record<string, CF_BINDING> } | { mode: 'local'; type: 'workers'; persistTo?: string; };`
 
 default `{ mode: 'off', persistTo: '' }`
 
 Determines whether and how the Cloudflare Runtime is added to `astro dev`.
+Read more about [the Cloudflare Runtime](#cloudflare-runtime).
 
-The Cloudflare Runtime includes [Cloudflare bindings](https://developers.cloudflare.com/pages/platform/functions/bindings), [environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables), and the [cf object](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties). Read more about [accessing the Cloudflare Runtime](#cloudflare-runtime).
+The `type` property defines where your Astro project is deployed to:
 
-The `mode` property defines how the runtime is added to `astro dev`:
+- `pages`: Deployed to [Cloudflare Pages](https://pages.cloudflare.com/)
+- `workers`: Deployed to [Cloudflare Workers](https://workers.cloudflare.com/)
 
-- `local`: uses bindings mocking and locally static placeholders
-- `off`: no access to the Cloudflare runtime using `astro dev`. You can alternatively use [Preview with Wrangler](#preview-with-wrangler)
+The `mode` property defines what you want the runtime to support in `astro dev`:
 
-The `persistTo` property defines where the local runtime is persisted to when using `mode: local`. This value is a directory relative to your `astro dev` execution path.
+- `off`: no access to the runtime using `astro dev`. You can choose [Preview with Wrangler](#preview-with-wrangler) when you need access to the runtime, to simulate the production environment locally.
+- `local`: uses a local runtime powered by miniflare and workerd, which supports Cloudflare's Bindings. Only if you want to use unsupported features, such as `eval`, bindings with no local support choose [Preview with Wrangler](#preview-with-wrangler)
 
-The default value is set to `.wrangler/state/v3` to match the default path Wrangler uses. This means both tools are able to access and use the local state.
+In `mode: local`, you have access to the `persistTo` property which defines where the local bindings state is saved. This avoids fresh bindings on every restart of the dev server. This value is a directory relative to your `astro dev` execution path. By default it is set to `.wrangler/state/v3` to allow usage of `wrangler` cli commands (e.g. for migrations). Add this path to your `.gitignore`.
 
-Whichever directory is set in `persistTo`, `.wrangler` or your custom value, must be added to `.gitignore`.
+## Cloudflare runtime
+
+The Cloudflare runtime gives you access to environment variables and Cloudflare bindings. You can find more information in Cloudflare's [Workers](https://developers.cloudflare.com/workers/configuration/bindings/) and [Pages](https://developers.cloudflare.com/pages/platform/functions/bindings/) docs. Depending on your deployment type (`pages` or `workers`), you need to configure the bindings differently.
+
+Currently supported bindings:
+
+- Environment Variables
+- [Cloudflare Workers KV](https://developers.cloudflare.com/kv/)
+- [Cloudflare D1](https://developers.cloudflare.com/d1/)
+- [Cloudflare R2](https://developers.cloudflare.com/r2/)
+- [Cloudflare Durable Objects](https://developers.cloudflare.com/durable-objects/)
+
+### Config
+
+#### Cloudflare Pages
+
+Cloudflare Pages does not support a configuration file.
+
+To deploy your pages project to production, you need to configure the bindings using Cloudflare's Dashboard. To be able to access bindings locally, you need to configure them using the adpater's `runtime` option.
 
 ```diff lang="js"
 // astro.config.mjs
@@ -222,21 +244,103 @@ import cloudflare from '@astrojs/cloudflare';
 export default defineConfig({
   output: 'server',
   adapter: cloudflare({
-+   runtime: { mode: 'local' },
++   runtime: {
++     mode: 'local',
++     type: 'pages',
++     bindings: {
+        // example of a var binding (environment variable)
++       "URL": {
++         type: "var",
++         value: "https://example.com",
++       },
+        // example of a KV binding
++       "KV": {
++         type: "kv",
++       },
+        // example of a D1 binding
++       "D1": {
++         type: "d1",
++       },
+        // example of a R2 binding
++       "R2": {
++         type: "r2",
++       },
+        // example of a Durable Object binding
++       "DO": {
++         type: "durable-object",
++         className: "DO",
++       },
++     },
++   },
   }),
 });
 ```
 
-## Cloudflare runtime
+If you also need to define `secrets` in addition to enviroment variables, you need to add a `.dev.vars` file to the root of the Astro project:
 
-Gives you access to [environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables), and [Cloudflare bindings](https://developers.cloudflare.com/pages/platform/functions/bindings).
+```
+# .dev.vars
+DB_PASSWORD=myPassword
+```
 
-Currently supported bindings:
+If you want to use `wrangler` for cli commands, e.g. D1 migrations, you also need to add a `wrangler.toml` to the root of the Astro project with the correct content. Consult [Cloudflare's documentation](https://developers.cloudflare.com/) for further details.
 
-- [Cloudflare D1](https://developers.cloudflare.com/d1/)
-- [Cloudflare R2](https://developers.cloudflare.com/r2/)
-- [Cloudflare Workers KV](https://developers.cloudflare.com/kv/)
-- [Cloudflare Durable Objects](https://developers.cloudflare.com/durable-objects/)
+```toml
+# wrangler.toml
+name = "example"
+compatibility_date = "2023-06-14"
+
+# example for D1 Binding
+[[d1_databases]]
+binding = "D1"
+database_name = "D1"
+database_id = "D1"
+preview_database_id = "D1"
+```
+
+#### Cloudflare Workers
+
+To deploy your workers project to production, you need to configure the bindings using a `wrangler.toml` config file in the root directory of your Astro project. To be able to access bindings locally, the `@astrojs/cloudflare` adapter will also read the `wrangler.toml` file.
+
+```toml
+# wrangler.toml
+name = "example"
+
+# example of a KV Binding
+kv_namespaces = [
+    { binding = "KV", id = "KV", preview_id = "KV" },
+]
+
+# example of a var binding (environment variables)
+[vars]
+URL = "example.com"
+
+# example of a D1 Binding
+[[d1_databases]]
+binding = "D1"
+database_name = "D1"
+database_id = "D1"
+preview_database_id = "D1"
+
+# example of a R2 Binding
+[[r2_buckets]]
+binding = 'R2'
+bucket_name = 'R2'
+
+# example of a Durable Object Binding
+[[durable_objects.bindings]]
+name = "DO"
+class_name = "DO"
+```
+
+If you also need to define `secrets` in addition to enviroment variables, you need to add a `.dev.vars` file to the root of the Astro project:
+
+```
+# .dev.vars
+DB_PASSWORD=myPassword
+```
+
+### Usage
 
 You can access the runtime from Astro components through `Astro.locals` inside any `.astro` file.
 

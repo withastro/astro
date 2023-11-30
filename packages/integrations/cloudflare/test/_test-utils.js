@@ -4,7 +4,7 @@ import { execa } from 'execa';
  * @typedef {{ stop: Promise<void>, port: number }} WranglerCLI
  */
 
-const astroPath = fileURLToPath(new URL('../node_modules/.bin/astro', import.meta.url));
+const astroPath = fileURLToPath(new URL('../node_modules/astro/astro.js', import.meta.url));
 /** Returns a process running the Astro CLI. */
 export function astroCli(cwd, /** @type {string[]} */ ...args) {
 	const spawned = execa(astroPath, [...args], {

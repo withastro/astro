@@ -1,5 +1,5 @@
 {
-  "name": "@test/astro-cloudflare-dev-runtime",
+  "name": "@test/astro-cloudflare-dev-runtime-workers",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

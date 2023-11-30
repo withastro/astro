@@ -1,4 +1,5 @@
 import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
+import type { LocalPagesRuntime, LocalWorkersRuntime, RUNTIME } from './utils/local-runtime.js';
 
 import * as fs from 'node:fs';
 import * as os from 'node:os';
@@ -7,28 +8,18 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
 import { AstroError } from 'astro/errors';
 import esbuild from 'esbuild';
-import { Miniflare } from 'miniflare';
 import glob from 'tiny-glob';
 import { getAdapter } from './getAdapter.js';
 import { deduplicatePatterns } from './utils/deduplicatePatterns.js';
-import { getCFObject } from './utils/getCFObject.js';
 import { prepareImageConfig } from './utils/image-config.js';
-import {
-	getD1Bindings,
-	getDOBindings,
-	getEnvVars,
-	getKVBindings,
-	getR2Bindings,
-} from './utils/parser.js';
+import { getLocalRuntime, getRuntimeConfig } from './utils/local-runtime.js';
 import { prependForwardSlash } from './utils/prependForwardSlash.js';
 import { rewriteWasmImportPath } from './utils/rewriteWasmImportPath.js';
 import { wasmModuleLoader } from './utils/wasm-module-loader.js';
 
 export type { AdvancedRuntime } from './entrypoints/server.advanced.js';
 export type { DirectoryRuntime } from './entrypoints/server.directory.js';
-
-type CF_RUNTIME = { mode: 'off' } | { mode: 'remote' } | { mode: 'local'; persistTo: string };
-type Options = {
+export type Options = {
 	mode?: 'directory' | 'advanced';
 	functionPerRoute?: boolean;
 	imageService?: 'passthrough' | 'cloudflare';
@@ -46,18 +37,22 @@ type Options = {
 		exclude?: string[];
 	};
 	/**
-	 * Going forward only the object API should be used. The modes work as known before:
-	 * 'off': current behaviour (wrangler is needed)
-	 * 'local': use a static req.cf object, and env vars defined in wrangler.toml & .dev.vars (astro dev is enough)
-	 * 'remote': use a dynamic real-live req.cf object, and env vars defined in wrangler.toml & .dev.vars (astro dev is enough)
+	 * { mode: 'off' }: current behaviour (wrangler is needed)
+	 * { mode: 'local', ... }: adds cf request object, locals bindings, env vars/secrets which are defined by the user to `astro.dev` with `Astro.locals.runtime` / `context.locals.runtime`
 	 */
 	runtime?:
-		| 'off'
-		| 'local'
-		| 'remote'
 		| { mode: 'off' }
-		| { mode: 'remote' }
-		| { mode: 'local'; persistTo?: string };
+		| {
+				mode: Extract<RUNTIME, { type: 'pages' }>['mode'];
+				type: Extract<RUNTIME, { type: 'pages' }>['type'];
+				persistTo?: Extract<RUNTIME, { type: 'pages' }>['persistTo'];
+				bindings?: Extract<RUNTIME, { type: 'pages' }>['bindings'];
+		  }
+		| {
+				mode: Extract<RUNTIME, { type: 'workers' }>['mode'];
+				type: Extract<RUNTIME, { type: 'workers' }>['type'];
+				persistTo?: Extract<RUNTIME, { type: 'workers' }>['persistTo'];
+		  };
 	wasmModuleImports?: boolean;
 };
 
@@ -69,18 +64,10 @@ interface BuildConfig {
 	split?: boolean;
 }
 
-const RUNTIME_WARNING = `You are using a deprecated string format for the \`runtime\` API. Please update to the current format for better support. 
-
-Example:
-Old Format: 'local'
-Current Format: { mode: 'local', persistTo: '.wrangler/state/v3' }
-
-Please refer to our runtime documentation for more details on the format. https://docs.astro.build/en/guides/integrations-guide/cloudflare/#runtime`;
-
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
-	let _mf: Miniflare;
+	let _localRuntime: LocalPagesRuntime | LocalWorkersRuntime;
 	let _entryPoints = new Map<RouteData, URL>();
 
 	const SERVER_BUILD_FOLDER = '/$server_build/';
@@ -88,20 +75,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	const isModeDirectory = args?.mode === 'directory';
 	const functionPerRoute = args?.functionPerRoute ?? false;
 
-	let runtimeMode: CF_RUNTIME = { mode: 'off' };
-	if (args?.runtime === 'remote') {
-		runtimeMode = { mode: 'remote' };
-	} else if (args?.runtime === 'local') {
-		runtimeMode = { mode: 'local', persistTo: '.wrangler/state/v3' };
-	} else if (
-		typeof args?.runtime === 'object' &&
-		args?.runtime.mode === 'local' &&
-		args.runtime.persistTo === undefined
-	) {
-		runtimeMode = { mode: 'local', persistTo: '.wrangler/state/v3' };
-	} else if (args?.runtime) {
-		runtimeMode = args?.runtime as CF_RUNTIME;
-	}
+	const runtimeMode = getRuntimeConfig(args?.runtime);
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -126,7 +100,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					image: prepareImageConfig(args?.imageService ?? 'DEFAULT', config.image, command, logger),
 				});
 			},
-			'astro:config:done': ({ setAdapter, config, logger }) => {
+			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter({ isModeDirectory, functionPerRoute }));
 				_config = config;
 				_buildConfig = config.build;
@@ -142,101 +116,40 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						'[@astrojs/cloudflare] `base: "${SERVER_BUILD_FOLDER}"` is not allowed. Please change your `base` config to something else.'
 					);
 				}
-
-				if (typeof args?.runtime === 'string') {
-					logger.warn(RUNTIME_WARNING);
-				}
 			},
-			'astro:server:setup': ({ server }) => {
+			'astro:server:setup': ({ server, logger }) => {
 				if (runtimeMode.mode === 'local') {
-					const typedRuntimeMode = runtimeMode;
 					server.middlewares.use(async function middleware(req, res, next) {
-						try {
-							const cf = await getCFObject(typedRuntimeMode.mode);
-							const vars = await getEnvVars();
-							const D1Bindings = await getD1Bindings();
-							const R2Bindings = await getR2Bindings();
-							const KVBindings = await getKVBindings();
-							const DOBindings = await getDOBindings();
-							let bindingsEnv = new Object({});
+						_localRuntime = getLocalRuntime(_config, runtimeMode, logger);
 
-							// fix for the error "kj/filesystem-disk-unix.c++:1709: warning: PWD environment variable doesn't match current directory."
-							// note: This mismatch might be primarily due to the test runner.
-							const originalPWD = process.env.PWD;
-							process.env.PWD = process.cwd();
+						const bindings = await _localRuntime.getBindings();
+						const secrets = await _localRuntime.getSecrets();
+						const caches = await _localRuntime.getCaches();
+						const cf = await _localRuntime.getCF();
 
-							_mf = new Miniflare({
-								modules: true,
-								script: '',
-								cache: true,
-								cachePersist: `${typedRuntimeMode.persistTo}/cache`,
-								cacheWarnUsage: true,
-								d1Databases: D1Bindings,
-								d1Persist: `${typedRuntimeMode.persistTo}/d1`,
-								r2Buckets: R2Bindings,
-								r2Persist: `${typedRuntimeMode.persistTo}/r2`,
-								kvNamespaces: KVBindings,
-								kvPersist: `${typedRuntimeMode.persistTo}/kv`,
-								durableObjects: DOBindings,
-								durableObjectsPersist: `${typedRuntimeMode.persistTo}/do`,
-							});
-							await _mf.ready;
-
-							for (const D1Binding of D1Bindings) {
-								const db = await _mf.getD1Database(D1Binding);
-								Reflect.set(bindingsEnv, D1Binding, db);
-							}
-							for (const R2Binding of R2Bindings) {
-								const bucket = await _mf.getR2Bucket(R2Binding);
-								Reflect.set(bindingsEnv, R2Binding, bucket);
-							}
-							for (const KVBinding of KVBindings) {
-								const namespace = await _mf.getKVNamespace(KVBinding);
-								Reflect.set(bindingsEnv, KVBinding, namespace);
-							}
-							for (const key in DOBindings) {
-								if (Object.prototype.hasOwnProperty.call(DOBindings, key)) {
-									const DO = await _mf.getDurableObjectNamespace(key);
-									Reflect.set(bindingsEnv, key, DO);
-								}
-							}
-							const mfCache = await _mf.getCaches();
-
-							process.env.PWD = originalPWD;
-							const clientLocalsSymbol = Symbol.for('astro.locals');
-							Reflect.set(req, clientLocalsSymbol, {
-								runtime: {
-									env: {
-										// default binding for static assets will be dynamic once we support mocking of bindings
-										ASSETS: {},
-										// this is just a VAR for CF to change build behavior, on dev it should be 0
-										CF_PAGES: '0',
-										// will be fetched from git dynamically once we support mocking of bindings
-										CF_PAGES_BRANCH: 'TBA',
-										// will be fetched from git dynamically once we support mocking of bindings
-										CF_PAGES_COMMIT_SHA: 'TBA',
-										CF_PAGES_URL: `http://${req.headers.host}`,
-										...bindingsEnv,
-										...vars,
-									},
-									cf: cf,
-									waitUntil: (_promise: Promise<any>) => {
-										return;
-									},
-									caches: mfCache,
+						const clientLocalsSymbol = Symbol.for('astro.locals');
+						Reflect.set(req, clientLocalsSymbol, {
+							runtime: {
+								env: {
+									CF_PAGES_URL: `http://${req.headers.host}`,
+									...bindings,
+									...secrets,
 								},
-							});
-							next();
-						} catch {
-							next();
-						}
+								cf: cf,
+								caches: caches,
+								waitUntil: (_promise: Promise<any>) => {
+									return;
+								},
+							},
+						});
+						next();
 					});
 				}
 			},
 			'astro:server:done': async ({ logger }) => {
-				if (_mf) {
-					logger.info('Cleaning up the Miniflare instance, and shutting down the workerd server.');
-					await _mf.dispose();
+				if (_localRuntime) {
+					logger.info('Cleaning up the local Cloudflare runtime.');
+					await _localRuntime.dispose();
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
