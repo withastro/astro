@@ -29,7 +29,7 @@ export function getElementsPositionInDocument(el: Element) {
 		if (!Number.isNaN(zIndex) && zIndex > highestZIndex) {
 			highestZIndex = zIndex;
 		}
-		if(style.position === 'fixed') {
+		if (style.position === 'fixed') {
 			fixed = true;
 		}
 		current = current.parentNode;

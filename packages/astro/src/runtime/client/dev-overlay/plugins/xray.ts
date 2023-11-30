@@ -90,7 +90,7 @@ export default {
 				// to calculate, and are unlikely to change. If that turns out to be wrong, reconsider this.
 				const { zIndex, fixed } = getElementsPositionInDocument(islandElement);
 				tooltip.style.zIndex = highlight.style.zIndex = zIndex + '';
-				if(fixed) {
+				if (fixed) {
 					tooltip.style.position = highlight.style.position = 'fixed';
 				}
 
