@@ -11,17 +11,115 @@ import { createWindowElement } from './utils/window.js';
 const icon =
 	'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path fill="#fff" d="M7.9 1.5v-.4a1.1 1.1 0 0 1 2.2 0v.4a1.1 1.1 0 1 1-2.2 0Zm-6.4 8.6a1.1 1.1 0 1 0 0-2.2h-.4a1.1 1.1 0 0 0 0 2.2h.4ZM12 3.7a1.1 1.1 0 0 0 1.4-.7l.4-1.1a1.1 1.1 0 0 0-2.1-.8l-.4 1.2a1.1 1.1 0 0 0 .7 1.4Zm-9.7 7.6-1.2.4a1.1 1.1 0 1 0 .8 2.1l1-.4a1.1 1.1 0 1 0-.6-2ZM20.8 17a1.9 1.9 0 0 1 0 2.6l-1.2 1.2a1.9 1.9 0 0 1-2.6 0l-4.3-4.2-1.6 3.6a1.9 1.9 0 0 1-1.7 1.2A1.9 1.9 0 0 1 7.5 20L2.7 5a1.9 1.9 0 0 1 2.4-2.4l15 5a1.9 1.9 0 0 1 .2 3.4l-3.7 1.6 4.2 4.3ZM19 18.3 14.6 14a1.9 1.9 0 0 1 .6-3l3.2-1.5L5.1 5.1l4.3 13.3 1.5-3.2a1.9 1.9 0 0 1 3-.6l4.4 4.4.7-.7Z"/></svg>';
 
+interface SourceInfo {
+	file: string;
+	loc?: string;
+}
+
+let altClickManager: AltClickManager | undefined = undefined;
+
 export default {
 	id: 'astro:xray',
 	name: 'Inspect',
 	icon: icon,
 	init(canvas) {
 		let islandsOverlays: { highlightElement: DevOverlayHighlight; island: HTMLElement }[] = [];
+		let elementToSourceMap = new WeakMap<HTMLElement, SourceInfo>();
+		altClickManager = new AltClickManager();
+		altClickManager.addEventListener('alt:hover', () => {
+		
+		})
+		altClickManager.addEventListener('alt:click', () => {
+		
+		})
+		
+		afterSwap();
+		document.addEventListener('astro:after-swap', afterSwap);
+		document.addEventListener('astro:page-load', pageLoad);
 
-		addIslandsOverlay();
+		function afterSwap() {
+			addIslandsOverlay();
+			removeMetadata();
+		}
 
-		document.addEventListener('astro:after-swap', addIslandsOverlay);
-		document.addEventListener('astro:page-load', refreshIslandsOverlayPositions);
+		function pageLoad() {
+			refreshIslandsOverlayPositions()
+		}
+
+		let altHoverHighlight: DevOverlayHighlight | undefined;
+		function stopAltHover() {
+			if (altHoverHighlight) {
+				altHoverHighlight.remove();
+				altHoverHighlight = undefined;
+			}
+		}
+		function onAltHover(element: HTMLElement | null) {
+			stopAltHover()
+			if (!element) return;
+			const rect = element.getBoundingClientRect();
+			altHoverHighlight = createHighlight(rect);
+			altHoverHighlight.style.setProperty('pointer-events', 'none');
+			canvas.append(altHoverHighlight);
+		}
+
+		// document.addEventListener('keydown', (evt) => {
+		// 	if (altKeyActive) {
+		// 		altKeyActive = false;
+		// 	}
+		// 	altKeyActive = evt.altKey;
+		// 	if (altKeyActive) {
+		// 		onAltHover(mouseoverElement);
+		// 	} else {
+		// 		stopAltHover()
+		// 	}
+		// })
+		// document.addEventListener('keyup', (evt) => {
+		// 	if (!altKeyActive) return;
+		// 	altKeyActive = evt.altKey;
+		// 	if (!altKeyActive) {
+		// 		stopAltHover()
+		// 	}
+		// })
+		// document.addEventListener('mousemove', (evt) => {
+		// 	if (!altKeyActive) {
+		// 		stopAltHover()
+		// 		mouseoverElement = evt.target as HTMLElement;
+		// 		return;
+		// 	}
+		// 	if (evt.target !== mouseoverElement) {
+		// 		mouseoverElement = evt.target as HTMLElement;
+		// 		onAltHover(mouseoverElement)
+		// 	}
+		// })
+		// document.addEventListener('click', (evt) => {
+		// 	if (!altKeyActive) return;
+		// 	if (!mouseoverElement) return;
+		// 	if (!(evt.target instanceof Node)) return;
+		// 	if (!mouseoverElement.contains(evt.target)) return;
+		// 	const info = getSourceInfo(mouseoverElement);
+		// 	const selection = document.getSelection();
+		// 	console.log('click to open?', { ...info, selectionAnchorOffset: selection?.anchorOffset });
+
+		// })
+
+		function getSourceInfo(target: EventTarget): SourceInfo | undefined {
+			if (!(target instanceof HTMLElement)) return;
+			const info = elementToSourceMap.get(target);
+			return info;
+		}
+
+		function removeMetadata() {
+			const elements = document.querySelectorAll<HTMLElement>('[data-astro-source-file]');
+			for (const el of elements) {
+				if (elementToSourceMap.has(el)) continue;
+				const { astroSourceFile: file, astroSourceLoc: loc } = el.dataset;
+				if (file && loc) {
+					elementToSourceMap.set(el, { file, loc })
+					delete el.dataset['astroSourceFile'];
+					delete el.dataset['astroSourceLoc'];
+				}
+			}
+		}
 
 		function addIslandsOverlay() {
 			islandsOverlays.forEach(({ highlightElement }) => {
@@ -164,3 +262,60 @@ export default {
 		}
 	},
 } satisfies DevOverlayPlugin;
+
+class AltClickManager extends EventTarget {
+	static events = ['keydown', 'keyup', 'mousemove', 'click'];
+
+	target: EventTarget | null = null;
+	#keys = new Set<string>()
+	get altKey() {
+		return this.#keys.has('Alt') && this.#keys.size === 1;
+	}
+
+	constructor() {
+		super();
+		this.#addEventListeners();
+	}
+
+	teardown() {
+		this.#removeEventListeners();
+	}
+
+	handleEvent(event: Event): void {
+		if (isMouseEvent(event)) {
+			this.target = event.target;
+			return;
+		}
+		if (isKeyboardEvent(event)) {
+			const prev = this.altKey;
+			const fn = event.type === 'keydown' ? 'add' : 'delete';
+			this.#keys[fn](event.key);
+			if (prev !== this.altKey) {
+				console.log(this.altKey);
+			}
+			return;
+		}
+		if (event.type === 'click') {
+			return;
+		}
+	}
+
+	#addEventListeners() {
+		for (const event of AltClickManager.events) {
+			document.addEventListener(event, this);
+		}
+	}
+
+	#removeEventListeners() {
+		for (const event of AltClickManager.events) {
+			document.removeEventListener(event, this);
+		}
+	}
+}
+
+function isMouseEvent(event: Event): event is MouseEvent {
+	return event.type === 'mousemove';
+}
+function isKeyboardEvent(event: Event): event is KeyboardEvent {
+	return event.type === 'keydown' || event.type === 'keyup';
+}
