@@ -1477,7 +1477,7 @@ export interface AstroUserConfig {
 			 * @version 3.5.0
 			 * @description
 			 *
-			 * A list of all locales supported by the website, include the `defaultLocale`. This is a required field.
+			 * A list of all locales supported by the website, including the `defaultLocale`. This is a required field.
 			 *
 			 * Languages can be listed either as individual codes (e.g. `['en', 'es', 'pt-br']`) or mapped to a shared `path` of codes (e.g.  `{ path: "english", codes: ["en", "en-US"]}`). These codes will be used to determine the URL structure of your deployed site.
 			 * 
