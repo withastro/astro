@@ -1,6 +1,6 @@
-import { expect } from 'chai';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { expect } from 'chai';
 import { astroCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/function-per-route/', import.meta.url);

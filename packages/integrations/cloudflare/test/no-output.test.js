@@ -1,5 +1,5 @@
-import { expect } from 'chai';
 import { fileURLToPath } from 'node:url';
+import { expect } from 'chai';
 import { astroCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/no-output/', import.meta.url);

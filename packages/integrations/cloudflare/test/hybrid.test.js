@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
-import { astroCli } from './_test-utils.js';
-import { expect } from 'chai';
 import { fileURLToPath } from 'url';
+import { expect } from 'chai';
+import { astroCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/hybrid/', import.meta.url);
 

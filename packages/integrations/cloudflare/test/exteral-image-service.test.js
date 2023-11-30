@@ -1,6 +1,6 @@
-import { expect } from 'chai';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { expect } from 'chai';
 import { astroCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/external-image-service/', import.meta.url);

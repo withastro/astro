@@ -1,13 +1,13 @@
 import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
 
-import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
-import { AstroError } from 'astro/errors';
-import esbuild from 'esbuild';
-import { Miniflare } from 'miniflare';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import { dirname, relative, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
+import { AstroError } from 'astro/errors';
+import esbuild from 'esbuild';
+import { Miniflare } from 'miniflare';
 import glob from 'tiny-glob';
 import { getAdapter } from './getAdapter.js';
 import { deduplicatePatterns } from './utils/deduplicatePatterns.js';

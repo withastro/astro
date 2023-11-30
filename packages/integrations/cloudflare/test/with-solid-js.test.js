@@ -1,6 +1,6 @@
+import { fileURLToPath } from 'node:url';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { fileURLToPath } from 'node:url';
 import { astroCli, wranglerCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/with-solid-js/', import.meta.url);

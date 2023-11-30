@@ -1,6 +1,6 @@
+import { fileURLToPath } from 'node:url';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { fileURLToPath } from 'node:url';
 import { astroCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/dev-runtime/', import.meta.url);
