@@ -30,7 +30,7 @@ export interface RenderContext {
 	locals?: object;
 	locales: string[] | undefined;
 	defaultLocale: string | undefined;
-	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined;
+	routing: 'prefix-always' | 'prefix-other-locales' | undefined;
 }
 
 export type CreateRenderContextArgs = Partial<
@@ -62,7 +62,7 @@ export async function createRenderContext(
 		params,
 		props,
 		locales: options.locales,
-		routingStrategy: options.routingStrategy,
+		routing: options.routing,
 		defaultLocale: options.defaultLocale,
 	};
 

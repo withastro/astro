@@ -227,7 +227,7 @@ export async function handleRoute({
 				mod,
 				route,
 				locales: manifest.i18n?.locales,
-				routingStrategy: manifest.i18n?.routingStrategy,
+				routing: manifest.i18n?.routing,
 				defaultLocale: manifest.i18n?.defaultLocale,
 			});
 		} else {
@@ -286,7 +286,7 @@ export async function handleRoute({
 			mod,
 			env,
 			locales: i18n?.locales,
-			routingStrategy: i18n?.routingStrategy,
+			routing: i18n?.routing,
 			defaultLocale: i18n?.defaultLocale,
 		});
 	}

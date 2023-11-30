@@ -532,7 +532,7 @@ export function createRouteManifest(
 
 		// Work done, now we start creating "fallback" routes based on the configuration
 
-		if (i18n.routingStrategy === 'prefix-always') {
+		if (i18n.routing === 'prefix-always') {
 			// we attempt to retrieve the index page of the default locale
 			const defaultLocaleRoutes = routesByLocale.get(i18n.defaultLocale);
 			if (defaultLocaleRoutes) {

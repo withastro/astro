@@ -552,7 +552,7 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 			env: pipeline.getEnvironment(),
 			mod,
 			locales: i18n?.locales,
-			routingStrategy: i18n?.routingStrategy,
+			routing: i18n?.routing,
 			defaultLocale: i18n?.defaultLocale,
 		});
 
@@ -626,7 +626,7 @@ export function createBuildManifest(
 	if (settings.config.experimental.i18n) {
 		i18nManifest = {
 			fallback: settings.config.experimental.i18n.fallback,
-			routingStrategy: settings.config.experimental.i18n.routingStrategy,
+			routing: settings.config.experimental.i18n.routing,
 			defaultLocale: settings.config.experimental.i18n.defaultLocale,
 			locales: settings.config.experimental.i18n.locales,
 		};
