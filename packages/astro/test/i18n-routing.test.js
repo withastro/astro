@@ -739,7 +739,7 @@ describe('[SSG] i18n routing', () => {
 		it('should render the en locale', async () => {
 			let html = await fixture.readFile('/it/index.html');
 			expect(html).to.include('http-equiv="refresh');
-			expect(html).to.include('Redirecting to: /new-site/en/');
+			expect(html).to.include('Redirecting to: /new-site/');
 		});
 	});
 });
@@ -990,7 +990,7 @@ describe('[SSR] i18n routing', () => {
 			let request = new Request('http://example.com/new-site/it/start');
 			let response = await app.render(request);
 			expect(response.status).to.equal(302);
-			expect(response.headers.get('location')).to.equal('/new-site/en/start');
+			expect(response.headers.get('location')).to.equal('/new-site/start');
 		});
 
 		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
@@ -1013,7 +1013,7 @@ describe('[SSR] i18n routing', () => {
 								it: 'en',
 							},
 							routing: {
-								prefixDefaultLocale: true,
+								prefixDefaultLocale: false,
 							},
 						},
 					},
@@ -1026,7 +1026,7 @@ describe('[SSR] i18n routing', () => {
 				let request = new Request('http://example.com/new-site/it/start');
 				let response = await app.render(request);
 				expect(response.status).to.equal(302);
-				expect(response.headers.get('location')).to.equal('/new-site/en/start');
+				expect(response.headers.get('location')).to.equal('/new-site/start');
 			});
 		});
 	});

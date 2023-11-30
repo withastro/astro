@@ -498,7 +498,7 @@ export function createRouteManifest(
 		const routesByLocale = new Map<string, RouteData[]>();
 		// This type is here only as a helper. We copy the routes and make them unique, so we don't "process" the same route twice.
 		// The assumption is that a route in the file system belongs to only one locale.
-		const setRoutes = new Set(routes);
+		const setRoutes = new Set(routes.filter((route) => route.type === 'page'));
 
 		// First loop
 		// We loop over the locales minus the default locale and add only the routes that contain `/<locale>`.

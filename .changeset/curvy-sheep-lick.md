@@ -2,4 +2,5 @@
 'astro': patch
 ---
 
-Consistely emit fallback routes in the correct folders.
+Consistently emit fallback routes in the correct folders, and emit routes that
+consider `trailingSlash`

@@ -43,7 +43,6 @@ export function createI18nMiddleware(
 		const url = context.url;
 		const { locales, defaultLocale, fallback, routing } = i18n;
 		const response = await next();
-		console.log(' i am here');
 
 		if (response instanceof Response) {
 			const separators = url.pathname.split('/');
