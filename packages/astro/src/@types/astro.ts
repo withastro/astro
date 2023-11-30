@@ -28,7 +28,7 @@ import type { DevOverlayToggle } from '../runtime/client/dev-overlay/ui-library/
 import type { DevOverlayTooltip } from '../runtime/client/dev-overlay/ui-library/tooltip.js';
 import type { DevOverlayWindow } from '../runtime/client/dev-overlay/ui-library/window.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
-import type { OmitIndexSignature, Simplify } from '../type-utils.js';
+import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
 export { type AstroIntegrationLogger };
@@ -2335,7 +2335,7 @@ export interface AstroIntegration {
 			config: AstroConfig;
 			command: 'dev' | 'build' | 'preview';
 			isRestart: boolean;
-			updateConfig: (newConfig: Record<string, any>) => void;
+			updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
 			addRenderer: (renderer: AstroRenderer) => void;
 			addWatchFile: (path: URL | string) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
