@@ -6,10 +6,8 @@ export async function getStaticPaths() {
 }
 
 export async function GET({ params }) {
-    return {
-        body: JSON.stringify({
-            slug: params.slug,
-            title: '[slug]'
-        })
-    };
+    return Response.json({
+        slug: params.slug,
+        title: '[slug]'
+    });
 }

@@ -32,7 +32,7 @@ export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
 	base: SSRManifest['base'],
 	trailingSlash: SSRManifest['trailingSlash']
-): MiddlewareEndpointHandler | undefined {
+): MiddlewareHandler | undefined {
 	if (!i18n) {
 		return undefined;
 	}
@@ -54,7 +54,7 @@ export function createI18nMiddleware(
 		}
 
 		const url = context.url;
-		const { locales, defaultLocale, fallback } = i18n;
+		const { locales, defaultLocale, fallback, routing } = i18n;
 		const response = await next();
 
 		if (response instanceof Response) {
@@ -107,8 +107,8 @@ export function createI18nMiddleware(
 					const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
 					let newPathname: string;
 					// If a locale falls back to the default locale, we want to **remove** the locale because
-					// the default locale doesn't have a prefix, but _only_ if prefix-always is false
-					if (pathFallbackLocale === defaultLocale && i18n.routing !== 'prefix-always') {
+					// the default locale doesn't have a prefix
+					if (pathFallbackLocale === defaultLocale && routing === 'prefix-other-locales') {
 						newPathname = url.pathname.replace(`/${urlLocale}`, ``);
 					} else {
 						newPathname = url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);

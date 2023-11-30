@@ -8,6 +8,7 @@ import type {
 } from '../../../@types/astro.js';
 import type { Logger } from '../../logger/core.js';
 
+import { bold } from 'kleur/colors';
 import { createRequire } from 'module';
 import nodeFs from 'node:fs';
 import path from 'node:path';
@@ -184,13 +185,13 @@ function comparator(a: Item, b: Item) {
 
 function injectedRouteToItem(
 	{ config, cwd }: { config: AstroConfig; cwd?: string },
-	{ pattern, entryPoint }: InjectedRoute
+	{ pattern, entrypoint }: InjectedRoute
 ): Item {
 	let resolved: string;
 	try {
-		resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
+		resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
 	} catch (e) {
-		resolved = fileURLToPath(new URL(entryPoint, config.root));
+		resolved = fileURLToPath(new URL(entrypoint, config.root));
 	}
 
 	const ext = path.extname(pattern);
@@ -235,8 +236,6 @@ export function createRouteManifest(
 	const localFs = fsMod ?? nodeFs;
 	const prerender = getPrerenderDefault(settings.config);
 
-	const foundInvalidFileExtensions = new Set<string>();
-
 	function walk(
 		fs: typeof nodeFs,
 		dir: string,
@@ -260,10 +259,12 @@ export function createRouteManifest(
 			}
 			// filter out "foo.astro_tmp" files, etc
 			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
-				if (!foundInvalidFileExtensions.has(ext)) {
-					foundInvalidFileExtensions.add(ext);
-					logger.warn('astro', `Invalid file extension for Pages: ${ext}`);
-				}
+				logger.warn(
+					null,
+					`Unsupported file type ${bold(
+						resolved
+					)} found. Prefix filename with an underscore (\`_\`) to ignore.`
+				);
 
 				return;
 			}
@@ -360,8 +361,7 @@ export function createRouteManifest(
 		walk(localFs, fileURLToPath(pages), [], []);
 	} else if (settings.injectedRoutes.length === 0) {
 		const pagesDirRootRelative = pages.href.slice(settings.config.root.href.length);
-
-		logger.warn('astro', `Missing pages directory: ${pagesDirRootRelative}`);
+		logger.warn(null, `Missing pages directory: ${pagesDirRootRelative}`);
 	}
 
 	settings.injectedRoutes
@@ -370,12 +370,12 @@ export function createRouteManifest(
 			comparator(injectedRouteToItem({ config, cwd }, a), injectedRouteToItem({ config, cwd }, b))
 		)
 		.reverse() // prepend to the routes array from lowest to highest priority
-		.forEach(({ pattern: name, entryPoint, prerender: prerenderInjected }) => {
+		.forEach(({ pattern: name, entrypoint, prerender: prerenderInjected }) => {
 			let resolved: string;
 			try {
-				resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
+				resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
 			} catch (e) {
-				resolved = fileURLToPath(new URL(entryPoint, config.root));
+				resolved = fileURLToPath(new URL(entrypoint, config.root));
 			}
 			const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
 
@@ -499,11 +499,7 @@ export function createRouteManifest(
 		const routesByLocale = new Map<string, RouteData[]>();
 		// This type is here only as a helper. We copy the routes and make them unique, so we don't "process" the same route twice.
 		// The assumption is that a route in the file system belongs to only one locale.
-		const setRoutes = new Set(
-			routes.filter((route) => {
-				return route.type === 'page';
-			})
-		);
+		const setRoutes = new Set(routes.filter((route) => route.type === 'page'));
 
 		// First loop
 		// We loop over the locales minus the default locale and add only the routes that contain `/<locale>`.
@@ -621,22 +617,22 @@ export function createRouteManifest(
 						if (!hasRoute) {
 							let pathname: string | undefined;
 							let route: string;
-							if (fallbackToLocale === i18n.defaultLocale) {
+							if (
+								fallbackToLocale === i18n.defaultLocale &&
+								i18n.routing === 'prefix-other-locales'
+							) {
 								if (fallbackToRoute.pathname) {
 									pathname = `/${fallbackFromLocale}${fallbackToRoute.pathname}`;
 								}
 								route = `/${fallbackFromLocale}${fallbackToRoute.route}`;
 							} else {
-								pathname = fallbackToRoute.pathname?.replace(
-									`/${fallbackToLocale}`,
-									`/${fallbackFromLocale}`
-								);
-								route = fallbackToRoute.route.replace(
-									`/${fallbackToLocale}`,
-									`/${fallbackFromLocale}`
-								);
+								pathname = fallbackToRoute.pathname
+									?.replace(`/${fallbackToLocale}/`, `/${fallbackFromLocale}/`)
+									.replace(`/${fallbackToLocale}`, `/${fallbackFromLocale}`);
+								route = fallbackToRoute.route
+									.replace(`/${fallbackToLocale}`, `/${fallbackFromLocale}`)
+									.replace(`/${fallbackToLocale}/`, `/${fallbackFromLocale}/`);
 							}
-
 							const segments = removeLeadingForwardSlash(route)
 								.split(path.posix.sep)
 								.filter(Boolean)
@@ -644,14 +640,15 @@ export function createRouteManifest(
 									validateSegment(s);
 									return getParts(s, route);
 								});
-
+							const generate = getRouteGenerator(segments, config.trailingSlash);
 							const index = routes.findIndex((r) => r === fallbackToRoute);
-							if (index) {
+							if (index >= 0) {
 								const fallbackRoute: RouteData = {
 									...fallbackToRoute,
 									pathname,
 									route,
 									segments,
+									generate,
 									pattern: getPattern(segments, config, config.trailingSlash),
 									type: 'fallback',
 									fallbackRoutes: [],

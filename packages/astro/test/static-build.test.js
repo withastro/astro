@@ -186,8 +186,7 @@ describe('Static build', () => {
 		let found = false;
 		for (const log of logs) {
 			if (
-				log.label === 'ssg' &&
-				/[hH]eaders are not exposed in static \(SSG\) output mode/.test(log.message)
+				/\`Astro\.request\.headers\` is not available in "static" output mode/.test(log.message)
 			) {
 				found = true;
 			}

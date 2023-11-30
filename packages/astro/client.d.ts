@@ -1,4 +1,4 @@
-/// <reference path="./import-meta.d.ts" />
+/// <reference types="vite/types/import-meta.d.ts" />
 
 // eslint-disable-next-line  @typescript-eslint/no-namespace
 declare namespace App {
@@ -106,7 +106,7 @@ declare module '*.avif' {
 }
 
 declare module 'astro:transitions' {
-	type TransitionModule = typeof import('./dist/transitions/index.js');
+	type TransitionModule = typeof import('./dist/virtual-modules/transitions.js');
 	export const slide: TransitionModule['slide'];
 	export const fade: TransitionModule['fade'];
 	export const createAnimationScope: TransitionModule['createAnimationScope'];
@@ -116,44 +116,45 @@ declare module 'astro:transitions' {
 }
 
 declare module 'astro:transitions/client' {
-	type TransitionRouterModule = typeof import('./dist/transitions/router.js');
+	type TransitionRouterModule = typeof import('./dist/virtual-modules/transitions-router.js');
 	export const navigate: TransitionRouterModule['navigate'];
 
-	type TransitionUtilModule = typeof import('./dist/transitions/util.js');
+	type TransitionUtilModule = typeof import('./dist/virtual-modules/transitions-util.js');
 	export const supportsViewTransitions: TransitionUtilModule['supportsViewTransitions'];
 	export const getFallback: TransitionUtilModule['getFallback'];
 	export const transitionEnabledOnThisPage: TransitionUtilModule['transitionEnabledOnThisPage'];
 
-	export type Fallback = import('./dist/transitions/types.ts').Fallback;
-	export type Direction = import('./dist/transitions/types.ts').Direction;
-	export type NavigationTypeString = import('./dist/transitions/types.ts').NavigationTypeString;
-	export type Options = import('./dist/transitions/types.ts').Options;
+	export type Fallback = import('./dist/virtual-modules/transitions-types.js').Fallback;
+	export type Direction = import('./dist/virtual-modules/transitions-types.ts').Direction;
+	export type NavigationTypeString =
+		import('./dist/virtual-modules/transitions-types.js').NavigationTypeString;
+	export type Options = import('./dist/virtual-modules/transitions-types.js').Options;
 
-	type EventModule = typeof import('./dist/transitions/events.js');
+	type EventModule = typeof import('./dist/virtual-modules/transitions-events.js');
 	export const TRANSITION_BEFORE_PREPARATION: EventModule['TRANSITION_BEFORE_PREPARATION'];
 	export const TRANSITION_AFTER_PREPARATION: EventModule['TRANSITION_AFTER_PREPARATION'];
 	export const TRANSITION_BEFORE_SWAP: EventModule['TRANSITION_BEFORE_SWAP'];
 	export const TRANSITION_AFTER_SWAP: EventModule['TRANSITION_AFTER_SWAP'];
 	export const TRANSITION_PAGE_LOAD: EventModule['TRANSITION_PAGE_LOAD'];
 	export type TransitionBeforePreparationEvent =
-		import('./dist/transitions/events.ts').TransitionBeforePreparationEvent;
+		import('./dist/virtual-modules/transitions-events.js').TransitionBeforePreparationEvent;
 	export type TransitionBeforeSwapEvent =
-		import('./dist/transitions/events.ts').TransitionBeforeSwapEvent;
+		import('./dist/virtual-modules/transitions-events.js').TransitionBeforeSwapEvent;
 	export const isTransitionBeforePreparationEvent: EventModule['isTransitionBeforePreparationEvent'];
 	export const isTransitionBeforeSwapEvent: EventModule['isTransitionBeforeSwapEvent'];
 }
 
 declare module 'astro:prefetch' {
-	export { prefetch, PrefetchOptions } from 'astro/prefetch';
+	export { prefetch, PrefetchOptions } from 'astro/virtual-modules/prefetch.js';
 }
 
 declare module 'astro:i18n' {
-	export type GetLocaleOptions = import('./dist/i18n/index.js').GetLocaleOptions;
+	export type GetLocaleOptions = import('./dist/virtual-modules/i18n.js').GetLocaleOptions;
 
 	/**
 	 * @param {string} locale A locale
 	 * @param {string} [path=""] An optional path to add after the `locale`.
-	 * @param {import('./dist/i18n/index.js').GetLocaleOptions} options Customise the generated path
+	 * @param {import('./dist/virtual-modules/i18n.js').GetLocaleOptions} options Customise the generated path
 	 * @return {string}
 	 *
 	 * Returns a _relative_ path with passed locale.
@@ -182,7 +183,7 @@ declare module 'astro:i18n' {
 	 *
 	 * @param {string} locale A locale
 	 * @param {string} [path=""] An optional path to add after the `locale`.
-	 * @param {import('./dist/i18n/index.js').GetLocaleOptions} options Customise the generated path
+	 * @param {import('./dist/virtual-modules/i18n.js').GetLocaleOptions} options Customise the generated path
 	 * @return {string}
 	 *
 	 * Returns an absolute path with the passed locale. The behaviour is subject to change based on `site` configuration.
@@ -212,7 +213,7 @@ declare module 'astro:i18n' {
 
 	/**
 	 * @param {string} [path=""] An optional path to add after the `locale`.
-	 * @param {import('./dist/i18n/index.js').GetLocaleOptions} options Customise the generated path
+	 * @param {import('./dist/virtual-modules/i18n.js').GetLocaleOptions} options Customise the generated path
 	 * @return {string[]}
 	 *
 	 * Works like `getRelativeLocaleUrl` but it emits the relative URLs for ALL locales:
@@ -220,7 +221,7 @@ declare module 'astro:i18n' {
 	export const getRelativeLocaleUrlList: (path?: string, options?: GetLocaleOptions) => string[];
 	/**
 	 * @param {string} [path=""] An optional path to add after the `locale`.
-	 * @param {import('./dist/i18n/index.js').GetLocaleOptions} options Customise the generated path
+	 * @param {import('./dist/virtual-modules/i18n.js').GetLocaleOptions} options Customise the generated path
 	 * @return {string[]}
 	 *
 	 * Works like `getAbsoluteLocaleUrl` but it emits the absolute URLs for ALL locales:
@@ -292,7 +293,7 @@ declare module 'astro:i18n' {
 }
 
 declare module 'astro:middleware' {
-	export * from 'astro/middleware/namespace';
+	export * from 'astro/virtual-modules/middleware.js';
 }
 
 declare module 'astro:components' {
@@ -305,8 +306,6 @@ interface ExportedMarkdownModuleEntities {
 	file: MD['file'];
 	url: MD['url'];
 	getHeadings: MD['getHeadings'];
-	/** @deprecated Renamed to `getHeadings()` */
-	getHeaders: () => void;
 	Content: MD['Content'];
 	rawContent: MD['rawContent'];
 	compiledContent: MD['compiledContent'];

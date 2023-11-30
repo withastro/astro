@@ -799,8 +799,7 @@ describe('[SSG] i18n routing', () => {
 			await fixture.build();
 		});
 
-		// TODO: enable once we fix fallback
-		it.skip('should render the en locale', async () => {
+		it('should render the en locale', async () => {
 			let html = await fixture.readFile('/it/start/index.html');
 			expect(html).to.include('http-equiv="refresh');
 			expect(html).to.include('url=/new-site/en/start');
@@ -834,6 +833,40 @@ describe('[SSG] i18n routing', () => {
 			let html = await fixture.readFile('/index.html');
 			expect(html).to.include('http-equiv="refresh');
 			expect(html).to.include('Redirecting to: /en');
+		});
+	});
+
+	describe('i18n routing with fallback and trailing slash', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-fallback/',
+				trailingSlash: 'always',
+				build: {
+					format: 'directory',
+				},
+				experimental: {
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'pt', 'it'],
+						fallback: {
+							it: 'en',
+						},
+						routing: {
+							prefixDefaultLocale: false,
+						},
+					},
+				},
+			});
+			await fixture.build();
+		});
+
+		it('should render the en locale', async () => {
+			let html = await fixture.readFile('/it/index.html');
+			expect(html).to.include('http-equiv="refresh');
+			expect(html).to.include('Redirecting to: /new-site/');
 		});
 	});
 });
@@ -1144,7 +1177,7 @@ describe('[SSR] i18n routing', () => {
 								it: 'en',
 							},
 							routing: {
-								prefixDefaultLocale: true,
+								prefixDefaultLocale: false,
 							},
 						},
 					},
@@ -1157,7 +1190,7 @@ describe('[SSR] i18n routing', () => {
 				let request = new Request('http://example.com/new-site/it/start');
 				let response = await app.render(request);
 				expect(response.status).to.equal(302);
-				expect(response.headers.get('location')).to.equal('/new-site/en/start');
+				expect(response.headers.get('location')).to.equal('/new-site/start');
 			});
 		});
 	});
