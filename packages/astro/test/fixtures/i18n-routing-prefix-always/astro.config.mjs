@@ -10,7 +10,9 @@ export default defineConfig({
 					codes: ["es", "es-ar"]
 				}
 			], 
-			routingStrategy: "prefix-always"
+			routing: {
+				prefixDefaultLocale: true
+			}
 		}
 	},
 	base: "/new-site"

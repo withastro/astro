@@ -61,7 +61,7 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		locals: renderContext.locals ?? {},
 		locales: renderContext.locales,
 		defaultLocale: renderContext.defaultLocale,
-		routingStrategy: renderContext.routingStrategy,
+		routingStrategy: renderContext.routing,
 	});
 
 	// TODO: Remove in Astro 4.0
@@ -76,7 +76,7 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		result,
 		Component,
 		renderContext.props,
-		null,
+		{},
 		env.streaming,
 		renderContext.route
 	);

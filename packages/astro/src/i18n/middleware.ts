@@ -59,14 +59,14 @@ export function createI18nMiddleware(
 
 		if (response instanceof Response) {
 			const pathnameContainsDefaultLocale = url.pathname.includes(`/${defaultLocale}`);
-			if (i18n.routingStrategy === 'prefix-other-locales' && pathnameContainsDefaultLocale) {
+			if (i18n.routing === 'prefix-other-locales' && pathnameContainsDefaultLocale) {
 				const newLocation = url.pathname.replace(`/${defaultLocale}`, '');
 				response.headers.set('Location', newLocation);
 				return new Response(null, {
 					status: 404,
 					headers: response.headers,
 				});
-			} else if (i18n.routingStrategy === 'prefix-always') {
+			} else if (i18n.routing === 'prefix-always') {
 				if (url.pathname === base + '/' || url.pathname === base) {
 					if (trailingSlash === 'always') {
 						return context.redirect(`${appendForwardSlash(joinPaths(base, i18n.defaultLocale))}`);
@@ -107,8 +107,8 @@ export function createI18nMiddleware(
 					const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
 					let newPathname: string;
 					// If a locale falls back to the default locale, we want to **remove** the locale because
-					// the default locale doesn't have a prefix
-					if (pathFallbackLocale === defaultLocale) {
+					// the default locale doesn't have a prefix, but _only_ if prefix-always is false
+					if (pathFallbackLocale === defaultLocale && i18n.routing !== 'prefix-always') {
 						newPathname = url.pathname.replace(`/${urlLocale}`, ``);
 					} else {
 						newPathname = url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
