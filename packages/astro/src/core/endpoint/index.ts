@@ -1,4 +1,10 @@
-import type { APIContext, EndpointHandler, MiddlewareHandler, Params } from '../../@types/astro.js';
+import type {
+	APIContext,
+	EndpointHandler,
+	Locales,
+	MiddlewareHandler,
+	Params,
+} from '../../@types/astro.js';
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachCookiesToResponse } from '../cookies/index.js';
@@ -20,7 +26,7 @@ type CreateAPIContext = {
 	site?: string;
 	props: Record<string, any>;
 	adapterName?: string;
-	locales: string[] | undefined;
+	locales: Locales | undefined;
 	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined;
 	defaultLocale: string | undefined;
 };

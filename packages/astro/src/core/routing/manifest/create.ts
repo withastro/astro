@@ -18,6 +18,7 @@ import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
+import { getPathByLocale } from '../../../i18n/index.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -502,7 +503,20 @@ export function createRouteManifest(
 
 		// First loop
 		// We loop over the locales minus the default locale and add only the routes that contain `/<locale>`.
-		for (const locale of i18n.locales.filter((loc) => loc !== i18n.defaultLocale)) {
+		const filteredLocales = i18n.locales
+			.filter((loc) => {
+				if (typeof loc === 'string') {
+					return loc !== i18n.defaultLocale;
+				}
+				return loc.path !== i18n.defaultLocale;
+			})
+			.map((locale) => {
+				if (typeof locale === 'string') {
+					return locale;
+				}
+				return locale.path;
+			});
+		for (const locale of filteredLocales) {
 			for (const route of setRoutes) {
 				if (!route.route.includes(`/${locale}`)) {
 					continue;

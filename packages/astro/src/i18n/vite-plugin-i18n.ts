@@ -27,7 +27,8 @@ export default function astroInternationalization({
 						getLocaleRelativeUrlList as _getLocaleRelativeUrlList,
 						getLocaleAbsoluteUrl as _getLocaleAbsoluteUrl, 
 						getLocaleAbsoluteUrlList as _getLocaleAbsoluteUrlList,
-						 
+						getPathByLocale as _getPathByLocale, 
+						getLocaleByPath as _getLocaleByPath,
 					} from "astro/virtual-modules/i18n.js";
 					
 					const base =  ${JSON.stringify(settings.config.base)};
@@ -59,6 +60,9 @@ export default function astroInternationalization({
 					export const getRelativeLocaleUrlList = (path = "", opts) => _getLocaleRelativeUrlList({ 
 						base, path, trailingSlash, format, ...i18n, ...opts });
 					export const getAbsoluteLocaleUrlList = (path = "", opts) => _getLocaleAbsoluteUrlList({ base, path, trailingSlash, format, site, ...i18n, ...opts });
+					
+					export const getPathByLocale = (locale) => _getPathByLocale(locale, i18n.locales);
+					export const getLocaleByPath = (locale) => _getLocaleByPath(locale, i18n.locales);
 				`;
 			}
 		},
