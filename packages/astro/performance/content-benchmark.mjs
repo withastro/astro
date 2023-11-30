@@ -44,14 +44,14 @@ async function benchmark({ fixtures, templates, numPosts }) {
 		const test = Array.isArray(flags.test)
 			? flags.test
 			: typeof flags.test === 'string'
-			? [flags.test]
-			: ['simple', 'with-astro-components', 'with-react-components'];
+			  ? [flags.test]
+			  : ['simple', 'with-astro-components', 'with-react-components'];
 
 		const formats = Array.isArray(flags.format)
 			? flags.format
 			: typeof flags.format === 'string'
-			? [flags.format]
-			: ['md', 'mdx', 'mdoc'];
+			  ? [flags.format]
+			  : ['md', 'mdx', 'mdoc'];
 
 		const numPosts = flags.numPosts || 1000;
 

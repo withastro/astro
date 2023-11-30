@@ -1,5 +1,5 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
-import type { MiddlewareEndpointHandler, RouteData, SSRManifest } from '../@types/astro.js';
+import type { MiddlewareHandler, RouteData, SSRManifest } from '../@types/astro.js';
 import type { PipelineHookFunction } from '../core/pipeline.js';
 
 const routeDataSymbol = Symbol.for('astro.routeData');
@@ -19,7 +19,7 @@ export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
 	base: SSRManifest['base'],
 	trailingSlash: SSRManifest['trailingSlash']
-): MiddlewareEndpointHandler | undefined {
+): MiddlewareHandler | undefined {
 	if (!i18n) {
 		return undefined;
 	}

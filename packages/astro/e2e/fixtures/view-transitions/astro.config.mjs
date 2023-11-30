@@ -13,6 +13,9 @@ export default defineConfig({
 		'/redirect-two': '/two',
 		'/redirect-external': 'http://example.com/',
 	},
+	devOverlay: {
+		enabled: false,
+	},
 	vite: {
 		build: {
 			assetsInlineLimit: 0,

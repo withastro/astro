@@ -2,13 +2,17 @@ import type http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type {
 	ComponentInstance,
+	DevOverlayMetadata,
 	ManifestData,
-	MiddlewareEndpointHandler,
+	MiddlewareHandler,
 	RouteData,
 	SSRElement,
 	SSRManifest,
 } from '../@types/astro.js';
+import { getInfoOutput } from '../cli/info/index.js';
+import { ASTRO_VERSION } from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
+import { req } from '../core/messages.js';
 import { sequence } from '../core/middleware/index.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import {
@@ -24,7 +28,6 @@ import { createI18nMiddleware, i18nPipelineHook } from '../i18n/middleware.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
-import { log404 } from './common.js';
 import { getStylesForURL } from './css.js';
 import type DevPipeline from './devPipeline.js';
 import { preload } from './index.js';
@@ -46,6 +49,10 @@ export interface MatchedRoute {
 	resolvedPathname: string;
 	preloadedComponent: ComponentInstance;
 	mod: ComponentInstance;
+}
+
+function isLoggedRequest(url: string) {
+	return url !== '/favicon.ico';
 }
 
 function getCustom404Route(manifestData: ManifestData): RouteData | undefined {
@@ -108,14 +115,13 @@ export async function matchRoute(
 		const possibleRoutes = matches.flatMap((route) => route.component);
 
 		pipeline.logger.warn(
-			'getStaticPaths',
+			'router',
 			`${AstroErrorData.NoMatchingStaticPathFound.message(
 				pathname
 			)}\n\n${AstroErrorData.NoMatchingStaticPathFound.hint(possibleRoutes)}`
 		);
 	}
 
-	log404(logger, pathname);
 	const custom404 = getCustom404Route(manifestData);
 
 	if (custom404) {
@@ -161,11 +167,15 @@ export async function handleRoute({
 	incomingResponse,
 	manifest,
 }: HandleRoute): Promise<void> {
+	const timeStart = performance.now();
 	const env = pipeline.getEnvironment();
 	const config = pipeline.getConfig();
 	const moduleLoader = pipeline.getModuleLoader();
 	const { logger } = env;
 	if (!matchedRoute && !config.experimental.i18n) {
+		if (isLoggedRequest(pathname)) {
+			logger.info(null, req({ url: pathname, method: incomingRequest.method, statusCode: 404 }));
+		}
 		return handle404Response(origin, incomingRequest, incomingResponse);
 	}
 
@@ -281,7 +291,7 @@ export async function handleRoute({
 		});
 	}
 
-	const onRequest = middleware?.onRequest as MiddlewareEndpointHandler | undefined;
+	const onRequest = middleware?.onRequest as MiddlewareHandler | undefined;
 	if (config.experimental.i18n) {
 		const i18Middleware = createI18nMiddleware(
 			config.experimental.i18n,
@@ -304,6 +314,18 @@ export async function handleRoute({
 	}
 
 	let response = await pipeline.renderRoute(renderContext, mod);
+	if (isLoggedRequest(pathname)) {
+		const timeEnd = performance.now();
+		logger.info(
+			null,
+			req({
+				url: pathname,
+				method: incomingRequest.method,
+				statusCode: response.status,
+				reqTime: timeEnd - timeStart,
+			})
+		);
+	}
 	if (response.status === 404 && has404Route(manifestData)) {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
 		if (options && fourOhFourRoute?.route !== options.route)
@@ -362,7 +384,10 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			children: '',
 		});
 
-		if (settings.config.experimental.devOverlay) {
+		if (
+			settings.config.devOverlay.enabled &&
+			(await settings.preferences.get('devOverlay.enabled'))
+		) {
 			scripts.add({
 				props: {
 					type: 'module',
@@ -371,12 +396,17 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 				children: '',
 			});
 
+			const additionalMetadata: DevOverlayMetadata['__astro_dev_overlay__'] = {
+				defaultState: settings.config.devOverlay.defaultState,
+				root: fileURLToPath(settings.config.root),
+				version: ASTRO_VERSION,
+				debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),
+			};
+
 			// Additional data for the dev overlay
 			scripts.add({
 				props: {},
-				children: `window.__astro_dev_overlay__ = {root: ${JSON.stringify(
-					fileURLToPath(settings.config.root)
-				)}}`,
+				children: `window.__astro_dev_overlay__ = ${JSON.stringify(additionalMetadata)}`,
 			});
 		}
 	}

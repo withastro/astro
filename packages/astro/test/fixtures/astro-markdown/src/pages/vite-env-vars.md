@@ -21,7 +21,7 @@ This should also work outside of code blocks:
 // src/pages/rss.xml.js
 import rss from '@astrojs/rss';
 
-export const get = () => rss({
+export const GET = () => rss({
 	// Use Vite env vars with import.meta.env
 	site: import.meta.env.SITE,
 	title: import.meta.env.TITLE,

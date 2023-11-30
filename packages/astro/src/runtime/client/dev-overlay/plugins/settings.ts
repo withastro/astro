@@ -1,6 +1,6 @@
 import type { DevOverlayPlugin } from '../../../../@types/astro.js';
 import { settings, type Settings } from '../settings.js';
-import { createWindowWithTransition, waitForTransition } from './utils/window.js';
+import { createWindowElement } from './utils/window.js';
 
 interface SettingRow {
 	name: string;
@@ -13,7 +13,7 @@ interface SettingRow {
 const settingsRows = [
 	{
 		name: 'Disable notifications',
-		description: 'Notification bubbles will not be shown when this is enabled.',
+		description: 'Hide notification badges in the toolbar.',
 		input: 'checkbox',
 		settingKey: 'disablePluginNotification',
 		changeEvent: (evt: Event) => {
@@ -37,7 +37,7 @@ const settingsRows = [
 
 export default {
 	id: 'astro:settings',
-	name: 'Overlay settings',
+	name: 'Settings',
 	icon: 'gear',
 	init(canvas) {
 		createSettingsWindow();
@@ -45,10 +45,15 @@ export default {
 		document.addEventListener('astro:after-swap', createSettingsWindow);
 
 		function createSettingsWindow() {
-			const window = createWindowWithTransition(
-				'Settings',
-				'gear',
+			const windowElement = createWindowElement(
 				`<style>
+					:host astro-dev-overlay-window {
+						height: 480px;
+					}
+					header {
+						display: flex;
+					}
+
 					h2, h3 {
 						margin-top: 0;
 					}
@@ -67,18 +72,40 @@ export default {
 					}
 
 					label {
-						font-size: 15px;
+						font-size: 14px;
 						line-height: 1.5rem;
 					}
+
+					h1 {
+						display: flex;
+						align-items: center;
+						gap: 8px;
+						font-weight: 600;
+						color: #fff;
+						margin: 0;
+						font-size: 22px;
+					}
+
+					astro-dev-overlay-icon {
+						width: 1em;
+   					height: 1em;
+    				display: block;
+					}
 				</style>
+				<header>
+					<h1><astro-dev-overlay-icon icon="gear"></astro-dev-overlay-icon> Settings</h1>
+				</header>
+
+				<hr />
+
 				<h2>General</h2>
-				`,
-				settingsRows.flatMap((setting) => [
-					getElementForSettingAsString(setting),
-					document.createElement('hr'),
-				])
+				`
 			);
-			canvas.append(window);
+			for (const settingsRow of settingsRows) {
+				windowElement.append(getElementForSettingAsString(settingsRow));
+				windowElement.append(document.createElement('hr'));
+			}
+			canvas.append(windowElement);
 
 			function getElementForSettingAsString(setting: SettingRow) {
 				const label = document.createElement('label');
@@ -99,8 +126,5 @@ export default {
 				return label;
 			}
 		}
-	},
-	async beforeTogglingOff(canvas) {
-		return await waitForTransition(canvas);
 	},
 } satisfies DevOverlayPlugin;

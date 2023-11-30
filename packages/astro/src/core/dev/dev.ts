@@ -1,8 +1,8 @@
+import { green } from 'kleur/colors';
 import fs from 'node:fs';
 import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { performance } from 'perf_hooks';
-import type * as vite from 'vite';
 import type { AstroInlineConfig } from '../../@types/astro.js';
 import { attachContentServerListeners } from '../../content/index.js';
 import { telemetry } from '../../events/index.js';
@@ -33,9 +33,8 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	// Start listening to the port
 	const devServerAddressInfo = await startContainer(restart.container);
-
 	logger.info(
-		null,
+		'SKIP_FORMAT',
 		msg.serverStart({
 			startupTime: performance.now() - devStart,
 			resolvedUrls: restart.container.viteServer.resolvedUrls || { local: [], network: [] },
@@ -46,13 +45,15 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	const currentVersion = process.env.PACKAGE_VERSION ?? '0.0.0';
 	if (currentVersion.includes('-')) {
-		logger.warn(null, msg.prerelease({ currentVersion }));
+		logger.warn('SKIP_FORMAT', msg.prerelease({ currentVersion }));
 	}
 	if (restart.container.viteServer.config.server?.fs?.strict === false) {
-		logger.warn(null, msg.fsStrictWarning());
+		logger.warn('SKIP_FORMAT', msg.fsStrictWarning());
 	}
 
 	await attachContentServerListeners(restart.container);
+
+	logger.info(null, green('watching for file changes...'));
 
 	return {
 		address: devServerAddressInfo,

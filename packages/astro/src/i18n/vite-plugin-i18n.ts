@@ -1,4 +1,3 @@
-import * as vite from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 
 const virtualModuleId = 'astro:i18n';
@@ -28,7 +27,7 @@ export default function astroInternationalization({
 						getLocaleAbsoluteUrl as _getLocaleAbsoluteUrl, 
 						getLocaleAbsoluteUrlList as _getLocaleAbsoluteUrlList,
 						 
-					} from "astro/i18n";
+					} from "astro/virtual-modules/i18n.js";
 					
 					const base =  ${JSON.stringify(settings.config.base)};
 					const trailingSlash =  ${JSON.stringify(settings.config.trailingSlash)};
