@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Returns updated config in integration hooks
+Returns the updated config in the integration `astro:config:setup` hook's `updateConfig()` API
