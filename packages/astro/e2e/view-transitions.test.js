@@ -1059,4 +1059,16 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toHaveText('Page 2');
 		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
+
+	test('Submitter with a name property is included in form data', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/form-four'));
+
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Voting Form');
+
+		// Submit the form
+		const expected = page.url() + '?stars=3';
+		await page.click('#three');
+		await expect(page).toHaveURL(expected);
+	});
 });
