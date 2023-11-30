@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		// @ts-expect-error
 		import('astro:dev-overlay'),
 		import('./plugins/astro.js'),
-		import('./plugins/audit.js'),
+		import('./plugins/audit/index.js'),
 		import('./plugins/xray.js'),
 		import('./plugins/settings.js'),
 		import('./overlay.js'),
