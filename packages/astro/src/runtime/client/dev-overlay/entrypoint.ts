@@ -224,7 +224,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 				}
 
 				canvas.append(dropdown);
-				}
 			}
 		},
 	} satisfies DevOverlayPluginDefinition;
