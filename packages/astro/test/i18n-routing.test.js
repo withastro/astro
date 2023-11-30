@@ -709,6 +709,41 @@ describe('[SSG] i18n routing', () => {
 			expect(html).to.include('Redirecting to: /en');
 		});
 	});
+
+	describe('i18n routing with fallback and trailing slash', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-fallback/',
+				trailingSlash: 'always',
+				build: {
+					format: 'directory',
+				},
+				experimental: {
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'pt', 'it'],
+						fallback: {
+							it: 'en',
+						},
+						routing: {
+							prefixDefaultLocale: false,
+						},
+					},
+				},
+			});
+			await fixture.build();
+		});
+
+		it('should render the en locale', async () => {
+			let html = await fixture.readFile('/it/index.html');
+			console.log(html);
+			expect(html).to.include('http-equiv="refresh');
+			expect(html).to.include('Redirecting to: /en/');
+		});
+	});
 });
 describe('[SSR] i18n routing', () => {
 	let app;
