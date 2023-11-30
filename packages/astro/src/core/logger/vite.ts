@@ -74,6 +74,15 @@ export function createViteLogger(
 			if (err) loggedErrors.add(err);
 			// Astro errors are already logged by us, skip logging
 			if (err && isAstroError(err)) return;
+			// SSR module and pre-transform errors are always handled by us,
+			// send to debug logs
+			if (
+				msg.includes('Error when evaluating SSR module') ||
+				msg.includes('Pre-transform error:')
+			) {
+				astroLogger.debug('vite', msg);
+				return;
+			}
 
 			astroLogger.error('vite', msg);
 		},
