@@ -18,6 +18,12 @@ const settingsRows = [
 		settingKey: 'disablePluginNotification',
 		changeEvent: (evt: Event) => {
 			if (evt.currentTarget instanceof HTMLInputElement) {
+				const devOverlay = document.querySelector('astro-dev-overlay');
+
+				if (devOverlay) {
+					devOverlay.setNotificationVisible(!evt.currentTarget.checked);
+				}
+
 				settings.updateSetting('disablePluginNotification', evt.currentTarget.checked);
 			}
 		},

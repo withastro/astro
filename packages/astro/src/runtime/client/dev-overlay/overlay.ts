@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import type {
+	DevOverlayMetadata,
 	DevOverlayPlugin as DevOverlayPluginDefinition,
 } from '../../../@types/astro.js';
 import { settings } from './settings.js';
@@ -37,7 +38,7 @@ export class AstroDevOverlay extends HTMLElement {
 	 */
 	init() {
 		this.shadowRoot.innerHTML = `
-		<style>	
+		<style>
 			:host {
 				/* Important! Reset all inherited styles to initial */
 				all: initial;
@@ -45,12 +46,12 @@ export class AstroDevOverlay extends HTMLElement {
 				view-transition-name: astro-dev-overlay;
 				display: contents;
 			}
-		
+
 			::view-transition-old(astro-dev-overlay),
 			::view-transition-new(astro-dev-overlay) {
 				animation: none;
 			}
-		
+
 			#dev-overlay {
 				position: fixed;
 				bottom: 0px;
@@ -63,15 +64,15 @@ export class AstroDevOverlay extends HTMLElement {
 				transition: bottom 0.35s cubic-bezier(0.485, -0.050, 0.285, 1.505);
 				pointer-events: none;
 			}
-		
+
 			#dev-overlay[data-hidden] {
 				bottom: -40px;
 			}
-		
+
 			#dev-overlay[data-hidden] #dev-bar .item {
 				opacity: 0;
 			}
-		
+
 			#dev-bar-hitbox-above,
 			#dev-bar-hitbox-below {
 				width: 100%;
@@ -117,20 +118,20 @@ export class AstroDevOverlay extends HTMLElement {
 				overflow: hidden;
 				transition: opacity 0.2s ease-out 0s;
 			}
-		
+
 			#dev-bar #bar-container .item:hover, #dev-bar #bar-container .item:focus-visible {
 				background: #FFFFFF20;
 				cursor: pointer;
 				outline-offset: -3px;
 			}
-		
+
 			#dev-bar .item:first-of-type {
 				border-top-left-radius: 9999px;
 				border-bottom-left-radius: 9999px;
 				width: 42px;
 				padding-left: 4px;
 			}
-		
+
 			#dev-bar .item:last-of-type {
 				border-top-right-radius: 9999px;
 				border-bottom-right-radius: 9999px;
@@ -140,7 +141,7 @@ export class AstroDevOverlay extends HTMLElement {
 			#dev-bar #bar-container .item.active {
 				background: rgba(71, 78, 94, 1);
 			}
-		
+
 			#dev-bar .item-tooltip {
 				background: linear-gradient(0deg, #13151A, #13151A), linear-gradient(0deg, #343841, #343841);
 				border: 1px solid rgba(52, 56, 65, 1);
@@ -153,7 +154,7 @@ export class AstroDevOverlay extends HTMLElement {
 				transition: opacity 0.2s ease-in-out 0s;
 				pointer-events: none;
 			}
-		
+
 			#dev-bar .item-tooltip::after{
 				content: '';
 				position: absolute;
@@ -163,14 +164,14 @@ export class AstroDevOverlay extends HTMLElement {
 				border-right: 5px solid transparent;
 				border-top: 5px solid #343841;
 			}
-		
+
 			#dev-bar .item:hover .item-tooltip, #dev-bar .item:not(.active):focus-visible .item-tooltip {
 				transition: opacity 0.2s ease-in-out 200ms;
 				opacity: 1;
 			}
 
 			@media (forced-colors: active) {
-				#dev-bar .item:hover .item-tooltip, 
+				#dev-bar .item:hover .item-tooltip,
 				#dev-bar .item:not(.active):focus-visible .item-tooltip {
 					background: white;
 				}
@@ -179,14 +180,14 @@ export class AstroDevOverlay extends HTMLElement {
 			#dev-bar #bar-container .item.active .notification {
 				border-color: rgba(71, 78, 94, 1);
 			}
-		
+
 			#dev-bar .item .icon {
 				position: relative;
 				max-width: 20px;
 				max-height: 20px;
 				user-select: none;
 			}
-		
+
 			#dev-bar .item svg {
 				width: 20px;
 				height: 20px;
@@ -211,22 +212,27 @@ export class AstroDevOverlay extends HTMLElement {
 				border: 1px solid rgba(19, 21, 26, 1);
 				background: #B33E66;
 			}
-		
-			#dev-bar .item .notification[data-active] {
+
+			#dev-overlay:not([data-no-notification]) #dev-bar .item .notification[data-active] {
 				display: block;
 			}
-		
+
 			#dev-bar #bar-container {
 				height: 100%;
 				display: flex;
 			}
-		
+
 			#dev-bar .separator {
 				background: rgba(52, 56, 65, 1);
 				width: 1px;
 			}
 		</style>
-		<div id="dev-overlay" data-hidden>
+		<div id="dev-overlay"${
+			((window as DevOverlayMetadata)?.__astro_dev_overlay__?.defaultState ?? 'minimized') ===
+			'minimized'
+				? ' data-hidden '
+				: ''
+		} ${settings.config.disablePluginNotification ? 'data-no-notification' : ''}>
 			<div id="dev-bar-hitbox-above"></div>
 			<div id="dev-bar">
 				<div id="bar-container">
@@ -293,6 +299,7 @@ export class AstroDevOverlay extends HTMLElement {
 			this.init();
 			this.hasBeenInitialized = true;
 		}
+
 		// Run this every time to make sure the correct plugin is open.
 		this.plugins.forEach(async (plugin) => {
 			await this.setPluginStatus(plugin, plugin.active);
@@ -404,11 +411,16 @@ export class AstroDevOverlay extends HTMLElement {
 	async togglePluginStatus(plugin: DevOverlayPlugin) {
 		const activePlugin = this.getActivePlugin();
 		if (activePlugin) {
-			await this.setPluginStatus(activePlugin, false);
+			const closePlugin = await this.setPluginStatus(activePlugin, false);
+
+			// If the plugin returned false, don't open the new plugin, the old plugin didn't want to close
+			if (!closePlugin) return;
 		}
+
 		// TODO(fks): Handle a plugin that hasn't loaded yet.
 		// Currently, this will just do nothing.
 		if (plugin.status !== 'ready') return;
+
 		// Open the selected plugin. If the selected plugin was
 		// already the active plugin then the desired outcome
 		// was to close that plugin, so no action needed.
@@ -419,13 +431,13 @@ export class AstroDevOverlay extends HTMLElement {
 
 	async setPluginStatus(plugin: DevOverlayPlugin, newStatus: boolean) {
 		const pluginCanvas = this.getPluginCanvasById(plugin.id);
-		if (!pluginCanvas) return;
+		if (!pluginCanvas) return false;
 
 		if (plugin.active && !newStatus && plugin.beforeTogglingOff) {
 			const shouldToggleOff = await plugin.beforeTogglingOff(pluginCanvas.shadowRoot!);
 
 			// If the plugin returned false, don't toggle it off, maybe the plugin showed a confirmation dialog or similar
-			if (!shouldToggleOff) return;
+			if (!shouldToggleOff) return false;
 		}
 
 		plugin.active = newStatus ?? !plugin.active;
@@ -462,17 +474,23 @@ export class AstroDevOverlay extends HTMLElement {
 		if (import.meta.hot) {
 			import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:toggled`, { state: plugin.active });
 		}
+
+		return true;
 	}
+
 	isHidden(): boolean {
 		return this.devOverlay?.hasAttribute('data-hidden') ?? true;
 	}
+
 	getActivePlugin(): DevOverlayPlugin | undefined {
 		return this.plugins.find((plugin) => plugin.active);
 	}
+
 	clearDelayedHide() {
 		window.clearTimeout(this.delayedHideTimeout);
 		this.delayedHideTimeout = undefined;
 	}
+
 	triggerDelayedHide() {
 		this.clearDelayedHide();
 		this.delayedHideTimeout = window.setTimeout(() => {
@@ -480,6 +498,7 @@ export class AstroDevOverlay extends HTMLElement {
 			this.delayedHideTimeout = undefined;
 		}, HOVER_DELAY);
 	}
+
 	setOverlayVisible(newStatus: boolean) {
 		const barContainer = this.shadowRoot.querySelector<HTMLDivElement>('#bar-container');
 		const devBar = this.shadowRoot.querySelector<HTMLDivElement>('#dev-bar');
@@ -495,6 +514,16 @@ export class AstroDevOverlay extends HTMLElement {
 			devBar?.setAttribute('tabindex', '0');
 			return;
 		}
+	}
+
+	setNotificationVisible(newStatus: boolean) {
+		const devOverlayElement = this.shadowRoot.querySelector<HTMLDivElement>('#dev-overlay');
+		devOverlayElement?.toggleAttribute('data-no-notification', !newStatus);
+
+		const moreCanvas = this.getPluginCanvasById('astro:more');
+		moreCanvas?.shadowRoot
+			?.querySelector('#dropdown')
+			?.toggleAttribute('data-no-notification', !newStatus);
 	}
 }
 
