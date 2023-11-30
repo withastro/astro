@@ -1479,7 +1479,9 @@ export interface AstroUserConfig {
 			 *
 			 * A list of all locales supported by the website, include the `defaultLocale`. This is a required field.
 			 *
-			 * No particular language format or syntax is enforced, but your folder structure must match exactly the locales in the list.
+			 * Languages can be listed either as individual codes (e.g. `['en', 'es', 'pt-br']`) or mapped to a shared `path` of codes (e.g.  `{ path: "english", codes: ["en", "en-US"]}`). These codes will be used to determine the URL structure of your deployed site.
+			 * 
+			 * No particular language code format or syntax is enforced, but your project folders containing your content files must match exactly the `locales` items in the list. In the case of multiple `codes` pointing to a custom URL path prefix, store your content files in a folder with the same name as the `path` configured. 
 			 */
 			locales: Locales;
 
