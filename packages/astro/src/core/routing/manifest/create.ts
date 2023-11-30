@@ -498,7 +498,7 @@ export function createRouteManifest(
 		const routesByLocale = new Map<string, RouteData[]>();
 		// This type is here only as a helper. We copy the routes and make them unique, so we don't "process" the same route twice.
 		// The assumption is that a route in the file system belongs to only one locale.
-		const setRoutes = new Set(routes);
+		const setRoutes = new Set(routes.filter((route) => route.type === 'page'));
 
 		// First loop
 		// We loop over the locales minus the default locale and add only the routes that contain `/<locale>`.
@@ -603,22 +603,22 @@ export function createRouteManifest(
 						if (!hasRoute) {
 							let pathname: string | undefined;
 							let route: string;
-							if (fallbackToLocale === i18n.defaultLocale) {
+							if (
+								fallbackToLocale === i18n.defaultLocale &&
+								i18n.routing === 'prefix-other-locales'
+							) {
 								if (fallbackToRoute.pathname) {
 									pathname = `/${fallbackFromLocale}${fallbackToRoute.pathname}`;
 								}
 								route = `/${fallbackFromLocale}${fallbackToRoute.route}`;
 							} else {
-								pathname = fallbackToRoute.pathname?.replace(
-									`/${fallbackToLocale}`,
-									`/${fallbackFromLocale}`
-								);
-								route = fallbackToRoute.route.replace(
-									`/${fallbackToLocale}`,
-									`/${fallbackFromLocale}`
-								);
+								pathname = fallbackToRoute.pathname
+									?.replace(`/${fallbackToLocale}/`, `/${fallbackFromLocale}/`)
+									.replace(`/${fallbackToLocale}`, `/${fallbackFromLocale}`);
+								route = fallbackToRoute.route
+									.replace(`/${fallbackToLocale}`, `/${fallbackFromLocale}`)
+									.replace(`/${fallbackToLocale}/`, `/${fallbackFromLocale}/`);
 							}
-
 							const segments = removeLeadingForwardSlash(route)
 								.split(path.posix.sep)
 								.filter(Boolean)
@@ -626,14 +626,15 @@ export function createRouteManifest(
 									validateSegment(s);
 									return getParts(s, route);
 								});
-
+							const generate = getRouteGenerator(segments, config.trailingSlash);
 							const index = routes.findIndex((r) => r === fallbackToRoute);
-							if (index) {
+							if (index >= 0) {
 								const fallbackRoute: RouteData = {
 									...fallbackToRoute,
 									pathname,
 									route,
 									segments,
+									generate,
 									pattern: getPattern(segments, config, config.trailingSlash),
 									type: 'fallback',
 									fallbackRoutes: [],
