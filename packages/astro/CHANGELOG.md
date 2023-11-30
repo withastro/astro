@@ -1,5 +1,43 @@
 # astro
 
+## 3.6.4
+
+### Patch Changes
+
+- [#9226](https://github.com/withastro/astro/pull/9226) [`8f8a40e93`](https://github.com/withastro/astro/commit/8f8a40e93d6a0774ba84a6f5db8c42cd81db005e) Thanks [@outofambit](https://github.com/outofambit)! - Fix i18n fallback routing with routing strategy of always-prefix
+
+- [#9179](https://github.com/withastro/astro/pull/9179) [`3f28336d9`](https://github.com/withastro/astro/commit/3f28336d9a52d7e4364d455ee3128d14d10a078a) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where the presence of a slot in a page led to an error.
+
+- [#9219](https://github.com/withastro/astro/pull/9219) [`067a65f5b`](https://github.com/withastro/astro/commit/067a65f5b4d163bf1944cf47e6bf891f0b93553f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix edge case where `<style>` updates inside of `.astro` files would ocassionally fail to update without reloading the page.
+
+- [#9236](https://github.com/withastro/astro/pull/9236) [`27d3e86e4`](https://github.com/withastro/astro/commit/27d3e86e4c8d04101113ab7a53477f26a4fb0619) Thanks [@ematipico](https://github.com/ematipico)! - The configuration `i18n.routingStrategy` has been replaced with an object called `routing`.
+
+  ```diff
+  export default defineConfig({
+    experimental: {
+        i18n: {
+  -          routingStrategy: "prefix-always",
+  +          routing: {
+  +              prefixDefaultLocale: true,
+  +          }
+        }
+    }
+  })
+  ```
+
+  ```diff
+  export default defineConfig({
+    experimental: {
+        i18n: {
+  -          routingStrategy: "prefix-other-locales",
+  +          routing: {
+  +              prefixDefaultLocale: false,
+  +          }
+        }
+    }
+  })
+  ```
+
 ## 3.6.3
 
 ### Patch Changes
