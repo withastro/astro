@@ -43,21 +43,18 @@ export function baseMiddleware(
 		}
 
 		// Check to see if it's in public and if so 404
-		// TODO: Remove redirect, turn this warning into an error in Astro 4.0
 		const publicPath = new URL('.' + req.url, config.publicDir);
 		fs.stat(publicPath, (_err, stats) => {
 			if (stats) {
 				const expectedLocation = new URL('.' + url, devRootURL).pathname;
-				logger.warn(
+				logger.error(
 					'router',
 					`Request URLs for ${bold(
 						'public/'
 					)} assets must also include your base. "${expectedLocation}" expected, but received "${url}".`
 				);
-				res.writeHead(301, {
-					Location: expectedLocation,
-				});
-				res.end();
+				const html = subpathNotUsedTemplate(devRoot, pathname);
+				return writeHtmlResponse(res, 404, html);
 			} else {
 				next();
 			}

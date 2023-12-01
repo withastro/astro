@@ -39,15 +39,6 @@ export function createRequest({
 		body,
 	});
 
-	Object.defineProperties(request, {
-		params: {
-			get() {
-				logger.warn('deprecated', `Astro.request.params has been moved to Astro.params`);
-				return undefined;
-			},
-		},
-	});
-
 	if (!ssr) {
 		// Warn when accessing headers in SSG mode
 		const _headers = request.headers;

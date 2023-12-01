@@ -292,6 +292,7 @@ export const InvalidGetStaticPathsReturn = {
 
 /**
  * @docs
+ * @deprecated Deprecated since Astro 4.0. The RSS helper no longer exists with an error fallback.
  * @see
  * - [RSS Guide](https://docs.astro.build/en/guides/rss/)
  * @description
