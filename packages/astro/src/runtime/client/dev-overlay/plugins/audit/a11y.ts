@@ -332,14 +332,6 @@ export const a11y: AuditRuleWithSelector[] = [
 			if (!element.textContent) return true;
 		},
 	},
-	// TODO: Implement this rule
-	// {
-	// 	code: 'a11y-mouse-events-have-key-events',
-	// 	title: 'Enforce that `mouseover` and `mouseout` are accompanied by `focus` and `blur`',
-	// 	message:
-	// 		'This helps to ensure that any functionality triggered by these mouse events is also accessible to keyboard users.',
-	// 	selector: '[onmouseover]:not([onfocus])',
-	// },
 	{
 		code: 'a11y-no-redundant-roles',
 		title: 'HTML element has redundant ARIA roles',
@@ -381,14 +373,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			if (aria_non_interactive_roles.includes(role)) return true;
 		},
 	},
-	// TODO: Implement these rule
-	// {
-	// 	code: 'a11y-no-noninteractive-element-interactions',
-	// 	title: 'A non-interactive element does not support event handlers (mouse and key handlers)',
-	// 	message:
-	// 		'Non-interactive elements include `<main>`, `<area>`, `<h1>` (,`<h2>`, etc), `<p>`, `<img>`, `<li>`, `<ul>` and `<ol>`. Non-interactive [WAI-ARIA roles](https://www.w3.org/TR/wai-aria-1.1/#usage_intro) include `article`, `banner`, `complementary`, `img`, `listitem`, `main`, `region` and `tooltip`.',
-	// 	selector: 'li[click]',
-	// },
+	// TODO: Implement this rule
 	// {
 	// 	code: 'a11y-no-noninteractive-element-to-interactive-role',
 	// 	title:
@@ -407,13 +392,6 @@ export const a11y: AuditRuleWithSelector[] = [
 			if (!interactiveElements.includes(element.localName)) return true;
 		},
 	},
-	// TODO: Implement this rule
-	// {
-	// 	code: 'a11y-no-static-element-interactions',
-	// 	title: 'Elements like `<div>` with interactive handlers like `click` must have an ARIA role',
-	// 	message: 'This is to ensure accessibility for screen readers.',
-	// 	selector: 'div[click]',
-	// },
 	{
 		code: 'a11y-positive-tabindex',
 		title: 'Avoid positive `tabindex` property values',
@@ -421,7 +399,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			'This will move elements out of the expected tab order, creating a confusing experience for keyboard users.',
 		selector: '[tabindex]:not([tabindex="-1"]):not([tabindex="0"])',
 	},
-	// TODO: Implement these rule
+	// TODO: Implement this rule
 	// {
 	// 	code: 'a11y-role-has-required-aria-props',
 	// 	title: 'Elements with ARIA roles must have all required attributes for that role',
@@ -446,7 +424,7 @@ export const a11y: AuditRuleWithSelector[] = [
 		code: 'a11y-unknown-aria-attribute',
 		title: 'Unknown ARIA attribute',
 		message: 'ARIA attributes prefixed with `aria-` must be valid, non-abstract ARIA attributes.',
-		selector: '*', // TODO: Is there a way we could only select elements with aria-* attributes?
+		selector: '*',
 		match(element) {
 			for (const attribute of element.attributes) {
 				if (attribute.name.startsWith('aria-')) {
@@ -477,42 +455,6 @@ const a11y_labelable = [
 	'progress',
 	'select',
 	'textarea',
-];
-
-const html_interactive_handlers = ['onclick', 'oncontextmenu', 'ondblclick'];
-
-const a11y_interactive_handlers = [
-	// Keyboard events
-	'keypress',
-	'keydown',
-	'keyup',
-	// Click events
-	'click',
-	'contextmenu',
-	'dblclick',
-	'drag',
-	'dragend',
-	'dragenter',
-	'dragexit',
-	'dragleave',
-	'dragover',
-	'dragstart',
-	'drop',
-	'mousedown',
-	'mouseenter',
-	'mouseleave',
-	'mousemove',
-	'mouseout',
-	'mouseover',
-	'mouseup',
-];
-const a11y_recommended_interactive_handlers = [
-	'click',
-	'mousedown',
-	'mouseup',
-	'keypress',
-	'keydown',
-	'keyup',
 ];
 
 /**
