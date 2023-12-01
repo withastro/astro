@@ -1159,6 +1159,7 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @kind heading
 	 * @name Dev Overlay Options
+	 * @deprecated Use `devToolbar` instead.
 	 */
 	devOverlay?: {
 		/**
@@ -1179,6 +1180,34 @@ export interface AstroUserConfig {
 		 * @default `minimized`
 		 * @description
 		 * Whether the dev overlay should be expanded or minimized by default.
+		 */
+		defaultState: 'minimized' | 'expanded';
+	};
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Dev Toolbar Options
+	 */
+	devToolbar?: {
+		/**
+		 * @docs
+		 * @name devToolbar.enabled
+		 * @type {boolean}
+		 * @default `true`
+		 * @description
+		 * Whether to enable the Astro Dev Toolbar. This toolbar allows you to inspect your page islands, see helpful audits on performance and accessibility, and more.
+		 *
+		 * This option is scoped to the entire project, to only disable the toolbar for yourself, run `npm run astro preferences disable devToolbar`. To disable the toolbar for all your Astro projects, run `npm run astro preferences disable devToolbar --global`.
+		 */
+		enabled: boolean;
+		/**
+		 * @docs
+		 * @name devToolbar.defaultState
+		 * @type {'minimized' | 'expanded'}
+		 * @default `minimized`
+		 * @description
+		 * Whether the Dev Toolbar should be expanded or minimized by default.
 		 */
 		defaultState: 'minimized' | 'expanded';
 	};
@@ -1716,7 +1745,7 @@ export interface AstroSettings {
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
-	devOverlayPlugins: string[];
+	devToolbarApps: string[];
 	middlewares: { pre: string[]; post: string[] };
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
@@ -2292,7 +2321,11 @@ export interface AstroIntegration {
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			addClientDirective: (directive: ClientDirectiveConfig) => void;
+			/**
+			 * @deprecated Use `addDevToolbarApp` instead.
+			 */
 			addDevOverlayPlugin: (entrypoint: string) => void;
+			addDevToolbarApp: (entrypoint: string) => void;
 			addMiddleware: (mid: AstroIntegrationMiddleware) => void;
 			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
@@ -2563,6 +2596,18 @@ export type DevOverlayMetadata = Window &
 
 declare global {
 	interface HTMLElementTagNameMap {
+		'astro-dev-toolbar': AstroDevOverlay;
+		'astro-dev-toolbar-window': DevOverlayWindow;
+		'astro-dev-toolbar-plugin-canvas': DevOverlayCanvas;
+		'astro-dev-toolbar-tooltip': DevOverlayTooltip;
+		'astro-dev-toolbar-highlight': DevOverlayHighlight;
+		'astro-dev-toolbar-toggle': DevOverlayToggle;
+		'astro-dev-toolbar-badge': DevOverlayBadge;
+		'astro-dev-toolbar-button': DevOverlayButton;
+		'astro-dev-toolbar-icon': DevOverlayIcon;
+		'astro-dev-toolbar-card': DevOverlayCard;
+
+		// Deprecated names
 		'astro-dev-overlay': AstroDevOverlay;
 		'astro-dev-overlay-window': DevOverlayWindow;
 		'astro-dev-overlay-plugin-canvas': DevOverlayCanvas;

@@ -79,7 +79,7 @@ export default {
 							font-size: 22px;
 						}
 	
-						astro-dev-overlay-icon {
+						astro-dev-toolbar-icon {
 							width: 1em;
 						   height: 1em;
 						   padding: 8px;
@@ -89,7 +89,7 @@ export default {
 						}
 					</style>
 					<header>
-						<h1><astro-dev-overlay-icon icon="check-circle"></astro-dev-overlay-icon>No issues detected.</h1>
+						<h1><astro-dev-toolbar-icon icon="check-circle"></astro-dev-toolbar-icon>No issues detected.</h1>
 					</header>
 					`
 				);
@@ -106,7 +106,7 @@ export default {
 			const noAuditBlock = canvas.getElementById('no-audit');
 			if (noAuditBlock) {
 				const devOverlayRect = document
-					.querySelector('astro-dev-overlay')
+					.querySelector('astro-dev-toolbar')
 					?.shadowRoot.querySelector('#dev-overlay')
 					?.getBoundingClientRect();
 
@@ -145,7 +145,7 @@ export default {
 		}
 
 		function buildAuditTooltip(rule: AuditRule, element: Element) {
-			const tooltip = document.createElement('astro-dev-overlay-tooltip');
+			const tooltip = document.createElement('astro-dev-toolbar-tooltip');
 
 			tooltip.sections = [
 				{

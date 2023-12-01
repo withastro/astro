@@ -141,7 +141,11 @@ export async function runHookConfigSetup({
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
 				},
 				addDevOverlayPlugin: (entrypoint) => {
-					updatedSettings.devOverlayPlugins.push(entrypoint);
+					// TODO add a deprecation warning in Astro 5.
+					hooks.addDevToolbarApp(entrypoint);
+				},
+				addDevToolbarApp: (entrypoint) => {
+					updatedSettings.devToolbarApps.push(entrypoint);
 				},
 				addClientDirective: ({ name, entrypoint }) => {
 					if (updatedSettings.clientDirectives.has(name) || addedClientDirectives.has(name)) {

@@ -45,6 +45,10 @@ const ASTRO_CONFIG_DEFAULTS = {
 		enabled: true,
 		defaultState: 'minimized',
 	},
+	devToolbar: {
+		enabled: true,
+		defaultState: 'minimized',
+	},
 	compressHTML: true,
 	server: {
 		host: false,
@@ -236,6 +240,14 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.devOverlay.defaultState),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.devOverlay),
+	devToolbar: z
+		.object({
+			enabled: z.boolean().default(ASTRO_CONFIG_DEFAULTS.devToolbar.enabled),
+			defaultState: z
+				.enum(['minimized', 'expanded'])
+				.default(ASTRO_CONFIG_DEFAULTS.devToolbar.defaultState),
+		})
+		.default(ASTRO_CONFIG_DEFAULTS.devToolbar),
 	markdown: z
 		.object({
 			syntaxHighlight: z

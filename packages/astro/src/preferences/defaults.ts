@@ -1,5 +1,5 @@
 export const DEFAULT_PREFERENCES = {
-	devOverlay: {
+	devToolbar: {
 		/** Specifies whether the user has the Dev Overlay enabled */
 		enabled: true,
 	},
