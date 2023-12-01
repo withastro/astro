@@ -1,3 +1,9 @@
+// This file is adapted from the [Svelte](https://github.com/sveltejs/svelte) repository
+// Specifically https://github.com/sveltejs/svelte/blob/d57eff76ed24ae2330f11f3d3938761ae4e14b4b/packages/svelte/src/compiler/phases/2-analyze/a11y.js
+
+// This code is licensed under the MIT License per https://github.com/sveltejs/svelte/blob/d57eff76ed24ae2330f11f3d3938761ae4e14b4b/LICENSE.md
+// See [Astro's LICENSE](https://github.com/withastro/astro/blob/main/LICENSE) for more information.
+
 import type { AuditRuleWithSelector } from './index.js';
 
 const a11y_required_attributes = {
