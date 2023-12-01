@@ -173,7 +173,7 @@ export async function handleRoute({
 	const config = pipeline.getConfig();
 	const moduleLoader = pipeline.getModuleLoader();
 	const { logger } = env;
-	if (!matchedRoute && !config.experimental.i18n) {
+	if (!matchedRoute && !config.i18n) {
 		if (isLoggedRequest(pathname)) {
 			logger.info(null, req({ url: pathname, method: incomingRequest.method, statusCode: 404 }));
 		}
@@ -190,8 +190,8 @@ export async function handleRoute({
 	const middleware = await loadMiddleware(moduleLoader);
 
 	if (!matchedRoute) {
-		if (config.experimental.i18n) {
-			const locales = config.experimental.i18n.locales;
+		if (config.i18n) {
+			const locales = config.i18n.locales;
 			const pathNameHasLocale = pathname
 				.split('/')
 				.filter(Boolean)
@@ -288,7 +288,7 @@ export async function handleRoute({
 			filePath: options.filePath,
 		});
 
-		const i18n = pipeline.getConfig().experimental.i18n;
+		const i18n = pipeline.getConfig().i18n;
 
 		renderContext = await createRenderContext({
 			request: options.request,
@@ -307,12 +307,8 @@ export async function handleRoute({
 	}
 
 	const onRequest = middleware?.onRequest as MiddlewareHandler | undefined;
-	if (config.experimental.i18n) {
-		const i18Middleware = createI18nMiddleware(
-			config.experimental.i18n,
-			config.base,
-			config.trailingSlash
-		);
+	if (config.i18n) {
+		const i18Middleware = createI18nMiddleware(config.i18n, config.base, config.trailingSlash);
 
 		if (i18Middleware) {
 			if (onRequest) {

@@ -18,7 +18,6 @@ import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
-import { getPathByLocale } from '../../../i18n/index.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -491,7 +490,7 @@ export function createRouteManifest(
 		// Didn't find a good place, insert last
 		routes.push(routeData);
 	});
-	const i18n = settings.config.experimental.i18n;
+	const i18n = settings.config.i18n;
 	if (i18n) {
 		// In this block of code we group routes based on their locale
 
