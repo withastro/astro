@@ -97,10 +97,9 @@ const { fallback = 'animate' } = Astro.props;
 			if (el.tagName !== 'FORM' || isReloadEl(el)) {
 				return;
 			}
-
 			const form = el as HTMLFormElement;
 			const submitter = ev.submitter;
-			const formData = new FormData(form);
+			const formData = new FormData(form, submitter);
 			// Use the form action, if defined, otherwise fallback to current path.
 			let action = submitter?.getAttribute('formaction') ?? form.action ?? location.pathname;
 			const method = submitter?.getAttribute('formmethod') ?? form.method;
