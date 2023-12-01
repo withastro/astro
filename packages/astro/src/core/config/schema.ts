@@ -306,90 +306,90 @@ export const AstroConfigSchema = z.object({
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
+	i18n: z.optional(
+		z
+			.object({
+				defaultLocale: z.string(),
+				locales: z.array(
+					z.union([
+						z.string(),
+						z.object({
+							path: z.string(),
+							codes: z.string().array().nonempty(),
+						}),
+					])
+				),
+				fallback: z.record(z.string(), z.string()).optional(),
+				routing: z
+					.object({
+						prefixDefaultLocale: z.boolean().default(false),
+						strategy: z.enum(['pathname']).default('pathname'),
+					})
+					.default({})
+					.transform((routing) => {
+						let strategy: RoutingStrategies;
+						switch (routing.strategy) {
+							case 'pathname': {
+								if (routing.prefixDefaultLocale === true) {
+									strategy = 'prefix-always';
+								} else {
+									strategy = 'prefix-other-locales';
+								}
+							}
+						}
+						return strategy;
+					}),
+			})
+			.optional()
+			.superRefine((i18n, ctx) => {
+				if (i18n) {
+					const { defaultLocale, locales: _locales, fallback } = i18n;
+					const locales = _locales.map((locale) => {
+						if (typeof locale === 'string') {
+							return locale;
+						} else {
+							return locale.path;
+						}
+					});
+					if (!locales.includes(defaultLocale)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `The default locale \`${defaultLocale}\` is not present in the \`i18n.locales\` array.`,
+						});
+					}
+					if (fallback) {
+						for (const [fallbackFrom, fallbackTo] of Object.entries(fallback)) {
+							if (!locales.includes(fallbackFrom)) {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message: `The locale \`${fallbackFrom}\` key in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+								});
+							}
+
+							if (fallbackFrom === defaultLocale) {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message: `You can't use the default locale as a key. The default locale can only be used as value.`,
+								});
+							}
+
+							if (!locales.includes(fallbackTo)) {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message: `The locale \`${fallbackTo}\` value in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+								});
+							}
+						}
+					}
+				}
+			})
+	),
 	experimental: z
 		.object({
 			optimizeHoistedScript: z
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.optimizeHoistedScript),
-			i18n: z.optional(
-				z
-					.object({
-						defaultLocale: z.string(),
-						locales: z.array(
-							z.union([
-								z.string(),
-								z.object({
-									path: z.string(),
-									codes: z.string().array().nonempty(),
-								}),
-							])
-						),
-						fallback: z.record(z.string(), z.string()).optional(),
-						routing: z
-							.object({
-								prefixDefaultLocale: z.boolean().default(false),
-								strategy: z.enum(['pathname']).default('pathname'),
-							})
-							.default({})
-							.transform((routing) => {
-								let strategy: RoutingStrategies;
-								switch (routing.strategy) {
-									case 'pathname': {
-										if (routing.prefixDefaultLocale === true) {
-											strategy = 'prefix-always';
-										} else {
-											strategy = 'prefix-other-locales';
-										}
-									}
-								}
-								return strategy;
-							}),
-					})
-					.optional()
-					.superRefine((i18n, ctx) => {
-						if (i18n) {
-							const { defaultLocale, locales: _locales, fallback } = i18n;
-							const locales = _locales.map((locale) => {
-								if (typeof locale === 'string') {
-									return locale;
-								} else {
-									return locale.path;
-								}
-							});
-							if (!locales.includes(defaultLocale)) {
-								ctx.addIssue({
-									code: z.ZodIssueCode.custom,
-									message: `The default locale \`${defaultLocale}\` is not present in the \`i18n.locales\` array.`,
-								});
-							}
-							if (fallback) {
-								for (const [fallbackFrom, fallbackTo] of Object.entries(fallback)) {
-									if (!locales.includes(fallbackFrom)) {
-										ctx.addIssue({
-											code: z.ZodIssueCode.custom,
-											message: `The locale \`${fallbackFrom}\` key in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
-										});
-									}
-
-									if (fallbackFrom === defaultLocale) {
-										ctx.addIssue({
-											code: z.ZodIssueCode.custom,
-											message: `You can't use the default locale as a key. The default locale can only be used as value.`,
-										});
-									}
-
-									if (!locales.includes(fallbackTo)) {
-										ctx.addIssue({
-											code: z.ZodIssueCode.custom,
-											message: `The locale \`${fallbackTo}\` value in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
-										});
-									}
-								}
-							}
-						}
-					})
-			),
 			contentCollectionCache: z
 				.boolean()
 				.optional()
