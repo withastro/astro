@@ -237,7 +237,7 @@ export const a11y: AuditRuleWithSelector[] = [
 	},
 	{
 		code: 'a11y-img-redundant-alt',
-		title: 'Redundant alt attribute',
+		title: 'Redundant text in alt attribute',
 		message:
 			'Screen readers already announce `img` elements as an image. There is no need to use words such as "image", "photo", and/or "picture".',
 		selector: 'img[alt]:not([aria-hidden])',
