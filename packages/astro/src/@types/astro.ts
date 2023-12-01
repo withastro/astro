@@ -1388,7 +1388,7 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @name experimental.i18n
+	 * @name i18n
 	 * @type {object}
 	 * @version 3.5.0
 	 * @type {object}
@@ -1402,7 +1402,7 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @kind h4
-		 * @name experimental.i18n.defaultLocale
+		 * @name i18n.defaultLocale
 		 * @type {string}
 		 * @version 3.5.0
 		 * @description
@@ -1415,7 +1415,7 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @kind h4
-		 * @name experimental.i18n.locales
+		 * @name i18n.locales
 		 * @type {Locales}
 		 * @version 3.5.0
 		 * @description
@@ -1431,7 +1431,7 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @kind h4
-		 * @name experimental.i18n.fallback
+		 * @name i18n.fallback
 		 * @type {Record<string, string>}
 		 * @version 3.5.0
 		 * @description
@@ -1464,7 +1464,7 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @kind h4
-		 * @name experimental.i18n.routing
+		 * @name i18n.routing
 		 * @type {Routing}
 		 * @version 3.7.0
 		 * @description
@@ -1474,7 +1474,7 @@ export interface AstroUserConfig {
 		routing?: {
 			/**
 			 * @docs
-			 * @name experimental.i18n.routing.prefixDefaultLocale
+			 * @name i18n.routing.prefixDefaultLocale
 			 * @type {boolean}
 			 * @default `false`
 			 * @version 3.7.0
@@ -1491,7 +1491,7 @@ export interface AstroUserConfig {
 			prefixDefaultLocale: boolean;
 
 			/**
-			 * @name experimental.i18n.routing.strategy
+			 * @name i18n.routing.strategy
 			 * @type {"pathname"}
 			 * @default `"pathname"`
 			 * @version 3.7.0
