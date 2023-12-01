@@ -157,7 +157,9 @@ async function resolveTargetVersion(packageInfo: PackageInfo, registry: string):
 			throw new Error(`Unable to resolve "${packageInfo.name}"`);
 		}
 		const { repository } = await latestMetadata.json();
-		const branch = bump === 'premajor' ? 'next' : 'main';
+		// If actively using the `next` branch, use the following:
+		// const branch = bump === 'premajor' ? 'next' : 'main';
+		const branch = 'main';
 		packageInfo.changelogURL = extractChangelogURLFromRepository(repository, version, branch);
 		packageInfo.changelogTitle = 'CHANGELOG';
 	} else {
