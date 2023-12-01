@@ -395,8 +395,7 @@ export const a11y: AuditRuleWithSelector[] = [
 	{
 		code: 'a11y-no-noninteractive-tabindex',
 		title: 'Invalid `tabindex` on non-interactive element',
-		message:
-			'Non-interactive elements should not have `tabindex` greater than zero or `tabindex="-1"`',
+		message: (element) => `${element.localName} elements should not have \`tabindex\` attribute`,
 		selector: '[tabindex]',
 		match(element) {
 			if (!interactiveElements.includes(element.localName)) return true;
