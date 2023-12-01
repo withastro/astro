@@ -76,6 +76,26 @@ test.describe('Dev Overlay', () => {
 		await expect(xrayHighlightTooltip).not.toBeVisible();
 	});
 
+	test('xray shows no islands message when there are none', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/xray-no-islands'));
+
+		const overlay = page.locator('astro-dev-overlay');
+		const pluginButton = overlay.locator('button[data-plugin-id="astro:xray"]');
+		await pluginButton.click();
+
+		const xrayCanvas = overlay.locator(
+			'astro-dev-overlay-plugin-canvas[data-plugin-id="astro:xray"]'
+		);
+		const auditHighlight = xrayCanvas.locator('astro-dev-overlay-highlight');
+		await expect(auditHighlight).not.toBeVisible();
+
+		const xrayWindow = xrayCanvas.locator('astro-dev-overlay-window');
+		await expect(xrayWindow).toHaveCount(1);
+		await expect(xrayWindow).toBeVisible();
+
+		await expect(xrayWindow.locator('astro-dev-overlay-icon[icon=lightbulb]')).toBeVisible();
+	});
+
 	test('audit shows higlights and tooltips', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
@@ -99,6 +119,26 @@ test.describe('Dev Overlay', () => {
 		await expect(auditHighlightTooltip).not.toBeVisible();
 	});
 
+	test('audit shows no issues message when there are no issues', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/audit-no-warning'));
+
+		const overlay = page.locator('astro-dev-overlay');
+		const pluginButton = overlay.locator('button[data-plugin-id="astro:audit"]');
+		await pluginButton.click();
+
+		const auditCanvas = overlay.locator(
+			'astro-dev-overlay-plugin-canvas[data-plugin-id="astro:audit"]'
+		);
+		const auditHighlight = auditCanvas.locator('astro-dev-overlay-highlight');
+		await expect(auditHighlight).not.toBeVisible();
+
+		const auditWindow = auditCanvas.locator('astro-dev-overlay-window');
+		await expect(auditWindow).toHaveCount(1);
+		await expect(auditWindow).toBeVisible();
+
+		await expect(auditWindow.locator('astro-dev-overlay-icon[icon=check-circle]')).toBeVisible();
+	});
+
 	test('can open Settings plugin', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
@@ -116,5 +156,51 @@ test.describe('Dev Overlay', () => {
 		// Toggle plugin off
 		await pluginButton.click();
 		await expect(settingsWindow).not.toBeVisible();
+	});
+
+	test('Opening a plugin closes the currently opened plugin', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const overlay = page.locator('astro-dev-overlay');
+		let pluginButton = overlay.locator('button[data-plugin-id="astro:settings"]');
+		await pluginButton.click();
+
+		const settingsPluginCanvas = overlay.locator(
+			'astro-dev-overlay-plugin-canvas[data-plugin-id="astro:settings"]'
+		);
+		const settingsWindow = settingsPluginCanvas.locator('astro-dev-overlay-window');
+		await expect(settingsWindow).toHaveCount(1);
+		await expect(settingsWindow).toBeVisible();
+
+		// Click the astro plugin
+		pluginButton = overlay.locator('button[data-plugin-id="astro"]');
+		await pluginButton.click();
+
+		const astroPluginCanvas = overlay.locator(
+			'astro-dev-overlay-plugin-canvas[data-plugin-id="astro"]'
+		);
+		const astroWindow = astroPluginCanvas.locator('astro-dev-overlay-window');
+		await expect(astroWindow).toHaveCount(1);
+		await expect(astroWindow).toBeVisible();
+
+		await expect(settingsWindow).not.toBeVisible();
+	});
+
+	test('Settings plugin contains message on disabling the overlay', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const overlay = page.locator('astro-dev-overlay');
+		let pluginButton = overlay.locator('button[data-plugin-id="astro:settings"]');
+		await pluginButton.click();
+
+		const settingsPluginCanvas = overlay.locator(
+			'astro-dev-overlay-plugin-canvas[data-plugin-id="astro:settings"]'
+		);
+		const settingsWindow = settingsPluginCanvas.locator('astro-dev-overlay-window');
+		await expect(settingsWindow).toHaveCount(1);
+		await expect(settingsWindow).toBeVisible();
+
+		const hideOverlay = settingsWindow.getByRole('heading', { name: 'Hide overlay' });
+		await expect(hideOverlay).toBeVisible();
 	});
 });
