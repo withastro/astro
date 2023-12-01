@@ -217,7 +217,7 @@ export default {
 			return tooltip;
 		}
 
-		function escapeHtml(unsafe) {
+		function escapeHtml(unsafe: string) {
 			return unsafe
 				.replace(/&/g, '&amp;')
 				.replace(/</g, '&lt;')

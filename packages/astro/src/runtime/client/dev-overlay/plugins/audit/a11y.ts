@@ -25,286 +25,8 @@ const a11y_required_content = [
 	'h6',
 ];
 
-export const a11y: AuditRuleWithSelector[] = [
-	{
-		code: 'a11y-accesskey',
-		title: 'Avoid using accesskey',
-		message:
-			'Enforce no `accesskey` on element. Access keys are HTML attributes that allow web developers to assign keyboard shortcuts to elements. Inconsistencies between keyboard shortcuts and keyboard commands used by screen reader and keyboard-only users create accessibility complications. To avoid complications, access keys should not be used.',
-		selector: '[accesskey]',
-	},
-	{
-		code: 'a11y-aria-activedescendant-has-tabindex',
-		title: 'Elements with attribute `aria-activedescendant` should have `tabindex` value',
-		message:
-			'An element with `aria-activedescendant` must be tabbable, so it must either have an inherent `tabindex` or declare `tabindex` as an attribute.',
-		selector: '[aria-activedescendant]',
-		match(element) {
-			console.log(element);
-		},
-	},
-	{
-		code: 'a11y-aria-attributes',
-		title: 'Certain reserved DOM elements do not support ARIA roles, states and properties',
-		message:
-			'This is often because they are not visible, for example `meta`, `html`, `script`, `style`. This rule enforces that these DOM elements do not contain the `aria-*` props.',
-		selector: ':is(meta, html, script, style)',
-		match(element) {
-			for (const attribute of element.attributes) {
-				if (attribute.name.startsWith('aria-')) return true;
-			}
-		},
-	},
-	{
-		code: 'a11y-autofocus',
-		title: 'Enforce that `autofocus` is not used on elements',
-		message:
-			'Autofocusing elements can cause usability issues for sighted and non-sighted users alike.',
-		selector: '[autofocus]',
-	},
-	{
-		code: 'a11y-distracting-elements',
-		title: 'Enforces that no distracting elements are used',
-		message:
-			'Elements that can be visually distracting can cause accessibility issues with visually impaired users. Such elements are most likely deprecated, and should be avoided. The following elements are visually distracting: `<marquee>` and `<blink>`.',
-		selector: ':is(marquee, blink)',
-	},
-	{
-		code: 'a11y-hidden',
-		title: 'Certain DOM elements are useful for screen reader navigation and should not be hidden',
-		message: (element) => `${element.localName} element should not be hidden`,
-		selector: '[aria-hidden]:is(h1,h2,h3,h4,h5,h6)',
-	},
-	{
-		code: 'a11y-img-redundant-alt',
-		title: 'Redundant alt attribute',
-		message:
-			'Screen readers already announce `img` elements as an image. There is no need to use words such as _image_, _photo_, and/or _picture_.',
-		selector: 'img[alt]:not([aria-hidden])',
-		match: (img: HTMLImageElement) => /\b(image|picture|photo)\b/i.test(img.alt),
-	},
-	{
-		code: 'a11y-incorrect-aria-attribute-type',
-		title: 'Enforce that only the correct type of value is used for aria attributes',
-		message: 'For example, `aria-hidden` should only receive a boolean.',
-		selector: '[aria-hidden]',
-	},
-	{
-		code: 'a11y-invalid-attribute',
-		title: 'Enforce that attributes important for accessibility have a valid value',
-		message: "For example, `href` should not be empty, `'#'`, or `javascript:`.",
-		selector: 'a[href]',
-		match(element) {
-			const href = element.getAttribute('href');
-			if (!href) return true;
-			if (href === '' || href === '#' || /^\W*javascript:/i.test(href)) return true;
-		},
-	},
-	{
-		code: 'a11y-label-has-associated-control',
-		title: 'Enforce that a label tag has a text label and an associated control',
-		message: 'There are two supported ways to associate a label with a control:',
-		selector: "label[for='id']",
-	},
-	{
-		code: 'a11y-media-has-caption',
-		title: 'Providing captions for media is essential for deaf users to follow along',
-		message:
-			'Captions should be a transcription or translation of the dialogue, sound effects, relevant musical cues, and other relevant audio information. Not only is this important for accessibility, but can also be useful for all users in the case that the media is unavailable (similar to `alt` text on an image when an image is unable to load). The captions should contain all important and relevant information to understand the corresponding media. This may mean that the captions are not a 1:1 mapping of the dialogue in the media content. However, captions are not necessary for video components with the `muted` attribute.',
-		selector: 'video:not([muted])',
-	},
-	{
-		code: 'a11y-misplaced-role',
-		title: 'Certain reserved DOM elements do not support ARIA roles, states and properties',
-		message:
-			'This is often because they are not visible, for example `meta`, `html`, `script`, `style`. This rule enforces that these DOM elements do not contain the `role` props.',
-		selector: ':is(meta, html, script, style)[role]',
-	},
-	{
-		code: 'a11y-misplaced-scope',
-		title: 'The scope attribute should only be used on `<th>` elements',
-		message: 'The scope attribute should only be used on `<th>` elements.',
-		selector: ':not(th)[scope]',
-	},
-	{
-		code: 'a11y-missing-attribute',
-		title: 'Required attributes are missing from this element',
-		message: (element) => {
-			const requiredAttributes =
-				a11y_required_attributes[element.localName as keyof typeof a11y_required_attributes];
-
-			const missingAttributes = requiredAttributes.filter(
-				(attribute) => !element.hasAttribute(attribute)
-			);
-
-			return `${element.localName} element is missing required attributes: ${missingAttributes.join(
-				', '
-			)} `;
-		},
-		selector: Object.keys(a11y_required_attributes).join(','),
-		match(element) {
-			const requiredAttributes =
-				a11y_required_attributes[element.localName as keyof typeof a11y_required_attributes];
-
-			if (!requiredAttributes) return true;
-			for (const attribute of requiredAttributes) {
-				if (!element.hasAttribute(attribute)) return true;
-			}
-
-			return false;
-		},
-	},
-	{
-		code: 'a11y-missing-content',
-		title: 'Enforce that heading elements (`h1`, `h2`, etc.) and anchors have content',
-		message: 'and that the content is accessible to screen readers',
-		selector: [...a11y_required_content, 'a'].join(','),
-		match(element) {
-			if (!element.textContent) return true;
-		},
-	},
-	{
-		code: 'a11y-mouse-events-have-key-events',
-		title: 'Enforce that `mouseover` and `mouseout` are accompanied by `focus` and `blur`',
-		message:
-			'This helps to ensure that any functionality triggered by these mouse events is also accessible to keyboard users.',
-		selector: 'div[mouseover]',
-	},
-	{
-		code: 'a11y-no-redundant-roles',
-		title: 'Some HTML elements have default ARIA roles',
-		message:
-			'Giving these elements an ARIA role that is already set by the browser has no effect and is redundant.',
-		selector: "button[role='button']",
-	},
-	{
-		code: 'a11y-no-interactive-element-to-noninteractive-role',
-		title:
-			'[WAI-ARIA](https://www.w3.org/TR/wai-aria-1.1/#usage_intro) roles should not be used to convert an interactive element to a non-interactive element',
-		message:
-			'Non-interactive ARIA roles include `article`, `banner`, `complementary`, `img`, `listitem`, `main`, `region` and `tooltip`.',
-		selector: "textarea[role='listitem']",
-	},
-	{
-		code: 'a11y-no-noninteractive-element-interactions',
-		title: 'A non-interactive element does not support event handlers (mouse and key handlers)',
-		message:
-			'Non-interactive elements include `<main>`, `<area>`, `<h1>` (,`<h2>`, etc), `<p>`, `<img>`, `<li>`, `<ul>` and `<ol>`. Non-interactive [WAI-ARIA roles](https://www.w3.org/TR/wai-aria-1.1/#usage_intro) include `article`, `banner`, `complementary`, `img`, `listitem`, `main`, `region` and `tooltip`.',
-		selector: 'li[click]',
-	},
-	{
-		code: 'a11y-no-noninteractive-element-to-interactive-role',
-		title:
-			'[WAI-ARIA](https://www.w3.org/TR/wai-aria-1.1/#usage_intro) roles should not be used to convert a non-interactive element to an interactive element',
-		message:
-			'Interactive ARIA roles include `button`, `link`, `checkbox`, `menuitem`, `menuitemcheckbox`, `menuitemradio`, `option`, `radio`, `searchbox`, `switch` and `textbox`.',
-		selector: "h3[role='searchbox']",
-	},
-	{
-		code: 'a11y-no-noninteractive-tabindex',
-		title:
-			'Tab key navigation should be limited to elements on the page that can be interacted with',
-		message: 'This is to avoid confusing experiences for keyboard users.',
-		selector: '[tabindex]',
-	},
-	{
-		code: 'a11y-no-static-element-interactions',
-		title: 'Elements like `<div>` with interactive handlers like `click` must have an ARIA role',
-		message: 'This is to ensure accessibility for screen readers.',
-		selector: 'div[click]',
-	},
-	{
-		code: 'a11y-positive-tabindex',
-		title: 'Avoid positive `tabindex` property values',
-		message:
-			'This will move elements out of the expected tab order, creating a confusing experience for keyboard users.',
-		selector: '[tabindex]:not([tabindex="-1"]):not([tabindex="0"])',
-	},
-	{
-		code: 'a11y-role-has-required-aria-props',
-		title: 'Elements with ARIA roles must have all required attributes for that role',
-		message: 'For example',
-		selector: "span[role='checkbox'][aria-labelledby='foo'][tabindex='0']",
-	},
-	{
-		code: 'a11y-role-supports-aria-props',
-		title:
-			'Elements with explicit or implicit roles defined contain only `aria-*` properties supported by that role',
-		message: 'For example',
-		selector: "div[role='link'][aria-multiline]",
-	},
-	{
-		code: 'a11y-structure',
-		title: 'Enforce that certain DOM elements have the correct structure',
-		message: 'For example',
-		selector: 'div figcaption',
-	},
-	{
-		code: 'a11y-unknown-aria-attribute',
-		title: 'Enforce that only known ARIA attributes are used',
-		message:
-			'This is based on the [WAI-ARIA States and Properties spec](https://www.w3.org/WAI/PF/aria-1.1/states_and_properties).',
-		selector: "input[type='image'][aria-labeledby='foo']",
-	},
-	{
-		code: 'a11y-unknown-role',
-		title: 'Elements with ARIA roles must use a valid, non-abstract ARIA role',
-		message:
-			'A reference to role definitions can be found at [WAI-ARIA](https://www.w3.org/TR/wai-aria/#role_definitions) site.',
-		selector: "div[role='tooltip']",
-	},
-];
-
-const ariaAttributes = new Set(
-	'activedescendant atomic autocomplete busy checked colcount colindex colspan controls current describedby description details disabled dropeffect errormessage expanded flowto grabbed haspopup hidden invalid keyshortcuts label labelledby level live modal multiline multiselectable orientation owns placeholder posinset pressed readonly relevant required roledescription rowcount rowindex rowspan selected setsize sort valuemax valuemin valuenow valuetext'.split(
-		' '
-	)
-);
-
 const a11y_distracting_elements = ['blink', 'marquee'];
-const a11y_labelable = [
-	'button',
-	'input',
-	'keygen',
-	'meter',
-	'output',
-	'progress',
-	'select',
-	'textarea',
-];
-const a11y_interactive_handlers = [
-	// Keyboard events
-	'keypress',
-	'keydown',
-	'keyup',
-	// Click events
-	'click',
-	'contextmenu',
-	'dblclick',
-	'drag',
-	'dragend',
-	'dragenter',
-	'dragexit',
-	'dragleave',
-	'dragover',
-	'dragstart',
-	'drop',
-	'mousedown',
-	'mouseenter',
-	'mouseleave',
-	'mousemove',
-	'mouseout',
-	'mouseover',
-	'mouseup',
-];
-const a11y_recommended_interactive_handlers = [
-	'click',
-	'mousedown',
-	'mouseup',
-	'keypress',
-	'keydown',
-	'keyup',
-];
+
 const a11y_nested_implicit_semantics = new Map([
 	['header', 'banner'],
 	['footer', 'contentinfo'],
@@ -374,6 +96,360 @@ const input_type_to_implicit_role = new Map([
 	['text', 'textbox'],
 	['url', 'textbox'],
 ]);
+
+const ariaAttributes = new Set(
+	'activedescendant atomic autocomplete busy checked colcount colindex colspan controls current describedby description details disabled dropeffect errormessage expanded flowto grabbed haspopup hidden invalid keyshortcuts label labelledby level live modal multiline multiselectable orientation owns placeholder posinset pressed readonly relevant required roledescription rowcount rowindex rowspan selected setsize sort valuemax valuemin valuenow valuetext'.split(
+		' '
+	)
+);
+
+const ariaRoles = new Set(
+	'alert alertdialog application article banner button cell checkbox columnheader combobox complementary contentinfo definition dialog directory document feed figure form grid gridcell group heading img link list listbox listitem log main marquee math menu menubar menuitem menuitemcheckbox menuitemradio navigation none note option presentation progressbar radio radiogroup region row rowgroup rowheader scrollbar search searchbox separator slider spinbutton status tab tablist tabpanel textbox timer toolbar tooltip tree treegrid treeitem'.split(
+		' '
+	)
+);
+
+export const a11y: AuditRuleWithSelector[] = [
+	{
+		code: 'a11y-accesskey',
+		title: 'Avoid using accesskey',
+		message:
+			'Enforce no `accesskey` on element. Access keys are HTML attributes that allow web developers to assign keyboard shortcuts to elements. Inconsistencies between keyboard shortcuts and keyboard commands used by screen reader and keyboard-only users create accessibility complications. To avoid complications, access keys should not be used.',
+		selector: '[accesskey]',
+	},
+	{
+		code: 'a11y-aria-activedescendant-has-tabindex',
+		title: 'Elements with attribute `aria-activedescendant` should have `tabindex` value',
+		message:
+			'An element with `aria-activedescendant` must be tabbable, so it must either have an inherent `tabindex` or declare `tabindex` as an attribute.',
+		selector: '[aria-activedescendant]',
+		match(element) {
+			if (!(element as HTMLElement).tabIndex && !element.hasAttribute('tabindex')) return true;
+		},
+	},
+	{
+		code: 'a11y-aria-attributes',
+		title: 'Certain reserved DOM elements do not support ARIA roles, states and properties',
+		message:
+			'This is often because they are not visible, for example `meta`, `html`, `script`, `style`. This rule enforces that these DOM elements do not contain the `aria-*` props.',
+		selector: ':is(meta, html, script, style)',
+		match(element) {
+			for (const attribute of element.attributes) {
+				if (attribute.name.startsWith('aria-')) return true;
+			}
+		},
+	},
+	{
+		code: 'a11y-autofocus',
+		title: 'Enforce that `autofocus` is not used on elements',
+		message:
+			'Autofocusing elements can cause usability issues for sighted and non-sighted users alike.',
+		selector: '[autofocus]',
+	},
+	{
+		code: 'a11y-distracting-elements',
+		title: 'Enforces that no distracting elements are used',
+		message:
+			'Elements that can be visually distracting can cause accessibility issues with visually impaired users. Such elements are most likely deprecated, and should be avoided. The following elements are visually distracting: `<marquee>` and `<blink>`.',
+		selector: `:is(${a11y_distracting_elements.join(',')})`,
+	},
+	{
+		code: 'a11y-hidden',
+		title: 'Certain DOM elements are useful for screen reader navigation and should not be hidden',
+		message: (element) => `${element.localName} element should not be hidden`,
+		selector: '[aria-hidden]:is(h1,h2,h3,h4,h5,h6)',
+	},
+	{
+		code: 'a11y-img-redundant-alt',
+		title: 'Redundant alt attribute',
+		message:
+			'Screen readers already announce `img` elements as an image. There is no need to use words such as _image_, _photo_, and/or _picture_.',
+		selector: 'img[alt]:not([aria-hidden])',
+		match: (img: HTMLImageElement) => /\b(image|picture|photo)\b/i.test(img.alt),
+	},
+	{
+		code: 'a11y-incorrect-aria-attribute-type',
+		title: 'Enforce that only the correct type of value is used for aria attributes',
+		message: 'For example, `aria-hidden` should only receive a boolean.',
+		selector: '[aria-hidden]',
+		match(element) {
+			const value = element.getAttribute('aria-hidden');
+			if (!value) return true;
+			if (value === 'true' || value === 'false') return true;
+		},
+	},
+	{
+		code: 'a11y-invalid-attribute',
+		title: 'Enforce that attributes important for accessibility have a valid value',
+		message: "For example, `href` should not be empty, `'#'`, or `javascript:`.",
+		selector: 'a[href]',
+		match(element) {
+			const href = element.getAttribute('href');
+			if (!href) return true;
+			if (href === '' || href === '#' || /^\W*javascript:/i.test(href)) return true;
+		},
+	},
+	{
+		code: 'a11y-label-has-associated-control',
+		title: 'Enforce that a label tag has a text label and an associated control',
+		message: 'There are two supported ways to associate a label with a control:',
+		selector: 'label',
+		match(element) {
+			const inputChild = element.querySelector('input');
+			if (!element.hasAttribute('for') && !inputChild) return true;
+		},
+	},
+	{
+		code: 'a11y-media-has-caption',
+		title: 'Providing captions for media is essential for deaf users to follow along',
+		message:
+			'Captions should be a transcription or translation of the dialogue, sound effects, relevant musical cues, and other relevant audio information. Not only is this important for accessibility, but can also be useful for all users in the case that the media is unavailable (similar to `alt` text on an image when an image is unable to load). The captions should contain all important and relevant information to understand the corresponding media. This may mean that the captions are not a 1:1 mapping of the dialogue in the media content. However, captions are not necessary for video components with the `muted` attribute.',
+		selector: 'video:not([muted])',
+		match(element) {
+			const tracks = element.querySelectorAll('track');
+			if (!tracks.length) return true;
+
+			const hasCaptionTrack = Array.from(tracks).some(
+				(track) => track.getAttribute('kind') === 'captions'
+			);
+
+			return !hasCaptionTrack;
+		},
+	},
+	{
+		code: 'a11y-misplaced-role',
+		title: 'Certain reserved DOM elements do not support ARIA roles, states and properties',
+		message:
+			'This is often because they are not visible, for example `meta`, `html`, `script`, `style`. This rule enforces that these DOM elements do not contain the `role` props.',
+		selector: ':is(meta, html, script, style)[role]',
+	},
+	{
+		code: 'a11y-misplaced-scope',
+		title: 'The scope attribute should only be used on `<th>` elements',
+		message: 'The scope attribute should only be used on `<th>` elements.',
+		selector: ':not(th)[scope]',
+	},
+	{
+		code: 'a11y-missing-attribute',
+		title: 'Required attributes are missing from this element',
+		message: (element) => {
+			const requiredAttributes =
+				a11y_required_attributes[element.localName as keyof typeof a11y_required_attributes];
+
+			const missingAttributes = requiredAttributes.filter(
+				(attribute) => !element.hasAttribute(attribute)
+			);
+
+			return `${element.localName} element is missing required attributes: ${missingAttributes.join(
+				', '
+			)} `;
+		},
+		selector: Object.keys(a11y_required_attributes).join(','),
+		match(element) {
+			const requiredAttributes =
+				a11y_required_attributes[element.localName as keyof typeof a11y_required_attributes];
+
+			if (!requiredAttributes) return true;
+			for (const attribute of requiredAttributes) {
+				if (!element.hasAttribute(attribute)) return true;
+			}
+
+			return false;
+		},
+	},
+	{
+		code: 'a11y-missing-content',
+		title: 'Enforce that heading elements (`h1`, `h2`, etc.) and anchors have content',
+		message: 'and that the content is accessible to screen readers',
+		selector: a11y_required_content.join(','),
+		match(element) {
+			if (!element.textContent) return true;
+		},
+	},
+	{
+		code: 'a11y-mouse-events-have-key-events',
+		title: 'Enforce that `mouseover` and `mouseout` are accompanied by `focus` and `blur`',
+		message:
+			'This helps to ensure that any functionality triggered by these mouse events is also accessible to keyboard users.',
+		selector: '[onmouseover]:not([onfocus])',
+	},
+	{
+		code: 'a11y-no-redundant-roles',
+		title: 'Some HTML elements have default ARIA roles',
+		message:
+			'Giving these elements an ARIA role that is already set by the browser has no effect and is redundant.',
+		// Return all the keys from the Map
+		selector: [...a11y_implicit_semantics.keys()].join(','),
+		match(element) {
+			const role = element.getAttribute('role');
+
+			if (element.localName === 'input') {
+				const type = element.getAttribute('type');
+				if (!type) return true;
+
+				const implicitRoleForType = input_type_to_implicit_role.get(type);
+				if (!implicitRoleForType) return true;
+
+				if (role === implicitRoleForType) return false;
+			}
+
+			// TODO: Handle menuitem and elements that inherit their role from their parent
+
+			const implicitRole = a11y_implicit_semantics.get(element.localName);
+			if (!implicitRole) return true;
+
+			if (role === implicitRole) return false;
+		},
+	},
+	{
+		code: 'a11y-no-interactive-element-to-noninteractive-role',
+		title:
+			'[WAI-ARIA](https://www.w3.org/TR/wai-aria-1.1/#usage_intro) roles should not be used to convert an interactive element to a non-interactive element',
+		message:
+			'Non-interactive ARIA roles include `article`, `banner`, `complementary`, `img`, `listitem`, `main`, `region` and `tooltip`.',
+		selector: `${interactiveElements.map((el) => `${el}[role]`).join(',')}`,
+		match(element) {
+			const role = element.getAttribute('role');
+			if (!role) return true;
+			if (!ariaRoles.has(role)) return true;
+
+			const implicitRole = a11y_implicit_semantics.get(element.localName);
+			if (!implicitRole) return true;
+
+			if (role === implicitRole) return false;
+		},
+	},
+	{
+		code: 'a11y-no-noninteractive-element-interactions',
+		title: 'A non-interactive element does not support event handlers (mouse and key handlers)',
+		message:
+			'Non-interactive elements include `<main>`, `<area>`, `<h1>` (,`<h2>`, etc), `<p>`, `<img>`, `<li>`, `<ul>` and `<ol>`. Non-interactive [WAI-ARIA roles](https://www.w3.org/TR/wai-aria-1.1/#usage_intro) include `article`, `banner`, `complementary`, `img`, `listitem`, `main`, `region` and `tooltip`.',
+		selector: 'li[click]',
+	},
+	{
+		code: 'a11y-no-noninteractive-element-to-interactive-role',
+		title:
+			'[WAI-ARIA](https://www.w3.org/TR/wai-aria-1.1/#usage_intro) roles should not be used to convert a non-interactive element to an interactive element',
+		message:
+			'Interactive ARIA roles include `button`, `link`, `checkbox`, `menuitem`, `menuitemcheckbox`, `menuitemradio`, `option`, `radio`, `searchbox`, `switch` and `textbox`.',
+		selector: "h3[role='searchbox']",
+	},
+	{
+		code: 'a11y-no-noninteractive-tabindex',
+		title:
+			'Tab key navigation should be limited to elements on the page that can be interacted with',
+		message: 'This is to avoid confusing experiences for keyboard users.',
+		selector: '[tabindex]',
+	},
+	{
+		code: 'a11y-no-static-element-interactions',
+		title: 'Elements like `<div>` with interactive handlers like `click` must have an ARIA role',
+		message: 'This is to ensure accessibility for screen readers.',
+		selector: 'div[click]',
+	},
+	{
+		code: 'a11y-positive-tabindex',
+		title: 'Avoid positive `tabindex` property values',
+		message:
+			'This will move elements out of the expected tab order, creating a confusing experience for keyboard users.',
+		selector: '[tabindex]:not([tabindex="-1"]):not([tabindex="0"])',
+	},
+	// {
+	// 	code: 'a11y-role-has-required-aria-props',
+	// 	title: 'Elements with ARIA roles must have all required attributes for that role',
+	// 	message: 'For example',
+	// 	selector: "span[role='checkbox'][aria-labelledby='foo'][tabindex='0']",
+	// },
+	// {
+	// 	code: 'a11y-role-supports-aria-props',
+	// 	title:
+	// 		'Elements with explicit or implicit roles defined contain only `aria-*` properties supported by that role',
+	// 	message: 'For example',
+	// 	selector: "div[role='link'][aria-multiline]",
+	// },
+	{
+		code: 'a11y-structure',
+		title: 'Enforce that certain DOM elements have the correct structure',
+		message: 'For example',
+		selector: 'figcaption',
+		match(element) {
+			if (element.parentElement?.localName !== 'figure') return true;
+		},
+	},
+	{
+		code: 'a11y-unknown-aria-attribute',
+		title: 'Enforce that only known ARIA attributes are used',
+		message:
+			'This is based on the [WAI-ARIA States and Properties spec](https://www.w3.org/WAI/PF/aria-1.1/states_and_properties).',
+		selector: '*', // TODO: Is there a way we could only select elements with aria-* attributes?
+		match(element) {
+			for (const attribute of element.attributes) {
+				if (attribute.name.startsWith('aria-')) {
+					if (!ariaAttributes.has(attribute.name)) return true;
+				}
+			}
+		},
+	},
+	{
+		code: 'a11y-unknown-role',
+		title: 'Elements with ARIA roles must use a valid, non-abstract ARIA role',
+		message:
+			'A reference to role definitions can be found at [WAI-ARIA](https://www.w3.org/TR/wai-aria/#role_definitions) site.',
+		selector: '[role]',
+		match(element) {
+			const role = element.getAttribute('role');
+			if (!role) return true;
+			if (!ariaRoles.has(role)) return true;
+		},
+	},
+];
+
+const a11y_labelable = [
+	'button',
+	'input',
+	'keygen',
+	'meter',
+	'output',
+	'progress',
+	'select',
+	'textarea',
+];
+
+const html_interactive_handlers = ['onclick', 'oncontextmenu', 'ondblclick'];
+
+const a11y_interactive_handlers = [
+	// Keyboard events
+	'keypress',
+	'keydown',
+	'keyup',
+	// Click events
+	'click',
+	'contextmenu',
+	'dblclick',
+	'drag',
+	'dragend',
+	'dragenter',
+	'dragexit',
+	'dragleave',
+	'dragover',
+	'dragstart',
+	'drop',
+	'mousedown',
+	'mouseenter',
+	'mouseleave',
+	'mousemove',
+	'mouseout',
+	'mouseover',
+	'mouseup',
+];
+const a11y_recommended_interactive_handlers = [
+	'click',
+	'mousedown',
+	'mouseup',
+	'keypress',
+	'keydown',
+	'keyup',
+];
 
 /**
  * Exceptions to the rule which follows common A11y conventions
