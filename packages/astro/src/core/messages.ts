@@ -62,6 +62,29 @@ export function serverStart({
 }): string {
 	// PACKAGE_VERSION is injected at build-time
 	const version = process.env.PACKAGE_VERSION ?? '0.0.0';
+
+	const messages = [
+		'',
+		`${bgGreen(bold(` astro `))} ${green(`v${version}`)} ${dim(`ready in`)} ${Math.round(
+			startupTime
+		)} ${dim('ms')}`,
+		'',
+		serverUrls({ resolvedUrls, host, base }),
+		`${dim('┃')} Press ${bold('h + enter')} for shortcuts`,
+		'',
+	];
+	return messages.filter((msg) => typeof msg === 'string').join('\n');
+}
+
+export function serverUrls({
+	resolvedUrls,
+	host,
+	base,
+}: {
+	resolvedUrls: ResolvedServerUrls;
+	host: string | boolean;
+	base: string;
+}) {
 	const localPrefix = `${dim('┃')} Local    `;
 	const networkPrefix = `${dim('┃')} Network  `;
 	const emptyPrefix = ' '.repeat(11);
@@ -82,17 +105,7 @@ export function serverStart({
 		}
 	}
 
-	const messages = [
-		'',
-		`${bgGreen(bold(` astro `))} ${green(`v${version}`)} ${dim(`ready in`)} ${Math.round(
-			startupTime
-		)} ${dim('ms')}`,
-		'',
-		...localUrlMessages,
-		...networkUrlMessages,
-		'',
-	];
-	return messages.filter((msg) => typeof msg === 'string').join('\n');
+	return [...localUrlMessages, ...networkUrlMessages].join('\n');
 }
 
 export function telemetryNotice() {

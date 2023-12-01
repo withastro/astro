@@ -7,7 +7,7 @@ import { createNodeLogger, createSettings, resolveConfig } from '../config/index
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
-import { formatErrorMessage } from '../messages.js';
+import { formatErrorMessage, serverUrls } from '../messages.js';
 import type { Container } from './container.js';
 import { createContainer, startContainer } from './container.js';
 
@@ -137,7 +137,7 @@ export async function createContainerWithAutomaticRestart({
 		} else {
 			// Restart success. Add new watches because this is a new container with a new Vite server
 			restart.container = result;
-			addWatches();
+			setupContainer();
 			resolveRestart(null);
 		}
 		restartComplete = new Promise<Error | null>((resolve) => {
@@ -153,8 +153,8 @@ export async function createContainerWithAutomaticRestart({
 		};
 	}
 
-	// Set up watches
-	function addWatches() {
+	// Set up watchers, vite restart API, and shortcuts
+	function setupContainer() {
 		const watcher = restart.container.viteServer.watcher;
 		watcher.on('change', handleChangeRestart('Configuration file updated.'));
 		watcher.on('unlink', handleChangeRestart('Configuration file removed.'));
@@ -163,7 +163,35 @@ export async function createContainerWithAutomaticRestart({
 		// Restart the Astro dev server instead of Vite's when the API is called by plugins.
 		// Ignore the `forceOptimize` parameter for now.
 		restart.container.viteServer.restart = () => handleServerRestart();
+
+		// Set up shortcuts, overriding Vite's default shortcuts so it works for Astro
+		restart.container.viteServer.bindCLIShortcuts({
+			customShortcuts: [
+				{
+					key: 'r',
+					description: 'restart the server',
+					action: () => handleServerRestart(),
+				},
+				{
+					key: 'u',
+					description: 'show server url',
+					action() {
+						logger.info(
+							'SKIP_FORMAT',
+							serverUrls({
+								resolvedUrls: restart.container.viteServer.resolvedUrls || {
+									local: [],
+									network: [],
+								},
+								host: restart.container.settings.config.server.host,
+								base: restart.container.settings.config.base,
+							})
+						);
+					},
+				},
+			],
+		});
 	}
-	addWatches();
+	setupContainer();
 	return restart;
 }
