@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 6.0.0-beta.2
+
+### Major Changes
+
+- [#9263](https://github.com/withastro/astro/pull/9263) [`3cbd8ea75`](https://github.com/withastro/astro/commit/3cbd8ea7534910e3beae396dcfa93ce87dcdd91f) Thanks [@bluwy](https://github.com/bluwy)! - Removes the deprecated `@astrojs/vercel/edge` export. You should use `@astrojs/vercel/serverless` instead with the `edgeMiddleware` option.
+
 ## 6.0.0-beta.1
 
 ### Major Changes
