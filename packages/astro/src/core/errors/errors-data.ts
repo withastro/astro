@@ -1276,10 +1276,8 @@ export const UnsupportedConfigTransformError = {
 export const MissingLocale = {
 	name: 'MissingLocaleError',
 	title: 'The provided locale does not exist.',
-	message: (locale: string, locales: string[]) => {
-		return `The locale \`${locale}\` does not exist in the configured locales. Available locales: ${locales.join(
-			', '
-		)}.`;
+	message: (locale: string) => {
+		return `The locale/path \`${locale}\` does not exist in the configured \`i18n.locales\`.`;
 	},
 } satisfies ErrorData;
 

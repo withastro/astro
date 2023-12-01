@@ -3,7 +3,7 @@ import type { DevOverlayHighlight } from '../ui-library/highlight.js';
 import {
 	attachTooltipToHighlight,
 	createHighlight,
-	getHighlightZIndex,
+	getElementsPositionInDocument,
 	positionHighlight,
 } from './utils/highlight.js';
 import { createWindowElement } from './utils/window.js';
@@ -83,8 +83,16 @@ export default {
 				attachTooltipToHighlight(highlight, tooltip, islandElement);
 
 				// Set the z-index to be 1 higher than the greatest z-index in the stack.
-				const zIndex = getHighlightZIndex(islandElement);
+				// And also set the highlight/tooltip as being fixed position if they are inside
+				// a fixed container. We do this so that we don't mistakenly take scroll position
+				// into account when setting their position.
+				// We are only doing both of these things once, as they are relatively expensive
+				// to calculate, and are unlikely to change. If that turns out to be wrong, reconsider this.
+				const { zIndex, fixed } = getElementsPositionInDocument(islandElement);
 				tooltip.style.zIndex = highlight.style.zIndex = zIndex + '';
+				if (fixed) {
+					tooltip.style.position = highlight.style.position = 'fixed';
+				}
 
 				canvas.append(highlight);
 				islandsOverlays.push({ highlightElement: highlight, island: islandElement });

@@ -316,7 +316,15 @@ export const AstroConfigSchema = z.object({
 				z
 					.object({
 						defaultLocale: z.string(),
-						locales: z.string().array(),
+						locales: z.array(
+							z.union([
+								z.string(),
+								z.object({
+									path: z.string(),
+									codes: z.string().array().nonempty(),
+								}),
+							])
+						),
 						fallback: z.record(z.string(), z.string()).optional(),
 						routing: z
 							.object({
@@ -341,7 +349,14 @@ export const AstroConfigSchema = z.object({
 					.optional()
 					.superRefine((i18n, ctx) => {
 						if (i18n) {
-							const { defaultLocale, locales, fallback } = i18n;
+							const { defaultLocale, locales: _locales, fallback } = i18n;
+							const locales = _locales.map((locale) => {
+								if (typeof locale === 'string') {
+									return locale;
+								} else {
+									return locale.path;
+								}
+							});
 							if (!locales.includes(defaultLocale)) {
 								ctx.addIssue({
 									code: z.ZodIssueCode.custom,

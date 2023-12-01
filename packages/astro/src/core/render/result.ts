@@ -1,6 +1,7 @@
 import type {
 	AstroGlobal,
 	AstroGlobalPartial,
+	Locales,
 	Params,
 	SSRElement,
 	SSRLoadedRenderer,
@@ -50,7 +51,7 @@ export interface CreateResultArgs {
 	status: number;
 	locals: App.Locals;
 	cookies?: AstroCookies;
-	locales: string[] | undefined;
+	locales: Locales | undefined;
 	defaultLocale: string | undefined;
 	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined;
 }

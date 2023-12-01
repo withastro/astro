@@ -1438,15 +1438,17 @@ export interface AstroUserConfig {
 			 * @docs
 			 * @kind h4
 			 * @name experimental.i18n.locales
-			 * @type {string[]}
+			 * @type {Locales}
 			 * @version 3.5.0
 			 * @description
 			 *
-			 * A list of all locales supported by the website (e.g. `['en', 'es', 'pt-br']`). This list should also include the `defaultLocale`. This is a required field.
+			 * A list of all locales supported by the website, including the `defaultLocale`. This is a required field.
 			 *
-			 * No particular language format or syntax is enforced, but your folder structure must match exactly the locales in the list.
+			 * Languages can be listed either as individual codes (e.g. `['en', 'es', 'pt-br']`) or mapped to a shared `path` of codes (e.g.  `{ path: "english", codes: ["en", "en-US"]}`). These codes will be used to determine the URL structure of your deployed site.
+			 *
+			 * No particular language code format or syntax is enforced, but your project folders containing your content files must match exactly the `locales` items in the list. In the case of multiple `codes` pointing to a custom URL path prefix, store your content files in a folder with the same name as the `path` configured.
 			 */
-			locales: string[];
+			locales: Locales;
 
 			/**
 			 * @docs
@@ -2025,6 +2027,8 @@ export interface AstroInternationalizationFeature {
 	 */
 	detectBrowserLanguage?: SupportsKind;
 }
+
+export type Locales = (string | { codes: string[]; path: string })[];
 
 export interface AstroAdapter {
 	name: string;
