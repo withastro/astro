@@ -183,16 +183,16 @@ const ariaRoles = new Set(
 export const a11y: AuditRuleWithSelector[] = [
 	{
 		code: 'a11y-accesskey',
-		title: 'Avoid using accesskey',
+		title: 'Avoid using `accesskey`',
 		message:
-			'Enforce no `accesskey` on element. Access keys are HTML attributes that allow web developers to assign keyboard shortcuts to elements. Inconsistencies between keyboard shortcuts and keyboard commands used by screen reader and keyboard-only users create accessibility complications. To avoid complications, access keys should not be used.',
+			"The `accesskey` attribute can cause accessibility issues. The shortcuts can conflict with the browser's or operating system's shortcuts, and they are difficult for users to discover and use.",
 		selector: '[accesskey]',
 	},
 	{
 		code: 'a11y-aria-activedescendant-has-tabindex',
-		title: 'Elements with attribute `aria-activedescendant` should have `tabindex` value',
+		title: 'Elements with attribute `aria-activedescendant` must be tabbable',
 		message:
-			'An element with `aria-activedescendant` must be tabbable, so it must either have an inherent `tabindex` or declare `tabindex` as an attribute.',
+			'This element must either have an inherent `tabindex` or declare `tabindex` as an attribute.',
 		selector: '[aria-activedescendant]',
 		match(element) {
 			if (!(element as HTMLElement).tabIndex && !element.hasAttribute('tabindex')) return true;
@@ -200,10 +200,9 @@ export const a11y: AuditRuleWithSelector[] = [
 	},
 	{
 		code: 'a11y-aria-attributes',
-		title: 'Certain reserved DOM elements do not support ARIA roles, states and properties',
-		message:
-			'This is often because they are not visible, for example `meta`, `html`, `script`, `style`. This rule enforces that these DOM elements do not contain the `aria-*` props.',
-		selector: ':is(meta, html, script, style)',
+		title: 'Element does not support ARIA roles.',
+		message: 'Elements like `meta`, `html`, `script`, `style` do not support having ARIA roles.',
+		selector: ':is(meta, html, script, style)[role]',
 		match(element) {
 			for (const attribute of element.attributes) {
 				if (attribute.name.startsWith('aria-')) return true;
@@ -212,47 +211,47 @@ export const a11y: AuditRuleWithSelector[] = [
 	},
 	{
 		code: 'a11y-autofocus',
-		title: 'Enforce that `autofocus` is not used on elements',
+		title: 'Avoid using `autofocus`',
 		message:
-			'Autofocusing elements can cause usability issues for sighted and non-sighted users alike.',
+			'The `autofocus` attribute can cause accessibility issues, as it can cause the focus to move around unexpectedly for screen reader users.',
 		selector: '[autofocus]',
 	},
 	{
 		code: 'a11y-distracting-elements',
-		title: 'Enforces that no distracting elements are used',
+		title: 'Distracting elements should not be used',
 		message:
-			'Elements that can be visually distracting can cause accessibility issues with visually impaired users. Such elements are most likely deprecated, and should be avoided. The following elements are visually distracting: `<marquee>` and `<blink>`.',
+			'Elements that can be visually distracting like `<marquee>` or `<blink>` can cause accessibility issues for visually impaired users and should be avoided.',
 		selector: `:is(${a11y_distracting_elements.join(',')})`,
 	},
 	{
 		code: 'a11y-hidden',
 		title: 'Certain DOM elements are useful for screen reader navigation and should not be hidden',
-		message: (element) => `${element.localName} element should not be hidden`,
+		message: (element) => `${element.localName} element should not be hidden.`,
 		selector: '[aria-hidden]:is(h1,h2,h3,h4,h5,h6)',
 	},
 	{
 		code: 'a11y-img-redundant-alt',
 		title: 'Redundant alt attribute',
 		message:
-			'Screen readers already announce `img` elements as an image. There is no need to use words such as _image_, _photo_, and/or _picture_.',
+			'Screen readers already announce `img` elements as an image. There is no need to use words such as "image", "photo", and/or "picture".',
 		selector: 'img[alt]:not([aria-hidden])',
 		match: (img: HTMLImageElement) => /\b(image|picture|photo)\b/i.test(img.alt),
 	},
 	{
 		code: 'a11y-incorrect-aria-attribute-type',
-		title: 'Enforce that only the correct type of value is used for aria attributes',
-		message: 'For example, `aria-hidden` should only receive a boolean.',
+		title: 'Incorrect value for ARIA attribute.',
+		message: '`aria-hidden` should only receive a boolean.',
 		selector: '[aria-hidden]',
 		match(element) {
 			const value = element.getAttribute('aria-hidden');
 			if (!value) return true;
-			if (value === 'true' || value === 'false') return true;
+			if (!['true', 'false'].includes(value)) return true;
 		},
 	},
 	{
 		code: 'a11y-invalid-attribute',
-		title: 'Enforce that attributes important for accessibility have a valid value',
-		message: "For example, `href` should not be empty, `'#'`, or `javascript:`.",
+		title: 'Attributes important for accessibility have a valid value',
+		message: "`href` should not be empty, `'#'`, or `javascript:`.",
 		selector: 'a[href]',
 		match(element) {
 			const href = element.getAttribute('href');
@@ -262,19 +261,20 @@ export const a11y: AuditRuleWithSelector[] = [
 	},
 	{
 		code: 'a11y-label-has-associated-control',
-		title: 'Enforce that a label tag has a text label and an associated control',
-		message: 'There are two supported ways to associate a label with a control:',
+		title: '`label` tag should have an associated control and a text content.',
+		message:
+			'The `label` tag must be associated with a control using either `for` or having a nested input. Additionally, the `label` tag must have text content.',
 		selector: 'label',
 		match(element) {
 			const inputChild = element.querySelector('input');
-			if (!element.hasAttribute('for') && !inputChild) return true;
+			if (!element.hasAttribute('for') && !inputChild?.textContent && !inputChild) return true;
 		},
 	},
 	{
 		code: 'a11y-media-has-caption',
-		title: 'Providing captions for media is essential for deaf users to follow along',
+		title: 'Unmuted video elements should have captions',
 		message:
-			'Captions should be a transcription or translation of the dialogue, sound effects, relevant musical cues, and other relevant audio information. Not only is this important for accessibility, but can also be useful for all users in the case that the media is unavailable (similar to `alt` text on an image when an image is unable to load). The captions should contain all important and relevant information to understand the corresponding media. This may mean that the captions are not a 1:1 mapping of the dialogue in the media content. However, captions are not necessary for video components with the `muted` attribute.',
+			'Videos without captions can be difficult for deaf and hard-of-hearing users to follow along with. If the video does not need captions, add the `muted` attribute.',
 		selector: 'video:not([muted])',
 		match(element) {
 			const tracks = element.querySelectorAll('track');
@@ -288,21 +288,15 @@ export const a11y: AuditRuleWithSelector[] = [
 		},
 	},
 	{
-		code: 'a11y-misplaced-role',
-		title: 'Certain reserved DOM elements do not support ARIA roles, states and properties',
-		message:
-			'This is often because they are not visible, for example `meta`, `html`, `script`, `style`. This rule enforces that these DOM elements do not contain the `role` props.',
-		selector: ':is(meta, html, script, style)[role]',
-	},
-	{
 		code: 'a11y-misplaced-scope',
-		title: 'The scope attribute should only be used on `<th>` elements',
-		message: 'The scope attribute should only be used on `<th>` elements.',
+		title: 'The `scope` attribute should only be used on `<th>` elements',
+		message:
+			'The `scope` attribute tells the browser and screen readers how to navigate tables. In HTML5, it should only be used on `<th>` elements.',
 		selector: ':not(th)[scope]',
 	},
 	{
 		code: 'a11y-missing-attribute',
-		title: 'Required attributes are missing from this element',
+		title: 'Required attributes missing.',
 		message: (element) => {
 			const requiredAttributes =
 				a11y_required_attributes[element.localName as keyof typeof a11y_required_attributes];
@@ -311,9 +305,9 @@ export const a11y: AuditRuleWithSelector[] = [
 				(attribute) => !element.hasAttribute(attribute)
 			);
 
-			return `${element.localName} element is missing required attributes: ${missingAttributes.join(
-				', '
-			)} `;
+			return `${
+				element.localName
+			} element is missing required attributes for accessibility: ${missingAttributes.join(', ')} `;
 		},
 		selector: Object.keys(a11y_required_attributes).join(','),
 		match(element) {
@@ -330,8 +324,8 @@ export const a11y: AuditRuleWithSelector[] = [
 	},
 	{
 		code: 'a11y-missing-content',
-		title: 'Enforce that heading elements (`h1`, `h2`, etc.) and anchors have content',
-		message: 'and that the content is accessible to screen readers',
+		title: 'Missing content on element important for accessibility',
+		message: 'Headings and anchors must have content to be accessible.',
 		selector: a11y_required_content.join(','),
 		match(element) {
 			if (!element.textContent) return true;
@@ -347,10 +341,9 @@ export const a11y: AuditRuleWithSelector[] = [
 	// },
 	{
 		code: 'a11y-no-redundant-roles',
-		title: 'Some HTML elements have default ARIA roles',
+		title: 'HTML element has redundant ARIA roles',
 		message:
 			'Giving these elements an ARIA role that is already set by the browser has no effect and is redundant.',
-		// Return all the keys from the Map
 		selector: [...a11y_implicit_semantics.keys()].join(','),
 		match(element) {
 			const role = element.getAttribute('role');
@@ -375,10 +368,9 @@ export const a11y: AuditRuleWithSelector[] = [
 	},
 	{
 		code: 'a11y-no-interactive-element-to-noninteractive-role',
-		title:
-			'[WAI-ARIA](https://www.w3.org/TR/wai-aria-1.1/#usage_intro) roles should not be used to convert an interactive element to a non-interactive element',
+		title: 'Non-interactive ARIA role used on interactive HTML element.',
 		message:
-			'Non-interactive ARIA roles include `article`, `banner`, `complementary`, `img`, `listitem`, `main`, `region` and `tooltip`.',
+			'Interactive HTML elements like `<a>` and `<button>` cannot use non-interactive roles like `heading`, `list`, `menu`, and `toolbar`.',
 		selector: `${interactiveElements.map((el) => `${el}[role]`).join(',')}`,
 		match(element) {
 			const role = element.getAttribute('role');
@@ -406,9 +398,9 @@ export const a11y: AuditRuleWithSelector[] = [
 	// },
 	{
 		code: 'a11y-no-noninteractive-tabindex',
-		title:
-			'Tab key navigation should be limited to elements on the page that can be interacted with',
-		message: 'This is to avoid confusing experiences for keyboard users.',
+		title: 'Invalid `tabindex` on non-interactive element',
+		message:
+			'Non-interactive elements should not have `tabindex` greater than zero or `tabindex="-1"`',
 		selector: '[tabindex]',
 		match(element) {
 			if (!interactiveElements.includes(element.localName)) return true;
@@ -444,8 +436,9 @@ export const a11y: AuditRuleWithSelector[] = [
 	// },
 	{
 		code: 'a11y-structure',
-		title: 'Enforce that certain DOM elements have the correct structure',
-		message: 'For example',
+		title: 'Invalid DOM structure',
+		message:
+			'The DOM structure must be valid for accessibility of the page, for example `figcaption` must be a direct child of `figure`.',
 		selector: 'figcaption',
 		match(element) {
 			if (element.parentElement?.localName !== 'figure') return true;
@@ -453,9 +446,8 @@ export const a11y: AuditRuleWithSelector[] = [
 	},
 	{
 		code: 'a11y-unknown-aria-attribute',
-		title: 'Enforce that only known ARIA attributes are used',
-		message:
-			'This is based on the [WAI-ARIA States and Properties spec](https://www.w3.org/WAI/PF/aria-1.1/states_and_properties).',
+		title: 'Unknown ARIA attribute',
+		message: 'ARIA attributes prefixed with `aria-` must be valid, non-abstract ARIA attributes.',
 		selector: '*', // TODO: Is there a way we could only select elements with aria-* attributes?
 		match(element) {
 			for (const attribute of element.attributes) {
@@ -467,9 +459,8 @@ export const a11y: AuditRuleWithSelector[] = [
 	},
 	{
 		code: 'a11y-unknown-role',
-		title: 'Elements with ARIA roles must use a valid, non-abstract ARIA role',
-		message:
-			'A reference to role definitions can be found at [WAI-ARIA](https://www.w3.org/TR/wai-aria/#role_definitions) site.',
+		title: 'Unknown ARIA role',
+		message: 'ARIA roles must be valid, non-abstract ARIA roles.',
 		selector: '[role]',
 		match(element) {
 			const role = element.getAttribute('role');
