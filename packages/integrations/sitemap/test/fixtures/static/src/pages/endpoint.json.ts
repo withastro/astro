@@ -1,8 +1,6 @@
 export async function GET({}) {
-  return {
-    body: JSON.stringify({
-      name: 'Astro',
-      url: 'https://astro.build/',
-    }),
-  };
+	return Response.json({
+		name: 'Astro',
+		url: 'https://astro.build/',
+	});
 }
