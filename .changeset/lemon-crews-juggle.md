@@ -4,6 +4,6 @@
 
 Renames Dev Overlay to Dev Toolbar
 
-The previously named Dev Overlay is now known as the Astro Dev Toolbar. Additionally what were called Plugins are now Toolbar Apps. This updates our references to reflect.
+The previously named experimental Dev Overlay is now known as the Astro Dev Toolbar. Plugins have been renamed as Toolbar Apps. This updates our references to reflect.
 
-As there were a lot of APIs that used these names, the existing APIs are left in place, and aliases for the new Toolbar based names are included as well, which is what will be documented. 
+To not break existing APIs, aliases for the Toolbar-based names have been created. The previous API names will continue to function but will be deprecated in the future. All documentation has been updated to reflect Toolbar-based names.
