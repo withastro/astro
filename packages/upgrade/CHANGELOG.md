@@ -1,5 +1,11 @@
 # @astrojs/upgrade
 
+## 0.1.2
+
+### Patch Changes
+
+- [#9265](https://github.com/withastro/astro/pull/9265) [`bc3b35635`](https://github.com/withastro/astro/commit/bc3b356353b8e84ba7244d8e4789b57603cd78dd) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix CHANGELOG links for beta
+
 ## 0.1.1
 
 ### Patch Changes
