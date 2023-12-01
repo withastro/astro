@@ -102,7 +102,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		clientDirectives: getDefaultClientDirectives(),
 		middlewares: { pre: [], post: [] },
 		watchFiles: [],
-		devOverlayPlugins: [],
+		devToolbarApps: [],
 		timer: new AstroTimer(),
 	};
 }
