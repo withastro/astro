@@ -4415,40 +4415,6 @@ importers:
         specifier: ^10.19.2
         version: 10.19.2
 
-  packages/integrations/prefetch:
-    dependencies:
-      throttles:
-        specifier: ^1.0.1
-        version: 1.0.1
-    devDependencies:
-      '@playwright/test':
-        specifier: ^1.40.0
-        version: 1.40.0
-      astro:
-        specifier: workspace:*
-        version: link:../../astro
-      astro-scripts:
-        specifier: workspace:*
-        version: link:../../../scripts
-
-  packages/integrations/prefetch/test/fixtures/basic-prefetch:
-    dependencies:
-      '@astrojs/prefetch':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-
-  packages/integrations/prefetch/test/fixtures/style-prefetch:
-    dependencies:
-      '@astrojs/prefetch':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-
   packages/integrations/react:
     dependencies:
       '@vitejs/plugin-react':
@@ -18066,11 +18032,6 @@ packages:
       tslib:
         optional: true
     dev: true
-
-  /throttles@1.0.1:
-    resolution: {integrity: sha512-fab7Xg+zELr9KOv4fkaBoe/b3L0GMGLd0IBSCn16GoE/Qx6/OfCr1eGNyEcDU2pUA79qQfZ8kPQWlRuok4YwTw==}
-    engines: {node: '>=6'}
-    dev: false
 
   /timestring@6.0.0:
     resolution: {integrity: sha512-wMctrWD2HZZLuIlchlkE2dfXJh7J2KDI9Dwl+2abPYg0mswQHfOAyQW3jJg1pY5VfttSINZuKcXoB3FGypVklA==}

@@ -15,7 +15,6 @@
     "@astrojs/node": "6.0.4",
     "@astrojs/partytown": "2.0.2",
     "@astrojs/preact": "3.0.1",
-    "@astrojs/prefetch": "0.4.1",
     "@astrojs/react": "3.0.5",
     "@astrojs/sitemap": "3.0.3",
     "@astrojs/solid-js": "3.0.2",
