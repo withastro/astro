@@ -3,8 +3,11 @@
 
 // This code is licensed under the MIT License per https://github.com/sveltejs/svelte/blob/d57eff76ed24ae2330f11f3d3938761ae4e14b4b/LICENSE.md
 // See [Astro's LICENSE](https://github.com/withastro/astro/blob/main/LICENSE) for more information.
-
 import type { AuditRuleWithSelector } from './index.js';
+import { roles } from 'aria-query';
+// @ts-expect-error package does not provide types
+import { AXObjectRoles, elementAXObjects } from 'axobject-query';
+
 
 const a11y_required_attributes = {
 	a: ['href'],
@@ -405,13 +408,37 @@ export const a11y: AuditRuleWithSelector[] = [
 			'This will move elements out of the expected tab order, creating a confusing experience for keyboard users.',
 		selector: '[tabindex]:not([tabindex="-1"]):not([tabindex="0"])',
 	},
+	{
+		code: 'a11y-role-has-required-aria-props',
+		title: 'Missing attributes required for ARIA role',
+		message: (element) => {
+			const { missingAttributes } = element as any;
+			return `${
+				element.localName
+			} element is missing required attributes for its role: ${missingAttributes.join(', ')} `;
+		},
+		selector: "*",
+		match(element) {
+			let role: import('aria-query').ARIARoleDefinitionKey | undefined;
+			if (element.hasAttribute('role')) {
+				role = element.getAttribute('role')! as any;
+			} else {
+				role = getImplicitRole(element) as any;
+			}
+			if (!role) return false;
+			if (is_semantic_role_element(role, element.localName, getAttributeObject(element))) {
+				return;
+			}
+			const { requiredProps } = roles.get(role)!;
+			const required_role_props = Object.keys(requiredProps);
+			const missingProps = required_role_props.filter((prop) => (element as any)[prop] === undefined)
+			if (missingProps.length > 0) {
+				(element as any).missingAttributes = missingProps;
+				return true;
+			}
+		}
+	},
 	// TODO: Implement this rule
-	// {
-	// 	code: 'a11y-role-has-required-aria-props',
-	// 	title: 'Elements with ARIA roles must have all required attributes for that role',
-	// 	message: 'For example',
-	// 	selector: "span[role='checkbox'][aria-labelledby='foo'][tabindex='0']",
-	// },
 	// {
 	// 	code: 'a11y-role-supports-aria-props',
 	// 	title:
@@ -434,7 +461,8 @@ export const a11y: AuditRuleWithSelector[] = [
 		match(element) {
 			for (const attribute of element.attributes) {
 				if (attribute.name.startsWith('aria-')) {
-					if (!ariaAttributes.has(attribute.name)) return true;
+					console.log(attribute.name, ariaAttributes.has(attribute.name.slice('aria-'.length)));
+					if (!ariaAttributes.has(attribute.name.slice('aria-'.length))) return true;
 				}
 			}
 		},
@@ -476,3 +504,69 @@ const a11y_non_interactive_element_to_interactive_role_exceptions = {
 	td: ['gridcell'],
 	fieldset: ['radiogroup', 'presentation'],
 };
+
+const combobox_if_list = ['email', 'search', 'tel', 'text', 'url'];
+function input_implicit_role(attributes: Record<string, string>) {
+	if (!('type' in attributes)) return;
+	const { type, list } = attributes;
+	if (!type) return;
+	if (list && combobox_if_list.includes(type)) {
+		return 'combobox';
+	}
+	return input_type_to_implicit_role.get(type);
+}
+
+/** @param {Map<string, import('#compiler').Attribute>} attribute_map */
+function menuitem_implicit_role(attributes: Record<string, string>) {
+	if (!('type' in attributes)) return;
+	const { type } = attributes;
+	if (!type) return;
+	return menuitem_type_to_implicit_role.get(type);
+}
+
+function getImplicitRole(element: Element) {
+	const name = element.localName;
+	const attrs = getAttributeObject(element);
+	if (name === 'menuitem') {
+		return menuitem_implicit_role(attrs);
+	} else if (name === 'input') {
+		return input_implicit_role(attrs);
+	} else {
+		return a11y_implicit_semantics.get(name);
+	}
+}
+
+function getAttributeObject(element: Element): Record<string, string> {
+	let obj: Record<string, string> = {};
+	for (let i = 0; i < element.attributes.length; i++) {
+		const attribute = element.attributes.item(i)!;
+		obj[attribute.name] = attribute.value;
+	}
+	return obj;
+}
+
+/**
+ * @param {import('aria-query').ARIARoleDefinitionKey} role
+ * @param {string} tag_name
+ * @param {Map<string, import('#compiler').Attribute>} attribute_map
+ */
+function is_semantic_role_element(role: string, tag_name: string, attributes: Record<string, string>) {
+	for (const [schema, ax_object] of elementAXObjects.entries()) {
+		if (
+			schema.name === tag_name &&
+			(!schema.attributes || schema.attributes.every((attr: any) => attributes[attr.name] === attr.value))
+		) {
+			for (const name of ax_object) {
+				const axRoles = AXObjectRoles.get(name);
+				if (axRoles) {
+					for (const { name: _name } of axRoles) {
+						if (_name === role) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
