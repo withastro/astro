@@ -252,22 +252,17 @@ export const a11y: AuditRuleWithSelector[] = [
 		code: 'a11y-invalid-attribute',
 		title: 'Attributes important for accessibility have a valid value',
 		message: "`href` should not be empty, `'#'`, or `javascript:`.",
-		selector: 'a[href]',
-		match(element) {
-			const href = element.getAttribute('href');
-			if (!href) return true;
-			if (href === '' || href === '#' || /^\W*javascript:/i.test(href)) return true;
-		},
+		selector: 'a[href]:is([href=""], [href="#"], [href^="javascript:" i])',
 	},
 	{
 		code: 'a11y-label-has-associated-control',
 		title: '`label` tag should have an associated control and a text content.',
 		message:
 			'The `label` tag must be associated with a control using either `for` or having a nested input. Additionally, the `label` tag must have text content.',
-		selector: 'label',
+		selector: 'label:not([for])',
 		match(element) {
 			const inputChild = element.querySelector('input');
-			if (!element.hasAttribute('for') && !inputChild?.textContent && !inputChild) return true;
+			if (!inputChild?.textContent) return true;
 		},
 	},
 	{
@@ -439,10 +434,7 @@ export const a11y: AuditRuleWithSelector[] = [
 		title: 'Invalid DOM structure',
 		message:
 			'The DOM structure must be valid for accessibility of the page, for example `figcaption` must be a direct child of `figure`.',
-		selector: 'figcaption',
-		match(element) {
-			if (element.parentElement?.localName !== 'figure') return true;
-		},
+		selector: 'figcaption:not(figure > figcaption)',
 	},
 	{
 		code: 'a11y-unknown-aria-attribute',
