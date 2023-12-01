@@ -49,6 +49,8 @@ export default {
 				`<style>
 					:host astro-dev-overlay-window {
 						height: 480px;
+
+						--color-purple: rgba(224, 204, 250, 1);
 					}
 					header {
 						display: flex;
@@ -91,6 +93,24 @@ export default {
    					height: 1em;
     				display: block;
 					}
+
+					code {
+						color: var(--color-purple);
+						border-color: #343841;
+						border-style: solid;
+						border-width: 1px;
+						border-radius: .4em;
+						background-color: #24262D;
+						padding: .3em;
+					}
+
+					p {
+						line-height: 2em;
+					}
+
+					a, a:visited {
+						color: var(--color-purple);
+					}
 				</style>
 				<header>
 					<h1><astro-dev-overlay-icon icon="gear"></astro-dev-overlay-icon> Settings</h1>
@@ -98,12 +118,16 @@ export default {
 
 				<hr />
 
-				<h2>General</h2>
+				<h2 id="general">General</h2>
+				<hr />
+				<h3>Hide overlay</h3>
+				<p>Run <code>astro preferences disable devOverlay</code> in your terminal to disable this dev overlay in this project. <a href="https://docs.astro.build/en/reference/cli-reference/#astro-preferences">Learn more</a>.</p>
 				`
 			);
+			const general = windowElement.querySelector('#general')!;
 			for (const settingsRow of settingsRows) {
-				windowElement.append(getElementForSettingAsString(settingsRow));
-				windowElement.append(document.createElement('hr'));
+				general.after(getElementForSettingAsString(settingsRow));
+				general.after(document.createElement('hr'));
 			}
 			canvas.append(windowElement);
 

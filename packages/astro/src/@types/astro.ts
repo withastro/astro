@@ -20,6 +20,7 @@ import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
+import type { AstroPreferences } from '../preferences/index.js';
 import type { AstroDevOverlay, DevOverlayCanvas } from '../runtime/client/dev-overlay/overlay.js';
 import type { Icon } from '../runtime/client/dev-overlay/ui-library/icons.js';
 import type {
@@ -33,9 +34,8 @@ import type {
 	DevOverlayWindow,
 } from '../runtime/client/dev-overlay/ui-library/index.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
-import type { OmitIndexSignature, Simplify } from '../type-utils.js';
+import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
-import type { AstroPreferences } from '../preferences/index.js';
 
 export { type AstroIntegrationLogger };
 
@@ -1438,15 +1438,17 @@ export interface AstroUserConfig {
 			 * @docs
 			 * @kind h4
 			 * @name experimental.i18n.locales
-			 * @type {string[]}
+			 * @type {Locales}
 			 * @version 3.5.0
 			 * @description
 			 *
-			 * A list of all locales supported by the website (e.g. `['en', 'es', 'pt-br']`). This list should also include the `defaultLocale`. This is a required field.
+			 * A list of all locales supported by the website, including the `defaultLocale`. This is a required field.
 			 *
-			 * No particular language format or syntax is enforced, but your folder structure must match exactly the locales in the list.
+			 * Languages can be listed either as individual codes (e.g. `['en', 'es', 'pt-br']`) or mapped to a shared `path` of codes (e.g.  `{ path: "english", codes: ["en", "en-US"]}`). These codes will be used to determine the URL structure of your deployed site.
+			 *
+			 * No particular language code format or syntax is enforced, but your project folders containing your content files must match exactly the `locales` items in the list. In the case of multiple `codes` pointing to a custom URL path prefix, store your content files in a folder with the same name as the `path` configured.
 			 */
-			locales: string[];
+			locales: Locales;
 
 			/**
 			 * @docs
@@ -1484,23 +1486,43 @@ export interface AstroUserConfig {
 			/**
 			 * @docs
 			 * @kind h4
-			 * @name experimental.i18n.routingStrategy
-			 * @type {'prefix-always' | 'prefix-other-locales'}
-			 * @default 'prefix-other-locales'
-			 * @version 3.5.0
+			 * @name experimental.i18n.routing
+			 * @type {Routing}
+			 * @version 3.7.0
 			 * @description
 			 *
-			 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language:
-			 *
-			 *  - `prefix-other-locales`(default): Only non-default languages will display a language prefix.
-			 *    The `defaultLocale` will not show a language prefix and content files do not exist in a localized folder.
-			 *    URLs will be of the form `example.com/[locale]/content/` for all non-default languages, but `example.com/content/` for the default locale.
-			 *  - `prefix-always`: All URLs will display a language prefix.
-			 *    URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
-			 *    Localized folders are used for every language, including the default.
-			 *
+			 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language.
 			 */
-			routingStrategy?: 'prefix-always' | 'prefix-other-locales';
+			routing?: {
+				/**
+				 * @docs
+				 * @name experimental.i18n.routing.prefixDefaultLocale
+				 * @type {boolean}
+				 * @default `false`
+				 * @version 3.7.0
+				 * @description
+				 *
+				 * When `false`, only non-default languages will display a language prefix.
+				 * The `defaultLocale` will not show a language prefix and content files do not exist in a localized folder.
+				 *  URLs will be of the form `example.com/[locale]/content/` for all non-default languages, but `example.com/content/` for the default locale.
+				 *
+				 * When `true`, all URLs will display a language prefix.
+				 * URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
+				 * Localized folders are used for every language, including the default.
+				 */
+				prefixDefaultLocale: boolean;
+
+				/**
+				 * @name experimental.i18n.routing.strategy
+				 * @type {"pathname"}
+				 * @default `"pathname"`
+				 * @version 3.7.0
+				 * @description
+				 *
+				 * - `"pathanme": The strategy is applied to the pathname of the URLs
+				 */
+				strategy: 'pathname';
+			};
 		};
 		/**
 		 * @docs
@@ -2006,6 +2028,8 @@ export interface AstroInternationalizationFeature {
 	detectBrowserLanguage?: SupportsKind;
 }
 
+export type Locales = (string | { codes: string[]; path: string })[];
+
 export interface AstroAdapter {
 	name: string;
 	serverEntrypoint?: string;
@@ -2212,6 +2236,12 @@ export interface APIContext<
 	currentLocale: string | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type Routing = {
+	prefixDefaultLocale: boolean;
+	strategy: 'pathname';
+};
+
 export type APIRoute<Props extends Record<string, any> = Record<string, any>> = (
 	context: APIContext<Props>
 ) => Response | Promise<Response>;
@@ -2260,7 +2290,7 @@ export interface AstroIntegration {
 			config: AstroConfig;
 			command: 'dev' | 'build' | 'preview';
 			isRestart: boolean;
-			updateConfig: (newConfig: Record<string, any>) => void;
+			updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
 			addRenderer: (renderer: AstroRenderer) => void;
 			addWatchFile: (path: URL | string) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;

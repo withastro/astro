@@ -5,13 +5,13 @@ import type { AstroSettings } from '../../@types/astro.js';
 import { bold } from 'kleur/colors';
 import { fileURLToPath } from 'node:url';
 
-import * as msg from '../../core/messages.js';
-import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
+import dlv from 'dlv';
 import { resolveConfig } from '../../core/config/config.js';
 import { createSettings } from '../../core/config/settings.js';
-import { coerce, isValidKey, type PreferenceKey } from '../../preferences/index.js';
+import * as msg from '../../core/messages.js';
 import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
-import dlv from 'dlv';
+import { coerce, isValidKey, type PreferenceKey } from '../../preferences/index.js';
+import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 // @ts-expect-error flattie types are mispackaged
 import { flattie } from 'flattie';
 import { formatWithOptions } from 'node:util';

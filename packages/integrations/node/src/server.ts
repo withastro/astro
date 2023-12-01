@@ -8,6 +8,7 @@ applyPolyfills();
 export function createExports(manifest: SSRManifest, options: Options) {
 	const app = new NodeApp(manifest);
 	return {
+		options: options,
 		handler: middleware(app, options.mode),
 		startServer: () => startServer(app, options),
 	};

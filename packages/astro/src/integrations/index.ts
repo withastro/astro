@@ -1,4 +1,4 @@
-import { bold, cyan, underline } from 'kleur/colors';
+import { bold } from 'kleur/colors';
 import fs from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
@@ -125,6 +125,7 @@ export async function runHookConfigSetup({
 				},
 				updateConfig: (newConfig) => {
 					updatedConfig = mergeConfig(updatedConfig, newConfig) as AstroConfig;
+					return { ...updatedConfig };
 				},
 				injectRoute: (injectRoute) => {
 					if (injectRoute.entrypoint == null && 'entryPoint' in injectRoute) {
@@ -393,6 +394,7 @@ export async function runHookBuildSetup({
 					target,
 					updateConfig: (newConfig) => {
 						updatedConfig = mergeConfig(updatedConfig, newConfig);
+						return { ...updatedConfig };
 					},
 					logger: getLogger(integration, logger),
 				}),

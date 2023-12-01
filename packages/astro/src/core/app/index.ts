@@ -282,7 +282,7 @@ export class App {
 				env: this.#pipeline.env,
 				mod: handler as any,
 				locales: this.#manifest.i18n?.locales,
-				routingStrategy: this.#manifest.i18n?.routingStrategy,
+				routing: this.#manifest.i18n?.routing,
 				defaultLocale: this.#manifest.i18n?.defaultLocale,
 			});
 		} else {
@@ -319,7 +319,7 @@ export class App {
 				mod,
 				env: this.#pipeline.env,
 				locales: this.#manifest.i18n?.locales,
-				routingStrategy: this.#manifest.i18n?.routingStrategy,
+				routing: this.#manifest.i18n?.routing,
 				defaultLocale: this.#manifest.i18n?.defaultLocale,
 			});
 		}

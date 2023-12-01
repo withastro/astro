@@ -1,7 +1,5 @@
 /* eslint-disable no-console */
-import type {
-	DevOverlayPlugin as DevOverlayPluginDefinition,
-} from '../../../@types/astro.js';
+import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@types/astro.js';
 import { settings } from './settings.js';
 import { getIconElement, isDefinedIcon, type Icon } from './ui-library/icons.js';
 
@@ -386,17 +384,9 @@ export class AstroDevOverlay extends HTMLElement {
 
 	getPluginTemplate(plugin: DevOverlayPlugin) {
 		return `<button class="item" data-plugin-id="${plugin.id}">
-				<div class="icon">${this.getPluginIcon(plugin.icon)}<div class="notification"></div></div>
+				<div class="icon">${getPluginIcon(plugin.icon)}<div class="notification"></div></div>
 				<span class="item-tooltip">${plugin.name}</span>
 			</button>`;
-	}
-
-	getPluginIcon(icon: Icon) {
-		if (isDefinedIcon(icon)) {
-			return getIconElement(icon)?.outerHTML;
-		}
-
-		return icon;
 	}
 
 	getPluginById(id: string) {
@@ -524,4 +514,12 @@ export class DevOverlayCanvas extends HTMLElement {
 			}
 		</style>`;
 	}
+}
+
+export function getPluginIcon(icon: Icon) {
+	if (isDefinedIcon(icon)) {
+		return getIconElement(icon).outerHTML;
+	}
+
+	return icon;
 }

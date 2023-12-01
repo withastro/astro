@@ -88,8 +88,8 @@ export async function handleHotUpdate(
 	// If only styles are changed, remove the component file from the update list
 	if (isStyleOnlyChange) {
 		logger.debug('watch', 'style-only change');
-		// remove base file and hoisted scripts
-		return mods.filter((mod) => mod.id !== ctx.file && !mod.id?.endsWith('.ts'));
+		// Only return the Astro styles that have changed!
+		return mods.filter((mod) => mod.id?.includes('astro&type=style'));
 	}
 
 	// Add hoisted scripts so these get invalidated

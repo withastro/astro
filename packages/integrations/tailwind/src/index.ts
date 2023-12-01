@@ -1,6 +1,5 @@
 import type { AstroIntegration } from 'astro';
 import autoprefixerPlugin from 'autoprefixer';
-import type { ResultPlugin } from 'postcss-load-config';
 import tailwindPlugin from 'tailwindcss';
 import type { CSSOptions, UserConfig } from 'vite';
 

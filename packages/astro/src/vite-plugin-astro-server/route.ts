@@ -34,6 +34,7 @@ import { preload } from './index.js';
 import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { getScriptsForURL } from './scripts.js';
+import { normalizeTheLocale } from '../i18n/index.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -195,7 +196,21 @@ export async function handleRoute({
 				.split('/')
 				.filter(Boolean)
 				.some((segment) => {
-					return locales.includes(segment);
+					let found = false;
+					for (const locale of locales) {
+						if (typeof locale === 'string') {
+							if (normalizeTheLocale(locale) === normalizeTheLocale(segment)) {
+								found = true;
+								break;
+							}
+						} else {
+							if (locale.path === segment) {
+								found = true;
+								break;
+							}
+						}
+					}
+					return found;
 				});
 			// Even when we have `config.base`, the pathname is still `/` because it gets stripped before
 			if (!pathNameHasLocale && pathname !== '/') {
@@ -227,7 +242,7 @@ export async function handleRoute({
 				mod,
 				route,
 				locales: manifest.i18n?.locales,
-				routingStrategy: manifest.i18n?.routingStrategy,
+				routing: manifest.i18n?.routing,
 				defaultLocale: manifest.i18n?.defaultLocale,
 			});
 		} else {
@@ -286,7 +301,7 @@ export async function handleRoute({
 			mod,
 			env,
 			locales: i18n?.locales,
-			routingStrategy: i18n?.routingStrategy,
+			routing: i18n?.routing,
 			defaultLocale: i18n?.defaultLocale,
 		});
 	}
