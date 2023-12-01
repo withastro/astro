@@ -12,6 +12,6 @@
   "devDependencies": {
     "@astrojs/tailwind": "^6.0.0-beta.0",
     "@astrojs/node": "^7.0.0-beta.1",
-    "astro": "^4.0.0-beta.2"
+    "astro": "^4.0.0-beta.3"
   }
 }
