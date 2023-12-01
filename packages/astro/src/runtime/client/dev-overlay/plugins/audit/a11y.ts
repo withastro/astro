@@ -13,6 +13,77 @@ const a11y_required_attributes = {
 
 const interactiveElements = ['button', 'details', 'embed', 'iframe', 'label', 'select', 'textarea'];
 
+const aria_non_interactive_roles = [
+	'alert',
+	'alertdialog',
+	'application',
+	'article',
+	'banner',
+	'button',
+	'cell',
+	'checkbox',
+	'columnheader',
+	'combobox',
+	'complementary',
+	'contentinfo',
+	'definition',
+	'dialog',
+	'directory',
+	'document',
+	'feed',
+	'figure',
+	'form',
+	'grid',
+	'gridcell',
+	'group',
+	'heading',
+	'img',
+	'link',
+	'list',
+	'listbox',
+	'listitem',
+	'log',
+	'main',
+	'marquee',
+	'math',
+	'menu',
+	'menubar',
+	'menuitem',
+	'menuitemcheckbox',
+	'menuitemradio',
+	'navigation',
+	'none',
+	'note',
+	'option',
+	'presentation',
+	'progressbar',
+	'radio',
+	'radiogroup',
+	'region',
+	'row',
+	'rowgroup',
+	'rowheader',
+	'scrollbar',
+	'search',
+	'searchbox',
+	'separator',
+	'slider',
+	'spinbutton',
+	'status',
+	'switch',
+	'tab',
+	'tablist',
+	'tabpanel',
+	'term',
+	'textbox',
+	'timer',
+	'toolbar',
+	'tooltip',
+	'tree',
+	'treegrid',
+	'treeitem',
+];
+
 const a11y_required_content = [
 	// anchor-has-content
 	'a',
@@ -266,13 +337,14 @@ export const a11y: AuditRuleWithSelector[] = [
 			if (!element.textContent) return true;
 		},
 	},
-	{
-		code: 'a11y-mouse-events-have-key-events',
-		title: 'Enforce that `mouseover` and `mouseout` are accompanied by `focus` and `blur`',
-		message:
-			'This helps to ensure that any functionality triggered by these mouse events is also accessible to keyboard users.',
-		selector: '[onmouseover]:not([onfocus])',
-	},
+	// TODO: Implement this rule
+	// {
+	// 	code: 'a11y-mouse-events-have-key-events',
+	// 	title: 'Enforce that `mouseover` and `mouseout` are accompanied by `focus` and `blur`',
+	// 	message:
+	// 		'This helps to ensure that any functionality triggered by these mouse events is also accessible to keyboard users.',
+	// 	selector: '[onmouseover]:not([onfocus])',
+	// },
 	{
 		code: 'a11y-no-redundant-roles',
 		title: 'Some HTML elements have default ARIA roles',
@@ -310,43 +382,45 @@ export const a11y: AuditRuleWithSelector[] = [
 		selector: `${interactiveElements.map((el) => `${el}[role]`).join(',')}`,
 		match(element) {
 			const role = element.getAttribute('role');
-			if (!role) return true;
-			if (!ariaRoles.has(role)) return true;
+			if (!role) return false;
+			if (!ariaRoles.has(role)) return false;
 
-			const implicitRole = a11y_implicit_semantics.get(element.localName);
-			if (!implicitRole) return true;
-
-			if (role === implicitRole) return false;
+			if (aria_non_interactive_roles.includes(role)) return true;
 		},
 	},
-	{
-		code: 'a11y-no-noninteractive-element-interactions',
-		title: 'A non-interactive element does not support event handlers (mouse and key handlers)',
-		message:
-			'Non-interactive elements include `<main>`, `<area>`, `<h1>` (,`<h2>`, etc), `<p>`, `<img>`, `<li>`, `<ul>` and `<ol>`. Non-interactive [WAI-ARIA roles](https://www.w3.org/TR/wai-aria-1.1/#usage_intro) include `article`, `banner`, `complementary`, `img`, `listitem`, `main`, `region` and `tooltip`.',
-		selector: 'li[click]',
-	},
-	{
-		code: 'a11y-no-noninteractive-element-to-interactive-role',
-		title:
-			'[WAI-ARIA](https://www.w3.org/TR/wai-aria-1.1/#usage_intro) roles should not be used to convert a non-interactive element to an interactive element',
-		message:
-			'Interactive ARIA roles include `button`, `link`, `checkbox`, `menuitem`, `menuitemcheckbox`, `menuitemradio`, `option`, `radio`, `searchbox`, `switch` and `textbox`.',
-		selector: "h3[role='searchbox']",
-	},
+	// TODO: Implement these rule
+	// {
+	// 	code: 'a11y-no-noninteractive-element-interactions',
+	// 	title: 'A non-interactive element does not support event handlers (mouse and key handlers)',
+	// 	message:
+	// 		'Non-interactive elements include `<main>`, `<area>`, `<h1>` (,`<h2>`, etc), `<p>`, `<img>`, `<li>`, `<ul>` and `<ol>`. Non-interactive [WAI-ARIA roles](https://www.w3.org/TR/wai-aria-1.1/#usage_intro) include `article`, `banner`, `complementary`, `img`, `listitem`, `main`, `region` and `tooltip`.',
+	// 	selector: 'li[click]',
+	// },
+	// {
+	// 	code: 'a11y-no-noninteractive-element-to-interactive-role',
+	// 	title:
+	// 		'[WAI-ARIA](https://www.w3.org/TR/wai-aria-1.1/#usage_intro) roles should not be used to convert a non-interactive element to an interactive element',
+	// 	message:
+	// 		'Interactive ARIA roles include `button`, `link`, `checkbox`, `menuitem`, `menuitemcheckbox`, `menuitemradio`, `option`, `radio`, `searchbox`, `switch` and `textbox`.',
+	// 	selector: "h3[role='searchbox']",
+	// },
 	{
 		code: 'a11y-no-noninteractive-tabindex',
 		title:
 			'Tab key navigation should be limited to elements on the page that can be interacted with',
 		message: 'This is to avoid confusing experiences for keyboard users.',
 		selector: '[tabindex]',
+		match(element) {
+			if (!interactiveElements.includes(element.localName)) return true;
+		},
 	},
-	{
-		code: 'a11y-no-static-element-interactions',
-		title: 'Elements like `<div>` with interactive handlers like `click` must have an ARIA role',
-		message: 'This is to ensure accessibility for screen readers.',
-		selector: 'div[click]',
-	},
+	// TODO: Implement this rule
+	// {
+	// 	code: 'a11y-no-static-element-interactions',
+	// 	title: 'Elements like `<div>` with interactive handlers like `click` must have an ARIA role',
+	// 	message: 'This is to ensure accessibility for screen readers.',
+	// 	selector: 'div[click]',
+	// },
 	{
 		code: 'a11y-positive-tabindex',
 		title: 'Avoid positive `tabindex` property values',
@@ -354,6 +428,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			'This will move elements out of the expected tab order, creating a confusing experience for keyboard users.',
 		selector: '[tabindex]:not([tabindex="-1"]):not([tabindex="0"])',
 	},
+	// TODO: Implement these rule
 	// {
 	// 	code: 'a11y-role-has-required-aria-props',
 	// 	title: 'Elements with ARIA roles must have all required attributes for that role',
