@@ -467,8 +467,8 @@ export class AstroDevOverlay extends HTMLElement {
 		[
 			'app-toggled',
 			// Deprecated
-			'plugin-toggled'
-		].forEach(eventName => {
+			'plugin-toggled',
+		].forEach((eventName) => {
 			plugin.eventTarget.dispatchEvent(
 				new CustomEvent(eventName, {
 					detail: {
@@ -481,7 +481,9 @@ export class AstroDevOverlay extends HTMLElement {
 
 		if (import.meta.hot) {
 			import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:toggled`, { state: plugin.active });
-			import.meta.hot.send(`${WS_EVENT_NAME_DEPRECATED}:${plugin.id}:toggled`, { state: plugin.active });
+			import.meta.hot.send(`${WS_EVENT_NAME_DEPRECATED}:${plugin.id}:toggled`, {
+				state: plugin.active,
+			});
 		}
 
 		return true;

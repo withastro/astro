@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	customElements.define('astro-dev-toolbar-icon', DevOverlayIcon);
 
 	// Add deprecated names
-	const deprecated = (Parent: any) => class extends Parent{};
+	const deprecated = (Parent: any) => class extends Parent {};
 	customElements.define('astro-dev-overlay', deprecated(AstroDevOverlay));
 	customElements.define('astro-dev-overlay-window', deprecated(DevOverlayWindow));
 	customElements.define('astro-dev-overlay-plugin-canvas', deprecated(DevOverlayCanvas));
