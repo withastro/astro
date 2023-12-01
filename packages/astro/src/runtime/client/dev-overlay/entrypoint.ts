@@ -1,6 +1,5 @@
 import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@types/astro.js';
 import { type AstroDevOverlay, type DevOverlayPlugin } from './overlay.js';
-
 import { settings } from './settings.js';
 
 let overlay: AstroDevOverlay;
@@ -23,7 +22,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 			DevOverlayBadge,
 			DevOverlayIcon,
 		},
-		{ getIconElement, isDefinedIcon },
 	] = await Promise.all([
 		// @ts-expect-error
 		import('astro:dev-overlay'),
@@ -33,7 +31,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 		import('./plugins/settings.js'),
 		import('./overlay.js'),
 		import('./ui-library/index.js'),
-		import('./ui-library/icons.js'),
 	]);
 
 	// Register custom elements
@@ -76,9 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 			plugin.notification.state = newState;
 
-			if (settings.config.disablePluginNotification === false) {
-				target.querySelector('.notification')?.toggleAttribute('data-active', newState);
-			}
+			target.querySelector('.notification')?.toggleAttribute('data-active', newState);
 		});
 
 		eventTarget.addEventListener('toggle-plugin', async (evt) => {
@@ -133,7 +128,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 						background: #B33E66;
 					}
 
-					.notification[data-active] {
+					#dropdown:not([data-no-notification]) .notification[data-active] {
 						display: block;
 					}
 
@@ -179,6 +174,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 				const dropdown = document.createElement('div');
 				dropdown.id = 'dropdown';
+				dropdown.toggleAttribute('data-no-notification', settings.config.disablePluginNotification);
 
 				for (const plugin of hiddenPlugins) {
 					const buttonContainer = document.createElement('div');
@@ -209,9 +205,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 					plugin.eventTarget.addEventListener('toggle-notification', (evt) => {
 						if (!(evt instanceof CustomEvent)) return;
 
-						if (settings.config.disablePluginNotification === false) {
-							notification.toggleAttribute('data-active', evt.detail.state ?? true);
-						}
+						notification.toggleAttribute('data-active', evt.detail.state ?? true);
 
 						eventTarget.dispatchEvent(
 							new CustomEvent('toggle-notification', {
