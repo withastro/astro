@@ -61,14 +61,14 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		locals: renderContext.locals ?? {},
 		locales: renderContext.locales,
 		defaultLocale: renderContext.defaultLocale,
-		routingStrategy: renderContext.routingStrategy,
+		routingStrategy: renderContext.routing,
 	});
 
 	const response = await runtimeRenderPage(
 		result,
 		Component,
 		renderContext.props,
-		null,
+		{},
 		env.streaming,
 		renderContext.route
 	);

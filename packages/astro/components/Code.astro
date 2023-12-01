@@ -7,6 +7,7 @@ import type {
 	ThemeRegistration,
 	ThemeRegistrationRaw,
 } from 'shikiji';
+import { bundledLanguages } from 'shikiji/langs';
 import { getCachedHighlighter } from '../dist/core/shiki.js';
 
 interface Props {
@@ -72,7 +73,13 @@ if (typeof lang === 'object') {
 }
 
 const highlighter = await getCachedHighlighter({
-	langs: [lang],
+	langs: [
+		typeof lang === 'string'
+			? Object.keys(bundledLanguages).includes(lang)
+				? lang
+				: 'plaintext'
+			: lang,
+	],
 	theme,
 	experimentalThemes,
 	wrap,

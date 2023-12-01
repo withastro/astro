@@ -1,5 +1,3 @@
-import { slash } from '@astrojs/internal-helpers/path';
-import { fileURLToPath } from 'node:url';
 import type { HmrContext, ModuleNode } from 'vite';
 import type { AstroConfig } from '../@types/astro.js';
 import {
@@ -9,13 +7,8 @@ import {
 	type CompileResult,
 } from '../core/compile/index.js';
 import type { Logger } from '../core/logger/core.js';
+import { isAstroSrcFile } from '../core/logger/vite.js';
 import { isAstroScript } from './query.js';
-
-const PKG_PREFIX = fileURLToPath(new URL('../../', import.meta.url));
-const E2E_PREFIX = fileURLToPath(new URL('../../e2e', import.meta.url));
-const isPkgFile = (id: string | null) => {
-	return id?.startsWith(PKG_PREFIX) && !id.startsWith(E2E_PREFIX);
-};
 
 export interface HandleHotUpdateOptions {
 	config: AstroConfig;
@@ -46,7 +39,7 @@ export async function handleHotUpdate(
 	}
 
 	// Skip monorepo files to avoid console spam
-	if (isPkgFile(ctx.file)) {
+	if (isAstroSrcFile(ctx.file)) {
 		return;
 	}
 
@@ -56,7 +49,7 @@ export async function handleHotUpdate(
 	const files = new Set<string>();
 	for (const mod of ctx.modules) {
 		// Skip monorepo files to avoid console spam
-		if (isPkgFile(mod.id ?? mod.file)) {
+		if (isAstroSrcFile(mod.id ?? mod.file)) {
 			filtered.delete(mod);
 			continue;
 		}
@@ -95,8 +88,8 @@ export async function handleHotUpdate(
 	// If only styles are changed, remove the component file from the update list
 	if (isStyleOnlyChange) {
 		logger.debug('watch', 'style-only change');
-		// remove base file and hoisted scripts
-		return mods.filter((mod) => mod.id !== ctx.file && !mod.id?.endsWith('.ts'));
+		// Only return the Astro styles that have changed!
+		return mods.filter((mod) => mod.id?.includes('astro&type=style'));
 	}
 
 	// Add hoisted scripts so these get invalidated
@@ -106,12 +99,6 @@ export async function handleHotUpdate(
 				mods.push(imp);
 			}
 		}
-	}
-
-	// TODO: Svelte files should be marked as `isSelfAccepting` but they don't appear to be
-	const isSelfAccepting = mods.every((m) => m.isSelfAccepting || m.url.endsWith('.svelte'));
-	if (!isSelfAccepting) {
-		logger.debug('watch', 'full page reload triggered');
 	}
 
 	return mods;

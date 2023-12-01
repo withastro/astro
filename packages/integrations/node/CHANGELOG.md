@@ -13,6 +13,18 @@
 - Updated dependencies [[`abf601233`](https://github.com/withastro/astro/commit/abf601233f8188d118a8cb063c777478d8d9f1a3), [`6201bbe96`](https://github.com/withastro/astro/commit/6201bbe96c2a083fb201e4a43a9bd88499821a3e), [`cdabf6ef0`](https://github.com/withastro/astro/commit/cdabf6ef02be7220fd2b6bdcef924ceca089381e), [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721), [`37697a2c5`](https://github.com/withastro/astro/commit/37697a2c5511572dc29c0a4ea46f90c2f62be8e6), [`bd0c2e9ae`](https://github.com/withastro/astro/commit/bd0c2e9ae3389a9d3085050c1e8134ae98dff299), [`0fe3a7ed5`](https://github.com/withastro/astro/commit/0fe3a7ed5d7bb1a9fce1623e84ba14104b51223c), [`710be505c`](https://github.com/withastro/astro/commit/710be505c9ddf416e77a75343d8cae9c497d72c6), [`153a5abb9`](https://github.com/withastro/astro/commit/153a5abb905042ac68b712514dc9ec387d3e6b17)]:
   - astro@4.0.0-beta.0
 
+## 6.1.0
+
+### Minor Changes
+
+- [#9125](https://github.com/withastro/astro/pull/9125) [`8f1d50957`](https://github.com/withastro/astro/commit/8f1d509574f5ee5d77816a13d89ce452dce403ff) Thanks [@matthewp](https://github.com/matthewp)! - Automatically sets immutable cache headers for assets served from the `/_astro` directory.
+
+## 6.1.0
+
+### Minor Changes
+
+- [#9125](https://github.com/withastro/astro/pull/9125) [`8f1d50957`](https://github.com/withastro/astro/commit/8f1d509574f5ee5d77816a13d89ce452dce403ff) Thanks [@matthewp](https://github.com/matthewp)! - Automatically sets immutable cache headers for assets served from the `/_astro` directory.
+
 ## 6.0.4
 
 ### Patch Changes

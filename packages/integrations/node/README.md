@@ -190,6 +190,16 @@ In the case of multiple run-time variables, store them in a seperate file (e.g. 
 export $(cat .env.runtime) && astro build
 ```
 
+#### Assets
+
+In standalone mode, assets in your `dist/client/` folder are served via the standalone server. You might be deploying these assets to a CDN, in which case the server will never actually be serving them. But in some cases, such as intranet sites, it's fine to serve static assets directly from the application server.
+
+Assets in the `dist/client/_astro/` folder are the ones that Astro has built. These assets are all named with a hash and therefore can be given long cache headers. Internally the adapter adds this header for these assets:
+
+```
+Cache-Control: public, max-age=31536000, immutable
+```
+
 ## Troubleshooting
 
 ### SyntaxError: Named export 'compile' not found

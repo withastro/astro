@@ -4,7 +4,6 @@ import type { AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
 import type { PluginMetadata as AstroPluginMetadata } from './types.js';
 
-import { fileURLToPath } from 'url';
 import { normalizePath } from 'vite';
 import {
 	cachedCompilation,
@@ -22,28 +21,6 @@ export type { AstroPluginMetadata };
 interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: Logger;
-}
-
-const PKG_PREFIX = fileURLToPath(new URL('../../', import.meta.url));
-const E2E_PREFIX = fileURLToPath(new URL('../../e2e', import.meta.url));
-const isPkgFile = (id: string | null) => {
-	return id?.startsWith(PKG_PREFIX) && !id.startsWith(E2E_PREFIX);
-};
-
-const dedupeHotUpdateLogsCache = new Map<string, NodeJS.Timeout>();
-
-// TODO(fks): For some reason, we're seeing duplicate handleHotUpdate() calls
-// when hitting save multiple times in a row. This is a temporary workaround
-// to prevent duplicate logging until the (vite?) issue is fixed.
-function dedupeHotUpdateLogs(filename: string) {
-	if (dedupeHotUpdateLogsCache.has(filename)) {
-		return false;
-	}
-	dedupeHotUpdateLogsCache.set(
-		filename,
-		setTimeout(() => dedupeHotUpdateLogsCache.delete(filename), 150)
-	);
-	return true;
 }
 
 /** Transform .astro files for Vite */
@@ -197,13 +174,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 		async handleHotUpdate(context) {
 			if (context.server.config.isProduction) return;
 			const filename = context.file;
-			const isSkipLog =
-				/astro\.config\.[cm][jt]s$/.test(filename) ||
-				/(\/|\\)\.astro(\/|\\)/.test(filename) ||
-				isPkgFile(filename);
-			if (!isSkipLog && dedupeHotUpdateLogs(filename)) {
-				logger.info('watch', filename.replace(config.root.pathname, '/'));
-			}
 			const source = await context.read();
 			const compile = () =>
 				cachedCompilation({
