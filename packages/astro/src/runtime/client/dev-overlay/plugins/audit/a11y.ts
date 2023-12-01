@@ -256,7 +256,7 @@ export const a11y: AuditRuleWithSelector[] = [
 	},
 	{
 		code: 'a11y-invalid-attribute',
-		title: 'Attributes important for accessibility have a valid value',
+		title: 'Attributes important for accessibility should have a valid value',
 		message: "`href` should not be empty, `'#'`, or `javascript:`.",
 		selector: 'a[href]:is([href=""], [href="#"], [href^="javascript:" i])',
 	},
