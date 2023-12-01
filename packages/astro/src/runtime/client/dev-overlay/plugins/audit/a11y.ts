@@ -412,10 +412,10 @@ export const a11y: AuditRuleWithSelector[] = [
 		code: 'a11y-role-has-required-aria-props',
 		title: 'Missing attributes required for ARIA role',
 		message: (element) => {
-			const { missingAttributes } = element as any;
+			const { __astro_role: role, __astro_missing_attributes: required } = element as any;
 			return `${
 				element.localName
-			} element is missing required attributes for its role: ${missingAttributes.join(', ')} `;
+			} element is missing required attributes for its role (${role}): ${required.join(', ')} `;
 		},
 		selector: "*",
 		match(element) {
@@ -433,7 +433,8 @@ export const a11y: AuditRuleWithSelector[] = [
 			const required_role_props = Object.keys(requiredProps);
 			const missingProps = required_role_props.filter((prop) => (element as any)[prop] === undefined)
 			if (missingProps.length > 0) {
-				(element as any).missingAttributes = missingProps;
+				(element as any).__astro_role = role;
+				(element as any).__astro_missing_attributes = missingProps;
 				return true;
 			}
 		}
