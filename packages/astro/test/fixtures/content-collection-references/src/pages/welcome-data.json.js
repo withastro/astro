@@ -4,7 +4,7 @@ export async function GET() {
 	const welcomePost = await getEntry('blog', 'welcome');
 
 	if (!welcomePost?.data) {
-		return Response.json({ error: 'blog/welcome did not return `data`.' })
+		return Response.json({ error: 'blog/welcome did not return `data`.' }, { status: 404 })
 	}
 
 	const banner = await getEntry(welcomePost.data.banner);
