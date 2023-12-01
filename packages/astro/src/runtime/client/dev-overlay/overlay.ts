@@ -15,7 +15,8 @@ export type DevOverlayPlugin = DevOverlayPluginDefinition & {
 	};
 	eventTarget: EventTarget;
 };
-const WS_EVENT_NAME = 'astro-dev-overlay';
+const WS_EVENT_NAME = 'astro-dev-toolbar';
+const WS_EVENT_NAME_DEPRECATED = 'astro-dev-overlay';
 const HOVER_DELAY = 2 * 1000;
 
 export class AstroDevOverlay extends HTMLElement {
@@ -384,6 +385,7 @@ export class AstroDevOverlay extends HTMLElement {
 
 			if (import.meta.hot) {
 				import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:initialized`);
+				import.meta.hot.send(`${WS_EVENT_NAME_DEPRECATED}:${plugin.id}:initialized`);
 			}
 		} catch (e) {
 			console.error(`Failed to init plugin ${plugin.id}, error: ${e}`);
@@ -462,17 +464,24 @@ export class AstroDevOverlay extends HTMLElement {
 			pluginCanvas.removeAttribute('data-active');
 		}
 
-		plugin.eventTarget.dispatchEvent(
-			new CustomEvent('plugin-toggled', {
-				detail: {
-					state: plugin.active,
-					plugin,
-				},
-			})
-		);
+		[
+			'app-toggled',
+			// Deprecated
+			'plugin-toggled'
+		].forEach(eventName => {
+			plugin.eventTarget.dispatchEvent(
+				new CustomEvent(eventName, {
+					detail: {
+						state: plugin.active,
+						plugin,
+					},
+				})
+			);
+		});
 
 		if (import.meta.hot) {
 			import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:toggled`, { state: plugin.active });
+			import.meta.hot.send(`${WS_EVENT_NAME_DEPRECATED}:${plugin.id}:toggled`, { state: plugin.active });
 		}
 
 		return true;
