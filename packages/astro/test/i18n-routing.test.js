@@ -750,12 +750,18 @@ describe('[SSG] i18n routing', () => {
 			let $ = cheerio.load(html);
 			expect(html).to.include('http-equiv="refresh');
 			expect(html).to.include('url=/new-site/start');
+			html = await fixture.readFile('/spanish/index.html');
+			expect(html).to.include('http-equiv="refresh');
+			expect(html).to.include('url=/new-site');
 		});
 
 		it('should redirect to the english locale, which is the first fallback', async () => {
-			const html = await fixture.readFile('/it/start/index.html');
+			let html = await fixture.readFile('/it/start/index.html');
 			expect(html).to.include('http-equiv="refresh');
 			expect(html).to.include('url=/new-site/start');
+			html = await fixture.readFile('/it/index.html');
+			expect(html).to.include('http-equiv="refresh');
+			expect(html).to.include('url=/new-site');
 		});
 
 		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
@@ -803,6 +809,9 @@ describe('[SSG] i18n routing', () => {
 			let html = await fixture.readFile('/it/start/index.html');
 			expect(html).to.include('http-equiv="refresh');
 			expect(html).to.include('url=/new-site/en/start');
+			html = await fixture.readFile('/it/index.html');
+			expect(html).to.include('http-equiv="refresh');
+			expect(html).to.include('url=/new-site/en');
 		});
 	});
 
