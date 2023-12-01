@@ -462,7 +462,6 @@ export const a11y: AuditRuleWithSelector[] = [
 		match(element) {
 			for (const attribute of element.attributes) {
 				if (attribute.name.startsWith('aria-')) {
-					console.log(attribute.name, ariaAttributes.has(attribute.name.slice('aria-'.length)));
 					if (!ariaAttributes.has(attribute.name.slice('aria-'.length))) return true;
 				}
 			}
