@@ -4,7 +4,8 @@
 // This code is licensed under the MIT License per https://github.com/sveltejs/svelte/blob/d57eff76ed24ae2330f11f3d3938761ae4e14b4b/LICENSE.md
 // See [Astro's LICENSE](https://github.com/withastro/astro/blob/main/LICENSE) for more information.
 import type { AuditRuleWithSelector } from './index.js';
-import { roles } from 'aria-query';
+import type { ARIARoleDefinitionKey } from 'aria-query';
+import { roles, aria } from 'aria-query';
 // @ts-expect-error package does not provide types
 import { AXObjectRoles, elementAXObjects } from 'axobject-query';
 
@@ -415,16 +416,11 @@ export const a11y: AuditRuleWithSelector[] = [
 			const { __astro_role: role, __astro_missing_attributes: required } = element as any;
 			return `${
 				element.localName
-			} element is missing required attributes for its role (${role}): ${required.join(', ')} `;
+			} element is missing required attributes for its role (${role}): ${required.join(', ')}`;
 		},
 		selector: "*",
 		match(element) {
-			let role: import('aria-query').ARIARoleDefinitionKey | undefined;
-			if (element.hasAttribute('role')) {
-				role = element.getAttribute('role')! as any;
-			} else {
-				role = getImplicitRole(element) as any;
-			}
+			const role = getRole(element);
 			if (!role) return false;
 			if (is_semantic_role_element(role, element.localName, getAttributeObject(element))) {
 				return;
@@ -439,14 +435,28 @@ export const a11y: AuditRuleWithSelector[] = [
 			}
 		}
 	},
-	// TODO: Implement this rule
-	// {
-	// 	code: 'a11y-role-supports-aria-props',
-	// 	title:
-	// 		'Elements with explicit or implicit roles defined contain only `aria-*` properties supported by that role',
-	// 	message: 'For example',
-	// 	selector: "div[role='link'][aria-multiline]",
-	// },
+	{
+		code: 'a11y-role-supports-aria-props',
+		title: 'Unsupported ARIA attribute',
+		message: (element) => {
+			const { __astro_role: role, __astro_unsupported_attributes: unsupported } = element as any;
+			return `${
+				element.localName
+			} element has ARIA attributes that are not supported by its role (${role}): ${unsupported.join(', ')}`;
+		},
+		selector: "*",
+		match(element) {
+			const role = getRole(element);
+			if (!role) return false;
+			const { props } = roles.get(role)!;
+			const unsupportedAttributes = aria.keys().filter((attribute) => !(attribute in props));
+			if (unsupportedAttributes.length > 0) {
+				(element as any).__astro_role = role;
+				(element as any).__astro_unsupported_attributes = unsupportedAttributes;
+				return true;
+			}
+		}
+	},
 	{
 		code: 'a11y-structure',
 		title: 'Invalid DOM structure',
@@ -522,6 +532,13 @@ function menuitem_implicit_role(attributes: Record<string, string>) {
 	const { type } = attributes;
 	if (!type) return;
 	return menuitem_type_to_implicit_role.get(type);
+}
+
+function getRole(element: Element): ARIARoleDefinitionKey | undefined {
+	if (element.hasAttribute('role')) {
+		return element.getAttribute('role')! as ARIARoleDefinitionKey;
+	}
+	return getImplicitRole(element) as ARIARoleDefinitionKey;
 }
 
 function getImplicitRole(element: Element) {
