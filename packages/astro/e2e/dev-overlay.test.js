@@ -19,14 +19,14 @@ test.describe('Dev Overlay', () => {
 	test('dev overlay exists in the page', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const devOVerlay = page.locator('astro-dev-overlay');
+		const devOVerlay = page.locator('astro-dev-toolbar');
 		await expect(devOVerlay).toHaveCount(1);
 	});
 
 	test('shows plugin name on hover', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const overlay = page.locator('astro-dev-overlay');
+		const overlay = page.locator('astro-dev-toolbar');
 		const pluginButton = overlay.locator('button[data-plugin-id="astro"]');
 		const pluginButtonTooltip = pluginButton.locator('.item-tooltip');
 		await pluginButton.hover();
@@ -37,14 +37,14 @@ test.describe('Dev Overlay', () => {
 	test('can open Astro plugin', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const overlay = page.locator('astro-dev-overlay');
+		const overlay = page.locator('astro-dev-toolbar');
 		const pluginButton = overlay.locator('button[data-plugin-id="astro"]');
 		await pluginButton.click();
 
 		const astroPluginCanvas = overlay.locator(
-			'astro-dev-overlay-plugin-canvas[data-plugin-id="astro"]'
+			'astro-dev-toolbar-plugin-canvas[data-plugin-id="astro"]'
 		);
-		const astroWindow = astroPluginCanvas.locator('astro-dev-overlay-window');
+		const astroWindow = astroPluginCanvas.locator('astro-dev-toolbar-window');
 		await expect(astroWindow).toHaveCount(1);
 		await expect(astroWindow).toBeVisible();
 
@@ -56,18 +56,18 @@ test.describe('Dev Overlay', () => {
 	test('xray shows highlights and tooltips', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const overlay = page.locator('astro-dev-overlay');
+		const overlay = page.locator('astro-dev-toolbar');
 		const pluginButton = overlay.locator('button[data-plugin-id="astro:xray"]');
 		await pluginButton.click();
 
 		const xrayCanvas = overlay.locator(
-			'astro-dev-overlay-plugin-canvas[data-plugin-id="astro:xray"]'
+			'astro-dev-toolbar-plugin-canvas[data-plugin-id="astro:xray"]'
 		);
-		const xrayHighlight = xrayCanvas.locator('astro-dev-overlay-highlight');
+		const xrayHighlight = xrayCanvas.locator('astro-dev-toolbar-highlight');
 		await expect(xrayHighlight).toBeVisible();
 
 		await xrayHighlight.hover();
-		const xrayHighlightTooltip = xrayHighlight.locator('astro-dev-overlay-tooltip');
+		const xrayHighlightTooltip = xrayHighlight.locator('astro-dev-toolbar-tooltip');
 		await expect(xrayHighlightTooltip).toBeVisible();
 
 		// Toggle plugin off
@@ -79,38 +79,38 @@ test.describe('Dev Overlay', () => {
 	test('xray shows no islands message when there are none', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/xray-no-islands'));
 
-		const overlay = page.locator('astro-dev-overlay');
+		const overlay = page.locator('astro-dev-toolbar');
 		const pluginButton = overlay.locator('button[data-plugin-id="astro:xray"]');
 		await pluginButton.click();
 
 		const xrayCanvas = overlay.locator(
-			'astro-dev-overlay-plugin-canvas[data-plugin-id="astro:xray"]'
+			'astro-dev-toolbar-plugin-canvas[data-plugin-id="astro:xray"]'
 		);
-		const auditHighlight = xrayCanvas.locator('astro-dev-overlay-highlight');
+		const auditHighlight = xrayCanvas.locator('astro-dev-toolbar-highlight');
 		await expect(auditHighlight).not.toBeVisible();
 
-		const xrayWindow = xrayCanvas.locator('astro-dev-overlay-window');
+		const xrayWindow = xrayCanvas.locator('astro-dev-toolbar-window');
 		await expect(xrayWindow).toHaveCount(1);
 		await expect(xrayWindow).toBeVisible();
 
-		await expect(xrayWindow.locator('astro-dev-overlay-icon[icon=lightbulb]')).toBeVisible();
+		await expect(xrayWindow.locator('astro-dev-toolbar-icon[icon=lightbulb]')).toBeVisible();
 	});
 
 	test('audit shows higlights and tooltips', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const overlay = page.locator('astro-dev-overlay');
+		const overlay = page.locator('astro-dev-toolbar');
 		const pluginButton = overlay.locator('button[data-plugin-id="astro:audit"]');
 		await pluginButton.click();
 
 		const auditCanvas = overlay.locator(
-			'astro-dev-overlay-plugin-canvas[data-plugin-id="astro:audit"]'
+			'astro-dev-toolbar-plugin-canvas[data-plugin-id="astro:audit"]'
 		);
-		const auditHighlight = auditCanvas.locator('astro-dev-overlay-highlight');
+		const auditHighlight = auditCanvas.locator('astro-dev-toolbar-highlight');
 		await expect(auditHighlight).toBeVisible();
 
 		await auditHighlight.hover();
-		const auditHighlightTooltip = auditHighlight.locator('astro-dev-overlay-tooltip');
+		const auditHighlightTooltip = auditHighlight.locator('astro-dev-toolbar-tooltip');
 		await expect(auditHighlightTooltip).toBeVisible();
 
 		// Toggle plugin off
@@ -122,34 +122,34 @@ test.describe('Dev Overlay', () => {
 	test('audit shows no issues message when there are no issues', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/audit-no-warning'));
 
-		const overlay = page.locator('astro-dev-overlay');
+		const overlay = page.locator('astro-dev-toolbar');
 		const pluginButton = overlay.locator('button[data-plugin-id="astro:audit"]');
 		await pluginButton.click();
 
 		const auditCanvas = overlay.locator(
-			'astro-dev-overlay-plugin-canvas[data-plugin-id="astro:audit"]'
+			'astro-dev-toolbar-plugin-canvas[data-plugin-id="astro:audit"]'
 		);
-		const auditHighlight = auditCanvas.locator('astro-dev-overlay-highlight');
+		const auditHighlight = auditCanvas.locator('astro-dev-toolbar-highlight');
 		await expect(auditHighlight).not.toBeVisible();
 
-		const auditWindow = auditCanvas.locator('astro-dev-overlay-window');
+		const auditWindow = auditCanvas.locator('astro-dev-toolbar-window');
 		await expect(auditWindow).toHaveCount(1);
 		await expect(auditWindow).toBeVisible();
 
-		await expect(auditWindow.locator('astro-dev-overlay-icon[icon=check-circle]')).toBeVisible();
+		await expect(auditWindow.locator('astro-dev-toolbar-icon[icon=check-circle]')).toBeVisible();
 	});
 
 	test('can open Settings plugin', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const overlay = page.locator('astro-dev-overlay');
+		const overlay = page.locator('astro-dev-toolbar');
 		const pluginButton = overlay.locator('button[data-plugin-id="astro:settings"]');
 		await pluginButton.click();
 
 		const settingsPluginCanvas = overlay.locator(
-			'astro-dev-overlay-plugin-canvas[data-plugin-id="astro:settings"]'
+			'astro-dev-toolbar-plugin-canvas[data-plugin-id="astro:settings"]'
 		);
-		const settingsWindow = settingsPluginCanvas.locator('astro-dev-overlay-window');
+		const settingsWindow = settingsPluginCanvas.locator('astro-dev-toolbar-window');
 		await expect(settingsWindow).toHaveCount(1);
 		await expect(settingsWindow).toBeVisible();
 
@@ -161,14 +161,14 @@ test.describe('Dev Overlay', () => {
 	test('Opening a plugin closes the currently opened plugin', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const overlay = page.locator('astro-dev-overlay');
+		const overlay = page.locator('astro-dev-toolbar');
 		let pluginButton = overlay.locator('button[data-plugin-id="astro:settings"]');
 		await pluginButton.click();
 
 		const settingsPluginCanvas = overlay.locator(
-			'astro-dev-overlay-plugin-canvas[data-plugin-id="astro:settings"]'
+			'astro-dev-toolbar-plugin-canvas[data-plugin-id="astro:settings"]'
 		);
-		const settingsWindow = settingsPluginCanvas.locator('astro-dev-overlay-window');
+		const settingsWindow = settingsPluginCanvas.locator('astro-dev-toolbar-window');
 		await expect(settingsWindow).toHaveCount(1);
 		await expect(settingsWindow).toBeVisible();
 
@@ -177,9 +177,9 @@ test.describe('Dev Overlay', () => {
 		await pluginButton.click();
 
 		const astroPluginCanvas = overlay.locator(
-			'astro-dev-overlay-plugin-canvas[data-plugin-id="astro"]'
+			'astro-dev-toolbar-plugin-canvas[data-plugin-id="astro"]'
 		);
-		const astroWindow = astroPluginCanvas.locator('astro-dev-overlay-window');
+		const astroWindow = astroPluginCanvas.locator('astro-dev-toolbar-window');
 		await expect(astroWindow).toHaveCount(1);
 		await expect(astroWindow).toBeVisible();
 
@@ -189,14 +189,14 @@ test.describe('Dev Overlay', () => {
 	test('Settings plugin contains message on disabling the overlay', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const overlay = page.locator('astro-dev-overlay');
+		const overlay = page.locator('astro-dev-toolbar');
 		let pluginButton = overlay.locator('button[data-plugin-id="astro:settings"]');
 		await pluginButton.click();
 
 		const settingsPluginCanvas = overlay.locator(
-			'astro-dev-overlay-plugin-canvas[data-plugin-id="astro:settings"]'
+			'astro-dev-toolbar-plugin-canvas[data-plugin-id="astro:settings"]'
 		);
-		const settingsWindow = settingsPluginCanvas.locator('astro-dev-overlay-window');
+		const settingsWindow = settingsPluginCanvas.locator('astro-dev-toolbar-window');
 		await expect(settingsWindow).toHaveCount(1);
 		await expect(settingsWindow).toBeVisible();
 

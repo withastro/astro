@@ -2,7 +2,7 @@ import type { DevOverlayHighlight } from '../../ui-library/highlight.js';
 import type { Icon } from '../../ui-library/icons.js';
 
 export function createHighlight(rect: DOMRect, icon?: Icon) {
-	const highlight = document.createElement('astro-dev-overlay-highlight');
+	const highlight = document.createElement('astro-dev-toolbar-highlight');
 	if (icon) highlight.icon = icon;
 
 	highlight.tabIndex = 0;

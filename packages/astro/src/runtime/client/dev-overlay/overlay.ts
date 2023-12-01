@@ -43,12 +43,12 @@ export class AstroDevOverlay extends HTMLElement {
 				/* Important! Reset all inherited styles to initial */
 				all: initial;
 				z-index: 999999;
-				view-transition-name: astro-dev-overlay;
+				view-transition-name: astro-dev-toolbar;
 				display: contents;
 			}
 
-			::view-transition-old(astro-dev-overlay),
-			::view-transition-new(astro-dev-overlay) {
+			::view-transition-old(astro-dev-toolbar),
+			::view-transition-new(astro-dev-toolbar) {
 				animation: none;
 			}
 
@@ -273,7 +273,7 @@ export class AstroDevOverlay extends HTMLElement {
 		// Create plugin canvases
 		this.plugins.forEach(async (plugin) => {
 			if (settings.config.verbose) console.log(`Creating plugin canvas for ${plugin.id}`);
-			const pluginCanvas = document.createElement('astro-dev-overlay-plugin-canvas');
+			const pluginCanvas = document.createElement('astro-dev-toolbar-plugin-canvas');
 			pluginCanvas.dataset.pluginId = plugin.id;
 			this.shadowRoot?.append(pluginCanvas);
 		});
@@ -404,7 +404,7 @@ export class AstroDevOverlay extends HTMLElement {
 
 	getPluginCanvasById(id: string) {
 		return this.shadowRoot.querySelector<HTMLElement>(
-			`astro-dev-overlay-plugin-canvas[data-plugin-id="${id}"]`
+			`astro-dev-toolbar-plugin-canvas[data-plugin-id="${id}"]`
 		);
 	}
 

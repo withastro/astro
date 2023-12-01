@@ -87,7 +87,7 @@ export default {
 					justify-content: center;
 				}
 
-				#buttons-container astro-dev-overlay-card {
+				#buttons-container astro-dev-toolbar-card {
 					flex: 1;
 				}
 
@@ -222,7 +222,7 @@ export default {
 					height: 1px;
 				}
 
-				#integration-list astro-dev-overlay-card, .integration-skeleton {
+				#integration-list astro-dev-toolbar-card, .integration-skeleton {
 					min-width: 240px;
 					height: 160px;
 				}
@@ -242,7 +242,7 @@ export default {
 					}
 				}
 
-				#integration-list astro-dev-overlay-card .integration-image {
+				#integration-list astro-dev-toolbar-card .integration-image {
 					width: 40px;
 					height: 40px;
 					background-color: var(--integration-image-background, white);
@@ -253,12 +253,12 @@ export default {
 					margin-bottom: 8px;
 				}
 
-				#integration-list astro-dev-overlay-card img {
+				#integration-list astro-dev-toolbar-card img {
 					width: 24px;
 					height: 24px;
 				}
 
-				#integration-list astro-dev-overlay-card astro-dev-overlay-icon {
+				#integration-list astro-dev-toolbar-card astro-dev-toolbar-icon {
 					width: 24px;
 					height: 24px;
 					color: #fff;
@@ -287,26 +287,26 @@ export default {
 					color: rgba(145, 152, 173, 1);
 				}
 
-				#links astro-dev-overlay-icon {
+				#links astro-dev-toolbar-icon {
 					width: 1.5em;
 					height: 1.5em;
 					display: block;
 				}
 
-				#integration-list astro-dev-overlay-card svg {
+				#integration-list astro-dev-toolbar-card svg {
 					width: 24px;
 					height: 24px;
 					vertical-align: bottom;
 				}
 
-				#integration-list astro-dev-overlay-card h3 {
+				#integration-list astro-dev-toolbar-card h3 {
 					margin: 0;
 					margin-bottom: 8px;
     			color: white;
 					white-space: nowrap;
 				}
 
-				#integration-list astro-dev-overlay-card p {
+				#integration-list astro-dev-toolbar-card p {
 					font-size: 14px;
 				}
 
@@ -320,11 +320,11 @@ export default {
 			<header>
 				<section>
 				${astroLogo}
-				<astro-dev-overlay-badge badge-style="gray" size="large">${
+				<astro-dev-toolbar-badge badge-style="gray" size="large">${
 					(window as DevOverlayMetadata).__astro_dev_overlay__.version
-				}</astro-dev-overlay-badge>
+				}</astro-dev-toolbar-badge>
 				</section>
-				<astro-dev-overlay-button id="copy-debug-button">Copy debug info <astro-dev-overlay-icon icon="copy" /></astro-dev-overlay-button>
+				<astro-dev-toolbar-button id="copy-debug-button">Copy debug info <astro-dev-toolbar-icon icon="copy" /></astro-dev-toolbar-button>
 			</header>
 			<hr />
 
@@ -345,9 +345,9 @@ export default {
 				${links
 					.map(
 						(link) =>
-							`<a href="${link.link}" target="_blank"><astro-dev-overlay-icon ${
+							`<a href="${link.link}" target="_blank"><astro-dev-toolbar-icon ${
 								isDefinedIcon(link.icon) ? `icon="${link.icon}">` : `>${link.icon}`
-							}</astro-dev-overlay-icon>${link.name}</a>`
+							}</astro-dev-toolbar-icon>${link.name}</a>`
 					)
 					.join('')}
 				</section>
@@ -376,7 +376,7 @@ export default {
 			const copyDebugButton = canvas.querySelector<HTMLButtonElement>('#copy-debug-button');
 			if (!copyDebugButton) return;
 
-			copyDebugButton.innerHTML = 'Copy debug info <astro-dev-overlay-icon icon="copy" />';
+			copyDebugButton.innerHTML = 'Copy debug info <astro-dev-toolbar-icon icon="copy" />';
 		}
 
 		function refreshIntegrationList() {
@@ -387,7 +387,7 @@ export default {
 
 			const fragment = document.createDocumentFragment();
 			for (const integration of integrationData.data) {
-				const integrationComponent = document.createElement('astro-dev-overlay-card');
+				const integrationComponent = document.createElement('astro-dev-toolbar-card');
 				integrationComponent.link = integration.homepageUrl;
 
 				const integrationContainer = document.createElement('div');
@@ -402,7 +402,7 @@ export default {
 					img.alt = integration.title;
 					integrationImage.append(img);
 				} else {
-					const icon = document.createElement('astro-dev-overlay-icon');
+					const icon = document.createElement('astro-dev-toolbar-icon');
 					icon.icon = iconForIntegration(integration);
 					integrationImage.append(icon);
 					integrationImage.style.setProperty(

@@ -48,7 +48,7 @@ export default {
 							font-size: 22px;
 						}
 	
-						astro-dev-overlay-icon {
+						astro-dev-toolbar-icon {
 							width: 1em;
 						   height: 1em;
 						   padding: 8px;
@@ -58,7 +58,7 @@ export default {
 						}
 					</style>
 					<header>
-						<h1><astro-dev-overlay-icon icon="lightbulb"></astro-dev-overlay-icon>No islands detected.</h1>
+						<h1><astro-dev-toolbar-icon icon="lightbulb"></astro-dev-toolbar-icon>No islands detected.</h1>
 					</header>
 					`
 				);
@@ -111,7 +111,7 @@ export default {
 		}
 
 		function buildIslandTooltip(island: HTMLElement) {
-			const tooltip = document.createElement('astro-dev-overlay-tooltip');
+			const tooltip = document.createElement('astro-dev-toolbar-tooltip');
 			tooltip.sections = [];
 
 			const islandProps = island.getAttribute('props')

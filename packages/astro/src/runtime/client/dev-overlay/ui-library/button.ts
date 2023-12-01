@@ -72,7 +72,8 @@ export class DevOverlayButton extends HTMLElement {
 					border-color: rgba(249, 196, 215, 0.33);
 				}
 
-				::slotted(astro-dev-overlay-icon) {
+				::slotted(astro-dev-overlay-icon),
+				::slotted(astro-dev-toolbar-icon) {
 					display: inline-block;
 					height: 1em;
 					width: 1em;

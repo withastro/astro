@@ -34,18 +34,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 	]);
 
 	// Register custom elements
-	customElements.define('astro-dev-overlay', AstroDevOverlay);
-	customElements.define('astro-dev-overlay-window', DevOverlayWindow);
-	customElements.define('astro-dev-overlay-plugin-canvas', DevOverlayCanvas);
-	customElements.define('astro-dev-overlay-tooltip', DevOverlayTooltip);
-	customElements.define('astro-dev-overlay-highlight', DevOverlayHighlight);
-	customElements.define('astro-dev-overlay-card', DevOverlayCard);
-	customElements.define('astro-dev-overlay-toggle', DevOverlayToggle);
-	customElements.define('astro-dev-overlay-button', DevOverlayButton);
-	customElements.define('astro-dev-overlay-badge', DevOverlayBadge);
-	customElements.define('astro-dev-overlay-icon', DevOverlayIcon);
+	customElements.define('astro-dev-toolbar', AstroDevOverlay);
+	customElements.define('astro-dev-toolbar-window', DevOverlayWindow);
+	customElements.define('astro-dev-toolbar-plugin-canvas', DevOverlayCanvas);
+	customElements.define('astro-dev-toolbar-tooltip', DevOverlayTooltip);
+	customElements.define('astro-dev-toolbar-highlight', DevOverlayHighlight);
+	customElements.define('astro-dev-toolbar-card', DevOverlayCard);
+	customElements.define('astro-dev-toolbar-toggle', DevOverlayToggle);
+	customElements.define('astro-dev-toolbar-button', DevOverlayButton);
+	customElements.define('astro-dev-toolbar-badge', DevOverlayBadge);
+	customElements.define('astro-dev-toolbar-icon', DevOverlayIcon);
 
-	overlay = document.createElement('astro-dev-overlay');
+	// Add deprecated names
+	const deprecated = (Parent: any) => class extends Parent{};
+	customElements.define('astro-dev-overlay', deprecated(AstroDevOverlay));
+	customElements.define('astro-dev-overlay-window', deprecated(DevOverlayWindow));
+	customElements.define('astro-dev-overlay-plugin-canvas', deprecated(DevOverlayCanvas));
+	customElements.define('astro-dev-overlay-tooltip', deprecated(DevOverlayTooltip));
+	customElements.define('astro-dev-overlay-highlight', deprecated(DevOverlayHighlight));
+	customElements.define('astro-dev-overlay-card', deprecated(DevOverlayCard));
+	customElements.define('astro-dev-overlay-toggle', deprecated(DevOverlayToggle));
+	customElements.define('astro-dev-overlay-button', deprecated(DevOverlayButton));
+	customElements.define('astro-dev-overlay-badge', deprecated(DevOverlayBadge));
+	customElements.define('astro-dev-overlay-icon', deprecated(DevOverlayIcon));
+
+	overlay = document.createElement('astro-dev-toolbar');
 
 	const preparePlugin = (
 		pluginDefinition: DevOverlayPluginDefinition,
