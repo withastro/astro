@@ -364,7 +364,7 @@ export const a11y: AuditRuleWithSelector[] = [
 		title: 'Non-interactive ARIA role used on interactive HTML element.',
 		message:
 			'Interactive HTML elements like `<a>` and `<button>` cannot use non-interactive roles like `heading`, `list`, `menu`, and `toolbar`.',
-		selector: `${interactiveElements.map((el) => `${el}[role]`).join(',')}`,
+		selector: `[role]:is(${interactiveElements.join(',')})`,
 		match(element) {
 			const role = element.getAttribute('role');
 			if (!role) return false;
@@ -373,15 +373,21 @@ export const a11y: AuditRuleWithSelector[] = [
 			if (aria_non_interactive_roles.includes(role)) return true;
 		},
 	},
-	// TODO: Implement this rule
-	// {
-	// 	code: 'a11y-no-noninteractive-element-to-interactive-role',
-	// 	title:
-	// 		'[WAI-ARIA](https://www.w3.org/TR/wai-aria-1.1/#usage_intro) roles should not be used to convert a non-interactive element to an interactive element',
-	// 	message:
-	// 		'Interactive ARIA roles include `button`, `link`, `checkbox`, `menuitem`, `menuitemcheckbox`, `menuitemradio`, `option`, `radio`, `searchbox`, `switch` and `textbox`.',
-	// 	selector: "h3[role='searchbox']",
-	// },
+	{
+		code: 'a11y-no-noninteractive-element-to-interactive-role',
+		title: 'Interactive ARIA role used on non-interactive HTML element.',
+		message: 'Interactive roles should not be used to convert a non-interactive element to an interactive element',
+		selector: `[role]:not(${interactiveElements.join(',')})`,
+		match(element) {
+			const role = element.getAttribute('role');
+			if (!role) return false;
+			if (!ariaRoles.has(role)) return false;
+			const exceptions = a11y_non_interactive_element_to_interactive_role_exceptions[element.localName as keyof typeof a11y_non_interactive_element_to_interactive_role_exceptions];
+			if (exceptions?.includes(role)) return false;
+
+			if (!aria_non_interactive_roles.includes(role)) return true;
+		},
+	},
 	{
 		code: 'a11y-no-noninteractive-tabindex',
 		title: 'Invalid `tabindex` on non-interactive element',
