@@ -426,7 +426,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			}
 			const { requiredProps } = roles.get(role)!;
 			const required_role_props = Object.keys(requiredProps);
-			const missingProps = required_role_props.filter((prop) => (element as any)[prop] === undefined)
+			const missingProps = required_role_props.filter((prop) => !element.hasAttribute(prop))
 			if (missingProps.length > 0) {
 				(element as any).__astro_role = role;
 				(element as any).__astro_missing_attributes = missingProps;
@@ -448,10 +448,12 @@ export const a11y: AuditRuleWithSelector[] = [
 			const role = getRole(element);
 			if (!role) return false;
 			const { props } = roles.get(role)!;
+			const attributes = getAttributeObject(element);
 			const unsupportedAttributes = aria.keys().filter((attribute) => !(attribute in props));
-			if (unsupportedAttributes.length > 0) {
+			const invalidAttributes: string[] = Object.keys(attributes).filter(key => key.startsWith('aria-') && unsupportedAttributes.includes(key as any));
+			if (invalidAttributes.length > 0) {
 				(element as any).__astro_role = role;
-				(element as any).__astro_unsupported_attributes = unsupportedAttributes;
+				(element as any).__astro_unsupported_attributes = invalidAttributes;
 				return true;
 			}
 		}
