@@ -25,7 +25,11 @@ function getSettings() {
 
 	function log(message: string) {
 		// eslint-disable-next-line no-console
-		console.log(`%cAstro`, 'background: linear-gradient(66.77deg, #D83333 0%, #F041FF 100%); color: white; padding-inline: 4px; border-radius: 2px; font-family: monospace;', message);
+		console.log(
+			`%cAstro`,
+			'background: linear-gradient(66.77deg, #D83333 0%, #F041FF 100%); color: white; padding-inline: 4px; border-radius: 2px; font-family: monospace;',
+			message
+		);
 	}
 
 	return {
@@ -33,6 +37,6 @@ function getSettings() {
 			return _settings;
 		},
 		updateSetting,
-		log
+		log,
 	};
 }
