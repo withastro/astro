@@ -89,10 +89,7 @@ export const ComponentNode = createComponent({
 			);
 
 			// Let the runtime know that this component is being used.
-			// `result.propagators` has been moved to `result._metadata.propagators`
-			// TODO: remove this fallback in the next markdoc integration major
-			const propagators = result._metadata.propagators || result.propagators;
-			propagators.add({
+			result._metadata.propagators.add({
 				init() {
 					return headAndContent;
 				},

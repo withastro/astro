@@ -50,16 +50,6 @@ export async function setUpEnvTs({
 	if (fs.existsSync(envTsPath)) {
 		let typesEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');
 
-		// TODO: Remove this in 4.0, this code is only to help users migrate away from assets being experimental for a long time
-		if (typesEnvContents.includes('types="astro/client-image"')) {
-			typesEnvContents = typesEnvContents.replace(
-				'types="astro/client-image"',
-				'types="astro/client"'
-			);
-			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
-			logger.info('types', `Removed ${bold(envTsPathRelativetoRoot)} type declarations`);
-		}
-
 		if (!fs.existsSync(dotAstroDir))
 			// Add `.astro` types reference if none exists
 			return;
