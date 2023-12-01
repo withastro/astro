@@ -20,6 +20,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./functions": "./dist/integration-functions.js",
+    "./static": "./dist/integration-static.js",
     "./netlify-functions.js": "./dist/netlify-functions.js",
     "./edge-functions": "./dist/integration-edge-functions.js",
     "./netlify-edge-functions.js": "./dist/netlify-edge-functions.js",
