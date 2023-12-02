@@ -52,8 +52,9 @@ export function createViteLogger(
 			}
 			// Log shortcuts help messages without indent
 			else if (viteShortcutHelpMsg.test(stripped)) {
-				// Don't log clear screen shortcut, we don't allow clear screen
-				if (stripped.includes('c + enter')) return;
+				// Remove Vite's builtin shortcuts we don't support. We can do this cleaner once
+				// https://github.com/vitejs/vite/pull/15218 lands
+				if (stripped.includes('c + enter') || stripped.includes('u + enter')) return;
 				astroLogger.info('shortcut', msg.replace(/\s+press/, 'press'));
 			}
 			// Fallback

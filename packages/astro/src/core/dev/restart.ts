@@ -7,7 +7,7 @@ import { createNodeLogger, createSettings, resolveConfig } from '../config/index
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
-import { formatErrorMessage, serverUrls } from '../messages.js';
+import { formatErrorMessage } from '../messages.js';
 import type { Container } from './container.js';
 import { createContainer, startContainer } from './container.js';
 
@@ -176,17 +176,7 @@ export async function createContainerWithAutomaticRestart({
 					key: 'u',
 					description: 'show server url',
 					action() {
-						logger.info(
-							'SKIP_FORMAT',
-							serverUrls({
-								resolvedUrls: restart.container.viteServer.resolvedUrls || {
-									local: [],
-									network: [],
-								},
-								host: restart.container.settings.config.server.host,
-								base: restart.container.settings.config.base,
-							})
-						);
+						// TODO: show the server urls
 					},
 				},
 			],
