@@ -2586,6 +2586,14 @@ export interface DevOverlayPlugin {
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
 }
 
+export interface DevToolbarApp {
+	id: string;
+	name: string;
+	icon: Icon;
+	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
+	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
+}
+
 export type DevOverlayMetadata = Window &
 	typeof globalThis & {
 		__astro_dev_overlay__: {
