@@ -2578,14 +2578,6 @@ export interface ClientDirectiveConfig {
 	entrypoint: string;
 }
 
-export interface DevOverlayPlugin {
-	id: string;
-	name: string;
-	icon: Icon;
-	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
-	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
-}
-
 export interface DevToolbarApp {
 	id: string;
 	name: string;
@@ -2593,6 +2585,8 @@ export interface DevToolbarApp {
 	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
 }
+
+export type DevOverlayPlugin = DevToolbarApp;
 
 export type DevOverlayMetadata = Window &
 	typeof globalThis & {
