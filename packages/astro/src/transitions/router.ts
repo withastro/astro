@@ -30,8 +30,7 @@ export const transitionEnabledOnThisPage = () =>
 	inBrowser && !!document.querySelector('[name="astro-view-transitions-enabled"]');
 
 const samePage = (thisLocation: URL, otherLocation: URL) =>
-	thisLocation.pathname === otherLocation.pathname &&
-	thisLocation.search === otherLocation.search;
+	thisLocation.pathname === otherLocation.pathname && thisLocation.search === otherLocation.search;
 
 // When we traverse the history, the window.location is already set to the new location.
 // This variable tells us where we came from
@@ -431,8 +430,8 @@ async function transition(
 	const navigationType = historyState
 		? 'traverse'
 		: options.history === 'replace'
-		  ? 'replace'
-		  : 'push';
+		? 'replace'
+		: 'push';
 
 	if (samePage(from, to) && to.hash) {
 		if (navigationType !== 'traverse') {
@@ -498,7 +497,6 @@ async function transition(
 		links.length && (await Promise.all(links));
 		if (import.meta.env.DEV)
 			await prepareForClientOnlyComponents(preparationEvent.newDocument, preparationEvent.to);
-		}
 	}
 
 	skipTransition = false;
