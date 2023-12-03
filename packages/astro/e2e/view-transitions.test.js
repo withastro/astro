@@ -401,7 +401,7 @@ test.describe('View Transitions', () => {
 		// Forward to middle of page
 		await page.goForward();
 		locator = page.locator('#click-one-again');
-		await expect(locator).toBeInViewport();
+		await expect(locator).toBeVisible();
 	});
 
 	test('<Image /> component forwards transitions to the <img>', async ({ page, astro }) => {

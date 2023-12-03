@@ -430,10 +430,10 @@ async function transition(
 	const navigationType = historyState
 		? 'traverse'
 		: options.history === 'replace'
-		? 'replace'
-		: 'push';
+		  ? 'replace'
+		  : 'push';
 
-	if (samePage(from, to) && to.hash) {
+	if (samePage(from, to) && !!to.hash) {
 		if (navigationType !== 'traverse') {
 			updateScrollPosition({ scrollX, scrollY });
 		}
@@ -495,6 +495,7 @@ async function transition(
 
 		const links = preloadStyleLinks(preparationEvent.newDocument);
 		links.length && (await Promise.all(links));
+
 		if (import.meta.env.DEV)
 			await prepareForClientOnlyComponents(preparationEvent.newDocument, preparationEvent.to);
 	}
