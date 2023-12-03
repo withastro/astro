@@ -433,10 +433,10 @@ async function transition(
 		  ? 'replace'
 		  : 'push';
 
+	if (navigationType !== 'traverse') {
+		updateScrollPosition({ scrollX, scrollY });
+	}
 	if (samePage(from, to) && !!to.hash) {
-		if (navigationType !== 'traverse') {
-			updateScrollPosition({ scrollX, scrollY });
-		}
 		moveToLocation(to, from, options, historyState);
 		return;
 	}

@@ -394,14 +394,17 @@ test.describe('View Transitions', () => {
 		await expect(locator).toBeInViewport();
 
 		// Scroll back to top
+		// back returns immediately, but we need to wait for navigate() to complete
+		const waitForReady = page.waitForEvent('console');
 		await page.goBack();
+		await waitForReady;
 		locator = page.locator('#longpage');
 		await expect(locator).toBeInViewport();
 
 		// Forward to middle of page
 		await page.goForward();
 		locator = page.locator('#click-one-again');
-		await expect(locator).toBeVisible();
+		await expect(locator).toBeInViewport();
 	});
 
 	test('<Image /> component forwards transitions to the <img>', async ({ page, astro }) => {
