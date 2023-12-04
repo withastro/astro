@@ -1,10 +1,5 @@
-import {
-	TRANSITION_AFTER_SWAP,
-	TransitionBeforeSwapEvent,
-	doPreparation,
-	doSwap,
-	type TransitionBeforePreparationEvent,
-} from './events.js';
+import type { TransitionBeforePreparationEvent, TransitionBeforeSwapEvent } from './events.js';
+import { TRANSITION_AFTER_SWAP, doPreparation, doSwap } from './events.js';
 import type { Direction, Fallback, Options } from './types.js';
 
 type State = {

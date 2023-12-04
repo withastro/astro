@@ -1,18 +1,18 @@
-import rss, { getRssString } from '../dist/index.js';
-import { rssSchema } from '../dist/schema.js';
 import chai from 'chai';
 import chaiPromises from 'chai-as-promised';
 import chaiXml from 'chai-xml';
+import rss, { getRssString } from '../dist/index.js';
+import { rssSchema } from '../dist/schema.js';
 import {
-	title,
 	description,
-	site,
 	phpFeedItem,
 	phpFeedItemWithContent,
 	phpFeedItemWithCustomData,
+	site,
+	title,
 	web1FeedItem,
-	web1FeedItemWithContent,
 	web1FeedItemWithAllData,
+	web1FeedItemWithContent,
 } from './test-utils.js';
 
 chai.use(chaiPromises);

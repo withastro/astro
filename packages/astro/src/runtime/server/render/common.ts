@@ -1,7 +1,8 @@
 import type { SSRResult } from '../../../@types/astro.js';
 import type { RenderInstruction } from './instruction.js';
 
-import { HTMLBytes, HTMLString, markHTMLString } from '../escape.js';
+import type { HTMLBytes, HTMLString } from '../escape.js';
+import { markHTMLString } from '../escape.js';
 import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
