@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-	devOverlay: {
+	devToolbar: {
 		enabled: false,
 	},
 	prefetch: true

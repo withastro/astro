@@ -228,12 +228,9 @@ export class AstroDevOverlay extends HTMLElement {
 				width: 1px;
 			}
 		</style>
-		<div id="dev-overlay"${
-			((window as DevOverlayMetadata)?.__astro_dev_overlay__?.defaultState ?? 'minimized') ===
-			'minimized'
-				? ' data-hidden '
-				: ''
-		} ${settings.config.disablePluginNotification ? 'data-no-notification' : ''}>
+		<div id="dev-overlay" data-hidden ${
+			settings.config.disablePluginNotification ? 'data-no-notification' : ''
+		}>
 			<div id="dev-bar-hitbox-above"></div>
 			<div id="dev-bar">
 				<div id="bar-container">

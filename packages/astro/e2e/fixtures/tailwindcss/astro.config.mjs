@@ -9,7 +9,7 @@ export default defineConfig({
 			configFile: fileURLToPath(new URL('./tailwind.config.js', import.meta.url)),
 		}),
 	],
-	devOverlay: {
+	devToolbar: {
 		enabled: false,
 	},
 	vite: {

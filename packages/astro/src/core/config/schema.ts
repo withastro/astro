@@ -41,13 +41,8 @@ const ASTRO_CONFIG_DEFAULTS = {
 	image: {
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 	},
-	devOverlay: {
-		enabled: true,
-		defaultState: 'minimized',
-	},
 	devToolbar: {
 		enabled: true,
-		defaultState: 'minimized',
 	},
 	compressHTML: true,
 	server: {
@@ -232,20 +227,9 @@ export const AstroConfigSchema = z.object({
 				.default([]),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
-	devOverlay: z
-		.object({
-			enabled: z.boolean().default(ASTRO_CONFIG_DEFAULTS.devOverlay.enabled),
-			defaultState: z
-				.enum(['minimized', 'expanded'])
-				.default(ASTRO_CONFIG_DEFAULTS.devOverlay.defaultState),
-		})
-		.default(ASTRO_CONFIG_DEFAULTS.devOverlay),
 	devToolbar: z
 		.object({
 			enabled: z.boolean().default(ASTRO_CONFIG_DEFAULTS.devToolbar.enabled),
-			defaultState: z
-				.enum(['minimized', 'expanded'])
-				.default(ASTRO_CONFIG_DEFAULTS.devToolbar.defaultState),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.devToolbar),
 	markdown: z

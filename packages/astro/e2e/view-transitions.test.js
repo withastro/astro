@@ -394,7 +394,10 @@ test.describe('View Transitions', () => {
 		await expect(locator).toBeInViewport();
 
 		// Scroll back to top
+		// back returns immediately, but we need to wait for navigate() to complete
+		const waitForReady = page.waitForEvent('console');
 		await page.goBack();
+		await waitForReady;
 		locator = page.locator('#longpage');
 		await expect(locator).toBeInViewport();
 
