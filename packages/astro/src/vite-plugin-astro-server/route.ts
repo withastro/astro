@@ -396,7 +396,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 		});
 
 		if (
-			settings.config.devOverlay.enabled &&
+			settings.config.devToolbar.enabled &&
 			(await settings.preferences.get('devToolbar.enabled'))
 		) {
 			scripts.add({
@@ -408,7 +408,6 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			});
 
 			const additionalMetadata: DevOverlayMetadata['__astro_dev_overlay__'] = {
-				defaultState: settings.config.devOverlay.defaultState,
 				root: fileURLToPath(settings.config.root),
 				version: ASTRO_VERSION,
 				debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),
