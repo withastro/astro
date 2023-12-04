@@ -23,12 +23,11 @@
  * SOFTWARE.
  */
 
-import type { AuditRuleWithSelector } from './index.js';
 import type { ARIARoleDefinitionKey } from 'aria-query';
-import { roles, aria } from 'aria-query';
+import { aria, roles } from 'aria-query';
+import type { AuditRuleWithSelector } from './index.js';
 // @ts-expect-error package does not provide types
 import { AXObjectRoles, elementAXObjects } from 'axobject-query';
-
 
 const a11y_required_attributes = {
 	a: ['href'],
@@ -400,13 +399,17 @@ export const a11y: AuditRuleWithSelector[] = [
 	{
 		code: 'a11y-no-noninteractive-element-to-interactive-role',
 		title: 'Interactive ARIA role used on non-interactive HTML element.',
-		message: 'Interactive roles should not be used to convert a non-interactive element to an interactive element',
+		message:
+			'Interactive roles should not be used to convert a non-interactive element to an interactive element',
 		selector: `[role]:not(${interactiveElements.join(',')})`,
 		match(element) {
 			const role = element.getAttribute('role');
 			if (!role) return false;
 			if (!ariaRoles.has(role)) return false;
-			const exceptions = a11y_non_interactive_element_to_interactive_role_exceptions[element.localName as keyof typeof a11y_non_interactive_element_to_interactive_role_exceptions];
+			const exceptions =
+				a11y_non_interactive_element_to_interactive_role_exceptions[
+					element.localName as keyof typeof a11y_non_interactive_element_to_interactive_role_exceptions
+				];
 			if (exceptions?.includes(role)) return false;
 
 			if (!aria_non_interactive_roles.includes(role)) return true;
@@ -418,6 +421,11 @@ export const a11y: AuditRuleWithSelector[] = [
 		message: (element) => `${element.localName} elements should not have \`tabindex\` attribute`,
 		selector: '[tabindex]',
 		match(element) {
+			// Scrollable elements are considered interactive
+			// See: https://www.w3.org/WAI/standards-guidelines/act/rules/0ssw9k/proposed/
+			const isScrollable = element.scrollHeight > element.clientHeight;
+			if (isScrollable) return false;
+
 			if (!interactiveElements.includes(element.localName)) return true;
 		},
 	},
@@ -437,7 +445,7 @@ export const a11y: AuditRuleWithSelector[] = [
 				element.localName
 			} element is missing required attributes for its role (${role}): ${required.join(', ')}`;
 		},
-		selector: "*",
+		selector: '*',
 		match(element) {
 			const role = getRole(element);
 			if (!role) return false;
@@ -446,13 +454,13 @@ export const a11y: AuditRuleWithSelector[] = [
 			}
 			const { requiredProps } = roles.get(role)!;
 			const required_role_props = Object.keys(requiredProps);
-			const missingProps = required_role_props.filter((prop) => !element.hasAttribute(prop))
+			const missingProps = required_role_props.filter((prop) => !element.hasAttribute(prop));
 			if (missingProps.length > 0) {
 				(element as any).__astro_role = role;
 				(element as any).__astro_missing_attributes = missingProps;
 				return true;
 			}
-		}
+		},
 	},
 	{
 		code: 'a11y-role-supports-aria-props',
@@ -461,22 +469,26 @@ export const a11y: AuditRuleWithSelector[] = [
 			const { __astro_role: role, __astro_unsupported_attributes: unsupported } = element as any;
 			return `${
 				element.localName
-			} element has ARIA attributes that are not supported by its role (${role}): ${unsupported.join(', ')}`;
+			} element has ARIA attributes that are not supported by its role (${role}): ${unsupported.join(
+				', '
+			)}`;
 		},
-		selector: "*",
+		selector: '*',
 		match(element) {
 			const role = getRole(element);
 			if (!role) return false;
 			const { props } = roles.get(role)!;
 			const attributes = getAttributeObject(element);
 			const unsupportedAttributes = aria.keys().filter((attribute) => !(attribute in props));
-			const invalidAttributes: string[] = Object.keys(attributes).filter(key => key.startsWith('aria-') && unsupportedAttributes.includes(key as any));
+			const invalidAttributes: string[] = Object.keys(attributes).filter(
+				(key) => key.startsWith('aria-') && unsupportedAttributes.includes(key as any)
+			);
 			if (invalidAttributes.length > 0) {
 				(element as any).__astro_role = role;
 				(element as any).__astro_unsupported_attributes = invalidAttributes;
 				return true;
 			}
-		}
+		},
 	},
 	{
 		code: 'a11y-structure',
@@ -588,11 +600,16 @@ function getAttributeObject(element: Element): Record<string, string> {
  * @param {string} tag_name
  * @param {Map<string, import('#compiler').Attribute>} attribute_map
  */
-function is_semantic_role_element(role: string, tag_name: string, attributes: Record<string, string>) {
+function is_semantic_role_element(
+	role: string,
+	tag_name: string,
+	attributes: Record<string, string>
+) {
 	for (const [schema, ax_object] of elementAXObjects.entries()) {
 		if (
 			schema.name === tag_name &&
-			(!schema.attributes || schema.attributes.every((attr: any) => attributes[attr.name] === attr.value))
+			(!schema.attributes ||
+				schema.attributes.every((attr: any) => attributes[attr.name] === attr.value))
 		) {
 			for (const name of ax_object) {
 				const axRoles = AXObjectRoles.get(name);
