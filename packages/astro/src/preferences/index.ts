@@ -27,9 +27,11 @@ export interface PreferenceOptions {
 	location?: PreferenceLocation;
 }
 
-type DeepPartial<T> = T extends object ? {
-	[P in keyof T]?: DeepPartial<T[P]>;
-} : T;
+type DeepPartial<T> = T extends object
+	? {
+			[P in keyof T]?: DeepPartial<T[P]>;
+	  }
+	: T;
 
 export type PreferenceKey = DotKeys<Preferences>;
 export interface PreferenceList extends Record<PreferenceLocation, DeepPartial<Preferences>> {
@@ -82,7 +84,12 @@ export default function createPreferences(config: AstroConfig): AstroPreferences
 			stores[location].set(key, value);
 		},
 		async getAll() {
-			return Object.assign({}, DEFAULT_PREFERENCES, stores['global'].getAll(), stores['project'].getAll());
+			return Object.assign(
+				{},
+				DEFAULT_PREFERENCES,
+				stores['global'].getAll(),
+				stores['project'].getAll()
+			);
 		},
 		async list() {
 			return {

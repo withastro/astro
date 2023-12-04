@@ -10,7 +10,12 @@ import { resolveConfig } from '../../core/config/config.js';
 import { createSettings } from '../../core/config/settings.js';
 import * as msg from '../../core/messages.js';
 import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
-import { coerce, isValidKey, type PreferenceKey, type PreferenceLocation } from '../../preferences/index.js';
+import {
+	coerce,
+	isValidKey,
+	type PreferenceKey,
+	type PreferenceLocation,
+} from '../../preferences/index.js';
 import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 // @ts-expect-error flattie types are mispackaged
 import { flattie } from 'flattie';
@@ -300,15 +305,21 @@ function formatTable(
 			b
 		)} ${space(colBLength - b.toString().length - 3)} ${dim(chars.v)}`;
 	}
-	const top = dim(`${chars.topLeft}${chars.h.repeat(colALength + 1)}${chars.hBottom}${chars.h.repeat(
-		colBLength
-	)}${chars.topRight}`);
-	const bottom = dim(`${chars.bottomLeft}${chars.h.repeat(colALength + 1)}${chars.hTop}${chars.h.repeat(
-		colBLength
-	)}${chars.bottomRight}`);
-	const divider = dim(`${chars.vRightThick}${chars.hThick.repeat(colALength + 1)}${
-		chars.hThickCross
-	}${chars.hThick.repeat(colBLength)}${chars.vLeftThick}`);
+	const top = dim(
+		`${chars.topLeft}${chars.h.repeat(colALength + 1)}${chars.hBottom}${chars.h.repeat(
+			colBLength
+		)}${chars.topRight}`
+	);
+	const bottom = dim(
+		`${chars.bottomLeft}${chars.h.repeat(colALength + 1)}${chars.hTop}${chars.h.repeat(
+			colBLength
+		)}${chars.bottomRight}`
+	);
+	const divider = dim(
+		`${chars.vRightThick}${chars.hThick.repeat(colALength + 1)}${
+			chars.hThickCross
+		}${chars.hThick.repeat(colBLength)}${chars.vLeftThick}`
+	);
 	const rows: string[] = [top, formatRow(-1, colA, colB, bold), divider];
 	let i = 0;
 	for (const [key, value] of Object.entries(object)) {
