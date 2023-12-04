@@ -4,7 +4,8 @@ import type { Logger } from '../logger/core.js';
 import { routeIsFallback } from '../redirects/helpers.js';
 import { routeIsRedirect } from '../redirects/index.js';
 import { getParams } from '../routing/params.js';
-import { RouteCache, callGetStaticPaths, findPathItemByKey } from './route-cache.js';
+import type { RouteCache } from './route-cache.js';
+import { callGetStaticPaths, findPathItemByKey } from './route-cache.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance | undefined;

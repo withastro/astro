@@ -1,7 +1,7 @@
 import { dim, green } from 'kleur/colors';
 import fs, { readFileSync } from 'node:fs';
 import { basename, join } from 'node:path/posix';
-import PQueue from 'p-queue';
+import type PQueue from 'p-queue';
 import type { AstroConfig } from '../../@types/astro.js';
 import type { BuildPipeline } from '../../core/build/buildPipeline.js';
 import { getOutDirWithinCwd } from '../../core/build/common.js';

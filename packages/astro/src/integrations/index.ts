@@ -18,7 +18,7 @@ import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/index.js';
-import { AstroIntegrationLogger, type Logger } from '../core/logger/core.js';
+import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { validateSupportedFeatures } from './astroFeaturesValidation.js';
 
