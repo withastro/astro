@@ -555,8 +555,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					const winningStrategy = notFoundIsSSR
 						? excludeStrategy
 						: includeStrategyLength <= excludeStrategyLength
-						? includeStrategy
-						: excludeStrategy;
+						  ? includeStrategy
+						  : excludeStrategy;
 
 					await fs.promises.writeFile(
 						new URL('./_routes.json', _config.outDir),
