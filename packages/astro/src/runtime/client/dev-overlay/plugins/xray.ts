@@ -158,8 +158,13 @@ export default {
 			if (Object.keys(islandProps).length > 0) {
 				tooltip.sections.push({
 					title: 'Props',
-					content: `<pre><code>${JSON.stringify(Object.fromEntries(Object.entries(islandProps)
-						.map((prop: any) =>([prop[0], prop[1][1]]))), undefined, 2)}</code></pre>`,
+					content: `<pre><code>${JSON.stringify(
+						Object.fromEntries(
+							Object.entries(islandProps).map((prop: any) => [prop[0], prop[1][1]])
+						),
+						undefined,
+						2
+					)}</code></pre>`,
 				});
 			}
 

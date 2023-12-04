@@ -350,8 +350,6 @@ export class AstroDevOverlay extends HTMLElement {
 				this.setOverlayVisible(false);
 			}
 		});
-
-
 	}
 
 	async initPlugin(plugin: DevOverlayPlugin) {
