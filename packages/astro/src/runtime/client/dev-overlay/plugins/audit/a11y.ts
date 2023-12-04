@@ -466,7 +466,6 @@ export const a11y: AuditRuleWithSelector[] = [
 	},
 ];
 
-
 /**
  * Exceptions to the rule which follows common A11y conventions
  * TODO make this configurable by the user
