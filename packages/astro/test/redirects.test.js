@@ -14,6 +14,7 @@ describe('Astro.redirect', () => {
 				adapter: testAdapter(),
 				redirects: {
 					'/api/redirect': '/test',
+					'/external/redirect': 'https://example.com/',
 				},
 			});
 			await fixture.build();
@@ -25,6 +26,14 @@ describe('Astro.redirect', () => {
 			const response = await app.render(request);
 			expect(response.status).to.equal(302);
 			expect(response.headers.get('location')).to.equal('/login');
+		});
+
+		it('Ignores external redirect', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/external/redirect');
+			const response = await app.render(request);
+			expect(response.status).to.equal(404);
+			expect(response.headers.get('location')).to.equal(null);
 		});
 
 		it('Warns when used inside a component', async () => {
