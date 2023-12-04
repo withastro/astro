@@ -2,9 +2,12 @@
   "name": "@test/vue-app-entrypoint-no-export-default",
   "version": "0.0.0",
   "private": true,
+  "scripts": {
+    "astro": "astro"
+  },
   "dependencies": {
-    "astro": "workspace:*",
     "@astrojs/vue": "workspace:*",
+    "astro": "workspace:*",
     "vite-svg-loader": "4.0.0"
   }
 }

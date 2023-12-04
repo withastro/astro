@@ -1,12 +1,21 @@
 import type { Options as VueOptions } from '@vitejs/plugin-vue';
 import vue from '@vitejs/plugin-vue';
 import type { Options as VueJsxOptions } from '@vitejs/plugin-vue-jsx';
-import type { AstroIntegration, AstroRenderer } from 'astro';
+import type { AstroIntegration, AstroIntegrationLogger, AstroRenderer } from 'astro';
+import { init, parse } from 'es-module-lexer';
+import { readFile, readdir } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { UserConfig } from 'vite';
 
 interface Options extends VueOptions {
 	jsx?: boolean | VueJsxOptions;
 	appEntrypoint?: string;
+}
+
+interface ViteOptions extends Options {
+	root: URL;
+	logger: AstroIntegrationLogger;
 }
 
 function getRenderer(): AstroRenderer {
@@ -32,7 +41,7 @@ function getJsxRenderer(): AstroRenderer {
 	};
 }
 
-function virtualAppEntrypoint(options?: Options) {
+function virtualAppEntrypoint(options: ViteOptions) {
 	const virtualModuleId = 'virtual:@astrojs/vue/app';
 	const resolvedVirtualModuleId = '\0' + virtualModuleId;
 	return {
@@ -42,14 +51,33 @@ function virtualAppEntrypoint(options?: Options) {
 				return resolvedVirtualModuleId;
 			}
 		},
-		load(id: string) {
+		async load(id: string) {
 			if (id === resolvedVirtualModuleId) {
-				if (options?.appEntrypoint) {
+				if (options.appEntrypoint) {
+					const entrypoint = join(fileURLToPath(options.root), options.appEntrypoint);
+					const dir = dirname(entrypoint);
+					const filename = (await readdir(dir)).find((f) => f.startsWith('_app.'));
+					if (!filename) {
+						options.logger.warn(`appEntrypoint \`${options.appEntrypoint}\` does not exist.`);
+						return `export const setup = () => {};`;
+					}
+
+					const path = join(dir, filename);
+					const source = await readFile(path, 'utf-8');
+
+					await init;
+					const [, exports] = parse(source);
+
+					if (!exports.some((e) => e.n === 'default')) {
+						options.logger.warn(
+							`appEntrypoint \`${options.appEntrypoint}\` does not export a default function. Check out https://docs.astro.build/en/guides/integrations-guide/vue/#appentrypoint.`
+						);
+						return `export const setup = () => {};`;
+					}
+
 					return `
-						import * as _virtualApp from "${options.appEntrypoint}";
-						export const setup = (app) => {
-							_virtualApp.default?.(app);
-						};
+						import * as virtualApp from "${options.appEntrypoint}";
+						export const setup = virtualApp.default ?? (() => {});
 					`;
 				}
 				return `export const setup = () => {};`;
@@ -58,7 +86,7 @@ function virtualAppEntrypoint(options?: Options) {
 	};
 }
 
-async function getViteConfiguration(options?: Options): Promise<UserConfig> {
+async function getViteConfiguration(options: ViteOptions): Promise<UserConfig> {
 	const config: UserConfig = {
 		optimizeDeps: {
 			include: ['@astrojs/vue/client.js', 'vue'],
@@ -84,12 +112,14 @@ export default function (options?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/vue',
 		hooks: {
-			'astro:config:setup': async ({ addRenderer, updateConfig }) => {
+			'astro:config:setup': async ({ addRenderer, updateConfig, config, logger }) => {
 				addRenderer(getRenderer());
 				if (options?.jsx) {
 					addRenderer(getJsxRenderer());
 				}
-				updateConfig({ vite: await getViteConfiguration(options) });
+				updateConfig({
+					vite: await getViteConfiguration({ ...options, root: config.root, logger }),
+				});
 			},
 		},
 	};

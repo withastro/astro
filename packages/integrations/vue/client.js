@@ -1,5 +1,5 @@
 import { h, createSSRApp, createApp, Suspense } from 'vue';
-import * as virtualApp from 'virtual:@astrojs/vue/app';
+import { setup } from 'virtual:@astrojs/vue/app';
 import StaticHtml from './static-html.js';
 
 export default (element) =>
@@ -29,10 +29,7 @@ export default (element) =>
 			},
 		});
 
-		const setup = virtualApp.default;
-		if (typeof setup === 'function') {
-			await setup(app);
-		}
+		await setup(app);
 		app.mount(element, isHydrate);
 
 		element.addEventListener('astro:unmount', () => app.unmount(), { once: true });
