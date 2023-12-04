@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	] = await Promise.all([
 		loadDevOverlayPlugins() as DevOverlayPluginDefinition[],
 		import('./plugins/astro.js'),
-		import('./plugins/audit.js'),
+		import('./plugins/audit/index.js'),
 		import('./plugins/xray.js'),
 		import('./plugins/settings.js'),
 		import('./overlay.js'),
