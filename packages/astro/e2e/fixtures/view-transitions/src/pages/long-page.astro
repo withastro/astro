@@ -51,3 +51,9 @@ import Layout from '../components/Layout.astro';
 		Libero id faucibus nisl tincidunt eget nullam non. Faucibus a pellentesque sit amet porttitor eget dolor. Posuere urna nec tincidunt praesent semper feugiat nibh sed. Suspendisse ultrices gravida dictum fusce. Porttitor eget dolor morbi non arcu. Neque egestas congue quisque egestas diam in. Suscipit tellus mauris a diam maecenas sed enim ut sem. Luctus accumsan tortor posuere ac. Tortor posuere ac ut consequat semper viverra. Egestas tellus rutrum tellus pellentesque eu tincidunt tortor aliquam nulla. Senectus et netus et malesuada fames ac turpis egestas. Sed libero enim sed faucibus turpis in eu mi bibendum. Sollicitudin tempor id eu nisl nunc mi.
 	</article>
 </Layout>
+<script is:inline>
+	// let playwright know when navigate() is done
+	document.addEventListener('astro:before-swap', (e) => {
+		e.viewTransition.ready.then(()=>console.log("ready"))
+	});
+</script>

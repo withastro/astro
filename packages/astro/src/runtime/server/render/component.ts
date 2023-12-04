@@ -8,7 +8,8 @@ import { createRenderInstruction, type RenderInstruction } from './instruction.j
 
 import { clsx } from 'clsx';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
-import { HTMLBytes, markHTMLString } from '../escape.js';
+import type { HTMLBytes } from '../escape.js';
+import { markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';

@@ -10,7 +10,6 @@ import type {
 	GetStaticPathsItem,
 	RouteData,
 	RouteType,
-	SSRElement,
 	SSRError,
 	SSRLoadedRenderer,
 	SSRManifest,
