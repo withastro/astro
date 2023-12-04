@@ -2,4 +2,4 @@
 '@astrojs/vue': patch
 ---
 
-chore: improve app setup call
+Prevents Astro from crashing when no default function is exported from the `appEntrypoint`.
