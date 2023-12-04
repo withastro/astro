@@ -21,8 +21,7 @@ function getMatchPattern(segments: RoutePart[][]) {
 		.map((segment) => {
 			return segment[0].spread
 				? '(?:\\/(.*?))?'
-				: '\\/' +
-						segment
+				: segment
 							.map((part) => {
 								if (part)
 									return part.dynamic
