@@ -508,9 +508,6 @@ importers:
       acorn:
         specifier: ^8.11.2
         version: 8.11.2
-      aria-query:
-        specifier: ^5.3.0
-        version: 5.3.0
       boxen:
         specifier: ^7.1.1
         version: 7.1.1
@@ -669,9 +666,6 @@ importers:
       '@playwright/test':
         specifier: 1.40.0
         version: 1.40.0
-      '@types/aria-query':
-        specifier: ^5.0.4
-        version: 5.0.4
       '@types/babel__generator':
         specifier: ^7.6.7
         version: 7.6.7
@@ -7246,10 +7240,6 @@ packages:
   /@types/alpinejs@3.13.5:
     resolution: {integrity: sha512-BSNTroRhmBkNiyd7ELK/5Boja92hnQMST6H4z1BqXKeMVzHjp9o1j5poqd5Tyhjd8oMFwxYC4I00eghfg2xrTA==}
     dev: false
-
-  /@types/aria-query@5.0.4:
-    resolution: {integrity: sha512-rfT93uj5s0PRL7EzccGMs3brplhcrghnDoV26NqKhCAS1hVo+WdNsPvE/yb6ilfr5hi2MEk6d5EWJTKdxg8jVw==}
-    dev: true
 
   /@types/babel__core@7.20.4:
     resolution: {integrity: sha512-mLnSC22IC4vcWiuObSRjrLd9XcBTGf59vUSoq2jkQDJ/QQ8PMI9rSuzE+aEV8karUMbskw07bKYoUJCKTUaygg==}

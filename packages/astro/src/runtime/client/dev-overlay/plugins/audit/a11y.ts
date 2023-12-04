@@ -23,8 +23,6 @@
  * SOFTWARE.
  */
 
-import type { ARIARoleDefinitionKey } from 'aria-query';
-import { aria, roles } from 'aria-query';
 import type { AuditRuleWithSelector } from './index.js';
 
 const a11y_required_attributes = {
@@ -436,34 +434,6 @@ export const a11y: AuditRuleWithSelector[] = [
 		selector: '[tabindex]:not([tabindex="-1"]):not([tabindex="0"])',
 	},
 	{
-		code: 'a11y-role-supports-aria-props',
-		title: 'Unsupported ARIA attribute',
-		message: (element) => {
-			const { __astro_role: role, __astro_unsupported_attributes: unsupported } = element as any;
-			return `${
-				element.localName
-			} element has ARIA attributes that are not supported by its role (${role}): ${unsupported.join(
-				', '
-			)}`;
-		},
-		selector: '*',
-		match(element) {
-			const role = getRole(element);
-			if (!role) return false;
-			const { props } = roles.get(role)!;
-			const attributes = getAttributeObject(element);
-			const unsupportedAttributes = aria.keys().filter((attribute) => !(attribute in props));
-			const invalidAttributes: string[] = Object.keys(attributes).filter(
-				(key) => key.startsWith('aria-') && unsupportedAttributes.includes(key as any)
-			);
-			if (invalidAttributes.length > 0) {
-				(element as any).__astro_role = role;
-				(element as any).__astro_unsupported_attributes = invalidAttributes;
-				return true;
-			}
-		},
-	},
-	{
 		code: 'a11y-structure',
 		title: 'Invalid DOM structure',
 		message:
@@ -496,16 +466,6 @@ export const a11y: AuditRuleWithSelector[] = [
 	},
 ];
 
-const a11y_labelable = [
-	'button',
-	'input',
-	'keygen',
-	'meter',
-	'output',
-	'progress',
-	'select',
-	'textarea',
-];
 
 /**
  * Exceptions to the rule which follows common A11y conventions
@@ -520,50 +480,3 @@ const a11y_non_interactive_element_to_interactive_role_exceptions = {
 	td: ['gridcell'],
 	fieldset: ['radiogroup', 'presentation'],
 };
-
-const combobox_if_list = ['email', 'search', 'tel', 'text', 'url'];
-function input_implicit_role(attributes: Record<string, string>) {
-	if (!('type' in attributes)) return;
-	const { type, list } = attributes;
-	if (!type) return;
-	if (list && combobox_if_list.includes(type)) {
-		return 'combobox';
-	}
-	return input_type_to_implicit_role.get(type);
-}
-
-/** @param {Map<string, import('#compiler').Attribute>} attribute_map */
-function menuitem_implicit_role(attributes: Record<string, string>) {
-	if (!('type' in attributes)) return;
-	const { type } = attributes;
-	if (!type) return;
-	return menuitem_type_to_implicit_role.get(type);
-}
-
-function getRole(element: Element): ARIARoleDefinitionKey | undefined {
-	if (element.hasAttribute('role')) {
-		return element.getAttribute('role')! as ARIARoleDefinitionKey;
-	}
-	return getImplicitRole(element) as ARIARoleDefinitionKey;
-}
-
-function getImplicitRole(element: Element) {
-	const name = element.localName;
-	const attrs = getAttributeObject(element);
-	if (name === 'menuitem') {
-		return menuitem_implicit_role(attrs);
-	} else if (name === 'input') {
-		return input_implicit_role(attrs);
-	} else {
-		return a11y_implicit_semantics.get(name);
-	}
-}
-
-function getAttributeObject(element: Element): Record<string, string> {
-	let obj: Record<string, string> = {};
-	for (let i = 0; i < element.attributes.length; i++) {
-		const attribute = element.attributes.item(i)!;
-		obj[attribute.name] = attribute.value;
-	}
-	return obj;
-}
