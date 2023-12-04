@@ -131,7 +131,7 @@ export default {
 				<h2 id="general">General</h2>
 				<hr />
 				<h3>Hide overlay</h3>
-				<p>Run <code>astro preferences disable devOverlay</code> in your terminal to disable this dev overlay in this project. <a href="https://docs.astro.build/en/reference/cli-reference/#astro-preferences">Learn more</a>.</p>
+				<p>Run <code>astro preferences disable devToolbar</code> in your terminal to disable this dev overlay in this project. <a href="https://docs.astro.build/en/reference/cli-reference/#astro-preferences">Learn more</a>.</p>
 				`
 			);
 			const general = windowElement.querySelector('#general')!;
