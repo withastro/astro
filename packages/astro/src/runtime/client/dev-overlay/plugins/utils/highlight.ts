@@ -57,9 +57,12 @@ export function attachTooltipToHighlight(
 	originalElement: Element
 ) {
 	highlight.shadowRoot.append(tooltip);
+	// Track the original z-index so that we can restore it after hover
+	const originalZIndex = highlight.style.zIndex;
 
 	(['mouseover', 'focus'] as const).forEach((event) => {
 		highlight.addEventListener(event, () => {
+			highlight.style.zIndex = '9999999999';
 			tooltip.dataset.show = 'true';
 			const originalRect = originalElement.getBoundingClientRect();
 			const dialogRect = tooltip.getBoundingClientRect();
@@ -77,6 +80,7 @@ export function attachTooltipToHighlight(
 	(['mouseout', 'blur'] as const).forEach((event) => {
 		highlight.addEventListener(event, () => {
 			tooltip.dataset.show = 'false';
+			highlight.style.zIndex = originalZIndex;
 		});
 	});
 }

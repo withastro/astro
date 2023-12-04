@@ -80,7 +80,6 @@ export default {
 				const rect = islandElement.getBoundingClientRect();
 				const highlight = createHighlight(rect);
 				const tooltip = buildIslandTooltip(island);
-				attachTooltipToHighlight(highlight, tooltip, islandElement);
 
 				// Set the z-index to be 1 higher than the greatest z-index in the stack.
 				// And also set the highlight/tooltip as being fixed position if they are inside
@@ -94,6 +93,7 @@ export default {
 					tooltip.style.position = highlight.style.position = 'fixed';
 				}
 
+				attachTooltipToHighlight(highlight, tooltip, islandElement);
 				canvas.append(highlight);
 				islandsOverlays.push({ highlightElement: highlight, island: islandElement });
 			});
