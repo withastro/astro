@@ -125,7 +125,6 @@
     "@types/babel__core": "^7.20.4",
     "acorn": "^8.11.2",
     "aria-query": "^5.3.0",
-    "axobject-query": "^4.0.0",
     "boxen": "^7.1.1",
     "chokidar": "^3.5.3",
     "ci-info": "^4.0.0",
