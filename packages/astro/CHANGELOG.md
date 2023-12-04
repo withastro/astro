@@ -1,5 +1,13 @@
 # astro
 
+## 4.0.0-beta.7
+
+### Patch Changes
+
+- [#9295](https://github.com/withastro/astro/pull/9295) [`3d2dbb0e5`](https://github.com/withastro/astro/commit/3d2dbb0e5d2bf67b38ff8533d4dd938c94433812) Thanks [@matthewp](https://github.com/matthewp)! - Remove aria-query package
+
+  This is another CJS-only package that breaks usage.
+
 ## 4.0.0-beta.6
 
 ### Patch Changes
