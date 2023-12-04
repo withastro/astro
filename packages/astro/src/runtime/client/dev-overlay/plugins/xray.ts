@@ -15,13 +15,37 @@ export default {
 	id: 'astro:xray',
 	name: 'Inspect',
 	icon: icon,
-	init(canvas) {
+	init(canvas, eventTarget) {
 		let islandsOverlays: { highlightElement: DevOverlayHighlight; island: HTMLElement }[] = [];
 
 		addIslandsOverlay();
 
 		document.addEventListener('astro:after-swap', addIslandsOverlay);
 		document.addEventListener('astro:page-load', refreshIslandsOverlayPositions);
+
+		function onPageClick(event: MouseEvent) {
+			const target = event.target as Element | null;
+			if (!target) return;
+			if (!target.closest) return;
+			if (target.closest('astro-dev-toolbar')) return;
+			event.preventDefault();
+			event.stopPropagation();
+			eventTarget.dispatchEvent(
+				new CustomEvent('toggle-plugin', {
+					detail: {
+						state: false,
+					},
+				})
+			);
+		}
+
+		eventTarget.addEventListener('plugin-toggled', (event: any) => {
+			if (event.detail.state === true) {
+				document.addEventListener('click', onPageClick, true);
+			} else {
+				document.removeEventListener('click', onPageClick, true);
+			}
+		});
 
 		function addIslandsOverlay() {
 			islandsOverlays.forEach(({ highlightElement }) => {
@@ -60,6 +84,9 @@ export default {
 					<header>
 						<h1><astro-dev-toolbar-icon icon="lightbulb"></astro-dev-toolbar-icon>No islands detected.</h1>
 					</header>
+					<p>
+						It looks like there are no interactive component islands on this page. Did you forget to add a client directive to your interactive UI component?
+					</p>
 					`
 				);
 
@@ -80,7 +107,6 @@ export default {
 				const rect = islandElement.getBoundingClientRect();
 				const highlight = createHighlight(rect);
 				const tooltip = buildIslandTooltip(island);
-				attachTooltipToHighlight(highlight, tooltip, islandElement);
 
 				// Set the z-index to be 1 higher than the greatest z-index in the stack.
 				// And also set the highlight/tooltip as being fixed position if they are inside
@@ -94,6 +120,7 @@ export default {
 					tooltip.style.position = highlight.style.position = 'fixed';
 				}
 
+				attachTooltipToHighlight(highlight, tooltip, islandElement);
 				canvas.append(highlight);
 				islandsOverlays.push({ highlightElement: highlight, island: islandElement });
 			});
@@ -131,9 +158,13 @@ export default {
 			if (Object.keys(islandProps).length > 0) {
 				tooltip.sections.push({
 					title: 'Props',
-					content: `${Object.entries(islandProps)
-						.map((prop) => `<code>${prop[0]}=${getPropValue(prop[1] as any)}</code>`)
-						.join(', ')}`,
+					content: `<pre><code>${JSON.stringify(
+						Object.fromEntries(
+							Object.entries(islandProps).map((prop: any) => [prop[0], prop[1][1]])
+						),
+						undefined,
+						2
+					)}</code></pre>`,
 				});
 			}
 
@@ -158,11 +189,6 @@ export default {
 			}
 
 			return tooltip;
-		}
-
-		function getPropValue(prop: [number, any]) {
-			const [_, value] = prop;
-			return JSON.stringify(value, null, 2);
 		}
 	},
 } satisfies DevOverlayPlugin;

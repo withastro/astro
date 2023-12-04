@@ -70,6 +70,10 @@ export class DevOverlayWindow extends HTMLElement {
 					border: 1px solid rgba(27, 30, 36, 1);
 					margin: 1em 0;
 				}
+
+				p, ::slotted(p) {
+					line-height: 1.5em;
+				}
 			</style>
 
 			<slot />

@@ -101,12 +101,17 @@ export class DevOverlayTooltip extends HTMLElement {
 				cursor: pointer;
 			}
 
-			code {
-				background: rgba(136, 58, 234, 0.33);
+			pre, code {
+				background: rgb(78, 27, 145);
 				font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 				border-radius: 2px;
 				font-size: 14px;
 				padding: 2px;
+			}
+			pre {
+				padding: 1em;
+				margin: 0 0;
+				overflow: auto;
 			}
 			`;
 

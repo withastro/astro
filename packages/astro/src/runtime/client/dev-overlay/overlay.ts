@@ -71,7 +71,7 @@ export class AstroDevOverlay extends HTMLElement {
 			}
 
 			#dev-overlay[data-hidden] #dev-bar .item {
-				opacity: 0;
+				opacity: 0.2;
 			}
 
 			#dev-bar-hitbox-above,
@@ -340,37 +340,15 @@ export class AstroDevOverlay extends HTMLElement {
 			});
 		});
 
-		// On click, show the overlay if it's hidden, it's likely the user wants to interact with it
-		this.shadowRoot.addEventListener('click', () => {
-			if (!this.isHidden()) return;
-			this.setOverlayVisible(true);
-		});
-
-		this.devOverlay!.addEventListener('keyup', (event) => {
-			if (event.code === 'Space' || event.code === 'Enter') {
-				if (!this.isHidden()) return;
-				this.setOverlayVisible(true);
-			}
-			if (event.key === 'Escape') {
-				if (this.isHidden()) return;
-				if (this.getActivePlugin()) return;
-				this.setOverlayVisible(false);
-			}
-		});
-
 		document.addEventListener('keyup', (event) => {
-			if (event.key !== 'Escape') {
-				return;
-			}
-			if (this.isHidden()) {
-				return;
-			}
+			if (event.key !== 'Escape') return;
+			if (this.isHidden()) return;
 			const activePlugin = this.getActivePlugin();
 			if (activePlugin) {
-				this.setPluginStatus(activePlugin, false);
-				return;
+				this.togglePluginStatus(activePlugin);
+			} else {
+				this.setOverlayVisible(false);
 			}
-			this.setOverlayVisible(false);
 		});
 	}
 

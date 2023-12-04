@@ -1,12 +1,14 @@
 import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@types/astro.js';
 import { type AstroDevOverlay, type DevOverlayPlugin } from './overlay.js';
 import { settings } from './settings.js';
+// @ts-expect-error
+import { loadDevOverlayPlugins } from 'astro:dev-overlay';
 
 let overlay: AstroDevOverlay;
 
 document.addEventListener('DOMContentLoaded', async () => {
 	const [
-		{ loadDevOverlayPlugins },
+		customPluginsDefinitions,
 		{ default: astroDevToolPlugin },
 		{ default: astroAuditPlugin },
 		{ default: astroXrayPlugin },
@@ -23,8 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			DevOverlayIcon,
 		},
 	] = await Promise.all([
-		// @ts-expect-error
-		import('astro:dev-overlay'),
+		loadDevOverlayPlugins() as DevOverlayPluginDefinition[],
 		import('./plugins/astro.js'),
 		import('./plugins/audit/index.js'),
 		import('./plugins/xray.js'),
@@ -239,7 +240,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 		},
 	} satisfies DevOverlayPluginDefinition;
 
-	const customPluginsDefinitions = (await loadDevOverlayPlugins()) as DevOverlayPluginDefinition[];
 	const plugins: DevOverlayPlugin[] = [
 		...[
 			astroDevToolPlugin,

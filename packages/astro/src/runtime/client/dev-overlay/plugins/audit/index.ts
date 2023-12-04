@@ -55,6 +55,27 @@ export default {
 		document.addEventListener('astro:after-swap', async () => lint());
 		document.addEventListener('astro:page-load', async () => refreshLintPositions);
 
+		function onPageClick(event: MouseEvent) {
+			const target = event.target as Element | null;
+			if (!target) return;
+			if (!target.closest) return;
+			if (target.closest('astro-dev-toolbar')) return;
+			eventTarget.dispatchEvent(
+				new CustomEvent('toggle-plugin', {
+					detail: {
+						state: false,
+					},
+				})
+			);
+		}
+		eventTarget.addEventListener('plugin-toggled', (event: any) => {
+			if (event.detail.state === true) {
+				document.addEventListener('click', onPageClick, true);
+			} else {
+				document.removeEventListener('click', onPageClick, true);
+			}
+		});
+
 		async function lint() {
 			audits.forEach(({ highlightElement }) => {
 				highlightElement.remove();
@@ -124,8 +145,11 @@ export default {
 						}
 					</style>
 					<header>
-						<h1><astro-dev-toolbar-icon icon="check-circle"></astro-dev-toolbar-icon>No issues detected.</h1>
+						<h1><astro-dev-toolbar-icon icon="check-circle"></astro-dev-toolbar-icon>No accessibility issues detected.</h1>
 					</header>
+					<p>
+						Nice work! This app scans the page and highlights common accessibility issues for you, like a missing "alt" attribute on an image.
+					</p>
 					`
 				);
 
