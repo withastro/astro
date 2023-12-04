@@ -8,7 +8,6 @@ import type {
 	RouteData,
 	RuntimeMode,
 } from '../../@types/astro.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 
 import { stringifyParams } from '../routing/params.js';

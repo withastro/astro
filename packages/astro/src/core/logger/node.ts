@@ -1,5 +1,5 @@
 import debugPackage from 'debug';
-import { Writable } from 'node:stream';
+import type { Writable } from 'node:stream';
 import { getEventPrefix, levels, type LogMessage, type LogWritable } from './core.js';
 
 type ConsoleStream = Writable & {

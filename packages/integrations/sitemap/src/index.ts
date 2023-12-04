@@ -1,12 +1,8 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {
-	EnumChangefreq,
-	simpleSitemapAndIndex,
-	type LinkItem as LinkItemBase,
-	type SitemapItemLoose,
-} from 'sitemap';
+import type { EnumChangefreq, LinkItem as LinkItemBase, SitemapItemLoose } from 'sitemap';
+import { simpleSitemapAndIndex } from 'sitemap';
 import { ZodError } from 'zod';
 
 import { generateSitemap } from './generate-sitemap.js';

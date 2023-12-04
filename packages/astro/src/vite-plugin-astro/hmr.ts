@@ -1,11 +1,7 @@
 import type { HmrContext, ModuleNode } from 'vite';
 import type { AstroConfig } from '../@types/astro.js';
-import {
-	cachedCompilation,
-	invalidateCompilation,
-	isCached,
-	type CompileResult,
-} from '../core/compile/index.js';
+import type { cachedCompilation } from '../core/compile/index.js';
+import { invalidateCompilation, isCached, type CompileResult } from '../core/compile/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isAstroSrcFile } from '../core/logger/vite.js';
 import { isAstroScript } from './query.js';

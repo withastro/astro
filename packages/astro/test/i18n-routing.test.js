@@ -1,7 +1,7 @@
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('astro:i18n virtual module', () => {
 	/** @type {import('./test-utils').Fixture} */

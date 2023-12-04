@@ -1,4 +1,4 @@
-import nodeFs from 'node:fs';
+import type nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';

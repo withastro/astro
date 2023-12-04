@@ -1,5 +1,5 @@
 import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@types/astro.js';
-import { type AstroDevOverlay, type DevOverlayPlugin } from './overlay.js';
+import type { AstroDevOverlay, DevOverlayPlugin } from './overlay.js';
 import { settings } from './settings.js';
 // @ts-expect-error
 import { loadDevOverlayPlugins } from 'astro:dev-overlay';
