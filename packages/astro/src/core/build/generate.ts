@@ -270,7 +270,7 @@ async function generatePage(
 		pipeline.getManifest().base,
 		pipeline.getManifest().trailingSlash
 	);
-	if (config.experimental.i18n && i18nMiddleware) {
+	if (config.i18n && i18nMiddleware) {
 		if (onRequest) {
 			pipeline.setMiddlewareFunction(sequence(i18nMiddleware, onRequest));
 		} else {
@@ -546,7 +546,7 @@ async function generatePath(
 		logger: pipeline.getLogger(),
 		ssr,
 	});
-	const i18n = pipeline.getConfig().experimental.i18n;
+	const i18n = pipeline.getConfig().i18n;
 
 	const renderContext = await createRenderContext({
 		pathname,
@@ -629,12 +629,12 @@ export function createBuildManifest(
 	renderers: SSRLoadedRenderer[]
 ): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
-	if (settings.config.experimental.i18n) {
+	if (settings.config.i18n) {
 		i18nManifest = {
-			fallback: settings.config.experimental.i18n.fallback,
-			routing: settings.config.experimental.i18n.routing,
-			defaultLocale: settings.config.experimental.i18n.defaultLocale,
-			locales: settings.config.experimental.i18n.locales,
+			fallback: settings.config.i18n.fallback,
+			routing: settings.config.i18n.routing,
+			defaultLocale: settings.config.i18n.defaultLocale,
+			locales: settings.config.i18n.locales,
 		};
 	}
 	return {

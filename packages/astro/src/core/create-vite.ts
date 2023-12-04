@@ -141,7 +141,7 @@ export async function createVite(
 			astroPrefetch({ settings }),
 			astroTransitions({ settings }),
 			astroDevOverlay({ settings, logger }),
-			!!settings.config.experimental.i18n && astroInternationalization({ settings }),
+			!!settings.config.i18n && astroInternationalization({ settings }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
