@@ -3,7 +3,7 @@ import { testFactory } from './test-utils.js';
 
 const test = testFactory({
 	root: './fixtures/astro-envs/',
-	devOverlay: {
+	devToolbar: {
 		enabled: false,
 	},
 });
