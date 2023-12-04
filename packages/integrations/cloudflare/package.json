@@ -41,8 +41,7 @@
     "dotenv": "^16.3.1",
     "esbuild": "^0.19.5",
     "find-up": "^6.3.0",
-    "tiny-glob": "^0.2.9",
-    "vite": "^4.5.0"
+    "tiny-glob": "^0.2.9"
   },
   "peerDependencies": {
     "astro": "^3.0.0"
