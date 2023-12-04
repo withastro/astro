@@ -35,7 +35,7 @@ export default function astroInternationalization({
 					const trailingSlash =  ${JSON.stringify(settings.config.trailingSlash)};
 					const format =  ${JSON.stringify(settings.config.build.format)};
 					const site = ${JSON.stringify(settings.config.site)};
-					const i18n = ${JSON.stringify(settings.config.experimental.i18n)};
+					const i18n = ${JSON.stringify(settings.config.i18n)};
 					
 					export const getRelativeLocaleUrl = (locale, path = "", opts) => _getLocaleRelativeUrl({ 
 						locale,

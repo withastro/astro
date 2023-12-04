@@ -240,12 +240,12 @@ function buildManifest(
 		entryModules[BEFORE_HYDRATION_SCRIPT_ID] = '';
 	}
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
-	if (settings.config.experimental.i18n) {
+	if (settings.config.i18n) {
 		i18nManifest = {
-			fallback: settings.config.experimental.i18n.fallback,
-			routing: settings.config.experimental.i18n.routing,
-			locales: settings.config.experimental.i18n.locales,
-			defaultLocale: settings.config.experimental.i18n.defaultLocale,
+			fallback: settings.config.i18n.fallback,
+			routing: settings.config.i18n.routing,
+			locales: settings.config.i18n.locales,
+			defaultLocale: settings.config.i18n.defaultLocale,
 		};
 	}
 
