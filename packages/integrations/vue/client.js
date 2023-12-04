@@ -28,7 +28,6 @@ export default (element) =>
 				return content;
 			},
 		});
-
 		await setup(app);
 		app.mount(element, isHydrate);
 
