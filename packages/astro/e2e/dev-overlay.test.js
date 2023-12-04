@@ -19,8 +19,8 @@ test.describe('Dev Overlay', () => {
 	test('dev overlay exists in the page', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const devOVerlay = page.locator('astro-dev-toolbar');
-		await expect(devOVerlay).toHaveCount(1);
+		const devToolbar = page.locator('astro-dev-toolbar');
+		await expect(devToolbar).toHaveCount(1);
 	});
 
 	test('shows plugin name on hover', async ({ page, astro }) => {

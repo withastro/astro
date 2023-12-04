@@ -1158,35 +1158,6 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name Dev Overlay Options
-	 * @deprecated Use `devToolbar` instead.
-	 */
-	devOverlay?: {
-		/**
-		 * @docs
-		 * @name devOverlay.enabled
-		 * @type {boolean}
-		 * @default `true`
-		 * @description
-		 * Whether to enable the dev overlay. This overlay allows you to inspect your page islands, see helpful audits on performance and accessibility, and more.
-		 *
-		 * This option is scoped to the entire project, to only disable the overlay for yourself, run `npm run astro preferences disable devOverlay`. To disable the overlay for all your Astro projects, run `npm run astro preferences disable devOverlay --global`.
-		 */
-		enabled: boolean;
-		/**
-		 * @docs
-		 * @name devOverlay.defaultState
-		 * @type {'minimized' | 'expanded'}
-		 * @default `minimized`
-		 * @description
-		 * Whether the dev overlay should be expanded or minimized by default.
-		 */
-		defaultState: 'minimized' | 'expanded';
-	};
-
-	/**
-	 * @docs
-	 * @kind heading
 	 * @name Dev Toolbar Options
 	 */
 	devToolbar?: {
@@ -1201,15 +1172,6 @@ export interface AstroUserConfig {
 		 * This option is scoped to the entire project, to only disable the toolbar for yourself, run `npm run astro preferences disable devToolbar`. To disable the toolbar for all your Astro projects, run `npm run astro preferences disable devToolbar --global`.
 		 */
 		enabled: boolean;
-		/**
-		 * @docs
-		 * @name devToolbar.defaultState
-		 * @type {'minimized' | 'expanded'}
-		 * @default `minimized`
-		 * @description
-		 * Whether the Dev Toolbar should be expanded or minimized by default.
-		 */
-		defaultState: 'minimized' | 'expanded';
 	};
 
 	/**
@@ -2591,7 +2553,6 @@ export type DevOverlayPlugin = DevToolbarApp;
 export type DevOverlayMetadata = Window &
 	typeof globalThis & {
 		__astro_dev_overlay__: {
-			defaultState: AstroConfig['devOverlay']['defaultState'];
 			root: string;
 			version: string;
 			debugInfo: string;

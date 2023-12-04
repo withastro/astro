@@ -13,7 +13,7 @@ export default defineConfig({
 		'/redirect-two': '/two',
 		'/redirect-external': 'http://example.com/',
 	},
-	devOverlay: {
+	devToolbar: {
 		enabled: false,
 	},
 	vite: {
