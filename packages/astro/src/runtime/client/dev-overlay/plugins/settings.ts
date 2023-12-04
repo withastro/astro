@@ -123,6 +123,9 @@ export default {
 					a, a:visited {
 						color: var(--color-purple);
 					}
+					a:hover {
+						color: #f4ecfd;
+					}
 				</style>
 				<header>
 					<h1><astro-dev-toolbar-icon icon="gear"></astro-dev-toolbar-icon> Settings</h1>
@@ -132,9 +135,9 @@ export default {
 
 				<label class="setting-row">
 					<section>
-						<h3>Hide overlay</h3>
+						<h3>Hide toolbar</h3>
 						Run <code>astro preferences disable devToolbar</code> in your terminal to disable the toolbar. <a href="https://docs.astro.build/en/reference/cli-reference/#astro-preferences" target="_blank">Learn more</a>.
-					</section>	
+					</section>
 				</label>
 				`
 			);
