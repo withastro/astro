@@ -200,7 +200,7 @@ test.describe('Dev Overlay', () => {
 		await expect(settingsWindow).toHaveCount(1);
 		await expect(settingsWindow).toBeVisible();
 
-		const hideOverlay = settingsWindow.getByRole('heading', { name: 'Hide overlay' });
+		const hideOverlay = settingsWindow.getByRole('heading', { name: 'Hide toolbar' });
 		await expect(hideOverlay).toBeVisible();
 	});
 });
