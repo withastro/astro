@@ -1,12 +1,10 @@
 import type { Options as VueOptions } from '@vitejs/plugin-vue';
-import vue from '@vitejs/plugin-vue';
 import type { Options as VueJsxOptions } from '@vitejs/plugin-vue-jsx';
 import type { AstroIntegration, AstroIntegrationLogger, AstroRenderer } from 'astro';
-import { init, parse } from 'es-module-lexer';
-import { readFile, readdir } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import type { UserConfig, Rollup } from 'vite';
+
 import { fileURLToPath } from 'node:url';
-import type { UserConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
 
 interface Options extends VueOptions {
 	jsx?: boolean | VueJsxOptions;
@@ -52,38 +50,35 @@ function virtualAppEntrypoint(options: ViteOptions) {
 			}
 		},
 		async load(id: string) {
+			const noop = `export const setup = () => {}`;
 			if (id === resolvedVirtualModuleId) {
 				if (options.appEntrypoint) {
-					const entrypoint = join(fileURLToPath(options.root), options.appEntrypoint);
-					const dir = dirname(entrypoint);
-					const filename = (await readdir(dir)).find((f) => f.startsWith('_app.'));
-					if (!filename) {
-						options.logger.warn(`appEntrypoint \`${options.appEntrypoint}\` does not exist.`);
-						return `export const setup = () => {};`;
+					try {
+						let resolved;
+						if (options.appEntrypoint.startsWith('.')) {
+							resolved = await this.resolve(fileURLToPath(new URL(options.appEntrypoint, options.root)));
+						} else {
+							resolved = await this.resolve(options.appEntrypoint, fileURLToPath(options.root));
+						}
+						if (!resolved) {
+							throw new Error();
+						}
+						const loaded = await this.load(resolved);
+						if (!loaded.hasDefaultExport) {
+							options.logger.warn(
+								`appEntrypoint \`${options.appEntrypoint}\` does not export a default function. Check out https://docs.astro.build/en/guides/integrations-guide/vue/#appentrypoint.`
+							);
+							return noop;
+						}
+						return `export { default as setup } from "${resolved.id}";`;
+					} catch {
+						options.logger.warn(`Unable to resolve appEntrypoint \`${options.appEntrypoint}\`. Does the file exist?`);
 					}
-
-					const path = join(dir, filename);
-					const source = await readFile(path, 'utf-8');
-
-					await init;
-					const [, exports] = parse(source);
-
-					if (!exports.some((e) => e.n === 'default')) {
-						options.logger.warn(
-							`appEntrypoint \`${options.appEntrypoint}\` does not export a default function. Check out https://docs.astro.build/en/guides/integrations-guide/vue/#appentrypoint.`
-						);
-						return `export const setup = () => {};`;
-					}
-
-					return `
-						import * as virtualApp from "${options.appEntrypoint}";
-						export const setup = virtualApp.default ?? (() => {});
-					`;
 				}
-				return `export const setup = () => {};`;
+				return noop;
 			}
-		},
-	};
+		}
+	} satisfies Rollup.Plugin;
 }
 
 async function getViteConfiguration(options: ViteOptions): Promise<UserConfig> {
