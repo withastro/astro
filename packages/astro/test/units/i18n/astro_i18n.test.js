@@ -286,7 +286,7 @@ describe('getLocaleRelativeUrl', () => {
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['en', 'es', 'en_US', 'en_AU'],
-					routingStrategy: 'prefix-always',
+					routing: 'prefix-always',
 				},
 			},
 		};
@@ -530,7 +530,7 @@ describe('getLocaleRelativeUrlList', () => {
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['en', 'en_US', 'es'],
-					routingStrategy: 'prefix-always',
+					routing: 'prefix-always',
 				},
 			},
 		};
@@ -840,7 +840,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['en', 'es', 'en_US', 'en_AU'],
-					routingStrategy: 'prefix-always',
+					routing: 'prefix-always',
 				},
 			},
 		};
@@ -1122,7 +1122,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['en', 'en_US', 'es'],
-					routingStrategy: 'prefix-always',
+					routing: 'prefix-always',
 				},
 			},
 		};
