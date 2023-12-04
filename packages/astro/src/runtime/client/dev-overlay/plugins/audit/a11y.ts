@@ -26,8 +26,6 @@
 import type { ARIARoleDefinitionKey } from 'aria-query';
 import { aria, roles } from 'aria-query';
 import type { AuditRuleWithSelector } from './index.js';
-// @ts-expect-error package does not provide types
-import { AXObjectRoles, elementAXObjects } from 'axobject-query';
 
 const a11y_required_attributes = {
 	a: ['href'],
@@ -438,32 +436,6 @@ export const a11y: AuditRuleWithSelector[] = [
 		selector: '[tabindex]:not([tabindex="-1"]):not([tabindex="0"])',
 	},
 	{
-		code: 'a11y-role-has-required-aria-props',
-		title: 'Missing attributes required for ARIA role',
-		message: (element) => {
-			const { __astro_role: role, __astro_missing_attributes: required } = element as any;
-			return `${
-				element.localName
-			} element is missing required attributes for its role (${role}): ${required.join(', ')}`;
-		},
-		selector: '*',
-		match(element) {
-			const role = getRole(element);
-			if (!role) return false;
-			if (is_semantic_role_element(role, element.localName, getAttributeObject(element))) {
-				return;
-			}
-			const { requiredProps } = roles.get(role)!;
-			const required_role_props = Object.keys(requiredProps);
-			const missingProps = required_role_props.filter((prop) => !element.hasAttribute(prop));
-			if (missingProps.length > 0) {
-				(element as any).__astro_role = role;
-				(element as any).__astro_missing_attributes = missingProps;
-				return true;
-			}
-		},
-	},
-	{
 		code: 'a11y-role-supports-aria-props',
 		title: 'Unsupported ARIA attribute',
 		message: (element) => {
@@ -594,35 +566,4 @@ function getAttributeObject(element: Element): Record<string, string> {
 		obj[attribute.name] = attribute.value;
 	}
 	return obj;
-}
-
-/**
- * @param {import('aria-query').ARIARoleDefinitionKey} role
- * @param {string} tag_name
- * @param {Map<string, import('#compiler').Attribute>} attribute_map
- */
-function is_semantic_role_element(
-	role: string,
-	tag_name: string,
-	attributes: Record<string, string>
-) {
-	for (const [schema, ax_object] of elementAXObjects.entries()) {
-		if (
-			schema.name === tag_name &&
-			(!schema.attributes ||
-				schema.attributes.every((attr: any) => attributes[attr.name] === attr.value))
-		) {
-			for (const name of ax_object) {
-				const axRoles = AXObjectRoles.get(name);
-				if (axRoles) {
-					for (const { name: _name } of axRoles) {
-						if (_name === role) {
-							return true;
-						}
-					}
-				}
-			}
-		}
-	}
-	return false;
 }
