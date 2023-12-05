@@ -2190,7 +2190,7 @@ export interface APIContext<
 	locals: App.Locals;
 
 	/**
-	 * Available only when `i18n` enabled and in SSR.
+	 * Available only when `i18n` configured and in SSR.
 	 *
 	 * It represents the preferred locale of the user. It's computed by checking the supported locales in `i18n.locales`
 	 * and locales supported by the users's browser via the header `Accept-Language`
@@ -2203,7 +2203,7 @@ export interface APIContext<
 	preferredLocale: string | undefined;
 
 	/**
-	 * Available only when `i18n` enabled and in SSR.
+	 * Available only when `i18n` configured and in SSR.
 	 *
 	 * It represents the list of the preferred locales that are supported by the application. The list is sorted via [quality value].
 	 *
