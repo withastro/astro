@@ -153,14 +153,16 @@ export default {
 				});
 			}
 
-			// Add the props if we have any
-			if (Object.keys(islandProps).length > 0) {
+			// Display the props if we have any
+			// Ignore the "data-astro-cid-XXXXXX" prop (internal)
+			const islandPropsEntries = Object.entries(islandProps).filter(
+				(prop: any) => !prop[0].startsWith('data-astro-cid-')
+			);
+			if (islandPropsEntries.length > 0) {
 				tooltip.sections.push({
 					title: 'Props',
 					content: `<pre><code>${JSON.stringify(
-						Object.fromEntries(
-							Object.entries(islandProps).map((prop: any) => [prop[0], prop[1][1]])
-						),
+						Object.fromEntries(islandPropsEntries.map((prop: any) => [prop[0], prop[1][1]])),
 						undefined,
 						2
 					)}</code></pre>`,
