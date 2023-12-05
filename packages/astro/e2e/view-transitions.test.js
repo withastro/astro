@@ -1074,4 +1074,18 @@ test.describe('View Transitions', () => {
 		await page.click('#three');
 		await expect(page).toHaveURL(expected);
 	});
+
+	test('Dialog using form with method of "dialog" should not trigger navigation', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/dialog'));
+
+		let requests = [];
+		page.on('request', request => requests.push(`${request.method()} ${request.url()}`));
+
+		await page.click('#open');
+		await expect(page.locator("dialog")).toHaveAttribute("open")
+		await page.click('#close');
+		await expect(page.locator("dialog")).not.toHaveAttribute("open")
+
+		expect(requests).toHaveLength(0)
+	});
 });
