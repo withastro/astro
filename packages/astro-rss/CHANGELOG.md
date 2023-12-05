@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 4.0.0
+
+### Major Changes
+
+- [#9168](https://github.com/withastro/astro/pull/9168) [`153a5abb9`](https://github.com/withastro/astro/commit/153a5abb905042ac68b712514dc9ec387d3e6b17) Thanks [@bluwy](https://github.com/bluwy)! - Removes the deprecated (in v3.0) `drafts` option as the feature is deprecated in Astro 3.0
+
 ## 4.0.0-beta.0
 
 ### Major Changes
