@@ -281,7 +281,7 @@ export class AstroDevOverlay extends HTMLElement {
 		if ('requestIdleCallback' in window) {
 			window.requestIdleCallback(async () => {
 				this.plugins.map((plugin) => this.initPlugin(plugin));
-			});
+			}, {timeout: 300});
 		} else {
 			setTimeout(async () => {
 				this.plugins.map((plugin) => this.initPlugin(plugin));
