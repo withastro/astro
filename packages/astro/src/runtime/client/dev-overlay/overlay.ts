@@ -310,13 +310,14 @@ export class AstroDevOverlay extends HTMLElement {
 	attachEvents() {
 		const items = this.shadowRoot.querySelectorAll<HTMLDivElement>('.item');
 		items.forEach((item) => {
-			item.addEventListener('click', async (e) => {
-				const target = e.currentTarget;
+			item.addEventListener('click', async (event) => {
+				const target = event.currentTarget;
 				if (!target || !(target instanceof HTMLElement)) return;
 				const id = target.dataset.pluginId;
 				if (!id) return;
 				const plugin = this.getPluginById(id);
 				if (!plugin) return;
+				event.stopPropagation();
 				await this.togglePluginStatus(plugin);
 			});
 		});
