@@ -644,7 +644,7 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0(@types/node@18.18.6)(sass@1.69.5)
       vitefu:
-        specifier: ^0.2.4
+        specifier: ^0.2.5
         version: 0.2.5(vite@5.0.0)
       which-pm:
         specifier: ^2.1.1
