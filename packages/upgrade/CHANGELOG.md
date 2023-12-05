@@ -1,5 +1,11 @@
 # @astrojs/upgrade
 
+## 0.2.1
+
+### Patch Changes
+
+- [#9317](https://github.com/withastro/astro/pull/9317) [`d1c91add0`](https://github.com/withastro/astro/commit/d1c91add074c2e08056f01df5a6043c9716b7e1f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improves dependency handling by ignoring packages that don't use a semver version
+
 ## 0.2.0
 
 ### Minor Changes
