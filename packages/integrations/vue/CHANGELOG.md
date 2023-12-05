@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 4.0.1
+
+### Patch Changes
+
+- [#8794](https://github.com/withastro/astro/pull/8794) [`4d4e34d45`](https://github.com/withastro/astro/commit/4d4e34d451e351f8a52e04124027850a575ba752) Thanks [@yoyo837](https://github.com/yoyo837)! - Prevents Astro from crashing when no default function is exported from the `appEntrypoint`. Now, the entrypoint will be ignored with a warning instead.
+
 ## 4.0.0
 
 ### Patch Changes
