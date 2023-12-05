@@ -10,8 +10,8 @@
     "astro": "astro"
   },
   "devDependencies": {
-    "@astrojs/tailwind": "^5.0.2",
+    "@astrojs/tailwind": "^5.0.3",
     "@astrojs/node": "^7.0.0",
-    "astro": "^4.0.0"
+    "astro": "^4.0.1"
   }
 }

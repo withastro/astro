@@ -1,5 +1,13 @@
 # @astrojs/tailwind
 
+## 5.0.3
+
+### Patch Changes
+
+- [#9313](https://github.com/withastro/astro/pull/9313) [`2f110a501`](https://github.com/withastro/astro/commit/2f110a501664d9fa8b03814d3fe818956031cfc4) Thanks [@matthewp](https://github.com/matthewp)! - Upgrade for compatibility with Astro 4
+
+  The Tailwind now supports both Astro 3 and Astro 4.
+
 ## 6.0.0-beta.0
 
 ### Patch Changes
