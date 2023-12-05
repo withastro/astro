@@ -58,7 +58,7 @@ export class AstroDevOverlay extends HTMLElement {
 				bottom: 0px;
 				left: 50%;
 				transform: translate(-50%, 0%);
-				z-index: 9999999999;
+				z-index: 2000000010;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
