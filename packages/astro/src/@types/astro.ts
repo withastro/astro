@@ -1370,29 +1370,19 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @kind heading
-	 * @name Experimental Flags
-	 * @description
-	 * Astro offers experimental flags to give users early access to new features.
-	 * These flags are not guaranteed to be stable.
-	 */
-
-	/**
-	 * @docs
 	 * @name i18n
 	 * @type {object}
 	 * @version 3.5.0
 	 * @type {object}
 	 * @description
 	 *
-	 * Configures experimental i18n routing and allows you to specify some customization options.
+	 * Configures i18n routing and allows you to specify some customization options.
 	 *
 	 * See our guide for more information on [internationalization in Astro](/en/guides/internationalization/)
 	 */
 	i18n?: {
 		/**
 		 * @docs
-		 * @kind h4
 		 * @name i18n.defaultLocale
 		 * @type {string}
 		 * @version 3.5.0
@@ -1405,7 +1395,6 @@ export interface AstroUserConfig {
 		defaultLocale: string;
 		/**
 		 * @docs
-		 * @kind h4
 		 * @name i18n.locales
 		 * @type {Locales}
 		 * @version 3.5.0
@@ -1421,7 +1410,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @kind h4
 		 * @name i18n.fallback
 		 * @type {Record<string, string>}
 		 * @version 3.5.0
@@ -1437,14 +1425,12 @@ export interface AstroUserConfig {
 		 *
 		 * ```js
 		 * export default defineConfig({
-		 * 	experimental: {
-		 * 		i18n: {
-		 * 			defaultLocale: "en",
-		 * 			locales: ["en", "fr", "pt-br", "es"],
-		 * 			fallback: {
-		 * 				pt: "es",
-		 * 			  fr: "en"
-		 * 			}
+		 * 	i18n: {
+		 * 		defaultLocale: "en",
+		 * 		locales: ["en", "fr", "pt-br", "es"],
+		 * 		fallback: {
+		 * 			pt: "es",
+		 * 		  fr: "en"
 		 * 		}
 		 * 	}
 		 * })
@@ -1454,7 +1440,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @kind h4
 		 * @name i18n.routing
 		 * @type {Routing}
 		 * @version 3.7.0
@@ -1466,6 +1451,7 @@ export interface AstroUserConfig {
 			/**
 			 * @docs
 			 * @name i18n.routing.prefixDefaultLocale
+			 * @kind h4
 			 * @type {boolean}
 			 * @default `false`
 			 * @version 3.7.0
@@ -1494,6 +1480,14 @@ export interface AstroUserConfig {
 		};
 	};
 
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Experimental Flags
+	 * @description
+	 * Astro offers experimental flags to give users early access to new features.
+	 * These flags are not guaranteed to be stable.
+	 */
 	experimental?: {
 		/**
 		 * @docs
@@ -2192,7 +2186,7 @@ export interface APIContext<
 	locals: App.Locals;
 
 	/**
-	 * Available only when `experimental.i18n` enabled and in SSR.
+	 * Available only when `i18n` configured and in SSR.
 	 *
 	 * It represents the preferred locale of the user. It's computed by checking the supported locales in `i18n.locales`
 	 * and locales supported by the users's browser via the header `Accept-Language`
@@ -2205,7 +2199,7 @@ export interface APIContext<
 	preferredLocale: string | undefined;
 
 	/**
-	 * Available only when `experimental.i18n` enabled and in SSR.
+	 * Available only when `i18n` configured and in SSR.
 	 *
 	 * It represents the list of the preferred locales that are supported by the application. The list is sorted via [quality value].
 	 *
