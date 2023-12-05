@@ -1383,7 +1383,6 @@ export interface AstroUserConfig {
 	i18n?: {
 		/**
 		 * @docs
-		 * @kind h4
 		 * @name i18n.defaultLocale
 		 * @type {string}
 		 * @version 3.5.0
@@ -1396,7 +1395,6 @@ export interface AstroUserConfig {
 		defaultLocale: string;
 		/**
 		 * @docs
-		 * @kind h4
 		 * @name i18n.locales
 		 * @type {Locales}
 		 * @version 3.5.0
@@ -1412,7 +1410,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @kind h4
 		 * @name i18n.fallback
 		 * @type {Record<string, string>}
 		 * @version 3.5.0
@@ -1443,7 +1440,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @kind h4
 		 * @name i18n.routing
 		 * @type {Routing}
 		 * @version 3.7.0
