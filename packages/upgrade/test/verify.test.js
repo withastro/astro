@@ -7,60 +7,70 @@ describe('collectPackageInfo', () => {
 		version: 'latest',
 		packageManager: 'npm',
 		dryRun: true,
-		packages: []
+		packages: [],
 	};
 
 	beforeEach(() => {
 		context.packages = [];
-	})
+	});
 
 	it('detects astro', async () => {
-		collectPackageInfo(context, { "astro": "1.0.0" }, {});
-		expect(context.packages).deep.equal([{ name: 'astro', currentVersion: '1.0.0', targetVersion: 'latest' }]);
+		collectPackageInfo(context, { astro: '1.0.0' }, {});
+		expect(context.packages).deep.equal([
+			{ name: 'astro', currentVersion: '1.0.0', targetVersion: 'latest' },
+		]);
 	});
 
 	it('detects @astrojs', async () => {
-		collectPackageInfo(context, { "@astrojs/preact": "1.0.0" }, {});
-		expect(context.packages).deep.equal([{ name: '@astrojs/preact', currentVersion: '1.0.0', targetVersion: 'latest' }]);
+		collectPackageInfo(context, { '@astrojs/preact': '1.0.0' }, {});
+		expect(context.packages).deep.equal([
+			{ name: '@astrojs/preact', currentVersion: '1.0.0', targetVersion: 'latest' },
+		]);
 	});
 
 	it('supports ^ prefixes', async () => {
-		collectPackageInfo(context, { "astro": "^1.0.0" }, {});
-		expect(context.packages).deep.equal([{ name: 'astro', currentVersion: '^1.0.0', targetVersion: 'latest' }]);
+		collectPackageInfo(context, { astro: '^1.0.0' }, {});
+		expect(context.packages).deep.equal([
+			{ name: 'astro', currentVersion: '^1.0.0', targetVersion: 'latest' },
+		]);
 	});
 
 	it('supports ~ prefixes', async () => {
-		collectPackageInfo(context, { "astro": "~1.0.0" }, {});
-		expect(context.packages).deep.equal([{ name: 'astro', currentVersion: '~1.0.0', targetVersion: 'latest' }]);
+		collectPackageInfo(context, { astro: '~1.0.0' }, {});
+		expect(context.packages).deep.equal([
+			{ name: 'astro', currentVersion: '~1.0.0', targetVersion: 'latest' },
+		]);
 	});
 
 	it('supports prereleases', async () => {
-		collectPackageInfo(context, { "astro": "1.0.0-beta.0" }, {});
-		expect(context.packages).deep.equal([{ name: 'astro', currentVersion: '1.0.0-beta.0', targetVersion: 'latest' }]);
+		collectPackageInfo(context, { astro: '1.0.0-beta.0' }, {});
+		expect(context.packages).deep.equal([
+			{ name: 'astro', currentVersion: '1.0.0-beta.0', targetVersion: 'latest' },
+		]);
 	});
 
 	it('ignores self', async () => {
-		collectPackageInfo(context, { "@astrojs/upgrade": "0.0.1" }, {});
+		collectPackageInfo(context, { '@astrojs/upgrade': '0.0.1' }, {});
 		expect(context.packages).deep.equal([]);
 	});
 
 	it('ignores linked packages', async () => {
-		collectPackageInfo(context, { "@astrojs/preact": "link:../packages/preact" }, {});
+		collectPackageInfo(context, { '@astrojs/preact': 'link:../packages/preact' }, {});
 		expect(context.packages).deep.equal([]);
 	});
 
 	it('ignores workspace packages', async () => {
-		collectPackageInfo(context, { "@astrojs/preact": "workspace:*" }, {});
+		collectPackageInfo(context, { '@astrojs/preact': 'workspace:*' }, {});
 		expect(context.packages).deep.equal([]);
 	});
 
 	it('ignores github packages', async () => {
-		collectPackageInfo(context, { "@astrojs/preact": "github:withastro/astro" }, {});
+		collectPackageInfo(context, { '@astrojs/preact': 'github:withastro/astro' }, {});
 		expect(context.packages).deep.equal([]);
 	});
 
 	it('ignores tag', async () => {
-		collectPackageInfo(context, { "@astrojs/preact": "beta" }, {});
+		collectPackageInfo(context, { '@astrojs/preact': 'beta' }, {});
 		expect(context.packages).deep.equal([]);
 	});
 });
