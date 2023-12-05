@@ -1428,14 +1428,12 @@ export interface AstroUserConfig {
 		 *
 		 * ```js
 		 * export default defineConfig({
-		 * 	experimental: {
-		 * 		i18n: {
-		 * 			defaultLocale: "en",
-		 * 			locales: ["en", "fr", "pt-br", "es"],
-		 * 			fallback: {
-		 * 				pt: "es",
-		 * 			  fr: "en"
-		 * 			}
+		 * 	i18n: {
+		 * 		defaultLocale: "en",
+		 * 		locales: ["en", "fr", "pt-br", "es"],
+		 * 		fallback: {
+		 * 			pt: "es",
+		 * 		  fr: "en"
 		 * 		}
 		 * 	}
 		 * })
@@ -1457,6 +1455,7 @@ export interface AstroUserConfig {
 			/**
 			 * @docs
 			 * @name i18n.routing.prefixDefaultLocale
+			 * @kind h4
 			 * @type {boolean}
 			 * @default `false`
 			 * @version 3.7.0
@@ -2191,7 +2190,7 @@ export interface APIContext<
 	locals: App.Locals;
 
 	/**
-	 * Available only when `experimental.i18n` enabled and in SSR.
+	 * Available only when `i18n` enabled and in SSR.
 	 *
 	 * It represents the preferred locale of the user. It's computed by checking the supported locales in `i18n.locales`
 	 * and locales supported by the users's browser via the header `Accept-Language`
@@ -2204,7 +2203,7 @@ export interface APIContext<
 	preferredLocale: string | undefined;
 
 	/**
-	 * Available only when `experimental.i18n` enabled and in SSR.
+	 * Available only when `18n` enabled and in SSR.
 	 *
 	 * It represents the list of the preferred locales that are supported by the application. The list is sorted via [quality value].
 	 *
