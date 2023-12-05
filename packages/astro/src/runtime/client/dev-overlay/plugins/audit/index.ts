@@ -190,11 +190,12 @@ export default {
 				return;
 			}
 
-			// If the element is an image, wait for it to load
+			// If the element is an image but not yet loaded, ignore it
 			if (originalElement.nodeName === 'IMG' && !(originalElement as HTMLImageElement).complete) {
-				await (originalElement as HTMLImageElement).decode();
+				audits.push();
+				return;
 			}
-
+			
 			const rect = originalElement.getBoundingClientRect();
 			const highlight = createHighlight(rect, 'warning');
 			const tooltip = buildAuditTooltip(rule, originalElement);
