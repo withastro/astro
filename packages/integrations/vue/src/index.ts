@@ -61,7 +61,8 @@ function virtualAppEntrypoint(options: ViteOptions) {
 							resolved = await this.resolve(options.appEntrypoint, fileURLToPath(options.root));
 						}
 						if (!resolved) {
-							throw new Error();
+							// This error is handled below, the message isn't shown to the user
+							throw new Error('Unable to resolve appEntrypoint');
 						}
 						const loaded = await this.load(resolved);
 						if (!loaded.hasDefaultExport) {
