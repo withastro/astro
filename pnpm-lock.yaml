@@ -4839,6 +4839,27 @@ importers:
         specifier: 5.0.1
         version: 5.0.1
 
+  packages/integrations/vue/test/fixtures/app-entrypoint-no-export-default:
+    dependencies:
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      vite-svg-loader:
+        specifier: 4.0.0
+        version: 4.0.0
+
+  packages/integrations/vue/test/fixtures/app-entrypoint-relative:
+    dependencies:
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/vue/test/fixtures/basics:
     dependencies:
       '@astrojs/vue':
@@ -15791,6 +15812,18 @@ packages:
       vitefu: 0.2.5(vite@5.0.0)
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /vite-svg-loader@4.0.0:
+    resolution: {integrity: sha512-0MMf1yzzSYlV4MGePsLVAOqXsbF5IVxbn4EEzqRnWxTQl8BJg/cfwIzfQNmNQxZp5XXwd4kyRKF1LytuHZTnqA==}
+    peerDependencies:
+      vue: '*'
+    peerDependenciesMeta:
+      vue:
+        optional: true
+    dependencies:
+      '@vue/compiler-sfc': 3.3.8
+      svgo: 3.0.4
     dev: false
 
   /vite-svg-loader@5.0.1:
