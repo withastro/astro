@@ -1,5 +1,11 @@
 # astro
 
+## 4.0.1
+
+### Patch Changes
+
+- [#9315](https://github.com/withastro/astro/pull/9315) [`631e5d01b`](https://github.com/withastro/astro/commit/631e5d01b00efee6970466c38201cb0e67ec74cf) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where logs that weren't grouped together by route when building the app.
+
 ## 4.0.0
 
 ### Major Changes
