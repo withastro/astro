@@ -66,17 +66,32 @@ async function verifyAstroProject(ctx: Pick<Context, 'cwd' | 'version' | 'packag
 	return true;
 }
 
-function isAstroPackage(name: string) {
+function isAstroPackage(name: string, _version: string) {
 	return name === 'astro' || name.startsWith('@astrojs/');
 }
 
-function collectPackageInfo(
+function isAllowedPackage(name: string, _version: string) {
+	return name !== '@astrojs/upgrade';
+}
+
+function isValidVersion(_name: string, version: string) {
+	return semverCoerce(version, { loose: true }) !== null;
+}
+
+function isSupportedPackage(name: string, version: string): boolean {
+	for (const validator of [isAstroPackage, isAllowedPackage, isValidVersion]) {
+		if (!validator(name, version)) return false;
+	}
+	return true;
+}
+
+export function collectPackageInfo(
 	ctx: Pick<Context, 'version' | 'packages'>,
-	dependencies: Record<string, string>,
-	devDependencies: Record<string, string>
+	dependencies: Record<string, string> = {},
+	devDependencies: Record<string, string> = {}
 ) {
 	for (const [name, currentVersion] of Object.entries(dependencies)) {
-		if (!isAstroPackage(name)) continue;
+		if (!isSupportedPackage(name, currentVersion)) continue;
 		ctx.packages.push({
 			name,
 			currentVersion,
@@ -84,7 +99,7 @@ function collectPackageInfo(
 		});
 	}
 	for (const [name, currentVersion] of Object.entries(devDependencies)) {
-		if (!isAstroPackage(name)) continue;
+		if (!isSupportedPackage(name, currentVersion)) continue;
 		ctx.packages.push({
 			name,
 			currentVersion,
