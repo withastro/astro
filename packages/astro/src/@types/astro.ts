@@ -1359,7 +1359,7 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-   * @kind heading
+	 * @kind heading
 	 * @name i18n
 	 * @type {object}
 	 * @version 3.5.0
@@ -1470,7 +1470,7 @@ export interface AstroUserConfig {
 		};
 	};
 
-  /**
+	/**
 	 * @docs
 	 * @kind heading
 	 * @name Legacy Flags
