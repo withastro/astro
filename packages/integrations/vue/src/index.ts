@@ -56,7 +56,9 @@ function virtualAppEntrypoint(options: ViteOptions) {
 					try {
 						let resolved;
 						if (options.appEntrypoint.startsWith('.')) {
-							resolved = await this.resolve(fileURLToPath(new URL(options.appEntrypoint, options.root)));
+							resolved = await this.resolve(
+								fileURLToPath(new URL(options.appEntrypoint, options.root))
+							);
 						} else {
 							resolved = await this.resolve(options.appEntrypoint, fileURLToPath(options.root));
 						}
@@ -73,12 +75,14 @@ function virtualAppEntrypoint(options: ViteOptions) {
 						}
 						return `export { default as setup } from "${resolved.id}";`;
 					} catch {
-						options.logger.warn(`Unable to resolve appEntrypoint \`${options.appEntrypoint}\`. Does the file exist?`);
+						options.logger.warn(
+							`Unable to resolve appEntrypoint \`${options.appEntrypoint}\`. Does the file exist?`
+						);
 					}
 				}
 				return noop;
 			}
-		}
+		},
 	} satisfies Rollup.Plugin;
 }
 
