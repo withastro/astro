@@ -134,7 +134,7 @@ export default {
 							margin: 0;
 							font-size: 22px;
 						}
-	
+
 						astro-dev-toolbar-icon {
 							width: 1em;
 						   height: 1em;
@@ -186,16 +186,15 @@ export default {
 
 			// If the element is hidden, don't do anything
 			if (targetedElement.offsetParent === null || computedStyle.display === 'none') {
-				audits.push();
 				return;
 			}
 
 			// If the element is an image but not yet loaded, ignore it
+			// TODO: We shouldn't ignore this, because it is valid for an image to not be loaded at start (e.g. lazy loading)
 			if (originalElement.nodeName === 'IMG' && !(originalElement as HTMLImageElement).complete) {
-				audits.push();
 				return;
 			}
-			
+
 			const rect = originalElement.getBoundingClientRect();
 			const highlight = createHighlight(rect, 'warning');
 			const tooltip = buildAuditTooltip(rule, originalElement);
