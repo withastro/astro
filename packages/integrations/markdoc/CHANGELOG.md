@@ -1,5 +1,11 @@
 # @astrojs/markdoc
 
+## 0.8.0
+
+### Minor Changes
+
+- [#9263](https://github.com/withastro/astro/pull/9263) [`3cbd8ea75`](https://github.com/withastro/astro/commit/3cbd8ea7534910e3beae396dcfa93ce87dcdd91f) Thanks [@bluwy](https://github.com/bluwy)! - Removes internal `propagators` handling for Astro 3
+
 ## 1.0.0-beta.1
 
 ### Minor Changes

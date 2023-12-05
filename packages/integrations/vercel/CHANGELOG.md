@@ -1,5 +1,15 @@
 # @astrojs/vercel
 
+## 6.0.0
+
+### Major Changes
+
+- [#9199](https://github.com/withastro/astro/pull/9199) [`49aa215a0`](https://github.com/withastro/astro/commit/49aa215a01ee1c4805316c85bb0aea6cfbc25a31) Thanks [@lilnasy](https://github.com/lilnasy)! - The internals of the integration have been updated to support Astro 4.0. Make sure to upgrade your Astro version as Astro 3.0 is no longer supported.
+
+- [#9184](https://github.com/withastro/astro/pull/9184) [`a145ac07e`](https://github.com/withastro/astro/commit/a145ac07e75927e13af62e28d13bc8217a362b8e) Thanks [@bluwy](https://github.com/bluwy)! - Removes deprecated `analytics` option. Use the `webAnalytics` option instead.
+
+- [#9263](https://github.com/withastro/astro/pull/9263) [`3cbd8ea75`](https://github.com/withastro/astro/commit/3cbd8ea7534910e3beae396dcfa93ce87dcdd91f) Thanks [@bluwy](https://github.com/bluwy)! - Removes the deprecated `@astrojs/vercel/edge` export. You should use `@astrojs/vercel/serverless` instead with the `edgeMiddleware` option.
+
 ## 6.0.0-beta.2
 
 ### Major Changes
