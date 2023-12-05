@@ -1370,22 +1370,13 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @kind heading
-	 * @name Experimental Flags
-	 * @description
-	 * Astro offers experimental flags to give users early access to new features.
-	 * These flags are not guaranteed to be stable.
-	 */
-
-	/**
-	 * @docs
 	 * @name i18n
 	 * @type {object}
 	 * @version 3.5.0
 	 * @type {object}
 	 * @description
 	 *
-	 * Configures experimental i18n routing and allows you to specify some customization options.
+	 * Configures i18n routing and allows you to specify some customization options.
 	 *
 	 * See our guide for more information on [internationalization in Astro](/en/guides/internationalization/)
 	 */
@@ -1494,6 +1485,14 @@ export interface AstroUserConfig {
 		};
 	};
 
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Experimental Flags
+	 * @description
+	 * Astro offers experimental flags to give users early access to new features.
+	 * These flags are not guaranteed to be stable.
+	 */
 	experimental?: {
 		/**
 		 * @docs
