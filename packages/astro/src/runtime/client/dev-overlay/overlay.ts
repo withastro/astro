@@ -279,9 +279,12 @@ export class AstroDevOverlay extends HTMLElement {
 		// Init plugin lazily, so that the page can load faster.
 		// Fallback to setTimeout for Safari (sad!)
 		if ('requestIdleCallback' in window) {
-			window.requestIdleCallback(async () => {
-				this.plugins.map((plugin) => this.initPlugin(plugin));
-			}, {timeout: 300});
+			window.requestIdleCallback(
+				async () => {
+					this.plugins.map((plugin) => this.initPlugin(plugin));
+				},
+				{ timeout: 300 }
+			);
 		} else {
 			setTimeout(async () => {
 				this.plugins.map((plugin) => this.initPlugin(plugin));
