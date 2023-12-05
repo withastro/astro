@@ -3,6 +3,7 @@ import type { DevOverlayHighlight } from '../../ui-library/highlight.js';
 import {
 	attachTooltipToHighlight,
 	createHighlight,
+	getElementsPositionInDocument,
 	positionHighlight,
 } from '../utils/highlight.js';
 import { createWindowElement } from '../utils/window.js';
@@ -198,6 +199,18 @@ export default {
 			const rect = originalElement.getBoundingClientRect();
 			const highlight = createHighlight(rect, 'warning');
 			const tooltip = buildAuditTooltip(rule, originalElement);
+
+			// Set the highlight/tooltip as being fixed position the highlighted element
+			// is fixed. We do this so that we don't mistakenly take scroll position
+			// into account when setting the tooltip/highlight positioning.
+			// 
+			// We only do this once due to how expensive computed styles are to calculate, 
+			// and are unlikely to change. If that turns out to be wrong, reconsider this.
+			const { isFixed } = getElementsPositionInDocument(originalElement);
+			if (isFixed) {
+				tooltip.style.position = highlight.style.position = 'fixed';
+			}
+			
 			attachTooltipToHighlight(highlight, tooltip, originalElement);
 
 			canvas.append(highlight);

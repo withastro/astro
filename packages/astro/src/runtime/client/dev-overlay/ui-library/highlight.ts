@@ -21,6 +21,7 @@ export class DevOverlayHighlight extends HTMLElement {
 					width: 100%;
 					height: 100%;
 					position: absolute;
+					z-index: 2000000000;
 				}
 
 				.icon {
