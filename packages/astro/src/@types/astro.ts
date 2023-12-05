@@ -2203,7 +2203,7 @@ export interface APIContext<
 	preferredLocale: string | undefined;
 
 	/**
-	 * Available only when `18n` enabled and in SSR.
+	 * Available only when `i18n` enabled and in SSR.
 	 *
 	 * It represents the list of the preferred locales that are supported by the application. The list is sorted via [quality value].
 	 *
