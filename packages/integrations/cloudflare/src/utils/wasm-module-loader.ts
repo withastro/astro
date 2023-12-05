@@ -92,7 +92,7 @@ export default wasmModule;
 
 			if (!/__WASM_ASSET__/g.test(code)) return;
 
-			const final = code.replaceAll(/__WASM_ASSET__([a-z\d]+).wasm.mjs/g, (s, assetId) => {
+			const final = code.replaceAll(/__WASM_ASSET__([A-Za-z\d]+).wasm.mjs/g, (s, assetId) => {
 				const fileName = this.getFileName(assetId);
 				const relativePath = path
 					.relative(path.dirname(chunk.fileName), fileName)
