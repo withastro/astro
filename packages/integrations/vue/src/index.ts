@@ -1,7 +1,7 @@
 import type { Options as VueOptions } from '@vitejs/plugin-vue';
 import type { Options as VueJsxOptions } from '@vitejs/plugin-vue-jsx';
 import type { AstroIntegration, AstroIntegrationLogger, AstroRenderer } from 'astro';
-import type { UserConfig, Rollup } from 'vite';
+import type { UserConfig, Plugin } from 'vite';
 
 import { fileURLToPath } from 'node:url';
 import vue from '@vitejs/plugin-vue';
@@ -42,15 +42,32 @@ function getJsxRenderer(): AstroRenderer {
 function virtualAppEntrypoint(options: ViteOptions) {
 	const virtualModuleId = 'virtual:@astrojs/vue/app';
 	const resolvedVirtualModuleId = '\0' + virtualModuleId;
+	let getExports: (id: string) => Promise<string[]>;
 	return {
 		name: '@astrojs/vue/virtual-app',
+		buildStart() {
+			if (!getExports) {
+				getExports = async (id: string) => {
+					const info = await this.load.call(this, { id });
+					return info.exports ?? [];
+				}
+			}
+		},
+		configureServer(server) {
+			if (!getExports) {
+				getExports = async (id: string) => {
+					const mod = await server.ssrLoadModule(id);
+					return Object.keys(mod) ?? [];
+				}
+			}
+		},
 		resolveId(id: string) {
 			if (id == virtualModuleId) {
 				return resolvedVirtualModuleId;
 			}
 		},
 		async load(id: string) {
-			const noop = `export const setup = () => {}`;
+			const noop = `export const setup = (app) => app;`;
 			if (id === resolvedVirtualModuleId) {
 				if (options.appEntrypoint) {
 					try {
@@ -66,8 +83,8 @@ function virtualAppEntrypoint(options: ViteOptions) {
 							// This error is handled below, the message isn't shown to the user
 							throw new Error('Unable to resolve appEntrypoint');
 						}
-						const loaded = await this.load(resolved);
-						if (!loaded.hasDefaultExport) {
+						const exports = await getExports(resolved.id);
+						if (!exports.includes('default')) {
 							options.logger.warn(
 								`appEntrypoint \`${options.appEntrypoint}\` does not export a default function. Check out https://docs.astro.build/en/guides/integrations-guide/vue/#appentrypoint.`
 							);
@@ -83,7 +100,7 @@ function virtualAppEntrypoint(options: ViteOptions) {
 				return noop;
 			}
 		},
-	} satisfies Rollup.Plugin;
+	} satisfies Plugin;
 }
 
 async function getViteConfiguration(options: ViteOptions): Promise<UserConfig> {
