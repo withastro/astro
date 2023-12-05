@@ -249,13 +249,11 @@ async function generatePage(
 	// prepare information we need
 	const logger = pipeline.getLogger();
 	const config = pipeline.getConfig();
-	const manifest = pipeline.getManifest();
 	const pageModulePromise = ssrEntry.page;
 	const onRequest = ssrEntry.onRequest;
 	const pageInfo = getPageDataByComponent(pipeline.getInternals(), pageData.route.component);
 
 	// Calculate information of the page, like scripts, links and styles
-	const hoistedScripts = pageInfo?.hoistedScript ?? null;
 	const styles = pageData.styles
 		.sort(cssOrder)
 		.map(({ sheet }) => sheet)
@@ -294,6 +292,15 @@ async function generatePage(
 	};
 	// Now we explode the routes. A route render itself, and it can render its fallbacks (i18n routing)
 	for (const route of eachRouteInRouteData(pageData)) {
+		const icon =
+			route.type === 'page' || route.type === 'redirect' || route.type === 'fallback'
+				? green('▶')
+				: magenta('λ');
+		if (isRelativePath(route.component)) {
+			logger.info(null, `${icon} ${route.route}`);
+		} else {
+			logger.info(null, `${icon} ${route.component}`);
+		}
 		// Get paths for the route, calling getStaticPaths if needed.
 		const paths = await getPathsForRoute(route, pageModule, pipeline, builtPaths);
 		let timeStart = performance.now();
@@ -513,16 +520,6 @@ async function generatePath(
 				children: script.content,
 			});
 		}
-	}
-
-	const icon =
-		route.type === 'page' || route.type === 'redirect' || route.type === 'fallback'
-			? green('▶')
-			: magenta('λ');
-	if (isRelativePath(route.component)) {
-		logger.info(null, `${icon} ${route.route}`);
-	} else {
-		logger.info(null, `${icon} ${route.component}`);
 	}
 
 	// This adds the page name to the array so it can be shown as part of stats.

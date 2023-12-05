@@ -3,6 +3,7 @@ import type { DevOverlayHighlight } from '../../ui-library/highlight.js';
 import {
 	attachTooltipToHighlight,
 	createHighlight,
+	getElementsPositionInDocument,
 	positionHighlight,
 } from '../utils/highlight.js';
 import { createWindowElement } from '../utils/window.js';
@@ -134,7 +135,7 @@ export default {
 							margin: 0;
 							font-size: 22px;
 						}
-	
+
 						astro-dev-toolbar-icon {
 							width: 1em;
 						   height: 1em;
@@ -186,18 +187,30 @@ export default {
 
 			// If the element is hidden, don't do anything
 			if (targetedElement.offsetParent === null || computedStyle.display === 'none') {
-				audits.push();
 				return;
 			}
 
-			// If the element is an image, wait for it to load
+			// If the element is an image but not yet loaded, ignore it
+			// TODO: We shouldn't ignore this, because it is valid for an image to not be loaded at start (e.g. lazy loading)
 			if (originalElement.nodeName === 'IMG' && !(originalElement as HTMLImageElement).complete) {
-				await (originalElement as HTMLImageElement).decode();
+				return;
 			}
 
 			const rect = originalElement.getBoundingClientRect();
 			const highlight = createHighlight(rect, 'warning');
 			const tooltip = buildAuditTooltip(rule, originalElement);
+
+			// Set the highlight/tooltip as being fixed position the highlighted element
+			// is fixed. We do this so that we don't mistakenly take scroll position
+			// into account when setting the tooltip/highlight positioning.
+			//
+			// We only do this once due to how expensive computed styles are to calculate,
+			// and are unlikely to change. If that turns out to be wrong, reconsider this.
+			const { isFixed } = getElementsPositionInDocument(originalElement);
+			if (isFixed) {
+				tooltip.style.position = highlight.style.position = 'fixed';
+			}
+
 			attachTooltipToHighlight(highlight, tooltip, originalElement);
 
 			canvas.append(highlight);

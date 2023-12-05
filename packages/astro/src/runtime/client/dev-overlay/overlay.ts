@@ -58,7 +58,7 @@ export class AstroDevOverlay extends HTMLElement {
 				bottom: 0px;
 				left: 50%;
 				transform: translate(-50%, 0%);
-				z-index: 9999999999;
+				z-index: 2000000010;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
@@ -279,9 +279,12 @@ export class AstroDevOverlay extends HTMLElement {
 		// Init plugin lazily, so that the page can load faster.
 		// Fallback to setTimeout for Safari (sad!)
 		if ('requestIdleCallback' in window) {
-			window.requestIdleCallback(async () => {
-				this.plugins.map((plugin) => this.initPlugin(plugin));
-			});
+			window.requestIdleCallback(
+				async () => {
+					this.plugins.map((plugin) => this.initPlugin(plugin));
+				},
+				{ timeout: 300 }
+			);
 		} else {
 			setTimeout(async () => {
 				this.plugins.map((plugin) => this.initPlugin(plugin));
@@ -307,13 +310,14 @@ export class AstroDevOverlay extends HTMLElement {
 	attachEvents() {
 		const items = this.shadowRoot.querySelectorAll<HTMLDivElement>('.item');
 		items.forEach((item) => {
-			item.addEventListener('click', async (e) => {
-				const target = e.currentTarget;
+			item.addEventListener('click', async (event) => {
+				const target = event.currentTarget;
 				if (!target || !(target instanceof HTMLElement)) return;
 				const id = target.dataset.pluginId;
 				if (!id) return;
 				const plugin = this.getPluginById(id);
 				if (!plugin) return;
+				event.stopPropagation();
 				await this.togglePluginStatus(plugin);
 			});
 		});

@@ -108,15 +108,14 @@ export default {
 				const highlight = createHighlight(rect);
 				const tooltip = buildIslandTooltip(island);
 
-				// Set the z-index to be 1 higher than the greatest z-index in the stack.
-				// And also set the highlight/tooltip as being fixed position if they are inside
-				// a fixed container. We do this so that we don't mistakenly take scroll position
-				// into account when setting their position.
-				// We are only doing both of these things once, as they are relatively expensive
-				// to calculate, and are unlikely to change. If that turns out to be wrong, reconsider this.
-				const { zIndex, fixed } = getElementsPositionInDocument(islandElement);
-				tooltip.style.zIndex = highlight.style.zIndex = zIndex + '';
-				if (fixed) {
+				// Set the highlight/tooltip as being fixed position the highlighted element
+				// is fixed. We do this so that we don't mistakenly take scroll position
+				// into account when setting the tooltip/highlight positioning.
+				//
+				// We only do this once due to how expensive computed styles are to calculate,
+				// and are unlikely to change. If that turns out to be wrong, reconsider this.
+				const { isFixed } = getElementsPositionInDocument(islandElement);
+				if (isFixed) {
 					tooltip.style.position = highlight.style.position = 'fixed';
 				}
 
@@ -154,14 +153,16 @@ export default {
 				});
 			}
 
-			// Add the props if we have any
-			if (Object.keys(islandProps).length > 0) {
+			// Display the props if we have any
+			// Ignore the "data-astro-cid-XXXXXX" prop (internal)
+			const islandPropsEntries = Object.entries(islandProps).filter(
+				(prop: any) => !prop[0].startsWith('data-astro-cid-')
+			);
+			if (islandPropsEntries.length > 0) {
 				tooltip.sections.push({
 					title: 'Props',
 					content: `<pre><code>${JSON.stringify(
-						Object.fromEntries(
-							Object.entries(islandProps).map((prop: any) => [prop[0], prop[1][1]])
-						),
+						Object.fromEntries(islandPropsEntries.map((prop: any) => [prop[0], prop[1][1]])),
 						undefined,
 						2
 					)}</code></pre>`,

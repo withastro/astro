@@ -1,5 +1,13 @@
 # @astrojs/svelte
 
+## 5.0.0
+
+### Major Changes
+
+- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Adds Vite 5 support. There are no breaking changes from Astro. Check the [Vite migration guide](https://vitejs.dev/guide/migration.html) for details of the breaking changes from Vite instead.
+
+- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Drops support for Svelte 3 as `@sveltejs/vite-plugin-svelte` is updated to `3.0.0` which does not support Svelte 3
+
 ## 5.0.0-beta.0
 
 ### Major Changes
