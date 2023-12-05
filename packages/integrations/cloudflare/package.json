@@ -2,7 +2,7 @@
   "//comment": "test changeset-bot",
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers/Pages",
-  "version": "7.7.1",
+  "version": "8.0.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",

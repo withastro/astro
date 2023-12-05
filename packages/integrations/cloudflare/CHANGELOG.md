@@ -1,5 +1,21 @@
 # @astrojs/cloudflare
 
+## 8.0.0
+
+### Major Changes
+
+- [#94](https://github.com/withastro/adapters/pull/94) [`13ddae8`](https://github.com/withastro/adapters/commit/13ddae81d31922e4e7bf096eea44148dbcc246c8) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Removes deprecated option `build.split`. Use `functionPerRoute` instead.
+
+- [#94](https://github.com/withastro/adapters/pull/94) [`13ddae8`](https://github.com/withastro/adapters/commit/13ddae81d31922e4e7bf096eea44148dbcc246c8) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Changes the way that bindings are configured for the local runtime using `astro dev`. This change is developed in cooperation with Cloudflare and aligns Astro more closely to the behavior of Wrangler.
+
+  :warning: This is a breaking change for anyone deploying to Cloudflare Pages. You need to update your astro config file to set new the bindings. Follow the updated docs for [configuring `@astrojs/cloudflare`](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#cloudflare-pages)
+
+### Patch Changes
+
+- [#94](https://github.com/withastro/adapters/pull/94) [`13ddae8`](https://github.com/withastro/adapters/commit/13ddae81d31922e4e7bf096eea44148dbcc246c8) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Improves compatibility with Astro 4.0. using WASM modules
+
+- [#94](https://github.com/withastro/adapters/pull/94) [`13ddae8`](https://github.com/withastro/adapters/commit/13ddae81d31922e4e7bf096eea44148dbcc246c8) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Updates `peerDependency` of `astro` to be less strict
+
 ## 7.7.1
 
 ### Patch Changes
