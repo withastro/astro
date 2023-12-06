@@ -69,7 +69,7 @@ describe('App Entrypoint no export default (dev)', () => {
 	});
 
 	it('loads during SSR', async () => {
-		const html = await fixture.fetch('/').then(res => res.text());
+		const html = await fixture.fetch('/').then((res) => res.text());
 		const { document } = parseHTML(html);
 		const bar = document.querySelector('#foo > #bar');
 		expect(bar).not.to.be.undefined;
@@ -77,7 +77,7 @@ describe('App Entrypoint no export default (dev)', () => {
 	});
 
 	it('loads svg components without transforming them to assets', async () => {
-		const html = await fixture.fetch('/').then(res => res.text());
+		const html = await fixture.fetch('/').then((res) => res.text());
 		const { document } = parseHTML(html);
 		const client = document.querySelector('astro-island svg');
 

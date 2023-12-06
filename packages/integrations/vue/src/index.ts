@@ -50,7 +50,7 @@ function virtualAppEntrypoint(options: ViteOptions) {
 				getExports = async (id: string) => {
 					const info = await this.load.call(this, { id });
 					return info.exports ?? [];
-				}
+				};
 			}
 		},
 		configureServer(server) {
@@ -58,7 +58,7 @@ function virtualAppEntrypoint(options: ViteOptions) {
 				getExports = async (id: string) => {
 					const mod = await server.ssrLoadModule(id);
 					return Object.keys(mod) ?? [];
-				}
+				};
 			}
 		},
 		resolveId(id: string) {
