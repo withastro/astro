@@ -130,9 +130,13 @@ export class AstroCheck {
 		this.ts = this.typescriptPath ? require(this.typescriptPath) : require('typescript');
 		const tsconfigPath = this.getTsconfig();
 
+		const astroInstall = getAstroInstall([this.workspacePath]);
 		const config: kit.Config = {
 			languages: {
-				astro: getLanguageModule(getAstroInstall([this.workspacePath]), this.ts),
+				astro: getLanguageModule(
+					typeof astroInstall === 'string' ? undefined : astroInstall,
+					this.ts
+				),
 				svelte: getSvelteLanguageModule(),
 				vue: getVueLanguageModule(),
 			},

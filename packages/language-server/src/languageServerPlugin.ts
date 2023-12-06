@@ -46,16 +46,28 @@ export const plugin: LanguageServerPlugin = (
 	resolveConfig(config, ctx) {
 		config.languages ??= {};
 		if (ctx) {
-			const astroInstall = getAstroInstall([ctx.project.rootUri.fsPath]);
+			const nearestPackageJson = modules.typescript?.findConfigFile(
+				ctx.project.rootUri.fsPath,
+				modules.typescript.sys.fileExists,
+				'package.json'
+			);
 
-			if (!astroInstall) {
+			const astroInstall = getAstroInstall([ctx.project.rootUri.fsPath], {
+				nearestPackageJson: nearestPackageJson,
+				readDirectory: modules.typescript!.sys.readDirectory,
+			});
+
+			if (astroInstall === 'not-found') {
 				ctx.server.connection.sendNotification(ShowMessageNotification.type, {
 					message: `Couldn't find Astro in workspace "${ctx.project.rootUri.fsPath}". Experience might be degraded. For the best experience, please make sure Astro is installed into your project and restart the language server.`,
 					type: MessageType.Warning,
 				});
 			}
 
-			config.languages.astro = getLanguageModule(astroInstall, modules.typescript!);
+			config.languages.astro = getLanguageModule(
+				typeof astroInstall === 'string' ? undefined : astroInstall,
+				modules.typescript!
+			);
 			config.languages.vue = getVueLanguageModule();
 			config.languages.svelte = getSvelteLanguageModule();
 		}
