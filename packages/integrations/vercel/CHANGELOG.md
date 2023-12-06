@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 6.0.1
+
+### Patch Changes
+
+- [#9348](https://github.com/withastro/astro/pull/9348) [`1685cc42b`](https://github.com/withastro/astro/commit/1685cc42b51603eb98b5ba3e072cf2d3953339f2) Thanks [@matthewp](https://github.com/matthewp)! - Uses the latest astro as the peerDependency
+
 ## 6.0.0
 
 ### Major Changes

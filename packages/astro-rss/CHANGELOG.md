@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 4.0.1
+
+### Patch Changes
+
+- [#9299](https://github.com/withastro/astro/pull/9299) [`edfae50e6`](https://github.com/withastro/astro/commit/edfae50e6ea494f49c6d4fbf4bd4481870f994b1) Thanks [@cdvillard](https://github.com/cdvillard)! - Improves the `@astrojs/rss` error message thrown when the object passed to the `items` property is missing any of the three required keys or if one of those keys is mistyped.
+
 ## 4.0.0
 
 ### Major Changes
