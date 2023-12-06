@@ -2,4 +2,4 @@
 '@astrojs/vercel': minor
 ---
 
-Allow async functions in the Vercel edge middleware integration.
+Allows the edge middleware to be an async function.
