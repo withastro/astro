@@ -36,6 +36,7 @@ declare namespace astroHTML.JSX {
 		AstroDefineVarsAttribute;
 	type AstroStyleAttributes = import('./dist/@types/astro.js').AstroStyleAttributes &
 		AstroDefineVarsAttribute;
+	type AstroSlotAttributes = import('./dist/@types/astro.js').AstroSlotAttributes;
 
 	// This is an unfortunate use of `any`, but unfortunately we can't make a type that works for every framework
 	// without importing every single framework's types (which comes with its own set of problems).
@@ -1415,7 +1416,7 @@ declare namespace astroHTML.JSX {
 		ruby: HTMLAttributes;
 		s: HTMLAttributes;
 		samp: HTMLAttributes;
-		slot: SlotHTMLAttributes;
+		slot: SlotHTMLAttributes & AstroSlotAttributes;
 		script: ScriptHTMLAttributes & AstroScriptAttributes;
 		section: HTMLAttributes;
 		select: SelectHTMLAttributes;
