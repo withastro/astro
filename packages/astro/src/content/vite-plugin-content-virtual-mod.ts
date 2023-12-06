@@ -81,7 +81,7 @@ export function astroContentVirtualModPlugin({
 							pageOptions: {},
 						},
 					} satisfies AstroPluginMetadata,
-				};
+				}
 			}
 		},
 		renderChunk(code, chunk) {

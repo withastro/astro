@@ -14,10 +14,10 @@ import {
 } from '../runtime/server/index.js';
 import type { ContentLookupMap } from './utils.js';
 
-type LazyImport = () => Promise<any>;
-type GlobResult = Record<string, LazyImport>;
-type CollectionToEntryMap = Record<string, GlobResult>;
-type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImport>;
+export type LazyImport = () => Promise<any>;
+export type GlobResult = Record<string, LazyImport>;
+export type CollectionToEntryMap = Record<string, GlobResult>;
+export type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImport>;
 
 export function defineCollection(config: any) {
 	if (!config.type) config.type = 'content';

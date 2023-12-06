@@ -148,6 +148,10 @@ declare module 'astro:prefetch' {
 	export { prefetch, PrefetchOptions } from 'astro/virtual-modules/prefetch.js';
 }
 
+declare module 'astro:content' {
+	export * from 'astro/virtual-modules/content.js'
+}
+
 declare module 'astro:i18n' {
 	export type GetLocaleOptions = import('./dist/virtual-modules/i18n.js').GetLocaleOptions;
 
