@@ -1,5 +1,5 @@
 
-export function get() {
+export function GET() {
 	const buffer = Buffer.from('base64 test font', 'utf-8')
 
   return new Response(buffer, {

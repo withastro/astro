@@ -1,5 +1,5 @@
 
-export function post() {
+export function POST() {
 	const headers = new Headers();
   headers.append('Set-Cookie', `foo=foo; HttpOnly`);
   headers.append('Set-Cookie', `bar=bar; HttpOnly`);
