@@ -28,7 +28,8 @@ describe('Astro.redirect', () => {
 			expect(response.headers.get('location')).to.equal('/login');
 		});
 
-		it('Ignores external redirect', async () => {
+		// ref: https://github.com/withastro/astro/pull/9287
+		it.skip('Ignores external redirect', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/external/redirect');
 			const response = await app.render(request);
