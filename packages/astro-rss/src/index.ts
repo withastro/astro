@@ -109,22 +109,21 @@ async function validateRssOptions(rssOptions: RSSOptions) {
 	const formattedError = new Error(
 		[
 			`[RSS] Invalid or missing options:`,
-			...parsedResult.error.errors.map(
-				(zodError) => {
-					const path = zodError.path.join('.');
-					const message = `${zodError.message} (${path})`;
-					const code = zodError.code;
+			...parsedResult.error.errors.map((zodError) => {
+				const path = zodError.path.join('.');
+				const message = `${zodError.message} (${path})`;
+				const code = zodError.code;
 
-					if (path === 'items' && code === 'invalid_union') {
-						return [
-							message,
+				if (path === 'items' && code === 'invalid_union') {
+					return [
+						message,
 						`The \`items\` property requires properly typed \`title\`, \`pubDate\`, and \`link\` keys.`,
-						`Check your collection's schema, and visit https://docs.astro.build/en/guides/rss/#generating-items for more info.`
-						].join('\n')
-					}
+						`Check your collection's schema, and visit https://docs.astro.build/en/guides/rss/#generating-items for more info.`,
+					].join('\n');
+				}
 
-					return message;
-				}),
+				return message;
+			}),
 		].join('\n')
 	);
 	throw formattedError;
