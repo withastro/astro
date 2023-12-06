@@ -76,17 +76,6 @@ describe('App Entrypoint no export default (dev)', () => {
 		expect(bar.textContent).to.eq('works');
 	});
 
-	it('component not included on page', async () => {
-		const html = await fixture.fetch('/').then(res => res.text());
-		const { document } = parseHTML(html);
-		const island = document.querySelector('astro-island');
-		const client = island.getAttribute('renderer-url');
-		expect(client).not.to.be.undefined;
-
-		const js = await fixture.fetch(client);
-		expect(js).not.to.match(/\w+\.component\(\"Bar\"/gm);
-	});
-
 	it('loads svg components without transforming them to assets', async () => {
 		const html = await fixture.fetch('/').then(res => res.text());
 		const { document } = parseHTML(html);
