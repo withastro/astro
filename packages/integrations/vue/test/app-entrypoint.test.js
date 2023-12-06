@@ -52,6 +52,39 @@ describe('App Entrypoint', () => {
 	});
 });
 
+describe('App Entrypoint no export default (dev)', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/app-entrypoint-no-export-default/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('loads during SSR', async () => {
+		const html = await fixture.fetch('/').then((res) => res.text());
+		const { document } = parseHTML(html);
+		const bar = document.querySelector('#foo > #bar');
+		expect(bar).not.to.be.undefined;
+		expect(bar.textContent).to.eq('works');
+	});
+
+	it('loads svg components without transforming them to assets', async () => {
+		const html = await fixture.fetch('/').then((res) => res.text());
+		const { document } = parseHTML(html);
+		const client = document.querySelector('astro-island svg');
+
+		expect(client).not.to.be.undefined;
+	});
+});
+
 describe('App Entrypoint no export default', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -98,6 +131,37 @@ describe('App Entrypoint relative', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/app-entrypoint-relative/',
+		});
+		await fixture.build();
+	});
+
+	it('loads during SSR', async () => {
+		const data = await fixture.readFile('/index.html');
+		const { document } = parseHTML(data);
+		const bar = document.querySelector('#foo > #bar');
+		expect(bar).not.to.be.undefined;
+		expect(bar.textContent).to.eq('works');
+	});
+
+	it('component not included in renderer bundle', async () => {
+		const data = await fixture.readFile('/index.html');
+		const { document } = parseHTML(data);
+		const island = document.querySelector('astro-island');
+		const client = island.getAttribute('renderer-url');
+		expect(client).not.to.be.undefined;
+
+		const js = await fixture.readFile(client);
+		expect(js).not.to.match(/\w+\.component\(\"Bar\"/gm);
+	});
+});
+
+describe('App Entrypoint /src/absolute', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/app-entrypoint-src-absolute/',
 		});
 		await fixture.build();
 	});

@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^4.0.0",
-    "astro": "^4.0.1",
+    "astro": "^4.0.2",
     "hast-util-select": "^6.0.2",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-slug": "^6.0.0",

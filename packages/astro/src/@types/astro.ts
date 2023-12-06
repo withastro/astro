@@ -132,6 +132,10 @@ export interface AstroScriptAttributes {
 	'is:inline'?: boolean;
 }
 
+export interface AstroSlotAttributes {
+	'is:inline'?: boolean;
+}
+
 export interface AstroComponentMetadata {
 	displayName: string;
 	hydrate?: 'load' | 'idle' | 'visible' | 'media' | 'only';

@@ -37,7 +37,7 @@ export function req({
 	method?: string;
 	reqTime?: number;
 }): string {
-	const color = statusCode >= 400 ? red : statusCode >= 300 ? yellow : blue;
+	const color = statusCode >= 500 ? red : statusCode >= 300 ? yellow : blue;
 	return (
 		color(`[${statusCode}]`) +
 		` ` +

@@ -104,6 +104,12 @@ const { fallback = 'animate' } = Astro.props;
 			let action = submitter?.getAttribute('formaction') ?? form.action ?? location.pathname;
 			const method = submitter?.getAttribute('formmethod') ?? form.method;
 
+			// the "dialog" method is a special keyword used within <dialog> elements
+			// https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#attr-fs-method
+			if (method === 'dialog') {
+				return;
+			}
+
 			const options: Options = { sourceElement: submitter ?? form };
 			if (method === 'get') {
 				const params = new URLSearchParams(formData as any);
@@ -113,6 +119,7 @@ const { fallback = 'animate' } = Astro.props;
 			} else {
 				options.formData = formData;
 			}
+
 			ev.preventDefault();
 			navigate(action, options);
 		});
