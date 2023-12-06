@@ -10,10 +10,12 @@ import { AggregateError, CompilerError } from '../errors/errors.js';
 import { AstroErrorData } from '../errors/index.js';
 import { resolvePath } from '../util.js';
 import { createStylePreprocessor } from './style.js';
+import type { AstroPreferences } from '../../preferences/index.js';
 
 export interface CompileProps {
 	astroConfig: AstroConfig;
 	viteConfig: ResolvedConfig;
+	preferences: AstroPreferences;
 	filename: string;
 	source: string;
 }
@@ -26,6 +28,7 @@ export interface CompileResult extends TransformResult {
 export async function compile({
 	astroConfig,
 	viteConfig,
+	preferences,
 	filename,
 	source,
 }: CompileProps): Promise<CompileResult> {
@@ -48,7 +51,10 @@ export async function compile({
 			resultScopedSlot: true,
 			transitionsAnimationURL: 'astro/components/viewtransitions.css',
 			annotateSourceFile:
-				viteConfig.command === 'serve' && astroConfig.devToolbar && astroConfig.devToolbar.enabled,
+				viteConfig.command === 'serve' &&
+				astroConfig.devToolbar &&
+				astroConfig.devToolbar.enabled &&
+				(await preferences.get('devToolbar.enabled')),
 			preprocessStyle: createStylePreprocessor({
 				filename,
 				viteConfig,
