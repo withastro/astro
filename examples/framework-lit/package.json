@@ -13,7 +13,7 @@
   "dependencies": {
     "@astrojs/lit": "^3.0.3",
     "@webcomponents/template-shadowroot": "^0.2.1",
-    "astro": "^4.0.1",
+    "astro": "^4.0.2",
     "lit": "^2.8.0"
   }
 }

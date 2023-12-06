@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 4.0.2
+
+### Patch Changes
+
+- [#9333](https://github.com/withastro/astro/pull/9333) [`b832cd190`](https://github.com/withastro/astro/commit/b832cd190199d4269d25d5d6e6b7efb399a69070) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes issue with `appEntrypoint` when running `astro dev`
+
 ## 4.0.1
 
 ### Patch Changes
