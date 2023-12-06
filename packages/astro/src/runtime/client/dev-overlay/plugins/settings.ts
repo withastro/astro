@@ -25,7 +25,7 @@ const settingsRows = [
 				}
 
 				settings.updateSetting('disablePluginNotification', evt.currentTarget.checked);
-				const action = evt.currentTarget.checked ? 'enabled' : 'disabled';
+				const action = evt.currentTarget.checked ? 'disabled' : 'enabled';
 				settings.log(`Plugin notification badges ${action}`);
 			}
 		},
