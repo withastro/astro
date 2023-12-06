@@ -4860,6 +4860,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/vue/test/fixtures/app-entrypoint-src-absolute:
+    dependencies:
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/vue/test/fixtures/basics:
     dependencies:
       '@astrojs/vue':

@@ -1,3 +1,3 @@
-console.log(123);
+export const setup = () => {}
 
 // no default export
