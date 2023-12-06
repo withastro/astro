@@ -5,6 +5,16 @@ type CompilationCache = Map<string, CompileResult>;
 
 const configCache = new WeakMap<AstroConfig, CompilationCache>();
 
+interface CachedFile { 
+	timestamp: number;
+	content: string;
+}
+const fileCache = new Map<string, CachedFile>;
+
+export function getCachedFileContent(filename: string) {
+	return fileCache.get(filename);
+}
+
 export function isCached(config: AstroConfig, filename: string) {
 	return configCache.has(config) && configCache.get(config)!.has(filename);
 }
@@ -36,6 +46,7 @@ export async function cachedCompilation(props: CompileProps): Promise<CompileRes
 	if (cache.has(filename)) {
 		return cache.get(filename)!;
 	}
+	fileCache.set(props.filename, { timestamp: Date.now(), content: props.source });
 	const compileResult = await compile(props);
 	cache.set(filename, compileResult);
 	return compileResult;
