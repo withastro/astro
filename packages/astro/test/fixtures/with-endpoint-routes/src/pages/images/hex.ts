@@ -1,9 +1,6 @@
-import { readFileSync } from "node:fs";
+import { readFile } from 'node:fs/promises';
 
-export async function GET({ params, request }) {
-  const buffer = readFileSync(new URL('../../astro.png', import.meta.url));
-  return {
-    body: buffer.toString('hex'),
-    encoding: 'hex',
-  };
+export async function GET() {
+	const buffer = await readFile(new URL('../../astro.png', import.meta.url));
+	return new Response(buffer.buffer);
 }

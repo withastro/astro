@@ -20,7 +20,7 @@ describe('SSR Astro.locals from server', () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/foo');
 		const locals = { foo: 'bar' };
-		const response = await app.render(request, undefined, locals);
+		const response = await app.render(request, { locals });
 		const html = await response.text();
 
 		const $ = cheerio.load(html);

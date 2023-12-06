@@ -21,11 +21,13 @@ export class DevOverlayHighlight extends HTMLElement {
 					width: 100%;
 					height: 100%;
 					position: absolute;
+					z-index: 2000000000;
 				}
 
 				.icon {
 					width: 24px;
 					height: 24px;
+					color: white;
 					background: linear-gradient(0deg, #B33E66, #B33E66), linear-gradient(0deg, #351722, #351722);
 					border: 1px solid rgba(53, 23, 34, 1);
 					border-radius: 9999px;

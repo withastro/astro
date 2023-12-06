@@ -15,10 +15,10 @@ export function getStaticPaths() {
 }
 
 export function GET({ params, request }) {
-	return {
-		body: JSON.stringify({
+	return new Response(
+		JSON.stringify({
 			param: params.param,
 			pathname: new URL(request.url).pathname
 		})
-	};
+	);
 }

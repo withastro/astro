@@ -1,10 +1,5 @@
-import {
-	TRANSITION_AFTER_SWAP,
-	TransitionBeforeSwapEvent,
-	doPreparation,
-	doSwap,
-	type TransitionBeforePreparationEvent,
-} from './events.js';
+import type { TransitionBeforePreparationEvent, TransitionBeforeSwapEvent } from './events.js';
+import { TRANSITION_AFTER_SWAP, doPreparation, doSwap } from './events.js';
 import type { Direction, Fallback, Options } from './types.js';
 
 type State = {
@@ -30,9 +25,7 @@ export const transitionEnabledOnThisPage = () =>
 	inBrowser && !!document.querySelector('[name="astro-view-transitions-enabled"]');
 
 const samePage = (thisLocation: URL, otherLocation: URL) =>
-	thisLocation.origin === otherLocation.origin &&
-	thisLocation.pathname === otherLocation.pathname &&
-	thisLocation.search === otherLocation.search;
+	thisLocation.pathname === otherLocation.pathname && thisLocation.search === otherLocation.search;
 
 // When we traverse the history, the window.location is already set to the new location.
 // This variable tells us where we came from
@@ -423,16 +416,22 @@ async function transition(
 	options: Options,
 	historyState?: State
 ) {
+	// not ours
+	if (!transitionEnabledOnThisPage() || location.origin !== to.origin) {
+		location.href = to.href;
+		return;
+	}
+
 	const navigationType = historyState
 		? 'traverse'
 		: options.history === 'replace'
-		? 'replace'
-		: 'push';
+		  ? 'replace'
+		  : 'push';
 
-	if (samePage(from, to) && !options.formData /* not yet: && to.hash*/) {
-		if (navigationType !== 'traverse') {
-			updateScrollPosition({ scrollX, scrollY });
-		}
+	if (navigationType !== 'traverse') {
+		updateScrollPosition({ scrollX, scrollY });
+	}
+	if (samePage(from, to) && !!to.hash) {
 		moveToLocation(to, from, options, historyState);
 		return;
 	}
@@ -452,61 +451,48 @@ async function transition(
 		return;
 	}
 
-	function pageMustReload(preparationEvent: TransitionBeforePreparationEvent) {
-		return (
-			preparationEvent.to.hash === '' ||
-			!samePage(preparationEvent.from, preparationEvent.to) ||
-			preparationEvent.sourceElement instanceof HTMLFormElement
-		);
-	}
-
 	async function defaultLoader(preparationEvent: TransitionBeforePreparationEvent) {
-		if (pageMustReload(preparationEvent)) {
-			const href = preparationEvent.to.href;
-			const init: RequestInit = {};
-			if (preparationEvent.formData) {
-				init.method = 'POST';
-				init.body = preparationEvent.formData;
-			}
-			const response = await fetchHTML(href, init);
-			// If there is a problem fetching the new page, just do an MPA navigation to it.
-			if (response === null) {
-				preparationEvent.preventDefault();
-				return;
-			}
-			// if there was a redirection, show the final URL in the browser's address bar
-			if (response.redirected) {
-				preparationEvent.to = new URL(response.redirected);
-			}
-
-			parser ??= new DOMParser();
-
-			preparationEvent.newDocument = parser.parseFromString(response.html, response.mediaType);
-			// The next line might look like a hack,
-			// but it is actually necessary as noscript elements
-			// and their contents are returned as markup by the parser,
-			// see https://developer.mozilla.org/en-US/docs/Web/API/DOMParser/parseFromString
-			preparationEvent.newDocument.querySelectorAll('noscript').forEach((el) => el.remove());
-
-			// If ViewTransitions is not enabled on the incoming page, do a full page load to it.
-			// Unless this was a form submission, in which case we do not want to trigger another mutation.
-			if (
-				!preparationEvent.newDocument.querySelector('[name="astro-view-transitions-enabled"]') &&
-				!preparationEvent.formData
-			) {
-				preparationEvent.preventDefault();
-				return;
-			}
-
-			const links = preloadStyleLinks(preparationEvent.newDocument);
-			links.length && (await Promise.all(links));
-
-			if (import.meta.env.DEV)
-				await prepareForClientOnlyComponents(preparationEvent.newDocument, preparationEvent.to);
-		} else {
-			preparationEvent.newDocument = document;
+		const href = preparationEvent.to.href;
+		const init: RequestInit = {};
+		if (preparationEvent.formData) {
+			init.method = 'POST';
+			init.body = preparationEvent.formData;
+		}
+		const response = await fetchHTML(href, init);
+		// If there is a problem fetching the new page, just do an MPA navigation to it.
+		if (response === null) {
+			preparationEvent.preventDefault();
 			return;
 		}
+		// if there was a redirection, show the final URL in the browser's address bar
+		if (response.redirected) {
+			preparationEvent.to = new URL(response.redirected);
+		}
+
+		parser ??= new DOMParser();
+
+		preparationEvent.newDocument = parser.parseFromString(response.html, response.mediaType);
+		// The next line might look like a hack,
+		// but it is actually necessary as noscript elements
+		// and their contents are returned as markup by the parser,
+		// see https://developer.mozilla.org/en-US/docs/Web/API/DOMParser/parseFromString
+		preparationEvent.newDocument.querySelectorAll('noscript').forEach((el) => el.remove());
+
+		// If ViewTransitions is not enabled on the incoming page, do a full page load to it.
+		// Unless this was a form submission, in which case we do not want to trigger another mutation.
+		if (
+			!preparationEvent.newDocument.querySelector('[name="astro-view-transitions-enabled"]') &&
+			!preparationEvent.formData
+		) {
+			preparationEvent.preventDefault();
+			return;
+		}
+
+		const links = preloadStyleLinks(preparationEvent.newDocument);
+		links.length && (await Promise.all(links));
+
+		if (import.meta.env.DEV)
+			await prepareForClientOnlyComponents(preparationEvent.newDocument, preparationEvent.to);
 	}
 
 	skipTransition = false;
@@ -569,12 +555,6 @@ export async function navigate(href: string, options?: Options) {
 			console.warn(warning);
 			navigateOnServerWarned = true;
 		}
-		return;
-	}
-
-	// not ours
-	if (!transitionEnabledOnThisPage()) {
-		location.href = href;
 		return;
 	}
 	await transition('forward', originalLocation, new URL(href, location.href), options ?? {});

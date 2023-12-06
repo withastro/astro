@@ -1,6 +1,6 @@
 import type { DevOverlayPlugin } from '../../../../@types/astro.js';
 import { settings, type Settings } from '../settings.js';
-import { createWindowWithTransition, waitForTransition } from './utils/window.js';
+import { createWindowElement } from './utils/window.js';
 
 interface SettingRow {
 	name: string;
@@ -13,23 +13,33 @@ interface SettingRow {
 const settingsRows = [
 	{
 		name: 'Disable notifications',
-		description: 'Notification bubbles will not be shown when this is enabled.',
+		description: 'Hide notification badges in the toolbar.',
 		input: 'checkbox',
 		settingKey: 'disablePluginNotification',
 		changeEvent: (evt: Event) => {
 			if (evt.currentTarget instanceof HTMLInputElement) {
+				const devOverlay = document.querySelector('astro-dev-toolbar');
+
+				if (devOverlay) {
+					devOverlay.setNotificationVisible(!evt.currentTarget.checked);
+				}
+
 				settings.updateSetting('disablePluginNotification', evt.currentTarget.checked);
+				const action = evt.currentTarget.checked ? 'enabled' : 'disabled';
+				settings.log(`Plugin notification badges ${action}`);
 			}
 		},
 	},
 	{
 		name: 'Verbose logging',
-		description: 'Log additional information to the console.',
+		description: 'Logs dev overlay events in the browser console.',
 		input: 'checkbox',
 		settingKey: 'verbose',
 		changeEvent: (evt: Event) => {
 			if (evt.currentTarget instanceof HTMLInputElement) {
 				settings.updateSetting('verbose', evt.currentTarget.checked);
+				const action = evt.currentTarget.checked ? 'enabled' : 'disabled';
+				settings.log(`Verbose logging ${action}`);
 			}
 		},
 	},
@@ -37,7 +47,7 @@ const settingsRows = [
 
 export default {
 	id: 'astro:settings',
-	name: 'Overlay settings',
+	name: 'Settings',
 	icon: 'gear',
 	init(canvas) {
 		createSettingsWindow();
@@ -45,10 +55,17 @@ export default {
 		document.addEventListener('astro:after-swap', createSettingsWindow);
 
 		function createSettingsWindow() {
-			const window = createWindowWithTransition(
-				'Settings',
-				'gear',
+			const windowElement = createWindowElement(
 				`<style>
+					:host astro-dev-toolbar-window {
+						height: 480px;
+
+						--color-purple: rgba(224, 204, 250, 1);
+					}
+					header {
+						display: flex;
+					}
+
 					h2, h3 {
 						margin-top: 0;
 					}
@@ -63,22 +80,73 @@ export default {
 						font-size: 16px;
 						font-weight: 400;
 						color: white;
-						margin-bottom: 0;
+						margin-bottom: 4px;
 					}
 
 					label {
-						font-size: 15px;
+						font-size: 14px;
 						line-height: 1.5rem;
 					}
+
+					h1 {
+						display: flex;
+						align-items: center;
+						gap: 8px;
+						font-weight: 600;
+						color: #fff;
+						margin: 0;
+						font-size: 22px;
+					}
+
+					astro-dev-toolbar-icon {
+						width: 1em;
+   					height: 1em;
+    				display: block;
+					}
+
+					code {
+						color: var(--color-purple);
+						border-color: #343841;
+						border-style: solid;
+						border-width: 1px;
+						border-radius: .4em;
+						background-color: #24262D;
+						padding: .3em;
+					}
+
+					label > section {
+						max-width: 67%;
+					}
+					p {
+						line-height: 1.5em;
+					}
+					a, a:visited {
+						color: var(--color-purple);
+					}
+					a:hover {
+						color: #f4ecfd;
+					}
 				</style>
-				<h2>General</h2>
-				`,
-				settingsRows.flatMap((setting) => [
-					getElementForSettingAsString(setting),
-					document.createElement('hr'),
-				])
+				<header>
+					<h1><astro-dev-toolbar-icon icon="gear"></astro-dev-toolbar-icon> Settings</h1>
+				</header>
+
+				<hr id="general"/>
+
+				<label class="setting-row">
+					<section>
+						<h3>Hide toolbar</h3>
+						Run <code>astro preferences disable devToolbar</code> in your terminal to disable the toolbar. <a href="https://docs.astro.build/en/reference/cli-reference/#astro-preferences" target="_blank">Learn more</a>.
+					</section>
+				</label>
+				`
 			);
-			canvas.append(window);
+			const general = windowElement.querySelector('#general')!;
+			for (const settingsRow of settingsRows) {
+				general.after(document.createElement('hr'));
+				general.after(getElementForSettingAsString(settingsRow));
+			}
+			canvas.append(windowElement);
 
 			function getElementForSettingAsString(setting: SettingRow) {
 				const label = document.createElement('label');
@@ -89,7 +157,7 @@ export default {
 
 				switch (setting.input) {
 					case 'checkbox': {
-						const astroToggle = document.createElement('astro-dev-overlay-toggle');
+						const astroToggle = document.createElement('astro-dev-toolbar-toggle');
 						astroToggle.input.addEventListener('change', setting.changeEvent);
 						astroToggle.input.checked = settings.config[setting.settingKey];
 						label.append(astroToggle);
@@ -99,8 +167,5 @@ export default {
 				return label;
 			}
 		}
-	},
-	async beforeTogglingOff(canvas) {
-		return await waitForTransition(canvas);
 	},
 } satisfies DevOverlayPlugin;

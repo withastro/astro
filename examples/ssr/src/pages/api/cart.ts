@@ -5,14 +5,12 @@ export function GET({ cookies }: APIContext) {
 	let userId = cookies.get('user-id').value;
 
 	if (!userId || !userCartItems.has(userId)) {
-		return {
-			body: JSON.stringify({ items: [] }),
-		};
+		return Response.json({ items: [] });
 	}
 	let items = userCartItems.get(userId);
 	let array = Array.from(items.values());
 
-	return new Response(JSON.stringify({ items: array }));
+	return Response.json({ items: array });
 }
 
 interface AddToCartItem {
@@ -36,9 +34,5 @@ export async function POST({ cookies, request }: APIContext) {
 		cart.set(item.id, { id: item.id, name: item.name, count: 1 });
 	}
 
-	return new Response(
-		JSON.stringify({
-			ok: true,
-		})
-	);
+	return Response.json({ ok: true });
 }

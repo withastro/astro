@@ -5,12 +5,11 @@ import {
 	remarkShiki,
 } from '@astrojs/markdown-remark';
 import { createProcessor, nodeTypes } from '@mdx-js/mdx';
-import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
 import { SourceMapGenerator } from 'source-map';
-import type { Processor } from 'unified';
+import type { PluggableList } from 'unified';
 import type { MdxOptions } from './index.js';
 import { recmaInjectImportMetaEnv } from './recma-inject-import-meta-env.js';
 import { rehypeApplyFrontmatterExport } from './rehype-apply-frontmatter-export.js';
@@ -27,10 +26,7 @@ interface MdxProcessorExtraOptions {
 	importMetaEnv: Record<string, any>;
 }
 
-export function createMdxProcessor(
-	mdxOptions: MdxOptions,
-	extraOptions: MdxProcessorExtraOptions
-): Processor {
+export function createMdxProcessor(mdxOptions: MdxOptions, extraOptions: MdxProcessorExtraOptions) {
 	return createProcessor({
 		remarkPlugins: getRemarkPlugins(mdxOptions),
 		rehypePlugins: getRehypePlugins(mdxOptions),

@@ -394,7 +394,10 @@ test.describe('View Transitions', () => {
 		await expect(locator).toBeInViewport();
 
 		// Scroll back to top
+		// back returns immediately, but we need to wait for navigate() to complete
+		const waitForReady = page.waitForEvent('console');
 		await page.goBack();
+		await waitForReady;
 		locator = page.locator('#longpage');
 		await expect(locator).toBeInViewport();
 
@@ -1058,5 +1061,34 @@ test.describe('View Transitions', () => {
 		const p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
 		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
+	test('Submitter with a name property is included in form data', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/form-four'));
+
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Voting Form');
+
+		// Submit the form
+		const expected = page.url() + '?stars=3';
+		await page.click('#three');
+		await expect(page).toHaveURL(expected);
+	});
+
+	test('Dialog using form with method of "dialog" should not trigger navigation', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/dialog'));
+
+		let requests = [];
+		page.on('request', (request) => requests.push(`${request.method()} ${request.url()}`));
+
+		await page.click('#open');
+		await expect(page.locator('dialog')).toHaveAttribute('open');
+		await page.click('#close');
+		await expect(page.locator('dialog')).not.toHaveAttribute('open');
+
+		expect(requests).toHaveLength(0);
 	});
 });

@@ -82,11 +82,9 @@ describe('Config Validation', () => {
 		it('defaultLocale is not in locales', async () => {
 			const configError = await validateConfig(
 				{
-					experimental: {
-						i18n: {
-							defaultLocale: 'en',
-							locales: ['es'],
-						},
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es'],
 					},
 				},
 				process.cwd()
@@ -97,16 +95,56 @@ describe('Config Validation', () => {
 			);
 		});
 
+		it('errors if codes are empty', async () => {
+			const configError = await validateConfig(
+				{
+					i18n: {
+						defaultLocale: 'uk',
+						locales: [
+							'es',
+							{
+								path: 'something',
+								codes: [],
+							},
+						],
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal('Array must contain at least 1 element(s)');
+		});
+
+		it('errors if the default locale is not in path', async () => {
+			const configError = await validateConfig(
+				{
+					i18n: {
+						defaultLocale: 'uk',
+						locales: [
+							'es',
+							{
+								path: 'something',
+								codes: ['en-UK'],
+							},
+						],
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal(
+				'The default locale `uk` is not present in the `i18n.locales` array.'
+			);
+		});
+
 		it('errors if a fallback value does not exist', async () => {
 			const configError = await validateConfig(
 				{
-					experimental: {
-						i18n: {
-							defaultLocale: 'en',
-							locales: ['es', 'en'],
-							fallback: {
-								es: 'it',
-							},
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						fallback: {
+							es: 'it',
 						},
 					},
 				},
@@ -121,13 +159,11 @@ describe('Config Validation', () => {
 		it('errors if a fallback key does not exist', async () => {
 			const configError = await validateConfig(
 				{
-					experimental: {
-						i18n: {
-							defaultLocale: 'en',
-							locales: ['es', 'en'],
-							fallback: {
-								it: 'en',
-							},
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						fallback: {
+							it: 'en',
 						},
 					},
 				},
@@ -142,13 +178,11 @@ describe('Config Validation', () => {
 		it('errors if a fallback key contains the default locale', async () => {
 			const configError = await validateConfig(
 				{
-					experimental: {
-						i18n: {
-							defaultLocale: 'en',
-							locales: ['es', 'en'],
-							fallback: {
-								en: 'es',
-							},
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						fallback: {
+							en: 'es',
 						},
 					},
 				},

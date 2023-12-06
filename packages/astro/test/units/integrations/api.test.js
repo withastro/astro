@@ -30,6 +30,33 @@ describe('Integration API', () => {
 		expect(updatedViteConfig).to.haveOwnProperty('define');
 	});
 
+	it('runHookBuildSetup should return updated config', async () => {
+		let updatedInternalConfig;
+		const updatedViteConfig = await runHookBuildSetup({
+			config: {
+				integrations: [
+					{
+						name: 'test',
+						hooks: {
+							'astro:build:setup'({ updateConfig }) {
+								updatedInternalConfig = updateConfig({
+									define: {
+										foo: 'bar',
+									},
+								});
+							},
+						},
+					},
+				],
+			},
+			vite: {},
+			logger: defaultLogger,
+			pages: new Map(),
+			target: 'server',
+		});
+		expect(updatedViteConfig).to.be.deep.equal(updatedInternalConfig);
+	});
+
 	it('runHookConfigSetup can update Astro config', async () => {
 		const site = 'https://test.com/';
 		const updatedSettings = await runHookConfigSetup({
@@ -106,7 +133,7 @@ describe('Astro feature map', function () {
 	it('should not support the feature when not provided', () => {
 		let result = validateSupportedFeatures(
 			'test',
-			undefined,
+			{},
 			{
 				output: 'hybrid',
 			},

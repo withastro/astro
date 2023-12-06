@@ -2,7 +2,7 @@ import { getContext } from './actions/context.js';
 
 import { help } from './actions/help.js';
 import { install } from './actions/install.js';
-import { verify } from './actions/verify.js';
+import { verify, collectPackageInfo } from './actions/verify.js';
 import { setStdout } from './messages.js';
 
 const exit = () => process.exit(0);
@@ -29,4 +29,4 @@ export async function main() {
 	process.exit(0);
 }
 
-export { getContext, install, setStdout, verify };
+export { getContext, install, setStdout, verify, collectPackageInfo };

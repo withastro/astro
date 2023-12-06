@@ -37,15 +37,15 @@
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.22.5",
     "@babel/plugin-transform-react-jsx-development": "^7.22.5",
-    "@preact/preset-vite": "^2.5.0",
+    "@preact/preset-vite": "^2.7.0",
     "@preact/signals": "^1.2.1",
     "babel-plugin-transform-hook-names": "^1.0.2",
-    "preact-render-to-string": "^6.2.1"
+    "preact-render-to-string": "^6.3.1"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "preact": "^10.17.1"
+    "preact": "^10.19.2"
   },
   "peerDependencies": {
     "preact": "^10.6.5"

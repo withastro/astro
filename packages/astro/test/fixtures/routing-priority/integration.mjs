@@ -5,15 +5,15 @@ export default function() {
 				'astro:config:setup': ({ injectRoute }) => {
 					injectRoute({
 						pattern: '/injected',
-						entryPoint: './src/to-inject.astro'
+						entrypoint: './src/to-inject.astro'
 					});
 					injectRoute({
 						pattern: '/_injected',
-						entryPoint: './src/_to-inject.astro'
+						entrypoint: './src/_to-inject.astro'
 					});
 					injectRoute({
 						pattern: '/[id]',
-						entryPoint: './src/[id].astro'
+						entrypoint: './src/[id].astro'
 					});
 				}
 			}

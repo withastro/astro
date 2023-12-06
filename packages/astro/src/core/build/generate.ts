@@ -1,16 +1,13 @@
-import * as colors from 'kleur/colors';
-import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
+import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
 import fs from 'node:fs';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import PQueue from 'p-queue';
 import type { OutputAsset, OutputChunk } from 'rollup';
-import type { BufferEncoding } from 'vfile';
 import type {
 	AstroSettings,
 	ComponentInstance,
 	GetStaticPathsItem,
-	MiddlewareEndpointHandler,
 	RouteData,
 	RouteType,
 	SSRError,
@@ -113,16 +110,6 @@ async function getEntryForFallbackRoute(
 	return RedirectSinglePageBuiltModule;
 }
 
-function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
-	return (
-		// Drafts are disabled
-		!settings.config.markdown.drafts &&
-		// This is a draft post
-		'frontmatter' in pageModule &&
-		(pageModule as any).frontmatter?.draft === true
-	);
-}
-
 // Gives back a facadeId that is relative to the root.
 // ie, src/pages/index.astro instead of /Users/name..../src/pages/index.astro
 export function rootRelativeFacadeId(facadeId: string, settings: AstroSettings): string {
@@ -149,7 +136,7 @@ export function chunkIsPage(
 }
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
-	const timer = performance.now();
+	const generatePagesTimer = performance.now();
 	const ssr = isServerLikeOutput(opts.settings.config);
 	let manifest: SSRManifest;
 	if (ssr) {
@@ -179,7 +166,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	}
 
 	const verb = ssr ? 'prerendering' : 'generating';
-	logger.info(null, `\n${bgGreen(black(` ${verb} static routes `))}`);
+	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
 	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
 	if (ssr) {
@@ -187,11 +174,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			if (pageData.route.prerender) {
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const ssrEntryPage = await import(ssrEntryURLPage.toString());
-				if (
-					// TODO: remove in Astro 4.0
-					opts.settings.config.build.split ||
-					opts.settings.adapter?.adapterFeatures?.functionPerRoute
-				) {
+				if (opts.settings.adapter?.adapterFeatures?.functionPerRoute) {
 					// forcing to use undefined, so we fail in an expected way if the module is not even there.
 					const ssrEntry = ssrEntryPage?.pageModule;
 					if (ssrEntry) {
@@ -223,12 +206,14 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			}
 		}
 	}
-
-	logger.info(null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
+	logger.info(
+		null,
+		green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`)
+	);
 
 	const staticImageList = getStaticImageList();
 	if (staticImageList.size) {
-		logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`);
+		logger.info('SKIP_FORMAT', `${bgGreen(black(` generating optimized images `))}`);
 
 		const totalCount = Array.from(staticImageList.values())
 			.map((x) => x.transforms.size)
@@ -244,7 +229,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 
 		await queue.onIdle();
 		const assetsTimeEnd = performance.now();
-		logger.info(null, dim(`Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
+		logger.info(null, green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
 
 		delete globalThis?.astroAsset?.addStaticImage;
 	}
@@ -261,37 +246,36 @@ async function generatePage(
 	builtPaths: Set<string>,
 	pipeline: BuildPipeline
 ) {
-	let timeStart = performance.now();
+	// prepare information we need
 	const logger = pipeline.getLogger();
 	const config = pipeline.getConfig();
+	const pageModulePromise = ssrEntry.page;
+	const onRequest = ssrEntry.onRequest;
 	const pageInfo = getPageDataByComponent(pipeline.getInternals(), pageData.route.component);
 
-	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
-	const linkIds: [] = [];
-	const scripts = pageInfo?.hoistedScript ?? null;
+	// Calculate information of the page, like scripts, links and styles
 	const styles = pageData.styles
 		.sort(cssOrder)
 		.map(({ sheet }) => sheet)
 		.reduce(mergeInlineCss, []);
-
-	const pageModulePromise = ssrEntry.page;
-	const onRequest = ssrEntry.onRequest;
+	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
+	const linkIds: [] = [];
+	const scripts = pageInfo?.hoistedScript ?? null;
+	// prepare the middleware
 	const i18nMiddleware = createI18nMiddleware(
 		pipeline.getManifest().i18n,
 		pipeline.getManifest().base,
 		pipeline.getManifest().trailingSlash
 	);
-	if (config.experimental.i18n && i18nMiddleware) {
+	if (config.i18n && i18nMiddleware) {
 		if (onRequest) {
-			pipeline.setMiddlewareFunction(
-				sequence(i18nMiddleware, onRequest as MiddlewareEndpointHandler)
-			);
+			pipeline.setMiddlewareFunction(sequence(i18nMiddleware, onRequest));
 		} else {
 			pipeline.setMiddlewareFunction(i18nMiddleware);
 		}
 		pipeline.onBeforeRenderRoute(i18nPipelineHook);
 	} else if (onRequest) {
-		pipeline.setMiddlewareFunction(onRequest as MiddlewareEndpointHandler);
+		pipeline.setMiddlewareFunction(onRequest);
 	}
 	if (!pageModulePromise) {
 		throw new Error(
@@ -299,16 +283,6 @@ async function generatePage(
 		);
 	}
 	const pageModule = await pageModulePromise();
-	if (shouldSkipDraft(pageModule, pipeline.getSettings())) {
-		logger.info(null, `${magenta('⚠️')}  Skipping draft ${pageData.route.component}`);
-		// TODO: Remove in Astro 4.0
-		logger.warn(
-			'astro',
-			`The drafts feature is deprecated. You should migrate to content collections instead. See https://docs.astro.build/en/guides/content-collections/#filtering-collection-queries for more information.`
-		);
-		return;
-	}
-
 	const generationOptions: Readonly<GeneratePathOptions> = {
 		pageData,
 		linkIds,
@@ -316,36 +290,33 @@ async function generatePage(
 		styles,
 		mod: pageModule,
 	};
-
-	const icon =
-		pageData.route.type === 'page' ||
-		pageData.route.type === 'redirect' ||
-		pageData.route.type === 'fallback'
-			? green('▶')
-			: magenta('λ');
-	if (isRelativePath(pageData.route.component)) {
-		logger.info(null, `${icon} ${pageData.route.route}`);
-		for (const fallbackRoute of pageData.route.fallbackRoutes) {
-			logger.info(null, `${icon} ${fallbackRoute.route}`);
+	// Now we explode the routes. A route render itself, and it can render its fallbacks (i18n routing)
+	for (const route of eachRouteInRouteData(pageData)) {
+		const icon =
+			route.type === 'page' || route.type === 'redirect' || route.type === 'fallback'
+				? green('▶')
+				: magenta('λ');
+		if (isRelativePath(route.component)) {
+			logger.info(null, `${icon} ${route.route}`);
+		} else {
+			logger.info(null, `${icon} ${route.component}`);
 		}
-	} else {
-		logger.info(null, `${icon} ${pageData.route.component}`);
-	}
-
-	// Get paths for the route, calling getStaticPaths if needed.
-	const paths = await getPathsForRoute(pageData, pageModule, pipeline, builtPaths);
-
-	let prevTimeEnd = timeStart;
-	for (let i = 0; i < paths.length; i++) {
-		const path = paths[i];
-		await generatePath(path, generationOptions, pipeline);
-		const timeEnd = performance.now();
-		const timeChange = getTimeStat(prevTimeEnd, timeEnd);
-		const timeIncrease = `(+${timeChange})`;
-		const filePath = getOutputFilename(pipeline.getConfig(), path, pageData.route.type);
-		const lineIcon = i === paths.length - 1 ? '└─' : '├─';
-		logger.info(null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
-		prevTimeEnd = timeEnd;
+		// Get paths for the route, calling getStaticPaths if needed.
+		const paths = await getPathsForRoute(route, pageModule, pipeline, builtPaths);
+		let timeStart = performance.now();
+		let prevTimeEnd = timeStart;
+		for (let i = 0; i < paths.length; i++) {
+			const path = paths[i];
+			pipeline.getEnvironment().logger.debug('build', `Generating: ${path}`);
+			await generatePath(path, pipeline, generationOptions, route);
+			const timeEnd = performance.now();
+			const timeChange = getTimeStat(prevTimeEnd, timeEnd);
+			const timeIncrease = `(+${timeChange})`;
+			const filePath = getOutputFilename(pipeline.getConfig(), path, pageData.route.type);
+			const lineIcon = i === paths.length - 1 ? '└─' : '├─';
+			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
+			prevTimeEnd = timeEnd;
+		}
 	}
 }
 
@@ -357,7 +328,7 @@ function* eachRouteInRouteData(data: PageBuildData) {
 }
 
 async function getPathsForRoute(
-	pageData: PageBuildData,
+	route: RouteData,
 	mod: ComponentInstance,
 	pipeline: BuildPipeline,
 	builtPaths: Set<string>
@@ -365,68 +336,62 @@ async function getPathsForRoute(
 	const opts = pipeline.getStaticBuildOptions();
 	const logger = pipeline.getLogger();
 	let paths: Array<string> = [];
-	if (pageData.route.pathname) {
-		paths.push(pageData.route.pathname);
-		builtPaths.add(pageData.route.pathname);
-		for (const virtualRoute of pageData.route.fallbackRoutes) {
+	if (route.pathname) {
+		paths.push(route.pathname);
+		builtPaths.add(route.pathname);
+		for (const virtualRoute of route.fallbackRoutes) {
 			if (virtualRoute.pathname) {
 				paths.push(virtualRoute.pathname);
 				builtPaths.add(virtualRoute.pathname);
 			}
 		}
 	} else {
-		for (const route of eachRouteInRouteData(pageData)) {
-			const staticPaths = await callGetStaticPaths({
-				mod,
-				route,
-				routeCache: opts.routeCache,
-				logger,
-				ssr: isServerLikeOutput(opts.settings.config),
-			}).catch((err) => {
-				logger.debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
-				throw err;
+		const staticPaths = await callGetStaticPaths({
+			mod,
+			route,
+			routeCache: opts.routeCache,
+			logger,
+			ssr: isServerLikeOutput(opts.settings.config),
+		}).catch((err) => {
+			logger.debug('build', `├── ${bold(red('✗'))} ${route.component}`);
+			throw err;
+		});
+
+		const label = staticPaths.length === 1 ? 'page' : 'pages';
+		logger.debug(
+			'build',
+			`├── ${bold(green('✔'))} ${route.component} → ${magenta(`[${staticPaths.length} ${label}]`)}`
+		);
+
+		paths = staticPaths
+			.map((staticPath) => {
+				try {
+					return route.generate(staticPath.params);
+				} catch (e) {
+					if (e instanceof TypeError) {
+						throw getInvalidRouteSegmentError(e, route, staticPath);
+					}
+					throw e;
+				}
+			})
+			.filter((staticPath) => {
+				// The path hasn't been built yet, include it
+				if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
+					return true;
+				}
+
+				// The path was already built once. Check the manifest to see if
+				// this route takes priority for the final URL.
+				// NOTE: The same URL may match multiple routes in the manifest.
+				// Routing priority needs to be verified here for any duplicate
+				// paths to ensure routing priority rules are enforced in the final build.
+				const matchedRoute = matchRoute(staticPath, opts.manifest);
+				return matchedRoute === route;
 			});
 
-			const label = staticPaths.length === 1 ? 'page' : 'pages';
-			logger.debug(
-				'build',
-				`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(
-					`[${staticPaths.length} ${label}]`
-				)}`
-			);
-
-			paths.push(
-				...staticPaths
-					.map((staticPath) => {
-						try {
-							return route.generate(staticPath.params);
-						} catch (e) {
-							if (e instanceof TypeError) {
-								throw getInvalidRouteSegmentError(e, route, staticPath);
-							}
-							throw e;
-						}
-					})
-					.filter((staticPath) => {
-						// The path hasn't been built yet, include it
-						if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
-							return true;
-						}
-
-						// The path was already built once. Check the manifest to see if
-						// this route takes priority for the final URL.
-						// NOTE: The same URL may match multiple routes in the manifest.
-						// Routing priority needs to be verified here for any duplicate
-						// paths to ensure routing priority rules are enforced in the final build.
-						const matchedRoute = matchRoute(staticPath, opts.manifest);
-						return matchedRoute === route;
-					})
-			);
-
-			// Add each path to the builtPaths set, to avoid building it again later.
-			for (const staticPath of paths) {
-				builtPaths.add(removeTrailingForwardSlash(staticPath));
-			}
+		// Add each path to the builtPaths set, to avoid building it again later.
+		for (const staticPath of paths) {
+			builtPaths.add(removeTrailingForwardSlash(staticPath));
 		}
 	}
 
@@ -509,106 +474,116 @@ function getUrlForPath(
 	return url;
 }
 
-async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeline: BuildPipeline) {
-	const manifest = pipeline.getManifest();
+interface GeneratePathOptions {
+	pageData: PageBuildData;
+	linkIds: string[];
+	scripts: { type: 'inline' | 'external'; value: string } | null;
+	styles: StylesheetAsset[];
+	mod: ComponentInstance;
+}
+async function generatePath(
+	pathname: string,
+	pipeline: BuildPipeline,
+	gopts: GeneratePathOptions,
+	route: RouteData
+) {
 	const { mod, scripts: hoistedScripts, styles: _styles, pageData } = gopts;
+	const manifest = pipeline.getManifest();
+	const logger = pipeline.getLogger();
+	pipeline.getEnvironment().logger.debug('build', `Generating: ${pathname}`);
 
-	for (const route of eachRouteInRouteData(pageData)) {
-		// This adds the page name to the array so it can be shown as part of stats.
-		if (route.type === 'page') {
-			addPageName(pathname, pipeline.getStaticBuildOptions());
+	const links = new Set<never>();
+	const scripts = createModuleScriptsSet(
+		hoistedScripts ? [hoistedScripts] : [],
+		manifest.base,
+		manifest.assetsPrefix
+	);
+	const styles = createStylesheetElementSet(_styles, manifest.base, manifest.assetsPrefix);
+
+	if (pipeline.getSettings().scripts.some((script) => script.stage === 'page')) {
+		const hashedFilePath = pipeline.getInternals().entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
+		if (typeof hashedFilePath !== 'string') {
+			throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
 		}
+		const src = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
+		scripts.add({
+			props: { type: 'module', src },
+			children: '',
+		});
+	}
 
-		pipeline.getEnvironment().logger.debug('build', `Generating: ${pathname}`);
-
-		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
-		const links = new Set<never>();
-		const scripts = createModuleScriptsSet(
-			hoistedScripts ? [hoistedScripts] : [],
-			manifest.base,
-			manifest.assetsPrefix
-		);
-		const styles = createStylesheetElementSet(_styles, manifest.base, manifest.assetsPrefix);
-
-		if (pipeline.getSettings().scripts.some((script) => script.stage === 'page')) {
-			const hashedFilePath = pipeline.getInternals().entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
-			if (typeof hashedFilePath !== 'string') {
-				throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
-			}
-			const src = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
+	// Add all injected scripts to the page.
+	for (const script of pipeline.getSettings().scripts) {
+		if (script.stage === 'head-inline') {
 			scripts.add({
-				props: { type: 'module', src },
-				children: '',
+				props: {},
+				children: script.content,
 			});
 		}
+	}
 
-		// Add all injected scripts to the page.
-		for (const script of pipeline.getSettings().scripts) {
-			if (script.stage === 'head-inline') {
-				scripts.add({
-					props: {},
-					children: script.content,
-				});
-			}
+	// This adds the page name to the array so it can be shown as part of stats.
+	if (route.type === 'page') {
+		addPageName(pathname, pipeline.getStaticBuildOptions());
+	}
+
+	const ssr = isServerLikeOutput(pipeline.getConfig());
+	const url = getUrlForPath(
+		pathname,
+		pipeline.getConfig().base,
+		pipeline.getStaticBuildOptions().origin,
+		pipeline.getConfig().build.format,
+		route.type
+	);
+
+	const request = createRequest({
+		url,
+		headers: new Headers(),
+		logger: pipeline.getLogger(),
+		ssr,
+	});
+	const i18n = pipeline.getConfig().i18n;
+
+	const renderContext = await createRenderContext({
+		pathname,
+		request,
+		componentMetadata: manifest.componentMetadata,
+		scripts,
+		styles,
+		links,
+		route,
+		env: pipeline.getEnvironment(),
+		mod,
+		locales: i18n?.locales,
+		routing: i18n?.routing,
+		defaultLocale: i18n?.defaultLocale,
+	});
+
+	let body: string | Uint8Array;
+
+	let response: Response;
+	try {
+		response = await pipeline.renderRoute(renderContext, mod);
+	} catch (err) {
+		if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
+			(err as SSRError).id = route.component;
 		}
+		throw err;
+	}
 
-		const ssr = isServerLikeOutput(pipeline.getConfig());
-		const url = getUrlForPath(
-			pathname,
-			pipeline.getConfig().base,
-			pipeline.getStaticBuildOptions().origin,
-			pipeline.getConfig().build.format,
-			route.type
-		);
-
-		const request = createRequest({
-			url,
-			headers: new Headers(),
-			logger: pipeline.getLogger(),
-			ssr,
-		});
-		const i18n = pipeline.getConfig().experimental.i18n;
-		const renderContext = await createRenderContext({
-			pathname,
-			request,
-			componentMetadata: manifest.componentMetadata,
-			scripts,
-			styles,
-			links,
-			route,
-			env: pipeline.getEnvironment(),
-			mod,
-			locales: i18n?.locales,
-			routingStrategy: i18n?.routingStrategy,
-			defaultLocale: i18n?.defaultLocale,
-		});
-
-		let body: string | Uint8Array;
-		let encoding: BufferEncoding | undefined;
-
-		let response: Response;
-		try {
-			response = await pipeline.renderRoute(renderContext, mod);
-		} catch (err) {
-			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
-				(err as SSRError).id = pageData.component;
-			}
-			throw err;
+	if (response.status >= 300 && response.status < 400) {
+		// If redirects is set to false, don't output the HTML
+		if (!pipeline.getConfig().build.redirects) {
+			return;
 		}
-
-		if (response.status >= 300 && response.status < 400) {
-			// If redirects is set to false, don't output the HTML
-			if (!pipeline.getConfig().build.redirects) {
-				return;
-			}
-			const locationSite = getRedirectLocationOrThrow(response.headers);
-			const siteURL = pipeline.getConfig().site;
-			const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
-			const fromPath = new URL(renderContext.request.url).pathname;
-			// A short delay causes Google to interpret the redirect as temporary.
-			// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
-			const delay = response.status === 302 ? 2 : 0;
-			body = `<!doctype html>
+		const locationSite = getRedirectLocationOrThrow(response.headers);
+		const siteURL = pipeline.getConfig().site;
+		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
+		const fromPath = new URL(renderContext.request.url).pathname;
+		// A short delay causes Google to interpret the redirect as temporary.
+		// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
+		const delay = response.status === 302 ? 2 : 0;
+		body = `<!doctype html>
 <title>Redirecting to: ${location}</title>
 <meta http-equiv="refresh" content="${delay};url=${location}">
 <meta name="robots" content="noindex">
@@ -616,27 +591,25 @@ async function generatePath(pathname: string, gopts: GeneratePathOptions, pipeli
 <body>
 	<a href="${location}">Redirecting from <code>${fromPath}</code> to <code>${location}</code></a>
 </body>`;
-			if (pipeline.getConfig().compressHTML === true) {
-				body = body.replaceAll('\n', '');
-			}
-			// A dynamic redirect, set the location so that integrations know about it.
-			if (route.type !== 'redirect') {
-				route.redirect = location.toString();
-			}
-		} else {
-			// If there's no body, do nothing
-			if (!response.body) return;
-			body = Buffer.from(await response.arrayBuffer());
-			encoding = (response.headers.get('X-Astro-Encoding') as BufferEncoding | null) ?? 'utf-8';
+		if (pipeline.getConfig().compressHTML === true) {
+			body = body.replaceAll('\n', '');
 		}
-
-		const outFolder = getOutFolder(pipeline.getConfig(), pathname, route.type);
-		const outFile = getOutFile(pipeline.getConfig(), outFolder, pathname, route.type);
-		route.distURL = outFile;
-
-		await fs.promises.mkdir(outFolder, { recursive: true });
-		await fs.promises.writeFile(outFile, body, encoding);
+		// A dynamic redirect, set the location so that integrations know about it.
+		if (route.type !== 'redirect') {
+			route.redirect = location.toString();
+		}
+	} else {
+		// If there's no body, do nothing
+		if (!response.body) return;
+		body = Buffer.from(await response.arrayBuffer());
 	}
+
+	const outFolder = getOutFolder(pipeline.getConfig(), pathname, route.type);
+	const outFile = getOutFile(pipeline.getConfig(), outFolder, pathname, route.type);
+	route.distURL = outFile;
+
+	await fs.promises.mkdir(outFolder, { recursive: true });
+	await fs.promises.writeFile(outFile, body);
 }
 
 /**
@@ -652,12 +625,12 @@ export function createBuildManifest(
 	renderers: SSRLoadedRenderer[]
 ): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
-	if (settings.config.experimental.i18n) {
+	if (settings.config.i18n) {
 		i18nManifest = {
-			fallback: settings.config.experimental.i18n.fallback,
-			routingStrategy: settings.config.experimental.i18n.routingStrategy,
-			defaultLocale: settings.config.experimental.i18n.defaultLocale,
-			locales: settings.config.experimental.i18n.locales,
+			fallback: settings.config.i18n.fallback,
+			routing: settings.config.i18n.routing,
+			defaultLocale: settings.config.i18n.defaultLocale,
+			locales: settings.config.i18n.locales,
 		};
 	}
 	return {

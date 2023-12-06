@@ -1,6 +1,6 @@
 import { APIContext } from 'astro';
 
-export function post({ cookies, params, request }: APIContext) {
+export function POST({ cookies }: APIContext) {
 	// add a new cookie
 	cookies.set('user-id', '1', {
 		path: '/',
