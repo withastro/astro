@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 3.1.0
+
+### Minor Changes
+
+- [#96](https://github.com/withastro/adapters/pull/96) [`f1df277`](https://github.com/withastro/adapters/commit/f1df27740b5c185e28ad73a810bb5dad6bb1e8cd) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue where this package could not be installed alongside Astro 4.0.
+
 ## 3.0.4
 
 ### Patch Changes
