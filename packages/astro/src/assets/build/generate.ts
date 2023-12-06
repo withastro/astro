@@ -1,4 +1,4 @@
-import { dim, green } from 'kleur/colors';
+import { dim, green, red } from 'kleur/colors';
 import fs, { readFileSync } from 'node:fs';
 import { basename, join } from 'node:path/posix';
 import type PQueue from 'p-queue';
@@ -207,11 +207,13 @@ export async function generateImagesForPath(
 
 		const imageService = (await getConfiguredImageService()) as LocalImageService;
 		resultData.data = (
-			await imageService.transform(
-				originalImage.data,
-				{ ...options, src: originalImagePath },
-				env.imageConfig
-			)
+			await imageService
+				.transform(originalImage.data, { ...options, src: originalImagePath }, env.imageConfig)
+				.catch((e) => {
+					console.error(red(`Failed to transform an image`));
+					console.error(red(`Image path: ${originalImagePath}`));
+					throw e;
+				})
 		).data;
 
 		try {
