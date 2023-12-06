@@ -2,7 +2,7 @@ import type { AstroConfig, AstroSettings, SSRLoadedRenderer } from '../../@types
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
-import { Logger } from '../logger/core.js';
+import type { Logger } from '../logger/core.js';
 import { Pipeline } from '../pipeline.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { createEnvironment } from '../render/index.js';
@@ -142,15 +142,15 @@ export class BuildPipeline extends Pipeline {
 	retrieveRoutesToGenerate(): Map<PageBuildData, string> {
 		const pages = new Map<PageBuildData, string>();
 
-		for (const [entryPoint, filePath] of this.#internals.entrySpecifierToBundleMap) {
+		for (const [entrypoint, filePath] of this.#internals.entrySpecifierToBundleMap) {
 			// virtual pages can be emitted with different prefixes:
 			// - the classic way are pages emitted with prefix ASTRO_PAGE_RESOLVED_MODULE_ID -> plugin-pages
 			// - pages emitted using `build.split`, in this case pages are emitted with prefix RESOLVED_SPLIT_MODULE_ID
 			if (
-				entryPoint.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
-				entryPoint.includes(RESOLVED_SPLIT_MODULE_ID)
+				entrypoint.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
+				entrypoint.includes(RESOLVED_SPLIT_MODULE_ID)
 			) {
-				const [, pageName] = entryPoint.split(':');
+				const [, pageName] = entrypoint.split(':');
 				const pageData = this.#internals.pagesByComponent.get(
 					`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`
 				);

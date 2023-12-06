@@ -8,7 +8,7 @@ export async function GET() {
 	const withSlugConfig = stripAllRenderFn(await getCollection('with-custom-slugs'));
 	const withUnionSchema = stripAllRenderFn(await getCollection('with-union-schema'));
 
-	return {
-		body: devalue.stringify({withoutConfig, withSchemaConfig, withSlugConfig, withUnionSchema}),
-	}
+	return new Response(
+		devalue.stringify({ withoutConfig, withSchemaConfig, withSlugConfig, withUnionSchema })
+	);
 }

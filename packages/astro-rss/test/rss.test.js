@@ -1,18 +1,18 @@
-import rss, { getRssString } from '../dist/index.js';
-import { rssSchema } from '../dist/schema.js';
 import chai from 'chai';
 import chaiPromises from 'chai-as-promised';
 import chaiXml from 'chai-xml';
+import rss, { getRssString } from '../dist/index.js';
+import { rssSchema } from '../dist/schema.js';
 import {
-	title,
 	description,
-	site,
 	phpFeedItem,
 	phpFeedItemWithContent,
 	phpFeedItemWithCustomData,
+	site,
+	title,
 	web1FeedItem,
-	web1FeedItemWithContent,
 	web1FeedItemWithAllData,
+	web1FeedItemWithContent,
 } from './test-utils.js';
 
 chai.use(chaiPromises);
@@ -156,36 +156,12 @@ describe('getRssString', () => {
 		chai.expect(str).to.contain(customData);
 	});
 
-	it('should filter out entries marked as `draft`', async () => {
-		const str = await getRssString({
-			title,
-			description,
-			items: [phpFeedItem, { ...web1FeedItem, draft: true }],
-			site,
-		});
-
-		chai.expect(str).xml.to.equal(validXmlWithoutWeb1FeedResult);
-	});
-
-	it('should respect drafts option', async () => {
-		const str = await getRssString({
-			title,
-			description,
-			items: [phpFeedItem, { ...web1FeedItem, draft: true }],
-			site,
-			drafts: true,
-		});
-
-		chai.expect(str).xml.to.equal(validXmlResult);
-	});
-
 	it('should not append trailing slash to URLs with the given option', async () => {
 		const str = await getRssString({
 			title,
 			description,
-			items: [phpFeedItem, { ...web1FeedItem, draft: true }],
+			items: [phpFeedItem],
 			site,
-			drafts: true,
 			trailingSlash: false,
 		});
 

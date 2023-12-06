@@ -16,7 +16,7 @@ export default function astroDevOverlay({ settings }: AstroPluginOptions): vite.
 			if (id === resolvedVirtualModuleId) {
 				return `
 					export const loadDevOverlayPlugins = async () => {
-						return [${settings.devOverlayPlugins
+						return [${settings.devToolbarApps
 							.map((plugin) => `(await import('${plugin}')).default`)
 							.join(',')}];
 					};

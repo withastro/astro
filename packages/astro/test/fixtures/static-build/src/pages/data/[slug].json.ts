@@ -6,11 +6,9 @@ export async function getStaticPaths() {
 }
 
 export async function GET({ params }) {
-    return {
-        body: JSON.stringify({
-            slug: params.slug,
-            name: 'Astro Technology Company',
-            url: 'https://astro.build/'
-        })
-    }
+    return Response.json({
+        slug: params.slug,
+        name: 'Astro Technology Company',
+        url: 'https://astro.build/'
+    });
 }

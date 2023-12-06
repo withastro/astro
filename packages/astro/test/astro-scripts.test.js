@@ -145,7 +145,7 @@ describe('Scripts (hoisted and not)', () => {
 						hooks: {
 							'astro:config:setup': ({ injectRoute, injectScript }) => {
 								injectScript('page', `import '/src/scripts/something.js';`);
-								injectRoute({ pattern: 'injected-route', entryPoint: 'src/external-page.astro' });
+								injectRoute({ pattern: 'injected-route', entrypoint: 'src/external-page.astro' });
 							},
 						},
 					},

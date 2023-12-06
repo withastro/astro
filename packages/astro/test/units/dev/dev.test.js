@@ -133,7 +133,7 @@ describe('dev container', () => {
 								'astro:config:setup': ({ injectRoute }) => {
 									injectRoute({
 										pattern: '/another-[slug]',
-										entryPoint: './src/components/test.astro',
+										entrypoint: './src/components/test.astro',
 									});
 								},
 							},
@@ -184,7 +184,7 @@ describe('dev container', () => {
 								'astro:config:setup': ({ injectRoute }) => {
 									injectRoute({
 										pattern: '/404',
-										entryPoint: './src/components/404.astro',
+										entrypoint: './src/components/404.astro',
 									});
 								},
 							},
@@ -199,7 +199,6 @@ describe('dev container', () => {
 					container.handle(r.req, r.res);
 					await r.done;
 					const doc = await r.text();
-					console.log(doc);
 					expect(doc).to.match(/Regular page/);
 					expect(r.res.statusCode).to.equal(200);
 				}
@@ -254,8 +253,7 @@ describe('dev container', () => {
 				container.handle(r.req, r.res);
 				await r.done;
 
-				expect(r.res.statusCode).to.equal(301);
-				expect(r.res.getHeader('location')).to.equal('/sub/test.txt');
+				expect(r.res.statusCode).to.equal(404);
 			}
 		);
 	});

@@ -1,4 +1,4 @@
-import * as colors from 'kleur/colors';
+import { blue, bold, green } from 'kleur/colors';
 import fs from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
@@ -24,7 +24,8 @@ import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
-import { Logger, levels, timerMessage } from '../logger/core.js';
+import type { Logger } from '../logger/core.js';
+import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
@@ -69,8 +70,9 @@ export default async function build(
 	if (astroConfig.experimental.contentCollectionCache && options.force) {
 		const contentCacheDir = new URL('./content/', astroConfig.cacheDir);
 		if (fs.existsSync(contentCacheDir)) {
-			logger.warn('content', 'clearing cache');
+			logger.debug('content', 'clearing content cache');
 			await fs.promises.rm(contentCacheDir, { force: true, recursive: true });
+			logger.warn('content', 'content cache cleared (force)');
 		}
 	}
 
@@ -157,9 +159,10 @@ class AstroBuilder {
 		await runHookBuildStart({ config: this.settings.config, logging: this.logger });
 		this.validateConfig();
 
-		this.logger.info('build', `output target: ${colors.green(this.settings.config.output)}`);
+		this.logger.info('build', `output: ${blue('"' + this.settings.config.output + '"')}`);
+		this.logger.info('build', `directory: ${blue(fileURLToPath(this.settings.config.outDir))}`);
 		if (this.settings.adapter) {
-			this.logger.info('build', `deploy adapter: ${colors.green(this.settings.adapter.name)}`);
+			this.logger.info('build', `adapter: ${green(this.settings.adapter.name)}`);
 		}
 		this.logger.info('build', 'Collecting build info...');
 		this.timer.loadStart = performance.now();
@@ -179,7 +182,7 @@ class AstroBuilder {
 		this.timer.buildStart = performance.now();
 		this.logger.info(
 			'build',
-			colors.dim(`Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
+			green(`✓ Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
 		);
 
 		const opts: StaticBuildOptions = {
@@ -251,31 +254,6 @@ class AstroBuilder {
 				`the outDir cannot be the root folder. Please build to a folder such as dist.`
 			);
 		}
-
-		if (config.build.split === true) {
-			if (config.output === 'static') {
-				this.logger.warn(
-					'configuration',
-					'The option `build.split` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
-				);
-			}
-			this.logger.warn(
-				'configuration',
-				'The option `build.split` is deprecated. Use the adapter options.'
-			);
-		}
-		if (config.build.excludeMiddleware === true) {
-			if (config.output === 'static') {
-				this.logger.warn(
-					'configuration',
-					'The option `build.excludeMiddleware` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
-				);
-			}
-			this.logger.warn(
-				'configuration',
-				'The option `build.excludeMiddleware` is deprecated. Use the adapter options.'
-			);
-		}
 	}
 
 	/** Stats */
@@ -294,12 +272,12 @@ class AstroBuilder {
 
 		let messages: string[] = [];
 		if (buildMode === 'static') {
-			messages = [`${pageCount} page(s) built in`, colors.bold(total)];
+			messages = [`${pageCount} page(s) built in`, bold(total)];
 		} else {
-			messages = ['Server built in', colors.bold(total)];
+			messages = ['Server built in', bold(total)];
 		}
 
 		logger.info('build', messages.join(' '));
-		logger.info('build', `${colors.bold('Complete!')}`);
+		logger.info('build', `${bold('Complete!')}`);
 	}
 }

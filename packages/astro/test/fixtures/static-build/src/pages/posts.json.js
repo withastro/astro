@@ -15,8 +15,5 @@ async function fetchPosts() {
 
 export async function GET() {
     const posts = await fetchPosts();
-
-    return {
-        body: JSON.stringify(posts, null, 4),
-    };
+    return Response.json(posts);
 }

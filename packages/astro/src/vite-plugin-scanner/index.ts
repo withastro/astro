@@ -52,12 +52,11 @@ export default function astroScannerPlugin({
 				// this should only be valid for `.astro`, `.js` and `.ts` files
 				KNOWN_FILE_EXTENSIONS.includes(extname(filename))
 			) {
-				const reason = ` because \`output: "${settings.config.output}"\` is set`;
 				logger.warn(
-					'getStaticPaths',
-					`The getStaticPaths() statement in ${bold(
+					'router',
+					`getStaticPaths() ignored in dynamic page ${bold(
 						rootRelativePath(settings.config.root, fileURL, true)
-					)} has been ignored${reason}.\n\nAdd \`export const prerender = true;\` to prerender this page.`
+					)}. Add \`export const prerender = true;\` to prerender the page as static HTML during the build process.`
 				);
 			}
 

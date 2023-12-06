@@ -1,7 +1,7 @@
 import { dim, green } from 'kleur/colors';
 import fs, { readFileSync } from 'node:fs';
 import { basename, join } from 'node:path/posix';
-import PQueue from 'p-queue';
+import type PQueue from 'p-queue';
 import type { AstroConfig } from '../../@types/astro.js';
 import type { BuildPipeline } from '../../core/build/buildPipeline.js';
 import { getOutDirWithinCwd } from '../../core/build/common.js';
@@ -58,7 +58,7 @@ export async function prepareAssetsGenerationEnv(
 		await fs.promises.mkdir(assetsCacheDir, { recursive: true });
 	} catch (err) {
 		logger.warn(
-			'astro:assets',
+			null,
 			`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${err}`
 		);
 		useCache = false;
@@ -231,7 +231,7 @@ export async function generateImagesForPath(
 			}
 		} catch (e) {
 			env.logger.warn(
-				'astro:assets',
+				null,
 				`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${e}`
 			);
 		} finally {

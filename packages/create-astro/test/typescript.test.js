@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url';
 
 import { typescript, setupTypeScript } from '../dist/index.js';
 import { setup, resetFixtures } from './utils.js';
-import { describe } from 'node:test';
 
 describe('typescript', () => {
 	const fixture = setup();

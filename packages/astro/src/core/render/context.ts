@@ -1,12 +1,13 @@
 import type {
 	ComponentInstance,
+	Locales,
 	Params,
 	Props,
 	RouteData,
 	SSRElement,
 	SSRResult,
 } from '../../@types/astro.js';
-import { normalizeTheLocale } from '../../i18n/index.js';
+import { normalizeTheLocale, toCodes } from '../../i18n/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Environment } from './environment.js';
 import { getParamsAndProps } from './params-and-props.js';
@@ -28,9 +29,9 @@ export interface RenderContext {
 	params: Params;
 	props: Props;
 	locals?: object;
-	locales: string[] | undefined;
+	locales: Locales | undefined;
 	defaultLocale: string | undefined;
-	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined;
+	routing: 'prefix-always' | 'prefix-other-locales' | undefined;
 }
 
 export type CreateRenderContextArgs = Partial<
@@ -62,7 +63,7 @@ export async function createRenderContext(
 		params,
 		props,
 		locales: options.locales,
-		routingStrategy: options.routingStrategy,
+		routing: options.routing,
 		defaultLocale: options.defaultLocale,
 	};
 
@@ -143,8 +144,8 @@ export function parseLocale(header: string): BrowserLocale[] {
 	return result;
 }
 
-function sortAndFilterLocales(browserLocaleList: BrowserLocale[], locales: string[]) {
-	const normalizedLocales = locales.map(normalizeTheLocale);
+function sortAndFilterLocales(browserLocaleList: BrowserLocale[], locales: Locales) {
+	const normalizedLocales = toCodes(locales).map(normalizeTheLocale);
 	return browserLocaleList
 		.filter((browserLocale) => {
 			if (browserLocale.locale !== '*') {
@@ -170,18 +171,26 @@ function sortAndFilterLocales(browserLocaleList: BrowserLocale[], locales: strin
  * If multiple locales are present in the header, they are sorted by their quality value and the highest is selected as current locale.
  *
  */
-export function computePreferredLocale(request: Request, locales: string[]): string | undefined {
+export function computePreferredLocale(request: Request, locales: Locales): string | undefined {
 	const acceptHeader = request.headers.get('Accept-Language');
 	let result: string | undefined = undefined;
 	if (acceptHeader) {
 		const browserLocaleList = sortAndFilterLocales(parseLocale(acceptHeader), locales);
 
 		const firstResult = browserLocaleList.at(0);
-		if (firstResult) {
-			if (firstResult.locale !== '*') {
-				result = locales.find(
-					(locale) => normalizeTheLocale(locale) === normalizeTheLocale(firstResult.locale)
-				);
+		if (firstResult && firstResult.locale !== '*') {
+			for (const currentLocale of locales) {
+				if (typeof currentLocale === 'string') {
+					if (normalizeTheLocale(currentLocale) === normalizeTheLocale(firstResult.locale)) {
+						result = currentLocale;
+					}
+				} else {
+					for (const currentCode of currentLocale.codes) {
+						if (normalizeTheLocale(currentCode) === normalizeTheLocale(firstResult.locale)) {
+							result = currentLocale.path;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -189,7 +198,7 @@ export function computePreferredLocale(request: Request, locales: string[]): str
 	return result;
 }
 
-export function computePreferredLocaleList(request: Request, locales: string[]) {
+export function computePreferredLocaleList(request: Request, locales: Locales): string[] {
 	const acceptHeader = request.headers.get('Accept-Language');
 	let result: string[] = [];
 	if (acceptHeader) {
@@ -197,14 +206,28 @@ export function computePreferredLocaleList(request: Request, locales: string[]) 
 
 		// SAFETY: bang operator is safe because checked by the previous condition
 		if (browserLocaleList.length === 1 && browserLocaleList.at(0)!.locale === '*') {
-			return locales;
+			return locales.map((locale) => {
+				if (typeof locale === 'string') {
+					return locale;
+				} else {
+					// SAFETY: codes is never empty
+					return locale.codes.at(0)!;
+				}
+			});
 		} else if (browserLocaleList.length > 0) {
 			for (const browserLocale of browserLocaleList) {
-				const found = locales.find(
-					(l) => normalizeTheLocale(l) === normalizeTheLocale(browserLocale.locale)
-				);
-				if (found) {
-					result.push(found);
+				for (const loopLocale of locales) {
+					if (typeof loopLocale === 'string') {
+						if (normalizeTheLocale(loopLocale) === normalizeTheLocale(browserLocale.locale)) {
+							result.push(loopLocale);
+						}
+					} else {
+						for (const code of loopLocale.codes) {
+							if (code === browserLocale.locale) {
+								result.push(loopLocale.path);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -215,15 +238,21 @@ export function computePreferredLocaleList(request: Request, locales: string[]) 
 
 export function computeCurrentLocale(
 	request: Request,
-	locales: string[],
+	locales: Locales,
 	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined,
 	defaultLocale: string | undefined
 ): undefined | string {
 	const requestUrl = new URL(request.url);
 	for (const segment of requestUrl.pathname.split('/')) {
 		for (const locale of locales) {
-			if (normalizeTheLocale(locale) === normalizeTheLocale(segment)) {
-				return locale;
+			if (typeof locale === 'string') {
+				if (normalizeTheLocale(locale) === normalizeTheLocale(segment)) {
+					return locale;
+				}
+			} else {
+				if (locale.path === segment) {
+					return locale.codes.at(0);
+				}
 			}
 		}
 	}

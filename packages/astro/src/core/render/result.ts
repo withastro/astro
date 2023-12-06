@@ -1,6 +1,7 @@
 import type {
 	AstroGlobal,
 	AstroGlobalPartial,
+	Locales,
 	Params,
 	SSRElement,
 	SSRLoadedRenderer,
@@ -50,7 +51,7 @@ export interface CreateResultArgs {
 	status: number;
 	locals: App.Locals;
 	cookies?: AstroCookies;
-	locales: string[] | undefined;
+	locales: Locales | undefined;
 	defaultLocale: string | undefined;
 	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined;
 }
@@ -100,7 +101,7 @@ class Slots {
 		const result = this.#result;
 		if (!Array.isArray(args)) {
 			this.#logger.warn(
-				'Astro.slots.render',
+				null,
 				`Expected second parameter to be an array, received a ${typeof args}. If you're trying to pass an array as a single argument and getting unexpected results, make sure you're passing your array as a item of an array. Ex: Astro.slots.render('default', [["Hello", "World"]])`
 			);
 		} else if (args.length > 0) {

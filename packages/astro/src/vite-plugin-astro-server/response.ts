@@ -68,7 +68,7 @@ export async function writeWebResponse(res: http.ServerResponse, webResponse: Re
 	// Previously, `headers.entries()` would already have these merged, but it seems like this isn't the case anymore.
 	if (headers.has('set-cookie')) {
 		if ('getSetCookie' in headers && typeof headers.getSetCookie === 'function') {
-			_headers['set-cookie'] = headers.getSetCookie();
+			_headers['set-cookie'] = headers.getSetCookie().toString();
 		} else {
 			_headers['set-cookie'] = headers.get('set-cookie')!;
 		}

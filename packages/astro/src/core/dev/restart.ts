@@ -1,4 +1,4 @@
-import nodeFs from 'node:fs';
+import type nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
@@ -29,6 +29,9 @@ async function createRestartedContainer(
 	return newContainer;
 }
 
+const configRE = new RegExp(`.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$`);
+const preferencesRE = new RegExp(`.*\.astro\/settings\.json$`);
+
 export function shouldRestartContainer(
 	{ settings, inlineConfig, restartInFlight }: Container,
 	changedFile: string
@@ -43,9 +46,9 @@ export function shouldRestartContainer(
 	}
 	// Otherwise, watch for any astro.config.* file changes in project root
 	else {
-		const exp = new RegExp(`.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$`);
 		const normalizedChangedFile = vite.normalizePath(changedFile);
-		shouldRestart = exp.test(normalizedChangedFile);
+		shouldRestart =
+			configRE.test(normalizedChangedFile) || preferencesRE.test(normalizedChangedFile);
 	}
 
 	if (!shouldRestart && settings.watchFiles.length > 0) {
@@ -71,7 +74,10 @@ export async function restartContainer(container: Container): Promise<Container 
 		const error = createSafeError(_err);
 		// Print all error messages except ZodErrors from AstroConfig as the pre-logged error is sufficient
 		if (!isAstroConfigZodError(_err)) {
-			logger.error('config', formatErrorMessage(collectErrorMetadata(error)) + '\n');
+			logger.error(
+				'config',
+				formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n'
+			);
 		}
 		// Inform connected clients of the config error
 		container.viteServer.ws.send({
@@ -82,7 +88,7 @@ export async function restartContainer(container: Container): Promise<Container 
 			},
 		});
 		container.restartInFlight = false;
-		logger.error('astro', 'Continuing with previous valid configuration\n');
+		logger.error(null, 'Continuing with previous valid configuration\n');
 		return error;
 	}
 }
@@ -121,8 +127,8 @@ export async function createContainerWithAutomaticRestart({
 		},
 	};
 
-	async function handleServerRestart(logMsg: string) {
-		logger.info('astro', logMsg + '\n');
+	async function handleServerRestart(logMsg = '') {
+		logger.info(null, (logMsg + ' Restarting...').trim());
 		const container = restart.container;
 		const result = await restartContainer(container);
 		if (result instanceof Error) {
@@ -150,13 +156,13 @@ export async function createContainerWithAutomaticRestart({
 	// Set up watches
 	function addWatches() {
 		const watcher = restart.container.viteServer.watcher;
-		watcher.on('change', handleChangeRestart('Configuration updated. Restarting...'));
-		watcher.on('unlink', handleChangeRestart('Configuration removed. Restarting...'));
-		watcher.on('add', handleChangeRestart('Configuration added. Restarting...'));
+		watcher.on('change', handleChangeRestart('Configuration file updated.'));
+		watcher.on('unlink', handleChangeRestart('Configuration file removed.'));
+		watcher.on('add', handleChangeRestart('Configuration file added.'));
 
 		// Restart the Astro dev server instead of Vite's when the API is called by plugins.
 		// Ignore the `forceOptimize` parameter for now.
-		restart.container.viteServer.restart = () => handleServerRestart('Restarting...');
+		restart.container.viteServer.restart = () => handleServerRestart();
 	}
 	addWatches();
 	return restart;
