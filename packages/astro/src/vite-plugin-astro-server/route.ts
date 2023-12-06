@@ -332,7 +332,7 @@ export async function handleRoute({
 			req({
 				url: pathname,
 				method: incomingRequest.method,
-				statusCode: response.status,
+				statusCode: status ?? response.status,
 				reqTime: timeEnd - timeStart,
 			})
 		);
@@ -356,24 +356,23 @@ export async function handleRoute({
 	}
 	if (route.type === 'endpoint') {
 		await writeWebResponse(incomingResponse, response);
-	} else {
-		if (
-			// We are in a recursion, and it's possible that this function is called itself with a status code
-			// By default, the status code passed via parameters is computed by the matched route.
-			//
-			// By default, we should give priority to the status code passed, although it's possible that
-			// the `Response` emitted by the user is a redirect. If so, then return the returned response.
-			response.status < 400 &&
-			response.status >= 300
-		) {
-			await writeSSRResult(request, response, incomingResponse);
-			return;
-		} else if (status && response.status !== status && (status === 404 || status === 500)) {
-			// Response.status is read-only, so a clone is required to override
-			response = new Response(response.body, { ...response, status });
-		}
-		await writeSSRResult(request, response, incomingResponse);
+		return;
 	}
+	// We are in a recursion, and it's possible that this function is called itself with a status code
+	// By default, the status code passed via parameters is computed by the matched route.
+	//
+	// By default, we should give priority to the status code passed, although it's possible that
+	// the `Response` emitted by the user is a redirect. If so, then return the returned response.
+	if (response.status < 400 && response.status >= 300) {
+		await writeSSRResult(request, response, incomingResponse);
+		return;
+	}
+	// Apply the `status` override to the response object before responding.
+	// Response.status is read-only, so a clone is required to override.
+	if (status && response.status !== status && (status === 404 || status === 500)) {
+		response = new Response(response.body, { ...response, status });
+	}
+	await writeSSRResult(request, response, incomingResponse);
 }
 
 interface GetScriptsAndStylesParams {
