@@ -12,11 +12,7 @@ export function extractScriptTags(
 	htmlDocument: HTMLDocument,
 	ast: ParseResult['ast']
 ): VirtualFile[] {
-	const embeddedJSFiles: VirtualFile[] = findModuleScripts(
-		fileName,
-		snapshot,
-		htmlDocument.roots
-	);
+	const embeddedJSFiles: VirtualFile[] = findModuleScripts(fileName, snapshot, htmlDocument.roots);
 
 	const javascriptContexts = [
 		...findClassicScripts(htmlDocument, snapshot),
@@ -32,13 +28,14 @@ export function extractScriptTags(
 	return embeddedJSFiles;
 }
 
-function getScriptType(scriptTag: Node): "classic" | "module" | "processed module" {
+function getScriptType(scriptTag: Node): 'classic' | 'module' | 'processed module' {
 	// script tags without attributes are processed and converted into module scripts
-	if (!scriptTag.attributes || Object.entries(scriptTag.attributes).length === 0) return "processed module";
+	if (!scriptTag.attributes || Object.entries(scriptTag.attributes).length === 0)
+		return 'processed module';
 	// even when it is not processed by vite, scripts with type=module remain modules
-	if (scriptTag.attributes["type"]?.includes("module") === true) return "module";
+	if (scriptTag.attributes['type']?.includes('module') === true) return 'module';
 	// whenever there are attributes, is:inline is implied and in the absence of type=module, the script is classic
-	return "classic"
+	return 'classic';
 }
 
 /**
@@ -62,10 +59,10 @@ function findModuleScripts(
 				node.tag === 'script' &&
 				node.startTagEnd !== undefined &&
 				node.endTagStart !== undefined &&
-				getScriptType(node) !== "classic"
+				getScriptType(node) !== 'classic'
 			) {
 				const scriptText = snapshot.getText(node.startTagEnd, node.endTagStart);
-				const extension = getScriptType(node) === "processed module" ? "mts" : "mjs";
+				const extension = getScriptType(node) === 'processed module' ? 'mts' : 'mjs';
 				embeddedScripts.push({
 					fileName: fileName + `.${scriptIndex}.${extension}`,
 					kind: FileKind.TypeScriptHostFile,
@@ -127,7 +124,7 @@ function findClassicScripts(
 				node.startTagEnd !== undefined &&
 				node.endTagStart !== undefined &&
 				!isJSON(node.attributes?.type) &&
-				getScriptType(node) === "classic"
+				getScriptType(node) === 'classic'
 			) {
 				const scriptText = snapshot.getText(node.startTagEnd, node.endTagStart);
 				inlineScripts.push({
