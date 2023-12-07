@@ -1,19 +1,13 @@
+import path from 'node:path';
 import type { Options as VueOptions } from '@vitejs/plugin-vue';
-import type { Options as VueJsxOptions } from '@vitejs/plugin-vue-jsx';
-import type { AstroIntegration, AstroIntegrationLogger, AstroRenderer } from 'astro';
-import type { UserConfig, Plugin } from 'vite';
-
-import { fileURLToPath } from 'node:url';
 import vue from '@vitejs/plugin-vue';
+import type { Options as VueJsxOptions } from '@vitejs/plugin-vue-jsx';
+import type { AstroIntegration, AstroRenderer } from 'astro';
+import type { Plugin, UserConfig } from 'vite';
 
 interface Options extends VueOptions {
 	jsx?: boolean | VueJsxOptions;
 	appEntrypoint?: string;
-}
-
-interface ViteOptions extends Options {
-	root: URL;
-	logger: AstroIntegrationLogger;
 }
 
 function getRenderer(): AstroRenderer {
@@ -39,71 +33,55 @@ function getJsxRenderer(): AstroRenderer {
 	};
 }
 
-function virtualAppEntrypoint(options: ViteOptions) {
+function virtualAppEntrypoint(options?: Options): Plugin {
 	const virtualModuleId = 'virtual:@astrojs/vue/app';
 	const resolvedVirtualModuleId = '\0' + virtualModuleId;
-	let getExports: (id: string) => Promise<string[]>;
+
+	let isBuild: boolean;
+	let root: string;
+
 	return {
 		name: '@astrojs/vue/virtual-app',
-		buildStart() {
-			if (!getExports) {
-				getExports = async (id: string) => {
-					const info = await this.load.call(this, { id });
-					return info.exports ?? [];
-				};
-			}
+		config(_, { command }) {
+			isBuild = command === 'build';
 		},
-		configureServer(server) {
-			if (!getExports) {
-				getExports = async (id: string) => {
-					const mod = await server.ssrLoadModule(id);
-					return Object.keys(mod) ?? [];
-				};
-			}
+		configResolved(config) {
+			root = config.root;
 		},
 		resolveId(id: string) {
 			if (id == virtualModuleId) {
 				return resolvedVirtualModuleId;
 			}
 		},
-		async load(id: string) {
-			const noop = `export const setup = (app) => app;`;
+		load(id: string) {
 			if (id === resolvedVirtualModuleId) {
-				if (options.appEntrypoint) {
-					try {
-						let resolved;
-						if (options.appEntrypoint.startsWith('.')) {
-							resolved = await this.resolve(
-								fileURLToPath(new URL(options.appEntrypoint, options.root))
-							);
-						} else {
-							resolved = await this.resolve(options.appEntrypoint, fileURLToPath(options.root));
-						}
-						if (!resolved) {
-							// This error is handled below, the message isn't shown to the user
-							throw new Error('Unable to resolve appEntrypoint');
-						}
-						const exports = await getExports(resolved.id);
-						if (!exports.includes('default')) {
-							options.logger.warn(
-								`appEntrypoint \`${options.appEntrypoint}\` does not export a default function. Check out https://docs.astro.build/en/guides/integrations-guide/vue/#appentrypoint.`
-							);
-							return noop;
-						}
-						return `export { default as setup } from "${resolved.id}";`;
-					} catch {
-						options.logger.warn(
-							`Unable to resolve appEntrypoint \`${options.appEntrypoint}\`. Does the file exist?`
-						);
-					}
+				if (options?.appEntrypoint) {
+					const appEntrypoint = options.appEntrypoint.startsWith('.')
+						? path.resolve(root, options.appEntrypoint)
+						: options.appEntrypoint;
+
+					return `\
+import * as mod from "${appEntrypoint}";
+						
+export const setup = (app) => {
+	if ('default' in mod) {
+		mod.default(app);
+	} else {
+		${
+			!isBuild
+				? `console.warn("[@astrojs/vue] appEntrypoint \`${appEntrypoint}\` does not export a default function. Check out https://docs.astro.build/en/guides/integrations-guide/vue/#appentrypoint.");`
+				: ''
+		}
+	}
+}`;
 				}
-				return noop;
+				return `export const setup = () => {};`;
 			}
 		},
-	} satisfies Plugin;
+	};
 }
 
-async function getViteConfiguration(options: ViteOptions): Promise<UserConfig> {
+async function getViteConfiguration(options?: Options): Promise<UserConfig> {
 	const config: UserConfig = {
 		optimizeDeps: {
 			include: ['@astrojs/vue/client.js', 'vue'],
@@ -129,14 +107,12 @@ export default function (options?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/vue',
 		hooks: {
-			'astro:config:setup': async ({ addRenderer, updateConfig, config, logger }) => {
+			'astro:config:setup': async ({ addRenderer, updateConfig }) => {
 				addRenderer(getRenderer());
 				if (options?.jsx) {
 					addRenderer(getJsxRenderer());
 				}
-				updateConfig({
-					vite: await getViteConfiguration({ ...options, root: config.root, logger }),
-				});
+				updateConfig({ vite: await getViteConfiguration(options) });
 			},
 		},
 	};
