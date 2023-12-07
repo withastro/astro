@@ -70,7 +70,7 @@ export interface AstroBuiltinProps {
 	'client:load'?: boolean;
 	'client:idle'?: boolean;
 	'client:media'?: string;
-	'client:visible'?: string;
+	'client:visible'?: string|boolean;
 	'client:only'?: boolean | string;
 }
 
