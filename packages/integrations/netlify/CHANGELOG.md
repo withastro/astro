@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 3.1.1
+
+### Patch Changes
+
+- [#100](https://github.com/withastro/adapters/pull/100) [`1195955`](https://github.com/withastro/adapters/commit/11959551105aa1776eb58a015e0694960f128537) Thanks [@Jinksi](https://github.com/Jinksi)! - Fixes a typo for the peerDependency range in package.json, which prevents upgrade to Astro 4.0.
+
 ## 3.1.0
 
 ### Minor Changes
