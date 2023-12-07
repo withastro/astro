@@ -12,7 +12,7 @@ const visibleDirective: ClientDirective = (load, options, el) => {
 	};
 
 	const ioOptions = {
-		rootMargin: options.value ?? undefined,
+		rootMargin: typeof options.value === 'string' ? options.value : undefined,
 	};
 
 	const io = new IntersectionObserver((entries) => {
