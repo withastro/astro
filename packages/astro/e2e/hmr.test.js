@@ -3,7 +3,7 @@ import { testFactory } from './test-utils.js';
 
 const test = testFactory({
 	root: './fixtures/hmr/',
-	devOverlay: {
+	devToolbar: {
 		enabled: false,
 	},
 });

@@ -173,7 +173,7 @@ export async function handleRoute({
 	const config = pipeline.getConfig();
 	const moduleLoader = pipeline.getModuleLoader();
 	const { logger } = env;
-	if (!matchedRoute && !config.experimental.i18n) {
+	if (!matchedRoute && !config.i18n) {
 		if (isLoggedRequest(pathname)) {
 			logger.info(null, req({ url: pathname, method: incomingRequest.method, statusCode: 404 }));
 		}
@@ -190,8 +190,8 @@ export async function handleRoute({
 	const middleware = await loadMiddleware(moduleLoader);
 
 	if (!matchedRoute) {
-		if (config.experimental.i18n) {
-			const locales = config.experimental.i18n.locales;
+		if (config.i18n) {
+			const locales = config.i18n.locales;
 			const pathNameHasLocale = pathname
 				.split('/')
 				.filter(Boolean)
@@ -288,7 +288,7 @@ export async function handleRoute({
 			filePath: options.filePath,
 		});
 
-		const i18n = pipeline.getConfig().experimental.i18n;
+		const i18n = pipeline.getConfig().i18n;
 
 		renderContext = await createRenderContext({
 			request: options.request,
@@ -307,12 +307,8 @@ export async function handleRoute({
 	}
 
 	const onRequest = middleware?.onRequest as MiddlewareHandler | undefined;
-	if (config.experimental.i18n) {
-		const i18Middleware = createI18nMiddleware(
-			config.experimental.i18n,
-			config.base,
-			config.trailingSlash
-		);
+	if (config.i18n) {
+		const i18Middleware = createI18nMiddleware(config.i18n, config.base, config.trailingSlash);
 
 		if (i18Middleware) {
 			if (onRequest) {
@@ -336,7 +332,7 @@ export async function handleRoute({
 			req({
 				url: pathname,
 				method: incomingRequest.method,
-				statusCode: response.status,
+				statusCode: status ?? response.status,
 				reqTime: timeEnd - timeStart,
 			})
 		);
@@ -360,24 +356,23 @@ export async function handleRoute({
 	}
 	if (route.type === 'endpoint') {
 		await writeWebResponse(incomingResponse, response);
-	} else {
-		if (
-			// We are in a recursion, and it's possible that this function is called itself with a status code
-			// By default, the status code passed via parameters is computed by the matched route.
-			//
-			// By default, we should give priority to the status code passed, although it's possible that
-			// the `Response` emitted by the user is a redirect. If so, then return the returned response.
-			response.status < 400 &&
-			response.status >= 300
-		) {
-			await writeSSRResult(request, response, incomingResponse);
-			return;
-		} else if (status && response.status !== status && (status === 404 || status === 500)) {
-			// Response.status is read-only, so a clone is required to override
-			response = new Response(response.body, { ...response, status });
-		}
-		await writeSSRResult(request, response, incomingResponse);
+		return;
 	}
+	// We are in a recursion, and it's possible that this function is called itself with a status code
+	// By default, the status code passed via parameters is computed by the matched route.
+	//
+	// By default, we should give priority to the status code passed, although it's possible that
+	// the `Response` emitted by the user is a redirect. If so, then return the returned response.
+	if (response.status < 400 && response.status >= 300) {
+		await writeSSRResult(request, response, incomingResponse);
+		return;
+	}
+	// Apply the `status` override to the response object before responding.
+	// Response.status is read-only, so a clone is required to override.
+	if (status && response.status !== status && (status === 404 || status === 500)) {
+		response = new Response(response.body, { ...response, status });
+	}
+	await writeSSRResult(request, response, incomingResponse);
 }
 
 interface GetScriptsAndStylesParams {
@@ -400,7 +395,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 		});
 
 		if (
-			settings.config.devOverlay.enabled &&
+			settings.config.devToolbar.enabled &&
 			(await settings.preferences.get('devToolbar.enabled'))
 		) {
 			scripts.add({
@@ -412,7 +407,6 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			});
 
 			const additionalMetadata: DevOverlayMetadata['__astro_dev_overlay__'] = {
-				defaultState: settings.config.devOverlay.defaultState,
 				root: fileURLToPath(settings.config.root),
 				version: ASTRO_VERSION,
 				debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),

@@ -2,7 +2,7 @@
 import type yargs from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro.js';
 
-import { bold } from 'kleur/colors';
+import { bgGreen, black, bold, dim } from 'kleur/colors';
 import { fileURLToPath } from 'node:url';
 
 import dlv from 'dlv';
@@ -10,7 +10,12 @@ import { resolveConfig } from '../../core/config/config.js';
 import { createSettings } from '../../core/config/settings.js';
 import * as msg from '../../core/messages.js';
 import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
-import { coerce, isValidKey, type PreferenceKey } from '../../preferences/index.js';
+import {
+	coerce,
+	isValidKey,
+	type PreferenceKey,
+	type PreferenceLocation,
+} from '../../preferences/index.js';
 import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 // @ts-expect-error flattie types are mispackaged
 import { flattie } from 'flattie';
@@ -211,12 +216,52 @@ async function resetPreference(
 }
 
 async function listPreferences(settings: AstroSettings, { location, json }: SubcommandOptions) {
-	const store = await settings.preferences.getAll({ location });
 	if (json) {
-		console.log(JSON.stringify(store, null, 2));
+		const resolved = await settings.preferences.getAll();
+		console.log(JSON.stringify(resolved, null, 2));
 		return 0;
 	}
-	prettyPrint(store);
+	const { global, project, defaults } = await settings.preferences.list({ location });
+	const flatProject = flattie(project);
+	const flatGlobal = flattie(global);
+	const flatUser = Object.assign({}, flatGlobal, flatProject);
+	for (let key of Object.keys(flatUser)) {
+		if (!isValidKey(key)) {
+			delete flatUser[key];
+			continue;
+		}
+	}
+
+	const flatDefault = flattie(defaults);
+	const userKeys = Object.keys(flatUser);
+
+	if (userKeys.length > 0) {
+		const badge = bgGreen(black(` Your Preferences `));
+		const table = formatTable(flatUser, ['Preference', 'Value']);
+
+		console.log(['', badge, table].join('\n'));
+	} else {
+		const badge = bgGreen(black(` Your Preferences `));
+		const message = dim('No preferences set');
+		console.log(['', badge, '', message].join('\n'));
+	}
+	const flatUnset = Object.assign({}, flatDefault);
+	for (const key of userKeys) {
+		delete flatUnset[key];
+	}
+	const unsetKeys = Object.keys(flatUnset);
+
+	if (unsetKeys.length > 0) {
+		const badge = bgGreen(black(` Default Preferences `));
+		const table = formatTable(flatUnset, ['Preference', 'Value']);
+
+		console.log(['', badge, table].join('\n'));
+	} else {
+		const badge = bgGreen(black(` Default Preferences `));
+		const message = dim('All preferences have been set');
+		console.log(['', badge, '', message].join('\n'));
+	}
+
 	return 0;
 }
 
@@ -256,19 +301,25 @@ function formatTable(
 		b: string | number | boolean,
 		style: (value: string | number | boolean) => string = (v) => v.toString()
 	): string {
-		return `${chars.v} ${style(a)} ${space(colALength - a.length - 2)} ${chars.v} ${style(
+		return `${dim(chars.v)} ${style(a)} ${space(colALength - a.length - 2)} ${dim(chars.v)} ${style(
 			b
-		)} ${space(colBLength - b.toString().length - 3)} ${chars.v}`;
+		)} ${space(colBLength - b.toString().length - 3)} ${dim(chars.v)}`;
 	}
-	const top = `${chars.topLeft}${chars.h.repeat(colALength + 1)}${chars.hBottom}${chars.h.repeat(
-		colBLength
-	)}${chars.topRight}`;
-	const bottom = `${chars.bottomLeft}${chars.h.repeat(colALength + 1)}${chars.hTop}${chars.h.repeat(
-		colBLength
-	)}${chars.bottomRight}`;
-	const divider = `${chars.vRightThick}${chars.hThick.repeat(colALength + 1)}${
-		chars.hThickCross
-	}${chars.hThick.repeat(colBLength)}${chars.vLeftThick}`;
+	const top = dim(
+		`${chars.topLeft}${chars.h.repeat(colALength + 1)}${chars.hBottom}${chars.h.repeat(
+			colBLength
+		)}${chars.topRight}`
+	);
+	const bottom = dim(
+		`${chars.bottomLeft}${chars.h.repeat(colALength + 1)}${chars.hTop}${chars.h.repeat(
+			colBLength
+		)}${chars.bottomRight}`
+	);
+	const divider = dim(
+		`${chars.vRightThick}${chars.hThick.repeat(colALength + 1)}${
+			chars.hThickCross
+		}${chars.hThick.repeat(colBLength)}${chars.vLeftThick}`
+	);
 	const rows: string[] = [top, formatRow(-1, colA, colB, bold), divider];
 	let i = 0;
 	for (const [key, value] of Object.entries(object)) {

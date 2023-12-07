@@ -1,12 +1,14 @@
 import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@types/astro.js';
-import { type AstroDevOverlay, type DevOverlayPlugin } from './overlay.js';
+import type { AstroDevOverlay, DevOverlayPlugin } from './overlay.js';
 import { settings } from './settings.js';
+// @ts-expect-error
+import { loadDevOverlayPlugins } from 'astro:dev-overlay';
 
 let overlay: AstroDevOverlay;
 
 document.addEventListener('DOMContentLoaded', async () => {
 	const [
-		{ loadDevOverlayPlugins },
+		customPluginsDefinitions,
 		{ default: astroDevToolPlugin },
 		{ default: astroAuditPlugin },
 		{ default: astroXrayPlugin },
@@ -23,10 +25,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 			DevOverlayIcon,
 		},
 	] = await Promise.all([
-		// @ts-expect-error
-		import('astro:dev-overlay'),
+		loadDevOverlayPlugins() as DevOverlayPluginDefinition[],
 		import('./plugins/astro.js'),
-		import('./plugins/audit.js'),
+		import('./plugins/audit/index.js'),
 		import('./plugins/xray.js'),
 		import('./plugins/settings.js'),
 		import('./overlay.js'),
@@ -126,7 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 						box-shadow: 0px 0px 0px 0px rgba(19, 21, 26, 0.30), 0px 1px 2px 0px rgba(19, 21, 26, 0.29), 0px 4px 4px 0px rgba(19, 21, 26, 0.26), 0px 10px 6px 0px rgba(19, 21, 26, 0.15), 0px 17px 7px 0px rgba(19, 21, 26, 0.04), 0px 26px 7px 0px rgba(19, 21, 26, 0.01);
 						width: 192px;
 						padding: 8px;
-						z-index: 9999999999;
+						z-index: 2000000010;
 						transform: translate(-50%, 0%);
 						position: fixed;
 						bottom: 72px;
@@ -239,7 +240,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 		},
 	} satisfies DevOverlayPluginDefinition;
 
-	const customPluginsDefinitions = (await loadDevOverlayPlugins()) as DevOverlayPluginDefinition[];
 	const plugins: DevOverlayPlugin[] = [
 		...[
 			astroDevToolPlugin,

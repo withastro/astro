@@ -1,5 +1,23 @@
 # @astrojs/vue
 
+## 4.0.2
+
+### Patch Changes
+
+- [#9333](https://github.com/withastro/astro/pull/9333) [`b832cd190`](https://github.com/withastro/astro/commit/b832cd190199d4269d25d5d6e6b7efb399a69070) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes issue with `appEntrypoint` when running `astro dev`
+
+## 4.0.1
+
+### Patch Changes
+
+- [#8794](https://github.com/withastro/astro/pull/8794) [`4d4e34d45`](https://github.com/withastro/astro/commit/4d4e34d451e351f8a52e04124027850a575ba752) Thanks [@yoyo837](https://github.com/yoyo837)! - Prevents Astro from crashing when no default function is exported from the `appEntrypoint`. Now, the entrypoint will be ignored with a warning instead.
+
+## 4.0.0
+
+### Patch Changes
+
+- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Adds Vite 5 support. There are no breaking changes from Astro. Check the [Vite migration guide](https://vitejs.dev/guide/migration.html) for details of the breaking changes from Vite instead.
+
 ## 4.0.0-beta.0
 
 ### Patch Changes

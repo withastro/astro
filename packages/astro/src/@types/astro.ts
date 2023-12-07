@@ -132,6 +132,10 @@ export interface AstroScriptAttributes {
 	'is:inline'?: boolean;
 }
 
+export interface AstroSlotAttributes {
+	'is:inline'?: boolean;
+}
+
 export interface AstroComponentMetadata {
 	displayName: string;
 	hydrate?: 'load' | 'idle' | 'visible' | 'media' | 'only';
@@ -1158,35 +1162,6 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name Dev Overlay Options
-	 * @deprecated Use `devToolbar` instead.
-	 */
-	devOverlay?: {
-		/**
-		 * @docs
-		 * @name devOverlay.enabled
-		 * @type {boolean}
-		 * @default `true`
-		 * @description
-		 * Whether to enable the dev overlay. This overlay allows you to inspect your page islands, see helpful audits on performance and accessibility, and more.
-		 *
-		 * This option is scoped to the entire project, to only disable the overlay for yourself, run `npm run astro preferences disable devOverlay`. To disable the overlay for all your Astro projects, run `npm run astro preferences disable devOverlay --global`.
-		 */
-		enabled: boolean;
-		/**
-		 * @docs
-		 * @name devOverlay.defaultState
-		 * @type {'minimized' | 'expanded'}
-		 * @default `minimized`
-		 * @description
-		 * Whether the dev overlay should be expanded or minimized by default.
-		 */
-		defaultState: 'minimized' | 'expanded';
-	};
-
-	/**
-	 * @docs
-	 * @kind heading
 	 * @name Dev Toolbar Options
 	 */
 	devToolbar?: {
@@ -1201,15 +1176,6 @@ export interface AstroUserConfig {
 		 * This option is scoped to the entire project, to only disable the toolbar for yourself, run `npm run astro preferences disable devToolbar`. To disable the toolbar for all your Astro projects, run `npm run astro preferences disable devToolbar --global`.
 		 */
 		enabled: boolean;
-		/**
-		 * @docs
-		 * @name devToolbar.defaultState
-		 * @type {'minimized' | 'expanded'}
-		 * @default `minimized`
-		 * @description
-		 * Whether the Dev Toolbar should be expanded or minimized by default.
-		 */
-		defaultState: 'minimized' | 'expanded';
 	};
 
 	/**
@@ -1398,6 +1364,119 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
+	 * @name i18n
+	 * @type {object}
+	 * @version 3.5.0
+	 * @type {object}
+	 * @description
+	 *
+	 * Configures i18n routing and allows you to specify some customization options.
+	 *
+	 * See our guide for more information on [internationalization in Astro](/en/guides/internationalization/)
+	 */
+	i18n?: {
+		/**
+		 * @docs
+		 * @name i18n.defaultLocale
+		 * @type {string}
+		 * @version 3.5.0
+		 * @description
+		 *
+		 * The default locale of your website/application. This is a required field.
+		 *
+		 * No particular language format or syntax is enforced, but we suggest using lower-case and hyphens as needed (e.g. "es", "pt-br") for greatest compatibility.
+		 */
+		defaultLocale: string;
+		/**
+		 * @docs
+		 * @name i18n.locales
+		 * @type {Locales}
+		 * @version 3.5.0
+		 * @description
+		 *
+		 * A list of all locales supported by the website, including the `defaultLocale`. This is a required field.
+		 *
+		 * Languages can be listed either as individual codes (e.g. `['en', 'es', 'pt-br']`) or mapped to a shared `path` of codes (e.g.  `{ path: "english", codes: ["en", "en-US"]}`). These codes will be used to determine the URL structure of your deployed site.
+		 *
+		 * No particular language code format or syntax is enforced, but your project folders containing your content files must match exactly the `locales` items in the list. In the case of multiple `codes` pointing to a custom URL path prefix, store your content files in a folder with the same name as the `path` configured.
+		 */
+		locales: Locales;
+
+		/**
+		 * @docs
+		 * @name i18n.fallback
+		 * @type {Record<string, string>}
+		 * @version 3.5.0
+		 * @description
+		 *
+		 * The fallback strategy when navigating to pages that do not exist (e.g. a translated page has not been created).
+		 *
+		 * Use this object to declare a fallback `locale` route for each language you support. If no fallback is specified, then unavailable pages will return a 404.
+		 *
+		 * ##### Example
+		 *
+		 * The following example configures your content fallback strategy to redirect unavailable pages in `/pt-br/` to their `es` version, and unavailable pages in `/fr/` to their `en` version. Unavailable `/es/` pages will return a 404.
+		 *
+		 * ```js
+		 * export default defineConfig({
+		 * 	i18n: {
+		 * 		defaultLocale: "en",
+		 * 		locales: ["en", "fr", "pt-br", "es"],
+		 * 		fallback: {
+		 * 			pt: "es",
+		 * 		  fr: "en"
+		 * 		}
+		 * 	}
+		 * })
+		 * ```
+		 */
+		fallback?: Record<string, string>;
+
+		/**
+		 * @docs
+		 * @name i18n.routing
+		 * @type {Routing}
+		 * @version 3.7.0
+		 * @description
+		 *
+		 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language.
+		 */
+		routing?: {
+			/**
+			 * @docs
+			 * @name i18n.routing.prefixDefaultLocale
+			 * @kind h4
+			 * @type {boolean}
+			 * @default `false`
+			 * @version 3.7.0
+			 * @description
+			 *
+			 * When `false`, only non-default languages will display a language prefix.
+			 * The `defaultLocale` will not show a language prefix and content files do not exist in a localized folder.
+			 *  URLs will be of the form `example.com/[locale]/content/` for all non-default languages, but `example.com/content/` for the default locale.
+			 *
+			 * When `true`, all URLs will display a language prefix.
+			 * URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
+			 * Localized folders are used for every language, including the default.
+			 */
+			prefixDefaultLocale: boolean;
+
+			/**
+			 * @name i18n.routing.strategy
+			 * @type {"pathname"}
+			 * @default `"pathname"`
+			 * @version 3.7.0
+			 * @description
+			 *
+			 * - `"pathanme": The strategy is applied to the pathname of the URLs
+			 */
+			strategy: 'pathname';
+		};
+	};
+
+	/**
+	 * @docs
+	 * @kind heading
 	 * @name Legacy Flags
 	 * @description
 	 * To help some users migrate between versions of Astro, we occasionally introduce `legacy` flags.
@@ -1437,122 +1516,6 @@ export interface AstroUserConfig {
 		 */
 		optimizeHoistedScript?: boolean;
 
-		/**
-		 * @docs
-		 * @name experimental.i18n
-		 * @type {object}
-		 * @version 3.5.0
-		 * @type {object}
-		 * @description
-		 *
-		 * Configures experimental i18n routing and allows you to specify some customization options.
-		 *
-		 * See our guide for more information on [internationalization in Astro](/en/guides/internationalization/)
-		 */
-		i18n?: {
-			/**
-			 * @docs
-			 * @kind h4
-			 * @name experimental.i18n.defaultLocale
-			 * @type {string}
-			 * @version 3.5.0
-			 * @description
-			 *
-			 * The default locale of your website/application. This is a required field.
-			 *
-			 * No particular language format or syntax is enforced, but we suggest using lower-case and hyphens as needed (e.g. "es", "pt-br") for greatest compatibility.
-			 */
-			defaultLocale: string;
-			/**
-			 * @docs
-			 * @kind h4
-			 * @name experimental.i18n.locales
-			 * @type {Locales}
-			 * @version 3.5.0
-			 * @description
-			 *
-			 * A list of all locales supported by the website, including the `defaultLocale`. This is a required field.
-			 *
-			 * Languages can be listed either as individual codes (e.g. `['en', 'es', 'pt-br']`) or mapped to a shared `path` of codes (e.g.  `{ path: "english", codes: ["en", "en-US"]}`). These codes will be used to determine the URL structure of your deployed site.
-			 *
-			 * No particular language code format or syntax is enforced, but your project folders containing your content files must match exactly the `locales` items in the list. In the case of multiple `codes` pointing to a custom URL path prefix, store your content files in a folder with the same name as the `path` configured.
-			 */
-			locales: Locales;
-
-			/**
-			 * @docs
-			 * @kind h4
-			 * @name experimental.i18n.fallback
-			 * @type {Record<string, string>}
-			 * @version 3.5.0
-			 * @description
-			 *
-			 * The fallback strategy when navigating to pages that do not exist (e.g. a translated page has not been created).
-			 *
-			 * Use this object to declare a fallback `locale` route for each language you support. If no fallback is specified, then unavailable pages will return a 404.
-			 *
-			 * ##### Example
-			 *
-			 * The following example configures your content fallback strategy to redirect unavailable pages in `/pt-br/` to their `es` version, and unavailable pages in `/fr/` to their `en` version. Unavailable `/es/` pages will return a 404.
-			 *
-			 * ```js
-			 * export default defineConfig({
-			 * 	experimental: {
-			 * 		i18n: {
-			 * 			defaultLocale: "en",
-			 * 			locales: ["en", "fr", "pt-br", "es"],
-			 * 			fallback: {
-			 * 				pt: "es",
-			 * 			  fr: "en"
-			 * 			}
-			 * 		}
-			 * 	}
-			 * })
-			 * ```
-			 */
-			fallback?: Record<string, string>;
-
-			/**
-			 * @docs
-			 * @kind h4
-			 * @name experimental.i18n.routing
-			 * @type {Routing}
-			 * @version 3.7.0
-			 * @description
-			 *
-			 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language.
-			 */
-			routing?: {
-				/**
-				 * @docs
-				 * @name experimental.i18n.routing.prefixDefaultLocale
-				 * @type {boolean}
-				 * @default `false`
-				 * @version 3.7.0
-				 * @description
-				 *
-				 * When `false`, only non-default languages will display a language prefix.
-				 * The `defaultLocale` will not show a language prefix and content files do not exist in a localized folder.
-				 *  URLs will be of the form `example.com/[locale]/content/` for all non-default languages, but `example.com/content/` for the default locale.
-				 *
-				 * When `true`, all URLs will display a language prefix.
-				 * URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
-				 * Localized folders are used for every language, including the default.
-				 */
-				prefixDefaultLocale: boolean;
-
-				/**
-				 * @name experimental.i18n.routing.strategy
-				 * @type {"pathname"}
-				 * @default `"pathname"`
-				 * @version 3.7.0
-				 * @description
-				 *
-				 * - `"pathanme": The strategy is applied to the pathname of the URLs
-				 */
-				strategy: 'pathname';
-			};
-		};
 		/**
 		 * @docs
 		 * @name experimental.contentCollectionCache
@@ -2228,7 +2191,7 @@ export interface APIContext<
 	locals: App.Locals;
 
 	/**
-	 * Available only when `experimental.i18n` enabled and in SSR.
+	 * Available only when `i18n` configured and in SSR.
 	 *
 	 * It represents the preferred locale of the user. It's computed by checking the supported locales in `i18n.locales`
 	 * and locales supported by the users's browser via the header `Accept-Language`
@@ -2241,7 +2204,7 @@ export interface APIContext<
 	preferredLocale: string | undefined;
 
 	/**
-	 * Available only when `experimental.i18n` enabled and in SSR.
+	 * Available only when `i18n` configured and in SSR.
 	 *
 	 * It represents the list of the preferred locales that are supported by the application. The list is sorted via [quality value].
 	 *
@@ -2576,7 +2539,7 @@ export interface ClientDirectiveConfig {
 	entrypoint: string;
 }
 
-export interface DevOverlayPlugin {
+export interface DevToolbarApp {
 	id: string;
 	name: string;
 	icon: Icon;
@@ -2584,10 +2547,11 @@ export interface DevOverlayPlugin {
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
 }
 
+export type DevOverlayPlugin = DevToolbarApp;
+
 export type DevOverlayMetadata = Window &
 	typeof globalThis & {
 		__astro_dev_overlay__: {
-			defaultState: AstroConfig['devOverlay']['defaultState'];
 			root: string;
 			version: string;
 			debugInfo: string;

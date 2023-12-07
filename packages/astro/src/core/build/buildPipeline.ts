@@ -2,7 +2,7 @@ import type { AstroConfig, AstroSettings, SSRLoadedRenderer } from '../../@types
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
-import { Logger } from '../logger/core.js';
+import type { Logger } from '../logger/core.js';
 import { Pipeline } from '../pipeline.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { createEnvironment } from '../render/index.js';

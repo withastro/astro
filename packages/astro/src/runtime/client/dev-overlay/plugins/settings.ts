@@ -25,7 +25,7 @@ const settingsRows = [
 				}
 
 				settings.updateSetting('disablePluginNotification', evt.currentTarget.checked);
-				const action = evt.currentTarget.checked ? 'enabled' : 'disabled';
+				const action = evt.currentTarget.checked ? 'disabled' : 'enabled';
 				settings.log(`Plugin notification badges ${action}`);
 			}
 		},
@@ -80,7 +80,7 @@ export default {
 						font-size: 16px;
 						font-weight: 400;
 						color: white;
-						margin-bottom: 0;
+						margin-bottom: 4px;
 					}
 
 					label {
@@ -114,30 +114,37 @@ export default {
 						padding: .3em;
 					}
 
-					p {
-						line-height: 2em;
+					label > section {
+						max-width: 67%;
 					}
-
+					p {
+						line-height: 1.5em;
+					}
 					a, a:visited {
 						color: var(--color-purple);
+					}
+					a:hover {
+						color: #f4ecfd;
 					}
 				</style>
 				<header>
 					<h1><astro-dev-toolbar-icon icon="gear"></astro-dev-toolbar-icon> Settings</h1>
 				</header>
 
-				<hr />
+				<hr id="general"/>
 
-				<h2 id="general">General</h2>
-				<hr />
-				<h3>Hide overlay</h3>
-				<p>Run <code>astro preferences disable devOverlay</code> in your terminal to disable this dev overlay in this project. <a href="https://docs.astro.build/en/reference/cli-reference/#astro-preferences">Learn more</a>.</p>
+				<label class="setting-row">
+					<section>
+						<h3>Hide toolbar</h3>
+						Run <code>astro preferences disable devToolbar</code> in your terminal to disable the toolbar. <a href="https://docs.astro.build/en/reference/cli-reference/#astro-preferences" target="_blank">Learn more</a>.
+					</section>
+				</label>
 				`
 			);
 			const general = windowElement.querySelector('#general')!;
 			for (const settingsRow of settingsRows) {
-				general.after(getElementForSettingAsString(settingsRow));
 				general.after(document.createElement('hr'));
+				general.after(getElementForSettingAsString(settingsRow));
 			}
 			canvas.append(windowElement);
 

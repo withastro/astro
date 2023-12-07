@@ -10,7 +10,6 @@ import type {
 	GetStaticPathsItem,
 	RouteData,
 	RouteType,
-	SSRElement,
 	SSRError,
 	SSRLoadedRenderer,
 	SSRManifest,
@@ -250,13 +249,11 @@ async function generatePage(
 	// prepare information we need
 	const logger = pipeline.getLogger();
 	const config = pipeline.getConfig();
-	const manifest = pipeline.getManifest();
 	const pageModulePromise = ssrEntry.page;
 	const onRequest = ssrEntry.onRequest;
 	const pageInfo = getPageDataByComponent(pipeline.getInternals(), pageData.route.component);
 
 	// Calculate information of the page, like scripts, links and styles
-	const hoistedScripts = pageInfo?.hoistedScript ?? null;
 	const styles = pageData.styles
 		.sort(cssOrder)
 		.map(({ sheet }) => sheet)
@@ -270,7 +267,7 @@ async function generatePage(
 		pipeline.getManifest().base,
 		pipeline.getManifest().trailingSlash
 	);
-	if (config.experimental.i18n && i18nMiddleware) {
+	if (config.i18n && i18nMiddleware) {
 		if (onRequest) {
 			pipeline.setMiddlewareFunction(sequence(i18nMiddleware, onRequest));
 		} else {
@@ -295,6 +292,15 @@ async function generatePage(
 	};
 	// Now we explode the routes. A route render itself, and it can render its fallbacks (i18n routing)
 	for (const route of eachRouteInRouteData(pageData)) {
+		const icon =
+			route.type === 'page' || route.type === 'redirect' || route.type === 'fallback'
+				? green('▶')
+				: magenta('λ');
+		if (isRelativePath(route.component)) {
+			logger.info(null, `${icon} ${route.route}`);
+		} else {
+			logger.info(null, `${icon} ${route.component}`);
+		}
 		// Get paths for the route, calling getStaticPaths if needed.
 		const paths = await getPathsForRoute(route, pageModule, pipeline, builtPaths);
 		let timeStart = performance.now();
@@ -516,16 +522,6 @@ async function generatePath(
 		}
 	}
 
-	const icon =
-		route.type === 'page' || route.type === 'redirect' || route.type === 'fallback'
-			? green('▶')
-			: magenta('λ');
-	if (isRelativePath(route.component)) {
-		logger.info(null, `${icon} ${route.route}`);
-	} else {
-		logger.info(null, `${icon} ${route.component}`);
-	}
-
 	// This adds the page name to the array so it can be shown as part of stats.
 	if (route.type === 'page') {
 		addPageName(pathname, pipeline.getStaticBuildOptions());
@@ -546,7 +542,7 @@ async function generatePath(
 		logger: pipeline.getLogger(),
 		ssr,
 	});
-	const i18n = pipeline.getConfig().experimental.i18n;
+	const i18n = pipeline.getConfig().i18n;
 
 	const renderContext = await createRenderContext({
 		pathname,
@@ -629,12 +625,12 @@ export function createBuildManifest(
 	renderers: SSRLoadedRenderer[]
 ): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
-	if (settings.config.experimental.i18n) {
+	if (settings.config.i18n) {
 		i18nManifest = {
-			fallback: settings.config.experimental.i18n.fallback,
-			routing: settings.config.experimental.i18n.routing,
-			defaultLocale: settings.config.experimental.i18n.defaultLocale,
-			locales: settings.config.experimental.i18n.locales,
+			fallback: settings.config.i18n.fallback,
+			routing: settings.config.i18n.routing,
+			defaultLocale: settings.config.i18n.defaultLocale,
+			locales: settings.config.i18n.locales,
 		};
 	}
 	return {

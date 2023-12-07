@@ -3,7 +3,7 @@ import { testFactory } from './test-utils.js';
 
 const test = testFactory({
 	root: './fixtures/css/',
-	devOverlay: {
+	devToolbar: {
 		enabled: false,
 	},
 });

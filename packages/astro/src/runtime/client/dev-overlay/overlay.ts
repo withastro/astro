@@ -58,7 +58,7 @@ export class AstroDevOverlay extends HTMLElement {
 				bottom: 0px;
 				left: 50%;
 				transform: translate(-50%, 0%);
-				z-index: 9999999999;
+				z-index: 2000000010;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
@@ -71,7 +71,7 @@ export class AstroDevOverlay extends HTMLElement {
 			}
 
 			#dev-overlay[data-hidden] #dev-bar .item {
-				opacity: 0;
+				opacity: 0.2;
 			}
 
 			#dev-bar-hitbox-above,
@@ -228,12 +228,9 @@ export class AstroDevOverlay extends HTMLElement {
 				width: 1px;
 			}
 		</style>
-		<div id="dev-overlay"${
-			((window as DevOverlayMetadata)?.__astro_dev_overlay__?.defaultState ?? 'minimized') ===
-			'minimized'
-				? ' data-hidden '
-				: ''
-		} ${settings.config.disablePluginNotification ? 'data-no-notification' : ''}>
+		<div id="dev-overlay" data-hidden ${
+			settings.config.disablePluginNotification ? 'data-no-notification' : ''
+		}>
 			<div id="dev-bar-hitbox-above"></div>
 			<div id="dev-bar">
 				<div id="bar-container">
@@ -282,9 +279,12 @@ export class AstroDevOverlay extends HTMLElement {
 		// Init plugin lazily, so that the page can load faster.
 		// Fallback to setTimeout for Safari (sad!)
 		if ('requestIdleCallback' in window) {
-			window.requestIdleCallback(async () => {
-				this.plugins.map((plugin) => this.initPlugin(plugin));
-			});
+			window.requestIdleCallback(
+				async () => {
+					this.plugins.map((plugin) => this.initPlugin(plugin));
+				},
+				{ timeout: 300 }
+			);
 		} else {
 			setTimeout(async () => {
 				this.plugins.map((plugin) => this.initPlugin(plugin));
@@ -310,13 +310,14 @@ export class AstroDevOverlay extends HTMLElement {
 	attachEvents() {
 		const items = this.shadowRoot.querySelectorAll<HTMLDivElement>('.item');
 		items.forEach((item) => {
-			item.addEventListener('click', async (e) => {
-				const target = e.currentTarget;
+			item.addEventListener('click', async (event) => {
+				const target = event.currentTarget;
 				if (!target || !(target instanceof HTMLElement)) return;
 				const id = target.dataset.pluginId;
 				if (!id) return;
 				const plugin = this.getPluginById(id);
 				if (!plugin) return;
+				event.stopPropagation();
 				await this.togglePluginStatus(plugin);
 			});
 		});
@@ -340,37 +341,15 @@ export class AstroDevOverlay extends HTMLElement {
 			});
 		});
 
-		// On click, show the overlay if it's hidden, it's likely the user wants to interact with it
-		this.shadowRoot.addEventListener('click', () => {
-			if (!this.isHidden()) return;
-			this.setOverlayVisible(true);
-		});
-
-		this.devOverlay!.addEventListener('keyup', (event) => {
-			if (event.code === 'Space' || event.code === 'Enter') {
-				if (!this.isHidden()) return;
-				this.setOverlayVisible(true);
-			}
-			if (event.key === 'Escape') {
-				if (this.isHidden()) return;
-				if (this.getActivePlugin()) return;
-				this.setOverlayVisible(false);
-			}
-		});
-
 		document.addEventListener('keyup', (event) => {
-			if (event.key !== 'Escape') {
-				return;
-			}
-			if (this.isHidden()) {
-				return;
-			}
+			if (event.key !== 'Escape') return;
+			if (this.isHidden()) return;
 			const activePlugin = this.getActivePlugin();
 			if (activePlugin) {
-				this.setPluginStatus(activePlugin, false);
-				return;
+				this.togglePluginStatus(activePlugin);
+			} else {
+				this.setOverlayVisible(false);
 			}
-			this.setOverlayVisible(false);
 		});
 	}
 

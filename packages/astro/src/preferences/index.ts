@@ -22,11 +22,21 @@ export type GetDotKey<
 	K extends string,
 > = K extends `${infer U}.${infer Rest}` ? GetDotKey<T[U], Rest> : T[K];
 
+export type PreferenceLocation = 'global' | 'project';
 export interface PreferenceOptions {
-	location?: 'global' | 'project';
+	location?: PreferenceLocation;
 }
 
+type DeepPartial<T> = T extends object
+	? {
+			[P in keyof T]?: DeepPartial<T[P]>;
+	  }
+	: T;
+
 export type PreferenceKey = DotKeys<Preferences>;
+export interface PreferenceList extends Record<PreferenceLocation, DeepPartial<Preferences>> {
+	defaults: Preferences;
+}
 
 export interface AstroPreferences {
 	get<Key extends PreferenceKey>(
@@ -38,7 +48,8 @@ export interface AstroPreferences {
 		value: GetDotKey<Preferences, Key>,
 		opts?: PreferenceOptions
 	): Promise<void>;
-	getAll(opts?: PreferenceOptions): Promise<Record<string, any>>;
+	getAll(): Promise<Preferences>;
+	list(opts?: PreferenceOptions): Promise<PreferenceList>;
 }
 
 export function isValidKey(key: string): key is PreferenceKey {
@@ -62,7 +73,7 @@ export function coerce(key: string, value: unknown) {
 export default function createPreferences(config: AstroConfig): AstroPreferences {
 	const global = new PreferenceStore(getGlobalPreferenceDir());
 	const project = new PreferenceStore(fileURLToPath(new URL('./.astro/', config.root)));
-	const stores = { global, project };
+	const stores: Record<PreferenceLocation, PreferenceStore> = { global, project };
 
 	return {
 		async get(key, { location } = {}) {
@@ -72,10 +83,20 @@ export default function createPreferences(config: AstroConfig): AstroPreferences
 		async set(key, value, { location = 'project' } = {}) {
 			stores[location].set(key, value);
 		},
-		async getAll({ location } = {}) {
-			if (!location)
-				return Object.assign({}, stores['global'].getAll(), stores['project'].getAll());
-			return stores[location].getAll();
+		async getAll() {
+			return Object.assign(
+				{},
+				DEFAULT_PREFERENCES,
+				stores['global'].getAll(),
+				stores['project'].getAll()
+			);
+		},
+		async list() {
+			return {
+				global: stores['global'].getAll(),
+				project: stores['project'].getAll(),
+				defaults: DEFAULT_PREFERENCES,
+			};
 		},
 	};
 }

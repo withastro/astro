@@ -15,28 +15,21 @@ export function createHighlight(rect: DOMRect, icon?: Icon) {
 	return highlight;
 }
 
-// Figures out the element's z-index and position, based on it's parents.
+// Figures out the element's position, based on it's parents.
 export function getElementsPositionInDocument(el: Element) {
-	let highestZIndex = 0;
-	let fixed = false;
+	let isFixed = false;
 	let current: Element | ParentNode | null = el;
 	while (current instanceof Element) {
-		// This is the expensive part, we are calling getComputedStyle which triggers layout
 		// all the way up the tree. We are only doing so when the app initializes, so the cost is one-time
 		// If perf becomes an issue we'll want to refactor this somehow so that it reads this info in a rAF
 		let style = getComputedStyle(current);
-		let zIndex = Number(style.zIndex);
-		if (!Number.isNaN(zIndex) && zIndex > highestZIndex) {
-			highestZIndex = zIndex;
-		}
 		if (style.position === 'fixed') {
-			fixed = true;
+			isFixed = true;
 		}
 		current = current.parentNode;
 	}
 	return {
-		zIndex: highestZIndex + 1,
-		fixed,
+		isFixed,
 	};
 }
 

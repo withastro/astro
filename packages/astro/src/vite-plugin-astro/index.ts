@@ -139,6 +139,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			const compileProps: CompileProps = {
 				astroConfig: config,
 				viteConfig: resolvedConfig,
+				preferences: settings.preferences,
 				filename: normalizePath(parsedId.filename),
 				source,
 			};
@@ -179,6 +180,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				cachedCompilation({
 					astroConfig: config,
 					viteConfig: resolvedConfig,
+					preferences: settings.preferences,
 					filename,
 					source,
 				});

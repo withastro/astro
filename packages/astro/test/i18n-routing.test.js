@@ -1,7 +1,7 @@
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('astro:i18n virtual module', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -157,22 +157,20 @@ describe('[DEV] i18n routing', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/i18n-routing-prefix-other-locales/',
-				experimental: {
-					i18n: {
-						defaultLocale: 'en',
-						locales: [
-							'en',
-							'pt',
-							'it',
-							{
-								path: 'spanish',
-								codes: ['es', 'es-AR'],
-							},
-						],
-						fallback: {
-							it: 'en',
-							spanish: 'en',
+				i18n: {
+					defaultLocale: 'en',
+					locales: [
+						'en',
+						'pt',
+						'it',
+						{
+							path: 'spanish',
+							codes: ['es', 'es-AR'],
 						},
+					],
+					fallback: {
+						it: 'en',
+						spanish: 'en',
 					},
 				},
 			});
@@ -336,25 +334,23 @@ describe('[DEV] i18n routing', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/i18n-routing-fallback/',
-				experimental: {
-					i18n: {
-						defaultLocale: 'en',
-						locales: [
-							'en',
-							'pt',
-							'it',
-							{
-								path: 'spanish',
-								codes: ['es', 'es-AR'],
-							},
-						],
-						fallback: {
-							it: 'en',
-							spanish: 'en',
+				i18n: {
+					defaultLocale: 'en',
+					locales: [
+						'en',
+						'pt',
+						'it',
+						{
+							path: 'spanish',
+							codes: ['es', 'es-AR'],
 						},
-						routing: {
-							prefixDefaultLocale: false,
-						},
+					],
+					fallback: {
+						it: 'en',
+						spanish: 'en',
+					},
+					routing: {
+						prefixDefaultLocale: false,
 					},
 				},
 			});
@@ -703,22 +699,20 @@ describe('[SSG] i18n routing', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/i18n-routing-fallback/',
-				experimental: {
-					i18n: {
-						defaultLocale: 'en',
-						locales: [
-							'en',
-							'pt',
-							'it',
-							{
-								path: 'spanish',
-								codes: ['es', 'es-AR'],
-							},
-						],
-						fallback: {
-							it: 'en',
-							spanish: 'en',
+				i18n: {
+					defaultLocale: 'en',
+					locales: [
+						'en',
+						'pt',
+						'it',
+						{
+							path: 'spanish',
+							codes: ['es', 'es-AR'],
 						},
+					],
+					fallback: {
+						it: 'en',
+						spanish: 'en',
 					},
 				},
 			});
@@ -789,16 +783,14 @@ describe('[SSG] i18n routing', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/i18n-routing-prefix-always/',
-				experimental: {
-					i18n: {
-						defaultLocale: 'en',
-						locales: ['en', 'pt', 'it'],
-						fallback: {
-							it: 'en',
-						},
-						routing: {
-							prefixDefaultLocale: true,
-						},
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'pt', 'it'],
+					fallback: {
+						it: 'en',
+					},
+					routing: {
+						prefixDefaultLocale: true,
 					},
 				},
 			});
@@ -825,13 +817,11 @@ describe('[SSG] i18n routing', () => {
 				redirects: {
 					'/': '/en',
 				},
-				experimental: {
-					i18n: {
-						defaultLocale: 'en',
-						locales: ['en', 'pt', 'it'],
-						fallback: {
-							it: 'en',
-						},
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'pt', 'it'],
+					fallback: {
+						it: 'en',
 					},
 				},
 			});
@@ -856,16 +846,14 @@ describe('[SSG] i18n routing', () => {
 				build: {
 					format: 'directory',
 				},
-				experimental: {
-					i18n: {
-						defaultLocale: 'en',
-						locales: ['en', 'pt', 'it'],
-						fallback: {
-							it: 'en',
-						},
-						routing: {
-							prefixDefaultLocale: false,
-						},
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'pt', 'it'],
+					fallback: {
+						it: 'en',
+					},
+					routing: {
+						prefixDefaultLocale: false,
 					},
 				},
 			});
@@ -1115,22 +1103,20 @@ describe('[SSR] i18n routing', () => {
 				root: './fixtures/i18n-routing-fallback/',
 				output: 'server',
 				adapter: testAdapter(),
-				experimental: {
-					i18n: {
-						defaultLocale: 'en',
-						locales: [
-							'en',
-							'pt',
-							'it',
-							{
-								codes: ['es', 'es-AR'],
-								path: 'spanish',
-							},
-						],
-						fallback: {
-							it: 'en',
-							spanish: 'en',
+				i18n: {
+					defaultLocale: 'en',
+					locales: [
+						'en',
+						'pt',
+						'it',
+						{
+							codes: ['es', 'es-AR'],
+							path: 'spanish',
 						},
+					],
+					fallback: {
+						it: 'en',
+						spanish: 'en',
 					},
 				},
 			});
@@ -1178,16 +1164,14 @@ describe('[SSR] i18n routing', () => {
 					root: './fixtures/i18n-routing-fallback/',
 					output: 'server',
 					adapter: testAdapter(),
-					experimental: {
-						i18n: {
-							defaultLocale: 'en',
-							locales: ['en', 'pt', 'it'],
-							fallback: {
-								it: 'en',
-							},
-							routing: {
-								prefixDefaultLocale: false,
-							},
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'pt', 'it'],
+						fallback: {
+							it: 'en',
+						},
+						routing: {
+							prefixDefaultLocale: false,
 						},
 					},
 				});
@@ -1272,11 +1256,9 @@ describe('[SSR] i18n routing', () => {
 					root: './fixtures/i18n-routing/',
 					output: 'server',
 					adapter: testAdapter(),
-					experimental: {
-						i18n: {
-							defaultLocale: 'en',
-							locales: ['en_AU', 'pt_BR', 'es_US'],
-						},
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en_AU', 'pt_BR', 'es_US'],
 					},
 				});
 				await fixture.build();
@@ -1303,16 +1285,14 @@ describe('[SSR] i18n routing', () => {
 					root: './fixtures/i18n-routing/',
 					output: 'server',
 					adapter: testAdapter(),
-					experimental: {
-						i18n: {
-							defaultLocale: 'en',
-							locales: [
-								{
-									path: 'english',
-									codes: ['en', 'en-AU', 'pt-BR', 'es-US'],
-								},
-							],
-						},
+					i18n: {
+						defaultLocale: 'en',
+						locales: [
+							{
+								path: 'english',
+								codes: ['en', 'en-AU', 'pt-BR', 'es-US'],
+							},
+						],
 					},
 				});
 				await fixture.build();
@@ -1410,11 +1390,9 @@ describe('i18n routing does not break assets and endpoints', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-base/',
-				experimental: {
-					i18n: {
-						defaultLocale: 'en',
-						locales: ['en', 'es'],
-					},
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'es'],
 				},
 				base: '/blog',
 			});
