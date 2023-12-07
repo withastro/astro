@@ -12,35 +12,33 @@ export function extractScriptTags(
 	htmlDocument: HTMLDocument,
 	ast: ParseResult['ast']
 ): VirtualFile[] {
-	const embeddedJSFiles: VirtualFile[] = findIsolatedScripts(
+	const embeddedJSFiles: VirtualFile[] = findModuleScripts(
 		fileName,
 		snapshot,
 		htmlDocument.roots
 	);
 
 	const javascriptContexts = [
-		...findInlineScripts(htmlDocument, snapshot),
+		...findClassicScripts(htmlDocument, snapshot),
 		...findEventAttributes(ast),
 	].sort((a, b) => a.startOffset - b.startOffset);
 
 	if (javascriptContexts.length > 0) {
+		// classic scripts share the same scope
+		// merging them brings about redeclaration errors
 		embeddedJSFiles.push(mergeJSContexts(fileName, javascriptContexts));
 	}
 
 	return embeddedJSFiles;
 }
 
-function isIsolatedScriptTag(scriptTag: Node): boolean {
-	// Using any kind of attributes on the script tag will disable hoisting
-	if (
-		!scriptTag.attributes ||
-		(scriptTag.attributes && Object.entries(scriptTag.attributes).length === 0) ||
-		scriptTag.attributes['type']?.includes('module')
-	) {
-		return true;
-	}
-
-	return false;
+function getScriptType(scriptTag: Node): "classic" | "module" | "processed module" {
+	// script tags without attributes are processed and converted into module scripts
+	if (!scriptTag.attributes || Object.entries(scriptTag.attributes).length === 0) return "processed module";
+	// even when it is not processed by vite, scripts with type=module remain modules
+	if (scriptTag.attributes["type"]?.includes("module") === true) return "module";
+	// whenever there are attributes, is:inline is implied and in the absence of type=module, the script is classic
+	return "classic"
 }
 
 /**
@@ -48,7 +46,7 @@ function isIsolatedScriptTag(scriptTag: Node): boolean {
  * Isolated scripts are scripts that are hoisted by Astro and as such, are isolated from the rest of the code because of the implicit `type="module"`
  * All the isolated scripts are passed to the TypeScript language server as separate `.mts` files.
  */
-function findIsolatedScripts(
+function findModuleScripts(
 	fileName: string,
 	snapshot: ts.IScriptSnapshot,
 	roots: Node[]
@@ -64,11 +62,12 @@ function findIsolatedScripts(
 				node.tag === 'script' &&
 				node.startTagEnd !== undefined &&
 				node.endTagStart !== undefined &&
-				isIsolatedScriptTag(node)
+				getScriptType(node) !== "classic"
 			) {
 				const scriptText = snapshot.getText(node.startTagEnd, node.endTagStart);
+				const extension = getScriptType(node) === "processed module" ? "mts" : "mjs";
 				embeddedScripts.push({
-					fileName: fileName + `.${scriptIndex}.mts`,
+					fileName: fileName + `.${scriptIndex}.${extension}`,
 					kind: FileKind.TypeScriptHostFile,
 					snapshot: {
 						getText: (start, end) => scriptText.substring(start, end),
@@ -113,7 +112,7 @@ interface JavaScriptContext {
  * Inline scripts are scripts that are not hoisted by Astro and as such, are not isolated from the rest of the code.
  * All the inline scripts are concatenated into a single `.mjs` file and passed to the TypeScript language server.
  */
-function findInlineScripts(
+function findClassicScripts(
 	htmlDocument: HTMLDocument,
 	snapshot: ts.IScriptSnapshot
 ): JavaScriptContext[] {
@@ -128,7 +127,7 @@ function findInlineScripts(
 				node.startTagEnd !== undefined &&
 				node.endTagStart !== undefined &&
 				!isJSON(node.attributes?.type) &&
-				!isIsolatedScriptTag(node)
+				getScriptType(node) === "classic"
 			) {
 				const scriptText = snapshot.getText(node.startTagEnd, node.endTagStart);
 				inlineScripts.push({
