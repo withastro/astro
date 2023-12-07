@@ -5,10 +5,14 @@ import type { ClientDirective } from '../../@types/astro.js';
  * We target the children because `astro-island` is set to `display: contents`
  * which doesn't work with IntersectionObserver
  */
-const visibleDirective: ClientDirective = (load, _options, el) => {
+const visibleDirective: ClientDirective = (load, options, el) => {
 	const cb = async () => {
 		const hydrate = await load();
 		await hydrate();
+	};
+
+	const ioOptions = {
+		rootMargin: options.value ?? undefined,
 	};
 
 	const io = new IntersectionObserver((entries) => {
@@ -19,7 +23,7 @@ const visibleDirective: ClientDirective = (load, _options, el) => {
 			cb();
 			break; // break loop on first match
 		}
-	});
+	}, ioOptions);
 
 	for (const child of el.children) {
 		io.observe(child);
