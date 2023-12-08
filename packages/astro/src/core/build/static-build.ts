@@ -117,29 +117,36 @@ export async function viteBuild(opts: StaticBuildOptions) {
 
 	// For static builds, the SSR output output won't be needed anymore after page generation.
 	// We keep track of the names here so we only remove these specific files when finished.
-	const ssrOutputFileNames = ssrOutputs.flatMap((o) => o.output).map((o) => o.fileName);
+	const ssrOutputChunkNames: string[] = [];
+	for (const output of ssrOutputs) {
+		for (const chunk of output.output) {
+			if (chunk.type === 'chunk') {
+				ssrOutputChunkNames.push(chunk.fileName);
+			}
+		}
+	}
 
-	return { internals, ssrOutputFileNames };
+	return { internals, ssrOutputChunkNames };
 }
 
 export async function staticBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
-	ssrOutputFileNames: string[]
+	ssrOutputChunkNames: string[]
 ) {
 	const { settings } = opts;
 	switch (true) {
 		case settings.config.output === 'static': {
 			settings.timer.start('Static generate');
 			await generatePages(opts, internals);
-			await cleanServerOutput(opts, ssrOutputFileNames);
+			await cleanServerOutput(opts, ssrOutputChunkNames);
 			settings.timer.end('Static generate');
 			return;
 		}
 		case isServerLikeOutput(settings.config): {
 			settings.timer.start('Server generate');
 			await generatePages(opts, internals);
-			await cleanStaticOutput(opts, internals, ssrOutputFileNames);
+			await cleanStaticOutput(opts, internals, ssrOutputChunkNames);
 			opts.logger.info(null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 			await ssrMoveAssets(opts);
 			settings.timer.end('Server generate');
@@ -360,7 +367,7 @@ async function runPostBuildHooks(
 async function cleanStaticOutput(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
-	ssrOutputFileNames: string[]
+	ssrOutputChunkNames: string[]
 ) {
 	const allStaticFiles = new Set();
 	for (const pageData of eachPageData(internals)) {
@@ -375,8 +382,8 @@ async function cleanStaticOutput(
 	const out = ssr
 		? opts.settings.config.build.server
 		: getOutDirWithinCwd(opts.settings.config.outDir);
-	// The SSR output chunks are all .mjs files
-	const files = ssrOutputFileNames.filter((f) => f.endsWith('.mjs'));
+	// The SSR output chunks for Astro are all .mjs files
+	const files = ssrOutputChunkNames.filter((f) => f.endsWith('.mjs'));
 
 	if (files.length) {
 		await eslexer.init;
@@ -406,10 +413,10 @@ async function cleanStaticOutput(
 	}
 }
 
-async function cleanServerOutput(opts: StaticBuildOptions, ssrOutputFileNames: string[]) {
+async function cleanServerOutput(opts: StaticBuildOptions, ssrOutputChunkNames: string[]) {
 	const out = getOutDirWithinCwd(opts.settings.config.outDir);
-	// The SSR output chunks are all .mjs files
-	const files = ssrOutputFileNames.filter((f) => f.endsWith('.mjs'));
+	// The SSR output chunks for Astro are all .mjs files
+	const files = ssrOutputChunkNames.filter((f) => f.endsWith('.mjs'));
 	if (files.length) {
 		// Remove all the SSR generated .mjs files
 		await Promise.all(

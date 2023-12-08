@@ -198,8 +198,8 @@ class AstroBuilder {
 			viteConfig,
 		};
 
-		const { internals, ssrOutputFileNames } = await viteBuild(opts);
-		await staticBuild(opts, internals, ssrOutputFileNames);
+		const { internals, ssrOutputChunkNames } = await viteBuild(opts);
+		await staticBuild(opts, internals, ssrOutputChunkNames);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();
