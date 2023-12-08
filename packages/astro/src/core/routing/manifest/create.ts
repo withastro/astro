@@ -452,15 +452,17 @@ export function createRouteManifest(
 			.join('/')}`.toLowerCase();
 
 		{
-			let destination: string
-			if (typeof to === "string") {
-				destination = to
-			}
-			else {
-				destination = to.destination
+			let destination: string;
+			if (typeof to === 'string') {
+				destination = to;
+			} else {
+				destination = to.destination;
 			}
 			if (/^https?:\/\//.test(destination)) {
-				logger.warn('redirects', `Redirecting to an external URL is not officially supported: ${from} -> ${to}`);
+				logger.warn(
+					'redirects',
+					`Redirecting to an external URL is not officially supported: ${from} -> ${to}`
+				);
 			}
 		}
 
