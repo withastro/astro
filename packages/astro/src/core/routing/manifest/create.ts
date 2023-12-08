@@ -459,7 +459,7 @@ export function createRouteManifest(
 			else {
 				destination = to.destination
 			}
-			if (destination.startsWith("http")) {
+			if (/^https?:\/\//.test(destination)) {
 				logger.warn('redirects', `Redirecting to an external URL is not officially supported: ${from} -> ${to}`);
 			}
 		}
