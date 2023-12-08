@@ -37,7 +37,8 @@
   "workspaces": [
     "packages/markdown/*",
     "packages/integrations/*",
-    "packages/*"
+    "packages/*",
+    "scripts/*"
   ],
   "engines": {
     "node": ">=18.14.1",
