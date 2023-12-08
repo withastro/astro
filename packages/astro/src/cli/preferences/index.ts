@@ -2,7 +2,7 @@
 import type yargs from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro.js';
 
-import { bgGreen, black, bold, dim } from 'kleur/colors';
+import { bgGreen, black, bold, dim, yellow } from 'kleur/colors';
 import { fileURLToPath } from 'node:url';
 
 import dlv from 'dlv';
@@ -31,6 +31,9 @@ const PREFERENCES_SUBCOMMANDS = [
 	'list',
 ] as const;
 export type Subcommand = (typeof PREFERENCES_SUBCOMMANDS)[number];
+
+type AnnotatedValue = { annotation: string; value: string | number | boolean };
+type AnnotatedValues = Record<string, AnnotatedValue>;
 
 function isValidSubcommand(subcommand: string): subcommand is Subcommand {
 	return PREFERENCES_SUBCOMMANDS.includes(subcommand as Subcommand);
@@ -210,24 +213,45 @@ async function resetPreference(
 	return 1;
 }
 
+function annotate(flat: Record<string, any>, annotation: string) {
+	return Object.fromEntries(
+		Object.entries(flat).map(([key, value]) => [key, { annotation, value }])
+	);
+}
+function userValues(
+	flatDefault: Record<string, string | number | boolean>,
+	flatProject: Record<string, string | number | boolean>,
+	flatGlobal: Record<string, string | number | boolean>
+) {
+	const result: AnnotatedValues = {};
+	for (const key of Object.keys(flatDefault)) {
+		if (key in flatProject) {
+			result[key] = {
+				value: flatProject[key],
+				annotation: 'for this project',
+			};
+			if (key in flatGlobal) result[key].annotation += ` (and globally set to ${flatGlobal[key]})`;
+		} else if (key in flatGlobal) {
+			result[key] = { value: flatGlobal[key], annotation: 'globally' };
+		}
+	}
+	return result;
+}
+
 async function listPreferences(settings: AstroSettings, { location, json }: SubcommandOptions) {
 	if (json) {
 		const resolved = await settings.preferences.getAll();
 		console.log(JSON.stringify(resolved, null, 2));
 		return 0;
 	}
-	const { global, project, defaults } = await settings.preferences.list({ location });
+	const { global, project, fromAstroConfig, defaults } = await settings.preferences.list({
+		location,
+	});
 	const flatProject = flattie(project);
 	const flatGlobal = flattie(global);
-	const flatUser = Object.assign({}, flatGlobal, flatProject);
-	for (let key of Object.keys(flatUser)) {
-		if (!isValidKey(key)) {
-			delete flatUser[key];
-			continue;
-		}
-	}
-
 	const flatDefault = flattie(defaults);
+	const flatUser = userValues(flatDefault, flatProject, flatGlobal);
+
 	const userKeys = Object.keys(flatUser);
 
 	if (userKeys.length > 0) {
@@ -240,7 +264,7 @@ async function listPreferences(settings: AstroSettings, { location, json }: Subc
 		const message = dim('No preferences set');
 		console.log(['', badge, '', message].join('\n'));
 	}
-	const flatUnset = Object.assign({}, flatDefault);
+	const flatUnset = annotate(Object.assign({}, flatDefault), '');
 	for (const key of userKeys) {
 		delete flatUnset[key];
 	}
@@ -255,6 +279,16 @@ async function listPreferences(settings: AstroSettings, { location, json }: Subc
 		const badge = bgGreen(black(` Default Preferences `));
 		const message = dim('All preferences have been set');
 		console.log(['', badge, '', message].join('\n'));
+	}
+	if (
+		fromAstroConfig.devToolbar?.enabled === false &&
+		flatUser['devToolbar.enabled']?.value !== false
+	) {
+		console.log(
+			yellow(
+				'The dev toolbar is currently disabled. To enable it, set devToolbar: {enabled: true} in your astroConfig file.'
+			)
+		);
 	}
 
 	return 0;
@@ -283,22 +317,32 @@ const chars = {
 	bottomRight: '╯',
 };
 
-function formatTable(
-	object: Record<string, string | number | boolean>,
-	columnLabels: [string, string]
+// this is only used to deternine the column width
+function annotatedFormat(mv: AnnotatedValue) {
+	return mv.annotation ? `${mv.value} ${mv.annotation}` : mv.value.toString();
+}
+// this is the real formatting for annotated values
+function formatAnnotated(
+	mv: AnnotatedValue,
+	style: (value: string | number | boolean) => string = (v) => v.toString()
 ) {
+	return mv.annotation ? `${style(mv.value)} ${dim(mv.annotation)}` : style(mv.value);
+}
+function formatTable(object: Record<string, AnnotatedValue>, columnLabels: [string, string]) {
 	const [colA, colB] = columnLabels;
 	const colALength = [colA, ...Object.keys(object)].reduce(longest, 0) + 3;
-	const colBLength = [colB, ...Object.values(object)].reduce(longest, 0) + 3;
+	const colBLength = [colB, ...Object.values(object).map(annotatedFormat)].reduce(longest, 0) + 3;
 	function formatRow(
 		i: number,
 		a: string,
-		b: string | number | boolean,
+		b: AnnotatedValue,
 		style: (value: string | number | boolean) => string = (v) => v.toString()
 	): string {
-		return `${dim(chars.v)} ${style(a)} ${space(colALength - a.length - 2)} ${dim(chars.v)} ${style(
-			b
-		)} ${space(colBLength - b.toString().length - 3)} ${dim(chars.v)}`;
+		return `${dim(chars.v)} ${style(a)} ${space(colALength - a.length - 2)} ${dim(
+			chars.v
+		)} ${formatAnnotated(b, style)} ${space(colBLength - annotatedFormat(b).length - 3)} ${dim(
+			chars.v
+		)}`;
 	}
 	const top = dim(
 		`${chars.topLeft}${chars.h.repeat(colALength + 1)}${chars.hBottom}${chars.h.repeat(
@@ -315,7 +359,7 @@ function formatTable(
 			chars.hThickCross
 		}${chars.hThick.repeat(colBLength)}${chars.vLeftThick}`
 	);
-	const rows: string[] = [top, formatRow(-1, colA, colB, bold), divider];
+	const rows: string[] = [top, formatRow(-1, colA, { value: colB, annotation: '' }, bold), divider];
 	let i = 0;
 	for (const [key, value] of Object.entries(object)) {
 		rows.push(formatRow(i, key, value, (v) => formatWithOptions({ colors: true }, v)));
