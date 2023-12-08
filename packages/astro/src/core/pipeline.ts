@@ -1,10 +1,4 @@
-import type {
-	ComponentInstance,
-	EndpointHandler,
-	MiddlewareEndpointHandler,
-	MiddlewareHandler,
-	MiddlewareResponseHandler,
-} from '../@types/astro.js';
+import type { ComponentInstance, EndpointHandler, MiddlewareHandler } from '../@types/astro.js';
 import { callEndpoint, createAPIContext } from './endpoint/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { renderPage } from './render/core.js';
@@ -28,7 +22,7 @@ export type PipelineHookFunction = (ctx: RenderContext, mod: ComponentInstance |
  */
 export class Pipeline {
 	env: Environment;
-	#onRequest?: MiddlewareEndpointHandler;
+	#onRequest?: MiddlewareHandler;
 	#hooks: PipelineHooks = {
 		before: [],
 	};
@@ -60,7 +54,7 @@ export class Pipeline {
 	/**
 	 * A middleware function that will be called before each request.
 	 */
-	setMiddlewareFunction(onRequest: MiddlewareEndpointHandler) {
+	setMiddlewareFunction(onRequest: MiddlewareHandler) {
 		this.#onRequest = onRequest;
 	}
 
@@ -115,11 +109,11 @@ export class Pipeline {
 	 *
 	 * It throws an error if the page can't be rendered.
 	 */
-	async #tryRenderRoute<MiddlewareReturnType = Response>(
+	async #tryRenderRoute(
 		renderContext: Readonly<RenderContext>,
 		env: Readonly<Environment>,
 		mod: Readonly<ComponentInstance> | undefined,
-		onRequest?: MiddlewareHandler<MiddlewareReturnType>
+		onRequest?: MiddlewareHandler
 	): Promise<Response> {
 		const apiContext = createAPIContext({
 			request: renderContext.request,
@@ -128,7 +122,7 @@ export class Pipeline {
 			site: env.site,
 			adapterName: env.adapterName,
 			locales: renderContext.locales,
-			routingStrategy: renderContext.routingStrategy,
+			routingStrategy: renderContext.routing,
 			defaultLocale: renderContext.defaultLocale,
 		});
 
@@ -137,19 +131,14 @@ export class Pipeline {
 			case 'fallback':
 			case 'redirect': {
 				if (onRequest) {
-					return await callMiddleware<Response>(
-						env.logger,
-						onRequest as MiddlewareResponseHandler,
-						apiContext,
-						() => {
-							return renderPage({
-								mod,
-								renderContext,
-								env,
-								cookies: apiContext.cookies,
-							});
-						}
-					);
+					return await callMiddleware(onRequest, apiContext, () => {
+						return renderPage({
+							mod,
+							renderContext,
+							env,
+							cookies: apiContext.cookies,
+						});
+					});
 				} else {
 					return await renderPage({
 						mod,

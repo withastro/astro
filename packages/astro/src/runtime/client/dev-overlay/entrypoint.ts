@@ -1,51 +1,65 @@
 import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@types/astro.js';
-import { type AstroDevOverlay, type DevOverlayPlugin } from './overlay.js';
-
+import type { AstroDevOverlay, DevOverlayPlugin } from './overlay.js';
 import { settings } from './settings.js';
-import type { Icon } from './ui-library/icons.js';
+// @ts-expect-error
+import { loadDevOverlayPlugins } from 'astro:dev-overlay';
 
 let overlay: AstroDevOverlay;
 
 document.addEventListener('DOMContentLoaded', async () => {
 	const [
-		{ loadDevOverlayPlugins },
+		customPluginsDefinitions,
 		{ default: astroDevToolPlugin },
 		{ default: astroAuditPlugin },
 		{ default: astroXrayPlugin },
 		{ default: astroSettingsPlugin },
-		{ AstroDevOverlay, DevOverlayCanvas },
-		{ DevOverlayCard },
-		{ DevOverlayHighlight },
-		{ DevOverlayTooltip },
-		{ DevOverlayWindow },
-		{ DevOverlayToggle },
-		{ getIconElement, isDefinedIcon },
+		{ AstroDevOverlay, DevOverlayCanvas, getPluginIcon },
+		{
+			DevOverlayCard,
+			DevOverlayHighlight,
+			DevOverlayTooltip,
+			DevOverlayWindow,
+			DevOverlayToggle,
+			DevOverlayButton,
+			DevOverlayBadge,
+			DevOverlayIcon,
+		},
 	] = await Promise.all([
-		// @ts-expect-error
-		import('astro:dev-overlay'),
+		loadDevOverlayPlugins() as DevOverlayPluginDefinition[],
 		import('./plugins/astro.js'),
-		import('./plugins/audit.js'),
+		import('./plugins/audit/index.js'),
 		import('./plugins/xray.js'),
 		import('./plugins/settings.js'),
 		import('./overlay.js'),
-		import('./ui-library/card.js'),
-		import('./ui-library/highlight.js'),
-		import('./ui-library/tooltip.js'),
-		import('./ui-library/window.js'),
-		import('./ui-library/toggle.js'),
-		import('./ui-library/icons.js'),
+		import('./ui-library/index.js'),
 	]);
 
 	// Register custom elements
-	customElements.define('astro-dev-overlay', AstroDevOverlay);
-	customElements.define('astro-dev-overlay-window', DevOverlayWindow);
-	customElements.define('astro-dev-overlay-plugin-canvas', DevOverlayCanvas);
-	customElements.define('astro-dev-overlay-tooltip', DevOverlayTooltip);
-	customElements.define('astro-dev-overlay-highlight', DevOverlayHighlight);
-	customElements.define('astro-dev-overlay-card', DevOverlayCard);
-	customElements.define('astro-dev-overlay-toggle', DevOverlayToggle);
+	customElements.define('astro-dev-toolbar', AstroDevOverlay);
+	customElements.define('astro-dev-toolbar-window', DevOverlayWindow);
+	customElements.define('astro-dev-toolbar-plugin-canvas', DevOverlayCanvas);
+	customElements.define('astro-dev-toolbar-tooltip', DevOverlayTooltip);
+	customElements.define('astro-dev-toolbar-highlight', DevOverlayHighlight);
+	customElements.define('astro-dev-toolbar-card', DevOverlayCard);
+	customElements.define('astro-dev-toolbar-toggle', DevOverlayToggle);
+	customElements.define('astro-dev-toolbar-button', DevOverlayButton);
+	customElements.define('astro-dev-toolbar-badge', DevOverlayBadge);
+	customElements.define('astro-dev-toolbar-icon', DevOverlayIcon);
 
-	overlay = document.createElement('astro-dev-overlay');
+	// Add deprecated names
+	const deprecated = (Parent: any) => class extends Parent {};
+	customElements.define('astro-dev-overlay', deprecated(AstroDevOverlay));
+	customElements.define('astro-dev-overlay-window', deprecated(DevOverlayWindow));
+	customElements.define('astro-dev-overlay-plugin-canvas', deprecated(DevOverlayCanvas));
+	customElements.define('astro-dev-overlay-tooltip', deprecated(DevOverlayTooltip));
+	customElements.define('astro-dev-overlay-highlight', deprecated(DevOverlayHighlight));
+	customElements.define('astro-dev-overlay-card', deprecated(DevOverlayCard));
+	customElements.define('astro-dev-overlay-toggle', deprecated(DevOverlayToggle));
+	customElements.define('astro-dev-overlay-button', deprecated(DevOverlayButton));
+	customElements.define('astro-dev-overlay-badge', deprecated(DevOverlayBadge));
+	customElements.define('astro-dev-overlay-icon', deprecated(DevOverlayIcon));
+
+	overlay = document.createElement('astro-dev-toolbar');
 
 	const preparePlugin = (
 		pluginDefinition: DevOverlayPluginDefinition,
@@ -73,19 +87,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 			plugin.notification.state = newState;
 
-			if (settings.config.disablePluginNotification === false) {
-				target.querySelector('.notification')?.toggleAttribute('data-active', newState);
-			}
+			target.querySelector('.notification')?.toggleAttribute('data-active', newState);
 		});
 
-		eventTarget.addEventListener('toggle-plugin', async (evt) => {
+		const onToggleApp = async (evt: Event) => {
 			let newState = undefined;
 			if (evt instanceof CustomEvent) {
 				newState = evt.detail.state ?? true;
 			}
 
-			await overlay.togglePluginStatus(plugin, newState);
-		});
+			await overlay.setPluginStatus(plugin, newState);
+		};
+
+		eventTarget.addEventListener('toggle-app', onToggleApp);
+		// Deprecated
+		eventTarget.addEventListener('toggle-plugin', onToggleApp);
 
 		return plugin;
 	};
@@ -109,9 +125,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 						border: 1px solid rgba(52, 56, 65, 1);
 						border-radius: 12px;
 						box-shadow: 0px 0px 0px 0px rgba(19, 21, 26, 0.30), 0px 1px 2px 0px rgba(19, 21, 26, 0.29), 0px 4px 4px 0px rgba(19, 21, 26, 0.26), 0px 10px 6px 0px rgba(19, 21, 26, 0.15), 0px 17px 7px 0px rgba(19, 21, 26, 0.04), 0px 26px 7px 0px rgba(19, 21, 26, 0.01);
-						width: 180px;
+						width: 192px;
 						padding: 8px;
-						z-index: 9999999999;
+						z-index: 2000000010;
+						transform: translate(-50%, 0%);
+						position: fixed;
+						bottom: 72px;
+						left: 50%;
 					}
 
 					.notification {
@@ -126,7 +146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 						background: #B33E66;
 					}
 
-					.notification[data-active] {
+					#dropdown:not([data-no-notification]) .notification[data-active] {
 						display: block;
 					}
 
@@ -135,20 +155,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 						background: transparent;
 						color: white;
 						font-family: system-ui, sans-serif;
-						font-size: 16px;
-						line-height: 1.2;
+						font-size: 14px;
 						white-space: nowrap;
 						text-decoration: none;
 						margin: 0;
 						display: flex;
-    				align-items: center;
+						align-items: center;
 						width: 100%;
 						padding: 8px;
 						border-radius: 8px;
 					}
 
 					#dropdown button:hover, #dropdown button:focus-visible {
-						background: rgba(27, 30, 36, 1);
+						background: #FFFFFF20;
 						cursor: pointer;
 					}
 
@@ -158,8 +177,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 					#dropdown .icon {
 						position: relative;
-						height: 24px;
-						width: 24px;
+						height: 20px;
+						width: 20px;
+						padding: 1px;
 						margin-right: 0.5em;
 					}
 
@@ -172,6 +192,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 				const dropdown = document.createElement('div');
 				dropdown.id = 'dropdown';
+				dropdown.toggleAttribute('data-no-notification', settings.config.disablePluginNotification);
 
 				for (const plugin of hiddenPlugins) {
 					const buttonContainer = document.createElement('div');
@@ -180,8 +201,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 					button.setAttribute('data-plugin-id', plugin.id);
 
 					const iconContainer = document.createElement('div');
-					const iconElement = getPluginIcon(plugin.icon);
-					iconContainer.append(iconElement);
+					const iconElement = document.createElement('template');
+					iconElement.innerHTML = getPluginIcon(plugin.icon);
+					iconContainer.append(iconElement.content.cloneNode(true));
 
 					const notification = document.createElement('div');
 					notification.classList.add('notification');
@@ -198,15 +220,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 					dropdown.append(buttonContainer);
 
-					eventTarget.addEventListener('plugin-toggled', positionDropdown);
-					window.addEventListener('resize', positionDropdown);
-
 					plugin.eventTarget.addEventListener('toggle-notification', (evt) => {
 						if (!(evt instanceof CustomEvent)) return;
 
-						if (settings.config.disablePluginNotification === false) {
-							notification.toggleAttribute('data-active', evt.detail.state ?? true);
-						}
+						notification.toggleAttribute('data-active', evt.detail.state ?? true);
 
 						eventTarget.dispatchEvent(
 							new CustomEvent('toggle-notification', {
@@ -219,34 +236,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 				}
 
 				canvas.append(dropdown);
-
-				function getPluginIcon(icon: Icon) {
-					if (isDefinedIcon(icon)) {
-						return getIconElement(icon)!;
-					}
-
-					return icon;
-				}
-
-				function positionDropdown() {
-					const moreButtonRect = overlay.shadowRoot
-						.querySelector('[data-plugin-id="astro:more"]')
-						?.getBoundingClientRect();
-					const dropdownRect = dropdown.getBoundingClientRect();
-
-					if (moreButtonRect && dropdownRect) {
-						dropdown.style.position = 'absolute';
-						dropdown.style.top = `${moreButtonRect.top - dropdownRect.height - 12}px`;
-						dropdown.style.left = `${
-							moreButtonRect.left + moreButtonRect.width - dropdownRect.width
-						}px`;
-					}
-				}
 			}
 		},
 	} satisfies DevOverlayPluginDefinition;
 
-	const customPluginsDefinitions = (await loadDevOverlayPlugins()) as DevOverlayPluginDefinition[];
 	const plugins: DevOverlayPlugin[] = [
 		...[
 			astroDevToolPlugin,

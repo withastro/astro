@@ -1,7 +1,3 @@
 export async function GET() {
-    return {
-        body: JSON.stringify({
-            title: 'home'
-        })
-    };
+	return Response.json({ title: 'home' });
 }

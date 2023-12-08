@@ -1,7 +1,6 @@
 import type {
 	EndpointHandler,
 	ManifestData,
-	MiddlewareEndpointHandler,
 	RouteData,
 	SSRElement,
 	SSRManifest,
@@ -36,9 +35,11 @@ const responseSentSymbol = Symbol.for('astro.responseSent');
 
 const STATUS_CODES = new Set([404, 500]);
 
-export interface MatchOptions {
-	matchNotFound?: boolean | undefined;
+export interface RenderOptions {
+	routeData?: RouteData;
+	locals?: object;
 }
+
 export interface RenderErrorOptions {
 	routeData?: RouteData;
 	response?: Response;
@@ -63,6 +64,7 @@ export class App {
 	#baseWithoutTrailingSlash: string;
 	#pipeline: SSRRoutePipeline;
 	#adapterLogger: AstroIntegrationLogger;
+	#renderOptionsDeprecationWarningShown = false;
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
@@ -134,7 +136,7 @@ export class App {
 		return pathname;
 	}
 
-	match(request: Request, _opts: MatchOptions = {}): RouteData | undefined {
+	match(request: Request): RouteData | undefined {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
 		if (this.#manifest.assets.has(url.pathname)) return undefined;
@@ -145,7 +147,38 @@ export class App {
 		return routeData;
 	}
 
-	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {
+	async render(request: Request, options?: RenderOptions): Promise<Response>;
+	/**
+	 * @deprecated Instead of passing `RouteData` and locals individually, pass an object with `routeData` and `locals` properties.
+	 * See https://github.com/withastro/astro/pull/9199 for more information.
+	 */
+	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response>;
+	async render(
+		request: Request,
+		routeDataOrOptions?: RouteData | RenderOptions,
+		maybeLocals?: object
+	): Promise<Response> {
+		let routeData: RouteData | undefined;
+		let locals: object | undefined;
+
+		if (
+			routeDataOrOptions &&
+			('routeData' in routeDataOrOptions || 'locals' in routeDataOrOptions)
+		) {
+			if ('routeData' in routeDataOrOptions) {
+				routeData = routeDataOrOptions.routeData;
+			}
+			if ('locals' in routeDataOrOptions) {
+				locals = routeDataOrOptions.locals;
+			}
+		} else {
+			routeData = routeDataOrOptions as RouteData | undefined;
+			locals = maybeLocals;
+			if (routeDataOrOptions || locals) {
+				this.#logRenderOptionsDeprecationWarning();
+			}
+		}
+
 		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
 		if (request.url !== collapseDuplicateSlashes(request.url)) {
 			request = new Request(collapseDuplicateSlashes(request.url), request);
@@ -156,7 +189,6 @@ export class App {
 		if (!routeData) {
 			return this.#renderError(request, { status: 404 });
 		}
-
 		Reflect.set(request, clientLocalsSymbol, locals ?? {});
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
@@ -181,16 +213,14 @@ export class App {
 			);
 			if (i18nMiddleware) {
 				if (mod.onRequest) {
-					this.#pipeline.setMiddlewareFunction(
-						sequence(i18nMiddleware, mod.onRequest as MiddlewareEndpointHandler)
-					);
+					this.#pipeline.setMiddlewareFunction(sequence(i18nMiddleware, mod.onRequest));
 				} else {
 					this.#pipeline.setMiddlewareFunction(i18nMiddleware);
 				}
 				this.#pipeline.onBeforeRenderRoute(i18nPipelineHook);
 			} else {
 				if (mod.onRequest) {
-					this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
+					this.#pipeline.setMiddlewareFunction(mod.onRequest);
 				}
 			}
 			response = await this.#pipeline.renderRoute(renderContext, pageModule);
@@ -198,7 +228,7 @@ export class App {
 			if (err instanceof EndpointNotFoundError) {
 				return this.#renderError(request, { status: 404, response: err.originalResponse });
 			} else {
-				this.#logger.error('ssr', err.stack || err.message || String(err));
+				this.#logger.error(null, err.stack || err.message || String(err));
 				return this.#renderError(request, { status: 500 });
 			}
 		}
@@ -214,6 +244,15 @@ export class App {
 			return response;
 		}
 		return response;
+	}
+
+	#logRenderOptionsDeprecationWarning() {
+		if (this.#renderOptionsDeprecationWarningShown) return;
+		this.#logger.warn(
+			'deprecated',
+			`The adapter ${this.#manifest.adapterName} is using a deprecated signature of the 'app.render()' method. From Astro 4.0, locals and routeData are provided as properties on an optional object to this method. Using the old signature will cause an error in Astro 5.0. See https://github.com/withastro/astro/pull/9199 for more information.`
+		);
+		this.#renderOptionsDeprecationWarningShown = true;
 	}
 
 	setCookieHeaders(response: Response) {
@@ -243,7 +282,7 @@ export class App {
 				env: this.#pipeline.env,
 				mod: handler as any,
 				locales: this.#manifest.i18n?.locales,
-				routingStrategy: this.#manifest.i18n?.routingStrategy,
+				routing: this.#manifest.i18n?.routing,
 				defaultLocale: this.#manifest.i18n?.defaultLocale,
 			});
 		} else {
@@ -280,7 +319,7 @@ export class App {
 				mod,
 				env: this.#pipeline.env,
 				locales: this.#manifest.i18n?.locales,
-				routingStrategy: this.#manifest.i18n?.routingStrategy,
+				routing: this.#manifest.i18n?.routing,
 				defaultLocale: this.#manifest.i18n?.defaultLocale,
 			});
 		}
@@ -322,7 +361,7 @@ export class App {
 				);
 				const page = (await mod.page()) as any;
 				if (skipMiddleware === false && mod.onRequest) {
-					this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
+					this.#pipeline.setMiddlewareFunction(mod.onRequest);
 				}
 				if (skipMiddleware) {
 					// make sure middleware set by other requests is cleared out
@@ -367,8 +406,8 @@ export class App {
 		const status = override?.status
 			? override.status
 			: oldResponse.status === 200
-			? newResponse.status
-			: oldResponse.status;
+			  ? newResponse.status
+			  : oldResponse.status;
 
 		return new Response(newResponse.body, {
 			status,

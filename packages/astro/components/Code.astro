@@ -1,7 +1,4 @@
 ---
-import path from 'node:path';
-import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import type {
 	BuiltinLanguage,
 	BuiltinTheme,
@@ -10,6 +7,7 @@ import type {
 	ThemeRegistration,
 	ThemeRegistrationRaw,
 } from 'shikiji';
+import { bundledLanguages } from 'shikiji/langs';
 import { getCachedHighlighter } from '../dist/core/shiki.js';
 
 interface Props {
@@ -64,23 +62,6 @@ const {
 
 // shiki -> shikiji compat
 if (typeof lang === 'object') {
-	// shikiji does not support `path`
-	// https://github.com/shikijs/shiki/blob/facb6ff37996129626f8066a5dccb4608e45f649/packages/shiki/src/loader.ts#L98
-	const langPath = (lang as any).path;
-	if (langPath) {
-		// shiki resolves path from within its package directory :shrug:
-		const astroRoot = fileURLToPath(new URL('../', import.meta.url));
-		const normalizedPath = path.isAbsolute(langPath) ? langPath : path.resolve(astroRoot, langPath);
-		try {
-			const content = fs.readFileSync(normalizedPath, 'utf-8');
-			const parsed = JSON.parse(content);
-			Object.assign(lang, parsed);
-		} catch (e) {
-			throw new Error(`Unable to find language file at ${normalizedPath}`, {
-				cause: e,
-			});
-		}
-	}
 	// `id` renamed to `name` (always override)
 	if ((lang as any).id) {
 		lang.name = (lang as any).id;
@@ -92,7 +73,13 @@ if (typeof lang === 'object') {
 }
 
 const highlighter = await getCachedHighlighter({
-	langs: [lang],
+	langs: [
+		typeof lang === 'string'
+			? Object.keys(bundledLanguages).includes(lang)
+				? lang
+				: 'plaintext'
+			: lang,
+	],
 	theme,
 	experimentalThemes,
 	wrap,

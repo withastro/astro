@@ -4,9 +4,9 @@
   "private": true,
   "dependencies": {
     "@astrojs/solid-js": "workspace:*",
-    "@solidjs/router": "^0.8.3",
+    "@solidjs/router": "^0.9.1",
     "@test/solid-jsx-component": "file:./deps/solid-jsx-component",
     "astro": "workspace:*",
-    "solid-js": "^1.7.11"
+    "solid-js": "^1.8.5"
   }
 }

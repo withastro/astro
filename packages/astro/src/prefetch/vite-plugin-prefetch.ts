@@ -1,10 +1,10 @@
-import * as vite from 'vite';
+import type * as vite from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 
 const virtualModuleId = 'astro:prefetch';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
 const prefetchInternalModuleFsSubpath = 'astro/dist/prefetch/index.js';
-const prefetchCode = `import { init } from 'astro/prefetch';init()`;
+const prefetchCode = `import { init } from 'astro/virtual-modules/prefetch.js';init()`;
 
 export default function astroPrefetch({ settings }: { settings: AstroSettings }): vite.Plugin {
 	const prefetchOption = settings.config.prefetch;
@@ -19,7 +19,7 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 		// Inject prefetch script to all pages
 		settings.scripts.push({
 			stage: 'page',
-			content: `import { init } from 'astro/prefetch';init()`,
+			content: `import { init } from 'astro/virtual-modules/prefetch.js';init()`,
 		});
 	}
 
@@ -40,7 +40,7 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 		load(id) {
 			if (id === resolvedVirtualModuleId) {
 				if (!prefetch) throwPrefetchNotEnabledError();
-				return `export { prefetch } from "astro/prefetch";`;
+				return `export { prefetch } from "astro/virtual-modules/prefetch.js";`;
 			}
 		},
 		transform(code, id) {

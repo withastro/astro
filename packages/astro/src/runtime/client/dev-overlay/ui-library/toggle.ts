@@ -30,6 +30,14 @@ export class DevOverlayToggle extends HTMLElement {
 				position: relative;
 			}
 
+			@media (forced-colors: active) {
+				input::after {
+					border: 1px solid black;
+					top: 0px;
+					left: 0px;
+				}
+			}
+
 			input:checked {
 				border: 1px solid rgba(213, 249, 196, 1);
 				background-color: rgba(61, 125, 31, 1);

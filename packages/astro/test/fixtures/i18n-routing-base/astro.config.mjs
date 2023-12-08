@@ -2,13 +2,16 @@ import { defineConfig} from "astro/config";
 
 export default defineConfig({
 	base: "new-site",
-	experimental: {
 		i18n: {
 			defaultLocale: 'en',
 			locales: [
-				'en', 'pt', 'it'
+				'en', 'pt', 'it',  {
+					path: "spanish",
+					codes: ["es", "es-ar"]
+				}
 			],
-			routingStrategy: "prefix-always"
-		}
+			routing: {
+				prefixDefaultLocale: true
+			}
 	}
 })

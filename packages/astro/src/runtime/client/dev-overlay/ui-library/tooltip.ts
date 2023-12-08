@@ -32,10 +32,10 @@ export class DevOverlayTooltip extends HTMLElement {
 				font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 				font-size: 14px;
 				margin: 0;
-				z-index: 9999999;
+				z-index: 2000000001;
 				max-width: 45ch;
 				width: fit-content;
-				min-width: 27ch;
+				min-width: 30ch;
 				box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.30), 0px 1px 2px 0px rgba(0, 0, 0, 0.29), 0px 4px 4px 0px rgba(0, 0, 0, 0.26), 0px 10px 6px 0px rgba(0, 0, 0, 0.15), 0px 17px 7px 0px rgba(0, 0, 0, 0.04), 0px 26px 7px 0px rgba(0, 0, 0, 0.01);
 			}
 
@@ -101,12 +101,17 @@ export class DevOverlayTooltip extends HTMLElement {
 				cursor: pointer;
 			}
 
-			code {
-				background: rgba(136, 58, 234, 0.33);
+			pre, code {
+				background: rgb(78, 27, 145);
 				font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 				border-radius: 2px;
 				font-size: 14px;
 				padding: 2px;
+			}
+			pre {
+				padding: 1em;
+				margin: 0 0;
+				overflow: auto;
 			}
 			`;
 

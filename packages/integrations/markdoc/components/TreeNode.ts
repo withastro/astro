@@ -1,17 +1,17 @@
-import type { AstroInstance } from 'astro';
 import type { RenderableTreeNode } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
+import type { AstroInstance } from 'astro';
+import type { HTMLString } from 'astro/runtime/server/index.js';
 import {
 	createComponent,
-	renderComponent,
-	render,
-	renderScriptElement,
-	renderUniqueStylesheet,
 	createHeadAndContent,
-	unescapeHTML,
-	renderTemplate,
-	HTMLString,
 	isHTMLString,
+	render,
+	renderComponent,
+	renderScriptElement,
+	renderTemplate,
+	renderUniqueStylesheet,
+	unescapeHTML,
 } from 'astro/runtime/server/index.js';
 
 export type TreeNode =
@@ -89,10 +89,7 @@ export const ComponentNode = createComponent({
 			);
 
 			// Let the runtime know that this component is being used.
-			// `result.propagators` has been moved to `result._metadata.propagators`
-			// TODO: remove this fallback in the next markdoc integration major
-			const propagators = result._metadata.propagators || result.propagators;
-			propagators.add({
+			result._metadata.propagators.add({
 				init() {
 					return headAndContent;
 				},

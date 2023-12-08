@@ -1,5 +1,23 @@
 # @astrojs/react
 
+## 3.0.7
+
+### Patch Changes
+
+- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Adds Vite 5 support. There are no breaking changes from Astro. Check the [Vite migration guide](https://vitejs.dev/guide/migration.html) for details of the breaking changes from Vite instead.
+
+## 3.0.7-beta.0
+
+### Patch Changes
+
+- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Adds Vite 5 support. There are no breaking changes from Astro. Check the [Vite migration guide](https://vitejs.dev/guide/migration.html) for details of the breaking changes from Vite instead.
+
+## 3.0.6
+
+### Patch Changes
+
+- [#9141](https://github.com/withastro/astro/pull/9141) [`af43fb517`](https://github.com/withastro/astro/commit/af43fb51726fa2242cec03cb019fa4fa4a4403ef) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where slotting self-closing elements (img, br, hr) into react components with `experimentalReactChildren` enabled led to an error.
+
 ## 3.0.5
 
 ### Patch Changes
