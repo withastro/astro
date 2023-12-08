@@ -7,6 +7,14 @@ const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 export default function astroDevOverlay({ settings }: AstroPluginOptions): vite.Plugin {
 	return {
 		name: 'astro:dev-overlay',
+		config() {
+			return {
+				optimizeDeps: {
+					// Optimize CJS dependencies used by the dev toolbar
+					include: ['astro > aria-query', 'astro > axobject-query'],
+				},
+			};
+		},
 		resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
 				return resolvedVirtualModuleId;
