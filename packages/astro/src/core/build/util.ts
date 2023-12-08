@@ -1,4 +1,6 @@
+import type { Rollup } from 'vite';
 import type { AstroConfig } from '../../@types/astro.js';
+import type { ViteBuildReturn } from './types.js';
 
 export function getTimeStat(timeStart: number, timeEnd: number) {
 	const buildTime = timeEnd - timeStart;
@@ -51,4 +53,16 @@ export function encodeName(name: string): string {
 	}
 
 	return name;
+}
+
+export function viteBuildReturnToRollupOutputs(
+	viteBuildReturn: ViteBuildReturn
+): Rollup.RollupOutput[] {
+	const result: Rollup.RollupOutput[] = [];
+	if (Array.isArray(viteBuildReturn)) {
+		result.push(...viteBuildReturn);
+	} else if ('output' in viteBuildReturn) {
+		result.push(viteBuildReturn);
+	}
+	return result;
 }
