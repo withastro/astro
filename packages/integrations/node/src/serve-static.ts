@@ -33,7 +33,7 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			const hasSlash = urlPath.endsWith('/');
 			switch (trailingSlash) {
 				case "never":
-					if (isDirectory && hasSlash) {
+					if (isDirectory && (urlPath != '/') && hasSlash) {
 						pathname = urlPath.slice(0, -1) + (urlQuery ? "?" + urlQuery : "");
 						res.statusCode = 301;
 						res.setHeader('Location', pathname);
