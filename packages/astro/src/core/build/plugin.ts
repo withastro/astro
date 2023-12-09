@@ -1,4 +1,4 @@
-import type { Plugin as VitePlugin } from 'vite';
+import type { Plugin as VitePlugin, Rollup } from 'vite';
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions, ViteBuildReturn } from './types.js';
 
@@ -68,7 +68,7 @@ export function createPluginContainer(options: StaticBuildOptions, internals: Bu
 			};
 		},
 
-		async runPostHook(ssrReturn: ViteBuildReturn, clientReturn: ViteBuildReturn | null) {
+		async runPostHook(ssrOutputs: Rollup.RollupOutput[], clientOutputs: Rollup.RollupOutput[]) {
 			const mutations = new Map<
 				string,
 				{
@@ -76,20 +76,6 @@ export function createPluginContainer(options: StaticBuildOptions, internals: Bu
 					code: string;
 				}
 			>();
-			const ssrOutputs: RollupOutputArray = [];
-			const clientOutputs: RollupOutputArray = [];
-
-			if (Array.isArray(ssrReturn)) {
-				ssrOutputs.push(...ssrReturn);
-			} else if ('output' in ssrReturn) {
-				ssrOutputs.push(ssrReturn);
-			}
-
-			if (Array.isArray(clientReturn)) {
-				clientOutputs.push(...clientReturn);
-			} else if (clientReturn && 'output' in clientReturn) {
-				clientOutputs.push(clientReturn);
-			}
 
 			const mutate: MutateChunk = (chunk, targets, newCode) => {
 				chunk.code = newCode;
