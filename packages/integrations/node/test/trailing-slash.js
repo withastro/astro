@@ -41,6 +41,15 @@ describe('Trailing slash', () => {
 				delete process.env.PRERENDER;
 			});
 
+			it('Can render prerendered base route', async () => {
+				const res = await fetch(`http://${server.host}:${server.port}`);
+				const html = await res.text();
+				const $ = cheerio.load(html);
+
+				expect(res.status).to.equal(200);
+				expect($('h1').text()).to.equal('Index');
+			});
+
 			it('Can render prerendered route with redirect', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/some-base/one`, {
 					redirect : 'manual'
@@ -87,6 +96,15 @@ describe('Trailing slash', () => {
 				await server.stop();
 				await fixture.clean();
 				delete process.env.PRERENDER;
+			});
+
+			it('Can render prerendered base route', async () => {
+				const res = await fetch(`http://${server.host}:${server.port}`);
+				const html = await res.text();
+				const $ = cheerio.load(html);
+
+				expect(res.status).to.equal(200);
+				expect($('h1').text()).to.equal('Index');
 			});
 
 			it('Can render prerendered route with redirect', async () => {
@@ -140,6 +158,15 @@ describe('Trailing slash', () => {
 				delete process.env.PRERENDER;
 			});
 
+			it('Can render prerendered base route', async () => {
+				const res = await fetch(`http://${server.host}:${server.port}`);
+				const html = await res.text();
+				const $ = cheerio.load(html);
+
+				expect(res.status).to.equal(200);
+				expect($('h1').text()).to.equal('Index');
+			});
+
 			it('Can render prerendered route with redirect', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/some-base/one/`, {
 					redirect : 'manual'
@@ -187,6 +214,15 @@ describe('Trailing slash', () => {
 				await server.stop();
 				await fixture.clean();
 				delete process.env.PRERENDER;
+			});
+
+			it('Can render prerendered base route', async () => {
+				const res = await fetch(`http://${server.host}:${server.port}`);
+				const html = await res.text();
+				const $ = cheerio.load(html);
+
+				expect(res.status).to.equal(200);
+				expect($('h1').text()).to.equal('Index');
 			});
 
 			it('Can render prerendered route with redirect', async () => {
@@ -239,6 +275,15 @@ describe('Trailing slash', () => {
 				await server.stop();
 				await fixture.clean();
 				delete process.env.PRERENDER;
+			});
+
+			it('Can render prerendered base route', async () => {
+				const res = await fetch(`http://${server.host}:${server.port}`);
+				const html = await res.text();
+				const $ = cheerio.load(html);
+
+				expect(res.status).to.equal(200);
+				expect($('h1').text()).to.equal('Index');
 			});
 
 			it('Can render prerendered route with slash', async () => {
@@ -306,6 +351,15 @@ describe('Trailing slash', () => {
 				await server.stop();
 				await fixture.clean();
 				delete process.env.PRERENDER;
+			});
+
+			it('Can render prerendered base route', async () => {
+				const res = await fetch(`http://${server.host}:${server.port}`);
+				const html = await res.text();
+				const $ = cheerio.load(html);
+
+				expect(res.status).to.equal(200);
+				expect($('h1').text()).to.equal('Index');
 			});
 
 			it('Can render prerendered route with slash', async () => {
