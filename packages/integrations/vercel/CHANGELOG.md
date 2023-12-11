@@ -1,5 +1,15 @@
 # @astrojs/vercel
 
+## 6.0.2
+
+### Patch Changes
+
+- [#9287](https://github.com/withastro/astro/pull/9287) [`1e342e34e`](https://github.com/withastro/astro/commit/1e342e34eb9cef465b838654cea7bb4b0d24e602) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where redirects did not work with the static adapter.
+
+- [#9383](https://github.com/withastro/astro/pull/9383) [`bebf5cf22`](https://github.com/withastro/astro/commit/bebf5cf22d0d842670825aa961529e8b342e2b26) Thanks [@sarah11918](https://github.com/sarah11918)! - Fixes some incorrect code examples in the README documentation.
+
+- [#9334](https://github.com/withastro/astro/pull/9334) [`dfbc70790`](https://github.com/withastro/astro/commit/dfbc7079081d3346713cb536358a3854362a2c95) Thanks [@Geo25rey](https://github.com/Geo25rey)! - Allows the edge middleware to be an async function.
+
 ## 6.0.1
 
 ### Patch Changes

@@ -21,21 +21,20 @@ function getMatchPattern(segments: RoutePart[][]) {
 		.map((segment) => {
 			return segment[0].spread
 				? '(?:\\/(.*?))?'
-				: '\\/' +
-						segment
-							.map((part) => {
-								if (part)
-									return part.dynamic
-										? '([^/]+?)'
-										: part.content
-												.normalize()
-												.replace(/\?/g, '%3F')
-												.replace(/#/g, '%23')
-												.replace(/%5B/g, '[')
-												.replace(/%5D/g, ']')
-												.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-							})
-							.join('');
+				: segment
+						.map((part) => {
+							if (part)
+								return part.dynamic
+									? '([^/]+?)'
+									: part.content
+											.normalize()
+											.replace(/\?/g, '%3F')
+											.replace(/#/g, '%23')
+											.replace(/%5B/g, '[')
+											.replace(/%5D/g, ']')
+											.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+						})
+						.join('');
 		})
 		.join('');
 }

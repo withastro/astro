@@ -151,6 +151,13 @@ describe('Astro basics', () => {
 			expect($('body > :nth-child(5)').prop('outerHTML')).to.equal('<textarea>textarea</textarea>');
 		});
 
+		it('Generates pages that end with .mjs', async () => {
+			const content1 = await fixture.readFile('/get-static-paths-with-mjs/example.mjs');
+			expect(content1).to.be.ok;
+			const content2 = await fixture.readFile('/get-static-paths-with-mjs/example.js');
+			expect(content2).to.be.ok;
+		});
+
 		describe('preview', () => {
 			it('returns 200 for valid URLs', async () => {
 				const result = await fixture.fetch('/');

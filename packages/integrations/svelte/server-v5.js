@@ -1,4 +1,8 @@
 import { render } from 'svelte/server';
+import { add_snippet_symbol } from 'svelte/internal';
+
+// Allow a slot to be rendered as a snippet (dev validation only)
+const tagSlotAsSnippet = import.meta.env.DEV ? add_snippet_symbol : (s) => s;
 
 function check(Component) {
 	// Svelte 5 generated components always accept these two props
@@ -18,10 +22,10 @@ async function renderToStaticMarkup(Component, props, slotted, metadata) {
 	let $$slots = undefined;
 	for (const [key, value] of Object.entries(slotted)) {
 		if (key === 'default') {
-			children = () => `<${tagName}>${value}</${tagName}>`;
+			children = tagSlotAsSnippet(() => `<${tagName}>${value}</${tagName}>`);
 		} else {
 			$$slots ??= {};
-			$$slots[key] = () => `<${tagName} name="${key}">${value}</${tagName}>`;
+			$$slots[key] = tagSlotAsSnippet(() => `<${tagName} name="${key}">${value}</${tagName}>`);
 		}
 	}
 
