@@ -29,7 +29,7 @@ function safeConvertToTSX(content: string, options: ConvertToTSXOptions) {
 					code: 1000,
 					location: { file: options.filename!, line: 1, column: 1, length: content.length },
 					severity: 1,
-					text: `The Astro compiler encountered an unknown error while parsing this file. Please create an issue with your code and the error shown in the server's logs: https://github.com/withastro/language-tools/issues`,
+					text: `The Astro compiler encountered an unknown error while transform this file to TSX. Please create an issue with your code and the error shown in the server's logs: https://github.com/withastro/language-tools/issues`,
 				},
 			],
 		} satisfies TSXResult;

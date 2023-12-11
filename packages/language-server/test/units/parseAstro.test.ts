@@ -6,7 +6,7 @@ import { createCompilerPoint, createCompilerPosition } from '../utils.js';
 describe('parseAstro - Can parse astro files', () => {
 	it('Can parse files', () => {
 		const input = `---\n--- <div>Astro!</div>`;
-		const metadata = getAstroMetadata(input);
+		const metadata = getAstroMetadata('file.astro', input);
 
 		expect(metadata.ast).to.deep.equal({
 			children: [
@@ -60,12 +60,12 @@ describe('parseAstro - Can parse astro files', () => {
 
 	it('properly return frontmatter states', () => {
 		const inputClosed = `---\n--- <div>Astro!</div>`;
-		expect(getAstroMetadata(inputClosed).frontmatter.status).to.equal('closed');
+		expect(getAstroMetadata('file.astro', inputClosed).frontmatter.status).to.equal('closed');
 
 		const inputOpen = `---\n<div>Astro!</div>`;
-		expect(getAstroMetadata(inputOpen).frontmatter.status).to.equal('open');
+		expect(getAstroMetadata('file.astro', inputOpen).frontmatter.status).to.equal('open');
 
 		const inputNull = `<div>Astro!</div>`;
-		expect(getAstroMetadata(inputNull).frontmatter.status).to.equal('doesnt-exist');
+		expect(getAstroMetadata('file.astro', inputNull).frontmatter.status).to.equal('doesnt-exist');
 	});
 });

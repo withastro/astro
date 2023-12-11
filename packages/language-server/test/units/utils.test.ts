@@ -2,8 +2,8 @@ import type { Point } from '@astrojs/compiler/types.js';
 import { Range } from '@volar/language-server';
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import * as html from 'vscode-html-languageservice';
 import type { Node } from 'vscode-html-languageservice';
+import * as html from 'vscode-html-languageservice';
 import * as compilerUtils from '../../src/core/compilerUtils.js';
 import { getAstroMetadata } from '../../src/core/parseAstro.js';
 import * as utils from '../../src/plugins/utils.js';
@@ -49,16 +49,16 @@ describe('Utilities', async () => {
 	});
 
 	it('isInsideFrontmatter - properly return if a given offset is inside the frontmatter', () => {
-		const hasFrontmatter = getAstroMetadata('---\nfoo\n---\n');
+		const hasFrontmatter = getAstroMetadata('file.astro', '---\nfoo\n---\n');
 		expect(utils.isInsideFrontmatter(0, hasFrontmatter.frontmatter)).to.be.false;
 		expect(utils.isInsideFrontmatter(6, hasFrontmatter.frontmatter)).to.be.true;
 		expect(utils.isInsideFrontmatter(15, hasFrontmatter.frontmatter)).to.be.false;
 
-		const noFrontmatter = getAstroMetadata('<div></div>');
+		const noFrontmatter = getAstroMetadata('file.astro', '<div></div>');
 		expect(utils.isInsideFrontmatter(0, noFrontmatter.frontmatter)).to.be.false;
 		expect(utils.isInsideFrontmatter(6, noFrontmatter.frontmatter)).to.be.false;
 
-		const openFrontmatter = getAstroMetadata('---\nfoo\n');
+		const openFrontmatter = getAstroMetadata('file.astro', '---\nfoo\n');
 		expect(utils.isInsideFrontmatter(0, openFrontmatter.frontmatter)).to.be.false;
 		expect(utils.isInsideFrontmatter(6, openFrontmatter.frontmatter)).to.be.true;
 	});
@@ -77,7 +77,7 @@ describe('Utilities', async () => {
 
 	it('ensureRangeIsInFrontmatter - properly return a range inside the frontmatter', () => {
 		const beforeFrontmatterRange = html.Range.create(0, 0, 0, 0);
-		const hasFrontmatter = getAstroMetadata('---\nfoo\n---\n');
+		const hasFrontmatter = getAstroMetadata('file.astro', '---\nfoo\n---\n');
 		expect(
 			utils.ensureRangeIsInFrontmatter(beforeFrontmatterRange, hasFrontmatter.frontmatter)
 		).to.deep.equal(Range.create(1, 0, 1, 0));

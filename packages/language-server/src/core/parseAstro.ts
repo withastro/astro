@@ -1,15 +1,45 @@
 import { parse } from '@astrojs/compiler/sync';
-import type { ParseResult, Point } from '@astrojs/compiler/types';
+import type { ParseOptions, ParseResult, Point } from '@astrojs/compiler/types';
 
 type AstroMetadata = ParseResult & { frontmatter: FrontmatterStatus };
 
-export function getAstroMetadata(input: string, position = true): AstroMetadata {
-	const parseResult = parse(input, { position: position });
+export function getAstroMetadata(
+	fileName: string,
+	input: string,
+	options: ParseOptions = { position: true }
+): AstroMetadata {
+	const parseResult = safeParseAst(fileName, input, options);
 
 	return {
 		...parseResult,
 		frontmatter: getFrontmatterStatus(parseResult.ast, input),
 	};
+}
+
+function safeParseAst(fileName: string, input: string, parseOptions: ParseOptions): ParseResult {
+	try {
+		const parseResult = parse(input, parseOptions);
+		return parseResult;
+	} catch (e) {
+		console.error(
+			`There was an error parsing ${fileName}'s AST. An empty AST will be returned instead to avoid breaking the server. Please create an issue: https://github.com/withastro/language-tools/issues\nError: ${e}.`
+		);
+
+		return {
+			ast: {
+				type: 'root',
+				children: [],
+			},
+			diagnostics: [
+				{
+					code: 1000,
+					location: { file: fileName, line: 1, column: 1, length: input.length },
+					severity: 1,
+					text: `The Astro compiler encountered an unknown error while parsing this file's AST. Please create an issue with your code and the error shown in the server's logs: https://github.com/withastro/language-tools/issues`,
+				},
+			],
+		};
+	}
 }
 
 interface FrontmatterOpen {

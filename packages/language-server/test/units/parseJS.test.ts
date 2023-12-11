@@ -9,7 +9,7 @@ describe('parseJS - Can find all the scripts in an Astro file', () => {
 		const input = `<script>console.log('hi')</script><div><script>console.log('hi2')</script></div>`;
 		const snapshot = ts.ScriptSnapshot.fromString(input);
 		const html = parseHTML('something/something/hello.astro', snapshot, 0);
-		const astroAst = getAstroMetadata(input).ast;
+		const astroAst = getAstroMetadata('file.astro', input).ast;
 
 		const scriptTags = extractScriptTags(
 			'something/something/hello.astro',
@@ -25,7 +25,7 @@ describe('parseJS - Can find all the scripts in an Astro file', () => {
 		const input = `<script type="application/json">{foo: "bar"}</script>`;
 		const snapshot = ts.ScriptSnapshot.fromString(input);
 		const html = parseHTML('something/something/hello.astro', snapshot, 0);
-		const astroAst = getAstroMetadata(input).ast;
+		const astroAst = getAstroMetadata('file.astro', input).ast;
 
 		const scriptTags = extractScriptTags(
 			'something/something/hello.astro',
@@ -41,7 +41,7 @@ describe('parseJS - Can find all the scripts in an Astro file', () => {
 		const input = `<script is:inline>console.log('hi')</script>`;
 		const snapshot = ts.ScriptSnapshot.fromString(input);
 		const html = parseHTML('something/something/hello.astro', snapshot, 0);
-		const astroAst = getAstroMetadata(input).ast;
+		const astroAst = getAstroMetadata('file.astro', input).ast;
 
 		const scriptTags = extractScriptTags(
 			'something/something/hello.astro',
