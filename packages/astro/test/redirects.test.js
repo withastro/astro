@@ -91,6 +91,10 @@ describe('Astro.redirect', () => {
 						'/more/old/[dynamic]': '/more/[dynamic]',
 						'/more/old/[dynamic]/[route]': '/more/[dynamic]/[route]',
 						'/more/old/[...spread]': '/more/new/[...spread]',
+
+						// Test that crazy URLs do not break the build
+						'/blogs/%e3%83%9b%e3%83%bc%e3%83%a0%e3%83%9a%e3%83%bc%e3%82%b8%e5%85%ac%e9%96%8b%e5%89%8d%e3%81%ab%e7%a2%ba%e8%aa%8d%e3%81%99%e3%81%b9%e3%81%8d%e3%83%81%e3':
+      '/blogs/checklist-website-before-released',
 					},
 				});
 				await fixture.build();

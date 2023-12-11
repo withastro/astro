@@ -55,10 +55,10 @@ export async function viteBuild(opts: StaticBuildOptions) {
 		const astroModuleURL = new URL('./' + component, settings.config.root);
 		const astroModuleId = prependForwardSlash(component);
 
-		// Track the page data in internals
-		trackPageData(internals, component, pageData, astroModuleId, astroModuleURL);
-
 		if (!routeIsRedirect(pageData.route)) {
+			// Track the page data in internals
+			trackPageData(internals, component, pageData, astroModuleId, astroModuleURL);
+
 			pageInput.add(astroModuleId);
 		}
 	}
