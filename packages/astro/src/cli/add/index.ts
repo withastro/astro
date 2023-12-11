@@ -614,9 +614,16 @@ async function getInstallIntegrationsCommand({
 		.map<[string, string | null][]>((i) => [[i.packageName, null], ...i.dependencies])
 		.flat(1)
 		.filter((dep, i, arr) => arr.findIndex((d) => d[0] === dep[0]) === i)
-		.map(([name, version]) =>
-			version === null ? name : `${name}@${version.split(/\s*\|\|\s*/).pop()}`
-		)
+		.map(([name, version]) => {
+			if (version !== null) {
+				// If there are multiple versions, use the last non-prerelease one
+				const versions = version.split(/\s*\|\|\s*/);
+				if (versions.length > 1) {
+					version = versions.reverse().find((v) => !/\-.*?\./.test(v)) ?? version;
+				}
+			}
+			return version === null ? name : `${name}@${version}`;
+		})
 		.sort();
 
 	switch (pm.name) {
