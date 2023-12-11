@@ -550,7 +550,7 @@ declare namespace astroHTML.JSX {
 		style?: string | StyleObject | undefined | null;
 		tabindex?: number | string | undefined | null;
 		title?: string | undefined | null;
-		translate?: 'yes' | 'no' | string | undefined | null;
+		translate?: 'yes' | 'no' | '' | undefined | null;
 
 		// <command>, <menuitem>
 		radiogroup?: string | undefined | null;
