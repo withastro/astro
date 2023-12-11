@@ -517,7 +517,8 @@ declare namespace astroHTML.JSX {
 			| 'search'
 			| 'send'
 			| undefined
-			| null;
+		| null;
+		exportparts?: string | undefined | null;
 		hidden?: boolean | string | undefined | null;
 		id?: string | undefined | null;
 		inert?: boolean | string | undefined | null;
@@ -533,18 +534,23 @@ declare namespace astroHTML.JSX {
 			| undefined
 			| null;
 		is?: string | undefined | null;
+
+		// Microdata API
 		itemid?: string | undefined | null;
 		itemprop?: string | undefined | null;
 		itemref?: string | undefined | null;
 		itemscope?: boolean | string | undefined | null;
 		itemtype?: string | undefined | null;
+
 		lang?: string | undefined | null;
+		part?: string | undefined | null;
+		popover?: boolean | string | undefined | null;
 		slot?: string | undefined | null;
 		spellcheck?: 'true' | 'false' | boolean | undefined | null;
 		style?: string | StyleObject | undefined | null;
 		tabindex?: number | string | undefined | null;
 		title?: string | undefined | null;
-		translate?: 'yes' | 'no' | undefined | null;
+		translate?: 'yes' | 'no' | string | undefined | null;
 
 		// <command>, <menuitem>
 		radiogroup?: string | undefined | null;
