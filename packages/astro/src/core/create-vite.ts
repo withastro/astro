@@ -33,6 +33,7 @@ import type { Logger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
+import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -141,6 +142,7 @@ export async function createVite(
 			astroPrefetch({ settings }),
 			astroTransitions({ settings }),
 			astroDevOverlay({ settings, logger }),
+			vitePluginFileURL({}),
 			!!settings.config.i18n && astroInternationalization({ settings }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
