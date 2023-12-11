@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 2.5.3
+
+### Patch Changes
+
+- 621320a: Fix language server crashing when encountering malformed files in certain cases
+- dc98b0b: Fixes an issue where type checking errors were shown on define:vars scripts when "type=module" attribute was also present.
+- 598689a: Improve detection of Astro in complex monorepos
+
 ## 2.5.2
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @astrojs/check
 
+## 0.3.2
+
+### Patch Changes
+
+- 621320a: Fix language server crashing when encountering malformed files in certain cases
+- dc98b0b: Fixes an issue where type checking errors were shown on define:vars scripts when "type=module" attribute was also present.
+- Updated dependencies [621320a]
+- Updated dependencies [dc98b0b]
+- Updated dependencies [015a667]
+- Updated dependencies [598689a]
+  - @astrojs/language-server@2.5.3
+
 ## 0.3.1
 
 ### Patch Changes
