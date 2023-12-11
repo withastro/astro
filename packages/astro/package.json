@@ -200,6 +200,7 @@
     "@types/probe-image-size": "^7.2.3",
     "@types/prompts": "^2.4.8",
     "@types/resolve": "^1.20.5",
+    "@types/semver": "^7.5.2",
     "@types/send": "^0.17.4",
     "@types/server-destroy": "^1.0.3",
     "@types/unist": "^3.0.2",
