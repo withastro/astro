@@ -642,15 +642,15 @@ async function convertIntegrationsToInstallSpecifiers(
 }
 
 /**
-  * Resolves package with a given range to a STABLE version
-  * peerDependencies might specify a compatible prerelease,
-  * but `astro add` should only ever install stable releases
-  */
+ * Resolves package with a given range to a STABLE version
+ * peerDependencies might specify a compatible prerelease,
+ * but `astro add` should only ever install stable releases
+ */
 async function resolveRangeToInstallSpecifier(name: string, range: string): Promise<string> {
 	const versions = await fetchPackageVersions(name);
 	if (versions instanceof Error) return name;
 	// Filter out any prerelease versions
-	const stableVersions = versions.filter(v => !v.includes('-'));
+	const stableVersions = versions.filter((v) => !v.includes('-'));
 	const maxStable = maxSatisfying(stableVersions, range);
 	return `${name}@^${maxStable}`;
 }
