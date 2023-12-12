@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { testFactory, waitForHydrate } from './test-utils.js';
 
 const test = testFactory({ root: './fixtures/view-transitions/' });
 
@@ -231,25 +231,37 @@ test.describe('View Transitions', () => {
 	});
 
 	test('No page rendering during swap()', async ({ page, astro }) => {
-		let transitions = 0;
-		page.on('console', (msg) => {
-			if (msg.type() === 'info' && msg.text() === 'transitionstart') ++transitions;
-		});
+		// This has been a problem with theme switchers (e.g. for drakmode)
+		// Swap() should not trigger any page renders and give users the chance to
+		// correct attributes in the astro:after-swap handler before they become visible
 
-		// Go to page 1
+		// This test uses a CSS animation to detect page rendering
+		// The test succeeds if no additional animation beside those of the
+		// view transition is triggered during swap()
+
 		await page.goto(astro.resolveUrl('/listener-one'));
 		let p = page.locator('#totwo');
 		await expect(p, 'should have content').toHaveText('Go to listener two');
-		// on load a CSS transition is started triggered by a class on the html element
-		expect(transitions).toEqual(1);
+
+		// setting the blue class on the html element triggers a CSS animation
+		let animations = await page.evaluate(async () => {
+			document.documentElement.classList.add('blue');
+			return document.getAnimations();
+		});
+		expect(animations.length).toEqual(1);
 
 		// go to page 2
 		await page.click('#totwo');
 		p = page.locator('#toone');
 		await expect(p, 'should have content').toHaveText('Go to listener one');
-		// swap() resets that class, the after-swap listener sets it again.
-		// the temporarily missing class must not trigger page rendering
-		expect(transitions).toEqual(1);
+		// swap() resets the "blue" class, as it is not set in the static html of page 2
+		// The astro:after-swap listener (defined in the layout) sets it to "blue" again.
+		// The temporarily missing class must not trigger page rendering.
+
+		// When the after-swap listener starts, no animations should be running
+		// after-swap listener sets animations to document.getAnimations().length
+		// and we expect this to be zero
+		await expect(page.locator('html')).toHaveAttribute('animations', '0');
 	});
 
 	test('click hash links does not do navigation', async ({ page, astro }) => {
@@ -382,7 +394,10 @@ test.describe('View Transitions', () => {
 		await expect(locator).toBeInViewport();
 
 		// Scroll back to top
+		// back returns immediately, but we need to wait for navigate() to complete
+		const waitForReady = page.waitForEvent('console');
 		await page.goBack();
+		await waitForReady;
 		locator = page.locator('#longpage');
 		await expect(locator).toBeInViewport();
 
@@ -663,17 +678,17 @@ test.describe('View Transitions', () => {
 		// go to external page
 		await page.click('#click-redirect-external');
 		// doesn't work for playwright when we are too fast
-		await page.waitForTimeout(1000);
 		p = page.locator('h1');
-		await expect(p, 'should have content').toBeVisible();
 
+		await expect(p, 'should have content').toBeVisible();
+		await page.waitForURL('http://example.com');
+		await page.waitForFunction((arr) => arr.length === 2, loads);
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
 
-	test.skip('client:only styles are retained on transition', async ({ page, astro }) => {
-		const totalExpectedStyles = 7;
+	test('client:only styles are retained on transition (1/2)', async ({ page, astro }) => {
+		const totalExpectedStyles = 9;
 
-		// Go to page 1
 		await page.goto(astro.resolveUrl('/client-only-one'));
 		let msg = page.locator('.counter-message');
 		await expect(msg).toHaveText('message here');
@@ -688,6 +703,28 @@ test.describe('View Transitions', () => {
 
 		styles = await page.locator('style').all();
 		expect(styles.length).toEqual(totalExpectedStyles, 'style count has not changed');
+	});
+
+	test('client:only styles are retained on transition (2/2)', async ({ page, astro }) => {
+		const totalExpectedStyles_page_three = 11;
+		const totalExpectedStyles_page_four = 9;
+
+		await page.goto(astro.resolveUrl('/client-only-three'));
+		let msg = page.locator('#name');
+		await expect(msg).toHaveText('client-only-three');
+		await waitForHydrate(page, page.getByText('Vue'));
+		await waitForHydrate(page, page.getByText('Svelte'));
+
+		let styles = await page.locator('style').all();
+		expect(styles.length).toEqual(totalExpectedStyles_page_three);
+
+		await page.click('#click-four');
+
+		let pageTwo = page.locator('#page-four');
+		await expect(pageTwo, 'should have content').toHaveText('Page 4');
+
+		styles = await page.locator('style').all();
+		expect(styles.length).toEqual(totalExpectedStyles_page_four, 'style count has not changed');
 	});
 
 	test('Horizontal scroll position restored on back button', async ({ page, astro }) => {
@@ -852,5 +889,206 @@ test.describe('View Transitions', () => {
 
 		await locator.type(' World');
 		await expect(locator).toHaveValue('Hello World');
+	});
+
+	test('form POST that redirects to another page is handled', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', async (p) => {
+			loads.push(p);
+		});
+
+		await page.goto(astro.resolveUrl('/form-one'));
+
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Contact Form');
+
+		// Submit the form
+		await page.click('#submit');
+		const span = page.locator('#contact-name');
+		await expect(span, 'should have content').toHaveText('Testing');
+
+		expect(
+			loads.length,
+			'There should be only 1 page load. No additional loads for the form submission'
+		).toEqual(1);
+	});
+
+	test('form GET that redirects to another page is handled', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', async (p) => {
+			loads.push(p);
+		});
+
+		await page.goto(astro.resolveUrl('/form-one?method=get'));
+
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Contact Form');
+
+		// Submit the form
+		await page.click('#submit');
+		const span = page.locator('#contact-name');
+		await expect(span, 'should have content').toHaveText('Testing');
+
+		expect(
+			loads.length,
+			'There should be only 1 page load. No additional loads for the form submission'
+		).toEqual(1);
+	});
+
+	test('form POST when there is an error shows the error', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', async (p) => {
+			loads.push(p);
+		});
+
+		await page.goto(astro.resolveUrl('/form-one?throw'));
+
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Contact Form');
+
+		// Submit the form
+		await page.click('#submit');
+		const overlay = page.locator('vite-error-overlay');
+		await expect(overlay).toBeVisible();
+
+		expect(
+			loads.length,
+			'There should be only 1 page load. No additional loads for the form submission'
+		).toEqual(1);
+	});
+
+	test('Route announcer is invisible on page transition', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/no-directive-one'));
+
+		let locator = page.locator('#one');
+		await expect(locator, 'should have content').toHaveText('One');
+
+		await page.click('a');
+		locator = page.locator('#two');
+		await expect(locator, 'should have content').toHaveText('Two');
+
+		let announcer = page.locator('.astro-route-announcer');
+		await expect(announcer, 'should have content').toHaveCSS('width', '1px');
+	});
+
+	test('should prefetch on hover by default', async ({ page, astro }) => {
+		/** @type {string[]} */
+		const reqUrls = [];
+		page.on('request', (req) => {
+			reqUrls.push(new URL(req.url()).pathname);
+		});
+		await page.goto(astro.resolveUrl('/prefetch'));
+		expect(reqUrls).not.toContainEqual('/one');
+		await Promise.all([
+			page.waitForEvent('request'), // wait prefetch request
+			page.locator('#prefetch-one').hover(),
+		]);
+		expect(reqUrls).toContainEqual('/one');
+	});
+
+	test('form POST with no action handler', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', async (p) => {
+			loads.push(p);
+		});
+
+		await page.goto(astro.resolveUrl('/form-two'));
+
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Contact Form');
+
+		// Submit the form
+		await page.click('#submit');
+		const span = page.locator('#contact-name');
+		await expect(span, 'should have content').toHaveText('Testing');
+
+		expect(
+			loads.length,
+			'There should be only 1 page load. No additional loads for the form submission'
+		).toEqual(1);
+	});
+
+	test('forms are overridden by formmethod and formaction', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/form-three'));
+
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Contact Form');
+
+		// Submit the form
+		await page.click('#submit');
+		const result = page.locator('#three-result');
+		await expect(result, 'should have content').toHaveText('Got: Testing');
+	});
+
+	test('click on an svg anchor should trigger navigation', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+
+		await page.goto(astro.resolveUrl('/non-html-anchor'));
+		let locator = page.locator('#insidesvga');
+		await expect(locator, 'should have attribute').toHaveAttribute('x', '10');
+		await page.click('#svga');
+		const p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
+	test('click inside an svg anchor should trigger navigation', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+		await page.goto(astro.resolveUrl('/non-html-anchor'));
+		let locator = page.locator('#insidesvga');
+		await expect(locator, 'should have content').toHaveText('text within a svga');
+		await page.click('#insidesvga');
+		const p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
+	test('click on an area in an image map should trigger navigation', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+		await page.goto(astro.resolveUrl('/non-html-anchor'));
+		let locator = page.locator('#area');
+		await expect(locator, 'should have attribute').toHaveAttribute('shape', 'default');
+		await page.click('#logo');
+		const p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
+	test('Submitter with a name property is included in form data', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/form-four'));
+
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Voting Form');
+
+		// Submit the form
+		const expected = page.url() + '?stars=3';
+		await page.click('#three');
+		await expect(page).toHaveURL(expected);
+	});
+
+	test('Dialog using form with method of "dialog" should not trigger navigation', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/dialog'));
+
+		let requests = [];
+		page.on('request', (request) => requests.push(`${request.method()} ${request.url()}`));
+
+		await page.click('#open');
+		await expect(page.locator('dialog')).toHaveAttribute('open');
+		await page.click('#close');
+		await expect(page.locator('dialog')).not.toHaveAttribute('open');
+
+		expect(requests).toHaveLength(0);
 	});
 });

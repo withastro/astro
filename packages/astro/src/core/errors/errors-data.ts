@@ -36,7 +36,7 @@ export const UnknownCompilerError = {
 /**
  * @docs
  * @see
- * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project)
+ * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/)
  * - [Astro.redirect](https://docs.astro.build/en/reference/api-reference/#astroredirect)
  * @description
  * The `Astro.redirect` function is only available when [Server-side rendering](/en/guides/server-side-rendering/) is enabled.
@@ -49,7 +49,7 @@ export const StaticRedirectNotAvailable = {
 	title: '`Astro.redirect` is not available in static mode.',
 	message:
 		"Redirects are only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
-	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project for more information on how to enable SSR.',
+	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information on how to enable SSR.',
 } satisfies ErrorData;
 /**
  * @docs
@@ -68,7 +68,7 @@ export const ClientAddressNotAvailable = {
 /**
  * @docs
  * @see
- * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project)
+ * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/)
  * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
  * @description
  * The `Astro.clientAddress` property is only available when [Server-side rendering](https://docs.astro.build/en/guides/server-side-rendering/) is enabled.
@@ -80,7 +80,7 @@ export const StaticClientAddressNotAvailable = {
 	title: '`Astro.clientAddress` is not available in static mode.',
 	message:
 		"`Astro.clientAddress` is only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
-	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project for more information on how to enable SSR.',
+	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information on how to enable SSR.',
 } satisfies ErrorData;
 /**
  * @docs
@@ -292,6 +292,7 @@ export const InvalidGetStaticPathsReturn = {
 
 /**
  * @docs
+ * @deprecated Deprecated since Astro 4.0. The RSS helper no longer exists with an error fallback.
  * @see
  * - [RSS Guide](https://docs.astro.build/en/guides/rss/)
  * @description
@@ -407,7 +408,6 @@ export const ReservedSlotName = {
  * @docs
  * @see
  * - [Server-side Rendering](https://docs.astro.build/en/guides/server-side-rendering/)
- * - [Adding an Adapter](https://docs.astro.build/en/guides/server-side-rendering/#adding-an-adapter)
  * @description
  * To use server-side rendering, an adapter needs to be installed so Astro knows how to generate the proper output for your targeted deployment platform.
  */
@@ -491,9 +491,10 @@ export const PageNumberParamNotFound = {
  */
 export const ImageMissingAlt = {
 	name: 'ImageMissingAlt',
-	title: 'Missing alt property.',
-	message: 'The alt property is required.',
-	hint: "The `alt` property is important for the purpose of accessibility, without it users using screen readers or other assistive technologies won't be able to understand what your image is supposed to represent. See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#attr-alt for more information.",
+	title: 'Image missing required "alt" property.',
+	message:
+		'Image missing "alt" property. "alt" text is required to describe important images on the page.',
+	hint: 'Use an empty string ("") for decorative images.',
 } satisfies ErrorData;
 /**
  * @docs
@@ -554,6 +555,21 @@ export const UnsupportedImageFormat = {
 		)} are supported by our image services.`,
 	hint: "Using an `img` tag directly instead of the `Image` component might be what you're looking for.",
 } satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * @description
+ * Astro does not currently supporting converting between vector (such as SVGs) and raster (such as PNGs and JPEGs) images.
+ */
+export const UnsupportedImageConversion = {
+	name: 'UnsupportedImageConversion',
+	title: 'Unsupported image conversion',
+	message:
+		'Converting between vector (such as SVGs) and raster (such as PNGs and JPEGs) images is not currently supported.',
+} satisfies ErrorData;
+
 /**
  * @docs
  * @see
@@ -1256,6 +1272,22 @@ export const UnsupportedConfigTransformError = {
 	message: (parseError: string) =>
 		`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
 	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
+} satisfies ErrorData;
+
+export const MissingLocale = {
+	name: 'MissingLocaleError',
+	title: 'The provided locale does not exist.',
+	message: (locale: string) => {
+		return `The locale/path \`${locale}\` does not exist in the configured \`i18n.locales\`.`;
+	},
+} satisfies ErrorData;
+
+export const CantRenderPage = {
+	name: 'CantRenderPage',
+	title: "Astro can't render the route.",
+	message:
+		'Astro cannot find any content to render for this route. There is no file or redirect associated with this route.',
+	hint: 'If you expect to find a route here, this may be an Astro bug. Please file an issue/restart the dev server',
 } satisfies ErrorData;
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip

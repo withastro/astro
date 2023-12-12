@@ -25,7 +25,7 @@ export async function renderPage(
 			componentFactory.name,
 			componentFactory,
 			pageProps,
-			null,
+			{},
 			true,
 			route
 		);

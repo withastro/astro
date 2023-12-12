@@ -5,6 +5,6 @@ import Island from '../components/Island';
 <Layout>
 	<a id="click-two" href="/client-only-two">go to page 2</a>
 	<div transition:persist="island">
-		<Island client:only count={5}>message here</Island>
+		<Island id="one" client:only="react" count={5}>message here</Island>
 	</div>
 </Layout>

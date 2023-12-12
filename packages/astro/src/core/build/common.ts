@@ -25,6 +25,7 @@ export function getOutFolder(
 	switch (routeType) {
 		case 'endpoint':
 			return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
+		case 'fallback':
 		case 'page':
 		case 'redirect':
 			switch (astroConfig.build.format) {
@@ -52,6 +53,7 @@ export function getOutFile(
 		case 'endpoint':
 			return new URL(npath.basename(pathname), outFolder);
 		case 'page':
+		case 'fallback':
 		case 'redirect':
 			switch (astroConfig.build.format) {
 				case 'directory': {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Island.css';
+import { indirect} from './css.js';
 
 export default function Counter({ children, count: initialCount, id }) {
 	const [count, setCount] = useState(initialCount);

@@ -1,21 +1,10 @@
-import { fileURLToPath } from 'node:url';
 import type { HmrContext, ModuleNode } from 'vite';
 import type { AstroConfig } from '../@types/astro.js';
-import {
-	cachedCompilation,
-	invalidateCompilation,
-	isCached,
-	type CompileResult,
-} from '../core/compile/index.js';
+import type { cachedCompilation } from '../core/compile/index.js';
+import { invalidateCompilation, isCached, type CompileResult } from '../core/compile/index.js';
 import type { Logger } from '../core/logger/core.js';
-import * as msg from '../core/messages.js';
+import { isAstroSrcFile } from '../core/logger/vite.js';
 import { isAstroScript } from './query.js';
-
-const PKG_PREFIX = fileURLToPath(new URL('../../', import.meta.url));
-const E2E_PREFIX = fileURLToPath(new URL('../../e2e', import.meta.url));
-const isPkgFile = (id: string | null) => {
-	return id?.startsWith(PKG_PREFIX) && !id.startsWith(E2E_PREFIX);
-};
 
 export interface HandleHotUpdateOptions {
 	config: AstroConfig;
@@ -46,7 +35,7 @@ export async function handleHotUpdate(
 	}
 
 	// Skip monorepo files to avoid console spam
-	if (isPkgFile(ctx.file)) {
+	if (isAstroSrcFile(ctx.file)) {
 		return;
 	}
 
@@ -56,7 +45,7 @@ export async function handleHotUpdate(
 	const files = new Set<string>();
 	for (const mod of ctx.modules) {
 		// Skip monorepo files to avoid console spam
-		if (isPkgFile(mod.id ?? mod.file)) {
+		if (isAstroSrcFile(mod.id ?? mod.file)) {
 			filtered.delete(mod);
 			continue;
 		}
@@ -91,13 +80,12 @@ export async function handleHotUpdate(
 	// Bugfix: sometimes style URLs get normalized and end with `lang.css=`
 	// These will cause full reloads, so filter them out here
 	const mods = [...filtered].filter((m) => !m.url.endsWith('='));
-	const file = ctx.file.replace(config.root.pathname, '/');
 
 	// If only styles are changed, remove the component file from the update list
 	if (isStyleOnlyChange) {
-		logger.info('astro', msg.hmr({ file, style: true }));
-		// remove base file and hoisted scripts
-		return mods.filter((mod) => mod.id !== ctx.file && !mod.id?.endsWith('.ts'));
+		logger.debug('watch', 'style-only change');
+		// Only return the Astro styles that have changed!
+		return mods.filter((mod) => mod.id?.includes('astro&type=style'));
 	}
 
 	// Add hoisted scripts so these get invalidated
@@ -107,15 +95,6 @@ export async function handleHotUpdate(
 				mods.push(imp);
 			}
 		}
-	}
-
-	// TODO: Svelte files should be marked as `isSelfAccepting` but they don't appear to be
-	const isSelfAccepting = mods.every((m) => m.isSelfAccepting || m.url.endsWith('.svelte'));
-	if (isSelfAccepting) {
-		if (/astro\.config\.[cm][jt]s$/.test(file)) return mods;
-		logger.info('astro', msg.hmr({ file }));
-	} else {
-		logger.info('astro', msg.reload({ file }));
 	}
 
 	return mods;

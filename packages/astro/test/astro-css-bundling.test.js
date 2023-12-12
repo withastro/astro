@@ -69,7 +69,7 @@ describe('CSS Bundling', function () {
 
 		it('CSS includes hashes', async () => {
 			const [firstFound] = await fixture.readdir('/_astro');
-			expect(firstFound).to.match(/[a-z]+\.[0-9a-z]{8}\.css/);
+			expect(firstFound).to.match(/[a-z]+\.[\w-]{8}\.css/);
 		});
 	});
 

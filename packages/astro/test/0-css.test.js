@@ -170,6 +170,15 @@ describe('CSS', function () {
 				// 2. check CSS
 				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
 			});
+
+			it('.module.css ordering', () => {
+				const globalStyleClassIndex = bundledCSS.indexOf('.module-ordering');
+				const moduleStyleClassIndex = bundledCSS.indexOf('._module_ordering');
+				// css module has higher priority than global style
+				expect(globalStyleClassIndex).to.be.greaterThan(-1);
+				expect(moduleStyleClassIndex).to.be.greaterThan(-1);
+				expect(moduleStyleClassIndex).to.be.greaterThan(globalStyleClassIndex);
+			});
 		});
 
 		describe('Vue', () => {
@@ -410,6 +419,17 @@ describe('CSS', function () {
 				false,
 				'Should not have found a preload for the dynamic CSS'
 			);
+		});
+
+		it('.module.css ordering', () => {
+			const globalStyleTag = $('style[data-vite-dev-id$="default.css"]');
+			const moduleStyleTag = $('link[href$="ModuleOrdering.module.css"]');
+			const globalStyleClassIndex = globalStyleTag.index();
+			const moduleStyleClassIndex = moduleStyleTag.index();
+			// css module has higher priority than global style
+			expect(globalStyleClassIndex).to.be.greaterThan(-1);
+			expect(moduleStyleClassIndex).to.be.greaterThan(-1);
+			expect(moduleStyleClassIndex).to.be.greaterThan(globalStyleClassIndex);
 		});
 
 		it('.css?raw return a string', () => {

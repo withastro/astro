@@ -1,5 +1,11 @@
 # @astrojs/partytown
 
+## 2.0.2
+
+### Patch Changes
+
+- [#8892](https://github.com/withastro/astro/pull/8892) [`e21fef7da`](https://github.com/withastro/astro/commit/e21fef7da2292414f55b58ffe7d9bbfd25904ca3) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds the ability to override the `lib` option in `astro.config.mjs`
+
 ## 2.0.1
 
 ### Patch Changes

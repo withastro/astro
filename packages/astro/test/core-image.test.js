@@ -195,8 +195,16 @@ describe('astro:image', () => {
 				let html = await res.text();
 				$ = cheerio.load(html);
 
+				// Fallback format
+				let $img = $('#picture-fallback img');
+				expect($img).to.have.a.lengthOf(1);
+
+				const imageURL = new URL($img.attr('src'), 'http://localhost');
+				expect(imageURL.searchParams.get('f')).to.equal('jpeg');
+				expect($img.attr('fallbackformat')).to.be.undefined;
+
 				// Densities
-				let $img = $('#picture-density-2-format img');
+				$img = $('#picture-density-2-format img');
 				let $picture = $('#picture-density-2-format picture');
 				let $source = $('#picture-density-2-format source');
 				expect($img).to.have.a.lengthOf(1);
@@ -214,10 +222,67 @@ describe('astro:image', () => {
 				expect($img).to.have.a.lengthOf(1);
 				expect($picture).to.have.a.lengthOf(1);
 				expect($source).to.have.a.lengthOf(1);
+				expect($source.attr('sizes')).to.equal(
+					'(max-width: 448px) 400px, (max-width: 810px) 750px, 1050px'
+				);
 
 				const srcset2 = parseSrcset($source.attr('srcset'));
 				expect(srcset2.every((src) => src.url.startsWith('/_image'))).to.equal(true);
-				expect(srcset2.map((src) => src.w)).to.deep.equal([undefined, 207]);
+				expect(srcset2.map((src) => src.w)).to.deep.equal([207]);
+			});
+
+			it('properly deduplicate srcset images', async () => {
+				let res = await fixture.fetch('/srcset');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				let localImage = $('#local-3-images img');
+				expect(
+					new Set([
+						...parseSrcset(localImage.attr('srcset')).map((src) => src.url),
+						localImage.attr('src'),
+					]).size
+				).to.equal(3);
+
+				let remoteImage = $('#remote-3-images img');
+				expect(
+					new Set([
+						...parseSrcset(remoteImage.attr('srcset')).map((src) => src.url),
+						remoteImage.attr('src'),
+					]).size
+				).to.equal(3);
+
+				let local1x = $('#local-1x img');
+				expect(
+					new Set([
+						...parseSrcset(local1x.attr('srcset')).map((src) => src.url),
+						local1x.attr('src'),
+					]).size
+				).to.equal(1);
+
+				let remote1x = $('#remote-1x img');
+				expect(
+					new Set([
+						...parseSrcset(remote1x.attr('srcset')).map((src) => src.url),
+						remote1x.attr('src'),
+					]).size
+				).to.equal(1);
+
+				let local2Widths = $('#local-2-widths img');
+				expect(
+					new Set([
+						...parseSrcset(local2Widths.attr('srcset')).map((src) => src.url),
+						local2Widths.attr('src'),
+					]).size
+				).to.equal(2);
+
+				let remote2Widths = $('#remote-2-widths img');
+				expect(
+					new Set([
+						...parseSrcset(remote2Widths.attr('srcset')).map((src) => src.url),
+						remote2Widths.attr('src'),
+					]).size
+				).to.equal(2);
 			});
 		});
 
@@ -598,7 +663,6 @@ describe('astro:image', () => {
 			logs.length = 0;
 			let res = await fixture.fetch('/post');
 			await res.text();
-
 			expect(logs).to.have.a.lengthOf(1);
 			expect(logs[0].message).to.contain('Could not find requested image');
 		});
@@ -869,6 +933,41 @@ describe('astro:image', () => {
 
 			expect(isReusingCache).to.be.true;
 		});
+
+		it('client images are written to build', async () => {
+			const html = await fixture.readFile('/client/index.html');
+			const $ = cheerio.load(html);
+			let $script = $('script');
+
+			// Find image
+			const regex = /src:"([^"]*)/gm;
+			const imageSrc = regex.exec($script.html())[1];
+			const data = await fixture.readFile(imageSrc, null);
+			expect(data).to.be.an.instanceOf(Buffer);
+		});
+
+		describe('custom service in build', () => {
+			it('uses configured hashes properties', async () => {
+				await fixture.build();
+				const html = await fixture.readFile('/imageDeduplication/index.html');
+
+				const $ = cheerio.load(html);
+
+				const allTheSamePath = $('#all-the-same img')
+					.map((_, el) => $(el).attr('src'))
+					.get();
+
+				expect(allTheSamePath.every((path) => path === allTheSamePath[0])).to.equal(true);
+
+				const useCustomHashProperty = $('#use-data img')
+					.map((_, el) => $(el).attr('src'))
+					.get();
+				expect(useCustomHashProperty.every((path) => path === useCustomHashProperty[0])).to.equal(
+					false
+				);
+				expect(useCustomHashProperty[1]).to.not.equal(allTheSamePath[0]);
+			});
+		});
 	});
 
 	describe('dev ssr', () => {
@@ -910,7 +1009,7 @@ describe('astro:image', () => {
 			await fixture.build();
 		});
 
-		it('dynamic route images are built at response time sss', async () => {
+		it('dynamic route images are built at response time', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			let request = new Request('http://example.com/');
 			let response = await app.render(request);

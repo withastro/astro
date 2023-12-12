@@ -14,6 +14,10 @@ import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
+// This import is required to appease TypeScript!
+// See https://github.com/withastro/astro/pull/8762
+import 'mdast-util-to-hast';
+
 type ShikiLangs = NonNullable<ShikiConfig['langs']>;
 type ShikiTheme = NonNullable<ShikiConfig['theme']>;
 
@@ -33,11 +37,12 @@ const ASTRO_CONFIG_DEFAULTS = {
 		serverEntry: 'entry.mjs',
 		redirects: true,
 		inlineStylesheets: 'auto',
-		split: false,
-		excludeMiddleware: false,
 	},
 	image: {
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
+	},
+	devToolbar: {
+		enabled: true,
 	},
 	compressHTML: true,
 	server: {
@@ -46,17 +51,17 @@ const ASTRO_CONFIG_DEFAULTS = {
 		open: false,
 	},
 	integrations: [],
-	markdown: {
-		drafts: false,
-		...markdownConfigDefaults,
-	},
+	markdown: markdownConfigDefaults,
 	vite: {},
 	legacy: {},
 	redirects: {},
 	experimental: {
 		optimizeHoistedScript: false,
+		contentCollectionCache: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
+
+type RoutingStrategies = 'prefix-always' | 'prefix-other-locales';
 
 export const AstroConfigSchema = z.object({
 	root: z
@@ -132,20 +137,6 @@ export const AstroConfigSchema = z.object({
 				.enum(['always', 'auto', 'never'])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
-
-			/**
-			 * @deprecated
-			 * Use the adapter feature instead
-			 */
-			split: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.split),
-			/**
-			 * @deprecated
-			 * Use the adapter feature instead
-			 */
-			excludeMiddleware: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.build.excludeMiddleware),
 		})
 		.default({}),
 	server: z.preprocess(
@@ -186,6 +177,15 @@ export const AstroConfigSchema = z.object({
 			])
 		)
 		.default(ASTRO_CONFIG_DEFAULTS.redirects),
+	prefetch: z
+		.union([
+			z.boolean(),
+			z.object({
+				prefetchAll: z.boolean().optional(),
+				defaultStrategy: z.enum(['tap', 'hover', 'viewport']).optional(),
+			}),
+		])
+		.optional(),
 	image: z
 		.object({
 			endpoint: z.string().optional(),
@@ -227,9 +227,13 @@ export const AstroConfigSchema = z.object({
 				.default([]),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
+	devToolbar: z
+		.object({
+			enabled: z.boolean().default(ASTRO_CONFIG_DEFAULTS.devToolbar.enabled),
+		})
+		.default(ASTRO_CONFIG_DEFAULTS.devToolbar),
 	markdown: z
 		.object({
-			drafts: z.boolean().default(false),
 			syntaxHighlight: z
 				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.syntaxHighlight),
@@ -242,8 +246,8 @@ export const AstroConfigSchema = z.object({
 							for (const lang of langs) {
 								// shiki -> shikiji compat
 								if (typeof lang === 'object') {
-									// `id` renamed to `name
-									if ((lang as any).id && !lang.name) {
+									// `id` renamed to `name` (always override)
+									if ((lang as any).id) {
 										lang.name = (lang as any).id;
 									}
 									// `grammar` flattened to lang itself
@@ -258,7 +262,14 @@ export const AstroConfigSchema = z.object({
 					theme: z
 						.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
 						.or(z.custom<ShikiTheme>())
-						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme as BuiltinTheme),
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme!),
+					experimentalThemes: z
+						.record(
+							z
+								.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
+								.or(z.custom<ShikiTheme>())
+						)
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.experimentalThemes!),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
 				})
 				.default({}),
@@ -291,12 +302,94 @@ export const AstroConfigSchema = z.object({
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
+	i18n: z.optional(
+		z
+			.object({
+				defaultLocale: z.string(),
+				locales: z.array(
+					z.union([
+						z.string(),
+						z.object({
+							path: z.string(),
+							codes: z.string().array().nonempty(),
+						}),
+					])
+				),
+				fallback: z.record(z.string(), z.string()).optional(),
+				routing: z
+					.object({
+						prefixDefaultLocale: z.boolean().default(false),
+						strategy: z.enum(['pathname']).default('pathname'),
+					})
+					.default({})
+					.transform((routing) => {
+						let strategy: RoutingStrategies;
+						switch (routing.strategy) {
+							case 'pathname': {
+								if (routing.prefixDefaultLocale === true) {
+									strategy = 'prefix-always';
+								} else {
+									strategy = 'prefix-other-locales';
+								}
+							}
+						}
+						return strategy;
+					}),
+			})
+			.optional()
+			.superRefine((i18n, ctx) => {
+				if (i18n) {
+					const { defaultLocale, locales: _locales, fallback } = i18n;
+					const locales = _locales.map((locale) => {
+						if (typeof locale === 'string') {
+							return locale;
+						} else {
+							return locale.path;
+						}
+					});
+					if (!locales.includes(defaultLocale)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `The default locale \`${defaultLocale}\` is not present in the \`i18n.locales\` array.`,
+						});
+					}
+					if (fallback) {
+						for (const [fallbackFrom, fallbackTo] of Object.entries(fallback)) {
+							if (!locales.includes(fallbackFrom)) {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message: `The locale \`${fallbackFrom}\` key in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+								});
+							}
+
+							if (fallbackFrom === defaultLocale) {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message: `You can't use the default locale as a key. The default locale can only be used as value.`,
+								});
+							}
+
+							if (!locales.includes(fallbackTo)) {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message: `The locale \`${fallbackTo}\` value in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+								});
+							}
+						}
+					}
+				}
+			})
+	),
 	experimental: z
 		.object({
 			optimizeHoistedScript: z
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.optimizeHoistedScript),
+			contentCollectionCache: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`
@@ -356,12 +449,6 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.enum(['always', 'auto', 'never'])
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
-
-				split: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.split),
-				excludeMiddleware: z
-					.boolean()
-					.optional()
-					.default(ASTRO_CONFIG_DEFAULTS.build.excludeMiddleware),
 			})
 			.optional()
 			.default({}),

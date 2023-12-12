@@ -45,6 +45,11 @@ export async function validateConfig(
 		throw e;
 	}
 
+	// TODO: fix inlineStylesheets behavior with content collection cache
+	if (result.build.inlineStylesheets !== 'auto' && result.experimental.contentCollectionCache) {
+		result.experimental.contentCollectionCache = false;
+	}
+
 	// If successful, return the result as a verified AstroConfig object.
 	return result;
 }
@@ -62,7 +67,6 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		config: typeof flags.config === 'string' ? flags.config : undefined,
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
-		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
 	};
 }
 

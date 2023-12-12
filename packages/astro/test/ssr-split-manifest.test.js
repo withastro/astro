@@ -45,7 +45,9 @@ describe('astro:ssr-manifest, split', () => {
 		const html = await response.text();
 
 		const $ = cheerio.load(html);
-		expect($('#assets').text()).to.equal('["/_astro/index.a8a337e4.css","/prerender/index.html"]');
+		expect($('#assets').text()).to.match(
+			/\["\/_astro\/index\.([\w-]{8})\.css","\/prerender\/index\.html"\]/
+		);
 	});
 
 	it('should give access to entry points that exists on file system', async () => {
@@ -107,7 +109,6 @@ describe('astro:ssr-manifest, split', () => {
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);
 			const html = await response.text();
-			console.log(html);
 			expect(html.includes('<title>Testing</title>')).to.be.true;
 		});
 	});

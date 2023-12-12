@@ -6,8 +6,7 @@ import matter from 'gray-matter';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type * as rollup from 'rollup';
-import type { ErrorPayload as ViteErrorPayload } from 'vite';
+import type { Rollup, ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
 import type { MarkdocConfigResult } from './load-config.js';
@@ -106,7 +105,7 @@ export async function getContentEntryType({
 import { createGetHeadings, createContentComponent } from '@astrojs/markdoc/runtime';
 ${
 	markdocConfigUrl
-		? `import markdocConfig from ${JSON.stringify(markdocConfigUrl.pathname)};`
+		? `import markdocConfig from ${JSON.stringify(fileURLToPath(markdocConfigUrl))};`
 		: 'const markdocConfig = {};'
 }
 
@@ -174,7 +173,7 @@ function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string })
 async function emitOptimizedImages(
 	nodeChildren: Node[],
 	ctx: {
-		pluginContext: rollup.PluginContext;
+		pluginContext: Rollup.PluginContext;
 		filePath: string;
 		astroConfig: AstroConfig;
 	}
@@ -230,7 +229,7 @@ function getStringifiedImports(
 			? `{ ${config.namedExport} as ${componentNamePrefix + toImportName(key)} }`
 			: componentNamePrefix + toImportName(key);
 		const resolvedPath =
-			config.type === 'local' ? new URL(config.path, root).pathname : config.path;
+			config.type === 'local' ? fileURLToPath(new URL(config.path, root)) : config.path;
 
 		stringifiedComponentImports += `import ${importName} from ${JSON.stringify(resolvedPath)};\n`;
 	}

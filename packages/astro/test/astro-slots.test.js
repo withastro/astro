@@ -40,8 +40,15 @@ describe('Slots', () => {
 		expect($('#default').text().trim()).to.equal('Default');
 	});
 
-	it('Slots render fallback content by default', async () => {
+	it('Slots of a component render fallback content by default', async () => {
 		const html = await fixture.readFile('/fallback/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('#default')).to.have.lengthOf(1);
+	});
+
+	it('Slots of a page render fallback content', async () => {
+		const html = await fixture.readFile('/fallback-own/index.html');
 		const $ = cheerio.load(html);
 
 		expect($('#default')).to.have.lengthOf(1);
@@ -147,6 +154,20 @@ describe('Slots', () => {
 			expect($('#render-args')).to.have.lengthOf(1);
 			expect($('#render-args span')).to.have.lengthOf(1);
 			expect($('#render-args').text()).to.equal('render-args');
+		}
+
+		{
+			const html = await fixture.readFile('/rendered-multiple-times/index.html');
+			const $ = cheerio.load(html);
+
+			const elements = $('div');
+			expect(elements).to.have.lengthOf(10);
+
+			const [first, second, third] = elements;
+
+			expect(first.children[0].data).to.not.equal(second.children[0].data);
+			expect(second.children[0].data).to.not.equal(third.children[0].data);
+			expect(third.children[0].data).to.not.equal(first.children[0].data);
 		}
 	});
 });

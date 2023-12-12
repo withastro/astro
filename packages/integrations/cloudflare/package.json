@@ -1,65 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
-  "description": "Deploy your site to Cloudflare Workers/Pages",
-  "version": "7.5.3",
-  "type": "module",
-  "types": "./dist/index.d.ts",
-  "author": "withastro",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/withastro/astro.git",
-    "directory": "packages/integrations/cloudflare"
-  },
-  "keywords": [
-    "withastro",
-    "astro-adapter"
-  ],
-  "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
-  "exports": {
-    ".": "./dist/index.js",
-    "./entrypoints/server.advanced.js": "./dist/entrypoints/server.advanced.js",
-    "./entrypoints/server.directory.js": "./dist/entrypoints/server.directory.js",
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
-    "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "mocha --exit --timeout 30000 test/",
-    "test:match": "mocha --exit --timeout 30000 -g"
-  },
-  "dependencies": {
-    "@astrojs/underscore-redirects": "workspace:*",
-    "@cloudflare/workers-types": "^4.20230821.0",
-    "miniflare": "^3.20230918.0",
-    "@iarna/toml": "^2.2.5",
-    "@miniflare/cache": "^2.14.1",
-    "@miniflare/shared": "^2.14.1",
-    "@miniflare/storage-memory": "^2.14.1",
-    "dotenv": "^16.3.1",
-    "esbuild": "^0.19.2",
-    "find-up": "^6.3.0",
-    "tiny-glob": "^0.2.9",
-    "vite": "^4.4.9"
-  },
-  "peerDependencies": {
-    "astro": "workspace:^3.3.0"
-  },
-  "devDependencies": {
-    "@types/iarna__toml": "^2.0.2",
-    "astro": "workspace:*",
-    "astro-scripts": "workspace:*",
-    "chai": "^4.3.7",
-    "cheerio": "1.0.0-rc.12",
-    "mocha": "^10.2.0",
-    "wrangler": "^3.5.1"
-  },
-  "publishConfig": {
-    "provenance": true
-  }
+  "version": "0.0.0",
+  "private": true,
+  "keywords": [],
+  "dont_remove": "This is a placeholder for the sake of the docs smoke test"
 }

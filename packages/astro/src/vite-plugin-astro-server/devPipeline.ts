@@ -91,4 +91,6 @@ export default class DevPipeline extends Pipeline {
 	async #handleEndpointResult(_: Request, response: Response): Promise<Response> {
 		return response;
 	}
+
+	async handleFallback() {}
 }

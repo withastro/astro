@@ -1,7 +1,8 @@
 import type { SSRResult } from '../../../@types/astro.js';
 import type { RenderInstruction } from './instruction.js';
 
-import { HTMLBytes, HTMLString, markHTMLString } from '../escape.js';
+import type { HTMLBytes, HTMLString } from '../escape.js';
+import { markHTMLString } from '../escape.js';
 import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
@@ -67,8 +68,8 @@ function stringifyChunk(
 				let prescriptType: PrescriptType = needsHydrationScript
 					? 'both'
 					: needsDirectiveScript
-					? 'directive'
-					: null;
+					  ? 'directive'
+					  : null;
 				if (prescriptType) {
 					let prescripts = getPrescripts(result, prescriptType, hydration.directive);
 					return markHTMLString(prescripts);
@@ -77,13 +78,13 @@ function stringifyChunk(
 				}
 			}
 			case 'head': {
-				if (result._metadata.hasRenderedHead) {
+				if (result._metadata.hasRenderedHead || result.partial) {
 					return '';
 				}
 				return renderAllHeadContent(result);
 			}
 			case 'maybe-head': {
-				if (result._metadata.hasRenderedHead || result._metadata.headInTree) {
+				if (result._metadata.hasRenderedHead || result._metadata.headInTree || result.partial) {
 					return '';
 				}
 				return renderAllHeadContent(result);

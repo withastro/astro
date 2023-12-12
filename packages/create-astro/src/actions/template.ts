@@ -93,7 +93,16 @@ export default async function copyTemplate(tmpl: string, ctx: Context) {
 				dir: '.',
 			});
 		} catch (err: any) {
-			fs.rmdirSync(ctx.cwd);
+			// Only remove the directory if it's most likely created by us.
+			if (ctx.cwd !== '.' && ctx.cwd !== './' && !ctx.cwd.startsWith('../')) {
+				try {
+					fs.rmdirSync(ctx.cwd);
+				} catch (_) {
+					// Ignore any errors from removing the directory,
+					// make sure we throw and display the original error.
+				}
+			}
+
 			if (err.message.includes('404')) {
 				throw new Error(`Template ${color.reset(tmpl)} ${color.dim('does not exist!')}`);
 			} else {

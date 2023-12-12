@@ -42,7 +42,7 @@ export default async function createStaticPreviewServer(
 		});
 	} catch (err) {
 		if (err instanceof Error) {
-			logger.error('astro', err.stack || err.message);
+			logger.error(null, err.stack || err.message);
 		}
 		throw err;
 	}
@@ -51,10 +51,10 @@ export default async function createStaticPreviewServer(
 
 	// Log server start URLs
 	logger.info(
-		null,
+		'SKIP_FORMAT',
 		msg.serverStart({
 			startupTime: performance.now() - startServerTime,
-			resolvedUrls: previewServer.resolvedUrls,
+			resolvedUrls: previewServer.resolvedUrls ?? { local: [], network: [] },
 			host: settings.config.server.host,
 			base: settings.config.base,
 		})
@@ -72,7 +72,7 @@ export default async function createStaticPreviewServer(
 		host: getResolvedHostForHttpServer(settings.config.server.host),
 		port: settings.config.server.port,
 		closed,
-		server: previewServer.httpServer,
+		server: previewServer.httpServer as http.Server,
 		stop: async () => {
 			await new Promise((resolve, reject) => {
 				previewServer.httpServer.destroy((err) => (err ? reject(err) : resolve(undefined)));

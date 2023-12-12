@@ -1,5 +1,7 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { builtinModules } = require('module');
 
+/** @type {import("@types/eslint").Linter.Config} */
 module.exports = {
   extends: [
     'plugin:@typescript-eslint/recommended-type-checked',
@@ -16,8 +18,13 @@ module.exports = {
     // These off/configured-differently-by-default rules fit well for us
     '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
     '@typescript-eslint/no-unused-vars': [
-      'error',
-      { argsIgnorePattern: '^_', ignoreRestSiblings: true },
+      'warn',
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      },
     ],
     'no-only-tests/no-only-tests': 'error',
     '@typescript-eslint/no-shadow': ['error'],
@@ -51,6 +58,16 @@ module.exports = {
     '@typescript-eslint/unbound-method': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
 
+    // Enforce separate type imports for type-only imports to avoid bundling unneeded code
+    '@typescript-eslint/consistent-type-imports': [
+      'error',
+      {
+        prefer: 'type-imports',
+        fixStyle: 'separate-type-imports',
+        disallowTypeAnnotations: false,
+      },
+    ],
+
     // These rules enabled by the preset configs don't work well for us
     '@typescript-eslint/await-thenable': 'off',
     'prefer-const': 'off',
@@ -67,6 +84,12 @@ module.exports = {
             patterns: ['node:*'],
           },
         ],
+      },
+    },
+    {
+      files: ['packages/astro/src/runtime/client/**/*.ts'],
+      env: {
+        browser: true,
       },
     },
     {

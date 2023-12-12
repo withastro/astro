@@ -14,16 +14,20 @@ export default (element) =>
 			slots[key] = () => h(StaticHtml, { value, name: key === 'default' ? undefined : key });
 		}
 
-		let content = h(Component, props, slots);
-		// related to https://github.com/withastro/astro/issues/6549
-		// if the component is async, wrap it in a Suspense component
-		if (isAsync(Component.setup)) {
-			content = h(Suspense, null, content);
-		}
-
 		const isHydrate = client !== 'only';
-		const boostrap = isHydrate ? createSSRApp : createApp;
-		const app = boostrap({ name, render: () => content });
+		const bootstrap = isHydrate ? createSSRApp : createApp;
+		const app = bootstrap({
+			name,
+			render() {
+				let content = h(Component, props, slots);
+				// related to https://github.com/withastro/astro/issues/6549
+				// if the component is async, wrap it in a Suspense component
+				if (isAsync(Component.setup)) {
+					content = h(Suspense, null, content);
+				}
+				return content;
+			},
+		});
 		await setup(app);
 		app.mount(element, isHydrate);
 

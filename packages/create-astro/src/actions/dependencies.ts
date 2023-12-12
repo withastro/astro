@@ -27,17 +27,16 @@ export async function dependencies(
 		await spinner({
 			start: `Installing dependencies with ${ctx.packageManager}...`,
 			end: 'Dependencies installed',
-			while: () => {
-				return install({ packageManager: ctx.packageManager, cwd: ctx.cwd }).catch((e) => {
-					error('error', e);
-					error(
-						'error',
-						`Dependencies failed to install, please run ${color.bold(
-							ctx.packageManager + ' install'
-						)}  to install them manually after setup.`
-					);
-				});
+			onError: (e) => {
+				error('error', e);
+				error(
+					'error',
+					`Dependencies failed to install, please run ${color.bold(
+						ctx.packageManager + ' install'
+					)} to install them manually after setup.`
+				);
 			},
+			while: () => install({ packageManager: ctx.packageManager, cwd: ctx.cwd }),
 		});
 	} else {
 		await info(
@@ -52,6 +51,14 @@ async function install({ packageManager, cwd }: { packageManager: string; cwd: s
 	return shell(packageManager, ['install'], { cwd, timeout: 90_000, stdio: 'ignore' });
 }
 
+/**
+ * Yarn Berry (PnP) versions will throw an error if there isn't an existing `yarn.lock` file
+ * If a `yarn.lock` file doesn't exist, this function writes an empty `yarn.lock` one.
+ * Unfortunately this hack is required to run `yarn install`.
+ *
+ * The empty `yarn.lock` file is immediately overwritten by the installation process.
+ * See https://github.com/withastro/astro/pull/8028
+ */
 async function ensureYarnLock({ cwd }: { cwd: string }) {
 	const yarnLock = path.join(cwd, 'yarn.lock');
 	if (fs.existsSync(yarnLock)) return;

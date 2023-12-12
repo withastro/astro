@@ -7,7 +7,11 @@ import WithChildren from '../components/WithChildren';
     <!-- Head Stuff -->
   </head>
   <body>
-		<WithChildren>
+		<WithChildren id="one">
+			<div>child 1</div><div>child 2</div>
+		</WithChildren>
+
+		<WithChildren id="two" client:load>
 			<div>child 1</div><div>child 2</div>
 		</WithChildren>
   </body>

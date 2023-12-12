@@ -65,7 +65,7 @@ export default async function copy() {
 			const dest = resolve(file.replace(/^[^/]+/, 'dist'));
 			return fs
 				.mkdir(dirname(dest), { recursive: true })
-				.then(() => fs.copyFile(resolve(file), dest));
+				.then(() => fs.copyFile(resolve(file), dest, fs.constants.COPYFILE_FICLONE));
 		})
 	);
 }

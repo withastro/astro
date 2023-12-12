@@ -7,8 +7,10 @@ function check(Component) {
 	return !!Component['ssrRender'] || !!Component['__ssrInlineRender'];
 }
 
-async function renderToStaticMarkup(Component, props, slotted, metadata) {
+async function renderToStaticMarkup(Component, inputProps, slotted, metadata) {
 	const slots = {};
+	const props = { ...inputProps };
+	delete props.slot;
 	for (const [key, value] of Object.entries(slotted)) {
 		slots[key] = () =>
 			h(StaticHtml, {

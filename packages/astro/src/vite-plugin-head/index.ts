@@ -103,7 +103,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 
 export function astroHeadBuildPlugin(internals: BuildInternals): AstroBuildPlugin {
 	return {
-		build: 'ssr',
+		targets: ['server'],
 		hooks: {
 			'build:before'() {
 				return {

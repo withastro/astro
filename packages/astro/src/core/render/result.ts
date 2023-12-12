@@ -1,6 +1,7 @@
 import type {
 	AstroGlobal,
 	AstroGlobalPartial,
+	Locales,
 	Params,
 	SSRElement,
 	SSRLoadedRenderer,
@@ -12,6 +13,11 @@ import { chunkToString } from '../../runtime/server/render/index.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
+import {
+	computeCurrentLocale,
+	computePreferredLocale,
+	computePreferredLocaleList,
+} from './context.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
@@ -31,6 +37,7 @@ export interface CreateResultArgs {
 	renderers: SSRLoadedRenderer[];
 	clientDirectives: Map<string, string>;
 	compressHTML: boolean;
+	partial: boolean;
 	resolve: (s: string) => Promise<string>;
 	/**
 	 * Used for `Astro.site`
@@ -44,6 +51,9 @@ export interface CreateResultArgs {
 	status: number;
 	locals: App.Locals;
 	cookies?: AstroCookies;
+	locales: Locales | undefined;
+	defaultLocale: string | undefined;
+	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined;
 }
 
 function getFunctionExpression(slot: any) {
@@ -91,7 +101,7 @@ class Slots {
 		const result = this.#result;
 		if (!Array.isArray(args)) {
 			this.#logger.warn(
-				'Astro.slots.render',
+				null,
 				`Expected second parameter to be an array, received a ${typeof args}. If you're trying to pass an array as a single argument and getting unexpected results, make sure you're passing your array as a item of an array. Ex: Astro.slots.render('default', [["Hello", "World"]])`
 			);
 		} else if (args.length > 0) {
@@ -143,6 +153,9 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 	// Astro.cookies is defined lazily to avoid the cost on pages that do not use it.
 	let cookies: AstroCookies | undefined = args.cookies;
+	let preferredLocale: string | undefined = undefined;
+	let preferredLocaleList: string[] | undefined = undefined;
+	let currentLocale: string | undefined = undefined;
 
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then
@@ -155,6 +168,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		renderers: args.renderers,
 		clientDirectives: args.clientDirectives,
 		compressHTML: args.compressHTML,
+		partial: args.partial,
 		pathname: args.pathname,
 		cookies,
 		/** This function returns the `Astro` faux-global */
@@ -189,6 +203,46 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					cookies = new AstroCookies(request);
 					result.cookies = cookies;
 					return cookies;
+				},
+				get preferredLocale(): string | undefined {
+					if (preferredLocale) {
+						return preferredLocale;
+					}
+					if (args.locales) {
+						preferredLocale = computePreferredLocale(request, args.locales);
+						return preferredLocale;
+					}
+
+					return undefined;
+				},
+				get preferredLocaleList(): string[] | undefined {
+					if (preferredLocaleList) {
+						return preferredLocaleList;
+					}
+					if (args.locales) {
+						preferredLocaleList = computePreferredLocaleList(request, args.locales);
+						return preferredLocaleList;
+					}
+
+					return undefined;
+				},
+				get currentLocale(): string | undefined {
+					if (currentLocale) {
+						return currentLocale;
+					}
+					if (args.locales) {
+						currentLocale = computeCurrentLocale(
+							request,
+							args.locales,
+							args.routingStrategy,
+							args.defaultLocale
+						);
+						if (currentLocale) {
+							return currentLocale;
+						}
+					}
+
+					return undefined;
 				},
 				params,
 				props,

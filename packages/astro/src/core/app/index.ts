@@ -1,15 +1,16 @@
 import type {
 	EndpointHandler,
 	ManifestData,
-	MiddlewareEndpointHandler,
 	RouteData,
 	SSRElement,
 	SSRManifest,
 } from '../../@types/astro.js';
+import { createI18nMiddleware, i18nPipelineHook } from '../../i18n/middleware.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
+import { sequence } from '../middleware/index.js';
 import {
 	collapseDuplicateSlashes,
 	prependForwardSlash,
@@ -34,13 +35,19 @@ const responseSentSymbol = Symbol.for('astro.responseSent');
 
 const STATUS_CODES = new Set([404, 500]);
 
-export interface MatchOptions {
-	matchNotFound?: boolean | undefined;
+export interface RenderOptions {
+	routeData?: RouteData;
+	locals?: object;
 }
+
 export interface RenderErrorOptions {
 	routeData?: RouteData;
 	response?: Response;
 	status: 404 | 500;
+	/**
+	 * Whether to skip onRequest() while rendering the error page. Defaults to false.
+	 */
+	skipMiddleware?: boolean;
 }
 
 export class App {
@@ -57,6 +64,7 @@ export class App {
 	#baseWithoutTrailingSlash: string;
 	#pipeline: SSRRoutePipeline;
 	#adapterLogger: AstroIntegrationLogger;
+	#renderOptionsDeprecationWarningShown = false;
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
@@ -121,7 +129,14 @@ export class App {
 		}
 		return pathname;
 	}
-	match(request: Request, _opts: MatchOptions = {}): RouteData | undefined {
+
+	#getPathnameFromRequest(request: Request): string {
+		const url = new URL(request.url);
+		const pathname = prependForwardSlash(this.removeBase(url.pathname));
+		return pathname;
+	}
+
+	match(request: Request): RouteData | undefined {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
 		if (this.#manifest.assets.has(url.pathname)) return undefined;
@@ -132,7 +147,38 @@ export class App {
 		return routeData;
 	}
 
-	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {
+	async render(request: Request, options?: RenderOptions): Promise<Response>;
+	/**
+	 * @deprecated Instead of passing `RouteData` and locals individually, pass an object with `routeData` and `locals` properties.
+	 * See https://github.com/withastro/astro/pull/9199 for more information.
+	 */
+	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response>;
+	async render(
+		request: Request,
+		routeDataOrOptions?: RouteData | RenderOptions,
+		maybeLocals?: object
+	): Promise<Response> {
+		let routeData: RouteData | undefined;
+		let locals: object | undefined;
+
+		if (
+			routeDataOrOptions &&
+			('routeData' in routeDataOrOptions || 'locals' in routeDataOrOptions)
+		) {
+			if ('routeData' in routeDataOrOptions) {
+				routeData = routeDataOrOptions.routeData;
+			}
+			if ('locals' in routeDataOrOptions) {
+				locals = routeDataOrOptions.locals;
+			}
+		} else {
+			routeData = routeDataOrOptions as RouteData | undefined;
+			locals = maybeLocals;
+			if (routeDataOrOptions || locals) {
+				this.#logRenderOptionsDeprecationWarning();
+			}
+		}
+
 		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
 		if (request.url !== collapseDuplicateSlashes(request.url)) {
 			request = new Request(collapseDuplicateSlashes(request.url), request);
@@ -143,9 +189,9 @@ export class App {
 		if (!routeData) {
 			return this.#renderError(request, { status: 404 });
 		}
-
 		Reflect.set(request, clientLocalsSymbol, locals ?? {});
-		const defaultStatus = this.#getDefaultStatusCode(routeData.route);
+		const pathname = this.#getPathnameFromRequest(request);
+		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
 		const mod = await this.#getModuleForRoute(routeData);
 
 		const pageModule = (await mod.page()) as any;
@@ -160,15 +206,29 @@ export class App {
 		);
 		let response;
 		try {
-			if (mod.onRequest) {
-				this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
+			let i18nMiddleware = createI18nMiddleware(
+				this.#manifest.i18n,
+				this.#manifest.base,
+				this.#manifest.trailingSlash
+			);
+			if (i18nMiddleware) {
+				if (mod.onRequest) {
+					this.#pipeline.setMiddlewareFunction(sequence(i18nMiddleware, mod.onRequest));
+				} else {
+					this.#pipeline.setMiddlewareFunction(i18nMiddleware);
+				}
+				this.#pipeline.onBeforeRenderRoute(i18nPipelineHook);
+			} else {
+				if (mod.onRequest) {
+					this.#pipeline.setMiddlewareFunction(mod.onRequest);
+				}
 			}
 			response = await this.#pipeline.renderRoute(renderContext, pageModule);
 		} catch (err: any) {
 			if (err instanceof EndpointNotFoundError) {
 				return this.#renderError(request, { status: 404, response: err.originalResponse });
 			} else {
-				this.#logger.error('ssr', err.stack || err.message || String(err));
+				this.#logger.error(null, err.stack || err.message || String(err));
 				return this.#renderError(request, { status: 500 });
 			}
 		}
@@ -184,6 +244,15 @@ export class App {
 			return response;
 		}
 		return response;
+	}
+
+	#logRenderOptionsDeprecationWarning() {
+		if (this.#renderOptionsDeprecationWarningShown) return;
+		this.#logger.warn(
+			'deprecated',
+			`The adapter ${this.#manifest.adapterName} is using a deprecated signature of the 'app.render()' method. From Astro 4.0, locals and routeData are provided as properties on an optional object to this method. Using the old signature will cause an error in Astro 5.0. See https://github.com/withastro/astro/pull/9199 for more information.`
+		);
+		this.#renderOptionsDeprecationWarningShown = true;
 	}
 
 	setCookieHeaders(response: Response) {
@@ -204,6 +273,7 @@ export class App {
 			const pathname = '/' + this.removeBase(url.pathname);
 			const mod = await page.page();
 			const handler = mod as unknown as EndpointHandler;
+
 			return await createRenderContext({
 				request,
 				pathname,
@@ -211,6 +281,9 @@ export class App {
 				status,
 				env: this.#pipeline.env,
 				mod: handler as any,
+				locales: this.#manifest.i18n?.locales,
+				routing: this.#manifest.i18n?.routing,
+				defaultLocale: this.#manifest.i18n?.defaultLocale,
 			});
 		} else {
 			const pathname = prependForwardSlash(this.removeBase(url.pathname));
@@ -233,6 +306,7 @@ export class App {
 				}
 			}
 			const mod = await page.page();
+
 			return await createRenderContext({
 				request,
 				pathname,
@@ -244,6 +318,9 @@ export class App {
 				status,
 				mod,
 				env: this.#pipeline.env,
+				locales: this.#manifest.i18n?.locales,
+				routing: this.#manifest.i18n?.routing,
+				defaultLocale: this.#manifest.i18n?.defaultLocale,
 			});
 		}
 	}
@@ -252,7 +329,10 @@ export class App {
 	 * If it is a known error code, try sending the according page (e.g. 404.astro / 500.astro).
 	 * This also handles pre-rendered /404 or /500 routes
 	 */
-	async #renderError(request: Request, { status, response: originalResponse }: RenderErrorOptions) {
+	async #renderError(
+		request: Request,
+		{ status, response: originalResponse, skipMiddleware = false }: RenderErrorOptions
+	): Promise<Response> {
 		const errorRouteData = matchRoute('/' + status, this.#manifestData);
 		const url = new URL(request.url);
 		if (errorRouteData) {
@@ -280,12 +360,25 @@ export class App {
 					status
 				);
 				const page = (await mod.page()) as any;
-				if (mod.onRequest) {
-					this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
+				if (skipMiddleware === false && mod.onRequest) {
+					this.#pipeline.setMiddlewareFunction(mod.onRequest);
+				}
+				if (skipMiddleware) {
+					// make sure middleware set by other requests is cleared out
+					this.#pipeline.unsetMiddlewareFunction();
 				}
 				const response = await this.#pipeline.renderRoute(newRenderContext, page);
 				return this.#mergeResponses(response, originalResponse);
-			} catch {}
+			} catch {
+				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
+				if (skipMiddleware === false && mod.onRequest) {
+					return this.#renderError(request, {
+						status,
+						response: originalResponse,
+						skipMiddleware: true,
+					});
+				}
+			}
 		}
 
 		const response = this.#mergeResponses(new Response(null, { status }), originalResponse);
@@ -313,8 +406,8 @@ export class App {
 		const status = override?.status
 			? override.status
 			: oldResponse.status === 200
-			? newResponse.status
-			: oldResponse.status;
+			  ? newResponse.status
+			  : oldResponse.status;
 
 		return new Response(newResponse.body, {
 			status,
@@ -323,8 +416,15 @@ export class App {
 		});
 	}
 
-	#getDefaultStatusCode(route: string): number {
-		route = removeTrailingForwardSlash(route);
+	#getDefaultStatusCode(routeData: RouteData, pathname: string): number {
+		if (!routeData.pattern.exec(pathname)) {
+			for (const fallbackRoute of routeData.fallbackRoutes) {
+				if (fallbackRoute.pattern.test(pathname)) {
+					return 302;
+				}
+			}
+		}
+		const route = removeTrailingForwardSlash(routeData.route);
 		if (route.endsWith('/404')) return 404;
 		if (route.endsWith('/500')) return 500;
 		return 200;

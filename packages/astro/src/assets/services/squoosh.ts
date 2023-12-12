@@ -30,7 +30,7 @@ const qualityTable: Record<
 };
 
 async function getRotationForEXIF(
-	inputBuffer: Buffer,
+	inputBuffer: Uint8Array,
 	src?: string
 ): Promise<Operation | undefined> {
 	const meta = await imageMetadata(inputBuffer, src);

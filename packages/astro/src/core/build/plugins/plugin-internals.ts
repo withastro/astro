@@ -61,7 +61,7 @@ export function vitePluginInternals(input: Set<string>, internals: BuildInternal
 
 export function pluginInternals(internals: BuildInternals): AstroBuildPlugin {
 	return {
-		build: 'both',
+		targets: ['client', 'server'],
 		hooks: {
 			'build:before': ({ input }) => {
 				return {

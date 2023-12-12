@@ -1,5 +1,17 @@
 # @astrojs/lit
 
+## 3.0.3
+
+### Patch Changes
+
+- [#9018](https://github.com/withastro/astro/pull/9018) [`23c9a30ad`](https://github.com/withastro/astro/commit/23c9a30ad859398d62a013d639b5b2716b583331) Thanks [@augustjk](https://github.com/augustjk)! - Fix hydration ordering of nested custom elements. Child components will now wait for their parents to hydrate before hydrating themselves.
+
+## 3.0.2
+
+### Patch Changes
+
+- [#8826](https://github.com/withastro/astro/pull/8826) [`754c40f6e`](https://github.com/withastro/astro/commit/754c40f6ed941a61362d221915568c04ae85d6ad) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixed an issue where an incompatible version of lit was installed.
+
 ## 3.0.1
 
 ### Patch Changes

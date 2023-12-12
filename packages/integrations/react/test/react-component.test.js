@@ -105,7 +105,13 @@ describe('React Components', () => {
 		it('Children are parsed as React components, can be manipulated', async () => {
 			const html = await fixture.readFile('/children/index.html');
 			const $ = cheerioLoad(html);
-			expect($('.with-children-count').text()).to.equal('2');
+			expect($('#one .with-children-count').text()).to.equal('2');
+		});
+
+		it('Client children passes option to the client', async () => {
+			const html = await fixture.readFile('/children/index.html');
+			const $ = cheerioLoad(html);
+			expect($('[data-react-children]')).to.have.lengthOf(1);
 		});
 	});
 

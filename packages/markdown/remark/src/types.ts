@@ -1,10 +1,6 @@
 import type * as hast from 'hast';
 import type * as mdast from 'mdast';
-import type {
-	one as Handler,
-	all as Handlers,
-	Options as RemarkRehypeOptions,
-} from 'remark-rehype';
+import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type {
 	BuiltinTheme,
 	LanguageRegistration,
@@ -34,19 +30,16 @@ export type RehypePlugin<PluginParameters extends any[] = any[]> = unified.Plugi
 
 export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
 
-export type RemarkRehype = Omit<RemarkRehypeOptions, 'handlers' | 'unknownHandler'> & {
-	handlers?: typeof Handlers;
-	handler?: typeof Handler;
-};
+export type RemarkRehype = RemarkRehypeOptions;
 
 export interface ShikiConfig {
 	langs?: LanguageRegistration[];
 	theme?: BuiltinTheme | ThemeRegistration | ThemeRegistrationRaw;
+	experimentalThemes?: Record<string, BuiltinTheme | ThemeRegistration | ThemeRegistrationRaw>;
 	wrap?: boolean | null;
 }
 
 export interface AstroMarkdownOptions {
-	drafts?: boolean;
 	syntaxHighlight?: 'shiki' | 'prism' | false;
 	shikiConfig?: ShikiConfig;
 	remarkPlugins?: RemarkPlugins;

@@ -21,7 +21,7 @@ async function createDevPipeline(overrides = {}) {
 	return new DevPipeline({
 		manifest,
 		settings,
-		logging: defaultLogger,
+		logger: defaultLogger,
 		loader,
 	});
 }

@@ -93,8 +93,8 @@ describe('Astro Markdown Shiki', () => {
 			expect(segments[0].attribs.style).to.be.equal('color:#79B8FF');
 			expect(segments[1].attribs.style).to.be.equal('color:#E1E4E8');
 
-			const unknownLang = $('.astro-code').last();
-			expect(unknownLang.attr('style')).to.contain('background-color:#24292e;color:#e1e4e8;');
+			const unknownLang = $('.astro-code').get(1);
+			expect(unknownLang.attribs.style).to.contain('background-color:#24292e;color:#e1e4e8;');
 		});
 	});
 

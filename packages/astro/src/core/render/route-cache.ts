@@ -8,7 +8,6 @@ import type {
 	RouteData,
 	RuntimeMode,
 } from '../../@types/astro.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 
 import { stringifyParams } from '../routing/params.js';
@@ -16,7 +15,7 @@ import { validateDynamicRouteModule, validateGetStaticPathsResult } from '../rou
 import { generatePaginateFunction } from './paginate.js';
 
 interface CallGetStaticPathsOptions {
-	mod: ComponentInstance;
+	mod: ComponentInstance | undefined;
 	route: RouteData;
 	routeCache: RouteCache;
 	logger: Logger;
@@ -31,7 +30,12 @@ export async function callGetStaticPaths({
 	ssr,
 }: CallGetStaticPathsOptions): Promise<GetStaticPathsResultKeyed> {
 	const cached = routeCache.get(route);
-	if (cached?.staticPaths) return cached.staticPaths;
+	if (!mod) {
+		throw new Error('This is an error caused by Astro and not your code. Please file an issue.');
+	}
+	if (cached?.staticPaths) {
+		return cached.staticPaths;
+	}
 
 	validateDynamicRouteModule(mod, { ssr, route });
 
@@ -42,6 +46,7 @@ export async function callGetStaticPaths({
 		return entry;
 	}
 
+	let staticPaths: GetStaticPathsResult = [];
 	// Add a check here to make TypeScript happy.
 	// This is already checked in validateDynamicRouteModule().
 	if (!mod.getStaticPaths) {
@@ -49,14 +54,10 @@ export async function callGetStaticPaths({
 	}
 
 	// Calculate your static paths.
-	let staticPaths: GetStaticPathsResult = [];
 	staticPaths = await mod.getStaticPaths({
 		// Q: Why the cast?
 		// A: So users downstream can have nicer typings, we have to make some sacrifice in our internal typings, which necessitate a cast here
 		paginate: generatePaginateFunction(route) as PaginateFunction,
-		rss() {
-			throw new AstroError(AstroErrorData.GetStaticPathsRemovedRSSHelper);
-		},
 	});
 
 	validateGetStaticPathsResult(staticPaths, logger, route);
@@ -102,10 +103,7 @@ export class RouteCache {
 		// Warn here so that an unexpected double-call of getStaticPaths()
 		// isn't invisible and developer can track down the issue.
 		if (this.mode === 'production' && this.cache[route.component]?.staticPaths) {
-			this.logger.warn(
-				'routeCache',
-				`Internal Warning: route cache overwritten. (${route.component})`
-			);
+			this.logger.warn(null, `Internal Warning: route cache overwritten. (${route.component})`);
 		}
 		this.cache[route.component] = entry;
 	}
@@ -126,5 +124,5 @@ export function findPathItemByKey(
 	if (matchedStaticPath) {
 		return matchedStaticPath;
 	}
-	logger.debug('findPathItemByKey', `Unexpected cache miss looking for ${paramsKey}`);
+	logger.debug('router', `findPathItemByKey() - Unexpected cache miss looking for ${paramsKey}`);
 }

@@ -4,7 +4,11 @@ import type { OutputChunk } from 'rollup';
 import { type Plugin as VitePlugin } from 'vite';
 import { runHookBuildSsr } from '../../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
-import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types.js';
+import type {
+	SSRManifestI18n,
+	SerializedRouteInfo,
+	SerializedSSRManifest,
+} from '../../app/types.js';
 import { joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
@@ -79,7 +83,7 @@ export function pluginManifest(
 	internals: BuildInternals
 ): AstroBuildPlugin {
 	return {
-		build: 'ssr',
+		targets: ['server'],
 		hooks: {
 			'build:before': () => {
 				return {
@@ -94,8 +98,6 @@ export function pluginManifest(
 
 				const manifest = await createManifest(options, internals);
 				const shouldPassMiddlewareEntryPoint =
-					// TODO: remove in Astro 4.0
-					options.settings.config.build.excludeMiddleware ||
 					options.settings.adapter?.adapterFeatures?.edgeMiddleware;
 				await runHookBuildSsr({
 					config: options.settings.config,
@@ -107,7 +109,7 @@ export function pluginManifest(
 						: undefined,
 				});
 				const code = injectManifest(manifest, internals.manifestEntryChunk);
-				mutate(internals.manifestEntryChunk, 'server', code);
+				mutate(internals.manifestEntryChunk, ['server'], code);
 			},
 		},
 	};
@@ -237,12 +239,22 @@ function buildManifest(
 		// Set this to an empty string so that the runtime knows not to try and load this.
 		entryModules[BEFORE_HYDRATION_SCRIPT_ID] = '';
 	}
+	let i18nManifest: SSRManifestI18n | undefined = undefined;
+	if (settings.config.i18n) {
+		i18nManifest = {
+			fallback: settings.config.i18n.fallback,
+			routing: settings.config.i18n.routing,
+			locales: settings.config.i18n.locales,
+			defaultLocale: settings.config.i18n.defaultLocale,
+		};
+	}
 
-	const ssrManifest: SerializedSSRManifest = {
+	return {
 		adapterName: opts.settings.adapter?.name ?? '',
 		routes,
 		site: settings.config.site,
 		base: settings.config.base,
+		trailingSlash: settings.config.trailingSlash,
 		compressHTML: settings.config.compressHTML,
 		assetsPrefix: settings.config.build.assetsPrefix,
 		componentMetadata: Array.from(internals.componentMetadata),
@@ -250,7 +262,6 @@ function buildManifest(
 		clientDirectives: Array.from(settings.clientDirectives),
 		entryModules,
 		assets: staticFiles.map(prefixAssetPath),
+		i18n: i18nManifest,
 	};
-
-	return ssrManifest;
 }

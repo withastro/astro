@@ -6,7 +6,7 @@ export function GET({ params }: APIContext) {
 	if (productMap.has(id)) {
 		const product = productMap.get(id);
 
-		return new Response(JSON.stringify(products));
+		return new Response(JSON.stringify(product));
 	} else {
 		return new Response(null, {
 			status: 400,

@@ -2,7 +2,7 @@ import type { ImageInputFormat, ImageMetadata } from '../types.js';
 
 export function getOrigQueryParams(
 	params: URLSearchParams
-): Omit<ImageMetadata, 'src'> | undefined {
+): Pick<ImageMetadata, 'width' | 'height' | 'format'> | undefined {
 	const width = params.get('origWidth');
 	const height = params.get('origHeight');
 	const format = params.get('origFormat');

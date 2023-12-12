@@ -30,6 +30,7 @@ export interface PageBuildData {
 	hoistedScript: { type: 'inline' | 'external'; value: string } | undefined;
 	styles: Array<{ depth: number; order: number; sheet: StylesheetAsset }>;
 }
+
 export type AllPagesData = Record<ComponentPath, PageBuildData>;
 
 /** Options for the static build */
@@ -53,7 +54,7 @@ export interface SinglePageBuiltModule {
 	/**
 	 * The `onRequest` hook exported by the middleware
 	 */
-	onRequest?: MiddlewareHandler<unknown>;
+	onRequest?: MiddlewareHandler;
 	renderers: SSRLoadedRenderer[];
 }
 

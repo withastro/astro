@@ -9,7 +9,7 @@ import {
 } from './plugins/plugin-pages.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
-import type { PageBuildData, StylesheetAsset, ViteID } from './types.js';
+import type { AllPagesData, PageBuildData, StylesheetAsset, ViteID } from './types.js';
 
 export interface BuildInternals {
 	/**
@@ -81,6 +81,11 @@ export interface BuildInternals {
 	 */
 	discoveredScripts: Set<string>;
 
+	cachedClientEntries: string[];
+
+	propagatedStylesMap: Map<string, Set<StylesheetAsset>>;
+	propagatedScriptsMap: Map<string, Set<string>>;
+
 	// A list of all static files created during the build. Used for SSR.
 	staticFiles: Set<string>;
 	// The SSR entry chunk. Kept in internals to share between ssr/client build steps
@@ -106,6 +111,7 @@ export function createBuildInternals(): BuildInternals {
 	const hoistedScriptIdToPagesMap = new Map<string, Set<string>>();
 
 	return {
+		cachedClientEntries: [],
 		cssModuleToChunkIdMap: new Map(),
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,
@@ -115,6 +121,9 @@ export function createBuildInternals(): BuildInternals {
 		pageOptionsByPage: new Map(),
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
+
+		propagatedStylesMap: new Map(),
+		propagatedScriptsMap: new Map(),
 
 		discoveredHydratedComponents: new Map(),
 		discoveredClientOnlyComponents: new Map(),
@@ -230,18 +239,24 @@ export function* eachPageData(internals: BuildInternals) {
 	yield* internals.pagesByComponent.values();
 }
 
+export function* eachPageFromAllPages(allPages: AllPagesData): Generator<[string, PageBuildData]> {
+	for (const [path, pageData] of Object.entries(allPages)) {
+		yield [path, pageData];
+	}
+}
+
 export function* eachPageDataFromEntryPoint(
 	internals: BuildInternals
 ): Generator<[PageBuildData, string]> {
-	for (const [entryPoint, filePath] of internals.entrySpecifierToBundleMap) {
+	for (const [entrypoint, filePath] of internals.entrySpecifierToBundleMap) {
 		// virtual pages can be emitted with different prefixes:
 		// - the classic way are pages emitted with prefix ASTRO_PAGE_RESOLVED_MODULE_ID -> plugin-pages
 		// - pages emitted using `build.split`, in this case pages are emitted with prefix RESOLVED_SPLIT_MODULE_ID
 		if (
-			entryPoint.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
-			entryPoint.includes(RESOLVED_SPLIT_MODULE_ID)
+			entrypoint.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
+			entrypoint.includes(RESOLVED_SPLIT_MODULE_ID)
 		) {
-			const [, pageName] = entryPoint.split(':');
+			const [, pageName] = entrypoint.split(':');
 			const pageData = internals.pagesByComponent.get(
 				`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`
 			);

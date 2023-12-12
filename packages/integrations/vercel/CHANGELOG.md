@@ -1,5 +1,84 @@
 # @astrojs/vercel
 
+## 6.0.2
+
+### Patch Changes
+
+- [#9287](https://github.com/withastro/astro/pull/9287) [`1e342e34e`](https://github.com/withastro/astro/commit/1e342e34eb9cef465b838654cea7bb4b0d24e602) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where redirects did not work with the static adapter.
+
+- [#9383](https://github.com/withastro/astro/pull/9383) [`bebf5cf22`](https://github.com/withastro/astro/commit/bebf5cf22d0d842670825aa961529e8b342e2b26) Thanks [@sarah11918](https://github.com/sarah11918)! - Fixes some incorrect code examples in the README documentation.
+
+- [#9334](https://github.com/withastro/astro/pull/9334) [`dfbc70790`](https://github.com/withastro/astro/commit/dfbc7079081d3346713cb536358a3854362a2c95) Thanks [@Geo25rey](https://github.com/Geo25rey)! - Allows the edge middleware to be an async function.
+
+## 6.0.1
+
+### Patch Changes
+
+- [#9348](https://github.com/withastro/astro/pull/9348) [`1685cc42b`](https://github.com/withastro/astro/commit/1685cc42b51603eb98b5ba3e072cf2d3953339f2) Thanks [@matthewp](https://github.com/matthewp)! - Uses the latest astro as the peerDependency
+
+## 6.0.0
+
+### Major Changes
+
+- [#9199](https://github.com/withastro/astro/pull/9199) [`49aa215a0`](https://github.com/withastro/astro/commit/49aa215a01ee1c4805316c85bb0aea6cfbc25a31) Thanks [@lilnasy](https://github.com/lilnasy)! - The internals of the integration have been updated to support Astro 4.0. Make sure to upgrade your Astro version as Astro 3.0 is no longer supported.
+
+- [#9184](https://github.com/withastro/astro/pull/9184) [`a145ac07e`](https://github.com/withastro/astro/commit/a145ac07e75927e13af62e28d13bc8217a362b8e) Thanks [@bluwy](https://github.com/bluwy)! - Removes deprecated `analytics` option. Use the `webAnalytics` option instead.
+
+- [#9263](https://github.com/withastro/astro/pull/9263) [`3cbd8ea75`](https://github.com/withastro/astro/commit/3cbd8ea7534910e3beae396dcfa93ce87dcdd91f) Thanks [@bluwy](https://github.com/bluwy)! - Removes the deprecated `@astrojs/vercel/edge` export. You should use `@astrojs/vercel/serverless` instead with the `edgeMiddleware` option.
+
+## 6.0.0-beta.2
+
+### Major Changes
+
+- [#9263](https://github.com/withastro/astro/pull/9263) [`3cbd8ea75`](https://github.com/withastro/astro/commit/3cbd8ea7534910e3beae396dcfa93ce87dcdd91f) Thanks [@bluwy](https://github.com/bluwy)! - Removes the deprecated `@astrojs/vercel/edge` export. You should use `@astrojs/vercel/serverless` instead with the `edgeMiddleware` option.
+
+## 6.0.0-beta.1
+
+### Major Changes
+
+- [#9199](https://github.com/withastro/astro/pull/9199) [`49aa215a0`](https://github.com/withastro/astro/commit/49aa215a01ee1c4805316c85bb0aea6cfbc25a31) Thanks [@lilnasy](https://github.com/lilnasy)! - The internals of the integration have been updated to support Astro 4.0. Make sure to upgrade your Astro version as Astro 3.0 is no longer supported.
+
+## 6.0.0-beta.0
+
+### Major Changes
+
+- [#9184](https://github.com/withastro/astro/pull/9184) [`a145ac07e`](https://github.com/withastro/astro/commit/a145ac07e75927e13af62e28d13bc8217a362b8e) Thanks [@bluwy](https://github.com/bluwy)! - Removes deprecated `analytics` option. Use the `webAnalytics` option instead.
+
+### Patch Changes
+
+- Updated dependencies [[`abf601233`](https://github.com/withastro/astro/commit/abf601233f8188d118a8cb063c777478d8d9f1a3), [`6201bbe96`](https://github.com/withastro/astro/commit/6201bbe96c2a083fb201e4a43a9bd88499821a3e), [`cdabf6ef0`](https://github.com/withastro/astro/commit/cdabf6ef02be7220fd2b6bdcef924ceca089381e), [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721), [`37697a2c5`](https://github.com/withastro/astro/commit/37697a2c5511572dc29c0a4ea46f90c2f62be8e6), [`bd0c2e9ae`](https://github.com/withastro/astro/commit/bd0c2e9ae3389a9d3085050c1e8134ae98dff299), [`0fe3a7ed5`](https://github.com/withastro/astro/commit/0fe3a7ed5d7bb1a9fce1623e84ba14104b51223c), [`710be505c`](https://github.com/withastro/astro/commit/710be505c9ddf416e77a75343d8cae9c497d72c6), [`153a5abb9`](https://github.com/withastro/astro/commit/153a5abb905042ac68b712514dc9ec387d3e6b17)]:
+  - astro@4.0.0-beta.0
+
+## 5.2.0
+
+### Minor Changes
+
+- [#8879](https://github.com/withastro/astro/pull/8879) [`754e4fd31`](https://github.com/withastro/astro/commit/754e4fd31ce49eadb2cf4951e941a48d11d10e73) Thanks [@lilnasy](https://github.com/lilnasy)! - The Vercel adapter now streams responses!
+
+  This brings better performance to your visitors by showing them content as it is rendered. The browser can also start loading the required stylesheets and scripts much sooner, which ultimately results in faster full page loads.
+
+## 5.1.0
+
+### Minor Changes
+
+- [#8867](https://github.com/withastro/astro/pull/8867) [`b209e5335`](https://github.com/withastro/astro/commit/b209e533584521c55f88b929f28ea9d5189045f9) Thanks [@lilnasy](https://github.com/lilnasy)! - You can now configure how long your functions can run before timing out.
+
+  ```diff
+  export default defineConfig({
+      output: "server",
+      adapter: vercel({
+  +       maxDuration: 60
+      }),
+  });
+  ```
+
+### Patch Changes
+
+- [#8896](https://github.com/withastro/astro/pull/8896) [`5dd1ed50b`](https://github.com/withastro/astro/commit/5dd1ed50b2f9428946b0b273e0ce8f13c19aa3b5) Thanks [@bluwy](https://github.com/bluwy)! - Prevents the Vercel serverless adapter from generating static redirect pages in hybrid mode
+
+- Updated dependencies [[`26b77b8fe`](https://github.com/withastro/astro/commit/26b77b8fef0e03bfc5550aecaa1f56a4fc1cd297)]:
+  - astro@3.3.4
+
 ## 5.0.2
 
 ### Patch Changes
@@ -531,12 +610,12 @@
 
   ```js
   import { defineConfig } from 'astro/config';
-  export defaultdefineConfig({
-     output: 'hybrid',
-         experimental: {
-         hybridOutput: true,
-     },
-  })
+  export default defineConfig({
+    output: 'hybrid',
+    experimental: {
+      hybridOutput: true,
+    },
+  });
   ```
 
   Then add `export const prerender =  false` to any page or endpoint you want to opt-out of pre-rendering.

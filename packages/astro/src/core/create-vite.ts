@@ -1,21 +1,22 @@
-import type { AstroSettings } from '../@types/astro.js';
-import type { Logger } from './logger/core.js';
-
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
+import type { AstroSettings } from '../@types/astro.js';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
 import {
 	astroContentAssetPropagationPlugin,
 	astroContentImportPlugin,
 	astroContentVirtualModPlugin,
 } from '../content/index.js';
+import astroInternationalization from '../i18n/vite-plugin-i18n.js';
+import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
 import astroTransitions from '../transitions/vite-plugin-transitions.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
+import astroDevOverlay from '../vite-plugin-dev-overlay/vite-plugin-dev-overlay.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
 import astroHeadPlugin from '../vite-plugin-head/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
@@ -28,6 +29,9 @@ import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
+import type { Logger } from './logger/core.js';
+import { createViteLogger } from './logger/vite.js';
+import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
 
 interface CreateViteOptions {
@@ -100,9 +104,11 @@ export async function createVite(
 
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {
+		// Tell Vite not to combine config from vite.config.js with our provided inline config
+		configFile: false,
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', settings.config.root)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
-		logLevel: 'warn', // log warnings and errors only
+		customLogger: createViteLogger(logger, settings.config.vite.logLevel),
 		appType: 'custom',
 		optimizeDeps: {
 			entries: ['src/**/*'],
@@ -126,12 +132,16 @@ export async function createVite(
 			astroHeadPlugin(),
 			astroScannerPlugin({ settings, logger }),
 			astroInjectEnvTsPlugin({ settings, logger, fs }),
-			astroContentVirtualModPlugin({ settings }),
+			astroContentVirtualModPlugin({ fs, settings }),
 			astroContentImportPlugin({ fs, settings }),
 			astroContentAssetPropagationPlugin({ mode, settings }),
+			vitePluginMiddleware({ settings }),
 			vitePluginSSRManifest(),
 			astroAssetsPlugin({ settings, logger, mode }),
-			astroTransitions(),
+			astroPrefetch({ settings }),
+			astroTransitions({ settings }),
+			astroDevOverlay({ settings, logger }),
+			!!settings.config.i18n && astroInternationalization({ settings }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
@@ -170,7 +180,7 @@ export async function createVite(
 				},
 				{
 					find: 'astro:middleware',
-					replacement: 'astro/middleware/namespace',
+					replacement: 'astro/virtual-modules/middleware.js',
 				},
 				{
 					find: 'astro:components',

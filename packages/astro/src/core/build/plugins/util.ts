@@ -1,13 +1,13 @@
 import { extname } from 'node:path';
-import type { Plugin as VitePlugin } from 'vite';
+import type { Rollup, Plugin as VitePlugin } from 'vite';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type OutputOptionsHook = Extract<VitePlugin['outputOptions'], Function>;
 type OutputOptions = Parameters<OutputOptionsHook>[0];
 
 type ExtendManualChunksHooks = {
-	before?: (id: string, meta: any) => string | undefined;
-	after?: (id: string, meta: any) => string | undefined;
+	before?: Rollup.GetManualChunk;
+	after?: Rollup.GetManualChunk;
 };
 
 export function extendManualChunks(outputOptions: OutputOptions, hooks: ExtendManualChunksHooks) {

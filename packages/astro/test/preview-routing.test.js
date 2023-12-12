@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
-describe('Preview Routing', () => {
+describe('Preview Routing', function () {
 	describe('build format: directory', () => {
 		describe('Subpath without trailing slash and trailingSlash: never', () => {
 			/** @type {import('./test-utils').Fixture} */

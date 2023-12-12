@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/underscore-redirects",
   "description": "Utilities to generate _redirects files in Astro projects",
-  "version": "0.3.1",
+  "version": "0.3.3",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -28,8 +28,8 @@
     "test": "mocha --exit --timeout 20000"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.5",
-    "@types/mocha": "^10.0.1",
+    "@types/chai": "^4.3.10",
+    "@types/mocha": "^10.0.4",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",

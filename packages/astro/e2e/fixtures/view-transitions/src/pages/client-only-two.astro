@@ -5,6 +5,6 @@ import Island from '../components/Island';
 <Layout>
 	<p id="page-two">Page 2</p>
 	<div transition:persist="island">
-		<Island client:only count={5}>message here</Island>
+		<Island id="two" client:only="react" count={5}>message here</Island>
 	</div>
 </Layout>

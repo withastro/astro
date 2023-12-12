@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroConfig, AstroSettings } from '../../@types/astro.js';
 import { getContentPaths } from '../../content/index.js';
+import createPreferences from '../../preferences/index.js';
 import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
 import { getDefaultClientDirectives } from '../client-directive/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -13,8 +14,10 @@ import { loadTSConfig } from './tsconfig.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	const { contentDir } = getContentPaths(config);
+	const preferences = createPreferences(config);
 	return {
 		config,
+		preferences,
 		tsConfig: undefined,
 		tsConfigPath: undefined,
 		adapter: undefined,
@@ -97,7 +100,9 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		renderers: [],
 		scripts: [],
 		clientDirectives: getDefaultClientDirectives(),
+		middlewares: { pre: [], post: [] },
 		watchFiles: [],
+		devToolbarApps: [],
 		timer: new AstroTimer(),
 	};
 }

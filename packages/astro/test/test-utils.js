@@ -99,6 +99,8 @@ export async function loadFixture(inlineConfig) {
 
 	// Silent by default during tests to not pollute the console output
 	inlineConfig.logLevel = 'silent';
+	inlineConfig.vite ??= {};
+	inlineConfig.vite.logLevel = 'silent';
 
 	let root = inlineConfig.root;
 	// Handle URL, should already be absolute so just convert to path
@@ -202,6 +204,14 @@ export async function loadFixture(inlineConfig) {
 				recursive: true,
 				force: true,
 			});
+			const contentCache = new URL('./node_modules/.astro/content', config.root);
+			if (fs.existsSync(contentCache)) {
+				await fs.promises.rm(contentCache, {
+					maxRetries: 10,
+					recursive: true,
+					force: true,
+				});
+			}
 		},
 		loadTestAdapterApp: async (streaming) => {
 			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);

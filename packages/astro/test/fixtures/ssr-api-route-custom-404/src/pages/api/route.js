@@ -1,6 +1,4 @@
 
 export function POST() {
-	return {
-		body: JSON.stringify({ ok: true })
-	};
+	return Response.json({ ok: true });
 }

@@ -1,9 +1,9 @@
 import type { AstroConfig } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isRemotePath, joinPaths } from '../../core/path.js';
-import { DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
+import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import { isESMImportedImage, isRemoteAllowed } from '../internal.js';
-import type { ImageOutputFormat, ImageTransform } from '../types.js';
+import type { ImageOutputFormat, ImageTransform, UnresolvedSrcSetValue } from '../types.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -28,12 +28,6 @@ type ImageConfig<T> = Omit<AstroConfig['image'], 'service'> & {
 	service: { entrypoint: string; config: T };
 };
 
-type SrcSetValue = {
-	transform: ImageTransform;
-	descriptor?: string;
-	attributes?: Record<string, any>;
-};
-
 interface SharedServiceProps<T extends Record<string, any> = Record<string, any>> {
 	/**
 	 * Return the URL to the endpoint or URL your images are generated from.
@@ -53,7 +47,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	getSrcSet?: (
 		options: ImageTransform,
 		imageConfig: ImageConfig<T>
-	) => SrcSetValue[] | Promise<SrcSetValue[]>;
+	) => UnresolvedSrcSetValue[] | Promise<UnresolvedSrcSetValue[]>;
 	/**
 	 * Return any additional HTML attributes separate from `src` that your service requires to show the image properly.
 	 *
@@ -102,10 +96,17 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 	 * final image format of the optimized image.
 	 */
 	transform: (
-		inputBuffer: Buffer,
+		inputBuffer: Uint8Array,
 		transform: LocalImageTransform,
 		imageConfig: ImageConfig<T>
-	) => Promise<{ data: Buffer; format: ImageOutputFormat }>;
+	) => Promise<{ data: Uint8Array; format: ImageOutputFormat }>;
+
+	/**
+	 * A list of properties that should be used to generate the hash for the image.
+	 *
+	 * Generally, this should be all the properties that can change the result of the image. By default, this is `src`, `width`, `height`, `quality`, and `format`.
+	 */
+	propertiesToHash?: string[];
 }
 
 export type BaseServiceTransform = {
@@ -137,6 +138,7 @@ export type BaseServiceTransform = {
  *
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
+	propertiesToHash: DEFAULT_HASH_PROPS,
 	validateOptions(options) {
 		// `src` is missing or is `undefined`.
 		if (!options.src || (typeof options.src !== 'string' && typeof options.src !== 'object')) {
@@ -198,6 +200,13 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			if (options.src.format === 'svg') {
 				options.format = 'svg';
 			}
+
+			if (
+				(options.src.format === 'svg' && options.format !== 'svg') ||
+				(options.src.format !== 'svg' && options.format === 'svg')
+			) {
+				throw new AstroError(AstroErrorData.UnsupportedImageConversion);
+			}
 		}
 
 		// If the user didn't specify a format, we'll default to `webp`. It offers the best ratio of compatibility / quality
@@ -205,6 +214,10 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		if (!options.format) {
 			options.format = DEFAULT_OUTPUT_FORMAT;
 		}
+
+		// Sometimes users will pass number generated from division, which can result in floating point numbers
+		if (options.width) options.width = Math.round(options.width);
+		if (options.height) options.height = Math.round(options.height);
 
 		return options;
 	},
@@ -222,17 +235,34 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		};
 	},
 	getSrcSet(options) {
-		const srcSet: SrcSetValue[] = [];
-		const { targetWidth, targetHeight } = getTargetDimensions(options);
+		const srcSet: UnresolvedSrcSetValue[] = [];
+		const { targetWidth } = getTargetDimensions(options);
 		const { widths, densities } = options;
 		const targetFormat = options.format ?? DEFAULT_OUTPUT_FORMAT;
 
-		const aspectRatio = targetWidth / targetHeight;
-		const imageWidth = isESMImportedImage(options.src) ? options.src.width : options.width;
-		const maxWidth = imageWidth ?? Infinity;
+		// For remote images, we don't know the original image's dimensions, so we cannot know the maximum width
+		// It is ultimately the user's responsibility to make sure they don't request images larger than the original
+		let imageWidth = options.width;
+		let maxWidth = Infinity;
 
-		// REFACTOR: Could we merge these two blocks?
+		// However, if it's an imported image, we can use the original image's width as a maximum width
+		if (isESMImportedImage(options.src)) {
+			imageWidth = options.src.width;
+			maxWidth = imageWidth;
+		}
+
+		// Since `widths` and `densities` ultimately control the width and height of the image,
+		// we don't want the dimensions the user specified, we'll create those ourselves.
+		const {
+			width: transformWidth,
+			height: transformHeight,
+			...transformWithoutDimensions
+		} = options;
+
+		// Collect widths to generate from specified densities or widths
+		const allWidths: { maxTargetWidth: number; descriptor: `${number}x` | `${number}w` }[] = [];
 		if (densities) {
+			// Densities can either be specified as numbers, or descriptors (ex: '1x'), we'll convert them all to numbers
 			const densityValues = densities.map((density) => {
 				if (typeof density === 'number') {
 					return density;
@@ -241,64 +271,49 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				}
 			});
 
+			// Calculate the widths for each density, rounding to avoid floats.
 			const densityWidths = densityValues
 				.sort()
 				.map((density) => Math.round(targetWidth * density));
 
-			densityWidths.forEach((width, index) => {
-				const maxTargetWidth = Math.min(width, maxWidth);
-
-				// If the user passed dimensions, we don't want to add it to the srcset
-				const { width: transformWidth, height: transformHeight, ...rest } = options;
-
-				const srcSetValue = {
-					transform: {
-						...rest,
-					},
-					descriptor: `${densityValues[index]}x`,
-					attributes: {
-						type: `image/${targetFormat}`,
-					},
-				};
-
-				// Only set width and height if they are different from the original image, to avoid duplicated final images
-				if (maxTargetWidth !== imageWidth) {
-					srcSetValue.transform.width = maxTargetWidth;
-					srcSetValue.transform.height = Math.round(maxTargetWidth / aspectRatio);
-				}
-
-				if (targetFormat !== options.format) {
-					srcSetValue.transform.format = targetFormat;
-				}
-
-				srcSet.push(srcSetValue);
-			});
+			allWidths.push(
+				...densityWidths.map((width, index) => ({
+					maxTargetWidth: Math.min(width, maxWidth),
+					descriptor: `${densityValues[index]}x` as const,
+				}))
+			);
 		} else if (widths) {
-			widths.forEach((width) => {
-				const maxTargetWidth = Math.min(width, maxWidth);
+			allWidths.push(
+				...widths.map((width) => ({
+					maxTargetWidth: Math.min(width, maxWidth),
+					descriptor: `${width}w` as const,
+				}))
+			);
+		}
 
-				const { width: transformWidth, height: transformHeight, ...rest } = options;
+		// Caution: The logic below is a bit tricky, as we need to make sure we don't generate the same image multiple times
+		// When making changes, make sure to test with different combinations of local/remote images widths, densities, and dimensions etc.
+		for (const { maxTargetWidth, descriptor } of allWidths) {
+			const srcSetTransform: ImageTransform = { ...transformWithoutDimensions };
 
-				const srcSetValue = {
-					transform: {
-						...rest,
-					},
-					descriptor: `${width}w`,
-					attributes: {
-						type: `image/${targetFormat}`,
-					},
-				};
-
-				if (maxTargetWidth !== imageWidth) {
-					srcSetValue.transform.width = maxTargetWidth;
-					srcSetValue.transform.height = Math.round(maxTargetWidth / aspectRatio);
+			// Only set the width if it's different from the original image's width, to avoid generating the same image multiple times
+			if (maxTargetWidth !== imageWidth) {
+				srcSetTransform.width = maxTargetWidth;
+			} else {
+				// If the width is the same as the original image's width, and we have both dimensions, it probably means
+				// it's a remote image, so we'll use the user's specified dimensions to avoid recreating the original image unnecessarily
+				if (options.width && options.height) {
+					srcSetTransform.width = options.width;
+					srcSetTransform.height = options.height;
 				}
+			}
 
-				if (targetFormat !== options.format) {
-					srcSetValue.transform.format = targetFormat;
-				}
-
-				srcSet.push(srcSetValue);
+			srcSet.push({
+				transform: srcSetTransform,
+				descriptor,
+				attributes: {
+					type: `image/${targetFormat}`,
+				},
 			});
 		}
 
@@ -349,6 +364,17 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 	},
 };
 
+/**
+ * Returns the final dimensions of an image based on the user's options.
+ *
+ * For local images:
+ * - If the user specified both width and height, we'll use those.
+ * - If the user specified only one of them, we'll use the original image's aspect ratio to calculate the other.
+ * - If the user didn't specify either, we'll use the original image's dimensions.
+ *
+ * For remote images:
+ * - Widths and heights are always required, so we'll use the user's specified width and height.
+ */
 function getTargetDimensions(options: ImageTransform) {
 	let targetWidth = options.width;
 	let targetHeight = options.height;

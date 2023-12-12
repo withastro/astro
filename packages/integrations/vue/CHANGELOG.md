@@ -1,5 +1,59 @@
 # @astrojs/vue
 
+## 4.0.3
+
+### Patch Changes
+
+- [#9366](https://github.com/withastro/astro/pull/9366) [`1b4e91898`](https://github.com/withastro/astro/commit/1b4e91898116f75b02b66ec402385cf44e559118) Thanks [@lilnasy](https://github.com/lilnasy)! - Updates NPM package to refer to the stable Astro version instead of a beta.
+
+## 4.0.2
+
+### Patch Changes
+
+- [#9333](https://github.com/withastro/astro/pull/9333) [`b832cd190`](https://github.com/withastro/astro/commit/b832cd190199d4269d25d5d6e6b7efb399a69070) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes issue with `appEntrypoint` when running `astro dev`
+
+## 4.0.1
+
+### Patch Changes
+
+- [#8794](https://github.com/withastro/astro/pull/8794) [`4d4e34d45`](https://github.com/withastro/astro/commit/4d4e34d451e351f8a52e04124027850a575ba752) Thanks [@yoyo837](https://github.com/yoyo837)! - Prevents Astro from crashing when no default function is exported from the `appEntrypoint`. Now, the entrypoint will be ignored with a warning instead.
+
+## 4.0.0
+
+### Patch Changes
+
+- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Adds Vite 5 support. There are no breaking changes from Astro. Check the [Vite migration guide](https://vitejs.dev/guide/migration.html) for details of the breaking changes from Vite instead.
+
+## 4.0.0-beta.0
+
+### Patch Changes
+
+- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Adds Vite 5 support. There are no breaking changes from Astro. Check the [Vite migration guide](https://vitejs.dev/guide/migration.html) for details of the breaking changes from Vite instead.
+
+- Updated dependencies [[`abf601233`](https://github.com/withastro/astro/commit/abf601233f8188d118a8cb063c777478d8d9f1a3), [`6201bbe96`](https://github.com/withastro/astro/commit/6201bbe96c2a083fb201e4a43a9bd88499821a3e), [`cdabf6ef0`](https://github.com/withastro/astro/commit/cdabf6ef02be7220fd2b6bdcef924ceca089381e), [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721), [`37697a2c5`](https://github.com/withastro/astro/commit/37697a2c5511572dc29c0a4ea46f90c2f62be8e6), [`bd0c2e9ae`](https://github.com/withastro/astro/commit/bd0c2e9ae3389a9d3085050c1e8134ae98dff299), [`0fe3a7ed5`](https://github.com/withastro/astro/commit/0fe3a7ed5d7bb1a9fce1623e84ba14104b51223c), [`710be505c`](https://github.com/withastro/astro/commit/710be505c9ddf416e77a75343d8cae9c497d72c6), [`153a5abb9`](https://github.com/withastro/astro/commit/153a5abb905042ac68b712514dc9ec387d3e6b17)]:
+  - astro@4.0.0-beta.0
+
+## 3.0.4
+
+### Patch Changes
+
+- [#8998](https://github.com/withastro/astro/pull/8998) [`14e586cc7`](https://github.com/withastro/astro/commit/14e586cc77570b08afae5eeef605e978fec287d8) Thanks [@minht11](https://github.com/minht11)! - Adds editor support for Vue non setup script blocks and Vue 3.3 generics.
+
+## 3.0.3
+
+### Patch Changes
+
+- [#8930](https://github.com/withastro/astro/pull/8930) [`c77f55d9c`](https://github.com/withastro/astro/commit/c77f55d9c075569be018dc1fb5a42c932b9071c7) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an issue where Astro slot names were being rendered as attributes in components. Astro slot names will no longer be sent as props to framework components.
+
+## 3.0.2
+
+### Patch Changes
+
+- [#8860](https://github.com/withastro/astro/pull/8860) [`65c7bd149`](https://github.com/withastro/astro/commit/65c7bd149cf9024f8026a73426d51c76be543cc4) Thanks [@bluwy](https://github.com/bluwy)! - Fix Vue component HMR when updating the script tag
+
+- Updated dependencies [[`5ea6ee0ed`](https://github.com/withastro/astro/commit/5ea6ee0ed494c792a4c94928a83c5c85b9b6ac32), [`5c888c10b`](https://github.com/withastro/astro/commit/5c888c10b712ca60a23e66b88af8051b54b42323), [`ad2bb9155`](https://github.com/withastro/astro/commit/ad2bb9155997380d0880b0c6c7b12f079a031d48), [`326e17893`](https://github.com/withastro/astro/commit/326e178933f7a22f4e897b763832619f168b53dd)]:
+  - astro@3.3.3
+
 ## 3.0.1
 
 ### Patch Changes
@@ -200,7 +254,7 @@
   });
   ```
 
-  ```js
+  ```ts
   // src/pages/_app.ts
   import type { App } from 'vue';
   import i18nPlugin from '../plugins/i18n';

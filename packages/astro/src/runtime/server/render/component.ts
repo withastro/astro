@@ -8,17 +8,16 @@ import { createRenderInstruction, type RenderInstruction } from './instruction.j
 
 import { clsx } from 'clsx';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
-import { HTMLBytes, markHTMLString } from '../escape.js';
+import type { HTMLBytes } from '../escape.js';
+import { markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
 import { isPromise } from '../util.js';
-import {
-	createAstroComponentInstance,
-	isAstroComponentFactory,
-	renderTemplate,
-	type AstroComponentFactory,
-} from './astro/index.js';
+import { isAstroComponentFactory, type AstroComponentFactory } from './astro/factory.js';
+import { renderTemplate } from './astro/index.js';
+import { createAstroComponentInstance } from './astro/instance.js';
+
 import {
 	Fragment,
 	Renderer,
@@ -505,7 +504,7 @@ export async function renderComponentToString(
 				// Automatic doctype and head insertion for pages
 				if (isPage && !renderedFirstPageChunk) {
 					renderedFirstPageChunk = true;
-					if (!/<!doctype html/i.test(String(chunk))) {
+					if (!result.partial && !/<!doctype html/i.test(String(chunk))) {
 						const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
 						str += doctype + head;
 					}
