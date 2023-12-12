@@ -379,7 +379,7 @@ function validateRuntime() {
 	const support = SUPPORTED_NODE_VERSIONS[major];
 	if (support.status === 'beta') {
 		console.warn(
-			`[${PACKAGE_NAME}] The local Node.js version (${major}) is currently in beta by Vercel Serverless Functions.`
+			`[${PACKAGE_NAME}] The local Node.js version (${major}) is currently in beta for Vercel Serverless Functions.`
 		);
 		console.warn(`[${PACKAGE_NAME}] Make sure to update your Vercel settings to use ${major}.`);
 		return;
