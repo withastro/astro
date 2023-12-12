@@ -1,5 +1,14 @@
 # @astrojs/mdx
 
+## 2.0.1
+
+### Patch Changes
+
+- [#9366](https://github.com/withastro/astro/pull/9366) [`1b4e91898`](https://github.com/withastro/astro/commit/1b4e91898116f75b02b66ec402385cf44e559118) Thanks [@lilnasy](https://github.com/lilnasy)! - Updates NPM package to refer to the stable Astro version instead of a beta.
+
+- Updated dependencies [[`270c6cc27`](https://github.com/withastro/astro/commit/270c6cc27f20995883fcdabbff9b56d7f041f9e4)]:
+  - @astrojs/markdown-remark@4.0.1
+
 ## 2.0.0
 
 ### Major Changes

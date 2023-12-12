@@ -88,7 +88,7 @@ To configure this adapter, pass an object to the `vercel()` function call in `as
 ### Web Analytics
 
 **Type:** `VercelWebAnalyticsConfig`<br>
-**Available for:** Serverless, Edge, Static<br>
+**Available for:** Serverless, Static<br>
 **Added in:** `@astrojs/vercel@3.8.0`
 
 You can enable [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics) by setting `webAnalytics: { enabled: true }`. This will inject Vercel’s tracking scripts into all of your pages.
@@ -113,7 +113,7 @@ export default defineConfig({
 You can enable [Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights) by setting `speedInsights: { enabled: true }`. This will collect and send Web Vital data to Vercel.
 
 **Type:** `VercelSpeedInsightsConfig`<br>
-**Available for:** Serverless, Edge, Static<br>
+**Available for:** Serverless, Static<br>
 **Added in:** `@astrojs/vercel@3.8.0`
 
 ```js
@@ -147,7 +147,7 @@ import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel/static';
 
 export default defineConfig({
-  output: 'server',
+  output: 'static',
   adapter: vercel({
     imagesConfig: {
       sizes: [320, 640, 1280],
@@ -170,7 +170,7 @@ import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel/static';
 
 export default defineConfig({
-  output: 'server',
+  output: 'static',
   adapter: vercel({
     imageService: true,
   }),

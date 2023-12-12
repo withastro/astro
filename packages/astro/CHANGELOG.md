@@ -1,5 +1,26 @@
 # astro
 
+## 4.0.4
+
+### Patch Changes
+
+- [#9380](https://github.com/withastro/astro/pull/9380) [`ea0918259`](https://github.com/withastro/astro/commit/ea0918259964947523827bac6abe88ad3841dbb9) Thanks [@ematipico](https://github.com/ematipico)! - Correctly handle the rendering of i18n routes when `output: "hybrid"` is set
+
+- [#9374](https://github.com/withastro/astro/pull/9374) [`65ddb0271`](https://github.com/withastro/astro/commit/65ddb027111514d41481f7455c0f0f03f8f608a8) Thanks [@bluwy](https://github.com/bluwy)! - Fixes an issue where prerendered route paths that end with `.mjs` were removed from the final build
+
+- [#9375](https://github.com/withastro/astro/pull/9375) [`26f7023d6`](https://github.com/withastro/astro/commit/26f7023d6928de75c363df0fa759a6255cb73ef3) Thanks [@bluwy](https://github.com/bluwy)! - Prettifies generated route names injected by integrations
+
+- [#9387](https://github.com/withastro/astro/pull/9387) [`a7c75b333`](https://github.com/withastro/astro/commit/a7c75b3339e6b1562d0d16ab6ef482840c51df68) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes an edge case with `astro add` that could install a prerelease instead of a stable release version.
+
+  **Prior to this change**
+  `astro add svelte` installs `svelte@5.0.0-next.22`
+
+  **After this change**
+  `astro add svelte` installs `svelte@4.2.8`
+
+- Updated dependencies [[`270c6cc27`](https://github.com/withastro/astro/commit/270c6cc27f20995883fcdabbff9b56d7f041f9e4)]:
+  - @astrojs/markdown-remark@4.0.1
+
 ## 4.0.3
 
 ### Patch Changes
