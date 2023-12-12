@@ -377,6 +377,13 @@ function validateRuntime() {
 	const version = process.version.slice(1); // 'v16.5.0' --> '16.5.0'
 	const major = version.split('.')[0]; // '16.5.0' --> '16'
 	const support = SUPPORTED_NODE_VERSIONS[major];
+	if (support.status === 'beta') {
+		console.warn(
+			`[${PACKAGE_NAME}] The local Node.js version (${major}) is currently in beta by Vercel Serverless Functions.`
+		);
+		console.warn(`[${PACKAGE_NAME}] Make sure to update your Vercel settings to use ${major}.`);
+		return;
+	}
 	if (support === undefined) {
 		console.warn(
 			`[${PACKAGE_NAME}] The local Node.js version (${major}) is not supported by Vercel Serverless Functions.`
