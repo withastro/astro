@@ -401,10 +401,6 @@ When you opt in to this feature, there are few constraints to note:
 - Only `request` and `context` may be used to produce an `Astro.locals` object. Operations like redirects, etc. should be delegated to Astro middleware.
 - `Astro.locals` **must be serializable**. Failing to do so will result in a **runtime error**. This means that you **cannot** store complex types like `Map`, `function`, `Set`, etc.
 
-To update the `README.md` file for the `@astrojs/vercel` package to reflect your recent changes, you should include a new section that documents the changes made to the `SUPPORTED_NODE_VERSIONS` and the behavior of the `validateRuntime` function. This will ensure that users are aware of the new Node.js versions supported and the addition of the 'beta' status for certain versions.
-
-Here's a suggested addition to the `README.md` file:
-
 ### Node.js Version Support and Runtime Validation
 
 The `@astrojs/vercel` adapter supports specific Node.js versions for deploying your Astro project on Vercel. The supported versions are categorized as 'current', 'beta', and 'deprecated'. Each category represents the support status of that Node.js version:
