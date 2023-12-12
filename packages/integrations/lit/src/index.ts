@@ -9,7 +9,7 @@ function getViteConfiguration() {
 				'@astrojs/lit/client-shim.js',
 				'@astrojs/lit/hydration-support.js',
 				'@webcomponents/template-shadowroot/template-shadowroot.js',
-				'lit/experimental-hydrate-support.js',
+				"@lit-labs/ssr-client/lit-element-hydrate-support.js",
 			],
 			exclude: ['@astrojs/lit/server.js'],
 		},
