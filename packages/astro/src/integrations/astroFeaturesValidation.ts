@@ -104,7 +104,7 @@ function featureIsExperimental(adapterName: string, logger: Logger, featureName:
 	);
 }
 
-function featureIsDeprecated(adapterName: string , logger: Logger, featureName: string,) {
+function featureIsDeprecated(adapterName: string, logger: Logger, featureName: string) {
 	logger.warn(
 		'config',
 		`The feature "${featureName}" is deprecated and will be removed in the future (used by ${adapterName}).`
