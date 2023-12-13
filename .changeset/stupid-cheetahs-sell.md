@@ -2,4 +2,4 @@
 '@astrojs/vercel': minor
 ---
 
-Update supported Node versions and add `beta` option.
+Adds support for Node 20 (currently in `beta` on Vercel).
