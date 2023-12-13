@@ -15,25 +15,43 @@ export enum DiagnosticCodes {
 
 export function enhancedProvideSemanticDiagnostics(
 	originalDiagnostics: Diagnostic[],
-	documentLineCount: number
+	astroLineCount?: number | undefined
 ) {
 	const diagnostics = originalDiagnostics
 		.filter(
 			(diagnostic) =>
-				diagnostic.range.start.line <= documentLineCount &&
+				(astroLineCount ? diagnostic.range.start.line <= astroLineCount : true) &&
 				isNoCantReturnOutsideFunction(diagnostic) &&
 				isNoIsolatedModuleError(diagnostic) &&
 				isNoJsxCannotHaveMultipleAttrsError(diagnostic)
 		)
-		.map(enhanceIfNecessary);
+		.map((diag) =>
+			astroLineCount ? generalEnhancements(astroEnhancements(diag)) : generalEnhancements(diag)
+		);
 
 	return diagnostics;
 }
 
+// General enhancements that apply to all files
+function generalEnhancements(diagnostic: Diagnostic) {
+	if (
+		diagnostic.code === DiagnosticCodes.CANNOT_FIND_MODULE &&
+		diagnostic.message.includes('astro:content')
+	) {
+		diagnostic.message +=
+			"\n\nIf you're using content collections, make sure to run `astro dev`, `astro build` or `astro sync` to first generate the types so you can import from them. If you already ran one of those commands, restarting the language server might be necessary in order for the change to take effect.";
+
+		return diagnostic;
+	}
+
+	return diagnostic;
+}
+
 /**
- * Some diagnostics have JSX-specific nomenclature or unclear description. Enhance them for more clarity.
+ * Astro-specific enhancements. For instance, when the user tries to import a component from a framework that is not installed
+ * or a difference with JSX needing a different error message
  */
-function enhanceIfNecessary(diagnostic: Diagnostic): Diagnostic {
+function astroEnhancements(diagnostic: Diagnostic): Diagnostic {
 	// When the language integrations are not installed, the content of the imported snapshot is empty
 	// As such, it triggers the "is not a module error", which we can enhance with a more helpful message for the related framework
 	if (diagnostic.code === DiagnosticCodes.IS_NOT_A_MODULE) {
@@ -46,16 +64,6 @@ function enhanceIfNecessary(diagnostic: Diagnostic): Diagnostic {
 			diagnostic.message +=
 				'\n\nIs the `@astrojs/vue` package installed? You can add it to your project by running the following command: `astro add vue`. If already installed, restarting the language server might be necessary in order for the change to take effect.';
 		}
-
-		return diagnostic;
-	}
-
-	if (
-		diagnostic.code === DiagnosticCodes.CANNOT_FIND_MODULE &&
-		diagnostic.message.includes('astro:content')
-	) {
-		diagnostic.message +=
-			"\n\nIf you're using content collections, make sure to run `astro dev`, `astro build` or `astro sync` to first generate the types so you can import from them. If you already ran one of those commands, restarting the language server might be necessary in order for the change to take effect.";
 
 		return diagnostic;
 	}

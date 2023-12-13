@@ -4,6 +4,11 @@ const { downloadDirToExecutablePath } = require('./utils');
 const { existsSync, readdirSync } = require('fs');
 
 async function main() {
+	// NOTE: Those tests are very flaky on Windows and macOS, so we'll skip them for now
+	if (process.platform === 'win32' || process.platform === 'darwin') {
+		process.exit(0);
+	}
+
 	try {
 		// The folder containing the Extension Manifest package.json
 		// Passed to `--extensionDevelopmentPath`

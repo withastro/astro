@@ -136,20 +136,22 @@ export const create =
 			async provideSemanticDiagnostics(document, token) {
 				const [_, source] = context.documents.getVirtualFileByUri(document.uri);
 				const file = source?.root;
-				if (!(file instanceof AstroFile)) return null;
+				let astroDocument = undefined;
 
-				// If we have compiler errors, our TSX isn't valid so don't bother showing TS errors
-				if (file.hasCompilationErrors) return null;
+				if (file instanceof AstroFile) {
+					// If we have compiler errors, our TSX isn't valid so don't bother showing TS errors
+					if (file.hasCompilationErrors) return null;
+
+					astroDocument = context.documents.getDocumentByFileName(
+						file.snapshot,
+						file.sourceFileName
+					);
+				}
 
 				const diagnostics = await typeScriptPlugin.provideSemanticDiagnostics!(document, token);
 				if (!diagnostics) return null;
 
-				const astroDocument = context.documents.getDocumentByFileName(
-					file.snapshot,
-					file.sourceFileName
-				);
-
-				return enhancedProvideSemanticDiagnostics(diagnostics, astroDocument.lineCount);
+				return enhancedProvideSemanticDiagnostics(diagnostics, astroDocument?.lineCount);
 			},
 		};
 	};

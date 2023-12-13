@@ -21,7 +21,7 @@ describe('AstroCheck', async () => {
 
 	it('Can check files and return errors', async () => {
 		expect(result).to.not.be.undefined;
-		expect(result.fileResult).to.have.lengthOf(3);
+		expect(result.fileResult).to.have.lengthOf(4);
 	});
 
 	it("Returns the file's URL", async () => {
@@ -37,13 +37,13 @@ describe('AstroCheck', async () => {
 	});
 
 	it('Can return the total amount of errors, warnings and hints', async () => {
-		expect(result.errors).to.equal(1);
+		expect(result.errors).to.equal(2);
 		expect(result.warnings).to.equal(1);
 		expect(result.hints).to.equal(1);
 	});
 
 	it('Can return the total amount of files checked', async () => {
-		expect(result.fileChecked).to.equal(4);
+		expect(result.fileChecked).to.equal(5);
 	});
 
 	it('Can return the status of the check', async () => {
