@@ -90,8 +90,9 @@ export async function handleRequest({
 			});
 		},
 		onError(_err) {
-			const err = recordServerError(moduleLoader, config, pipeline, _err);
-			return err;
+			const { error, errorWithMetadata } = recordServerError(moduleLoader, config, pipeline, _err);
+			handle500Response(moduleLoader, incomingResponse, errorWithMetadata);
+			return error;
 		},
 	});
 }

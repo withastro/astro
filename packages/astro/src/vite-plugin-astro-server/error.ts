@@ -7,7 +7,7 @@ import { createSafeError } from '../core/errors/index.js';
 import { formatErrorMessage } from '../core/messages.js';
 import { eventError, telemetry } from '../events/index.js';
 
-export function recordServerError(loader: ModuleLoader, config: AstroConfig, pipeline: DevPipeline, _err: unknown): Error {
+export function recordServerError(loader: ModuleLoader, config: AstroConfig, pipeline: DevPipeline, _err: unknown) {
 	const err = createSafeError(_err);
 
 	// This could be a runtime error from Vite's SSR module, so try to fix it here
@@ -26,5 +26,8 @@ export function recordServerError(loader: ModuleLoader, config: AstroConfig, pip
 		formatErrorMessage(errorWithMetadata, pipeline.logger.level() === 'debug')
 	);
 
-	return err;
+	return {
+		error: err,
+		errorWithMetadata
+	};
 }
