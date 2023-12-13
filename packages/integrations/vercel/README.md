@@ -403,11 +403,9 @@ When you opt in to this feature, there are few constraints to note:
 
 ### Node.js Version Support
 
-The `@astrojs/vercel` adapter supports specific Node.js versions for deploying your Astro project on Vercel. To view the supported Node.js versions, click on the settings tab for a project and scroll down to "Node.js Version" section. The supported versions are categorized as 'current', 'beta', and 'deprecated'. Each category represents the support status of that Node.js version:
+The `@astrojs/vercel` adapter supports specific Node.js versions for deploying your Astro project on Vercel. To view the supported Node.js versions on Vercel, click on the settings tab for a project and scroll down to "Node.js Version" section.
 
-- **Current**: Fully supported and recommended for use.
-- **Beta**: Newer versions that are in beta. These are available for testing and early adoption.
-- **Deprecated**: Versions that are no longer recommended and scheduled for removal on a specific date.
+Check out the [Vercel documentation](https://vercel.com/docs/functions/serverless-functions/runtimes/node-js#default-and-available-versions) to learn more.
 
 ## Troubleshooting
 
