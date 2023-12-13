@@ -32,11 +32,11 @@ function getMatchPattern(segments: RoutePart[][]) {
 											.replace(/#/g, '%23')
 											.replace(/%5B/g, '[')
 											.replace(/%5D/g, ']')
-											.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+											.replace(/[*+?^${}()|[\]\\]/g, '\\$&');
 						})
 						.join('');
 		})
-		.join('');
+		.join('/');
 }
 
 function getReplacePattern(segments: RoutePart[][]) {

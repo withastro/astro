@@ -158,6 +158,12 @@ describe('Astro basics', () => {
 			expect(content2).to.be.ok;
 		});
 
+		it('allows file:// urls as module specifiers', async () => {
+			const html = await fixture.readFile('/fileurl/index.html');
+			const $ = cheerio.load(html);
+			expect($('h1').text()).to.equal('WORKS');
+		});
+
 		describe('preview', () => {
 			it('returns 200 for valid URLs', async () => {
 				const result = await fixture.fetch('/');

@@ -42,9 +42,9 @@
     "test": "mocha"
   },
   "dependencies": {
-    "@lit-labs/ssr": "3.1.7",
-    "@lit-labs/ssr-client": "1.1.3",
-    "@lit-labs/ssr-dom-shim": "^1.1.1",
+    "@lit-labs/ssr": "^3.2.0",
+    "@lit-labs/ssr-client": "^1.1.5",
+    "@lit-labs/ssr-dom-shim": "^1.1.2",
     "parse5": "^7.1.2"
   },
   "overrides": {
@@ -57,13 +57,13 @@
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
-    "lit": "^2.8.0",
+    "lit": "^3.1.0",
     "mocha": "^10.2.0",
     "sass": "^1.69.5"
   },
   "peerDependencies": {
     "@webcomponents/template-shadowroot": "^0.2.1",
-    "lit": "^2.7.0"
+    "lit": "^3.1.0"
   },
   "publishConfig": {
     "provenance": true
