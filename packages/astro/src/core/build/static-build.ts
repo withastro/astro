@@ -352,7 +352,7 @@ async function runPostBuildHooks(
 			? mutation.targets.includes('server')
 				? build.server
 				: build.client
-			: config.outDir;
+			: getOutDirWithinCwd(config.outDir);
 		const fullPath = path.join(fileURLToPath(root), fileName);
 		const fileURL = pathToFileURL(fullPath);
 		await fs.promises.mkdir(new URL('./', fileURL), { recursive: true });
