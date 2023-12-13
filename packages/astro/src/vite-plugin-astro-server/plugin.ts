@@ -10,6 +10,7 @@ import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
 import DevPipeline from './devPipeline.js';
 import { handleRequest } from './request.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -42,6 +43,16 @@ export default function createVitePluginAstroServer({
 			viteServer.watcher.on('add', rebuildManifest.bind(null, true));
 			viteServer.watcher.on('unlink', rebuildManifest.bind(null, true));
 			viteServer.watcher.on('change', rebuildManifest.bind(null, false));
+
+			function handleUnhandledRejection(rejection: any) {
+				const error = new AstroError({
+					...AstroErrorData.UnhandledRejection,
+					message: AstroErrorData.UnhandledRejection.message(rejection?.stack || rejection)
+				})
+				logger.error(null, error.message);
+			}
+
+			process.on('unhandledRejection', handleUnhandledRejection);
 
 			return () => {
 				// Push this middleware to the front of the stack so that it can intercept responses.
