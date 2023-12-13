@@ -11,6 +11,7 @@ import { createController } from './controller.js';
 import DevPipeline from './devPipeline.js';
 import { handleRequest } from './request.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { IncomingMessage } from 'node:http';
 import { setRouteError } from './server-state.js';
@@ -58,9 +59,9 @@ export default function createVitePluginAstroServer({
 				if(store instanceof IncomingMessage) {
 					const request = store;
 					setRouteError(controller.state, request.url!, error);
-					loader.clientReload();
 				}
-				recordServerError(loader, settings.config, pipeline, error);
+				const { errorWithMetadata } = recordServerError(loader, settings.config, pipeline, error);
+				setTimeout(async () => loader.webSocketSend(await getViteErrorPayload(errorWithMetadata)), 200)
 			}
 
 			process.on('unhandledRejection', handleUnhandledRejection);
