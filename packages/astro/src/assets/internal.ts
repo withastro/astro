@@ -79,10 +79,14 @@ export async function getImage(
 			message: AstroErrorData.ExpectedImageOptions.message(JSON.stringify(options)),
 		});
 	}
-	if(typeof options.src === 'undefined') {
+	if (typeof options.src === 'undefined') {
 		throw new AstroError({
 			...AstroErrorData.ExpectedImage,
-			message: AstroErrorData.ExpectedImage.message(options.src, 'undefined', JSON.stringify(options))
+			message: AstroErrorData.ExpectedImage.message(
+				options.src,
+				'undefined',
+				JSON.stringify(options)
+			),
 		});
 	}
 
