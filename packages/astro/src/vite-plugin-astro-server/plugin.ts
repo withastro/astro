@@ -11,6 +11,10 @@ import { createController } from './controller.js';
 import DevPipeline from './devPipeline.js';
 import { handleRequest } from './request.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AsyncLocalStorage } from 'node:async_hooks';
+import { IncomingMessage } from 'node:http';
+import { setRouteError } from './server-state.js';
+import { recordServerError } from './error.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -31,6 +35,7 @@ export default function createVitePluginAstroServer({
 			const pipeline = new DevPipeline({ logger, manifest, settings, loader });
 			let manifestData: ManifestData = createRouteManifest({ settings, fsMod }, logger);
 			const controller = createController({ loader });
+			const localStorage = new AsyncLocalStorage();
 
 			/** rebuild the route cache + manifest, as needed. */
 			function rebuildManifest(needsManifestRebuild: boolean) {
@@ -48,8 +53,14 @@ export default function createVitePluginAstroServer({
 				const error = new AstroError({
 					...AstroErrorData.UnhandledRejection,
 					message: AstroErrorData.UnhandledRejection.message(rejection?.stack || rejection)
-				})
-				logger.error(null, error.message);
+				});
+				const store = localStorage.getStore();
+				if(store instanceof IncomingMessage) {
+					const request = store;
+					setRouteError(controller.state, request.url!, error);
+					loader.clientReload();
+				}
+				recordServerError(loader, settings.config, pipeline, error);
 			}
 
 			process.on('unhandledRejection', handleUnhandledRejection);
@@ -68,13 +79,15 @@ export default function createVitePluginAstroServer({
 						response.end();
 						return;
 					}
-					handleRequest({
-						pipeline,
-						manifestData,
-						controller,
-						incomingRequest: request,
-						incomingResponse: response,
-						manifest,
+					localStorage.run(request, () => {
+						handleRequest({
+							pipeline,
+							manifestData,
+							controller,
+							incomingRequest: request,
+							incomingResponse: response,
+							manifest,
+						});
 					});
 				});
 			};

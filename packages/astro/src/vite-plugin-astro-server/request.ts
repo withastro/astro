@@ -11,6 +11,7 @@ import { runWithErrorHandling } from './controller.js';
 import type DevPipeline from './devPipeline.js';
 import { handle500Response } from './response.js';
 import { handleRoute, matchRoute } from './route.js';
+import { recordServerError } from './error.js';
 
 type HandleRequest = {
 	pipeline: DevPipeline;
@@ -89,25 +90,7 @@ export async function handleRequest({
 			});
 		},
 		onError(_err) {
-			const err = createSafeError(_err);
-
-			// This could be a runtime error from Vite's SSR module, so try to fix it here
-			try {
-				moduleLoader.fixStacktrace(err);
-			} catch {}
-
-			// This is our last line of defense regarding errors where we still might have some information about the request
-			// Our error should already be complete, but let's try to add a bit more through some guesswork
-			const errorWithMetadata = collectErrorMetadata(err, config.root);
-
-			telemetry.record(eventError({ cmd: 'dev', err: errorWithMetadata, isFatal: false }));
-
-			pipeline.logger.error(
-				null,
-				formatErrorMessage(errorWithMetadata, pipeline.logger.level() === 'debug')
-			);
-			handle500Response(moduleLoader, incomingResponse, errorWithMetadata);
-
+			const err = recordServerError(moduleLoader, config, pipeline, _err);
 			return err;
 		},
 	});
