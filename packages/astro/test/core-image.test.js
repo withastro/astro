@@ -640,14 +640,13 @@ describe('astro:image', () => {
 			expect(logs[0].message).to.contain('Expected getImage() parameter');
 		});
 
-		// TODO: For some reason, this error crashes the dev server?
-		it.skip('properly error when src is undefined', async () => {
+		it('properly error when src is undefined', async () => {
 			logs.length = 0;
 			let res = await fixture.fetch('/get-image-undefined');
 			await res.text();
 
 			expect(logs).to.have.a.lengthOf(1);
-			expect(logs[0].message).to.contain('Expected src to be an image.');
+			expect(logs[0].message).to.contain('Expected `src` property');
 		});
 
 		it('properly error image in Markdown frontmatter is not found', async () => {
