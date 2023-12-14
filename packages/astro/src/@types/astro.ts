@@ -2262,8 +2262,15 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 		}>;
 		supportsAstroStaticSlot?: boolean;
 		/**
-		 * If set, allowes the renderer to print a specific hydration script before
-		 * the first hydrated island
+		 * If provided, Astro will call this function and inject the returned
+		 * script in the HTML before the first component handled by this renderer.
+		 *
+		 * This feature is needed by some renderers (in particular, by Solid). The
+		 * Solid official hydration script sets up a page-level data structure.
+		 * It is mainly used to transfer data between the server side render phase
+		 * and the browser application state. Solid Components rendered later in
+		 * the HTML may inject tiny scripts into the HTML that call into this
+		 * page-level data structure.
 		 */
 		renderHydrationScript?: () => string;
 	};
@@ -2486,9 +2493,11 @@ export interface SSRResult {
 export interface SSRMetadata {
 	hasHydrationScript: boolean;
 	/**
-	 * Keep track of which renderers already injected their specific hydration script
+	 * Names of renderers that have injected their hydration scripts
+	 * into the current page. For example, Solid SSR needs a hydration
+	 * script in the page HTML before the first Solid component.
 	 */
-	hasRendererSpecificHydrationScript: Record<string, boolean>;
+	rendererSpecificHydrationScripts: Set<string>;
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	headInTree: boolean;

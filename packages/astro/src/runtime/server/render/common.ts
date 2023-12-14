@@ -89,9 +89,12 @@ function stringifyChunk(
 				}
 				return renderAllHeadContent(result);
 			}
-			case 'renderer-hydration': {
-				if (!result._metadata.hasRendererSpecificHydrationScript[instruction.rendererName]) {
-					result._metadata.hasRendererSpecificHydrationScript[instruction.rendererName] = true;
+			case 'renderer-hydration-script': {
+				const { rendererSpecificHydrationScripts } = result._metadata;
+				const { rendererName } = instruction;
+
+				if (!rendererSpecificHydrationScripts.has(rendererName)) {
+					rendererSpecificHydrationScripts.add(rendererName);
 					return instruction.render();
 				}
 				return '';

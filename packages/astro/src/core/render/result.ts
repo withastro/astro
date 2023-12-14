@@ -274,12 +274,12 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		response,
 		_metadata: {
 			hasHydrationScript: false,
+			rendererSpecificHydrationScripts: new Set(),
 			hasRenderedHead: false,
 			hasDirectives: new Set(),
 			headInTree: false,
 			extraHead: [],
 			propagators: new Set(),
-			hasRendererSpecificHydrationScript: {},
 		},
 	};
 

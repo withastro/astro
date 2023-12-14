@@ -15,8 +15,8 @@ export type RenderHeadInstruction = {
  * Render a renderer-specific hydration script before the first component of that
  * framework
  */
-export type RendererHydrationInstruction = {
-	type: 'renderer-hydration';
+export type RendererHydrationScriptInstruction = {
+	type: 'renderer-hydration-script';
 	rendererName: string;
 	render: () => string;
 };
@@ -29,14 +29,14 @@ export type RenderInstruction =
 	| RenderDirectiveInstruction
 	| RenderHeadInstruction
 	| MaybeRenderHeadInstruction
-	| RendererHydrationInstruction;
+	| RendererHydrationScriptInstruction;
 
 export function createRenderInstruction(
 	instruction: RenderDirectiveInstruction
 ): RenderDirectiveInstruction;
 export function createRenderInstruction(
-	instruction: RendererHydrationInstruction
-): RendererHydrationInstruction;
+	instruction: RendererHydrationScriptInstruction
+): RendererHydrationScriptInstruction;
 export function createRenderInstruction(instruction: RenderHeadInstruction): RenderHeadInstruction;
 export function createRenderInstruction(
 	instruction: MaybeRenderHeadInstruction

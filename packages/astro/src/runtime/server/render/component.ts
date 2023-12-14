@@ -378,9 +378,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 			if (hydration.directive !== 'only' && renderer?.ssr.renderHydrationScript) {
 				destination.write(
 					createRenderInstruction({
-						type: 'renderer-hydration',
+						type: 'renderer-hydration-script',
 						rendererName: renderer.name,
-						render: renderer?.ssr.renderHydrationScript,
+						render: renderer.ssr.renderHydrationScript,
 					})
 				);
 			}
