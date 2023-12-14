@@ -61,7 +61,11 @@ const ASTRO_CONFIG_DEFAULTS = {
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
-type RoutingStrategies = 'prefix-always' | 'prefix-other-locales';
+type RoutingStrategies =
+	| 'prefix-always'
+	| 'prefix-other-locales'
+	| 'domains-prefix-default'
+	| 'domains';
 
 export const AstroConfigSchema = z.object({
 	root: z
@@ -329,7 +333,7 @@ export const AstroConfigSchema = z.object({
 				routing: z
 					.object({
 						prefixDefaultLocale: z.boolean().default(false),
-						strategy: z.enum(['pathname']).default('pathname'),
+						strategy: z.enum(['pathname', 'domains']).default('pathname'),
 					})
 					.default({})
 					.transform((routing) => {
@@ -342,6 +346,13 @@ export const AstroConfigSchema = z.object({
 									strategy = 'prefix-other-locales';
 								}
 							}
+							case 'domains': {
+								if (routing.prefixDefaultLocale === true) {
+									strategy = 'domains-prefix-default';
+								} else {
+									strategy = 'domains';
+								}
+							}
 						}
 						return strategy;
 					}),
@@ -349,7 +360,7 @@ export const AstroConfigSchema = z.object({
 			.optional()
 			.superRefine((i18n, ctx) => {
 				if (i18n) {
-					const { defaultLocale, locales: _locales, fallback, domains, routingStrategy } = i18n;
+					const { defaultLocale, locales: _locales, fallback, domains, routing } = i18n;
 					const locales = _locales.map((locale) => {
 						if (typeof locale === 'string') {
 							return locale;
@@ -379,48 +390,49 @@ export const AstroConfigSchema = z.object({
 								});
 							}
 
-									if (!locales.includes(fallbackTo)) {
-										ctx.addIssue({
-											code: z.ZodIssueCode.custom,
-											message: `The locale \`${fallbackTo}\` value in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
-										});
-									}
-								}
-							}
-							if (domains) {
-								const entries = Object.entries(domains);
-								if (entries.length > 0) {
-									if (routingStrategy !== 'domain') {
-										ctx.addIssue({
-											code: z.ZodIssueCode.custom,
-											message: `When specifying some domains, the property \`i18n.routingStrategy\` must be set to \`"domain"\`.`,
-										});
-									}
-								}
-
-								for (const [domainKey, domainValue] of Object.entries(domains)) {
-									if (!locales.includes(domainKey)) {
-										ctx.addIssue({
-											code: z.ZodIssueCode.custom,
-											message: `The locale \`${domainKey}\` key in the \`i18n.domains\` record doesn't exist in the \`i18n.locales\` array.`,
-										});
-									}
-									try {
-										const domainUrl = new URL(domainValue);
-										if (domainUrl.pathname !== '/') {
-											ctx.addIssue({
-												code: z.ZodIssueCode.custom,
-												message: `The URL \`${domainValue}\` must contain only the origin. A subsequent pathname isn't allowed here. Remove \`${domainUrl.pathname}\`.`,
-											});
-										}
-									} catch {
-										// no need to catch the error
-									}
-								}
+							if (!locales.includes(fallbackTo)) {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message: `The locale \`${fallbackTo}\` value in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+								});
 							}
 						}
-					})
-			),experimental: z
+					}
+					if (domains) {
+						const entries = Object.entries(domains);
+						if (entries.length > 0) {
+							if (routing !== 'domain') {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message: `When specifying some domains, the property \`i18n.routingStrategy\` must be set to \`"domain"\`.`,
+								});
+							}
+						}
+
+						for (const [domainKey, domainValue] of Object.entries(domains)) {
+							if (!locales.includes(domainKey)) {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message: `The locale \`${domainKey}\` key in the \`i18n.domains\` record doesn't exist in the \`i18n.locales\` array.`,
+								});
+							}
+							try {
+								const domainUrl = new URL(domainValue);
+								if (domainUrl.pathname !== '/') {
+									ctx.addIssue({
+										code: z.ZodIssueCode.custom,
+										message: `The URL \`${domainValue}\` must contain only the origin. A subsequent pathname isn't allowed here. Remove \`${domainUrl.pathname}\`.`,
+									});
+								}
+							} catch {
+								// no need to catch the error
+							}
+						}
+					}
+				}
+			})
+	),
+	experimental: z
 		.object({
 			optimizeHoistedScript: z
 				.boolean()
