@@ -2,4 +2,4 @@
 'astro': minor
 ---
 
-add tunnel flag for dev command
+add tunnel flag for astro cli
