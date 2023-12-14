@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Update warning for external URL redirects to use destination address
+Fixes warning for external URL redirects
