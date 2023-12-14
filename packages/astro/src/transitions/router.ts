@@ -9,15 +9,21 @@ type State = {
 };
 type Events = 'astro:page-load' | 'astro:after-swap';
 
+// Create bound versions of pushState/replaceState so that Partytown doesn't hijack them,
+// which breaks Firefox.
+const inBrowser = import.meta.env.SSR === false;
+const pushState = (inBrowser && history.pushState.bind(history)) as typeof history.pushState;
+const replaceState = (inBrowser && history.replaceState.bind(history)) as typeof history.replaceState;
+
 // only update history entries that are managed by us
 // leave other entries alone and do not accidently add state.
 export const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) => {
 	if (history.state) {
 		history.scrollRestoration = 'manual';
-		history.replaceState({ ...history.state, ...positions }, '');
+		replaceState({ ...history.state, ...positions }, '');
 	}
 };
-const inBrowser = import.meta.env.SSR === false;
+
 
 export const supportsViewTransitions = inBrowser && !!document.startViewTransition;
 
@@ -79,7 +85,7 @@ if (inBrowser) {
 	} else if (transitionEnabledOnThisPage()) {
 		// This page is loaded from the browser addressbar or via a link from extern,
 		// it needs a state in the history
-		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
+		replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
 		history.scrollRestoration = 'manual';
 	}
 }
@@ -170,7 +176,7 @@ const moveToLocation = (to: URL, from: URL, options: Options, historyState?: Sta
 	if (to.href !== location.href && !historyState) {
 		if (options.history === 'replace') {
 			const current = history.state;
-			history.replaceState(
+			replaceState(
 				{
 					...options.state,
 					index: current.index,
@@ -181,7 +187,7 @@ const moveToLocation = (to: URL, from: URL, options: Options, historyState?: Sta
 				to.href
 			);
 		} else {
-			history.pushState(
+			pushState(
 				{ ...options.state, index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
 				'',
 				to.href
