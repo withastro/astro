@@ -384,6 +384,21 @@ type ServerConfig = {
 	 * ```
 	 */
 	open?: boolean;
+
+	/**
+	 * @name server.tunnel
+	 * @type {boolean}
+	 * @default `false`
+	 * @description
+	 * Control whether the dev server should tunnel to the internet.
+	 *
+	 * ```js
+	 * {
+	 *   server: { tunnel: true }
+	 * }
+	 * ```
+	 */
+	tunnel?: boolean;
 };
 
 export interface ViteUserConfig extends vite.UserConfig {
@@ -1028,6 +1043,20 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   server: { open: true }
+	 * }
+	 * ```
+	 */
+
+	/**
+	 * @name server.tunnel
+	 * @type {boolean}
+	 * @default `false`
+	 * @description
+	 * Control whether the dev server should tunnel to the internet.
+	 *
+	 * ```js
+	 * {
+	 *   server: { tunnel: true }
 	 * }
 	 * ```
 	 */
