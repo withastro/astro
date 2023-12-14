@@ -1,7 +1,6 @@
 import type * as http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
-import type { Tunnel } from 'untun';
 import nodeFs from 'node:fs';
 import * as vite from 'vite';
 import { injectImageEndpoint } from '../../assets/internal.js';
@@ -14,6 +13,7 @@ import {
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
+import type { TCreateTunnel } from '../tunnel.js';
 
 export interface Container {
 	fs: typeof nodeFs;
@@ -24,7 +24,7 @@ export interface Container {
 	restartInFlight: boolean; // gross
 	handle: (req: http.IncomingMessage, res: http.ServerResponse) => void;
 	close: () => Promise<void>;
-	tunnel: { tunnelInstance: Tunnel | undefined; tunnelUrl: string | undefined };
+	tunnel?: Partial<TCreateTunnel>;
 }
 
 export interface CreateContainerParams {
@@ -79,17 +79,14 @@ export async function createContainer({
 	await runHookConfigDone({ settings, logger });
 	const viteServer = await vite.createServer(viteConfig);
 
-	let tunnelInstance: Tunnel | undefined;
-	let tunnelUrl: string | undefined;
+	let tunnel: Partial<TCreateTunnel> | undefined;
 
 	if (isTunnelEnabled) {
-		const { startTunnel } = await import('untun');
+		const { createTunnel } = await import('../tunnel.js');
 
-		tunnelInstance = await startTunnel({
+		tunnel = await createTunnel({
 			port: settings.config.server.port,
 		});
-
-		tunnelUrl = await tunnelInstance?.getURL();
 	}
 
 	const container: Container = {
@@ -99,10 +96,7 @@ export async function createContainer({
 		restartInFlight: false,
 		settings,
 		viteServer,
-		tunnel: {
-			tunnelInstance,
-			tunnelUrl,
-		},
+		tunnel,
 		handle(req, res) {
 			viteServer.middlewares.handle(req, res, Function.prototype);
 		},
@@ -122,8 +116,8 @@ async function closeContainer({ viteServer, settings, logger, tunnel }: Containe
 		logger,
 	});
 
-	if (tunnel.tunnelInstance) {
-		await tunnel.tunnelInstance.close().catch(() => {});
+	if (tunnel?.tunnelInstance) {
+		await tunnel?.tunnelInstance.close().catch(() => {});
 	}
 }
 

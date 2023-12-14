@@ -42,7 +42,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			resolvedUrls: restart.container.viteServer.resolvedUrls || { local: [], network: [] },
 			host: restart.container.settings.config.server.host,
 			base: restart.container.settings.config.base,
-			tunnelUrl: restart.container.tunnel.tunnelUrl,
+			tunnelUrl: restart.container?.tunnel?.tunnelUrl,
 		})
 	);
 
