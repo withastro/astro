@@ -11,8 +11,9 @@ type Events = 'astro:page-load' | 'astro:after-swap';
 
 // Create bound versions of pushState/replaceState so that Partytown doesn't hijack them,
 // which breaks Firefox.
-const pushState = history.pushState.bind(history);
-const replaceState = history.replaceState.bind(history);
+const inBrowser = import.meta.env.SSR === false;
+const pushState = (inBrowser && history.pushState.bind(history)) as typeof history.pushState;
+const replaceState = (inBrowser && history.replaceState.bind(history)) as typeof history.replaceState;
 
 // only update history entries that are managed by us
 // leave other entries alone and do not accidently add state.
@@ -22,7 +23,7 @@ export const updateScrollPosition = (positions: { scrollX: number; scrollY: numb
 		replaceState({ ...history.state, ...positions }, '');
 	}
 };
-const inBrowser = import.meta.env.SSR === false;
+
 
 export const supportsViewTransitions = inBrowser && !!document.startViewTransition;
 
