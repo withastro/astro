@@ -167,6 +167,7 @@
     "strip-ansi": "^7.1.0",
     "tsconfck": "^3.0.0",
     "unist-util-visit": "^5.0.0",
+    "untun": "^0.1.2",
     "vfile": "^6.0.1",
     "vite": "^5.0.0",
     "vitefu": "^0.2.5",
