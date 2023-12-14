@@ -13,7 +13,8 @@ type Events = 'astro:page-load' | 'astro:after-swap';
 // which breaks Firefox.
 const inBrowser = import.meta.env.SSR === false;
 const pushState = (inBrowser && history.pushState.bind(history)) as typeof history.pushState;
-const replaceState = (inBrowser && history.replaceState.bind(history)) as typeof history.replaceState;
+const replaceState = (inBrowser &&
+	history.replaceState.bind(history)) as typeof history.replaceState;
 
 // only update history entries that are managed by us
 // leave other entries alone and do not accidently add state.
@@ -23,7 +24,6 @@ export const updateScrollPosition = (positions: { scrollX: number; scrollY: numb
 		replaceState({ ...history.state, ...positions }, '');
 	}
 };
-
 
 export const supportsViewTransitions = inBrowser && !!document.startViewTransition;
 
