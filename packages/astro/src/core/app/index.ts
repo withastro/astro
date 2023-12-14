@@ -411,12 +411,18 @@ export class App {
 			  ? newResponse.status
 			  : originalResponse.status;
 
+		try {
+			// this function could throw an error...
+			originalResponse.headers.delete('Content-type');
+		} catch {}
 		return new Response(newResponse.body, {
 			status,
 			statusText: status === 200 ? newResponse.statusText : originalResponse.statusText,
 			// If you're looking at here for possible bugs, it means that it's not a bug.
 			// With the middleware, users can meddle with headers, and we should pass to the 404/500.
 			// If users see something weird, it's because they are setting some headers they should not.
+			//
+			// Although, we don't want it to replace the content-type, because the error page must return `text/html`
 			headers: new Headers([
 				...Array.from(newResponse.headers),
 				...Array.from(originalResponse.headers),

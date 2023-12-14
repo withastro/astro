@@ -10,6 +10,7 @@ const first = defineMiddleware(async (context, next) => {
 	} else if (context.request.url.includes('/content-policy')) {
 		const response = await next();
 		response.headers.append('X-Content-Type-Options', 'nosniff');
+		response.headers.append('Content-Type', 'application/json');
 
 		return next();
 	} else if (context.request.url.includes('/broken-500')) {
