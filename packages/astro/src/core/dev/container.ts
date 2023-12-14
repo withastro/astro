@@ -24,7 +24,7 @@ export interface Container {
 	restartInFlight: boolean; // gross
 	handle: (req: http.IncomingMessage, res: http.ServerResponse) => void;
 	close: () => Promise<void>;
-	tunnel?: Tunnel | undefined;
+	tunnel: { tunnelInstance: Tunnel | undefined; tunnelUrl: string | undefined };
 }
 
 export interface CreateContainerParams {
@@ -79,14 +79,17 @@ export async function createContainer({
 	await runHookConfigDone({ settings, logger });
 	const viteServer = await vite.createServer(viteConfig);
 
-	let tunnel: Tunnel | undefined;
+	let tunnelInstance: Tunnel | undefined;
+	let tunnelUrl: string | undefined;
 
 	if (isTunnelEnabled) {
 		const { startTunnel } = await import('untun');
 
-		tunnel = await startTunnel({
+		tunnelInstance = await startTunnel({
 			port: settings.config.server.port,
 		});
+
+		tunnelUrl = await tunnelInstance?.getURL();
 	}
 
 	const container: Container = {
@@ -96,7 +99,10 @@ export async function createContainer({
 		restartInFlight: false,
 		settings,
 		viteServer,
-		tunnel,
+		tunnel: {
+			tunnelInstance,
+			tunnelUrl,
+		},
 		handle(req, res) {
 			viteServer.middlewares.handle(req, res, Function.prototype);
 		},
@@ -116,8 +122,8 @@ async function closeContainer({ viteServer, settings, logger, tunnel }: Containe
 		logger,
 	});
 
-	if (tunnel) {
-		await tunnel?.close().catch(() => {});
+	if (tunnel.tunnelInstance) {
+		await tunnel.tunnelInstance.close().catch(() => {});
 	}
 }
 
