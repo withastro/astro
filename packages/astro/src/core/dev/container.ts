@@ -1,7 +1,7 @@
 import type * as http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
-
+import type { Tunnel } from 'untun';
 import nodeFs from 'node:fs';
 import * as vite from 'vite';
 import { injectImageEndpoint } from '../../assets/internal.js';
@@ -24,6 +24,7 @@ export interface Container {
 	restartInFlight: boolean; // gross
 	handle: (req: http.IncomingMessage, res: http.ServerResponse) => void;
 	close: () => Promise<void>;
+	tunnel?: Tunnel | undefined;
 }
 
 export interface CreateContainerParams {
@@ -54,7 +55,7 @@ export async function createContainer({
 
 	const {
 		base,
-		server: { host, headers, open: shouldOpen },
+		server: { host, headers, open: shouldOpen, tunnel: isTunnelEnabled },
 	} = settings.config;
 	// Open server to the correct path
 	const open = shouldOpen ? base : false;
@@ -78,6 +79,16 @@ export async function createContainer({
 	await runHookConfigDone({ settings, logger });
 	const viteServer = await vite.createServer(viteConfig);
 
+	let tunnel: Tunnel | undefined;
+
+	if (isTunnelEnabled) {
+		const { startTunnel } = await import('untun');
+
+		tunnel = await startTunnel({
+			port: settings.config.server.port,
+		});
+	}
+
 	const container: Container = {
 		inlineConfig: inlineConfig ?? {},
 		fs,
@@ -85,6 +96,7 @@ export async function createContainer({
 		restartInFlight: false,
 		settings,
 		viteServer,
+		tunnel,
 		handle(req, res) {
 			viteServer.middlewares.handle(req, res, Function.prototype);
 		},
@@ -97,12 +109,16 @@ export async function createContainer({
 	return container;
 }
 
-async function closeContainer({ viteServer, settings, logger }: Container) {
+async function closeContainer({ viteServer, settings, logger, tunnel }: Container) {
 	await viteServer.close();
 	await runHookServerDone({
 		config: settings.config,
 		logger,
 	});
+
+	if (tunnel) {
+		await tunnel?.close().catch(() => {});
+	}
 }
 
 export async function startContainer({
