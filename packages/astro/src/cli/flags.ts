@@ -20,6 +20,7 @@ export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 			host:
 				typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 			open: typeof flags.open === 'boolean' ? flags.open : undefined,
+			tunnel: typeof flags.tunnel === 'boolean' ? flags.tunnel : undefined,
 		},
 	};
 }
