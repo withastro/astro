@@ -19,8 +19,8 @@ export async function dev({ flags }: DevOptions) {
 					['--host', `Listen on all addresses, including LAN and public addresses.`],
 					['--host <custom-address>', `Expose on a network IP address at <custom-address>`],
 					['--open', 'Automatically open the app in the browser on server start'],
-					['--help (-h)', 'See all available flags.'],
 					['--tunnel', 'Tunnel your local server to the internet'],
+					['--help (-h)', 'See all available flags.'],
 				],
 			},
 			description: `Check ${cyan(
