@@ -49,6 +49,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 		host: false,
 		port: 4321,
 		open: false,
+		tunnel: false,
 	},
 	integrations: [],
 	markdown: markdownConfigDefaults,
@@ -154,6 +155,7 @@ export const AstroConfigSchema = z.object({
 					.default(ASTRO_CONFIG_DEFAULTS.server.host),
 				port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
 				headers: z.custom<OutgoingHttpHeaders>().optional(),
+				tunnel: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.server.tunnel),
 			})
 			.default({})
 	),
@@ -472,6 +474,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					open: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.server.open),
 					headers: z.custom<OutgoingHttpHeaders>().optional(),
 					streaming: z.boolean().optional().default(true),
+					tunnel: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.server.tunnel),
 				})
 				.optional()
 				.default({})
