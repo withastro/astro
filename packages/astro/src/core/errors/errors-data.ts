@@ -733,9 +733,9 @@ export const ResponseSentError = {
  */
 export const MiddlewareNoDataOrNextCalled = {
 	name: 'MiddlewareNoDataOrNextCalled',
-	title: "The middleware didn't return a response or call and return `next`.",
+	title: "The middleware didn't return a `Response`.",
 	message:
-		'The middleware needs to either return a `Response` object or call the `next` function and return the `Response` that it yields.',
+		'Make sure your middleware returns a `Response` object, either directly or by returning the `Response` from calling the `next` function.
 } satisfies ErrorData;
 
 /**
