@@ -1,5 +1,15 @@
 # @astrojs/vercel
 
+## 6.1.0
+
+### Minor Changes
+
+- [#9413](https://github.com/withastro/astro/pull/9413) [`836ab6214`](https://github.com/withastro/astro/commit/836ab6214e5ef778ef2db2c079f49e87ce70d711) Thanks [@jacobdalamb](https://github.com/jacobdalamb)! - Adds support for Node 20 (currently in `beta` on Vercel).
+
+### Patch Changes
+
+- [#9289](https://github.com/withastro/astro/pull/9289) [`8aeb0b579`](https://github.com/withastro/astro/commit/8aeb0b5797853c2eee7630b572d6abc503d59c6f) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where dots in redirects were incorrectly handled.
+
 ## 6.0.2
 
 ### Patch Changes
