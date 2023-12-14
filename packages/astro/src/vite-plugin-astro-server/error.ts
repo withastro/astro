@@ -1,4 +1,4 @@
-import type { ModuleLoader } from '../core/module-loader/index.js'
+import type { ModuleLoader } from '../core/module-loader/index.js';
 import type { AstroConfig } from '../@types/astro.js';
 import type DevPipeline from './devPipeline.js';
 
@@ -7,7 +7,12 @@ import { createSafeError } from '../core/errors/index.js';
 import { formatErrorMessage } from '../core/messages.js';
 import { eventError, telemetry } from '../events/index.js';
 
-export function recordServerError(loader: ModuleLoader, config: AstroConfig, pipeline: DevPipeline, _err: unknown) {
+export function recordServerError(
+	loader: ModuleLoader,
+	config: AstroConfig,
+	pipeline: DevPipeline,
+	_err: unknown
+) {
 	const err = createSafeError(_err);
 
 	// This could be a runtime error from Vite's SSR module, so try to fix it here
@@ -28,6 +33,6 @@ export function recordServerError(loader: ModuleLoader, config: AstroConfig, pip
 
 	return {
 		error: err,
-		errorWithMetadata
+		errorWithMetadata,
 	};
 }

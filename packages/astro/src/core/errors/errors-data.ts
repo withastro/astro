@@ -1299,5 +1299,5 @@ export const UnhandledRejection = {
 	message: (stack: string) => {
 		return `Astro detected an unhandled rejection. Here's the stack trace:\n${stack}`;
 	},
-	hint: 'Make sure your promises all have an `await` or a `.catch()` handler.'
-}
+	hint: 'Make sure your promises all have an `await` or a `.catch()` handler.',
+};

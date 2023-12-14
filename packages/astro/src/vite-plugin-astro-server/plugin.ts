@@ -53,15 +53,18 @@ export default function createVitePluginAstroServer({
 			function handleUnhandledRejection(rejection: any) {
 				const error = new AstroError({
 					...AstroErrorData.UnhandledRejection,
-					message: AstroErrorData.UnhandledRejection.message(rejection?.stack || rejection)
+					message: AstroErrorData.UnhandledRejection.message(rejection?.stack || rejection),
 				});
 				const store = localStorage.getStore();
-				if(store instanceof IncomingMessage) {
+				if (store instanceof IncomingMessage) {
 					const request = store;
 					setRouteError(controller.state, request.url!, error);
 				}
 				const { errorWithMetadata } = recordServerError(loader, settings.config, pipeline, error);
-				setTimeout(async () => loader.webSocketSend(await getViteErrorPayload(errorWithMetadata)), 200)
+				setTimeout(
+					async () => loader.webSocketSend(await getViteErrorPayload(errorWithMetadata)),
+					200
+				);
 			}
 
 			process.on('unhandledRejection', handleUnhandledRejection);
