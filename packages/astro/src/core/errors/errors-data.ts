@@ -1292,3 +1292,12 @@ export const CantRenderPage = {
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
+
+export const UnhandledRejection = {
+	name: 'UnhandledRejection',
+	title: 'Unhandled rejection',
+	message: (stack: string) => {
+		return `Astro detected an unhandled rejection. Here's the stack trace:\n${stack}`;
+	},
+	hint: 'Make sure your promises all have an `await` or a `.catch()` handler.'
+}
