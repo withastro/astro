@@ -87,12 +87,12 @@ export default function createVitePluginAstroServer({
  */
 export function createDevelopmentManifest(settings: AstroSettings): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
-	if (settings.config.experimental.i18n) {
+	if (settings.config.i18n) {
 		i18nManifest = {
-			fallback: settings.config.experimental.i18n.fallback,
-			routingStrategy: settings.config.experimental.i18n.routingStrategy,
-			defaultLocale: settings.config.experimental.i18n.defaultLocale,
-			locales: settings.config.experimental.i18n.locales,
+			fallback: settings.config.i18n.fallback,
+			routing: settings.config.i18n.routing,
+			defaultLocale: settings.config.i18n.defaultLocale,
+			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
 		};
 	}

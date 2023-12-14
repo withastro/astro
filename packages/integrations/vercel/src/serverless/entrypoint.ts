@@ -29,7 +29,7 @@ export const createExports = (manifest: SSRManifest) => {
 				locals = JSON.parse(localsAsString);
 			}
 		}
-		await setResponse(app, res, await app.render(request, routeData, locals));
+		await setResponse(app, res, await app.render(request, { routeData, locals }));
 	};
 
 	return { default: handler };

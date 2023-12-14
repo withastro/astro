@@ -2,13 +2,16 @@ import type { AstroConfig, AstroSettings, SSRLoadedRenderer } from '../../@types
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
-import { Logger } from '../logger/core.js';
+import type { Logger } from '../logger/core.js';
 import { Pipeline } from '../pipeline.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { createEnvironment } from '../render/index.js';
 import { createAssetLink } from '../render/ssr-element.js';
 import type { BuildInternals } from './internal.js';
-import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
+import {
+	ASTRO_PAGE_RESOLVED_MODULE_ID,
+	getVirtualModulePageNameFromPath,
+} from './plugins/plugin-pages.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types.js';
@@ -142,15 +145,15 @@ export class BuildPipeline extends Pipeline {
 	retrieveRoutesToGenerate(): Map<PageBuildData, string> {
 		const pages = new Map<PageBuildData, string>();
 
-		for (const [entryPoint, filePath] of this.#internals.entrySpecifierToBundleMap) {
+		for (const [entrypoint, filePath] of this.#internals.entrySpecifierToBundleMap) {
 			// virtual pages can be emitted with different prefixes:
 			// - the classic way are pages emitted with prefix ASTRO_PAGE_RESOLVED_MODULE_ID -> plugin-pages
 			// - pages emitted using `build.split`, in this case pages are emitted with prefix RESOLVED_SPLIT_MODULE_ID
 			if (
-				entryPoint.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
-				entryPoint.includes(RESOLVED_SPLIT_MODULE_ID)
+				entrypoint.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
+				entrypoint.includes(RESOLVED_SPLIT_MODULE_ID)
 			) {
-				const [, pageName] = entryPoint.split(':');
+				const [, pageName] = entrypoint.split(':');
 				const pageData = this.#internals.pagesByComponent.get(
 					`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`
 				);
@@ -172,7 +175,19 @@ export class BuildPipeline extends Pipeline {
 				(i18nHasFallback(this.getConfig()) ||
 					(routeIsFallback(pageData.route) && pageData.route.route === '/'))
 			) {
-				pages.set(pageData, path);
+				// The original component is transformed during the first build, so we have to retrieve
+				// the actual `.mjs` that was created.
+				// During the build, we transform the names of our pages with some weird name, and those weird names become the keys of a map.
+				// The values of the map are the actual `.mjs` files that are generated during the build
+
+				// Here, we take the component path and transform it in the virtual module name
+				const moduleSpecifier = getVirtualModulePageNameFromPath(path);
+				// We retrieve the original JS module
+				const filePath = this.#internals.entrySpecifierToBundleMap.get(moduleSpecifier);
+				if (filePath) {
+					// it exists, added it to pages to render, using the file path that we jus retrieved
+					pages.set(pageData, filePath);
+				}
 			}
 		}
 

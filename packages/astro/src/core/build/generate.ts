@@ -1,19 +1,15 @@
-import * as colors from 'kleur/colors';
-import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
+import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
 import fs from 'node:fs';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import PQueue from 'p-queue';
 import type { OutputAsset, OutputChunk } from 'rollup';
-import type { BufferEncoding } from 'vfile';
 import type {
 	AstroSettings,
 	ComponentInstance,
 	GetStaticPathsItem,
-	MiddlewareEndpointHandler,
 	RouteData,
 	RouteType,
-	SSRElement,
 	SSRError,
 	SSRLoadedRenderer,
 	SSRManifest,
@@ -114,16 +110,6 @@ async function getEntryForFallbackRoute(
 	return RedirectSinglePageBuiltModule;
 }
 
-function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
-	return (
-		// Drafts are disabled
-		!settings.config.markdown.drafts &&
-		// This is a draft post
-		'frontmatter' in pageModule &&
-		(pageModule as any).frontmatter?.draft === true
-	);
-}
-
 // Gives back a facadeId that is relative to the root.
 // ie, src/pages/index.astro instead of /Users/name..../src/pages/index.astro
 export function rootRelativeFacadeId(facadeId: string, settings: AstroSettings): string {
@@ -150,7 +136,7 @@ export function chunkIsPage(
 }
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
-	const timer = performance.now();
+	const generatePagesTimer = performance.now();
 	const ssr = isServerLikeOutput(opts.settings.config);
 	let manifest: SSRManifest;
 	if (ssr) {
@@ -180,7 +166,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	}
 
 	const verb = ssr ? 'prerendering' : 'generating';
-	logger.info(null, `\n${bgGreen(black(` ${verb} static routes `))}`);
+	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
 	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
 	if (ssr) {
@@ -188,11 +174,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			if (pageData.route.prerender) {
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const ssrEntryPage = await import(ssrEntryURLPage.toString());
-				if (
-					// TODO: remove in Astro 4.0
-					opts.settings.config.build.split ||
-					opts.settings.adapter?.adapterFeatures?.functionPerRoute
-				) {
+				if (opts.settings.adapter?.adapterFeatures?.functionPerRoute) {
 					// forcing to use undefined, so we fail in an expected way if the module is not even there.
 					const ssrEntry = ssrEntryPage?.pageModule;
 					if (ssrEntry) {
@@ -224,12 +206,14 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			}
 		}
 	}
-
-	logger.info(null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
+	logger.info(
+		null,
+		green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`)
+	);
 
 	const staticImageList = getStaticImageList();
 	if (staticImageList.size) {
-		logger.info(null, `\n${bgGreen(black(` generating optimized images `))}`);
+		logger.info('SKIP_FORMAT', `${bgGreen(black(` generating optimized images `))}`);
 
 		const totalCount = Array.from(staticImageList.values())
 			.map((x) => x.transforms.size)
@@ -245,7 +229,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 
 		await queue.onIdle();
 		const assetsTimeEnd = performance.now();
-		logger.info(null, dim(`Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
+		logger.info(null, green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
 
 		delete globalThis?.astroAsset?.addStaticImage;
 	}
@@ -265,62 +249,33 @@ async function generatePage(
 	// prepare information we need
 	const logger = pipeline.getLogger();
 	const config = pipeline.getConfig();
-	const manifest = pipeline.getManifest();
 	const pageModulePromise = ssrEntry.page;
 	const onRequest = ssrEntry.onRequest;
 	const pageInfo = getPageDataByComponent(pipeline.getInternals(), pageData.route.component);
 
 	// Calculate information of the page, like scripts, links and styles
-	const hoistedScripts = pageInfo?.hoistedScript ?? null;
-	const moduleStyles = pageData.styles
+	const styles = pageData.styles
 		.sort(cssOrder)
 		.map(({ sheet }) => sheet)
 		.reduce(mergeInlineCss, []);
 	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
-	const links = new Set<never>();
-	const styles = createStylesheetElementSet(moduleStyles, manifest.base, manifest.assetsPrefix);
-	const scripts = createModuleScriptsSet(
-		hoistedScripts ? [hoistedScripts] : [],
-		manifest.base,
-		manifest.assetsPrefix
-	);
-	if (pipeline.getSettings().scripts.some((script) => script.stage === 'page')) {
-		const hashedFilePath = pipeline.getInternals().entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
-		if (typeof hashedFilePath !== 'string') {
-			throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
-		}
-		const src = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
-		scripts.add({
-			props: { type: 'module', src },
-			children: '',
-		});
-	}
-	// Add all injected scripts to the page.
-	for (const script of pipeline.getSettings().scripts) {
-		if (script.stage === 'head-inline') {
-			scripts.add({
-				props: {},
-				children: script.content,
-			});
-		}
-	}
+	const linkIds: [] = [];
+	const scripts = pageInfo?.hoistedScript ?? null;
 	// prepare the middleware
 	const i18nMiddleware = createI18nMiddleware(
 		pipeline.getManifest().i18n,
 		pipeline.getManifest().base,
 		pipeline.getManifest().trailingSlash
 	);
-	if (config.experimental.i18n && i18nMiddleware) {
+	if (config.i18n && i18nMiddleware) {
 		if (onRequest) {
-			pipeline.setMiddlewareFunction(
-				sequence(i18nMiddleware, onRequest as MiddlewareEndpointHandler)
-			);
+			pipeline.setMiddlewareFunction(sequence(i18nMiddleware, onRequest));
 		} else {
 			pipeline.setMiddlewareFunction(i18nMiddleware);
 		}
 		pipeline.onBeforeRenderRoute(i18nPipelineHook);
 	} else if (onRequest) {
-		pipeline.setMiddlewareFunction(onRequest as MiddlewareEndpointHandler);
+		pipeline.setMiddlewareFunction(onRequest);
 	}
 	if (!pageModulePromise) {
 		throw new Error(
@@ -328,18 +283,20 @@ async function generatePage(
 		);
 	}
 	const pageModule = await pageModulePromise();
-	if (shouldSkipDraft(pageModule, pipeline.getSettings())) {
-		logger.info(null, `${magenta('⚠️')}  Skipping draft ${pageData.route.component}`);
-		// TODO: Remove in Astro 4.0
-		logger.warn(
-			'astro',
-			`The drafts feature is deprecated. You should migrate to content collections instead. See https://docs.astro.build/en/guides/content-collections/#filtering-collection-queries for more information.`
-		);
-		return;
-	}
-
+	const generationOptions: Readonly<GeneratePathOptions> = {
+		pageData,
+		linkIds,
+		scripts,
+		styles,
+		mod: pageModule,
+	};
 	// Now we explode the routes. A route render itself, and it can render its fallbacks (i18n routing)
 	for (const route of eachRouteInRouteData(pageData)) {
+		const icon =
+			route.type === 'page' || route.type === 'redirect' || route.type === 'fallback'
+				? green('▶')
+				: magenta('λ');
+		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
 		// Get paths for the route, calling getStaticPaths if needed.
 		const paths = await getPathsForRoute(route, pageModule, pipeline, builtPaths);
 		let timeStart = performance.now();
@@ -347,13 +304,13 @@ async function generatePage(
 		for (let i = 0; i < paths.length; i++) {
 			const path = paths[i];
 			pipeline.getEnvironment().logger.debug('build', `Generating: ${path}`);
-			await generatePath(path, pipeline, route, links, scripts, styles, pageModule);
+			await generatePath(path, pipeline, generationOptions, route);
 			const timeEnd = performance.now();
 			const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 			const timeIncrease = `(+${timeChange})`;
 			const filePath = getOutputFilename(pipeline.getConfig(), path, pageData.route.type);
 			const lineIcon = i === paths.length - 1 ? '└─' : '├─';
-			logger.info(null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
+			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
 			prevTimeEnd = timeEnd;
 		}
 	}
@@ -392,16 +349,14 @@ async function getPathsForRoute(
 			logger,
 			ssr: isServerLikeOutput(opts.settings.config),
 		}).catch((err) => {
-			logger.debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
+			logger.debug('build', `├── ${bold(red('✗'))} ${route.component}`);
 			throw err;
 		});
 
 		const label = staticPaths.length === 1 ? 'page' : 'pages';
 		logger.debug(
 			'build',
-			`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(
-				`[${staticPaths.length} ${label}]`
-			)}`
+			`├── ${bold(green('✔'))} ${route.component} → ${magenta(`[${staticPaths.length} ${label}]`)}`
 		);
 
 		paths = staticPaths
@@ -515,27 +470,52 @@ function getUrlForPath(
 	return url;
 }
 
+interface GeneratePathOptions {
+	pageData: PageBuildData;
+	linkIds: string[];
+	scripts: { type: 'inline' | 'external'; value: string } | null;
+	styles: StylesheetAsset[];
+	mod: ComponentInstance;
+}
 async function generatePath(
 	pathname: string,
 	pipeline: BuildPipeline,
-	route: RouteData,
-	links: Set<never>,
-	scripts: Set<SSRElement>,
-	styles: Set<SSRElement>,
-	mod: ComponentInstance
+	gopts: GeneratePathOptions,
+	route: RouteData
 ) {
+	const { mod, scripts: hoistedScripts, styles: _styles, pageData } = gopts;
 	const manifest = pipeline.getManifest();
 	const logger = pipeline.getLogger();
 	pipeline.getEnvironment().logger.debug('build', `Generating: ${pathname}`);
 
-	const icon =
-		route.type === 'page' || route.type === 'redirect' || route.type === 'fallback'
-			? green('▶')
-			: magenta('λ');
-	if (isRelativePath(route.component)) {
-		logger.info(null, `${icon} ${route.route}`);
-	} else {
-		logger.info(null, `${icon} ${route.component}`);
+	const links = new Set<never>();
+	const scripts = createModuleScriptsSet(
+		hoistedScripts ? [hoistedScripts] : [],
+		manifest.base,
+		manifest.assetsPrefix
+	);
+	const styles = createStylesheetElementSet(_styles, manifest.base, manifest.assetsPrefix);
+
+	if (pipeline.getSettings().scripts.some((script) => script.stage === 'page')) {
+		const hashedFilePath = pipeline.getInternals().entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
+		if (typeof hashedFilePath !== 'string') {
+			throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
+		}
+		const src = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
+		scripts.add({
+			props: { type: 'module', src },
+			children: '',
+		});
+	}
+
+	// Add all injected scripts to the page.
+	for (const script of pipeline.getSettings().scripts) {
+		if (script.stage === 'head-inline') {
+			scripts.add({
+				props: {},
+				children: script.content,
+			});
+		}
 	}
 
 	// This adds the page name to the array so it can be shown as part of stats.
@@ -558,7 +538,7 @@ async function generatePath(
 		logger: pipeline.getLogger(),
 		ssr,
 	});
-	const i18n = pipeline.getConfig().experimental.i18n;
+	const i18n = pipeline.getConfig().i18n;
 
 	const renderContext = await createRenderContext({
 		pathname,
@@ -571,12 +551,11 @@ async function generatePath(
 		env: pipeline.getEnvironment(),
 		mod,
 		locales: i18n?.locales,
-		routingStrategy: i18n?.routingStrategy,
+		routing: i18n?.routing,
 		defaultLocale: i18n?.defaultLocale,
 	});
 
 	let body: string | Uint8Array;
-	let encoding: BufferEncoding | undefined;
 
 	let response: Response;
 	try {
@@ -619,7 +598,6 @@ async function generatePath(
 		// If there's no body, do nothing
 		if (!response.body) return;
 		body = Buffer.from(await response.arrayBuffer());
-		encoding = (response.headers.get('X-Astro-Encoding') as BufferEncoding | null) ?? 'utf-8';
 	}
 
 	const outFolder = getOutFolder(pipeline.getConfig(), pathname, route.type);
@@ -627,7 +605,19 @@ async function generatePath(
 	route.distURL = outFile;
 
 	await fs.promises.mkdir(outFolder, { recursive: true });
-	await fs.promises.writeFile(outFile, body, encoding);
+	await fs.promises.writeFile(outFile, body);
+}
+
+function getPrettyRouteName(route: RouteData): string {
+	if (isRelativePath(route.component)) {
+		return route.route;
+	} else if (route.component.includes('node_modules/')) {
+		// For routes from node_modules (usually injected by integrations),
+		// prettify it by only grabbing the part after the last `node_modules/`
+		return route.component.match(/.*node_modules\/(.+)/)?.[1] ?? route.component;
+	} else {
+		return route.component;
+	}
 }
 
 /**
@@ -643,12 +633,12 @@ export function createBuildManifest(
 	renderers: SSRLoadedRenderer[]
 ): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
-	if (settings.config.experimental.i18n) {
+	if (settings.config.i18n) {
 		i18nManifest = {
-			fallback: settings.config.experimental.i18n.fallback,
-			routingStrategy: settings.config.experimental.i18n.routingStrategy,
-			defaultLocale: settings.config.experimental.i18n.defaultLocale,
-			locales: settings.config.experimental.i18n.locales,
+			fallback: settings.config.i18n.fallback,
+			routing: settings.config.i18n.routing,
+			defaultLocale: settings.config.i18n.defaultLocale,
+			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
 		};
 	}

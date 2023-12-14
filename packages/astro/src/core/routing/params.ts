@@ -31,7 +31,7 @@ export function getParams(array: string[]) {
 export function stringifyParams(params: GetStaticPathsItem['params'], route: RouteData) {
 	// validate parameter values then stringify each value
 	const validatedParams = Object.entries(params).reduce((acc, next) => {
-		validateGetStaticPathsParameter(next, route.route);
+		validateGetStaticPathsParameter(next, route.component);
 		const [key, value] = next;
 		if (value !== undefined) {
 			acc[key] = typeof value === 'string' ? trimSlashes(value) : value.toString();

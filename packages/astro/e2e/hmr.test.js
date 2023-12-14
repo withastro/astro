@@ -3,6 +3,9 @@ import { testFactory } from './test-utils.js';
 
 const test = testFactory({
 	root: './fixtures/hmr/',
+	devToolbar: {
+		enabled: false,
+	},
 });
 
 let devServer;

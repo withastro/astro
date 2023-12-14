@@ -14,7 +14,6 @@ export async function build({ flags }: BuildOptions) {
 			usage: '[...flags]',
 			tables: {
 				Flags: [
-					['--drafts', `Include Markdown draft pages in the build.`],
 					['--outDir <directory>', `Specify the output directory for the build.`],
 					['--help (-h)', 'See all available flags.'],
 				],

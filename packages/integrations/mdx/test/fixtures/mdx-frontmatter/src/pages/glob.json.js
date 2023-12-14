@@ -1,9 +1,6 @@
-export async function get() {
+export async function GET() {
 	const mdxPages = await import.meta.glob('./*.mdx', { eager: true });
-
-	return {
-		body: JSON.stringify({
-			titles: Object.values(mdxPages ?? {}).map(v => v?.frontmatter?.title),
-		})
-	}
+	return Response.json({
+		titles: Object.values(mdxPages ?? {}).map((v) => v?.frontmatter?.title),
+	});
 }

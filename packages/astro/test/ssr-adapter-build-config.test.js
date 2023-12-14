@@ -47,6 +47,7 @@ describe('Integration buildConfig hook', () => {
 							name: 'my-ssr-adapter',
 							serverEntrypoint: '@my-ssr',
 							exports: ['manifest', 'createApp'],
+							supportedAstroFeatures: {},
 						});
 					},
 				},

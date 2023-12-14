@@ -17,17 +17,6 @@ const UNSUPPORTED_ASSETS_FEATURE: AstroAssetsFeature = {
 	isSharpCompatible: false,
 };
 
-// NOTE: remove for Astro 4.0
-const ALL_UNSUPPORTED: Required<AstroFeatureMap> = {
-	serverOutput: UNSUPPORTED,
-	staticOutput: UNSUPPORTED,
-	hybridOutput: UNSUPPORTED,
-	assets: UNSUPPORTED_ASSETS_FEATURE,
-	i18n: {
-		domain: UNSUPPORTED,
-	},
-};
-
 type ValidationResult = {
 	[Property in keyof AstroFeatureMap]: boolean;
 };
@@ -41,7 +30,7 @@ type ValidationResult = {
  */
 export function validateSupportedFeatures(
 	adapterName: string,
-	featureMap: AstroFeatureMap = ALL_UNSUPPORTED,
+	featureMap: AstroFeatureMap,
 	config: AstroConfig,
 	logger: Logger
 ): ValidationResult {
@@ -91,9 +80,9 @@ function validateSupportKind(
 	if (supportKind === STABLE) {
 		return true;
 	} else if (supportKind === DEPRECATED) {
-		featureIsDeprecated(adapterName, logger);
+		featureIsDeprecated(adapterName, logger, featureName);
 	} else if (supportKind === EXPERIMENTAL) {
-		featureIsExperimental(adapterName, logger);
+		featureIsExperimental(adapterName, logger, featureName);
 	}
 
 	if (hasCorrectConfig() && supportKind === UNSUPPORTED) {
@@ -105,18 +94,21 @@ function validateSupportKind(
 }
 
 function featureIsUnsupported(adapterName: string, logger: Logger, featureName: string) {
-	logger.error(
-		`${adapterName}`,
-		`The feature ${featureName} is not supported by the adapter ${adapterName}.`
+	logger.error('config', `The feature "${featureName}" is not supported (used by ${adapterName}).`);
+}
+
+function featureIsExperimental(adapterName: string, logger: Logger, featureName: string) {
+	logger.warn(
+		'config',
+		`The feature "${featureName}" is experimental and subject to change (used by ${adapterName}).`
 	);
 }
 
-function featureIsExperimental(adapterName: string, logger: Logger) {
-	logger.warn(`${adapterName}`, 'The feature is experimental and subject to issues or changes.');
-}
-
-function featureIsDeprecated(adapterName: string, logger: Logger) {
-	logger.warn(`${adapterName}`, 'The feature is deprecated and will be moved in the next release.');
+function featureIsDeprecated(adapterName: string, logger: Logger, featureName: string) {
+	logger.warn(
+		'config',
+		`The feature "${featureName}" is deprecated and will be removed in the future (used by ${adapterName}).`
+	);
 }
 
 const SHARP_SERVICE = 'astro/assets/services/sharp';
@@ -135,7 +127,7 @@ function validateAssetsFeature(
 	} = assets;
 	if (config?.image?.service?.entrypoint === SHARP_SERVICE && !isSharpCompatible) {
 		logger.warn(
-			'astro',
+			null,
 			`The currently selected adapter \`${adapterName}\` is not compatible with the image service "Sharp".`
 		);
 		return false;
@@ -143,7 +135,7 @@ function validateAssetsFeature(
 
 	if (config?.image?.service?.entrypoint === SQUOOSH_SERVICE && !isSquooshCompatible) {
 		logger.warn(
-			'astro',
+			null,
 			`The currently selected adapter \`${adapterName}\` is not compatible with the image service "Squoosh".`
 		);
 		return false;

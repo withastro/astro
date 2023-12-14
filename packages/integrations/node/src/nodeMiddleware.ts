@@ -30,10 +30,10 @@ export default function (app: NodeApp, mode: Options['mode']) {
 		}
 
 		try {
-			const route = app.match(req);
-			if (route) {
+			const routeData = app.match(req);
+			if (routeData) {
 				try {
-					const response = await app.render(req, route, locals);
+					const response = await app.render(req, { routeData, locals });
 					await writeWebResponse(app, res, response);
 				} catch (err: unknown) {
 					if (next) {

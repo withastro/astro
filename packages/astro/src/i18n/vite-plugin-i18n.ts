@@ -1,4 +1,4 @@
-import * as vite from 'vite';
+import type * as vite from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 
 const virtualModuleId = 'astro:i18n';
@@ -34,14 +34,15 @@ export default function astroInternationalization({
 						getLocaleRelativeUrlList as _getLocaleRelativeUrlList,
 						getLocaleAbsoluteUrl as _getLocaleAbsoluteUrl, 
 						getLocaleAbsoluteUrlList as _getLocaleAbsoluteUrlList,
-						 
-					} from "astro/i18n";
+						getPathByLocale as _getPathByLocale, 
+						getLocaleByPath as _getLocaleByPath,
+					} from "astro/virtual-modules/i18n.js";
 					
 					const base =  ${JSON.stringify(settings.config.base)};
 					const trailingSlash =  ${JSON.stringify(settings.config.trailingSlash)};
 					const format =  ${JSON.stringify(settings.config.build.format)};
 					const site = ${JSON.stringify(settings.config.site)};
-					const i18n = ${JSON.stringify(settings.config.experimental.i18n)};
+					const i18n = ${JSON.stringify(settings.config.i18n)};
 					const isBuild = ${isCommandBuild};
 					
 					export const getRelativeLocaleUrl = (locale, path = "", opts) => _getLocaleRelativeUrl({ 
@@ -70,6 +71,9 @@ export default function astroInternationalization({
 					export const getAbsoluteLocaleUrlList = (path = "", opts) => _getLocaleAbsoluteUrlList({ 
 						base, path, trailingSlash, format, site, isBuild, ...i18n, ...opts 
 					});
+					
+					export const getPathByLocale = (locale) => _getPathByLocale(locale, i18n.locales);
+					export const getLocaleByPath = (locale) => _getLocaleByPath(locale, i18n.locales);
 				`;
 			}
 		},

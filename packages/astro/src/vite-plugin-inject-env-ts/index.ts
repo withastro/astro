@@ -50,16 +50,6 @@ export async function setUpEnvTs({
 	if (fs.existsSync(envTsPath)) {
 		let typesEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');
 
-		// TODO: Remove this in 4.0, this code is only to help users migrate away from assets being experimental for a long time
-		if (typesEnvContents.includes('types="astro/client-image"')) {
-			typesEnvContents = typesEnvContents.replace(
-				'types="astro/client-image"',
-				'types="astro/client"'
-			);
-			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
-			logger.info('assets', `Removed ${bold(envTsPathRelativetoRoot)} types`);
-		}
-
 		if (!fs.existsSync(dotAstroDir))
 			// Add `.astro` types reference if none exists
 			return;
@@ -68,7 +58,7 @@ export async function setUpEnvTs({
 		if (!typesEnvContents.includes(expectedTypeReference)) {
 			typesEnvContents = `${expectedTypeReference}\n${typesEnvContents}`;
 			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
-			logger.info('content', `Added ${bold(envTsPathRelativetoRoot)} types`);
+			logger.info('types', `Added ${bold(envTsPathRelativetoRoot)} type declarations`);
 		}
 	} else {
 		// Otherwise, inject the `env.d.ts` file
@@ -81,6 +71,6 @@ export async function setUpEnvTs({
 
 		await fs.promises.mkdir(settings.config.srcDir, { recursive: true });
 		await fs.promises.writeFile(envTsPath, referenceDefs.join('\n'), 'utf-8');
-		logger.info('astro', `Added ${bold(envTsPathRelativetoRoot)} types`);
+		logger.info('types', `Added ${bold(envTsPathRelativetoRoot)} type declarations`);
 	}
 }

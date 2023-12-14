@@ -19,16 +19,22 @@ import type { AstroConfigType } from '../core/config/index.js';
 import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
-import type { ResponseWithEncoding } from '../core/endpoint/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
+import type { AstroPreferences } from '../preferences/index.js';
 import type { AstroDevOverlay, DevOverlayCanvas } from '../runtime/client/dev-overlay/overlay.js';
-import type { DevOverlayHighlight } from '../runtime/client/dev-overlay/ui-library/highlight.js';
 import type { Icon } from '../runtime/client/dev-overlay/ui-library/icons.js';
-import type { DevOverlayToggle } from '../runtime/client/dev-overlay/ui-library/toggle.js';
-import type { DevOverlayTooltip } from '../runtime/client/dev-overlay/ui-library/tooltip.js';
-import type { DevOverlayWindow } from '../runtime/client/dev-overlay/ui-library/window.js';
+import type {
+	DevOverlayBadge,
+	DevOverlayButton,
+	DevOverlayCard,
+	DevOverlayHighlight,
+	DevOverlayIcon,
+	DevOverlayToggle,
+	DevOverlayTooltip,
+	DevOverlayWindow,
+} from '../runtime/client/dev-overlay/ui-library/index.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
-import type { OmitIndexSignature, Simplify } from '../type-utils.js';
+import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
 export { type AstroIntegrationLogger };
@@ -126,6 +132,10 @@ export interface AstroScriptAttributes {
 	'is:inline'?: boolean;
 }
 
+export interface AstroSlotAttributes {
+	'is:inline'?: boolean;
+}
+
 export interface AstroComponentMetadata {
 	displayName: string;
 	hydrate?: 'load' | 'idle' | 'visible' | 'media' | 'only';
@@ -143,7 +153,6 @@ export interface CLIFlags {
 	host?: string | boolean;
 	port?: number;
 	config?: string;
-	drafts?: boolean;
 	open?: boolean;
 }
 
@@ -886,33 +895,6 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
-
-		/**
-		 * @docs
-		 * @name build.split
-		 * @type {boolean}
-		 * @default `false`
-		 * @deprecated Deprecated since version 3.0.
-		 * @description
-		 * The build config option `build.split` has been replaced by the adapter configuration option [`functionPerRoute`](/en/reference/adapter-reference/#functionperroute).
-		 *
-		 * Please see your [SSR adapter's documentation](/en/guides/integrations-guide/#official-integrations) for using `functionPerRoute` to define how your SSR code is bundled.
-		 *
-		 */
-		split?: boolean;
-
-		/**
-		 * @docs
-		 * @name build.excludeMiddleware
-		 * @type {boolean}
-		 * @default `false`
-		 * @deprecated Deprecated since version 3.0.
-		 * @description
-		 * The build config option `build.excludeMiddleware` has been replaced by the adapter configuration option [`edgeMiddleware`](/en/reference/adapter-reference/#edgemiddleware).
-		 *
-		 * Please see your [SSR adapter's documentation](/en/guides/integrations-guide/#official-integrations) for using `edgeMiddleware` to define whether or not any SSR middleware code will be bundled when built.
-		 */
-		excludeMiddleware?: boolean;
 	};
 
 	/**
@@ -1180,31 +1162,28 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
+	 * @name Dev Toolbar Options
+	 */
+	devToolbar?: {
+		/**
+		 * @docs
+		 * @name devToolbar.enabled
+		 * @type {boolean}
+		 * @default `true`
+		 * @description
+		 * Whether to enable the Astro Dev Toolbar. This toolbar allows you to inspect your page islands, see helpful audits on performance and accessibility, and more.
+		 *
+		 * This option is scoped to the entire project, to only disable the toolbar for yourself, run `npm run astro preferences disable devToolbar`. To disable the toolbar for all your Astro projects, run `npm run astro preferences disable devToolbar --global`.
+		 */
+		enabled: boolean;
+	};
+
+	/**
+	 * @docs
+	 * @kind heading
 	 * @name Markdown Options
 	 */
 	markdown?: {
-		/**
-		 * @docs
-		 * @name markdown.drafts
-		 * @type {boolean}
-		 * @default `false`
-		 * @deprecated Deprecated since version 3.0. Use content collections instead.
-		 * @description
-		 * Control whether Markdown draft pages should be included in the build.
-		 *
-		 * A Markdown page is considered a draft if it includes `draft: true` in its frontmatter. Draft pages are always included & visible during development (`astro dev`) but by default they will not be included in your final build.
-		 *
-		 * ```js
-		 * {
-		 *   markdown: {
-		 *     // Example: Include all drafts in your final build
-		 *     drafts: true,
-		 *   }
-		 * }
-		 * ```
-		 */
-		drafts?: boolean;
-
 		/**
 		 * @docs
 		 * @name markdown.shikiConfig
@@ -1317,7 +1296,7 @@ export interface AstroUserConfig {
 		 * {
 		 *   markdown: {
 		 *     // Example: Translate the footnotes text to another language, here are the default English values
-		 *     remarkRehype: { footnoteLabel: "Footnotes", footnoteBackLabel: "Back to content"},
+		 *     remarkRehype: { footnoteLabel: "Footnotes", footnoteBackLabel: "Back to reference 1"},
 		 *   },
 		 * };
 		 * ```
@@ -1385,6 +1364,150 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
+	 * @name i18n
+	 * @type {object}
+	 * @version 3.5.0
+	 * @type {object}
+	 * @description
+	 *
+	 * Configures i18n routing and allows you to specify some customization options.
+	 *
+	 * See our guide for more information on [internationalization in Astro](/en/guides/internationalization/)
+	 */
+	i18n?: {
+		/**
+		 * @docs
+		 * @name i18n.defaultLocale
+		 * @type {string}
+		 * @version 3.5.0
+		 * @description
+		 *
+		 * The default locale of your website/application. This is a required field.
+		 *
+		 * No particular language format or syntax is enforced, but we suggest using lower-case and hyphens as needed (e.g. "es", "pt-br") for greatest compatibility.
+		 */
+		defaultLocale: string;
+		/**
+		 * @docs
+		 * @name i18n.locales
+		 * @type {Locales}
+		 * @version 3.5.0
+		 * @description
+		 *
+		 * A list of all locales supported by the website, including the `defaultLocale`. This is a required field.
+		 *
+		 * Languages can be listed either as individual codes (e.g. `['en', 'es', 'pt-br']`) or mapped to a shared `path` of codes (e.g.  `{ path: "english", codes: ["en", "en-US"]}`). These codes will be used to determine the URL structure of your deployed site.
+		 *
+		 * No particular language code format or syntax is enforced, but your project folders containing your content files must match exactly the `locales` items in the list. In the case of multiple `codes` pointing to a custom URL path prefix, store your content files in a folder with the same name as the `path` configured.
+		 */
+		locales: Locales;
+
+		/**
+		 * @docs
+		 * @name i18n.fallback
+		 * @type {Record<string, string>}
+		 * @version 3.5.0
+		 * @description
+		 *
+		 * The fallback strategy when navigating to pages that do not exist (e.g. a translated page has not been created).
+		 *
+		 * Use this object to declare a fallback `locale` route for each language you support. If no fallback is specified, then unavailable pages will return a 404.
+		 *
+		 * ##### Example
+		 *
+		 * The following example configures your content fallback strategy to redirect unavailable pages in `/pt-br/` to their `es` version, and unavailable pages in `/fr/` to their `en` version. Unavailable `/es/` pages will return a 404.
+		 *
+		 * ```js
+		 * export default defineConfig({
+		 * 	i18n: {
+		 * 		defaultLocale: "en",
+		 * 		locales: ["en", "fr", "pt-br", "es"],
+		 * 		fallback: {
+		 * 			pt: "es",
+		 * 		  fr: "en"
+		 * 		}
+		 * 	}
+		 * })
+		 * ```
+		 */
+		fallback?: Record<string, string>;
+
+		/**
+		 * @docs
+		 * @name i18n.routing
+		 * @type {Routing}
+		 * @version 3.7.0
+		 * @description
+		 *
+		 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language.
+		 */
+		routing?: {
+			/**
+			 * @docs
+			 * @name i18n.routing.prefixDefaultLocale
+			 * @kind h4
+			 * @type {boolean}
+			 * @default `false`
+			 * @version 3.7.0
+			 * @description
+			 *
+			 * When `false`, only non-default languages will display a language prefix.
+			 * The `defaultLocale` will not show a language prefix and content files do not exist in a localized folder.
+			 *  URLs will be of the form `example.com/[locale]/content/` for all non-default languages, but `example.com/content/` for the default locale.
+			 *
+			 * When `true`, all URLs will display a language prefix.
+			 * URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
+			 * Localized folders are used for every language, including the default.
+			 */
+			prefixDefaultLocale: boolean;
+
+			/**
+			 * @name i18n.routing.strategy
+			 * @type {"pathname"}
+			 * @default `"pathname"`
+			 * @version 3.7.0
+			 * @description
+			 *
+			 * - `"pathanme": The strategy is applied to the pathname of the URLs
+			 * - `"domain"`: SSR only, it enables support for different domains. When a locale is mapped to domain, all the URLs won't have the language prefix.
+			 *    You map `fr` to `fr.example.com`, if you want a to have a blog page to look like `fr.example.com/blog` instead of `example.com/fr/blog`.
+			 *    The localised folders be must in the `src/pages/` folder.
+			 */
+			strategy: 'pathname' | 'domain';
+
+			/**
+			 * @docs
+			 * @kind h4
+			 * @name experimental.i18n.domains
+			 * @type {Record<string, string> }
+			 * @default '{}'
+			 * @version 3.6.0
+			 * @description
+			 *
+			 * Maps a locale to a domain (or sub-domain). When a locale is mapped to a domain, all the URLs that belong to it will respond to `https://fr.example.com/blog` and not to `/fr/blog`.
+			 *
+			 * ```js
+			 * export defualt defineConfig({
+			 *    experimental: {
+			 *        i18n: {
+			 *            defaultLocale: "en",
+			 *            locales: ["en", "fr", "pt-br", "es"],
+			 *            domains: {
+			 *                fr: "https://fr.example.com",
+			 *            },
+			 *            routingStrategy: "domain"
+			 *        }
+			 *    }
+			 * })
+			 * ```
+			 */
+			domains?: Record<string, string>;
+		};
+	};
+
+	/**
+	 * @docs
+	 * @kind heading
 	 * @name Legacy Flags
 	 * @description
 	 * To help some users migrate between versions of Astro, we occasionally introduce `legacy` flags.
@@ -1426,150 +1549,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.devOverlay
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 3.4.0
-		 * @description
-		 * Enable a dev overlay in development mode. This overlay allows you to inspect your page islands, see helpful audits on performance and accessibility, and more.
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 * 		devOverlay: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		devOverlay?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.i18n
-		 * @type {object}
-		 * @version 3.5.0
-		 * @type {object}
-		 * @description
-		 *
-		 * Configures experimental i18n routing and allows you to specify some customization options.
-		 *
-		 * See our guide for more information on [internationalization in Astro](/en/guides/internationalization/)
-		 */
-		i18n?: {
-			/**
-			 * @docs
-			 * @kind h4
-			 * @name experimental.i18n.defaultLocale
-			 * @type {string}
-			 * @version 3.5.0
-			 * @description
-			 *
-			 * The default locale of your website/application. This is a required field.
-			 *
-			 * No particular language format or syntax is enforced, but we suggest using lower-case and hyphens as needed (e.g. "es", "pt-br") for greatest compatibility.
-			 */
-			defaultLocale: string;
-			/**
-			 * @docs
-			 * @kind h4
-			 * @name experimental.i18n.locales
-			 * @type {string[]}
-			 * @version 3.5.0
-			 * @description
-			 *
-			 * A list of all locales supported by the website (e.g. `['en', 'es', 'pt-br']`). This list should also include the `defaultLocale`. This is a required field.
-			 *
-			 * No particular language format or syntax is enforced, but your folder structure must match exactly the locales in the list.
-			 */
-			locales: string[];
-
-			/**
-			 * @docs
-			 * @kind h4
-			 * @name experimental.i18n.fallback
-			 * @type {Record<string, string>}
-			 * @version 3.5.0
-			 * @description
-			 *
-			 * The fallback strategy when navigating to pages that do not exist (e.g. a translated page has not been created).
-			 *
-			 * Use this object to declare a fallback `locale` route for each language you support. If no fallback is specified, then unavailable pages will return a 404.
-			 *
-			 * ##### Example
-			 *
-			 * The following example configures your content fallback strategy to redirect unavailable pages in `/pt-br/` to their `es` version, and unavailable pages in `/fr/` to their `en` version. Unavailable `/es/` pages will return a 404.
-			 *
-			 * ```js
-			 * export default defineConfig({
-			 * 	experimental: {
-			 * 		i18n: {
-			 * 			defaultLocale: "en",
-			 * 			locales: ["en", "fr", "pt-br", "es"],
-			 * 			fallback: {
-			 * 				pt: "es",
-			 * 			  fr: "en"
-			 * 			}
-			 * 		}
-			 * 	}
-			 * })
-			 * ```
-			 */
-			fallback?: Record<string, string>;
-
-			/**
-			 * @docs
-			 * @kind h4
-			 * @name experimental.i18n.routingStrategy
-			 * @type {'prefix-always' | 'prefix-other-locales' | 'domain'}
-			 * @default 'prefix-other-locales'
-			 * @version 3.5.0
-			 * @description
-			 *
-			 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language:
-			 *
-			 *  - `prefix-other-locales`(default): Only non-default languages will display a language prefix.
-			 *    The `defaultLocale` will not show a language prefix and content files do not exist in a localized folder.
-			 *    URLs will be of the form `example.com/[locale]/content/` for all non-default languages, but `example.com/content/` for the default locale.
-			 *  - `prefix-always`: All URLs will display a language prefix.
-			 *    URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
-			 *    Localized folders are used for every language, including the default.
-			 *  - `domain`: SSR only, it enables support for different domains. When a locale is mapped to domain, all the URLs won't have the language prefix.
-			 *    You map `fr` to `fr.example.com`, if you want a to have a blog page to look like `fr.example.com/blog` instead of `example.com/fr/blog`.
-			 *    The localised folders be must in the `src/pages/` folder.
-			 *
-			 */
-			routingStrategy?: 'prefix-always' | 'prefix-other-locales' | 'domain';
-
-			/**
-			 * @docs
-			 * @kind h4
-			 * @name experimental.i18n.domains
-			 * @type {Record<string, string> }
-			 * @default '{}'
-			 * @version 3.6.0
-			 * @description
-			 *
-			 * Maps a locale to a domain (or sub-domain). When a locale is mapped to a domain, all the URLs that belong to it will respond to `https://fr.example.com/blog` and not to `/fr/blog`.
-			 *
-			 * ```js
-			 * export defualt defineConfig({
-			 *    experimental: {
-			 *        i18n: {
-			 *            defaultLocale: "en",
-			 *            locales: ["en", "fr", "pt-br", "es"],
-			 *            domains: {
-			 *                fr: "https://fr.example.com",
-			 *            },
-			 *            routingStrategy: "domain"
-			 *        }
-			 *    }
-			 * })
-			 * ```
-			 */
-			domains?: Record<string, string>;
-		};
-		/**
-		 * @docs
 		 * @name experimental.contentCollectionCache
 		 * @type {boolean}
 		 * @default `false`
@@ -1609,7 +1588,7 @@ export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 
 
 export interface InjectedRoute {
 	pattern: string;
-	entryPoint: string;
+	entrypoint: string;
 	prerender?: boolean;
 }
 
@@ -1745,6 +1724,7 @@ export interface AstroAdapterFeatures {
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
+	preferences: AstroPreferences;
 	injectedRoutes: InjectedRoute[];
 	resolvedInjectedRoutes: ResolvedInjectedRoute[];
 	pageExtensions: string[];
@@ -1759,7 +1739,7 @@ export interface AstroSettings {
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
-	devOverlayPlugins: string[];
+	devToolbarApps: string[];
 	middlewares: { pre: string[]; post: string[] };
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
@@ -1780,10 +1760,6 @@ export interface ComponentInstance {
 	css?: string[];
 	partial?: boolean;
 	prerender?: boolean;
-	/**
-	 * Only used for logging if deprecated drafts feature is used
-	 */
-	frontmatter?: Record<string, any>;
 	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 
@@ -1840,13 +1816,9 @@ export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
  * getStaticPaths() options
  *
  * [Astro Reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
- */ export interface GetStaticPathsOptions {
+ */
+export interface GetStaticPathsOptions {
 	paginate: PaginateFunction;
-	/**
-	 * The RSS helper has been removed from getStaticPaths! Try the new @astrojs/rss package instead.
-	 * @see https://docs.astro.build/en/guides/rss/
-	 */
-	rss(): never;
 }
 
 export type GetStaticPathsItem = {
@@ -2075,6 +2047,8 @@ export interface AstroInternationalizationFeature {
 	domain?: SupportsKind;
 }
 
+export type Locales = (string | { codes: string[]; path: string })[];
+
 export interface AstroAdapter {
 	name: string;
 	serverEntrypoint?: string;
@@ -2087,10 +2061,8 @@ export interface AstroAdapter {
 	 *
 	 * If the adapter is not able to handle certain configurations, Astro will throw an error.
 	 */
-	supportedAstroFeatures?: AstroFeatureMap;
+	supportedAstroFeatures: AstroFeatureMap;
 }
-
-type Body = string;
 
 export type ValidRedirectStatus = 300 | 301 | 302 | 303 | 304 | 307 | 308;
 
@@ -2176,7 +2148,7 @@ export interface APIContext<
 	 *   ];
 	 * }
 	 *
-	 * export async function get({ params }) {
+	 * export async function GET({ params }) {
 	 *  return {
 	 * 	  body: `Hello user ${params.id}!`,
 	 *  }
@@ -2199,7 +2171,7 @@ export interface APIContext<
 	 *   ];
 	 * }
 	 *
-	 * export function get({ props }) {
+	 * export function GET({ props }) {
 	 *   return {
 	 *     body: `Hello ${props.name}!`,
 	 *   }
@@ -2215,7 +2187,7 @@ export interface APIContext<
 	 * Example usage:
 	 * ```ts
 	 * // src/pages/secret.ts
-	 * export function get({ redirect }) {
+	 * export function GET({ redirect }) {
 	 *   return redirect('/login');
 	 * }
 	 * ```
@@ -2248,10 +2220,9 @@ export interface APIContext<
 	 * ```
 	 */
 	locals: App.Locals;
-	ResponseWithEncoding: typeof ResponseWithEncoding;
 
 	/**
-	 * Available only when `experimental.i18n` enabled and in SSR.
+	 * Available only when `i18n` configured and in SSR.
 	 *
 	 * It represents the preferred locale of the user. It's computed by checking the supported locales in `i18n.locales`
 	 * and locales supported by the users's browser via the header `Accept-Language`
@@ -2264,7 +2235,7 @@ export interface APIContext<
 	preferredLocale: string | undefined;
 
 	/**
-	 * Available only when `experimental.i18n` enabled and in SSR.
+	 * Available only when `i18n` configured and in SSR.
 	 *
 	 * It represents the list of the preferred locales that are supported by the application. The list is sorted via [quality value].
 	 *
@@ -2284,22 +2255,18 @@ export interface APIContext<
 	currentLocale: string | undefined;
 }
 
-export type EndpointOutput =
-	| {
-			body: Body;
-			encoding?: BufferEncoding;
-	  }
-	| {
-			body: Uint8Array;
-			encoding: 'binary';
-	  };
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type Routing = {
+	prefixDefaultLocale: boolean;
+	strategy: 'pathname';
+};
 
 export type APIRoute<Props extends Record<string, any> = Record<string, any>> = (
 	context: APIContext<Props>
-) => EndpointOutput | Response | Promise<EndpointOutput | Response>;
+) => Response | Promise<Response>;
 
 export interface EndpointHandler {
-	[method: string]: APIRoute | ((params: Params, request: Request) => EndpointOutput | Response);
+	[method: string]: APIRoute | ((params: Params, request: Request) => Response);
 }
 
 export type Props = Record<string, unknown>;
@@ -2342,13 +2309,17 @@ export interface AstroIntegration {
 			config: AstroConfig;
 			command: 'dev' | 'build' | 'preview';
 			isRestart: boolean;
-			updateConfig: (newConfig: Record<string, any>) => void;
+			updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
 			addRenderer: (renderer: AstroRenderer) => void;
 			addWatchFile: (path: URL | string) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			addClientDirective: (directive: ClientDirectiveConfig) => void;
+			/**
+			 * @deprecated Use `addDevToolbarApp` instead.
+			 */
 			addDevOverlayPlugin: (entrypoint: string) => void;
+			addDevToolbarApp: (entrypoint: string) => void;
 			addMiddleware: (mid: AstroIntegrationMiddleware) => void;
 			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
@@ -2404,20 +2375,16 @@ export interface AstroIntegration {
 	};
 }
 
-export type MiddlewareNext<R> = () => Promise<R>;
-export type MiddlewareHandler<R> = (
+export type MiddlewareNext = () => Promise<Response>;
+export type MiddlewareHandler = (
 	context: APIContext,
-	next: MiddlewareNext<R>
-) => Promise<R> | R | Promise<void> | void;
-
-export type MiddlewareResponseHandler = MiddlewareHandler<Response>;
-export type MiddlewareEndpointHandler = MiddlewareHandler<Response | EndpointOutput>;
-export type MiddlewareNextResponse = MiddlewareNext<Response>;
+	next: MiddlewareNext
+) => Promise<Response> | Response | Promise<void> | void;
 
 // NOTE: when updating this file with other functions,
 // remember to update `plugin-page.ts` too, to add that function as a no-op function.
-export type AstroMiddlewareInstance<R> = {
-	onRequest?: MiddlewareHandler<R>;
+export type AstroMiddlewareInstance = {
+	onRequest?: MiddlewareHandler;
 };
 
 export type AstroIntegrationMiddleware = {
@@ -2603,7 +2570,7 @@ export interface ClientDirectiveConfig {
 	entrypoint: string;
 }
 
-export interface DevOverlayPlugin {
+export interface DevToolbarApp {
 	id: string;
 	name: string;
 	icon: Icon;
@@ -2611,21 +2578,41 @@ export interface DevOverlayPlugin {
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
 }
 
+export type DevOverlayPlugin = DevToolbarApp;
+
 export type DevOverlayMetadata = Window &
 	typeof globalThis & {
 		__astro_dev_overlay__: {
 			root: string;
+			version: string;
+			debugInfo: string;
 		};
 	};
 
 declare global {
 	interface HTMLElementTagNameMap {
+		'astro-dev-toolbar': AstroDevOverlay;
+		'astro-dev-toolbar-window': DevOverlayWindow;
+		'astro-dev-toolbar-plugin-canvas': DevOverlayCanvas;
+		'astro-dev-toolbar-tooltip': DevOverlayTooltip;
+		'astro-dev-toolbar-highlight': DevOverlayHighlight;
+		'astro-dev-toolbar-toggle': DevOverlayToggle;
+		'astro-dev-toolbar-badge': DevOverlayBadge;
+		'astro-dev-toolbar-button': DevOverlayButton;
+		'astro-dev-toolbar-icon': DevOverlayIcon;
+		'astro-dev-toolbar-card': DevOverlayCard;
+
+		// Deprecated names
 		'astro-dev-overlay': AstroDevOverlay;
 		'astro-dev-overlay-window': DevOverlayWindow;
 		'astro-dev-overlay-plugin-canvas': DevOverlayCanvas;
 		'astro-dev-overlay-tooltip': DevOverlayTooltip;
 		'astro-dev-overlay-highlight': DevOverlayHighlight;
 		'astro-dev-overlay-toggle': DevOverlayToggle;
+		'astro-dev-overlay-badge': DevOverlayBadge;
+		'astro-dev-overlay-button': DevOverlayButton;
+		'astro-dev-overlay-icon': DevOverlayIcon;
+		'astro-dev-overlay-card': DevOverlayCard;
 	}
 }
 

@@ -58,6 +58,16 @@ module.exports = {
     '@typescript-eslint/unbound-method': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
 
+    // Enforce separate type imports for type-only imports to avoid bundling unneeded code
+    '@typescript-eslint/consistent-type-imports': [
+      'error',
+      {
+        prefer: 'type-imports',
+        fixStyle: 'separate-type-imports',
+        disallowTypeAnnotations: false,
+      },
+    ],
+
     // These rules enabled by the preset configs don't work well for us
     '@typescript-eslint/await-thenable': 'off',
     'prefer-const': 'off',
