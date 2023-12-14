@@ -54,16 +54,19 @@ export function serverStart({
 	resolvedUrls,
 	host,
 	base,
+	tunnelUrl: tunnelUrl_,
 }: {
 	startupTime: number;
 	resolvedUrls: ResolvedServerUrls;
 	host: string | boolean;
 	base: string;
+	tunnelUrl?: string | undefined;
 }): string {
 	// PACKAGE_VERSION is injected at build-time
 	const version = process.env.PACKAGE_VERSION ?? '0.0.0';
 	const localPrefix = `${dim('┃')} Local    `;
 	const networkPrefix = `${dim('┃')} Network  `;
+	const tunnelPrefix = `${dim('┃')} Tunnel  `;
 	const emptyPrefix = ' '.repeat(11);
 
 	const localUrlMessages = resolvedUrls.local.map((url, i) => {
@@ -72,6 +75,8 @@ export function serverStart({
 	const networkUrlMessages = resolvedUrls.network.map((url, i) => {
 		return `${i === 0 ? networkPrefix : emptyPrefix}${cyan(new URL(url).origin + base)}`;
 	});
+
+	const tunnelUrl = tunnelUrl_ ? `${tunnelPrefix}${cyan(tunnelUrl_)}` : undefined;
 
 	if (networkUrlMessages.length === 0) {
 		const networkLogging = getNetworkLogging(host);
@@ -90,6 +95,7 @@ export function serverStart({
 		'',
 		...localUrlMessages,
 		...networkUrlMessages,
+		tunnelUrl,
 		'',
 	];
 	return messages.filter((msg) => typeof msg === 'string').join('\n');

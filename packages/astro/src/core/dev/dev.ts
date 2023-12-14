@@ -34,6 +34,9 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	// Start listening to the port
 	const devServerAddressInfo = await startContainer(restart.container);
+
+	const tunnelUrl = restart.container.tunnel ? await restart.container.tunnel.getURL() : undefined;
+
 	logger.info(
 		'SKIP_FORMAT',
 		msg.serverStart({
@@ -41,6 +44,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			resolvedUrls: restart.container.viteServer.resolvedUrls || { local: [], network: [] },
 			host: restart.container.settings.config.server.host,
 			base: restart.container.settings.config.base,
+			tunnelUrl,
 		})
 	);
 
