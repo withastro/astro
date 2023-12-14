@@ -67,7 +67,7 @@ Please upgrade Node.js to a supported version: "${engines}"\n`);
 		console.log(
 			`${ci.name} CI Environment Detected!\nAdditional steps may be needed to set your Node.js version:`
 		);
-		console.log(`Documentation: https://docs.astro.build/guides/deploy`);
+		console.log(`Documentation: https://docs.astro.build/en/guides/deploy/`);
 		if (CI_INSTRUCTIONS[platform]) {
 			console.log(`${ci.name} Documentation: ${CI_INSTRUCTIONS[platform]}`);
 		}
