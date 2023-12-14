@@ -1,10 +1,6 @@
 import type http from 'node:http';
 import type { ManifestData, SSRManifest } from '../@types/astro.js';
-import { collectErrorMetadata } from '../core/errors/dev/index.js';
-import { createSafeError } from '../core/errors/index.js';
-import { formatErrorMessage } from '../core/messages.js';
 import { collapseDuplicateSlashes, removeTrailingForwardSlash } from '../core/path.js';
-import { eventError, telemetry } from '../events/index.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import type { DevServerController } from './controller.js';
 import { runWithErrorHandling } from './controller.js';
