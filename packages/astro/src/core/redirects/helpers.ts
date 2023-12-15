@@ -20,7 +20,16 @@ export function redirectRouteGenerate(redirectRoute: RouteData, data: Params): s
 	if (typeof routeData !== 'undefined') {
 		return routeData?.generate(data) || routeData?.pathname || '/';
 	} else if (typeof route === 'string') {
-		console.log({ data, pattern: route});
+		// TODO: this logic is duplicated between here and manifest/create.ts
+		if (Object.keys(data).length > 0) {
+			let target = route
+			for (const param in data) {
+				const paramValue = data[param]!
+				target = target.replace(`[${param}]`, paramValue)
+				target = target.replace(`[...${param}]`, paramValue)
+			}
+			return target
+		}
 		return route;
 	} else if (typeof route === 'undefined') {
 		return '/';

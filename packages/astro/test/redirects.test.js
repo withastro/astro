@@ -87,14 +87,14 @@ describe('Astro.redirect', () => {
 				const app = await fixture.loadTestAdapterApp();
 				const request = new Request('http://example.com/source/x/y');
 				const response = await app.render(request);
-				expect(response.headers.get("Location")).to.equal("/not-verbatim/target1/x/y");
+				expect(response.headers.get("Location")).to.equal("/not-verbatim/target2/x/y");
 			});
 
 			it('Forwards params to the target path - spread param', async () => {
 				const app = await fixture.loadTestAdapterApp();
 				const request = new Request('http://example.com/source/x/y/z');
 				const response = await app.render(request);
-				expect(response.headers.get("Location")).to.equal("/not-verbatim/target1/x/y/z");
+				expect(response.headers.get("Location")).to.equal("/not-verbatim/target3/x/y/z");
 			});
 		});
 	});
