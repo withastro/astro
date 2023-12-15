@@ -460,6 +460,64 @@ function createRedirectRoutes(
 	return routes;
 }
 
+function routesCollide(a: RouteData, b: RouteData) {
+	if (a.segments.length !== b.segments.length) {
+		return false;
+	}
+
+	if (a.type === 'fallback' || b.type === 'fallback') {
+		// If either route is a fallback route, they don't collide.
+		// Fallbacks are always added below other routes exactly to avoid collisions.
+		return false;
+	}
+
+	const length = a.segments.length;
+	let hasDynamic = false;
+
+	for (let i = 0; i < length; i++) {
+		const segmentA = a.segments[i];
+		const segmentB = b.segments[i];
+
+		if (segmentA.length !== segmentB.length) {
+			return false;
+		}
+
+		const segmentLength = segmentA.length;
+
+		for (let j = 0; j < segmentLength; j++) {
+			const partA = segmentA[j];
+			const partB = segmentB[j];
+
+			if (
+				// If only one side has a rest parameter, they don't collide
+				partA.spread !== partB.spread
+				// If only one side is dynamic, they don't collide
+				|| partA.dynamic !== partB.dynamic
+			) {
+				return false;
+			}
+
+			hasDynamic = hasDynamic || partA.dynamic;
+
+			// If both sides are static and have different content, they don't collide
+			if (!partA.dynamic && partA.content !== partB.content) {
+				return false;
+			}
+		}
+	}
+
+	if (hasDynamic && (a.prerender || b.prerender)) {
+		// If the route is dynamic and either of the routes is prerendered,
+		// we cannot afirm that they collide at this point.
+		// They will only collide if both routes are prerendered and return
+		// the same parameters on `getStaticPaths`, which is checked later.
+		return false;
+	}
+
+	// If every segment and part is equivalent, they collide
+	return true;
+}
+
 /** Create manifest of all static routes */
 export function createRouteManifest(
 	params: CreateRouteManifestParams,
@@ -501,11 +559,12 @@ export function createRouteManifest(
 	// Detect route collisions
 	routes.forEach((route, index) => {
 		const collision = routes.find(
-			(other, otherIndex) => (index !== otherIndex && other.route === route.route),
+			(other, otherIndex) => (index !== otherIndex && routesCollide(route, other)),
 		);
 
 		if (collision) {
-			throw new Error(
+			logger.warn(
+				'router',
 				`Colliding routes detected in the project: "${route.route}" at "${route.component}".\n`
 				+ `This route collides with: "${collision.component}".`,
 			);
