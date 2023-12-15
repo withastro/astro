@@ -1,18 +1,11 @@
-import {
-	FileCapabilities,
-	FileKind,
-	FileRangeCapabilities,
-	Language,
-	VirtualFile,
-} from '@volar/language-core';
-import type { Mapping } from '@volar/source-map';
+import type { CodeInformation, LanguagePlugin, Mapping, VirtualFile } from '@volar/language-core';
 import type ts from 'typescript/lib/tsserverlibrary';
 import { framework2tsx } from './utils.js';
 
-export function getSvelteLanguageModule(): Language<SvelteFile> {
+export function getSvelteLanguageModule(): LanguagePlugin<SvelteFile> {
 	return {
-		createVirtualFile(fileName, snapshot) {
-			if (fileName.endsWith('.svelte')) {
+		createVirtualFile(fileName, languageId, snapshot) {
+			if (languageId === 'svelte') {
 				return new SvelteFile(fileName, snapshot);
 			}
 		},
@@ -23,19 +16,17 @@ export function getSvelteLanguageModule(): Language<SvelteFile> {
 }
 
 class SvelteFile implements VirtualFile {
-	kind = FileKind.TextFile;
-	capabilities = FileCapabilities.full;
-
 	fileName: string;
-	mappings!: Mapping<FileRangeCapabilities>[];
+	languageId = 'svelte';
+	mappings!: Mapping<CodeInformation>[];
 	embeddedFiles!: VirtualFile[];
 	codegenStacks = [];
 
 	constructor(
-		public sourceFileName: string,
+		public sourceFileId: string,
 		public snapshot: ts.IScriptSnapshot
 	) {
-		this.fileName = sourceFileName;
+		this.fileName = sourceFileId;
 		this.onSnapshotUpdated();
 	}
 
@@ -47,9 +38,17 @@ class SvelteFile implements VirtualFile {
 	private onSnapshotUpdated() {
 		this.mappings = [
 			{
-				sourceRange: [0, this.snapshot.getLength()],
-				generatedRange: [0, this.snapshot.getLength()],
-				data: FileRangeCapabilities.full,
+				sourceOffsets: [0],
+				generatedOffsets: [0],
+				lengths: [this.snapshot.getLength()],
+				data: {
+					verification: true,
+					completion: true,
+					semantic: true,
+					navigation: true,
+					structure: true,
+					format: true,
+				},
 			},
 		];
 

@@ -1,19 +1,13 @@
-import {
-	FileCapabilities,
-	FileKind,
-	FileRangeCapabilities,
-	type Language,
-	type VirtualFile,
-} from '@volar/language-core';
+import type { LanguagePlugin, VirtualFile } from '@volar/language-core';
 import type ts from 'typescript/lib/tsserverlibrary.js';
 import { astro2tsx } from './astro2tsx.js';
 
 export function getLanguageModule(
 	ts: typeof import('typescript/lib/tsserverlibrary.js')
-): Language<AstroFile> {
+): LanguagePlugin<AstroFile> {
 	return {
-		createVirtualFile(fileName, snapshot) {
-			if (fileName.endsWith('.astro')) {
+		createVirtualFile(fileName, languageId, snapshot) {
+			if (languageId === 'astro') {
 				return new AstroFile(fileName, snapshot, ts);
 			}
 		},
@@ -24,10 +18,8 @@ export function getLanguageModule(
 }
 
 export class AstroFile implements VirtualFile {
-	kind = FileKind.TextFile;
-	capabilities = FileCapabilities.full;
-
 	fileName: string;
+	languageId = 'astro';
 	mappings!: VirtualFile['mappings'];
 	embeddedFiles!: VirtualFile['embeddedFiles'];
 	codegenStacks = [];
@@ -49,9 +41,17 @@ export class AstroFile implements VirtualFile {
 	onSnapshotUpdated() {
 		this.mappings = [
 			{
-				sourceRange: [0, this.snapshot.getLength()],
-				generatedRange: [0, this.snapshot.getLength()],
-				data: FileRangeCapabilities.full,
+				sourceOffsets: [0],
+				generatedOffsets: [0],
+				lengths: [this.snapshot.getLength()],
+				data: {
+					verification: true,
+					completion: true,
+					semantic: true,
+					navigation: true,
+					structure: true,
+					format: false,
+				},
 			},
 		];
 

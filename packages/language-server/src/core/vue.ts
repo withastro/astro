@@ -1,18 +1,11 @@
-import {
-	FileCapabilities,
-	FileKind,
-	FileRangeCapabilities,
-	Language,
-	VirtualFile,
-} from '@volar/language-core';
-import type { Mapping } from '@volar/source-map';
+import type { CodeInformation, LanguagePlugin, Mapping, VirtualFile } from '@volar/language-core';
 import type ts from 'typescript/lib/tsserverlibrary';
 import { framework2tsx } from './utils.js';
 
-export function getVueLanguageModule(): Language<VueFile> {
+export function getVueLanguageModule(): LanguagePlugin<VueFile> {
 	return {
-		createVirtualFile(fileName, snapshot) {
-			if (fileName.endsWith('.vue')) {
+		createVirtualFile(fileName, languageId, snapshot) {
+			if (languageId === 'vue') {
 				return new VueFile(fileName, snapshot);
 			}
 		},
@@ -23,11 +16,9 @@ export function getVueLanguageModule(): Language<VueFile> {
 }
 
 class VueFile implements VirtualFile {
-	kind = FileKind.TextFile;
-	capabilities = FileCapabilities.full;
-
 	fileName: string;
-	mappings!: Mapping<FileRangeCapabilities>[];
+	languageId = 'vue';
+	mappings!: Mapping<CodeInformation>[];
 	embeddedFiles!: VirtualFile[];
 	codegenStacks = [];
 
@@ -47,9 +38,17 @@ class VueFile implements VirtualFile {
 	private onSnapshotUpdated() {
 		this.mappings = [
 			{
-				sourceRange: [0, this.snapshot.getLength()],
-				generatedRange: [0, this.snapshot.getLength()],
-				data: FileRangeCapabilities.full,
+				sourceOffsets: [0],
+				generatedOffsets: [0],
+				lengths: [this.snapshot.getLength()],
+				data: {
+					verification: true,
+					completion: true,
+					semantic: true,
+					navigation: true,
+					structure: true,
+					format: true,
+				},
 			},
 		];
 

@@ -1,9 +1,4 @@
-import {
-	FileCapabilities,
-	FileKind,
-	FileRangeCapabilities,
-	type VirtualFile,
-} from '@volar/language-core';
+import type { VirtualFile } from '@volar/language-core';
 import * as path from 'node:path';
 import { URI, Utils } from 'vscode-uri';
 import { importSvelteIntegration, importVueIntegration } from '../importPackage';
@@ -30,19 +25,28 @@ export function framework2tsx(
 	function getVirtualFile(content: string): VirtualFile {
 		return {
 			fileName: fileName + '.tsx',
-			capabilities: FileCapabilities.full,
-			kind: FileKind.TypeScriptHostFile,
+			languageId: 'typescript',
+			typescript: {
+				scriptKind: 4 satisfies import('typescript/lib/tsserverlibrary').ScriptKind.TSX,
+			},
 			snapshot: {
 				getText: (start, end) => content.substring(start, end),
 				getLength: () => content.length,
 				getChangeRange: () => undefined,
 			},
-			codegenStacks: [],
 			mappings: [
 				{
-					sourceRange: [0, content.length],
-					generatedRange: [0, 0],
-					data: FileRangeCapabilities.full,
+					sourceOffsets: [0],
+					generatedOffsets: [0],
+					lengths: [content.length],
+					data: {
+						verification: true,
+						completion: true,
+						semantic: true,
+						navigation: true,
+						structure: true,
+						format: true,
+					},
 				},
 			],
 			embeddedFiles: [],

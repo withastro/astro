@@ -1,11 +1,5 @@
 import type { DiagnosticMessage, ParseResult } from '@astrojs/compiler/types';
-import {
-	FileCapabilities,
-	FileKind,
-	FileRangeCapabilities,
-	type Language,
-	type VirtualFile,
-} from '@volar/language-core';
+import type { LanguagePlugin, VirtualFile } from '@volar/language-core';
 import * as path from 'node:path';
 import type ts from 'typescript/lib/tsserverlibrary';
 import type { HTMLDocument } from 'vscode-html-languageservice';
@@ -19,70 +13,75 @@ import { extractScriptTags } from './parseJS.js';
 export function getLanguageModule(
 	astroInstall: AstroInstall | undefined,
 	ts: typeof import('typescript/lib/tsserverlibrary.js')
-): Language<AstroFile> {
+): LanguagePlugin<AstroFile> {
 	return {
-		createVirtualFile(fileName, snapshot) {
-			if (fileName.endsWith('.astro')) {
+		createVirtualFile(fileName, languageId, snapshot) {
+			if (languageId === 'astro') {
 				return new AstroFile(fileName, snapshot, ts);
 			}
 		},
 		updateVirtualFile(astroFile, snapshot) {
 			astroFile.update(snapshot);
 		},
-		resolveHost(host) {
-			return {
-				...host,
-				resolveModuleName(moduleName, impliedNodeFormat) {
-					if (
-						impliedNodeFormat === ts.ModuleKind.ESNext &&
-						(moduleName.endsWith('.astro') ||
-							moduleName.endsWith('.vue') ||
-							moduleName.endsWith('.svelte'))
-					) {
-						return `${moduleName}.js`;
-					}
-					return host.resolveModuleName?.(moduleName, impliedNodeFormat) ?? moduleName;
-				},
-				getScriptFileNames() {
-					const fileNames = host.getScriptFileNames();
-					return [
-						...fileNames,
-						...(astroInstall
-							? ['./env.d.ts', './astro-jsx.d.ts'].map((filePath) =>
-									ts.sys.resolvePath(path.resolve(astroInstall.path, filePath))
-							  )
-							: []),
-					];
-				},
-				getCompilationSettings() {
-					const baseCompilationSettings = host.getCompilationSettings();
-					return {
-						...baseCompilationSettings,
-						module: ts.ModuleKind.ESNext ?? 99,
-						target: ts.ScriptTarget.ESNext ?? 99,
-						jsx: ts.JsxEmit.Preserve ?? 1,
-						jsxImportSource: undefined,
-						jsxFactory: 'astroHTML',
-						resolveJsonModule: true,
-						allowJs: true,
-						isolatedModules: true,
-						moduleResolution:
-							baseCompilationSettings.moduleResolution === ts.ModuleResolutionKind.Classic ||
-							!baseCompilationSettings.moduleResolution
-								? ts.ModuleResolutionKind.Node10
-								: baseCompilationSettings.moduleResolution,
-					};
-				},
-			};
+		typescript: {
+			resolveSourceFileName(tsFileName) {
+				const baseName = path.basename(tsFileName);
+				if (baseName.indexOf('.astro.')) {
+					return tsFileName.substring(0, tsFileName.lastIndexOf('.astro.') + '.astro'.length);
+				}
+			},
+			resolveModuleName(moduleName, impliedNodeFormat) {
+				if (
+					impliedNodeFormat === ts.ModuleKind.ESNext &&
+					(moduleName.endsWith('.astro') ||
+						moduleName.endsWith('.vue') ||
+						moduleName.endsWith('.svelte'))
+				) {
+					return `${moduleName}.js`;
+				}
+			},
+			resolveLanguageServiceHost(host) {
+				return {
+					...host,
+					getScriptFileNames() {
+						const fileNames = host.getScriptFileNames();
+						return [
+							...fileNames,
+							...(astroInstall
+								? ['./env.d.ts', './astro-jsx.d.ts'].map((filePath) =>
+										ts.sys.resolvePath(path.resolve(astroInstall.path, filePath))
+								  )
+								: []),
+						];
+					},
+					getCompilationSettings() {
+						const baseCompilationSettings = host.getCompilationSettings();
+						return {
+							...baseCompilationSettings,
+							module: ts.ModuleKind.ESNext ?? 99,
+							target: ts.ScriptTarget.ESNext ?? 99,
+							jsx: ts.JsxEmit.Preserve ?? 1,
+							jsxImportSource: undefined,
+							jsxFactory: 'astroHTML',
+							resolveJsonModule: true,
+							allowJs: true,
+							isolatedModules: true,
+							moduleResolution:
+								baseCompilationSettings.moduleResolution === ts.ModuleResolutionKind.Classic ||
+								!baseCompilationSettings.moduleResolution
+									? ts.ModuleResolutionKind.Node10
+									: baseCompilationSettings.moduleResolution,
+						};
+					},
+				};
+			},
 		},
 	};
 }
 
 export class AstroFile implements VirtualFile {
-	kind = FileKind.TextFile;
-	capabilities = FileCapabilities.full;
-
 	fileName: string;
+	languageId = 'astro';
 	mappings!: VirtualFile['mappings'];
 	embeddedFiles!: VirtualFile['embeddedFiles'];
 	astroMeta!: ParseResult & { frontmatter: FrontmatterStatus };
@@ -112,9 +111,17 @@ export class AstroFile implements VirtualFile {
 	onSnapshotUpdated() {
 		this.mappings = [
 			{
-				sourceRange: [0, this.snapshot.getLength()],
-				generatedRange: [0, this.snapshot.getLength()],
-				data: FileRangeCapabilities.full,
+				sourceOffsets: [0],
+				generatedOffsets: [0],
+				lengths: [this.snapshot.getLength()],
+				data: {
+					verification: true,
+					completion: true,
+					semantic: true,
+					navigation: true,
+					structure: true,
+					format: true,
+				},
 			},
 		];
 		this.compilerDiagnostics = [];

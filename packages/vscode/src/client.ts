@@ -70,23 +70,22 @@ export async function activate(context: vscode.ExtensionContext): Promise<Export
 	await client.start();
 
 	// support for auto close tag
-	activateAutoInsertion([client], (document) => document.languageId === 'astro');
+	activateAutoInsertion('astro', client);
 	activateFindFileReferences('astro.findFileReferences', client);
-	activateReloadProjects('astro.reloadProjects', [client]);
-	activateTsConfigStatusItem('astro.openTsConfig', client, () => false);
+	activateReloadProjects('astro.reloadProjects', client);
+	activateTsConfigStatusItem('astro', 'astro.openTsConfig', client);
 	activateTsVersionStatusItem(
+		'astro',
 		'astro.selectTypescriptVersion',
 		context,
 		client,
-		(document) => document.languageId === 'astro',
-		(text) => text,
-		true
+		(text) => text
 	);
 
 	return {
 		volarLabs: {
 			version: supportLabsVersion,
-			languageClients: [client],
+			languageClient: client,
 			languageServerProtocol: protocol,
 		},
 	};

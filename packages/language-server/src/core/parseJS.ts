@@ -1,8 +1,12 @@
 import type { ParentNode, ParseResult } from '@astrojs/compiler/types';
 import { is } from '@astrojs/compiler/utils';
-import { FileKind, FileRangeCapabilities, VirtualFile } from '@volar/language-core';
-import * as SourceMap from '@volar/source-map';
-import * as muggle from 'muggle-string';
+import {
+	buildMappings,
+	toString,
+	type CodeInformation,
+	type Segment,
+	type VirtualFile,
+} from '@volar/language-core';
 import type ts from 'typescript/lib/tsserverlibrary';
 import type { HTMLDocument, Node } from 'vscode-html-languageservice';
 
@@ -63,30 +67,37 @@ function findModuleScripts(
 			) {
 				const scriptText = snapshot.getText(node.startTagEnd, node.endTagStart);
 				const extension = getScriptType(node) === 'processed module' ? 'mts' : 'mjs';
+				const languageId = getScriptType(node) === 'processed module' ? 'typescript' : 'javascript';
+				const scriptKind =
+					getScriptType(node) === 'processed module'
+						? (3 satisfies ts.ScriptKind.TS)
+						: (1 satisfies ts.ScriptKind.JS);
 				embeddedScripts.push({
 					fileName: fileName + `.${scriptIndex}.${extension}`,
-					kind: FileKind.TypeScriptHostFile,
+					languageId: languageId,
+					typescript: {
+						scriptKind: scriptKind,
+					},
 					snapshot: {
 						getText: (start, end) => scriptText.substring(start, end),
 						getLength: () => scriptText.length,
 						getChangeRange: () => undefined,
 					},
-					codegenStacks: [],
 					mappings: [
 						{
-							sourceRange: [node.startTagEnd, node.endTagStart],
-							generatedRange: [0, scriptText.length],
-							data: FileRangeCapabilities.full,
+							sourceOffsets: [node.startTagEnd],
+							generatedOffsets: [0],
+							lengths: [scriptText.length],
+							data: {
+								verification: true,
+								completion: true,
+								semantic: true,
+								navigation: true,
+								structure: true,
+								format: false,
+							},
 						},
 					],
-					capabilities: {
-						diagnostic: true,
-						codeAction: true,
-						inlayHint: true,
-						documentSymbol: true,
-						foldingRange: true,
-						documentFormatting: false,
-					},
 					embeddedFiles: [],
 				});
 				scriptIndex++;
@@ -197,38 +208,39 @@ function findEventAttributes(ast: ParseResult['ast']): JavaScriptContext[] {
  * Merge all the inline and non-hoisted scripts into a single `.mjs` file
  */
 function mergeJSContexts(fileName: string, javascriptContexts: JavaScriptContext[]): VirtualFile {
-	const codes: muggle.Segment<FileRangeCapabilities>[] = [];
+	const codes: Segment<CodeInformation>[] = [];
 
 	for (const javascriptContext of javascriptContexts) {
 		codes.push([
 			javascriptContext.content,
 			undefined,
 			javascriptContext.startOffset,
-			FileRangeCapabilities.full,
+			{
+				verification: true,
+				completion: true,
+				semantic: true,
+				navigation: true,
+				structure: true,
+				format: false,
+			},
 		]);
 	}
 
-	const mappings = SourceMap.buildMappings(codes);
-	const text = muggle.toString(codes);
+	const mappings = buildMappings(codes);
+	const text = toString(codes);
 
 	return {
 		fileName: fileName + '.inline.mjs',
-		codegenStacks: [],
+		languageId: 'javascript',
+		typescript: {
+			scriptKind: 1 satisfies ts.ScriptKind.JS,
+		},
 		snapshot: {
 			getText: (start, end) => text.substring(start, end),
 			getLength: () => text.length,
 			getChangeRange: () => undefined,
 		},
-		capabilities: {
-			codeAction: true,
-			diagnostic: true,
-			documentFormatting: false,
-			documentSymbol: true,
-			foldingRange: true,
-			inlayHint: true,
-		},
 		embeddedFiles: [],
-		kind: FileKind.TypeScriptHostFile,
 		mappings,
 	};
 }
