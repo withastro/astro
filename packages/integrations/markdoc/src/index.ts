@@ -6,6 +6,11 @@ import {
 	type MarkdocConfigResult,
 } from './load-config.js';
 import type { MarkdocIntegrationOptions } from './options.js';
+import type { Config } from '@markdoc/markdoc';
+
+export type AstroMarkdocComponent = {
+	config: Config;
+}
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API

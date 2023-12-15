@@ -1,5 +1,5 @@
 import type { AstroInstance } from 'astro';
-import type { RenderableTreeNode } from '@markdoc/markdoc';
+import type { Config, RenderableTreeNode } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import {
 	createComponent,
@@ -16,33 +16,33 @@ import {
 
 export type TreeNode =
 	| {
-			type: 'text';
-			content: string | HTMLString;
-	  }
+		type: 'text';
+		content: string | HTMLString;
+	}
 	| {
-			type: 'component';
-			component: AstroInstance['default'];
-			collectedLinks?: string[];
-			collectedStyles?: string[];
-			collectedScripts?: string[];
-			props: Record<string, any>;
-			children: TreeNode[];
-	  }
+		type: 'component';
+		component: AstroInstance['default'];
+		collectedLinks?: string[];
+		collectedStyles?: string[];
+		collectedScripts?: string[];
+		props: Record<string, any>;
+		children: TreeNode[];
+	}
 	| {
-			type: 'element';
-			tag: string;
-			attributes: Record<string, any>;
-			children: TreeNode[];
-	  };
+		type: 'element';
+		tag: string;
+		attributes: Record<string, any>;
+		children: TreeNode[];
+	};
 
 export const ComponentNode = createComponent({
-	factory(result: any, { treeNode }: { treeNode: TreeNode }) {
+	factory(result: any, { treeNode, config }: { treeNode: TreeNode, config: Config }) {
 		if (treeNode.type === 'text') return render`${treeNode.content}`;
 
 		const slots = {
 			default: () =>
 				render`${treeNode.children.map((child) =>
-					renderComponent(result, 'ComponentNode', ComponentNode, { treeNode: child })
+					renderComponent(result, 'ComponentNode', ComponentNode, { treeNode: child, config: config })
 				)}`,
 		};
 		if (treeNode.type === 'component') {
@@ -83,7 +83,10 @@ export const ComponentNode = createComponent({
 					result,
 					treeNode.component.name,
 					treeNode.component,
-					treeNode.props,
+					{
+						config,
+						...treeNode.props,
+					},
 					slots
 				)}`
 			);

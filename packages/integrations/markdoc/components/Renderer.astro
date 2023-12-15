@@ -17,8 +17,8 @@ const content = Markdoc.transform(ast, config);
 
 {
 	Array.isArray(content) ? (
-		content.map(async (c) => <ComponentNode treeNode={await createTreeNode(c)} />)
+		content.map(async (c) => <ComponentNode config={config} treeNode={await createTreeNode(c)} />)
 	) : (
-		<ComponentNode treeNode={await createTreeNode(content)} />
+		<ComponentNode config={config} treeNode={await createTreeNode(content)} />
 	)
 }
