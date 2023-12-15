@@ -2554,12 +2554,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/custom-404:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/custom-404-html:
     dependencies:
       astro:
@@ -2617,7 +2611,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/custom-404-server:
+  packages/astro/test/fixtures/custom-404-static:
     dependencies:
       astro:
         specifier: workspace:*
@@ -3353,12 +3347,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/ssr-api-route-custom-404:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/ssr-assets:
     dependencies:
       astro:
@@ -3382,6 +3370,12 @@ importers:
       preact:
         specifier: ^10.19.2
         version: 10.19.2
+
+  packages/astro/test/fixtures/ssr-error-pages:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
 
   packages/astro/test/fixtures/ssr-hoisted-script:
     dependencies:
@@ -3537,12 +3531,6 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/static-build/pkg: {}
-
-  packages/astro/test/fixtures/status-code:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
 
   packages/astro/test/fixtures/streaming:
     dependencies:

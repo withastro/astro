@@ -420,22 +420,15 @@ function createRedirectRoutes(
 			.map(([{dynamic, content}]) => (dynamic ? `[${content}]` : content))
 			.join('/')}`.toLowerCase();
 
-		{
-			let destination: string;
-			if (typeof to === 'string') {
-				destination = to;
-			} else {
-				destination = to.destination;
-			}
-			if (/^https?:\/\//.test(destination)) {
-				logger.warn(
-					'redirects',
-					`Redirecting to an external URL is not officially supported: ${from} -> ${to}`,
-				);
-			}
-		}
 
 		const destination = typeof to === 'string' ? to : to.destination;
+		if (/^https?:\/\//.test(destination)) {
+			logger.warn(
+				'redirects',
+				`Redirecting to an external URL is not officially supported: ${from} -> ${destination}`,
+			);
+		}
+			
 		const priority = typeof to === 'string' ? undefined : to.priority;
 
 		routes[priority ?? 'below-project'].push({

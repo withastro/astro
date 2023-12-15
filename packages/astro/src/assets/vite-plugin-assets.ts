@@ -12,8 +12,8 @@ import {
 } from '../core/path.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
-import { isESMImportedImage } from './internal.js';
 import { emitESMImage } from './utils/emitAsset.js';
+import { isESMImportedImage } from './utils/imageKind.js';
 import { getProxyCode } from './utils/proxy.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
