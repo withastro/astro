@@ -1555,10 +1555,20 @@ export interface AstroUserConfig {
  */
 export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 'page-ssr';
 
+// TODO: Reconsider the names
+/**
+ * IDs for different priorities of injected routes and redirects:
+ * - "above-project": Override any project route in case of conflict.
+ * - "same-as-project": Behave the same as if the route was defined in the project, following the same priority rules.
+ * - "below-project": Only match if no project route matches.
+ */
+export type RoutePriorityOverride = 'above-project' | 'same-as-project' | 'below-project';
+
 export interface InjectedRoute {
 	pattern: string;
 	entrypoint: string;
 	prerender?: boolean;
+	priority?: RoutePriorityOverride;
 }
 
 export interface ResolvedInjectedRoute extends InjectedRoute {
@@ -2385,6 +2395,7 @@ type RedirectConfig =
 	| {
 			status: ValidRedirectStatus;
 			destination: string;
+			priority?: RoutePriorityOverride;
 	  };
 
 export interface RouteData {

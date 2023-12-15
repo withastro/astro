@@ -1,7 +1,7 @@
 import type {
 	AstroConfig,
 	AstroSettings,
-	InjectedRoute,
+	RoutePriorityOverride,
 	ManifestData,
 	RouteData,
 	RoutePart,
@@ -115,11 +115,6 @@ function getTrailingSlashPattern(addTrailingSlash: AstroConfig['trailingSlash'])
 	return '\\/?$';
 }
 
-function isSpread(str: string) {
-	const spreadPattern = /\[\.{3}/g;
-	return spreadPattern.test(str);
-}
-
 function validateSegment(segment: string, file = '') {
 	if (!file) file = segment;
 
@@ -137,77 +132,39 @@ function validateSegment(segment: string, file = '') {
 	}
 }
 
-function comparator(a: Item, b: Item) {
-	if (a.isIndex !== b.isIndex) {
-		if (a.isIndex) return isSpread(a.file) ? 1 : -1;
+function comparator(a: RouteData, b: RouteData) {
+	const aIsStatic = a.segments.every((segment) => segment.every((part) => !part.dynamic && !part.spread));
+	const bIsStatic = b.segments.every((segment) => segment.every((part) => !part.dynamic && !part.spread));
 
-		return isSpread(b.file) ? -1 : 1;
+	// static routes go first
+	if (aIsStatic !== bIsStatic) {
+		return aIsStatic ? -1 : 1;
 	}
 
-	const max = Math.max(a.parts.length, b.parts.length);
+	const aHasSpread = a.segments.some((segment) => segment.some((part) => part.spread));
+	const bHasSpread = b.segments.some((segment) => segment.some((part) => part.spread));
 
-	for (let i = 0; i < max; i += 1) {
-		const aSubPart = a.parts[i];
-		const bSubPart = b.parts[i];
-
-		if (!aSubPart) return 1; // b is more specific, so goes first
-		if (!bSubPart) return -1;
-
-		// if spread && index, order later
-		if (aSubPart.spread && bSubPart.spread) {
-			return a.isIndex ? 1 : -1;
-		}
-
-		// If one is ...spread order it later
-		if (aSubPart.spread !== bSubPart.spread) return aSubPart.spread ? 1 : -1;
-
-		if (aSubPart.dynamic !== bSubPart.dynamic) {
-			return aSubPart.dynamic ? 1 : -1;
-		}
-
-		if (!aSubPart.dynamic && aSubPart.content !== bSubPart.content) {
-			return (
-				bSubPart.content.length - aSubPart.content.length ||
-				(aSubPart.content < bSubPart.content ? -1 : 1)
-			);
-		}
+	// rest parameters go last
+	if (aHasSpread !== bHasSpread) {
+		return aHasSpread ? 1 : -1;
 	}
 
-	// endpoints are prioritized over pages
-	if (a.isPage !== b.isPage) {
-		return a.isPage ? 1 : -1;
+	// prerendered routes go first
+	if (a.prerender !== b.prerender) {
+		return a.prerender ? -1 : 1;
 	}
 
-	// otherwise sort alphabetically
-	return a.file < b.file ? -1 : 1;
-}
-
-function injectedRouteToItem(
-	{ config, cwd }: { config: AstroConfig; cwd?: string },
-	{ pattern, entrypoint }: InjectedRoute
-): Item {
-	let resolved: string;
-	try {
-		resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
-	} catch (e) {
-		resolved = fileURLToPath(new URL(entrypoint, config.root));
+	// endpoints take precedence over pages
+	if ((a.type === 'endpoint') !== (b.type === 'endpoint')) {
+		return a.type === 'endpoint' ? -1 : 1;
 	}
 
-	const ext = path.extname(pattern);
+	// more specific routes go first
+	if (a.segments.length !== b.segments.length) {
+		return a.segments.length > b.segments.length ? -1 : 1;
+	}
 
-	const type = resolved.endsWith('.astro') ? 'page' : 'endpoint';
-	const isPage = type === 'page';
-
-	return {
-		basename: pattern,
-		ext,
-		parts: getParts(pattern, resolved),
-		file: resolved,
-		isDir: false,
-		isIndex: true,
-		isPage,
-		routeSuffix: pattern.slice(pattern.indexOf('.'), -ext.length),
-	};
+	return a.route.localeCompare(b.route);
 }
 
 export interface CreateRouteManifestParams {
@@ -219,11 +176,10 @@ export interface CreateRouteManifestParams {
 	fsMod?: typeof nodeFs;
 }
 
-/** Create manifest of all static routes */
-export function createRouteManifest(
-	{ settings, cwd, fsMod }: CreateRouteManifestParams,
-	logger: Logger
-): ManifestData {
+function createProjectRoutes(
+	{settings, cwd, fsMod}: CreateRouteManifestParams,
+	logger: Logger,
+): RouteData[] {
 	const components: string[] = [];
 	const routes: RouteData[] = [];
 	const validPageExtensions = new Set<string>([
@@ -239,7 +195,7 @@ export function createRouteManifest(
 		fs: typeof nodeFs,
 		dir: string,
 		parentSegments: RoutePart[][],
-		parentParams: string[]
+		parentParams: string[],
 	) {
 		let items: Item[] = [];
 		fs.readdirSync(dir).forEach((basename) => {
@@ -261,8 +217,8 @@ export function createRouteManifest(
 				logger.warn(
 					null,
 					`Unsupported file type ${bold(
-						resolved
-					)} found. Prefix filename with an underscore (\`_\`) to ignore.`
+						resolved,
+					)} found. Prefix filename with an underscore (\`_\`) to ignore.`,
 				);
 
 				return;
@@ -286,7 +242,6 @@ export function createRouteManifest(
 				routeSuffix,
 			});
 		});
-		items = items.sort(comparator);
 
 		items.forEach((item) => {
 			const segments = parentSegments.slice();
@@ -335,7 +290,7 @@ export function createRouteManifest(
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
 				const route = `/${segments
-					.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
+					.map(([{dynamic, content}]) => (dynamic ? `[${content}]` : content))
 					.join('/')}`.toLowerCase();
 				routes.push({
 					route,
@@ -353,7 +308,7 @@ export function createRouteManifest(
 		});
 	}
 
-	const { config } = settings;
+	const {config} = settings;
 	const pages = resolvePages(config);
 
 	if (localFs.existsSync(pages)) {
@@ -363,69 +318,83 @@ export function createRouteManifest(
 		logger.warn(null, `Missing pages directory: ${pagesDirRootRelative}`);
 	}
 
-	settings.injectedRoutes
-		?.sort((a, b) =>
-			// sort injected routes in the same way as user-defined routes
-			comparator(injectedRouteToItem({ config, cwd }, a), injectedRouteToItem({ config, cwd }, b))
-		)
-		.reverse() // prepend to the routes array from lowest to highest priority
-		.forEach(({ pattern: name, entrypoint, prerender: prerenderInjected }) => {
-			let resolved: string;
-			try {
-				resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
-			} catch (e) {
-				resolved = fileURLToPath(new URL(entrypoint, config.root));
-			}
-			const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
+	return routes;
+}
 
-			const segments = removeLeadingForwardSlash(name)
-				.split(path.posix.sep)
-				.filter(Boolean)
-				.map((s: string) => {
-					validateSegment(s);
-					return getParts(s, component);
-				});
+type PrioritizedRoutesData = Record<RoutePriorityOverride, RouteData[]>;
 
-			const type = resolved.endsWith('.astro') ? 'page' : 'endpoint';
-			const isPage = type === 'page';
-			const trailingSlash = isPage ? config.trailingSlash : 'never';
+function createInjectedRoutes({settings, cwd}: CreateRouteManifestParams): PrioritizedRoutesData {
+	const {config} = settings;
+	const prerender = getPrerenderDefault(config);
 
-			const pattern = getPattern(segments, settings.config, trailingSlash);
-			const generate = getRouteGenerator(segments, trailingSlash);
-			const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
-				? `/${segments.map((segment) => segment[0].content).join('/')}`
-				: null;
-			const params = segments
-				.flat()
-				.filter((p) => p.dynamic)
-				.map((p) => p.content);
-			const route = `/${segments
-				.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
-				.join('/')}`.toLowerCase();
+	const routes: PrioritizedRoutesData = {
+		'above-project': [],
+		'same-as-project': [],
+		'below-project': [],
+	};
 
-			const collision = routes.find(({ route: r }) => r === route);
-			if (collision) {
-				throw new Error(
-					`An integration attempted to inject a route that is already used in your project: "${route}" at "${component}". \nThis route collides with: "${collision.component}".`
-				);
-			}
+	settings.injectedRoutes.forEach(({pattern: name, entrypoint, prerender: prerenderInjected, priority}) => {
+		let resolved: string;
+		try {
+			resolved = require.resolve(entrypoint, {paths: [cwd || fileURLToPath(config.root)]});
+		} catch (e) {
+			resolved = fileURLToPath(new URL(entrypoint, config.root));
+		}
+		const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
 
-			// the routes array was already sorted by priority,
-			// pushing to the front of the list ensure that injected routes
-			// are given priority over all user-provided routes
-			routes.unshift({
-				type,
-				route,
-				pattern,
-				segments,
-				params,
-				component,
-				generate,
-				pathname: pathname || void 0,
-				prerender: prerenderInjected ?? prerender,
-				fallbackRoutes: [],
+		const segments = removeLeadingForwardSlash(name)
+			.split(path.posix.sep)
+			.filter(Boolean)
+			.map((s: string) => {
+				validateSegment(s);
+				return getParts(s, component);
 			});
+
+		const type = resolved.endsWith('.astro') ? 'page' : 'endpoint';
+		const isPage = type === 'page';
+		const trailingSlash = isPage ? config.trailingSlash : 'never';
+
+		const pattern = getPattern(segments, settings.config, trailingSlash);
+		const generate = getRouteGenerator(segments, trailingSlash);
+		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
+			? `/${segments.map((segment) => segment[0].content).join('/')}`
+			: null;
+		const params = segments
+			.flat()
+			.filter((p) => p.dynamic)
+			.map((p) => p.content);
+		const route = `/${segments
+			.map(([{dynamic, content}]) => (dynamic ? `[${content}]` : content))
+			.join('/')}`.toLowerCase();
+
+		routes[priority ?? 'above-project'].push({
+			type,
+			route,
+			pattern,
+			segments,
+			params,
+			component,
+			generate,
+			pathname: pathname || void 0,
+			prerender: prerenderInjected ?? prerender,
+			fallbackRoutes: [],
 		});
+	});
+
+	return routes;
+}
+
+function createRedirectRoutes(
+	{settings}: CreateRouteManifestParams,
+	routeMap: Map<string, RouteData>,
+	logger: Logger,
+): PrioritizedRoutesData {
+	const {config} = settings;
+	const routes: PrioritizedRoutesData = {
+		'above-project': [],
+		'same-as-project': [],
+		'below-project': [],
+	};
 
 	Object.entries(settings.config.redirects).forEach(([from, to]) => {
 		const trailingSlash = config.trailingSlash;
@@ -448,7 +417,7 @@ export function createRouteManifest(
 			.filter((p) => p.dynamic)
 			.map((p) => p.content);
 		const route = `/${segments
-			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
+			.map(([{dynamic, content}]) => (dynamic ? `[${content}]` : content))
 			.join('/')}`.toLowerCase();
 
 		{
@@ -461,12 +430,15 @@ export function createRouteManifest(
 			if (/^https?:\/\//.test(destination)) {
 				logger.warn(
 					'redirects',
-					`Redirecting to an external URL is not officially supported: ${from} -> ${to}`
+					`Redirecting to an external URL is not officially supported: ${from} -> ${to}`,
 				);
 			}
 		}
 
-		const routeData: RouteData = {
+		const destination = typeof to === 'string' ? to : to.destination;
+		const priority = typeof to === 'string' ? undefined : to.priority;
+
+		routes[priority ?? 'below-project'].push({
 			type: 'redirect',
 			route,
 			pattern,
@@ -476,35 +448,73 @@ export function createRouteManifest(
 			generate,
 			pathname: pathname || void 0,
 			prerender: false,
-			redirect: to,
-			redirectRoute: routes.find((r) => r.route === to),
+			redirect: typeof to === 'string' ? to : {
+				status: to.status,
+				destination: to.destination,
+			},
+			redirectRoute: routeMap.get(destination),
 			fallbackRoutes: [],
-		};
-
-		const lastSegmentIsDynamic = (r: RouteData) => !!r.segments.at(-1)?.at(-1)?.dynamic;
-
-		const redirBase = path.posix.dirname(route);
-		const dynamicRedir = lastSegmentIsDynamic(routeData);
-		let i = 0;
-		for (const existingRoute of routes) {
-			// An exact match, prefer the page/endpoint. This matches hosts.
-			if (existingRoute.route === route) {
-				routes.splice(i + 1, 0, routeData);
-				return;
-			}
-
-			// If the existing route is dynamic, prefer the static redirect.
-			const base = path.posix.dirname(existingRoute.route);
-			if (base === redirBase && !dynamicRedir && lastSegmentIsDynamic(existingRoute)) {
-				routes.splice(i, 0, routeData);
-				return;
-			}
-			i++;
-		}
-
-		// Didn't find a good place, insert last
-		routes.push(routeData);
+		});
 	});
+
+	return routes;
+}
+
+/** Create manifest of all static routes */
+export function createRouteManifest(
+	params: CreateRouteManifestParams,
+	logger: Logger,
+): ManifestData {
+	// Create a map of all routes so redirects can refer to any route
+	const routeMap = new Map();
+
+	const projectRoutes = createProjectRoutes(params, logger);
+	projectRoutes.forEach((route) => {
+		routeMap.set(route.route, route);
+	});
+
+	const injectedRoutes = createInjectedRoutes(params);
+	Object.entries(injectedRoutes).forEach(([, routes]) => {
+		routes.forEach((route) => {
+			routeMap.set(route.route, route);
+		});
+	});
+
+	const redirectRoutes = createRedirectRoutes(params, routeMap, logger);
+
+	const routes: RouteData[] = [
+		...[
+			...injectedRoutes['above-project'],
+			...redirectRoutes['above-project'],
+		].sort(comparator),
+		...[
+			...projectRoutes,
+			...injectedRoutes['same-as-project'],
+			...redirectRoutes['same-as-project'],
+		].sort(comparator),
+		...[
+			...injectedRoutes['below-project'],
+			...redirectRoutes['below-project'],
+		].sort(comparator),
+	];
+
+	// Detect route collisions
+	routes.forEach((route, index) => {
+		const collision = routes.find(
+			(other, otherIndex) => (index !== otherIndex && other.route === route.route),
+		);
+
+		if (collision) {
+			throw new Error(
+				`Colliding routes detected in the project: "${route.route}" at "${route.component}".\n`
+				+ `This route collides with: "${collision.component}".`,
+			);
+		}
+	});
+
+	const {settings} = params;
+	const {config} = settings;
+
 	const i18n = settings.config.i18n;
 	if (i18n) {
 		// In this block of code we group routes based on their locale

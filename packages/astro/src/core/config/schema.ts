@@ -173,6 +173,7 @@ export const AstroConfigSchema = z.object({
 						z.literal(308),
 					]),
 					destination: z.string(),
+					priority: z.enum(['above-project', 'same-as-project', 'below-project']).optional(),
 				}),
 			])
 		)
