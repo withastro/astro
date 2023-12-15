@@ -21,16 +21,13 @@ export function redirectRouteGenerate(redirectRoute: RouteData, data: Params): s
 		return routeData?.generate(data) || routeData?.pathname || '/';
 	} else if (typeof route === 'string') {
 		// TODO: this logic is duplicated between here and manifest/create.ts
-		if (Object.keys(data).length > 0) {
-			let target = route
-			for (const param in data) {
-				const paramValue = data[param]!
-				target = target.replace(`[${param}]`, paramValue)
-				target = target.replace(`[...${param}]`, paramValue)
-			}
-			return target
+		let target = route
+		for (const param of Object.keys(data)) {
+			const paramValue = data[param]!
+			target = target.replace(`[${param}]`, paramValue)
+			target = target.replace(`[...${param}]`, paramValue)
 		}
-		return route;
+		return target
 	} else if (typeof route === 'undefined') {
 		return '/';
 	}
