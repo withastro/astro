@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 4.0.1
+
+### Patch Changes
+
+- [#9349](https://github.com/withastro/astro/pull/9349) [`270c6cc27`](https://github.com/withastro/astro/commit/270c6cc27f20995883fcdabbff9b56d7f041f9e4) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where this package could not be installed alongside Astro 4.0.
+
 ## 4.0.0
 
 ### Major Changes

@@ -1380,6 +1380,27 @@ describe('[SSR] i18n routing', () => {
 			});
 		});
 	});
+
+	describe('i18n routing should work with hybrid rendering', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-prefix-always/',
+				output: 'hybrid',
+				adapter: testAdapter(),
+			});
+			await fixture.build();
+			app = await fixture.loadTestAdapterApp();
+		});
+
+		it('and render the index page, which is static', async () => {
+			const html = await fixture.readFile('/client/index.html');
+			expect(html).to.include('http-equiv="refresh');
+			expect(html).to.include('url=/new-site/en');
+		});
+	});
 });
 
 describe('i18n routing does not break assets and endpoints', () => {

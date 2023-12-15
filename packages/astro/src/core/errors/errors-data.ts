@@ -733,8 +733,9 @@ export const ResponseSentError = {
  */
 export const MiddlewareNoDataOrNextCalled = {
 	name: 'MiddlewareNoDataOrNextCalled',
-	title: "The middleware didn't return a response or call `next`.",
-	message: 'The middleware needs to either return a `Response` object or call the `next` function.',
+	title: "The middleware didn't return a `Response`.",
+	message:
+		'Make sure your middleware returns a `Response` object, either directly or by returning the `Response` from calling the `next` function.',
 } satisfies ErrorData;
 
 /**
@@ -1292,3 +1293,12 @@ export const CantRenderPage = {
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
+
+export const UnhandledRejection = {
+	name: 'UnhandledRejection',
+	title: 'Unhandled rejection',
+	message: (stack: string) => {
+		return `Astro detected an unhandled rejection. Here's the stack trace:\n${stack}`;
+	},
+	hint: 'Make sure your promises all have an `await` or a `.catch()` handler.',
+};
