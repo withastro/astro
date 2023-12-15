@@ -1,5 +1,4 @@
 ---
 'astro': minor
 ---
-
-#9062 - allow specifying all cookie package get/set options
+Allows specifying `encode` and `decode` functions for cookies
