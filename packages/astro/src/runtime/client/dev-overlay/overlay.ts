@@ -149,7 +149,7 @@ export class AstroDevOverlay extends HTMLElement {
 				border-radius: 4px;
 				padding: 4px 8px;
 				position: absolute;
-				top: 4px;
+				top: -38px;
 				font-size: 14px;
 				opacity: 0;
 				transition: opacity 0.2s ease-in-out 0s;
@@ -492,16 +492,20 @@ export class AstroDevOverlay extends HTMLElement {
 	setOverlayVisible(newStatus: boolean) {
 		const barContainer = this.shadowRoot.querySelector<HTMLDivElement>('#bar-container');
 		const devBar = this.shadowRoot.querySelector<HTMLDivElement>('#dev-bar');
+		const devBarHitboxAbove =
+			this.shadowRoot.querySelector<HTMLDivElement>('#dev-bar-hitbox-above');
 		if (newStatus === true) {
 			this.devOverlay?.removeAttribute('data-hidden');
 			barContainer?.removeAttribute('inert');
 			devBar?.removeAttribute('tabindex');
+			if (devBarHitboxAbove) devBarHitboxAbove.style.height = '0';
 			return;
 		}
 		if (newStatus === false) {
 			this.devOverlay?.setAttribute('data-hidden', '');
 			barContainer?.setAttribute('inert', '');
 			devBar?.setAttribute('tabindex', '0');
+			if (devBarHitboxAbove) devBarHitboxAbove.style.height = '42px';
 			return;
 		}
 	}
