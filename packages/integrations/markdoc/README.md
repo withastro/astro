@@ -414,6 +414,23 @@ export default defineMarkdocConfig({
 });
 ```
 
+### Markdoc variables within Astro components
+
+You can access Markdoc variables normally only from within Markdoc files, however the Markdoc config object is also provided to Astro components.
+
+You can use the following to access Markdoc variables, or any part of the config, within Astro components:
+
+```astro
+---
+import type { AstroMarkdocComponent } from '@astrojs/markdoc';
+interface Props extends AstroMarkdocComponent {
+  ...
+}
+const { ..., config } = Astro.props; // "config" here is the Markdoc config object
+---
+<p>{config.variables.hello}</p>
+```
+
 ### Access frontmatter from your Markdoc content
 
 To access frontmatter, you can pass the entry `data` property [as a variable](#pass-markdoc-variables) where you render your content:
