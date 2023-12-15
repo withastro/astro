@@ -130,11 +130,11 @@ describe('routing - createRouteManifest', () => {
 				type: 'page',
 			},
 			{
-				route: '/',
+				route: '/blog/[...slug]',
 				type: 'page',
 			},
 			{
-				route: '/blog/[...slug]',
+				route: '/',
 				type: 'page',
 			},
 		]);
@@ -175,11 +175,11 @@ describe('routing - createRouteManifest', () => {
 
 		expect(getManifestRoutes(manifest)).to.deep.equal([
 			{
-				route: '/',
+				route: '/blog/[...slug]',
 				type: 'page',
 			},
 			{
-				route: '/blog/[...slug]',
+				route: '/',
 				type: 'page',
 			},
 			{
@@ -237,19 +237,19 @@ describe('routing - createRouteManifest', () => {
 
 		expect(getManifestRoutes(manifest)).to.deep.equal([
 			{
-				route: '/contributing',
-				type: 'page',
-			},
-			{
-				route: '/',
-				type: 'page',
-			},
-			{
 				route: '/blog/[...slug]',
 				type: 'page',
 			},
 			{
+				route: '/contributing',
+				type: 'page',
+			},
+			{
 				route: '/[...slug]',
+				type: 'page',
+			},
+			{
+				route: '/',
 				type: 'page',
 			},
 		]);
@@ -396,12 +396,12 @@ describe('routing - createRouteManifest', () => {
 				type: 'page',
 			},
 			{
-				route: '/',
-				type: 'page',
-			},
-			{
 				route: '/blog/[...slug]',
 				type: 'redirect',
+			},
+			{
+				route: '/',
+				type: 'page',
 			},
 		]);
 	});

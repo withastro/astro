@@ -133,6 +133,11 @@ function validateSegment(segment: string, file = '') {
 }
 
 function comparator(a: RouteData, b: RouteData) {
+	// more specific routes go first
+	if (a.segments.length !== b.segments.length) {
+		return a.segments.length > b.segments.length ? -1 : 1;
+	}
+
 	const aIsStatic = a.segments.every((segment) => segment.every((part) => !part.dynamic && !part.spread));
 	const bIsStatic = b.segments.every((segment) => segment.every((part) => !part.dynamic && !part.spread));
 
@@ -157,11 +162,6 @@ function comparator(a: RouteData, b: RouteData) {
 	// endpoints take precedence over pages
 	if ((a.type === 'endpoint') !== (b.type === 'endpoint')) {
 		return a.type === 'endpoint' ? -1 : 1;
-	}
-
-	// more specific routes go first
-	if (a.segments.length !== b.segments.length) {
-		return a.segments.length > b.segments.length ? -1 : 1;
 	}
 
 	return a.route.localeCompare(b.route);
