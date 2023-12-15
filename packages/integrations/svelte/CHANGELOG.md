@@ -1,5 +1,13 @@
 # @astrojs/svelte
 
+## 5.0.1
+
+### Patch Changes
+
+- [#9285](https://github.com/withastro/astro/pull/9285) [`1aa7fe85c`](https://github.com/withastro/astro/commit/1aa7fe85c1f18fb22e417a1958270443e94cdc32) Thanks [@bluwy](https://github.com/bluwy)! - When using Svelte 5, slots can now be rendered as snippets
+
+- [#9366](https://github.com/withastro/astro/pull/9366) [`1b4e91898`](https://github.com/withastro/astro/commit/1b4e91898116f75b02b66ec402385cf44e559118) Thanks [@lilnasy](https://github.com/lilnasy)! - Updates NPM package to refer to the stable Astro version instead of a beta.
+
 ## 5.0.0
 
 ### Major Changes

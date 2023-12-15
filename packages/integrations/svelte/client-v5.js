@@ -1,4 +1,8 @@
 import { mount } from 'svelte';
+import { add_snippet_symbol } from 'svelte/internal';
+
+// Allow a slot to be rendered as a snippet (dev validation only)
+const tagSlotAsSnippet = import.meta.env.DEV ? add_snippet_symbol : (s) => s;
 
 export default (element) => {
 	return async (Component, props, slotted) => {
@@ -32,7 +36,7 @@ function createSlotDefinition(key, children) {
 	/**
 	 * @param {Comment} $$anchor A comment node for slots in Svelte 5
 	 */
-	return ($$anchor, _$$slotProps) => {
+	const fn = ($$anchor, _$$slotProps) => {
 		const parent = $$anchor.parentNode;
 		const el = document.createElement('div');
 		el.innerHTML = `<astro-slot${
@@ -40,4 +44,5 @@ function createSlotDefinition(key, children) {
 		}>${children}</astro-slot>`;
 		parent.insertBefore(el.children[0], $$anchor);
 	};
+	return tagSlotAsSnippet(fn);
 }
