@@ -69,7 +69,9 @@ export const setup = (app) => {
 	} else {
 		${
 			!isBuild
-				? `console.warn("[@astrojs/vue] appEntrypoint \`" + ${JSON.stringify(appEntrypoint)} + "\` does not export a default function. Check out https://docs.astro.build/en/guides/integrations-guide/vue/#appentrypoint.");`
+				? `console.warn("[@astrojs/vue] appEntrypoint \`" + ${JSON.stringify(
+						appEntrypoint
+				  )} + "\` does not export a default function. Check out https://docs.astro.build/en/guides/integrations-guide/vue/#appentrypoint.");`
 				: ''
 		}
 	}
