@@ -333,7 +333,7 @@ export class App {
 		request: Request,
 		{ status, response: originalResponse, skipMiddleware = false }: RenderErrorOptions
 	): Promise<Response> {
-		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === "always" ? '/' : ''}`;
+		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
 		const errorRouteData = matchRoute(errorRoutePath, this.#manifestData);
 		const url = new URL(request.url);
 		if (errorRouteData) {

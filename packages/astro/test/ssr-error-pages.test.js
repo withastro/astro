@@ -117,7 +117,7 @@ describe('trailing slashes for error pages', () => {
 			root: './fixtures/ssr-error-pages/',
 			output: 'server',
 			adapter: testAdapter(),
-			trailingSlash: 'always'
+			trailingSlash: 'always',
 		});
 	});
 
@@ -155,6 +155,6 @@ describe('trailing slashes for error pages', () => {
 			expect(html).to.not.be.empty;
 			const $ = cheerio.load(html);
 			expect($('h1').text()).to.equal('Something went horribly wrong!');
-		})
+		});
 	});
 });

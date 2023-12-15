@@ -42,11 +42,11 @@ describe('Custom 404', () => {
 			expect($('p').text()).to.equal('/a');
 		});
 	});
-	
+
 	describe('build', () => {
 		before(async () => {
 			await fixture.build();
-		})
+		});
 
 		it('builds to 404.html', async () => {
 			const html = await fixture.readFile('/404.html');
