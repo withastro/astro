@@ -63,7 +63,7 @@ export const welcome = [
 	`Let's unwrap the magic of the web together!`,
 	`Bells are ringing, and so are your creative ideas!`,
 	`It's starting to look a lot like Christmas on the internet.`,
-	`It's time to decorate the web with your festive ideas!`
+	`It's time to decorate the web with your festive ideas!`,
 ];
 
 export const getName = () =>
