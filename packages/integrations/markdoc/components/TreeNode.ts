@@ -42,7 +42,7 @@ export const ComponentNode = createComponent({
 		const slots = {
 			default: () =>
 				render`${treeNode.children.map((child) =>
-					renderComponent(result, 'ComponentNode', ComponentNode, { treeNode: child, config: config })
+					renderComponent(result, 'ComponentNode', ComponentNode, { treeNode: child, config })
 				)}`,
 		};
 		if (treeNode.type === 'component') {
