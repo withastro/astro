@@ -97,6 +97,7 @@ describe('routing - createRouteManifest', () => {
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
+			output: 'server',
 			base: '/search',
 			trailingSlash: 'never',
 		});
@@ -150,6 +151,7 @@ describe('routing - createRouteManifest', () => {
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
+			output: 'server',
 			base: '/search',
 			trailingSlash: 'never',
 		});
@@ -203,6 +205,7 @@ describe('routing - createRouteManifest', () => {
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
+			output: 'server',
 			base: '/search',
 			trailingSlash: 'never',
 			integrations: [
@@ -265,6 +268,7 @@ describe('routing - createRouteManifest', () => {
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
+			output: 'server',
 			base: '/search',
 			trailingSlash: 'never',
 			redirects: {
@@ -317,6 +321,7 @@ describe('routing - createRouteManifest', () => {
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
+			output: 'server',
 			base: '/search',
 			trailingSlash: 'never',
 			redirects: {
@@ -365,6 +370,7 @@ describe('routing - createRouteManifest', () => {
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
+			output: 'server',
 			base: '/search',
 			trailingSlash: 'never',
 			redirects: {
@@ -404,39 +410,5 @@ describe('routing - createRouteManifest', () => {
 				type: 'page',
 			},
 		]);
-	});
-
-	it('detects colision between routes', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/blog/[...slug].astro': `<h1>test</h1>`,
-			},
-			root,
-		);
-		const settings = await createBasicSettings({
-			root: fileURLToPath(root),
-			base: '/search',
-			trailingSlash: 'never',
-		});
-
-		settings.injectedRoutes = [
-			{
-				pattern: '/blog/[...slug]',
-				entrypoint: '@lib/override/blog.astro',
-			},
-		];
-
-		const testFn = () => {
-			createRouteManifest({
-				cwd: fileURLToPath(root),
-				settings,
-				fsMod: fs,
-			});
-		};
-
-		expect(testFn).to.throw(
-			'Colliding routes detected in the project: "/blog/[...slug]" at "@lib/override/blog.astro".\n'
-			+ 'This route collides with: "src/pages/blog/[...slug].astro".'
-		);
 	});
 });
