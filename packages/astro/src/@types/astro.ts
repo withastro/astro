@@ -1555,7 +1555,6 @@ export interface AstroUserConfig {
  */
 export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 'page-ssr';
 
-// TODO: Reconsider the names
 /**
  * IDs for different priorities of injected routes and redirects:
  * - "above-project": Override any project route in case of conflict.
