@@ -2,12 +2,12 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-describe('Custom 404 server', () => {
+describe('Custom 404', () => {
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/custom-404-server/',
+			root: './fixtures/custom-404-static/',
 			site: 'http://example.com',
 		});
 	});
@@ -40,6 +40,17 @@ describe('Custom 404 server', () => {
 
 			expect($('h1').text()).to.equal('Page not found');
 			expect($('p').text()).to.equal('/a');
+		});
+	});
+	
+	describe('build', () => {
+		before(async () => {
+			await fixture.build();
+		})
+
+		it('builds to 404.html', async () => {
+			const html = await fixture.readFile('/404.html');
+			expect(html).to.be.ok;
 		});
 	});
 });
