@@ -13,7 +13,7 @@ const labelByType = {
 	caution: 'Caution',
 	danger: 'Danger',
 };
-const { type = 'note' } = Astro.props;
+const { type = 'note' } = Astro.props as Props;
 const title = Astro.props.title ?? labelByType[type] ?? '';
 
 // SVG icon paths based on GitHub Octicons
