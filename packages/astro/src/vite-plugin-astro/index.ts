@@ -139,6 +139,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			const compileProps: CompileProps = {
 				astroConfig: config,
 				viteConfig: resolvedConfig,
+				preferences: settings.preferences,
 				filename: normalizePath(parsedId.filename),
 				source,
 			};
@@ -173,18 +174,21 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 		},
 		async handleHotUpdate(context) {
 			if (context.server.config.isProduction) return;
-			const compileProps: CompileProps = {
-				astroConfig: config,
-				viteConfig: resolvedConfig,
-				filename: context.file,
-				source: await context.read(),
-			};
-			const compile = () => cachedCompilation(compileProps);
+			const filename = context.file;
+			const source = await context.read();
+			const compile = () =>
+				cachedCompilation({
+					astroConfig: config,
+					viteConfig: resolvedConfig,
+					preferences: settings.preferences,
+					filename,
+					source,
+				});
 			return handleHotUpdate(context, {
 				config,
 				logger,
 				compile,
-				source: compileProps.source,
+				source,
 			});
 		},
 	};

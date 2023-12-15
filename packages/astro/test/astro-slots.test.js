@@ -40,8 +40,15 @@ describe('Slots', () => {
 		expect($('#default').text().trim()).to.equal('Default');
 	});
 
-	it('Slots render fallback content by default', async () => {
+	it('Slots of a component render fallback content by default', async () => {
 		const html = await fixture.readFile('/fallback/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('#default')).to.have.lengthOf(1);
+	});
+
+	it('Slots of a page render fallback content', async () => {
+		const html = await fixture.readFile('/fallback-own/index.html');
 		const $ = cheerio.load(html);
 
 		expect($('#default')).to.have.lengthOf(1);

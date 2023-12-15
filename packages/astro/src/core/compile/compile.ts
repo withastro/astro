@@ -5,14 +5,17 @@ import type { AstroConfig } from '../../@types/astro.js';
 import { transform } from '@astrojs/compiler';
 import { fileURLToPath } from 'node:url';
 import { normalizePath } from 'vite';
-import { AggregateError, AstroError, CompilerError } from '../errors/errors.js';
+import type { AstroError } from '../errors/errors.js';
+import { AggregateError, CompilerError } from '../errors/errors.js';
 import { AstroErrorData } from '../errors/index.js';
 import { resolvePath } from '../util.js';
 import { createStylePreprocessor } from './style.js';
+import type { AstroPreferences } from '../../preferences/index.js';
 
 export interface CompileProps {
 	astroConfig: AstroConfig;
 	viteConfig: ResolvedConfig;
+	preferences: AstroPreferences;
 	filename: string;
 	source: string;
 }
@@ -25,6 +28,7 @@ export interface CompileResult extends TransformResult {
 export async function compile({
 	astroConfig,
 	viteConfig,
+	preferences,
 	filename,
 	source,
 }: CompileProps): Promise<CompileResult> {
@@ -46,7 +50,11 @@ export async function compile({
 			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
 			resultScopedSlot: true,
 			transitionsAnimationURL: 'astro/components/viewtransitions.css',
-			annotateSourceFile: !viteConfig.isProduction && astroConfig.experimental.devOverlay,
+			annotateSourceFile:
+				viteConfig.command === 'serve' &&
+				astroConfig.devToolbar &&
+				astroConfig.devToolbar.enabled &&
+				(await preferences.get('devToolbar.enabled')),
 			preprocessStyle: createStylePreprocessor({
 				filename,
 				viteConfig,

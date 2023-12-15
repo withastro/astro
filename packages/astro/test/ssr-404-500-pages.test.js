@@ -56,7 +56,7 @@ describe('404 and 500 pages', () => {
 		it('404 page returned when a route does not match and passing routeData', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/some/fake/route');
-			const routeData = app.match(request, { matchNotFound: true });
+			const routeData = app.match(request);
 			const response = await app.render(request, routeData);
 			expect(response.status).to.equal(404);
 			const html = await response.text();

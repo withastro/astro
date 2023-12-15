@@ -1,8 +1,10 @@
+import type { Rollup } from 'vite';
 import type { AstroConfig } from '../../@types/astro.js';
+import type { ViteBuildReturn } from './types.js';
 
 export function getTimeStat(timeStart: number, timeEnd: number) {
 	const buildTime = timeEnd - timeStart;
-	return buildTime < 750 ? `${Math.round(buildTime)}ms` : `${(buildTime / 1000).toFixed(2)}s`;
+	return buildTime < 1000 ? `${Math.round(buildTime)}ms` : `${(buildTime / 1000).toFixed(2)}s`;
 }
 
 /**
@@ -29,9 +31,9 @@ export function shouldAppendForwardSlash(
 }
 
 export function i18nHasFallback(config: AstroConfig): boolean {
-	if (config.experimental.i18n && config.experimental.i18n.fallback) {
+	if (config.i18n && config.i18n.fallback) {
 		// we have some fallback and the control is not none
-		return Object.keys(config.experimental.i18n.fallback).length > 0;
+		return Object.keys(config.i18n.fallback).length > 0;
 	}
 
 	return false;
@@ -51,4 +53,16 @@ export function encodeName(name: string): string {
 	}
 
 	return name;
+}
+
+export function viteBuildReturnToRollupOutputs(
+	viteBuildReturn: ViteBuildReturn
+): Rollup.RollupOutput[] {
+	const result: Rollup.RollupOutput[] = [];
+	if (Array.isArray(viteBuildReturn)) {
+		result.push(...viteBuildReturn);
+	} else if ('output' in viteBuildReturn) {
+		result.push(viteBuildReturn);
+	}
+	return result;
 }

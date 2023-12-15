@@ -19,7 +19,7 @@ export function injectImageEndpoint(settings: AstroSettings, mode: 'dev' | 'buil
 
 	settings.injectedRoutes.push({
 		pattern: '/_image',
-		entryPoint: endpointEntrypoint,
+		entrypoint: endpointEntrypoint,
 		prerender: false,
 	});
 
@@ -77,6 +77,16 @@ export async function getImage(
 		throw new AstroError({
 			...AstroErrorData.ExpectedImageOptions,
 			message: AstroErrorData.ExpectedImageOptions.message(JSON.stringify(options)),
+		});
+	}
+	if (typeof options.src === 'undefined') {
+		throw new AstroError({
+			...AstroErrorData.ExpectedImage,
+			message: AstroErrorData.ExpectedImage.message(
+				options.src,
+				'undefined',
+				JSON.stringify(options)
+			),
 		});
 	}
 
