@@ -353,11 +353,11 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^3.0.12
+        specifier: ^4.0.5
         version: link:../../packages/astro
       sass:
-        specifier: ^1.66.1
-        version: 1.69.4
+        specifier: ^1.69.5
+        version: 1.69.5
 
   examples/view-transitions:
     devDependencies:
@@ -12536,7 +12536,7 @@ packages:
   /mlly@1.4.2:
     resolution: {integrity: sha512-i/Ykufi2t1EZ6NaPLdfnZk2AX8cs0d+mTzVKuPfqPKPatxLApaBoxJQ9x1/uckXtrS/U5oisPMDkNs0yQTaBRg==}
     dependencies:
-      acorn: 8.10.0
+      acorn: 8.11.2
       pathe: 1.1.1
       pkg-types: 1.0.3
       ufo: 1.3.1
