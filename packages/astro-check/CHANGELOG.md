@@ -1,5 +1,15 @@
 # @astrojs/check
 
+## 0.3.3
+
+### Patch Changes
+
+- 45d49f5: Fix errors spilling out of inline event attributes in certain cases
+- 7c9c981: Fix errors inside `.ts` files not being properly reported in certain cases
+- Updated dependencies [45d49f5]
+- Updated dependencies [7c9c981]
+  - @astrojs/language-server@2.5.4
+
 ## 0.3.2
 
 ### Patch Changes

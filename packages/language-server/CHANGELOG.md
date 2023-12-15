@@ -1,5 +1,12 @@
 # @astrojs/language-server
 
+## 2.5.4
+
+### Patch Changes
+
+- 45d49f5: Fix errors spilling out of inline event attributes in certain cases
+- 7c9c981: Fix errors inside `.ts` files not being properly reported in certain cases
+
 ## 2.5.3
 
 ### Patch Changes

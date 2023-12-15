@@ -1,5 +1,12 @@
 # astro-vscode
 
+## 2.5.4
+
+### Patch Changes
+
+- 45d49f5: Fix errors spilling out of inline event attributes in certain cases
+- 5013f2e: Fix autoclosing of brackets not working inside tags in certain cases
+
 ## 2.5.3
 
 ### Patch Changes
