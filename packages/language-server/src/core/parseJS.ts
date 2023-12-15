@@ -173,7 +173,10 @@ function findEventAttributes(ast: ParseResult['ast']): JavaScriptContext[] {
 
 				if (eventAttribute && eventAttribute.position) {
 					eventAttrs.push({
-						content: eventAttribute.value,
+						// Add a semicolon to the end of the event attribute to attempt to prevent errors from spreading to the rest of the document
+						// This is not perfect, but it's better than nothing
+						// See: https://github.com/microsoft/vscode/blob/e8e04769ec817a3374c3eaa26a08d3ae491820d5/extensions/html-language-features/server/src/modes/embeddedSupport.ts#L192
+						content: eventAttribute.value + ';',
 						startOffset: eventAttribute.position.start.offset + `${eventAttribute.name}="`.length,
 					});
 				}
