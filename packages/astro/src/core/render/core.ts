@@ -60,21 +60,15 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		cookies,
 		locals: renderContext.locals ?? {},
 		locales: renderContext.locales,
+		defaultLocale: renderContext.defaultLocale,
+		routingStrategy: renderContext.routing,
 	});
-
-	// TODO: Remove in Astro 4.0
-	if (mod.frontmatter && typeof mod.frontmatter === 'object' && 'draft' in mod.frontmatter) {
-		env.logger.warn(
-			'astro',
-			`The drafts feature is deprecated and used in ${renderContext.route.component}. You should migrate to content collections instead. See https://docs.astro.build/en/guides/content-collections/#filtering-collection-queries for more information.`
-		);
-	}
 
 	const response = await runtimeRenderPage(
 		result,
 		Component,
 		renderContext.props,
-		null,
+		{},
 		env.streaming,
 		renderContext.route
 	);

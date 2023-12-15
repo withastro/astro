@@ -1,8 +1,9 @@
+import path from 'node:path';
 import type { Options as VueOptions } from '@vitejs/plugin-vue';
 import vue from '@vitejs/plugin-vue';
 import type { Options as VueJsxOptions } from '@vitejs/plugin-vue-jsx';
 import type { AstroIntegration, AstroRenderer } from 'astro';
-import type { UserConfig } from 'vite';
+import type { Plugin, UserConfig } from 'vite';
 
 interface Options extends VueOptions {
 	jsx?: boolean | VueJsxOptions;
@@ -32,11 +33,21 @@ function getJsxRenderer(): AstroRenderer {
 	};
 }
 
-function virtualAppEntrypoint(options?: Options) {
+function virtualAppEntrypoint(options?: Options): Plugin {
 	const virtualModuleId = 'virtual:@astrojs/vue/app';
 	const resolvedVirtualModuleId = '\0' + virtualModuleId;
+
+	let isBuild: boolean;
+	let root: string;
+
 	return {
 		name: '@astrojs/vue/virtual-app',
+		config(_, { command }) {
+			isBuild = command === 'build';
+		},
+		configResolved(config) {
+			root = config.root;
+		},
 		resolveId(id: string) {
 			if (id == virtualModuleId) {
 				return resolvedVirtualModuleId;
@@ -45,7 +56,26 @@ function virtualAppEntrypoint(options?: Options) {
 		load(id: string) {
 			if (id === resolvedVirtualModuleId) {
 				if (options?.appEntrypoint) {
-					return `export { default as setup } from "${options.appEntrypoint}";`;
+					const appEntrypoint = options.appEntrypoint.startsWith('.')
+						? path.resolve(root, options.appEntrypoint)
+						: options.appEntrypoint;
+
+					return `\
+import * as mod from ${JSON.stringify(appEntrypoint)};
+						
+export const setup = (app) => {
+	if ('default' in mod) {
+		mod.default(app);
+	} else {
+		${
+			!isBuild
+				? `console.warn("[@astrojs/vue] appEntrypoint \`" + ${JSON.stringify(
+						appEntrypoint
+				  )} + "\` does not export a default function. Check out https://docs.astro.build/en/guides/integrations-guide/vue/#appentrypoint.");`
+				: ''
+		}
+	}
+}`;
 				}
 				return `export const setup = () => {};`;
 			}

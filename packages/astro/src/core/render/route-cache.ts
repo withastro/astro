@@ -8,7 +8,6 @@ import type {
 	RouteData,
 	RuntimeMode,
 } from '../../@types/astro.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 
 import { stringifyParams } from '../routing/params.js';
@@ -59,9 +58,6 @@ export async function callGetStaticPaths({
 		// Q: Why the cast?
 		// A: So users downstream can have nicer typings, we have to make some sacrifice in our internal typings, which necessitate a cast here
 		paginate: generatePaginateFunction(route) as PaginateFunction,
-		rss() {
-			throw new AstroError(AstroErrorData.GetStaticPathsRemovedRSSHelper);
-		},
 	});
 
 	validateGetStaticPathsResult(staticPaths, logger, route);
@@ -107,10 +103,7 @@ export class RouteCache {
 		// Warn here so that an unexpected double-call of getStaticPaths()
 		// isn't invisible and developer can track down the issue.
 		if (this.mode === 'production' && this.cache[route.component]?.staticPaths) {
-			this.logger.warn(
-				'routeCache',
-				`Internal Warning: route cache overwritten. (${route.component})`
-			);
+			this.logger.warn(null, `Internal Warning: route cache overwritten. (${route.component})`);
 		}
 		this.cache[route.component] = entry;
 	}
@@ -131,5 +124,5 @@ export function findPathItemByKey(
 	if (matchedStaticPath) {
 		return matchedStaticPath;
 	}
-	logger.debug('findPathItemByKey', `Unexpected cache miss looking for ${paramsKey}`);
+	logger.debug('router', `findPathItemByKey() - Unexpected cache miss looking for ${paramsKey}`);
 }

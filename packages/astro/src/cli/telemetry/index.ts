@@ -1,23 +1,23 @@
 /* eslint-disable no-console */
-import whichPm from 'which-pm';
 import type yargs from 'yargs-parser';
 import * as msg from '../../core/messages.js';
 import { telemetry } from '../../events/index.js';
+import { createLoggerFromFlags } from '../flags.js';
 
 interface TelemetryOptions {
 	flags: yargs.Arguments;
 }
 
 export async function notify() {
-	const packageManager = (await whichPm(process.cwd()))?.name ?? 'npm';
 	await telemetry.notify(() => {
-		console.log(msg.telemetryNotice(packageManager) + '\n');
+		console.log(msg.telemetryNotice() + '\n');
 		return true;
 	});
 }
 
 export async function update(subcommand: string, { flags }: TelemetryOptions) {
 	const isValid = ['enable', 'disable', 'reset'].includes(subcommand);
+	const logger = createLoggerFromFlags(flags);
 
 	if (flags.help || flags.h || !isValid) {
 		msg.printHelp({
@@ -37,17 +37,17 @@ export async function update(subcommand: string, { flags }: TelemetryOptions) {
 	switch (subcommand) {
 		case 'enable': {
 			telemetry.setEnabled(true);
-			console.log(msg.telemetryEnabled());
+			logger.info('SKIP_FORMAT', msg.telemetryEnabled());
 			return;
 		}
 		case 'disable': {
 			telemetry.setEnabled(false);
-			console.log(msg.telemetryDisabled());
+			logger.info('SKIP_FORMAT', msg.telemetryDisabled());
 			return;
 		}
 		case 'reset': {
 			telemetry.clear();
-			console.log(msg.telemetryReset());
+			logger.info('SKIP_FORMAT', msg.telemetryReset());
 			return;
 		}
 	}

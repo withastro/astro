@@ -1,10 +1,4 @@
-import type {
-	ComponentInstance,
-	EndpointHandler,
-	MiddlewareEndpointHandler,
-	MiddlewareHandler,
-	MiddlewareResponseHandler,
-} from '../@types/astro.js';
+import type { ComponentInstance, EndpointHandler, MiddlewareHandler } from '../@types/astro.js';
 import { callEndpoint, createAPIContext } from './endpoint/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { renderPage } from './render/core.js';
@@ -15,6 +9,12 @@ type EndpointResultHandler = (
 	result: Response
 ) => Promise<Response> | Response;
 
+type PipelineHooks = {
+	before: PipelineHookFunction[];
+};
+
+export type PipelineHookFunction = (ctx: RenderContext, mod: ComponentInstance | undefined) => void;
+
 /**
  * This is the basic class of a pipeline.
  *
@@ -22,7 +22,10 @@ type EndpointResultHandler = (
  */
 export class Pipeline {
 	env: Environment;
-	#onRequest?: MiddlewareEndpointHandler;
+	#onRequest?: MiddlewareHandler;
+	#hooks: PipelineHooks = {
+		before: [],
+	};
 	/**
 	 * The handler accepts the *original* `Request` and result returned by the endpoint.
 	 * It must return a `Response`.
@@ -51,7 +54,7 @@ export class Pipeline {
 	/**
 	 * A middleware function that will be called before each request.
 	 */
-	setMiddlewareFunction(onRequest: MiddlewareEndpointHandler) {
+	setMiddlewareFunction(onRequest: MiddlewareHandler) {
 		this.#onRequest = onRequest;
 	}
 
@@ -75,6 +78,9 @@ export class Pipeline {
 		renderContext: RenderContext,
 		componentInstance: ComponentInstance | undefined
 	): Promise<Response> {
+		for (const hook of this.#hooks.before) {
+			hook(renderContext, componentInstance);
+		}
 		const result = await this.#tryRenderRoute(
 			renderContext,
 			this.env,
@@ -103,11 +109,11 @@ export class Pipeline {
 	 *
 	 * It throws an error if the page can't be rendered.
 	 */
-	async #tryRenderRoute<MiddlewareReturnType = Response>(
+	async #tryRenderRoute(
 		renderContext: Readonly<RenderContext>,
 		env: Readonly<Environment>,
 		mod: Readonly<ComponentInstance> | undefined,
-		onRequest?: MiddlewareHandler<MiddlewareReturnType>
+		onRequest?: MiddlewareHandler
 	): Promise<Response> {
 		const apiContext = createAPIContext({
 			request: renderContext.request,
@@ -116,6 +122,8 @@ export class Pipeline {
 			site: env.site,
 			adapterName: env.adapterName,
 			locales: renderContext.locales,
+			routingStrategy: renderContext.routing,
+			defaultLocale: renderContext.defaultLocale,
 		});
 
 		switch (renderContext.route.type) {
@@ -123,19 +131,14 @@ export class Pipeline {
 			case 'fallback':
 			case 'redirect': {
 				if (onRequest) {
-					return await callMiddleware<Response>(
-						env.logger,
-						onRequest as MiddlewareResponseHandler,
-						apiContext,
-						() => {
-							return renderPage({
-								mod,
-								renderContext,
-								env,
-								cookies: apiContext.cookies,
-							});
-						}
-					);
+					return await callMiddleware(onRequest, apiContext, () => {
+						return renderPage({
+							mod,
+							renderContext,
+							env,
+							cookies: apiContext.cookies,
+						});
+					});
 				} else {
 					return await renderPage({
 						mod,
@@ -146,16 +149,18 @@ export class Pipeline {
 				}
 			}
 			case 'endpoint': {
-				return await callEndpoint(
-					mod as any as EndpointHandler,
-					env,
-					renderContext,
-					onRequest,
-					renderContext.locales
-				);
+				return await callEndpoint(mod as any as EndpointHandler, env, renderContext, onRequest);
 			}
 			default:
 				throw new Error(`Couldn't find route of type [${renderContext.route.type}]`);
 		}
+	}
+
+	/**
+	 * Store a function that will be called before starting the rendering phase.
+	 * @param fn
+	 */
+	onBeforeRenderRoute(fn: PipelineHookFunction) {
+		this.#hooks.before.push(fn);
 	}
 }

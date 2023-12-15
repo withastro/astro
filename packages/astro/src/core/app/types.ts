@@ -1,4 +1,5 @@
 import type {
+	Locales,
 	RouteData,
 	SerializedRouteData,
 	SSRComponentMetadata,
@@ -37,6 +38,7 @@ export type SSRManifest = {
 	routes: RouteInfo[];
 	site?: string;
 	base: string;
+	trailingSlash: 'always' | 'never' | 'ignore';
 	compressHTML: boolean;
 	assetsPrefix?: string;
 	renderers: SSRLoadedRenderer[];
@@ -54,8 +56,8 @@ export type SSRManifest = {
 
 export type SSRManifestI18n = {
 	fallback?: Record<string, string>;
-	routingStrategy?: 'prefix-always' | 'prefix-other-locales';
-	locales: string[];
+	routing?: 'prefix-always' | 'prefix-other-locales';
+	locales: Locales;
 	defaultLocale: string;
 };
 

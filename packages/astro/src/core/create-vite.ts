@@ -1,10 +1,8 @@
-import type { AstroSettings } from '../@types/astro.js';
-import type { Logger } from './logger/core.js';
-
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
+import type { AstroSettings } from '../@types/astro.js';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
 import {
 	astroContentAssetPropagationPlugin,
@@ -31,8 +29,11 @@ import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
+import type { Logger } from './logger/core.js';
+import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
+import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -108,7 +109,7 @@ export async function createVite(
 		configFile: false,
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', settings.config.root)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
-		logLevel: 'warn', // log warnings and errors only
+		customLogger: createViteLogger(logger, settings.config.vite.logLevel),
 		appType: 'custom',
 		optimizeDeps: {
 			entries: ['src/**/*'],
@@ -141,7 +142,8 @@ export async function createVite(
 			astroPrefetch({ settings }),
 			astroTransitions({ settings }),
 			astroDevOverlay({ settings, logger }),
-			!!settings.config.experimental.i18n && astroInternationalization({ settings }),
+			vitePluginFileURL({}),
+			!!settings.config.i18n && astroInternationalization({ settings }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
@@ -180,7 +182,7 @@ export async function createVite(
 				},
 				{
 					find: 'astro:middleware',
-					replacement: 'astro/middleware/namespace',
+					replacement: 'astro/virtual-modules/middleware.js',
 				},
 				{
 					find: 'astro:components',

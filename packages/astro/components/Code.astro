@@ -1,7 +1,4 @@
 ---
-import path from 'node:path';
-import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import type {
 	BuiltinLanguage,
 	BuiltinTheme,
@@ -10,8 +7,8 @@ import type {
 	ThemeRegistration,
 	ThemeRegistrationRaw,
 } from 'shikiji';
-import { visit } from 'unist-util-visit';
-import { getCachedHighlighter, replaceCssVariables } from '../dist/core/shiki.js';
+import { bundledLanguages } from 'shikiji/langs';
+import { getCachedHighlighter } from '../dist/core/shiki.js';
 
 interface Props {
 	/** The code to highlight. Required. */
@@ -65,23 +62,6 @@ const {
 
 // shiki -> shikiji compat
 if (typeof lang === 'object') {
-	// shikiji does not support `path`
-	// https://github.com/shikijs/shiki/blob/facb6ff37996129626f8066a5dccb4608e45f649/packages/shiki/src/loader.ts#L98
-	const langPath = (lang as any).path;
-	if (langPath) {
-		// shiki resolves path from within its package directory :shrug:
-		const astroRoot = fileURLToPath(new URL('../', import.meta.url));
-		const normalizedPath = path.isAbsolute(langPath) ? langPath : path.resolve(astroRoot, langPath);
-		try {
-			const content = fs.readFileSync(normalizedPath, 'utf-8');
-			const parsed = JSON.parse(content);
-			Object.assign(lang, parsed);
-		} catch (e) {
-			throw new Error(`Unable to find language file at ${normalizedPath}`, {
-				cause: e,
-			});
-		}
-	}
 	// `id` renamed to `name` (always override)
 	if ((lang as any).id) {
 		lang.name = (lang as any).id;
@@ -93,61 +73,20 @@ if (typeof lang === 'object') {
 }
 
 const highlighter = await getCachedHighlighter({
-	langs: [lang],
-	themes: Object.values(experimentalThemes).length ? Object.values(experimentalThemes) : [theme],
+	langs: [
+		typeof lang === 'string'
+			? Object.keys(bundledLanguages).includes(lang)
+				? lang
+				: 'plaintext'
+			: lang,
+	],
+	theme,
+	experimentalThemes,
+	wrap,
 });
 
-const themeOptions = Object.values(experimentalThemes).length
-	? { themes: experimentalThemes }
-	: { theme };
-const html = highlighter.codeToHtml(code, {
-	lang: typeof lang === 'string' ? lang : lang.name,
-	...themeOptions,
-	transforms: {
-		pre(node) {
-			// Swap to `code` tag if inline
-			if (inline) {
-				node.tagName = 'code';
-			}
-
-			// Cast to string as shikiji will always pass them as strings instead of any other types
-			const classValue = (node.properties.class as string) ?? '';
-			const styleValue = (node.properties.style as string) ?? '';
-
-			// Replace "shiki" class naming with "astro-code"
-			node.properties.class = classValue.replace(/shiki/g, 'astro-code');
-
-			// Handle code wrapping
-			// if wrap=null, do nothing.
-			if (wrap === false) {
-				node.properties.style = styleValue + '; overflow-x: auto;';
-			} else if (wrap === true) {
-				node.properties.style =
-					styleValue + '; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
-			}
-		},
-		code(node) {
-			if (inline) {
-				return node.children[0] as typeof node;
-			}
-		},
-		root(node) {
-			if (Object.values(experimentalThemes).length) {
-				return;
-			}
-
-			// theme.id for shiki -> shikiji compat
-			const themeName = typeof theme === 'string' ? theme : theme.name;
-			if (themeName === 'css-variables') {
-				// Replace special color tokens to CSS variables
-				visit(node as any, 'element', (child) => {
-					if (child.properties?.style) {
-						child.properties.style = replaceCssVariables(child.properties.style);
-					}
-				});
-			}
-		},
-	},
+const html = highlighter.highlight(code, typeof lang === 'string' ? lang : lang.name, {
+	inline,
 });
 ---
 

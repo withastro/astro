@@ -292,6 +292,7 @@ export const InvalidGetStaticPathsReturn = {
 
 /**
  * @docs
+ * @deprecated Deprecated since Astro 4.0. The RSS helper no longer exists with an error fallback.
  * @see
  * - [RSS Guide](https://docs.astro.build/en/guides/rss/)
  * @description
@@ -490,9 +491,10 @@ export const PageNumberParamNotFound = {
  */
 export const ImageMissingAlt = {
 	name: 'ImageMissingAlt',
-	title: 'Missing alt property.',
-	message: 'The alt property is required.',
-	hint: "The `alt` property is important for the purpose of accessibility, without it users using screen readers or other assistive technologies won't be able to understand what your image is supposed to represent. See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#attr-alt for more information.",
+	title: 'Image missing required "alt" property.',
+	message:
+		'Image missing "alt" property. "alt" text is required to describe important images on the page.',
+	hint: 'Use an empty string ("") for decorative images.',
 } satisfies ErrorData;
 /**
  * @docs
@@ -731,8 +733,9 @@ export const ResponseSentError = {
  */
 export const MiddlewareNoDataOrNextCalled = {
 	name: 'MiddlewareNoDataOrNextCalled',
-	title: "The middleware didn't return a response or call `next`.",
-	message: 'The middleware needs to either return a `Response` object or call the `next` function.',
+	title: "The middleware didn't return a `Response`.",
+	message:
+		'Make sure your middleware returns a `Response` object, either directly or by returning the `Response` from calling the `next` function.',
 } satisfies ErrorData;
 
 /**
@@ -1275,10 +1278,8 @@ export const UnsupportedConfigTransformError = {
 export const MissingLocale = {
 	name: 'MissingLocaleError',
 	title: 'The provided locale does not exist.',
-	message: (locale: string, locales: string[]) => {
-		return `The locale \`${locale}\` does not exist in the configured locales. Available locales: ${locales.join(
-			', '
-		)}.`;
+	message: (locale: string) => {
+		return `The locale/path \`${locale}\` does not exist in the configured \`i18n.locales\`.`;
 	},
 } satisfies ErrorData;
 
@@ -1292,3 +1293,12 @@ export const CantRenderPage = {
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
+
+export const UnhandledRejection = {
+	name: 'UnhandledRejection',
+	title: 'Unhandled rejection',
+	message: (stack: string) => {
+		return `Astro detected an unhandled rejection. Here's the stack trace:\n${stack}`;
+	},
+	hint: 'Make sure your promises all have an `await` or a `.catch()` handler.',
+};

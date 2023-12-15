@@ -5,6 +5,7 @@ import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
 import fsMod, { existsSync, promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import maxSatisfying from 'semver/ranges/max-satisfying.js';
 import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
@@ -610,15 +611,7 @@ async function getInstallIntegrationsCommand({
 	logger.debug('add', `package manager: ${JSON.stringify(pm)}`);
 	if (!pm) return null;
 
-	let dependencies = integrations
-		.map<[string, string | null][]>((i) => [[i.packageName, null], ...i.dependencies])
-		.flat(1)
-		.filter((dep, i, arr) => arr.findIndex((d) => d[0] === dep[0]) === i)
-		.map(([name, version]) =>
-			version === null ? name : `${name}@${version.split(/\s*\|\|\s*/).pop()}`
-		)
-		.sort();
-
+	const dependencies = await convertIntegrationsToInstallSpecifiers(integrations);
 	switch (pm.name) {
 		case 'npm':
 			return { pm: 'npm', command: 'install', flags: [], dependencies };
@@ -631,6 +624,35 @@ async function getInstallIntegrationsCommand({
 		default:
 			return null;
 	}
+}
+
+async function convertIntegrationsToInstallSpecifiers(
+	integrations: IntegrationInfo[]
+): Promise<string[]> {
+	const ranges: Record<string, string> = {};
+	for (let { packageName, dependencies } of integrations) {
+		ranges[packageName] = '*';
+		for (const [name, range] of dependencies) {
+			ranges[name] = range;
+		}
+	}
+	return Promise.all(
+		Object.entries(ranges).map(([name, range]) => resolveRangeToInstallSpecifier(name, range))
+	);
+}
+
+/**
+ * Resolves package with a given range to a STABLE version
+ * peerDependencies might specify a compatible prerelease,
+ * but `astro add` should only ever install stable releases
+ */
+async function resolveRangeToInstallSpecifier(name: string, range: string): Promise<string> {
+	const versions = await fetchPackageVersions(name);
+	if (versions instanceof Error) return name;
+	// Filter out any prerelease versions
+	const stableVersions = versions.filter((v) => !v.includes('-'));
+	const maxStable = maxSatisfying(stableVersions, range);
+	return `${name}@^${maxStable}`;
 }
 
 // Allow forwarding of standard `npm install` flags
@@ -725,14 +747,32 @@ async function fetchPackageJson(
 	scope: string | undefined,
 	name: string,
 	tag: string
-): Promise<object | Error> {
+): Promise<Record<string, any> | Error> {
 	const packageName = `${scope ? `${scope}/` : ''}${name}`;
 	const registry = await getRegistry();
 	const res = await fetch(`${registry}/${packageName}/${tag}`);
 	if (res.status >= 200 && res.status < 300) {
 		return await res.json();
-	} else {
+	} else if (res.status === 404) {
+		// 404 means the package doesn't exist, so we don't need an error message here
 		return new Error();
+	} else {
+		return new Error(`Failed to fetch ${registry}/${packageName}/${tag} - GET ${res.status}`);
+	}
+}
+
+async function fetchPackageVersions(packageName: string): Promise<string[] | Error> {
+	const registry = await getRegistry();
+	const res = await fetch(`${registry}/${packageName}`, {
+		headers: { accept: 'application/vnd.npm.install-v1+json' },
+	});
+	if (res.status >= 200 && res.status < 300) {
+		return await res.json().then((data) => Object.keys(data.versions));
+	} else if (res.status === 404) {
+		// 404 means the package doesn't exist, so we don't need an error message here
+		return new Error();
+	} else {
+		return new Error(`Failed to fetch ${registry}/${packageName} - GET ${res.status}`);
 	}
 }
 
@@ -754,6 +794,9 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 				} else {
 					const firstPartyPkgCheck = await fetchPackageJson('@astrojs', name, tag);
 					if (firstPartyPkgCheck instanceof Error) {
+						if (firstPartyPkgCheck.message) {
+							spinner.warn(yellow(firstPartyPkgCheck.message));
+						}
 						spinner.warn(
 							yellow(`${bold(integration)} is not an official Astro package. Use at your own risk!`)
 						);
@@ -780,6 +823,9 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 				if (pkgType === 'third-party') {
 					const thirdPartyPkgCheck = await fetchPackageJson(scope, name, tag);
 					if (thirdPartyPkgCheck instanceof Error) {
+						if (thirdPartyPkgCheck.message) {
+							spinner.warn(yellow(thirdPartyPkgCheck.message));
+						}
 						throw new Error(`Unable to fetch ${bold(integration)}. Does the package exist?`);
 					} else {
 						pkgJson = thirdPartyPkgCheck as any;

@@ -1,5 +1,669 @@
 # astro
 
+## 4.0.5
+
+### Patch Changes
+
+- [#9423](https://github.com/withastro/astro/pull/9423) [`bda1d294f`](https://github.com/withastro/astro/commit/bda1d294f2d50f31abfc9a32b5272fc9ac080e83) Thanks [@matthewp](https://github.com/matthewp)! - Error when getImage is passed an undefined src
+
+- [#9424](https://github.com/withastro/astro/pull/9424) [`e1a5a2d36`](https://github.com/withastro/astro/commit/e1a5a2d36ac3637f5c94a27b69128a121541bae8) Thanks [@matthewp](https://github.com/matthewp)! - Prevents dev server from crashing on unhandled rejections, and adds a helpful error message
+
+- [#9404](https://github.com/withastro/astro/pull/9404) [`8aa17a64b`](https://github.com/withastro/astro/commit/8aa17a64b46b8eaabfd1375fd6550ff93727aa81) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixed some newer HTML attributes not being included in our type definitions
+
+- [#9414](https://github.com/withastro/astro/pull/9414) [`bebf38c0c`](https://github.com/withastro/astro/commit/bebf38c0cb539de04007f5e721bf459300b895a1) Thanks [@Skn0tt](https://github.com/Skn0tt)! - Adds the feature name to logs about feature deprecation / experimental status.
+
+- [#9418](https://github.com/withastro/astro/pull/9418) [`2c168af67`](https://github.com/withastro/astro/commit/2c168af6745f5357e76ec323787595ef06d5fd73) Thanks [@alexnguyennz](https://github.com/alexnguyennz)! - Fix broken link in CI instructions
+
+- [#9407](https://github.com/withastro/astro/pull/9407) [`546d92c86`](https://github.com/withastro/astro/commit/546d92c862d08c69751039511a12c92ae38184c2) Thanks [@matthewp](https://github.com/matthewp)! - Allows file URLs as import specifiers
+
+## 4.0.4
+
+### Patch Changes
+
+- [#9380](https://github.com/withastro/astro/pull/9380) [`ea0918259`](https://github.com/withastro/astro/commit/ea0918259964947523827bac6abe88ad3841dbb9) Thanks [@ematipico](https://github.com/ematipico)! - Correctly handle the rendering of i18n routes when `output: "hybrid"` is set
+
+- [#9374](https://github.com/withastro/astro/pull/9374) [`65ddb0271`](https://github.com/withastro/astro/commit/65ddb027111514d41481f7455c0f0f03f8f608a8) Thanks [@bluwy](https://github.com/bluwy)! - Fixes an issue where prerendered route paths that end with `.mjs` were removed from the final build
+
+- [#9375](https://github.com/withastro/astro/pull/9375) [`26f7023d6`](https://github.com/withastro/astro/commit/26f7023d6928de75c363df0fa759a6255cb73ef3) Thanks [@bluwy](https://github.com/bluwy)! - Prettifies generated route names injected by integrations
+
+- [#9387](https://github.com/withastro/astro/pull/9387) [`a7c75b333`](https://github.com/withastro/astro/commit/a7c75b3339e6b1562d0d16ab6ef482840c51df68) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes an edge case with `astro add` that could install a prerelease instead of a stable release version.
+
+  **Prior to this change**
+  `astro add svelte` installs `svelte@5.0.0-next.22`
+
+  **After this change**
+  `astro add svelte` installs `svelte@4.2.8`
+
+- Updated dependencies [[`270c6cc27`](https://github.com/withastro/astro/commit/270c6cc27f20995883fcdabbff9b56d7f041f9e4)]:
+  - @astrojs/markdown-remark@4.0.1
+
+## 4.0.3
+
+### Patch Changes
+
+- [#9342](https://github.com/withastro/astro/pull/9342) [`eb942942d`](https://github.com/withastro/astro/commit/eb942942d67508c07d7efaa859a7840f7c0223da) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix missing `is:inline` type for the `<slot />` element
+
+- [#9343](https://github.com/withastro/astro/pull/9343) [`ab0281aee`](https://github.com/withastro/astro/commit/ab0281aee419e58c6079ca393987fe1ff0541dd5) Thanks [@martrapp](https://github.com/martrapp)! - Adds source file properties to HTML elements only if devToolbar is enabled
+
+- [#9336](https://github.com/withastro/astro/pull/9336) [`c76901065`](https://github.com/withastro/astro/commit/c76901065545f6a8d3de3e44d1c8ee5456a8a77a) Thanks [@FredKSchott](https://github.com/FredKSchott)! - dev: fix issue where 404 and 500 responses were logged as 200
+
+- [#9339](https://github.com/withastro/astro/pull/9339) [`0bb3d5322`](https://github.com/withastro/astro/commit/0bb3d532219fb90fc08bfb472fc981fab6543d16) Thanks [@morinokami](https://github.com/morinokami)! - Fixed the log message to correctly display 'enabled' and 'disabled' when toggling 'Disable notifications' in the Toolbar.
+
+## 4.0.2
+
+### Patch Changes
+
+- [#9331](https://github.com/withastro/astro/pull/9331) [`cfb20550d`](https://github.com/withastro/astro/commit/cfb20550d346a33e76e23453d5dcd084e5065c4d) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Updates an internal dependency ([`vitefu`](https://github.com/svitejs/vitefu)) to avoid a common `peerDependency` warning
+
+- [#9327](https://github.com/withastro/astro/pull/9327) [`3878a91be`](https://github.com/withastro/astro/commit/3878a91be4879988c7235f433e50a6dc82e32288) Thanks [@doseofted](https://github.com/doseofted)! - Fixes an edge case for `<form method="dialog">` when using View Transitions. Forms with `method="dialog"` no longer require an additional `data-astro-reload` attribute.
+
+## 4.0.1
+
+### Patch Changes
+
+- [#9315](https://github.com/withastro/astro/pull/9315) [`631e5d01b`](https://github.com/withastro/astro/commit/631e5d01b00efee6970466c38201cb0e67ec74cf) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where logs that weren't grouped together by route when building the app.
+
+## 4.0.0
+
+### Major Changes
+
+- [#9138](https://github.com/withastro/astro/pull/9138) [`abf601233`](https://github.com/withastro/astro/commit/abf601233f8188d118a8cb063c777478d8d9f1a3) Thanks [@bluwy](https://github.com/bluwy)! - Updates the unified, remark, and rehype dependencies to latest. Make sure to update your custom remark and rehype plugins as well to be compatible with the latest versions.
+
+  **Potentially breaking change:** The default value of `markdown.remarkRehype.footnoteBackLabel` is changed from `"Back to content"` to `"Back to reference 1"`. See the `mdast-util-to-hast` [commit](https://github.com/syntax-tree/mdast-util-to-hast/commit/56c88e45690be138fad9f0bf367b939d09816863) for more information.
+
+- [#9181](https://github.com/withastro/astro/pull/9181) [`cdabf6ef0`](https://github.com/withastro/astro/commit/cdabf6ef02be7220fd2b6bdcef924ceca089381e) Thanks [@bluwy](https://github.com/bluwy)! - Removes support for returning simple objects from endpoints (deprecated since Astro 3.0). You should return a `Response` instead.
+
+  `ResponseWithEncoding` is also removed. You can refactor the code to return a response with an array buffer instead, which is encoding agnostic.
+
+  The types for middlewares have also been revised. To type a middleware function, you should now use `MiddlewareHandler` instead of `MiddlewareResponseHandler`. If you used `defineMiddleware()` to type the function, no changes are needed.
+
+- [#9263](https://github.com/withastro/astro/pull/9263) [`3cbd8ea75`](https://github.com/withastro/astro/commit/3cbd8ea7534910e3beae396dcfa93ce87dcdd91f) Thanks [@bluwy](https://github.com/bluwy)! - Removes additional deprecated APIs:
+
+  - The Astro preview server now returns a 404 status instead of a 301 redirect when requesting assets from the public directory without a base.
+  - Removes special handling when referencing the `astro/client-image` type. You should use the `astro/client` type instead.
+  - Removes deprecated built-in `rss` support in `getStaticPaths`. You should use `@astrojs/rss` instead.
+  - Removes deprecated `Astro.request.params` support. You should use `Astro.params` instead.
+
+- [#9271](https://github.com/withastro/astro/pull/9271) [`47604bd5b`](https://github.com/withastro/astro/commit/47604bd5b5bb2ea63922b657bac104c010575c20) Thanks [@matthewp](https://github.com/matthewp)! - Renames Dev Overlay to Dev Toolbar
+
+  The previously named experimental Dev Overlay is now known as the Astro Dev Toolbar. Overlay plugins have been renamed as Toolbar Apps. All APIs have been updated to reflect this name change.
+
+  To not break existing APIs, aliases for the Toolbar-based names have been created. The previous API names will continue to function but will be deprecated in the future. All documentation has been updated to reflect Toolbar-based names.
+
+- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Adds Vite 5 support. There are no breaking changes from Astro. Check the [Vite migration guide](https://vitejs.dev/guide/migration.html) for details of the breaking changes from Vite instead.
+
+- [#9225](https://github.com/withastro/astro/pull/9225) [`c421a3d17`](https://github.com/withastro/astro/commit/c421a3d17911aeda29b5204f6d568ae87e329eaf) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Removes the opt-in `handleForms` property for `<ViewTransitions />`. Form submissions are now handled by default and this property is no longer necessary. This default behavior can be disabled by setting `data-astro-reload` on relevant `<form />` elements.
+
+- [#9196](https://github.com/withastro/astro/pull/9196) [`37697a2c5`](https://github.com/withastro/astro/commit/37697a2c5511572dc29c0a4ea46f90c2f62be8e6) Thanks [@bluwy](https://github.com/bluwy)! - Removes support for Shiki custom language's `path` property. The language JSON file should be imported and passed to the option instead.
+
+  ```diff
+  // astro.config.js
+  + import customLang from './custom.tmLanguage.json'
+
+  export default defineConfig({
+    markdown: {
+      shikiConfig: {
+        langs: [
+  -       { path: './custom.tmLanguage.json' },
+  +       customLang,
+        ],
+      },
+    },
+  })
+  ```
+
+- [#9199](https://github.com/withastro/astro/pull/9199) [`49aa215a0`](https://github.com/withastro/astro/commit/49aa215a01ee1c4805316c85bb0aea6cfbc25a31) Thanks [@lilnasy](https://github.com/lilnasy)! - This change only affects maintainers of third-party adapters. In the Integration API, the `app.render()` method of the `App` class has been simplified.
+
+  Instead of two optional arguments, it now takes a single optional argument that is an object with two optional properties: `routeData` and `locals`.
+
+  ```diff
+   app.render(request)
+
+  - app.render(request, routeData)
+  + app.render(request, { routeData })
+
+  - app.render(request, routeData, locals)
+  + app.render(request, { routeData, locals })
+
+  - app.render(request, undefined, locals)
+  + app.render(request, { locals })
+  ```
+
+  The current signature is deprecated but will continue to function until next major version.
+
+- [#9212](https://github.com/withastro/astro/pull/9212) [`c0383ea0c`](https://github.com/withastro/astro/commit/c0383ea0c102cb62b7235823c706a090ba08715f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Removes deprecated `app.match()` option, `matchNotFound`
+
+- [#9168](https://github.com/withastro/astro/pull/9168) [`153a5abb9`](https://github.com/withastro/astro/commit/153a5abb905042ac68b712514dc9ec387d3e6b17) Thanks [@bluwy](https://github.com/bluwy)! - Removes deprecated features from Astro 3.0
+
+  - Adapters are now required to pass `supportedAstroFeatures` to specify a list of features they support.
+  - The `build.split` and `build.excludeMiddleware` options are removed. Use `functionPerRoute` and `edgeMiddleware` from adapters instead.
+  - The `markdown.drafts` option and draft feature is removed. Use content collections instead.
+  - Lowercase endpoint names are no longer supported. Use uppercase endpoint names instead.
+  - `getHeaders()` exported from markdown files is removed. Use `getHeadings()` instead.
+
+### Minor Changes
+
+- [#9105](https://github.com/withastro/astro/pull/9105) [`6201bbe96`](https://github.com/withastro/astro/commit/6201bbe96c2a083fb201e4a43a9bd88499821a3e) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update CLI logging experience
+
+- [#9200](https://github.com/withastro/astro/pull/9200) [`b4b851f5a`](https://github.com/withastro/astro/commit/b4b851f5a46b32ee531db5dc39ccd2aa7af7bcfd) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new way to configure the `i18n.locales` array.
+
+  Developers can now assign a custom URL path prefix that can span multiple language codes:
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    experimental: {
+      i18n: {
+        defaultLocale: 'english',
+        locales: ['de', { path: 'english', codes: ['en', 'en-US'] }, 'fr'],
+      },
+    },
+  });
+  ```
+
+  With the above configuration, the URL prefix of the default locale will be `/english/`. When computing `Astro.preferredLocale`, Astro will use the `codes`.
+
+- [#9115](https://github.com/withastro/astro/pull/9115) [`3b77889b4`](https://github.com/withastro/astro/commit/3b77889b47750ed6e17c7858780dc4aae9201b58) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Adds the `astro preferences` command to manage user preferences. User preferences are specific to individual Astro users, unlike the `astro.config.mjs` file which changes behavior for everyone working on a project.
+
+  User preferences are scoped to the current project by default, stored in a local `.astro/settings.json` file. Using the `--global` flag, user preferences can also be applied to every Astro project on the current machine. Global user preferences are stored in an operating system-specific location.
+
+  ```sh
+  # Disable the dev overlay for the current user in the current project
+  npm run astro preferences disable devOverlay
+  # Disable the dev overlay for the current user in all Astro projects on this machine
+  npm run astro preferences --global disable devOverlay
+
+  # Check if the dev overlay is enabled for the current user
+  npm run astro preferences list devOverlay
+  ```
+
+- [#9139](https://github.com/withastro/astro/pull/9139) [`459b26436`](https://github.com/withastro/astro/commit/459b2643666db08dbd29a100ce3d8697b451d3fe) Thanks [@bluwy](https://github.com/bluwy)! - Reworks Vite's logger to use Astro's logger to correctly log HMR messages
+
+- [#9279](https://github.com/withastro/astro/pull/9279) [`6a9669b81`](https://github.com/withastro/astro/commit/6a9669b810ddfcae6c537165a438190ea1e7a4bc) Thanks [@martrapp](https://github.com/martrapp)! - Improves consistency between navigations with and without `<ViewTransitions>`. See [#9279](https://github.com/withastro/astro/pull/9279) for more details.
+
+- [#9161](https://github.com/withastro/astro/pull/9161) [`bd0c2e9ae`](https://github.com/withastro/astro/commit/bd0c2e9ae3389a9d3085050c1e8134ae98dff299) Thanks [@bluwy](https://github.com/bluwy)! - Renames the `entryPoint` property of the `injectRoute` integrations API to `entrypoint` for consistency. A warning will be shown prompting you to update your code when using the old name.
+
+- [#9129](https://github.com/withastro/astro/pull/9129) [`8bfc20511`](https://github.com/withastro/astro/commit/8bfc20511918d675202cdc100d4efab293e5cbac) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update error log formatting
+
+### Patch Changes
+
+- [#9118](https://github.com/withastro/astro/pull/9118) [`000e8f465`](https://github.com/withastro/astro/commit/000e8f4654cae9982e21e0a858366c4844139db6) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Redesign Dev Overlay main screen to show more information, such as the coolest integrations, your current Astro version and more.
+
+- [#9118](https://github.com/withastro/astro/pull/9118) [`000e8f465`](https://github.com/withastro/astro/commit/000e8f4654cae9982e21e0a858366c4844139db6) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes an issue where links with the same pathname as the current page, but different search params, were not prefetched.
+
+- [#9275](https://github.com/withastro/astro/pull/9275) [`0968cb1a3`](https://github.com/withastro/astro/commit/0968cb1a373b1101a649035d2ea2210d3d6412dc) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where html annotations relevant only to the dev server were included in the production build.
+
+- [#9252](https://github.com/withastro/astro/pull/9252) [`7b74ec4ba`](https://github.com/withastro/astro/commit/7b74ec4ba48e363a19d20e322212d0d264927f1b) Thanks [@ematipico](https://github.com/ematipico)! - Consistently emit fallback routes in the correct folders, and emit routes that consider `trailingSlash`
+
+- [#9222](https://github.com/withastro/astro/pull/9222) [`279e3c1b3`](https://github.com/withastro/astro/commit/279e3c1b3d06e7b48f01c0ef8285c3719ac74ace) Thanks [@matthewp](https://github.com/matthewp)! - Ensure the dev-overlay-window is anchored to the bottom
+
+- [#9292](https://github.com/withastro/astro/pull/9292) [`5428b3da0`](https://github.com/withastro/astro/commit/5428b3da08493d933981c4646d5d132fb31f0d25) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improves display for `astro preferences list` command
+
+- [#9235](https://github.com/withastro/astro/pull/9235) [`9c2342c32`](https://github.com/withastro/astro/commit/9c2342c327a13d2f7d1eb387b743e81f431b9813) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix SVG icons not showing properly in the extended dropdown menu of the dev overlay
+
+- [#9218](https://github.com/withastro/astro/pull/9218) [`f4401c8c1`](https://github.com/withastro/astro/commit/f4401c8c1fa203431b4e7b2e89381a91b4ef1ac6) Thanks [@matthewp](https://github.com/matthewp)! - Improve high contrast mode with the Dev Overlay
+
+- [#9254](https://github.com/withastro/astro/pull/9254) [`b750a161e`](https://github.com/withastro/astro/commit/b750a161e0e059de9cf814ce271d5891e4e97cbe) Thanks [@matthewp](https://github.com/matthewp)! - Improve highlight/tooltip positioning when in fixed positions
+
+- [#9230](https://github.com/withastro/astro/pull/9230) [`60cfa49e4`](https://github.com/withastro/astro/commit/60cfa49e445c926288612a6b1a30113ab988011c) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update the look and feel of the dev overlay
+
+- [#9248](https://github.com/withastro/astro/pull/9248) [`43ddb5217`](https://github.com/withastro/astro/commit/43ddb5217691dc4112d8d98ae07511a8be6d4b94) Thanks [@martrapp](https://github.com/martrapp)! - Adds properties of the submit button (name, value) to the form data of a view transition
+
+- [#9170](https://github.com/withastro/astro/pull/9170) [`8a228fce0`](https://github.com/withastro/astro/commit/8a228fce0114daeea2100e50ddc5cf2ea0a03b5d) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Adds new accessibility audits to the Dev Toolbar's built-in Audits app.
+
+  The audits Astro performs are non-exhaustive and only capable of detecting a handful of common accessibility issues. Please take care to perform a thorough, **manual** audit of your site to ensure compliance with the [Web Content Accessibility Guidelines (WCAG) international standard](https://www.w3.org/WAI/standards-guidelines/wcag/) _before_ publishing your site.
+
+  🧡 Huge thanks to the [Svelte](https://github.com/sveltejs/svelte) team for providing the basis of these accessibility audits!
+
+- [#9149](https://github.com/withastro/astro/pull/9149) [`0fe3a7ed5`](https://github.com/withastro/astro/commit/0fe3a7ed5d7bb1a9fce1623e84ba14104b51223c) Thanks [@bluwy](https://github.com/bluwy)! - Removes vendored Vite's `importMeta.d.ts` file in favour of Vite 5's new `vite/types/import-meta.d.ts` export
+
+- [#9295](https://github.com/withastro/astro/pull/9295) [`3d2dbb0e5`](https://github.com/withastro/astro/commit/3d2dbb0e5d2bf67b38ff8533d4dd938c94433812) Thanks [@matthewp](https://github.com/matthewp)! - Remove aria-query package
+
+  This is another CJS-only package that breaks usage.
+
+- [#9274](https://github.com/withastro/astro/pull/9274) [`feaba2c7f`](https://github.com/withastro/astro/commit/feaba2c7fc0a48d3af7dd98e6b750ec1e8274e33) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Fix routing prefixes when `prefixDefaultLocale` is `true`
+
+- [#9273](https://github.com/withastro/astro/pull/9273) [`9887f2412`](https://github.com/withastro/astro/commit/9887f241241f800e2907afe7079db070f3bfcfab) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Exports type for Dev Toolbar App under correct name
+
+- [#9150](https://github.com/withastro/astro/pull/9150) [`710be505c`](https://github.com/withastro/astro/commit/710be505c9ddf416e77a75343d8cae9c497d72c6) Thanks [@bluwy](https://github.com/bluwy)! - Refactors virtual modules exports. This should not break your project unless you import Astro's internal modules, including:
+
+  - `astro/middleware/namespace`
+  - `astro/transitions`
+  - `astro/transitions/router`
+  - `astro/transitions/events`
+  - `astro/transitions/types`
+  - `astro/prefetch`
+  - `astro/i18n`
+
+- [#9227](https://github.com/withastro/astro/pull/9227) [`4b8a42406`](https://github.com/withastro/astro/commit/4b8a42406bbdcc68604ea4ecc2a926721fbc4d52) Thanks [@matthewp](https://github.com/matthewp)! - Ensure overlay x-ray z-index is higher than the island
+
+- [#9255](https://github.com/withastro/astro/pull/9255) [`9ea3e0b94`](https://github.com/withastro/astro/commit/9ea3e0b94f7c4813c52bffd78043f90fd87dffda) Thanks [@matthewp](https://github.com/matthewp)! - Adds instructions on how to hide the dev overlay
+
+- [#9293](https://github.com/withastro/astro/pull/9293) [`cf5fa4376`](https://github.com/withastro/astro/commit/cf5fa437627ca6978ae3ff33c7894f278dfe75cd) Thanks [@matthewp](https://github.com/matthewp)! - Removes the 'a11y-role-has-required-aria-props' audit rule
+
+  This audit rule depends on a CommonJS module. To prevent blocking the 4.0 release the rule is being removed temporarily.
+
+- [#9214](https://github.com/withastro/astro/pull/9214) [`4fe523b00`](https://github.com/withastro/astro/commit/4fe523b0064b323ee46b2574339d96ea8bdb7b2d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes a number of small user experience bugs with the dev overlay
+
+- [#9013](https://github.com/withastro/astro/pull/9013) [`ff8eadb95`](https://github.com/withastro/astro/commit/ff8eadb95d34833baaf3ec7575bf4f293eae97da) Thanks [@bayssmekanique](https://github.com/bayssmekanique)! - Returns the updated config in the integration `astro:config:setup` hook's `updateConfig()` API
+
+- Updated dependencies [[`abf601233`](https://github.com/withastro/astro/commit/abf601233f8188d118a8cb063c777478d8d9f1a3), [`addb57c8e`](https://github.com/withastro/astro/commit/addb57c8e80b7b67ec61224666f3a1db5c44410c), [`c7953645e`](https://github.com/withastro/astro/commit/c7953645eeaaf9e87c6db4494b0023d2c1878ff0)]:
+  - @astrojs/markdown-remark@4.0.0
+
+## 4.0.0-beta.7
+
+### Patch Changes
+
+- [#9295](https://github.com/withastro/astro/pull/9295) [`3d2dbb0e5`](https://github.com/withastro/astro/commit/3d2dbb0e5d2bf67b38ff8533d4dd938c94433812) Thanks [@matthewp](https://github.com/matthewp)! - Remove aria-query package
+
+  This is another CJS-only package that breaks usage.
+
+## 4.0.0-beta.6
+
+### Patch Changes
+
+- [#9275](https://github.com/withastro/astro/pull/9275) [`0968cb1a3`](https://github.com/withastro/astro/commit/0968cb1a373b1101a649035d2ea2210d3d6412dc) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where html annotations relevant only to the dev server were included in the production build.
+
+- [#9292](https://github.com/withastro/astro/pull/9292) [`5428b3da0`](https://github.com/withastro/astro/commit/5428b3da08493d933981c4646d5d132fb31f0d25) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improves display for `astro preferences list` command
+
+- [#9293](https://github.com/withastro/astro/pull/9293) [`cf5fa4376`](https://github.com/withastro/astro/commit/cf5fa437627ca6978ae3ff33c7894f278dfe75cd) Thanks [@matthewp](https://github.com/matthewp)! - Removes the 'a11y-role-has-required-aria-props' audit rule
+
+  This audit rule depends on a CommonJS module. To prevent blocking the 4.0 release the rule is being removed temporarily.
+
+## 4.0.0-beta.5
+
+### Minor Changes
+
+- [#9279](https://github.com/withastro/astro/pull/9279) [`6a9669b81`](https://github.com/withastro/astro/commit/6a9669b810ddfcae6c537165a438190ea1e7a4bc) Thanks [@martrapp](https://github.com/martrapp)! - Improves consistency between navigations with and without `<ViewTransitions>`. See [#9279](https://github.com/withastro/astro/pull/9279) for more details.
+
+### Patch Changes
+
+- [#9170](https://github.com/withastro/astro/pull/9170) [`8a228fce0`](https://github.com/withastro/astro/commit/8a228fce0114daeea2100e50ddc5cf2ea0a03b5d) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Adds new accessibility audits to the Dev Toolbar's built-in Audits app.
+
+  The audits Astro performs are non-exhaustive and only capable of detecting a handful of common accessibility issues. Please take care to perform a thorough, **manual** audit of your site to ensure compliance with the [Web Content Accessibility Guidelines (WCAG) international standard](https://www.w3.org/WAI/standards-guidelines/wcag/) _before_ publishing your site.
+
+  🧡 Huge thanks to the [Svelte](https://github.com/sveltejs/svelte) team for providing the basis of these accessibility audits!
+
+- [#9274](https://github.com/withastro/astro/pull/9274) [`feaba2c7f`](https://github.com/withastro/astro/commit/feaba2c7fc0a48d3af7dd98e6b750ec1e8274e33) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Fix routing prefixes when `prefixDefaultLocale` is `true`
+
+- [#9273](https://github.com/withastro/astro/pull/9273) [`9887f2412`](https://github.com/withastro/astro/commit/9887f241241f800e2907afe7079db070f3bfcfab) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Exports type for Dev Toolbar App under correct name
+
+## 4.0.0-beta.4
+
+### Major Changes
+
+- [#9271](https://github.com/withastro/astro/pull/9271) [`47604bd5b`](https://github.com/withastro/astro/commit/47604bd5b5bb2ea63922b657bac104c010575c20) Thanks [@matthewp](https://github.com/matthewp)! - Renames Dev Overlay to Dev Toolbar
+
+  The previously named experimental Dev Overlay is now known as the Astro Dev Toolbar. Plugins have been renamed as Toolbar Apps. This updates our references to reflect.
+
+  To not break existing APIs, aliases for the Toolbar-based names have been created. The previous API names will continue to function but will be deprecated in the future. All documentation has been updated to reflect Toolbar-based names.
+
+## 4.0.0-beta.3
+
+### Major Changes
+
+- [#9263](https://github.com/withastro/astro/pull/9263) [`3cbd8ea75`](https://github.com/withastro/astro/commit/3cbd8ea7534910e3beae396dcfa93ce87dcdd91f) Thanks [@bluwy](https://github.com/bluwy)! - Removes additional deprecated APIs:
+
+  - The Astro preview server now returns a 404 status instead of a 301 redirect when requesting assets from the public directory without a base.
+  - Removes special handling when referencing the `astro/client-image` type. You should use the `astro/client` type instead.
+  - Removes deprecated built-in `rss` support in `getStaticPaths`. You should use `@astrojs/rss` instead.
+  - Removes deprecated `Astro.request.params` support. You should use `Astro.params` instead.
+
+### Minor Changes
+
+- [#9200](https://github.com/withastro/astro/pull/9200) [`b4b851f5a`](https://github.com/withastro/astro/commit/b4b851f5a46b32ee531db5dc39ccd2aa7af7bcfd) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new way to configure the `i18n.locales` array.
+
+  Developers can now assign a custom URL path prefix that can span multiple language codes:
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    experimental: {
+      i18n: {
+        defaultLocale: 'english',
+        locales: ['de', { path: 'english', codes: ['en', 'en-US'] }, 'fr'],
+        routingStrategy: 'prefix-always',
+      },
+    },
+  });
+  ```
+
+  With the above configuration, the URL prefix of the default locale will be `/english/`. When computing `Astro.preferredLocale`, Astro will use the `codes`.
+
+- [#9139](https://github.com/withastro/astro/pull/9139) [`459b26436`](https://github.com/withastro/astro/commit/459b2643666db08dbd29a100ce3d8697b451d3fe) Thanks [@bluwy](https://github.com/bluwy)! - Reworks Vite's logger to use Astro's logger to correctly log HMR messages
+
+### Patch Changes
+
+- [#9252](https://github.com/withastro/astro/pull/9252) [`7b74ec4ba`](https://github.com/withastro/astro/commit/7b74ec4ba48e363a19d20e322212d0d264927f1b) Thanks [@ematipico](https://github.com/ematipico)! - Consistently emit fallback routes in the correct folders, and emit routes that
+  consider `trailingSlash`
+
+- [#9235](https://github.com/withastro/astro/pull/9235) [`9c2342c32`](https://github.com/withastro/astro/commit/9c2342c327a13d2f7d1eb387b743e81f431b9813) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix SVG icons not showing properly in the extended dropdown menu of the dev overlay
+
+- [#9254](https://github.com/withastro/astro/pull/9254) [`b750a161e`](https://github.com/withastro/astro/commit/b750a161e0e059de9cf814ce271d5891e4e97cbe) Thanks [@matthewp](https://github.com/matthewp)! - Improve highlight/tooltip positioning when in fixed positions
+
+- [#9230](https://github.com/withastro/astro/pull/9230) [`60cfa49e4`](https://github.com/withastro/astro/commit/60cfa49e445c926288612a6b1a30113ab988011c) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update the look and feel of the dev overlay
+
+- [#9248](https://github.com/withastro/astro/pull/9248) [`43ddb5217`](https://github.com/withastro/astro/commit/43ddb5217691dc4112d8d98ae07511a8be6d4b94) Thanks [@martrapp](https://github.com/martrapp)! - Adds properties of the submit button (name, value) to the form data of a view transition
+
+- [#9255](https://github.com/withastro/astro/pull/9255) [`9ea3e0b94`](https://github.com/withastro/astro/commit/9ea3e0b94f7c4813c52bffd78043f90fd87dffda) Thanks [@matthewp](https://github.com/matthewp)! - Adds instructions on how to hide the dev overlay
+
+- [#9013](https://github.com/withastro/astro/pull/9013) [`ff8eadb95`](https://github.com/withastro/astro/commit/ff8eadb95d34833baaf3ec7575bf4f293eae97da) Thanks [@bayssmekanique](https://github.com/bayssmekanique)! - Returns the updated config in the integration `astro:config:setup` hook's `updateConfig()` API
+
+## 4.0.0-beta.2
+
+### Major Changes
+
+- [#9225](https://github.com/withastro/astro/pull/9225) [`c421a3d17`](https://github.com/withastro/astro/commit/c421a3d17911aeda29b5204f6d568ae87e329eaf) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Removes the opt-in `handleForms` property for `<ViewTransitions />`. Form submissions are now handled by default and can be disabled by setting `data-astro-reload` on relevant `<form />` elements.
+
+- [#9199](https://github.com/withastro/astro/pull/9199) [`49aa215a0`](https://github.com/withastro/astro/commit/49aa215a01ee1c4805316c85bb0aea6cfbc25a31) Thanks [@lilnasy](https://github.com/lilnasy)! - This change only affects maintainers of third-party adapters. In the Integration API, the `app.render()` method of the `App` class has been simplified.
+
+  Instead of two optional arguments, it now takes a single optional argument that is an object with two optional properties: `routeData` and `locals`.
+
+  ```diff
+   app.render(request)
+
+  - app.render(request, routeData)
+  + app.render(request, { routeData })
+
+  - app.render(request, routeData, locals)
+  + app.render(request, { routeData, locals })
+
+  - app.render(request, undefined, locals)
+  + app.render(request, { locals })
+  ```
+
+  The current signature is deprecated but will continue to function until next major version.
+
+- [#9212](https://github.com/withastro/astro/pull/9212) [`c0383ea0c`](https://github.com/withastro/astro/commit/c0383ea0c102cb62b7235823c706a090ba08715f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Removes deprecated `app.match()` option, `matchNotFound`
+
+### Minor Changes
+
+- [#9115](https://github.com/withastro/astro/pull/9115) [`3b77889b4`](https://github.com/withastro/astro/commit/3b77889b47750ed6e17c7858780dc4aae9201b58) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Adds the `astro preferences` command to manage user preferences. User preferences are specific to individual Astro users, unlike the `astro.config.mjs` file which changes behavior for everyone working on a project.
+
+  User preferences are scoped to the current project by default, stored in a local `.astro/settings.json` file. Using the `--global` flag, user preferences can also be applied to every Astro project on the current machine. Global user preferences are stored in an operating system-specific location.
+
+  ```sh
+  # Disable the dev overlay for the current user in the current project
+  npm run astro preferences disable devOverlay
+  # Disable the dev overlay for the current user in all Astro projects on this machine
+  npm run astro preferences --global disable devOverlay
+
+  # Check if the dev overlay is enabled for the current user
+  npm run astro preferences list devOverlay
+  ```
+
+- [#9129](https://github.com/withastro/astro/pull/9129) [`8bfc20511`](https://github.com/withastro/astro/commit/8bfc20511918d675202cdc100d4efab293e5cbac) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update error log formatting
+
+### Patch Changes
+
+- [#9222](https://github.com/withastro/astro/pull/9222) [`279e3c1b3`](https://github.com/withastro/astro/commit/279e3c1b3d06e7b48f01c0ef8285c3719ac74ace) Thanks [@matthewp](https://github.com/matthewp)! - Ensure the dev-overlay-window is anchored to the bottom
+
+- [#9218](https://github.com/withastro/astro/pull/9218) [`f4401c8c1`](https://github.com/withastro/astro/commit/f4401c8c1fa203431b4e7b2e89381a91b4ef1ac6) Thanks [@matthewp](https://github.com/matthewp)! - Improve high contrast mode with the Dev Overlay
+
+- [#9227](https://github.com/withastro/astro/pull/9227) [`4b8a42406`](https://github.com/withastro/astro/commit/4b8a42406bbdcc68604ea4ecc2a926721fbc4d52) Thanks [@matthewp](https://github.com/matthewp)! - Ensure overlay x-ray z-index is higher than the island
+
+- [#9214](https://github.com/withastro/astro/pull/9214) [`4fe523b00`](https://github.com/withastro/astro/commit/4fe523b0064b323ee46b2574339d96ea8bdb7b2d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes a number of small user experience bugs with the dev overlay
+
+## 4.0.0-beta.1
+
+### Patch Changes
+
+- [#9118](https://github.com/withastro/astro/pull/9118) [`000e8f465`](https://github.com/withastro/astro/commit/000e8f4654cae9982e21e0a858366c4844139db6) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Redesign Dev Overlay main screen to show more information, such as the coolest integrations, your current Astro version and more.
+
+- [#9118](https://github.com/withastro/astro/pull/9118) [`000e8f465`](https://github.com/withastro/astro/commit/000e8f4654cae9982e21e0a858366c4844139db6) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes an issue where links with the same pathname as the current page, but different search params, were not prefetched.
+
+## 4.0.0-beta.0
+
+### Major Changes
+
+- [#9138](https://github.com/withastro/astro/pull/9138) [`abf601233`](https://github.com/withastro/astro/commit/abf601233f8188d118a8cb063c777478d8d9f1a3) Thanks [@bluwy](https://github.com/bluwy)! - Updates the unified, remark, and rehype dependencies to latest. Make sure to update your custom remark and rehype plugins as well to be compatible with the latest versions.
+
+  **Potentially breaking change:** The default value of `markdown.remarkRehype.footnoteBackLabel` is changed from `"Back to content"` to `"Back to reference 1"`. See the `mdast-util-to-hast` [commit](https://github.com/syntax-tree/mdast-util-to-hast/commit/56c88e45690be138fad9f0bf367b939d09816863) for more information.
+
+- [#9181](https://github.com/withastro/astro/pull/9181) [`cdabf6ef0`](https://github.com/withastro/astro/commit/cdabf6ef02be7220fd2b6bdcef924ceca089381e) Thanks [@bluwy](https://github.com/bluwy)! - Removes support for returning simple objects from endpoints (deprecated since Astro 3.0). You should return a `Response` instead.
+
+  `ResponseWithEncoding` is also removed. You can refactor the code to return a response with an array buffer instead, which is encoding agnostic.
+
+  The types for middlewares have also been revised. To type a middleware function, you should now use `MiddlewareHandler` instead of `MiddlewareResponseHandler`. If you used `defineMiddleware()` to type the function, no changes are needed.
+
+- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Adds Vite 5 support. There are no breaking changes from Astro. Check the [Vite migration guide](https://vitejs.dev/guide/migration.html) for details of the breaking changes from Vite instead.
+
+- [#9196](https://github.com/withastro/astro/pull/9196) [`37697a2c5`](https://github.com/withastro/astro/commit/37697a2c5511572dc29c0a4ea46f90c2f62be8e6) Thanks [@bluwy](https://github.com/bluwy)! - Removes support for Shiki custom language's `path` property. The language JSON file should be imported and passed to the option instead.
+
+  ```diff
+  // astro.config.js
+  + import customLang from './custom.tmLanguage.json'
+
+  export default defineConfig({
+    markdown: {
+      shikiConfig: {
+        langs: [
+  -       { path: './custom.tmLanguage.json' },
+  +       customLang,
+        ],
+      },
+    },
+  })
+  ```
+
+- [#9168](https://github.com/withastro/astro/pull/9168) [`153a5abb9`](https://github.com/withastro/astro/commit/153a5abb905042ac68b712514dc9ec387d3e6b17) Thanks [@bluwy](https://github.com/bluwy)! - Removes deprecated features from Astro 3.0
+
+  - Adapters are now required to pass `supportedAstroFeatures` to specify a list of features they support.
+  - The `build.split` and `build.excludeMiddleware` options are removed. Use `functionPerRoute` and `edgeMiddleware` from adapters instead.
+  - The `markdown.drafts` option and draft feature is removed. Use content collections instead.
+  - Lowercase endpoint names are no longer supported. Use uppercase endpoint names instead.
+  - `getHeaders()` exported from markdown files is removed. Use `getHeadings()` instead.
+
+### Minor Changes
+
+- [#9105](https://github.com/withastro/astro/pull/9105) [`6201bbe96`](https://github.com/withastro/astro/commit/6201bbe96c2a083fb201e4a43a9bd88499821a3e) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update CLI logging experience
+
+- [#9161](https://github.com/withastro/astro/pull/9161) [`bd0c2e9ae`](https://github.com/withastro/astro/commit/bd0c2e9ae3389a9d3085050c1e8134ae98dff299) Thanks [@bluwy](https://github.com/bluwy)! - Renames the `entryPoint` property of the `injectRoute` integrations API to `entrypoint` for consistency. A warning will be shown prompting you to update your code when using the old name.
+
+### Patch Changes
+
+- [#9149](https://github.com/withastro/astro/pull/9149) [`0fe3a7ed5`](https://github.com/withastro/astro/commit/0fe3a7ed5d7bb1a9fce1623e84ba14104b51223c) Thanks [@bluwy](https://github.com/bluwy)! - Removes vendored Vite's `importMeta.d.ts` file in favour of Vite 5's new `vite/types/import-meta.d.ts` export
+
+- [#9150](https://github.com/withastro/astro/pull/9150) [`710be505c`](https://github.com/withastro/astro/commit/710be505c9ddf416e77a75343d8cae9c497d72c6) Thanks [@bluwy](https://github.com/bluwy)! - Refactors virtual modules exports. This should not break your project unless you import Astro's internal modules, including:
+
+  - `astro/middleware/namespace`
+  - `astro/transitions`
+  - `astro/transitions/router`
+  - `astro/transitions/events`
+  - `astro/transitions/types`
+  - `astro/prefetch`
+  - `astro/i18n`
+
+- Updated dependencies [[`abf601233`](https://github.com/withastro/astro/commit/abf601233f8188d118a8cb063c777478d8d9f1a3), [`addb57c8e`](https://github.com/withastro/astro/commit/addb57c8e80b7b67ec61224666f3a1db5c44410c), [`c7953645e`](https://github.com/withastro/astro/commit/c7953645eeaaf9e87c6db4494b0023d2c1878ff0)]:
+  - @astrojs/markdown-remark@4.0.0-beta.0
+
+## 3.6.4
+
+### Patch Changes
+
+- [#9226](https://github.com/withastro/astro/pull/9226) [`8f8a40e93`](https://github.com/withastro/astro/commit/8f8a40e93d6a0774ba84a6f5db8c42cd81db005e) Thanks [@outofambit](https://github.com/outofambit)! - Fix i18n fallback routing with routing strategy of always-prefix
+
+- [#9179](https://github.com/withastro/astro/pull/9179) [`3f28336d9`](https://github.com/withastro/astro/commit/3f28336d9a52d7e4364d455ee3128d14d10a078a) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where the presence of a slot in a page led to an error.
+
+- [#9219](https://github.com/withastro/astro/pull/9219) [`067a65f5b`](https://github.com/withastro/astro/commit/067a65f5b4d163bf1944cf47e6bf891f0b93553f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix edge case where `<style>` updates inside of `.astro` files would ocassionally fail to update without reloading the page.
+
+- [#9236](https://github.com/withastro/astro/pull/9236) [`27d3e86e4`](https://github.com/withastro/astro/commit/27d3e86e4c8d04101113ab7a53477f26a4fb0619) Thanks [@ematipico](https://github.com/ematipico)! - The configuration `i18n.routingStrategy` has been replaced with an object called `routing`.
+
+  ```diff
+  export default defineConfig({
+    experimental: {
+        i18n: {
+  -          routingStrategy: "prefix-always",
+  +          routing: {
+  +              prefixDefaultLocale: true,
+  +          }
+        }
+    }
+  })
+  ```
+
+  ```diff
+  export default defineConfig({
+    experimental: {
+        i18n: {
+  -          routingStrategy: "prefix-other-locales",
+  +          routing: {
+  +              prefixDefaultLocale: false,
+  +          }
+        }
+    }
+  })
+  ```
+
+## 3.6.3
+
+### Patch Changes
+
+- [#9193](https://github.com/withastro/astro/pull/9193) [`0dc99c9a2`](https://github.com/withastro/astro/commit/0dc99c9a28fcb6b46db49eefac6afa415875edcb) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Prevents the Code component from crashing if the lang isn't supported by falling back to `plaintext`.
+
+## 3.6.2
+
+### Patch Changes
+
+- [#9189](https://github.com/withastro/astro/pull/9189) [`d90714fc3`](https://github.com/withastro/astro/commit/d90714fc3dd7c3eab0a6b29319b0b666bb04b678) Thanks [@SpencerWhitehead7](https://github.com/SpencerWhitehead7)! - Fixes an issue where links with the same pathname as the current page, but different search params, were not prefetched.
+
+## 3.6.4
+
+### Patch Changes
+
+- [#9226](https://github.com/withastro/astro/pull/9226) [`8f8a40e93`](https://github.com/withastro/astro/commit/8f8a40e93d6a0774ba84a6f5db8c42cd81db005e) Thanks [@outofambit](https://github.com/outofambit)! - Fix i18n fallback routing with routing strategy of always-prefix
+
+- [#9179](https://github.com/withastro/astro/pull/9179) [`3f28336d9`](https://github.com/withastro/astro/commit/3f28336d9a52d7e4364d455ee3128d14d10a078a) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where the presence of a slot in a page led to an error.
+
+- [#9219](https://github.com/withastro/astro/pull/9219) [`067a65f5b`](https://github.com/withastro/astro/commit/067a65f5b4d163bf1944cf47e6bf891f0b93553f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix edge case where `<style>` updates inside of `.astro` files would ocassionally fail to update without reloading the page.
+
+- [#9236](https://github.com/withastro/astro/pull/9236) [`27d3e86e4`](https://github.com/withastro/astro/commit/27d3e86e4c8d04101113ab7a53477f26a4fb0619) Thanks [@ematipico](https://github.com/ematipico)! - The configuration `i18n.routingStrategy` has been replaced with an object called `routing`.
+
+  ```diff
+  export default defineConfig({
+    experimental: {
+        i18n: {
+  -          routingStrategy: "prefix-always",
+  +          routing: {
+  +              prefixDefaultLocale: true,
+  +          }
+        }
+    }
+  })
+  ```
+
+  ```diff
+  export default defineConfig({
+    experimental: {
+        i18n: {
+  -          routingStrategy: "prefix-other-locales",
+  +          routing: {
+  +              prefixDefaultLocale: false,
+  +          }
+        }
+    }
+  })
+  ```
+
+## 3.6.3
+
+### Patch Changes
+
+- [#9193](https://github.com/withastro/astro/pull/9193) [`0dc99c9a2`](https://github.com/withastro/astro/commit/0dc99c9a28fcb6b46db49eefac6afa415875edcb) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Prevents the Code component from crashing if the lang isn't supported by falling back to `plaintext`.
+
+## 3.6.2
+
+### Patch Changes
+
+- [#9189](https://github.com/withastro/astro/pull/9189) [`d90714fc3`](https://github.com/withastro/astro/commit/d90714fc3dd7c3eab0a6b29319b0b666bb04b678) Thanks [@SpencerWhitehead7](https://github.com/SpencerWhitehead7)! - Fixes an issue where links with the same pathname as the current page, but different search params, were not prefetched.
+
+## 3.6.1
+
+### Patch Changes
+
+- [#9173](https://github.com/withastro/astro/pull/9173) [`04fdc1c61`](https://github.com/withastro/astro/commit/04fdc1c613171409ed1a2bd887326e26cdb8b5ef) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where having a middleware prevented the SSR app from being deployed on Netlify.
+
+- [#9186](https://github.com/withastro/astro/pull/9186) [`607542c7c`](https://github.com/withastro/astro/commit/607542c7cf9fe9813c06f1d96615d6c793262d22) Thanks [@martrapp](https://github.com/martrapp)! - Fixes a view transition issue on webKit browsers that prevented scrolling to #fragments
+
+## 3.6.0
+
+### Minor Changes
+
+- [#9090](https://github.com/withastro/astro/pull/9090) [`c87223c21`](https://github.com/withastro/astro/commit/c87223c21ab5d515fb8f04ee10be5c0ca51e0b29) Thanks [@martrapp](https://github.com/martrapp)! - Take full control over the behavior of view transitions!
+
+  Three new events now complement the existing `astro:after-swap` and `astro:page-load` events:
+
+  ```javascript
+  'astro:before-preparation'; // Control how the DOM and other resources of the target page are loaded
+  'astro:after-preparation'; // Last changes before taking off? Remove that loading indicator? Here you go!
+  'astro:before-swap'; // Control how the DOM is updated to match the new page
+  ```
+
+  The `astro:before-*` events allow you to change properties and strategies of the view transition implementation.
+  The `astro:after-*` events are notifications that a phase is complete.
+  Head over to docs to see [the full view transitions lifecycle](https://docs.astro.build/en/guides/view-transitions/#lifecycle-events) including these new events!
+
+- [#9092](https://github.com/withastro/astro/pull/9092) [`0ea4bd47e`](https://github.com/withastro/astro/commit/0ea4bd47e0d7cc98c43568a55aa87da772bd2e0a) Thanks [@smitbarmase](https://github.com/smitbarmase)! - Changes the fallback prefetch behavior on slow connections and when data saver mode is enabled. Instead of disabling prefetch entirely, the `tap` strategy will be used.
+
+- [#9166](https://github.com/withastro/astro/pull/9166) [`cba6cf32d`](https://github.com/withastro/astro/commit/cba6cf32d9bf1f5c3268808f185a4824d6fbd7f4) Thanks [@matthewp](https://github.com/matthewp)! - The Picture component is no longer experimental
+
+  The `<Picture />` component, part of `astro:assets`, has exited experimental status and is now recommended for use. There are no code changes to the component, and no upgrade to your project is necessary.
+
+  This is only a change in documentation/recommendation. If you were waiting to use the `<Picture />` component until it had exited the experimental stage, wait no more!
+
+- [#9092](https://github.com/withastro/astro/pull/9092) [`0ea4bd47e`](https://github.com/withastro/astro/commit/0ea4bd47e0d7cc98c43568a55aa87da772bd2e0a) Thanks [@smitbarmase](https://github.com/smitbarmase)! - Adds a `ignoreSlowConnection` option to the `prefetch()` API to prefetch even on data saver mode or slow connection.
+
+## 3.5.7
+
+### Patch Changes
+
+- [#9157](https://github.com/withastro/astro/pull/9157) [`7ff8d62bf`](https://github.com/withastro/astro/commit/7ff8d62bf861694067491ff17d01b1b0f6809d6b) Thanks [@ematipico](https://github.com/ematipico)! - Revert fix around fallback system, which broken injected styles
+
+## 3.5.6
+
+### Patch Changes
+
+- [#9121](https://github.com/withastro/astro/pull/9121) [`f4efd1c80`](https://github.com/withastro/astro/commit/f4efd1c808476c7e60fe00fcfb86276cf14fee79) Thanks [@peng](https://github.com/peng)! - Adds a warning if `astro add` fetches a package but returns a non-404 status
+
+- [#9142](https://github.com/withastro/astro/pull/9142) [`7d55cf68d`](https://github.com/withastro/astro/commit/7d55cf68d89cb46bfb89a109b09af61be8431c89) Thanks [@ematipico](https://github.com/ematipico)! - Consistely emit fallback routes in the correct folders.
+
+- [#9119](https://github.com/withastro/astro/pull/9119) [`306781795`](https://github.com/withastro/astro/commit/306781795d5f4b755bbdf650a937f1f3c00030bd) Thanks [@ematipico](https://github.com/ematipico)! - Fix a flaw in the i18n fallback logic, where the routes didn't preserve their metadata, such as hoisted scripts
+
+- [#9140](https://github.com/withastro/astro/pull/9140) [`7742fd7dc`](https://github.com/withastro/astro/commit/7742fd7dc26533c6f7cd497b00b72de935c57628) Thanks [@martrapp](https://github.com/martrapp)! - View Transitions: handle clicks on SVGAElements and image maps"
+
+- [#9101](https://github.com/withastro/astro/pull/9101) [`e3dce215a`](https://github.com/withastro/astro/commit/e3dce215a5ea06bcff1b21027e5613e6518c69d4) Thanks [@ematipico](https://github.com/ematipico)! - Add a new property `Astro.currentLocale`, available when `i18n` is enabled.
+
+## 3.5.5
+
+### Patch Changes
+
+- [#9091](https://github.com/withastro/astro/pull/9091) [`536c6c9fd`](https://github.com/withastro/astro/commit/536c6c9fd3d65d1a60bbc8b924c5939f27541d41) Thanks [@ematipico](https://github.com/ematipico)! - The `routingStrategy` `prefix-always` should not force its logic to endpoints. This fixes some regression with `astro:assets` and `@astrojs/rss`.
+
+- [#9102](https://github.com/withastro/astro/pull/9102) [`60e8210b0`](https://github.com/withastro/astro/commit/60e8210b0ce5bc512aff72a32322ba7937a411b0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - In the dev overlay, when there's too many plugins enabled at once, some of the plugins will now be hidden in a separate sub menu to avoid the bar becoming too long
+
+## 3.5.4
+
+### Patch Changes
+
+- [#9085](https://github.com/withastro/astro/pull/9085) [`fc66ecff1`](https://github.com/withastro/astro/commit/fc66ecff18a20dd436026cb8e75bcc8b5ab0e681) Thanks [@ematipico](https://github.com/ematipico)! - When redirecting to the default root locale, Astro middleare should take into consideration the value of `trailingSlash`
+
+- [#9067](https://github.com/withastro/astro/pull/9067) [`c6e449c5b`](https://github.com/withastro/astro/commit/c6e449c5b3e6e994b362b9ce441c8a1a81129f23) Thanks [@danielhajduk](https://github.com/danielhajduk)! - Fixes display of debug messages when using the `--verbose` flag
+
+- [#9075](https://github.com/withastro/astro/pull/9075) [`c5dc8f2ec`](https://github.com/withastro/astro/commit/c5dc8f2ec9c8c1bbbffabed9eeb12d151aefb81e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix Passthrough image service generating multiple images with the same content in certain cases
+
+- [#9083](https://github.com/withastro/astro/pull/9083) [`4537ecf0d`](https://github.com/withastro/astro/commit/4537ecf0d060f89cb8c000338a7fc5f4197a88c8) Thanks [@bluwy](https://github.com/bluwy)! - Uses new `createShikiHighlighter` API from `@astrojs/markdown-remark` to avoid code duplication
+
+- [#9084](https://github.com/withastro/astro/pull/9084) [`045e5ec97`](https://github.com/withastro/astro/commit/045e5ec9793a4ba2e3f0248d734246eb033225e8) Thanks [@matthewp](https://github.com/matthewp)! - Supports `formmethod` and `formaction` for form overrides
+
+- [#9087](https://github.com/withastro/astro/pull/9087) [`b895113a0`](https://github.com/withastro/astro/commit/b895113a0ae347ecd81bd8866ae2d816ea20836b) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes the regression which broke bundling of image service for pre-rendered pages, which was introduced by [#8854](https://github.com/withastro/astro/pull/8854)
+
+- [#9058](https://github.com/withastro/astro/pull/9058) [`5ef89ef33`](https://github.com/withastro/astro/commit/5ef89ef33e0dc4621db947b6889b3c563eb56a78) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add a new settings panel to the dev overlay
+
+- [#9045](https://github.com/withastro/astro/pull/9045) [`84312f24f`](https://github.com/withastro/astro/commit/84312f24f8af2098b0831cf2361ea3d37761d3d3) Thanks [@rishi-raj-jain](https://github.com/rishi-raj-jain)! - Fixes preview server `trailingSlash` handling for request URLs with query strings
+
+- Updated dependencies [[`4537ecf0d`](https://github.com/withastro/astro/commit/4537ecf0d060f89cb8c000338a7fc5f4197a88c8)]:
+  - @astrojs/markdown-remark@3.5.0
+
 ## 3.5.3
 
 ### Patch Changes

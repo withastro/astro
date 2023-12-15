@@ -1,4 +1,4 @@
-import { IncomingMessage, ServerResponse } from 'node:http';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 
 export interface UserOptions {
 	/**
@@ -15,6 +15,7 @@ export interface Options extends UserOptions {
 	port: number;
 	server: string;
 	client: string;
+	assets: string;
 }
 
 export type RequestHandlerParams = [

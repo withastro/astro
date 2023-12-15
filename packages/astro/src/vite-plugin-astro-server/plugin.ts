@@ -10,6 +10,12 @@ import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
 import DevPipeline from './devPipeline.js';
 import { handleRequest } from './request.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { getViteErrorPayload } from '../core/errors/dev/index.js';
+import { AsyncLocalStorage } from 'node:async_hooks';
+import { IncomingMessage } from 'node:http';
+import { setRouteError } from './server-state.js';
+import { recordServerError } from './error.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -30,6 +36,7 @@ export default function createVitePluginAstroServer({
 			const pipeline = new DevPipeline({ logger, manifest, settings, loader });
 			let manifestData: ManifestData = createRouteManifest({ settings, fsMod }, logger);
 			const controller = createController({ loader });
+			const localStorage = new AsyncLocalStorage();
 
 			/** rebuild the route cache + manifest, as needed. */
 			function rebuildManifest(needsManifestRebuild: boolean) {
@@ -42,6 +49,25 @@ export default function createVitePluginAstroServer({
 			viteServer.watcher.on('add', rebuildManifest.bind(null, true));
 			viteServer.watcher.on('unlink', rebuildManifest.bind(null, true));
 			viteServer.watcher.on('change', rebuildManifest.bind(null, false));
+
+			function handleUnhandledRejection(rejection: any) {
+				const error = new AstroError({
+					...AstroErrorData.UnhandledRejection,
+					message: AstroErrorData.UnhandledRejection.message(rejection?.stack || rejection),
+				});
+				const store = localStorage.getStore();
+				if (store instanceof IncomingMessage) {
+					const request = store;
+					setRouteError(controller.state, request.url!, error);
+				}
+				const { errorWithMetadata } = recordServerError(loader, settings.config, pipeline, error);
+				setTimeout(
+					async () => loader.webSocketSend(await getViteErrorPayload(errorWithMetadata)),
+					200
+				);
+			}
+
+			process.on('unhandledRejection', handleUnhandledRejection);
 
 			return () => {
 				// Push this middleware to the front of the stack so that it can intercept responses.
@@ -57,13 +83,15 @@ export default function createVitePluginAstroServer({
 						response.end();
 						return;
 					}
-					handleRequest({
-						pipeline,
-						manifestData,
-						controller,
-						incomingRequest: request,
-						incomingResponse: response,
-						manifest,
+					localStorage.run(request, () => {
+						handleRequest({
+							pipeline,
+							manifestData,
+							controller,
+							incomingRequest: request,
+							incomingResponse: response,
+							manifest,
+						});
 					});
 				});
 			};
@@ -87,15 +115,16 @@ export default function createVitePluginAstroServer({
  */
 export function createDevelopmentManifest(settings: AstroSettings): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
-	if (settings.config.experimental.i18n) {
+	if (settings.config.i18n) {
 		i18nManifest = {
-			fallback: settings.config.experimental.i18n.fallback,
-			routingStrategy: settings.config.experimental.i18n.routingStrategy,
-			defaultLocale: settings.config.experimental.i18n.defaultLocale,
-			locales: settings.config.experimental.i18n.locales,
+			fallback: settings.config.i18n.fallback,
+			routing: settings.config.i18n.routing,
+			defaultLocale: settings.config.i18n.defaultLocale,
+			locales: settings.config.i18n.locales,
 		};
 	}
 	return {
+		trailingSlash: settings.config.trailingSlash,
 		compressHTML: settings.config.compressHTML,
 		assets: new Set(),
 		entryModules: {},

@@ -1,16 +1,13 @@
 import type http from 'node:http';
 import type { ManifestData, SSRManifest } from '../@types/astro.js';
-import { collectErrorMetadata } from '../core/errors/dev/index.js';
-import { createSafeError } from '../core/errors/index.js';
-import * as msg from '../core/messages.js';
 import { collapseDuplicateSlashes, removeTrailingForwardSlash } from '../core/path.js';
-import { eventError, telemetry } from '../events/index.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import type { DevServerController } from './controller.js';
 import { runWithErrorHandling } from './controller.js';
 import type DevPipeline from './devPipeline.js';
 import { handle500Response } from './response.js';
 import { handleRoute, matchRoute } from './route.js';
+import { recordServerError } from './error.js';
 
 type HandleRequest = {
 	pipeline: DevPipeline;
@@ -89,23 +86,9 @@ export async function handleRequest({
 			});
 		},
 		onError(_err) {
-			const err = createSafeError(_err);
-
-			// This could be a runtime error from Vite's SSR module, so try to fix it here
-			try {
-				moduleLoader.fixStacktrace(err);
-			} catch {}
-
-			// This is our last line of defense regarding errors where we still might have some information about the request
-			// Our error should already be complete, but let's try to add a bit more through some guesswork
-			const errorWithMetadata = collectErrorMetadata(err, config.root);
-
-			telemetry.record(eventError({ cmd: 'dev', err: errorWithMetadata, isFatal: false }));
-
-			pipeline.logger.error(null, msg.formatErrorMessage(errorWithMetadata));
+			const { error, errorWithMetadata } = recordServerError(moduleLoader, config, pipeline, _err);
 			handle500Response(moduleLoader, incomingResponse, errorWithMetadata);
-
-			return err;
+			return error;
 		},
 	});
 }

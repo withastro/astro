@@ -1,6 +1,7 @@
 import type {
 	AstroGlobal,
 	AstroGlobalPartial,
+	Locales,
 	Params,
 	SSRElement,
 	SSRLoadedRenderer,
@@ -12,7 +13,11 @@ import { chunkToString } from '../../runtime/server/render/index.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { computePreferredLocale, computePreferredLocaleList } from './context.js';
+import {
+	computeCurrentLocale,
+	computePreferredLocale,
+	computePreferredLocaleList,
+} from './context.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
@@ -46,7 +51,9 @@ export interface CreateResultArgs {
 	status: number;
 	locals: App.Locals;
 	cookies?: AstroCookies;
-	locales: string[] | undefined;
+	locales: Locales | undefined;
+	defaultLocale: string | undefined;
+	routingStrategy: 'prefix-always' | 'prefix-other-locales' | undefined;
 }
 
 function getFunctionExpression(slot: any) {
@@ -94,7 +101,7 @@ class Slots {
 		const result = this.#result;
 		if (!Array.isArray(args)) {
 			this.#logger.warn(
-				'Astro.slots.render',
+				null,
 				`Expected second parameter to be an array, received a ${typeof args}. If you're trying to pass an array as a single argument and getting unexpected results, make sure you're passing your array as a item of an array. Ex: Astro.slots.render('default', [["Hello", "World"]])`
 			);
 		} else if (args.length > 0) {
@@ -148,6 +155,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 	let cookies: AstroCookies | undefined = args.cookies;
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
+	let currentLocale: string | undefined = undefined;
 
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then
@@ -214,6 +222,24 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					if (args.locales) {
 						preferredLocaleList = computePreferredLocaleList(request, args.locales);
 						return preferredLocaleList;
+					}
+
+					return undefined;
+				},
+				get currentLocale(): string | undefined {
+					if (currentLocale) {
+						return currentLocale;
+					}
+					if (args.locales) {
+						currentLocale = computeCurrentLocale(
+							request,
+							args.locales,
+							args.routingStrategy,
+							args.defaultLocale
+						);
+						if (currentLocale) {
+							return currentLocale;
+						}
 					}
 
 					return undefined;

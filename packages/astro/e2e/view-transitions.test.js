@@ -394,7 +394,10 @@ test.describe('View Transitions', () => {
 		await expect(locator).toBeInViewport();
 
 		// Scroll back to top
+		// back returns immediately, but we need to wait for navigate() to complete
+		const waitForReady = page.waitForEvent('console');
 		await page.goBack();
+		await waitForReady;
 		locator = page.locator('#longpage');
 		await expect(locator).toBeInViewport();
 
@@ -1003,5 +1006,89 @@ test.describe('View Transitions', () => {
 			loads.length,
 			'There should be only 1 page load. No additional loads for the form submission'
 		).toEqual(1);
+	});
+
+	test('forms are overridden by formmethod and formaction', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/form-three'));
+
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Contact Form');
+
+		// Submit the form
+		await page.click('#submit');
+		const result = page.locator('#three-result');
+		await expect(result, 'should have content').toHaveText('Got: Testing');
+	});
+
+	test('click on an svg anchor should trigger navigation', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+
+		await page.goto(astro.resolveUrl('/non-html-anchor'));
+		let locator = page.locator('#insidesvga');
+		await expect(locator, 'should have attribute').toHaveAttribute('x', '10');
+		await page.click('#svga');
+		const p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
+	test('click inside an svg anchor should trigger navigation', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+		await page.goto(astro.resolveUrl('/non-html-anchor'));
+		let locator = page.locator('#insidesvga');
+		await expect(locator, 'should have content').toHaveText('text within a svga');
+		await page.click('#insidesvga');
+		const p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
+	test('click on an area in an image map should trigger navigation', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+		await page.goto(astro.resolveUrl('/non-html-anchor'));
+		let locator = page.locator('#area');
+		await expect(locator, 'should have attribute').toHaveAttribute('shape', 'default');
+		await page.click('#logo');
+		const p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
+	test('Submitter with a name property is included in form data', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/form-four'));
+
+		let locator = page.locator('h2');
+		await expect(locator, 'should have content').toHaveText('Voting Form');
+
+		// Submit the form
+		const expected = page.url() + '?stars=3';
+		await page.click('#three');
+		await expect(page).toHaveURL(expected);
+	});
+
+	test('Dialog using form with method of "dialog" should not trigger navigation', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/dialog'));
+
+		let requests = [];
+		page.on('request', (request) => requests.push(`${request.method()} ${request.url()}`));
+
+		await page.click('#open');
+		await expect(page.locator('dialog')).toHaveAttribute('open');
+		await page.click('#close');
+		await expect(page.locator('dialog')).not.toHaveAttribute('open');
+
+		expect(requests).toHaveLength(0);
 	});
 });

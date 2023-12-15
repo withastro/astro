@@ -1,54 +1,14 @@
-import { isRemotePath } from '@astrojs/internal-helpers/path';
-import type { AstroConfig, AstroSettings } from '../@types/astro.js';
+import type { AstroConfig } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';
 import { isLocalService, type ImageService } from './services/service.js';
 import type {
 	GetImageResult,
-	ImageMetadata,
 	ImageTransform,
 	SrcSetValue,
 	UnresolvedImageTransform,
 } from './types.js';
-import { matchHostname, matchPattern } from './utils/remotePattern.js';
-
-export function injectImageEndpoint(settings: AstroSettings, mode: 'dev' | 'build') {
-	const endpointEntrypoint =
-		settings.config.image.endpoint ??
-		(mode === 'dev' ? 'astro/assets/endpoint/node' : 'astro/assets/endpoint/generic');
-
-	settings.injectedRoutes.push({
-		pattern: '/_image',
-		entryPoint: endpointEntrypoint,
-		prerender: false,
-	});
-
-	return settings;
-}
-
-export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
-	return typeof src === 'object';
-}
-
-export function isRemoteImage(src: ImageMetadata | string): src is string {
-	return typeof src === 'string';
-}
-
-export function isRemoteAllowed(
-	src: string,
-	{
-		domains = [],
-		remotePatterns = [],
-	}: Partial<Pick<AstroConfig['image'], 'domains' | 'remotePatterns'>>
-): boolean {
-	if (!isRemotePath(src)) return false;
-
-	const url = new URL(src);
-	return (
-		domains.some((domain) => matchHostname(url, domain)) ||
-		remotePatterns.some((remotePattern) => matchPattern(url, remotePattern))
-	);
-}
+import { isESMImportedImage, isRemoteImage } from './utils/imageKind.js';
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
@@ -77,6 +37,16 @@ export async function getImage(
 		throw new AstroError({
 			...AstroErrorData.ExpectedImageOptions,
 			message: AstroErrorData.ExpectedImageOptions.message(JSON.stringify(options)),
+		});
+	}
+	if (typeof options.src === 'undefined') {
+		throw new AstroError({
+			...AstroErrorData.ExpectedImage,
+			message: AstroErrorData.ExpectedImage.message(
+				options.src,
+				'undefined',
+				JSON.stringify(options)
+			),
 		});
 	}
 

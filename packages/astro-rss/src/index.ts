@@ -27,11 +27,6 @@ export type RSSOptions = {
 	stylesheet?: z.infer<typeof rssOptionsValidator>['stylesheet'];
 	/** Specify custom data in opening of file */
 	customData?: z.infer<typeof rssOptionsValidator>['customData'];
-	/**
-	 * Whether to include drafts or not
-	 * @deprecated Deprecated since version 3.0. Use content collections instead.
-	 */
-	drafts?: z.infer<typeof rssOptionsValidator>['drafts'];
 	trailingSlash?: z.infer<typeof rssOptionsValidator>['trailingSlash'];
 };
 
@@ -48,11 +43,6 @@ export type RSSFeedItem = {
 	description?: z.infer<typeof rssSchema>['description'];
 	/** Append some other XML-valid data to this item */
 	customData?: z.infer<typeof rssSchema>['customData'];
-	/**
-	 * Whether draft or not
-	 * @deprecated Deprecated since version 3.0. Use content collections instead.
-	 */
-	draft?: z.infer<typeof rssSchema>['draft'];
 	/** Categories or tags related to the item */
 	categories?: z.infer<typeof rssSchema>['categories'];
 	/** The item author's email address */
@@ -92,7 +82,6 @@ const rssOptionsValidator = z.object({
 			return items;
 		}),
 	xmlns: z.record(z.string()).optional(),
-	drafts: z.boolean().default(false),
 	stylesheet: z.union([z.string(), z.boolean()]).optional(),
 	customData: z.string().optional(),
 	trailingSlash: z.boolean().default(true),
@@ -120,9 +109,21 @@ async function validateRssOptions(rssOptions: RSSOptions) {
 	const formattedError = new Error(
 		[
 			`[RSS] Invalid or missing options:`,
-			...parsedResult.error.errors.map(
-				(zodError) => `${zodError.message} (${zodError.path.join('.')})`
-			),
+			...parsedResult.error.errors.map((zodError) => {
+				const path = zodError.path.join('.');
+				const message = `${zodError.message} (${path})`;
+				const code = zodError.code;
+
+				if (path === 'items' && code === 'invalid_union') {
+					return [
+						message,
+						`The \`items\` property requires properly typed \`title\`, \`pubDate\`, and \`link\` keys.`,
+						`Check your collection's schema, and visit https://docs.astro.build/en/guides/rss/#generating-items for more info.`,
+					].join('\n');
+				}
+
+				return message;
+			}),
 		].join('\n')
 	);
 	throw formattedError;
@@ -159,10 +160,7 @@ export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeed
 
 /** Generate RSS 2.0 feed */
 async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
-	const { site } = rssOptions;
-	const items = rssOptions.drafts
-		? rssOptions.items
-		: rssOptions.items.filter((item) => !item.draft);
+	const { items, site } = rssOptions;
 
 	const xmlOptions = {
 		ignoreAttributes: false,

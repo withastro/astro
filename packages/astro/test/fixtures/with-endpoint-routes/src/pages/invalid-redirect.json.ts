@@ -1,4 +1,4 @@
-export const get = () => {
+export const GET = () => {
   return new Response(
     undefined,
     {

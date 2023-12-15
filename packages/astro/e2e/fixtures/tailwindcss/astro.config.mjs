@@ -9,6 +9,9 @@ export default defineConfig({
 			configFile: fileURLToPath(new URL('./tailwind.config.js', import.meta.url)),
 		}),
 	],
+	devToolbar: {
+		enabled: false,
+	},
 	vite: {
 		build: {
 			assetsInlineLimit: 0,

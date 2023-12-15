@@ -1,4 +1,4 @@
-import * as vite from 'vite';
+import type * as vite from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 
 const virtualModuleId = 'astro:transitions';
@@ -21,13 +21,20 @@ export default function astroTransitions({ settings }: { settings: AstroSettings
 		load(id) {
 			if (id === resolvedVirtualModuleId) {
 				return `
-				export * from "astro/transitions";
+				export * from "astro/virtual-modules/transitions.js";
 				export { default as ViewTransitions } from "astro/components/ViewTransitions.astro";
 			`;
 			}
 			if (id === resolvedVirtualClientModuleId) {
 				return `
-				export * from "astro/transitions/router";
+				export { navigate, supportsViewTransitions, transitionEnabledOnThisPage } from "astro/virtual-modules/transitions-router.js";
+				export * from "astro/virtual-modules/transitions-types.js";
+				export {
+					TRANSITION_BEFORE_PREPARATION, isTransitionBeforePreparationEvent, TransitionBeforePreparationEvent,
+					TRANSITION_AFTER_PREPARATION,
+					TRANSITION_BEFORE_SWAP, isTransitionBeforeSwapEvent, TransitionBeforeSwapEvent,
+					TRANSITION_AFTER_SWAP, TRANSITION_PAGE_LOAD
+				} from "astro/virtual-modules/transitions-events.js";
 			`;
 			}
 		},
