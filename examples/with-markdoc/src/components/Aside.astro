@@ -2,7 +2,7 @@
 // Inspired by the `Aside` component from docs.astro.build
 // https://github.com/withastro/docs/blob/main/src/components/Aside.astro
 
-import { AstroMarkdocComponent } from "@astrojs/markdoc";
+import type { AstroMarkdocComponent } from "@astrojs/markdoc";
 
 interface Props extends AstroMarkdocComponent {
 	type?: 'note' | 'tip' | 'caution' | 'danger';
@@ -15,7 +15,9 @@ const labelByType = {
 	caution: 'Caution',
 	danger: 'Danger',
 };
-const { type = 'note', config } = Astro.props;
+
+// You can uncomment and use the "config" variable to get access to the markdoc config.
+const { type = 'note'/*, config*/ } = Astro.props;
 const title = Astro.props.title ?? labelByType[type] ?? '';
 
 // SVG icon paths based on GitHub Octicons
