@@ -1,40 +1,23 @@
-import { fileURLToPath } from 'url';
 import { expect } from 'chai';
-import fs from 'fs/promises';
-import { cli } from './test-utils.js';
+import { loadFixture } from "@astrojs/test-utils"
 
-const root = new URL('../functions/fixtures/redirects/', import.meta.url).toString();
+describe('SSR - Redirects', () => {
+	let fixture;
 
-describe('SSG - Redirects', () => {
 	before(async () => {
-		await cli('build', '--root', fileURLToPath(root));
+		fixture = await loadFixture({ root: new URL('./fixtures/redirects/', import.meta.url) });
+		await fixture.build();
 	});
 
 	it('Creates a redirects file', async () => {
-		let redirects = await fs.readFile(new URL('./dist/_redirects', root), 'utf-8');
+		let redirects = await fixture.readFile('./_redirects');
 		let parts = redirects.split(/\s+/);
 		expect(parts).to.deep.equal([
+			'',
 			'/other',
 			'/',
 			'301',
-			// This uses the dynamic Astro.redirect, so we don't know that it's a redirect
-			// until runtime. This is correct!
-			'/nope',
-			'/.netlify/functions/entry',
-			'200',
-			'/',
-			'/.netlify/functions/entry',
-			'200',
-
-			// Image endpoint
-			'/_image',
-			'/.netlify/functions/entry',
-			'200',
-
-			// A real route
-			'/team/articles/*',
-			'/.netlify/functions/entry',
-			'200',
+			'',
 		]);
 		expect(redirects).to.matchSnapshot();
 	});

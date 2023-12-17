@@ -1,31 +1,23 @@
-import { fileURLToPath } from 'url';
 import { expect } from 'chai';
-import { cli } from './test-utils.js';
-
-const root = new URL('./fixtures/cookies/', import.meta.url).toString();
+import { loadFixture } from "@astrojs/test-utils"
 
 describe('Cookies', () => {
+	let fixture;
+
 	before(async () => {
-		await cli('build', '--root', fileURLToPath(root));
+		fixture = await loadFixture({ root: new URL('./fixtures/cookies/', import.meta.url) });
+		await fixture.build();
 	});
 
 	it('Can set multiple', async () => {
 		const entryURL = new URL(
-			'./fixtures/cookies/.netlify/functions-internal/entry.mjs',
+			'./fixtures/cookies/.netlify/functions-internal/ssr/ssr.mjs',
 			import.meta.url
 		);
-		const { handler } = await import(entryURL);
-		const resp = await handler({
-			httpMethod: 'POST',
-			headers: {},
-			rawUrl: 'http://example.com/login',
-			body: '{}',
-			isBase64Encoded: false,
-		});
-		expect(resp.statusCode).to.equal(301);
-		expect(resp.headers.location).to.equal('/');
-		expect(resp.multiValueHeaders).to.be.deep.equal({
-			'set-cookie': ['foo=foo; HttpOnly', 'bar=bar; HttpOnly'],
-		});
+		const { default: handler } = await import(entryURL);
+		const resp = await handler(new Request('http://example.com/login', { method: "POST", body: '{}' }), {})
+		expect(resp.status).to.equal(301);
+		expect(resp.headers.get("location")).to.equal('/');
+		expect(resp.headers.getSetCookie()).to.eql(['foo=foo; HttpOnly', 'bar=bar; HttpOnly']);
 	});
 });

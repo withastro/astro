@@ -19,11 +19,10 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/netlify/",
   "exports": {
     ".": "./dist/index.js",
-    "./functions": "./dist/integration-functions.js",
-    "./static": "./dist/integration-static.js",
-    "./netlify-functions.js": "./dist/netlify-functions.js",
-    "./edge-functions": "./dist/integration-edge-functions.js",
-    "./netlify-edge-functions.js": "./dist/netlify-edge-functions.js",
+    "./static": "./dist/static.js",
+    "./functions": "./dist/functions.js",
+    "./ssr-function.js": "./dist/ssr-function.js",
+    "./image-service.js": "./dist/image-service.js",
     "./package.json": "./package.json"
   },
   "files": [
@@ -32,8 +31,8 @@
   "scripts": {
     "build": "tsc",
     "test-fn": "mocha --exit --timeout 20000 --file \"./test/setup.js\" test/functions/",
-    "test-edge": "deno test --allow-run --allow-read --allow-net --allow-env --allow-write ./test/edge-functions/",
-    "test": "pnpm test-fn",
+    "test-static": "mocha --exit --timeout 20000 --file \"./test/setup.js\" test/static/",
+    "test": "pnpm test-fn && pnpm test-static",
     "test:hosted": "mocha --exit --timeout 30000 test/hosted"
   },
   "dependencies": {
