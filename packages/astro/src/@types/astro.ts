@@ -66,12 +66,14 @@ export type { RemotePattern } from '../assets/utils/remotePattern.js';
 export type { SSRManifest } from '../core/app/types.js';
 export type { AstroCookies } from '../core/cookies/index.js';
 
+type ClientParamsProp = null | { directive: string; value: any };
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
 	'client:idle'?: boolean;
 	'client:media'?: string;
 	'client:visible'?: boolean;
 	'client:only'?: boolean | string;
+	'client:params'?: ClientParamsProp;
 }
 
 export interface TransitionAnimation {

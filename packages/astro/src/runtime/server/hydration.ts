@@ -7,6 +7,7 @@ import type {
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { escapeHTML } from './escape.js';
 import { serializeProps } from './serialize.js';
+import { isNullish, isObject } from './util.js';
 
 export interface HydrationMetadata {
 	directive: string;
@@ -35,13 +36,14 @@ export function extractDirectives(
 	inputProps: Props,
 	clientDirectives: SSRResult['clientDirectives']
 ): ExtractedProps {
+	// console.log({ inputProps });
 	let extracted: ExtractedProps = {
 		isPage: false,
 		hydration: null,
 		props: {},
 		propsWithoutTransitionAttributes: {},
 	};
-	for (const [key, value] of Object.entries(inputProps)) {
+	for (let [key, value] of Object.entries(inputProps)) {
 		if (key.startsWith('server:')) {
 			if (key === 'server:root') {
 				extracted.isPage = true;
@@ -73,9 +75,52 @@ export function extractDirectives(
 				case 'client:display-name': {
 					break;
 				}
+				case 'client:params': {
+					// this is just a transform step transforms that turn `client:params` into
+					// standard cliend directives
+					const maybeDirectiveOptions = value;
+
+					// skip the transform if the value is nullish
+					if (isNullish(maybeDirectiveOptions)) {
+						break;
+					}
+
+					if (!isObject(maybeDirectiveOptions)) {
+						throw new Error(
+							`Error: invalid \`params\` directive value ${JSON.stringify(
+								maybeDirectiveOptions
+							)}. Expected an object of the form \`{ directive: string, value: string }\`, but got ${typeof maybeDirectiveOptions}.`
+						);
+					}
+
+					// validate the object shape
+					// it should only have two keys: `directive` and `value` (which is optional)
+					for (let _key of Object.keys(maybeDirectiveOptions)) {
+						if (_key !== 'directive' && _key !== 'value') {
+							throw new Error(
+								`Error: invalid \`params\` directive value. Expected an object of the form \`{ directive: string, value: string }\`, but got ${JSON.stringify(
+									maybeDirectiveOptions
+								)}.`
+							);
+						}
+					}
+
+					if (typeof maybeDirectiveOptions.directive !== 'string') {
+						throw new Error(
+							`Error: expected \`directive\` to be a string, but got ${typeof maybeDirectiveOptions.directive}.`
+						);
+					}
+
+					key = `client:${maybeDirectiveOptions.directive}`;
+					value = maybeDirectiveOptions.value;
+					// intentionally fall-through to the next case
+				}
+
 				default: {
 					extracted.hydration.directive = key.split(':')[1];
 					extracted.hydration.value = value;
+
+					// console.log({ hydration: extracted.hydration });
 
 					// throw an error if an invalid hydration directive was provided
 					if (!clientDirectives.has(extracted.hydration.directive)) {
