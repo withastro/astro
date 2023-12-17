@@ -1,12 +1,12 @@
-import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
-import { writeFile, mkdir, appendFile, rm } from 'fs/promises';
-import { fileURLToPath } from 'url';
-import { build } from 'esbuild';
-import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
-import { version as packageVersion } from '../package.json';
-import type { Context } from '@netlify/functions';
-import { AstroError } from 'astro/errors';
 import type { IncomingMessage } from 'http';
+import { fileURLToPath } from 'url';
+import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
+import type { Context } from '@netlify/functions';
+import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
+import { AstroError } from 'astro/errors';
+import { build } from 'esbuild';
+import { appendFile, mkdir, rm, writeFile } from 'fs/promises';
+import { version as packageVersion } from '../package.json';
 
 export interface NetlifyLocals {
 	netlify: {

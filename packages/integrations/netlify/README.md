@@ -70,7 +70,6 @@ netlify deploy
 
 The [Netlify Blog post on Astro](https://www.netlify.com/blog/how-to-deploy-astro/) and the [Netlify Docs](https://docs.netlify.com/integrations/frameworks/astro/) provide more information on how to use this integration to deploy to Netlify.
 
-
 ### Accessing edge context from your site
 
 Netlify Edge Functions provide a [context object](https://docs.netlify.com/edge-functions/api/#netlify-specific-context-object) that includes metadata about the request such as a user’s IP, geolocation data, and cookies.
@@ -79,8 +78,11 @@ This can be accessed through the `Astro.locals.netlify.context` object:
 
 ```astro
 ---
-const { geo: { city } } = Astro.locals.netlify.context
+const {
+  geo: { city },
+} = Astro.locals.netlify.context;
 ---
+
 <h1>Hello there, friendly visitor from {city}!</h1>
 ```
 
@@ -164,20 +166,19 @@ Enabling the `cacheOnDemandPages` option in the adapter will cache all server-re
 export default defineConfig({
   output: 'server',
   adapter: netlify({
-    cacheOnDemandPages: true
+    cacheOnDemandPages: true,
   }),
 });
 ```
 
 This can be changed on a per-page basis by adding caching headers to your response:
 
-
 ```astro
 ---
 // src/pages/index.astro
 import Layout from '../components/Layout.astro';
 
-Astro.response.headers.set('CDN-Cache-Control', "public, max-age=45, must-revalidate")
+Astro.response.headers.set('CDN-Cache-Control', 'public, max-age=45, must-revalidate');
 ---
 
 <Layout title="Astro on Netlify">

@@ -1,5 +1,5 @@
+import { loadFixture } from '@astrojs/test-utils';
 import { expect } from 'chai';
-import { loadFixture } from "@astrojs/test-utils"
 
 describe('Cookies', () => {
 	let fixture;
@@ -15,9 +15,12 @@ describe('Cookies', () => {
 			import.meta.url
 		);
 		const { default: handler } = await import(entryURL);
-		const resp = await handler(new Request('http://example.com/login', { method: "POST", body: '{}' }), {})
+		const resp = await handler(
+			new Request('http://example.com/login', { method: 'POST', body: '{}' }),
+			{}
+		);
 		expect(resp.status).to.equal(301);
-		expect(resp.headers.get("location")).to.equal('/');
+		expect(resp.headers.get('location')).to.equal('/');
 		expect(resp.headers.getSetCookie()).to.eql(['foo=foo; HttpOnly', 'bar=bar; HttpOnly']);
 	});
 });

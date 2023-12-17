@@ -1,5 +1,5 @@
+import { loadFixture } from '@astrojs/test-utils';
 import { expect } from 'chai';
-import { loadFixture } from "@astrojs/test-utils"
 
 describe('SSG - Redirects', () => {
 	let fixture;
@@ -26,7 +26,7 @@ describe('SSG - Redirects', () => {
 			'/blog/*',
 			'/team/articles/*/index.html',
 			'301',
-			
+
 			'',
 		]);
 	});

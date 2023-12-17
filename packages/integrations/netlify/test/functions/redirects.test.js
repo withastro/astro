@@ -1,5 +1,5 @@
+import { loadFixture } from '@astrojs/test-utils';
 import { expect } from 'chai';
-import { loadFixture } from "@astrojs/test-utils"
 
 describe('SSR - Redirects', () => {
 	let fixture;
@@ -12,13 +12,7 @@ describe('SSR - Redirects', () => {
 	it('Creates a redirects file', async () => {
 		let redirects = await fixture.readFile('./_redirects');
 		let parts = redirects.split(/\s+/);
-		expect(parts).to.deep.equal([
-			'',
-			'/other',
-			'/',
-			'301',
-			'',
-		]);
+		expect(parts).to.deep.equal(['', '/other', '/', '301', '']);
 		expect(redirects).to.matchSnapshot();
 	});
 
