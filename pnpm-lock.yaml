@@ -641,11 +641,11 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1
       vite:
-        specifier: ^5.0.0
-        version: 5.0.0(@types/node@18.18.6)(sass@1.69.5)
+        specifier: ^5.0.10
+        version: 5.0.10(@types/node@18.18.6)(sass@1.69.5)
       vitefu:
         specifier: ^0.2.5
-        version: 0.2.5(vite@5.0.0)
+        version: 0.2.5(vite@5.0.10)
       which-pm:
         specifier: ^2.1.1
         version: 2.1.1
@@ -3833,8 +3833,8 @@ importers:
         specifier: ^10.2.0
         version: 10.2.0
       vite:
-        specifier: ^5.0.0
-        version: 5.0.0(@types/node@18.18.6)(sass@1.69.5)
+        specifier: ^5.0.10
+        version: 5.0.10(@types/node@18.18.6)(sass@1.69.5)
 
   packages/integrations/markdoc/test/fixtures/content-collections:
     dependencies:
@@ -4065,8 +4065,8 @@ importers:
         specifier: ^11.0.4
         version: 11.0.4
       vite:
-        specifier: ^5.0.0
-        version: 5.0.0(@types/node@18.18.6)(sass@1.69.5)
+        specifier: ^5.0.10
+        version: 5.0.10(@types/node@18.18.6)(sass@1.69.5)
 
   packages/integrations/mdx/test/fixtures/css-head-mdx:
     dependencies:
@@ -4398,7 +4398,7 @@ importers:
     dependencies:
       '@vitejs/plugin-react':
         specifier: ^4.2.0
-        version: 4.2.0(vite@5.0.0)
+        version: 4.2.0(vite@5.0.10)
       ultrahtml:
         specifier: ^1.3.0
         version: 1.5.2
@@ -4431,8 +4431,8 @@ importers:
         specifier: ^18.1.0
         version: 18.2.0(react@18.2.0)
       vite:
-        specifier: ^5.0.0
-        version: 5.0.0(@types/node@18.18.6)(sass@1.69.5)
+        specifier: ^5.0.10
+        version: 5.0.10(@types/node@18.18.6)(sass@1.69.5)
 
   packages/integrations/react/test/fixtures/react-component:
     dependencies:
@@ -4530,7 +4530,7 @@ importers:
     dependencies:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^3.0.0
-        version: 3.0.0(svelte@4.2.5)(vite@5.0.0)
+        version: 3.0.0(svelte@4.2.5)(vite@5.0.10)
       svelte2tsx:
         specifier: ^0.6.25
         version: 0.6.25(svelte@4.2.5)(typescript@5.2.2)
@@ -4545,8 +4545,8 @@ importers:
         specifier: ^4.2.5
         version: 4.2.5
       vite:
-        specifier: ^5.0.0
-        version: 5.0.0(@types/node@18.18.6)(sass@1.69.5)
+        specifier: ^5.0.10
+        version: 5.0.10(@types/node@18.18.6)(sass@1.69.5)
 
   packages/integrations/tailwind:
     dependencies:
@@ -4570,8 +4570,8 @@ importers:
         specifier: ^3.3.5
         version: 3.3.5
       vite:
-        specifier: ^5.0.0
-        version: 5.0.0(@types/node@18.18.6)(sass@1.69.5)
+        specifier: ^5.0.10
+        version: 5.0.10(@types/node@18.18.6)(sass@1.69.5)
 
   packages/integrations/vercel:
     dependencies:
@@ -4779,10 +4779,10 @@ importers:
     dependencies:
       '@vitejs/plugin-vue':
         specifier: ^4.5.0
-        version: 4.5.0(vite@5.0.0)(vue@3.3.8)
+        version: 4.5.0(vite@5.0.10)(vue@3.3.8)
       '@vitejs/plugin-vue-jsx':
         specifier: ^3.1.0
-        version: 3.1.0(vite@5.0.0)(vue@3.3.8)
+        version: 3.1.0(vite@5.0.10)(vue@3.3.8)
       '@vue/babel-plugin-jsx':
         specifier: ^1.1.5
         version: 1.1.5(@babel/core@7.23.3)
@@ -4812,8 +4812,8 @@ importers:
         specifier: ^10.2.0
         version: 10.2.0
       vite:
-        specifier: ^5.0.0
-        version: 5.0.0(@types/node@18.18.6)(sass@1.69.5)
+        specifier: ^5.0.10
+        version: 5.0.10(@types/node@18.18.6)(sass@1.69.5)
       vue:
         specifier: ^3.3.8
         version: 3.3.8(typescript@5.2.2)
@@ -7197,7 +7197,7 @@ packages:
       solid-js: 1.8.5
     dev: false
 
-  /@sveltejs/vite-plugin-svelte-inspector@2.0.0(@sveltejs/vite-plugin-svelte@3.0.0)(svelte@4.2.5)(vite@5.0.0):
+  /@sveltejs/vite-plugin-svelte-inspector@2.0.0(@sveltejs/vite-plugin-svelte@3.0.0)(svelte@4.2.5)(vite@5.0.10):
     resolution: {integrity: sha512-gjr9ZFg1BSlIpfZ4PRewigrvYmHWbDrq2uvvPB1AmTWKuM+dI1JXQSUu2pIrYLb/QncyiIGkFDFKTwJ0XqQZZg==}
     engines: {node: ^18.0.0 || >=20}
     peerDependencies:
@@ -7208,15 +7208,15 @@ packages:
       vite:
         optional: true
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 3.0.0(svelte@4.2.5)(vite@5.0.0)
+      '@sveltejs/vite-plugin-svelte': 3.0.0(svelte@4.2.5)(vite@5.0.10)
       debug: 4.3.4(supports-color@8.1.1)
       svelte: 4.2.5
-      vite: 5.0.0(@types/node@18.18.6)(sass@1.69.5)
+      vite: 5.0.10(@types/node@18.18.6)(sass@1.69.5)
     transitivePeerDependencies:
       - supports-color
     dev: false
 
-  /@sveltejs/vite-plugin-svelte@3.0.0(svelte@4.2.5)(vite@5.0.0):
+  /@sveltejs/vite-plugin-svelte@3.0.0(svelte@4.2.5)(vite@5.0.10):
     resolution: {integrity: sha512-Th0nupxk8hl5Rcg9jm+1xWylwco4bSUAvutWxM4W4bjOAollpXLmrYqSSnYo9pPbZOO6ZGRm6sSqYa/v1d/Saw==}
     engines: {node: ^18.0.0 || >=20}
     peerDependencies:
@@ -7226,15 +7226,15 @@ packages:
       vite:
         optional: true
     dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 2.0.0(@sveltejs/vite-plugin-svelte@3.0.0)(svelte@4.2.5)(vite@5.0.0)
+      '@sveltejs/vite-plugin-svelte-inspector': 2.0.0(@sveltejs/vite-plugin-svelte@3.0.0)(svelte@4.2.5)(vite@5.0.10)
       debug: 4.3.4(supports-color@8.1.1)
       deepmerge: 4.3.1
       kleur: 4.1.5
       magic-string: 0.30.5
       svelte: 4.2.5
       svelte-hmr: 0.15.3(svelte@4.2.5)
-      vite: 5.0.0(@types/node@18.18.6)(sass@1.69.5)
-      vitefu: 0.2.5(vite@5.0.0)
+      vite: 5.0.10(@types/node@18.18.6)(sass@1.69.5)
+      vitefu: 0.2.5(vite@5.0.10)
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -7789,7 +7789,7 @@ packages:
       - supports-color
     dev: false
 
-  /@vitejs/plugin-react@4.2.0(vite@5.0.0):
+  /@vitejs/plugin-react@4.2.0(vite@5.0.10):
     resolution: {integrity: sha512-+MHTH/e6H12kRp5HUkzOGqPMksezRMmW+TNzlh/QXfI8rRf6l2Z2yH/v12no1UvTwhZgEDMuQ7g7rrfMseU6FQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -7803,12 +7803,12 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.23.3)
       '@types/babel__core': 7.20.4
       react-refresh: 0.14.0
-      vite: 5.0.0(@types/node@18.18.6)(sass@1.69.5)
+      vite: 5.0.10(@types/node@18.18.6)(sass@1.69.5)
     transitivePeerDependencies:
       - supports-color
     dev: false
 
-  /@vitejs/plugin-vue-jsx@3.1.0(vite@5.0.0)(vue@3.3.8):
+  /@vitejs/plugin-vue-jsx@3.1.0(vite@5.0.10)(vue@3.3.8):
     resolution: {integrity: sha512-w9M6F3LSEU5kszVb9An2/MmXNxocAnUb3WhRr8bHlimhDrXNt6n6D2nJQR3UXpGlZHh/EsgouOHCsM8V3Ln+WA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -7821,13 +7821,13 @@ packages:
       '@babel/core': 7.23.3
       '@babel/plugin-transform-typescript': 7.23.3(@babel/core@7.23.3)
       '@vue/babel-plugin-jsx': 1.1.5(@babel/core@7.23.3)
-      vite: 5.0.0(@types/node@18.18.6)(sass@1.69.5)
+      vite: 5.0.10(@types/node@18.18.6)(sass@1.69.5)
       vue: 3.3.8(typescript@5.2.2)
     transitivePeerDependencies:
       - supports-color
     dev: false
 
-  /@vitejs/plugin-vue@4.5.0(vite@5.0.0)(vue@3.3.8):
+  /@vitejs/plugin-vue@4.5.0(vite@5.0.10)(vue@3.3.8):
     resolution: {integrity: sha512-a2WSpP8X8HTEww/U00bU4mX1QpLINNuz/2KMNpLsdu3BzOpak3AGI1CJYBTXcc4SPhaD0eNRUp7IyQK405L5dQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -7837,7 +7837,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 5.0.0(@types/node@18.18.6)(sass@1.69.5)
+      vite: 5.0.10(@types/node@18.18.6)(sass@1.69.5)
       vue: 3.3.8(typescript@5.2.2)
     dev: false
 
@@ -12590,6 +12590,11 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  /nanoid@3.3.7:
+    resolution: {integrity: sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==}
+    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
+
   /nanostores@0.9.5:
     resolution: {integrity: sha512-Z+p+g8E7yzaWwOe5gEUB2Ox0rCEeXWYIZWmYvw/ajNYX8DlXdMvMDj8DWfM/subqPAcsf8l8Td4iAwO1DeIIRQ==}
     engines: {node: ^16.0.0 || ^18.0.0 || >=20.0.0}
@@ -13589,6 +13594,14 @@ packages:
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
       nanoid: 3.3.6
+      picocolors: 1.0.0
+      source-map-js: 1.0.2
+
+  /postcss@8.4.32:
+    resolution: {integrity: sha512-D/kj5JNu6oo2EIy+XL/26JEDTlIbB8hw85G8StOE6L74RQAVVP5rej6wxCNqyMbR4RkPfqvezVbPw81Ngd6Kcw==}
+    engines: {node: ^10 || ^12 || >=14}
+    dependencies:
+      nanoid: 3.3.7
       picocolors: 1.0.0
       source-map-js: 1.0.2
 
@@ -15809,7 +15822,7 @@ packages:
       mlly: 1.4.2
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 4.5.0(@types/node@18.18.6)
+      vite: 5.0.10(@types/node@18.18.6)(sass@1.69.5)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -15837,7 +15850,7 @@ packages:
       merge-anything: 5.1.7
       solid-js: 1.8.5
       solid-refresh: 0.5.3(solid-js@1.8.5)
-      vitefu: 0.2.5(vite@5.0.0)
+      vitefu: 0.2.5(vite@5.0.10)
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -15901,8 +15914,8 @@ packages:
       fsevents: 2.3.3
     dev: false
 
-  /vite@5.0.0(@types/node@18.18.6)(sass@1.69.5):
-    resolution: {integrity: sha512-ESJVM59mdyGpsiNAeHQOR/0fqNoOyWPYesFto8FFZugfmhdHx8Fzd8sF3Q/xkVhZsyOxHfdM7ieiVAorI9RjFw==}
+  /vite@5.0.10(@types/node@18.18.6)(sass@1.69.5):
+    resolution: {integrity: sha512-2P8J7WWgmc355HUMlFrwofacvr98DAjoE52BfdbwQtyLH06XKwaL/FMnmKM2crF0iX4MpmMKoDlNCB1ok7zHCw==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -15931,13 +15944,13 @@ packages:
     dependencies:
       '@types/node': 18.18.6
       esbuild: 0.19.6
-      postcss: 8.4.31
+      postcss: 8.4.32
       rollup: 4.5.0
       sass: 1.69.5
     optionalDependencies:
       fsevents: 2.3.3
 
-  /vitefu@0.2.5(vite@5.0.0):
+  /vitefu@0.2.5(vite@5.0.10):
     resolution: {integrity: sha512-SgHtMLoqaeeGnd2evZ849ZbACbnwQCIwRH57t18FxcXoZop0uQu0uzlIhJBlF/eWVzuce0sHeqPcDo+evVcg8Q==}
     peerDependencies:
       vite: ^3.0.0 || ^4.0.0 || ^5.0.0
@@ -15945,7 +15958,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 5.0.0(@types/node@18.18.6)(sass@1.69.5)
+      vite: 5.0.10(@types/node@18.18.6)(sass@1.69.5)
     dev: false
 
   /vitest@0.34.6:
