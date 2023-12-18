@@ -23,6 +23,9 @@ async function check(Component, props, children) {
 	}
 	if (typeof Component !== 'function') return false;
 
+	// Preact forwarded-ref components can be functions, which React does not support
+	if (typeof Component === 'function' && Component['$$typeof'] === Symbol.for('react.forward_ref')) return false;
+
 	if (Component.prototype != null && typeof Component.prototype.render === 'function') {
 		return React.Component.isPrototypeOf(Component) || React.PureComponent.isPrototypeOf(Component);
 	}
