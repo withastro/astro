@@ -7,6 +7,12 @@ const first = defineMiddleware(async (context, next) => {
 		return new Response('<span>New content!!</span>', {
 			status: 200,
 		});
+	} else if (context.request.url.includes('/content-policy')) {
+		const response = await next();
+		response.headers.append('X-Content-Type-Options', 'nosniff');
+		response.headers.append('Content-Type', 'application/json');
+
+		return next();
 	} else if (context.request.url.includes('/broken-500')) {
 		return new Response(null, {
 			status: 500,
@@ -19,21 +25,21 @@ const first = defineMiddleware(async (context, next) => {
 			headers: response.headers,
 		});
 	} else if (context.url.pathname === '/throw') {
-		throw new Error;
+		throw new Error();
 	} else if (context.url.pathname === '/clone') {
 		const response = await next();
 		const newResponse = response.clone();
 		const /** @type {string} */ html = await newResponse.text();
 		const newhtml = html.replace('testing', 'it works');
 		return new Response(newhtml, { status: 200, headers: response.headers });
-	} else if(context.url.pathname === '/return-response-cookies') {
+	} else if (context.url.pathname === '/return-response-cookies') {
 		const response = await next();
-    const html = await response.text();
+		const html = await response.text();
 
-    return new Response(html, {
-        status: 200,
-        headers: response.headers
-    });
+		return new Response(html, {
+			status: 200,
+			headers: response.headers,
+		});
 	} else {
 		if (context.url.pathname === '/') {
 			context.cookies.set('foo', 'bar');

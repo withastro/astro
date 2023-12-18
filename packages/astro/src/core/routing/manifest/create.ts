@@ -461,7 +461,7 @@ export function createRouteManifest(
 			if (/^https?:\/\//.test(destination)) {
 				logger.warn(
 					'redirects',
-					`Redirecting to an external URL is not officially supported: ${from} -> ${to}`
+					`Redirecting to an external URL is not officially supported: ${from} -> ${destination}`
 				);
 			}
 		}

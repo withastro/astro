@@ -3,7 +3,7 @@ import type { AddressInfo } from 'node:net';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import nodeFs from 'node:fs';
 import * as vite from 'vite';
-import { injectImageEndpoint } from '../../assets/internal.js';
+import { injectImageEndpoint } from '../../assets/endpoint/config.js';
 import {
 	runHookConfigDone,
 	runHookConfigSetup,
