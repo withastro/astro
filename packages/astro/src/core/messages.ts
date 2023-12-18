@@ -13,7 +13,6 @@ import {
 	red,
 	underline,
 	yellow,
-	reset,
 } from 'kleur/colors';
 import type { ResolvedServerUrls } from 'vite';
 import type { ZodError } from 'zod';
