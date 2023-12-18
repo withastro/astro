@@ -187,7 +187,7 @@ export async function handleRoute({
 	let mod: ComponentInstance | undefined = undefined;
 	let options: SSROptions | undefined = undefined;
 	let route: RouteData;
-	const middleware = await loadMiddleware(moduleLoader);
+	const middleware = await loadMiddleware(moduleLoader, logger);
 
 	if (!matchedRoute) {
 		if (config.i18n) {
