@@ -164,6 +164,7 @@ function comparator(a: RouteData, b: RouteData) {
 		return a.type === 'endpoint' ? -1 : 1;
 	}
 
+	// if all else is equal, sort alphabetically
 	return a.route.localeCompare(b.route);
 }
 
@@ -367,6 +368,8 @@ function createInjectedRoutes({settings, cwd}: CreateRouteManifestParams): Prior
 			.map(([{dynamic, content}]) => (dynamic ? `[${content}]` : content))
 			.join('/')}`.toLowerCase();
 
+		// If an injected route doesn't define a priority, it will be have a 
+		// higher priority than the project routes for backwards compatibility.
 		routes[priority ?? 'above-project'].push({
 			type,
 			route,
@@ -431,6 +434,8 @@ function createRedirectRoutes(
 			
 		const priority = typeof to === 'string' ? undefined : to.priority;
 
+		// If a redirect doesn't define a priority, it will be have a 
+		// lower priority than the project routes for backwards compatibility.
 		routes[priority ?? 'below-project'].push({
 			type: 'redirect',
 			route,
