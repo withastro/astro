@@ -3,6 +3,7 @@ import stripAnsi from 'strip-ansi';
 import type { Logger as ViteLogger, Rollup, LogLevel } from 'vite';
 import { isAstroError } from '../errors/errors.js';
 import { isLogLevelEnabled, type Logger as AstroLogger } from './core.js';
+import { serverShortcuts as formatServerShortcuts } from '../messages.js';
 
 const PKG_PREFIX = fileURLToPath(new URL('../../../', import.meta.url));
 const E2E_PREFIX = fileURLToPath(new URL('../../../e2e', import.meta.url));
@@ -19,7 +20,7 @@ const viteBuildMsg = /vite.*building.*for production/;
 // capture "\n  Shortcuts" messages
 const viteShortcutTitleMsg = /.*Shortcuts.*/s;
 // capture "press * + enter to ..." messages
-const viteShortcutHelpMsg = /press.*\+ enter.*to.*/s;
+const viteShortcutHelpMsg = /press\s+(.*\+ enter).*to\s+(.*)$/s;
 
 export function createViteLogger(
 	astroLogger: AstroLogger,
@@ -55,7 +56,8 @@ export function createViteLogger(
 				// Remove Vite's builtin shortcuts we don't support. We can do this cleaner once
 				// https://github.com/vitejs/vite/pull/15218 lands
 				if (stripped.includes('c + enter') || stripped.includes('u + enter')) return;
-				astroLogger.info('shortcut', msg.replace(/\s+press/, 'press'));
+				const [, key, label] = viteShortcutHelpMsg.exec(stripped)! as string[];
+				astroLogger.info('SKIP_FORMAT', formatServerShortcuts({ key, label }));
 			}
 			// Fallback
 			else {
