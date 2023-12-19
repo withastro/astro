@@ -5,8 +5,9 @@ import type { Context } from '@netlify/functions';
 import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
 import { AstroError } from 'astro/errors';
 import { build } from 'esbuild';
-import { appendFile, mkdir, rm, writeFile } from 'fs/promises';
-import { version as packageVersion } from '../package.json';
+import { appendFile, mkdir, rm, writeFile, readFile } from 'fs/promises';
+
+const { version: packageVersion } = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
 
 export interface NetlifyLocals {
 	netlify: {
