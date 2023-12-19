@@ -38,7 +38,7 @@ export class AstroError extends Error {
 
 	type: ErrorTypes = 'AstroError';
 
-	constructor(props: ErrorProperties, ...params: any) {
+	constructor(props: ErrorProperties, ...params: Parameters<ErrorConstructor>) {
 		super(...params);
 
 		const { name, title, message, stack, location, hint, frame } = props;

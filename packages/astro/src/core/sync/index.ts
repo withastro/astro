@@ -131,6 +131,7 @@ export async function syncInternal(
 				...AstroErrorData.GenerateContentTypesError,
 				message: AstroErrorData.GenerateContentTypesError.message(safeError.message),
 			},
+			undefined,
 			{ cause: e }
 		);
 	} finally {
