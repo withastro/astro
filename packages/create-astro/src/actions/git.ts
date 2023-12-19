@@ -3,10 +3,12 @@ import path from 'node:path';
 import type { Context } from './context.js';
 
 import { color } from '@astrojs/cli-kit';
-import { error, info, spinner, title } from '../messages.js';
+import { error, info, title } from '../messages.js';
 import { shell } from '../shell.js';
 
-export async function git(ctx: Pick<Context, 'cwd' | 'git' | 'yes' | 'prompt' | 'dryRun'>) {
+export async function git(
+	ctx: Pick<Context, 'cwd' | 'git' | 'yes' | 'prompt' | 'dryRun' | 'tasks'>
+) {
 	if (fs.existsSync(path.join(ctx.cwd, '.git'))) {
 		await info('Nice!', `Git has already been initialized`);
 		return;
@@ -26,7 +28,8 @@ export async function git(ctx: Pick<Context, 'cwd' | 'git' | 'yes' | 'prompt' | 
 	if (ctx.dryRun) {
 		await info('--dry-run', `Skipping Git initialization`);
 	} else if (_git) {
-		await spinner({
+		ctx.tasks.push({
+			pending: 'Initialize git',
 			start: 'Git initializing...',
 			end: 'Git initialized',
 			while: () =>

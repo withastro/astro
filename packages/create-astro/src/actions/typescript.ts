@@ -4,12 +4,20 @@ import { color } from '@astrojs/cli-kit';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import stripJsonComments from 'strip-json-comments';
-import { error, info, spinner, title, typescriptByDefault } from '../messages.js';
+import { error, info, title, typescriptByDefault } from '../messages.js';
 import { shell } from '../shell.js';
 
 type PickedTypeScriptContext = Pick<
 	Context,
-	'typescript' | 'yes' | 'prompt' | 'dryRun' | 'cwd' | 'exit' | 'packageManager' | 'install'
+	| 'typescript'
+	| 'yes'
+	| 'prompt'
+	| 'dryRun'
+	| 'cwd'
+	| 'exit'
+	| 'packageManager'
+	| 'install'
+	| 'tasks'
 >;
 
 export async function typescript(ctx: PickedTypeScriptContext) {
@@ -61,7 +69,8 @@ export async function typescript(ctx: PickedTypeScriptContext) {
 		if (ts === 'relaxed' || ts === 'default') {
 			ts = 'base';
 		}
-		await spinner({
+		ctx.tasks.push({
+			pending: 'Customize TypeScript',
 			start: 'TypeScript customizing...',
 			end: 'TypeScript customized',
 			while: () =>

@@ -1,12 +1,12 @@
 import { color } from '@astrojs/cli-kit';
 import fs from 'node:fs';
 import path from 'node:path';
-import { error, info, spinner, title } from '../messages.js';
+import { error, info, title } from '../messages.js';
 import { shell } from '../shell.js';
 import type { Context } from './context.js';
 
 export async function dependencies(
-	ctx: Pick<Context, 'install' | 'yes' | 'prompt' | 'packageManager' | 'cwd' | 'dryRun'>
+	ctx: Pick<Context, 'install' | 'yes' | 'prompt' | 'packageManager' | 'cwd' | 'dryRun' | 'tasks'>
 ) {
 	let deps = ctx.install ?? ctx.yes;
 	if (deps === undefined) {
@@ -24,7 +24,8 @@ export async function dependencies(
 	if (ctx.dryRun) {
 		await info('--dry-run', `Skipping dependency installation`);
 	} else if (deps) {
-		await spinner({
+		ctx.tasks.push({
+			pending: 'Install dependencies',
 			start: `Installing dependencies with ${ctx.packageManager}...`,
 			end: 'Dependencies installed',
 			onError: (e) => {
