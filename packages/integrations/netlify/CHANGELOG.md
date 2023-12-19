@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 4.0.1
+
+### Patch Changes
+
+- [#105](https://github.com/withastro/adapters/pull/105) [`755058d`](https://github.com/withastro/adapters/commit/755058d447478c4a390bf86e8c83cb3a25b7cb28) Thanks [@Skn0tt](https://github.com/Skn0tt)! - fix crash when reading package.json version field
+
 ## 4.0.0
 
 ### Major Changes
