@@ -1,9 +1,9 @@
 import { prompt } from '@astrojs/cli-kit';
-import { random } from '@astrojs/cli-kit/utils';
 import arg from 'arg';
 import os from 'node:os';
 
 import { getName, getVersion } from '../messages.js';
+import getFestiveHouston from '../data/festive.js';
 
 export interface Context {
 	help: boolean;
@@ -97,7 +97,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		projectName,
 		template,
 		ref: ref ?? 'latest',
-		clothes: getClothes(fancy),
+		clothes: getFestiveHouston(fancy).clothes,
 		yes,
 		install: install ?? (noInstall ? false : undefined),
 		git: git ?? (noGit ? false : undefined),
@@ -108,26 +108,6 @@ export async function getContext(argv: string[]): Promise<Context> {
 		},
 	};
 	return context;
-}
-
-function getClothes(fancy?: boolean) {
-	const date = new Date()
-	if(date.getMonth() === 11) {
-		return {
-			hat: random(['🎁', '🎄', '🌲']),
-			tie: '🧣'
-		}
-	}
-	else if (date.getMonth() === 9) {
-		return {
-			hat: random(['🎃', '👻', '☠️', '💀']),
-			tie: random(['🦴', ''])
-		}
-	}
-	return {
-		hat: fancy ? random(['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦']) : '',
-		tie: fancy ? random(['🎀', '🧣']) : '',
-	};
 }
 
 function detectPackageManager() {

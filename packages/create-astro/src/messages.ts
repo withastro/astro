@@ -4,6 +4,7 @@ import { align, sleep } from '@astrojs/cli-kit/utils';
 import { exec } from 'node:child_process';
 import stripAnsi from 'strip-ansi';
 import { shell } from './shell.js';
+import getFestiveHouston from './data/festive.js';
 
 // Users might lack access to the global npm registry, this function
 // checks the user's project type and will return the proper npm registry
@@ -39,50 +40,7 @@ export async function spinner(args: {
 
 export const title = (text: string) => align(label(text), 'end', 7) + ' ';
 
-export const welcome = (() => {
-	const date = new Date();
-	if (date.getMonth() === 11) {
-		return [
-			`Ho, ho, ho! 'Tis the season to code and create.`,	
-			`Jingle all the way through your web creation journey!`,	
-			`Let's unwrap the magic of the web together!`,	
-			`Bells are ringing, and so are your creative ideas!`,	
-			`It's starting to look a lot like Christmas on the internet.`,	
-			`It's time to decorate the web with your festive ideas!`,
-		]
-	}
-	if (date.getMonth() === 9) {
-		return [
-			`Booo! Let's scare the interwebs!`,
-			`Get ready to haunt the internet with Halloween vibes.`,
-			`Harness the power of the web for your frightful ideas.`,
-			`It's time to conjure up an online spooktacular masterpiece.`,
-			`Prepare for a web of Halloween wonders to be woven.`,
-			`Chills and thrills await as you embark on your web journey`,
-			`The internet is about to get a whole lot creepier thanks to your new project.`
-		]
-	}
-	return [
-		`Let's claim your corner of the internet.`,
-		`I'll be your assistant today.`,
-		`Let's build something awesome!`,
-		`Let's build something great!`,
-		`Let's build something fast!`,
-		`Let's build the web we want.`,
-		`Let's make the web weird!`,
-		`Let's make the web a better place!`,
-		`Let's create a new project!`,
-		`Let's create something unique!`,
-		`Time to build a new website.`,
-		`Time to build a faster website.`,
-		`Time to build a sweet new website.`,
-		`We're glad to have you on board.`,
-		`Keeping the internet weird since 2021.`,
-		`Initiating launch sequence...`,
-		`Initiating launch sequence... right... now!`,
-		`Awaiting further instructions.`,
-	];
-})();
+export const welcome = getFestiveHouston().messages
 
 export const getName = () =>
 	new Promise<string>((resolve) => {
