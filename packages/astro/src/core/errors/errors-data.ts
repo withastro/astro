@@ -782,6 +782,26 @@ export const LocalsNotAnObject = {
 
 /**
  * @docs
+ * @description
+ * Thrown in development mode when middleware throws an error while attempting to loading it.
+ *
+ * For example:
+ * ```ts
+ * import {defineMiddleware} from "astro:middleware";
+ * throw new Error("Error thrown while loading the middleware.")
+ * export const onRequest = defineMiddleware(() => {
+ *   return "string"
+ * });
+ * ```
+ */
+export const MiddlewareCantBeLoaded = {
+	name: 'MiddlewareCantBeLoaded',
+	title: "Can't load the middleware.",
+	message: 'The middleware threw an error while Astro was trying to loading it.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
  * @description

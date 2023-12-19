@@ -220,7 +220,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			.reduce((a, b) => a + b, 0);
 		const cpuCount = os.cpus().length;
 		const assetsCreationEnvironment = await prepareAssetsGenerationEnv(pipeline, totalCount);
-		const queue = new PQueue({ concurrency: cpuCount });
+		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
 
 		const assetsTimer = performance.now();
 		for (const [originalPath, transforms] of staticImageList) {
