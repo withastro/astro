@@ -97,7 +97,7 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
 
-	test('Clicking on a link to a page with non-recommended headers', async ({page, astro}) => {
+	test('Clicking on a link to a page with non-recommended headers', async ({ page, astro }) => {
 		const loads = [];
 		page.addListener('load', (p) => {
 			loads.push(p.title());
