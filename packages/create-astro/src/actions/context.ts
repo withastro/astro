@@ -97,10 +97,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		projectName,
 		template,
 		ref: ref ?? 'latest',
-		clothes: {
-			hat: fancy ? random(['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦']) : '',
-			tie: fancy ? random(['🎀', '🧣']) : '',
-		},
+		clothes: getClothes(fancy),
 		yes,
 		install: install ?? (noInstall ? false : undefined),
 		git: git ?? (noGit ? false : undefined),
@@ -111,6 +108,13 @@ export async function getContext(argv: string[]): Promise<Context> {
 		},
 	};
 	return context;
+}
+
+function getClothes(fancy?: boolean) {
+	return {
+		hat: fancy ? random(['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦']) : '',
+		tie: fancy ? random(['🎀', '🧣']) : '',
+	};
 }
 
 function detectPackageManager() {
