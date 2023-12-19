@@ -57,7 +57,7 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 			'virtual:image-service'
 		).catch((e) => {
 			const error = new AstroError(AstroErrorData.InvalidImageService);
-			(error as any).cause = e;
+			error.cause = e;
 			throw error;
 		});
 

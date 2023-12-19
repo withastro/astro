@@ -708,6 +708,23 @@ export const MarkdownImageNotFound = {
 
 /**
  * @docs
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * @description
+ * Astro could not transform one of your image. Oftentimes, this is caused by a corrupted or malformed image and re-exporting the image from your image editor may fix this issue.
+ *
+ * Depending on the image service you are using, the stack trace may contain more information on the specific error encountered.
+ */
+export const CouldNotTransformImage = {
+	name: 'CouldNotTransformImage',
+	title: 'Could not transform image.',
+	message: (imagePath: string) =>
+		`Could not transform image \`${imagePath}\`. See the stack trace for more information.`,
+	hint: 'This is often caused by a corrupted or malformed image. Re-exporting the image from your image editor may fix this issue.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @description
  * Making changes to the response, such as setting headers, cookies, and the status code cannot be done outside of page components.
  */
