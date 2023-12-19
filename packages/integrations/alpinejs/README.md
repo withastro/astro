@@ -4,7 +4,7 @@ This **[Astro integration][astro-integration]** adds [Alpine.js](https://alpinej
 
 ## Documentation
 
-Read the [`@astrojs/alpine` docs][docs]
+Read the [`@astrojs/alpinejs` docs][docs]
 
 ## Support
 
