@@ -99,7 +99,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		ref: ref ?? 'latest',
 		clothes: {
 			hat: fancy ? random(['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦']) : '',
-			tie: fancy ? random(['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦']) : '',
+			tie: fancy ? random(['🎀', '🧣']) : '',
 		},
 		yes,
 		install: install ?? (noInstall ? false : undefined),
