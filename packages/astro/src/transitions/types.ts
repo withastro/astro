@@ -5,6 +5,6 @@ export type Options = {
 	history?: 'auto' | 'push' | 'replace';
 	info?: any;
 	state?: any;
-	body?: FormData | URLSearchParams;
+	formData?: FormData;
 	sourceElement?: Element; // more than HTMLElement, e.g. SVGAElement
 };

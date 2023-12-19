@@ -449,7 +449,7 @@ async function transition(
 		navigationType,
 		options.sourceElement,
 		options.info,
-		options.body,
+		options.formData,
 		defaultLoader
 	);
 	if (prepEvent.defaultPrevented) {
@@ -460,9 +460,9 @@ async function transition(
 	async function defaultLoader(preparationEvent: TransitionBeforePreparationEvent) {
 		const href = preparationEvent.to.href;
 		const init: RequestInit = {};
-		if (preparationEvent.body) {
+		if (preparationEvent.formData) {
 			init.method = 'POST';
-			init.body = preparationEvent.body;
+			init.body = preparationEvent.formData;
 		}
 		const response = await fetchHTML(href, init);
 		// If there is a problem fetching the new page, just do an MPA navigation to it.
@@ -488,7 +488,7 @@ async function transition(
 		// Unless this was a form submission, in which case we do not want to trigger another mutation.
 		if (
 			!preparationEvent.newDocument.querySelector('[name="astro-view-transitions-enabled"]') &&
-			!preparationEvent.body
+			!preparationEvent.formData
 		) {
 			preparationEvent.preventDefault();
 			return;

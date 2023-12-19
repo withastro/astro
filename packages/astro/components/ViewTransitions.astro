@@ -117,18 +117,7 @@ const { fallback = 'animate' } = Astro.props;
 				url.search = params.toString();
 				action = url.toString();
 			} else {
-				// Form elements without enctype explicitly set default to application/x-www-form-urlencoded.
-				// In order to maintain compatibility with Astro 4.x, we need to check the value of enctype
-				// on the attributes property rather than accessing .enctype directly. Astro 5.x may
-				// introduce defaulting to application/x-www-form-urlencoded as a breaking change, and then
-				// we can access .enctype directly.
-				//
-				// Note: getNamedItem can return null in real life, even if TypeScript doesn't think so.
-				const enctype = form.attributes.getNamedItem('enctype')?.value;
-				options.body =
-					enctype === 'application/x-www-form-urlencoded'
-						? new URLSearchParams(formData as any)
-						: formData;
+				options.formData = formData;
 			}
 
 			ev.preventDefault();
