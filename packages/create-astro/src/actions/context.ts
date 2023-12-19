@@ -121,7 +121,7 @@ function getClothes(fancy?: boolean) {
 	else if (date.getMonth() === 9) {
 		return {
 			hat: random(['🎃', '👻', '☠️', '💀']),
-			tie: '🦴'
+			tie: random(['🦴', ''])
 		}
 	}
 	return {
