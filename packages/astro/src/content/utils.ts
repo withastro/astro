@@ -492,7 +492,7 @@ export async function getEntrySlug({
 		contents = await fs.promises.readFile(fileUrl, 'utf-8');
 	} catch (e) {
 		// File contents should exist. Raise unexpected error as "unknown" if not.
-		throw new AstroError(AstroErrorData.UnknownContentCollectionError, undefined, { cause: e });
+		throw new AstroError(AstroErrorData.UnknownContentCollectionError, { cause: e });
 	}
 	const { slug: frontmatterSlug } = await contentEntryType.getEntryInfo({
 		fileUrl,

@@ -12,7 +12,7 @@ export async function loadMiddleware(moduleLoader: ModuleLoader) {
 	try {
 		return await moduleLoader.import(MIDDLEWARE_MODULE_ID);
 	} catch (error: any) {
-		const astroError = new AstroError(MiddlewareCantBeLoaded, undefined, { cause: error });
+		const astroError = new AstroError(MiddlewareCantBeLoaded, { cause: error });
 		throw astroError;
 	}
 }
