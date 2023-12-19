@@ -66,7 +66,7 @@ export const isTransitionBeforePreparationEvent = (
 	value: any
 ): value is TransitionBeforePreparationEvent => value.type === TRANSITION_BEFORE_PREPARATION;
 export class TransitionBeforePreparationEvent extends BeforeEvent {
-	formData: FormData | undefined;
+	body: FormData | URLSearchParams | undefined;
 	loader: () => Promise<void>;
 	constructor(
 		from: URL,
@@ -76,7 +76,7 @@ export class TransitionBeforePreparationEvent extends BeforeEvent {
 		sourceElement: Element | undefined,
 		info: any,
 		newDocument: Document,
-		formData: FormData | undefined,
+		body: FormData | URLSearchParams | undefined,
 		loader: (event: TransitionBeforePreparationEvent) => Promise<void>
 	) {
 		super(
@@ -90,7 +90,7 @@ export class TransitionBeforePreparationEvent extends BeforeEvent {
 			info,
 			newDocument
 		);
-		this.formData = formData;
+		this.body = body;
 		this.loader = loader.bind(this, this);
 		Object.defineProperties(this, {
 			formData: { enumerable: true },
@@ -145,7 +145,7 @@ export async function doPreparation(
 	navigationType: NavigationTypeString,
 	sourceElement: Element | undefined,
 	info: any,
-	formData: FormData | undefined,
+	body: FormData | URLSearchParams | undefined,
 	defaultLoader: (event: TransitionBeforePreparationEvent) => Promise<void>
 ) {
 	const event = new TransitionBeforePreparationEvent(
@@ -156,7 +156,7 @@ export async function doPreparation(
 		sourceElement,
 		info,
 		window.document,
-		formData,
+		body,
 		defaultLoader
 	);
 	if (document.dispatchEvent(event)) {
