@@ -1,5 +1,17 @@
 # @astrojs/vue
 
+## 4.0.4
+
+### Patch Changes
+
+- [#9362](https://github.com/withastro/astro/pull/9362) [`a5db8d2ad`](https://github.com/withastro/astro/commit/a5db8d2ad02275e6cc989bd0a04ff2845f6f34c4) Thanks [@bluwy](https://github.com/bluwy)! - Simplifies `appEntrypoint` handling
+
+## 4.0.3
+
+### Patch Changes
+
+- [#9366](https://github.com/withastro/astro/pull/9366) [`1b4e91898`](https://github.com/withastro/astro/commit/1b4e91898116f75b02b66ec402385cf44e559118) Thanks [@lilnasy](https://github.com/lilnasy)! - Updates NPM package to refer to the stable Astro version instead of a beta.
+
 ## 4.0.2
 
 ### Patch Changes

@@ -88,7 +88,7 @@ To configure this adapter, pass an object to the `vercel()` function call in `as
 ### Web Analytics
 
 **Type:** `VercelWebAnalyticsConfig`<br>
-**Available for:** Serverless, Edge, Static<br>
+**Available for:** Serverless, Static<br>
 **Added in:** `@astrojs/vercel@3.8.0`
 
 You can enable [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics) by setting `webAnalytics: { enabled: true }`. This will inject Vercel’s tracking scripts into all of your pages.
@@ -113,7 +113,7 @@ export default defineConfig({
 You can enable [Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights) by setting `speedInsights: { enabled: true }`. This will collect and send Web Vital data to Vercel.
 
 **Type:** `VercelSpeedInsightsConfig`<br>
-**Available for:** Serverless, Edge, Static<br>
+**Available for:** Serverless, Static<br>
 **Added in:** `@astrojs/vercel@3.8.0`
 
 ```js
@@ -147,7 +147,7 @@ import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel/static';
 
 export default defineConfig({
-  output: 'server',
+  output: 'static',
   adapter: vercel({
     imagesConfig: {
       sizes: [320, 640, 1280],
@@ -170,7 +170,7 @@ import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel/static';
 
 export default defineConfig({
-  output: 'server',
+  output: 'static',
   adapter: vercel({
     imageService: true,
   }),
@@ -400,6 +400,12 @@ When you opt in to this feature, there are few constraints to note:
 - The Vercel Edge middleware will always be the **first** function to receive the `Request` and the last function to receive `Response`. This an architectural constraint that follows the [boundaries set by Vercel](https://vercel.com/docs/concepts/functions/edge-middleware).
 - Only `request` and `context` may be used to produce an `Astro.locals` object. Operations like redirects, etc. should be delegated to Astro middleware.
 - `Astro.locals` **must be serializable**. Failing to do so will result in a **runtime error**. This means that you **cannot** store complex types like `Map`, `function`, `Set`, etc.
+
+### Node.js Version Support
+
+The `@astrojs/vercel` adapter supports specific Node.js versions for deploying your Astro project on Vercel. To view the supported Node.js versions on Vercel, click on the settings tab for a project and scroll down to "Node.js Version" section.
+
+Check out the [Vercel documentation](https://vercel.com/docs/functions/serverless-functions/runtimes/node-js#default-and-available-versions) to learn more.
 
 ## Troubleshooting
 

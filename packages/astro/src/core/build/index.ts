@@ -10,7 +10,7 @@ import type {
 	ManifestData,
 	RuntimeMode,
 } from '../../@types/astro.js';
-import { injectImageEndpoint } from '../../assets/internal.js';
+import { injectImageEndpoint } from '../../assets/endpoint/config.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import {
@@ -198,8 +198,8 @@ class AstroBuilder {
 			viteConfig,
 		};
 
-		const { internals } = await viteBuild(opts);
-		await staticBuild(opts, internals);
+		const { internals, ssrOutputChunkNames } = await viteBuild(opts);
+		await staticBuild(opts, internals, ssrOutputChunkNames);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();

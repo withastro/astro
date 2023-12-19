@@ -12,9 +12,10 @@ import type { Logger } from '../../core/logger/core.js';
 import { isRemotePath, prependForwardSlash } from '../../core/path.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import type { MapValue } from '../../type-utils.js';
-import { getConfiguredImageService, isESMImportedImage } from '../internal.js';
+import { getConfiguredImageService } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
 import type { AssetsGlobalStaticImagesList, ImageMetadata, ImageTransform } from '../types.js';
+import { isESMImportedImage } from '../utils/imageKind.js';
 import { loadRemoteImage, type RemoteCacheEntry } from './remote.js';
 
 interface GenerationDataUncached {

@@ -1,5 +1,58 @@
 # astro
 
+## 4.0.6
+
+### Patch Changes
+
+- [#9419](https://github.com/withastro/astro/pull/9419) [`151bd429b`](https://github.com/withastro/astro/commit/151bd429b11a73d236ca8f43e8f5072e7c29641e) Thanks [@matthewp](https://github.com/matthewp)! - Prevent Partytown from hijacking history APIs
+
+- [#9426](https://github.com/withastro/astro/pull/9426) [`c01cc4e34`](https://github.com/withastro/astro/commit/c01cc4e3409ae3cf81db7384bf8e53424f21bb5c) Thanks [@alexnguyennz](https://github.com/alexnguyennz)! - Fixes warning for external URL redirects
+
+- [#9445](https://github.com/withastro/astro/pull/9445) [`f963d07f2`](https://github.com/withastro/astro/commit/f963d07f22f972938e1c9e8c95f9278efdff586b) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Upgrades Astro's compiler to a crash when sourcemaps try to map multibyte characters
+
+- [#9126](https://github.com/withastro/astro/pull/9126) [`6d2d0e279`](https://github.com/withastro/astro/commit/6d2d0e279dd51e04099c86c4d900e2dd1d5fa837) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where error pages were not shown when trailingSlash was set to "always".
+
+- [#9434](https://github.com/withastro/astro/pull/9434) [`c01580a2c`](https://github.com/withastro/astro/commit/c01580a2cd847ac82192d6717e9e823fba6ecb49) Thanks [@ematipico](https://github.com/ematipico)! - Improves the error message when a middleware doesn't return a `Response`
+
+- [#9433](https://github.com/withastro/astro/pull/9433) [`fcc2fd5b0`](https://github.com/withastro/astro/commit/fcc2fd5b0f218ecfc7bbe3f48063221e5dd62757) Thanks [@ematipico](https://github.com/ematipico)! - Correctly merge headers from the original response when an error page is rendered
+
+## 4.0.5
+
+### Patch Changes
+
+- [#9423](https://github.com/withastro/astro/pull/9423) [`bda1d294f`](https://github.com/withastro/astro/commit/bda1d294f2d50f31abfc9a32b5272fc9ac080e83) Thanks [@matthewp](https://github.com/matthewp)! - Error when getImage is passed an undefined src
+
+- [#9424](https://github.com/withastro/astro/pull/9424) [`e1a5a2d36`](https://github.com/withastro/astro/commit/e1a5a2d36ac3637f5c94a27b69128a121541bae8) Thanks [@matthewp](https://github.com/matthewp)! - Prevents dev server from crashing on unhandled rejections, and adds a helpful error message
+
+- [#9404](https://github.com/withastro/astro/pull/9404) [`8aa17a64b`](https://github.com/withastro/astro/commit/8aa17a64b46b8eaabfd1375fd6550ff93727aa81) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixed some newer HTML attributes not being included in our type definitions
+
+- [#9414](https://github.com/withastro/astro/pull/9414) [`bebf38c0c`](https://github.com/withastro/astro/commit/bebf38c0cb539de04007f5e721bf459300b895a1) Thanks [@Skn0tt](https://github.com/Skn0tt)! - Adds the feature name to logs about feature deprecation / experimental status.
+
+- [#9418](https://github.com/withastro/astro/pull/9418) [`2c168af67`](https://github.com/withastro/astro/commit/2c168af6745f5357e76ec323787595ef06d5fd73) Thanks [@alexnguyennz](https://github.com/alexnguyennz)! - Fix broken link in CI instructions
+
+- [#9407](https://github.com/withastro/astro/pull/9407) [`546d92c86`](https://github.com/withastro/astro/commit/546d92c862d08c69751039511a12c92ae38184c2) Thanks [@matthewp](https://github.com/matthewp)! - Allows file URLs as import specifiers
+
+## 4.0.4
+
+### Patch Changes
+
+- [#9380](https://github.com/withastro/astro/pull/9380) [`ea0918259`](https://github.com/withastro/astro/commit/ea0918259964947523827bac6abe88ad3841dbb9) Thanks [@ematipico](https://github.com/ematipico)! - Correctly handle the rendering of i18n routes when `output: "hybrid"` is set
+
+- [#9374](https://github.com/withastro/astro/pull/9374) [`65ddb0271`](https://github.com/withastro/astro/commit/65ddb027111514d41481f7455c0f0f03f8f608a8) Thanks [@bluwy](https://github.com/bluwy)! - Fixes an issue where prerendered route paths that end with `.mjs` were removed from the final build
+
+- [#9375](https://github.com/withastro/astro/pull/9375) [`26f7023d6`](https://github.com/withastro/astro/commit/26f7023d6928de75c363df0fa759a6255cb73ef3) Thanks [@bluwy](https://github.com/bluwy)! - Prettifies generated route names injected by integrations
+
+- [#9387](https://github.com/withastro/astro/pull/9387) [`a7c75b333`](https://github.com/withastro/astro/commit/a7c75b3339e6b1562d0d16ab6ef482840c51df68) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes an edge case with `astro add` that could install a prerelease instead of a stable release version.
+
+  **Prior to this change**
+  `astro add svelte` installs `svelte@5.0.0-next.22`
+
+  **After this change**
+  `astro add svelte` installs `svelte@4.2.8`
+
+- Updated dependencies [[`270c6cc27`](https://github.com/withastro/astro/commit/270c6cc27f20995883fcdabbff9b56d7f041f9e4)]:
+  - @astrojs/markdown-remark@4.0.1
+
 ## 4.0.3
 
 ### Patch Changes

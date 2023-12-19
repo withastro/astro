@@ -220,7 +220,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			.reduce((a, b) => a + b, 0);
 		const cpuCount = os.cpus().length;
 		const assetsCreationEnvironment = await prepareAssetsGenerationEnv(pipeline, totalCount);
-		const queue = new PQueue({ concurrency: cpuCount });
+		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
 
 		const assetsTimer = performance.now();
 		for (const [originalPath, transforms] of staticImageList) {
@@ -296,11 +296,7 @@ async function generatePage(
 			route.type === 'page' || route.type === 'redirect' || route.type === 'fallback'
 				? green('▶')
 				: magenta('λ');
-		if (isRelativePath(route.component)) {
-			logger.info(null, `${icon} ${route.route}`);
-		} else {
-			logger.info(null, `${icon} ${route.component}`);
-		}
+		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
 		// Get paths for the route, calling getStaticPaths if needed.
 		const paths = await getPathsForRoute(route, pageModule, pipeline, builtPaths);
 		let timeStart = performance.now();
@@ -610,6 +606,18 @@ async function generatePath(
 
 	await fs.promises.mkdir(outFolder, { recursive: true });
 	await fs.promises.writeFile(outFile, body);
+}
+
+function getPrettyRouteName(route: RouteData): string {
+	if (isRelativePath(route.component)) {
+		return route.route;
+	} else if (route.component.includes('node_modules/')) {
+		// For routes from node_modules (usually injected by integrations),
+		// prettify it by only grabbing the part after the last `node_modules/`
+		return route.component.match(/.*node_modules\/(.+)/)?.[1] ?? route.component;
+	} else {
+		return route.component;
+	}
 }
 
 /**
