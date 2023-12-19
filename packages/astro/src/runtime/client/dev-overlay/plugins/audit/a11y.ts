@@ -38,6 +38,8 @@ const a11y_required_attributes = {
 
 const interactiveElements = ['button', 'details', 'embed', 'iframe', 'label', 'select', 'textarea'];
 
+const formElements = ['input', 'meter', 'output', 'progress', 'select', 'textarea'];
+
 const aria_non_interactive_roles = [
 	'alert',
 	'alertdialog',
@@ -217,7 +219,7 @@ export const a11y: AuditRuleWithSelector[] = [
 		code: 'a11y-aria-activedescendant-has-tabindex',
 		title: 'Elements with attribute `aria-activedescendant` must be tabbable',
 		message:
-			'This element must either have an inherent `tabindex` or declare `tabindex` as an attribute.',
+			'Element with the `aria-activedescendant` attribute must either have an inherent `tabindex` or declare `tabindex` as an attribute.',
 		selector: '[aria-activedescendant]',
 		match(element) {
 			if (!(element as HTMLElement).tabIndex && !element.hasAttribute('tabindex')) return true;
@@ -280,14 +282,20 @@ export const a11y: AuditRuleWithSelector[] = [
 		selector: 'a[href]:is([href=""], [href="#"], [href^="javascript:" i])',
 	},
 	{
-		code: 'a11y-label-has-associated-control',
-		title: '`label` tag should have an associated control and a text content.',
+		code: 'a11y-invalid-label',
+		title: '`label` element should have an associated control and a text content.',
 		message:
-			'The `label` tag must be associated with a control using either `for` or having a nested input. Additionally, the `label` tag must have text content.',
-		selector: 'label:not([for])',
+			'The `label` element must be associated with a control using either `for` or having a nested form element. Additionally, the `label` element must have text content.',
+		selector: 'label',
 		match(element) {
-			const inputChild = element.querySelector('input');
-			if (!inputChild?.textContent) return true;
+			// Label must be associated with a control
+			const hasFor = element.hasAttribute('for');
+			const nestedFormElement = element.querySelector(`${formElements.join(', ')}`);
+			if (!hasFor && !nestedFormElement) return true;
+
+			// Label must have text content
+			const innerText = (element as HTMLLabelElement).innerText.trim();
+			if (innerText === undefined || innerText.length === 0) return true;
 		},
 	},
 	{
@@ -348,7 +356,8 @@ export const a11y: AuditRuleWithSelector[] = [
 		message: 'Headings and anchors must have content to be accessible.',
 		selector: a11y_required_content.join(','),
 		match(element) {
-			if (!element.textContent) return true;
+			const innerText = (element as HTMLElement).innerText.trim();
+			if (innerText === undefined || (innerText && innerText.length === 0)) return true;
 		},
 	},
 	{
