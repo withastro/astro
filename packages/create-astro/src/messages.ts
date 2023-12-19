@@ -24,8 +24,8 @@ export function setStdout(writable: typeof process.stdout) {
 	stdout = writable;
 }
 
-export async function say(messages: string | string[], { clear = false, hat = '' } = {}) {
-	return houston(messages, { clear, hat, stdout });
+export async function say(messages: string | string[], { clear = false, hat = '', scarf = '' } = {}) {
+	return houston(messages, { clear, hat, scarf, stdout });
 }
 
 export async function spinner(args: {

@@ -26,6 +26,7 @@ export interface Context {
 	stdout?: typeof process.stdout;
 	exit(code: number): never;
 	hat?: string;
+	scarf?: string;
 }
 
 export async function getContext(argv: string[]): Promise<Context> {
@@ -95,6 +96,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		template,
 		ref: ref ?? 'latest',
 		hat: random(['❄️', '🎄', '🎁']), // fancy ? random(['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦']) : undefined,
+		scarf: fancy ? '🧣' : undefined,
 		yes,
 		install: install ?? (noInstall ? false : undefined),
 		git: git ?? (noGit ? false : undefined),

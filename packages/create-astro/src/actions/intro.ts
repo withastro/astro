@@ -5,7 +5,7 @@ import { random } from '@astrojs/cli-kit/utils';
 import { banner, say, welcome } from '../messages.js';
 
 export async function intro(
-	ctx: Pick<Context, 'hat' | 'skipHouston' | 'version' | 'username' | 'fancy'>
+	ctx: Pick<Context, 'hat' | 'scarf' | 'skipHouston' | 'version' | 'username' | 'fancy'>
 ) {
 	banner();
 
@@ -23,7 +23,7 @@ export async function intro(
 				],
 				random(welcome),
 			],
-			{ clear: true, hat: ctx.hat }
+			{ clear: true, hat: ctx.hat, scarf: ctx.scarf }
 		);
 	}
 }
