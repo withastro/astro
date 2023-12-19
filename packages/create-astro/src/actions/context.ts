@@ -25,8 +25,10 @@ export interface Context {
 	stdin?: typeof process.stdin;
 	stdout?: typeof process.stdout;
 	exit(code: number): never;
-	hat?: string;
-	scarf?: string;
+	clothes: {
+		hat: string;
+		tie: string;
+	};
 }
 
 export async function getContext(argv: string[]): Promise<Context> {
@@ -95,8 +97,10 @@ export async function getContext(argv: string[]): Promise<Context> {
 		projectName,
 		template,
 		ref: ref ?? 'latest',
-		hat: random(['❄️', '🎄', '🎁']), // fancy ? random(['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦']) : undefined,
-		scarf: fancy ? '🧣' : undefined,
+		clothes: {
+			hat: fancy ? random(['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦']) : '',
+			tie: fancy ? random(['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦']) : '',
+		},
 		yes,
 		install: install ?? (noInstall ? false : undefined),
 		git: git ?? (noGit ? false : undefined),
