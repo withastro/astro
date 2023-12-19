@@ -221,11 +221,14 @@ export async function generateImagesForPath(
 				)
 			).data;
 		} catch (e) {
-			const error = new AstroError({
-				...AstroErrorData.CouldNotTransformImage,
-				message: AstroErrorData.CouldNotTransformImage.message(originalFilePath),
-			});
-			error.cause = e;
+			const error = new AstroError(
+				{
+					...AstroErrorData.CouldNotTransformImage,
+					message: AstroErrorData.CouldNotTransformImage.message(originalFilePath),
+				},
+				undefined,
+				{ cause: e }
+			);
 
 			throw error;
 		}
