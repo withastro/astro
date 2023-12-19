@@ -711,7 +711,7 @@ export const MarkdownImageNotFound = {
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
- * Astro could not transform one of your image. Oftentimes, this is caused by a corrupted or malformed image and re-exporting the image from your image editor may fix this issue.
+ * Astro could not transform one of your images. Often, this is caused by a corrupted or malformed image. Re-exporting the image from your image editor may fix this issue.
  *
  * Depending on the image service you are using, the stack trace may contain more information on the specific error encountered.
  */
