@@ -2,111 +2,37 @@
 
 This **[Astro integration][astro-integration]** enables server-side rendering and client-side hydration for your [SolidJS](https://www.solidjs.com/) components.
 
-## Installation
+## Documentation
 
-There are two ways to add integrations to your project. Let's try the most convenient option first!
+Read the [`@astrojs/solid-js` docs][docs]
 
-### `astro add` command
+## Support
 
-Astro includes a CLI tool for adding first party integrations: `astro add`. This command will:
+- Get help in the [Astro Discord][discord]. Post questions in our `#support` forum, or visit our dedicated `#dev` channel to discuss current development and more!
 
-1. (Optionally) Install all necessary dependencies and peer dependencies
-2. (Also optionally) Update your `astro.config.*` file to apply this integration
+- Check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
-To install `@astrojs/solid-js`, run the following from your project directory and follow the prompts:
-
-```sh
-# Using NPM
-npx astro add solid
-# Using Yarn
-yarn astro add solid
-# Using PNPM
-pnpm astro add solid
-```
-
-If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
-
-### Install dependencies manually
-
-First, install the `@astrojs/solid-js` integration like so:
-
-```sh
-npm install @astrojs/solid-js
-```
-
-Most package managers will install associated peer dependencies as well. Still, if you see a "Cannot find package 'solid-js'" (or similar) warning when you start up Astro, you'll need to install SolidJS:
-
-```sh
-npm install solid-js
-```
-
-Now, apply this integration to your `astro.config.*` file using the `integrations` property:
-
-```diff lang="js" "solid()"
-  // astro.config.mjs
-  import { defineConfig } from 'astro/config';
-+ import solid from '@astrojs/solid-js';
-
-  export default defineConfig({
-    // ...
-    integrations: [solid()],
-    //             ^^^^^^^
-  });
-```
-
-## Getting started
-
-To use your first SolidJS component in Astro, head to our [UI framework documentation][astro-ui-frameworks]. You'll explore:
-
-- 📦 how framework components are loaded,
-- 💧 client-side hydration options, and
-- 🤝 opportunities to mix and nest frameworks together
-
-## Options
-
-### Combining multiple JSX frameworks
-
-When you are using multiple JSX frameworks (React, Preact, Solid) in the same project, Astro needs to determine which JSX framework-specific transformations should be used for each of your components. If you have only added one JSX framework integration to your project, no extra configuration is needed.
-
-Use the `include` (required) and `exclude` (optional) configuration options to specify which files belong to which framework. Provide an array of files and/or folders to `include` for each framework you are using. Wildcards may be used to include multiple file paths.
-
-We recommend placing common framework components in the same folder (e.g. `/components/react/` and `/components/solid/`) to make specifying your includes easier, but this is not required:
-
-```js
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import preact from '@astrojs/preact';
-import react from '@astrojs/react';
-import svelte from '@astrojs/svelte';
-import vue from '@astrojs/vue';
-import solid from '@astrojs/solid-js';
-
-export default defineConfig({
-  // Enable many frameworks to support all different kinds of components.
-  // No `include` is needed if you are only using a single JSX framework!
-  integrations: [
-    preact({
-      include: ['**/preact/*'],
-    }),
-    react({
-      include: ['**/react/*'],
-    }),
-    solid({
-      include: ['**/solid/*'],
-    }),
-  ],
-});
-```
-
-## Troubleshooting
-
-For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
-
-You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
+- Submit bug reports and feature requests as [GitHub issues][issues].
 
 ## Contributing
 
-This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
+This package is maintained by Astro's Core team. You're welcome to submit an issue or PR! These links will help you get started:
 
+- [Contributor Manual][contributing]
+- [Code of Conduct][coc]
+- [Community Guide][community]
+
+## License
+
+MIT
+
+Copyright (c) 2023–present [Astro][astro]
+
+[astro]: https://astro.build/
+[docs]: https://docs.astro.build/en/guides/integrations-guide/solid-js/
+[contributing]: https://github.com/withastro/astro/blob/main/CONTRIBUTING.md
+[coc]: https://github.com/withastro/.github/blob/main/CODE_OF_CONDUCT.md
+[community]: https://github.com/withastro/.github/blob/main/COMMUNITY_GUIDE.md
+[discord]: https://astro.build/chat/
+[issues]: https://github.com/withastro/astro/issues
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
-[astro-ui-frameworks]: https://docs.astro.build/en/core-concepts/framework-components/#using-framework-components
