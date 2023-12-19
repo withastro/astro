@@ -2,7 +2,7 @@ import { APIContext } from 'astro';
 import { userCartItems } from '../../models/session';
 
 export function GET({ cookies }: APIContext) {
-	let userId = cookies.get('user-id').value;
+	let userId = cookies.get('user-id')?.value;
 
 	if (!userId || !userCartItems.has(userId)) {
 		return Response.json({ items: [] });

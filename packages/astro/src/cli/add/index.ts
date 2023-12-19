@@ -71,7 +71,7 @@ public-hoist-pattern[]=*lit*
 `;
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
-	netlify: '@astrojs/netlify/functions',
+	netlify: '@astrojs/netlify',
 	vercel: '@astrojs/vercel/serverless',
 	cloudflare: '@astrojs/cloudflare',
 	node: '@astrojs/node',
