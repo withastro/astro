@@ -111,6 +111,19 @@ export async function getContext(argv: string[]): Promise<Context> {
 }
 
 function getClothes(fancy?: boolean) {
+	const date = new Date()
+	if(date.getMonth() === 11) {
+		return {
+			hat: random(['🎁', '🎄', '🌲']),
+			tie: '🧣'
+		}
+	}
+	else if (date.getMonth() === 9) {
+		return {
+			hat: random(['🎃', '👻', '☠️', '💀']),
+			tie: '🦴'
+		}
+	}
 	return {
 		hat: fancy ? random(['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦']) : '',
 		tie: fancy ? random(['🎀', '🧣']) : '',
