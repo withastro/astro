@@ -462,6 +462,13 @@ async function transition(
 		const init: RequestInit = {};
 		if (preparationEvent.formData) {
 			init.method = 'POST';
+			const form =
+				preparationEvent.sourceElement instanceof HTMLFormElement
+					? preparationEvent.sourceElement
+					: preparationEvent.sourceElement instanceof HTMLElement &&
+					    'form' in preparationEvent.sourceElement
+					  ? (preparationEvent.sourceElement.form as HTMLFormElement)
+					  : preparationEvent.sourceElement?.closest('form');
 			// Form elements without enctype explicitly set default to application/x-www-form-urlencoded.
 			// In order to maintain compatibility with Astro 4.x, we need to check the value of enctype
 			// on the attributes property rather than accessing .enctype directly. Astro 5.x may
@@ -470,13 +477,6 @@ async function transition(
 			//
 			// Note: getNamedItem can return null in real life, even if TypeScript doesn't think so, hence
 			// the ?.
-			const form =
-				preparationEvent.sourceElement instanceof HTMLFormElement
-					? preparationEvent.sourceElement
-					: preparationEvent.sourceElement instanceof HTMLElement &&
-					    'form' in preparationEvent.sourceElement
-					  ? (preparationEvent.sourceElement.form as HTMLFormElement)
-					  : preparationEvent.sourceElement?.closest('form');
 			init.body =
 				form?.attributes.getNamedItem('enctype')?.value === 'application/x-www-form-urlencoded'
 					? new URLSearchParams(preparationEvent.formData as any)
