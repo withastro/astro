@@ -158,7 +158,7 @@ In standalone mode a server starts when the server entrypoint is run. By default
 node ./dist/server/entry.mjs
 ```
 
-For standalone mode the server handles file servering in addition to the page and API routes.
+For standalone mode the server handles file serving in addition to the page and API routes.
 
 #### Custom host and port
 
