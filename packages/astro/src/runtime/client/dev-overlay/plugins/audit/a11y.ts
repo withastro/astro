@@ -285,7 +285,7 @@ export const a11y: AuditRuleWithSelector[] = [
 		code: 'a11y-invalid-label',
 		title: '`label` element should have an associated control and a text content.',
 		message:
-			'The `label` element must be associated with a control using either `for` or having a nested form element. Additionally, the `label` element must have text content.',
+			'The `label` element must be associated with a control either by using the `for` attribute or by containing a nested form element. Additionally, the `label` element must have text content.',
 		selector: 'label',
 		match(element) {
 			// Label must be associated with a control
