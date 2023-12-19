@@ -470,9 +470,15 @@ async function transition(
 			//
 			// Note: getNamedItem can return null in real life, even if TypeScript doesn't think so, hence
 			// the ?.
+			const form =
+				preparationEvent.sourceElement instanceof HTMLFormElement
+					? preparationEvent.sourceElement
+					: preparationEvent.sourceElement instanceof HTMLElement &&
+					    'form' in preparationEvent.sourceElement
+					  ? (preparationEvent.sourceElement.form as HTMLFormElement)
+					  : preparationEvent.sourceElement?.closest('form');
 			init.body =
-				preparationEvent.sourceElement?.attributes.getNamedItem('enctype')?.value ===
-				'application/x-www-form-urlencoded'
+				form?.attributes.getNamedItem('enctype')?.value === 'application/x-www-form-urlencoded'
 					? new URLSearchParams(preparationEvent.formData as any)
 					: preparationEvent.formData;
 		}
