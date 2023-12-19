@@ -119,8 +119,9 @@ async function fetchHTML(
 ): Promise<null | { html: string; redirected?: string; mediaType: DOMParserSupportedType }> {
 	try {
 		const res = await fetch(href, init);
+		const contentType = res.headers.get('content-type') ?? '';
 		// drop potential charset (+ other name/value pairs) as parser needs the mediaType
-		const mediaType = res.headers.get('content-type')?.replace(/;.*$/, '');
+		const mediaType = contentType.split(';', 1)[0].trim();
 		// the DOMParser can handle two types of HTML
 		if (mediaType !== 'text/html' && mediaType !== 'application/xhtml+xml') {
 			// everything else (e.g. audio/mp3) will be handled by the browser but not by us
