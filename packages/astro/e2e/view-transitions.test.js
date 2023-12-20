@@ -976,6 +976,83 @@ test.describe('View Transitions', () => {
 		).toEqual(1);
 	});
 
+	test('form POST defaults to multipart/form-data (Astro 4.x compatibility)', async ({
+		page,
+		astro,
+	}) => {
+		const loads = [];
+
+		page.addListener('load', async (p) => {
+			loads.push(p);
+		});
+
+		const postedEncodings = [];
+
+		await page.route('**/contact', async (route) => {
+			const request = route.request();
+
+			if (request.method() === 'POST') {
+				postedEncodings.push(request.headers()['content-type'].split(';')[0]);
+			}
+
+			await route.continue();
+		});
+
+		await page.goto(astro.resolveUrl('/form-one'));
+
+		// Submit the form
+		await page.click('#submit');
+
+		expect(
+			loads.length,
+			'There should be only 1 page load. No additional loads for the form submission'
+		).toEqual(1);
+
+		expect(
+			postedEncodings,
+			'There should be 1 POST, with encoding set to `multipart/form-data`'
+		).toEqual(['multipart/form-data']);
+	});
+
+	test('form POST respects enctype attribute', async ({ page, astro }) => {
+		const loads = [];
+
+		page.addListener('load', async (p) => {
+			loads.push(p);
+		});
+
+		const postedEncodings = [];
+
+		await page.route('**/contact', async (route) => {
+			const request = route.request();
+
+			if (request.method() === 'POST') {
+				postedEncodings.push(request.headers()['content-type'].split(';')[0]);
+			}
+
+			await route.continue();
+		});
+
+		await page.goto(
+			astro.resolveUrl(
+				`/form-one?${new URLSearchParams({ enctype: 'application/x-www-form-urlencoded' })}`
+			)
+		);
+
+		// Submit the form
+		await page.click('#submit');
+
+		expect(
+			loads.length,
+			'There should be only 1 page load. No additional loads for the form submission'
+		).toEqual(1);
+
+		expect(
+			postedEncodings,
+			'There should be 1 POST, with encoding set to `multipart/form-data`'
+		).toEqual(['application/x-www-form-urlencoded']);
+	});
+
 	test('Route announcer is invisible on page transition', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/no-directive-one'));
 
