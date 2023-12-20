@@ -356,6 +356,7 @@ export const a11y: AuditRuleWithSelector[] = [
 		message: 'Headings and anchors must have content to be accessible.',
 		selector: a11y_required_content.join(','),
 		match(element: HTMLElement) {
+			// innerText is used to ignore hidden text
 			const innerText = element.innerText.trim();
 			if (innerText === '') return true;
 		},
