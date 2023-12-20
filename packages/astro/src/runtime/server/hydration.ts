@@ -77,7 +77,9 @@ export function extractDirectives(
 				}
 				case 'client:params': {
 					// this is just a transform step transforms that turn `client:params` into
-					// standard cliend directives
+					// standard cliend directives.
+					// (e.g `client:params={{directive: 'media', value: '(min-width: 640px)'}}`
+					// => `client:media="(min-width: 640px)"`)
 					const maybeDirectiveOptions = value;
 
 					// skip the transform if the value is nullish
