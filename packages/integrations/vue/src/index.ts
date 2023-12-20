@@ -51,8 +51,9 @@ function virtualAppEntrypoint(options?: Options): Plugin {
 			root = config.root;
 			if (options?.appEntrypoint) {
 				appEntrypoint = options.appEntrypoint.startsWith('.')
-					? path.resolve(root, options.appEntrypoint)
+					? path.resolve(root, options.appEntrypoint).replace(root, '')
 					: options.appEntrypoint;
+				appEntrypoint = appEntrypoint?.replaceAll('\\', '/')
 			}
 		},
 		resolveId(id: string) {
