@@ -38,10 +38,10 @@ export class AstroError extends Error {
 
 	type: ErrorTypes = 'AstroError';
 
-	constructor(props: ErrorProperties, ...params: any) {
-		super(...params);
-
+	constructor(props: ErrorProperties, options?: ErrorOptions) {
 		const { name, title, message, stack, location, hint, frame } = props;
+		super(message, options);
+		
 		this.title = title;
 		this.name = name;
 
@@ -81,8 +81,8 @@ export class AstroError extends Error {
 export class CompilerError extends AstroError {
 	type: ErrorTypes = 'CompilerError';
 
-	constructor(props: ErrorProperties, ...params: any) {
-		super(props, ...params);
+	constructor(props: ErrorProperties, options?: ErrorOptions) {
+		super(props, options);
 	}
 
 	static is(err: unknown): err is CompilerError {
@@ -120,8 +120,8 @@ export class AggregateError extends AstroError {
 
 	// Despite being a collection of errors, AggregateError still needs to have a main error attached to it
 	// This is because Vite expects every thrown errors handled during HMR to be, well, Error and have a message
-	constructor(props: ErrorProperties & { errors: AstroError[] }, ...params: any) {
-		super(props, ...params);
+	constructor(props: ErrorProperties & { errors: AstroError[] }, options?: ErrorOptions) {
+		super(props, options);
 
 		this.errors = props.errors;
 	}
