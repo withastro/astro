@@ -12,7 +12,7 @@ export const nodeLogDestination: LogWritable<LogMessage> = {
 		if (levels[event.level] < levels['error']) {
 			dest = process.stdout;
 		}
-		let trailingLine = newLine ? '\n' : '';
+		let trailingLine = event.newLine ? '\n' : '';
 		if (event.label === 'SKIP_FORMAT') {
 			dest.write(event.message + trailingLine);
 		} else {

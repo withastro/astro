@@ -2,7 +2,7 @@ import { blue, bold, dim, red, yellow } from 'kleur/colors';
 import stringWidth from 'string-width';
 
 export interface LogWritable<T> {
-	write: (chunk: T, newLine: boolean) => boolean;
+	write: (chunk: T) => boolean;
 }
 
 export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
@@ -56,6 +56,7 @@ export interface LogMessage {
 	label: string | null;
 	level: LoggerLevel;
 	message: string;
+	newLine: boolean;
 }
 
 export const levels: Record<LoggerLevel, number> = {
@@ -80,6 +81,7 @@ export function log(
 		label,
 		level,
 		message,
+		newLine,
 	};
 
 	// test if this level is enabled or not
@@ -87,7 +89,7 @@ export function log(
 		return; // do nothing
 	}
 
-	dest.write(event, newLine);
+	dest.write(event);
 }
 
 export function isLogLevelEnabled(configuredLogLevel: LoggerLevel, level: LoggerLevel) {
