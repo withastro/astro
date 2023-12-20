@@ -220,7 +220,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			.reduce((a, b) => a + b, 0);
 		const cpuCount = os.cpus().length;
 		const assetsCreationEnvironment = await prepareAssetsGenerationEnv(pipeline, totalCount);
-		const queue = new PQueue({ concurrency: cpuCount });
+		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
 
 		const assetsTimer = performance.now();
 		for (const [originalPath, transforms] of staticImageList) {
@@ -304,13 +304,14 @@ async function generatePage(
 		for (let i = 0; i < paths.length; i++) {
 			const path = paths[i];
 			pipeline.getEnvironment().logger.debug('build', `Generating: ${path}`);
+			const filePath = getOutputFilename(pipeline.getConfig(), path, pageData.route.type);
+			const lineIcon = i === paths.length - 1 ? '└─' : '├─';
+			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
 			await generatePath(path, pipeline, generationOptions, route);
 			const timeEnd = performance.now();
 			const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 			const timeIncrease = `(+${timeChange})`;
-			const filePath = getOutputFilename(pipeline.getConfig(), path, pageData.route.type);
-			const lineIcon = i === paths.length - 1 ? '└─' : '├─';
-			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
+			logger.info('SKIP_FORMAT', ` ${dim(timeIncrease)}`);
 			prevTimeEnd = timeEnd;
 		}
 	}

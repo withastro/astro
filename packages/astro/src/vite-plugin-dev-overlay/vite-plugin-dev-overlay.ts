@@ -17,7 +17,7 @@ export default function astroDevOverlay({ settings }: AstroPluginOptions): vite.
 				return `
 					export const loadDevOverlayPlugins = async () => {
 						return [${settings.devToolbarApps
-							.map((plugin) => `(await import('${plugin}')).default`)
+							.map((plugin) => `(await import(${JSON.stringify(plugin)})).default`)
 							.join(',')}];
 					};
 				`;
