@@ -7,15 +7,16 @@ type ConsoleStream = Writable & {
 };
 
 export const nodeLogDestination: LogWritable<LogMessage> = {
-	write(event: LogMessage) {
+	write(event: LogMessage, newLine = true) {
 		let dest: ConsoleStream = process.stderr;
 		if (levels[event.level] < levels['error']) {
 			dest = process.stdout;
 		}
+		let trailingLine = event.newLine ? '\n' : '';
 		if (event.label === 'SKIP_FORMAT') {
-			dest.write(event.message + '\n');
+			dest.write(event.message + trailingLine);
 		} else {
-			dest.write(getEventPrefix(event) + ' ' + event.message + '\n');
+			dest.write(getEventPrefix(event) + ' ' + event.message + trailingLine);
 		}
 		return true;
 	},
