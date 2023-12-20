@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 7.0.2
+
+### Patch Changes
+
+- [#9471](https://github.com/withastro/astro/pull/9471) [`6bf470cfb`](https://github.com/withastro/astro/commit/6bf470cfb87e853c0a1f69bceb09246801bc8bdc) Thanks [@alexnguyennz](https://github.com/alexnguyennz)! - Fix typo in @astrojs/node README
+
 ## 7.0.1
 
 ### Patch Changes
