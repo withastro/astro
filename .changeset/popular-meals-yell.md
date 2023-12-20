@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Improved logging of the generated pages during the build
+Improves logging of the generated pages during the build
