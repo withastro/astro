@@ -177,7 +177,7 @@ export interface CreateRouteManifestParams {
 	fsMod?: typeof nodeFs;
 }
 
-function createProjectRoutes(
+function createFileBasedRoutes(
 	{settings, cwd, fsMod}: CreateRouteManifestParams,
 	logger: Logger,
 ): RouteData[] {
@@ -329,9 +329,9 @@ function createInjectedRoutes({settings, cwd}: CreateRouteManifestParams): Prior
 	const prerender = getPrerenderDefault(config);
 
 	const routes: PrioritizedRoutesData = {
-		'above-project': [],
-		'same-as-project': [],
-		'below-project': [],
+		'override': [],
+		'normal': [],
+		'defer': [],
 	};
 
 	settings.injectedRoutes.forEach(({pattern: name, entrypoint, prerender: prerenderInjected, priority}) => {
@@ -368,9 +368,9 @@ function createInjectedRoutes({settings, cwd}: CreateRouteManifestParams): Prior
 			.map(([{dynamic, content}]) => (dynamic ? `[${content}]` : content))
 			.join('/')}`.toLowerCase();
 
-		// If an injected route doesn't define a priority, it will be have a 
-		// higher priority than the project routes for backwards compatibility.
-		routes[priority ?? 'above-project'].push({
+		// If an injected route doesn't define a priority, it will override
+		// file-based routes from the project for backwards compatibility.
+		routes[priority ?? 'override'].push({
 			type,
 			route,
 			pattern,
@@ -394,9 +394,9 @@ function createRedirectRoutes(
 ): PrioritizedRoutesData {
 	const {config} = settings;
 	const routes: PrioritizedRoutesData = {
-		'above-project': [],
-		'same-as-project': [],
-		'below-project': [],
+		'override': [],
+		'normal': [],
+		'defer': [],
 	};
 
 	Object.entries(settings.config.redirects).forEach(([from, to]) => {
@@ -424,19 +424,14 @@ function createRedirectRoutes(
 			.join('/')}`.toLowerCase();
 
 
-		const destination = typeof to === 'string' ? to : to.destination;
-		if (/^https?:\/\//.test(destination)) {
+		if (/^https?:\/\//.test(to.destination)) {
 			logger.warn(
 				'redirects',
-				`Redirecting to an external URL is not officially supported: ${from} -> ${destination}`,
+				`Redirecting to an external URL is not officially supported: ${from} -> ${to.destination}`,
 			);
 		}
-			
-		const priority = typeof to === 'string' ? undefined : to.priority;
 
-		// If a redirect doesn't define a priority, it will be have a 
-		// lower priority than the project routes for backwards compatibility.
-		routes[priority ?? 'below-project'].push({
+		routes[to.priority].push({
 			type: 'redirect',
 			route,
 			pattern,
@@ -446,11 +441,13 @@ function createRedirectRoutes(
 			generate,
 			pathname: pathname || void 0,
 			prerender: false,
-			redirect: typeof to === 'string' ? to : {
-				status: to.status,
-				destination: to.destination,
-			},
-			redirectRoute: routeMap.get(destination),
+			redirect: 'status' in to
+				? {
+					status: to.status,
+					destination: to.destination,
+				}
+				: to.destination,
+			redirectRoute: routeMap.get(to.destination),
 			fallbackRoutes: [],
 		});
 	});
@@ -524,8 +521,8 @@ export function createRouteManifest(
 	// Create a map of all routes so redirects can refer to any route
 	const routeMap = new Map();
 
-	const projectRoutes = createProjectRoutes(params, logger);
-	projectRoutes.forEach((route) => {
+	const fileBasedRoutes = createFileBasedRoutes(params, logger);
+	fileBasedRoutes.forEach((route) => {
 		routeMap.set(route.route, route);
 	});
 
@@ -540,17 +537,17 @@ export function createRouteManifest(
 
 	const routes: RouteData[] = [
 		...[
-			...injectedRoutes['above-project'],
-			...redirectRoutes['above-project'],
+			...injectedRoutes['override'],
+			...redirectRoutes['override'],
 		].sort(comparator),
 		...[
-			...projectRoutes,
-			...injectedRoutes['same-as-project'],
-			...redirectRoutes['same-as-project'],
+			...fileBasedRoutes,
+			...injectedRoutes['normal'],
+			...redirectRoutes['normal'],
 		].sort(comparator),
 		...[
-			...injectedRoutes['below-project'],
-			...redirectRoutes['below-project'],
+			...injectedRoutes['defer'],
+			...redirectRoutes['defer'],
 		].sort(comparator),
 	];
 

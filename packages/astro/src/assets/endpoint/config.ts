@@ -9,6 +9,7 @@ export function injectImageEndpoint(settings: AstroSettings, mode: 'dev' | 'buil
 		pattern: '/_image',
 		entrypoint: endpointEntrypoint,
 		prerender: false,
+		priority: 'override',
 	});
 
 	return settings;

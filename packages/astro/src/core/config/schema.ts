@@ -173,9 +173,15 @@ export const AstroConfigSchema = z.object({
 						z.literal(308),
 					]),
 					destination: z.string(),
-					priority: z.enum(['above-project', 'same-as-project', 'below-project']).optional(),
+					priority: z.enum(['override', 'normal', 'defer'])
+						.default('defer'),
 				}),
 			])
+				.transform(redirect => (
+					typeof redirect === 'string'
+						? {destination: redirect, priority: 'defer' as const}
+						: redirect
+				))
 		)
 		.default(ASTRO_CONFIG_DEFAULTS.redirects),
 	prefetch: z

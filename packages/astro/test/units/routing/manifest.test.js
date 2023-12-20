@@ -106,12 +106,12 @@ describe('routing - createRouteManifest', () => {
 			{
 				pattern: '/contributing',
 				entrypoint: '@lib/override/static.astro',
-				priority: 'above-project',
+				priority: 'override',
 			},
 			{
 				pattern: '/[...slug]',
 				entrypoint: '@lib/override/dynamic.astro',
-				// Don's specify a priority to test that it defaults to above-project
+				// Don's specify a priority to test that it defaults to override
 			},
 		];
 
@@ -160,12 +160,12 @@ describe('routing - createRouteManifest', () => {
 			{
 				pattern: '/contributing',
 				entrypoint: '@lib/override/static.astro',
-				priority: 'below-project',
+				priority: 'defer',
 			},
 			{
 				pattern: '/[...slug]',
 				entrypoint: '@lib/override/dynamic.astro',
-				priority: 'below-project',
+				priority: 'defer',
 			},
 		];
 
@@ -223,12 +223,12 @@ describe('routing - createRouteManifest', () => {
 			{
 				pattern: '/contributing',
 				entrypoint: '@lib/override/static.astro',
-				priority: 'same-as-project',
+				priority: 'normal',
 			},
 			{
 				pattern: '/[...slug]',
 				entrypoint: '@lib/override/dynamic.astro',
-				priority: 'same-as-project',
+				priority: 'normal',
 			},
 		];
 
@@ -272,16 +272,16 @@ describe('routing - createRouteManifest', () => {
 			base: '/search',
 			trailingSlash: 'never',
 			redirects: {
-				// Do not specify a priority to test that it defaults to below-project
+				// Do not specify a priority to test that it defaults to defer
 				'/blog/[...slug]': {
 					status: 302,
 					destination: '/',
-					priority: 'above-project',
+					priority: 'override',
 				},
 				'/blog/about': {
 					status: 302,
 					destination: '/another',
-					priority: 'above-project',
+					priority: 'override',
 				}
 			},
 		});
@@ -325,12 +325,12 @@ describe('routing - createRouteManifest', () => {
 			base: '/search',
 			trailingSlash: 'never',
 			redirects: {
-				// Do not specify a priority to test that it defaults to below-project
+				// Do not specify a priority to test that it defaults to defer
 				'/blog/[...slug]': '/',
 				'/blog/about': {
 					status: 302,
 					destination: '/another',
-					priority: 'below-project',
+					priority: 'defer',
 				}
 			},
 		});
@@ -377,12 +377,12 @@ describe('routing - createRouteManifest', () => {
 				'/blog/[...slug]': {
 					status: 302,
 					destination: '/',
-					priority: 'same-as-project',
+					priority: 'normal',
 				},
 				'/blog/about': {
 					status: 302,
 					destination: '/another',
-					priority: 'same-as-project',
+					priority: 'normal',
 				}
 			},
 		});

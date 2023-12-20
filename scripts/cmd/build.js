@@ -13,7 +13,7 @@ const defaultConfig = {
 	format: 'esm',
 	platform: 'node',
 	target: 'node18',
-	sourcemap: false,
+	sourcemap: 'linked',
 	sourcesContent: false,
 };
 
