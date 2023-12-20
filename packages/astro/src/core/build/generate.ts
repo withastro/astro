@@ -306,7 +306,7 @@ async function generatePage(
 			pipeline.getEnvironment().logger.debug('build', `Generating: ${path}`);
 			const filePath = getOutputFilename(pipeline.getConfig(), path, pageData.route.type);
 			const lineIcon = i === paths.length - 1 ? '└─' : '├─';
-			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, true);
+			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
 			await generatePath(path, pipeline, generationOptions, route);
 			const timeEnd = performance.now();
 			const timeChange = getTimeStat(prevTimeEnd, timeEnd);
