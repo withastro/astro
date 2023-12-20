@@ -4871,9 +4871,21 @@ importers:
 
   packages/internal-helpers:
     devDependencies:
+      '@types/chai':
+        specifier: ^4.3.10
+        version: 4.3.10
+      '@types/mocha':
+        specifier: ^10.0.4
+        version: 10.0.4
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
+      chai:
+        specifier: ^4.3.7
+        version: 4.3.10
+      mocha:
+        specifier: ^10.2.0
+        version: 10.2.0
 
   packages/markdown/remark:
     dependencies:
@@ -7308,12 +7320,11 @@ packages:
   /@types/chai-subset@1.3.4:
     resolution: {integrity: sha512-CCWNXrJYSUIojZ1149ksLl3AN9cmZ5djf+yUoVVV+NuYrtydItQVlL2ZDqyC6M6O9LWRnVf8yYDxbXHO2TfQZg==}
     dependencies:
-      '@types/chai': 4.3.9
+      '@types/chai': 4.3.10
     dev: false
 
   /@types/chai@4.3.10:
     resolution: {integrity: sha512-of+ICnbqjmFCiixUnqRulbylyXQrPqIGf/B3Jax1wIF3DvSheysQxAWvqHhZiW3IQrycvokcLcFQlveGp+vyNg==}
-    dev: true
 
   /@types/chai@4.3.9:
     resolution: {integrity: sha512-69TtiDzu0bcmKQv3yg1Zx409/Kd7r0b5F1PfpYJfSHzLGtB53547V4u+9iqKYsTu/O2ai6KTb0TInNpvuQ3qmg==}

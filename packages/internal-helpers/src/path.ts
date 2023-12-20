@@ -56,6 +56,23 @@ export function isRelativePath(path: string) {
 	return startsWithDotDotSlash(path) || startsWithDotSlash(path);
 }
 
+function createRootRelativePath(value: URL, root: URL) {
+	return '/' + removeLeadingForwardSlash(value.toString().replace(root.toString(), ''));
+}
+
+export function resolveEntrypoint(entrypoint: string | URL, root: URL) {
+	if (entrypoint instanceof URL) {
+		return createRootRelativePath(entrypoint, root);
+	}
+	if (startsWithForwardSlash(entrypoint)) {
+		return entrypoint;
+	}
+	if (isRelativePath(entrypoint)) {
+		return createRootRelativePath(new URL(entrypoint, root), root);
+	}
+	return entrypoint;
+}
+
 function isString(path: unknown): path is string {
 	return typeof path === 'string' || path instanceof String;
 }
