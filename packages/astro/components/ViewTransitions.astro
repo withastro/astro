@@ -94,7 +94,7 @@ const { fallback = 'animate' } = Astro.props;
 
 		document.addEventListener('submit', (ev) => {
 			let el = ev.target as HTMLElement;
-			if (el.tagName !== 'FORM' || isReloadEl(el)) {
+			if (el.tagName !== 'FORM' || ev.defaultPrevented || isReloadEl(el)) {
 				return;
 			}
 			const form = el as HTMLFormElement;
