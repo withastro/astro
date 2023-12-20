@@ -1,5 +1,37 @@
 # astro
 
+## 4.0.7
+
+### Patch Changes
+
+- [#9452](https://github.com/withastro/astro/pull/9452) [`e83b5095f`](https://github.com/withastro/astro/commit/e83b5095f164f48ba40fc715a805fc66a3e39dcf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Upgrades vite to latest
+
+- [#9352](https://github.com/withastro/astro/pull/9352) [`f515b1421`](https://github.com/withastro/astro/commit/f515b1421afa335b8d6e4491fbe24419df53bfeb) Thanks [@tmcw](https://github.com/tmcw)! - Add a more descriptive error message when image conversion fails
+
+- [#9486](https://github.com/withastro/astro/pull/9486) [`f6714f677`](https://github.com/withastro/astro/commit/f6714f677cffa2484565f51d5eb55bd34309653b) Thanks [@martrapp](https://github.com/martrapp)! - Fixes View Transition's form submission prevention, allowing `preventDefault` to be used.
+
+- [#9461](https://github.com/withastro/astro/pull/9461) [`429be8cc3`](https://github.com/withastro/astro/commit/429be8cc3ed0623df4fdca76f1531265f5ba5dfc) Thanks [@Skn0tt](https://github.com/Skn0tt)! - update import created for `astro create netlify`
+
+- [#9464](https://github.com/withastro/astro/pull/9464) [`faf6c7e11`](https://github.com/withastro/astro/commit/faf6c7e1104ee247e847836020a3ce07a2053705) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes an edge case with view transitions where some spec-compliant `Content-Type` headers would cause a valid HTML response to be ignored.
+
+- [#9400](https://github.com/withastro/astro/pull/9400) [`1e984389b`](https://github.com/withastro/astro/commit/1e984389bafd87b0a631ed4aba930447669234f8) Thanks [@bluwy](https://github.com/bluwy)! - Fixes importing dev toolbar apps from integrations on Windows
+
+- [#9487](https://github.com/withastro/astro/pull/9487) [`19169db1f`](https://github.com/withastro/astro/commit/19169db1f1574d36cc284fd9a0319d9b1e92b49a) Thanks [@ematipico](https://github.com/ematipico)! - Improves logging of the generated pages during the build
+
+- [#9460](https://github.com/withastro/astro/pull/9460) [`047d285be`](https://github.com/withastro/astro/commit/047d285be1ab764bc82f88b8553b46429c37efca) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix Astro failing to build on certain exotic platform that reports their CPU count incorrectly
+
+- [#9466](https://github.com/withastro/astro/pull/9466) [`5062d27a1`](https://github.com/withastro/astro/commit/5062d27a186c5020522614b9d6f3da218f7afd96) Thanks [@knpwrs](https://github.com/knpwrs)! - Updates view transitions `form` handling with logic for the [`enctype`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/enctype) attribute
+
+- [#9458](https://github.com/withastro/astro/pull/9458) [`fa3078ce9`](https://github.com/withastro/astro/commit/fa3078ce9f5eda408340a78c6d275f3e0b2437dc) Thanks [@ematipico](https://github.com/ematipico)! - Correctly handle the error in case the middleware throws a runtime error
+
+- [#9089](https://github.com/withastro/astro/pull/9089) [`5ae657882`](https://github.com/withastro/astro/commit/5ae657882287645c967249aee91bd06497f6624d) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where redirects did not replace slugs when the target of the redirect rule was not a verbatim route in the project.
+
+- [#9483](https://github.com/withastro/astro/pull/9483) [`c384f6924`](https://github.com/withastro/astro/commit/c384f6924edc161d3ff631e658f017a37e4207e3) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix some false positive in the audit logic of the dev toolbar
+
+- [#9437](https://github.com/withastro/astro/pull/9437) [`354a62c86`](https://github.com/withastro/astro/commit/354a62c86e9187af5d05540ed321bdc889384d97) Thanks [@dkobierski](https://github.com/dkobierski)! - Fixes incorrect hoisted script paths when custom rollup output file names are configured
+
+- [#9475](https://github.com/withastro/astro/pull/9475) [`7ae4928f3`](https://github.com/withastro/astro/commit/7ae4928f303720d3b2f611474fc08d3b96c2e4af) Thanks [@ematipico](https://github.com/ematipico)! - Remove the manifest from the generated files in the `dist/` folder.
+
 ## 4.0.6
 
 ### Patch Changes
