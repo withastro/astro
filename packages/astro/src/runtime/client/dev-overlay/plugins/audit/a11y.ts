@@ -38,7 +38,7 @@ const a11y_required_attributes = {
 
 const interactiveElements = ['button', 'details', 'embed', 'iframe', 'label', 'select', 'textarea'];
 
-const formElements = ['input', 'meter', 'output', 'progress', 'select', 'textarea'];
+const labellableElements = ['input', 'meter', 'output', 'progress', 'select', 'textarea'];
 
 const aria_non_interactive_roles = [
 	'alert',
@@ -287,15 +287,15 @@ export const a11y: AuditRuleWithSelector[] = [
 		message:
 			'The `label` element must be associated with a control either by using the `for` attribute or by containing a nested form element. Additionally, the `label` element must have text content.',
 		selector: 'label',
-		match(element) {
-			// Label must be associated with a control
+		match(element: HTMLLabelElement) {
+			// Label must be associated with a control, either using `for` or having a nested valid element
 			const hasFor = element.hasAttribute('for');
-			const nestedFormElement = element.querySelector(`${formElements.join(', ')}`);
-			if (!hasFor && !nestedFormElement) return true;
+			const nestedLabellableElement = element.querySelector(`${labellableElements.join(', ')}`);
+			if (!hasFor && !nestedLabellableElement) return true;
 
-			// Label must have text content
-			const innerText = (element as HTMLLabelElement).innerText.trim();
-			if (innerText === undefined || innerText.length === 0) return true;
+			// Label must have text content, using innerText to ignore hidden text
+			const innerText = element.innerText.trim();
+			if (innerText === '') return true;
 		},
 	},
 	{
@@ -355,9 +355,9 @@ export const a11y: AuditRuleWithSelector[] = [
 		title: 'Missing content on element important for accessibility',
 		message: 'Headings and anchors must have content to be accessible.',
 		selector: a11y_required_content.join(','),
-		match(element) {
-			const innerText = (element as HTMLElement).innerText.trim();
-			if (innerText === undefined || (innerText && innerText.length === 0)) return true;
+		match(element: HTMLElement) {
+			const innerText = element.innerText.trim();
+			if (innerText === '') return true;
 		},
 	},
 	{
