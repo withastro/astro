@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-honor default prevention in view transition's form handling
+Fixes View Transition's form submission prevention, allowing `preventDefault` to be used.
