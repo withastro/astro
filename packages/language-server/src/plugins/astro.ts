@@ -7,8 +7,7 @@ import {
 	InsertTextFormat,
 	Position,
 	Range,
-	ServicePlugin,
-	ServicePluginInstance,
+	Service,
 	TextEdit,
 } from '@volar/language-server';
 import fg from 'fast-glob';
@@ -18,97 +17,90 @@ import type { TextDocument } from 'vscode-html-languageservice';
 import { AstroFile } from '../core/index.js';
 import { isJSDocument } from './utils.js';
 
-export const create = (ts: typeof import('typescript')): ServicePlugin => {
-	return {
-		triggerCharacters: ['-'],
-		create(context): ServicePluginInstance {
-			return {
-				provideCompletionItems(document, position, completionContext, token) {
-					if (token.isCancellationRequested) return null;
-					let items: CompletionItem[] = [];
+export const create =
+	(): Service =>
+	(context, modules): ReturnType<Service> => {
+		return {
+			triggerCharacters: ['-'],
+			provideCompletionItems(document, position, completionContext, token) {
+				if (token.isCancellationRequested) return null;
+				let items: CompletionItem[] = [];
 
-					const [file] = context.language.files.getVirtualFile(
-						context.env.uriToFileName(document.uri)
-					);
-					if (!(file instanceof AstroFile)) return;
+				const [file] = context!.documents.getVirtualFileByUri(document.uri);
+				if (!(file instanceof AstroFile)) return;
 
-					if (completionContext.triggerCharacter === '-') {
-						const frontmatterCompletion = getFrontmatterCompletion(file, document, position);
-						if (frontmatterCompletion) items.push(frontmatterCompletion);
-					}
+				if (completionContext.triggerCharacter === '-') {
+					const frontmatterCompletion = getFrontmatterCompletion(file, document, position);
+					if (frontmatterCompletion) items.push(frontmatterCompletion);
+				}
 
+				return {
+					isIncomplete: false,
+					items: items,
+				};
+			},
+			provideSemanticDiagnostics(document, token) {
+				if (token.isCancellationRequested) return [];
+
+				const [file] = context!.documents.getVirtualFileByUri(document.uri);
+				if (!(file instanceof AstroFile)) return;
+
+				return file.compilerDiagnostics.map(compilerMessageToDiagnostic);
+
+				function compilerMessageToDiagnostic(message: DiagnosticMessage): Diagnostic {
 					return {
-						isIncomplete: false,
-						items: items,
+						message: message.text + (message.hint ? '\n\n' + message.hint : ''),
+						range: Range.create(
+							message.location.line - 1,
+							message.location.column - 1,
+							message.location.line,
+							message.location.length
+						),
+						code: message.code,
+						severity: message.severity,
+						source: 'astro',
 					};
-				},
-				provideSemanticDiagnostics(document, token) {
-					if (token.isCancellationRequested) return [];
+				}
+			},
+			provideCodeLenses(document, token) {
+				if (token.isCancellationRequested) return;
+				if (!context || !modules?.typescript || !isJSDocument(document.languageId)) return;
 
-					const [file] = context.language.files.getVirtualFile(
-						context.env.uriToFileName(document.uri)
-					);
-					if (!(file instanceof AstroFile)) return;
+				const languageService = context.inject<keyof Provide>('typescript/languageService');
+				if (!languageService) return;
 
-					return file.compilerDiagnostics.map(compilerMessageToDiagnostic);
+				const ts = modules?.typescript;
+				const tsProgram = languageService.getProgram();
+				if (!tsProgram) return;
 
-					function compilerMessageToDiagnostic(message: DiagnosticMessage): Diagnostic {
-						return {
-							message: message.text + (message.hint ? '\n\n' + message.hint : ''),
-							range: Range.create(
-								message.location.line - 1,
-								message.location.column - 1,
-								message.location.line,
-								message.location.length
-							),
-							code: message.code,
-							severity: message.severity,
-							source: 'astro',
-						};
-					}
-				},
-				provideCodeLenses(document, token) {
-					if (token.isCancellationRequested) return;
-					if (!isJSDocument(document.languageId)) return;
+				const globcodeLens: CodeLens[] = [];
+				const sourceFile = tsProgram.getSourceFile(context.env.uriToFileName(document.uri))!;
 
-					const languageService = context.inject<Provide, 'typescript/languageService'>(
-						'typescript/languageService'
-					);
-					if (!languageService) return;
+				function walk() {
+					return ts.forEachChild(sourceFile, function cb(node): void {
+						if (ts.isCallExpression(node) && node.expression.getText() === 'Astro.glob') {
+							const globArgument = node.arguments.at(0);
 
-					const tsProgram = languageService.getProgram();
-					if (!tsProgram) return;
-
-					const globcodeLens: CodeLens[] = [];
-					const sourceFile = tsProgram.getSourceFile(context.env.uriToFileName(document.uri))!;
-
-					function walk() {
-						return ts.forEachChild(sourceFile, function cb(node): void {
-							if (ts.isCallExpression(node) && node.expression.getText() === 'Astro.glob') {
-								const globArgument = node.arguments.at(0);
-
-								if (globArgument) {
-									globcodeLens.push(
-										getGlobResultAsCodeLens(
-											globArgument.getText().slice(1, -1),
-											dirname(context.env.uriToFileName(document.uri)),
-											document.positionAt(node.arguments.pos)
-										)
-									);
-								}
+							if (globArgument) {
+								globcodeLens.push(
+									getGlobResultAsCodeLens(
+										globArgument.getText().slice(1, -1),
+										dirname(context!.env.uriToFileName(document.uri)),
+										document.positionAt(node.arguments.pos)
+									)
+								);
 							}
-							return ts.forEachChild(node, cb);
-						});
-					}
+						}
+						return ts.forEachChild(node, cb);
+					});
+				}
 
-					walk();
+				walk();
 
-					return globcodeLens;
-				},
-			};
-		},
+				return globcodeLens;
+			},
+		};
 	};
-};
 
 function getGlobResultAsCodeLens(globText: string, dir: string, position: Position) {
 	const globResult = fg.sync(globText, {

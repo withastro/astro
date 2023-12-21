@@ -1,7 +1,7 @@
 import { convertToTSX } from '@astrojs/compiler/sync';
 import type { ConvertToTSXOptions, TSXResult } from '@astrojs/compiler/types';
 import { decode } from '@jridgewell/sourcemap-codec';
-import type { CodeInformation, VirtualFile } from '@volar/language-core';
+import { FileKind, FileRangeCapabilities, VirtualFile } from '@volar/language-core';
 import { HTMLDocument, TextDocument } from 'vscode-html-languageservice';
 import { patchTSX } from './utils.js';
 
@@ -39,7 +39,7 @@ function safeConvertToTSX(content: string, options: ConvertToTSXOptions) {
 export function astro2tsx(
 	input: string,
 	fileName: string,
-	ts: typeof import('typescript'),
+	ts: typeof import('typescript/lib/tsserverlibrary.js'),
 	htmlDocument: HTMLDocument
 ) {
 	const tsx = safeConvertToTSX(input, { filename: fileName });
@@ -54,13 +54,13 @@ function getVirtualFileTSX(
 	input: string,
 	tsx: TSXResult,
 	fileName: string,
-	ts: typeof import('typescript'),
+	ts: typeof import('typescript/lib/tsserverlibrary.js'),
 	htmlDocument: HTMLDocument
 ): VirtualFile {
 	tsx.code = patchTSX(tsx.code, fileName);
 	const v3Mappings = decode(tsx.map.mappings);
-	const sourcedDoc = TextDocument.create('file://' + fileName, 'astro', 0, input);
-	const genDoc = TextDocument.create('file://' + fileName + '.tsx', 'typescriptreact', 0, tsx.code);
+	const sourcedDoc = TextDocument.create(fileName, 'astro', 0, input);
+	const genDoc = TextDocument.create(fileName + '.tsx', 'typescriptreact', 0, tsx.code);
 
 	const mappings: VirtualFile['mappings'] = [];
 
@@ -93,37 +93,33 @@ function getVirtualFileTSX(
 					const lastMapping = mappings.length ? mappings[mappings.length - 1] : undefined;
 					if (
 						lastMapping &&
-						lastMapping.generatedOffsets[0] + lastMapping.lengths[0] === current.genOffset &&
-						lastMapping.sourceOffsets[0] + lastMapping.lengths[0] === current.sourceOffset
+						lastMapping.generatedRange[1] === current.genOffset &&
+						lastMapping.sourceRange[1] === current.sourceOffset
 					) {
-						lastMapping.lengths[0] += length;
+						lastMapping.generatedRange[1] = current.genOffset + length;
+						lastMapping.sourceRange[1] = current.sourceOffset + length;
 					} else {
 						// Disable features inside script tags. This is a bit annoying to do, I wonder if maybe leaving script tags
 						// unmapped would be better.
 						const node = htmlDocument.findNodeAt(current.sourceOffset);
-						const rangeCapabilities: CodeInformation =
+						const rangeCapabilities: FileRangeCapabilities =
 							node.tag !== 'script'
-								? {
-										verification: true,
-										completion: true,
-										semantic: true,
-										navigation: true,
-										structure: true,
-										format: true,
-								  }
+								? FileRangeCapabilities.full
 								: {
-										verification: false,
 										completion: false,
-										semantic: false,
-										navigation: false,
-										structure: false,
-										format: false,
+										definition: false,
+										diagnostic: false,
+										displayWithLink: false,
+										hover: false,
+										references: false,
+										referencesCodeLens: false,
+										rename: false,
+										semanticTokens: false,
 								  };
 
 						mappings.push({
-							sourceOffsets: [current.sourceOffset],
-							generatedOffsets: [current.genOffset],
-							lengths: [length],
+							sourceRange: [current.sourceOffset, current.sourceOffset + length],
+							generatedRange: [current.genOffset, current.genOffset + length],
 							data: rangeCapabilities,
 						});
 					}
@@ -140,12 +136,27 @@ function getVirtualFileTSX(
 		}
 	}
 
+	const ast = ts.createSourceFile('/a.tsx', tsx.code, ts.ScriptTarget.ESNext);
+	if (ast.statements[0]) {
+		mappings.push({
+			sourceRange: [0, input.length],
+			generatedRange: [ast.statements[0].getStart(ast), tsx.code.length],
+			data: {},
+		});
+	}
+
 	return {
 		fileName: fileName + '.tsx',
-		languageId: 'typescriptreact',
-		typescript: {
-			scriptKind: ts.ScriptKind.TSX,
+		kind: FileKind.TypeScriptHostFile,
+		capabilities: {
+			codeAction: true,
+			documentFormatting: false,
+			diagnostic: true,
+			documentSymbol: true,
+			inlayHint: true,
+			foldingRange: true,
 		},
+		codegenStacks: [],
 		snapshot: {
 			getText: (start, end) => tsx.code.substring(start, end),
 			getLength: () => tsx.code.length,

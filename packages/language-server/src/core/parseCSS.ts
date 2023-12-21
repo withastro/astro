@@ -1,12 +1,8 @@
 import type { ParentNode, ParseResult } from '@astrojs/compiler/types';
 import { is } from '@astrojs/compiler/utils';
-import {
-	buildMappings,
-	Segment,
-	toString,
-	type CodeInformation,
-	type VirtualFile,
-} from '@volar/language-core';
+import { FileKind, FileRangeCapabilities, VirtualFile } from '@volar/language-core';
+import * as SourceMap from '@volar/source-map';
+import * as muggle from 'muggle-string';
 import type ts from 'typescript/lib/tsserverlibrary';
 import type { HTMLDocument, Node } from 'vscode-html-languageservice';
 import type { AttributeNodeWithPosition } from './compilerUtils.js';
@@ -25,38 +21,32 @@ export function extractStylesheets(
 
 	const inlineStyles = findInlineStyles(ast);
 	if (inlineStyles.length > 0) {
-		const codes: Segment<CodeInformation>[] = [];
+		const codes: muggle.Segment<FileRangeCapabilities>[] = [];
 		for (const inlineStyle of inlineStyles) {
 			codes.push('x { ');
 			codes.push([
 				inlineStyle.value,
 				undefined,
 				inlineStyle.position.start.offset + 'style="'.length,
-				// disable all but only keep document colors
-				{
-					verification: false,
-					completion: false,
-					semantic: false,
-					navigation: false,
-					structure: true, // keep document colors
-					format: false,
-				},
+				FileRangeCapabilities.full,
 			]);
 			codes.push(' }\n');
 		}
 
-		const mappings = buildMappings(codes);
-		const text = toString(codes);
+		const mappings = SourceMap.buildMappings(codes);
+		const text = muggle.toString(codes);
 
 		embeddedCSSFiles.push({
 			fileName: fileName + '.inline.css',
-			languageId: 'css',
+			codegenStacks: [],
 			snapshot: {
 				getText: (start, end) => text.substring(start, end),
 				getLength: () => text.length,
 				getChangeRange: () => undefined,
 			},
+			capabilities: { documentSymbol: true },
 			embeddedFiles: [],
+			kind: FileKind.TextFile,
 			mappings,
 		});
 	}
@@ -88,27 +78,26 @@ function findEmbeddedStyles(
 				const styleText = snapshot.getText(node.startTagEnd, node.endTagStart);
 				embeddedCSSFiles.push({
 					fileName: fileName + `.${cssIndex}.css`,
-					languageId: 'css',
+					kind: FileKind.TextFile,
 					snapshot: {
 						getText: (start, end) => styleText.substring(start, end),
 						getLength: () => styleText.length,
 						getChangeRange: () => undefined,
 					},
+					codegenStacks: [],
 					mappings: [
 						{
-							sourceOffsets: [node.startTagEnd],
-							generatedOffsets: [0],
-							lengths: [styleText.length],
-							data: {
-								verification: false,
-								completion: true,
-								semantic: true,
-								navigation: true,
-								structure: true,
-								format: false,
-							},
+							sourceRange: [node.startTagEnd, node.endTagStart],
+							generatedRange: [0, styleText.length],
+							data: FileRangeCapabilities.full,
 						},
 					],
+					capabilities: {
+						diagnostic: false,
+						documentSymbol: true,
+						foldingRange: true,
+						documentFormatting: false,
+					},
 					embeddedFiles: [],
 				});
 				cssIndex++;

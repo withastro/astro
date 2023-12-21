@@ -1,16 +1,18 @@
 import { Range } from '@volar/language-server';
 import { expect } from 'chai';
 import { describe } from 'mocha';
-import { getLanguageServer, type LanguageServer } from '../server.js';
+import { LanguageServer, getLanguageServer } from '../server.js';
 
 describe('Formatting', () => {
 	let languageServer: LanguageServer;
 
-	before(async () => (languageServer = await getLanguageServer()));
+	before(async () => {
+		languageServer = await getLanguageServer();
+	});
 
 	it('Can format document', async () => {
-		const document = await languageServer.openFakeDocument(`---\n\n\n---`, 'astro');
-		const formatEdits = await languageServer.handle.sendDocumentFormattingRequest(document.uri, {
+		const document = await languageServer.helpers.openFakeDocument(`---\n\n\n---`);
+		const formatEdits = await languageServer.helpers.requestFormatting(document, {
 			tabSize: 2,
 			insertSpaces: true,
 		});

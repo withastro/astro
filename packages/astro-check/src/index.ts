@@ -44,20 +44,20 @@ export async function check(flags: Partial<Flags>): Promise<boolean | void> {
 		// Dynamically get the list of extensions to watch from the files already included in the project
 		const checkedExtensions = Array.from(
 			new Set(
-				checker.linter.languageHost.getScriptFileNames().map((fileName) => path.extname(fileName))
+				checker.project.languageHost.getScriptFileNames().map((fileName) => path.extname(fileName))
 			)
 		);
 		createWatcher(workspaceRoot, checkedExtensions)
 			.on('add', (fileName) => {
-				checker.linter.fileCreated(fileName);
+				checker.project.fileCreated(fileName);
 				update();
 			})
 			.on('unlink', (fileName) => {
-				checker.linter.fileDeleted(fileName);
+				checker.project.fileDeleted(fileName);
 				update();
 			})
 			.on('change', (fileName) => {
-				checker.linter.fileUpdated(fileName);
+				checker.project.fileUpdated(fileName);
 				update();
 			});
 	}

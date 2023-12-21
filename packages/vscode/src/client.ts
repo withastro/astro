@@ -1,4 +1,4 @@
-import { DiagnosticModel, type InitializationOptions } from '@volar/language-server';
+import { DiagnosticModel, InitializationOptions } from '@volar/language-server';
 import * as protocol from '@volar/language-server/protocol';
 import {
 	activateAutoInsertion,
@@ -6,9 +6,9 @@ import {
 	activateReloadProjects,
 	activateTsConfigStatusItem,
 	activateTsVersionStatusItem,
-	createLabsInfo,
 	getTsdk,
-	type LabsInfo,
+	supportLabsVersion,
+	type ExportsInfoForLabs,
 } from '@volar/vscode';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
@@ -16,7 +16,7 @@ import * as lsp from 'vscode-languageclient/node';
 
 let client: lsp.BaseLanguageClient;
 
-export async function activate(context: vscode.ExtensionContext): Promise<LabsInfo> {
+export async function activate(context: vscode.ExtensionContext): Promise<ExportsInfoForLabs> {
 	const runtimeConfig = vscode.workspace.getConfiguration('astro.language-server');
 
 	const { workspaceFolders } = vscode.workspace;
@@ -70,22 +70,26 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 	await client.start();
 
 	// support for auto close tag
-	activateAutoInsertion('astro', client);
+	activateAutoInsertion([client], (document) => document.languageId === 'astro');
 	activateFindFileReferences('astro.findFileReferences', client);
-	activateReloadProjects('astro.reloadProjects', client);
-	activateTsConfigStatusItem('astro', 'astro.openTsConfig', client);
+	activateReloadProjects('astro.reloadProjects', [client]);
+	activateTsConfigStatusItem('astro.openTsConfig', client, () => false);
 	activateTsVersionStatusItem(
-		'astro',
 		'astro.selectTypescriptVersion',
 		context,
 		client,
-		(text) => text
+		(document) => document.languageId === 'astro',
+		(text) => text,
+		true
 	);
 
-	const volarLabs = createLabsInfo(protocol);
-	volarLabs.addLanguageClient(client);
-
-	return volarLabs.extensionExports;
+	return {
+		volarLabs: {
+			version: supportLabsVersion,
+			languageClients: [client],
+			languageServerProtocol: protocol,
+		},
+	};
 }
 
 export function deactivate(): Thenable<any> | undefined {

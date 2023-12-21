@@ -50,15 +50,13 @@ describe('parseJS - Can find all the scripts in an Astro file', () => {
 			astroAst
 		);
 
-		scriptTags[0].mappings.forEach((mapping) => {
-			expect(mapping.data).to.deep.equal({
-				verification: true,
-				completion: true,
-				semantic: true,
-				navigation: true,
-				structure: true,
-				format: false,
-			});
+		expect(scriptTags[0].capabilities).to.deep.equal({
+			diagnostic: true,
+			foldingRange: true,
+			documentFormatting: false,
+			documentSymbol: true,
+			codeAction: true,
+			inlayHint: true,
 		});
 	});
 });

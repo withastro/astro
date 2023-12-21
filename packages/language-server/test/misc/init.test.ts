@@ -1,19 +1,19 @@
-import type { InitializeResult, ServerCapabilities } from '@volar/language-server';
+import type { ServerCapabilities } from '@volar/language-server';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
-import { getLanguageServer } from '../server.js';
+import { LanguageServer, getLanguageServer } from '../server.js';
 
 describe('Initialize', async () => {
-	let initializeResult: InitializeResult;
+	let languageServer: LanguageServer;
 
 	before(async function () {
 		// First init can sometimes be slow in CI, even though the rest of the tests will be fast.
 		this.timeout(50000);
-		initializeResult = (await getLanguageServer()).initializeResult;
+		languageServer = await getLanguageServer();
 	});
 
 	it('Can start server', async () => {
-		expect(initializeResult).not.be.null;
+		expect(languageServer.initResult).not.be.null;
 	});
 
 	it('Has proper capabilities', async () => {
@@ -39,16 +39,16 @@ describe('Initialize', async () => {
 			documentSymbolProvider: true,
 			documentFormattingProvider: true,
 			documentRangeFormattingProvider: true,
-			documentOnTypeFormattingProvider: {
-				firstTriggerCharacter: ';',
-				moreTriggerCharacter: ['}', '\n'],
-			},
 			referencesProvider: true,
 			implementationProvider: true,
 			definitionProvider: true,
 			typeDefinitionProvider: true,
 			callHierarchyProvider: true,
 			hoverProvider: true,
+			diagnosticProvider: {
+				interFileDependencies: true,
+				workspaceDiagnostics: false,
+			},
 			renameProvider: { prepareProvider: true },
 			signatureHelpProvider: { triggerCharacters: ['(', ',', '<'], retriggerCharacters: [')'] },
 			completionProvider: {
@@ -143,6 +143,6 @@ describe('Initialize', async () => {
 			workspaceSymbolProvider: true,
 		};
 
-		expect(initializeResult.capabilities).to.deep.equal(capabilities);
+		expect(languageServer.initResult.capabilities).to.deep.equal(capabilities);
 	});
 });
