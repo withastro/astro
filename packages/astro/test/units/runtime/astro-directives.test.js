@@ -47,7 +47,7 @@ describe('Client directives `client:params` special directive', () => {
 				prop2: 'val2',
 			};
 			expect(() => extractDirectives(componentProps, CLIENT_DIRECTIVES)).to.throw(
-				`Expected an object of the form \`{ directive: string, value: string }\`, but got ${JSON.stringify(
+				`Expected an object of the form \`{ directive: string, value?: any }\`, but got ${JSON.stringify(
 					paramsDirectiveValue
 				)}.`
 			);
