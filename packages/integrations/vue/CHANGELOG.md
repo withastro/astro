@@ -1,5 +1,17 @@
 # @astrojs/vue
 
+## 4.0.5
+
+### Patch Changes
+
+- [#9452](https://github.com/withastro/astro/pull/9452) [`e83b5095f`](https://github.com/withastro/astro/commit/e83b5095f164f48ba40fc715a805fc66a3e39dcf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Upgrades vite to latest
+
+## 4.0.4
+
+### Patch Changes
+
+- [#9362](https://github.com/withastro/astro/pull/9362) [`a5db8d2ad`](https://github.com/withastro/astro/commit/a5db8d2ad02275e6cc989bd0a04ff2845f6f34c4) Thanks [@bluwy](https://github.com/bluwy)! - Simplifies `appEntrypoint` handling
+
 ## 4.0.3
 
 ### Patch Changes

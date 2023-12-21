@@ -402,7 +402,8 @@ export class App {
 		request: Request,
 		{ status, response: originalResponse, skipMiddleware = false }: RenderErrorOptions
 	): Promise<Response> {
-		const errorRouteData = matchRoute('/' + status, this.#manifestData);
+		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
+		const errorRouteData = matchRoute(errorRoutePath, this.#manifestData);
 		const url = new URL(request.url);
 		if (errorRouteData) {
 			if (errorRouteData.prerender) {
@@ -455,8 +456,12 @@ export class App {
 		return response;
 	}
 
-	#mergeResponses(newResponse: Response, oldResponse?: Response, override?: { status: 404 | 500 }) {
-		if (!oldResponse) {
+	#mergeResponses(
+		newResponse: Response,
+		originalResponse?: Response,
+		override?: { status: 404 | 500 }
+	) {
+		if (!originalResponse) {
 			if (override !== undefined) {
 				return new Response(newResponse.body, {
 					status: override.status,
@@ -467,21 +472,31 @@ export class App {
 			return newResponse;
 		}
 
-		const { statusText, headers } = oldResponse;
-
 		// If the new response did not have a meaningful status, an override may have been provided
 		// If the original status was 200 (default), override it with the new status (probably 404 or 500)
 		// Otherwise, the user set a specific status while rendering and we should respect that one
 		const status = override?.status
 			? override.status
-			: oldResponse.status === 200
+			: originalResponse.status === 200
 			  ? newResponse.status
-			  : oldResponse.status;
+			  : originalResponse.status;
 
+		try {
+			// this function could throw an error...
+			originalResponse.headers.delete('Content-type');
+		} catch {}
 		return new Response(newResponse.body, {
 			status,
-			statusText: status === 200 ? newResponse.statusText : statusText,
-			headers: new Headers(Array.from(headers)),
+			statusText: status === 200 ? newResponse.statusText : originalResponse.statusText,
+			// If you're looking at here for possible bugs, it means that it's not a bug.
+			// With the middleware, users can meddle with headers, and we should pass to the 404/500.
+			// If users see something weird, it's because they are setting some headers they should not.
+			//
+			// Although, we don't want it to replace the content-type, because the error page must return `text/html`
+			headers: new Headers([
+				...Array.from(newResponse.headers),
+				...Array.from(originalResponse.headers),
+			]),
 		});
 	}
 
