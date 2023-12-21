@@ -39,7 +39,7 @@ export function createExports(manifest: SSRManifest) {
 			return env.ASSETS.fetch(request);
 		}
 
-		let routeData = app.match(request);
+		const routeData = app.match(request);
 		Reflect.set(
 			request,
 			Symbol.for('astro.clientAddress'),
@@ -57,7 +57,7 @@ export function createExports(manifest: SSRManifest) {
 			},
 		};
 
-		let response = await app.render(request, routeData, locals);
+		const response = await app.render(request, routeData, locals);
 
 		if (app.setCookieHeaders) {
 			for (const setCookieHeader of app.setCookieHeaders(response)) {

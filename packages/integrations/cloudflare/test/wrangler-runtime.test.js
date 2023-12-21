@@ -32,30 +32,30 @@ describe('WragnlerRuntime', () => {
 	});
 
 	it('exists', async () => {
-		let res = await fetch(`http://127.0.0.1:8788/`);
-		let html = await res.text();
-		let $ = cheerio.load(html);
+		const res = await fetch('http://127.0.0.1:8788/');
+		const html = await res.text();
+		const $ = cheerio.load(html);
 		expect($('#hasRuntime').text()).to.contain('true');
 	});
 
 	it('has environment variables', async () => {
-		let res = await fetch(`http://127.0.0.1:8788/`);
-		let html = await res.text();
-		let $ = cheerio.load(html);
+		const res = await fetch('http://127.0.0.1:8788/');
+		const html = await res.text();
+		const $ = cheerio.load(html);
 		expect($('#hasENV').text()).to.contain('true');
 	});
 
 	it('has Cloudflare request object', async () => {
-		let res = await fetch(`http://127.0.0.1:8788/`);
-		let html = await res.text();
-		let $ = cheerio.load(html);
+		const res = await fetch('http://127.0.0.1:8788/');
+		const html = await res.text();
+		const $ = cheerio.load(html);
 		expect($('#hasCF').text()).to.contain('true');
 	});
 
 	it('has Cloudflare cache', async () => {
-		let res = await fetch(`http://127.0.0.1:8788/`);
-		let html = await res.text();
-		let $ = cheerio.load(html);
+		const res = await fetch('http://127.0.0.1:8788/');
+		const html = await res.text();
+		const $ = cheerio.load(html);
 		expect($('#hasCACHES').text()).to.contain('true');
 	});
 });

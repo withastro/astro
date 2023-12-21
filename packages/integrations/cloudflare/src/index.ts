@@ -270,7 +270,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						});
 					}
 
-					const outputFiles: Array<string> = await glob(`**/*`, {
+					const outputFiles: Array<string> = await glob('**/*', {
 						cwd: outputDir,
 						filesOnly: true,
 					});
@@ -410,20 +410,16 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						.map((route) => {
 							if (route.component === 'src/pages/404.astro' && route.prerender === false)
 								notFoundIsSSR = true;
-							const includePattern =
-								'/' +
-								route.segments
-									.flat()
-									.map((segment) => (segment.dynamic ? '*' : segment.content))
-									.join('/');
+							const includePattern = `/${route.segments
+								.flat()
+								.map((segment) => (segment.dynamic ? '*' : segment.content))
+								.join('/')}`;
 
 							const regexp = new RegExp(
-								'^\\/' +
-									route.segments
-										.flat()
-										.map((segment) => (segment.dynamic ? '(.*)' : segment.content))
-										.join('\\/') +
-									'$'
+								`^\\/${route.segments
+									.flat()
+									.map((segment) => (segment.dynamic ? '(.*)' : segment.content))
+									.join('\\/')}$`
 							);
 
 							return {
@@ -442,7 +438,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						.filter((file: string) => cloudflareSpecialFiles.indexOf(file) < 0)
 						.map((file: string) => `/${file.replace(/\\/g, '/')}`);
 
-					for (let page of pages) {
+					for (const page of pages) {
 						let pagePath = prependForwardSlash(page.pathname);
 						if (_config.base !== '/') {
 							const base = _config.base.endsWith('/') ? _config.base.slice(0, -1) : _config.base;
@@ -467,15 +463,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								const parts = line.split(' ');
 								if (parts.length < 2) {
 									return null;
-								} else {
-									// convert /products/:id to /products/*
-									return (
-										parts[0]
-											.replace(/\/:.*?(?=\/|$)/g, '/*')
-											// remove query params as they are not supported by cloudflare
-											.replace(/\?.*$/, '')
-									);
 								}
+								// convert /products/:id to /products/*
+								return (
+									parts[0]
+										.replace(/\/:.*?(?=\/|$)/g, '/*')
+										// remove query params as they are not supported by cloudflare
+										.replace(/\?.*$/, '')
+								);
 							})
 							.filter(
 								(line, index, arr) => line !== null && arr.indexOf(line) === index

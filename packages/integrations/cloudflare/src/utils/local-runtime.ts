@@ -83,11 +83,11 @@ class LocalRuntime {
 		this._astroConfig = astroConfig;
 		this._logger = logger;
 
-		let varBindings: Required<Pick<WorkerOptions, 'bindings'>>['bindings'] = {};
-		let kvBindings: Required<Pick<WorkerOptions, 'kvNamespaces'>>['kvNamespaces'] = [];
-		let d1Bindings: Required<Pick<WorkerOptions, 'd1Databases'>>['d1Databases'] = [];
-		let r2Bindings: Required<Pick<WorkerOptions, 'r2Buckets'>>['r2Buckets'] = [];
-		let durableObjectBindings: Required<Pick<WorkerOptions, 'durableObjects'>>['durableObjects'] =
+		const varBindings: Required<Pick<WorkerOptions, 'bindings'>>['bindings'] = {};
+		const kvBindings: Required<Pick<WorkerOptions, 'kvNamespaces'>>['kvNamespaces'] = [];
+		const d1Bindings: Required<Pick<WorkerOptions, 'd1Databases'>>['d1Databases'] = [];
+		const r2Bindings: Required<Pick<WorkerOptions, 'r2Buckets'>>['r2Buckets'] = [];
+		const durableObjectBindings: Required<Pick<WorkerOptions, 'durableObjects'>>['durableObjects'] =
 			{};
 
 		for (const bindingName in runtimeConfig.bindings) {
@@ -280,6 +280,8 @@ export class LocalWorkersRuntime extends LocalRuntime {
 }
 
 export class LocalPagesRuntime extends LocalRuntime {
+
+	// biome-ignore lint/complexity/noUselessConstructor: not types information yet, so we need to disable the rule for the time being
 	public constructor(
 		astroConfig: AstroConfig,
 		runtimeConfig: Extract<RUNTIME, { type: 'pages' }>,

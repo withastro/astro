@@ -31,10 +31,10 @@ describe('SolidJS', () => {
 	});
 
 	it('renders the solid component', async () => {
-		let res = await fetch(`http://127.0.0.1:8788/`);
+		const res = await fetch('http://127.0.0.1:8788/');
 		expect(res.status).to.equal(200);
-		let html = await res.text();
-		let $ = cheerio.load(html);
+		const html = await res.text();
+		const $ = cheerio.load(html);
 		expect($('.solid').text()).to.equal('Solid Content');
 	});
 });

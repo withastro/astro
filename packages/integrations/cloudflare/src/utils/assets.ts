@@ -9,12 +9,15 @@ export function isRemotePath(src: string) {
 export function matchHostname(url: URL, hostname?: string, allowWildcard?: boolean) {
 	if (!hostname) {
 		return true;
-	} else if (!allowWildcard || !hostname.startsWith('*')) {
+	}
+	if (!allowWildcard || !hostname.startsWith('*')) {
 		return hostname === url.hostname;
-	} else if (hostname.startsWith('**.')) {
+	}
+	if (hostname.startsWith('**.')) {
 		const slicedHostname = hostname.slice(2); // ** length
 		return slicedHostname !== url.hostname && url.hostname.endsWith(slicedHostname);
-	} else if (hostname.startsWith('*.')) {
+	}
+	if (hostname.startsWith('*.')) {
 		const slicedHostname = hostname.slice(1); // * length
 		const additionalSubdomains = url.hostname
 			.replace(slicedHostname, '')
@@ -34,12 +37,15 @@ export function matchProtocol(url: URL, protocol?: string) {
 export function matchPathname(url: URL, pathname?: string, allowWildcard?: boolean) {
 	if (!pathname) {
 		return true;
-	} else if (!allowWildcard || !pathname.endsWith('*')) {
+	}
+	if (!allowWildcard || !pathname.endsWith('*')) {
 		return pathname === url.pathname;
-	} else if (pathname.endsWith('/**')) {
+	}
+	if (pathname.endsWith('/**')) {
 		const slicedPathname = pathname.slice(0, -2); // ** length
 		return slicedPathname !== url.pathname && url.pathname.startsWith(slicedPathname);
-	} else if (pathname.endsWith('/*')) {
+	}
+	if (pathname.endsWith('/*')) {
 		const slicedPathname = pathname.slice(0, -1); // * length
 		const additionalPathChunks = url.pathname
 			.replace(slicedPathname, '')
@@ -91,11 +97,11 @@ export function joinPaths(...paths: (string | undefined)[]) {
 		.map((path, i) => {
 			if (i === 0) {
 				return removeTrailingForwardSlash(path);
-			} else if (i === paths.length - 1) {
-				return removeLeadingForwardSlash(path);
-			} else {
-				return trimSlashes(path);
 			}
+			if (i === paths.length - 1) {
+				return removeLeadingForwardSlash(path);
+			}
+			return trimSlashes(path);
 		})
 		.join('/');
 }

@@ -22,8 +22,8 @@ describe('Directory mode', () => {
 	it('generates a redirects file', () => {
 		const testURL = new URL('dist/_redirects', root);
 		try {
-			let _redirects = readFileSync(fileURLToPath(testURL), 'utf-8');
-			let parts = _redirects.split(/\s+/);
+			const _redirects = readFileSync(fileURLToPath(testURL), 'utf-8');
+			const parts = _redirects.split(/\s+/);
 			expect(parts).to.deep.equal(['/old', '/', '301']);
 		} catch (e) {
 			expect(false).to.equal(true);

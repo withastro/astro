@@ -30,12 +30,12 @@ describe('WasmFunctionPerRouteImport', () => {
 	});
 
 	it('can render', async () => {
-		let res = await fetch(`http://127.0.0.1:8788/`);
+		let res = await fetch('http://127.0.0.1:8788/');
 		expect(res.status).to.equal(200);
 		let json = await res.json();
 		expect(json).to.deep.equal({ answer: 42 });
 
-		res = await fetch(`http://127.0.0.1:8788/deeply/nested/route`);
+		res = await fetch('http://127.0.0.1:8788/deeply/nested/route');
 		expect(res.status).to.equal(200);
 		json = await res.json();
 		expect(json).to.deep.equal({ answer: 84 });
