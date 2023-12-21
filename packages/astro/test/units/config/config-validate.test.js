@@ -197,14 +197,14 @@ describe('Config Validation', () => {
 		it('errors if a domains key does not exist', async () => {
 			const configError = await validateConfig(
 				{
-					experimental: {
-						i18n: {
-							defaultLocale: 'en',
-							locales: ['es', 'en'],
-							domains: {
-								lorem: 'https://example.com',
-							},
-							routingStrategy: 'domain',
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						domains: {
+							lorem: 'https://example.com',
+						},
+						routing: {
+							strategy: 'domains',
 						},
 					},
 				},
@@ -219,14 +219,14 @@ describe('Config Validation', () => {
 		it('errors if a domains value is not an URL', async () => {
 			const configError = await validateConfig(
 				{
-					experimental: {
-						i18n: {
-							defaultLocale: 'en',
-							locales: ['es', 'en'],
-							domains: {
-								en: 'www.example.com',
-							},
-							routingStrategy: 'domain',
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						domains: {
+							en: 'www.example.com',
+						},
+						routing: {
+							strategy: 'domains',
 						},
 					},
 				},
@@ -241,14 +241,14 @@ describe('Config Validation', () => {
 		it('errors if a domain is a URL with a pathname that is not the home', async () => {
 			const configError = await validateConfig(
 				{
-					experimental: {
-						i18n: {
-							defaultLocale: 'en',
-							locales: ['es', 'en'],
-							domains: {
-								en: 'https://www.example.com/blog/page/',
-							},
-							routingStrategy: 'domain',
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						domains: {
+							en: 'https://www.example.com/blog/page/',
+						},
+						routing: {
+							strategy: 'domains',
 						},
 					},
 				},
@@ -263,13 +263,11 @@ describe('Config Validation', () => {
 		it('errors if there are domains, and the routing strategy is not correct', async () => {
 			const configError = await validateConfig(
 				{
-					experimental: {
-						i18n: {
-							defaultLocale: 'en',
-							locales: ['es', 'en'],
-							domains: {
-								en: 'https://www.example.com/',
-							},
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						domains: {
+							en: 'https://www.example.com/',
 						},
 					},
 				},
