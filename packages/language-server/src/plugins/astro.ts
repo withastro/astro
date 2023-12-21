@@ -7,8 +7,8 @@ import {
 	InsertTextFormat,
 	Position,
 	Range,
-	ServicePluginInstance,
 	ServicePlugin,
+	ServicePluginInstance,
 	TextEdit,
 } from '@volar/language-server';
 import fg from 'fast-glob';
@@ -18,7 +18,7 @@ import type { TextDocument } from 'vscode-html-languageservice';
 import { AstroFile } from '../core/index.js';
 import { isJSDocument } from './utils.js';
 
-export const create = (ts: typeof import('typescript/lib/tsserverlibrary.js')): ServicePlugin => {
+export const create = (ts: typeof import('typescript')): ServicePlugin => {
 	return {
 		triggerCharacters: ['-'],
 		create(context): ServicePluginInstance {

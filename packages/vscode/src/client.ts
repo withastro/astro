@@ -1,4 +1,4 @@
-import { DiagnosticModel, InitializationOptions } from '@volar/language-server';
+import { DiagnosticModel, type InitializationOptions } from '@volar/language-server';
 import * as protocol from '@volar/language-server/protocol';
 import {
 	activateAutoInsertion,
@@ -6,9 +6,9 @@ import {
 	activateReloadProjects,
 	activateTsConfigStatusItem,
 	activateTsVersionStatusItem,
+	createLabsInfo,
 	getTsdk,
-	supportLabsVersion,
-	type ExportsInfoForLabs,
+	type LabsInfo,
 } from '@volar/vscode';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
@@ -16,7 +16,7 @@ import * as lsp from 'vscode-languageclient/node';
 
 let client: lsp.BaseLanguageClient;
 
-export async function activate(context: vscode.ExtensionContext): Promise<ExportsInfoForLabs> {
+export async function activate(context: vscode.ExtensionContext): Promise<LabsInfo> {
 	const runtimeConfig = vscode.workspace.getConfiguration('astro.language-server');
 
 	const { workspaceFolders } = vscode.workspace;
@@ -82,13 +82,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<Export
 		(text) => text
 	);
 
-	return {
-		volarLabs: {
-			version: supportLabsVersion,
-			languageClient: client,
-			languageServerProtocol: protocol,
-		},
-	};
+	const volarLabs = createLabsInfo(protocol);
+	volarLabs.addLanguageClient(client);
+
+	return volarLabs.extensionExports;
 }
 
 export function deactivate(): Thenable<any> | undefined {

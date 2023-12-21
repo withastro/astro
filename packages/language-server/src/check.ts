@@ -138,11 +138,7 @@ export class AstroCheck {
 		const services = [createTypeScriptService(this.ts), createAstroService(this.ts)];
 
 		if (tsconfigPath) {
-			this.linter = kit.createTypeScriptChecker(languages, services, tsconfigPath, [
-				{ extension: 'astro', isMixedContent: true, scriptKind: 7 },
-				{ extension: 'vue', isMixedContent: true, scriptKind: 7 },
-				{ extension: 'svelte', isMixedContent: true, scriptKind: 7 },
-			]);
+			this.linter = kit.createTypeScriptChecker(languages, services, tsconfigPath);
 		} else {
 			this.linter = kit.createTypeScriptInferredChecker(languages, services, () => {
 				return fg.sync('**/*.astro', {

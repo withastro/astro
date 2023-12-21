@@ -39,7 +39,7 @@ function safeConvertToTSX(content: string, options: ConvertToTSXOptions) {
 export function astro2tsx(
 	input: string,
 	fileName: string,
-	ts: typeof import('typescript/lib/tsserverlibrary.js'),
+	ts: typeof import('typescript'),
 	htmlDocument: HTMLDocument
 ) {
 	const tsx = safeConvertToTSX(input, { filename: fileName });
@@ -54,7 +54,7 @@ function getVirtualFileTSX(
 	input: string,
 	tsx: TSXResult,
 	fileName: string,
-	ts: typeof import('typescript/lib/tsserverlibrary.js'),
+	ts: typeof import('typescript'),
 	htmlDocument: HTMLDocument
 ): VirtualFile {
 	tsx.code = patchTSX(tsx.code, fileName);

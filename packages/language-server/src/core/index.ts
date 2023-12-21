@@ -12,7 +12,7 @@ import { extractScriptTags } from './parseJS.js';
 
 export function getLanguageModule(
 	astroInstall: AstroInstall | undefined,
-	ts: typeof import('typescript/lib/tsserverlibrary.js')
+	ts: typeof import('typescript')
 ): LanguagePlugin<AstroFile> {
 	return {
 		createVirtualFile(fileName, languageId, snapshot) {
@@ -24,6 +24,7 @@ export function getLanguageModule(
 			astroFile.update(snapshot);
 		},
 		typescript: {
+			extraFileExtensions: [{ extension: 'astro', isMixedContent: true, scriptKind: 7 }],
 			resolveSourceFileName(tsFileName) {
 				const baseName = path.basename(tsFileName);
 				if (baseName.indexOf('.astro.')) {
@@ -93,7 +94,7 @@ export class AstroFile implements VirtualFile {
 	constructor(
 		public sourceFileName: string,
 		public snapshot: ts.IScriptSnapshot,
-		private readonly ts: typeof import('typescript/lib/tsserverlibrary.js')
+		private readonly ts: typeof import('typescript')
 	) {
 		this.fileName = sourceFileName;
 		this.onSnapshotUpdated();
