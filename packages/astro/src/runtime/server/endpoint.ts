@@ -40,5 +40,5 @@ export async function renderEndpoint(
 		});
 	}
 
-	return handler.call(mod, context as APIContext & Params, request);
+	return handler.call(mod, context);
 }
