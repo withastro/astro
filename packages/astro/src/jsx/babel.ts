@@ -4,6 +4,7 @@ import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import { resolvePath } from '../core/util.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
+import { normalizeClientParamsDirective } from '../core/client-directive/utils.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
@@ -194,6 +195,10 @@ export default function astroJSX(): PluginObj {
 				}
 				const parent = path.findParent((n) => t.isJSXElement(n.node))!;
 				const parentNode = parent.node as t.JSXElement;
+
+				// normalize `client:params` directives
+				normalizeParamsDirectives(parentNode);
+
 				const tagName = getTagName(parentNode);
 				if (!isComponent(tagName)) return;
 				if (!hasClientDirective(parentNode)) return;
@@ -253,6 +258,10 @@ export default function astroJSX(): PluginObj {
 				if (isAttr) return;
 				const parent = path.findParent((n) => t.isJSXElement(n.node))!;
 				const parentNode = parent.node as t.JSXElement;
+
+				// normalize `client:params` directives
+				normalizeParamsDirectives(parentNode);
+
 				const tagName = getTagName(parentNode);
 				if (!isComponent(tagName)) return;
 				if (!hasClientDirective(parentNode)) return;
@@ -322,4 +331,45 @@ export default function astroJSX(): PluginObj {
 			},
 		},
 	};
+}
+
+// transforms `client:params={{directive: "directive-name", value: "directive-value" }}`
+// to `client:directive-name="directive-value"`
+// TODO: test this
+function normalizeParamsDirectives(node: t.JSXElement) {
+	for (const [i, attr] of node.openingElement.attributes.entries()) {
+		if (isAttributeClientParams(attr)) {
+			//  if the attribute is client:params
+			//  we normalize it to client:directive-name="directive-value"
+
+			// @ts-expect-error
+			const attributeValue = attr.value.expression || attr.value.value;
+			const maybeNormalizedDirective = normalizeClientParamsDirective(attributeValue);
+			if (!maybeNormalizedDirective) {
+				continue;
+			}
+			const { directive, value: directiveValue } = maybeNormalizedDirective;
+			const newAttr = t.jsxAttribute(
+				t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier(directive)),
+				typeof directiveValue === 'string'
+					? t.stringLiteral(directiveValue)
+					: t.jsxExpressionContainer(directiveValue as t.Expression)
+			);
+			node.openingElement.attributes[i] = newAttr;
+		}
+	}
+}
+
+function isAttributeClientParams(
+	attribute: t.JSXAttribute | t.JSXSpreadAttribute
+): attribute is t.JSXAttribute {
+	// TODO: support spread attributes
+	if (attribute.type === 'JSXAttribute' && attribute.name.type === 'JSXNamespacedName') {
+		return jsxAttributeToString(attribute) === 'client:params';
+	}
+	return false;
+}
+
+function isNonNullish<T>(value: T | null | undefined): value is T {
+	return value !== null && value !== undefined;
 }

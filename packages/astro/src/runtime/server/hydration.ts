@@ -4,10 +4,10 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro.js';
+import { normalizeClientParamsDirective } from '../../core/client-directive/utils.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { escapeHTML } from './escape.js';
 import { serializeProps } from './serialize.js';
-import { isNullish, isObject } from './util.js';
 
 export interface HydrationMetadata {
 	directive: string;
@@ -80,41 +80,14 @@ export function extractDirectives(
 					// standard cliend directives.
 					// (e.g `client:params={{directive: 'media', value: '(min-width: 640px)'}}`
 					// => `client:media="(min-width: 640px)"`)
-					const maybeDirectiveOptions = value;
+					const maybeNormalizedDirective = normalizeClientParamsDirective(value);
 
-					// skip the transform if the value is nullish
-					if (isNullish(maybeDirectiveOptions)) {
+					if (!maybeNormalizedDirective) {
 						break;
 					}
 
-					if (!isObject(maybeDirectiveOptions)) {
-						throw new Error(
-							`Error: invalid \`params\` directive value ${JSON.stringify(
-								maybeDirectiveOptions
-							)}. Expected an object of the form \`{ directive: string, value?: any }\`, but got ${typeof maybeDirectiveOptions}.`
-						);
-					}
-
-					// validate the object shape
-					// it should only have two keys: `directive` and `value` (which is optional)
-					for (let _key of Object.keys(maybeDirectiveOptions)) {
-						if (_key !== 'directive' && _key !== 'value') {
-							throw new Error(
-								`Error: invalid \`params\` directive value. Expected an object of the form \`{ directive: string, value?: any }\`, but got ${JSON.stringify(
-									maybeDirectiveOptions
-								)}.`
-							);
-						}
-					}
-
-					if (typeof maybeDirectiveOptions.directive !== 'string') {
-						throw new Error(
-							`Error: expected \`directive\` to be a string, but got ${typeof maybeDirectiveOptions.directive}.`
-						);
-					}
-
-					key = `client:${maybeDirectiveOptions.directive}`;
-					value = maybeDirectiveOptions.value;
+					key = `client:${maybeNormalizedDirective.directive}`;
+					value = maybeNormalizedDirective.value;
 					// intentionally fall-through to the next case
 				}
 
