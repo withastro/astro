@@ -1,5 +1,13 @@
 # @astrojs/check
 
+## 0.3.4
+
+### Patch Changes
+
+- b16fcbb: Temporarily disable checking `.jsx` and `.tsx` files using `astro check` until https://github.com/withastro/language-tools/issues/727 is fixed
+- Updated dependencies [b16fcbb]
+  - @astrojs/language-server@2.5.5
+
 ## 0.3.3
 
 ### Patch Changes
