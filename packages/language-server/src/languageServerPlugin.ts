@@ -19,7 +19,7 @@ import { create as createEmmetService } from 'volar-service-emmet';
 import { create as createPrettierService } from 'volar-service-prettier';
 import { create as createTypeScriptTwoSlashService } from 'volar-service-typescript-twoslash-queries';
 
-import type { ServerOptions, createServer } from '@volar/language-server/lib/server.js';
+import type { createServer, ServerOptions } from '@volar/language-server/lib/server.js';
 import { create as createAstroService } from './plugins/astro.js';
 import { create as createHtmlService } from './plugins/html.js';
 import { create as createTypescriptAddonsService } from './plugins/typescript-addons/index.js';

@@ -1,4 +1,4 @@
-import type { CompletionList, ServicePluginInstance, ServicePlugin } from '@volar/language-server';
+import type { CompletionList, ServicePlugin, ServicePluginInstance } from '@volar/language-server';
 import { AstroFile } from '../../core/index.js';
 import { isInsideFrontmatter, isJSDocument } from '../utils.js';
 import { getSnippetCompletions } from './snippets.js';
