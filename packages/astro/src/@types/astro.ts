@@ -34,7 +34,7 @@ import type {
 	DevOverlayWindow,
 } from '../runtime/client/dev-overlay/ui-library/index.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
-import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
+import type { DeepPartial, Nullable, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
 export { type AstroIntegrationLogger };
@@ -66,15 +66,29 @@ export type { RemotePattern } from '../assets/utils/remotePattern.js';
 export type { SSRManifest } from '../core/app/types.js';
 export type { AstroCookies } from '../core/cookies/index.js';
 
-type ClientParamsProp = null | { directive: string; value: any };
-export interface AstroBuiltinProps {
+export type ExtractClientDirective<T> = T extends `client:${infer Directive}` ? Directive : never;
+export type DirectivesMapToUnion<T> = {
+	[K in keyof T]: { directive: ExtractClientDirective<K>; value?: T[K] };
+}[keyof T];
+
+interface AllClientDirectives extends AstroClientDirectives, AstroBuiltinClientDirectives {}
+type ClientParamsValue = Nullable<DirectivesMapToUnion<AllClientDirectives>>;
+
+export interface AstroSpecialClientParamsDirective {
+	'client:params'?: ClientParamsValue;
+}
+
+export interface AstroBuiltinClientDirectives {
 	'client:load'?: boolean;
 	'client:idle'?: boolean;
 	'client:media'?: string;
 	'client:visible'?: boolean;
 	'client:only'?: boolean | string;
-	'client:params'?: ClientParamsProp;
 }
+
+export interface AstroBuiltinProps
+	extends AstroBuiltinClientDirectives,
+		AstroSpecialClientParamsDirective {}
 
 export interface TransitionAnimation {
 	name: string; // The name of the keyframe
