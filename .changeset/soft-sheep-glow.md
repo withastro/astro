@@ -15,4 +15,4 @@
 '@astrojs/vue': patch
 ---
 
-Update README
+Updates README
