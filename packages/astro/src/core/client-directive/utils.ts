@@ -37,7 +37,7 @@ export function normalizeClientParamsDirective(value: any) {
 		);
 	}
 	return {
-		directive: `client:${maybeDirectiveOptions.directive}`,
+		directive: maybeDirectiveOptions.directive,
 		value: maybeDirectiveOptions.value,
 	};
 }
