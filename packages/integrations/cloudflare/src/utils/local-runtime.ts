@@ -280,7 +280,6 @@ export class LocalWorkersRuntime extends LocalRuntime {
 }
 
 export class LocalPagesRuntime extends LocalRuntime {
-
 	// biome-ignore lint/complexity/noUselessConstructor: not types information yet, so we need to disable the rule for the time being
 	public constructor(
 		astroConfig: AstroConfig,
