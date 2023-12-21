@@ -10,8 +10,8 @@ describe('SSR - Redirects', () => {
 	});
 
 	it('Creates a redirects file', async () => {
-		let redirects = await fixture.readFile('./_redirects');
-		let parts = redirects.split(/\s+/);
+		const redirects = await fixture.readFile('./_redirects');
+		const parts = redirects.split(/\s+/);
 		expect(parts).to.deep.equal(['', '/other', '/', '301', '']);
 		expect(redirects).to.matchSnapshot();
 	});

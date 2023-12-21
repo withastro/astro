@@ -5,8 +5,8 @@ import { applyPolyfills } from 'astro/app/node';
 
 applyPolyfills();
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Args {}
+// biome-ignore lint/complexity/noBannedTypes: safe to use in this case
+export type Args = {};
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
@@ -20,8 +20,9 @@ export const createExports = (manifest: SSRManifest, _args: Args) => {
 
 			let locals: Record<string, unknown> = {};
 
-			if (request.headers.has('x-astro-locals')) {
-				locals = JSON.parse(request.headers.get('x-astro-locals')!);
+			const astroLocalsHeader = request.headers.get('x-astro-locals');
+			if (astroLocalsHeader) {
+				locals = JSON.parse(astroLocalsHeader);
 			}
 
 			locals.netlify = { context };

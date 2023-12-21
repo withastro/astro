@@ -91,7 +91,7 @@ export default function netlifyIntegration(
 		});
 
 		if (!redirects.empty()) {
-			await appendFile(new URL('_redirects', outDir), '\n' + redirects.print() + '\n');
+			await appendFile(new URL('_redirects', outDir), `\n${redirects.print()}\n`);
 		}
 	}
 

@@ -11,7 +11,7 @@ describe('SSG - Redirects', () => {
 
 	it('Creates a redirects file', async () => {
 		const redirects = await fixture.readFile('./_redirects');
-		let parts = redirects.split(/\s+/);
+		const parts = redirects.split(/\s+/);
 		expect(parts).to.deep.equal([
 			'',
 

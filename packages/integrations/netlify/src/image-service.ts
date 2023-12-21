@@ -24,11 +24,11 @@ const service: ExternalImageService = {
 		query.set('url', fileSrc);
 
 		if (options.format) query.set('fm', options.format);
-		if (options.width) query.set('w', '' + options.width);
-		if (options.height) query.set('h', '' + options.height);
-		if (options.quality) query.set('q', '' + options.quality);
+		if (options.width) query.set('w', `${options.width}`);
+		if (options.height) query.set('h', `${options.height}`);
+		if (options.quality) query.set('q', `${options.quality}`);
 
-		return '/.netlify/images?' + query;
+		return `/.netlify/images?${query}`;
 	},
 	getHTMLAttributes: baseService.getHTMLAttributes,
 	getSrcSet: baseService.getSrcSet,
@@ -46,7 +46,7 @@ const service: ExternalImageService = {
 			if (options.quality < 1 || options.quality > 100) {
 				throw new AstroError(
 					`Invalid quality for picture "${options.src}"`,
-					`Quality needs to be between 1 and 100.`
+					'Quality needs to be between 1 and 100.'
 				);
 			}
 		}

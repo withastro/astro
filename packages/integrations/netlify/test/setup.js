@@ -3,7 +3,7 @@ import chaiJestSnapshot from 'chai-jest-snapshot';
 
 use(chaiJestSnapshot);
 
-before(function () {
+before(() => {
 	chaiJestSnapshot.resetSnapshotRegistry();
 });
 
