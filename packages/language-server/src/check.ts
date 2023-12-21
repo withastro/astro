@@ -33,6 +33,9 @@ export class AstroCheck {
 	public project!: ReturnType<typeof kit.createProject>;
 	private linter!: ReturnType<typeof kit.createLinter>;
 
+	// TODO: Remove this when the JSX typing issue is fixed
+	private skipJSX = false;
+
 	constructor(
 		private readonly workspacePath: string,
 		private readonly typescriptPath: string | undefined,
@@ -60,8 +63,12 @@ export class AstroCheck {
 			  }
 			| undefined;
 	}): Promise<CheckResult> {
-		const files =
+		let files =
 			fileNames !== undefined ? fileNames : this.project.languageHost.getScriptFileNames();
+
+		if (this.skipJSX) {
+			files = files.filter((file) => !file.endsWith('.jsx') && !file.endsWith('.tsx'));
+		}
 
 		const result: CheckResult = {
 			status: undefined,
@@ -160,6 +167,14 @@ export class AstroCheck {
 					absolute: true,
 				});
 			});
+		}
+
+		const files = this.project.languageHost.getScriptFileNames();
+		if (files.some((file) => file.endsWith('.jsx') || file.endsWith('.tsx'))) {
+			console.warn(
+				'\x1b[33;1mWARNING:\x1b[0m Checking `.jsx` and `.tsx` files is temporarily disabled due to an issue in the Astro language server and TypeScript. See https://github.com/withastro/language-tools/issues/727 for more details. In the meantime, such files can be checked using `tsc --noEmit`.'
+			);
+			this.skipJSX = true;
 		}
 
 		this.linter = kit.createLinter(config, this.project.languageHost);
