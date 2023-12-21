@@ -91,7 +91,7 @@ export function extractDirectives(
 						throw new Error(
 							`Error: invalid \`params\` directive value ${JSON.stringify(
 								maybeDirectiveOptions
-							)}. Expected an object of the form \`{ directive: string, value: string }\`, but got ${typeof maybeDirectiveOptions}.`
+							)}. Expected an object of the form \`{ directive: string, value?: any }\`, but got ${typeof maybeDirectiveOptions}.`
 						);
 					}
 
@@ -100,7 +100,7 @@ export function extractDirectives(
 					for (let _key of Object.keys(maybeDirectiveOptions)) {
 						if (_key !== 'directive' && _key !== 'value') {
 							throw new Error(
-								`Error: invalid \`params\` directive value. Expected an object of the form \`{ directive: string, value: string }\`, but got ${JSON.stringify(
+								`Error: invalid \`params\` directive value. Expected an object of the form \`{ directive: string, value?: any }\`, but got ${JSON.stringify(
 									maybeDirectiveOptions
 								)}.`
 							);
