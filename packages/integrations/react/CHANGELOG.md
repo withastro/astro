@@ -1,5 +1,13 @@
 # @astrojs/react
 
+## 3.0.8
+
+### Patch Changes
+
+- [#9403](https://github.com/withastro/astro/pull/9403) [`7eb9fe8a7`](https://github.com/withastro/astro/commit/7eb9fe8a717dd2b66b1d541e1aa4d3eb5d959ddf) Thanks [@knpwrs](https://github.com/knpwrs)! - Prevents unsupported `forwardRef` components created by Preact from being rendered by React
+
+- [#9452](https://github.com/withastro/astro/pull/9452) [`e83b5095f`](https://github.com/withastro/astro/commit/e83b5095f164f48ba40fc715a805fc66a3e39dcf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Upgrades vite to latest
+
 ## 3.0.7
 
 ### Patch Changes

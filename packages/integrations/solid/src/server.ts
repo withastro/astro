@@ -6,6 +6,7 @@ const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w
 
 function check(this: RendererContext, Component: any, props: Record<string, any>, children: any) {
 	if (typeof Component !== 'function') return false;
+	if (Component.name === 'QwikComponent') return false;
 	const { html } = renderToStaticMarkup.call(this, Component, props, children);
 	return typeof html === 'string';
 }

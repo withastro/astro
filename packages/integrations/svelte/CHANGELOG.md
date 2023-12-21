@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 5.0.2
+
+### Patch Changes
+
+- [#9452](https://github.com/withastro/astro/pull/9452) [`e83b5095f`](https://github.com/withastro/astro/commit/e83b5095f164f48ba40fc715a805fc66a3e39dcf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Upgrades vite to latest
+
 ## 5.0.1
 
 ### Patch Changes
