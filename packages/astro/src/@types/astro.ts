@@ -1565,6 +1565,25 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		contentCollectionCache?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.i18nDomains
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.1.0
+		 * @description
+		 * Enables domain support for internationalization routing
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 * 		i18nDomains: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		i18nDomains?: boolean;
 	};
 }
 
@@ -2616,4 +2635,9 @@ declare global {
 	}
 }
 
-export type RoutingStrategy = 'prefix-always' | 'prefix-other-locales' | 'domain' | undefined;
+export type RoutingStrategy =
+	| 'prefix-always'
+	| 'prefix-other-locales'
+	| 'domains-prefix-default'
+	| 'domains'
+	| undefined;

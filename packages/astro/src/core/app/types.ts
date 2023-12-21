@@ -56,7 +56,7 @@ export type SSRManifest = {
 
 export type SSRManifestI18n = {
 	fallback?: Record<string, string>;
-	routing?: 'prefix-always' | 'prefix-other-locales' | 'domain';
+	routing?: 'prefix-always' | 'prefix-other-locales' | 'domains' | 'domains-prefix-default';
 	locales: Locales;
 	defaultLocale: string;
 	domainLookupTable: Record<string, string>;

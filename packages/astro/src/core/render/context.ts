@@ -32,7 +32,12 @@ export interface RenderContext {
 	locals?: object;
 	locales: Locales | undefined;
 	defaultLocale: string | undefined;
-	routing: 'prefix-always' | 'prefix-other-locales' | 'domain' | undefined;
+	routing:
+		| 'prefix-always'
+		| 'prefix-other-locales'
+		| 'domains'
+		| 'domains-prefix-default'
+		| undefined;
 }
 
 export type CreateRenderContextArgs = Partial<
@@ -257,7 +262,7 @@ export function computeCurrentLocale(
 			}
 		}
 	}
-	if (routingStrategy === 'prefix-other-locales' || routingStrategy === 'domain') {
+	if (routingStrategy === 'prefix-other-locales' || routingStrategy === 'domains') {
 		return defaultLocale;
 	}
 	return undefined;

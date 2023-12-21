@@ -137,25 +137,26 @@ export function getLocaleRelativeUrlList({
 
 export function getLocaleAbsoluteUrlList({
 	base,
-	locales,
+	locales: _locales,
 	trailingSlash,
 	format,
 	path,
 	prependWith,
 	normalizeLocale = true,
-	routingStrategy = 'prefix-other-locales',
+	routing = 'prefix-other-locales',
 	defaultLocale,
 	isBuild,
 	domains,
 	site,
 }: GetLocaleAbsoluteUrl) {
+	const locales = toPaths(_locales);
 	return locales.map((currentLocale) => {
 		const pathsToJoin = [];
 		const normalizedLocale = normalizeLocale ? normalizeTheLocale(currentLocale) : currentLocale;
 		const domainBase = domains ? domains[currentLocale] : undefined;
 		if (isBuild && domainBase) {
 			if (domainBase) {
-				pathsToJoin.push(domains[currentLocale]);
+				pathsToJoin.push(domainBase);
 			} else {
 				pathsToJoin.push(site);
 			}
@@ -167,7 +168,7 @@ export function getLocaleAbsoluteUrlList({
 			}
 			pathsToJoin.push(base);
 			pathsToJoin.push(prependWith);
-			if (routingStrategy === 'prefix-always') {
+			if (routing === 'prefix-always') {
 				pathsToJoin.push(normalizedLocale);
 			} else if (currentLocale !== defaultLocale) {
 				pathsToJoin.push(normalizedLocale);

@@ -58,6 +58,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		optimizeHoistedScript: false,
 		contentCollectionCache: false,
+		i18nDomains: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -341,20 +342,19 @@ export const AstroConfigSchema = z.object({
 						switch (routing.strategy) {
 							case 'pathname': {
 								if (routing.prefixDefaultLocale === true) {
-									strategy = 'prefix-always';
+									return 'prefix-always';
 								} else {
-									strategy = 'prefix-other-locales';
+									return 'prefix-other-locales';
 								}
 							}
 							case 'domains': {
 								if (routing.prefixDefaultLocale === true) {
-									strategy = 'domains-prefix-default';
+									return 'domains-prefix-default';
 								} else {
-									strategy = 'domains';
+									return 'domains';
 								}
 							}
 						}
-						return strategy;
 					}),
 			})
 			.optional()
@@ -401,7 +401,7 @@ export const AstroConfigSchema = z.object({
 					if (domains) {
 						const entries = Object.entries(domains);
 						if (entries.length > 0) {
-							if (routing !== 'domain') {
+							if (routing !== 'domains') {
 								ctx.addIssue({
 									code: z.ZodIssueCode.custom,
 									message: `When specifying some domains, the property \`i18n.routingStrategy\` must be set to \`"domain"\`.`,
@@ -442,6 +442,7 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
+			i18nDomain: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.i18nDomains),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`
@@ -559,6 +560,20 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		.refine((obj) => !obj.outDir.toString().startsWith(obj.publicDir.toString()), {
 			message:
 				'The value of `outDir` must not point to a path within the folder set as `publicDir`, this will cause an infinite loop',
+		})
+		.superRefine((configuration, ctx) => {
+			const { site, experimental, i18n } = configuration;
+			if (experimental.i18nDomain) {
+				if (i18n?.routing === 'domains' || i18n?.routing === 'domains-prefix-default') {
+					if (!site) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message:
+								"The option `site` isn't set. When availing of the domain support, `site` is required to create absolute URLs for locales that aren't mapped to a domain.",
+						});
+					}
+				}
+			}
 		});
 
 	return AstroConfigRelativeSchema;

@@ -158,7 +158,11 @@ export class App {
 		let pathname: string | undefined = undefined;
 		const url = new URL(request.url);
 
-		if (this.#manifest.i18n && this.#manifest.i18n.routingStrategy === 'domain') {
+		if (
+			this.#manifest.i18n &&
+			(this.#manifest.i18n.routing === 'domains' ||
+				this.#manifest.i18n.routing === 'domains-prefix-default')
+		) {
 			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
 			let host = request.headers.get('X-Forwarded-Host');
 			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto
