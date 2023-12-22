@@ -39,7 +39,10 @@
     "./tsconfigs/*.json": "./tsconfigs/*",
     "./tsconfigs/*": "./tsconfigs/*.json",
     "./jsx/*": "./dist/jsx/*",
-    "./jsx-runtime": "./dist/jsx-runtime/index.js",
+    "./jsx-runtime": {
+      "types": "./jsx-runtime.d.ts",
+      "default": "./dist/jsx-runtime/index.js"
+    },
     "./compiler-runtime": "./dist/runtime/compiler/index.js",
     "./runtime/*": "./dist/runtime/*",
     "./config": {
