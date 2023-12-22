@@ -33,7 +33,7 @@ export async function template(
 		await info('--dry-run', `Skipping template copying`);
 	} else if (ctx.template) {
 		ctx.tasks.push({
-			pending: 'Copy template',
+			pending: 'Template',
 			start: 'Template copying...',
 			end: 'Template copied',
 			while: () =>

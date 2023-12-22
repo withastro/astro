@@ -29,7 +29,7 @@ export async function git(
 		await info('--dry-run', `Skipping Git initialization`);
 	} else if (_git) {
 		ctx.tasks.push({
-			pending: 'Initialize git',
+			pending: 'Git',
 			start: 'Git initializing...',
 			end: 'Git initialized',
 			while: () =>

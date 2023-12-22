@@ -70,7 +70,7 @@ export async function typescript(ctx: PickedTypeScriptContext) {
 			ts = 'base';
 		}
 		ctx.tasks.push({
-			pending: 'Customize TypeScript',
+			pending: 'TypeScript',
 			start: 'TypeScript customizing...',
 			end: 'TypeScript customized',
 			while: () =>

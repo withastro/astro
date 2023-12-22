@@ -25,8 +25,8 @@ export async function dependencies(
 		await info('--dry-run', `Skipping dependency installation`);
 	} else if (deps) {
 		ctx.tasks.push({
-			pending: 'Install dependencies',
-			start: `Installing dependencies with ${ctx.packageManager}...`,
+			pending: 'Dependencies',
+			start: `Dependencies installing with ${ctx.packageManager}...`,
 			end: 'Dependencies installed',
 			onError: (e) => {
 				error('error', e);

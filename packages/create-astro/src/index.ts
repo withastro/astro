@@ -54,7 +54,7 @@ export async function main() {
 	console.log('');
 
 	const labels = {
-		start: 'Initializing project...',
+		start: 'Project initializing...',
 		end: 'Project initialized!',
 	};
 	await tasks(labels, ctx.tasks);
