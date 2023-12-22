@@ -450,6 +450,23 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @name pagesDir
+	 * @type {string}
+	 * @default `"./pages"`
+	 * @description Set the directory that Astro pages are served from.
+	 *
+	 * The value is always relative to the project's source directory.
+	 *
+	 * ```js
+	 * {
+	 *   pagesDir: './site'
+	 * }
+	 * ```
+	 */
+	pagesDir?: string;
+
+	/**
+	 * @docs
 	 * @name publicDir
 	 * @type {string}
 	 * @default `"./public"`

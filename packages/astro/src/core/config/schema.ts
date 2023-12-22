@@ -24,6 +24,7 @@ type ShikiTheme = NonNullable<ShikiConfig['theme']>;
 const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
 	srcDir: './src',
+	pagesDir: './pages',
 	publicDir: './public',
 	outDir: './dist',
 	cacheDir: './node_modules/.astro',
@@ -73,6 +74,11 @@ export const AstroConfigSchema = z.object({
 		.string()
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.srcDir)
+		.transform((val) => new URL(val)),
+	pagesDir: z
+		.string()
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.pagesDir)
 		.transform((val) => new URL(val)),
 	publicDir: z
 		.string()
@@ -413,6 +419,10 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 			.default(ASTRO_CONFIG_DEFAULTS.srcDir)
 			.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 		compressHTML: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.compressHTML),
+		pagesDir: z
+			.string()
+			.default(ASTRO_CONFIG_DEFAULTS.pagesDir)
+			.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 		publicDir: z
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.publicDir)

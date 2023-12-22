@@ -104,7 +104,7 @@ export function unwrapId(id: string): string {
 }
 
 export function resolvePages(config: AstroConfig) {
-	return new URL('./pages', config.srcDir);
+	return new URL(config.pagesDir, config.srcDir);
 }
 
 function isInPagesDir(file: URL, config: AstroConfig): boolean {
