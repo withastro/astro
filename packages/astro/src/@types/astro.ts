@@ -735,7 +735,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 *
-	   *  
+		 *
 		 *
 		 * #### Effect on Astro.url
 		 * Setting `build.format` controls what `Astro.url` is set to during the build. When it is:
