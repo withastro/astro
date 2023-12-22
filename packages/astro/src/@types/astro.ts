@@ -722,7 +722,7 @@ export interface AstroUserConfig {
 		 * @typeraw {('file' | 'directory')}
 		 * @default `'directory'`
 		 * @description
-		 * Control the output file format of each page. This value may be set by your adapter for you.
+		 * Control the output file format of each page. This value may be set by an adapter for you.
 		 *   - If `'file'`, Astro will generate an HTML file (ex: "/foo.html") for each page.
 		 *   - If `'directory'`, Astro will generate a directory with a nested `index.html` file (ex: "/foo/index.html") for each page.
 		 *
