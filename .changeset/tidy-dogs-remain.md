@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Adds helpful message for when the API Route export is not uppercase.
+Adds a helpful warning message for when an exported API Route is not uppercase.
