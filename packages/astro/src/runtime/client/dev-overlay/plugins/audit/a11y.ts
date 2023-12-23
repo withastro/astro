@@ -358,7 +358,18 @@ export const a11y: AuditRuleWithSelector[] = [
 		match(element: HTMLElement) {
 			// innerText is used to ignore hidden text
 			const innerText = element.innerText.trim();
-			if (innerText === '') return true;
+			// Check for aria-label
+			const ariaLabel = element.getAttribute('aria-label')?.trim();
+			// Check for valid aria-labelledby
+			let ariaLabelledbyValid = false;
+			const ariaLabelledby = element.getAttribute('aria-labelledby')?.trim();
+			if (ariaLabelledby) {
+				// Split the IDs and check if each element exists
+				ariaLabelledbyValid = ariaLabelledby.split(' ').every(id => !!document.getElementById(id));
+			}
+		
+			// Return true if innerText, ariaLabel, and ariaLabelledby are all empty or invalid
+			return innerText === '' && (!ariaLabel || ariaLabel === '') && !ariaLabelledbyValid;
 		},
 	},
 	{
