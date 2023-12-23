@@ -122,6 +122,9 @@ export interface VercelServerlessConfig {
 
 	/** The maximum duration (in seconds) that Serverless Functions can run before timing out. See the [Vercel documentation](https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration) for the default and maximum limit for your account plan. */
 	maxDuration?: number;
+
+	/** Whether to cache on-demand rendered pages in the same way as static files. */
+	isr?: boolean;
 }
 
 export default function vercelServerless({
@@ -135,6 +138,7 @@ export default function vercelServerless({
 	functionPerRoute = false,
 	edgeMiddleware = false,
 	maxDuration,
+	isr = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	if (maxDuration) {
 		if (typeof maxDuration !== 'number') {
@@ -189,6 +193,9 @@ export default function vercelServerless({
 					},
 					vite: {
 						...getSpeedInsightsViteConfig(speedInsights?.enabled),
+						define: {
+							"import.meta.env.ASTRO_VERCEL_ISR": isr ? "true" : "false"
+						},
 						ssr: {
 							external: ['@vercel/nft'],
 						},
@@ -282,6 +289,7 @@ export default function vercelServerless({
 							includeFiles,
 							excludeFiles,
 							maxDuration,
+							isr,
 						});
 						routeDefinitions.push({
 							src: route.pattern.source,
@@ -299,6 +307,7 @@ export default function vercelServerless({
 						includeFiles,
 						excludeFiles,
 						maxDuration,
+						isr,
 					});
 					const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 					for (const route of routes) {
@@ -396,6 +405,7 @@ interface CreateFunctionFolderArgs {
 	includeFiles: URL[];
 	excludeFiles: URL[];
 	maxDuration: number | undefined;
+	isr: boolean
 }
 
 async function createFunctionFolder({
@@ -408,11 +418,13 @@ async function createFunctionFolder({
 	includeFiles,
 	excludeFiles,
 	maxDuration,
+	isr
 }: CreateFunctionFolderArgs) {
 	// .vercel/output/functions/<name>.func/
 	const functionFolder = new URL(`./functions/${functionName}.func/`, config.outDir);
 	const packageJson = new URL(`./functions/${functionName}.func/package.json`, config.outDir);
 	const vcConfig = new URL(`./functions/${functionName}.func/.vc-config.json`, config.outDir);
+	const prerenderConfig = new URL(`./functions/${functionName}.prerender-config.json`, config.outDir)
 
 	// Copy necessary files (e.g. node_modules/)
 	const { handler } = await copyDependenciesToFunction(
@@ -439,6 +451,15 @@ async function createFunctionFolder({
 		maxDuration,
 		supportsResponseStreaming: true,
 	});
+
+	if (isr) {
+		// https://vercel.com/docs/build-output-api/v3/primitives#prerender-configuration-file
+		await writeJson(prerenderConfig, {
+			expiration: false,
+			allowQuery: ["vercel_original_path"],
+			passQuery: true
+		});
+	}
 }
 
 function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Runtime {

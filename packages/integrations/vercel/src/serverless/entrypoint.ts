@@ -8,6 +8,9 @@ applyPolyfills();
 export const createExports = (manifest: SSRManifest) => {
 	const app = new NodeApp(manifest);
 	const handler = async (req: IncomingMessage, res: ServerResponse) => {
+		const url = new URL(`https://example.com${req.url}`)
+		const originalPath = url.searchParams.get('vercel_original_path')
+		if (originalPath) req.url = originalPath
 		const clientAddress = req.headers['x-forwarded-for'] as string | undefined;
 		const localsHeader = req.headers[ASTRO_LOCALS_HEADER];
 		const realPath = req.headers[ASTRO_PATH_HEADER];
