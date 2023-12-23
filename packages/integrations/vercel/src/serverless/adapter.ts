@@ -124,7 +124,12 @@ export interface VercelServerlessConfig {
 	maxDuration?: number;
 
 	/** Whether to cache on-demand rendered pages in the same way as static files. */
-	isr?: boolean;
+	isr?: boolean | VercelISRConfig;
+}
+
+interface VercelISRConfig {
+	/** A random string that you create. Its presence in the `__prerender_bypass` cookie will result in fresh responses being served. */
+	bypassToken?: string;
 }
 
 export default function vercelServerless({
@@ -405,7 +410,7 @@ interface CreateFunctionFolderArgs {
 	includeFiles: URL[];
 	excludeFiles: URL[];
 	maxDuration: number | undefined;
-	isr: boolean
+	isr: boolean | VercelISRConfig;
 }
 
 async function createFunctionFolder({
@@ -451,11 +456,12 @@ async function createFunctionFolder({
 		maxDuration,
 		supportsResponseStreaming: true,
 	});
-
+	
 	if (isr) {
 		// https://vercel.com/docs/build-output-api/v3/primitives#prerender-configuration-file
 		await writeJson(prerenderConfig, {
 			expiration: false,
+			bypassToken: typeof isr === "object" ? isr.bypassToken : undefined,
 			allowQuery: ["vercel_original_path"],
 			passQuery: true
 		});
