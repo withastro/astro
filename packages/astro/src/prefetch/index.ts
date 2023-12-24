@@ -16,10 +16,13 @@ const listenedAnchors = new WeakSet<HTMLAnchorElement>();
 let prefetchAll: boolean = __PREFETCH_PREFETCH_ALL__;
 // @ts-expect-error injected global
 let defaultStrategy: string = __PREFETCH_DEFAULT_STRATEGY__;
+// @ts-expect-error injected global
+let ignoreSlowConnection: boolean = __PREFETCH_IGNORE_SLOW_CONNECTION__;
 
 interface InitOptions {
 	defaultStrategy?: string;
 	prefetchAll?: boolean;
+	ignoreSlowConnection?: boolean;
 }
 
 let inited = false;
@@ -40,11 +43,13 @@ export function init(defaultOpts?: InitOptions) {
 	// Fallback default values if not set by user config
 	prefetchAll ??= defaultOpts?.prefetchAll ?? false;
 	defaultStrategy ??= defaultOpts?.defaultStrategy ?? 'hover';
+	ignoreSlowConnection ??= defaultOpts?.ignoreSlowConnection ?? false;
 
 	// In the future, perhaps we can enable treeshaking specific unused strategies
 	initTapStrategy();
 	initHoverStrategy();
 	initViewportStrategy();
+	initNoneStrategy();
 }
 
 /**
@@ -104,7 +109,7 @@ function initHoverStrategy() {
 			clearTimeout(timeout);
 		}
 		timeout = setTimeout(() => {
-			prefetch(href, { with: 'fetch' });
+			prefetch(href, { with: 'fetch', ignoreSlowConnection });
 		}, 80) as unknown as number;
 	}
 
@@ -155,7 +160,7 @@ function createViewportIntersectionObserver() {
 					setTimeout(() => {
 						observer.unobserve(anchor);
 						timeouts.delete(anchor);
-						prefetch(anchor.href, { with: 'link' });
+						prefetch(anchor.href, { with: 'link', ignoreSlowConnection });
 					}, 300) as unknown as number
 				);
 			} else {
@@ -164,6 +169,20 @@ function createViewportIntersectionObserver() {
 					clearTimeout(timeout);
 					timeouts.delete(anchor);
 				}
+			}
+		}
+	});
+}
+
+/**
+ * Prefetch all links with lower priority
+ */
+function initNoneStrategy() {
+	onPageLoad(() => {
+		for (const anchor of document.getElementsByTagName('a')) {
+			if (elMatchesStrategy(anchor, 'none')) {
+				// Prefetch every link in this page
+				prefetch(anchor.href, { with: 'link', ignoreSlowConnection });
 			}
 		}
 	});
@@ -194,8 +213,8 @@ export interface PrefetchOptions {
  * @param opts Additional options for prefetching.
  */
 export function prefetch(url: string, opts?: PrefetchOptions) {
-	const ignoreSlowConnection = opts?.ignoreSlowConnection ?? false;
-	if (!canPrefetchUrl(url, ignoreSlowConnection)) return;
+	const willIgnoreSlowConnection = opts?.ignoreSlowConnection ?? ignoreSlowConnection ?? false;
+	if (!canPrefetchUrl(url, willIgnoreSlowConnection)) return;
 	prefetchedUrls.add(url);
 
 	const priority = opts?.with ?? 'link';
@@ -216,11 +235,11 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 	}
 }
 
-function canPrefetchUrl(url: string, ignoreSlowConnection: boolean) {
+function canPrefetchUrl(url: string, willIgnoreSlowConnection: boolean) {
 	// Skip prefetch if offline
 	if (!navigator.onLine) return false;
 	// Skip prefetch if using data saver mode or slow connection
-	if (!ignoreSlowConnection && isSlowConnection()) return false;
+	if (!willIgnoreSlowConnection && isSlowConnection()) return false;
 	// Else check if URL is within the same origin, not the current page, and not already prefetched
 	try {
 		const urlObj = new URL(url, location.href);
@@ -244,7 +263,13 @@ function elMatchesStrategy(el: EventTarget | null, strategy: string): el is HTML
 	}
 
 	// Fallback to tap strategy if using data saver mode or slow connection
-	if (strategy === 'tap' && (attrValue != null || prefetchAll) && isSlowConnection()) {
+	// If global ignoreSlowConnection is true, it will not fallback
+	if (
+		strategy === 'tap' &&
+		(attrValue != null || prefetchAll) &&
+		!ignoreSlowConnection &&
+		isSlowConnection()
+	) {
 		return true;
 	}
 

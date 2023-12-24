@@ -182,7 +182,8 @@ export const AstroConfigSchema = z.object({
 			z.boolean(),
 			z.object({
 				prefetchAll: z.boolean().optional(),
-				defaultStrategy: z.enum(['tap', 'hover', 'viewport']).optional(),
+				defaultStrategy: z.enum(['tap', 'hover', 'viewport', 'none']).optional(),
+				ignoreSlowConnection: z.boolean().optional(),
 			}),
 		])
 		.optional(),

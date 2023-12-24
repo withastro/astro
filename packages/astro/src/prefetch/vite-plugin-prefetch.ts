@@ -49,7 +49,11 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 			if (id.includes(prefetchInternalModuleFsSubpath)) {
 				return code
 					.replace('__PREFETCH_PREFETCH_ALL__', JSON.stringify(prefetch?.prefetchAll))
-					.replace('__PREFETCH_DEFAULT_STRATEGY__', JSON.stringify(prefetch?.defaultStrategy));
+					.replace('__PREFETCH_DEFAULT_STRATEGY__', JSON.stringify(prefetch?.defaultStrategy))
+					.replace(
+						'__PREFETCH_IGNORE_SLOW_CONNECTION__',
+						JSON.stringify(prefetch?.ignoreSlowConnection)
+					);
 			}
 		},
 	};
