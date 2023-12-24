@@ -2,4 +2,4 @@
 'astro': major
 ---
 
-Add global ignoreSlowConnection and 'none' to defaultStrategy enum in prefetch
+Add global ignoreSlowConnection and 'all' to defaultStrategy enum in prefetch

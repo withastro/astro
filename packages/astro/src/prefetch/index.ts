@@ -49,7 +49,7 @@ export function init(defaultOpts?: InitOptions) {
 	initTapStrategy();
 	initHoverStrategy();
 	initViewportStrategy();
-	initNoneStrategy();
+	initAllStrategy();
 }
 
 /**
@@ -177,10 +177,10 @@ function createViewportIntersectionObserver() {
 /**
  * Prefetch all links with lower priority
  */
-function initNoneStrategy() {
+function initAllStrategy() {
 	onPageLoad(() => {
 		for (const anchor of document.getElementsByTagName('a')) {
-			if (elMatchesStrategy(anchor, 'none')) {
+			if (elMatchesStrategy(anchor, 'all')) {
 				// Prefetch every link in this page
 				prefetch(anchor.href, { with: 'link', ignoreSlowConnection });
 			}

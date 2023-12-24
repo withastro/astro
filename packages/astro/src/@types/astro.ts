@@ -947,7 +947,7 @@ export interface AstroUserConfig {
 				/**
 				 * @docs
 				 * @name prefetch.defaultStrategy
-				 * @type {'tap' | 'hover' | 'viewport' | 'none'}
+				 * @type {'tap' | 'hover' | 'viewport' | 'all'}
 				 * @default `'hover'`
 				 * @description
 				 * The default prefetch strategy to use when the `data-astro-prefetch` attribute is set on a link with no value.
@@ -955,7 +955,7 @@ export interface AstroUserConfig {
 				 * - `'tap'`: Prefetch just before you click on the link.
 				 * - `'hover'`: Prefetch when you hover over or focus on the link. (default)
 				 * - `'viewport'`: Prefetch as the links enter the viewport.
-				 * - `'none'`: Prefetch the link without any restrictions.
+				 * - `'all'`: Prefetch the link without any restrictions.
 				 *
 				 * You can override this default value and select a different strategy for any individual link by setting a value on the attribute.
 				 *
@@ -963,7 +963,7 @@ export interface AstroUserConfig {
 				 * <a href="/about" data-astro-prefetch="viewport">About</a>
 				 * ```
 				 */
-				defaultStrategy?: 'tap' | 'hover' | 'viewport' | 'none';
+				defaultStrategy?: 'tap' | 'hover' | 'viewport' | 'all';
 
 				/**
 				 * @docs
