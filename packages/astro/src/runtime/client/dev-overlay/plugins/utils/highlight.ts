@@ -57,13 +57,17 @@ export function attachTooltipToHighlight(
 			const originalRect = originalElement.getBoundingClientRect();
 			const dialogRect = tooltip.getBoundingClientRect();
 
-			// If the tooltip is going to be off the screen, show it above the element instead
+			// Prevent the tooltip from being off the screen
 			if (originalRect.top < dialogRect.height) {
 				// Not enough space above, show below
 				tooltip.style.top = `${originalRect.height + 15}px`;
 			} else {
 				tooltip.style.top = `-${tooltip.offsetHeight}px`;
 			}
+			if (dialogRect.right > document.documentElement.clientWidth) {
+				// Not enough space on the right, align to the right
+        tooltip.style.right = '0px';
+      }
 		});
 	});
 
