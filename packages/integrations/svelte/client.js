@@ -104,9 +104,11 @@ function finishUsingConsoleFilter() {
  */
 function filteredConsoleWarning(msg, ...rest) {
 	if (consoleFilterRefs > 0 && typeof msg === 'string') {
-		// Astro passes a `class` prop to the Svelte component, which
-		// outputs the following warning, which we can safely filter out.
-		const isKnownSvelteError = msg.endsWith("was created with unknown prop 'class'");
+		// Astro passes `class` and `data` props to the Svelte component, which
+		// output the following warnings, which we can safely filter out.
+		const isKnownSvelteError =
+			msg.endsWith("was created with unknown prop 'class'") ||
+			msg.indexOf("was created with unknown prop") > 0;
 		if (isKnownSvelteError) return;
 	}
 	originalConsoleWarning(msg, ...rest);
