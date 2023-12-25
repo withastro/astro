@@ -1,5 +1,5 @@
 ---
-'astro': major
+'astro': patch
 ---
 
-Add global ignoreSlowConnection and 'all' to defaultStrategy enum in prefetch
+Add global `ignoreSlowConnection` in prefetch config and `'all'` to `defaultStrategy` enum
