@@ -8,24 +8,25 @@ import { crawlGraph } from './vite.js';
 export async function getScriptsForURL(
 	filePath: URL,
 	root: URL,
+	base: string,
 	loader: ModuleLoader
 ): Promise<Set<SSRElement>> {
 	const elements = new Set<SSRElement>();
 	const rootID = viteID(filePath);
 	const modInfo = loader.getModuleInfo(rootID);
-	addHoistedScripts(elements, modInfo, root);
+	addHoistedScripts(elements, modInfo, root, base);
 	for await (const moduleNode of crawlGraph(loader, rootID, true)) {
 		const id = moduleNode.id;
 		if (id) {
 			const info = loader.getModuleInfo(id);
-			addHoistedScripts(elements, info, root);
+			addHoistedScripts(elements, info, root, base);
 		}
 	}
 
 	return elements;
 }
 
-function addHoistedScripts(set: Set<SSRElement>, info: ModuleInfo | null, root: URL) {
+function addHoistedScripts(set: Set<SSRElement>, info: ModuleInfo | null, root: URL, base: string) {
 	if (!info?.meta?.astro) {
 		return;
 	}
@@ -35,7 +36,7 @@ function addHoistedScripts(set: Set<SSRElement>, info: ModuleInfo | null, root: 
 	for (let i = 0; i < astro.scripts.length; i++) {
 		let scriptId = `${id}?astro&type=script&index=${i}&lang.ts`;
 		scriptId = rootRelativePath(root, scriptId);
-		const element = createModuleScriptElementWithSrc(scriptId);
+		const element = createModuleScriptElementWithSrc(scriptId, base);
 		set.add(element);
 	}
 }

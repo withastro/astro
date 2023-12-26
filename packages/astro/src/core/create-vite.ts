@@ -107,7 +107,6 @@ export async function createVite(
 	const commonConfig: vite.InlineConfig = {
 		// Tell Vite not to combine config from vite.config.js with our provided inline config
 		configFile: false,
-		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', settings.config.root)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
 		customLogger: createViteLogger(logger, settings.config.vite.logLevel),
 		appType: 'custom',
@@ -147,6 +146,7 @@ export async function createVite(
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
+		base: new URL(settings.config.base, settings.config.site ?? 'http://localhost').pathname,
 		envPrefix: settings.config.vite?.envPrefix ?? 'PUBLIC_',
 		define: {
 			'import.meta.env.SITE': settings.config.site

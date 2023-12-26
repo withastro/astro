@@ -35,6 +35,7 @@ import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { getScriptsForURL } from './scripts.js';
 import { normalizeTheLocale } from '../i18n/index.js';
+import { joinPaths } from '@astrojs/internal-helpers/path';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -384,13 +385,14 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 	const moduleLoader = pipeline.getModuleLoader();
 	const settings = pipeline.getSettings();
 	const mode = pipeline.getEnvironment().mode;
+	const { root, base } = settings.config;
 	// Add hoisted script tags
-	const scripts = await getScriptsForURL(filePath, settings.config.root, moduleLoader);
+	const scripts = await getScriptsForURL(filePath, root, base, moduleLoader);
 
 	// Inject HMR scripts
 	if (isPage(filePath, settings) && mode === 'development') {
 		scripts.add({
-			props: { type: 'module', src: '/@vite/client' },
+			props: { type: 'module', src: joinPaths(base, '/@vite/client') },
 			children: '',
 		});
 
@@ -401,7 +403,12 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			scripts.add({
 				props: {
 					type: 'module',
-					src: await resolveIdToUrl(moduleLoader, 'astro/runtime/client/dev-overlay/entrypoint.js'),
+					src: await resolveIdToUrl(
+						moduleLoader,
+						'astro/runtime/client/dev-overlay/entrypoint.js',
+						root,
+						base
+					),
 				},
 				children: '',
 			});
@@ -441,6 +448,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 		moduleLoader,
 		mode
 	);
+	console.log(filePath, styleUrls, importedStyles);
 	let links = new Set<SSRElement>();
 	[...styleUrls].forEach((href) => {
 		links.add({

@@ -6,6 +6,7 @@ import { Readable } from 'stream';
 import { getSetCookiesFromResponse } from '../core/cookies/index.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import notFoundTemplate from '../template/4xx.js';
+import { joinPaths } from '@astrojs/internal-helpers/path';
 
 export async function handle404Response(
 	origin: string,
@@ -25,20 +26,22 @@ export async function handle404Response(
 
 export async function handle500Response(
 	loader: ModuleLoader,
+	base: string,
 	res: http.ServerResponse,
 	err: ErrorWithMetadata
 ) {
 	res.on('close', async () =>
 		setTimeout(async () => loader.webSocketSend(await getViteErrorPayload(err)), 200)
 	);
+	const viteClientPath = joinPaths(base, '/@vite/client');
 	if (res.headersSent) {
-		res.write(`<script type="module" src="/@vite/client"></script>`);
+		res.write(`<script type="module" src="${viteClientPath}"></script>`);
 		res.end();
 	} else {
 		writeHtmlResponse(
 			res,
 			500,
-			`<title>${err.name}</title><script type="module" src="/@vite/client"></script>`
+			`<title>${err.name}</title><script type="module" src="${viteClientPath}"></script>`
 		);
 	}
 }
