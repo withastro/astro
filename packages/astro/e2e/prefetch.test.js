@@ -96,10 +96,10 @@ test.describe('Prefetch (default)', () => {
 		expect(reqUrls.filter((u) => u.includes('/prefetch-manual')).length).toEqual(1);
 	});
 
-	test('data-astro-prefetch="all" should prefetch', async ({ page, astro }) => {
+	test('data-astro-prefetch="load" should prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).toContainEqual('/prefetch-all');
-		expect(page.locator('link[rel="prefetch"][href$="/prefetch-all"]')).toBeDefined();
+		expect(reqUrls).toContainEqual('/prefetch-load');
+		expect(page.locator('link[rel="prefetch"][href$="/prefetch-load"]')).toBeDefined();
 	});
 });
 
@@ -189,14 +189,14 @@ test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'tap')", () => {
 		expect(page.locator('link[rel="prefetch"][href$="/prefetch-viewport"]')).toBeDefined();
 	});
 
-	test('data-astro-prefetch="all" should prefetch', async ({ page, astro }) => {
+	test('data-astro-prefetch="load" should prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).toContainEqual('/prefetch-all');
-		expect(page.locator('link[rel="prefetch"][href$="/prefetch-all"]')).toBeDefined();
+		expect(reqUrls).toContainEqual('/prefetch-load');
+		expect(page.locator('link[rel="prefetch"][href$="/prefetch-load"]')).toBeDefined();
 	});
 });
 
-test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'all')", () => {
+test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'load')", () => {
 	let devServer;
 	/** @type {string[]} */
 	const reqUrls = [];
@@ -205,7 +205,7 @@ test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'all')", () => {
 		devServer = await astro.startDevServer({
 			prefetch: {
 				prefetchAll: true,
-				defaultStrategy: 'all',
+				defaultStrategy: 'load',
 			},
 		});
 	});
@@ -278,9 +278,9 @@ test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'all')", () => {
 		expect(page.locator('link[rel="prefetch"][href$="/prefetch-viewport"]')).toBeDefined();
 	});
 
-	test('data-astro-prefetch="all" should prefetch', async ({ page, astro }) => {
+	test('data-astro-prefetch="load" should prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).toContainEqual('/prefetch-all');
-		expect(page.locator('link[rel="prefetch"][href$="/prefetch-all"]')).toBeDefined();
+		expect(reqUrls).toContainEqual('/prefetch-load');
+		expect(page.locator('link[rel="prefetch"][href$="/prefetch-load"]')).toBeDefined();
 	});
 });

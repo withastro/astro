@@ -49,7 +49,7 @@ export function init(defaultOpts?: InitOptions) {
 	initTapStrategy();
 	initHoverStrategy();
 	initViewportStrategy();
-	initAllStrategy();
+	initLoadStrategy();
 }
 
 /**
@@ -175,12 +175,12 @@ function createViewportIntersectionObserver() {
 }
 
 /**
- * Prefetch all links with lower priority
+ * Prefetch links with lower priority when page load
  */
-function initAllStrategy() {
+function initLoadStrategy() {
 	onPageLoad(() => {
 		for (const anchor of document.getElementsByTagName('a')) {
-			if (elMatchesStrategy(anchor, 'all')) {
+			if (elMatchesStrategy(anchor, 'load')) {
 				// Prefetch every link in this page
 				prefetch(anchor.href, { with: 'link', ignoreSlowConnection });
 			}
