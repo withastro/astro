@@ -1,6 +1,7 @@
 ---
 import Counter from '../components/Counter.vue'
-import Img from '../components/Img.vue'
+// TODO: Disable Vue image handling
+// import Img from '../components/Img.vue'
 ---
 <html lang="en">
   <head>
@@ -29,7 +30,7 @@ import Img from '../components/Img.vue'
       <!-- Test that two client:visibles have unique uids -->
       <Counter start="100" client:visible>SSR Rendered, client:visible</Counter>
       <Counter start="1000" client:visible>SSR Rendered, client:visible</Counter>
-      <Img />
+      <!-- <Img /> -->
     </main>
   </body>
 </html>

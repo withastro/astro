@@ -101,9 +101,9 @@ describe('CSS ordering - import order', () => {
 			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
 
 			const [{ css }] = content;
-			let idx1 = css.indexOf('whitesmoke');
-			let idx2 = css.indexOf('aliceblue');
-			let idx3 = css.indexOf('burlywood');
+			let idx1 = css.indexOf('#f5f5f5'); // whitesmoke minified
+			let idx2 = css.indexOf('#f0f8ff'); // aliceblue minified
+			let idx3 = css.indexOf('#deb887'); // burlywoord minified
 
 			expect(idx1).to.be.greaterThan(idx2);
 			expect(idx2).to.be.greaterThan(idx3);
@@ -147,8 +147,8 @@ describe('CSS ordering - import order', () => {
 				getLinks(html).map((href) => getLinkContent(href, fixture))
 			);
 			let [link1, link2] = content;
-			expect(link1.css).to.contain('aliceblue');
-			expect(link2.css).to.contain('yellow');
+			expect(link1.css).to.contain('f0f8ff'); // aliceblue minified
+			expect(link2.css).to.contain('#ff0'); // yellow minified
 		});
 	});
 });
