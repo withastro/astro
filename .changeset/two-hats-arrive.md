@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Ignore `3g` in slow connection detection, and and `'load'` to `defaultStrategy` enum in prefetch config
+Ignores `3g` in slow connection detection. Only `2g` and `slow-2g` are considered slow connections.
