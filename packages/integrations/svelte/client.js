@@ -104,9 +104,15 @@ function finishUsingConsoleFilter() {
  */
 function filteredConsoleWarning(msg, ...rest) {
 	if (consoleFilterRefs > 0 && typeof msg === 'string') {
-		// Astro passes a `class` prop to the Svelte component, which
+		// Astro passes `class` and `data-astro-cid` props to the Svelte component, which
 		// outputs the following warning, which we can safely filter out.
-		const isKnownSvelteError = msg.endsWith("was created with unknown prop 'class'");
+
+		// NOTE: In practice data-astro-cid props have a hash suffix. Hence the use of a
+		// quoted prop name string without a closing quote.
+
+		const isKnownSvelteError =
+			msg.endsWith("was created with unknown prop 'class'") ||
+			msg.includes("was created with unknown prop 'data-astro-cid");
 		if (isKnownSvelteError) return;
 	}
 	originalConsoleWarning(msg, ...rest);
