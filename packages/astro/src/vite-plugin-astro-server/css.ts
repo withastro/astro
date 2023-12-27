@@ -1,4 +1,3 @@
-import type { RuntimeMode } from '../@types/astro.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { viteID } from '../core/util.js';
 import { isBuildableCSSRequest } from './util.js';
@@ -13,8 +12,7 @@ interface ImportedStyle {
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
 export async function getStylesForURL(
 	filePath: URL,
-	loader: ModuleLoader,
-	mode: RuntimeMode
+	loader: ModuleLoader
 ): Promise<{ urls: Set<string>; styles: ImportedStyle[] }> {
 	const importedCssUrls = new Set<string>();
 	// Map of url to injected style object. Use a `url` key to deduplicate styles
@@ -22,12 +20,6 @@ export async function getStylesForURL(
 
 	for await (const importedModule of crawlGraph(loader, viteID(filePath), true)) {
 		if (isBuildableCSSRequest(importedModule.url)) {
-			// In production, we can simply assign the styles as URLs
-			if (mode !== 'development') {
-				importedCssUrls.add(importedModule.url);
-				continue;
-			}
-
 			// In dev, we inline all styles if possible
 			let css = '';
 			// If this is a plain CSS module, the default export should be a string

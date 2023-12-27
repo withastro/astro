@@ -75,11 +75,7 @@ describe('Crawling graph for CSS', () => {
 	it("importedModules is checked against the child's importers", async () => {
 		// In dev mode, HMR modules tracked are added to importedModules. We use `importers`
 		// to verify that they are true importers.
-		const res = await getStylesForURL(
-			new URL('./src/pages/index.astro', root),
-			loader,
-			'development'
-		);
+		const res = await getStylesForURL(new URL('./src/pages/index.astro', root), loader);
 		expect(res.styles.length).to.equal(1);
 	});
 });

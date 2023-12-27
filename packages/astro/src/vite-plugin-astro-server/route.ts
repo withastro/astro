@@ -436,11 +436,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 	}
 
 	// Pass framework CSS in as style tags to be appended to the page.
-	const { urls: styleUrls, styles: importedStyles } = await getStylesForURL(
-		filePath,
-		moduleLoader,
-		mode
-	);
+	const { urls: styleUrls, styles: importedStyles } = await getStylesForURL(filePath, moduleLoader);
 	let links = new Set<SSRElement>();
 	[...styleUrls].forEach((href) => {
 		links.add({
