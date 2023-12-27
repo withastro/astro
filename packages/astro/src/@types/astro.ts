@@ -964,27 +964,6 @@ export interface AstroUserConfig {
 				 * ```
 				 */
 				defaultStrategy?: 'tap' | 'hover' | 'viewport' | 'load';
-
-				/**
-				 * @docs
-				 * @name prefetch.ignoreSlowConnection
-				 * @type {boolean}
-				 * @description
-				 * Ignore slow connection detection.
-				 *
-				 * ```js
-				 * prefetch: {
-				 * 	ignoreSlowConnection: true
-				 * }
-				 * ```
-				 *
-				 * When set to `true`, you can enable slow connection detection by adding `{ ignoreSlowConnection: false }` to the parameters of `prefetch` manually .
-				 *
-				 * ```js
-				 * prefetch('/about', { ignoreSlowConnection: false });
-				 *```
-				 */
-				ignoreSlowConnection?: boolean;
 		  };
 
 	/**

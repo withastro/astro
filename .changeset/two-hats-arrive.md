@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Add global `ignoreSlowConnection` in prefetch config and `'load'` to `defaultStrategy` enum
+Ignore `3g` in slow connection detection, and and `'load'` to `defaultStrategy` enum in prefetch config
