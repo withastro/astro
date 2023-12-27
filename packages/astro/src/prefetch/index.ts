@@ -231,11 +231,11 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 	}
 }
 
-function canPrefetchUrl(url: string, willIgnoreSlowConnection: boolean) {
+function canPrefetchUrl(url: string, ignoreSlowConnection: boolean) {
 	// Skip prefetch if offline
 	if (!navigator.onLine) return false;
 	// Skip prefetch if using data saver mode or slow connection
-	if (!willIgnoreSlowConnection && isSlowConnection()) return false;
+	if (!ignoreSlowConnection && isSlowConnection()) return false;
 	// Else check if URL is within the same origin, not the current page, and not already prefetched
 	try {
 		const urlObj = new URL(url, location.href);
