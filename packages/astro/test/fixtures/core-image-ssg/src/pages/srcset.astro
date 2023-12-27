@@ -1,0 +1,15 @@
+---
+import { Image } from "astro:assets";
+import imageWithSpaces from "../assets/image 1.jpg";
+---
+
+<div id="local-2-widths-with-spaces">
+	<!--
+		In this example, only two images should be generated :
+		- The base image
+		- The 2x image
+		- The image path should replace ' ' with '%20' in srcset 
+	-->
+	<Image src={imageWithSpaces} width={imageWithSpaces.width / 2} widths={[imageWithSpaces.width]} alt="" />
+</div>
+

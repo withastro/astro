@@ -110,7 +110,7 @@ export async function getImage(
 		src: imageURL,
 		srcSet: {
 			values: srcSets,
-			attribute: srcSets.map((srcSet) => `${srcSet.url} ${srcSet.descriptor}`).join(', '),
+			attribute: srcSets.map((srcSet) => `${srcSet.url.replaceAll(" ","%20")} ${srcSet.descriptor}`).join(', '),
 		},
 		attributes:
 			service.getHTMLAttributes !== undefined
