@@ -1,5 +1,27 @@
 # astro
 
+## 4.0.8
+
+### Patch Changes
+
+- [#9522](https://github.com/withastro/astro/pull/9522) [`bb1438d20d325acd15f3755c6e306e45a7c64bcd`](https://github.com/withastro/astro/commit/bb1438d20d325acd15f3755c6e306e45a7c64bcd) Thanks [@Zegnat](https://github.com/Zegnat)! - Add support for autocomplete attribute to the HTML button type.
+
+- [#9531](https://github.com/withastro/astro/pull/9531) [`662f06fd9fae377bed1aaa49adbba3542cced087`](https://github.com/withastro/astro/commit/662f06fd9fae377bed1aaa49adbba3542cced087) Thanks [@bluwy](https://github.com/bluwy)! - Fixes duplicated CSS modules content when it's imported by both Astro files and framework components
+
+- [#9501](https://github.com/withastro/astro/pull/9501) [`eb36e95596fcdb3db4a31744e910495e22e3af84`](https://github.com/withastro/astro/commit/eb36e95596fcdb3db4a31744e910495e22e3af84) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Export JSX namespace from `astro/jsx-runtime` for language tooling to consume
+
+- [#9492](https://github.com/withastro/astro/pull/9492) [`89a2a07c2e411cda32244b7b05d3c79e93f7dd84`](https://github.com/withastro/astro/commit/89a2a07c2e411cda32244b7b05d3c79e93f7dd84) Thanks [@lilnasy](https://github.com/lilnasy)! - Improves error message for the case where two similarly named files result in the same content entry.
+
+- [#9532](https://github.com/withastro/astro/pull/9532) [`7224809b73d2c3ec8e8aee2fa07463dc3b57a7a2`](https://github.com/withastro/astro/commit/7224809b73d2c3ec8e8aee2fa07463dc3b57a7a2) Thanks [@bluwy](https://github.com/bluwy)! - Prevents unnecessary URI decoding when rendering a route
+
+- [#9478](https://github.com/withastro/astro/pull/9478) [`dfef925e1fd07f3efb9fde6f4f23548f2af7dc75`](https://github.com/withastro/astro/commit/dfef925e1fd07f3efb9fde6f4f23548f2af7dc75) Thanks [@lilnasy](https://github.com/lilnasy)! - Improves errors in certain places to also report their causes.
+
+- [#9463](https://github.com/withastro/astro/pull/9463) [`3b0eaed3b544ef8c4ec1f7b0d5a8f475bcfeb25e`](https://github.com/withastro/astro/commit/3b0eaed3b544ef8c4ec1f7b0d5a8f475bcfeb25e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Update Sharp version to ^0.33.1
+
+- [#9512](https://github.com/withastro/astro/pull/9512) [`1469e0e5a915e6b42b9953dbb48fe57a74518056`](https://github.com/withastro/astro/commit/1469e0e5a915e6b42b9953dbb48fe57a74518056) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Prevents dev toolbar tooltip from overflowing outside of the screen
+
+- [#9497](https://github.com/withastro/astro/pull/9497) [`7f7a7f1aeaec6b327ae0e5e7470a4f46174bf8ae`](https://github.com/withastro/astro/commit/7f7a7f1aeaec6b327ae0e5e7470a4f46174bf8ae) Thanks [@lilnasy](https://github.com/lilnasy)! - Adds a helpful warning message for when an exported API Route is not uppercase.
+
 ## 4.0.7
 
 ### Patch Changes
