@@ -1292,8 +1292,12 @@ export const DataCollectionEntryParseError = {
 export const DuplicateContentEntrySlugError = {
 	name: 'DuplicateContentEntrySlugError',
 	title: 'Duplicate content entry slug.',
-	message: (collection: string, slug: string) => {
-		return `**${collection}** contains multiple entries with the same slug: \`${slug}\`. Slugs must be unique.`;
+	message: (collection: string, slug: string, preExisting: string, alsoFound: string) => {
+		return `**${collection}** contains multiple entries with the same slug: \`${slug}\`. ` +
+			`Slugs must be unique.\n\n` +
+			`Entries: \n` +
+			`- ${preExisting}\n` +
+			`- ${alsoFound}`;
 	},
 } satisfies ErrorData;
 
