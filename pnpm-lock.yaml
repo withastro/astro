@@ -4566,12 +4566,30 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
+      chai:
+        specifier: ^4.3.7
+        version: 4.3.10
+      cheerio:
+        specifier: 1.0.0-rc.12
+        version: 1.0.0-rc.12
+      mocha:
+        specifier: ^10.2.0
+        version: 10.2.0
       tailwindcss:
         specifier: ^3.3.5
         version: 3.3.5
       vite:
         specifier: ^5.0.10
         version: 5.0.10(@types/node@18.18.6)(sass@1.69.5)
+
+  packages/integrations/tailwind/test/fixtures/basic:
+    dependencies:
+      '@astrojs/tailwind':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
 
   packages/integrations/vercel:
     dependencies:
