@@ -112,7 +112,7 @@ function filteredConsoleWarning(msg, ...rest) {
 
 		const isKnownSvelteError =
 			msg.endsWith("was created with unknown prop 'class'") ||
-			msg.indexOf("was created with unknown prop 'data-astro-cid") > 0;
+			msg.includes("was created with unknown prop 'data-astro-cid");
 		if (isKnownSvelteError) return;
 	}
 	originalConsoleWarning(msg, ...rest);
