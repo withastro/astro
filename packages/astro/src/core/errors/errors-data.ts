@@ -1293,11 +1293,13 @@ export const DuplicateContentEntrySlugError = {
 	name: 'DuplicateContentEntrySlugError',
 	title: 'Duplicate content entry slug.',
 	message: (collection: string, slug: string, preExisting: string, alsoFound: string) => {
-		return `**${collection}** contains multiple entries with the same slug: \`${slug}\`. ` +
+		return (
+			`**${collection}** contains multiple entries with the same slug: \`${slug}\`. ` +
 			`Slugs must be unique.\n\n` +
 			`Entries: \n` +
 			`- ${preExisting}\n` +
-			`- ${alsoFound}`;
+			`- ${alsoFound}`
+		);
 	},
 } satisfies ErrorData;
 

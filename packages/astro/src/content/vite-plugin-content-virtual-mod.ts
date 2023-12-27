@@ -265,7 +265,7 @@ export async function generateLookupMap({
 								collection,
 								slug,
 								lookupMap[collection]!.entries[slug],
-								rootRelativePath(root, filePath),
+								rootRelativePath(root, filePath)
 							),
 							hint:
 								slug !== generatedSlug
