@@ -420,7 +420,7 @@ function getInvalidRouteSegmentError(
 					route.route,
 					JSON.stringify(invalidParam),
 					JSON.stringify(received)
-			  )
+				)
 			: `Generated path for ${route.route} is invalid.`,
 		hint,
 	});

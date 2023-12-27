@@ -120,7 +120,7 @@ export default async function build(...args) {
 								to: ['./dist/assets/services/vendor/squoosh'],
 							},
 						}),
-				  ]
+					]
 				: []),
 		],
 	});
