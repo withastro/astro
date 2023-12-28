@@ -677,7 +677,7 @@ export interface AstroUserConfig {
 	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
 	 *
 	 * ```js
-	 * import netlify from '@astrojs/netlify/functions';
+	 * import netlify from '@astrojs/netlify';
 	 * {
 	 *   // Example: Build for Netlify serverless deployment
 	 *   adapter: netlify(),
@@ -722,7 +722,7 @@ export interface AstroUserConfig {
 		 * @typeraw {('file' | 'directory')}
 		 * @default `'directory'`
 		 * @description
-		 * Control the output file format of each page.
+		 * Control the output file format of each page. This value may be set by an adapter for you.
 		 *   - If `'file'`, Astro will generate an HTML file (ex: "/foo.html") for each page.
 		 *   - If `'directory'`, Astro will generate a directory with a nested `index.html` file (ex: "/foo/index.html") for each page.
 		 *
@@ -734,6 +734,8 @@ export interface AstroUserConfig {
 		 *   }
 		 * }
 		 * ```
+		 *
+		 *
 		 *
 		 * #### Effect on Astro.url
 		 * Setting `build.format` controls what `Astro.url` is set to during the build. When it is:
@@ -2235,7 +2237,7 @@ export type APIRoute<Props extends Record<string, any> = Record<string, any>> = 
 ) => Response | Promise<Response>;
 
 export interface EndpointHandler {
-	[method: string]: APIRoute | ((params: Params, request: Request) => Response);
+	[method: string]: APIRoute;
 }
 
 export type Props = Record<string, unknown>;

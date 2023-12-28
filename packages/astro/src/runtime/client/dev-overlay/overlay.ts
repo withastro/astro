@@ -253,7 +253,7 @@ export class AstroDevOverlay extends HTMLElement {
 						this.plugins.filter((plugin) => !plugin.builtIn).length > this.customPluginsToShow
 							? this.getPluginTemplate(
 									this.plugins.find((plugin) => plugin.builtIn && plugin.id === 'astro:more')!
-							  )
+								)
 							: ''
 					}
 					<div class="separator"></div>

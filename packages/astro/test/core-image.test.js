@@ -747,7 +747,7 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-ssg/',
 				image: {
 					service: testImageService(),
-					domains: ['astro.build'],
+					domains: ['astro.build', 'avatars.githubusercontent.com'],
 				},
 			});
 			// Remove cache directory
@@ -943,6 +943,15 @@ describe('astro:image', () => {
 			const imageSrc = regex.exec($script.html())[1];
 			const data = await fixture.readFile(imageSrc, null);
 			expect(data).to.be.an.instanceOf(Buffer);
+		});
+
+		it('supports images with encoded characters in url', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const img = $('#encoded-chars img');
+			const src = img.attr('src');
+			const data = await fixture.readFile(src);
+			expect(data).to.not.be.undefined;
 		});
 
 		describe('custom service in build', () => {

@@ -504,6 +504,6 @@ export async function getEntrySlug({
 export function getExtGlob(exts: string[]) {
 	return exts.length === 1
 		? // Wrapping {...} breaks when there is only one extension
-		  exts[0]
+			exts[0]
 		: `{${exts.join(',')}}`;
 }

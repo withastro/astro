@@ -10,7 +10,7 @@ export function propsToFilename(transform: ImageTransform, hash: string) {
 		isESMImportedImage(transform.src) ? transform.src.src : transform.src
 	);
 	const ext = extname(filename);
-	filename = basename(filename, ext);
+	filename = decodeURIComponent(basename(filename, ext));
 
 	let outputExt = transform.format ? `.${transform.format}` : ext;
 	return `/${filename}_${hash}${outputExt}`;
