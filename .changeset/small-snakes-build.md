@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Support remote images with encoded characters
+Fixes remote images with encoded characters
