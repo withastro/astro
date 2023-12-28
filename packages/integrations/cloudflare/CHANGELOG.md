@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 8.0.1
+
+### Patch Changes
+
+- [#108](https://github.com/withastro/adapters/pull/108) [`63fa4e6`](https://github.com/withastro/adapters/commit/63fa4e6acfabc398460be788120c03329198a02d) Thanks [@sarah11918](https://github.com/sarah11918)! - Updates Cloudflare README.md
+
 ## 8.0.0
 
 ### Major Changes
