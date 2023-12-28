@@ -954,8 +954,8 @@ describe('astro:image', () => {
 			const regex = /^(.+?) [0-9]+[wx]$/gm;
 			const imageSrcset = regex.exec(srcset)[1];
 			expect(imageSrcset).to.not.contain(' ');
-    });
- 
+		});
+
 		it('supports images with encoded characters in url', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
