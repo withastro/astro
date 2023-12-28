@@ -10,11 +10,11 @@ export default function createIntegration(): AstroIntegration {
 				// See the @astrojs/react integration for an example
 				// https://github.com/withastro/astro/blob/main/packages/integrations/react/src/index.ts
 			},
-			'astro:build:setup': ({ pages, updateConfig }) => {
+			'astro:build:setup': () => {
 				// See the @astrojs/lit integration for an example
 				// https://github.com/withastro/astro/blob/main/packages/integrations/lit/src/index.ts
 			},
-			'astro:build:done': ({ dir, routes }) => {
+			'astro:build:done': () => {
 				// See the @astrojs/partytown integration for an example
 				// https://github.com/withastro/astro/blob/main/packages/integrations/partytown/src/index.ts
 			},
