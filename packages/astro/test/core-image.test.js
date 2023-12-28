@@ -945,6 +945,17 @@ describe('astro:image', () => {
 			expect(data).to.be.an.instanceOf(Buffer);
 		});
 
+		it('client images srcset parsed correctly', async () => {
+			const html = await fixture.readFile('/srcset/index.html');
+			const $ = cheerio.load(html);
+			const srcset = $('#local-2-widths-with-spaces img').attr('srcset');
+
+			// Find image
+			const regex = /^(.+?) [0-9]+[wx]$/gm;
+			const imageSrcset = regex.exec(srcset)[1];
+			expect(imageSrcset).to.not.contain(' ');
+    });
+ 
 		it('supports images with encoded characters in url', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
