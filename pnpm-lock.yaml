@@ -316,6 +316,10 @@ importers:
       html-minifier:
         specifier: ^4.0.0
         version: 4.0.0
+    devDependencies:
+      '@types/html-minifier':
+        specifier: ^4.0.5
+        version: 4.0.5
 
   examples/minimal:
     dependencies:
@@ -7360,6 +7364,13 @@ packages:
   /@types/chai@4.3.11:
     resolution: {integrity: sha512-qQR1dr2rGIHYlJulmr8Ioq3De0Le9E4MJ5AiaeAETJJpndT1uUNHsGFK3L/UIu+rbkQSdj8J/w2bCsBZc/Y5fQ==}
 
+  /@types/clean-css@4.2.11:
+    resolution: {integrity: sha512-Y8n81lQVTAfP2TOdtJJEsCoYl1AnOkqDqMvXb9/7pfgZZ7r8YrEyurrAvAoAjHOGXKRybay+5CsExqIH6liccw==}
+    dependencies:
+      '@types/node': 18.19.3
+      source-map: 0.6.1
+    dev: true
+
   /@types/common-ancestor-path@1.0.2:
     resolution: {integrity: sha512-8llyULydTb7nM9yfiW78n6id3cet+qnATPV3R44yIywxgBaa8QXFSM9QTMf4OH64QOB45BlgZ3/oL4mmFLztQw==}
     dev: true
@@ -7412,6 +7423,14 @@ packages:
 
   /@types/html-escaper@3.0.2:
     resolution: {integrity: sha512-A8vk09eyYzk8J/lFO4OUMKCmRN0rRzfZf4n3Olwapgox/PtTiU8zPYlL1UEkJ/WeHvV6v9Xnj3o/705PKz9r4Q==}
+    dev: true
+
+  /@types/html-minifier@4.0.5:
+    resolution: {integrity: sha512-LfE7f7MFd+YUfZnlBz8W43P4NgSObWiqyKapANsWCj63Aqeqli8/9gVsGP4CwC8jPpTTYlTopKCk9rJSuht/ew==}
+    dependencies:
+      '@types/clean-css': 4.2.11
+      '@types/relateurl': 0.2.33
+      '@types/uglify-js': 3.17.4
     dev: true
 
   /@types/http-cache-semantics@4.0.4:
@@ -7554,6 +7573,10 @@ packages:
       '@types/scheduler': 0.16.8
       csstype: 3.1.3
 
+  /@types/relateurl@0.2.33:
+    resolution: {integrity: sha512-bTQCKsVbIdzLqZhLkF5fcJQreE4y1ro4DIyVrlDNSCJRRwHhB8Z+4zXXa8jN6eDvc2HbRsEYgbvrnGvi54EpSw==}
+    dev: true
+
   /@types/resolve@1.20.6:
     resolution: {integrity: sha512-A4STmOXPhMUtHH+S6ymgE2GiBSMqf4oTvcQZMcHzokuTLVYzXTB8ttjcgxOVaAp2lGwEdzZ0J+cRbbeevQj1UQ==}
     dev: true
@@ -7600,6 +7623,12 @@ packages:
 
   /@types/trusted-types@2.0.7:
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
+
+  /@types/uglify-js@3.17.4:
+    resolution: {integrity: sha512-Hm/T0kV3ywpJyMGNbsItdivRhYNCQQf1IIsYsXnoVPES4t+FMLyDe0/K+Ea7ahWtMtSNb22ZdY7MIyoD9rqARg==}
+    dependencies:
+      source-map: 0.6.1
+    dev: true
 
   /@types/ungap__structured-clone@0.3.3:
     resolution: {integrity: sha512-RNmhIPwoip6K/zZOv3ypksTAqaqLEXvlNSXKyrC93xMSOAHZCR7PifW6xKZCwkbbnbM9dwB9X56PPoNTlNwEqw==}
@@ -14484,7 +14513,6 @@ packages:
   /source-map@0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
-    dev: false
 
   /source-map@0.7.4:
     resolution: {integrity: sha512-l3BikUxvPOcn5E74dZiq5BGsTb5yEwhaTSzccU6t4sDOH8NWJCstKO5QT2CvtFoK6F0saL7p9xHAqHOlCPJygA==}
