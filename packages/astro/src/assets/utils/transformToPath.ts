@@ -2,15 +2,15 @@ import { deterministicString } from 'deterministic-object-hash';
 import { basename, extname } from 'node:path';
 import { removeQueryString } from '../../core/path.js';
 import { shorthash } from '../../runtime/server/shorthash.js';
-import { isESMImportedImage } from '../internal.js';
 import type { ImageTransform } from '../types.js';
+import { isESMImportedImage } from './imageKind.js';
 
 export function propsToFilename(transform: ImageTransform, hash: string) {
 	let filename = removeQueryString(
 		isESMImportedImage(transform.src) ? transform.src.src : transform.src
 	);
 	const ext = extname(filename);
-	filename = basename(filename, ext);
+	filename = decodeURIComponent(basename(filename, ext));
 
 	let outputExt = transform.format ? `.${transform.format}` : ext;
 	return `/${filename}_${hash}${outputExt}`;

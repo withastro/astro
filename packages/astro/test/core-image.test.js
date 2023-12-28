@@ -640,14 +640,13 @@ describe('astro:image', () => {
 			expect(logs[0].message).to.contain('Expected getImage() parameter');
 		});
 
-		// TODO: For some reason, this error crashes the dev server?
-		it.skip('properly error when src is undefined', async () => {
+		it('properly error when src is undefined', async () => {
 			logs.length = 0;
 			let res = await fixture.fetch('/get-image-undefined');
 			await res.text();
 
 			expect(logs).to.have.a.lengthOf(1);
-			expect(logs[0].message).to.contain('Expected src to be an image.');
+			expect(logs[0].message).to.contain('Expected `src` property');
 		});
 
 		it('properly error image in Markdown frontmatter is not found', async () => {
@@ -748,7 +747,7 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-ssg/',
 				image: {
 					service: testImageService(),
-					domains: ['astro.build'],
+					domains: ['astro.build', 'avatars.githubusercontent.com'],
 				},
 			});
 			// Remove cache directory
@@ -944,6 +943,26 @@ describe('astro:image', () => {
 			const imageSrc = regex.exec($script.html())[1];
 			const data = await fixture.readFile(imageSrc, null);
 			expect(data).to.be.an.instanceOf(Buffer);
+		});
+
+		it('client images srcset parsed correctly', async () => {
+			const html = await fixture.readFile('/srcset/index.html');
+			const $ = cheerio.load(html);
+			const srcset = $('#local-2-widths-with-spaces img').attr('srcset');
+
+			// Find image
+			const regex = /^(.+?) [0-9]+[wx]$/gm;
+			const imageSrcset = regex.exec(srcset)[1];
+			expect(imageSrcset).to.not.contain(' ');
+		});
+
+		it('supports images with encoded characters in url', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const img = $('#encoded-chars img');
+			const src = img.attr('src');
+			const data = await fixture.readFile(src);
+			expect(data).to.not.be.undefined;
 		});
 
 		describe('custom service in build', () => {

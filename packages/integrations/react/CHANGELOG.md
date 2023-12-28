@@ -1,5 +1,21 @@
 # @astrojs/react
 
+## 3.0.9
+
+### Patch Changes
+
+- [#9482](https://github.com/withastro/astro/pull/9482) [`72b26daf694b213918f02d0fcbf90ab5b7ebc31f`](https://github.com/withastro/astro/commit/72b26daf694b213918f02d0fcbf90ab5b7ebc31f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improves compatability with the [Qwik adapter](https://github.com/QwikDev/astro)
+
+- [#9479](https://github.com/withastro/astro/pull/9479) [`1baf0b0d3cbd0564954c2366a7278794fad6726e`](https://github.com/withastro/astro/commit/1baf0b0d3cbd0564954c2366a7278794fad6726e) Thanks [@sarah11918](https://github.com/sarah11918)! - Updates README
+
+## 3.0.8
+
+### Patch Changes
+
+- [#9403](https://github.com/withastro/astro/pull/9403) [`7eb9fe8a7`](https://github.com/withastro/astro/commit/7eb9fe8a717dd2b66b1d541e1aa4d3eb5d959ddf) Thanks [@knpwrs](https://github.com/knpwrs)! - Prevents unsupported `forwardRef` components created by Preact from being rendered by React
+
+- [#9452](https://github.com/withastro/astro/pull/9452) [`e83b5095f`](https://github.com/withastro/astro/commit/e83b5095f164f48ba40fc715a805fc66a3e39dcf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Upgrades vite to latest
+
 ## 3.0.7
 
 ### Patch Changes
