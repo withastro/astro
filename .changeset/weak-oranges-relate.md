@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-srcset now parses image paths with spaces correctly
+`<Image />` srcset now parses encoded paths correctly
