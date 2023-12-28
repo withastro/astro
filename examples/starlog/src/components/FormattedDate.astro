@@ -3,7 +3,7 @@ import type { HTMLAttributes } from 'astro/types';
 
 type Props = HTMLAttributes<'time'> & {
 	date: Date;
-}
+};
 
 const { date, ...attrs } = Astro.props;
 ---
@@ -19,7 +19,7 @@ const { date, ...attrs } = Astro.props;
 </time>
 
 <style>
-    time {
-        display: block;
-    }
+	time {
+		display: block;
+	}
 </style>

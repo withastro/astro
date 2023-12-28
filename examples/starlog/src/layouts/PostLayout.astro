@@ -1,13 +1,13 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import BaseHead from "../components/BaseHead.astro";
+import BaseHead from '../components/BaseHead.astro';
 import FormattedDate from '../components/FormattedDate.astro';
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
 
 type Props = {
-    release: CollectionEntry<'releases'>
-}
+	release: CollectionEntry<'releases'>;
+};
 
 const { release } = Astro.props;
 ---
@@ -15,8 +15,12 @@ const { release } = Astro.props;
 <!doctype html>
 <html lang="en">
 	<head>
-        <BaseHead title={release.data.title} description={release.data.description} image={release.data.image} />
-	<body>
+		<BaseHead
+			title={release.data.title}
+			description={release.data.description}
+			image={release.data.image}
+		/>
+	</head><body>
 		<div class="glow"></div>
 		<Header />
 		<div class="post single" transition:persist transition:name="post">
@@ -33,4 +37,3 @@ const { release } = Astro.props;
 		<Footer />
 	</body>
 </html>
-
