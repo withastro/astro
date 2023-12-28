@@ -949,7 +949,7 @@ describe('astro:image', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 			const img = $('#encoded-chars img');
-			const src = img.attr('src')
+			const src = img.attr('src');
 			const data = await fixture.readFile(src);
 			expect(data).to.not.be.undefined;
 		});
