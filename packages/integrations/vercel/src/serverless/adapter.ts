@@ -308,9 +308,9 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 												...(imagesConfig.remotePatterns ?? []),
 												..._config.image.remotePatterns,
 											],
-									  }
+										}
 									: getDefaultImageConfig(_config.image),
-						  }
+							}
 						: {}),
 				});
 
