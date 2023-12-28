@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 4.0.2
+
+### Patch Changes
+
+- [#117](https://github.com/withastro/adapters/pull/117) [`89f7c01`](https://github.com/withastro/adapters/commit/89f7c017e2190c288d257560d1cb2cf8cca8f2cb) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Updates Netlify README.md
+
 ## 4.0.1
 
 ### Patch Changes
