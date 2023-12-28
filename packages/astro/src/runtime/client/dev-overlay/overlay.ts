@@ -18,6 +18,7 @@ export type DevOverlayPlugin = DevOverlayPluginDefinition & {
 const WS_EVENT_NAME = 'astro-dev-toolbar';
 const WS_EVENT_NAME_DEPRECATED = 'astro-dev-overlay';
 const HOVER_DELAY = 2 * 1000;
+const DEVBAR_HITBOX_ABOVE = 42;
 
 export class AstroDevOverlay extends HTMLElement {
 	shadowRoot: ShadowRoot;
@@ -80,7 +81,7 @@ export class AstroDevOverlay extends HTMLElement {
 				pointer-events: auto;
 			}
 			#dev-bar-hitbox-above {
-				height: 42px;
+				height: ${DEVBAR_HITBOX_ABOVE}px;
 			}
 			#dev-bar-hitbox-below {
 				height: 16px;
@@ -149,7 +150,7 @@ export class AstroDevOverlay extends HTMLElement {
 				border-radius: 4px;
 				padding: 4px 8px;
 				position: absolute;
-				top: -38px;
+				top: ${4 - DEVBAR_HITBOX_ABOVE}px;
 				font-size: 14px;
 				opacity: 0;
 				transition: opacity 0.2s ease-in-out 0s;
@@ -505,7 +506,7 @@ export class AstroDevOverlay extends HTMLElement {
 			this.devOverlay?.setAttribute('data-hidden', '');
 			barContainer?.setAttribute('inert', '');
 			devBar?.setAttribute('tabindex', '0');
-			if (devBarHitboxAbove) devBarHitboxAbove.style.height = '42px';
+			if (devBarHitboxAbove) devBarHitboxAbove.style.height = `${DEVBAR_HITBOX_ABOVE}px`;
 			return;
 		}
 	}
