@@ -8,8 +8,7 @@ import imageWithSpaces from "../assets/image 1.jpg";
 		In this example, only two images should be generated :
 		- The base image
 		- The 2x image
-		- The image path should replace ' ' with '%20' in srcset 
+		Additionally, the image URL should be encoded to avoid issues with spaces and other special characters.
 	-->
 	<Image src={imageWithSpaces} width={imageWithSpaces.width / 2} widths={[imageWithSpaces.width]} alt="" />
 </div>
-
