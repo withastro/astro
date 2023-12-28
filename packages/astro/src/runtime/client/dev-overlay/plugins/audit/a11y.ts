@@ -364,12 +364,27 @@ export const a11y: AuditRuleWithSelector[] = [
 			let ariaLabelledbyValid = false;
 			const ariaLabelledby = element.getAttribute('aria-labelledby')?.trim();
 			if (ariaLabelledby) {
-				// Split the IDs and check if each element exists
-				ariaLabelledbyValid = ariaLabelledby.split(' ').every(id => !!document.getElementById(id));
-			}
-		
-			// Return true if innerText, ariaLabel, and ariaLabelledby are all empty or invalid
-			return innerText === '' && (!ariaLabel || ariaLabel === '') && !ariaLabelledbyValid;
+        // Split the IDs
+        const ids = ariaLabelledby.split(' ');
+    
+        // Check if at least one of the referenced elements exists and has non-empty text
+        ariaLabelledbyValid = ids.some(id => {
+            const referencedElement = document.getElementById(id);
+            return referencedElement && referencedElement.innerText.trim() !== '';
+        });
+    	}
+			// Check for <img> with valid alt attribute as a descendant
+			let imgWithAlt = false;
+      const imgElements = element.querySelectorAll('img');
+      for (const img of imgElements) {
+          if (img.getAttribute('alt') && img.getAttribute('alt').trim() !== '') {
+              imgWithAlt = true;
+              break;
+          }
+      }
+	
+			// Return true if innerText, ariaLabel, ariaLabelledby, and imgWithAlt are all empty or invalid
+			return innerText === '' && (!ariaLabel || ariaLabel === '') && !ariaLabelledbyValid && !imgWithAlt;
 		},
 	},
 	{
