@@ -1,4 +1,4 @@
-import { APIContext, APIRoute } from 'astro';
+import type { APIContext, APIRoute } from 'astro';
 
 export const POST: APIRoute = ({ cookies }: APIContext) => {
 	// add a new cookie

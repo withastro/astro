@@ -17,7 +17,7 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 			'virtual:image-service'
 		).catch((e) => {
 			const error = new AstroError(AstroErrorData.InvalidImageService);
-			(error as any).cause = e;
+			error.cause = e;
 			throw error;
 		});
 
@@ -65,7 +65,7 @@ export async function getImage(
 	// Causing our generate step to think the image is used outside of the image optimization pipeline
 	const clonedSrc = isESMImportedImage(resolvedOptions.src)
 		? // @ts-expect-error - clone is a private, hidden prop
-		  resolvedOptions.src.clone ?? resolvedOptions.src
+			resolvedOptions.src.clone ?? resolvedOptions.src
 		: resolvedOptions.src;
 
 	resolvedOptions.src = clonedSrc;

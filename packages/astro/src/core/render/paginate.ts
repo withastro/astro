@@ -55,7 +55,7 @@ export function generatePaginateFunction(
 								page:
 									!includesFirstPageNumber && pageNum - 1 === 1 ? undefined : String(pageNum - 1),
 							})
-					  );
+						);
 			return {
 				params,
 				props: {

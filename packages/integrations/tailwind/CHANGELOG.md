@@ -1,5 +1,21 @@
 # @astrojs/tailwind
 
+## 5.1.0
+
+### Minor Changes
+
+- [#9529](https://github.com/withastro/astro/pull/9529) [`d252fc61b04c1491f51822f5e23fabd404d84d40`](https://github.com/withastro/astro/commit/d252fc61b04c1491f51822f5e23fabd404d84d40) Thanks [@bluwy](https://github.com/bluwy)! - Adds `nesting` option to enable `tailwindcss/nesting` support
+
+### Patch Changes
+
+- [#9479](https://github.com/withastro/astro/pull/9479) [`1baf0b0d3cbd0564954c2366a7278794fad6726e`](https://github.com/withastro/astro/commit/1baf0b0d3cbd0564954c2366a7278794fad6726e) Thanks [@sarah11918](https://github.com/sarah11918)! - Updates README
+
+## 5.0.4
+
+### Patch Changes
+
+- [#9452](https://github.com/withastro/astro/pull/9452) [`e83b5095f`](https://github.com/withastro/astro/commit/e83b5095f164f48ba40fc715a805fc66a3e39dcf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Upgrades vite to latest
+
 ## 5.0.3
 
 ### Patch Changes

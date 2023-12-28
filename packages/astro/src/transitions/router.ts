@@ -119,8 +119,9 @@ async function fetchHTML(
 ): Promise<null | { html: string; redirected?: string; mediaType: DOMParserSupportedType }> {
 	try {
 		const res = await fetch(href, init);
+		const contentType = res.headers.get('content-type') ?? '';
 		// drop potential charset (+ other name/value pairs) as parser needs the mediaType
-		const mediaType = res.headers.get('content-type')?.replace(/;.*$/, '');
+		const mediaType = contentType.split(';', 1)[0].trim();
 		// the DOMParser can handle two types of HTML
 		if (mediaType !== 'text/html' && mediaType !== 'application/xhtml+xml') {
 			// everything else (e.g. audio/mp3) will be handled by the browser but not by us
@@ -431,8 +432,8 @@ async function transition(
 	const navigationType = historyState
 		? 'traverse'
 		: options.history === 'replace'
-		  ? 'replace'
-		  : 'push';
+			? 'replace'
+			: 'push';
 
 	if (navigationType !== 'traverse') {
 		updateScrollPosition({ scrollX, scrollY });
@@ -462,7 +463,25 @@ async function transition(
 		const init: RequestInit = {};
 		if (preparationEvent.formData) {
 			init.method = 'POST';
-			init.body = preparationEvent.formData;
+			const form =
+				preparationEvent.sourceElement instanceof HTMLFormElement
+					? preparationEvent.sourceElement
+					: preparationEvent.sourceElement instanceof HTMLElement &&
+						  'form' in preparationEvent.sourceElement
+						? (preparationEvent.sourceElement.form as HTMLFormElement)
+						: preparationEvent.sourceElement?.closest('form');
+			// Form elements without enctype explicitly set default to application/x-www-form-urlencoded.
+			// In order to maintain compatibility with Astro 4.x, we need to check the value of enctype
+			// on the attributes property rather than accessing .enctype directly. Astro 5.x may
+			// introduce defaulting to application/x-www-form-urlencoded as a breaking change, and then
+			// we can access .enctype directly.
+			//
+			// Note: getNamedItem can return null in real life, even if TypeScript doesn't think so, hence
+			// the ?.
+			init.body =
+				form?.attributes.getNamedItem('enctype')?.value === 'application/x-www-form-urlencoded'
+					? new URLSearchParams(preparationEvent.formData as any)
+					: preparationEvent.formData;
 		}
 		const response = await fetchHTML(href, init);
 		// If there is a problem fetching the new page, just do an MPA navigation to it.

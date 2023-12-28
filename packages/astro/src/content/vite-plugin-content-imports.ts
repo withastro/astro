@@ -224,7 +224,7 @@ async function getContentEntryModule(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
 				pluginContext
-		  )
+			)
 		: unvalidatedData;
 
 	const contentEntryModule: ContentEntryModule = {
@@ -258,7 +258,7 @@ async function getDataEntryModule(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
 				pluginContext
-		  )
+			)
 		: unvalidatedData;
 
 	const dataEntryModule: DataEntryModule = {

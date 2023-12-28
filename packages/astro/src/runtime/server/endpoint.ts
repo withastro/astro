@@ -2,18 +2,6 @@ import { bold } from 'kleur/colors';
 import type { APIContext, EndpointHandler, Params } from '../../@types/astro.js';
 import type { Logger } from '../../core/logger/core.js';
 
-function getHandlerFromModule(mod: EndpointHandler, method: string) {
-	// If there was an exact match on `method`, return that function.
-	if (mod[method]) {
-		return mod[method];
-	}
-	if (mod['ALL']) {
-		return mod['ALL'];
-	}
-	// Otherwise, no handler found.
-	return undefined;
-}
-
 /** Renders an endpoint request to completion, returning the body. */
 export async function renderEndpoint(
 	mod: EndpointHandler,
@@ -23,38 +11,38 @@ export async function renderEndpoint(
 ) {
 	const { request, url } = context;
 
-	const chosenMethod = request.method?.toUpperCase();
-	const handler = getHandlerFromModule(mod, chosenMethod);
-	if (!ssr && ssr === false && chosenMethod && chosenMethod !== 'GET') {
+	const method = request.method.toUpperCase();
+	// use the exact match on `method`, fallback to ALL
+	const handler = mod[method] ?? mod['ALL'];
+	if (!ssr && ssr === false && method !== 'GET') {
 		logger.warn(
-			null,
+			'router',
 			`${url.pathname} ${bold(
-				chosenMethod
+				method
 			)} requests are not available for a static site. Update your config to \`output: 'server'\` or \`output: 'hybrid'\` to enable.`
 		);
 	}
-	if (!handler || typeof handler !== 'function') {
+	if (typeof handler !== 'function') {
+		logger.warn(
+			'router',
+			`No API Route handler exists for the method "${method}" for the route ${url.pathname}.\n` +
+				`Found handlers: ${Object.keys(mod)
+					.map((exp) => JSON.stringify(exp))
+					.join(', ')}\n` +
+				('all' in mod
+					? `One of the exported handlers is "all" (lowercase), did you mean to export 'ALL'?\n`
+					: '')
+		);
 		// No handler found, so this should be a 404. Using a custom header
 		// to signal to the renderer that this is an internal 404 that should
 		// be handled by a custom 404 route if possible.
-		let response = new Response(null, {
+		return new Response(null, {
 			status: 404,
 			headers: {
 				'X-Astro-Response': 'Not-Found',
 			},
 		});
-		return response;
 	}
 
-	const proxy = new Proxy(context, {
-		get(target, prop) {
-			if (prop in target) {
-				return Reflect.get(target, prop);
-			} else {
-				return undefined;
-			}
-		},
-	}) as APIContext & Params;
-
-	return handler.call(mod, proxy, request);
+	return handler.call(mod, context);
 }

@@ -1,5 +1,21 @@
 # @astrojs/svelte
 
+## 5.0.3
+
+### Patch Changes
+
+- [#9510](https://github.com/withastro/astro/pull/9510) [`cf993bc263b58502096f00d383266cd179f331af`](https://github.com/withastro/astro/commit/cf993bc263b58502096f00d383266cd179f331af) Thanks [@nikhilk](https://github.com/nikhilk)! - Filter out Svelte's unknown data prop warnings
+
+- [#9530](https://github.com/withastro/astro/pull/9530) [`337ca508bdd4fb88db5db7b9b1aee77624a346f7`](https://github.com/withastro/astro/commit/337ca508bdd4fb88db5db7b9b1aee77624a346f7) Thanks [@bluwy](https://github.com/bluwy)! - Forwards errors if a Svelte component fails to instantiate in the client
+
+- [#9479](https://github.com/withastro/astro/pull/9479) [`1baf0b0d3cbd0564954c2366a7278794fad6726e`](https://github.com/withastro/astro/commit/1baf0b0d3cbd0564954c2366a7278794fad6726e) Thanks [@sarah11918](https://github.com/sarah11918)! - Updates README
+
+## 5.0.2
+
+### Patch Changes
+
+- [#9452](https://github.com/withastro/astro/pull/9452) [`e83b5095f`](https://github.com/withastro/astro/commit/e83b5095f164f48ba40fc715a805fc66a3e39dcf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Upgrades vite to latest
+
 ## 5.0.1
 
 ### Patch Changes
