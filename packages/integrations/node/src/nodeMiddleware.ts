@@ -2,6 +2,7 @@ import type { NodeApp } from 'astro/app/node';
 import type { ServerResponse } from 'node:http';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import type { ErrorHandlerParams, Options, RequestHandlerParams } from './types.js';
+import type { AstroIntegrationLogger } from 'astro';
 
 // Disable no-unused-vars to avoid breaking signature change
 export default function (app: NodeApp, mode: Options['mode']) {
@@ -29,12 +30,14 @@ export default function (app: NodeApp, mode: Options['mode']) {
 			}
 		}
 
+		const logger = app.getAdapterLogger();
+
 		try {
 			const routeData = app.match(req);
 			if (routeData) {
 				try {
 					const response = await app.render(req, { routeData, locals });
-					await writeWebResponse(app, res, response);
+					await writeWebResponse(app, res, response, logger);
 				} catch (err: unknown) {
 					if (next) {
 						next(err);
@@ -46,10 +49,9 @@ export default function (app: NodeApp, mode: Options['mode']) {
 				return next();
 			} else {
 				const response = await app.render(req);
-				await writeWebResponse(app, res, response);
+				await writeWebResponse(app, res, response, logger);
 			}
 		} catch (err: unknown) {
-			const logger = app.getAdapterLogger();
 			logger.error(`Could not render ${req.url}`);
 			console.error(err);
 			if (!res.headersSent) {
@@ -60,34 +62,40 @@ export default function (app: NodeApp, mode: Options['mode']) {
 	};
 }
 
-async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: Response) {
-	const { status, headers } = webResponse;
+async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: Response, logger: AstroIntegrationLogger) {
+	const { status, headers, body } = webResponse;
 
 	if (app.setCookieHeaders) {
 		const setCookieHeaders: Array<string> = Array.from(app.setCookieHeaders(webResponse));
 
 		if (setCookieHeaders.length) {
 			for (const setCookieHeader of setCookieHeaders) {
-				webResponse.headers.append('set-cookie', setCookieHeader);
+				headers.append('set-cookie', setCookieHeader);
 			}
 		}
 	}
 
 	const nodeHeaders = createOutgoingHttpHeaders(headers);
 	res.writeHead(status, nodeHeaders);
-	if (webResponse.body) {
+	if (body) {
 		try {
-			const reader = webResponse.body.getReader();
+			const reader = body.getReader();
 			res.on('close', () => {
-				reader.cancel();
+				// Cancelling the reader may reject not just because of
+				// an error in the ReadableStream's cancel callback, but
+				// also because of an error anywhere in the stream.
+				reader.cancel().catch(err => {
+					logger.error(`There was an uncaught error in the middle of the stream while rendering ${res.req.url}.`);
+					console.error(err);
+				});
 			});
 			let result = await reader.read();
 			while (!result.done) {
 				res.write(result.value);
 				result = await reader.read();
 			}
-		} catch (err: any) {
-			console.error(err?.stack || err?.message || String(err));
+        // the error will be logged by the "on end" callback above
+		} catch {
 			res.write('Internal server error');
 		}
 	}
