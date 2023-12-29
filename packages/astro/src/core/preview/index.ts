@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroInlineConfig, PreviewModule, PreviewServer } from '../../@types/astro.js';
@@ -32,6 +33,12 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 	await runHookConfigDone({ settings: settings, logger: logger });
 
 	if (settings.config.output === 'static') {
+		if (!fs.existsSync(settings.config.outDir)) {
+			const outDirPath = fileURLToPath(settings.config.outDir);
+			throw new Error(
+				`[preview] The output directory ${outDirPath} does not exist. Did you run \`astro build\`?`
+			);
+		}
 		const server = await createStaticPreviewServer(settings, logger);
 		return server;
 	}
