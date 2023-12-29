@@ -68,7 +68,12 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 
 		// Generic error (probably from Vite, and already formatted)
 		error.hint = generateHint(e);
-		error.message = stripAnsi(error.message);
+
+		// Strip ANSI for `message` property. Note that ESBuild errors may not have the property,
+		// but it will be handled and added below, which is already ANSI-free
+		if (error.message) {
+			error.message = stripAnsi(error.message);
+		}
 	});
 
 	// If we received an array of errors and it's not from us, it's most likely from ESBuild, try to extract info for Vite to display
