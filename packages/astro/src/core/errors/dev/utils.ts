@@ -26,7 +26,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 	err.forEach((error) => {
 		if (e.stack) {
 			const stackInfo = collectInfoFromStacktrace(e);
-			error.stack = stackInfo.stack;
+			error.stack = stripAnsi(stackInfo.stack);
 			error.loc = stackInfo.loc;
 			error.plugin = stackInfo.plugin;
 			error.pluginCode = stackInfo.pluginCode;
@@ -57,7 +57,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 
 				if (!error.frame) {
 					const frame = codeFrame(fileContents, error.loc);
-					error.frame = frame;
+					error.frame = stripAnsi(frame);
 				}
 
 				if (!error.fullCode) {
@@ -68,6 +68,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 
 		// Generic error (probably from Vite, and already formatted)
 		error.hint = generateHint(e);
+		error.message = stripAnsi(error.message);
 	});
 
 	// If we received an array of errors and it's not from us, it's most likely from ESBuild, try to extract info for Vite to display
