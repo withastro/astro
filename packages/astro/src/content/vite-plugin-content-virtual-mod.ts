@@ -261,7 +261,12 @@ export async function generateLookupMap({
 					if (lookupMap[collection]?.entries?.[slug]) {
 						throw new AstroError({
 							...AstroErrorData.DuplicateContentEntrySlugError,
-							message: AstroErrorData.DuplicateContentEntrySlugError.message(collection, slug),
+							message: AstroErrorData.DuplicateContentEntrySlugError.message(
+								collection,
+								slug,
+								lookupMap[collection]!.entries[slug],
+								rootRelativePath(root, filePath)
+							),
 							hint:
 								slug !== generatedSlug
 									? `Check the \`slug\` frontmatter property in **${id}**.`
