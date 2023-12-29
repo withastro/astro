@@ -94,7 +94,8 @@ async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: 
 				res.write(result.value);
 				result = await reader.read();
 			}
-		} catch (err: any) {
+        // the error will be logged by the "on end" callback above
+		} catch {
 			res.write('Internal server error');
 		}
 	}
