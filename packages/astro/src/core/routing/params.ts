@@ -12,9 +12,9 @@ export function getParams(array: string[]) {
 		const params: Params = {};
 		array.forEach((key, i) => {
 			if (key.startsWith('...')) {
-				params[key.slice(3)] = match[i + 1] ? decodeURIComponent(match[i + 1]) : undefined;
+				params[key.slice(3)] = match[i + 1] ? match[i + 1] : undefined;
 			} else {
-				params[key] = decodeURIComponent(match[i + 1]);
+				params[key] = match[i + 1];
 			}
 		});
 		return params;

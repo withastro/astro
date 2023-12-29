@@ -432,8 +432,8 @@ async function transition(
 	const navigationType = historyState
 		? 'traverse'
 		: options.history === 'replace'
-		  ? 'replace'
-		  : 'push';
+			? 'replace'
+			: 'push';
 
 	if (navigationType !== 'traverse') {
 		updateScrollPosition({ scrollX, scrollY });
@@ -467,9 +467,9 @@ async function transition(
 				preparationEvent.sourceElement instanceof HTMLFormElement
 					? preparationEvent.sourceElement
 					: preparationEvent.sourceElement instanceof HTMLElement &&
-					    'form' in preparationEvent.sourceElement
-					  ? (preparationEvent.sourceElement.form as HTMLFormElement)
-					  : preparationEvent.sourceElement?.closest('form');
+						  'form' in preparationEvent.sourceElement
+						? (preparationEvent.sourceElement.form as HTMLFormElement)
+						: preparationEvent.sourceElement?.closest('form');
 			// Form elements without enctype explicitly set default to application/x-www-form-urlencoded.
 			// In order to maintain compatibility with Astro 4.x, we need to check the value of enctype
 			// on the attributes property rather than accessing .enctype directly. Astro 5.x may
