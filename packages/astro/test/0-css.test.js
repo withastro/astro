@@ -367,7 +367,7 @@ describe('CSS', function () {
 				'ReactModules.module.sass',
 			];
 			for (const style of styles) {
-				const href = $(`link[href$="${style}"]`).attr('href');
+				const href = $(`style[data-vite-dev-id$="${style}"]`).attr('data-vite-dev-id');
 				expect((await fixture.fetch(href)).status, style).to.equal(200);
 			}
 
@@ -423,7 +423,7 @@ describe('CSS', function () {
 
 		it('.module.css ordering', () => {
 			const globalStyleTag = $('style[data-vite-dev-id$="default.css"]');
-			const moduleStyleTag = $('link[href$="ModuleOrdering.module.css"]');
+			const moduleStyleTag = $('style[data-vite-dev-id$="ModuleOrdering.module.css"]');
 			const globalStyleClassIndex = globalStyleTag.index();
 			const moduleStyleClassIndex = moduleStyleTag.index();
 			// css module has higher priority than global style

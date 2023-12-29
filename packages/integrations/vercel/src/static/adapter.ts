@@ -129,9 +129,9 @@ export default function vercelStatic({
 												...(imagesConfig.remotePatterns ?? []),
 												..._config.image.remotePatterns,
 											],
-									  }
+										}
 									: getDefaultImageConfig(_config.image),
-						  }
+							}
 						: {}),
 				});
 			},
