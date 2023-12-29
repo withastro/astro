@@ -20,12 +20,12 @@ export function baseMiddleware(
 	return function devBaseMiddleware(req, res, next) {
 		const url = req.url!;
 
-		let pathname = url;
+		let pathname: string;
 		try {
-			pathname = decodeURI(pathname);
+			pathname = decodeURI(new URL(url, 'http://localhost').pathname);
 		} catch (e) {
 			/* malform uri */
-			return next(e)
+			return next(e);
 		}
 
 		if (pathname.startsWith(devRoot)) {
