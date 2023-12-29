@@ -2,13 +2,7 @@ type ViteUserConfig = import('vite').UserConfig;
 type ViteUserConfigFn = import('vite').UserConfigFn;
 type AstroUserConfig = import('./dist/@types/astro.js').AstroUserConfig;
 type ImageServiceConfig = import('./dist/@types/astro.js').ImageServiceConfig;
-
-export interface SharpImageServiceConfig {
-	/**
-	 * The `limitInputPixels` option passed to Sharp. See https://sharp.pixelplumbing.com/api-constructor for more information
-	 */
-	limitInputPixels?: number;
-}
+type SharpImageServiceConfig = import('./dist/assets/services/sharp.js').SharpImageServiceConfig;
 
 /**
  * See the full Astro Configuration API Documentation

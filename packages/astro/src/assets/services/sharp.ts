@@ -1,5 +1,4 @@
 import type { FormatEnum } from 'sharp';
-import type { SharpImageServiceConfig } from '../../../config.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
@@ -8,6 +7,13 @@ import {
 	type BaseServiceTransform,
 	type LocalImageService,
 } from './service.js';
+
+export interface SharpImageServiceConfig {
+	/**
+	 * The `limitInputPixels` option passed to Sharp. See https://sharp.pixelplumbing.com/api-constructor for more information
+	 */
+	limitInputPixels?: number;
+}
 
 let sharp: typeof import('sharp');
 
