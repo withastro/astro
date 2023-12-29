@@ -17,16 +17,13 @@ interface Cart {
 	}>;
 }
 
-function getOrigin(request: Request): string {
-	return new URL(request.url).origin.replace('localhost', '127.0.0.1');
-}
-
 async function get<T>(
 	incomingReq: Request,
 	endpoint: string,
 	cb: (response: Response) => Promise<T>
 ): Promise<T> {
-	const response = await fetch(`${getOrigin(incomingReq)}${endpoint}`, {
+	const origin = new URL(incomingReq.url).origin;
+	const response = await fetch(`${origin}${endpoint}`, {
 		credentials: 'same-origin',
 		headers: incomingReq.headers,
 	});
