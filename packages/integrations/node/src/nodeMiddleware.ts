@@ -62,7 +62,12 @@ export default function (app: NodeApp, mode: Options['mode']) {
 	};
 }
 
-async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: Response, logger: AstroIntegrationLogger) {
+async function writeWebResponse(
+	app: NodeApp,
+	res: ServerResponse,
+	webResponse: Response,
+	logger: AstroIntegrationLogger
+) {
 	const { status, headers, body } = webResponse;
 
 	if (app.setCookieHeaders) {
@@ -84,8 +89,10 @@ async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: 
 				// Cancelling the reader may reject not just because of
 				// an error in the ReadableStream's cancel callback, but
 				// also because of an error anywhere in the stream.
-				reader.cancel().catch(err => {
-					logger.error(`There was an uncaught error in the middle of the stream while rendering ${res.req.url}.`);
+				reader.cancel().catch((err) => {
+					logger.error(
+						`There was an uncaught error in the middle of the stream while rendering ${res.req.url}.`
+					);
 					console.error(err);
 				});
 			});
@@ -94,7 +101,7 @@ async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: 
 				res.write(result.value);
 				result = await reader.read();
 			}
-        // the error will be logged by the "on end" callback above
+			// the error will be logged by the "on end" callback above
 		} catch {
 			res.write('Internal server error');
 		}
