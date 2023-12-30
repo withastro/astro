@@ -364,27 +364,41 @@ export const a11y: AuditRuleWithSelector[] = [
 			let ariaLabelledbyValid = false;
 			const ariaLabelledby = element.getAttribute('aria-labelledby')?.trim();
 			if (ariaLabelledby) {
-        // Split the IDs
-        const ids = ariaLabelledby.split(' ');
-    
-        // Check if at least one of the referenced elements exists and has non-empty text
-        ariaLabelledbyValid = ids.some(id => {
-            const referencedElement = document.getElementById(id);
-            return referencedElement && referencedElement.innerText.trim() !== '';
-        });
-    	}
-			// Check for <img> with valid alt attribute as a descendant
+				const ids = ariaLabelledby.split(' ');
+				// Check if at least one of the referenced elements exists and has non-empty text
+				ariaLabelledbyValid = ids.some((id) => {
+					const referencedElement = document.getElementById(id);
+					return referencedElement && referencedElement.innerText.trim() !== '';
+				});
+			}
+			// Check for <img> with valid alt attribute
 			let imgWithAlt = false;
-      const imgElements = element.querySelectorAll('img');
-      for (const img of imgElements) {
-          if (img.getAttribute('alt') && img.getAttribute('alt').trim() !== '') {
-              imgWithAlt = true;
-              break;
-          }
-      }
-	
-			// Return true if innerText, ariaLabel, ariaLabelledby, and imgWithAlt are all empty or invalid
-			return innerText === '' && (!ariaLabel || ariaLabel === '') && !ariaLabelledbyValid && !imgWithAlt;
+			const imgElements = element.querySelectorAll('img');
+			for (const img of imgElements) {
+				const altAttribute = img.getAttribute('alt');
+				if (altAttribute && altAttribute.trim() !== '') {
+					imgWithAlt = true;
+					break;
+				}
+			}
+			// Check for <svg> with valid title
+			let svgWithTitle = false;
+			const svgElements = element.querySelectorAll('svg');
+			for (const svg of svgElements) {
+				const titleText = svg.querySelector('title');
+				if (titleText && titleText.textContent && titleText.textContent.trim() !== '') {
+					svgWithTitle = true;
+					break;
+				}
+			}
+			// Return true if innerText, ariaLabel, ariaLabelledby, imgWithAlt and svgWithTitle are all empty or invalid
+			return (
+				innerText === '' &&
+				(!ariaLabel || ariaLabel === '') &&
+				!ariaLabelledbyValid &&
+				!imgWithAlt &&
+				!svgWithTitle
+			);
 		},
 	},
 	{
