@@ -358,47 +358,38 @@ export const a11y: AuditRuleWithSelector[] = [
 		match(element: HTMLElement) {
 			// innerText is used to ignore hidden text
 			const innerText = element.innerText.trim();
+			if (innerText !== '') return false;
+
 			// Check for aria-label
 			const ariaLabel = element.getAttribute('aria-label')?.trim();
+			if (ariaLabel && ariaLabel !== '') return false;
+
 			// Check for valid aria-labelledby
-			let ariaLabelledbyValid = false;
 			const ariaLabelledby = element.getAttribute('aria-labelledby')?.trim();
 			if (ariaLabelledby) {
 				const ids = ariaLabelledby.split(' ');
-				// Check if at least one of the referenced elements exists and has non-empty text
-				ariaLabelledbyValid = ids.some((id) => {
+				for (const id of ids) {
 					const referencedElement = document.getElementById(id);
-					return referencedElement && referencedElement.innerText.trim() !== '';
-				});
+					if (referencedElement && referencedElement.innerText.trim() !== '') return false;
+				}
 			}
+
 			// Check for <img> with valid alt attribute
-			let imgWithAlt = false;
 			const imgElements = element.querySelectorAll('img');
 			for (const img of imgElements) {
 				const altAttribute = img.getAttribute('alt');
-				if (altAttribute && altAttribute.trim() !== '') {
-					imgWithAlt = true;
-					break;
-				}
+				if (altAttribute && altAttribute.trim() !== '') return false;
 			}
+
 			// Check for <svg> with valid title
-			let svgWithTitle = false;
 			const svgElements = element.querySelectorAll('svg');
 			for (const svg of svgElements) {
 				const titleText = svg.querySelector('title');
-				if (titleText && titleText.textContent && titleText.textContent.trim() !== '') {
-					svgWithTitle = true;
-					break;
-				}
+				if (titleText && titleText.textContent && titleText.textContent.trim() !== '') return false;
 			}
-			// Return true if innerText, ariaLabel, ariaLabelledby, imgWithAlt and svgWithTitle are all empty or invalid
-			return (
-				innerText === '' &&
-				(!ariaLabel || ariaLabel === '') &&
-				!ariaLabelledbyValid &&
-				!imgWithAlt &&
-				!svgWithTitle
-			);
+
+			// If all checks fail, return true indicating missing content
+			return true;
 		},
 	},
 	{
