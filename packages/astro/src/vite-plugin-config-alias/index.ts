@@ -84,6 +84,13 @@ export default function configAliasVitePlugin({
 			for (const alias of configAlias) {
 				if (alias.find.test(id)) {
 					const updatedId = id.replace(alias.find, alias.replacement);
+
+					// Vite may pass a "*"" for glob import paths resolving, which we can assume to apply
+					// the alias here directly
+					if (updatedId.includes('*')) {
+						return updatedId;
+					}
+
 					const resolved = await this.resolve(updatedId, importer, { skipSelf: true, ...options });
 					if (resolved) return resolved;
 				}
