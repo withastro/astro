@@ -1,5 +1,5 @@
 ---
-"@astrojs/vue": minor
+"@astrojs/vue": patch
 ---
 
 Fixes support for async `appEntrypoint`
