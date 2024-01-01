@@ -63,9 +63,9 @@ function virtualAppEntrypoint(options?: Options): Plugin {
 					return `\
 import * as mod from ${JSON.stringify(appEntrypoint)};
 						
-export const setup = (app) => {
+export const setup = async (app) => {
 	if ('default' in mod) {
-		mod.default(app);
+		await mod.default(app);
 	} else {
 		${
 			!isBuild
