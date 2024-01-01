@@ -213,7 +213,9 @@ const moveToLocation = (to: URL, from: URL, options: Options, historyState?: Sta
 			// ... what comes next is a intra-page navigation
 			// that won't reload the page but instead scroll to the fragment
 			history.scrollRestoration = 'auto';
-			location.href = to.href;
+			const savedState = history.state;
+			location.href = to.href; // this kills the history state on Firefox
+			history.replaceState(savedState, ''); // this restores the history state
 		} else {
 			if (!scrolledToTop) {
 				scrollTo({ left: 0, top: 0, behavior: 'instant' });
