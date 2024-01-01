@@ -123,6 +123,8 @@ async function runInstallCommand(
 	const cwd = fileURLToPath(ctx.cwd);
 	if (ctx.packageManager === 'yarn') await ensureYarnLock({ cwd });
 
+	const installCmd = ctx.packageManager === 'yarn' ? 'add' : 'install'; 
+
 	await spinner({
 		start: `Installing dependencies with ${ctx.packageManager}...`,
 		end: `Installed dependencies!`,
@@ -132,7 +134,7 @@ async function runInstallCommand(
 					await shell(
 						ctx.packageManager,
 						[
-							'install',
+							installCmd,
 							...dependencies.map(
 								({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`
 							),
@@ -144,7 +146,7 @@ async function runInstallCommand(
 					await shell(
 						ctx.packageManager,
 						[
-							'install',
+							installCmd,
 							'--save-dev',
 							...devDependencies.map(
 								({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`
@@ -161,7 +163,7 @@ async function runInstallCommand(
 				error(
 					'error',
 					`Dependencies failed to install, please run the following command manually:\n${color.bold(
-						`${ctx.packageManager} install ${packages}`
+						`${ctx.packageManager} ${installCmd} ${packages}`
 					)}`
 				);
 				return ctx.exit(1);
