@@ -51,6 +51,7 @@
     }
   },
   "files": [
+    "CHANGELOG.md",
     "components",
     "dist",
     "template"

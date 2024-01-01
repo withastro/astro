@@ -30,6 +30,7 @@
     "./package.json": "./package.json"
   },
   "files": [
+    "CHANGELOG.md",
     "dist",
     "client.js",
     "client-v5.js",

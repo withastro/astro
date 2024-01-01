@@ -17,6 +17,7 @@
     "./dist/internal.js": "./dist/internal.js"
   },
   "files": [
+    "CHANGELOG.md",
     "dist"
   ],
   "scripts": {

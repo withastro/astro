@@ -17,6 +17,7 @@
     ".": "./dist/index.js"
   },
   "files": [
+    "CHANGELOG.md",
     "dist"
   ],
   "scripts": {

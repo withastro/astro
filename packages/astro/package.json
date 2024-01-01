@@ -81,6 +81,7 @@
     "astro": "astro.js"
   },
   "files": [
+    "CHANGELOG.md",
     "components",
     "tsconfigs",
     "dist",

@@ -26,6 +26,7 @@
     "test": "mocha --exit --timeout 20000 test/"
   },
   "files": [
+    "CHANGELOG.md",
     "dist"
   ],
   "dependencies": {

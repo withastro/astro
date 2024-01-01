@@ -28,6 +28,7 @@
     "./package.json": "./package.json"
   },
   "files": [
+    "CHANGELOG.md",
     "dist",
     "client-shim.js",
     "client-shim.min.js",

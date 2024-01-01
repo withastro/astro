@@ -29,6 +29,7 @@
     "./jsx-runtime": "./jsx-runtime.js"
   },
   "files": [
+    "CHANGELOG.md",
     "dist",
     "client.js",
     "client-v17.js",
