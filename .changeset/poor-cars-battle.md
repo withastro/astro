@@ -2,4 +2,4 @@
 "@astrojs/upgrade": patch
 ---
 
-Change the command used for upgrading packages for yarn from `install` to `add`
+Fixes packages upgrading when using yarn
