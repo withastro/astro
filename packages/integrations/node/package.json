@@ -19,8 +19,8 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/node/",
   "exports": {
     ".": "./dist/index.js",
-    "./server.js": "./dist/server.js",
-    "./preview.js": "./dist/preview.js",
+    "./server.js": "./dist/server-entrypoint.js",
+    "./preview.js": "./dist/preview-entrypoint.js",
     "./package.json": "./package.json"
   },
   "files": [

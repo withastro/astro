@@ -1,3 +1,4 @@
+import type { NodeApp } from 'astro/app/node';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 export interface UserOptions {
@@ -18,11 +19,19 @@ export interface Options extends UserOptions {
 	assets: string;
 }
 
+export interface CreateServerOptions {
+	app: NodeApp;
+	assets: string;
+	client: URL;
+	port: number;
+	host: string | undefined;
+	removeBase: (pathname: string) => string;
+}
+
+export type RequestHandler = (...args: RequestHandlerParams) => void | Promise<void>;
 export type RequestHandlerParams = [
 	req: IncomingMessage,
 	res: ServerResponse,
 	next?: (err?: unknown) => void,
 	locals?: object,
 ];
-
-export type ErrorHandlerParams = [unknown, ...RequestHandlerParams];
