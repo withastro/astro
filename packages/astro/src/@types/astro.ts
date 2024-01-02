@@ -153,7 +153,7 @@ export interface CLIFlags {
 	host?: string | boolean;
 	port?: number;
 	config?: string;
-	open?: boolean;
+	open?: string | boolean;
 }
 
 /**
@@ -371,11 +371,12 @@ type ServerConfig = {
 
 	/**
 	 * @name server.open
-	 * @type {boolean}
+	 * @type {string | boolean}
 	 * @default `false`
 	 * @version 2.1.8
 	 * @description
 	 * Control whether the dev server should open in your browser window on startup.
+	 * A URL string can also be passed to specify the URL to open.
 	 *
 	 * ```js
 	 * {
@@ -383,7 +384,7 @@ type ServerConfig = {
 	 * }
 	 * ```
 	 */
-	open?: boolean;
+	open?: string | boolean;
 };
 
 export interface ViteUserConfig extends vite.UserConfig {
@@ -1021,11 +1022,12 @@ export interface AstroUserConfig {
 
 	/**
 	 * @name server.open
-	 * @type {boolean}
+	 * @type {string | boolean}
 	 * @default `false`
 	 * @version 2.1.8
 	 * @description
 	 * Control whether the dev server should open in your browser window on startup.
+	 * A URL string can also be passed to specify the URL to open.
 	 *
 	 * ```js
 	 * {

@@ -147,7 +147,10 @@ export const AstroConfigSchema = z.object({
 		// validate
 		z
 			.object({
-				open: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.server.open),
+				open: z
+					.union([z.string(), z.boolean()])
+					.optional()
+					.default(ASTRO_CONFIG_DEFAULTS.server.open),
 				host: z
 					.union([z.string(), z.boolean()])
 					.optional()
@@ -464,12 +467,15 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 			// validate
 			z
 				.object({
+					open: z
+						.union([z.string(), z.boolean()])
+						.optional()
+						.default(ASTRO_CONFIG_DEFAULTS.server.open),
 					host: z
 						.union([z.string(), z.boolean()])
 						.optional()
 						.default(ASTRO_CONFIG_DEFAULTS.server.host),
 					port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
-					open: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.server.open),
 					headers: z.custom<OutgoingHttpHeaders>().optional(),
 					streaming: z.boolean().optional().default(true),
 				})
