@@ -6,13 +6,16 @@ import type { AstroConfig } from '../../@types/astro.js';
 import type { BuildPipeline } from '../../core/build/buildPipeline.js';
 import { getOutDirWithinCwd } from '../../core/build/common.js';
 import { getTimeStat } from '../../core/build/util.js';
+import { AstroError } from '../../core/errors/errors.js';
+import { AstroErrorData } from '../../core/errors/index.js';
 import type { Logger } from '../../core/logger/core.js';
 import { isRemotePath, prependForwardSlash } from '../../core/path.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import type { MapValue } from '../../type-utils.js';
-import { getConfiguredImageService, isESMImportedImage } from '../internal.js';
+import { getConfiguredImageService } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
 import type { AssetsGlobalStaticImagesList, ImageMetadata, ImageTransform } from '../types.js';
+import { isESMImportedImage } from '../utils/imageKind.js';
 import { loadRemoteImage, type RemoteCacheEntry } from './remote.js';
 
 interface GenerationDataUncached {
@@ -102,9 +105,11 @@ export async function generateImagesForPath(
 	const originalImageData = await loadImage(originalFilePath, env);
 
 	for (const [_, transform] of transformsAndPath.transforms) {
-		queue.add(async () =>
-			generateImage(originalImageData, transform.finalPath, transform.transform)
-		);
+		await queue
+			.add(async () => generateImage(originalImageData, transform.finalPath, transform.transform))
+			.catch((e) => {
+				throw e;
+			});
 	}
 
 	// In SSR, we cannot know if an image is referenced in a server-rendered page, so we can't delete anything
@@ -206,13 +211,26 @@ export async function generateImagesForPath(
 		};
 
 		const imageService = (await getConfiguredImageService()) as LocalImageService;
-		resultData.data = (
-			await imageService.transform(
-				originalImage.data,
-				{ ...options, src: originalImagePath },
-				env.imageConfig
-			)
-		).data;
+
+		try {
+			resultData.data = (
+				await imageService.transform(
+					originalImage.data,
+					{ ...options, src: originalImagePath },
+					env.imageConfig
+				)
+			).data;
+		} catch (e) {
+			const error = new AstroError(
+				{
+					...AstroErrorData.CouldNotTransformImage,
+					message: AstroErrorData.CouldNotTransformImage.message(originalFilePath),
+				},
+				{ cause: e }
+			);
+
+			throw error;
+		}
 
 		try {
 			// Write the cache entry

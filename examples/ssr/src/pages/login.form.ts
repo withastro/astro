@@ -1,4 +1,4 @@
-import { APIContext } from 'astro';
+import type { APIContext } from 'astro';
 
 export function POST({ cookies }: APIContext) {
 	// add a new cookie

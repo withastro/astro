@@ -627,6 +627,7 @@ declare namespace astroHTML.JSX {
 	}
 
 	interface ButtonHTMLAttributes extends HTMLAttributes {
+		autocomplete?: string | undefined | null;
 		disabled?: boolean | string | undefined | null;
 		form?: string | undefined | null;
 		formaction?: string | undefined | null;

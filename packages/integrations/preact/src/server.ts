@@ -13,6 +13,7 @@ let consoleFilterRefs = 0;
 
 function check(this: RendererContext, Component: any, props: Record<string, any>, children: any) {
 	if (typeof Component !== 'function') return false;
+	if (Component.name === 'QwikComponent') return false;
 
 	if (Component.prototype != null && typeof Component.prototype.render === 'function') {
 		return BaseComponent.isPrototypeOf(Component);
@@ -79,7 +80,7 @@ function renderToStaticMarkup(
 				? h(StaticHtml, {
 						hydrate: shouldHydrate(metadata),
 						value: children,
-				  })
+					})
 				: children
 		) as VNode<any>
 	);

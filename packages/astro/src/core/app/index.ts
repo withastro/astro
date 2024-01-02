@@ -333,7 +333,8 @@ export class App {
 		request: Request,
 		{ status, response: originalResponse, skipMiddleware = false }: RenderErrorOptions
 	): Promise<Response> {
-		const errorRouteData = matchRoute('/' + status, this.#manifestData);
+		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
+		const errorRouteData = matchRoute(errorRoutePath, this.#manifestData);
 		const url = new URL(request.url);
 		if (errorRouteData) {
 			if (errorRouteData.prerender) {
@@ -408,8 +409,8 @@ export class App {
 		const status = override?.status
 			? override.status
 			: originalResponse.status === 200
-			  ? newResponse.status
-			  : originalResponse.status;
+				? newResponse.status
+				: originalResponse.status;
 
 		try {
 			// this function could throw an error...

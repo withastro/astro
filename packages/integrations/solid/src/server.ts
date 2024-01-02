@@ -21,6 +21,7 @@ async function check(
 	children: any
 ) {
 	if (typeof Component !== 'function') return false;
+	if (Component.name === 'QwikComponent') return false;
 
 	// There is nothing particularly special about Solid components. Basically they are just functions.
 	// In general, components from other frameworks (eg, MDX, React, etc.) tend to render as "undefined",

@@ -169,13 +169,13 @@ ${
 	validRenderersCount > 0
 		? `There ${plural ? 'are' : 'is'} ${validRenderersCount} renderer${
 				plural ? 's' : ''
-		  } configured in your \`astro.config.mjs\` file,
+			} configured in your \`astro.config.mjs\` file,
 but ${plural ? 'none were' : 'it was not'} able to server-side render \`${componentName}\`.`
 		: `No valid renderer was found ${
 				componentExtension
 					? `for the \`.${componentExtension}\` file extension.`
 					: `for this file extension.`
-		  }`
+			}`
 }`,
 	hint: (probableRenderers: string) =>
 		`Did you mean to enable the ${probableRenderers} integration?\n\nSee https://docs.astro.build/en/core-concepts/framework-components/ for more information on how to install and configure integrations.`,
@@ -708,6 +708,23 @@ export const MarkdownImageNotFound = {
 
 /**
  * @docs
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * @description
+ * Astro could not transform one of your images. Often, this is caused by a corrupted or malformed image. Re-exporting the image from your image editor may fix this issue.
+ *
+ * Depending on the image service you are using, the stack trace may contain more information on the specific error encountered.
+ */
+export const CouldNotTransformImage = {
+	name: 'CouldNotTransformImage',
+	title: 'Could not transform image.',
+	message: (imagePath: string) =>
+		`Could not transform image \`${imagePath}\`. See the stack trace for more information.`,
+	hint: 'This is often caused by a corrupted or malformed image. Re-exporting the image from your image editor may fix this issue.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @description
  * Making changes to the response, such as setting headers, cookies, and the status code cannot be done outside of page components.
  */
@@ -778,6 +795,26 @@ export const LocalsNotAnObject = {
 	message:
 		'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
 	hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Thrown in development mode when middleware throws an error while attempting to loading it.
+ *
+ * For example:
+ * ```ts
+ * import {defineMiddleware} from "astro:middleware";
+ * throw new Error("Error thrown while loading the middleware.")
+ * export const onRequest = defineMiddleware(() => {
+ *   return "string"
+ * });
+ * ```
+ */
+export const MiddlewareCantBeLoaded = {
+	name: 'MiddlewareCantBeLoaded',
+	title: "Can't load the middleware.",
+	message: 'The middleware threw an error while Astro was trying to loading it.',
 } satisfies ErrorData;
 
 /**
@@ -1255,8 +1292,14 @@ export const DataCollectionEntryParseError = {
 export const DuplicateContentEntrySlugError = {
 	name: 'DuplicateContentEntrySlugError',
 	title: 'Duplicate content entry slug.',
-	message: (collection: string, slug: string) => {
-		return `**${collection}** contains multiple entries with the same slug: \`${slug}\`. Slugs must be unique.`;
+	message: (collection: string, slug: string, preExisting: string, alsoFound: string) => {
+		return (
+			`**${collection}** contains multiple entries with the same slug: \`${slug}\`. ` +
+			`Slugs must be unique.\n\n` +
+			`Entries: \n` +
+			`- ${preExisting}\n` +
+			`- ${alsoFound}`
+		);
 	},
 } satisfies ErrorData;
 

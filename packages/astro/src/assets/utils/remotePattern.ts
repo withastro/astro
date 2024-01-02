@@ -1,3 +1,6 @@
+import { isRemotePath } from '@astrojs/internal-helpers/path';
+import type { AstroConfig } from '../../@types/astro.js';
+
 export type RemotePattern = {
 	hostname?: string;
 	pathname?: string;
@@ -60,4 +63,20 @@ export function matchPathname(url: URL, pathname?: string, allowWildcard?: boole
 	}
 
 	return false;
+}
+
+export function isRemoteAllowed(
+	src: string,
+	{
+		domains = [],
+		remotePatterns = [],
+	}: Partial<Pick<AstroConfig['image'], 'domains' | 'remotePatterns'>>
+): boolean {
+	if (!isRemotePath(src)) return false;
+
+	const url = new URL(src);
+	return (
+		domains.some((domain) => matchHostname(url, domain)) ||
+		remotePatterns.some((remotePattern) => matchPattern(url, remotePattern))
+	);
 }

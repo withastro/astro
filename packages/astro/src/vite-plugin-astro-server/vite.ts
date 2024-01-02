@@ -25,12 +25,12 @@ export async function* crawlGraph(
 
 	const moduleEntriesForId = isRootFile
 		? // "getModulesByFile" pulls from a delayed module cache (fun implementation detail),
-		  // So we can get up-to-date info on initial server load.
-		  // Needed for slower CSS preprocessing like Tailwind
-		  loader.getModulesByFile(id) ?? new Set()
+			// So we can get up-to-date info on initial server load.
+			// Needed for slower CSS preprocessing like Tailwind
+			loader.getModulesByFile(id) ?? new Set()
 		: // For non-root files, we're safe to pull from "getModuleById" based on testing.
-		  // TODO: Find better invalidation strat to use "getModuleById" in all cases!
-		  new Set([loader.getModuleById(id)]);
+			// TODO: Find better invalidation strat to use "getModuleById" in all cases!
+			new Set([loader.getModuleById(id)]);
 
 	// Collect all imported modules for the module(s).
 	for (const entry of moduleEntriesForId) {

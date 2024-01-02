@@ -12,8 +12,8 @@ import {
 } from '../core/path.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
-import { isESMImportedImage } from './internal.js';
 import { emitESMImage } from './utils/emitAsset.js';
+import { isESMImportedImage } from './utils/imageKind.js';
 import { getProxyCode } from './utils/proxy.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
@@ -132,10 +132,12 @@ export default function assets({
 						});
 					}
 
+					// The paths here are used for URLs, so we need to make sure they have the proper format for an URL
+					// (leading slash, prefixed with the base / assets prefix, encoded, etc)
 					if (settings.config.build.assetsPrefix) {
-						return joinPaths(settings.config.build.assetsPrefix, finalFilePath);
+						return encodeURI(joinPaths(settings.config.build.assetsPrefix, finalFilePath));
 					} else {
-						return prependForwardSlash(joinPaths(settings.config.base, finalFilePath));
+						return encodeURI(prependForwardSlash(joinPaths(settings.config.base, finalFilePath)));
 					}
 				};
 			},

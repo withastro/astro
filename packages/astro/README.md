@@ -1,6 +1,6 @@
 <br/>
 <p align="center">
-  <img src="../../.github/assets/banner.png" alt="Build the web you want">
+  <img src="../../.github/assets/banner.jpg" alt="Build the web you want">
   <br/><br/>
   <a href="https://astro.build">Astro</a> is the all-in-one web framework designed for speed.
   <br/>

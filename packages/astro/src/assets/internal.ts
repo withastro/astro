@@ -1,54 +1,14 @@
-import { isRemotePath } from '@astrojs/internal-helpers/path';
-import type { AstroConfig, AstroSettings } from '../@types/astro.js';
+import type { AstroConfig } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';
 import { isLocalService, type ImageService } from './services/service.js';
 import type {
 	GetImageResult,
-	ImageMetadata,
 	ImageTransform,
 	SrcSetValue,
 	UnresolvedImageTransform,
 } from './types.js';
-import { matchHostname, matchPattern } from './utils/remotePattern.js';
-
-export function injectImageEndpoint(settings: AstroSettings, mode: 'dev' | 'build') {
-	const endpointEntrypoint =
-		settings.config.image.endpoint ??
-		(mode === 'dev' ? 'astro/assets/endpoint/node' : 'astro/assets/endpoint/generic');
-
-	settings.injectedRoutes.push({
-		pattern: '/_image',
-		entrypoint: endpointEntrypoint,
-		prerender: false,
-	});
-
-	return settings;
-}
-
-export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
-	return typeof src === 'object';
-}
-
-export function isRemoteImage(src: ImageMetadata | string): src is string {
-	return typeof src === 'string';
-}
-
-export function isRemoteAllowed(
-	src: string,
-	{
-		domains = [],
-		remotePatterns = [],
-	}: Partial<Pick<AstroConfig['image'], 'domains' | 'remotePatterns'>>
-): boolean {
-	if (!isRemotePath(src)) return false;
-
-	const url = new URL(src);
-	return (
-		domains.some((domain) => matchHostname(url, domain)) ||
-		remotePatterns.some((remotePattern) => matchPattern(url, remotePattern))
-	);
-}
+import { isESMImportedImage, isRemoteImage } from './utils/imageKind.js';
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
@@ -57,7 +17,7 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 			'virtual:image-service'
 		).catch((e) => {
 			const error = new AstroError(AstroErrorData.InvalidImageService);
-			(error as any).cause = e;
+			error.cause = e;
 			throw error;
 		});
 
@@ -105,7 +65,7 @@ export async function getImage(
 	// Causing our generate step to think the image is used outside of the image optimization pipeline
 	const clonedSrc = isESMImportedImage(resolvedOptions.src)
 		? // @ts-expect-error - clone is a private, hidden prop
-		  resolvedOptions.src.clone ?? resolvedOptions.src
+			resolvedOptions.src.clone ?? resolvedOptions.src
 		: resolvedOptions.src;
 
 	resolvedOptions.src = clonedSrc;
