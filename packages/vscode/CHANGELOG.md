@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.5.6
+
+### Patch Changes
+
+- 37434ab: Fixes incorrectly highlighted escaped interpolation in template literal attributes
+
 ## 2.5.4
 
 ### Patch Changes
