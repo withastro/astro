@@ -168,8 +168,7 @@ export function getLocaleByPath(path: string, locales: Locales): string | undefi
 				const code = locale.codes.at(0);
 				return code;
 			}
-		}
-		else if (locale === path) {
+		} else if (locale === path) {
 			return locale;
 		}
 	}
