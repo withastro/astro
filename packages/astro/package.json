@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "4.0.6",
+  "version": "4.0.9",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -34,12 +34,14 @@
     "./env": "./env.d.ts",
     "./types": "./types.d.ts",
     "./client": "./client.d.ts",
-    "./import-meta": "./import-meta.d.ts",
     "./astro-jsx": "./astro-jsx.d.ts",
     "./tsconfigs/*.json": "./tsconfigs/*",
     "./tsconfigs/*": "./tsconfigs/*.json",
     "./jsx/*": "./dist/jsx/*",
-    "./jsx-runtime": "./dist/jsx-runtime/index.js",
+    "./jsx-runtime": {
+      "types": "./jsx-runtime.d.ts",
+      "default": "./dist/jsx-runtime/index.js"
+    },
     "./compiler-runtime": "./dist/runtime/compiler/index.js",
     "./runtime/*": "./dist/runtime/*",
     "./config": {
@@ -90,9 +92,9 @@
     "zod.mjs",
     "env.d.ts",
     "client.d.ts",
+    "jsx-runtime.d.ts",
     "content-types.template.d.ts",
     "content-module.template.mjs",
-    "import-meta.d.ts",
     "astro-jsx.d.ts",
     "types.d.ts",
     "README.md",
@@ -153,7 +155,7 @@
     "mime": "^3.0.0",
     "ora": "^7.0.1",
     "p-limit": "^5.0.0",
-    "p-queue": "^7.4.1",
+    "p-queue": "^8.0.1",
     "path-to-regexp": "^6.2.1",
     "preferred-pm": "^3.1.2",
     "probe-image-size": "^7.2.3",
@@ -168,14 +170,14 @@
     "tsconfck": "^3.0.0",
     "unist-util-visit": "^5.0.0",
     "vfile": "^6.0.1",
-    "vite": "^5.0.0",
+    "vite": "^5.0.10",
     "vitefu": "^0.2.5",
     "which-pm": "^2.1.1",
     "yargs-parser": "^21.1.1",
     "zod": "^3.22.4"
   },
   "optionalDependencies": {
-    "sharp": "^0.32.5"
+    "sharp": "^0.33.1"
   },
   "devDependencies": {
     "@astrojs/check": "^0.3.1",

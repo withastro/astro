@@ -37,7 +37,7 @@ export async function handleRequest({
 	if (config.trailingSlash === 'never' && !incomingRequest.url) {
 		pathname = '';
 	} else {
-		pathname = decodeURI(url.pathname);
+		pathname = url.pathname;
 	}
 
 	// Add config.base back to url before passing it to SSR
