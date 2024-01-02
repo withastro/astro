@@ -114,6 +114,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 					['lit', 'astro add lit'],
 					['alpinejs', 'astro add alpinejs'],
 				],
+				'Documentation Frameworks': [
+					['starlight', 'astro add starlight'],
+				],
 				'SSR Adapters': [
 					['netlify', 'astro add netlify'],
 					['vercel', 'astro add vercel'],
