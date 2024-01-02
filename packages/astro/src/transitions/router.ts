@@ -170,8 +170,17 @@ function runScripts() {
 
 // Add a new entry to the browser history. This also sets the new page in the browser addressbar.
 // Sets the scroll position according to the hash fragment of the new location.
-const moveToLocation = (to: URL, from: URL, options: Options, historyState?: State) => {
+const moveToLocation = (
+	to: URL,
+	from: URL,
+	options: Options,
+	historyTitle: string,
+	historyState?: State
+) => {
 	const intraPage = samePage(from, to);
+
+	const savedDocumentTitle = document.title;
+	document.title = historyTitle;
 
 	let scrolledToTop = false;
 	if (to.href !== location.href && !historyState) {
@@ -223,6 +232,7 @@ const moveToLocation = (to: URL, from: URL, options: Options, historyState?: Sta
 		}
 		history.scrollRestoration = 'manual';
 	}
+	document.title = savedDocumentTitle;
 };
 
 function preloadStyleLinks(newDocument: Document) {
@@ -409,8 +419,9 @@ async function updateDOM(
 		throw new DOMException('Transition was skipped');
 	}
 
+	const historyTitle = document.title; // document.title will be overridden by swap()
 	const swapEvent = await doSwap(preparationEvent, viewTransition!, defaultSwap);
-	moveToLocation(swapEvent.to, swapEvent.from, options, historyState);
+	moveToLocation(swapEvent.to, swapEvent.from, options, historyTitle, historyState);
 	triggerEvent(TRANSITION_AFTER_SWAP);
 
 	if (fallback === 'animate' && !skipTransition) {
@@ -441,7 +452,7 @@ async function transition(
 		updateScrollPosition({ scrollX, scrollY });
 	}
 	if (samePage(from, to) && !!to.hash) {
-		moveToLocation(to, from, options, historyState);
+		moveToLocation(to, from, options, document.title, historyState);
 		return;
 	}
 
