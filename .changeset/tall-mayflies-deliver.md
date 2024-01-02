@@ -1,5 +1,5 @@
 ---
-"@fake-scope/fake-pkg": patch
+"astro": patch
 ---
 
-Add 'starlight' to displayed options under 'add' option in CLI
+Adds 'starlight' to the displayed options for `astro add`
