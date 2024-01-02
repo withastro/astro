@@ -174,13 +174,13 @@ const moveToLocation = (
 	to: URL,
 	from: URL,
 	options: Options,
-	historyTitle: string,
+	pageTitleForBrowserHistory: string,
 	historyState?: State
 ) => {
 	const intraPage = samePage(from, to);
 
-	const savedDocumentTitle = document.title;
-	document.title = historyTitle;
+	const targetPageTitle = document.title;
+	document.title = pageTitleForBrowserHistory;
 
 	let scrolledToTop = false;
 	if (to.href !== location.href && !historyState) {
@@ -232,7 +232,7 @@ const moveToLocation = (
 		}
 		history.scrollRestoration = 'manual';
 	}
-	document.title = savedDocumentTitle;
+	document.title = targetPageTitle;
 };
 
 function preloadStyleLinks(newDocument: Document) {
@@ -419,9 +419,9 @@ async function updateDOM(
 		throw new DOMException('Transition was skipped');
 	}
 
-	const historyTitle = document.title; // document.title will be overridden by swap()
+	const pageTitleForBrowserHistory = document.title; // document.title will be overridden by swap()
 	const swapEvent = await doSwap(preparationEvent, viewTransition!, defaultSwap);
-	moveToLocation(swapEvent.to, swapEvent.from, options, historyTitle, historyState);
+	moveToLocation(swapEvent.to, swapEvent.from, options, pageTitleForBrowserHistory, historyState);
 	triggerEvent(TRANSITION_AFTER_SWAP);
 
 	if (fallback === 'animate' && !skipTransition) {

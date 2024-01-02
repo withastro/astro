@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fixes titles in the browser's dropdown for back / forwards traversals through the browser history
+Fixes page titles in the browser's drop-down for back / forward navigation when using view transitions 
