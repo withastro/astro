@@ -35,11 +35,11 @@ export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
 // https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/node-js#node.js-version
 const SUPPORTED_NODE_VERSIONS: Record<
 	string,
-	{ status: 'current' } | { status: 'deprecated'; removal: Date }
+	{ status: 'current' } | { status: 'beta' } | { status: 'deprecated'; removal: Date }
 > = {
-	14: { status: 'deprecated', removal: new Date('August 15 2023') },
 	16: { status: 'deprecated', removal: new Date('February 6 2024') },
 	18: { status: 'current' },
+	20: { status: 'beta' },
 };
 
 function getAdapter({
@@ -308,9 +308,9 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 												...(imagesConfig.remotePatterns ?? []),
 												..._config.image.remotePatterns,
 											],
-									  }
+										}
 									: getDefaultImageConfig(_config.image),
-						  }
+							}
 						: {}),
 				});
 
@@ -383,6 +383,13 @@ function validateRuntime() {
 		);
 		console.warn(`[${PACKAGE_NAME}] Your project will use Node.js 18 as the runtime instead.`);
 		console.warn(`[${PACKAGE_NAME}] Consider switching your local version to 18.`);
+		return;
+	}
+	if (support.status === 'beta') {
+		console.warn(
+			`[${PACKAGE_NAME}] The local Node.js version (${major}) is currently in beta for Vercel Serverless Functions.`
+		);
+		console.warn(`[${PACKAGE_NAME}] Make sure to update your Vercel settings to use ${major}.`);
 		return;
 	}
 	if (support.status === 'deprecated') {

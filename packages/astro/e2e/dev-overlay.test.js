@@ -139,6 +139,32 @@ test.describe('Dev Overlay', () => {
 		await expect(auditWindow.locator('astro-dev-toolbar-icon[icon=check-circle]')).toBeVisible();
 	});
 
+	test('adjusts tooltip position if off-screen', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/tooltip-position'));
+
+		const overlay = page.locator('astro-dev-toolbar');
+		const pluginButton = overlay.locator('button[data-plugin-id="astro:audit"]');
+		await pluginButton.click();
+
+		const auditCanvas = overlay.locator(
+			'astro-dev-toolbar-plugin-canvas[data-plugin-id="astro:audit"]'
+		);
+		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
+		for (const highlight of await auditHighlights.all()) {
+			await expect(highlight).toBeVisible();
+			await highlight.hover();
+			const tooltip = highlight.locator('astro-dev-toolbar-tooltip');
+			await expect(tooltip).toBeVisible();
+			const tooltipBox = await tooltip.boundingBox();
+			const { clientWidth, clientHeight } = await page.evaluate(() => ({
+				clientWidth: document.documentElement.clientWidth,
+				clientHeight: document.documentElement.clientHeight,
+			}));
+			expect(tooltipBox.x + tooltipBox.width).toBeLessThan(clientWidth);
+			expect(tooltipBox.y + tooltipBox.height).toBeLessThan(clientHeight);
+		}
+	});
+
 	test('can open Settings plugin', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 

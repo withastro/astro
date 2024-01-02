@@ -451,6 +451,21 @@ export function createRouteManifest(
 			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 			.join('/')}`.toLowerCase();
 
+		{
+			let destination: string;
+			if (typeof to === 'string') {
+				destination = to;
+			} else {
+				destination = to.destination;
+			}
+			if (/^https?:\/\//.test(destination)) {
+				logger.warn(
+					'redirects',
+					`Redirecting to an external URL is not officially supported: ${from} -> ${destination}`
+				);
+			}
+		}
+
 		const routeData: RouteData = {
 			type: 'redirect',
 			route,

@@ -1,10 +1,11 @@
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import mime from 'mime/lite.js';
 import type { APIRoute } from '../../@types/astro.js';
-import { getConfiguredImageService, isRemoteAllowed } from '../internal.js';
+import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
 // @ts-expect-error
 import { imageConfig } from 'astro:assets';
+import { isRemoteAllowed } from '../utils/remotePattern.js';
 
 async function loadRemoteImage(src: URL) {
 	try {
@@ -70,6 +71,7 @@ export const GET: APIRoute = async ({ request }) => {
 			},
 		});
 	} catch (err: unknown) {
+		console.error('Could not process image request:', err);
 		return new Response(`Server Error: ${err}`, { status: 500 });
 	}
 };

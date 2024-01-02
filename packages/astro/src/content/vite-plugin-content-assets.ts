@@ -64,11 +64,7 @@ export function astroContentAssetPropagationPlugin({
 					if (!devModuleLoader.getModuleById(basePath)?.ssrModule) {
 						await devModuleLoader.import(basePath);
 					}
-					const { styles, urls } = await getStylesForURL(
-						pathToFileURL(basePath),
-						devModuleLoader,
-						'development'
-					);
+					const { styles, urls } = await getStylesForURL(pathToFileURL(basePath), devModuleLoader);
 
 					const hoistedScripts = await getScriptsForURL(
 						pathToFileURL(basePath),

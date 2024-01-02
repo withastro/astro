@@ -1,5 +1,17 @@
 # @astrojs/lit
 
+## 4.0.1
+
+### Patch Changes
+
+- [#9479](https://github.com/withastro/astro/pull/9479) [`1baf0b0d3cbd0564954c2366a7278794fad6726e`](https://github.com/withastro/astro/commit/1baf0b0d3cbd0564954c2366a7278794fad6726e) Thanks [@sarah11918](https://github.com/sarah11918)! - Updates README
+
+## 4.0.0
+
+### Major Changes
+
+- [#8822](https://github.com/withastro/astro/pull/8822) [`b0a71946f`](https://github.com/withastro/astro/commit/b0a71946f4320d4e76f31e990fe5821f823f0e12) Thanks [@Geoffrey-Pliez](https://github.com/Geoffrey-Pliez)! - Upgrade to Lit 3.0
+
 ## 3.0.3
 
 ### Patch Changes

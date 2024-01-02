@@ -194,8 +194,9 @@ function buildManifest(
 		if (route.prerender || !pageData) continue;
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
+			const shouldPrefixAssetPath = pageData.hoistedScript.type === 'external';
 			const hoistedValue = pageData.hoistedScript.value;
-			const value = hoistedValue.endsWith('.js') ? prefixAssetPath(hoistedValue) : hoistedValue;
+			const value = shouldPrefixAssetPath ? prefixAssetPath(hoistedValue) : hoistedValue;
 			scripts.unshift(
 				Object.assign({}, pageData.hoistedScript, {
 					value,

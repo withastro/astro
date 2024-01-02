@@ -269,6 +269,16 @@ describe('Middleware API in PROD mode, SSR', () => {
 		expect(text).to.include('<h1>There was an error rendering the page.</h1>');
 	});
 
+	it('should correctly render the page even when custom headers are set in a middleware', async () => {
+		const request = new Request('http://example.com/content-policy');
+		const routeData = app.match(request);
+
+		const response = await app.render(request, { routeData });
+		expect(response).to.deep.include({ status: 404 });
+		expect(response.headers.get('content-type')).equal('text/html');
+	});
+
+	// keep this last
 	it('the integration should receive the path to the middleware', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware space/',

@@ -145,8 +145,8 @@ class ViewTransitionStyleSheet {
 			direction === 'backwards'
 				? `[data-astro-transition=back]`
 				: direction === 'forwards'
-				  ? ''
-				  : `[data-astro-transition=${direction}]`;
+					? ''
+					: `[data-astro-transition=${direction}]`;
 		this.addRule('modern', `${prefix}::view-transition-${image}(${name}) { ${animation} }`);
 		this.addRule(
 			'fallback',

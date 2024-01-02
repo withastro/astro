@@ -1,5 +1,26 @@
 # @astrojs/mdx
 
+## 2.0.3
+
+### Patch Changes
+
+- [#9479](https://github.com/withastro/astro/pull/9479) [`1baf0b0d3cbd0564954c2366a7278794fad6726e`](https://github.com/withastro/astro/commit/1baf0b0d3cbd0564954c2366a7278794fad6726e) Thanks [@sarah11918](https://github.com/sarah11918)! - Updates README
+
+## 2.0.2
+
+### Patch Changes
+
+- [#9452](https://github.com/withastro/astro/pull/9452) [`e83b5095f`](https://github.com/withastro/astro/commit/e83b5095f164f48ba40fc715a805fc66a3e39dcf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Upgrades vite to latest
+
+## 2.0.1
+
+### Patch Changes
+
+- [#9366](https://github.com/withastro/astro/pull/9366) [`1b4e91898`](https://github.com/withastro/astro/commit/1b4e91898116f75b02b66ec402385cf44e559118) Thanks [@lilnasy](https://github.com/lilnasy)! - Updates NPM package to refer to the stable Astro version instead of a beta.
+
+- Updated dependencies [[`270c6cc27`](https://github.com/withastro/astro/commit/270c6cc27f20995883fcdabbff9b56d7f041f9e4)]:
+  - @astrojs/markdown-remark@4.0.1
+
 ## 2.0.0
 
 ### Major Changes

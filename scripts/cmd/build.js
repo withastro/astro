@@ -108,6 +108,7 @@ export default async function build(...args) {
 		entryPoints,
 		outdir,
 		format,
+		sourcemap: 'linked',
 		plugins: [
 			rebuildPlugin,
 			svelte({ isDev }),
@@ -120,7 +121,7 @@ export default async function build(...args) {
 								to: ['./dist/assets/services/vendor/squoosh'],
 							},
 						}),
-				  ]
+					]
 				: []),
 		],
 	});

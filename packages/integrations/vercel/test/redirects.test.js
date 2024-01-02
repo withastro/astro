@@ -16,6 +16,7 @@ describe('Redirects', () => {
 					destination: '/',
 				},
 				'/blog/[...slug]': '/team/articles/[...slug]',
+				'/Basic/http-2-0.html': '/posts/http2',
 			},
 			trailingSlash: 'always',
 		});
@@ -32,23 +33,32 @@ describe('Redirects', () => {
 	it('define static routes', async () => {
 		const config = await getConfig();
 
-		const oneRoute = config.routes.find((r) => r.src === '/\\/one');
+		const oneRoute = config.routes.find((r) => r.src === '/one');
 		expect(oneRoute.headers.Location).to.equal('/');
 		expect(oneRoute.status).to.equal(301);
 
-		const twoRoute = config.routes.find((r) => r.src === '/\\/two');
+		const twoRoute = config.routes.find((r) => r.src === '/two');
 		expect(twoRoute.headers.Location).to.equal('/');
 		expect(twoRoute.status).to.equal(301);
 
-		const threeRoute = config.routes.find((r) => r.src === '/\\/three');
+		const threeRoute = config.routes.find((r) => r.src === '/three');
 		expect(threeRoute.headers.Location).to.equal('/');
 		expect(threeRoute.status).to.equal(302);
+	});
+
+	it('define redirects for static files', async () => {
+		const config = await getConfig();
+
+		const staticRoute = config.routes.find((r) => r.src === '/Basic/http-2-0.html');
+		expect(staticRoute).to.not.be.undefined;
+		expect(staticRoute.headers.Location).to.equal('/posts/http2');
+		expect(staticRoute.status).to.equal(301);
 	});
 
 	it('defines dynamic routes', async () => {
 		const config = await getConfig();
 
-		const blogRoute = config.routes.find((r) => r.src.startsWith('/\\/blog'));
+		const blogRoute = config.routes.find((r) => r.src.startsWith('/blog'));
 		expect(blogRoute).to.not.be.undefined;
 		expect(blogRoute.headers.Location.startsWith('/team/articles')).to.equal(true);
 		expect(blogRoute.status).to.equal(301);
@@ -57,7 +67,7 @@ describe('Redirects', () => {
 	it('define trailingSlash redirect for sub pages', async () => {
 		const config = await getConfig();
 
-		const subpathRoute = config.routes.find((r) => r.src === '/\\/subpage');
+		const subpathRoute = config.routes.find((r) => r.src === '/subpage');
 		expect(subpathRoute).to.not.be.undefined;
 		expect(subpathRoute.headers.Location).to.equal('/subpage/');
 	});

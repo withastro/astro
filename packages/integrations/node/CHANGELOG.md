@@ -1,5 +1,23 @@
 # @astrojs/node
 
+## 7.0.3
+
+### Patch Changes
+
+- [#9479](https://github.com/withastro/astro/pull/9479) [`1baf0b0d3cbd0564954c2366a7278794fad6726e`](https://github.com/withastro/astro/commit/1baf0b0d3cbd0564954c2366a7278794fad6726e) Thanks [@sarah11918](https://github.com/sarah11918)! - Updates README
+
+## 7.0.2
+
+### Patch Changes
+
+- [#9471](https://github.com/withastro/astro/pull/9471) [`6bf470cfb`](https://github.com/withastro/astro/commit/6bf470cfb87e853c0a1f69bceb09246801bc8bdc) Thanks [@alexnguyennz](https://github.com/alexnguyennz)! - Fix typo in @astrojs/node README
+
+## 7.0.1
+
+### Patch Changes
+
+- [#9366](https://github.com/withastro/astro/pull/9366) [`1b4e91898`](https://github.com/withastro/astro/commit/1b4e91898116f75b02b66ec402385cf44e559118) Thanks [@lilnasy](https://github.com/lilnasy)! - Updates NPM package to refer to the stable Astro version instead of a beta.
+
 ## 7.0.0
 
 ### Major Changes
