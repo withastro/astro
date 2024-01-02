@@ -2,4 +2,4 @@
 "@astrojs/upgrade": patch
 ---
 
-Fixes packages upgrading when using yarn
+Updates the command used for installing packages with pnpm and yarn
