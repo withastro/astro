@@ -10,8 +10,11 @@ export function rehypeImages() {
 
 				if (node.properties?.src) {
 					if (file.data.imagePaths?.has(node.properties.src)) {
-						node.properties['__ASTRO_IMAGE_'] = node.properties.src;
-						delete node.properties.src;
+						const { alt, ...otherProps } = node.properties;
+						node.properties['__ASTRO_IMAGE_'] = JSON.stringify({ ...otherProps });
+						Object.keys(otherProps).forEach((prop) => {
+							delete node.properties[prop];
+						});
 					}
 				}
 			});
