@@ -1022,6 +1022,7 @@ export interface AstroUserConfig {
 	 */
 
 	/**
+	 * @docs
 	 * @name server.open
 	 * @type {string | boolean}
 	 * @default `false`
