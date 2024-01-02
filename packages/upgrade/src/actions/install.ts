@@ -123,7 +123,8 @@ async function runInstallCommand(
 	const cwd = fileURLToPath(ctx.cwd);
 	if (ctx.packageManager === 'yarn') await ensureYarnLock({ cwd });
 
-	const installCmd = ctx.packageManager === 'yarn' || ctx.packageManager === 'pnpm' ? 'add' : 'install'; 
+	const installCmd =
+		ctx.packageManager === 'yarn' || ctx.packageManager === 'pnpm' ? 'add' : 'install';
 
 	await spinner({
 		start: `Installing dependencies with ${ctx.packageManager}...`,
