@@ -2,4 +2,4 @@
 'create-astro': minor
 ---
 
-Defer async actions until after user input
+Improves the `create astro` CLI experience by asking all the questions upfront, then creating your new Astro project based on your responses.
