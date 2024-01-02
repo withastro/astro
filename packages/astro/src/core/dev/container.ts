@@ -60,7 +60,6 @@ export async function createContainer({
 	// base to the initial Vite config
 	const open = typeof serverOpen == 'string' ? serverOpen : serverOpen ? base : false;
 
-	console.log(open)
 	// The client entrypoint for renderers. Since these are imported dynamically
 	// we need to tell Vite to preoptimize them.
 	const rendererClientEntries = settings.renderers
