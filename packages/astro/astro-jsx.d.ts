@@ -499,6 +499,15 @@ declare namespace astroHTML.JSX {
 		KebabCSSDOMProperties & DOMCSSProperties & AllCSSProperties
 	>;
 
+	interface CSSProperties extends StyleObject {
+		/**
+		 * Extend namespace to add properties or an index signature of your own.
+		 *
+		 * For more information, visit:
+		 * https://docs.astro.build/en/guides/typescript/#built-in-html-attributes
+		 */
+	}
+
 	interface HTMLAttributes extends AriaAttributes, DOMAttributes, AstroBuiltinAttributes {
 		// Standard HTML Attributes
 		accesskey?: string | undefined | null;
@@ -547,7 +556,7 @@ declare namespace astroHTML.JSX {
 		popover?: boolean | string | undefined | null;
 		slot?: string | undefined | null;
 		spellcheck?: 'true' | 'false' | boolean | undefined | null;
-		style?: string | StyleObject | undefined | null;
+		style?: string | CSSProperties | undefined | null;
 		tabindex?: number | string | undefined | null;
 		title?: string | undefined | null;
 		translate?: 'yes' | 'no' | '' | undefined | null;
