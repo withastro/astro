@@ -29,15 +29,44 @@ import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
 import type { RouteInfo } from './types.js';
 export { deserializeManifest } from './common.js';
 
-const clientLocalsSymbol = Symbol.for('astro.locals');
-
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
-const STATUS_CODES = new Set([404, 500]);
+/**
+ * A response with one of these status codes will be rewritten
+ * with the result of rendering the respective error page.
+ */
+const REROUTABLE_STATUS_CODES = new Set([404, 500]);
 
 export interface RenderOptions {
-	routeData?: RouteData;
+	/**
+	 * Whether to automatically add all cookies written by `Astro.cookie.set()` to the response headers.
+	 * 
+	 * When set to `true`, they will be added to the `Set-Cookie` header as comma-separated key=value pairs. You can use the standard `response.headers.getSetCookie()` API to read them individually.
+	 * 
+	 * When set to `false`, the cookies will only be available from `App.getSetCookieFromResponse(response)`.
+	 * 
+	 * Default: `false`
+	 */
+	addCookieHeader?: boolean;
+
+	/**
+	 * The client IP address that will be made available as `Astro.clientAddress` in pages, and as `ctx.clientAddress` in API routes and middleware.
+	 * 
+	 * Default: `request[Symbol.for("astro.clientAddress")]`
+	 */
+	clientAddress?: string;
+
+	/**
+	 * The mutable object that will be made available as `Astro.locals` in pages, and as `ctx.locals` in API routes and middleware.
+	 */
 	locals?: object;
+
+	/**
+	 * **Advanced API**: you probably do not need to use this.
+	 * 
+	 * Default: `app.match(request)`
+	 */
+	routeData?: RouteData;
 }
 
 export interface RenderErrorOptions {
@@ -51,6 +80,15 @@ export interface RenderErrorOptions {
 }
 
 export class App {
+
+	/**
+	 * Symbols that the Astro app reads on the passed Request instance. Use these when you can't directly provide these values to `app.render()`.
+	 */
+	static readonly Symbol = Object.freeze({
+		locals: Symbol.for('astro.locals'),
+		clientAddress: Symbol.for('astro.clientAddress'),
+	})
+
 	/**
 	 * The current environment of the application
 	 */
@@ -178,7 +216,16 @@ export class App {
 				this.#logRenderOptionsDeprecationWarning();
 			}
 		}
-
+		if (locals) {
+			Reflect.set(request, App.Symbol.locals, locals);
+		}
+		if (
+			typeof routeDataOrOptions === "object" &&
+			"clientAddress" in routeDataOrOptions &&
+			routeDataOrOptions.clientAddress
+		) {
+			Reflect.set(request, App.Symbol.clientAddress, routeDataOrOptions.clientAddress)
+		}
 		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
 		if (request.url !== collapseDuplicateSlashes(request.url)) {
 			request = new Request(collapseDuplicateSlashes(request.url), request);
@@ -189,7 +236,6 @@ export class App {
 		if (!routeData) {
 			return this.#renderError(request, { status: 404 });
 		}
-		Reflect.set(request, clientLocalsSymbol, locals ?? {});
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
 		const mod = await this.#getModuleForRoute(routeData);
@@ -206,7 +252,7 @@ export class App {
 		);
 		let response;
 		try {
-			let i18nMiddleware = createI18nMiddleware(
+			const i18nMiddleware = createI18nMiddleware(
 				this.#manifest.i18n,
 				this.#manifest.base,
 				this.#manifest.trailingSlash
@@ -233,16 +279,23 @@ export class App {
 			}
 		}
 
+		// endpoints do not participate in implicit rerouting
 		if (routeData.type === 'page' || routeData.type === 'redirect') {
-			if (STATUS_CODES.has(response.status)) {
+			if (REROUTABLE_STATUS_CODES.has(response.status)) {
 				return this.#renderError(request, {
 					response,
 					status: response.status as 404 | 500,
 				});
 			}
-			Reflect.set(response, responseSentSymbol, true);
-			return response;
 		}
+		if (
+			typeof routeDataOrOptions === "object" &&
+			"addCookieHeader" in routeDataOrOptions &&
+			routeDataOrOptions.addCookieHeader
+		) {
+			App.#addCookieHeader(response);
+		}
+		Reflect.set(response, responseSentSymbol, true);
 		return response;
 	}
 
@@ -257,6 +310,25 @@ export class App {
 
 	setCookieHeaders(response: Response) {
 		return getSetCookiesFromResponse(response);
+	}
+
+	/**
+	 * Reads all the cookies written by `Astro.cookie.set()` onto the passed response.
+	 * For example,
+	 * ```ts
+	 * for (const cookie_ of App.getSetCookiesFromResponse(response)) {
+	 *     const cookie: string = cookie_
+	 * }
+	 * ```
+	 * @param response The response to read cookies from.
+	 * @returns An iterator that yields key-value pairs as equal-sign-separated strings.
+	 */
+	static getSetCookieFromResponse = getSetCookiesFromResponse
+
+	static #addCookieHeader(response: Response) {
+		for (const setCookieHeaderValue of getSetCookiesFromResponse(response)) {
+			response.headers.append('set-cookie', setCookieHeaderValue);
+		}
 	}
 
 	/**
