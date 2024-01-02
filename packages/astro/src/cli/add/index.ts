@@ -27,7 +27,7 @@ import * as msg from '../../core/messages.js';
 import { printHelp } from '../../core/messages.js';
 import { appendForwardSlash } from '../../core/path.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
-import { parseNpmName } from '../../core/util.js';
+import { ensureProcessNodeEnv, parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { generate, parse, t, visit } from './babel.js';
@@ -92,6 +92,7 @@ async function getRegistry(): Promise<string> {
 }
 
 export async function add(names: string[], { flags }: AddOptions) {
+	ensureProcessNodeEnv('production');
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const { userConfig } = await resolveConfig(inlineConfig, 'add');
 	telemetry.record(eventCliSession('add', userConfig));
