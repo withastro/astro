@@ -215,7 +215,7 @@ const moveToLocation = (to: URL, from: URL, options: Options, historyState?: Sta
 			history.scrollRestoration = 'auto';
 			const savedState = history.state;
 			location.href = to.href; // this kills the history state on Firefox
-			history.replaceState(savedState, ''); // this restores the history state
+			history.state || history.replaceState(savedState, ''); // this restores the history state
 		} else {
 			if (!scrolledToTop) {
 				scrollTo({ left: 0, top: 0, behavior: 'instant' });
