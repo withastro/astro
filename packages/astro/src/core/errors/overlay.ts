@@ -631,7 +631,7 @@ class ErrorOverlay extends HTMLElement {
 		}
 
 		const code = this.root.querySelector<HTMLElement>('#code');
-		if (code && err.loc.file) {
+		if (code && err.loc?.file) {
 			code.style.display = 'block';
 			const codeHeader = code.querySelector<HTMLHeadingElement>('#code header');
 			const codeContent = code.querySelector<HTMLDivElement>('#code-content');
@@ -670,7 +670,7 @@ class ErrorOverlay extends HTMLElement {
 						}
 
 						// Add an empty line below the error line so we can show a caret under the error
-						if (err.loc.column) {
+						if (err.loc?.column) {
 							errorLine.insertAdjacentHTML(
 								'afterend',
 								`\n<span class="line error-caret"><span style="padding-left:${
