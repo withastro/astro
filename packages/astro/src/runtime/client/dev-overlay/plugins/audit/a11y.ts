@@ -354,7 +354,7 @@ export const a11y: AuditRuleWithSelector[] = [
 		code: 'a11y-missing-content',
 		title: 'Missing content',
 		message:
-			'Headings and anchors must have an accessible name, which can come from: inner text, aria-label, aria-labelledby, an img with alt property, or an svg with a title.',
+			'Headings and anchors must have an accessible name, which can come from: inner text, aria-label, aria-labelledby, an img with alt property, or an svg with a tag <title></title>.',
 		selector: a11y_required_content.join(','),
 		match(element: HTMLElement) {
 			// innerText is used to ignore hidden text
