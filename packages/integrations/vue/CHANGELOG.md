@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 4.0.7
+
+### Patch Changes
+
+- [#9558](https://github.com/withastro/astro/pull/9558) [`e496b2e3b84b673b81c872dad9a6b3f9dd32396a`](https://github.com/withastro/astro/commit/e496b2e3b84b673b81c872dad9a6b3f9dd32396a) Thanks [@michaelhthomas](https://github.com/michaelhthomas)! - Fixes support for async `appEntrypoint`
+
 ## 4.0.6
 
 ### Patch Changes
