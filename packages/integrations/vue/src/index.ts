@@ -63,15 +63,15 @@ function virtualAppEntrypoint(options?: Options): Plugin {
 					return `\
 import * as mod from ${JSON.stringify(appEntrypoint)};
 						
-export const setup = (app) => {
+export const setup = async (app) => {
 	if ('default' in mod) {
-		mod.default(app);
+		await mod.default(app);
 	} else {
 		${
 			!isBuild
 				? `console.warn("[@astrojs/vue] appEntrypoint \`" + ${JSON.stringify(
 						appEntrypoint
-				  )} + "\` does not export a default function. Check out https://docs.astro.build/en/guides/integrations-guide/vue/#appentrypoint.");`
+					)} + "\` does not export a default function. Check out https://docs.astro.build/en/guides/integrations-guide/vue/#appentrypoint.");`
 				: ''
 		}
 	}

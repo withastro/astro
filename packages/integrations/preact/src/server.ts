@@ -80,7 +80,7 @@ function renderToStaticMarkup(
 				? h(StaticHtml, {
 						hydrate: shouldHydrate(metadata),
 						value: children,
-				  })
+					})
 				: children
 		) as VNode<any>
 	);

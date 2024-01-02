@@ -14,7 +14,7 @@ type DotKeys<T> = T extends object
 			[K in keyof T]: `${Exclude<K, symbol>}${DotKeys<T[K]> extends never
 				? ''
 				: `.${DotKeys<T[K]>}`}`;
-	  }[keyof T]
+		}[keyof T]
 	: never;
 
 export type GetDotKey<
@@ -30,7 +30,7 @@ export interface PreferenceOptions {
 type DeepPartial<T> = T extends object
 	? {
 			[P in keyof T]?: DeepPartial<T[P]>;
-	  }
+		}
 	: T;
 
 export type PreferenceKey = DotKeys<Preferences>;

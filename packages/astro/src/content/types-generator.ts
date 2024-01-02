@@ -410,8 +410,8 @@ async function writeContentFiles({
 		const resolvedType: 'content' | 'data' =
 			collection.type === 'unknown'
 				? // Add empty / unknown collections to the data type map by default
-				  // This ensures `getCollection('empty-collection')` doesn't raise a type error
-				  collectionConfig?.type ?? 'data'
+					// This ensures `getCollection('empty-collection')` doesn't raise a type error
+					collectionConfig?.type ?? 'data'
 				: collection.type;
 
 		switch (resolvedType) {

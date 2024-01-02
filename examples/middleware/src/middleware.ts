@@ -3,12 +3,15 @@ import htmlMinifier from 'html-minifier';
 
 const limit = 50;
 
-const loginInfo = {
+const loginInfo: {
+	token: undefined | string;
+	currentTime: undefined | number;
+} = {
 	token: undefined,
 	currentTime: undefined,
 };
 
-export const minifier = defineMiddleware(async (context, next) => {
+export const minifier = defineMiddleware(async (_context, next) => {
 	const response = await next();
 	// check if the response is returning some HTML
 	if (response.headers.get('content-type') === 'text/html') {

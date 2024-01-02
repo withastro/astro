@@ -26,7 +26,6 @@ export default (element) => {
 			});
 
 			element.addEventListener('astro:unmount', () => component.$destroy(), { once: true });
-		} catch (e) {
 		} finally {
 			if (import.meta.env.DEV) finishUsingConsoleFilter();
 		}

@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import type { AstroIntegration } from 'astro';
 import autoprefixerPlugin from 'autoprefixer';
 import tailwindPlugin from 'tailwindcss';
@@ -23,14 +24,21 @@ async function getPostCssConfig(
 
 async function getViteConfiguration(
 	tailwindConfigPath: string | undefined,
-	viteConfig: UserConfig
+	nesting: boolean,
+	root: string,
+	postcssInlineOptions: CSSOptions['postcss']
 ): Promise<Partial<UserConfig>> {
 	// We need to manually load postcss config files because when inlining the tailwind and autoprefixer plugins,
 	// that causes vite to ignore postcss config files
-	const postcssConfigResult = await getPostCssConfig(viteConfig.root, viteConfig.css?.postcss);
+	const postcssConfigResult = await getPostCssConfig(root, postcssInlineOptions);
 
 	const postcssOptions = postcssConfigResult?.options ?? {};
 	const postcssPlugins = postcssConfigResult?.plugins?.slice() ?? [];
+
+	if (nesting) {
+		const tailwindcssNestingPlugin = (await import('tailwindcss/nesting/index.js')).default;
+		postcssPlugins.push(tailwindcssNestingPlugin());
+	}
 
 	postcssPlugins.push(tailwindPlugin(tailwindConfigPath));
 	postcssPlugins.push(autoprefixerPlugin());
@@ -59,18 +67,30 @@ type TailwindOptions = {
 	 * @default true
 	 */
 	applyBaseStyles?: boolean;
+	/**
+	 * Add CSS nesting support using `tailwindcss/nesting`. See {@link https://tailwindcss.com/docs/using-with-preprocessors#nesting Tailwind's docs}
+	 * for how this works with `postcss-nesting` and `postcss-nested`.
+	 */
+	nesting?: boolean;
 };
 
 export default function tailwindIntegration(options?: TailwindOptions): AstroIntegration {
 	const applyBaseStyles = options?.applyBaseStyles ?? true;
 	const customConfigPath = options?.configFile;
+	const nesting = options?.nesting ?? false;
+
 	return {
 		name: '@astrojs/tailwind',
 		hooks: {
 			'astro:config:setup': async ({ config, updateConfig, injectScript }) => {
 				// Inject the Tailwind postcss plugin
 				updateConfig({
-					vite: await getViteConfiguration(customConfigPath, config.vite),
+					vite: await getViteConfiguration(
+						customConfigPath,
+						nesting,
+						fileURLToPath(config.root),
+						config.vite.css?.postcss
+					),
 				});
 
 				if (applyBaseStyles) {

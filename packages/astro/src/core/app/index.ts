@@ -409,8 +409,8 @@ export class App {
 		const status = override?.status
 			? override.status
 			: originalResponse.status === 200
-			  ? newResponse.status
-			  : originalResponse.status;
+				? newResponse.status
+				: originalResponse.status;
 
 		try {
 			// this function could throw an error...

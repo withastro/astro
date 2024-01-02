@@ -2238,7 +2238,7 @@ export type APIRoute<Props extends Record<string, any> = Record<string, any>> = 
 ) => Response | Promise<Response>;
 
 export interface EndpointHandler {
-	[method: string]: APIRoute | ((params: Params, request: Request) => Response);
+	[method: string]: APIRoute;
 }
 
 export type Props = Record<string, unknown>;

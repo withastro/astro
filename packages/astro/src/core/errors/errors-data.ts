@@ -169,13 +169,13 @@ ${
 	validRenderersCount > 0
 		? `There ${plural ? 'are' : 'is'} ${validRenderersCount} renderer${
 				plural ? 's' : ''
-		  } configured in your \`astro.config.mjs\` file,
+			} configured in your \`astro.config.mjs\` file,
 but ${plural ? 'none were' : 'it was not'} able to server-side render \`${componentName}\`.`
 		: `No valid renderer was found ${
 				componentExtension
 					? `for the \`.${componentExtension}\` file extension.`
 					: `for this file extension.`
-		  }`
+			}`
 }`,
 	hint: (probableRenderers: string) =>
 		`Did you mean to enable the ${probableRenderers} integration?\n\nSee https://docs.astro.build/en/core-concepts/framework-components/ for more information on how to install and configure integrations.`,
@@ -1292,8 +1292,14 @@ export const DataCollectionEntryParseError = {
 export const DuplicateContentEntrySlugError = {
 	name: 'DuplicateContentEntrySlugError',
 	title: 'Duplicate content entry slug.',
-	message: (collection: string, slug: string) => {
-		return `**${collection}** contains multiple entries with the same slug: \`${slug}\`. Slugs must be unique.`;
+	message: (collection: string, slug: string, preExisting: string, alsoFound: string) => {
+		return (
+			`**${collection}** contains multiple entries with the same slug: \`${slug}\`. ` +
+			`Slugs must be unique.\n\n` +
+			`Entries: \n` +
+			`- ${preExisting}\n` +
+			`- ${alsoFound}`
+		);
 	},
 } satisfies ErrorData;
 

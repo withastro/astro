@@ -111,7 +111,7 @@ export interface AstroErrorPayload {
 		hint?: string;
 		docslink?: string;
 		highlightedCode?: string;
-		loc: {
+		loc?: {
 			file?: string;
 			line?: number;
 			column?: number;
@@ -153,7 +153,7 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 				lang: highlighterLang,
 				theme: 'css-variables',
 				lineOptions: err.loc?.line ? [{ line: err.loc.line, classes: ['error-line'] }] : undefined,
-		  })
+			})
 		: undefined;
 
 	if (highlightedCode) {
