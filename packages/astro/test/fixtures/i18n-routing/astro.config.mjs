@@ -11,10 +11,6 @@ export default defineConfig({
 					path: "spanish",
 					codes: ["es", "es-SP"]
 				}
-			],
-			domains: {
-				it: "https://it.example.com"
-			},
-			routingStrategy: "domain"
+			]
 		}
 })
