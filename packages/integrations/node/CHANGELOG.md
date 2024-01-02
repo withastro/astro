@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 7.0.4
+
+### Patch Changes
+
+- [#9533](https://github.com/withastro/astro/pull/9533) [`48f47b50a0f8bc0fa51760215def36640f79050d`](https://github.com/withastro/astro/commit/48f47b50a0f8bc0fa51760215def36640f79050d) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes a bug where an error while serving response stopped the server.
+
 ## 7.0.3
 
 ### Patch Changes
