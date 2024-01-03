@@ -2286,10 +2286,6 @@ export type HookParameters<
 	Fn = AstroIntegrationHooks[Hook],
 > = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
 
-type ExcludeKeys<T, U> = {
-  [K in Exclude<keyof U, keyof T>]: U[K];
-};
-
 // TODO: documentation
 export interface AstroIntegrationBuiltinHooks {
 	'astro:config:setup'?: (options: {
@@ -2309,7 +2305,7 @@ export interface AstroIntegrationBuiltinHooks {
 		addDevToolbarApp: (entrypoint: string) => void;
 		addMiddleware: (mid: AstroIntegrationMiddleware) => void;
 		logger: AstroIntegrationLogger;
-		callHook: <Hook extends keyof ExcludeKeys<AstroIntegrationBuiltinHooks, AstroIntegrationHooks>>(hook: Hook, options: HookParameters<Hook>) => void;
+		callHook: <Hook extends keyof AstroConfig.IntegrationHooks>(hook: Hook, options: HookParameters<Hook>) => void;
 		// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 		// This may require some refactoring of `scripts`, `styles`, and `links` into something
 		// more generalized. Consider the SSR use-case as well.
@@ -2365,7 +2361,7 @@ export interface AstroIntegrationBuiltinHooks {
 
 // TODO: documentation
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AstroIntegrationHooks extends AstroIntegrationBuiltinHooks {
+interface AstroIntegrationHooks extends AstroIntegrationBuiltinHooks, AstroConfig.IntegrationHooks {
 }
 
 export interface AstroIntegration {
