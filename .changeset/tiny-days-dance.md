@@ -8,9 +8,10 @@ Adds new `encode` and `decode` functions to allow customizing how cookies are en
 
 ```astro
 ---
+import { encodeCookieValue } from "./cookies";
 Astro.cookies.set('url', Astro.url.toString(), {
   // Override the default encoding so that URI components are not encoded
-  encode: o => o
+  encode: value => encodeCookieValue(value)
 });
 ---
 ```
