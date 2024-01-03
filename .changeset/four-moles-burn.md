@@ -2,4 +2,4 @@
 'astro': minor
 ---
 
-The `astro preview` command now errors if you have not run `astro build` for static outputs
+Adds a helpful error for static sites when you use the `astro preview` command if you have not previously run `astro build`.
