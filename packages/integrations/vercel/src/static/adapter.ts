@@ -118,11 +118,11 @@ export default function vercelStatic({
 							continue: true,
 						},
 						{ handle: 'filesystem' },
-						{
-							src: `/*`,
+						...routes.find(route => route.component.endsWith("/pages/404.astro")) ? [{
+							src: `/.*`,
 							dest: `/404.html`,
 							status: 404,
-						}
+						}] : [],
 					],
 					...(imageService || imagesConfig
 						? {
