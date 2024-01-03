@@ -3,6 +3,7 @@ import type { ServerResponse } from 'node:http';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import type { ErrorHandlerParams, Options, RequestHandlerParams } from './types.js';
 import type { AstroIntegrationLogger } from 'astro';
+import { Readable } from 'node:stream';
 
 // Disable no-unused-vars to avoid breaking signature change
 export default function (app: NodeApp, mode: Options['mode']) {
@@ -84,27 +85,16 @@ async function writeWebResponse(
 	res.writeHead(status, nodeHeaders);
 	if (body) {
 		try {
-			const reader = body.getReader();
+			const ac = new AbortController()
+			Readable.fromWeb(body as any, { signal: ac.signal }).pipe(res)
 			res.on('close', () => {
-				// Cancelling the reader may reject not just because of
-				// an error in the ReadableStream's cancel callback, but
-				// also because of an error anywhere in the stream.
-				reader.cancel().catch((err) => {
-					logger.error(
-						`There was an uncaught error in the middle of the stream while rendering ${res.req.url}.`
-					);
-					console.error(err);
-				});
-			});
-			let result = await reader.read();
-			while (!result.done) {
-				res.write(result.value);
-				result = await reader.read();
-			}
-			// the error will be logged by the "on end" callback above
+				ac.abort()
+			})
 		} catch {
 			res.write('Internal server error');
 		}
 	}
-	res.end();
+	else {
+		res.end();
+	}
 }
