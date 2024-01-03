@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 6.1.2
+
+### Patch Changes
+
+- [#9550](https://github.com/withastro/astro/pull/9550) [`7b586a6e23e25653814db9adea9674ec3a9bd535`](https://github.com/withastro/astro/commit/7b586a6e23e25653814db9adea9674ec3a9bd535) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where a build could not complete on Node 21.
+
 ## 6.1.1
 
 ### Patch Changes
