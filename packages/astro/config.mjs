@@ -1,9 +1,9 @@
 export { defineConfig, getViteConfig } from './dist/config/index.js';
 
-export function sharpImageService() {
+export function sharpImageService(config = {}) {
 	return {
 		entrypoint: 'astro/assets/services/sharp',
-		config: {},
+		config,
 	};
 }
 

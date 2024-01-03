@@ -10,6 +10,7 @@ import { telemetry } from '../../events/index.js';
 import * as msg from '../messages.js';
 import { startContainer } from './container.js';
 import { createContainerWithAutomaticRestart } from './restart.js';
+import { ensureProcessNodeEnv } from '../util.js';
 
 export interface DevServer {
 	address: AddressInfo;
@@ -25,6 +26,7 @@ export interface DevServer {
  * @experimental The JavaScript API is experimental
  */
 export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevServer> {
+	ensureProcessNodeEnv('development');
 	const devStart = performance.now();
 	await telemetry.record([]);
 

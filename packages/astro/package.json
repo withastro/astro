@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "4.0.8",
+  "version": "4.0.9",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -126,6 +126,8 @@
     "@babel/types": "^7.23.3",
     "@types/babel__core": "^7.20.4",
     "acorn": "^8.11.2",
+    "aria-query": "^5.3.0",
+    "axobject-query": "^4.0.0",
     "boxen": "^7.1.1",
     "chokidar": "^3.5.3",
     "ci-info": "^4.0.0",
@@ -182,6 +184,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.3.1",
     "@playwright/test": "1.40.0",
+    "@types/aria-query": "^5.0.4",
     "@types/babel__generator": "^7.6.7",
     "@types/babel__traverse": "^7.20.4",
     "@types/chai": "^4.3.10",

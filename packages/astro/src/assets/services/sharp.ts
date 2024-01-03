@@ -8,6 +8,13 @@ import {
 	type LocalImageService,
 } from './service.js';
 
+export interface SharpImageServiceConfig {
+	/**
+	 * The `limitInputPixels` option passed to Sharp. See https://sharp.pixelplumbing.com/api-constructor for more information
+	 */
+	limitInputPixels?: number;
+}
+
 let sharp: typeof import('sharp');
 
 const qualityTable: Record<ImageQualityPreset, number> = {
@@ -28,13 +35,13 @@ async function loadSharp() {
 	return sharpImport;
 }
 
-const sharpService: LocalImageService = {
+const sharpService: LocalImageService<SharpImageServiceConfig> = {
 	validateOptions: baseService.validateOptions,
 	getURL: baseService.getURL,
 	parseURL: baseService.parseURL,
 	getHTMLAttributes: baseService.getHTMLAttributes,
 	getSrcSet: baseService.getSrcSet,
-	async transform(inputBuffer, transformOptions) {
+	async transform(inputBuffer, transformOptions, config) {
 		if (!sharp) sharp = await loadSharp();
 
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
@@ -43,7 +50,11 @@ const sharpService: LocalImageService = {
 		// TODO: Sharp has some support for SVGs, we could probably support this once Sharp is the default and only service.
 		if (transform.format === 'svg') return { data: inputBuffer, format: 'svg' };
 
-		let result = sharp(inputBuffer, { failOnError: false, pages: -1 });
+		const result = sharp(inputBuffer, {
+			failOnError: false,
+			pages: -1,
+			limitInputPixels: config.service.config.limitInputPixels,
+		});
 
 		// always call rotate to adjust for EXIF data orientation
 		result.rotate();
