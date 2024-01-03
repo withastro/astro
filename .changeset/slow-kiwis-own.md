@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Add extendable `CSSProperties` interface to style attribute
+Adds a `CSSProperties` interface that allows extending the style attribute
