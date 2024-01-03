@@ -10,6 +10,7 @@ import { template } from './actions/template.js';
 import { setupTypeScript, typescript } from './actions/typescript.js';
 import { verify } from './actions/verify.js';
 import { setStdout } from './messages.js';
+import { tasks } from '@astrojs/cli-kit';
 
 const exit = () => process.exit(0);
 process.on('SIGINT', exit);
@@ -43,12 +44,23 @@ export async function main() {
 
 		// Steps which write to files need to go above git
 		git,
-		next,
 	];
 
 	for (const step of steps) {
 		await step(ctx);
 	}
+
+	// eslint-disable-next-line no-console
+	console.log('');
+
+	const labels = {
+		start: 'Project initializing...',
+		end: 'Project initialized!',
+	};
+	await tasks(labels, ctx.tasks);
+
+	await next(ctx);
+
 	process.exit(0);
 }
 
