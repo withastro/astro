@@ -27,7 +27,7 @@ import * as msg from '../../core/messages.js';
 import { printHelp } from '../../core/messages.js';
 import { appendForwardSlash } from '../../core/path.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
-import { parseNpmName } from '../../core/util.js';
+import { ensureProcessNodeEnv, parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { generate, parse, t, visit } from './babel.js';
@@ -71,7 +71,7 @@ public-hoist-pattern[]=*lit*
 `;
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
-	netlify: '@astrojs/netlify/functions',
+	netlify: '@astrojs/netlify',
 	vercel: '@astrojs/vercel/serverless',
 	cloudflare: '@astrojs/cloudflare',
 	node: '@astrojs/node',
@@ -92,6 +92,7 @@ async function getRegistry(): Promise<string> {
 }
 
 export async function add(names: string[], { flags }: AddOptions) {
+	ensureProcessNodeEnv('production');
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const { userConfig } = await resolveConfig(inlineConfig, 'add');
 	telemetry.record(eventCliSession('add', userConfig));
@@ -114,6 +115,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					['lit', 'astro add lit'],
 					['alpinejs', 'astro add alpinejs'],
 				],
+				'Documentation Frameworks': [['starlight', 'astro add starlight']],
 				'SSR Adapters': [
 					['netlify', 'astro add netlify'],
 					['vercel', 'astro add vercel'],

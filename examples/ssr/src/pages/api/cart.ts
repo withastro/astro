@@ -1,8 +1,8 @@
-import { APIContext } from 'astro';
+import type { APIContext } from 'astro';
 import { userCartItems } from '../../models/session';
 
 export function GET({ cookies }: APIContext) {
-	let userId = cookies.get('user-id').value;
+	let userId = cookies.get('user-id')?.value;
 
 	if (!userId || !userCartItems.has(userId)) {
 		return Response.json({ items: [] });
@@ -21,7 +21,7 @@ interface AddToCartItem {
 export async function POST({ cookies, request }: APIContext) {
 	const item: AddToCartItem = await request.json();
 
-	let userId = cookies.get('user-id').value;
+	let userId = cookies.get('user-id')?.value;
 
 	if (!userCartItems.has(userId)) {
 		userCartItems.set(userId, new Map());

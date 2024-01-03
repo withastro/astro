@@ -131,11 +131,6 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		enableVerboseLogging();
 	}
 
-	// Start with a default NODE_ENV so Vite doesn't set an incorrect default when loading the Astro config
-	if (!process.env.NODE_ENV) {
-		process.env.NODE_ENV = cmd === 'dev' ? 'development' : 'production';
-	}
-
 	const { notify } = await import('./telemetry/index.js');
 	await notify();
 

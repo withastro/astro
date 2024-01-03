@@ -211,7 +211,7 @@ async function renderElement(
 				? `/>`
 				: `>${
 						children == null ? '' : await renderJSX(result, prerenderElementChildren(tag, children))
-				  }</${tag}>`
+					}</${tag}>`
 		)}`
 	);
 }
