@@ -16,6 +16,30 @@ describe('astro/src/core/cookies', () => {
 			expect(cookies.get('foo').value).to.equal('bar');
 		});
 
+		it('gets the cookie value with default decode', () => {
+      const url = 'http://localhost';
+			const req = new Request('http://example.com/', {
+				headers: {
+					cookie: `url=${encodeURIComponent(url)}`,
+				},
+			});
+			const cookies = new AstroCookies(req);
+      // by default decodeURIComponent is used on the value
+			expect(cookies.get('url').value).to.equal(url);
+		});
+    
+		it('gets the cookie value with custom decode', () => {
+      const url = 'http://localhost';
+			const req = new Request('http://example.com/', {
+				headers: {
+					cookie: `url=${encodeURIComponent(url)}`,
+				},
+			});
+			const cookies = new AstroCookies(req);
+      // set decode to the identity function to prevent decodeURIComponent on the value
+			expect(cookies.get('url', { decode: o => o }).value).to.equal(encodeURIComponent(url));
+		});
+
 		it("Returns undefined is the value doesn't exist", () => {
 			const req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);

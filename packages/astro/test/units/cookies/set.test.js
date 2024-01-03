@@ -15,6 +15,29 @@ describe('astro/src/core/cookies', () => {
 			expect(headers[0]).to.equal('foo=bar');
 		});
 
+		it('Sets a cookie value that can be serialized w/ defaultencodeURIComponent behavior', () => {
+			let req = new Request('http://example.com/');
+			let cookies = new AstroCookies(req);
+      const url = 'http://localhost/path';
+			cookies.set('url', url);
+			let headers = Array.from(cookies.headers());
+			expect(headers).to.have.a.lengthOf(1);
+      // by default cookie value is URI encoded
+			expect(headers[0]).to.equal(`url=${encodeURIComponent(url)}`);
+		});
+
+		it('Sets a cookie value that can be serialized w/ custom encode behavior', () => {
+			let req = new Request('http://example.com/');
+			let cookies = new AstroCookies(req);
+      const url = 'http://localhost/path';
+      // set encode option to the identity function
+			cookies.set('url', url, { encode: o => o });
+			let headers = Array.from(cookies.headers());
+			expect(headers).to.have.a.lengthOf(1);
+      // no longer URI encoded
+			expect(headers[0]).to.equal(`url=${url}`);
+		});
+
 		it('Can set cookie options', () => {
 			let req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);
