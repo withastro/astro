@@ -118,6 +118,11 @@ export default function vercelStatic({
 							continue: true,
 						},
 						{ handle: 'filesystem' },
+						{
+							src: `/*`,
+							dest: `/404.html`,
+							status: 404,
+						}
 					],
 					...(imageService || imagesConfig
 						? {
