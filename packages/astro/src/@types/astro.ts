@@ -1090,8 +1090,13 @@ export interface AstroUserConfig {
 		 * ```js
 		 * {
 		 *   image: {
-		 *     // Example: Enable the Sharp-based image service
-		 *     service: { entrypoint: 'astro/assets/services/sharp' },
+		 *     // Example: Enable the Sharp-based image service with a custom config
+		 *     service: {
+		 * 			 entrypoint: 'astro/assets/services/sharp',
+		 * 			 config: {
+		 * 				 limitInputPixels: false,
+		 *       },
+		 * 		 },
 		 *   },
 		 * }
 		 * ```
