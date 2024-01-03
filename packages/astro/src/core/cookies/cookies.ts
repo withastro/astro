@@ -15,7 +15,7 @@ export interface AstroCookieSetOptions {
 
 export interface AstroCookieGetOptions {
 	decode?: (value: string) => string;
-};
+}
 
 type AstroCookieDeleteOptions = Pick<AstroCookieSetOptions, 'domain' | 'path'>;
 
@@ -102,7 +102,10 @@ class AstroCookies implements AstroCookiesInterface {
 	 * @param key The cookie to get.
 	 * @returns An object containing the cookie value as well as convenience methods for converting its value.
 	 */
-	get(key: string, options: AstroCookieGetOptions | undefined = undefined): AstroCookie | undefined {
+	get(
+		key: string,
+		options: AstroCookieGetOptions | undefined = undefined
+	): AstroCookie | undefined {
 		// Check for outgoing Set-Cookie values first
 		if (this.#outgoing?.has(key)) {
 			let [serializedValue, , isSetValue] = this.#outgoing.get(key)!;
