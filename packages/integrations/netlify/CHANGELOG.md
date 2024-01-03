@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 4.1.0
+
+### Minor Changes
+
+- [#120](https://github.com/withastro/adapters/pull/120) [`cf39b9d`](https://github.com/withastro/adapters/commit/cf39b9ddb3c3f7db563c67ac9a6e88857862b694) Thanks [@Skn0tt](https://github.com/Skn0tt)! - Adds opt-out option for Image CDN.
+
 ## 4.0.2
 
 ### Patch Changes
