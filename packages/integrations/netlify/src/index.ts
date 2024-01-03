@@ -56,12 +56,12 @@ export interface NetlifyIntegrationConfig {
 	/**
 	 * If enabled, Netlify Image CDN is used for image optimization.
 	 * This transforms images on-the-fly without impacting build times.
-	 * 
+	 *
 	 * If disabled, Astro's built-in image optimization is run at build-time instead.
-	 * 
+	 *
 	 * @default {true}
 	 */
-	imageCDN?: boolean
+	imageCDN?: boolean;
 }
 
 export default function netlifyIntegration(
