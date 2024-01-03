@@ -20,8 +20,9 @@ Later, you can decode the URL in the same way:
 
 ```astro
 ---
+import { decodeCookieValue } from "./cookies";
 const url = Astro.cookies.get('url', {
-  decode: o => o
+  decode: value => decodeCookieValue(value)
 });
 ---
 ```
