@@ -160,6 +160,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					possibleConfigFiles: [
 						'./tailwind.config.cjs',
 						'./tailwind.config.mjs',
+						'./tailwind.config.ts',
 						'./tailwind.config.js',
 					],
 					defaultConfigFile: './tailwind.config.mjs',
