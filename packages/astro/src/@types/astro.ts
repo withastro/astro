@@ -377,7 +377,7 @@ type ServerConfig = {
 	 * @name server.open
 	 * @type {string | boolean}
 	 * @default `false`
-	 * @version 2.1.8
+	 * @version 4.1.0
 	 * @description
 	 * Controls whether the dev server should open in your browser window on startup.
 	 *
@@ -1112,6 +1112,20 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		service?: ImageServiceConfig;
+			/**
+			 * @docs
+			 * @name image.service.config.limitInputPixels
+			 * @kind h4
+			 * @type {boolean}
+			 * @default `true`
+			 * @version 4.1.0
+			 * @description
+			 *
+		   * Whether or not to limit the size of images that the Sharp integration will process.
+		   *
+			 * Set `false` to bypass the default image size limit for the Sharp integration and process large images.
+			 */
+			prefixDefaultLocale: boolean;
 
 		/**
 		 * @docs
