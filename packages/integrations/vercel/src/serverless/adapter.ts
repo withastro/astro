@@ -74,7 +74,13 @@ export interface VercelServerlessConfig {
 	/** Configuration for [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics). */
 	webAnalytics?: VercelWebAnalyticsConfig;
 
-	/** Configuration for [Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights). */
+	/**
+	 * @deprecated This option lets you configure the legacy speed insights API which is now deprecated by Vercel.
+	 * 
+	 * See [Vercel Speed Insights Quickstart](https://vercel.com/docs/speed-insights/quickstart) for instructions on how to use the library instead.
+	 * 
+	 * https://vercel.com/docs/speed-insights/quickstart
+	 */
 	speedInsights?: VercelSpeedInsightsConfig;
 
 	/** Force files to be bundled with your function. This is helpful when you notice missing files. */
