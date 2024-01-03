@@ -93,6 +93,9 @@ function testClientDirectivesShared() {
 	test('Client directives should be passed options correctly', async ({ astro, page }) => {
 		await page.goto(astro.resolveUrl('/'));
 
+		const optionsContent = page.locator('#client-has-options pre');
+		await waitForHydrate(page, optionsContent);
+
 		const clientOptions = page.locator('#options');
 		await expect(clientOptions).toHaveText(
 			'Passed options are: {"message":"Hello! I was passed as an option"}'
