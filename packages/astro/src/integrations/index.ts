@@ -21,6 +21,7 @@ import { mergeConfig } from '../core/config/index.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { validateSupportedFeatures } from './astroFeaturesValidation.js';
+import { BUILTIN_INTEGRATION_HOOKS } from '../core/constants.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -168,6 +169,15 @@ export async function runHookConfigSetup({
 						} any application middleware you define.`
 					);
 					updatedSettings.middlewares[order].push(entrypoint);
+				},
+				callHook: async (hook, options) => {
+					if (BUILTIN_INTEGRATION_HOOKS.includes(hook)) {
+						logger.warn('SKIP_FORMAT', `Built-in hook ${hook} can not be called from an integration.`, true)
+						return;
+					}
+
+					// @ts-expect-error never can't be used as index.
+					await integration.hooks[hook]?.(options);
 				},
 				logger: integrationLogger,
 			};

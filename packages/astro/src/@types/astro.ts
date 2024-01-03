@@ -2282,83 +2282,97 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 }
 
 export type HookParameters<
-	Hook extends keyof AstroIntegration['hooks'],
-	Fn = AstroIntegration['hooks'][Hook],
+	Hook extends keyof AstroIntegrationHooks,
+	Fn = AstroIntegrationHooks[Hook],
 > = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
+
+type ExcludeKeys<T, U> = {
+  [K in Exclude<keyof U, keyof T>]: U[K];
+};
+
+// TODO: documentation
+export interface AstroIntegrationBuiltinHooks {
+	'astro:config:setup'?: (options: {
+		config: AstroConfig;
+		command: 'dev' | 'build' | 'preview';
+		isRestart: boolean;
+		updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
+		addRenderer: (renderer: AstroRenderer) => void;
+		addWatchFile: (path: URL | string) => void;
+		injectScript: (stage: InjectedScriptStage, content: string) => void;
+		injectRoute: (injectRoute: InjectedRoute) => void;
+		addClientDirective: (directive: ClientDirectiveConfig) => void;
+		/**
+		 * @deprecated Use `addDevToolbarApp` instead.
+		 */
+		addDevOverlayPlugin: (entrypoint: string) => void;
+		addDevToolbarApp: (entrypoint: string) => void;
+		addMiddleware: (mid: AstroIntegrationMiddleware) => void;
+		logger: AstroIntegrationLogger;
+		callHook: <Hook extends keyof ExcludeKeys<AstroIntegrationBuiltinHooks, AstroIntegrationHooks>>(hook: Hook, options: HookParameters<Hook>) => void;
+		// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
+		// This may require some refactoring of `scripts`, `styles`, and `links` into something
+		// more generalized. Consider the SSR use-case as well.
+		// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
+	}) => void | Promise<void>;
+	'astro:config:done'?: (options: {
+		config: AstroConfig;
+		setAdapter: (adapter: AstroAdapter) => void;
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
+	'astro:server:setup'?: (options: {
+		server: vite.ViteDevServer;
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
+	'astro:server:start'?: (options: {
+		address: AddressInfo;
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
+	'astro:server:done'?: (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
+	'astro:build:ssr'?: (options: {
+		manifest: SerializedSSRManifest;
+		/**
+		 * This maps a {@link RouteData} to an {@link URL}, this URL represents
+		 * the physical file you should import.
+		 */
+		entryPoints: Map<RouteData, URL>;
+		/**
+		 * File path of the emitted middleware
+		 */
+		middlewareEntryPoint: URL | undefined;
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
+	'astro:build:start'?: (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
+	'astro:build:setup'?: (options: {
+		vite: vite.InlineConfig;
+		pages: Map<string, PageBuildData>;
+		target: 'client' | 'server';
+		updateConfig: (newConfig: vite.InlineConfig) => void;
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
+	'astro:build:generated'?: (options: {
+		dir: URL;
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
+	'astro:build:done'?: (options: {
+		pages: { pathname: string }[];
+		dir: URL;
+		routes: RouteData[];
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
+	[k: string]: unknown
+};
+
+// TODO: documentation
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface AstroIntegrationHooks extends AstroIntegrationBuiltinHooks {
+}
 
 export interface AstroIntegration {
 	/** The name of the integration. */
 	name: string;
 	/** The different hooks available to extend. */
-	hooks: {
-		'astro:config:setup'?: (options: {
-			config: AstroConfig;
-			command: 'dev' | 'build' | 'preview';
-			isRestart: boolean;
-			updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
-			addRenderer: (renderer: AstroRenderer) => void;
-			addWatchFile: (path: URL | string) => void;
-			injectScript: (stage: InjectedScriptStage, content: string) => void;
-			injectRoute: (injectRoute: InjectedRoute) => void;
-			addClientDirective: (directive: ClientDirectiveConfig) => void;
-			/**
-			 * @deprecated Use `addDevToolbarApp` instead.
-			 */
-			addDevOverlayPlugin: (entrypoint: string) => void;
-			addDevToolbarApp: (entrypoint: string) => void;
-			addMiddleware: (mid: AstroIntegrationMiddleware) => void;
-			logger: AstroIntegrationLogger;
-			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
-			// This may require some refactoring of `scripts`, `styles`, and `links` into something
-			// more generalized. Consider the SSR use-case as well.
-			// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
-		}) => void | Promise<void>;
-		'astro:config:done'?: (options: {
-			config: AstroConfig;
-			setAdapter: (adapter: AstroAdapter) => void;
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-		'astro:server:setup'?: (options: {
-			server: vite.ViteDevServer;
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-		'astro:server:start'?: (options: {
-			address: AddressInfo;
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-		'astro:server:done'?: (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
-		'astro:build:ssr'?: (options: {
-			manifest: SerializedSSRManifest;
-			/**
-			 * This maps a {@link RouteData} to an {@link URL}, this URL represents
-			 * the physical file you should import.
-			 */
-			entryPoints: Map<RouteData, URL>;
-			/**
-			 * File path of the emitted middleware
-			 */
-			middlewareEntryPoint: URL | undefined;
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-		'astro:build:start'?: (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
-		'astro:build:setup'?: (options: {
-			vite: vite.InlineConfig;
-			pages: Map<string, PageBuildData>;
-			target: 'client' | 'server';
-			updateConfig: (newConfig: vite.InlineConfig) => void;
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-		'astro:build:generated'?: (options: {
-			dir: URL;
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-		'astro:build:done'?: (options: {
-			pages: { pathname: string }[];
-			dir: URL;
-			routes: RouteData[];
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-	};
+	hooks: AstroIntegrationHooks;
 }
 
 export type MiddlewareNext = () => Promise<Response>;
