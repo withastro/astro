@@ -15,7 +15,7 @@ Astro.cookies.set('url', Astro.url.toString(), {
 ---
 ```
 
-Later, you can get back the URL in the same way:
+Later, you can decode the URL in the same way:
 
 ```astro
 ---
