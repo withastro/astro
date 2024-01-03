@@ -65,16 +65,16 @@ export type {
 export type { RemotePattern } from '../assets/utils/remotePattern.js';
 export type { SSRManifest } from '../core/app/types.js';
 export type {
-	AstroCookies,
-	AstroCookieSetOptions,
 	AstroCookieGetOptions,
+	AstroCookieSetOptions,
+	AstroCookies,
 } from '../core/cookies/index.js';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
 	'client:idle'?: boolean;
 	'client:media'?: string;
-	'client:visible'?: string | boolean;
+	'client:visible'?: boolean;
 	'client:only'?: boolean | string;
 }
 
