@@ -231,3 +231,12 @@ export function resolvePath(specifier: string, importer: string) {
 		return specifier;
 	}
 }
+
+/**
+ * Set a default NODE_ENV so Vite doesn't set an incorrect default when loading the Astro config
+ */
+export function ensureProcessNodeEnv(defaultNodeEnv: string) {
+	if (!process.env.NODE_ENV) {
+		process.env.NODE_ENV = defaultNodeEnv;
+	}
+}

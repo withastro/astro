@@ -11,6 +11,7 @@ import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
+import { ensureProcessNodeEnv } from '../util.js';
 
 /**
  * Starts a local server to serve your static dist/ directory. This command is useful for previewing
@@ -19,6 +20,7 @@ import { getResolvedHostForHttpServer } from './util.js';
  * @experimental The JavaScript API is experimental
  */
 export default async function preview(inlineConfig: AstroInlineConfig): Promise<PreviewServer> {
+	ensureProcessNodeEnv('production');
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'preview');
 	telemetry.record(eventCliSession('preview', userConfig));
