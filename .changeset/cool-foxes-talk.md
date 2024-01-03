@@ -2,7 +2,7 @@
 "astro": minor
 ---
 
-Adds new helper functions for integration developers.
+Adds new helper functions for adapter developers.
 
 - Symbols used to represent `Astro.locals` and `Astro.clientAddress` are now available as static properties on the `App` class: `App.Symbol.locals` and `App.Symbol.clientAddress`.
 
@@ -11,7 +11,7 @@ Adds new helper functions for integration developers.
 const response = await app.render(request, { clientAddress: "012.123.23.3" })
 ```
 
-- Helper functions for converting node http request and response objects to web-compatible `Request` and `Response` objects are now provided as static methods on the `NodeApp` class.
+- Helper functions for converting Node.js HTTP request and response objects to web-compatible `Request` and `Response` objects are now provided as static methods on the `NodeApp` class.
 ```ts
 http.createServer((nodeReq, nodeRes) => {
     const request: Request = NodeApp.createRequest(nodeReq)
