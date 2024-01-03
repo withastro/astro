@@ -375,9 +375,9 @@ type ServerConfig = {
 	 * @default `false`
 	 * @version 2.1.8
 	 * @description
-	 * Control whether the dev server should open in your browser window on startup.
-	 * A full URL string (e.g. "http://example.com") or a pathname (e.g. "/about") can also be passed
-	 * to specify the URL to open.
+	 * Controls whether the dev server should open in your browser window on startup.
+	 * 
+	 * Pass a full URL string (e.g. "http://example.com") or a pathname (e.g. "/about") to specify the URL to open.
 	 *
 	 * ```js
 	 * {
@@ -1028,9 +1028,9 @@ export interface AstroUserConfig {
 	 * @default `false`
 	 * @version 2.1.8
 	 * @description
-	 * Control whether the dev server should open in your browser window on startup.
-	 * A full URL string (e.g. "http://example.com") or a pathname (e.g. "/about") can also be passed
-	 * to specify the URL to open.
+	 * Controls whether the dev server should open in your browser window on startup.
+	 * 
+	 * Pass a full URL string (e.g. "http://example.com") or a pathname (e.g. "/about") to specify the URL to open.
 	 *
 	 * ```js
 	 * {
