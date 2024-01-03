@@ -1,5 +1,27 @@
 # astro
 
+## 4.0.9
+
+### Patch Changes
+
+- [#9571](https://github.com/withastro/astro/pull/9571) [`ec71f03cfd9b8195fb21c92dfda0eff63b6ebeed`](https://github.com/withastro/astro/commit/ec71f03cfd9b8195fb21c92dfda0eff63b6ebeed) Thanks [@bluwy](https://github.com/bluwy)! - Removes telemetry for unhandled errors in the dev server
+
+- [#9548](https://github.com/withastro/astro/pull/9548) [`8049f0cd91b239c52e37d571e3ba3e703cf0e4cf`](https://github.com/withastro/astro/commit/8049f0cd91b239c52e37d571e3ba3e703cf0e4cf) Thanks [@bluwy](https://github.com/bluwy)! - Fixes error overlay display on URI malformed error
+
+- [#9504](https://github.com/withastro/astro/pull/9504) [`8cc3d6aa46f438d668516539c34b48ad748ade39`](https://github.com/withastro/astro/commit/8cc3d6aa46f438d668516539c34b48ad748ade39) Thanks [@matiboux](https://github.com/matiboux)! - Implement i18n's `getLocaleByPath` function
+
+- [#9547](https://github.com/withastro/astro/pull/9547) [`22f42d11a4fd2e154a0c5873c4f516584e383b70`](https://github.com/withastro/astro/commit/22f42d11a4fd2e154a0c5873c4f516584e383b70) Thanks [@bluwy](https://github.com/bluwy)! - Prevents ANSI codes from rendering in the error overlay
+
+- [#9446](https://github.com/withastro/astro/pull/9446) [`ede3f7fef6b43a08c9371f7a2531e2eef858b94d`](https://github.com/withastro/astro/commit/ede3f7fef6b43a08c9371f7a2531e2eef858b94d) Thanks [@alexnguyennz](https://github.com/alexnguyennz)! - Toggle dev toolbar hitbox height when toolbar is visible
+
+- [#9572](https://github.com/withastro/astro/pull/9572) [`9f6453cf4972ac28eec4f07a1373feaa295c8864`](https://github.com/withastro/astro/commit/9f6453cf4972ac28eec4f07a1373feaa295c8864) Thanks [@bluwy](https://github.com/bluwy)! - Documents supported `--host` and `--port` flags in `astro preview --help`
+
+- [#9540](https://github.com/withastro/astro/pull/9540) [`7f212f0831d8cd899a86fb94899a7cad8ec280db`](https://github.com/withastro/astro/commit/7f212f0831d8cd899a86fb94899a7cad8ec280db) Thanks [@matthewp](https://github.com/matthewp)! - Fixes remote images with encoded characters
+
+- [#9559](https://github.com/withastro/astro/pull/9559) [`8b873bf1f343efc1f486d8ef53c38380e2373c08`](https://github.com/withastro/astro/commit/8b873bf1f343efc1f486d8ef53c38380e2373c08) Thanks [@sygint](https://github.com/sygint)! - Adds 'starlight' to the displayed options for `astro add`
+
+- [#9537](https://github.com/withastro/astro/pull/9537) [`16e61fcacb98e6bd948ac240bc082659d70193a4`](https://github.com/withastro/astro/commit/16e61fcacb98e6bd948ac240bc082659d70193a4) Thanks [@walter9388](https://github.com/walter9388)! - `<Image />` srcset now parses encoded paths correctly
+
 ## 4.0.8
 
 ### Patch Changes
