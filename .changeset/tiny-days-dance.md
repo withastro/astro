@@ -4,7 +4,7 @@
 
 Cookie encoding / decoding can now be customized
 
-New `encode` and `decode` functions allow customizing how cookies are encoded and decoded. For example, cookies are by default encoded via `encodeURIComponent`, but you might want to avoid that in some cases such as when adding a URL as part of a cookie.
+Adds new `encode` and `decode` functions to allow customizing how cookies are encoded and decoded. For example, you can bypass the default encoding via `encodeURIComponent` when adding a URL as part of a cookie:
 
 ```astro
 ---
