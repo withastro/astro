@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
-import { testFactory, waitForHydrate } from './test-utils.js';
 import testAdapter from '../test/test-adapter.js';
+import { testFactory, waitForHydrate } from './test-utils.js';
 
 const test = testFactory({
 	root: './fixtures/custom-client-directives/',
@@ -88,5 +88,14 @@ function testClientDirectivesShared() {
 		await incrementBtn.click();
 		// Hydrated, this should be 1
 		await expect(counterValue).toHaveText('1');
+	});
+
+	test('Client directives should be passed options correctly', async ({ astro, page }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const clientOptions = page.locator('#options');
+		await expect(clientOptions).toHaveText(
+			'Passed options are: {"message":"Hello! I was passed as an option"}'
+		);
 	});
 }
