@@ -74,9 +74,11 @@ export interface AstroBuiltinProps {
 	'client:load'?: boolean;
 	'client:idle'?: boolean;
 	'client:media'?: string;
-	'client:visible'?: boolean;
+	'client:visible'?: ClientVisibleOptions | boolean;
 	'client:only'?: boolean | string;
 }
+
+export type ClientVisibleOptions = Pick<IntersectionObserverInit, 'rootMargin'>;
 
 export interface TransitionAnimation {
 	name: string; // The name of the keyframe
