@@ -9,7 +9,7 @@ Now you can use lazy components on your SSR. Fallback will be not displayed when
 ``` jsx
 import { lazy, Suspense } from 'preact/compat';
 
-const BigComponent = lazy(async () => import('./Message'));
+const BigComponent = lazy(async () => import('./BigComponent'));
 const Fallback = () => <p>Loading...</p>;
 
 const Component = () => {
