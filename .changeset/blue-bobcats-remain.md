@@ -13,7 +13,7 @@ const HeavyComponent= lazy(() => import('./HeavyComponent'));
 
 const Component = () => {
 	return (
-    		<Suspense fallback={<p>Loading...</p>}>
+    <Suspense fallback={<p>Loading...</p>}>
 			<HeavyComponent foo="bar" />
 		</Suspense>
   	);
