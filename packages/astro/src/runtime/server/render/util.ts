@@ -209,8 +209,8 @@ export type PromiseWithResolvers<T> = {
 export function promiseWithResolvers<T = any>(): PromiseWithResolvers<T> {
 	let resolve: any, reject: any;
 	const promise = new Promise<T>((_resolve, _reject) => {
-		resolve = resolve;
-		reject = reject;
+		resolve = _resolve;
+		reject = _reject;
 	});
 	return {
 		promise,
