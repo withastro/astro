@@ -32,9 +32,9 @@ export type RSSOptions = {
 
 export type RSSFeedItem = {
 	/** Link to item */
-	link: string;
+	link: z.infer<typeof rssSchema>['link'];
 	/** Full content of the item. Should be valid HTML */
-	content?: string | undefined;
+	content?: z.infer<typeof rssSchema>['content'];
 	/** Title of item */
 	title: z.infer<typeof rssSchema>['title'];
 	/** Publication date of item */
@@ -55,11 +55,10 @@ export type RSSFeedItem = {
 	enclosure?: z.infer<typeof rssSchema>['enclosure'];
 };
 
-type ValidatedRSSFeedItem = z.infer<typeof rssFeedItemValidator>;
+type ValidatedRSSFeedItem = z.infer<typeof rssSchema>;
 type ValidatedRSSOptions = z.infer<typeof rssOptionsValidator>;
 type GlobResult = z.infer<typeof globResultValidator>;
 
-const rssFeedItemValidator = rssSchema.extend({ link: z.string(), content: z.string().optional() });
 const globResultValidator = z.record(z.function().returns(z.promise(z.any())));
 
 const rssOptionsValidator = z.object({
@@ -67,7 +66,7 @@ const rssOptionsValidator = z.object({
 	description: z.string(),
 	site: z.preprocess((url) => (url instanceof URL ? url.href : url), z.string().url()),
 	items: z
-		.array(rssFeedItemValidator)
+		.array(rssSchema)
 		.or(globResultValidator)
 		.transform((items) => {
 			if (!Array.isArray(items)) {
@@ -138,7 +137,7 @@ export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeed
 					`[RSS] You can only glob entries within 'src/pages/' when passing import.meta.glob() directly. Consider mapping the result to an array of RSSFeedItems. See the RSS docs for usage examples: https://docs.astro.build/en/guides/rss/#2-list-of-rss-feed-objects`
 				);
 			}
-			const parsedResult = rssFeedItemValidator.safeParse(
+			const parsedResult = rssSchema.safeParse(
 				{ ...frontmatter, link: url },
 				{ errorMap }
 			);

@@ -17,6 +17,8 @@ const sharedSchema = z.object({
 			type: z.string(),
 		})
 		.optional(),
+	link: z.string(),
+	content: z.string().optional(),
 });
 
 export const rssSchema = z.union([
