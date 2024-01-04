@@ -4,7 +4,7 @@ import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 
 import nodeFs from 'node:fs';
 import * as vite from 'vite';
-import { injectImageEndpoint } from '../../assets/internal.js';
+import { injectImageEndpoint } from '../../assets/endpoint/config.js';
 import {
 	runHookConfigDone,
 	runHookConfigSetup,
@@ -54,10 +54,11 @@ export async function createContainer({
 
 	const {
 		base,
-		server: { host, headers, open: shouldOpen },
+		server: { host, headers, open: serverOpen },
 	} = settings.config;
-	// Open server to the correct path
-	const open = shouldOpen ? base : false;
+	// Open server to the correct path. We pass the `base` here as we didn't pass the
+	// base to the initial Vite config
+	const open = typeof serverOpen == 'string' ? serverOpen : serverOpen ? base : false;
 
 	// The client entrypoint for renderers. Since these are imported dynamically
 	// we need to tell Vite to preoptimize them.

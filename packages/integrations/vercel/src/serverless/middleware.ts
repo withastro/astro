@@ -53,7 +53,7 @@ function edgeMiddlewareTemplate(middlewarePath: string, vercelEdgeMiddlewareHand
 	if (existsSync(filePathEdgeMiddleware + '.js') || existsSync(filePathEdgeMiddleware + '.ts')) {
 		const stringified = JSON.stringify(filePathEdgeMiddleware.replace(/\\/g, '/'));
 		handlerTemplateImport = `import handler from ${stringified}`;
-		handlerTemplateCall = `handler({ request, context })`;
+		handlerTemplateCall = `await handler({ request, context })`;
 	} else {
 	}
 	return `

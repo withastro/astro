@@ -14,6 +14,14 @@ describe('Astro.redirect', () => {
 				adapter: testAdapter(),
 				redirects: {
 					'/api/redirect': '/test',
+					'/external/redirect': 'https://example.com/',
+					// for example, the real file handling the target path may be called
+					// src/pages/not-verbatim/target1/[something-other-than-dynamic].astro
+					'/source/[dynamic]': '/not-verbatim/target1/[dynamic]',
+					// may be called src/pages/not-verbatim/target2/[abc]/[xyz].astro
+					'/source/[dynamic]/[route]': '/not-verbatim/target2/[dynamic]/[route]',
+					// may be called src/pages/not-verbatim/target3/[...rest].astro
+					'/source/[...spread]': '/not-verbatim/target3/[...spread]',
 				},
 			});
 			await fixture.build();
@@ -25,6 +33,15 @@ describe('Astro.redirect', () => {
 			const response = await app.render(request);
 			expect(response.status).to.equal(302);
 			expect(response.headers.get('location')).to.equal('/login');
+		});
+
+		// ref: https://github.com/withastro/astro/pull/9287
+		it.skip('Ignores external redirect', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/external/redirect');
+			const response = await app.render(request);
+			expect(response.status).to.equal(404);
+			expect(response.headers.get('location')).to.equal(null);
 		});
 
 		it('Warns when used inside a component', async () => {
@@ -57,6 +74,27 @@ describe('Astro.redirect', () => {
 				});
 				const response = await app.render(request);
 				expect(response.status).to.equal(308);
+			});
+
+			it('Forwards params to the target path - single param', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const request = new Request('http://example.com/source/x');
+				const response = await app.render(request);
+				expect(response.headers.get('Location')).to.equal('/not-verbatim/target1/x');
+			});
+
+			it('Forwards params to the target path - multiple params', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const request = new Request('http://example.com/source/x/y');
+				const response = await app.render(request);
+				expect(response.headers.get('Location')).to.equal('/not-verbatim/target2/x/y');
+			});
+
+			it('Forwards params to the target path - spread param', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const request = new Request('http://example.com/source/x/y/z');
+				const response = await app.render(request);
+				expect(response.headers.get('Location')).to.equal('/not-verbatim/target3/x/y/z');
 			});
 		});
 	});

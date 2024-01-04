@@ -26,6 +26,7 @@ export type LoggerLabel =
 	| 'watch'
 	| 'middleware'
 	| 'preferences'
+	| 'redirects'
 	// SKIP_FORMAT: A special label that tells the logger not to apply any formatting.
 	// Useful for messages that are already formatted, like the server start message.
 	| 'SKIP_FORMAT';
@@ -55,6 +56,7 @@ export interface LogMessage {
 	label: string | null;
 	level: LoggerLevel;
 	message: string;
+	newLine: boolean;
 }
 
 export const levels: Record<LoggerLevel, number> = {
@@ -66,13 +68,20 @@ export const levels: Record<LoggerLevel, number> = {
 };
 
 /** Full logging API */
-export function log(opts: LogOptions, level: LoggerLevel, label: string | null, message: string) {
+export function log(
+	opts: LogOptions,
+	level: LoggerLevel,
+	label: string | null,
+	message: string,
+	newLine = true
+) {
 	const logLevel = opts.level;
 	const dest = opts.dest;
 	const event: LogMessage = {
 		label,
 		level,
 		message,
+		newLine,
 	};
 
 	// test if this level is enabled or not
@@ -88,18 +97,18 @@ export function isLogLevelEnabled(configuredLogLevel: LoggerLevel, level: Logger
 }
 
 /** Emit a user-facing message. Useful for UI and other console messages. */
-export function info(opts: LogOptions, label: string | null, message: string) {
-	return log(opts, 'info', label, message);
+export function info(opts: LogOptions, label: string | null, message: string, newLine = true) {
+	return log(opts, 'info', label, message, newLine);
 }
 
 /** Emit a warning message. Useful for high-priority messages that aren't necessarily errors. */
-export function warn(opts: LogOptions, label: string | null, message: string) {
-	return log(opts, 'warn', label, message);
+export function warn(opts: LogOptions, label: string | null, message: string, newLine = true) {
+	return log(opts, 'warn', label, message, newLine);
 }
 
 /** Emit a error message, Useful when Astro can't recover from some error. */
-export function error(opts: LogOptions, label: string | null, message: string) {
-	return log(opts, 'error', label, message);
+export function error(opts: LogOptions, label: string | null, message: string, newLine = true) {
+	return log(opts, 'error', label, message, newLine);
 }
 
 type LogFn = typeof info | typeof warn | typeof error;
@@ -190,14 +199,14 @@ export class Logger {
 		this.options = options;
 	}
 
-	info(label: LoggerLabel | null, message: string) {
-		info(this.options, label, message);
+	info(label: LoggerLabel | null, message: string, newLine = true) {
+		info(this.options, label, message, newLine);
 	}
-	warn(label: LoggerLabel | null, message: string) {
-		warn(this.options, label, message);
+	warn(label: LoggerLabel | null, message: string, newLine = true) {
+		warn(this.options, label, message, newLine);
 	}
-	error(label: LoggerLabel | null, message: string) {
-		error(this.options, label, message);
+	error(label: LoggerLabel | null, message: string, newLine = true) {
+		error(this.options, label, message, newLine);
 	}
 	debug(label: LoggerLabel, ...messages: any[]) {
 		debug(label, ...messages);

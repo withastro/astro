@@ -63,10 +63,11 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		site: typeof flags.site === 'string' ? flags.site : undefined,
 		base: typeof flags.base === 'string' ? flags.base : undefined,
 		port: typeof flags.port === 'number' ? flags.port : undefined,
-		open: typeof flags.open === 'boolean' ? flags.open : undefined,
 		config: typeof flags.config === 'string' ? flags.config : undefined,
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
+		open:
+			typeof flags.open === 'string' || typeof flags.open === 'boolean' ? flags.open : undefined,
 	};
 }
 

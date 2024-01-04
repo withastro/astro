@@ -1,5 +1,37 @@
 # @astrojs/vercel
 
+## 6.1.2
+
+### Patch Changes
+
+- [#9550](https://github.com/withastro/astro/pull/9550) [`7b586a6e23e25653814db9adea9674ec3a9bd535`](https://github.com/withastro/astro/commit/7b586a6e23e25653814db9adea9674ec3a9bd535) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where a build could not complete on Node 21.
+
+## 6.1.1
+
+### Patch Changes
+
+- [#9479](https://github.com/withastro/astro/pull/9479) [`1baf0b0d3cbd0564954c2366a7278794fad6726e`](https://github.com/withastro/astro/commit/1baf0b0d3cbd0564954c2366a7278794fad6726e) Thanks [@sarah11918](https://github.com/sarah11918)! - Updates README
+
+## 6.1.0
+
+### Minor Changes
+
+- [#9413](https://github.com/withastro/astro/pull/9413) [`836ab6214`](https://github.com/withastro/astro/commit/836ab6214e5ef778ef2db2c079f49e87ce70d711) Thanks [@jacobdalamb](https://github.com/jacobdalamb)! - Adds support for Node 20 (currently in `beta` on Vercel).
+
+### Patch Changes
+
+- [#9289](https://github.com/withastro/astro/pull/9289) [`8aeb0b579`](https://github.com/withastro/astro/commit/8aeb0b5797853c2eee7630b572d6abc503d59c6f) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where dots in redirects were incorrectly handled.
+
+## 6.0.2
+
+### Patch Changes
+
+- [#9287](https://github.com/withastro/astro/pull/9287) [`1e342e34e`](https://github.com/withastro/astro/commit/1e342e34eb9cef465b838654cea7bb4b0d24e602) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where redirects did not work with the static adapter.
+
+- [#9383](https://github.com/withastro/astro/pull/9383) [`bebf5cf22`](https://github.com/withastro/astro/commit/bebf5cf22d0d842670825aa961529e8b342e2b26) Thanks [@sarah11918](https://github.com/sarah11918)! - Fixes some incorrect code examples in the README documentation.
+
+- [#9334](https://github.com/withastro/astro/pull/9334) [`dfbc70790`](https://github.com/withastro/astro/commit/dfbc7079081d3346713cb536358a3854362a2c95) Thanks [@Geo25rey](https://github.com/Geo25rey)! - Allows the edge middleware to be an async function.
+
 ## 6.0.1
 
 ### Patch Changes

@@ -10,7 +10,7 @@ import type {
 	ManifestData,
 	RuntimeMode,
 } from '../../@types/astro.js';
-import { injectImageEndpoint } from '../../assets/internal.js';
+import { injectImageEndpoint } from '../../assets/endpoint/config.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import {
@@ -33,6 +33,7 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+import { ensureProcessNodeEnv } from '../util.js';
 
 export interface BuildOptions {
 	/**
@@ -63,6 +64,7 @@ export default async function build(
 	inlineConfig: AstroInlineConfig,
 	options: BuildOptions = {}
 ): Promise<void> {
+	ensureProcessNodeEnv('production');
 	applyPolyfill();
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
@@ -198,8 +200,8 @@ class AstroBuilder {
 			viteConfig,
 		};
 
-		const { internals } = await viteBuild(opts);
-		await staticBuild(opts, internals);
+		const { internals, ssrOutputChunkNames } = await viteBuild(opts);
+		await staticBuild(opts, internals, ssrOutputChunkNames);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();

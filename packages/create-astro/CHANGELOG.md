@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.6.0
+
+### Minor Changes
+
+- [#9358](https://github.com/withastro/astro/pull/9358) [`35e4c17fe`](https://github.com/withastro/astro/commit/35e4c17fe245179dd88af679a5f0a08785b7bfef) Thanks [@xiBread](https://github.com/xiBread)! - feat: make Houston festive for the holiday season
+
 ## 4.5.2
 
 ### Patch Changes

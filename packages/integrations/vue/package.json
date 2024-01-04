@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/vue",
-  "version": "4.0.2",
+  "version": "4.0.7",
   "description": "Use Vue components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -53,11 +53,11 @@
     "cheerio": "1.0.0-rc.12",
     "linkedom": "^0.16.4",
     "mocha": "^10.2.0",
-    "vite": "^5.0.0",
+    "vite": "^5.0.10",
     "vue": "^3.3.8"
   },
   "peerDependencies": {
-    "astro": "^4.0.0-beta.0",
+    "astro": "^4.0.0",
     "vue": "^3.2.30"
   },
   "engines": {

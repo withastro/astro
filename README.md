@@ -1,4 +1,4 @@
-![Build the web you want](.github/assets/banner.png 'Build the web you want')
+![Build the web you want](.github/assets/banner.jpg 'Build the web you want')
 
 <p align="center">
   <br/>
@@ -7,6 +7,14 @@
   powerful developer experience meets lightweight output.
   <br/><br/>
 </p>
+
+<div align="center">
+
+![Build Status](https://github.com/withastro/astro/actions/workflows/ci.yml/badge.svg)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/withastro/astro/blob/main/LICENSE)
+[![npm version](https://badge.fury.io/js/astro.svg)](https://badge.fury.io/js/astro)
+
+</div>
 
 ## Install
 

@@ -45,6 +45,7 @@ export function init(defaultOpts?: InitOptions) {
 	initTapStrategy();
 	initHoverStrategy();
 	initViewportStrategy();
+	initLoadStrategy();
 }
 
 /**
@@ -169,6 +170,20 @@ function createViewportIntersectionObserver() {
 	});
 }
 
+/**
+ * Prefetch links with lower priority when page load
+ */
+function initLoadStrategy() {
+	onPageLoad(() => {
+		for (const anchor of document.getElementsByTagName('a')) {
+			if (elMatchesStrategy(anchor, 'load')) {
+				// Prefetch every link in this page
+				prefetch(anchor.href, { with: 'link' });
+			}
+		}
+	});
+}
+
 export interface PrefetchOptions {
 	/**
 	 * How the prefetch should prioritize the URL. (default `'link'`)
@@ -265,7 +280,7 @@ function isSlowConnection() {
 	if ('connection' in navigator) {
 		// Untyped Chrome-only feature: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/connection
 		const conn = navigator.connection as any;
-		return conn.saveData || /(2|3)g/.test(conn.effectiveType);
+		return conn.saveData || /2g/.test(conn.effectiveType);
 	}
 	return false;
 }

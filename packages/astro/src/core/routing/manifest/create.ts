@@ -328,7 +328,7 @@ export function createRouteManifest(
 			} else {
 				components.push(item.file);
 				const component = item.file;
-				const trailingSlash = item.isPage ? settings.config.trailingSlash : 'never';
+				const { trailingSlash } = settings.config;
 				const pattern = getPattern(segments, settings.config, trailingSlash);
 				const generate = getRouteGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
@@ -450,6 +450,21 @@ export function createRouteManifest(
 		const route = `/${segments
 			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 			.join('/')}`.toLowerCase();
+
+		{
+			let destination: string;
+			if (typeof to === 'string') {
+				destination = to;
+			} else {
+				destination = to.destination;
+			}
+			if (/^https?:\/\//.test(destination)) {
+				logger.warn(
+					'redirects',
+					`Redirecting to an external URL is not officially supported: ${from} -> ${destination}`
+				);
+			}
+		}
 
 		const routeData: RouteData = {
 			type: 'redirect',

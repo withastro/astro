@@ -64,15 +64,21 @@ export type {
 } from '../assets/types.js';
 export type { RemotePattern } from '../assets/utils/remotePattern.js';
 export type { SSRManifest } from '../core/app/types.js';
-export type { AstroCookies } from '../core/cookies/index.js';
+export type {
+	AstroCookieGetOptions,
+	AstroCookieSetOptions,
+	AstroCookies,
+} from '../core/cookies/index.js';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
 	'client:idle'?: boolean;
 	'client:media'?: string;
-	'client:visible'?: boolean;
+	'client:visible'?: ClientVisibleOptions | boolean;
 	'client:only'?: boolean | string;
 }
+
+export type ClientVisibleOptions = Pick<IntersectionObserverInit, 'rootMargin'>;
 
 export interface TransitionAnimation {
 	name: string; // The name of the keyframe
@@ -153,7 +159,7 @@ export interface CLIFlags {
 	host?: string | boolean;
 	port?: number;
 	config?: string;
-	open?: boolean;
+	open?: string | boolean;
 }
 
 /**
@@ -371,19 +377,21 @@ type ServerConfig = {
 
 	/**
 	 * @name server.open
-	 * @type {boolean}
+	 * @type {string | boolean}
 	 * @default `false`
-	 * @version 2.1.8
+	 * @version 4.1.0
 	 * @description
-	 * Control whether the dev server should open in your browser window on startup.
+	 * Controls whether the dev server should open in your browser window on startup.
+	 *
+	 * Pass a full URL string (e.g. "http://example.com") or a pathname (e.g. "/about") to specify the URL to open.
 	 *
 	 * ```js
 	 * {
-	 *   server: { open: true }
+	 *   server: { open: "/about" }
 	 * }
 	 * ```
 	 */
-	open?: boolean;
+	open?: string | boolean;
 };
 
 export interface ViteUserConfig extends vite.UserConfig {
@@ -677,7 +685,7 @@ export interface AstroUserConfig {
 	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
 	 *
 	 * ```js
-	 * import netlify from '@astrojs/netlify/functions';
+	 * import netlify from '@astrojs/netlify';
 	 * {
 	 *   // Example: Build for Netlify serverless deployment
 	 *   adapter: netlify(),
@@ -722,7 +730,7 @@ export interface AstroUserConfig {
 		 * @typeraw {('file' | 'directory')}
 		 * @default `'directory'`
 		 * @description
-		 * Control the output file format of each page.
+		 * Control the output file format of each page. This value may be set by an adapter for you.
 		 *   - If `'file'`, Astro will generate an HTML file (ex: "/foo.html") for each page.
 		 *   - If `'directory'`, Astro will generate a directory with a nested `index.html` file (ex: "/foo/index.html") for each page.
 		 *
@@ -734,6 +742,8 @@ export interface AstroUserConfig {
 		 *   }
 		 * }
 		 * ```
+		 *
+		 *
 		 *
 		 * #### Effect on Astro.url
 		 * Setting `build.format` controls what `Astro.url` is set to during the build. When it is:
@@ -945,7 +955,7 @@ export interface AstroUserConfig {
 				/**
 				 * @docs
 				 * @name prefetch.defaultStrategy
-				 * @type {'tap' | 'hover' | 'viewport'}
+				 * @type {'tap' | 'hover' | 'viewport' | 'load'}
 				 * @default `'hover'`
 				 * @description
 				 * The default prefetch strategy to use when the `data-astro-prefetch` attribute is set on a link with no value.
@@ -953,6 +963,7 @@ export interface AstroUserConfig {
 				 * - `'tap'`: Prefetch just before you click on the link.
 				 * - `'hover'`: Prefetch when you hover over or focus on the link. (default)
 				 * - `'viewport'`: Prefetch as the links enter the viewport.
+				 * - `'load'`: Prefetch the link without any restrictions.
 				 *
 				 * You can override this default value and select a different strategy for any individual link by setting a value on the attribute.
 				 *
@@ -960,7 +971,7 @@ export interface AstroUserConfig {
 				 * <a href="/about" data-astro-prefetch="viewport">About</a>
 				 * ```
 				 */
-				defaultStrategy?: 'tap' | 'hover' | 'viewport';
+				defaultStrategy?: 'tap' | 'hover' | 'viewport' | 'load';
 		  };
 
 	/**
@@ -1018,16 +1029,19 @@ export interface AstroUserConfig {
 	 */
 
 	/**
+	 * @docs
 	 * @name server.open
-	 * @type {boolean}
+	 * @type {string | boolean}
 	 * @default `false`
 	 * @version 2.1.8
 	 * @description
-	 * Control whether the dev server should open in your browser window on startup.
+	 * Controls whether the dev server should open in your browser window on startup.
+	 *
+	 * Pass a full URL string (e.g. "http://example.com") or a pathname (e.g. "/about") to specify the URL to open.
 	 *
 	 * ```js
 	 * {
-	 *   server: { open: true }
+	 *   server: { open: "/about" }
 	 * }
 	 * ```
 	 */
@@ -1088,13 +1102,31 @@ export interface AstroUserConfig {
 		 * ```js
 		 * {
 		 *   image: {
-		 *     // Example: Enable the Sharp-based image service
-		 *     service: { entrypoint: 'astro/assets/services/sharp' },
+		 *     // Example: Enable the Sharp-based image service with a custom config
+		 *     service: {
+		 * 			 entrypoint: 'astro/assets/services/sharp',
+		 * 			 config: {
+		 * 				 limitInputPixels: false,
+		 *       },
+		 * 		 },
 		 *   },
 		 * }
 		 * ```
 		 */
 		service?: ImageServiceConfig;
+		/**
+		 * @docs
+		 * @name image.service.config.limitInputPixels
+		 * @kind h4
+		 * @type {boolean}
+		 * @default `true`
+		 * @version 4.1.0
+		 * @description
+		 *
+		 * Whether or not to limit the size of images that the Sharp image service will process.
+		 *
+		 * Set `false` to bypass the default image size limit for the Sharp image service and process large images.
+		 */
 
 		/**
 		 * @docs
@@ -2235,7 +2267,7 @@ export type APIRoute<Props extends Record<string, any> = Record<string, any>> = 
 ) => Response | Promise<Response>;
 
 export interface EndpointHandler {
-	[method: string]: APIRoute | ((params: Params, request: Request) => Response);
+	[method: string]: APIRoute;
 }
 
 export type Props = Record<string, unknown>;
@@ -2261,6 +2293,18 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 			attrs?: Record<string, string>;
 		}>;
 		supportsAstroStaticSlot?: boolean;
+		/**
+		 * If provided, Astro will call this function and inject the returned
+		 * script in the HTML before the first component handled by this renderer.
+		 *
+		 * This feature is needed by some renderers (in particular, by Solid). The
+		 * Solid official hydration script sets up a page-level data structure.
+		 * It is mainly used to transfer data between the server side render phase
+		 * and the browser application state. Solid Components rendered later in
+		 * the HTML may inject tiny scripts into the HTML that call into this
+		 * page-level data structure.
+		 */
+		renderHydrationScript?: () => string;
 	};
 }
 
@@ -2480,6 +2524,12 @@ export interface SSRResult {
  */
 export interface SSRMetadata {
 	hasHydrationScript: boolean;
+	/**
+	 * Names of renderers that have injected their hydration scripts
+	 * into the current page. For example, Solid SSR needs a hydration
+	 * script in the page HTML before the first Solid component.
+	 */
+	rendererSpecificHydrationScripts: Set<string>;
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	headInTree: boolean;
