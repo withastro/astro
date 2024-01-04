@@ -30,7 +30,7 @@ describe('html-escape-bug', () => {
 					'const normal = `There are ${count} things!`;',
 					'const content = `There are `${count}` things!`;',
 					`document.getElementById('normal').innerText = normal;`,
-					`document.getElementById('content') = content;`,
+					`document.getElementById('content').innerText = content;`,
 				].join('\n\t\t') + '\n\t'
 			);
 		});
@@ -60,9 +60,10 @@ describe('html-escape-bug', () => {
 			expect(script.text()).to.equal(
 				[
 					'\n\t\tconst count = 6;',
+					'const normal = `There are ${count} things!`;',
 					'const content = `There are `${count}` things!`;',
-					'console.log(content);',
-					`document.getElementById('content') = content;`,
+					`document.getElementById('normal').innerText = normal;`,
+					`document.getElementById('content').innerText = content;`,
 				].join('\n\t\t') + '\n\t'
 			);
 		});
