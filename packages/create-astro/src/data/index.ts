@@ -1,1 +1,1 @@
-export {default as getFestiveMessages} from './festive.js'
+export {default as getSeasonalHouston} from './seasonal.js'

@@ -1,14 +1,21 @@
 import { random } from '@astrojs/cli-kit/utils';
 
-export default function getFestiveHouston(fancy?: boolean) {
+export default function getSeasonalHouston(fancy?: boolean) {
 	const date = new Date();
-	if (date.getMonth() === 11) {
+	if ((date.getMonth() === 11 && date.getDate() === 21) || (date.getMonth() === 0 && date.getDate() === 1)) {
+		// New Year
+		return {
+			hat: '🎩',
+			tie: '👔',
+			messages: [
+				`Hey there! It's new year and you're working! Pretty cool!`
+			]
+		}
+	} else if (date.getMonth() === 11) {
 		// Christmas season
 		return {
-			clothes: {
-				hat: random(['🎁', '🎄', '🌲']),
-				tie: '🧣'
-			},
+			hat: random(['🎁', '🎄', '🌲']),
+			tie: '🧣',
 			messages: [
 				`Ho, ho, ho! 'Tis the season to code and create.`,	
 				`Jingle all the way through your web creation journey!`,	
@@ -21,10 +28,8 @@ export default function getFestiveHouston(fancy?: boolean) {
 	} else if (date.getMonth() === 9) {
 		// Spooky season
 		return {
-			clothes: {
-				hat: random(['🎃', '👻', '☠️', '💀']),
-				tie: random(['🦴', ''])
-			},
+			hat: random(['🎃', '👻', '☠️', '💀']),
+			tie: random(['🦴', '']),
 			messages: [
 				`Booo! Let's scare the interwebs!`,
 				`Get ready to haunt the internet with Halloween vibes.`,
@@ -38,10 +43,8 @@ export default function getFestiveHouston(fancy?: boolean) {
 	}
 	// default state
 	return {
-		clothes: {
-			hat: fancy ? random(['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦']) : '',
-			tie: fancy ? random(['🎀', '🧣']) : '',
-		},
+		hat: fancy ? random(['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦']) : '',
+		tie: fancy ? random(['🎀', '🧣']) : '',
 		messages: [
 			`Let's claim your corner of the internet.`,
 			`I'll be your assistant today.`,

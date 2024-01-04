@@ -3,7 +3,7 @@ import arg from 'arg';
 import os from 'node:os';
 
 import { getName, getVersion } from '../messages.js';
-import getFestiveHouston from '../data/festive.js';
+import getSeasonalHouston from '../data/seasonal.js';
 
 export interface Context {
 	help: boolean;
@@ -25,10 +25,8 @@ export interface Context {
 	stdin?: typeof process.stdin;
 	stdout?: typeof process.stdout;
 	exit(code: number): never;
-	clothes: {
-		hat: string;
-		tie: string;
-	};
+	hat?: string;
+	tie?: string;
 }
 
 export async function getContext(argv: string[]): Promise<Context> {
@@ -97,7 +95,8 @@ export async function getContext(argv: string[]): Promise<Context> {
 		projectName,
 		template,
 		ref: ref ?? 'latest',
-		clothes: getFestiveHouston(fancy).clothes,
+		hat: getSeasonalHouston(fancy).hat,
+		tie: getSeasonalHouston(fancy).tie,
 		yes,
 		install: install ?? (noInstall ? false : undefined),
 		git: git ?? (noGit ? false : undefined),

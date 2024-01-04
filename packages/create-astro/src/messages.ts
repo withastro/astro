@@ -4,7 +4,7 @@ import { align, sleep } from '@astrojs/cli-kit/utils';
 import { exec } from 'node:child_process';
 import stripAnsi from 'strip-ansi';
 import { shell } from './shell.js';
-import getFestiveHouston from './data/festive.js';
+import getSeasonalHouston from './data/seasonal.js';
 
 // Users might lack access to the global npm registry, this function
 // checks the user's project type and will return the proper npm registry
@@ -25,8 +25,8 @@ export function setStdout(writable: typeof process.stdout) {
 	stdout = writable;
 }
 
-export async function say(messages: string | string[], { clear = false, clothes = { hat: '', tie: ''} } = {}) {
-	return houston(messages, { clear, clothes, stdout });
+export async function say(messages: string | string[], { clear = false, hat = '', tie = ''} = {}) {
+	return houston(messages, { clear, hat, tie, stdout });
 }
 
 export async function spinner(args: {
@@ -40,7 +40,8 @@ export async function spinner(args: {
 
 export const title = (text: string) => align(label(text), 'end', 7) + ' ';
 
-export const welcome = getFestiveHouston().messages
+export const seasonalHouston = getSeasonalHouston();
+export const welcome = seasonalHouston.messages;
 
 export const getName = () =>
 	new Promise<string>((resolve) => {
