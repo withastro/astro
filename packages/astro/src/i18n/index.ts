@@ -10,7 +10,7 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
-	routing?: 'prefix-always' | 'prefix-other-locales';
+	routing?: 'pathname-prefix-always' | 'pathname-prefix-other-locales';
 	defaultLocale: string;
 };
 
@@ -45,7 +45,7 @@ export function getLocaleRelativeUrl({
 	path,
 	prependWith,
 	normalizeLocale = true,
-	routing = 'prefix-other-locales',
+	routing = 'pathname-prefix-other-locales',
 	defaultLocale,
 }: GetLocaleRelativeUrl) {
 	const codeToUse = peekCodePathToUse(_locales, locale);
@@ -57,7 +57,7 @@ export function getLocaleRelativeUrl({
 	}
 	const pathsToJoin = [base, prependWith];
 	const normalizedLocale = normalizeLocale ? normalizeTheLocale(codeToUse) : codeToUse;
-	if (routing === 'prefix-always') {
+	if (routing === 'pathname-prefix-always') {
 		pathsToJoin.push(normalizedLocale);
 	} else if (locale !== defaultLocale) {
 		pathsToJoin.push(normalizedLocale);
@@ -88,7 +88,7 @@ type GetLocalesBaseUrl = GetLocaleOptions & {
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
-	routing?: 'prefix-always' | 'prefix-other-locales';
+	routing?: 'pathname-prefix-always' | 'pathname-prefix-other-locales';
 	defaultLocale: string;
 };
 
@@ -100,7 +100,7 @@ export function getLocaleRelativeUrlList({
 	path,
 	prependWith,
 	normalizeLocale = false,
-	routing = 'prefix-other-locales',
+	routing = 'pathname-prefix-other-locales',
 	defaultLocale,
 }: GetLocalesBaseUrl) {
 	const locales = toPaths(_locales);
@@ -108,7 +108,7 @@ export function getLocaleRelativeUrlList({
 		const pathsToJoin = [base, prependWith];
 		const normalizedLocale = normalizeLocale ? normalizeTheLocale(locale) : locale;
 
-		if (routing === 'prefix-always') {
+		if (routing === 'pathname-prefix-always') {
 			pathsToJoin.push(normalizedLocale);
 		} else if (locale !== defaultLocale) {
 			pathsToJoin.push(normalizedLocale);
