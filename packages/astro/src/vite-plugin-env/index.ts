@@ -79,6 +79,20 @@ async function replaceDefine(
 	define: Record<string, string>,
 	config: vite.ResolvedConfig
 ): Promise<{ code: string; map: string | null }> {
+	// Since esbuild doesn't support replacing complex expressions, we replace `import.meta.env`
+	// with a marker string first, then postprocess and apply the `Object.assign` code.
+	const replacementMarkers: Record<string, string> = {};
+	const env = define['import.meta.env'];
+	if (env) {
+		// Compute the marker from the length of the replaced code. We do this so that esbuild generates
+		// the sourcemap with the right column offset when we do the postprocessing.
+		const marker = `__astro_import_meta_env${'_'.repeat(
+			env.length - 23 /* length of preceding string */
+		)}`;
+		replacementMarkers[marker] = env;
+		define = { ...define, 'import.meta.env': marker };
+	}
+
 	const esbuildOptions = config.esbuild || {};
 
 	const result = await transform(code, {
@@ -89,6 +103,10 @@ async function replaceDefine(
 		sourcefile: id,
 		sourcemap: config.command === 'build' ? !!config.build.sourcemap : true,
 	});
+
+	for (const marker in replacementMarkers) {
+		result.code = result.code.replaceAll(marker, replacementMarkers[marker]);
+	}
 
 	return {
 		code: result.code,
@@ -135,7 +153,7 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 				}
 			}
 		},
-		async transform(source, id, options) {
+		transform(source, id, options) {
 			if (!options?.ssr || !source.includes('import.meta.env')) {
 				return;
 			}
@@ -154,36 +172,20 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 			// If reference the `import.meta.env` object directly, we want to inject private env vars
 			// into Vite's injected `import.meta.env` object. To do this, we use `Object.assign` and keeping
 			// the `import.meta.env` identifier so Vite sees it.
-			// However, since esbuild doesn't support replacing complex expressions, we replace `import.meta.env`
-			// with a marker string first, then postprocess and apply the `Object.assign` code.
-			let importMetaEnvMarker: string | undefined;
-			let importMetaEnvReplacement: string | undefined;
 			if (importMetaEnvOnlyRe.test(source)) {
 				const references = getReferencedPrivateKeys(source, privateEnv);
-				// Create the `Object.assign` code
-				importMetaEnvReplacement = `(Object.assign(import.meta.env,{`;
+				let replacement = `(Object.assign(import.meta.env,{`;
 				for (const key of references.values()) {
-					importMetaEnvReplacement += `${key}:${privateEnv[key]},`;
+					replacement += `${key}:${privateEnv[key]},`;
 				}
-				importMetaEnvReplacement += '}))';
-				// Compute the marker from the length of the replaced code. We do this so that esbuild generates
-				// the sourcemap with the right column offset when we do the postprocessing.
-				importMetaEnvMarker = `__astro_import_meta_env${'_'.repeat(
-					importMetaEnvReplacement.length - 23 /* length of preceding string */
-				)}`;
+				replacement += '}))';
 				defines = {
 					...defaultDefines,
-					'import.meta.env': importMetaEnvMarker,
+					'import.meta.env': replacement,
 				};
 			}
 
-			const result = await replaceDefine(source, id, defines, viteConfig);
-
-			if (importMetaEnvMarker) {
-				result.code = result.code.replaceAll(importMetaEnvMarker, importMetaEnvReplacement!);
-			}
-
-			return result;
+			return replaceDefine(source, id, defines, viteConfig);
 		},
 	};
 }
