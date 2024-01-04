@@ -1,84 +1,45 @@
 import type { RouteData, SSRResult } from '../../../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../../../core/errors/index.js';
-import { chunkToByteArray, chunkToString, encoder, type RenderDestination } from '../common.js';
+import { chunkToByteArray, decoder, encoder, type RenderDestination } from '../common.js';
 import type { AstroComponentFactory } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
 import { isRenderTemplateResult } from './render-template.js';
+import { promiseWithResolvers } from '../util.js';
 
-// Calls a component and renders it into a string of HTML
-export async function renderToString(
-	result: SSRResult,
-	componentFactory: AstroComponentFactory,
-	props: any,
-	children: any,
-	isPage = false,
-	route?: RouteData
-): Promise<string | Response> {
-	const templateResult = await callComponentAsTemplateResultOrResponse(
-		result,
-		componentFactory,
-		props,
-		children,
-		route
-	);
-
-	// If the Astro component returns a Response on init, return that response
-	if (templateResult instanceof Response) return templateResult;
-
-	let str = '';
-	let renderedFirstPageChunk = false;
-
-	const destination: RenderDestination = {
-		write(chunk) {
-			// Automatic doctype insertion for pages
-			if (isPage && !renderedFirstPageChunk) {
-				renderedFirstPageChunk = true;
-				if (!result.partial && !/<!doctype html/i.test(String(chunk))) {
-					const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
-					str += doctype;
-				}
-			}
-
-			// `renderToString` doesn't work with emitting responses, so ignore here
-			if (chunk instanceof Response) return;
-
-			str += chunkToString(result, chunk);
-		},
-	};
-
-	await templateResult.render(destination);
-
-	return str;
+type ChunkHandler = {
+	push: (data: Uint8Array) => void;
 }
 
-// Calls a component and renders it into a readable stream
-export async function renderToReadableStream(
+function createRenderer(
 	result: SSRResult,
 	componentFactory: AstroComponentFactory,
 	props: any,
 	children: any,
 	isPage = false,
 	route?: RouteData
-): Promise<ReadableStream | Response> {
-	const templateResult = await callComponentAsTemplateResultOrResponse(
-		result,
-		componentFactory,
-		props,
-		children,
-		route
-	);
-
-	// If the Astro component returns a Response on init, return that response
-	if (templateResult instanceof Response) return templateResult;
-
+) {
+	let renderTemplateResult: Exclude<Awaited<ReturnType<typeof callComponentAsTemplateResultOrResponse>>, Response>;
 	let renderedFirstPageChunk = false;
 
-	if (isPage) {
-		await bufferHeadContent(result);
-	}
+	return {
+		async prepare() {
+			const templateResult = await callComponentAsTemplateResultOrResponse(
+				result,
+				componentFactory,
+				props,
+				children,
+				route
+			);
 
-	return new ReadableStream({
-		start(controller) {
+			// If the Astro component returns a Response on init, return that response
+			if (templateResult instanceof Response) return templateResult;
+			renderTemplateResult = templateResult;
+
+			if (isPage) {
+				await bufferHeadContent(result);
+			}
+		},
+		async start(handler: ChunkHandler) {
 			const destination: RenderDestination = {
 				write(chunk) {
 					// Automatic doctype insertion for pages
@@ -86,7 +47,7 @@ export async function renderToReadableStream(
 						renderedFirstPageChunk = true;
 						if (!result.partial && !/<!doctype html/i.test(String(chunk))) {
 							const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
-							controller.enqueue(encoder.encode(doctype));
+							handler.push(encoder.encode(doctype))
 						}
 					}
 
@@ -100,13 +61,87 @@ export async function renderToReadableStream(
 					}
 
 					const bytes = chunkToByteArray(result, chunk);
-					controller.enqueue(bytes);
+					handler.push(bytes);
 				},
 			};
 
+			return renderTemplateResult.render(destination);
+		}
+	};
+}
+
+class ChunkBuffer {
+	length = 0;
+	chunks: Array<Uint8Array> = [];
+	push(bytes: Uint8Array) {
+		this.chunks.push(bytes);
+		this.length += bytes.length;
+	}
+	concat() {
+		const chunks = this.chunks;
+
+		// Create a new array with total length and merge all source arrays.
+		const mergedArray = new Uint8Array(this.length);
+		let offset = 0;
+		chunks.forEach(item => {
+			mergedArray.set(item, offset);
+			offset += item.length;
+		});
+
+		return mergedArray;
+	}
+	reset() {
+		this.chunks.length = 0;
+		this.length = 0;
+	}
+}
+
+
+// Calls a component and renders it into a string of HTML
+export async function renderToString(
+	result: SSRResult,
+	componentFactory: AstroComponentFactory,
+	props: any,
+	children: any,
+	isPage = false,
+	route?: RouteData
+): Promise<string | Response> {
+	const renderer = createRenderer(result, componentFactory, props, children, isPage, route);
+	await renderer.prepare();
+
+	const chunks = new ChunkBuffer();
+	await renderer.start({
+		push(data) {
+			chunks.push(data);
+		}
+	});
+
+	return decoder.decode(chunks.concat());
+}
+
+// Calls a component and renders it into a string of HTML
+export async function renderToReadableStream(
+	result: SSRResult,
+	componentFactory: AstroComponentFactory,
+	props: any,
+	children: any,
+	isPage = false,
+	route?: RouteData
+): Promise<ReadableStream | Response>  {
+	const renderer = createRenderer(result, componentFactory, props, children, isPage, route);
+	await renderer.prepare();
+
+	return new ReadableStream({
+		start(controller) {
+			const promise = renderer.start({
+				push(data) {
+					controller.enqueue(data);
+				}
+			});
+
 			(async () => {
 				try {
-					await templateResult.render(destination);
+					await promise;
 					controller.close();
 				} catch (e) {
 					// We don't have a lot of information downstream, and upstream we can't catch the error properly
@@ -123,6 +158,54 @@ export async function renderToReadableStream(
 			})();
 		},
 	});
+}
+
+export async function renderToAsyncIterable(
+	result: SSRResult,
+	componentFactory: AstroComponentFactory,
+	props: any,
+	children: any,
+	isPage = false,
+	route?: RouteData
+): Promise<AsyncIterable<Uint8Array>> {
+	const renderer = createRenderer(result, componentFactory, props, children, isPage, route);
+	await renderer.prepare();
+
+  let next = promiseWithResolvers<void>();
+  let done = false;
+  const chunks = new ChunkBuffer();
+
+  const iterator = {
+    async next() {
+      await next.promise;
+
+			const merged = chunks.concat();
+			chunks.reset();
+
+      const returnValue = {
+        done: done || !merged.length,
+        value: merged
+      };
+
+      return returnValue;
+    }
+  };
+
+	renderer.start({
+		push(data) {
+      chunks.push(data);
+      next.resolve();
+      next = promiseWithResolvers<void>();
+		}
+	}).then(() => {
+		done = true;
+	});
+
+  return {
+    [Symbol.asyncIterator]() {
+      return iterator;
+    }
+  };
 }
 
 async function callComponentAsTemplateResultOrResponse(
