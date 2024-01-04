@@ -76,9 +76,9 @@ export interface VercelServerlessConfig {
 
 	/**
 	 * @deprecated This option lets you configure the legacy speed insights API which is now deprecated by Vercel.
-	 * 
+	 *
 	 * See [Vercel Speed Insights Quickstart](https://vercel.com/docs/speed-insights/quickstart) for instructions on how to use the library instead.
-	 * 
+	 *
 	 * https://vercel.com/docs/speed-insights/quickstart
 	 */
 	speedInsights?: VercelSpeedInsightsConfig;
