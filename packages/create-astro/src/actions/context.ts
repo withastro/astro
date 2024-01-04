@@ -83,6 +83,8 @@ export async function getContext(argv: string[]): Promise<Context> {
 		((os.platform() === 'win32' && !fancy) || skipHouston) ??
 		[yes, no, install, git, typescript].some((v) => v !== undefined);
 
+	const seasonalHouston = getSeasonalHouston(fancy);
+
 	const context: Context = {
 		help,
 		prompt,
@@ -95,8 +97,8 @@ export async function getContext(argv: string[]): Promise<Context> {
 		projectName,
 		template,
 		ref: ref ?? 'latest',
-		hat: getSeasonalHouston(fancy).hat,
-		tie: getSeasonalHouston(fancy).tie,
+		hat: seasonalHouston.hat,
+		tie: seasonalHouston.tie,
 		yes,
 		install: install ?? (noInstall ? false : undefined),
 		git: git ?? (noGit ? false : undefined),
