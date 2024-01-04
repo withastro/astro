@@ -1,12 +1,10 @@
 import { z } from 'astro/zod';
 
-export const rssSchema = z.object({
-	title: z.string(),
+const sharedSchema = z.object({
 	pubDate: z
 		.union([z.string(), z.number(), z.date()])
 		.transform((value) => new Date(value))
 		.refine((value) => !isNaN(value.getTime())),
-	description: z.string().optional(),
 	customData: z.string().optional(),
 	categories: z.array(z.string()).optional(),
 	author: z.string().optional(),
@@ -20,3 +18,18 @@ export const rssSchema = z.object({
 		})
 		.optional(),
 });
+
+export const rssSchema = z.union([
+	z
+		.object({
+			title: z.string(),
+			description: z.string().optional(),
+		})
+		.merge(sharedSchema),
+	z
+		.object({
+			title: z.string().optional(),
+			description: z.string(),
+		})
+		.merge(sharedSchema),
+]);
