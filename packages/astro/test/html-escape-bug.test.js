@@ -27,8 +27,9 @@ describe('html-escape-bug', () => {
 			expect(script.text()).to.equal(
 				[
 					'\n\t\tconst count = 6;',
+					'const normal = `There are ${count} things!`;',
 					'const content = `There are `${count}` things!`;',
-					'console.log(content);',
+					`document.getElementById('normal').innerText = normal;`,
 					`document.getElementById('content') = content;`,
 				].join('\n\t\t') + '\n\t'
 			);

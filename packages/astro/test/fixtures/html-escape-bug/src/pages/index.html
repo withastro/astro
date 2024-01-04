@@ -14,12 +14,14 @@
 		Text should be red, but isn’t because the script breaks before it gets to
 		the point of making it red.
 	</p>
+	<p id="normal"></p>
 	<p id="content"></p>
 	<script>
 		const count = 6;
+		const normal = `There are ${count} things!`;
 		const content = `There are \`${count}\` things!`;
-		console.log(content);
-		document.getElementById('content') = content;
+		document.getElementById('normal').innerText = normal;
+		document.getElementById('content').innerHTML = content;
 	</script>
 </body>
 
