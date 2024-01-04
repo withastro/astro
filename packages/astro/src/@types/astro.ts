@@ -1114,19 +1114,19 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		service?: ImageServiceConfig;
-			/**
-			 * @docs
-			 * @name image.service.config.limitInputPixels
-			 * @kind h4
-			 * @type {boolean}
-			 * @default `true`
-			 * @version 4.1.0
-			 * @description
-			 *
-		   * Whether or not to limit the size of images that the Sharp image service will process.
-		   *
-			 * Set `false` to bypass the default image size limit for the Sharp image service and process large images.
-			 */
+		/**
+		 * @docs
+		 * @name image.service.config.limitInputPixels
+		 * @kind h4
+		 * @type {boolean}
+		 * @default `true`
+		 * @version 4.1.0
+		 * @description
+		 *
+		 * Whether or not to limit the size of images that the Sharp image service will process.
+		 *
+		 * Set `false` to bypass the default image size limit for the Sharp image service and process large images.
+		 */
 
 		/**
 		 * @docs
