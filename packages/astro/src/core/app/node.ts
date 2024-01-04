@@ -16,8 +16,6 @@ interface NodeRequest extends IncomingMessage {
 	body?: unknown;
 }
 
-const addCookieHeader = true;
-
 export class NodeApp extends App {
 	match(req: NodeRequest | Request) {
 		if (!(req instanceof Request)) {
@@ -51,6 +49,16 @@ export class NodeApp extends App {
 
 	/**
 	 * Converts a NodeJS IncomingMessage into a web standard Request.
+	 * ```js
+	 * import { NodeApp } from 'astro/app/node';
+	 * import { createServer } from 'node:http';
+	 * 
+	 * const server = createServer(async (req, res) => {
+     *     const request = NodeApp.createRequest(req);
+     *     const response = await app.render(request);
+     *     await NodeApp.writeResponse(response, res);
+	 * })
+	 * ```
 	 */
 	static createRequest(
 		req: NodeRequest,
@@ -77,6 +85,16 @@ export class NodeApp extends App {
 
 	/**
 	 * Streams a web-standard Response into a NodeJS Server Response.
+	 * ```js
+	 * import { NodeApp } from 'astro/app/node';
+	 * import { createServer } from 'node:http';
+	 * 
+	 * const server = createServer(async (req, res) => {
+     *     const request = NodeApp.createRequest(req);
+     *     const response = await app.render(request);
+     *     await NodeApp.writeResponse(response, res);
+	 * })
+	 * ```
 	 * @param source WhatWG Response 
 	 * @param destination NodeJS ServerResponse
 	 */
