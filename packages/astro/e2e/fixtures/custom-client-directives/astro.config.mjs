@@ -1,9 +1,9 @@
-import { defineConfig } from 'astro/config';
 import react from "@astrojs/react";
+import { defineConfig } from 'astro/config';
 import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
-  integrations: [astroClientClickDirective(), astroClientPasswordDirective(), react()],
+  integrations: [astroClientClickDirective(), astroClientPasswordDirective(), astroHasOptionsDirective(), react()],
 });
 
 function astroClientClickDirective() {
@@ -32,4 +32,18 @@ function astroClientPasswordDirective() {
       }
     }
   };
+}
+
+function astroHasOptionsDirective() {
+	return {
+		name: 'astro-options',
+		hooks: {
+			'astro:config:setup': (opts) => {
+				opts.addClientDirective({
+					name: 'options',
+					entrypoint: fileURLToPath(new URL('./client-options.js', import.meta.url))
+				});
+			}
+		}
+	};
 }

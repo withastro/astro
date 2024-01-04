@@ -64,15 +64,21 @@ export type {
 } from '../assets/types.js';
 export type { RemotePattern } from '../assets/utils/remotePattern.js';
 export type { SSRManifest } from '../core/app/types.js';
-export type { AstroCookies } from '../core/cookies/index.js';
+export type {
+	AstroCookieGetOptions,
+	AstroCookieSetOptions,
+	AstroCookies,
+} from '../core/cookies/index.js';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
 	'client:idle'?: boolean;
 	'client:media'?: string;
-	'client:visible'?: boolean;
+	'client:visible'?: ClientVisibleOptions | boolean;
 	'client:only'?: boolean | string;
 }
+
+export type ClientVisibleOptions = Pick<IntersectionObserverInit, 'rootMargin'>;
 
 export interface TransitionAnimation {
 	name: string; // The name of the keyframe
@@ -153,7 +159,7 @@ export interface CLIFlags {
 	host?: string | boolean;
 	port?: number;
 	config?: string;
-	open?: boolean;
+	open?: string | boolean;
 }
 
 /**
@@ -371,19 +377,21 @@ type ServerConfig = {
 
 	/**
 	 * @name server.open
-	 * @type {boolean}
+	 * @type {string | boolean}
 	 * @default `false`
-	 * @version 2.1.8
+	 * @version 4.1.0
 	 * @description
-	 * Control whether the dev server should open in your browser window on startup.
+	 * Controls whether the dev server should open in your browser window on startup.
+	 *
+	 * Pass a full URL string (e.g. "http://example.com") or a pathname (e.g. "/about") to specify the URL to open.
 	 *
 	 * ```js
 	 * {
-	 *   server: { open: true }
+	 *   server: { open: "/about" }
 	 * }
 	 * ```
 	 */
-	open?: boolean;
+	open?: string | boolean;
 };
 
 export interface ViteUserConfig extends vite.UserConfig {
@@ -947,7 +955,7 @@ export interface AstroUserConfig {
 				/**
 				 * @docs
 				 * @name prefetch.defaultStrategy
-				 * @type {'tap' | 'hover' | 'viewport'}
+				 * @type {'tap' | 'hover' | 'viewport' | 'load'}
 				 * @default `'hover'`
 				 * @description
 				 * The default prefetch strategy to use when the `data-astro-prefetch` attribute is set on a link with no value.
@@ -955,6 +963,7 @@ export interface AstroUserConfig {
 				 * - `'tap'`: Prefetch just before you click on the link.
 				 * - `'hover'`: Prefetch when you hover over or focus on the link. (default)
 				 * - `'viewport'`: Prefetch as the links enter the viewport.
+				 * - `'load'`: Prefetch the link without any restrictions.
 				 *
 				 * You can override this default value and select a different strategy for any individual link by setting a value on the attribute.
 				 *
@@ -962,7 +971,7 @@ export interface AstroUserConfig {
 				 * <a href="/about" data-astro-prefetch="viewport">About</a>
 				 * ```
 				 */
-				defaultStrategy?: 'tap' | 'hover' | 'viewport';
+				defaultStrategy?: 'tap' | 'hover' | 'viewport' | 'load';
 		  };
 
 	/**
@@ -1020,16 +1029,19 @@ export interface AstroUserConfig {
 	 */
 
 	/**
+	 * @docs
 	 * @name server.open
-	 * @type {boolean}
+	 * @type {string | boolean}
 	 * @default `false`
 	 * @version 2.1.8
 	 * @description
-	 * Control whether the dev server should open in your browser window on startup.
+	 * Controls whether the dev server should open in your browser window on startup.
+	 *
+	 * Pass a full URL string (e.g. "http://example.com") or a pathname (e.g. "/about") to specify the URL to open.
 	 *
 	 * ```js
 	 * {
-	 *   server: { open: true }
+	 *   server: { open: "/about" }
 	 * }
 	 * ```
 	 */
@@ -1090,13 +1102,31 @@ export interface AstroUserConfig {
 		 * ```js
 		 * {
 		 *   image: {
-		 *     // Example: Enable the Sharp-based image service
-		 *     service: { entrypoint: 'astro/assets/services/sharp' },
+		 *     // Example: Enable the Sharp-based image service with a custom config
+		 *     service: {
+		 * 			 entrypoint: 'astro/assets/services/sharp',
+		 * 			 config: {
+		 * 				 limitInputPixels: false,
+		 *       },
+		 * 		 },
 		 *   },
 		 * }
 		 * ```
 		 */
 		service?: ImageServiceConfig;
+		/**
+		 * @docs
+		 * @name image.service.config.limitInputPixels
+		 * @kind h4
+		 * @type {boolean}
+		 * @default `true`
+		 * @version 4.1.0
+		 * @description
+		 *
+		 * Whether or not to limit the size of images that the Sharp image service will process.
+		 *
+		 * Set `false` to bypass the default image size limit for the Sharp image service and process large images.
+		 */
 
 		/**
 		 * @docs
