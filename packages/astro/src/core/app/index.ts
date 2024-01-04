@@ -45,7 +45,7 @@ export interface RenderOptions {
 	 * 
 	 * When set to `false`, the cookies will only be available from `App.getSetCookieFromResponse(response)`.
 	 * 
-	 * Default: `false`
+	 * @default {false}
 	 */
 	addCookieHeader?: boolean;
 
