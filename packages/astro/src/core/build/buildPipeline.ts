@@ -61,7 +61,8 @@ export class BuildPipeline extends Pipeline {
 				routeCache: staticBuildOptions.routeCache,
 				site: manifest.site,
 				ssr,
-				streaming: true,
+				// NOTE: there's no need to enable streaming in SSG
+				streaming: !ssr,
 			})
 		);
 		this.#internals = internals;
