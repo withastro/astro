@@ -37,23 +37,23 @@ describe('trailingSlash', () => {
 		await container.close();
 	});
 
-    it('should match the API route when request has a trailing slash', async () => {
-        const { req, res, text } = createRequestAndResponse({
-            method: 'GET',
-            url: '/api/',
-        });
-        container.handle(req, res);
-        const json = await text();
-        expect(json).to.equal('{"success":true}');
-    });
+	it('should match the API route when request has a trailing slash', async () => {
+		const { req, res, text } = createRequestAndResponse({
+			method: 'GET',
+			url: '/api/',
+		});
+		container.handle(req, res);
+		const json = await text();
+		expect(json).to.equal('{"success":true}');
+	});
 
-    it('should NOT match the API route when request lacks a trailing slash', async () => {
-        const { req, res, text } = createRequestAndResponse({
-            method: 'GET',
-            url: '/api',
-        });
-        container.handle(req, res);
-        expect(await text()).to.equal('');
-        expect(res.statusCode).to.equal(404);
-    });
+	it('should NOT match the API route when request lacks a trailing slash', async () => {
+		const { req, res, text } = createRequestAndResponse({
+			method: 'GET',
+			url: '/api',
+		});
+		container.handle(req, res);
+		expect(await text()).to.equal('');
+		expect(res.statusCode).to.equal(404);
+	});
 });
