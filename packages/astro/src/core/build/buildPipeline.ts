@@ -62,7 +62,7 @@ export class BuildPipeline extends Pipeline {
 				site: manifest.site,
 				ssr,
 				// NOTE: there's no need to enable streaming in SSG
-				streaming: !ssr,
+				streaming: ssr,
 			})
 		);
 		this.#internals = internals;
