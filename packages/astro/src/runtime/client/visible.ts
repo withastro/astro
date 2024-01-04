@@ -1,4 +1,4 @@
-import type { ClientDirective } from '../../@types/astro.js';
+import type { ClientDirective, ClientVisibleOptions } from '../../@types/astro.js';
 
 /**
  * Hydrate this component when one of it's children becomes visible
@@ -11,8 +11,11 @@ const visibleDirective: ClientDirective = (load, options, el) => {
 		await hydrate();
 	};
 
-	const ioOptions = {
-		rootMargin: typeof options.value === 'string' ? options.value : undefined,
+	const rawOptions =
+		typeof options.value === 'object' ? (options.value as ClientVisibleOptions) : undefined;
+
+	const ioOptions: IntersectionObserverInit = {
+		rootMargin: rawOptions?.rootMargin,
 	};
 
 	const io = new IntersectionObserver((entries) => {
