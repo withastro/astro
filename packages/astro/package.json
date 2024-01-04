@@ -114,7 +114,7 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^2.3.4",
+    "@astrojs/compiler": "0.0.0-dynamic-slot-names-20240103232344",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
