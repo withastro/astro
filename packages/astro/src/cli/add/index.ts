@@ -161,6 +161,8 @@ export async function add(names: string[], { flags }: AddOptions) {
 						'./tailwind.config.cjs',
 						'./tailwind.config.mjs',
 						'./tailwind.config.ts',
+						'./tailwind.config.mts',
+						'./tailwind.config.cts',
 						'./tailwind.config.js',
 					],
 					defaultConfigFile: './tailwind.config.mjs',
