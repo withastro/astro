@@ -65,18 +65,20 @@ export type {
 export type { RemotePattern } from '../assets/utils/remotePattern.js';
 export type { SSRManifest } from '../core/app/types.js';
 export type {
-	AstroCookies,
-	AstroCookieSetOptions,
 	AstroCookieGetOptions,
+	AstroCookieSetOptions,
+	AstroCookies,
 } from '../core/cookies/index.js';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
 	'client:idle'?: boolean;
 	'client:media'?: string;
-	'client:visible'?: string | boolean;
+	'client:visible'?: ClientVisibleOptions | boolean;
 	'client:only'?: boolean | string;
 }
+
+export type ClientVisibleOptions = Pick<IntersectionObserverInit, 'rootMargin'>;
 
 export interface TransitionAnimation {
 	name: string; // The name of the keyframe
