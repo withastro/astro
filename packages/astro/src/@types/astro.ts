@@ -65,18 +65,20 @@ export type {
 export type { RemotePattern } from '../assets/utils/remotePattern.js';
 export type { SSRManifest } from '../core/app/types.js';
 export type {
-	AstroCookies,
-	AstroCookieSetOptions,
 	AstroCookieGetOptions,
+	AstroCookieSetOptions,
+	AstroCookies,
 } from '../core/cookies/index.js';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
 	'client:idle'?: boolean;
 	'client:media'?: string;
-	'client:visible'?: string | boolean;
+	'client:visible'?: ClientVisibleOptions | boolean;
 	'client:only'?: boolean | string;
 }
+
+export type ClientVisibleOptions = Pick<IntersectionObserverInit, 'rootMargin'>;
 
 export interface TransitionAnimation {
 	name: string; // The name of the keyframe
@@ -377,7 +379,7 @@ type ServerConfig = {
 	 * @name server.open
 	 * @type {string | boolean}
 	 * @default `false`
-	 * @version 2.1.8
+	 * @version 4.1.0
 	 * @description
 	 * Controls whether the dev server should open in your browser window on startup.
 	 *
@@ -1112,6 +1114,19 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		service?: ImageServiceConfig;
+		/**
+		 * @docs
+		 * @name image.service.config.limitInputPixels
+		 * @kind h4
+		 * @type {boolean}
+		 * @default `true`
+		 * @version 4.1.0
+		 * @description
+		 *
+		 * Whether or not to limit the size of images that the Sharp image service will process.
+		 *
+		 * Set `false` to bypass the default image size limit for the Sharp image service and process large images.
+		 */
 
 		/**
 		 * @docs
@@ -2278,6 +2293,18 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 			attrs?: Record<string, string>;
 		}>;
 		supportsAstroStaticSlot?: boolean;
+		/**
+		 * If provided, Astro will call this function and inject the returned
+		 * script in the HTML before the first component handled by this renderer.
+		 *
+		 * This feature is needed by some renderers (in particular, by Solid). The
+		 * Solid official hydration script sets up a page-level data structure.
+		 * It is mainly used to transfer data between the server side render phase
+		 * and the browser application state. Solid Components rendered later in
+		 * the HTML may inject tiny scripts into the HTML that call into this
+		 * page-level data structure.
+		 */
+		renderHydrationScript?: () => string;
 	};
 }
 
@@ -2497,6 +2524,12 @@ export interface SSRResult {
  */
 export interface SSRMetadata {
 	hasHydrationScript: boolean;
+	/**
+	 * Names of renderers that have injected their hydration scripts
+	 * into the current page. For example, Solid SSR needs a hydration
+	 * script in the page HTML before the first Solid component.
+	 */
+	rendererSpecificHydrationScripts: Set<string>;
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	headInTree: boolean;
