@@ -1,5 +1,9 @@
 import { h, Fragment } from 'preact';
+import { lazy, Suspense } from 'preact/compat';
 import './Counter.css';
+
+const Message = lazy(async () => import('./Message'));
+const Fallback = () => <p>Loading...</p>;
 
 export default function Counter({ children, count }) {
 	const add = () => count.value++;
@@ -12,7 +16,9 @@ export default function Counter({ children, count }) {
 				<pre>{count}</pre>
 				<button onClick={add}>+</button>
 			</div>
-			<div class="counter-message">{children}</div>
+			<Suspense fallback={Fallback}>
+				<Message>{children}</Message>
+			</Suspense>
 		</>
 	);
 }

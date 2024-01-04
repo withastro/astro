@@ -38,4 +38,14 @@ describe('Astro.params in SSR', () => {
 			expect($('.category').text()).to.equal('food');
 		});
 	});
+
+	it('No double URL decoding', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/users/houston/%25');
+		const response = await app.render(request);
+		expect(response.status).to.equal(200);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		expect($('.category').text()).to.equal('%');
+	});
 });

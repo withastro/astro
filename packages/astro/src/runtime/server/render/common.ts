@@ -68,8 +68,8 @@ function stringifyChunk(
 				let prescriptType: PrescriptType = needsHydrationScript
 					? 'both'
 					: needsDirectiveScript
-					  ? 'directive'
-					  : null;
+						? 'directive'
+						: null;
 				if (prescriptType) {
 					let prescripts = getPrescripts(result, prescriptType, hydration.directive);
 					return markHTMLString(prescripts);
@@ -88,6 +88,16 @@ function stringifyChunk(
 					return '';
 				}
 				return renderAllHeadContent(result);
+			}
+			case 'renderer-hydration-script': {
+				const { rendererSpecificHydrationScripts } = result._metadata;
+				const { rendererName } = instruction;
+
+				if (!rendererSpecificHydrationScripts.has(rendererName)) {
+					rendererSpecificHydrationScripts.add(rendererName);
+					return instruction.render();
+				}
+				return '';
 			}
 			default: {
 				throw new Error(`Unknown chunk type: ${(chunk as any).type}`);

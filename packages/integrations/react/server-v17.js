@@ -20,6 +20,7 @@ function check(Component, props, children) {
 		return Component['$$typeof']?.toString().slice('Symbol('.length).startsWith('react');
 	}
 	if (typeof Component !== 'function') return false;
+	if (Component.name === 'QwikComponent') return false;
 
 	if (Component.prototype != null && typeof Component.prototype.render === 'function') {
 		return React.Component.isPrototypeOf(Component) || React.PureComponent.isPrototypeOf(Component);

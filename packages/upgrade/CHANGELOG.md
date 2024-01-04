@@ -1,5 +1,11 @@
 # @astrojs/upgrade
 
+## 0.2.2
+
+### Patch Changes
+
+- [#9562](https://github.com/withastro/astro/pull/9562) [`67e06f9db1b0492ccfb4b053762dc91d69a53ecb`](https://github.com/withastro/astro/commit/67e06f9db1b0492ccfb4b053762dc91d69a53ecb) Thanks [@DET171](https://github.com/DET171)! - Updates the command used for installing packages with pnpm and yarn
+
 ## 0.2.1
 
 ### Patch Changes

@@ -95,12 +95,12 @@ export function createGetCollection({
 										renderEntryImport: await getRenderEntryImport(collection, entry.slug),
 									});
 								},
-						  }
+							}
 						: {
 								id: entry.id,
 								collection: entry.collection,
 								data: entry.data,
-						  };
+							};
 				})
 			);
 			cacheEntriesByCollection.set(collection, entries);
