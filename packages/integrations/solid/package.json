@@ -43,7 +43,7 @@
     "solid-js": "^1.8.5"
   },
   "peerDependencies": {
-    "solid-js": "^1.4.3"
+    "solid-js": "^1.8.5"
   },
   "engines": {
     "node": ">=18.14.1"
