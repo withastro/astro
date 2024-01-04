@@ -3,7 +3,7 @@ import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import { describe } from 'node:test';
 
-describe('html-escape-bug', () => {
+describe('Html Escape Bug', () => {
 	let fixture;
 
 	before(async () => {
@@ -17,7 +17,7 @@ describe('html-escape-bug', () => {
 			await fixture.build();
 		});
 
-		it('works', async () => {
+		it('work', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 			const h1 = $('h1');
@@ -47,7 +47,7 @@ describe('html-escape-bug', () => {
 			await devServer.stop();
 		});
 
-		it('works', async () => {
+		it('work', async () => {
 			const res = await fixture.fetch('/index.html');
 			expect(res.status).to.equal(200);
 
