@@ -489,8 +489,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^2.3.4
-        version: 2.3.4
+        specifier: 0.0.0-dynamic-slot-names-20240103232344
+        version: 0.0.0-dynamic-slot-names-20240103232344
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -5253,12 +5253,17 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
+  /@astrojs/compiler@0.0.0-dynamic-slot-names-20240103232344:
+    resolution: {integrity: sha512-NHSC4fHnq23VA4gu+mJ+rqF/EHCjw1EZR2zqzJXDk3Q8ThDD5TAZOI/jKxwKzDZKIk9jyWdqDMMSUw99SjhwyQ==}
+    dev: false
+
   /@astrojs/compiler@1.8.2:
     resolution: {integrity: sha512-o/ObKgtMzl8SlpIdzaxFnt7SATKPxu4oIP/1NL+HDJRzxfJcAkOTAb/ZKMRyULbz4q+1t2/DAebs2Z1QairkZw==}
     dev: true
 
   /@astrojs/compiler@2.3.4:
     resolution: {integrity: sha512-33/YtWoBCE0cBUNy1kh78FCDXBoBANX87ShgATlAHECYbG2+buNTAgq4Xgz4t5NgnEHPN21GIBC2Mvvwisoutw==}
+    dev: true
 
   /@astrojs/language-server@2.5.5(prettier-plugin-astro@0.12.3)(prettier@3.1.1)(typescript@5.2.2):
     resolution: {integrity: sha512-hk7a8S7bpf//BOA6mMjiYqi/eiYtGPfUfw59eVXdutdRFdwDHtu4jcsLu43ZaId56pAcE8qFjIvJxySvzcxiUA==}
