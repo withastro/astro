@@ -1,16 +1,17 @@
 import { defineConfig } from 'astro/config'
-import {} from 'astro'
 
 type Config = {
 	foo: string;
-}
+};
 
 interface Hooks {
-	'a:config'?: (options: { config: Config }) => void
-}
+	'a:config'?: (config: {config: Config}) => void;
+};
 
-declare module 'astro' {
-	interface AstroIntegrationsHooks extends Hooks {}
+declare global {
+	namespace AstroConfig {
+		interface IntegrationHooks extends Hooks { }
+	}
 }
 
 export default defineConfig({
@@ -25,6 +26,7 @@ export default defineConfig({
 		},
 		(() => {
 			let config: Config;
+
 			return {
 				name: 'b',
 				hooks: {

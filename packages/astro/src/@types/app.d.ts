@@ -7,3 +7,14 @@ declare namespace App {
 	 */
 	interface Locals {}
 }
+
+/**
+ * Shared interfaces throughout the build process of the Astro project that can be overridenn by integrations and the user.
+ */
+declare namespace AstroConfig {
+	/**
+	 * Used by integrations to declare custom hooks.
+	 */
+	interface IntegrationHooks {
+	}
+}
