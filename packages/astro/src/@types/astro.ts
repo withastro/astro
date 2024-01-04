@@ -1125,7 +1125,6 @@ export interface AstroUserConfig {
 		   *
 			 * Set `false` to bypass the default image size limit for the Sharp integration and process large images.
 			 */
-			prefixDefaultLocale: boolean;
 
 		/**
 		 * @docs
