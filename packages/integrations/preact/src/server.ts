@@ -1,6 +1,6 @@
 import type { AstroComponentMetadata } from 'astro';
 import { Component as BaseComponent, h, type VNode } from 'preact';
-import prepass from "preact-ssr-prepass";
+import prepass from 'preact-ssr-prepass';
 import { render } from 'preact-render-to-string';
 import { getContext } from './context.js';
 import { restoreSignalsOnProps, serializeSignals } from './signals.js';
@@ -12,7 +12,12 @@ const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w
 let originalConsoleError: typeof console.error;
 let consoleFilterRefs = 0;
 
-async function check(this: RendererContext, Component: any, props: Record<string, any>, children: any) {
+async function check(
+	this: RendererContext,
+	Component: any,
+	props: Record<string, any>,
+	children: any
+) {
 	if (typeof Component !== 'function') return false;
 	if (Component.name === 'QwikComponent') return false;
 
@@ -82,9 +87,9 @@ async function renderToStaticMarkup(
 					value: children,
 				})
 			: children
-	)
+	);
 
-	await prepass(vNode)
+	await prepass(vNode);
 	const html = render(vNode);
 	return { attrs, html };
 }
