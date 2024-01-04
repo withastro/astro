@@ -25,5 +25,5 @@ export function needsEscape(value: any): value is string {
 	return typeof value === 'string' && (value.includes('`') || value.includes('${'));
 }
 export function escape(value: string) {
-	return value.replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
+	return value.replace(/(\\*)\`/g, '\\`').replace(/\$\{/g, '\\${');
 }
