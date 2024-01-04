@@ -1,12 +1,14 @@
-import MagicString from 'magic-string';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { loadEnv } from 'vite';
+import { transform } from 'esbuild';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 
 interface EnvPluginOptions {
 	settings: AstroSettings;
 }
+
+const importMetaEnvOnlyRe = /import\.meta\.env\b(?!\.)/;
 
 function getPrivateEnv(
 	viteConfig: vite.ResolvedConfig,
@@ -67,13 +69,40 @@ function getReferencedPrivateKeys(source: string, privateEnv: Record<string, any
 	return references;
 }
 
-export default function envVitePlugin({ settings }: EnvPluginOptions): vite.PluginOption {
+/**
+ * Use esbuild to perform replacememts like Vite
+ * https://github.com/vitejs/vite/blob/5ea9edbc9ceb991e85f893fe62d68ed028677451/packages/vite/src/node/plugins/define.ts#L130
+ */
+async function replaceDefine(
+	code: string,
+	id: string,
+	define: Record<string, string>,
+	config: vite.ResolvedConfig
+): Promise<{ code: string; map: string | null }> {
+	const esbuildOptions = config.esbuild || {};
+
+	const result = await transform(code, {
+		loader: 'js',
+		charset: esbuildOptions.charset ?? 'utf8',
+		platform: 'neutral',
+		define,
+		sourcefile: id,
+		sourcemap: config.command === 'build' ? !!config.build.sourcemap : true,
+	});
+
+	return {
+		code: result.code,
+		map: result.map || null,
+	};
+}
+
+export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plugin {
 	let privateEnv: Record<string, string>;
+	let defaultDefines: Record<string, string>;
 	let viteConfig: vite.ResolvedConfig;
 	const { config: astroConfig } = settings;
 	return {
 		name: 'astro:vite-plugin-env',
-		enforce: 'pre',
 		config() {
 			return {
 				define: {
@@ -88,6 +117,23 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 		},
 		configResolved(resolvedConfig) {
 			viteConfig = resolvedConfig;
+
+			// HACK: move ourselves before Vite's define plugin to apply replacements at the right time (before Vite normal plugins)
+			const viteDefinePluginIndex = resolvedConfig.plugins.findIndex(
+				(p) => p.name === 'vite:define'
+			);
+			if (viteDefinePluginIndex !== -1) {
+				const myPluginIndex = resolvedConfig.plugins.findIndex(
+					(p) => p.name === 'astro:vite-plugin-env'
+				);
+				if (myPluginIndex !== -1) {
+					const myPlugin = resolvedConfig.plugins[myPluginIndex];
+					// @ts-ignore-error ignore readonly annotation
+					resolvedConfig.plugins.splice(viteDefinePluginIndex, 0, myPlugin);
+					// @ts-ignore-error ignore readonly annotation
+					resolvedConfig.plugins.splice(myPluginIndex, 1);
+				}
+			}
 		},
 		async transform(source, id, options) {
 			if (!options?.ssr || !source.includes('import.meta.env')) {
@@ -95,55 +141,49 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 			}
 
 			// Find matches for *private* env and do our own replacement.
-			let s: MagicString | undefined;
-			const pattern = new RegExp(
-				// Do not allow preceding '.', but do allow preceding '...' for spread operations
-				'(?<!(?<!\\.\\.)\\.)\\b(' +
-					// Captures `import.meta.env.*` calls and replace with `privateEnv`
-					`import\\.meta\\.env\\.(.+?)` +
-					'|' +
-					// This catches destructed `import.meta.env` calls,
-					// BUT we only want to inject private keys referenced in the file.
-					// We overwrite this value on a per-file basis.
-					'import\\.meta\\.env' +
-					// prevent trailing assignments
-					')\\b(?!\\s*?=[^=])',
-				'g'
-			);
-			let references: Set<string>;
-			let match: RegExpExecArray | null;
-
-			while ((match = pattern.exec(source))) {
-				let replacement: string | undefined;
-				// If we match exactly `import.meta.env`, define _only_ referenced private variables
-				if (match[0] === 'import.meta.env') {
-					privateEnv ??= getPrivateEnv(viteConfig, astroConfig);
-					references ??= getReferencedPrivateKeys(source, privateEnv);
-					replacement = `(Object.assign(import.meta.env,{`;
-					for (const key of references.values()) {
-						replacement += `${key}:${privateEnv[key]},`;
-					}
-					replacement += '}))';
-				}
-				// If we match `import.meta.env.*`, replace with private env
-				else if (match[2]) {
-					privateEnv ??= getPrivateEnv(viteConfig, astroConfig);
-					replacement = privateEnv[match[2]];
-				}
-				if (replacement) {
-					const start = match.index;
-					const end = start + match[0].length;
-					s ??= new MagicString(source);
-					s.overwrite(start, end, replacement);
+			privateEnv ??= getPrivateEnv(viteConfig, astroConfig);
+			if (!defaultDefines) {
+				defaultDefines = {};
+				for (const key in privateEnv) {
+					defaultDefines[`import.meta.env.${key}`] = privateEnv[key];
 				}
 			}
 
-			if (s) {
-				return {
-					code: s.toString(),
-					map: s.generateMap({ hires: 'boundary' }),
+			let defines = defaultDefines;
+
+			// If reference the `import.meta.env` object directly, we want to inject private env vars
+			// into Vite's injected `import.meta.env` object. To do this, we use `Object.assign` and keeping
+			// the `import.meta.env` identifier so Vite sees it.
+			// However, since esbuild doesn't support replacing complex expressions, we replace `import.meta.env`
+			// with a marker string first, then postprocess and apply the `Object.assign` code.
+			let importMetaEnvMarker: string | undefined;
+			let importMetaEnvReplacement: string | undefined;
+			if (importMetaEnvOnlyRe.test(source)) {
+				const references = getReferencedPrivateKeys(source, privateEnv);
+				// Create the `Object.assign` code
+				importMetaEnvReplacement = `(Object.assign(import.meta.env,{`;
+				for (const key of references.values()) {
+					importMetaEnvReplacement += `${key}:${privateEnv[key]},`;
+				}
+				importMetaEnvReplacement += '}))';
+				// Compute the marker from the length of the replaced code. We do this so that esbuild generates
+				// the sourcemap with the right column offset when we do the postprocessing.
+				importMetaEnvMarker = `__astro_import_meta_env${'_'.repeat(
+					importMetaEnvReplacement.length - 23 /* length of preceding string */
+				)}`;
+				defines = {
+					...defaultDefines,
+					'import.meta.env': importMetaEnvMarker,
 				};
 			}
+
+			const result = await replaceDefine(source, id, defines, viteConfig);
+
+			if (importMetaEnvMarker) {
+				result.code = result.code.replaceAll(importMetaEnvMarker, importMetaEnvReplacement!);
+			}
+
+			return result;
 		},
 	};
 }
