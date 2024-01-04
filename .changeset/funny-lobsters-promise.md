@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fixes an issue where configuring trailingSlash had no effect on how API routes.
+Fixes an issue where configuring trailingSlash had no effect on API routes.
