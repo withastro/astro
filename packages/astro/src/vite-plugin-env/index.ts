@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { loadEnv } from 'vite';
 import { transform } from 'esbuild';
+import MagicString from 'magic-string';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 
 interface EnvPluginOptions {
@@ -117,11 +118,14 @@ async function replaceDefine(
 export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plugin {
 	let privateEnv: Record<string, string>;
 	let defaultDefines: Record<string, string>;
+	let isDev: boolean;
+	let devImportMetaEnvPrepend: string;
 	let viteConfig: vite.ResolvedConfig;
 	const { config: astroConfig } = settings;
 	return {
 		name: 'astro:vite-plugin-env',
-		config() {
+		config(_, { command }) {
+			isDev = command !== 'build';
 			return {
 				define: {
 					'import.meta.env.BASE_URL': astroConfig.base
@@ -160,6 +164,25 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 
 			// Find matches for *private* env and do our own replacement.
 			privateEnv ??= getPrivateEnv(viteConfig, astroConfig);
+
+			// In dev, we can assign the private env vars to `import.meta.env` directly for performance
+			if (isDev) {
+				const s = new MagicString(source);
+				if (!devImportMetaEnvPrepend) {
+					devImportMetaEnvPrepend = `Object.assign(import.meta.env,{`;
+					for (const key in privateEnv) {
+						devImportMetaEnvPrepend += `${key}:${privateEnv[key]},`;
+					}
+					devImportMetaEnvPrepend += '});';
+				}
+				s.prepend(devImportMetaEnvPrepend);
+				return {
+					code: s.toString(),
+					map: s.generateMap({ hires: 'boundary' }),
+				};
+			}
+
+			// Compute the default defines for esbuild. It could be extended by `import.meta.env` later.
 			if (!defaultDefines) {
 				defaultDefines = {};
 				for (const key in privateEnv) {
