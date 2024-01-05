@@ -4,7 +4,7 @@ import arg from 'arg';
 import os from 'node:os';
 
 import { getName, getVersion } from '../messages.js';
-import getSeasonalHouston from '../data/seasonal.js';
+import getSeasonalData from '../data/seasonal.js';
 
 export interface Context {
 	help: boolean;
@@ -86,7 +86,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		((os.platform() === 'win32' && !fancy) || skipHouston) ??
 		[yes, no, install, git, typescript].some((v) => v !== undefined);
 
-	const { messages, hats = [], ties = [] } = getSeasonalHouston({ fancy });
+	const { messages, hats, ties } = getSeasonalData({ fancy });
 
 	const context: Context = {
 		help,
@@ -101,8 +101,8 @@ export async function getContext(argv: string[]): Promise<Context> {
 		template,
 		ref: ref ?? 'latest',
 		welcome: random(messages),
-		hat: hats.length > 0 ? random(hats) : '',
-		tie: ties.length > 0 ? random(ties) : '',
+		hat: hats ? random(hats) : undefined,
+		tie: ties ? random(ties) : undefined,
 		yes,
 		install: install ?? (noInstall ? false : undefined),
 		git: git ?? (noGit ? false : undefined),
