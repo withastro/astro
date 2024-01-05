@@ -3737,8 +3737,8 @@ importers:
   packages/create-astro:
     dependencies:
       '@astrojs/cli-kit':
-        specifier: ^0.4.0
-        version: 0.4.0
+        specifier: ^0.4.1
+        version: 0.4.1
       giget:
         specifier: 1.1.3
         version: 1.1.3
@@ -5280,8 +5280,8 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
-  /@astrojs/cli-kit@0.4.0:
-    resolution: {integrity: sha512-M7R2Af/Gh13pwZ2zjTkTPt87x4IjRw/bSRCmjJGWEGeW3nLNzuEeRY8tleeIGbbfUsm3DJg+UF5rCrQGoviHgQ==}
+  /@astrojs/cli-kit@0.4.1:
+    resolution: {integrity: sha512-bVzyKzEpIwqjihBU/aUzt1LQckJuHK0agd3/ITdXhPUYculrc6K1/K7H+XG4rwjXtg+ikT3PM05V1MVYWiIvQw==}
     engines: {node: '>=18.14.1'}
     dependencies:
       chalk: 5.3.0
