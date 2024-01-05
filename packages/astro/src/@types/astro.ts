@@ -1118,7 +1118,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name image.service.config.limitInputPixels
 		 * @kind h4
-		 * @type {boolean}
+		 * @type {number | boolean}
 		 * @default `true`
 		 * @version 4.1.0
 		 * @description
