@@ -303,6 +303,15 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 						},
 						{ handle: 'filesystem' },
 						...routeDefinitions,
+						...(routes.find((route) => route.pathname === '/404')
+						? [
+								{
+									src: `/.*`,
+									dest: `/404.html`,
+									status: 404,
+								},
+							]
+						: []),
 					],
 					...(imageService || imagesConfig
 						? {
