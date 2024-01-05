@@ -24,7 +24,7 @@ export function setStdout(writable: typeof process.stdout) {
 	stdout = writable;
 }
 
-export async function say(messages: string | string[], { clear = false, hat = '', tie = ''} = {}) {
+export async function say(messages: string | string[], { clear = false, hat = '', tie = '' } = {}) {
 	return houston(messages, { clear, hat, tie, stdout });
 }
 

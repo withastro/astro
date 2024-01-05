@@ -21,7 +21,7 @@ export async function intro(
 					),
 					Promise.resolve(ctx.username).then((username) => `${username}!`),
 				],
-				welcome ?? 'Let\'s build something awesome!',
+				welcome ?? "Let's build something awesome!",
 			] as string[],
 			{ clear: true, hat, tie }
 		);
