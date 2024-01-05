@@ -125,6 +125,11 @@ export default function vercelStatic({
 							continue: true,
 						},
 						{ handle: 'filesystem' },
+						...routes.find(route => route.pathname === "/404") ? [{
+							src: `/.*`,
+							dest: `/404.html`,
+							status: 404,
+						}] : [],
 					],
 					...(imageService || imagesConfig
 						? {
