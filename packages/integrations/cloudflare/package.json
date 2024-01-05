@@ -36,7 +36,7 @@
   "dependencies": {
     "@astrojs/underscore-redirects": "^0.3.3",
     "@cloudflare/workers-types": "^4.20231025.0",
-    "miniflare": "3.20231025.1",
+    "miniflare": "3.20231030.2",
     "@iarna/toml": "^2.2.5",
     "dotenv": "^16.3.1",
     "esbuild": "^0.19.5",
