@@ -13,14 +13,12 @@ describe('maxDuration', () => {
 	});
 
 	it('falls back to 404.html', async () => {
-		const deploymentConfig = JSON.parse(
-			await fixture.readFile('../.vercel/output/config.json')
-		);
+		const deploymentConfig = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
 		// change the index if necesseary
 		expect(deploymentConfig.routes[2]).to.deep.include({
 			src: '/.*',
 			dest: '/404.html',
-			status: 404
+			status: 404,
 		});
 	});
 });
