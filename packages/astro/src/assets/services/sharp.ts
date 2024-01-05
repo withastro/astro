@@ -12,7 +12,7 @@ export interface SharpImageServiceConfig {
 	/**
 	 * The `limitInputPixels` option passed to Sharp. See https://sharp.pixelplumbing.com/api-constructor for more information
 	 */
-	limitInputPixels?: number;
+	limitInputPixels?: number | boolean;
 }
 
 let sharp: typeof import('sharp');
