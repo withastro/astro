@@ -4915,6 +4915,15 @@ importers:
         specifier: 5.0.1
         version: 5.0.1
 
+  packages/integrations/vue/test/fixtures/app-entrypoint-css:
+    dependencies:
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/vue/test/fixtures/app-entrypoint-no-export-default:
     dependencies:
       '@astrojs/vue':
