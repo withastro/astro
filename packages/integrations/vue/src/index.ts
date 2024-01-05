@@ -51,9 +51,8 @@ function virtualAppEntrypoint(options?: Options): Plugin {
 			root = config.root;
 			if (options?.appEntrypoint) {
 				appEntrypoint = options.appEntrypoint.startsWith('.')
-					? path.resolve(root, options.appEntrypoint).replace(root, '')
+					? path.resolve(root, options.appEntrypoint)
 					: options.appEntrypoint;
-				appEntrypoint = appEntrypoint?.replaceAll('\\', '/')
 			}
 		},
 		resolveId(id: string) {
@@ -91,7 +90,7 @@ export const setup = async (app) => {
 			if (!appEntrypoint) return;
 			if (id.endsWith('.vue')) {
 				const s = new MagicString(code);
-				s.prepend(`import "${appEntrypoint}";\n`);
+				s.prepend(`import ${JSON.stringify(appEntrypoint)};\n`);
 				return {
 					code: s.toString(),
 					map: s.generateMap({ hires: 'boundary' })
