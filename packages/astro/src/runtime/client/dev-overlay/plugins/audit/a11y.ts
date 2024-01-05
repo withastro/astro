@@ -23,6 +23,10 @@
  * SOFTWARE.
  */
 
+import type { ARIARoleDefinitionKey } from 'aria-query';
+import { aria, roles } from 'aria-query';
+// @ts-expect-error package does not provide types
+import { AXObjectRoles, elementAXObjects } from 'axobject-query';
 import type { AuditRuleWithSelector } from './index.js';
 
 const a11y_required_attributes = {
@@ -125,6 +129,8 @@ const a11y_required_content = [
 
 const a11y_distracting_elements = ['blink', 'marquee'];
 
+// Unused for now
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const a11y_nested_implicit_semantics = new Map([
 	['header', 'banner'],
 	['footer', 'contentinfo'],
@@ -444,6 +450,61 @@ export const a11y: AuditRuleWithSelector[] = [
 		selector: '[tabindex]:not([tabindex="-1"]):not([tabindex="0"])',
 	},
 	{
+		code: 'a11y-role-has-required-aria-props',
+		title: 'Missing attributes required for ARIA role',
+		message: (element) => {
+			const { __astro_role: role, __astro_missing_attributes: required } = element as any;
+			return `${
+				element.localName
+			} element is missing required attributes for its role (${role}): ${required.join(', ')}`;
+		},
+		selector: '*',
+		match(element) {
+			const role = getRole(element);
+			if (!role) return false;
+			if (is_semantic_role_element(role, element.localName, getAttributeObject(element))) {
+				return;
+			}
+			const { requiredProps } = roles.get(role)!;
+			const required_role_props = Object.keys(requiredProps);
+			const missingProps = required_role_props.filter((prop) => !element.hasAttribute(prop));
+			if (missingProps.length > 0) {
+				(element as any).__astro_role = role;
+				(element as any).__astro_missing_attributes = missingProps;
+				return true;
+			}
+		},
+	},
+
+	{
+		code: 'a11y-role-supports-aria-props',
+		title: 'Unsupported ARIA attribute',
+		message: (element) => {
+			const { __astro_role: role, __astro_unsupported_attributes: unsupported } = element as any;
+			return `${
+				element.localName
+			} element has ARIA attributes that are not supported by its role (${role}): ${unsupported.join(
+				', '
+			)}`;
+		},
+		selector: '*',
+		match(element) {
+			const role = getRole(element);
+			if (!role) return false;
+			const { props } = roles.get(role)!;
+			const attributes = getAttributeObject(element);
+			const unsupportedAttributes = aria.keys().filter((attribute) => !(attribute in props));
+			const invalidAttributes: string[] = Object.keys(attributes).filter(
+				(key) => key.startsWith('aria-') && unsupportedAttributes.includes(key as any)
+			);
+			if (invalidAttributes.length > 0) {
+				(element as any).__astro_role = role;
+				(element as any).__astro_unsupported_attributes = invalidAttributes;
+				return true;
+			}
+		},
+	},
+	{
 		code: 'a11y-structure',
 		title: 'Invalid DOM structure',
 		message:
@@ -476,6 +537,19 @@ export const a11y: AuditRuleWithSelector[] = [
 	},
 ];
 
+// Unused for now
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const a11y_labelable = [
+	'button',
+	'input',
+	'keygen',
+	'meter',
+	'output',
+	'progress',
+	'select',
+	'textarea',
+];
+
 /**
  * Exceptions to the rule which follows common A11y conventions
  * TODO make this configurable by the user
@@ -489,3 +563,81 @@ const a11y_non_interactive_element_to_interactive_role_exceptions = {
 	td: ['gridcell'],
 	fieldset: ['radiogroup', 'presentation'],
 };
+
+const combobox_if_list = ['email', 'search', 'tel', 'text', 'url'];
+function input_implicit_role(attributes: Record<string, string>) {
+	if (!('type' in attributes)) return;
+	const { type, list } = attributes;
+	if (!type) return;
+	if (list && combobox_if_list.includes(type)) {
+		return 'combobox';
+	}
+	return input_type_to_implicit_role.get(type);
+}
+
+/** @param {Map<string, import('#compiler').Attribute>} attribute_map */
+function menuitem_implicit_role(attributes: Record<string, string>) {
+	if (!('type' in attributes)) return;
+	const { type } = attributes;
+	if (!type) return;
+	return menuitem_type_to_implicit_role.get(type);
+}
+
+function getRole(element: Element): ARIARoleDefinitionKey | undefined {
+	if (element.hasAttribute('role')) {
+		return element.getAttribute('role')! as ARIARoleDefinitionKey;
+	}
+	return getImplicitRole(element) as ARIARoleDefinitionKey;
+}
+
+function getImplicitRole(element: Element) {
+	const name = element.localName;
+	const attrs = getAttributeObject(element);
+	if (name === 'menuitem') {
+		return menuitem_implicit_role(attrs);
+	} else if (name === 'input') {
+		return input_implicit_role(attrs);
+	} else {
+		return a11y_implicit_semantics.get(name);
+	}
+}
+
+function getAttributeObject(element: Element): Record<string, string> {
+	let obj: Record<string, string> = {};
+	for (let i = 0; i < element.attributes.length; i++) {
+		const attribute = element.attributes.item(i)!;
+		obj[attribute.name] = attribute.value;
+	}
+	return obj;
+}
+
+/**
+ * @param {import('aria-query').ARIARoleDefinitionKey} role
+ * @param {string} tag_name
+ * @param {Map<string, import('#compiler').Attribute>} attribute_map
+ */
+function is_semantic_role_element(
+	role: string,
+	tag_name: string,
+	attributes: Record<string, string>
+) {
+	for (const [schema, ax_object] of elementAXObjects.entries()) {
+		if (
+			schema.name === tag_name &&
+			(!schema.attributes ||
+				schema.attributes.every((attr: any) => attributes[attr.name] === attr.value))
+		) {
+			for (const name of ax_object) {
+				const axRoles = AXObjectRoles.get(name);
+				if (axRoles) {
+					for (const { name: _name } of axRoles) {
+						if (_name === role) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}

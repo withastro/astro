@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.7.0
+
+### Minor Changes
+
+- [#9470](https://github.com/withastro/astro/pull/9470) [`607303be198931825dac9f3bc97867b4886feaf3`](https://github.com/withastro/astro/commit/607303be198931825dac9f3bc97867b4886feaf3) Thanks [@onsclom](https://github.com/onsclom)! - Improves the `create astro` CLI experience by asking all the questions upfront, then creating your new Astro project based on your responses.
+
 ## 4.6.0
 
 ### Minor Changes

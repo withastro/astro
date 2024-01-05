@@ -1,4 +1,4 @@
-import { prompt } from '@astrojs/cli-kit';
+import { prompt, type Task } from '@astrojs/cli-kit';
 import { random } from '@astrojs/cli-kit/utils';
 import arg from 'arg';
 import os from 'node:os';
@@ -26,6 +26,7 @@ export interface Context {
 	stdout?: typeof process.stdout;
 	exit(code: number): never;
 	hat?: string;
+	tasks: Task[];
 }
 
 export async function getContext(argv: string[]): Promise<Context> {
@@ -103,6 +104,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		exit(code) {
 			process.exit(code);
 		},
+		tasks: [],
 	};
 	return context;
 }

@@ -50,10 +50,10 @@ jobs:
         if: steps.blocked.outputs.result != 'true'
         run: |
           echo "Checking for changesets marked as minor"
-          echo '::set-output name=found::false'
+          echo "found=false" >> $GITHUB_OUTPUT
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             if grep -q "'astro': minor" "$file"; then
-              echo '::set-output name=found::true'
+              echo "found=true" >> $GITHUB_OUTPUT
               echo "$file has a minor release tag"
             fi
           done
