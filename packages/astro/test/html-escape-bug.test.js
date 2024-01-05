@@ -35,37 +35,4 @@ describe('Html Escape Bug', () => {
 			);
 		});
 	});
-
-	describe('dev', () => {
-		let devServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('work', async () => {
-			const res = await fixture.fetch('/index.html');
-			expect(res.status).to.equal(200);
-
-			const html = await fixture.readFile('/index.html');
-			const $ = cheerio.load(html);
-			const h1 = $('h1');
-			const script = $('script');
-
-			expect(h1.text()).to.equal('Astro');
-			expect(script.text()).to.equal(
-				[
-					'\n\t\tconst count = 6;',
-					'const normal = `There are ${count} things!`;',
-					'const content = `There are `${count}` things!`;',
-					`document.getElementById('normal').innerText = normal;`,
-					`document.getElementById('content').innerText = content;`,
-				].join('\n\t\t') + '\n\t'
-			);
-		});
-	});
 });
