@@ -63,8 +63,11 @@ jobs:
         id: notification
         if: steps.changesets.outputs.published == 'true'
         run: |
-          message=$(node scripts/notify/index.js '${{ steps.changesets.outputs.publishedPackages }}')
-          echo "message=${message//$'\n'/'%0A'}" >> $GITHUB_OUTPUT
+          {
+            echo 'message<<__EOF__'
+            node scripts/notify/index.js '${{ steps.changesets.outputs.publishedPackages }}'
+            echo __EOF__
+          } >> "$GITHUB_OUTPUT"
 
       - name: Discord Notification
         if: steps.changesets.outputs.published == 'true'
