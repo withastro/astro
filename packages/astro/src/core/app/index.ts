@@ -198,11 +198,24 @@ export class App {
 	): Promise<Response> {
 		let routeData: RouteData | undefined;
 		let locals: object | undefined;
+		let clientAddress: string | undefined;
+		let addCookieHeader: boolean | undefined;
 
 		if (
 			routeDataOrOptions &&
-			('routeData' in routeDataOrOptions || 'locals' in routeDataOrOptions)
+			(
+				'addCookieHeader' in routeDataOrOptions ||
+				'clientAddress' in routeDataOrOptions ||
+				'locals' in routeDataOrOptions ||
+				'routeData' in routeDataOrOptions
+			)
 		) {
+			if ('addCookieHeader' in routeDataOrOptions) {
+				addCookieHeader = routeDataOrOptions.addCookieHeader;
+			}
+			if ('clientAddress' in routeDataOrOptions) {
+				clientAddress = routeDataOrOptions.clientAddress;
+			}
 			if ('routeData' in routeDataOrOptions) {
 				routeData = routeDataOrOptions.routeData;
 			}
@@ -219,12 +232,8 @@ export class App {
 		if (locals) {
 			Reflect.set(request, App.Symbol.locals, locals);
 		}
-		if (
-			typeof routeDataOrOptions === "object" &&
-			"clientAddress" in routeDataOrOptions &&
-			routeDataOrOptions.clientAddress
-		) {
-			Reflect.set(request, App.Symbol.clientAddress, routeDataOrOptions.clientAddress)
+		if (clientAddress) {
+			Reflect.set(request, App.Symbol.clientAddress, clientAddress)
 		}
 		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
 		if (request.url !== collapseDuplicateSlashes(request.url)) {
@@ -288,12 +297,10 @@ export class App {
 				});
 			}
 		}
-		if (
-			typeof routeDataOrOptions === "object" &&
-			"addCookieHeader" in routeDataOrOptions &&
-			routeDataOrOptions.addCookieHeader
-		) {
-			App.#addCookieHeader(response);
+		if (addCookieHeader) {
+			for (const setCookieHeaderValue of App.getSetCookieFromResponse(response)) {
+				response.headers.append('set-cookie', setCookieHeaderValue);
+			}
 		}
 		Reflect.set(response, responseSentSymbol, true);
 		return response;
@@ -316,7 +323,7 @@ export class App {
 	 * Reads all the cookies written by `Astro.cookie.set()` onto the passed response.
 	 * For example,
 	 * ```ts
-	 * for (const cookie_ of App.getSetCookiesFromResponse(response)) {
+	 * for (const cookie_ of App.getSetCookieFromResponse(response)) {
 	 *     const cookie: string = cookie_
 	 * }
 	 * ```
@@ -324,12 +331,6 @@ export class App {
 	 * @returns An iterator that yields key-value pairs as equal-sign-separated strings.
 	 */
 	static getSetCookieFromResponse = getSetCookiesFromResponse
-
-	static #addCookieHeader(response: Response) {
-		for (const setCookieHeaderValue of getSetCookiesFromResponse(response)) {
-			response.headers.append('set-cookie', setCookieHeaderValue);
-		}
-	}
 
 	/**
 	 * Creates the render context of the current route
