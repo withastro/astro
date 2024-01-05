@@ -2,7 +2,7 @@ import { random } from '@astrojs/cli-kit/utils';
 
 export default function getSeasonalHouston(fancy?: boolean) {
 	const date = new Date();
-	if ((date.getMonth() === 11 && date.getDate() === 21) || (date.getMonth() === 0 && date.getDate() === 1)) {
+	if (date.getMonth() === 0 && date.getDate() === 1) {
 		// New Year
 		return {
 			hat: '🎩',
