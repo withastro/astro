@@ -1,5 +1,13 @@
 # @astrojs/vue
 
+## 4.0.8
+
+### Patch Changes
+
+- [#9620](https://github.com/withastro/astro/pull/9620) [`a1bb5fea552ce65585f49ecb6701733c48d117f9`](https://github.com/withastro/astro/commit/a1bb5fea552ce65585f49ecb6701733c48d117f9) Thanks [@bluwy](https://github.com/bluwy)! - Fixes `class` property hydration error
+
+- [#9490](https://github.com/withastro/astro/pull/9490) [`a1c31665cbc48bfdf4885112b427db48ecc48276`](https://github.com/withastro/astro/commit/a1c31665cbc48bfdf4885112b427db48ecc48276) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes a bug that caused styles referenced by `appEntrypoint` to be excluded from the build
+
 ## 4.0.7
 
 ### Patch Changes
