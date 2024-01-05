@@ -4,7 +4,6 @@ import { align, sleep } from '@astrojs/cli-kit/utils';
 import { exec } from 'node:child_process';
 import stripAnsi from 'strip-ansi';
 import { shell } from './shell.js';
-import getSeasonalHouston from './data/seasonal.js';
 
 // Users might lack access to the global npm registry, this function
 // checks the user's project type and will return the proper npm registry
@@ -39,9 +38,6 @@ export async function spinner(args: {
 }
 
 export const title = (text: string) => align(label(text), 'end', 7) + ' ';
-
-export const seasonalHouston = getSeasonalHouston();
-export const welcome = seasonalHouston.messages;
 
 export const getName = () =>
 	new Promise<string>((resolve) => {

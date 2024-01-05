@@ -1,15 +1,15 @@
 import type { Context } from './context.js';
 
 import { color, label } from '@astrojs/cli-kit';
-import { random } from '@astrojs/cli-kit/utils';
-import { banner, say, welcome } from '../messages.js';
+import { banner, say } from '../messages.js';
 
 export async function intro(
-	ctx: Pick<Context, 'hat' | 'tie' | 'skipHouston' | 'version' | 'username' | 'fancy'>
+	ctx: Pick<Context, 'skipHouston' | 'welcome' | 'hat' | 'tie' | 'version' | 'username' | 'fancy'>
 ) {
 	banner();
 
 	if (!ctx.skipHouston) {
+		const { welcome, hat, tie } = ctx;
 		await say(
 			[
 				[
@@ -21,9 +21,9 @@ export async function intro(
 					),
 					Promise.resolve(ctx.username).then((username) => `${username}!`),
 				],
-				random(welcome),
-			],
-			{ clear: true, hat: ctx.hat, tie: ctx.tie }
+				welcome ?? 'Let\'s build something awesome!',
+			] as string[],
+			{ clear: true, hat, tie }
 		);
 	}
 }

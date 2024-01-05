@@ -26,6 +26,7 @@ export interface Context {
 	stdin?: typeof process.stdin;
 	stdout?: typeof process.stdout;
 	exit(code: number): never;
+	welcome?: string;
 	hat?: string;
 	tie?: string;
 	tasks: Task[];
@@ -85,7 +86,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		((os.platform() === 'win32' && !fancy) || skipHouston) ??
 		[yes, no, install, git, typescript].some((v) => v !== undefined);
 
-	const seasonalHouston = getSeasonalHouston(fancy);
+	const { messages, hats = [], ties = [] } = getSeasonalHouston({ fancy });
 
 	const context: Context = {
 		help,
@@ -99,8 +100,9 @@ export async function getContext(argv: string[]): Promise<Context> {
 		projectName,
 		template,
 		ref: ref ?? 'latest',
-		hat: seasonalHouston.hat,
-		tie: seasonalHouston.tie,
+		welcome: random(messages),
+		hat: hats.length > 0 ? random(hats) : '',
+		tie: ties.length > 0 ? random(ties) : '',
 		yes,
 		install: install ?? (noInstall ? false : undefined),
 		git: git ?? (noGit ? false : undefined),
