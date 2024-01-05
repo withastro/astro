@@ -4,6 +4,10 @@ import { loadFixture } from './test-utils.js';
 
 describe('HTML Escape (Complex)', () => {
 	let fixture;
+	/** @type {string} */
+	let input;
+	/** @type {string} */
+	let output;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -14,32 +18,33 @@ describe('HTML Escape (Complex)', () => {
 	describe('build', () => {
 		before(async () => {
 			await fixture.build();
+			// readFile operates relative to `dist`
+			input = await fixture.readFile('../src/pages/index.html');
+			output = await fixture.readFile('./index.html');
 		});
 
-		it('properly escapes user code', async () => {
-			const html = await fixture.readFile('/index.html');
-			const $ = cheerio.load(html);
-			const h1 = $('h1');
-			const script = $('script');
+		it('respects complex escape sequences in attributes', async () => {
+			const $in = cheerio.load(input);
+			const $out = cheerio.load(output);
+			for (const char of 'abcdef'.split('')) {
+				const attrIn = $in('#' + char).attr('data-attr');
+				const attrOut = $out('#' + char).attr('data-attr');
+				expect(attrOut).to.equal(attrIn);
+			}
+		});
 
-			expect(h1.text()).to.equal('Astro');
-			// Ignore whitespace in text
-			const text = script.text().trim().split('\n').map(ln => ln.trim());
+		it('respects complex escape sequences in <script>', async () => {
+			const $a = cheerio.load(input);
+			const $b = cheerio.load(output);
+			const scriptIn = $a('script');
+			const scriptOut = $b('script');
 
-			// HANDY FOR DEBUGGING BACKSLASHES:
-			// The logged output should exactly match the way <script> is authored in `index.html`
-			// console.log(text.join('\n'));
+			expect(scriptOut.text()).to.equal(scriptIn.text());
+		});
 
-			expect(text).to.deep.equal([
-				"const normal = `There are ${count} things!`;",
-				"const content = `There are \\`${count}\\` things!`;",
-				'const a = "\\`${a}\\`";',
-				'const b = "\\\\`${b}\\\\`";',
-				'const c = "\\\\\\`${c}\\\\\\`";',
-				'const d = "\\\\\\\\`${d}\\\\\\\\`";',
-				'const e = "\\\\\\\\\\`${e}\\\\\\\\\\`";',
-				'const f = "\\\\\\\\\\\\`${f}\\\\\\\\\\\\`";',
-			])
+		it('matches the entire source file', async () => {
+			// Ignore doctype insertion
+			expect(output.replace('<!DOCTYPE html>', '')).to.equal(input);
 		});
 	});
 });
