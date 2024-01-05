@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fix vite-plugin-html utils/escape function bug
+Fixes escaping behavior for `.html` files and components
