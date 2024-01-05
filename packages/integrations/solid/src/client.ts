@@ -1,14 +1,12 @@
+import { Suspense } from 'solid-js';
 import { createComponent, hydrate, render } from 'solid-js/web';
 
 export default (element: HTMLElement) =>
 	(Component: any, props: any, slotted: any, { client }: { client: string }) => {
-		// Prepare global object expected by Solid's hydration logic
-		if (!(window as any)._$HY) {
-			(window as any)._$HY = { events: [], completed: new WeakSet(), r: {} };
-		}
 		if (!element.hasAttribute('ssr')) return;
 
-		const boostrap = client === 'only' ? render : hydrate;
+		const isHydrate = client !== 'only';
+		const bootstrap = isHydrate ? hydrate : render;
 
 		let slot: HTMLElement | null;
 		let _slots: Record<string, any> = {};
@@ -35,13 +33,25 @@ export default (element: HTMLElement) =>
 		const { default: children, ...slots } = _slots;
 		const renderId = element.dataset.solidRenderId;
 
-		const dispose = boostrap(
-			() =>
-				createComponent(Component, {
-					...props,
-					...slots,
-					children,
-				}),
+		const dispose = bootstrap(
+			() => {
+				const inner = () =>
+					createComponent(Component, {
+						...props,
+						...slots,
+						children,
+					});
+
+				if (isHydrate) {
+					return createComponent(Suspense, {
+						get children() {
+							return inner();
+						},
+					});
+				} else {
+					return inner();
+				}
+			},
 			element,
 			{
 				renderId,
