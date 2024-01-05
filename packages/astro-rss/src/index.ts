@@ -211,7 +211,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		if (result.title) {
 			item.title = result.title;
 		}
-		if (result.link) {
+		if (typeof result.link === 'string') {
 			// If the item's link is already a valid URL, don't mess with it.
 			const itemLink = isValidURL(result.link)
 				? result.link
