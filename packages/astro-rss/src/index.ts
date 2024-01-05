@@ -206,17 +206,19 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		);
 	// items
 	root.rss.channel.item = items.map((result) => {
-		// If the item's link is already a valid URL, don't mess with it.
-		const itemLink = !result.link
-			? undefined
-			: isValidURL(result.link)
+		const item: Record<string, unknown> = {};
+
+		if (result.title) {
+			item.title = result.title;
+		}
+		if (result.link) {
+			// If the item's link is already a valid URL, don't mess with it.
+			const itemLink = isValidURL(result.link)
 				? result.link
 				: createCanonicalURL(result.link, rssOptions.trailingSlash, site).href;
-		const item: any = {
-			title: result.title,
-			link: itemLink,
-			guid: { '#text': itemLink, '@_isPermaLink': 'true' },
-		};
+			item.link = itemLink;
+			item.guid = { '#text': itemLink, '@_isPermaLink': 'true' };
+		}
 		if (result.description) {
 			item.description = result.description;
 		}
