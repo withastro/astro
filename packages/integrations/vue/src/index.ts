@@ -94,7 +94,7 @@ export const setup = async (app) => {
 				s.prepend(`import "${appEntrypoint}";\n`);
 				return {
 					code: s.toString(),
-					map: s.generateMap()
+					map: s.generateMap({ hires: 'boundary' })
 				}
 			}
 		},
