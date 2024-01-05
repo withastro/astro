@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 8.0.2
+
+### Patch Changes
+
+- [#125](https://github.com/withastro/adapters/pull/125) [`200dea9`](https://github.com/withastro/adapters/commit/200dea9d5a98e9348b2368b846f385ab850ca053) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Updates miniflare version
+
 ## 8.0.1
 
 ### Patch Changes
