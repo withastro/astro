@@ -2262,9 +2262,10 @@ type Routing = {
 	strategy: 'pathname';
 };
 
-export type APIRoute<Props extends Record<string, any> = Record<string, any>> = (
-	context: APIContext<Props>
-) => Response | Promise<Response>;
+export type APIRoute<
+	Props extends Record<string, any> = Record<string, any>,
+	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>,
+> = (context: APIContext<Props, APIParams>) => Response | Promise<Response>;
 
 export interface EndpointHandler {
 	[method: string]: APIRoute;
