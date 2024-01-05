@@ -116,7 +116,7 @@ async function validateRssOptions(rssOptions: RSSOptions) {
 				if (path === 'items' && code === 'invalid_union') {
 					return [
 						message,
-						`The \`items\` property requires properly typed \`title\`, \`pubDate\`, and \`link\` keys.`,
+						`The \`items\` property requires at least the \`title\` or \`description\` key. They must be properly typed, as well as \`pubDate\` and \`link\` keys if provided.`,
 						`Check your collection's schema, and visit https://docs.astro.build/en/guides/rss/#generating-items for more info.`,
 					].join('\n');
 				}
@@ -137,10 +137,7 @@ export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeed
 					`[RSS] You can only glob entries within 'src/pages/' when passing import.meta.glob() directly. Consider mapping the result to an array of RSSFeedItems. See the RSS docs for usage examples: https://docs.astro.build/en/guides/rss/#2-list-of-rss-feed-objects`
 				);
 			}
-			const parsedResult = rssSchema.safeParse(
-				{ ...frontmatter, link: url },
-				{ errorMap }
-			);
+			const parsedResult = rssSchema.safeParse({ ...frontmatter, link: url }, { errorMap });
 
 			if (parsedResult.success) {
 				return parsedResult.data;
@@ -210,9 +207,11 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 	// items
 	root.rss.channel.item = items.map((result) => {
 		// If the item's link is already a valid URL, don't mess with it.
-		const itemLink = isValidURL(result.link)
-			? result.link
-			: createCanonicalURL(result.link, rssOptions.trailingSlash, site).href;
+		const itemLink = !result.link
+			? undefined
+			: isValidURL(result.link)
+				? result.link
+				: createCanonicalURL(result.link, rssOptions.trailingSlash, site).href;
 		const item: any = {
 			title: result.title,
 			link: itemLink,

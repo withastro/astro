@@ -3,8 +3,9 @@ import { z } from 'astro/zod';
 const sharedSchema = z.object({
 	pubDate: z
 		.union([z.string(), z.number(), z.date()])
-		.transform((value) => new Date(value))
-		.refine((value) => !isNaN(value.getTime())),
+		.optional()
+		.transform((value) => (value === undefined ? value : new Date(value)))
+		.refine((value) => (value === undefined ? value : !isNaN(value.getTime()))),
 	customData: z.string().optional(),
 	categories: z.array(z.string()).optional(),
 	author: z.string().optional(),
@@ -17,7 +18,7 @@ const sharedSchema = z.object({
 			type: z.string(),
 		})
 		.optional(),
-	link: z.string(),
+	link: z.string().optional(),
 	content: z.string().optional(),
 });
 
