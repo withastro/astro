@@ -15,18 +15,18 @@ export enum DiagnosticCodes {
 
 export function enhancedProvideSemanticDiagnostics(
 	originalDiagnostics: Diagnostic[],
-	astroLineCount?: number | undefined
+	tsxLineCount?: number | undefined
 ) {
 	const diagnostics = originalDiagnostics
 		.filter(
 			(diagnostic) =>
-				(astroLineCount ? diagnostic.range.start.line <= astroLineCount : true) &&
+				(tsxLineCount ? diagnostic.range.start.line <= tsxLineCount : true) &&
 				isNoCantReturnOutsideFunction(diagnostic) &&
 				isNoIsolatedModuleError(diagnostic) &&
 				isNoJsxCannotHaveMultipleAttrsError(diagnostic)
 		)
 		.map((diag) =>
-			astroLineCount ? generalEnhancements(astroEnhancements(diag)) : generalEnhancements(diag)
+			tsxLineCount ? generalEnhancements(astroEnhancements(diag)) : generalEnhancements(diag)
 		);
 
 	return diagnostics;

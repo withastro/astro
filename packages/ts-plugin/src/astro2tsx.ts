@@ -32,6 +32,16 @@ function safeConvertToTSX(content: string, options: ConvertToTSXOptions) {
 					text: `The Astro compiler encountered an unknown error while parsing this file. Please create an issue with your code and the error shown in the server's logs: https://github.com/withastro/language-tools/issues`,
 				},
 			],
+			metaRanges: {
+				frontmatter: {
+					start: 0,
+					end: 0,
+				},
+				body: {
+					start: 0,
+					end: 0,
+				},
+			},
 		} satisfies TSXResult;
 	}
 }

@@ -1,0 +1,7 @@
+{
+  "name": "astro-language-server-test",
+  "private": true,
+  "devDependencies": {
+    "astro": "^4.1.0"
+  }
+}

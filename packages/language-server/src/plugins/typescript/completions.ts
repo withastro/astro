@@ -1,4 +1,11 @@
-import { CompletionItem, CompletionItemKind, CompletionList } from '@volar/language-server';
+import {
+	CompletionItem,
+	CompletionItemKind,
+	CompletionList,
+	ServiceContext,
+} from '@volar/language-server';
+import { AstroFile } from '../../core/index.js';
+import { editShouldBeInFrontmatter, ensureProperEditForFrontmatter } from '../utils.js';
 
 export function enhancedProvideCompletionItems(completions: CompletionList): CompletionList {
 	completions.items = completions.items.filter(isValidCompletion).map((completion) => {
@@ -24,13 +31,32 @@ export function enhancedProvideCompletionItems(completions: CompletionList): Com
 	return completions;
 }
 
-export function enhancedResolveCompletionItem(resolvedCompletion: CompletionItem): CompletionItem {
+export function enhancedResolveCompletionItem(
+	resolvedCompletion: CompletionItem,
+	context: ServiceContext
+): CompletionItem {
 	// Make sure we keep our icons even when the completion is resolved
 	if (resolvedCompletion.data.isComponent) {
 		resolvedCompletion.detail = getDetailForFileCompletion(
 			resolvedCompletion.detail ?? '',
 			resolvedCompletion.data.originalItem.source
 		);
+	}
+
+	if (resolvedCompletion.additionalTextEdits) {
+		const [virtualFile, source] = context.documents.getVirtualFileByUri(
+			resolvedCompletion.data.uri
+		);
+		const file = source?.root;
+		if (!virtualFile || !(file instanceof AstroFile) || !context.host) return resolvedCompletion;
+
+		resolvedCompletion.additionalTextEdits = resolvedCompletion.additionalTextEdits.map((edit) => {
+			if (editShouldBeInFrontmatter(edit.range, file.astroMeta).itShould) {
+				edit = ensureProperEditForFrontmatter(edit, file.astroMeta, '\n');
+			}
+
+			return edit;
+		});
 	}
 
 	return resolvedCompletion;

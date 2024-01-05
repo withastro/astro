@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import type { Node } from 'vscode-html-languageservice';
 import * as html from 'vscode-html-languageservice';
+import { getTSXRangesAsLSPRanges, safeConvertToTSX } from '../../src/core/astro2tsx.js';
 import * as compilerUtils from '../../src/core/compilerUtils.js';
 import { getAstroMetadata } from '../../src/core/parseAstro.js';
 import * as utils from '../../src/plugins/utils.js';
@@ -77,41 +78,55 @@ describe('Utilities', async () => {
 
 	it('ensureRangeIsInFrontmatter - properly return a range inside the frontmatter', () => {
 		const beforeFrontmatterRange = html.Range.create(0, 0, 0, 0);
-		const hasFrontmatter = getAstroMetadata('file.astro', '---\nfoo\n---\n');
-		expect(
-			utils.ensureRangeIsInFrontmatter(beforeFrontmatterRange, hasFrontmatter.frontmatter)
-		).to.deep.equal(Range.create(1, 0, 1, 0));
+		const input = '---\nfoo\n---\n';
+		const tsx = safeConvertToTSX(input, { filename: 'file.astro' });
+		const tsxRanges = getTSXRangesAsLSPRanges(tsx);
+		const astroMetadata = { tsxRanges, ...getAstroMetadata('file.astro', input) };
+
+		expect(utils.ensureRangeIsInFrontmatter(beforeFrontmatterRange, astroMetadata)).to.deep.equal(
+			Range.create(2, 0, 2, 0)
+		);
 
 		const insideFrontmatterRange = html.Range.create(1, 0, 1, 0);
-		expect(
-			utils.ensureRangeIsInFrontmatter(insideFrontmatterRange, hasFrontmatter.frontmatter)
-		).to.deep.equal(Range.create(1, 0, 1, 0));
+		expect(utils.ensureRangeIsInFrontmatter(insideFrontmatterRange, astroMetadata)).to.deep.equal(
+			Range.create(2, 0, 2, 0)
+		);
 
 		const outsideFrontmatterRange = html.Range.create(6, 0, 6, 0);
-		expect(
-			utils.ensureRangeIsInFrontmatter(outsideFrontmatterRange, hasFrontmatter.frontmatter)
-		).to.deep.equal(Range.create(1, 0, 1, 0));
+		expect(utils.ensureRangeIsInFrontmatter(outsideFrontmatterRange, astroMetadata)).to.deep.equal(
+			Range.create(2, 0, 2, 0)
+		);
 	});
 
 	it('getNewFrontmatterEdit - properly return a new frontmatter edit', () => {
+		const input = '<div></div>';
+		const tsx = safeConvertToTSX(input, { filename: 'file.astro' });
+		const tsxRanges = getTSXRangesAsLSPRanges(tsx);
+		const astroMetadata = { tsxRanges, ...getAstroMetadata('file.astro', input) };
 		const edit = utils.getNewFrontmatterEdit(
 			{ range: Range.create(43, 0, 44, 0), newText: 'foo' },
+			astroMetadata,
 			'\n'
 		);
 		expect(edit).to.deep.equal({
-			range: Range.create(0, 0, 0, 0),
+			range: Range.create(2, 0, 2, 0),
 			newText: '---\nfoo---\n\n',
 		});
 	});
 
 	it('getOpenFrontmatterEdit - properly return an open frontmatter edit', () => {
+		const input = '<div></div>';
+		const tsx = safeConvertToTSX(input, { filename: 'file.astro' });
+		const tsxRanges = getTSXRangesAsLSPRanges(tsx);
+		const astroMetadata = { tsxRanges, ...getAstroMetadata('file.astro', input) };
 		const edit = utils.getOpenFrontmatterEdit(
-			{ range: Range.create(43, 0, 44, 0), newText: 'foo' },
+			{ range: Range.create(2, 0, 2, 0), newText: 'foo' },
+			astroMetadata,
 			'\n'
 		);
 
 		expect(edit).to.deep.equal({
-			range: Range.create(43, 0, 44, 0),
+			range: Range.create(2, 0, 2, 0),
 			newText: '\nfoo---',
 		});
 	});

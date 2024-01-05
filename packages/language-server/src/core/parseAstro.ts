@@ -1,13 +1,17 @@
 import { parse } from '@astrojs/compiler/sync';
 import type { ParseOptions, ParseResult, Point } from '@astrojs/compiler/types';
+import type { LSPTSXRanges } from './astro2tsx.js';
 
-type AstroMetadata = ParseResult & { frontmatter: FrontmatterStatus };
+export type AstroMetadata = ParseResult & {
+	frontmatter: FrontmatterStatus;
+	tsxRanges: LSPTSXRanges;
+};
 
 export function getAstroMetadata(
 	fileName: string,
 	input: string,
 	options: ParseOptions = { position: true }
-): AstroMetadata {
+): Omit<AstroMetadata, 'tsxRanges'> {
 	const parseResult = safeParseAst(fileName, input, options);
 
 	return {

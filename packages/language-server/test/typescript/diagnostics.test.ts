@@ -45,10 +45,7 @@ describe('TypeScript - Diagnostics', async () => {
 	});
 
 	it('shows enhanced diagnostics', async () => {
-		const document = await languageServer.helpers.openFakeDocument(
-			'---\nimport {getEntryBySlug} from "astro:content";getEntryBySlug\n---\n<div client:idle></div><div>',
-			'astro'
-		);
+		const document = await languageServer.helpers.openRealDocument('./enhancedDiagnostics.astro');
 		const diagnostics = await languageServer.helpers.requestDiagnostics(document);
 		expect(diagnostics.items).length(2);
 
@@ -59,7 +56,7 @@ describe('TypeScript - Diagnostics', async () => {
 				data: {},
 				message:
 					"Type '{ \"client:idle\": true; }' is not assignable to type 'HTMLAttributes'.\n  Property 'client:idle' does not exist on type 'HTMLAttributes'.\n\nClient directives are only available on framework components.",
-				range: Range.create(3, 5, 3, 16),
+				range: Range.create(5, 5, 5, 16),
 				severity: DiagnosticSeverity.Error,
 				source: 'ts',
 			},
@@ -68,7 +65,7 @@ describe('TypeScript - Diagnostics', async () => {
 				data: {},
 				message:
 					"Cannot find module 'astro:content' or its corresponding type declarations.\n\nIf you're using content collections, make sure to run `astro dev`, `astro build` or `astro sync` to first generate the types so you can import from them. If you already ran one of those commands, restarting the language server might be necessary in order for the change to take effect.",
-				range: Range.create(1, 29, 1, 44),
+				range: Range.create(1, 31, 1, 46),
 				severity: DiagnosticSeverity.Error,
 				source: 'ts',
 			},
