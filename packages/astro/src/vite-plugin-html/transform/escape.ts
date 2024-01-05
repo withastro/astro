@@ -13,7 +13,9 @@ const rehypeEscape: Plugin<[{ s: MagicString }], Root> = ({ s }) => {
 					s.overwrite(node.position!.start.offset!, node.position!.end.offset!, escapeTemplateLiteralCharacters(node.value));
 				}
 			} else if (node.type === 'element') {
-				for (const [key, value] of Object.entries(node.properties ?? {})) {
+				if (!node.properties) return;
+				for (let [key, value] of Object.entries(node.properties)) {
+					key = key.replace(/([A-Z])/g, '-$1').toLowerCase()
 					const newKey = needsEscape(key) ? escapeTemplateLiteralCharacters(key) : key;
 					const newValue = needsEscape(value) ? escapeTemplateLiteralCharacters(value) : value;
 					if (newKey === key && newValue === value) continue;
