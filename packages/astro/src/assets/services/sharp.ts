@@ -1,4 +1,4 @@
-import type { FormatEnum } from 'sharp';
+import type { FormatEnum, SharpOptions } from 'sharp';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
@@ -12,7 +12,7 @@ export interface SharpImageServiceConfig {
 	/**
 	 * The `limitInputPixels` option passed to Sharp. See https://sharp.pixelplumbing.com/api-constructor for more information
 	 */
-	limitInputPixels?: number;
+	limitInputPixels?: SharpOptions['limitInputPixels'];
 }
 
 let sharp: typeof import('sharp');

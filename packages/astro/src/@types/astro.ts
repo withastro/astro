@@ -963,7 +963,7 @@ export interface AstroUserConfig {
 				 * - `'tap'`: Prefetch just before you click on the link.
 				 * - `'hover'`: Prefetch when you hover over or focus on the link. (default)
 				 * - `'viewport'`: Prefetch as the links enter the viewport.
-				 * - `'load'`: Prefetch the link without any restrictions.
+				 * - `'load'`: Prefetch all links on the page after the page is loaded.
 				 *
 				 * You can override this default value and select a different strategy for any individual link by setting a value on the attribute.
 				 *
@@ -1033,7 +1033,7 @@ export interface AstroUserConfig {
 	 * @name server.open
 	 * @type {string | boolean}
 	 * @default `false`
-	 * @version 2.1.8
+	 * @version 4.1.0
 	 * @description
 	 * Controls whether the dev server should open in your browser window on startup.
 	 *
@@ -1118,7 +1118,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name image.service.config.limitInputPixels
 		 * @kind h4
-		 * @type {boolean}
+		 * @type {number | boolean}
 		 * @default `true`
 		 * @version 4.1.0
 		 * @description
@@ -2262,9 +2262,10 @@ type Routing = {
 	strategy: 'pathname';
 };
 
-export type APIRoute<Props extends Record<string, any> = Record<string, any>> = (
-	context: APIContext<Props>
-) => Response | Promise<Response>;
+export type APIRoute<
+	Props extends Record<string, any> = Record<string, any>,
+	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>,
+> = (context: APIContext<Props, APIParams>) => Response | Promise<Response>;
 
 export interface EndpointHandler {
 	[method: string]: APIRoute;
