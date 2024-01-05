@@ -93,8 +93,8 @@ export const setup = async (app) => {
 				s.prepend(`import ${JSON.stringify(appEntrypoint)};\n`);
 				return {
 					code: s.toString(),
-					map: s.generateMap({ hires: 'boundary' })
-				}
+					map: s.generateMap({ hires: 'boundary' }),
+				};
 			}
 		},
 	};
