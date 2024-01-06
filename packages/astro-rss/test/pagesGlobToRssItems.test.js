@@ -66,7 +66,24 @@ describe('pagesGlobToRssItems', () => {
 		return chai.expect(pagesGlobToRssItems(globResult)).to.be.rejected;
 	});
 
-	it('should fail on missing "title" key', () => {
+	it('should fail on missing "title" key and "description"', () => {
+		const globResult = {
+			'./posts/php.md': () =>
+				new Promise((resolve) =>
+					resolve({
+						url: phpFeedItem.link,
+						frontmatter: {
+							title: undefined,
+							pubDate: phpFeedItem.pubDate,
+							description: undefined,
+						},
+					})
+				),
+		};
+		return chai.expect(pagesGlobToRssItems(globResult)).to.be.rejected;
+	});
+
+	it('should not fail on missing "title" key if "description" is present', () => {
 		const globResult = {
 			'./posts/php.md': () =>
 				new Promise((resolve) =>
@@ -80,6 +97,23 @@ describe('pagesGlobToRssItems', () => {
 					})
 				),
 		};
-		return chai.expect(pagesGlobToRssItems(globResult)).to.be.rejected;
+		return chai.expect(pagesGlobToRssItems(globResult)).to.not.be.rejected;
+	});
+
+	it('should fail on missing "description" key if "title" is present', () => {
+		const globResult = {
+			'./posts/php.md': () =>
+				new Promise((resolve) =>
+					resolve({
+						url: phpFeedItem.link,
+						frontmatter: {
+							title: phpFeedItem.title,
+							pubDate: phpFeedItem.pubDate,
+							description: undefined,
+						},
+					})
+				),
+		};
+		return chai.expect(pagesGlobToRssItems(globResult)).to.not.be.rejected;
 	});
 });
