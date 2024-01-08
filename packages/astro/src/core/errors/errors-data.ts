@@ -1318,6 +1318,11 @@ export const UnsupportedConfigTransformError = {
 	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
 } satisfies ErrorData;
 
+/**
+ * @docs
+ * @description
+ * Astro can't find the requested locale.
+ */
 export const MissingLocale = {
 	name: 'MissingLocaleError',
 	title: 'The provided locale does not exist.',
@@ -1326,6 +1331,12 @@ export const MissingLocale = {
 	},
 } satisfies ErrorData;
 
+/**
+ * @docs
+ * @description
+ * When rendering a route, Astro couldn't find an associated file. This should never happen, this means that this is
+ * an Astro error and not a user error.
+ */
 export const CantRenderPage = {
 	name: 'CantRenderPage',
 	title: "Astro can't render the route.",
@@ -1337,6 +1348,11 @@ export const CantRenderPage = {
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
 
+/**
+ * @docs
+ * @description
+ * Emitted when some user code doesn't handle the reject of promise `Promise`.
+ */
 export const UnhandledRejection = {
 	name: 'UnhandledRejection',
 	title: 'Unhandled rejection',
@@ -1344,4 +1360,4 @@ export const UnhandledRejection = {
 		return `Astro detected an unhandled rejection. Here's the stack trace:\n${stack}`;
 	},
 	hint: 'Make sure your promises all have an `await` or a `.catch()` handler.',
-};
+} satisfies ErrorData;
