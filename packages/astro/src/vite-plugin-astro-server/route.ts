@@ -372,7 +372,7 @@ export async function handleRoute({
 	if (status && response.status !== status && (status === 404 || status === 500)) {
 		response = new Response(response.body, {
 			status: status,
-			headers: response.headers
+			headers: response.headers,
 		});
 	}
 	await writeSSRResult(request, response, incomingResponse);

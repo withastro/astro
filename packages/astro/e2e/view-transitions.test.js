@@ -1187,7 +1187,7 @@ test.describe('View Transitions', () => {
 
 		expect(requests).toHaveLength(0);
 	});
-	
+
 	test('view transition should also work with 404 page', async ({ page, astro }) => {
 		const loads = [];
 		page.addListener('load', (p) => {
