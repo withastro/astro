@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.4.0
+
+### Minor Changes
+
+- dab6801: Enables more accurate types when using JSX-based frameworks. This internal refactor to Astro's JSX types will be an invisible change for most users, but fixes a number of type checking problems for users of other JSX frameworks.
+
 ## 1.3.1
 
 ### Patch Changes

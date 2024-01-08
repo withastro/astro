@@ -1,5 +1,17 @@
 # @astrojs/check
 
+## 0.4.0
+
+### Minor Changes
+
+- a314bcc: Remove temporary workaround `astro check` that disabled checking JSX and TSX files
+
+### Patch Changes
+
+- Updated dependencies [a314bcc]
+- Updated dependencies [dab6801]
+  - @astrojs/language-server@2.6.0
+
 ## 0.3.4
 
 ### Patch Changes
