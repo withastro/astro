@@ -7,7 +7,7 @@ import {
 	type TextField,
 	type collectionSchema,
 	collectionsSchema,
-} from 'somewhere';
+} from './types.js';
 import { z } from 'zod';
 
 export const adjustedConfigSchema = z.object({
@@ -21,7 +21,7 @@ export const astroConfigWithDBValidator = z.object({
 });
 
 export function defineCollection(
-	userConfig: z.input<typeof collectionSchema>,
+	userConfig: z.input<typeof collectionSchema>
 ): z.input<typeof collectionSchema> {
 	return userConfig;
 }
