@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-import { db, field } from '@astro/db';
+import db, { field } from '@astrojs/db';
 
 // https://astro.build/config
 export default defineConfig({
