@@ -8,7 +8,7 @@ import type { createExports } from './server-entrypoint.js';
 type ServerModule = ReturnType<typeof createExports>;
 type MaybeServerModule = Partial<ServerModule>;
 
-const preview1: CreatePreviewServer = async function (preview) {
+const createPreviewServer: CreatePreviewServer = async function (preview) {
 	let ssrHandler: ServerModule['handler'];
 	let options: ServerModule['options'];
 	try {
@@ -41,4 +41,4 @@ const preview1: CreatePreviewServer = async function (preview) {
 	return server;
 };
 
-export { preview1 as default }
+export { createPreviewServer as default }

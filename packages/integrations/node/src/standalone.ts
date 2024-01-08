@@ -12,8 +12,8 @@ import type { PreviewServer } from 'astro';
 export default function standalone(app: NodeApp, options: Options) {
 	const port = process.env.PORT ? Number(process.env.PORT) : options.port ?? 8080;
 	// Allow to provide host value at runtime
-	const host_ = typeof options.host === "boolean" ? "localhost" : options.host
-	const host = process.env.HOST ?? host_;
+	const hostOptions = typeof options.host === "boolean" ? "localhost" : options.host
+	const host = process.env.HOST ?? hostOptions;
 	const handler = createStandaloneHandler(app, options);
 	const server = createServer(handler, host, port);
 	server.server.listen(port, host)
