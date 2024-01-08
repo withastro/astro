@@ -5,16 +5,16 @@ const authors: Array<typeof Author.$inferInsert> = [
 		name: 'Ben',
 	},
 	{
-		title: 'Nate',
+		name: 'Nate',
 	},
 	{
-		title: 'Erika',
+		name: 'Erika',
 	},
 	{
-		title: 'Bjorn',
+		name: 'Bjorn',
 	},
 	{
-		title: 'Sarah',
+		name: 'Sarah',
 	},
 ];
 
