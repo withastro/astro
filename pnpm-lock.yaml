@@ -3803,9 +3803,15 @@ importers:
       '@types/mocha':
         specifier: ^10.0.2
         version: 10.0.6
+      astro-scripts:
+        specifier: ^0.0.14
+        version: link:../../scripts
       chai:
         specifier: ^4.3.10
         version: 4.3.10
+      cheerio:
+        specifier: 1.0.0-rc.12
+        version: 1.0.0-rc.12
       mocha:
         specifier: ^10.2.0
         version: 10.2.0
