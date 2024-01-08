@@ -1,0 +1,11 @@
+---
+import { Author, db } from 'astro:db';
+
+const authors = await db.select().from(Author);
+---
+
+<ul>
+	{authors.map(author => (
+		<li>{author.name}</li>
+	))}
+</ul>
