@@ -1566,6 +1566,21 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		contentCollectionCache?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.clientPrerender
+		 * @type {boolean}
+		 * @default `false`
+		 * @description
+		 * Progressive enhancement to use the experimental Speculation Rules API
+		 * when supported to prerender on the client. Use this setting to prerender the
+		 * page on the client, including running client side JavaScript
+		 * (see [unsafe prefetching](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API#unsafe_prefetching)).
+		 *
+		 * [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API)
+		 */
+		clientPrerender?: boolean;
 	};
 }
 
