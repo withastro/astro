@@ -372,7 +372,6 @@ export async function handleRoute({
 	if (status && response.status !== status && (status === 404 || status === 500)) {
 		response = new Response(response.body, {
 			status: status,
-			statusText: status === 404 ? 'Not Found' : 'Internal Server Error',
 			headers: response.headers
 		});
 	}
