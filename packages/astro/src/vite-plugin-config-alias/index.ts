@@ -85,8 +85,9 @@ export default function configAliasVitePlugin({
 				if (alias.find.test(id)) {
 					const updatedId = id.replace(alias.find, alias.replacement);
 
-					// Vite may pass a "*"" for glob import paths resolving, which we can assume to apply
-					// the alias here directly
+					// Vite may pass an id with "*" when resolving glob import paths
+					// Returning early allows Vite to handle the final resolution
+					// See https://github.com/withastro/astro/issues/9258#issuecomment-1838806157
 					if (updatedId.includes('*')) {
 						return updatedId;
 					}
