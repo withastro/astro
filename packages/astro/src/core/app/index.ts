@@ -32,7 +32,7 @@ export { deserializeManifest } from './common.js';
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
 /**
- * A response with one of these status codes will be rewritten
+ * A response with one of these status codes may be rewritten
  * with the result of rendering the respective error page.
  */
 const REROUTABLE_STATUS_CODES = new Set([404, 500]);
@@ -55,6 +55,17 @@ export interface RenderOptions {
 	 * Default: `request[Symbol.for("astro.clientAddress")]`
 	 */
 	clientAddress?: string;
+
+	/**
+	 * Whether to automatically reroute to error pages.
+	 * 
+	 * When set to `true`, a user-returned response with a status code of 404 or 500 will be rewritten using `src/pages/404.astro` and `src/pages/500.astro`, respectively.
+	 * 
+	 * When set to `false`, the response will be returned as-is.
+	 * 
+	 * @default {true}
+	 */
+	handleErrorPages?: boolean;
 
 	/**
 	 * The mutable object that will be made available as `Astro.locals` in pages, and as `ctx.locals` in API routes and middleware.
@@ -200,6 +211,7 @@ export class App {
 		let locals: object | undefined;
 		let clientAddress: string | undefined;
 		let addCookieHeader: boolean | undefined;
+		let handleErrorPages: boolean | undefined;
 
 		if (
 			routeDataOrOptions &&
@@ -216,6 +228,9 @@ export class App {
 			if ('clientAddress' in routeDataOrOptions) {
 				clientAddress = routeDataOrOptions.clientAddress;
 			}
+			if ('handleErrorPages' in routeDataOrOptions) {
+				handleErrorPages = routeDataOrOptions.handleErrorPages ?? true;
+			}
 			if ('routeData' in routeDataOrOptions) {
 				routeData = routeDataOrOptions.routeData;
 			}
@@ -229,6 +244,15 @@ export class App {
 				this.#logRenderOptionsDeprecationWarning();
 			}
 		}
+
+		/**
+		 * Set to true if not explicitly set to false by the adapter.
+		 * This is only to maintain backwards compatibility.
+		 * The desired behavior is to let the adapter handle it.
+		 * TODO(5.0): switch the default
+		 */
+		handleErrorPages ??= true;
+
 		if (locals) {
 			Reflect.set(request, App.Symbol.locals, locals);
 		}
@@ -243,7 +267,11 @@ export class App {
 			routeData = this.match(request);
 		}
 		if (!routeData) {
-			return this.#renderError(request, { status: 404 });
+			if (handleErrorPages) {
+				return this.#renderError(request, { status: 404 });
+			} else {
+				return new Response("Not Found", { status: 404 });
+			}
 		}
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
@@ -259,6 +287,7 @@ export class App {
 			mod,
 			defaultStatus
 		);
+
 		let response;
 		try {
 			const i18nMiddleware = createI18nMiddleware(
@@ -280,21 +309,33 @@ export class App {
 			}
 			response = await this.#pipeline.renderRoute(renderContext, pageModule);
 		} catch (err: any) {
-			if (err instanceof EndpointNotFoundError) {
-				return this.#renderError(request, { status: 404, response: err.originalResponse });
-			} else {
-				this.#logger.error(null, err.stack || err.message || String(err));
-				return this.#renderError(request, { status: 500 });
+			if (handleErrorPages) {
+				if (err instanceof EndpointNotFoundError) {
+					return this.#renderError(request, { status: 404, response: err.originalResponse });
+				} else {
+					this.#logger.error(null, err.stack || err.message || String(err));
+					return this.#renderError(request, { status: 500 });
+				}
+			}
+			else {
+				if (err instanceof EndpointNotFoundError) {
+					return new Response("Not Found", { status: 404 });
+				} else {
+					this.#logger.error(null, err.stack || err.message || String(err));
+					return new Response("Internal Server Error", { status: 500 });
+				}
 			}
 		}
 
-		// endpoints do not participate in implicit rerouting
-		if (routeData.type === 'page' || routeData.type === 'redirect') {
-			if (REROUTABLE_STATUS_CODES.has(response.status)) {
-				return this.#renderError(request, {
-					response,
-					status: response.status as 404 | 500,
-				});
+		if (handleErrorPages) {
+			// endpoints do not participate in implicit rerouting
+			if (routeData.type === 'page' || routeData.type === 'redirect') {
+				if (REROUTABLE_STATUS_CODES.has(response.status as 404)) {
+					return this.#renderError(request, {
+						response,
+						status: response.status as 404 | 500,
+					});
+				}
 			}
 		}
 		if (addCookieHeader) {
