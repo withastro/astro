@@ -1321,7 +1321,7 @@ export const UnsupportedConfigTransformError = {
 /**
  * @docs
  * @description
- * Astro can't find the requested locale.
+ * Astro can't find the requested locale. All supported locales must be configured in [i18n.locales](en/reference/configuration-reference/#i18nlocales) and have corresponding directories within `src/pages/`.
  */
 export const MissingLocale = {
 	name: 'MissingLocaleError',
@@ -1334,8 +1334,7 @@ export const MissingLocale = {
 /**
  * @docs
  * @description
- * When rendering a route, Astro couldn't find an associated file. This should never happen, this means that this is
- * an Astro error and not a user error.
+ * Astro could not find an associated file with content while trying to render the route. This is an Astro error and not a user error.  If restarting the dev server does not fix the problem, please file an issue.
  */
 export const CantRenderPage = {
 	name: 'CantRenderPage',
@@ -1351,7 +1350,7 @@ export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } sa
 /**
  * @docs
  * @description
- * Emitted when some user code doesn't handle the reject of promise `Promise`.
+ * Astro could not find any code to handle a rejected  `Promise`. Make sure all your promises have an `await` or `.catch()` handler.
  */
 export const UnhandledRejection = {
 	name: 'UnhandledRejection',
