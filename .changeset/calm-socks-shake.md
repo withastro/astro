@@ -3,4 +3,4 @@
 "astro": minor
 ---
 
-Allow remark plugins to add hProperties to imgs that will be included in the getImage call if they are optimized.
+Users can now create remark plugins that will be able to pass options for how images in `.md` files will be optimized 
