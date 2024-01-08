@@ -1,4 +1,4 @@
-import type { DevOverlayPlugin } from '../../../../@types/astro.js';
+import type { DevToolbarApp } from '../../../../@types/astro.js';
 import { settings, type Settings } from '../settings.js';
 import { createWindowElement } from './utils/window.js';
 
@@ -15,24 +15,24 @@ const settingsRows = [
 		name: 'Disable notifications',
 		description: 'Hide notification badges in the toolbar.',
 		input: 'checkbox',
-		settingKey: 'disablePluginNotification',
+		settingKey: 'disableAppNotification',
 		changeEvent: (evt: Event) => {
 			if (evt.currentTarget instanceof HTMLInputElement) {
-				const devOverlay = document.querySelector('astro-dev-toolbar');
+				const devToolbar = document.querySelector('astro-dev-toolbar');
 
-				if (devOverlay) {
-					devOverlay.setNotificationVisible(!evt.currentTarget.checked);
+				if (devToolbar) {
+					devToolbar.setNotificationVisible(!evt.currentTarget.checked);
 				}
 
-				settings.updateSetting('disablePluginNotification', evt.currentTarget.checked);
+				settings.updateSetting('disableAppNotification', evt.currentTarget.checked);
 				const action = evt.currentTarget.checked ? 'disabled' : 'enabled';
-				settings.log(`Plugin notification badges ${action}`);
+				settings.log(`App notification badges ${action}`);
 			}
 		},
 	},
 	{
 		name: 'Verbose logging',
-		description: 'Logs dev overlay events in the browser console.',
+		description: 'Logs dev toolbar events in the browser console.',
 		input: 'checkbox',
 		settingKey: 'verbose',
 		changeEvent: (evt: Event) => {
@@ -168,4 +168,4 @@ export default {
 			}
 		}
 	},
-} satisfies DevOverlayPlugin;
+} satisfies DevToolbarApp;

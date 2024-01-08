@@ -1,6 +1,6 @@
 import { getIconElement, isDefinedIcon, type Icon } from './icons.js';
 
-export interface DevOverlayTooltipSection {
+export interface DevToolbarTooltipSection {
 	title?: string;
 	inlineTitle?: string;
 	icon?: Icon;
@@ -9,8 +9,8 @@ export interface DevOverlayTooltipSection {
 	clickDescription?: string;
 }
 
-export class DevOverlayTooltip extends HTMLElement {
-	sections: DevOverlayTooltipSection[] = [];
+export class DevToolbarTooltip extends HTMLElement {
+	sections: DevToolbarTooltipSection[] = [];
 	shadowRoot: ShadowRoot;
 
 	constructor() {

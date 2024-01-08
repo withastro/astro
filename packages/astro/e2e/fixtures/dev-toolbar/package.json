@@ -1,5 +1,5 @@
 {
-  "name": "@e2e/dev-overlay",
+  "name": "@e2e/dev-toolbar",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

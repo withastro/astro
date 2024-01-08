@@ -1,7 +1,7 @@
 type BadgeSize = 'small' | 'large';
 type BadgeStyle = 'purple' | 'gray' | 'red' | 'green' | 'yellow';
 
-export class DevOverlayBadge extends HTMLElement {
+export class DevToolbarBadge extends HTMLElement {
 	size: BadgeSize = 'small';
 	badgeStyle: BadgeStyle = 'purple';
 

@@ -1,73 +1,71 @@
-import type { DevOverlayPlugin as DevOverlayPluginDefinition } from '../../../@types/astro.js';
-import type { AstroDevOverlay, DevOverlayPlugin } from './overlay.js';
+import type { DevToolbarApp as DevToolbarAppDefinition } from '../../../@types/astro.js';
 import { settings } from './settings.js';
+import type { AstroDevToolbar, DevToolbarApp } from './toolbar.js';
 // @ts-expect-error
-import { loadDevOverlayPlugins } from 'astro:dev-overlay';
+import { loadDevToolbarApps } from 'astro:dev-overlay';
 
-let overlay: AstroDevOverlay;
+let overlay: AstroDevToolbar;
 
 document.addEventListener('DOMContentLoaded', async () => {
 	const [
-		customPluginsDefinitions,
-		{ default: astroDevToolPlugin },
-		{ default: astroAuditPlugin },
-		{ default: astroXrayPlugin },
-		{ default: astroSettingsPlugin },
-		{ AstroDevOverlay, DevOverlayCanvas, getPluginIcon },
+		customAppsDefinitions,
+		{ default: astroDevToolApp },
+		{ default: astroAuditApp },
+		{ default: astroXrayApp },
+		{ default: astroSettingsApp },
+		{ AstroDevToolbar, DevToolbarCanvas, getAppIcon },
 		{
-			DevOverlayCard,
-			DevOverlayHighlight,
-			DevOverlayTooltip,
-			DevOverlayWindow,
-			DevOverlayToggle,
-			DevOverlayButton,
-			DevOverlayBadge,
-			DevOverlayIcon,
+			DevToolbarCard,
+			DevToolbarHighlight,
+			DevToolbarTooltip,
+			DevToolbarWindow,
+			DevToolbarToggle,
+			DevToolbarButton,
+			DevToolbarBadge,
+			DevToolbarIcon,
 		},
 	] = await Promise.all([
-		loadDevOverlayPlugins() as DevOverlayPluginDefinition[],
-		import('./plugins/astro.js'),
-		import('./plugins/audit/index.js'),
-		import('./plugins/xray.js'),
-		import('./plugins/settings.js'),
-		import('./overlay.js'),
+		loadDevToolbarApps() as DevToolbarAppDefinition[],
+		import('./apps/astro.js'),
+		import('./apps/audit/index.js'),
+		import('./apps/xray.js'),
+		import('./apps/settings.js'),
+		import('./toolbar.js'),
 		import('./ui-library/index.js'),
 	]);
 
 	// Register custom elements
-	customElements.define('astro-dev-toolbar', AstroDevOverlay);
-	customElements.define('astro-dev-toolbar-window', DevOverlayWindow);
-	customElements.define('astro-dev-toolbar-plugin-canvas', DevOverlayCanvas);
-	customElements.define('astro-dev-toolbar-tooltip', DevOverlayTooltip);
-	customElements.define('astro-dev-toolbar-highlight', DevOverlayHighlight);
-	customElements.define('astro-dev-toolbar-card', DevOverlayCard);
-	customElements.define('astro-dev-toolbar-toggle', DevOverlayToggle);
-	customElements.define('astro-dev-toolbar-button', DevOverlayButton);
-	customElements.define('astro-dev-toolbar-badge', DevOverlayBadge);
-	customElements.define('astro-dev-toolbar-icon', DevOverlayIcon);
+	customElements.define('astro-dev-toolbar', AstroDevToolbar);
+	customElements.define('astro-dev-toolbar-window', DevToolbarWindow);
+	customElements.define('astro-dev-toolbar-app-canvas', DevToolbarCanvas);
+	customElements.define('astro-dev-toolbar-tooltip', DevToolbarTooltip);
+	customElements.define('astro-dev-toolbar-highlight', DevToolbarHighlight);
+	customElements.define('astro-dev-toolbar-card', DevToolbarCard);
+	customElements.define('astro-dev-toolbar-toggle', DevToolbarToggle);
+	customElements.define('astro-dev-toolbar-button', DevToolbarButton);
+	customElements.define('astro-dev-toolbar-badge', DevToolbarBadge);
+	customElements.define('astro-dev-toolbar-icon', DevToolbarIcon);
 
 	// Add deprecated names
+	// TODO: Remove in Astro 5.0
 	const deprecated = (Parent: any) => class extends Parent {};
-	customElements.define('astro-dev-overlay', deprecated(AstroDevOverlay));
-	customElements.define('astro-dev-overlay-window', deprecated(DevOverlayWindow));
-	customElements.define('astro-dev-overlay-plugin-canvas', deprecated(DevOverlayCanvas));
-	customElements.define('astro-dev-overlay-tooltip', deprecated(DevOverlayTooltip));
-	customElements.define('astro-dev-overlay-highlight', deprecated(DevOverlayHighlight));
-	customElements.define('astro-dev-overlay-card', deprecated(DevOverlayCard));
-	customElements.define('astro-dev-overlay-toggle', deprecated(DevOverlayToggle));
-	customElements.define('astro-dev-overlay-button', deprecated(DevOverlayButton));
-	customElements.define('astro-dev-overlay-badge', deprecated(DevOverlayBadge));
-	customElements.define('astro-dev-overlay-icon', deprecated(DevOverlayIcon));
+	customElements.define('astro-dev-overlay', deprecated(AstroDevToolbar));
+	customElements.define('astro-dev-overlay-window', deprecated(DevToolbarWindow));
+	customElements.define('astro-dev-overlay-plugin-canvas', deprecated(DevToolbarCanvas));
+	customElements.define('astro-dev-overlay-tooltip', deprecated(DevToolbarTooltip));
+	customElements.define('astro-dev-overlay-highlight', deprecated(DevToolbarHighlight));
+	customElements.define('astro-dev-overlay-card', deprecated(DevToolbarCard));
+	customElements.define('astro-dev-overlay-toggle', deprecated(DevToolbarToggle));
+	customElements.define('astro-dev-overlay-button', deprecated(DevToolbarButton));
+	customElements.define('astro-dev-overlay-badge', deprecated(DevToolbarBadge));
+	customElements.define('astro-dev-overlay-icon', deprecated(DevToolbarIcon));
 
 	overlay = document.createElement('astro-dev-toolbar');
 
-	const preparePlugin = (
-		pluginDefinition: DevOverlayPluginDefinition,
-		builtIn: boolean
-	): DevOverlayPlugin => {
+	const prepareApp = (appDefinition: DevToolbarAppDefinition, builtIn: boolean): DevToolbarApp => {
 		const eventTarget = new EventTarget();
-		const plugin = {
-			...pluginDefinition,
+		const app = {
+			...appDefinition,
 			builtIn: builtIn,
 			active: false,
 			status: 'loading' as const,
@@ -75,9 +73,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 			eventTarget: eventTarget,
 		};
 
-		// Events plugins can send to the overlay to update their status
+		// Events apps can send to the overlay to update their status
 		eventTarget.addEventListener('toggle-notification', (evt) => {
-			const target = overlay.shadowRoot?.querySelector(`[data-plugin-id="${plugin.id}"]`);
+			const target = overlay.shadowRoot?.querySelector(`[data-app-id="${app.id}"]`);
 			if (!target) return;
 
 			let newState = true;
@@ -85,7 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				newState = evt.detail.state ?? true;
 			}
 
-			plugin.notification.state = newState;
+			app.notification.state = newState;
 
 			target.querySelector('.notification')?.toggleAttribute('data-active', newState);
 		});
@@ -96,22 +94,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 				newState = evt.detail.state ?? true;
 			}
 
-			await overlay.setPluginStatus(plugin, newState);
+			await overlay.setAppStatus(app, newState);
 		};
 
 		eventTarget.addEventListener('toggle-app', onToggleApp);
 		// Deprecated
+		// TODO: Remove in Astro 5.0
 		eventTarget.addEventListener('toggle-plugin', onToggleApp);
 
-		return plugin;
+		return app;
 	};
 
-	const astromorePlugin = {
+	const astroMoreApp = {
 		id: 'astro:more',
 		name: 'More',
 		icon: 'dots-three',
 		init(canvas, eventTarget) {
-			const hiddenPlugins = plugins.filter((p) => !p.builtIn).slice(overlay.customPluginsToShow);
+			const hiddenApps = apps.filter((p) => !p.builtIn).slice(overlay.customAppsToShow);
 
 			createDropdown();
 
@@ -192,17 +191,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 				const dropdown = document.createElement('div');
 				dropdown.id = 'dropdown';
-				dropdown.toggleAttribute('data-no-notification', settings.config.disablePluginNotification);
+				dropdown.toggleAttribute('data-no-notification', settings.config.disableAppNotification);
 
-				for (const plugin of hiddenPlugins) {
+				for (const app of hiddenApps) {
 					const buttonContainer = document.createElement('div');
 					buttonContainer.classList.add('item');
 					const button = document.createElement('button');
-					button.setAttribute('data-plugin-id', plugin.id);
+					button.setAttribute('data-app-id', app.id);
 
 					const iconContainer = document.createElement('div');
 					const iconElement = document.createElement('template');
-					iconElement.innerHTML = getPluginIcon(plugin.icon);
+					iconElement.innerHTML = getAppIcon(app.icon);
 					iconContainer.append(iconElement.content.cloneNode(true));
 
 					const notification = document.createElement('div');
@@ -211,16 +210,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 					iconContainer.classList.add('icon');
 
 					button.append(iconContainer);
-					button.append(document.createTextNode(plugin.name));
+					button.append(document.createTextNode(app.name));
 
 					button.addEventListener('click', () => {
-						overlay.togglePluginStatus(plugin);
+						overlay.toggleAppStatus(app);
 					});
 					buttonContainer.append(button);
 
 					dropdown.append(buttonContainer);
 
-					plugin.eventTarget.addEventListener('toggle-notification', (evt) => {
+					app.eventTarget.addEventListener('toggle-notification', (evt) => {
 						if (!(evt instanceof CustomEvent)) return;
 
 						notification.toggleAttribute('data-active', evt.detail.state ?? true);
@@ -228,7 +227,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 						eventTarget.dispatchEvent(
 							new CustomEvent('toggle-notification', {
 								detail: {
-									state: hiddenPlugins.some((p) => p.notification.state === true),
+									state: hiddenApps.some((p) => p.notification.state === true),
 								},
 							})
 						);
@@ -238,20 +237,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 				canvas.append(dropdown);
 			}
 		},
-	} satisfies DevOverlayPluginDefinition;
+	} satisfies DevToolbarAppDefinition;
 
-	const plugins: DevOverlayPlugin[] = [
-		...[
-			astroDevToolPlugin,
-			astroXrayPlugin,
-			astroAuditPlugin,
-			astroSettingsPlugin,
-			astromorePlugin,
-		].map((pluginDef) => preparePlugin(pluginDef, true)),
-		...customPluginsDefinitions.map((pluginDef) => preparePlugin(pluginDef, false)),
+	const apps: DevToolbarApp[] = [
+		...[astroDevToolApp, astroXrayApp, astroAuditApp, astroSettingsApp, astroMoreApp].map(
+			(appDef) => prepareApp(appDef, true)
+		),
+		...customAppsDefinitions.map((appDef) => prepareApp(appDef, false)),
 	];
 
-	overlay.plugins = plugins;
+	overlay.apps = apps;
 
 	document.body.append(overlay);
 

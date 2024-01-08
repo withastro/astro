@@ -1,4 +1,4 @@
-export class DevOverlayCard extends HTMLElement {
+export class DevToolbarCard extends HTMLElement {
 	link?: string | undefined | null;
 	clickAction?: () => void | (() => Promise<void>);
 	shadowRoot: ShadowRoot;

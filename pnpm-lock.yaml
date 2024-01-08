@@ -959,7 +959,7 @@ importers:
         specifier: ^18.0.0
         version: 18.2.0(react@18.2.0)
 
-  packages/astro/e2e/fixtures/dev-overlay:
+  packages/astro/e2e/fixtures/dev-toolbar:
     dependencies:
       '@astrojs/preact':
         specifier: workspace:*
