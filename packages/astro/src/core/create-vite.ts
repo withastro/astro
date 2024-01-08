@@ -149,9 +149,9 @@ export async function createVite(
 		root: fileURLToPath(settings.config.root),
 		envPrefix: settings.config.vite?.envPrefix ?? 'PUBLIC_',
 		define: {
-			'import.meta.env.SITE': settings.config.site
-				? JSON.stringify(settings.config.site)
-				: 'undefined',
+			'import.meta.env.SITE': stringifyForDefine(settings.config.site),
+			'import.meta.env.BASE_URL': stringifyForDefine(settings.config.base),
+			'import.meta.env.ASSETS_PREFIX': stringifyForDefine(settings.config.build.assetsPrefix),
 		},
 		server: {
 			hmr:
@@ -307,4 +307,8 @@ function isCommonNotAstro(dep: string): boolean {
 					: dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix) // check prefix omitting @scope/
 		)
 	);
+}
+
+function stringifyForDefine(value: string | undefined): string {
+	return typeof value === 'string' ? JSON.stringify(value) : 'undefined';
 }
