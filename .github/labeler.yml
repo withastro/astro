@@ -37,7 +37,5 @@
 - packages/integrations/vue/**
 
 'docs pr':
-- README.md
 - packages/astro/src/@types/astro.ts
 - packages/astro/src/core/errors/errors-data.ts
-- .changeset/*.md
