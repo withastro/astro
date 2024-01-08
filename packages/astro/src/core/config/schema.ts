@@ -20,6 +20,7 @@ import 'mdast-util-to-hast';
 
 type ShikiLangs = NonNullable<ShikiConfig['langs']>;
 type ShikiTheme = NonNullable<ShikiConfig['theme']>;
+type ShikiTransformers = ShikiConfig['transformers'];
 
 const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
@@ -274,6 +275,7 @@ export const AstroConfigSchema = z.object({
 						)
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.experimentalThemes!),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
+					transformers: z.custom<ShikiTransformers>(),
 				})
 				.default({}),
 			remarkPlugins: z

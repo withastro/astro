@@ -645,8 +645,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       shikiji:
-        specifier: ^0.6.13
-        version: 0.6.13
+        specifier: ^0.9.17
+        version: 0.9.17
       string-width:
         specifier: ^7.0.0
         version: 7.0.0
@@ -3839,8 +3839,8 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5
       shikiji:
-        specifier: ^0.6.13
-        version: 0.6.13
+        specifier: ^0.9.17
+        version: 0.9.17
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -14483,12 +14483,6 @@ packages:
 
   /shikiji-core@0.9.17:
     resolution: {integrity: sha512-r1FWTXk6SO2aYqfWgcsJ11MuVQ1ymPSdXzJjK7q8EXuyqu8yc2N5qrQy5+BL6gTVOaF4yLjbxFjF+KTRM1Sp8Q==}
-    dev: false
-
-  /shikiji@0.6.13:
-    resolution: {integrity: sha512-4T7X39csvhT0p7GDnq9vysWddf2b6BeioiN3Ymhnt3xcy9tXmDcnsEFVxX18Z4YcQgEE/w48dLJ4pPPUcG9KkA==}
-    dependencies:
-      hast-util-to-html: 9.0.0
     dev: false
 
   /shikiji@0.9.17:

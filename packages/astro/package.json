@@ -166,7 +166,7 @@
     "resolve": "^1.22.4",
     "semver": "^7.5.4",
     "server-destroy": "^1.0.1",
-    "shikiji": "^0.6.13",
+    "shikiji": "^0.9.17",
     "string-width": "^7.0.0",
     "strip-ansi": "^7.1.0",
     "tsconfck": "^3.0.0",
