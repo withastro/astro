@@ -9,6 +9,7 @@ type Props = (LocalImageProps | RemoteImageProps) & {
 	formats?: ImageOutputFormat[];
 	fallbackFormat?: ImageOutputFormat;
 	pictureAttributes?: HTMLAttributes<'picture'>;
+	imgAttributes?: HTMLAttributes<'img'>;
 };
 
 const defaultFormats = ['webp'] as const;
@@ -21,7 +22,7 @@ const defaultFallbackFormat = 'png' as const;
 // For those, we'll use the original format as the fallback instead.
 const specialFormatsFallback = ['gif', 'svg', 'jpg', 'jpeg'] as const;
 
-const { formats = defaultFormats, pictureAttributes = {}, fallbackFormat, ...props } = Astro.props;
+const { formats = defaultFormats, pictureAttributes = {}, imgAttributes = {}, fallbackFormat, ...props } = Astro.props;
 
 if (props.alt === undefined || props.alt === null) {
 	throw new AstroError(AstroErrorData.ImageMissingAlt);
@@ -50,7 +51,6 @@ const fallbackImage = await getImage({
 	densities: props.densities,
 });
 
-const imgAdditionalAttributes: HTMLAttributes<'img'> = {};
 const sourceAdditionaAttributes: HTMLAttributes<'source'> = {};
 
 // Propagate the `sizes` attribute to the `source` elements
@@ -59,7 +59,7 @@ if (props.sizes) {
 }
 
 if (fallbackImage.srcSet.values.length > 0) {
-	imgAdditionalAttributes.srcset = fallbackImage.srcSet.attribute;
+	imgAttributes.srcset = fallbackImage.srcSet.attribute;
 }
 ---
 
@@ -79,5 +79,5 @@ if (fallbackImage.srcSet.values.length > 0) {
 			);
 		})
 	}
-	<img src={fallbackImage.src} {...imgAdditionalAttributes} {...fallbackImage.attributes} />
+	<img src={fallbackImage.src} {...imgAttributes} {...fallbackImage.attributes} />
 </picture>
