@@ -94,7 +94,7 @@ async function generatePackageMap() {
 	);
 }
 
-async function run() {
+async function generateMessage() {
 	await generatePackageMap();
 	const releases = process.argv.slice(2)[0];
 	const data = JSON.parse(releases);
@@ -145,15 +145,31 @@ async function run() {
 		}
 
 		if (message.length < 2000) {
-			console.log(message);
+			return message;
 		} else {
 			message = `${emoji} Some ${descriptor} ${pluralize(verb)}\n\n`;
 			message += `• \`${name}@${version}\` Read the [release notes →](<${url}>)\n`;
 
 			message += `\n\nAlso ${item(extraVerbs)}: ${remainingPackages.length} other packages!`;
-			console.log(message);
+			return message;
 		}
 	}
+}
+
+async function run() {
+	if (!process.env.DISCORD_WEBHOOK) {
+		console.error('No DISCORD_WEBHOOK variable detected!');
+		process.exit(1);
+	}
+	const content = await generateMessage();
+
+	await fetch(JSON.stringify({ content }), {
+		url: `${process.env.DISCORD_WEBHOOK}?wait=true`,
+		method: 'POST',
+		headers: {
+			'content-type': 'application/json'
+		}
+	})
 }
 
 run();
