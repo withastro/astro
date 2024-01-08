@@ -16,9 +16,9 @@
       "types": "./dist/internal.d.ts",
       "import": "./dist/internal.js"
     },
-    "./internal-local": {
-      "types": "./dist/internal-local.d.ts",
-      "import": "./dist/internal-local.js"
+    "./internal-drizzle": {
+      "types": "./dist/internal-drizzle.d.ts",
+      "import": "./dist/internal-drizzle.js"
     }
   },
   "typesVersions": {
@@ -36,14 +36,11 @@
     "components"
   ],
   "scripts": {
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc --project tsconfig.build.json",
-    "typecheck": "tsc -b",
-    "prepack": "pnpm run build",
-    "dev": "pnpm /^dev:/",
-    "dev:build": "astro-scripts dev \"src/**/*.ts\"",
-    "dev:types": "tsc --project tsconfig.build.json --watch",
-    "test": "pnpm run build && mocha test/**/*.js",
-    "test:match": "mocha test/**/*.js -g"
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "mocha --exit --timeout 20000",
+    "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
     "@astrojs/markdoc": "workspace:*",
@@ -60,7 +57,9 @@
   "devDependencies": {
     "@types/chai": "^4.3.6",
     "@types/mocha": "^10.0.2",
+    "astro-scripts": "^0.0.14",
     "chai": "^4.3.10",
+    "cheerio": "1.0.0-rc.12",
     "mocha": "^10.2.0",
     "typescript": "^5.2.2",
     "vite": "^4.4.11"
