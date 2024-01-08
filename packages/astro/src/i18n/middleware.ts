@@ -2,6 +2,7 @@ import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
 import type { Locales, MiddlewareHandler, RouteData, SSRManifest } from '../@types/astro.js';
 import type { PipelineHookFunction } from '../core/pipeline.js';
 import { getPathByLocale, normalizeTheLocale } from './index.js';
+import { shouldAppendForwardSlash } from '../core/build/util.js';
 
 const routeDataSymbol = Symbol.for('astro.routeData');
 
