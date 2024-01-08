@@ -167,9 +167,9 @@ async function run() {
 		url: `${process.env.DISCORD_WEBHOOK}?wait=true`,
 		method: 'POST',
 		headers: {
-			'content-type': 'application/json'
-		}
-	})
+			'content-type': 'application/json',
+		},
+	});
 }
 
 run();
