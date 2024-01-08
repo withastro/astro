@@ -224,6 +224,7 @@
     "remark-code-titles": "^0.1.2",
     "rollup": "^4.5.0",
     "sass": "^1.69.5",
+    "shikiji-core": "^0.9.17",
     "srcset-parse": "^1.1.0",
     "unified": "^11.0.4"
   },
