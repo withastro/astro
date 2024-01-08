@@ -1,22 +1,24 @@
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import type { DBCollections } from 'circle-rhyme-yes-measure';
 import { red } from 'kleur/colors';
 import {
-	INTERNAL_LOCAL_PKG_IMP,
-	INTERNAL_PKG_IMP,
-	ROOT,
+	DRIZZLE_MOD_IMPORT,
+	INTERNAL_MOD_IMPORT,
 	SUPPORTED_SEED_FILES,
 	VIRTUAL_MODULE_ID,
-	drizzleFilterExps,
 } from './consts.js';
-import type { VitePlugin } from './utils.js';
+import type { DBCollections } from './types.js';
+import type { Plugin as VitePlugin } from 'vite';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
-type Opts = { mode: 'dev' } | { mode: 'prod'; projectId: string; token: string };
-
-export function vitePluginDb(collections: DBCollections, opts: Opts): VitePlugin {
+export function vitePluginDb({
+	collections,
+	root,
+}: {
+	collections: DBCollections;
+	root: URL;
+}): VitePlugin {
 	return {
 		name: 'astro:db',
 		enforce: 'pre',
@@ -27,34 +29,30 @@ export function vitePluginDb(collections: DBCollections, opts: Opts): VitePlugin
 		},
 		load(id) {
 			if (id !== resolvedVirtualModuleId) return;
-
-			if (opts.mode === 'dev') {
-				return getLocalVirtualModuleContents({ collections });
-			}
-
-			return getProdVirtualModuleContents({
-				collections,
-				projectId: opts.projectId,
-				appToken: opts.token,
-			});
+			return getLocalVirtualModuleContents({ collections, root });
 		},
 	};
 }
 
 const seedErrorMessage = `${red(
-	'⚠️ Failed to seed data.',
+	'⚠️ Failed to seed data.'
 )} Is the seed file out-of-date with recent schema changes?`;
 
-export function getLocalVirtualModuleContents({ collections }: { collections: DBCollections }) {
-	const seedFile = SUPPORTED_SEED_FILES.map((f) => fileURLToPath(new URL(f, ROOT))).find((f) =>
-		existsSync(f),
+export function getLocalVirtualModuleContents({
+	collections,
+	root,
+}: {
+	collections: DBCollections;
+	root: URL;
+}) {
+	const seedFile = SUPPORTED_SEED_FILES.map((f) => fileURLToPath(new URL(f, root))).find((f) =>
+		existsSync(f)
 	);
 	return `
-import { collectionToTable } from ${INTERNAL_PKG_IMP};
-import { createLocalDb } from ${INTERNAL_LOCAL_PKG_IMP};
+import { collectionToTable, createDb } from ${INTERNAL_MOD_IMPORT};
 
-export const db = await createLocalDb(${JSON.stringify(collections)});
-${drizzleFilterExps}
+export const db = await createDb(${JSON.stringify(collections)});
+export * from ${DRIZZLE_MOD_IMPORT};
 
 ${getStringifiedCollectionExports(collections)}
 
@@ -70,32 +68,13 @@ ${
 `;
 }
 
-export function getProdVirtualModuleContents({
-	collections,
-	projectId,
-	appToken,
-}: {
-	collections: DBCollections;
-	projectId: string;
-	appToken: string;
-}) {
-	return `
-import { collectionToTable, createDb } from ${INTERNAL_PKG_IMP};
-
-export const db = createDb(${JSON.stringify(projectId)}, ${JSON.stringify(appToken)});
-${drizzleFilterExps}
-
-${getStringifiedCollectionExports(collections)}
-`;
-}
-
 function getStringifiedCollectionExports(collections: DBCollections) {
 	return Object.entries(collections)
 		.map(
 			([name, collection]) =>
 				`export const ${name} = collectionToTable(${JSON.stringify(name)}, ${JSON.stringify(
-					collection,
-				)}, false)`,
+					collection
+				)}, false)`
 		)
 		.join('\n');
 }
