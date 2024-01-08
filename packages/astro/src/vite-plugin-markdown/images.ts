@@ -53,7 +53,9 @@ export function getMarkdownCodeForImages(imagePaths: MarkdownImagePath[], html: 
 		}
 		
 
-			// Top-level await warning
+		// NOTE: This causes a top-level await to appear in the user's code, which can break very easily due to a Rollup
+	  // bug and certain adapters not supporting it correctly. See: https://github.com/rollup/rollup/issues/4708
+	  // Tread carefully!
 			const html = await updateImageReferences(${JSON.stringify(html)});
 	`;
 }
