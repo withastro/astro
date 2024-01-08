@@ -1,4 +1,4 @@
-export type MarkdownImagePath = { raw: string; resolved: string; safeName: string; count: string };
+export type MarkdownImagePath = { raw: string; resolved: string; safeName: string };
 
 export function getMarkdownCodeForImages(imagePaths: MarkdownImagePath[], html: string) {
 	return `
@@ -36,12 +36,10 @@ export function getMarkdownCodeForImages(imagePaths: MarkdownImagePath[], html: 
 								const decodedImagePath = JSON.parse(imagePath.replace(/&#x22;/g, '"'));
 		
 								// Use the 'index' property for each image occurrence
-								const srcKey = decodedImagePath.src + '_' + decodedImagePath.index.index;
+								const srcKey = decodedImagePath.src + '_' + decodedImagePath.index;
 		
 								if (imageSources[srcKey].srcSet && imageSources[srcKey].srcSet.values.length > 0) {
-										console.log("srcset found", imageSources[srcKey].srcSet.attribute);
 										imageSources[srcKey].attributes.srcset = imageSources[srcKey].srcSet.attribute;
-										console.log("attributes", imageSources[srcKey].attributes);
 								}
 		
 								const { index, ...attributesWithoutIndex } = imageSources[srcKey].attributes;

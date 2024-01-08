@@ -15,11 +15,9 @@ export function rehypeImages() {
 											const { alt, ...otherProps } = node.properties;
 
 											// Initialize or increment occurrence count for this image
-											const currentCount = imageOccurrenceMap.get(node.properties.src) || 0;
-											imageOccurrenceMap.set(node.properties.src, currentCount + 1);
+											const index = imageOccurrenceMap.get(node.properties.src) || 0;
+											imageOccurrenceMap.set(node.properties.src, index + 1);
 
-											const index = { index: currentCount };
-											console.log("creating __ASTRO_IMAGE__ img ", "with props:", otherProps, "at index:", index)
 											node.properties['__ASTRO_IMAGE_'] = JSON.stringify({ ...otherProps, index });
 											
 											Object.keys(otherProps).forEach((prop) => {
