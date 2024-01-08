@@ -370,7 +370,10 @@ export async function handleRoute({
 	// Apply the `status` override to the response object before responding.
 	// Response.status is read-only, so a clone is required to override.
 	if (status && response.status !== status && (status === 404 || status === 500)) {
-		response = new Response(response.body, { ...response, status });
+		response = new Response(response.body, {
+			status: status,
+			headers: response.headers
+		});
 	}
 	await writeSSRResult(request, response, incomingResponse);
 }
