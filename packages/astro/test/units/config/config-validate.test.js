@@ -193,5 +193,25 @@ describe('Config Validation', () => {
 				"You can't use the default locale as a key. The default locale can only be used as value."
 			);
 		});
+
+		it('errors if `i18n.prefixDefaultLocale` is `false` and `i18n.redirectToDefaultLocale` is `true`', async () => {
+			const configError = await validateConfig(
+				{
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						routing: {
+							prefixDefaultLocale: false,
+							redirectToDefaultLocale: false,
+						},
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal(
+				'The option `i18n.redirectToDefaultLocale` has effects only when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change the value of `i18n.prefixDefaultLocale` to `true`.'
+			);
+		});
 	});
 });
