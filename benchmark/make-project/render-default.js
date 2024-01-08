@@ -4,11 +4,20 @@ import { loremIpsumHtml, loremIpsumMd } from './_util.js';
 // Map of files to be generated and tested for rendering.
 // Ideally each content should be similar for comparison.
 export const renderFiles = {
-	'astro.astro': `\
+	'components/ListItem.astro': `\
 ---
 const className = "text-red-500";
+const { item } = Astro.props;
+---
+<li class={className}>{item}</li>
+	`,
+	'pages/astro.astro': `\
+---
+import ListItem from '../components/ListItem.astro';
+
+const className = "text-red-500";
 const style = { color: "red" };
-const items = Array.from({ length: 1000 }, (_, i) => i);
+const items = Array.from({ length: 3000 }, (_, i) => i);
 ---
 
 <html>
@@ -19,7 +28,7 @@ const items = Array.from({ length: 1000 }, (_, i) => i);
     <h1 class={className + ' text-lg'}>List</h1>
     <ul style={style}>
       {items.map((item) => (
-        <li class={className}>{item}</li>
+				<ListItem item={item} />
       ))}
     </ul>
     ${Array.from({ length: 1000 })
@@ -27,7 +36,7 @@ const items = Array.from({ length: 1000 }, (_, i) => i);
 			.join('\n')}
   </body>
 </html>`,
-	'md.md': `\
+	'pages/md.md': `\
 # List
 
 ${Array.from({ length: 1000 }, (_, i) => i)
@@ -38,7 +47,7 @@ ${Array.from({ length: 1000 })
 	.map(() => loremIpsumMd)
 	.join('\n\n')}
 `,
-	'mdx.mdx': `\
+	'pages/mdx.mdx': `\
 export const className = "text-red-500";
 export const style = { color: "red" };
 export const items = Array.from({ length: 1000 }, (_, i) => i);
@@ -63,10 +72,11 @@ ${Array.from({ length: 1000 })
 export async function run(projectDir) {
 	await fs.rm(projectDir, { recursive: true, force: true });
 	await fs.mkdir(new URL('./src/pages', projectDir), { recursive: true });
+	await fs.mkdir(new URL('./src/components', projectDir), { recursive: true });
 
 	await Promise.all(
 		Object.entries(renderFiles).map(([name, content]) => {
-			return fs.writeFile(new URL(`./src/pages/${name}`, projectDir), content, 'utf-8');
+			return fs.writeFile(new URL(`./src/${name}`, projectDir), content, 'utf-8');
 		})
 	);
 

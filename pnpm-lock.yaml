@@ -105,6 +105,10 @@ importers:
       pretty-bytes:
         specifier: ^6.1.1
         version: 6.1.1
+    devDependencies:
+      fast-glob:
+        specifier: ^3.3.2
+        version: 3.3.2
 
   benchmark/packages/timer:
     dependencies:

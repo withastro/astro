@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { waitUntilBusy } from 'port-authority';
 import { calculateStat, astroBin } from './_util.js';
 import { renderFiles } from '../make-project/render-default.js';
+import fg from 'fast-glob';
 
 const port = 4322;
 
@@ -35,7 +36,7 @@ export async function run(projectDir, outputFile) {
 	await waitUntilBusy(port, { timeout: 5000 });
 
 	console.log('Running benchmark...');
-	const result = await benchmarkRenderTime();
+	const result = await benchmarkRenderTime(root);
 
 	console.log('Killing server...');
 	if (!previewProcess.kill('SIGTERM')) {
@@ -54,9 +55,19 @@ export async function run(projectDir, outputFile) {
 	console.log('Done!');
 }
 
-async function benchmarkRenderTime() {
+async function benchmarkRenderTime(root) {
 	/** @type {Record<string, number[]>} */
 	const result = {};
+	console.log("BEFORE!");
+	try {
+		//let entries = [];
+		const entries = await fg.glob(['src/pages/**/*'], { dot: true, cwd: root });
+		console.log("ENTRIES", entries);
+	} catch(err) {
+		console.log("OH NO ERROR", err);
+	}
+	
+	
 	for (const fileName of Object.keys(renderFiles)) {
 		// Render each file 100 times and push to an array
 		for (let i = 0; i < 100; i++) {
