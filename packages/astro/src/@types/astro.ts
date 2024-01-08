@@ -1501,6 +1501,9 @@ export interface AstroUserConfig {
 			 * @default `true`
 			 * @version 4.2.0
 			 * @description
+			 *
+			 * When `false`, Astro doesn't do a redirect from `/` to `/<defaultLocale>`. This option comes into play only
+			 * when `prefixDefaultLocale` is `true`.
 			 * */
 			redirectToDefaultLocale: boolean;
 
