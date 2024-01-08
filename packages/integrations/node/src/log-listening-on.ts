@@ -1,5 +1,5 @@
 import os from "node:os";
-import http from "node:http";
+import type http from "node:http";
 import https from "node:https";
 import type { AstroIntegrationLogger } from "astro";
 import type { Options } from './types.js';

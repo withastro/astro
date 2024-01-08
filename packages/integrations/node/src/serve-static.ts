@@ -44,8 +44,8 @@ export default function createListener(app: NodeApp, options: Options) {
 				// On directory find, redirect to the trailing slash
 				let location: string;
 				if (req.url!.includes('?')) {
-					const [url = '', search] = req.url!.split('?');
-					location = `${url}/?${search}`;
+					const [url1 = '', search] = req.url!.split('?');
+					location = `${url1}/?${search}`;
 				} else {
 					location = req.url + '/';
 				}

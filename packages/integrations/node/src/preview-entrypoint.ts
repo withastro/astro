@@ -4,12 +4,11 @@ import logListeningOn from './log-listening-on.js';
 import { createServer } from './standalone.js';
 import type { CreatePreviewServer } from 'astro';
 import type { createExports } from './server-entrypoint.js';
-import type { RequestHandler } from './types.js';
 
 type ServerModule = ReturnType<typeof createExports>;
 type MaybeServerModule = Partial<ServerModule>;
 
-const preview: CreatePreviewServer = async function (preview) {
+const preview1: CreatePreviewServer = async function (preview) {
 	let ssrHandler: ServerModule['handler'];
 	let options: ServerModule['options'];
 	try {
@@ -36,10 +35,10 @@ const preview: CreatePreviewServer = async function (preview) {
 	}
 	const host = preview.host ?? "127.0.0.1"
 	const port = preview.port ?? 4321
-	const server = createServer(ssrHandler as RequestHandler, host, port);
+	const server = createServer(ssrHandler, host, port);
 	logListeningOn(preview.logger, server.server, options)
 	server.server.listen(port, host);
 	return server;
 };
 
-export { preview as default };
+export { preview1 as default }
