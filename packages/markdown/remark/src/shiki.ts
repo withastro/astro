@@ -29,6 +29,7 @@ export async function createShikiHighlighter({
 	theme = 'github-dark',
 	experimentalThemes = {},
 	wrap = false,
+	transformers = [],
 }: ShikiConfig = {}): Promise<ShikiHighlighter> {
 	const themes = experimentalThemes;
 
@@ -53,74 +54,77 @@ export async function createShikiHighlighter({
 			return highlighter.codeToHtml(code, {
 				...themeOptions,
 				lang,
-				transforms: {
-					pre(node) {
-						// Swap to `code` tag if inline
-						if (inline) {
-							node.tagName = 'code';
-						}
+				transformers: [
+					{
+						pre(node) {
+							// Swap to `code` tag if inline
+							if (inline) {
+								node.tagName = 'code';
+							}
 
-						// Cast to string as shikiji will always pass them as strings instead of any other types
-						const classValue = (node.properties.class as string) ?? '';
-						const styleValue = (node.properties.style as string) ?? '';
+							// Cast to string as shikiji will always pass them as strings instead of any other types
+							const classValue = (node.properties.class as string) ?? '';
+							const styleValue = (node.properties.style as string) ?? '';
 
-						// Replace "shiki" class naming with "astro-code"
-						node.properties.class = classValue.replace(/shiki/g, 'astro-code');
+							// Replace "shiki" class naming with "astro-code"
+							node.properties.class = classValue.replace(/shiki/g, 'astro-code');
 
-						// Handle code wrapping
-						// if wrap=null, do nothing.
-						if (wrap === false) {
-							node.properties.style = styleValue + '; overflow-x: auto;';
-						} else if (wrap === true) {
-							node.properties.style =
-								styleValue + '; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
-						}
-					},
-					line(node) {
-						// Add "user-select: none;" for "+"/"-" diff symbols.
-						// Transform `<span class="line"><span style="...">+ something</span></span>
-						// into      `<span class="line"><span style="..."><span style="user-select: none;">+</span> something</span></span>`
-						if (lang === 'diff') {
-							const innerSpanNode = node.children[0];
-							const innerSpanTextNode =
-								innerSpanNode?.type === 'element' && innerSpanNode.children?.[0];
+							// Handle code wrapping
+							// if wrap=null, do nothing.
+							if (wrap === false) {
+								node.properties.style = styleValue + '; overflow-x: auto;';
+							} else if (wrap === true) {
+								node.properties.style =
+									styleValue + '; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
+							}
+						},
+						line(node) {
+							// Add "user-select: none;" for "+"/"-" diff symbols.
+							// Transform `<span class="line"><span style="...">+ something</span></span>
+							// into      `<span class="line"><span style="..."><span style="user-select: none;">+</span> something</span></span>`
+							if (lang === 'diff') {
+								const innerSpanNode = node.children[0];
+								const innerSpanTextNode =
+									innerSpanNode?.type === 'element' && innerSpanNode.children?.[0];
 
-							if (innerSpanTextNode && innerSpanTextNode.type === 'text') {
-								const start = innerSpanTextNode.value[0];
-								if (start === '+' || start === '-') {
-									innerSpanTextNode.value = innerSpanTextNode.value.slice(1);
-									innerSpanNode.children.unshift({
-										type: 'element',
-										tagName: 'span',
-										properties: { style: 'user-select: none;' },
-										children: [{ type: 'text', value: start }],
-									});
+								if (innerSpanTextNode && innerSpanTextNode.type === 'text') {
+									const start = innerSpanTextNode.value[0];
+									if (start === '+' || start === '-') {
+										innerSpanTextNode.value = innerSpanTextNode.value.slice(1);
+										innerSpanNode.children.unshift({
+											type: 'element',
+											tagName: 'span',
+											properties: { style: 'user-select: none;' },
+											children: [{ type: 'text', value: start }],
+										});
+									}
 								}
 							}
-						}
-					},
-					code(node) {
-						if (inline) {
-							return node.children[0] as typeof node;
-						}
-					},
-					root(node) {
-						if (Object.values(experimentalThemes).length) {
-							return;
-						}
+						},
+						code(node) {
+							if (inline) {
+								return node.children[0] as typeof node;
+							}
+						},
+						root(node) {
+							if (Object.values(experimentalThemes).length) {
+								return;
+							}
 
-						// theme.id for shiki -> shikiji compat
-						const themeName = typeof theme === 'string' ? theme : theme.name;
-						if (themeName === 'css-variables') {
-							// Replace special color tokens to CSS variables
-							visit(node as any, 'element', (child) => {
-								if (child.properties?.style) {
-									child.properties.style = replaceCssVariables(child.properties.style);
-								}
-							});
-						}
+							// theme.id for shiki -> shikiji compat
+							const themeName = typeof theme === 'string' ? theme : theme.name;
+							if (themeName === 'css-variables') {
+								// Replace special color tokens to CSS variables
+								visit(node as any, 'element', (child) => {
+									if (child.properties?.style) {
+										child.properties.style = replaceCssVariables(child.properties.style);
+									}
+								});
+							}
+						},
 					},
-				},
+					...transformers,
+				],
 			});
 		},
 	};

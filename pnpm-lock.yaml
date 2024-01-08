@@ -5002,8 +5002,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       shikiji:
-        specifier: ^0.6.13
-        version: 0.6.13
+        specifier: ^0.9.17
+        version: 0.9.17
       unified:
         specifier: ^11.0.4
         version: 11.0.4
@@ -14481,10 +14481,20 @@ packages:
       vscode-textmate: 5.2.0
     dev: true
 
+  /shikiji-core@0.9.17:
+    resolution: {integrity: sha512-r1FWTXk6SO2aYqfWgcsJ11MuVQ1ymPSdXzJjK7q8EXuyqu8yc2N5qrQy5+BL6gTVOaF4yLjbxFjF+KTRM1Sp8Q==}
+    dev: false
+
   /shikiji@0.6.13:
     resolution: {integrity: sha512-4T7X39csvhT0p7GDnq9vysWddf2b6BeioiN3Ymhnt3xcy9tXmDcnsEFVxX18Z4YcQgEE/w48dLJ4pPPUcG9KkA==}
     dependencies:
       hast-util-to-html: 9.0.0
+    dev: false
+
+  /shikiji@0.9.17:
+    resolution: {integrity: sha512-0z/1NfkhBkm3ijrfFeHg3G9yDNuHhXdAGbQm7tRxj4WQ5z2y0XDbnagFyKyuV2ebCTS1Mwy1I3n0Fzcc/4xdmw==}
+    dependencies:
+      shikiji-core: 0.9.17
     dev: false
 
   /side-channel@1.0.4:
