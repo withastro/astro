@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
-import { isWindows, loadFixture } from '../../../astro/test/test-utils.js';
+import { isWindows, loadFixture } from '../../astro/test/test-utils.js';
 
 describe('astro:db', () => {
 	let fixture;
