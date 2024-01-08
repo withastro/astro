@@ -50,7 +50,7 @@
     "@libsql/client": "0.4.0-pre.5",
     "astro": "workspace:*",
     "better-sqlite3": "^8.7.0",
-    "circle-rhyme-yes-measure": "workspace:^",
+    "circle-rhyme-yes-measure": "latest",
     "drizzle-orm": "^0.28.6",
     "esbuild": "^0.19.4",
     "github-slugger": "^2.0.0",
