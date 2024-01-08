@@ -63,7 +63,7 @@ class AstroCookies implements AstroCookiesInterface {
 	#request: Request;
 	#requestValues: Record<string, string> | null;
 	#outgoing: Map<string, [string, string, boolean]> | null;
-	#consumed: boolean
+	#consumed: boolean;
 	constructor(request: Request) {
 		this.#request = request;
 		this.#requestValues = null;
@@ -151,11 +151,12 @@ class AstroCookies implements AstroCookiesInterface {
 	 */
 	set(key: string, value: string | Record<string, any>, options?: AstroCookieSetOptions): void {
 		if (this.#consumed) {
-			console.error(new Error(
-				"Astro.cookies.set() was called after the cookies have already been sent to the browser.\n" +
-				"This may have happened if this method was called in an imported component.\n" +
-				"Please make sure that Astro.cookies.set() is only called in the frontmatter of the main page."
-			));
+			// eslint-disable-next-line no-console
+			console.warn(
+				'Astro.cookies.set() was called after the cookies have already been sent to the browser.\n' +
+					'This may have happened if this method was called in an imported component.\n' +
+					'Please make sure that Astro.cookies.set() is only called in the frontmatter of the main page.'
+			);
 		}
 		let serializedValue: string;
 		if (typeof value === 'string') {
