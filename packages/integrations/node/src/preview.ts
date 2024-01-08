@@ -3,7 +3,7 @@ import { AstroError } from 'astro/errors';
 import logListeningOn from './log-listening-on.js';
 import { createServer } from './standalone.js';
 import type { CreatePreviewServer } from 'astro';
-import type { createExports } from './server-entrypoint.js';
+import type { createExports } from './server.js';
 
 type ServerModule = ReturnType<typeof createExports>;
 type MaybeServerModule = Partial<ServerModule>;
