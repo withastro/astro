@@ -231,7 +231,37 @@ describe('[DEV] i18n routing', () => {
 		});
 	});
 
-	describe('i18n routing with routing strategy [prefix-always]', () => {
+	describe('i18n routing with routing strategy [pathname-prefix-always-no-redirect]', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-prefix-always/',
+				i18n: {
+					routing: {
+						prefixDefaultLocale: true,
+						redirectToDefaultLocale: false,
+					},
+				},
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('should NOT redirect to the index of the default locale', async () => {
+			const response = await fixture.fetch('/new-site');
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('I am index');
+		});
+	});
+
+	describe('i18n routing with routing strategy [pathname-prefix-always]', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 		/** @type {import('./test-utils').DevServer} */
@@ -607,7 +637,31 @@ describe('[SSG] i18n routing', () => {
 		});
 	});
 
-	describe('i18n routing with routing strategy [prefix-always]', () => {
+	describe('i18n routing with routing strategy [pathname-prefix-always-no-redirect]', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-prefix-always/',
+				i18n: {
+					routing: {
+						prefixDefaultLocale: true,
+						redirectToDefaultLocale: false,
+					},
+				},
+			});
+			await fixture.build();
+		});
+
+		it('should NOT redirect to the index of the default locale', async () => {
+			const html = await fixture.readFile('/index.html');
+			let $ = cheerio.load(html);
+			expect($('body').text()).includes('I am index');
+		});
+	});
+
+	describe('i18n routing with routing strategy [pathname-prefix-always]', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 
@@ -776,7 +830,7 @@ describe('[SSG] i18n routing', () => {
 		});
 	});
 
-	describe('i18n routing with fallback and [prefix-always]', () => {
+	describe('i18n routing with fallback and [pathname-prefix-always]', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 
@@ -1019,7 +1073,35 @@ describe('[SSR] i18n routing', () => {
 		});
 	});
 
-	describe('i18n routing with routing strategy [prefix-always]', () => {
+	describe('i18n routing with routing strategy [pathname-prefix-always-no-redirect]', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-prefix-always/',
+				output: 'server',
+				adapter: testAdapter(),
+				i18n: {
+					routing: {
+						prefixDefaultLocale: true,
+						redirectToDefaultLocale: false,
+					},
+				},
+			});
+			await fixture.build();
+			app = await fixture.loadTestAdapterApp();
+		});
+
+		it('should NOT redirect the index to the default locale', async () => {
+			let request = new Request('http://example.com/new-site');
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('I am index');
+		});
+	});
+
+	describe('i18n routing with routing strategy [pathname-prefix-always]', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 
@@ -1158,7 +1240,7 @@ describe('[SSR] i18n routing', () => {
 			expect(response.status).to.equal(404);
 		});
 
-		describe('with routing strategy [prefix-always]', () => {
+		describe('with routing strategy [pathname-prefix-always]', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					root: './fixtures/i18n-routing-fallback/',
@@ -1351,7 +1433,7 @@ describe('[SSR] i18n routing', () => {
 			});
 		});
 
-		describe('with [prefix-always]', () => {
+		describe('with [pathname-prefix-always]', () => {
 			/** @type {import('./test-utils').Fixture} */
 			let fixture;
 

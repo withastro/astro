@@ -1494,6 +1494,17 @@ export interface AstroUserConfig {
 			prefixDefaultLocale: boolean;
 
 			/**
+			 * @docs
+			 * @name i18n.routing.redirectToDefaultLocale
+			 * @kind h4
+			 * @type {boolean}
+			 * @default `true`
+			 * @version 4.2.0
+			 * @description
+			 * */
+			redirectToDefaultLocale: boolean;
+
+			/**
 			 * @name i18n.routing.strategy
 			 * @type {"pathname"}
 			 * @default `"pathname"`

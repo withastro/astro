@@ -3,6 +3,7 @@ import type { AstroConfig, Locales } from '../@types/astro.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { MissingLocale } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
+import type { RoutingStrategies } from '../core/config/schema.js';
 
 type GetLocaleRelativeUrl = GetLocaleOptions & {
 	locale: string;
@@ -10,7 +11,7 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
-	routing?: 'pathname-prefix-always' | 'pathname-prefix-other-locales';
+	routing?: RoutingStrategies;
 	defaultLocale: string;
 };
 
@@ -88,7 +89,7 @@ type GetLocalesBaseUrl = GetLocaleOptions & {
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
-	routing?: 'pathname-prefix-always' | 'pathname-prefix-other-locales';
+	routing?: RoutingStrategies;
 	defaultLocale: string;
 };
 

@@ -275,7 +275,7 @@ describe('getLocaleRelativeUrl', () => {
 		).to.eq('/blog/en-au/');
 	});
 
-	it('should return the default locale when routing strategy is [prefix-always]', () => {
+	it('should return the default locale when routing strategy is [pathname-prefix-always]', () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}
@@ -286,7 +286,7 @@ describe('getLocaleRelativeUrl', () => {
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['en', 'es', 'en_US', 'en_AU'],
-					routing: 'prefix-always',
+					routing: 'pathname-prefix-always',
 				},
 			},
 		};
@@ -520,7 +520,7 @@ describe('getLocaleRelativeUrlList', () => {
 		).to.have.members(['/blog/', '/blog/en_US/', '/blog/es/']);
 	});
 
-	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: never, routingStategy: prefix-always]', () => {
+	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: never, routingStategy: pathname-prefix-always]', () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}
@@ -530,7 +530,7 @@ describe('getLocaleRelativeUrlList', () => {
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['en', 'en_US', 'es'],
-					routing: 'prefix-always',
+					routing: 'pathname-prefix-always',
 				},
 			},
 		};
@@ -829,7 +829,7 @@ describe('getLocaleAbsoluteUrl', () => {
 		).to.eq('/blog/en-us/');
 	});
 
-	it('should return the default locale when routing strategy is [prefix-always]', () => {
+	it('should return the default locale when routing strategy is [pathname-prefix-always]', () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}
@@ -840,7 +840,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['en', 'es', 'en_US', 'en_AU'],
-					routing: 'prefix-always',
+					routing: 'pathname-prefix-always',
 				},
 			},
 		};
@@ -1112,7 +1112,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		]);
 	});
 
-	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: ignore,  routingStategy: prefix-always]', () => {
+	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: ignore,  routingStategy: pathname-prefix-always]', () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}
@@ -1122,7 +1122,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['en', 'en_US', 'es'],
-					routing: 'prefix-always',
+					routing: 'pathname-prefix-always',
 				},
 			},
 		};

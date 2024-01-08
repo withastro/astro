@@ -2,6 +2,7 @@ import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
 import type { Locales, MiddlewareHandler, RouteData, SSRManifest } from '../@types/astro.js';
 import type { PipelineHookFunction } from '../core/pipeline.js';
 import { getPathByLocale, normalizeTheLocale } from './index.js';
+import { shouldAppendForwardSlash } from '../core/build/util.js';
 
 const routeDataSymbol = Symbol.for('astro.routeData');
 
@@ -68,7 +69,11 @@ export function createI18nMiddleware(
 				}
 
 				case 'pathname-prefix-always-no-redirect': {
-					if (!pathnameHasLocale(url.pathname, i18n.locales)) {
+					// We return a 404 if:
+					// - the current path isn't a root. e.g. / or /<base>
+					// - the URL doesn't contain a locale
+					const isRoot = url.pathname.startsWith(base) || url.pathname === '/';
+					if (!(isRoot || pathnameHasLocale(url.pathname, i18n.locales))) {
 						return new Response(null, {
 							status: 404,
 							headers: response.headers,
