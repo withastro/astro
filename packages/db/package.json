@@ -7,17 +7,17 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
     "./components": "./components/index.ts",
     "./internal": {
-      "import": "./dist/internal.js",
-      "types": "./dist/internal.d.ts"
+      "types": "./dist/internal.d.ts",
+      "import": "./dist/internal.js"
     },
     "./internal-local": {
-      "import": "./dist/internal-local.js",
-      "types": "./dist/internal-local.d.ts"
+      "types": "./dist/internal-local.d.ts",
+      "import": "./dist/internal-local.js"
     }
   },
   "typesVersions": {
@@ -46,9 +46,9 @@
   },
   "dependencies": {
     "@astrojs/cli-kit": "^0.3.0",
-    "@astrojs/markdoc": "^0.5.2",
+    "@astrojs/markdoc": "workspace:*",
     "@libsql/client": "0.4.0-pre.5",
-    "astro": "^3.6.0",
+    "astro": "workspace:*",
     "better-sqlite3": "^8.7.0",
     "circle-rhyme-yes-measure": "workspace:^",
     "drizzle-orm": "^0.28.6",
