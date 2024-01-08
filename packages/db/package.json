@@ -46,28 +46,20 @@
     "test:match": "mocha test/**/*.js -g"
   },
   "dependencies": {
-    "@astrojs/cli-kit": "^0.3.0",
     "@astrojs/markdoc": "workspace:*",
     "@libsql/client": "0.4.0-pre.5",
     "astro": "workspace:*",
-    "better-sqlite3": "^8.7.0",
     "drizzle-orm": "^0.28.6",
     "esbuild": "^0.19.4",
     "github-slugger": "^2.0.0",
     "kleur": "^4.1.5",
-    "miniflare": "^3.20231002.1",
     "nanoid": "^5.0.1",
     "open": "^9.1.0",
-    "ora": "^7.0.1",
-    "prompts": "^2.4.2",
-    "yargs-parser": "^21.1.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/chai": "^4.3.6",
     "@types/mocha": "^10.0.2",
-    "@types/prompts": "^2.4.5",
-    "@types/yargs-parser": "^21.0.1",
     "chai": "^4.3.10",
     "mocha": "^10.2.0",
     "typescript": "^5.2.2",
