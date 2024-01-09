@@ -1318,6 +1318,11 @@ export const UnsupportedConfigTransformError = {
 	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
 } satisfies ErrorData;
 
+/**
+ * @docs
+ * @description
+ * Astro can't find the requested locale. All supported locales must be configured in [i18n.locales](en/reference/configuration-reference/#i18nlocales) and have corresponding directories within `src/pages/`.
+ */
 export const MissingLocale = {
 	name: 'MissingLocaleError',
 	title: 'The provided locale does not exist.',
@@ -1326,6 +1331,11 @@ export const MissingLocale = {
 	},
 } satisfies ErrorData;
 
+/**
+ * @docs
+ * @description
+ * Astro could not find an associated file with content while trying to render the route. This is an Astro error and not a user error.  If restarting the dev server does not fix the problem, please file an issue.
+ */
 export const CantRenderPage = {
 	name: 'CantRenderPage',
 	title: "Astro can't render the route.",
@@ -1337,6 +1347,11 @@ export const CantRenderPage = {
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
 
+/**
+ * @docs
+ * @description
+ * Astro could not find any code to handle a rejected  `Promise`. Make sure all your promises have an `await` or `.catch()` handler.
+ */
 export const UnhandledRejection = {
 	name: 'UnhandledRejection',
 	title: 'Unhandled rejection',
@@ -1344,4 +1359,4 @@ export const UnhandledRejection = {
 		return `Astro detected an unhandled rejection. Here's the stack trace:\n${stack}`;
 	},
 	hint: 'Make sure your promises all have an `await` or a `.catch()` handler.',
-};
+} satisfies ErrorData;

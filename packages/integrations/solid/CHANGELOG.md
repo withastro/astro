@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 4.0.1
+
+### Patch Changes
+
+- [#9355](https://github.com/withastro/astro/pull/9355) [`2e4d110a876efc4ddcdeda403259317d1cbb742d`](https://github.com/withastro/astro/commit/2e4d110a876efc4ddcdeda403259317d1cbb742d) Thanks [@marvin-j97](https://github.com/marvin-j97)! - Upgrades `vite-plugin-solid` to `^2.8.0`
+
 ## 4.0.0
 
 ### Major Changes

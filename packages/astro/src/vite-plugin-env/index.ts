@@ -51,12 +51,6 @@ function getPrivateEnv(
 			}
 		}
 	}
-	privateEnv.SITE = astroConfig.site ? JSON.stringify(astroConfig.site) : 'undefined';
-	privateEnv.SSR = JSON.stringify(true);
-	privateEnv.BASE_URL = astroConfig.base ? JSON.stringify(astroConfig.base) : 'undefined';
-	privateEnv.ASSETS_PREFIX = astroConfig.build.assetsPrefix
-		? JSON.stringify(astroConfig.build.assetsPrefix)
-		: 'undefined';
 	return privateEnv;
 }
 
@@ -126,16 +120,6 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 		name: 'astro:vite-plugin-env',
 		config(_, { command }) {
 			isDev = command !== 'build';
-			return {
-				define: {
-					'import.meta.env.BASE_URL': astroConfig.base
-						? JSON.stringify(astroConfig.base)
-						: 'undefined',
-					'import.meta.env.ASSETS_PREFIX': astroConfig.build.assetsPrefix
-						? JSON.stringify(astroConfig.build.assetsPrefix)
-						: 'undefined',
-				},
-			};
 		},
 		configResolved(resolvedConfig) {
 			viteConfig = resolvedConfig;
