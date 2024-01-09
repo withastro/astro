@@ -69,7 +69,7 @@ export default {
 				})
 			);
 		}
-		eventTarget.addEventListener('plugin-toggled', (event: any) => {
+		eventTarget.addEventListener('app-toggled', (event: any) => {
 			if (event.detail.state === true) {
 				document.addEventListener('click', onPageClick, true);
 			} else {

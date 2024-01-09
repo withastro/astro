@@ -62,7 +62,7 @@ export default function astroInternationalization({
 					export const getAbsoluteLocaleUrlList = (path = "", opts) => _getLocaleAbsoluteUrlList({ base, path, trailingSlash, format, site, ...i18n, ...opts });
 					
 					export const getPathByLocale = (locale) => _getPathByLocale(locale, i18n.locales);
-					export const getLocaleByPath = (locale) => _getLocaleByPath(locale, i18n.locales);
+					export const getLocaleByPath = (path) => _getLocaleByPath(path, i18n.locales);
 				`;
 			}
 		},

@@ -35,7 +35,7 @@ export default {
 
 		document.addEventListener('astro:after-swap', createCanvas);
 
-		eventTarget.addEventListener('plugin-toggled', async (event) => {
+		eventTarget.addEventListener('app-toggled', async (event) => {
 			resetDebugButton();
 			if (!(event instanceof CustomEvent)) return;
 

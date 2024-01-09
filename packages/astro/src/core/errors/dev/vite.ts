@@ -111,7 +111,7 @@ export interface AstroErrorPayload {
 		hint?: string;
 		docslink?: string;
 		highlightedCode?: string;
-		loc: {
+		loc?: {
 			file?: string;
 			line?: number;
 			column?: number;

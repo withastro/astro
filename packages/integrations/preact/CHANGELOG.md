@@ -1,5 +1,27 @@
 # @astrojs/preact
 
+## 3.1.0
+
+### Minor Changes
+
+- [#9524](https://github.com/withastro/astro/pull/9524) [`0903ef90494e9c8bd0272347a0cdd51eca7f4648`](https://github.com/withastro/astro/commit/0903ef90494e9c8bd0272347a0cdd51eca7f4648) Thanks [@aleksandrjet](https://github.com/aleksandrjet)! - Allows rendering lazy components.
+
+  You can now use [lazy components](https://preactjs.com/guide/v10/switching-to-preact/#suspense-experimental) with Suspense:
+
+  ```jsx
+  import { lazy, Suspense } from 'preact/compat';
+
+  const HeavyComponent = lazy(() => import('./HeavyComponent'));
+
+  const Component = () => {
+    return (
+      <Suspense fallback={<p>Loading...</p>}>
+        <HeavyComponent foo="bar" />
+      </Suspense>
+    );
+  };
+  ```
+
 ## 3.0.2
 
 ### Patch Changes

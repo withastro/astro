@@ -1187,4 +1187,23 @@ test.describe('View Transitions', () => {
 
 		expect(requests).toHaveLength(0);
 	});
+
+	test('view transition should also work with 404 page', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to 404
+		await page.click('#click-404');
+		p = page.locator('#FourOhFour');
+		await expect(p, 'should have content').toHaveText('Page not found');
+
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
 });
