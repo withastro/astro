@@ -100,7 +100,7 @@ describe('pagesGlobToRssItems', () => {
 		return chai.expect(pagesGlobToRssItems(globResult)).to.not.be.rejected;
 	});
 
-	it('should fail on missing "description" key if "title" is present', () => {
+	it('should not fail on missing "description" key if "title" is present', () => {
 		const globResult = {
 			'./posts/php.md': () =>
 				new Promise((resolve) =>
