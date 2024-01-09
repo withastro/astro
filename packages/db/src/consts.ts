@@ -12,3 +12,8 @@ export const SUPPORTED_SEED_FILES = ['db.seed.js', 'db.seed.mjs', 'db.seed.mts',
 export const DB_TYPES_FILE = 'db-types.d.ts';
 
 export const VIRTUAL_MODULE_ID = 'astro:db';
+
+// TODO: copy DB to build for serverless
+export function getDbUrl(root: URL) {
+	return new URL('.astro/content.db', root);
+}
