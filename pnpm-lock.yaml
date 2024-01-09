@@ -5139,12 +5139,6 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
-      chai:
-        specifier: ^4.3.7
-        version: 4.3.10
-      mocha:
-        specifier: ^10.2.0
-        version: 10.2.0
       strip-ansi:
         specifier: ^7.1.0
         version: 7.1.0
