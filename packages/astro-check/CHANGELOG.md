@@ -1,5 +1,13 @@
 # @astrojs/check
 
+## 0.4.1
+
+### Patch Changes
+
+- 63e2c81: Fix fallback types not being properly included in some contexts such as inside the VS Code extension
+- Updated dependencies [63e2c81]
+  - @astrojs/language-server@2.6.2
+
 ## 0.4.0
 
 ### Minor Changes

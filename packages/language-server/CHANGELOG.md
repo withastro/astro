@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.6.2
+
+### Patch Changes
+
+- 63e2c81: Fix fallback types not being properly included in some contexts such as inside the VS Code extension
+
 ## 2.6.1
 
 ### Patch Changes
