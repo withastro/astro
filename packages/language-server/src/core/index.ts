@@ -9,7 +9,7 @@ import {
 import * as path from 'node:path';
 import type ts from 'typescript/lib/tsserverlibrary';
 import type { HTMLDocument } from 'vscode-html-languageservice';
-import type { AstroInstall } from '../utils.js';
+import { getLanguageServerTypesDir, type AstroInstall } from '../utils.js';
 import { astro2tsx } from './astro2tsx';
 import { AstroMetadata, getAstroMetadata } from './parseAstro';
 import { extractStylesheets } from './parseCSS';
@@ -44,15 +44,8 @@ export function getLanguageModule(
 					return host.resolveModuleName?.(moduleName, impliedNodeFormat) ?? moduleName;
 				},
 				getScriptFileNames() {
-					let languageServerDirectory: string;
-					try {
-						languageServerDirectory = path.dirname(require.resolve('@astrojs/language-server'));
-					} catch (e) {
-						languageServerDirectory = __dirname;
-					}
-
+					const languageServerTypesDirectory = getLanguageServerTypesDir(ts);
 					const fileNames = host.getScriptFileNames();
-
 					const addedFileNames = [];
 
 					if (astroInstall) {
@@ -71,20 +64,19 @@ export function getLanguageModule(
 								astroInstall.version.patch < 8)
 						) {
 							addedFileNames.push(
-								...['../types/jsx-runtime-augment.d.ts'].map((filePath) =>
-									ts.sys.resolvePath(path.resolve(languageServerDirectory, filePath))
+								...['./jsx-runtime-augment.d.ts'].map((filePath) =>
+									ts.sys.resolvePath(path.resolve(languageServerTypesDirectory, filePath))
 								)
 							);
+							console.log(addedFileNames);
 						}
 					} else {
 						// If we don't have an Astro installation, add the fallback types from the language server.
 						// See the README in packages/language-server/types for more information.
 						addedFileNames.push(
-							...[
-								'../types/env.d.ts',
-								'../types/astro-jsx.d.ts',
-								'../types/jsx-runtime-fallback.d.ts',
-							].map((f) => ts.sys.resolvePath(path.resolve(languageServerDirectory, f)))
+							...['./env.d.ts', './astro-jsx.d.ts', './jsx-runtime-fallback.d.ts'].map((f) =>
+								ts.sys.resolvePath(path.resolve(languageServerTypesDirectory, f))
+							)
 						);
 					}
 

@@ -229,6 +229,7 @@
     "@vscode/test-electron": "^2.3.2",
     "@vscode/vsce": "latest",
     "esbuild": "^0.17.19",
+    "esbuild-plugin-copy": "^2.1.1",
     "glob": "^8.0.3",
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.5",

@@ -11,6 +11,10 @@ export interface AstroInstall {
 	};
 }
 
+export function getLanguageServerTypesDir(ts: typeof import('typescript')) {
+	return ts.sys.resolvePath(path.resolve(__dirname, '../types'));
+}
+
 export function getAstroInstall(
 	basePaths: string[],
 	checkForAstro?: {

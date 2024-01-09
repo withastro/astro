@@ -1,5 +1,6 @@
 // @ts-check
 import esbuild from 'esbuild';
+import { copy } from 'esbuild-plugin-copy';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import { rebuildPlugin } from './shared.mjs';
@@ -11,7 +12,7 @@ export default async function build() {
 	const metaFile = process.argv.includes('--metafile');
 
 	/**
-	 * @type {import('esbuild').BuildOptions}
+	 * @satisfies {import('esbuild').BuildOptions}
 	 */
 	const config = {
 		entryPoints: {
@@ -32,6 +33,14 @@ export default async function build() {
 		define: { 'process.env.NODE_ENV': '"production"' },
 		minify: process.argv.includes('--minify'),
 		plugins: [
+			copy({
+				resolveFrom: 'cwd',
+				assets: {
+					from: ['../language-server/types/**/*.d.ts'],
+					to: ['./dist/types'],
+					watch: isDev,
+				},
+			}),
 			{
 				name: 'umd2esm',
 				setup(pluginBuild) {
