@@ -15,8 +15,8 @@ import { prepareImageConfig } from './utils/image-config.js';
 import { getLocalRuntime, getRuntimeConfig } from './utils/local-runtime.js';
 import { prependForwardSlash } from './utils/prependForwardSlash.js';
 import { rewriteWasmImportPath } from './utils/rewriteWasmImportPath.js';
-import { wasmModuleLoader } from './utils/wasm-module-loader.js';
 import { patchSharpBundle } from './utils/sharpBundlePatch.js';
+import { wasmModuleLoader } from './utils/wasm-module-loader.js';
 
 export type { AdvancedRuntime } from './entrypoints/server.advanced.js';
 export type { DirectoryRuntime } from './entrypoints/server.directory.js';
