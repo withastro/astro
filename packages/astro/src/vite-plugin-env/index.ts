@@ -166,7 +166,8 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 				};
 			}
 
-			// Compute the default defines for esbuild. It could be extended by `import.meta.env` later.
+			// In build, use esbuild to perform replacements. Compute the default defines for esbuild here as a
+			// separate object as it could be extended by `import.meta.env` later.
 			if (!defaultDefines) {
 				defaultDefines = {};
 				for (const key in privateEnv) {
