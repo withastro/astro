@@ -1,5 +1,23 @@
 # @astrojs/cloudflare
 
+## 8.1.0
+
+### Minor Changes
+
+- [#58](https://github.com/withastro/adapters/pull/58) [`ecdb8f5bc21b19cc86e581711a1c360fc723a007`](https://github.com/withastro/adapters/commit/ecdb8f5bc21b19cc86e581711a1c360fc723a007) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Adds the option to only run image optimization on images during build-time. **Warning:** This mode does not work with on-demand (SSR) image optimization.
+
+  ```diff
+  import {defineConfig} from "astro/config";
+  import cloudflare from '@astrojs/cloudflare';
+
+  export default defineConfig({
+    output: 'server'
+    adapter: cloudflare({
+  +   imageService: 'compile'
+    }),
+  })
+  ```
+
 ## 8.0.2
 
 ### Patch Changes
