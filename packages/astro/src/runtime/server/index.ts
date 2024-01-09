@@ -45,13 +45,10 @@ import { addAttribute, Renderer } from './render/index.js';
 
 export function mergeSlots(...slotted: unknown[]) {
 	const slots: Record<string, () => any> = {};
-	for (let i = 0; i < slotted.length; i++) {
-		const slot = slotted[i];
+	for (let slot of slotted) {
 		if (!slot) continue;
 		if (Array.isArray(slot)) {
-			slotted.splice(i, 1, ...slot);
-			i--;
-			continue;
+			slot = mergeSlots(...slot);
 		}
 		if (typeof slot === 'object') {
 			Object.assign(slots, slot);
