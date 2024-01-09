@@ -17,7 +17,7 @@ import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } f
 // This import is required to appease TypeScript!
 // See https://github.com/withastro/astro/pull/8762
 import 'mdast-util-to-hast';
-import 'shikiji-core/types';
+import 'shikiji-core';
 
 type ShikiLangs = NonNullable<ShikiConfig['langs']>;
 type ShikiTheme = NonNullable<ShikiConfig['theme']>;
