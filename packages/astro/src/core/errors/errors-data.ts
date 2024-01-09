@@ -1321,7 +1321,7 @@ export const UnsupportedConfigTransformError = {
 /**
  * @docs
  * @description
- * Astro can't find the requested locale. All supported locales must be configured in [i18n.locales](en/reference/configuration-reference/#i18nlocales) and have corresponding directories within `src/pages/`.
+ * Astro can't find the requested locale. All supported locales must be configured in [i18n.locales](/en/reference/configuration-reference/#i18nlocales) and have corresponding directories within `src/pages/`.
  */
 export const MissingLocale = {
 	name: 'MissingLocaleError',
