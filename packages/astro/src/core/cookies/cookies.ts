@@ -151,13 +151,13 @@ class AstroCookies implements AstroCookiesInterface {
 	 */
 	set(key: string, value: string | Record<string, any>, options?: AstroCookieSetOptions): void {
 		if (this.#consumed) {
-			// eslint-disable-next-line no-console
             const warning = new Error(
                 'Astro.cookies.set() was called after the cookies have already been sent to the browser.\n' +
 				'This may have happened if this method was called in an imported component.\n' +
 				'Please make sure that Astro.cookies.set() is only called in the frontmatter of the main page.'
 			);
 			warning.name = "Warning";
+			// eslint-disable-next-line no-console
 			console.warn(warning);
 		}
 		let serializedValue: string;
