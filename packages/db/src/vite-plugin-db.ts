@@ -15,9 +15,11 @@ const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 export function vitePluginDb({
 	collections,
 	root,
+	isDev: isDev,
 }: {
 	collections: DBCollections;
 	root: URL;
+	isDev: boolean;
 }): VitePlugin {
 	return {
 		name: 'astro:db',
@@ -29,7 +31,7 @@ export function vitePluginDb({
 		},
 		load(id) {
 			if (id !== resolvedVirtualModuleId) return;
-			return getLocalVirtualModuleContents({ collections, root });
+			return getVirtualModContents({ collections, root, isDev });
 		},
 	};
 }
@@ -38,12 +40,14 @@ const seedErrorMessage = `${red(
 	'⚠️ Failed to seed data.'
 )} Is the seed file out-of-date with recent schema changes?`;
 
-export function getLocalVirtualModuleContents({
+export function getVirtualModContents({
 	collections,
 	root,
+	isDev,
 }: {
 	collections: DBCollections;
 	root: URL;
+	isDev: boolean;
 }) {
 	const seedFile = SUPPORTED_SEED_FILES.map((f) => fileURLToPath(new URL(f, root))).find((f) =>
 		existsSync(f)
@@ -57,7 +61,7 @@ export * from ${DRIZZLE_MOD_IMPORT};
 ${getStringifiedCollectionExports(collections)}
 
 ${
-	seedFile
+	seedFile && isDev
 		? `try {
 	await import(${JSON.stringify(seedFile)});
 } catch {
