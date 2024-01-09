@@ -57,8 +57,6 @@
   "devDependencies": {
     "@types/chai": "^4.3.6",
     "@types/mocha": "^10.0.2",
-    "@types/prompts": "^2.4.5",
-    "@types/yargs-parser": "^21.0.1",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.10",
     "cheerio": "1.0.0-rc.12",
