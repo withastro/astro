@@ -10,6 +10,7 @@ interface EnvPluginOptions {
 }
 
 const importMetaEnvOnlyRe = /import\.meta\.env\b(?!\.)/;
+const isValidIdentifierRe = /^[_$a-zA-Z][_$a-zA-Z0-9]*$/;
 
 function getPrivateEnv(
 	viteConfig: vite.ResolvedConfig,
@@ -32,7 +33,7 @@ function getPrivateEnv(
 	const privateEnv: Record<string, string> = {};
 	for (const key in fullEnv) {
 		// Ignore public env var
-		if (envPrefixes.every((prefix) => !key.startsWith(prefix))) {
+		if (isValidIdentifierRe.test(key) && envPrefixes.every((prefix) => !key.startsWith(prefix))) {
 			if (typeof process.env[key] !== 'undefined') {
 				let value = process.env[key];
 				// Replacements are always strings, so try to convert to strings here first
