@@ -963,7 +963,7 @@ export interface AstroUserConfig {
 				 * - `'tap'`: Prefetch just before you click on the link.
 				 * - `'hover'`: Prefetch when you hover over or focus on the link. (default)
 				 * - `'viewport'`: Prefetch as the links enter the viewport.
-				 * - `'load'`: Prefetch the link without any restrictions.
+				 * - `'load'`: Prefetch all links on the page after the page is loaded.
 				 *
 				 * You can override this default value and select a different strategy for any individual link by setting a value on the attribute.
 				 *
@@ -1033,7 +1033,7 @@ export interface AstroUserConfig {
 	 * @name server.open
 	 * @type {string | boolean}
 	 * @default `false`
-	 * @version 2.1.8
+	 * @version 4.1.0
 	 * @description
 	 * Controls whether the dev server should open in your browser window on startup.
 	 *
@@ -1118,7 +1118,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name image.service.config.limitInputPixels
 		 * @kind h4
-		 * @type {boolean}
+		 * @type {number | boolean}
 		 * @default `true`
 		 * @version 4.1.0
 		 * @description
@@ -2262,9 +2262,10 @@ type Routing = {
 	strategy: 'pathname';
 };
 
-export type APIRoute<Props extends Record<string, any> = Record<string, any>> = (
-	context: APIContext<Props>
-) => Response | Promise<Response>;
+export type APIRoute<
+	Props extends Record<string, any> = Record<string, any>,
+	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>,
+> = (context: APIContext<Props, APIParams>) => Response | Promise<Response>;
 
 export interface EndpointHandler {
 	[method: string]: APIRoute;
@@ -2293,6 +2294,18 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 			attrs?: Record<string, string>;
 		}>;
 		supportsAstroStaticSlot?: boolean;
+		/**
+		 * If provided, Astro will call this function and inject the returned
+		 * script in the HTML before the first component handled by this renderer.
+		 *
+		 * This feature is needed by some renderers (in particular, by Solid). The
+		 * Solid official hydration script sets up a page-level data structure.
+		 * It is mainly used to transfer data between the server side render phase
+		 * and the browser application state. Solid Components rendered later in
+		 * the HTML may inject tiny scripts into the HTML that call into this
+		 * page-level data structure.
+		 */
+		renderHydrationScript?: () => string;
 	};
 }
 
@@ -2512,6 +2525,12 @@ export interface SSRResult {
  */
 export interface SSRMetadata {
 	hasHydrationScript: boolean;
+	/**
+	 * Names of renderers that have injected their hydration scripts
+	 * into the current page. For example, Solid SSR needs a hydration
+	 * script in the page HTML before the first Solid component.
+	 */
+	rendererSpecificHydrationScripts: Set<string>;
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	headInTree: boolean;

@@ -160,6 +160,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 					possibleConfigFiles: [
 						'./tailwind.config.cjs',
 						'./tailwind.config.mjs',
+						'./tailwind.config.ts',
+						'./tailwind.config.mts',
+						'./tailwind.config.cts',
 						'./tailwind.config.js',
 					],
 					defaultConfigFile: './tailwind.config.mjs',
@@ -732,11 +735,12 @@ async function tryToInstallIntegrations({
 				);
 				spinner.succeed();
 				return UpdateResult.updated;
-			} catch (err) {
+			} catch (err: any) {
 				spinner.fail();
 				logger.debug('add', 'Error installing dependencies', err);
+				// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
 				// eslint-disable-next-line no-console
-				console.error('\n', (err as any).stdout, '\n');
+				console.error('\n', err.stdout || err.message, '\n');
 				return UpdateResult.failure;
 			}
 		} else {
