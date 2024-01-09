@@ -6,6 +6,7 @@ import {
 	INTERNAL_MOD_IMPORT,
 	SUPPORTED_SEED_FILES,
 	VIRTUAL_MODULE_ID,
+	getDbUrl,
 } from './consts.js';
 import type { DBCollections } from './types.js';
 import type { Plugin as VitePlugin } from 'vite';
@@ -15,7 +16,7 @@ const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 export function vitePluginDb({
 	collections,
 	root,
-	isDev: isDev,
+	isDev,
 }: {
 	collections: DBCollections;
 	root: URL;
@@ -52,10 +53,16 @@ export function getVirtualModContents({
 	const seedFile = SUPPORTED_SEED_FILES.map((f) => fileURLToPath(new URL(f, root))).find((f) =>
 		existsSync(f)
 	);
+	const dbUrl = isDev ? ':memory:' : getDbUrl(root).href;
+	const shouldSetUpDb = isDev || !existsSync(getDbUrl(root));
 	return `
 import { collectionToTable, createDb } from ${INTERNAL_MOD_IMPORT};
 
-export const db = await createDb(${JSON.stringify(collections)});
+export const db = await createDb(${JSON.stringify({
+		collections,
+		dbUrl,
+		createTables: shouldSetUpDb,
+	})});
 export * from ${DRIZZLE_MOD_IMPORT};
 
 ${getStringifiedCollectionExports(collections)}
