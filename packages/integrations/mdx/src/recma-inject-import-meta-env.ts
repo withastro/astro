@@ -11,7 +11,7 @@ export function recmaInjectImportMetaEnv({
 			if (node.type === 'MemberExpression') {
 				// attempt to get "import.meta.env" variable name
 				const envVarName = getImportMetaEnvVariableName(node);
-				if (typeof envVarName === 'string') {
+				if (typeof envVarName === 'string' && importMetaEnv[envVarName] != null) {
 					// clear object keys to replace with envVarLiteral
 					for (const key in node) {
 						delete (node as any)[key];
