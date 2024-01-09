@@ -489,8 +489,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: 0.0.0-dynamic-slot-names-20240103232344
-        version: 0.0.0-dynamic-slot-names-20240103232344
+        specifier: 0.0.0-dynamic-slot-names-20240109194342
+        version: 0.0.0-dynamic-slot-names-20240109194342
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -5289,8 +5289,8 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
-  /@astrojs/compiler@0.0.0-dynamic-slot-names-20240103232344:
-    resolution: {integrity: sha512-NHSC4fHnq23VA4gu+mJ+rqF/EHCjw1EZR2zqzJXDk3Q8ThDD5TAZOI/jKxwKzDZKIk9jyWdqDMMSUw99SjhwyQ==}
+  /@astrojs/compiler@0.0.0-dynamic-slot-names-20240109194342:
+    resolution: {integrity: sha512-PpnzlE34xaFbcEuQhSUmqo0IMWXL1m1Z/0sX8isHbwidYUI4nYx57AHzuNQVSZMQ3Ccd3AyksO39P+FxFo7lfQ==}
     dev: false
 
   /@astrojs/compiler@1.8.2:
