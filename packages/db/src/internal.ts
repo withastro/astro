@@ -38,11 +38,21 @@ export type {
 
 const sqlite = new SQLiteAsyncDialect();
 
-export async function createDb(collections: DBCollections) {
-	const client = createClient({ url: ':memory:' });
+export async function createDb({
+	collections,
+	dbUrl,
+	createTables = false,
+}: {
+	collections: DBCollections;
+	dbUrl: string;
+	createTables?: boolean;
+}) {
+	const client = createClient({ url: dbUrl });
 	const db = drizzle(client);
 
-	await createDbTables(db, collections);
+	if (createTables) {
+		await createDbTables(db, collections);
+	}
 	return db;
 }
 
