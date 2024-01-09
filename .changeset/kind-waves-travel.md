@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Adds a message for a case where setting cookies will have no effect.
+Adds a warning when setting cookies will have no effect
