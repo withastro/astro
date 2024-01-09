@@ -20,6 +20,13 @@ export function prepareImageConfig(
 						: { entrypoint: '@astrojs/cloudflare/image-service' },
 			};
 
+		case 'compile':
+			return {
+				...config,
+				service: sharpImageService(),
+				endpoint: command === 'dev' ? undefined : '@astrojs/cloudflare/image-endpoint',
+			};
+
 		default:
 			if (
 				config.service.entrypoint === 'astro/assets/services/sharp' ||

@@ -16,13 +16,14 @@ import { getLocalRuntime, getRuntimeConfig } from './utils/local-runtime.js';
 import { prependForwardSlash } from './utils/prependForwardSlash.js';
 import { rewriteWasmImportPath } from './utils/rewriteWasmImportPath.js';
 import { wasmModuleLoader } from './utils/wasm-module-loader.js';
+import { patchSharpBundle } from './utils/sharpBundlePatch.js';
 
 export type { AdvancedRuntime } from './entrypoints/server.advanced.js';
 export type { DirectoryRuntime } from './entrypoints/server.directory.js';
 export type Options = {
 	mode?: 'directory' | 'advanced';
 	functionPerRoute?: boolean;
-	imageService?: 'passthrough' | 'cloudflare';
+	imageService?: 'passthrough' | 'cloudflare' | 'compile';
 	/** Configure automatic `routes.json` generation */
 	routes?: {
 		/** Strategy for generating `include` and `exclude` patterns
@@ -226,10 +227,20 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							relative(absolutePagesDirname, pathsGroup[0]),
 							functionsUrl
 						);
+
+						const esbuildPlugins = [];
+						if (args?.imageService === 'compile') {
+							esbuildPlugins.push(patchSharpBundle());
+						}
+
 						const relativePathToAssets = relative(
 							dirname(fileURLToPath(urlWithinFunctions)),
 							fileURLToPath(assetsUrl)
 						);
+						if (args?.wasmModuleImports) {
+							esbuildPlugins.push(rewriteWasmImportPath({ relativePathToAssets }));
+						}
+
 						await esbuild.build({
 							target: 'es2022',
 							platform: 'browser',
@@ -264,9 +275,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							logOverride: {
 								'ignored-bare-import': 'silent',
 							},
-							plugins: !args?.wasmModuleImports
-								? []
-								: [rewriteWasmImportPath({ relativePathToAssets })],
+							plugins: esbuildPlugins,
 						});
 					}
 
@@ -313,6 +322,21 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					// A URL for the final build path after renaming
 					const finalBuildUrl = pathToFileURL(buildPath.replace(/\.mjs$/, '.js'));
 
+					const esbuildPlugins = [];
+					if (args?.imageService === 'compile') {
+						esbuildPlugins.push(patchSharpBundle());
+					}
+
+					if (args?.wasmModuleImports) {
+						esbuildPlugins.push(
+							rewriteWasmImportPath({
+								relativePathToAssets: isModeDirectory
+									? relative(fileURLToPath(functionsUrl), fileURLToPath(assetsUrl))
+									: relative(fileURLToPath(_buildConfig.client), fileURLToPath(assetsUrl)),
+							})
+						);
+					}
+
 					await esbuild.build({
 						target: 'es2022',
 						platform: 'browser',
@@ -346,15 +370,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						logOverride: {
 							'ignored-bare-import': 'silent',
 						},
-						plugins: !args?.wasmModuleImports
-							? []
-							: [
-									rewriteWasmImportPath({
-										relativePathToAssets: isModeDirectory
-											? relative(fileURLToPath(functionsUrl), fileURLToPath(assetsUrl))
-											: relative(fileURLToPath(_buildConfig.client), fileURLToPath(assetsUrl)),
-									}),
-							  ],
+						plugins: esbuildPlugins,
 					});
 
 					// Rename to worker.js

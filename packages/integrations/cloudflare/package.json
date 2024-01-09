@@ -23,6 +23,7 @@
     "./entrypoints/server.advanced.js": "./dist/entrypoints/server.advanced.js",
     "./entrypoints/server.directory.js": "./dist/entrypoints/server.directory.js",
     "./image-service": "./dist/entrypoints/image-service.js",
+    "./image-endpoint": "./dist/entrypoints/image-endpoint.js",
     "./package.json": "./package.json"
   },
   "files": [
