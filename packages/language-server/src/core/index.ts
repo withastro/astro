@@ -65,11 +65,13 @@ export function getLanguageModule(
 						// If Astro version is < 4.0.8, add jsx-runtime-augment.d.ts to the files to fake `JSX` being available from "astro/jsx-runtime".
 						// TODO: Remove this once a majority of users are on Astro 4.0.8+, erika - 2023-12-28
 						if (
-							astroInstall.version.major >= 4 &&
-							(astroInstall.version.minor > 0 || astroInstall.version.patch >= 8)
+							astroInstall.version.major < 4 ||
+							(astroInstall.version.major === 4 &&
+								astroInstall.version.minor === 0 &&
+								astroInstall.version.patch < 8)
 						) {
 							addedFileNames.push(
-								...['../jsx-runtime-augment.d.ts'].map((filePath) =>
+								...['../types/jsx-runtime-augment.d.ts'].map((filePath) =>
 									ts.sys.resolvePath(path.resolve(languageServerDirectory, filePath))
 								)
 							);
