@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
-import { isWindows, loadFixture } from '../../astro/test/test-utils.js';
+import { loadFixture } from '../../astro/test/test-utils.js';
 
 describe('astro:db', () => {
 	let fixture;
@@ -20,8 +20,8 @@ describe('astro:db', () => {
 			const $ = cheerioLoad(html);
 
 			const ul = $('ul');
-			expect(ul).to.have.a.lengthOf(5);
-			expect($('li').text()).to.equal('Ben');
+			expect(ul.children()).to.have.a.lengthOf(5);
+			expect(ul.children().eq(0).text()).to.equal('Ben');
 		});
 	});
 });
