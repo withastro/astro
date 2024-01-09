@@ -1004,7 +1004,7 @@ export const MissingLocale = {
 /**
  * @docs
  * @description
- * Astro could not find an associated file with content while trying to render the route. This is an Astro error and not a user error.  If restarting the dev server does not fix the problem, please file an issue.
+ * Astro could not find an associated file with content while trying to render the route. This is an Astro error and not a user error. If restarting the dev server does not fix the problem, please file an issue.
  */
 export const CantRenderPage = {
 	name: 'CantRenderPage',
@@ -1017,7 +1017,7 @@ export const CantRenderPage = {
 /**
  * @docs
  * @description
- * Astro could not find any code to handle a rejected  `Promise`. Make sure all your promises have an `await` or `.catch()` handler.
+ * Astro could not find any code to handle a rejected `Promise`. Make sure all your promises have an `await` or `.catch()` handler.
  */
 export const UnhandledRejection = {
 	name: 'UnhandledRejection',
