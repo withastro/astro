@@ -1,4 +1,4 @@
-import { bundledLanguages, getHighlighter } from 'shikiji';
+import { bundledLanguages, createCssVariablesTheme, getHighlighter } from 'shikiji';
 import { visit } from 'unist-util-visit';
 import type { ShikiConfig } from './types.js';
 
@@ -7,22 +7,17 @@ export interface ShikiHighlighter {
 }
 
 const ASTRO_COLOR_REPLACEMENTS: Record<string, string> = {
-	'#000001': 'var(--astro-code-color-text)',
-	'#000002': 'var(--astro-code-color-background)',
-	'#000004': 'var(--astro-code-token-constant)',
-	'#000005': 'var(--astro-code-token-string)',
-	'#000006': 'var(--astro-code-token-comment)',
-	'#000007': 'var(--astro-code-token-keyword)',
-	'#000008': 'var(--astro-code-token-parameter)',
-	'#000009': 'var(--astro-code-token-function)',
-	'#000010': 'var(--astro-code-token-string-expression)',
-	'#000011': 'var(--astro-code-token-punctuation)',
-	'#000012': 'var(--astro-code-token-link)',
+	'--astro-code-foreground': '--astro-code-color-text',
+	'--astro-code-background': '--astro-code-color-background',
 };
 const COLOR_REPLACEMENT_REGEX = new RegExp(
 	`(${Object.keys(ASTRO_COLOR_REPLACEMENTS).join('|')})`,
 	'g'
 );
+
+const cssVariablesTheme = createCssVariablesTheme({
+	variablePrefix: '--astro-code-',
+});
 
 export async function createShikiHighlighter({
 	langs = [],
@@ -32,6 +27,8 @@ export async function createShikiHighlighter({
 	transformers = [],
 }: ShikiConfig = {}): Promise<ShikiHighlighter> {
 	const themes = experimentalThemes;
+
+	theme = theme === 'css-variables' ? cssVariablesTheme : theme;
 
 	const highlighter = await getHighlighter({
 		langs: langs.length ? langs : Object.keys(bundledLanguages),
