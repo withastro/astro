@@ -16,6 +16,7 @@ export interface ErrorData {
  * @kind heading
  * @name Astro Errors
  */
+// Astro Errors, most errors will go here!
 /**
  * @docs
  * @message
@@ -1031,6 +1032,7 @@ export const UnhandledRejection = {
  * @kind heading
  * @name CSS Errors
  */
+// CSS Errors
 /**
  * @docs
  * @see
@@ -1060,7 +1062,7 @@ export const CSSSyntaxError = {
  * @kind heading
  * @name Markdown Errors
  */
-// Markdown Errors - 6xxx
+// Markdown Errors
 /**
  * @docs
  * @description
@@ -1159,7 +1161,7 @@ export const ConfigLegacyKey = {
  * @kind heading
  * @name CLI Errors
  */
-// CLI Errors - 8xxx
+// CLI Errors
 /**
  * @docs
  * @description
@@ -1190,9 +1192,7 @@ export const GenerateContentTypesError = {
  * @kind heading
  * @name Content Collection Errors
  */
-// ====================================
 // Content Collection Errors
-// ====================================
 /**
  * @docs
  * @description
