@@ -1,5 +1,5 @@
 import type { SSRResult } from '../../../@types/astro.js';
-import type { renderTemplate } from './astro/render-template.js';
+import { renderTemplate } from './astro/render-template.js';
 import type { RenderInstruction } from './instruction.js';
 
 import { HTMLString, markHTMLString } from '../escape.js';
@@ -9,7 +9,7 @@ import { chunkToString, type RenderDestination, type RenderInstance } from './co
 type RenderTemplateResult = ReturnType<typeof renderTemplate>;
 export type ComponentSlots = Record<string, ComponentSlotValue>;
 export type ComponentSlotValue = (
-	result: SSRResult
+	result?: SSRResult
 ) => RenderTemplateResult | Promise<RenderTemplateResult>;
 
 const slotString = Symbol.for('astro:slot-string');
@@ -95,4 +95,13 @@ export async function renderSlots(
 		);
 	}
 	return { slotInstructions, children };
+}
+
+export function renderSlotTemplate(htmlParts: TemplateStringsArray, ...expressions: any[]) {
+	// for a slot to be empty, the expressions must all be falsy or nullish, AND
+	// the htmlParts must be empty or all whitespace
+	const isEmpty =
+		expressions.every((exp) => !Boolean(exp)) && htmlParts.every((part) => part.trim() === '');
+	if (isEmpty) return false;
+	return renderTemplate(htmlParts, ...expressions);
 }
