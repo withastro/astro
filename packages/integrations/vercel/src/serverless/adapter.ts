@@ -35,6 +35,7 @@ const PACKAGE_NAME = '@astrojs/vercel/serverless';
  * with the original path as the value of this header.
  */
 export const ASTRO_PATH_HEADER = 'x-astro-path';
+export const ASTRO_PATH_PARAM = 'x_astro_path';
 
 /**
  * The edge function calls the node server at /_render,
@@ -47,6 +48,11 @@ export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
 // We attempt to avoid interfering by prefixing with an underscore.
 export const NODE_PATH = '_render';
 const MIDDLEWARE_PATH = '_middleware';
+
+// This isn't documented by vercel anywhere, but unlike serverless
+// and edge functions, isr functions are not passed the original path.
+// Instead, we have to use $0 to refer to the regex match from "src".
+const ISR_PATH = `/_isr?${ASTRO_PATH_PARAM}=$0`;
 
 // https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/node-js#node.js-version
 const SUPPORTED_NODE_VERSIONS: Record<
@@ -128,8 +134,27 @@ export interface VercelServerlessConfig {
 }
 
 interface VercelISRConfig {
-	/** A random string that you create. Its presence in the `__prerender_bypass` cookie will result in fresh responses being served. */
+	/**
+	 * A random string that you create.
+	 * Its presence in the `__prerender_bypass` cookie will result in fresh responses being served, bypassing the cache.
+	 * 
+	 * By default, none.
+	 */
 	bypassToken?: string;
+
+	/**
+	 * Expiration time (in seconds) before the pages will be re-generated.
+	 * 
+	 * By default, as long as the current deployment is in production.
+	 */
+	revalidate?: number;
+
+	/**
+	 * Paths that will always be served fresh.
+	 * 
+	 * By default, none.
+	 */
+	exclude?: string[];
 }
 
 export default function vercelServerless({
@@ -198,9 +223,6 @@ export default function vercelServerless({
 					},
 					vite: {
 						...getSpeedInsightsViteConfig(speedInsights?.enabled),
-						define: {
-							"import.meta.env.ASTRO_VERCEL_ISR": isr ? "true" : "false"
-						},
 						ssr: {
 							external: ['@vercel/nft'],
 						},
@@ -302,21 +324,49 @@ export default function vercelServerless({
 						});
 					}
 				} else {
-					await createFunctionFolder({
-						functionName: NODE_PATH,
-						runtime,
-						entry: new URL(_serverEntry, _buildTempFolder),
-						config: _config,
-						logger,
-						NTF_CACHE,
-						includeFiles,
-						excludeFiles,
-						maxDuration,
-						isr,
-					});
+					if (isr) {
+						await createFunctionFolder({
+							functionName: '_isr',
+							runtime,
+							entry: new URL(_serverEntry, _buildTempFolder),
+							config: _config,
+							logger,
+							NTF_CACHE,
+							includeFiles,
+							excludeFiles,
+							maxDuration,
+							isr,
+						});
+					}
+					if (isr === false || (typeof isr === "object" && isr.exclude)) {
+						await createFunctionFolder({
+							functionName: NODE_PATH,
+							runtime,
+							entry: new URL(_serverEntry, _buildTempFolder),
+							config: _config,
+							logger,
+							NTF_CACHE,
+							includeFiles,
+							excludeFiles,
+							maxDuration,
+							isr: false,
+						});
+					}
+					if (typeof isr === "object" && isr.exclude) {
+						for (const route of isr.exclude) {
+							routeDefinitions.push({
+								src: route,
+								dest: NODE_PATH,
+							})
+						}
+					}
 					const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 					for (const route of routes) {
 						if (!route.prerender) routeDefinitions.push({ src: route.pattern.source, dest });
+						routeDefinitions.push({
+							src: route.pattern.source,
+							dest: isr ? ISR_PATH : NODE_PATH,
+						});
 					}
 				}
 				if (_middlewareEntryPoint) {
@@ -458,11 +508,15 @@ async function createFunctionFolder({
 	});
 	
 	if (isr) {
+		const {
+			revalidate: expiration = false,
+			bypassToken = undefined,
+		} = typeof isr === "object" ? isr : {};
 		// https://vercel.com/docs/build-output-api/v3/primitives#prerender-configuration-file
 		await writeJson(prerenderConfig, {
-			expiration: false,
-			bypassToken: typeof isr === "object" ? isr.bypassToken : undefined,
-			allowQuery: ["vercel_original_path"],
+			expiration,
+			bypassToken,
+			allowQuery: [ASTRO_PATH_PARAM],
 			passQuery: true
 		});
 	}
