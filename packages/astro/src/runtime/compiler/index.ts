@@ -10,6 +10,7 @@ export {
 	defineStyleVars,
 	maybeRenderHead,
 	mergeSlots,
+	purifySlotName,
 	render,
 	renderComponent,
 	renderHead,

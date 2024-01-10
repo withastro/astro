@@ -29,6 +29,7 @@ import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { maybeRenderHead } from './head.js';
 import { renderSlotToString, renderSlots, type ComponentSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
+import { INVALID_SLOT_MARKER, UNDEFINED_SLOT_MARKER } from '../index.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 const rendererAliases = new Map([['solid', 'solid-js']]);
@@ -451,6 +452,13 @@ export async function renderComponent(
 	props: Record<string | number, any>,
 	slots: any = {}
 ): Promise<RenderInstance> {
+	// purify slot names
+	for (const slotName in slots) {
+		if (slots[slotName] === INVALID_SLOT_MARKER || slots[slotName] === UNDEFINED_SLOT_MARKER) {
+			delete slots[slotName];
+		}
+	}
+
 	if (isPromise(Component)) {
 		Component = await Component;
 	}
