@@ -37,7 +37,11 @@ const createPreviewServer: CreatePreviewServer = async function (preview) {
 	const port = preview.port ?? 4321
 	const server = createServer(ssrHandler, host, port);
 	logListeningOn(preview.logger, server.server, options)
-	server.server.listen(port, host);
+	await new Promise<void>((resolve, reject) => {
+	    server.once('listening', resolve);
+	    server.once('error', reject);
+	    server.server.listen(port, host);
+	});
 	return server;
 };
 
