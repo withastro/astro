@@ -179,7 +179,7 @@
     "zod": "^3.22.4"
   },
   "optionalDependencies": {
-    "sharp": "0.32.6"
+    "sharp": "^0.32.6"
   },
   "devDependencies": {
     "@astrojs/check": "^0.3.1",
