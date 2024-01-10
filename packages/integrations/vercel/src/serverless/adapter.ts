@@ -287,9 +287,15 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 						excludeFiles,
 						maxDuration,
 					});
-					routeDefinitions.push({ src: '/.*', dest: 'render' });
+					for (const route of routes) {
+						if (route.prerender) continue
+						routeDefinitions.push({
+							src: route.pattern.source,
+							dest: 'render',
+						})
+					}
 				}
-
+				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
 				await writeJson(new URL(`./config.json`, _config.outDir), {
@@ -303,6 +309,11 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 						},
 						{ handle: 'filesystem' },
 						...routeDefinitions,
+						...fourOhFourRoute ? [{
+								src: '/.*',
+								dest: fourOhFourRoute.prerender ? '/404.html' : 'render',
+								status: 404,
+							}] : [],
 					],
 					...(imageService || imagesConfig
 						? {
