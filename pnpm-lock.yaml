@@ -363,7 +363,7 @@ importers:
         specifier: ^1.69.5
         version: 1.69.6
       sharp:
-        specifier: 0.32.6
+        specifier: ^0.32.6
         version: 0.32.6
 
   examples/view-transitions:
@@ -679,7 +679,7 @@ importers:
         version: 3.22.4
     optionalDependencies:
       sharp:
-        specifier: 0.32.6
+        specifier: ^0.32.6
         version: 0.32.6
     devDependencies:
       '@astrojs/check':
