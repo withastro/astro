@@ -36,8 +36,8 @@ export function redirectRouteGenerate(redirectRoute: RouteData, data: Params): s
 
 export function redirectRouteStatus(redirectRoute: RouteData, method = 'GET'): ValidRedirectStatus {
 	const routeData = redirectRoute.redirectRoute;
-	if (typeof routeData?.redirect === 'object') {
-		return routeData.redirect.status;
+	if (routeData && typeof redirectRoute.redirect === 'object') {
+		return redirectRoute.redirect.status;
 	} else if (method !== 'GET') {
 		return 308;
 	}
