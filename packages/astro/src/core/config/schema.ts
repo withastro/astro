@@ -21,7 +21,7 @@ import 'shikiji-core';
 
 type ShikiLangs = NonNullable<ShikiConfig['langs']>;
 type ShikiTheme = NonNullable<ShikiConfig['theme']>;
-type ShikiTransformers = ShikiConfig['transformers'];
+type ShikiTransformers = NonNullable<ShikiConfig['transformers']>;
 
 const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
@@ -276,7 +276,10 @@ export const AstroConfigSchema = z.object({
 						)
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.experimentalThemes!),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
-					transformers: z.custom<ShikiTransformers>(),
+					transformers: z
+						.custom<ShikiTransformers[number]>()
+						.array()
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.transformers!),
 				})
 				.default({}),
 			remarkPlugins: z
