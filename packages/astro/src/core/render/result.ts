@@ -92,7 +92,7 @@ class Slots {
 
 	public has(name: string) {
 		if (!this.#slots) return false;
-		return Boolean(this.#slots[name]);
+		return Boolean(this.#slots[name]?.());
 	}
 
 	public async render(name: string, args: any[] = []) {

@@ -6,6 +6,6 @@ export { renderHTMLElement } from './dom.js';
 export { maybeRenderHead, renderHead } from './head.js';
 export type { RenderInstruction } from './instruction.js';
 export { renderPage } from './page.js';
-export { renderSlot, renderSlotToString, type ComponentSlots } from './slot.js';
+export { renderSlot, renderSlotTemplate, renderSlotToString, type ComponentSlots } from './slot.js';
 export { renderScriptElement, renderUniqueStylesheet } from './tags.js';
 export { addAttribute, defineScriptVars, voidElementNames } from './util.js';

@@ -26,6 +26,7 @@ export {
 	renderPage,
 	renderScriptElement,
 	renderSlot,
+	renderSlotTemplate,
 	renderSlotToString,
 	renderTemplate,
 	renderToString,
@@ -43,6 +44,9 @@ export { createTransitionScope, renderTransition } from './transition.js';
 import { markHTMLString } from './escape.js';
 import { addAttribute, Renderer } from './render/index.js';
 
+export const UNDEFINED_SLOT_MARKER = '@@UNDEFINED_SLOT_MARKER@@';
+export const INVALID_SLOT_MARKER = '@@INVALID_SLOT_MARKER@@';
+
 export function mergeSlots(...slotted: unknown[]) {
 	const slots: Record<string, () => any> = {};
 	for (let slot of slotted) {
@@ -57,6 +61,21 @@ export function mergeSlots(...slotted: unknown[]) {
 		}
 	}
 	return slots;
+}
+
+export function purifySlotName(slotName: unknown) {
+	if (typeof slotName === 'string' || typeof slotName === 'number') {
+		return slotName;
+	}
+	if (typeof slotName === 'undefined' || slotName === null) {
+		return UNDEFINED_SLOT_MARKER;
+	}
+
+	const slotNameTypeError = new TypeError(
+		`A slot's name must be a string or number. Got: '${typeof slotName}'`
+	);
+	console.warn(slotNameTypeError);
+	return INVALID_SLOT_MARKER;
 }
 
 /** @internal Associate JSX components with a specific renderer (see /src/vite-plugin-jsx/tag.ts) */
