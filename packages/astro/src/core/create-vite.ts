@@ -16,8 +16,9 @@ import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.j
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
-import astroDevOverlay from '../vite-plugin-dev-overlay/vite-plugin-dev-overlay.js';
+import astroDevToolbar from '../vite-plugin-dev-toolbar/vite-plugin-dev-toolbar.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
+import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
 import astroHeadPlugin from '../vite-plugin-head/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
 import { astroInjectEnvTsPlugin } from '../vite-plugin-inject-env-ts/index.js';
@@ -33,7 +34,6 @@ import type { Logger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
-import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -141,7 +141,7 @@ export async function createVite(
 			astroAssetsPlugin({ settings, logger, mode }),
 			astroPrefetch({ settings }),
 			astroTransitions({ settings }),
-			astroDevOverlay({ settings, logger }),
+			astroDevToolbar({ settings, logger }),
 			vitePluginFileURL({}),
 			!!settings.config.i18n && astroInternationalization({ settings }),
 		],
