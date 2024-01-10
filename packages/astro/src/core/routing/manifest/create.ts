@@ -477,7 +477,13 @@ export function createRouteManifest(
 			pathname: pathname || void 0,
 			prerender: false,
 			redirect: to,
-			redirectRoute: routes.find((r) => r.route === to),
+			redirectRoute: routes.find((r) => {
+				if (typeof to === 'object') {
+					return r.route === to.destination;
+				} else {
+					return r.route === to;
+				}
+			}),
 			fallbackRoutes: [],
 		};
 
