@@ -112,8 +112,27 @@ export interface VercelServerlessConfig {
 }
 
 interface VercelISRConfig {
-	/** A random string that you create. Its presence in the `__prerender_bypass` cookie will result in fresh responses being served. */
+	/**
+	 * A random string that you create.
+	 * Its presence in the `__prerender_bypass` cookie will result in fresh responses being served, bypassing the cache.
+	 * 
+	 * By default, none.
+	 */
 	bypassToken?: string;
+
+	/**
+	 * Expiration time (in seconds) before the pages will be re-generated.
+	 * 
+	 * By default, as long as the current deployment is in production.
+	 */
+	revalidate?: number;
+
+	/**
+	 * Paths that will always be served fresh.
+	 * 
+	 * By default, none.
+	 */
+	exclude?: string[];
 }
 
 export default function vercelServerless({
@@ -290,23 +309,47 @@ export default function vercelServerless({
 						});
 					}
 				} else {
-					await createFunctionFolder({
-						functionName: 'render',
-						runtime,
-						entry: new URL(serverEntry, buildTempFolder),
-						config: _config,
-						logger,
-						NTF_CACHE,
-						includeFiles: filesToInclude,
-						excludeFiles,
-						maxDuration,
-						isr,
-					});
+					if (isr) {
+						await createFunctionFolder({
+							functionName: 'isr',
+							runtime,
+							entry: new URL(serverEntry, buildTempFolder),
+							config: _config,
+							logger,
+							NTF_CACHE,
+							includeFiles: filesToInclude,
+							excludeFiles,
+							maxDuration,
+							isr,
+						});
+					}
+					if (isr === false || (typeof isr === "object" && isr.exclude)) {
+						await createFunctionFolder({
+							functionName: 'render',
+							runtime,
+							entry: new URL(serverEntry, buildTempFolder),
+							config: _config,
+							logger,
+							NTF_CACHE,
+							includeFiles: filesToInclude,
+							excludeFiles,
+							maxDuration,
+							isr,
+						});
+					}
+					if (typeof isr === "object" && isr.exclude) {
+						for (const route of isr.exclude) {
+							routeDefinitions.push({
+								src: route,
+								dest: 'render',
+							})
+						}
+					}
 					for (const route of routes) {
 						if (route.prerender) continue;
 						routeDefinitions.push({
 							src: route.pattern.source,
-							dest: 'render',
+							dest: isr ? '/isr?vercel_original_path=$0' : 'render',
 						});
 					}
 				}
@@ -417,10 +460,14 @@ async function createFunctionFolder({
 	});
 	
 	if (isr) {
+		const {
+			revalidate: expiration = false,
+			bypassToken = undefined,
+		} = typeof isr === "object" ? isr : {};
 		// https://vercel.com/docs/build-output-api/v3/primitives#prerender-configuration-file
 		await writeJson(prerenderConfig, {
-			expiration: false,
-			bypassToken: typeof isr === "object" ? isr.bypassToken : undefined,
+			expiration,
+			bypassToken,
 			allowQuery: ["vercel_original_path"],
 			passQuery: true
 		});
