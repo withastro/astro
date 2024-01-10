@@ -9,7 +9,10 @@ interface EnvPluginOptions {
 	settings: AstroSettings;
 }
 
-const importMetaEnvOnlyRe = /import\.meta\.env\b(?!\.)/;
+// Match `import.meta.env` directly without trailing property access
+const importMetaEnvOnlyRe = /\bimport\.meta\.env\b(?!\.)/;
+// Match valid JS variable names (identifiers), which accepts most alphanumeric characters,
+// except that the first character cannot be a number.
 const isValidIdentifierRe = /^[_$a-zA-Z][_$a-zA-Z0-9]*$/;
 
 function getPrivateEnv(
