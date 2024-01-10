@@ -12,6 +12,6 @@
   "dependencies": {
     "astro": "^4.1.1",
     "sass": "^1.69.5",
-    "sharp": "^0.32.5"
+    "sharp": "^0.32.6"
   }
 }
