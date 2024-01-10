@@ -3841,9 +3841,6 @@ importers:
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
-      shikiji:
-        specifier: ^0.9.17
-        version: 0.9.17
       zod:
         specifier: ^3.22.4
         version: 3.22.4
