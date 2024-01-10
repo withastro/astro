@@ -11,6 +11,7 @@ export {
 	maybeRenderHead,
 	mergeSlots,
 	render,
+	renderSlotTemplate,
 	renderComponent,
 	renderHead,
 	renderSlot,
