@@ -6,6 +6,7 @@ export interface ShikiHighlighter {
 	highlight(code: string, lang?: string, options?: { inline?: boolean }): string;
 }
 
+// TODO: Remove this special replacement in Astro 5
 const ASTRO_COLOR_REPLACEMENTS: Record<string, string> = {
 	'--astro-code-foreground': '--astro-code-color-text',
 	'--astro-code-background': '--astro-code-color-background',
@@ -15,9 +16,10 @@ const COLOR_REPLACEMENT_REGEX = new RegExp(
 	'g'
 );
 
-const cssVariablesTheme = createCssVariablesTheme({
-	variablePrefix: '--astro-code-',
-});
+let _cssVariablesTheme: ReturnType<typeof createCssVariablesTheme>;
+const cssVariablesTheme = () =>
+	_cssVariablesTheme ??
+	(_cssVariablesTheme = createCssVariablesTheme({ variablePrefix: '--astro-code-' }));
 
 export async function createShikiHighlighter({
 	langs = [],
@@ -28,7 +30,7 @@ export async function createShikiHighlighter({
 }: ShikiConfig = {}): Promise<ShikiHighlighter> {
 	const themes = experimentalThemes;
 
-	theme = theme === 'css-variables' ? cssVariablesTheme : theme;
+	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
 
 	const highlighter = await getHighlighter({
 		langs: langs.length ? langs : Object.keys(bundledLanguages),
