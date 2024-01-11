@@ -11,9 +11,7 @@ import type {
 	AstroSettings,
 	ContentEntryType,
 	DataEntryType,
-	ImageInputFormat,
 } from '../@types/astro.js';
-import { VALID_INPUT_FORMATS } from '../assets/consts.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 
 import { formatYAMLException, isYAMLException } from '../core/errors/utils.js';
