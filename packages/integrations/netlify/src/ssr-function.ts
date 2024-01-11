@@ -36,6 +36,8 @@ export const createExports = (manifest: SSRManifest, _args: Args) => {
 			}
 
 			if (integrationConfig.cacheOnDemandPages) {
+				const isCacheableMethod = ['GET', 'HEAD'].includes(request.method);
+
 				// any user-provided Cache-Control headers take precedence
 				const hasCacheControl = [
 					'Cache-Control',
@@ -43,7 +45,7 @@ export const createExports = (manifest: SSRManifest, _args: Args) => {
 					'Netlify-CDN-Cache-Control',
 				].some((header) => response.headers.has(header));
 
-				if (!hasCacheControl) {
+				if (isCacheableMethod && !hasCacheControl) {
 					// caches this page for up to a year
 					response.headers.append('CDN-Cache-Control', 'public, max-age=31536000, must-revalidate');
 				}
