@@ -21,6 +21,7 @@ import {
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
+const falsySlotSymbol = Symbol.for('falsy-slot');
 
 export interface CreateResultArgs {
 	/**
@@ -66,11 +67,13 @@ class Slots {
 	#result: SSRResult;
 	#slots: ComponentSlots | null;
 	#logger: Logger;
+	#hasSlotResultsCache: Map<string, boolean>;
 
 	constructor(result: SSRResult, slots: ComponentSlots | null, logger: Logger) {
 		this.#result = result;
 		this.#slots = slots;
 		this.#logger = logger;
+		this.#hasSlotResultsCache = new Map();
 
 		if (slots) {
 			for (const key of Object.keys(slots)) {
@@ -90,9 +93,31 @@ class Slots {
 		}
 	}
 
-	public has(name: string) {
+	private _has(name: string) {
 		if (!this.#slots) return false;
-		return Boolean(this.#slots[name]?.());
+		const slotResult = this.#slots[name];
+		if (!slotResult) return false;
+
+		const unwrappedSlotResult =
+			typeof slotResult === 'function' ? slotResult(this.#result) : slotResult;
+		if (!unwrappedSlotResult) return false;
+
+		const keyExistsInSlot = Boolean(unwrappedSlotResult);
+		const hasFalsySlot = Boolean(Reflect.get(unwrappedSlotResult, falsySlotSymbol));
+		if (keyExistsInSlot) {
+			if (hasFalsySlot) return false;
+			return true;
+		}
+		return false;
+	}
+
+	public has(name: string) {
+		if (this.#hasSlotResultsCache.has(name)) {
+			return this.#hasSlotResultsCache.get(name);
+		}
+		const result = this._has(name);
+		this.#hasSlotResultsCache.set(name, result);
+		return result;
 	}
 
 	public async render(name: string, args: any[] = []) {
