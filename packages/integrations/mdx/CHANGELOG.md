@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 2.0.4
+
+### Patch Changes
+
+- [#9652](https://github.com/withastro/astro/pull/9652) [`e72efd6a9a1e2a70488fd225529617ffd8418534`](https://github.com/withastro/astro/commit/e72efd6a9a1e2a70488fd225529617ffd8418534) Thanks [@bluwy](https://github.com/bluwy)! - Removes environment variables workaround that broke project builds with sourcemaps
+
 ## 2.0.3
 
 ### Patch Changes
