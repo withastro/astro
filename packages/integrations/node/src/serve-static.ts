@@ -54,7 +54,7 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 					const [url1 = '', search] = req.url!.split('?');
 					location = `${url1}/?${search}`;
 				} else {
-					location = req.url + '/';
+					location = appendForwardSlash(req.url!);
 				}
 
 				res.statusCode = 301;
