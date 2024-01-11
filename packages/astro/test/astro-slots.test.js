@@ -190,4 +190,17 @@ describe('Slots', () => {
 			expect(third.children[0].data).to.not.equal(first.children[0].data);
 		}
 	});
+
+	it('Slots.has() API', async () => {
+		const html = await fixture.readFile('/posts/index.html');
+		const $ = cheerio.load(html);
+		expect($('#post-1')).to.have.lengthOf(1);
+		expect($('#post-1').text().trim()).to.equal('');
+
+		expect($('#post-2')).to.have.lengthOf(1);
+		expect($('#post-2').text().trim()).to.equal('Post 2 Post 2 content');
+		expect($('#post-2').html().trim()).to.equal(
+			`<div class="card"><div class="card-content"><div class="post-content"> <h1>Post 2</h1> <p>Post 2 content</p> </div></div></div>`
+		);
+	});
 });
