@@ -1,12 +1,12 @@
 import type * as vite from 'vite';
 import type { AstroPluginOptions } from '../@types/astro.js';
 
-const VIRTUAL_MODULE_ID = 'astro:dev-overlay';
+const VIRTUAL_MODULE_ID = 'astro:dev-toolbar';
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
-export default function astroDevOverlay({ settings }: AstroPluginOptions): vite.Plugin {
+export default function astroDevToolbar({ settings }: AstroPluginOptions): vite.Plugin {
 	return {
-		name: 'astro:dev-overlay',
+		name: 'astro:dev-toolbar',
 		config() {
 			return {
 				optimizeDeps: {
@@ -23,7 +23,7 @@ export default function astroDevOverlay({ settings }: AstroPluginOptions): vite.
 		async load(id) {
 			if (id === resolvedVirtualModuleId) {
 				return `
-					export const loadDevOverlayPlugins = async () => {
+					export const loadDevToolbarApps = async () => {
 						return [${settings.devToolbarApps
 							.map((plugin) => `(await import(${JSON.stringify(plugin)})).default`)
 							.join(',')}];

@@ -1,4 +1,4 @@
-import type { DevOverlayMetadata, DevOverlayPlugin } from '../../../../@types/astro.js';
+import type { DevToolbarApp, DevToolbarMetadata } from '../../../../@types/astro.js';
 import { isDefinedIcon, type Icon } from '../ui-library/icons.js';
 import { colorForIntegration, iconForIntegration } from './utils/icons.js';
 import { createWindowElement } from './utils/window.js';
@@ -321,7 +321,7 @@ export default {
 				<section>
 				${astroLogo}
 				<astro-dev-toolbar-badge badge-style="gray" size="large">${
-					(window as DevOverlayMetadata).__astro_dev_overlay__.version
+					(window as DevToolbarMetadata).__astro_dev_toolbar__.version
 				}</astro-dev-toolbar-badge>
 				</section>
 				<astro-dev-toolbar-button id="copy-debug-button">Copy debug info <astro-dev-toolbar-icon icon="copy" /></astro-dev-toolbar-button>
@@ -360,7 +360,7 @@ export default {
 
 			copyDebugButton?.addEventListener('click', () => {
 				navigator.clipboard.writeText(
-					'```\n' + (window as DevOverlayMetadata).__astro_dev_overlay__.debugInfo + '\n```'
+					'```\n' + (window as DevToolbarMetadata).__astro_dev_toolbar__.debugInfo + '\n```'
 				);
 				copyDebugButton.textContent = 'Copied to clipboard!';
 
@@ -436,4 +436,4 @@ export default {
 			integrationList.append(fragment);
 		}
 	},
-} satisfies DevOverlayPlugin;
+} satisfies DevToolbarApp;

@@ -1,4 +1,4 @@
-export class DevOverlayWindow extends HTMLElement {
+export class DevToolbarWindow extends HTMLElement {
 	shadowRoot: ShadowRoot;
 
 	constructor() {
@@ -34,7 +34,7 @@ export class DevOverlayWindow extends HTMLElement {
 						background: white;
 					}
 				}
-				
+
 				@media (max-width: 640px) {
 					:host {
 						border-radius: 0;

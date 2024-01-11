@@ -1,7 +1,7 @@
 type ButtonSize = 'small' | 'medium' | 'large';
 type ButtonStyle = 'ghost' | 'outline' | 'purple' | 'gray' | 'red';
 
-export class DevOverlayButton extends HTMLElement {
+export class DevToolbarButton extends HTMLElement {
 	size: ButtonSize = 'small';
 	buttonStyle: ButtonStyle = 'purple';
 
@@ -72,6 +72,7 @@ export class DevOverlayButton extends HTMLElement {
 					border-color: rgba(249, 196, 215, 0.33);
 				}
 
+				/* TODO: Remove "astro-dev-overlay-icon" in Astro 5.0 */
 				::slotted(astro-dev-overlay-icon),
 				::slotted(astro-dev-toolbar-icon) {
 					display: inline-block;
