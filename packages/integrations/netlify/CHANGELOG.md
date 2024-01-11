@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 4.1.1
+
+### Patch Changes
+
+- [#127](https://github.com/withastro/adapters/pull/127) [`36434f0c631cb963c748a11679cf7a96cd605d8e`](https://github.com/withastro/adapters/commit/36434f0c631cb963c748a11679cf7a96cd605d8e) Thanks [@Skn0tt](https://github.com/Skn0tt)! - Updates the behavior of the `cacheOnDemandPages` setting to only cache GET/HEAD requests by default
+
 ## 4.1.0
 
 ### Minor Changes
