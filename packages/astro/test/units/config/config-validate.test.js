@@ -210,7 +210,7 @@ describe('Config Validation', () => {
 			).catch((err) => err);
 			expect(configError instanceof z.ZodError).to.equal(true);
 			expect(configError.errors[0].message).to.equal(
-				'The option `i18n.redirectToDefaultLocale` has effects only when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change the value of `i18n.prefixDefaultLocale` to `true`.'
+				'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.'
 			);
 		});
 	});
