@@ -50,28 +50,38 @@ const { fallback = 'animate' } = Astro.props;
 		return el.dataset.astroReload !== undefined;
 	}
 
+	function isTransitionEl(el: unknown): boolean {
+		return el?.dataset?.astroTransition !== undefined;
+	}
+
 	if (supportsViewTransitions || getFallback() !== 'none') {
 		document.addEventListener('click', (ev) => {
 			let link = ev.target;
 			if (link instanceof Element) {
-				link = link.closest('a, area');
+				link = link.closest('a, area') ?? link;
 			}
+			const dataAstroTransition = isTransitionEl(link);
+			
 			if (
 				!(link instanceof HTMLAnchorElement) &&
 				!(link instanceof SVGAElement) &&
-				!(link instanceof HTMLAreaElement)
+				!(link instanceof HTMLAreaElement) &&
+				!(dataAstroTransition)
 			)
 				return;
 			// This check verifies that the click is happening on an anchor
 			// that is going to another page within the same origin. Basically it determines
 			// same-origin navigation, but omits special key combos for new tabs, etc.
 			const linkTarget = link instanceof HTMLElement ? link.target : link.target.baseVal;
-			const href = link instanceof HTMLElement ? link.href : link.href.baseVal;
+			const href =
+				dataAstroTransition ? link.getAttribute("href")
+				: link instanceof HTMLElement ? link.href
+				: link.href.baseVal;
 			const origin = new URL(href, location.href).origin;
 			if (
 				isReloadEl(link) ||
 				link.hasAttribute('download') ||
-				!link.href ||
+				!href ||
 				(linkTarget && linkTarget !== '_self') ||
 				origin !== location.origin ||
 				ev.button !== 0 || // left clicks only
