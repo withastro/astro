@@ -645,8 +645,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       shikiji:
-        specifier: ^0.9.17
-        version: 0.9.17
+        specifier: ^0.9.18
+        version: 0.9.18
       string-width:
         specifier: ^7.0.0
         version: 7.0.0
@@ -809,8 +809,8 @@ importers:
         specifier: ^1.69.5
         version: 1.69.6
       shikiji-core:
-        specifier: ^0.9.17
-        version: 0.9.17
+        specifier: ^0.9.18
+        version: 0.9.18
       srcset-parse:
         specifier: ^1.1.0
         version: 1.1.0
@@ -5002,8 +5002,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       shikiji:
-        specifier: ^0.9.17
-        version: 0.9.17
+        specifier: ^0.9.18
+        version: 0.9.18
       unified:
         specifier: ^11.0.4
         version: 11.0.4
@@ -14484,13 +14484,13 @@ packages:
       vscode-textmate: 5.2.0
     dev: true
 
-  /shikiji-core@0.9.17:
-    resolution: {integrity: sha512-r1FWTXk6SO2aYqfWgcsJ11MuVQ1ymPSdXzJjK7q8EXuyqu8yc2N5qrQy5+BL6gTVOaF4yLjbxFjF+KTRM1Sp8Q==}
+  /shikiji-core@0.9.18:
+    resolution: {integrity: sha512-PKTXptbrp/WEDjNHV8OFG9KkfhmR0pSd161kzlDDlgQ0HXAnqJYNDSjqsy1CYZMx5bSvLMy42yJj9oFTqmkNTQ==}
 
-  /shikiji@0.9.17:
-    resolution: {integrity: sha512-0z/1NfkhBkm3ijrfFeHg3G9yDNuHhXdAGbQm7tRxj4WQ5z2y0XDbnagFyKyuV2ebCTS1Mwy1I3n0Fzcc/4xdmw==}
+  /shikiji@0.9.18:
+    resolution: {integrity: sha512-/tFMIdV7UQklzN13VjF0/XFzmii6C606Jc878hNezvB8ZR8FG8FW9j0I4J9EJre0owlnPntgLVPpHqy27Gs+DQ==}
     dependencies:
-      shikiji-core: 0.9.17
+      shikiji-core: 0.9.18
     dev: false
 
   /side-channel@1.0.4:
