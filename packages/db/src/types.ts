@@ -52,6 +52,10 @@ const fieldsSchema = z.record(fieldSchema);
 
 export const collectionSchema = z.object({
 	fields: fieldsSchema,
+	data: z
+		.function()
+		.returns(z.array(z.record(z.unknown())))
+		.optional(),
 });
 
 export const collectionsSchema = z.record(collectionSchema);
@@ -74,8 +78,12 @@ export type FieldType =
 export type DBField = z.infer<typeof fieldSchema>;
 export type DBFieldInput = DateFieldInput | BooleanField | NumberField | TextField | JsonField;
 export type DBFields = z.infer<typeof fieldsSchema>;
-export type DBCollection = z.infer<typeof collectionSchema>;
-export type DBCollections = z.infer<typeof collectionsSchema>;
+export type DBCollection<TFields extends DBFields = DBFields> = {
+	fields: TFields;
+	// TODO: better `insert` types
+	data?: () => MaybePromise<Array<Record<keyof TFields, any>>>;
+};
+export type DBCollections = Record<string, DBCollection>;
 
 export type AstroTable<T extends Pick<TableConfig, 'name' | 'columns'>> = SQLiteTableWithColumns<
 	T & {
@@ -157,3 +165,5 @@ export type AstroId<T extends Pick<GeneratedConfig<'string'>, 'tableName'>> = SQ
 		baseColumn: never;
 	}
 >;
+
+export type MaybePromise<T> = T | Promise<T>;
