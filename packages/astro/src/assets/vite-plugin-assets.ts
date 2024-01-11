@@ -20,6 +20,7 @@ import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
 const assetRegex = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})`, 'i');
+const assetRegexEnds = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})$`, 'i');
 
 export default function assets({
 	settings,
@@ -181,6 +182,11 @@ export default function assets({
 						// If our import has any query params, we'll let Vite handle it, nonetheless we'll make sure to not delete it
 						// See https://github.com/withastro/astro/issues/8333
 						globalThis.astroAsset.referencedImages.add(removeQueryString(id));
+						return;
+					}
+
+					// If the requested ID doesn't end with a valid image extension, we'll let Vite handle it
+					if (!assetRegexEnds.test(id)) {
 						return;
 					}
 
