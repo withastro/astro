@@ -1542,7 +1542,7 @@ export interface AstroUserConfig {
 	 * @description
 	 * TODO
 	 */
-	db?: object;
+	db?: Config.Database;
 
 	/**
 	 * @docs
@@ -2750,5 +2750,12 @@ declare global {
 		'astro-dev-overlay-button': DevToolbarButton;
 		'astro-dev-overlay-icon': DevToolbarIcon;
 		'astro-dev-overlay-card': DevToolbarCard;
+	}
+}
+
+declare global {
+	// eslint-disable-next-line @typescript-eslint/no-namespace
+	namespace Config {
+		type Database = Record<string, any>;
 	}
 }
