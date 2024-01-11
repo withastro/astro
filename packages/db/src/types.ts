@@ -52,7 +52,10 @@ const fieldsSchema = z.record(fieldSchema);
 
 export const collectionSchema = z.object({
 	fields: fieldsSchema,
-	data: z.function().returns(fieldsSchema).optional(),
+	data: z
+		.function()
+		.returns(z.array(z.record(z.unknown())))
+		.optional(),
 });
 
 export const collectionsSchema = z.record(collectionSchema);
