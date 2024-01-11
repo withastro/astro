@@ -6,11 +6,16 @@ import type { Options } from "./types.js";
 import type { NodeApp } from "astro/app/node";
 
 /**
+ * Creates a Node.js http listener for static files and prerendered pages.
+ * In standalone mode, the static handler is queried first for the static files.
+ * If one matching the request path is not found, it relegates to the SSR handler.
  * Intended to be used only in the standalone mode.
- * This is queried first, and if a static file is not found, it relegates to the SSR handler.
  */
-export default function createListener(app: NodeApp, options: Options) {
+export function createStaticHandler(app: NodeApp, options: Options) {
 	const client = resolveClientDir(options);
+	/**
+	 * @param ssr The SSR handler to be called if the static handler does not find a matching file.
+	 */
     return (req: IncomingMessage, res: ServerResponse, ssr: () => unknown) => {
 		if (req.url) {
 			let pathname = app.removeBase(req.url);
@@ -36,6 +41,8 @@ export default function createListener(app: NodeApp, options: Options) {
 			stream.on('headers', (_res: ServerResponse) => {
                 // assets in dist/_astro are hashed and should get the immutable header
 				if (pathname.startsWith(`/${options.assets}/`)) {
+					// This is the "far future" cache header, used for static files whose name includes their digest hash.
+					// 1 year (31,536,000 seconds) is convention.
 					// Taken from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#immutable
 					_res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
 				}

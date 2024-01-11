@@ -5,7 +5,7 @@ import type { AstroIntegrationLogger } from "astro";
 import type { Options } from './types.js';
 import type { AddressInfo } from "node:net";
 
-export default async function logListeningOn(logger: AstroIntegrationLogger, server: http.Server | https.Server, options: Pick<Options, "host">) {
+export async function logListeningOn(logger: AstroIntegrationLogger, server: http.Server | https.Server, options: Pick<Options, "host">) {
 	await new Promise<void>(resolve => server.once('listening', resolve)) 
     const protocol = server instanceof https.Server ? 'https' : 'http';
     // Allow to provide host value at runtime

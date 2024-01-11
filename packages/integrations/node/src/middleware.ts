@@ -1,11 +1,11 @@
-import createAppListener from './serve-app.js';
+import { createAppHandler } from './serve-app.js';
 import type { RequestHandler } from "./types.js";
 import type { NodeApp } from "astro/app/node";
 
 /**
  * Creates a middleware that can be used with Express, Connect, etc.
  * 
- * Similar to `createListener` but can additionally be placed in the express
+ * Similar to `createAppHandler` but can additionally be placed in the express
  * chain as an error middleware.
  * 
  * https://expressjs.com/en/guide/using-middleware.html#middleware.error-handling
@@ -13,7 +13,7 @@ import type { NodeApp } from "astro/app/node";
 export default function createMiddleware(
     app: NodeApp,
 ): RequestHandler {
-    const listener = createAppListener(app)
+    const handler = createAppHandler(app)
     const logger = app.getAdapterLogger()
     // using spread args because express trips up if the function's
     // stringified body includes req, res, next, locals directly
@@ -30,7 +30,7 @@ export default function createMiddleware(
             }
         }
 		try {
-			await listener(req, res, next, locals);
+			await handler(req, res, next, locals);
 		} catch (err) {
 			logger.error(`Could not render ${req.url}`);
 			console.error(err);

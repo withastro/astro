@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { AstroError } from 'astro/errors';
-import logListeningOn from './log-listening-on.js';
+import { logListeningOn } from './log-listening-on.js';
 import { createServer } from './standalone.js';
 import type { CreatePreviewServer } from 'astro';
 import type { createExports } from './server.js';
@@ -38,8 +38,8 @@ const createPreviewServer: CreatePreviewServer = async function (preview) {
 	const server = createServer(ssrHandler, host, port);
 	logListeningOn(preview.logger, server.server, options)
 	await new Promise<void>((resolve, reject) => {
-	    server.once('listening', resolve);
-	    server.once('error', reject);
+	    server.server.once('listening', resolve);
+	    server.server.once('error', reject);
 	    server.server.listen(port, host);
 	});
 	return server;

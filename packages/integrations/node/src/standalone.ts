@@ -2,9 +2,9 @@ import http from 'node:http';
 import https from 'https';
 import fs from 'node:fs';
 import enableDestroy from 'server-destroy';
-import createAppListener from './serve-app.js';
-import createStaticListener from './serve-static.js';
-import logListeningOn from './log-listening-on.js';
+import { createAppHandler } from './serve-app.js';
+import { createStaticHandler } from './serve-static.js';
+import { logListeningOn } from './log-listening-on.js';
 import type { NodeApp } from 'astro/app/node';
 import type { Options } from './types.js';
 import type { PreviewServer } from 'astro';
@@ -28,8 +28,8 @@ export default function standalone(app: NodeApp, options: Options) {
 
 // also used by server entrypoint
 export function createStandaloneHandler(app: NodeApp, options: Options) {
-	const appHandler = createAppListener(app);
-	const staticHandler = createStaticListener(app, options);
+	const appHandler = createAppHandler(app);
+	const staticHandler = createStaticHandler(app, options);
 	return (req: http.IncomingMessage, res: http.ServerResponse) => {
 		try {
 			// validate request path
