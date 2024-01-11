@@ -16,7 +16,6 @@ import { getProxyCode } from '../assets/utils/proxy.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
-import { escapeViteEnvReferences } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG, DATA_FLAG } from './consts.js';
 import {
 	getContentEntryExts,
@@ -93,7 +92,7 @@ export function astroContentImportPlugin({
 						pluginContext: this,
 					});
 
-					const code = escapeViteEnvReferences(`
+					const code = `
 export const id = ${JSON.stringify(id)};
 export const collection = ${JSON.stringify(collection)};
 export const data = ${stringifyEntryData(data, isServerLikeOutput(settings.config))};
@@ -102,7 +101,7 @@ export const _internal = {
 	filePath: ${JSON.stringify(_internal.filePath)},
 	rawData: ${JSON.stringify(_internal.rawData)},
 };
-`);
+`;
 					return code;
 				} else if (hasContentFlag(viteId, CONTENT_FLAG)) {
 					const fileId = viteId.split('?')[0];
@@ -115,7 +114,7 @@ export const _internal = {
 						pluginContext: this,
 					});
 
-					const code = escapeViteEnvReferences(`
+					const code = `
 						export const id = ${JSON.stringify(id)};
 						export const collection = ${JSON.stringify(collection)};
 						export const slug = ${JSON.stringify(slug)};
@@ -125,7 +124,7 @@ export const _internal = {
 							type: 'content',
 							filePath: ${JSON.stringify(_internal.filePath)},
 							rawData: ${JSON.stringify(_internal.rawData)},
-						};`);
+						};`;
 
 					return { code, map: { mappings: '' } };
 				}
