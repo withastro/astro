@@ -13,6 +13,7 @@ export type ComponentSlotValue = (
 ) => RenderTemplateResult | Promise<RenderTemplateResult>;
 
 const slotString = Symbol.for('astro:slot-string');
+const falsySlotSymbol = Symbol.for('falsy-slot');
 
 export class SlotString extends HTMLString {
 	public instructions: null | RenderInstruction[];
@@ -101,7 +102,14 @@ export function renderSlotTemplate(htmlParts: TemplateStringsArray, ...expressio
 	// for a slot to be empty, the expressions must all be falsy or nullish, AND
 	// the htmlParts must be empty or all whitespace
 	const isEmpty =
-		expressions.every((exp) => !Boolean(exp)) && htmlParts.every((part) => part.trim() === '');
-	if (isEmpty) return false;
-	return renderTemplate(htmlParts, ...expressions);
+		expressions.every((exp) => Boolean(exp) === false) &&
+		htmlParts.every((part) => part.trim() === '');
+	const renderTemplateResult = renderTemplate(htmlParts, ...expressions);
+
+	if (isEmpty) {
+		Object.defineProperty(renderTemplateResult, falsySlotSymbol, {
+			value: true,
+		});
+	}
+	return renderTemplateResult;
 }
