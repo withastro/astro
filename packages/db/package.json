@@ -4,11 +4,11 @@
   "description": "",
   "license": "MIT",
   "type": "module",
-  "types": "./dist/index.d.ts",
+  "types": "./index.d.ts",
   "author": "withastro",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./index.d.ts",
       "import": "./dist/index.js"
     },
     "./components": "./components/index.ts",
@@ -24,7 +24,7 @@
   "typesVersions": {
     "*": {
       ".": [
-        "./dist/index.d.ts"
+        "./index.d.ts"
       ],
       "internal": [
         "./dist/internal.d.ts"
@@ -32,6 +32,7 @@
     }
   },
   "files": [
+    "index.d.ts",
     "dist",
     "components"
   ],
