@@ -24,6 +24,7 @@ import {
 } from 'drizzle-orm/sqlite-core';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
+import type { AstroIntegrationLogger } from 'astro';
 
 export type SqliteDB = SqliteRemoteDatabase;
 export type {
@@ -38,25 +39,21 @@ export type {
 
 const sqlite = new SQLiteAsyncDialect();
 
-export async function createDb({
-	collections,
-	dbUrl,
-	createTables = false,
-}: {
-	collections: DBCollections;
-	dbUrl: string;
-	createTables?: boolean;
-}) {
+export async function createDb({ dbUrl }: { dbUrl: string }) {
 	const client = createClient({ url: dbUrl });
 	const db = drizzle(client);
-
-	if (createTables) {
-		await createDbTables(db, collections);
-	}
 	return db;
 }
 
-async function createDbTables(db: LibSQLDatabase, collections: DBCollections) {
+export async function setupDbTables({
+	db,
+	collections,
+	logger,
+}: {
+	db: LibSQLDatabase;
+	collections: DBCollections;
+	logger: AstroIntegrationLogger;
+}) {
 	const setupQueries: SQL[] = [];
 	for (const [name, collection] of Object.entries(collections)) {
 		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${name}`);
@@ -65,6 +62,20 @@ async function createDbTables(db: LibSQLDatabase, collections: DBCollections) {
 	}
 	for (const q of setupQueries) {
 		await db.run(q);
+	}
+	for (const [name, collection] of Object.entries(collections)) {
+		if (!collection.data) continue;
+
+		const table = collectionToTable(name, collection);
+		try {
+			await db.insert(table).values(await collection.data());
+		} catch (e) {
+			logger.error(
+				`Failed to seed ${bold(
+					name
+				)} data. Did you update to match recent schema changes? Full error:\n\n${e}`
+			);
+		}
 	}
 }
 
@@ -81,22 +92,6 @@ export function getCreateTableQuery(collectionName: string, collection: DBCollec
 
 	query += colQueries.join(', ') + ')';
 	return query;
-}
-
-export async function executeCollectionDataFn({
-	db,
-	collectionName,
-	collection,
-}: {
-	db: LibSQLDatabase;
-	collectionName: string;
-	collection: DBCollection;
-}) {
-	const { data } = collection;
-	if (!data) return;
-
-	const table = collectionToTable(collectionName, collection);
-	await db.insert(table).values(await data());
 }
 
 function schemaTypeToSqlType(type: FieldType): 'text' | 'integer' {
