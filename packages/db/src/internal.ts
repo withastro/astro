@@ -83,6 +83,22 @@ export function getCreateTableQuery(collectionName: string, collection: DBCollec
 	return query;
 }
 
+export async function executeCollectionDataFn({
+	db,
+	collectionName,
+	collection,
+}: {
+	db: LibSQLDatabase;
+	collectionName: string;
+	collection: DBCollection;
+}) {
+	const { data } = collection;
+	if (!data) return;
+
+	const table = collectionToTable(collectionName, collection);
+	await db.insert(table).values(await data());
+}
+
 function schemaTypeToSqlType(type: FieldType): 'text' | 'integer' {
 	switch (type) {
 		case 'date':
@@ -122,10 +138,6 @@ type DBFieldWithDefault =
 // Type narrowing the default fails on union types, so use a type guard
 function hasDefault(field: DBField): field is DBFieldWithDefault {
 	return field.default !== undefined;
-}
-
-function hasRuntimeDefault(field: DBField): field is DBFieldWithDefault {
-	return field.type === 'date' && field.default === 'now';
 }
 
 function getDefaultValueSql(columnName: string, column: DBFieldWithDefault): string {
