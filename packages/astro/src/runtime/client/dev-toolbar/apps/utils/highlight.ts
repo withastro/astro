@@ -1,4 +1,4 @@
-import type { DevOverlayHighlight } from '../../ui-library/highlight.js';
+import type { DevToolbarHighlight } from '../../ui-library/highlight.js';
 import type { Icon } from '../../ui-library/icons.js';
 
 export function createHighlight(rect: DOMRect, icon?: Icon) {
@@ -33,7 +33,7 @@ export function getElementsPositionInDocument(el: Element) {
 	};
 }
 
-export function positionHighlight(highlight: DevOverlayHighlight, rect: DOMRect) {
+export function positionHighlight(highlight: DevToolbarHighlight, rect: DOMRect) {
 	highlight.style.display = 'block';
 	// If the highlight is fixed, don't position based on scroll
 	const scrollY = highlight.style.position === 'fixed' ? 0 : window.scrollY;
@@ -45,7 +45,7 @@ export function positionHighlight(highlight: DevOverlayHighlight, rect: DOMRect)
 }
 
 export function attachTooltipToHighlight(
-	highlight: DevOverlayHighlight,
+	highlight: DevToolbarHighlight,
 	tooltip: HTMLElement,
 	originalElement: Element
 ) {

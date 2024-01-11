@@ -1,6 +1,6 @@
 import { getIconElement, isDefinedIcon, type Icon } from './icons.js';
 
-export class DevOverlayHighlight extends HTMLElement {
+export class DevToolbarHighlight extends HTMLElement {
 	icon?: Icon | undefined | null;
 
 	shadowRoot: ShadowRoot;

@@ -1,4 +1,4 @@
-export class DevOverlayToggle extends HTMLElement {
+export class DevToolbarToggle extends HTMLElement {
 	shadowRoot: ShadowRoot;
 	input: HTMLInputElement;
 

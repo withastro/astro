@@ -1,5 +1,5 @@
-import type { DevOverlayMetadata, DevOverlayPlugin } from '../../../../@types/astro.js';
-import type { DevOverlayHighlight } from '../ui-library/highlight.js';
+import type { DevToolbarApp, DevToolbarMetadata } from '../../../../@types/astro.js';
+import type { DevToolbarHighlight } from '../ui-library/highlight.js';
 import {
 	attachTooltipToHighlight,
 	createHighlight,
@@ -16,7 +16,7 @@ export default {
 	name: 'Inspect',
 	icon: icon,
 	init(canvas, eventTarget) {
-		let islandsOverlays: { highlightElement: DevOverlayHighlight; island: HTMLElement }[] = [];
+		let islandsOverlays: { highlightElement: DevToolbarHighlight; island: HTMLElement }[] = [];
 
 		addIslandsOverlay();
 
@@ -31,7 +31,7 @@ export default {
 			event.preventDefault();
 			event.stopPropagation();
 			eventTarget.dispatchEvent(
-				new CustomEvent('toggle-plugin', {
+				new CustomEvent('toggle-app', {
 					detail: {
 						state: false,
 					},
@@ -61,7 +61,7 @@ export default {
 						header {
 							display: flex;
 						}
-	
+
 						h1 {
 							display: flex;
 							align-items: center;
@@ -71,7 +71,7 @@ export default {
 							margin: 0;
 							font-size: 22px;
 						}
-	
+
 						astro-dev-toolbar-icon {
 							width: 1em;
 						   height: 1em;
@@ -181,7 +181,7 @@ export default {
 						await fetch(
 							'/__open-in-editor?file=' +
 								encodeURIComponent(
-									(window as DevOverlayMetadata).__astro_dev_overlay__.root +
+									(window as DevToolbarMetadata).__astro_dev_toolbar__.root +
 										islandComponentPath.slice(1)
 								)
 						);
@@ -192,4 +192,4 @@ export default {
 			return tooltip;
 		}
 	},
-} satisfies DevOverlayPlugin;
+} satisfies DevToolbarApp;

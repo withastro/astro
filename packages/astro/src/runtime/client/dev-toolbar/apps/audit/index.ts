@@ -1,5 +1,5 @@
-import type { DevOverlayMetadata, DevOverlayPlugin } from '../../../../../@types/astro.js';
-import type { DevOverlayHighlight } from '../../ui-library/highlight.js';
+import type { DevToolbarApp, DevToolbarMetadata } from '../../../../../@types/astro.js';
+import type { DevToolbarHighlight } from '../../ui-library/highlight.js';
 import {
 	attachTooltipToHighlight,
 	createHighlight,
@@ -49,7 +49,7 @@ export default {
 	name: 'Audit',
 	icon: icon,
 	async init(canvas, eventTarget) {
-		let audits: { highlightElement: DevOverlayHighlight; auditedElement: HTMLElement }[] = [];
+		let audits: { highlightElement: DevToolbarHighlight; auditedElement: HTMLElement }[] = [];
 
 		await lint();
 
@@ -62,7 +62,7 @@ export default {
 			if (!target.closest) return;
 			if (target.closest('astro-dev-toolbar')) return;
 			eventTarget.dispatchEvent(
-				new CustomEvent('toggle-plugin', {
+				new CustomEvent('toggle-app', {
 					detail: {
 						state: false,
 					},
@@ -167,7 +167,7 @@ export default {
 			if (noAuditBlock) {
 				const devOverlayRect = document
 					.querySelector('astro-dev-toolbar')
-					?.shadowRoot.querySelector('#dev-overlay')
+					?.shadowRoot.querySelector('#dev-toolbar-root')
 					?.getBoundingClientRect();
 
 				noAuditBlock.style.top = `${
@@ -240,7 +240,7 @@ export default {
 
 				tooltip.sections.push({
 					content: elementFileWithPosition.slice(
-						(window as DevOverlayMetadata).__astro_dev_overlay__.root.length - 1 // We want to keep the final slash, so minus one.
+						(window as DevToolbarMetadata).__astro_dev_toolbar__.root.length - 1 // We want to keep the final slash, so minus one.
 					),
 					clickDescription: 'Click to go to file',
 					async clickAction() {
@@ -263,4 +263,4 @@ export default {
 				.replace(/'/g, '&#039;');
 		}
 	},
-} satisfies DevOverlayPlugin;
+} satisfies DevToolbarApp;

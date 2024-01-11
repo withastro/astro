@@ -1,12 +1,9 @@
 /* eslint-disable no-console */
-import type {
-	DevOverlayMetadata,
-	DevOverlayPlugin as DevOverlayPluginDefinition,
-} from '../../../@types/astro.js';
+import type { DevToolbarApp as DevToolbarAppDefinition } from '../../../@types/astro.js';
 import { settings } from './settings.js';
 import { getIconElement, isDefinedIcon, type Icon } from './ui-library/icons.js';
 
-export type DevOverlayPlugin = DevOverlayPluginDefinition & {
+export type DevToolbarApp = DevToolbarAppDefinition & {
 	builtIn: boolean;
 	active: boolean;
 	status: 'ready' | 'loading' | 'error';
@@ -16,18 +13,20 @@ export type DevOverlayPlugin = DevOverlayPluginDefinition & {
 	eventTarget: EventTarget;
 };
 const WS_EVENT_NAME = 'astro-dev-toolbar';
+// TODO: Remove in Astro 5.0
 const WS_EVENT_NAME_DEPRECATED = 'astro-dev-overlay';
+
 const HOVER_DELAY = 2 * 1000;
 const DEVBAR_HITBOX_ABOVE = 42;
 
-export class AstroDevOverlay extends HTMLElement {
+export class AstroDevToolbar extends HTMLElement {
 	shadowRoot: ShadowRoot;
 	delayedHideTimeout: number | undefined;
-	devOverlay: HTMLDivElement | undefined;
-	plugins: DevOverlayPlugin[] = [];
+	devToolbarContainer: HTMLDivElement | undefined;
+	apps: DevToolbarApp[] = [];
 	hasBeenInitialized = false;
 	// TODO: This should be dynamic based on the screen size or at least configurable, erika - 2023-11-29
-	customPluginsToShow = 3;
+	customAppsToShow = 3;
 
 	constructor() {
 		super();
@@ -54,7 +53,7 @@ export class AstroDevOverlay extends HTMLElement {
 				animation: none;
 			}
 
-			#dev-overlay {
+			#dev-toolbar-root {
 				position: fixed;
 				bottom: 0px;
 				left: 50%;
@@ -67,11 +66,11 @@ export class AstroDevOverlay extends HTMLElement {
 				pointer-events: none;
 			}
 
-			#dev-overlay[data-hidden] {
+			#dev-toolbar-root[data-hidden] {
 				bottom: -40px;
 			}
 
-			#dev-overlay[data-hidden] #dev-bar .item {
+			#dev-toolbar-root[data-hidden] #dev-bar .item {
 				opacity: 0.2;
 			}
 
@@ -215,7 +214,7 @@ export class AstroDevOverlay extends HTMLElement {
 				background: #B33E66;
 			}
 
-			#dev-overlay:not([data-no-notification]) #dev-bar .item .notification[data-active] {
+			#dev-toolbar-root:not([data-no-notification]) #dev-bar .item .notification[data-active] {
 				display: block;
 			}
 
@@ -229,66 +228,62 @@ export class AstroDevOverlay extends HTMLElement {
 				width: 1px;
 			}
 		</style>
-		<div id="dev-overlay" data-hidden ${
-			settings.config.disablePluginNotification ? 'data-no-notification' : ''
+		<div id="dev-toolbar-root" data-hidden ${
+			settings.config.disableAppNotification ? 'data-no-notification' : ''
 		}>
 			<div id="dev-bar-hitbox-above"></div>
 			<div id="dev-bar">
 				<div id="bar-container">
-					${this.plugins
-						.filter(
-							(plugin) => plugin.builtIn && !['astro:settings', 'astro:more'].includes(plugin.id)
-						)
-						.map((plugin) => this.getPluginTemplate(plugin))
+					${this.apps
+						.filter((app) => app.builtIn && !['astro:settings', 'astro:more'].includes(app.id))
+						.map((app) => this.getAppTemplate(app))
 						.join('')}
 					${
-						this.plugins.filter((plugin) => !plugin.builtIn).length > 0
-							? `<div class="separator"></div>${this.plugins
-									.filter((plugin) => !plugin.builtIn)
-									.slice(0, this.customPluginsToShow)
-									.map((plugin) => this.getPluginTemplate(plugin))
+						this.apps.filter((app) => !app.builtIn).length > 0
+							? `<div class="separator"></div>${this.apps
+									.filter((app) => !app.builtIn)
+									.slice(0, this.customAppsToShow)
+									.map((app) => this.getAppTemplate(app))
 									.join('')}`
 							: ''
 					}
 					${
-						this.plugins.filter((plugin) => !plugin.builtIn).length > this.customPluginsToShow
-							? this.getPluginTemplate(
-									this.plugins.find((plugin) => plugin.builtIn && plugin.id === 'astro:more')!
+						this.apps.filter((app) => !app.builtIn).length > this.customAppsToShow
+							? this.getAppTemplate(
+									this.apps.find((app) => app.builtIn && app.id === 'astro:more')!
 								)
 							: ''
 					}
 					<div class="separator"></div>
-					${this.getPluginTemplate(
-						this.plugins.find((plugin) => plugin.builtIn && plugin.id === 'astro:settings')!
-					)}
+					${this.getAppTemplate(this.apps.find((app) => app.builtIn && app.id === 'astro:settings')!)}
 				</div>
 			</div>
 			<div id="dev-bar-hitbox-below"></div>
 		</div>`;
 
-		this.devOverlay = this.shadowRoot.querySelector<HTMLDivElement>('#dev-overlay')!;
+		this.devToolbarContainer = this.shadowRoot.querySelector<HTMLDivElement>('#dev-toolbar-root')!;
 		this.attachEvents();
 
-		// Create plugin canvases
-		this.plugins.forEach(async (plugin) => {
-			if (settings.config.verbose) console.log(`Creating plugin canvas for ${plugin.id}`);
-			const pluginCanvas = document.createElement('astro-dev-toolbar-plugin-canvas');
-			pluginCanvas.dataset.pluginId = plugin.id;
-			this.shadowRoot?.append(pluginCanvas);
+		// Create app canvases
+		this.apps.forEach(async (app) => {
+			if (settings.config.verbose) console.log(`Creating app canvas for ${app.id}`);
+			const appCanvas = document.createElement('astro-dev-toolbar-app-canvas');
+			appCanvas.dataset.appId = app.id;
+			this.shadowRoot?.append(appCanvas);
 		});
 
-		// Init plugin lazily, so that the page can load faster.
+		// Init app lazily, so that the page can load faster.
 		// Fallback to setTimeout for Safari (sad!)
 		if ('requestIdleCallback' in window) {
 			window.requestIdleCallback(
 				async () => {
-					this.plugins.map((plugin) => this.initPlugin(plugin));
+					this.apps.map((app) => this.initApp(app));
 				},
 				{ timeout: 300 }
 			);
 		} else {
 			setTimeout(async () => {
-				this.plugins.map((plugin) => this.initPlugin(plugin));
+				this.apps.map((app) => this.initApp(app));
 			}, 300);
 		}
 	}
@@ -302,9 +297,9 @@ export class AstroDevOverlay extends HTMLElement {
 			this.hasBeenInitialized = true;
 		}
 
-		// Run this every time to make sure the correct plugin is open.
-		this.plugins.forEach(async (plugin) => {
-			await this.setPluginStatus(plugin, plugin.active);
+		// Run this every time to make sure the correct app is open.
+		this.apps.forEach(async (app) => {
+			await this.setAppStatus(app, app.active);
 		});
 	}
 
@@ -314,28 +309,28 @@ export class AstroDevOverlay extends HTMLElement {
 			item.addEventListener('click', async (event) => {
 				const target = event.currentTarget;
 				if (!target || !(target instanceof HTMLElement)) return;
-				const id = target.dataset.pluginId;
+				const id = target.dataset.appId;
 				if (!id) return;
-				const plugin = this.getPluginById(id);
-				if (!plugin) return;
+				const app = this.getAppById(id);
+				if (!app) return;
 				event.stopPropagation();
-				await this.togglePluginStatus(plugin);
+				await this.toggleAppStatus(app);
 			});
 		});
 
 		(['mouseenter', 'focusin'] as const).forEach((event) => {
-			this.devOverlay!.addEventListener(event, () => {
+			this.devToolbarContainer!.addEventListener(event, () => {
 				this.clearDelayedHide();
 				if (this.isHidden()) {
-					this.setOverlayVisible(true);
+					this.setToolbarVisible(true);
 				}
 			});
 		});
 
 		(['mouseleave', 'focusout'] as const).forEach((event) => {
-			this.devOverlay!.addEventListener(event, () => {
+			this.devToolbarContainer!.addEventListener(event, () => {
 				this.clearDelayedHide();
-				if (this.getActivePlugin() || this.isHidden()) {
+				if (this.getActiveApp() || this.isHidden()) {
 					return;
 				}
 				this.triggerDelayedHide();
@@ -345,124 +340,125 @@ export class AstroDevOverlay extends HTMLElement {
 		document.addEventListener('keyup', (event) => {
 			if (event.key !== 'Escape') return;
 			if (this.isHidden()) return;
-			const activePlugin = this.getActivePlugin();
-			if (activePlugin) {
-				this.togglePluginStatus(activePlugin);
+			const activeApp = this.getActiveApp();
+			if (activeApp) {
+				this.toggleAppStatus(activeApp);
 			} else {
-				this.setOverlayVisible(false);
+				this.setToolbarVisible(false);
 			}
 		});
 	}
 
-	async initPlugin(plugin: DevOverlayPlugin) {
-		const shadowRoot = this.getPluginCanvasById(plugin.id)!.shadowRoot!;
-		plugin.status = 'loading';
+	async initApp(app: DevToolbarApp) {
+		const shadowRoot = this.getAppCanvasById(app.id)!.shadowRoot!;
+		app.status = 'loading';
 		try {
-			if (settings.config.verbose) console.info(`Initializing plugin ${plugin.id}`);
+			if (settings.config.verbose) console.info(`Initializing app ${app.id}`);
 
-			await plugin.init?.(shadowRoot, plugin.eventTarget);
-			plugin.status = 'ready';
+			await app.init?.(shadowRoot, app.eventTarget);
+			app.status = 'ready';
 
 			if (import.meta.hot) {
-				import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:initialized`);
-				import.meta.hot.send(`${WS_EVENT_NAME_DEPRECATED}:${plugin.id}:initialized`);
+				import.meta.hot.send(`${WS_EVENT_NAME}:${app.id}:initialized`);
+				import.meta.hot.send(`${WS_EVENT_NAME_DEPRECATED}:${app.id}:initialized`);
 			}
 		} catch (e) {
-			console.error(`Failed to init plugin ${plugin.id}, error: ${e}`);
-			plugin.status = 'error';
+			console.error(`Failed to init app ${app.id}, error: ${e}`);
+			app.status = 'error';
 		}
 	}
 
-	getPluginTemplate(plugin: DevOverlayPlugin) {
-		return `<button class="item" data-plugin-id="${plugin.id}">
-				<div class="icon">${getPluginIcon(plugin.icon)}<div class="notification"></div></div>
-				<span class="item-tooltip">${plugin.name}</span>
+	getAppTemplate(app: DevToolbarApp) {
+		return `<button class="item" data-app-id="${app.id}">
+				<div class="icon">${getAppIcon(app.icon)}<div class="notification"></div></div>
+				<span class="item-tooltip">${app.name}</span>
 			</button>`;
 	}
 
-	getPluginById(id: string) {
-		return this.plugins.find((plugin) => plugin.id === id);
+	getAppById(id: string) {
+		return this.apps.find((app) => app.id === id);
 	}
 
-	getPluginCanvasById(id: string) {
+	getAppCanvasById(id: string) {
 		return this.shadowRoot.querySelector<HTMLElement>(
-			`astro-dev-toolbar-plugin-canvas[data-plugin-id="${id}"]`
+			`astro-dev-toolbar-app-canvas[data-app-id="${id}"]`
 		);
 	}
 
-	async togglePluginStatus(plugin: DevOverlayPlugin) {
-		const activePlugin = this.getActivePlugin();
-		if (activePlugin) {
-			const closePlugin = await this.setPluginStatus(activePlugin, false);
+	async toggleAppStatus(app: DevToolbarApp) {
+		const activeApp = this.getActiveApp();
+		if (activeApp) {
+			const closeApp = await this.setAppStatus(activeApp, false);
 
-			// If the plugin returned false, don't open the new plugin, the old plugin didn't want to close
-			if (!closePlugin) return;
+			// If the app returned false, don't open the new app, the old app didn't want to close
+			if (!closeApp) return;
 		}
 
-		// TODO(fks): Handle a plugin that hasn't loaded yet.
+		// TODO(fks): Handle a app that hasn't loaded yet.
 		// Currently, this will just do nothing.
-		if (plugin.status !== 'ready') return;
+		if (app.status !== 'ready') return;
 
-		// Open the selected plugin. If the selected plugin was
-		// already the active plugin then the desired outcome
-		// was to close that plugin, so no action needed.
-		if (plugin !== activePlugin) {
-			await this.setPluginStatus(plugin, true);
+		// Open the selected app. If the selected app was
+		// already the active app then the desired outcome
+		// was to close that app, so no action needed.
+		if (app !== activeApp) {
+			await this.setAppStatus(app, true);
 		}
 	}
 
-	async setPluginStatus(plugin: DevOverlayPlugin, newStatus: boolean) {
-		const pluginCanvas = this.getPluginCanvasById(plugin.id);
-		if (!pluginCanvas) return false;
+	async setAppStatus(app: DevToolbarApp, newStatus: boolean) {
+		const appCanvas = this.getAppCanvasById(app.id);
+		if (!appCanvas) return false;
 
-		if (plugin.active && !newStatus && plugin.beforeTogglingOff) {
-			const shouldToggleOff = await plugin.beforeTogglingOff(pluginCanvas.shadowRoot!);
+		if (app.active && !newStatus && app.beforeTogglingOff) {
+			const shouldToggleOff = await app.beforeTogglingOff(appCanvas.shadowRoot!);
 
-			// If the plugin returned false, don't toggle it off, maybe the plugin showed a confirmation dialog or similar
+			// If the app returned false, don't toggle it off, maybe the app showed a confirmation dialog or similar
 			if (!shouldToggleOff) return false;
 		}
 
-		plugin.active = newStatus ?? !plugin.active;
-		const mainBarButton = this.shadowRoot.querySelector(`[data-plugin-id="${plugin.id}"]`);
-		const moreBarButton = this.getPluginCanvasById('astro:more')?.shadowRoot?.querySelector(
-			`[data-plugin-id="${plugin.id}"]`
+		app.active = newStatus ?? !app.active;
+		const mainBarButton = this.shadowRoot.querySelector(`[data-app-id="${app.id}"]`);
+		const moreBarButton = this.getAppCanvasById('astro:more')?.shadowRoot?.querySelector(
+			`[data-app-id="${app.id}"]`
 		);
 
 		if (mainBarButton) {
-			mainBarButton.classList.toggle('active', plugin.active);
+			mainBarButton.classList.toggle('active', app.active);
 		}
 
 		if (moreBarButton) {
-			moreBarButton.classList.toggle('active', plugin.active);
+			moreBarButton.classList.toggle('active', app.active);
 		}
 
-		if (plugin.active) {
-			pluginCanvas.style.display = 'block';
-			pluginCanvas.setAttribute('data-active', '');
+		if (app.active) {
+			appCanvas.style.display = 'block';
+			appCanvas.setAttribute('data-active', '');
 		} else {
-			pluginCanvas.style.display = 'none';
-			pluginCanvas.removeAttribute('data-active');
+			appCanvas.style.display = 'none';
+			appCanvas.removeAttribute('data-active');
 		}
 
 		[
 			'app-toggled',
 			// Deprecated
+			// TODO: Remove in Astro 5.0
 			'plugin-toggled',
 		].forEach((eventName) => {
-			plugin.eventTarget.dispatchEvent(
+			app.eventTarget.dispatchEvent(
 				new CustomEvent(eventName, {
 					detail: {
-						state: plugin.active,
-						plugin,
+						state: app.active,
+						app,
 					},
 				})
 			);
 		});
 
 		if (import.meta.hot) {
-			import.meta.hot.send(`${WS_EVENT_NAME}:${plugin.id}:toggled`, { state: plugin.active });
-			import.meta.hot.send(`${WS_EVENT_NAME_DEPRECATED}:${plugin.id}:toggled`, {
-				state: plugin.active,
+			import.meta.hot.send(`${WS_EVENT_NAME}:${app.id}:toggled`, { state: app.active });
+			import.meta.hot.send(`${WS_EVENT_NAME_DEPRECATED}:${app.id}:toggled`, {
+				state: app.active,
 			});
 		}
 
@@ -470,11 +466,11 @@ export class AstroDevOverlay extends HTMLElement {
 	}
 
 	isHidden(): boolean {
-		return this.devOverlay?.hasAttribute('data-hidden') ?? true;
+		return this.devToolbarContainer?.hasAttribute('data-hidden') ?? true;
 	}
 
-	getActivePlugin(): DevOverlayPlugin | undefined {
-		return this.plugins.find((plugin) => plugin.active);
+	getActiveApp(): DevToolbarApp | undefined {
+		return this.apps.find((app) => app.active);
 	}
 
 	clearDelayedHide() {
@@ -485,25 +481,25 @@ export class AstroDevOverlay extends HTMLElement {
 	triggerDelayedHide() {
 		this.clearDelayedHide();
 		this.delayedHideTimeout = window.setTimeout(() => {
-			this.setOverlayVisible(false);
+			this.setToolbarVisible(false);
 			this.delayedHideTimeout = undefined;
 		}, HOVER_DELAY);
 	}
 
-	setOverlayVisible(newStatus: boolean) {
+	setToolbarVisible(newStatus: boolean) {
 		const barContainer = this.shadowRoot.querySelector<HTMLDivElement>('#bar-container');
 		const devBar = this.shadowRoot.querySelector<HTMLDivElement>('#dev-bar');
 		const devBarHitboxAbove =
 			this.shadowRoot.querySelector<HTMLDivElement>('#dev-bar-hitbox-above');
 		if (newStatus === true) {
-			this.devOverlay?.removeAttribute('data-hidden');
+			this.devToolbarContainer?.removeAttribute('data-hidden');
 			barContainer?.removeAttribute('inert');
 			devBar?.removeAttribute('tabindex');
 			if (devBarHitboxAbove) devBarHitboxAbove.style.height = '0';
 			return;
 		}
 		if (newStatus === false) {
-			this.devOverlay?.setAttribute('data-hidden', '');
+			this.devToolbarContainer?.setAttribute('data-hidden', '');
 			barContainer?.setAttribute('inert', '');
 			devBar?.setAttribute('tabindex', '0');
 			if (devBarHitboxAbove) devBarHitboxAbove.style.height = `${DEVBAR_HITBOX_ABOVE}px`;
@@ -512,17 +508,16 @@ export class AstroDevOverlay extends HTMLElement {
 	}
 
 	setNotificationVisible(newStatus: boolean) {
-		const devOverlayElement = this.shadowRoot.querySelector<HTMLDivElement>('#dev-overlay');
-		devOverlayElement?.toggleAttribute('data-no-notification', !newStatus);
+		this.devToolbarContainer?.toggleAttribute('data-no-notification', !newStatus);
 
-		const moreCanvas = this.getPluginCanvasById('astro:more');
+		const moreCanvas = this.getAppCanvasById('astro:more');
 		moreCanvas?.shadowRoot
 			?.querySelector('#dropdown')
 			?.toggleAttribute('data-no-notification', !newStatus);
 	}
 }
 
-export class DevOverlayCanvas extends HTMLElement {
+export class DevToolbarCanvas extends HTMLElement {
 	shadowRoot: ShadowRoot;
 
 	constructor() {
@@ -542,7 +537,7 @@ export class DevOverlayCanvas extends HTMLElement {
 	}
 }
 
-export function getPluginIcon(icon: Icon) {
+export function getAppIcon(icon: Icon) {
 	if (isDefinedIcon(icon)) {
 		return getIconElement(icon).outerHTML;
 	}

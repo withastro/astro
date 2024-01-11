@@ -2,7 +2,7 @@ import type http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type {
 	ComponentInstance,
-	DevOverlayMetadata,
+	DevToolbarMetadata,
 	ManifestData,
 	MiddlewareHandler,
 	RouteData,
@@ -24,6 +24,7 @@ import {
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { isPage, resolveIdToUrl } from '../core/util.js';
+import { normalizeTheLocale } from '../i18n/index.js';
 import { createI18nMiddleware, i18nPipelineHook } from '../i18n/middleware.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
@@ -34,7 +35,6 @@ import { preload } from './index.js';
 import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { getScriptsForURL } from './scripts.js';
-import { normalizeTheLocale } from '../i18n/index.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -404,12 +404,12 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			scripts.add({
 				props: {
 					type: 'module',
-					src: await resolveIdToUrl(moduleLoader, 'astro/runtime/client/dev-overlay/entrypoint.js'),
+					src: await resolveIdToUrl(moduleLoader, 'astro/runtime/client/dev-toolbar/entrypoint.js'),
 				},
 				children: '',
 			});
 
-			const additionalMetadata: DevOverlayMetadata['__astro_dev_overlay__'] = {
+			const additionalMetadata: DevToolbarMetadata['__astro_dev_toolbar__'] = {
 				root: fileURLToPath(settings.config.root),
 				version: ASTRO_VERSION,
 				debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),
@@ -418,7 +418,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			// Additional data for the dev overlay
 			scripts.add({
 				props: {},
-				children: `window.__astro_dev_overlay__ = ${JSON.stringify(additionalMetadata)}`,
+				children: `window.__astro_dev_toolbar__ = ${JSON.stringify(additionalMetadata)}`,
 			});
 		}
 	}

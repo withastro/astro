@@ -1,10 +1,10 @@
 export interface Settings {
-	disablePluginNotification: boolean;
+	disableAppNotification: boolean;
 	verbose: boolean;
 }
 
 export const defaultSettings = {
-	disablePluginNotification: false,
+	disableAppNotification: false,
 	verbose: false,
 } satisfies Settings;
 
@@ -12,15 +12,22 @@ export const settings = getSettings();
 
 function getSettings() {
 	let _settings: Settings = { ...defaultSettings };
-	const overlaySettings = localStorage.getItem('astro:dev-overlay:settings');
+	const toolbarSettings = localStorage.getItem('astro:dev-toolbar:settings');
 
-	if (overlaySettings) {
-		_settings = { ..._settings, ...JSON.parse(overlaySettings) };
+	// TODO: Remove in Astro 5.0
+	const oldSettings = localStorage.getItem('astro:dev-overlay:settings');
+	if (oldSettings && !toolbarSettings) {
+		localStorage.setItem('astro:dev-toolbar:settings', oldSettings);
+		localStorage.removeItem('astro:dev-overlay:settings');
+	}
+
+	if (toolbarSettings) {
+		_settings = { ..._settings, ...JSON.parse(toolbarSettings) };
 	}
 
 	function updateSetting(key: keyof Settings, value: Settings[typeof key]) {
 		_settings[key] = value;
-		localStorage.setItem('astro:dev-overlay:settings', JSON.stringify(_settings));
+		localStorage.setItem('astro:dev-toolbar:settings', JSON.stringify(_settings));
 	}
 
 	function log(message: string) {
