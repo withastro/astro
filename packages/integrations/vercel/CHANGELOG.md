@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 6.1.4
+
+### Patch Changes
+
+- [#9648](https://github.com/withastro/astro/pull/9648) [`d7f1903cded3e864b392d1dd7502672d37936f11`](https://github.com/withastro/astro/commit/d7f1903cded3e864b392d1dd7502672d37936f11) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where the serverless function could not respond with a prerendered 404 page.
+
 ## 6.1.3
 
 ### Patch Changes
