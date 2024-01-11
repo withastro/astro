@@ -21,7 +21,7 @@ export default function createPlugin(options?: PartytownOptions): AstroIntegrati
 	let partytownSnippetHtml: string;
 	const partytownEntrypoint = resolve('@builder.io/partytown/package.json');
 	const partytownLibDirectory = path.resolve(partytownEntrypoint, '../lib');
-	const SELF_DESTRUCT_ON_VIEW_TRANSITION = `;((d,s)=>(s=d.currentScript,d.addEventListener('astro:before-swap',()=>s.remove(),{once:true})))(document);`
+	const SELF_DESTRUCT_ON_VIEW_TRANSITION = `;((d,s)=>(s=d.currentScript,d.addEventListener('astro:before-swap',()=>s.remove(),{once:true})))(document);`;
 	return {
 		name: '@astrojs/partytown',
 		hooks: {
@@ -62,6 +62,4 @@ export default function createPlugin(options?: PartytownOptions): AstroIntegrati
 			},
 		},
 	};
-
-
 }
