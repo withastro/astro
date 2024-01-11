@@ -196,6 +196,7 @@ describe('Slots', () => {
 		const $ = cheerio.load(html);
 		expect($('#post-1')).to.have.lengthOf(1);
 		expect($('#post-1').text().trim()).to.equal('');
+		expect($('#post-1').html().trim()).to.equal(`<div class="card"></div>`);
 
 		expect($('#post-2')).to.have.lengthOf(1);
 		expect($('#post-2').text().trim()).to.equal('Post 2 Post 2 content');
