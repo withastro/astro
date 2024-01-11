@@ -365,6 +365,7 @@ function stringifyEntryData(data: Record<string, any>, isSSR: boolean): string {
 			// For Astro assets, add a proxy to track references
 			if (typeof value === 'object' && 'ASTRO_ASSET' in value) {
 				const { ASTRO_ASSET, ...asset } = value;
+				asset.fsPath = ASTRO_ASSET;
 				return getProxyCode(asset, isSSR);
 			}
 		});
