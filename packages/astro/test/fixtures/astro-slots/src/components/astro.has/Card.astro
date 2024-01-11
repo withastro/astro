@@ -1,0 +1,5 @@
+---
+const hasContent = Astro.slots.has("default");
+---
+
+<div class="card">{hasContent && <div class="card-content"><slot/></div>}</div>

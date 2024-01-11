@@ -1,0 +1,11 @@
+---
+import Card from "./Card.astro";
+const hasContent = Astro.slots.has("default");
+const {id} = Astro.props;
+---
+
+<article {id}>
+  <Card>
+    {hasContent && <div class="post-content"><slot/></div>}
+  </Card>
+</article>
