@@ -59,7 +59,7 @@
     "web-vitals": "^3.4.0"
   },
   "peerDependencies": {
-    "astro": "^4.0.2"
+    "astro": "^4.2.0"
   },
   "devDependencies": {
     "@types/set-cookie-parser": "^2.4.6",
