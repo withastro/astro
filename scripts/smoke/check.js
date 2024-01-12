@@ -1,7 +1,7 @@
 // @ts-check
 
 import { spawn } from 'node:child_process';
-import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import * as path from 'node:path';
 import pLimit from 'p-limit';
 import { tsconfigResolverSync } from 'tsconfig-resolver';
@@ -21,6 +21,14 @@ function checkExamples() {
 			limit(
 				() =>
 					new Promise((resolve) => {
+						// Sometimes some examples may get deleted, but after a `git pull` the directory still exists.
+						// This can stall the process time as it'll typecheck the entire monorepo, so do a quick exist
+						// check here before typechecking this directory.
+						if (!existsSync(path.join('./examples/', example.name, 'package.json'))) {
+							resolve(0);
+							return;
+						}
+
 						const originalConfig = prepareExample(example.name);
 						let data = '';
 						const child = spawn('node', ['../../packages/astro/astro.js', 'check'], {

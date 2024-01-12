@@ -1,3 +1,4 @@
+import { before, beforeEach } from 'node:test';
 import { setStdout } from '../dist/index.js';
 import stripAnsi from 'strip-ansi';
 

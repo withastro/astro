@@ -2,6 +2,7 @@ type ViteUserConfig = import('vite').UserConfig;
 type ViteUserConfigFn = import('vite').UserConfigFn;
 type AstroUserConfig = import('./dist/@types/astro.js').AstroUserConfig;
 type ImageServiceConfig = import('./dist/@types/astro.js').ImageServiceConfig;
+type SharpImageServiceConfig = import('./dist/assets/services/sharp.js').SharpImageServiceConfig;
 
 /**
  * See the full Astro Configuration API Documentation
@@ -17,7 +18,7 @@ export function getViteConfig(config: ViteUserConfig): ViteUserConfigFn;
 /**
  * Return the configuration needed to use the Sharp-based image service
  */
-export function sharpImageService(): ImageServiceConfig;
+export function sharpImageService(config?: SharpImageServiceConfig): ImageServiceConfig;
 
 /**
  * Return the configuration needed to use the Squoosh-based image service

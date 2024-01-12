@@ -27,7 +27,7 @@ import * as msg from '../../core/messages.js';
 import { printHelp } from '../../core/messages.js';
 import { appendForwardSlash } from '../../core/path.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
-import { parseNpmName } from '../../core/util.js';
+import { ensureProcessNodeEnv, parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { generate, parse, t, visit } from './babel.js';
@@ -92,6 +92,7 @@ async function getRegistry(): Promise<string> {
 }
 
 export async function add(names: string[], { flags }: AddOptions) {
+	ensureProcessNodeEnv('production');
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const { userConfig } = await resolveConfig(inlineConfig, 'add');
 	telemetry.record(eventCliSession('add', userConfig));
@@ -114,6 +115,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					['lit', 'astro add lit'],
 					['alpinejs', 'astro add alpinejs'],
 				],
+				'Documentation Frameworks': [['starlight', 'astro add starlight']],
 				'SSR Adapters': [
 					['netlify', 'astro add netlify'],
 					['vercel', 'astro add vercel'],
@@ -158,6 +160,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 					possibleConfigFiles: [
 						'./tailwind.config.cjs',
 						'./tailwind.config.mjs',
+						'./tailwind.config.ts',
+						'./tailwind.config.mts',
+						'./tailwind.config.cts',
 						'./tailwind.config.js',
 					],
 					defaultConfigFile: './tailwind.config.mjs',
@@ -730,11 +735,12 @@ async function tryToInstallIntegrations({
 				);
 				spinner.succeed();
 				return UpdateResult.updated;
-			} catch (err) {
+			} catch (err: any) {
 				spinner.fail();
 				logger.debug('add', 'Error installing dependencies', err);
+				// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
 				// eslint-disable-next-line no-console
-				console.error('\n', (err as any).stdout, '\n');
+				console.error('\n', err.stdout || err.message, '\n');
 				return UpdateResult.failure;
 			}
 		} else {

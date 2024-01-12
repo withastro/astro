@@ -21,18 +21,18 @@ import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
 import type { AstroPreferences } from '../preferences/index.js';
-import type { AstroDevOverlay, DevOverlayCanvas } from '../runtime/client/dev-overlay/overlay.js';
-import type { Icon } from '../runtime/client/dev-overlay/ui-library/icons.js';
+import type { AstroDevToolbar, DevToolbarCanvas } from '../runtime/client/dev-toolbar/toolbar.js';
+import type { Icon } from '../runtime/client/dev-toolbar/ui-library/icons.js';
 import type {
-	DevOverlayBadge,
-	DevOverlayButton,
-	DevOverlayCard,
-	DevOverlayHighlight,
-	DevOverlayIcon,
-	DevOverlayToggle,
-	DevOverlayTooltip,
-	DevOverlayWindow,
-} from '../runtime/client/dev-overlay/ui-library/index.js';
+	DevToolbarBadge,
+	DevToolbarButton,
+	DevToolbarCard,
+	DevToolbarHighlight,
+	DevToolbarIcon,
+	DevToolbarToggle,
+	DevToolbarTooltip,
+	DevToolbarWindow,
+} from '../runtime/client/dev-toolbar/ui-library/index.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
@@ -64,15 +64,21 @@ export type {
 } from '../assets/types.js';
 export type { RemotePattern } from '../assets/utils/remotePattern.js';
 export type { SSRManifest } from '../core/app/types.js';
-export type { AstroCookies } from '../core/cookies/index.js';
+export type {
+	AstroCookieGetOptions,
+	AstroCookieSetOptions,
+	AstroCookies,
+} from '../core/cookies/index.js';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
 	'client:idle'?: boolean;
 	'client:media'?: string;
-	'client:visible'?: boolean;
+	'client:visible'?: ClientVisibleOptions | boolean;
 	'client:only'?: boolean | string;
 }
+
+export type ClientVisibleOptions = Pick<IntersectionObserverInit, 'rootMargin'>;
 
 export interface TransitionAnimation {
 	name: string; // The name of the keyframe
@@ -153,7 +159,7 @@ export interface CLIFlags {
 	host?: string | boolean;
 	port?: number;
 	config?: string;
-	open?: boolean;
+	open?: string | boolean;
 }
 
 /**
@@ -371,19 +377,21 @@ type ServerConfig = {
 
 	/**
 	 * @name server.open
-	 * @type {boolean}
+	 * @type {string | boolean}
 	 * @default `false`
-	 * @version 2.1.8
+	 * @version 4.1.0
 	 * @description
-	 * Control whether the dev server should open in your browser window on startup.
+	 * Controls whether the dev server should open in your browser window on startup.
+	 *
+	 * Pass a full URL string (e.g. "http://example.com") or a pathname (e.g. "/about") to specify the URL to open.
 	 *
 	 * ```js
 	 * {
-	 *   server: { open: true }
+	 *   server: { open: "/about" }
 	 * }
 	 * ```
 	 */
-	open?: boolean;
+	open?: string | boolean;
 };
 
 export interface ViteUserConfig extends vite.UserConfig {
@@ -947,7 +955,7 @@ export interface AstroUserConfig {
 				/**
 				 * @docs
 				 * @name prefetch.defaultStrategy
-				 * @type {'tap' | 'hover' | 'viewport'}
+				 * @type {'tap' | 'hover' | 'viewport' | 'load'}
 				 * @default `'hover'`
 				 * @description
 				 * The default prefetch strategy to use when the `data-astro-prefetch` attribute is set on a link with no value.
@@ -955,6 +963,7 @@ export interface AstroUserConfig {
 				 * - `'tap'`: Prefetch just before you click on the link.
 				 * - `'hover'`: Prefetch when you hover over or focus on the link. (default)
 				 * - `'viewport'`: Prefetch as the links enter the viewport.
+				 * - `'load'`: Prefetch all links on the page after the page is loaded.
 				 *
 				 * You can override this default value and select a different strategy for any individual link by setting a value on the attribute.
 				 *
@@ -962,7 +971,7 @@ export interface AstroUserConfig {
 				 * <a href="/about" data-astro-prefetch="viewport">About</a>
 				 * ```
 				 */
-				defaultStrategy?: 'tap' | 'hover' | 'viewport';
+				defaultStrategy?: 'tap' | 'hover' | 'viewport' | 'load';
 		  };
 
 	/**
@@ -1020,16 +1029,19 @@ export interface AstroUserConfig {
 	 */
 
 	/**
+	 * @docs
 	 * @name server.open
-	 * @type {boolean}
+	 * @type {string | boolean}
 	 * @default `false`
-	 * @version 2.1.8
+	 * @version 4.1.0
 	 * @description
-	 * Control whether the dev server should open in your browser window on startup.
+	 * Controls whether the dev server should open in your browser window on startup.
+	 *
+	 * Pass a full URL string (e.g. "http://example.com") or a pathname (e.g. "/about") to specify the URL to open.
 	 *
 	 * ```js
 	 * {
-	 *   server: { open: true }
+	 *   server: { open: "/about" }
 	 * }
 	 * ```
 	 */
@@ -1090,13 +1102,31 @@ export interface AstroUserConfig {
 		 * ```js
 		 * {
 		 *   image: {
-		 *     // Example: Enable the Sharp-based image service
-		 *     service: { entrypoint: 'astro/assets/services/sharp' },
+		 *     // Example: Enable the Sharp-based image service with a custom config
+		 *     service: {
+		 * 			 entrypoint: 'astro/assets/services/sharp',
+		 * 			 config: {
+		 * 				 limitInputPixels: false,
+		 *       },
+		 * 		 },
 		 *   },
 		 * }
 		 * ```
 		 */
 		service?: ImageServiceConfig;
+		/**
+		 * @docs
+		 * @name image.service.config.limitInputPixels
+		 * @kind h4
+		 * @type {number | boolean}
+		 * @default `true`
+		 * @version 4.1.0
+		 * @description
+		 *
+		 * Whether or not to limit the size of images that the Sharp image service will process.
+		 *
+		 * Set `false` to bypass the default image size limit for the Sharp image service and process large images.
+		 */
 
 		/**
 		 * @docs
@@ -2232,9 +2262,10 @@ type Routing = {
 	strategy: 'pathname';
 };
 
-export type APIRoute<Props extends Record<string, any> = Record<string, any>> = (
-	context: APIContext<Props>
-) => Response | Promise<Response>;
+export type APIRoute<
+	Props extends Record<string, any> = Record<string, any>,
+	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>,
+> = (context: APIContext<Props, APIParams>) => Response | Promise<Response>;
 
 export interface EndpointHandler {
 	[method: string]: APIRoute;
@@ -2263,6 +2294,18 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 			attrs?: Record<string, string>;
 		}>;
 		supportsAstroStaticSlot?: boolean;
+		/**
+		 * If provided, Astro will call this function and inject the returned
+		 * script in the HTML before the first component handled by this renderer.
+		 *
+		 * This feature is needed by some renderers (in particular, by Solid). The
+		 * Solid official hydration script sets up a page-level data structure.
+		 * It is mainly used to transfer data between the server side render phase
+		 * and the browser application state. Solid Components rendered later in
+		 * the HTML may inject tiny scripts into the HTML that call into this
+		 * page-level data structure.
+		 */
+		renderHydrationScript?: () => string;
 	};
 }
 
@@ -2288,6 +2331,7 @@ export interface AstroIntegration {
 			addClientDirective: (directive: ClientDirectiveConfig) => void;
 			/**
 			 * @deprecated Use `addDevToolbarApp` instead.
+			 * TODO: Fully remove in Astro 5.0
 			 */
 			addDevOverlayPlugin: (entrypoint: string) => void;
 			addDevToolbarApp: (entrypoint: string) => void;
@@ -2482,6 +2526,12 @@ export interface SSRResult {
  */
 export interface SSRMetadata {
 	hasHydrationScript: boolean;
+	/**
+	 * Names of renderers that have injected their hydration scripts
+	 * into the current page. For example, Solid SSR needs a hydration
+	 * script in the page HTML before the first Solid component.
+	 */
+	rendererSpecificHydrationScripts: Set<string>;
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	headInTree: boolean;
@@ -2549,11 +2599,12 @@ export interface DevToolbarApp {
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
 }
 
+// TODO: Remove in Astro 5.0
 export type DevOverlayPlugin = DevToolbarApp;
 
-export type DevOverlayMetadata = Window &
+export type DevToolbarMetadata = Window &
 	typeof globalThis & {
-		__astro_dev_overlay__: {
+		__astro_dev_toolbar__: {
 			root: string;
 			version: string;
 			debugInfo: string;
@@ -2562,27 +2613,28 @@ export type DevOverlayMetadata = Window &
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'astro-dev-toolbar': AstroDevOverlay;
-		'astro-dev-toolbar-window': DevOverlayWindow;
-		'astro-dev-toolbar-plugin-canvas': DevOverlayCanvas;
-		'astro-dev-toolbar-tooltip': DevOverlayTooltip;
-		'astro-dev-toolbar-highlight': DevOverlayHighlight;
-		'astro-dev-toolbar-toggle': DevOverlayToggle;
-		'astro-dev-toolbar-badge': DevOverlayBadge;
-		'astro-dev-toolbar-button': DevOverlayButton;
-		'astro-dev-toolbar-icon': DevOverlayIcon;
-		'astro-dev-toolbar-card': DevOverlayCard;
+		'astro-dev-toolbar': AstroDevToolbar;
+		'astro-dev-toolbar-window': DevToolbarWindow;
+		'astro-dev-toolbar-app-canvas': DevToolbarCanvas;
+		'astro-dev-toolbar-tooltip': DevToolbarTooltip;
+		'astro-dev-toolbar-highlight': DevToolbarHighlight;
+		'astro-dev-toolbar-toggle': DevToolbarToggle;
+		'astro-dev-toolbar-badge': DevToolbarBadge;
+		'astro-dev-toolbar-button': DevToolbarButton;
+		'astro-dev-toolbar-icon': DevToolbarIcon;
+		'astro-dev-toolbar-card': DevToolbarCard;
 
 		// Deprecated names
-		'astro-dev-overlay': AstroDevOverlay;
-		'astro-dev-overlay-window': DevOverlayWindow;
-		'astro-dev-overlay-plugin-canvas': DevOverlayCanvas;
-		'astro-dev-overlay-tooltip': DevOverlayTooltip;
-		'astro-dev-overlay-highlight': DevOverlayHighlight;
-		'astro-dev-overlay-toggle': DevOverlayToggle;
-		'astro-dev-overlay-badge': DevOverlayBadge;
-		'astro-dev-overlay-button': DevOverlayButton;
-		'astro-dev-overlay-icon': DevOverlayIcon;
-		'astro-dev-overlay-card': DevOverlayCard;
+		// TODO: Remove in Astro 5.0
+		'astro-dev-overlay': AstroDevToolbar;
+		'astro-dev-overlay-window': DevToolbarWindow;
+		'astro-dev-overlay-plugin-canvas': DevToolbarCanvas;
+		'astro-dev-overlay-tooltip': DevToolbarTooltip;
+		'astro-dev-overlay-highlight': DevToolbarHighlight;
+		'astro-dev-overlay-toggle': DevToolbarToggle;
+		'astro-dev-overlay-badge': DevToolbarBadge;
+		'astro-dev-overlay-button': DevToolbarButton;
+		'astro-dev-overlay-icon': DevToolbarIcon;
+		'astro-dev-overlay-card': DevToolbarCard;
 	}
 }

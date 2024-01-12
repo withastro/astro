@@ -54,10 +54,10 @@ jobs:
           if [[ $output = '{ "changesets": [], "releases": [] }' ]]
           then
             echo 'No changeset found'
-            echo "::set-output name=run_job::true"
+            echo "run_job=true" >> $GITHUB_OUTPUT
           else
             echo 'changes found, push to latest skipped'
-            echo "::set-output name=run_job::false"
+            echo "run_job=false" >> $GITHUB_OUTPUT
           fi
 
   update:

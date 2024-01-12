@@ -74,7 +74,13 @@ export interface VercelServerlessConfig {
 	/** Configuration for [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics). */
 	webAnalytics?: VercelWebAnalyticsConfig;
 
-	/** Configuration for [Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights). */
+	/**
+	 * @deprecated This option lets you configure the legacy speed insights API which is now deprecated by Vercel.
+	 *
+	 * See [Vercel Speed Insights Quickstart](https://vercel.com/docs/speed-insights/quickstart) for instructions on how to use the library instead.
+	 *
+	 * https://vercel.com/docs/speed-insights/quickstart
+	 */
 	speedInsights?: VercelSpeedInsightsConfig;
 
 	/** Force files to be bundled with your function. This is helpful when you notice missing files. */
@@ -281,9 +287,15 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 						excludeFiles,
 						maxDuration,
 					});
-					routeDefinitions.push({ src: '/.*', dest: 'render' });
+					for (const route of routes) {
+						if (route.prerender) continue;
+						routeDefinitions.push({
+							src: route.pattern.source,
+							dest: 'render',
+						});
+					}
 				}
-
+				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
 				await writeJson(new URL(`./config.json`, _config.outDir), {
@@ -297,6 +309,15 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 						},
 						{ handle: 'filesystem' },
 						...routeDefinitions,
+						...(fourOhFourRoute
+							? [
+									{
+										src: '/.*',
+										dest: fourOhFourRoute.prerender ? '/404.html' : 'render',
+										status: 404,
+									},
+								]
+							: []),
 					],
 					...(imageService || imagesConfig
 						? {
