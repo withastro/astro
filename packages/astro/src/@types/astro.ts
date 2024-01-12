@@ -563,7 +563,7 @@ export interface AstroUserConfig {
 	 *
 	 * ```js
 	 * {
-	 *   site: 'https://www.my-site.dev'
+	 *   site: 'https://www.my-site.dev/'
 	 * }
 	 * ```
 	 */
