@@ -15,7 +15,7 @@ import type { Logger } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
 import { shorthash } from '../runtime/server/shorthash.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
-import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
+import { getFileInfo } from '../vite-plugin-utils/index.js';
 import { getMarkdownCodeForImages, type MarkdownImagePath } from './images.js';
 
 interface AstroPluginOptions {
@@ -116,7 +116,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 					);
 				}
 
-				const code = escapeViteEnvReferences(`
+				const code = `
 				import { unescapeHTML, spreadAttributes, createComponent, render, renderComponent, maybeRenderHead } from ${JSON.stringify(
 					astroServerRuntimeModulePath
 				)};
@@ -166,7 +166,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 					}
 				});
 				export default Content;
-				`);
+				`;
 
 				return {
 					code,

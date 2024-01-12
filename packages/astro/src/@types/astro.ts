@@ -21,18 +21,18 @@ import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
 import type { AstroPreferences } from '../preferences/index.js';
-import type { AstroDevOverlay, DevOverlayCanvas } from '../runtime/client/dev-overlay/overlay.js';
-import type { Icon } from '../runtime/client/dev-overlay/ui-library/icons.js';
+import type { AstroDevToolbar, DevToolbarCanvas } from '../runtime/client/dev-toolbar/toolbar.js';
+import type { Icon } from '../runtime/client/dev-toolbar/ui-library/icons.js';
 import type {
-	DevOverlayBadge,
-	DevOverlayButton,
-	DevOverlayCard,
-	DevOverlayHighlight,
-	DevOverlayIcon,
-	DevOverlayToggle,
-	DevOverlayTooltip,
-	DevOverlayWindow,
-} from '../runtime/client/dev-overlay/ui-library/index.js';
+	DevToolbarBadge,
+	DevToolbarButton,
+	DevToolbarCard,
+	DevToolbarHighlight,
+	DevToolbarIcon,
+	DevToolbarToggle,
+	DevToolbarTooltip,
+	DevToolbarWindow,
+} from '../runtime/client/dev-toolbar/ui-library/index.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
@@ -2346,6 +2346,7 @@ export interface AstroIntegration {
 			addClientDirective: (directive: ClientDirectiveConfig) => void;
 			/**
 			 * @deprecated Use `addDevToolbarApp` instead.
+			 * TODO: Fully remove in Astro 5.0
 			 */
 			addDevOverlayPlugin: (entrypoint: string) => void;
 			addDevToolbarApp: (entrypoint: string) => void;
@@ -2613,11 +2614,12 @@ export interface DevToolbarApp {
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
 }
 
+// TODO: Remove in Astro 5.0
 export type DevOverlayPlugin = DevToolbarApp;
 
-export type DevOverlayMetadata = Window &
+export type DevToolbarMetadata = Window &
 	typeof globalThis & {
-		__astro_dev_overlay__: {
+		__astro_dev_toolbar__: {
 			root: string;
 			version: string;
 			debugInfo: string;
@@ -2626,27 +2628,28 @@ export type DevOverlayMetadata = Window &
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'astro-dev-toolbar': AstroDevOverlay;
-		'astro-dev-toolbar-window': DevOverlayWindow;
-		'astro-dev-toolbar-plugin-canvas': DevOverlayCanvas;
-		'astro-dev-toolbar-tooltip': DevOverlayTooltip;
-		'astro-dev-toolbar-highlight': DevOverlayHighlight;
-		'astro-dev-toolbar-toggle': DevOverlayToggle;
-		'astro-dev-toolbar-badge': DevOverlayBadge;
-		'astro-dev-toolbar-button': DevOverlayButton;
-		'astro-dev-toolbar-icon': DevOverlayIcon;
-		'astro-dev-toolbar-card': DevOverlayCard;
+		'astro-dev-toolbar': AstroDevToolbar;
+		'astro-dev-toolbar-window': DevToolbarWindow;
+		'astro-dev-toolbar-app-canvas': DevToolbarCanvas;
+		'astro-dev-toolbar-tooltip': DevToolbarTooltip;
+		'astro-dev-toolbar-highlight': DevToolbarHighlight;
+		'astro-dev-toolbar-toggle': DevToolbarToggle;
+		'astro-dev-toolbar-badge': DevToolbarBadge;
+		'astro-dev-toolbar-button': DevToolbarButton;
+		'astro-dev-toolbar-icon': DevToolbarIcon;
+		'astro-dev-toolbar-card': DevToolbarCard;
 
 		// Deprecated names
-		'astro-dev-overlay': AstroDevOverlay;
-		'astro-dev-overlay-window': DevOverlayWindow;
-		'astro-dev-overlay-plugin-canvas': DevOverlayCanvas;
-		'astro-dev-overlay-tooltip': DevOverlayTooltip;
-		'astro-dev-overlay-highlight': DevOverlayHighlight;
-		'astro-dev-overlay-toggle': DevOverlayToggle;
-		'astro-dev-overlay-badge': DevOverlayBadge;
-		'astro-dev-overlay-button': DevOverlayButton;
-		'astro-dev-overlay-icon': DevOverlayIcon;
-		'astro-dev-overlay-card': DevOverlayCard;
+		// TODO: Remove in Astro 5.0
+		'astro-dev-overlay': AstroDevToolbar;
+		'astro-dev-overlay-window': DevToolbarWindow;
+		'astro-dev-overlay-plugin-canvas': DevToolbarCanvas;
+		'astro-dev-overlay-tooltip': DevToolbarTooltip;
+		'astro-dev-overlay-highlight': DevToolbarHighlight;
+		'astro-dev-overlay-toggle': DevToolbarToggle;
+		'astro-dev-overlay-badge': DevToolbarBadge;
+		'astro-dev-overlay-button': DevToolbarButton;
+		'astro-dev-overlay-icon': DevToolbarIcon;
+		'astro-dev-overlay-card': DevToolbarCard;
 	}
 }
