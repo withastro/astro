@@ -54,7 +54,7 @@ const { fallback = 'animate' } = Astro.props;
 		document.addEventListener('click', (ev) => {
 			let link = ev.target;
 			if (ev.composed) {
-			    link = ev.composedPath()[0];
+				link = ev.composedPath()[0];
 			}
 			if (link instanceof Element) {
 				link = link.closest('a, area');
