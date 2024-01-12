@@ -19,7 +19,7 @@ import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
 import { AstroError } from '../../errors/index.js';
-import { MissingIndexForInternalisation } from '../../errors/errors-data.js';
+import { MissingIndexForInternationalization } from '../../errors/errors-data.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -524,8 +524,8 @@ export function createRouteManifest(
 					fileURLToPath(new URL('pages', settings.config.srcDir))
 				);
 				throw new AstroError({
-					...MissingIndexForInternalisation,
-					message: MissingIndexForInternalisation.message(relativePath),
+					...MissingIndexForInternationalization,
+					message: MissingIndexForInternationalization.message(relativePath),
 				});
 			}
 		}
