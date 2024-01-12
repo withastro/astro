@@ -7,6 +7,6 @@ You can now let links within custom elements trigger view transitions. Presence 
 ```html
 <custom-element data-astro-transition href="/two">
     #shadowroot
-    <a href="/transition-to">Navigate with view transitions.</a>
+    <button>Navigate with view transitions.</button>
 </custom-element>
 ```
