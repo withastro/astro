@@ -207,6 +207,6 @@ describe('install', () => {
 		assert.equal(fixture.hasMessage('check   Be sure to follow the CHANGELOG.'), true);
 		const [changelog, major] = fixture.messages().slice(-4);
 		assert.match(changelog, /^check/);
-		assert.match(major, /^major/)
+		assert.match(major, /^major/);
 	});
 });
