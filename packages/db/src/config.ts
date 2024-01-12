@@ -24,6 +24,9 @@ type CollectionConfig<TFields extends z.input<typeof collectionSchema>['fields']
 	fields: TFields;
 	// TODO: type inference based on field type. Just `any` for now.
 	data?: () => Array<Record<keyof TFields, any> & { id?: string }>;
+	
+	// I don't love this name mp
+	source: 'readable' | 'writable';
 };
 
 export function defineCollection<TFields extends z.input<typeof collectionSchema>['fields']>(

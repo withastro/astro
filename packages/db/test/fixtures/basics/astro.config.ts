@@ -5,6 +5,7 @@ const Author = defineCollection({
 	fields: {
 		name: field.text(),
 	},
+	source: 'local',
 	data() {
 		return [
 			{
@@ -30,7 +31,7 @@ const Author = defineCollection({
 export default defineConfig({
 	integrations: [db()],
 	db: {
-		collections: { Author }
+		collections: { Author },
 	}
 });
 
