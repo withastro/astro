@@ -3772,6 +3772,9 @@ importers:
       '@libsql/client':
         specifier: 0.4.0-pre.5
         version: 0.4.0-pre.5
+      '@types/yargs-parser':
+        specifier: ^21.0.3
+        version: 21.0.3
       astro:
         specifier: workspace:*
         version: link:../astro
@@ -3793,6 +3796,12 @@ importers:
       open:
         specifier: ^9.1.0
         version: 9.1.0
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+      yargs-parser:
+        specifier: ^21.1.1
+        version: 21.1.1
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -3803,6 +3812,9 @@ importers:
       '@types/mocha':
         specifier: ^10.0.2
         version: 10.0.6
+      '@types/prompts':
+        specifier: ^2.4.8
+        version: 2.4.9
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
@@ -8100,7 +8112,6 @@ packages:
 
   /@types/yargs-parser@21.0.3:
     resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
-    dev: true
 
   /@typescript-eslint/eslint-plugin@6.17.0(@typescript-eslint/parser@6.17.0)(eslint@8.56.0)(typescript@5.2.2):
     resolution: {integrity: sha512-Vih/4xLXmY7V490dGwBQJTpIZxH4ZFH6eCVmQ4RFkB+wmaCTDAx4dtgoWwMNGKLkqRY1L6rPqzEbjorRnDo4rQ==}
