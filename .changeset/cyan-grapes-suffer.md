@@ -2,10 +2,12 @@
 "astro": minor
 ---
 
-Adds a new property inside `i18n.routing`, called `redirectToDefaultLocale`.
 
-When `false`, Astro doesn't do a redirect from `/` to `/<defaultLocale>`. This option comes into play only
-when `prefixDefaultLocale` is `true`.
+Adds a new `i18n.routing` config option `redirectToDefaultLocale` to disable automatic redirects of the root URL (`/`) to the default locale when `prefixDefaultLocale: true` is set.
+
+In projects where every route, including the default locale, is prefixed with `/[locale]/` path, this property allows you to control whether or not `src/pages/index.astro` should automatically redirect your site visitors from `/` to `/[defaultLocale]`.
+
+You can now opt out of this automatic redirection by setting `redirectToDefaultLocale: false`:
 
 ```js
 // astro.config.mjs
