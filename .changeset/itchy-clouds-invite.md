@@ -12,3 +12,5 @@ post.mdx
 + styles.css
 + Component.astro
 ```
+
+Continue to use underscores in your content collections to exclude individual content files, such as drafts, from the build output.
