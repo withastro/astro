@@ -14,6 +14,10 @@
     "@astrojs/mdx": "^2.0.4",
     "@astrojs/rss": "^4.0.2",
     "@astrojs/sitemap": "^3.0.4",
-    "astro": "^4.1.2"
+    "astro": "^4.1.2",
+    "astro-font": "^0.0.71"
+  },
+  "devDependencies": {
+    "@types/node": "^18.17.8"
   }
 }
