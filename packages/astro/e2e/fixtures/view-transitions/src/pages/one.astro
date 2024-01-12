@@ -12,6 +12,11 @@ import Layout from '../components/Layout.astro';
 	<a id="click-redirect-two" href="/redirect-two">go to redirect 2</a>
 	<a id="click-redirect-external" href="/redirect-external">go to a redirect external</a>
 	<a id="click-404" href="/undefined-page">go to undefined page</a>
+	<custom-a id="custom-click-two">
+		<template shadowrootmode="open">
+			<a href="/two">go to 2</a>
+		</template>
+	</custom-a>
 
 	<div id="test">test content</div>
 </Layout>

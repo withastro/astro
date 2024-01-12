@@ -1206,4 +1206,18 @@ test.describe('View Transitions', () => {
 
 		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
+
+	test('custom elements can trigger a view transition', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+		await page.goto(astro.resolveUrl('/one'));
+		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
+		// go to page 2
+		await page.click('#custom-click-two');
+		await expect(page.locator('#two'), 'should have content').toHaveText('Page 2');
+
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
 });
