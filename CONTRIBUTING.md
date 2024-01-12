@@ -81,6 +81,6 @@ Logs from TypeScript plugins are shown in the TSServer log. To open this log, fo
 1. Ctrl+Shift+P (CMD+Shift+P on OSX) opens the command palette.
 2. Select **TypeScript: Open TS Server log**.
 
-If you've never openned the TS Server log before, you'll first need to enable logging and restart the TSServer. The command will prompt you to do this if needed
+If you've never opened the TS Server log before, you'll first need to enable logging and restart the TSServer. The command will prompt you to do this if needed
 
 > Hint: TSServer's logs are really noisy, even at the lowest level. Make sure to disable other plugins when working on the TS Plugin. Alternatively, grepping for "Astro Plugin" can help
