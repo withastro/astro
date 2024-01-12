@@ -13,7 +13,7 @@ export function createAppHandler(app: NodeApp): RequestHandler {
         if (routeData) {
             const response = await app.render(request, {
                 addCookieHeader: true,
-                locals: locals ?? Reflect.get(req, NodeApp.Symbol.locals),
+                locals,
                 routeData,
             });
             await NodeApp.writeResponse(response, res);

@@ -29,6 +29,8 @@ import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
 import type { RouteInfo } from './types.js';
 export { deserializeManifest } from './common.js';
 
+const localsSymbol = Symbol.for('astro.locals');
+const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
 /**
@@ -80,15 +82,6 @@ export interface RenderErrorOptions {
 }
 
 export class App {
-
-	/**
-	 * Symbols that the Astro app reads on the passed Request instance. Use these when you can't directly provide these values to `app.render()`.
-	 */
-	static readonly Symbol = Object.freeze({
-		locals: Symbol.for('astro.locals'),
-		clientAddress: Symbol.for('astro.clientAddress'),
-	})
-
 	/**
 	 * The current environment of the application
 	 */
@@ -230,10 +223,10 @@ export class App {
 			}
 		}
 		if (locals) {
-			Reflect.set(request, App.Symbol.locals, locals);
+			Reflect.set(request, localsSymbol, locals);
 		}
 		if (clientAddress) {
-			Reflect.set(request, App.Symbol.clientAddress, clientAddress)
+			Reflect.set(request, clientAddressSymbol, clientAddress)
 		}
 		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
 		if (request.url !== collapseDuplicateSlashes(request.url)) {

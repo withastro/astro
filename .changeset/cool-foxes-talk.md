@@ -4,8 +4,6 @@
 
 Adds new helper functions for adapter developers.
 
-- Symbols used to represent `Astro.locals` and `Astro.clientAddress` are now available as static properties on the `App` class: `App.Symbol.locals` and `App.Symbol.clientAddress`.
-
 - `Astro.clientAddress` can now be passed directly to the `app.render()` method.
 ```ts
 const response = await app.render(request, { clientAddress: "012.123.23.3" })
@@ -16,7 +14,7 @@ const response = await app.render(request, { clientAddress: "012.123.23.3" })
 http.createServer((nodeReq, nodeRes) => {
     const request: Request = NodeApp.createRequest(nodeReq)
     const response = await app.render(request)
-    NodeApp.writeResponse(response, nodeRes)
+    await NodeApp.writeResponse(response, nodeRes)
 })
 ```
 

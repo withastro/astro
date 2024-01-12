@@ -9,6 +9,8 @@ import type { SerializedSSRManifest, SSRManifest } from './types.js';
 
 export { apply as applyPolyfills } from '../polyfill.js';
 
+const clientAddressSymbol = Symbol.for('astro.clientAddress');
+
 /**
  * Allow the request body to be explicitly overridden. For example, this
  * is used by the Express JSON middleware.
@@ -79,7 +81,7 @@ export class NodeApp extends App {
 		}
 		const request = new Request(url, options);
 		if (req.socket?.remoteAddress) {
-			Reflect.set(request, App.Symbol.clientAddress, req.socket.remoteAddress);
+			Reflect.set(request, clientAddressSymbol, req.socket.remoteAddress);
 		}
 		return request;
 	}
