@@ -362,6 +362,28 @@ function invalidateVirtualMod(viteServer: ViteDevServer) {
 	viteServer.moduleGraph.invalidateModule(virtualMod);
 }
 
+/**
+ * Takes a configPath and returns a normalized relative version:
+ *  -   If is not relative, it adds `./` to the beginning.
+ *  -   If it ends with `.ts`, it removes the extension.
+ *  -   It adds `.js` to the end.
+ *  -   It stringifies the result (adds `""` around it).
+ * @param from Config path from path.
+ * @param to Config path to path.
+ * @returns Normalized config path.
+ */
+function normalizeConfigPath(from: string, to: string) {
+	const normalizedConfigPath = path.relative(from, to);
+
+	return JSON.stringify(
+		`${isRelativePath(normalizedConfigPath) ? '' : './'}${
+			normalizedConfigPath.endsWith('.ts')
+				? normalizedConfigPath.replace(/\.ts$/, '')
+				: normalizedConfigPath
+		}.js`
+	);
+}
+
 async function writeContentFiles({
 	fs,
 	contentPaths,
@@ -444,17 +466,10 @@ async function writeContentFiles({
 		fs.mkdirSync(contentPaths.cacheDir, { recursive: true });
 	}
 
-	let configPathRelativeToCacheDir = normalizePath(
-		path.relative(contentPaths.cacheDir.pathname, contentPaths.config.url.pathname)
+	const configPathRelativeToCacheDir = normalizeConfigPath(
+		contentPaths.cacheDir.pathname,
+		contentPaths.config.url.pathname
 	);
-
-	if (!isRelativePath(configPathRelativeToCacheDir))
-		configPathRelativeToCacheDir = './' + configPathRelativeToCacheDir;
-
-	// Remove `.ts` from import path
-	if (configPathRelativeToCacheDir.endsWith('.ts')) {
-		configPathRelativeToCacheDir = configPathRelativeToCacheDir.replace(/\.ts$/, '');
-	}
 
 	for (const contentEntryType of contentEntryTypes) {
 		if (contentEntryType.contentModuleTypes) {
@@ -465,7 +480,7 @@ async function writeContentFiles({
 	typeTemplateContent = typeTemplateContent.replace('// @@DATA_ENTRY_MAP@@', dataTypesStr);
 	typeTemplateContent = typeTemplateContent.replace(
 		"'@@CONTENT_CONFIG_TYPE@@'",
-		contentConfig ? `typeof import(${JSON.stringify(configPathRelativeToCacheDir)})` : 'never'
+		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never'
 	);
 
 	await fs.promises.writeFile(
