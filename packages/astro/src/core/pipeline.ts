@@ -4,10 +4,6 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { renderPage } from './render/core.js';
 import { type Environment, type RenderContext } from './render/index.js';
 
-type EndpointResultHandler = (
-	originalRequest: Request,
-	result: Response
-) => Promise<Response> | Response;
 
 type PipelineHooks = {
 	before: PipelineHookFunction[];
@@ -26,11 +22,6 @@ export class Pipeline {
 	#hooks: PipelineHooks = {
 		before: [],
 	};
-	/**
-	 * The handler accepts the *original* `Request` and result returned by the endpoint.
-	 * It must return a `Response`.
-	 */
-	#endpointHandler?: EndpointResultHandler;
 
 	/**
 	 * When creating a pipeline, an environment is mandatory.
@@ -41,15 +32,6 @@ export class Pipeline {
 	}
 
 	setEnvironment() {}
-
-	/**
-	 * When rendering a route, an "endpoint" will a type that needs to be handled and transformed into a `Response`.
-	 *
-	 * Each consumer might have different needs; use this function to set up the handler.
-	 */
-	setEndpointHandler(handler: EndpointResultHandler) {
-		this.#endpointHandler = handler;
-	}
 
 	/**
 	 * A middleware function that will be called before each request.
@@ -81,22 +63,12 @@ export class Pipeline {
 		for (const hook of this.#hooks.before) {
 			hook(renderContext, componentInstance);
 		}
-		const result = await this.#tryRenderRoute(
+		return await this.#tryRenderRoute(
 			renderContext,
 			this.env,
 			componentInstance,
 			this.#onRequest
 		);
-		if (renderContext.route.type === 'endpoint') {
-			if (!this.#endpointHandler) {
-				throw new Error(
-					'You created a pipeline that does not know how to handle the result coming from an endpoint.'
-				);
-			}
-			return this.#endpointHandler(renderContext.request, result);
-		} else {
-			return result;
-		}
 	}
 
 	/**
