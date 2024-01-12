@@ -33,6 +33,7 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+import { ensureProcessNodeEnv } from '../util.js';
 
 export interface BuildOptions {
 	/**
@@ -63,6 +64,7 @@ export default async function build(
 	inlineConfig: AstroInlineConfig,
 	options: BuildOptions = {}
 ): Promise<void> {
+	ensureProcessNodeEnv('production');
 	applyPolyfill();
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');

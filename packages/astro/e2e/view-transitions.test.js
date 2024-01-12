@@ -97,6 +97,25 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
 
+	test('Clicking on a link to a page with non-recommended headers', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+
+		// Go to page 4
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// Go to page 1
+		await page.click('#click-seven');
+		p = page.locator('#seven');
+		await expect(p, 'should have content').toHaveText('Page 7');
+
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
 	test('Moving to a page without ViewTransitions triggers a full page navigation', async ({
 		page,
 		astro,
@@ -957,6 +976,83 @@ test.describe('View Transitions', () => {
 		).toEqual(1);
 	});
 
+	test('form POST defaults to multipart/form-data (Astro 4.x compatibility)', async ({
+		page,
+		astro,
+	}) => {
+		const loads = [];
+
+		page.addListener('load', async (p) => {
+			loads.push(p);
+		});
+
+		const postedEncodings = [];
+
+		await page.route('**/contact', async (route) => {
+			const request = route.request();
+
+			if (request.method() === 'POST') {
+				postedEncodings.push(request.headers()['content-type'].split(';')[0]);
+			}
+
+			await route.continue();
+		});
+
+		await page.goto(astro.resolveUrl('/form-one'));
+
+		// Submit the form
+		await page.click('#submit');
+
+		expect(
+			loads.length,
+			'There should be only 1 page load. No additional loads for the form submission'
+		).toEqual(1);
+
+		expect(
+			postedEncodings,
+			'There should be 1 POST, with encoding set to `multipart/form-data`'
+		).toEqual(['multipart/form-data']);
+	});
+
+	test('form POST respects enctype attribute', async ({ page, astro }) => {
+		const loads = [];
+
+		page.addListener('load', async (p) => {
+			loads.push(p);
+		});
+
+		const postedEncodings = [];
+
+		await page.route('**/contact', async (route) => {
+			const request = route.request();
+
+			if (request.method() === 'POST') {
+				postedEncodings.push(request.headers()['content-type'].split(';')[0]);
+			}
+
+			await route.continue();
+		});
+
+		await page.goto(
+			astro.resolveUrl(
+				`/form-one?${new URLSearchParams({ enctype: 'application/x-www-form-urlencoded' })}`
+			)
+		);
+
+		// Submit the form
+		await page.click('#submit');
+
+		expect(
+			loads.length,
+			'There should be only 1 page load. No additional loads for the form submission'
+		).toEqual(1);
+
+		expect(
+			postedEncodings,
+			'There should be 1 POST, with encoding set to `multipart/form-data`'
+		).toEqual(['application/x-www-form-urlencoded']);
+	});
+
 	test('Route announcer is invisible on page transition', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/no-directive-one'));
 
@@ -1090,5 +1186,24 @@ test.describe('View Transitions', () => {
 		await expect(page.locator('dialog')).not.toHaveAttribute('open');
 
 		expect(requests).toHaveLength(0);
+	});
+
+	test('view transition should also work with 404 page', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to 404
+		await page.click('#click-404');
+		p = page.locator('#FourOhFour');
+		await expect(p, 'should have content').toHaveText('Page not found');
+
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
 });

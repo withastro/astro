@@ -20,7 +20,14 @@ export function redirectRouteGenerate(redirectRoute: RouteData, data: Params): s
 	if (typeof routeData !== 'undefined') {
 		return routeData?.generate(data) || routeData?.pathname || '/';
 	} else if (typeof route === 'string') {
-		return route;
+		// TODO: this logic is duplicated between here and manifest/create.ts
+		let target = route;
+		for (const param of Object.keys(data)) {
+			const paramValue = data[param]!;
+			target = target.replace(`[${param}]`, paramValue);
+			target = target.replace(`[...${param}]`, paramValue);
+		}
+		return target;
 	} else if (typeof route === 'undefined') {
 		return '/';
 	}
@@ -29,8 +36,8 @@ export function redirectRouteGenerate(redirectRoute: RouteData, data: Params): s
 
 export function redirectRouteStatus(redirectRoute: RouteData, method = 'GET'): ValidRedirectStatus {
 	const routeData = redirectRoute.redirectRoute;
-	if (typeof routeData?.redirect === 'object') {
-		return routeData.redirect.status;
+	if (routeData && typeof redirectRoute.redirect === 'object') {
+		return redirectRoute.redirect.status;
 	} else if (method !== 'GET') {
 		return 308;
 	}

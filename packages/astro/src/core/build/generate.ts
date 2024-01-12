@@ -304,13 +304,14 @@ async function generatePage(
 		for (let i = 0; i < paths.length; i++) {
 			const path = paths[i];
 			pipeline.getEnvironment().logger.debug('build', `Generating: ${path}`);
+			const filePath = getOutputFilename(pipeline.getConfig(), path, pageData.route.type);
+			const lineIcon = i === paths.length - 1 ? '└─' : '├─';
+			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
 			await generatePath(path, pipeline, generationOptions, route);
 			const timeEnd = performance.now();
 			const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 			const timeIncrease = `(+${timeChange})`;
-			const filePath = getOutputFilename(pipeline.getConfig(), path, pageData.route.type);
-			const lineIcon = i === paths.length - 1 ? '└─' : '├─';
-			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
+			logger.info('SKIP_FORMAT', ` ${dim(timeIncrease)}`);
 			prevTimeEnd = timeEnd;
 		}
 	}
@@ -419,7 +420,7 @@ function getInvalidRouteSegmentError(
 					route.route,
 					JSON.stringify(invalidParam),
 					JSON.stringify(received)
-			  )
+				)
 			: `Generated path for ${route.route} is invalid.`,
 		hint,
 	});

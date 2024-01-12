@@ -17,6 +17,7 @@ import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { AstroError, AstroErrorData, createSafeError, isAstroError } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
+import { ensureProcessNodeEnv } from '../util.js';
 
 export type ProcessExit = 0 | 1;
 
@@ -41,6 +42,7 @@ export default async function sync(
 	inlineConfig: AstroInlineConfig,
 	options?: SyncOptions
 ): Promise<ProcessExit> {
+	ensureProcessNodeEnv('production');
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
 	telemetry.record(eventCliSession('sync', userConfig));
@@ -79,7 +81,7 @@ export async function syncInternal(
 	const tempViteServer = await createServer(
 		await createVite(
 			{
-				server: { middlewareMode: true, hmr: false, watch: { ignored: ['**'] } },
+				server: { middlewareMode: true, hmr: false, watch: null },
 				optimizeDeps: { disabled: true },
 				ssr: { external: [] },
 				logLevel: 'silent',

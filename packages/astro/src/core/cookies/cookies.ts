@@ -2,7 +2,7 @@ import type { CookieSerializeOptions } from 'cookie';
 import { parse, serialize } from 'cookie';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
-interface AstroCookieSetOptions {
+export interface AstroCookieSetOptions {
 	domain?: string;
 	expires?: Date;
 	httpOnly?: boolean;
@@ -10,6 +10,11 @@ interface AstroCookieSetOptions {
 	path?: string;
 	sameSite?: boolean | 'lax' | 'none' | 'strict';
 	secure?: boolean;
+	encode?: (value: string) => string;
+}
+
+export interface AstroCookieGetOptions {
+	decode?: (value: string) => string;
 }
 
 type AstroCookieDeleteOptions = Pick<AstroCookieSetOptions, 'domain' | 'path'>;
@@ -58,10 +63,12 @@ class AstroCookies implements AstroCookiesInterface {
 	#request: Request;
 	#requestValues: Record<string, string> | null;
 	#outgoing: Map<string, [string, string, boolean]> | null;
+	#consumed: boolean;
 	constructor(request: Request) {
 		this.#request = request;
 		this.#requestValues = null;
 		this.#outgoing = null;
+		this.#consumed = false;
 	}
 
 	/**
@@ -97,7 +104,10 @@ class AstroCookies implements AstroCookiesInterface {
 	 * @param key The cookie to get.
 	 * @returns An object containing the cookie value as well as convenience methods for converting its value.
 	 */
-	get(key: string): AstroCookie | undefined {
+	get(
+		key: string,
+		options: AstroCookieGetOptions | undefined = undefined
+	): AstroCookie | undefined {
 		// Check for outgoing Set-Cookie values first
 		if (this.#outgoing?.has(key)) {
 			let [serializedValue, , isSetValue] = this.#outgoing.get(key)!;
@@ -108,7 +118,7 @@ class AstroCookies implements AstroCookiesInterface {
 			}
 		}
 
-		const values = this.#ensureParsed();
+		const values = this.#ensureParsed(options);
 		if (key in values) {
 			const value = values[key];
 			return new AstroCookie(value);
@@ -121,12 +131,12 @@ class AstroCookies implements AstroCookiesInterface {
 	 * @param key The cookie to check for.
 	 * @returns
 	 */
-	has(key: string): boolean {
+	has(key: string, options: AstroCookieGetOptions | undefined = undefined): boolean {
 		if (this.#outgoing?.has(key)) {
 			let [, , isSetValue] = this.#outgoing.get(key)!;
 			return isSetValue;
 		}
-		const values = this.#ensureParsed();
+		const values = this.#ensureParsed(options);
 		return !!values[key];
 	}
 
@@ -140,6 +150,16 @@ class AstroCookies implements AstroCookiesInterface {
 	 * @param options Options for the cookie, such as the path and security settings.
 	 */
 	set(key: string, value: string | Record<string, any>, options?: AstroCookieSetOptions): void {
+		if (this.#consumed) {
+			const warning = new Error(
+				'Astro.cookies.set() was called after the cookies had already been sent to the browser.\n' +
+					'This may have happened if this method was called in an imported component.\n' +
+					'Please make sure that Astro.cookies.set() is only called in the frontmatter of the main page.'
+			);
+			warning.name = 'Warning';
+			// eslint-disable-next-line no-console
+			console.warn(warning);
+		}
 		let serializedValue: string;
 		if (typeof value === 'string') {
 			serializedValue = value;
@@ -185,9 +205,18 @@ class AstroCookies implements AstroCookiesInterface {
 		}
 	}
 
-	#ensureParsed(): Record<string, string> {
+	/**
+	 * Behaves the same as AstroCookies.prototype.headers(),
+	 * but allows a warning when cookies are set after the instance is consumed.
+	 */
+	static consume(cookies: AstroCookies): Generator<string, void, unknown> {
+		cookies.#consumed = true;
+		return cookies.headers();
+	}
+
+	#ensureParsed(options: AstroCookieGetOptions | undefined = undefined): Record<string, string> {
 		if (!this.#requestValues) {
-			this.#parse();
+			this.#parse(options);
 		}
 		if (!this.#requestValues) {
 			this.#requestValues = {};
@@ -202,13 +231,13 @@ class AstroCookies implements AstroCookiesInterface {
 		return this.#outgoing;
 	}
 
-	#parse() {
+	#parse(options: AstroCookieGetOptions | undefined = undefined) {
 		const raw = this.#request.headers.get('cookie');
 		if (!raw) {
 			return;
 		}
 
-		this.#requestValues = parse(raw);
+		this.#requestValues = parse(raw, options);
 	}
 }
 

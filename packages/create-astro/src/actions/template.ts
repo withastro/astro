@@ -4,10 +4,10 @@ import { color } from '@astrojs/cli-kit';
 import { downloadTemplate } from 'giget';
 import fs from 'node:fs';
 import path from 'node:path';
-import { error, info, spinner, title } from '../messages.js';
+import { error, info, title } from '../messages.js';
 
 export async function template(
-	ctx: Pick<Context, 'template' | 'prompt' | 'yes' | 'dryRun' | 'exit'>
+	ctx: Pick<Context, 'template' | 'prompt' | 'yes' | 'dryRun' | 'exit' | 'tasks'>
 ) {
 	if (!ctx.template && ctx.yes) ctx.template = 'basics';
 
@@ -32,7 +32,8 @@ export async function template(
 	if (ctx.dryRun) {
 		await info('--dry-run', `Skipping template copying`);
 	} else if (ctx.template) {
-		await spinner({
+		ctx.tasks.push({
+			pending: 'Template',
 			start: 'Template copying...',
 			end: 'Template copied',
 			while: () =>
