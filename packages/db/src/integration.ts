@@ -22,7 +22,7 @@ export function integration(): AstroIntegration {
 				if (existsSync(dbUrl)) {
 					await rm(dbUrl);
 				}
-				const db = await createDb({ dbUrl: dbUrl.href });
+				const db = await createDb({ collections, dbUrl: dbUrl.href, seeding: true });
 				await setupDbTables({ db, collections, logger });
 				logger.info('Collections set up 🚀');
 
