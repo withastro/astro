@@ -142,4 +142,59 @@ const authors = await db.select().from(Author).where(
 
 ### Join related data
 
-You may want to join related collections by `id`. You can handle joins using [a SQL join operator](https://orm.drizzle.team/docs/joins#join-types) like `innerJoin()`. 
+You may want to join related collections by `id`. You can handle joins using [a SQL join operator](https://orm.drizzle.team/docs/joins#join-types) like `innerJoin()`.
+
+This example stores an Author's social links in a separate collection named `SocialLink`. This collection includes the `authorId` as a field to relate multiple social links to a given author:
+
+```js
+// astro.config.mjs
+import { defineCollection, field } from '@astrojs/db';
+import { defineConfig } from 'astro/config';
+
+const Author = defineCollection({
+	fields: {
+		name: field.text(),
+		isFeatured: field.boolean(),
+	},
+  data() {
+    return [
+			{ id: 'fks', name: 'Fred K Schott' },
+			{ id: 'bh', name: 'Ben Holmes', isFeatured: true },
+			{ id: 'prime', name: 'ThePrimeagen' },
+    ]
+  }
+});
+
+const SocialLink = defineCollection({
+	fields: {
+    authorId: field.text(),
+    url: field.text(),
+	},
+  data() {
+    return [
+      { authorId: 'prime', url: 'https://twitch.tv/ThePrimeagen' }
+    ]
+  }
+});
+
+export default defineConfig({
+	db: {
+		collections: { Author, SocialLink },
+	}
+});
+```
+
+You can join all social links to a given author by using a join query. This example uses a `leftJoin()`, meaning that all authors will be returned, and social links will be joined if they exist (`undefined` otherwise):
+
+```astro
+---
+import { db, eq, Author, SocialLink } from 'astro:db';
+
+const authors = await db.select().from(Author)
+  .innerJoin(SocialLink, eq(Author.id, SocialLink.authorId));
+---
+```
+
+## Writable data with Astro Studio
+
+TODO
