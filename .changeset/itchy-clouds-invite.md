@@ -2,7 +2,7 @@
 "astro": minor
 ---
 
-Remove underscore prefix requirement for assets inside content collections. For extensions like `.astro` or `.css`, you can now remove underscores without raising a warning:
+Removes the requirement for non-content files and assets inside content collections to be prefixed with an underscore. For files with extensions like `.astro` or `.css`, you can now remove underscores without seeing a warning in the terminal.
 
 ```diff
 src/content/blog/
