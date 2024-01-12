@@ -132,10 +132,12 @@ export default function assets({
 						});
 					}
 
+					// The paths here are used for URLs, so we need to make sure they have the proper format for an URL
+					// (leading slash, prefixed with the base / assets prefix, encoded, etc)
 					if (settings.config.build.assetsPrefix) {
-						return joinPaths(settings.config.build.assetsPrefix, finalFilePath);
+						return encodeURI(joinPaths(settings.config.build.assetsPrefix, finalFilePath));
 					} else {
-						return prependForwardSlash(joinPaths(settings.config.base, finalFilePath));
+						return encodeURI(prependForwardSlash(joinPaths(settings.config.base, finalFilePath)));
 					}
 				};
 			},

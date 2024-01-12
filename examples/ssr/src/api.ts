@@ -32,7 +32,7 @@ async function get<T>(
 	});
 	if (!response.ok) {
 		// TODO make this better...
-		return null;
+		throw new Error('Fetch failed');
 	}
 	return cb(response);
 }

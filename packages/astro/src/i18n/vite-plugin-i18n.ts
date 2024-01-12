@@ -73,7 +73,7 @@ export default function astroInternationalization({
 					});
 					
 					export const getPathByLocale = (locale) => _getPathByLocale(locale, i18n.locales);
-					export const getLocaleByPath = (locale) => _getLocaleByPath(locale, i18n.locales);
+					export const getLocaleByPath = (path) => _getLocaleByPath(path, i18n.locales);
 				`;
 			}
 		},

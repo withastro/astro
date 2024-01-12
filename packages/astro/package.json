@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "4.0.7",
+  "version": "4.1.2",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -34,12 +34,14 @@
     "./env": "./env.d.ts",
     "./types": "./types.d.ts",
     "./client": "./client.d.ts",
-    "./import-meta": "./import-meta.d.ts",
     "./astro-jsx": "./astro-jsx.d.ts",
     "./tsconfigs/*.json": "./tsconfigs/*",
     "./tsconfigs/*": "./tsconfigs/*.json",
     "./jsx/*": "./dist/jsx/*",
-    "./jsx-runtime": "./dist/jsx-runtime/index.js",
+    "./jsx-runtime": {
+      "types": "./jsx-runtime.d.ts",
+      "default": "./dist/jsx-runtime/index.js"
+    },
     "./compiler-runtime": "./dist/runtime/compiler/index.js",
     "./runtime/*": "./dist/runtime/*",
     "./config": {
@@ -90,9 +92,9 @@
     "zod.mjs",
     "env.d.ts",
     "client.d.ts",
+    "jsx-runtime.d.ts",
     "content-types.template.d.ts",
     "content-module.template.mjs",
-    "import-meta.d.ts",
     "astro-jsx.d.ts",
     "types.d.ts",
     "README.md",
@@ -124,6 +126,8 @@
     "@babel/types": "^7.23.3",
     "@types/babel__core": "^7.20.4",
     "acorn": "^8.11.2",
+    "aria-query": "^5.3.0",
+    "axobject-query": "^4.0.0",
     "boxen": "^7.1.1",
     "chokidar": "^3.5.3",
     "ci-info": "^4.0.0",
@@ -175,11 +179,12 @@
     "zod": "^3.22.4"
   },
   "optionalDependencies": {
-    "sharp": "^0.32.5"
+    "sharp": "^0.32.6"
   },
   "devDependencies": {
     "@astrojs/check": "^0.3.1",
     "@playwright/test": "1.40.0",
+    "@types/aria-query": "^5.0.4",
     "@types/babel__generator": "^7.6.7",
     "@types/babel__traverse": "^7.20.4",
     "@types/chai": "^4.3.10",

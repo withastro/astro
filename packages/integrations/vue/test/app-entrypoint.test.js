@@ -185,3 +185,26 @@ describe('App Entrypoint /src/absolute', () => {
 		expect(js).not.to.match(/\w+\.component\(\"Bar\"/gm);
 	});
 });
+
+describe('App Entrypoint async', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/app-entrypoint-async/',
+		});
+		await fixture.build();
+	});
+
+	it('loads during SSR', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerioLoad(html);
+
+		// test 1: component before await renders
+		expect($('#foo > #bar').text()).to.eq('works');
+
+		// test 2: component after await renders
+		expect($('#foo > #baz').text()).to.eq('works');
+	});
+});

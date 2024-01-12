@@ -5,6 +5,8 @@ title: Let's talk about my import.meta.env.SITE
 export const modeWorks =
 	import.meta.env.MODE === 'production' ? 'MODE works' : 'MODE does not work!';
 
+export const unknownVar = import.meta.env.UNKNOWN_VAR;
+
 # About my import.meta.env.SITE
 
 My `import.meta.env.SITE` is so cool, I can put env variables in code!
@@ -24,6 +26,12 @@ I can compute my site, for example: {new URL('/blog/cool-post', import.meta.env.
 <div data-env-variable-exports>
 
 I can also use `import.meta.env` in variable exports: {modeWorks}
+
+</div>
+
+<div data-env-variable-exports-unknown>
+
+I can also use `import.meta.env.UNKNOWN_VAR` through exports: "{unknownVar}"
 
 </div>
 

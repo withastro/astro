@@ -77,7 +77,13 @@ export interface VercelServerlessConfig {
 	/** Configuration for [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics). */
 	webAnalytics?: VercelWebAnalyticsConfig;
 
-	/** Configuration for [Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights). */
+	/**
+	 * @deprecated This option lets you configure the legacy speed insights API which is now deprecated by Vercel.
+	 *
+	 * See [Vercel Speed Insights Quickstart](https://vercel.com/docs/speed-insights/quickstart) for instructions on how to use the library instead.
+	 *
+	 * https://vercel.com/docs/speed-insights/quickstart
+	 */
 	speedInsights?: VercelSpeedInsightsConfig;
 
 	/** Force files to be bundled with your function. This is helpful when you notice missing files. */
@@ -284,9 +290,15 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 						excludeFiles,
 						maxDuration,
 					});
-					routeDefinitions.push({ src: '/.*', dest: 'render' });
+					for (const route of routes) {
+						if (route.prerender) continue;
+						routeDefinitions.push({
+							src: route.pattern.source,
+							dest: 'render',
+						});
+					}
 				}
-
+				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
 				await writeJson(new URL(`./config.json`, _config.outDir), {
@@ -300,6 +312,15 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 						},
 						{ handle: 'filesystem' },
 						...routeDefinitions,
+						...(fourOhFourRoute
+							? [
+									{
+										src: '/.*',
+										dest: fourOhFourRoute.prerender ? '/404.html' : 'render',
+										status: 404,
+									},
+								]
+							: []),
 					],
 					...(imageService || imagesConfig
 						? {
@@ -311,9 +332,9 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 												...(imagesConfig.remotePatterns ?? []),
 												..._config.image.remotePatterns,
 											],
-									  }
+										}
 									: getDefaultImageConfig(_config.image),
-						  }
+							}
 						: {}),
 				});
 
@@ -380,19 +401,19 @@ function validateRuntime() {
 	const version = process.version.slice(1); // 'v16.5.0' --> '16.5.0'
 	const major = version.split('.')[0]; // '16.5.0' --> '16'
 	const support = SUPPORTED_NODE_VERSIONS[major];
-	if (support.status === 'beta') {
-		console.warn(
-			`[${PACKAGE_NAME}] The local Node.js version (${major}) is currently in beta for Vercel Serverless Functions.`
-		);
-		console.warn(`[${PACKAGE_NAME}] Make sure to update your Vercel settings to use ${major}.`);
-		return;
-	}
 	if (support === undefined) {
 		console.warn(
 			`[${PACKAGE_NAME}] The local Node.js version (${major}) is not supported by Vercel Serverless Functions.`
 		);
 		console.warn(`[${PACKAGE_NAME}] Your project will use Node.js 18 as the runtime instead.`);
 		console.warn(`[${PACKAGE_NAME}] Consider switching your local version to 18.`);
+		return;
+	}
+	if (support.status === 'beta') {
+		console.warn(
+			`[${PACKAGE_NAME}] The local Node.js version (${major}) is currently in beta for Vercel Serverless Functions.`
+		);
+		console.warn(`[${PACKAGE_NAME}] Make sure to update your Vercel settings to use ${major}.`);
 		return;
 	}
 	if (support.status === 'deprecated') {

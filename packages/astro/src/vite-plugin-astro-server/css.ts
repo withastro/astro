@@ -1,4 +1,3 @@
-import type { RuntimeMode } from '../@types/astro.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { viteID } from '../core/util.js';
 import { isBuildableCSSRequest } from './util.js';
@@ -13,8 +12,7 @@ interface ImportedStyle {
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
 export async function getStylesForURL(
 	filePath: URL,
-	loader: ModuleLoader,
-	mode: RuntimeMode
+	loader: ModuleLoader
 ): Promise<{ urls: Set<string>; styles: ImportedStyle[] }> {
 	const importedCssUrls = new Set<string>();
 	// Map of url to injected style object. Use a `url` key to deduplicate styles
@@ -22,28 +20,40 @@ export async function getStylesForURL(
 
 	for await (const importedModule of crawlGraph(loader, viteID(filePath), true)) {
 		if (isBuildableCSSRequest(importedModule.url)) {
-			let ssrModule: Record<string, any>;
-			try {
-				// The SSR module is possibly not loaded. Load it if it's null.
-				ssrModule = importedModule.ssrModule ?? (await loader.import(importedModule.url));
-			} catch {
-				// The module may not be inline-able, e.g. SCSS partials. Skip it as it may already
-				// be inlined into other modules if it happens to be in the graph.
-				continue;
+			// In dev, we inline all styles if possible
+			let css = '';
+			// If this is a plain CSS module, the default export should be a string
+			if (typeof importedModule.ssrModule?.default === 'string') {
+				css = importedModule.ssrModule.default;
 			}
-			if (
-				mode === 'development' && // only inline in development
-				typeof ssrModule?.default === 'string' // ignore JS module styles
-			) {
-				importedStylesMap.set(importedModule.url, {
-					id: importedModule.id ?? importedModule.url,
-					url: importedModule.url,
-					content: ssrModule.default,
-				});
-			} else {
-				// NOTE: We use the `url` property here. `id` would break Windows.
-				importedCssUrls.add(importedModule.url);
+			// Else try to load it
+			else {
+				const url = new URL(importedModule.url, 'http://localhost');
+				// Mark url with ?inline so Vite will return the CSS as plain string, even for CSS modules
+				url.searchParams.set('inline', '');
+				const modId = `${decodeURI(url.pathname)}${url.search}`;
+
+				try {
+					// The SSR module is possibly not loaded. Load it if it's null.
+					const ssrModule = await loader.import(modId);
+					css = ssrModule.default;
+				} catch {
+					// Some CSS modules, e.g. from Vue files, may not work with the ?inline query.
+					// If so, we fallback to a url instead
+					if (modId.includes('.module.')) {
+						importedCssUrls.add(importedModule.url);
+					}
+					// The module may not be inline-able, e.g. SCSS partials. Skip it as it may already
+					// be inlined into other modules if it happens to be in the graph.
+					continue;
+				}
 			}
+
+			importedStylesMap.set(importedModule.url, {
+				id: importedModule.id ?? importedModule.url,
+				url: importedModule.url,
+				content: css,
+			});
 		}
 	}
 

@@ -88,11 +88,23 @@ DEBUG=vite:[name] astro dev   # debug specific process, e.g. "vite:deps" or "vit
 # run this in the top-level project root to run all tests
 pnpm run test
 # run only a few tests in the `astro` package, great for working on a single feature
-# (example - `pnpm run test:match "cli"` runs `cli.test.js`)
+# (example - `pnpm run test:match "cli"` runs tests with "cli" in the name)
 pnpm run test:match "$STRING_MATCH"
 # run tests on another package
 # (example - `pnpm --filter @astrojs/rss run test` runs `packages/astro-rss/test/rss.test.js`)
 pnpm --filter $STRING_MATCH run test
+```
+
+Most tests use [`mocha`](https://mochajs.org) as the test runner. We're slowly migrating to use [`node:test`](https://nodejs.org/api/test.html) instead through the custom [`astro-scripts test`](./scripts/cmd/test.js) command. For packages that use `node:test`, you can run these commands in their directories:
+
+```shell
+# run all of the package's tests
+pnpm run test
+# run only a few tests in the package
+# (example - `pnpm run test -m "cli"` runs tests with "cli" in the name)
+pnpm run test -m "$STRING_MATCH"
+# run a single test file, you can use `node --test` directly
+node --test ./test/foo.test.js
 ```
 
 #### E2E tests

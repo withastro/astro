@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { scrollToElement, testFactory, waitForHydrate } from './test-utils.js';
 
-export function prepareTestFactory(opts) {
+export function prepareTestFactory(opts, { canReplayClicks = false } = {}) {
 	const test = testFactory(opts);
 
 	let devServer;
@@ -104,7 +104,16 @@ export function prepareTestFactory(opts) {
 			await waitForHydrate(page, counter);
 
 			await inc.click();
-			await expect(count, 'count incremented by 1').toHaveText('1');
+
+			if (canReplayClicks) {
+				// SolidJS has a hydration script that automatically captures
+				// and replays click and input events on Hydration:
+				// https://www.solidjs.com/docs/latest#hydrationscript
+				// so in total there are two click events.
+				await expect(count, 'count incremented by 2').toHaveText('2');
+			} else {
+				await expect(count, 'count incremented by 1').toHaveText('1');
+			}
 		});
 
 		test('client:only', async ({ page, astro }) => {

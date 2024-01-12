@@ -18,6 +18,8 @@ import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
+import { AstroError } from '../../errors/index.js';
+import { MissingIndexForInternationalization } from '../../errors/errors-data.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -328,7 +330,7 @@ export function createRouteManifest(
 			} else {
 				components.push(item.file);
 				const component = item.file;
-				const trailingSlash = item.isPage ? settings.config.trailingSlash : 'never';
+				const { trailingSlash } = settings.config;
 				const pattern = getPattern(segments, settings.config, trailingSlash);
 				const generate = getRouteGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
@@ -477,7 +479,13 @@ export function createRouteManifest(
 			pathname: pathname || void 0,
 			prerender: false,
 			redirect: to,
-			redirectRoute: routes.find((r) => r.route === to),
+			redirectRoute: routes.find((r) => {
+				if (typeof to === 'object') {
+					return r.route === to.destination;
+				} else {
+					return r.route === to;
+				}
+			}),
 			fallbackRoutes: [],
 		};
 
@@ -507,6 +515,21 @@ export function createRouteManifest(
 	});
 	const i18n = settings.config.i18n;
 	if (i18n) {
+		// First we check if the user doesn't have an index page.
+		if (i18n.routing === 'prefix-always') {
+			let index = routes.find((route) => route.route === '/');
+			if (!index) {
+				let relativePath = path.relative(
+					fileURLToPath(settings.config.root),
+					fileURLToPath(new URL('pages', settings.config.srcDir))
+				);
+				throw new AstroError({
+					...MissingIndexForInternationalization,
+					message: MissingIndexForInternationalization.message(relativePath),
+				});
+			}
+		}
+
 		// In this block of code we group routes based on their locale
 
 		// A map like: locale => RouteData[]

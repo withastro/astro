@@ -208,17 +208,20 @@ export function getPathByLocale(locale: string, locales: Locales) {
 /**
  * An utility function that retrieves the preferred locale that correspond to a path.
  *
- * @param locale
+ * @param path
  * @param locales
  */
 export function getLocaleByPath(path: string, locales: Locales): string | undefined {
 	for (const locale of locales) {
 		if (typeof locale !== 'string') {
-			// the first code is the one that user usually wants
-			const code = locale.codes.at(0);
-			return code;
+			if (locale.path === path) {
+				// the first code is the one that user usually wants
+				const code = locale.codes.at(0);
+				return code;
+			}
+		} else if (locale === path) {
+			return locale;
 		}
-		1;
 	}
 	return undefined;
 }

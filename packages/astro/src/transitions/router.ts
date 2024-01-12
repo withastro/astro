@@ -151,12 +151,14 @@ function runScripts() {
 	let wait = Promise.resolve();
 	for (const script of Array.from(document.scripts)) {
 		if (script.dataset.astroExec === '') continue;
+		const type = script.getAttribute('type');
+		if (type && type !== 'module' && type !== 'text/javascript') continue;
 		const newScript = document.createElement('script');
 		newScript.innerHTML = script.innerHTML;
 		for (const attr of script.attributes) {
 			if (attr.name === 'src') {
 				const p = new Promise((r) => {
-					newScript.onload = r;
+					newScript.onload = newScript.onerror = r;
 				});
 				wait = wait.then(() => p as any);
 			}
@@ -170,8 +172,17 @@ function runScripts() {
 
 // Add a new entry to the browser history. This also sets the new page in the browser addressbar.
 // Sets the scroll position according to the hash fragment of the new location.
-const moveToLocation = (to: URL, from: URL, options: Options, historyState?: State) => {
+const moveToLocation = (
+	to: URL,
+	from: URL,
+	options: Options,
+	pageTitleForBrowserHistory: string,
+	historyState?: State
+) => {
 	const intraPage = samePage(from, to);
+
+	const targetPageTitle = document.title;
+	document.title = pageTitleForBrowserHistory;
 
 	let scrolledToTop = false;
 	if (to.href !== location.href && !historyState) {
@@ -213,7 +224,9 @@ const moveToLocation = (to: URL, from: URL, options: Options, historyState?: Sta
 			// ... what comes next is a intra-page navigation
 			// that won't reload the page but instead scroll to the fragment
 			history.scrollRestoration = 'auto';
-			location.href = to.href;
+			const savedState = history.state;
+			location.href = to.href; // this kills the history state on Firefox
+			history.state || replaceState(savedState, ''); // this restores the history state
 		} else {
 			if (!scrolledToTop) {
 				scrollTo({ left: 0, top: 0, behavior: 'instant' });
@@ -221,6 +234,7 @@ const moveToLocation = (to: URL, from: URL, options: Options, historyState?: Sta
 		}
 		history.scrollRestoration = 'manual';
 	}
+	document.title = targetPageTitle;
 };
 
 function preloadStyleLinks(newDocument: Document) {
@@ -407,8 +421,9 @@ async function updateDOM(
 		throw new DOMException('Transition was skipped');
 	}
 
+	const pageTitleForBrowserHistory = document.title; // document.title will be overridden by swap()
 	const swapEvent = await doSwap(preparationEvent, viewTransition!, defaultSwap);
-	moveToLocation(swapEvent.to, swapEvent.from, options, historyState);
+	moveToLocation(swapEvent.to, swapEvent.from, options, pageTitleForBrowserHistory, historyState);
 	triggerEvent(TRANSITION_AFTER_SWAP);
 
 	if (fallback === 'animate' && !skipTransition) {
@@ -432,14 +447,14 @@ async function transition(
 	const navigationType = historyState
 		? 'traverse'
 		: options.history === 'replace'
-		  ? 'replace'
-		  : 'push';
+			? 'replace'
+			: 'push';
 
 	if (navigationType !== 'traverse') {
 		updateScrollPosition({ scrollX, scrollY });
 	}
 	if (samePage(from, to) && !!to.hash) {
-		moveToLocation(to, from, options, historyState);
+		moveToLocation(to, from, options, document.title, historyState);
 		return;
 	}
 
@@ -467,9 +482,9 @@ async function transition(
 				preparationEvent.sourceElement instanceof HTMLFormElement
 					? preparationEvent.sourceElement
 					: preparationEvent.sourceElement instanceof HTMLElement &&
-					    'form' in preparationEvent.sourceElement
-					  ? (preparationEvent.sourceElement.form as HTMLFormElement)
-					  : preparationEvent.sourceElement?.closest('form');
+						  'form' in preparationEvent.sourceElement
+						? (preparationEvent.sourceElement.form as HTMLFormElement)
+						: preparationEvent.sourceElement?.closest('form');
 			// Form elements without enctype explicitly set default to application/x-www-form-urlencoded.
 			// In order to maintain compatibility with Astro 4.x, we need to check the value of enctype
 			// on the attributes property rather than accessing .enctype directly. Astro 5.x may
