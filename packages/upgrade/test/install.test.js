@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import { setup } from './utils.js';
 import { install } from '../dist/index.js';
 
@@ -23,7 +24,7 @@ describe('install', () => {
 			],
 		};
 		await install(context);
-		expect(fixture.hasMessage('◼  astro is up to date on v1.0.0')).to.be.true;
+		assert.equal(fixture.hasMessage('◼  astro is up to date on v1.0.0'), true);
 	});
 
 	it('patch', async () => {
@@ -38,7 +39,7 @@ describe('install', () => {
 			],
 		};
 		await install(context);
-		expect(fixture.hasMessage('●  astro can be updated to v1.0.1')).to.be.true;
+		assert.equal(fixture.hasMessage('●  astro can be updated to v1.0.1'), true);
 	});
 
 	it('minor', async () => {
@@ -53,7 +54,7 @@ describe('install', () => {
 			],
 		};
 		await install(context);
-		expect(fixture.hasMessage('●  astro can be updated to v1.2.0')).to.be.true;
+		assert.equal(fixture.hasMessage('●  astro can be updated to v1.2.0'), true);
 	});
 
 	it('major (reject)', async () => {
@@ -80,10 +81,10 @@ describe('install', () => {
 			],
 		};
 		await install(context);
-		expect(fixture.hasMessage('▲  astro can be updated to  v2.0.0')).to.be.true;
-		expect(prompted).to.be.true;
-		expect(exitCode).to.eq(0);
-		expect(fixture.hasMessage('check   Be sure to follow the CHANGELOG.')).to.be.false;
+		assert.equal(fixture.hasMessage('▲  astro can be updated to  v2.0.0'), true);
+		assert.equal(prompted, true);
+		assert.equal(exitCode, 0);
+		assert.equal(fixture.hasMessage('check   Be sure to follow the CHANGELOG.'), false);
 	});
 
 	it('major (accept)', async () => {
@@ -110,10 +111,10 @@ describe('install', () => {
 			],
 		};
 		await install(context);
-		expect(fixture.hasMessage('▲  astro can be updated to  v2.0.0')).to.be.true;
-		expect(prompted).to.be.true;
-		expect(exitCode).to.be.undefined;
-		expect(fixture.hasMessage('check   Be sure to follow the CHANGELOG.')).to.be.true;
+		assert.equal(fixture.hasMessage('▲  astro can be updated to  v2.0.0'), true);
+		assert.equal(prompted, true);
+		assert.equal(exitCode, undefined);
+		assert.equal(fixture.hasMessage('check   Be sure to follow the CHANGELOG.'), true);
 	});
 
 	it('multiple major', async () => {
@@ -148,14 +149,14 @@ describe('install', () => {
 			],
 		};
 		await install(context);
-		expect(fixture.hasMessage('▲  a can be updated to  v2.0.0')).to.be.true;
-		expect(fixture.hasMessage('▲  b can be updated to  v7.0.0')).to.be.true;
-		expect(prompted).to.be.true;
-		expect(exitCode).to.be.undefined;
+		assert.equal(fixture.hasMessage('▲  a can be updated to  v2.0.0'), true);
+		assert.equal(fixture.hasMessage('▲  b can be updated to  v7.0.0'), true);
+		assert.equal(prompted, true);
+		assert.equal(exitCode, undefined);
 		const [changelog, a, b] = fixture.messages().slice(-5);
-		expect(changelog).to.match(/^check/);
-		expect(a).to.match(/^a/);
-		expect(b).to.match(/^b/);
+		assert.match(changelog, /^check/);
+		assert.match(a, /^a/);
+		assert.match(b, /^b/);
 	});
 
 	it('current patch minor major', async () => {
@@ -197,15 +198,15 @@ describe('install', () => {
 			],
 		};
 		await install(context);
-		expect(fixture.hasMessage('◼  current is up to date on v1.0.0')).to.be.true;
-		expect(fixture.hasMessage('●  patch can be updated to v1.0.1')).to.be.true;
-		expect(fixture.hasMessage('●  minor can be updated to v1.2.0')).to.be.true;
-		expect(fixture.hasMessage('▲  major can be updated to  v3.0.0')).to.be.true;
-		expect(prompted).to.be.true;
-		expect(exitCode).to.be.undefined;
-		expect(fixture.hasMessage('check   Be sure to follow the CHANGELOG.')).to.be.true;
+		assert.equal(fixture.hasMessage('◼  current is up to date on v1.0.0'), true);
+		assert.equal(fixture.hasMessage('●  patch can be updated to v1.0.1'), true);
+		assert.equal(fixture.hasMessage('●  minor can be updated to v1.2.0'), true);
+		assert.equal(fixture.hasMessage('▲  major can be updated to  v3.0.0'), true);
+		assert.equal(prompted, true);
+		assert.equal(exitCode, undefined);
+		assert.equal(fixture.hasMessage('check   Be sure to follow the CHANGELOG.'), true);
 		const [changelog, major] = fixture.messages().slice(-4);
-		expect(changelog).to.match(/^check/);
-		expect(major).to.match(/^major/);
+		assert.match(changelog, /^check/);
+		assert.match(major, /^major/);
 	});
 });
