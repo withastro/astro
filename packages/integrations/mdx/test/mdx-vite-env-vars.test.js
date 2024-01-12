@@ -38,6 +38,9 @@ describe('MDX - Vite env vars', () => {
 		expect(document.querySelector('[data-env-variable-exports]')?.innerHTML).to.contain(
 			'MODE works'
 		);
+		expect(document.querySelector('[data-env-variable-exports-unknown]')?.innerHTML).to.contain(
+			'exports: ””' // NOTE: these double quotes are special unicode quotes emitted in the HTML file
+		);
 	});
 	it('Transforms `import.meta.env` in HTML attributes', async () => {
 		const html = await fixture.readFile('/vite-env-vars/index.html');
