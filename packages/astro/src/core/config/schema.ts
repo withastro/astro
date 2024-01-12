@@ -445,7 +445,7 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
-			i18nDomain: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.i18nDomains),
+			i18nDomains: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.i18nDomains),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`
@@ -569,7 +569,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		})
 		.superRefine((configuration, ctx) => {
 			const { site, experimental, i18n } = configuration;
-			if (experimental.i18nDomain) {
+			if (experimental.i18nDomains) {
 				if (i18n?.routing === 'domains' || i18n?.routing === 'domains-prefix-default') {
 					if (!site) {
 						ctx.addIssue({

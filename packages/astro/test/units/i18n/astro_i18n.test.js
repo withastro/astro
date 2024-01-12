@@ -262,7 +262,7 @@ describe('getLocaleRelativeUrl', () => {
 				format: 'directory',
 				normalizeLocale: false,
 			})
-		).to.eq('/blog/en-us/');
+		).to.eq('/blog/en_US/');
 
 		expect(
 			getLocaleRelativeUrl({

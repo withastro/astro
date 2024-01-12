@@ -242,7 +242,7 @@ function buildManifest(
 	 */
 	const i18n = settings.config.i18n;
 	if (
-		settings.config.experimental.i18nDomain &&
+		settings.config.experimental.i18nDomains &&
 		i18n &&
 		i18n.domains &&
 		(i18n.routing === 'domains' || i18n.routing === 'domains-prefix-default')
