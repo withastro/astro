@@ -1003,7 +1003,7 @@ export const MissingLocale = {
 
 export const MissingIndexForInternationalization = {
 	name: 'MissingIndexForInternationalizationError',
-	title: 'Index URL not found.',
+	title: 'Index page not found.',
 	message: (src: string) =>
 		`Astro couldn't find the index URL. This index page is required to create a redirect from the index URL to the index URL of the default locale. \nCreate an index page in \`${src}\``,
 } satisfies ErrorData;
