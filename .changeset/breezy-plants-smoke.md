@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-🏷️ update type generation for content config.
+Fixes types generation from Content Collections config file
