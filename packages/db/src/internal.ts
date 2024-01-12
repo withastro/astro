@@ -1,18 +1,19 @@
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
 import { createClient } from '@libsql/client';
-import type {
-	BooleanField,
-	DBCollection,
-	DBCollections,
-	DBField,
-	DateField,
-	FieldType,
-	JsonField,
-	NumberField,
-	TextField,
+import {
+	collectionSchema,
+	type BooleanField,
+	type DBCollection,
+	type DBCollections,
+	type DBField,
+	type DateField,
+	type FieldType,
+	type JsonField,
+	type NumberField,
+	type TextField,
 } from './types.js';
 import { type LibSQLDatabase, drizzle } from 'drizzle-orm/libsql';
-import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
+import { SQLiteAsyncDialect, SQLiteTable } from 'drizzle-orm/sqlite-core';
 import { bold } from 'kleur/colors';
 import { type SQL, type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
 import {
@@ -39,10 +40,45 @@ export type {
 
 const sqlite = new SQLiteAsyncDialect();
 
-export async function createDb({ dbUrl }: { dbUrl: string }) {
+function checkIfModificationIsAllowed(collections: DBCollections, Table: SQLiteTable) {
+	// This totally works, don't worry about it
+	const tableName = (Table as any)[(SQLiteTable as any).Symbol.Name];
+	const collection = collections[tableName];
+	if(collection.source === 'readable') {
+		throw new Error(`The [${tableName}] collection is read-only.`);
+	}
+}
+
+export async function createDb({ collections, dbUrl, seeding }: {
+	dbUrl: string;
+	collections: DBCollections;
+	seeding: boolean;
+}) {
 	const client = createClient({ url: dbUrl });
 	const db = drizzle(client);
-	return db;
+
+	if(seeding) return db;
+
+	const {
+		insert: drizzleInsert,
+		update: drizzleUpdate,
+		delete: drizzleDelete
+	} = db;
+	return Object.assign(db, {
+		insert(Table: SQLiteTable) {
+			//console.log('Table info...', Table._);
+			checkIfModificationIsAllowed(collections, Table);
+			return drizzleInsert.call(this, Table);
+		},
+		update(Table: SQLiteTable) {
+			checkIfModificationIsAllowed(collections, Table);
+			return drizzleUpdate.call(this, Table);
+		},
+		delete(Table: SQLiteTable) {
+			checkIfModificationIsAllowed(collections, Table);
+			return drizzleDelete.call(this, Table);
+		},
+	});
 }
 
 export async function setupDbTables({
@@ -217,6 +253,7 @@ export function collectionToTable(
 	}
 
 	const table = sqliteTable(name, columns);
+
 	return table;
 }
 
