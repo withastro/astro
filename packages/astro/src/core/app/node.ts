@@ -106,15 +106,20 @@ export class NodeApp extends App {
 			try {
 				const reader = body.getReader();
 				destination.on('close', () => {
-					reader.cancel();
+					// Cancelling the reader may reject not just because of
+					// an error in the ReadableStream's cancel callback, but
+					// also because of an error anywhere in the stream.
+					reader.cancel().catch(err => {
+						console.error(`There was an uncaught error in the middle of the stream while rendering ${destination.req.url}.`, err);
+					});
 				});
 				let result = await reader.read();
 				while (!result.done) {
 					destination.write(result.value);
 					result = await reader.read();
 				}
-			} catch (err: any) {
-				console.error(err?.stack || err?.message || String(err));
+			// the error will be logged by the "on end" callback above
+			} catch {
 				destination.write('Internal server error');
 			}
 		}
