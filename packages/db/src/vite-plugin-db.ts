@@ -35,14 +35,13 @@ export function getVirtualModContents({
 	root: URL;
 }) {
 	const dbUrl = getDbUrl(root).href;
-	const shouldSetUpDb = !existsSync(getDbUrl(root));
 	return `
 import { collectionToTable, createDb } from ${INTERNAL_MOD_IMPORT};
 
 export const db = await createDb(${JSON.stringify({
 		collections,
 		dbUrl,
-		createTables: shouldSetUpDb,
+		seeding: false,
 	})});
 export * from ${DRIZZLE_MOD_IMPORT};
 

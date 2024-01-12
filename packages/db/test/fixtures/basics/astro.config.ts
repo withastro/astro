@@ -5,7 +5,7 @@ const Author = defineCollection({
 	fields: {
 		name: field.text(),
 	},
-	source: 'local',
+	source: 'readable',
 	data() {
 		return [
 			{
@@ -25,13 +25,27 @@ const Author = defineCollection({
 			},
 		]
 	}
-})
+});
+
+const Themes = defineCollection({
+	fields: {
+		name: field.text(),
+	},
+	source: 'writable',
+	data() {
+		return [
+			{
+				name: 'One',
+			},
+		]
+	}
+});
 
 // https://astro.build/config
 export default defineConfig({
 	integrations: [db()],
 	db: {
-		collections: { Author },
+		collections: { Author, Themes },
 	}
 });
 
