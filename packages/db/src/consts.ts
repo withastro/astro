@@ -1,3 +1,4 @@
+
 import { readFileSync } from 'node:fs';
 
 export const PACKAGE_NAME = JSON.parse(
