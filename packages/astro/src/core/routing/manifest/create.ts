@@ -516,7 +516,7 @@ export function createRouteManifest(
 	const i18n = settings.config.i18n;
 	if (i18n) {
 		// First we check if the user doesn't have an index page.
-		if (i18n.routing === 'prefix-always') {
+		if (i18n.routing === 'pathname-prefix-always') {
 			let index = routes.find((route) => route.route === '/');
 			if (!index) {
 				let relativePath = path.relative(
