@@ -1574,12 +1574,24 @@ export interface AstroUserConfig {
 		 * @default `false`
 		 * @version: 4.2.0
 		 * @description
-		 * Progressive enhancement to use the experimental Speculation Rules API
-		 * when supported to prerender on the client. Use this setting to prerender the
-		 * page on the client, including running client side JavaScript
-		 * (see [unsafe prefetching](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API#unsafe_prefetching)).
+		 * Enables pre-rendering a page on the client in supported browsers, including running client-side JavaScript.
 		 *
-		 * [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API)
+		 * This feature uses the experimental [Speculation Rules Web API](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API).
+		 * You may wish to review the [possible risks when prerendering on the client](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API#unsafe_prefetching) before enabling this feature.
+		 *
+		 * Enable client side prerendering in your `astro.config`, no additional configuration is required.
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 * 		clientPrerender: true,
+		 * 	},
+		 * }
+		 * ```
+		 *
+		 * - This feature enhances the existing prefetch capability Astro provides. All client side JavaScript will be executed during the prerender to create a faster experience and reduce layout shift.
+		 * - Enabling this feature overrides the default prefetch behavior globally for all links that match your prefetch strategy. Instead of appending a `link` tag to the head of the document or fetching the page with JavaScript, a `script` tag will be appended with the corresponding speculation rules.
+		 * - Client side prerendering works based on browser support, if the Speculation Rules API is not supported, prefetch will fallback to the supported strategy.
 		 */
 		clientPrerender?: boolean;
 	};
