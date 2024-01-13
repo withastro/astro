@@ -346,15 +346,15 @@ describe('routing - createRouteManifest', () => {
 				type: 'page',
 			},
 			{
+				route: '/blog/[...slug]',
+				type: 'redirect',
+			},
+			{
 				route: '/',
 				type: 'page',
 			},
 			{
 				route: '/blog/about',
-				type: 'redirect',
-			},
-			{
-				route: '/blog/[...slug]',
 				type: 'redirect',
 			},
 		]);

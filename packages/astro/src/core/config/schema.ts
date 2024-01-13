@@ -173,13 +173,13 @@ export const AstroConfigSchema = z.object({
 						z.literal(308),
 					]),
 					destination: z.string(),
-					priority: z.enum(['override', 'normal', 'defer'])
-						.default('defer'),
+					priority: z.enum(['normal', 'legacy'])
+						.default('normal'),
 				}),
 			])
 				.transform(redirect => (
 					typeof redirect === 'string'
-						? {destination: redirect, priority: 'defer' as const}
+						? {destination: redirect, priority: 'normal' as const}
 						: redirect
 				))
 		)

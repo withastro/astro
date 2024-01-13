@@ -1557,14 +1557,12 @@ export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 
 
 /**
  * IDs for different priorities of injected routes and redirects:
- * - "override": Override any file-based project route in case of conflict. Conflicts within override
- *   routes are resolved by the same rules as file-based routes.
- * - "merge": Merge with discovered file-based project routes, behaving the same as if the route 
+ * - "normal": Merge with discovered file-based project routes, behaving the same as if the route 
  *   was defined as a file in the project.
- * - "defer": Defer to any file-based project route in case of conflict. Conflicts within defer
- *   routes are resolved by the same rules as file-based routes.
+ * - "legacy": Use the old ordering of routes. Inject routes will override any file-based project route,
+ *   and redirects will be overriden by any project route on conflict.
  */
-export type RoutePriorityOverride = 'override' | 'normal' | 'defer';
+export type RoutePriorityOverride =  'normal' | 'legacy';
 
 export interface InjectedRoute {
 	pattern: string;

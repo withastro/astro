@@ -132,8 +132,27 @@ function validateSegment(segment: string, file = '') {
 	}
 }
 
-function comparator(a: RouteData, b: RouteData) {
-	// more specific routes go first
+/**
+ * Comparator for sorting routes in resolution order.
+ *
+ * The routes are sorted in by the following rules in order, following the first rule that
+ * applies:
+ * - More specific routes are sorted before less specific routes. Here, "specific" means
+ *   the number of segments in the route, so a parent route is always sorted after its children.
+ *   For example, `/foo/bar` is sorted before `/foo`.
+ * - Static routes are sorted before dynamic routes.
+ *   For example, `/foo/bar` is sorted before `/foo/[bar]`.
+ * - Dynamic routes with single parameters are sorted before dynamic routes with rest parameters.
+ *   For example, `/foo/[bar]` is sorted before `/foo/[...bar]`.
+ * - Prerendered routes are sorted before non-prerendered routes.
+ * - Endpoints are sorted before pages.
+ *   For example, a file `/foo.ts` is sorted before `/bar.astro`.
+ * - If both routes are equal regarding all previosu conditions, they are sorted alphabetically.
+ *   For example, `/bar` is sorted before `/foo`.
+ *   The definition of "alphabetically" is dependent on the default locale of the running system.
+ */
+function routeComparator(a: RouteData, b: RouteData) {
+	// Sort more specific routes before less specific routes
 	if (a.segments.length !== b.segments.length) {
 		return a.segments.length > b.segments.length ? -1 : 1;
 	}
@@ -141,7 +160,7 @@ function comparator(a: RouteData, b: RouteData) {
 	const aIsStatic = a.segments.every((segment) => segment.every((part) => !part.dynamic && !part.spread));
 	const bIsStatic = b.segments.every((segment) => segment.every((part) => !part.dynamic && !part.spread));
 
-	// static routes go first
+	// Sort static routes before dynamic routes
 	if (aIsStatic !== bIsStatic) {
 		return aIsStatic ? -1 : 1;
 	}
@@ -149,22 +168,23 @@ function comparator(a: RouteData, b: RouteData) {
 	const aHasSpread = a.segments.some((segment) => segment.some((part) => part.spread));
 	const bHasSpread = b.segments.some((segment) => segment.some((part) => part.spread));
 
-	// rest parameters go last
+	// Sort dynamic routes with rest parameters after dynamic routes with single parameters
+	// (also after static, but that is already covered by the previous condition)
 	if (aHasSpread !== bHasSpread) {
 		return aHasSpread ? 1 : -1;
 	}
 
-	// prerendered routes go first
+	// Sort prerendered routes before non-prerendered routes
 	if (a.prerender !== b.prerender) {
 		return a.prerender ? -1 : 1;
 	}
 
-	// endpoints take precedence over pages
+	// Sort endpoints before pages
 	if ((a.type === 'endpoint') !== (b.type === 'endpoint')) {
 		return a.type === 'endpoint' ? -1 : 1;
 	}
 
-	// if all else is equal, sort alphabetically
+	// Sort alphabetically
 	return a.route.localeCompare(b.route);
 }
 
@@ -199,7 +219,7 @@ function createFileBasedRoutes(
 		parentParams: string[],
 	) {
 		let items: Item[] = [];
-		fs.readdirSync(dir).forEach((basename) => {
+		for (const basename of fs.readdirSync(dir)) {
 			const resolved = path.join(dir, basename);
 			const file = slash(path.relative(cwd || fileURLToPath(settings.config.root), resolved));
 			const isDir = fs.statSync(resolved).isDirectory();
@@ -242,9 +262,10 @@ function createFileBasedRoutes(
 				isPage,
 				routeSuffix,
 			});
-		});
+		}
+		;
 
-		items.forEach((item) => {
+		for (const item of items) {
 			const segments = parentSegments.slice();
 
 			if (item.isIndex) {
@@ -306,7 +327,8 @@ function createFileBasedRoutes(
 					fallbackRoutes: [],
 				});
 			}
-		});
+		}
+		;
 	}
 
 	const {config} = settings;
@@ -329,12 +351,12 @@ function createInjectedRoutes({settings, cwd}: CreateRouteManifestParams): Prior
 	const prerender = getPrerenderDefault(config);
 
 	const routes: PrioritizedRoutesData = {
-		'override': [],
 		'normal': [],
-		'defer': [],
+		'legacy': [],
 	};
 
-	settings.injectedRoutes.forEach(({pattern: name, entrypoint, prerender: prerenderInjected, priority}) => {
+	for (const injectedRoute of settings.injectedRoutes) {
+		const {pattern: name, entrypoint, prerender: prerenderInjected, priority} = injectedRoute;
 		let resolved: string;
 		try {
 			resolved = require.resolve(entrypoint, {paths: [cwd || fileURLToPath(config.root)]});
@@ -368,9 +390,7 @@ function createInjectedRoutes({settings, cwd}: CreateRouteManifestParams): Prior
 			.map(([{dynamic, content}]) => (dynamic ? `[${content}]` : content))
 			.join('/')}`.toLowerCase();
 
-		// If an injected route doesn't define a priority, it will override
-		// file-based routes from the project for backwards compatibility.
-		routes[priority ?? 'override'].push({
+		routes[priority ?? 'normal'].push({
 			type,
 			route,
 			pattern,
@@ -382,26 +402,29 @@ function createInjectedRoutes({settings, cwd}: CreateRouteManifestParams): Prior
 			prerender: prerenderInjected ?? prerender,
 			fallbackRoutes: [],
 		});
-	});
+	}
+	;
 
 	return routes;
 }
 
+/**
+ * Create route data for all configured redirects.
+ */
 function createRedirectRoutes(
 	{settings}: CreateRouteManifestParams,
 	routeMap: Map<string, RouteData>,
 	logger: Logger,
 ): PrioritizedRoutesData {
 	const {config} = settings;
+	const trailingSlash = config.trailingSlash;
+
 	const routes: PrioritizedRoutesData = {
-		'override': [],
 		'normal': [],
-		'defer': [],
+		'legacy': [],
 	};
 
-	Object.entries(settings.config.redirects).forEach(([from, to]) => {
-		const trailingSlash = config.trailingSlash;
-
+	for (const [from, to] of Object.entries(settings.config.redirects)) {
 		const segments = removeLeadingForwardSlash(from)
 			.split(path.posix.sep)
 			.filter(Boolean)
@@ -422,7 +445,6 @@ function createRedirectRoutes(
 		const route = `/${segments
 			.map(([{dynamic, content}]) => (dynamic ? `[${content}]` : content))
 			.join('/')}`.toLowerCase();
-
 
 		if (/^https?:\/\//.test(to.destination)) {
 			logger.warn(
@@ -450,67 +472,148 @@ function createRedirectRoutes(
 			redirectRoute: routeMap.get(to.destination),
 			fallbackRoutes: [],
 		});
-	});
+	}
 
 	return routes;
 }
 
-function routesCollide(a: RouteData, b: RouteData) {
-	if (a.segments.length !== b.segments.length) {
+
+/**
+ * Checks whether a route segment is static.
+ */
+function isStaticSegment(segment: RoutePart[]) {
+	return segment.every((part) => !part.dynamic && !part.spread);
+}
+
+/**
+ * Checks whether two route segments are semantically equivalent.
+ *
+ * Two segments are equivalent if they would match the same paths. This happens when:
+ * - They have the same length.
+ * - Each part in the same position is either:
+ *   - Both static and with the same content (e.g. `/foo` and `/foo`).
+ *   - Both dynamic, regardless of the content (e.g. `/[bar]` and `/[baz]`).
+ *   - Both rest parameters, regardless of the content (e.g. `/[...bar]` and `/[...baz]`).
+ */
+function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]) {
+	if (segmentA.length !== segmentB.length) {
 		return false;
 	}
 
+	for (const [index, partA] of segmentA.entries()) {
+		const partB = segmentB[index];
+
+		if (partA.dynamic !== partB.dynamic || partA.spread !== partB.spread) {
+			return false;
+		}
+
+		// Only compare the content on non-dynamic segments
+		// `/[bar]` and `/[baz]` are effectively the same route, 
+		// only bound to a different path parameter.
+		if (!partA.dynamic && partA.content !== partB.content) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/**
+ * Check whether two routes collide and report appropriately.
+ *
+ * Routes the are statically guaranteed to collide will throw.
+ * Routes that may collide depending on the parameters returned by `getStaticPaths` will log a warning.
+ * Routes that may collide depending on whether they are prerendered will log a warning.
+ *
+ * Fallback routes are never considered to collide with any other route.
+ *
+ * Two routes are guarantted to collide, thus throwing an error, in the following scenarios:
+ * - Both are the exact same static route.
+ * 	 For example, `/foo` from an injected route and `/foo` from a file in the project.
+ * - Both are non-prerendered dynamic routes with equal static parts in matching positions
+ *   and dynamic parts of same type in the same positions.
+ *   For example, `/foo/[bar]` and `/foo/[baz]` or `/foo/[...bar]` and `/foo/[...baz]`
+ *     but not `/foo/[bar]` and `/foo/[...baz]`.
+ *
+ * Two routes may collide after building, thus showing a warning, in the following scenarios:
+ * - Both are dynamic routes with equal static parts in matching positions,
+ *   dynamic parts in the same positions, and at least one of them is prerendered.
+ *   For example, `/foo/[bar]` and `/foo/[baz]` or `/foo/[...bar]` and `/foo/[...baz]`.
+ * - Both routes share a common prefix and one of them is prerendered and follows the
+ *   prefix with a rest parameter.
+ *   For example, with a prefix `/foo`:
+ *     - `/foo/[...bar]` and `/foo/baz`.
+ *     - `/foo/[...bar]` and `/foo/baz/[qux]`.
+ *     - `/foo/[...bar]` and `/foo/baz/[...qux]`.
+ */
+function detectRouteColision(a: RouteData, b: RouteData, logger: Logger) {
 	if (a.type === 'fallback' || b.type === 'fallback') {
 		// If either route is a fallback route, they don't collide.
 		// Fallbacks are always added below other routes exactly to avoid collisions.
 		return false;
 	}
 
-	const length = a.segments.length;
-	let hasDynamic = false;
+	if (a.route === b.route && a.segments.every(isStaticSegment) && b.segments.every(isStaticSegment)) {
+		// If both routes are exactly the same, they collide
+		// @todo Make this a pretty AstroError
+		throw new Error(`The route ${a.route} is defined more than once`);
+	}
 
-	for (let i = 0; i < length; i++) {
-		const segmentA = a.segments[i];
-		const segmentB = b.segments[i];
+	// Assume the routes collide for sure and update this assumptions if any rule says otherwise.
+	let certainCollision = true;
 
-		if (segmentA.length !== segmentB.length) {
-			return false;
+	// Take the minimum of both length to iterate on
+	// If one route is longer than the other, the segments exceeding the length
+	// of the other route won't be paired.
+	const minLength = Math.min(a.segments.length, b.segments.length);
+
+	let index = 0;
+	for (; index < minLength; index++) {
+		const segmentA = a.segments[index];
+		const segmentB = b.segments[index];
+
+		if (isSemanticallyEqualSegment(segmentA, segmentB)) {
+			// Semantically equal segments don't change our assumptions
+			continue;
 		}
 
-		const segmentLength = segmentA.length;
+		// If any segment is not semantically equal between the routes
+		// it is not certain that the routes collide.
+		certainCollision = false;
 
-		for (let j = 0; j < segmentLength; j++) {
-			const partA = segmentA[j];
-			const partB = segmentB[j];
+		if (isStaticSegment(segmentA) && isStaticSegment(segmentB)) {
+			// If both segments are static and not equal then the routes
+			// don't collide, e.g. `/foo/[bar]` and `/baz/[qux]`.
+			return;
+		}
 
-			if (
-				// If only one side has a rest parameter, they don't collide
-				partA.spread !== partB.spread
-				// If only one side is dynamic, they don't collide
-				|| partA.dynamic !== partB.dynamic
-			) {
-				return false;
-			}
+		// From this segment on, the routes do not match one-to-one.
+		break;
+	}
 
-			hasDynamic = hasDynamic || partA.dynamic;
+	if (index === minLength - 1) {
+		const aEndsWithSpread = a.segments.at(-1)?.[0].spread === true;
+		const bEndsWithSpread = b.segments.at(-1)?.[0].spread === true;
 
-			// If both sides are static and have different content, they don't collide
-			if (!partA.dynamic && partA.content !== partB.content) {
-				return false;
-			}
+		// If only one of the routes ends with a spread
+		if (aEndsWithSpread !== bEndsWithSpread) {
+			const restRoute = aEndsWithSpread ? a : b;
+			// const possibleColisionRoute = aEndsWithSpread ? b : a;
+
+			logger.warn('router', `The route ${restRoute.route} is defined more than once`);
 		}
 	}
 
-	if (hasDynamic && (a.prerender || b.prerender)) {
-		// If the route is dynamic and either of the routes is prerendered,
-		// we cannot afirm that they collide at this point.
-		// They will only collide if both routes are prerendered and return
-		// the same parameters on `getStaticPaths`, which is checked later.
-		return false;
-	}
+	// if (hasDynamic && (a.prerender || b.prerender)) {
+	// 	// If the route is dynamic and either of the routes is prerendered,
+	// 	// we cannot afirm that they collide at this point.
+	// 	// They will only collide if both routes are prerendered and return
+	// 	// the same parameters on `getStaticPaths`, which is checked later.
+	// 	return false;
+	// }
 
 	// If every segment and part is equivalent, they collide
-	return true;
+	// return true;
 }
 
 /** Create manifest of all static routes */
@@ -522,49 +625,35 @@ export function createRouteManifest(
 	const routeMap = new Map();
 
 	const fileBasedRoutes = createFileBasedRoutes(params, logger);
-	fileBasedRoutes.forEach((route) => {
+	for (const route of fileBasedRoutes) {
 		routeMap.set(route.route, route);
-	});
+	}
 
 	const injectedRoutes = createInjectedRoutes(params);
-	Object.entries(injectedRoutes).forEach(([, routes]) => {
-		routes.forEach((route) => {
+	for (const [, routes] of Object.entries(injectedRoutes)) {
+		for (const route of routes) {
 			routeMap.set(route.route, route);
-		});
-	});
+		}
+	}
 
 	const redirectRoutes = createRedirectRoutes(params, routeMap, logger);
 
 	const routes: RouteData[] = [
-		...[
-			...injectedRoutes['override'],
-			...redirectRoutes['override'],
-		].sort(comparator),
+		...injectedRoutes['legacy'].sort(routeComparator),
 		...[
 			...fileBasedRoutes,
 			...injectedRoutes['normal'],
 			...redirectRoutes['normal'],
-		].sort(comparator),
-		...[
-			...injectedRoutes['defer'],
-			...redirectRoutes['defer'],
-		].sort(comparator),
+		].sort(routeComparator),
+		...redirectRoutes['legacy'].sort(routeComparator),
 	];
 
-	// Detect route collisions
-	routes.forEach((route, index) => {
-		const collision = routes.find(
-			(other, otherIndex) => (index !== otherIndex && routesCollide(route, other)),
-		);
-
-		if (collision) {
-			logger.warn(
-				'router',
-				`Colliding routes detected in the project: "${route.route}" at "${route.component}".\n`
-				+ `This route collides with: "${collision.component}".`,
-			);
+	// Report route collisions
+	for (const [index, higherRoute] of routes.entries()) {
+		for (const lowerRoute of routes.slice(index + 1)) {
+			detectRouteColision(higherRoute, lowerRoute, logger)
 		}
-	});
+	}
 
 	const {settings} = params;
 	const {config} = settings;
