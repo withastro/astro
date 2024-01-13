@@ -1572,6 +1572,7 @@ export interface AstroUserConfig {
 		 * @name experimental.clientPrerender
 		 * @type {boolean}
 		 * @default `false`
+		 * @version: 4.2.0
 		 * @description
 		 * Progressive enhancement to use the experimental Speculation Rules API
 		 * when supported to prerender on the client. Use this setting to prerender the
