@@ -274,7 +274,7 @@ class AstroBuilder {
 
 		let messages: string[] = [];
 		if (buildMode === 'static') {
-			messages = [`${pageCount} page(s) built in`, bold(total)];
+			messages = [`${pageCount === 1 ? '1 page' : `${pageCount} pages`} built in`, bold(total)];
 		} else {
 			messages = ['Server built in', bold(total)];
 		}
