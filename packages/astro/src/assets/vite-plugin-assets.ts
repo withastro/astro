@@ -16,6 +16,7 @@ import { emitESMImage } from './utils/emitAsset.js';
 import { isESMImportedImage } from './utils/imageKind.js';
 import { getProxyCode } from './utils/proxy.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
+import { getFileInfo } from '../vite-plugin-utils/index.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -183,6 +184,7 @@ export default function assets({
 				if (id !== removeQueryString(id)) {
 					return;
 				}
+				const { fileId, fileUrl } = getFileInfo(id, settings.config);
 				if (assetRegex.test(id)) {
 					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile);
 
@@ -203,7 +205,10 @@ export default function assets({
 							globalThis.astroAsset.referencedImages = new Set();
 
 						globalThis.astroAsset.referencedImages.add(meta.fsPath);
-						return `export default ${JSON.stringify(meta)}`;
+						return `
+						export const file = ${JSON.stringify(fileId)};
+						export const url = ${JSON.stringify(fileUrl)};
+						export default ${JSON.stringify(meta)}`;
 					}
 				}
 			},
