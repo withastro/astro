@@ -18,8 +18,10 @@ function createAstroGlobFn() {
 				message: AstroErrorData.AstroGlobNoMatch.message(JSON.stringify(importMetaGlobResult)),
 			});
 		}
-		// Map over the `import()` promises, calling to load them.
-		return Promise.all(allEntries.map((fn) => fn()));
+		const promises = Object.entries(importMetaGlobResult).map(([filePath, fn]) =>
+			fn().then((mod) => ({ path: filePath, ...mod }))
+		);
+		return Promise.all(promises);
 	};
 	// Cast the return type because the argument that the user sees (string) is different from the argument
 	// that the runtime sees post-compiler (Record<string, Module>).
