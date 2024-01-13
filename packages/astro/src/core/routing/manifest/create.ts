@@ -18,8 +18,12 @@ import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
-import { AstroError } from '../../errors/index.js';
-import { MissingIndexForInternationalization } from '../../errors/errors-data.js';
+import {AstroError, AstroErrorData} from '../../errors/index.js';
+import {
+	MissingIndexForInternationalization,
+	StaticRouteCollision,
+	DynamicRouteCollision
+} from '../../errors/errors-data.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -500,6 +504,7 @@ function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]
 	}
 
 	for (const [index, partA] of segmentA.entries()) {
+		// Safe to use the index of one segment for the other because the segments have the same length
 		const partB = segmentB[index];
 
 		if (partA.dynamic !== partB.dynamic || partA.spread !== partB.spread) {
@@ -518,101 +523,67 @@ function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]
 }
 
 /**
- * Check whether two routes collide and report appropriately.
- *
- * Routes the are statically guaranteed to collide will throw.
- * Routes that may collide depending on the parameters returned by `getStaticPaths` will log a warning.
- * Routes that may collide depending on whether they are prerendered will log a warning.
+ * Check whether two are sure to collide in clearly unintended ways report appropriately.
  *
  * Fallback routes are never considered to collide with any other route.
+ * Routes that may collide depending on the parameters returned by their `getStaticPaths`
+ * are not reported as collisions at this stage.
  *
- * Two routes are guarantted to collide, thus throwing an error, in the following scenarios:
+ * Two routes are guarantted to collide in the following scenarios:
  * - Both are the exact same static route.
  * 	 For example, `/foo` from an injected route and `/foo` from a file in the project.
  * - Both are non-prerendered dynamic routes with equal static parts in matching positions
  *   and dynamic parts of same type in the same positions.
  *   For example, `/foo/[bar]` and `/foo/[baz]` or `/foo/[...bar]` and `/foo/[...baz]`
  *     but not `/foo/[bar]` and `/foo/[...baz]`.
- *
- * Two routes may collide after building, thus showing a warning, in the following scenarios:
- * - Both are dynamic routes with equal static parts in matching positions,
- *   dynamic parts in the same positions, and at least one of them is prerendered.
- *   For example, `/foo/[bar]` and `/foo/[baz]` or `/foo/[...bar]` and `/foo/[...baz]`.
- * - Both routes share a common prefix and one of them is prerendered and follows the
- *   prefix with a rest parameter.
- *   For example, with a prefix `/foo`:
- *     - `/foo/[...bar]` and `/foo/baz`.
- *     - `/foo/[...bar]` and `/foo/baz/[qux]`.
- *     - `/foo/[...bar]` and `/foo/baz/[...qux]`.
  */
-function detectRouteColision(a: RouteData, b: RouteData, logger: Logger) {
+function detectRouteColision(a: RouteData, b: RouteData) {
 	if (a.type === 'fallback' || b.type === 'fallback') {
 		// If either route is a fallback route, they don't collide.
 		// Fallbacks are always added below other routes exactly to avoid collisions.
-		return false;
+		return;
 	}
 
 	if (a.route === b.route && a.segments.every(isStaticSegment) && b.segments.every(isStaticSegment)) {
-		// If both routes are exactly the same, they collide
-		// @todo Make this a pretty AstroError
-		throw new Error(`The route ${a.route} is defined more than once`);
+		// If both routes are the same and completely static they are guaranteed to collide
+		// such that one of them will never be matched.
+		throw new AstroError({
+			...StaticRouteCollision,
+			message: StaticRouteCollision.message(a.route, a.component, b.component),
+		});
 	}
 
-	// Assume the routes collide for sure and update this assumptions if any rule says otherwise.
-	let certainCollision = true;
+	if (a.prerender || b.prerender) {
+		// If either route is prerendered, it is impossible to know if they collide
+		// at this stage because it depends on the parameters returned by `getStaticPaths`.
+		return
+	}
 
-	// Take the minimum of both length to iterate on
-	// If one route is longer than the other, the segments exceeding the length
-	// of the other route won't be paired.
-	const minLength = Math.min(a.segments.length, b.segments.length);
+	if (a.segments.length !== b.segments.length) {
+		// If the routes have different number of segments, they cannot perfectly overlap
+		// each other, so a collision is either not guaranteed or may be intentional.
+		return;
+	}
 
-	let index = 0;
-	for (; index < minLength; index++) {
+	// Routes have the same number of segments, can use either.
+	const segmentCount = a.segments.length;
+
+	for (let index = 0; index < segmentCount; index++) {
 		const segmentA = a.segments[index];
 		const segmentB = b.segments[index];
 
-		if (isSemanticallyEqualSegment(segmentA, segmentB)) {
-			// Semantically equal segments don't change our assumptions
-			continue;
-		}
-
-		// If any segment is not semantically equal between the routes
-		// it is not certain that the routes collide.
-		certainCollision = false;
-
-		if (isStaticSegment(segmentA) && isStaticSegment(segmentB)) {
-			// If both segments are static and not equal then the routes
-			// don't collide, e.g. `/foo/[bar]` and `/baz/[qux]`.
+		if (!isSemanticallyEqualSegment(segmentA, segmentB)) {
+			// If any segment is not semantically equal between the routes
+			// it is not certain that the routes collide.
 			return;
 		}
-
-		// From this segment on, the routes do not match one-to-one.
-		break;
 	}
 
-	if (index === minLength - 1) {
-		const aEndsWithSpread = a.segments.at(-1)?.[0].spread === true;
-		const bEndsWithSpread = b.segments.at(-1)?.[0].spread === true;
-
-		// If only one of the routes ends with a spread
-		if (aEndsWithSpread !== bEndsWithSpread) {
-			const restRoute = aEndsWithSpread ? a : b;
-			// const possibleColisionRoute = aEndsWithSpread ? b : a;
-
-			logger.warn('router', `The route ${restRoute.route} is defined more than once`);
-		}
-	}
-
-	// if (hasDynamic && (a.prerender || b.prerender)) {
-	// 	// If the route is dynamic and either of the routes is prerendered,
-	// 	// we cannot afirm that they collide at this point.
-	// 	// They will only collide if both routes are prerendered and return
-	// 	// the same parameters on `getStaticPaths`, which is checked later.
-	// 	return false;
-	// }
-
-	// If every segment and part is equivalent, they collide
-	// return true;
+	// Both routes are guaranteed to collide such that one will never be matched.
+	throw new AstroError({
+		...DynamicRouteCollision,
+		message: DynamicRouteCollision.message(a.route, a.component, b.component),
+	});
 }
 
 /** Create manifest of all static routes */

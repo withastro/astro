@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { fileURLToPath } from 'node:url';
 import { createRouteManifest } from '../../../dist/core/routing/manifest/create.js';
 import { createBasicSettings, createFs, defaultLogger } from '../test-utils.js';
+import {Logger} from "../../../dist/core/logger/core.js";
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -53,11 +54,11 @@ describe('routing - createRouteManifest', () => {
 		settings.injectedRoutes = [
 			{
 				pattern: '/about',
-				entrypoint: '@lib/override/static.astro',
+				entrypoint: '@lib/legacy/static.astro',
 			},
 			{
 				pattern: '/api',
-				entrypoint: '@lib/override/static.ts',
+				entrypoint: '@lib/legacy/static.ts',
 			},
 		];
 
@@ -73,12 +74,12 @@ describe('routing - createRouteManifest', () => {
 				type: 'endpoint',
 			},
 			{
-				route: '/about',
-				type: 'page',
-			},
-			{
 				route: '/sendcontact',
 				type: 'endpoint',
+			},
+			{
+				route: '/about',
+				type: 'page',
 			},
 			{
 				route: '/contact-me',
@@ -87,7 +88,7 @@ describe('routing - createRouteManifest', () => {
 		]);
 	});
 
-	it('injected routes are sorted as specified above filesystem routes', async () => {
+	it('injected routes are sorted in legacy mode above filesystem routes', async () => {
 		const fs = createFs(
 			{
 				'/src/pages/index.astro': `<h1>test</h1>`,
@@ -105,13 +106,12 @@ describe('routing - createRouteManifest', () => {
 		settings.injectedRoutes = [
 			{
 				pattern: '/contributing',
-				entrypoint: '@lib/override/static.astro',
-				priority: 'override',
+				entrypoint: '@lib/legacy/static.astro',
 			},
 			{
 				pattern: '/[...slug]',
-				entrypoint: '@lib/override/dynamic.astro',
-				// Don's specify a priority to test that it defaults to override
+				entrypoint: '@lib/legacy/dynamic.astro',
+				priority: 'legacy',
 			},
 		];
 
@@ -123,15 +123,15 @@ describe('routing - createRouteManifest', () => {
 
 		expect(getManifestRoutes(manifest)).to.deep.equal([
 			{
-				route: '/contributing',
-				type: 'page',
-			},
-			{
 				route: '/[...slug]',
 				type: 'page',
 			},
 			{
 				route: '/blog/[...slug]',
+				type: 'page',
+			},
+			{
+				route: '/contributing',
 				type: 'page',
 			},
 			{
@@ -141,61 +141,7 @@ describe('routing - createRouteManifest', () => {
 		]);
 	});
 
-	it('injected routes are sorted as specified below filesystem routes', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/index.astro': `<h1>test</h1>`,
-				'/src/pages/blog/[...slug].astro': `<h1>test</h1>`,
-			},
-			root,
-		);
-		const settings = await createBasicSettings({
-			root: fileURLToPath(root),
-			output: 'server',
-			base: '/search',
-			trailingSlash: 'never',
-		});
-
-		settings.injectedRoutes = [
-			{
-				pattern: '/contributing',
-				entrypoint: '@lib/override/static.astro',
-				priority: 'defer',
-			},
-			{
-				pattern: '/[...slug]',
-				entrypoint: '@lib/override/dynamic.astro',
-				priority: 'defer',
-			},
-		];
-
-		const manifest = createRouteManifest({
-			cwd: fileURLToPath(root),
-			settings,
-			fsMod: fs,
-		});
-
-		expect(getManifestRoutes(manifest)).to.deep.equal([
-			{
-				route: '/blog/[...slug]',
-				type: 'page',
-			},
-			{
-				route: '/',
-				type: 'page',
-			},
-			{
-				route: '/contributing',
-				type: 'page',
-			},
-			{
-				route: '/[...slug]',
-				type: 'page',
-			},
-		]);
-	});
-
-	it('injected routes are sorted as specified alongside filesystem routes', async () => {
+	it('injected routes are sorted alongside filesystem routes', async () => {
 		const fs = createFs(
 			{
 				'/src/pages/index.astro': `<h1>test</h1>`,
@@ -222,12 +168,11 @@ describe('routing - createRouteManifest', () => {
 		settings.injectedRoutes = [
 			{
 				pattern: '/contributing',
-				entrypoint: '@lib/override/static.astro',
-				priority: 'normal',
+				entrypoint: '@lib/legacy/static.astro',
 			},
 			{
 				pattern: '/[...slug]',
-				entrypoint: '@lib/override/dynamic.astro',
+				entrypoint: '@lib/legacy/dynamic.astro',
 				priority: 'normal',
 			},
 		];
@@ -258,7 +203,7 @@ describe('routing - createRouteManifest', () => {
 		]);
 	});
 
-	it('redirects are sorted as specified above the filesystem routes', async () => {
+	it('redirects are sorted in legacy mode below the filesystem routes', async () => {
 		const fs = createFs(
 			{
 				'/src/pages/index.astro': `<h1>test</h1>`,
@@ -272,65 +217,11 @@ describe('routing - createRouteManifest', () => {
 			base: '/search',
 			trailingSlash: 'never',
 			redirects: {
-				// Do not specify a priority to test that it defaults to defer
-				'/blog/[...slug]': {
-					status: 302,
-					destination: '/',
-					priority: 'override',
-				},
-				'/blog/about': {
-					status: 302,
-					destination: '/another',
-					priority: 'override',
-				}
-			},
-		});
-		const manifest = createRouteManifest({
-			cwd: fileURLToPath(root),
-			settings,
-			fsMod: fs,
-		});
-
-		expect(getManifestRoutes(manifest)).to.deep.equal([
-			{
-				route: '/blog/about',
-				type: 'redirect',
-			},
-			{
-				route: '/blog/[...slug]',
-				type: 'redirect',
-			},
-			{
-				route: '/blog/contributing',
-				type: 'page',
-			},
-			{
-				route: '/',
-				type: 'page',
-			},
-		]);
-	});
-
-	it('redirects are sorted as specified below the filesystem routes', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/index.astro': `<h1>test</h1>`,
-				'/src/pages/blog/contributing.astro': `<h1>test</h1>`,
-			},
-			root
-		);
-		const settings = await createBasicSettings({
-			root: fileURLToPath(root),
-			output: 'server',
-			base: '/search',
-			trailingSlash: 'never',
-			redirects: {
-				// Do not specify a priority to test that it defaults to defer
 				'/blog/[...slug]': '/',
 				'/blog/about': {
 					status: 302,
 					destination: '/another',
-					priority: 'defer',
+					priority: 'legacy',
 				}
 			},
 		});
@@ -360,7 +251,7 @@ describe('routing - createRouteManifest', () => {
 		]);
 	});
 
-	it('redirects are sorted as specified alongside the filesystem routes', async () => {
+	it('redirects are sorted alongside the filesystem routes', async () => {
 		const fs = createFs(
 			{
 				'/src/pages/index.astro': `<h1>test</h1>`,
@@ -410,5 +301,73 @@ describe('routing - createRouteManifest', () => {
 				type: 'page',
 			},
 		]);
+	});
+
+	it('rejects colliding static routes', async () => {
+		const fs = createFs(
+			{
+				'/src/pages/contributing.astro': `<h1>test</h1>`,
+			},
+			root,
+		);
+		const settings = await createBasicSettings({
+			root: fileURLToPath(root),
+			output: 'server',
+			base: '/search',
+			trailingSlash: 'never',
+			integrations: [],
+		});
+
+		settings.injectedRoutes = [
+			{
+				pattern: '/contributing',
+				entrypoint: '@lib/legacy/static.astro',
+			},
+		];
+
+		try {
+			createRouteManifest({
+				cwd: fileURLToPath(root),
+				settings,
+				fsMod: fs,
+			});
+			expect.fail(0, 1, 'Expected createRouteManifest to throw');
+		} catch (e) {
+			expect(e).to.be.instanceOf(Error);
+			expect(e.type).to.equal('AstroError');
+			expect(e.name).to.equal('StaticRouteCollision');
+			expect(e.message).to.equal('The route "/contributing" is defined in both "src/pages/contributing.astro" and "@lib/legacy/static.astro". A static route cannot be defined more than once.');
+		}
+	});
+
+	it('rejects colliding SSR dynamic routes', async () => {
+		const fs = createFs(
+			{
+				'/src/pages/[foo].astro': `<h1>test</h1>`,
+				'/src/pages/[bar].astro': `<h1>test</h1>`,
+			},
+			root,
+		);
+		const settings = await createBasicSettings({
+			root: fileURLToPath(root),
+			output: 'server',
+			base: '/search',
+			trailingSlash: 'never',
+			integrations: [],
+		});
+
+		try {
+			createRouteManifest({
+				cwd: fileURLToPath(root),
+				settings,
+				fsMod: fs,
+			});
+			expect.fail(0, 1, 'Expected createRouteManifest to throw');
+		} catch (e) {
+			expect(e).to.be.instanceOf(Error);
+			expect(e.type).to.equal('AstroError');
+			expect(e.name).to.equal('DynamicRouteCollision');
+			expect(e.message).to.equal('The route "/[bar]" is defined in both "src/pages/[bar].astro" and "src/pages/[foo].astro" using SSR mode. A dynamic SSR route cannot be defined more than once.');
+		}
 	});
 });
