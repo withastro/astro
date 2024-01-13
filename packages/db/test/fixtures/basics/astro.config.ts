@@ -3,7 +3,8 @@ import db, { defineCollection, defineWritableCollection, field } from '@astrojs/
 
 const Author = defineCollection({
 	fields: {
-		name: field.text(),
+		name: field.text({optional: false}),
+		age: field.text(),
 	},
 	data() {
 		return [

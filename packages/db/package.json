@@ -49,8 +49,12 @@
   "dependencies": {
     "@astrojs/markdoc": "workspace:*",
     "@libsql/client": "0.4.0-pre.5",
+    "@types/deep-diff": "^1.0.5",
+    "@types/diff": "^5.0.8",
     "@types/yargs-parser": "^21.0.3",
     "astro": "workspace:*",
+    "deep-diff": "^1.0.2",
+    "diff": "^5.1.0",
     "drizzle-orm": "^0.28.6",
     "esbuild": "^0.19.4",
     "github-slugger": "^2.0.0",

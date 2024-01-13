@@ -3772,12 +3772,24 @@ importers:
       '@libsql/client':
         specifier: 0.4.0-pre.5
         version: 0.4.0-pre.5
+      '@types/deep-diff':
+        specifier: ^1.0.5
+        version: 1.0.5
+      '@types/diff':
+        specifier: ^5.0.8
+        version: 5.0.9
       '@types/yargs-parser':
         specifier: ^21.0.3
         version: 21.0.3
       astro:
         specifier: workspace:*
         version: link:../astro
+      deep-diff:
+        specifier: ^1.0.2
+        version: 1.0.2
+      diff:
+        specifier: ^5.1.0
+        version: 5.1.0
       drizzle-orm:
         specifier: ^0.28.6
         version: 0.28.6(@libsql/client@0.4.0-pre.5)
@@ -7843,9 +7855,12 @@ packages:
     dependencies:
       '@types/ms': 0.7.34
 
+  /@types/deep-diff@1.0.5:
+    resolution: {integrity: sha512-PQyNSy1YMZU1hgZA5tTYfHPpUAo9Dorn1PZho2/budQLfqLu3JIP37JAavnwYpR1S2yFZTXa3hxaE4ifGW5jaA==}
+    dev: false
+
   /@types/diff@5.0.9:
     resolution: {integrity: sha512-RWVEhh/zGXpAVF/ZChwNnv7r4rvqzJ7lYNSmZSVTxjV0PBLf6Qu7RNg+SUtkpzxmiNkjCx0Xn2tPp7FIkshJwQ==}
-    dev: true
 
   /@types/dlv@1.1.4:
     resolution: {integrity: sha512-m8KmImw4Jt+4rIgupwfivrWEOnj1LzkmKkqbh075uG13eTQ1ZxHWT6T0vIdSQhLIjQCiR0n0lZdtyDOPO1x2Mw==}
@@ -9757,6 +9772,10 @@ packages:
 
   /dedent-js@1.0.1:
     resolution: {integrity: sha512-OUepMozQULMLUmhxS95Vudo0jb0UchLimi3+pQ2plj61Fcy8axbP9hbiD4Sz6DPqn6XG3kfmziVfQ1rSys5AJQ==}
+    dev: false
+
+  /deep-diff@1.0.2:
+    resolution: {integrity: sha512-aWS3UIVH+NPGCD1kki+DCU9Dua032iSsO43LqQpcs4R3+dVv7tX0qBGjiVHJHjplsoUM2XRO/KB92glqc68awg==}
     dev: false
 
   /deep-eql@4.1.3:
