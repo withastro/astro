@@ -37,8 +37,9 @@ describe('Client only components', () => {
 		);
 		const css = stylesheets.join('');
 
-		expect(css).to.match(/yellowgreen/, 'Svelte styles are added');
-		expect(css).to.match(/Courier New/, 'Global styles are added');
+		// yellowgreen minified
+		expect(css).to.contain('#9acd32', 'Svelte styles are added');
+		expect(css).to.include('Courier New', 'Global styles are added');
 	});
 
 	it('Adds the CSS to the page - standalone svelte component', async () => {
@@ -102,8 +103,9 @@ describe('Client only components subpath', () => {
 		);
 		const css = stylesheets.join('');
 
-		expect(css).to.match(/yellowgreen/, 'Svelte styles are added');
-		expect(css).to.match(/Courier New/, 'Global styles are added');
+		// yellowgreen minified
+		expect(css).to.contain('#9acd32', 'Svelte styles are added');
+		expect(css).to.include('Courier New', 'Global styles are added');
 	});
 
 	it('Adds the CSS to the page for TSX components', async () => {

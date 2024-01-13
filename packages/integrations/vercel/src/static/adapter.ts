@@ -42,6 +42,13 @@ function getAdapter(): AstroAdapter {
 
 export interface VercelStaticConfig {
 	webAnalytics?: VercelWebAnalyticsConfig;
+	/**
+	 * @deprecated This option lets you configure the legacy speed insights API which is now deprecated by Vercel.
+	 *
+	 * See [Vercel Speed Insights Quickstart](https://vercel.com/docs/speed-insights/quickstart) for instructions on how to use the library instead.
+	 *
+	 * https://vercel.com/docs/speed-insights/quickstart
+	 */
 	speedInsights?: VercelSpeedInsightsConfig;
 	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
@@ -118,6 +125,15 @@ export default function vercelStatic({
 							continue: true,
 						},
 						{ handle: 'filesystem' },
+						...(routes.find((route) => route.pathname === '/404')
+							? [
+									{
+										src: `/.*`,
+										dest: `/404.html`,
+										status: 404,
+									},
+								]
+							: []),
 					],
 					...(imageService || imagesConfig
 						? {
@@ -129,9 +145,9 @@ export default function vercelStatic({
 												...(imagesConfig.remotePatterns ?? []),
 												..._config.image.remotePatterns,
 											],
-									  }
+										}
 									: getDefaultImageConfig(_config.image),
-						  }
+							}
 						: {}),
 				});
 			},

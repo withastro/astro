@@ -226,7 +226,6 @@ export async function generateImagesForPath(
 					...AstroErrorData.CouldNotTransformImage,
 					message: AstroErrorData.CouldNotTransformImage.message(originalFilePath),
 				},
-				undefined,
 				{ cause: e }
 			);
 

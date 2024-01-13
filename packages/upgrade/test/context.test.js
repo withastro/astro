@@ -1,19 +1,20 @@
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import { getContext } from '../dist/index.js';
 
 describe('context', () => {
 	it('no arguments', async () => {
 		const ctx = await getContext([]);
-		expect(ctx.version).to.eq('latest');
-		expect(ctx.dryRun).to.be.undefined;
+		assert.equal(ctx.version, 'latest');
+		assert.equal(ctx.dryRun, undefined);
 	});
 	it('tag', async () => {
 		const ctx = await getContext(['beta']);
-		expect(ctx.version).to.eq('beta');
-		expect(ctx.dryRun).to.be.undefined;
+		assert.equal(ctx.version, 'beta');
+		assert.equal(ctx.dryRun, undefined);
 	});
 	it('dry run', async () => {
 		const ctx = await getContext(['--dry-run']);
-		expect(ctx.dryRun).to.eq(true);
+		assert.equal(ctx.dryRun, true);
 	});
 });

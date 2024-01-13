@@ -2,8 +2,10 @@ import path from 'node:path';
 import type { Arguments } from 'yargs-parser';
 import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { getPackage } from '../install-package.js';
+import { ensureProcessNodeEnv } from '../../core/util.js';
 
 export async function check(flags: Arguments) {
+	ensureProcessNodeEnv('production');
 	const logger = createLoggerFromFlags(flags);
 	const getPackageOpts = { skipAsk: flags.yes || flags.y, cwd: flags.root };
 	const checkPackage = await getPackage<typeof import('@astrojs/check')>(

@@ -1,5 +1,6 @@
 import type { AstroComponentMetadata } from 'astro';
 import { Component as BaseComponent, h, type VNode } from 'preact';
+import prepass from 'preact-ssr-prepass';
 import { render } from 'preact-render-to-string';
 import { getContext } from './context.js';
 import { restoreSignalsOnProps, serializeSignals } from './signals.js';
@@ -11,7 +12,12 @@ const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w
 let originalConsoleError: typeof console.error;
 let consoleFilterRefs = 0;
 
-function check(this: RendererContext, Component: any, props: Record<string, any>, children: any) {
+async function check(
+	this: RendererContext,
+	Component: any,
+	props: Record<string, any>,
+	children: any
+) {
 	if (typeof Component !== 'function') return false;
 	if (Component.name === 'QwikComponent') return false;
 
@@ -23,7 +29,7 @@ function check(this: RendererContext, Component: any, props: Record<string, any>
 
 	try {
 		try {
-			const { html } = renderToStaticMarkup.call(this, Component, props, children, undefined);
+			const { html } = await renderToStaticMarkup.call(this, Component, props, children, undefined);
 			if (typeof html !== 'string') {
 				return false;
 			}
@@ -45,7 +51,7 @@ function shouldHydrate(metadata: AstroComponentMetadata | undefined) {
 	return metadata?.astroStaticSlot ? !!metadata.hydrate : true;
 }
 
-function renderToStaticMarkup(
+async function renderToStaticMarkup(
 	this: RendererContext,
 	Component: any,
 	props: Record<string, any>,
@@ -72,22 +78,20 @@ function renderToStaticMarkup(
 	const attrs: AstroPreactAttrs = {};
 	serializeSignals(ctx, props, attrs, propsMap);
 
-	const html = render(
-		h(
-			Component,
-			newProps,
-			children != null
-				? h(StaticHtml, {
-						hydrate: shouldHydrate(metadata),
-						value: children,
-				  })
-				: children
-		) as VNode<any>
+	const vNode: VNode<any> = h(
+		Component,
+		newProps,
+		children != null
+			? h(StaticHtml, {
+					hydrate: shouldHydrate(metadata),
+					value: children,
+				})
+			: children
 	);
-	return {
-		attrs,
-		html,
-	};
+
+	await prepass(vNode);
+	const html = render(vNode);
+	return { attrs, html };
 }
 
 /**

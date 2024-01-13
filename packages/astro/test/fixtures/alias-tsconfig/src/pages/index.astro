@@ -6,6 +6,8 @@ import Alias from '@components/Alias.svelte';
 import { namespace } from '@test/namespace-package'
 import { foo, index } from 'src/utils/constants';
 import '@styles/main.css';
+
+const globResult = Object.keys(import.meta.glob('@components/glob/*.js')).join(', ')
 ---
 <html lang="en">
   <head>
@@ -24,6 +26,7 @@ import '@styles/main.css';
       <p id="constants-index">{index}</p>
       <p id="style-red">style-red</p>
       <p id="style-blue">style-blue</p>
+      <p id="glob">{globResult}</p>
     </main>
   </body>
 </html>
