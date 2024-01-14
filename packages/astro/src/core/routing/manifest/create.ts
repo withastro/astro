@@ -537,7 +537,7 @@ function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]
  *   For example, `/foo/[bar]` and `/foo/[baz]` or `/foo/[...bar]` and `/foo/[...baz]`
  *     but not `/foo/[bar]` and `/foo/[...baz]`.
  */
-function detectRouteColision(a: RouteData, b: RouteData) {
+function detectRouteCollision(a: RouteData, b: RouteData) {
 	if (a.type === 'fallback' || b.type === 'fallback') {
 		// If either route is a fallback route, they don't collide.
 		// Fallbacks are always added below other routes exactly to avoid collisions.
@@ -621,7 +621,7 @@ export function createRouteManifest(
 	// Report route collisions
 	for (const [index, higherRoute] of routes.entries()) {
 		for (const lowerRoute of routes.slice(index + 1)) {
-			detectRouteColision(higherRoute, lowerRoute, logger)
+			detectRouteCollision(higherRoute, lowerRoute)
 		}
 	}
 
