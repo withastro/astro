@@ -12,15 +12,15 @@ export function rehypeImages() {
 
 							if (node.properties?.src) {
 									if (file.data.imagePaths?.has(node.properties.src)) {
-											const { alt, ...otherProps } = node.properties;
+											const { ...props } = node.properties;
 
 											// Initialize or increment occurrence count for this image
 											const index = imageOccurrenceMap.get(node.properties.src) || 0;
 											imageOccurrenceMap.set(node.properties.src, index + 1);
 
-											node.properties['__ASTRO_IMAGE_'] = JSON.stringify({ ...otherProps, index });
+											node.properties['__ASTRO_IMAGE_'] = JSON.stringify({ ...props, index });
 											
-											Object.keys(otherProps).forEach((prop) => {
+											Object.keys(props).forEach((prop) => {
 													delete node.properties[prop];
 											});
 									}
