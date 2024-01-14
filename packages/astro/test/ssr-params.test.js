@@ -39,6 +39,18 @@ describe('Astro.params in SSR', () => {
 		});
 	});
 
+	describe('Encoded slash in the URL', () => {
+		it('Encoded slashes are passed to param', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/users/houston/1%2F2food');
+			const response = await app.render(request);
+			expect(response.status).to.equal(200);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			expect($('.category').text()).to.equal('1%2F2food');
+		});
+	});
+
 	it('No double URL decoding', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/users/houston/%25');
