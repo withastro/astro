@@ -4,6 +4,7 @@ import vue from '@vitejs/plugin-vue';
 import type { Options as VueJsxOptions } from '@vitejs/plugin-vue-jsx';
 import type { AstroIntegration, AstroRenderer } from 'astro';
 import type { Plugin, UserConfig } from 'vite';
+import { MagicString } from '@vue/compiler-sfc';
 
 interface Options extends VueOptions {
 	jsx?: boolean | VueJsxOptions;
@@ -39,6 +40,7 @@ function virtualAppEntrypoint(options?: Options): Plugin {
 
 	let isBuild: boolean;
 	let root: string;
+	let appEntrypoint: string | undefined;
 
 	return {
 		name: '@astrojs/vue/virtual-app',
@@ -47,6 +49,11 @@ function virtualAppEntrypoint(options?: Options): Plugin {
 		},
 		configResolved(config) {
 			root = config.root;
+			if (options?.appEntrypoint) {
+				appEntrypoint = options.appEntrypoint.startsWith('.')
+					? path.resolve(root, options.appEntrypoint)
+					: options.appEntrypoint;
+			}
 		},
 		resolveId(id: string) {
 			if (id == virtualModuleId) {
@@ -55,11 +62,7 @@ function virtualAppEntrypoint(options?: Options): Plugin {
 		},
 		load(id: string) {
 			if (id === resolvedVirtualModuleId) {
-				if (options?.appEntrypoint) {
-					const appEntrypoint = options.appEntrypoint.startsWith('.')
-						? path.resolve(root, options.appEntrypoint)
-						: options.appEntrypoint;
-
+				if (appEntrypoint) {
 					return `\
 import * as mod from ${JSON.stringify(appEntrypoint)};
 						
@@ -78,6 +81,20 @@ export const setup = async (app) => {
 }`;
 				}
 				return `export const setup = () => {};`;
+			}
+		},
+		// Ensure that Vue components reference appEntrypoint directly
+		// This allows Astro to assosciate global styles imported in this file
+		// with the pages they should be injected to
+		transform(code, id) {
+			if (!appEntrypoint) return;
+			if (id.endsWith('.vue')) {
+				const s = new MagicString(code);
+				s.prepend(`import ${JSON.stringify(appEntrypoint)};\n`);
+				return {
+					code: s.toString(),
+					map: s.generateMap({ hires: 'boundary' }),
+				};
 			}
 		},
 	};

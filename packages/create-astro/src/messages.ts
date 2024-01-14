@@ -24,8 +24,8 @@ export function setStdout(writable: typeof process.stdout) {
 	stdout = writable;
 }
 
-export async function say(messages: string | string[], { clear = false, hat = '' } = {}) {
-	return houston(messages, { clear, hat, stdout });
+export async function say(messages: string | string[], { clear = false, hat = '', tie = '' } = {}) {
+	return houston(messages, { clear, hat, tie, stdout });
 }
 
 export async function spinner(args: {
@@ -38,33 +38,6 @@ export async function spinner(args: {
 }
 
 export const title = (text: string) => align(label(text), 'end', 7) + ' ';
-
-export const welcome = [
-	// `Let's claim your corner of the internet.`,
-	// `I'll be your assistant today.`,
-	// `Let's build something awesome!`,
-	// `Let's build something great!`,
-	// `Let's build something fast!`,
-	// `Let's build the web we want.`,
-	// `Let's make the web weird!`,
-	// `Let's make the web a better place!`,
-	// `Let's create a new project!`,
-	// `Let's create something unique!`,
-	// `Time to build a new website.`,
-	// `Time to build a faster website.`,
-	// `Time to build a sweet new website.`,
-	// `We're glad to have you on board.`,
-	// `Keeping the internet weird since 2021.`,
-	// `Initiating launch sequence...`,
-	// `Initiating launch sequence... right... now!`,
-	// `Awaiting further instructions.`,
-	`Ho, ho, ho! 'Tis the season to code and create.`,
-	`Jingle all the way through your web creation journey!`,
-	`Let's unwrap the magic of the web together!`,
-	`Bells are ringing, and so are your creative ideas!`,
-	`It's starting to look a lot like Christmas on the internet.`,
-	`It's time to decorate the web with your festive ideas!`,
-];
 
 export const getName = () =>
 	new Promise<string>((resolve) => {

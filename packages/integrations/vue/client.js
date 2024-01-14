@@ -4,7 +4,6 @@ import StaticHtml from './static-html.js';
 
 export default (element) =>
 	async (Component, props, slotted, { client }) => {
-		delete props['class'];
 		if (!element.hasAttribute('ssr')) return;
 
 		// Expose name on host component for Vue devtools

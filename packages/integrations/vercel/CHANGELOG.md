@@ -1,5 +1,19 @@
 # @astrojs/vercel
 
+## 6.1.4
+
+### Patch Changes
+
+- [#9648](https://github.com/withastro/astro/pull/9648) [`d7f1903cded3e864b392d1dd7502672d37936f11`](https://github.com/withastro/astro/commit/d7f1903cded3e864b392d1dd7502672d37936f11) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where the serverless function could not respond with a prerendered 404 page.
+
+## 6.1.3
+
+### Patch Changes
+
+- [#9591](https://github.com/withastro/astro/pull/9591) [`22a5405b4a4b7948458ad170b0a7bde6954058c1`](https://github.com/withastro/astro/commit/22a5405b4a4b7948458ad170b0a7bde6954058c1) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where 404.astro was not used in static mode.
+
+- [#9598](https://github.com/withastro/astro/pull/9598) [`bd8fa7acd23ba6e7afa2c435807bd5fd6b24f505`](https://github.com/withastro/astro/commit/bd8fa7acd23ba6e7afa2c435807bd5fd6b24f505) Thanks [@lilnasy](https://github.com/lilnasy)! - Marks the `speedInsights` configuration as deprecated. Vercel has migrated features of the Speed Insights API into a framework-agnostic library with `@vercel/speed-insights`. See [Vercel Speed Insights Quickstart](https://vercel.com/docs/speed-insights/quickstart) for instructions on how to use the library instead.
+
 ## 6.1.2
 
 ### Patch Changes

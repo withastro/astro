@@ -62,15 +62,6 @@ jobs:
       - name: Generate Notification
         id: notification
         if: steps.changesets.outputs.published == 'true'
-        run: |
-          message=$(node scripts/notify/index.js '${{ steps.changesets.outputs.publishedPackages }}')
-          echo "message=${message//$'\n'/'%0A'}" >> $GITHUB_OUTPUT
-
-      - name: Discord Notification
-        if: steps.changesets.outputs.published == 'true'
-        id: discord-notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        uses: Ilshidur/action-discord@0.3.2
-        with:
-          args: ${{ steps.notification.outputs.message }}
+        run: node scripts/notify/index.js '${{ steps.changesets.outputs.publishedPackages }}'
