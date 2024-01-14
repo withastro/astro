@@ -64,7 +64,7 @@ function getRouteParams(route: RouteData, pathname: string): Params | undefined 
 	if (route.params.length) {
 		// The RegExp pattern expects a decoded string, but the pathname is encoded
 		// when the URL contains non-English characters.
-		const paramsMatch = route.pattern.exec(decodeURIComponent(pathname));
+		const paramsMatch = route.pattern.exec(decodeURI(pathname));
 		if (paramsMatch) {
 			return getParams(route.params)(paramsMatch);
 		}
