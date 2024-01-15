@@ -1574,24 +1574,33 @@ export interface AstroUserConfig {
 		 * @default `false`
 		 * @version: 4.2.0
 		 * @description
-		 * Enables pre-rendering a page on the client in supported browsers, including running client-side JavaScript.
+		 * Enables pre-rendering your prefetched pages on the client in supported browsers.
 		 *
-		 * This feature uses the experimental [Speculation Rules Web API](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API).
+		 * This feature uses the experimental [Speculation Rules Web API](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API) and overrides the default `prefetch` behavior globally to pre-render links on the client.
 		 * You may wish to review the [possible risks when prerendering on the client](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API#unsafe_prefetching) before enabling this feature.
 		 *
-		 * Enable client side prerendering in your `astro.config`, no additional configuration is required.
+		 * Enable client side pre-rendering in your `astro.config.mjs` along with any desired `prefetch` configuration options:
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * {
+		 *   prefetch: {
+		 *     prefetchAll: true,
+		 *     defaultStrategy: viewport,
+		 *   }
 		 * 	experimental: {
 		 * 		clientPrerender: true,
 		 * 	},
 		 * }
 		 * ```
 		 *
-		 * - This feature enhances the existing prefetch capability Astro provides. All client side JavaScript will be executed during the prerender to create a faster experience and reduce layout shift.
-		 * - Enabling this feature overrides the default prefetch behavior globally for all links that match your prefetch strategy. Instead of appending a `link` tag to the head of the document or fetching the page with JavaScript, a `script` tag will be appended with the corresponding speculation rules.
-		 * - Client side prerendering works based on browser support, if the Speculation Rules API is not supported, prefetch will fallback to the supported strategy.
+		 * Continue to use the `data-astro-prefetch` attribute on any `<a />` link on your site to opt in to prefetching.
+		 *
+		 * Instead of appending a `<link>` tag to the head of the document or fetching the page with JavaScript, a `<script>` tag will be appended with the corresponding speculation rules.
+		 *
+		 * Client side pre-rendering requires browser support. If the Speculation Rules API is not supported, `prefetch` will fallback to the supported strategy.
+		 *
+		 * See the [Prefetch Guide](https://docs.astro.build/en/guides/prefetch/) for more `prefetch` options and usage.
 		 */
 		clientPrerender?: boolean;
 	};
