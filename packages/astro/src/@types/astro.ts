@@ -1586,8 +1586,8 @@ export interface AstroUserConfig {
 		 * {
 		 *   prefetch: {
 		 *     prefetchAll: true,
-		 *     defaultStrategy: viewport,
-		 *   }
+		 *     defaultStrategy: 'viewport',
+		 *   },
 		 * 	experimental: {
 		 * 		clientPrerender: true,
 		 * 	},
