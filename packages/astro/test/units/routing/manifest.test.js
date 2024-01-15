@@ -91,7 +91,6 @@ describe('routing - createRouteManifest', () => {
 		]);
 	});
 
-	// TODO: review this test, it seems a regression?
 	it('injected routes are sorted in legacy mode above filesystem routes', async () => {
 		const fs = createFs(
 			{
@@ -126,15 +125,15 @@ describe('routing - createRouteManifest', () => {
 
 		expect(getManifestRoutes(manifest)).to.deep.equal([
 			{
+				route: '/contributing',
+				type: 'page',
+			},
+			{
 				route: '/[...slug]',
 				type: 'page',
 			},
 			{
 				route: '/blog/[...slug]',
-				type: 'page',
-			},
-			{
-				route: '/contributing',
 				type: 'page',
 			},
 			{
