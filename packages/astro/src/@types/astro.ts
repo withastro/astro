@@ -1613,7 +1613,6 @@ export interface InjectedRoute {
 	pattern: string;
 	entrypoint: string;
 	prerender?: boolean;
-	priority?: RoutePriorityOverride;
 }
 
 export interface ResolvedInjectedRoute extends InjectedRoute {

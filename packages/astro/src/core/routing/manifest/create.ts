@@ -362,8 +362,10 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 		legacy: [],
 	};
 
+	const priority = computeRoutePriority(config);
+
 	for (const injectedRoute of settings.injectedRoutes) {
-		const { pattern: name, entrypoint, prerender: prerenderInjected, priority } = injectedRoute;
+		const { pattern: name, entrypoint, prerender: prerenderInjected } = injectedRoute;
 		let resolved: string;
 		try {
 			resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
@@ -397,7 +399,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 			.join('/')}`.toLowerCase();
 
-		routes[priority ?? 'normal'].push({
+		routes[priority].push({
 			type,
 			route,
 			pattern,
@@ -430,8 +432,8 @@ function createRedirectRoutes(
 		legacy: [],
 	};
 
+	const priority = computeRoutePriority(settings.config);
 	for (const [from, to] of Object.entries(settings.config.redirects)) {
-		const priority = computeRoutePriority(settings.config);
 		const segments = removeLeadingForwardSlash(from)
 			.split(path.posix.sep)
 			.filter(Boolean)
