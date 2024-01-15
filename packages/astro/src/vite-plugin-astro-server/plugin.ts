@@ -1,7 +1,6 @@
 import type fs from 'node:fs';
 import type * as vite from 'vite';
 import type { AstroSettings, ManifestData, SSRManifest } from '../@types/astro.js';
-import type { SSRManifestI18n } from '../core/app/types.js';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
@@ -114,15 +113,6 @@ export default function createVitePluginAstroServer({
  * @param renderers
  */
 export function createDevelopmentManifest(settings: AstroSettings): SSRManifest {
-	let i18nManifest: SSRManifestI18n | undefined = undefined;
-	if (settings.config.i18n) {
-		i18nManifest = {
-			fallback: settings.config.i18n.fallback,
-			routing: settings.config.i18n.routing,
-			defaultLocale: settings.config.i18n.defaultLocale,
-			locales: settings.config.i18n.locales,
-		};
-	}
 	return {
 		trailingSlash: settings.config.trailingSlash,
 		compressHTML: settings.config.compressHTML,
@@ -138,6 +128,9 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			? new URL(settings.config.base, settings.config.site).toString()
 			: settings.config.site,
 		componentMetadata: new Map(),
-		i18n: i18nManifest,
+		i18n: settings.config.i18n,
+		middleware(_, next) {
+			return next()
+		}
 	};
 }

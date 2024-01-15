@@ -8,6 +8,7 @@ import type {
 	AstroSettings,
 	ComponentInstance,
 	GetStaticPathsItem,
+	MiddlewareHandler,
 	RouteData,
 	RouteType,
 	SSRError,
@@ -31,7 +32,6 @@ import { createI18nMiddleware, i18nPipelineHook } from '../../i18n/middleware.js
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import type { SSRManifestI18n } from '../app/types.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { sequence } from '../middleware/index.js';
 import { routeIsFallback } from '../redirects/helpers.js';
@@ -145,10 +145,12 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		const baseDirectory = getOutputDirectory(opts.settings.config);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
+		const { onRequest: middleware } = await import(new URL('middleware.mjs', baseDirectory).toString());
 		manifest = createBuildManifest(
 			opts.settings,
 			internals,
-			renderers.renderers as SSRLoadedRenderer[]
+			renderers.renderers as SSRLoadedRenderer[],
+			middleware
 		);
 	}
 	const pipeline = new BuildPipeline(opts, internals, manifest);
@@ -249,8 +251,9 @@ async function generatePage(
 	// prepare information we need
 	const logger = pipeline.getLogger();
 	const config = pipeline.getConfig();
+	const manifest = pipeline.getManifest();
 	const pageModulePromise = ssrEntry.page;
-	const onRequest = ssrEntry.onRequest;
+	const onRequest = manifest.middleware;
 	const pageInfo = getPageDataByComponent(pipeline.getInternals(), pageData.route.component);
 
 	// Calculate information of the page, like scripts, links and styles
@@ -263,18 +266,14 @@ async function generatePage(
 	const scripts = pageInfo?.hoistedScript ?? null;
 	// prepare the middleware
 	const i18nMiddleware = createI18nMiddleware(
-		pipeline.getManifest().i18n,
-		pipeline.getManifest().base,
-		pipeline.getManifest().trailingSlash
+		manifest.i18n,
+		manifest.base,
+		manifest.trailingSlash
 	);
 	if (config.i18n && i18nMiddleware) {
-		if (onRequest) {
-			pipeline.setMiddlewareFunction(sequence(i18nMiddleware, onRequest));
-		} else {
-			pipeline.setMiddlewareFunction(i18nMiddleware);
-		}
+		pipeline.setMiddlewareFunction(sequence(i18nMiddleware, onRequest));
 		pipeline.onBeforeRenderRoute(i18nPipelineHook);
-	} else if (onRequest) {
+	} else {
 		pipeline.setMiddlewareFunction(onRequest);
 	}
 	if (!pageModulePromise) {
@@ -628,20 +627,12 @@ function getPrettyRouteName(route: RouteData): string {
  * @param settings
  * @param renderers
  */
-export function createBuildManifest(
+function createBuildManifest(
 	settings: AstroSettings,
 	internals: BuildInternals,
-	renderers: SSRLoadedRenderer[]
+	renderers: SSRLoadedRenderer[],
+	middleware: MiddlewareHandler
 ): SSRManifest {
-	let i18nManifest: SSRManifestI18n | undefined = undefined;
-	if (settings.config.i18n) {
-		i18nManifest = {
-			fallback: settings.config.i18n.fallback,
-			routing: settings.config.i18n.routing,
-			defaultLocale: settings.config.i18n.defaultLocale,
-			locales: settings.config.i18n.locales,
-		};
-	}
 	return {
 		trailingSlash: settings.config.trailingSlash,
 		assets: new Set(),
@@ -657,6 +648,7 @@ export function createBuildManifest(
 			? new URL(settings.config.base, settings.config.site).toString()
 			: settings.config.site,
 		componentMetadata: internals.componentMetadata,
-		i18n: i18nManifest,
+		i18n: settings.config.i18n,
+		middleware
 	};
 }

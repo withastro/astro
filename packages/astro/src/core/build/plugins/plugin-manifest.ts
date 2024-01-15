@@ -5,7 +5,6 @@ import { type Plugin as VitePlugin } from 'vite';
 import { runHookBuildSsr } from '../../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import type {
-	SSRManifestI18n,
 	SerializedRouteInfo,
 	SerializedSSRManifest,
 } from '../../app/types.js';
@@ -42,22 +41,18 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 		},
 		async load(id) {
 			if (id === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
-				const imports = [];
-				const contents = [];
-				const exports = [];
-				imports.push(
+				const imports = [
 					`import { deserializeManifest as _deserializeManifest } from 'astro/app'`,
 					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`
-				);
-
-				contents.push(`
-const manifest = _deserializeManifest('${manifestReplace}');
-_privateSetManifestDontUseThis(manifest);
-`);
-
-				exports.push('export { manifest }');
-
-				return `${imports.join('\n')}${contents.join('\n')}${exports.join('\n')}`;
+				];
+				const contents = [
+					`const manifest = _deserializeManifest('${manifestReplace}');`,
+					`_privateSetManifestDontUseThis(manifest);`
+				];
+				const exports = [
+					`export { manifest }`
+				];
+				return [...imports, ...contents, ...exports].join('\n');
 			}
 		},
 
@@ -240,16 +235,6 @@ function buildManifest(
 		// Set this to an empty string so that the runtime knows not to try and load this.
 		entryModules[BEFORE_HYDRATION_SCRIPT_ID] = '';
 	}
-	let i18nManifest: SSRManifestI18n | undefined = undefined;
-	if (settings.config.i18n) {
-		i18nManifest = {
-			fallback: settings.config.i18n.fallback,
-			routing: settings.config.i18n.routing,
-			locales: settings.config.i18n.locales,
-			defaultLocale: settings.config.i18n.defaultLocale,
-		};
-	}
-
 	return {
 		adapterName: opts.settings.adapter?.name ?? '',
 		routes,
@@ -263,6 +248,6 @@ function buildManifest(
 		clientDirectives: Array.from(settings.clientDirectives),
 		entryModules,
 		assets: staticFiles.map(prefixAssetPath),
-		i18n: i18nManifest,
+		i18n: settings.config.i18n,
 	};
 }

@@ -276,10 +276,8 @@ export async function handleRoute({
 			pathname,
 			request,
 			route,
+			middleware
 		};
-		if (middleware) {
-			options.middleware = middleware;
-		}
 
 		mod = options.preload;
 
@@ -306,21 +304,17 @@ export async function handleRoute({
 		});
 	}
 
-	const onRequest = middleware?.onRequest as MiddlewareHandler | undefined;
+	const onRequest: MiddlewareHandler = middleware.onRequest;
 	if (config.i18n) {
 		const i18Middleware = createI18nMiddleware(config.i18n, config.base, config.trailingSlash);
 
 		if (i18Middleware) {
-			if (onRequest) {
-				pipeline.setMiddlewareFunction(sequence(i18Middleware, onRequest));
-			} else {
-				pipeline.setMiddlewareFunction(i18Middleware);
-			}
+			pipeline.setMiddlewareFunction(sequence(i18Middleware, onRequest));
 			pipeline.onBeforeRenderRoute(i18nPipelineHook);
-		} else if (onRequest) {
+		} else {
 			pipeline.setMiddlewareFunction(onRequest);
 		}
-	} else if (onRequest) {
+	} else {
 		pipeline.setMiddlewareFunction(onRequest);
 	}
 
