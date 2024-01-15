@@ -49,6 +49,9 @@ describe('routing - createRouteManifest', () => {
 			root: fileURLToPath(root),
 			base: '/search',
 			trailingSlash: 'never',
+			experimental: {
+				stableRoutingPriority: true,
+			},
 		});
 
 		settings.injectedRoutes = [
@@ -88,6 +91,7 @@ describe('routing - createRouteManifest', () => {
 		]);
 	});
 
+	// TODO: review this test, it seems a regression?
 	it('injected routes are sorted in legacy mode above filesystem routes', async () => {
 		const fs = createFs(
 			{
@@ -111,7 +115,6 @@ describe('routing - createRouteManifest', () => {
 			{
 				pattern: '/[...slug]',
 				entrypoint: '@lib/legacy/dynamic.astro',
-				priority: 'legacy',
 			},
 		];
 
@@ -162,6 +165,9 @@ describe('routing - createRouteManifest', () => {
 					},
 				},
 			],
+			experimental: {
+				stableRoutingPriority: true,
+			},
 		});
 
 		settings.injectedRoutes = [
