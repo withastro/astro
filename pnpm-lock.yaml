@@ -142,12 +142,6 @@ importers:
       astro:
         specifier: ^4.1.2
         version: link:../../packages/astro
-      remark-imgattr:
-        specifier: ^1.0.1
-        version: 1.0.1
-      sharp:
-        specifier: ^0.33.1
-        version: 0.33.1
 
   examples/component:
     devDependencies:
@@ -13866,10 +13860,6 @@ packages:
       - supports-color
     dev: false
 
-  /remark-imgattr@1.0.1:
-    resolution: {integrity: sha512-n4qIjecsjkYeStH+mHExv5M8H/hxaCPDVohl/HjcUQXOkgi6yEAtdGc92u+7Tk25XE4DU55Hj5beGaokFIbOTQ==}
-    dev: false
-
   /remark-math@6.0.0:
     resolution: {integrity: sha512-MMqgnP74Igy+S3WwnhQ7kqGlEerTETXMvJhrUzDikVZ2/uogJCb+WHUg97hK9/jcfc0dkD73s3LN8zU49cTEtA==}
     dependencies:
@@ -14249,7 +14239,7 @@ packages:
       tar-fs: 3.0.4
       tunnel-agent: 0.6.0
     dev: false
-    
+
   /shebang-command@1.2.0:
     resolution: {integrity: sha512-EV3L1+UQWGor21OmnvojK36mhg+TyIKDh3iFBKBohr5xeXIhNBcx8oWdgkTEEQ+BEFFYdLRuqMfd5L84N1V5Vg==}
     engines: {node: '>=0.10.0'}
