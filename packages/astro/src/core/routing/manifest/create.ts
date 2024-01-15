@@ -228,19 +228,19 @@ function createFileBasedRoutes(
 		parentParams: string[]
 	) {
 		let items: Item[] = [];
-		for (const basename of fs.readdirSync(dir)) {
+		const files = fs.readdirSync(dir);
+		for (const basename of files) {
 			const resolved = path.join(dir, basename);
 			const file = slash(path.relative(cwd || fileURLToPath(settings.config.root), resolved));
 			const isDir = fs.statSync(resolved).isDirectory();
 
 			const ext = path.extname(basename);
 			const name = ext ? basename.slice(0, -ext.length) : basename;
-
 			if (name[0] === '_') {
-				return;
+				continue;
 			}
 			if (basename[0] === '.' && basename !== '.well-known') {
-				return;
+				continue;
 			}
 			// filter out "foo.astro_tmp" files, etc
 			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
@@ -251,7 +251,7 @@ function createFileBasedRoutes(
 					)} found. Prefix filename with an underscore (\`_\`) to ignore.`
 				);
 
-				return;
+				continue;
 			}
 			const segment = isDir ? basename : name;
 			validateSegment(segment, file);
