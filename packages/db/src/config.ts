@@ -20,13 +20,13 @@ export const astroConfigWithDBValidator = z.object({
 	db: adjustedConfigSchema.optional(),
 });
 
-type CollectionConfig<TFields extends z.input<typeof collectionSchema>['fields']> = {
+type CollectionConfig<TFields extends z.input<typeof collectionSchema>['fields']> = Omit<
+	z.input<typeof collectionSchema>,
+	'fields' | 'data' | 'relations'
+> & {
 	fields: TFields;
 	// TODO: type inference based on field type. Just `any` for now.
 	data?: () => Array<Record<keyof TFields, any> & { id?: string }>;
-	
-	// I don't love this name mp
-	source: 'readable' | 'writable';
 };
 
 export function defineCollection<TFields extends z.input<typeof collectionSchema>['fields']>(

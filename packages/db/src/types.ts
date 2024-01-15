@@ -50,13 +50,21 @@ const fieldSchema = z.union([
 ]);
 const fieldsSchema = z.record(fieldSchema);
 
+export const relationSchema = z.object({
+	type: z.enum(['one', 'many']),
+	collection: z.string(),
+	fields: z.array(z.string()),
+	references: z.array(z.string()),
+});
+
 export const collectionSchema = z.object({
 	fields: fieldsSchema,
 	data: z
 		.function()
 		.returns(z.array(z.record(z.unknown())))
 		.optional(),
-	source: z.enum(['readable', 'writable'])
+	relations: z.record(relationSchema).optional(),
+	source: z.enum(['readable', 'writable']),
 });
 
 export const collectionsSchema = z.record(collectionSchema);
