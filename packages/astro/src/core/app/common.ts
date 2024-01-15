@@ -18,6 +18,9 @@ export function deserializeManifest(serializedManifest: SerializedSSRManifest): 
 	const clientDirectives = new Map(serializedManifest.clientDirectives);
 
 	return {
+		// serialized manifest will always contain the middleware (see plugin-ssr.ts)
+		// this is expected to be overwritten, but is present for types
+		middleware(_, next) { return next() },
 		...serializedManifest,
 		assets,
 		componentMetadata,

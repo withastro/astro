@@ -8,6 +8,7 @@ import type {
 	AstroSettings,
 	ComponentInstance,
 	GetStaticPathsItem,
+	MiddlewareHandler,
 	RouteData,
 	RouteType,
 	SSRError,
@@ -145,10 +146,12 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		const baseDirectory = getOutputDirectory(opts.settings.config);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
+		const { onRequest: middleware } = await import(new URL('middleware.mjs', baseDirectory).toString());
 		manifest = createBuildManifest(
 			opts.settings,
 			internals,
-			renderers.renderers as SSRLoadedRenderer[]
+			renderers.renderers as SSRLoadedRenderer[],
+			middleware
 		);
 	}
 	const pipeline = new BuildPipeline(opts, internals, manifest);
@@ -249,8 +252,9 @@ async function generatePage(
 	// prepare information we need
 	const logger = pipeline.getLogger();
 	const config = pipeline.getConfig();
+	const manifest = pipeline.getManifest();
 	const pageModulePromise = ssrEntry.page;
-	const onRequest = ssrEntry.onRequest;
+	const onRequest = manifest.middleware;
 	const pageInfo = getPageDataByComponent(pipeline.getInternals(), pageData.route.component);
 
 	// Calculate information of the page, like scripts, links and styles
@@ -263,19 +267,15 @@ async function generatePage(
 	const scripts = pageInfo?.hoistedScript ?? null;
 	// prepare the middleware
 	const i18nMiddleware = createI18nMiddleware(
-		pipeline.getManifest().i18n,
-		pipeline.getManifest().base,
-		pipeline.getManifest().trailingSlash,
-		pipeline.getManifest().buildFormat
+		manifest.i18n,
+		manifest.base,
+		manifest.trailingSlash,
+		manifest.buildFormat
 	);
 	if (config.i18n && i18nMiddleware) {
-		if (onRequest) {
-			pipeline.setMiddlewareFunction(sequence(i18nMiddleware, onRequest));
-		} else {
-			pipeline.setMiddlewareFunction(i18nMiddleware);
-		}
+		pipeline.setMiddlewareFunction(sequence(i18nMiddleware, onRequest));
 		pipeline.onBeforeRenderRoute(i18nPipelineHook);
-	} else if (onRequest) {
+	} else {
 		pipeline.setMiddlewareFunction(onRequest);
 	}
 	if (!pageModulePromise) {
@@ -629,10 +629,11 @@ function getPrettyRouteName(route: RouteData): string {
  * @param settings
  * @param renderers
  */
-export function createBuildManifest(
+function createBuildManifest(
 	settings: AstroSettings,
 	internals: BuildInternals,
-	renderers: SSRLoadedRenderer[]
+	renderers: SSRLoadedRenderer[],
+	middleware: MiddlewareHandler
 ): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
 	if (settings.config.i18n) {
@@ -660,5 +661,6 @@ export function createBuildManifest(
 		componentMetadata: internals.componentMetadata,
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
+		middleware
 	};
 }
