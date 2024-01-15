@@ -2,7 +2,7 @@
 "astro": minor
 ---
 
-Adds an experimental flag `clientPrerender` to pre-render your prefetched pages on the client with the [Speculation Rules API](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API).
+Adds an experimental flag `clientPrerender` to prerender your prefetched pages on the client with the [Speculation Rules API](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API).
 
 ```js
 // astro.config.mjs
