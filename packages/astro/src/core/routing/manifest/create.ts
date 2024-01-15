@@ -21,10 +21,8 @@ import { getRouteGenerator } from './generator.js';
 import { AstroError, AstroErrorData } from '../../errors/index.js';
 import {
 	MissingIndexForInternationalization,
-	StaticRouteCollision,
 	DynamicRouteCollision,
 } from '../../errors/errors-data.js';
-import Astro from '../../../runtime/client/dev-toolbar/apps/astro.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -544,7 +542,7 @@ function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]
  *   For example, `/foo/[bar]` and `/foo/[baz]` or `/foo/[...bar]` and `/foo/[...baz]`
  *     but not `/foo/[bar]` and `/foo/[...baz]`.
  */
-function detectRouteCollision(a: RouteData, b: RouteData) {
+function detectRouteCollision(a: RouteData, b: RouteData, config: AstroConfig, logger: Logger) {
 	if (a.type === 'fallback' || b.type === 'fallback') {
 		// If either route is a fallback route, they don't collide.
 		// Fallbacks are always added below other routes exactly to avoid collisions.
@@ -558,10 +556,16 @@ function detectRouteCollision(a: RouteData, b: RouteData) {
 	) {
 		// If both routes are the same and completely static they are guaranteed to collide
 		// such that one of them will never be matched.
-		throw new AstroError({
-			...StaticRouteCollision,
-			message: StaticRouteCollision.message(a.route, a.component, b.component),
-		});
+		if (config.experimental.stableRoutingPriority) {
+			logger.warn(
+				'router',
+				`The route "${a.route}" is defined in both "${a.component}" and "${b.component}". A static route cannot be defined more than once.`
+			);
+			logger.warn(
+				'router',
+				'A collision will result in an hard error in following versions of Astro.'
+			);
+		}
 	}
 
 	if (a.prerender || b.prerender) {
@@ -602,6 +606,8 @@ export function createRouteManifest(
 	params: CreateRouteManifestParams,
 	logger: Logger
 ): ManifestData {
+	const { settings } = params;
+	const { config } = settings;
 	// Create a map of all routes so redirects can refer to any route
 	const routeMap = new Map();
 
@@ -630,12 +636,9 @@ export function createRouteManifest(
 	// Report route collisions
 	for (const [index, higherRoute] of routes.entries()) {
 		for (const lowerRoute of routes.slice(index + 1)) {
-			detectRouteCollision(higherRoute, lowerRoute);
+			detectRouteCollision(higherRoute, lowerRoute, config, logger);
 		}
 	}
-
-	const { settings } = params;
-	const { config } = settings;
 
 	const i18n = settings.config.i18n;
 	if (i18n) {
