@@ -14,7 +14,7 @@ describe('collect images', async () => {
 
         chai
             .expect(code)
-            .to.equal('<p>Hello <img alt="inline image url" __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;./img.png&#x22;,&#x22;index&#x22;:0}"></p>');
+            .to.equal('<p>Hello <img __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;./img.png&#x22;,&#x22;alt&#x22;:&#x22;inline image url&#x22;,&#x22;index&#x22;:0}"></p>');
 
         chai.expect(Array.from(imagePaths)).to.deep.equal(['./img.png']);
     });
@@ -27,7 +27,7 @@ describe('collect images', async () => {
             fileURL: 'file.md',
         });
 
-        chai.expect(code).to.equal('<p>Hello <img alt="image ref" __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;./img.webp&#x22;,&#x22;index&#x22;:0}"></p>');
+        chai.expect(code).to.equal('<p>Hello <img __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;./img.webp&#x22;,&#x22;alt&#x22;:&#x22;image ref&#x22;,&#x22;index&#x22;:0}"></p>');
         chai.expect(Array.from(imagePaths)).to.deep.equal(['./img.webp']);
     });
 });
