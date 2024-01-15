@@ -18,11 +18,8 @@ import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
-import { AstroError, AstroErrorData } from '../../errors/index.js';
-import {
-	MissingIndexForInternationalization,
-	DynamicRouteCollision,
-} from '../../errors/errors-data.js';
+import {AstroError} from '../../errors/index.js';
+import {MissingIndexForInternationalization} from '../../errors/errors-data.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -597,10 +594,16 @@ function detectRouteCollision(a: RouteData, b: RouteData, config: AstroConfig, l
 	}
 
 	// Both routes are guaranteed to collide such that one will never be matched.
-	throw new AstroError({
-		...DynamicRouteCollision,
-		message: DynamicRouteCollision.message(a.route, a.component, b.component),
-	});
+	if (config.experimental.stableRoutingPriority) {
+		logger.warn(
+			'router',
+			`The route "${a.route}" is defined in both "${a.component}" and "${b.component}" using SSR mode. A dynamic SSR route cannot be defined more than once.`
+		);
+		logger.warn(
+			'router',
+			'A collision will result in an hard error in following versions of Astro.'
+		);
+	}
 }
 
 /** Create manifest of all static routes */

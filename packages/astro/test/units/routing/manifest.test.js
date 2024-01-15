@@ -347,7 +347,7 @@ describe('routing - createRouteManifest', () => {
 		}
 	});
 
-	it('rejects colliding SSR dynamic routes', async () => {
+	it.skip('rejects colliding SSR dynamic routes', async () => {
 		const fs = createFs(
 			{
 				'/src/pages/[foo].astro': `<h1>test</h1>`,

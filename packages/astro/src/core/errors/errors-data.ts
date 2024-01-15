@@ -1036,33 +1036,6 @@ export const UnhandledRejection = {
 
 /**
  * @docs
- * @description
- * A static route was defined more than once. This can happen when an Astro integration injects a static route tha is also used in the project or when a static redirect is defined for a route that has a page or endpoint associated with it.
- */
-export const StaticRouteCollision = {
-	name: 'StaticRouteCollision',
-	title: 'Static route collision',
-	message: (route: string, sourceA: string, sourceB: string) => 
-		`The route "${route}" is defined in both "${sourceA}" and "${sourceB}". A static route cannot be defined more than once.`,
-} satisfies ErrorData;
-
-/**
- * @docs
- * @see
- * - [Dynamic HTML](https://docs.astro.build/en/core-concepts/astro-syntax/#dynamic-html')
- * @description
- * A dynamic route was defined more than once in SSR mode. This can happen when using two names for the dynamic parameters in the same positions, like `/foo/[bar]` and `/foo/[baz]`. If you can know at build time which paths you want to render with one of them, you can opt-in to pre-rendering in one of them to resolve the conflict. If which definition should be used is not known at build time, you need to select what to show within a single definition.
- */
-export const DynamicRouteCollision = {
-	name: 'DynamicRouteCollision',
-	title: 'Dynamic route collision',
-	message: (route: string, sourceA: string, sourceB: string) =>
-		`The route "${route}" is defined in both "${sourceA}" and "${sourceB}" using SSR mode. A dynamic SSR route cannot be defined more than once.`,
-	hint: 'If some paths should be handled by one of the definitions and all other paths by the other, you can opt-in to pre-rendering in one of them to resolve the conflict. If which definition should be used is not known at build time, you need to select what to show within a single definition.\nSee https://docs.astro.build/en/core-concepts/astro-syntax/#dynamic-html',
-} satisfies ErrorData;
-
-/**
- * @docs
  * @kind heading
  * @name CSS Errors
  */
