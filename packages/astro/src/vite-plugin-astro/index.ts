@@ -27,6 +27,7 @@ interface AstroPluginOptions {
 export default function astro({ settings, logger }: AstroPluginOptions): vite.Plugin[] {
 	const { config } = settings;
 	let resolvedConfig: vite.ResolvedConfig;
+	let server: vite.ViteDevServer;
 
 	// Variables for determining if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
@@ -38,6 +39,9 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 		configResolved(_resolvedConfig) {
 			resolvedConfig = _resolvedConfig;
 		},
+		configureServer(_server) {
+			server = _server;
+		},
 		async load(id, opts) {
 			const parsedId = parseAstroRequest(id);
 			const query = parsedId.query;
@@ -46,9 +50,18 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			}
 			// For CSS / hoisted scripts, the main Astro module should already be cached
 			const filename = normalizePath(normalizeFilename(parsedId.filename, config.root));
-			const compileResult = getCachedCompileResult(config, filename);
+			let compileResult = getCachedCompileResult(config, filename);
 			if (!compileResult) {
-				return null;
+				// In dev, HMR could cause this compile result to be empty, try to load it first
+				if (server) {
+					await server.transformRequest('/@fs' + filename);
+					compileResult = getCachedCompileResult(config, filename);
+				}
+
+				// If there's really no compilation result, error
+				if (!compileResult) {
+					throw new Error('No cached compile result found for ' + id);
+				}
 			}
 
 			switch (query.type) {
