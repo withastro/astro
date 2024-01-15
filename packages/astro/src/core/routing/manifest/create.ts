@@ -555,16 +555,15 @@ function detectRouteCollision(a: RouteData, b: RouteData, config: AstroConfig, l
 	) {
 		// If both routes are the same and completely static they are guaranteed to collide
 		// such that one of them will never be matched.
-		if (config.experimental.stableRoutingPriority) {
-			logger.warn(
-				'router',
-				`The route "${a.route}" is defined in both "${a.component}" and "${b.component}". A static route cannot be defined more than once.`
-			);
-			logger.warn(
-				'router',
-				'A collision will result in an hard error in following versions of Astro.'
-			);
-		}
+		logger.warn(
+			'router',
+			`The route "${a.route}" is defined in both "${a.component}" and "${b.component}". A static route cannot be defined more than once.`
+		);
+		logger.warn(
+			'router',
+			'A collision will result in an hard error in following versions of Astro.'
+		);
+		return;
 	}
 
 	if (a.prerender || b.prerender) {
@@ -594,16 +593,14 @@ function detectRouteCollision(a: RouteData, b: RouteData, config: AstroConfig, l
 	}
 
 	// Both routes are guaranteed to collide such that one will never be matched.
-	if (config.experimental.stableRoutingPriority) {
-		logger.warn(
-			'router',
-			`The route "${a.route}" is defined in both "${a.component}" and "${b.component}" using SSR mode. A dynamic SSR route cannot be defined more than once.`
-		);
-		logger.warn(
-			'router',
-			'A collision will result in an hard error in following versions of Astro.'
-		);
-	}
+	logger.warn(
+		'router',
+		`The route "${a.route}" is defined in both "${a.component}" and "${b.component}" using SSR mode. A dynamic SSR route cannot be defined more than once.`
+	);
+	logger.warn(
+		'router',
+		'A collision will result in an hard error in following versions of Astro.'
+	);
 }
 
 /** Create manifest of all static routes */
@@ -639,9 +636,11 @@ export function createRouteManifest(
 	];
 
 	// Report route collisions
-	for (const [index, higherRoute] of routes.entries()) {
-		for (const lowerRoute of routes.slice(index + 1)) {
-			detectRouteCollision(higherRoute, lowerRoute, config, logger);
+	if (config.experimental.stableRoutingPriority) {
+		for (const [index, higherRoute] of routes.entries()) {
+			for (const lowerRoute of routes.slice(index + 1)) {
+				detectRouteCollision(higherRoute, lowerRoute, config, logger);
+			}
 		}
 	}
 

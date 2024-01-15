@@ -14,6 +14,18 @@ function getManifestRoutes(manifest) {
 	}));
 }
 
+function getLogger() {
+	const logs = [];
+
+	return {
+		logger: new Logger({
+			dest: {write: (msg) => logs.push(msg)},
+			level: 'debug',
+		}),
+		logs,
+	}
+}
+
 describe('routing - createRouteManifest', () => {
 	it('using trailingSlash: "never" does not match the index route when it contains a trailing slash', async () => {
 		const fs = createFs(
@@ -307,8 +319,7 @@ describe('routing - createRouteManifest', () => {
 		]);
 	});
 
-	// it should not throw an error, for now
-	it.skip('rejects colliding static routes', async () => {
+	it('report colliding static routes', async () => {
 		const fs = createFs(
 			{
 				'/src/pages/contributing.astro': `<h1>test</h1>`,
@@ -321,6 +332,9 @@ describe('routing - createRouteManifest', () => {
 			base: '/search',
 			trailingSlash: 'never',
 			integrations: [],
+			experimental: {
+				stableRoutingPriority: true,
+			}
 		});
 
 		settings.injectedRoutes = [
@@ -330,24 +344,33 @@ describe('routing - createRouteManifest', () => {
 			},
 		];
 
-		try {
-			createRouteManifest({
+		const manifestOptions = {
 				cwd: fileURLToPath(root),
 				settings,
 				fsMod: fs,
-			});
-			expect.fail(0, 1, 'Expected createRouteManifest to throw');
-		} catch (e) {
-			expect(e).to.be.instanceOf(Error);
-			expect(e.type).to.equal('AstroError');
-			expect(e.name).to.equal('StaticRouteCollision');
-			expect(e.message).to.equal(
-				'The route "/contributing" is defined in both "src/pages/contributing.astro" and "@lib/legacy/static.astro". A static route cannot be defined more than once.'
-			);
-		}
+		};
+
+		const {logger, logs} = getLogger();
+
+		createRouteManifest(manifestOptions, logger);
+
+		expect(logs).to.deep.equal([
+			{
+				"label": "router",
+				"level": "warn",
+				"message": 'The route "/contributing" is defined in both "src/pages/contributing.astro" and "@lib/legacy/static.astro". A static route cannot be defined more than once.',
+				"newLine": true,
+			},
+			{
+				"label": "router",
+				"level": "warn",
+				"message": "A collision will result in an hard error in following versions of Astro.",
+				"newLine": true,
+			},
+		]);
 	});
 
-	it.skip('rejects colliding SSR dynamic routes', async () => {
+	it('report colliding SSR dynamic routes', async () => {
 		const fs = createFs(
 			{
 				'/src/pages/[foo].astro': `<h1>test</h1>`,
@@ -361,22 +384,34 @@ describe('routing - createRouteManifest', () => {
 			base: '/search',
 			trailingSlash: 'never',
 			integrations: [],
+			experimental: {
+				stableRoutingPriority: true,
+			}
 		});
 
-		try {
-			createRouteManifest({
+		const manifestOptions = {
 				cwd: fileURLToPath(root),
 				settings,
 				fsMod: fs,
-			});
-			expect.fail(0, 1, 'Expected createRouteManifest to throw');
-		} catch (e) {
-			expect(e).to.be.instanceOf(Error);
-			expect(e.type).to.equal('AstroError');
-			expect(e.name).to.equal('DynamicRouteCollision');
-			expect(e.message).to.equal(
-				'The route "/[bar]" is defined in both "src/pages/[bar].astro" and "src/pages/[foo].astro" using SSR mode. A dynamic SSR route cannot be defined more than once.'
-			);
-		}
+		};
+
+		const {logger, logs} = getLogger();
+
+		createRouteManifest(manifestOptions, logger);
+
+		expect(logs).to.deep.equal([
+			{
+				"label": "router",
+				"level": "warn",
+				"message": 'The route "/[bar]" is defined in both "src/pages/[bar].astro" and "src/pages/[foo].astro" using SSR mode. A dynamic SSR route cannot be defined more than once.',
+				"newLine": true,
+			},
+			{
+				"label": "router",
+				"level": "warn",
+				"message": "A collision will result in an hard error in following versions of Astro.",
+				"newLine": true,
+			},
+		]);
 	});
 });
