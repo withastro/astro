@@ -18,12 +18,13 @@ import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
-import {AstroError, AstroErrorData} from '../../errors/index.js';
+import { AstroError, AstroErrorData } from '../../errors/index.js';
 import {
 	MissingIndexForInternationalization,
 	StaticRouteCollision,
-	DynamicRouteCollision
+	DynamicRouteCollision,
 } from '../../errors/errors-data.js';
+import Astro from '../../../runtime/client/dev-toolbar/apps/astro.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -163,8 +164,12 @@ function routeComparator(a: RouteData, b: RouteData) {
 		return a.segments.length > b.segments.length ? -1 : 1;
 	}
 
-	const aIsStatic = a.segments.every((segment) => segment.every((part) => !part.dynamic && !part.spread));
-	const bIsStatic = b.segments.every((segment) => segment.every((part) => !part.dynamic && !part.spread));
+	const aIsStatic = a.segments.every((segment) =>
+		segment.every((part) => !part.dynamic && !part.spread)
+	);
+	const bIsStatic = b.segments.every((segment) =>
+		segment.every((part) => !part.dynamic && !part.spread)
+	);
 
 	// Sort static routes before dynamic routes
 	if (aIsStatic !== bIsStatic) {
@@ -204,8 +209,8 @@ export interface CreateRouteManifestParams {
 }
 
 function createFileBasedRoutes(
-	{settings, cwd, fsMod}: CreateRouteManifestParams,
-	logger: Logger,
+	{ settings, cwd, fsMod }: CreateRouteManifestParams,
+	logger: Logger
 ): RouteData[] {
 	const components: string[] = [];
 	const routes: RouteData[] = [];
@@ -222,7 +227,7 @@ function createFileBasedRoutes(
 		fs: typeof nodeFs,
 		dir: string,
 		parentSegments: RoutePart[][],
-		parentParams: string[],
+		parentParams: string[]
 	) {
 		let items: Item[] = [];
 		for (const basename of fs.readdirSync(dir)) {
@@ -244,8 +249,8 @@ function createFileBasedRoutes(
 				logger.warn(
 					null,
 					`Unsupported file type ${bold(
-						resolved,
-					)} found. Prefix filename with an underscore (\`_\`) to ignore.`,
+						resolved
+					)} found. Prefix filename with an underscore (\`_\`) to ignore.`
 				);
 
 				return;
@@ -317,7 +322,7 @@ function createFileBasedRoutes(
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
 				const route = `/${segments
-					.map(([{dynamic, content}]) => (dynamic ? `[${content}]` : content))
+					.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 					.join('/')}`.toLowerCase();
 				routes.push({
 					route,
@@ -335,7 +340,7 @@ function createFileBasedRoutes(
 		}
 	}
 
-	const {config} = settings;
+	const { config } = settings;
 	const pages = resolvePages(config);
 
 	if (localFs.existsSync(pages)) {
@@ -350,20 +355,20 @@ function createFileBasedRoutes(
 
 type PrioritizedRoutesData = Record<RoutePriorityOverride, RouteData[]>;
 
-function createInjectedRoutes({settings, cwd}: CreateRouteManifestParams): PrioritizedRoutesData {
-	const {config} = settings;
+function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): PrioritizedRoutesData {
+	const { config } = settings;
 	const prerender = getPrerenderDefault(config);
 
 	const routes: PrioritizedRoutesData = {
-		'normal': [],
-		'legacy': [],
+		normal: [],
+		legacy: [],
 	};
 
 	for (const injectedRoute of settings.injectedRoutes) {
-		const {pattern: name, entrypoint, prerender: prerenderInjected, priority} = injectedRoute;
+		const { pattern: name, entrypoint, prerender: prerenderInjected, priority } = injectedRoute;
 		let resolved: string;
 		try {
-			resolved = require.resolve(entrypoint, {paths: [cwd || fileURLToPath(config.root)]});
+			resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
 		} catch (e) {
 			resolved = fileURLToPath(new URL(entrypoint, config.root));
 		}
@@ -391,7 +396,7 @@ function createInjectedRoutes({settings, cwd}: CreateRouteManifestParams): Prior
 			.filter((p) => p.dynamic)
 			.map((p) => p.content);
 		const route = `/${segments
-			.map(([{dynamic, content}]) => (dynamic ? `[${content}]` : content))
+			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 			.join('/')}`.toLowerCase();
 
 		routes[priority ?? 'normal'].push({
@@ -415,19 +420,20 @@ function createInjectedRoutes({settings, cwd}: CreateRouteManifestParams): Prior
  * Create route data for all configured redirects.
  */
 function createRedirectRoutes(
-	{settings}: CreateRouteManifestParams,
+	{ settings }: CreateRouteManifestParams,
 	routeMap: Map<string, RouteData>,
-	logger: Logger,
+	logger: Logger
 ): PrioritizedRoutesData {
-	const {config} = settings;
+	const { config } = settings;
 	const trailingSlash = config.trailingSlash;
 
 	const routes: PrioritizedRoutesData = {
-		'normal': [],
-		'legacy': [],
+		normal: [],
+		legacy: [],
 	};
 
 	for (const [from, to] of Object.entries(settings.config.redirects)) {
+		const priority = computeRoutePriority(settings.config);
 		const segments = removeLeadingForwardSlash(from)
 			.split(path.posix.sep)
 			.filter(Boolean)
@@ -446,17 +452,24 @@ function createRedirectRoutes(
 			.filter((p) => p.dynamic)
 			.map((p) => p.content);
 		const route = `/${segments
-			.map(([{dynamic, content}]) => (dynamic ? `[${content}]` : content))
+			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 			.join('/')}`.toLowerCase();
 
-		if (/^https?:\/\//.test(to.destination)) {
+		let destination: string;
+		if (typeof to === 'string') {
+			destination = to;
+		} else {
+			destination = to.destination;
+		}
+
+		if (/^https?:\/\//.test(destination)) {
 			logger.warn(
 				'redirects',
-				`Redirecting to an external URL is not officially supported: ${from} -> ${to.destination}`,
+				`Redirecting to an external URL is not officially supported: ${from} -> ${destination}`
 			);
 		}
 
-		routes[to.priority].push({
+		routes[priority].push({
 			type: 'redirect',
 			route,
 			pattern,
@@ -466,20 +479,14 @@ function createRedirectRoutes(
 			generate,
 			pathname: pathname || void 0,
 			prerender: false,
-			redirect: 'status' in to
-				? {
-					status: to.status,
-					destination: to.destination,
-				}
-				: to.destination,
-			redirectRoute: routeMap.get(to.destination),
+			redirect: to,
+			redirectRoute: routeMap.get(destination),
 			fallbackRoutes: [],
 		});
 	}
 
 	return routes;
 }
-
 
 /**
  * Checks whether a route segment is static.
@@ -512,7 +519,7 @@ function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]
 		}
 
 		// Only compare the content on non-dynamic segments
-		// `/[bar]` and `/[baz]` are effectively the same route, 
+		// `/[bar]` and `/[baz]` are effectively the same route,
 		// only bound to a different path parameter.
 		if (!partA.dynamic && partA.content !== partB.content) {
 			return false;
@@ -544,7 +551,11 @@ function detectRouteCollision(a: RouteData, b: RouteData) {
 		return;
 	}
 
-	if (a.route === b.route && a.segments.every(isStaticSegment) && b.segments.every(isStaticSegment)) {
+	if (
+		a.route === b.route &&
+		a.segments.every(isStaticSegment) &&
+		b.segments.every(isStaticSegment)
+	) {
 		// If both routes are the same and completely static they are guaranteed to collide
 		// such that one of them will never be matched.
 		throw new AstroError({
@@ -556,7 +567,7 @@ function detectRouteCollision(a: RouteData, b: RouteData) {
 	if (a.prerender || b.prerender) {
 		// If either route is prerendered, it is impossible to know if they collide
 		// at this stage because it depends on the parameters returned by `getStaticPaths`.
-		return
+		return;
 	}
 
 	if (a.segments.length !== b.segments.length) {
@@ -589,7 +600,7 @@ function detectRouteCollision(a: RouteData, b: RouteData) {
 /** Create manifest of all static routes */
 export function createRouteManifest(
 	params: CreateRouteManifestParams,
-	logger: Logger,
+	logger: Logger
 ): ManifestData {
 	// Create a map of all routes so redirects can refer to any route
 	const routeMap = new Map();
@@ -610,23 +621,21 @@ export function createRouteManifest(
 
 	const routes: RouteData[] = [
 		...injectedRoutes['legacy'].sort(routeComparator),
-		...[
-			...fileBasedRoutes,
-			...injectedRoutes['normal'],
-			...redirectRoutes['normal'],
-		].sort(routeComparator),
+		...[...fileBasedRoutes, ...injectedRoutes['normal'], ...redirectRoutes['normal']].sort(
+			routeComparator
+		),
 		...redirectRoutes['legacy'].sort(routeComparator),
 	];
 
 	// Report route collisions
 	for (const [index, higherRoute] of routes.entries()) {
 		for (const lowerRoute of routes.slice(index + 1)) {
-			detectRouteCollision(higherRoute, lowerRoute)
+			detectRouteCollision(higherRoute, lowerRoute);
 		}
 	}
 
-	const {settings} = params;
-	const {config} = settings;
+	const { settings } = params;
+	const { config } = settings;
 
 	const i18n = settings.config.i18n;
 	if (i18n) {
@@ -818,4 +827,11 @@ export function createRouteManifest(
 	return {
 		routes,
 	};
+}
+
+function computeRoutePriority(config: AstroConfig): RoutePriorityOverride {
+	if (config.experimental.stableRoutingPriority) {
+		return 'normal';
+	}
+	return 'legacy';
 }

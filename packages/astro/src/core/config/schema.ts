@@ -58,6 +58,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		optimizeHoistedScript: false,
 		contentCollectionCache: false,
+		stableRoutingPriority: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -163,28 +164,21 @@ export const AstroConfigSchema = z.object({
 	redirects: z
 		.record(
 			z.string(),
-			z
-				.union([
-					z.string(),
-					z.object({
-						status: z.union([
-							z.literal(300),
-							z.literal(301),
-							z.literal(302),
-							z.literal(303),
-							z.literal(304),
-							z.literal(307),
-							z.literal(308),
-						]),
-						destination: z.string(),
-						priority: z.enum(['normal', 'legacy']).default('legacy'),
-					}),
-				])
-				.transform((redirect) =>
-					typeof redirect === 'string'
-						? { destination: redirect, priority: 'normal' as const }
-						: redirect
-				)
+			z.union([
+				z.string(),
+				z.object({
+					status: z.union([
+						z.literal(300),
+						z.literal(301),
+						z.literal(302),
+						z.literal(303),
+						z.literal(304),
+						z.literal(307),
+						z.literal(308),
+					]),
+					destination: z.string(),
+				}),
+			])
 		)
 		.default(ASTRO_CONFIG_DEFAULTS.redirects),
 	prefetch: z
@@ -400,6 +394,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
+			stableRoutingPriority: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.stableRoutingPriority),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`
