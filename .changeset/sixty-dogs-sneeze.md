@@ -9,8 +9,8 @@ Adds an experimental flag `clientPrerender` to pre-render your prefetched pages 
 {
   prefetch: {
     prefetchAll: true,
-    defaultStrategy: viewport,
-  }
+    defaultStrategy: 'viewport',
+  },
   experimental: {
     clientPrerender: true,
   },
