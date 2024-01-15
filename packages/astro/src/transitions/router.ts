@@ -151,12 +151,14 @@ function runScripts() {
 	let wait = Promise.resolve();
 	for (const script of Array.from(document.scripts)) {
 		if (script.dataset.astroExec === '') continue;
+		const type = script.getAttribute('type');
+		if (type && type !== 'module' && type !== 'text/javascript') continue;
 		const newScript = document.createElement('script');
 		newScript.innerHTML = script.innerHTML;
 		for (const attr of script.attributes) {
 			if (attr.name === 'src') {
 				const p = new Promise((r) => {
-					newScript.onload = r;
+					newScript.onload = newScript.onerror = r;
 				});
 				wait = wait.then(() => p as any);
 			}

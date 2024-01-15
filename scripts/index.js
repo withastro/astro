@@ -18,6 +18,11 @@ export default async function run() {
 			await prebuild(...args);
 			break;
 		}
+		case 'test': {
+			const { default: test } = await import('./cmd/test.js');
+			await test(...args);
+			break;
+		}
 	}
 }
 

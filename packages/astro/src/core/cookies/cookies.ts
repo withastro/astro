@@ -63,10 +63,12 @@ class AstroCookies implements AstroCookiesInterface {
 	#request: Request;
 	#requestValues: Record<string, string> | null;
 	#outgoing: Map<string, [string, string, boolean]> | null;
+	#consumed: boolean;
 	constructor(request: Request) {
 		this.#request = request;
 		this.#requestValues = null;
 		this.#outgoing = null;
+		this.#consumed = false;
 	}
 
 	/**
@@ -148,6 +150,16 @@ class AstroCookies implements AstroCookiesInterface {
 	 * @param options Options for the cookie, such as the path and security settings.
 	 */
 	set(key: string, value: string | Record<string, any>, options?: AstroCookieSetOptions): void {
+		if (this.#consumed) {
+			const warning = new Error(
+				'Astro.cookies.set() was called after the cookies had already been sent to the browser.\n' +
+					'This may have happened if this method was called in an imported component.\n' +
+					'Please make sure that Astro.cookies.set() is only called in the frontmatter of the main page.'
+			);
+			warning.name = 'Warning';
+			// eslint-disable-next-line no-console
+			console.warn(warning);
+		}
 		let serializedValue: string;
 		if (typeof value === 'string') {
 			serializedValue = value;
@@ -191,6 +203,15 @@ class AstroCookies implements AstroCookiesInterface {
 		for (const [, value] of this.#outgoing) {
 			yield value[1];
 		}
+	}
+
+	/**
+	 * Behaves the same as AstroCookies.prototype.headers(),
+	 * but allows a warning when cookies are set after the instance is consumed.
+	 */
+	static consume(cookies: AstroCookies): Generator<string, void, unknown> {
+		cookies.#consumed = true;
+		return cookies.headers();
 	}
 
 	#ensureParsed(options: AstroCookieGetOptions | undefined = undefined): Record<string, string> {

@@ -163,9 +163,9 @@ async function run() {
 	}
 	const content = await generateMessage();
 
-	await fetch(JSON.stringify({ content }), {
-		url: `${process.env.DISCORD_WEBHOOK}?wait=true`,
+	await fetch(`${process.env.DISCORD_WEBHOOK}?wait=true`, {
 		method: 'POST',
+		body: JSON.stringify({ content }),
 		headers: {
 			'content-type': 'application/json',
 		},

@@ -932,6 +932,13 @@ test.describe('View Transitions', () => {
 		).toEqual(1);
 	});
 
+	test('form POST that action for cross-origin is opt-out', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/form-five'));
+		page.on('request', (request) => expect(request.method()).toBe('POST'));
+		// Submit the form
+		await page.click('#submit');
+	});
+
 	test('form GET that redirects to another page is handled', async ({ page, astro }) => {
 		const loads = [];
 		page.addListener('load', async (p) => {
@@ -1203,6 +1210,20 @@ test.describe('View Transitions', () => {
 		await page.click('#click-404');
 		p = page.locator('#FourOhFour');
 		await expect(p, 'should have content').toHaveText('Page not found');
+
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
+	test('custom elements can trigger a view transition', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+		await page.goto(astro.resolveUrl('/one'));
+		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
+		// go to page 2
+		await page.click('#custom-click-two');
+		await expect(page.locator('#two'), 'should have content').toHaveText('Page 2');
 
 		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});

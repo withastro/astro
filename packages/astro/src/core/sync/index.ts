@@ -81,7 +81,7 @@ export async function syncInternal(
 	const tempViteServer = await createServer(
 		await createVite(
 			{
-				server: { middlewareMode: true, hmr: false, watch: { ignored: ['**'] } },
+				server: { middlewareMode: true, hmr: false, watch: null },
 				optimizeDeps: { disabled: true },
 				ssr: { external: [] },
 				logLevel: 'silent',
