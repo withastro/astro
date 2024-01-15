@@ -312,7 +312,7 @@ function onPageLoad(cb: () => void) {
 }
 
 /**
- * Appends a `<script type="speculationRules">` tag to the head of the
+ * Appends a `<script type="speculationrules">` tag to the head of the
  * document that prerenders the `url` passed in.
  *
  * Modifying the script and appending a new link does not trigger the prerender.
