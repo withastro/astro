@@ -163,28 +163,28 @@ export const AstroConfigSchema = z.object({
 	redirects: z
 		.record(
 			z.string(),
-			z.union([
-				z.string(),
-				z.object({
-					status: z.union([
-						z.literal(300),
-						z.literal(301),
-						z.literal(302),
-						z.literal(303),
-						z.literal(304),
-						z.literal(307),
-						z.literal(308),
-					]),
-					destination: z.string(),
-					priority: z.enum(['normal', 'legacy'])
-						.default('normal'),
-				}),
-			])
-				.transform(redirect => (
+			z
+				.union([
+					z.string(),
+					z.object({
+						status: z.union([
+							z.literal(300),
+							z.literal(301),
+							z.literal(302),
+							z.literal(303),
+							z.literal(304),
+							z.literal(307),
+							z.literal(308),
+						]),
+						destination: z.string(),
+						priority: z.enum(['normal', 'legacy']).default('legacy'),
+					}),
+				])
+				.transform((redirect) =>
 					typeof redirect === 'string'
-						? {destination: redirect, priority: 'normal' as const}
+						? { destination: redirect, priority: 'normal' as const }
 						: redirect
-				))
+				)
 		)
 		.default(ASTRO_CONFIG_DEFAULTS.redirects),
 	prefetch: z
