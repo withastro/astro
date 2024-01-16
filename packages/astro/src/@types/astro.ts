@@ -1575,21 +1575,21 @@ export interface AstroUserConfig {
 		 * @version 4.2.0
 		 * @description
 		 *
-		 * Prioritize redirects and injected routes along with discovered file-based project routes, behaving the same as if all routes were defined as files in the project.
+		 * Prioritizes redirects and injected routes equally alongside file-based project routes, following the same [route priority order rules](https://docs.astro.build/en/core-concepts/routing/#route-priority-order) for all routes.
 		 *
-		 * For the following scenario in SSR mode:
+		 * The following table shows which route builds certain page URLs when file-based routes, injected routes, and redirects are combined as shown below:
 		 * - File-based route: `/blog/post/[pid]`
 		 * - File-based route: `/[page]`
 		 * - Injected route: `/blog/[...slug]`
 		 * - Redirect: `/blog/tags/[tag]` -> `/[tag]`
 		 * - Redirect: `/posts` -> `/blog`
 		 *
-		 * URLs are handled with the following routes:
+		 * URLs are handled by the following routes:
 		 *
 		 * | Page               | Current Behavior                 | Global Routing Priority Behavior   |
 		 * | ------------------ | -------------------------------- | ---------------------------------- |
 		 * | `/blog/tags/astro` | Injected route `/blog/[...slug]` | Redirect to `/tags/[tag]`          |
-		 * | `/blog/post/0`     | Injected route `/blog/[...slug]` | File-based route `/blog/post/[pid] |
+		 * | `/blog/post/0`     | Injected route `/blog/[...slug]` | File-based route `/blog/post/[pid]` |
 		 * | `/posts`           | File-based route `/[page]`       | Redirect to `/blog`                |
 		 */
 		globalRoutePriority?: boolean;

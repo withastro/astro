@@ -2,14 +2,15 @@
 "astro": patch
 ---
 
-Fix inconsistency between route priorities of file routes, redirects and injected routes
+Updates [Astro's routing priority rules](https://docs.astro.build/en/core-concepts/routing/#route-priority-order) to prioritize the most specifically-defined routes. 
+
+Now, routes with **more defined path segments** will take precedence over less-specific routes.
+
+For example, `/blog/posts/[pid].astro` (3 path segments) takes precedence over `/blog/[...slug].astro` (2 path segments). This means that:
+
+- `/pages/blog/posts/[id].astro` will build routes of the form `/blog/posts/1` and `/blog/posts/a`
+- `/pages/blog/[...slug].astro` will build routes of a variety of forms, including `blog/1` and `/blog/posts/1/a`, but will not build either of the previous routes.
+
+For a complete list of Astro's routing priority rules, please see the [routing guide](https://docs.astro.build/en/core-concepts/routing/#route-priority-order).
 
 
-Now all groups are prioritized following the same rules:
-
-- Routes with more path segments will take precedence over less specific routes. E.g. `/blog/post/[pid].astro` takes precedence over `/blog/[...slug].astro`.
-- Static routes without path parameters will take precedence over dynamic routes. E.g. `/posts/create.astro` takes precedence over all the other routes in the example.
-- Dynamic routes using named parameters take precedence over rest parameters. E.g. `/posts/[page].astro` takes precedence over `/posts/[...slug].astro`.
-- Pre-rendered dynamic routes take precedence over server dynamic routes.
-- Endpoints take precedence over pages. E.g. `/posts/[pid].ts` takes precedence over `/posts/[pid].astro`.
-- If none of the rules above decide the order, routes are sorted alphabetically based on the default locale of your Node installation.
