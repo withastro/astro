@@ -10,32 +10,40 @@ import {
 } from './types.js';
 import { z } from 'zod';
 
-export const adjustedConfigSchema = z.object({
+export const dbConfigSchema = z.object({
+	studio: z.boolean().optional(),
 	collections: collectionsSchema.optional(),
 });
 
-export type DBUserConfig = z.input<typeof adjustedConfigSchema>;
+export type DBUserConfig = z.input<typeof dbConfigSchema>;
 
-export const astroConfigWithDBValidator = z.object({
-	db: adjustedConfigSchema.optional(),
+export const astroConfigWithDbSchema = z.object({
+	db: dbConfigSchema.optional(),
 });
 
-type CollectionConfig<TFields extends z.input<typeof collectionSchema>['fields'], Writable extends boolean> =
-	Writable extends true ? (
-		{
+type CollectionConfig<
+	TFields extends z.input<typeof collectionSchema>['fields'],
+	Writable extends boolean,
+> = Writable extends true
+	? {
 			fields: TFields;
 			// TODO: type inference based on field type. Just `any` for now.
-			seed?: Writable extends false ? never : () => Array<Record<keyof TFields, any> & { id?: string }>;
+			seed?: Writable extends false
+				? never
+				: () => Array<Record<keyof TFields, any> & { id?: string }>;
 		}
-	) : (
-		{
+	: {
 			fields: TFields;
 			// TODO: type inference based on field type. Just `any` for now.
-			data?: Writable extends true ? never : () => Array<Record<keyof TFields, any> & { id?: string }>;
-		}
-	)
+			data?: Writable extends true
+				? never
+				: () => Array<Record<keyof TFields, any> & { id?: string }>;
+		};
 
-type ResolvedCollectionConfig<TFields extends z.input<typeof collectionSchema>['fields'], Writable extends boolean> = CollectionConfig<TFields, Writable> & {
+type ResolvedCollectionConfig<
+	TFields extends z.input<typeof collectionSchema>['fields'],
+	Writable extends boolean,
+> = CollectionConfig<TFields, Writable> & {
 	writable: Writable;
 };
 
@@ -44,20 +52,20 @@ export function defineCollection<TFields extends z.input<typeof collectionSchema
 ): ResolvedCollectionConfig<TFields, false> {
 	return {
 		...userConfig,
-		writable: false
+		writable: false,
 	};
 }
 
-export function defineWritableCollection<TFields extends z.input<typeof collectionSchema>['fields']>(
-	userConfig: CollectionConfig<TFields, true>
-): ResolvedCollectionConfig<TFields, true> {
+export function defineWritableCollection<
+	TFields extends z.input<typeof collectionSchema>['fields'],
+>(userConfig: CollectionConfig<TFields, true>): ResolvedCollectionConfig<TFields, true> {
 	return {
 		...userConfig,
-		writable: true
+		writable: true,
 	};
 }
 
-export type AstroConfigWithDB = z.infer<typeof astroConfigWithDBValidator>;
+export type AstroConfigWithDB = z.infer<typeof astroConfigWithDbSchema>;
 
 type FieldOpts<T extends DBFieldInput> = Omit<T, 'type'>;
 
