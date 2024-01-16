@@ -1,11 +1,10 @@
 import { defineConfig } from 'astro/config';
-import db, { defineCollection, field } from '@astrojs/db';
+import db, { defineCollection, defineWritableCollection, field } from '@astrojs/db';
 
 const Author = defineCollection({
 	fields: {
 		name: field.text(),
 	},
-	source: 'readable',
 	data() {
 		return [
 			{
@@ -27,11 +26,10 @@ const Author = defineCollection({
 	}
 });
 
-const Themes = defineCollection({
+const Themes = defineWritableCollection({
 	fields: {
 		name: field.text(),
 	},
-	source: 'writable',
 	data() {
 		return [
 			{

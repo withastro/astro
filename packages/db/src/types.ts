@@ -50,15 +50,25 @@ const fieldSchema = z.union([
 ]);
 const fieldsSchema = z.record(fieldSchema);
 
-export const collectionSchema = z.object({
+export const readableCollectionSchema = z.object({
 	fields: fieldsSchema,
 	data: z
 		.function()
 		.returns(z.array(z.record(z.unknown())))
 		.optional(),
-	source: z.enum(['readable', 'writable'])
+	writable: z.literal(false)
 });
 
+export const writableCollectionSchema = z.object({
+	fields: fieldsSchema,
+	seed: z
+		.function()
+		.returns(z.array(z.record(z.unknown())))
+		.optional(),
+	writable: z.literal(true)
+});
+
+export const collectionSchema = z.union([readableCollectionSchema, writableCollectionSchema]);
 export const collectionsSchema = z.record(collectionSchema);
 
 export type BooleanField = z.infer<typeof booleanFieldSchema>;
@@ -79,8 +89,10 @@ export type FieldType =
 export type DBField = z.infer<typeof fieldSchema>;
 export type DBFieldInput = DateFieldInput | BooleanField | NumberField | TextField | JsonField;
 export type DBFields = z.infer<typeof fieldsSchema>;
-export type DBCollection = z.infer<typeof collectionSchema>;
+export type DBCollection = z.infer<typeof readableCollectionSchema | typeof writableCollectionSchema>;
 export type DBCollections = Record<string, DBCollection>;
+export type ReadableDBCollection = z.infer<typeof readableCollectionSchema>;
+export type WritableDBCollection = z.infer<typeof writableCollectionSchema>;
 
 export type AstroTable<T extends Pick<TableConfig, 'name' | 'columns'>> = SQLiteTableWithColumns<
 	T & {
