@@ -1,4 +1,3 @@
-
 import { readFileSync } from 'node:fs';
 
 export const PACKAGE_NAME = JSON.parse(
@@ -13,6 +12,6 @@ export const DB_TYPES_FILE = 'db-types.d.ts';
 export const VIRTUAL_MODULE_ID = 'astro:db';
 
 // TODO: copy DB to build for serverless
-export function getDbUrl(root: URL) {
+export function getLocalDbUrl(root: URL) {
 	return new URL('.astro/content.db', root);
 }

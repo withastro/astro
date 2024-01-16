@@ -1,17 +1,22 @@
-import { existsSync } from 'node:fs';
-import { DRIZZLE_MOD_IMPORT, INTERNAL_MOD_IMPORT, VIRTUAL_MODULE_ID, getDbUrl } from './consts.js';
+import { DRIZZLE_MOD_IMPORT, INTERNAL_MOD_IMPORT, VIRTUAL_MODULE_ID } from './consts.js';
 import type { DBCollections } from './types.js';
-import type { Plugin as VitePlugin } from 'vite';
+import type { VitePlugin } from './utils.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
-export function vitePluginDb({
-	collections,
-	root,
-}: {
-	collections: DBCollections;
-	root: URL;
-}): VitePlugin {
+export function vitePluginDb(
+	params:
+		| {
+				connectToStudio: false;
+				collections: DBCollections;
+				dbUrl: string;
+		  }
+		| {
+				connectToStudio: true;
+				collections: DBCollections;
+				appToken: string;
+		  }
+): VitePlugin {
 	return {
 		name: 'astro:db',
 		enforce: 'pre',
@@ -22,19 +27,22 @@ export function vitePluginDb({
 		},
 		load(id) {
 			if (id !== resolvedVirtualModuleId) return;
-			return getVirtualModContents({ collections, root });
+
+			if (params.connectToStudio) {
+				return getStudioVirtualModContents(params);
+			}
+			return getVirtualModContents(params);
 		},
 	};
 }
 
 export function getVirtualModContents({
 	collections,
-	root,
+	dbUrl,
 }: {
 	collections: DBCollections;
-	root: URL;
+	dbUrl: string;
 }) {
-	const dbUrl = getDbUrl(root).href;
 	return `
 import { collectionToTable, createDb } from ${INTERNAL_MOD_IMPORT};
 
@@ -43,10 +51,30 @@ export const db = await createDb(${JSON.stringify({
 		dbUrl,
 		seeding: false,
 	})});
+
 export * from ${DRIZZLE_MOD_IMPORT};
 
 ${getStringifiedCollectionExports(collections)}
 `;
+}
+
+export function getStudioVirtualModContents({
+	collections,
+	appToken,
+}: {
+	collections: DBCollections;
+	appToken: string;
+}) {
+	return `
+import {collectionToTable, createStudioDb} from ${INTERNAL_MOD_IMPORT};
+
+export const db = await createStudioDb(${JSON.stringify({
+		appToken,
+	})});
+export * from ${DRIZZLE_MOD_IMPORT};
+
+${getStringifiedCollectionExports(collections)}
+	`;
 }
 
 function getStringifiedCollectionExports(collections: DBCollections) {
