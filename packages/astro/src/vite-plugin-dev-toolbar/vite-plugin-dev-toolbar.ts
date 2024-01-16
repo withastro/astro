@@ -25,18 +25,9 @@ export default function astroDevToolbar({ settings }: AstroPluginOptions): vite.
 				return `
 					export const loadDevToolbarApps = async () => {
 						return [${settings.devToolbarApps
-							.map((plugin) => `await safeLoadPlugin(${JSON.stringify(plugin)})`)
-							.join(',')}].filter(app => app !== undefined));
+							.map((plugin) => `(await import(${JSON.stringify(plugin)})).default`)
+							.join(',')}];
 					};
-
-					async function safeLoadPlugin(entrypoint) {
-						try {
-							return (await import(entrypoint)).default;
-						} catch (err) {
-							console.error("Failed to load dev toolbar app from", entrypoint, err);
-							return undefined;
-						}
-					}
 				`;
 			}
 		},
