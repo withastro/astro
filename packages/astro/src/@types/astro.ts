@@ -1591,6 +1591,9 @@ export interface AstroUserConfig {
 		 * | `/blog/tags/astro` | Injected route `/blog/[...slug]` | Redirect to `/tags/[tag]`           |
 		 * | `/blog/post/0`     | Injected route `/blog/[...slug]` | File-based route `/blog/post/[pid]` |
 		 * | `/posts`           | File-based route `/[page]`       | Redirect to `/blog`                 |
+		 *
+		 *
+		 * In the event of route collisions, where two routes of equal route priority attempt to build the same URL, Astro will log a warning identifying the conflicting routes.
 		 */
 		globalRoutePriority?: boolean;
 	};
