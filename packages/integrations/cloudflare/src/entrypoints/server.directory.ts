@@ -50,7 +50,7 @@ export function createExports(manifest: SSRManifest) {
 			},
 		};
 
-		const response = await app.render(request, routeData, locals);
+		const response = await app.render(request, { routeData, locals });
 
 		if (app.setCookieHeaders) {
 			for (const setCookieHeader of app.setCookieHeaders(response)) {
