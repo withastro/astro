@@ -6,11 +6,11 @@ Adds an experimental flag `stableRoutePriority` to make all routes be prioritize
 
 ```js
 // astro.config.mjs
-{
+export default defineConfig({
   experimental: {
-    stableRoutePriority: true,
+    globalRoutePriority: true,
   },
-}
+})
 ```
 
 Enabling this feature makes redirects and injected routes be prioritized along with discovered file-based project
@@ -26,7 +26,7 @@ For the following scenario in SSR mode:
 
 URLs are handled with the following routes:
 
-| Page               | Current Behavior                 | Stable Routing Priority Behavior   |
+| Page               | Current Behavior                 | Global Routing Priority Behavior   |
 |--------------------|----------------------------------|------------------------------------|
 | `/blog/tags/astro` | Injected route `/blog/[...slug]` | Redirect to `/tags/[tag]`          |
 | `/blog/post/0`     | Injected route `/blog/[...slug]` | File-based route `/blog/post/[pid] |
