@@ -4,8 +4,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold, cyan } from 'kleur/colors';
 import { normalizePath } from 'vite';
-import type { Plugin as VitePlugin } from 'vite';
 import { DB_TYPES_FILE } from './consts.js';
+import type { VitePlugin } from './utils.js';
 
 export function vitePluginInjectEnvTs({ srcDir, root }: { srcDir: URL; root: URL }): VitePlugin {
 	return {

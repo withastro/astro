@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { red } from 'kleur/colors';
-import { astroConfigWithDBValidator } from '../config.js';
+import { astroConfigWithDbSchema } from '../config.js';
 import { errorMap } from '../error-map.js';
 import { loadAstroConfig } from '../load-astro-config.js';
 
@@ -26,14 +26,14 @@ async function main() {
 
 async function getAstroConfigOrExit(root: string = process.cwd()) {
 	const astroConfig = await loadAstroConfig(root);
-	const parsed = astroConfigWithDBValidator.safeParse(astroConfig, { errorMap });
+	const parsed = astroConfigWithDbSchema.safeParse(astroConfig, { errorMap });
 	if (parsed.success) {
 		return parsed.data;
 	}
 	// eslint-disable-next-line no-console
 	console.error(
 		red('⚠️ Invalid studio config. Check your astro config file\n') +
-			parsed.error.issues.map((i) => i.message).join('\n'),
+			parsed.error.issues.map((i) => i.message).join('\n')
 	);
 	process.exit(0);
 }
