@@ -1,14 +1,15 @@
-import type { HmrContext, ModuleNode } from 'vite';
+import path from 'node:path';
+import { appendForwardSlash } from '@astrojs/internal-helpers/path';
+import type { HmrContext } from 'vite';
 import type { AstroConfig } from '../@types/astro.js';
 import type { cachedCompilation } from '../core/compile/index.js';
 import { invalidateCompilation, isCached, type CompileResult } from '../core/compile/index.js';
 import type { Logger } from '../core/logger/core.js';
-import { isAstroSrcFile } from '../core/logger/vite.js';
-import { isAstroScript } from './query.js';
 
 export interface HandleHotUpdateOptions {
 	config: AstroConfig;
 	logger: Logger;
+	astroFileToCssAstroDeps: Map<string, Set<string>>;
 
 	compile: () => ReturnType<typeof cachedCompilation>;
 	source: string;
@@ -16,7 +17,7 @@ export interface HandleHotUpdateOptions {
 
 export async function handleHotUpdate(
 	ctx: HmrContext,
-	{ config, logger, compile, source }: HandleHotUpdateOptions
+	{ config, logger, astroFileToCssAstroDeps, compile, source }: HandleHotUpdateOptions
 ) {
 	let isStyleOnlyChange = false;
 	if (ctx.file.endsWith('.astro') && isCached(config, ctx.file)) {
@@ -34,75 +35,45 @@ export async function handleHotUpdate(
 		invalidateCompilation(config, ctx.file);
 	}
 
-	// Skip monorepo files to avoid console spam
-	if (isAstroSrcFile(ctx.file)) {
-		return;
-	}
-
-	// go through each of these modules importers and invalidate any .astro compilation
-	// that needs to be rerun.
-	const filtered = new Set<ModuleNode>(ctx.modules);
-	const files = new Set<string>();
-	for (const mod of ctx.modules) {
-		// Skip monorepo files to avoid console spam
-		if (isAstroSrcFile(mod.id ?? mod.file)) {
-			filtered.delete(mod);
-			continue;
-		}
-
-		if (mod.file && isCached(config, mod.file)) {
-			filtered.add(mod);
-			files.add(mod.file);
-		}
-
-		for (const imp of mod.importers) {
-			if (imp.file && isCached(config, imp.file)) {
-				filtered.add(imp);
-				files.add(imp.file);
-			}
-		}
-	}
-
-	// Invalidate happens as a separate step because a single .astro file
-	// produces multiple CSS modules and we want to return all of those.
-	for (const file of files) {
-		if (isStyleOnlyChange && file === ctx.file) continue;
-		invalidateCompilation(config, file);
-		// If `ctx.file` is depended by an .astro file, e.g. via `this.addWatchFile`,
-		// Vite doesn't trigger updating that .astro file by default. See:
-		// https://github.com/vitejs/vite/issues/3216
-		// For now, we trigger the change manually here.
-		if (file.endsWith('.astro')) {
-			ctx.server.moduleGraph.onFileChange(file);
-		}
-	}
-
-	// Bugfix: sometimes style URLs get normalized and end with `lang.css=`
-	// These will cause full reloads, so filter them out here
-	const mods = [...filtered].filter((m) => !m.url.endsWith('='));
-
-	// If only styles are changed, remove the component file from the update list
 	if (isStyleOnlyChange) {
 		logger.debug('watch', 'style-only change');
 		// Only return the Astro styles that have changed!
-		return mods.filter((mod) => mod.id?.includes('astro&type=style'));
+		return ctx.modules.filter((mod) => mod.id?.includes('astro&type=style'));
 	}
 
-	// Add hoisted scripts so these get invalidated
-	for (const mod of mods) {
-		for (const imp of mod.importedModules) {
-			if (imp.id && isAstroScript(imp.id)) {
-				mods.push(imp);
+	// Edge case handling usually caused by Tailwind creating circular dependencies
+	//
+	// TODO: we can also workaround this with better CSS dependency management for Astro files,
+	// so that changes within style tags are scoped to itself. But it'll take a bit of work.
+	// https://github.com/withastro/astro/issues/9370#issuecomment-1850160421
+	for (const [astroFile, cssAstroDeps] of astroFileToCssAstroDeps) {
+		// If the `astroFile` has a CSS dependency on `ctx.file`, there's a good chance this causes a
+		// circular dependency, which Vite doesn't issue a full page reload. Workaround it by forcing a
+		// full page reload ourselves. (Vite bug)
+		// https://github.com/vitejs/vite/pull/15585
+		if (cssAstroDeps.has(ctx.file)) {
+			// Mimic the HMR log as if this file is updated
+			logger.info('watch', getShortName(ctx.file, ctx.server.config.root));
+			// Invalidate the modules of `astroFile` explicitly as Vite may incorrectly soft-invalidate
+			// the parent if the parent actually imported `ctx.file`, but `this.addWatchFile` was also called
+			// on `ctx.file`. Vite should do a hard-invalidation instead. (Vite bug)
+			const parentModules = ctx.server.moduleGraph.getModulesByFile(astroFile);
+			if (parentModules) {
+				for (const mod of parentModules) {
+					ctx.server.moduleGraph.invalidateModule(mod);
+				}
 			}
+			ctx.server.ws.send({ type: 'full-reload', path: '*' });
 		}
 	}
-
-	return mods;
 }
 
 function isStyleOnlyChanged(oldResult: CompileResult, newResult: CompileResult) {
 	return (
 		normalizeCode(oldResult.code) === normalizeCode(newResult.code) &&
+		// If style tags are added/removed, we need to regenerate the main Astro file
+		// so that its CSS imports are also added/removed
+		oldResult.css.length === newResult.css.length &&
 		!isArrayEqual(oldResult.css, newResult.css)
 	);
 }
@@ -128,4 +99,8 @@ function isArrayEqual(a: any[], b: any[]) {
 		}
 	}
 	return true;
+}
+
+function getShortName(file: string, root: string): string {
+	return file.startsWith(appendForwardSlash(root)) ? path.posix.relative(root, file) : file;
 }
