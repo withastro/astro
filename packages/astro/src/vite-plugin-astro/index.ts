@@ -168,8 +168,8 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			};
 
 			// We invalidate and then compile again as we know Vite will only call this `transform`
-			// is the cache its cache is invalidated.
-			// TODO: Do the compilation directly.
+			// when its cache is invalidated.
+			// TODO: Do the compilation directly and remove our cache so we rely on Vite only.
 			invalidateCompilation(config, compileProps.filename);
 			const transformResult = await cachedFullCompilation({ compileProps, logger });
 
