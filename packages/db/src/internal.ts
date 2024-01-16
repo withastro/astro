@@ -1,7 +1,8 @@
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
 import { createClient } from '@libsql/client';
 import {
-	collectionSchema,
+	type ReadableDBCollection,
+	type WritableDBCollection,
 	type BooleanField,
 	type DBCollection,
 	type DBCollections,
@@ -40,11 +41,15 @@ export type {
 
 const sqlite = new SQLiteAsyncDialect();
 
+function isReadableCollection(collection: DBCollection): collection is ReadableDBCollection {
+	return !collection.writable;
+}
+
 function checkIfModificationIsAllowed(collections: DBCollections, Table: SQLiteTable) {
 	// This totally works, don't worry about it
 	const tableName = (Table as any)[(SQLiteTable as any).Symbol.Name];
 	const collection = collections[tableName];
-	if(collection.source === 'readable') {
+	if(collection.writable) {
 		throw new Error(`The [${tableName}] collection is read-only.`);
 	}
 }
@@ -100,7 +105,7 @@ export async function setupDbTables({
 		await db.run(q);
 	}
 	for (const [name, collection] of Object.entries(collections)) {
-		if (!collection.data) continue;
+		if (!isReadableCollection(collection) || !collection.data) continue;
 
 		const table = collectionToTable(name, collection);
 		try {
