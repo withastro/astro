@@ -1586,11 +1586,11 @@ export interface AstroUserConfig {
 		 *
 		 * URLs are handled by the following routes:
 		 *
-		 * | Page               | Current Behavior                 | Global Routing Priority Behavior   |
-		 * | ------------------ | -------------------------------- | ---------------------------------- |
-		 * | `/blog/tags/astro` | Injected route `/blog/[...slug]` | Redirect to `/tags/[tag]`          |
+		 * | Page               | Current Behavior                 | Global Routing Priority Behavior    |
+		 * | ------------------ | -------------------------------- | ----------------------------------- |
+		 * | `/blog/tags/astro` | Injected route `/blog/[...slug]` | Redirect to `/tags/[tag]`           |
 		 * | `/blog/post/0`     | Injected route `/blog/[...slug]` | File-based route `/blog/post/[pid]` |
-		 * | `/posts`           | File-based route `/[page]`       | Redirect to `/blog`                |
+		 * | `/posts`           | File-based route `/[page]`       | Redirect to `/blog`                 |
 		 */
 		globalRoutePriority?: boolean;
 	};
