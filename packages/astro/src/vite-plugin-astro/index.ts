@@ -32,7 +32,9 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 	// Tailwind styles could register Astro files as dependencies of other Astro files,
 	// causing circular imports which trips Vite's HMR. This set is passed to `handleHotUpdate`
 	// to force a page reload when these dependency files are updated
-	let astroFileToCssAstroDeps: Map<string, Set<string>>;
+	// NOTE: We need to initialize a map here and in `buildStart` because our unit tests don't
+	// call `buildStart` (test bug)
+	let astroFileToCssAstroDeps = new Map<string, Set<string>>();
 
 	// Variables for determining if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);

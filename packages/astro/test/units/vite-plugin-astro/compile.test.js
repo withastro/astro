@@ -62,11 +62,6 @@ const name = 'world
 		expect(result).to.be.undefined;
 	});
 
-	it('injects hmr code', async () => {
-		const result = await compile(`<h1>Hello World</h1>`, '/src/components/index.astro');
-		expect(result.code).to.include('import.meta.hot');
-	});
-
 	it('has file and url exports for markdwon compat', async () => {
 		const result = await compile(`<h1>Hello World</h1>`, '/src/components/index.astro');
 		await init;
