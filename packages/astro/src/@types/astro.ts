@@ -1622,7 +1622,7 @@ export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 
  * - "normal": Merge with discovered file-based project routes, behaving the same as if the route
  *   was defined as a file in the project.
  * - "legacy": Use the old ordering of routes. Inject routes will override any file-based project route,
- *   and redirects will be overriden by any project route on conflict.
+ *   and redirects will be overridden by any project route on conflict.
  */
 export type RoutePriorityOverride = 'normal' | 'legacy';
 
