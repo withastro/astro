@@ -13,7 +13,7 @@ export default defineConfig({
 })
 ```
 
-Enabling this feature ensures that all routes in your project follow the same, predictable route priority order rules. In particular, this avoids an issue where redirects or injected routes (e.g. from an integration) would always take precedence over locally-defined route definitions, making it impossible to override some routes locally.
+Enabling this feature ensures that all routes in your project follow the same, predictable route priority order rules. In particular, this avoids an issue where redirects or injected routes (e.g. from an integration) would always take precedence over local route definitions, making it impossible to override some routes locally.
 
 The following table shows which route builds certain page URLs when file-based routes, injected routes, and redirects are combined as shown below:
 
