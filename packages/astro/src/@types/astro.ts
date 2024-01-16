@@ -1569,12 +1569,12 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.stableRoutingPriority
+		 * @name experimental.globalRoutePriority
 		 * @type {boolean}
 		 * @default `false`
 		 * @version 4.2.0
 		 * @description
-		 * 
+		 *
 		 * Prioritize redirects and injected routes along with discovered file-based project routes, behaving the same as if all routes were defined as files in the project.
 		 *
 		 * For the following scenario in SSR mode:
@@ -1583,16 +1583,16 @@ export interface AstroUserConfig {
 		 * - Injected route: `/blog/[...slug]`
 		 * - Redirect: `/blog/tags/[tag]` -> `/[tag]`
 		 * - Redirect: `/posts` -> `/blog`
-		 * 
+		 *
 		 * URLs are handled with the following routes:
-		 * 
+		 *
 		 * | Page               | Current Behavior                 | Stable Routing Priority Behavior   |
 		 * | ------------------ | -------------------------------- | ---------------------------------- |
 		 * | `/blog/tags/astro` | Injected route `/blog/[...slug]` | Redirect to `/tags/[tag]`          |
 		 * | `/blog/post/0`     | Injected route `/blog/[...slug]` | File-based route `/blog/post/[pid] |
 		 * | `/posts`           | File-based route `/[page]`       | Redirect to `/blog`                |
 		 */
-		stableRoutingPriority?: boolean;
+		globalRoutePriority?: boolean;
 	};
 }
 
