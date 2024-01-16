@@ -62,7 +62,7 @@ describe('routing - createRouteManifest', () => {
 			base: '/search',
 			trailingSlash: 'never',
 			experimental: {
-				stableRoutingPriority: true,
+				globalRoutingPriority: true,
 			},
 		});
 
@@ -177,7 +177,7 @@ describe('routing - createRouteManifest', () => {
 				},
 			],
 			experimental: {
-				stableRoutingPriority: true,
+				globalRoutingPriority: true,
 			},
 		});
 
@@ -290,7 +290,7 @@ describe('routing - createRouteManifest', () => {
 				},
 			},
 			experimental: {
-				stableRoutingPriority: true,
+				globalRoutingPriority: true,
 			},
 		});
 		const manifest = createRouteManifest({
@@ -333,7 +333,7 @@ describe('routing - createRouteManifest', () => {
 			trailingSlash: 'never',
 			integrations: [],
 			experimental: {
-				stableRoutingPriority: true,
+				globalRoutingPriority: true,
 			}
 		});
 
@@ -385,7 +385,7 @@ describe('routing - createRouteManifest', () => {
 			trailingSlash: 'never',
 			integrations: [],
 			experimental: {
-				stableRoutingPriority: true,
+				globalRoutingPriority: true,
 			}
 		});
 
