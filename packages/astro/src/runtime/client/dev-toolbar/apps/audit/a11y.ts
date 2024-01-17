@@ -358,13 +358,72 @@ export const a11y: AuditRuleWithSelector[] = [
 	},
 	{
 		code: 'a11y-missing-content',
-		title: 'Missing content on element important for accessibility',
-		message: 'Headings and anchors must have content to be accessible.',
+		title: 'Missing content',
+		message:
+			'Headings and anchors must have an accessible name, which can come from: inner text, aria-label, aria-labelledby, an img with alt property, or an svg with a tag <title></title>.',
 		selector: a11y_required_content.join(','),
 		match(element: HTMLElement) {
 			// innerText is used to ignore hidden text
 			const innerText = element.innerText.trim();
-			if (innerText === '') return true;
+			if (innerText !== '') return false;
+
+			// Check for aria-label
+			const ariaLabel = element.getAttribute('aria-label')?.trim();
+			if (ariaLabel && ariaLabel !== '') return false;
+
+			// Check for valid aria-labelledby
+			const ariaLabelledby = element.getAttribute('aria-labelledby')?.trim();
+			if (ariaLabelledby) {
+				const ids = ariaLabelledby.split(' ');
+				for (const id of ids) {
+					const referencedElement = document.getElementById(id);
+					if (referencedElement && referencedElement.innerText.trim() !== '') return false;
+				}
+			}
+
+			// Check for <img> with valid alt attribute
+			const imgElements = element.querySelectorAll('img');
+			for (const img of imgElements) {
+				const altAttribute = img.getAttribute('alt');
+				if (altAttribute && altAttribute.trim() !== '') return false;
+			}
+
+			// Check for <svg> with valid title
+			const svgElements = element.querySelectorAll('svg');
+			for (const svg of svgElements) {
+				const titleText = svg.querySelector('title');
+				if (titleText && titleText.textContent && titleText.textContent.trim() !== '') return false;
+			}
+
+			const inputElements = element.querySelectorAll('input');
+			for (const input of inputElements) {
+					// Check for alt attribute if input type is image
+					if (input.type === 'image') {
+							const altAttribute = input.getAttribute('alt');
+							if (altAttribute && altAttribute.trim() !== '') return false;
+					}
+			
+					// Check for aria-label
+					const inputAriaLabel = input.getAttribute('aria-label')?.trim();
+					if (inputAriaLabel && inputAriaLabel !== '') return false;
+			
+					// Check for aria-labelledby
+					const inputAriaLabelledby = input.getAttribute('aria-labelledby')?.trim();
+					if (inputAriaLabelledby) {
+							const ids = inputAriaLabelledby.split(' ');
+							for (const id of ids) {
+									const referencedElement = document.getElementById(id);
+									if (referencedElement && referencedElement.innerText.trim() !== '') return false;
+							}
+					}
+					
+					// Check for title
+					const title = input.getAttribute('title')?.trim();
+					if (title && title !== '') return false;
+			}
+
+			// If all checks fail, return true indicating missing content
+			return true;
 		},
 	},
 	{

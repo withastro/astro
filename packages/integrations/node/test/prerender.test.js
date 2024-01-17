@@ -18,7 +18,6 @@ describe('Prerendering', () => {
 
 	describe('With base', async () => {
 		before(async () => {
-			process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 			process.env.PRERENDER = true;
 
 			fixture = await loadFixture({
@@ -86,7 +85,6 @@ describe('Prerendering', () => {
 
 	describe('Without base', async () => {
 		before(async () => {
-			process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 			process.env.PRERENDER = true;
 
 			fixture = await loadFixture({
@@ -151,7 +149,6 @@ describe('Hybrid rendering', () => {
 
 	describe('With base', async () => {
 		before(async () => {
-			process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 			process.env.PRERENDER = false;
 			fixture = await loadFixture({
 				base: '/some-base',
@@ -217,7 +214,6 @@ describe('Hybrid rendering', () => {
 
 	describe('Without base', async () => {
 		before(async () => {
-			process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 			process.env.PRERENDER = false;
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
