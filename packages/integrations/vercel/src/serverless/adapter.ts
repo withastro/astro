@@ -438,15 +438,18 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 				`\tYour project will use Node.js 18 as the runtime instead.\n` +
 				`\tConsider switching your local version to 18.\n`
 		);
+		return 'nodejs18.x';
 	}
 	if (support.status === 'current') {
 		return `nodejs${major}.x`;
-	} else if (support?.status === 'beta') {
+	}
+	if (support.status === 'beta') {
 		logger.warn(
 			`Your project is being built for Node.js ${major} as the runtime, which is currently in beta for Vercel Serverless Functions.`
 		);
 		return `nodejs${major}.x`;
-	} else if (support.status === 'deprecated') {
+	}
+	if (support.status === 'deprecated') {
 		const removeDate = new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(
 			support.removal
 		);
@@ -458,11 +461,5 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 		);
 		return `nodejs${major}.x`;
 	}
-	logger.warn(
-		`\n` +
-			`\tThe local Node.js version (${major}) is not supported by Vercel Serverless Functions.\n` +
-			`\tYour project will use Node.js 18 as the runtime instead.\n` +
-			`\tConsider switching your local version to 18.\n`
-	);
 	return 'nodejs18.x';
 }

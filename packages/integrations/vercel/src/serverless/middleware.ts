@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { ASTRO_LOCALS_HEADER } from './adapter.js';
+import { builtinModules } from 'node:module';
 
 /**
  * It generates the Vercel Edge Middleware file.
@@ -36,6 +36,13 @@ export async function generateEdgeMiddleware(
 		format: 'esm',
 		bundle: true,
 		minify: false,
+		plugins: [{
+			name: 'esbuild-namespace-node-built-in-modules',
+			setup(build) {
+				const filter = new RegExp(builtinModules.map((mod) => `(^${mod}$)`).join('|'));
+				build.onResolve({ filter }, (args) => ({ path: 'node:' + args.path, external: true }));
+			},
+		}]
 	});
 	return pathToFileURL(bundledFilePath);
 }
