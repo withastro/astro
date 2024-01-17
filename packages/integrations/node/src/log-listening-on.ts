@@ -1,20 +1,24 @@
-import os from "node:os";
-import type http from "node:http";
-import https from "node:https";
-import type { AstroIntegrationLogger } from "astro";
+import os from 'node:os';
+import type http from 'node:http';
+import https from 'node:https';
+import type { AstroIntegrationLogger } from 'astro';
 import type { Options } from './types.js';
-import type { AddressInfo } from "node:net";
+import type { AddressInfo } from 'node:net';
 
-export async function logListeningOn(logger: AstroIntegrationLogger, server: http.Server | https.Server, options: Pick<Options, "host">) {
-	await new Promise<void>(resolve => server.once('listening', resolve)) 
-    const protocol = server instanceof https.Server ? 'https' : 'http';
-    // Allow to provide host value at runtime
+export async function logListeningOn(
+	logger: AstroIntegrationLogger,
+	server: http.Server | https.Server,
+	options: Pick<Options, 'host'>
+) {
+	await new Promise<void>((resolve) => server.once('listening', resolve));
+	const protocol = server instanceof https.Server ? 'https' : 'http';
+	// Allow to provide host value at runtime
 	const host = getResolvedHostForHttpServer(
 		process.env.HOST !== undefined && process.env.HOST !== '' ? process.env.HOST : options.host
 	);
-    const { port } = server.address() as AddressInfo;
+	const { port } = server.address() as AddressInfo;
 	const address = getNetworkAddress(protocol, host, port);
-    
+
 	if (host === undefined) {
 		logger.info(
 			`Server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}\n`

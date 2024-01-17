@@ -33,11 +33,7 @@ export class NodeApp extends App {
 	 * @deprecated Instead of passing `RouteData` and locals individually, pass an object with `routeData` and `locals` properties.
 	 * See https://github.com/withastro/astro/pull/9199 for more information.
 	 */
-	render(
-		request: NodeRequest | Request,
-		routeData?: RouteData,
-		locals?: object
-	): Promise<Response>;
+	render(request: NodeRequest | Request, routeData?: RouteData, locals?: object): Promise<Response>;
 	render(
 		req: NodeRequest | Request,
 		routeDataOrOptions?: RouteData | RenderOptions,
@@ -55,26 +51,24 @@ export class NodeApp extends App {
 	 * ```js
 	 * import { NodeApp } from 'astro/app/node';
 	 * import { createServer } from 'node:http';
-	 * 
+	 *
 	 * const server = createServer(async (req, res) => {
-     *     const request = NodeApp.createRequest(req);
-     *     const response = await app.render(request);
-     *     await NodeApp.writeResponse(response, res);
+	 *     const request = NodeApp.createRequest(req);
+	 *     const response = await app.render(request);
+	 *     await NodeApp.writeResponse(response, res);
 	 * })
 	 * ```
 	 */
-	static createRequest(
-		req: NodeRequest,
-		{ skipBody = false } = {}
-	): Request {
-		const protocol = req.headers['x-forwarded-proto'] ??
+	static createRequest(req: NodeRequest, { skipBody = false } = {}): Request {
+		const protocol =
+			req.headers['x-forwarded-proto'] ??
 			('encrypted' in req.socket && req.socket.encrypted ? 'https' : 'http');
 		const hostname = req.headers.host || req.headers[':authority'];
 		const url = `${protocol}://${hostname}${req.url}`;
 		const options: RequestInit = {
 			method: req.method || 'GET',
 			headers: makeRequestHeaders(req),
-		}
+		};
 		const bodyAllowed = options.method !== 'HEAD' && options.method !== 'GET' && skipBody === false;
 		if (bodyAllowed) {
 			Object.assign(options, makeRequestBody(req));
@@ -91,14 +85,14 @@ export class NodeApp extends App {
 	 * ```js
 	 * import { NodeApp } from 'astro/app/node';
 	 * import { createServer } from 'node:http';
-	 * 
+	 *
 	 * const server = createServer(async (req, res) => {
-     *     const request = NodeApp.createRequest(req);
-     *     const response = await app.render(request);
-     *     await NodeApp.writeResponse(response, res);
+	 *     const request = NodeApp.createRequest(req);
+	 *     const response = await app.render(request);
+	 *     await NodeApp.writeResponse(response, res);
 	 * })
 	 * ```
-	 * @param source WhatWG Response 
+	 * @param source WhatWG Response
 	 * @param destination NodeJS ServerResponse
 	 */
 	static async writeResponse(source: Response, destination: ServerResponse) {
@@ -111,8 +105,11 @@ export class NodeApp extends App {
 					// Cancelling the reader may reject not just because of
 					// an error in the ReadableStream's cancel callback, but
 					// also because of an error anywhere in the stream.
-					reader.cancel().catch(err => {
-						console.error(`There was an uncaught error in the middle of the stream while rendering ${destination.req.url}.`, err);
+					reader.cancel().catch((err) => {
+						console.error(
+							`There was an uncaught error in the middle of the stream while rendering ${destination.req.url}.`,
+							err
+						);
 					});
 				});
 				let result = await reader.read();
@@ -120,13 +117,13 @@ export class NodeApp extends App {
 					destination.write(result.value);
 					result = await reader.read();
 				}
-			// the error will be logged by the "on end" callback above
+				// the error will be logged by the "on end" callback above
 			} catch {
 				destination.write('Internal server error');
 			}
 		}
 		destination.end();
-	};
+	}
 }
 
 function makeRequestHeaders(req: NodeRequest): Headers {

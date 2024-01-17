@@ -11,9 +11,7 @@ export function createExports(manifest: SSRManifest, options: Options) {
 	return {
 		options: options,
 		handler:
-			options.mode === "middleware"
-				? createMiddleware(app)
-				: createStandaloneHandler(app, options),
+			options.mode === 'middleware' ? createMiddleware(app) : createStandaloneHandler(app, options),
 		startServer: () => startServer(app, options),
 	};
 }

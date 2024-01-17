@@ -33,7 +33,7 @@ describe('Astro.clientAddress', () => {
 			it('app.render can provide the address', async () => {
 				const app = await fixture.loadTestAdapterApp();
 				const request = new Request('http://example.com/');
-				const response = await app.render(request, { clientAddress: "1.1.1.1" });
+				const response = await app.render(request, { clientAddress: '1.1.1.1' });
 				const html = await response.text();
 				const $ = cheerio.load(html);
 				expect($('#address').text()).to.equal('1.1.1.1');

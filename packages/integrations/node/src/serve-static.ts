@@ -1,9 +1,9 @@
-import path from "node:path";
-import url from "node:url";
-import send from "send";
-import type { IncomingMessage, ServerResponse } from "node:http";
-import type { Options } from "./types.js";
-import type { NodeApp } from "astro/app/node";
+import path from 'node:path';
+import url from 'node:url';
+import send from 'send';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { Options } from './types.js';
+import type { NodeApp } from 'astro/app/node';
 
 /**
  * Creates a Node.js http listener for static files and prerendered pages.
@@ -16,7 +16,7 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 	/**
 	 * @param ssr The SSR handler to be called if the static handler does not find a matching file.
 	 */
-    return (req: IncomingMessage, res: ServerResponse, ssr: () => unknown) => {
+	return (req: IncomingMessage, res: ServerResponse, ssr: () => unknown) => {
 		if (req.url) {
 			let pathname = app.removeBase(req.url);
 			pathname = decodeURI(new URL(pathname, 'http://host').pathname);
@@ -39,7 +39,7 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 				ssr();
 			});
 			stream.on('headers', (_res: ServerResponse) => {
-                // assets in dist/_astro are hashed and should get the immutable header
+				// assets in dist/_astro are hashed and should get the immutable header
 				if (pathname.startsWith(`/${options.assets}/`)) {
 					// This is the "far future" cache header, used for static files whose name includes their digest hash.
 					// 1 year (31,536,000 seconds) is convention.
