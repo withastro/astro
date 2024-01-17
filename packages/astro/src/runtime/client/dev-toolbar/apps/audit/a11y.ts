@@ -397,29 +397,29 @@ export const a11y: AuditRuleWithSelector[] = [
 
 			const inputElements = element.querySelectorAll('input');
 			for (const input of inputElements) {
-					// Check for alt attribute if input type is image
-					if (input.type === 'image') {
-							const altAttribute = input.getAttribute('alt');
-							if (altAttribute && altAttribute.trim() !== '') return false;
+				// Check for alt attribute if input type is image
+				if (input.type === 'image') {
+					const altAttribute = input.getAttribute('alt');
+					if (altAttribute && altAttribute.trim() !== '') return false;
+				}
+
+				// Check for aria-label
+				const inputAriaLabel = input.getAttribute('aria-label')?.trim();
+				if (inputAriaLabel && inputAriaLabel !== '') return false;
+
+				// Check for aria-labelledby
+				const inputAriaLabelledby = input.getAttribute('aria-labelledby')?.trim();
+				if (inputAriaLabelledby) {
+					const ids = inputAriaLabelledby.split(' ');
+					for (const id of ids) {
+						const referencedElement = document.getElementById(id);
+						if (referencedElement && referencedElement.innerText.trim() !== '') return false;
 					}
-			
-					// Check for aria-label
-					const inputAriaLabel = input.getAttribute('aria-label')?.trim();
-					if (inputAriaLabel && inputAriaLabel !== '') return false;
-			
-					// Check for aria-labelledby
-					const inputAriaLabelledby = input.getAttribute('aria-labelledby')?.trim();
-					if (inputAriaLabelledby) {
-							const ids = inputAriaLabelledby.split(' ');
-							for (const id of ids) {
-									const referencedElement = document.getElementById(id);
-									if (referencedElement && referencedElement.innerText.trim() !== '') return false;
-							}
-					}
-					
-					// Check for title
-					const title = input.getAttribute('title')?.trim();
-					if (title && title !== '') return false;
+				}
+
+				// Check for title
+				const title = input.getAttribute('title')?.trim();
+				if (title && title !== '') return false;
 			}
 
 			// If all checks fail, return true indicating missing content

@@ -12,13 +12,13 @@ import type { PreviewServer } from 'astro';
 export default function standalone(app: NodeApp, options: Options) {
 	const port = process.env.PORT ? Number(process.env.PORT) : options.port ?? 8080;
 	// Allow to provide host value at runtime
-	const hostOptions = typeof options.host === "boolean" ? "localhost" : options.host
+	const hostOptions = typeof options.host === 'boolean' ? 'localhost' : options.host;
 	const host = process.env.HOST ?? hostOptions;
 	const handler = createStandaloneHandler(app, options);
 	const server = createServer(handler, host, port);
-	server.server.listen(port, host)
-	if (process.env.ASTRO_NODE_LOGGING !== "disabled") {
-		logListeningOn(app.getAdapterLogger(), server.server, options)
+	server.server.listen(port, host);
+	if (process.env.ASTRO_NODE_LOGGING !== 'disabled') {
+		logListeningOn(app.getAdapterLogger(), server.server, options);
 	}
 	return {
 		server,
@@ -40,15 +40,11 @@ export function createStandaloneHandler(app: NodeApp, options: Options) {
 			return;
 		}
 		staticHandler(req, res, () => appHandler(req, res));
-	}
+	};
 }
 
 // also used by preview entrypoint
-export function createServer(
-	listener: http.RequestListener,
-	host: string,
-	port: number
-) {
+export function createServer(listener: http.RequestListener, host: string, port: number) {
 	let httpServer: http.Server | https.Server;
 
 	if (process.env.SERVER_CERT_PATH && process.env.SERVER_KEY_PATH) {
@@ -69,7 +65,7 @@ export function createServer(
 		httpServer.addListener('close', resolve);
 		httpServer.addListener('error', reject);
 	});
-	
+
 	const previewable = {
 		host,
 		port,
@@ -80,7 +76,7 @@ export function createServer(
 			await new Promise((resolve, reject) => {
 				httpServer.destroy((err) => (err ? reject(err) : resolve(undefined)));
 			});
-		}
+		},
 	} satisfies PreviewServer;
 
 	return {

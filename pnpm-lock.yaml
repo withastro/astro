@@ -645,8 +645,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       shikiji:
-        specifier: ^0.6.13
-        version: 0.6.13
+        specifier: ^0.9.18
+        version: 0.9.18
       string-width:
         specifier: ^7.0.0
         version: 7.0.0
@@ -808,6 +808,9 @@ importers:
       sass:
         specifier: ^1.69.5
         version: 1.69.6
+      shikiji-core:
+        specifier: ^0.9.18
+        version: 0.9.18
       srcset-parse:
         specifier: ^1.1.0
         version: 1.1.0
@@ -2520,6 +2523,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/core-image-remark-imgattr:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/core-image-ssg:
     dependencies:
       astro:
@@ -3844,9 +3853,6 @@ importers:
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
-      shikiji:
-        specifier: ^0.6.13
-        version: 0.6.13
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -5017,8 +5023,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       shikiji:
-        specifier: ^0.6.13
-        version: 0.6.13
+        specifier: ^0.9.18
+        version: 0.9.18
       unified:
         specifier: ^11.0.4
         version: 11.0.4
@@ -14288,10 +14294,13 @@ packages:
       vscode-textmate: 5.2.0
     dev: true
 
-  /shikiji@0.6.13:
-    resolution: {integrity: sha512-4T7X39csvhT0p7GDnq9vysWddf2b6BeioiN3Ymhnt3xcy9tXmDcnsEFVxX18Z4YcQgEE/w48dLJ4pPPUcG9KkA==}
+  /shikiji-core@0.9.18:
+    resolution: {integrity: sha512-PKTXptbrp/WEDjNHV8OFG9KkfhmR0pSd161kzlDDlgQ0HXAnqJYNDSjqsy1CYZMx5bSvLMy42yJj9oFTqmkNTQ==}
+
+  /shikiji@0.9.18:
+    resolution: {integrity: sha512-/tFMIdV7UQklzN13VjF0/XFzmii6C606Jc878hNezvB8ZR8FG8FW9j0I4J9EJre0owlnPntgLVPpHqy27Gs+DQ==}
     dependencies:
-      hast-util-to-html: 9.0.0
+      shikiji-core: 0.9.18
     dev: false
 
   /side-channel@1.0.4:

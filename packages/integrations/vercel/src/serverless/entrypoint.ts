@@ -9,12 +9,14 @@ export const createExports = (manifest: SSRManifest) => {
 	const app = new NodeApp(manifest);
 	const handler = async (req: IncomingMessage, res: ServerResponse) => {
 		const clientAddress = req.headers['x-forwarded-for'] as string | undefined;
-		const localsHeader = req.headers[ASTRO_LOCALS_HEADER]
+		const localsHeader = req.headers[ASTRO_LOCALS_HEADER];
 		const locals =
-			typeof localsHeader === "string" ? JSON.parse(localsHeader)
-			: Array.isArray(localsHeader) ? JSON.parse(localsHeader[0])
-			: {};
-		const webResponse  = await app.render(req, { locals, clientAddress })
+			typeof localsHeader === 'string'
+				? JSON.parse(localsHeader)
+				: Array.isArray(localsHeader)
+					? JSON.parse(localsHeader[0])
+					: {};
+		const webResponse = await app.render(req, { locals, clientAddress });
 		await NodeApp.writeResponse(webResponse, res);
 	};
 

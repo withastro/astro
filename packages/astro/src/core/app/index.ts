@@ -42,18 +42,18 @@ const REROUTABLE_STATUS_CODES = new Set([404, 500]);
 export interface RenderOptions {
 	/**
 	 * Whether to automatically add all cookies written by `Astro.cookie.set()` to the response headers.
-	 * 
+	 *
 	 * When set to `true`, they will be added to the `Set-Cookie` header as comma-separated key=value pairs. You can use the standard `response.headers.getSetCookie()` API to read them individually.
-	 * 
+	 *
 	 * When set to `false`, the cookies will only be available from `App.getSetCookieFromResponse(response)`.
-	 * 
+	 *
 	 * @default {false}
 	 */
 	addCookieHeader?: boolean;
 
 	/**
 	 * The client IP address that will be made available as `Astro.clientAddress` in pages, and as `ctx.clientAddress` in API routes and middleware.
-	 * 
+	 *
 	 * Default: `request[Symbol.for("astro.clientAddress")]`
 	 */
 	clientAddress?: string;
@@ -65,7 +65,7 @@ export interface RenderOptions {
 
 	/**
 	 * **Advanced API**: you probably do not need to use this.
-	 * 
+	 *
 	 * Default: `app.match(request)`
 	 */
 	routeData?: RouteData;
@@ -196,12 +196,10 @@ export class App {
 
 		if (
 			routeDataOrOptions &&
-			(
-				'addCookieHeader' in routeDataOrOptions ||
+			('addCookieHeader' in routeDataOrOptions ||
 				'clientAddress' in routeDataOrOptions ||
 				'locals' in routeDataOrOptions ||
-				'routeData' in routeDataOrOptions
-			)
+				'routeData' in routeDataOrOptions)
 		) {
 			if ('addCookieHeader' in routeDataOrOptions) {
 				addCookieHeader = routeDataOrOptions.addCookieHeader;
@@ -226,7 +224,7 @@ export class App {
 			Reflect.set(request, localsSymbol, locals);
 		}
 		if (clientAddress) {
-			Reflect.set(request, clientAddressSymbol, clientAddress)
+			Reflect.set(request, clientAddressSymbol, clientAddress);
 		}
 		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
 		if (request.url !== collapseDuplicateSlashes(request.url)) {
@@ -323,7 +321,7 @@ export class App {
 	 * @param response The response to read cookies from.
 	 * @returns An iterator that yields key-value pairs as equal-sign-separated strings.
 	 */
-	static getSetCookieFromResponse = getSetCookiesFromResponse
+	static getSetCookieFromResponse = getSetCookiesFromResponse;
 
 	/**
 	 * Creates the render context of the current route

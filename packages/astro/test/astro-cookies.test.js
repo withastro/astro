@@ -93,18 +93,20 @@ describe('Astro.cookies', () => {
 			const request = new Request('http://example.com/set-value', {
 				method: 'POST',
 			});
-			const response = await app.render(request, { addCookieHeader: true })
+			const response = await app.render(request, { addCookieHeader: true });
 			expect(response.status).to.equal(200);
-			expect(response.headers.get("Set-Cookie")).to.be.a('string').and.satisfy(value => value.startsWith("admin=true; Expires="));
+			expect(response.headers.get('Set-Cookie'))
+				.to.be.a('string')
+				.and.satisfy((value) => value.startsWith('admin=true; Expires='));
 		});
 
 		it('app.render can exclude the cookie from the Set-Cookie header', async () => {
 			const request = new Request('http://example.com/set-value', {
 				method: 'POST',
 			});
-			const response = await app.render(request, { addCookieHeader: false })
+			const response = await app.render(request, { addCookieHeader: false });
 			expect(response.status).to.equal(200);
-			expect(response.headers.get("Set-Cookie")).to.equal(null);
+			expect(response.headers.get('Set-Cookie')).to.equal(null);
 		});
 
 		it('Early returning a Response still includes set headers', async () => {

@@ -17,9 +17,11 @@ import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } f
 // This import is required to appease TypeScript!
 // See https://github.com/withastro/astro/pull/8762
 import 'mdast-util-to-hast';
+import 'shikiji-core';
 
 type ShikiLangs = NonNullable<ShikiConfig['langs']>;
 type ShikiTheme = NonNullable<ShikiConfig['theme']>;
+type ShikiTransformers = NonNullable<ShikiConfig['transformers']>;
 
 const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
@@ -58,6 +60,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		optimizeHoistedScript: false,
 		contentCollectionCache: false,
+		clientPrerender: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -277,6 +280,10 @@ export const AstroConfigSchema = z.object({
 						)
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.experimentalThemes!),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
+					transformers: z
+						.custom<ShikiTransformers[number]>()
+						.array()
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.transformers!),
 				})
 				.default({}),
 			remarkPlugins: z
@@ -410,6 +417,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
+			clientPrerender: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.clientPrerender),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`
