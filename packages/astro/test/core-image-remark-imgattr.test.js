@@ -53,7 +53,9 @@ describe('astro:image', () => {
 
 			it('Image src contains w=50 meaning getImage correctly used props added through the remark plugin', async () => {
 				let $img = $('img');
-				expect(new URL($img.attr('src'), 'http://example.com').searchParams.get('w')).to.equal('50');
+				expect(new URL($img.attr('src'), 'http://example.com').searchParams.get('w')).to.equal(
+					'50'
+				);
 			});
 		});
 	});
