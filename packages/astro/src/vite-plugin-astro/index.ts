@@ -91,7 +91,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			const filename = normalizePath(normalizeFilename(parsedId.filename, config.root));
 			const compileMetadata = astroFileToCompileMetadata.get(filename);
 			if (!compileMetadata) {
-				throw new Error('No cached compile metadat found for ' + id);
+				throw new Error('No cached compile metadata found for ' + id);
 			}
 
 			switch (query.type) {
