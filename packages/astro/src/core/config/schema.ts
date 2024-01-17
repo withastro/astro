@@ -64,7 +64,10 @@ const ASTRO_CONFIG_DEFAULTS = {
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
-type RoutingStrategies = 'prefix-always' | 'prefix-other-locales';
+export type RoutingStrategies =
+	| 'pathname-prefix-always'
+	| 'pathname-prefix-other-locales'
+	| 'pathname-prefix-always-no-redirect';
 
 export const AstroConfigSchema = z.object({
 	root: z
@@ -329,17 +332,31 @@ export const AstroConfigSchema = z.object({
 				routing: z
 					.object({
 						prefixDefaultLocale: z.boolean().default(false),
+						redirectToDefaultLocale: z.boolean().default(true),
 						strategy: z.enum(['pathname']).default('pathname'),
 					})
 					.default({})
+					.refine(
+						({ prefixDefaultLocale, redirectToDefaultLocale }) => {
+							return !(prefixDefaultLocale === false && redirectToDefaultLocale === false);
+						},
+						{
+							message:
+								'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.',
+						}
+					)
 					.transform((routing) => {
 						let strategy: RoutingStrategies;
 						switch (routing.strategy) {
 							case 'pathname': {
 								if (routing.prefixDefaultLocale === true) {
-									strategy = 'prefix-always';
+									if (routing.redirectToDefaultLocale) {
+										strategy = 'pathname-prefix-always';
+									} else {
+										strategy = 'pathname-prefix-always-no-redirect';
+									}
 								} else {
-									strategy = 'prefix-other-locales';
+									strategy = 'pathname-prefix-other-locales';
 								}
 							}
 						}

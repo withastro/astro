@@ -7,6 +7,7 @@ import type {
 	SSRResult,
 } from '../../@types/astro.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
+import type { RoutingStrategies } from '../config/schema.js';
 
 export type ComponentPath = string;
 
@@ -56,7 +57,7 @@ export type SSRManifest = {
 
 export type SSRManifestI18n = {
 	fallback?: Record<string, string>;
-	routing?: 'prefix-always' | 'prefix-other-locales';
+	routing?: RoutingStrategies;
 	locales: Locales;
 	defaultLocale: string;
 };
