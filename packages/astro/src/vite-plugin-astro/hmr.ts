@@ -1,42 +1,32 @@
 import path from 'node:path';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import type { HmrContext } from 'vite';
-import type { AstroConfig } from '../@types/astro.js';
-import type { cachedCompilation } from '../core/compile/index.js';
-import { invalidateCompilation, isCached, type CompileResult } from '../core/compile/index.js';
 import type { Logger } from '../core/logger/core.js';
+import type { CompileAstroResult } from './compile.js';
+import type { CompileMetadata } from './types.js';
 
 export interface HandleHotUpdateOptions {
-	config: AstroConfig;
 	logger: Logger;
+	compile: (code: string, filename: string) => Promise<CompileAstroResult>;
 	astroFileToCssAstroDeps: Map<string, Set<string>>;
-
-	compile: () => ReturnType<typeof cachedCompilation>;
-	source: string;
+	astroFileToCompileMetadata: Map<string, CompileMetadata>;
 }
 
 export async function handleHotUpdate(
 	ctx: HmrContext,
-	{ config, logger, astroFileToCssAstroDeps, compile, source }: HandleHotUpdateOptions
+	{ logger, compile, astroFileToCssAstroDeps, astroFileToCompileMetadata }: HandleHotUpdateOptions
 ) {
-	let isStyleOnlyChange = false;
-	if (ctx.file.endsWith('.astro') && isCached(config, ctx.file)) {
-		// Get the compiled result from the cache
-		const oldResult = await compile();
-		// Skip HMR if source isn't changed
-		if (oldResult.source === source) return [];
-		// Invalidate to get fresh, uncached result to compare it to
-		invalidateCompilation(config, ctx.file);
-		const newResult = await compile();
-		if (isStyleOnlyChanged(oldResult, newResult)) {
-			isStyleOnlyChange = true;
-		}
-	} else {
-		invalidateCompilation(config, ctx.file);
-	}
-
-	if (isStyleOnlyChange) {
+	const oldCode = astroFileToCompileMetadata.get(ctx.file)?.originalCode;
+	const newCode = await ctx.read();
+	// If only the style code has changed, e.g. editing the `color`, then we can directly invalidate
+	// the Astro CSS virtual modules only. The main Astro module's JS result will be the same and doesn't
+	// need to be invalidated.
+	if (oldCode && isStyleOnlyChanged(oldCode, newCode)) {
 		logger.debug('watch', 'style-only change');
+		// Re-compile the main Astro component (even though we know its JS result will be the same)
+		// so that `astroFileToCompileMetadata` gets a fresh set of compile metadata to be used
+		// by the virtual modules later in the `load()` hook.
+		await compile(newCode, ctx.file);
 		// Only return the Astro styles that have changed!
 		return ctx.modules.filter((mod) => mod.id?.includes('astro&type=style'));
 	}
@@ -68,25 +58,39 @@ export async function handleHotUpdate(
 	}
 }
 
-function isStyleOnlyChanged(oldResult: CompileResult, newResult: CompileResult) {
-	return (
-		normalizeCode(oldResult.code) === normalizeCode(newResult.code) &&
-		// If style tags are added/removed, we need to regenerate the main Astro file
-		// so that its CSS imports are also added/removed
-		oldResult.css.length === newResult.css.length &&
-		!isArrayEqual(oldResult.css, newResult.css)
-	);
-}
+const frontmatterRE = /^\-\-\-.*?^\-\-\-/ms;
+const scriptRE = /<script(?:\s.*?)?>.*?<\/script>/gs;
+const styleRE = /<style(?:\s.*?)?>.*?<\/style>/gs;
 
-const astroStyleImportRE = /import\s*"[^"]+astro&type=style[^"]+";/g;
-const sourceMappingUrlRE = /\/\/# sourceMappingURL=[^ ]+$/gm;
+function isStyleOnlyChanged(oldCode: string, newCode: string) {
+	if (oldCode === newCode) return false;
 
-/**
- * Remove style-related code and sourcemap from the final astro output so they
- * can be compared between non-style code
- */
-function normalizeCode(code: string) {
-	return code.replace(astroStyleImportRE, '').replace(sourceMappingUrlRE, '').trim();
+	// Before we can regex-capture style tags, we remove the frontmatter and scripts
+	// first as they could contain false-positive style tag matches. At the same time,
+	// we can also compare if they have changed and early out.
+
+	// Strip off and compare frontmatter
+	let oldFrontmatter = '';
+	let newFrontmatter = '';
+	oldCode = oldCode.replace(frontmatterRE, (m) => ((oldFrontmatter = m), ''));
+	newCode = newCode.replace(frontmatterRE, (m) => ((newFrontmatter = m), ''));
+	if (oldFrontmatter !== newFrontmatter) return false;
+
+	// Strip off and compare scripts
+	const oldScripts: string[] = [];
+	const newScripts: string[] = [];
+	oldCode = oldCode.replace(scriptRE, (m) => (oldScripts.push(m), ''));
+	newCode = newCode.replace(scriptRE, (m) => (newScripts.push(m), ''));
+	if (!isArrayEqual(oldScripts, newScripts)) return false;
+
+	// Finally, we can compare styles
+	const oldStyles: string[] = [];
+	const newStyles: string[] = [];
+	oldCode.match(styleRE)?.forEach((m) => oldStyles.push(m));
+	newCode.match(styleRE)?.forEach((m) => newStyles.push(m));
+	// The length must also be the same for style only change.  If style tags are added/removed,
+	// we need to regenerate the main Astro file so that its CSS imports are also added/removed
+	return oldStyles.length === newStyles.length && !isArrayEqual(oldStyles, newStyles);
 }
 
 function isArrayEqual(a: any[], b: any[]) {
