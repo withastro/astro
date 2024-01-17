@@ -1,6 +1,6 @@
 import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
 import type { PluginMetadata as AstroPluginMetadata, CompileMetadata } from './types.js';
 
@@ -16,6 +16,8 @@ interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: Logger;
 }
+
+const astroFileToCompileMetadataWeakMap = new WeakMap<AstroConfig, Map<string, CompileMetadata>>();
 
 /** Transform .astro files for Vite */
 export default function astro({ settings, logger }: AstroPluginOptions): vite.Plugin[] {
@@ -65,6 +67,15 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 		buildStart() {
 			astroFileToCssAstroDeps = new Map();
 			astroFileToCompileMetadata = new Map();
+
+			// Share the `astroFileToCompileMetadata` across the same Astro config as Astro performs
+			// multiple builds and its hoisted scripts analyzer requires the compile metadata from
+			// previous builds. Ideally this should not be needed when we refactor hoisted scripts analysis.
+			if (astroFileToCompileMetadataWeakMap.has(config)) {
+				astroFileToCompileMetadata = astroFileToCompileMetadataWeakMap.get(config)!;
+			} else {
+				astroFileToCompileMetadataWeakMap.set(config, astroFileToCompileMetadata);
+			}
 		},
 		async load(id, opts) {
 			const parsedId = parseAstroRequest(id);

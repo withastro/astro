@@ -1,6 +1,6 @@
 import { resolveConfig } from 'vite';
 import { expect } from 'chai';
-import { cachedCompilation } from '../../../dist/core/compile/index.js';
+import { compile } from '../../../dist/core/compile/index.js';
 import { AggregateError } from '../../../dist/core/errors/index.js';
 import { pathToFileURL } from 'node:url';
 
@@ -9,7 +9,7 @@ describe('astro/src/core/compile', () => {
 		it('throws an aggregate error with the errors', async () => {
 			let error;
 			try {
-				await cachedCompilation({
+				await compile({
 					astroConfig: {
 						root: pathToFileURL('/'),
 						experimental: {},
