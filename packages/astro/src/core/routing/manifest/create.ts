@@ -1,7 +1,7 @@
 import type {
 	AstroConfig,
 	AstroSettings,
-	InjectedRoute,
+	RoutePriorityOverride,
 	ManifestData,
 	RouteData,
 	RoutePart,
@@ -117,11 +117,6 @@ function getTrailingSlashPattern(addTrailingSlash: AstroConfig['trailingSlash'])
 	return '\\/?$';
 }
 
-function isSpread(str: string) {
-	const spreadPattern = /\[\.{3}/g;
-	return spreadPattern.test(str);
-}
-
 function validateSegment(segment: string, file = '') {
 	if (!file) file = segment;
 
@@ -139,77 +134,64 @@ function validateSegment(segment: string, file = '') {
 	}
 }
 
-function comparator(a: Item, b: Item) {
-	if (a.isIndex !== b.isIndex) {
-		if (a.isIndex) return isSpread(a.file) ? 1 : -1;
-
-		return isSpread(b.file) ? -1 : 1;
+/**
+ * Comparator for sorting routes in resolution order.
+ *
+ * The routes are sorted in by the following rules in order, following the first rule that
+ * applies:
+ * - More specific routes are sorted before less specific routes. Here, "specific" means
+ *   the number of segments in the route, so a parent route is always sorted after its children.
+ *   For example, `/foo/bar` is sorted before `/foo`.
+ * - Static routes are sorted before dynamic routes.
+ *   For example, `/foo/bar` is sorted before `/foo/[bar]`.
+ * - Dynamic routes with single parameters are sorted before dynamic routes with rest parameters.
+ *   For example, `/foo/[bar]` is sorted before `/foo/[...bar]`.
+ * - Prerendered routes are sorted before non-prerendered routes.
+ * - Endpoints are sorted before pages.
+ *   For example, a file `/foo.ts` is sorted before `/bar.astro`.
+ * - If both routes are equal regarding all previosu conditions, they are sorted alphabetically.
+ *   For example, `/bar` is sorted before `/foo`.
+ *   The definition of "alphabetically" is dependent on the default locale of the running system.
+ */
+function routeComparator(a: RouteData, b: RouteData) {
+	// Sort more specific routes before less specific routes
+	if (a.segments.length !== b.segments.length) {
+		return a.segments.length > b.segments.length ? -1 : 1;
 	}
 
-	const max = Math.max(a.parts.length, b.parts.length);
+	const aIsStatic = a.segments.every((segment) =>
+		segment.every((part) => !part.dynamic && !part.spread)
+	);
+	const bIsStatic = b.segments.every((segment) =>
+		segment.every((part) => !part.dynamic && !part.spread)
+	);
 
-	for (let i = 0; i < max; i += 1) {
-		const aSubPart = a.parts[i];
-		const bSubPart = b.parts[i];
-
-		if (!aSubPart) return 1; // b is more specific, so goes first
-		if (!bSubPart) return -1;
-
-		// if spread && index, order later
-		if (aSubPart.spread && bSubPart.spread) {
-			return a.isIndex ? 1 : -1;
-		}
-
-		// If one is ...spread order it later
-		if (aSubPart.spread !== bSubPart.spread) return aSubPart.spread ? 1 : -1;
-
-		if (aSubPart.dynamic !== bSubPart.dynamic) {
-			return aSubPart.dynamic ? 1 : -1;
-		}
-
-		if (!aSubPart.dynamic && aSubPart.content !== bSubPart.content) {
-			return (
-				bSubPart.content.length - aSubPart.content.length ||
-				(aSubPart.content < bSubPart.content ? -1 : 1)
-			);
-		}
+	// Sort static routes before dynamic routes
+	if (aIsStatic !== bIsStatic) {
+		return aIsStatic ? -1 : 1;
 	}
 
-	// endpoints are prioritized over pages
-	if (a.isPage !== b.isPage) {
-		return a.isPage ? 1 : -1;
+	const aHasSpread = a.segments.some((segment) => segment.some((part) => part.spread));
+	const bHasSpread = b.segments.some((segment) => segment.some((part) => part.spread));
+
+	// Sort dynamic routes with rest parameters after dynamic routes with single parameters
+	// (also after static, but that is already covered by the previous condition)
+	if (aHasSpread !== bHasSpread) {
+		return aHasSpread ? 1 : -1;
 	}
 
-	// otherwise sort alphabetically
-	return a.file < b.file ? -1 : 1;
-}
-
-function injectedRouteToItem(
-	{ config, cwd }: { config: AstroConfig; cwd?: string },
-	{ pattern, entrypoint }: InjectedRoute
-): Item {
-	let resolved: string;
-	try {
-		resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
-	} catch (e) {
-		resolved = fileURLToPath(new URL(entrypoint, config.root));
+	// Sort prerendered routes before non-prerendered routes
+	if (a.prerender !== b.prerender) {
+		return a.prerender ? -1 : 1;
 	}
 
-	const ext = path.extname(pattern);
+	// Sort endpoints before pages
+	if ((a.type === 'endpoint') !== (b.type === 'endpoint')) {
+		return a.type === 'endpoint' ? -1 : 1;
+	}
 
-	const type = resolved.endsWith('.astro') ? 'page' : 'endpoint';
-	const isPage = type === 'page';
-
-	return {
-		basename: pattern,
-		ext,
-		parts: getParts(pattern, resolved),
-		file: resolved,
-		isDir: false,
-		isIndex: true,
-		isPage,
-		routeSuffix: pattern.slice(pattern.indexOf('.'), -ext.length),
-	};
+	// Sort alphabetically
+	return a.route.localeCompare(b.route);
 }
 
 export interface CreateRouteManifestParams {
@@ -221,11 +203,10 @@ export interface CreateRouteManifestParams {
 	fsMod?: typeof nodeFs;
 }
 
-/** Create manifest of all static routes */
-export function createRouteManifest(
+function createFileBasedRoutes(
 	{ settings, cwd, fsMod }: CreateRouteManifestParams,
 	logger: Logger
-): ManifestData {
+): RouteData[] {
 	const components: string[] = [];
 	const routes: RouteData[] = [];
 	const validPageExtensions = new Set<string>([
@@ -244,19 +225,19 @@ export function createRouteManifest(
 		parentParams: string[]
 	) {
 		let items: Item[] = [];
-		fs.readdirSync(dir).forEach((basename) => {
+		const files = fs.readdirSync(dir);
+		for (const basename of files) {
 			const resolved = path.join(dir, basename);
 			const file = slash(path.relative(cwd || fileURLToPath(settings.config.root), resolved));
 			const isDir = fs.statSync(resolved).isDirectory();
 
 			const ext = path.extname(basename);
 			const name = ext ? basename.slice(0, -ext.length) : basename;
-
 			if (name[0] === '_') {
-				return;
+				continue;
 			}
 			if (basename[0] === '.' && basename !== '.well-known') {
-				return;
+				continue;
 			}
 			// filter out "foo.astro_tmp" files, etc
 			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
@@ -267,7 +248,7 @@ export function createRouteManifest(
 					)} found. Prefix filename with an underscore (\`_\`) to ignore.`
 				);
 
-				return;
+				continue;
 			}
 			const segment = isDir ? basename : name;
 			validateSegment(segment, file);
@@ -287,10 +268,9 @@ export function createRouteManifest(
 				isPage,
 				routeSuffix,
 			});
-		});
-		items = items.sort(comparator);
+		}
 
-		items.forEach((item) => {
+		for (const item of items) {
 			const segments = parentSegments.slice();
 
 			if (item.isIndex) {
@@ -352,7 +332,7 @@ export function createRouteManifest(
 					fallbackRoutes: [],
 				});
 			}
-		});
+		}
 	}
 
 	const { config } = settings;
@@ -365,73 +345,92 @@ export function createRouteManifest(
 		logger.warn(null, `Missing pages directory: ${pagesDirRootRelative}`);
 	}
 
-	settings.injectedRoutes
-		?.sort((a, b) =>
-			// sort injected routes in the same way as user-defined routes
-			comparator(injectedRouteToItem({ config, cwd }, a), injectedRouteToItem({ config, cwd }, b))
-		)
-		.reverse() // prepend to the routes array from lowest to highest priority
-		.forEach(({ pattern: name, entrypoint, prerender: prerenderInjected }) => {
-			let resolved: string;
-			try {
-				resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
-			} catch (e) {
-				resolved = fileURLToPath(new URL(entrypoint, config.root));
-			}
-			const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
+	return routes;
+}
 
-			const segments = removeLeadingForwardSlash(name)
-				.split(path.posix.sep)
-				.filter(Boolean)
-				.map((s: string) => {
-					validateSegment(s);
-					return getParts(s, component);
-				});
+type PrioritizedRoutesData = Record<RoutePriorityOverride, RouteData[]>;
 
-			const type = resolved.endsWith('.astro') ? 'page' : 'endpoint';
-			const isPage = type === 'page';
-			const trailingSlash = isPage ? config.trailingSlash : 'never';
+function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): PrioritizedRoutesData {
+	const { config } = settings;
+	const prerender = getPrerenderDefault(config);
 
-			const pattern = getPattern(segments, settings.config, trailingSlash);
-			const generate = getRouteGenerator(segments, trailingSlash);
-			const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
-				? `/${segments.map((segment) => segment[0].content).join('/')}`
-				: null;
-			const params = segments
-				.flat()
-				.filter((p) => p.dynamic)
-				.map((p) => p.content);
-			const route = `/${segments
-				.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
-				.join('/')}`.toLowerCase();
+	const routes: PrioritizedRoutesData = {
+		normal: [],
+		legacy: [],
+	};
 
-			const collision = routes.find(({ route: r }) => r === route);
-			if (collision) {
-				throw new Error(
-					`An integration attempted to inject a route that is already used in your project: "${route}" at "${component}". \nThis route collides with: "${collision.component}".`
-				);
-			}
+	const priority = computeRoutePriority(config);
 
-			// the routes array was already sorted by priority,
-			// pushing to the front of the list ensure that injected routes
-			// are given priority over all user-provided routes
-			routes.unshift({
-				type,
-				route,
-				pattern,
-				segments,
-				params,
-				component,
-				generate,
-				pathname: pathname || void 0,
-				prerender: prerenderInjected ?? prerender,
-				fallbackRoutes: [],
+	for (const injectedRoute of settings.injectedRoutes) {
+		const { pattern: name, entrypoint, prerender: prerenderInjected } = injectedRoute;
+		let resolved: string;
+		try {
+			resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
+		} catch (e) {
+			resolved = fileURLToPath(new URL(entrypoint, config.root));
+		}
+		const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
+
+		const segments = removeLeadingForwardSlash(name)
+			.split(path.posix.sep)
+			.filter(Boolean)
+			.map((s: string) => {
+				validateSegment(s);
+				return getParts(s, component);
 			});
+
+		const type = resolved.endsWith('.astro') ? 'page' : 'endpoint';
+		const isPage = type === 'page';
+		const trailingSlash = isPage ? config.trailingSlash : 'never';
+
+		const pattern = getPattern(segments, settings.config, trailingSlash);
+		const generate = getRouteGenerator(segments, trailingSlash);
+		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
+			? `/${segments.map((segment) => segment[0].content).join('/')}`
+			: null;
+		const params = segments
+			.flat()
+			.filter((p) => p.dynamic)
+			.map((p) => p.content);
+		const route = `/${segments
+			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
+			.join('/')}`.toLowerCase();
+
+		routes[priority].push({
+			type,
+			route,
+			pattern,
+			segments,
+			params,
+			component,
+			generate,
+			pathname: pathname || void 0,
+			prerender: prerenderInjected ?? prerender,
+			fallbackRoutes: [],
 		});
+	}
 
-	Object.entries(settings.config.redirects).forEach(([from, to]) => {
-		const trailingSlash = config.trailingSlash;
+	return routes;
+}
 
+/**
+ * Create route data for all configured redirects.
+ */
+function createRedirectRoutes(
+	{ settings }: CreateRouteManifestParams,
+	routeMap: Map<string, RouteData>,
+	logger: Logger
+): PrioritizedRoutesData {
+	const { config } = settings;
+	const trailingSlash = config.trailingSlash;
+
+	const routes: PrioritizedRoutesData = {
+		normal: [],
+		legacy: [],
+	};
+
+	const priority = computeRoutePriority(settings.config);
+	for (const [from, to] of Object.entries(settings.config.redirects)) {
 		const segments = removeLeadingForwardSlash(from)
 			.split(path.posix.sep)
 			.filter(Boolean)
@@ -453,22 +452,21 @@ export function createRouteManifest(
 			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 			.join('/')}`.toLowerCase();
 
-		{
-			let destination: string;
-			if (typeof to === 'string') {
-				destination = to;
-			} else {
-				destination = to.destination;
-			}
-			if (/^https?:\/\//.test(destination)) {
-				logger.warn(
-					'redirects',
-					`Redirecting to an external URL is not officially supported: ${from} -> ${destination}`
-				);
-			}
+		let destination: string;
+		if (typeof to === 'string') {
+			destination = to;
+		} else {
+			destination = to.destination;
 		}
 
-		const routeData: RouteData = {
+		if (/^https?:\/\//.test(destination)) {
+			logger.warn(
+				'redirects',
+				`Redirecting to an external URL is not officially supported: ${from} -> ${destination}`
+			);
+		}
+
+		routes[priority].push({
 			type: 'redirect',
 			route,
 			pattern,
@@ -479,40 +477,170 @@ export function createRouteManifest(
 			pathname: pathname || void 0,
 			prerender: false,
 			redirect: to,
-			redirectRoute: routes.find((r) => {
-				if (typeof to === 'object') {
-					return r.route === to.destination;
-				} else {
-					return r.route === to;
-				}
-			}),
+			redirectRoute: routeMap.get(destination),
 			fallbackRoutes: [],
-		};
+		});
+	}
 
-		const lastSegmentIsDynamic = (r: RouteData) => !!r.segments.at(-1)?.at(-1)?.dynamic;
+	return routes;
+}
 
-		const redirBase = path.posix.dirname(route);
-		const dynamicRedir = lastSegmentIsDynamic(routeData);
-		let i = 0;
-		for (const existingRoute of routes) {
-			// An exact match, prefer the page/endpoint. This matches hosts.
-			if (existingRoute.route === route) {
-				routes.splice(i + 1, 0, routeData);
-				return;
-			}
+/**
+ * Checks whether a route segment is static.
+ */
+function isStaticSegment(segment: RoutePart[]) {
+	return segment.every((part) => !part.dynamic && !part.spread);
+}
 
-			// If the existing route is dynamic, prefer the static redirect.
-			const base = path.posix.dirname(existingRoute.route);
-			if (base === redirBase && !dynamicRedir && lastSegmentIsDynamic(existingRoute)) {
-				routes.splice(i, 0, routeData);
-				return;
-			}
-			i++;
+/**
+ * Checks whether two route segments are semantically equivalent.
+ *
+ * Two segments are equivalent if they would match the same paths. This happens when:
+ * - They have the same length.
+ * - Each part in the same position is either:
+ *   - Both static and with the same content (e.g. `/foo` and `/foo`).
+ *   - Both dynamic, regardless of the content (e.g. `/[bar]` and `/[baz]`).
+ *   - Both rest parameters, regardless of the content (e.g. `/[...bar]` and `/[...baz]`).
+ */
+function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]) {
+	if (segmentA.length !== segmentB.length) {
+		return false;
+	}
+
+	for (const [index, partA] of segmentA.entries()) {
+		// Safe to use the index of one segment for the other because the segments have the same length
+		const partB = segmentB[index];
+
+		if (partA.dynamic !== partB.dynamic || partA.spread !== partB.spread) {
+			return false;
 		}
 
-		// Didn't find a good place, insert last
-		routes.push(routeData);
-	});
+		// Only compare the content on non-dynamic segments
+		// `/[bar]` and `/[baz]` are effectively the same route,
+		// only bound to a different path parameter.
+		if (!partA.dynamic && partA.content !== partB.content) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/**
+ * Check whether two are sure to collide in clearly unintended ways report appropriately.
+ *
+ * Fallback routes are never considered to collide with any other route.
+ * Routes that may collide depending on the parameters returned by their `getStaticPaths`
+ * are not reported as collisions at this stage.
+ *
+ * Two routes are guarantted to collide in the following scenarios:
+ * - Both are the exact same static route.
+ * 	 For example, `/foo` from an injected route and `/foo` from a file in the project.
+ * - Both are non-prerendered dynamic routes with equal static parts in matching positions
+ *   and dynamic parts of same type in the same positions.
+ *   For example, `/foo/[bar]` and `/foo/[baz]` or `/foo/[...bar]` and `/foo/[...baz]`
+ *     but not `/foo/[bar]` and `/foo/[...baz]`.
+ */
+function detectRouteCollision(a: RouteData, b: RouteData, config: AstroConfig, logger: Logger) {
+	if (a.type === 'fallback' || b.type === 'fallback') {
+		// If either route is a fallback route, they don't collide.
+		// Fallbacks are always added below other routes exactly to avoid collisions.
+		return;
+	}
+
+	if (
+		a.route === b.route &&
+		a.segments.every(isStaticSegment) &&
+		b.segments.every(isStaticSegment)
+	) {
+		// If both routes are the same and completely static they are guaranteed to collide
+		// such that one of them will never be matched.
+		logger.warn(
+			'router',
+			`The route "${a.route}" is defined in both "${a.component}" and "${b.component}". A static route cannot be defined more than once.`
+		);
+		logger.warn(
+			'router',
+			'A collision will result in an hard error in following versions of Astro.'
+		);
+		return;
+	}
+
+	if (a.prerender || b.prerender) {
+		// If either route is prerendered, it is impossible to know if they collide
+		// at this stage because it depends on the parameters returned by `getStaticPaths`.
+		return;
+	}
+
+	if (a.segments.length !== b.segments.length) {
+		// If the routes have different number of segments, they cannot perfectly overlap
+		// each other, so a collision is either not guaranteed or may be intentional.
+		return;
+	}
+
+	// Routes have the same number of segments, can use either.
+	const segmentCount = a.segments.length;
+
+	for (let index = 0; index < segmentCount; index++) {
+		const segmentA = a.segments[index];
+		const segmentB = b.segments[index];
+
+		if (!isSemanticallyEqualSegment(segmentA, segmentB)) {
+			// If any segment is not semantically equal between the routes
+			// it is not certain that the routes collide.
+			return;
+		}
+	}
+
+	// Both routes are guaranteed to collide such that one will never be matched.
+	logger.warn(
+		'router',
+		`The route "${a.route}" is defined in both "${a.component}" and "${b.component}" using SSR mode. A dynamic SSR route cannot be defined more than once.`
+	);
+	logger.warn('router', 'A collision will result in an hard error in following versions of Astro.');
+}
+
+/** Create manifest of all static routes */
+export function createRouteManifest(
+	params: CreateRouteManifestParams,
+	logger: Logger
+): ManifestData {
+	const { settings } = params;
+	const { config } = settings;
+	// Create a map of all routes so redirects can refer to any route
+	const routeMap = new Map();
+
+	const fileBasedRoutes = createFileBasedRoutes(params, logger);
+	for (const route of fileBasedRoutes) {
+		routeMap.set(route.route, route);
+	}
+
+	const injectedRoutes = createInjectedRoutes(params);
+	for (const [, routes] of Object.entries(injectedRoutes)) {
+		for (const route of routes) {
+			routeMap.set(route.route, route);
+		}
+	}
+
+	const redirectRoutes = createRedirectRoutes(params, routeMap, logger);
+
+	const routes: RouteData[] = [
+		...injectedRoutes['legacy'].sort(routeComparator),
+		...[...fileBasedRoutes, ...injectedRoutes['normal'], ...redirectRoutes['normal']].sort(
+			routeComparator
+		),
+		...redirectRoutes['legacy'].sort(routeComparator),
+	];
+
+	// Report route collisions
+	if (config.experimental.globalRoutePriority) {
+		for (const [index, higherRoute] of routes.entries()) {
+			for (const lowerRoute of routes.slice(index + 1)) {
+				detectRouteCollision(higherRoute, lowerRoute, config, logger);
+			}
+		}
+	}
+
 	const i18n = settings.config.i18n;
 	if (i18n) {
 		// First we check if the user doesn't have an index page.
@@ -703,4 +831,11 @@ export function createRouteManifest(
 	return {
 		routes,
 	};
+}
+
+function computeRoutePriority(config: AstroConfig): RoutePriorityOverride {
+	if (config.experimental.globalRoutePriority) {
+		return 'normal';
+	}
+	return 'legacy';
 }

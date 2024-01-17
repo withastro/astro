@@ -1631,6 +1631,36 @@ export interface AstroUserConfig {
 		 * See the [Prefetch Guide](https://docs.astro.build/en/guides/prefetch/) for more `prefetch` options and usage.
 		 */
 		clientPrerender?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.globalRoutePriority
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.2.0
+		 * @description
+		 *
+		 * Prioritizes redirects and injected routes equally alongside file-based project routes, following the same [route priority order rules](https://docs.astro.build/en/core-concepts/routing/#route-priority-order) for all routes.
+		 *
+		 * The following table shows which route builds certain page URLs when file-based routes, injected routes, and redirects are combined as shown below:
+		 * - File-based route: `/blog/post/[pid]`
+		 * - File-based route: `/[page]`
+		 * - Injected route: `/blog/[...slug]`
+		 * - Redirect: `/blog/tags/[tag]` -> `/[tag]`
+		 * - Redirect: `/posts` -> `/blog`
+		 *
+		 * URLs are handled by the following routes:
+		 *
+		 * | Page               | Current Behavior                 | Global Routing Priority Behavior    |
+		 * | ------------------ | -------------------------------- | ----------------------------------- |
+		 * | `/blog/tags/astro` | Injected route `/blog/[...slug]` | Redirect to `/tags/[tag]`           |
+		 * | `/blog/post/0`     | Injected route `/blog/[...slug]` | File-based route `/blog/post/[pid]` |
+		 * | `/posts`           | File-based route `/[page]`       | Redirect to `/blog`                 |
+		 *
+		 *
+		 * In the event of route collisions, where two routes of equal route priority attempt to build the same URL, Astro will log a warning identifying the conflicting routes.
+		 */
+		globalRoutePriority?: boolean;
 	};
 }
 
@@ -1651,6 +1681,15 @@ export interface AstroUserConfig {
  * - "page-ssr": Injected into the frontmatter of every Astro page. Processed & resolved by Vite.
  */
 export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 'page-ssr';
+
+/**
+ * IDs for different priorities of injected routes and redirects:
+ * - "normal": Merge with discovered file-based project routes, behaving the same as if the route
+ *   was defined as a file in the project.
+ * - "legacy": Use the old ordering of routes. Inject routes will override any file-based project route,
+ *   and redirects will be overridden by any project route on conflict.
+ */
+export type RoutePriorityOverride = 'normal' | 'legacy';
 
 export interface InjectedRoute {
 	pattern: string;
@@ -2496,6 +2535,7 @@ type RedirectConfig =
 	| {
 			status: ValidRedirectStatus;
 			destination: string;
+			priority?: RoutePriorityOverride;
 	  };
 
 export interface RouteData {
