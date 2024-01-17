@@ -1601,7 +1601,7 @@ export interface AstroUserConfig {
 		 * @name experimental.clientPrerender
 		 * @type {boolean}
 		 * @default `false`
-		 * @version: 4.2.0
+		 * @version 4.2.0
 		 * @description
 		 * Enables pre-rendering your prefetched pages on the client in supported browsers.
 		 *
@@ -1642,20 +1642,20 @@ export interface AstroUserConfig {
 		 *
 		 * Prioritizes redirects and injected routes equally alongside file-based project routes, following the same [route priority order rules](https://docs.astro.build/en/core-concepts/routing/#route-priority-order) for all routes.
 		 *
-		 * The following table shows which route builds certain page URLs when file-based routes, injected routes, and redirects are combined as shown below:
+	   * This allows more control over routing in your project by not automatically prioritizing certain types of routes, and standardizes the route priority ordering for all routes.
+		 *
+		 * The following example shows which route will build certain page URLs when file-based routes, injected routes, and redirects are combined as shown below:
 		 * - File-based route: `/blog/post/[pid]`
 		 * - File-based route: `/[page]`
 		 * - Injected route: `/blog/[...slug]`
 		 * - Redirect: `/blog/tags/[tag]` -> `/[tag]`
 		 * - Redirect: `/posts` -> `/blog`
 		 *
-		 * URLs are handled by the following routes:
+		 * With `experimental.globalRoutingPriority` enabled (instead of Astro 4.0 default route priority order):
 		 *
-		 * | Page               | Current Behavior                 | Global Routing Priority Behavior    |
-		 * | ------------------ | -------------------------------- | ----------------------------------- |
-		 * | `/blog/tags/astro` | Injected route `/blog/[...slug]` | Redirect to `/tags/[tag]`           |
-		 * | `/blog/post/0`     | Injected route `/blog/[...slug]` | File-based route `/blog/post/[pid]` |
-		 * | `/posts`           | File-based route `/[page]`       | Redirect to `/blog`                 |
+		 * - `/blog/tags/astro` is built by the redirect to `/tags/[tag]` (instead of the injected route `/blog/[...slug]`)
+		 * - `/blog/post/0` is built by the file-based route `/blog/post/[pid]` (instead of the injected route `/blog/[...slug]`)
+		 * - `/posts` is built by the redirect to `/blog` (instead of the file-based route `/[page]`)
 		 *
 		 *
 		 * In the event of route collisions, where two routes of equal route priority attempt to build the same URL, Astro will log a warning identifying the conflicting routes.
