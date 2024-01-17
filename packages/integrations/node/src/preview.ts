@@ -33,16 +33,16 @@ const createPreviewServer: CreatePreviewServer = async function (preview) {
 			throw err;
 		}
 	}
-	const host = preview.host ?? "localhost"
-	const port = preview.port ?? 4321
+	const host = preview.host ?? 'localhost';
+	const port = preview.port ?? 4321;
 	const server = createServer(ssrHandler, host, port);
-	logListeningOn(preview.logger, server.server, options)
+	logListeningOn(preview.logger, server.server, options);
 	await new Promise<void>((resolve, reject) => {
-	    server.server.once('listening', resolve);
-	    server.server.once('error', reject);
-	    server.server.listen(port, host);
+		server.server.once('listening', resolve);
+		server.server.once('error', reject);
+		server.server.listen(port, host);
 	});
 	return server;
 };
 
-export { createPreviewServer as default }
+export { createPreviewServer as default };
