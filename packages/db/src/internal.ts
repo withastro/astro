@@ -13,14 +13,21 @@ import {
 	type TextField,
 } from './types.js';
 import { type LibSQLDatabase, drizzle } from 'drizzle-orm/libsql';
-import { SQLiteAsyncDialect, SQLiteTable } from 'drizzle-orm/sqlite-core';
 import { bold } from 'kleur/colors';
-import { type SQL, type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
 import {
+	type SQL,
+	type ColumnBuilderBaseConfig,
+	type ColumnDataType,
+	sql,
+	getTableName,
+} from 'drizzle-orm';
+import {
+	SQLiteAsyncDialect,
 	customType,
 	integer,
 	sqliteTable,
 	text,
+	type SQLiteTable,
 	type SQLiteColumnBuilderBase,
 } from 'drizzle-orm/sqlite-core';
 import { z } from 'zod';
@@ -45,10 +52,9 @@ function isReadableCollection(collection: DBCollection): collection is ReadableD
 }
 
 function checkIfModificationIsAllowed(collections: DBCollections, Table: SQLiteTable) {
-	// This totally works, don't worry about it
-	const tableName = (Table as any)[(SQLiteTable as any).Symbol.Name];
+	const tableName = getTableName(Table);
 	const collection = collections[tableName];
-	if (collection.writable) {
+	if (!collection.writable) {
 		throw new Error(`The [${tableName}] collection is read-only.`);
 	}
 }
