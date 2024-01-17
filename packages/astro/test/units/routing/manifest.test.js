@@ -19,11 +19,11 @@ function getLogger() {
 
 	return {
 		logger: new Logger({
-			dest: {write: (msg) => logs.push(msg)},
+			dest: { write: (msg) => logs.push(msg) },
 			level: 'debug',
 		}),
 		logs,
-	}
+	};
 }
 
 describe('routing - createRouteManifest', () => {
@@ -334,7 +334,7 @@ describe('routing - createRouteManifest', () => {
 			integrations: [],
 			experimental: {
 				globalRoutePriority: true,
-			}
+			},
 		});
 
 		settings.injectedRoutes = [
@@ -345,27 +345,28 @@ describe('routing - createRouteManifest', () => {
 		];
 
 		const manifestOptions = {
-				cwd: fileURLToPath(root),
-				settings,
-				fsMod: fs,
+			cwd: fileURLToPath(root),
+			settings,
+			fsMod: fs,
 		};
 
-		const {logger, logs} = getLogger();
+		const { logger, logs } = getLogger();
 
 		createRouteManifest(manifestOptions, logger);
 
 		expect(logs).to.deep.equal([
 			{
-				"label": "router",
-				"level": "warn",
-				"message": 'The route "/contributing" is defined in both "src/pages/contributing.astro" and "@lib/legacy/static.astro". A static route cannot be defined more than once.',
-				"newLine": true,
+				label: 'router',
+				level: 'warn',
+				message:
+					'The route "/contributing" is defined in both "src/pages/contributing.astro" and "@lib/legacy/static.astro". A static route cannot be defined more than once.',
+				newLine: true,
 			},
 			{
-				"label": "router",
-				"level": "warn",
-				"message": "A collision will result in an hard error in following versions of Astro.",
-				"newLine": true,
+				label: 'router',
+				level: 'warn',
+				message: 'A collision will result in an hard error in following versions of Astro.',
+				newLine: true,
 			},
 		]);
 	});
@@ -386,31 +387,32 @@ describe('routing - createRouteManifest', () => {
 			integrations: [],
 			experimental: {
 				globalRoutePriority: true,
-			}
+			},
 		});
 
 		const manifestOptions = {
-				cwd: fileURLToPath(root),
-				settings,
-				fsMod: fs,
+			cwd: fileURLToPath(root),
+			settings,
+			fsMod: fs,
 		};
 
-		const {logger, logs} = getLogger();
+		const { logger, logs } = getLogger();
 
 		createRouteManifest(manifestOptions, logger);
 
 		expect(logs).to.deep.equal([
 			{
-				"label": "router",
-				"level": "warn",
-				"message": 'The route "/[bar]" is defined in both "src/pages/[bar].astro" and "src/pages/[foo].astro" using SSR mode. A dynamic SSR route cannot be defined more than once.',
-				"newLine": true,
+				label: 'router',
+				level: 'warn',
+				message:
+					'The route "/[bar]" is defined in both "src/pages/[bar].astro" and "src/pages/[foo].astro" using SSR mode. A dynamic SSR route cannot be defined more than once.',
+				newLine: true,
 			},
 			{
-				"label": "router",
-				"level": "warn",
-				"message": "A collision will result in an hard error in following versions of Astro.",
-				"newLine": true,
+				label: 'router',
+				level: 'warn',
+				message: 'A collision will result in an hard error in following versions of Astro.',
+				newLine: true,
 			},
 		]);
 	});
