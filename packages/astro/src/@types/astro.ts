@@ -1642,7 +1642,7 @@ export interface AstroUserConfig {
 		 *
 		 * Prioritizes redirects and injected routes equally alongside file-based project routes, following the same [route priority order rules](https://docs.astro.build/en/core-concepts/routing/#route-priority-order) for all routes.
 		 *
-	   * This allows more control over routing in your project by not automatically prioritizing certain types of routes, and standardizes the route priority ordering for all routes.
+		 * This allows more control over routing in your project by not automatically prioritizing certain types of routes, and standardizes the route priority ordering for all routes.
 		 *
 		 * The following example shows which route will build certain page URLs when file-based routes, injected routes, and redirects are combined as shown below:
 		 * - File-based route: `/blog/post/[pid]`
