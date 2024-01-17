@@ -4,6 +4,7 @@ import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type {
 	BuiltinTheme,
 	LanguageRegistration,
+	ShikijiTransformer,
 	ThemeRegistration,
 	ThemeRegistrationRaw,
 } from 'shikiji';
@@ -32,11 +33,14 @@ export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlug
 
 export type RemarkRehype = RemarkRehypeOptions;
 
+export type ThemePresets = BuiltinTheme | 'css-variables';
+
 export interface ShikiConfig {
 	langs?: LanguageRegistration[];
-	theme?: BuiltinTheme | ThemeRegistration | ThemeRegistrationRaw;
-	experimentalThemes?: Record<string, BuiltinTheme | ThemeRegistration | ThemeRegistrationRaw>;
+	theme?: ThemePresets | ThemeRegistration | ThemeRegistrationRaw;
+	experimentalThemes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
 	wrap?: boolean | null;
+	transformers?: ShikijiTransformer[];
 }
 
 export interface AstroMarkdownOptions {

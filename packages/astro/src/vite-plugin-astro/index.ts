@@ -9,6 +9,7 @@ import {
 	cachedCompilation,
 	getCachedCompileResult,
 	type CompileProps,
+	invalidateCompilation,
 } from '../core/compile/index.js';
 import { isRelativePath } from '../core/path.js';
 import { normalizeFilename } from '../vite-plugin-utils/index.js';
@@ -27,6 +28,13 @@ interface AstroPluginOptions {
 export default function astro({ settings, logger }: AstroPluginOptions): vite.Plugin[] {
 	const { config } = settings;
 	let resolvedConfig: vite.ResolvedConfig;
+	let server: vite.ViteDevServer | undefined;
+	// Tailwind styles could register Astro files as dependencies of other Astro files,
+	// causing circular imports which trips Vite's HMR. This set is passed to `handleHotUpdate`
+	// to force a page reload when these dependency files are updated
+	// NOTE: We need to initialize a map here and in `buildStart` because our unit tests don't
+	// call `buildStart` (test bug)
+	let astroFileToCssAstroDeps = new Map<string, Set<string>>();
 
 	// Variables for determining if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
@@ -38,6 +46,12 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 		configResolved(_resolvedConfig) {
 			resolvedConfig = _resolvedConfig;
 		},
+		configureServer(_server) {
+			server = _server;
+		},
+		buildStart() {
+			astroFileToCssAstroDeps = new Map();
+		},
 		async load(id, opts) {
 			const parsedId = parseAstroRequest(id);
 			const query = parsedId.query;
@@ -46,9 +60,18 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			}
 			// For CSS / hoisted scripts, the main Astro module should already be cached
 			const filename = normalizePath(normalizeFilename(parsedId.filename, config.root));
-			const compileResult = getCachedCompileResult(config, filename);
+			let compileResult = getCachedCompileResult(config, filename);
 			if (!compileResult) {
-				return null;
+				// In dev, HMR could cause this compile result to be empty, try to load it first
+				if (server) {
+					await server.transformRequest('/@fs' + filename);
+					compileResult = getCachedCompileResult(config, filename);
+				}
+
+				// If there's really no compilation result, error
+				if (!compileResult) {
+					throw new Error('No cached compile result found for ' + id);
+				}
 			}
 
 			switch (query.type) {
@@ -144,10 +167,38 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				source,
 			};
 
+			// We invalidate and then compile again as we know Vite will only call this `transform`
+			// when its cache is invalidated.
+			// TODO: Do the compilation directly and remove our cache so we rely on Vite only.
+			invalidateCompilation(config, compileProps.filename);
 			const transformResult = await cachedFullCompilation({ compileProps, logger });
 
+			// Register dependencies of this module
+			const astroDeps = new Set<string>();
 			for (const dep of transformResult.cssDeps) {
+				if (dep.endsWith('.astro')) {
+					astroDeps.add(dep);
+				}
 				this.addWatchFile(dep);
+			}
+			astroFileToCssAstroDeps.set(id, astroDeps);
+
+			// When a dependency from the styles are updated, the dep and Astro module will get invalidated.
+			// However, the Astro style virtual module is not invalidated because we didn't register that the virtual
+			// module has that dependency. We currently can't do that either because of a Vite bug.
+			// https://github.com/vitejs/vite/pull/15608
+			// Here we manually invalidate the virtual modules ourselves when we're compiling the Astro module.
+			// When that bug is resolved, we can add the dependencies to the virtual module directly and remove this.
+			if (server) {
+				const mods = server.moduleGraph.getModulesByFile(compileProps.filename);
+				if (mods) {
+					const seen = new Set(mods);
+					for (const mod of mods) {
+						if (mod.url.includes('?astro')) {
+							server.moduleGraph.invalidateModule(mod, seen);
+						}
+					}
+				}
 			}
 
 			const astroMetadata: AstroPluginMetadata['astro'] = {
@@ -187,6 +238,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			return handleHotUpdate(context, {
 				config,
 				logger,
+				astroFileToCssAstroDeps,
 				compile,
 				source,
 			});

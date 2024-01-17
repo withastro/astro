@@ -16,6 +16,8 @@ const listenedAnchors = new WeakSet<HTMLAnchorElement>();
 let prefetchAll: boolean = __PREFETCH_PREFETCH_ALL__;
 // @ts-expect-error injected global
 let defaultStrategy: string = __PREFETCH_DEFAULT_STRATEGY__;
+// @ts-expect-error injected global
+let clientPrerender: boolean = __EXPERIMENTAL_CLIENT_PRERENDER__;
 
 interface InitOptions {
 	defaultStrategy?: string;
@@ -216,7 +218,14 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 	const priority = opts?.with ?? 'link';
 	debug?.(`[astro] Prefetching ${url} with ${priority}`);
 
-	if (priority === 'link') {
+	if (
+		clientPrerender &&
+		HTMLScriptElement.supports &&
+		HTMLScriptElement.supports('speculationrules')
+	) {
+		// this code is tree-shaken if unused
+		appendSpeculationRules(url);
+	} else if (priority === 'link') {
 		const link = document.createElement('link');
 		link.rel = 'prefetch';
 		link.setAttribute('href', url);
@@ -300,4 +309,27 @@ function onPageLoad(cb: () => void) {
 		}
 		cb();
 	});
+}
+
+/**
+ * Appends a `<script type="speculationrules">` tag to the head of the
+ * document that prerenders the `url` passed in.
+ *
+ * Modifying the script and appending a new link does not trigger the prerender.
+ * A new script must be added for each `url`.
+ *
+ * @param url The url of the page to prerender.
+ */
+function appendSpeculationRules(url: string) {
+	const script = document.createElement('script');
+	script.type = 'speculationrules';
+	script.textContent = JSON.stringify({
+		prerender: [
+			{
+				source: 'list',
+				urls: [url],
+			},
+		],
+	});
+	document.head.append(script);
 }
