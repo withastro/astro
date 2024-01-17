@@ -76,11 +76,6 @@ export async function cachedFullCompilation({
 		}
 	}
 
-	// Prefer live reload to HMR in `.astro` files
-	if (!compileProps.viteConfig.isProduction) {
-		SUFFIX += `\nif (import.meta.hot) { import.meta.hot.decline() }`;
-	}
-
 	return {
 		...transformResult,
 		code: esbuildResult.code + SUFFIX,
