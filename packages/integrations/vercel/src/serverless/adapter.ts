@@ -112,7 +112,7 @@ export default function vercelServerless({
 	webAnalytics,
 	speedInsights,
 	includeFiles,
-	excludeFiles,
+	excludeFiles = [],
 	imageService,
 	imagesConfig,
 	devImageService = 'sharp',
@@ -189,9 +189,10 @@ export default function vercelServerless({
 			'astro:config:done': ({ setAdapter, config, logger }) => {
 				if (functionPerRoute === true) {
 					logger.warn(
-						`Vercel's hosting plans might have limits to the number of functions you can create.
-Make sure to check your plan carefully to avoid incurring additional costs.
-You can set functionPerRoute: false to prevent surpassing the limit.`
+						`\n` +
+							`\tVercel's hosting plans might have limits to the number of functions you can create.\n` +
+							`\tMake sure to check your plan carefully to avoid incurring additional costs.\n` +
+							`\tYou can set functionPerRoute: false to prevent surpassing the limit.\n`
 					);
 				}
 				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware }));
@@ -205,7 +206,6 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 					);
 				}
 			},
-
 			'astro:build:ssr': async ({ entryPoints, middlewareEntryPoint }) => {
 				_entryPoints = entryPoints;
 				if (middlewareEntryPoint) {
@@ -223,7 +223,6 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 					extraFilesToInclude.push(bundledMiddlewarePath);
 				}
 			},
-
 			'astro:build:done': async ({ routes, logger }) => {
 				// Merge any includes from `vite.assetsInclude
 				if (_config.vite.assetsInclude) {
@@ -245,7 +244,7 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 				const filesToInclude = includeFiles?.map((file) => new URL(file, _config.root)) || [];
 				filesToInclude.push(...extraFilesToInclude);
 
-				validateRuntime();
+				const runtime = getRuntime(process, logger);
 
 				// Multiple entrypoint support
 				if (_entryPoints.size) {
@@ -263,6 +262,7 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 
 						await createFunctionFolder({
 							functionName: func,
+							runtime,
 							entry: entryFile,
 							config: _config,
 							logger,
@@ -279,6 +279,7 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 				} else {
 					await createFunctionFolder({
 						functionName: 'render',
+						runtime,
 						entry: new URL(serverEntry, buildTempFolder),
 						config: _config,
 						logger,
@@ -342,19 +343,23 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 	};
 }
 
+type Runtime = `nodejs${string}.x`;
+
 interface CreateFunctionFolderArgs {
 	functionName: string;
+	runtime: Runtime;
 	entry: URL;
 	config: AstroConfig;
 	logger: AstroIntegrationLogger;
 	NTF_CACHE: any;
 	includeFiles: URL[];
-	excludeFiles?: string[];
+	excludeFiles: string[];
 	maxDuration: number | undefined;
 }
 
 async function createFunctionFolder({
 	functionName,
+	runtime,
 	entry,
 	config,
 	logger,
@@ -363,7 +368,10 @@ async function createFunctionFolder({
 	excludeFiles,
 	maxDuration,
 }: CreateFunctionFolderArgs) {
+	// .vercel/output/functions/<name>.func/
 	const functionFolder = new URL(`./functions/${functionName}.func/`, config.outDir);
+	const packageJson = new URL(`./functions/${functionName}.func/package.json`, config.outDir);
+	const vcConfig = new URL(`./functions/${functionName}.func/.vc-config.json`, config.outDir);
 
 	// Copy necessary files (e.g. node_modules/)
 	const { handler } = await copyDependenciesToFunction(
@@ -371,7 +379,7 @@ async function createFunctionFolder({
 			entry,
 			outDir: functionFolder,
 			includeFiles,
-			excludeFiles: excludeFiles?.map((file) => new URL(file, config.root)) || [],
+			excludeFiles: excludeFiles.map((file) => new URL(file, config.root)),
 			logger,
 		},
 		NTF_CACHE
@@ -379,14 +387,12 @@ async function createFunctionFolder({
 
 	// Enable ESM
 	// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
-	await writeJson(new URL(`./package.json`, functionFolder), {
-		type: 'module',
-	});
+	await writeJson(packageJson, { type: 'module' });
 
 	// Serverless function config
 	// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
-	await writeJson(new URL(`./.vc-config.json`, functionFolder), {
-		runtime: getRuntime(),
+	await writeJson(vcConfig, {
+		runtime,
 		handler,
 		launcherType: 'Nodejs',
 		maxDuration,
@@ -394,44 +400,43 @@ async function createFunctionFolder({
 	});
 }
 
-function validateRuntime() {
-	const version = process.version.slice(1); // 'v16.5.0' --> '16.5.0'
-	const major = version.split('.')[0]; // '16.5.0' --> '16'
+function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Runtime {
+	const version = process.version.slice(1); // 'v18.19.0' --> '18.19.0'
+	const major = version.split('.')[0]; // '18.19.0' --> '18'
 	const support = SUPPORTED_NODE_VERSIONS[major];
 	if (support === undefined) {
-		console.warn(
-			`[${PACKAGE_NAME}] The local Node.js version (${major}) is not supported by Vercel Serverless Functions.`
+		logger.warn(
+			`\n` +
+				`\tThe local Node.js version (${major}) is not supported by Vercel Serverless Functions.\n` +
+				`\tYour project will use Node.js 18 as the runtime instead.\n` +
+				`\tConsider switching your local version to 18.\n`
 		);
-		console.warn(`[${PACKAGE_NAME}] Your project will use Node.js 18 as the runtime instead.`);
-		console.warn(`[${PACKAGE_NAME}] Consider switching your local version to 18.`);
-		return;
 	}
-	if (support.status === 'beta') {
-		console.warn(
-			`[${PACKAGE_NAME}] The local Node.js version (${major}) is currently in beta for Vercel Serverless Functions.`
+	if (support.status === 'current') {
+		return `nodejs${major}.x`;
+	} else if (support?.status === 'beta') {
+		logger.warn(
+			`Your project is being built for Node.js ${major} as the runtime, which is currently in beta for Vercel Serverless Functions.`
 		);
-		console.warn(`[${PACKAGE_NAME}] Make sure to update your Vercel settings to use ${major}.`);
-		return;
-	}
-	if (support.status === 'deprecated') {
-		console.warn(
-			`[${PACKAGE_NAME}] Your project is being built for Node.js ${major} as the runtime.`
+		return `nodejs${major}.x`;
+	} else if (support.status === 'deprecated') {
+		const removeDate = new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(
+			support.removal
 		);
-		console.warn(
-			`[${PACKAGE_NAME}] This version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${new Intl.DateTimeFormat(
-				undefined,
-				{ dateStyle: 'long' }
-			).format(support.removal)}.`
+		logger.warn(
+			`\n` +
+				`\tYour project is being built for Node.js ${major} as the runtime.\n` +
+				`\tThis version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${removeDate}.\n` +
+				`\tConsider upgrading your local version to 18.\n`
 		);
-		console.warn(`[${PACKAGE_NAME}] Consider upgrading your local version to 18.`);
-	}
-}
-
-function getRuntime() {
-	const version = process.version.slice(1); // 'v16.5.0' --> '16.5.0'
-	const major = version.split('.')[0]; // '16.5.0' --> '16'
-	const support = SUPPORTED_NODE_VERSIONS[major];
-	if (support === undefined) {
+		return `nodejs${major}.x`;
+	} else {
+		logger.warn(
+			`\n` +
+				`\tThe local Node.js version (${major}) is not supported by Vercel Serverless Functions.\n` +
+				`\tYour project will use Node.js 18 as the runtime instead.\n` +
+				`\tConsider switching your local version to 18.\n`
+		);
 		return 'nodejs18.x';
 	}
 	return `nodejs${major}.x`;
