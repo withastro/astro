@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fix regression in routing priority between `index.astro` routes and dynamic routes with rest parameters
+Fixes a regression in routing priority between `index.astro` and dynamic routes with rest parameters
