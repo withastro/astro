@@ -9,6 +9,7 @@ import { createDb, setupDbTables } from './internal.js';
 import { astroConfigWithDbSchema } from './config.js';
 import { getAstroStudioEnv, type VitePlugin } from './utils.js';
 import { appTokenError } from './errors.js';
+import { errorMap } from './error-map.js';
 
 export function integration(): AstroIntegration {
 	return {
@@ -19,7 +20,7 @@ export function integration(): AstroIntegration {
 
 				// TODO: refine where we load collections
 				// @matthewp: may want to load collections by path at runtime
-				const configWithDb = astroConfigWithDbSchema.parse(config);
+				const configWithDb = astroConfigWithDbSchema.parse(config, { errorMap });
 				const collections = configWithDb.db?.collections ?? {};
 				const studio = configWithDb.db?.studio ?? false;
 
