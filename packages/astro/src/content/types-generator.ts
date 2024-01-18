@@ -107,6 +107,17 @@ export async function createContentTypesGenerator({
 		return { typesGenerated: true };
 	}
 
+	async function sync() {
+		await writeContentFiles({
+			fs,
+			collectionEntryMap,
+			contentPaths,
+			typeTemplateContent,
+			contentEntryTypes: settings.contentEntryTypes,
+			viteServer,
+		});
+	}
+
 	async function handleEvent(event: ContentEvent): Promise<{ shouldGenerateTypes: boolean }> {
 		if (event.name === 'addDir' || event.name === 'unlinkDir') {
 			const collection = normalizePath(
@@ -321,7 +332,7 @@ export async function createContentTypesGenerator({
 			}
 		}
 	}
-	return { init, queueEvent };
+	return { init, sync, queueEvent };
 }
 
 // The virtual module contains a lookup map from slugs to content imports.
