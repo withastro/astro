@@ -20,7 +20,8 @@ export async function getPackage<T>(
 ): Promise<T | undefined> {
 	let packageImport;
 	try {
-		await tryResolve(packageName, options.cwd ?? process.cwd());
+		// TODO: uncomment this when `@astrojs/db` works
+		// await tryResolve(packageName, options.cwd ?? process.cwd());
 
 		// The `require.resolve` is required as to avoid Node caching the failed `import`
 		packageImport = await import(packageName);
