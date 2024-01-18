@@ -30,6 +30,7 @@ export type SyncOptions = {
 
 export type SyncInternalOptions = SyncOptions & {
 	logger: Logger;
+	loadContentConfig?: boolean;
 };
 
 /**
@@ -74,7 +75,7 @@ export default async function sync(
  */
 export async function syncInternal(
 	settings: AstroSettings,
-	{ logger, fs }: SyncInternalOptions
+	{ logger, fs, loadContentConfig }: SyncInternalOptions
 ): Promise<ProcessExit> {
 	const timerStart = performance.now();
 	// Needed to load content config
@@ -108,7 +109,7 @@ export async function syncInternal(
 			settings,
 			viteServer: tempViteServer,
 		});
-		await contentTypesGenerator.sync();
+		await contentTypesGenerator.sync({ loadContentConfig });
 
 		const contentConfig = globalContentConfigObserver.get();
 		if (contentConfig.status === 'error') {

@@ -107,7 +107,7 @@ export async function createContentTypesGenerator({
 		return { typesGenerated: true };
 	}
 
-	async function sync() {
+	async function sync({ loadContentConfig }: { loadContentConfig?: boolean }) {
 		await writeContentFiles({
 			fs,
 			collectionEntryMap,
@@ -116,6 +116,7 @@ export async function createContentTypesGenerator({
 			contentEntryTypes: settings.contentEntryTypes,
 			viteServer,
 		});
+		if (loadContentConfig) await reloadContentConfigObserver({ fs, settings, viteServer });
 	}
 
 	async function handleEvent(event: ContentEvent): Promise<{ shouldGenerateTypes: boolean }> {
