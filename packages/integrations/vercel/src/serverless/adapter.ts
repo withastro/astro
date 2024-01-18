@@ -32,6 +32,11 @@ const PACKAGE_NAME = '@astrojs/vercel/serverless';
 export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
 export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
 
+// Vercel routes the folder names to a path on the deployed website.
+// We attempt to avoid interfering by prefixing with an underscore.
+const NODE_PATH = '_render';
+const MIDDLEWARE_PATH = '_middleware';
+
 // https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/node-js#node.js-version
 const SUPPORTED_NODE_VERSIONS: Record<
 	string,
@@ -272,7 +277,7 @@ export default function vercelServerless({
 					}
 				} else {
 					await createFunctionFolder({
-						functionName: '_render',
+						functionName: NODE_PATH,
 						runtime,
 						entry: new URL(_serverEntry, _buildTempFolder),
 						config: _config,
@@ -282,14 +287,14 @@ export default function vercelServerless({
 						excludeFiles,
 						maxDuration,
 					});
-					const dest = _middlewareEntryPoint ? '_middleware' : '_render';
+					const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 					for (const route of routes) {
 						if (!route.prerender) routeDefinitions.push({ src: route.pattern.source, dest });
 					}
 				}
 				if (_middlewareEntryPoint) {
 					await createMiddlewareFolder({
-						functionName: '_middleware',
+						functionName: MIDDLEWARE_PATH,
 						entry: _middlewareEntryPoint,
 						config: _config,
 					});
@@ -313,8 +318,8 @@ export default function vercelServerless({
 									{
 										src: '/.*',
 										dest: fourOhFourRoute.prerender ? '/404.html'
-											: _middlewareEntryPoint ? '_middleware'
-											: 'render',
+											: _middlewareEntryPoint ? MIDDLEWARE_PATH
+											: NODE_PATH,
 										status: 404,
 									},
 								]
