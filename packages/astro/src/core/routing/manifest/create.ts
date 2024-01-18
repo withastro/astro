@@ -33,6 +33,10 @@ interface Item {
 	routeSuffix: string;
 }
 
+interface ManifestRouteData extends RouteData {
+	isIndex: boolean;
+}
+
 function countOccurrences(needle: string, haystack: string) {
 	let count = 0;
 	for (const hay of haystack) {
@@ -135,6 +139,40 @@ function validateSegment(segment: string, file = '') {
 }
 
 /**
+ * Checks whether two route segments are semantically equivalent.
+ *
+ * Two segments are equivalent if they would match the same paths. This happens when:
+ * - They have the same length.
+ * - Each part in the same position is either:
+ *   - Both static and with the same content (e.g. `/foo` and `/foo`).
+ *   - Both dynamic, regardless of the content (e.g. `/[bar]` and `/[baz]`).
+ *   - Both rest parameters, regardless of the content (e.g. `/[...bar]` and `/[...baz]`).
+ */
+function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]) {
+	if (segmentA.length !== segmentB.length) {
+		return false;
+	}
+
+	for (const [index, partA] of segmentA.entries()) {
+		// Safe to use the index of one segment for the other because the segments have the same length
+		const partB = segmentB[index];
+
+		if (partA.dynamic !== partB.dynamic || partA.spread !== partB.spread) {
+			return false;
+		}
+
+		// Only compare the content on non-dynamic segments
+		// `/[bar]` and `/[baz]` are effectively the same route,
+		// only bound to a different path parameter.
+		if (!partA.dynamic && partA.content !== partB.content) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/**
  * Comparator for sorting routes in resolution order.
  *
  * The routes are sorted in by the following rules in order, following the first rule that
@@ -142,6 +180,8 @@ function validateSegment(segment: string, file = '') {
  * - More specific routes are sorted before less specific routes. Here, "specific" means
  *   the number of segments in the route, so a parent route is always sorted after its children.
  *   For example, `/foo/bar` is sorted before `/foo`.
+ *   Index routes, originating from a file named `index.astro`, are considered to have one more
+ *   segment than the URL they represent.
  * - Static routes are sorted before dynamic routes.
  *   For example, `/foo/bar` is sorted before `/foo/[bar]`.
  * - Dynamic routes with single parameters are sorted before dynamic routes with rest parameters.
@@ -153,10 +193,14 @@ function validateSegment(segment: string, file = '') {
  *   For example, `/bar` is sorted before `/foo`.
  *   The definition of "alphabetically" is dependent on the default locale of the running system.
  */
-function routeComparator(a: RouteData, b: RouteData) {
+function routeComparator(a: ManifestRouteData, b: ManifestRouteData) {
+	// For sorting purposes, an index route is considered to have one more segment than the URL it represents.
+	const aLength = a.isIndex ? a.segments.length + 1 : a.segments.length;
+	const bLength = b.isIndex ? b.segments.length + 1 : b.segments.length;
+	
 	// Sort more specific routes before less specific routes
-	if (a.segments.length !== b.segments.length) {
-		return a.segments.length > b.segments.length ? -1 : 1;
+	if (aLength !== bLength) {
+		return aLength > bLength ? -1 : 1;
 	}
 
 	const aIsStatic = a.segments.every((segment) =>
@@ -206,9 +250,9 @@ export interface CreateRouteManifestParams {
 function createFileBasedRoutes(
 	{ settings, cwd, fsMod }: CreateRouteManifestParams,
 	logger: Logger
-): RouteData[] {
+): ManifestRouteData[] {
 	const components: string[] = [];
-	const routes: RouteData[] = [];
+	const routes: ManifestRouteData[] = [];
 	const validPageExtensions = new Set<string>([
 		'.astro',
 		...SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
@@ -321,6 +365,7 @@ function createFileBasedRoutes(
 					.join('/')}`.toLowerCase();
 				routes.push({
 					route,
+					isIndex: item.isIndex,
 					type: item.isPage ? 'page' : 'endpoint',
 					pattern,
 					segments,
@@ -348,7 +393,7 @@ function createFileBasedRoutes(
 	return routes;
 }
 
-type PrioritizedRoutesData = Record<RoutePriorityOverride, RouteData[]>;
+type PrioritizedRoutesData = Record<RoutePriorityOverride, ManifestRouteData[]>;
 
 function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): PrioritizedRoutesData {
 	const { config } = settings;
@@ -398,6 +443,8 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 
 		routes[priority].push({
 			type,
+			// For backwards compatibility, an injected route is never considered an index route.
+			isIndex: false,
 			route,
 			pattern,
 			segments,
@@ -468,6 +515,8 @@ function createRedirectRoutes(
 
 		routes[priority].push({
 			type: 'redirect',
+			// For backwards compatibility, a redirect is never considered an index route.
+			isIndex: false,
 			route,
 			pattern,
 			segments,
@@ -490,40 +539,6 @@ function createRedirectRoutes(
  */
 function isStaticSegment(segment: RoutePart[]) {
 	return segment.every((part) => !part.dynamic && !part.spread);
-}
-
-/**
- * Checks whether two route segments are semantically equivalent.
- *
- * Two segments are equivalent if they would match the same paths. This happens when:
- * - They have the same length.
- * - Each part in the same position is either:
- *   - Both static and with the same content (e.g. `/foo` and `/foo`).
- *   - Both dynamic, regardless of the content (e.g. `/[bar]` and `/[baz]`).
- *   - Both rest parameters, regardless of the content (e.g. `/[...bar]` and `/[...baz]`).
- */
-function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]) {
-	if (segmentA.length !== segmentB.length) {
-		return false;
-	}
-
-	for (const [index, partA] of segmentA.entries()) {
-		// Safe to use the index of one segment for the other because the segments have the same length
-		const partB = segmentB[index];
-
-		if (partA.dynamic !== partB.dynamic || partA.spread !== partB.spread) {
-			return false;
-		}
-
-		// Only compare the content on non-dynamic segments
-		// `/[bar]` and `/[baz]` are effectively the same route,
-		// only bound to a different path parameter.
-		if (!partA.dynamic && partA.content !== partB.content) {
-			return false;
-		}
-	}
-
-	return true;
 }
 
 /**
@@ -624,7 +639,7 @@ export function createRouteManifest(
 
 	const redirectRoutes = createRedirectRoutes(params, routeMap, logger);
 
-	const routes: RouteData[] = [
+	const routes: ManifestRouteData[] = [
 		...injectedRoutes['legacy'].sort(routeComparator),
 		...[...fileBasedRoutes, ...injectedRoutes['normal'], ...redirectRoutes['normal']].sort(
 			routeComparator
@@ -660,8 +675,8 @@ export function createRouteManifest(
 
 		// In this block of code we group routes based on their locale
 
-		// A map like: locale => RouteData[]
-		const routesByLocale = new Map<string, RouteData[]>();
+		// A map like: locale => ManifestRouteData[]
+		const routesByLocale = new Map<string, ManifestRouteData[]>();
 		// This type is here only as a helper. We copy the routes and make them unique, so we don't "process" the same route twice.
 		// The assumption is that a route in the file system belongs to only one locale.
 		const setRoutes = new Set(routes.filter((route) => route.type === 'page'));
