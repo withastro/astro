@@ -54,8 +54,6 @@ function guessRenderers(componentUrl?: string): string[] {
 	}
 }
 
-export type ComponentIterable = AsyncIterable<string | RenderInstruction>;
-
 function isFragmentComponent(Component: unknown) {
 	return Component === Fragment;
 }
