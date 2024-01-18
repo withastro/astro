@@ -1,7 +1,6 @@
-import { replaceCssVariables } from '@astrojs/markdown-remark';
 import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { codeToHtml } from 'shikiji';
+import { codeToHtml, createCssVariablesTheme } from 'shikiji';
 import type { ErrorPayload } from 'vite';
 import type { ModuleLoader } from '../../module-loader/index.js';
 import { FailedToLoadModuleSSR, InvalidGlob, MdxIntegrationMissingError } from '../errors-data.js';
@@ -124,7 +123,11 @@ export interface AstroErrorPayload {
 // Map these to `.js` during error highlighting.
 const ALTERNATIVE_JS_EXTS = ['cjs', 'mjs'];
 const ALTERNATIVE_MD_EXTS = ['mdoc'];
-const INLINE_STYLE_SELECTOR_GLOBAL = /style="(.*?)"/g;
+
+let _cssVariablesTheme: ReturnType<typeof createCssVariablesTheme>;
+const cssVariablesTheme = () =>
+	_cssVariablesTheme ??
+	(_cssVariablesTheme = createCssVariablesTheme({ variablePrefix: '--astro-code-' }));
 
 /**
  * Generate a payload for Vite's error overlay
@@ -147,20 +150,14 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 	if (ALTERNATIVE_MD_EXTS.includes(highlighterLang ?? '')) {
 		highlighterLang = 'md';
 	}
-	let highlightedCode = err.fullCode
+	const highlightedCode = err.fullCode
 		? await codeToHtml(err.fullCode, {
 				// @ts-expect-error always assume that shiki can accept the lang string
 				lang: highlighterLang,
-				theme: 'css-variables',
+				theme: cssVariablesTheme(),
 				lineOptions: err.loc?.line ? [{ line: err.loc.line, classes: ['error-line'] }] : undefined,
 			})
 		: undefined;
-
-	if (highlightedCode) {
-		highlightedCode = highlightedCode.replace(INLINE_STYLE_SELECTOR_GLOBAL, (m) =>
-			replaceCssVariables(m)
-		);
-	}
 
 	return {
 		type: 'error',

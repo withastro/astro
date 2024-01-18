@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 3.0.5
+
+### Patch Changes
+
+- [#9704](https://github.com/withastro/astro/pull/9704) [`b325fada567892b63ecae87c1ff845c8514457ba`](https://github.com/withastro/astro/commit/b325fada567892b63ecae87c1ff845c8514457ba) Thanks [@andremralves](https://github.com/andremralves)! - Fixes generated URLs when using a `base` with a SSR adapter
+
 ## 3.0.4
 
 ### Patch Changes

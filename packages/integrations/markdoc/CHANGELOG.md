@@ -1,5 +1,11 @@
 # @astrojs/markdoc
 
+## 0.8.3
+
+### Patch Changes
+
+- [#9643](https://github.com/withastro/astro/pull/9643) [`e9a72d9a91a3741566866bcaab11172cb0dc7d31`](https://github.com/withastro/astro/commit/e9a72d9a91a3741566866bcaab11172cb0dc7d31) Thanks [@blackmann](https://github.com/blackmann)! - Removes unnecessary `shikiji` dependency
+
 ## 0.8.2
 
 ### Patch Changes

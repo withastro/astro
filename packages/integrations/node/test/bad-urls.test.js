@@ -34,9 +34,9 @@ describe('Bad URLs', () => {
 
 		for (const weirdUrl of weirdURLs) {
 			const fetchResult = await fixture.fetch(weirdUrl);
-			expect([400, 500]).to.include(
+			expect([400, 404, 500]).to.include(
 				fetchResult.status,
-				`${weirdUrl} returned something else than 400 or 500`
+				`${weirdUrl} returned something else than 400, 404, or 500`
 			);
 		}
 		const stillWork = await fixture.fetch('/');
