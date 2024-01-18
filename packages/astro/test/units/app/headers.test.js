@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { createOutgoingHttpHeaders } from '../dist/createOutgoingHttpHeaders.js';
+import { createOutgoingHttpHeaders } from '../../../dist/core/app/createOutgoingHttpHeaders.js';
 
 describe('createOutgoingHttpHeaders', () => {
 	it('undefined input headers', async () => {

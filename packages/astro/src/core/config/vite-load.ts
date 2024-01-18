@@ -7,7 +7,7 @@ import { debug } from '../logger/core.js';
 async function createViteServer(root: string, fs: typeof fsType): Promise<ViteDevServer> {
 	const viteServer = await createServer({
 		server: { middlewareMode: true, hmr: false, watch: null },
-		optimizeDeps: { disabled: true },
+		optimizeDeps: { noDiscovery: true },
 		clearScreen: false,
 		appType: 'custom',
 		ssr: {
