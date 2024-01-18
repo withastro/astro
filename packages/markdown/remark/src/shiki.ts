@@ -132,7 +132,7 @@ export async function createShikiHighlighter({
 }
 
 function normalizeMaybeArray(value: Properties[string]): string | null {
-	return Array.isArray(value) ? value.join(' ') : (value as string);
+	return Array.isArray(value) ? value.join(' ') : (value as string | null);
 }
 
 /**
