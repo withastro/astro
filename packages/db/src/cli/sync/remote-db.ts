@@ -1,6 +1,7 @@
-import type { InStatement } from "@libsql/client";
-import { getRemoteDatabaseUrl } from "../../utils.js";
+import type { InStatement } from '@libsql/client';
+import { getRemoteDatabaseUrl } from '../../utils.js';
 import { z } from 'zod';
+import { drizzle } from 'drizzle-orm/sqlite-proxy';
 
 const queryResultSchema = z.object({
 	rows: z.array(z.unknown()),
@@ -9,8 +10,6 @@ const queryResultSchema = z.object({
 export function createDb(appToken: string) {
 	const url = new URL('./db/query/', getRemoteDatabaseUrl());
 
-	// @ts-expect-error Drizzle types should allow `rows: undefined` as a return value
-	// when `get()` is empty. Reported upstream.
 	const db = drizzle(async (sql, parameters, method) => {
 		const requestBody: InStatement = { sql, args: parameters };
 		// eslint-disable-next-line no-console
@@ -25,7 +24,7 @@ export function createDb(appToken: string) {
 		});
 		if (!res.ok) {
 			throw new Error(
-				`Failed to execute query.\nQuery: ${sql}\nFull error: ${res.status} ${await res.text()}}`,
+				`Failed to execute query.\nQuery: ${sql}\nFull error: ${res.status} ${await res.text()}}`
 			);
 		}
 
@@ -37,7 +36,7 @@ export function createDb(appToken: string) {
 			throw new Error(
 				`Failed to execute query.\nQuery: ${sql}\nFull error: Unexpected JSON response. ${
 					e instanceof Error ? e.message : String(e)
-				}`,
+				}`
 			);
 		}
 
