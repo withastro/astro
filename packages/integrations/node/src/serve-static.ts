@@ -58,7 +58,8 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 						pathname = urlPath;
 				break;
 			}
-			pathname = app.removeBase(pathname);
+			// app.removeBase sometimes returns a path without a leading slash
+			pathname = prependForwardSlash(app.removeBase(pathname));
 
 			const stream = send(req, pathname, {
 				root: client,
@@ -104,6 +105,10 @@ function resolveClientDir(options: Options) {
 	const clientURL = new URL(appendForwardSlash(rel), serverEntryURL);
 	const client = url.fileURLToPath(clientURL);
 	return client;
+}
+
+function prependForwardSlash(pth: string) {
+	return pth.startsWith('/') ? pth : '/' + pth;
 }
 
 function appendForwardSlash(pth: string) {
