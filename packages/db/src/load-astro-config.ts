@@ -45,7 +45,9 @@ function search(root: string) {
 async function loadConfigWithVite(configPath: string): Promise<Record<string, unknown>> {
 	if (/\.[cm]?js$/.test(configPath)) {
 		try {
-			const config = await import(pathToFileURL(configPath).toString() + '?t=' + Date.now());
+			const config = await import(
+				/* @vite-ignore */ pathToFileURL(configPath).toString() + '?t=' + Date.now()
+			);
 			return config.default ?? {};
 		} catch (e) {
 			// We do not need to throw the error here as we have a Vite fallback below
