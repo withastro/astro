@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-makes the output of 'astro preferences list' more verbose
+Improves the CLI output of `astro preferences list` to include additional relevant information
