@@ -40,13 +40,17 @@ export const markHTMLString = (value: any) => {
 	// and sanitization should have already happened to the `value` argument.
 	// NOTE: `unknown as string` is necessary for TypeScript to treat this as `string`
 	if (typeof value === 'string') {
-		return new HTMLString(value) as unknown as string;
+		return new HTMLString(value);
 	}
 	// Return all other values (`number`, `null`, `undefined`) as-is.
 	// The compiler will recursively stringify these correctly at a later stage.
 	return value;
 };
 
+/**
+ * @deprecated Use `value instanceof HTMLString` instead. Can't remove as used by `@astrojs/markdoc` v0.8.x.
+ * TODO: Remove this when releasing a new `@astrojs/markdoc` major.
+ */
 export function isHTMLString(value: any): value is HTMLString {
 	return Object.prototype.toString.call(value) === '[object HTMLString]';
 }

@@ -4,7 +4,7 @@ import Markdoc from '@markdoc/markdoc';
 import shiki from '../dist/extensions/shiki.js';
 import prism from '../dist/extensions/prism.js';
 import { setupConfig } from '../dist/runtime.js';
-import { isHTMLString } from 'astro/runtime/server/index.js';
+import { HTMLString } from 'astro/runtime/server/index.js';
 
 const entry = `
 \`\`\`ts
@@ -26,7 +26,7 @@ describe('Markdoc - syntax highlighting', () => {
 
 			expect(content.children).to.have.lengthOf(2);
 			for (const codeBlock of content.children) {
-				expect(isHTMLString(codeBlock)).to.be.true;
+				expect(codeBlock instanceof HTMLString).to.be.true;
 
 				const pre = parsePreTag(codeBlock);
 				expect(pre.classList).to.include('astro-code');
@@ -43,7 +43,7 @@ describe('Markdoc - syntax highlighting', () => {
 			);
 			expect(content.children).to.have.lengthOf(2);
 			for (const codeBlock of content.children) {
-				expect(isHTMLString(codeBlock)).to.be.true;
+				expect(codeBlock instanceof HTMLString).to.be.true;
 
 				const pre = parsePreTag(codeBlock);
 				expect(pre.classList).to.include('astro-code');
@@ -60,7 +60,7 @@ describe('Markdoc - syntax highlighting', () => {
 			);
 			expect(content.children).to.have.lengthOf(2);
 			for (const codeBlock of content.children) {
-				expect(isHTMLString(codeBlock)).to.be.true;
+				expect(codeBlock instanceof HTMLString).to.be.true;
 
 				const pre = parsePreTag(codeBlock);
 				expect(pre.getAttribute('style')).to.include('white-space: pre-wrap');
@@ -80,8 +80,8 @@ describe('Markdoc - syntax highlighting', () => {
 			expect(content.children).to.have.lengthOf(2);
 			const [tsBlock, cssBlock] = content.children;
 
-			expect(isHTMLString(tsBlock)).to.be.true;
-			expect(isHTMLString(cssBlock)).to.be.true;
+			expect(tsBlock instanceof HTMLString).to.be.true;
+			expect(cssBlock instanceof HTMLString).to.be.true;
 
 			const preTs = parsePreTag(tsBlock);
 			expect(preTs.classList).to.include('language-ts');

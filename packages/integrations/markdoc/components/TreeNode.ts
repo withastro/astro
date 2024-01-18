@@ -1,17 +1,16 @@
 import type { RenderableTreeNode } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroInstance } from 'astro';
-import type { HTMLString } from 'astro/runtime/server/index.js';
 import {
 	createComponent,
 	createHeadAndContent,
-	isHTMLString,
 	render,
 	renderComponent,
 	renderScriptElement,
 	renderTemplate,
 	renderUniqueStylesheet,
 	unescapeHTML,
+	HTMLString,
 } from 'astro/runtime/server/index.js';
 
 export type TreeNode =
@@ -103,8 +102,8 @@ export const ComponentNode = createComponent({
 });
 
 export async function createTreeNode(node: RenderableTreeNode): Promise<TreeNode> {
-	if (isHTMLString(node)) {
-		return { type: 'text', content: node as HTMLString };
+	if (node instanceof HTMLString) {
+		return { type: 'text', content: node };
 	} else if (typeof node === 'string' || typeof node === 'number') {
 		return { type: 'text', content: String(node) };
 	} else if (node === null || typeof node !== 'object' || !Markdoc.Tag.isTag(node)) {

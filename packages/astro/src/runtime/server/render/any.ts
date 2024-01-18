@@ -1,4 +1,4 @@
-import { escapeHTML, isHTMLString, markHTMLString } from '../escape.js';
+import { HTMLString, escapeHTML, markHTMLString } from '../escape.js';
 import { isAstroComponentInstance, isRenderTemplateResult } from './astro/index.js';
 import { isRenderInstance, type RenderDestination } from './common.js';
 import { SlotString } from './slot.js';
@@ -14,7 +14,7 @@ export async function renderChild(destination: RenderDestination, child: any) {
 		destination.write(markHTMLString(escapeHTML(child)));
 	} else if (!child && child !== 0) {
 		// do nothing, safe to ignore falsey values.
-	} else if (isHTMLString(child)) {
+	} else if (child instanceof HTMLString) {
 		destination.write(child);
 	} else if (child instanceof SlotString) {
 		destination.write(child);
