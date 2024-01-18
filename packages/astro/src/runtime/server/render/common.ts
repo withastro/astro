@@ -1,7 +1,7 @@
 import type { SSRResult } from '../../../@types/astro.js';
 import type { RenderInstruction } from './instruction.js';
 
-import type { HTMLBytes, HTMLString } from '../escape.js';
+import type { HTMLString } from '../escape.js';
 import { markHTMLString } from '../escape.js';
 import {
 	determineIfNeedsHydrationScript,
@@ -22,7 +22,6 @@ import { isSlotString, type SlotString } from './slot.js';
  */
 export type RenderDestinationChunk =
 	| string
-	| HTMLBytes
 	| HTMLString
 	| SlotString
 	| ArrayBufferView

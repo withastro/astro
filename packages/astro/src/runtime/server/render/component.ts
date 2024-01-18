@@ -8,7 +8,6 @@ import { createRenderInstruction, type RenderInstruction } from './instruction.j
 
 import { clsx } from 'clsx';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
-import type { HTMLBytes } from '../escape.js';
 import { markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
@@ -55,7 +54,7 @@ function guessRenderers(componentUrl?: string): string[] {
 	}
 }
 
-export type ComponentIterable = AsyncIterable<string | HTMLBytes | RenderInstruction>;
+export type ComponentIterable = AsyncIterable<string | RenderInstruction>;
 
 function isFragmentComponent(Component: unknown) {
 	return Component === Fragment;

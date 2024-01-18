@@ -4,16 +4,6 @@ import { streamAsyncIterator } from './util.js';
 // Leverage the battle-tested `html-escaper` npm package.
 export const escapeHTML = escape;
 
-export class HTMLBytes extends Uint8Array {}
-
-// TypeScript won't let us define this in the class body so have to do it
-// this way. Boo.
-Object.defineProperty(HTMLBytes.prototype, Symbol.toStringTag, {
-	get() {
-		return 'HTMLBytes';
-	},
-});
-
 /**
  * A "blessed" extension of String that tells Astro that the string
  * has already been escaped. This helps prevent double-escaping of HTML.
@@ -24,7 +14,7 @@ export class HTMLString extends String {
 	}
 }
 
-type BlessedType = string | HTMLBytes;
+type BlessedType = string | ArrayBufferView;
 
 /**
  * markHTMLString marks a string as raw or "already escaped" by returning
@@ -53,14 +43,6 @@ export const markHTMLString = (value: any) => {
  */
 export function isHTMLString(value: any): value is HTMLString {
 	return Object.prototype.toString.call(value) === '[object HTMLString]';
-}
-
-function markHTMLBytes(bytes: Uint8Array) {
-	return new HTMLBytes(bytes);
-}
-
-export function isHTMLBytes(value: any): value is HTMLBytes {
-	return Object.prototype.toString.call(value) === '[object HTMLBytes]';
 }
 
 function hasGetReader(obj: unknown): obj is ReadableStream {
@@ -93,7 +75,7 @@ export function unescapeHTML(
 	| AsyncGenerator<BlessedType, void, unknown> {
 	if (!!str && typeof str === 'object') {
 		if (str instanceof Uint8Array) {
-			return markHTMLBytes(str);
+			return str;
 		}
 		// If a response, stream out the chunks
 		else if (str instanceof Response && str.body) {

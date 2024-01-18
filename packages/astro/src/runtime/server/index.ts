@@ -5,7 +5,6 @@ export { createAstro } from './astro-global.js';
 export { renderEndpoint } from './endpoint.js';
 export {
 	escapeHTML,
-	HTMLBytes,
 	HTMLString,
 	isHTMLString,
 	markHTMLString,
