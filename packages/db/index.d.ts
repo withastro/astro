@@ -1,2 +1,3 @@
 /// <reference types="./config-augment.d.ts" />
-export type * from './dist/index.js';
+export * from './dist/index.js';
+export { default } from './dist/index.js';
