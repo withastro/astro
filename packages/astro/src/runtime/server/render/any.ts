@@ -14,7 +14,7 @@ export async function renderChild(destination: RenderDestination, child: any) {
 		destination.write(markHTMLString(escapeHTML(child)));
 	} else if (typeof child === 'number') {
 		destination.write(`${child}`);
-	} else if (!child && child !== 0) {
+	} else if (!child) {
 		// do nothing, safe to ignore falsey values.
 	} else if (child instanceof HTMLString) {
 		destination.write(child);
