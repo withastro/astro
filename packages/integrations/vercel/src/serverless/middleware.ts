@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { builtinModules } from 'node:module';
+import { ASTRO_LOCALS_HEADER, ASTRO_PATH_HEADER, NODE_PATH } from './adapter.js';
 
 /**
  * It generates the Vercel Edge Middleware file.
@@ -73,11 +74,11 @@ export default async function middleware(request, context) {
 	ctx.locals = ${handlerTemplateCall};
 	const { origin } = new URL(request.url);
 	const next = () =>
-		fetch(new URL('/_render', request.url), {
+		fetch(new URL('${NODE_PATH}', request.url), {
 			headers: {
 				...Object.fromEntries(request.headers.entries()),
-				'x-astro-path': request.url.replace(origin, ''),
-				'x-astro-locals': trySerializeLocals(ctx.locals)
+				'${ASTRO_PATH_HEADER}': request.url.replace(origin, ''),
+				'${ASTRO_LOCALS_HEADER}': trySerializeLocals(ctx.locals)
 			}
 		})
 

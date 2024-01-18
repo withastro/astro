@@ -29,12 +29,13 @@ import {
 import { generateEdgeMiddleware } from './middleware.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
+export const ASTRO_PATH_HEADER = 'x-astro-path';
 export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
 export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
 
 // Vercel routes the folder names to a path on the deployed website.
 // We attempt to avoid interfering by prefixing with an underscore.
-const NODE_PATH = '_render';
+export const NODE_PATH = '_render';
 const MIDDLEWARE_PATH = '_middleware';
 
 // https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/node-js#node.js-version
