@@ -4,16 +4,16 @@ import { loadFixture } from './test-utils.js';
 
 describe('Vercel edge middleware', () => {
 	/** @type {import('../../../astro/test/test-utils.js').Fixture} */
-	let fixture;
+	let build;
 	before(async () => {
-		fixture = await loadFixture({
+		build = await loadFixture({
 			root: './fixtures/middleware-with-edge-file/',
 		});
-		await fixture.build();
+		await build.build();
 	});
 
 	it('an edge function is created', async () => {
-		const contents = await fixture.readFile(
+		const contents = await build.readFile(
 			'../.vercel/output/functions/_middleware.func/.vc-config.json'
 		);
 		expect(JSON.parse(contents)).to.deep.include({
@@ -24,7 +24,7 @@ describe('Vercel edge middleware', () => {
 
 	
 	it('deployment config points to the middleware edge function', async () => {
-		const contents = await fixture.readFile(
+		const contents = await build.readFile(
 			'../.vercel/output/config.json'
 		);
 		const { routes } = JSON.parse(contents);
