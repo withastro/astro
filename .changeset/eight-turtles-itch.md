@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Improves Astro file style-only HMR caching and performance
+Improves HMR behavior for style-only changes in `.astro` files
