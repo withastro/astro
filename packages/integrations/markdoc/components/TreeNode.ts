@@ -102,10 +102,10 @@ export const ComponentNode = createComponent({
 });
 
 export async function createTreeNode(node: RenderableTreeNode): Promise<TreeNode> {
-	if (node instanceof HTMLString) {
+	if (node instanceof HTMLString || typeof node === 'string') {
 		return { type: 'text', content: node };
-	} else if (typeof node === 'string' || typeof node === 'number') {
-		return { type: 'text', content: String(node) };
+	} else if (typeof node === 'number') {
+		return { type: 'text', content: `${node}` };
 	} else if (node === null || typeof node !== 'object' || !Markdoc.Tag.isTag(node)) {
 		return { type: 'text', content: '' };
 	}

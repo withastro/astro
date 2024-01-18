@@ -12,6 +12,8 @@ export async function renderChild(destination: RenderDestination, child: any) {
 	// NOTE: Sort if statements from the most to least common
 	if (typeof child === 'string') {
 		destination.write(markHTMLString(escapeHTML(child)));
+	} else if (typeof child === 'number') {
+		destination.write(`${child}`);
 	} else if (!child && child !== 0) {
 		// do nothing, safe to ignore falsey values.
 	} else if (child instanceof HTMLString) {
