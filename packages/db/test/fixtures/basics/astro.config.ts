@@ -44,6 +44,6 @@ export default defineConfig({
 	integrations: [db()],
 	db: {
 		collections: { Author, Themes },
-	}
+	},
 });
 

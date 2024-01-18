@@ -3,13 +3,15 @@ import { vitePluginDb } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
 import { typegen } from './typegen.js';
 import { existsSync } from 'fs';
-import { rm } from 'fs/promises';
+import { mkdir, rm, writeFile } from 'fs/promises';
 import { getLocalDbUrl } from './consts.js';
 import { createDb, setupDbTables } from './internal.js';
 import { astroConfigWithDbSchema } from './config.js';
 import { getAstroStudioEnv, type VitePlugin } from './utils.js';
 import { appTokenError } from './errors.js';
 import { errorMap } from './error-map.js';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 export function integration(): AstroIntegration {
 	return {
@@ -33,15 +35,18 @@ export function integration(): AstroIntegration {
 					}
 					dbPlugin = vitePluginDb({ connectToStudio: true, collections, appToken });
 				} else {
-					const dbUrl = getLocalDbUrl(config.root).href;
+					const dbUrl = getLocalDbUrl(config.root);
 					if (existsSync(dbUrl)) {
 						await rm(dbUrl);
 					}
-					const db = await createDb({ collections, dbUrl, seeding: true });
+					await mkdir(dirname(fileURLToPath(dbUrl)), { recursive: true });
+					await writeFile(dbUrl, '');
+
+					const db = await createDb({ collections, dbUrl: dbUrl.href, seeding: true });
 					await setupDbTables({ db, collections, logger });
 					logger.info('Collections set up 🚀');
 
-					dbPlugin = vitePluginDb({ connectToStudio: false, collections, dbUrl });
+					dbPlugin = vitePluginDb({ connectToStudio: false, collections, dbUrl: dbUrl.href });
 				}
 
 				updateConfig({
