@@ -30,13 +30,6 @@ const Themes = defineWritableCollection({
 	fields: {
 		name: field.text(),
 	},
-	data() {
-		return [
-			{
-				name: 'One',
-			},
-		]
-	}
 });
 
 // https://astro.build/config
