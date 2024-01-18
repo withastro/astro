@@ -197,7 +197,7 @@ function routeComparator(a: ManifestRouteData, b: ManifestRouteData) {
 	// For sorting purposes, an index route is considered to have one more segment than the URL it represents.
 	const aLength = a.isIndex ? a.segments.length + 1 : a.segments.length;
 	const bLength = b.isIndex ? b.segments.length + 1 : b.segments.length;
-	
+
 	// Sort more specific routes before less specific routes
 	if (aLength !== bLength) {
 		return aLength > bLength ? -1 : 1;

@@ -129,23 +129,23 @@ describe('routing - createRouteManifest', () => {
 		});
 
 		expect(getManifestRoutes(manifest)).to.deep.equal([
-				{
-					"route": "/",
-					"type": "page",
-				},
-				{
-					"route": "/static",
-					"type": "page",
-				},
-				{
-					"route": "/[dynamic]",
-					"type": "page",
-				},
-				{
-					"route": "/[...rest]",
-					"type": "page",
-				},
-			]);
+			{
+				route: '/',
+				type: 'page',
+			},
+			{
+				route: '/static',
+				type: 'page',
+			},
+			{
+				route: '/[dynamic]',
+				type: 'page',
+			},
+			{
+				route: '/[...rest]',
+				type: 'page',
+			},
+		]);
 	});
 
 	it('injected routes are sorted in legacy mode above filesystem routes', async () => {
