@@ -1,0 +1,24 @@
+{
+  "name": "eventbrite-from-scratch",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "pnpm astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.3.1",
+    "@astrojs/db": "workspace:*",
+    "@astrojs/node": "^8.0.0",
+    "@astrojs/preact": "^3.0.1",
+    "astro": "workspace:*",
+    "open-props": "^1.6.17",
+    "preact": "^10.6.5",
+    "simple-stack-form": "^0.1.10",
+    "typescript": "^5.3.2",
+    "zod": "^3.22.4"
+  }
+}
