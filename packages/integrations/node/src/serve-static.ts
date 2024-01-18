@@ -37,6 +37,7 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 						pathname = urlPath.slice(0, -1) + (urlQuery ? "?" + urlQuery : "");
 						res.statusCode = 301;
 						res.setHeader('Location', pathname);
+						return res.end();
 					} else pathname = urlPath;
 					// intentionally fall through
 				case "ignore":
@@ -52,15 +53,12 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 						pathname = urlPath + '/' +(urlQuery ? "?" + urlQuery : "");
 						res.statusCode = 301;
 						res.setHeader('Location', pathname);
+						return res.end();
 					} else
 						pathname = urlPath;
 				break;
 			}
 			pathname = app.removeBase(pathname);
-
-			if (urlQuery && !pathname.includes('?')) {
-				pathname = pathname + '?' + urlQuery;
-			}
 
 			const stream = send(req, pathname, {
 				root: client,
