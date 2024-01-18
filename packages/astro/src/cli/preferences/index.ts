@@ -229,7 +229,7 @@ function userValues(
 			result[key] = {
 				value: flatProject[key],
 				annotation: '',
-			}
+			};
 			if (key in flatGlobal) {
 				result[key].annotation += ` (also modified globally)`;
 			}
