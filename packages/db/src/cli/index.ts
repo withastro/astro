@@ -1,13 +1,10 @@
-#!/usr/bin/env node
 import { red } from 'kleur/colors';
 import { astroConfigWithDbSchema } from '../config.js';
 import { errorMap } from '../error-map.js';
 import { loadAstroConfig } from '../load-astro-config.js';
 
-async function main() {
-	const cmd = process.argv[2];
-
-	switch (cmd) {
+export async function cli(command: string, _args: string[] = []) {
+	switch (command) {
 		case 'sync': {
 			const { sync } = await import('./sync/index.js');
 			const astroConfig = await getAstroConfigOrExit();
@@ -18,7 +15,7 @@ async function main() {
 		}
 		default: {
 			// eslint-disable-next-line no-console
-			console.error(`Unknown command: ${cmd}`);
+			console.error(`Unknown command: ${command}`);
 			return;
 		}
 	}
@@ -37,5 +34,3 @@ async function getAstroConfigOrExit(root: string = process.cwd()) {
 	);
 	process.exit(0);
 }
-
-await main();
