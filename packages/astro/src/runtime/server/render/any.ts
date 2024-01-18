@@ -5,10 +5,18 @@ import { SlotString } from './slot.js';
 import { renderToBufferDestination } from './util.js';
 
 export async function renderChild(destination: RenderDestination, child: any) {
-	child = await child;
-	if (child instanceof SlotString) {
-		destination.write(child);
+	if (child.then) {
+		child = await child;
+	}
+
+	// NOTE: Sort if statements from the most to least common
+	if (typeof child === 'string') {
+		destination.write(markHTMLString(escapeHTML(child)));
+	} else if (!child && child !== 0) {
+		// do nothing, safe to ignore falsey values.
 	} else if (isHTMLString(child)) {
+		destination.write(child);
+	} else if (child instanceof SlotString) {
 		destination.write(child);
 	} else if (Array.isArray(child)) {
 		// Render all children eagerly and in parallel
@@ -26,10 +34,6 @@ export async function renderChild(destination: RenderDestination, child: any) {
 		// This lets you do {() => ...} without the extra boilerplate
 		// of wrapping it in a function and calling it.
 		await renderChild(destination, child());
-	} else if (typeof child === 'string') {
-		destination.write(markHTMLString(escapeHTML(child)));
-	} else if (!child && child !== 0) {
-		// do nothing, safe to ignore falsey values.
 	} else if (isRenderInstance(child)) {
 		await child.render(destination);
 	} else if (isRenderTemplateResult(child)) {
