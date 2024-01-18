@@ -36,6 +36,7 @@ export async function generateEdgeMiddleware(
 		format: 'esm',
 		bundle: true,
 		minify: false,
+		// ensure node built-in modules are namespaced with `node:`
 		plugins: [{
 			name: 'esbuild-namespace-node-built-in-modules',
 			setup(build) {
