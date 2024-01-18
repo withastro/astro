@@ -32,7 +32,7 @@
     }
   },
   "bin": {
-    "studio": "./dist/cli/bin.js"
+    "db": "./dist/cli/bin.js"
   },
   "files": [
     "index.d.ts",
