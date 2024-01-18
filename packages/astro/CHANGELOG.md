@@ -1,5 +1,11 @@
 # astro
 
+## 4.2.1
+
+### Patch Changes
+
+- [#9726](https://github.com/withastro/astro/pull/9726) [`a4b696def3a7eb18c1ae48b10fd3758a1874b6fe`](https://github.com/withastro/astro/commit/a4b696def3a7eb18c1ae48b10fd3758a1874b6fe) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes a regression in routing priority between `index.astro` and dynamic routes with rest parameters
+
 ## 4.2.0
 
 ### Minor Changes
