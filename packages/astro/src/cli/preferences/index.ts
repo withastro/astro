@@ -10,12 +10,7 @@ import { resolveConfig } from '../../core/config/config.js';
 import { createSettings } from '../../core/config/settings.js';
 import * as msg from '../../core/messages.js';
 import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
-import {
-	coerce,
-	isValidKey,
-	type PreferenceKey,
-	type PreferenceLocation,
-} from '../../preferences/index.js';
+import { coerce, isValidKey, type PreferenceKey } from '../../preferences/index.js';
 import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 // @ts-expect-error flattie types are mispackaged
 import { flattie } from 'flattie';

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { fileURLToPath } from 'node:url';
 import { createRouteManifest } from '../../../dist/core/routing/manifest/create.js';
-import { createBasicSettings, createFs, defaultLogger } from '../test-utils.js';
+import { createBasicSettings, createFs } from '../test-utils.js';
 import { Logger } from '../../../dist/core/logger/core.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
@@ -168,14 +168,6 @@ describe('routing - createRouteManifest', () => {
 			output: 'server',
 			base: '/search',
 			trailingSlash: 'never',
-			integrations: [
-				{
-					name: '@test',
-					hooks: {
-						'astro:config:setup': ({ injectRoute }) => {},
-					},
-				},
-			],
 			experimental: {
 				globalRoutePriority: true,
 			},

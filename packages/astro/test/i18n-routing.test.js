@@ -795,7 +795,6 @@ describe('[SSG] i18n routing', () => {
 
 		it('should redirect to the english locale correctly when it has codes+path', async () => {
 			let html = await fixture.readFile('/spanish/start/index.html');
-			let $ = cheerio.load(html);
 			expect(html).to.include('http-equiv="refresh');
 			expect(html).to.include('url=/new-site/start');
 			html = await fixture.readFile('/spanish/index.html');
