@@ -228,11 +228,13 @@ function userValues(
 		if (key in flatProject) {
 			result[key] = {
 				value: flatProject[key],
-				annotation: 'for this project',
-			};
-			if (key in flatGlobal) result[key].annotation += ` (and globally set to ${flatGlobal[key]})`;
+				annotation: '',
+			}
+			if (key in flatGlobal) {
+				result[key].annotation += ` (also modified globally)`;
+			}
 		} else if (key in flatGlobal) {
-			result[key] = { value: flatGlobal[key], annotation: 'globally' };
+			result[key] = { value: flatGlobal[key], annotation: '(global)' };
 		}
 	}
 	return result;
