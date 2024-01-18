@@ -65,20 +65,20 @@ function edgeMiddlewareTemplate(astroMiddlewareEntryPointPath: URL, vercelEdgeMi
 import { onRequest } from ${middlewarePath};
 import { createContext, trySerializeLocals } from 'astro/middleware';
 export default async function middleware(request, context) {
-	const url = new URL(request.url);
 	const ctx = createContext({
 		request,
 		params: {}
 	});
 	ctx.locals = ${handlerTemplateCall};
-	const next = async () => {
-		return new Response(null, {
+	const { origin } = new URL(request.url);
+	const next = () =>
+		fetch(new URL('/_render', request.url), {
 			headers: {
-				'x-middleware-next': '1',
+				...Object.fromEntries(request.headers.entries()),
+				'x-astro-path': request.url.replace(origin, ''),
 				'x-astro-locals': trySerializeLocals(ctx.locals)
 			}
 		})
-	};
 
 	return onRequest(ctx, next);
 }`;

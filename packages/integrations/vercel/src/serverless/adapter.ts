@@ -130,8 +130,8 @@ export default function vercelServerless({
 	}
 
 	let _config: AstroConfig;
-	let buildTempFolder: URL;
-	let serverEntry: string;
+	let _buildTempFolder: URL;
+	let _serverEntry: string;
 	let _entryPoints: Map<RouteData, URL>;
 	let _middlewareEntryPoint: URL | undefined;
 	// Extra files to be merged with `includeFiles` during build
@@ -199,8 +199,8 @@ export default function vercelServerless({
 				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware }));
 				
 				_config = config;
-				buildTempFolder = config.build.server;
-				serverEntry = config.build.serverEntry;
+				_buildTempFolder = config.build.server;
+				_serverEntry = config.build.serverEntry;
 
 				if (config.output === 'static') {
 					throw new AstroError(
@@ -272,9 +272,9 @@ export default function vercelServerless({
 					}
 				} else {
 					await createFunctionFolder({
-						functionName: 'render',
+						functionName: '_render',
 						runtime,
-						entry: new URL(serverEntry, buildTempFolder),
+						entry: new URL(_serverEntry, _buildTempFolder),
 						config: _config,
 						logger,
 						NTF_CACHE,
@@ -282,13 +282,9 @@ export default function vercelServerless({
 						excludeFiles,
 						maxDuration,
 					});
+					const dest = _middlewareEntryPoint ? '_middleware' : '_render';
 					for (const route of routes) {
-						if (route.prerender) continue;
-						routeDefinitions.push({
-							src: route.pattern.source,
-							dest: 'render',
-							middlewarePath: _middlewareEntryPoint ? "_middleware" : undefined
-						});
+						if (!route.prerender) routeDefinitions.push({ src: route.pattern.source, dest });
 					}
 				}
 				if (_middlewareEntryPoint) {
@@ -316,7 +312,9 @@ export default function vercelServerless({
 							? [
 									{
 										src: '/.*',
-										dest: fourOhFourRoute.prerender ? '/404.html' : 'render',
+										dest: fourOhFourRoute.prerender ? '/404.html'
+											: _middlewareEntryPoint ? '_middleware'
+											: 'render',
 										status: 404,
 									},
 								]
@@ -339,7 +337,7 @@ export default function vercelServerless({
 				});
 
 				// Remove temporary folder
-				await removeDir(buildTempFolder);
+				await removeDir(_buildTempFolder);
 			},
 		},
 	};
@@ -420,7 +418,7 @@ async function createFunctionFolder({
 	// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
 	await writeJson(vcConfig, {
 		runtime,
-		handler,
+		handler: handler.replaceAll("\\","/"),
 		launcherType: 'Nodejs',
 		maxDuration,
 		supportsResponseStreaming: true,

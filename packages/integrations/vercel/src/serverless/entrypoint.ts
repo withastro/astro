@@ -10,6 +10,10 @@ export const createExports = (manifest: SSRManifest) => {
 	const handler = async (req: IncomingMessage, res: ServerResponse) => {
 		const clientAddress = req.headers['x-forwarded-for'] as string | undefined;
 		const localsHeader = req.headers[ASTRO_LOCALS_HEADER];
+		const realPath = req.headers['x-astro-path'];
+		if (typeof realPath === 'string') {
+			req.url = realPath;
+		}
 		const locals =
 			typeof localsHeader === 'string'
 				? JSON.parse(localsHeader)
