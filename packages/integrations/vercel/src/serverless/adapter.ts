@@ -29,7 +29,17 @@ import {
 import { generateEdgeMiddleware } from './middleware.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
+
+/**
+ * The edge function calls the node server at /_render,
+ * with the original path as the value of this header.
+ */
 export const ASTRO_PATH_HEADER = 'x-astro-path';
+
+/**
+ * The edge function calls the node server at /_render,
+ * with the locals serialized into this header.
+ */
 export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
 export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
 
