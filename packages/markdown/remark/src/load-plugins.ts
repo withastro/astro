@@ -1,5 +1,4 @@
 import type * as unified from 'unified';
-// @ts-ignore Types may not exist if you have not run `pnpm build` first
 import { importPlugin as _importPlugin } from '#import-plugin';
 
 async function importPlugin(p: string | unified.Plugin<any[], any>) {
