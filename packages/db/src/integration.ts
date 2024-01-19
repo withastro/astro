@@ -12,6 +12,7 @@ import { appTokenError } from './errors.js';
 import { errorMap } from './error-map.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { bold } from 'kleur/colors';
 
 export function integration(): AstroIntegration {
 	return {
@@ -25,6 +26,13 @@ export function integration(): AstroIntegration {
 				const configWithDb = astroConfigWithDbSchema.parse(config, { errorMap });
 				const collections = configWithDb.db?.collections ?? {};
 				const studio = configWithDb.db?.studio ?? false;
+				if (!studio && Object.values(collections).some((c) => c.writable)) {
+					logger.warn(
+						`Writable collections should only be used with Astro Studio. Did you set the ${bold(
+							'studio'
+						)} flag in your astro config?`
+					);
+				}
 
 				let dbPlugin: VitePlugin;
 				if (studio && command === 'build') {
@@ -42,7 +50,11 @@ export function integration(): AstroIntegration {
 					await mkdir(dirname(fileURLToPath(dbUrl)), { recursive: true });
 					await writeFile(dbUrl, '');
 
-					const db = await createLocalDatabaseClient({ collections, dbUrl: dbUrl.href, seeding: true });
+					const db = await createLocalDatabaseClient({
+						collections,
+						dbUrl: dbUrl.href,
+						seeding: true,
+					});
 					await setupDbTables({ db, collections, logger });
 					logger.info('Collections set up 🚀');
 
