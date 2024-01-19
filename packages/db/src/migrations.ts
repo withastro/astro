@@ -1,6 +1,7 @@
 import deepDiff from 'deep-diff';
 import { mkdir, readFile, readdir, writeFile } from 'fs/promises';
-const { diff, applyChange } = deepDiff;
+import type { DBCollections } from './types.js';
+const { applyChange } = deepDiff;
 
 export async function getMigrations(): Promise<string[]> {
 	const migrationFiles = await readdir('./migrations').catch((err) => {
@@ -12,11 +13,11 @@ export async function getMigrations(): Promise<string[]> {
 	return migrationFiles;
 }
 
-export async function loadMigration(migration: string): Promise<{ diff: any[]; db: any[] }> {
+export async function loadMigration(migration: string): Promise<{ diff: any[]; db: string[] }> {
 	return JSON.parse(await readFile(`./migrations/${migration}`, 'utf-8'));
 }
 
-export async function loadInitialSnapshot(): Promise<any> {
+export async function loadInitialSnapshot(): Promise<DBCollections> {
 	return JSON.parse(await readFile('./migrations/0000_snapshot.json', 'utf-8'));
 }
 
@@ -25,7 +26,7 @@ export async function initializeMigrationsDirectory(currentSnapshot: unknown) {
 	await writeFile('./migrations/0000_snapshot.json', JSON.stringify(currentSnapshot, undefined, 2));
 }
 
-export async function initializeFromMigrations(allMigrationFiles: string[]) {
+export async function initializeFromMigrations(allMigrationFiles: string[]): Promise<DBCollections> {
 	const prevSnapshot = await loadInitialSnapshot();
 	for (const migration of allMigrationFiles) {
 		if (migration === '0000_snapshot.json') continue;

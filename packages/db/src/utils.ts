@@ -2,7 +2,6 @@ import type { InStatement } from "@libsql/client";
 import type { AstroConfig } from 'astro';
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { drizzle } from 'drizzle-orm/sqlite-proxy';
-import { red, yellow } from 'kleur/colors';
 import { loadEnv } from 'vite';
 import { z } from 'zod';
 
@@ -20,34 +19,6 @@ export const adminTable = sqliteTable(STUDIO_ADMIN_TABLE, {
 export function getAstroStudioEnv(envMode = ''): Record<`ASTRO_STUDIO_${string}`, string> {
 	const env = loadEnv(envMode, process.cwd(), 'ASTRO_STUDIO_');
 	return env;
-}
-
-export async function isAppTokenValid({
-	remoteDbUrl,
-	appToken,
-}: {
-	remoteDbUrl: string;
-	appToken: string;
-}): Promise<boolean> {
-	const { status } = await fetch(new URL('/authorize', remoteDbUrl), {
-		headers: {
-			Authorization: `Bearer ${appToken}`,
-		},
-	});
-
-	if (status === 200) {
-		return true;
-	} else if (status === 401) {
-		// eslint-disable-next-line no-console
-		console.warn(yellow(`⚠️ App token is invalid or revoked.`));
-		return false;
-	} else {
-		// eslint-disable-next-line no-console
-		console.error(
-			`${red('⚠️ Unexpected error connecting to Astro Studio.')} Please try again later.`,
-		);
-		process.exit(1);
-	}
 }
 
 export function getStudioUrl(): string {
