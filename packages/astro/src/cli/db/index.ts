@@ -22,7 +22,6 @@ export async function db({ flags }: { flags: Arguments }) {
 	}
 
 	const { cli } = dbPackage;
-
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const { astroConfig } = await resolveConfig(inlineConfig, 'build');
 

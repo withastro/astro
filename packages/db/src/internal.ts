@@ -59,9 +59,9 @@ function checkIfModificationIsAllowed(collections: DBCollections, Table: SQLiteT
 	}
 }
 
-export { createDb as createStudioDb } from './cli/sync/remote-db.js';
+export { createRemoteDatabaseClient } from './utils.js';
 
-export async function createDb({
+export async function createLocalDatabaseClient({
 	collections,
 	dbUrl,
 	seeding,

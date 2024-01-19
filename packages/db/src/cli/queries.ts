@@ -10,7 +10,7 @@ import type {
 	JsonField,
 	NumberField,
 	TextField,
-} from '../../types.js';
+} from '../types.js';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { customAlphabet } from 'nanoid';
 import prompts from 'prompts';

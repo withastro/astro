@@ -44,9 +44,9 @@ export function getVirtualModContents({
 	dbUrl: string;
 }) {
 	return `
-import { collectionToTable, createDb } from ${INTERNAL_MOD_IMPORT};
+import { collectionToTable, createLocalDatabaseClient } from ${INTERNAL_MOD_IMPORT};
 
-export const db = await createDb(${JSON.stringify({
+export const db = await createLocalDatabaseClient(${JSON.stringify({
 		collections,
 		dbUrl,
 		seeding: false,
@@ -66,9 +66,9 @@ export function getStudioVirtualModContents({
 	appToken: string;
 }) {
 	return `
-import {collectionToTable, createStudioDb} from ${INTERNAL_MOD_IMPORT};
+import {collectionToTable, createRemoteDatabaseClient} from ${INTERNAL_MOD_IMPORT};
 
-export const db = await createStudioDb(${JSON.stringify({
+export const db = await createRemoteDatabaseClient(${JSON.stringify({
 		appToken,
 	})});
 export * from ${DRIZZLE_MOD_IMPORT};

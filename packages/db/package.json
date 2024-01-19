@@ -31,9 +31,6 @@
       ]
     }
   },
-  "bin": {
-    "db": "./dist/cli/bin.js"
-  },
   "files": [
     "index.d.ts",
     "dist",
@@ -47,10 +44,12 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "@astrojs/markdoc": "workspace:*",
     "@libsql/client": "0.4.0-pre.5",
+    "@types/deep-diff": "^1.0.5",
+    "@types/diff": "^5.0.8",
     "@types/yargs-parser": "^21.0.3",
-    "astro": "workspace:*",
+    "deep-diff": "^1.0.2",
+    "diff": "^5.1.0",
     "drizzle-orm": "^0.28.6",
     "esbuild": "^0.19.4",
     "github-slugger": "^2.0.0",
@@ -65,6 +64,7 @@
     "@types/chai": "^4.3.6",
     "@types/mocha": "^10.0.2",
     "@types/prompts": "^2.4.8",
+    "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.10",
     "cheerio": "1.0.0-rc.12",
