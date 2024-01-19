@@ -41,13 +41,13 @@
     "esbuild": "^0.19.5"
   },
   "peerDependencies": {
-    "astro": "^4.0.0"
+    "astro": "^4.2.0"
   },
   "devDependencies": {
     "@netlify/edge-functions": "^2.0.0",
     "@netlify/edge-handler-types": "^0.34.1",
     "@types/node": "^18.17.8",
-    "astro": "^4.0.0",
+    "astro": "^4.2.0",
     "chai": "^4.3.10",
     "chai-jest-snapshot": "^2.0.0",
     "cheerio": "1.0.0-rc.12",
