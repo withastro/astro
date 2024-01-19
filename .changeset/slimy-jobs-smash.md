@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fix dot files not being copied over on non-root builds
+Fixes an issue where dot files were not copied over from the public folder to the output folder when build command was run inside a subfolder.
