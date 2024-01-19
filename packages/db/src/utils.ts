@@ -1,6 +1,6 @@
 import type { InStatement } from "@libsql/client";
 import type { AstroConfig } from 'astro';
-import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 import { drizzle } from 'drizzle-orm/sqlite-proxy';
 import { loadEnv } from 'vite';
 import { z } from 'zod';
@@ -14,6 +14,13 @@ export const STUDIO_ADMIN_TABLE_ROW_ID = 'admin';
 export const adminTable = sqliteTable(STUDIO_ADMIN_TABLE, {
 	id: text('id').primaryKey(),
 	collections: text('collections').notNull(),
+});
+
+
+export const STUDIO_MIGRATIONS_TABLE = 'ReservedAstroStudioMigrations';
+
+export const migrationsTable = sqliteTable(STUDIO_MIGRATIONS_TABLE, {
+	name: text('name').primaryKey(),
 });
 
 export function getAstroStudioEnv(envMode = ''): Record<`ASTRO_STUDIO_${string}`, string> {
