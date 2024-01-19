@@ -1,39 +1,45 @@
 import type { AstroConfig } from 'astro';
+import deepDiff from 'deep-diff';
 import { eq, sql } from 'drizzle-orm';
-import { readFile, readdir } from 'fs/promises';
+import { readFile } from 'fs/promises';
+import type { Arguments } from 'yargs-parser';
 import { appTokenError } from '../../../errors.js';
+import {
+	getMigrations,
+	initializeFromMigrations,
+} from '../../../migrations.js';
 import {
 	STUDIO_ADMIN_TABLE_ROW_ID,
 	adminTable,
 	createRemoteDatabaseClient,
-	getAstroStudioEnv,
-	getRemoteDatabaseUrl,
-	isAppTokenValid,
+	getAstroStudioEnv
 } from '../../../utils.js';
-import { cmd as verifyCommand } from '../verify/index.js';
-import type { Arguments } from 'yargs-parser';
+const { diff } = deepDiff;
 
-async function getMigrations() {
-	const migrationFiles = await readdir('./migrations').catch((err) => {
-		if (err.code === 'ENOENT') {
-			return [];
-		}
-		throw err;
-	});
-	return migrationFiles;
-}
 
-export async function cmd({ config, flags }: { config: AstroConfig, flags: Arguments }) {
-	await verifyCommand({ config, flags });
+
+export async function cmd({ config }: { config: AstroConfig, flags: Arguments }) {
 	const currentSnapshot = JSON.parse(JSON.stringify(config.db?.collections ?? {}));
+	const allMigrationFiles = await getMigrations();
+	if (allMigrationFiles.length === 0) {
+		console.log('Project not yet initialized!');
+		process.exit(1);
+	}
 
-	const remoteDbUrl = getRemoteDatabaseUrl();
+	const prevSnapshot = await initializeFromMigrations(allMigrationFiles);
+	const calculatedDiff = diff(prevSnapshot, currentSnapshot);
+	if (calculatedDiff) {
+		console.log('Changes detected!');
+		process.exit(1);
+	}
+
 	const appToken = getAstroStudioEnv().ASTRO_STUDIO_APP_TOKEN;
-	if (!appToken || !(await isAppTokenValid({ remoteDbUrl, appToken }))) {
+	if (!appToken) {
 		// eslint-disable-next-line no-console
 		console.error(appTokenError);
 		process.exit(1);
 	}
+
 	const db = createRemoteDatabaseClient(appToken);
 
 	// get all migrations from the DB
@@ -63,3 +69,4 @@ export async function cmd({ config, flags }: { config: AstroConfig, flags: Argum
 		.set({ collections: JSON.stringify(currentSnapshot) })
 		.where(eq(adminTable.id, STUDIO_ADMIN_TABLE_ROW_ID));
 }
+
