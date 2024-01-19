@@ -4,7 +4,6 @@ import type { Arguments } from 'yargs-parser';
 import {
 	getMigrations,
 	initializeFromMigrations,
-	initializeMigrationsDirectory,
 } from '../../../migrations.js';
 const { diff, applyChange } = deepDiff;
 

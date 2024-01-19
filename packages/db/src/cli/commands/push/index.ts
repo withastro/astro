@@ -13,6 +13,7 @@ import {
 	createRemoteDatabaseClient,
 	getAstroStudioEnv,
 	getRemoteDatabaseUrl,
+	migrationsTable,
 } from '../../../utils.js';
 const { diff } = deepDiff;
 
@@ -44,12 +45,12 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 	const db = createRemoteDatabaseClient(appToken);
 
 	// get all migrations from the DB
-	const allRemoteMigrations = (await db.run(sql`SELECT * FROM _migrations`)) as any[];
+	const allRemoteMigrations = await db.select().from(migrationsTable);
 	// get all migrations from the filesystem
 	const allLocalMigrations = await getMigrations();
 	// filter to find all migrations that are in FS but not DB
 	const missingMigrations = allLocalMigrations.filter((migration) => {
-		return !allRemoteMigrations.find((m: any) => m.name === migration);
+		return !allRemoteMigrations.find((m) => m.name === migration);
 	});
 
 	console.log(`Pushing ${missingMigrations.length} migrations...`);
@@ -64,11 +65,10 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 	// TODO: How to do this with Drizzle ORM & proxy implementation? Unclear.
 	// @ts-expect-error
 	await db.batch(missingMigrationBatch);
-
-	// TODO: Update the migrations table to set all to "applied"
-
+	// Update the migrations table to add all the newly run migrations
+	await db.insert(migrationsTable).values(missingMigrations.map(m => ({name: m})));
 	// update the config schema in the admin table
-	db.update(adminTable)
+	await db.update(adminTable)
 		.set({ collections: JSON.stringify(currentSnapshot) })
 		.where(eq(adminTable.id, STUDIO_ADMIN_TABLE_ROW_ID));
 

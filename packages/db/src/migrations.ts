@@ -22,7 +22,7 @@ export async function loadInitialSnapshot(): Promise<DBCollections> {
 }
 
 export async function initializeMigrationsDirectory(currentSnapshot: unknown) {
-	await mkdir('./migrations');
+	await mkdir('./migrations', { recursive: true });
 	await writeFile('./migrations/0000_snapshot.json', JSON.stringify(currentSnapshot, undefined, 2));
 }
 
