@@ -3,7 +3,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type * as unified from 'unified';
 
-const cwdUrlStr = pathToFileURL(path.join(process.cwd(), 'package.json')).toString();
+let cwdUrlStr: string | undefined;
 
 async function importPlugin(p: string | unified.Plugin): Promise<unified.Plugin> {
 	if (typeof p === 'string') {
@@ -14,6 +14,7 @@ async function importPlugin(p: string | unified.Plugin): Promise<unified.Plugin>
 		} catch {}
 
 		// Try import from user project
+		cwdUrlStr ??= pathToFileURL(path.join(process.cwd(), 'package.json')).toString();
 		const resolved = importMetaResolve(p, cwdUrlStr);
 		const importResult = await import(resolved);
 		return importResult.default;
