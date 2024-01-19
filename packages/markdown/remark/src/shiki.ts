@@ -62,10 +62,8 @@ export async function createShikiHighlighter({
 								node.tagName = 'code';
 							}
 
-							const classValue = normalizeMaybeArray(node.properties.class) ?? '';
-
-							// Cast to string as shikiji will always pass them as strings instead of any other types
-							const styleValue = (node.properties.style as string) ?? '';
+							const classValue = normalizePropAsString(node.properties.class) ?? '';
+							const styleValue = normalizePropAsString(node.properties.style) ?? '';
 
 							// Replace "shiki" class naming with "astro-code"
 							node.properties.class = classValue.replace(/shiki/g, 'astro-code');
@@ -131,7 +129,7 @@ export async function createShikiHighlighter({
 	};
 }
 
-function normalizeMaybeArray(value: Properties[string]): string | null {
+function normalizePropAsString(value: Properties[string]): string | null {
 	return Array.isArray(value) ? value.join(' ') : (value as string | null);
 }
 
