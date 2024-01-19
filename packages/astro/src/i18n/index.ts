@@ -109,7 +109,7 @@ export function getLocaleRelativeUrlList({
 		const pathsToJoin = [base, prependWith];
 		const normalizedLocale = normalizeLocale ? normalizeTheLocale(locale) : locale;
 
-		if (routing === 'pathname-prefix-always') {
+		if (routing === 'pathname-prefix-always' || routing === 'pathname-prefix-always-no-redirect') {
 			pathsToJoin.push(normalizedLocale);
 		} else if (locale !== defaultLocale) {
 			pathsToJoin.push(normalizedLocale);
