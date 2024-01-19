@@ -2762,10 +2762,3 @@ declare global {
 		type Database = Record<string, any>;
 	}
 }
-
-declare global {
-	// eslint-disable-next-line @typescript-eslint/no-namespace
-	namespace Config {
-		type Database = Record<string, any>;
-	}
-}

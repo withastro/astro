@@ -5,7 +5,7 @@ import { typegen } from './typegen.js';
 import { existsSync } from 'fs';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { getLocalDbUrl } from './consts.js';
-import { createDb, setupDbTables } from './internal.js';
+import { createLocalDatabaseClient, setupDbTables } from './internal.js';
 import { astroConfigWithDbSchema } from './config.js';
 import { getAstroStudioEnv, type VitePlugin } from './utils.js';
 import { appTokenError } from './errors.js';
@@ -42,7 +42,7 @@ export function integration(): AstroIntegration {
 					await mkdir(dirname(fileURLToPath(dbUrl)), { recursive: true });
 					await writeFile(dbUrl, '');
 
-					const db = await createDb({ collections, dbUrl: dbUrl.href, seeding: true });
+					const db = await createLocalDatabaseClient({ collections, dbUrl: dbUrl.href, seeding: true });
 					await setupDbTables({ db, collections, logger });
 					logger.info('Collections set up 🚀');
 

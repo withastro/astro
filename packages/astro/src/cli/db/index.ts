@@ -1,6 +1,8 @@
 import type { Arguments } from 'yargs-parser';
-import { createLoggerFromFlags } from '../flags.js';
+import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { getPackage } from '../install-package.js';
+import { resolveConfig } from '../../core/config/config.js';
+
 
 export async function db({ flags }: { flags: Arguments }) {
 	const logger = createLoggerFromFlags(flags);
@@ -21,7 +23,8 @@ export async function db({ flags }: { flags: Arguments }) {
 	}
 
 	const { cli } = dbPackage;
+	const inlineConfig = flagsToAstroInlineConfig(flags);
+	const { astroConfig } = await resolveConfig(inlineConfig, 'build');
 
-	const [command, ...args] = flags._.slice(3).map(v => v.toString());
-	await cli(command, args);
+	await cli({flags, config: astroConfig});
 }

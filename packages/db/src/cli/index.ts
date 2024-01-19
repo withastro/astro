@@ -1,17 +1,21 @@
-import { red } from 'kleur/colors';
-import { astroConfigWithDbSchema } from '../config.js';
-import { errorMap } from '../error-map.js';
-import { loadAstroConfig } from '../load-astro-config.js';
+import type { AstroConfig } from 'astro';
+import type { Arguments } from 'yargs-parser';
 
-export async function cli(command: string, _args: string[] = []) {
+export async function cli({ flags, config }: { flags: Arguments; config: AstroConfig }) {
+	const command = flags._[3] as string;
+
 	switch (command) {
 		case 'sync': {
-			const { sync } = await import('./sync/index.js');
-			const astroConfig = await getAstroConfigOrExit();
-
-			const collections = astroConfig.db?.collections ?? {};
-
-			return await sync({ collections });
+			const { cmd: syncCommand } = await import('./commands/sync/index.js');
+			return await syncCommand({ config, flags });
+		}
+		case 'push': {
+			const { cmd: pushCommand } = await import('./commands/push/index.js');
+			return await pushCommand({ config, flags });
+		}
+		case 'verify': {
+			const { cmd: verifyCommand } = await import('./commands/verify/index.js');
+			return await verifyCommand({ config, flags });
 		}
 		default: {
 			// eslint-disable-next-line no-console
@@ -19,18 +23,4 @@ export async function cli(command: string, _args: string[] = []) {
 			return;
 		}
 	}
-}
-
-async function getAstroConfigOrExit(root: string = process.cwd()) {
-	const astroConfig = await loadAstroConfig(root);
-	const parsed = astroConfigWithDbSchema.safeParse(astroConfig, { errorMap });
-	if (parsed.success) {
-		return parsed.data;
-	}
-	// eslint-disable-next-line no-console
-	console.error(
-		red('⚠️ Invalid studio config. Check your astro config file\n') +
-			parsed.error.issues.map((i) => i.message).join('\n')
-	);
-	process.exit(0);
 }
