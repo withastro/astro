@@ -1,11 +1,12 @@
 import type { InArgs, InStatement } from '@libsql/client';
 import type { AstroConfig } from 'astro';
 import deepDiff from 'deep-diff';
-import { eq, sql, type Query } from 'drizzle-orm';
+import { type SQL, eq, type Query, sql } from 'drizzle-orm';
+import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import type { Arguments } from 'yargs-parser';
 import { appTokenError } from '../../../errors.js';
 import { collectionToTable, createLocalDatabaseClient } from '../../../internal.js';
-import { getMigrations, initializeFromMigrations, loadMigration } from '../../../migrations.js';
+import { getMigrations, initializeFromMigrations, loadInitialSnapshot, loadMigration } from '../../../migrations.js';
 import type { DBCollections } from '../../../types.js';
 import {
 	STUDIO_ADMIN_TABLE_ROW_ID,
@@ -15,13 +16,16 @@ import {
 	getRemoteDatabaseUrl,
 	migrationsTable,
 } from '../../../utils.js';
+import { getMigrationQueries } from '../../queries.js';
 const { diff } = deepDiff;
+const sqliteDialect = new SQLiteAsyncDialect();
 
 export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
 	const isSeedData = flags.seed;
 	const isDryRun = flags.dryRun;
 
-	const currentSnapshot = JSON.parse(JSON.stringify(config.db?.collections ?? {}));
+	const currentDb: DBCollections = (config.db?.collections ?? {}) as DBCollections;
+	const currentSnapshot = JSON.parse(JSON.stringify(currentDb));
 	const allMigrationFiles = await getMigrations();
 	if (allMigrationFiles.length === 0) {
 		console.log('Project not yet initialized!');
@@ -43,7 +47,10 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 	}
 
 	const db = createRemoteDatabaseClient(appToken);
-
+	// Temporary: create the migration table just in case it doesn't exist
+	await db.run(
+		sql`CREATE TABLE IF NOT EXISTS ReservedAstroStudioMigrations ( name TEXT PRIMARY KEY )`
+	);
 	// get all migrations from the DB
 	const allRemoteMigrations = await db.select().from(migrationsTable);
 	// get all migrations from the filesystem
@@ -53,56 +60,83 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		return !allRemoteMigrations.find((m) => m.name === migration);
 	});
 
-	console.log(`Pushing ${missingMigrations.length} migrations...`);
-
-	// load all missing migrations
-	const missingMigrationContents = await Promise.all(missingMigrations.map(loadMigration));
-	// combine all missing migrations into a single batch
-	const missingMigrationBatch = missingMigrationContents.reduce((acc, curr) => {
-		return [...acc, ...curr.db];
-	}, [] as string[]);
-	// apply the batch to the DB
-	// TODO: How to do this with Drizzle ORM & proxy implementation? Unclear.
-	// @ts-expect-error
-	await db.batch(missingMigrationBatch);
-	// Update the migrations table to add all the newly run migrations
-	await db.insert(migrationsTable).values(missingMigrations.map(m => ({name: m})));
-	// update the config schema in the admin table
-	await db.update(adminTable)
-		.set({ collections: JSON.stringify(currentSnapshot) })
-		.where(eq(adminTable.id, STUDIO_ADMIN_TABLE_ROW_ID));
-
+	if (missingMigrations.length === 0) {
+		console.info('No migrations to push! Your database is up to date!');
+	} else {
+		console.log(`Pushing ${missingMigrations.length} migrations...`);
+		await pushSchema({ migrations: missingMigrations, appToken, isDryRun, db, currentSnapshot });
+	}
 	if (isSeedData) {
 		console.info('Pushing data...');
-		await tempDataPush({ currentSnapshot, appToken, isDryRun });
+		await tempDataPush({ currentDb, appToken, isDryRun });
 	}
 	console.info('Push complete!');
 }
 
+async function pushSchema({
+	migrations,
+	appToken,
+	isDryRun,
+	db,
+	currentSnapshot,
+}: {
+	migrations: string[];
+	appToken: string;
+	isDryRun: boolean;
+	db: ReturnType<typeof createRemoteDatabaseClient>;
+	currentSnapshot: DBCollections;
+}) {
+	// load all missing migrations
+	const initialSnapshot = migrations.find((m) => m === '0000_snapshot.json');
+	const filteredMigrations = migrations.filter((m) => m !== '0000_snapshot.json');
+	const missingMigrationContents = await Promise.all(filteredMigrations.map(loadMigration));
+	// create a migration for the initial snapshot, if needed
+	const initialMigrationBatch = initialSnapshot ? await getMigrationQueries({
+		oldCollections: {},
+		newCollections: await loadInitialSnapshot(),
+	}) : [];
+	// combine all missing migrations into a single batch
+	const missingMigrationBatch = missingMigrationContents.reduce((acc, curr) => {
+		return [...acc, ...curr.db];
+	}, initialMigrationBatch);
+	// apply the batch to the DB
+	const queries: SQL[] = missingMigrationBatch.map((q) => sql.raw(q));
+	await runBatchQuery({ queries, appToken, isDryRun });
+	// Update the migrations table to add all the newly run migrations
+	await db.insert(migrationsTable).values(migrations.map((m) => ({ name: m })));
+	// update the config schema in the admin table
+	await db
+		.update(adminTable)
+		.set({ collections: JSON.stringify(currentSnapshot) })
+		.where(eq(adminTable.id, STUDIO_ADMIN_TABLE_ROW_ID));
+}
+
 /** TODO: refine with migration changes */
 async function tempDataPush({
-	currentSnapshot,
+	currentDb,
 	appToken,
 	isDryRun,
 }: {
-	currentSnapshot: DBCollections;
+	currentDb: DBCollections;
 	appToken: string;
 	isDryRun?: boolean;
 }) {
 	const db = await createLocalDatabaseClient({
-		collections: currentSnapshot,
+		collections: JSON.parse(JSON.stringify(currentDb)),
 		dbUrl: ':memory:',
 		seeding: true,
 	});
 	const queries: Query[] = [];
 
-	for (const [name, collection] of Object.entries(currentSnapshot)) {
+	for (const [name, collection] of Object.entries(currentDb)) {
+		console.log(name, collection);
 		if (collection.writable || !collection.data) continue;
 		const table = collectionToTable(name, collection);
 		const insert = db.insert(table).values(await collection.data());
 
 		queries.push(insert.toSQL());
 	}
+	console.log(queries);
 	const url = new URL('/db/query', getRemoteDatabaseUrl());
 	const requestBody: InStatement[] = queries.map((q) => ({
 		sql: q.sql,
@@ -113,6 +147,37 @@ async function tempDataPush({
 		console.info('[DRY RUN] Batch data seed:', JSON.stringify(requestBody, null, 2));
 		return new Response(null, { status: 200 });
 	}
+
+	return await fetch(url, {
+		method: 'POST',
+		headers: new Headers({
+			Authorization: `Bearer ${appToken}`,
+		}),
+		body: JSON.stringify(requestBody),
+	});
+}
+
+async function runBatchQuery({
+	queries: sqlQueries,
+	appToken,
+	isDryRun,
+}: {
+	queries: SQL[];
+	appToken: string;
+	isDryRun?: boolean;
+}) {
+	const queries = sqlQueries.map((q) => sqliteDialect.sqlToQuery(q));
+	const requestBody: InStatement[] = queries.map((q) => ({
+		sql: q.sql,
+		args: q.params as InArgs,
+	}));
+
+	if (isDryRun) {
+		console.info('[DRY RUN] Batch query:', JSON.stringify(requestBody, null, 2));
+		return new Response(null, { status: 200 });
+	}
+
+	const url = new URL('/db/query', getRemoteDatabaseUrl());
 
 	return await fetch(url, {
 		method: 'POST',
