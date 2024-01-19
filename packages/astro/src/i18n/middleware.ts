@@ -2,6 +2,7 @@ import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
 import type { Locales, MiddlewareHandler, RouteData, SSRManifest } from '../@types/astro.js';
 import type { PipelineHookFunction } from '../core/pipeline.js';
 import { getPathByLocale, normalizeTheLocale } from './index.js';
+import { shouldAppendForwardSlash } from '../core/build/util.js';
 
 const routeDataSymbol = Symbol.for('astro.routeData');
 
@@ -26,7 +27,8 @@ function pathnameHasLocale(pathname: string, locales: Locales): boolean {
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
 	base: SSRManifest['base'],
-	trailingSlash: SSRManifest['trailingSlash']
+	trailingSlash: SSRManifest['trailingSlash'],
+	buildFormat: SSRManifest['buildFormat']
 ): MiddlewareHandler | undefined {
 	if (!i18n) {
 		return undefined;
@@ -83,7 +85,7 @@ export function createI18nMiddleware(
 
 				case 'pathname-prefix-always': {
 					if (url.pathname === base + '/' || url.pathname === base) {
-						if (trailingSlash === 'always') {
+						if (shouldAppendForwardSlash(trailingSlash, buildFormat)) {
 							return context.redirect(`${appendForwardSlash(joinPaths(base, i18n.defaultLocale))}`);
 						} else {
 							return context.redirect(`${joinPaths(base, i18n.defaultLocale)}`);
