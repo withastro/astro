@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-The i18n redirects should consider the `build.format` configuration
+Makes i18n redirects take the `build.format` configuration into account
