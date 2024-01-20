@@ -5059,6 +5059,9 @@ importers:
       chai:
         specifier: ^4.3.7
         version: 4.3.10
+      esbuild:
+        specifier: ^0.19.6
+        version: 0.19.11
       mdast-util-mdx-expression:
         specifier: ^2.0.0
         version: 2.0.0
