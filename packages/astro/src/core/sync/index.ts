@@ -82,7 +82,7 @@ export async function syncInternal(
 		await createVite(
 			{
 				server: { middlewareMode: true, hmr: false, watch: null },
-				optimizeDeps: { disabled: true },
+				optimizeDeps: { noDiscovery: true },
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},

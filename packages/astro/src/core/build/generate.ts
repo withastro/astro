@@ -484,9 +484,8 @@ async function generatePath(
 	gopts: GeneratePathOptions,
 	route: RouteData
 ) {
-	const { mod, scripts: hoistedScripts, styles: _styles, pageData } = gopts;
+	const { mod, scripts: hoistedScripts, styles: _styles } = gopts;
 	const manifest = pipeline.getManifest();
-	const logger = pipeline.getLogger();
 	pipeline.getEnvironment().logger.debug('build', `Generating: ${pathname}`);
 
 	const links = new Set<never>();

@@ -932,6 +932,13 @@ test.describe('View Transitions', () => {
 		).toEqual(1);
 	});
 
+	test('form POST that action for cross-origin is opt-out', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/form-five'));
+		page.on('request', (request) => expect(request.method()).toBe('POST'));
+		// Submit the form
+		await page.click('#submit');
+	});
+
 	test('form GET that redirects to another page is handled', async ({ page, astro }) => {
 		const loads = [];
 		page.addListener('load', async (p) => {

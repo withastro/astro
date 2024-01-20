@@ -3,6 +3,7 @@ import type { AstroConfig, Locales } from '../@types/astro.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { MissingLocale } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
+import type { RoutingStrategies } from '../core/config/schema.js';
 
 type GetLocaleRelativeUrl = GetLocaleOptions & {
 	locale: string;
@@ -10,7 +11,7 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
-	routing?: 'prefix-always' | 'prefix-other-locales';
+	routing?: RoutingStrategies;
 	defaultLocale: string;
 };
 
@@ -45,7 +46,7 @@ export function getLocaleRelativeUrl({
 	path,
 	prependWith,
 	normalizeLocale = true,
-	routing = 'prefix-other-locales',
+	routing = 'pathname-prefix-other-locales',
 	defaultLocale,
 }: GetLocaleRelativeUrl) {
 	const codeToUse = peekCodePathToUse(_locales, locale);
@@ -57,7 +58,7 @@ export function getLocaleRelativeUrl({
 	}
 	const pathsToJoin = [base, prependWith];
 	const normalizedLocale = normalizeLocale ? normalizeTheLocale(codeToUse) : codeToUse;
-	if (routing === 'prefix-always') {
+	if (routing === 'pathname-prefix-always' || routing === 'pathname-prefix-always-no-redirect') {
 		pathsToJoin.push(normalizedLocale);
 	} else if (locale !== defaultLocale) {
 		pathsToJoin.push(normalizedLocale);
@@ -88,7 +89,7 @@ type GetLocalesBaseUrl = GetLocaleOptions & {
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
-	routing?: 'prefix-always' | 'prefix-other-locales';
+	routing?: RoutingStrategies;
 	defaultLocale: string;
 };
 
@@ -100,7 +101,7 @@ export function getLocaleRelativeUrlList({
 	path,
 	prependWith,
 	normalizeLocale = false,
-	routing = 'prefix-other-locales',
+	routing = 'pathname-prefix-other-locales',
 	defaultLocale,
 }: GetLocalesBaseUrl) {
 	const locales = toPaths(_locales);
@@ -108,7 +109,7 @@ export function getLocaleRelativeUrlList({
 		const pathsToJoin = [base, prependWith];
 		const normalizedLocale = normalizeLocale ? normalizeTheLocale(locale) : locale;
 
-		if (routing === 'prefix-always') {
+		if (routing === 'pathname-prefix-always' || routing === 'pathname-prefix-always-no-redirect') {
 			pathsToJoin.push(normalizedLocale);
 		} else if (locale !== defaultLocale) {
 			pathsToJoin.push(normalizedLocale);
