@@ -2,4 +2,4 @@
 "@astrojs/markdown-remark": patch
 ---
 
-Normalize class property
+Fixes a case where transformers wouldn't work on the `class` property
