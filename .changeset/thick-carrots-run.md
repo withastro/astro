@@ -2,4 +2,4 @@
 "@astrojs/markdown-remark": minor
 ---
 
-Uses subpath imports to allow the package to be used in browser environments
+Fixes usage in browser environments by using subpath imports
