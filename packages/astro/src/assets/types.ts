@@ -37,6 +37,7 @@ export interface ImageMetadata {
 	height: number;
 	format: ImageInputFormat;
 	orientation?: number;
+	size?: number;
 	/** @internal */
 	fsPath: string;
 }

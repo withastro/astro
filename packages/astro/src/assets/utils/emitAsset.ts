@@ -27,6 +27,7 @@ export async function emitESMImage(
 	const emittedImage: Omit<ImageMetadata, 'fsPath'> = {
 		src: '',
 		...fileMetadata,
+		size: (await fs.stat(url)).size,
 	};
 
 	// Private for now, we generally don't want users to rely on filesystem paths, but we need it so that we can maybe remove the original asset from the build if it's unused.
