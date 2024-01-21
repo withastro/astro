@@ -54,7 +54,7 @@ function getRemarkPlugins(mdxOptions: MdxOptions): PluggableList {
 		}
 	}
 
-	remarkPlugins = [...remarkPlugins, ...mdxOptions.remarkPlugins];
+	remarkPlugins = [...mdxOptions.remarkPlugins, ...remarkPlugins];
 
 	if (!isPerformanceBenchmark) {
 		// Apply syntax highlighters after user plugins to match `markdown/remark` behavior

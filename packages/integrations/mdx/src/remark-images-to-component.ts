@@ -1,12 +1,18 @@
 import type { MarkdownVFile } from '@astrojs/markdown-remark';
 import type { Image, Parent } from 'mdast';
-import type { MdxJsxFlowElement, MdxjsEsm } from 'mdast-util-mdx';
+import type { MdxJsxFlowElement, MdxjsEsm, MdxJsxAttribute } from 'mdast-util-mdx';
 import { visit } from 'unist-util-visit';
 import { jsToTreeNode } from './utils.js';
 
 export const ASTRO_IMAGE_ELEMENT = 'astro-image';
 export const ASTRO_IMAGE_IMPORT = '__AstroImage__';
 export const USES_ASTRO_IMAGE_FLAG = '__usesAstroImage';
+
+type imgArgs = {
+	[key in 'widths' | 'densities']: string[] | undefined;
+} & {
+	[key: string]: string;
+};
 
 export function remarkImageToComponent() {
 	return function (tree: any, file: MarkdownVFile) {
@@ -87,6 +93,55 @@ export function remarkImageToComponent() {
 						name: 'title',
 						value: node.title,
 					});
+				}
+
+				if (node.data && node.data.hProperties) {
+					const { widths, densities, ...prop } = node.data.hProperties as imgArgs;
+					const createArrayAttribute = (name: string, values: string[]): MdxJsxAttribute => {
+						return {
+							type: 'mdxJsxAttribute',
+							name: name,
+							value: {
+								type: 'mdxJsxAttributeValueExpression',
+								value: name,
+								data: {
+									estree: {
+										type: 'Program',
+										body: [
+											{
+												type: 'ExpressionStatement',
+												expression: {
+													type: 'ArrayExpression',
+													elements: values.map((value) => ({
+														type: 'Literal',
+														value: value,
+														raw: String(value),
+													})),
+												},
+											},
+										],
+										sourceType: 'module',
+										comments: [],
+									},
+								},
+							},
+						};
+					};
+					if (densities) {
+						componentElement.attributes.push(createArrayAttribute('densities', densities));
+					}
+					if (widths) {
+						componentElement.attributes.push(createArrayAttribute('widths', widths));
+					}
+					if (prop && Object.keys(prop).length > 0) {
+						Object.entries(prop).forEach(([key, value]) => {
+							componentElement.attributes.push({
+								name: key,
+								type: 'mdxJsxAttribute',
+								value: String(value),
+							});
+						});
+					}
 				}
 
 				parent!.children.splice(index!, 1, componentElement);
