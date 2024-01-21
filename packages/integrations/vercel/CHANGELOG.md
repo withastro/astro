@@ -1,5 +1,13 @@
 # @astrojs/vercel
 
+## 7.0.0
+
+### Major Changes
+
+- [#9661](https://github.com/withastro/astro/pull/9661) [`d6edc7540864cf5d294d7b881eb886a3804f6d05`](https://github.com/withastro/astro/commit/d6edc7540864cf5d294d7b881eb886a3804f6d05) Thanks [@ematipico](https://github.com/ematipico)! - **Breaking**: Minimum required Astro version is now 4.2.0.
+  Reorganizes internals to be more maintainable.
+  ***
+
 ## 6.1.4
 
 ### Patch Changes

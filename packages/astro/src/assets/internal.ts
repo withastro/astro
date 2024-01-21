@@ -61,6 +61,10 @@ export async function getImage(
 				: options.src,
 	};
 
+	const originalPath = isESMImportedImage(resolvedOptions.src)
+		? resolvedOptions.src.fsPath
+		: resolvedOptions.src;
+
 	// Clone the `src` object if it's an ESM import so that we don't refer to any properties of the original object
 	// Causing our generate step to think the image is used outside of the image optimization pipeline
 	const clonedSrc = isESMImportedImage(resolvedOptions.src)
@@ -95,10 +99,10 @@ export async function getImage(
 		!(isRemoteImage(validatedOptions.src) && imageURL === validatedOptions.src)
 	) {
 		const propsToHash = service.propertiesToHash ?? DEFAULT_HASH_PROPS;
-		imageURL = globalThis.astroAsset.addStaticImage(validatedOptions, propsToHash);
+		imageURL = globalThis.astroAsset.addStaticImage(validatedOptions, propsToHash, originalPath);
 		srcSets = srcSetTransforms.map((srcSet) => ({
 			transform: srcSet.transform,
-			url: globalThis.astroAsset.addStaticImage!(srcSet.transform, propsToHash),
+			url: globalThis.astroAsset.addStaticImage!(srcSet.transform, propsToHash, originalPath),
 			descriptor: srcSet.descriptor,
 			attributes: srcSet.attributes,
 		}));

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { resolveConfig } from 'vite';
-import { cachedFullCompilation } from '../../../dist/vite-plugin-astro/compile.js';
+import { compileAstro } from '../../../dist/vite-plugin-astro/compile.js';
 import { init, parse } from 'es-module-lexer';
 import { pathToFileURL } from 'node:url';
 
@@ -11,17 +11,14 @@ const viteConfig = await resolveConfig({ configFile: false }, 'serve');
  * @param {string} id
  */
 async function compile(source, id) {
-	return await cachedFullCompilation({
+	return await compileAstro({
 		compileProps: {
 			astroConfig: { root: pathToFileURL('/'), base: '/', experimental: {} },
 			viteConfig,
 			filename: id,
 			source,
 		},
-		logging: {
-			level: 'info',
-		},
-		rawId: id,
+		astroFileToCompileMetadata: new Map(),
 	});
 }
 
@@ -60,11 +57,6 @@ const name = 'world
 			expect(e.message).to.include('Unterminated string literal');
 		}
 		expect(result).to.be.undefined;
-	});
-
-	it('injects hmr code', async () => {
-		const result = await compile(`<h1>Hello World</h1>`, '/src/components/index.astro');
-		expect(result.code).to.include('import.meta.hot');
 	});
 
 	it('has file and url exports for markdwon compat', async () => {

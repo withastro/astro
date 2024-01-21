@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -15,6 +15,12 @@
   "exports": {
     ".": "./dist/index.js",
     "./dist/internal.js": "./dist/internal.js"
+  },
+  "imports": {
+    "#import-plugin": {
+      "browser": "./dist/import-plugin-browser.js",
+      "default": "./dist/import-plugin-default.js"
+    }
   },
   "files": [
     "dist"
@@ -38,7 +44,7 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.0.0",
     "remark-smartypants": "^2.0.0",
-    "shikiji": "^0.6.13",
+    "shikiji": "^0.9.18",
     "unified": "^11.0.4",
     "unist-util-visit": "^5.0.0",
     "vfile": "^6.0.1"
@@ -52,6 +58,7 @@
     "@types/unist": "^3.0.2",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
+    "esbuild": "^0.19.6",
     "mdast-util-mdx-expression": "^2.0.0",
     "mocha": "^10.2.0"
   },

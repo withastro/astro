@@ -129,6 +129,10 @@ describe('trailing slashes for error pages', () => {
 			devServer = await fixture.startDevServer();
 		});
 
+		after(async () => {
+			await devServer.stop();
+		});
+
 		it('renders 404 page when a route does not match the request', async () => {
 			const response = await fixture.fetch('/ashbfjkasn');
 			expect(response).to.deep.include({ status: 404 });

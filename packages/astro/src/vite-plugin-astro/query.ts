@@ -35,8 +35,3 @@ export function parseAstroRequest(id: string): ParsedRequestResult {
 		query,
 	};
 }
-
-export function isAstroScript(id: string): boolean {
-	const parsed = parseAstroRequest(id);
-	return parsed.query.type === 'script';
-}
