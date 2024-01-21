@@ -24,7 +24,6 @@ export function getMarkdownCodeForImages(imagePaths: MarkdownImagePath[], html: 
 													const imageProps = JSON.parse(match[1].replace(/&#x22;/g, '"'));
 													const { src, ...props } = imageProps;
 													
-
 													imageSources[matchKey] = await getImage({src: Astro__${entry.safeName}, ...props});
 													occurrenceCounter++;
 											}
