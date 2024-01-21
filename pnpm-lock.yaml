@@ -4138,6 +4138,15 @@ importers:
         specifier: 0.2.4
         version: 0.2.4
 
+  packages/integrations/mdx/test/fixtures/image-remark-imgattr:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/mdx/test/fixtures/mdx-frontmatter-injection:
     dependencies:
       '@astrojs/mdx':
