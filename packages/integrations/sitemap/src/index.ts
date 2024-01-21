@@ -107,11 +107,12 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						 */
 						if (r.pathname) {
 							if (isStatusCodePage(r.pathname ?? r.route)) return urls;
-							/**
-							 * remove the initial slash from relative pathname
-							 * because `finalSiteUrl` always has trailing slash
-							 */
-							const fullPath = finalSiteUrl.pathname + r.generate(r.pathname).substring(1);
+
+							// `finalSiteUrl` may end with a trailing slash
+							// or not because of base paths.
+							let fullPath = finalSiteUrl.pathname;
+							if (fullPath.endsWith('/')) fullPath += r.generate(r.pathname).substring(1);
+							else fullPath += r.generate(r.pathname);
 
 							let newUrl = new URL(fullPath, finalSiteUrl).href;
 
