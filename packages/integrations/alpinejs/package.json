@@ -30,15 +30,22 @@
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\""
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "mocha --timeout 20000"
   },
   "peerDependencies": {
     "@types/alpinejs": "^3.0.0",
     "alpinejs": "^3.0.0"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.10",
     "astro": "workspace:*",
-    "astro-scripts": "workspace:*"
+    "astro-scripts": "workspace:*",
+    "chai": "^4.3.7",
+    "cheerio": "1.0.0-rc.12",
+    "linkedom": "^0.16.4",
+    "mocha": "^10.2.0",
+    "vite": "^5.0.10"
   },
   "publishConfig": {
     "provenance": true
