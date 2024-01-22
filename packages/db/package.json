@@ -33,6 +33,7 @@
   },
   "files": [
     "index.d.ts",
+    "config-augment.d.ts",
     "dist",
     "components"
   ],
