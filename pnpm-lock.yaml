@@ -3855,6 +3855,18 @@ importers:
         specifier: workspace:*
         version: link:../../../../astro
 
+  packages/db/test/fixtures/glob:
+    dependencies:
+      '@astrojs/db':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../astro
+      fast-glob:
+        specifier: ^3.3.2
+        version: 3.3.2
+
   packages/db/test/fixtures/ticketing-example:
     dependencies:
       '@astrojs/check':
