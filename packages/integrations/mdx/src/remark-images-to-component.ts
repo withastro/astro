@@ -8,12 +8,6 @@ export const ASTRO_IMAGE_ELEMENT = 'astro-image';
 export const ASTRO_IMAGE_IMPORT = '__AstroImage__';
 export const USES_ASTRO_IMAGE_FLAG = '__usesAstroImage';
 
-type imgArgs = {
-	[key in 'widths' | 'densities']: string[] | undefined;
-} & {
-	[key: string]: string;
-};
-
 export function remarkImageToComponent() {
 	return function (tree: any, file: MarkdownVFile) {
 		if (!file.data.imagePaths) return;
@@ -96,7 +90,6 @@ export function remarkImageToComponent() {
 				}
 
 				if (node.data && node.data.hProperties) {
-					const { widths, densities, ...prop } = node.data.hProperties as imgArgs;
 					const createArrayAttribute = (name: string, values: string[]): MdxJsxAttribute => {
 						return {
 							type: 'mdxJsxAttribute',
@@ -127,21 +120,20 @@ export function remarkImageToComponent() {
 							},
 						};
 					};
-					if (densities) {
-						componentElement.attributes.push(createArrayAttribute('densities', densities));
-					}
-					if (widths) {
-						componentElement.attributes.push(createArrayAttribute('widths', widths));
-					}
-					if (prop && Object.keys(prop).length > 0) {
-						Object.entries(prop).forEach(([key, value]) => {
-							componentElement.attributes.push({
-								name: key,
-								type: 'mdxJsxAttribute',
-								value: String(value),
-							});
-						});
-					}
+					// Go through every hProperty and add it as an attribute of the <Image>
+					Object.entries(node.data.hProperties as Record<string, string | string[]>).forEach(
+						([key, value]) => {
+							if (Array.isArray(value)) {
+								componentElement.attributes.push(createArrayAttribute(key, value));
+							} else {
+								componentElement.attributes.push({
+									name: key,
+									type: 'mdxJsxAttribute',
+									value: String(value),
+								});
+							}
+						}
+					);
 				}
 
 				parent!.children.splice(index!, 1, componentElement);
