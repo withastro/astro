@@ -3,6 +3,7 @@ import { loadFixture, createRequestAndResponse } from './test-utils.js';
 import crypto from 'node:crypto';
 import { describe, it, before } from 'node:test';
 import * as assert from 'node:assert/strict';
+import * as assert3 from 'node:assert';
 
 describe('API routes', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -88,7 +89,7 @@ describe('API routes', () => {
 		});
 
 		let [out] = await done;
-		assert.notDeepStrictEqual(new Uint8Array(out.buffer), expectedDigest);
+		assert.deepEqual(new Uint8Array(out.buffer), new Uint8Array(expectedDigest));
 	});
 
 	it('Can bail on streaming', async () => {
@@ -107,6 +108,6 @@ describe('API routes', () => {
 
 		await done;
 
-		assert.notStrictEqual(locals, { cancelledByTheServer: true });
+		assert.deepEqual(locals, { cancelledByTheServer: true });
 	});
 });
