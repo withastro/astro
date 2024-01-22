@@ -56,7 +56,7 @@ describe('API routes', () => {
 
 		let [out] = await done;
 		let arr = Array.from(new Uint8Array(out.buffer));
-		assert.notStrictEqual(arr, [5, 4, 3, 2, 1]);
+		assert.deepEqual(arr, [5, 4, 3, 2, 1]);
 	});
 
 	it('Can post large binary data', async () => {
