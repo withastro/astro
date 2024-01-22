@@ -112,6 +112,7 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default('attribute'),
 	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
+	db: z.object({}).passthrough().default({}).optional(),
 	integrations: z.preprocess(
 		// preprocess
 		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),

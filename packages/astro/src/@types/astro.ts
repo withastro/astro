@@ -1535,6 +1535,9 @@ export interface AstroUserConfig {
 		};
 	};
 
+	/** ⚠️ WARNING: SUBJECT TO CHANGE */
+	db?: Config.Database;
+
 	/**
 	 * @docs
 	 * @kind heading
@@ -2741,5 +2744,12 @@ declare global {
 		'astro-dev-overlay-button': DevToolbarButton;
 		'astro-dev-overlay-icon': DevToolbarIcon;
 		'astro-dev-overlay-card': DevToolbarCard;
+	}
+}
+
+declare global {
+	// eslint-disable-next-line @typescript-eslint/no-namespace
+	namespace Config {
+		type Database = Record<string, any>;
 	}
 }
