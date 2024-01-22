@@ -1535,13 +1535,7 @@ export interface AstroUserConfig {
 		};
 	};
 
-	/**
-	 * @docs
-	 * @kind heading
-	 * @name Database
-	 * @description
-	 * TODO
-	 */
+	/** ⚠️ WARNING: SUBJECT TO CHANGE */
 	db?: Config.Database;
 
 	/**
