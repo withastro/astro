@@ -1,6 +1,7 @@
+import * as assert from 'node:assert/strict';
+import { describe, it, before, after } from 'node:test';
 import nodejs from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
-import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 
 /**
@@ -43,8 +44,8 @@ describe('Prerendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('One');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
 		});
 
 		it('Can render prerendered route', async () => {
@@ -52,8 +53,8 @@ describe('Prerendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Two');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
 		});
 
 		it('Can render prerendered route with redirect and query params', async () => {
@@ -61,8 +62,8 @@ describe('Prerendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Two');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
 		});
 
 		it('Can render prerendered route with query params', async () => {
@@ -70,16 +71,16 @@ describe('Prerendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Two');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
 		});
 
 		it('Omitting the trailing slash results in a redirect that includes the base', async () => {
 			const res = await fetch(`http://${server.host}:${server.port}/some-base/two`, {
 				redirect: 'manual',
 			});
-			expect(res.status).to.equal(301);
-			expect(res.headers.get('location')).to.equal('/some-base/two/');
+			assert.equal(res.status, 301);
+			assert.equal(res.headers.get('location'), '/some-base/two/');
 		});
 	});
 
@@ -109,8 +110,8 @@ describe('Prerendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('One');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
 		});
 
 		it('Can render prerendered route', async () => {
@@ -118,8 +119,8 @@ describe('Prerendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Two');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
 		});
 
 		it('Can render prerendered route with redirect and query params', async () => {
@@ -127,8 +128,8 @@ describe('Prerendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Two');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
 		});
 
 		it('Can render prerendered route with query params', async () => {
@@ -136,8 +137,8 @@ describe('Prerendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Two');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
 		});
 	});
 });
@@ -172,8 +173,8 @@ describe('Hybrid rendering', () => {
 			const res = await fetch(`http://${server.host}:${server.port}/some-base/two`);
 			const html = await res.text();
 			const $ = cheerio.load(html);
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Two');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
 		});
 
 		it('Can render prerendered route', async () => {
@@ -181,8 +182,8 @@ describe('Hybrid rendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('One');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
 		});
 
 		it('Can render prerendered route with redirect and query params', async () => {
@@ -190,8 +191,8 @@ describe('Hybrid rendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('One');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
 		});
 
 		it('Can render prerendered route with query params', async () => {
@@ -199,16 +200,16 @@ describe('Hybrid rendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('One');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
 		});
 
 		it('Omitting the trailing slash results in a redirect that includes the base', async () => {
 			const res = await fetch(`http://${server.host}:${server.port}/some-base/one`, {
 				redirect: 'manual',
 			});
-			expect(res.status).to.equal(301);
-			expect(res.headers.get('location')).to.equal('/some-base/one/');
+			assert.equal(res.status, 301);
+			assert.equal(res.headers.get('location'), '/some-base/one/');
 		});
 	});
 
@@ -237,8 +238,8 @@ describe('Hybrid rendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Two');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
 		});
 
 		it('Can render prerendered route', async () => {
@@ -246,8 +247,8 @@ describe('Hybrid rendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('One');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
 		});
 
 		it('Can render prerendered route with redirect and query params', async () => {
@@ -255,8 +256,8 @@ describe('Hybrid rendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('One');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
 		});
 
 		it('Can render prerendered route with query params', async () => {
@@ -264,8 +265,8 @@ describe('Hybrid rendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('One');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
 		});
 	});
 });

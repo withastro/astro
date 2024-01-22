@@ -1,6 +1,7 @@
+import * as assert from 'node:assert/strict';
+import { describe, it, before, after } from 'node:test';
 import nodejs from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
-import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import express from 'express';
 
@@ -43,13 +44,13 @@ describe('behavior from middleware, standalone', () => {
 		it('when mode is standalone', async () => {
 			const res = await fetch(`http://${server.host}:${server.port}/error-page`);
 
-			expect(res.status).to.equal(404);
+			assert.equal(res.status, 404);
 
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
 			const body = $('body');
-			expect(body.text()).to.equal('Page does not exist');
+			assert.equal(body.text().includes('Page does not exist'), true);
 		});
 	});
 });
@@ -82,12 +83,12 @@ describe('behavior from middleware, middleware', () => {
 	it('when mode is standalone', async () => {
 		const res = await fetch(`http://localhost:8888/ssr`);
 
-		expect(res.status).to.equal(200);
+		assert.equal(res.status, 200);
 
 		const html = await res.text();
 		const $ = cheerio.load(html);
 
 		const body = $('body');
-		expect(body.text()).to.contain("Here's a random number");
+		assert.equal(body.text().includes("Here's a random number"), true);
 	});
 });

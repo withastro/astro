@@ -30,7 +30,7 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "mocha --exit --timeout 20000 test/"
+    "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
     "send": "^0.18.0",
@@ -45,10 +45,8 @@
     "@types/server-destroy": "^1.0.3",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
     "express": "^4.18.2",
-    "mocha": "^10.2.0",
     "node-mocks-http": "^1.13.0"
   },
   "publishConfig": {
