@@ -7,11 +7,11 @@ import { loadFixture } from '../../../astro/test/test-utils.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/image-remark-imgattr/', import.meta.url);
 
-describe('remarktesting', () => {
+describe('Testing remark plugins for image processing', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
-	describe('dev', () => {
+	describe('start dev server', () => {
 		/** @type {import('./test-utils').DevServer} */
 		let devServer;
 		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
@@ -48,15 +48,17 @@ describe('remarktesting', () => {
 				$ = cheerio.load(html);
 			});
 
-			it('Image has eager loading meaning getImage passed props it doesnt use through it', async () => {
+			it('<img> has correct attributes', async () => {
 				let $img = $('img');
-				expect($img.attr('loading')).to.equal('eager');
+				expect($img.attr('id')).to.equal('test');
+				expect($img.attr('sizes')).to.equal('(min-width: 600px) 600w, 300w');
+				expect($img.attr('srcset')).to.not.be.empty;
 			});
 
-			it('Image src contains w=50 meaning getImage correctly used props added through the remark plugin', async () => {
+			it('<img> was processed properly', async () => {
 				let $img = $('img');
 				expect(new URL($img.attr('src'), 'http://example.com').searchParams.get('w')).to.equal(
-					'50'
+					'300'
 				);
 			});
 		});

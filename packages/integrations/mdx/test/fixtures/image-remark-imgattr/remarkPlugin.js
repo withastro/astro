@@ -6,8 +6,10 @@ export default function plugin() {
 			if (node.type === "image") {
 				node.data = node.data || {};
 				node.data.hProperties = node.data.hProperties || {};
-				node.data.hProperties.loading = "eager";
-				node.data.hProperties.width = "50";
+				node.data.hProperties.id = "test";
+				node.data.hProperties.width = "300";
+				node.data.hProperties.widths = [300,600];
+				node.data.hProperties.sizes = "(min-width: 600px) 600w, 300w";
 			}
 
 			if (node.children) {
