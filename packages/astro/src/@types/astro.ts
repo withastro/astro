@@ -2594,7 +2594,7 @@ export interface ClientDirectiveConfig {
 export interface DevToolbarApp {
 	id: string;
 	name: string;
-	icon: Icon;
+	icon?: Icon;
 	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
 }
