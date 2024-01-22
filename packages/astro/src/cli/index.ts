@@ -30,7 +30,6 @@ async function printAstroHelp() {
 				['add', 'Add an integration.'],
 				['build', 'Build your project and write it to disk.'],
 				['check', 'Check your project for errors.'],
-				['db', 'Manage your Astro database.'],
 				['dev', 'Start the development server.'],
 				['docs', 'Open documentation in your web browser.'],
 				['info', 'List info about your current Astro setup.'],

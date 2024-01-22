@@ -5,7 +5,7 @@ import { getPackage } from '../install-package.js';
 export async function db({ flags }: { flags: Arguments }) {
 	const logger = createLoggerFromFlags(flags);
 	const getPackageOpts = { skipAsk: flags.yes || flags.y, cwd: flags.root };
-	const dbPackage = await getPackage<typeof import('@astrojs/db')>(
+	const dbPackage = await getPackage<any>(
 		'@astrojs/db',
 		logger,
 		getPackageOpts,
