@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { describe, it, before, after } from 'node:test';
 import nodejs from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
 import * as cheerio from 'cheerio';
@@ -30,7 +31,7 @@ describe('Assets', () => {
 	it('Assets within the _astro folder should be given immutable headers', async () => {
 		let response = await fixture.fetch('/text-file');
 		let cacheControl = response.headers.get('cache-control');
-		expect(cacheControl).to.equal(null);
+		assert.equal(cacheControl, null);
 		const html = await response.text();
 		const $ = cheerio.load(html);
 
@@ -38,6 +39,6 @@ describe('Assets', () => {
 		const fileURL = $('a').attr('href');
 		response = await fixture.fetch(fileURL);
 		cacheControl = response.headers.get('cache-control');
-		expect(cacheControl).to.equal('public, max-age=31536000, immutable');
+		assert.equal(cacheControl, 'public, max-age=31536000, immutable');
 	});
 });

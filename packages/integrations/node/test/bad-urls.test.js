@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { describe, it, before, after } from 'node:test';
 import nodejs from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
 
@@ -32,15 +33,17 @@ describe('Bad URLs', () => {
 			'%20foobar%',
 		];
 
+		const statusCodes = [400, 404, 500];
 		for (const weirdUrl of weirdURLs) {
 			const fetchResult = await fixture.fetch(weirdUrl);
-			expect([400, 404, 500]).to.include(
-				fetchResult.status,
+			assert.equal(
+				statusCodes.includes(fetchResult.status),
+				true,
 				`${weirdUrl} returned something else than 400, 404, or 500`
 			);
 		}
 		const stillWork = await fixture.fetch('/');
 		const text = await stillWork.text();
-		expect(text).to.equal('<!DOCTYPE html>Hello!');
+		assert.equal(text, '<!DOCTYPE html>Hello!');
 	});
 });
