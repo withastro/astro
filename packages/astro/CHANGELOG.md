@@ -1,5 +1,11 @@
 # astro
 
+## 4.2.3
+
+### Patch Changes
+
+- [#9768](https://github.com/withastro/astro/pull/9768) [`eed0e8757c35dde549707e71c45862438a043fb0`](https://github.com/withastro/astro/commit/eed0e8757c35dde549707e71c45862438a043fb0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix apps being able to crash the dev toolbar in certain cases
+
 ## 4.2.2
 
 ### Patch Changes
