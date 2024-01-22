@@ -255,7 +255,8 @@ export class App {
 			const i18nMiddleware = createI18nMiddleware(
 				this.#manifest.i18n,
 				this.#manifest.base,
-				this.#manifest.trailingSlash
+				this.#manifest.trailingSlash,
+				this.#manifest.buildFormat
 			);
 			if (i18nMiddleware) {
 				if (mod.onRequest) {

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { fileURLToPath } from 'node:url';
 import { createRouteManifest } from '../../../dist/core/routing/manifest/create.js';
-import { createBasicSettings, createFs, defaultLogger } from '../test-utils.js';
+import { createBasicSettings, createFs } from '../test-utils.js';
 import { Logger } from '../../../dist/core/logger/core.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
@@ -103,6 +103,51 @@ describe('routing - createRouteManifest', () => {
 		]);
 	});
 
+	it('static routes are sorted before dynamic and rest routes', async () => {
+		const fs = createFs(
+			{
+				'/src/pages/[dynamic].astro': `<h1>test</h1>`,
+				'/src/pages/[...rest].astro': `<h1>test</h1>`,
+				'/src/pages/static.astro': `<h1>test</h1>`,
+				'/src/pages/index.astro': `<h1>test</h1>`,
+			},
+			root
+		);
+		const settings = await createBasicSettings({
+			root: fileURLToPath(root),
+			base: '/search',
+			trailingSlash: 'never',
+			experimental: {
+				globalRoutePriority: true,
+			},
+		});
+
+		const manifest = createRouteManifest({
+			cwd: fileURLToPath(root),
+			settings,
+			fsMod: fs,
+		});
+
+		expect(getManifestRoutes(manifest)).to.deep.equal([
+			{
+				route: '/',
+				type: 'page',
+			},
+			{
+				route: '/static',
+				type: 'page',
+			},
+			{
+				route: '/[dynamic]',
+				type: 'page',
+			},
+			{
+				route: '/[...rest]',
+				type: 'page',
+			},
+		]);
+	});
+
 	it('injected routes are sorted in legacy mode above filesystem routes', async () => {
 		const fs = createFs(
 			{
@@ -168,14 +213,6 @@ describe('routing - createRouteManifest', () => {
 			output: 'server',
 			base: '/search',
 			trailingSlash: 'never',
-			integrations: [
-				{
-					name: '@test',
-					hooks: {
-						'astro:config:setup': ({ injectRoute }) => {},
-					},
-				},
-			],
 			experimental: {
 				globalRoutePriority: true,
 			},
@@ -205,15 +242,15 @@ describe('routing - createRouteManifest', () => {
 				type: 'page',
 			},
 			{
+				route: '/',
+				type: 'page',
+			},
+			{
 				route: '/contributing',
 				type: 'page',
 			},
 			{
 				route: '/[...slug]',
-				type: 'page',
-			},
-			{
-				route: '/',
 				type: 'page',
 			},
 		]);

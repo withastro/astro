@@ -126,6 +126,11 @@ export class AstroDevToolbar extends HTMLElement {
 				outline-offset: -3px;
 			}
 
+			#dev-bar #bar-container .item[data-app-error]:hover, #dev-bar #bar-container .item[data-app-error]:focus-visible {
+				cursor: not-allowed;
+				background: #ff252520;
+			}
+
 			#dev-bar .item:first-of-type {
 				border-top-left-radius: 9999px;
 				border-bottom-left-radius: 9999px;
@@ -164,6 +169,10 @@ export class AstroDevToolbar extends HTMLElement {
 				border-left: 5px solid transparent;
 				border-right: 5px solid transparent;
 				border-top: 5px solid #343841;
+			}
+
+			#dev-bar .item[data-app-error] .icon {
+				opacity: 0.35;
 			}
 
 			#dev-bar .item:hover .item-tooltip, #dev-bar .item:not(.active):focus-visible .item-tooltip {
@@ -266,7 +275,7 @@ export class AstroDevToolbar extends HTMLElement {
 
 		// Create app canvases
 		this.apps.forEach(async (app) => {
-			if (settings.config.verbose) console.log(`Creating app canvas for ${app.id}`);
+			settings.logger.verboseLog(`Creating app canvas for ${app.id}`);
 			const appCanvas = document.createElement('astro-dev-toolbar-app-canvas');
 			appCanvas.dataset.appId = app.id;
 			this.shadowRoot?.append(appCanvas);
@@ -353,24 +362,40 @@ export class AstroDevToolbar extends HTMLElement {
 		const shadowRoot = this.getAppCanvasById(app.id)!.shadowRoot!;
 		app.status = 'loading';
 		try {
-			if (settings.config.verbose) console.info(`Initializing app ${app.id}`);
+			settings.logger.verboseLog(`Initializing app ${app.id}`);
 
 			await app.init?.(shadowRoot, app.eventTarget);
 			app.status = 'ready';
 
 			if (import.meta.hot) {
 				import.meta.hot.send(`${WS_EVENT_NAME}:${app.id}:initialized`);
+				// TODO: Remove in Astro 5.0
 				import.meta.hot.send(`${WS_EVENT_NAME_DEPRECATED}:${app.id}:initialized`);
 			}
 		} catch (e) {
 			console.error(`Failed to init app ${app.id}, error: ${e}`);
 			app.status = 'error';
+
+			if (import.meta.hot) {
+				import.meta.hot.send('astro:devtoolbar:error:init', {
+					app: app,
+					error: e instanceof Error ? e.stack : e,
+				});
+			}
+
+			const appButton = this.getAppButtonById(app.id);
+			const appTooltip = appButton?.querySelector<HTMLElement>('.item-tooltip');
+
+			if (appButton && appTooltip) {
+				appButton.toggleAttribute('data-app-error', true);
+				appTooltip.innerText = `Error initializing ${app.name}`;
+			}
 		}
 	}
 
 	getAppTemplate(app: DevToolbarApp) {
 		return `<button class="item" data-app-id="${app.id}">
-				<div class="icon">${getAppIcon(app.icon)}<div class="notification"></div></div>
+				<div class="icon">${app.icon ? getAppIcon(app.icon) : '?'}<div class="notification"></div></div>
 				<span class="item-tooltip">${app.name}</span>
 			</button>`;
 	}
@@ -383,6 +408,10 @@ export class AstroDevToolbar extends HTMLElement {
 		return this.shadowRoot.querySelector<HTMLElement>(
 			`astro-dev-toolbar-app-canvas[data-app-id="${id}"]`
 		);
+	}
+
+	getAppButtonById(id: string) {
+		return this.shadowRoot.querySelector<HTMLElement>(`[data-app-id="${id}"]`);
 	}
 
 	async toggleAppStatus(app: DevToolbarApp) {
@@ -418,7 +447,7 @@ export class AstroDevToolbar extends HTMLElement {
 		}
 
 		app.active = newStatus ?? !app.active;
-		const mainBarButton = this.shadowRoot.querySelector(`[data-app-id="${app.id}"]`);
+		const mainBarButton = this.getAppButtonById(app.id);
 		const moreBarButton = this.getAppCanvasById('astro:more')?.shadowRoot?.querySelector(
 			`[data-app-id="${app.id}"]`
 		);

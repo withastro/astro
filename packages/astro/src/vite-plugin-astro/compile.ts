@@ -1,15 +1,17 @@
 import { transformWithEsbuild, type ESBuildTransformResult } from 'vite';
 import type { AstroConfig } from '../@types/astro.js';
-import { cachedCompilation, type CompileProps, type CompileResult } from '../core/compile/index.js';
+import { compile, type CompileProps, type CompileResult } from '../core/compile/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
+import type { CompileMetadata } from './types.js';
 
-interface CachedFullCompilation {
+interface CompileAstroOption {
 	compileProps: CompileProps;
+	astroFileToCompileMetadata: Map<string, CompileMetadata>;
 	logger: Logger;
 }
 
-interface FullCompileResult extends Omit<CompileResult, 'map'> {
+export interface CompileAstroResult extends Omit<CompileResult, 'map'> {
 	map: ESBuildTransformResult['map'];
 }
 
@@ -23,15 +25,16 @@ interface EnhanceCompilerErrorOptions {
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 
-export async function cachedFullCompilation({
+export async function compileAstro({
 	compileProps,
+	astroFileToCompileMetadata,
 	logger,
-}: CachedFullCompilation): Promise<FullCompileResult> {
+}: CompileAstroOption): Promise<CompileAstroResult> {
 	let transformResult: CompileResult;
 	let esbuildResult: ESBuildTransformResult;
 
 	try {
-		transformResult = await cachedCompilation(compileProps);
+		transformResult = await compile(compileProps);
 		// Compile all TypeScript to JavaScript.
 		// Also, catches invalid JS/TS in the compiled output before returning.
 		esbuildResult = await transformWithEsbuild(transformResult.code, compileProps.filename, {
@@ -75,6 +78,13 @@ export async function cachedFullCompilation({
 			i++;
 		}
 	}
+
+	// Attach compile metadata to map for use by virtual modules
+	astroFileToCompileMetadata.set(compileProps.filename, {
+		originalCode: compileProps.source,
+		css: transformResult.css,
+		scripts: transformResult.scripts,
+	});
 
 	return {
 		...transformResult,
