@@ -265,7 +265,8 @@ async function generatePage(
 	const i18nMiddleware = createI18nMiddleware(
 		pipeline.getManifest().i18n,
 		pipeline.getManifest().base,
-		pipeline.getManifest().trailingSlash
+		pipeline.getManifest().trailingSlash,
+		pipeline.getManifest().buildFormat
 	);
 	if (config.i18n && i18nMiddleware) {
 		if (onRequest) {
@@ -657,5 +658,6 @@ export function createBuildManifest(
 			: settings.config.site,
 		componentMetadata: internals.componentMetadata,
 		i18n: i18nManifest,
+		buildFormat: settings.config.build.format,
 	};
 }
