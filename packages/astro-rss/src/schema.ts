@@ -1,6 +1,8 @@
 import { z } from 'astro/zod';
 
-const sharedSchema = z.object({
+export const rssSchema = z.object({
+	title: z.string().optional(),
+	description: z.string().optional(),
 	pubDate: z
 		.union([z.string(), z.number(), z.date()])
 		.optional()
@@ -20,19 +22,7 @@ const sharedSchema = z.object({
 		.optional(),
 	link: z.string().optional(),
 	content: z.string().optional(),
-});
-
-export const rssSchema = z.union([
-	z
-		.object({
-			title: z.string(),
-			description: z.string().optional(),
-		})
-		.merge(sharedSchema),
-	z
-		.object({
-			title: z.string().optional(),
-			description: z.string(),
-		})
-		.merge(sharedSchema),
-]);
+}).refine(val => val.title || val.description, {
+	message: "At least title or description must be provided.",
+	path: ["title", "description"]
+})
