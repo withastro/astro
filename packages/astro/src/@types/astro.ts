@@ -1541,15 +1541,6 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name Database
-	 * @description
-	 * TODO
-	 */
-	db?: Config.Database;
-
-	/**
-	 * @docs
-	 * @kind heading
 	 * @name Legacy Flags
 	 * @description
 	 * To help some users migrate between versions of Astro, we occasionally introduce `legacy` flags.
