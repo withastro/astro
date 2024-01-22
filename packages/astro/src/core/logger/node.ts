@@ -7,7 +7,7 @@ type ConsoleStream = Writable & {
 };
 
 export const nodeLogDestination: LogWritable<LogMessage> = {
-	write(event: LogMessage, newLine = true) {
+	write(event: LogMessage) {
 		let dest: ConsoleStream = process.stderr;
 		if (levels[event.level] < levels['error']) {
 			dest = process.stdout;
