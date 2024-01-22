@@ -50,22 +50,24 @@ const fieldSchema = z.union([
 ]);
 const fieldsSchema = z.record(fieldSchema);
 
+const dataResponse = z.array(z.record(z.unknown()));
+
 export const readableCollectionSchema = z.object({
 	fields: fieldsSchema,
 	data: z
 		.function()
-		.returns(z.array(z.record(z.unknown())))
+		.returns(z.union([dataResponse, z.promise(dataResponse)]))
 		.optional(),
-	writable: z.literal(false)
+	writable: z.literal(false),
 });
 
 export const writableCollectionSchema = z.object({
 	fields: fieldsSchema,
 	seed: z
 		.function()
-		.returns(z.array(z.record(z.unknown())))
+		.returns(z.union([dataResponse, z.promise(dataResponse)]))
 		.optional(),
-	writable: z.literal(true)
+	writable: z.literal(true),
 });
 
 export const collectionSchema = z.union([readableCollectionSchema, writableCollectionSchema]);
@@ -89,7 +91,9 @@ export type FieldType =
 export type DBField = z.infer<typeof fieldSchema>;
 export type DBFieldInput = DateFieldInput | BooleanField | NumberField | TextField | JsonField;
 export type DBFields = z.infer<typeof fieldsSchema>;
-export type DBCollection = z.infer<typeof readableCollectionSchema | typeof writableCollectionSchema>;
+export type DBCollection = z.infer<
+	typeof readableCollectionSchema | typeof writableCollectionSchema
+>;
 export type DBCollections = Record<string, DBCollection>;
 export type ReadableDBCollection = z.infer<typeof readableCollectionSchema>;
 export type WritableDBCollection = z.infer<typeof writableCollectionSchema>;

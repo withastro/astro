@@ -7,6 +7,7 @@ import {
 	type TextField,
 	type collectionSchema,
 	collectionsSchema,
+	type MaybePromise,
 } from './types.js';
 import { z } from 'zod';
 
@@ -30,14 +31,14 @@ type CollectionConfig<
 			// TODO: type inference based on field type. Just `any` for now.
 			seed?: Writable extends false
 				? never
-				: () => Array<Record<keyof TFields, any> & { id?: string }>;
+				: () => MaybePromise<Array<Record<keyof TFields, any> & { id?: string }>>;
 		}
 	: {
 			fields: TFields;
 			// TODO: type inference based on field type. Just `any` for now.
 			data?: Writable extends true
 				? never
-				: () => Array<Record<keyof TFields, any> & { id?: string }>;
+				: () => MaybePromise<Array<Record<keyof TFields, any> & { id?: string }>>;
 		};
 
 type ResolvedCollectionConfig<
