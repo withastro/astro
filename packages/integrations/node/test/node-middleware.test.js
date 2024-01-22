@@ -21,7 +21,6 @@ describe('behavior from middleware, standalone', () => {
 	let server;
 
 	before(async () => {
-		process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 		process.env.PRERENDER = false;
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
@@ -61,7 +60,6 @@ describe('behavior from middleware, middleware', () => {
 	let server;
 
 	before(async () => {
-		process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 		process.env.PRERENDER = false;
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',

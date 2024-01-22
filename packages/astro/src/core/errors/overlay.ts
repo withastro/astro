@@ -68,7 +68,7 @@ const style = /* css */ `
     --toggle-border-color: #C3CADB;
 
   /* Syntax Highlighting */
-  --astro-code-color-text: #000000;
+  --astro-code-foreground: #000000;
   --astro-code-token-constant: #4ca48f;
   --astro-code-token-string: #9f722a;
   --astro-code-token-comment: #8490b5;
@@ -121,7 +121,7 @@ const style = /* css */ `
   --toggle-border-color: #3D4663;
 
   /* Syntax Highlighting */
-  --astro-code-color-text: #ffffff;
+  --astro-code-foreground: #ffffff;
   --astro-code-token-constant: #90f4e3;
   --astro-code-token-string: #f4cf90;
   --astro-code-token-comment: #8490b5;

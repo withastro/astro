@@ -7,7 +7,7 @@ import { serverShortcuts as formatServerShortcuts } from '../messages.js';
 
 const PKG_PREFIX = fileURLToPath(new URL('../../../', import.meta.url));
 const E2E_PREFIX = fileURLToPath(new URL('../../../e2e', import.meta.url));
-export function isAstroSrcFile(id: string | null) {
+function isAstroSrcFile(id: string | null) {
 	return id?.startsWith(PKG_PREFIX) && !id.startsWith(E2E_PREFIX);
 }
 

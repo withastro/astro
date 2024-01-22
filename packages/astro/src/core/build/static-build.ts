@@ -439,7 +439,7 @@ async function cleanServerOutput(
 	// Clean out directly if the outDir is outside of root
 	if (out.toString() !== opts.settings.config.outDir.toString()) {
 		// Copy assets before cleaning directory if outside root
-		await copyFiles(out, opts.settings.config.outDir);
+		await copyFiles(out, opts.settings.config.outDir, true);
 		await fs.promises.rm(out, { recursive: true });
 		return;
 	}

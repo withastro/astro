@@ -1,11 +1,17 @@
-export function getProxyCode(options: Record<string, any>, isSSR: boolean): string {
+import type { ImageMetadata } from '../types.js';
+
+export function getProxyCode(options: ImageMetadata, isSSR: boolean): string {
+	const stringifiedFSPath = JSON.stringify(options.fsPath);
 	return `
 						new Proxy(${JSON.stringify(options)}, {
 						get(target, name, receiver) {
 							if (name === 'clone') {
 								return structuredClone(target);
 							}
-							${!isSSR ? 'globalThis.astroAsset.referencedImages.add(target.fsPath);' : ''}
+							if (name === 'fsPath') {
+								return ${stringifiedFSPath};
+							}
+							${!isSSR ? `globalThis.astroAsset.referencedImages.add(${stringifiedFSPath});` : ''}
 							return target[name];
 						}
 					})
