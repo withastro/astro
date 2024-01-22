@@ -675,6 +675,7 @@ describe('[SSG] i18n routing', () => {
 		it('should redirect to the index of the default locale', async () => {
 			const html = await fixture.readFile('/index.html');
 			expect(html).to.include('http-equiv="refresh');
+			expect(html).to.include('http-equiv="refresh');
 			expect(html).to.include('url=/new-site/en');
 		});
 
@@ -940,7 +941,7 @@ describe('[SSR] i18n routing', () => {
 			let request = new Request('http://example.com/new-site');
 			let response = await app.render(request);
 			expect(response.status).to.equal(302);
-			expect(response.headers.get('location')).to.equal('/new-site/en');
+			expect(response.headers.get('location')).to.equal('/new-site/en/');
 		});
 
 		it('should render the en locale', async () => {
@@ -1118,7 +1119,7 @@ describe('[SSR] i18n routing', () => {
 			let request = new Request('http://example.com/new-site');
 			let response = await app.render(request);
 			expect(response.status).to.equal(302);
-			expect(response.headers.get('location')).to.equal('/new-site/en');
+			expect(response.headers.get('location')).to.equal('/new-site/en/');
 		});
 
 		it('should render the en locale', async () => {
