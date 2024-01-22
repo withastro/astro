@@ -1,22 +1,13 @@
-import { loadFixture } from './test-utils.js';
-import { expect } from 'chai';
-import { load as cheerioLoad } from 'cheerio';
+import { expect } from '@playwright/test';
+import { prepareTestFactory } from './test-utils.js';
 
-describe('Basics', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+const { test } = prepareTestFactory({ root: './fixtures/basics/' });
 
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/basics/',
-		});
-		await fixture.build();
-	});
+test.describe('Basics', () => {
+	test('Alpine is working', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
 
-	it('Alpine is working', async () => {
-		const html = await fixture.readFile('/index.html');
-		const $ = cheerioLoad(html);
-
-		expect($('#foo').text()).to.eq('bar');
+		const el = page.locator("#foo")
+		expect(await el.textContent()).toBe('bar')
 	});
 });
