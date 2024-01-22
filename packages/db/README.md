@@ -1,1 +1,0 @@
-# `@astrojs/db`
