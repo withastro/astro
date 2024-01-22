@@ -5,7 +5,7 @@ import { resolveConfig } from '../../core/config/config.js';
 import type { AstroConfig } from '../../@types/astro.js';
 
 type DBPackage = {
-	cli: (args: { flags: Arguments, config: AstroConfig }) => unknown;
+	cli: (args: { flags: Arguments; config: AstroConfig }) => unknown;
 };
 
 export async function db({ flags }: { flags: Arguments }) {
@@ -26,5 +26,5 @@ export async function db({ flags }: { flags: Arguments }) {
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const { astroConfig } = await resolveConfig(inlineConfig, 'build');
 
-	await cli({flags, config: astroConfig});
+	await cli({ flags, config: astroConfig });
 }
