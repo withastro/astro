@@ -47,6 +47,31 @@ describe('build.format', () => {
 				let $ = cheerio.load(html);
 				expect($('#another').attr('href')).to.equal('/nested/another/');
 			});
+		});
+	});
+
+	describe('preserve', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/page-format/',
+				build: {
+					format: 'preserve',
+				},
+			});
+		});
+
+		describe('Build', () => {
+			before(async () => {
+				await fixture.build();
+			});
+
+			it('relative urls created point to sibling folders', async () => {
+				let html = await fixture.readFile('/nested/page.html');
+				let $ = cheerio.load(html);
+				expect($('#another').attr('href')).to.equal('/nested/another/');
+			});
 
 			it('index files are written as index.html', async () => {
 				let html = await fixture.readFile('/nested/index.html');
