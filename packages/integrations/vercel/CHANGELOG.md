@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 7.0.1
+
+### Patch Changes
+
+- [#9585](https://github.com/withastro/astro/pull/9585) [`05adaaa2d217a3ecb34244d9b40603f35cef4a37`](https://github.com/withastro/astro/commit/05adaaa2d217a3ecb34244d9b40603f35cef4a37) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where edge middleware did not work.
+
 ## 7.0.0
 
 ### Major Changes
