@@ -17,18 +17,15 @@ describe('Vercel edge middleware', () => {
 			'../.vercel/output/functions/_middleware.func/.vc-config.json'
 		);
 		expect(JSON.parse(contents)).to.deep.include({
-			"runtime": "edge",
-			"entrypoint": "middleware.mjs"
+			runtime: 'edge',
+			entrypoint: 'middleware.mjs',
 		});
 	});
 
-	
 	it('deployment config points to the middleware edge function', async () => {
-		const contents = await build.readFile(
-			'../.vercel/output/config.json'
-		);
+		const contents = await build.readFile('../.vercel/output/config.json');
 		const { routes } = JSON.parse(contents);
-		expect(routes.some(route => route.dest === '_middleware')).to.be.true;
+		expect(routes.some((route) => route.dest === '_middleware')).to.be.true;
 	});
 
 	// TODO: The path here seems to be inconsistent?

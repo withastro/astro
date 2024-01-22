@@ -17,9 +17,12 @@ import { ASTRO_LOCALS_HEADER, ASTRO_PATH_HEADER, NODE_PATH } from './adapter.js'
 export async function generateEdgeMiddleware(
 	astroMiddlewareEntryPointPath: URL,
 	vercelEdgeMiddlewareHandlerPath: URL,
-	outPath: URL,
+	outPath: URL
 ): Promise<URL> {
-	const code = edgeMiddlewareTemplate(astroMiddlewareEntryPointPath, vercelEdgeMiddlewareHandlerPath);
+	const code = edgeMiddlewareTemplate(
+		astroMiddlewareEntryPointPath,
+		vercelEdgeMiddlewareHandlerPath
+	);
 	// https://vercel.com/docs/concepts/functions/edge-middleware#create-edge-middleware
 	const bundledFilePath = fileURLToPath(outPath);
 	const esbuild = await import('esbuild');
@@ -38,18 +41,23 @@ export async function generateEdgeMiddleware(
 		bundle: true,
 		minify: false,
 		// ensure node built-in modules are namespaced with `node:`
-		plugins: [{
-			name: 'esbuild-namespace-node-built-in-modules',
-			setup(build) {
-				const filter = new RegExp(builtinModules.map((mod) => `(^${mod}$)`).join('|'));
-				build.onResolve({ filter }, (args) => ({ path: 'node:' + args.path, external: true }));
+		plugins: [
+			{
+				name: 'esbuild-namespace-node-built-in-modules',
+				setup(build) {
+					const filter = new RegExp(builtinModules.map((mod) => `(^${mod}$)`).join('|'));
+					build.onResolve({ filter }, (args) => ({ path: 'node:' + args.path, external: true }));
+				},
 			},
-		}]
+		],
 	});
 	return pathToFileURL(bundledFilePath);
 }
 
-function edgeMiddlewareTemplate(astroMiddlewareEntryPointPath: URL, vercelEdgeMiddlewareHandlerPath: URL) {
+function edgeMiddlewareTemplate(
+	astroMiddlewareEntryPointPath: URL,
+	vercelEdgeMiddlewareHandlerPath: URL
+) {
 	const middlewarePath = JSON.stringify(
 		fileURLToPath(astroMiddlewareEntryPointPath).replace(/\\/g, '/')
 	);

@@ -179,7 +179,7 @@ export default function vercelServerless({
 				if (command === 'build' && speedInsights?.enabled) {
 					injectScript('page', 'import "@astrojs/vercel/speed-insights"');
 				}
-				
+
 				updateConfig({
 					outDir: new URL('./.vercel/output/', config.root),
 					build: {
@@ -211,9 +211,9 @@ export default function vercelServerless({
 							`\tYou can set functionPerRoute: false to prevent surpassing the limit.\n`
 					);
 				}
-				
+
 				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware }));
-				
+
 				_config = config;
 				_buildTempFolder = config.build.server;
 				_serverEntry = config.build.serverEntry;
@@ -246,12 +246,14 @@ export default function vercelServerless({
 				}
 
 				const routeDefinitions: Array<{
-					src: string
-					dest: string
-					middlewarePath?: string
+					src: string;
+					dest: string;
+					middlewarePath?: string;
 				}> = [];
 
-				const includeFiles = _includeFiles.map((file) => new URL(file, _config.root)).concat(extraFilesToInclude);
+				const includeFiles = _includeFiles
+					.map((file) => new URL(file, _config.root))
+					.concat(extraFilesToInclude);
 				const excludeFiles = _excludeFiles.map((file) => new URL(file, _config.root));
 
 				const runtime = getRuntime(process, logger);
@@ -328,9 +330,11 @@ export default function vercelServerless({
 							? [
 									{
 										src: '/.*',
-										dest: fourOhFourRoute.prerender ? '/404.html'
-											: _middlewareEntryPoint ? MIDDLEWARE_PATH
-											: NODE_PATH,
+										dest: fourOhFourRoute.prerender
+											? '/404.html'
+											: _middlewareEntryPoint
+												? MIDDLEWARE_PATH
+												: NODE_PATH,
 										status: 404,
 									},
 								]
@@ -362,23 +366,19 @@ export default function vercelServerless({
 type Runtime = `nodejs${string}.x`;
 
 interface CreateMiddlewareFolderArgs {
-	config: AstroConfig
-	entry: URL
-	functionName: string
+	config: AstroConfig;
+	entry: URL;
+	functionName: string;
 }
 
-async function createMiddlewareFolder({
-	functionName,
-	entry,
-	config,
-}: CreateMiddlewareFolderArgs) {
+async function createMiddlewareFolder({ functionName, entry, config }: CreateMiddlewareFolderArgs) {
 	const functionFolder = new URL(`./functions/${functionName}.func/`, config.outDir);
 
 	await generateEdgeMiddleware(
 		entry,
 		new URL(VERCEL_EDGE_MIDDLEWARE_FILE, config.srcDir),
-		new URL('./middleware.mjs', functionFolder),
-	)
+		new URL('./middleware.mjs', functionFolder)
+	);
 
 	await writeJson(new URL(`./.vc-config.json`, functionFolder), {
 		runtime: 'edge',
@@ -434,7 +434,7 @@ async function createFunctionFolder({
 	// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
 	await writeJson(vcConfig, {
 		runtime,
-		handler: handler.replaceAll("\\","/"),
+		handler: handler.replaceAll('\\', '/'),
 		launcherType: 'Nodejs',
 		maxDuration,
 		supportsResponseStreaming: true,
