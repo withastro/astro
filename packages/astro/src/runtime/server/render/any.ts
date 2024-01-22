@@ -5,6 +5,10 @@ import { SlotString } from './slot.js';
 import { renderToBufferDestination } from './util.js';
 
 export async function renderChild(destination: RenderDestination, child: any) {
+	// Ignore falsy values (except numbers)
+	if (!child && child !== 0) return;
+
+	// Handle promises
 	if (child.then) {
 		child = await child;
 	}
@@ -14,8 +18,6 @@ export async function renderChild(destination: RenderDestination, child: any) {
 		destination.write(markHTMLString(escapeHTML(child)));
 	} else if (typeof child === 'number') {
 		destination.write(`${child}`);
-	} else if (!child) {
-		// do nothing, safe to ignore falsey values.
 	} else if (child instanceof HTMLString) {
 		destination.write(child);
 	} else if (child instanceof SlotString) {
