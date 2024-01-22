@@ -6,6 +6,7 @@
   "type": "module",
   "types": "./index.d.ts",
   "author": "withastro",
+  "main": "./dist/index.js",
   "exports": {
     ".": {
       "types": "./index.d.ts",
