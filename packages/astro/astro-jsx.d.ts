@@ -812,6 +812,7 @@ declare namespace astroHTML.JSX {
 		type?: HTMLInputTypeAttribute | undefined | null;
 		value?: string | string[] | number | undefined | null;
 		width?: number | string | undefined | null;
+		popovertarget?: string | undefined | null;
 	}
 
 	interface KeygenHTMLAttributes extends HTMLAttributes {
