@@ -172,13 +172,9 @@ export async function createContainerWithAutomaticRestart({
 					description: 'restart the server',
 					action: () => handleServerRestart(),
 				},
-				{
-					key: 'u',
-					description: 'show server url',
-					action() {
-						// TODO: show the server urls
-					},
-				},
+				// Disable Vite's builtin "u" (print server urls) and "c" (clear console) shortcuts
+				{ key: 'u', description: '' },
+				{ key: 'c', description: '' },
 			],
 		});
 	}

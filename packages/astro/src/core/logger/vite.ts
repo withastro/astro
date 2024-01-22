@@ -53,9 +53,6 @@ export function createViteLogger(
 			}
 			// Log shortcuts help messages without indent
 			else if (viteShortcutHelpMsg.test(stripped)) {
-				// Remove Vite's builtin shortcuts we don't support. We can do this cleaner once
-				// https://github.com/vitejs/vite/pull/15218 lands
-				if (stripped.includes('c + enter') || stripped.includes('u + enter')) return;
 				const [, key, label] = viteShortcutHelpMsg.exec(stripped)! as string[];
 				astroLogger.info('SKIP_FORMAT', formatServerShortcuts({ key, label }));
 			}

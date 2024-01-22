@@ -83,7 +83,8 @@ export function serverStart({
 	}
 
 	const messages = [
-		`${bgGreen(bold(black(` astro `)))} ${green(`v${version}`)} ${dim(`ready in`)} ${Math.round(
+		'',
+		`${bgGreen(bold(` astro `))} ${green(`v${version}`)} ${dim(`ready in`)} ${Math.round(
 			startupTime
 		)} ${dim('ms')}`,
 		'',
@@ -95,16 +96,9 @@ export function serverStart({
 }
 
 /** Display custom dev server shortcuts */
-export function serverShortcuts({
-	key,
-	label
-}: {
-	key: string,
-	label: string,
-}): string {
+export function serverShortcuts({ key, label }: { key: string; label: string }): string {
 	return [dim('  Press'), key, dim('to'), label].join(' ');
 }
-
 
 export function telemetryNotice() {
 	const headline = blue(`▶ Astro collects anonymous usage data.`);
