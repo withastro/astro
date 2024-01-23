@@ -1,8 +1,5 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { Writable } from 'node:stream';
-
-import { Logger } from '../../../astro/dist/core/logger/core.js';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/image-remark-imgattr/', import.meta.url);
@@ -14,26 +11,13 @@ describe('Testing remark plugins for image processing', () => {
 	describe('start dev server', () => {
 		/** @type {import('./test-utils').DevServer} */
 		let devServer;
-		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
-		let logs = [];
 
 		before(async () => {
 			fixture = await loadFixture({
 				root: FIXTURE_ROOT,
 			});
 
-			devServer = await fixture.startDevServer({
-				logger: new Logger({
-					level: 'error',
-					dest: new Writable({
-						objectMode: true,
-						write(event, _, callback) {
-							logs.push(event);
-							callback();
-						},
-					}),
-				}),
-			});
+			devServer = await fixture.startDevServer();
 		});
 
 		after(async () => {
