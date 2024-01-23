@@ -9,16 +9,10 @@ type GlobParams = {
 	mapContent: (params: {
 		path: string;
 		content: string;
-	}) => Record<string, unknown> & { id: string };
+	}) => Record<string, unknown> & { file: string };
 };
 
-export function glob(
-	query: string,
-	mapContent: (params: {
-		path: string;
-		content: string;
-	}) => Record<string, unknown> & { id: string }
-) {
+export function glob(query: string, mapContent: GlobParams['mapContent']) {
 	return async ({ db, table, mode }: CollectionDataFnParams) => {
 		if (mode === 'dev') {
 			return devGlobCallback({ db, table, query, mapContent });
@@ -26,16 +20,20 @@ export function glob(
 		const files = await fastGlob(query);
 		for (const path of files) {
 			const content = await readFile(path, 'utf-8');
-			let mapped: Record<string, unknown>;
-			try {
-				mapped = mapContent({ path, content });
-			} catch (e) {
-				throw new Error(`Failed to parse ${path}. Full error: ${e}`);
-			}
-			await db.insert(table).values(mapped);
+			await db.insert(table).values(mapContent({ path, content }));
 		}
 	};
 }
+
+export const asJson: GlobParams['mapContent'] = ({ content, path }) => {
+	let parsed: Record<string, unknown>;
+	try {
+		parsed = JSON.parse(content);
+	} catch (e) {
+		throw new Error(`Failed to parse ${path}. Full error: ${e}`);
+	}
+	return { file: path, ...parsed };
+};
 
 function devGlobCallback({
 	db,
@@ -43,33 +41,22 @@ function devGlobCallback({
 	query,
 	mapContent,
 }: Pick<CollectionDataFnParams, 'db' | 'table'> & GlobParams) {
-	const rowIdByPath = new Map<string, number>();
 	chokidar
 		.watch(query)
 		.on('add', async (path) => {
 			const content = await readFile(path, 'utf-8');
 			const mapped = mapContent({ path, content });
-			const res = await db.insert(table).values(mapped).returning().get();
-			rowIdByPath.set(path, res.rowid as number);
+			await db.insert(table).values(mapped);
 		})
 		.on('change', async (path) => {
 			const content = await readFile(path, 'utf-8');
 			const mapped = mapContent({ path, content });
-			const rowid = rowIdByPath.get(path);
-			if (!rowid) {
-				// Handle missed or failed add events
-				const insert = await db.insert(table).values(mapped).returning().get();
-				rowIdByPath.set(path, insert.rowid as number);
-				return;
-			}
-
-			await db.update(table).set(mapped).where(eq(table.rowid, rowid));
+			await db.insert(table).values(mapped).onConflictDoUpdate({
+				target: table.file,
+				set: mapped,
+			});
 		})
 		.on('unlink', async (path) => {
-			const rowid = rowIdByPath.get(path);
-			if (!rowid) return;
-
-			await db.delete(table).where(eq(table.rowid, rowid));
-			rowIdByPath.delete(path);
+			await db.delete(table).where(eq(table.file, path));
 		});
 }

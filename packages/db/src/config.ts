@@ -32,13 +32,6 @@ export type CollectionDataFnParams = {
 		name: string;
 		columns: {
 			[x: string]: SQLiteColumn;
-		} & {
-			rowid: AstroNumber<{
-				tableName: string;
-				name: 'rowid';
-				notNull: true;
-				hasDefault: false;
-			}>;
 		};
 	}>;
 };

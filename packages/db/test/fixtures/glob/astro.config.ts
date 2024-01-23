@@ -1,15 +1,14 @@
 import { defineConfig } from 'astro/config';
 import db, { defineCollection, field } from '@astrojs/db';
-import { glob } from './utils';
+import { asJson, glob } from './utils';
 
 const Quote = defineCollection({
 	fields: {
 		author: field.text(),
 		body: field.text(),
+		file: field.text({ unique: true }),
 	},
-	data: glob('quotes/*.json', ({ content }) => {
-		return JSON.parse(content);
-	}),
+	data: glob('quotes/*.json', asJson),
 });
 
 export default defineConfig({

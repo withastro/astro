@@ -114,7 +114,7 @@ export async function setupDbTables({
 	for (const [name, collection] of Object.entries(collections)) {
 		if (!isReadableCollection(collection) || !collection.data) continue;
 
-		const table = collectionToTable(name, collection, true);
+		const table = collectionToTable(name, collection);
 		try {
 			await collection.data({ db, table, mode: 'dev' });
 		} catch (e) {
@@ -250,7 +250,7 @@ type D1ColumnBuilder = SQLiteColumnBuilderBase<
 	ColumnBuilderBaseConfig<ColumnDataType, string> & { data: unknown }
 >;
 
-export function collectionToTable(name: string, collection: DBCollection, includeRowId = false) {
+export function collectionToTable(name: string, collection: DBCollection) {
 	const columns: Record<string, D1ColumnBuilder> & typeof initialColumns = {
 		// Spread to avoid mutating `initialColumns`
 		...initialColumns,
@@ -258,10 +258,6 @@ export function collectionToTable(name: string, collection: DBCollection, includ
 
 	for (const [fieldName, field] of Object.entries(collection.fields)) {
 		columns[fieldName] = columnMapper(fieldName, field);
-	}
-
-	if (includeRowId) {
-		columns.rowid = integer('rowid');
 	}
 
 	const table = sqliteTable(name, columns);
