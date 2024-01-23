@@ -4,7 +4,6 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { renderPage } from './render/core.js';
 import { type Environment, type RenderContext } from './render/index.js';
 
-
 type PipelineHooks = {
 	before: PipelineHookFunction[];
 };
@@ -63,12 +62,7 @@ export class Pipeline {
 		for (const hook of this.#hooks.before) {
 			hook(renderContext, componentInstance);
 		}
-		return await this.#tryRenderRoute(
-			renderContext,
-			this.env,
-			componentInstance,
-			this.#onRequest
-		);
+		return await this.#tryRenderRoute(renderContext, this.env, componentInstance, this.#onRequest);
 	}
 
 	/**

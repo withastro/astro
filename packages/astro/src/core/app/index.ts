@@ -276,15 +276,18 @@ export class App {
 			return this.#renderError(request, { status: 500 });
 		}
 
-		if (REROUTABLE_STATUS_CODES.has(response.status) && response.headers.get("X-Astro-Reroute") !== "no") {
+		if (
+			REROUTABLE_STATUS_CODES.has(response.status) &&
+			response.headers.get('X-Astro-Reroute') !== 'no'
+		) {
 			return this.#renderError(request, {
 				response,
 				status: response.status as 404 | 500,
 			});
 		}
 
-		if (response.headers.has("X-Astro-Reroute")) {
-			response.headers.delete("X-Astro-Reroute");
+		if (response.headers.has('X-Astro-Reroute')) {
+			response.headers.delete('X-Astro-Reroute');
 		}
 
 		if (addCookieHeader) {
@@ -292,7 +295,7 @@ export class App {
 				response.headers.append('set-cookie', setCookieHeaderValue);
 			}
 		}
-		
+
 		Reflect.set(response, responseSentSymbol, true);
 		return response;
 	}
