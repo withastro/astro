@@ -43,7 +43,7 @@ export function createMdxProcessor(mdxOptions: MdxOptions, extraOptions: MdxProc
 }
 
 function getRemarkPlugins(mdxOptions: MdxOptions): PluggableList {
-	let remarkPlugins: PluggableList = [remarkCollectImages, remarkImageToComponent];
+	let remarkPlugins: PluggableList = [];
 
 	if (!isPerformanceBenchmark) {
 		if (mdxOptions.gfm) {
@@ -54,7 +54,7 @@ function getRemarkPlugins(mdxOptions: MdxOptions): PluggableList {
 		}
 	}
 
-	remarkPlugins = [...remarkPlugins, ...mdxOptions.remarkPlugins];
+	remarkPlugins = [...remarkPlugins, ...mdxOptions.remarkPlugins, remarkCollectImages, remarkImageToComponent];
 
 	if (!isPerformanceBenchmark) {
 		// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
