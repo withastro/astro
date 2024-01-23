@@ -201,7 +201,7 @@ describe('_routes.json generation', () => {
 						expect(routes).to.deep.equal({
 							version: 1,
 							include: ['/a/*', '/_image'],
-							exclude: ['/a/', '/a/*', '/another'],
+							exclude: ['/a/*', '/another'],
 						});
 					});
 				});

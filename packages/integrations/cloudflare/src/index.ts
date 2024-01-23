@@ -554,31 +554,64 @@ export default function createIntegration(args?: Options): AstroIntegration {
 									exclude: deduplicatePatterns(staticPathList.concat(args?.routes?.exclude ?? [])),
 							  };
 
-					const includeStrategyLength = includeStrategy
-						? includeStrategy.include.length + includeStrategy.exclude.length
-						: Infinity;
+					switch (args?.routes?.strategy) {
+						case 'include':
+							await fs.promises.writeFile(
+								new URL('./_routes.json', _config.outDir),
+								JSON.stringify(
+									{
+										version: 1,
+										...includeStrategy,
+									},
+									null,
+									2
+								)
+							);
+							break;
 
-					const excludeStrategyLength = excludeStrategy
-						? excludeStrategy.include.length + excludeStrategy.exclude.length
-						: Infinity;
+						case 'exclude':
+							await fs.promises.writeFile(
+								new URL('./_routes.json', _config.outDir),
+								JSON.stringify(
+									{
+										version: 1,
+										...excludeStrategy,
+									},
+									null,
+									2
+								)
+							);
+							break;
 
-					const winningStrategy = notFoundIsSSR
-						? excludeStrategy
-						: includeStrategyLength <= excludeStrategyLength
-						  ? includeStrategy
-						  : excludeStrategy;
+						default: {
+							const includeStrategyLength = includeStrategy
+								? includeStrategy.include.length + includeStrategy.exclude.length
+								: Infinity;
 
-					await fs.promises.writeFile(
-						new URL('./_routes.json', _config.outDir),
-						JSON.stringify(
-							{
-								version: 1,
-								...winningStrategy,
-							},
-							null,
-							2
-						)
-					);
+							const excludeStrategyLength = excludeStrategy
+								? excludeStrategy.include.length + excludeStrategy.exclude.length
+								: Infinity;
+
+							const winningStrategy = notFoundIsSSR
+								? excludeStrategy
+								: includeStrategyLength <= excludeStrategyLength
+								  ? includeStrategy
+								  : excludeStrategy;
+
+							await fs.promises.writeFile(
+								new URL('./_routes.json', _config.outDir),
+								JSON.stringify(
+									{
+										version: 1,
+										...winningStrategy,
+									},
+									null,
+									2
+								)
+							);
+						}
+						break;
+					}
 				}
 			},
 		},

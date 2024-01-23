@@ -10,16 +10,17 @@ export function deduplicatePatterns(patterns: string[]) {
 
 	// A value in the set may only occur once; it is unique in the set's collection.
 	// ref: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set
-	return [...new Set(patterns)]
+	const uniquePatterns = [...new Set(patterns)];
+	for (const pattern of uniquePatterns) {
+		if (pattern.endsWith('*')) {
+			openPatterns.push(new RegExp(`^${pattern.replace(/(\*\/)*\*$/g, '[^*\n]*$')}`));
+		}
+	}
+
+	return uniquePatterns
 		.sort((a, b) => a.length - b.length)
 		.filter((pattern) => {
-			if (openPatterns.some((p) => p.test(pattern))) {
-				return false;
-			}
-
-			if (pattern.endsWith('*')) {
-				openPatterns.push(new RegExp(`^${pattern.replace(/(\*\/)*\*$/g, '.*')}`));
-			}
+			if (openPatterns.some((p) => p.test(pattern))) return false;
 
 			return true;
 		});
