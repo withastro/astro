@@ -18,7 +18,11 @@ const rehypeSlots: Plugin<[{ s: MagicString }], Root> = ({ s }) => {
 				const text = file.value
 					.slice(first.position?.start.offset ?? 0, last.position?.end.offset ?? 0)
 					.toString();
-				s.overwrite(start, end, `\${${SLOT_PREFIX}["${name}"] ?? \`${escapeTemplateLiteralCharacters(text).trim()}\`}`);
+				s.overwrite(
+					start,
+					end,
+					`\${${SLOT_PREFIX}["${name}"] ?? \`${escapeTemplateLiteralCharacters(text).trim()}\`}`
+				);
 			}
 		});
 	};

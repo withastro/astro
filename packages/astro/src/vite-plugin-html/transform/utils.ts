@@ -25,7 +25,7 @@ export function replaceAttribute(s: MagicString, node: Element, key: string, new
 
 // Embedding in our own template literal expression requires escaping
 // any meaningful template literal characters in the user's code!
-const NEEDS_ESCAPE_RE = /[`\\]|\$\{/g
+const NEEDS_ESCAPE_RE = /[`\\]|\$\{/g;
 
 export function needsEscape(value: any): value is string {
 	// Reset the RegExp's global state
@@ -41,10 +41,10 @@ export function escapeTemplateLiteralCharacters(value: string) {
 	let startIndex = 0;
 	let segment = '';
 	let text = '';
-	
+
 	// Rather than a naive `String.replace()`, we have to iterate through
 	// the raw contents to properly handle existing backslashes
-	while ([char] = NEEDS_ESCAPE_RE.exec(value) ?? []) {
+	while (([char] = NEEDS_ESCAPE_RE.exec(value) ?? [])) {
 		// Final loop when char === undefined, append trailing content
 		if (!char) {
 			text += value.slice(startIndex);
