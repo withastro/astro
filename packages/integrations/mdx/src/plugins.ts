@@ -54,7 +54,12 @@ function getRemarkPlugins(mdxOptions: MdxOptions): PluggableList {
 		}
 	}
 
-	remarkPlugins = [...remarkPlugins, ...mdxOptions.remarkPlugins, remarkCollectImages, remarkImageToComponent];
+	remarkPlugins = [
+		...remarkPlugins,
+		...mdxOptions.remarkPlugins,
+		remarkCollectImages,
+		remarkImageToComponent,
+	];
 
 	if (!isPerformanceBenchmark) {
 		// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
