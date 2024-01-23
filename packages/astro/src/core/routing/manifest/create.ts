@@ -194,47 +194,66 @@ function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]
  *   The definition of "alphabetically" is dependent on the default locale of the running system.
  */
 function routeComparator(a: ManifestRouteData, b: ManifestRouteData) {
+	const commonLength = Math.min(a.segments.length, b.segments.length);
+
+	for (let index = 0; index < commonLength; index++) {
+		const aSegment = a.segments[index];
+		const bSegment = b.segments[index];
+		
+		const aIsStatic = aSegment.every((part) => !part.dynamic && !part.spread);
+		const bIsStatic = bSegment.every((part) => !part.dynamic && !part.spread);
+
+		// Sort static routes before dynamic routes
+		if (aIsStatic !== bIsStatic) {
+			return aIsStatic ? -1 : 1;
+		}
+
+		const aHasSpread = aSegment.some((part) => part.spread);
+		const bHasSpread = bSegment.some((part) => part.spread);
+
+		// Sort dynamic routes with rest parameters after dynamic routes with single parameters
+		// (also after static, but that is already covered by the previous condition)
+		if (aHasSpread !== bHasSpread) {
+			return aHasSpread ? 1 : -1;
+		}
+	}
+	
 	// For sorting purposes, an index route is considered to have one more segment than the URL it represents.
 	const aLength = a.isIndex ? a.segments.length + 1 : a.segments.length;
 	const bLength = b.isIndex ? b.segments.length + 1 : b.segments.length;
+	
+	if (a.isIndex || b.isIndex) {
+		// Index pages are lower priority than other static segments in the same prefix.
+		// They match the path up to their parent, but are more specific than the parent.
+		// For example:
+		//  - `/foo/index.astro` is sorted before `/foo`
+		//  - `/foo/index.astro` is sorted before `/foo/[bar].astro`
+		//  - `/[...foo]/index.astro` is sorted after `/[...foo]/bar.astro`
 
-	// Sort more specific routes before less specific routes
-	if (aLength !== bLength) {
+		if (a.isIndex) {
+			const followingBSegment = b.segments.at(a.segments.length);
+			const followingBSegmentIsStatic = followingBSegment?.every((part) => !part.dynamic && !part.spread);
+			
+			return followingBSegmentIsStatic ? 1 : -1;
+		}
+
+		const followingASegment = a.segments.at(b.segments.length);
+		const followingASegmentIsStatic = followingASegment?.every((part) => !part.dynamic && !part.spread);
+
+		return followingASegmentIsStatic ? -1 : 1;
+	}
+
+	if (aLength !== bLength){
+		// Routes are equal up to the smaller of the two lengths, so the longer route is more specific
 		return aLength > bLength ? -1 : 1;
 	}
-
-	const aIsStatic = a.segments.every((segment) =>
-		segment.every((part) => !part.dynamic && !part.spread)
-	);
-	const bIsStatic = b.segments.every((segment) =>
-		segment.every((part) => !part.dynamic && !part.spread)
-	);
-
-	// Sort static routes before dynamic routes
-	if (aIsStatic !== bIsStatic) {
-		return aIsStatic ? -1 : 1;
-	}
-
-	const aHasSpread = a.segments.some((segment) => segment.some((part) => part.spread));
-	const bHasSpread = b.segments.some((segment) => segment.some((part) => part.spread));
-
-	// Sort dynamic routes with rest parameters after dynamic routes with single parameters
-	// (also after static, but that is already covered by the previous condition)
-	if (aHasSpread !== bHasSpread) {
-		return aHasSpread ? 1 : -1;
-	}
-
-	// Sort prerendered routes before non-prerendered routes
-	if (a.prerender !== b.prerender) {
-		return a.prerender ? -1 : 1;
-	}
-
+	
 	// Sort endpoints before pages
 	if ((a.type === 'endpoint') !== (b.type === 'endpoint')) {
 		return a.type === 'endpoint' ? -1 : 1;
 	}
 
-	// Sort alphabetically
+	// Both routes have segments with the same properties
 	return a.route.localeCompare(b.route);
 }
 

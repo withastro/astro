@@ -130,11 +130,11 @@ describe('routing - createRouteManifest', () => {
 
 		expect(getManifestRoutes(manifest)).to.deep.equal([
 			{
-				route: '/',
+				route: '/static',
 				type: 'page',
 			},
 			{
-				route: '/static',
+				route: '/',
 				type: 'page',
 			},
 			{
@@ -144,6 +144,66 @@ describe('routing - createRouteManifest', () => {
 			{
 				route: '/[...rest]',
 				type: 'page',
+			},
+		]);
+	});
+
+	it('route sorting respects the file tree', async () => {
+		const fs = createFs(
+			{
+				'/src/pages/[dynamic]/static.astro': `<h1>test</h1>`,
+				'/src/pages/[dynamic]/index.astro': `<h1>test</h1>`,
+				'/src/pages/[dynamic]/[...rest].astro': `<h1>test</h1>`,
+				'/src/pages/[...rest]/static.astro': `<h1>test</h1>`,
+				'/src/pages/[...rest]/index.astro': `<h1>test</h1>`,
+				'/src/pages/static.astro': `<h1>test</h1>`,
+				'/src/pages/index.astro': `<h1>test</h1>`,
+			},
+			root
+		);
+		const settings = await createBasicSettings({
+			root: fileURLToPath(root),
+			base: '/search',
+			trailingSlash: 'never',
+			experimental: {
+				globalRoutePriority: true,
+			},
+		});
+
+		const manifest = createRouteManifest({
+			cwd: fileURLToPath(root),
+			settings,
+			fsMod: fs,
+		});
+
+		expect(getManifestRoutes(manifest)).to.deep.equal([
+			{
+				"route": "/static",
+				"type": "page",
+			},
+			{
+				"route": "/",
+				"type": "page",
+			},
+			{
+				"route": "/[dynamic]/static",
+				"type": "page",
+			},
+			{
+				"route": "/[dynamic]",
+				"type": "page",
+			},
+			{
+				"route": "/[dynamic]/[...rest]",
+				"type": "page",
+			},
+			{
+				"route": "/[...rest]/static",
+				"type": "page",
+			},
+			{
+				"route": "/[...rest]",
+				"type": "page",
 			},
 		]);
 	});
@@ -242,11 +302,11 @@ describe('routing - createRouteManifest', () => {
 				type: 'page',
 			},
 			{
-				route: '/',
+				route: '/contributing',
 				type: 'page',
 			},
 			{
-				route: '/contributing',
+				route: '/',
 				type: 'page',
 			},
 			{
