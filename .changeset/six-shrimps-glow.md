@@ -2,7 +2,7 @@
 "astro": patch
 ---
 
-Fix regression in routing priority for index pages in rest parameter folders and dynamic sybling trees.
+Fixes a regression in routing priority for index pages in rest parameter folders and dynamic sibling trees.
 
 Considering the following tree:
 ```
