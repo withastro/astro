@@ -18,6 +18,6 @@
     "astro": "^4.2.3"
   },
   "peerDependencies": {
-    "astro": "^3.0.0"
+    "astro": "^4.0.0"
   }
 }
