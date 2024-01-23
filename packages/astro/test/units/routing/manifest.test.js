@@ -130,11 +130,11 @@ describe('routing - createRouteManifest', () => {
 
 		expect(getManifestRoutes(manifest)).to.deep.equal([
 			{
-				route: '/static',
+				route: '/',
 				type: 'page',
 			},
 			{
-				route: '/',
+				route: '/static',
 				type: 'page',
 			},
 			{
@@ -317,11 +317,11 @@ describe('routing - createRouteManifest', () => {
 				type: 'page',
 			},
 			{
-				route: '/contributing',
+				route: '/',
 				type: 'page',
 			},
 			{
-				route: '/',
+				route: '/contributing',
 				type: 'page',
 			},
 			{
