@@ -27,13 +27,11 @@ import {
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
-import { createI18nMiddleware, i18nPipelineHook } from '../../i18n/middleware.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifestI18n } from '../app/types.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { sequence } from '../middleware/index.js';
 import { routeIsFallback } from '../redirects/helpers.js';
 import {
 	RedirectSinglePageBuiltModule,
@@ -262,20 +260,7 @@ async function generatePage(
 	const linkIds: [] = [];
 	const scripts = pageInfo?.hoistedScript ?? null;
 	// prepare the middleware
-	const i18nMiddleware = createI18nMiddleware(
-		pipeline.getManifest().i18n,
-		pipeline.getManifest().base,
-		pipeline.getManifest().trailingSlash,
-		pipeline.getManifest().buildFormat
-	);
-	if (config.i18n && i18nMiddleware) {
-		if (onRequest) {
-			pipeline.setMiddlewareFunction(sequence(i18nMiddleware, onRequest));
-		} else {
-			pipeline.setMiddlewareFunction(i18nMiddleware);
-		}
-		pipeline.onBeforeRenderRoute(i18nPipelineHook);
-	} else if (onRequest) {
+	if (onRequest) {
 		pipeline.setMiddlewareFunction(onRequest);
 	}
 	if (!pageModulePromise) {

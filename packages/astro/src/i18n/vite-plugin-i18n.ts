@@ -1,16 +1,21 @@
 import type * as vite from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 
 const virtualModuleId = 'astro:i18n';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
+const configId = 'astro-internal:i18n-config';
+const resolvedConfigId = `\0${configId}`;
 
 type AstroInternationalization = {
 	settings: AstroSettings;
 };
 
+export interface I18nInternalConfig extends Pick<AstroConfig, 'base' | 'site' | 'trailingSlash'>, NonNullable<AstroConfig['i18n']>, Pick<AstroConfig["build"], "format"> {}
+
 export default function astroInternationalization({
 	settings,
 }: AstroInternationalization): vite.Plugin {
+	const { base, build: { format }, i18n, site, trailingSlash } = settings.config;
 	return {
 		name: 'astro:i18n',
 		enforce: 'pre',
@@ -18,6 +23,7 @@ export default function astroInternationalization({
 			if (id === virtualModuleId) {
 				return resolvedVirtualModuleId;
 			}
+			if (id === configId) return resolvedConfigId;
 		},
 		load(id) {
 			if (id === resolvedVirtualModuleId) {
@@ -64,6 +70,11 @@ export default function astroInternationalization({
 					export const getPathByLocale = (locale) => _getPathByLocale(locale, i18n.locales);
 					export const getLocaleByPath = (path) => _getLocaleByPath(path, i18n.locales);
 				`;
+			}
+			if (id === resolvedConfigId) {
+				const { defaultLocale, locales, routing, fallback } = i18n!;
+				const config: I18nInternalConfig = { base, format, site, trailingSlash, defaultLocale, locales, routing, fallback };
+				return `export default ${JSON.stringify(config)};`;
 			}
 		},
 	};

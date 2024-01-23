@@ -37,18 +37,13 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				} else if (hasIntegrationMiddleware) {
 					return MIDDLEWARE_MODULE_ID;
 				} else {
-					return EMPTY_MIDDLEWARE;
+					return MIDDLEWARE_MODULE_ID;
 				}
-			}
-			if (id === EMPTY_MIDDLEWARE) {
-				return EMPTY_MIDDLEWARE;
 			}
 		},
 
 		async load(id) {
-			if (id === EMPTY_MIDDLEWARE) {
-				return 'export const onRequest = undefined';
-			} else if (id === MIDDLEWARE_MODULE_ID) {
+			if (id === MIDDLEWARE_MODULE_ID) {
 				// In the build, tell Vite to emit this file
 				if (isCommandBuild) {
 					this.emitFile({
@@ -68,10 +63,13 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 						? `import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';`
 						: ''
 				}
+import { createI18nMiddleware } from 'astro/virtual-modules/i18n-middleware.js';
+import config from 'astro-internal:i18n-config';
 import { sequence } from 'astro:middleware';
 ${preMiddleware.importsCode}${postMiddleware.importsCode}
 
 export const onRequest = sequence(
+	${settings.config.i18n ? `createI18nMiddleware(config),` : ``}
 	${preMiddleware.sequenceCode}${preMiddleware.sequenceCode ? ',' : ''}
 	${userMiddlewareIsPresent ? `userOnRequest${postMiddleware.sequenceCode ? ',' : ''}` : ''}
 	${postMiddleware.sequenceCode}

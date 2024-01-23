@@ -1,8 +1,9 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
-import type { Locales, MiddlewareHandler, RouteData, SSRManifest } from '../@types/astro.js';
+import type { Locales, MiddlewareHandler, RouteData } from '../@types/astro.js';
 import type { PipelineHookFunction } from '../core/pipeline.js';
 import { getPathByLocale, normalizeTheLocale } from './index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
+import type { I18nInternalConfig } from './vite-plugin-i18n.js';
 
 const routeDataSymbol = Symbol.for('astro.routeData');
 
@@ -24,21 +25,8 @@ function pathnameHasLocale(pathname: string, locales: Locales): boolean {
 	return false;
 }
 
-export function createI18nMiddleware(
-	i18n: SSRManifest['i18n'],
-	base: SSRManifest['base'],
-	trailingSlash: SSRManifest['trailingSlash'],
-	buildFormat: SSRManifest['buildFormat']
-): MiddlewareHandler | undefined {
-	if (!i18n) {
-		return undefined;
-	}
-
+export function createI18nMiddleware({ base, format, trailingSlash, defaultLocale, fallback, locales, routing }: I18nInternalConfig): MiddlewareHandler {
 	return async (context, next) => {
-		if (!i18n) {
-			return await next();
-		}
-
 		const routeData = Reflect.get(context.request, routeDataSymbol);
 		if (routeData) {
 			// If the route we're processing is not a page, then we ignore it
@@ -51,12 +39,11 @@ export function createI18nMiddleware(
 		}
 
 		const url = context.url;
-		const { locales, defaultLocale, fallback, routing } = i18n;
 		const response = await next();
 
 		if (response instanceof Response) {
 			const pathnameContainsDefaultLocale = url.pathname.includes(`/${defaultLocale}`);
-			switch (i18n.routing) {
+			switch (routing) {
 				case 'pathname-prefix-other-locales': {
 					if (pathnameContainsDefaultLocale) {
 						const newLocation = url.pathname.replace(`/${defaultLocale}`, '');
@@ -74,7 +61,7 @@ export function createI18nMiddleware(
 					// - the current path isn't a root. e.g. / or /<base>
 					// - the URL doesn't contain a locale
 					const isRoot = url.pathname === base + '/' || url.pathname === base;
-					if (!(isRoot || pathnameHasLocale(url.pathname, i18n.locales))) {
+					if (!(isRoot || pathnameHasLocale(url.pathname, locales))) {
 						return new Response(null, {
 							status: 404,
 							headers: response.headers,
@@ -85,15 +72,15 @@ export function createI18nMiddleware(
 
 				case 'pathname-prefix-always': {
 					if (url.pathname === base + '/' || url.pathname === base) {
-						if (shouldAppendForwardSlash(trailingSlash, buildFormat)) {
-							return context.redirect(`${appendForwardSlash(joinPaths(base, i18n.defaultLocale))}`);
+						if (shouldAppendForwardSlash(trailingSlash, format)) {
+							return context.redirect(`${appendForwardSlash(joinPaths(base, defaultLocale))}`);
 						} else {
-							return context.redirect(`${joinPaths(base, i18n.defaultLocale)}`);
+							return context.redirect(`${joinPaths(base, defaultLocale)}`);
 						}
 					}
 
 					// Astro can't know where the default locale is supposed to be, so it returns a 404 with no content.
-					else if (!pathnameHasLocale(url.pathname, i18n.locales)) {
+					else if (!pathnameHasLocale(url.pathname, locales)) {
 						return new Response(null, {
 							status: 404,
 							headers: response.headers,
@@ -103,7 +90,7 @@ export function createI18nMiddleware(
 			}
 
 			if (response.status >= 300 && fallback) {
-				const fallbackKeys = i18n.fallback ? Object.keys(i18n.fallback) : [];
+				const fallbackKeys = fallback ? Object.keys(fallback) : [];
 
 				// we split the URL using the `/`, and then check in the returned array we have the locale
 				const segments = url.pathname.split('/');

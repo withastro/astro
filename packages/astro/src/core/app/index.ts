@@ -5,12 +5,10 @@ import type {
 	SSRElement,
 	SSRManifest,
 } from '../../@types/astro.js';
-import { createI18nMiddleware, i18nPipelineHook } from '../../i18n/middleware.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
-import { sequence } from '../middleware/index.js';
 import {
 	collapseDuplicateSlashes,
 	prependForwardSlash,
@@ -252,23 +250,8 @@ export class App {
 		);
 		let response;
 		try {
-			const i18nMiddleware = createI18nMiddleware(
-				this.#manifest.i18n,
-				this.#manifest.base,
-				this.#manifest.trailingSlash,
-				this.#manifest.buildFormat
-			);
-			if (i18nMiddleware) {
-				if (mod.onRequest) {
-					this.#pipeline.setMiddlewareFunction(sequence(i18nMiddleware, mod.onRequest));
-				} else {
-					this.#pipeline.setMiddlewareFunction(i18nMiddleware);
-				}
-				this.#pipeline.onBeforeRenderRoute(i18nPipelineHook);
-			} else {
-				if (mod.onRequest) {
-					this.#pipeline.setMiddlewareFunction(mod.onRequest);
-				}
+			if (mod.onRequest) {
+				this.#pipeline.setMiddlewareFunction(mod.onRequest);
 			}
 			response = await this.#pipeline.renderRoute(renderContext, pageModule);
 		} catch (err: any) {
