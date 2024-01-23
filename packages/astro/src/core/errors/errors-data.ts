@@ -16,6 +16,7 @@ export interface ErrorData {
  * @kind heading
  * @name Astro Errors
  */
+// Astro Errors, most errors will go here!
 /**
  * @docs
  * @message
@@ -440,7 +441,7 @@ export const NoMatchingImport = {
 export const InvalidPrerenderExport = {
 	name: 'InvalidPrerenderExport',
 	title: 'Invalid prerender export.',
-	message: (prefix: string, suffix: string, isHydridOuput: boolean) => {
+	message(prefix: string, suffix: string, isHydridOuput: boolean) {
 		const defaultExpectedValue = isHydridOuput ? 'false' : 'true';
 		let msg = `A \`prerender\` export has been detected, but its value cannot be statically analyzed.`;
 		if (prefix !== 'const') msg += `\nExpected \`const\` declaration but got \`${prefix}\`.`;
@@ -987,12 +988,58 @@ export const FailedToFindPageMapSSR = {
 	message:
 		"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error. Please file an issue.",
 } satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Astro can't find the requested locale. All supported locales must be configured in [i18n.locales](/en/reference/configuration-reference/#i18nlocales) and have corresponding directories within `src/pages/`.
+ */
+export const MissingLocale = {
+	name: 'MissingLocaleError',
+	title: 'The provided locale does not exist.',
+	message: (locale: string) =>
+		`The locale/path \`${locale}\` does not exist in the configured \`i18n.locales\`.`,
+} satisfies ErrorData;
+
+export const MissingIndexForInternationalization = {
+	name: 'MissingIndexForInternationalizationError',
+	title: 'Index page not found.',
+	message: (src: string) =>
+		`Astro couldn't find the index URL. This index page is required to create a redirect from the index URL to the index URL of the default locale. \nCreate an index page in \`${src}\``,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Astro could not find an associated file with content while trying to render the route. This is an Astro error and not a user error. If restarting the dev server does not fix the problem, please file an issue.
+ */
+export const CantRenderPage = {
+	name: 'CantRenderPage',
+	title: "Astro can't render the route.",
+	message:
+		'Astro cannot find any content to render for this route. There is no file or redirect associated with this route.',
+	hint: 'If you expect to find a route here, this may be an Astro bug. Please file an issue/restart the dev server',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Astro could not find any code to handle a rejected `Promise`. Make sure all your promises have an `await` or `.catch()` handler.
+ */
+export const UnhandledRejection = {
+	name: 'UnhandledRejection',
+	title: 'Unhandled rejection',
+	message: (stack: string) =>
+		`Astro detected an unhandled rejection. Here's the stack trace:\n${stack}`,
+	hint: 'Make sure your promises all have an `await` or a `.catch()` handler.',
+} satisfies ErrorData;
+
 /**
  * @docs
  * @kind heading
  * @name CSS Errors
  */
-// CSS Errors - 5xxx
+// CSS Errors
 /**
  * @docs
  * @see
@@ -1022,7 +1069,7 @@ export const CSSSyntaxError = {
  * @kind heading
  * @name Markdown Errors
  */
-// Markdown Errors - 6xxx
+// Markdown Errors
 /**
  * @docs
  * @description
@@ -1121,7 +1168,7 @@ export const ConfigLegacyKey = {
  * @kind heading
  * @name CLI Errors
  */
-// CLI Errors - 8xxx
+// CLI Errors
 /**
  * @docs
  * @description
@@ -1152,7 +1199,7 @@ export const GenerateContentTypesError = {
  * @kind heading
  * @name Content Collection Errors
  */
-// Content Collection Errors - 9xxx
+// Content Collection Errors
 /**
  * @docs
  * @description
@@ -1181,7 +1228,7 @@ export const UnknownContentCollectionError = {
 export const InvalidContentEntryFrontmatterError = {
 	name: 'InvalidContentEntryFrontmatterError',
 	title: 'Content entry frontmatter does not match schema.',
-	message: (collection: string, entryId: string, error: ZodError) => {
+	message(collection: string, entryId: string, error: ZodError) {
 		return [
 			`**${String(collection)} → ${String(
 				entryId
@@ -1202,7 +1249,7 @@ export const InvalidContentEntryFrontmatterError = {
 export const InvalidContentEntrySlugError = {
 	name: 'InvalidContentEntrySlugError',
 	title: 'Invalid content entry slug.',
-	message: (collection: string, entryId: string) => {
+	message(collection: string, entryId: string) {
 		return `${String(collection)} → ${String(
 			entryId
 		)} has an invalid slug. \`slug\` must be a string.`;
@@ -1240,7 +1287,6 @@ export const CollectionDoesNotExistError = {
 } satisfies ErrorData;
 /**
  * @docs
- * @message `COLLECTION_NAME` contains a mix of content and data entries. All entries must be of the same type.
  * @see
  * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
  * @description
@@ -1249,14 +1295,12 @@ export const CollectionDoesNotExistError = {
 export const MixedContentDataCollectionError = {
 	name: 'MixedContentDataCollectionError',
 	title: 'Content and data cannot be in same collection.',
-	message: (collection: string) => {
-		return `**${collection}** contains a mix of content and data entries. All entries must be of the same type.`;
-	},
+	message: (collectionName: string) =>
+		`**${collectionName}** contains a mix of content and data entries. All entries must be of the same type.`,
 	hint: 'Store data entries in a new collection separate from your content collection.',
 } satisfies ErrorData;
 /**
  * @docs
- * @message `COLLECTION_NAME` contains entries of type `ACTUAL_TYPE`, but is configured as a `EXPECTED_TYPE` collection.
  * @see
  * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
  * @description
@@ -1265,9 +1309,8 @@ export const MixedContentDataCollectionError = {
 export const ContentCollectionTypeMismatchError = {
 	name: 'ContentCollectionTypeMismatchError',
 	title: 'Collection contains entries of a different type.',
-	message: (collection: string, expectedType: string, actualType: string) => {
-		return `${collection} contains ${expectedType} entries, but is configured as a ${actualType} collection.`;
-	},
+	message: (collection: string, expectedType: string, actualType: string) =>
+		`${collection} contains ${expectedType} entries, but is configured as a ${actualType} collection.`,
 } satisfies ErrorData;
 /**
  * @docs
@@ -1278,7 +1321,7 @@ export const ContentCollectionTypeMismatchError = {
 export const DataCollectionEntryParseError = {
 	name: 'DataCollectionEntryParseError',
 	title: 'Data collection entry failed to parse.',
-	message: (entryId: string, errorMessage: string) => {
+	message(entryId: string, errorMessage: string) {
 		return `**${entryId}** failed to parse: ${errorMessage}`;
 	},
 	hint: 'Ensure your data entry is an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).',
@@ -1292,7 +1335,7 @@ export const DataCollectionEntryParseError = {
 export const DuplicateContentEntrySlugError = {
 	name: 'DuplicateContentEntrySlugError',
 	title: 'Duplicate content entry slug.',
-	message: (collection: string, slug: string, preExisting: string, alsoFound: string) => {
+	message(collection: string, slug: string, preExisting: string, alsoFound: string) {
 		return (
 			`**${collection}** contains multiple entries with the same slug: \`${slug}\`. ` +
 			`Slugs must be unique.\n\n` +
@@ -1318,30 +1361,18 @@ export const UnsupportedConfigTransformError = {
 	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
 } satisfies ErrorData;
 
-export const MissingLocale = {
-	name: 'MissingLocaleError',
-	title: 'The provided locale does not exist.',
-	message: (locale: string) => {
-		return `The locale/path \`${locale}\` does not exist in the configured \`i18n.locales\`.`;
-	},
-} satisfies ErrorData;
-
-export const CantRenderPage = {
-	name: 'CantRenderPage',
-	title: "Astro can't render the route.",
-	message:
-		'Astro cannot find any content to render for this route. There is no file or redirect associated with this route.',
-	hint: 'If you expect to find a route here, this may be an Astro bug. Please file an issue/restart the dev server',
-} satisfies ErrorData;
-
-// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
+// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
 
-export const UnhandledRejection = {
-	name: 'UnhandledRejection',
-	title: 'Unhandled rejection',
-	message: (stack: string) => {
-		return `Astro detected an unhandled rejection. Here's the stack trace:\n${stack}`;
-	},
-	hint: 'Make sure your promises all have an `await` or a `.catch()` handler.',
-};
+/*
+ * Adding an error? Follow these steps:
+ * 1. Determine in which category it belongs (Astro, Vite, CSS, Content Collections etc.)
+ * 2. Add it at the bottom of the corresponding category above (see the @kind heading tags to see where they start), following the shape of the other errors.
+ * 4. If your message is dynamic, make sure the function shape is the following: `message: (something: type) => "my message"`, no `{}`, no `return` etc.
+ * 		- It has to be the simple shape, or the docs generator will not be able to parse it correctly.
+ * 		- If your message is fully dynamic (ex: lots of conditional logic), make `message` a proper function, like such: `message(parameters) { logic }`.
+ * 			Make sure to add a `@message` tag with a static example of the error message, the docs won't be able to parse it otherwise.
+ *  	- If your message is static, you can just use a string, `message: "my message"`.
+ * 5. Make sure to add a JSdoc comment with the `@docs` tag so that it shows up in the docs
+ * For more information, see the README in this folder!
+ */

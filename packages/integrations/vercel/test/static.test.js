@@ -1,7 +1,7 @@
 import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 
-describe('maxDuration', () => {
+describe('static routing', () => {
 	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 

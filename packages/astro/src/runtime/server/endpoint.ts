@@ -1,5 +1,5 @@
 import { bold } from 'kleur/colors';
-import type { APIContext, EndpointHandler, Params } from '../../@types/astro.js';
+import type { APIContext, EndpointHandler } from '../../@types/astro.js';
 import type { Logger } from '../../core/logger/core.js';
 
 /** Renders an endpoint request to completion, returning the body. */

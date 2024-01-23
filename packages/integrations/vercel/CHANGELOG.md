@@ -1,5 +1,25 @@
 # @astrojs/vercel
 
+## 7.0.1
+
+### Patch Changes
+
+- [#9585](https://github.com/withastro/astro/pull/9585) [`05adaaa2d217a3ecb34244d9b40603f35cef4a37`](https://github.com/withastro/astro/commit/05adaaa2d217a3ecb34244d9b40603f35cef4a37) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where edge middleware did not work.
+
+## 7.0.0
+
+### Major Changes
+
+- [#9661](https://github.com/withastro/astro/pull/9661) [`d6edc7540864cf5d294d7b881eb886a3804f6d05`](https://github.com/withastro/astro/commit/d6edc7540864cf5d294d7b881eb886a3804f6d05) Thanks [@ematipico](https://github.com/ematipico)! - **Breaking**: Minimum required Astro version is now 4.2.0.
+  Reorganizes internals to be more maintainable.
+  ***
+
+## 6.1.4
+
+### Patch Changes
+
+- [#9648](https://github.com/withastro/astro/pull/9648) [`d7f1903cded3e864b392d1dd7502672d37936f11`](https://github.com/withastro/astro/commit/d7f1903cded3e864b392d1dd7502672d37936f11) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where the serverless function could not respond with a prerendered 404 page.
+
 ## 6.1.3
 
 ### Patch Changes

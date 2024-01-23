@@ -21,7 +21,6 @@ describe('Prerender 404', () => {
 
 	describe('With base', async () => {
 		before(async () => {
-			process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 			process.env.PRERENDER = true;
 
 			fixture = await loadFixture({
@@ -107,7 +106,6 @@ describe('Prerender 404', () => {
 
 	describe('Without base', async () => {
 		before(async () => {
-			process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 			process.env.PRERENDER = true;
 
 			fixture = await loadFixture({
@@ -171,7 +169,6 @@ describe('Hybrid 404', () => {
 
 	describe('With base', async () => {
 		before(async () => {
-			process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 			process.env.PRERENDER = false;
 			fixture = await loadFixture({
 				// inconsequential config that differs between tests
@@ -229,7 +226,6 @@ describe('Hybrid 404', () => {
 
 	describe('Without base', async () => {
 		before(async () => {
-			process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 			process.env.PRERENDER = false;
 			fixture = await loadFixture({
 				// inconsequential config that differs between tests

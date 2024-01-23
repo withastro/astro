@@ -40,14 +40,8 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 		name: '@astrojs/mdx',
 		hooks: {
 			'astro:config:setup': async (params) => {
-				const {
-					updateConfig,
-					config,
-					addPageExtension,
-					addContentEntryType,
-					command,
-					addRenderer,
-				} = params as SetupHookParams;
+				const { updateConfig, config, addPageExtension, addContentEntryType, addRenderer } =
+					params as SetupHookParams;
 
 				addRenderer(astroJSXRenderer);
 				addPageExtension('.mdx');
@@ -129,7 +123,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 										const compiled = await processor.process(vfile);
 
 										return {
-											code: escapeViteEnvReferences(String(compiled.value)),
+											code: String(compiled.value),
 											map: compiled.map,
 										};
 									} catch (e: any) {
@@ -209,13 +203,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									code += `\nContent[Symbol.for('astro.needsHeadRendering')] = !Boolean(frontmatter.layout);`;
 									code += `\nContent.moduleId = ${JSON.stringify(id)};`;
 
-									if (command === 'dev') {
-										// TODO: decline HMR updates until we have a stable approach
-										code += `\nif (import.meta.hot) {
-											import.meta.hot.decline();
-										}`;
-									}
-									return { code: escapeViteEnvReferences(code), map: null };
+									return { code, map: null };
 								},
 							},
 						] as VitePlugin[],
@@ -261,11 +249,4 @@ function applyDefaultOptions({
 		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,
 		optimize: options.optimize ?? defaults.optimize,
 	};
-}
-
-// Converts the first dot in `import.meta.env` to its Unicode escape sequence,
-// which prevents Vite from replacing strings like `import.meta.env.SITE`
-// in our JS representation of loaded Markdown files
-function escapeViteEnvReferences(code: string) {
-	return code.replace(/import\.meta\.env/g, 'import\\u002Emeta.env');
 }

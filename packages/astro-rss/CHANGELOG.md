@@ -1,5 +1,17 @@
 # @astrojs/rss
 
+## 4.0.3
+
+### Patch Changes
+
+- [#9746](https://github.com/withastro/astro/pull/9746) [`7356336d18c916804001bdf64bff5445d82baceb`](https://github.com/withastro/astro/commit/7356336d18c916804001bdf64bff5445d82baceb) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes `rssSchema` definition to allow calling standard zod object methods (like `extend`)
+
+## 4.0.2
+
+### Patch Changes
+
+- [#9610](https://github.com/withastro/astro/pull/9610) [`24663c9695385fed9ece57bf4aecdca3a8581e70`](https://github.com/withastro/astro/commit/24663c9695385fed9ece57bf4aecdca3a8581e70) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes the RSS schema to make the `title` optional if the description is already provided. It also makes `pubDate` and `link` optional, as specified in the RSS specification.
+
 ## 4.0.1
 
 ### Patch Changes
