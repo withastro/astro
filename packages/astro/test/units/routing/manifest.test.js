@@ -181,6 +181,10 @@ describe('routing - createRouteManifest', () => {
 
 		expect(getManifestRoutes(manifest)).to.deep.equal([
 			{
+				"route": "/",
+				"type": "page",
+			},
+			{
 				"route": "/blog",
 				"type": "page",
 			},
@@ -189,7 +193,11 @@ describe('routing - createRouteManifest', () => {
 				"type": "page",
 			},
 			{
-				"route": "/",
+				"route": "/[dynamic]",
+				"type": "page",
+			},
+			{
+				"route": "/[other]",
 				"type": "page",
 			},
 			{
@@ -197,15 +205,7 @@ describe('routing - createRouteManifest', () => {
 				"type": "page",
 			},
 			{
-				"route": "/[dynamic]",
-				"type": "page",
-			},
-			{
 				"route": "/[dynamic]/[...rest]",
-				"type": "page",
-			},
-			{
-				"route": "/[other]",
 				"type": "page",
 			},
 			{
