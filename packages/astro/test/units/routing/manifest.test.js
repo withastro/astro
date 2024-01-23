@@ -156,6 +156,9 @@ describe('routing - createRouteManifest', () => {
 				'/src/pages/[dynamic]/[...rest].astro': `<h1>test</h1>`,
 				'/src/pages/[...rest]/static.astro': `<h1>test</h1>`,
 				'/src/pages/[...rest]/index.astro': `<h1>test</h1>`,
+				'/src/pages/blog/index.astro': `<h1>test</h1>`,
+				'/src/pages/[other].astro': `<h1>test</h1>`,
+				'/src/pages/[...other].astro': `<h1>test</h1>`,
 				'/src/pages/static.astro': `<h1>test</h1>`,
 				'/src/pages/index.astro': `<h1>test</h1>`,
 			},
@@ -178,6 +181,10 @@ describe('routing - createRouteManifest', () => {
 
 		expect(getManifestRoutes(manifest)).to.deep.equal([
 			{
+				"route": "/blog",
+				"type": "page",
+			},
+			{
 				"route": "/static",
 				"type": "page",
 			},
@@ -198,11 +205,19 @@ describe('routing - createRouteManifest', () => {
 				"type": "page",
 			},
 			{
+				"route": "/[other]",
+				"type": "page",
+			},
+			{
 				"route": "/[...rest]/static",
 				"type": "page",
 			},
 			{
 				"route": "/[...rest]",
+				"type": "page",
+			},
+			{
+				"route": "/[...other]",
 				"type": "page",
 			},
 		]);
