@@ -517,6 +517,7 @@ declare namespace astroHTML.JSX {
 		contenteditable?: 'true' | 'false' | boolean | 'inherit' | string | undefined | null;
 		dir?: string | undefined | null;
 		draggable?: 'true' | 'false' | boolean | undefined | null;
+		_?: string | undefined | null;
 		enterkeyhint?:
 			| 'enter'
 			| 'done'
