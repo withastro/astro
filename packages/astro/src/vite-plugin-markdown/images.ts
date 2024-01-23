@@ -13,7 +13,10 @@ export function getMarkdownCodeForImages(imagePaths: MarkdownImagePath[], html: 
 						.map((entry) => {
 							const rawUrl = JSON.stringify(entry.raw);
 							return `{
-											const regex = new RegExp('__ASTRO_IMAGE_="([^"]*' + ${rawUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\\\$&')} + '[^"]*)"', 'g');
+											const regex = new RegExp('__ASTRO_IMAGE_="([^"]*' + ${rawUrl.replace(
+												/[.*+?^${}()|[\]\\]/g,
+												'\\\\$&'
+											)} + '[^"]*)"', 'g');
 											let match;
 											let occurrenceCounter = 0;
 											while ((match = regex.exec(html)) !== null) {
