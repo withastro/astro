@@ -84,7 +84,7 @@ export function getLocaleAbsoluteUrl({ site, ...rest }: GetLocaleAbsoluteUrl) {
 	}
 }
 
-type GetLocalesBaseUrl = GetLocaleOptions & {
+interface GetLocalesRelativeUrlList extends GetLocaleOptions {
 	base: string;
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
@@ -103,7 +103,7 @@ export function getLocaleRelativeUrlList({
 	normalizeLocale = false,
 	routing = 'pathname-prefix-other-locales',
 	defaultLocale,
-}: GetLocalesBaseUrl) {
+}: GetLocalesRelativeUrlList) {
 	const locales = toPaths(_locales);
 	return locales.map((locale) => {
 		const pathsToJoin = [base, prependWith];
@@ -123,7 +123,11 @@ export function getLocaleRelativeUrlList({
 	});
 }
 
-export function getLocaleAbsoluteUrlList({ site, ...rest }: GetLocaleAbsoluteUrl) {
+interface GetLocalesAbsoluteUrlList extends GetLocalesRelativeUrlList {
+	site?: string
+}
+
+export function getLocaleAbsoluteUrlList({ site, ...rest }: GetLocalesAbsoluteUrlList) {
 	const locales = getLocaleRelativeUrlList(rest);
 	return locales.map((locale) => {
 		if (site) {
@@ -139,7 +143,7 @@ export function getLocaleAbsoluteUrlList({ site, ...rest }: GetLocaleAbsoluteUrl
  * @param locale
  * @param locales
  */
-export function getPathByLocale(locale: string, locales: Locales) {
+export function getPathByLocale(locale: string, locales: Locales): string {
 	for (const loopLocale of locales) {
 		if (typeof loopLocale === 'string') {
 			if (loopLocale === locale) {
@@ -153,6 +157,7 @@ export function getPathByLocale(locale: string, locales: Locales) {
 			}
 		}
 	}
+	throw new Error("Unreachable");
 }
 
 /**
@@ -161,19 +166,20 @@ export function getPathByLocale(locale: string, locales: Locales) {
  * @param path
  * @param locales
  */
-export function getLocaleByPath(path: string, locales: Locales): string | undefined {
+export function getLocaleByPath(path: string, locales: Locales): string {
 	for (const locale of locales) {
 		if (typeof locale !== 'string') {
 			if (locale.path === path) {
 				// the first code is the one that user usually wants
 				const code = locale.codes.at(0);
+				if (code === undefined) throw new Error("Unreachable");
 				return code;
 			}
 		} else if (locale === path) {
 			return locale;
 		}
 	}
-	return undefined;
+	throw new Error("Unreachable");
 }
 
 /**
