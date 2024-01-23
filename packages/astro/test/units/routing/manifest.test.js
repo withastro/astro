@@ -151,13 +151,13 @@ describe('routing - createRouteManifest', () => {
 	it('route sorting respects the file tree', async () => {
 		const fs = createFs(
 			{
-				'/src/pages/[dynamic]/static.astro': `<h1>test</h1>`,
-				'/src/pages/[dynamic]/index.astro': `<h1>test</h1>`,
-				'/src/pages/[dynamic]/[...rest].astro': `<h1>test</h1>`,
+				'/src/pages/[dynamic_folder]/static.astro': `<h1>test</h1>`,
+				'/src/pages/[dynamic_folder]/index.astro': `<h1>test</h1>`,
+				'/src/pages/[dynamic_folder]/[...rest].astro': `<h1>test</h1>`,
 				'/src/pages/[...rest]/static.astro': `<h1>test</h1>`,
 				'/src/pages/[...rest]/index.astro': `<h1>test</h1>`,
 				'/src/pages/blog/index.astro': `<h1>test</h1>`,
-				'/src/pages/[other].astro': `<h1>test</h1>`,
+				'/src/pages/[dynamic_file].astro': `<h1>test</h1>`,
 				'/src/pages/[...other].astro': `<h1>test</h1>`,
 				'/src/pages/static.astro': `<h1>test</h1>`,
 				'/src/pages/index.astro': `<h1>test</h1>`,
@@ -193,19 +193,19 @@ describe('routing - createRouteManifest', () => {
 				"type": "page",
 			},
 			{
-				"route": "/[dynamic]",
+				"route": "/[dynamic_folder]",
 				"type": "page",
 			},
 			{
-				"route": "/[other]",
+				"route": "/[dynamic_file]",
 				"type": "page",
 			},
 			{
-				"route": "/[dynamic]/static",
+				"route": "/[dynamic_folder]/static",
 				"type": "page",
 			},
 			{
-				"route": "/[dynamic]/[...rest]",
+				"route": "/[dynamic_folder]/[...rest]",
 				"type": "page",
 			},
 			{
