@@ -203,14 +203,6 @@ function routeComparator(a: ManifestRouteData, b: ManifestRouteData) {
 		const aIsStatic = aSegment.every((part) => !part.dynamic && !part.spread);
 		const bIsStatic = bSegment.every((part) => !part.dynamic && !part.spread);
 
-		// Both segments are static, sort them alphabetically
-		// if (aIsStatic && bIsStatic) {
-		// 	const aContent = aSegment.map((part) => part.content).join('');
-		// 	const bContent = bSegment.map((part) => part.content).join('');
-		//	
-		// 	return aContent.localeCompare(bContent);
-		// }
-
 		// Sort static routes before dynamic routes
 		if (aIsStatic !== bIsStatic) {
 			return aIsStatic ? -1 : 1;
