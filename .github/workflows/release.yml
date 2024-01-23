@@ -67,6 +67,7 @@ jobs:
         run: node .github/scripts/announce.mjs '${{ steps.changesets.outputs.publishedPackages }}'
       
       - name: Send message on Discord
+        if: steps.changesets.outputs.published == 'true'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@0.3.2
