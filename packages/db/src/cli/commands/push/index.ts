@@ -6,7 +6,12 @@ import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import type { Arguments } from 'yargs-parser';
 import { appTokenError } from '../../../errors.js';
 import { collectionToTable, createLocalDatabaseClient } from '../../../internal.js';
-import { getMigrations, initializeFromMigrations, loadInitialSnapshot, loadMigration } from '../../../migrations.js';
+import {
+	getMigrations,
+	initializeFromMigrations,
+	loadInitialSnapshot,
+	loadMigration,
+} from '../../../migrations.js';
 import type { DBCollections } from '../../../types.js';
 import {
 	STUDIO_ADMIN_TABLE_ROW_ID,
@@ -23,6 +28,7 @@ const sqliteDialect = new SQLiteAsyncDialect();
 export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
 	const isSeedData = flags.seed;
 	const isDryRun = flags.dryRun;
+	const appToken = flags.token ?? getAstroStudioEnv().ASTRO_STUDIO_APP_TOKEN;
 
 	const currentDb: DBCollections = (config.db?.collections ?? {}) as DBCollections;
 	const currentSnapshot = JSON.parse(JSON.stringify(currentDb));
@@ -39,7 +45,6 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		process.exit(1);
 	}
 
-	const appToken = getAstroStudioEnv().ASTRO_STUDIO_APP_TOKEN;
 	if (!appToken) {
 		// eslint-disable-next-line no-console
 		console.error(appTokenError);
@@ -91,10 +96,12 @@ async function pushSchema({
 	const filteredMigrations = migrations.filter((m) => m !== '0000_snapshot.json');
 	const missingMigrationContents = await Promise.all(filteredMigrations.map(loadMigration));
 	// create a migration for the initial snapshot, if needed
-	const initialMigrationBatch = initialSnapshot ? await getMigrationQueries({
-		oldCollections: {},
-		newCollections: await loadInitialSnapshot(),
-	}) : [];
+	const initialMigrationBatch = initialSnapshot
+		? await getMigrationQueries({
+				oldCollections: {},
+				newCollections: await loadInitialSnapshot(),
+			})
+		: [];
 	// combine all missing migrations into a single batch
 	const missingMigrationBatch = missingMigrationContents.reduce((acc, curr) => {
 		return [...acc, ...curr.db];
