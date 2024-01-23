@@ -40,14 +40,8 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 		name: '@astrojs/mdx',
 		hooks: {
 			'astro:config:setup': async (params) => {
-				const {
-					updateConfig,
-					config,
-					addPageExtension,
-					addContentEntryType,
-					command,
-					addRenderer,
-				} = params as SetupHookParams;
+				const { updateConfig, config, addPageExtension, addContentEntryType, addRenderer } =
+					params as SetupHookParams;
 
 				addRenderer(astroJSXRenderer);
 				addPageExtension('.mdx');
@@ -209,12 +203,6 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									code += `\nContent[Symbol.for('astro.needsHeadRendering')] = !Boolean(frontmatter.layout);`;
 									code += `\nContent.moduleId = ${JSON.stringify(id)};`;
 
-									if (command === 'dev') {
-										// TODO: decline HMR updates until we have a stable approach
-										code += `\nif (import.meta.hot) {
-											import.meta.hot.decline();
-										}`;
-									}
 									return { code, map: null };
 								},
 							},

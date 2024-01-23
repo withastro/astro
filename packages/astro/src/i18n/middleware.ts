@@ -2,6 +2,7 @@ import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
 import type { Locales, MiddlewareHandler, RouteData, SSRManifest } from '../@types/astro.js';
 import type { PipelineHookFunction } from '../core/pipeline.js';
 import { getPathByLocale, normalizeTheLocale } from './index.js';
+import { shouldAppendForwardSlash } from '../core/build/util.js';
 
 const routeDataSymbol = Symbol.for('astro.routeData');
 
@@ -26,7 +27,8 @@ function pathnameHasLocale(pathname: string, locales: Locales): boolean {
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
 	base: SSRManifest['base'],
-	trailingSlash: SSRManifest['trailingSlash']
+	trailingSlash: SSRManifest['trailingSlash'],
+	buildFormat: SSRManifest['buildFormat']
 ): MiddlewareHandler | undefined {
 	if (!i18n) {
 		return undefined;
@@ -54,30 +56,52 @@ export function createI18nMiddleware(
 
 		if (response instanceof Response) {
 			const pathnameContainsDefaultLocale = url.pathname.includes(`/${defaultLocale}`);
-			if (i18n.routing === 'prefix-other-locales' && pathnameContainsDefaultLocale) {
-				const newLocation = url.pathname.replace(`/${defaultLocale}`, '');
-				response.headers.set('Location', newLocation);
-				return new Response(null, {
-					status: 404,
-					headers: response.headers,
-				});
-			} else if (i18n.routing === 'prefix-always') {
-				if (url.pathname === base + '/' || url.pathname === base) {
-					if (trailingSlash === 'always') {
-						return context.redirect(`${appendForwardSlash(joinPaths(base, i18n.defaultLocale))}`);
-					} else {
-						return context.redirect(`${joinPaths(base, i18n.defaultLocale)}`);
+			switch (i18n.routing) {
+				case 'pathname-prefix-other-locales': {
+					if (pathnameContainsDefaultLocale) {
+						const newLocation = url.pathname.replace(`/${defaultLocale}`, '');
+						response.headers.set('Location', newLocation);
+						return new Response(null, {
+							status: 404,
+							headers: response.headers,
+						});
 					}
+					break;
 				}
 
-				// Astro can't know where the default locale is supposed to be, so it returns a 404 with no content.
-				else if (!pathnameHasLocale(url.pathname, i18n.locales)) {
-					return new Response(null, {
-						status: 404,
-						headers: response.headers,
-					});
+				case 'pathname-prefix-always-no-redirect': {
+					// We return a 404 if:
+					// - the current path isn't a root. e.g. / or /<base>
+					// - the URL doesn't contain a locale
+					const isRoot = url.pathname === base + '/' || url.pathname === base;
+					if (!(isRoot || pathnameHasLocale(url.pathname, i18n.locales))) {
+						return new Response(null, {
+							status: 404,
+							headers: response.headers,
+						});
+					}
+					break;
+				}
+
+				case 'pathname-prefix-always': {
+					if (url.pathname === base + '/' || url.pathname === base) {
+						if (shouldAppendForwardSlash(trailingSlash, buildFormat)) {
+							return context.redirect(`${appendForwardSlash(joinPaths(base, i18n.defaultLocale))}`);
+						} else {
+							return context.redirect(`${joinPaths(base, i18n.defaultLocale)}`);
+						}
+					}
+
+					// Astro can't know where the default locale is supposed to be, so it returns a 404 with no content.
+					else if (!pathnameHasLocale(url.pathname, i18n.locales)) {
+						return new Response(null, {
+							status: 404,
+							headers: response.headers,
+						});
+					}
 				}
 			}
+
 			if (response.status >= 300 && fallback) {
 				const fallbackKeys = i18n.fallback ? Object.keys(i18n.fallback) : [];
 
@@ -103,7 +127,7 @@ export function createI18nMiddleware(
 					let newPathname: string;
 					// If a locale falls back to the default locale, we want to **remove** the locale because
 					// the default locale doesn't have a prefix
-					if (pathFallbackLocale === defaultLocale && routing === 'prefix-other-locales') {
+					if (pathFallbackLocale === defaultLocale && routing === 'pathname-prefix-other-locales') {
 						newPathname = url.pathname.replace(`/${urlLocale}`, ``);
 					} else {
 						newPathname = url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);

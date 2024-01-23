@@ -1,5 +1,11 @@
 # @astrojs/partytown
 
+## 2.0.4
+
+### Patch Changes
+
+- [#9666](https://github.com/withastro/astro/pull/9666) [`cdf8ce06271b8b5e474186a3cd6d7925c423a4a6`](https://github.com/withastro/astro/commit/cdf8ce06271b8b5e474186a3cd6d7925c423a4a6) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue where Partytown scripts didn't execute after view transition
+
 ## 2.0.3
 
 ### Patch Changes

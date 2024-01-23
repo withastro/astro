@@ -19,6 +19,7 @@ import {
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from './context.js';
+import type { RoutingStrategies } from '../config/schema.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
@@ -54,7 +55,7 @@ export interface CreateResultArgs {
 	cookies?: AstroCookies;
 	locales: Locales | undefined;
 	defaultLocale: string | undefined;
-	routingStrategy: RoutingStrategy;
+	routingStrategy: RoutingStrategies | undefined;
 }
 
 function getFunctionExpression(slot: any) {

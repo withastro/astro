@@ -126,6 +126,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 	}
 	return {
 		trailingSlash: settings.config.trailingSlash,
+		buildFormat: settings.config.build.format,
 		compressHTML: settings.config.compressHTML,
 		assets: new Set(),
 		entryModules: {},

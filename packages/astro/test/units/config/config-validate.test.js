@@ -194,6 +194,26 @@ describe('Config Validation', () => {
 			);
 		});
 
+		it('errors if `i18n.prefixDefaultLocale` is `false` and `i18n.redirectToDefaultLocale` is `true`', async () => {
+			const configError = await validateConfig(
+				{
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						routing: {
+							prefixDefaultLocale: false,
+							redirectToDefaultLocale: false,
+						},
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal(
+				'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.'
+			);
+		});
+
 		it('errors if a domains key does not exist', async () => {
 			const configError = await validateConfig(
 				{

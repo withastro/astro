@@ -27,20 +27,51 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
-import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
+import { SSRRoutePipeline } from './ssrPipeline.js';
 import type { RouteInfo } from './types.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
 export { deserializeManifest } from './common.js';
 
-const clientLocalsSymbol = Symbol.for('astro.locals');
-
+const localsSymbol = Symbol.for('astro.locals');
+const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
-const STATUS_CODES = new Set([404, 500]);
+/**
+ * A response with one of these status codes will be rewritten
+ * with the result of rendering the respective error page.
+ */
+const REROUTABLE_STATUS_CODES = new Set([404, 500]);
 
 export interface RenderOptions {
-	routeData?: RouteData;
+	/**
+	 * Whether to automatically add all cookies written by `Astro.cookie.set()` to the response headers.
+	 *
+	 * When set to `true`, they will be added to the `Set-Cookie` header as comma-separated key=value pairs. You can use the standard `response.headers.getSetCookie()` API to read them individually.
+	 *
+	 * When set to `false`, the cookies will only be available from `App.getSetCookieFromResponse(response)`.
+	 *
+	 * @default {false}
+	 */
+	addCookieHeader?: boolean;
+
+	/**
+	 * The client IP address that will be made available as `Astro.clientAddress` in pages, and as `ctx.clientAddress` in API routes and middleware.
+	 *
+	 * Default: `request[Symbol.for("astro.clientAddress")]`
+	 */
+	clientAddress?: string;
+
+	/**
+	 * The mutable object that will be made available as `Astro.locals` in pages, and as `ctx.locals` in API routes and middleware.
+	 */
 	locals?: object;
+
+	/**
+	 * **Advanced API**: you probably do not need to use this.
+	 *
+	 * Default: `app.match(request)`
+	 */
+	routeData?: RouteData;
 }
 
 export interface RenderErrorOptions {
@@ -233,11 +264,22 @@ export class App {
 	): Promise<Response> {
 		let routeData: RouteData | undefined;
 		let locals: object | undefined;
+		let clientAddress: string | undefined;
+		let addCookieHeader: boolean | undefined;
 
 		if (
 			routeDataOrOptions &&
-			('routeData' in routeDataOrOptions || 'locals' in routeDataOrOptions)
+			('addCookieHeader' in routeDataOrOptions ||
+				'clientAddress' in routeDataOrOptions ||
+				'locals' in routeDataOrOptions ||
+				'routeData' in routeDataOrOptions)
 		) {
+			if ('addCookieHeader' in routeDataOrOptions) {
+				addCookieHeader = routeDataOrOptions.addCookieHeader;
+			}
+			if ('clientAddress' in routeDataOrOptions) {
+				clientAddress = routeDataOrOptions.clientAddress;
+			}
 			if ('routeData' in routeDataOrOptions) {
 				routeData = routeDataOrOptions.routeData;
 			}
@@ -251,7 +293,12 @@ export class App {
 				this.#logRenderOptionsDeprecationWarning();
 			}
 		}
-
+		if (locals) {
+			Reflect.set(request, localsSymbol, locals);
+		}
+		if (clientAddress) {
+			Reflect.set(request, clientAddressSymbol, clientAddress);
+		}
 		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
 		if (request.url !== collapseDuplicateSlashes(request.url)) {
 			request = new Request(collapseDuplicateSlashes(request.url), request);
@@ -262,7 +309,6 @@ export class App {
 		if (!routeData) {
 			return this.#renderError(request, { status: 404 });
 		}
-		Reflect.set(request, clientLocalsSymbol, locals ?? {});
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
 		const mod = await this.#getModuleForRoute(routeData);
@@ -279,10 +325,11 @@ export class App {
 		);
 		let response;
 		try {
-			let i18nMiddleware = createI18nMiddleware(
+			const i18nMiddleware = createI18nMiddleware(
 				this.#manifest.i18n,
 				this.#manifest.base,
-				this.#manifest.trailingSlash
+				this.#manifest.trailingSlash,
+				this.#manifest.buildFormat
 			);
 			if (i18nMiddleware) {
 				if (mod.onRequest) {
@@ -298,24 +345,31 @@ export class App {
 			}
 			response = await this.#pipeline.renderRoute(renderContext, pageModule);
 		} catch (err: any) {
-			if (err instanceof EndpointNotFoundError) {
-				return this.#renderError(request, { status: 404, response: err.originalResponse });
-			} else {
-				this.#logger.error(null, err.stack || err.message || String(err));
-				return this.#renderError(request, { status: 500 });
+			this.#logger.error(null, err.stack || err.message || String(err));
+			return this.#renderError(request, { status: 500 });
+		}
+
+		if (
+			REROUTABLE_STATUS_CODES.has(response.status) &&
+			response.headers.get('X-Astro-Reroute') !== 'no'
+		) {
+			return this.#renderError(request, {
+				response,
+				status: response.status as 404 | 500,
+			});
+		}
+
+		if (response.headers.has('X-Astro-Reroute')) {
+			response.headers.delete('X-Astro-Reroute');
+		}
+
+		if (addCookieHeader) {
+			for (const setCookieHeaderValue of App.getSetCookieFromResponse(response)) {
+				response.headers.append('set-cookie', setCookieHeaderValue);
 			}
 		}
 
-		if (routeData.type === 'page' || routeData.type === 'redirect') {
-			if (STATUS_CODES.has(response.status)) {
-				return this.#renderError(request, {
-					response,
-					status: response.status as 404 | 500,
-				});
-			}
-			Reflect.set(response, responseSentSymbol, true);
-			return response;
-		}
+		Reflect.set(response, responseSentSymbol, true);
 		return response;
 	}
 
@@ -331,6 +385,19 @@ export class App {
 	setCookieHeaders(response: Response) {
 		return getSetCookiesFromResponse(response);
 	}
+
+	/**
+	 * Reads all the cookies written by `Astro.cookie.set()` onto the passed response.
+	 * For example,
+	 * ```ts
+	 * for (const cookie_ of App.getSetCookieFromResponse(response)) {
+	 *     const cookie: string = cookie_
+	 * }
+	 * ```
+	 * @param response The response to read cookies from.
+	 * @returns An iterator that yields key-value pairs as equal-sign-separated strings.
+	 */
+	static getSetCookieFromResponse = getSetCookiesFromResponse;
 
 	/**
 	 * Creates the render context of the current route

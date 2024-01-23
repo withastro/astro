@@ -33,7 +33,7 @@ export async function emitESMImage(
 	Object.defineProperty(emittedImage, 'fsPath', {
 		enumerable: false,
 		writable: false,
-		value: url,
+		value: id,
 	});
 
 	// Build

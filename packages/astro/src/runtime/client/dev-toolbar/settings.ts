@@ -44,6 +44,13 @@ function getSettings() {
 			return _settings;
 		},
 		updateSetting,
-		log,
+		logger: {
+			log,
+			verboseLog: (message: string) => {
+				if (_settings.verbose) {
+					log(message);
+				}
+			},
+		},
 	};
 }

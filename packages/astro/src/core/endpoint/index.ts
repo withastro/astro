@@ -17,6 +17,7 @@ import {
 	computePreferredLocaleList,
 } from '../render/context.js';
 import { type Environment, type RenderContext } from '../render/index.js';
+import type { RoutingStrategies } from '../config/schema.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -28,7 +29,7 @@ type CreateAPIContext = {
 	props: Record<string, any>;
 	adapterName?: string;
 	locales: Locales | undefined;
-	routingStrategy: RoutingStrategy;
+	routingStrategy: RoutingStrategies | undefined;
 	defaultLocale: string | undefined;
 };
 

@@ -265,7 +265,8 @@ async function generatePage(
 	const i18nMiddleware = createI18nMiddleware(
 		pipeline.getManifest().i18n,
 		pipeline.getManifest().base,
-		pipeline.getManifest().trailingSlash
+		pipeline.getManifest().trailingSlash,
+		pipeline.getManifest().buildFormat
 	);
 	if (config.i18n && i18nMiddleware) {
 		if (onRequest) {
@@ -484,10 +485,10 @@ async function generatePath(
 	gopts: GeneratePathOptions,
 	route: RouteData
 ) {
-	const { mod, scripts: hoistedScripts, styles: _styles, pageData } = gopts;
+	const { mod, scripts: hoistedScripts, styles: _styles } = gopts;
 	const manifest = pipeline.getManifest();
 	const logger = pipeline.getLogger();
-	pipeline.getEnvironment().logger.debug('build', `Generating: ${pathname}`);
+	logger.debug('build', `Generating: ${pathname}`);
 
 	const links = new Set<never>();
 	const scripts = createModuleScriptsSet(
@@ -659,5 +660,6 @@ export function createBuildManifest(
 			: settings.config.site,
 		componentMetadata: internals.componentMetadata,
 		i18n: i18nManifest,
+		buildFormat: settings.config.build.format,
 	};
 }

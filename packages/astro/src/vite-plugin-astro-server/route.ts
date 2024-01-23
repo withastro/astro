@@ -308,7 +308,12 @@ export async function handleRoute({
 
 	const onRequest = middleware?.onRequest as MiddlewareHandler | undefined;
 	if (config.i18n) {
-		const i18Middleware = createI18nMiddleware(manifest.i18n, config.base, config.trailingSlash);
+		const i18Middleware = createI18nMiddleware(
+			manifest.i18n,
+			config.base,
+			config.trailingSlash,
+			config.build.format
+		);
 
 		if (i18Middleware) {
 			if (onRequest) {

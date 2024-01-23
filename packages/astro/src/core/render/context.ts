@@ -12,6 +12,7 @@ import { normalizeTheLocale, toCodes } from '../../i18n/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Environment } from './environment.js';
 import { getParamsAndProps } from './params-and-props.js';
+import type { RoutingStrategies } from '../config/schema.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -32,12 +33,7 @@ export interface RenderContext {
 	locals?: object;
 	locales: Locales | undefined;
 	defaultLocale: string | undefined;
-	routing:
-		| 'prefix-always'
-		| 'prefix-other-locales'
-		| 'domains'
-		| 'domains-prefix-default'
-		| undefined;
+	routing: RoutingStrategies | undefined;
 }
 
 export type CreateRenderContextArgs = Partial<
@@ -245,7 +241,7 @@ export function computePreferredLocaleList(request: Request, locales: Locales): 
 export function computeCurrentLocale(
 	request: Request,
 	locales: Locales,
-	routingStrategy: RoutingStrategy,
+	routingStrategy: RoutingStrategies | undefined,
 	defaultLocale: string | undefined
 ): undefined | string {
 	const requestUrl = new URL(request.url);
@@ -262,7 +258,7 @@ export function computeCurrentLocale(
 			}
 		}
 	}
-	if (routingStrategy === 'prefix-other-locales' || routingStrategy === 'domains') {
+	if (routingStrategy === 'pathname-prefix-other-locales' || routingStrategy === 'domains') {
 		return defaultLocale;
 	}
 	return undefined;

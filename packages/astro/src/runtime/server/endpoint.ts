@@ -1,5 +1,5 @@
 import { bold } from 'kleur/colors';
-import type { APIContext, EndpointHandler, Params } from '../../@types/astro.js';
+import type { APIContext, EndpointHandler } from '../../@types/astro.js';
 import type { Logger } from '../../core/logger/core.js';
 
 /** Renders an endpoint request to completion, returning the body. */
@@ -33,16 +33,14 @@ export async function renderEndpoint(
 					? `One of the exported handlers is "all" (lowercase), did you mean to export 'ALL'?\n`
 					: '')
 		);
-		// No handler found, so this should be a 404. Using a custom header
-		// to signal to the renderer that this is an internal 404 that should
-		// be handled by a custom 404 route if possible.
-		return new Response(null, {
-			status: 404,
-			headers: {
-				'X-Astro-Response': 'Not-Found',
-			},
-		});
+		// No handler matching the verb found, so this should be a
+		// 404. Should be handled by 404.astro route if possible.
+		return new Response(null, { status: 404 });
 	}
 
-	return handler.call(mod, context);
+	const response = await handler.call(mod, context);
+	// Endpoints explicitly returning 404 or 500 response status should
+	// NOT be subject to rerouting to 404.astro or 500.astro.
+	response.headers.set('X-Astro-Reroute', 'no');
+	return response;
 }

@@ -17,9 +17,11 @@ import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } f
 // This import is required to appease TypeScript!
 // See https://github.com/withastro/astro/pull/8762
 import 'mdast-util-to-hast';
+import 'shikiji-core';
 
 type ShikiLangs = NonNullable<ShikiConfig['langs']>;
 type ShikiTheme = NonNullable<ShikiConfig['theme']>;
+type ShikiTransformers = NonNullable<ShikiConfig['transformers']>;
 
 const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
@@ -58,13 +60,16 @@ const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		optimizeHoistedScript: false,
 		contentCollectionCache: false,
+		clientPrerender: false,
+		globalRoutePriority: false,
 		i18nDomains: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
-type RoutingStrategies =
-	| 'prefix-always'
-	| 'prefix-other-locales'
+export type RoutingStrategies =
+	| 'pathname-prefix-always'
+	| 'pathname-prefix-other-locales'
+	| 'pathname-prefix-always-no-redirect'
 	| 'domains-prefix-default'
 	| 'domains';
 
@@ -110,6 +115,7 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default('attribute'),
 	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
+	db: z.object({}).passthrough().default({}).optional(),
 	integrations: z.preprocess(
 		// preprocess
 		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
@@ -279,6 +285,10 @@ export const AstroConfigSchema = z.object({
 						)
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.experimentalThemes!),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
+					transformers: z
+						.custom<ShikiTransformers[number]>()
+						.array()
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.transformers!),
 				})
 				.default({}),
 			remarkPlugins: z
@@ -337,17 +347,31 @@ export const AstroConfigSchema = z.object({
 				routing: z
 					.object({
 						prefixDefaultLocale: z.boolean().default(false),
+						redirectToDefaultLocale: z.boolean().default(true),
 						strategy: z.enum(['pathname', 'domains']).default('pathname'),
 					})
 					.default({})
+					.refine(
+						({ prefixDefaultLocale, redirectToDefaultLocale }) => {
+							return !(prefixDefaultLocale === false && redirectToDefaultLocale === false);
+						},
+						{
+							message:
+								'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.',
+						}
+					)
 					.transform((routing) => {
 						let strategy: RoutingStrategies;
 						switch (routing.strategy) {
 							case 'pathname': {
 								if (routing.prefixDefaultLocale === true) {
-									return 'prefix-always';
+									if (routing.redirectToDefaultLocale) {
+										strategy = 'pathname-prefix-always';
+									} else {
+										strategy = 'pathname-prefix-always-no-redirect';
+									}
 								} else {
-									return 'prefix-other-locales';
+									strategy = 'pathname-prefix-other-locales';
 								}
 							}
 							case 'domains': {
@@ -445,6 +469,14 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
+			clientPrerender: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.clientPrerender),
+			globalRoutePriority: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
 			i18nDomains: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.i18nDomains),
 		})
 		.strict(

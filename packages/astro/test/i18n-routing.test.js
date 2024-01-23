@@ -247,9 +247,77 @@ describe('[DEV] i18n routing', () => {
 			const response = await fixture.fetch('/new-site/fr/start');
 			expect(response.status).to.equal(404);
 		});
+
+		describe('when `build.format` is `directory`', () => {
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing-prefix-other-locales/',
+					i18n: {
+						defaultLocale: 'en',
+						locales: [
+							'en',
+							'pt',
+							'it',
+							{
+								path: 'spanish',
+								codes: ['es', 'es-AR'],
+							},
+						],
+						fallback: {
+							it: 'en',
+							spanish: 'en',
+						},
+					},
+					build: {
+						format: 'directory',
+					},
+				});
+				devServer = await fixture.startDevServer();
+			});
+
+			after(async () => {
+				await devServer.stop();
+			});
+
+			it('should redirect to the english locale with trailing slash', async () => {
+				const response = await fixture.fetch('/new-site/it/start/');
+				expect(response.status).to.equal(200);
+				expect(await response.text()).includes('Start');
+			});
+		});
 	});
 
-	describe('i18n routing with routing strategy [prefix-always]', () => {
+	describe('i18n routing with routing strategy [pathname-prefix-always-no-redirect]', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-prefix-always/',
+				i18n: {
+					routing: {
+						prefixDefaultLocale: true,
+						redirectToDefaultLocale: false,
+					},
+				},
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('should NOT redirect to the index of the default locale', async () => {
+			const response = await fixture.fetch('/new-site');
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('I am index');
+		});
+	});
+
+	describe('i18n routing with routing strategy [pathname-prefix-always]', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 		/** @type {import('./test-utils').DevServer} */
@@ -625,7 +693,31 @@ describe('[SSG] i18n routing', () => {
 		});
 	});
 
-	describe('i18n routing with routing strategy [prefix-always]', () => {
+	describe('i18n routing with routing strategy [pathname-prefix-always-no-redirect]', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-prefix-always/',
+				i18n: {
+					routing: {
+						prefixDefaultLocale: true,
+						redirectToDefaultLocale: false,
+					},
+				},
+			});
+			await fixture.build();
+		});
+
+		it('should NOT redirect to the index of the default locale', async () => {
+			const html = await fixture.readFile('/index.html');
+			let $ = cheerio.load(html);
+			expect($('body').text()).includes('I am index');
+		});
+	});
+
+	describe('i18n routing with routing strategy [pathname-prefix-always]', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 
@@ -638,6 +730,7 @@ describe('[SSG] i18n routing', () => {
 
 		it('should redirect to the index of the default locale', async () => {
 			const html = await fixture.readFile('/index.html');
+			expect(html).to.include('http-equiv="refresh');
 			expect(html).to.include('http-equiv="refresh');
 			expect(html).to.include('url=/new-site/en');
 		});
@@ -708,6 +801,25 @@ describe('[SSG] i18n routing', () => {
 				expect(html).to.include('url=/new-site/en');
 			});
 		});
+
+		describe('when `build.format` is `directory`', () => {
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing-prefix-always/',
+					build: {
+						format: 'directory',
+					},
+				});
+				await fixture.build();
+			});
+
+			it('should redirect to the index of the default locale', async () => {
+				const html = await fixture.readFile('/index.html');
+				expect(html).to.include('http-equiv="refresh');
+				expect(html).to.include('http-equiv="refresh');
+				expect(html).to.include('url=/new-site/en/');
+			});
+		});
 	});
 
 	describe('i18n routing with fallback', () => {
@@ -759,7 +871,6 @@ describe('[SSG] i18n routing', () => {
 
 		it('should redirect to the english locale correctly when it has codes+path', async () => {
 			let html = await fixture.readFile('/spanish/start/index.html');
-			let $ = cheerio.load(html);
 			expect(html).to.include('http-equiv="refresh');
 			expect(html).to.include('url=/new-site/start');
 			html = await fixture.readFile('/spanish/index.html');
@@ -794,7 +905,7 @@ describe('[SSG] i18n routing', () => {
 		});
 	});
 
-	describe('i18n routing with fallback and [prefix-always]', () => {
+	describe('i18n routing with fallback and [pathname-prefix-always]', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 
@@ -905,7 +1016,7 @@ describe('[SSR] i18n routing', () => {
 			let request = new Request('http://example.com/new-site');
 			let response = await app.render(request);
 			expect(response.status).to.equal(302);
-			expect(response.headers.get('location')).to.equal('/new-site/en');
+			expect(response.headers.get('location')).to.equal('/new-site/en/');
 		});
 
 		it('should render the en locale', async () => {
@@ -1037,7 +1148,35 @@ describe('[SSR] i18n routing', () => {
 		});
 	});
 
-	describe('i18n routing with routing strategy [prefix-always]', () => {
+	describe('i18n routing with routing strategy [pathname-prefix-always-no-redirect]', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-prefix-always/',
+				output: 'server',
+				adapter: testAdapter(),
+				i18n: {
+					routing: {
+						prefixDefaultLocale: true,
+						redirectToDefaultLocale: false,
+					},
+				},
+			});
+			await fixture.build();
+			app = await fixture.loadTestAdapterApp();
+		});
+
+		it('should NOT redirect the index to the default locale', async () => {
+			let request = new Request('http://example.com/new-site');
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('I am index');
+		});
+	});
+
+	describe('i18n routing with routing strategy [pathname-prefix-always]', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 
@@ -1055,7 +1194,7 @@ describe('[SSR] i18n routing', () => {
 			let request = new Request('http://example.com/new-site');
 			let response = await app.render(request);
 			expect(response.status).to.equal(302);
-			expect(response.headers.get('location')).to.equal('/new-site/en');
+			expect(response.headers.get('location')).to.equal('/new-site/en/');
 		});
 
 		it('should render the en locale', async () => {
@@ -1098,6 +1237,28 @@ describe('[SSR] i18n routing', () => {
 					output: 'server',
 					adapter: testAdapter(),
 					trailingSlash: 'always',
+				});
+				await fixture.build();
+				app = await fixture.loadTestAdapterApp();
+			});
+
+			it('should redirect to the index of the default locale', async () => {
+				let request = new Request('http://example.com/new-site/');
+				let response = await app.render(request);
+				expect(response.status).to.equal(302);
+				expect(response.headers.get('location')).to.equal('/new-site/en/');
+			});
+		});
+
+		describe('when `build.format` is `directory`', () => {
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing-prefix-always/',
+					output: 'server',
+					adapter: testAdapter(),
+					build: {
+						format: 'directory',
+					},
 				});
 				await fixture.build();
 				app = await fixture.loadTestAdapterApp();
@@ -1176,7 +1337,7 @@ describe('[SSR] i18n routing', () => {
 			expect(response.status).to.equal(404);
 		});
 
-		describe('with routing strategy [prefix-always]', () => {
+		describe('with routing strategy [pathname-prefix-always]', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					root: './fixtures/i18n-routing-fallback/',
@@ -1369,7 +1530,7 @@ describe('[SSR] i18n routing', () => {
 			});
 		});
 
-		describe('with [prefix-always]', () => {
+		describe('with [pathname-prefix-always]', () => {
 			/** @type {import('./test-utils').Fixture} */
 			let fixture;
 
