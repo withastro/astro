@@ -5,7 +5,7 @@ import escape from './escape.js';
 import slots, { SLOT_PREFIX } from './slots.js';
 
 export async function transform(code: string, id: string) {
-	let s = new MagicString(code, { filename: id });
+	const s = new MagicString(code, { filename: id });
 	const parser = rehype().data('settings', { fragment: true }).use(escape, { s }).use(slots, { s });
 
 	const vfile = new VFile({ value: code, path: id });
