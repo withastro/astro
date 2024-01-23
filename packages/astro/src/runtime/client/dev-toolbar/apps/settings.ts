@@ -26,7 +26,7 @@ const settingsRows = [
 
 				settings.updateSetting('disableAppNotification', evt.currentTarget.checked);
 				const action = evt.currentTarget.checked ? 'disabled' : 'enabled';
-				settings.log(`App notification badges ${action}`);
+				settings.logger.verboseLog(`App notification badges ${action}`);
 			}
 		},
 	},
@@ -39,7 +39,7 @@ const settingsRows = [
 			if (evt.currentTarget instanceof HTMLInputElement) {
 				settings.updateSetting('verbose', evt.currentTarget.checked);
 				const action = evt.currentTarget.checked ? 'enabled' : 'disabled';
-				settings.log(`Verbose logging ${action}`);
+				settings.logger.verboseLog(`Verbose logging ${action}`);
 			}
 		},
 	},

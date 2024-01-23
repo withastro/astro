@@ -25,7 +25,7 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
-import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
+import { SSRRoutePipeline } from './ssrPipeline.js';
 import type { RouteInfo } from './types.js';
 export { deserializeManifest } from './common.js';
 
@@ -272,28 +272,30 @@ export class App {
 			}
 			response = await this.#pipeline.renderRoute(renderContext, pageModule);
 		} catch (err: any) {
-			if (err instanceof EndpointNotFoundError) {
-				return this.#renderError(request, { status: 404, response: err.originalResponse });
-			} else {
-				this.#logger.error(null, err.stack || err.message || String(err));
-				return this.#renderError(request, { status: 500 });
-			}
+			this.#logger.error(null, err.stack || err.message || String(err));
+			return this.#renderError(request, { status: 500 });
 		}
 
-		// endpoints do not participate in implicit rerouting
-		if (routeData.type === 'page' || routeData.type === 'redirect') {
-			if (REROUTABLE_STATUS_CODES.has(response.status)) {
-				return this.#renderError(request, {
-					response,
-					status: response.status as 404 | 500,
-				});
-			}
+		if (
+			REROUTABLE_STATUS_CODES.has(response.status) &&
+			response.headers.get('X-Astro-Reroute') !== 'no'
+		) {
+			return this.#renderError(request, {
+				response,
+				status: response.status as 404 | 500,
+			});
 		}
+
+		if (response.headers.has('X-Astro-Reroute')) {
+			response.headers.delete('X-Astro-Reroute');
+		}
+
 		if (addCookieHeader) {
 			for (const setCookieHeaderValue of App.getSetCookieFromResponse(response)) {
 				response.headers.append('set-cookie', setCookieHeaderValue);
 			}
 		}
+
 		Reflect.set(response, responseSentSymbol, true);
 		return response;
 	}

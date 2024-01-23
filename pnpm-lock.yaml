@@ -125,28 +125,28 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
 
   examples/blog:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^2.0.5
+        specifier: ^2.0.6
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
-        specifier: ^4.0.2
+        specifier: ^4.0.3
         version: link:../../packages/astro-rss
       '@astrojs/sitemap':
         specifier: ^3.0.5
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
 
   examples/component:
     devDependencies:
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
 
   examples/framework-alpine:
@@ -161,7 +161,7 @@ importers:
         specifier: ^3.13.3
         version: 3.13.3
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
 
   examples/framework-lit:
@@ -173,7 +173,7 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
       lit:
         specifier: ^2.8.0
@@ -197,7 +197,7 @@ importers:
         specifier: ^4.0.8
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
       preact:
         specifier: ^10.19.2
@@ -227,7 +227,7 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1(preact@10.19.3)
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
       preact:
         specifier: ^10.19.2
@@ -245,7 +245,7 @@ importers:
         specifier: ^18.2.15
         version: 18.2.18
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
       react:
         specifier: ^18.2.0
@@ -260,7 +260,7 @@ importers:
         specifier: ^4.0.1
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.8.5
@@ -272,7 +272,7 @@ importers:
         specifier: ^5.0.3
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.5
@@ -284,7 +284,7 @@ importers:
         specifier: ^4.0.8
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
       vue:
         specifier: ^3.3.8
@@ -296,13 +296,13 @@ importers:
         specifier: ^8.0.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
 
   examples/middleware:
@@ -311,7 +311,7 @@ importers:
         specifier: ^8.0.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
       html-minifier:
         specifier: ^4.0.0
@@ -324,19 +324,19 @@ importers:
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
 
   examples/non-html-pages:
     dependencies:
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
 
   examples/ssr:
@@ -348,7 +348,7 @@ importers:
         specifier: ^5.0.3
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.5
@@ -357,7 +357,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
       sass:
         specifier: ^1.69.5
@@ -375,7 +375,7 @@ importers:
         specifier: ^5.1.0
         version: link:../../packages/integrations/tailwind
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -384,16 +384,16 @@ importers:
         specifier: ^0.8.3
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
 
   examples/with-markdown-plugins:
     dependencies:
       '@astrojs/markdown-remark':
-        specifier: ^4.1.0
+        specifier: ^4.2.0
         version: link:../../packages/markdown/remark
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
       hast-util-select:
         specifier: ^6.0.2
@@ -414,19 +414,19 @@ importers:
   examples/with-markdown-shiki:
     dependencies:
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
 
   examples/with-mdx:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^2.0.5
+        specifier: ^2.0.6
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
         specifier: ^3.1.0
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
       preact:
         specifier: ^10.19.2
@@ -441,7 +441,7 @@ importers:
         specifier: ^0.5.0
         version: 0.5.0(nanostores@0.9.5)(preact@10.19.3)
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.9.5
@@ -453,7 +453,7 @@ importers:
   examples/with-tailwindcss:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^2.0.5
+        specifier: ^2.0.6
         version: link:../../packages/integrations/mdx
       '@astrojs/tailwind':
         specifier: ^5.1.0
@@ -462,7 +462,7 @@ importers:
         specifier: ^1.6.3
         version: 1.6.4
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
       autoprefixer:
         specifier: ^10.4.15
@@ -480,7 +480,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^4.2.1
+        specifier: ^4.2.3
         version: link:../../packages/astro
       vitest:
         specifier: ^0.34.2
@@ -663,11 +663,11 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1
       vite:
-        specifier: ^5.0.10
-        version: 5.0.10(@types/node@18.19.4)(sass@1.69.6)
+        specifier: ^5.0.12
+        version: 5.0.12(@types/node@18.19.4)(sass@1.69.6)
       vitefu:
         specifier: ^0.2.5
-        version: 0.2.5(vite@5.0.10)
+        version: 0.2.5(vite@5.0.12)
       which-pm:
         specifier: ^2.1.1
         version: 2.1.1
@@ -3927,8 +3927,8 @@ importers:
         specifier: ^10.2.0
         version: 10.2.0
       vite:
-        specifier: ^5.0.10
-        version: 5.0.10(@types/node@18.19.4)(sass@1.69.6)
+        specifier: ^5.0.12
+        version: 5.0.12(@types/node@18.19.4)(sass@1.69.6)
 
   packages/integrations/markdoc/test/fixtures/content-collections:
     dependencies:
@@ -4159,8 +4159,8 @@ importers:
         specifier: ^11.0.4
         version: 11.0.4
       vite:
-        specifier: ^5.0.10
-        version: 5.0.10(@types/node@18.19.4)(sass@1.69.6)
+        specifier: ^5.0.12
+        version: 5.0.12(@types/node@18.19.4)(sass@1.69.6)
 
   packages/integrations/mdx/test/fixtures/css-head-mdx:
     dependencies:
@@ -4495,7 +4495,7 @@ importers:
     dependencies:
       '@vitejs/plugin-react':
         specifier: ^4.2.0
-        version: 4.2.1(vite@5.0.10)
+        version: 4.2.1(vite@5.0.12)
       ultrahtml:
         specifier: ^1.3.0
         version: 1.5.2
@@ -4528,8 +4528,8 @@ importers:
         specifier: ^18.1.0
         version: 18.2.0(react@18.2.0)
       vite:
-        specifier: ^5.0.10
-        version: 5.0.10(@types/node@18.19.4)(sass@1.69.6)
+        specifier: ^5.0.12
+        version: 5.0.12(@types/node@18.19.4)(sass@1.69.6)
 
   packages/integrations/react/test/fixtures/react-component:
     dependencies:
@@ -4627,7 +4627,7 @@ importers:
     dependencies:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^3.0.0
-        version: 3.0.1(svelte@4.2.8)(vite@5.0.10)
+        version: 3.0.1(svelte@4.2.8)(vite@5.0.12)
       svelte2tsx:
         specifier: ^0.6.25
         version: 0.6.27(svelte@4.2.8)(typescript@5.2.2)
@@ -4642,8 +4642,8 @@ importers:
         specifier: ^4.2.5
         version: 4.2.8
       vite:
-        specifier: ^5.0.10
-        version: 5.0.10(@types/node@18.19.4)(sass@1.69.6)
+        specifier: ^5.0.12
+        version: 5.0.12(@types/node@18.19.4)(sass@1.69.6)
 
   packages/integrations/tailwind:
     dependencies:
@@ -4673,8 +4673,8 @@ importers:
         specifier: ^3.3.5
         version: 3.4.0
       vite:
-        specifier: ^5.0.10
-        version: 5.0.10(@types/node@18.19.4)(sass@1.69.6)
+        specifier: ^5.0.12
+        version: 5.0.12(@types/node@18.19.4)(sass@1.69.6)
 
   packages/integrations/tailwind/test/fixtures/basic:
     dependencies:
@@ -4909,10 +4909,10 @@ importers:
     dependencies:
       '@vitejs/plugin-vue':
         specifier: ^4.5.0
-        version: 4.6.2(vite@5.0.10)(vue@3.4.3)
+        version: 4.6.2(vite@5.0.12)(vue@3.4.3)
       '@vitejs/plugin-vue-jsx':
         specifier: ^3.1.0
-        version: 3.1.0(vite@5.0.10)(vue@3.4.3)
+        version: 3.1.0(vite@5.0.12)(vue@3.4.3)
       '@vue/babel-plugin-jsx':
         specifier: ^1.1.5
         version: 1.1.5(@babel/core@7.23.7)
@@ -4942,8 +4942,8 @@ importers:
         specifier: ^10.2.0
         version: 10.2.0
       vite:
-        specifier: ^5.0.10
-        version: 5.0.10(@types/node@18.19.4)(sass@1.69.6)
+        specifier: ^5.0.12
+        version: 5.0.12(@types/node@18.19.4)(sass@1.69.6)
       vue:
         specifier: ^3.3.8
         version: 3.4.3(typescript@5.2.2)
@@ -7173,7 +7173,7 @@ packages:
       solid-js: 1.8.7
     dev: false
 
-  /@sveltejs/vite-plugin-svelte-inspector@2.0.0(@sveltejs/vite-plugin-svelte@3.0.1)(svelte@4.2.8)(vite@5.0.10):
+  /@sveltejs/vite-plugin-svelte-inspector@2.0.0(@sveltejs/vite-plugin-svelte@3.0.1)(svelte@4.2.8)(vite@5.0.12):
     resolution: {integrity: sha512-gjr9ZFg1BSlIpfZ4PRewigrvYmHWbDrq2uvvPB1AmTWKuM+dI1JXQSUu2pIrYLb/QncyiIGkFDFKTwJ0XqQZZg==}
     engines: {node: ^18.0.0 || >=20}
     peerDependencies:
@@ -7184,15 +7184,15 @@ packages:
       vite:
         optional: true
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 3.0.1(svelte@4.2.8)(vite@5.0.10)
+      '@sveltejs/vite-plugin-svelte': 3.0.1(svelte@4.2.8)(vite@5.0.12)
       debug: 4.3.4(supports-color@8.1.1)
       svelte: 4.2.8
-      vite: 5.0.10(@types/node@18.19.4)(sass@1.69.6)
+      vite: 5.0.12(@types/node@18.19.4)(sass@1.69.6)
     transitivePeerDependencies:
       - supports-color
     dev: false
 
-  /@sveltejs/vite-plugin-svelte@3.0.1(svelte@4.2.8)(vite@5.0.10):
+  /@sveltejs/vite-plugin-svelte@3.0.1(svelte@4.2.8)(vite@5.0.12):
     resolution: {integrity: sha512-CGURX6Ps+TkOovK6xV+Y2rn8JKa8ZPUHPZ/NKgCxAmgBrXReavzFl8aOSCj3kQ1xqT7yGJj53hjcV/gqwDAaWA==}
     engines: {node: ^18.0.0 || >=20}
     peerDependencies:
@@ -7202,15 +7202,15 @@ packages:
       vite:
         optional: true
     dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 2.0.0(@sveltejs/vite-plugin-svelte@3.0.1)(svelte@4.2.8)(vite@5.0.10)
+      '@sveltejs/vite-plugin-svelte-inspector': 2.0.0(@sveltejs/vite-plugin-svelte@3.0.1)(svelte@4.2.8)(vite@5.0.12)
       debug: 4.3.4(supports-color@8.1.1)
       deepmerge: 4.3.1
       kleur: 4.1.5
       magic-string: 0.30.5
       svelte: 4.2.8
       svelte-hmr: 0.15.3(svelte@4.2.8)
-      vite: 5.0.10(@types/node@18.19.4)(sass@1.69.6)
-      vitefu: 0.2.5(vite@5.0.10)
+      vite: 5.0.12(@types/node@18.19.4)(sass@1.69.6)
+      vitefu: 0.2.5(vite@5.0.12)
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -7770,7 +7770,7 @@ packages:
       - supports-color
     dev: false
 
-  /@vitejs/plugin-react@4.2.1(vite@5.0.10):
+  /@vitejs/plugin-react@4.2.1(vite@5.0.12):
     resolution: {integrity: sha512-oojO9IDc4nCUUi8qIR11KoQm0XFFLIwsRBwHRR4d/88IWghn1y6ckz/bJ8GHDCsYEJee8mDzqtJxh15/cisJNQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -7784,12 +7784,12 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.23.7)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: 5.0.10(@types/node@18.19.4)(sass@1.69.6)
+      vite: 5.0.12(@types/node@18.19.4)(sass@1.69.6)
     transitivePeerDependencies:
       - supports-color
     dev: false
 
-  /@vitejs/plugin-vue-jsx@3.1.0(vite@5.0.10)(vue@3.4.3):
+  /@vitejs/plugin-vue-jsx@3.1.0(vite@5.0.12)(vue@3.4.3):
     resolution: {integrity: sha512-w9M6F3LSEU5kszVb9An2/MmXNxocAnUb3WhRr8bHlimhDrXNt6n6D2nJQR3UXpGlZHh/EsgouOHCsM8V3Ln+WA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -7802,13 +7802,13 @@ packages:
       '@babel/core': 7.23.7
       '@babel/plugin-transform-typescript': 7.23.6(@babel/core@7.23.7)
       '@vue/babel-plugin-jsx': 1.1.5(@babel/core@7.23.7)
-      vite: 5.0.10(@types/node@18.19.4)(sass@1.69.6)
+      vite: 5.0.12(@types/node@18.19.4)(sass@1.69.6)
       vue: 3.4.3(typescript@5.2.2)
     transitivePeerDependencies:
       - supports-color
     dev: false
 
-  /@vitejs/plugin-vue@4.6.2(vite@5.0.10)(vue@3.4.3):
+  /@vitejs/plugin-vue@4.6.2(vite@5.0.12)(vue@3.4.3):
     resolution: {integrity: sha512-kqf7SGFoG+80aZG6Pf+gsZIVvGSCKE98JbiWqcCV9cThtg91Jav0yvYFC9Zb+jKetNGF6ZKeoaxgZfND21fWKw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -7818,7 +7818,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 5.0.10(@types/node@18.19.4)(sass@1.69.6)
+      vite: 5.0.12(@types/node@18.19.4)(sass@1.69.6)
       vue: 3.4.3(typescript@5.2.2)
     dev: false
 
@@ -13436,6 +13436,14 @@ packages:
       picocolors: 1.0.0
       source-map-js: 1.0.2
 
+  /postcss@8.4.33:
+    resolution: {integrity: sha512-Kkpbhhdjw2qQs2O2DGX+8m5OVqEcbB9HRBvuYM9pgrjEFUg30A9LmXNlTAUj4S9kgtGyrMbTzVjH7E+s5Re2yg==}
+    engines: {node: ^10 || ^12 || >=14}
+    dependencies:
+      nanoid: 3.3.7
+      picocolors: 1.0.0
+      source-map-js: 1.0.2
+
   /preact-render-to-string@6.3.1(preact@10.19.3):
     resolution: {integrity: sha512-NQ28WrjLtWY6lKDlTxnFpKHZdpjfF+oE6V4tZ0rTrunHrtZp6Dm0oFrcJalt/5PNeqJz4j1DuZDS0Y6rCBoqDA==}
     peerDependencies:
@@ -15652,7 +15660,7 @@ packages:
       merge-anything: 5.1.7
       solid-js: 1.8.7
       solid-refresh: 0.5.3(solid-js@1.8.7)
-      vitefu: 0.2.5(vite@5.0.10)
+      vitefu: 0.2.5(vite@5.0.12)
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -15680,7 +15688,7 @@ packages:
       svgo: 3.2.0
     dev: false
 
-  /vite@5.0.10(@types/node@18.19.4)(sass@1.69.6):
+  /vite@5.0.10(@types/node@18.19.4):
     resolution: {integrity: sha512-2P8J7WWgmc355HUMlFrwofacvr98DAjoE52BfdbwQtyLH06XKwaL/FMnmKM2crF0iX4MpmMKoDlNCB1ok7zHCw==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -15711,6 +15719,42 @@ packages:
       '@types/node': 18.19.4
       esbuild: 0.19.11
       postcss: 8.4.32
+      rollup: 4.9.2
+    optionalDependencies:
+      fsevents: 2.3.3
+    dev: false
+
+  /vite@5.0.12(@types/node@18.19.4)(sass@1.69.6):
+    resolution: {integrity: sha512-4hsnEkG3q0N4Tzf1+t6NdN9dg/L3BM+q8SWgbSPnJvrgH2kgdyzfVJwbR1ic69/4uMJJ/3dqDZZE5/WwqW8U1w==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': ^18.0.0 || >=20.0.0
+      less: '*'
+      lightningcss: ^1.21.0
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      lightningcss:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      '@types/node': 18.19.4
+      esbuild: 0.19.11
+      postcss: 8.4.33
       rollup: 4.9.2
       sass: 1.69.6
     optionalDependencies:
@@ -15760,7 +15804,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 5.0.10(@types/node@18.19.4)(sass@1.69.6)
+      vite: 5.0.12(@types/node@18.19.4)(sass@1.69.6)
     dev: false
 
   /vitest@0.34.6:
@@ -15815,7 +15859,7 @@ packages:
       strip-literal: 1.3.0
       tinybench: 2.5.1
       tinypool: 0.7.0
-      vite: 5.0.10(@types/node@18.19.4)(sass@1.69.6)
+      vite: 5.0.10(@types/node@18.19.4)
       vite-node: 0.34.6(@types/node@18.19.4)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
