@@ -8,4 +8,4 @@
 "astro": patch
 ---
 
-Vite dependency bumped to miminum safe version
+Raises the required vite version to address a vulnerability in `vite.server.fs.deny` that affected the dev mode.
