@@ -603,7 +603,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				'The value of `outDir` must not point to a path within the folder set as `publicDir`, this will cause an infinite loop',
 		})
 		.superRefine((configuration, ctx) => {
-			const { site, experimental, i18n } = configuration;
+			const { site, experimental, i18n, output } = configuration;
 			if (experimental.i18nDomains) {
 				if (i18n?.routing === 'domains' || i18n?.routing === 'domains-prefix-default') {
 					if (!site) {
@@ -611,6 +611,12 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 							code: z.ZodIssueCode.custom,
 							message:
 								"The option `site` isn't set. When availing of the domain support, `site` is required to create absolute URLs for locales that aren't mapped to a domain.",
+						});
+					}
+					if (output !== 'server') {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: 'Domain support is only available when `output` is `"server"`.',
 						});
 					}
 				}

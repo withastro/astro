@@ -217,6 +217,7 @@ describe('Config Validation', () => {
 		it('errors if a domains key does not exist', async () => {
 			const configError = await validateConfig(
 				{
+					output: 'server',
 					i18n: {
 						defaultLocale: 'en',
 						locales: ['es', 'en'],
@@ -239,6 +240,7 @@ describe('Config Validation', () => {
 		it('errors if a domains value is not an URL', async () => {
 			const configError = await validateConfig(
 				{
+					output: 'server',
 					i18n: {
 						defaultLocale: 'en',
 						locales: ['es', 'en'],
@@ -261,6 +263,7 @@ describe('Config Validation', () => {
 		it('errors if a domain is a URL with a pathname that is not the home', async () => {
 			const configError = await validateConfig(
 				{
+					output: 'server',
 					i18n: {
 						defaultLocale: 'en',
 						locales: ['es', 'en'],
@@ -283,6 +286,7 @@ describe('Config Validation', () => {
 		it('errors if there are domains, and the routing strategy is not correct', async () => {
 			const configError = await validateConfig(
 				{
+					output: 'server',
 					i18n: {
 						defaultLocale: 'en',
 						locales: ['es', 'en'],
@@ -295,7 +299,60 @@ describe('Config Validation', () => {
 			).catch((err) => err);
 			expect(configError instanceof z.ZodError).to.equal(true);
 			expect(configError.errors[0].message).to.equal(
-				'When specifying some domains, the property `i18n.routingStrategy` must be set to `"domain"`.'
+				'When specifying some domains, the property `i18n.routingStrategy` must be set to `"domains"`.'
+			);
+		});
+
+		it('errors if domains is enabled but site is not provided', async () => {
+			const configError = await validateConfig(
+				{
+					output: 'server',
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						domains: {
+							en: 'https://www.example.com/',
+						},
+						routing: {
+							strategy: 'domains',
+						},
+					},
+					experimental: {
+						i18nDomains: true,
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal(
+				"The option `site` isn't set. When availing of the domain support, `site` is required to create absolute URLs for locales that aren't mapped to a domain."
+			);
+		});
+
+		it('errors if domains is enabled but the `output` is not "server"', async () => {
+			const configError = await validateConfig(
+				{
+					output: 'static',
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						domains: {
+							en: 'https://www.example.com/',
+						},
+						routing: {
+							strategy: 'domains',
+						},
+					},
+					experimental: {
+						i18nDomains: true,
+					},
+					site: 'https://foo.org',
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal(
+				'Domain support is only available when `output` is `"server"`.'
 			);
 		});
 	});
