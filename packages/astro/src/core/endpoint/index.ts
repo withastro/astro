@@ -4,7 +4,6 @@ import type {
 	Locales,
 	MiddlewareHandler,
 	Params,
-	RoutingStrategy,
 } from '../../@types/astro.js';
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';

@@ -3,7 +3,6 @@ import type {
 	AstroGlobalPartial,
 	Locales,
 	Params,
-	RoutingStrategy,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,

@@ -144,7 +144,7 @@ export function getLocaleAbsoluteUrlList({
 	path,
 	prependWith,
 	normalizeLocale = true,
-	routing = 'prefix-other-locales',
+	routing = 'pathname-prefix-other-locales',
 	defaultLocale,
 	isBuild,
 	domains,
@@ -169,7 +169,7 @@ export function getLocaleAbsoluteUrlList({
 			}
 			pathsToJoin.push(base);
 			pathsToJoin.push(prependWith);
-			if (routing === 'prefix-always') {
+			if (routing === 'pathname-prefix-always') {
 				pathsToJoin.push(normalizedLocale);
 			} else if (currentLocale !== defaultLocale) {
 				pathsToJoin.push(normalizedLocale);

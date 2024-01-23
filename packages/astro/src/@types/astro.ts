@@ -2803,10 +2803,3 @@ declare global {
 		type Database = Record<string, any>;
 	}
 }
-
-export type RoutingStrategy =
-	| 'prefix-always'
-	| 'prefix-other-locales'
-	| 'domains-prefix-default'
-	| 'domains'
-	| undefined;

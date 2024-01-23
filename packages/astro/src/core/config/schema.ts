@@ -373,15 +373,18 @@ export const AstroConfigSchema = z.object({
 								} else {
 									strategy = 'pathname-prefix-other-locales';
 								}
+								break;
 							}
 							case 'domains': {
 								if (routing.prefixDefaultLocale === true) {
-									return 'domains-prefix-default';
+									strategy = 'domains-prefix-default';
 								} else {
-									return 'domains';
+									strategy = 'domains';
 								}
+								break;
 							}
 						}
+						return strategy;
 					}),
 			})
 			.optional()
@@ -428,10 +431,10 @@ export const AstroConfigSchema = z.object({
 					if (domains) {
 						const entries = Object.entries(domains);
 						if (entries.length > 0) {
-							if (routing !== 'domains') {
+							if (routing !== 'domains' && routing !== 'domains-prefix-default') {
 								ctx.addIssue({
 									code: z.ZodIssueCode.custom,
-									message: `When specifying some domains, the property \`i18n.routingStrategy\` must be set to \`"domain"\`.`,
+									message: `When specifying some domains, the property \`i18n.routingStrategy\` must be set to \`"domains"\`.`,
 								});
 							}
 						}

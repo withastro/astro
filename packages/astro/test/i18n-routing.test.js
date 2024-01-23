@@ -35,17 +35,18 @@ describe('astro:i18n virtual module', () => {
 	describe('absolute URLs', () => {
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/i18n-routing/',
+				root: './fixtures/i18n-routing-subdomain/',
 			});
 			await fixture.build();
 		});
 
-		it('correctly renders the absolute URL', async () => {
-			const html = await fixture.readFile('/virtual-module/index.html');
+		it.only('correctly renders the absolute URL', async () => {
+			const html = await fixture.readFile('/index.html');
 			let $ = cheerio.load(html);
 
 			expect($('body').text()).includes("Virtual module doesn't break");
-			expect($('body').text()).includes('About it: https://it.example.com/about');
+			expect($('body').text()).includes('Absolute URL pt: https://example.pt/new-site/about');
+			expect($('body').text()).includes('Absolute URL it: http://it.example.com/new-site');
 		});
 	});
 });

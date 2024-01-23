@@ -8,10 +8,13 @@ export default defineConfig({
 			'en', 'pt', 'it'
 		],
 		domains: {
-			pt: "https://example.pt"
+			pt: "https://example.pt",
+			it: "http://it.example.com"
 		},
 		routing: {
-			strategy: "domains"
+			strategy: "domains",
+			prefixDefaultLocale: true,
+			redirectToDefaultLocale: false
 		}
 	},
 	experimental: {

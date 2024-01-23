@@ -4,7 +4,6 @@ import type {
 	Params,
 	Props,
 	RouteData,
-	RoutingStrategy,
 	SSRElement,
 	SSRResult,
 } from '../../@types/astro.js';
