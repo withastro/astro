@@ -1,5 +1,15 @@
 # @astrojs/cloudflare
 
+## 9.0.0
+
+### Major Changes
+
+- [#130](https://github.com/withastro/adapters/pull/130) [`2b5aaa4cfeda4bc7f1bf8db6210162c495866a95`](https://github.com/withastro/adapters/commit/2b5aaa4cfeda4bc7f1bf8db6210162c495866a95) Thanks [@asdfjkalsdfla](https://github.com/asdfjkalsdfla)! - Updates the internals of the integration to support Astro 4.0. See this [upstream pull request](https://github.com/withastro/astro/pull/9199) for additional details. **Warning:** Make sure to upgrade your Astro version to `>4.2` as previous versions are no longer supported.
+
+### Patch Changes
+
+- [#137](https://github.com/withastro/adapters/pull/137) [`d67df0e24ad0d9fca317f01e877f3dc650831488`](https://github.com/withastro/adapters/commit/d67df0e24ad0d9fca317f01e877f3dc650831488) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue with `_routes.json` generation, where duplicates where not removed correctly and an explicit user strategy setting was ignored.
+
 ## 8.1.0
 
 ### Minor Changes
