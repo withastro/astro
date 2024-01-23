@@ -8,8 +8,10 @@ type Alias = {
 	replacement: string;
 };
 
+type SmallAstroSettings = Pick<AstroSettings, 'tsConfig' | 'tsConfigPath'>;
+
 /** Returns a list of compiled aliases. */
-const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
+const getConfigAlias = (settings: SmallAstroSettings): Alias[] | null => {
 	const { tsConfig, tsConfigPath } = settings;
 	if (!tsConfig || !tsConfigPath || !tsConfig.compilerOptions) return null;
 
@@ -64,7 +66,7 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 export default function configAliasVitePlugin({
 	settings,
 }: {
-	settings: AstroSettings;
+	settings: SmallAstroSettings;
 }): VitePlugin | null {
 	const configAlias = getConfigAlias(settings);
 	if (!configAlias) return null;

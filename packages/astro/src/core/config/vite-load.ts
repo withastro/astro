@@ -3,8 +3,11 @@ import { pathToFileURL } from 'node:url';
 import { createServer, type ViteDevServer } from 'vite';
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
 import { debug } from '../logger/core.js';
+import { loadTSConfig } from './tsconfig.js';
+import configAliasVitePlugin from '../../vite-plugin-config-alias/index.js';
 
 async function createViteServer(root: string, fs: typeof fsType): Promise<ViteDevServer> {
+	const tsConfig = await loadTSConfig(root);
 	const viteServer = await createServer({
 		server: { middlewareMode: true, hmr: false, watch: null },
 		optimizeDeps: { noDiscovery: true },
@@ -23,7 +26,14 @@ async function createViteServer(root: string, fs: typeof fsType): Promise<ViteDe
 				'@astrojs/markdoc',
 			],
 		},
-		plugins: [loadFallbackPlugin({ fs, root: pathToFileURL(root) })],
+		plugins: [
+			typeof tsConfig === 'object'
+				? configAliasVitePlugin({
+						settings: { tsConfig: tsConfig.tsconfig, tsConfigPath: tsConfig.tsconfigFile },
+					})
+				: undefined,
+			loadFallbackPlugin({ fs, root: pathToFileURL(root) }),
+		],
 	});
 
 	return viteServer;
