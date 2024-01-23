@@ -40,6 +40,7 @@ export type SSRManifest = {
 	site?: string;
 	base: string;
 	trailingSlash: 'always' | 'never' | 'ignore';
+	buildFormat: 'file' | 'directory';
 	compressHTML: boolean;
 	assetsPrefix?: string;
 	renderers: SSRLoadedRenderer[];

@@ -67,7 +67,6 @@ export class BuildPipeline extends Pipeline {
 		this.#internals = internals;
 		this.#staticBuildOptions = staticBuildOptions;
 		this.#manifest = manifest;
-		this.setEndpointHandler(this.#handleEndpointResult);
 	}
 
 	getInternals(): Readonly<BuildInternals> {
@@ -192,9 +191,5 @@ export class BuildPipeline extends Pipeline {
 		}
 
 		return pages;
-	}
-
-	async #handleEndpointResult(_: Request, response: Response): Promise<Response> {
-		return response;
 	}
 }

@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 					const iconContainer = document.createElement('div');
 					const iconElement = document.createElement('template');
-					iconElement.innerHTML = getAppIcon(app.icon);
+					iconElement.innerHTML = app.icon ? getAppIcon(app.icon) : '?';
 					iconContainer.append(iconElement.content.cloneNode(true));
 
 					const notification = document.createElement('div');
