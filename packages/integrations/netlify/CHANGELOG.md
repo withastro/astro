@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 5.0.0
+
+### Major Changes
+
+- [#130](https://github.com/withastro/adapters/pull/130) [`2b5aaa4cfeda4bc7f1bf8db6210162c495866a95`](https://github.com/withastro/adapters/commit/2b5aaa4cfeda4bc7f1bf8db6210162c495866a95) Thanks [@asdfjkalsdfla](https://github.com/asdfjkalsdfla)! - Updates the internals of the integration to support Astro 4.0. See this [upstream pull request](https://github.com/withastro/astro/pull/9199) for additional details. **Warning:** Make sure to upgrade your Astro version to `>4.2` as previous versions are no longer supported.
+
 ## 4.1.1
 
 ### Patch Changes
