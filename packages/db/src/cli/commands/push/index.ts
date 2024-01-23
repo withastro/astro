@@ -139,9 +139,17 @@ async function tempDataPush({
 		console.log(name, collection);
 		if (collection.writable || !collection.data) continue;
 		const table = collectionToTable(name, collection);
-		const insert = db.insert(table).values(await collection.data());
+		await collection.data({
+			table: {
+				insert: db.insert(table),
+				update: db.update(table),
+				delete: db.delete(table),
+			},
+			command: 'build',
+		});
 
-		queries.push(insert.toSQL());
+		// TODO: update `db` to insert as a batch.
+		// can no longer yield SQL if data() functions can insert internally.
 	}
 	console.log(queries);
 	const url = new URL('/db/query', getRemoteDatabaseUrl());

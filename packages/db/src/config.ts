@@ -35,10 +35,9 @@ type CollectionConfig<
 		}
 	: {
 			fields: TFields;
-			// TODO: type inference based on field type. Just `any` for now.
 			data?: Writable extends true
 				? never
-				: () => MaybePromise<Array<Record<keyof TFields, any> & { id?: string }>>;
+				: (params: { command: 'dev' | 'build' | 'preview' }) => MaybePromise<void>;
 		};
 
 type ResolvedCollectionConfig<

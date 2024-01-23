@@ -50,13 +50,21 @@ const fieldSchema = z.union([
 ]);
 const fieldsSchema = z.record(fieldSchema);
 
-const dataResponse = z.array(z.record(z.unknown()));
-
 export const readableCollectionSchema = z.object({
 	fields: fieldsSchema,
 	data: z
 		.function()
-		.returns(z.union([dataResponse, z.promise(dataResponse)]))
+		.args(
+			z.object({
+				table: z.object({
+					insert: z.any(),
+					update: z.any(),
+					delete: z.any(),
+				}),
+				command: z.enum(['dev', 'build', 'preview']),
+			})
+		)
+		.returns(z.union([z.void(), z.promise(z.void())]))
 		.optional(),
 	writable: z.literal(false),
 });
@@ -65,7 +73,17 @@ export const writableCollectionSchema = z.object({
 	fields: fieldsSchema,
 	seed: z
 		.function()
-		.returns(z.union([dataResponse, z.promise(dataResponse)]))
+		.args(
+			z.object({
+				table: z.object({
+					insert: z.any(),
+					update: z.any(),
+					delete: z.any(),
+				}),
+				command: z.enum(['dev', 'build', 'preview']),
+			})
+		)
+		.returns(z.union([z.void(), z.promise(z.void())]))
 		.optional(),
 	writable: z.literal(true),
 });

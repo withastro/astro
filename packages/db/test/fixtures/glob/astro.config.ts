@@ -1,25 +1,15 @@
 import { defineConfig } from 'astro/config';
 import db, { defineCollection, field } from '@astrojs/db';
-import glob from 'fast-glob';
-import { readFile } from 'fs/promises';
+import { glob } from './utils';
 
 const Quote = defineCollection({
 	fields: {
 		author: field.text(),
 		body: field.text(),
 	},
-	async data() {
-		const quotes = await glob('quotes/*.json');
-		return Promise.all(
-			quotes.map(async (quote) => {
-				const data = JSON.parse(await readFile(quote, 'utf-8'));
-				return {
-					author: data.author,
-					body: data.body,
-				};
-			})
-		);
-	},
+	data: glob('quotes/*.json', ({ content }) => {
+		return JSON.parse(content);
+	}),
 });
 
 export default defineConfig({

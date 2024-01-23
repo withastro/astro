@@ -116,7 +116,14 @@ export async function setupDbTables({
 
 		const table = collectionToTable(name, collection);
 		try {
-			await db.insert(table).values(await collection.data());
+			await collection.data({
+				table: {
+					insert: db.insert(table),
+					update: db.update(table),
+					delete: db.delete(table),
+				},
+				command: 'dev',
+			});
 		} catch (e) {
 			logger.error(
 				`Failed to seed ${bold(
