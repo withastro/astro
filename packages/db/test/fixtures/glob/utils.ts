@@ -27,6 +27,11 @@ export function glob(
 			const content = await readFile(file, 'utf-8');
 			await table.insert.values(mapContent({ path: file, content }));
 		}
+		// Idea for tracking:
+		// - add `rowid` to `table` object for querying
+		// - create a `map` object that maps `path` to `rowid`
+		// - on insert, use `returning()` to add a path -> rowid entry
+		// - on update and delete, look up by path to find this rowid
 
 		if (command === 'dev') {
 			chokidar
