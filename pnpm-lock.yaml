@@ -3863,6 +3863,9 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../../../astro
+      chokidar:
+        specifier: ^3.5.3
+        version: 3.5.3
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2
