@@ -1,5 +1,7 @@
 import type * as vite from 'vite';
 import type { AstroPluginOptions } from '../@types/astro.js';
+import { telemetry } from '../events/index.js';
+import { eventCliSession } from '../events/session.js';
 
 const VIRTUAL_MODULE_ID = 'astro:dev-toolbar';
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
@@ -32,6 +34,14 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 				logger.error(
 					'toolbar',
 					`Failed to initialize dev toolbar app ${args.app.name} (${args.app.id}):\n${args.error}`
+				);
+			});
+
+			server.ws.on('astro:devtoolbar:app:toggled', (args) => {
+				telemetry.record(
+					eventCliSession('dev', settings.config, {
+						app: args?.app?.id ?? 'unknown',
+					})
 				);
 			});
 		},

@@ -1,4 +1,4 @@
-import type { AstroIntegration, AstroUserConfig } from '../@types/astro.js';
+import type { AstroConfig, AstroIntegration, AstroUserConfig } from '../@types/astro.js';
 import { AstroConfigSchema } from '../core/config/schema.js';
 
 const EVENT_SESSION = 'ASTRO_CLI_SESSION_STARTED';
@@ -72,7 +72,7 @@ function sanitizeConfigInfo(obj: object | undefined, validKeys: string[]): Confi
  * are used by default, with a few additional sanitized values added manually.
  * Helper functions should always be used to ensure correct sanitization.
  */
-function createAnonymousConfigInfo(userConfig: AstroUserConfig) {
+function createAnonymousConfigInfo(userConfig: AstroUserConfig | AstroConfig) {
 	// Sanitize and measure the generic config object
 	// NOTE(fks): Using _def is the correct, documented way to get the `shape`
 	// from a Zod object that includes a wrapping default(), optional(), etc.
@@ -122,7 +122,7 @@ function createAnonymousConfigInfo(userConfig: AstroUserConfig) {
 
 export function eventCliSession(
 	cliCommand: string,
-	userConfig: AstroUserConfig,
+	userConfig: AstroUserConfig | AstroConfig,
 	flags?: Record<string, any>
 ): { eventName: string; payload: EventPayload }[] {
 	// Filter out yargs default `_` flag which is the cli command
