@@ -54,16 +54,7 @@ export const readableCollectionSchema = z.object({
 	fields: fieldsSchema,
 	data: z
 		.function()
-		.args(
-			z.object({
-				table: z.object({
-					insert: z.any(),
-					update: z.any(),
-					delete: z.any(),
-				}),
-				command: z.enum(['dev', 'build', 'preview']),
-			})
-		)
+		.args(z.any())
 		.returns(z.union([z.void(), z.promise(z.void())]))
 		.optional(),
 	writable: z.literal(false),
@@ -73,16 +64,7 @@ export const writableCollectionSchema = z.object({
 	fields: fieldsSchema,
 	seed: z
 		.function()
-		.args(
-			z.object({
-				table: z.object({
-					insert: z.any(),
-					update: z.any(),
-					delete: z.any(),
-				}),
-				command: z.enum(['dev', 'build', 'preview']),
-			})
-		)
+		.args(z.any())
 		.returns(z.union([z.void(), z.promise(z.void())]))
 		.optional(),
 	writable: z.literal(true),

@@ -114,16 +114,9 @@ export async function setupDbTables({
 	for (const [name, collection] of Object.entries(collections)) {
 		if (!isReadableCollection(collection) || !collection.data) continue;
 
-		const table = collectionToTable(name, collection);
+		const table = collectionToTable(name, collection, true);
 		try {
-			await collection.data({
-				table: {
-					insert: db.insert(table),
-					update: db.update(table),
-					delete: db.delete(table),
-				},
-				command: 'dev',
-			});
+			await collection.data({ db, table, mode: 'dev' });
 		} catch (e) {
 			logger.error(
 				`Failed to seed ${bold(
@@ -257,18 +250,18 @@ type D1ColumnBuilder = SQLiteColumnBuilderBase<
 	ColumnBuilderBaseConfig<ColumnDataType, string> & { data: unknown }
 >;
 
-export function collectionToTable(
-	name: string,
-	collection: DBCollection,
-	isJsonSerializable = true
-) {
+export function collectionToTable(name: string, collection: DBCollection, includeRowId = false) {
 	const columns: Record<string, D1ColumnBuilder> & typeof initialColumns = {
 		// Spread to avoid mutating `initialColumns`
 		...initialColumns,
 	};
 
 	for (const [fieldName, field] of Object.entries(collection.fields)) {
-		columns[fieldName] = columnMapper(fieldName, field, isJsonSerializable);
+		columns[fieldName] = columnMapper(fieldName, field);
+	}
+
+	if (includeRowId) {
+		columns.rowid = integer('rowid');
 	}
 
 	const table = sqliteTable(name, columns);
@@ -276,7 +269,11 @@ export function collectionToTable(
 	return table;
 }
 
-function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boolean) {
+function columnMapper(
+	fieldName: string,
+	field: DBField,
+	/*TODO: consider removing. Added for D1 issue originally*/ isJsonSerializable = true
+) {
 	let c: ReturnType<
 		| typeof text
 		| typeof integer

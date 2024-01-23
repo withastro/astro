@@ -1,3 +1,5 @@
+import type { SQLiteColumn } from 'drizzle-orm/sqlite-core';
+import type { AstroNumber, AstroTable, SqliteDB } from './internal.js';
 import {
 	type BooleanField,
 	type DBFieldInput,
@@ -22,6 +24,25 @@ export const astroConfigWithDbSchema = z.object({
 	db: dbConfigSchema.optional(),
 });
 
+// TODO: more strict typing
+export type CollectionDataFnParams = {
+	mode: 'dev' | 'build';
+	db: SqliteDB;
+	table: AstroTable<{
+		name: string;
+		columns: {
+			[x: string]: SQLiteColumn;
+		} & {
+			rowid: AstroNumber<{
+				tableName: string;
+				name: 'rowid';
+				notNull: true;
+				hasDefault: false;
+			}>;
+		};
+	}>;
+};
+
 type CollectionConfig<
 	TFields extends z.input<typeof collectionSchema>['fields'],
 	Writable extends boolean,
@@ -31,13 +52,11 @@ type CollectionConfig<
 			// TODO: type inference based on field type. Just `any` for now.
 			seed?: Writable extends false
 				? never
-				: () => MaybePromise<Array<Record<keyof TFields, any> & { id?: string }>>;
+				: (params: CollectionDataFnParams) => MaybePromise<void>;
 		}
 	: {
 			fields: TFields;
-			data?: Writable extends true
-				? never
-				: (params: { command: 'dev' | 'build' | 'preview' }) => MaybePromise<void>;
+			data?: Writable extends true ? never : (params: CollectionDataFnParams) => MaybePromise<void>;
 		};
 
 type ResolvedCollectionConfig<
