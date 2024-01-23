@@ -1,5 +1,7 @@
 import type * as vite from 'vite';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
+import { AstroError } from '../core/errors/errors.js';
+import { AstroErrorData } from '../core/errors/index.js';
 
 const virtualModuleId = 'astro:i18n';
 const configId = 'astro-internal:i18n-config';
@@ -20,7 +22,7 @@ export default function astroInternationalization({
 		enforce: 'pre',
 		async resolveId(id) {
 			if (id === virtualModuleId) {
-				if (i18n === undefined) throw new Error("The `astro:i18n` module can not be used without enabling i18n in your Astro config.");
+				if (i18n === undefined) throw new AstroError(AstroErrorData.i18nNotEnabled);
 				return this.resolve("astro/virtual-modules/i18n.js");
 			}
 			if (id === configId) return resolvedConfigId;
