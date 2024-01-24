@@ -52,8 +52,8 @@ describe('routing - createRouteManifest', () => {
 	it('endpoint routes are sorted before page routes', async () => {
 		const fs = createFs(
 			{
-				'/src/pages/contact-me.astro': `<h1>test</h1>`,
-				'/src/pages/sendContact.ts': `<h1>test</h1>`,
+				'/src/pages/[contact].astro': `<h1>test</h1>`,
+				'/src/pages/[contact].ts': `<h1>test</h1>`,
 			},
 			root
 		);
@@ -85,19 +85,19 @@ describe('routing - createRouteManifest', () => {
 
 		expect(getManifestRoutes(manifest)).to.deep.equal([
 			{
-				route: '/api',
-				type: 'endpoint',
-			},
-			{
-				route: '/sendcontact',
-				type: 'endpoint',
-			},
-			{
 				route: '/about',
 				type: 'page',
 			},
 			{
-				route: '/contact-me',
+				route: '/api',
+				type: 'endpoint',
+			},
+			{
+				route: '/[contact]',
+				type: 'endpoint',
+			},
+			{
+				route: '/[contact]',
 				type: 'page',
 			},
 		]);
