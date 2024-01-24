@@ -1538,11 +1538,10 @@ export interface AstroUserConfig {
 
 			/**
 			 * @docs
-			 * @kind h4
 			 * @name experimental.i18n.domains
 			 * @type {Record<string, string> }
 			 * @default '{}'
-			 * @version 3.6.0
+			 * @version 4.3.0
 			 * @description
 			 *
 			 * Configures the URL pattern of one or more supported languages to use a domain (or sub-domain). When a locale is mapped to a domain, a `/[locale]/` path prefix will not be used.
@@ -1551,16 +1550,18 @@ export interface AstroUserConfig {
 			 *
 			 * ```js
 			 * export default defineConfig({
-			 *    experimental: {
-			 *        i18n: {
-			 *            defaultLocale: "en",
-			 *            locales: ["en", "fr", "pt-br", "es"],
-			 *            domains: {
-			 *                fr: "https://fr.example.com",
-			 *            },
-			 *            routingStrategy: "domain"
-			 *        }
-			 *    }
+			 * 	output: "server",
+			 * 	site: "https://example.com",
+			 * 	i18n: {
+			 * 		defaultLocale: "en",
+			 * 		locales: ["en", "fr", "pt-br", "es"],
+			 *		domains: {
+			 *			fr: "https://fr.example.com",
+			 *    },
+			 * 		routing: {
+			 * 			strategy: "domains"
+			 *		}
+			 *  }
 			 * })
 			 * ```
 			 */
