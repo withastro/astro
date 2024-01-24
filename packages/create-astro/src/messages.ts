@@ -55,11 +55,11 @@ export const getName = () =>
 	});
 
 let v: string;
-export const getVersion = (packageManager: string) =>
+export const getVersion = (packageManager: string, packageName = 'astro') =>
 	new Promise<string>(async (resolve) => {
 		if (v) return resolve(v);
 		let registry = await getRegistry(packageManager);
-		const { version } = await fetch(`${registry}/astro/latest`, { redirect: 'follow' }).then(
+		const { version } = await fetch(`${registry}/${packageName}/latest`, { redirect: 'follow' }).then(
 			(res) => res.json(),
 			() => ({ version: '' })
 		);

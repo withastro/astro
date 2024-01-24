@@ -4,7 +4,7 @@ import { color } from '@astrojs/cli-kit';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import stripJsonComments from 'strip-json-comments';
-import { error, info, title, typescriptByDefault } from '../messages.js';
+import { error, getVersion, info, title, typescriptByDefault } from '../messages.js';
 import { shell } from '../shell.js';
 
 type PickedTypeScriptContext = Pick<
@@ -90,11 +90,18 @@ const FILES_TO_UPDATE = {
 	) => {
 		try {
 			// add required dependencies for astro check
-			if (options.ctx.install)
-				await shell(options.ctx.packageManager, ['add', '@astrojs/check', 'typescript'], {
-					cwd: path.dirname(file),
-					stdio: 'ignore',
-				});
+			let installSucceeded = true;
+			if (options.ctx.install) {
+				const { exitCode } = await shell(
+					options.ctx.packageManager,
+					['add', '@astrojs/check', 'typescript'],
+					{
+						cwd: path.dirname(file),
+						stdio: 'ignore',
+					}
+				);
+				installSucceeded = exitCode === 0;
+			}
 
 			// inject additional command to build script
 			const data = await readFile(file, { encoding: 'utf-8' });
@@ -107,8 +114,19 @@ const FILES_TO_UPDATE = {
 			if (typeof buildScript === 'string' && !buildScript.includes('astro check')) {
 				// Mutate the existing object to avoid changing user-defined script order
 				parsedPackageJson.scripts.build = `astro check && ${buildScript}`;
-				await writeFile(file, JSON.stringify(parsedPackageJson, null, indent), 'utf-8');
 			}
+
+			if (!options.ctx.install || !installSucceeded) {
+				const [astroCheckVersion, typescriptVersion] = await Promise.all([
+					getVersion(options.ctx.packageManager, '@astrojs/check'),
+					getVersion(options.ctx.packageManager, 'typescript'),
+				]);
+				parsedPackageJson.dependencies ??= {}
+				parsedPackageJson.dependencies['@astrojs/check'] = astroCheckVersion;
+				parsedPackageJson.dependencies.typescript = typescriptVersion;
+			}
+
+			await writeFile(file, JSON.stringify(parsedPackageJson, null, indent), 'utf-8');
 		} catch (err) {
 			// if there's no package.json (which is very unlikely), then do nothing
 			if (err && (err as any).code === 'ENOENT') return;
