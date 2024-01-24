@@ -1550,7 +1550,7 @@ export interface AstroUserConfig {
 			 *  For example, you can configure the `fr` URLs to be of the form `https://fr.example.com/blog`. If not configured in `domains`, the `defaultLocale` will default to `https://example.com/blog` and any other locale not configured will default to `https://example.com/[locale]/blog`.
 			 *
 			 * ```js
-			 * export defualt defineConfig({
+			 * export default defineConfig({
 			 *    experimental: {
 			 *        i18n: {
 			 *            defaultLocale: "en",
