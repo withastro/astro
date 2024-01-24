@@ -122,8 +122,8 @@ const FILES_TO_UPDATE = {
 					getVersion(options.ctx.packageManager, 'typescript'),
 				]);
 				parsedPackageJson.dependencies ??= {}
-				parsedPackageJson.dependencies['@astrojs/check'] = astroCheckVersion;
-				parsedPackageJson.dependencies.typescript = typescriptVersion;
+				parsedPackageJson.dependencies['@astrojs/check'] = `^${astroCheckVersion}`;
+				parsedPackageJson.dependencies.typescript = `^${typescriptVersion}`;
 			}
 
 			await writeFile(file, JSON.stringify(parsedPackageJson, null, indent), 'utf-8');
