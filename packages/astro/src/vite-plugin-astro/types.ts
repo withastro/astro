@@ -1,7 +1,5 @@
 import type { HoistedScript, TransformResult } from '@astrojs/compiler';
 import type { PropagationHint } from '../@types/astro.js';
-import type { CompileAstroResult } from './compile.js';
-
 export interface PageOptions {
 	prerender?: boolean;
 }

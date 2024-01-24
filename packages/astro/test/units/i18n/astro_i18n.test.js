@@ -1088,105 +1088,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			).to.eq('/blog/en-us/');
 		});
 
-	it('should return the default locale when routing strategy is [pathname-prefix-always]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
-		const config = {
-			base: '/blog',
-			experimental: {
-				i18n: {
-					defaultLocale: 'en',
-					locales: ['en', 'es', 'en_US', 'en_AU'],
-					routing: 'pathname-prefix-always',
-				},
-			},
-		};
-
-		// directory format
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'en',
-				base: '/blog/',
-				trailingSlash: 'always',
-				site: 'https://example.com',
-				format: 'directory',
-				...config.experimental.i18n,
-			})
-		).to.eq('https://example.com/blog/en/');
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'es',
-				base: '/blog/',
-				...config.experimental.i18n,
-				site: 'https://example.com',
-				trailingSlash: 'always',
-				format: 'directory',
-			})
-		).to.eq('https://example.com/blog/es/');
-
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'en_US',
-				base: '/blog/',
-				...config.experimental.i18n,
-				site: 'https://example.com',
-				trailingSlash: 'always',
-				format: 'directory',
-			})
-		).to.throw;
-
-		// file format
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'en',
-				base: '/blog/',
-				...config.experimental.i18n,
-				site: 'https://example.com',
-				trailingSlash: 'always',
-				format: 'file',
-			})
-		).to.eq('https://example.com/blog/en/');
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'es',
-				base: '/blog/',
-				...config.experimental.i18n,
-				site: 'https://example.com',
-				trailingSlash: 'always',
-				format: 'file',
-			})
-		).to.eq('https://example.com/blog/es/');
-
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'en_US',
-				base: '/blog/',
-				...config.experimental.i18n,
-				site: 'https://example.com',
-				trailingSlash: 'always',
-				format: 'file',
-			})
-		).to.throw;
-	});
-
-	it('should return the default locale when routing strategy is [pathname-prefix-always-no-redirect]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
-		const config = {
-			base: '/blog',
-			experimental: {
-				i18n: {
-					defaultLocale: 'en',
-					locales: ['en', 'es', 'en_US', 'en_AU'],
-					routing: 'pathname-prefix-always-no-redirect',
-				},
-			},
-		};
-		it('should return the default locale', () => {
+		it('should return the default locale when routing strategy is [pathname-prefix-always]', () => {
 			/**
 			 *
 			 * @type {import("../../../dist/@types").AstroUserConfig}
@@ -1197,7 +1099,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					i18n: {
 						defaultLocale: 'en',
 						locales: ['en', 'es', 'en_US', 'en_AU'],
-						routing: 'prefix-always',
+						routing: 'pathname-prefix-always',
 					},
 				},
 			};
@@ -1268,189 +1170,288 @@ describe('getLocaleAbsoluteUrl', () => {
 				})
 			).to.throw;
 		});
-	});
-	it('should correctly return the URL without base', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
-		const config = {
-			experimental: {
-				i18n: {
-					defaultLocale: 'en',
-					locales: [
-						'en',
-						'es',
-						{
-							path: 'italiano',
-							codes: ['it', 'it-VA'],
+
+		it('should return the default locale when routing strategy is [pathname-prefix-always-no-redirect]', () => {
+			/**
+			 *
+			 * @type {import("../../../dist/@types").AstroUserConfig}
+			 */
+			const config = {
+				base: '/blog',
+				experimental: {
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'es', 'en_US', 'en_AU'],
+						routing: 'pathname-prefix-always-no-redirect',
+					},
+				},
+			};
+			it('should return the default locale', () => {
+				/**
+				 *
+				 * @type {import("../../../dist/@types").AstroUserConfig}
+				 */
+				const config = {
+					base: '/blog',
+					experimental: {
+						i18n: {
+							defaultLocale: 'en',
+							locales: ['en', 'es', 'en_US', 'en_AU'],
+							routing: 'prefix-always',
 						},
-					],
-					routingStrategy: 'prefix-other-locales',
+					},
+				};
+
+				// directory format
+				expect(
+					getLocaleAbsoluteUrl({
+						locale: 'en',
+						base: '/blog/',
+						trailingSlash: 'always',
+						site: 'https://example.com',
+						format: 'directory',
+						...config.experimental.i18n,
+					})
+				).to.eq('https://example.com/blog/en/');
+				expect(
+					getLocaleAbsoluteUrl({
+						locale: 'es',
+						base: '/blog/',
+						...config.experimental.i18n,
+						site: 'https://example.com',
+						trailingSlash: 'always',
+						format: 'directory',
+					})
+				).to.eq('https://example.com/blog/es/');
+
+				expect(
+					getLocaleAbsoluteUrl({
+						locale: 'en_US',
+						base: '/blog/',
+						...config.experimental.i18n,
+						site: 'https://example.com',
+						trailingSlash: 'always',
+						format: 'directory',
+					})
+				).to.throw;
+
+				// file format
+				expect(
+					getLocaleAbsoluteUrl({
+						locale: 'en',
+						base: '/blog/',
+						...config.experimental.i18n,
+						site: 'https://example.com',
+						trailingSlash: 'always',
+						format: 'file',
+					})
+				).to.eq('https://example.com/blog/en/');
+				expect(
+					getLocaleAbsoluteUrl({
+						locale: 'es',
+						base: '/blog/',
+						...config.experimental.i18n,
+						site: 'https://example.com',
+						trailingSlash: 'always',
+						format: 'file',
+					})
+				).to.eq('https://example.com/blog/es/');
+
+				expect(
+					getLocaleAbsoluteUrl({
+						locale: 'en_US',
+						base: '/blog/',
+						...config.experimental.i18n,
+						site: 'https://example.com',
+						trailingSlash: 'always',
+						format: 'file',
+					})
+				).to.throw;
+			});
+		});
+		it('should correctly return the URL without base', () => {
+			/**
+			 *
+			 * @type {import("../../../dist/@types").AstroUserConfig}
+			 */
+			const config = {
+				experimental: {
+					i18n: {
+						defaultLocale: 'en',
+						locales: [
+							'en',
+							'es',
+							{
+								path: 'italiano',
+								codes: ['it', 'it-VA'],
+							},
+						],
+						routingStrategy: 'prefix-other-locales',
+					},
 				},
-			},
-		};
+			};
 
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'en',
-				base: '/',
-				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
-				site: 'https://example.com',
-			})
-		).to.eq('https://example.com/');
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'es',
-				base: '/',
-				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
-				site: 'https://example.com',
-			})
-		).to.eq('https://example.com/es/');
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'it-VA',
-				base: '/',
-				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
-				site: 'https://example.com',
-			})
-		).to.eq('https://example.com/italiano/');
-	});
+			expect(
+				getLocaleAbsoluteUrl({
+					locale: 'en',
+					base: '/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'directory',
+					site: 'https://example.com',
+				})
+			).to.eq('https://example.com/');
+			expect(
+				getLocaleAbsoluteUrl({
+					locale: 'es',
+					base: '/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'directory',
+					site: 'https://example.com',
+				})
+			).to.eq('https://example.com/es/');
+			expect(
+				getLocaleAbsoluteUrl({
+					locale: 'it-VA',
+					base: '/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'directory',
+					site: 'https://example.com',
+				})
+			).to.eq('https://example.com/italiano/');
+		});
 
-	it('should correctly handle the trailing slash', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
-		const config = {
-			experimental: {
-				i18n: {
-					defaultLocale: 'en',
-					locales: ['en', 'es'],
-					routingStrategy: 'prefix-other-locales',
+		it('should correctly handle the trailing slash', () => {
+			/**
+			 *
+			 * @type {import("../../../dist/@types").AstroUserConfig}
+			 */
+			const config = {
+				experimental: {
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'es'],
+						routingStrategy: 'prefix-other-locales',
+					},
 				},
-			},
-		};
-		// directory format
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'en',
+			};
+			// directory format
+			expect(
+				getLocaleAbsoluteUrl({
+					locale: 'en',
+					base: '/blog',
+					...config.experimental.i18n,
+					trailingSlash: 'never',
+					format: 'directory',
+					site: 'https://example.com',
+				})
+			).to.eq('https://example.com/blog');
+			expect(
+				getLocaleAbsoluteUrl({
+					locale: 'es',
+					base: '/blog/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'directory',
+					site: 'https://example.com',
+				})
+			).to.eq('https://example.com/blog/es/');
+
+			expect(
+				getLocaleAbsoluteUrl({
+					locale: 'en',
+					base: '/blog/',
+					...config.experimental.i18n,
+					trailingSlash: 'ignore',
+					format: 'directory',
+					site: 'https://example.com',
+				})
+			).to.eq('https://example.com/blog/');
+
+			// directory file
+			expect(
+				getLocaleAbsoluteUrl({
+					locale: 'en',
+					base: '/blog',
+					...config.experimental.i18n,
+					trailingSlash: 'never',
+					format: 'file',
+					site: 'https://example.com',
+				})
+			).to.eq('https://example.com/blog');
+			expect(
+				getLocaleAbsoluteUrl({
+					locale: 'es',
+					base: '/blog/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'file',
+					site: 'https://example.com',
+				})
+			).to.eq('https://example.com/blog/es/');
+
+			expect(
+				getLocaleAbsoluteUrl({
+					locale: 'en',
+					// ignore + file => no trailing slash
+					base: '/blog',
+					...config.experimental.i18n,
+					trailingSlash: 'ignore',
+					format: 'file',
+					site: 'https://example.com',
+				})
+			).to.eq('https://example.com/blog');
+		});
+
+		it('should normalize locales', () => {
+			/**
+			 *
+			 * @type {import("../../../dist/@types").AstroUserConfig}
+			 */
+			const config = {
 				base: '/blog',
-				...config.experimental.i18n,
-				trailingSlash: 'never',
-				format: 'directory',
-				site: 'https://example.com',
-			})
-		).to.eq('https://example.com/blog');
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'es',
-				base: '/blog/',
-				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
-				site: 'https://example.com',
-			})
-		).to.eq('https://example.com/blog/es/');
-
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'en',
-				base: '/blog/',
-				...config.experimental.i18n,
-				trailingSlash: 'ignore',
-				format: 'directory',
-				site: 'https://example.com',
-			})
-		).to.eq('https://example.com/blog/');
-
-		// directory file
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'en',
-				base: '/blog',
-				...config.experimental.i18n,
-				trailingSlash: 'never',
-				format: 'file',
-				site: 'https://example.com',
-			})
-		).to.eq('https://example.com/blog');
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'es',
-				base: '/blog/',
-				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'file',
-				site: 'https://example.com',
-			})
-		).to.eq('https://example.com/blog/es/');
-
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'en',
-				// ignore + file => no trailing slash
-				base: '/blog',
-				...config.experimental.i18n,
-				trailingSlash: 'ignore',
-				format: 'file',
-				site: 'https://example.com',
-			})
-		).to.eq('https://example.com/blog');
-	});
-
-	it('should normalize locales', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
-		const config = {
-			base: '/blog',
-			experimental: {
-				i18n: {
-					defaultLocale: 'en',
-					locales: ['en', 'en_US', 'en_AU'],
-					routingStrategy: 'prefix-other-locales',
+				experimental: {
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'en_US', 'en_AU'],
+						routingStrategy: 'prefix-other-locales',
+					},
 				},
-			},
-		};
+			};
 
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'en_US',
-				base: '/blog/',
-				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
-			})
-		).to.eq('/blog/en-us/');
+			expect(
+				getLocaleAbsoluteUrl({
+					locale: 'en_US',
+					base: '/blog/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'directory',
+				})
+			).to.eq('/blog/en-us/');
 
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'en_AU',
-				base: '/blog/',
-				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
-			})
-		).to.eq('/blog/en-au/');
+			expect(
+				getLocaleAbsoluteUrl({
+					locale: 'en_AU',
+					base: '/blog/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'directory',
+				})
+			).to.eq('/blog/en-au/');
 
-		expect(
-			getLocaleAbsoluteUrl({
-				locale: 'en_US',
-				base: '/blog/',
-				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
-				normalizeLocale: true,
-			})
-		).to.eq('/blog/en-us/');
+			expect(
+				getLocaleAbsoluteUrl({
+					locale: 'en_US',
+					base: '/blog/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'directory',
+					normalizeLocale: true,
+				})
+			).to.eq('/blog/en-us/');
+		});
 	});
 });
 
