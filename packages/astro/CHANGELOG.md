@@ -1,5 +1,57 @@
 # astro
 
+## 4.2.4
+
+### Patch Changes
+
+- [#9792](https://github.com/withastro/astro/pull/9792) [`e22cb8b10c0ca9f6d88cab53cd2713f57875ab4b`](https://github.com/withastro/astro/commit/e22cb8b10c0ca9f6d88cab53cd2713f57875ab4b) Thanks [@tugrulates](https://github.com/tugrulates)! - Accept aria role `switch` on toolbar audit.
+
+- [#9606](https://github.com/withastro/astro/pull/9606) [`e6945bcf23b6ad29388bbadaf5bb3cc31dd4a114`](https://github.com/withastro/astro/commit/e6945bcf23b6ad29388bbadaf5bb3cc31dd4a114) Thanks [@eryue0220](https://github.com/eryue0220)! - Fixes escaping behavior for `.html` files and components
+
+- [#9786](https://github.com/withastro/astro/pull/9786) [`5b29550996a7f5459a0d611feea6e51d44e1d8ed`](https://github.com/withastro/astro/commit/5b29550996a7f5459a0d611feea6e51d44e1d8ed) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes a regression in routing priority for index pages in rest parameter folders and dynamic sibling trees.
+
+  Considering the following tree:
+
+  ```
+  src/pages/
+  ├── index.astro
+  ├── static.astro
+  ├── [dynamic_file].astro
+  ├── [...rest_file].astro
+  ├── blog/
+  │   └── index.astro
+  ├── [dynamic_folder]/
+  │   ├── index.astro
+  │   ├── static.astro
+  │   └── [...rest].astro
+  └── [...rest_folder]/
+      ├── index.astro
+      └── static.astro
+  ```
+
+  The routes are sorted in this order:
+
+  ```
+  /src/pages/index.astro
+  /src/pages/blog/index.astro
+  /src/pages/static.astro
+  /src/pages/[dynamic_folder]/index.astro
+  /src/pages/[dynamic_file].astro
+  /src/pages/[dynamic_folder]/static.astro
+  /src/pages/[dynamic_folder]/[...rest].astro
+  /src/pages/[...rest_folder]/static.astro
+  /src/pages/[...rest_folder]/index.astro
+  /src/pages/[...rest_file]/index.astro
+  ```
+
+  This allows for index files to be used as overrides to rest parameter routes on SSR when the rest parameter matching `undefined` is not desired.
+
+- [#9775](https://github.com/withastro/astro/pull/9775) [`075706f26d2e11e66ef8b52288d07e3c0fa97eb1`](https://github.com/withastro/astro/commit/075706f26d2e11e66ef8b52288d07e3c0fa97eb1) Thanks [@lilnasy](https://github.com/lilnasy)! - Simplifies internals that handle endpoints.
+
+- [#9773](https://github.com/withastro/astro/pull/9773) [`9aa7a5368c502ae488d3a173e732d81f3d000e98`](https://github.com/withastro/astro/commit/9aa7a5368c502ae488d3a173e732d81f3d000e98) Thanks [@LunaticMuch](https://github.com/LunaticMuch)! - Raises the required vite version to address a vulnerability in `vite.server.fs.deny` that affected the dev mode.
+
+- [#9781](https://github.com/withastro/astro/pull/9781) [`ccc05d54014e24c492ca5fddd4862f318aac8172`](https://github.com/withastro/astro/commit/ccc05d54014e24c492ca5fddd4862f318aac8172) Thanks [@stevenbenner](https://github.com/stevenbenner)! - Fix build failure when image file name includes special characters
+
 ## 4.2.3
 
 ### Patch Changes

@@ -1,0 +1,11 @@
+{
+  "name": "@test/alpinejs-basics",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/alpinejs": "workspace:*",
+    "@types/alpinejs": "^3.13.5",
+    "alpinejs": "^3.13.3",
+    "astro": "workspace:*"
+  }
+}

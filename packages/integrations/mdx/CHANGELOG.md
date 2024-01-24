@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 2.1.0
+
+### Minor Changes
+
+- [#9753](https://github.com/withastro/astro/pull/9753) [`df37366556d46f7abdf82b09e33b08bd94e631b3`](https://github.com/withastro/astro/commit/df37366556d46f7abdf82b09e33b08bd94e631b3) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Allows remark plugins to pass options specifying how images in .mdx files will be optimized
+
 ## 2.0.6
 
 ### Patch Changes

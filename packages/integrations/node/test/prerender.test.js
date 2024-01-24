@@ -140,6 +140,44 @@ describe('Prerendering', () => {
 			expect($('h1').text()).to.equal('Two');
 		});
 	});
+
+	describe('Dev', () => {
+		let devServer;
+
+		before(async () => {
+			process.env.PRERENDER = true;
+
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				adapter: nodejs({ mode: 'standalone' }),
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+			delete process.env.PRERENDER;
+		});
+
+		it('Can render SSR route', async () => {
+			const res = await fixture.fetch(`/one`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('One');
+		});
+
+		it('Can render prerendered route', async () => {
+			const res = await fixture.fetch(`/two`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('Two');
+		});
+	});
 });
 
 describe('Hybrid rendering', () => {
