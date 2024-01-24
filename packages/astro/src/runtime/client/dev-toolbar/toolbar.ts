@@ -433,7 +433,7 @@ export class AstroDevToolbar extends HTMLElement {
 		if (app !== activeApp) {
 			await this.setAppStatus(app, true);
 
-			if (import.meta.hot) {
+			if (import.meta.hot && app.id !== 'astro:more') {
 				import.meta.hot.send('astro:devtoolbar:app:toggled', {
 					app: app,
 				});
