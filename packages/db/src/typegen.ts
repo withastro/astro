@@ -25,40 +25,21 @@ ${Object.entries(collections)
 }
 
 function generateTableType(name: string, collection: DBCollection): string {
-	let tableType = `	export const ${name}: import(${INTERNAL_MOD_IMPORT}).AstroTable<{
-		name: ${JSON.stringify(name)};
-		columns: {
-			id: import(${INTERNAL_MOD_IMPORT}).AstroId<{
-				tableName: ${JSON.stringify(name)};
-			}>;`;
-
-	for (const [fieldName, field] of Object.entries(collection.fields)) {
-		const drizzleInterface = schemaTypeToDrizzleInterface(field.type);
-		tableType += `
-			${fieldName}: import(${INTERNAL_MOD_IMPORT}).${drizzleInterface}<{
-				tableName: ${JSON.stringify(name)};
-				name: ${JSON.stringify(fieldName)};
-				notNull: ${field.optional ? 'false' : 'true'};
-				hasDefault: ${typeof field.default !== 'undefined' ? 'true' : 'false'};
-			}>;`;
-	}
-	tableType += `
-		};
-	}>;`;
+	let tableType = `	export const ${name}: import(${INTERNAL_MOD_IMPORT}).Table<
+		${JSON.stringify(name)},
+		${JSON.stringify(
+			Object.fromEntries(
+				Object.entries(collection.fields).map(([fieldName, field]) => [
+					fieldName,
+					{
+						// Only select fields Drizzle needs for inference
+						type: field.type,
+						optional: field.optional,
+						default: field.default,
+					},
+				])
+			)
+		)}
+	>;`;
 	return tableType;
-}
-
-function schemaTypeToDrizzleInterface(type: FieldType) {
-	switch (type) {
-		case 'text':
-			return 'AstroText';
-		case 'number':
-			return 'AstroNumber';
-		case 'boolean':
-			return 'AstroBoolean';
-		case 'date':
-			return 'AstroDate';
-		case 'json':
-			return 'AstroJson';
-	}
 }

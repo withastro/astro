@@ -35,15 +35,7 @@ import { nanoid } from 'nanoid';
 import type { AstroIntegrationLogger } from 'astro';
 
 export type SqliteDB = SqliteRemoteDatabase;
-export type {
-	AstroTable,
-	AstroText,
-	AstroDate,
-	AstroBoolean,
-	AstroNumber,
-	AstroJson,
-	AstroId,
-} from './types.js';
+export type { Table } from './types.js';
 
 const sqlite = new SQLiteAsyncDialect();
 

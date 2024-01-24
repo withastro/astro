@@ -1,5 +1,5 @@
 import type { ColumnDataType, ColumnBaseConfig } from 'drizzle-orm';
-import type { SQLiteColumn, SQLiteTableWithColumns, TableConfig } from 'drizzle-orm/sqlite-core';
+import type { SQLiteColumn, SQLiteTableWithColumns } from 'drizzle-orm/sqlite-core';
 import { z } from 'zod';
 
 const baseFieldSchema = z.object({
@@ -98,14 +98,7 @@ export type DBCollections = Record<string, DBCollection>;
 export type ReadableDBCollection = z.infer<typeof readableCollectionSchema>;
 export type WritableDBCollection = z.infer<typeof writableCollectionSchema>;
 
-export type AstroTable<T extends Pick<TableConfig, 'name' | 'columns'>> = SQLiteTableWithColumns<
-	T & {
-		schema: undefined;
-		dialect: 'sqlite';
-	}
->;
-
-type GeneratedConfig<T extends ColumnDataType> = Pick<
+type GeneratedConfig<T extends ColumnDataType = ColumnDataType> = Pick<
 	ColumnBaseConfig<T, string>,
 	'name' | 'tableName' | 'notNull' | 'hasDefault'
 >;
@@ -180,3 +173,38 @@ export type AstroId<T extends Pick<GeneratedConfig<'string'>, 'tableName'>> = SQ
 >;
 
 export type MaybePromise<T> = T | Promise<T>;
+
+export type Column<T extends DBField['type'], S extends GeneratedConfig> = T extends 'boolean'
+	? AstroBoolean<S>
+	: T extends 'number'
+		? AstroNumber<S>
+		: T extends 'text'
+			? AstroText<S>
+			: T extends 'date'
+				? AstroDate<S>
+				: T extends 'json'
+					? AstroJson<S>
+					: never;
+
+export type Table<
+	TTableName extends string,
+	TFields extends Record<string, Pick<DBField, 'type' | 'default' | 'optional'>>,
+> = SQLiteTableWithColumns<{
+	name: TTableName;
+	schema: undefined;
+	dialect: 'sqlite';
+	columns: {
+		id: AstroId<{ tableName: TTableName }>;
+	} & {
+		[K in keyof TFields]: Column<
+			TFields[K]['type'],
+			{
+				tableName: TTableName;
+				// TODO: narrow K to string
+				name: string;
+				hasDefault: TFields[K]['default'] extends undefined ? false : true;
+				notNull: TFields[K]['optional'] extends true ? false : true;
+			}
+		>;
+	};
+}>;
