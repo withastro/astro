@@ -8,6 +8,6 @@ test.describe('Plugin Script Import', () => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const el = page.locator('#foo');
-		expect(await el.getAttribute("hidden")).toBe('');
+		expect(await el.getAttribute('hidden')).toBe('');
 	});
 });
