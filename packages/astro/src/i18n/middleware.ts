@@ -29,25 +29,17 @@ export function createI18nMiddleware(
 	base: SSRManifest['base'],
 	trailingSlash: SSRManifest['trailingSlash'],
 	buildFormat: SSRManifest['buildFormat']
-): MiddlewareHandler | undefined {
-	if (!i18n) {
-		return undefined;
-	}
+): MiddlewareHandler {
+	if (!i18n) return (_, next) => next();
 
 	return async (context, next) => {
-		if (!i18n) {
+		const routeData: RouteData | undefined = Reflect.get(context.request, routeDataSymbol);
+		// If the route we're processing is not a page, then we ignore it
+		if (
+			routeData?.type !== 'page' &&
+			routeData?.type !== 'fallback'
+		) {
 			return await next();
-		}
-
-		const routeData = Reflect.get(context.request, routeDataSymbol);
-		if (routeData) {
-			// If the route we're processing is not a page, then we ignore it
-			if (
-				(routeData as RouteData).type !== 'page' &&
-				(routeData as RouteData).type !== 'fallback'
-			) {
-				return await next();
-			}
 		}
 
 		const url = context.url;
