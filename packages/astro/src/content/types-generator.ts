@@ -363,25 +363,19 @@ function invalidateVirtualMod(viteServer: ViteDevServer) {
 }
 
 /**
- * Takes a configPath and returns a normalized relative version:
+ * Takes the source (`from`) and destination (`to`) of a config path and
+ * returns a normalized relative version:
  *  -   If is not relative, it adds `./` to the beginning.
- *  -   If it ends with `.ts`, it removes the extension.
- *  -   It adds `.js` to the end.
- *  -   It stringifies the result (adds `""` around it).
- * @param from Config path from path.
- * @param to Config path to path.
+ *  -   If it ends with `.ts`, it replaces it with `.js`.
+ *  -   It adds `""` around the string.
+ * @param from Config path source.
+ * @param to Config path destination.
  * @returns Normalized config path.
  */
 function normalizeConfigPath(from: string, to: string) {
-	const normalizedConfigPath = path.relative(from, to);
+	const configPath = path.relative(from, to).replace(/\.ts$/, '.js');
 
-	return JSON.stringify(
-		`${isRelativePath(normalizedConfigPath) ? '' : './'}${
-			normalizedConfigPath.endsWith('.ts')
-				? normalizedConfigPath.replace(/\.ts$/, '')
-				: normalizedConfigPath
-		}.js`
-	);
+	return `"${isRelativePath(configPath) ? '' : './'}${configPath}"` as const;
 }
 
 async function writeContentFiles({
