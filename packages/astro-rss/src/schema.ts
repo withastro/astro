@@ -22,7 +22,4 @@ export const rssSchema = z.object({
 		.optional(),
 	link: z.string().optional(),
 	content: z.string().optional(),
-}).refine(val => val.title || val.description, {
-	message: "At least title or description must be provided.",
-	path: ["title", "description"]
-})
+});

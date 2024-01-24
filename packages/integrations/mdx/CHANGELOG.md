@@ -1,5 +1,18 @@
 # @astrojs/mdx
 
+## 2.1.0
+
+### Minor Changes
+
+- [#9753](https://github.com/withastro/astro/pull/9753) [`df37366556d46f7abdf82b09e33b08bd94e631b3`](https://github.com/withastro/astro/commit/df37366556d46f7abdf82b09e33b08bd94e631b3) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Allows remark plugins to pass options specifying how images in .mdx files will be optimized
+
+## 2.0.6
+
+### Patch Changes
+
+- Updated dependencies [[`53c69dcc82cdf4000aff13a6c11fffe19096cf45`](https://github.com/withastro/astro/commit/53c69dcc82cdf4000aff13a6c11fffe19096cf45), [`2f81cffa9da9db0e2802d303f94feaee8d2f54ec`](https://github.com/withastro/astro/commit/2f81cffa9da9db0e2802d303f94feaee8d2f54ec), [`a505190933365268d48139a5f197a3cfb5570870`](https://github.com/withastro/astro/commit/a505190933365268d48139a5f197a3cfb5570870)]:
+  - @astrojs/markdown-remark@4.2.0
+
 ## 2.0.5
 
 ### Patch Changes

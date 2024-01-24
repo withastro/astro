@@ -52,8 +52,8 @@ describe('routing - createRouteManifest', () => {
 	it('endpoint routes are sorted before page routes', async () => {
 		const fs = createFs(
 			{
-				'/src/pages/contact-me.astro': `<h1>test</h1>`,
-				'/src/pages/sendContact.ts': `<h1>test</h1>`,
+				'/src/pages/[contact].astro': `<h1>test</h1>`,
+				'/src/pages/[contact].ts': `<h1>test</h1>`,
 			},
 			root
 		);
@@ -85,19 +85,19 @@ describe('routing - createRouteManifest', () => {
 
 		expect(getManifestRoutes(manifest)).to.deep.equal([
 			{
-				route: '/api',
-				type: 'endpoint',
-			},
-			{
-				route: '/sendcontact',
-				type: 'endpoint',
-			},
-			{
 				route: '/about',
 				type: 'page',
 			},
 			{
-				route: '/contact-me',
+				route: '/api',
+				type: 'endpoint',
+			},
+			{
+				route: '/[contact]',
+				type: 'endpoint',
+			},
+			{
+				route: '/[contact]',
 				type: 'page',
 			},
 		]);
@@ -143,6 +143,81 @@ describe('routing - createRouteManifest', () => {
 			},
 			{
 				route: '/[...rest]',
+				type: 'page',
+			},
+		]);
+	});
+
+	it('route sorting respects the file tree', async () => {
+		const fs = createFs(
+			{
+				'/src/pages/[dynamic_folder]/static.astro': `<h1>test</h1>`,
+				'/src/pages/[dynamic_folder]/index.astro': `<h1>test</h1>`,
+				'/src/pages/[dynamic_folder]/[...rest].astro': `<h1>test</h1>`,
+				'/src/pages/[...rest]/static.astro': `<h1>test</h1>`,
+				'/src/pages/[...rest]/index.astro': `<h1>test</h1>`,
+				'/src/pages/blog/index.astro': `<h1>test</h1>`,
+				'/src/pages/[dynamic_file].astro': `<h1>test</h1>`,
+				'/src/pages/[...other].astro': `<h1>test</h1>`,
+				'/src/pages/static.astro': `<h1>test</h1>`,
+				'/src/pages/index.astro': `<h1>test</h1>`,
+			},
+			root
+		);
+		const settings = await createBasicSettings({
+			root: fileURLToPath(root),
+			base: '/search',
+			trailingSlash: 'never',
+			experimental: {
+				globalRoutePriority: true,
+			},
+		});
+
+		const manifest = createRouteManifest({
+			cwd: fileURLToPath(root),
+			settings,
+			fsMod: fs,
+		});
+
+		expect(getManifestRoutes(manifest)).to.deep.equal([
+			{
+				route: '/',
+				type: 'page',
+			},
+			{
+				route: '/blog',
+				type: 'page',
+			},
+			{
+				route: '/static',
+				type: 'page',
+			},
+			{
+				route: '/[dynamic_folder]',
+				type: 'page',
+			},
+			{
+				route: '/[dynamic_file]',
+				type: 'page',
+			},
+			{
+				route: '/[dynamic_folder]/static',
+				type: 'page',
+			},
+			{
+				route: '/[dynamic_folder]/[...rest]',
+				type: 'page',
+			},
+			{
+				route: '/[...rest]/static',
+				type: 'page',
+			},
+			{
+				route: '/[...rest]',
+				type: 'page',
+			},
+			{
+				route: '/[...other]',
 				type: 'page',
 			},
 		]);

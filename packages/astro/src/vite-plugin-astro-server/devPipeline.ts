@@ -35,7 +35,6 @@ export default class DevPipeline extends Pipeline {
 		this.#devLogger = logger;
 		this.#settings = settings;
 		this.#loader = loader;
-		this.setEndpointHandler(this.#handleEndpointResult);
 	}
 
 	clearRouteCache() {
@@ -86,10 +85,6 @@ export default class DevPipeline extends Pipeline {
 			ssr: isServerLikeOutput(settings.config),
 			streaming: true,
 		});
-	}
-
-	async #handleEndpointResult(_: Request, response: Response): Promise<Response> {
-		return response;
 	}
 
 	async handleFallback() {}
