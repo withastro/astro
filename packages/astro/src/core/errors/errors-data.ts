@@ -170,13 +170,13 @@ ${
 	validRenderersCount > 0
 		? `There ${plural ? 'are' : 'is'} ${validRenderersCount} renderer${
 				plural ? 's' : ''
-			} configured in your \`astro.config.mjs\` file,
+		  } configured in your \`astro.config.mjs\` file,
 but ${plural ? 'none were' : 'it was not'} able to server-side render \`${componentName}\`.`
 		: `No valid renderer was found ${
 				componentExtension
 					? `for the \`.${componentExtension}\` file extension.`
 					: `for this file extension.`
-			}`
+		  }`
 }`,
 	hint: (probableRenderers: string) =>
 		`Did you mean to enable the ${probableRenderers} integration?\n\nSee https://docs.astro.build/en/core-concepts/framework-components/ for more information on how to install and configure integrations.`,
@@ -1001,11 +1001,27 @@ export const MissingLocale = {
 		`The locale/path \`${locale}\` does not exist in the configured \`i18n.locales\`.`,
 } satisfies ErrorData;
 
+/**
+ * @docs
+ * @description
+ * `Astro couldn't find the index URL. This index page is required to create a redirect from the index URL to the index URL of the default locale.
+ */
 export const MissingIndexForInternationalization = {
 	name: 'MissingIndexForInternationalizationError',
 	title: 'Index page not found.',
 	message: (src: string) =>
 		`Astro couldn't find the index URL. This index page is required to create a redirect from the index URL to the index URL of the default locale. \nCreate an index page in \`${src}\``,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ */
+export const NoPrerenderedRoutesWithDomains = {
+	name: 'NoPrerenderedRoutesWithDomains',
+	title: "Pre-rendered routes aren't supported when internationalization domains are enabled.",
+	message: (component: string) =>
+		`Static pages aren't yet supported with multiple domains. If you wish to enable this feature, you have to disable pre-rendering for the page ${component}`,
 } satisfies ErrorData;
 
 /**
