@@ -593,6 +593,7 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name integrations
+	 * @typeraw {AstroIntegration[]}
 	 * @description
 	 *
 	 * Extend Astro with custom integrations. Integrations are your one-stop-shop for adding framework support (like Solid.js), new features (like sitemaps), and new libraries (like Partytown).
