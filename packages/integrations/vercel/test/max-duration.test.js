@@ -14,7 +14,7 @@ describe('maxDuration', () => {
 
 	it('makes it to vercel function configuration', async () => {
 		const vcConfig = JSON.parse(
-			await fixture.readFile('../.vercel/output/functions/render.func/.vc-config.json')
+			await fixture.readFile('../.vercel/output/functions/_render.func/.vc-config.json')
 		);
 		expect(vcConfig).to.deep.include({ maxDuration: 60 });
 	});

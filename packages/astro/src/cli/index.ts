@@ -11,6 +11,7 @@ type CLICommand =
 	| 'dev'
 	| 'build'
 	| 'preview'
+	| 'db'
 	| 'sync'
 	| 'check'
 	| 'info'
@@ -72,6 +73,7 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
 		'preview',
 		'check',
 		'docs',
+		'db',
 		'info',
 	]);
 	if (supportedCommands.has(cmd)) {
@@ -141,6 +143,11 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			const { add } = await import('./add/index.js');
 			const packages = flags._.slice(3) as string[];
 			await add(packages, { flags });
+			return;
+		}
+		case 'db': {
+			const { db } = await import('./db/index.js');
+			await db({ flags });
 			return;
 		}
 		case 'dev': {

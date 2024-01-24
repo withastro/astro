@@ -1,5 +1,17 @@
 # @astrojs/markdown-remark
 
+## 4.2.0
+
+### Minor Changes
+
+- [#9738](https://github.com/withastro/astro/pull/9738) [`a505190933365268d48139a5f197a3cfb5570870`](https://github.com/withastro/astro/commit/a505190933365268d48139a5f197a3cfb5570870) Thanks [@bluwy](https://github.com/bluwy)! - Fixes usage in browser environments by using subpath imports
+
+### Patch Changes
+
+- [#9736](https://github.com/withastro/astro/pull/9736) [`53c69dcc82cdf4000aff13a6c11fffe19096cf45`](https://github.com/withastro/astro/commit/53c69dcc82cdf4000aff13a6c11fffe19096cf45) Thanks [@bluwy](https://github.com/bluwy)! - Initializes internal `cwdUrlStr` variable lazily for performance, and workaround Rollup side-effect detection bug when building for non-Node runtimes
+
+- [#9723](https://github.com/withastro/astro/pull/9723) [`2f81cffa9da9db0e2802d303f94feaee8d2f54ec`](https://github.com/withastro/astro/commit/2f81cffa9da9db0e2802d303f94feaee8d2f54ec) Thanks [@blackmann](https://github.com/blackmann)! - Fixes a case where transformers wouldn't work on the `class` property
+
 ## 4.1.0
 
 ### Minor Changes

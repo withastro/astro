@@ -1536,6 +1536,9 @@ export interface AstroUserConfig {
 		};
 	};
 
+	/** ⚠️ WARNING: SUBJECT TO CHANGE */
+	db?: Config.Database;
+
 	/**
 	 * @docs
 	 * @kind heading
@@ -2701,7 +2704,7 @@ export interface ClientDirectiveConfig {
 export interface DevToolbarApp {
 	id: string;
 	name: string;
-	icon: Icon;
+	icon?: Icon;
 	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
 }
@@ -2743,5 +2746,12 @@ declare global {
 		'astro-dev-overlay-button': DevToolbarButton;
 		'astro-dev-overlay-icon': DevToolbarIcon;
 		'astro-dev-overlay-card': DevToolbarCard;
+	}
+}
+
+declare global {
+	// eslint-disable-next-line @typescript-eslint/no-namespace
+	namespace Config {
+		type Database = Record<string, any>;
 	}
 }
