@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it, before, after } from 'node:test';
 import nodejs from '../dist/index.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, waitServerListen } from './test-utils.js';
 import * as cheerio from 'cheerio';
 
 /**
@@ -38,6 +38,7 @@ describe('Prerender 404', () => {
 			const { startServer } = await load();
 			let res = startServer();
 			server = res.server;
+			await waitServerListen(server.server);
 		});
 
 		after(async () => {
@@ -122,6 +123,7 @@ describe('Prerender 404', () => {
 			const { startServer } = await load();
 			let res = startServer();
 			server = res.server;
+			await waitServerListen(server.server);
 		});
 
 		after(async () => {
@@ -185,6 +187,7 @@ describe('Hybrid 404', () => {
 			const { startServer } = await load();
 			let res = startServer();
 			server = res.server;
+			await waitServerListen(server.server);
 		});
 
 		after(async () => {
@@ -241,6 +244,7 @@ describe('Hybrid 404', () => {
 			const { startServer } = await load();
 			let res = startServer();
 			server = res.server;
+			await waitServerListen(server.server);
 		});
 
 		after(async () => {
