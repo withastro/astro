@@ -73,7 +73,7 @@ async function getViteConfiguration({
 	}
 
 	if (!resolvedOptions.preprocess && !(await svelteConfigHasPreprocess(root))) {
-		resolvedOptions.preprocess = vitePreprocess({});
+		resolvedOptions.preprocess = vitePreprocess();
 	}
 
 	return {
