@@ -20,7 +20,8 @@
     "./internal-drizzle": {
       "types": "./dist/internal-drizzle.d.ts",
       "import": "./dist/internal-drizzle.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "typesVersions": {
     "*": {
