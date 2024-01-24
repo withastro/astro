@@ -7,6 +7,8 @@ const VIRTUAL_MODULE_ID = 'astro:dev-toolbar';
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
 export default function astroDevToolbar({ settings, logger }: AstroPluginOptions): vite.Plugin {
+	let telemetryTimeout: ReturnType<typeof setTimeout>;
+
 	return {
 		name: 'astro:dev-toolbar',
 		config() {
@@ -38,11 +40,15 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 			});
 
 			server.ws.on('astro:devtoolbar:app:toggled', (args) => {
-				telemetry.record(
-					eventCliSession('dev', settings.config, {
-						app: args?.app?.id ?? 'unknown',
-					})
-				);
+				// Debounce telemetry to avoid recording events when the user is rapidly toggling apps for debugging
+				clearTimeout(telemetryTimeout);
+				telemetryTimeout = setTimeout(() => {
+					telemetry.record(
+						eventCliSession('dev', settings.config, {
+							app: args?.app?.id ?? 'unknown',
+						})
+					);
+				}, 200);
 			});
 		},
 		async load(id) {

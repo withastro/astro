@@ -432,6 +432,12 @@ export class AstroDevToolbar extends HTMLElement {
 		// was to close that app, so no action needed.
 		if (app !== activeApp) {
 			await this.setAppStatus(app, true);
+
+			if (import.meta.hot) {
+				import.meta.hot.send('astro:devtoolbar:app:toggled', {
+					app: app,
+				});
+			}
 		}
 	}
 
