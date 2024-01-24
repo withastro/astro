@@ -3787,12 +3787,48 @@ importers:
 
   packages/integrations/alpinejs:
     devDependencies:
+      '@playwright/test':
+        specifier: 1.40.0
+        version: 1.40.0
       astro:
         specifier: workspace:*
         version: link:../../astro
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
+      vite:
+        specifier: ^5.0.10
+        version: 5.0.12(@types/node@18.19.4)(sass@1.69.6)
+
+  packages/integrations/alpinejs/test/fixtures/basics:
+    dependencies:
+      '@astrojs/alpinejs':
+        specifier: workspace:*
+        version: link:../../..
+      '@types/alpinejs':
+        specifier: ^3.13.5
+        version: 3.13.5
+      alpinejs:
+        specifier: ^3.13.3
+        version: 3.13.3
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/alpinejs/test/fixtures/directive:
+    dependencies:
+      '@astrojs/alpinejs':
+        specifier: workspace:*
+        version: link:../../..
+      '@types/alpinejs':
+        specifier: ^3.13.5
+        version: 3.13.5
+      alpinejs:
+        specifier: ^3.13.3
+        version: 3.13.3
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
 
   packages/integrations/cloudflare: {}
 
