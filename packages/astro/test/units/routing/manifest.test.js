@@ -181,44 +181,44 @@ describe('routing - createRouteManifest', () => {
 
 		expect(getManifestRoutes(manifest)).to.deep.equal([
 			{
-				"route": "/",
-				"type": "page",
+				route: '/',
+				type: 'page',
 			},
 			{
-				"route": "/blog",
-				"type": "page",
+				route: '/blog',
+				type: 'page',
 			},
 			{
-				"route": "/static",
-				"type": "page",
+				route: '/static',
+				type: 'page',
 			},
 			{
-				"route": "/[dynamic_folder]",
-				"type": "page",
+				route: '/[dynamic_folder]',
+				type: 'page',
 			},
 			{
-				"route": "/[dynamic_file]",
-				"type": "page",
+				route: '/[dynamic_file]',
+				type: 'page',
 			},
 			{
-				"route": "/[dynamic_folder]/static",
-				"type": "page",
+				route: '/[dynamic_folder]/static',
+				type: 'page',
 			},
 			{
-				"route": "/[dynamic_folder]/[...rest]",
-				"type": "page",
+				route: '/[dynamic_folder]/[...rest]',
+				type: 'page',
 			},
 			{
-				"route": "/[...rest]/static",
-				"type": "page",
+				route: '/[...rest]/static',
+				type: 'page',
 			},
 			{
-				"route": "/[...rest]",
-				"type": "page",
+				route: '/[...rest]',
+				type: 'page',
 			},
 			{
-				"route": "/[...other]",
-				"type": "page",
+				route: '/[...other]',
+				type: 'page',
 			},
 		]);
 	});

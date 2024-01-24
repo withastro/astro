@@ -199,15 +199,15 @@ function routeComparator(a: ManifestRouteData, b: ManifestRouteData) {
 	for (let index = 0; index < commonLength; index++) {
 		const aSegment = a.segments[index];
 		const bSegment = b.segments[index];
-		
+
 		const aIsStatic = aSegment.every((part) => !part.dynamic && !part.spread);
 		const bIsStatic = bSegment.every((part) => !part.dynamic && !part.spread);
-		
+
 		if (aIsStatic && bIsStatic) {
 			// Both segments are static, they are sorted alphabetically if they are different
 			const aContent = aSegment.map((part) => part.content).join('');
 			const bContent = bSegment.map((part) => part.content).join('');
-			
+
 			if (aContent !== bContent) {
 				return aContent.localeCompare(bContent);
 			}
@@ -256,13 +256,17 @@ function routeComparator(a: ManifestRouteData, b: ManifestRouteData) {
 
 		if (a.isIndex) {
 			const followingBSegment = b.segments.at(a.segments.length);
-			const followingBSegmentIsStatic = followingBSegment?.every((part) => !part.dynamic && !part.spread);
+			const followingBSegmentIsStatic = followingBSegment?.every(
+				(part) => !part.dynamic && !part.spread
+			);
 
 			return followingBSegmentIsStatic ? 1 : -1;
 		}
 
 		const followingASegment = a.segments.at(b.segments.length);
-		const followingASegmentIsStatic = followingASegment?.every((part) => !part.dynamic && !part.spread);
+		const followingASegmentIsStatic = followingASegment?.every(
+			(part) => !part.dynamic && !part.spread
+		);
 
 		return followingASegmentIsStatic ? -1 : 1;
 	}
@@ -270,12 +274,12 @@ function routeComparator(a: ManifestRouteData, b: ManifestRouteData) {
 	// For sorting purposes, an index route is considered to have one more segment than the URL it represents.
 	const aLength = a.isIndex ? a.segments.length + 1 : a.segments.length;
 	const bLength = b.isIndex ? b.segments.length + 1 : b.segments.length;
-	
-	if (aLength !== bLength){
+
+	if (aLength !== bLength) {
 		// Routes are equal up to the smaller of the two lengths, so the longer route is more specific
 		return aLength > bLength ? -1 : 1;
 	}
-	
+
 	// Sort endpoints before pages
 	if ((a.type === 'endpoint') !== (b.type === 'endpoint')) {
 		return a.type === 'endpoint' ? -1 : 1;
