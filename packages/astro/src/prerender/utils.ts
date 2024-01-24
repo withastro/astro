@@ -6,7 +6,7 @@ export function isServerLikeOutput(config: AstroConfig) {
 }
 
 export function getPrerenderDefault(config: AstroConfig) {
-	return config.output === 'hybrid';
+	return config.output !== 'server';
 }
 
 /**
