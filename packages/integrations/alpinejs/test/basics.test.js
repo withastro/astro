@@ -7,7 +7,7 @@ test.describe('Basics', () => {
 	test('Alpine is working', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const el = page.locator("#foo")
-		expect(await el.textContent()).toBe('bar')
+		const el = page.locator('#foo');
+		expect(await el.textContent()).toBe('bar');
 	});
 });
