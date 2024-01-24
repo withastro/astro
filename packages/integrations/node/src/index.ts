@@ -19,7 +19,7 @@ export function getAdapter(options: Options): AstroAdapter {
 				isSquooshCompatible: true,
 			},
 			i18n: {
-				domain: 'experimental',
+				domains: 'experimental',
 			},
 		},
 	};

@@ -2202,7 +2202,7 @@ export interface AstroInternationalizationFeature {
 	/**
 	 * The adapter should be able to create the proper redirects
 	 */
-	domain?: SupportsKind;
+	domains?: SupportsKind;
 }
 
 export type Locales = (string | { codes: string[]; path: string })[];

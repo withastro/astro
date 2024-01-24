@@ -83,7 +83,7 @@ function getAdapter({
 				isSquooshCompatible: true,
 			},
 			i18n: {
-				domain: 'experimental',
+				domains: 'unsupported',
 			},
 		},
 	};
@@ -336,11 +336,11 @@ export default function vercelServerless({
 										dest: fourOhFourRoute.prerender
 											? '/404.html'
 											: _middlewareEntryPoint
-												? MIDDLEWARE_PATH
-												: NODE_PATH,
+											  ? MIDDLEWARE_PATH
+											  : NODE_PATH,
 										status: 404,
 									},
-								]
+							  ]
 							: []),
 					],
 					...(imageService || imagesConfig
@@ -353,9 +353,9 @@ export default function vercelServerless({
 												...(imagesConfig.remotePatterns ?? []),
 												..._config.image.remotePatterns,
 											],
-										}
+									  }
 									: getDefaultImageConfig(_config.image),
-							}
+						  }
 						: {}),
 				});
 
