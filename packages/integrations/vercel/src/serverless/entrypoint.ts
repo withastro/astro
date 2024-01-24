@@ -20,7 +20,7 @@ export const createExports = (manifest: SSRManifest) => {
 				: Array.isArray(localsHeader)
 					? JSON.parse(localsHeader[0])
 					: {};
-		const webResponse = await app.render(req, { locals, clientAddress });
+		const webResponse = await app.render(req, { addCookieHeader: true, clientAddress, locals });
 		await NodeApp.writeResponse(webResponse, res);
 	};
 
