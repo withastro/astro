@@ -1,36 +1,45 @@
 ---
-'@astrojs/vercel': minor
-'@astrojs/node': minor
-'astro': patch
+'astro': minor
 ---
 
-Adds experimental support for a new i18n domain routing strategy (`"domain"`) that allows you to configure different domains for certain locales:
+Adds experimental support for a new i18n domain routing strategy (`"domains"`) that allows you to configure different domains for certain locales:
 
 ```js
 // astro.config.mjs
 import { defineConfig } from "astro/config"
 export default defineConfig({
-    experimental: {
-        i18n: {
-            defaultLocale: "en",
-            locales: ["es", "en", "fr"],
-            routingStrategy: "domain",
-            domains: {
-                fr: "https://fr.example.com",
-                es: "https://example.es"
-            }
-        }
-    }
+  i18n: {
+      defaultLocale: "en",
+      locales: ["es", "en", "fr"],
+      domains: {
+          fr: "https://fr.example.com",
+          es: "https://example.es"
+      },
+      routing: {
+        prefixDefaultLocale: true,
+        strategy: "domains"
+      }
+  },
+  experimental: {
+      i18nDomains: true
+  },
+  site: "https://example.com",
+  output: "server"
 })
 ```
 
-With `routingStrategy: "domain"` configured, the URLs for your built site, including the URLs emitted by `getAbsoluteLocaleUrl()` and `getAbsoluteLocaleUrlList()`, will follow the pattern set for each locale individually.
+With `routing.strategy` set to `"domains"`, the URLs emitted by `getAbsoluteLocaleUrl()` and `getAbsoluteLocaleUrlList()` will use the options set in `i18n.domains`:
 
-For any `locales` not configured in `domains`, the fallback URLs created will follow `prefix-other-locales`, and create a `/[locale]/` path for all non-default languages.
+```js
+import { getAbsoluteLocaleUrl  } from "astro:i18n";
+
+getAbsoluteLocaleUrl("en", "about"); // will return "https://example.com/en/about"
+getAbsoluteLocaleUrl("fr", "about"); // will return "https://fr.example.com/about"
+getAbsoluteLocaleUrl("es", "about"); // will return "https://example.es/about"
+```
 
 For the above configuration:
 
 - The file `/fr/about.astro` will create the URL `https://fr.example.com/about`;
 - The file `/es/about.astro` will create the URL `https://example.es/about`;
-- the file `/ja/about/astro` will create the URL `https://example.com/ja/about`.
-- The file `/en/about.astro` will create the URL `https://example.com/about`.
+- The file `/en/about.astro` will create the URL `https://example.com/en/about`.
