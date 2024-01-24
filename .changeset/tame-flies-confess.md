@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-build.format: 'preserve' to preserve source structure in final build
+Adds a new possible value to the `build.format` configuration: 'preserve'. It will preserve your source structure in the final build
 
 Using `build.format: 'file'`, a method to produce HTML files that are *not* all within folders, it will only produce `index.html` for the base path of `/`. This meant that even if you create explicit index pages with, for example, `page/index.astro`, it would write these out as `page.html`.
 
