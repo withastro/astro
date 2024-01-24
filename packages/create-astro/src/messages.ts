@@ -55,7 +55,7 @@ export const getName = () =>
 	});
 
 let v: string;
-export const getVersion = (packageManager: string, packageName = 'astro') =>
+export const getVersion = (packageManager: string, packageName: string) =>
 	new Promise<string>(async (resolve) => {
 		if (v) return resolve(v);
 		let registry = await getRegistry(packageManager);
