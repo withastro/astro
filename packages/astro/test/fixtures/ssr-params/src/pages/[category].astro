@@ -1,5 +1,6 @@
 ---
 const { category } = Astro.params
+const pairing = Astro.url.searchParams.get('pairing')! || '';
 ---
 <html>
 	<head>
@@ -8,5 +9,6 @@ const { category } = Astro.params
 	<body>
 		<h1>Testing</h1>
 		<h2 class="category">{ category }</h2>
+		<h2 class="pairing">{ pairing }</h2>
 	</body>
 </html>
