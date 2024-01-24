@@ -180,3 +180,26 @@ export type AstroId<T extends Pick<GeneratedConfig<'string'>, 'tableName'>> = SQ
 >;
 
 export type MaybePromise<T> = T | Promise<T>;
+
+export type Table<
+	T extends DBFields,
+	TTable extends Pick<GeneratedConfig<'string'>, 'tableName'>,
+> = {
+	[K in keyof T]: T[K]['type'] extends 'boolean'
+		? AstroBoolean<
+				TTable & {
+					name: K;
+					hasDefault: T[K]['default'];
+					notNull: !T[K]['optional'];
+				}
+			>
+		: T[K]['type'] extends 'number'
+			? AstroNumber<T[K]>
+			: T[K]['type'] extends 'text'
+				? AstroText<T[K]>
+				: T[K]['type'] extends 'date'
+					? AstroDate<T[K]>
+					: T[K]['type'] extends 'json'
+						? AstroJson<T[K]>
+						: never;
+};
