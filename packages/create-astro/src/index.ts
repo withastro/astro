@@ -17,7 +17,7 @@ process.on('SIGINT', exit);
 process.on('SIGTERM', exit);
 
 // Please also update the installation instructions in the docs at
-// https://github.com/withastro/docs/blob/main/src/pages/en/install/auto.md
+// https://github.com/withastro/docs/blob/main/src/content/docs/en/install/auto.mdx
 // if you make any changes to the flow or wording here.
 export async function main() {
 	// Add some extra spacing from the noisy npm/pnpm init output
