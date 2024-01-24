@@ -27,11 +27,10 @@ async function createViteServer(root: string, fs: typeof fsType): Promise<ViteDe
 			],
 		},
 		plugins: [
-			typeof tsConfig === 'object'
-				? configAliasVitePlugin({
-						settings: { tsConfig: tsConfig.tsconfig, tsConfigPath: tsConfig.tsconfigFile },
-					})
-				: undefined,
+			typeof tsConfig === 'object' &&
+				configAliasVitePlugin({
+					settings: { tsConfig: tsConfig.tsconfig, tsConfigPath: tsConfig.tsconfigFile },
+				}),
 			loadFallbackPlugin({ fs, root: pathToFileURL(root) }),
 		],
 	});
