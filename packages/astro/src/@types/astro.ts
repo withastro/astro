@@ -1545,7 +1545,9 @@ export interface AstroUserConfig {
 			 * @version 3.6.0
 			 * @description
 			 *
-			 * Maps a locale to a domain (or sub-domain). When a locale is mapped to a domain, all the URLs that belong to it will respond to `https://fr.example.com/blog` and not to `/fr/blog`.
+			 * Configures the URL pattern of one or more supported languages to use a domain (or sub-domain). When a locale is mapped to a domain, a `/[locale]/` path prefix will not be used.
+			 *
+			 *  For example, you can configure the `fr` URLs to be of the form `https://fr.example.com/blog`. If not configured in `domains`, the `defaultLocale` will default to `https://example.com/blog` and any other locale not configured will default to `https://example.com/[locale]/blog`.
 			 *
 			 * ```js
 			 * export defualt defineConfig({
