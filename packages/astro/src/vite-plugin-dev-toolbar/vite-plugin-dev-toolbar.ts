@@ -1,10 +1,14 @@
 import type * as vite from 'vite';
 import type { AstroPluginOptions } from '../@types/astro.js';
+import { telemetry } from '../events/index.js';
+import { eventAppToggled } from '../events/toolbar.js';
 
 const VIRTUAL_MODULE_ID = 'astro:dev-toolbar';
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
 export default function astroDevToolbar({ settings, logger }: AstroPluginOptions): vite.Plugin {
+	let telemetryTimeout: ReturnType<typeof setTimeout>;
+
 	return {
 		name: 'astro:dev-toolbar',
 		config() {
@@ -33,6 +37,23 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 					'toolbar',
 					`Failed to initialize dev toolbar app ${args.app.name} (${args.app.id}):\n${args.error}`
 				);
+			});
+
+			server.ws.on('astro:devtoolbar:app:toggled', (args) => {
+				// Debounce telemetry to avoid recording events when the user is rapidly toggling apps for debugging
+				clearTimeout(telemetryTimeout);
+				telemetryTimeout = setTimeout(() => {
+					let nameToRecord = args?.app?.id;
+					// Only record apps names for apps that are built-in
+					if (!nameToRecord || !nameToRecord.startsWith('astro:')) {
+						nameToRecord = 'other';
+					}
+					telemetry.record(
+						eventAppToggled({
+							appName: nameToRecord,
+						})
+					);
+				}, 200);
 			});
 		},
 		async load(id) {
