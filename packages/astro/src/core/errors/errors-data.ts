@@ -1042,10 +1042,9 @@ export const UnhandledRejection = {
 export const i18nNotEnabled = {
 	name: 'i18nNotEnabled',
 	title: 'i18n Not Enabled',
-	message: "The `astro:i18n` module can not be used without enabling i18n in your Astro config.",
+	message: 'The `astro:i18n` module can not be used without enabling i18n in your Astro config.',
 	hint: 'See https://docs.astro.build/en/guides/internationalization for a guide on setting up i18n.',
 } satisfies ErrorData;
-
 
 /**
  * @docs

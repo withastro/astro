@@ -91,7 +91,7 @@ interface GetLocalesRelativeUrlList extends GetLocaleOptions {
 	format: AstroConfig['build']['format'];
 	routing?: RoutingStrategies;
 	defaultLocale: string;
-};
+}
 
 export function getLocaleRelativeUrlList({
 	base,
@@ -124,7 +124,7 @@ export function getLocaleRelativeUrlList({
 }
 
 interface GetLocalesAbsoluteUrlList extends GetLocalesRelativeUrlList {
-	site?: string
+	site?: string;
 }
 
 export function getLocaleAbsoluteUrlList({ site, ...rest }: GetLocalesAbsoluteUrlList) {
@@ -245,10 +245,10 @@ function peekCodePathToUse(locales: Locales, locale: string): undefined | string
 class Unreachable extends Error {
 	constructor() {
 		super(
-			"Astro encountered an unexpected line of code.\n" +
-			"In most cases, this is not your fault, but a bug in astro code.\n" +
-			"If there isn't one already, please create an issue.\n" +
-			"https://astro.build/issues"
+			'Astro encountered an unexpected line of code.\n' +
+				'In most cases, this is not your fault, but a bug in astro code.\n' +
+				"If there isn't one already, please create an issue.\n" +
+				'https://astro.build/issues'
 		);
 	}
 }
