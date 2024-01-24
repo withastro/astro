@@ -55,6 +55,7 @@ describe('build.format', () => {
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({
+				base: '/test',
 				root: './fixtures/page-format/',
 				build: {
 					format: 'preserve',
@@ -70,7 +71,7 @@ describe('build.format', () => {
 			it('relative urls created point to sibling folders', async () => {
 				let html = await fixture.readFile('/nested/page.html');
 				let $ = cheerio.load(html);
-				expect($('#another').attr('href')).to.equal('/nested/another/');
+				expect($('#another').attr('href')).to.equal('/test/nested/another/');
 			});
 
 			it('index files are written as index.html', async () => {
