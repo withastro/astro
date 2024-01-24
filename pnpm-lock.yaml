@@ -3833,6 +3833,21 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/alpinejs/test/fixtures/plugin-script-import:
+    dependencies:
+      '@astrojs/alpinejs':
+        specifier: workspace:*
+        version: link:../../..
+      '@types/alpinejs':
+        specifier: ^3.13.5
+        version: 3.13.5
+      alpinejs:
+        specifier: ^3.13.3
+        version: 3.13.3
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/cloudflare: {}
 
   packages/integrations/lit:
