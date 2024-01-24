@@ -89,20 +89,6 @@ const FILES_TO_UPDATE = {
 		options: { value: string; ctx: PickedTypeScriptContext }
 	) => {
 		try {
-			// add required dependencies for astro check
-			let installSucceeded = true;
-			if (options.ctx.install) {
-				const { exitCode } = await shell(
-					options.ctx.packageManager,
-					['add', '@astrojs/check', 'typescript'],
-					{
-						cwd: path.dirname(file),
-						stdio: 'ignore',
-					}
-				);
-				installSucceeded = exitCode === 0;
-			}
-
 			// inject additional command to build script
 			const data = await readFile(file, { encoding: 'utf-8' });
 			const indent = /(^\s+)/m.exec(data)?.[1] ?? '\t';
@@ -116,15 +102,13 @@ const FILES_TO_UPDATE = {
 				parsedPackageJson.scripts.build = `astro check && ${buildScript}`;
 			}
 
-			if (!options.ctx.install || !installSucceeded) {
-				const [astroCheckVersion, typescriptVersion] = await Promise.all([
-					getVersion(options.ctx.packageManager, '@astrojs/check'),
-					getVersion(options.ctx.packageManager, 'typescript'),
-				]);
-				parsedPackageJson.dependencies ??= {}
-				parsedPackageJson.dependencies['@astrojs/check'] = `^${astroCheckVersion}`;
-				parsedPackageJson.dependencies.typescript = `^${typescriptVersion}`;
-			}
+			const [astroCheckVersion, typescriptVersion] = await Promise.all([
+				getVersion(options.ctx.packageManager, '@astrojs/check'),
+				getVersion(options.ctx.packageManager, 'typescript'),
+			]);
+			parsedPackageJson.dependencies ??= {};
+			parsedPackageJson.dependencies['@astrojs/check'] = `^${astroCheckVersion}`;
+			parsedPackageJson.dependencies.typescript = `^${typescriptVersion}`;
 
 			await writeFile(file, JSON.stringify(parsedPackageJson, null, indent), 'utf-8');
 		} catch (err) {
