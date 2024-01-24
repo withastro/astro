@@ -409,7 +409,6 @@ export interface ImageServiceConfig<T extends Record<string, any> = Record<strin
  * Docs: https://docs.astro.build/reference/configuration-reference/
  */
 export interface AstroUserConfig {
-
 	/**
 	 * @docs
 	 * @kind heading
@@ -568,7 +567,6 @@ export interface AstroUserConfig {
 	 */
 	output?: 'static' | 'server' | 'hybrid';
 
-
 	/**
 	 * @docs
 	 * @name adapter
@@ -724,7 +722,6 @@ export interface AstroUserConfig {
 	 */
 	compressHTML?: boolean;
 
-	
 	/**
 	 * @docs
 	 * @name scopedStyleStrategy
@@ -1069,7 +1066,7 @@ export interface AstroUserConfig {
 		 */
 		enabled: boolean;
 	};
-	
+
 	/**
 	 * @docs
 	 * @kind heading
