@@ -746,6 +746,7 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name vite
+	 * @typeraw {ViteUserConfig}
 	 * @description
 	 *
 	 * Pass additional configuration options to Vite. Useful when Astro doesn't support some advanced configuration that you may need.
