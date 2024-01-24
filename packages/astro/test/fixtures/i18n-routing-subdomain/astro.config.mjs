@@ -1,6 +1,7 @@
 import { defineConfig} from "astro/config";
 
 export default defineConfig({
+	output: "server",
 	trailingSlash: "never",
 	i18n: {
 		defaultLocale: 'en',
@@ -21,5 +22,4 @@ export default defineConfig({
 		i18nDomains: true
 	},
 	site: "https://example.com",
-	base: "/new-site"
 })

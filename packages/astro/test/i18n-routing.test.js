@@ -33,20 +33,28 @@ describe('astro:i18n virtual module', () => {
 	});
 
 	describe('absolute URLs', () => {
+		let app;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/i18n-routing-subdomain/',
+				output: 'server',
+				adapter: testAdapter(),
 			});
 			await fixture.build();
+			app = await fixture.loadTestAdapterApp();
 		});
 
-		it.only('correctly renders the absolute URL', async () => {
-			const html = await fixture.readFile('/index.html');
+		it('correctly renders the absolute URL', async () => {
+			let request = new Request('http://example.com/');
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+
+			let html = await response.text();
 			let $ = cheerio.load(html);
 
 			expect($('body').text()).includes("Virtual module doesn't break");
-			expect($('body').text()).includes('Absolute URL pt: https://example.pt/new-site/about');
-			expect($('body').text()).includes('Absolute URL it: http://it.example.com/new-site');
+			expect($('body').text()).includes('Absolute URL pt: https://example.pt/about');
+			expect($('body').text()).includes('Absolute URL it: http://it.example.com/');
 		});
 	});
 });
@@ -1649,7 +1657,7 @@ describe('i18n routing does not break assets and endpoints', () => {
 		});
 
 		it('should render the en locale when X-Forwarded-Host header is passed', async () => {
-			let request = new Request('http://example.pt/new-site/start', {
+			let request = new Request('http://example.pt/start', {
 				headers: {
 					'X-Forwarded-Host': 'example.pt',
 					'X-Forwarded-Proto': 'https',
@@ -1661,7 +1669,7 @@ describe('i18n routing does not break assets and endpoints', () => {
 		});
 
 		it('should render the en locale when Host header is passed', async () => {
-			let request = new Request('http://example.pt/new-site/start', {
+			let request = new Request('http://example.pt/start', {
 				headers: {
 					Host: 'example.pt',
 					'X-Forwarded-Proto': 'https',
@@ -1673,7 +1681,7 @@ describe('i18n routing does not break assets and endpoints', () => {
 		});
 
 		it('should render the en locale when Host header is passed and it has the port', async () => {
-			let request = new Request('http://example.pt/new-site/start', {
+			let request = new Request('http://example.pt/start', {
 				headers: {
 					Host: 'example.pt:8080',
 					'X-Forwarded-Proto': 'https',
@@ -1685,7 +1693,7 @@ describe('i18n routing does not break assets and endpoints', () => {
 		});
 
 		it('should render when the protocol header we fallback to the one of the host', async () => {
-			let request = new Request('https://example.pt/new-site/start', {
+			let request = new Request('https://example.pt/start', {
 				headers: {
 					Host: 'example.pt',
 				},
