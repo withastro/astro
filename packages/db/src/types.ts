@@ -54,16 +54,16 @@ const fieldsSchema = z.record(fieldSchema);
 
 export const readableCollectionSchema = z.object({
 	fields: fieldsSchema,
-	set: z.function(),
-	_setEnv: z.function(),
 	writable: z.literal(false),
+	_: z.object({ name: z.string().optional() }).optional(),
+	_setMeta: z.function().optional(),
 });
 
 export const writableCollectionSchema = z.object({
 	fields: fieldsSchema,
-	set: z.function(),
-	_setEnv: z.function(),
 	writable: z.literal(true),
+	_: z.object({ name: z.string().optional() }).optional(),
+	_setMeta: z.function().optional(),
 });
 
 export const collectionSchema = z.union([readableCollectionSchema, writableCollectionSchema]);

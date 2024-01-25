@@ -13,7 +13,6 @@ import {
 	type DBField,
 } from './types.js';
 import { z } from 'zod';
-import { type SqliteDB } from './internal.js';
 import type { SQLiteInsertValue } from 'drizzle-orm/sqlite-core';
 
 export const dbConfigSchema = z.object({
@@ -27,17 +26,32 @@ export const dbConfigSchema = z.object({
 		.optional(),
 });
 
-export type DBUserConfig = Omit<z.input<typeof dbConfigSchema>, 'data' | 'collections'> & {
-	collections: Record<
-		string,
-		ResolvedCollectionConfig<z.input<typeof collectionSchema>['fields'], boolean>
-	>;
-	data(): MaybePromise<void>;
+export type DBUserConfig = Omit<z.input<typeof dbConfigSchema>, 'data'> & {
+	data(params: {
+		set<TFields extends z.input<typeof collectionSchema>['fields']>(
+			collection: ResolvedCollectionConfig<TFields, boolean>,
+			data: MaybeArray<
+				SQLiteInsertValue<
+					Table<
+						string,
+						/** TODO: true type inference */ Record<Extract<keyof TFields, string>, DBField>
+					>
+				>
+			>
+		): Promise<any> /** TODO: type output */;
+	}): MaybePromise<void>;
 };
 
 export const astroConfigWithDbSchema = z.object({
 	db: dbConfigSchema.optional(),
 });
+
+type CollectionMeta = {
+	// Collection name is set later when running the data() function.
+	// Collection config is assigned to an object key,
+	// so the collection itself does not know the table name.
+	name?: string;
+};
 
 type CollectionConfig<
 	TFields extends z.input<typeof collectionSchema>['fields'],
@@ -49,6 +63,7 @@ type CollectionConfig<
 			seed?: Writable extends false
 				? never
 				: () => MaybePromise<Array<Record<keyof TFields, any> & { id?: string }>>;
+			_: CollectionMeta;
 		}
 	: {
 			fields: TFields;
@@ -56,6 +71,7 @@ type CollectionConfig<
 			data?: Writable extends true
 				? never
 				: () => MaybePromise<Array<Record<keyof TFields, any> & { id?: string }>>;
+			_: CollectionMeta;
 		};
 
 type ResolvedCollectionConfig<
@@ -63,59 +79,37 @@ type ResolvedCollectionConfig<
 	Writable extends boolean,
 > = CollectionConfig<TFields, Writable> & {
 	writable: Writable;
-	set(
-		data: MaybeArray<
-			SQLiteInsertValue<
-				Table<
-					string,
-					/** TODO: true type inference */ Record<Extract<keyof TFields, string>, DBField>
-				>
-			>
-		>
-	): Promise<any> /** TODO: type output */;
 };
 
 export function defineCollection<TFields extends z.input<typeof collectionSchema>['fields']>(
 	userConfig: CollectionConfig<TFields, false>
 ): ResolvedCollectionConfig<TFields, false> {
-	let db: SqliteDB | undefined;
-	let table:
-		| Table<
-				string,
-				/** TODO: true type inference */ Record<Extract<keyof TFields, string>, DBField>
-		  >
-		| undefined;
-	function _setEnv(env: { db: SqliteDB; table: Table<string, TFields> }) {
-		db = env.db;
-		table = env.table;
+	const _ = {};
+	function _setMeta(values: CollectionMeta) {
+		Object.assign(_, values);
 	}
 	return {
 		...userConfig,
 		writable: false,
-		// @ts-expect-error keep private
-		_setEnv,
-		set: async (values) => {
-			if (!db || !table) {
-				throw new Error('Collection `.set()` can only be called during `data()` seeding.');
-			}
-
-			const result = Array.isArray(values)
-				? await db.insert(table).values(values).returning()
-				: await db.insert(table).values(values).returning().get();
-			return result;
-		},
+		_,
+		// @ts-expect-error private field
+		_setMeta,
 	};
 }
 
 export function defineWritableCollection<
 	TFields extends z.input<typeof collectionSchema>['fields'],
 >(userConfig: CollectionConfig<TFields, true>): ResolvedCollectionConfig<TFields, true> {
+	const _ = {};
+	function _setMeta(values: CollectionMeta) {
+		Object.assign(_, values);
+	}
 	return {
 		...userConfig,
 		writable: true,
-		set: () => {
-			throw new Error('TODO: implement for writable');
-		},
+		_,
+		// @ts-expect-error private field
+		_setMeta,
 	};
 }
 

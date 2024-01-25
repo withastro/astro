@@ -1,7 +1,6 @@
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
 import { createClient } from '@libsql/client';
 import {
-	type ReadableDBCollection,
 	type BooleanField,
 	type DBCollection,
 	type DBCollections,
@@ -11,7 +10,7 @@ import {
 	type JsonField,
 	type NumberField,
 	type TextField,
-	type MaybePromise,
+	collectionSchema,
 } from './types.js';
 import { type LibSQLDatabase, drizzle } from 'drizzle-orm/libsql';
 import { bold } from 'kleur/colors';
@@ -33,10 +32,11 @@ import {
 } from 'drizzle-orm/sqlite-core';
 import { z } from 'zod';
 import type { AstroIntegrationLogger } from 'astro';
-export { createRemoteDatabaseClient, findLocalDatabase } from './utils-runtime.js';
+import type { DBUserConfig } from './config.js';
 
 export type SqliteDB = SqliteRemoteDatabase;
 export type { Table } from './types.js';
+export { createRemoteDatabaseClient, findLocalDatabase } from './utils-runtime.js';
 
 const sqlite = new SQLiteAsyncDialect();
 
@@ -92,7 +92,7 @@ export async function setupDbTables({
 	mode,
 }: {
 	db: LibSQLDatabase;
-	data?: () => MaybePromise<void>;
+	data?: DBUserConfig['data'];
 	collections: DBCollections;
 	logger: AstroIntegrationLogger;
 	mode: 'dev' | 'build';
@@ -108,10 +108,24 @@ export async function setupDbTables({
 	}
 	if (data) {
 		for (const [name, collection] of Object.entries(collections)) {
-			(collection as any)._setEnv({ db, table: collectionToTable(name, collection) });
+			(collection as any)._setMeta?.({ name });
 		}
 		try {
-			await data();
+			await data({
+				async set(collection, values) {
+					const collectionName = collection._.name;
+					if (!collectionName) {
+						throw new Error(
+							`Failed to set collection data. Did you call set() outside of the data() function?`
+						);
+					}
+					const table = collectionToTable(collectionName, collectionSchema.parse(collection));
+					const result = Array.isArray(values)
+						? await db.insert(table).values(values).returning()
+						: await db.insert(table).values(values).returning().get();
+					return result;
+				},
+			});
 		} catch (e) {
 			logger.error(
 				`Failed to seed data. Did you update to match recent schema changes? Full error:\n\n${e}`

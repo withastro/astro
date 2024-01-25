@@ -22,13 +22,13 @@ export default defineConfig({
 	integrations: [db()],
 	db: {
 		collections: { Recipe, Ingredient },
-		async data() {
-			const pancakes = await Recipe.set({
+		async data({ set }) {
+			const pancakes = await set(Recipe, {
 				title: 'Pancakes',
 				description: 'A delicious breakfast',
 			});
 
-			Ingredient.set([
+			set(Ingredient, [
 				{
 					name: 'Flour',
 					quantity: 1,
@@ -46,12 +46,12 @@ export default defineConfig({
 				},
 			]);
 
-			const pizza = await Recipe.set({
+			const pizza = await set(Recipe, {
 				title: 'Pizza',
 				description: 'A delicious dinner',
 			});
 
-			Ingredient.set([
+			set(Ingredient, [
 				{
 					name: 'Flour',
 					quantity: 1,
