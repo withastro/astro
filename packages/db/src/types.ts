@@ -206,12 +206,11 @@ export type Table<
 	columns: {
 		id: AstroId<{ tableName: TTableName }>;
 	} & {
-		[K in keyof TFields]: Column<
+		[K in Extract<keyof TFields, string>]: Column<
 			TFields[K]['type'],
 			{
 				tableName: TTableName;
-				// TODO: narrow K to string
-				name: string;
+				name: K;
 				hasDefault: TFields[K]['default'] extends undefined ? false : true;
 				notNull: TFields[K]['optional'] extends true ? false : true;
 			}
