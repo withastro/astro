@@ -91,12 +91,16 @@ export async function createLocalDatabaseClient({
 
 export async function setupDbTables({
 	db,
+	data,
 	collections,
 	logger,
+	mode,
 }: {
 	db: LibSQLDatabase;
+	data?: (...params: any) => any;
 	collections: DBCollections;
 	logger: AstroIntegrationLogger;
+	mode: 'dev' | 'build';
 }) {
 	const setupQueries: SQL[] = [];
 	for (const [name, collection] of Object.entries(collections)) {
@@ -107,6 +111,16 @@ export async function setupDbTables({
 	for (const q of setupQueries) {
 		await db.run(q);
 	}
+	if (data) {
+		const ormObjects = Object.fromEntries(
+			Object.entries(collections).map(([name, collection]) => {
+				const table = collectionToTable(name, collection, false);
+				return [name, table];
+			})
+		);
+		await data({ db, ...ormObjects, mode });
+	}
+	// TODO: decide on removing collection-level data
 	for (const [name, collection] of Object.entries(collections)) {
 		if (!isReadableCollection(collection) || !collection.data) continue;
 
@@ -127,8 +141,8 @@ export function getCreateTableQuery(collectionName: string, collection: DBCollec
 	let query = `CREATE TABLE ${sqlite.escapeName(collectionName)} (`;
 
 	const colQueries = [];
-	const colHasPrimaryKey = Object.entries(collection.fields).find(
-		([, field]) => hasPrimaryKey(field)
+	const colHasPrimaryKey = Object.entries(collection.fields).find(([, field]) =>
+		hasPrimaryKey(field)
 	);
 	if (!colHasPrimaryKey) {
 		colQueries.push('_id INTEGER PRIMARY KEY');
@@ -172,7 +186,6 @@ export function getModifiers(fieldName: string, field: DBField) {
 	}
 	return modifiers;
 }
-
 
 // Using `DBField` will not narrow `default` based on the column `type`
 // Handle each field separately
@@ -289,7 +302,7 @@ function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boo
 		case 'number': {
 			c = integer(fieldName);
 			if (field.default !== undefined) c = c.default(field.default);
-			if (field.primaryKey === true) c = c.primaryKey({autoIncrement: true});
+			if (field.primaryKey === true) c = c.primaryKey({ autoIncrement: true });
 			break;
 		}
 		case 'boolean': {

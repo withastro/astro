@@ -14,6 +14,8 @@ import { z } from 'zod';
 export const dbConfigSchema = z.object({
 	studio: z.boolean().optional(),
 	collections: collectionsSchema.optional(),
+	// TODO: strict types
+	data: z.function().args(z.any()).optional(),
 });
 
 export type DBUserConfig = z.input<typeof dbConfigSchema>;

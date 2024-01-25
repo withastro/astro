@@ -55,7 +55,13 @@ export function integration(): AstroIntegration {
 						dbUrl: dbUrl.href,
 						seeding: true,
 					});
-					await setupDbTables({ db, collections, logger });
+					await setupDbTables({
+						db,
+						collections,
+						data: configWithDb.db?.data,
+						logger,
+						mode: command === 'dev' ? 'dev' : 'build',
+					});
 					logger.info('Collections set up 🚀');
 
 					dbPlugin = vitePluginDb({ connectToStudio: false, collections, dbUrl: dbUrl.href });
