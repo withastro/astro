@@ -1,5 +1,6 @@
 import type { NodeApp } from 'astro/app/node';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { SSRManifest } from 'astro';
 
 export interface UserOptions {
 	/**
@@ -17,6 +18,7 @@ export interface Options extends UserOptions {
 	server: string;
 	client: string;
 	assets: string;
+	trailingSlash?: SSRManifest['trailingSlash'];
 }
 
 export interface CreateServerOptions {

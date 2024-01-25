@@ -1,6 +1,7 @@
+import * as assert from 'node:assert/strict';
+import { describe, it, before, after } from 'node:test';
 import nodejs from '../dist/index.js';
-import { loadFixture } from './test-utils.js';
-import { expect } from 'chai';
+import { loadFixture, waitServerListen } from './test-utils.js';
 import * as cheerio from 'cheerio';
 
 /**
@@ -37,6 +38,7 @@ describe('Prerender 404', () => {
 			const { startServer } = await load();
 			let res = startServer();
 			server = res.server;
+			await waitServerListen(server.server);
 		});
 
 		after(async () => {
@@ -50,8 +52,8 @@ describe('Prerender 404', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Hello world!');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Hello world!');
 		});
 
 		it('Can handle prerendered 404', async () => {
@@ -60,20 +62,20 @@ describe('Prerender 404', () => {
 			const res2 = await fetch(url);
 			const res3 = await fetch(url);
 
-			expect(res1.status).to.equal(404);
-			expect(res2.status).to.equal(404);
-			expect(res3.status).to.equal(404);
+			assert.equal(res1.status, 404);
+			assert.equal(res2.status, 404);
+			assert.equal(res3.status, 404);
 
 			const html1 = await res1.text();
 			const html2 = await res2.text();
 			const html3 = await res3.text();
 
-			expect(html1).to.equal(html2);
-			expect(html2).to.equal(html3);
+			assert.equal(html1, html2);
+			assert.equal(html2, html3);
 
 			const $ = cheerio.load(html1);
 
-			expect($('body').text()).to.equal('Page does not exist');
+			assert.equal($('body').text(), 'Page does not exist');
 		});
 
 		it(' Can handle prerendered 500 called indirectly', async () => {
@@ -82,16 +84,16 @@ describe('Prerender 404', () => {
 			const response2 = await fetch(url);
 			const response3 = await fetch(url);
 
-			expect(response1.status).to.equal(500);
+			assert.equal(response1.status, 500);
 
 			const html1 = await response1.text();
 			const html2 = await response2.text();
 			const html3 = await response3.text();
 
-			expect(html1).to.contain('Something went wrong');
+			assert.equal(html1.includes('Something went wrong'), true);
 
-			expect(html1).to.equal(html2);
-			expect(html2).to.equal(html3);
+			assert.equal(html1, html2);
+			assert.equal(html2, html3);
 		});
 
 		it('prerendered 500 page includes expected styles', async () => {
@@ -100,7 +102,7 @@ describe('Prerender 404', () => {
 			const $ = cheerio.load(html);
 
 			// length will be 0 if the stylesheet does not get included
-			expect($('style')).to.have.a.lengthOf(1);
+			assert.equal($('style').length, 1);
 		});
 	});
 
@@ -121,6 +123,7 @@ describe('Prerender 404', () => {
 			const { startServer } = await load();
 			let res = startServer();
 			server = res.server;
+			await waitServerListen(server.server);
 		});
 
 		after(async () => {
@@ -134,8 +137,8 @@ describe('Prerender 404', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Hello world!');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Hello world!');
 		});
 
 		it('Can handle prerendered 404', async () => {
@@ -144,20 +147,20 @@ describe('Prerender 404', () => {
 			const res2 = await fetch(url);
 			const res3 = await fetch(url);
 
-			expect(res1.status).to.equal(404);
-			expect(res2.status).to.equal(404);
-			expect(res3.status).to.equal(404);
+			assert.equal(res1.status, 404);
+			assert.equal(res2.status, 404);
+			assert.equal(res3.status, 404);
 
 			const html1 = await res1.text();
 			const html2 = await res2.text();
 			const html3 = await res3.text();
 
-			expect(html1).to.equal(html2);
-			expect(html2).to.equal(html3);
+			assert.equal(html1, html2);
+			assert.equal(html2, html3);
 
 			const $ = cheerio.load(html1);
 
-			expect($('body').text()).to.equal('Page does not exist');
+			assert.equal($('body').text(), 'Page does not exist');
 		});
 	});
 });
@@ -184,6 +187,7 @@ describe('Hybrid 404', () => {
 			const { startServer } = await load();
 			let res = startServer();
 			server = res.server;
+			await waitServerListen(server.server);
 		});
 
 		after(async () => {
@@ -197,8 +201,8 @@ describe('Hybrid 404', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Hello world!');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Hello world!');
 		});
 
 		it('Can handle prerendered 404', async () => {
@@ -207,20 +211,20 @@ describe('Hybrid 404', () => {
 			const res2 = await fetch(url);
 			const res3 = await fetch(url);
 
-			expect(res1.status).to.equal(404);
-			expect(res2.status).to.equal(404);
-			expect(res3.status).to.equal(404);
+			assert.equal(res1.status, 404);
+			assert.equal(res2.status, 404);
+			assert.equal(res3.status, 404);
 
 			const html1 = await res1.text();
 			const html2 = await res2.text();
 			const html3 = await res3.text();
 
-			expect(html1).to.equal(html2);
-			expect(html2).to.equal(html3);
+			assert.equal(html1, html2);
+			assert.equal(html2, html3);
 
 			const $ = cheerio.load(html1);
 
-			expect($('body').text()).to.equal('Page does not exist');
+			assert.equal($('body').text(), 'Page does not exist');
 		});
 	});
 
@@ -240,6 +244,7 @@ describe('Hybrid 404', () => {
 			const { startServer } = await load();
 			let res = startServer();
 			server = res.server;
+			await waitServerListen(server.server);
 		});
 
 		after(async () => {
@@ -253,8 +258,8 @@ describe('Hybrid 404', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Hello world!');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Hello world!');
 		});
 
 		it('Can handle prerendered 404', async () => {
@@ -263,20 +268,20 @@ describe('Hybrid 404', () => {
 			const res2 = await fetch(url);
 			const res3 = await fetch(url);
 
-			expect(res1.status).to.equal(404);
-			expect(res2.status).to.equal(404);
-			expect(res3.status).to.equal(404);
+			assert.equal(res1.status, 404);
+			assert.equal(res2.status, 404);
+			assert.equal(res3.status, 404);
 
 			const html1 = await res1.text();
 			const html2 = await res2.text();
 			const html3 = await res3.text();
 
-			expect(html1).to.equal(html2);
-			expect(html2).to.equal(html3);
+			assert.equal(html1, html2);
+			assert.equal(html2, html3);
 
 			const $ = cheerio.load(html1);
 
-			expect($('body').text()).to.equal('Page does not exist');
+			assert.equal($('body').text(), 'Page does not exist');
 		});
 	});
 });
