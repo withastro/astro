@@ -84,7 +84,7 @@ describe('Prerendering', () => {
 			const $ = cheerio.load(html);
 			assert.equal(res.status, 301);
 			assert.equal(res.headers.get('location'), '/some-base/two/');
-			assert.equal($('h1').text(), "Two")
+			assert.equal($('h1').text(), 'Two');
 		});
 	});
 
