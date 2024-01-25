@@ -104,6 +104,11 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
 	}
 
+	// prevent URLs in `content` attributes being escaped for multiple params to work
+	if (key === 'content' && typeof value === 'string' && URL.canParse(value)) {
+		return markHTMLString(` ${key}="${toAttributeString(value, false)}"`);
+	}
+
 	// Boolean values only need the key
 	if (value === true && (key.startsWith('data-') || htmlBooleanAttributes.test(key))) {
 		return markHTMLString(` ${key}`);
