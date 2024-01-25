@@ -7,13 +7,14 @@ import type { Arguments } from 'yargs-parser';
 import { appTokenError } from '../../../errors.js';
 import { collectionToTable, createLocalDatabaseClient } from '../../../internal.js';
 import {
+	createCurrentSnapshot,
 	createEmptySnapshot,
 	getMigrations,
 	initializeFromMigrations,
 	loadInitialSnapshot,
 	loadMigration,
 } from '../../../migrations.js';
-import type { DBCollections } from '../../../types.js';
+import type { DBCollections, DBSnapshot } from '../../../types.js';
 import {
 	STUDIO_ADMIN_TABLE_ROW_ID,
 	adminTable,
@@ -30,9 +31,7 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 	const isSeedData = flags.seed;
 	const isDryRun = flags.dryRun;
 	const appToken = flags.token ?? getAstroStudioEnv().ASTRO_STUDIO_APP_TOKEN;
-
-	const currentDb: DBCollections = (config.db?.collections ?? {}) as DBCollections;
-	const currentSnapshot = JSON.parse(JSON.stringify(currentDb));
+	const currentSnapshot = createCurrentSnapshot(config);
 	const allMigrationFiles = await getMigrations();
 	if (allMigrationFiles.length === 0) {
 		console.log('Project not yet initialized!');
@@ -43,6 +42,7 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 	const calculatedDiff = diff(prevSnapshot, currentSnapshot);
 	if (calculatedDiff) {
 		console.log('Changes detected!');
+		console.log(calculatedDiff);
 		process.exit(1);
 	}
 
@@ -74,7 +74,7 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 	}
 	if (isSeedData) {
 		console.info('Pushing data...');
-		await tempDataPush({ currentDb, appToken, isDryRun });
+		await pushData({ config, appToken, isDryRun });
 	}
 	console.info('Push complete!');
 }
@@ -90,7 +90,7 @@ async function pushSchema({
 	appToken: string;
 	isDryRun: boolean;
 	db: ReturnType<typeof createRemoteDatabaseClient>;
-	currentSnapshot: DBCollections;
+	currentSnapshot: DBSnapshot;
 }) {
 	// load all missing migrations
 	const initialSnapshot = migrations.find((m) => m === '0000_snapshot.json');
@@ -120,28 +120,26 @@ async function pushSchema({
 }
 
 /** TODO: refine with migration changes */
-async function tempDataPush({
-	currentDb,
+async function pushData({
+	config,
 	appToken,
 	isDryRun,
 }: {
-	currentDb: DBCollections;
+	config: AstroConfig;
 	appToken: string;
 	isDryRun?: boolean;
 }) {
 	const db = await createLocalDatabaseClient({
-		collections: JSON.parse(JSON.stringify(currentDb)),
+		collections: config.db!.collections! as DBCollections,
 		dbUrl: ':memory:',
 		seeding: true,
 	});
 	const queries: Query[] = [];
 
-	for (const [name, collection] of Object.entries(currentDb)) {
-		console.log(name, collection);
+	for (const [name, collection] of Object.entries(config.db!.collections! as DBCollections)) {
 		if (collection.writable || !collection.data) continue;
 		const table = collectionToTable(name, collection);
 		const insert = db.insert(table).values(await collection.data());
-
 		queries.push(insert.toSQL());
 	}
 	console.log(queries);

@@ -39,6 +39,10 @@ export type { Table } from './types.js';
 
 const sqlite = new SQLiteAsyncDialect();
 
+export function hasPrimaryKey(field: DBField) {
+	return 'primaryKey' in field && !!field.primaryKey;
+}
+
 function isReadableCollection(collection: DBCollection): collection is ReadableDBCollection {
 	return !collection.writable;
 }
@@ -232,12 +236,6 @@ const jsonType = customType<{ data: unknown; driverData: string }>({
 	},
 });
 
-const initialColumns = {
-	id: text('id')
-		.primaryKey()
-		.$default(() => generateId()),
-};
-
 type D1ColumnBuilder = SQLiteColumnBuilderBase<
 	ColumnBuilderBaseConfig<ColumnDataType, string> & { data: unknown }
 >;
@@ -247,17 +245,14 @@ export function collectionToTable(
 	collection: DBCollection,
 	isJsonSerializable = true
 ) {
-	const columns: Record<string, D1ColumnBuilder> & typeof initialColumns = {
-		// Spread to avoid mutating `initialColumns`
-		...initialColumns,
-	};
-
+	const columns: Record<string, D1ColumnBuilder> = {};
+	if (!Object.entries(collection.fields).some(([, field]) => hasPrimaryKey(field))) {
+		columns['_id'] = integer('_id').primaryKey();
+	}
 	for (const [fieldName, field] of Object.entries(collection.fields)) {
 		columns[fieldName] = columnMapper(fieldName, field, isJsonSerializable);
 	}
-
 	const table = sqliteTable(name, columns);
-
 	return table;
 }
 
@@ -276,11 +271,13 @@ function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boo
 			// Duplicate default logic across cases to preserve type inference.
 			// No clean generic for every column builder.
 			if (field.default !== undefined) c = c.default(field.default);
+			if (field.primaryKey === true) c = c.primaryKey();
 			break;
 		}
 		case 'number': {
 			c = integer(fieldName);
 			if (field.default !== undefined) c = c.default(field.default);
+			if (field.primaryKey === true) c = c.primaryKey({autoIncrement: true});
 			break;
 		}
 		case 'boolean': {

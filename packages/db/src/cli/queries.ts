@@ -15,6 +15,7 @@ import type {
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { customAlphabet } from 'nanoid';
 import prompts from 'prompts';
+import { hasPrimaryKey } from '../internal.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
@@ -408,7 +409,7 @@ export function getCreateTableQuery(collectionName: string, collection: DBCollec
 		([, field]) => hasPrimaryKey(field)
 	);
 	if (!colHasPrimaryKey) {
-		colQueries.push('_id INTEGER PRIMARY KEY AUTOINCREMENT');
+		colQueries.push('_id INTEGER PRIMARY KEY');
 	}
 	for (const [columnName, column] of Object.entries(collection.fields)) {
 		const colQuery = `${sqlite.escapeName(columnName)} ${schemaTypeToSqlType(
@@ -569,10 +570,6 @@ type DBFieldWithDefault =
 	| WithDefaultDefined<NumberField>
 	| WithDefaultDefined<BooleanField>
 	| WithDefaultDefined<JsonField>;
-
-function hasPrimaryKey(field: DBField) {
-	return 'primaryKey' in field && !!field.primaryKey;
-}
 
 // Type narrowing the default fails on union types, so use a type guard
 function hasDefault(field: DBField): field is DBFieldWithDefault {
