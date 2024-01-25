@@ -39,15 +39,16 @@ function toValidIdent(name: string): string {
 		null,
 		`Your transition:name ${bold(name)} is not a valid CSS identifier. It will be escaped.`
 	);
-	const result = [];
-	for (const char of name) {
-		if (/[a-zA-Z0-9_-]/.test(char)) {
-			result.push(char);
+	let result = "";
+	for (let i = 0; i < name.length; i++)  {
+		if (/[a-zA-Z0-9_-]/.test(name[i])) {
+			result += name[i];
 		} else {
-			result.push(`\\${char.charCodeAt(0).toString(16)}-`);
+			const suffix = i< name.length - 1 ? '-' : '';
+			result += `\\${name[i].charCodeAt(0).toString(16)}${suffix}`;
 		}
 	}
-	return result.join('');
+	return result;
 }
 
 type Entries<T extends Record<string, any>> = Iterable<[keyof T, T[keyof T]]>;
