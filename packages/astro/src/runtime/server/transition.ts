@@ -28,8 +28,12 @@ export function createTransitionScope(result: SSRResult, hash: string) {
 
 // Ensure animationName is a valid CSS identifier
 function toValidIdent(name: string): string {
-	if (/^[0-9]|^-[0-9]/.test(name)) {
-		throw new Error("Your transition:name is not a valid CSS identifier.");
+	// can't start with a number, - + number, or --
+	if (/^[0-9]|^-[0-9]|^--/.test(name)) {
+    throw new Error("Your transition:name is not a valid CSS identifier.");
+	}
+	if (['unset', 'initial', 'inherit', 'none' ].includes(name)) {
+		throw new Error(`Your transition:name cannot be ${name}.`);
 	}
 	if (/^[a-zA-Z0-9_\\-]*$/.test(name)) {
 		return name;
@@ -39,7 +43,7 @@ function toValidIdent(name: string): string {
 		if (/[a-zA-Z0-9_-]/.test(char)) {
 			result += char;
 		} else {
-			const suffix = char === name[name.length - 1] ? "" : "-";
+			const suffix = char === name[name.length - 1] ? "" : "\\ ";
 			result += `\\${char.codePointAt(0)!.toString(16)}${suffix}`;
 		}
 	}
