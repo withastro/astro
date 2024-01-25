@@ -41,6 +41,7 @@ function toValidIdent(name: string): string {
 		wasHexEscaped = false;
 		if (/[a-zA-Z0-9_\\-]/.test(char)) {
 			result += char;
+			continue;
 		} else {
 			// TODO handle $ and other special characters
 			const suffix = char === name[name.length - 1] ? "" : "\ ";
