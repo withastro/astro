@@ -234,6 +234,7 @@ export async function handleRoute({
 				type: 'fallback',
 				route: '',
 				fallbackRoutes: [],
+				hasSharedModules: false,
 			};
 			renderContext = await createRenderContext({
 				request,

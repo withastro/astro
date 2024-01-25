@@ -426,6 +426,7 @@ function createFileBasedRoutes(
 					pathname: pathname || undefined,
 					prerender,
 					fallbackRoutes: [],
+					hasSharedModules: false,
 				});
 			}
 		}
@@ -505,6 +506,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 			pathname: pathname || void 0,
 			prerender: prerenderInjected ?? prerender,
 			fallbackRoutes: [],
+			hasSharedModules: false,
 		});
 	}
 
@@ -579,6 +581,7 @@ function createRedirectRoutes(
 			redirect: to,
 			redirectRoute: routeMap.get(destination),
 			fallbackRoutes: [],
+			hasSharedModules: false,
 		});
 	}
 

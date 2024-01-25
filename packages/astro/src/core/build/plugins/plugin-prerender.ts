@@ -18,10 +18,30 @@ function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals
 						return 'astro';
 					}
 					const pageInfo = internals.pagesByViteID.get(id);
+					let hasSharedModules = false;
 					if (pageInfo) {
 						// prerendered pages should be split into their own chunk
 						// Important: this can't be in the `pages/` directory!
 						if (getPrerenderMetadata(meta.getModuleInfo(id)!)) {
+							const infoMeta = meta.getModuleInfo(id)!;
+
+							// Here, we check if this page is importing modules that are shared among other modules e.g. middleware, other SSR pages, etc.
+							// we loop the modules that the current page imports
+							for (const moduleId of infoMeta.importedIds) {
+								// we retrieve the metadata of the module
+								const moduleMeta = meta.getModuleInfo(moduleId)!;
+								if (
+									// a shared modules should be inside the `src/` folder, at least
+									moduleMeta.id.startsWith(opts.settings.config.srcDir.pathname) &&
+									// and have at least two importers: the current page and something else
+									moduleMeta.importers.length > 1
+								) {
+									hasSharedModules = true;
+									break;
+								}
+							}
+
+							pageInfo.route.hasSharedModules = hasSharedModules;
 							pageInfo.route.prerender = true;
 							return 'prerender';
 						}
