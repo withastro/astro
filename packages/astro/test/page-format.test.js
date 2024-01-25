@@ -57,9 +57,18 @@ describe('build.format', () => {
 			fixture = await loadFixture({
 				base: '/test',
 				root: './fixtures/page-format/',
+				trailingSlash: 'always',
 				build: {
 					format: 'preserve',
 				},
+				i18n: {
+					locales: ['en'],
+					defaultLocale: 'en',
+					routing: {
+						prefixDefaultLocale: true,
+						redirectToDefaultLocale: true,
+					}
+				}
 			});
 		});
 
@@ -69,13 +78,13 @@ describe('build.format', () => {
 			});
 
 			it('relative urls created point to sibling folders', async () => {
-				let html = await fixture.readFile('/nested/page.html');
+				let html = await fixture.readFile('/en/nested/page.html');
 				let $ = cheerio.load(html);
-				expect($('#another').attr('href')).to.equal('/test/nested/another/');
+				expect($('#another').attr('href')).to.equal('/test/en/nested/another/');
 			});
 
 			it('index files are written as index.html', async () => {
-				let html = await fixture.readFile('/nested/index.html');
+				let html = await fixture.readFile('/en/nested/index.html');
 				let $ = cheerio.load(html);
 				expect($('h1').text()).to.equal('Testing');
 			});
