@@ -35,10 +35,7 @@ export function createI18nMiddleware(
 	return async (context, next) => {
 		const routeData: RouteData | undefined = Reflect.get(context.request, routeDataSymbol);
 		// If the route we're processing is not a page, then we ignore it
-		if (
-			routeData?.type !== 'page' &&
-			routeData?.type !== 'fallback'
-		) {
+		if (routeData?.type !== 'page' && routeData?.type !== 'fallback') {
 			return await next();
 		}
 
