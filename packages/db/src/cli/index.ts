@@ -5,6 +5,10 @@ export async function cli({ flags, config }: { flags: Arguments; config: AstroCo
 	const command = flags._[3] as string;
 
 	switch (command) {
+		case 'shell': {
+			const { cmd: shellCommand } = await import('./commands/shell/index.js');
+			return await shellCommand({ config, flags });
+		}
 		case 'sync': {
 			const { cmd: syncCommand } = await import('./commands/sync/index.js');
 			return await syncCommand({ config, flags });
