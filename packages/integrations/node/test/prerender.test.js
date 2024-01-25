@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it, before, after } from 'node:test';
 import nodejs from '../dist/index.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, waitServerListen } from './test-utils.js';
 import * as cheerio from 'cheerio';
 
 /**
@@ -31,6 +31,7 @@ describe('Prerendering', () => {
 			const { startServer } = await load();
 			let res = startServer();
 			server = res.server;
+			await waitServerListen(server.server);
 		});
 
 		after(async () => {
@@ -100,6 +101,7 @@ describe('Prerendering', () => {
 			const { startServer } = await await load();
 			let res = startServer();
 			server = res.server;
+			await waitServerListen(server.server);
 		});
 
 		after(async () => {
@@ -202,6 +204,7 @@ describe('Hybrid rendering', () => {
 			const { startServer } = await await load();
 			let res = startServer();
 			server = res.server;
+			await waitServerListen(server.server);
 		});
 
 		after(async () => {
@@ -267,6 +270,7 @@ describe('Hybrid rendering', () => {
 			const { startServer } = await await load();
 			let res = startServer();
 			server = res.server;
+			await waitServerListen(server.server);
 		});
 
 		after(async () => {
