@@ -35,6 +35,10 @@ function toValidIdent(name: string): string {
 	let result = "";
 	let wasHexEscaped = false;
 	for (const char of name)  {
+		if (/[0-9a-fA-F]/.test(char) && wasHexEscaped) {
+			result += " ";
+		}
+		wasHexEscaped = false;
 		if (/[a-zA-Z0-9_\\-]/.test(char)) {
 			result += char;
 		} else {
