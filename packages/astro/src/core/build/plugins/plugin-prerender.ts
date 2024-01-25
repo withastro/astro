@@ -41,7 +41,8 @@ function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals
 								}
 							}
 
-							pageInfo.route.hasSharedModules = hasSharedModules;
+							opts.allPages;
+							pageInfo.hasSharedModules = hasSharedModules;
 							pageInfo.route.prerender = true;
 							return 'prerender';
 						}

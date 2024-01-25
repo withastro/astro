@@ -2553,7 +2553,6 @@ export interface RouteData {
 	segments: RoutePart[][];
 	type: RouteType;
 	prerender: boolean;
-	hasSharedModules: boolean;
 	redirect?: RedirectConfig;
 	redirectRoute?: RouteData;
 	fallbackRoutes: RouteData[];
