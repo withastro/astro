@@ -6,6 +6,7 @@ import type {
 	SSRManifest,
 } from '../../@types/astro.js';
 import { createI18nMiddleware, i18nPipelineHook } from '../../i18n/middleware.js';
+import { REROUTE_DIRECTIVE_HEADER } from '../../runtime/server/consts.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
@@ -278,7 +279,7 @@ export class App {
 
 		if (
 			REROUTABLE_STATUS_CODES.has(response.status) &&
-			response.headers.get('X-Astro-Reroute') !== 'no'
+			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 		) {
 			return this.#renderError(request, {
 				response,
@@ -286,8 +287,8 @@ export class App {
 			});
 		}
 
-		if (response.headers.has('X-Astro-Reroute')) {
-			response.headers.delete('X-Astro-Reroute');
+		if (response.headers.has(REROUTE_DIRECTIVE_HEADER)) {
+			response.headers.delete(REROUTE_DIRECTIVE_HEADER);
 		}
 
 		if (addCookieHeader) {

@@ -1,7 +1,8 @@
 import nodejs from '../dist/index.js';
 import { loadFixture, createRequestAndResponse } from './test-utils.js';
-import { expect } from 'chai';
 import crypto from 'node:crypto';
+import { describe, it, before } from 'node:test';
+import * as assert from 'node:assert/strict';
 
 describe('API routes', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -33,9 +34,9 @@ describe('API routes', () => {
 
 		let json = JSON.parse(buffer.toString('utf-8'));
 
-		expect(json.length).to.equal(1);
+		assert.equal(json.length, 1);
 
-		expect(json[0].name).to.equal('Broccoli Soup');
+		assert.equal(json[0].name, 'Broccoli Soup');
 	});
 
 	it('Can get binary data', async () => {
@@ -54,7 +55,7 @@ describe('API routes', () => {
 
 		let [out] = await done;
 		let arr = Array.from(new Uint8Array(out.buffer));
-		expect(arr).to.deep.equal([5, 4, 3, 2, 1]);
+		assert.deepEqual(arr, [5, 4, 3, 2, 1]);
 	});
 
 	it('Can post large binary data', async () => {
@@ -87,7 +88,7 @@ describe('API routes', () => {
 		});
 
 		let [out] = await done;
-		expect(new Uint8Array(out.buffer)).to.deep.equal(expectedDigest);
+		assert.deepEqual(new Uint8Array(out.buffer), new Uint8Array(expectedDigest));
 	});
 
 	it('Can bail on streaming', async () => {
@@ -106,6 +107,6 @@ describe('API routes', () => {
 
 		await done;
 
-		expect(locals).to.deep.include({ cancelledByTheServer: true });
+		assert.deepEqual(locals, { cancelledByTheServer: true });
 	});
 });
