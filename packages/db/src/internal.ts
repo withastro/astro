@@ -120,6 +120,9 @@ export async function setupDbTables({
 						);
 					}
 					const table = collectionToTable(collectionName, collectionSchema.parse(collection));
+					if (typeof values === 'function') {
+						return await values({ db, table: table as any, mode });
+					}
 					const result = Array.isArray(values)
 						? await db.insert(table).values(values).returning()
 						: await db.insert(table).values(values).returning().get();

@@ -14,6 +14,7 @@ import {
 } from './types.js';
 import { z } from 'zod';
 import type { SQLiteInsertValue } from 'drizzle-orm/sqlite-core';
+import type { SqliteDB } from './internal.js';
 
 export const dbConfigSchema = z.object({
 	studio: z.boolean().optional(),
@@ -26,18 +27,33 @@ export const dbConfigSchema = z.object({
 		.optional(),
 });
 
+export type SetDataFn<
+	TFields extends z.input<typeof collectionSchema>['fields'] = z.input<
+		typeof collectionSchema
+	>['fields'],
+> = (params: {
+	db: SqliteDB;
+	table: Table<
+		string,
+		/** TODO: true type inference */ Record<Extract<keyof TFields, string>, DBField>
+	>;
+	mode: 'dev' | 'build';
+}) => MaybePromise<void>;
+
 export type DBUserConfig = Omit<z.input<typeof dbConfigSchema>, 'data'> & {
 	data(params: {
 		set<TFields extends z.input<typeof collectionSchema>['fields']>(
 			collection: ResolvedCollectionConfig<TFields, boolean>,
-			data: MaybeArray<
-				SQLiteInsertValue<
-					Table<
-						string,
-						/** TODO: true type inference */ Record<Extract<keyof TFields, string>, DBField>
-					>
-				>
-			>
+			data:
+				| MaybeArray<
+						SQLiteInsertValue<
+							Table<
+								string,
+								/** TODO: true type inference */ Record<Extract<keyof TFields, string>, DBField>
+							>
+						>
+				  >
+				| SetDataFn<TFields>
 		): Promise<any> /** TODO: type output */;
 	}): MaybePromise<void>;
 };
@@ -63,7 +79,6 @@ type CollectionConfig<
 			seed?: Writable extends false
 				? never
 				: () => MaybePromise<Array<Record<keyof TFields, any> & { id?: string }>>;
-			_: CollectionMeta;
 		}
 	: {
 			fields: TFields;
@@ -71,7 +86,6 @@ type CollectionConfig<
 			data?: Writable extends true
 				? never
 				: () => MaybePromise<Array<Record<keyof TFields, any> & { id?: string }>>;
-			_: CollectionMeta;
 		};
 
 type ResolvedCollectionConfig<
@@ -79,6 +93,7 @@ type ResolvedCollectionConfig<
 	Writable extends boolean,
 > = CollectionConfig<TFields, Writable> & {
 	writable: Writable;
+	_: CollectionMeta;
 };
 
 export function defineCollection<TFields extends z.input<typeof collectionSchema>['fields']>(
