@@ -65,13 +65,16 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 				return `
 					export const loadDevToolbarApps = async () => {
 						return (await Promise.all([${settings.devToolbarApps
-							.map((plugin) => `safeLoadPlugin(${JSON.stringify(plugin)})`)
+							.map(
+								(plugin) =>
+									`safeLoadPlugin(async () => (await import(${JSON.stringify(plugin)})).default)`
+							)
 							.join(',')}])).filter(app => app);
 					};
 
-					async function safeLoadPlugin(entrypoint) {
+					async function safeLoadPlugin(importEntrypoint) {
 						try {
-							const app = (await import(/* @vite-ignore */ entrypoint)).default;
+							const app = await importEntrypoint();
 
 							if (typeof app !== 'object' || !app.id || !app.name) {
 								throw new Error("Apps must default export an object with an id, and a name.");
