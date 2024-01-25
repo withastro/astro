@@ -26,7 +26,7 @@ export function createTransitionScope(result: SSRResult, hash: string) {
 // Ensure animationName is a valid CSS identifier
 function toValidIdent(name: string): string {
 	// can't start with a number, - + number, or --
-	if (/^[0-9]|^-[0-9]|^--/.test(name)) {
+	if (/^[0-9]|^-[0-9]/.test(name)) {
     throw new Error(`Your transition:name ${name} is not a valid CSS identifier.`);
 	}
 	if (/^[a-zA-Z0-9_\\-]*$/.test(name)) {
