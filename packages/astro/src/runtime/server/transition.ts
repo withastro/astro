@@ -44,7 +44,7 @@ function toValidIdent(name: string): string {
 		if (/[a-zA-Z0-9_-]/.test(char)) {
 			result.push(char);
 		} else {
-			result.push(`-\\${char.charCodeAt(0).toString(16)}-`);
+			result.push(`\\${char.charCodeAt(0).toString(16)}-`);
 		}
 	}
 	return result.join('');
