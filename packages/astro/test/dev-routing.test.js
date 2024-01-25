@@ -249,10 +249,10 @@ describe('Development Routing', () => {
 		it('error responses are served untouched', async () => {
 			const response = await fixture.fetch('/not-ok');
 			expect(response.status).to.equal(404);
-			expect(response.headers.get("Content-Type")).to.equal("text/plain;charset=UTF-8");
+			expect(response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');
 			const body = await response.text();
-			expect(body).to.equal("Text from pages/not-ok.ts");
-		})
+			expect(body).to.equal('Text from pages/not-ok.ts');
+		});
 
 		it('correct MIME type when loading /home.json (static route)', async () => {
 			const response = await fixture.fetch('/home.json');
