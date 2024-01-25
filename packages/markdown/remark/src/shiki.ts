@@ -1,5 +1,6 @@
 import { bundledLanguages, createCssVariablesTheme, getHighlighter } from 'shikiji';
 import { visit } from 'unist-util-visit';
+import type { Properties } from 'hast';
 import type { ShikiConfig } from './types.js';
 
 export interface ShikiHighlighter {
@@ -61,9 +62,8 @@ export async function createShikiHighlighter({
 								node.tagName = 'code';
 							}
 
-							// Cast to string as shikiji will always pass them as strings instead of any other types
-							const classValue = (node.properties.class as string) ?? '';
-							const styleValue = (node.properties.style as string) ?? '';
+							const classValue = normalizePropAsString(node.properties.class) ?? '';
+							const styleValue = normalizePropAsString(node.properties.style) ?? '';
 
 							// Replace "shiki" class naming with "astro-code"
 							node.properties.class = classValue.replace(/shiki/g, 'astro-code');
@@ -127,6 +127,10 @@ export async function createShikiHighlighter({
 			});
 		},
 	};
+}
+
+function normalizePropAsString(value: Properties[string]): string | null {
+	return Array.isArray(value) ? value.join(' ') : (value as string | null);
 }
 
 /**

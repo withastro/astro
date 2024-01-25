@@ -59,9 +59,17 @@ jobs:
           # Needs access to publish to npm
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Generate Notification
-        id: notification
+      - name: Generate Announcement
+        id: message
         if: steps.changesets.outputs.published == 'true'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        run: node scripts/notify/index.js '${{ steps.changesets.outputs.publishedPackages }}'
+        run: node .github/scripts/announce.mjs '${{ steps.changesets.outputs.publishedPackages }}'
+      
+      - name: Send message on Discord
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@0.3.2
+        with:
+          args: "${{ steps.message.outputs.DISCORD_MESSAGE }}"

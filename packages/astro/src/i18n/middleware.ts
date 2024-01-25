@@ -2,6 +2,7 @@ import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
 import type { Locales, MiddlewareHandler, RouteData, SSRManifest } from '../@types/astro.js';
 import type { PipelineHookFunction } from '../core/pipeline.js';
 import { getPathByLocale, normalizeTheLocale } from './index.js';
+import { shouldAppendForwardSlash } from '../core/build/util.js';
 
 const routeDataSymbol = Symbol.for('astro.routeData');
 
@@ -26,26 +27,16 @@ function pathnameHasLocale(pathname: string, locales: Locales): boolean {
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
 	base: SSRManifest['base'],
-	trailingSlash: SSRManifest['trailingSlash']
-): MiddlewareHandler | undefined {
-	if (!i18n) {
-		return undefined;
-	}
+	trailingSlash: SSRManifest['trailingSlash'],
+	buildFormat: SSRManifest['buildFormat']
+): MiddlewareHandler {
+	if (!i18n) return (_, next) => next();
 
 	return async (context, next) => {
-		if (!i18n) {
+		const routeData: RouteData | undefined = Reflect.get(context.request, routeDataSymbol);
+		// If the route we're processing is not a page, then we ignore it
+		if (routeData?.type !== 'page' && routeData?.type !== 'fallback') {
 			return await next();
-		}
-
-		const routeData = Reflect.get(context.request, routeDataSymbol);
-		if (routeData) {
-			// If the route we're processing is not a page, then we ignore it
-			if (
-				(routeData as RouteData).type !== 'page' &&
-				(routeData as RouteData).type !== 'fallback'
-			) {
-				return await next();
-			}
 		}
 
 		const url = context.url;
@@ -83,7 +74,7 @@ export function createI18nMiddleware(
 
 				case 'pathname-prefix-always': {
 					if (url.pathname === base + '/' || url.pathname === base) {
-						if (trailingSlash === 'always') {
+						if (shouldAppendForwardSlash(trailingSlash, buildFormat)) {
 							return context.redirect(`${appendForwardSlash(joinPaths(base, i18n.defaultLocale))}`);
 						} else {
 							return context.redirect(`${joinPaths(base, i18n.defaultLocale)}`);

@@ -6,7 +6,7 @@ import {
 	type DevImageService,
 	type VercelImageConfig,
 } from '../image/shared.js';
-import { emptyDir, getVercelOutput, writeJson } from '../lib/fs.js';
+import { emptyDir, writeJson } from '../lib/fs.js';
 import { isServerLikeOutput } from '../lib/prerender.js';
 import { getRedirects } from '../lib/redirects.js';
 import {
@@ -79,7 +79,7 @@ export default function vercelStatic({
 				if (command === 'build' && speedInsights?.enabled) {
 					injectScript('page', 'import "@astrojs/vercel/speed-insights"');
 				}
-				const outDir = new URL('./static/', getVercelOutput(config.root));
+				const outDir = new URL('./.vercel/output/static/', config.root);
 				updateConfig({
 					outDir,
 					build: {
@@ -110,12 +110,12 @@ export default function vercelStatic({
 				// Ensure to have `.vercel/output` empty.
 				// This is because, when building to static, outDir = .vercel/output/static/,
 				// so .vercel/output itself won't get cleaned.
-				await emptyDir(getVercelOutput(_config.root));
+				await emptyDir(new URL('./.vercel/output/', _config.root));
 			},
 			'astro:build:done': async ({ routes }) => {
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
-				await writeJson(new URL(`./config.json`, getVercelOutput(_config.root)), {
+				await writeJson(new URL('./.vercel/output/config.json', _config.root), {
 					version: 3,
 					routes: [
 						...getRedirects(routes, _config),
