@@ -43,9 +43,16 @@ function toValidIdent(name: string): string {
 			result += char;
 			continue;
 		} else {
-			// TODO handle $ and other special characters
-			const suffix = char === name[name.length - 1] ? "" : "\ ";
-			result += `\\${char.codePointAt(0)!.toString(16)}${suffix}`;
+		const code = char.codePointAt(0)
+		if (code === undefined) {
+			throw new Error(`Your transition:name ${name} is not a valid CSS identifier as it contains undefined code points`);
+		}
+		if (code < 0x20 || code >= 0x7f) {
+			result += `\\${code.toString(16)}`;
+			wasHexEscaped = true;
+		} else {
+			result += `\\${char}`;
+		}
 	}
 	return result;
 }
