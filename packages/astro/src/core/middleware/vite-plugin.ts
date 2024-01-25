@@ -6,7 +6,6 @@ import { addRollupInput } from '../build/add-rollup-input.js';
 import type { BuildInternals } from '../build/internal.js';
 import type { StaticBuildOptions } from '../build/types.js';
 import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
-import type { PluginContext } from 'rollup';
 
 export const MIDDLEWARE_MODULE_ID = '\0astro-internal:middleware';
 const NOOP_MIDDLEWARE = '\0noop-middleware';
@@ -45,12 +44,17 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 		},
 		async load(id) {
 			if (id === NOOP_MIDDLEWARE) {
-				// In the build, tell Vite to emit this file
-				if (isCommandBuild) emit(this, id)
 				return 'export const onRequest = (_, next) => next()';
 			} else if (id === MIDDLEWARE_MODULE_ID) {
 				// In the build, tell Vite to emit this file
-				if (isCommandBuild) emit(this, id)
+				if (isCommandBuild) {
+					this.emitFile({
+						type: 'chunk',
+						preserveSignature: 'strict',
+						fileName: 'middleware.mjs',
+						id,
+					})
+				}
 
 				const preMiddleware = createMiddlewareImports(settings.middlewares.pre, 'pre');
 				const postMiddleware = createMiddlewareImports(settings.middlewares.post, 'post');
@@ -75,15 +79,6 @@ export const onRequest = sequence(
 			}
 		},
 	};
-}
-
-function emit(context: PluginContext, id: string) {
-	return context.emitFile({
-		type: 'chunk',
-		preserveSignature: 'strict',
-		fileName: 'middleware.mjs',
-		id,
-	})
 }
 
 function createMiddlewareImports(

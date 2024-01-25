@@ -146,7 +146,10 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		const baseDirectory = getOutputDirectory(opts.settings.config);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
-		const { onRequest: middleware } = await import(new URL('middleware.mjs', baseDirectory).toString());
+		let middleware: MiddlewareHandler = (_, next) => next();
+		try {
+			middleware = await import(new URL('middleware.mjs', baseDirectory).toString()).then(mod => mod.onRequest);
+		} catch {}
 		manifest = createBuildManifest(
 			opts.settings,
 			internals,
