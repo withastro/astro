@@ -15,7 +15,7 @@ import type {
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { customAlphabet } from 'nanoid';
 import prompts from 'prompts';
-import { hasPrimaryKey } from '../internal.js';
+import { getCreateTableQuery, getModifiers, hasDefault, hasPrimaryKey, schemaTypeToSqlType } from '../internal.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
@@ -401,56 +401,6 @@ function getRecreateTableQueries({
 	];
 }
 
-export function getCreateTableQuery(collectionName: string, collection: DBCollection) {
-	let query = `CREATE TABLE ${sqlite.escapeName(collectionName)} (`;
-
-	const colQueries = [];
-	const colHasPrimaryKey = Object.entries(collection.fields).find(
-		([, field]) => hasPrimaryKey(field)
-	);
-	if (!colHasPrimaryKey) {
-		colQueries.push('_id INTEGER PRIMARY KEY');
-	}
-	for (const [columnName, column] of Object.entries(collection.fields)) {
-		const colQuery = `${sqlite.escapeName(columnName)} ${schemaTypeToSqlType(
-			column.type
-		)}${getModifiers(columnName, column)}`;
-		colQueries.push(colQuery);
-	}
-
-	query += colQueries.join(', ') + ')';
-	return query;
-}
-
-function getModifiers(fieldName: string, field: DBField) {
-	let modifiers = '';
-	if (hasPrimaryKey(field)) {
-		modifiers += ' PRIMARY KEY';
-	}
-	if (!field.optional) {
-		modifiers += ' NOT NULL';
-	}
-	if (field.unique) {
-		modifiers += ' UNIQUE';
-	}
-	if (hasDefault(field)) {
-		modifiers += ` DEFAULT ${getDefaultValueSql(fieldName, field)}`;
-	}
-	return modifiers;
-}
-
-function schemaTypeToSqlType(type: FieldType): 'text' | 'integer' {
-	switch (type) {
-		case 'date':
-		case 'text':
-		case 'json':
-			return 'text';
-		case 'number':
-		case 'boolean':
-			return 'integer';
-	}
-}
-
 function isEmpty(obj: Record<string, unknown>) {
 	return Object.keys(obj).length === 0;
 }
@@ -488,7 +438,7 @@ function canRecreateTableWithoutDataLoss(
 	updated: UpdatedFields
 ): DataLossResponse {
 	for (const [fieldName, a] of Object.entries(added)) {
-		if (hasPrimaryKey(a) && a.type !== 'number') {
+		if (hasPrimaryKey(a) && a.type !== 'number' && !hasDefault(a)) {
 			return { dataLoss: true, fieldName, reason: 'added-required' };
 		}
 		if (!a.optional && !hasDefault(a)) {
@@ -571,48 +521,8 @@ type DBFieldWithDefault =
 	| WithDefaultDefined<BooleanField>
 	| WithDefaultDefined<JsonField>;
 
-// Type narrowing the default fails on union types, so use a type guard
-function hasDefault(field: DBField): field is DBFieldWithDefault {
-	if (field.default !== undefined) {
-		return true;
-	}
-	if (hasPrimaryKey(field) && field.type === 'number') {
-		return true;
-	}
-	return false;
-}
-
 function hasRuntimeDefault(field: DBField): field is DBFieldWithDefault {
 	return field.type === 'date' && field.default === 'now';
-}
-
-function getDefaultValueSql(columnName: string, column: DBFieldWithDefault): string {
-	switch (column.type) {
-		case 'boolean':
-			return column.default ? 'TRUE' : 'FALSE';
-		case 'number':
-			return `${column.default || 'AUTOINCREMENT'}`;
-		case 'text':
-			return sqlite.escapeString(column.default);
-		case 'date':
-			return column.default === 'now' ? 'CURRENT_TIMESTAMP' : sqlite.escapeString(column.default);
-		case 'json': {
-			let stringified = '';
-			try {
-				stringified = JSON.stringify(column.default);
-			} catch (e) {
-				// eslint-disable-next-line no-console
-				console.log(
-					`Invalid default value for column ${color.bold(
-						columnName
-					)}. Defaults must be valid JSON when using the \`json()\` type.`
-				);
-				process.exit(0);
-			}
-
-			return sqlite.escapeString(stringified);
-		}
-	}
 }
 
 function objShallowEqual(a: Record<string, unknown>, b: Record<string, unknown>) {

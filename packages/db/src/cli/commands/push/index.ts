@@ -142,7 +142,6 @@ async function pushData({
 		const insert = db.insert(table).values(await collection.data());
 		queries.push(insert.toSQL());
 	}
-	console.log(queries);
 	const url = new URL('/db/query', getRemoteDatabaseUrl());
 	const requestBody: InStatement[] = queries.map((q) => ({
 		sql: q.sql,

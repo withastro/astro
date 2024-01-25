@@ -126,7 +126,13 @@ export async function setupDbTables({
 export function getCreateTableQuery(collectionName: string, collection: DBCollection) {
 	let query = `CREATE TABLE ${sqlite.escapeName(collectionName)} (`;
 
-	const colQueries = ['"id" text PRIMARY KEY'];
+	const colQueries = [];
+	const colHasPrimaryKey = Object.entries(collection.fields).find(
+		([, field]) => hasPrimaryKey(field)
+	);
+	if (!colHasPrimaryKey) {
+		colQueries.push('_id INTEGER PRIMARY KEY');
+	}
 	for (const [columnName, column] of Object.entries(collection.fields)) {
 		const colQuery = `${sqlite.escapeName(columnName)} ${schemaTypeToSqlType(
 			column.type
@@ -138,7 +144,7 @@ export function getCreateTableQuery(collectionName: string, collection: DBCollec
 	return query;
 }
 
-function schemaTypeToSqlType(type: FieldType): 'text' | 'integer' {
+export function schemaTypeToSqlType(type: FieldType): 'text' | 'integer' {
 	switch (type) {
 		case 'date':
 		case 'text':
@@ -150,19 +156,23 @@ function schemaTypeToSqlType(type: FieldType): 'text' | 'integer' {
 	}
 }
 
-function getModifiers(columnName: string, column: DBField) {
+export function getModifiers(fieldName: string, field: DBField) {
 	let modifiers = '';
-	if (!column.optional) {
+	if (hasPrimaryKey(field)) {
+		return ' PRIMARY KEY';
+	}
+	if (!field.optional) {
 		modifiers += ' NOT NULL';
 	}
-	if (column.unique) {
+	if (field.unique) {
 		modifiers += ' UNIQUE';
 	}
-	if (hasDefault(column)) {
-		modifiers += ` DEFAULT ${getDefaultValueSql(columnName, column)}`;
+	if (hasDefault(field)) {
+		modifiers += ` DEFAULT ${getDefaultValueSql(fieldName, field)}`;
 	}
 	return modifiers;
 }
+
 
 // Using `DBField` will not narrow `default` based on the column `type`
 // Handle each field separately
@@ -175,8 +185,14 @@ type DBFieldWithDefault =
 	| WithDefaultDefined<JsonField>;
 
 // Type narrowing the default fails on union types, so use a type guard
-function hasDefault(field: DBField): field is DBFieldWithDefault {
-	return field.default !== undefined;
+export function hasDefault(field: DBField): field is DBFieldWithDefault {
+	if (field.default !== undefined) {
+		return true;
+	}
+	if (hasPrimaryKey(field) && field.type === 'number') {
+		return true;
+	}
+	return false;
 }
 
 function getDefaultValueSql(columnName: string, column: DBFieldWithDefault): string {
@@ -184,7 +200,7 @@ function getDefaultValueSql(columnName: string, column: DBFieldWithDefault): str
 		case 'boolean':
 			return column.default ? 'TRUE' : 'FALSE';
 		case 'number':
-			return `${column.default}`;
+			return `${column.default || 'AUTOINCREMENT'}`;
 		case 'text':
 			return sqlite.escapeString(column.default);
 		case 'date':
@@ -195,7 +211,7 @@ function getDefaultValueSql(columnName: string, column: DBFieldWithDefault): str
 				stringified = JSON.stringify(column.default);
 			} catch (e) {
 				// eslint-disable-next-line no-console
-				console.info(
+				console.log(
 					`Invalid default value for column ${bold(
 						columnName
 					)}. Defaults must be valid JSON when using the \`json()\` type.`
@@ -206,10 +222,6 @@ function getDefaultValueSql(columnName: string, column: DBFieldWithDefault): str
 			return sqlite.escapeString(stringified);
 		}
 	}
-}
-
-function generateId() {
-	return nanoid(12);
 }
 
 const dateType = customType<{ data: Date; driverData: string }>({
