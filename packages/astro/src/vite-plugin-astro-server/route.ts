@@ -35,6 +35,7 @@ import { preload } from './index.js';
 import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { getScriptsForURL } from './scripts.js';
+import { REROUTE_DIRECTIVE_HEADER } from '../runtime/server/consts.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -342,7 +343,7 @@ export async function handleRoute({
 			})
 		);
 	}
-	if (response.status === 404 && has404Route(manifestData) && response.headers.get("X-Astro-Reroute") !== "no") {
+	if (response.status === 404 && has404Route(manifestData) && response.headers.get(REROUTE_DIRECTIVE_HEADER) !== "no") {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
 		if (options && fourOhFourRoute?.route !== options.route)
 			return handleRoute({
