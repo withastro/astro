@@ -246,6 +246,14 @@ describe('Development Routing', () => {
 			expect(body.title).to.equal('data [slug]');
 		});
 
+		it('error responses are served untouched', async () => {
+			const response = await fixture.fetch('/not-ok');
+			expect(response.status).to.equal(404);
+			expect(response.headers.get("Content-Type")).to.equal("text/plain;charset=UTF-8");
+			const body = await response.text();
+			expect(body).to.equal("Text from pages/not-ok.ts");
+		})
+
 		it('correct MIME type when loading /home.json (static route)', async () => {
 			const response = await fixture.fetch('/home.json');
 			expect(response.headers.get('content-type')).to.match(/application\/json/);
