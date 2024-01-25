@@ -9,7 +9,7 @@ describe('astro:db', () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/basics/', import.meta.url),
 			output: 'server',
-			adapter: testAdapter()
+			adapter: testAdapter(),
 		});
 	});
 

@@ -26,7 +26,9 @@ export async function initializeMigrationsDirectory(currentSnapshot: unknown) {
 	await writeFile('./migrations/0000_snapshot.json', JSON.stringify(currentSnapshot, undefined, 2));
 }
 
-export async function initializeFromMigrations(allMigrationFiles: string[]): Promise<DBCollections> {
+export async function initializeFromMigrations(
+	allMigrationFiles: string[]
+): Promise<DBCollections> {
 	const prevSnapshot = await loadInitialSnapshot();
 	for (const migration of allMigrationFiles) {
 		if (migration === '0000_snapshot.json') continue;

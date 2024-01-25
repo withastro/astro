@@ -1,10 +1,9 @@
-import type { InStatement } from "@libsql/client";
+import type { InStatement } from '@libsql/client';
 import type { AstroConfig } from 'astro';
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 import { drizzle } from 'drizzle-orm/sqlite-proxy';
 import { loadEnv } from 'vite';
 import { z } from 'zod';
-
 
 export type VitePlugin = Required<AstroConfig['vite']>['plugins'][number];
 
@@ -15,7 +14,6 @@ export const adminTable = sqliteTable(STUDIO_ADMIN_TABLE, {
 	id: text('id').primaryKey(),
 	collections: text('collections').notNull(),
 });
-
 
 export const STUDIO_MIGRATIONS_TABLE = 'ReservedAstroStudioMigrations';
 

@@ -18,7 +18,7 @@ export async function cli({ flags, config }: { flags: Arguments; config: AstroCo
 			return await verifyCommand({ config, flags });
 		}
 		default: {
-			if(command == null) {
+			if (command == null) {
 				// eslint-disable-next-line no-console
 				console.error(`No command provided.
 
@@ -40,6 +40,6 @@ Usage:
 
 astro db sync        Creates snapshot based on your schema
 astro db push        Pushes migrations to Astro Studio
-astro db verify      Verifies migrations have been pushed and errors if not`
+astro db verify      Verifies migrations have been pushed and errors if not`;
 	}
 }

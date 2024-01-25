@@ -41,13 +41,13 @@ export async function getMigrationQueries({
 		const resolved = await resolveCollectionRenames(
 			added,
 			dropped,
-			promptResponses?.collectionRenames,
+			promptResponses?.collectionRenames
 		);
 		added = resolved.added;
 		dropped = resolved.dropped;
 		for (const { from, to } of resolved.renamed) {
 			const renameQuery = `ALTER TABLE ${sqlite.escapeName(from)} RENAME TO ${sqlite.escapeName(
-				to,
+				to
 			)}`;
 			queries.push(renameQuery);
 		}
@@ -100,7 +100,7 @@ export async function getCollectionChangeQueries({
 			collectionName,
 			added,
 			dropped,
-			promptResponses?.fieldRenames,
+			promptResponses?.fieldRenames
 		);
 		added = resolved.added;
 		dropped = resolved.dropped;
@@ -120,26 +120,26 @@ export async function getCollectionChangeQueries({
 		let allowDataLoss = promptResponses?.allowDataLoss;
 
 		const nameMsg = `Type the collection name ${color.blue(
-			collectionName,
+			collectionName
 		)} to confirm you want to delete all data:`;
 
 		const { reason, fieldName } = dataLossCheck;
 		const reasonMsgs: Record<DataLossReason, string> = {
 			'added-required': `Adding required ${color.blue(
-				color.bold(collectionName),
+				color.bold(collectionName)
 			)} field ${color.blue(color.bold(fieldName))}. ${color.red(
-				'This will delete all existing data in the collection!',
+				'This will delete all existing data in the collection!'
 			)} We recommend setting a default value to avoid data loss.`,
 			'updated-required': `Changing ${color.blue(color.bold(collectionName))} field ${color.blue(
-				color.bold(fieldName),
+				color.bold(fieldName)
 			)} to required. ${color.red('This will delete all existing data in the collection!')}`,
 			'updated-unique': `Changing ${color.blue(color.bold(collectionName))} field ${color.blue(
-				color.bold(fieldName),
+				color.bold(fieldName)
 			)} to unique. ${color.red('This will delete all existing data in the collection!')}`,
 			'updated-type': `Changing the type of ${color.blue(
-				color.bold(collectionName),
+				color.bold(collectionName)
 			)} field ${color.blue(color.bold(fieldName))}. ${color.red(
-				'This will delete all existing data in the collection!',
+				'This will delete all existing data in the collection!'
 			)}`,
 		};
 
@@ -175,7 +175,7 @@ async function resolveFieldRenames(
 	collectionName: string,
 	mightAdd: DBFields,
 	mightDrop: DBFields,
-	renamePromptResponses?: PromptResponses['fieldRenames'],
+	renamePromptResponses?: PromptResponses['fieldRenames']
 ): Promise<{ added: DBFields; dropped: DBFields; renamed: Renamed }> {
 	const added: DBFields = {};
 	const dropped: DBFields = {};
@@ -195,7 +195,7 @@ async function resolveFieldRenames(
 			type: 'toggle',
 			name: 'isRename',
 			message: `Is the field ${color.blue(color.bold(fieldName))} in collection ${color.blue(
-				color.bold(collectionName),
+				color.bold(collectionName)
 			)} a new field, or renaming an existing field?`,
 			initial: false,
 			active: 'Rename',
@@ -215,7 +215,7 @@ async function resolveFieldRenames(
 			type: 'select',
 			name: 'oldFieldName',
 			message: `Which field in ${color.blue(
-				color.bold(collectionName),
+				color.bold(collectionName)
 			)} should be renamed to ${color.blue(color.bold(fieldName))}?`,
 			choices,
 		});
@@ -223,7 +223,8 @@ async function resolveFieldRenames(
 		renamed.push({ from: oldFieldName, to: fieldName });
 
 		for (const [droppedFieldName, droppedField] of Object.entries(mightDrop)) {
-			if (!renamed.find((r) => r.from === droppedFieldName)) dropped[droppedFieldName] = droppedField;
+			if (!renamed.find((r) => r.from === droppedFieldName))
+				dropped[droppedFieldName] = droppedField;
 		}
 	}
 
@@ -233,7 +234,7 @@ async function resolveFieldRenames(
 async function resolveCollectionRenames(
 	mightAdd: DBCollections,
 	mightDrop: DBCollections,
-	renamePromptResponses?: PromptResponses['fieldRenames'],
+	renamePromptResponses?: PromptResponses['fieldRenames']
 ): Promise<{ added: DBCollections; dropped: DBCollections; renamed: Renamed }> {
 	const added: DBCollections = {};
 	const dropped: DBCollections = {};
@@ -253,7 +254,7 @@ async function resolveCollectionRenames(
 			type: 'toggle',
 			name: 'isRename',
 			message: `Is the collection ${color.blue(
-				color.bold(collectionName),
+				color.bold(collectionName)
 			)} a new collection, or renaming an existing collection?`,
 			initial: false,
 			active: 'Rename',
@@ -279,7 +280,8 @@ async function resolveCollectionRenames(
 		renamed.push({ from: oldCollectionName, to: collectionName });
 
 		for (const [droppedCollectionName, droppedCollection] of Object.entries(mightDrop)) {
-			if (!renamed.find((r) => r.from === droppedCollectionName)) dropped[droppedCollectionName] = droppedCollection;
+			if (!renamed.find((r) => r.from === droppedCollectionName))
+				dropped[droppedCollectionName] = droppedCollection;
 		}
 	}
 
@@ -308,7 +310,7 @@ function getFieldRenameQueries(unescCollectionName: string, renamed: Renamed): s
 
 	for (const { from, to } of renamed) {
 		const q = `ALTER TABLE ${collectionName} RENAME COLUMN ${sqlite.escapeName(
-			from,
+			from
 		)} TO ${sqlite.escapeName(to)}`;
 		queries.push(q);
 	}
@@ -323,7 +325,7 @@ function getFieldRenameQueries(unescCollectionName: string, renamed: Renamed): s
 function getAlterTableQueries(
 	unescCollectionName: string,
 	added: DBFields,
-	dropped: DBFields,
+	dropped: DBFields
 ): string[] {
 	const queries: string[] = [];
 	const collectionName = sqlite.escapeName(unescCollectionName);
@@ -333,7 +335,7 @@ function getAlterTableQueries(
 		const type = schemaTypeToSqlType(field.type);
 		const q = `ALTER TABLE ${collectionName} ADD COLUMN ${fieldName} ${type}${getModifiers(
 			fieldName,
-			field,
+			field
 		)}`;
 		queries.push(q);
 	}
@@ -369,7 +371,7 @@ function getRecreateTableQueries({
 		const escapedColumns = originalColumns.map((c) => sqlite.escapeName(c)).join(', ');
 
 		queries.push(
-			`INSERT INTO ${tempName} (${escapedColumns}) SELECT ${escapedColumns} FROM ${collectionName}`,
+			`INSERT INTO ${tempName} (${escapedColumns}) SELECT ${escapedColumns} FROM ${collectionName}`
 		);
 	}
 
@@ -384,7 +386,7 @@ export function getCreateTableQuery(collectionName: string, collection: DBCollec
 	const colQueries = ['"id" text PRIMARY KEY'];
 	for (const [columnName, column] of Object.entries(collection.fields)) {
 		const colQuery = `${sqlite.escapeName(columnName)} ${schemaTypeToSqlType(
-			column.type,
+			column.type
 		)}${getModifiers(columnName, column)}`;
 		colQueries.push(colQuery);
 	}
@@ -448,7 +450,7 @@ type DataLossResponse =
 
 function canRecreateTableWithoutDataLoss(
 	added: DBFields,
-	updated: UpdatedFields,
+	updated: UpdatedFields
 ): DataLossResponse {
 	for (const [fieldName, a] of Object.entries(added)) {
 		if (!a.optional && !hasDefault(a))
@@ -519,7 +521,7 @@ const typeChangesWithoutQuery: Array<{ from: FieldType; to: FieldType }> = [
 
 function canChangeTypeWithoutQuery(oldField: DBField, newField: DBField) {
 	return typeChangesWithoutQuery.some(
-		({ from, to }) => oldField.type === from && newField.type === to,
+		({ from, to }) => oldField.type === from && newField.type === to
 	);
 }
 
@@ -560,8 +562,8 @@ function getDefaultValueSql(columnName: string, column: DBFieldWithDefault): str
 				// eslint-disable-next-line no-console
 				console.log(
 					`Invalid default value for column ${color.bold(
-						columnName,
-					)}. Defaults must be valid JSON when using the \`json()\` type.`,
+						columnName
+					)}. Defaults must be valid JSON when using the \`json()\` type.`
 				);
 				process.exit(0);
 			}

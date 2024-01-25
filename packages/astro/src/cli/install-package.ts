@@ -22,10 +22,12 @@ export async function getPackage<T>(
 	otherDeps: string[] = []
 ): Promise<T | undefined> {
 	try {
-		// Custom resolution logic for @astrojs/db. Since it lives in our monorepo, 
+		// Custom resolution logic for @astrojs/db. Since it lives in our monorepo,
 		// the generic tryResolve() method doesn't work.
 		if (packageName === '@astrojs/db') {
-			const packageJsonLoc = require.resolve(packageName + '/package.json', {paths: [options.cwd ?? process.cwd()]});
+			const packageJsonLoc = require.resolve(packageName + '/package.json', {
+				paths: [options.cwd ?? process.cwd()],
+			});
 			const packageLoc = packageJsonLoc.replace(`package.json`, 'dist/index.js');
 			const packageImport = await import(packageLoc);
 			return packageImport as T;
