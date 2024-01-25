@@ -257,7 +257,8 @@ export async function runHookConfigDone({
 								adapter.name,
 								adapter.supportedAstroFeatures,
 								settings.config,
-								adapter.adapterFeatures,
+								// SAFETY: we checked before if it's not present, and we throw an error
+								adapter.adapterFeatures!,
 								logger
 							);
 							for (const [featureName, supported] of Object.entries(validationResult)) {
