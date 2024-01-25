@@ -104,8 +104,8 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
 	}
 
-	// prevent URLs in `content` attributes being escaped for multiple params to work
-	if (key === 'content' && typeof value === 'string' && URL.canParse(value)) {
+	// Prevents URLs in attributes from being escaped in static builds
+	if (typeof value === 'string' && URL.canParse(value)) {
 		return markHTMLString(` ${key}="${toAttributeString(value, false)}"`);
 	}
 
