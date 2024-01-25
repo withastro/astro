@@ -5,25 +5,6 @@ const Author = defineCollection({
 	fields: {
 		name: field.text(),
 	},
-	data() {
-		return [
-			{
-				name: 'Ben',
-			},
-			{
-				name: 'Nate',
-			},
-			{
-				name: 'Erika',
-			},
-			{
-				name: 'Bjorn',
-			},
-			{
-				name: 'Sarah',
-			},
-		]
-	}
 });
 
 const Themes = defineWritableCollection({
@@ -37,6 +18,24 @@ export default defineConfig({
 	integrations: [db()],
 	db: {
 		collections: { Author, Themes },
+		data({ set }) {
+			set(Author, [
+				{
+					name: 'Ben',
+				},
+				{
+					name: 'Nate',
+				},
+				{
+					name: 'Erika',
+				},
+				{
+					name: 'Bjorn',
+				},
+				{
+					name: 'Sarah',
+				},
+			]);
+		},
 	},
 });
-
