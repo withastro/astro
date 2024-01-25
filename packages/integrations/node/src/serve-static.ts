@@ -1,5 +1,6 @@
 import path from 'node:path';
 import url from 'node:url';
+import fs from 'node:fs';
 import send from 'send';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Options } from './types.js';
@@ -18,8 +19,47 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 	 */
 	return (req: IncomingMessage, res: ServerResponse, ssr: () => unknown) => {
 		if (req.url) {
-			let pathname = app.removeBase(req.url);
-			pathname = decodeURI(new URL(pathname, 'http://host').pathname);
+			const [urlPath, urlQuery] = req.url.split('?');
+			const filePath = path.join(client, app.removeBase(urlPath));
+
+			let pathname: string;
+			let isDirectory = false;
+			try {
+				isDirectory = fs.lstatSync(filePath).isDirectory();
+			} catch {}
+
+			const { trailingSlash = 'ignore' } = options;
+
+			const hasSlash = urlPath.endsWith('/');
+			switch (trailingSlash) {
+				case "never":
+					if (isDirectory && (urlPath != '/') && hasSlash) {
+						pathname = urlPath.slice(0, -1) + (urlQuery ? "?" + urlQuery : "");
+						res.statusCode = 301;
+						res.setHeader('Location', pathname);
+						return res.end();
+					} else pathname = urlPath;
+					// intentionally fall through
+				case "ignore":
+					{
+						if (isDirectory && !hasSlash) {
+							pathname = urlPath + "/index.html";
+						} else
+							pathname = urlPath;
+					}
+					break;
+				case "always":
+					if (!hasSlash) {
+						pathname = urlPath + '/' +(urlQuery ? "?" + urlQuery : "");
+						res.statusCode = 301;
+						res.setHeader('Location', pathname);
+						return res.end();
+					} else
+						pathname = urlPath;
+				break;
+			}
+			// app.removeBase sometimes returns a path without a leading slash
+			pathname = prependForwardSlash(app.removeBase(pathname));
 
 			const stream = send(req, pathname, {
 				root: client,
@@ -47,20 +87,6 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 					_res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
 				}
 			});
-			stream.on('directory', () => {
-				// On directory find, redirect to the trailing slash
-				let location: string;
-				if (req.url!.includes('?')) {
-					const [url1 = '', search] = req.url!.split('?');
-					location = `${url1}/?${search}`;
-				} else {
-					location = appendForwardSlash(req.url!);
-				}
-
-				res.statusCode = 301;
-				res.setHeader('Location', location);
-				res.end(location);
-			});
 			stream.on('file', () => {
 				forwardError = true;
 			});
@@ -79,6 +105,10 @@ function resolveClientDir(options: Options) {
 	const clientURL = new URL(appendForwardSlash(rel), serverEntryURL);
 	const client = url.fileURLToPath(clientURL);
 	return client;
+}
+
+function prependForwardSlash(pth: string) {
+	return pth.startsWith('/') ? pth : '/' + pth;
 }
 
 function appendForwardSlash(pth: string) {
