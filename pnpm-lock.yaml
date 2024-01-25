@@ -4350,18 +4350,12 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
-      chai:
-        specifier: ^4.3.7
-        version: 4.3.10
       cheerio:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
       express:
         specifier: ^4.18.2
         version: 4.18.2
-      mocha:
-        specifier: ^10.2.0
-        version: 10.2.0
       node-mocks-http:
         specifier: ^1.13.0
         version: 1.14.0

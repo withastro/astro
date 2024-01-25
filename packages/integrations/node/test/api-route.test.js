@@ -3,7 +3,6 @@ import { loadFixture, createRequestAndResponse } from './test-utils.js';
 import crypto from 'node:crypto';
 import { describe, it, before } from 'node:test';
 import * as assert from 'node:assert/strict';
-import * as assert3 from 'node:assert';
 
 describe('API routes', () => {
 	/** @type {import('./test-utils').Fixture} */
