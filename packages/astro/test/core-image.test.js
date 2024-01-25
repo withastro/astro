@@ -427,6 +427,15 @@ describe('astro:image', () => {
 				expect($img.attr('src').startsWith('/_image')).to.equal(true);
 			});
 
+			it('Supports special characters in file name', async () => {
+				let res = await fixture.fetch('/specialChars');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				let $img = $('img');
+				expect($img.attr('src').startsWith('/_image')).to.equal(true);
+			});
+
 			it('properly handles remote images', async () => {
 				let res = await fixture.fetch('/httpImage');
 				let html = await res.text();

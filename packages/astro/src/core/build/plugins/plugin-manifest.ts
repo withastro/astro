@@ -264,5 +264,6 @@ function buildManifest(
 		entryModules,
 		assets: staticFiles.map(prefixAssetPath),
 		i18n: i18nManifest,
+		buildFormat: settings.config.build.format,
 	};
 }
