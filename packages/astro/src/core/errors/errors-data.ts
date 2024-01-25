@@ -170,13 +170,13 @@ ${
 	validRenderersCount > 0
 		? `There ${plural ? 'are' : 'is'} ${validRenderersCount} renderer${
 				plural ? 's' : ''
-		  } configured in your \`astro.config.mjs\` file,
+			} configured in your \`astro.config.mjs\` file,
 but ${plural ? 'none were' : 'it was not'} able to server-side render \`${componentName}\`.`
 		: `No valid renderer was found ${
 				componentExtension
 					? `for the \`.${componentExtension}\` file extension.`
 					: `for this file extension.`
-		  }`
+			}`
 }`,
 	hint: (probableRenderers: string) =>
 		`Did you mean to enable the ${probableRenderers} integration?\n\nSee https://docs.astro.build/en/core-concepts/framework-components/ for more information on how to install and configure integrations.`,
@@ -1020,6 +1020,7 @@ export const MissingIndexForInternationalization = {
 /**
  * @docs
  * @description
+ * Static pages aren't yet supported with i18n domains. If you wish to enable this feature, you have to disable pre-rendering.
  */
 export const NoPrerenderedRoutesWithDomains = {
 	name: 'NoPrerenderedRoutesWithDomains',
