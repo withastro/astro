@@ -11,6 +11,7 @@ import {
 	type JsonField,
 	type NumberField,
 	type TextField,
+	type MaybePromise,
 } from './types.js';
 import { type LibSQLDatabase, drizzle } from 'drizzle-orm/libsql';
 import { bold } from 'kleur/colors';
@@ -41,10 +42,6 @@ const sqlite = new SQLiteAsyncDialect();
 
 export function hasPrimaryKey(field: DBField) {
 	return 'primaryKey' in field && !!field.primaryKey;
-}
-
-function isReadableCollection(collection: DBCollection): collection is ReadableDBCollection {
-	return !collection.writable;
 }
 
 function checkIfModificationIsAllowed(collections: DBCollections, Table: SQLiteTable) {
@@ -95,7 +92,7 @@ export async function setupDbTables({
 	mode,
 }: {
 	db: LibSQLDatabase;
-	data?: (...params: any) => any;
+	data?: () => MaybePromise<void>;
 	collections: DBCollections;
 	logger: AstroIntegrationLogger;
 	mode: 'dev' | 'build';
@@ -110,26 +107,14 @@ export async function setupDbTables({
 		await db.run(q);
 	}
 	if (data) {
-		const ormObjects = Object.fromEntries(
-			Object.entries(collections).map(([name, collection]) => {
-				const table = collectionToTable(name, collection, false);
-				return [name, table];
-			})
-		);
-		await data({ db, ...ormObjects, mode });
-	}
-	// TODO: decide on removing collection-level data
-	for (const [name, collection] of Object.entries(collections)) {
-		if (!isReadableCollection(collection) || !collection.data) continue;
-
-		const table = collectionToTable(name, collection);
+		for (const [name, collection] of Object.entries(collections)) {
+			(collection as any)._setEnv({ db, table: collectionToTable(name, collection) });
+		}
 		try {
-			await db.insert(table).values(await collection.data());
+			await data();
 		} catch (e) {
 			logger.error(
-				`Failed to seed ${bold(
-					name
-				)} data. Did you update to match recent schema changes? Full error:\n\n${e}`
+				`Failed to seed data. Did you update to match recent schema changes? Full error:\n\n${e}`
 			);
 		}
 	}

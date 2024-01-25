@@ -136,12 +136,13 @@ async function pushData({
 	});
 	const queries: Query[] = [];
 
-	for (const [name, collection] of Object.entries(config.db!.collections! as DBCollections)) {
-		if (collection.writable || !collection.data) continue;
-		const table = collectionToTable(name, collection);
-		const insert = db.insert(table).values(await collection.data());
-		queries.push(insert.toSQL());
-	}
+	// TODO: update migration seeding
+	// for (const [name, collection] of Object.entries(config.db!.collections! as DBCollections)) {
+	// 	if (collection.writable || !collection.data) continue;
+	// 	const table = collectionToTable(name, collection);
+	// 	const insert = db.insert(table).values(await collection.data());
+	// 	queries.push(insert.toSQL());
+	// }
 	const url = new URL('/db/query', getRemoteDatabaseUrl());
 	const requestBody: InStatement[] = queries.map((q) => ({
 		sql: q.sql,

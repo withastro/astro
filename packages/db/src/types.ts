@@ -52,23 +52,17 @@ const fieldSchema = z.union([
 ]);
 const fieldsSchema = z.record(fieldSchema);
 
-const dataResponse = z.array(z.record(z.unknown()));
-
 export const readableCollectionSchema = z.object({
 	fields: fieldsSchema,
-	data: z
-		.function()
-		.returns(z.union([dataResponse, z.promise(dataResponse)]))
-		.optional(),
+	set: z.function(),
+	_setEnv: z.function(),
 	writable: z.literal(false),
 });
 
 export const writableCollectionSchema = z.object({
 	fields: fieldsSchema,
-	seed: z
-		.function()
-		.returns(z.union([dataResponse, z.promise(dataResponse)]))
-		.optional(),
+	set: z.function(),
+	_setEnv: z.function(),
 	writable: z.literal(true),
 });
 
@@ -99,7 +93,7 @@ export type DBCollection = z.infer<
 export type DBCollections = Record<string, DBCollection>;
 export type DBSnapshot = {
 	schema: Record<string, DBCollection>;
-	/** 
+	/**
 	 * Snapshot version. Breaking changes to the snapshot format increment this number.
 	 * @todo Rename to "version" once closer to release.
 	 */
