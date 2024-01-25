@@ -47,6 +47,7 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
+    "@actions/core": "^1.10.1",
     "@libsql/client": "0.4.0-pre.5",
     "deep-diff": "^1.0.2",
     "drizzle-orm": "^0.28.6",
@@ -57,12 +58,12 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.6",
     "@types/deep-diff": "^1.0.5",
     "@types/diff": "^5.0.8",
-    "@types/yargs-parser": "^21.0.3",
-    "@types/chai": "^4.3.6",
     "@types/mocha": "^10.0.2",
     "@types/prompts": "^2.4.8",
+    "@types/yargs-parser": "^21.0.3",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.10",
