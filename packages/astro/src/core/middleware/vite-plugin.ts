@@ -53,7 +53,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 						preserveSignature: 'strict',
 						fileName: 'middleware.mjs',
 						id,
-					})
+					});
 				}
 
 				const preMiddleware = createMiddlewareImports(settings.middlewares.pre, 'pre');

@@ -44,15 +44,13 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 			if (id === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
 				const imports = [
 					`import { deserializeManifest as _deserializeManifest } from 'astro/app'`,
-					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`
+					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`,
 				];
 				const contents = [
 					`const manifest = _deserializeManifest('${manifestReplace}');`,
-					`_privateSetManifestDontUseThis(manifest);`
+					`_privateSetManifestDontUseThis(manifest);`,
 				];
-				const exports = [
-					`export { manifest }`
-				];
+				const exports = [`export { manifest }`];
 				return [...imports, ...contents, ...exports].join('\n');
 			}
 		},

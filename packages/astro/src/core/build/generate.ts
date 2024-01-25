@@ -150,7 +150,9 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		try {
 			// middleware.mjs is not emitted if there is no user middleware
 			// in which case the import fails with ERR_MODULE_NOT_FOUND, and we fall back to a no-op middleware
-			middleware = await import(new URL('middleware.mjs', baseDirectory).toString()).then(mod => mod.onRequest);
+			middleware = await import(new URL('middleware.mjs', baseDirectory).toString()).then(
+				(mod) => mod.onRequest
+			);
 		} catch {}
 		manifest = createBuildManifest(
 			opts.settings,
@@ -666,6 +668,6 @@ function createBuildManifest(
 		componentMetadata: internals.componentMetadata,
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
-		middleware
+		middleware,
 	};
 }

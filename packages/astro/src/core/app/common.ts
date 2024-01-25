@@ -19,7 +19,9 @@ export function deserializeManifest(serializedManifest: SerializedSSRManifest): 
 
 	return {
 		// in case user middleware exists, this no-op middleware will be reassigned (see plugin-ssr.ts)
-		middleware(_, next) { return next() },
+		middleware(_, next) {
+			return next();
+		},
 		...serializedManifest,
 		assets,
 		componentMetadata,

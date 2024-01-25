@@ -277,7 +277,7 @@ export async function handleRoute({
 			pathname,
 			request,
 			route,
-			middleware
+			middleware,
 		};
 
 		mod = options.preload;

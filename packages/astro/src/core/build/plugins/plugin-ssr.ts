@@ -253,14 +253,16 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 		`    middleware`,
 		`});`,
 		`const _args = ${adapter.args ? JSON.stringify(adapter.args, null, 4) : 'undefined'};`,
-		adapter.exports ? `const _exports = serverEntrypointModule.createExports(_manifest, _args);` : '',
-		...adapter.exports?.map((name) => {
+		adapter.exports
+			? `const _exports = serverEntrypointModule.createExports(_manifest, _args);`
+			: '',
+		...(adapter.exports?.map((name) => {
 			if (name === 'default') {
 				return `export default _exports.default;`;
 			} else {
 				return `export const ${name} = _exports['${name}'];`;
 			}
-		}) ?? [],
+		}) ?? []),
 		`serverEntrypointModule.start?.(_manifest, _args);`,
 	];
 
