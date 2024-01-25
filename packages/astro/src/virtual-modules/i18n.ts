@@ -110,7 +110,7 @@ export const getRelativeLocaleUrlList = (path?: string, options?: GetLocaleOptio
  *
  * Works like `getAbsoluteLocaleUrl` but it emits the absolute URLs for ALL locales:
  */
-export const getAbsoluteLocaleUrlList = (path: string = '', options?: GetLocaleOptions) =>
+export const getAbsoluteLocaleUrlList = (path?: string, options?: GetLocaleOptions) =>
 	I18nInternals.getLocaleAbsoluteUrlList({
 		site,
 		base,

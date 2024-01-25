@@ -33,7 +33,7 @@ export function validateSupportedFeatures(
 	adapterName: string,
 	featureMap: AstroFeatureMap,
 	config: AstroConfig,
-	adapterFeatures: AstroAdapterFeatures,
+	adapterFeatures: AstroAdapterFeatures | undefined,
 	logger: Logger
 ): ValidationResult {
 	const {
@@ -80,7 +80,7 @@ export function validateSupportedFeatures(
 				return config?.output === 'server' && !config?.site;
 			}
 		);
-		if (adapterFeatures.functionPerRoute) {
+		if (adapterFeatures?.functionPerRoute) {
 			logger.error(
 				'config',
 				'The Astro feature `i18nDomains` is incompatible with the Adapter feature `functionPerRoute`'
