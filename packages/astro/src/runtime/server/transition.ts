@@ -30,11 +30,11 @@ export function createTransitionScope(result: SSRResult, hash: string) {
 function toValidIdent(name: string): string {
 	// can't start with a number, - + number, or --
 	if (/^[0-9]|^-[0-9]|^--/.test(name)) {
-    throw new Error("Your transition:name is not a valid CSS identifier.");
+    throw new Error(`Your transition:name ${name} is not a valid CSS identifier.`);
 	}
 	// can't be a CSS keyword
 	if (['unset', 'initial', 'inherit', 'none' ].includes(name)) {
-		throw new Error(`Your transition:name cannot be ${name}.`);
+		throw new Error(`Your transition:name ${name} is not a valid CSS identifier.`);
 	}
 	if (/^[a-zA-Z0-9_\\-]*$/.test(name)) {
 		return name;
@@ -44,7 +44,8 @@ function toValidIdent(name: string): string {
 		if (/[a-zA-Z0-9_\\-]/.test(char)) {
 			result += char;
 		} else {
-			const suffix = char === name[name.length - 1] ? "" : "\\ ";
+			// TODO handle $ and other special characters
+			const suffix = char === name[name.length - 1] ? "" : "\ ";
 			result += `\\${char.codePointAt(0)!.toString(16)}${suffix}`;
 		}
 	}
