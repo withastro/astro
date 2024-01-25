@@ -32,6 +32,7 @@ function toValidIdent(name: string): string {
 	if (/^[0-9]|^-[0-9]|^--/.test(name)) {
     throw new Error("Your transition:name is not a valid CSS identifier.");
 	}
+	// can't be a CSS keyword
 	if (['unset', 'initial', 'inherit', 'none' ].includes(name)) {
 		throw new Error(`Your transition:name cannot be ${name}.`);
 	}
