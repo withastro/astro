@@ -1004,16 +1004,16 @@ export const MissingLocale = {
 /**
  * @docs
  * @description
- * Astro could not find the index URL of your website. An index page is required so that Astro can create a redirect from the main index page to the index page of the default locale when using [`i18n.routing.prefixDefaultLocale`](https://docs.astro.build/en/reference/configuration-reference/#i18nroutingprefixdefaultlocale) and [`i18n.routing.redirectToDefaultLocaleSection`](https://docs.astro.build/en/reference/configuration-reference/#i18nroutingredirecttodefaultlocale).
+ * Astro could not find the index URL of your website. An index page is required so that Astro can create a redirect from the main index page to the localized index page of the default locale when using [`i18n.routing.prefixDefaultLocale`](https://docs.astro.build/en/reference/configuration-reference/#i18nroutingprefixdefaultlocale).
  * @see
- * - [Internationalization](https://docs.astro.build/en/guides/internationalization/)
+ * - [Internationalization](https://docs.astro.build/en/guides/internationalization/#routing)
  * - [`i18n.routing` Configuration Reference](https://docs.astro.build/en/reference/configuration-reference/#i18nrouting)
  */
 export const MissingIndexForInternationalization = {
 	name: 'MissingIndexForInternationalizationError',
 	title: 'Index page not found.',
 	message: (defaultLocale: string) =>
-		`Could not find index page. A root index page is required in order to create a redirect from its index URL to the index URL of the default locale. (\`/${defaultLocale}\`)`,
+		`Could not find index page. A root index page is required in order to create a redirect to the index URL of the default locale. (\`/${defaultLocale}\`)`,
 	hint: (src: string) => `Create an index page (\`index.astro, index.md, etc.\`) in \`${src}\`.`,
 } satisfies ErrorData;
 

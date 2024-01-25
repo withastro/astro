@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Improve some unclear error messages
+Improves the wording of a few confusing error messages
