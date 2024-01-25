@@ -177,6 +177,7 @@ export type AstroId<T extends Pick<GeneratedConfig<'string'>, 'tableName'>> = SQ
 >;
 
 export type MaybePromise<T> = T | Promise<T>;
+export type MaybeArray<T> = T | T[];
 
 export type Column<T extends DBField['type'], S extends GeneratedConfig> = T extends 'boolean'
 	? AstroBoolean<S>

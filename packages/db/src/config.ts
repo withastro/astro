@@ -8,7 +8,9 @@ import {
 	type collectionSchema,
 	collectionsSchema,
 	type MaybePromise,
+	type MaybeArray,
 	type Table,
+	type DBField,
 } from './types.js';
 import { z } from 'zod';
 import { type SqliteDB } from './internal.js';
@@ -61,17 +63,28 @@ type ResolvedCollectionConfig<
 	Writable extends boolean,
 > = CollectionConfig<TFields, Writable> & {
 	writable: Writable;
-	set(data: SQLiteInsertValue<Table<string, TFields>>): Promise<any> /** TODO: type output */;
+	set(
+		data: MaybeArray<
+			SQLiteInsertValue<
+				Table<
+					string,
+					/** TODO: true type inference */ Record<Extract<keyof TFields, string>, DBField>
+				>
+			>
+		>
+	): Promise<any> /** TODO: type output */;
 };
-type SetData<TFields extends z.input<typeof collectionSchema>['fields']> = SQLiteInsertValue<
-	Table<string, TFields>
->;
 
 export function defineCollection<TFields extends z.input<typeof collectionSchema>['fields']>(
 	userConfig: CollectionConfig<TFields, false>
 ): ResolvedCollectionConfig<TFields, false> {
 	let db: SqliteDB | undefined;
-	let table: Table<string, TFields> | undefined;
+	let table:
+		| Table<
+				string,
+				/** TODO: true type inference */ Record<Extract<keyof TFields, string>, DBField>
+		  >
+		| undefined;
 	function _setEnv(env: { db: SqliteDB; table: Table<string, TFields> }) {
 		db = env.db;
 		table = env.table;
@@ -81,7 +94,7 @@ export function defineCollection<TFields extends z.input<typeof collectionSchema
 		writable: false,
 		// @ts-expect-error keep private
 		_setEnv,
-		set: async (values: SetData<TFields>) => {
+		set: async (values) => {
 			if (!db || !table) {
 				throw new Error('Collection `.set()` can only be called during `data()` seeding.');
 			}
