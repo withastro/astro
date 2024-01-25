@@ -7,9 +7,6 @@ import type {
 } from '../../@types/astro.js';
 import { fade, slide } from '../../transitions/index.js';
 import { markHTMLString } from './escape.js';
-import { Logger } from '../../core/logger/core.js';
-import { nodeLogDestination } from '../../core/logger/node.js';
-import { bold } from 'kleur/colors';
 
 const transitionNameMap = new WeakMap<SSRResult, number>();
 function incrementTransitionNumber(result: SSRResult) {
