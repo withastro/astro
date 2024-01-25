@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-fix(view-transition): escaped unicode `transition:name`
+Applies the correct escaping to identifiers used with `transition:name`. 
