@@ -41,7 +41,7 @@ function toValidIdent(name: string): string {
 	}
 	let result = "";
 	for (const char of name)  {
-		if (/[a-zA-Z0-9_-]/.test(char)) {
+		if (/[a-zA-Z0-9_\\-]/.test(char)) {
 			result += char;
 		} else {
 			const suffix = char === name[name.length - 1] ? "" : "\\ ";
