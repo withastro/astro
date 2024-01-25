@@ -3876,6 +3876,15 @@ importers:
         specifier: ^3.3.2
         version: 3.3.2
 
+  packages/db/test/fixtures/recipes:
+    dependencies:
+      '@astrojs/db':
+        specifier: ^0.1.2
+        version: link:../../..
+      astro:
+        specifier: ^4.2.4
+        version: link:../../../../astro
+
   packages/db/test/fixtures/ticketing-example:
     dependencies:
       '@astrojs/check':
