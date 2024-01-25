@@ -27,7 +27,7 @@ export function createTransitionScope(result: SSRResult, hash: string) {
 function toValidIdent(name: string): string {
 	// can't start with a number, - + number
 	if (/^[0-9]|^-[0-9]/.test(name)) {
-    throw new Error(`Your transition:name ${name} is not a valid CSS identifier.`);
+    throw new Error(`Your transition:name ${name} is not a valid CSS identifier as it starts with ${name.substring(0,2)}.`);
 	}
 	if (/^[a-zA-Z0-9_\\-]*$/.test(name)) {
 		return name;
