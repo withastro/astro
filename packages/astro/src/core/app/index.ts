@@ -77,7 +77,7 @@ export interface RenderErrorOptions {
 	response?: Response;
 	status: 404 | 500;
 	/**
-	 * Whether to skip onRequest() while rendering the error page. Defaults to false.
+	 * Whether to skip middleware while rendering the error page. Defaults to false.
 	 */
 	skipMiddleware?: boolean;
 }
@@ -260,16 +260,10 @@ export class App {
 				this.#manifest.buildFormat
 			);
 			if (i18nMiddleware) {
-				if (mod.onRequest) {
-					this.#pipeline.setMiddlewareFunction(sequence(i18nMiddleware, mod.onRequest));
-				} else {
-					this.#pipeline.setMiddlewareFunction(i18nMiddleware);
-				}
+				this.#pipeline.setMiddlewareFunction(sequence(i18nMiddleware, this.#manifest.middleware));
 				this.#pipeline.onBeforeRenderRoute(i18nPipelineHook);
 			} else {
-				if (mod.onRequest) {
-					this.#pipeline.setMiddlewareFunction(mod.onRequest);
-				}
+				this.#pipeline.setMiddlewareFunction(this.#manifest.middleware);
 			}
 			response = await this.#pipeline.renderRoute(renderContext, pageModule);
 		} catch (err: any) {
@@ -429,8 +423,8 @@ export class App {
 					status
 				);
 				const page = (await mod.page()) as any;
-				if (skipMiddleware === false && mod.onRequest) {
-					this.#pipeline.setMiddlewareFunction(mod.onRequest);
+				if (skipMiddleware === false) {
+					this.#pipeline.setMiddlewareFunction(this.#manifest.middleware);
 				}
 				if (skipMiddleware) {
 					// make sure middleware set by other requests is cleared out
@@ -440,7 +434,7 @@ export class App {
 				return this.#mergeResponses(response, originalResponse);
 			} catch {
 				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
-				if (skipMiddleware === false && mod.onRequest) {
+				if (skipMiddleware === false) {
 					return this.#renderError(request, {
 						status,
 						response: originalResponse,
