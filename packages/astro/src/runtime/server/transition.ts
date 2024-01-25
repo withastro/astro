@@ -28,24 +28,19 @@ export function createTransitionScope(result: SSRResult, hash: string) {
 
 // Ensure animationName is a valid CSS identifier
 function toValidIdent(name: string): string {
-	if (/^[a-zA-Z0-9_-]*$/.test(name)) {
+	if (/^[0-9]|^-[0-9]/.test(name)) {
+		throw new Error("Your transition:name is not a valid CSS identifier.");
+	}
+	if (/^[a-zA-Z0-9_\\-]*$/.test(name)) {
 		return name;
 	}
-	const logger = new Logger({
-		dest: nodeLogDestination,
-		level: 'warn',
-	});
-	logger.warn(
-		null,
-		`Your transition:name ${bold(name)} is not a valid CSS identifier. It will be escaped.`
-	);
 	let result = "";
-	for (let i = 0; i < name.length; i++)  {
-		if (/[a-zA-Z0-9_-]/.test(name[i])) {
-			result += name[i];
+	for (const char of name)  {
+		if (/[a-zA-Z0-9_-]/.test(char)) {
+			result += char;
 		} else {
-			const suffix = i< name.length - 1 ? '-' : '';
-			result += `\\${name[i].charCodeAt(0).toString(16)}${suffix}`;
+			const suffix = char === name[name.length - 1] ? "" : "-";
+			result += `\\${char.codePointAt(0)!.toString(16)}${suffix}`;
 		}
 	}
 	return result;
