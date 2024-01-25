@@ -7,6 +7,9 @@ import type {
 } from '../../@types/astro.js';
 import { fade, slide } from '../../transitions/index.js';
 import { markHTMLString } from './escape.js';
+import { Logger } from '../../core/logger/core.js';
+import { nodeLogDestination } from '../../core/logger/node.js';
+import { bold } from 'kleur/colors';
 
 const transitionNameMap = new WeakMap<SSRResult, number>();
 function incrementTransitionNumber(result: SSRResult) {
@@ -25,7 +28,26 @@ export function createTransitionScope(result: SSRResult, hash: string) {
 
 // Ensure animationName is a valid CSS identifier
 function toValidIdent(name: string): string {
-	return name.replace(/[^a-zA-Z0-9\-\_]/g, '_').replace(/^\_+|\_+$/g, '');
+	if (/^[a-zA-Z0-9_-]*$/.test(name)) {
+		return name;
+	}
+	const logger = new Logger({
+		dest: nodeLogDestination,
+		level: 'warn',
+	});
+	logger.warn(
+		null,
+		`Your transition:name ${bold(name)} is not a valid CSS identifier. It will be escaped.`
+	);
+	const result = [];
+	for (const char of name) {
+		if (/[a-zA-Z0-9_-]/.test(char)) {
+			result.push(char);
+		} else {
+			result.push(`-\\${char.charCodeAt(0).toString(16)}-`);
+		}
+	}
+	return result.join('');
 }
 
 type Entries<T extends Record<string, any>> = Iterable<[keyof T, T[keyof T]]>;
