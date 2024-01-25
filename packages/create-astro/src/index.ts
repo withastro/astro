@@ -36,8 +36,8 @@ export async function main() {
 		intro,
 		projectName,
 		template,
-		dependencies,
 		typescript,
+		dependencies,
 
 		// Steps which write to files need to go above git
 		git,
