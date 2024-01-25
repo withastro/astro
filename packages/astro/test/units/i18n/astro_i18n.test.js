@@ -142,18 +142,16 @@ describe('getLocaleRelativeUrl', () => {
 		 * @type {import("../../../dist/@types").AstroUserConfig}
 		 */
 		const config = {
-			experimental: {
-				i18n: {
-					defaultLocale: 'en',
-					locales: [
-						'en',
-						'es',
-						{
-							path: 'italiano',
-							codes: ['it', 'it-VA'],
-						},
-					],
-				},
+			i18n: {
+				defaultLocale: 'en',
+				locales: [
+					'en',
+					'es',
+					{
+						path: 'italiano',
+						codes: ['it', 'it-VA'],
+					},
+				],
 			},
 		};
 		// directory format
@@ -161,7 +159,7 @@ describe('getLocaleRelativeUrl', () => {
 			getLocaleRelativeUrl({
 				locale: 'en',
 				base: '/blog',
-				...config.experimental.i18n,
+				...config.i18n,
 				trailingSlash: 'never',
 				format: 'directory',
 			})
@@ -170,7 +168,7 @@ describe('getLocaleRelativeUrl', () => {
 			getLocaleRelativeUrl({
 				locale: 'es',
 				base: '/blog/',
-				...config.experimental.i18n,
+				...config.i18n,
 				trailingSlash: 'always',
 				format: 'directory',
 			})
@@ -180,7 +178,7 @@ describe('getLocaleRelativeUrl', () => {
 			getLocaleRelativeUrl({
 				locale: 'it-VA',
 				base: '/blog/',
-				...config.experimental.i18n,
+				...config.i18n,
 				trailingSlash: 'always',
 				format: 'file',
 			})
@@ -190,7 +188,7 @@ describe('getLocaleRelativeUrl', () => {
 			getLocaleRelativeUrl({
 				locale: 'en',
 				base: '/blog/',
-				...config.experimental.i18n,
+				...config.i18n,
 				trailingSlash: 'ignore',
 				format: 'directory',
 			})
@@ -201,7 +199,7 @@ describe('getLocaleRelativeUrl', () => {
 			getLocaleRelativeUrl({
 				locale: 'en',
 				base: '/blog',
-				...config.experimental.i18n,
+				...config.i18n,
 				trailingSlash: 'never',
 				format: 'file',
 			})
@@ -210,7 +208,7 @@ describe('getLocaleRelativeUrl', () => {
 			getLocaleRelativeUrl({
 				locale: 'es',
 				base: '/blog/',
-				...config.experimental.i18n,
+				...config.i18n,
 				trailingSlash: 'always',
 				format: 'file',
 			})
@@ -221,7 +219,7 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'en',
 				// ignore + file => no trailing slash
 				base: '/blog',
-				...config.experimental.i18n,
+				...config.i18n,
 				trailingSlash: 'ignore',
 				format: 'file',
 			})
@@ -620,7 +618,7 @@ describe('getLocaleRelativeUrlList', () => {
 				trailingSlash: 'never',
 				format: 'directory',
 			})
-		).to.have.members(['/blog/en', '/blog/en_US', '/blog/es']);
+		).to.have.members(['/blog/en', '/blog/en-us', '/blog/es']);
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: never, routingStategy: pathname-prefix-always-no-redirect]', () => {
@@ -823,7 +821,7 @@ describe('getLocaleAbsoluteUrl', () => {
 						domains: {
 							es: 'https://es.example.com',
 						},
-						routing: 'prefix-always',
+						routing: 'pathname-prefix-always',
 					},
 				},
 			};
@@ -931,7 +929,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					i18n: {
 						defaultLocale: 'en',
 						locales: ['en', 'es'],
-						routing: 'prefix-always',
+						routing: 'pathname-prefix-always',
 					},
 				},
 			};
@@ -964,12 +962,10 @@ describe('getLocaleAbsoluteUrl', () => {
 			 * @type {import("../../../dist/@types").AstroUserConfig}
 			 */
 			const config = {
-				experimental: {
-					i18n: {
-						defaultLocale: 'en',
-						locales: ['en', 'es'],
-						routing: 'prefix-always',
-					},
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'es'],
+					routing: 'pathname-prefix-always',
 				},
 			};
 			// directory format
@@ -977,7 +973,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'en',
 					base: '/blog',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'never',
 					format: 'directory',
 					site: 'https://example.com',
@@ -987,7 +983,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'es',
 					base: '/blog/',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'always',
 					format: 'directory',
 					site: 'https://example.com',
@@ -998,7 +994,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'en',
 					base: '/blog/',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'ignore',
 					format: 'directory',
 					site: 'https://example.com',
@@ -1010,7 +1006,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'en',
 					base: '/blog',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'never',
 					format: 'file',
 					site: 'https://example.com',
@@ -1020,7 +1016,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'es',
 					base: '/blog/',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'always',
 					format: 'file',
 					site: 'https://example.com',
@@ -1032,7 +1028,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en',
 					// ignore + file => no trailing slash
 					base: '/blog',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'ignore',
 					format: 'file',
 					site: 'https://example.com',
@@ -1051,7 +1047,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					i18n: {
 						defaultLocale: 'en',
 						locales: ['en', 'en_US', 'en_AU'],
-						routingStrategy: 'prefix-always',
+						routingStrategy: 'pathname-prefix-always',
 					},
 				},
 			};
@@ -1197,7 +1193,7 @@ describe('getLocaleAbsoluteUrl', () => {
 						i18n: {
 							defaultLocale: 'en',
 							locales: ['en', 'es', 'en_US', 'en_AU'],
-							routing: 'prefix-always',
+							routing: 'pathname-prefix-always',
 						},
 					},
 				};
@@ -1680,7 +1676,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 			})
 		).to.have.members([
 			'https://example.com/blog/en/',
-			'https://example.com/blog/en_US/',
+			'https://example.com/blog/en-us/',
 			'https://example.com/blog/es/',
 		]);
 	});
@@ -1726,7 +1722,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['en', 'en_US', 'es'],
-					routingStrategy: 'prefix-always',
+					routingStrategy: 'pathname-prefix-always',
 					domains: {
 						es: 'https://es.example.com',
 						en: 'https://example.uk',

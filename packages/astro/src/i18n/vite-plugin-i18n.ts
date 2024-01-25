@@ -47,7 +47,7 @@ export default function astroInternationalization({
 		},
 		load(id) {
 			if (id === resolvedConfigId) {
-				const { defaultLocale, locales, routing, fallback } = i18n!;
+				const { defaultLocale, locales, routing, fallback, domains } = i18n!;
 				const config: I18nInternalConfig = {
 					base,
 					format,
@@ -57,6 +57,7 @@ export default function astroInternationalization({
 					locales,
 					routing,
 					fallback,
+					domains,
 					isBuild: isCommandBuild,
 				};
 				return `export default ${JSON.stringify(config)};`;

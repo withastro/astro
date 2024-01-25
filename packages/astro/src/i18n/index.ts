@@ -42,7 +42,7 @@ export function getLocaleRelativeUrl({
 	locales: _locales,
 	trailingSlash,
 	format,
-	path = '',
+	path,
 	prependWith,
 	normalizeLocale = true,
 	routing = 'pathname-prefix-other-locales',
@@ -112,7 +112,7 @@ export function getLocaleRelativeUrlList({
 	locales: _locales,
 	trailingSlash,
 	format,
-	path = '',
+	path,
 	prependWith,
 	normalizeLocale = true,
 	routing = 'pathname-prefix-other-locales',
@@ -175,7 +175,10 @@ export function getLocaleAbsoluteUrlList({
 			}
 			pathsToJoin.push(base);
 			pathsToJoin.push(prependWith);
-			if (routing === 'pathname-prefix-always') {
+			if (
+				routing === 'pathname-prefix-always' ||
+				routing === 'pathname-prefix-always-no-redirect'
+			) {
 				pathsToJoin.push(normalizedLocale);
 			} else if (currentLocale !== defaultLocale) {
 				pathsToJoin.push(normalizedLocale);
