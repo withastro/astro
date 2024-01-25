@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { describe, it, before, after } from 'node:test';
 import nodejs from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
 
@@ -24,12 +25,12 @@ describe.skip('Image endpoint', () => {
 
 	it('it returns images', async () => {
 		const res = await fixture.fetch('/');
-		expect(res.status).to.equal(200);
+		assert.equal(res.status, 200);
 
 		const resImage = await fixture.fetch(
 			'/_image?href=/_astro/some_penguin.97ef5f92.png&w=50&f=webp'
 		);
 
-		expect(resImage.status).to.equal(200);
+		assert.equal(resImage.status, 200);
 	});
 });
