@@ -20,10 +20,15 @@ export async function loadMigration(migration: string): Promise<{ diff: any[]; d
 
 export async function loadInitialSnapshot(): Promise<DBSnapshot> {
 	const snapshot = JSON.parse(await readFile('./migrations/0000_snapshot.json', 'utf-8'));
-	if (!snapshot.version) {
-		return { version: 2, meta: {}, schema: snapshot };
+	// `experimentalVersion: 1` -- added the version field
+	if (snapshot.experimentalVersion === 1) {
+		return snapshot;
 	}
-	return snapshot;
+	// `experimentalVersion: 0` -- initial format
+	if (!snapshot.schema) {
+		return { experimentalVersion: 1, schema: snapshot };
+	}
+	throw new Error('Invalid snapshot format');
 }
 
 export async function initializeMigrationsDirectory(currentSnapshot: DBSnapshot) {
@@ -45,8 +50,8 @@ export async function initializeFromMigrations(allMigrationFiles: string[]): Pro
 
 export function createCurrentSnapshot(config: AstroConfig): DBSnapshot {
 	const schema = JSON.parse(JSON.stringify(config.db?.collections ?? {}));
-	return { version: 2, meta: {}, schema };
+	return { experimentalVersion: 1, schema };
 }
 export function createEmptySnapshot(): DBSnapshot {
-	return { version: 2, meta: {}, schema: {} };
+	return { experimentalVersion: 1, schema: {} };
 }

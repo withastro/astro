@@ -98,9 +98,12 @@ export type DBCollection = z.infer<
 >;
 export type DBCollections = Record<string, DBCollection>;
 export type DBSnapshot = {
-	version: number;
-	meta: Record<string, never>;
 	schema: Record<string, DBCollection>;
+	/** 
+	 * Snapshot version. Breaking changes to the snapshot format increment this number.
+	 * @todo Rename to "version" once closer to release.
+	 */
+	experimentalVersion: number;
 };
 export type ReadableDBCollection = z.infer<typeof readableCollectionSchema>;
 export type WritableDBCollection = z.infer<typeof writableCollectionSchema>;
