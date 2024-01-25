@@ -74,12 +74,14 @@ describe('Prerendering', () => {
 			expect($('h1').text()).to.equal('Two');
 		});
 
-		it('Omitting the trailing slash results in a redirect that includes the base', async () => {
+		it('Can render prerendered route without trailing slash', async () => {
 			const res = await fetch(`http://${server.host}:${server.port}/some-base/two`, {
 				redirect: 'manual',
 			});
-			expect(res.status).to.equal(301);
-			expect(res.headers.get('location')).to.equal('/some-base/two/');
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('Two');
 		});
 	});
 
@@ -241,12 +243,14 @@ describe('Hybrid rendering', () => {
 			expect($('h1').text()).to.equal('One');
 		});
 
-		it('Omitting the trailing slash results in a redirect that includes the base', async () => {
+		it('Can render prerendered route without trailing slash', async () => {
 			const res = await fetch(`http://${server.host}:${server.port}/some-base/one`, {
 				redirect: 'manual',
 			});
-			expect(res.status).to.equal(301);
-			expect(res.headers.get('location')).to.equal('/some-base/one/');
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('One');
 		});
 	});
 

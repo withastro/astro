@@ -16,9 +16,6 @@ const exit = () => process.exit(0);
 process.on('SIGINT', exit);
 process.on('SIGTERM', exit);
 
-// Please also update the installation instructions in the docs at
-// https://github.com/withastro/docs/blob/main/src/pages/en/install/auto.md
-// if you make any changes to the flow or wording here.
 export async function main() {
 	// Add some extra spacing from the noisy npm/pnpm init output
 	// eslint-disable-next-line no-console

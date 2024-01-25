@@ -96,7 +96,7 @@ export function getLocaleAbsoluteUrl({ site, isBuild, ...rest }: GetLocaleAbsolu
 	}
 }
 
-type GetLocalesBaseUrl = GetLocaleOptions & {
+interface GetLocalesRelativeUrlList extends GetLocaleOptions {
 	base: string;
 	path: string;
 	locales: Locales;
@@ -104,7 +104,7 @@ type GetLocalesBaseUrl = GetLocaleOptions & {
 	format: AstroConfig['build']['format'];
 	routing?: RoutingStrategies;
 	defaultLocale: string;
-};
+}
 
 export function getLocaleRelativeUrlList({
 	base,
@@ -116,7 +116,7 @@ export function getLocaleRelativeUrlList({
 	normalizeLocale = true,
 	routing = 'pathname-prefix-other-locales',
 	defaultLocale,
-}: GetLocalesBaseUrl) {
+}: GetLocalesRelativeUrlList) {
 	const locales = toPaths(_locales);
 	return locales.map((locale) => {
 		const pathsToJoin = [base, prependWith];
@@ -136,6 +136,10 @@ export function getLocaleRelativeUrlList({
 	});
 }
 
+interface GetLocalesAbsoluteUrlList extends GetLocalesRelativeUrlList {
+	site?: string;
+}
+
 export function getLocaleAbsoluteUrlList({
 	base,
 	locales: _locales,
@@ -149,7 +153,7 @@ export function getLocaleAbsoluteUrlList({
 	isBuild,
 	domains,
 	site,
-}: GetLocaleAbsoluteUrl) {
+}: GetLocalesAbsoluteUrlList) {
 	const locales = toPaths(_locales);
 	return locales.map((currentLocale) => {
 		const pathsToJoin = [];
@@ -190,7 +194,7 @@ export function getLocaleAbsoluteUrlList({
  * @param locale
  * @param locales
  */
-export function getPathByLocale(locale: string, locales: Locales) {
+export function getPathByLocale(locale: string, locales: Locales): string {
 	for (const loopLocale of locales) {
 		if (typeof loopLocale === 'string') {
 			if (loopLocale === locale) {
@@ -204,6 +208,7 @@ export function getPathByLocale(locale: string, locales: Locales) {
 			}
 		}
 	}
+	throw new Unreachable();
 }
 
 /**
@@ -212,19 +217,20 @@ export function getPathByLocale(locale: string, locales: Locales) {
  * @param path
  * @param locales
  */
-export function getLocaleByPath(path: string, locales: Locales): string | undefined {
+export function getLocaleByPath(path: string, locales: Locales): string {
 	for (const locale of locales) {
 		if (typeof locale !== 'string') {
 			if (locale.path === path) {
 				// the first code is the one that user usually wants
 				const code = locale.codes.at(0);
+				if (code === undefined) throw new Unreachable();
 				return code;
 			}
 		} else if (locale === path) {
 			return locale;
 		}
 	}
-	return undefined;
+	throw new Unreachable();
 }
 
 /**
@@ -285,4 +291,15 @@ function peekCodePathToUse(locales: Locales, locale: string): undefined | string
 	}
 
 	return undefined;
+}
+
+class Unreachable extends Error {
+	constructor() {
+		super(
+			'Astro encountered an unexpected line of code.\n' +
+				'In most cases, this is not your fault, but a bug in astro code.\n' +
+				"If there isn't one already, please create an issue.\n" +
+				'https://astro.build/issues'
+		);
+	}
 }
