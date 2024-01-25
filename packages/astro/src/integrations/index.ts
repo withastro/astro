@@ -257,6 +257,7 @@ export async function runHookConfigDone({
 								adapter.name,
 								adapter.supportedAstroFeatures,
 								settings.config,
+								adapter.adapterFeatures,
 								logger
 							);
 							for (const [featureName, supported] of Object.entries(validationResult)) {
@@ -498,14 +499,6 @@ export async function runHookBuildDone({ config, pages, routes, logging }: RunHo
 
 export function isFunctionPerRouteEnabled(adapter: AstroAdapter | undefined): boolean {
 	if (adapter?.adapterFeatures?.functionPerRoute === true) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-export function isEdgeMiddlewareEnabled(adapter: AstroAdapter | undefined): boolean {
-	if (adapter?.adapterFeatures?.edgeMiddleware === true) {
 		return true;
 	} else {
 		return false;

@@ -2186,7 +2186,7 @@ export type AstroFeatureMap = {
 	/**
 	 * List of features that orbit around the i18n routing
 	 */
-	i18n?: AstroInternationalizationFeature;
+	i18nDomains?: SupportsKind;
 };
 
 export interface AstroAssetsFeature {
