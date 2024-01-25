@@ -148,6 +148,8 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		const renderers = await import(renderersEntryUrl.toString());
 		let middleware: MiddlewareHandler = (_, next) => next();
 		try {
+			// middleware.mjs is not emitted if there is no user middleware
+			// in which case the import fails with ERR_MODULE_NOT_FOUND, and we fall back to a no-op middleware
 			middleware = await import(new URL('middleware.mjs', baseDirectory).toString()).then(mod => mod.onRequest);
 		} catch {}
 		manifest = createBuildManifest(
