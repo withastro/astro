@@ -5,6 +5,7 @@ import type {
 	DBCollections,
 	DBField,
 	DBFields,
+	DBSnapshot,
 	DateField,
 	FieldType,
 	JsonField,
@@ -25,18 +26,17 @@ interface PromptResponses {
 }
 
 export async function getMigrationQueries({
-	oldCollections,
-	newCollections,
+	oldSnapshot,
+	newSnapshot,
 	promptResponses,
 }: {
-	oldCollections: DBCollections;
-	newCollections: DBCollections;
+	oldSnapshot: DBSnapshot;
+	newSnapshot: DBSnapshot;
 	promptResponses?: PromptResponses;
-}) {
+}): Promise<string[]> {
 	const queries: string[] = [];
-	let added = getAddedCollections(oldCollections, newCollections);
-	let dropped = getDroppedCollections(oldCollections, newCollections);
-
+	let added = getAddedCollections(oldSnapshot, newSnapshot);
+	let dropped = getDroppedCollections(oldSnapshot, newSnapshot);
 	if (!isEmpty(added) && !isEmpty(dropped)) {
 		const resolved = await resolveCollectionRenames(
 			added,
@@ -62,8 +62,8 @@ export async function getMigrationQueries({
 		queries.push(dropQuery);
 	}
 
-	for (const [collectionName, newCollection] of Object.entries(newCollections)) {
-		const oldCollection = oldCollections[collectionName];
+	for (const [collectionName, newCollection] of Object.entries(newSnapshot.schema)) {
+		const oldCollection = oldSnapshot.schema[collectionName];
 		if (!oldCollection) continue;
 		const collectionChangeQueries = await getCollectionChangeQueries({
 			collectionName,
@@ -130,12 +130,9 @@ export async function getCollectionChangeQueries({
 			)} field ${color.blue(color.bold(fieldName))}. ${color.red(
 				'This will delete all existing data in the collection!'
 			)} We recommend setting a default value to avoid data loss.`,
-			'updated-required': `Changing ${color.blue(color.bold(collectionName))} field ${color.blue(
+			'added-unique': `Adding unique ${color.blue(color.bold(collectionName))} field ${color.blue(
 				color.bold(fieldName)
-			)} to required. ${color.red('This will delete all existing data in the collection!')}`,
-			'updated-unique': `Changing ${color.blue(color.bold(collectionName))} field ${color.blue(
-				color.bold(fieldName)
-			)} to unique. ${color.red('This will delete all existing data in the collection!')}`,
+			)}. ${color.red('This will delete all existing data in the collection!')}`,
 			'updated-type': `Changing the type of ${color.blue(
 				color.bold(collectionName)
 			)} field ${color.blue(color.bold(fieldName))}. ${color.red(
@@ -159,11 +156,22 @@ export async function getCollectionChangeQueries({
 		}
 	}
 
+	const addedPrimaryKey = Object.entries(added).find(
+		([, field]) => hasPrimaryKey(field)
+	);
+	const droppedPrimaryKey = Object.entries(dropped).find(
+		([, field]) => hasPrimaryKey(field)
+	);
+	const updatedPrimaryKey = Object.entries(updated).find(
+		([, field]) =>
+			(hasPrimaryKey(field.old) || hasPrimaryKey(field.new))
+	);
 	const recreateTableQueries = getRecreateTableQueries({
-		unescCollectionName: collectionName,
+		unescapedCollectionName: collectionName,
 		newCollection,
 		added,
 		hasDataLoss: dataLossCheck.dataLoss,
+		migrateHiddenPrimaryKey: !addedPrimaryKey && !droppedPrimaryKey && !updatedPrimaryKey,
 	});
 	queries.push(...recreateTableQueries);
 	return queries;
@@ -288,25 +296,31 @@ async function resolveCollectionRenames(
 	return { added, dropped, renamed };
 }
 
-function getAddedCollections(oldCollections: DBCollections, newCollections: DBCollections) {
+function getAddedCollections(
+	oldCollections: DBSnapshot,
+	newCollections: DBSnapshot
+): DBCollections {
 	const added: DBCollections = {};
-	for (const [key, newCollection] of Object.entries(newCollections)) {
-		if (!(key in oldCollections)) added[key] = newCollection;
+	for (const [key, newCollection] of Object.entries(newCollections.schema)) {
+		if (!(key in oldCollections.schema)) added[key] = newCollection;
 	}
 	return added;
 }
 
-function getDroppedCollections(oldCollections: DBCollections, newCollections: DBCollections) {
+function getDroppedCollections(
+	oldCollections: DBSnapshot,
+	newCollections: DBSnapshot
+): DBCollections {
 	const dropped: DBCollections = {};
-	for (const [key, oldCollection] of Object.entries(oldCollections)) {
-		if (!(key in newCollections)) dropped[key] = oldCollection;
+	for (const [key, oldCollection] of Object.entries(oldCollections.schema)) {
+		if (!(key in newCollections.schema)) dropped[key] = oldCollection;
 	}
 	return dropped;
 }
 
-function getFieldRenameQueries(unescCollectionName: string, renamed: Renamed): string[] {
+function getFieldRenameQueries(unescapedCollectionName: string, renamed: Renamed): string[] {
 	const queries: string[] = [];
-	const collectionName = sqlite.escapeName(unescCollectionName);
+	const collectionName = sqlite.escapeName(unescapedCollectionName);
 
 	for (const { from, to } of renamed) {
 		const q = `ALTER TABLE ${collectionName} RENAME COLUMN ${sqlite.escapeName(
@@ -323,12 +337,12 @@ function getFieldRenameQueries(unescCollectionName: string, renamed: Renamed): s
  * `canUseAlterTableAddColumn` and `canAlterTableDropColumn` checks!
  */
 function getAlterTableQueries(
-	unescCollectionName: string,
+	unescapedCollectionName: string,
 	added: DBFields,
 	dropped: DBFields
 ): string[] {
 	const queries: string[] = [];
-	const collectionName = sqlite.escapeName(unescCollectionName);
+	const collectionName = sqlite.escapeName(unescapedCollectionName);
 
 	for (const [unescFieldName, field] of Object.entries(added)) {
 		const fieldName = sqlite.escapeName(unescFieldName);
@@ -350,40 +364,52 @@ function getAlterTableQueries(
 }
 
 function getRecreateTableQueries({
-	unescCollectionName,
+	unescapedCollectionName,
 	newCollection,
 	added,
 	hasDataLoss,
+	migrateHiddenPrimaryKey,
 }: {
-	unescCollectionName: string;
+	unescapedCollectionName: string;
 	newCollection: DBCollection;
 	added: Record<string, DBField>;
 	hasDataLoss: boolean;
+	migrateHiddenPrimaryKey: boolean;
 }): string[] {
-	const unescTempName = `${unescCollectionName}_${genTempTableName()}`;
+	const unescTempName = `${unescapedCollectionName}_${genTempTableName()}`;
 	const tempName = sqlite.escapeName(unescTempName);
-	const collectionName = sqlite.escapeName(unescCollectionName);
-	const queries = [getCreateTableQuery(unescTempName, newCollection)];
+	const collectionName = sqlite.escapeName(unescapedCollectionName);
 
-	if (!hasDataLoss) {
-		const newColumns = ['id', ...Object.keys(newCollection.fields)];
-		const originalColumns = newColumns.filter((i) => !(i in added));
-		const escapedColumns = originalColumns.map((c) => sqlite.escapeName(c)).join(', ');
-
-		queries.push(
-			`INSERT INTO ${tempName} (${escapedColumns}) SELECT ${escapedColumns} FROM ${collectionName}`
-		);
+	if (hasDataLoss) {
+		return [`DROP TABLE ${collectionName}`, getCreateTableQuery(collectionName, newCollection)];
 	}
+	const newColumns = [...Object.keys(newCollection.fields)];
+	if (migrateHiddenPrimaryKey) {
+		newColumns.unshift('_id');
+	}
+	const escapedColumns = newColumns
+		.filter((i) => !(i in added))
+		.map((c) => sqlite.escapeName(c))
+		.join(', ');
 
-	queries.push(`DROP TABLE ${collectionName}`);
-	queries.push(`ALTER TABLE ${tempName} RENAME TO ${collectionName}`);
-	return queries;
+	return [
+		getCreateTableQuery(unescTempName, newCollection),
+		`INSERT INTO ${tempName} (${escapedColumns}) SELECT ${escapedColumns} FROM ${collectionName}`,
+		`DROP TABLE ${collectionName}`,
+		`ALTER TABLE ${tempName} RENAME TO ${collectionName}`,
+	];
 }
 
 export function getCreateTableQuery(collectionName: string, collection: DBCollection) {
 	let query = `CREATE TABLE ${sqlite.escapeName(collectionName)} (`;
 
-	const colQueries = ['"id" text PRIMARY KEY'];
+	const colQueries = [];
+	const colHasPrimaryKey = Object.entries(collection.fields).find(
+		([, field]) => hasPrimaryKey(field)
+	);
+	if (!colHasPrimaryKey) {
+		colQueries.push('_id INTEGER PRIMARY KEY AUTOINCREMENT');
+	}
 	for (const [columnName, column] of Object.entries(collection.fields)) {
 		const colQuery = `${sqlite.escapeName(columnName)} ${schemaTypeToSqlType(
 			column.type
@@ -395,16 +421,19 @@ export function getCreateTableQuery(collectionName: string, collection: DBCollec
 	return query;
 }
 
-function getModifiers(columnName: string, column: DBField) {
+function getModifiers(fieldName: string, field: DBField) {
 	let modifiers = '';
-	if (!column.optional) {
+	if (hasPrimaryKey(field)) {
+		modifiers += ' PRIMARY KEY';
+	}
+	if (!field.optional) {
 		modifiers += ' NOT NULL';
 	}
-	if (column.unique) {
+	if (field.unique) {
 		modifiers += ' UNIQUE';
 	}
-	if (hasDefault(column)) {
-		modifiers += ` DEFAULT ${getDefaultValueSql(columnName, column)}`;
+	if (hasDefault(field)) {
+		modifiers += ` DEFAULT ${getDefaultValueSql(fieldName, field)}`;
 	}
 	return modifiers;
 }
@@ -431,19 +460,24 @@ function isEmpty(obj: Record<string, unknown>) {
  *
  * @see https://www.sqlite.org/lang_altertable.html#alter_table_add_column
  */
-function canAlterTableAddColumn(column: DBField) {
-	if (column.unique) return false;
-	if (hasRuntimeDefault(column)) return false;
-	if (!column.optional && !hasDefault(column)) return false;
+function canAlterTableAddColumn(field: DBField) {
+	if (field.unique) return false;
+	if (hasRuntimeDefault(field)) return false;
+	if (!field.optional && !hasDefault(field)) return false;
+	if (hasPrimaryKey(field)) return false;
 	return true;
 }
 
-function canAlterTableDropColumn(column: DBField) {
-	if (column.unique) return false;
+function canAlterTableDropColumn(field: DBField) {
+	if (field.unique) return false;
+	if (hasPrimaryKey(field)) return false;
 	return true;
 }
 
-type DataLossReason = 'added-required' | 'updated-required' | 'updated-unique' | 'updated-type';
+type DataLossReason =
+	| 'added-required'
+	| 'added-unique'
+	| 'updated-type';
 type DataLossResponse =
 	| { dataLoss: false }
 	| { dataLoss: true; fieldName: string; reason: DataLossReason };
@@ -453,19 +487,20 @@ function canRecreateTableWithoutDataLoss(
 	updated: UpdatedFields
 ): DataLossResponse {
 	for (const [fieldName, a] of Object.entries(added)) {
-		if (!a.optional && !hasDefault(a))
+		if (hasPrimaryKey(a) && a.type !== 'number') {
 			return { dataLoss: true, fieldName, reason: 'added-required' };
+		}
+		if (!a.optional && !hasDefault(a)) {
+			return { dataLoss: true, fieldName, reason: 'added-required' };
+		}
+		if (a.unique) {
+			return { dataLoss: true, fieldName, reason: 'added-unique' };
+		}
 	}
 	for (const [fieldName, u] of Object.entries(updated)) {
-		// Cannot respect default value when changing to NOT NULL
-		// TODO: use UPDATE query to set default where IS NULL
-		// @see https://dataschool.com/learn-sql/how-to-replace-nulls-with-0s/
-		if (u.old.optional && !u.new.optional)
-			return { dataLoss: true, fieldName, reason: 'updated-required' };
-		if (!u.old.unique && u.new.unique)
-			return { dataLoss: true, fieldName, reason: 'updated-unique' };
-		if (u.old.type !== u.new.type && !canChangeTypeWithoutQuery(u.old, u.new))
+		if (u.old.type !== u.new.type && !canChangeTypeWithoutQuery(u.old, u.new)) {
 			return { dataLoss: true, fieldName, reason: 'updated-type' };
+		}
 	}
 	return { dataLoss: false };
 }
@@ -535,9 +570,19 @@ type DBFieldWithDefault =
 	| WithDefaultDefined<BooleanField>
 	| WithDefaultDefined<JsonField>;
 
+function hasPrimaryKey(field: DBField) {
+	return 'primaryKey' in field && !!field.primaryKey;
+}
+
 // Type narrowing the default fails on union types, so use a type guard
 function hasDefault(field: DBField): field is DBFieldWithDefault {
-	return field.default !== undefined;
+	if (field.default !== undefined) {
+		return true;
+	}
+	if (hasPrimaryKey(field) && field.type === 'number') {
+		return true;
+	}
+	return false;
 }
 
 function hasRuntimeDefault(field: DBField): field is DBFieldWithDefault {
@@ -549,7 +594,7 @@ function getDefaultValueSql(columnName: string, column: DBFieldWithDefault): str
 		case 'boolean':
 			return column.default ? 'TRUE' : 'FALSE';
 		case 'number':
-			return `${column.default}`;
+			return `${column.default || 'AUTOINCREMENT'}`;
 		case 'text':
 			return sqlite.escapeString(column.default);
 		case 'date':

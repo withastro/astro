@@ -7,6 +7,7 @@ import type { Arguments } from 'yargs-parser';
 import { appTokenError } from '../../../errors.js';
 import { collectionToTable, createLocalDatabaseClient } from '../../../internal.js';
 import {
+	createEmptySnapshot,
 	getMigrations,
 	initializeFromMigrations,
 	loadInitialSnapshot,
@@ -98,8 +99,8 @@ async function pushSchema({
 	// create a migration for the initial snapshot, if needed
 	const initialMigrationBatch = initialSnapshot
 		? await getMigrationQueries({
-				oldCollections: {},
-				newCollections: await loadInitialSnapshot(),
+				oldSnapshot: createEmptySnapshot(),
+				newSnapshot: await loadInitialSnapshot(),
 			})
 		: [];
 	// combine all missing migrations into a single batch

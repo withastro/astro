@@ -3,6 +3,7 @@ import deepDiff from 'deep-diff';
 import { writeFile } from 'fs/promises';
 import type { Arguments } from 'yargs-parser';
 import {
+	createCurrentSnapshot,
 	getMigrations,
 	initializeFromMigrations,
 	initializeMigrationsDirectory,
@@ -11,7 +12,7 @@ import { getMigrationQueries } from '../../queries.js';
 const { diff } = deepDiff;
 
 export async function cmd({ config }: { config: AstroConfig; flags: Arguments }) {
-	const currentSnapshot = JSON.parse(JSON.stringify(config.db?.collections ?? {}));
+	const currentSnapshot = createCurrentSnapshot(config);
 	const allMigrationFiles = await getMigrations();
 	if (allMigrationFiles.length === 0) {
 		await initializeMigrationsDirectory(currentSnapshot);
@@ -27,8 +28,8 @@ export async function cmd({ config }: { config: AstroConfig; flags: Arguments })
 	}
 
 	const migrationQueries = await getMigrationQueries({
-		oldCollections: prevSnapshot,
-		newCollections: currentSnapshot,
+		oldSnapshot: prevSnapshot,
+		newSnapshot: currentSnapshot,
 	});
 
 	const largestNumber = allMigrationFiles.reduce((acc, curr) => {

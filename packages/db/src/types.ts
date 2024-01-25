@@ -16,12 +16,14 @@ const booleanFieldSchema = baseFieldSchema.extend({
 const numberFieldSchema = baseFieldSchema.extend({
 	type: z.literal('number'),
 	default: z.number().optional(),
+	primaryKey: z.boolean().optional(),
 });
 
 const textFieldSchema = baseFieldSchema.extend({
 	type: z.literal('text'),
 	multiline: z.boolean().optional(),
 	default: z.string().optional(),
+	primaryKey: z.boolean().optional(),
 });
 
 const dateFieldSchema = baseFieldSchema.extend({
@@ -95,6 +97,11 @@ export type DBCollection = z.infer<
 	typeof readableCollectionSchema | typeof writableCollectionSchema
 >;
 export type DBCollections = Record<string, DBCollection>;
+export type DBSnapshot = {
+	version: number;
+	meta: Record<string, never>;
+	schema: Record<string, DBCollection>;
+};
 export type ReadableDBCollection = z.infer<typeof readableCollectionSchema>;
 export type WritableDBCollection = z.infer<typeof writableCollectionSchema>;
 
