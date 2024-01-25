@@ -342,7 +342,7 @@ export async function handleRoute({
 			})
 		);
 	}
-	if (response.status === 404 && has404Route(manifestData)) {
+	if (response.status === 404 && has404Route(manifestData) && response.headers.get("X-Astro-Reroute") !== "no") {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
 		if (options && fourOhFourRoute?.route !== options.route)
 			return handleRoute({
