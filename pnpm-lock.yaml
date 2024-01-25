@@ -3872,6 +3872,12 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../../../astro
+      chokidar:
+        specifier: ^3.5.3
+        version: 3.5.3
+      drizzle-orm:
+        specifier: ^0.28.6
+        version: 0.28.6(@libsql/client@0.4.0-pre.5)
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2

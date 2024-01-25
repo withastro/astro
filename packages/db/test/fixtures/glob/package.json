@@ -11,6 +11,8 @@
   "dependencies": {
     "@astrojs/db": "workspace:*",
     "astro": "workspace:*",
+    "chokidar": "^3.5.3",
+    "drizzle-orm": "^0.28.6",
     "fast-glob": "^3.3.2"
   },
   "keywords": [],
