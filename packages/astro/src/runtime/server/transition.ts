@@ -46,7 +46,6 @@ function toValidIdent(name: string): string {
 			// TODO handle $ and other special characters
 			const suffix = char === name[name.length - 1] ? "" : "\ ";
 			result += `\\${char.codePointAt(0)!.toString(16)}${suffix}`;
-		}
 	}
 	return result;
 }
