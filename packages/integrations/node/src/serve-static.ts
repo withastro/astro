@@ -32,31 +32,29 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 
 			const hasSlash = urlPath.endsWith('/');
 			switch (trailingSlash) {
-				case "never":
-					if (isDirectory && (urlPath != '/') && hasSlash) {
-						pathname = urlPath.slice(0, -1) + (urlQuery ? "?" + urlQuery : "");
+				case 'never':
+					if (isDirectory && urlPath != '/' && hasSlash) {
+						pathname = urlPath.slice(0, -1) + (urlQuery ? '?' + urlQuery : '');
 						res.statusCode = 301;
 						res.setHeader('Location', pathname);
 						return res.end();
 					} else pathname = urlPath;
-					// intentionally fall through
-				case "ignore":
+				// intentionally fall through
+				case 'ignore':
 					{
 						if (isDirectory && !hasSlash) {
-							pathname = urlPath + "/index.html";
-						} else
-							pathname = urlPath;
+							pathname = urlPath + '/index.html';
+						} else pathname = urlPath;
 					}
 					break;
-				case "always":
+				case 'always':
 					if (!hasSlash) {
-						pathname = urlPath + '/' +(urlQuery ? "?" + urlQuery : "");
+						pathname = urlPath + '/' + (urlQuery ? '?' + urlQuery : '');
 						res.statusCode = 301;
 						res.setHeader('Location', pathname);
 						return res.end();
-					} else
-						pathname = urlPath;
-				break;
+					} else pathname = urlPath;
+					break;
 			}
 			// app.removeBase sometimes returns a path without a leading slash
 			pathname = prependForwardSlash(app.removeBase(pathname));

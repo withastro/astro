@@ -8,7 +8,9 @@ import * as cheerio from 'cheerio';
  */
 
 async function load() {
-	const mod = await import(`./fixtures/trailing-slash/dist/server/entry.mjs?dropcache=${Date.now()}`);
+	const mod = await import(
+		`./fixtures/trailing-slash/dist/server/entry.mjs?dropcache=${Date.now()}`
+	);
 	return mod;
 }
 
@@ -52,7 +54,7 @@ describe('Trailing slash', () => {
 
 			it('Can render prerendered route with redirect', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/some-base/one`, {
-					redirect : 'manual'
+					redirect: 'manual',
 				});
 				expect(res.status).to.equal(301);
 				expect(res.headers.get('location')).to.equal('/some-base/one/');
@@ -60,7 +62,7 @@ describe('Trailing slash', () => {
 
 			it('Can render prerendered route with redirect and query params', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/some-base/one?foo=bar`, {
-					redirect : 'manual'
+					redirect: 'manual',
 				});
 				expect(res.status).to.equal(301);
 				expect(res.headers.get('location')).to.equal('/some-base/one/?foo=bar');
@@ -109,7 +111,7 @@ describe('Trailing slash', () => {
 
 			it('Can render prerendered route with redirect', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/one`, {
-					redirect : 'manual'
+					redirect: 'manual',
 				});
 				expect(res.status).to.equal(301);
 				expect(res.headers.get('location')).to.equal('/one/');
@@ -117,7 +119,7 @@ describe('Trailing slash', () => {
 
 			it('Can render prerendered route with redirect and query params', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/one?foo=bar`, {
-					redirect : 'manual'
+					redirect: 'manual',
 				});
 				expect(res.status).to.equal(301);
 				expect(res.headers.get('location')).to.equal('/one/?foo=bar');
@@ -169,7 +171,7 @@ describe('Trailing slash', () => {
 
 			it('Can render prerendered route with redirect', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/some-base/one/`, {
-					redirect : 'manual'
+					redirect: 'manual',
 				});
 				expect(res.status).to.equal(301);
 				expect(res.headers.get('location')).to.equal('/some-base/one');
@@ -177,7 +179,7 @@ describe('Trailing slash', () => {
 
 			it('Can render prerendered route with redirect and query params', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/some-base/one/?foo=bar`, {
-					redirect : 'manual'
+					redirect: 'manual',
 				});
 
 				expect(res.status).to.equal(301);
@@ -227,7 +229,7 @@ describe('Trailing slash', () => {
 
 			it('Can render prerendered route with redirect', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/one/`, {
-					redirect : 'manual'
+					redirect: 'manual',
 				});
 				expect(res.status).to.equal(301);
 				expect(res.headers.get('location')).to.equal('/one');
@@ -235,7 +237,7 @@ describe('Trailing slash', () => {
 
 			it('Can render prerendered route with redirect and query params', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/one/?foo=bar`, {
-					redirect : 'manual'
+					redirect: 'manual',
 				});
 
 				expect(res.status).to.equal(301);
@@ -288,7 +290,7 @@ describe('Trailing slash', () => {
 
 			it('Can render prerendered route with slash', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/some-base/one/`, {
-					redirect : 'manual'
+					redirect: 'manual',
 				});
 				const html = await res.text();
 				const $ = cheerio.load(html);
@@ -299,7 +301,7 @@ describe('Trailing slash', () => {
 
 			it('Can render prerendered route without slash', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/some-base/one`, {
-					redirect : 'manual'
+					redirect: 'manual',
 				});
 				const html = await res.text();
 				const $ = cheerio.load(html);
@@ -310,7 +312,7 @@ describe('Trailing slash', () => {
 
 			it('Can render prerendered route with slash and query params', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/some-base/one/?foo=bar`, {
-					redirect : 'manual'
+					redirect: 'manual',
 				});
 				const html = await res.text();
 				const $ = cheerio.load(html);
@@ -321,7 +323,7 @@ describe('Trailing slash', () => {
 
 			it('Can render prerendered route without slash and with query params', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/some-base/one?foo=bar`, {
-					redirect : 'manual'
+					redirect: 'manual',
 				});
 				const html = await res.text();
 				const $ = cheerio.load(html);
@@ -382,7 +384,7 @@ describe('Trailing slash', () => {
 
 			it('Can render prerendered route with slash and query params', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/one/?foo=bar`, {
-					redirect : 'manual'
+					redirect: 'manual',
 				});
 				const html = await res.text();
 				const $ = cheerio.load(html);
@@ -402,4 +404,3 @@ describe('Trailing slash', () => {
 		});
 	});
 });
-
