@@ -13,8 +13,8 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 	format: AstroConfig['build']['format'];
 	routing?: RoutingStrategies;
 	defaultLocale: string;
-	domains: Record<string, string>;
-	path: string;
+	domains: Record<string, string> | undefined;
+	path?: string;
 };
 
 export type GetLocaleOptions = {
@@ -42,7 +42,7 @@ export function getLocaleRelativeUrl({
 	locales: _locales,
 	trailingSlash,
 	format,
-	path,
+	path = '',
 	prependWith,
 	normalizeLocale = true,
 	routing = 'pathname-prefix-other-locales',
@@ -78,7 +78,7 @@ export function getLocaleAbsoluteUrl({ site, isBuild, ...rest }: GetLocaleAbsolu
 	const localeUrl = getLocaleRelativeUrl(rest);
 	const { domains, locale } = rest;
 	let url;
-	if (isBuild) {
+	if (isBuild && domains) {
 		const base = domains[locale];
 		url = joinPaths(base, localeUrl.replace(`/${rest.locale}`, ''));
 	} else {
@@ -98,12 +98,13 @@ export function getLocaleAbsoluteUrl({ site, isBuild, ...rest }: GetLocaleAbsolu
 
 interface GetLocalesRelativeUrlList extends GetLocaleOptions {
 	base: string;
-	path: string;
+	path?: string;
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
 	routing?: RoutingStrategies;
 	defaultLocale: string;
+	domains: Record<string, string> | undefined;
 }
 
 export function getLocaleRelativeUrlList({
@@ -111,7 +112,7 @@ export function getLocaleRelativeUrlList({
 	locales: _locales,
 	trailingSlash,
 	format,
-	path,
+	path = '',
 	prependWith,
 	normalizeLocale = true,
 	routing = 'pathname-prefix-other-locales',
@@ -137,7 +138,8 @@ export function getLocaleRelativeUrlList({
 }
 
 interface GetLocalesAbsoluteUrlList extends GetLocalesRelativeUrlList {
-	site?: string;
+	site?: AstroConfig['site'];
+	isBuild: boolean;
 }
 
 export function getLocaleAbsoluteUrlList({

@@ -14,7 +14,9 @@ type AstroInternationalization = {
 export interface I18nInternalConfig
 	extends Pick<AstroConfig, 'base' | 'site' | 'trailingSlash'>,
 		NonNullable<AstroConfig['i18n']>,
-		Pick<AstroConfig['build'], 'format'> {}
+		Pick<AstroConfig['build'], 'format'> {
+	isBuild: boolean;
+}
 
 export default function astroInternationalization({
 	settings,
@@ -55,7 +57,7 @@ export default function astroInternationalization({
 					locales,
 					routing,
 					fallback,
-					isBuild: isCommandBuild
+					isBuild: isCommandBuild,
 				};
 				return `export default ${JSON.stringify(config)};`;
 			}

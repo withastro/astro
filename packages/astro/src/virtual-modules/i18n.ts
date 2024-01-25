@@ -3,7 +3,7 @@ import type { I18nInternalConfig } from '../i18n/vite-plugin-i18n.js';
 export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
 // @ts-expect-error
 import config from 'astro-internal:i18n-config';
-const { trailingSlash, format, site, defaultLocale, locales, routing } =
+const { trailingSlash, format, domains, site, defaultLocale, locales, routing, isBuild } =
 	config as I18nInternalConfig;
 const base = import.meta.env.BASE_URL;
 
@@ -40,6 +40,7 @@ export const getRelativeLocaleUrl = (locale: string, path?: string, options?: Ge
 		defaultLocale,
 		locales,
 		routing,
+		domains,
 		...options,
 	});
 
@@ -68,7 +69,7 @@ export const getRelativeLocaleUrl = (locale: string, path?: string, options?: Ge
  * getAbsoluteLocaleUrl("es_US", "getting-started", { prependWith: "blog", normalizeLocale: false }); // https://example.com/blog/es_US/getting-started
  * ```
  */
-export const getAbsoluteLocaleUrl = (locale: string, path = '', options?: GetLocaleOptions) =>
+export const getAbsoluteLocaleUrl = (locale: string, path?: string, options?: GetLocaleOptions) =>
 	I18nInternals.getLocaleAbsoluteUrl({
 		locale,
 		path,
@@ -79,6 +80,8 @@ export const getAbsoluteLocaleUrl = (locale: string, path = '', options?: GetLoc
 		defaultLocale,
 		locales,
 		routing,
+		domains,
+		isBuild,
 		...options,
 	});
 
@@ -97,6 +100,7 @@ export const getRelativeLocaleUrlList = (path?: string, options?: GetLocaleOptio
 		defaultLocale,
 		locales,
 		routing,
+		domains,
 		...options,
 	});
 
@@ -106,7 +110,7 @@ export const getRelativeLocaleUrlList = (path?: string, options?: GetLocaleOptio
  *
  * Works like `getAbsoluteLocaleUrl` but it emits the absolute URLs for ALL locales:
  */
-export const getAbsoluteLocaleUrlList = (path?: string, options?: GetLocaleOptions) =>
+export const getAbsoluteLocaleUrlList = (path: string = '', options?: GetLocaleOptions) =>
 	I18nInternals.getLocaleAbsoluteUrlList({
 		site,
 		base,
@@ -116,6 +120,8 @@ export const getAbsoluteLocaleUrlList = (path?: string, options?: GetLocaleOptio
 		defaultLocale,
 		locales,
 		routing,
+		domains,
+		isBuild,
 		...options,
 	});
 
