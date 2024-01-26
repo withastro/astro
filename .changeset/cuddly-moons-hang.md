@@ -6,7 +6,7 @@ Adds a new `ComponentProps` type export from `astro/types` to get the props type
 
 ```astro
 ---
-import { ComponentProps } from 'astro/types';
+import type { ComponentProps } from 'astro/types';
 import { Button } from "./Button.astro";
 
 type myButtonProps = ComponentProps<typeof Button>;
