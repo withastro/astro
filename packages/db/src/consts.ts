@@ -11,7 +11,8 @@ export const DB_TYPES_FILE = 'db-types.d.ts';
 
 export const VIRTUAL_MODULE_ID = 'astro:db';
 
-// TODO: copy DB to build for serverless
+export const DB_PATH = '.astro/content.db';
+
 export function getLocalDbUrl(root: URL) {
-	return new URL('.astro/content.db', root);
+	return new URL(DB_PATH, root);
 }

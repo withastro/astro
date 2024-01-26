@@ -1,4 +1,4 @@
-import { DRIZZLE_MOD_IMPORT, INTERNAL_MOD_IMPORT, VIRTUAL_MODULE_ID } from './consts.js';
+import { DRIZZLE_MOD_IMPORT, INTERNAL_MOD_IMPORT, VIRTUAL_MODULE_ID, DB_PATH } from './consts.js';
 import type { DBCollections } from './types.js';
 import type { VitePlugin } from './utils.js';
 
@@ -46,11 +46,13 @@ export function getVirtualModContents({
 	return `
 import { collectionToTable, createLocalDatabaseClient } from ${INTERNAL_MOD_IMPORT};
 
-export const db = await createLocalDatabaseClient(${JSON.stringify({
-		collections,
-		dbUrl,
-		seeding: false,
-	})});
+const params = ${JSON.stringify({
+	collections,
+	seeding: false,
+})};
+
+params.dbUrl = new URL(${JSON.stringify(DB_PATH)}, 'file://' + process.cwd() + '/');
+export const db = await createLocalDatabaseClient(params);
 
 export * from ${DRIZZLE_MOD_IMPORT};
 

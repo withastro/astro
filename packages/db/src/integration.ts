@@ -41,7 +41,11 @@ export function integration(): AstroIntegration {
 						logger.error(appTokenError);
 						process.exit(0);
 					}
-					dbPlugin = vitePluginDb({ connectToStudio: true, collections, appToken });
+					dbPlugin = vitePluginDb({
+						connectToStudio: true,
+						collections,
+						appToken
+					});
 				} else {
 					const dbUrl = getLocalDbUrl(config.root);
 					if (existsSync(dbUrl)) {
