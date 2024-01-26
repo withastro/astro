@@ -1,6 +1,7 @@
+import * as assert from 'node:assert/strict';
+import { describe, it, before, after } from 'node:test';
 import nodejs from '../dist/index.js';
 import { loadFixture, createRequestAndResponse } from './test-utils.js';
-import { expect } from 'chai';
 
 describe('Encoded Pathname', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -25,7 +26,7 @@ describe('Encoded Pathname', () => {
 		req.send();
 
 		const html = await text();
-		expect(html).to.include('什么</h1>');
+		assert.equal(html.includes('什么</h1>'), true);
 	});
 
 	it('Can get a Markdown file', async () => {
@@ -39,6 +40,6 @@ describe('Encoded Pathname', () => {
 		req.send();
 
 		const html = await text();
-		expect(html).to.include('什么</h1>');
+		assert.equal(html.includes('什么</h1>'), true);
 	});
 });

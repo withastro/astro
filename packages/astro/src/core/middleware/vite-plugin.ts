@@ -8,7 +8,7 @@ import type { StaticBuildOptions } from '../build/types.js';
 import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
 
 export const MIDDLEWARE_MODULE_ID = '\0astro-internal:middleware';
-const EMPTY_MIDDLEWARE = '\0empty-middleware';
+const NOOP_MIDDLEWARE = '\0noop-middleware';
 
 export function vitePluginMiddleware({ settings }: { settings: AstroSettings }): VitePlugin {
 	let isCommandBuild = false;
@@ -19,12 +19,10 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 
 	return {
 		name: '@astro/plugin-middleware',
-
 		config(opts, { command }) {
 			isCommandBuild = command === 'build';
 			return opts;
 		},
-
 		async resolveId(id) {
 			if (id === MIDDLEWARE_MODULE_ID) {
 				const middlewareId = await this.resolve(
@@ -37,17 +35,16 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				} else if (hasIntegrationMiddleware) {
 					return MIDDLEWARE_MODULE_ID;
 				} else {
-					return EMPTY_MIDDLEWARE;
+					return NOOP_MIDDLEWARE;
 				}
 			}
-			if (id === EMPTY_MIDDLEWARE) {
-				return EMPTY_MIDDLEWARE;
+			if (id === NOOP_MIDDLEWARE) {
+				return NOOP_MIDDLEWARE;
 			}
 		},
-
 		async load(id) {
-			if (id === EMPTY_MIDDLEWARE) {
-				return 'export const onRequest = undefined';
+			if (id === NOOP_MIDDLEWARE) {
+				return 'export const onRequest = (_, next) => next()';
 			} else if (id === MIDDLEWARE_MODULE_ID) {
 				// In the build, tell Vite to emit this file
 				if (isCommandBuild) {
