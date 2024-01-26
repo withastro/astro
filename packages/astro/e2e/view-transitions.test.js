@@ -1227,4 +1227,40 @@ test.describe('View Transitions', () => {
 
 		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
+
+	test('transition:name should be escaped correctly', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/transition-name'));
+		await expect(page.locator('#one'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'front-end'
+		);
+		await expect(page.locator('#two'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'\\5F00\\6E90'
+		);
+		await expect(page.locator('#three'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'\\5F00 a\\6E90'
+		);
+		await expect(page.locator('#four'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'c\\5F00 a\\6E90 c'
+		);
+		await expect(page.locator('#five'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'\\30AA\\30FC\\30D7\\30F3\\30BD\\30FC\\30B9'
+		);
+		await expect(page.locator('#six'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'\\5F00\\$\\6E90'
+		);
+		await expect(page.locator('#seven'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'\\5F00\\.\\6E90'
+		);
+		await expect(page.locator('#eight'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'\\1F40E\\1F471\\2764'
+		);
+	});
 });
