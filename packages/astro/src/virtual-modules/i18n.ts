@@ -2,7 +2,8 @@ import * as I18nInternals from '../i18n/index.js';
 import type { I18nInternalConfig } from '../i18n/vite-plugin-i18n.js';
 export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
 
-const { trailingSlash, format, site, defaultLocale, locales, routing } = import.meta.env._ASTRO_INTERNAL_I18N_CONFIG as I18nInternalConfig;
+const { trailingSlash, format, site, i18n } = import.meta.env._ASTRO_INTERNAL_I18N_CONFIG as I18nInternalConfig;
+const { defaultLocale, locales, routing } = i18n!;
 const base = import.meta.env.BASE_URL;
 
 export type GetLocaleOptions = I18nInternals.GetLocaleOptions;

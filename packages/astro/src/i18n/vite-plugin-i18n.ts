@@ -11,8 +11,9 @@ type AstroInternationalization = {
 
 export interface I18nInternalConfig
 	extends Pick<AstroConfig, 'base' | 'site' | 'trailingSlash'>,
-		NonNullable<AstroConfig['i18n']>,
-		Pick<AstroConfig['build'], 'format'> {}
+	Pick<AstroConfig['build'], 'format'> {
+		i18n: AstroConfig['i18n'];
+	}
 
 export default function astroInternationalization({
 	settings,
@@ -28,8 +29,7 @@ export default function astroInternationalization({
 		name: 'astro:i18n',
 		enforce: 'pre',
 		config(config) {
-			const { defaultLocale, locales, routing, fallback } = i18n!;
-			const i18nConfig: I18nInternalConfig = { base, format, site, trailingSlash, defaultLocale, locales, routing, fallback };
+			const i18nConfig: I18nInternalConfig = { base, format, site, trailingSlash, i18n };
 			config.define ??= {}
 			config.define["import.meta.env._ASTRO_INTERNAL_I18N_CONFIG"] = JSON.stringify(i18nConfig);
 		},
