@@ -1704,7 +1704,7 @@ export interface AstroUserConfig {
 		 * @name experimental.i18nDomains
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 4.1.0
+		 * @version 4.3.0
 		 * @description
 		 * Enables domain support for internationalization routing
 		 *
