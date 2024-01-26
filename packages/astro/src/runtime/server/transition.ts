@@ -27,31 +27,39 @@ export function createTransitionScope(result: SSRResult, hash: string) {
 function toValidIdent(name: string): string {
 	// can't start with a number, - + number
 	if (/^[0-9]|^-[0-9]/.test(name)) {
-    throw new Error(`Your transition:name ${name} is not a valid CSS identifier as it starts with ${name.substring(0,2)}.`);
+		throw new Error(
+			`Your transition:name ${name} is not a valid CSS identifier as it starts with ${name.substring(
+				0,
+				2
+			)}.`
+		);
 	}
 	if (/^[a-zA-Z0-9_\\-]*$/.test(name)) {
 		return name;
 	}
-	let result = "";
+	let result = '';
 	let wasHexEscaped = false;
-	for (const char of name)  {
+	for (const char of name) {
 		if (/[0-9a-fA-F]/.test(char) && wasHexEscaped) {
-			result += " ";
+			result += ' ';
 		}
 		wasHexEscaped = false;
 		if (/[a-zA-Z0-9_\\-]/.test(char)) {
 			result += char;
 			continue;
 		} else {
-		const code = char.codePointAt(0)
-		if (code === undefined) {
-			throw new Error(`Your transition:name ${name} is not a valid CSS identifier as it contains undefined code points`);
-		}
-		if (code < 0x20 || code >= 0x7f) {
-			result += `\\${code.toString(16)}`;
-			wasHexEscaped = true;
-		} else {
-			result += `\\${char}`;
+			const code = char.codePointAt(0);
+			if (code === undefined) {
+				throw new Error(
+					`Your transition:name ${name} is not a valid CSS identifier as it contains undefined code points`
+				);
+			}
+			if (code < 0x20 || code >= 0x7f) {
+				result += `\\${code.toString(16)}`;
+				wasHexEscaped = true;
+			} else {
+				result += `\\${char}`;
+			}
 		}
 	}
 	return result;
