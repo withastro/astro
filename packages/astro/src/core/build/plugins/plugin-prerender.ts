@@ -34,14 +34,37 @@ function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals
 									// a shared modules should be inside the `src/` folder, at least
 									moduleMeta.id.startsWith(opts.settings.config.srcDir.pathname) &&
 									// and has at least two importers: the current page and something else
-									moduleMeta.importers.length > 1 &&
-									// and, in case it's another Astro page, check if isn't pre rendered
-									moduleMeta.id.includes('/pages')
-										? moduleMeta?.meta?.astro?.pageOptions?.prerender === false
-										: true
+									moduleMeta.importers.length > 1
 								) {
-									hasSharedModules = true;
-									break;
+									// Now, we have to trace back the modules imported and analyze them;
+									// understanding if a module is eventually shared between two pages isn't easy, because a module could
+									// be imported by a page and a component that is eventually imported by a page.
+									//
+									// Given the previous statement, we only check if
+									// - the module is a page, and it's not pre-rendered
+									// - the module is the middleware
+									// If one of these conditions is met, we need a separate chunk
+									for (const importer of moduleMeta.importedIds) {
+										// we don't want to analyze the same module again, so we skip it
+										if (importer !== id) {
+											const importerModuleMeta = meta.getModuleInfo(importer);
+											if (importerModuleMeta) {
+												// if the module is inside the pages
+												if (importerModuleMeta.id.includes('/pages')) {
+													// we check if it's not pre-rendered
+													if (getPrerenderMetadata(importerModuleMeta) === false) {
+														hasSharedModules = true;
+														break;
+													}
+												}
+												// module isn't an Astro route/page, it could be a middleware
+												else if (importerModuleMeta.id.includes('/middleware')) {
+													hasSharedModules = true;
+													break;
+												}
+											}
+										}
+									}
 								}
 							}
 
