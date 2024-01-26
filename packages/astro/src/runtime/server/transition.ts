@@ -7,6 +7,7 @@ import type {
 } from '../../@types/astro.js';
 import { fade, slide } from '../../transitions/index.js';
 import { markHTMLString } from './escape.js';
+import cssesc from 'cssesc';
 
 const transitionNameMap = new WeakMap<SSRResult, number>();
 function incrementTransitionNumber(result: SSRResult) {
@@ -34,35 +35,7 @@ function toValidIdent(name: string): string {
 			)}.`
 		);
 	}
-	if (/^[a-zA-Z0-9_\\-]*$/.test(name)) {
-		return name;
-	}
-	let result = '';
-	let wasHexEscaped = false;
-	for (const char of name) {
-		if (/[0-9a-fA-F]/.test(char) && wasHexEscaped) {
-			result += ' ';
-		}
-		wasHexEscaped = false;
-		if (/[a-zA-Z0-9_\\-]/.test(char)) {
-			result += char;
-			continue;
-		} else {
-			const code = char.codePointAt(0);
-			if (code === undefined) {
-				throw new Error(
-					`Your transition:name ${name} is not a valid CSS identifier as it contains undefined code points`
-				);
-			}
-			if (code < 0x20 || code >= 0x7f) {
-				result += `\\${code.toString(16)}`;
-				wasHexEscaped = true;
-			} else {
-				result += `\\${char}`;
-			}
-		}
-	}
-	return result;
+	return cssesc(name, { isIdentifier: true });
 }
 
 type Entries<T extends Record<string, any>> = Iterable<[keyof T, T[keyof T]]>;
