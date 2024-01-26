@@ -64,6 +64,7 @@ const params = ${JSON.stringify({
 })};
 
 params.dbUrl = new URL(${JSON.stringify(DB_PATH)}, 'file://' + process.cwd() + '/');
+console.log('createLocalDatabaseClient', params);
 export const db = await createLocalDatabaseClient(params);
 
 export * from ${DRIZZLE_MOD_IMPORT};
