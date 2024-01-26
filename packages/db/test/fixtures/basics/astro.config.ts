@@ -18,8 +18,8 @@ export default defineConfig({
 	integrations: [db()],
 	db: {
 		collections: { Author, Themes },
-		data({ set }) {
-			set(Author, [
+		data({ seed }) {
+			seed(Author, [
 				{
 					name: 'Ben',
 				},

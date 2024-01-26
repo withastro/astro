@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-import db, { defineCollection, field } from '@astrojs/db';
+import astroDb, { defineCollection, field } from '@astrojs/db';
 
 const Recipe = defineCollection({
 	fields: {
@@ -19,16 +19,16 @@ const Ingredient = defineCollection({
 });
 
 export default defineConfig({
-	integrations: [db()],
+	integrations: [astroDb()],
 	db: {
 		collections: { Recipe, Ingredient },
-		async data({ set }) {
-			const pancakes = await set(Recipe, {
+		async data({ seed }) {
+			const pancakes = await seed(Recipe, {
 				title: 'Pancakes',
 				description: 'A delicious breakfast',
 			});
 
-			set(Ingredient, [
+			seed(Ingredient, [
 				{
 					name: 'Flour',
 					quantity: 1,
@@ -46,12 +46,12 @@ export default defineConfig({
 				},
 			]);
 
-			const pizza = await set(Recipe, {
+			const pizza = await seed(Recipe, {
 				title: 'Pizza',
 				description: 'A delicious dinner',
 			});
 
-			set(Ingredient, [
+			seed(Ingredient, [
 				{
 					name: 'Flour',
 					quantity: 1,

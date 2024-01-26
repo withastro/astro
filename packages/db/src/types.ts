@@ -1,6 +1,12 @@
 import type { ColumnDataType, ColumnBaseConfig } from 'drizzle-orm';
-import type { SQLiteColumn, SQLiteTableWithColumns } from 'drizzle-orm/sqlite-core';
+import type {
+	SQLiteColumn,
+	SQLiteInsertValue,
+	SQLiteTableWithColumns,
+} from 'drizzle-orm/sqlite-core';
 import { z } from 'zod';
+import type { SqliteDB } from './internal.js';
+import type { ResolvedCollectionConfig } from './config.js';
 
 const baseFieldSchema = z.object({
 	label: z.string().optional(),
@@ -106,6 +112,22 @@ type GeneratedConfig<T extends ColumnDataType = ColumnDataType> = Pick<
 	ColumnBaseConfig<T, string>,
 	'name' | 'tableName' | 'notNull' | 'hasDefault'
 >;
+
+export type DbDataContext = {
+	db: SqliteDB;
+	seed<TFields extends z.input<typeof collectionSchema>['fields']>(
+		collection: ResolvedCollectionConfig,
+		data: MaybeArray<
+			SQLiteInsertValue<
+				Table<
+					string,
+					/** TODO: true type inference */ Record<Extract<keyof TFields, string>, DBField>
+				>
+			>
+		>
+	): Promise<any> /** TODO: type output */;
+	mode: 'dev' | 'build';
+};
 
 export type AstroText<T extends GeneratedConfig<'string'>> = SQLiteColumn<
 	T & {

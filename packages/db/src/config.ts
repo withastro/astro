@@ -8,13 +8,9 @@ import {
 	type collectionSchema,
 	collectionsSchema,
 	type MaybePromise,
-	type MaybeArray,
-	type Table,
-	type DBField,
+	type DbDataContext,
 } from './types.js';
 import { z } from 'zod';
-import type { SQLiteInsertValue } from 'drizzle-orm/sqlite-core';
-import type { SqliteDB } from './internal.js';
 
 export const dbConfigSchema = z.object({
 	studio: z.boolean().optional(),
@@ -22,40 +18,12 @@ export const dbConfigSchema = z.object({
 	// TODO: strict types
 	data: z
 		.function()
-		.args()
 		.returns(z.union([z.void(), z.promise(z.void())]))
 		.optional(),
 });
 
-export type SetDataFn<
-	TFields extends z.input<typeof collectionSchema>['fields'] = z.input<
-		typeof collectionSchema
-	>['fields'],
-> = (params: {
-	db: SqliteDB;
-	table: Table<
-		string,
-		/** TODO: true type inference */ Record<Extract<keyof TFields, string>, DBField>
-	>;
-	mode: 'dev' | 'build';
-}) => MaybePromise<void>;
-
 export type DBUserConfig = Omit<z.input<typeof dbConfigSchema>, 'data'> & {
-	data(params: {
-		set<TFields extends z.input<typeof collectionSchema>['fields']>(
-			collection: ResolvedCollectionConfig<TFields, boolean>,
-			data:
-				| MaybeArray<
-						SQLiteInsertValue<
-							Table<
-								string,
-								/** TODO: true type inference */ Record<Extract<keyof TFields, string>, DBField>
-							>
-						>
-				  >
-				| SetDataFn<TFields>
-		): Promise<any> /** TODO: type output */;
-	}): MaybePromise<void>;
+	data(params: DbDataContext): MaybePromise<void>;
 };
 
 export const astroConfigWithDbSchema = z.object({
@@ -88,9 +56,11 @@ type CollectionConfig<
 				: () => MaybePromise<Array<Record<keyof TFields, any> & { id?: string }>>;
 		};
 
-type ResolvedCollectionConfig<
-	TFields extends z.input<typeof collectionSchema>['fields'],
-	Writable extends boolean,
+export type ResolvedCollectionConfig<
+	TFields extends z.input<typeof collectionSchema>['fields'] = z.input<
+		typeof collectionSchema
+	>['fields'],
+	Writable extends boolean = boolean,
 > = CollectionConfig<TFields, Writable> & {
 	writable: Writable;
 	_: CollectionMeta;

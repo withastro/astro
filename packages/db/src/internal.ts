@@ -112,7 +112,7 @@ export async function setupDbTables({
 		}
 		try {
 			await data({
-				async set(collection, values) {
+				async seed(collection, values) {
 					const collectionName = collection._.name;
 					if (!collectionName) {
 						throw new Error(
@@ -120,14 +120,13 @@ export async function setupDbTables({
 						);
 					}
 					const table = collectionToTable(collectionName, collectionSchema.parse(collection));
-					if (typeof values === 'function') {
-						return await values({ db, table: table as any, mode });
-					}
 					const result = Array.isArray(values)
 						? await db.insert(table).values(values).returning()
 						: await db.insert(table).values(values).returning().get();
 					return result;
 				},
+				db,
+				mode,
 			});
 		} catch (e) {
 			logger.error(

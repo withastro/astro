@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config';
 import db, { defineCollection, field } from '@astrojs/db';
-import { asJson, glob } from './utils';
+import { asJson, createGlob } from './utils';
 
 const Quote = defineCollection({
 	fields: {
@@ -13,8 +13,12 @@ const Quote = defineCollection({
 export default defineConfig({
 	db: {
 		collections: { Quote },
-		data({ set }) {
-			set(Quote, glob('quotes/*.json', asJson));
+		data({ seed, ...ctx }) {
+			const glob = createGlob(ctx);
+			glob('quotes/*.json', {
+				into: Quote,
+				parse: asJson,
+			});
 		},
 	},
 	integrations: [db()],
