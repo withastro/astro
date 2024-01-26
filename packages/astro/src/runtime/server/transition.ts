@@ -24,20 +24,6 @@ export function createTransitionScope(result: SSRResult, hash: string) {
 	return `astro-${hash}-${num}`;
 }
 
-// Ensure animationName is a valid CSS identifier
-function toValidIdent(name: string): string {
-	// can't start with a number, - + number
-	if (/^[0-9]|^-[0-9]/.test(name)) {
-		throw new Error(
-			`Your transition:name ${name} is not a valid CSS identifier as it starts with ${name.substring(
-				0,
-				2
-			)}.`
-		);
-	}
-	return cssesc(name, { isIdentifier: true });
-}
-
 type Entries<T extends Record<string, any>> = Iterable<[keyof T, T[keyof T]]>;
 
 const getAnimations = (name: TransitionAnimationValue) => {
@@ -68,7 +54,7 @@ export function renderTransition(
 	// Default to `fade` (similar to `initial`, but snappier)
 	if (!animationName) animationName = 'fade';
 	const scope = createTransitionScope(result, hash);
-	const name = transitionName ? toValidIdent(transitionName) : scope;
+	const name = transitionName ? cssesc(transitionName, { isIdentifier: true }) : scope;
 	const sheet = new ViewTransitionStyleSheet(scope, name);
 
 	const animations = getAnimations(animationName);

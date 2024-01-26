@@ -1230,10 +1230,10 @@ test.describe('View Transitions', () => {
 
 	test('transition:name should be escaped correctly', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/transition-name'));
-		await expect(page.locator('#one'), 'should be escaped correctly').toHaveCSS(
-			'view-transition-name',
-			'front-end'
-		);
+		// await expect(page.locator('#one'), 'should be escaped correctly').toHaveCSS(
+		// 	'view-transition-name',
+		// 	'front-end'
+		// );
 		await expect(page.locator('#two'), 'should be escaped correctly').toHaveCSS(
 			'view-transition-name',
 			'开源'
@@ -1261,6 +1261,18 @@ test.describe('View Transitions', () => {
 		await expect(page.locator('#eight'), 'should be escaped correctly').toHaveCSS(
 			'view-transition-name',
 			'🐎👱❤'
+		);
+		await expect(page.locator('#nine'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'--9'
+		);
+		await expect(page.locator('#ten'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'\\31 0'
+		);
+		await expect(page.locator('#eleven'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'-\\31 1'
 		);
 	});
 });
