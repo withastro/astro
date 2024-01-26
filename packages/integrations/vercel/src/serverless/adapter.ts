@@ -351,7 +351,7 @@ export default function vercelServerless({
 							isr,
 						});
 					}
-					if (isr === false || (typeof isr === "object" && isr.exclude)) {
+					if (isr === false || (isr && typeof isr === "object" && isr.exclude)) {
 						await createFunctionFolder({
 							functionName: NODE_PATH,
 							runtime,
@@ -365,7 +365,7 @@ export default function vercelServerless({
 							isr: false,
 						});
 					}
-					if (typeof isr === "object" && isr.exclude) {
+					if (isr && typeof isr === "object" && isr.exclude) {
 						for (const route of isr.exclude) {
 							routeDefinitions.push({
 								src: route,
