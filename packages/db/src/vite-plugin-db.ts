@@ -1,6 +1,7 @@
 import { DRIZZLE_MOD_IMPORT, INTERNAL_MOD_IMPORT, VIRTUAL_MODULE_ID, DB_PATH } from './consts.js';
 import type { DBCollections } from './types.js';
 import type { VitePlugin } from './utils.js';
+import fs from 'node:fs';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -33,6 +34,17 @@ export function vitePluginDb(
 			}
 			return getVirtualModContents(params);
 		},
+		async buildEnd() {
+			// For local use, emit the database into the output
+			if('dbUrl' in params) {
+				const data = await fs.promises.readFile(new URL(params.dbUrl));
+				this.emitFile({
+					fileName: 'content.db',
+					source: data,
+					type: 'asset'
+				});
+			}
+    }
 	};
 }
 

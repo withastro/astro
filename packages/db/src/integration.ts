@@ -4,7 +4,7 @@ import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
 import { typegen } from './typegen.js';
 import { existsSync } from 'fs';
 import { mkdir, rm, writeFile } from 'fs/promises';
-import { getLocalDbUrl } from './consts.js';
+import { getLocalDbUrl, DB_PATH } from './consts.js';
 import { createLocalDatabaseClient, setupDbTables } from './internal.js';
 import { astroConfigWithDbSchema } from './config.js';
 import { getAstroStudioEnv, type VitePlugin } from './utils.js';
@@ -73,6 +73,7 @@ export function integration(): AstroIntegration {
 
 				updateConfig({
 					vite: {
+						assetsInclude: [DB_PATH],
 						plugins: [dbPlugin, vitePluginInjectEnvTs(config)],
 					},
 				});
