@@ -33,8 +33,12 @@ function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals
 								if (
 									// a shared modules should be inside the `src/` folder, at least
 									moduleMeta.id.startsWith(opts.settings.config.srcDir.pathname) &&
-									// and have at least two importers: the current page and something else
-									moduleMeta.importers.length > 1
+									// and has at least two importers: the current page and something else
+									moduleMeta.importers.length > 1 &&
+									// and, in case it's another Astro page, check if isn't pre rendered
+									moduleMeta.id.includes('/pages')
+										? moduleMeta?.meta?.astro?.pageOptions?.prerender === false
+										: true
 								) {
 									hasSharedModules = true;
 									break;
