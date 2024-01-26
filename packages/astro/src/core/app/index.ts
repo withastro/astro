@@ -240,11 +240,12 @@ export class App {
 							pathname = appendForwardSlash(pathname);
 						}
 					}
-				} catch (e) {
-					// waiting to decide what to do here
-					// TODO: What kind of error should we try? This happens if we have an invalid value inside the X-Forwarded-Host and X-Forwarded-Proto headers
-					// eslint-disable-next-line no-console
-					console.error(e);
+				} catch (e: any) {
+					this.#logger.error(
+						'router',
+						`Astro tried to parse ${protocol}//${host}as an URL, but it threw a parsing error. Check the X-Forwarded-Host and X-Forwarded-Proto headers.`
+					);
+					this.#logger.error('router', `Error: ${e}`);
 				}
 			}
 		}
@@ -549,8 +550,8 @@ export class App {
 		const status = override?.status
 			? override.status
 			: originalResponse.status === 200
-			  ? newResponse.status
-			  : originalResponse.status;
+				? newResponse.status
+				: originalResponse.status;
 
 		try {
 			// this function could throw an error...

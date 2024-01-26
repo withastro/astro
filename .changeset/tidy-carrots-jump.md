@@ -41,6 +41,6 @@ getAbsoluteLocaleUrl("es", "about"); // will return "https://example.es/about"
 
 For the above configuration:
 
-- The file `/fr/about.astro` will create the URL `https://fr.example.com/about`.
-- The file `/es/about.astro` will create the URL `https://example.es/about`.
-- The file `/en/about.astro` will create the URL `https://example.com/en/about`.
+- The file `/fr/about.astro` will be reachable at the URL `https://fr.example.com/about`.
+- The file `/es/about.astro` will be reachable at the URL `https://example.es/about`.
+- The file `/en/about.astro` will be reachable at the URL `https://example.com/en/about`.

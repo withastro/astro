@@ -260,6 +260,29 @@ describe('Config Validation', () => {
 			);
 		});
 
+		it('errors if a domains value is not an URL with incorrect protocol', async () => {
+			const configError = await validateConfig(
+				{
+					output: 'server',
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						domains: {
+							en: 'tcp://www.example.com',
+						},
+						routing: {
+							strategy: 'domains',
+						},
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal(
+				"The domain value must be a valid URL, and it has to start with 'https' or 'http'."
+			);
+		});
+
 		it('errors if a domain is a URL with a pathname that is not the home', async () => {
 			const configError = await validateConfig(
 				{
