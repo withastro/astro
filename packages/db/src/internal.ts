@@ -32,7 +32,7 @@ import {
 } from 'drizzle-orm/sqlite-core';
 import { z } from 'zod';
 import type { AstroIntegrationLogger } from 'astro';
-export { createRemoteDatabaseClient } from './utils-runtime.js';
+export { createRemoteDatabaseClient, findLocalDatabase } from './utils-runtime.js';
 
 export type SqliteDB = SqliteRemoteDatabase;
 export type { Table } from './types.js';

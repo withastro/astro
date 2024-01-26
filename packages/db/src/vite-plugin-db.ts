@@ -56,15 +56,16 @@ export function getVirtualModContents({
 	dbUrl: string;
 }) {
 	return `
-import { collectionToTable, createLocalDatabaseClient } from ${INTERNAL_MOD_IMPORT};
+import { collectionToTable, createLocalDatabaseClient, findLocalDatabase } from ${INTERNAL_MOD_IMPORT};
+
+export const dbUrl = findLocalDatabase(${JSON.stringify(dbUrl)});
 
 const params = ${JSON.stringify({
 	collections,
 	seeding: false,
 })};
+params.dbUrl = dbUrl;
 
-params.dbUrl = new URL(${JSON.stringify(DB_PATH)}, 'file://' + process.cwd() + '/');
-console.log('createLocalDatabaseClient', params);
 export const db = await createLocalDatabaseClient(params);
 
 export * from ${DRIZZLE_MOD_IMPORT};
