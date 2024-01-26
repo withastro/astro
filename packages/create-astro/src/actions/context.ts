@@ -93,7 +93,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		prompt,
 		packageManager,
 		username: getName(),
-		version: getVersion(packageManager),
+		version: getVersion(packageManager, 'astro'),
 		skipHouston,
 		fancy,
 		dryRun,

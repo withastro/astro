@@ -6,6 +6,7 @@ import type {
 	SSRManifest,
 } from '../../@types/astro.js';
 import { createI18nMiddleware, i18nPipelineHook } from '../../i18n/middleware.js';
+import { REROUTE_DIRECTIVE_HEADER } from '../../runtime/server/consts.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
@@ -25,7 +26,7 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
-import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
+import { SSRRoutePipeline } from './ssrPipeline.js';
 import type { RouteInfo } from './types.js';
 export { deserializeManifest } from './common.js';
 
@@ -76,7 +77,7 @@ export interface RenderErrorOptions {
 	response?: Response;
 	status: 404 | 500;
 	/**
-	 * Whether to skip onRequest() while rendering the error page. Defaults to false.
+	 * Whether to skip middleware while rendering the error page. Defaults to false.
 	 */
 	skipMiddleware?: boolean;
 }
@@ -255,44 +256,41 @@ export class App {
 			const i18nMiddleware = createI18nMiddleware(
 				this.#manifest.i18n,
 				this.#manifest.base,
-				this.#manifest.trailingSlash
+				this.#manifest.trailingSlash,
+				this.#manifest.buildFormat
 			);
 			if (i18nMiddleware) {
-				if (mod.onRequest) {
-					this.#pipeline.setMiddlewareFunction(sequence(i18nMiddleware, mod.onRequest));
-				} else {
-					this.#pipeline.setMiddlewareFunction(i18nMiddleware);
-				}
+				this.#pipeline.setMiddlewareFunction(sequence(i18nMiddleware, this.#manifest.middleware));
 				this.#pipeline.onBeforeRenderRoute(i18nPipelineHook);
 			} else {
-				if (mod.onRequest) {
-					this.#pipeline.setMiddlewareFunction(mod.onRequest);
-				}
+				this.#pipeline.setMiddlewareFunction(this.#manifest.middleware);
 			}
 			response = await this.#pipeline.renderRoute(renderContext, pageModule);
 		} catch (err: any) {
-			if (err instanceof EndpointNotFoundError) {
-				return this.#renderError(request, { status: 404, response: err.originalResponse });
-			} else {
-				this.#logger.error(null, err.stack || err.message || String(err));
-				return this.#renderError(request, { status: 500 });
-			}
+			this.#logger.error(null, err.stack || err.message || String(err));
+			return this.#renderError(request, { status: 500 });
 		}
 
-		// endpoints do not participate in implicit rerouting
-		if (routeData.type === 'page' || routeData.type === 'redirect') {
-			if (REROUTABLE_STATUS_CODES.has(response.status)) {
-				return this.#renderError(request, {
-					response,
-					status: response.status as 404 | 500,
-				});
-			}
+		if (
+			REROUTABLE_STATUS_CODES.has(response.status) &&
+			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
+		) {
+			return this.#renderError(request, {
+				response,
+				status: response.status as 404 | 500,
+			});
 		}
+
+		if (response.headers.has(REROUTE_DIRECTIVE_HEADER)) {
+			response.headers.delete(REROUTE_DIRECTIVE_HEADER);
+		}
+
 		if (addCookieHeader) {
 			for (const setCookieHeaderValue of App.getSetCookieFromResponse(response)) {
 				response.headers.append('set-cookie', setCookieHeaderValue);
 			}
 		}
+
 		Reflect.set(response, responseSentSymbol, true);
 		return response;
 	}
@@ -425,8 +423,8 @@ export class App {
 					status
 				);
 				const page = (await mod.page()) as any;
-				if (skipMiddleware === false && mod.onRequest) {
-					this.#pipeline.setMiddlewareFunction(mod.onRequest);
+				if (skipMiddleware === false) {
+					this.#pipeline.setMiddlewareFunction(this.#manifest.middleware);
 				}
 				if (skipMiddleware) {
 					// make sure middleware set by other requests is cleared out
@@ -436,7 +434,7 @@ export class App {
 				return this.#mergeResponses(response, originalResponse);
 			} catch {
 				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
-				if (skipMiddleware === false && mod.onRequest) {
+				if (skipMiddleware === false) {
 					return this.#renderError(request, {
 						status,
 						response: originalResponse,

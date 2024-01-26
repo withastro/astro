@@ -1,6 +1,6 @@
 import type { MarkdownVFile } from '@astrojs/markdown-remark';
 import type { Image, Parent } from 'mdast';
-import type { MdxJsxFlowElement, MdxjsEsm } from 'mdast-util-mdx';
+import type { MdxJsxFlowElement, MdxjsEsm, MdxJsxAttribute } from 'mdast-util-mdx';
 import { visit } from 'unist-util-visit';
 import { jsToTreeNode } from './utils.js';
 
@@ -87,6 +87,53 @@ export function remarkImageToComponent() {
 						name: 'title',
 						value: node.title,
 					});
+				}
+
+				if (node.data && node.data.hProperties) {
+					const createArrayAttribute = (name: string, values: string[]): MdxJsxAttribute => {
+						return {
+							type: 'mdxJsxAttribute',
+							name: name,
+							value: {
+								type: 'mdxJsxAttributeValueExpression',
+								value: name,
+								data: {
+									estree: {
+										type: 'Program',
+										body: [
+											{
+												type: 'ExpressionStatement',
+												expression: {
+													type: 'ArrayExpression',
+													elements: values.map((value) => ({
+														type: 'Literal',
+														value: value,
+														raw: String(value),
+													})),
+												},
+											},
+										],
+										sourceType: 'module',
+										comments: [],
+									},
+								},
+							},
+						};
+					};
+					// Go through every hProperty and add it as an attribute of the <Image>
+					Object.entries(node.data.hProperties as Record<string, string | string[]>).forEach(
+						([key, value]) => {
+							if (Array.isArray(value)) {
+								componentElement.attributes.push(createArrayAttribute(key, value));
+							} else {
+								componentElement.attributes.push({
+									name: key,
+									type: 'mdxJsxAttribute',
+									value: String(value),
+								});
+							}
+						}
+					);
 				}
 
 				parent!.children.splice(index!, 1, componentElement);

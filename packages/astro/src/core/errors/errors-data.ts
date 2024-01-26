@@ -851,7 +851,7 @@ export const LocalImageUsedWrongly = {
 	title: 'Local images must be imported.',
 	message: (imageFilePath: string) =>
 		`\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or an URL, it cannot be a string filepath. Received \`${imageFilePath}\`.`,
-	hint: 'If you want to use an image from your `src` folder, you need to either import it or if the image is coming from a content collection, use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections) See https://docs.astro.build/en/guides/images/#src-required for more information on the `src` property.',
+	hint: 'If you want to use an image from your `src` folder, you need to either import it or if the image is coming from a content collection, use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections). See https://docs.astro.build/en/guides/images/#src-required for more information on the `src` property.',
 } satisfies ErrorData;
 
 /**
@@ -879,8 +879,8 @@ export const AstroGlobUsedOutside = {
 export const AstroGlobNoMatch = {
 	name: 'AstroGlobNoMatch',
 	title: 'Astro.glob() did not match any files.',
-	message: (globStr: string) =>
-		`\`Astro.glob(${globStr})\` did not return any matching files. Check the pattern for typos.`,
+	message: (globStr: string) => `\`Astro.glob(${globStr})\` did not return any matching files.`,
+	hint: 'Check the pattern for typos.',
 } satisfies ErrorData;
 /**
  * @docs
@@ -1001,11 +1001,20 @@ export const MissingLocale = {
 		`The locale/path \`${locale}\` does not exist in the configured \`i18n.locales\`.`,
 } satisfies ErrorData;
 
+/**
+ * @docs
+ * @description
+ * Astro could not find the index URL of your website. An index page is required so that Astro can create a redirect from the main index page to the localized index page of the default locale when using [`i18n.routing.prefixDefaultLocale`](https://docs.astro.build/en/reference/configuration-reference/#i18nroutingprefixdefaultlocale).
+ * @see
+ * - [Internationalization](https://docs.astro.build/en/guides/internationalization/#routing)
+ * - [`i18n.routing` Configuration Reference](https://docs.astro.build/en/reference/configuration-reference/#i18nrouting)
+ */
 export const MissingIndexForInternationalization = {
 	name: 'MissingIndexForInternationalizationError',
 	title: 'Index page not found.',
-	message: (src: string) =>
-		`Astro couldn't find the index URL. This index page is required to create a redirect from the index URL to the index URL of the default locale. \nCreate an index page in \`${src}\``,
+	message: (defaultLocale: string) =>
+		`Could not find index page. A root index page is required in order to create a redirect to the index URL of the default locale. (\`/${defaultLocale}\`)`,
+	hint: (src: string) => `Create an index page (\`index.astro, index.md, etc.\`) in \`${src}\`.`,
 } satisfies ErrorData;
 
 /**
@@ -1032,6 +1041,32 @@ export const UnhandledRejection = {
 	message: (stack: string) =>
 		`Astro detected an unhandled rejection. Here's the stack trace:\n${stack}`,
 	hint: 'Make sure your promises all have an `await` or a `.catch()` handler.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * The `astro:i18n` module can not be used without enabling i18n in your Astro config. To enable i18n, add a default locale and a list of supported locales to your Astro config:
+ * ```js
+ * import { defineConfig } from 'astro'
+ * export default defineConfig({
+ *  i18n: {
+ * 	 defaultLocale: 'en',
+ * 	 locales: ['en', 'fr'],
+ * 	},
+ * })
+ * ```
+ *
+ * For more information on internationalization support in Astro, see our [Internationalization guide](https://docs.astro.build/en/guides/internationalization/).
+ * @see
+ * - [Internationalization](https://docs.astro.build/en/guides/internationalization/)
+ * - [`i18n` Configuration Reference](https://docs.astro.build/en/reference/configuration-reference/#i18n)
+ */
+export const i18nNotEnabled = {
+	name: 'i18nNotEnabled',
+	title: 'i18n Not Enabled',
+	message: 'The `astro:i18n` module can not be used without enabling i18n in your Astro config.',
+	hint: 'See https://docs.astro.build/en/guides/internationalization for a guide on setting up i18n.',
 } satisfies ErrorData;
 
 /**
@@ -1373,6 +1408,6 @@ export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } sa
  * 		- If your message is fully dynamic (ex: lots of conditional logic), make `message` a proper function, like such: `message(parameters) { logic }`.
  * 			Make sure to add a `@message` tag with a static example of the error message, the docs won't be able to parse it otherwise.
  *  	- If your message is static, you can just use a string, `message: "my message"`.
- * 5. Make sure to add a JSdoc comment with the `@docs` tag so that it shows up in the docs
+ * 5. Make sure to add a JSdoc comment with the `@docs` tag so that it shows up in the docs, otherwise the error overlay will point to a 404!
  * For more information, see the README in this folder!
  */

@@ -137,7 +137,12 @@ export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeed
 					`[RSS] You can only glob entries within 'src/pages/' when passing import.meta.glob() directly. Consider mapping the result to an array of RSSFeedItems. See the RSS docs for usage examples: https://docs.astro.build/en/guides/rss/#2-list-of-rss-feed-objects`
 				);
 			}
-			const parsedResult = rssSchema.safeParse({ ...frontmatter, link: url }, { errorMap });
+			const parsedResult = rssSchema
+				.refine((val) => val.title || val.description, {
+					message: 'At least title or description must be provided.',
+					path: ['title', 'description'],
+				})
+				.safeParse({ ...frontmatter, link: url }, { errorMap });
 
 			if (parsedResult.success) {
 				return parsedResult.data;

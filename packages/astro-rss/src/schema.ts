@@ -1,6 +1,8 @@
 import { z } from 'astro/zod';
 
-const sharedSchema = z.object({
+export const rssSchema = z.object({
+	title: z.string().optional(),
+	description: z.string().optional(),
 	pubDate: z
 		.union([z.string(), z.number(), z.date()])
 		.optional()
@@ -21,18 +23,3 @@ const sharedSchema = z.object({
 	link: z.string().optional(),
 	content: z.string().optional(),
 });
-
-export const rssSchema = z.union([
-	z
-		.object({
-			title: z.string(),
-			description: z.string().optional(),
-		})
-		.merge(sharedSchema),
-	z
-		.object({
-			title: z.string().optional(),
-			description: z.string(),
-		})
-		.merge(sharedSchema),
-]);

@@ -42,22 +42,16 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 		},
 		async load(id) {
 			if (id === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
-				const imports = [];
-				const contents = [];
-				const exports = [];
-				imports.push(
+				const imports = [
 					`import { deserializeManifest as _deserializeManifest } from 'astro/app'`,
-					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`
-				);
-
-				contents.push(`
-const manifest = _deserializeManifest('${manifestReplace}');
-_privateSetManifestDontUseThis(manifest);
-`);
-
-				exports.push('export { manifest }');
-
-				return `${imports.join('\n')}${contents.join('\n')}${exports.join('\n')}`;
+					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`,
+				];
+				const contents = [
+					`const manifest = _deserializeManifest('${manifestReplace}');`,
+					`_privateSetManifestDontUseThis(manifest);`,
+				];
+				const exports = [`export { manifest }`];
+				return [...imports, ...contents, ...exports].join('\n');
 			}
 		},
 
@@ -264,5 +258,6 @@ function buildManifest(
 		entryModules,
 		assets: staticFiles.map(prefixAssetPath),
 		i18n: i18nManifest,
+		buildFormat: settings.config.build.format,
 	};
 }

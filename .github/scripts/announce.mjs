@@ -1,6 +1,7 @@
 import { globby as glob } from 'globby';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
+import { setOutput } from './utils.mjs';
 
 const { GITHUB_REF = 'main' } = process.env;
 const baseUrl = new URL(`https://github.com/withastro/astro/blob/${GITHUB_REF}/`);
@@ -17,34 +18,34 @@ const descriptors = [
 	'updates',
 ];
 const verbs = [
-	'just went out!',
-	'just launched!',
-	'now available!',
-	'in the wild!',
-	'now live!',
-	'hit the registry!',
-	'to share!',
-	'for you!',
-	'for y’all! 🤠',
-	'comin’ your way!',
-	'comin’ atcha!',
-	'comin’ in hot!',
-	'freshly minted on the blockchain! (jk)',
-	'[is] out (now with 100% more reticulated splines!)',
-	'(as seen on TV!)',
-	'just dropped!',
-	'– artisanally hand-crafted just for you.',
-	'– oh happy day!',
-	'– enjoy!',
-	'now out. Be the first on your block to download!',
-	'made with love 💕',
-	'[is] out! Our best [version] yet!',
-	'[is] here. DOWNLOAD! DOWNLOAD! DOWNLOAD!',
-	'... HUZZAH!',
-	'[has] landed!',
-	'landed! The internet just got a little more fun.',
-	'– from our family to yours.',
-	'– go forth and build!',
+	"just went out!",
+	"just launched!",
+	"now available!",
+	"in the wild!",
+	"now live!",
+	"hit the registry!",
+	"to share!",
+	"for you!",
+	"for y’all! 🤠",
+	"comin’ your way!",
+	"comin’ atcha!",
+	"comin’ in hot!",
+	"freshly minted on the blockchain! (jk)",
+	"[is] out (now with 100% more reticulated splines!)",
+	"(as seen on TV!)",
+	"just dropped!",
+	"– artisanally hand-crafted just for you.",
+	"– oh happy day!",
+	"– enjoy!",
+	"now out. Be the first on your block to download!",
+	"made with love 💕",
+	"[is] out! Our best [version] yet!",
+	"[is] here. DOWNLOAD! DOWNLOAD! DOWNLOAD!",
+	"... HUZZAH!",
+	"[has] landed!",
+	"landed! The internet just got a little more fun.",
+	"– from our family to yours.",
+	"– go forth and build!"
 ];
 const extraVerbs = [
 	'new',
@@ -131,7 +132,7 @@ async function generateMessage() {
 	}
 
 	if (message.length < 2000) {
-		console.log(message);
+		return message;
 	} else {
 		const { name, version, url } = packages.find((pkg) => pkg.name === 'astro') ?? packages[0];
 		message = `${emoji} Some ${descriptor} ${pluralize(verb)}\n\n`;
@@ -157,19 +158,9 @@ async function generateMessage() {
 }
 
 async function run() {
-	if (!process.env.DISCORD_WEBHOOK) {
-		console.error('No DISCORD_WEBHOOK variable detected!');
-		process.exit(1);
-	}
 	const content = await generateMessage();
-
-	await fetch(`${process.env.DISCORD_WEBHOOK}?wait=true`, {
-		method: 'POST',
-		body: JSON.stringify({ content }),
-		headers: {
-			'content-type': 'application/json',
-		},
-	});
+	console.log(content);
+	setOutput('DISCORD_MESSAGE', content);
 }
 
 run();

@@ -1,6 +1,7 @@
 import chai from 'chai';
 import chaiPromises from 'chai-as-promised';
 import chaiXml from 'chai-xml';
+import { z } from 'astro/zod';
 import rss, { getRssString } from '../dist/index.js';
 import { rssSchema } from '../dist/schema.js';
 import {
@@ -213,5 +214,17 @@ describe('getRssString', () => {
 
 		chai.expect(res.success).to.be.false;
 		chai.expect(res.error.issues[0].path[0]).to.equal('pubDate');
+	});
+
+	it('should be extendable', () => {
+		let error = null;
+		try {
+			rssSchema.extend({
+				category: z.string().optional(),
+			});
+		} catch (e) {
+			error = e.message;
+		}
+		chai.expect(error).to.be.null;
 	});
 });

@@ -1,5 +1,17 @@
 # @astrojs/rss
 
+## 4.0.4
+
+### Patch Changes
+
+- [#9797](https://github.com/withastro/astro/pull/9797) [`457e8b6422704ba23347c766a8bb9c101c2aba0b`](https://github.com/withastro/astro/commit/457e8b6422704ba23347c766a8bb9c101c2aba0b) Thanks [@wkillerud](https://github.com/wkillerud)! - Restores `rssSchema` to a zod object
+
+## 4.0.3
+
+### Patch Changes
+
+- [#9746](https://github.com/withastro/astro/pull/9746) [`7356336d18c916804001bdf64bff5445d82baceb`](https://github.com/withastro/astro/commit/7356336d18c916804001bdf64bff5445d82baceb) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes `rssSchema` definition to allow calling standard zod object methods (like `extend`)
+
 ## 4.0.2
 
 ### Patch Changes

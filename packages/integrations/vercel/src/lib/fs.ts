@@ -31,8 +31,6 @@ export async function getFilesFromFolder(dir: URL) {
 	return files;
 }
 
-export const getVercelOutput = (root: URL) => new URL('./.vercel/output/', root);
-
 /**
  * Copies files into a folder keeping the folder structure intact.
  * The resulting file tree will start at the common ancestor.

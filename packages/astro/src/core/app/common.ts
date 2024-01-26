@@ -18,6 +18,10 @@ export function deserializeManifest(serializedManifest: SerializedSSRManifest): 
 	const clientDirectives = new Map(serializedManifest.clientDirectives);
 
 	return {
+		// in case user middleware exists, this no-op middleware will be reassigned (see plugin-ssr.ts)
+		middleware(_, next) {
+			return next();
+		},
 		...serializedManifest,
 		assets,
 		componentMetadata,

@@ -371,7 +371,7 @@ async function cleanStaticOutput(
 ) {
 	const allStaticFiles = new Set();
 	for (const pageData of eachPageData(internals)) {
-		if (pageData.route.prerender) {
+		if (pageData.route.prerender && !pageData.hasSharedModules) {
 			const { moduleSpecifier } = pageData;
 			const pageBundleId = internals.pageToBundleMap.get(moduleSpecifier);
 			const entryBundleId = internals.entrySpecifierToBundleMap.get(moduleSpecifier);
@@ -439,7 +439,7 @@ async function cleanServerOutput(
 	// Clean out directly if the outDir is outside of root
 	if (out.toString() !== opts.settings.config.outDir.toString()) {
 		// Copy assets before cleaning directory if outside root
-		await copyFiles(out, opts.settings.config.outDir);
+		await copyFiles(out, opts.settings.config.outDir, true);
 		await fs.promises.rm(out, { recursive: true });
 		return;
 	}
