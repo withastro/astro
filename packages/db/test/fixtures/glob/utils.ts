@@ -2,9 +2,9 @@ import fastGlob from 'fast-glob';
 import { readFile } from 'fs/promises';
 import chokidar from 'chokidar';
 import { eq } from 'drizzle-orm';
-import { type ResolvedCollectionConfig, type DbDataContext } from '@astrojs/db';
+import { type ResolvedCollectionConfig, type DBDataContext } from '@astrojs/db';
 
-export function createGlob({ db, mode }: Pick<DbDataContext, 'db' | 'mode'>) {
+export function createGlob({ db, mode }: Pick<DBDataContext, 'db' | 'mode'>) {
 	return async function glob(
 		pattern: string,
 		opts: {

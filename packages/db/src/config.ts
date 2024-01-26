@@ -1,5 +1,6 @@
-import type { Table } from './internal.js';
-import type { collectionSchema } from './types.js';
+import type { SQLiteInsertValue } from 'drizzle-orm/sqlite-core';
+import type { SqliteDB, Table } from './internal.js';
+import type { MaybeArray, collectionSchema } from './types.js';
 import {
 	type BooleanField,
 	type DBFieldInput,
@@ -9,14 +10,33 @@ import {
 	type TextField,
 	collectionsSchema,
 	type MaybePromise,
-	type DbDataContext,
 } from './types.js';
 import { z } from 'zod';
+
+export type DBFieldsConfig = z.input<typeof collectionSchema>['fields'];
+
+export type DBDataContext = {
+	db: SqliteDB;
+	seed<TFields extends DBFieldsConfig>(
+		collection: ResolvedCollectionConfig<TFields>,
+		data: MaybeArray<
+			SQLiteInsertValue<
+				Table<
+					string,
+					/** TODO: true type inference */ Record<
+						Extract<keyof TFields, string>,
+						DBFieldsConfig[number]
+					>
+				>
+			>
+		>
+	): Promise<any> /** TODO: type output */;
+	mode: 'dev' | 'build';
+};
 
 export const dbConfigSchema = z.object({
 	studio: z.boolean().optional(),
 	collections: collectionsSchema.optional(),
-	// TODO: strict types
 	data: z
 		.function()
 		.returns(z.union([z.void(), z.promise(z.void())]))
@@ -24,49 +44,34 @@ export const dbConfigSchema = z.object({
 });
 
 export type DBUserConfig = Omit<z.input<typeof dbConfigSchema>, 'data'> & {
-	data(params: DbDataContext): MaybePromise<void>;
+	data(params: DBDataContext): MaybePromise<void>;
 };
 
 export const astroConfigWithDbSchema = z.object({
 	db: dbConfigSchema.optional(),
 });
 
-type CollectionMeta<TFields extends z.input<typeof collectionSchema>['fields']> = {
+type CollectionMeta<TFields extends DBFieldsConfig> = {
 	// Collection table is set later when running the data() function.
 	// Collection config is assigned to an object key,
 	// so the collection itself does not know the table name.
 	table: Table<string, TFields>;
 };
 
-type CollectionConfig<
-	TFields extends z.input<typeof collectionSchema>['fields'],
-	Writable extends boolean,
-> = Writable extends true
-	? {
-			fields: TFields;
-			// TODO: type inference based on field type. Just `any` for now.
-			seed?: Writable extends false
-				? never
-				: () => MaybePromise<Array<Record<keyof TFields, any> & { id?: string }>>;
-		}
-	: {
-			fields: TFields;
-			// TODO: type inference based on field type. Just `any` for now.
-			data?: Writable extends true
-				? never
-				: () => MaybePromise<Array<Record<keyof TFields, any> & { id?: string }>>;
-		};
+type CollectionConfig<TFields extends DBFieldsConfig> = {
+	fields: TFields;
+};
 
 export type ResolvedCollectionConfig<
-	TFields extends z.input<typeof collectionSchema>['fields'],
+	TFields extends DBFieldsConfig = DBFieldsConfig,
 	Writable extends boolean = boolean,
-> = CollectionConfig<TFields, Writable> & {
+> = CollectionConfig<TFields> & {
 	writable: Writable;
 	table: Table<string, TFields>;
 };
 
-export function defineCollection<TFields extends z.input<typeof collectionSchema>['fields']>(
-	userConfig: CollectionConfig<TFields, false>
+export function defineCollection<TFields extends DBFieldsConfig>(
+	userConfig: CollectionConfig<TFields>
 ): ResolvedCollectionConfig<TFields, false> {
 	const meta: CollectionMeta<TFields> = { table: null! };
 	function _setMeta(values: CollectionMeta<TFields>) {
@@ -83,19 +88,19 @@ export function defineCollection<TFields extends z.input<typeof collectionSchema
 	};
 }
 
-export function defineWritableCollection<
-	TFields extends z.input<typeof collectionSchema>['fields'],
->(userConfig: CollectionConfig<TFields, true>): ResolvedCollectionConfig<TFields, true> {
-	const meta: CollectionMeta<TFields> = {
-		table: null!,
-	};
+export function defineWritableCollection<TFields extends DBFieldsConfig>(
+	userConfig: CollectionConfig<TFields>
+): ResolvedCollectionConfig<TFields, true> {
+	const meta: CollectionMeta<TFields> = { table: null! };
 	function _setMeta(values: CollectionMeta<TFields>) {
 		Object.assign(meta, values);
 	}
 	return {
 		...userConfig,
 		writable: true,
-		table: meta.table,
+		get table() {
+			return meta.table;
+		},
 		// @ts-expect-error private field
 		_setMeta,
 	};
