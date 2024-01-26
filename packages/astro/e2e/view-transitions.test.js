@@ -1230,10 +1230,10 @@ test.describe('View Transitions', () => {
 
 	test('transition:name should be escaped correctly', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/transition-name'));
-		// await expect(page.locator('#one'), 'should be escaped correctly').toHaveCSS(
-		// 	'view-transition-name',
-		// 	'front-end'
-		// );
+		await expect(page.locator('#one'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'front-end'
+		);
 		await expect(page.locator('#two'), 'should be escaped correctly').toHaveCSS(
 			'view-transition-name',
 			'开源'
