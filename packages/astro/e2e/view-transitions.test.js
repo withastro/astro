@@ -1236,31 +1236,31 @@ test.describe('View Transitions', () => {
 		);
 		await expect(page.locator('#two'), 'should be escaped correctly').toHaveCSS(
 			'view-transition-name',
-			'\\5F00\\6E90'
+			'开源'
 		);
 		await expect(page.locator('#three'), 'should be escaped correctly').toHaveCSS(
 			'view-transition-name',
-			'\\5F00 a\\6E90'
+			'开a源'
 		);
 		await expect(page.locator('#four'), 'should be escaped correctly').toHaveCSS(
 			'view-transition-name',
-			'c\\5F00 a\\6E90 c'
+			'c开a源c'
 		);
 		await expect(page.locator('#five'), 'should be escaped correctly').toHaveCSS(
 			'view-transition-name',
-			'\\30AA\\30FC\\30D7\\30F3\\30BD\\30FC\\30B9'
+			'オープンソース'
 		);
 		await expect(page.locator('#six'), 'should be escaped correctly').toHaveCSS(
 			'view-transition-name',
-			'\\5F00\\$\\6E90'
+			'开\\$源'
 		);
 		await expect(page.locator('#seven'), 'should be escaped correctly').toHaveCSS(
 			'view-transition-name',
-			'\\5F00\\.\\6E90'
+			'开\\.源'
 		);
 		await expect(page.locator('#eight'), 'should be escaped correctly').toHaveCSS(
 			'view-transition-name',
-			'\\1F40E\\1F471\\2764'
+			'🐎👱❤'
 		);
 	});
 });
