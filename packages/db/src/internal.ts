@@ -31,8 +31,8 @@ import {
 	type SQLiteColumnBuilderBase,
 } from 'drizzle-orm/sqlite-core';
 import { z } from 'zod';
-import { nanoid } from 'nanoid';
 import type { AstroIntegrationLogger } from 'astro';
+export { createRemoteDatabaseClient } from './utils-runtime.js';
 
 export type SqliteDB = SqliteRemoteDatabase;
 export type { Table } from './types.js';
@@ -54,8 +54,6 @@ function checkIfModificationIsAllowed(collections: DBCollections, Table: SQLiteT
 		throw new Error(`The [${tableName}] collection is read-only.`);
 	}
 }
-
-export { createRemoteDatabaseClient } from './utils.js';
 
 export async function createLocalDatabaseClient({
 	collections,

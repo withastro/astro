@@ -68,9 +68,7 @@ export function getStudioVirtualModContents({
 	return `
 import {collectionToTable, createRemoteDatabaseClient} from ${INTERNAL_MOD_IMPORT};
 
-export const db = await createRemoteDatabaseClient(${JSON.stringify({
-		appToken,
-	})});
+export const db = await createRemoteDatabaseClient(${JSON.stringify(appToken)}, import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL);
 export * from ${DRIZZLE_MOD_IMPORT};
 
 ${getStringifiedCollectionExports(collections)}
