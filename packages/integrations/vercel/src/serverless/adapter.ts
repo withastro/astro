@@ -135,8 +135,9 @@ export interface VercelServerlessConfig {
 
 interface VercelISRConfig {
 	/**
-	 * A random string that you create.
+	 * A secret random string that you create.
 	 * Its presence in the `__prerender_bypass` cookie will result in fresh responses being served, bypassing the cache.
+	 * Its presence in the `x-prerender-revalidate` header will result in a fresh response which will then be cached for all future requests to be used.
 	 * 
 	 * By default, none.
 	 */
