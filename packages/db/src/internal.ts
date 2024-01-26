@@ -10,7 +10,6 @@ import {
 	type JsonField,
 	type NumberField,
 	type TextField,
-	collectionSchema,
 } from './types.js';
 import { type LibSQLDatabase, drizzle } from 'drizzle-orm/libsql';
 import { bold } from 'kleur/colors';
@@ -69,7 +68,6 @@ export async function createLocalDatabaseClient({
 	const { insert: drizzleInsert, update: drizzleUpdate, delete: drizzleDelete } = db;
 	return Object.assign(db, {
 		insert(Table: SQLiteTable) {
-			//console.log('Table info...', Table._);
 			checkIfModificationIsAllowed(collections, Table);
 			return drizzleInsert.call(this, Table);
 		},
@@ -108,21 +106,23 @@ export async function setupDbTables({
 	}
 	if (data) {
 		for (const [name, collection] of Object.entries(collections)) {
-			(collection as any)._setMeta?.({ name });
+			const table = collectionToTable(name, collection);
+			collection._setMeta?.({ table });
 		}
 		try {
 			await data({
-				async seed(collection, values) {
-					const collectionName = collection._.name;
-					if (!collectionName) {
-						throw new Error(
-							`Failed to set collection data. Did you call set() outside of the data() function?`
-						);
-					}
-					const table = collectionToTable(collectionName, collectionSchema.parse(collection));
+				async seed({ table }, values) {
 					const result = Array.isArray(values)
-						? await db.insert(table).values(values).returning()
-						: await db.insert(table).values(values).returning().get();
+						? // TODO: fix values typing once we can infer fields type correctly
+							await db
+								.insert(table)
+								.values(values as any)
+								.returning()
+						: await db
+								.insert(table)
+								.values(values as any)
+								.returning()
+								.get();
 					return result;
 				},
 				db,

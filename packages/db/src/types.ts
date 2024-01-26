@@ -61,14 +61,14 @@ const fieldsSchema = z.record(fieldSchema);
 export const readableCollectionSchema = z.object({
 	fields: fieldsSchema,
 	writable: z.literal(false),
-	_: z.object({ name: z.string().optional() }).optional(),
+	table: z.any(),
 	_setMeta: z.function().optional(),
 });
 
 export const writableCollectionSchema = z.object({
 	fields: fieldsSchema,
 	writable: z.literal(true),
-	_: z.object({ name: z.string().optional() }).optional(),
+	table: z.any(),
 	_setMeta: z.function().optional(),
 });
 
@@ -113,15 +113,20 @@ type GeneratedConfig<T extends ColumnDataType = ColumnDataType> = Pick<
 	'name' | 'tableName' | 'notNull' | 'hasDefault'
 >;
 
+type DbFieldsConfig = z.input<typeof collectionSchema>['fields'];
+
 export type DbDataContext = {
 	db: SqliteDB;
-	seed<TFields extends z.input<typeof collectionSchema>['fields']>(
-		collection: ResolvedCollectionConfig,
+	seed<TFields extends DbFieldsConfig>(
+		collection: ResolvedCollectionConfig<TFields>,
 		data: MaybeArray<
 			SQLiteInsertValue<
 				Table<
 					string,
-					/** TODO: true type inference */ Record<Extract<keyof TFields, string>, DBField>
+					/** TODO: true type inference */ Record<
+						Extract<keyof TFields, string>,
+						DbFieldsConfig[number]
+					>
 				>
 			>
 		>

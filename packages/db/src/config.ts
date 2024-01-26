@@ -1,3 +1,5 @@
+import type { Table } from './internal.js';
+import type { collectionSchema } from './types.js';
 import {
 	type BooleanField,
 	type DBFieldInput,
@@ -5,7 +7,6 @@ import {
 	type JsonField,
 	type NumberField,
 	type TextField,
-	type collectionSchema,
 	collectionsSchema,
 	type MaybePromise,
 	type DbDataContext,
@@ -30,11 +31,11 @@ export const astroConfigWithDbSchema = z.object({
 	db: dbConfigSchema.optional(),
 });
 
-type CollectionMeta = {
-	// Collection name is set later when running the data() function.
+type CollectionMeta<TFields extends z.input<typeof collectionSchema>['fields']> = {
+	// Collection table is set later when running the data() function.
 	// Collection config is assigned to an object key,
 	// so the collection itself does not know the table name.
-	name?: string;
+	table: Table<string, TFields>;
 };
 
 type CollectionConfig<
@@ -57,26 +58,26 @@ type CollectionConfig<
 		};
 
 export type ResolvedCollectionConfig<
-	TFields extends z.input<typeof collectionSchema>['fields'] = z.input<
-		typeof collectionSchema
-	>['fields'],
+	TFields extends z.input<typeof collectionSchema>['fields'],
 	Writable extends boolean = boolean,
 > = CollectionConfig<TFields, Writable> & {
 	writable: Writable;
-	_: CollectionMeta;
+	table: Table<string, TFields>;
 };
 
 export function defineCollection<TFields extends z.input<typeof collectionSchema>['fields']>(
 	userConfig: CollectionConfig<TFields, false>
 ): ResolvedCollectionConfig<TFields, false> {
-	const _ = {};
-	function _setMeta(values: CollectionMeta) {
-		Object.assign(_, values);
+	const meta: CollectionMeta<TFields> = { table: null! };
+	function _setMeta(values: CollectionMeta<TFields>) {
+		Object.assign(meta, values);
 	}
 	return {
 		...userConfig,
 		writable: false,
-		_,
+		get table() {
+			return meta.table;
+		},
 		// @ts-expect-error private field
 		_setMeta,
 	};
@@ -85,14 +86,16 @@ export function defineCollection<TFields extends z.input<typeof collectionSchema
 export function defineWritableCollection<
 	TFields extends z.input<typeof collectionSchema>['fields'],
 >(userConfig: CollectionConfig<TFields, true>): ResolvedCollectionConfig<TFields, true> {
-	const _ = {};
-	function _setMeta(values: CollectionMeta) {
-		Object.assign(_, values);
+	const meta: CollectionMeta<TFields> = {
+		table: null!,
+	};
+	function _setMeta(values: CollectionMeta<TFields>) {
+		Object.assign(meta, values);
 	}
 	return {
 		...userConfig,
 		writable: true,
-		_,
+		table: meta.table,
 		// @ts-expect-error private field
 		_setMeta,
 	};
