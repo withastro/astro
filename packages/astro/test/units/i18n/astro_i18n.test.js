@@ -701,6 +701,18 @@ describe('getLocaleAbsoluteUrl', () => {
 
 			expect(
 				getLocaleAbsoluteUrl({
+					locale: 'es',
+					base: '/blog/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'directory',
+					site: 'https://example.com',
+					isBuild: true,
+				})
+			).to.eq('https://es.example.com/blog/');
+
+			expect(
+				getLocaleAbsoluteUrl({
 					locale: 'en_US',
 					base: '/blog/',
 					...config.experimental.i18n,

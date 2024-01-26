@@ -446,11 +446,12 @@ export const AstroConfigSchema = z.object({
 									message: `The locale \`${domainKey}\` key in the \`i18n.domains\` record doesn't exist in the \`i18n.locales\` array.`,
 								});
 							}
-							if (!(domainValue.startsWith('https') || domainValue.startsWith('https'))) {
+							if (!domainValue.startsWith('https') && !domainValue.startsWith('http')) {
 								ctx.addIssue({
 									code: z.ZodIssueCode.custom,
 									message:
 										"The domain value must be a valid URL, and it has to start with 'https' or 'http'.",
+									path: ['domains'],
 								});
 							} else {
 								try {
@@ -459,6 +460,7 @@ export const AstroConfigSchema = z.object({
 										ctx.addIssue({
 											code: z.ZodIssueCode.custom,
 											message: `The URL \`${domainValue}\` must contain only the origin. A subsequent pathname isn't allowed here. Remove \`${domainUrl.pathname}\`.`,
+											path: ['domains'],
 										});
 									}
 								} catch {
