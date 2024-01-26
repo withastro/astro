@@ -7,6 +7,7 @@ import type {
 } from '../../@types/astro.js';
 import { fade, slide } from '../../transitions/index.js';
 import { markHTMLString } from './escape.js';
+import cssesc from 'cssesc';
 
 const transitionNameMap = new WeakMap<SSRResult, number>();
 function incrementTransitionNumber(result: SSRResult) {
@@ -21,11 +22,6 @@ function incrementTransitionNumber(result: SSRResult) {
 export function createTransitionScope(result: SSRResult, hash: string) {
 	const num = incrementTransitionNumber(result);
 	return `astro-${hash}-${num}`;
-}
-
-// Ensure animationName is a valid CSS identifier
-function toValidIdent(name: string): string {
-	return name.replace(/[^a-zA-Z0-9\-\_]/g, '_').replace(/^\_+|\_+$/g, '');
 }
 
 type Entries<T extends Record<string, any>> = Iterable<[keyof T, T[keyof T]]>;
@@ -58,7 +54,7 @@ export function renderTransition(
 	// Default to `fade` (similar to `initial`, but snappier)
 	if (!animationName) animationName = 'fade';
 	const scope = createTransitionScope(result, hash);
-	const name = transitionName ? toValidIdent(transitionName) : scope;
+	const name = transitionName ? cssesc(transitionName, { isIdentifier: true }) : scope;
 	const sheet = new ViewTransitionStyleSheet(scope, name);
 
 	const animations = getAnimations(animationName);
