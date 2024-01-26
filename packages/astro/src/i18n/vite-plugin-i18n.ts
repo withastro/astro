@@ -4,8 +4,6 @@ import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 
 const virtualModuleId = 'astro:i18n';
-const configId = 'astro-internal:i18n-config';
-const resolvedConfigId = `\0${configId}`;
 
 type AstroInternationalization = {
 	settings: AstroSettings;
@@ -29,28 +27,17 @@ export default function astroInternationalization({
 	return {
 		name: 'astro:i18n',
 		enforce: 'pre',
-		async resolveId(id) {
+		config(config) {
+			const { defaultLocale, locales, routing, fallback } = i18n!;
+			const i18nConfig: I18nInternalConfig = { base, format, site, trailingSlash, defaultLocale, locales, routing, fallback };
+			config.define ??= {}
+			config.define["import.meta.env._ASTRO_INTERNAL_I18N_CONFIG"] = JSON.stringify(i18nConfig);
+		},
+		resolveId(id) {
 			if (id === virtualModuleId) {
 				if (i18n === undefined) throw new AstroError(AstroErrorData.i18nNotEnabled);
 				return this.resolve('astro/virtual-modules/i18n.js');
 			}
-			if (id === configId) return resolvedConfigId;
-		},
-		load(id) {
-			if (id === resolvedConfigId) {
-				const { defaultLocale, locales, routing, fallback } = i18n!;
-				const config: I18nInternalConfig = {
-					base,
-					format,
-					site,
-					trailingSlash,
-					defaultLocale,
-					locales,
-					routing,
-					fallback,
-				};
-				return `export default ${JSON.stringify(config)};`;
-			}
-		},
+		}
 	};
 }
