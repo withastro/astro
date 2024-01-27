@@ -34,6 +34,8 @@ export const SitemapOptionsSchema = z
 		changefreq: z.nativeEnum(ChangeFreq).optional(),
 		lastmod: z.date().optional(),
 		priority: z.number().min(0).max(1).optional(),
+
+		prefix: z.string().optional(),
 	})
 	.strict()
 	.default(SITEMAP_CONFIG_DEFAULTS);
