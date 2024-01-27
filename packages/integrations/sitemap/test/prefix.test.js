@@ -5,7 +5,7 @@ import { sitemap } from './fixtures/static/deps.mjs';
 describe('Prefix support', () => {
 	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
-	let prefix = 'test-';
+	const prefix = 'test-';
 
 	describe('Static', () => {
 		before(async () => {
