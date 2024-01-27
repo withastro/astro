@@ -143,7 +143,7 @@ export async function createVite(
 			astroTransitions({ settings }),
 			astroDevToolbar({ settings, logger }),
 			vitePluginFileURL({}),
-			!!settings.config.i18n && astroInternationalization({ settings }),
+			astroInternationalization({ settings }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
