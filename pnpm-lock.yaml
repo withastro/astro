@@ -3791,14 +3791,14 @@ importers:
   packages/db:
     dependencies:
       '@libsql/client':
-        specifier: 0.4.0-pre.5
-        version: 0.4.0-pre.5
+        specifier: 0.4.0-pre.10
+        version: 0.4.0-pre.10
       deep-diff:
         specifier: ^1.0.2
         version: 1.0.2
       drizzle-orm:
         specifier: ^0.28.6
-        version: 0.28.6(@libsql/client@0.4.0-pre.5)
+        version: 0.28.6(@libsql/client@0.4.0-pre.10)
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
@@ -3877,7 +3877,7 @@ importers:
         version: 3.5.3
       drizzle-orm:
         specifier: ^0.28.6
-        version: 0.28.6(@libsql/client@0.4.0-pre.5)
+        version: 0.28.6(@libsql/client@0.4.0-pre.10)
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2
@@ -7138,9 +7138,10 @@ packages:
     resolution: {integrity: sha512-n5JEf16Wr4mdkRMZ8wMP/wN9/sHmTjRPbouXjJH371mZ2LEGDl72t8tEsMRNFerQN/QJtivOxqK1frdGa4QK5Q==}
     engines: {node: '>=10'}
 
-  /@libsql/client@0.4.0-pre.5:
-    resolution: {integrity: sha512-GyKigCBslE5uztwT7mpvp9Zn0z3iWjnufcfeTeDSFPMyXCPjSAHUOiwSLAaHii909w6EQacA692CXmYYFo/eig==}
+  /@libsql/client@0.4.0-pre.10:
+    resolution: {integrity: sha512-AO4bnHGkd5WKCW6+PtiD5dHZAKUFO+QzFUfu10ybiww6HHdv0kubS/DiRIEZw8oKNq1gJmaX+R7ZryyRAbuCmw==}
     dependencies:
+      '@libsql/core': 0.4.0
       '@libsql/hrana-client': 0.5.5
       js-base64: 3.7.6
       libsql: 0.2.0
@@ -7148,6 +7149,12 @@ packages:
       - bufferutil
       - encoding
       - utf-8-validate
+    dev: false
+
+  /@libsql/core@0.4.0:
+    resolution: {integrity: sha512-pQHyZI0aTBlBm08dpB+/SEqLDe5wlgiUY+VNXbCD8yZhXo30AGinyrDlKrtGW7luo0As4Y9v1befurJdLKbC0Q==}
+    dependencies:
+      js-base64: 3.7.6
     dev: false
 
   /@libsql/darwin-arm64@0.2.0:
@@ -9966,7 +9973,7 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /drizzle-orm@0.28.6(@libsql/client@0.4.0-pre.5):
+  /drizzle-orm@0.28.6(@libsql/client@0.4.0-pre.10):
     resolution: {integrity: sha512-yBe+F9htrlYER7uXgDJUQsTHFoIrI5yMm5A0bg0GiZ/kY5jNXTWoEy4KQtg35cE27sw1VbgzoMWHAgCckUUUww==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
@@ -10028,7 +10035,7 @@ packages:
       sqlite3:
         optional: true
     dependencies:
-      '@libsql/client': 0.4.0-pre.5
+      '@libsql/client': 0.4.0-pre.10
     dev: false
 
   /dset@3.1.3:
