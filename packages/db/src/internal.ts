@@ -89,10 +89,10 @@ export async function setupDbTables({
 	logger,
 	mode,
 }: {
-	db: LibSQLDatabase;
+	db: SqliteRemoteDatabase;
 	data?: DBUserConfig['data'];
 	collections: DBCollections;
-	logger: AstroIntegrationLogger;
+	logger?: AstroIntegrationLogger;
 	mode: 'dev' | 'build';
 }) {
 	const setupQueries: SQL[] = [];
@@ -129,7 +129,7 @@ export async function setupDbTables({
 				mode,
 			});
 		} catch (e) {
-			logger.error(
+			(logger ?? console).error(
 				`Failed to seed data. Did you update to match recent schema changes? Full error:\n\n${e}`
 			);
 		}

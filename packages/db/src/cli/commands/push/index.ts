@@ -1,11 +1,11 @@
-import type { InArgs, InStatement } from '@libsql/client';
+import { createClient, type InArgs, type InStatement } from '@libsql/client';
 import type { AstroConfig } from 'astro';
 import deepDiff from 'deep-diff';
-import { type SQL, eq, type Query, sql } from 'drizzle-orm';
+import { type SQL, eq, sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import type { Arguments } from 'yargs-parser';
 import { appTokenError } from '../../../errors.js';
-import { collectionToTable, createLocalDatabaseClient } from '../../../internal.js';
+import { drizzle } from 'drizzle-orm/sqlite-proxy';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -14,7 +14,7 @@ import {
 	loadInitialSnapshot,
 	loadMigration,
 } from '../../../migrations.js';
-import type { DBCollections, DBSnapshot } from '../../../types.js';
+import type { DBSnapshot } from '../../../types.js';
 import {
 	STUDIO_ADMIN_TABLE_ROW_ID,
 	adminTable,
@@ -24,6 +24,9 @@ import {
 	migrationsTable,
 } from '../../../utils.js';
 import { getMigrationQueries } from '../../queries.js';
+import type { AstroConfigWithDB } from '../../../config.js';
+import { setupDbTables } from '../../../internal.js';
+
 const { diff } = deepDiff;
 const sqliteDialect = new SQLiteAsyncDialect();
 
@@ -119,38 +122,48 @@ async function pushSchema({
 		.where(eq(adminTable.id, STUDIO_ADMIN_TABLE_ROW_ID));
 }
 
-/** TODO: refine with migration changes */
 async function pushData({
 	config,
 	appToken,
 	isDryRun,
 }: {
-	config: AstroConfig;
+	config: AstroConfigWithDB;
 	appToken: string;
 	isDryRun?: boolean;
 }) {
-	const db = await createLocalDatabaseClient({
-		collections: config.db!.collections! as DBCollections,
-		dbUrl: ':memory:',
-		seeding: true,
-	});
-	const queries: Query[] = [];
+	const queries: InStatement[] = [];
+	if (config.db?.data) {
+		const libsqlClient = createClient({ url: ':memory:' });
+		// Use proxy to trace all queries to queue up in a batch
+		const db = await drizzle(async (sqlQuery, params, method) => {
+			const stmt: InStatement = { sql: sqlQuery, args: params };
+			queries.push(stmt);
+			// Use in-memory database to generate results for `returning()`
+			const { rows } = await libsqlClient.execute(stmt);
+			// Drizzle expects each row as an array of its values
+			const rowValues: unknown[][] = [];
+			for (const row of rows) {
+				if (row != null && typeof row === 'object') {
+					rowValues.push(Object.values(row));
+				}
+			}
+			if (method === 'get') {
+				return { rows: rowValues[0] };
+			}
+			return { rows: rowValues };
+		});
+		await setupDbTables({
+			db,
+			mode: 'build',
+			collections: config.db.collections ?? {},
+			data: config.db.data,
+		});
+	}
 
-	// TODO: update migration seeding
-	// for (const [name, collection] of Object.entries(config.db!.collections! as DBCollections)) {
-	// 	if (collection.writable || !collection.data) continue;
-	// 	const table = collectionToTable(name, collection);
-	// 	const insert = db.insert(table).values(await collection.data());
-	// 	queries.push(insert.toSQL());
-	// }
 	const url = new URL('/db/query', getRemoteDatabaseUrl());
-	const requestBody: InStatement[] = queries.map((q) => ({
-		sql: q.sql,
-		args: q.params as InArgs,
-	}));
 
 	if (isDryRun) {
-		console.info('[DRY RUN] Batch data seed:', JSON.stringify(requestBody, null, 2));
+		console.info('[DRY RUN] Batch data seed:', JSON.stringify(queries, null, 2));
 		return new Response(null, { status: 200 });
 	}
 
@@ -159,7 +172,7 @@ async function pushData({
 		headers: new Headers({
 			Authorization: `Bearer ${appToken}`,
 		}),
-		body: JSON.stringify(requestBody),
+		body: JSON.stringify(queries),
 	});
 }
 
