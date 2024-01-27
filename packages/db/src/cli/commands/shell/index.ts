@@ -5,7 +5,7 @@ import { appTokenError } from '../../../errors.js';
 import { createRemoteDatabaseClient, getAstroStudioEnv } from '../../../utils.js';
 
 export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
-	const query = flags.query; 
+	const query = flags.query;
 	const appToken = flags.token ?? getAstroStudioEnv().ASTRO_STUDIO_APP_TOKEN;
 	if (!appToken) {
 		// eslint-disable-next-line no-console

@@ -2,7 +2,7 @@ import type { AstroConfig } from 'astro';
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { loadEnv } from 'vite';
 import { createRemoteDatabaseClient as runtimeCreateRemoteDatabaseClient } from './utils-runtime.js';
- 
+
 export type VitePlugin = Required<AstroConfig['vite']>['plugins'][number];
 
 export const STUDIO_ADMIN_TABLE = 'ReservedAstroStudioAdmin';

@@ -15,7 +15,13 @@ import type {
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { customAlphabet } from 'nanoid';
 import prompts from 'prompts';
-import { getCreateTableQuery, getModifiers, hasDefault, hasPrimaryKey, schemaTypeToSqlType } from '../internal.js';
+import {
+	getCreateTableQuery,
+	getModifiers,
+	hasDefault,
+	hasPrimaryKey,
+	schemaTypeToSqlType,
+} from '../internal.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
@@ -157,15 +163,10 @@ export async function getCollectionChangeQueries({
 		}
 	}
 
-	const addedPrimaryKey = Object.entries(added).find(
-		([, field]) => hasPrimaryKey(field)
-	);
-	const droppedPrimaryKey = Object.entries(dropped).find(
-		([, field]) => hasPrimaryKey(field)
-	);
+	const addedPrimaryKey = Object.entries(added).find(([, field]) => hasPrimaryKey(field));
+	const droppedPrimaryKey = Object.entries(dropped).find(([, field]) => hasPrimaryKey(field));
 	const updatedPrimaryKey = Object.entries(updated).find(
-		([, field]) =>
-			(hasPrimaryKey(field.old) || hasPrimaryKey(field.new))
+		([, field]) => hasPrimaryKey(field.old) || hasPrimaryKey(field.new)
 	);
 	const recreateTableQueries = getRecreateTableQueries({
 		unescapedCollectionName: collectionName,
@@ -425,10 +426,7 @@ function canAlterTableDropColumn(field: DBField) {
 	return true;
 }
 
-type DataLossReason =
-	| 'added-required'
-	| 'added-unique'
-	| 'updated-type';
+type DataLossReason = 'added-required' | 'added-unique' | 'updated-type';
 type DataLossResponse =
 	| { dataLoss: false }
 	| { dataLoss: true; fieldName: string; reason: DataLossReason };

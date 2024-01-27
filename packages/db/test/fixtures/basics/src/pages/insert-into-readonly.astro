@@ -5,8 +5,8 @@ const authors = await db.select().from(Author);
 
 let error: any = {};
 try {
-	db.insert(Author).values({ name: 'Person A' })
-} catch(err) {
+	db.insert(Author).values({ name: 'Person A' });
+} catch (err) {
 	error = err;
 }
 ---

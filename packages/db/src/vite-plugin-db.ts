@@ -36,15 +36,15 @@ export function vitePluginDb(
 		},
 		async buildEnd() {
 			// For local use, emit the database into the output
-			if('dbUrl' in params) {
+			if ('dbUrl' in params) {
 				const data = await fs.promises.readFile(new URL(params.dbUrl));
 				this.emitFile({
 					fileName: 'content.db',
 					source: data,
-					type: 'asset'
+					type: 'asset',
 				});
 			}
-    }
+		},
 	};
 }
 
@@ -61,9 +61,9 @@ import { collectionToTable, createLocalDatabaseClient, findLocalDatabase } from 
 export const dbUrl = findLocalDatabase(${JSON.stringify(dbUrl)});
 
 const params = ${JSON.stringify({
-	collections,
-	seeding: false,
-})};
+		collections,
+		seeding: false,
+	})};
 params.dbUrl = dbUrl;
 
 export const db = await createLocalDatabaseClient(params);
@@ -84,7 +84,9 @@ export function getStudioVirtualModContents({
 	return `
 import {collectionToTable, createRemoteDatabaseClient} from ${INTERNAL_MOD_IMPORT};
 
-export const db = await createRemoteDatabaseClient(${JSON.stringify(appToken)}, import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL);
+export const db = await createRemoteDatabaseClient(${JSON.stringify(
+		appToken
+	)}, import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL);
 export * from ${DRIZZLE_MOD_IMPORT};
 
 ${getStringifiedCollectionExports(collections)}

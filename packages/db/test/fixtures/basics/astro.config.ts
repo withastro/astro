@@ -20,21 +20,11 @@ export default defineConfig({
 		collections: { Author, Themes },
 		data({ seed }) {
 			seed(Author, [
-				{
-					name: 'Ben',
-				},
-				{
-					name: 'Nate',
-				},
-				{
-					name: 'Erika',
-				},
-				{
-					name: 'Bjorn',
-				},
-				{
-					name: 'Sarah',
-				},
+				{ name: 'Ben' },
+				{ name: 'Nate' },
+				{ name: 'Erika' },
+				{ name: 'Bjorn' },
+				{ name: 'Sarah' },
 			]);
 		},
 	},

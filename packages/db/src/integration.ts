@@ -44,7 +44,7 @@ export function integration(): AstroIntegration {
 					dbPlugin = vitePluginDb({
 						connectToStudio: true,
 						collections,
-						appToken
+						appToken,
 					});
 				} else {
 					const dbUrl = getLocalDbUrl(config.root);

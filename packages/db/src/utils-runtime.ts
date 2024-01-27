@@ -5,7 +5,7 @@ import { DB_PATH } from './consts.js';
 
 export function findLocalDatabase(localDbURL: string): string {
 	let dbURL: URL | undefined = undefined;
-	if(process.env.VERCEL) {
+	if (process.env.VERCEL) {
 		dbURL = new URL(DB_PATH, 'file://' + process.cwd() + '/vercel/path0/');
 	} else {
 		dbURL = new URL(localDbURL);
