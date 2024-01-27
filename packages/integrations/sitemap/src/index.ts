@@ -183,7 +183,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						},
 					});
 
-					sms.pipe(createWriteStream(resolve(resolve(destDir + OUTFILE))));
+					sms.pipe(createWriteStream(resolve(destDir + OUTFILE)));
 					await streamToPromise(Readable.from(urlData).pipe(sms));
 					sms.end();
 					logger.info(`\`${OUTFILE}\` created at \`${path.relative(process.cwd(), destDir)}\``);
