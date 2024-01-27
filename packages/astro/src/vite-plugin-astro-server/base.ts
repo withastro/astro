@@ -6,6 +6,7 @@ import * as fs from 'node:fs';
 import type { Logger } from '../core/logger/core.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 import { writeHtmlResponse } from './response.js';
+import { appendForwardSlash, removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 
 export function baseMiddleware(
 	settings: AstroSettings,
@@ -52,7 +53,9 @@ export function baseMiddleware(
 		const publicPath = new URL('.' + req.url, config.publicDir);
 		fs.stat(publicPath, (_err, stats) => {
 			if (stats) {
-				const publicDir = config.publicDir.pathname.replace(/\/$/, '').split('/').pop() + '/';
+				const publicDir = appendForwardSlash(
+					removeTrailingForwardSlash(config.publicDir.pathname).split('/').pop()!
+				);
 				const expectedLocation = new URL(devRootURL.pathname + url, devRootURL).pathname;
 
 				logger.error(
