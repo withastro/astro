@@ -31,7 +31,7 @@ export default function astroInternationalization({
 		config(config) {
 			const i18nConfig: I18nInternalConfig = { base, format, site, trailingSlash, i18n };
 			config.define ??= {}
-			config.define["import.meta.env._ASTRO_INTERNAL_I18N_CONFIG"] = JSON.stringify(i18nConfig);
+			config.define.__ASTRO_INTERNAL_I18N_CONFIG__ = JSON.stringify(i18nConfig);
 		},
 		resolveId(id) {
 			if (id === virtualModuleId) {
