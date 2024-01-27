@@ -1,6 +1,7 @@
+import * as assert from 'node:assert/strict';
+import { describe, it, before, after } from 'node:test';
 import nodejs from '../dist/index.js';
 import { loadFixture, createRequestAndResponse } from './test-utils.js';
-import { expect } from 'chai';
 
 describe('Node Adapter Headers', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -143,5 +144,5 @@ async function runTest(url, expectedHeaders) {
 	await done;
 	const headers = res.getHeaders();
 
-	expect(headers).to.deep.equal(expectedHeaders);
+	assert.deepEqual(headers, expectedHeaders);
 }

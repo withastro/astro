@@ -29,6 +29,7 @@ export interface PageBuildData {
 	propagatedScripts: Map<string, Set<string>>;
 	hoistedScript: { type: 'inline' | 'external'; value: string } | undefined;
 	styles: Array<{ depth: number; order: number; sheet: StylesheetAsset }>;
+	hasSharedModules: boolean;
 }
 
 export type AllPagesData = Record<ComponentPath, PageBuildData>;

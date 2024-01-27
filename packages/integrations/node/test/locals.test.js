@@ -1,6 +1,7 @@
+import * as assert from 'node:assert/strict';
+import { describe, it, before, after } from 'node:test';
 import nodejs from '../dist/index.js';
 import { loadFixture, createRequestAndResponse } from './test-utils.js';
-import { expect } from 'chai';
 
 describe('API routes', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -28,7 +29,7 @@ describe('API routes', () => {
 
 		let html = await text();
 
-		expect(html).to.contain('<h1>bar</h1>');
+		assert.equal(html.includes('<h1>bar</h1>'), true);
 	});
 
 	it('Throws an error when provided non-objects as locals', async () => {
@@ -41,7 +42,7 @@ describe('API routes', () => {
 		req.send();
 
 		await done;
-		expect(res).to.deep.include({ statusCode: 500 });
+		assert.equal(res.statusCode, 500);
 	});
 
 	it('Can use locals added by astro middleware', async () => {
@@ -56,7 +57,7 @@ describe('API routes', () => {
 
 		const html = await text();
 
-		expect(html).to.contain('<h1>baz</h1>');
+		assert.equal(html.includes('<h1>baz</h1>'), true);
 	});
 
 	it('Can access locals in API', async () => {
@@ -75,6 +76,6 @@ describe('API routes', () => {
 
 		let json = JSON.parse(buffer.toString('utf-8'));
 
-		expect(json.foo).to.equal('bar');
+		assert.equal(json.foo, 'bar');
 	});
 });
