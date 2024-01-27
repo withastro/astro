@@ -52,11 +52,13 @@ export function baseMiddleware(
 		const publicPath = new URL('.' + req.url, config.publicDir);
 		fs.stat(publicPath, (_err, stats) => {
 			if (stats) {
-				const expectedLocation = new URL('.' + url, devRootURL).pathname;
+				const publicDir = config.publicDir.pathname.replace(/\/$/, '').split('/').pop() + '/';
+				const expectedLocation = new URL(devRootURL.pathname + url, devRootURL).pathname;
+
 				logger.error(
 					'router',
 					`Request URLs for ${bold(
-						'public/'
+						publicDir
 					)} assets must also include your base. "${expectedLocation}" expected, but received "${url}".`
 				);
 				const html = subpathNotUsedTemplate(devRoot, pathname);
