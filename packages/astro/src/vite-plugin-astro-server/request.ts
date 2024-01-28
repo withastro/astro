@@ -4,32 +4,29 @@ import { collapseDuplicateSlashes, removeTrailingForwardSlash } from '../core/pa
 import { isServerLikeOutput } from '../prerender/utils.js';
 import type { DevServerController } from './controller.js';
 import { runWithErrorHandling } from './controller.js';
-import type DevPipeline from './devPipeline.js';
+import type { DevEnvironment } from './environment.js';
 import { handle500Response } from './response.js';
 import { handleRoute, matchRoute } from './route.js';
 import { recordServerError } from './error.js';
 
 type HandleRequest = {
-	pipeline: DevPipeline;
+	environment: DevEnvironment;
 	manifestData: ManifestData;
 	controller: DevServerController;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
-	manifest: SSRManifest;
 };
 
 /** The main logic to route dev server requests to pages in Astro. */
 export async function handleRequest({
-	pipeline,
+	environment,
 	manifestData,
 	controller,
 	incomingRequest,
 	incomingResponse,
-	manifest,
 }: HandleRequest) {
-	const config = pipeline.getConfig();
-	const moduleLoader = pipeline.getModuleLoader();
-	const origin = `${moduleLoader.isHttps() ? 'https' : 'http'}://${incomingRequest.headers.host}`;
+	const { config, loader } = environment;
+	const origin = `${loader.isHttps() ? 'https' : 'http'}://${incomingRequest.headers.host}`;
 	const buildingToSSR = isServerLikeOutput(config);
 
 	const url = new URL(collapseDuplicateSlashes(origin + incomingRequest.url));
@@ -70,7 +67,7 @@ export async function handleRequest({
 		controller,
 		pathname,
 		async run() {
-			const matchedRoute = await matchRoute(pathname, manifestData, pipeline);
+			const matchedRoute = await matchRoute(pathname, manifestData, environment);
 			const resolvedPathname = matchedRoute?.resolvedPathname ?? pathname;
 			return await handleRoute({
 				matchedRoute,
@@ -78,16 +75,15 @@ export async function handleRequest({
 				pathname: resolvedPathname,
 				body,
 				origin,
-				pipeline,
+				environment,
 				manifestData,
 				incomingRequest: incomingRequest,
 				incomingResponse: incomingResponse,
-				manifest,
 			});
 		},
 		onError(_err) {
-			const { error, errorWithMetadata } = recordServerError(moduleLoader, config, pipeline, _err);
-			handle500Response(moduleLoader, incomingResponse, errorWithMetadata);
+			const { error, errorWithMetadata } = recordServerError(loader, config, environment, _err);
+			handle500Response(loader, incomingResponse, errorWithMetadata);
 			return error;
 		},
 	});

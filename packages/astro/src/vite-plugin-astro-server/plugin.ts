@@ -8,7 +8,7 @@ import { createViteLoader } from '../core/module-loader/index.js';
 import { createRouteManifest } from '../core/routing/index.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
-import DevPipeline from './devPipeline.js';
+import { DevEnvironment } from './environment.js';
 import { handleRequest } from './request.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
@@ -33,14 +33,14 @@ export default function createVitePluginAstroServer({
 		configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
 			const manifest = createDevelopmentManifest(settings);
-			const pipeline = new DevPipeline({ logger, manifest, settings, loader });
+			const environment = new DevEnvironment(loader, logger, manifest, settings);
 			let manifestData: ManifestData = createRouteManifest({ settings, fsMod }, logger);
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();
 
 			/** rebuild the route cache + manifest, as needed. */
 			function rebuildManifest(needsManifestRebuild: boolean) {
-				pipeline.clearRouteCache();
+				environment.clearRouteCache();
 				if (needsManifestRebuild) {
 					manifestData = createRouteManifest({ settings }, logger);
 				}
@@ -60,7 +60,7 @@ export default function createVitePluginAstroServer({
 					const request = store;
 					setRouteError(controller.state, request.url!, error);
 				}
-				const { errorWithMetadata } = recordServerError(loader, settings.config, pipeline, error);
+				const { errorWithMetadata } = recordServerError(loader, settings.config, environment, error);
 				setTimeout(
 					async () => loader.webSocketSend(await getViteErrorPayload(errorWithMetadata)),
 					200
@@ -85,12 +85,11 @@ export default function createVitePluginAstroServer({
 					}
 					localStorage.run(request, () => {
 						handleRequest({
-							pipeline,
+							environment,
 							manifestData,
 							controller,
 							incomingRequest: request,
 							incomingResponse: response,
-							manifest,
 						});
 					});
 				});

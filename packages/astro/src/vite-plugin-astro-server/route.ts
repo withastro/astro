@@ -30,8 +30,7 @@ import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
-import type DevPipeline from './devPipeline.js';
-import { preload } from './index.js';
+import type { DevEnvironment } from './environment.js';
 import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { getScriptsForURL } from './scripts.js';
@@ -65,16 +64,15 @@ function getCustom404Route(manifestData: ManifestData): RouteData | undefined {
 export async function matchRoute(
 	pathname: string,
 	manifestData: ManifestData,
-	pipeline: DevPipeline
+	environment: DevEnvironment
 ): Promise<MatchedRoute | undefined> {
-	const env = pipeline.env;
-	const { routeCache, logger } = env;
+	const { routeCache, logger } = environment;
 	let matches = matchAllRoutes(pathname, manifestData);
 
 	const preloadedMatches = await getSortedPreloadedMatches({
-		pipeline,
+		environment,
 		matches,
-		settings: pipeline.getSettings(),
+		settings: environment.settings,
 	});
 
 	for await (const { preloadedComponent, route: maybeRoute, filePath } of preloadedMatches) {
@@ -87,7 +85,7 @@ export async function matchRoute(
 				routeCache,
 				pathname: pathname,
 				logger,
-				ssr: isServerLikeOutput(pipeline.getConfig()),
+				ssr: environment.serverLike,
 			});
 			return {
 				route: maybeRoute,
@@ -110,13 +108,13 @@ export async function matchRoute(
 	// build formats, and is necessary based on how the manifest tracks build targets.
 	const altPathname = pathname.replace(/(?:index)?\.html$/, '');
 	if (altPathname !== pathname) {
-		return await matchRoute(altPathname, manifestData, pipeline);
+		return await matchRoute(altPathname, manifestData, environment);
 	}
 
 	if (matches.length) {
 		const possibleRoutes = matches.flatMap((route) => route.component);
 
-		pipeline.logger.warn(
+		environment.logger.warn(
 			'router',
 			`${AstroErrorData.NoMatchingStaticPathFound.message(
 				pathname
@@ -127,8 +125,8 @@ export async function matchRoute(
 	const custom404 = getCustom404Route(manifestData);
 
 	if (custom404) {
-		const filePath = new URL(`./${custom404.component}`, pipeline.getConfig().root);
-		const preloadedComponent = await preload({ pipeline, filePath });
+		const filePath = new URL(`./${custom404.component}`, environment.config.root);
+		const preloadedComponent = await environment.preload(filePath);
 
 		return {
 			route: custom404,
@@ -151,9 +149,8 @@ type HandleRoute = {
 	manifestData: ManifestData;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
-	manifest: SSRManifest;
 	status?: 404 | 500;
-	pipeline: DevPipeline;
+	environment: DevEnvironment;
 };
 
 export async function handleRoute({
@@ -163,17 +160,13 @@ export async function handleRoute({
 	status = getStatus(matchedRoute),
 	body,
 	origin,
-	pipeline,
+	environment,
 	manifestData,
 	incomingRequest,
 	incomingResponse,
-	manifest,
 }: HandleRoute): Promise<void> {
 	const timeStart = performance.now();
-	const { env } = pipeline;
-	const config = pipeline.getConfig();
-	const moduleLoader = pipeline.getModuleLoader();
-	const { logger } = env;
+	const { config, logger, manifest } = environment;
 	if (!matchedRoute && !config.i18n) {
 		if (isLoggedRequest(pathname)) {
 			logger.info(null, req({ url: pathname, method: incomingRequest.method, statusCode: 404 }));
@@ -188,8 +181,9 @@ export async function handleRoute({
 	let mod: ComponentInstance | undefined = undefined;
 	let options: SSROptions | undefined = undefined;
 	let route: RouteData;
-	const middleware = await loadMiddleware(moduleLoader);
-
+	const middleware = await loadMiddleware(environment.loader);
+	const onRequest: MiddlewareHandler = middleware.onRequest
+	
 	if (!matchedRoute) {
 		if (config.i18n) {
 			const locales = config.i18n.locales;
@@ -242,7 +236,7 @@ export async function handleRoute({
 			renderContext = await createRenderContext({
 				request,
 				pathname,
-				env,
+				env: environment,
 				mod,
 				route,
 				locales: manifest.i18n?.locales,
@@ -274,7 +268,7 @@ export async function handleRoute({
 		}
 
 		options = {
-			env,
+			env: environment,
 			filePath,
 			preload: preloadedComponent,
 			pathname,
@@ -286,11 +280,11 @@ export async function handleRoute({
 		mod = options.preload;
 
 		const { scripts, links, styles, metadata } = await getScriptsAndStyles({
-			pipeline,
+			environment,
 			filePath: options.filePath,
 		});
 
-		const i18n = pipeline.getConfig().i18n;
+		const i18n = environment.config.i18n;
 
 		renderContext = await createRenderContext({
 			request: options.request,
@@ -301,14 +295,12 @@ export async function handleRoute({
 			componentMetadata: metadata,
 			route: options.route,
 			mod,
-			env,
+			env: environment,
 			locales: i18n?.locales,
 			routing: i18n?.routing,
 			defaultLocale: i18n?.defaultLocale,
 		});
 	}
-
-	const onRequest: MiddlewareHandler = middleware.onRequest;
 	if (config.i18n) {
 		const i18Middleware = createI18nMiddleware(
 			manifest.i18n,
@@ -318,16 +310,16 @@ export async function handleRoute({
 		);
 
 		if (i18Middleware) {
-			pipeline.setMiddlewareFunction(sequence(i18Middleware, onRequest));
-			pipeline.onBeforeRenderRoute(i18nPipelineHook);
+			environment.setMiddlewareFunction(sequence(i18Middleware, onRequest));
+			environment.onBeforeRenderRoute(i18nPipelineHook);
 		} else {
-			pipeline.setMiddlewareFunction(onRequest);
+			environment.setMiddlewareFunction(onRequest);
 		}
 	} else {
-		pipeline.setMiddlewareFunction(onRequest);
+		environment.setMiddlewareFunction(onRequest);
 	}
 
-	let response = await pipeline.renderRoute(renderContext, mod);
+	let response = await environment.renderRoute(renderContext, mod);
 	if (isLoggedRequest(pathname)) {
 		const timeEnd = performance.now();
 		logger.info(
@@ -345,7 +337,7 @@ export async function handleRoute({
 		has404Route(manifestData) &&
 		response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 	) {
-		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
+		const fourOhFourRoute = await matchRoute('/404', manifestData, environment);
 		if (options && fourOhFourRoute?.route !== options.route)
 			return handleRoute({
 				...options,
@@ -354,11 +346,10 @@ export async function handleRoute({
 				status: 404,
 				body,
 				origin,
-				pipeline,
+				environment,
 				manifestData,
 				incomingRequest,
 				incomingResponse,
-				manifest,
 			});
 	}
 	if (route.type === 'endpoint') {
@@ -386,19 +377,17 @@ export async function handleRoute({
 }
 
 interface GetScriptsAndStylesParams {
-	pipeline: DevPipeline;
+	environment: DevEnvironment;
 	filePath: URL;
 }
 
-async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesParams) {
-	const moduleLoader = pipeline.getModuleLoader();
-	const settings = pipeline.getSettings();
-	const mode = pipeline.env.mode;
+async function getScriptsAndStyles({ environment, filePath }: GetScriptsAndStylesParams) {
+	const { settings, loader } = environment;
 	// Add hoisted script tags
-	const { scripts } = await getScriptsForURL(filePath, settings.config.root, moduleLoader);
+	const { scripts } = await getScriptsForURL(filePath, settings.config.root, loader);
 
 	// Inject HMR scripts
-	if (isPage(filePath, settings) && mode === 'development') {
+	if (isPage(filePath, settings) && environment.mode === 'development') {
 		scripts.add({
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',
@@ -411,7 +400,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			scripts.add({
 				props: {
 					type: 'module',
-					src: await resolveIdToUrl(moduleLoader, 'astro/runtime/client/dev-toolbar/entrypoint.js'),
+					src: await resolveIdToUrl(loader, 'astro/runtime/client/dev-toolbar/entrypoint.js'),
 				},
 				children: '',
 			});
@@ -446,7 +435,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 	}
 
 	// Pass framework CSS in as style tags to be appended to the page.
-	const { urls: styleUrls, styles: importedStyles } = await getStylesForURL(filePath, moduleLoader);
+	const { urls: styleUrls, styles: importedStyles } = await getStylesForURL(filePath, loader);
 	let links = new Set<SSRElement>();
 	[...styleUrls].forEach((href) => {
 		links.add({
@@ -478,7 +467,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 		});
 	});
 
-	const metadata = await getComponentMetadata(filePath, moduleLoader);
+	const metadata = await getComponentMetadata(filePath, loader);
 
 	return { scripts, styles, links, metadata };
 }
