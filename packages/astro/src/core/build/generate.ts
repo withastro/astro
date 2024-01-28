@@ -322,7 +322,7 @@ async function generatePage(
 		let prevTimeEnd = timeStart;
 		for (let i = 0; i < paths.length; i++) {
 			const path = paths[i];
-			pipeline.getEnvironment().logger.debug('build', `Generating: ${path}`);
+			pipeline.env.logger.debug('build', `Generating: ${path}`);
 			const filePath = getOutputFilename(pipeline.getConfig(), path, pageData.route.type);
 			const lineIcon = i === paths.length - 1 ? '└─' : '├─';
 			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
@@ -570,7 +570,7 @@ async function generatePath(
 		styles,
 		links,
 		route,
-		env: pipeline.getEnvironment(),
+		env: pipeline.env,
 		mod,
 		locales: i18n?.locales,
 		routing: i18n?.routing,

@@ -67,7 +67,7 @@ export async function matchRoute(
 	manifestData: ManifestData,
 	pipeline: DevPipeline
 ): Promise<MatchedRoute | undefined> {
-	const env = pipeline.getEnvironment();
+	const env = pipeline.env;
 	const { routeCache, logger } = env;
 	let matches = matchAllRoutes(pathname, manifestData);
 
@@ -170,7 +170,7 @@ export async function handleRoute({
 	manifest,
 }: HandleRoute): Promise<void> {
 	const timeStart = performance.now();
-	const env = pipeline.getEnvironment();
+	const { env } = pipeline;
 	const config = pipeline.getConfig();
 	const moduleLoader = pipeline.getModuleLoader();
 	const { logger } = env;
@@ -393,7 +393,7 @@ interface GetScriptsAndStylesParams {
 async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesParams) {
 	const moduleLoader = pipeline.getModuleLoader();
 	const settings = pipeline.getSettings();
-	const mode = pipeline.getEnvironment().mode;
+	const mode = pipeline.env.mode;
 	// Add hoisted script tags
 	const { scripts } = await getScriptsForURL(filePath, settings.config.root, moduleLoader);
 

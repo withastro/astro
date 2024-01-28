@@ -87,7 +87,7 @@ export class BuildPipeline extends Pipeline {
 	}
 
 	getLogger(): Logger {
-		return this.getEnvironment().logger;
+		return this.env.logger;
 	}
 
 	/**

@@ -45,12 +45,6 @@ export class Pipeline {
 	unsetMiddlewareFunction() {
 		this.#onRequest = undefined;
 	}
-	/**
-	 * Returns the current environment
-	 */
-	getEnvironment(): Readonly<Environment> {
-		return this.env;
-	}
 
 	/**
 	 * The main function of the pipeline. Use this function to render any route known to Astro;
@@ -77,7 +71,7 @@ export class Pipeline {
 	 */
 	async #tryRenderRoute(
 		renderContext: Readonly<RenderContext>,
-		env: Readonly<Environment>,
+		env: Environment,
 		mod: Readonly<ComponentInstance> | undefined,
 		onRequest?: MiddlewareHandler
 	): Promise<Response> {

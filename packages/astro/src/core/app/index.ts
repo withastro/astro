@@ -28,7 +28,7 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
-import { SSRRoutePipeline } from './ssrPipeline.js';
+import { AppEnvironment } from './environment.js';
 import type { RouteInfo } from './types.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
 export { deserializeManifest } from './common.js';
@@ -97,7 +97,7 @@ export class App {
 		level: 'info',
 	});
 	#baseWithoutTrailingSlash: string;
-	#pipeline: SSRRoutePipeline;
+	#environment: AppEnvironment;
 	#adapterLogger: AstroIntegrationLogger;
 	#renderOptionsDeprecationWarningShown = false;
 
@@ -108,7 +108,7 @@ export class App {
 		};
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
-		this.#pipeline = new SSRRoutePipeline(this.#createEnvironment(streaming));
+		this.#environment = this.#createEnvironment(streaming);
 		this.#adapterLogger = new AstroIntegrationLogger(
 			this.#logger.options,
 			this.#manifest.adapterName
@@ -126,7 +126,7 @@ export class App {
 	 * @private
 	 */
 	#createEnvironment(streaming = false) {
-		return new Environment(
+		return new AppEnvironment(
 			this.#logger,
 			this.#manifest,
 			'production',
@@ -332,12 +332,12 @@ export class App {
 				this.#manifest.buildFormat
 			);
 			if (i18nMiddleware) {
-				this.#pipeline.setMiddlewareFunction(sequence(i18nMiddleware, this.#manifest.middleware));
-				this.#pipeline.onBeforeRenderRoute(i18nPipelineHook);
+				this.#environment.setMiddlewareFunction(sequence(i18nMiddleware, this.#manifest.middleware));
+				this.#environment.onBeforeRenderRoute(i18nPipelineHook);
 			} else {
-				this.#pipeline.setMiddlewareFunction(this.#manifest.middleware);
+				this.#environment.setMiddlewareFunction(this.#manifest.middleware);
 			}
-			response = await this.#pipeline.renderRoute(renderContext, pageModule);
+			response = await this.#environment.renderRoute(renderContext, pageModule);
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
 			return this.#renderError(request, { status: 500 });
@@ -413,7 +413,7 @@ export class App {
 				pathname,
 				route: routeData,
 				status,
-				env: this.#pipeline.env,
+				env: this.#environment,
 				mod: handler as any,
 				locales: this.#manifest.i18n?.locales,
 				routing: this.#manifest.i18n?.routing,
@@ -451,7 +451,7 @@ export class App {
 				route: routeData,
 				status,
 				mod,
-				env: this.#pipeline.env,
+				env: this.#environment,
 				locales: this.#manifest.i18n?.locales,
 				routing: this.#manifest.i18n?.routing,
 				defaultLocale: this.#manifest.i18n?.defaultLocale,
@@ -496,13 +496,13 @@ export class App {
 				);
 				const page = (await mod.page()) as any;
 				if (skipMiddleware === false) {
-					this.#pipeline.setMiddlewareFunction(this.#manifest.middleware);
+					this.#environment.setMiddlewareFunction(this.#manifest.middleware);
 				}
 				if (skipMiddleware) {
 					// make sure middleware set by other requests is cleared out
-					this.#pipeline.unsetMiddlewareFunction();
+					this.#environment.unsetMiddlewareFunction();
 				}
-				const response = await this.#pipeline.renderRoute(newRenderContext, page);
+				const response = await this.#environment.renderRoute(newRenderContext, page);
 				return this.#mergeResponses(response, originalResponse);
 			} catch {
 				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
