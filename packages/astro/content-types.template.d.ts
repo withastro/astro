@@ -36,6 +36,7 @@ declare module 'astro:content' {
 				import('astro/zod').ZodLiteral<'avif'>,
 			]
 		>;
+		ASTRO_ASSET: import('astro/zod').ZodString;
 	}>;
 
 	type BaseSchemaWithoutEffects =
