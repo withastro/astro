@@ -280,19 +280,6 @@ async function generatePage(
 	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 	const linkIds: [] = [];
 	const scripts = pageInfo?.hoistedScript ?? null;
-	// prepare the middleware
-	const i18nMiddleware = createI18nMiddleware(
-		manifest.i18n,
-		manifest.base,
-		manifest.trailingSlash,
-		manifest.buildFormat
-	);
-	if (config.i18n && i18nMiddleware) {
-		environment.setMiddlewareFunction(sequence(i18nMiddleware, onRequest));
-		environment.onBeforeRenderRoute(i18nPipelineHook);
-	} else {
-		environment.setMiddlewareFunction(onRequest);
-	}
 	if (!pageModulePromise) {
 		throw new Error(
 			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`
@@ -570,12 +557,24 @@ async function generatePath(
 		routing: i18n?.routing,
 		defaultLocale: i18n?.defaultLocale,
 	});
+	const i18nMiddleware = createI18nMiddleware(
+		manifest.i18n,
+		manifest.base,
+		manifest.trailingSlash,
+		manifest.buildFormat
+	)
+	const pipeline = environment.createPipeline({
+		pathname,
+		renderContext,
+		hookBefore: i18nPipelineHook,
+		middleware: sequence(i18nMiddleware, manifest.middleware)
+	})
 
 	let body: string | Uint8Array;
 
 	let response: Response;
 	try {
-		response = await environment.renderRoute(renderContext, mod);
+		response = await pipeline.renderRoute(mod);
 	} catch (err) {
 		if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
 			(err as SSRError).id = route.component;

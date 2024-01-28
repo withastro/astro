@@ -331,13 +331,13 @@ export class App {
 				this.#manifest.trailingSlash,
 				this.#manifest.buildFormat
 			);
-			if (i18nMiddleware) {
-				this.#environment.setMiddlewareFunction(sequence(i18nMiddleware, this.#manifest.middleware));
-				this.#environment.onBeforeRenderRoute(i18nPipelineHook);
-			} else {
-				this.#environment.setMiddlewareFunction(this.#manifest.middleware);
-			}
-			response = await this.#environment.renderRoute(renderContext, pageModule);
+			const pipeline = this.#environment.createPipeline({
+				pathname,
+				renderContext,
+				hookBefore: i18nPipelineHook,
+				middleware: sequence(i18nMiddleware, this.#manifest.middleware)
+			})
+			response = await pipeline.renderRoute(pageModule);
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
 			return this.#renderError(request, { status: 500 });
@@ -494,15 +494,12 @@ export class App {
 					mod,
 					status
 				);
-				const page = (await mod.page()) as any;
-				if (skipMiddleware === false) {
-					this.#environment.setMiddlewareFunction(this.#manifest.middleware);
-				}
-				if (skipMiddleware) {
-					// make sure middleware set by other requests is cleared out
-					this.#environment.unsetMiddlewareFunction();
-				}
-				const response = await this.#environment.renderRoute(newRenderContext, page);
+				const pipeline = this.#environment.createPipeline({
+					pathname: this.#getPathnameFromRequest(request),
+					renderContext: newRenderContext,
+					middleware: skipMiddleware ? (_, next) => next() : undefined
+				});
+				const response = await pipeline.renderRoute(await mod.page());
 				return this.#mergeResponses(response, originalResponse);
 			} catch {
 				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.

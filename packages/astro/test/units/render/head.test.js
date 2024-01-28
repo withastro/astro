@@ -12,7 +12,6 @@ import {
 import { createRenderContext } from '../../../dist/core/render/index.js';
 import { createBasicEnvironment } from '../test-utils.js';
 import * as cheerio from 'cheerio';
-import { Pipeline } from '../../../dist/core/pipeline.js';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 
@@ -98,8 +97,8 @@ describe('core/render', () => {
 				env,
 			});
 
-			const pipeline = new Pipeline(env);
-			const response = await pipeline.renderRoute(ctx, PageModule);
+			const pipeline = env.createPipeline({ renderContext: ctx });
+			const response = await pipeline.renderRoute(PageModule);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -179,10 +178,10 @@ describe('core/render', () => {
 				env,
 				mod: PageModule,
 			});
+			
+			const pipeline = env.createPipeline({ renderContext: ctx });
+			const response = await pipeline.renderRoute(PageModule);
 
-			const pipeline = new Pipeline(env);
-
-			const response = await pipeline.renderRoute(ctx, PageModule);
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
@@ -229,8 +228,9 @@ describe('core/render', () => {
 				mod: PageModule,
 			});
 
-			const pipeline = new Pipeline(env);
-			const response = await pipeline.renderRoute(ctx, PageModule);
+			const pipeline = env.createPipeline({ renderContext: ctx });
+			const response = await pipeline.renderRoute(PageModule);
+
 			const html = await response.text();
 			const $ = cheerio.load(html);
 

@@ -10,7 +10,6 @@ import { jsx } from '../../../dist/jsx-runtime/index.js';
 import { createRenderContext, loadRenderer } from '../../../dist/core/render/index.js';
 import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
 import { createBasicEnvironment } from '../test-utils.js';
-import { Pipeline } from '../../../dist/core/pipeline.js';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 const loadJSXRenderer = () => loadRenderer(jsxRenderer, { import: (s) => import(s) });
@@ -49,8 +48,8 @@ describe('core/render', () => {
 				mod,
 			});
 
-			const pipeline = new Pipeline(env);
-			const response = await pipeline.renderRoute(ctx, mod);
+			const pipeline = env.createPipeline({ renderContext: ctx });
+			const response = await pipeline.renderRoute(mod);
 
 			assert.equal(response.status, 200);
 
@@ -95,8 +94,8 @@ describe('core/render', () => {
 				env,
 				mod,
 			});
-			const pipeline = new Pipeline(env);
-			const response = await pipeline.renderRoute(ctx, mod);
+			const pipeline = env.createPipeline({ renderContext: ctx });
+			const response = await pipeline.renderRoute(mod);
 
 			assert.equal(response.status, 200);
 
@@ -126,8 +125,8 @@ describe('core/render', () => {
 				mod,
 			});
 
-			const pipeline = new Pipeline(env);
-			const response = await pipeline.renderRoute(ctx, mod);
+			const pipeline = env.createPipeline({ renderContext: ctx });
+			const response = await pipeline.renderRoute(mod);
 
 			try {
 				await response.text();

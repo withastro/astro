@@ -4,10 +4,6 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { renderPage } from './render/core.js';
 import { type Environment, type RenderContext } from './render/index.js';
 
-type PipelineHooks = {
-	before: PipelineHookFunction[];
-};
-
 export type PipelineHookFunction = (ctx: RenderContext, mod: ComponentInstance | undefined) => void;
 
 /**
@@ -16,47 +12,38 @@ export type PipelineHookFunction = (ctx: RenderContext, mod: ComponentInstance |
  * Check the {@link ./README.md|README} for more information about the pipeline.
  */
 export class Pipeline {
-	env: Environment;
-	#onRequest?: MiddlewareHandler;
-	#hooks: PipelineHooks = {
-		before: [],
-	};
-
-	/**
-	 * When creating a pipeline, an environment is mandatory.
-	 * The environment won't change for the whole lifetime of the pipeline.
-	 */
-	constructor(env: Environment) {
-		this.env = env;
-	}
-
-	setEnvironment() {}
+	constructor(
+		readonly environment: Environment,
+		readonly locals: App.Locals,
+		readonly request: Request,
+		readonly pathname: string,
+		readonly renderContext: RenderContext,
+		readonly hookBefore: PipelineHookFunction = () => {},
+		private middleware = environment.middleware
+	) {}
 
 	/**
 	 * A middleware function that will be called before each request.
 	 */
-	setMiddlewareFunction(onRequest: MiddlewareHandler) {
-		this.#onRequest = onRequest;
+	setMiddlewareFunction(middleware: MiddlewareHandler) {
+		this.middleware = middleware;
 	}
 
 	/**
 	 * Removes the current middleware function. Subsequent requests won't trigger any middleware.
 	 */
 	unsetMiddlewareFunction() {
-		this.#onRequest = undefined;
+		this.middleware = (_, next) => next();
 	}
 
 	/**
 	 * The main function of the pipeline. Use this function to render any route known to Astro;
 	 */
 	async renderRoute(
-		renderContext: RenderContext,
 		componentInstance: ComponentInstance | undefined
 	): Promise<Response> {
-		for (const hook of this.#hooks.before) {
-			hook(renderContext, componentInstance);
-		}
-		return await this.#tryRenderRoute(renderContext, this.env, componentInstance, this.#onRequest);
+		this.hookBefore(this.renderContext, componentInstance);
+		return await this.#tryRenderRoute(componentInstance, this.middleware);
 	}
 
 	/**
@@ -70,21 +57,13 @@ export class Pipeline {
 	 * It throws an error if the page can't be rendered.
 	 */
 	async #tryRenderRoute(
-		renderContext: Readonly<RenderContext>,
-		env: Environment,
 		mod: Readonly<ComponentInstance> | undefined,
 		onRequest?: MiddlewareHandler
 	): Promise<Response> {
-		const apiContext = createAPIContext({
-			request: renderContext.request,
-			params: renderContext.params,
-			props: renderContext.props,
-			site: env.site,
-			adapterName: env.adapterName,
-			locales: renderContext.locales,
-			routingStrategy: renderContext.routing,
-			defaultLocale: renderContext.defaultLocale,
-		});
+		const { renderContext, environment } = this;
+		const { defaultLocale, locales, params, props, request, routing: routingStrategy } = renderContext;
+		const { adapterName, site } = environment;
+		const apiContext = createAPIContext({ adapterName, defaultLocale, locales, params, props, request, routingStrategy, site });
 
 		switch (renderContext.route.type) {
 			case 'page':
@@ -95,7 +74,7 @@ export class Pipeline {
 						return renderPage({
 							mod,
 							renderContext,
-							env,
+							env: environment,
 							cookies: apiContext.cookies,
 						});
 					});
@@ -103,24 +82,16 @@ export class Pipeline {
 					return await renderPage({
 						mod,
 						renderContext,
-						env,
+						env: environment,
 						cookies: apiContext.cookies,
 					});
 				}
 			}
 			case 'endpoint': {
-				return await callEndpoint(mod as any as EndpointHandler, env, renderContext, onRequest);
+				return await callEndpoint(mod as any as EndpointHandler, environment, renderContext, onRequest);
 			}
 			default:
 				throw new Error(`Couldn't find route of type [${renderContext.route.type}]`);
 		}
-	}
-
-	/**
-	 * Store a function that will be called before starting the rendering phase.
-	 * @param fn
-	 */
-	onBeforeRenderRoute(fn: PipelineHookFunction) {
-		this.#hooks.before.push(fn);
 	}
 }

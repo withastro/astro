@@ -301,25 +301,20 @@ export async function handleRoute({
 			defaultLocale: i18n?.defaultLocale,
 		});
 	}
-	if (config.i18n) {
-		const i18Middleware = createI18nMiddleware(
-			manifest.i18n,
-			config.base,
-			config.trailingSlash,
-			config.build.format
-		);
+	const i18Middleware = createI18nMiddleware(
+		manifest.i18n,
+		config.base,
+		config.trailingSlash,
+		config.build.format
+	);
+	const pipeline = environment.createPipeline({
+		pathname,
+		renderContext,
+		hookBefore: i18nPipelineHook,
+		middleware: sequence(i18Middleware, onRequest),
+	});
 
-		if (i18Middleware) {
-			environment.setMiddlewareFunction(sequence(i18Middleware, onRequest));
-			environment.onBeforeRenderRoute(i18nPipelineHook);
-		} else {
-			environment.setMiddlewareFunction(onRequest);
-		}
-	} else {
-		environment.setMiddlewareFunction(onRequest);
-	}
-
-	let response = await environment.renderRoute(renderContext, mod);
+	let response = await pipeline.renderRoute(mod);
 	if (isLoggedRequest(pathname)) {
 		const timeEnd = performance.now();
 		logger.info(

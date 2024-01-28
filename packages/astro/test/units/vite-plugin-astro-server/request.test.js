@@ -62,6 +62,7 @@ describe('vite-plugin-astro-server', () => {
 					controller,
 					incomingRequest: req,
 					incomingResponse: res,
+					manifest: {}
 				});
 			} catch (err) {
 				assert.equal(err.message, undefined);
