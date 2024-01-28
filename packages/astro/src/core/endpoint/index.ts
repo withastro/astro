@@ -1,21 +1,16 @@
 import type {
 	APIContext,
-	EndpointHandler,
 	Locales,
-	MiddlewareHandler,
 	Params,
 } from '../../@types/astro.js';
-import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
-import { AstroCookies, attachCookiesToResponse } from '../cookies/index.js';
+import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { callMiddleware } from '../middleware/callMiddleware.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../render/context.js';
-import { type Environment, type RenderContext } from '../render/index.js';
 import type { RoutingStrategies } from '../config/schema.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
@@ -137,29 +132,4 @@ export function createAPIContext({
 	} satisfies APIContext;
 
 	return context;
-}
-
-export async function callEndpoint(
-	mod: EndpointHandler,
-	env: Environment,
-	ctx: RenderContext,
-	onRequest: MiddlewareHandler
-): Promise<Response> {
-	const context = createAPIContext({
-		request: ctx.request,
-		params: ctx.params,
-		props: ctx.props,
-		site: env.site,
-		adapterName: env.adapterName,
-		routingStrategy: ctx.routing,
-		defaultLocale: ctx.defaultLocale,
-		locales: ctx.locales,
-	});
-
-	const response = await callMiddleware(onRequest, context, async () => {
-		return await renderEndpoint(mod, context, env.serverLike, env.logger);
-	});
-
-	attachCookiesToResponse(response, context.cookies);
-	return response;
 }

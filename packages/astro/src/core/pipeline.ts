@@ -1,5 +1,7 @@
-import type { ComponentInstance, EndpointHandler, MiddlewareHandler } from '../@types/astro.js';
-import { callEndpoint, createAPIContext } from './endpoint/index.js';
+import type { ComponentInstance, EndpointHandler } from '../@types/astro.js';
+import { renderEndpoint } from '../runtime/server/endpoint.js';
+import { attachCookiesToResponse } from './cookies/response.js';
+import { createAPIContext } from './endpoint/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { renderPage } from './render/core.js';
 import { type Environment, type RenderContext } from './render/index.js';
@@ -36,25 +38,13 @@ export class Pipeline {
 		Reflect.set(this.renderContext.request, Symbol.for('astro.routeData'), this.renderContext.route)
 		const { renderContext, environment } = this;
 		const { defaultLocale, locales, params, props, request, routing: routingStrategy } = renderContext;
-		const { adapterName, site } = environment;
+		const { adapterName, logger, site, serverLike } = environment;
 		const apiContext = createAPIContext({ adapterName, defaultLocale, locales, params, props, request, routingStrategy, site });
-
-		switch (renderContext.route.type) {
-			case 'page':
-			case 'fallback':
-			case 'redirect': {
-				return await callMiddleware(this.middleware, apiContext, () => renderPage({
-						mod: componentInstance,
-						renderContext,
-						env: environment,
-						cookies: apiContext.cookies,
-					}))
-			}
-			case 'endpoint': {
-				return await callEndpoint(componentInstance as any as EndpointHandler, environment, renderContext, this.middleware);
-			}
-			default:
-				throw new Error(`Couldn't find route of type [${renderContext.route.type}]`);
-		}
+		const terminalNext = renderContext.route.type === 'endpoint'
+			? () => renderEndpoint(componentInstance as any as EndpointHandler, apiContext, serverLike, logger)
+			: () => renderPage({ mod: componentInstance, renderContext, env: environment, cookies: apiContext.cookies });
+		const response = await callMiddleware(this.middleware, apiContext, terminalNext);
+		attachCookiesToResponse(response, apiContext.cookies);
+		return response;
 	}
 }
