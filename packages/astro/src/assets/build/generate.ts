@@ -3,7 +3,7 @@ import fs, { readFileSync } from 'node:fs';
 import { basename, join } from 'node:path/posix';
 import type PQueue from 'p-queue';
 import type { AstroConfig } from '../../@types/astro.js';
-import type { BuildPipeline } from '../../core/build/buildPipeline.js';
+import type { BuildEnvironment } from '../../core/build/environment.js';
 import { getOutDirWithinCwd } from '../../core/build/common.js';
 import { getTimeStat } from '../../core/build/util.js';
 import { AstroError } from '../../core/errors/errors.js';
@@ -47,11 +47,10 @@ type AssetEnv = {
 type ImageData = { data: Uint8Array; expires: number };
 
 export async function prepareAssetsGenerationEnv(
-	pipeline: BuildPipeline,
+	environment: BuildEnvironment,
 	totalCount: number
 ): Promise<AssetEnv> {
-	const config = pipeline.getConfig();
-	const logger = pipeline.getLogger();
+	const { config, logger } = environment;
 	let useCache = true;
 	const assetsCacheDir = new URL('assets/', config.cacheDir);
 	const count = { total: totalCount, current: 1 };

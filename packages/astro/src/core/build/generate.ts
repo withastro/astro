@@ -52,7 +52,7 @@ import {
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
-import { BuildPipeline } from './buildPipeline.js';
+import { BuildEnvironment } from './environment.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
 import {
 	cssOrder,
@@ -143,7 +143,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const ssr = isServerLikeOutput(opts.settings.config);
 	let manifest: SSRManifest;
 	if (ssr) {
-		manifest = await BuildPipeline.retrieveManifest(opts, internals);
+		manifest = await BuildEnvironment.retrieveManifest(opts, internals);
 	} else {
 		const baseDirectory = getOutputDirectory(opts.settings.config);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
@@ -163,13 +163,13 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			middleware
 		);
 	}
-	const pipeline = new BuildPipeline(opts, internals, manifest);
+	const environment = new BuildEnvironment(opts, internals, manifest);
+	const { config, logger } = environment;
 
 	const outFolder = ssr
 		? opts.settings.config.build.server
 		: getOutDirWithinCwd(opts.settings.config.outDir);
 
-	const logger = pipeline.getLogger();
 	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
 	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
 	if (ssr && !hasPrerenderedPages(internals)) {
@@ -180,8 +180,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const verb = ssr ? 'prerendering' : 'generating';
 	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
-	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
-	const config = pipeline.getConfig();
+	const pagesToGenerate = environment.retrieveRoutesToGenerate();
 	if (ssr) {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (pageData.route.prerender) {
@@ -199,7 +198,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 					// forcing to use undefined, so we fail in an expected way if the module is not even there.
 					const ssrEntry = ssrEntryPage?.pageModule;
 					if (ssrEntry) {
-						await generatePage(pageData, ssrEntry, builtPaths, pipeline);
+						await generatePage(pageData, ssrEntry, builtPaths, environment);
 					} else {
 						throw new Error(
 							`Unable to find the manifest for the module ${ssrEntryURLPage.toString()}. This is unexpected and likely a bug in Astro, please report.`
@@ -207,7 +206,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 					}
 				} else {
 					const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
-					await generatePage(pageData, ssrEntry, builtPaths, pipeline);
+					await generatePage(pageData, ssrEntry, builtPaths, environment);
 				}
 			}
 		}
@@ -215,15 +214,15 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (routeIsRedirect(pageData.route)) {
 				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, pipeline);
+				await generatePage(pageData, entry, builtPaths, environment);
 			} else if (routeIsFallback(pageData.route)) {
 				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, pipeline);
+				await generatePage(pageData, entry, builtPaths, environment);
 			} else {
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const entry: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
 
-				await generatePage(pageData, entry, builtPaths, pipeline);
+				await generatePage(pageData, entry, builtPaths, environment);
 			}
 		}
 	}
@@ -240,7 +239,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			.map((x) => x.transforms.size)
 			.reduce((a, b) => a + b, 0);
 		const cpuCount = os.cpus().length;
-		const assetsCreationEnvironment = await prepareAssetsGenerationEnv(pipeline, totalCount);
+		const assetsCreationEnvironment = await prepareAssetsGenerationEnv(environment, totalCount);
 		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
 
 		const assetsTimer = performance.now();
@@ -257,7 +256,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 
 	await runHookBuildGenerated({
 		config: opts.settings.config,
-		logger: pipeline.getLogger(),
+		logger: environment.logger,
 	});
 }
 
@@ -265,15 +264,13 @@ async function generatePage(
 	pageData: PageBuildData,
 	ssrEntry: SinglePageBuiltModule,
 	builtPaths: Set<string>,
-	pipeline: BuildPipeline
+	environment: BuildEnvironment
 ) {
 	// prepare information we need
-	const logger = pipeline.getLogger();
-	const config = pipeline.getConfig();
-	const manifest = pipeline.getManifest();
+	const { config, internals, logger, manifest } = environment;
 	const pageModulePromise = ssrEntry.page;
 	const onRequest = manifest.middleware;
-	const pageInfo = getPageDataByComponent(pipeline.getInternals(), pageData.route.component);
+	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
 
 	// Calculate information of the page, like scripts, links and styles
 	const styles = pageData.styles
@@ -291,10 +288,10 @@ async function generatePage(
 		manifest.buildFormat
 	);
 	if (config.i18n && i18nMiddleware) {
-		pipeline.setMiddlewareFunction(sequence(i18nMiddleware, onRequest));
-		pipeline.onBeforeRenderRoute(i18nPipelineHook);
+		environment.setMiddlewareFunction(sequence(i18nMiddleware, onRequest));
+		environment.onBeforeRenderRoute(i18nPipelineHook);
 	} else {
-		pipeline.setMiddlewareFunction(onRequest);
+		environment.setMiddlewareFunction(onRequest);
 	}
 	if (!pageModulePromise) {
 		throw new Error(
@@ -317,16 +314,16 @@ async function generatePage(
 				: magenta('λ');
 		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
 		// Get paths for the route, calling getStaticPaths if needed.
-		const paths = await getPathsForRoute(route, pageModule, pipeline, builtPaths);
+		const paths = await getPathsForRoute(route, pageModule, environment, builtPaths);
 		let timeStart = performance.now();
 		let prevTimeEnd = timeStart;
 		for (let i = 0; i < paths.length; i++) {
 			const path = paths[i];
-			pipeline.env.logger.debug('build', `Generating: ${path}`);
-			const filePath = getOutputFilename(pipeline.getConfig(), path, pageData.route.type);
+			environment.logger.debug('build', `Generating: ${path}`);
+			const filePath = getOutputFilename(config, path, pageData.route.type);
 			const lineIcon = i === paths.length - 1 ? '└─' : '├─';
 			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
-			await generatePath(path, pipeline, generationOptions, route);
+			await generatePath(path, environment, generationOptions, route);
 			const timeEnd = performance.now();
 			const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 			const timeIncrease = `(+${timeChange})`;
@@ -346,11 +343,10 @@ function* eachRouteInRouteData(data: PageBuildData) {
 async function getPathsForRoute(
 	route: RouteData,
 	mod: ComponentInstance,
-	pipeline: BuildPipeline,
+	environment: BuildEnvironment,
 	builtPaths: Set<string>
 ): Promise<Array<string>> {
-	const opts = pipeline.getStaticBuildOptions();
-	const logger = pipeline.getLogger();
+	const { logger, options, serverLike } = environment;
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
@@ -365,9 +361,9 @@ async function getPathsForRoute(
 		const staticPaths = await callGetStaticPaths({
 			mod,
 			route,
-			routeCache: opts.routeCache,
+			routeCache: options.routeCache,
 			logger,
-			ssr: isServerLikeOutput(opts.settings.config),
+			ssr: serverLike,
 		}).catch((err) => {
 			logger.debug('build', `├── ${bold(red('✗'))} ${route.component}`);
 			throw err;
@@ -401,7 +397,7 @@ async function getPathsForRoute(
 				// NOTE: The same URL may match multiple routes in the manifest.
 				// Routing priority needs to be verified here for any duplicate
 				// paths to ensure routing priority rules are enforced in the final build.
-				const matchedRoute = matchRoute(staticPath, opts.manifest);
+				const matchedRoute = matchRoute(staticPath, options.manifest);
 				return matchedRoute === route;
 			});
 
@@ -500,13 +496,12 @@ interface GeneratePathOptions {
 }
 async function generatePath(
 	pathname: string,
-	pipeline: BuildPipeline,
+	environment: BuildEnvironment,
 	gopts: GeneratePathOptions,
 	route: RouteData
 ) {
 	const { mod, scripts: hoistedScripts, styles: _styles } = gopts;
-	const manifest = pipeline.getManifest();
-	const logger = pipeline.getLogger();
+	const { config, internals, logger, manifest, options, serverLike, settings } = environment;
 	logger.debug('build', `Generating: ${pathname}`);
 
 	const links = new Set<never>();
@@ -517,8 +512,8 @@ async function generatePath(
 	);
 	const styles = createStylesheetElementSet(_styles, manifest.base, manifest.assetsPrefix);
 
-	if (pipeline.getSettings().scripts.some((script) => script.stage === 'page')) {
-		const hashedFilePath = pipeline.getInternals().entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
+	if (settings.scripts.some((script) => script.stage === 'page')) {
+		const hashedFilePath = internals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
 		if (typeof hashedFilePath !== 'string') {
 			throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
 		}
@@ -530,7 +525,7 @@ async function generatePath(
 	}
 
 	// Add all injected scripts to the page.
-	for (const script of pipeline.getSettings().scripts) {
+	for (const script of settings.scripts) {
 		if (script.stage === 'head-inline') {
 			scripts.add({
 				props: {},
@@ -541,26 +536,25 @@ async function generatePath(
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	if (route.type === 'page') {
-		addPageName(pathname, pipeline.getStaticBuildOptions());
+		addPageName(pathname, options);
 	}
 
-	const ssr = isServerLikeOutput(pipeline.getConfig());
 	const url = getUrlForPath(
 		pathname,
-		pipeline.getConfig().base,
-		pipeline.getStaticBuildOptions().origin,
-		pipeline.getConfig().build.format,
-		pipeline.getConfig().trailingSlash,
+		config.base,
+		options.origin,
+		config.build.format,
+		config.trailingSlash,
 		route.type
 	);
 
 	const request = createRequest({
 		url,
 		headers: new Headers(),
-		logger: pipeline.getLogger(),
-		ssr,
+		logger,
+		ssr: serverLike,
 	});
-	const i18n = pipeline.getConfig().i18n;
+	const { i18n } = config;
 
 	const renderContext = await createRenderContext({
 		pathname,
@@ -570,7 +564,7 @@ async function generatePath(
 		styles,
 		links,
 		route,
-		env: pipeline.env,
+		env: environment,
 		mod,
 		locales: i18n?.locales,
 		routing: i18n?.routing,
@@ -581,7 +575,7 @@ async function generatePath(
 
 	let response: Response;
 	try {
-		response = await pipeline.renderRoute(renderContext, mod);
+		response = await environment.renderRoute(renderContext, mod);
 	} catch (err) {
 		if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
 			(err as SSRError).id = route.component;
@@ -591,11 +585,11 @@ async function generatePath(
 
 	if (response.status >= 300 && response.status < 400) {
 		// If redirects is set to false, don't output the HTML
-		if (!pipeline.getConfig().build.redirects) {
+		if (!config.build.redirects) {
 			return;
 		}
 		const locationSite = getRedirectLocationOrThrow(response.headers);
-		const siteURL = pipeline.getConfig().site;
+		const siteURL = config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(renderContext.request.url).pathname;
 		// A short delay causes Google to interpret the redirect as temporary.
@@ -609,7 +603,7 @@ async function generatePath(
 <body>
 	<a href="${location}">Redirecting from <code>${fromPath}</code> to <code>${location}</code></a>
 </body>`;
-		if (pipeline.getConfig().compressHTML === true) {
+		if (config.compressHTML === true) {
 			body = body.replaceAll('\n', '');
 		}
 		// A dynamic redirect, set the location so that integrations know about it.
@@ -622,8 +616,8 @@ async function generatePath(
 		body = Buffer.from(await response.arrayBuffer());
 	}
 
-	const outFolder = getOutFolder(pipeline.getConfig(), pathname, route);
-	const outFile = getOutFile(pipeline.getConfig(), outFolder, pathname, route);
+	const outFolder = getOutFolder(config, pathname, route);
+	const outFile = getOutFile(config, outFolder, pathname, route);
 	route.distURL = outFile;
 
 	await fs.promises.mkdir(outFolder, { recursive: true });
