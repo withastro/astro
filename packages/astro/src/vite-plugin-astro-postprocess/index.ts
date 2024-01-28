@@ -5,13 +5,13 @@ import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
 import { isMarkdownFile } from '../core/util.js';
 import { resolveConfig } from '../core/config/config.js';
-import { z } from "zod";
+import type { jsonDataFile } from "../@types/astro.js";
 
 // Check for `Astro.glob()`. Be very forgiving of whitespace. False positives are okay.
 const ASTRO_GLOB_REGEX = /Astro2?\s*\.\s*glob\s*\(/;
 
-export default async function astro(): Plugin {
-	const { userConfig, _ } = resolveConfig(inlineConfig, 'build');
+export default async function astro(): Promise<Plugin> {
+	const configPromise = resolveConfig(inlineConfig, 'build'); // TODO: get the user config
 	return {
 		name: 'astro:postprocess',
 		async transform(code, id) {
@@ -31,10 +31,10 @@ export default async function astro(): Plugin {
 				// Do the following for .json files according to the specefied schema in the astro config:
 				// - Type-check
 				// - Transform image URLs into objects for use with the astro image component as the src property
-				(await userConfig).jsonDataFiles.map(fileProps => {
+				(await configPromise).userConfig.jsonDataFiles.map((fileProps: jsonDataFile) => {
 					if (fileProps.path == id) {
-                        return {
-							code: z.parse().toString()
+            return {
+							code: fileProps.schema.parse(code.toString()).toString()
 						};
 					}
 				})

@@ -127,7 +127,7 @@ export async function createVite(
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
 			mdxVitePlugin({ settings, logger }),
-			astroPostprocessVitePlugin(),
+			await astroPostprocessVitePlugin(),
 			astroIntegrationsContainerPlugin({ settings, logger }),
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPlugin(),
