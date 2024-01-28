@@ -4,16 +4,19 @@ import { walk } from 'estree-walker';
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
 import { isMarkdownFile } from '../core/util.js';
+import { resolveConfig } from '../core/config/config.js';
+import { z } from "zod";
 
 // Check for `Astro.glob()`. Be very forgiving of whitespace. False positives are okay.
 const ASTRO_GLOB_REGEX = /Astro2?\s*\.\s*glob\s*\(/;
 
-export default function astro(): Plugin {
+export default async function astro(): Plugin {
+	const { userConfig, _ } = resolveConfig(inlineConfig, 'build');
 	return {
 		name: 'astro:postprocess',
 		async transform(code, id) {
-			// Currently only supported in ".astro" and ".md" (or any alternative markdown file extension like `.markdown`) files
-			if (!id.endsWith('.astro') && !isMarkdownFile(id)) {
+			// Currently only supported in ".astro", ".json" and ".md" (or any alternative markdown file extension like `.markdown`) files
+			if (!id.endsWith('.astro') && !isMarkdownFile(id) && !id.endsWith('.json')) {
 				return null;
 			}
 
@@ -21,6 +24,21 @@ export default function astro(): Plugin {
 			// Only perform the transform if this function is found
 			if (!ASTRO_GLOB_REGEX.test(code)) {
 				return null;
+			}
+			
+			// Early return to process JSON code
+			if (id.endsWith('.json')) {
+				// Do the following for .json files according to the specefied schema in the astro config:
+				// - Type-check
+				// - Transform image URLs into objects for use with the astro image component as the src property
+				(await userConfig).jsonDataFiles.map(fileProps => {
+					if (fileProps.path == id) {
+                        return {
+							code: z.parse().toString()
+						};
+					}
+				})
+				return null
 			}
 
 			let s: MagicString | undefined;
