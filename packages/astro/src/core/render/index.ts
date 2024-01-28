@@ -19,8 +19,4 @@ export interface SSROptions {
 	request: Request;
 	/** optional, in case we need to render something outside a dev server */
 	route: RouteData;
-	/**
-	 * Optional middlewares
-	 */
-	middleware?: AstroMiddlewareInstance;
 }

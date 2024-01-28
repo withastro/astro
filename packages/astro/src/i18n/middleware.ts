@@ -1,12 +1,5 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
-import type {
-	APIContext,
-	Locales,
-	MiddlewareHandler,
-	RouteData,
-	SSRManifest,
-} from '../@types/astro.js';
-import type { PipelineHookFunction } from '../core/pipeline.js';
+import type { APIContext, Locales, MiddlewareHandler, RouteData, SSRManifest } from '../@types/astro.js';
 import { getPathByLocale, normalizeTheLocale } from './index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { ROUTE_DATA_SYMBOL } from '../core/constants.js';
@@ -212,13 +205,6 @@ export function createI18nMiddleware(
 		return response;
 	};
 }
-
-/**
- * This pipeline hook attaches a `RouteData` object to the `Request`
- */
-export const i18nPipelineHook: PipelineHookFunction = (ctx) => {
-	Reflect.set(ctx.request, routeDataSymbol, ctx.route);
-};
 
 /**
  * Checks if the current locale doesn't belong to a configured domain

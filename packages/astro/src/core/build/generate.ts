@@ -29,13 +29,11 @@ import {
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
-import { createI18nMiddleware, i18nPipelineHook } from '../../i18n/middleware.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifestI18n } from '../app/types.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { sequence } from '../middleware/index.js';
 import { routeIsFallback } from '../redirects/helpers.js';
 import {
 	RedirectSinglePageBuiltModule,
@@ -557,17 +555,9 @@ async function generatePath(
 		routing: i18n?.routing,
 		defaultLocale: i18n?.defaultLocale,
 	});
-	const i18nMiddleware = createI18nMiddleware(
-		manifest.i18n,
-		manifest.base,
-		manifest.trailingSlash,
-		manifest.buildFormat
-	)
 	const pipeline = environment.createPipeline({
 		pathname,
 		renderContext,
-		hookBefore: i18nPipelineHook,
-		middleware: sequence(i18nMiddleware, manifest.middleware)
 	})
 
 	let body: string | Uint8Array;

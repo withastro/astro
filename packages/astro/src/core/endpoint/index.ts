@@ -143,7 +143,7 @@ export async function callEndpoint(
 	mod: EndpointHandler,
 	env: Environment,
 	ctx: RenderContext,
-	onRequest: MiddlewareHandler | undefined
+	onRequest: MiddlewareHandler
 ): Promise<Response> {
 	const context = createAPIContext({
 		request: ctx.request,
@@ -156,14 +156,9 @@ export async function callEndpoint(
 		locales: ctx.locales,
 	});
 
-	let response;
-	if (onRequest) {
-		response = await callMiddleware(onRequest, context, async () => {
-			return await renderEndpoint(mod, context, env.serverLike, env.logger);
-		});
-	} else {
-		response = await renderEndpoint(mod, context, env.serverLike, env.logger);
-	}
+	const response = await callMiddleware(onRequest, context, async () => {
+		return await renderEndpoint(mod, context, env.serverLike, env.logger);
+	});
 
 	attachCookiesToResponse(response, context.cookies);
 	return response;

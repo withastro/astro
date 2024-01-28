@@ -1,8 +1,10 @@
 import type { MiddlewareHandler, RuntimeMode, SSRLoadedRenderer, SSRManifest } from '../../@types/astro.js';
 import type { Logger } from '../logger/core.js';
 import type { RouteCache } from './route-cache.js';
-import { Pipeline, type PipelineHookFunction } from '../pipeline.js';
+import { Pipeline } from '../pipeline.js';
 import type { RenderContext } from './context.js';
+import { createI18nMiddleware } from '../../i18n/middleware.js';
+import { sequence } from '../middleware/index.js';
 
 /**
  * The environment represents the static parts of rendering that do not change between requests.
@@ -10,6 +12,8 @@ import type { RenderContext } from './context.js';
  * Thus, an environment is created once at process start and then used by every pipeline.
  */
 export abstract class Environment {
+	readonly internalMiddleware: MiddlewareHandler;
+
 	constructor(
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
@@ -37,9 +41,11 @@ export abstract class Environment {
 		 * Used for `Astro.site`.
 		 */
 		readonly site = manifest.site,
-	) {}
+	) {
+		this.internalMiddleware = createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat);
+	}
 
-	createPipeline({ renderContext, pathname, hookBefore, middleware }: { pathname: string; renderContext: RenderContext; hookBefore?: PipelineHookFunction; middleware?: MiddlewareHandler }) {
-		return new Pipeline(this, renderContext.locals ?? {}, renderContext.request, pathname, renderContext, hookBefore, middleware);
+	createPipeline({ renderContext, pathname, middleware }: { pathname: string; renderContext: RenderContext; middleware?: MiddlewareHandler }) {
+		return new Pipeline(this, renderContext.locals ?? {}, renderContext.request, pathname, renderContext, sequence(this.internalMiddleware, middleware ?? this.middleware));
 	}
 }

@@ -13,7 +13,6 @@ import { getInfoOutput } from '../cli/info/index.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { req } from '../core/messages.js';
-import { sequence } from '../core/middleware/index.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import {
 	createRenderContext,
@@ -25,7 +24,6 @@ import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { isPage, resolveIdToUrl } from '../core/util.js';
 import { normalizeTheLocale } from '../i18n/index.js';
-import { createI18nMiddleware, i18nPipelineHook } from '../i18n/middleware.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
@@ -181,8 +179,6 @@ export async function handleRoute({
 	let mod: ComponentInstance | undefined = undefined;
 	let options: SSROptions | undefined = undefined;
 	let route: RouteData;
-	const middleware = await loadMiddleware(environment.loader);
-	const onRequest: MiddlewareHandler = middleware.onRequest
 	
 	if (!matchedRoute) {
 		if (config.i18n) {
@@ -274,7 +270,6 @@ export async function handleRoute({
 			pathname,
 			request,
 			route,
-			middleware,
 		};
 
 		mod = options.preload;
@@ -301,17 +296,10 @@ export async function handleRoute({
 			defaultLocale: i18n?.defaultLocale,
 		});
 	}
-	const i18Middleware = createI18nMiddleware(
-		manifest.i18n,
-		config.base,
-		config.trailingSlash,
-		config.build.format
-	);
 	const pipeline = environment.createPipeline({
 		pathname,
 		renderContext,
-		hookBefore: i18nPipelineHook,
-		middleware: sequence(i18Middleware, onRequest),
+		middleware: (await loadMiddleware(environment.loader)).onRequest,
 	});
 
 	let response = await pipeline.renderRoute(mod);

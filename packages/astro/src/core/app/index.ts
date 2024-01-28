@@ -5,13 +5,11 @@ import type {
 	SSRElement,
 	SSRManifest,
 } from '../../@types/astro.js';
-import { createI18nMiddleware, i18nPipelineHook } from '../../i18n/middleware.js';
 import { REROUTE_DIRECTIVE_HEADER } from '../../runtime/server/consts.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
-import { sequence } from '../middleware/index.js';
 import {
 	appendForwardSlash,
 	collapseDuplicateSlashes,
@@ -20,7 +18,7 @@ import {
 	removeTrailingForwardSlash,
 } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { Environment, createRenderContext, type RenderContext } from '../render/index.js';
+import { createRenderContext, type RenderContext } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -325,18 +323,7 @@ export class App {
 		);
 		let response;
 		try {
-			const i18nMiddleware = createI18nMiddleware(
-				this.#manifest.i18n,
-				this.#manifest.base,
-				this.#manifest.trailingSlash,
-				this.#manifest.buildFormat
-			);
-			const pipeline = this.#environment.createPipeline({
-				pathname,
-				renderContext,
-				hookBefore: i18nPipelineHook,
-				middleware: sequence(i18nMiddleware, this.#manifest.middleware)
-			})
+			const pipeline = this.#environment.createPipeline({ pathname, renderContext });
 			response = await pipeline.renderRoute(pageModule);
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
