@@ -8,8 +8,7 @@ import type {
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Pipeline } from '../core/pipeline.js';
-import type { Environment } from '../core/render/index.js';
-import { createEnvironment, loadRenderer } from '../core/render/index.js';
+import { Environment, loadRenderer } from '../core/render/index.js';
 import { RouteCache } from '../core/render/route-cache.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { createResolve } from './resolve.js';
@@ -71,20 +70,16 @@ export default class DevPipeline extends Pipeline {
 		loader: ModuleLoader
 	): Environment {
 		const mode: RuntimeMode = 'development';
-		return createEnvironment({
-			adapterName: manifest.adapterName,
+		return new Environment(
 			logger,
+			manifest,
 			mode,
-			// This will be overridden in the dev server
-			renderers: [],
-			clientDirectives: manifest.clientDirectives,
-			compressHTML: manifest.compressHTML,
-			resolve: createResolve(loader, settings.config.root),
-			routeCache: new RouteCache(logger, mode),
-			site: manifest.site,
-			ssr: isServerLikeOutput(settings.config),
-			streaming: true,
-		});
+			[],
+			createResolve(loader, settings.config.root),
+			isServerLikeOutput(settings.config),
+			true,
+			new RouteCache(logger, mode),
+		);
 	}
 
 	async handleFallback() {}

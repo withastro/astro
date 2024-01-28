@@ -20,7 +20,7 @@ import {
 	removeTrailingForwardSlash,
 } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { createEnvironment, createRenderContext, type RenderContext } from '../render/index.js';
+import { Environment, createRenderContext, type RenderContext } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -126,14 +126,12 @@ export class App {
 	 * @private
 	 */
 	#createEnvironment(streaming = false) {
-		return createEnvironment({
-			adapterName: this.#manifest.adapterName,
-			logger: this.#logger,
-			mode: 'production',
-			compressHTML: this.#manifest.compressHTML,
-			renderers: this.#manifest.renderers,
-			clientDirectives: this.#manifest.clientDirectives,
-			resolve: async (specifier: string) => {
+		return new Environment(
+			this.#logger,
+			this.#manifest,
+			'production',
+			this.#manifest.renderers,
+			async (specifier: string) => {
 				if (!(specifier in this.#manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);
 				}
@@ -148,11 +146,10 @@ export class App {
 					}
 				}
 			},
-			routeCache: new RouteCache(this.#logger),
-			site: this.#manifest.site,
-			ssr: true,
+			true,
 			streaming,
-		});
+			new RouteCache(this.#logger),
+		);
 	}
 
 	set setManifestData(newManifestData: ManifestData) {

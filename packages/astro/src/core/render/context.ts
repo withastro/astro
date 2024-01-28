@@ -57,7 +57,7 @@ export async function createRenderContext(
 		routeCache: options.env.routeCache,
 		pathname: pathname,
 		logger: options.env.logger,
-		ssr: options.env.ssr,
+		ssr: options.env.serverLike,
 	});
 
 	const context: RenderContext = {

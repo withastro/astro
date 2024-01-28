@@ -1,39 +1,39 @@
-import type { RuntimeMode, SSRLoadedRenderer } from '../../@types/astro.js';
+import type { MiddlewareHandler, RuntimeMode, SSRLoadedRenderer, SSRManifest } from '../../@types/astro.js';
 import type { Logger } from '../logger/core.js';
 import type { RouteCache } from './route-cache.js';
 
 /**
- * An environment represents the static parts of rendering that do not change
- * between requests. These are mostly known when the server first starts up and do not change.
- * Thus, they can be created once and passed through to renderPage on each request.
+ * The environment represents the static parts of rendering that do not change between requests.
+ * These are mostly known when the server first starts up and do not change.
+ * Thus, an environment is created once at process start and then used by every pipeline.
  */
-export interface Environment {
-	/**
-	 * Used to provide better error messages for `Astro.clientAddress`
-	 */
-	adapterName?: string;
-	/** logging options */
-	logger: Logger;
-	/** "development" or "production" */
-	mode: RuntimeMode;
-	compressHTML: boolean;
-	renderers: SSRLoadedRenderer[];
-	clientDirectives: Map<string, string>;
-	resolve: (s: string) => Promise<string>;
-	routeCache: RouteCache;
-	/**
-	 * Used for `Astro.site`
-	 */
-	site?: string;
-	/**
-	 * Value of Astro config's `output` option, true if "server" or "hybrid"
-	 */
-	ssr: boolean;
-	streaming: boolean;
-}
-
-export type CreateEnvironmentArgs = Environment;
-
-export function createEnvironment(options: CreateEnvironmentArgs): Environment {
-	return options;
+export class Environment {
+	constructor(
+		readonly logger: Logger,
+		readonly manifest: SSRManifest,
+		/**
+		 * "development" or "production"
+		 */
+		readonly mode: RuntimeMode,
+		public renderers: SSRLoadedRenderer[],
+		readonly resolve: (s: string) => Promise<string>,
+		/**
+		 * Based on Astro config's `output` option, `true` if "server" or "hybrid".
+		 */
+		readonly serverLike: boolean,
+		readonly streaming: boolean,
+		readonly routeCache: RouteCache,
+		/**
+		 * Used to provide better error messages for `Astro.clientAddress`
+		 */
+		readonly adapterName = manifest.adapterName,
+		readonly clientDirectives = manifest.clientDirectives,
+		readonly compressHTML = manifest.compressHTML,
+		readonly i18n = manifest.i18n,
+		readonly middleware = manifest.middleware,
+		/**
+		 * Used for `Astro.site`.
+		 */
+		readonly site = manifest.site,
+	) {}
 }

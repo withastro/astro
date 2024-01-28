@@ -5,7 +5,7 @@ import type { SSRManifest } from '../app/types.js';
 import type { Logger } from '../logger/core.js';
 import { Pipeline } from '../pipeline.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
-import { createEnvironment } from '../render/index.js';
+import { Environment } from '../render/index.js';
 import { createAssetLink } from '../render/ssr-element.js';
 import type { BuildInternals } from './internal.js';
 import {
@@ -33,14 +33,12 @@ export class BuildPipeline extends Pipeline {
 		const ssr = isServerLikeOutput(staticBuildOptions.settings.config);
 		const resolveCache = new Map<string, string>();
 		super(
-			createEnvironment({
-				adapterName: manifest.adapterName,
-				logger: staticBuildOptions.logger,
-				mode: staticBuildOptions.mode,
-				renderers: manifest.renderers,
-				clientDirectives: manifest.clientDirectives,
-				compressHTML: manifest.compressHTML,
-				async resolve(specifier: string) {
+			new Environment(
+				staticBuildOptions.logger,
+				manifest,
+				staticBuildOptions.mode,
+				manifest.renderers,
+				async function resolve(specifier) {
 					if (resolveCache.has(specifier)) {
 						return resolveCache.get(specifier)!;
 					}
@@ -58,11 +56,10 @@ export class BuildPipeline extends Pipeline {
 					resolveCache.set(specifier, assetLink);
 					return assetLink;
 				},
-				routeCache: staticBuildOptions.routeCache,
-				site: manifest.site,
 				ssr,
-				streaming: true,
-			})
+				true,
+				staticBuildOptions.routeCache
+			)
 		);
 		this.#internals = internals;
 		this.#staticBuildOptions = staticBuildOptions;

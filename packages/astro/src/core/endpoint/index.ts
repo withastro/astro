@@ -159,10 +159,10 @@ export async function callEndpoint(
 	let response;
 	if (onRequest) {
 		response = await callMiddleware(onRequest, context, async () => {
-			return await renderEndpoint(mod, context, env.ssr, env.logger);
+			return await renderEndpoint(mod, context, env.serverLike, env.logger);
 		});
 	} else {
-		response = await renderEndpoint(mod, context, env.ssr, env.logger);
+		response = await renderEndpoint(mod, context, env.serverLike, env.logger);
 	}
 
 	attachCookiesToResponse(response, context.cookies);

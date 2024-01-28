@@ -55,7 +55,7 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		partial: !!mod.partial,
 		site: env.site,
 		scripts: renderContext.scripts,
-		ssr: env.ssr,
+		ssr: env.serverLike,
 		status: renderContext.status ?? 200,
 		cookies,
 		locals: renderContext.locals ?? {},

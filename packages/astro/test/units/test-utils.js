@@ -6,7 +6,7 @@ import npath from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getDefaultClientDirectives } from '../../dist/core/client-directive/index.js';
 import { nodeLogDestination } from '../../dist/core/logger/node.js';
-import { createEnvironment } from '../../dist/core/render/index.js';
+import { Environment } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
 import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
@@ -181,25 +181,27 @@ export function buffersToString(buffers) {
 export const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 
 /**
- * @param {Partial<import('../../src/core/render/environment.js').CreateEnvironmentArgs>} options
- * @returns {import('../../src/core/render/environment.js').Environment}
+ * @param {Partial<Environment>} options
+ * @returns {Environment}
  */
 export function createBasicEnvironment(options = {}) {
 	const mode = options.mode ?? 'development';
-	return createEnvironment({
-		...options,
-		markdown: {
-			...(options.markdown ?? {}),
-		},
-		mode,
-		renderers: options.renderers ?? [],
-		clientDirectives: getDefaultClientDirectives(),
-		resolve: options.resolve ?? ((s) => Promise.resolve(s)),
-		routeCache: new RouteCache(options.logging, mode),
-		logger: options.logger ?? defaultLogger,
-		ssr: options.ssr ?? true,
-		streaming: options.streaming ?? true,
-	});
+	return new Environment(
+		options.logger ?? defaultLogger,
+		options.manifest ?? {},
+		options.mode ?? 'development',
+		options.renderers ?? [],
+		options.resolve ?? (s => Promise.resolve(s)),
+		options.serverLike ?? true,
+		options.streaming ?? true,
+		options.routeCache ?? new RouteCache(options.logging, mode),
+		options.adapterName,
+		options.clientDirectives ?? getDefaultClientDirectives(),
+		options.compressHTML,
+		options.i18n,
+		options.middleware,
+		options.site
+	);
 }
 
 /**
