@@ -37,6 +37,7 @@ function createContext({ request, params, userDefinedLocales = [] }: CreateConte
 		locales: userDefinedLocales,
 		defaultLocale: undefined,
 		routingStrategy: undefined,
+		route: new URL(request.url).pathname,
 	});
 }
 

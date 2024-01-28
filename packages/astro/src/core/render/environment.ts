@@ -46,6 +46,6 @@ export abstract class Environment {
 	}
 
 	createPipeline({ renderContext, pathname, middleware }: { pathname: string; renderContext: RenderContext; middleware?: MiddlewareHandler }) {
-		return new Pipeline(this, renderContext.locals ?? {}, renderContext.request, pathname, renderContext, sequence(this.internalMiddleware, middleware ?? this.middleware));
+		return new Pipeline(this, renderContext.locals ?? {}, sequence(this.internalMiddleware, middleware ?? this.middleware), pathname, renderContext);
 	}
 }

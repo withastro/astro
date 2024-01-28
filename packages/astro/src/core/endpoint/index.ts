@@ -25,6 +25,7 @@ type CreateAPIContext = {
 	locales: Locales | undefined;
 	routingStrategy: RoutingStrategies | undefined;
 	defaultLocale: string | undefined;
+	route: string;
 };
 
 /**
@@ -41,6 +42,7 @@ export function createAPIContext({
 	locales,
 	routingStrategy,
 	defaultLocale,
+	route
 }: CreateAPIContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
@@ -88,7 +90,7 @@ export function createAPIContext({
 				return currentLocale;
 			}
 			if (locales) {
-				currentLocale = computeCurrentLocale(request, locales, routingStrategy, defaultLocale);
+				currentLocale = computeCurrentLocale(route, locales, routingStrategy, defaultLocale);
 			}
 
 			return currentLocale;

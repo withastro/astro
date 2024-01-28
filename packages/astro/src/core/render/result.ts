@@ -54,6 +54,7 @@ export interface CreateResultArgs {
 	cookies?: AstroCookies;
 	locales: Locales | undefined;
 	defaultLocale: string | undefined;
+	route: string;
 	routingStrategy: RoutingStrategies | undefined;
 }
 
@@ -233,7 +234,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					}
 					if (args.locales) {
 						currentLocale = computeCurrentLocale(
-							request,
+							url.pathname,
 							args.locales,
 							args.routingStrategy,
 							args.defaultLocale

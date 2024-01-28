@@ -12,10 +12,8 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Environment } from './environment.js';
 import { getParamsAndProps } from './params-and-props.js';
 import type { RoutingStrategies } from '../config/schema.js';
-import { ROUTE_DATA_SYMBOL } from '../constants.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
-const routeDataSymbol = Symbol.for(ROUTE_DATA_SYMBOL);
 
 /**
  * The RenderContext represents the parts of rendering that are specific to one request.
@@ -240,19 +238,12 @@ export function computePreferredLocaleList(request: Request, locales: Locales): 
 }
 
 export function computeCurrentLocale(
-	request: Request,
+	pathname: string,
 	locales: Locales,
 	routingStrategy: RoutingStrategies | undefined,
 	defaultLocale: string | undefined
 ): undefined | string {
-	const routeData: RouteData | undefined = Reflect.get(request, routeDataSymbol);
-	if (!routeData) {
-		return defaultLocale;
-	}
-	// Typically, RouteData::pathname has the correct information in SSR, but it's not available in SSG, so we fall back
-	// to use the pathname from the Request
-	const pathname = routeData.pathname ?? new URL(request.url).pathname;
-	for (const segment of pathname.split('/').filter(Boolean)) {
+	for (const segment of pathname.split('/')) {
 		for (const locale of locales) {
 			if (typeof locale === 'string') {
 				// we skip ta locale that isn't present in the current segment

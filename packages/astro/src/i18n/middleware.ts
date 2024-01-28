@@ -1,11 +1,9 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
-import type { APIContext, Locales, MiddlewareHandler, RouteData, SSRManifest } from '../@types/astro.js';
+import type { APIContext, Locales, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
 import { getPathByLocale, normalizeTheLocale } from './index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
-import { ROUTE_DATA_SYMBOL } from '../core/constants.js';
-import type { SSRManifestI18n } from '../core/app/types.js';
-
-const routeDataSymbol = Symbol.for(ROUTE_DATA_SYMBOL);
+import { Pipeline } from '../core/pipeline.js';
+import type { SSRManifestI18n } from '../core/app/types.js'
 
 // Checks if the pathname has any locale, exception for the defaultLocale, which is ignored on purpose.
 function pathnameHasLocale(pathname: string, locales: Locales): boolean {
@@ -100,9 +98,9 @@ export function createI18nMiddleware(
 	};
 
 	return async (context, next) => {
-		const routeData: RouteData | undefined = Reflect.get(context.request, routeDataSymbol);
+		const type = Pipeline.get(context.request).renderContext.route.type;
 		// If the route we're processing is not a page, then we ignore it
-		if (routeData?.type !== 'page' && routeData?.type !== 'fallback') {
+		if (type !== 'page' && type !== 'fallback') {
 			return await next();
 		}
 		const currentLocale = context.currentLocale;

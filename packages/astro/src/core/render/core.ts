@@ -62,6 +62,7 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		locales: renderContext.locales,
 		defaultLocale: renderContext.defaultLocale,
 		routingStrategy: renderContext.routing,
+		route: renderContext.route.route,
 	});
 
 	const response = await runtimeRenderPage(
