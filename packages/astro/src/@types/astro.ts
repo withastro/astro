@@ -404,6 +404,11 @@ export interface ImageServiceConfig<T extends Record<string, any> = Record<strin
 	config?: T;
 }
 
+export interface jsonDataFile {
+	path: string;
+	schema: any; // TODO: type-check the zod schema
+}
+
 /**
  * Astro User Config
  * Docs: https://docs.astro.build/reference/configuration-reference/
@@ -414,6 +419,30 @@ export interface AstroUserConfig {
 	 * @kind heading
 	 * @name Top-Level Options
 	 */
+
+	/**
+	 * @docs
+	 * @name jsonDataFiles
+	 * @type {jsonDataFile[]}
+	 * @description
+	 * A list of objects that tell astro how to type-check your JSON which can allow strings to be converted to optimized images, EG:
+	 * 
+	 * ```js
+	 * export default defineConfig({
+	 *   jsonDataFiles: [
+	 *     {
+	 *       path: "/src/where/you/want/your/json/file/to/be",
+	 *       schama: ({ image }) => z.object({
+	 *         name: z.string(),
+	 *         description: z.string(),
+	 *         frontImage: image(),
+	 *       }),
+	 *     },
+	 *   ],
+	 * })
+	 * ```
+	 */
+	jsonDataFiles?: jsonDataFile[];
 
 	/**
 	 * @docs
