@@ -139,21 +139,23 @@ interface VercelISRConfig {
 	 * Its presence in the `__prerender_bypass` cookie will result in fresh responses being served, bypassing the cache.
 	 * Its presence in the `x-prerender-revalidate` header will result in a fresh response which will then be cached for all future requests to be used.
 	 * 
-	 * By default, none.
+	 * @default `undefined`
 	 */
 	bypassToken?: string;
 
 	/**
 	 * Expiration time (in seconds) before the pages will be re-generated.
 	 * 
-	 * By default, as long as the current deployment is in production.
+	 * Setting to `false` means that the page will stay cached as long as the current deployment is in production.
+	 * 
+	 * @default `false`
 	 */
-	revalidate?: number;
+	expiration?: number | false;
 
 	/**
 	 * Paths that will always be served fresh.
 	 * 
-	 * By default, none.
+	 * @default `[]`
 	 */
 	exclude?: string[];
 }
@@ -458,7 +460,7 @@ class VercelBuilder {
 		const prerenderConfig = new URL(`./functions/${functionName}.prerender-config.json`, this.config.outDir)
 		// https://vercel.com/docs/build-output-api/v3/primitives#prerender-configuration-file
 		await writeJson(prerenderConfig, {
-			expiration: isr.revalidate ?? false,
+			expiration: isr.expiration ?? false,
 			bypassToken: isr.bypassToken,
 			allowQuery: [ASTRO_PATH_PARAM],
 			passQuery: true

@@ -6,7 +6,7 @@ export default defineConfig({
 	adapter: vercel({
 		isr: {
 			bypassToken: "1c9e601d-9943-4e7c-9575-005556d774a8",
-			revalidate: 120,
+			expiration: 120,
 			exclude: ["/two"]
 		}
 	})
