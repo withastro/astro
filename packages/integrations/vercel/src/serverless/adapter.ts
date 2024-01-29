@@ -188,8 +188,6 @@ export default function vercelServerless({
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
 
-	const NTF_CACHE = Object.create(null);
-
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
@@ -354,11 +352,7 @@ export default function vercelServerless({
 					}
 				}
 				if (_middlewareEntryPoint) {
-					await createMiddlewareFolder({
-						functionName: MIDDLEWARE_PATH,
-						entry: _middlewareEntryPoint,
-						config: _config,
-					});
+					await builder.buildMiddlewareFolder(_middlewareEntryPoint, MIDDLEWARE_PATH);
 				}
 				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
 				// Output configuration
@@ -412,33 +406,6 @@ export default function vercelServerless({
 }
 
 type Runtime = `nodejs${string}.x`;
-
-interface CreateMiddlewareFolderArgs {
-	config: AstroConfig;
-	entry: URL;
-	functionName: string;
-}
-
-async function createMiddlewareFolder({ functionName, entry, config }: CreateMiddlewareFolderArgs) {
-	const functionFolder = new URL(`./functions/${functionName}.func/`, config.outDir);
-
-	await generateEdgeMiddleware(
-		entry,
-		new URL(VERCEL_EDGE_MIDDLEWARE_FILE, config.srcDir),
-		new URL('./middleware.mjs', functionFolder)
-	);
-
-	await writeJson(new URL(`./.vc-config.json`, functionFolder), {
-		runtime: 'edge',
-		entrypoint: 'middleware.mjs',
-	});
-}
-
-interface CreateFunctionFolderArgs {
-	functionName: string;
-	entry: URL;
-	isr: boolean | VercelISRConfig;
-}
 
 class VercelBuilder {
 	readonly NTF_CACHE = {}
@@ -495,6 +462,21 @@ class VercelBuilder {
 			bypassToken: isr.bypassToken,
 			allowQuery: [ASTRO_PATH_PARAM],
 			passQuery: true
+		});
+	}
+
+	async buildMiddlewareFolder(entry: URL, functionName: string) {
+		const functionFolder = new URL(`./functions/${functionName}.func/`, this.config.outDir);
+
+		await generateEdgeMiddleware(
+			entry,
+			new URL(VERCEL_EDGE_MIDDLEWARE_FILE, this.config.srcDir),
+			new URL('./middleware.mjs', functionFolder)
+		);
+	
+		await writeJson(new URL(`./.vc-config.json`, functionFolder), {
+			runtime: 'edge',
+			entrypoint: 'middleware.mjs',
 		});
 	}
 }
