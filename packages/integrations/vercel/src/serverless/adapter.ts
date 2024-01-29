@@ -17,7 +17,7 @@ import {
 } from '../image/shared.js';
 import { removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
-import { getRedirects } from '../lib/redirects.js';
+import { escapeRegex, getRedirects } from '../lib/redirects.js';
 import {
 	getSpeedInsightsViteConfig,
 	type VercelSpeedInsightsConfig,
@@ -263,7 +263,8 @@ export default function vercelServerless({
 				// isr functions do not have access to search params, this middleware removes them for the dev mode
 				if (isr) {
 					const exclude_ = typeof isr === "object" ? isr.exclude ?? [] : [];
-					const exclude = exclude_.concat("/_image").map(ex => new RegExp(ex));
+					// we create a regex to emulate vercel's production behavior
+					const exclude = exclude_.concat("/_image").map(ex => new RegExp(escapeRegex(ex)));
 					server.middlewares.use(function removeIsrParams(req, _, next) {
 						const { pathname } = new URL(`https://example.com${req.url}`);
 						if (exclude.some(ex => ex.test(pathname))) return next();
@@ -335,7 +336,8 @@ export default function vercelServerless({
 						if (isrConfig.exclude?.length) {
 							await builder.buildServerlessFolder(entryFile, NODE_PATH);
 							for (const route of isrConfig.exclude) {
-								routeDefinitions.push({ src: route, dest: NODE_PATH })
+								// vercel interprets src as a regex pattern, so we need to escape it
+								routeDefinitions.push({ src: escapeRegex(route), dest: NODE_PATH })
 							}
 						}
 					}
