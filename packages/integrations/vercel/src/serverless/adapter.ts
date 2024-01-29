@@ -305,6 +305,7 @@ export default function vercelServerless({
 				const excludeFiles = _excludeFiles.map((file) => new URL(file, _config.root));
 
 				const runtime = getRuntime(process, logger);
+				const builder = new VercelBuilder(_config, excludeFiles, includeFiles, logger, maxDuration);
 
 				// Multiple entrypoint support
 				if (_entryPoints.size) {
@@ -320,18 +321,8 @@ export default function vercelServerless({
 							? getRouteFuncName(route)
 							: getFallbackFuncName(entryFile);
 
-						await createFunctionFolder({
-							functionName: func,
-							runtime,
-							entry: entryFile,
-							config: _config,
-							logger,
-							NTF_CACHE,
-							includeFiles,
-							excludeFiles,
-							maxDuration,
-							isr,
-						});
+						await builder.buildServerlessFolder(entryFile, func);
+
 						routeDefinitions.push({
 							src: route.pattern.source,
 							dest: func,
@@ -339,40 +330,17 @@ export default function vercelServerless({
 					}
 				} else {
 					if (isr) {
-						await createFunctionFolder({
-							functionName: '_isr',
-							runtime,
-							entry: new URL(_serverEntry, _buildTempFolder),
-							config: _config,
-							logger,
-							NTF_CACHE,
-							includeFiles,
-							excludeFiles,
-							maxDuration,
-							isr,
-						});
-					}
-					if (isr === false || (isr && typeof isr === "object" && isr.exclude)) {
-						await createFunctionFolder({
-							functionName: NODE_PATH,
-							runtime,
-							entry: new URL(_serverEntry, _buildTempFolder),
-							config: _config,
-							logger,
-							NTF_CACHE,
-							includeFiles,
-							excludeFiles,
-							maxDuration,
-							isr: false,
-						});
-					}
-					if (isr && typeof isr === "object" && isr.exclude) {
-						for (const route of isr.exclude) {
-							routeDefinitions.push({
-								src: route,
-								dest: NODE_PATH,
-							})
+						const isrConfig = typeof isr === "object" ? isr : {};
+						await builder.buildISRFolder(new URL(_serverEntry, _buildTempFolder), '_isr', isrConfig);
+						if (isrConfig.exclude?.length) {
+							await builder.buildServerlessFolder(new URL(_serverEntry, _buildTempFolder), NODE_PATH);
+							for (const route of isrConfig.exclude) {
+								routeDefinitions.push({ src: route, dest: NODE_PATH })
+							}
 						}
+					}
+					else {
+						await builder.buildServerlessFolder(new URL(_serverEntry, _buildTempFolder), NODE_PATH);
 					}
 					const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 					for (const route of routes) {
@@ -466,70 +434,63 @@ async function createMiddlewareFolder({ functionName, entry, config }: CreateMid
 
 interface CreateFunctionFolderArgs {
 	functionName: string;
-	runtime: Runtime;
 	entry: URL;
-	config: AstroConfig;
-	logger: AstroIntegrationLogger;
-	NTF_CACHE: any;
-	includeFiles: URL[];
-	excludeFiles: URL[];
-	maxDuration: number | undefined;
 	isr: boolean | VercelISRConfig;
 }
 
-async function createFunctionFolder({
-	functionName,
-	runtime,
-	entry,
-	config,
-	logger,
-	NTF_CACHE,
-	includeFiles,
-	excludeFiles,
-	maxDuration,
-	isr
-}: CreateFunctionFolderArgs) {
-	// .vercel/output/functions/<name>.func/
-	const functionFolder = new URL(`./functions/${functionName}.func/`, config.outDir);
-	const packageJson = new URL(`./functions/${functionName}.func/package.json`, config.outDir);
-	const vcConfig = new URL(`./functions/${functionName}.func/.vc-config.json`, config.outDir);
-	const prerenderConfig = new URL(`./functions/${functionName}.prerender-config.json`, config.outDir)
+class VercelBuilder {
+	readonly NTF_CACHE = {}
 
-	// Copy necessary files (e.g. node_modules/)
-	const { handler } = await copyDependenciesToFunction(
-		{
-			entry,
-			outDir: functionFolder,
-			includeFiles,
-			excludeFiles,
-			logger,
-		},
-		NTF_CACHE
-	);
+	constructor(
+		readonly config: AstroConfig,
+		readonly excludeFiles: URL[],
+		readonly includeFiles: URL[],
+		readonly logger: AstroIntegrationLogger,
+		readonly maxDuration?: number,
+		readonly runtime = getRuntime(process, logger)
+	) {}
 
-	// Enable ESM
-	// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
-	await writeJson(packageJson, { type: 'module' });
+	async buildServerlessFolder(entry: URL, functionName: string) {
+		const { config, includeFiles, excludeFiles, logger, NTF_CACHE, runtime, maxDuration } = this;
+		// .vercel/output/functions/<name>.func/
+		const functionFolder = new URL(`./functions/${functionName}.func/`, config.outDir);
+		const packageJson = new URL(`./functions/${functionName}.func/package.json`, config.outDir);
+		const vcConfig = new URL(`./functions/${functionName}.func/.vc-config.json`, config.outDir);
 
-	// Serverless function config
-	// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
-	await writeJson(vcConfig, {
-		runtime,
-		handler: handler.replaceAll('\\', '/'),
-		launcherType: 'Nodejs',
-		maxDuration,
-		supportsResponseStreaming: true,
-	});
-	
-	if (isr) {
-		const {
-			revalidate: expiration = false,
-			bypassToken = undefined,
-		} = typeof isr === "object" ? isr : {};
+		// Copy necessary files (e.g. node_modules/)
+		const { handler } = await copyDependenciesToFunction(
+			{
+				entry,
+				outDir: functionFolder,
+				includeFiles,
+				excludeFiles,
+				logger,
+			},
+			NTF_CACHE
+		);
+
+		// Enable ESM
+		// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
+		await writeJson(packageJson, { type: 'module' });
+
+		// Serverless function config
+		// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
+		await writeJson(vcConfig, {
+			runtime,
+			handler: handler.replaceAll('\\', '/'),
+			launcherType: 'Nodejs',
+			maxDuration,
+			supportsResponseStreaming: true,
+		});
+	}
+
+	async buildISRFolder(entry: URL, functionName: string, isr: VercelISRConfig) {
+		this.buildServerlessFolder(entry, functionName);
+		const prerenderConfig = new URL(`./functions/${functionName}.prerender-config.json`, this.config.outDir)
 		// https://vercel.com/docs/build-output-api/v3/primitives#prerender-configuration-file
 		await writeJson(prerenderConfig, {
-			expiration,
-			bypassToken,
+			expiration: isr.revalidate ?? false,
+			bypassToken: isr.bypassToken,
 			allowQuery: [ASTRO_PATH_PARAM],
 			passQuery: true
 		});
