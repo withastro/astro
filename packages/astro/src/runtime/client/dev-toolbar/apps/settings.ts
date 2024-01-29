@@ -163,9 +163,8 @@ export default {
 						label.append(astroToggle);
 						break;
 					}
-					default: {
+					default:
 						break;
-					}
 				}
 
 				return label;

@@ -68,10 +68,8 @@ export function coerce(key: string, value: unknown) {
 			if (value === 'false' || value === 0) return false;
 			break;
 		}
-		// @ematipico: what should we do with the other types?
-		//  "bigint" | "symbol" | "undefined" | "object" | "function"
 		default:
-			break;
+			throw new Error(`Incorrect value for ${key}`);
 	}
 	return value as any;
 }

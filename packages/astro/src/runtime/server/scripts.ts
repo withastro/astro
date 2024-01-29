@@ -42,9 +42,8 @@ export function getPrescripts(result: SSRResult, type: PrescriptType, directive:
 			)};${islandScript}</script>`;
 		case 'directive':
 			return `<script>${getDirectiveScriptText(result, directive)}</script>`;
-		case null: {
+		case null:
 			break;
-		}
 	}
 	return '';
 }
