@@ -24,6 +24,7 @@ type ShikiTheme = NonNullable<ShikiConfig['theme']>;
 type ShikiTransformers = NonNullable<ShikiConfig['transformers']>;
 
 const ASTRO_CONFIG_DEFAULTS = {
+	jsonDataFiles: [],
 	root: '.',
 	srcDir: './src',
 	publicDir: './public',
@@ -71,6 +72,10 @@ export type RoutingStrategies =
 	| 'pathname-prefix-always-no-redirect';
 
 export const AstroConfigSchema = z.object({
+	jsonDataFiles: z.array(z.object({
+		path: z.string(),
+		schema: z.any(),
+    })),
 	root: z
 		.string()
 		.optional()

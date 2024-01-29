@@ -1,0 +1,13 @@
+{
+  "name": "Some name",
+  "images": [
+    {
+      "imageSrc": "./banner.jpg",
+      "imageAlt": "The banner on the astro readme"
+    },
+    {
+      "imageSrc": "./banner.jpg",
+      "imageAlt": "The same image again"
+    }
+  ]
+}
