@@ -304,7 +304,6 @@ export default function vercelServerless({
 					.concat(extraFilesToInclude);
 				const excludeFiles = _excludeFiles.map((file) => new URL(file, _config.root));
 
-				const runtime = getRuntime(process, logger);
 				const builder = new VercelBuilder(_config, excludeFiles, includeFiles, logger, maxDuration);
 
 				// Multiple entrypoint support
@@ -329,18 +328,19 @@ export default function vercelServerless({
 						});
 					}
 				} else {
+					const entryFile = new URL(_serverEntry, _buildTempFolder)
 					if (isr) {
 						const isrConfig = typeof isr === "object" ? isr : {};
-						await builder.buildISRFolder(new URL(_serverEntry, _buildTempFolder), '_isr', isrConfig);
+						await builder.buildISRFolder(entryFile, '_isr', isrConfig);
 						if (isrConfig.exclude?.length) {
-							await builder.buildServerlessFolder(new URL(_serverEntry, _buildTempFolder), NODE_PATH);
+							await builder.buildServerlessFolder(entryFile, NODE_PATH);
 							for (const route of isrConfig.exclude) {
 								routeDefinitions.push({ src: route, dest: NODE_PATH })
 							}
 						}
 					}
 					else {
-						await builder.buildServerlessFolder(new URL(_serverEntry, _buildTempFolder), NODE_PATH);
+						await builder.buildServerlessFolder(entryFile, NODE_PATH);
 					}
 					const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 					for (const route of routes) {
@@ -485,7 +485,7 @@ class VercelBuilder {
 	}
 
 	async buildISRFolder(entry: URL, functionName: string, isr: VercelISRConfig) {
-		this.buildServerlessFolder(entry, functionName);
+		await this.buildServerlessFolder(entry, functionName);
 		const prerenderConfig = new URL(`./functions/${functionName}.prerender-config.json`, this.config.outDir)
 		// https://vercel.com/docs/build-output-api/v3/primitives#prerender-configuration-file
 		await writeJson(prerenderConfig, {
