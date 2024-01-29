@@ -1,8 +1,15 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
-import type { Locales, MiddlewareHandler, RouteData, SSRManifest } from '../@types/astro.js';
+import type {
+	APIContext,
+	Locales,
+	MiddlewareHandler,
+	RouteData,
+	SSRManifest,
+} from '../@types/astro.js';
 import type { PipelineHookFunction } from '../core/pipeline.js';
 import { getPathByLocale, normalizeTheLocale } from './index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
+import type { SSRManifestI18n } from '../core/app/types.js';
 
 const routeDataSymbol = Symbol.for('astro.routeData');
 
@@ -24,6 +31,13 @@ function pathnameHasLocale(pathname: string, locales: Locales): boolean {
 	return false;
 }
 
+type MiddlewareOptions = {
+	i18n: SSRManifest['i18n'];
+	base: SSRManifest['base'];
+	trailingSlash: SSRManifest['trailingSlash'];
+	buildFormat: SSRManifest['buildFormat'];
+};
+
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
 	base: SSRManifest['base'],
@@ -32,62 +46,130 @@ export function createI18nMiddleware(
 ): MiddlewareHandler {
 	if (!i18n) return (_, next) => next();
 
+	const prefixAlways = (
+		url: URL,
+		response: Response,
+		context: APIContext
+	): Response | undefined => {
+		if (url.pathname === base + '/' || url.pathname === base) {
+			if (shouldAppendForwardSlash(trailingSlash, buildFormat)) {
+				return context.redirect(`${appendForwardSlash(joinPaths(base, i18n.defaultLocale))}`);
+			} else {
+				return context.redirect(`${joinPaths(base, i18n.defaultLocale)}`);
+			}
+		}
+
+		// Astro can't know where the default locale is supposed to be, so it returns a 404 with no content.
+		else if (!pathnameHasLocale(url.pathname, i18n.locales)) {
+			return new Response(null, {
+				status: 404,
+				headers: response.headers,
+			});
+		}
+
+		return undefined;
+	};
+
+	const prefixOtherLocales = (url: URL, response: Response): Response | undefined => {
+		const pathnameContainsDefaultLocale = url.pathname.includes(`/${i18n.defaultLocale}`);
+		if (pathnameContainsDefaultLocale) {
+			const newLocation = url.pathname.replace(`/${i18n.defaultLocale}`, '');
+			response.headers.set('Location', newLocation);
+			return new Response(null, {
+				status: 404,
+				headers: response.headers,
+			});
+		}
+
+		return undefined;
+	};
+
+	/**
+	 * We return a 404 if:
+	 * - the current path isn't a root. e.g. / or /<base>
+	 * - the URL doesn't contain a locale
+	 * @param url
+	 * @param response
+	 */
+	const prefixAlwaysNoRedirect = (url: URL, response: Response): Response | undefined => {
+		// We return a 404 if:
+		// - the current path isn't a root. e.g. / or /<base>
+		// - the URL doesn't contain a locale
+		const isRoot = url.pathname === base + '/' || url.pathname === base;
+		if (!(isRoot || pathnameHasLocale(url.pathname, i18n.locales))) {
+			return new Response(null, {
+				status: 404,
+				headers: response.headers,
+			});
+		}
+
+		return undefined;
+	};
+
 	return async (context, next) => {
 		const routeData: RouteData | undefined = Reflect.get(context.request, routeDataSymbol);
 		// If the route we're processing is not a page, then we ignore it
 		if (routeData?.type !== 'page' && routeData?.type !== 'fallback') {
 			return await next();
 		}
+		const currentLocale = context.currentLocale;
 
 		const url = context.url;
 		const { locales, defaultLocale, fallback, routing } = i18n;
 		const response = await next();
 
 		if (response instanceof Response) {
-			const pathnameContainsDefaultLocale = url.pathname.includes(`/${defaultLocale}`);
 			switch (i18n.routing) {
+				case 'domains-prefix-other-locales': {
+					if (localeHasntDomain(i18n, currentLocale)) {
+						const result = prefixOtherLocales(url, response);
+						if (result) {
+							return result;
+						}
+					}
+					break;
+				}
 				case 'pathname-prefix-other-locales': {
-					if (pathnameContainsDefaultLocale) {
-						const newLocation = url.pathname.replace(`/${defaultLocale}`, '');
-						response.headers.set('Location', newLocation);
-						return new Response(null, {
-							status: 404,
-							headers: response.headers,
-						});
+					const result = prefixOtherLocales(url, response);
+					if (result) {
+						return result;
+					}
+					break;
+				}
+
+				case 'domains-prefix-other-no-redirect': {
+					if (localeHasntDomain(i18n, currentLocale)) {
+						const result = prefixAlwaysNoRedirect(url, response);
+						if (result) {
+							return result;
+						}
 					}
 					break;
 				}
 
 				case 'pathname-prefix-always-no-redirect': {
-					// We return a 404 if:
-					// - the current path isn't a root. e.g. / or /<base>
-					// - the URL doesn't contain a locale
-					const isRoot = url.pathname === base + '/' || url.pathname === base;
-					if (!(isRoot || pathnameHasLocale(url.pathname, i18n.locales))) {
-						return new Response(null, {
-							status: 404,
-							headers: response.headers,
-						});
+					const result = prefixAlwaysNoRedirect(url, response);
+					if (result) {
+						return result;
 					}
 					break;
 				}
 
 				case 'pathname-prefix-always': {
-					if (url.pathname === base + '/' || url.pathname === base) {
-						if (shouldAppendForwardSlash(trailingSlash, buildFormat)) {
-							return context.redirect(`${appendForwardSlash(joinPaths(base, i18n.defaultLocale))}`);
-						} else {
-							return context.redirect(`${joinPaths(base, i18n.defaultLocale)}`);
+					const result = prefixAlways(url, response, context);
+					if (result) {
+						return result;
+					}
+					break;
+				}
+				case 'domains-prefix-always': {
+					if (localeHasntDomain(i18n, currentLocale)) {
+						const result = prefixAlways(url, response, context);
+						if (result) {
+							return result;
 						}
 					}
-
-					// Astro can't know where the default locale is supposed to be, so it returns a 404 with no content.
-					else if (!pathnameHasLocale(url.pathname, i18n.locales)) {
-						return new Response(null, {
-							status: 404,
-							headers: response.headers,
-						});
-					}
+					break;
 				}
 			}
 
@@ -137,3 +219,17 @@ export function createI18nMiddleware(
 export const i18nPipelineHook: PipelineHookFunction = (ctx) => {
 	Reflect.set(ctx.request, routeDataSymbol, ctx.route);
 };
+
+/**
+ * Checks if the current locale doesn't belong to a configured domain
+ * @param i18n
+ * @param currentLocale
+ */
+function localeHasntDomain(i18n: SSRManifestI18n, currentLocale: string | undefined) {
+	for (const domainLocale of Object.values(i18n.domainLookupTable)) {
+		if (domainLocale === currentLocale) {
+			return true;
+		}
+	}
+	return false;
+}

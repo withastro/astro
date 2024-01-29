@@ -257,7 +257,10 @@ export function computeCurrentLocale(
 			}
 		}
 	}
-	if (routingStrategy === 'pathname-prefix-other-locales' || routingStrategy === 'domains') {
+	if (
+		routingStrategy === 'pathname-prefix-other-locales' ||
+		routingStrategy === 'domains-prefix-other-locales'
+	) {
 		return defaultLocale;
 	}
 	return undefined;

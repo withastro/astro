@@ -70,8 +70,9 @@ export type RoutingStrategies =
 	| 'pathname-prefix-always'
 	| 'pathname-prefix-other-locales'
 	| 'pathname-prefix-always-no-redirect'
-	| 'domains-prefix-default'
-	| 'domains';
+	| 'domains-prefix-always'
+	| 'domains-prefix-other-locales'
+	| 'domains-prefix-other-no-redirect';
 
 export const AstroConfigSchema = z.object({
 	root: z
@@ -377,9 +378,13 @@ export const AstroConfigSchema = z.object({
 							}
 							case 'domains': {
 								if (routing.prefixDefaultLocale === true) {
-									strategy = 'domains-prefix-default';
+									if (routing.redirectToDefaultLocale) {
+										strategy = 'domains-prefix-always';
+									} else {
+										strategy = 'domains-prefix-other-no-redirect';
+									}
 								} else {
-									strategy = 'domains';
+									strategy = 'domains-prefix-other-locales';
 								}
 								break;
 							}
@@ -431,7 +436,11 @@ export const AstroConfigSchema = z.object({
 					if (domains) {
 						const entries = Object.entries(domains);
 						if (entries.length > 0) {
-							if (routing !== 'domains' && routing !== 'domains-prefix-default') {
+							if (
+								routing !== 'domains-prefix-other-locales' &&
+								routing !== 'domains-prefix-other-no-redirect' &&
+								routing !== 'domains-prefix-always'
+							) {
 								ctx.addIssue({
 									code: z.ZodIssueCode.custom,
 									message: `When specifying some domains, the property \`i18n.routingStrategy\` must be set to \`"domains"\`.`,
@@ -615,7 +624,11 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		.superRefine((configuration, ctx) => {
 			const { site, experimental, i18n, output } = configuration;
 			if (experimental.i18nDomains) {
-				if (i18n?.routing === 'domains' || i18n?.routing === 'domains-prefix-default') {
+				if (
+					i18n?.routing === 'domains-prefix-other-locales' ||
+					i18n?.routing === 'domains-prefix-other-no-redirect' ||
+					i18n?.routing === 'domains-prefix-always'
+				) {
 					if (!site) {
 						ctx.addIssue({
 							code: z.ZodIssueCode.custom,

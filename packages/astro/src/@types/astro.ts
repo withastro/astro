@@ -1534,7 +1534,7 @@ export interface AstroUserConfig {
 			 *    You map `fr` to `fr.example.com`, if you want to have a blog page to look like `fr.example.com/blog` instead of `example.com/fr/blog`.
 			 *    The localised folders be must in the `src/pages/` folder.
 			 */
-			strategy: 'pathname' | 'domain';
+			strategy: 'pathname' | 'domains';
 
 			/**
 			 * @docs

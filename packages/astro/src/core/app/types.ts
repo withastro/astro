@@ -58,7 +58,7 @@ export type SSRManifest = {
 
 export type SSRManifestI18n = {
 	fallback?: Record<string, string>;
-	routing?: RoutingStrategies;
+	routing: RoutingStrategies;
 	locales: Locales;
 	defaultLocale: string;
 	domainLookupTable: Record<string, string>;
