@@ -101,7 +101,8 @@ export async function setupDbTables({
 	for (const [name, collection] of Object.entries(collections)) {
 		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${name}`);
 		const createQuery = sql.raw(getCreateTableQuery(name, collection));
-		setupQueries.push(dropQuery, createQuery);
+		const indexQueries = getTableIndexQueries(name, collection);
+		setupQueries.push(dropQuery, createQuery, ...indexQueries);
 	}
 	for (const q of setupQueries) {
 		await db.run(q);
@@ -157,6 +158,23 @@ export function getCreateTableQuery(collectionName: string, collection: DBCollec
 
 	query += colQueries.join(', ') + ')';
 	return query;
+}
+
+export function getTableIndexQueries(collectionName: string, collection: DBCollection) {
+	let queries: SQL[] = [];
+	for (const [indexName, indexProps] of Object.entries(collection.indexes ?? {})) {
+		const onColNames = Array.isArray(indexProps.on) ? indexProps.on : [indexProps.on];
+		const onCols = onColNames.map((colName) => sqlite.escapeName(colName));
+
+		const unique = indexProps.unique ? 'UNIQUE ' : '';
+		const indexQuery = sql.raw(
+			`CREATE ${unique}INDEX ${sqlite.escapeName(indexName)} ON ${sqlite.escapeName(
+				collectionName
+			)} (${onCols.join(', ')})`
+		);
+		queries.push(indexQuery);
+	}
+	return queries;
 }
 
 export function schemaTypeToSqlType(type: FieldType): 'text' | 'integer' {
