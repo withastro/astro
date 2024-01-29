@@ -23,4 +23,29 @@ describe("ISR", () => {
 			"passQuery": true
 		})
 	})
+
+	it("generates expected routes", async () => {
+		const deploymentConfig = JSON.parse(
+			await fixture.readFile("../.vercel/output/config.json")
+		);
+		// the first two are /_astro/*, and filesystem routes
+		expect(deploymentConfig.routes.slice(2)).to.deep.equal([
+			{
+				"src": "^/two$",
+				"dest": "_render"
+			},
+			{
+				"src": "^\\/_image$",
+				"dest": "_render"
+			},
+			{
+				"src": "^\\/one\\/?$",
+				"dest": "/_isr?x_astro_path=$0"
+			},
+			{
+				"src": "^\\/two\\/?$",
+				"dest": "/_isr?x_astro_path=$0"
+			}
+		])
+	})
 })

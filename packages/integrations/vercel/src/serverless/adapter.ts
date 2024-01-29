@@ -332,25 +332,27 @@ export default function vercelServerless({
 					const entryFile = new URL(_serverEntry, _buildTempFolder)
 					if (isr) {
 						const isrConfig = typeof isr === "object" ? isr : {};
-						await builder.buildISRFolder(entryFile, '_isr', isrConfig);
 						if (isrConfig.exclude?.length) {
 							await builder.buildServerlessFolder(entryFile, NODE_PATH);
+							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 							for (const route of isrConfig.exclude) {
 								// vercel interprets src as a regex pattern, so we need to escape it
-								routeDefinitions.push({ src: escapeRegex(route), dest: NODE_PATH })
+								routeDefinitions.push({ src: escapeRegex(route), dest })
 							}
+						}
+						await builder.buildISRFolder(entryFile, '_isr', isrConfig);
+						for (const route of routes) {
+							const src = route.pattern.source;
+							const dest = src.startsWith("^\\/_image") ? NODE_PATH : ISR_PATH;
+							if (!route.prerender) routeDefinitions.push({ src, dest });
 						}
 					}
 					else {
 						await builder.buildServerlessFolder(entryFile, NODE_PATH);
-					}
-					const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
-					for (const route of routes) {
-						if (!route.prerender) routeDefinitions.push({ src: route.pattern.source, dest });
-						routeDefinitions.push({
-							src: route.pattern.source,
-							dest: isr ? ISR_PATH : NODE_PATH,
-						});
+						const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
+						for (const route of routes) {
+							if (!route.prerender) routeDefinitions.push({ src: route.pattern.source, dest });
+						}
 					}
 				}
 				if (_middlewareEntryPoint) {
