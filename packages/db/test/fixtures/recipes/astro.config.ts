@@ -17,7 +17,7 @@ const Ingredient = defineCollection({
 		recipeId: field.text(),
 	},
 	indexes: {
-		recipeIdx: { on: 'recipeId', unique: true },
+		recipeIdx: { on: 'recipeId' },
 	},
 });
 
