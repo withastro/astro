@@ -1,4 +1,5 @@
 import { bold } from 'kleur/colors';
+import { REROUTE_DIRECTIVE_HEADER } from './consts.js';
 import type { APIContext, EndpointHandler } from '../../@types/astro.js';
 import type { Logger } from '../../core/logger/core.js';
 
@@ -41,6 +42,6 @@ export async function renderEndpoint(
 	const response = await handler.call(mod, context);
 	// Endpoints explicitly returning 404 or 500 response status should
 	// NOT be subject to rerouting to 404.astro or 500.astro.
-	response.headers.set('X-Astro-Reroute', 'no');
+	response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 	return response;
 }

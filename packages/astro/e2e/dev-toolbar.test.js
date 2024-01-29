@@ -215,4 +215,22 @@ test.describe('Dev Toolbar', () => {
 		const hideToolbar = settingsWindow.getByRole('heading', { name: 'Hide toolbar' });
 		await expect(hideToolbar).toBeVisible();
 	});
+
+	test('supports third-party apps', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="my-plugin"]');
+		await appButton.click();
+
+		const myAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="my-plugin"]');
+		console.log(await myAppCanvas.innerHTML());
+		const myAppWindow = myAppCanvas.locator('astro-dev-toolbar-window');
+		await expect(myAppWindow).toHaveCount(1);
+		await expect(myAppWindow).toBeVisible();
+
+		// Toggle app off
+		await appButton.click();
+		await expect(myAppWindow).not.toBeVisible();
+	});
 });

@@ -141,5 +141,8 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			: settings.config.site,
 		componentMetadata: new Map(),
 		i18n: i18nManifest,
+		middleware(_, next) {
+			return next();
+		},
 	};
 }
