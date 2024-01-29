@@ -16,6 +16,9 @@ const Ingredient = defineCollection({
 		quantity: field.number(),
 		recipeId: field.text(),
 	},
+	indexes: {
+		recipeIdx: { on: 'recipeId', unique: true },
+	},
 });
 
 export default defineConfig({

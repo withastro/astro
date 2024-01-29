@@ -52,18 +52,25 @@ const fieldSchema = z.union([
 ]);
 const fieldsSchema = z.record(fieldSchema);
 
-export const readableCollectionSchema = z.object({
+export const indexSchema = z.object({
+	on: z.string().or(z.array(z.string())),
+	unique: z.boolean().optional(),
+});
+const indexesSchema = z.record(indexSchema);
+
+const baseCollectionSchema = z.object({
 	fields: fieldsSchema,
-	writable: z.literal(false),
+	indexes: indexesSchema.optional(),
 	table: z.any(),
 	_setMeta: z.function().optional(),
 });
 
-export const writableCollectionSchema = z.object({
-	fields: fieldsSchema,
+export const readableCollectionSchema = baseCollectionSchema.extend({
+	writable: z.literal(false),
+});
+
+export const writableCollectionSchema = baseCollectionSchema.extend({
 	writable: z.literal(true),
-	table: z.any(),
-	_setMeta: z.function().optional(),
 });
 
 export const collectionSchema = z.union([readableCollectionSchema, writableCollectionSchema]);
