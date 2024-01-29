@@ -56,7 +56,7 @@ describe('dev container', () => {
 					<html>
 						<head><title>{name}</title></head>
 						<body class="one">
-							<Header />
+							<Header title={name} />
 						</body>
 					</html>
 				`,
@@ -92,7 +92,7 @@ describe('dev container', () => {
 				<html>
 					<head><title>{name}</title></head>
 					<body class="two">
-						<Header />
+						<Header title={name} />
 					</body>
 				</html>
 			`
