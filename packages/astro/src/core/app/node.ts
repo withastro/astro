@@ -65,9 +65,14 @@ export class NodeApp extends App {
 			('encrypted' in req.socket && req.socket.encrypted ? 'https' : 'http');
 		const hostname = req.headers.host || req.headers[':authority'];
 		const url = `${protocol}://${hostname}${req.url}`;
+		const controller = new AbortController();
+		req.on('close', () => {
+			controller.abort();
+		})
 		const options: RequestInit = {
 			method: req.method || 'GET',
 			headers: makeRequestHeaders(req),
+			signal: controller.signal,
 		};
 		const bodyAllowed = options.method !== 'HEAD' && options.method !== 'GET' && skipBody === false;
 		if (bodyAllowed) {
