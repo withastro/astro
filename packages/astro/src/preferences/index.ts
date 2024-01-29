@@ -66,7 +66,12 @@ export function coerce(key: string, value: unknown) {
 		case 'boolean': {
 			if (value === 'true' || value === 1) return true;
 			if (value === 'false' || value === 0) return false;
+			break;
 		}
+		// @ematipico: what should we do with the other types?
+		//  "bigint" | "symbol" | "undefined" | "object" | "function"
+		default:
+			break;
 	}
 	return value as any;
 }
