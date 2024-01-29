@@ -136,8 +136,8 @@ export interface VercelServerlessConfig {
 interface VercelISRConfig {
 	/**
 	 * A secret random string that you create.
-	 * Its presence in the `__prerender_bypass` cookie will result in fresh responses being served, bypassing the cache.
-	 * Its presence in the `x-prerender-revalidate` header will result in a fresh response which will then be cached for all future requests to be used.
+	 * Its presence in the `__prerender_bypass` cookie will result in fresh responses being served, bypassing the cache. See Vercel’s documentation on [Draft Mode](https://vercel.com/docs/build-output-api/v3/features#draft-mode) for more information.
+	 * Its presence in the `x-prerender-revalidate` header will result in a fresh response which will then be cached for all future requests to be used. See Vercel’s documentation on [On-Demand Incremental Static Regeneration (ISR)](https://vercel.com/docs/build-output-api/v3/features#on-demand-incremental-static-regeneration-isr) for more information.
 	 * 
 	 * @default `undefined`
 	 */
@@ -153,7 +153,7 @@ interface VercelISRConfig {
 	expiration?: number | false;
 
 	/**
-	 * Paths that will always be served fresh.
+	 * Paths that will always be served by a serverless function instead of an ISR function.
 	 * 
 	 * @default `[]`
 	 */
