@@ -11,9 +11,9 @@ type AstroInternationalization = {
 
 export interface I18nInternalConfig
 	extends Pick<AstroConfig, 'base' | 'site' | 'trailingSlash'>,
-	Pick<AstroConfig['build'], 'format'> {
-		i18n: AstroConfig['i18n'];
-	}
+		Pick<AstroConfig['build'], 'format'> {
+	i18n: AstroConfig['i18n'];
+}
 
 export default function astroInternationalization({
 	settings,
@@ -32,15 +32,15 @@ export default function astroInternationalization({
 			const i18nConfig: I18nInternalConfig = { base, format, site, trailingSlash, i18n };
 			return {
 				define: {
-					__ASTRO_INTERNAL_I18N_CONFIG__: JSON.stringify(i18nConfig)
-				}
-			}
+					__ASTRO_INTERNAL_I18N_CONFIG__: JSON.stringify(i18nConfig),
+				},
+			};
 		},
 		resolveId(id) {
 			if (id === virtualModuleId) {
 				if (i18n === undefined) throw new AstroError(AstroErrorData.i18nNotEnabled);
 				return this.resolve('astro/virtual-modules/i18n.js');
 			}
-		}
+		},
 	};
 }
