@@ -3,8 +3,9 @@ import type { Locales, MiddlewareHandler, RouteData, SSRManifest } from '../@typ
 import type { PipelineHookFunction } from '../core/pipeline.js';
 import { getPathByLocale, normalizeTheLocale } from './index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
+import { ROUTE_DATA_SYMBOL } from '../core/constants.js';
 
-const routeDataSymbol = Symbol.for('astro.routeData');
+const routeDataSymbol = Symbol.for(ROUTE_DATA_SYMBOL);
 
 // Checks if the pathname has any locale, exception for the defaultLocale, which is ignored on purpose.
 function pathnameHasLocale(pathname: string, locales: Locales): boolean {
