@@ -244,7 +244,7 @@ export class App {
 				} catch (e: any) {
 					this.#logger.error(
 						'router',
-						`Astro tried to parse ${protocol}//${host}as an URL, but it threw a parsing error. Check the X-Forwarded-Host and X-Forwarded-Proto headers.`
+						`Astro tried to parse ${protocol}//${host} as an URL, but it threw a parsing error. Check the X-Forwarded-Host and X-Forwarded-Proto headers.`
 					);
 					this.#logger.error('router', `Error: ${e}`);
 				}
