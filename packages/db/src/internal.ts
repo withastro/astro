@@ -11,7 +11,7 @@ import {
 	type NumberField,
 	type TextField,
 } from './types.js';
-import { type LibSQLDatabase, drizzle } from 'drizzle-orm/libsql';
+import { drizzle } from 'drizzle-orm/libsql';
 import { bold } from 'kleur/colors';
 import {
 	type SQL,
@@ -26,8 +26,10 @@ import {
 	integer,
 	sqliteTable,
 	text,
+	index,
 	type SQLiteTable,
 	type SQLiteColumnBuilderBase,
+	type IndexBuilder,
 } from 'drizzle-orm/sqlite-core';
 import { z } from 'zod';
 import type { AstroIntegrationLogger } from 'astro';
@@ -276,8 +278,22 @@ export function collectionToTable(
 	for (const [fieldName, field] of Object.entries(collection.fields)) {
 		columns[fieldName] = columnMapper(fieldName, field, isJsonSerializable);
 	}
-	const table = sqliteTable(name, columns);
+	const table = sqliteTable(name, columns, (ormTable) => {
+		const indexes: Record<string, IndexBuilder> = {};
+		for (const [indexName, indexProps] of Object.entries(collection.indexes ?? {})) {
+			const onColNames = Array.isArray(indexProps.on) ? indexProps.on : [indexProps.on];
+			const onCols = onColNames.map((colName) => ormTable[colName]);
+			if (!atLeastOne(onCols)) continue;
+
+			indexes[indexName] = index(indexName).on(...onCols);
+		}
+		return indexes;
+	});
 	return table;
+}
+
+function atLeastOne<T>(arr: T[]): arr is [T, ...T[]] {
+	return arr.length > 0;
 }
 
 function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boolean) {
