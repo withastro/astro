@@ -348,7 +348,7 @@ describe('Config Validation', () => {
 			).catch((err) => err);
 			expect(configError instanceof z.ZodError).to.equal(true);
 			expect(configError.errors[0].message).to.equal(
-				"The option `site` isn't set. When availing of the domain support, `site` is required to create absolute URLs for locales that aren't mapped to a domain."
+				"The option `site` isn't set. When using the 'domains' strategy for `i18n`, `site` is required to create absolute URLs for locales that aren't mapped to a domain."
 			);
 		});
 

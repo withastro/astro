@@ -633,7 +633,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 						ctx.addIssue({
 							code: z.ZodIssueCode.custom,
 							message:
-								"The option `site` isn't set. When availing of the domain support, `site` is required to create absolute URLs for locales that aren't mapped to a domain.",
+								"The option `site` isn't set. When using the 'domains' strategy for `i18n`, `site` is required to create absolute URLs for locales that aren't mapped to a domain.",
 						});
 					}
 					if (output !== 'server') {
