@@ -1530,9 +1530,6 @@ export interface AstroUserConfig {
 			 * @description
 			 *
 			 * - `"pathanme": The strategy is applied to the pathname of the URLs
-			 * - `"domain"`: SSR only, it enables support for different domains. When a locale is mapped to domain, all the URLs won't have the language prefix.
-			 *    You map `fr` to `fr.example.com`, if you want to have a blog page to look like `fr.example.com/blog` instead of `example.com/fr/blog`.
-			 *    The localised folders be must in the `src/pages/` folder.
 			 */
 			strategy: 'pathname';
 
