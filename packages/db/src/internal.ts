@@ -101,8 +101,8 @@ export async function setupDbTables({
 	for (const [name, collection] of Object.entries(collections)) {
 		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${name}`);
 		const createQuery = sql.raw(getCreateTableQuery(name, collection));
-		const indexQueries = getTableIndexQueries(name, collection);
-		setupQueries.push(dropQuery, createQuery, ...indexQueries);
+		const indexQueries = getCreateIndexQueries(name, collection);
+		setupQueries.push(dropQuery, createQuery, ...indexQueries.map((s) => sql.raw(s)));
 	}
 	for (const q of setupQueries) {
 		await db.run(q);
@@ -160,18 +160,19 @@ export function getCreateTableQuery(collectionName: string, collection: DBCollec
 	return query;
 }
 
-export function getTableIndexQueries(collectionName: string, collection: DBCollection) {
-	let queries: SQL[] = [];
+export function getCreateIndexQueries(
+	collectionName: string,
+	collection: Pick<DBCollection, 'indexes'>
+) {
+	let queries: string[] = [];
 	for (const [indexName, indexProps] of Object.entries(collection.indexes ?? {})) {
 		const onColNames = Array.isArray(indexProps.on) ? indexProps.on : [indexProps.on];
 		const onCols = onColNames.map((colName) => sqlite.escapeName(colName));
 
 		const unique = indexProps.unique ? 'UNIQUE ' : '';
-		const indexQuery = sql.raw(
-			`CREATE ${unique}INDEX ${sqlite.escapeName(indexName)} ON ${sqlite.escapeName(
-				collectionName
-			)} (${onCols.join(', ')})`
-		);
+		const indexQuery = `CREATE ${unique}INDEX ${sqlite.escapeName(
+			indexName
+		)} ON ${sqlite.escapeName(collectionName)} (${onCols.join(', ')})`;
 		queries.push(indexQuery);
 	}
 	return queries;

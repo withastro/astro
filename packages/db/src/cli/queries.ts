@@ -1,4 +1,5 @@
 import * as color from 'kleur/colors';
+import deepDiff from 'deep-diff';
 import type {
 	BooleanField,
 	DBCollection,
@@ -8,6 +9,7 @@ import type {
 	DBSnapshot,
 	DateField,
 	FieldType,
+	Indexes,
 	JsonField,
 	NumberField,
 	TextField,
@@ -18,6 +20,7 @@ import prompts from 'prompts';
 import {
 	getCreateTableQuery,
 	getModifiers,
+	getCreateIndexQueries,
 	hasDefault,
 	hasPrimaryKey,
 	schemaTypeToSqlType,
@@ -62,6 +65,7 @@ export async function getMigrationQueries({
 
 	for (const [collectionName, collection] of Object.entries(added)) {
 		queries.push(getCreateTableQuery(collectionName, collection));
+		queries.push(...getCreateIndexQueries(collectionName, collection));
 	}
 
 	for (const [collectionName] of Object.entries(dropped)) {
@@ -96,11 +100,15 @@ export async function getCollectionChangeQueries({
 }): Promise<string[]> {
 	const queries: string[] = [];
 	const updated = getUpdatedFields(oldCollection.fields, newCollection.fields);
-	let added = getAddedFields(oldCollection.fields, newCollection.fields);
-	let dropped = getDroppedFields(oldCollection.fields, newCollection.fields);
+	let added = getAdded(oldCollection.fields, newCollection.fields);
+	let dropped = getDropped(oldCollection.fields, newCollection.fields);
 
 	if (isEmpty(updated) && isEmpty(added) && isEmpty(dropped)) {
-		return [];
+		return getChangeIndexQueries({
+			collectionName,
+			oldIndexes: oldCollection.indexes,
+			newIndexes: newCollection.indexes,
+		});
 	}
 	if (!isEmpty(added) && !isEmpty(dropped)) {
 		const resolved = await resolveFieldRenames(
@@ -118,7 +126,14 @@ export async function getCollectionChangeQueries({
 		Object.values(dropped).every(canAlterTableDropColumn) &&
 		Object.values(added).every(canAlterTableAddColumn)
 	) {
-		queries.push(...getAlterTableQueries(collectionName, added, dropped));
+		queries.push(
+			...getAlterTableQueries(collectionName, added, dropped),
+			...getChangeIndexQueries({
+				collectionName,
+				oldIndexes: oldCollection.indexes,
+				newIndexes: newCollection.indexes,
+			})
+		);
 		return queries;
 	}
 
@@ -158,7 +173,7 @@ export async function getCollectionChangeQueries({
 			allowDataLoss = !!res.allowDataLoss;
 		}
 		if (!allowDataLoss) {
-			console.log('Exiting without changes 👋');
+			console.info('Exiting without changes 👋');
 			process.exit(0);
 		}
 	}
@@ -175,7 +190,32 @@ export async function getCollectionChangeQueries({
 		hasDataLoss: dataLossCheck.dataLoss,
 		migrateHiddenPrimaryKey: !addedPrimaryKey && !droppedPrimaryKey && !updatedPrimaryKey,
 	});
-	queries.push(...recreateTableQueries);
+	queries.push(...recreateTableQueries, ...getCreateIndexQueries(collectionName, newCollection));
+	return queries;
+}
+
+function getChangeIndexQueries({
+	collectionName,
+	oldIndexes = {},
+	newIndexes = {},
+}: {
+	collectionName: string;
+	oldIndexes?: Indexes;
+	newIndexes?: Indexes;
+}) {
+	const added = getAdded(oldIndexes, newIndexes);
+	const dropped = getDropped(oldIndexes, newIndexes);
+	const updated = getUpdated(oldIndexes, newIndexes);
+
+	Object.assign(dropped, updated);
+	Object.assign(added, updated);
+
+	const queries: string[] = [];
+	for (const indexName of Object.keys(dropped)) {
+		const dropQuery = `DROP INDEX ${sqlite.escapeName(indexName)}`;
+		queries.push(dropQuery);
+	}
+	queries.push(...getCreateIndexQueries(collectionName, { indexes: added }));
 	return queries;
 }
 
@@ -454,20 +494,30 @@ function canRecreateTableWithoutDataLoss(
 	return { dataLoss: false };
 }
 
-function getAddedFields(oldFields: DBFields, newFields: DBFields) {
-	const added: DBFields = {};
-	for (const [key, newField] of Object.entries(newFields)) {
-		if (!(key in oldFields)) added[key] = newField;
+function getAdded<T>(oldObj: Record<string, T>, newObj: Record<string, T>) {
+	const added: Record<string, T> = {};
+	for (const [key, value] of Object.entries(newObj)) {
+		if (!(key in oldObj)) added[key] = value;
 	}
 	return added;
 }
 
-function getDroppedFields(oldFields: DBFields, newFields: DBFields) {
-	const dropped: DBFields = {};
-	for (const [key, oldField] of Object.entries(oldFields)) {
-		if (!(key in newFields)) dropped[key] = oldField;
+function getDropped<T>(oldObj: Record<string, T>, newObj: Record<string, T>) {
+	const dropped: Record<string, T> = {};
+	for (const [key, value] of Object.entries(oldObj)) {
+		if (!(key in newObj)) dropped[key] = value;
 	}
 	return dropped;
+}
+
+function getUpdated<T>(oldObj: Record<string, T>, newObj: Record<string, T>) {
+	const updated: Record<string, T> = {};
+	for (const [key, value] of Object.entries(newObj)) {
+		const oldValue = oldObj[key];
+		if (!oldValue) continue;
+		if (deepDiff(oldValue, value)) updated[key] = value;
+	}
+	return updated;
 }
 
 type UpdatedFields = Record<string, { old: DBField; new: DBField }>;
@@ -479,6 +529,7 @@ function getUpdatedFields(oldFields: DBFields, newFields: DBFields): UpdatedFiel
 		if (!oldField) continue;
 		if (objShallowEqual(oldField, newField)) continue;
 
+		// TODO: refactor to deep-diff with a prefilter on `type`
 		const oldFieldSqlType = { ...oldField, type: schemaTypeToSqlType(oldField.type) };
 		const newFieldSqlType = { ...newField, type: schemaTypeToSqlType(newField.type) };
 		const isSafeTypeUpdate =

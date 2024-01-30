@@ -58,6 +58,8 @@ export const indexSchema = z.object({
 });
 const indexesSchema = z.record(indexSchema);
 
+export type Indexes = z.infer<typeof indexesSchema>;
+
 const baseCollectionSchema = z.object({
 	fields: fieldsSchema,
 	indexes: indexesSchema.optional(),
