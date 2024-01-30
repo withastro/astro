@@ -40,6 +40,16 @@ describe('Slots', () => {
 		expect($('#default').text().trim()).to.equal('Default');
 	});
 
+	it('Dynamic subsequent nested slots with map work', async () => {
+		const html = await fixture.readFile('/dynamic-map-multi-expressions/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('#a').text().trim()).to.equal('Test name slot');
+		expect($('#b').text().trim()).to.equal('');
+		expect($('#c').text().trim()).to.equal('');
+		expect($('#default').text().trim()).to.equal('IN_DEFAULT_SLOT');
+	});
+
 	it('Dynamic named slots work with for loop', async () => {
 		const html = await fixture.readFile('/dynamic-for/index.html');
 		const $ = cheerio.load(html);

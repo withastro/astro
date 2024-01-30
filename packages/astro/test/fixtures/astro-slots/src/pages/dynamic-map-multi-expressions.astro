@@ -1,0 +1,24 @@
+---
+import Slotted from '../components/Slotted.astro';
+
+const defaultSlots = ['in_', 'default_', 'slot']
+const show = true;
+---
+
+<html>
+  <head>
+    <!-- Head Stuff -->
+  </head>
+  <body>
+    <Slotted>
+    {show && (
+			<p slot={show ? 'a' : undefined}>
+				Test name slot
+			</p>
+		)}
+		{defaultSlots.map(item => (
+			<p>{item.toUpperCase()}</p>
+		))}
+    </Slotted>
+  </body>
+</html>
