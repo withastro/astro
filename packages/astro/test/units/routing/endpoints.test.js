@@ -11,7 +11,8 @@ import testAdapter from '../../test-adapter.js';
 
 const root = new URL('../../fixtures/api-routes/', import.meta.url);
 const fileSystem = {
-	'/src/pages/api.ts': `export const GET = ({ url }) => Response.redirect("https://example.com/destination", 307)`,
+	'/src/pages/response-redirect.ts': `export const GET = ({ url }) => Response.redirect("https://example.com/destination", 307)`,
+	'/src/pages/response.ts': `export const GET = ({ url }) => new Response(null, { headers: { Location: "https://example.com/destination" }, status: 307 })`,
 };
 
 describe('endpoints', () => {
@@ -37,9 +38,20 @@ describe('endpoints', () => {
 	});
 
 	it('should return a redirect response with location header', async () => {
-		const { req, res, text, done } = createRequestAndResponse({
+		const { req, res, done } = createRequestAndResponse({
 			method: 'GET',
-			url: '/api',
+			url: '/response-redirect',
+		});
+		container.handle(req, res);
+		await done;
+		expect(res.getHeaders()).to.deep.include({ location: 'https://example.com/destination' });
+		expect(res.statusCode).to.equal(307);
+	});
+
+	it('should return a response with location header', async () => {
+		const { req, res, done } = createRequestAndResponse({
+			method: 'GET',
+			url: '/response',
 		});
 		container.handle(req, res);
 		await done;
