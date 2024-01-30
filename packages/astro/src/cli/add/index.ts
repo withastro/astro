@@ -211,6 +211,8 @@ export async function add(names: string[], { flags }: AddOptions) {
 		case UpdateResult.failure: {
 			throw createPrettyError(new Error(`Unable to install dependencies`));
 		}
+		case UpdateResult.none:
+			break;
 	}
 
 	const rawConfigPath = await resolveConfigPath({

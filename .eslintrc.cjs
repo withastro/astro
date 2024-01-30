@@ -16,6 +16,7 @@ module.exports = {
   plugins: ['@typescript-eslint', 'prettier', 'no-only-tests'],
   rules: {
     // These off/configured-differently-by-default rules fit well for us
+    '@typescript-eslint/switch-exhaustiveness-check': 'error',
     '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
     '@typescript-eslint/no-unused-vars': [
       'warn',
