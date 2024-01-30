@@ -1,5 +1,4 @@
 ---
-'@astrojs/node': minor
 'astro': minor
 ---
 
