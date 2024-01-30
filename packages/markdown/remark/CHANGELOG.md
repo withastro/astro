@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 4.2.1
+
+### Patch Changes
+
+- [#9866](https://github.com/withastro/astro/pull/9866) [`44c957f893c6bf5f5b7c78301de7b21c5975584d`](https://github.com/withastro/astro/commit/44c957f893c6bf5f5b7c78301de7b21c5975584d) Thanks [@ktym4a](https://github.com/ktym4a)! - Fixes a bug where non-UTF-8 file names are not displayed when using relative paths in markdowns.
+
 ## 4.2.0
 
 ### Minor Changes

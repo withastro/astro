@@ -16,7 +16,7 @@
     "@astrojs/solid-js": "^4.0.1",
     "@astrojs/svelte": "^5.0.3",
     "@astrojs/vue": "^4.0.8",
-    "astro": "^4.2.6",
+    "astro": "^4.2.7",
     "preact": "^10.19.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
