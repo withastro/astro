@@ -3,8 +3,9 @@ import type { Locales, MiddlewareHandler, RouteData, SSRManifest } from '../@typ
 import type { PipelineHookFunction } from '../core/pipeline.js';
 import { getPathByLocale, normalizeTheLocale } from './index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
+import { ROUTE_DATA_SYMBOL } from '../core/constants.js';
 
-const routeDataSymbol = Symbol.for('astro.routeData');
+const routeDataSymbol = Symbol.for(ROUTE_DATA_SYMBOL);
 
 // Checks if the pathname has any locale, exception for the defaultLocale, which is ignored on purpose.
 function pathnameHasLocale(pathname: string, locales: Locales): boolean {
@@ -29,25 +30,14 @@ export function createI18nMiddleware(
 	base: SSRManifest['base'],
 	trailingSlash: SSRManifest['trailingSlash'],
 	buildFormat: SSRManifest['buildFormat']
-): MiddlewareHandler | undefined {
-	if (!i18n) {
-		return undefined;
-	}
+): MiddlewareHandler {
+	if (!i18n) return (_, next) => next();
 
 	return async (context, next) => {
-		if (!i18n) {
+		const routeData: RouteData | undefined = Reflect.get(context.request, routeDataSymbol);
+		// If the route we're processing is not a page, then we ignore it
+		if (routeData?.type !== 'page' && routeData?.type !== 'fallback') {
 			return await next();
-		}
-
-		const routeData = Reflect.get(context.request, routeDataSymbol);
-		if (routeData) {
-			// If the route we're processing is not a page, then we ignore it
-			if (
-				(routeData as RouteData).type !== 'page' &&
-				(routeData as RouteData).type !== 'fallback'
-			) {
-				return await next();
-			}
 		}
 
 		const url = context.url;

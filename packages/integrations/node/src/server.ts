@@ -8,6 +8,7 @@ import type { Options } from './types.js';
 applyPolyfills();
 export function createExports(manifest: SSRManifest, options: Options) {
 	const app = new NodeApp(manifest);
+	options.trailingSlash = manifest.trailingSlash;
 	return {
 		options: options,
 		handler:

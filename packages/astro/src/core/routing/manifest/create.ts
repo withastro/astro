@@ -1,10 +1,10 @@
 import type {
 	AstroConfig,
 	AstroSettings,
-	RoutePriorityOverride,
 	ManifestData,
 	RouteData,
 	RoutePart,
+	RoutePriorityOverride,
 } from '../../../@types/astro.js';
 import type { Logger } from '../../logger/core.js';
 
@@ -15,11 +15,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
+import { MissingIndexForInternationalization } from '../../errors/errors-data.js';
+import { AstroError } from '../../errors/index.js';
 import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
-import { AstroError } from '../../errors/index.js';
-import { MissingIndexForInternationalization } from '../../errors/errors-data.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -716,7 +716,8 @@ export function createRouteManifest(
 				);
 				throw new AstroError({
 					...MissingIndexForInternationalization,
-					message: MissingIndexForInternationalization.message(relativePath),
+					message: MissingIndexForInternationalization.message(i18n.defaultLocale),
+					hint: MissingIndexForInternationalization.hint(relativePath),
 				});
 			}
 		}

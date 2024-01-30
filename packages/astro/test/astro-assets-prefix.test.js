@@ -51,8 +51,10 @@ describe('Assets Prefix - Static', () => {
 	it('markdown image src start with assetsPrefix', async () => {
 		const html = await fixture.readFile('/markdown/index.html');
 		const $ = cheerio.load(html);
-		const imgAsset = $('img');
-		expect(imgAsset.attr('src')).to.match(assetsPrefixRegex);
+		const imgAssets = $('img');
+		imgAssets.each((i, el) => {
+			expect(el.attribs.src).to.match(assetsPrefixRegex);
+		});
 	});
 
 	it('content collections image src start with assetsPrefix', async () => {
