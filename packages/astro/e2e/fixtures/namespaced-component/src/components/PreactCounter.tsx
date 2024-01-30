@@ -17,3 +17,4 @@ function PreactCounter({ children, id }) {
 }
 
 export const components = { PreactCounter }
+export default { PreactCounter }

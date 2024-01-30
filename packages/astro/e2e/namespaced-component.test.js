@@ -52,6 +52,23 @@ test.describe('Hydrating namespaced components', () => {
 		await namedIncrement.click();
 
 		await expect(namedCount, 'count incremented by 1').toHaveText('1');
+
+		// Counter declared with: <name.PreactCounterTwo id="preact-counter-default" client:load>
+		const namespacedDefaultCounter = page.locator('#preact-counter-default');
+		await expect(namespacedDefaultCounter, 'component is visible').toBeVisible();
+
+		const namespacedDefaultCount = namespacedDefaultCounter.locator('pre');
+		await expect(namespacedDefaultCount, 'initial count is 0').toHaveText('0');
+
+		const namespacedDefaultChildren = namespacedDefaultCounter.locator('.children');
+		await expect(namespacedDefaultChildren, 'children exist').toHaveText('preact (default import)');
+
+		await waitForHydrate(page, namespacedDefaultCounter);
+
+		const namespacedDefaultIncrement = namespacedDefaultCounter.locator('.increment');
+		await namespacedDefaultIncrement.click();
+
+		await expect(namespacedDefaultCount, 'count incremented by 1').toHaveText('1');
 	});
 
 	test('MDX', async ({ astro, page }) => {
@@ -90,5 +107,22 @@ test.describe('Hydrating namespaced components', () => {
 		await namedIncrement.click();
 
 		await expect(namedCount, 'count incremented by 1').toHaveText('1');
+
+		// Counter declared with: <name.PreactCounterTwo id="preact-counter-default" client:load>
+		const namespacedDefaultCounter = page.locator('#preact-counter-default');
+		await expect(namespacedDefaultCounter, 'component is visible').toBeVisible();
+
+		const namespacedDefaultCount = namespacedDefaultCounter.locator('pre');
+		await expect(namespacedDefaultCount, 'initial count is 0').toHaveText('0');
+
+		const namespacedDefaultChildren = namespacedDefaultCounter.locator('.children');
+		await expect(namespacedDefaultChildren, 'children exist').toHaveText('preact (default import)');
+
+		await waitForHydrate(page, namespacedDefaultCounter);
+
+		const namespacedDefaultIncrement = namespacedDefaultCounter.locator('.increment');
+		await namespacedDefaultIncrement.click();
+
+		await expect(namespacedDefaultCount, 'count incremented by 1').toHaveText('1');
 	});
 });

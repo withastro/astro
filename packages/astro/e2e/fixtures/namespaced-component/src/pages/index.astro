@@ -1,6 +1,7 @@
 ---
 import * as ns from '../components/PreactCounter.tsx';
 import { components } from '../components/PreactCounter.tsx';
+import namespacedDefault from '../components/PreactCounter.tsx';
 ---
 
 <html lang="en">
@@ -15,9 +16,13 @@ import { components } from '../components/PreactCounter.tsx';
 				<h1>preact (namespace import)</h1>
 			</ns.components.PreactCounter>
 
-      <components.PreactCounter id="preact-counter-named" client:load>
+			<components.PreactCounter id="preact-counter-named" client:load>
 				<h1>preact (named import)</h1>
 			</components.PreactCounter>
+
+			<namespacedDefault.PreactCounter id="preact-counter-default" client:load>
+				<h1>preact (default import)</h1>
+			</namespacedDefault.PreactCounter>
 		</main>
 	</body>
 </html>
