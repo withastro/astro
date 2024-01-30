@@ -349,7 +349,7 @@ export const AstroConfigSchema = z.object({
 					.object({
 						prefixDefaultLocale: z.boolean().default(false),
 						redirectToDefaultLocale: z.boolean().default(true),
-						strategy: z.enum(['pathname', 'domains']).default('pathname'),
+						strategy: z.enum(['pathname']).default('pathname'),
 					})
 					.default({})
 					.refine(
@@ -360,39 +360,40 @@ export const AstroConfigSchema = z.object({
 							message:
 								'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.',
 						}
-					)
-					.transform((routing) => {
-						let strategy: RoutingStrategies;
-						switch (routing.strategy) {
-							case 'pathname': {
-								if (routing.prefixDefaultLocale === true) {
-									if (routing.redirectToDefaultLocale) {
-										strategy = 'pathname-prefix-always';
-									} else {
-										strategy = 'pathname-prefix-always-no-redirect';
-									}
-								} else {
-									strategy = 'pathname-prefix-other-locales';
-								}
-								break;
-							}
-							case 'domains': {
-								if (routing.prefixDefaultLocale === true) {
-									if (routing.redirectToDefaultLocale) {
-										strategy = 'domains-prefix-always';
-									} else {
-										strategy = 'domains-prefix-other-no-redirect';
-									}
-								} else {
-									strategy = 'domains-prefix-other-locales';
-								}
-								break;
-							}
-						}
-						return strategy;
-					}),
+					),
 			})
 			.optional()
+			.transform((i18n) => {
+				if (i18n) {
+					let { routing, domains } = i18n;
+					let strategy: RoutingStrategies;
+					const hasDomains = domains ? Object.keys(domains).length > 0 : false;
+					if (!hasDomains) {
+						if (routing.prefixDefaultLocale === true) {
+							if (routing.redirectToDefaultLocale) {
+								strategy = 'pathname-prefix-always';
+							} else {
+								strategy = 'pathname-prefix-always-no-redirect';
+							}
+						} else {
+							strategy = 'pathname-prefix-other-locales';
+						}
+					} else {
+						if (routing.prefixDefaultLocale === true) {
+							if (routing.redirectToDefaultLocale) {
+								strategy = 'domains-prefix-always';
+							} else {
+								strategy = 'domains-prefix-other-no-redirect';
+							}
+						} else {
+							strategy = 'domains-prefix-other-locales';
+						}
+					}
+
+					return { ...i18n, routing: strategy };
+				}
+				return undefined;
+			})
 			.superRefine((i18n, ctx) => {
 				if (i18n) {
 					const { defaultLocale, locales: _locales, fallback, domains, routing } = i18n;
