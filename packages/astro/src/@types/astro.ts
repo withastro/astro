@@ -1534,7 +1534,7 @@ export interface AstroUserConfig {
 			strategy: 'pathname';
 
 			/**
-			 * @name experimental.i18n.domains
+			 * @name i18n.domains
 			 * @type {Record<string, string> }
 			 * @default '{}'
 			 * @version 4.3.0
