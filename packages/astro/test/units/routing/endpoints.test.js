@@ -48,7 +48,7 @@ describe('endpoints', () => {
 		await done;
 		const headers = res.getHeaders();
 		expect(headers).to.deep.include({ location: 'https://example.com/destination' });
-		expect(headers).not.to.deep.include({ 'X-Astro-Reroute': 'no' });
+		expect(headers).not.to.deep.include({ 'x-astro-reroute': 'no' });
 		expect(res.statusCode).to.equal(307);
 	});
 
@@ -61,7 +61,7 @@ describe('endpoints', () => {
 		await done;
 		const headers = res.getHeaders();
 		expect(headers).to.deep.include({ location: 'https://example.com/destination' });
-		expect(headers).not.to.deep.include({ 'X-Astro-Reroute': 'no' });
+		expect(headers).not.to.deep.include({ 'x-astro-reroute': 'no' });
 		expect(res.statusCode).to.equal(307);
 	});
 
