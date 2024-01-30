@@ -731,9 +731,9 @@ export interface AstroUserConfig {
 		 * @default `'directory'`
 		 * @description
 		 * Control the output file format of each page. This value may be set by an adapter for you.
-		 *   - If `'file'`, Astro will generate an HTML file (ex: "/foo.html") for each page.
-		 *   - If `'directory'`, Astro will generate a directory with a nested `index.html` file (ex: "/foo/index.html") for each page.
-		 *   - If `'preserve'`, Astro will generate HTML files exactly as they appear in your source folder (ex: "foo/index.astro" becomes "foo/index.html" but "foo.astro" does not)
+		 *   - `'file'`: Astro will generate an HTML file named for each page route. (e.g. `src/pages/about.astro` and `src/pages/about/index.astro` both build the file `/about.html`)
+		 *   - `'directory'`: Astro will generate a directory with a nested `index.html` file for each page. (e.g. `src/pages/about.astro` and `src/pages/about/index.astro` both build the file `/about/index.html`)
+		 *   - `'preserve'`: Astro will generate HTML files exactly as they appear in your source folder. (e.g. `src/pages/about.astro` builds `/about.html` but `src/pages/about/index.astro` builds the file `/about/index.html`) 
 		 *
 		 * ```js
 		 * {
