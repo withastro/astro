@@ -1566,9 +1566,9 @@ export interface AstroUserConfig {
 			 * })
 			 * ```
 			 *  
-		   * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
-		   *  
-		   * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains) for more details, including the limitations of this feature.
+			 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
+			 *
+			 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains) for more details, including the limitations of this feature.
 			 */
 			domains?: Record<string, string>;
 		};
@@ -1711,7 +1711,7 @@ export interface AstroUserConfig {
 		 * @default `false`
 		 * @version 4.3.0
 		 * @description
-	 	 *
+		 *
 		 * Enables domain support for the [experimental `domains` routing strategy](https://docs.astro.build/en/guides/internationalization/#domains-experimental) which allows you to configure the URL pattern of one or more supported languages to use a custom domain (or sub-domain).
 		 *
 		 * When a locale is mapped to a domain, a `/[locale]/` path prefix will not be used. However, localized folders within `src/pages/` are still required, including for your configured `defaultLocale`.
