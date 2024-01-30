@@ -1,5 +1,7 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
+import { createClient, type InStatement } from '@libsql/client';
+import { getAstroStudioEnv, getRemoteDatabaseUrl } from '../utils.js';
 
 export async function cli({ flags, config }: { flags: Arguments; config: AstroConfig }) {
 	const command = flags._[3] as string;
@@ -20,6 +22,59 @@ export async function cli({ flags, config }: { flags: Arguments; config: AstroCo
 		case 'verify': {
 			const { cmd: verifyCommand } = await import('./commands/verify/index.js');
 			return await verifyCommand({ config, flags });
+		}
+		case 'batch-test': {
+			const queries: InStatement[] = [
+				{
+					sql: 'PRAGMA foreign_keys=OFF;',
+					args: [],
+				},
+				// {
+				// 	sql: 'DROP TABLE IF EXISTS user;',
+				// 	args: [],
+				// },
+				// {
+				// 	sql: 'DROP TABLE IF EXISTS account;',
+				// 	args: [],
+				// },
+				// 				{
+				// 					sql: `CREATE TABLE user (
+				// 	id INTEGER PRIMARY KEY,
+				// 	name TEXT NOT NULL
+				// );`,
+				// 					args: [],
+				// 				},
+				// 				{
+				// 					sql: `CREATE TABLE account (
+				// 	id INTEGER PRIMARY KEY,
+				// 	user_id INTEGER NOT NULL,
+				// 	FOREIGN KEY (user_id) REFERENCES user (id)
+				// );`,
+				// 					args: [],
+				// 				},
+				// 				{
+				// 					sql: `INSERT INTO user (id, name) VALUES (?, ?);`,
+				// 					args: [1, 'Alice'],
+				// 				},
+				{
+					sql: `INSERT INTO account (id, user_id) VALUES (?, ?);`,
+					args: [2, 5],
+				},
+			];
+
+			const url = new URL('/db/query', getRemoteDatabaseUrl());
+			const appToken = getAstroStudioEnv().ASTRO_STUDIO_APP_TOKEN;
+
+			const res = await fetch(url, {
+				method: 'POST',
+				headers: new Headers({
+					Authorization: `Bearer ${appToken}`,
+				}),
+				body: JSON.stringify(queries),
+			});
+
+			console.log(res, res.status === 200 ? await res.json() : await res.text());
+			return;
 		}
 		default: {
 			if (command == null) {
