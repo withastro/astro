@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fix content type reference to content config on windows.
+Fixes the content config type path on windows
