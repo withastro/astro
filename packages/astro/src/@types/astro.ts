@@ -1712,7 +1712,7 @@ export interface AstroUserConfig {
 		 * @version 4.3.0
 		 * @description
 	 	 *
-		 * Enables domain support for the [experimental `domains`(https://docs.astro.build/en/guides/internationalization/#domains-experimental) routing strategy] which allows you to configure the URL pattern of one or more supported languages to use a custom domain (or sub-domain).
+		 * Enables domain support for the [experimental `domains` routing strategy](https://docs.astro.build/en/guides/internationalization/#domains-experimental) which allows you to configure the URL pattern of one or more supported languages to use a custom domain (or sub-domain).
 		 *
 		 * When a locale is mapped to a domain, a `/[locale]/` path prefix will not be used. However, localized folders within `src/pages/` are still required, including for your configured `defaultLocale`.
 		 *
