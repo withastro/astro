@@ -13,7 +13,6 @@ export default defineConfig({
 			it: "http://it.example.com"
 		},
 		routing: {
-			strategy: "domains",
 			prefixDefaultLocale: true,
 			redirectToDefaultLocale: false
 		}

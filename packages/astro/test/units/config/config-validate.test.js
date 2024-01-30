@@ -224,9 +224,6 @@ describe('Config Validation', () => {
 						domains: {
 							lorem: 'https://example.com',
 						},
-						routing: {
-							strategy: 'domains',
-						},
 					},
 				},
 				process.cwd()
@@ -246,9 +243,6 @@ describe('Config Validation', () => {
 						locales: ['es', 'en'],
 						domains: {
 							en: 'www.example.com',
-						},
-						routing: {
-							strategy: 'domains',
 						},
 					},
 				},
@@ -270,9 +264,6 @@ describe('Config Validation', () => {
 						domains: {
 							en: 'tcp://www.example.com',
 						},
-						routing: {
-							strategy: 'domains',
-						},
 					},
 				},
 				process.cwd()
@@ -293,9 +284,6 @@ describe('Config Validation', () => {
 						domains: {
 							en: 'https://www.example.com/blog/page/',
 						},
-						routing: {
-							strategy: 'domains',
-						},
 					},
 				},
 				process.cwd()
@@ -303,26 +291,6 @@ describe('Config Validation', () => {
 			expect(configError instanceof z.ZodError).to.equal(true);
 			expect(configError.errors[0].message).to.equal(
 				"The URL `https://www.example.com/blog/page/` must contain only the origin. A subsequent pathname isn't allowed here. Remove `/blog/page/`."
-			);
-		});
-
-		it('errors if there are domains, and the routing strategy is not correct', async () => {
-			const configError = await validateConfig(
-				{
-					output: 'server',
-					i18n: {
-						defaultLocale: 'en',
-						locales: ['es', 'en'],
-						domains: {
-							en: 'https://www.example.com/',
-						},
-					},
-				},
-				process.cwd()
-			).catch((err) => err);
-			expect(configError instanceof z.ZodError).to.equal(true);
-			expect(configError.errors[0].message).to.equal(
-				'When specifying some domains, the property `i18n.routingStrategy` must be set to `"domains"`.'
 			);
 		});
 
@@ -335,9 +303,6 @@ describe('Config Validation', () => {
 						locales: ['es', 'en'],
 						domains: {
 							en: 'https://www.example.com/',
-						},
-						routing: {
-							strategy: 'domains',
 						},
 					},
 					experimental: {
@@ -361,9 +326,6 @@ describe('Config Validation', () => {
 						locales: ['es', 'en'],
 						domains: {
 							en: 'https://www.example.com/',
-						},
-						routing: {
-							strategy: 'domains',
 						},
 					},
 					experimental: {

@@ -229,8 +229,8 @@ export const i18nPipelineHook: PipelineHookFunction = (ctx) => {
 function localeHasntDomain(i18n: SSRManifestI18n, currentLocale: string | undefined) {
 	for (const domainLocale of Object.values(i18n.domainLookupTable)) {
 		if (domainLocale === currentLocale) {
-			return true;
+			return false;
 		}
 	}
-	return false;
+	return true;
 }

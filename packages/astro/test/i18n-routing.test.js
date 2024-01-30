@@ -52,6 +52,7 @@ describe('astro:i18n virtual module', () => {
 			let html = await response.text();
 			let $ = cheerio.load(html);
 
+			console.log(html);
 			expect($('body').text()).includes("Virtual module doesn't break");
 			expect($('body').text()).includes('Absolute URL pt: https://example.pt/about');
 			expect($('body').text()).includes('Absolute URL it: http://it.example.com/');
