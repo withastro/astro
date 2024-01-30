@@ -492,8 +492,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^2.5.0
-        version: 2.5.0
+        specifier: 0.0.0-mk-slot-expr-fix-20240130083013
+        version: 0.0.0-mk-slot-expr-fix-20240130083013
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -5385,12 +5385,17 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
+  /@astrojs/compiler@0.0.0-mk-slot-expr-fix-20240130083013:
+    resolution: {integrity: sha512-2L9U0IFcoGUwPx2udaSwxoZ0h6DY7QTxiv9Cx+nBrRVZet4F7aiw2hCoMWRVWSGkLjTDueYXa5r/sVPqLY86iw==}
+    dev: false
+
   /@astrojs/compiler@1.8.2:
     resolution: {integrity: sha512-o/ObKgtMzl8SlpIdzaxFnt7SATKPxu4oIP/1NL+HDJRzxfJcAkOTAb/ZKMRyULbz4q+1t2/DAebs2Z1QairkZw==}
     dev: true
 
   /@astrojs/compiler@2.5.0:
     resolution: {integrity: sha512-ZDluNgMIJT+z+HJcZ6QEJ/KqaFkTkrb+Za6c6VZs8G/nb1LBErL14/iU5EVJ9yu25i4QCLweuBJ3m5df34gZJg==}
+    dev: true
 
   /@astrojs/language-server@2.5.5(prettier-plugin-astro@0.12.3)(prettier@3.1.1)(typescript@5.2.2):
     resolution: {integrity: sha512-hk7a8S7bpf//BOA6mMjiYqi/eiYtGPfUfw59eVXdutdRFdwDHtu4jcsLu43ZaId56pAcE8qFjIvJxySvzcxiUA==}
