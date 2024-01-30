@@ -4,8 +4,6 @@ import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 
 const virtualModuleId = 'astro:i18n';
-const configId = 'astro-internal:i18n-config';
-const resolvedConfigId = `\0${configId}`;
 
 type AstroInternationalization = {
 	settings: AstroSettings;
@@ -13,8 +11,8 @@ type AstroInternationalization = {
 
 export interface I18nInternalConfig
 	extends Pick<AstroConfig, 'base' | 'site' | 'trailingSlash'>,
-		NonNullable<AstroConfig['i18n']>,
 		Pick<AstroConfig['build'], 'format'> {
+	i18n: AstroConfig['i18n'];
 	isBuild: boolean;
 }
 
@@ -33,34 +31,22 @@ export default function astroInternationalization({
 	return {
 		name: 'astro:i18n',
 		enforce: 'pre',
-		async resolveId(id) {
+		config(config) {
+			const i18nConfig: I18nInternalConfig = { base, format, site, trailingSlash, i18n };
+			const finalConfig= {
+				...i18nConfig,
+					isBuild: isCommandBuild
+			};
+			return {
+				define: {
+					__ASTRO_INTERNAL_I18N_CONFIG__: JSON.stringify(finalConfig),
+				},
+			};
+		},
+		resolveId(id) {
 			if (id === virtualModuleId) {
 				if (i18n === undefined) throw new AstroError(AstroErrorData.i18nNotEnabled);
 				return this.resolve('astro/virtual-modules/i18n.js');
-			}
-			if (id === configId) return resolvedConfigId;
-		},
-
-		config(opts, { command }) {
-			isCommandBuild = command === 'build';
-			return opts;
-		},
-		load(id) {
-			if (id === resolvedConfigId) {
-				const { defaultLocale, locales, routing, fallback, domains } = i18n!;
-				const config: I18nInternalConfig = {
-					base,
-					format,
-					site,
-					trailingSlash,
-					defaultLocale,
-					locales,
-					routing,
-					fallback,
-					domains,
-					isBuild: isCommandBuild,
-				};
-				return `export default ${JSON.stringify(config)};`;
 			}
 		},
 	};

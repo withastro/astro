@@ -1,5 +1,5 @@
 import * as assert from 'node:assert/strict';
-import { describe, it, before, after } from 'node:test';
+import { describe, it, before } from 'node:test';
 import nodejs from '../dist/index.js';
 import { loadFixture, createRequestAndResponse } from './test-utils.js';
 
