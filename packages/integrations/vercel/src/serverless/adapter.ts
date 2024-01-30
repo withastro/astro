@@ -82,7 +82,7 @@ function getAdapter({
 				isSharpCompatible: true,
 				isSquooshCompatible: true,
 			},
-			i18nDomains: 'unsupported',
+			i18nDomains: 'experimental',
 		},
 	};
 }
