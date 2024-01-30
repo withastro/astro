@@ -3,14 +3,14 @@ import {
 	InvalidAstroDataError,
 	type MarkdownProcessor,
 } from '@astrojs/markdown-remark';
-import matter from 'gray-matter';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
-import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { safeParseFrontmatter } from '../content/utils.js';
 import type { Logger } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
 import { shorthash } from '../runtime/server/shorthash.js';
@@ -21,33 +21,6 @@ import { getMarkdownCodeForImages, type MarkdownImagePath } from './images.js';
 interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: Logger;
-}
-
-function safeMatter(source: string, id: string) {
-	try {
-		return matter(source);
-	} catch (err: any) {
-		const markdownError = new MarkdownError({
-			name: 'MarkdownError',
-			message: err.message,
-			stack: err.stack,
-			location: {
-				file: id,
-			},
-		});
-
-		if (err.name === 'YAMLException') {
-			markdownError.setLocation({
-				file: id,
-				line: err.mark.line,
-				column: err.mark.column,
-			});
-
-			markdownError.setMessage(err.reason);
-		}
-
-		throw markdownError;
-	}
 }
 
 const astroServerRuntimeModulePath = normalizePath(
@@ -75,7 +48,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 			if (isMarkdownFile(id)) {
 				const { fileId, fileUrl } = getFileInfo(id, settings.config);
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
-				const raw = safeMatter(rawFile, id);
+				const raw = safeParseFrontmatter(rawFile, id);
 
 				const fileURL = pathToFileURL(fileId);
 
