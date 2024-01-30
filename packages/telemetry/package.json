@@ -43,8 +43,6 @@
     "@types/node": "^18.17.8",
     "@types/which-pm-runs": "^1.0.2",
     "astro-scripts": "workspace:*",
-    "chai": "^4.3.7",
-    "mocha": "^10.2.0"
   },
   "engines": {
     "node": ">=18.14.1"
