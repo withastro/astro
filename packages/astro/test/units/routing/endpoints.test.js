@@ -13,6 +13,8 @@ const root = new URL('../../fixtures/api-routes/', import.meta.url);
 const fileSystem = {
 	'/src/pages/response-redirect.ts': `export const GET = ({ url }) => Response.redirect("https://example.com/destination", 307)`,
 	'/src/pages/response.ts': `export const GET = ({ url }) => new Response(null, { headers: { Location: "https://example.com/destination" }, status: 307 })`,
+	'/src/pages/not-found.ts': `export const GET = ({ url }) => new Response('empty', { headers: { "Content-Type": "text/plain" }, status: 404 })`,
+	'/src/pages/internal-error.ts': `export const GET = ({ url }) => new Response('something went wrong', { headers: { "Content-Type": "text/plain" }, status: 500 })`,
 };
 
 describe('endpoints', () => {
@@ -44,7 +46,9 @@ describe('endpoints', () => {
 		});
 		container.handle(req, res);
 		await done;
-		expect(res.getHeaders()).to.deep.include({ location: 'https://example.com/destination' });
+		const headers = res.getHeaders();
+		expect(headers).to.deep.include({ location: 'https://example.com/destination' });
+		expect(headers).not.to.deep.include({ 'X-Astro-Reroute': 'no' });
 		expect(res.statusCode).to.equal(307);
 	});
 
@@ -55,7 +59,33 @@ describe('endpoints', () => {
 		});
 		container.handle(req, res);
 		await done;
-		expect(res.getHeaders()).to.deep.include({ location: 'https://example.com/destination' });
+		const headers = res.getHeaders();
+		expect(headers).to.deep.include({ location: 'https://example.com/destination' });
+		expect(headers).not.to.deep.include({ 'X-Astro-Reroute': 'no' });
 		expect(res.statusCode).to.equal(307);
+	});
+
+	it('should append reroute header for HTTP status 404', async () => {
+		const { req, res, done } = createRequestAndResponse({
+			method: 'GET',
+			url: '/not-found',
+		});
+		container.handle(req, res);
+		await done;
+		const headers = res.getHeaders();
+		expect(headers).to.deep.include({ 'x-astro-reroute': 'no' });
+		expect(res.statusCode).to.equal(404);
+	});
+
+	it('should append reroute header for HTTP status 500', async () => {
+		const { req, res, done } = createRequestAndResponse({
+			method: 'GET',
+			url: '/internal-error',
+		});
+		container.handle(req, res);
+		await done;
+		const headers = res.getHeaders();
+		expect(headers).to.deep.include({ 'x-astro-reroute': 'no' });
+		expect(res.statusCode).to.equal(500);
 	});
 });
