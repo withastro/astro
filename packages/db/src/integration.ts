@@ -13,8 +13,9 @@ import { errorMap } from './error-map.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { bold } from 'kleur/colors';
+import { fileURLIntegration } from './file-url-integration.js';
 
-export function integration(): AstroIntegration {
+function astroDBIntegration(): AstroIntegration {
 	return {
 		name: 'astro:db',
 		hooks: {
@@ -45,6 +46,7 @@ export function integration(): AstroIntegration {
 						connectToStudio: true,
 						collections,
 						appToken,
+						output: config.output,
 					});
 				} else {
 					const dbUrl = getLocalDbUrl(config.root);
@@ -68,17 +70,36 @@ export function integration(): AstroIntegration {
 					});
 					logger.info('Collections set up 🚀');
 
-					dbPlugin = vitePluginDb({ connectToStudio: false, collections, dbUrl: dbUrl.href });
+					dbPlugin = vitePluginDb({
+						connectToStudio: false,
+						collections,
+					});
 				}
 
 				updateConfig({
 					vite: {
 						assetsInclude: [DB_PATH],
-						plugins: [dbPlugin, vitePluginInjectEnvTs(config)],
+						plugins: [dbPlugin, vitePluginInjectEnvTs(config), {
+							name: 'my-plugin',
+							resolveId(id) {
+								if(id.endsWith('?server-path')) {
+									//return id;
+								}
+							},
+							load(id) {
+								if(id.endsWith('?server-path')) {
+
+								}
+							}
+						}],
 					},
 				});
 				await typegen({ collections, root: config.root });
 			},
 		},
 	};
+}
+
+export function integration(): AstroIntegration[] {
+	return [astroDBIntegration(), fileURLIntegration()];
 }

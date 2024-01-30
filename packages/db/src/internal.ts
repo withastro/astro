@@ -37,7 +37,7 @@ import type { DBUserConfig } from './config.js';
 
 export type SqliteDB = SqliteRemoteDatabase;
 export type { Table } from './types.js';
-export { createRemoteDatabaseClient, findLocalDatabase } from './utils-runtime.js';
+export { createRemoteDatabaseClient } from './utils-runtime.js';
 
 const sqlite = new SQLiteAsyncDialect();
 
