@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-When multiple roles exist, check each role. Fixing the issue of errors caused by multiple values in the role.
+Fixes false positives in the dev overlay audit when multiple `role` values exist.
