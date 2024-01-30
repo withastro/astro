@@ -456,8 +456,8 @@ function getUrlForPath(
 	pathname: string,
 	base: string,
 	origin: string,
-	format: AstroConfig["build"]["format"],
-	trailingSlash: AstroConfig["trailingSlash"],
+	format: AstroConfig['build']['format'],
+	trailingSlash: AstroConfig['trailingSlash'],
 	routeType: RouteType
 ): URL {
 	/**
@@ -465,7 +465,7 @@ function getUrlForPath(
 	 * pathname: /, /foo
 	 * base: /
 	 */
-	const ending = format === 'directory' ? trailingSlash === 'never' ? '' : '/' : '.html';
+	const ending = format === 'directory' ? (trailingSlash === 'never' ? '' : '/') : '.html';
 	let buildPathname: string;
 	if (pathname === '/' || pathname === '') {
 		buildPathname = base;
