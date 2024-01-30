@@ -4738,6 +4738,9 @@ importers:
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2
+      minimatch:
+        specifier: ^9.0.3
+        version: 9.0.3
       set-cookie-parser:
         specifier: ^2.6.0
         version: 2.6.0
