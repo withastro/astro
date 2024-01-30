@@ -44,7 +44,7 @@ export function getVirtualModContents({
 }) {
 	return `
 import { collectionToTable, createLocalDatabaseClient } from ${INTERNAL_MOD_IMPORT};
-import dbUrl from './.astro/content.db?file-url';
+import dbUrl from './.astro/content.db?fileurl';
 
 const params = ${JSON.stringify({
 		collections,

@@ -18,7 +18,7 @@ export function fileURLIntegration(): AstroIntegration {
 			name: '@astrojs/db/file-url',
 			enforce: 'pre',
 			async load(id) {
-				if(id.endsWith('?file-url')) {
+				if(id.endsWith('?fileurl')) {
 					const filePath = id.slice(0, id.indexOf('?'));
 					if(command === 'build') {
 						const data = await fs.promises.readFile(filePath);
