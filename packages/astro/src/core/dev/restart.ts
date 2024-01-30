@@ -167,12 +167,8 @@ export async function createContainerWithAutomaticRestart({
 		// Set up shortcuts, overriding Vite's default shortcuts so it works for Astro
 		restart.container.viteServer.bindCLIShortcuts({
 			customShortcuts: [
-				{
-					key: 'r',
-					description: 'restart the server',
-					action: () => handleServerRestart(),
-				},
-				// Disable Vite's builtin "u" (print server urls) and "c" (clear console) shortcuts
+				// Disable Vite's builtin "r" (restart server), "u" (print server urls) and "c" (clear console) shortcuts
+				{ key: 'r', description: '' },
 				{ key: 'u', description: '' },
 				{ key: 'c', description: '' },
 			],

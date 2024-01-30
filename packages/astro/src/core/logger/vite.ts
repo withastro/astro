@@ -18,9 +18,9 @@ const viteHmrUpdateMsg = /hmr update (.*)/;
 // capture "vite v5.0.0 building SSR bundle for production..." and "vite v5.0.0 building for production..." messages
 const viteBuildMsg = /vite.*building.*for production/;
 // capture "\n  Shortcuts" messages
-const viteShortcutTitleMsg = /.*Shortcuts.*/s;
+const viteShortcutTitleMsg = /^\s*Shortcuts\s*$/s;
 // capture "press * + enter to ..." messages
-const viteShortcutHelpMsg = /press\s+(.*\+ enter).*to\s+(.*)$/s;
+const viteShortcutHelpMsg = /press\s+(.*?)\s+to\s+(.*)$/s;
 
 export function createViteLogger(
 	astroLogger: AstroLogger,
