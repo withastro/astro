@@ -1,7 +1,7 @@
 import type { AstroConfig } from 'astro';
 import deepDiff from 'deep-diff';
 import type { Arguments } from 'yargs-parser';
-import { getMigrations, initializeFromMigrations } from '../../../migrations.js';
+import { getMigrations, initializeFromMigrations } from '../../migrations.js';
 const { diff } = deepDiff;
 
 export async function cmd({ config }: { config: AstroConfig; flags: Arguments }) {

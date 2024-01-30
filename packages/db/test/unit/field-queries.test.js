@@ -1,9 +1,11 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { getCollectionChangeQueries, getMigrationQueries } from '../../dist/cli/queries.js';
-import { collectionSchema } from '../../dist/types.js';
-import { getCreateTableQuery } from '../../dist/internal.js';
-import { field } from '../../dist/config.js';
+import {
+	getCollectionChangeQueries,
+	getMigrationQueries,
+} from '../../dist/core/cli/migration-queries.js';
+import { getCreateTableQuery } from '../../dist/core/queries.js';
+import { field, collectionSchema } from '../../dist/core/types.js';
 
 const COLLECTION_NAME = 'Users';
 

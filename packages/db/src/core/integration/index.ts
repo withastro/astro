@@ -4,16 +4,17 @@ import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
 import { typegen } from './typegen.js';
 import { existsSync } from 'fs';
 import { mkdir, rm, writeFile } from 'fs/promises';
-import { getLocalDbUrl, DB_PATH } from './consts.js';
-import { createLocalDatabaseClient, setupDbTables } from './internal.js';
-import { astroConfigWithDbSchema } from './config.js';
-import { getAstroStudioEnv, type VitePlugin } from './utils.js';
-import { appTokenError } from './errors.js';
+import { DB_PATH } from '../consts.js';
+import { createLocalDatabaseClient } from '../../runtime/db-client.js';
+import { astroConfigWithDbSchema } from '../types.js';
+import { getAstroStudioEnv, type VitePlugin } from '../utils.js';
+import { appTokenError } from '../errors.js';
 import { errorMap } from './error-map.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { bold } from 'kleur/colors';
-import { fileURLIntegration } from './file-url-integration.js';
+import { fileURLIntegration } from './file-url.js';
+import { setupDbTables } from '../queries.js';
 
 function astroDBIntegration(): AstroIntegration {
 	return {
@@ -49,7 +50,7 @@ function astroDBIntegration(): AstroIntegration {
 						output: config.output,
 					});
 				} else {
-					const dbUrl = getLocalDbUrl(config.root);
+					const dbUrl = new URL(DB_PATH, config.root);
 					if (existsSync(dbUrl)) {
 						await rm(dbUrl);
 					}
@@ -79,19 +80,22 @@ function astroDBIntegration(): AstroIntegration {
 				updateConfig({
 					vite: {
 						assetsInclude: [DB_PATH],
-						plugins: [dbPlugin, vitePluginInjectEnvTs(config), {
-							name: 'my-plugin',
-							resolveId(id) {
-								if(id.endsWith('?server-path')) {
-									//return id;
-								}
+						plugins: [
+							dbPlugin,
+							vitePluginInjectEnvTs(config),
+							{
+								name: 'my-plugin',
+								resolveId(id) {
+									if (id.endsWith('?server-path')) {
+										//return id;
+									}
+								},
+								load(id) {
+									if (id.endsWith('?server-path')) {
+									}
+								},
 							},
-							load(id) {
-								if(id.endsWith('?server-path')) {
-
-								}
-							}
-						}],
+						],
 					},
 				});
 				await typegen({ collections, root: config.root });

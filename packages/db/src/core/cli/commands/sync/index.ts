@@ -7,8 +7,8 @@ import {
 	getMigrations,
 	initializeFromMigrations,
 	initializeMigrationsDirectory,
-} from '../../../migrations.js';
-import { getMigrationQueries } from '../../queries.js';
+} from '../../migrations.js';
+import { getMigrationQueries } from '../../migration-queries.js';
 const { diff } = deepDiff;
 
 export async function cmd({ config }: { config: AstroConfig; flags: Arguments }) {

@@ -1,7 +1,7 @@
 import type { AstroConfig } from 'astro';
-import { DRIZZLE_MOD_IMPORT, INTERNAL_MOD_IMPORT, VIRTUAL_MODULE_ID, DB_PATH } from './consts.js';
-import type { DBCollections } from './types.js';
-import type { VitePlugin } from './utils.js';
+import { RUNTIME_IMPORT, VIRTUAL_MODULE_ID, DB_PATH, RUNTIME_DRIZZLE_IMPORT } from '../consts.js';
+import type { DBCollections } from '../types.js';
+import type { VitePlugin } from '../utils.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -37,14 +37,10 @@ export function vitePluginDb(
 	};
 }
 
-export function getVirtualModContents({
-	collections,
-}: {
-	collections: DBCollections;
-}) {
+export function getVirtualModContents({ collections }: { collections: DBCollections }) {
 	return `
-import { collectionToTable, createLocalDatabaseClient } from ${INTERNAL_MOD_IMPORT};
-import dbUrl from './.astro/content.db?fileurl';
+import { collectionToTable, createLocalDatabaseClient } from ${RUNTIME_IMPORT};
+import dbUrl from './${DB_PATH}?fileurl';
 
 const params = ${JSON.stringify({
 		collections,
@@ -54,7 +50,7 @@ params.dbUrl = dbUrl;
 
 export const db = await createLocalDatabaseClient(params);
 
-export * from ${DRIZZLE_MOD_IMPORT};
+export * from ${RUNTIME_DRIZZLE_IMPORT};
 
 ${getStringifiedCollectionExports(collections)}
 `;
@@ -68,12 +64,12 @@ export function getStudioVirtualModContents({
 	appToken: string;
 }) {
 	return `
-import {collectionToTable, createRemoteDatabaseClient} from ${INTERNAL_MOD_IMPORT};
+import {collectionToTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
 
 export const db = await createRemoteDatabaseClient(${JSON.stringify(
 		appToken
 	)}, import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL);
-export * from ${DRIZZLE_MOD_IMPORT};
+export * from ${RUNTIME_DRIZZLE_IMPORT};
 
 ${getStringifiedCollectionExports(collections)}
 	`;

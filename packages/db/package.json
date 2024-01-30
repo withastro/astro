@@ -13,13 +13,13 @@
       "import": "./dist/index.js"
     },
     "./components": "./components/index.ts",
-    "./internal": {
-      "types": "./dist/internal.d.ts",
-      "import": "./dist/internal.js"
+    "./runtime": {
+      "types": "./dist/runtime/index.d.ts",
+      "import": "./dist/runtime/index.js"
     },
-    "./internal-drizzle": {
-      "types": "./dist/internal-drizzle.d.ts",
-      "import": "./dist/internal-drizzle.js"
+    "./runtime/drizzle": {
+      "types": "./dist/runtime/drizzle.d.ts",
+      "import": "./dist/runtime/drizzle.js"
     },
     "./package.json": "./package.json"
   },
@@ -28,8 +28,11 @@
       ".": [
         "./index.d.ts"
       ],
-      "internal": [
-        "./dist/internal.d.ts"
+      "runtime": [
+        "./dist/runtime/index.d.ts"
+      ],
+      "runtime/drizzle": [
+        "./dist/runtime/drizzle.d.ts"
       ]
     }
   },

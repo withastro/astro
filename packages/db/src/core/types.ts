@@ -1,18 +1,118 @@
 import type { SQLiteInsertValue } from 'drizzle-orm/sqlite-core';
-import type { SqliteDB, Table } from './internal.js';
-import type { DBCollection, MaybeArray, collectionSchema } from './types.js';
-import {
-	type BooleanField,
-	type DBFieldInput,
-	type DateFieldInput,
-	type JsonField,
-	type NumberField,
-	type TextField,
-	collectionsSchema,
-	type indexSchema,
-	type MaybePromise,
-} from './types.js';
+import type { SqliteDB, Table } from '../runtime/index.js';
 import { z } from 'zod';
+
+export type MaybePromise<T> = T | Promise<T>;
+export type MaybeArray<T> = T | T[];
+
+const baseFieldSchema = z.object({
+	label: z.string().optional(),
+	optional: z.boolean().optional(),
+	unique: z.boolean().optional(),
+});
+
+const booleanFieldSchema = baseFieldSchema.extend({
+	type: z.literal('boolean'),
+	default: z.boolean().optional(),
+});
+
+const numberFieldSchema = baseFieldSchema.extend({
+	type: z.literal('number'),
+	default: z.number().optional(),
+	primaryKey: z.boolean().optional(),
+});
+
+const textFieldSchema = baseFieldSchema.extend({
+	type: z.literal('text'),
+	multiline: z.boolean().optional(),
+	default: z.string().optional(),
+	primaryKey: z.boolean().optional(),
+});
+
+const dateFieldSchema = baseFieldSchema.extend({
+	type: z.literal('date'),
+	default: z
+		.union([
+			z.literal('now'),
+			// allow date-like defaults in user config,
+			// transform to ISO string for D1 storage
+			z.coerce.date().transform((d) => d.toISOString()),
+		])
+		.optional(),
+});
+
+const jsonFieldSchema = baseFieldSchema.extend({
+	type: z.literal('json'),
+	default: z.unknown().optional(),
+});
+
+const fieldSchema = z.union([
+	booleanFieldSchema,
+	numberFieldSchema,
+	textFieldSchema,
+	dateFieldSchema,
+	jsonFieldSchema,
+]);
+const fieldsSchema = z.record(fieldSchema);
+
+export const indexSchema = z.object({
+	on: z.string().or(z.array(z.string())),
+	unique: z.boolean().optional(),
+});
+const indexesSchema = z.record(indexSchema);
+
+export type Indexes = z.infer<typeof indexesSchema>;
+
+const baseCollectionSchema = z.object({
+	fields: fieldsSchema,
+	indexes: indexesSchema.optional(),
+	table: z.any(),
+	_setMeta: z.function().optional(),
+});
+
+export const readableCollectionSchema = baseCollectionSchema.extend({
+	writable: z.literal(false),
+});
+
+export const writableCollectionSchema = baseCollectionSchema.extend({
+	writable: z.literal(true),
+});
+
+export const collectionSchema = z.union([readableCollectionSchema, writableCollectionSchema]);
+export const collectionsSchema = z.record(collectionSchema);
+
+export type BooleanField = z.infer<typeof booleanFieldSchema>;
+export type NumberField = z.infer<typeof numberFieldSchema>;
+export type TextField = z.infer<typeof textFieldSchema>;
+export type DateField = z.infer<typeof dateFieldSchema>;
+// Type `Date` is the config input, `string` is the output for D1 storage
+export type DateFieldInput = z.input<typeof dateFieldSchema>;
+export type JsonField = z.infer<typeof jsonFieldSchema>;
+
+export type FieldType =
+	| BooleanField['type']
+	| NumberField['type']
+	| TextField['type']
+	| DateField['type']
+	| JsonField['type'];
+
+export type DBField = z.infer<typeof fieldSchema>;
+export type DBFieldInput = DateFieldInput | BooleanField | NumberField | TextField | JsonField;
+export type DBFields = z.infer<typeof fieldsSchema>;
+export type DBCollection = z.infer<
+	typeof readableCollectionSchema | typeof writableCollectionSchema
+>;
+export type DBCollections = Record<string, DBCollection>;
+export type DBSnapshot = {
+	schema: Record<string, DBCollection>;
+	/**
+	 * Snapshot version. Breaking changes to the snapshot format increment this number.
+	 * @todo Rename to "version" once closer to release.
+	 */
+	experimentalVersion: number;
+};
+export type ReadableDBCollection = z.infer<typeof readableCollectionSchema>;
+export type WritableDBCollection = z.infer<typeof writableCollectionSchema>;
 
 export type DBDataContext = {
 	db: SqliteDB;

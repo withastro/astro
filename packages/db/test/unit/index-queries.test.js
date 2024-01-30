@@ -1,8 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { collectionSchema } from '../../dist/types.js';
-import { getCollectionChangeQueries } from '../../dist/cli/queries.js';
-import { field } from '../../dist/config.js';
+import { getCollectionChangeQueries } from '../../dist/core/cli/migration-queries.js';
+import { field, collectionSchema } from '../../dist/core/types.js';
 
 const userInitial = collectionSchema.parse({
 	fields: {

@@ -4,9 +4,8 @@ import type { AstroConfig } from 'astro';
 import deepDiff from 'deep-diff';
 import { drizzle } from 'drizzle-orm/sqlite-proxy';
 import type { Arguments } from 'yargs-parser';
-import type { AstroConfigWithDB } from '../../../config.js';
+import type { AstroConfigWithDB } from '../../../types.js';
 import { appTokenError } from '../../../errors.js';
-import { setupDbTables } from '../../../internal.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -14,10 +13,11 @@ import {
 	initializeFromMigrations,
 	loadInitialSnapshot,
 	loadMigration,
-} from '../../../migrations.js';
+} from '../../migrations.js';
 import type { DBSnapshot } from '../../../types.js';
 import { getAstroStudioEnv, getRemoteDatabaseUrl } from '../../../utils.js';
-import { getMigrationQueries } from '../../queries.js';
+import { getMigrationQueries } from '../../migration-queries.js';
+import { setupDbTables } from '../../../queries.js';
 
 const { diff } = deepDiff;
 
@@ -195,7 +195,7 @@ async function prepareMigrateQuery({
 	appToken: string;
 }) {
 	const url = new URL('/db/migrate/prepare', getRemoteDatabaseUrl());
-	const requestBody = { 
+	const requestBody = {
 		migrations,
 		experimentalVersion: 1,
 	};

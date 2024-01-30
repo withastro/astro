@@ -1,6 +1,6 @@
 import deepDiff from 'deep-diff';
 import { mkdir, readFile, readdir, writeFile } from 'fs/promises';
-import type { DBSnapshot } from './types.js';
+import type { DBSnapshot } from '../types.js';
 import type { AstroConfig } from 'astro';
 const { applyChange } = deepDiff;
 

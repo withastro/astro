@@ -1,5 +1,5 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
-import type { VitePlugin } from './utils.js';
+import type { VitePlugin } from '../utils.js';
 import fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
@@ -12,21 +12,21 @@ async function copyFile(toDir: URL, fromUrl: URL, toUrl: URL) {
 export function fileURLIntegration(): AstroIntegration {
 	const fileNames: string[] = [];
 
-	function createVitePlugin(command: "build" | "preview" | "dev"): VitePlugin {
+	function createVitePlugin(command: 'build' | 'preview' | 'dev'): VitePlugin {
 		const referenceIds: string[] = [];
 		return {
 			name: '@astrojs/db/file-url',
 			enforce: 'pre',
 			async load(id) {
-				if(id.endsWith('?fileurl')) {
+				if (id.endsWith('?fileurl')) {
 					const filePath = id.slice(0, id.indexOf('?'));
-					if(command === 'build') {
+					if (command === 'build') {
 						const data = await fs.promises.readFile(filePath);
 						const name = path.basename(filePath);
 						const referenceId = this.emitFile({
 							name,
 							source: data,
-							type: "asset"
+							type: 'asset',
 						});
 						referenceIds.push(referenceId);
 						return `export default import.meta.ROLLUP_FILE_URL_${referenceId};`;
@@ -39,11 +39,11 @@ export function fileURLIntegration(): AstroIntegration {
 			},
 			generateBundle() {
 				// Save file names so we can copy them back over
-				for(const referenceId of referenceIds) {
+				for (const referenceId of referenceIds) {
 					fileNames.push(this.getFileName(referenceId));
 				}
-			}
-		}
+			},
+		};
 	}
 
 	let config: AstroConfig;
@@ -53,18 +53,18 @@ export function fileURLIntegration(): AstroIntegration {
 			'astro:config:setup'({ updateConfig, command }) {
 				updateConfig({
 					vite: {
-						plugins: [createVitePlugin(command)]
-					}
-				})
+						plugins: [createVitePlugin(command)],
+					},
+				});
 			},
 			'astro:config:done': ({ config: _config }) => {
 				config = _config;
 			},
 			async 'astro:build:done'() {
-				if(config.output !== 'static') {
+				if (config.output !== 'static') {
 					// Move files back over to the dist output path
 					const moves: Promise<unknown>[] = [];
-					for(const fileName of fileNames) {
+					for (const fileName of fileNames) {
 						const fromUrl = new URL(fileName, config.build.client);
 						const toUrl = new URL(fileName, config.build.server);
 						const toDir = new URL('./', toUrl);
@@ -72,7 +72,7 @@ export function fileURLIntegration(): AstroIntegration {
 					}
 					await Promise.all(moves);
 				}
-			}
-		}
+			},
+		},
 	};
 }

@@ -1,5 +1,4 @@
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
-import { createClient } from '@libsql/client';
 import {
 	type BooleanField,
 	type DBCollection,
@@ -10,79 +9,15 @@ import {
 	type JsonField,
 	type NumberField,
 	type TextField,
-} from './types.js';
-import { drizzle } from 'drizzle-orm/libsql';
+} from '../core/types.js';
 import { bold } from 'kleur/colors';
-import {
-	type SQL,
-	type ColumnBuilderBaseConfig,
-	type ColumnDataType,
-	sql,
-	getTableName,
-} from 'drizzle-orm';
-import {
-	SQLiteAsyncDialect,
-	customType,
-	integer,
-	sqliteTable,
-	text,
-	index,
-	type SQLiteTable,
-	type SQLiteColumnBuilderBase,
-	type IndexBuilder,
-} from 'drizzle-orm/sqlite-core';
-import { z } from 'zod';
+import { type SQL, sql } from 'drizzle-orm';
+import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import type { AstroIntegrationLogger } from 'astro';
-import type { DBUserConfig } from './config.js';
-
-export type SqliteDB = SqliteRemoteDatabase;
-export type { Table } from './types.js';
-export { createRemoteDatabaseClient } from './utils-runtime.js';
+import type { DBUserConfig } from '../core/types.js';
+import { collectionToTable, hasPrimaryKey } from '../runtime/index.js';
 
 const sqlite = new SQLiteAsyncDialect();
-
-export function hasPrimaryKey(field: DBField) {
-	return 'primaryKey' in field && !!field.primaryKey;
-}
-
-function checkIfModificationIsAllowed(collections: DBCollections, Table: SQLiteTable) {
-	const tableName = getTableName(Table);
-	const collection = collections[tableName];
-	if (!collection.writable) {
-		throw new Error(`The [${tableName}] collection is read-only.`);
-	}
-}
-
-export async function createLocalDatabaseClient({
-	collections,
-	dbUrl,
-	seeding,
-}: {
-	dbUrl: string;
-	collections: DBCollections;
-	seeding: boolean;
-}) {
-	const client = createClient({ url: dbUrl });
-	const db = drizzle(client);
-
-	if (seeding) return db;
-
-	const { insert: drizzleInsert, update: drizzleUpdate, delete: drizzleDelete } = db;
-	return Object.assign(db, {
-		insert(Table: SQLiteTable) {
-			checkIfModificationIsAllowed(collections, Table);
-			return drizzleInsert.call(this, Table);
-		},
-		update(Table: SQLiteTable) {
-			checkIfModificationIsAllowed(collections, Table);
-			return drizzleUpdate.call(this, Table);
-		},
-		delete(Table: SQLiteTable) {
-			checkIfModificationIsAllowed(collections, Table);
-			return drizzleDelete.call(this, Table);
-		},
-	});
-}
 
 export async function setupDbTables({
 	db,
@@ -255,123 +190,4 @@ function getDefaultValueSql(columnName: string, column: DBFieldWithDefault): str
 			return sqlite.escapeString(stringified);
 		}
 	}
-}
-
-const dateType = customType<{ data: Date; driverData: string }>({
-	dataType() {
-		return 'text';
-	},
-	toDriver(value) {
-		return value.toISOString();
-	},
-	fromDriver(value) {
-		return new Date(value);
-	},
-});
-
-const jsonType = customType<{ data: unknown; driverData: string }>({
-	dataType() {
-		return 'text';
-	},
-	toDriver(value) {
-		return JSON.stringify(value);
-	},
-	fromDriver(value) {
-		return JSON.parse(value);
-	},
-});
-
-type D1ColumnBuilder = SQLiteColumnBuilderBase<
-	ColumnBuilderBaseConfig<ColumnDataType, string> & { data: unknown }
->;
-
-export function collectionToTable(
-	name: string,
-	collection: DBCollection,
-	isJsonSerializable = true
-) {
-	const columns: Record<string, D1ColumnBuilder> = {};
-	if (!Object.entries(collection.fields).some(([, field]) => hasPrimaryKey(field))) {
-		columns['_id'] = integer('_id').primaryKey();
-	}
-	for (const [fieldName, field] of Object.entries(collection.fields)) {
-		columns[fieldName] = columnMapper(fieldName, field, isJsonSerializable);
-	}
-	const table = sqliteTable(name, columns, (ormTable) => {
-		const indexes: Record<string, IndexBuilder> = {};
-		for (const [indexName, indexProps] of Object.entries(collection.indexes ?? {})) {
-			const onColNames = Array.isArray(indexProps.on) ? indexProps.on : [indexProps.on];
-			const onCols = onColNames.map((colName) => ormTable[colName]);
-			if (!atLeastOne(onCols)) continue;
-
-			indexes[indexName] = index(indexName).on(...onCols);
-		}
-		return indexes;
-	});
-	return table;
-}
-
-function atLeastOne<T>(arr: T[]): arr is [T, ...T[]] {
-	return arr.length > 0;
-}
-
-function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boolean) {
-	let c: ReturnType<
-		| typeof text
-		| typeof integer
-		| typeof jsonType
-		| typeof dateType
-		| typeof integer<string, 'boolean'>
-	>;
-
-	switch (field.type) {
-		case 'text': {
-			c = text(fieldName);
-			// Duplicate default logic across cases to preserve type inference.
-			// No clean generic for every column builder.
-			if (field.default !== undefined) c = c.default(field.default);
-			if (field.primaryKey === true) c = c.primaryKey();
-			break;
-		}
-		case 'number': {
-			c = integer(fieldName);
-			if (field.default !== undefined) c = c.default(field.default);
-			if (field.primaryKey === true) c = c.primaryKey({ autoIncrement: true });
-			break;
-		}
-		case 'boolean': {
-			c = integer(fieldName, { mode: 'boolean' });
-			if (field.default !== undefined) c = c.default(field.default);
-			break;
-		}
-		case 'json':
-			c = jsonType(fieldName);
-			if (field.default !== undefined) c = c.default(field.default);
-			break;
-		case 'date': {
-			// Parse dates as strings when in JSON serializable mode
-			if (isJsonSerializable) {
-				c = text(fieldName);
-				if (field.default !== undefined) {
-					c = c.default(field.default === 'now' ? sql`CURRENT_TIMESTAMP` : field.default);
-				}
-			} else {
-				c = dateType(fieldName);
-				if (field.default !== undefined) {
-					c = c.default(
-						field.default === 'now'
-							? sql`CURRENT_TIMESTAMP`
-							: // default comes pre-transformed to an ISO string for D1 storage.
-								// parse back to a Date for Drizzle.
-								z.coerce.date().parse(field.default)
-					);
-				}
-			}
-			break;
-		}
-	}
-
-	if (!field.optional) c = c.notNull();
-	if (field.unique) c = c.unique();
-	return c;
 }

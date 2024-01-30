@@ -18,13 +18,13 @@ import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { customAlphabet } from 'nanoid';
 import prompts from 'prompts';
 import {
+	getCreateIndexQueries,
 	getCreateTableQuery,
 	getModifiers,
-	getCreateIndexQueries,
 	hasDefault,
-	hasPrimaryKey,
 	schemaTypeToSqlType,
-} from '../internal.js';
+} from '../queries.js';
+import { hasPrimaryKey } from '../../runtime/index.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
