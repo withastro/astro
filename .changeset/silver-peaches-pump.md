@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Updated `renderEndpoint` implementation to only append the reroute directive if the response HTTP status code is 404 or 500.
+Fixes an issue where using `Response.redirect` in an endpoint led to an error.
