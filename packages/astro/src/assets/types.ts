@@ -59,6 +59,7 @@ export type SrcSetValue = UnresolvedSrcSetValue & {
  */
 export type UnresolvedImageTransform = Omit<ImageTransform, 'src'> & {
 	src: ImageMetadata | string | Promise<{ default: ImageMetadata }>;
+	inferSize?: boolean; 
 };
 
 /**

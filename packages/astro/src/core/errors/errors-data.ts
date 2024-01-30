@@ -535,6 +535,20 @@ export const MissingImageDimension = {
 } satisfies ErrorData;
 /**
  * @docs
+ * @message
+ * Failed to get the dimensions for `IMAGE_URL, error stack trace?`.
+ * @description
+ * I am not sure what would cause this error.
+ */
+export const FailedToProbeRemoteImage = {
+	name: 'FailedToProbeRemoteImage',
+	title: 'Failed to probe remote image dimensions',
+	message: (imageURL: string) =>
+		`Failed to get the dimensions for ${imageURL}.`,
+	hint: 'Verify your image URL is accurate.',
+} satisfies ErrorData;
+/**
+ * @docs
  * @description
  * The built-in image services do not currently support optimizing all image formats.
  *

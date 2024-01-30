@@ -5,6 +5,7 @@ import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } fr
 import type { ImageOutputFormat, ImageTransform, UnresolvedSrcSetValue } from '../types.js';
 import { isESMImportedImage } from '../utils/imageKind.js';
 import { isRemoteAllowed } from '../utils/remotePattern.js';
+import probe from 'probe-image-size';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -140,88 +141,86 @@ export type BaseServiceTransform = {
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
 	propertiesToHash: DEFAULT_HASH_PROPS,
-	validateOptions(options) {
-		// `src` is missing or is `undefined`.
-		if (!options.src || (typeof options.src !== 'string' && typeof options.src !== 'object')) {
-			throw new AstroError({
-				...AstroErrorData.ExpectedImage,
-				message: AstroErrorData.ExpectedImage.message(
-					JSON.stringify(options.src),
-					typeof options.src,
-					JSON.stringify(options, (_, v) => (v === undefined ? null : v))
-				),
-			});
-		}
+	async validateOptions(options) {
+        // `src` is missing or is `undefined`.
+        if (!options.src || (typeof options.src !== 'string' && typeof options.src !== 'object')) {
+            throw new AstroError({
+                ...AstroErrorData.ExpectedImage,
+                message: AstroErrorData.ExpectedImage.message(
+                    JSON.stringify(options.src),
+                    typeof options.src,
+                    JSON.stringify(options)
+                ),
+            });
+        }
 
-		if (!isESMImportedImage(options.src)) {
-			// User passed an `/@fs/` path or a filesystem path instead of the full image.
-			if (
-				options.src.startsWith('/@fs/') ||
-				(!isRemotePath(options.src) && !options.src.startsWith('/'))
-			) {
-				throw new AstroError({
-					...AstroErrorData.LocalImageUsedWrongly,
-					message: AstroErrorData.LocalImageUsedWrongly.message(options.src),
-				});
+        // Infer size for remote images if inferSize is true
+        if (options.inferSize && !isESMImportedImage(options.src)) {
+					try {
+							const result = await probe(options.src); // Directly probe the image URL
+							options.width = options.width || result.width;
+							options.height = options.height || result.height;
+					} catch {
+						throw new AstroError({
+							...AstroErrorData.FailedToProbeRemoteImage,
+							message: AstroErrorData.FailedToProbeRemoteImage.message(options.src),
+					});
+					}
 			}
 
-			// For remote images, width and height are explicitly required as we can't infer them from the file
-			let missingDimension: 'width' | 'height' | 'both' | undefined;
-			if (!options.width && !options.height) {
-				missingDimension = 'both';
-			} else if (!options.width && options.height) {
-				missingDimension = 'width';
-			} else if (options.width && !options.height) {
-				missingDimension = 'height';
-			}
+        // Handle local and ESM-imported images
+        if (!isESMImportedImage(options.src)) {
+            if (options.src.startsWith('/@fs/') || (!isRemotePath(options.src) && !options.src.startsWith('/'))) {
+                throw new AstroError({
+                    ...AstroErrorData.LocalImageUsedWrongly,
+                    message: AstroErrorData.LocalImageUsedWrongly.message(options.src),
+                });
+            }
 
-			if (missingDimension) {
-				throw new AstroError({
-					...AstroErrorData.MissingImageDimension,
-					message: AstroErrorData.MissingImageDimension.message(missingDimension, options.src),
-				});
-			}
-		} else {
-			if (!VALID_SUPPORTED_FORMATS.includes(options.src.format as any)) {
-				throw new AstroError({
-					...AstroErrorData.UnsupportedImageFormat,
-					message: AstroErrorData.UnsupportedImageFormat.message(
-						options.src.format,
-						options.src.src,
-						VALID_SUPPORTED_FORMATS
-					),
-				});
-			}
+            if (!options.width || !options.height) {
+                const missingDimension = !options.width && !options.height ? 'both' :
+                                        !options.width ? 'width' : 'height';
+                throw new AstroError({
+                    ...AstroErrorData.MissingImageDimension,
+                    message: AstroErrorData.MissingImageDimension.message(missingDimension, options.src),
+                });
+            }
+        } else {
+            if (!VALID_SUPPORTED_FORMATS.includes(options.src.format)) {
+                throw new AstroError({
+                    ...AstroErrorData.UnsupportedImageFormat,
+                    message: AstroErrorData.UnsupportedImageFormat.message(
+                        options.src.format,
+                        options.src.src,
+                        VALID_SUPPORTED_FORMATS
+                    ),
+                });
+            }
 
-			if (options.widths && options.densities) {
-				throw new AstroError(AstroErrorData.IncompatibleDescriptorOptions);
-			}
+            if (options.widths && options.densities) {
+                throw new AstroError(AstroErrorData.IncompatibleDescriptorOptions);
+            }
 
-			// We currently do not support processing SVGs, so whenever the input format is a SVG, force the output to also be one
-			if (options.src.format === 'svg') {
-				options.format = 'svg';
-			}
+            if (options.src.format === 'svg') {
+                options.format = 'svg';
+            }
 
-			if (
-				(options.src.format === 'svg' && options.format !== 'svg') ||
-				(options.src.format !== 'svg' && options.format === 'svg')
-			) {
-				throw new AstroError(AstroErrorData.UnsupportedImageConversion);
-			}
-		}
+            if ((options.src.format === 'svg' && options.format !== 'svg') ||
+                (options.src.format !== 'svg' && options.format === 'svg')) {
+                throw new AstroError(AstroErrorData.UnsupportedImageConversion);
+            }
+        }
 
-		// If the user didn't specify a format, we'll default to `webp`. It offers the best ratio of compatibility / quality
-		// In the future, hopefully we can replace this with `avif`, alas, Edge. See https://caniuse.com/avif
-		if (!options.format) {
-			options.format = DEFAULT_OUTPUT_FORMAT;
-		}
+        // Default to 'webp' format if none is specified
+        options.format = options.format || DEFAULT_OUTPUT_FORMAT;
 
-		// Sometimes users will pass number generated from division, which can result in floating point numbers
-		if (options.width) options.width = Math.round(options.width);
-		if (options.height) options.height = Math.round(options.height);
+        // Round width and height to avoid floating point numbers
+        if (options.width) options.width = Math.round(options.width);
+        if (options.height) options.height = Math.round(options.height);
 
-		return options;
-	},
+				delete options.inferSize;
+        return options;
+    },
 	getHTMLAttributes(options) {
 		const { targetWidth, targetHeight } = getTargetDimensions(options);
 		const { src, width, height, format, quality, densities, widths, formats, ...attributes } =
