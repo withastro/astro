@@ -1,11 +1,12 @@
-import { createClient, type InArgs, type InStatement } from '@libsql/client';
+/* eslint-disable no-console */
+import { createClient, type InStatement } from '@libsql/client';
 import type { AstroConfig } from 'astro';
 import deepDiff from 'deep-diff';
-import { type SQL, eq, sql } from 'drizzle-orm';
-import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
-import type { Arguments } from 'yargs-parser';
-import { appTokenError } from '../../../errors.js';
 import { drizzle } from 'drizzle-orm/sqlite-proxy';
+import type { Arguments } from 'yargs-parser';
+import type { AstroConfigWithDB } from '../../../config.js';
+import { appTokenError } from '../../../errors.js';
+import { setupDbTables } from '../../../internal.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -15,20 +16,10 @@ import {
 	loadMigration,
 } from '../../../migrations.js';
 import type { DBSnapshot } from '../../../types.js';
-import {
-	STUDIO_ADMIN_TABLE_ROW_ID,
-	adminTable,
-	createRemoteDatabaseClient,
-	getAstroStudioEnv,
-	getRemoteDatabaseUrl,
-	migrationsTable,
-} from '../../../utils.js';
+import { getAstroStudioEnv, getRemoteDatabaseUrl } from '../../../utils.js';
 import { getMigrationQueries } from '../../queries.js';
-import type { AstroConfigWithDB } from '../../../config.js';
-import { setupDbTables } from '../../../internal.js';
 
 const { diff } = deepDiff;
-const sqliteDialect = new SQLiteAsyncDialect();
 
 export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
 	const isSeedData = flags.seed;
@@ -48,33 +39,27 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		console.log(calculatedDiff);
 		process.exit(1);
 	}
-
 	if (!appToken) {
-		// eslint-disable-next-line no-console
 		console.error(appTokenError);
 		process.exit(1);
 	}
-
-	const db = createRemoteDatabaseClient(appToken);
-	// Temporary: create the migration table just in case it doesn't exist
-	await db.run(
-		sql`CREATE TABLE IF NOT EXISTS ReservedAstroStudioMigrations ( name TEXT PRIMARY KEY )`
-	);
-	// get all migrations from the DB
-	const allRemoteMigrations = await db.select().from(migrationsTable);
 	// get all migrations from the filesystem
 	const allLocalMigrations = await getMigrations();
-	// filter to find all migrations that are in FS but not DB
-	const missingMigrations = allLocalMigrations.filter((migration) => {
-		return !allRemoteMigrations.find((m) => m.name === migration);
+	const { data: missingMigrations } = await prepareMigrateQuery({
+		migrations: allLocalMigrations,
+		appToken,
 	});
-
+	// exit early if there are no migrations to push
 	if (missingMigrations.length === 0) {
 		console.info('No migrations to push! Your database is up to date!');
-	} else {
-		console.log(`Pushing ${missingMigrations.length} migrations...`);
-		await pushSchema({ migrations: missingMigrations, appToken, isDryRun, db, currentSnapshot });
+		process.exit(0);
 	}
+	// push the database schema
+	if (missingMigrations.length > 0) {
+		console.log(`Pushing ${missingMigrations.length} migrations...`);
+		await pushSchema({ migrations: missingMigrations, appToken, isDryRun, currentSnapshot });
+	}
+	// push the database seed data
 	if (isSeedData) {
 		console.info('Pushing data...');
 		await pushData({ config, appToken, isDryRun });
@@ -86,13 +71,11 @@ async function pushSchema({
 	migrations,
 	appToken,
 	isDryRun,
-	db,
 	currentSnapshot,
 }: {
 	migrations: string[];
 	appToken: string;
 	isDryRun: boolean;
-	db: ReturnType<typeof createRemoteDatabaseClient>;
 	currentSnapshot: DBSnapshot;
 }) {
 	// load all missing migrations
@@ -107,19 +90,11 @@ async function pushSchema({
 			})
 		: [];
 	// combine all missing migrations into a single batch
-	const missingMigrationBatch = missingMigrationContents.reduce((acc, curr) => {
+	const queries = missingMigrationContents.reduce((acc, curr) => {
 		return [...acc, ...curr.db];
 	}, initialMigrationBatch);
 	// apply the batch to the DB
-	const queries: SQL[] = missingMigrationBatch.map((q) => sql.raw(q));
-	await runBatchQuery({ queries, appToken, isDryRun });
-	// Update the migrations table to add all the newly run migrations
-	await db.insert(migrationsTable).values(migrations.map((m) => ({ name: m })));
-	// update the config schema in the admin table
-	await db
-		.update(adminTable)
-		.set({ collections: JSON.stringify(currentSnapshot) })
-		.where(eq(adminTable.id, STUDIO_ADMIN_TABLE_ROW_ID));
+	await runMigrateQuery({ queries, migrations, snapshot: currentSnapshot, appToken, isDryRun });
 }
 
 async function pushData({
@@ -176,27 +151,32 @@ async function pushData({
 	});
 }
 
-async function runBatchQuery({
-	queries: sqlQueries,
+async function runMigrateQuery({
+	queries,
+	migrations,
+	snapshot,
 	appToken,
 	isDryRun,
 }: {
-	queries: SQL[];
+	queries: string[];
+	migrations: string[];
+	snapshot: DBSnapshot;
 	appToken: string;
 	isDryRun?: boolean;
 }) {
-	const queries = sqlQueries.map((q) => sqliteDialect.sqlToQuery(q));
-	const requestBody: InStatement[] = queries.map((q) => ({
-		sql: q.sql,
-		args: q.params as InArgs,
-	}));
+	const requestBody = {
+		snapshot,
+		migrations,
+		sql: queries,
+		experimentalVersion: 1,
+	};
 
 	if (isDryRun) {
 		console.info('[DRY RUN] Batch query:', JSON.stringify(requestBody, null, 2));
 		return new Response(null, { status: 200 });
 	}
 
-	const url = new URL('/db/query', getRemoteDatabaseUrl());
+	const url = new URL('/db/migrate/run', getRemoteDatabaseUrl());
 
 	return await fetch(url, {
 		method: 'POST',
@@ -205,4 +185,26 @@ async function runBatchQuery({
 		}),
 		body: JSON.stringify(requestBody),
 	});
+}
+
+async function prepareMigrateQuery({
+	migrations,
+	appToken,
+}: {
+	migrations: string[];
+	appToken: string;
+}) {
+	const url = new URL('/db/migrate/prepare', getRemoteDatabaseUrl());
+	const requestBody = { 
+		migrations,
+		experimentalVersion: 1,
+	};
+	const result = await fetch(url, {
+		method: 'POST',
+		headers: new Headers({
+			Authorization: `Bearer ${appToken}`,
+		}),
+		body: JSON.stringify(requestBody),
+	});
+	return await result.json();
 }
