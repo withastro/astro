@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 8.1.0
+
+### Minor Changes
+
+- [#9080](https://github.com/withastro/astro/pull/9080) [`a12196d6b59e39f5d405734ecdbf6f6b42b39a93`](https://github.com/withastro/astro/commit/a12196d6b59e39f5d405734ecdbf6f6b42b39a93) Thanks [@msxdan](https://github.com/msxdan)! - Add trailingSlash support to NodeJS adapter
+
 ## 8.0.0
 
 ### Major Changes

@@ -1,5 +1,6 @@
 import type {
 	Locales,
+	MiddlewareHandler,
 	RouteData,
 	SerializedRouteData,
 	SSRComponentMetadata,
@@ -54,18 +55,19 @@ export type SSRManifest = {
 	pageModule?: SinglePageBuiltModule;
 	pageMap?: Map<ComponentPath, ImportComponentInstance>;
 	i18n: SSRManifestI18n | undefined;
+	middleware: MiddlewareHandler;
 };
 
 export type SSRManifestI18n = {
 	fallback?: Record<string, string>;
-	routing?: RoutingStrategies;
+	routing: RoutingStrategies;
 	locales: Locales;
 	defaultLocale: string;
 };
 
 export type SerializedSSRManifest = Omit<
 	SSRManifest,
-	'routes' | 'assets' | 'componentMetadata' | 'clientDirectives'
+	'middleware' | 'routes' | 'assets' | 'componentMetadata' | 'clientDirectives'
 > & {
 	routes: SerializedRouteInfo[];
 	assets: string[];
