@@ -184,7 +184,7 @@ export async function getCollectionChangeQueries({
 		([, field]) => hasPrimaryKey(field.old) || hasPrimaryKey(field.new)
 	);
 	const recreateTableQueries = getRecreateTableQueries({
-		unescapedCollectionName: collectionName,
+		collectionName,
 		newCollection,
 		added,
 		hasDataLoss: dataLossCheck.dataLoss,
@@ -406,24 +406,27 @@ function getAlterTableQueries(
 }
 
 function getRecreateTableQueries({
-	unescapedCollectionName,
+	collectionName: unescCollectionName,
 	newCollection,
 	added,
 	hasDataLoss,
 	migrateHiddenPrimaryKey,
 }: {
-	unescapedCollectionName: string;
+	collectionName: string;
 	newCollection: DBCollection;
 	added: Record<string, DBField>;
 	hasDataLoss: boolean;
 	migrateHiddenPrimaryKey: boolean;
 }): string[] {
-	const unescTempName = `${unescapedCollectionName}_${genTempTableName()}`;
+	const unescTempName = `${unescCollectionName}_${genTempTableName()}`;
 	const tempName = sqlite.escapeName(unescTempName);
-	const collectionName = sqlite.escapeName(unescapedCollectionName);
+	const collectionName = sqlite.escapeName(unescCollectionName);
 
 	if (hasDataLoss) {
-		return [`DROP TABLE ${collectionName}`, getCreateTableQuery(collectionName, newCollection)];
+		return [
+			`DROP TABLE ${collectionName}`,
+			getCreateTableQuery(unescCollectionName, newCollection),
+		];
 	}
 	const newColumns = [...Object.keys(newCollection.fields)];
 	if (migrateHiddenPrimaryKey) {
@@ -482,7 +485,7 @@ function canRecreateTableWithoutDataLoss(
 		if (!a.optional && !hasDefault(a)) {
 			return { dataLoss: true, fieldName, reason: 'added-required' };
 		}
-		if (a.unique) {
+		if (!a.optional && a.unique) {
 			return { dataLoss: true, fieldName, reason: 'added-unique' };
 		}
 	}
