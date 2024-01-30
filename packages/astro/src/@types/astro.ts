@@ -1540,10 +1540,12 @@ export interface AstroUserConfig {
 			 * @version 4.3.0
 			 * @description
 			 *
-			 * Configures the URL pattern of one or more supported languages to use a custom domain (or sub-domain). When a locale is mapped to a domain, a `/[locale]/` path prefix will not be used. However, localized folders within `src/pages/` are still required, including for your configured `defaultLocale`.
+			 * Configures the URL pattern of one or more supported languages to use a custom domain (or sub-domain).
 			 *
-			 *  Any other locale not configured will default to a localized path-based URL according to your `prefixDefaultLocale` strategy (e.g. `https://example.com/[locale]/blog`).
+			 * When a locale is mapped to a domain, a `/[locale]/` path prefix will not be used.
+			 * However, localized folders within `src/pages/` are still required, including for your configured `defaultLocale`.
 			 *
+			 * Any other locale not configured will default to a localized path-based URL according to your `prefixDefaultLocale` strategy (e.g. `https://example.com/[locale]/blog`).
 			 *
 			 * ```js
 			 * //astro.config.mjs
@@ -1561,15 +1563,12 @@ export interface AstroUserConfig {
 			 *			  fr: "https://fr.example.com",
 			 *       es: "https://example.es"
 			 *    },
-			 *  experimental: {
-			 *     i18nDomains: true
-			 *  }
 			 * })
 			 * ```
 			 *  
-		   * Both page routes built and URLs returned by the i18n helper functions `getAbsoluteLocaleUrl()` and `getAbsoluteLocaleUrlList()` will use the options set in `i18n.domains`.
+		   * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
 		   *  
-		   * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains-experimental) for more details, including limitations of this experimental feature.
+		   * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains) for more details, including the limitations of this feature.
 			 */
 			domains?: Record<string, string>;
 		};
@@ -1712,15 +1711,38 @@ export interface AstroUserConfig {
 		 * @default `false`
 		 * @version 4.3.0
 		 * @description
-		 * Enables domain support for internationalization routing
+	 	 *
+		 * Enables domain support for the [experimental `domains`(https://docs.astro.build/en/guides/internationalization/#domains-experimental) routing strategy] which allows you to configure the URL pattern of one or more supported languages to use a custom domain (or sub-domain).
+		 *
+		 * When a locale is mapped to a domain, a `/[locale]/` path prefix will not be used. However, localized folders within `src/pages/` are still required, including for your configured `defaultLocale`.
+		 *
+		 * Any other locale not configured will default to a localized path-based URL according to your `prefixDefaultLocale` strategy (e.g. `https://example.com/[locale]/blog`).
 		 *
 		 * ```js
-		 * {
-		 * 	experimental: {
-		 * 		i18nDomains: true,
-		 * 	},
-		 * }
+		 * //astro.config.mjs
+		 * export default defineConfig({
+		 * 	site: "https://example.com",
+		 * 	output: "server", // required, with no prerendered pages
+		 *   adapter: node({
+		 *     mode: 'standalone',
+		 *   }),
+		 * 	i18n: {
+		 * 		defaultLocale: "en",
+		 * 		locales: ["en", "fr", "pt-br", "es"],
+		 *     prefixDefaultLocale: false,
+		 *		  domains: {
+		 *			  fr: "https://fr.example.com",
+		 *       es: "https://example.es"
+		 *    },
+		 *  experimental: {
+		 *     i18nDomains: true
+		 *  }
+		 * })
 		 * ```
+		 *  
+		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
+		 *  
+		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains-experimental) for more details, including the limitations of this experimental feature.
 		 */
 		i18nDomains?: boolean;
 	};
