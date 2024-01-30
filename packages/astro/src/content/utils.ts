@@ -288,7 +288,6 @@ function getYAMLErrorLine(rawData: string | undefined, objectKey: string) {
 	return numNewlinesBeforeKey;
 }
 
-
 export function safeParseFrontmatter(source: string, id?: string) {
 	try {
 		return matter(source);
@@ -297,9 +296,11 @@ export function safeParseFrontmatter(source: string, id?: string) {
 			name: 'MarkdownError',
 			message: err.message,
 			stack: err.stack,
-			location: id ? {
-				file: id,
-			} : undefined,
+			location: id
+				? {
+						file: id,
+					}
+				: undefined,
 		});
 
 		if (isYAMLException(err)) {
