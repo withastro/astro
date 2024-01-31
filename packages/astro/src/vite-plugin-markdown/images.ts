@@ -5,8 +5,8 @@ export function getMarkdownCodeForImages(imagePaths: MarkdownImagePath[], html: 
 			import { getImage } from "astro:assets";
 			${imagePaths
 				.map((entry) => {
-						const prefix = entry.raw.includes('/') ? '' : './';
-						return `import Astro__${entry.safeName} from ${JSON.stringify(prefix + entry.raw)};`;
+					const prefix = entry.raw.includes('/') ? '' : './';
+					return `import Astro__${entry.safeName} from ${JSON.stringify(prefix + entry.raw)};`;
 				})
 				.join('\n')}
 

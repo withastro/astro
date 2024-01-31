@@ -485,8 +485,8 @@ describe('astro:image', () => {
 
 			it('image in cc folder is processed', () => {
 				let $imgs = $('img');
-				let $blogfolderimg = $($imgs[7]); 
-				expect($blogfolderimg.attr('src')).to.include("blogfolder.jpg");
+				let $blogfolderimg = $($imgs[7]);
+				expect($blogfolderimg.attr('src')).to.include('blogfolder.jpg');
 				expect($blogfolderimg.attr('src').endsWith('f=webp')).to.equal(true);
 			});
 
