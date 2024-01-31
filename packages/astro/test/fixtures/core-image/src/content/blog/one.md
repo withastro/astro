@@ -12,3 +12,5 @@ refinedImage: ../../assets/penguin1.jpg
 # A post
 
 text here
+
+![](blogfolder.jpg)
