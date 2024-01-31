@@ -4152,9 +4152,6 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
-      chai:
-        specifier: ^4.3.7
-        version: 4.3.10
       cheerio:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
@@ -4167,9 +4164,6 @@ importers:
       mdast-util-to-string:
         specifier: ^4.0.0
         version: 4.0.0
-      mocha:
-        specifier: ^10.2.0
-        version: 10.2.0
       reading-time:
         specifier: ^1.5.0
         version: 1.5.0
@@ -4560,15 +4554,9 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
-      chai:
-        specifier: ^4.3.7
-        version: 4.3.10
       cheerio:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
-      mocha:
-        specifier: ^10.2.0
-        version: 10.2.0
       react:
         specifier: ^18.1.0
         version: 18.2.0
@@ -4618,12 +4606,6 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
-      chai:
-        specifier: ^4.3.7
-        version: 4.3.10
-      mocha:
-        specifier: ^10.2.0
-        version: 10.2.0
       xml2js:
         specifier: 0.6.2
         version: 0.6.2
