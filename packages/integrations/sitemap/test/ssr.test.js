@@ -17,7 +17,7 @@ describe('SSR support', () => {
 		const data = await readXML(fixture.readFile('/client/sitemap-0.xml'));
 		const urls = data.urlset.url;
 
-		assert.equal(urls[0].loc[0],'http://example.com/one/')
-		assert.equal(urls[1].loc[0],'http://example.com/two/')
+		assert.equal(urls[0].loc[0], 'http://example.com/one/');
+		assert.equal(urls[1].loc[0], 'http://example.com/two/');
 	});
 });
