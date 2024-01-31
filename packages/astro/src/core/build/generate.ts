@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import PQueue from 'p-queue';
 import type { OutputAsset, OutputChunk } from 'rollup';
 import type {
+	AstroConfig,
 	AstroSettings,
 	ComponentInstance,
 	GetStaticPathsItem,
@@ -455,7 +456,8 @@ function getUrlForPath(
 	pathname: string,
 	base: string,
 	origin: string,
-	format: 'directory' | 'file',
+	format: AstroConfig['build']['format'],
+	trailingSlash: AstroConfig['trailingSlash'],
 	routeType: RouteType
 ): URL {
 	/**
@@ -463,7 +465,7 @@ function getUrlForPath(
 	 * pathname: /, /foo
 	 * base: /
 	 */
-	const ending = format === 'directory' ? '/' : '.html';
+	const ending = format === 'directory' ? (trailingSlash === 'never' ? '' : '/') : '.html';
 	let buildPathname: string;
 	if (pathname === '/' || pathname === '') {
 		buildPathname = base;
@@ -538,6 +540,7 @@ async function generatePath(
 		pipeline.getConfig().base,
 		pipeline.getStaticBuildOptions().origin,
 		pipeline.getConfig().build.format,
+		pipeline.getConfig().trailingSlash,
 		route.type
 	);
 

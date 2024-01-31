@@ -161,7 +161,10 @@ export default {
 						astroToggle.input.addEventListener('change', setting.changeEvent);
 						astroToggle.input.checked = settings.config[setting.settingKey];
 						label.append(astroToggle);
+						break;
 					}
+					default:
+						break;
 				}
 
 				return label;

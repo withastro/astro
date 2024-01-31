@@ -844,7 +844,7 @@ describe('[SSG] i18n routing', () => {
 		it('should render localised page correctly', async () => {
 			let html = await fixture.readFile('/pt/start/index.html');
 			let $ = cheerio.load(html);
-			expect($('body').text()).includes('Oi essa e start');
+			expect($('body').text()).includes('Oi essa e start: pt');
 
 			html = await fixture.readFile('/pt/blog/1/index.html');
 			$ = cheerio.load(html);
