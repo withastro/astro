@@ -3,7 +3,7 @@ import astroDb, { defineCollection, field } from '@astrojs/db';
 
 const Recipe = defineCollection({
 	fields: {
-		id: field.number({ primaryKey: true, optional: true }),
+		id: field.number({ primaryKey: true }),
 		title: field.text(),
 		description: field.text(),
 	},
@@ -11,7 +11,7 @@ const Recipe = defineCollection({
 
 const Ingredient = defineCollection({
 	fields: {
-		id: field.number({ primaryKey: true, optional: true }),
+		id: field.number({ primaryKey: true }),
 		name: field.text(),
 		quantity: field.number(),
 		recipeId: field.text(),
