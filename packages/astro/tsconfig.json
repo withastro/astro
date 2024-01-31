@@ -4,7 +4,6 @@
   "compilerOptions": {
     "allowJs": true,
     "declarationDir": "./dist",
-    "rootDir": ".",
     "outDir": "./dist",
     "jsx": "preserve",
     "types": ["@types/dom-view-transitions"]
