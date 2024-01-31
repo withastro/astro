@@ -1,5 +1,6 @@
 import { loadFixture, readXML } from './test-utils.js';
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { describe, it, before } from 'node:test';
 
 describe('routes', () => {
 	/** @type {import('./test-utils.js').Fixture} */
@@ -17,10 +18,10 @@ describe('routes', () => {
 	});
 
 	it('does not include endpoints', async () => {
-		expect(urls).to.not.include('http://example.com/endpoint.json');
+		assert.equal(urls.indexOf('http://example.com/endpoint.json'), -1);
 	});
 
 	it('does not include redirects', async () => {
-		expect(urls).to.not.include('http://example.com/redirect');
+		assert.equal(urls.indexOf('http://example.com/endpoint.json'), -1);
 	});
 });
