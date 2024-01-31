@@ -151,6 +151,10 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			renderers.renderers as SSRLoadedRenderer[]
 		);
 	}
+	// solve JSON.stringify lose assetsPrefix function
+	if (typeof opts.settings.config.build.assetsPrefix === 'function') {
+    manifest.assetsPrefix = opts.settings.config.build.assetsPrefix
+  }
 	const pipeline = new BuildPipeline(opts, internals, manifest);
 
 	const outFolder = ssr

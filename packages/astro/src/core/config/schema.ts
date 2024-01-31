@@ -138,7 +138,7 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.build.server)
 				.transform((val) => new URL(val)),
 			assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
-			assetsPrefix: z.string().optional(),
+			assetsPrefix: z.function().args(z.string()).returns(z.string()).optional().or(z.string().optional()),
 			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 			inlineStylesheets: z
@@ -479,7 +479,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.default(ASTRO_CONFIG_DEFAULTS.build.server)
 					.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 				assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
-				assetsPrefix: z.string().optional(),
+				assetsPrefix: z.function().args(z.string()).returns(z.string()).optional().or(z.string().optional()),
 				serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 				redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 				inlineStylesheets: z

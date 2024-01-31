@@ -151,7 +151,6 @@ export async function createVite(
 		define: {
 			'import.meta.env.SITE': stringifyForDefine(settings.config.site),
 			'import.meta.env.BASE_URL': stringifyForDefine(settings.config.base),
-			'import.meta.env.ASSETS_PREFIX': stringifyForDefine(settings.config.build.assetsPrefix),
 		},
 		server: {
 			hmr:
@@ -198,15 +197,23 @@ export async function createVite(
 			external: [...(mode === 'dev' ? ONLY_DEV_EXTERNAL : []), ...astroPkgsConfig.ssr.external],
 		},
 	};
+	
+	const { assetsPrefix } = settings.config.build;
+	if (assetsPrefix && typeof assetsPrefix === 'string' && commonConfig.define) {
+		commonConfig.define['import.meta.env.ASSETS_PREFIX'] = stringifyForDefine(assetsPrefix);
+	}
 
 	// If the user provides a custom assets prefix, make sure assets handled by Vite
 	// are prefixed with it too. This uses one of it's experimental features, but it
 	// has been stable for a long time now.
-	const assetsPrefix = settings.config.build.assetsPrefix;
 	if (assetsPrefix) {
 		commonConfig.experimental = {
-			renderBuiltUrl(filename, { type }) {
+			renderBuiltUrl(filename, { type, hostType }) {
 				if (type === 'asset') {
+					if (typeof assetsPrefix === 'function') {
+						const pf = assetsPrefix(hostType)
+						return joinPaths(pf, filename);
+					}
 					return joinPaths(assetsPrefix, filename);
 				}
 			},

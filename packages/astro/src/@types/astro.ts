@@ -13,7 +13,7 @@ import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
-import type { SerializedSSRManifest } from '../core/app/types.js';
+import type { SerializedSSRManifest, AssetsPrefix } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import type { AstroConfigType } from '../core/config/index.js';
 import type { AstroTimer } from '../core/config/timer.js';
@@ -63,7 +63,7 @@ export type {
 	UnresolvedImageTransform,
 } from '../assets/types.js';
 export type { RemotePattern } from '../assets/utils/remotePattern.js';
-export type { SSRManifest } from '../core/app/types.js';
+export type { SSRManifest, AssetsPrefix } from '../core/app/types.js';
 export type {
 	AstroCookieGetOptions,
 	AstroCookieSetOptions,
@@ -838,7 +838,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 */
-		assetsPrefix?: string;
+		assetsPrefix?: AssetsPrefix;
 		/**
 		 * @docs
 		 * @name build.serverEntry

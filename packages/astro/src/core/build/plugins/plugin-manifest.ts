@@ -2,6 +2,7 @@ import glob from 'fast-glob';
 import { fileURLToPath } from 'node:url';
 import type { OutputChunk } from 'rollup';
 import { type Plugin as VitePlugin } from 'vite';
+import { getFileExtension } from '@astrojs/internal-helpers/path';
 import { runHookBuildSsr } from '../../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import type {
@@ -165,8 +166,12 @@ function buildManifest(
 	}
 
 	const prefixAssetPath = (pth: string) => {
-		if (settings.config.build.assetsPrefix) {
+		if (typeof settings.config.build.assetsPrefix === "string") {
 			return joinPaths(settings.config.build.assetsPrefix, pth);
+		} else if (typeof settings.config.build.assetsPrefix === "function") {
+			const fileType = getFileExtension(pth)
+			const pf = settings.config.build.assetsPrefix(fileType) || ""
+			return joinPaths(pf, pth);
 		} else {
 			return prependForwardSlash(joinPaths(settings.config.base, pth));
 		}

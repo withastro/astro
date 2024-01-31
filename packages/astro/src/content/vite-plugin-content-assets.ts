@@ -1,6 +1,7 @@
 import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { Plugin, Rollup } from 'vite';
+import { getFileExtension } from '@astrojs/internal-helpers/path';
 import type { AstroSettings } from '../@types/astro.js';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { getPageDataByViteID, type BuildInternals } from '../core/build/internal.js';
@@ -125,8 +126,12 @@ export function astroConfigBuildPlugin(
 			'build:post': ({ ssrOutputs, clientOutputs, mutate }) => {
 				const outputs = ssrOutputs.flatMap((o) => o.output);
 				const prependBase = (src: string) => {
-					if (options.settings.config.build.assetsPrefix) {
-						return joinPaths(options.settings.config.build.assetsPrefix, src);
+					const { assetsPrefix } = options.settings.config.build
+					if (typeof assetsPrefix === "string") {
+						return joinPaths(assetsPrefix, src);
+					} else if (typeof assetsPrefix === "function") {
+						const pf = assetsPrefix(getFileExtension(src)) || ""
+						return joinPaths(pf, src);
 					} else {
 						return prependForwardSlash(joinPaths(options.settings.config.base, src));
 					}
