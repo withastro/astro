@@ -95,6 +95,11 @@ export function serverStart({
 	return messages.filter((msg) => typeof msg === 'string').join('\n');
 }
 
+/** Display custom dev server shortcuts */
+export function serverShortcuts({ key, label }: { key: string; label: string }): string {
+	return [dim('  Press'), key, dim('to'), label].join(' ');
+}
+
 export function telemetryNotice() {
 	const headline = blue(`▶ Astro collects anonymous usage data.`);
 	const why = '  This information helps us improve Astro.';
