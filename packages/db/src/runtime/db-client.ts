@@ -7,6 +7,8 @@ import { type SQLiteTable } from 'drizzle-orm/sqlite-core';
 import { z } from 'zod';
 import { getTableName } from 'drizzle-orm';
 
+const isWebContainer = !!(process.versions?.webcontainer);
+
 export async function createLocalDatabaseClient({
 	collections,
 	dbUrl,
@@ -16,7 +18,8 @@ export async function createLocalDatabaseClient({
 	collections: DBCollections;
 	seeding: boolean;
 }) {
-	const client = createClient({ url: dbUrl });
+	const url = isWebContainer ? 'file:content.db' : dbUrl;
+	const client = createClient({ url });
 	const db = drizzleLibsql(client);
 
 	if (seeding) return db;
