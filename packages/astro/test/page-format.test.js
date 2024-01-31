@@ -67,8 +67,8 @@ describe('build.format', () => {
 					routing: {
 						prefixDefaultLocale: true,
 						redirectToDefaultLocale: true,
-					}
-				}
+					},
+				},
 			});
 		});
 

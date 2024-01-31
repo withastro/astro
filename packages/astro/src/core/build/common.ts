@@ -44,7 +44,7 @@ export function getOutFolder(
 					let dir;
 					// If the pathname is '' then this is the root index.html
 					// If this is an index route, the folder should be the pathname, not the parent
-					if(pathname === '' || routeData.isIndex) {
+					if (pathname === '' || routeData.isIndex) {
 						dir = pathname;
 					} else {
 						dir = npath.dirname(pathname);
@@ -84,7 +84,7 @@ export function getOutFile(
 					let baseName = npath.basename(pathname);
 					// If there is no base name this is the root route.
 					// If this is an index route, the name should be `index.html`.
-					if(!baseName || routeData.isIndex) {
+					if (!baseName || routeData.isIndex) {
 						baseName = 'index';
 					}
 					return new URL(`./${baseName}.html`, outFolder);
