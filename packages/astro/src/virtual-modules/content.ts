@@ -1,5 +1,6 @@
 import { defineCollection as _defineCollection } from '../content/runtime.js';
-import { z } from 'astro/zod';
+import { z } from 'zod';
+
 export { z };
 
 // This needs to be in sync with ImageMetadata
