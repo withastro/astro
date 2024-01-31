@@ -2,9 +2,10 @@ import * as I18nInternals from '../i18n/index.js';
 import type { I18nInternalConfig } from '../i18n/vite-plugin-i18n.js';
 export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
 
-// @ts-expect-error
-const { trailingSlash, format, site, i18n } = __ASTRO_INTERNAL_I18N_CONFIG__ as I18nInternalConfig;
-const { defaultLocale, locales, routing } = i18n!;
+const { trailingSlash, format, site, i18n, isBuild } =
+	// @ts-expect-error
+	__ASTRO_INTERNAL_I18N_CONFIG__ as I18nInternalConfig;
+const { defaultLocale, locales, routing, domains } = i18n!;
 const base = import.meta.env.BASE_URL;
 
 export type GetLocaleOptions = I18nInternals.GetLocaleOptions;
@@ -40,6 +41,7 @@ export const getRelativeLocaleUrl = (locale: string, path?: string, options?: Ge
 		defaultLocale,
 		locales,
 		routing,
+		domains,
 		...options,
 	});
 
@@ -68,7 +70,7 @@ export const getRelativeLocaleUrl = (locale: string, path?: string, options?: Ge
  * getAbsoluteLocaleUrl("es_US", "getting-started", { prependWith: "blog", normalizeLocale: false }); // https://example.com/blog/es_US/getting-started
  * ```
  */
-export const getAbsoluteLocaleUrl = (locale: string, path = '', options?: GetLocaleOptions) =>
+export const getAbsoluteLocaleUrl = (locale: string, path?: string, options?: GetLocaleOptions) =>
 	I18nInternals.getLocaleAbsoluteUrl({
 		locale,
 		path,
@@ -79,6 +81,8 @@ export const getAbsoluteLocaleUrl = (locale: string, path = '', options?: GetLoc
 		defaultLocale,
 		locales,
 		routing,
+		domains,
+		isBuild,
 		...options,
 	});
 
@@ -97,6 +101,7 @@ export const getRelativeLocaleUrlList = (path?: string, options?: GetLocaleOptio
 		defaultLocale,
 		locales,
 		routing,
+		domains,
 		...options,
 	});
 
@@ -116,6 +121,8 @@ export const getAbsoluteLocaleUrlList = (path?: string, options?: GetLocaleOptio
 		defaultLocale,
 		locales,
 		routing,
+		domains,
+		isBuild,
 		...options,
 	});
 
