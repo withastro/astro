@@ -23,7 +23,7 @@ describe('Errors', () => {
 		await devPreview.stop();
 	});
 
-	it.skip('rejected promise in template', async () => {
+	it('rejected promise in template', async () => {
 		const res = await fixture.fetch('/in-stream');
 		const html = await res.text();
 		const $ = cheerio.load(html);
