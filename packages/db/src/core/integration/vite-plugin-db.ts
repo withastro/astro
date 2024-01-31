@@ -1,7 +1,7 @@
-import type { AstroConfig } from 'astro';
 import { RUNTIME_IMPORT, VIRTUAL_MODULE_ID, DB_PATH, RUNTIME_DRIZZLE_IMPORT } from '../consts.js';
 import type { DBCollections } from '../types.js';
 import type { VitePlugin } from '../utils.js';
+import { fileURLToPath } from 'node:url';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -10,12 +10,13 @@ export function vitePluginDb(
 		| {
 				connectToStudio: false;
 				collections: DBCollections;
+				root: URL;
 		  }
 		| {
-				output: AstroConfig['output'];
 				connectToStudio: true;
 				collections: DBCollections;
 				appToken: string;
+				root: URL;
 		  }
 ): VitePlugin {
 	return {
@@ -37,10 +38,11 @@ export function vitePluginDb(
 	};
 }
 
-export function getVirtualModContents({ collections }: { collections: DBCollections }) {
+export function getVirtualModContents({ collections, root }: { collections: DBCollections; root: URL }) {
+	const dbUrl = new URL(DB_PATH, root);
 	return `
 import { collectionToTable, createLocalDatabaseClient } from ${RUNTIME_IMPORT};
-import dbUrl from './${DB_PATH}?fileurl';
+import dbUrl from '${fileURLToPath(dbUrl)}?fileurl';
 
 const params = ${JSON.stringify({
 		collections,

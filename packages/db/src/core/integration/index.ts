@@ -47,7 +47,7 @@ function astroDBIntegration(): AstroIntegration {
 						connectToStudio: true,
 						collections,
 						appToken,
-						output: config.output,
+						root: config.root,
 					});
 				} else {
 					const dbUrl = new URL(DB_PATH, config.root);
@@ -74,6 +74,7 @@ function astroDBIntegration(): AstroIntegration {
 					dbPlugin = vitePluginDb({
 						connectToStudio: false,
 						collections,
+						root: config.root,
 					});
 				}
 
