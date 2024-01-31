@@ -1,5 +1,6 @@
 import { createElement, startTransition } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
+import styleToObject from 'style-to-object';
 import StaticHtml from './static-html.js';
 
 function isAlreadyHydrated(element) {
@@ -13,7 +14,11 @@ function isAlreadyHydrated(element) {
 function createReactElementFromDOMElement(element) {
 	let attrs = {};
 	for (const attr of element.attributes) {
-		attrs[attr.name] = attr.value;
+		if (attr.name === 'style' && typeof attr.value === 'string') {
+			attrs['style'] = styleToObject(attr.value);
+		} else {
+			attrs[attr.name] = attr.value;
+		}
 	}
 
 	return createElement(
