@@ -61,7 +61,21 @@ export function fileURLIntegration(): AstroIntegration {
 				config = _config;
 			},
 			async 'astro:build:done'() {
-				if (config.output !== 'static') {
+				if (config.output === 'static') {
+					// Delete the files since they are only used for the build process.
+					const unlinks: Promise<unknown>[] = [];
+					for (const fileName of fileNames) {
+						const url = new URL(fileName, config.outDir);
+						unlinks.push(fs.promises.unlink(url));
+					}
+					await Promise.all(unlinks);
+					const assetDir = new URL(config.build.assets, config.outDir);
+					const assetFiles = await fs.promises.readdir(assetDir);
+					if(!assetFiles.length) {
+						// Directory is empty, delete it.
+						await fs.promises.rmdir(assetDir);
+					}
+				} else {
 					// Move files back over to the dist output path
 					const moves: Promise<unknown>[] = [];
 					for (const fileName of fileNames) {
