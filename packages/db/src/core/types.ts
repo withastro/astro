@@ -16,16 +16,36 @@ const booleanFieldSchema = baseFieldSchema.extend({
 	default: z.boolean().optional(),
 });
 
-const numberFieldSchema = baseFieldSchema.extend({
+// NOTE (bholmesdev): `references` creates a recursive type. This is not supported by zod.
+// Declare `NumberField` and `TextField` manually and use `z.lazy()` in schema.
+// see https://zod.dev/?id=recursive-types
+export type NumberField = z.infer<typeof baseFieldSchema> & {
+	type: 'number';
+	default?: number;
+	references?: ReferenceableField;
+	primaryKey?: boolean;
+};
+
+const numberFieldSchema: z.ZodType<NumberField> = baseFieldSchema.extend({
 	type: z.literal('number'),
 	default: z.number().optional(),
+	references: z.lazy(() => referenceableFieldSchema).optional(),
 	primaryKey: z.boolean().optional(),
 });
 
-const textFieldSchema = baseFieldSchema.extend({
+export type TextField = z.infer<typeof baseFieldSchema> & {
+	type: 'text';
+	multiline?: boolean;
+	default?: string;
+	references?: ReferenceableField;
+	primaryKey?: boolean;
+};
+
+const textFieldSchema: z.ZodType<TextField> = baseFieldSchema.extend({
 	type: z.literal('text'),
 	multiline: z.boolean().optional(),
 	default: z.string().optional(),
+	references: z.lazy(() => referenceableFieldSchema).optional(),
 	primaryKey: z.boolean().optional(),
 });
 
@@ -53,19 +73,26 @@ const fieldSchema = z.union([
 	dateFieldSchema,
 	jsonFieldSchema,
 ]);
+export const referenceableFieldSchema = z.union([textFieldSchema, numberFieldSchema]);
+export type ReferenceableField = z.infer<typeof referenceableFieldSchema>;
 const fieldsSchema = z.record(fieldSchema);
 
 export const indexSchema = z.object({
 	on: z.string().or(z.array(z.string())),
 	unique: z.boolean().optional(),
 });
-const indexesSchema = z.record(indexSchema);
 
-export type Indexes = z.infer<typeof indexesSchema>;
+const foreignKeysSchema = z.object({
+	fields: z.string().or(z.array(z.string())),
+	references: referenceableFieldSchema.or(z.array(referenceableFieldSchema)),
+});
+
+export type Indexes = Record<string, z.infer<typeof indexSchema>>;
 
 const baseCollectionSchema = z.object({
 	fields: fieldsSchema,
-	indexes: indexesSchema.optional(),
+	indexes: z.record(indexSchema).optional(),
+	foreignKeys: z.array(foreignKeysSchema).optional(),
 	table: z.any(),
 	_setMeta: z.function().optional(),
 });
@@ -82,8 +109,6 @@ export const collectionSchema = z.union([readableCollectionSchema, writableColle
 export const collectionsSchema = z.record(collectionSchema);
 
 export type BooleanField = z.infer<typeof booleanFieldSchema>;
-export type NumberField = z.infer<typeof numberFieldSchema>;
-export type TextField = z.infer<typeof textFieldSchema>;
 export type DateField = z.infer<typeof dateFieldSchema>;
 // Type `Date` is the config input, `string` is the output for D1 storage
 export type DateFieldInput = z.input<typeof dateFieldSchema>;
@@ -164,6 +189,11 @@ interface CollectionConfig<TFields extends FieldsConfig>
 	// only adding generics for type completions.
 	extends Pick<z.input<typeof collectionSchema>, 'fields' | 'indexes'> {
 	fields: TFields;
+	foreignKeys?: Array<{
+		fields: MaybeArray<Extract<keyof TFields, string>>;
+		// TODO: runtime error if parent collection doesn't match for all fields. Can't put a generic here...
+		references: MaybeArray<ReferenceableField>;
+	}>;
 	indexes?: Record<string, IndexConfig<TFields>>;
 }
 
