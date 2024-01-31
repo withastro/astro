@@ -1,6 +1,5 @@
 import { loadFixture, readXML } from './test-utils.js';
-import * as assert from 'node:assert/strict';
-import { describe, it, before } from 'node:test';
+import { expect } from 'chai';
 
 describe('SSR support', () => {
 	/** @type {import('./test-utils.js').Fixture} */
@@ -17,7 +16,7 @@ describe('SSR support', () => {
 		const data = await readXML(fixture.readFile('/client/sitemap-0.xml'));
 		const urls = data.urlset.url;
 
-		assert.equal(urls[0].loc[0], 'http://example.com/one/');
-		assert.equal(urls[1].loc[0], 'http://example.com/two/');
+		expect(urls[0].loc[0]).to.equal('http://example.com/one/');
+		expect(urls[1].loc[0]).to.equal('http://example.com/two/');
 	});
 });
