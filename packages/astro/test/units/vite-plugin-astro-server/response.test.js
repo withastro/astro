@@ -54,7 +54,7 @@ describe('endpoints', () => {
 		await done;
 		const headers = res.getHeaders();
 		expect(headers).to.deep.equal({
-			"access-control-allow-origin": "*",
+			'access-control-allow-origin': '*',
 			'x-single': 'single',
 			'x-triple': 'one, two, three',
 			'set-cookie': ['hello', 'world'],
