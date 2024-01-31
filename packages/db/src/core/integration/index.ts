@@ -59,7 +59,7 @@ function astroDBIntegration(): AstroIntegration {
 
 					const db = await createLocalDatabaseClient({
 						collections,
-						dbUrl: dbUrl.href,
+						dbUrl: dbUrl.toString(),
 						seeding: true,
 					});
 					await setupDbTables({
