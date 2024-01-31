@@ -1,35 +1,35 @@
 import { defineCollection as _defineCollection } from '../content/runtime.js';
-export { z } from 'astro/zod';
+export { z } from 'zod';
 
 // This needs to be in sync with ImageMetadata
-export type ImageFunction = () => import('astro/zod').ZodObject<{
-	src: import('astro/zod').ZodString;
-	width: import('astro/zod').ZodNumber;
-	height: import('astro/zod').ZodNumber;
-	format: import('astro/zod').ZodUnion<
+export type ImageFunction = () => import('zod').ZodObject<{
+	src: import('zod').ZodString;
+	width: import('zod').ZodNumber;
+	height: import('zod').ZodNumber;
+	format: import('zod').ZodUnion<
 		[
-			import('astro/zod').ZodLiteral<'png'>,
-			import('astro/zod').ZodLiteral<'jpg'>,
-			import('astro/zod').ZodLiteral<'jpeg'>,
-			import('astro/zod').ZodLiteral<'tiff'>,
-			import('astro/zod').ZodLiteral<'webp'>,
-			import('astro/zod').ZodLiteral<'gif'>,
-			import('astro/zod').ZodLiteral<'svg'>,
-			import('astro/zod').ZodLiteral<'avif'>,
+			import('zod').ZodLiteral<'png'>,
+			import('zod').ZodLiteral<'jpg'>,
+			import('zod').ZodLiteral<'jpeg'>,
+			import('zod').ZodLiteral<'tiff'>,
+			import('zod').ZodLiteral<'webp'>,
+			import('zod').ZodLiteral<'gif'>,
+			import('zod').ZodLiteral<'svg'>,
+			import('zod').ZodLiteral<'avif'>,
 		]
 	>;
 }>;
 
 // @ts-ignore complains about circular dependency but used to work in the types template
 type BaseSchemaWithoutEffects =
-	| import('astro/zod').AnyZodObject
-	| import('astro/zod').ZodUnion<[BaseSchemaWithoutEffects, ...BaseSchemaWithoutEffects[]]>
-	| import('astro/zod').ZodDiscriminatedUnion<string, import('astro/zod').AnyZodObject[]>
-	| import('astro/zod').ZodIntersection<BaseSchemaWithoutEffects, BaseSchemaWithoutEffects>;
+	| import('zod').AnyZodObject
+	| import('zod').ZodUnion<[BaseSchemaWithoutEffects, ...BaseSchemaWithoutEffects[]]>
+	| import('zod').ZodDiscriminatedUnion<string, import('zod').AnyZodObject[]>
+	| import('zod').ZodIntersection<BaseSchemaWithoutEffects, BaseSchemaWithoutEffects>;
 
 type BaseSchema =
 	| BaseSchemaWithoutEffects
-	| import('astro/zod').ZodEffects<BaseSchemaWithoutEffects>;
+	| import('zod').ZodEffects<BaseSchemaWithoutEffects>;
 
 export type SchemaContext = { image: ImageFunction };
 
