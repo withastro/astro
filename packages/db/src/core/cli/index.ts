@@ -23,12 +23,10 @@ export async function cli({ flags, config }: { flags: Arguments; config: AstroCo
 		}
 		default: {
 			if (command == null) {
-				// eslint-disable-next-line no-console
 				console.error(`No command provided.
 
 ${showHelp()}`);
 			} else {
-				// eslint-disable-next-line no-console
 				console.error(`Unknown command: ${command}
 
 ${showHelp()}`);

@@ -9,7 +9,6 @@ export async function cmd({ flags }: { config: AstroConfig; flags: Arguments }) 
 	const query = flags.query;
 	const appToken = flags.token ?? getAstroStudioEnv().ASTRO_STUDIO_APP_TOKEN;
 	if (!appToken) {
-		// eslint-disable-next-line no-console
 		console.error(appTokenError);
 		process.exit(1);
 	}

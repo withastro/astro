@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { createClient, type InStatement } from '@libsql/client';
 import type { AstroConfig } from 'astro';
 import deepDiff from 'deep-diff';
@@ -206,5 +205,8 @@ async function prepareMigrateQuery({
 		}),
 		body: JSON.stringify(requestBody),
 	});
+	if (result.status >= 400) {
+		throw new Error(await result.text())
+	}
 	return await result.json();
 }
