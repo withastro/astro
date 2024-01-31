@@ -6,7 +6,7 @@ import { existsSync } from 'fs';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { DB_PATH } from '../consts.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
-import { astroConfigWithDbSchema } from '../types.js';
+import { astroConfigWithDbSchema, attachTableMetaHandler } from '../types.js';
 import { getAstroStudioEnv, type VitePlugin } from '../utils.js';
 import { appTokenError } from '../errors.js';
 import { errorMap } from './error-map.js';
@@ -15,6 +15,7 @@ import { fileURLToPath } from 'url';
 import { bold } from 'kleur/colors';
 import { fileURLIntegration } from './file-url.js';
 import { setupDbTables } from '../queries.js';
+import { collectionToTable } from '../../runtime/index.js';
 
 function astroDBIntegration(): AstroIntegration {
 	return {
@@ -27,6 +28,8 @@ function astroDBIntegration(): AstroIntegration {
 				// @matthewp: may want to load collections by path at runtime
 				const configWithDb = astroConfigWithDbSchema.parse(config, { errorMap });
 				const collections = configWithDb.db?.collections ?? {};
+				setCollectionsMeta(collections);
+
 				const studio = configWithDb.db?.studio ?? false;
 				if (!studio && Object.values(collections).some((c) => c.writable)) {
 					logger.warn(
@@ -103,6 +106,19 @@ function astroDBIntegration(): AstroIntegration {
 			},
 		},
 	};
+}
+
+/**
+ * We need to attach the Drizzle `table` and collection name at runtime.
+ * These cannot be determined from `defineCollection()`,
+ * since we don't know the collection name until the `db` config is resolved.
+ */
+function setCollectionsMeta(collections: Record<string, any>) {
+	for (const [name, collection] of Object.entries(collections)) {
+		const table = collectionToTable(name, collection);
+		collection[name] = attachTableMetaHandler(collection);
+		collection[name]._setMeta?.({ table });
+	}
 }
 
 export function integration(): AstroIntegration[] {

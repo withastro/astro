@@ -14,7 +14,7 @@ import { bold } from 'kleur/colors';
 import { type SQL, sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import type { AstroIntegrationLogger } from 'astro';
-import type { DBUserConfig } from '../core/types.js';
+import type { DBUserConfig, ReferenceableField } from '../core/types.js';
 import { collectionToTable, hasPrimaryKey } from '../runtime/index.js';
 
 const sqlite = new SQLiteAsyncDialect();
@@ -43,10 +43,6 @@ export async function setupDbTables({
 		await db.run(q);
 	}
 	if (data) {
-		for (const [name, collection] of Object.entries(collections)) {
-			const table = collectionToTable(name, collection);
-			collection._setMeta?.({ table });
-		}
 		try {
 			await data({
 				async seed({ table }, values) {
@@ -139,7 +135,24 @@ export function getModifiers(fieldName: string, field: DBField) {
 	if (hasDefault(field)) {
 		modifiers += ` DEFAULT ${getDefaultValueSql(fieldName, field)}`;
 	}
+	const references = getReferencesConfig(field);
+	if (references) {
+		const { collection, name } = references;
+		if (!collection || !name) {
+			throw new Error(
+				`Invalid reference for field ${fieldName}. This is an unexpected error that should be reported to the Astro team.`
+			);
+		}
+
+		modifiers += ` REFERENCES ${sqlite.escapeName(collection)} (${sqlite.escapeName(name)})`;
+	}
 	return modifiers;
+}
+
+function getReferencesConfig(field: DBField) {
+	const canHaveReferences = field.type === 'number' || field.type === 'text';
+	if (!canHaveReferences) return undefined;
+	return field.references as ReferenceableField;
 }
 
 // Using `DBField` will not narrow `default` based on the column `type`
