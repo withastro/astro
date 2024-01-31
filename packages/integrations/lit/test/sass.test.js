@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 
 describe('check', () => {
 	it('should be able to load sass', async () => {
@@ -9,6 +10,6 @@ describe('check', () => {
 		} catch (e) {
 			error = e;
 		}
-		expect(error).to.be.null;
+		assert.equal(error, null);
 	});
 });
