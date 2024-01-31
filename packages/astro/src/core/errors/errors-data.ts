@@ -1020,6 +1020,18 @@ export const MissingIndexForInternationalization = {
 /**
  * @docs
  * @description
+ * Static pages aren't yet supported with i18n domains. If you wish to enable this feature, you have to disable pre-rendering.
+ */
+export const NoPrerenderedRoutesWithDomains = {
+	name: 'NoPrerenderedRoutesWithDomains',
+	title: "Pre-rendered routes aren't supported when internationalization domains are enabled.",
+	message: (component: string) =>
+		`Static pages aren't yet supported with multiple domains. If you wish to enable this feature, you have to disable pre-rendering for the page ${component}`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * Astro could not find an associated file with content while trying to render the route. This is an Astro error and not a user error. If restarting the dev server does not fix the problem, please file an issue.
  */
 export const CantRenderPage = {

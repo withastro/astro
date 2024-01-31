@@ -13,6 +13,7 @@ export interface I18nInternalConfig
 	extends Pick<AstroConfig, 'base' | 'site' | 'trailingSlash'>,
 		Pick<AstroConfig['build'], 'format'> {
 	i18n: AstroConfig['i18n'];
+	isBuild: boolean;
 }
 
 export default function astroInternationalization({
@@ -28,8 +29,15 @@ export default function astroInternationalization({
 	return {
 		name: 'astro:i18n',
 		enforce: 'pre',
-		config(config) {
-			const i18nConfig: I18nInternalConfig = { base, format, site, trailingSlash, i18n };
+		config(config, { command }) {
+			const i18nConfig: I18nInternalConfig = {
+				base,
+				format,
+				site,
+				trailingSlash,
+				i18n,
+				isBuild: command === 'build',
+			};
 			return {
 				define: {
 					__ASTRO_INTERNAL_I18N_CONFIG__: JSON.stringify(i18nConfig),

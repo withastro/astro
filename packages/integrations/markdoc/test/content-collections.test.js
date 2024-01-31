@@ -1,7 +1,8 @@
 import { parse as parseDevalue } from 'devalue';
-import { expect } from 'chai';
 import { loadFixture, fixLineEndings } from '../../../astro/test/test-utils.js';
 import markdoc from '../dist/index.js';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 
 function formatPost(post) {
 	return {
@@ -36,19 +37,18 @@ describe('Markdoc - Content Collections', () => {
 		it('loads entry', async () => {
 			const res = await baseFixture.fetch('/entry.json');
 			const post = parseDevalue(await res.text());
-			expect(formatPost(post)).to.deep.equal(post1Entry);
+			assert.deepEqual(formatPost(post), post1Entry);
 		});
 
 		it('loads collection', async () => {
 			const res = await baseFixture.fetch('/collection.json');
 			const posts = parseDevalue(await res.text());
-			expect(posts).to.not.be.null;
+			assert.notEqual(posts, null);
 
-			expect(posts.sort().map((post) => formatPost(post))).to.deep.equal([
-				post1Entry,
-				post2Entry,
-				post3Entry,
-			]);
+			assert.deepEqual(
+				posts.sort().map((post) => formatPost(post)),
+				[post1Entry, post2Entry, post3Entry]
+			);
 		});
 	});
 
@@ -60,18 +60,17 @@ describe('Markdoc - Content Collections', () => {
 		it('loads entry', async () => {
 			const res = await baseFixture.readFile('/entry.json');
 			const post = parseDevalue(res);
-			expect(formatPost(post)).to.deep.equal(post1Entry);
+			assert.deepEqual(formatPost(post), post1Entry);
 		});
 
 		it('loads collection', async () => {
 			const res = await baseFixture.readFile('/collection.json');
 			const posts = parseDevalue(res);
-			expect(posts).to.not.be.null;
-			expect(posts.sort().map((post) => formatPost(post))).to.deep.equal([
-				post1Entry,
-				post2Entry,
-				post3Entry,
-			]);
+			assert.notEqual(posts, null);
+			assert.deepEqual(
+				posts.sort().map((post) => formatPost(post)),
+				[post1Entry, post2Entry, post3Entry]
+			);
 		});
 	});
 });

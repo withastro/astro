@@ -38,5 +38,6 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 		fallbackRoutes: rawRouteData.fallbackRoutes.map((fallback) => {
 			return deserializeRouteData(fallback);
 		}),
+		isIndex: rawRouteData.isIndex,
 	};
 }

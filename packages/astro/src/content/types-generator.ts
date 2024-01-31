@@ -345,8 +345,10 @@ function invalidateVirtualMod(viteServer: ViteDevServer) {
  */
 function normalizeConfigPath(from: string, to: string) {
 	const configPath = path.relative(from, to).replace(/\.ts$/, '.js');
+	// on windows `path.relative` will use backslashes, these must be replaced with forward slashes
+	const normalizedPath = configPath.replaceAll('\\', '/');
 
-	return `"${isRelativePath(configPath) ? '' : './'}${configPath}"` as const;
+	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
 async function writeContentFiles({

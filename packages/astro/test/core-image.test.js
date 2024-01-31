@@ -480,7 +480,14 @@ describe('astro:image', () => {
 
 			it('Adds the <img> tags', () => {
 				let $img = $('img');
-				expect($img).to.have.a.lengthOf(7);
+				expect($img).to.have.a.lengthOf(8);
+			});
+
+			it('image in cc folder is processed', () => {
+				let $imgs = $('img');
+				let $blogfolderimg = $($imgs[7]);
+				expect($blogfolderimg.attr('src')).to.include('blogfolder.jpg');
+				expect($blogfolderimg.attr('src').endsWith('f=webp')).to.equal(true);
 			});
 
 			it('has proper source for directly used image', () => {

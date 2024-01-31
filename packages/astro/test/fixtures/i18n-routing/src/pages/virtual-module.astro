@@ -1,10 +1,12 @@
 ---
-import { getRelativeLocaleUrl, getPathByLocale, getLocaleByPath } from "astro:i18n";
+import { getRelativeLocaleUrl, getAbsoluteLocaleUrl, getPathByLocale, getLocaleByPath } from "astro:i18n";
 
 let about = getRelativeLocaleUrl("pt", "about");
 let spanish = getRelativeLocaleUrl("es", "about");
 let spainPath = getPathByLocale("es-SP");
 let localeByPath = getLocaleByPath("spanish");
+let italianAbout = getAbsoluteLocaleUrl("it", "about");
+
 ---
 
 <html>
@@ -18,5 +20,6 @@ let localeByPath = getLocaleByPath("spanish");
         About spanish: {spanish}
 				Spain path: {spainPath}
 				Preferred path: {localeByPath}
+        About it: {italianAbout}
     </body>
 </html>

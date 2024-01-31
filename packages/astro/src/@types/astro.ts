@@ -788,14 +788,15 @@ export interface AstroUserConfig {
 		 * @default `'directory'`
 		 * @description
 		 * Control the output file format of each page. This value may be set by an adapter for you.
-		 *   - If `'file'`, Astro will generate an HTML file (ex: "/foo.html") for each page.
-		 *   - If `'directory'`, Astro will generate a directory with a nested `index.html` file (ex: "/foo/index.html") for each page.
+		 *   - `'file'`: Astro will generate an HTML file named for each page route. (e.g. `src/pages/about.astro` and `src/pages/about/index.astro` both build the file `/about.html`)
+		 *   - `'directory'`: Astro will generate a directory with a nested `index.html` file for each page. (e.g. `src/pages/about.astro` and `src/pages/about/index.astro` both build the file `/about/index.html`)
+		 *   - `'preserve'`: Astro will generate HTML files exactly as they appear in your source folder. (e.g. `src/pages/about.astro` builds `/about.html` and `src/pages/about/index.astro` builds the file `/about/index.html`)
 		 *
 		 * ```js
 		 * {
 		 *   build: {
 		 *     // Example: Generate `page.html` instead of `page/index.html` during build.
-		 *     format: 'file'
+		 *     format: 'preserve'
 		 *   }
 		 * }
 		 * ```
@@ -813,7 +814,7 @@ export interface AstroUserConfig {
 		 * - `directory` - Set `trailingSlash: 'always'`
 		 * - `file` - Set `trailingSlash: 'never'`
 		 */
-		format?: 'file' | 'directory';
+		format?: 'file' | 'directory' | 'preserve';
 		/**
 		 * @docs
 		 * @name build.client
@@ -1532,6 +1533,45 @@ export interface AstroUserConfig {
 			 * - `"pathanme": The strategy is applied to the pathname of the URLs
 			 */
 			strategy: 'pathname';
+
+			/**
+			 * @name i18n.domains
+			 * @type {Record<string, string> }
+			 * @default '{}'
+			 * @version 4.3.0
+			 * @description
+			 *
+			 * Configures the URL pattern of one or more supported languages to use a custom domain (or sub-domain).
+			 *
+			 * When a locale is mapped to a domain, a `/[locale]/` path prefix will not be used.
+			 * However, localized folders within `src/pages/` are still required, including for your configured `defaultLocale`.
+			 *
+			 * Any other locale not configured will default to a localized path-based URL according to your `prefixDefaultLocale` strategy (e.g. `https://example.com/[locale]/blog`).
+			 *
+			 * ```js
+			 * //astro.config.mjs
+			 * export default defineConfig({
+			 * 	site: "https://example.com",
+			 * 	output: "server", // required, with no prerendered pages
+			 *   adapter: node({
+			 *     mode: 'standalone',
+			 *   }),
+			 * 	i18n: {
+			 * 		defaultLocale: "en",
+			 * 		locales: ["en", "fr", "pt-br", "es"],
+			 *     prefixDefaultLocale: false,
+			 *		  domains: {
+			 *			  fr: "https://fr.example.com",
+			 *       es: "https://example.es"
+			 *    },
+			 * })
+			 * ```
+			 *
+			 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
+			 *
+			 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains) for more details, including the limitations of this feature.
+			 */
+			domains?: Record<string, string>;
 		};
 	};
 
@@ -1664,6 +1704,48 @@ export interface AstroUserConfig {
 		 * In the event of route collisions, where two routes of equal route priority attempt to build the same URL, Astro will log a warning identifying the conflicting routes.
 		 */
 		globalRoutePriority?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.i18nDomains
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.3.0
+		 * @description
+		 *
+		 * Enables domain support for the [experimental `domains` routing strategy](https://docs.astro.build/en/guides/internationalization/#domains-experimental) which allows you to configure the URL pattern of one or more supported languages to use a custom domain (or sub-domain).
+		 *
+		 * When a locale is mapped to a domain, a `/[locale]/` path prefix will not be used. However, localized folders within `src/pages/` are still required, including for your configured `defaultLocale`.
+		 *
+		 * Any other locale not configured will default to a localized path-based URL according to your `prefixDefaultLocale` strategy (e.g. `https://example.com/[locale]/blog`).
+		 *
+		 * ```js
+		 * //astro.config.mjs
+		 * export default defineConfig({
+		 * 	site: "https://example.com",
+		 * 	output: "server", // required, with no prerendered pages
+		 *   adapter: node({
+		 *     mode: 'standalone',
+		 *   }),
+		 * 	i18n: {
+		 * 		defaultLocale: "en",
+		 * 		locales: ["en", "fr", "pt-br", "es"],
+		 *     prefixDefaultLocale: false,
+		 *		  domains: {
+		 *			  fr: "https://fr.example.com",
+		 *       es: "https://example.es"
+		 *    },
+		 *  experimental: {
+		 *     i18nDomains: true
+		 *  }
+		 * })
+		 * ```
+		 *
+		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
+		 *
+		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains-experimental) for more details, including the limitations of this experimental feature.
+		 */
+		i18nDomains?: boolean;
 	};
 }
 
@@ -2133,7 +2215,7 @@ export type AstroFeatureMap = {
 	/**
 	 * List of features that orbit around the i18n routing
 	 */
-	i18n?: AstroInternationalizationFeature;
+	i18nDomains?: SupportsKind;
 };
 
 export interface AstroAssetsFeature {
@@ -2150,9 +2232,9 @@ export interface AstroAssetsFeature {
 
 export interface AstroInternationalizationFeature {
 	/**
-	 * Whether the adapter is able to detect the language of the browser, usually using the `Accept-Language` header.
+	 * The adapter should be able to create the proper redirects
 	 */
-	detectBrowserLanguage?: SupportsKind;
+	domains?: SupportsKind;
 }
 
 export type Locales = (string | { codes: string[]; path: string })[];
@@ -2556,6 +2638,7 @@ export interface RouteData {
 	redirect?: RedirectConfig;
 	redirectRoute?: RouteData;
 	fallbackRoutes: RouteData[];
+	isIndex: boolean;
 }
 
 export type RedirectRouteData = RouteData & {

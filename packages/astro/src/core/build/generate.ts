@@ -67,6 +67,7 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -180,9 +181,18 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
 	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
+	const config = pipeline.getConfig();
 	if (ssr) {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (pageData.route.prerender) {
+				// i18n domains won't work with pre rendered routes at the moment, so we need to to throw an error
+				if (config.experimental.i18nDomains) {
+					throw new AstroError({
+						...NoPrerenderedRoutesWithDomains,
+						message: NoPrerenderedRoutesWithDomains.message(pageData.component),
+					});
+				}
+
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const ssrEntryPage = await import(ssrEntryURLPage.toString());
 				if (opts.settings.adapter?.adapterFeatures?.functionPerRoute) {
@@ -612,8 +622,8 @@ async function generatePath(
 		body = Buffer.from(await response.arrayBuffer());
 	}
 
-	const outFolder = getOutFolder(pipeline.getConfig(), pathname, route.type);
-	const outFile = getOutFile(pipeline.getConfig(), outFolder, pathname, route.type);
+	const outFolder = getOutFolder(pipeline.getConfig(), pathname, route);
+	const outFile = getOutFile(pipeline.getConfig(), outFolder, pathname, route);
 	route.distURL = outFile;
 
 	await fs.promises.mkdir(outFolder, { recursive: true });
@@ -652,6 +662,7 @@ function createBuildManifest(
 			routing: settings.config.i18n.routing,
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
+			domainLookupTable: {},
 		};
 	}
 	return {
