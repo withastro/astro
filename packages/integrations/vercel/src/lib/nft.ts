@@ -2,6 +2,14 @@ import type { AstroIntegrationLogger } from 'astro';
 import { relative, relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { copyFilesToFunction } from './fs.js';
+import { Minimatch } from 'minimatch';
+
+const matchers = [
+	// Never venture into OS folders
+	'/dev/**',
+	// libsql contains many native deps that are false-positives.
+	'**/@libsql/client/**/*'
+].map(pattern => new Minimatch(pattern, { dot: true }));
 
 export async function copyDependenciesToFunction(
 	{
@@ -38,7 +46,14 @@ export async function copyDependenciesToFunction(
 		base: fileURLToPath(base),
 		// If you have a route of /dev this appears in source and NFT will try to
 		// scan your local /dev :8
-		ignore: ['/dev/**'],
+		ignore(path) {
+			for(const minimatch of matchers) {
+				if(minimatch.match(path)) {
+					return true;
+				}
+			}
+			return false;
+		},
 		cache,
 	});
 
