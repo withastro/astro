@@ -110,7 +110,7 @@ jobs:
         OS: [ubuntu-latest]
         NODE_VERSION: [18, 20.5.1]
         include:
-          - os: macos-latest
+          - os: macos-14
             NODE_VERSION: 18
           - os: windows-latest
             NODE_VERSION: 18.17.1
