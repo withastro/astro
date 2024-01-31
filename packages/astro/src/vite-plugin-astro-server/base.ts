@@ -3,11 +3,11 @@ import type { AstroSettings } from '../@types/astro.js';
 
 import { bold } from 'kleur/colors';
 import * as fs from 'node:fs';
+import path from 'node:path';
+import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../core/logger/core.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 import { writeHtmlResponse } from './response.js';
-import { appendForwardSlash, removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
-import path from 'node:path';
 
 export function baseMiddleware(
 	settings: AstroSettings,
