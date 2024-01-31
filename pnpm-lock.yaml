@@ -4935,18 +4935,12 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
-      chai:
-        specifier: ^4.3.7
-        version: 4.3.10
       cheerio:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
       linkedom:
         specifier: ^0.16.4
         version: 0.16.6
-      mocha:
-        specifier: ^10.2.0
-        version: 10.2.0
       vite:
         specifier: ^5.0.12
         version: 5.0.12(@types/node@18.19.4)(sass@1.69.6)
