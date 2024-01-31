@@ -1,6 +1,5 @@
 import { loadFixture, readXML } from './test-utils.js';
-import * as assert from 'node:assert/strict';
-import { describe, it, before } from 'node:test';
+import { expect } from 'chai';
 
 describe('URLs with base path', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -18,7 +17,7 @@ describe('URLs with base path', () => {
 		it('Base path is concatenated correctly', async () => {
 			const data = await readXML(fixture.readFile('/client/sitemap-0.xml'));
 			const urls = data.urlset.url;
-			assert.equal(urls[0].loc[0], 'http://example.com/base/one/');
+			expect(urls[0].loc[0]).to.equal('http://example.com/base/one/');
 		});
 	});
 
@@ -34,7 +33,7 @@ describe('URLs with base path', () => {
 		it('Base path is concatenated correctly', async () => {
 			const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 			const urls = data.urlset.url;
-			assert.equal(urls[0].loc[0], 'http://example.com/base/123/');
+			expect(urls[0].loc[0]).to.equal('http://example.com/base/123/');
 		});
 	});
 });
