@@ -1,10 +1,10 @@
 import type {
 	AstroConfig,
 	AstroSettings,
-	RoutePriorityOverride,
 	ManifestData,
 	RouteData,
 	RoutePart,
+	RoutePriorityOverride,
 } from '../../../@types/astro.js';
 import type { Logger } from '../../logger/core.js';
 
@@ -15,11 +15,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
+import { MissingIndexForInternationalization } from '../../errors/errors-data.js';
+import { AstroError } from '../../errors/index.js';
 import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
-import { AstroError } from '../../errors/index.js';
-import { MissingIndexForInternationalization } from '../../errors/errors-data.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -31,10 +31,6 @@ interface Item {
 	isIndex: boolean;
 	isPage: boolean;
 	routeSuffix: string;
-}
-
-interface ManifestRouteData extends RouteData {
-	isIndex: boolean;
 }
 
 function countOccurrences(needle: string, haystack: string) {
@@ -193,7 +189,8 @@ function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]
  *   For example, `/bar` is sorted before `/foo`.
  *   The definition of "alphabetically" is dependent on the default locale of the running system.
  */
-function routeComparator(a: ManifestRouteData, b: ManifestRouteData) {
+
+function routeComparator(a: RouteData, b: RouteData) {
 	const commonLength = Math.min(a.segments.length, b.segments.length);
 
 	for (let index = 0; index < commonLength; index++) {
@@ -301,9 +298,9 @@ export interface CreateRouteManifestParams {
 function createFileBasedRoutes(
 	{ settings, cwd, fsMod }: CreateRouteManifestParams,
 	logger: Logger
-): ManifestRouteData[] {
+): RouteData[] {
 	const components: string[] = [];
-	const routes: ManifestRouteData[] = [];
+	const routes: RouteData[] = [];
 	const validPageExtensions = new Set<string>([
 		'.astro',
 		...SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
@@ -444,7 +441,7 @@ function createFileBasedRoutes(
 	return routes;
 }
 
-type PrioritizedRoutesData = Record<RoutePriorityOverride, ManifestRouteData[]>;
+type PrioritizedRoutesData = Record<RoutePriorityOverride, RouteData[]>;
 
 function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): PrioritizedRoutesData {
 	const { config } = settings;
@@ -690,7 +687,7 @@ export function createRouteManifest(
 
 	const redirectRoutes = createRedirectRoutes(params, routeMap, logger);
 
-	const routes: ManifestRouteData[] = [
+	const routes: RouteData[] = [
 		...injectedRoutes['legacy'].sort(routeComparator),
 		...[...fileBasedRoutes, ...injectedRoutes['normal'], ...redirectRoutes['normal']].sort(
 			routeComparator
@@ -719,15 +716,16 @@ export function createRouteManifest(
 				);
 				throw new AstroError({
 					...MissingIndexForInternationalization,
-					message: MissingIndexForInternationalization.message(relativePath),
+					message: MissingIndexForInternationalization.message(i18n.defaultLocale),
+					hint: MissingIndexForInternationalization.hint(relativePath),
 				});
 			}
 		}
 
 		// In this block of code we group routes based on their locale
 
-		// A map like: locale => ManifestRouteData[]
-		const routesByLocale = new Map<string, ManifestRouteData[]>();
+		// A map like: locale => RouteData[]
+		const routesByLocale = new Map<string, RouteData[]>();
 		// This type is here only as a helper. We copy the routes and make them unique, so we don't "process" the same route twice.
 		// The assumption is that a route in the file system belongs to only one locale.
 		const setRoutes = new Set(routes.filter((route) => route.type === 'page'));

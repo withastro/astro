@@ -64,3 +64,11 @@ export function buffersToString(buffers) {
 	}
 	return str;
 }
+
+export function waitServerListen(server) {
+	return new Promise((resolve) => {
+		server.on('listening', () => {
+			resolve();
+		});
+	});
+}
