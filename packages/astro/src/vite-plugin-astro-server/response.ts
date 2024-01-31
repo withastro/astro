@@ -62,16 +62,10 @@ export async function writeWebResponse(res: http.ServerResponse, webResponse: Re
 		res.setHeader('set-cookie', setCookieHeaders);
 	}
 
-	const _headers = Object.fromEntries(headers.entries());
+	const _headers: http.OutgoingHttpHeaders = Object.fromEntries(headers.entries());
 
-	// Undici 5.20.0+ includes a `getSetCookie` helper that returns an array of all the `set-cookies` headers.
-	// Previously, `headers.entries()` would already have these merged, but it seems like this isn't the case anymore.
 	if (headers.has('set-cookie')) {
-		if ('getSetCookie' in headers && typeof headers.getSetCookie === 'function') {
-			_headers['set-cookie'] = headers.getSetCookie().toString();
-		} else {
-			_headers['set-cookie'] = headers.get('set-cookie')!;
-		}
+		_headers['set-cookie'] = headers.getSetCookie();
 	}
 
 	res.writeHead(status, _headers);

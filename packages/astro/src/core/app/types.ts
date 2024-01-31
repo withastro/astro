@@ -63,6 +63,7 @@ export type SSRManifestI18n = {
 	routing: RoutingStrategies;
 	locales: Locales;
 	defaultLocale: string;
+	domainLookupTable: Record<string, string>;
 };
 
 export type SerializedSSRManifest = Omit<

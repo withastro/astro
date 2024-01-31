@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import PQueue from 'p-queue';
 import type { OutputAsset, OutputChunk } from 'rollup';
 import type {
+	AstroConfig,
 	AstroSettings,
 	ComponentInstance,
 	GetStaticPathsItem,
@@ -66,6 +67,7 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -179,9 +181,18 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
 	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
+	const config = pipeline.getConfig();
 	if (ssr) {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (pageData.route.prerender) {
+				// i18n domains won't work with pre rendered routes at the moment, so we need to to throw an error
+				if (config.experimental.i18nDomains) {
+					throw new AstroError({
+						...NoPrerenderedRoutesWithDomains,
+						message: NoPrerenderedRoutesWithDomains.message(pageData.component),
+					});
+				}
+
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const ssrEntryPage = await import(ssrEntryURLPage.toString());
 				if (opts.settings.adapter?.adapterFeatures?.functionPerRoute) {
@@ -455,7 +466,8 @@ function getUrlForPath(
 	pathname: string,
 	base: string,
 	origin: string,
-	format: 'directory' | 'file' | 'preserve',
+	format: AstroConfig['build']['format'],
+	trailingSlash: AstroConfig['trailingSlash'],
 	routeType: RouteType
 ): URL {
 	/**
@@ -463,7 +475,7 @@ function getUrlForPath(
 	 * pathname: /, /foo
 	 * base: /
 	 */
-	const ending = format === 'directory' ? '/' : '.html';
+	const ending = format === 'directory' ? (trailingSlash === 'never' ? '' : '/') : '.html';
 	let buildPathname: string;
 	if (pathname === '/' || pathname === '') {
 		buildPathname = base;
@@ -538,6 +550,7 @@ async function generatePath(
 		pipeline.getConfig().base,
 		pipeline.getStaticBuildOptions().origin,
 		pipeline.getConfig().build.format,
+		pipeline.getConfig().trailingSlash,
 		route.type
 	);
 
@@ -649,6 +662,7 @@ function createBuildManifest(
 			routing: settings.config.i18n.routing,
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
+			domainLookupTable: {},
 		};
 	}
 	return {

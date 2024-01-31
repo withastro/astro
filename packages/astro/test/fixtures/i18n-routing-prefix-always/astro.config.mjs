@@ -13,5 +13,5 @@ export default defineConfig({
 				prefixDefaultLocale: true
 			}
 		},
-	base: "/new-site"
+		base: "/new-site"
 })
