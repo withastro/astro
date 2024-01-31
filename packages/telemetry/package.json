@@ -23,11 +23,10 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.js\""
+    "test:node": "astro-scripts test \"test/**/*.node.test.js\"",
+    "test": "mocha --exit --timeout 20000 test/**/*.mocha.test.js"
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "dependencies": {
     "ci-info": "^4.0.0",
     "debug": "^4.3.4",
@@ -42,7 +41,9 @@
     "@types/dlv": "^1.1.4",
     "@types/node": "^18.17.8",
     "@types/which-pm-runs": "^1.0.2",
-    "astro-scripts": "workspace:*"
+    "astro-scripts": "workspace:*",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0"
   },
   "engines": {
     "node": ">=18.14.1"
