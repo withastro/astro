@@ -1,35 +1,35 @@
 import { defineCollection as _defineCollection } from '../content/runtime.js';
-export { z } from 'zod';
+import { z } from 'astro/zod';
+export { z };
 
 // This needs to be in sync with ImageMetadata
-export type ImageFunction = () => import('zod').ZodObject<{
-	src: import('zod').ZodString;
-	width: import('zod').ZodNumber;
-	height: import('zod').ZodNumber;
-	format: import('zod').ZodUnion<
+export type ImageFunction = () => z.ZodObject<{
+	src: z.ZodString;
+	width: z.ZodNumber;
+	height: z.ZodNumber;
+	format: z.ZodUnion<
 		[
-			import('zod').ZodLiteral<'png'>,
-			import('zod').ZodLiteral<'jpg'>,
-			import('zod').ZodLiteral<'jpeg'>,
-			import('zod').ZodLiteral<'tiff'>,
-			import('zod').ZodLiteral<'webp'>,
-			import('zod').ZodLiteral<'gif'>,
-			import('zod').ZodLiteral<'svg'>,
-			import('zod').ZodLiteral<'avif'>,
+			z.ZodLiteral<'png'>,
+			z.ZodLiteral<'jpg'>,
+			z.ZodLiteral<'jpeg'>,
+			z.ZodLiteral<'tiff'>,
+			z.ZodLiteral<'webp'>,
+			z.ZodLiteral<'gif'>,
+			z.ZodLiteral<'svg'>,
+			z.ZodLiteral<'avif'>,
 		]
 	>;
 }>;
 
-// @ts-ignore complains about circular dependency but used to work in the types template
 type BaseSchemaWithoutEffects =
-	| import('zod').AnyZodObject
-	| import('zod').ZodUnion<[BaseSchemaWithoutEffects, ...BaseSchemaWithoutEffects[]]>
-	| import('zod').ZodDiscriminatedUnion<string, import('zod').AnyZodObject[]>
-	| import('zod').ZodIntersection<BaseSchemaWithoutEffects, BaseSchemaWithoutEffects>;
+	| z.AnyZodObject
+	| z.ZodUnion<[BaseSchemaWithoutEffects, ...BaseSchemaWithoutEffects[]]>
+	| z.ZodDiscriminatedUnion<string, z.AnyZodObject[]>
+	| z.ZodIntersection<BaseSchemaWithoutEffects, BaseSchemaWithoutEffects>;
 
 type BaseSchema =
 	| BaseSchemaWithoutEffects
-	| import('zod').ZodEffects<BaseSchemaWithoutEffects>;
+	| z.ZodEffects<BaseSchemaWithoutEffects>;
 
 export type SchemaContext = { image: ImageFunction };
 
@@ -43,7 +43,7 @@ type ContentCollectionConfig<S extends BaseSchema> = {
 	schema?: S | ((context: SchemaContext) => S);
 };
 
-type CollectionConfig<S> = ContentCollectionConfig<S> | DataCollectionConfig<S>;
+type CollectionConfig<S extends BaseSchema> = ContentCollectionConfig<S> | DataCollectionConfig<S>;
 
 export function defineCollection<S extends BaseSchema>(
 	input: CollectionConfig<S>
