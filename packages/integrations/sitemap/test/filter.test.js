@@ -1,7 +1,7 @@
 import { loadFixture, readXML } from './test-utils.js';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { sitemap } from './fixtures/static/deps.mjs';
-import * as assert from 'node:assert/strict';
-import { describe, it, before } from 'node:test';
 
 describe('Filter support', () => {
 	/** @type {import('./test-utils.js').Fixture} */

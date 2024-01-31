@@ -1,6 +1,6 @@
 import { loadFixture, readXML } from './test-utils.js';
-import * as assert from 'node:assert/strict';
-import { describe, it, before } from 'node:test';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 
 describe('getStaticPaths support', () => {
 	/** @type {import('./test-utils.js').Fixture} */
@@ -20,24 +20,24 @@ describe('getStaticPaths support', () => {
 	});
 
 	it('requires zero config for getStaticPaths', async () => {
-		assert.strictEqual(urls.includes('http://example.com/one/'), true);
-		assert.strictEqual(urls.includes('http://example.com/two/'), true);
+		assert.equal(urls.includes('http://example.com/one/'), true);
+		assert.equal(urls.includes('http://example.com/two/'), true);
 	});
 
 	it('does not include 404 pages', () => {
-		assert.strictEqual(urls.includes('http://example.com/de/404/'), false);
+		assert.equal(urls.includes('http://example.com/404/'), false);
 	});
 
 	it('does not include nested 404 pages', () => {
-		assert.strictEqual(urls.includes('http://example.com/de/404/'), false);
+		assert.equal(urls.includes('http://example.com/de/404/'), false);
 	});
 
 	it('includes numerical pages', () => {
-		assert.strictEqual(urls.includes('http://example.com/123/'), true);
+		assert.equal(urls.includes('http://example.com/123/'), true);
 	});
 
 	it('should render the endpoint', async () => {
 		const page = await fixture.readFile('./it/manifest');
-		assert.strictEqual(page.includes('I\'m a route in the "it" language.'), true);
+		assert.match(page, /I\'m a route in the "it" language./);
 	});
 });

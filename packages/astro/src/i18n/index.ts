@@ -13,6 +13,8 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 	format: AstroConfig['build']['format'];
 	routing?: RoutingStrategies;
 	defaultLocale: string;
+	domains: Record<string, string> | undefined;
+	path?: string;
 };
 
 export type GetLocaleOptions = {
@@ -22,10 +24,6 @@ export type GetLocaleOptions = {
 	 */
 	normalizeLocale?: boolean;
 	/**
-	 * An optional path to add after the `locale`.
-	 */
-	path?: string;
-	/**
 	 *  An optional path to prepend to `locale`.
 	 */
 	prependWith?: string;
@@ -33,6 +31,7 @@ export type GetLocaleOptions = {
 
 type GetLocaleAbsoluteUrl = GetLocaleRelativeUrl & {
 	site: AstroConfig['site'];
+	isBuild: boolean;
 };
 /**
  * The base URL
@@ -75,22 +74,37 @@ export function getLocaleRelativeUrl({
 /**
  * The absolute URL
  */
-export function getLocaleAbsoluteUrl({ site, ...rest }: GetLocaleAbsoluteUrl) {
-	const locale = getLocaleRelativeUrl(rest);
-	if (site) {
-		return joinPaths(site, locale);
+export function getLocaleAbsoluteUrl({ site, isBuild, ...rest }: GetLocaleAbsoluteUrl) {
+	const localeUrl = getLocaleRelativeUrl(rest);
+	const { domains, locale } = rest;
+	let url;
+	if (isBuild && domains) {
+		const base = domains[locale];
+		url = joinPaths(base, localeUrl.replace(`/${rest.locale}`, ''));
 	} else {
-		return locale;
+		if (site) {
+			url = joinPaths(site, localeUrl);
+		} else {
+			url = localeUrl;
+		}
+	}
+
+	if (shouldAppendForwardSlash(rest.trailingSlash, rest.format)) {
+		return appendForwardSlash(url);
+	} else {
+		return url;
 	}
 }
 
 interface GetLocalesRelativeUrlList extends GetLocaleOptions {
 	base: string;
+	path?: string;
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
 	routing?: RoutingStrategies;
 	defaultLocale: string;
+	domains: Record<string, string> | undefined;
 }
 
 export function getLocaleRelativeUrlList({
@@ -100,7 +114,7 @@ export function getLocaleRelativeUrlList({
 	format,
 	path,
 	prependWith,
-	normalizeLocale = false,
+	normalizeLocale = true,
 	routing = 'pathname-prefix-other-locales',
 	defaultLocale,
 }: GetLocalesRelativeUrlList) {
@@ -124,16 +138,58 @@ export function getLocaleRelativeUrlList({
 }
 
 interface GetLocalesAbsoluteUrlList extends GetLocalesRelativeUrlList {
-	site?: string;
+	site?: AstroConfig['site'];
+	isBuild: boolean;
 }
 
-export function getLocaleAbsoluteUrlList({ site, ...rest }: GetLocalesAbsoluteUrlList) {
-	const locales = getLocaleRelativeUrlList(rest);
-	return locales.map((locale) => {
-		if (site) {
-			return joinPaths(site, locale);
+export function getLocaleAbsoluteUrlList({
+	base,
+	locales: _locales,
+	trailingSlash,
+	format,
+	path,
+	prependWith,
+	normalizeLocale = true,
+	routing = 'pathname-prefix-other-locales',
+	defaultLocale,
+	isBuild,
+	domains,
+	site,
+}: GetLocalesAbsoluteUrlList) {
+	const locales = toPaths(_locales);
+	return locales.map((currentLocale) => {
+		const pathsToJoin = [];
+		const normalizedLocale = normalizeLocale ? normalizeTheLocale(currentLocale) : currentLocale;
+		const domainBase = domains ? domains[currentLocale] : undefined;
+		if (isBuild && domainBase) {
+			if (domainBase) {
+				pathsToJoin.push(domainBase);
+			} else {
+				pathsToJoin.push(site);
+			}
+			pathsToJoin.push(base);
+			pathsToJoin.push(prependWith);
 		} else {
-			return locale;
+			if (site) {
+				pathsToJoin.push(site);
+			}
+			pathsToJoin.push(base);
+			pathsToJoin.push(prependWith);
+			if (
+				routing === 'pathname-prefix-always' ||
+				routing === 'pathname-prefix-always-no-redirect'
+			) {
+				pathsToJoin.push(normalizedLocale);
+			} else if (currentLocale !== defaultLocale) {
+				pathsToJoin.push(normalizedLocale);
+			}
+		}
+
+		pathsToJoin.push(path);
+		if (shouldAppendForwardSlash(trailingSlash, format)) {
+			return appendForwardSlash(joinPaths(...pathsToJoin));
+		} else {
+			return joinPaths(...pathsToJoin);
 		}
 	});
 }

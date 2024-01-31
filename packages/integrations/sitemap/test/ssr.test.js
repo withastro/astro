@@ -1,6 +1,6 @@
 import { loadFixture, readXML } from './test-utils.js';
-import * as assert from 'node:assert/strict';
-import { describe, it, before } from 'node:test';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 
 describe('SSR support', () => {
 	/** @type {import('./test-utils.js').Fixture} */

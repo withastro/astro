@@ -41,7 +41,7 @@ export type SSRManifest = {
 	site?: string;
 	base: string;
 	trailingSlash: 'always' | 'never' | 'ignore';
-	buildFormat: 'file' | 'directory';
+	buildFormat: 'file' | 'directory' | 'preserve';
 	compressHTML: boolean;
 	assetsPrefix?: string;
 	renderers: SSRLoadedRenderer[];
@@ -63,6 +63,7 @@ export type SSRManifestI18n = {
 	routing: RoutingStrategies;
 	locales: Locales;
 	defaultLocale: string;
+	domainLookupTable: Record<string, string>;
 };
 
 export type SerializedSSRManifest = Omit<
