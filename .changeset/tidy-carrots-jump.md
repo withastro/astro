@@ -11,7 +11,7 @@ To enable this in your project, first configure your `server`-rendered project's
 import { defineConfig } from "astro/config"
 export default defineConfig({
   site: "https://example.com",
-  output: "server",
+  output: "server", // required, with no prerendered pages
   adapter: node({
     mode: 'standalone',
   }),
