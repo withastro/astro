@@ -56,6 +56,7 @@ export async function collectPagesData(
 				propagatedStyles: new Map(),
 				propagatedScripts: new Map(),
 				hoistedScript: undefined,
+				hasSharedModules: false,
 			};
 
 			clearInterval(routeCollectionLogTimeout);
@@ -80,6 +81,7 @@ export async function collectPagesData(
 			propagatedStyles: new Map(),
 			propagatedScripts: new Map(),
 			hoistedScript: undefined,
+			hasSharedModules: false,
 		};
 	}
 

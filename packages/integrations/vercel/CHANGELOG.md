@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 7.0.2
+
+### Patch Changes
+
+- [#9809](https://github.com/withastro/astro/pull/9809) [`3435b7f1e1ca38fdee8f3b89e2d2667f125d01b5`](https://github.com/withastro/astro/commit/3435b7f1e1ca38fdee8f3b89e2d2667f125d01b5) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where the serverless function ignored cookies added using Astro.cookies.
+
 ## 7.0.1
 
 ### Patch Changes

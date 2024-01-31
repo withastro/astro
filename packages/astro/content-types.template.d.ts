@@ -134,5 +134,5 @@ declare module 'astro:content' {
 
 	type AnyEntryMap = ContentEntryMap & DataEntryMap;
 
-	type ContentConfig = '@@CONTENT_CONFIG_TYPE@@';
+	export type ContentConfig = '@@CONTENT_CONFIG_TYPE@@';
 }
