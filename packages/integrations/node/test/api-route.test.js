@@ -147,7 +147,7 @@ describe('API routes', () => {
 			redirect: 'manual',
 			signal: controller.signal,
 		});
-		assert.equal(response.status, 302);
+		assert.equal(response.status, 307);
 		assert.equal(response.headers.get('location'), new URL('/destination', baseUri));
 	});
 });
