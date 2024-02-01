@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 5.0.1
+
+### Patch Changes
+
+- [#143](https://github.com/withastro/adapters/pull/143) [`06bae52f26d1df1368581aa859f332141db00c1b`](https://github.com/withastro/adapters/commit/06bae52f26d1df1368581aa859f332141db00c1b) Thanks [@Skn0tt](https://github.com/Skn0tt)! - Fixes a bug in the Netlify Adapter where prerendered 404.astro pages weren't shown on hybrid/server deployments.
+
 ## 5.0.0
 
 ### Major Changes
