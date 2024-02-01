@@ -1725,21 +1725,22 @@ export interface AstroUserConfig {
 		 * export default defineConfig({
 		 * 	site: "https://example.com",
 		 * 	output: "server", // required, with no prerendered pages
-		 *   adapter: node({
-		 *     mode: 'standalone',
-		 *   }),
+		 * 	adapter: node({
+		 * 		mode: 'standalone',
+		 * 	}),
 		 * 	i18n: {
 		 * 		defaultLocale: "en",
 		 * 		locales: ["en", "fr", "pt-br", "es"],
-		 *     prefixDefaultLocale: false,
-		 *		  domains: {
-		 *			  fr: "https://fr.example.com",
-		 *			  es: "https://example.es"
-		 *    },
-		 *  experimental: {
-		 *     i18nDomains: true
-		 *  }
-		 * })
+		 * 		prefixDefaultLocale: false,
+		 * 		domains: {
+		 * 			fr: "https://fr.example.com",
+		 * 			es: "https://example.es",
+		 * 		},
+		 * 	},
+		 * 	experimental: {
+		 * 		i18nDomains: true,
+		 * 	},
+		 * });
 		 * ```
 		 *
 		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
