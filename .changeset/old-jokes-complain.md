@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Adds the attribute `name` to the `<details>` tag.
+Adds the `name` attribute to the `<details>` tag type
