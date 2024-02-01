@@ -177,7 +177,8 @@
     "vitefu": "^0.2.5",
     "which-pm": "^2.1.1",
     "yargs-parser": "^21.1.1",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "shikiji-core": "^0.9.18"
   },
   "optionalDependencies": {
     "sharp": "^0.32.6"
@@ -226,7 +227,6 @@
     "remark-code-titles": "^0.1.2",
     "rollup": "^4.5.0",
     "sass": "^1.69.5",
-    "shikiji-core": "^0.9.18",
     "srcset-parse": "^1.1.0",
     "unified": "^11.0.4"
   },
