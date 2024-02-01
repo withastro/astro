@@ -71,6 +71,7 @@ function astroDBIntegration(): AstroIntegration {
 						data: configWithDb.db?.data,
 						logger,
 						mode: command === 'dev' ? 'dev' : 'build',
+						useForeignKeys: true,
 					});
 					logger.info('Collections set up 🚀');
 
