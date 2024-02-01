@@ -105,13 +105,14 @@ export default function netlifyIntegration(
 		}
 	}
 
-	async function writeSSRFunction() {
+	async function writeSSRFunction(notFoundContent?: string) {
 		await writeFile(
 			new URL('./ssr.mjs', ssrOutputDir()),
 			`
 				import createSSRHandler from './entry.mjs';
 				export default createSSRHandler(${JSON.stringify({
 					cacheOnDemandPages: Boolean(integrationConfig?.cacheOnDemandPages),
+					notFoundContent,
 				})});
 				export const config = { name: "Astro SSR", generator: "@astrojs/netlify@${packageVersion}", path: "/*", preferStatic: true };
 			`
@@ -300,7 +301,11 @@ export default function netlifyIntegration(
 				logger.info('Emitted _redirects');
 
 				if (_config.output !== 'static') {
-					await writeSSRFunction();
+					let notFoundContent = undefined;
+					try {
+						notFoundContent = await readFile(new URL('./404.html', dir), 'utf8');
+					} catch {}
+					await writeSSRFunction(notFoundContent);
 					logger.info('Generated SSR Function');
 				}
 

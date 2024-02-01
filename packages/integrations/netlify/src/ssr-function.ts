@@ -13,11 +13,14 @@ const clientAddressSymbol = Symbol.for('astro.clientAddress');
 export const createExports = (manifest: SSRManifest, _args: Args) => {
 	const app = new App(manifest);
 
-	function createHandler(integrationConfig: { cacheOnDemandPages: boolean }) {
+	function createHandler(integrationConfig: { cacheOnDemandPages: boolean, notFoundContent?: string }) {
 		return async function handler(request: Request, context: Context) {
 			const routeData = app.match(request);
-			Reflect.set(request, clientAddressSymbol, context.ip);
+			if (!routeData && typeof integrationConfig.notFoundContent !== 'undefined') {
+				return new Response(integrationConfig.notFoundContent, { status: 404 });
+			}
 
+			Reflect.set(request, clientAddressSymbol, context.ip);
 			let locals: Record<string, unknown> = {};
 
 			const astroLocalsHeader = request.headers.get('x-astro-locals');
