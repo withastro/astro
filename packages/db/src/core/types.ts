@@ -21,22 +21,41 @@ const booleanFieldSchema = baseFieldSchema.extend({
 	default: z.boolean().optional(),
 });
 
-const numberFieldSchema = baseFieldSchema.extend({
+const numberFieldSchema: z.ZodType<
+	{
+		// ReferenceableField creates a circular type. Define ZodType to resolve.
+		type: 'number';
+		default?: number | undefined;
+		references?: () => ReferenceableField | undefined;
+		primaryKey?: boolean | undefined;
+	} & z.infer<typeof baseFieldSchema>
+> = baseFieldSchema.extend({
 	type: z.literal('number'),
 	default: z.number().optional(),
-	// Need to avoid `z.object()`. Otherwise, object references are broken,
-	// and we cannot set the `collection` field at runtime.
-	references: z.any().optional(),
+	references: z
+		.function()
+		.returns(z.lazy(() => referenceableFieldSchema))
+		.optional(),
 	primaryKey: z.boolean().optional(),
 });
 
-const textFieldSchema = baseFieldSchema.extend({
+const textFieldSchema: z.ZodType<
+	{
+		// ReferenceableField creates a circular type. Define ZodType to resolve.
+		type: 'text';
+		multiline?: boolean | undefined;
+		default?: string | undefined;
+		references?: () => ReferenceableField | undefined;
+		primaryKey?: boolean | undefined;
+	} & z.infer<typeof baseFieldSchema>
+> = baseFieldSchema.extend({
 	type: z.literal('text'),
 	multiline: z.boolean().optional(),
 	default: z.string().optional(),
-	// Need to avoid `z.object()`. Otherwise, object references are broken,
-	// and we cannot set the `collection` field at runtime.
-	references: z.any().optional(),
+	references: z
+		.function()
+		.returns(z.lazy(() => referenceableFieldSchema))
+		.optional(),
 	primaryKey: z.boolean().optional(),
 });
 
@@ -73,9 +92,14 @@ export const indexSchema = z.object({
 	unique: z.boolean().optional(),
 });
 
-const foreignKeysSchema = z.object({
+const foreignKeysSchema: z.ZodType<{
+	fields: MaybeArray<string>;
+	references: () => MaybeArray<ReferenceableField>;
+}> = z.object({
 	fields: z.string().or(z.array(z.string())),
-	references: referenceableFieldSchema.or(z.array(referenceableFieldSchema)),
+	references: z
+		.function()
+		.returns(z.lazy(() => referenceableFieldSchema.or(z.array(referenceableFieldSchema)))),
 });
 
 export type Indexes = Record<string, z.infer<typeof indexSchema>>;
@@ -170,13 +194,6 @@ export const astroConfigWithDbSchema = z.object({
 
 export type FieldsConfig = z.input<typeof collectionSchema>['fields'];
 
-type CollectionMeta<TFields extends FieldsConfig> = {
-	// Collection table is set later when running the data() function.
-	// Collection config is assigned to an object key,
-	// so the collection itself does not know the table name.
-	table: Table<string, TFields>;
-};
-
 interface CollectionConfig<TFields extends FieldsConfig>
 	// use `extends` to ensure types line up with zod,
 	// only adding generics for type completions.
@@ -202,51 +219,40 @@ export type ResolvedCollectionConfig<
 	table: Table<string, TFields>;
 };
 
-/**
- * Handler to attach the Drizzle `table` and collection name at runtime.
- * These cannot be determined from `defineCollection()`,
- * since we don't know the collection name until the `db` config is resolved.
- */
-export function attachTableMetaHandler<TFields extends FieldsConfig, TWritable extends boolean>(
-	collectionConfig: ResolvedCollectionConfig<TFields, TWritable>
-): ResolvedCollectionConfig<TFields, TWritable> {
-	const meta: CollectionMeta<TFields> = { table: collectionConfig.table };
-	const _setMeta = (values: CollectionMeta<TFields>) => {
-		// `_setMeta` is called twice: once from the user's config,
-		// and once after the config is parsed via Zod.
-		(collectionConfig as any)._setMeta?.(values);
-		Object.assign(meta, values);
-
-		const tableName = getTableName(meta.table);
-		for (const fieldName in collectionConfig.fields) {
-			const field = collectionConfig.fields[fieldName];
-			field.collection = tableName;
-		}
-	};
-	for (const fieldName in collectionConfig.fields) {
-		const field = collectionConfig.fields[fieldName];
-		field.name = fieldName;
-	}
-
-	return {
-		...collectionConfig,
-		get table() {
-			return meta.table;
-		},
-		// @ts-expect-error private setter
-		_setMeta,
-	};
-}
-
 function baseDefineCollection<TFields extends FieldsConfig, TWritable extends boolean>(
 	userConfig: CollectionConfig<TFields>,
 	writable: TWritable
 ): ResolvedCollectionConfig<TFields, TWritable> {
-	return attachTableMetaHandler({
+	for (const fieldName in userConfig.fields) {
+		const field = userConfig.fields[fieldName];
+		// Store field name within the field itself to track references
+		field.name = fieldName;
+	}
+	const meta: { table: Table<string, TFields> } = { table: null! };
+	/**
+	 * We need to attach the Drizzle `table` at runtime using `_setMeta`.
+	 * These cannot be determined from `defineCollection()`,
+	 * since we don't know the collection name until the `db` config is resolved.
+	 */
+	const _setMeta = (values: { table: Table<string, TFields> }) => {
+		Object.assign(meta, values);
+
+		const tableName = getTableName(meta.table);
+		for (const fieldName in userConfig.fields) {
+			const field = userConfig.fields[fieldName];
+			field.collection = tableName;
+		}
+	};
+
+	return {
 		...userConfig,
+		get table() {
+			return meta.table;
+		},
 		writable,
-		table: null!,
-	});
+		// @ts-expect-error private setter
+		_setMeta,
+	};
 }
 
 export function defineCollection<TFields extends FieldsConfig>(

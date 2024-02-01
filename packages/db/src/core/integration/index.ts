@@ -6,7 +6,7 @@ import { existsSync } from 'fs';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { DB_PATH } from '../consts.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
-import { astroConfigWithDbSchema, attachTableMetaHandler } from '../types.js';
+import { astroConfigWithDbSchema } from '../types.js';
 import { getAstroStudioEnv, type VitePlugin } from '../utils.js';
 import { appTokenError } from '../errors.js';
 import { errorMap } from './error-map.js';
@@ -116,8 +116,7 @@ function astroDBIntegration(): AstroIntegration {
 function setCollectionsMeta(collections: Record<string, any>) {
 	for (const [name, collection] of Object.entries(collections)) {
 		const table = collectionToTable(name, collection);
-		collection[name] = attachTableMetaHandler(collection);
-		collection[name]._setMeta?.({ table });
+		collection._setMeta?.({ table });
 	}
 }
 

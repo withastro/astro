@@ -152,7 +152,7 @@ export function getModifiers(fieldName: string, field: DBField) {
 function getReferencesConfig(field: DBField) {
 	const canHaveReferences = field.type === 'number' || field.type === 'text';
 	if (!canHaveReferences) return undefined;
-	return field.references as ReferenceableField;
+	return field.references?.();
 }
 
 // Using `DBField` will not narrow `default` based on the column `type`
