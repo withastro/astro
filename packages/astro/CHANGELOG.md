@@ -9,7 +9,7 @@
   ```astro
   ---
   import type { ComponentProps } from 'astro/types';
-  import { Button } from './Button.astro';
+  import Button from './Button.astro';
 
   type myButtonProps = ComponentProps<typeof Button>;
   ---
