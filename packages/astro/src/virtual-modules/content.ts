@@ -28,9 +28,7 @@ type BaseSchemaWithoutEffects =
 	| z.ZodDiscriminatedUnion<string, z.AnyZodObject[]>
 	| z.ZodIntersection<BaseSchemaWithoutEffects, BaseSchemaWithoutEffects>;
 
-type BaseSchema =
-	| BaseSchemaWithoutEffects
-	| z.ZodEffects<BaseSchemaWithoutEffects>;
+type BaseSchema = BaseSchemaWithoutEffects | z.ZodEffects<BaseSchemaWithoutEffects>;
 
 export type SchemaContext = { image: ImageFunction };
 
@@ -51,3 +49,27 @@ export function defineCollection<S extends BaseSchema>(
 ): CollectionConfig<S> {
 	return _defineCollection(input);
 }
+
+const noop: (...args: any[]) => any = () => {};
+/** Run `astro sync` to generate high fidelity types */
+export const getEntryBySlug = noop;
+/** Run `astro sync` to generate high fidelity types */
+export const getDataEntryById = noop;
+/** Run `astro sync` to generate high fidelity types */
+export const getCollection = noop;
+/** Run `astro sync` to generate high fidelity types */
+export const getEntry = noop;
+/** Run `astro sync` to generate high fidelity types */
+export const getEntries = noop;
+/** Run `astro sync` to generate high fidelity types */
+export const reference = noop;
+/** Run `astro sync` to generate high fidelity types */
+export type CollectionKey = any;
+/** Run `astro sync` to generate high fidelity types */
+export type CollectionEntry<C> = any;
+/** Run `astro sync` to generate high fidelity types */
+export type ContentCollectionKey = any;
+/** Run `astro sync` to generate high fidelity types */
+export type DataCollectionKey = any;
+/** Run `astro sync` to generate high fidelity types */
+export type ContentConfig = any;
