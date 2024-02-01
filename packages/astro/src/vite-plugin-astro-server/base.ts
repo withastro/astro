@@ -55,7 +55,7 @@ export function baseMiddleware(
 		fs.stat(publicPath, (_err, stats) => {
 			if (stats) {
 				const publicDir = appendForwardSlash(
-					path.relative(config.root.pathname, config.publicDir.pathname)
+					path.posix.relative(config.root.pathname, config.publicDir.pathname)
 				);
 				const expectedLocation = new URL(devRootURL.pathname + url, devRootURL).pathname;
 
