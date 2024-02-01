@@ -405,7 +405,7 @@ export interface ImageServiceConfig<T extends Record<string, any> = Record<strin
 }
 
 export interface jsonDataFile {
-	path: string;
+	path: URL;
 	schema?: any; // TODO: type-check the zod schema
 }
 

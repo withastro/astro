@@ -72,12 +72,15 @@ export type RoutingStrategies =
 	| 'pathname-prefix-always-no-redirect';
 
 export const AstroConfigSchema = z.object({
-	jsonDataFiles: z.array(z.object({
-		path: z.string().transform(
-			val => val // TODO: make the path absolute
-		),
-		schema: z.any(),
-    })).optional().default(ASTRO_CONFIG_DEFAULTS.jsonDataFiles),
+	jsonDataFiles: z
+		.array(
+			z.object({
+				path: z.string().transform((val) => new URL(val)),
+				schema: z.any(),
+			})
+		)
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.jsonDataFiles),
 	root: z
 		.string()
 		.optional()
@@ -448,6 +451,14 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 	// We need to extend the global schema to add transforms that are relative to root.
 	// This is type checked against the global schema to make sure we still match.
 	const AstroConfigRelativeSchema = AstroConfigSchema.extend({
+		jsonDataFiles: z
+			.array(
+				z.object({
+					path: z.string().transform((val) => resolveFileAsUrl(val, fileProtocolRoot)),
+					schema: z.any(),
+				})
+			)
+			.default(ASTRO_CONFIG_DEFAULTS.jsonDataFiles),
 		root: z
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.root)
@@ -565,4 +576,12 @@ function resolveDirAsUrl(dir: string, root: string) {
 		resolvedDir += path.sep;
 	}
 	return pathToFileURL(resolvedDir);
+}
+
+function resolveFileAsUrl(file: string, root: string) {
+	let resolvedFile = path.resolve(root, file);
+	if (resolvedFile.endsWith(path.sep)) {
+		resolvedFile = resolvedFile.slice(0, -1);
+	}
+	return pathToFileURL(resolvedFile);
 }

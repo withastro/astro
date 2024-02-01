@@ -369,6 +369,15 @@ importers:
         specifier: ^0.32.6
         version: 0.32.6
 
+  examples/validate-json-with-zod:
+    dependencies:
+      astro:
+        specifier: ^4.2.6
+        version: link:../../packages/astro
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
+
   examples/view-transitions:
     devDependencies:
       '@astrojs/node':

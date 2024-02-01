@@ -25,22 +25,24 @@ export default function astro(settings: AstroSettings, logger: Logger): Plugin {
 				// Do the following for .json files according to the specefied schema in the astro config:
 				// - Type-check
 				// - Transform image URLs into objects for use with the astro image component as the src property
+				// TODO: The code string is not JSON, it is JS that uses exports, and we expect JSON
 				settings.config.jsonDataFiles.map((fileProps: jsonDataFile) => {
-					if (fileProps.path == id) {
-						try {
-							s ??= new MagicString(code);
-							s.overwrite(
-								0,
-								code.length,
-								JSON.stringify(fileProps.schema.parse(code))
-							);
-						} catch (e) {
+					if (fileProps.path.pathname == id) {
+						let parsedJSON = fileProps.schema.safeParse(JSON.parse(code))
+						if (!parsedJSON.successful) {
+							// TODO: exit cleanly
 							logger.error(
-								'SKIP_FORMAT',
-								`The JSON schema ${fileProps.schema} does not fit the contents of the file "${fileProps.path}"`
+								'build',
+								`Failed to type-check '${fileProps.path}': ${parsedJSON.error.message}.`
 							);
 							return null;
 						}
+						s ??= new MagicString(code);
+						s.overwrite(
+							0,
+							code.length,
+						    JSON.stringify(parsedJSON.data),
+						);
 					}
 				});
 			} else {
