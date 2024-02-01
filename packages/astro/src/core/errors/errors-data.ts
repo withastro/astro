@@ -1020,13 +1020,13 @@ export const MissingIndexForInternationalization = {
 /**
  * @docs
  * @description
- * Static pages aren't yet supported with i18n domains. If you wish to enable this feature, you have to disable pre-rendering.
+ * Static pages aren't yet supported with i18n domains. If you wish to enable this feature, you have to disable prerendering.
  */
 export const NoPrerenderedRoutesWithDomains = {
 	name: 'NoPrerenderedRoutesWithDomains',
-	title: "Pre-rendered routes aren't supported when internationalization domains are enabled.",
+	title: "Prerendered routes aren't supported when internationalization domains are enabled.",
 	message: (component: string) =>
-		`Static pages aren't yet supported with multiple domains. If you wish to enable this feature, you have to disable pre-rendering for the page ${component}`,
+		`Static pages aren't yet supported with multiple domains. If you wish to enable this feature, you have to disable prerendering for the page ${component}`,
 } satisfies ErrorData;
 
 /**
