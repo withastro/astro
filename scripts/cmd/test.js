@@ -63,6 +63,11 @@ export default async function test() {
 		watch: args['--watch'],
 		timeout: args['--timeout'] ?? defaultTimeout, // Node.js defaults to Infinity, so set better fallback
 	})
+		.on('test:fail', () => {
+			// For some reason, a test fail using the JS API does not set an exit code of 1,
+			// so we set it here manually
+			process.exitCode = 1;
+		})
 		.pipe(new spec())
 		.pipe(process.stdout);
 }
