@@ -197,12 +197,12 @@ export type FieldsConfig = z.input<typeof collectionSchema>['fields'];
 interface CollectionConfig<TFields extends FieldsConfig>
 	// use `extends` to ensure types line up with zod,
 	// only adding generics for type completions.
-	extends Pick<z.input<typeof collectionSchema>, 'fields' | 'indexes'> {
+	extends Pick<z.input<typeof collectionSchema>, 'fields' | 'indexes' | 'foreignKeys'> {
 	fields: TFields;
 	foreignKeys?: Array<{
 		fields: MaybeArray<Extract<keyof TFields, string>>;
 		// TODO: runtime error if parent collection doesn't match for all fields. Can't put a generic here...
-		references: MaybeArray<ReferenceableField>;
+		references: () => MaybeArray<ReferenceableField>;
 	}>;
 	indexes?: Record<string, IndexConfig<TFields>>;
 }
