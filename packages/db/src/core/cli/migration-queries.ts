@@ -530,18 +530,20 @@ function getUpdatedFields(oldFields: DBFields, newFields: DBFields): UpdatedFiel
 	for (const [key, newField] of Object.entries(newFields)) {
 		const oldField = oldFields[key];
 		if (!oldField) continue;
-		if (objShallowEqual(oldField, newField)) continue;
 
-		// TODO: refactor to deep-diff with a prefilter on `type`
-		const oldFieldSqlType = { ...oldField, type: schemaTypeToSqlType(oldField.type) };
-		const newFieldSqlType = { ...newField, type: schemaTypeToSqlType(newField.type) };
-		const isSafeTypeUpdate =
-			objShallowEqual(oldFieldSqlType, newFieldSqlType) &&
-			canChangeTypeWithoutQuery(oldField, newField);
+		const diff = deepDiff(oldField, newField, (path, objKey) => {
+			const isTypeKey = objKey === 'type' && path.length === 0;
+			return (
+				// If we can safely update the type without a SQL query, ignore the diff
+				isTypeKey &&
+				oldField.type !== newField.type &&
+				canChangeTypeWithoutQuery(oldField, newField)
+			);
+		});
 
-		if (isSafeTypeUpdate) continue;
-
-		updated[key] = { old: oldField, new: newField };
+		if (diff) {
+			updated[key] = { old: oldField, new: newField };
+		}
 	}
 	return updated;
 }
@@ -575,14 +577,4 @@ type DBFieldWithDefault =
 
 function hasRuntimeDefault(field: DBField): field is DBFieldWithDefault {
 	return field.type === 'date' && field.default === 'now';
-}
-
-function objShallowEqual(a: Record<string, unknown>, b: Record<string, unknown>) {
-	if (Object.keys(a).length !== Object.keys(b).length) return false;
-	for (const [key, value] of Object.entries(a)) {
-		if (JSON.stringify(b[key]) !== JSON.stringify(value)) {
-			return false;
-		}
-	}
-	return true;
 }
