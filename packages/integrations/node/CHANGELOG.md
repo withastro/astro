@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 8.2.0
+
+### Minor Changes
+
+- [#9143](https://github.com/withastro/astro/pull/9143) [`041fdd5c89920f7ccf944b095f29e451f78b0e28`](https://github.com/withastro/astro/commit/041fdd5c89920f7ccf944b095f29e451f78b0e28) Thanks [@ematipico](https://github.com/ematipico)! - Adds experimental support for internationalization domains
+
 ## 8.1.0
 
 ### Minor Changes
