@@ -1734,7 +1734,7 @@ export interface AstroUserConfig {
 		 *     prefixDefaultLocale: false,
 		 *		  domains: {
 		 *			  fr: "https://fr.example.com",
-		 *       es: "https://example.es"
+		 *			  es: "https://example.es"
 		 *    },
 		 *  experimental: {
 		 *     i18nDomains: true
