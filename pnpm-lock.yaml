@@ -683,6 +683,9 @@ importers:
       zod:
         specifier: ^3.22.4
         version: 3.22.4
+      shikiji-core:
+        specifier: ^0.9.18
+        version: 0.9.18
     optionalDependencies:
       sharp:
         specifier: ^0.32.6
@@ -817,9 +820,6 @@ importers:
       sass:
         specifier: ^1.69.5
         version: 1.69.6
-      shikiji-core:
-        specifier: ^0.9.18
-        version: 0.9.18
       srcset-parse:
         specifier: ^1.1.0
         version: 1.1.0
