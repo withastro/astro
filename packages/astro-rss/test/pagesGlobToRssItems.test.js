@@ -1,13 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-// import chai from 'chai';
-// import chaiPromises from 'chai-as-promised';
-
 import { phpFeedItem, web1FeedItem } from './test-utils.js';
 import { pagesGlobToRssItems } from '../dist/index.js';
-
-// chai.use(chaiPromises);
 
 describe('pagesGlobToRssItems', () => {
 	it('should generate on valid result', async () => {

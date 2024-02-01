@@ -1,10 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-// import { parseString as parseXmlString } from 'xml2js';
 
-// import chai from 'chai';
-// import chaiPromises from 'chai-as-promised';
-// import chaiXml from 'chai-xml';
 import { z } from 'astro/zod';
 import rss, { getRssString } from '../dist/index.js';
 import { rssSchema } from '../dist/schema.js';
@@ -20,9 +16,6 @@ import {
 	web1FeedItemWithContent,
 	parseXmlString,
 } from './test-utils.js';
-
-// chai.use(chaiPromises);
-// chai.use(chaiXml);
 
 // note: I spent 30 minutes looking for a nice node-based snapshot tool
 // ...and I gave up. Enjoy big strings!
