@@ -784,7 +784,7 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name build.format
-		 * @typeraw {('file' | 'directory')}
+		 * @typeraw {('file' | 'directory' | 'preserve')}
 		 * @default `'directory'`
 		 * @description
 		 * Control the output file format of each page. This value may be set by an adapter for you.
@@ -796,7 +796,7 @@ export interface AstroUserConfig {
 		 * {
 		 *   build: {
 		 *     // Example: Generate `page.html` instead of `page/index.html` during build.
-		 *     format: 'preserve'
+		 *     format: 'file'
 		 *   }
 		 * }
 		 * ```
@@ -1551,19 +1551,20 @@ export interface AstroUserConfig {
 			 * ```js
 			 * //astro.config.mjs
 			 * export default defineConfig({
-			 * 	site: "https://example.com",
-			 * 	output: "server", // required, with no prerendered pages
+			 * 	 site: "https://example.com",
+			 * 	 output: "server", // required, with no prerendered pages
 			 *   adapter: node({
 			 *     mode: 'standalone',
 			 *   }),
-			 * 	i18n: {
-			 * 		defaultLocale: "en",
-			 * 		locales: ["en", "fr", "pt-br", "es"],
+			 * 	 i18n: {
+			 *     defaultLocale: "en",
+			 *     locales: ["en", "fr", "pt-br", "es"],
 			 *     prefixDefaultLocale: false,
-			 *		  domains: {
-			 *			  fr: "https://fr.example.com",
+			 *     domains: {
+			 *       fr: "https://fr.example.com",
 			 *       es: "https://example.es"
-			 *    },
+			 *     }
+			 *   },
 			 * })
 			 * ```
 			 *

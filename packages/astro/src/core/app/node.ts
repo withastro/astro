@@ -118,12 +118,12 @@ export class NodeApp extends App {
 					destination.write(result.value);
 					result = await reader.read();
 				}
+				destination.end();
 				// the error will be logged by the "on end" callback above
 			} catch {
-				destination.write('Internal server error');
+				destination.end('Internal server error');
 			}
 		}
-		destination.end();
 	}
 }
 
