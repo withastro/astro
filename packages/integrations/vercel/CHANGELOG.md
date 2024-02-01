@@ -10,7 +10,7 @@
 
 - [#9885](https://github.com/withastro/astro/pull/9885) [`49e0c24d7f90d00e986533fcf546665967540ce7`](https://github.com/withastro/astro/commit/49e0c24d7f90d00e986533fcf546665967540ce7) Thanks [@matthewp](https://github.com/matthewp)! - Better ignores for Vercel file-tracer
 
-  The Vercel adapter has a file-tracer it uses to detect which files should be moved over to the dist folder. When its done it prints warnings for things that it detected that maybe should be moved.
+  The Vercel adapter has a file-tracer it uses to detect which files should be moved over to the `dist/` folder. When it's done, it prints warnings for things that it detected that maybe should be moved.
 
   This change expands how we do ignores so that:
 
