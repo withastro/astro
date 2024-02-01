@@ -62,20 +62,6 @@ export type AstroJson<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 	}
 >;
 
-export type AstroId<T extends Pick<GeneratedConfig<'string'>, 'tableName'>> = SQLiteColumn<
-	T & {
-		name: 'id';
-		hasDefault: true;
-		notNull: true;
-		data: string;
-		dataType: 'custom';
-		columnType: 'SQLiteCustomColumn';
-		driverParam: string;
-		enumValues: never;
-		baseColumn: never;
-	}
->;
-
 export type Column<T extends DBField['type'], S extends GeneratedConfig> = T extends 'boolean'
 	? AstroBoolean<S>
 	: T extends 'number'
