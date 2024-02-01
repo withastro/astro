@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-import { z } from 'astro:content';
+import { z } from 'zod';
 
 // https://astro.build/config
 export default defineConfig({
@@ -8,7 +8,7 @@ export default defineConfig({
     schema: z.object({
       name: z.string(),
       images: z.array(z.object({
-        imageSrc: z.string(),
+        imageSrc: z.string(), // TODO: use an optimized image
         imageAlt: z.string()
       }))
     })

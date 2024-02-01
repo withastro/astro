@@ -73,9 +73,11 @@ export type RoutingStrategies =
 
 export const AstroConfigSchema = z.object({
 	jsonDataFiles: z.array(z.object({
-		path: z.string(),
+		path: z.string().transform(
+			val => val // TODO: make the path absolute
+		),
 		schema: z.any(),
-    })),
+    })).optional().default(ASTRO_CONFIG_DEFAULTS.jsonDataFiles),
 	root: z
 		.string()
 		.optional()

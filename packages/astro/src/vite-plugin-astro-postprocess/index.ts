@@ -19,12 +19,6 @@ export default function astro(settings: AstroSettings, logger: Logger): Plugin {
 				return null;
 			}
 
-			// Optimization: Detect usage with a quick string match.
-			// Only perform the transform if this function is found
-			if (!ASTRO_GLOB_REGEX.test(code)) {
-				return null;
-			}
-
 			let s: MagicString | undefined;
 
 			if (id.endsWith('.json')) {
@@ -35,19 +29,32 @@ export default function astro(settings: AstroSettings, logger: Logger): Plugin {
 					if (fileProps.path == id) {
 						try {
 							s ??= new MagicString(code);
-							s.overwrite(0, JSON.stringify(code).length, JSON.stringify(fileProps.schema.parse(JSON.stringify(code))))
+							s.overwrite(
+								0,
+								code.length,
+								JSON.stringify(fileProps.schema.parse(code))
+							);
 						} catch (e) {
-							logger.error("SKIP_FORMAT", `The JSON schema ${fileProps.schema} does not fit the contents of the file "${fileProps.path}"`);
+							logger.error(
+								'SKIP_FORMAT',
+								`The JSON schema ${fileProps.schema} does not fit the contents of the file "${fileProps.path}"`
+							);
 							return null;
 						}
 					}
 				});
 			} else {
+				// Optimization: Detect usage with a quick string match.
+				// Only perform the transform if this function is found
+				if (!ASTRO_GLOB_REGEX.test(code)) {
+					return null;
+				}
+
 				const ast = parse(code, {
 					ecmaVersion: 'latest',
 					sourceType: 'module',
 				});
-	
+
 				walk(ast as ESTreeNode, {
 					enter(node: any) {
 						// Transform `Astro.glob("./pages/*.astro")` to `Astro.glob(import.meta.glob("./pages/*.astro"), () => "./pages/*.astro")`
