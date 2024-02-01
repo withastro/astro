@@ -24,7 +24,7 @@ describe('Cookies', () => {
 		expect(resp.headers.getSetCookie()).to.eql(['foo=foo; HttpOnly', 'bar=bar; HttpOnly']);
 	});
 
-	it("renders dynamic 404 page", async () => {
+	it('renders dynamic 404 page', async () => {
 		const entryURL = new URL(
 			'./fixtures/cookies/.netlify/functions-internal/ssr/ssr.mjs',
 			import.meta.url
@@ -33,14 +33,14 @@ describe('Cookies', () => {
 		const resp = await handler(
 			new Request('http://example.com/nonexistant-page', {
 				headers: {
-					"x-test": "bar"
-				}
+					'x-test': 'bar',
+				},
 			}),
 			{}
 		);
 		expect(resp.status).to.equal(404);
-		const text = await resp.text()
-		expect(text).to.contain("This is my custom 404 page");
-		expect(text).to.contain("x-test: bar");
-	})
+		const text = await resp.text();
+		expect(text).to.contain('This is my custom 404 page');
+		expect(text).to.contain('x-test: bar');
+	});
 });

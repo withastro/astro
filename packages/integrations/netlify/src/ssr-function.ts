@@ -13,7 +13,10 @@ const clientAddressSymbol = Symbol.for('astro.clientAddress');
 export const createExports = (manifest: SSRManifest, _args: Args) => {
 	const app = new App(manifest);
 
-	function createHandler(integrationConfig: { cacheOnDemandPages: boolean, notFoundContent?: string }) {
+	function createHandler(integrationConfig: {
+		cacheOnDemandPages: boolean;
+		notFoundContent?: string;
+	}) {
 		return async function handler(request: Request, context: Context) {
 			const routeData = app.match(request);
 			if (!routeData && typeof integrationConfig.notFoundContent !== 'undefined') {
