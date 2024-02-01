@@ -670,6 +670,7 @@ declare namespace astroHTML.JSX {
 
 	interface DetailsHTMLAttributes extends HTMLAttributes {
 		open?: boolean | string | undefined | null;
+		name?: string | undefined | null;
 	}
 
 	interface DelHTMLAttributes extends HTMLAttributes {
