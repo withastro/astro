@@ -98,7 +98,7 @@ export class NodeApp extends App {
 	static async writeResponse(source: Response, destination: ServerResponse) {
 		const { status, headers, body } = source;
 		destination.writeHead(status, createOutgoingHttpHeaders(headers));
-		if (body) {
+		if (!body) return destination.end();
 			try {
 				const reader = body.getReader();
 				destination.on('close', () => {
@@ -123,7 +123,6 @@ export class NodeApp extends App {
 			} catch {
 				destination.end('Internal server error');
 			}
-		}
 	}
 }
 
