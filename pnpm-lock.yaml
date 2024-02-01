@@ -5162,12 +5162,6 @@ importers:
 
   packages/underscore-redirects:
     devDependencies:
-      '@types/chai':
-        specifier: ^4.3.10
-        version: 4.3.11
-      '@types/mocha':
-        specifier: ^10.0.4
-        version: 10.0.6
       astro:
         specifier: workspace:*
         version: link:../astro
