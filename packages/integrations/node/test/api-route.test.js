@@ -20,7 +20,7 @@ describe('API routes', () => {
 		});
 		await fixture.build();
 		previewServer = await fixture.preview();
-		baseUri = new URL(`http://${server.host ?? 'localhost'}:${server.port}/`);
+		baseUri = new URL(`http://${previewServer.host ?? 'localhost'}:${previewServer.port}/`);
 	});
 
 	after(() => previewServer.stop());
@@ -148,6 +148,6 @@ describe('API routes', () => {
 			signal: controller.signal,
 		});
 		assert.equal(response.status, 307);
-		assert.equal(response.headers.get('location'), new URL('/destination', baseUri));
+		assert.equal(response.headers.get('location'), String(new URL('/destination', baseUri)));
 	});
 });
