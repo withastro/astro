@@ -1,3 +1,5 @@
+import xml2js from 'xml2js';
+
 export const title = 'My RSS feed';
 export const description = 'This sure is a nice RSS feed';
 export const site = 'https://example.com';
@@ -45,3 +47,12 @@ export const web1FeedItemWithAllData = {
 		type: 'audio/mpeg',
 	},
 };
+
+const parser = new xml2js.Parser({ trim: true });
+export function parseXmlString(xmlString) {
+	let res;
+	parser.parseString(xmlString, (err, result) => {
+		res = { err, result };
+	});
+	return res;
+}

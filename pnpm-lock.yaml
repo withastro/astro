@@ -858,6 +858,9 @@ importers:
       '@types/mocha':
         specifier: ^10.0.4
         version: 10.0.6
+      '@types/xml2js':
+        specifier: ^0.4.14
+        version: 0.4.14
       astro:
         specifier: workspace:*
         version: link:../astro
@@ -876,6 +879,9 @@ importers:
       mocha:
         specifier: ^10.2.0
         version: 10.2.0
+      xml2js:
+        specifier: 0.6.2
+        version: 0.6.2
 
   packages/astro/e2e/fixtures/_deps/astro-linked-lib:
     dependencies:
@@ -7579,6 +7585,12 @@ packages:
 
   /@types/which-pm-runs@1.0.2:
     resolution: {integrity: sha512-M0ZefeDApctHbjqtATOiixiwafG7pXD3exxnjku4XmX9+2DmONGghv5Z8Pnm0lNLBZKvDQyuG+4pLkH2UkP5gg==}
+    dev: true
+
+  /@types/xml2js@0.4.14:
+    resolution: {integrity: sha512-4YnrRemBShWRO2QjvUin8ESA41rH+9nQGLUGZV/1IDhi3SL9OhdpNC/MrulTWuptXKwhx/aDxE7toV0f/ypIXQ==}
+    dependencies:
+      '@types/node': 18.19.4
     dev: true
 
   /@types/yargs-parser@21.0.3:
