@@ -1,12 +1,16 @@
 import nodejs from '../dist/index.js';
 import { loadFixture, createRequestAndResponse } from './test-utils.js';
 import crypto from 'node:crypto';
-import { describe, it, before } from 'node:test';
+import { describe, it, before, after } from 'node:test';
 import * as assert from 'node:assert/strict';
 
 describe('API routes', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
+	/** @type {import('astro/src/@types/astro.js').PreviewServer} */
+	let previewServer;
+	/** @type {URL} */
+	let baseUri;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -15,7 +19,11 @@ describe('API routes', () => {
 			adapter: nodejs({ mode: 'middleware' }),
 		});
 		await fixture.build();
+		previewServer = await fixture.preview();
+		baseUri = new URL(`http://${previewServer.host ?? 'localhost'}:${previewServer.port}/`);
 	});
+
+	after(() => previewServer.stop());
 
 	it('Can get the request body', async () => {
 		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
@@ -108,5 +116,38 @@ describe('API routes', () => {
 		await done;
 
 		assert.deepEqual(locals, { cancelledByTheServer: true });
+	});
+
+	it('Can respond with SSR redirect', async () => {
+		const controller = new AbortController();
+		setTimeout(() => controller.abort(), 1000);
+		const response = await fetch(new URL('/redirect', baseUri), {
+			redirect: 'manual',
+			signal: controller.signal,
+		});
+		assert.equal(response.status, 302);
+		assert.equal(response.headers.get('location'), '/destination');
+	});
+
+	it('Can respond with Astro.redirect', async () => {
+		const controller = new AbortController();
+		setTimeout(() => controller.abort(), 1000);
+		const response = await fetch(new URL('/astro-redirect', baseUri), {
+			redirect: 'manual',
+			signal: controller.signal,
+		});
+		assert.equal(response.status, 303);
+		assert.equal(response.headers.get('location'), '/destination');
+	});
+
+	it('Can respond with Response.redirect', async () => {
+		const controller = new AbortController();
+		setTimeout(() => controller.abort(), 1000);
+		const response = await fetch(new URL('/response-redirect', baseUri), {
+			redirect: 'manual',
+			signal: controller.signal,
+		});
+		assert.equal(response.status, 307);
+		assert.equal(response.headers.get('location'), String(new URL('/destination', baseUri)));
 	});
 });

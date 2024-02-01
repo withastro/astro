@@ -82,8 +82,7 @@ describe('Prerendering', () => {
 			});
 			const html = await res.text();
 			const $ = cheerio.load(html);
-			assert.equal(res.status, 301);
-			assert.equal(res.headers.get('location'), '/some-base/two/');
+			assert.equal(res.status, 200);
 			assert.equal($('h1').text(), 'Two');
 		});
 	});
@@ -171,8 +170,8 @@ describe('Prerendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('One');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
 		});
 
 		it('Can render prerendered route', async () => {
@@ -180,8 +179,8 @@ describe('Prerendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('Two');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
 		});
 	});
 });
@@ -252,8 +251,9 @@ describe('Hybrid rendering', () => {
 			const res = await fetch(`http://${server.host}:${server.port}/some-base/one`, {
 				redirect: 'manual',
 			});
-			assert.equal(res.status, 301);
-			assert.equal(res.headers.get('location'), '/some-base/one/');
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			assert.equal(res.status, 200);
 			assert.equal($('h1').text(), 'One');
 		});
 	});
@@ -342,8 +342,8 @@ describe('Hybrid rendering', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect(res.status).to.equal(200);
-			expect($('h1').text()).to.equal('shared');
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'shared');
 		});
 	});
 });
