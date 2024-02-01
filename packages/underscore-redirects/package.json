@@ -25,7 +25,7 @@
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "postbuild": "astro-scripts copy \"src/**/*.js\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "mocha --exit --timeout 20000"
+    "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "devDependencies": {
     "@types/chai": "^4.3.10",
