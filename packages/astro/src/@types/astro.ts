@@ -1551,19 +1551,20 @@ export interface AstroUserConfig {
 			 * ```js
 			 * //astro.config.mjs
 			 * export default defineConfig({
-			 * 	site: "https://example.com",
-			 * 	output: "server", // required, with no prerendered pages
+			 * 	 site: "https://example.com",
+			 * 	 output: "server", // required, with no prerendered pages
 			 *   adapter: node({
 			 *     mode: 'standalone',
 			 *   }),
-			 * 	i18n: {
-			 * 		defaultLocale: "en",
-			 * 		locales: ["en", "fr", "pt-br", "es"],
+			 * 	 i18n: {
+			 *     defaultLocale: "en",
+			 *     locales: ["en", "fr", "pt-br", "es"],
 			 *     prefixDefaultLocale: false,
-			 *		  domains: {
-			 *			  fr: "https://fr.example.com",
+			 *     domains: {
+			 *       fr: "https://fr.example.com",
 			 *       es: "https://example.es"
-			 *    },
+			 *     }
+			 *   },
 			 * })
 			 * ```
 			 *
