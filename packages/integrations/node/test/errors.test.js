@@ -43,13 +43,11 @@ describe('Errors', () => {
 		const chunk3 = await reader.read();
 		assert.equal(chunk1.done, false);
 		if (chunk2.done) {
-			assert.equal(decoder.decode(chunk1.value), result.join(""));
-		}
-		else if (chunk3.done) {
+			assert.equal(decoder.decode(chunk1.value), result.join(''));
+		} else if (chunk3.done) {
 			assert.equal(decoder.decode(chunk1.value), result[0]);
 			assert.equal(decoder.decode(chunk2.value), result[1]);
-		}
-		else {
+		} else {
 			throw new Error('The response should take at most 2 chunks.');
 		}
 	});
