@@ -6,6 +6,7 @@ import node from '@astrojs/node';
 
 const Event = defineCollection({
 	fields: {
+		id: field.number({ primaryKey: true }),
 		name: field.text(),
 		description: field.text(),
 		ticketPrice: field.number(),
