@@ -7,8 +7,10 @@ import * as assert from 'node:assert/strict';
 describe('API routes', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	/** @type {Awaited<ReturnType<import('./test-utils.js').Fixture["preview"]>>} */
+	/** @type {import('astro/src/@types/astro.js').PreviewServer} */
 	let previewServer;
+	/** @type {URL} */
+	let baseUri;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -18,6 +20,7 @@ describe('API routes', () => {
 		});
 		await fixture.build();
 		previewServer = await fixture.preview();
+		baseUri = new URL(`http://${server.host ?? 'localhost'}:${server.port}/`);
 	});
 
 	after(() => previewServer.stop());
@@ -115,11 +118,36 @@ describe('API routes', () => {
 		assert.deepEqual(locals, { cancelledByTheServer: true });
 	});
 
-	it('Can respond with redirects', async () => {
+	it('Can respond with SSR redirect', async () => {
 		const controller = new AbortController();
 		setTimeout(() => controller.abort(), 1000);
-		const response = await fixture.fetch('/redirect', { redirect: 'manual', signal: controller.signal });
+		const response = await fetch(new URL('/redirect', baseUri), {
+			redirect: 'manual',
+			signal: controller.signal,
+		});
 		assert.equal(response.status, 302);
 		assert.equal(response.headers.get('location'), '/destination');
-	})
+	});
+
+	it('Can respond with Astro.redirect', async () => {
+		const controller = new AbortController();
+		setTimeout(() => controller.abort(), 1000);
+		const response = await fetch(new URL('/astro-redirect', baseUri), {
+			redirect: 'manual',
+			signal: controller.signal,
+		});
+		assert.equal(response.status, 303);
+		assert.equal(response.headers.get('location'), '/destination');
+	});
+
+	it('Can respond with Response.redirect', async () => {
+		const controller = new AbortController();
+		setTimeout(() => controller.abort(), 1000);
+		const response = await fetch(new URL('/response-redirect', baseUri), {
+			redirect: 'manual',
+			signal: controller.signal,
+		});
+		assert.equal(response.status, 302);
+		assert.equal(response.headers.get('location'), new URL('/destination', baseUri));
+	});
 });
