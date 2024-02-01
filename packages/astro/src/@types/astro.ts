@@ -796,7 +796,7 @@ export interface AstroUserConfig {
 		 * {
 		 *   build: {
 		 *     // Example: Generate `page.html` instead of `page/index.html` during build.
-		 *     format: 'preserve'
+		 *     format: 'file'
 		 *   }
 		 * }
 		 * ```
