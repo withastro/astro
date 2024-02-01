@@ -30,7 +30,7 @@ describe('Errors', () => {
 
 		assert.equal($('p').text().trim(), 'Internal server error');
 	});
-	
+
 	it('generator that throws called in template', async () => {
 		/** @type {Response} */
 		const res = await fixture.fetch('/generator');
@@ -40,8 +40,8 @@ describe('Errors', () => {
 			const result = await reader.read();
 			assert.equal(result.done, done);
 			if (!done) assert.equal(decoder.decode(result.value), value);
-		}
-		await expect({ done: false, value: "<!DOCTYPE html><h1>Astro</h1> 1Internal server error" });
+		};
+		await expect({ done: false, value: '<!DOCTYPE html><h1>Astro</h1> 1Internal server error' });
 		await expect({ done: true });
 	});
 });
