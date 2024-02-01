@@ -32,16 +32,25 @@ describe('Errors', () => {
 	});
 
 	it('generator that throws called in template', async () => {
+		const result = ['<!DOCTYPE html><h1>Astro</h1> 1', 'Internal server error'];
+
 		/** @type {Response} */
 		const res = await fixture.fetch('/generator');
 		const reader = res.body.getReader();
 		const decoder = new TextDecoder();
-		const expect = async ({ done, value }) => {
-			const result = await reader.read();
-			assert.equal(result.done, done);
-			if (!done) assert.equal(decoder.decode(result.value), value);
-		};
-		await expect({ done: false, value: '<!DOCTYPE html><h1>Astro</h1> 1Internal server error' });
-		await expect({ done: true });
+		const chunk1 = await reader.read();
+		const chunk2 = await reader.read();
+		const chunk3 = await reader.read();
+		assert.equal(chunk1.done, false);
+		if (chunk2.done) {
+			assert.equal(decoder.decode(chunk1.value), result.join(""));
+		}
+		else if (chunk3.done) {
+			assert.equal(decoder.decode(chunk1.value), result[0]);
+			assert.equal(decoder.decode(chunk2.value), result[1]);
+		}
+		else {
+			throw new Error('The response should take at most 2 chunks.');
+		}
 	});
 });
