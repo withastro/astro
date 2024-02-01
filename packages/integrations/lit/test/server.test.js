@@ -20,7 +20,6 @@ describe('check', () => {
 			globalThis.HTMLElement = class {};
 		}
 		customElements.define(tagName, class TestComponent extends HTMLElement {});
-		expect(await check(tagName)).to.equal(false);
 		assert.equal(await check(tagName), false);
 	});
 
