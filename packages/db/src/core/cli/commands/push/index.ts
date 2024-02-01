@@ -206,7 +206,7 @@ async function prepareMigrateQuery({
 		body: JSON.stringify(requestBody),
 	});
 	if (result.status >= 400) {
-		throw new Error(await result.text())
+		throw new Error(await result.text());
 	}
 	return await result.json();
 }
