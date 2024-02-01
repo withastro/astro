@@ -96,8 +96,6 @@ export type Table<
 	schema: undefined;
 	dialect: 'sqlite';
 	columns: {
-		id: AstroId<{ tableName: TTableName }>;
-	} & {
 		[K in Extract<keyof TFields, string>]: Column<
 			TFields[K]['type'],
 			{
