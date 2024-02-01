@@ -36,7 +36,7 @@ describe('renderToStaticMarkup', () => {
 		try {
 			await renderToStaticMarkup(tagName);
 		} catch (e) {
-			assert(e instanceof TypeError);
+			assert.equal(e instanceof TypeError, true);
 		}
 	});
 
@@ -112,10 +112,10 @@ describe('renderToStaticMarkup', () => {
 		);
 		const render = await renderToStaticMarkup(tagName);
 		const $ = cheerio.load(render.html);
-		expect($(`${tagName} template`).text()).to.contain('child');
+		assert.equal($(`${tagName} template`).text().includes('child'), true);
 		// Child component should have `defer-hydration` attribute so it'll only
 		// hydrate after the parent hydrates
-		assert.equal($(`${tagName} template`).text().includes('<p>child</p>'), '');
+		assert.equal($(childTagName).attr('defer-hydration'), '');
 	});
 
 	it('should render DSD attributes based on shadowRootOptions', async () => {
