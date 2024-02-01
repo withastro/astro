@@ -14,11 +14,12 @@ const Ingredient = defineCollection({
 		id: field.number({ primaryKey: true }),
 		name: field.text(),
 		quantity: field.number(),
-		recipeId: field.text({ references: () => Recipe.fields.id }),
+		recipeId: field.number(),
 	},
 	indexes: {
 		recipeIdx: { on: 'recipeId' },
 	},
+	foreignKeys: [{ fields: 'recipeId', references: () => [Recipe.fields.id] }],
 });
 
 export default defineConfig({

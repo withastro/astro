@@ -87,6 +87,8 @@ export function getCreateTableQuery(collectionName: string, collection: DBCollec
 		colQueries.push(colQuery);
 	}
 
+	colQueries.push(...getCreateForeignKeyQueries(collectionName, collection));
+
 	query += colQueries.join(', ') + ')';
 	return query;
 }
@@ -97,7 +99,7 @@ export function getCreateIndexQueries(
 ) {
 	let queries: string[] = [];
 	for (const [indexName, indexProps] of Object.entries(collection.indexes ?? {})) {
-		const onColNames = Array.isArray(indexProps.on) ? indexProps.on : [indexProps.on];
+		const onColNames = asArray(indexProps.on);
 		const onCols = onColNames.map((colName) => sqlite.escapeName(colName));
 
 		const unique = indexProps.unique ? 'UNIQUE ' : '';
@@ -107,6 +109,37 @@ export function getCreateIndexQueries(
 		queries.push(indexQuery);
 	}
 	return queries;
+}
+
+export function getCreateForeignKeyQueries(collectionName: string, collection: DBCollection) {
+	let queries: string[] = [];
+	for (const foreignKey of collection.foreignKeys ?? []) {
+		const fields = asArray(foreignKey.fields);
+		const references = asArray(foreignKey.references());
+
+		if (fields.length !== references.length) {
+			throw new Error(
+				`Foreign key on ${collectionName} is misconfigured. \`fields\` and \`references\` must be the same length.`
+			);
+		}
+		const referencedCollection = references[0]?.collection;
+		if (!referencedCollection) {
+			throw new Error(
+				`Foreign key on ${collectionName} is misconfigured. \`references\` cannot be empty.`
+			);
+		}
+		const query = `FOREIGN KEY (${fields
+			.map((f) => sqlite.escapeName(f))
+			.join(', ')}) REFERENCES ${sqlite.escapeName(referencedCollection)}(${references
+			.map((r) => sqlite.escapeName(r.name!))
+			.join(', ')})`;
+		queries.push(query);
+	}
+	return queries;
+}
+
+function asArray<T>(value: T | T[]) {
+	return Array.isArray(value) ? value : [value];
 }
 
 export function schemaTypeToSqlType(type: FieldType): 'text' | 'integer' {
