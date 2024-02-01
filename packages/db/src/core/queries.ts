@@ -14,8 +14,8 @@ import { bold } from 'kleur/colors';
 import { type SQL, sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import type { AstroIntegrationLogger } from 'astro';
-import type { DBUserConfig, ReferenceableField } from '../core/types.js';
-import { collectionToTable, hasPrimaryKey } from '../runtime/index.js';
+import type { DBUserConfig } from '../core/types.js';
+import { hasPrimaryKey } from '../runtime/index.js';
 
 const sqlite = new SQLiteAsyncDialect();
 
