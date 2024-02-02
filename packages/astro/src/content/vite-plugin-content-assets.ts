@@ -1,16 +1,11 @@
 import { extname } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import type { Plugin, Rollup } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { getPageDataByViteID, type BuildInternals } from '../core/build/internal.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { StaticBuildOptions } from '../core/build/types.js';
-import type { ModuleLoader } from '../core/module-loader/loader.js';
-import { createViteLoader } from '../core/module-loader/vite.js';
 import { joinPaths, prependForwardSlash } from '../core/path.js';
-import { getStylesForURL } from '../vite-plugin-astro-server/css.js';
-import { getScriptsForURL } from '../vite-plugin-astro-server/scripts.js';
 import {
 	CONTENT_RENDER_FLAG,
 	LINKS_PLACEHOLDER,
@@ -27,7 +22,6 @@ export function astroContentAssetPropagationPlugin({
 	mode: string;
 	settings: AstroSettings;
 }): Plugin {
-	let devModuleLoader: ModuleLoader;
 	return {
 		name: 'astro:content-asset-propagation',
 		enforce: 'pre',
@@ -48,11 +42,6 @@ export function astroContentAssetPropagationPlugin({
 				return this.resolve(base, importer, { skipSelf: true, ...opts });
 			}
 		},
-		configureServer(server) {
-			if (mode === 'dev') {
-				devModuleLoader = createViteLoader(server);
-			}
-		},
 		async transform(_, id, options) {
 			if (hasContentFlag(id, PROPAGATED_ASSET_FLAG)) {
 				const basePath = id.split('?')[0];
@@ -63,22 +52,7 @@ export function astroContentAssetPropagationPlugin({
 
 				// We can access the server in dev,
 				// so resolve collected styles and scripts here.
-				if (options?.ssr && devModuleLoader) {
-					if (!devModuleLoader.getModuleById(basePath)?.ssrModule) {
-						await devModuleLoader.import(basePath);
-					}
-					const { styles, urls } = await getStylesForURL(pathToFileURL(basePath), devModuleLoader);
-
-					const hoistedScripts = await getScriptsForURL(
-						pathToFileURL(basePath),
-						settings.config.root,
-						devModuleLoader
-					);
-
-					stringifiedLinks = JSON.stringify([...urls]);
-					stringifiedStyles = JSON.stringify(styles.map((s) => s.content));
-					stringifiedScripts = JSON.stringify([...hoistedScripts]);
-
+				if (options?.ssr && mode === 'dev') {
 					code = `import devLoader from 'astro:dev-module-loader';
 import { createGetPropagatedAssets } from 'astro/virtual-modules/dev-helpers.js';
 
