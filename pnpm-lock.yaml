@@ -653,6 +653,9 @@ importers:
       shikiji:
         specifier: ^0.9.18
         version: 0.9.18
+      shikiji-core:
+        specifier: ^0.9.18
+        version: 0.9.18
       string-width:
         specifier: ^7.0.0
         version: 7.0.0
@@ -683,9 +686,6 @@ importers:
       zod:
         specifier: ^3.22.4
         version: 3.22.4
-      shikiji-core:
-        specifier: ^0.9.18
-        version: 0.9.18
     optionalDependencies:
       sharp:
         specifier: ^0.32.6
