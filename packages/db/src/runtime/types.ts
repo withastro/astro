@@ -2,6 +2,7 @@ import type { ColumnDataType, ColumnBaseConfig } from 'drizzle-orm';
 import type {
 	SQLiteColumn,
 	SQLiteInsertValue,
+	SQLiteTable,
 	SQLiteTableWithColumns,
 } from 'drizzle-orm/sqlite-core';
 import type { DBField, FieldsConfig, MaybeArray, MaybePromise } from '../core/types.js';
@@ -102,3 +103,16 @@ export type Table<
 		>;
 	};
 }>;
+
+export type DBDataContext = {
+	db: SqliteDB;
+	seed<TTable extends SQLiteTable>(
+		collection: TTable,
+		data: MaybeArray<SQLiteInsertValue<TTable>>
+	): Promise<any> /** TODO: type output */;
+	mode: 'dev' | 'build';
+};
+
+export function defineData(callback: (ctx: DBDataContext) => MaybePromise<void>) {
+	return callback;
+}

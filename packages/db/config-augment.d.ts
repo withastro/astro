@@ -6,6 +6,7 @@ declare namespace Config {
 declare module 'astro:db' {
 	export const db: import('./dist/runtime/index.js').SqliteDB;
 	export const dbUrl: string;
+	export const defineData: typeof import('./dist/runtime/types.js').defineData;
 
 	export {
 		sql,
