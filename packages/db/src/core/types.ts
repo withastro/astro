@@ -166,7 +166,7 @@ export type DBDataContext = {
 					string,
 					/** TODO: true type inference */ Record<
 						Extract<keyof TFields, string>,
-						FieldsConfig[number]
+						FieldsConfig[number] & { optional: true }
 					>
 				>
 			>
