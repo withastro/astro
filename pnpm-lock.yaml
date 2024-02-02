@@ -3890,18 +3890,12 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
-      chai:
-        specifier: ^4.3.7
-        version: 4.3.10
       cheerio:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
       lit:
         specifier: ^3.1.0
         version: 3.1.0
-      mocha:
-        specifier: ^10.2.0
-        version: 10.2.0
       sass:
         specifier: ^1.69.5
         version: 1.69.6
@@ -5169,24 +5163,12 @@ importers:
 
   packages/underscore-redirects:
     devDependencies:
-      '@types/chai':
-        specifier: ^4.3.10
-        version: 4.3.11
-      '@types/mocha':
-        specifier: ^10.0.4
-        version: 10.0.6
       astro:
         specifier: workspace:*
         version: link:../astro
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
-      chai:
-        specifier: ^4.3.7
-        version: 4.3.10
-      mocha:
-        specifier: ^10.2.0
-        version: 10.2.0
 
   packages/upgrade:
     dependencies:
