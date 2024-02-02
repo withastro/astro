@@ -1576,6 +1576,18 @@ export interface AstroUserConfig {
 		};
 	};
 
+	/** TODO: */
+	typescript?: {
+		/** TODO: */
+		exclude?: Array<string>
+		/** TODO: */
+		include?: Array<string>
+		/** TODO: */
+		files?: Array<string>
+		/** TODO: */
+		excludeDefaults?: boolean
+	}
+
 	/** ⚠️ WARNING: SUBJECT TO CHANGE */
 	db?: Config.Database;
 

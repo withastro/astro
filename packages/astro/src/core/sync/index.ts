@@ -3,7 +3,7 @@ import fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { createServer, type HMRPayload } from 'vite';
-import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
+import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
@@ -20,6 +20,8 @@ import type { Logger } from '../logger/core.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { formatErrorMessage } from '../messages.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
+import { loadTSConfig } from '../config/tsconfig.js';
+import { dirname, relative } from 'node:path';
 
 export type ProcessExit = 0 | 1;
 
@@ -49,6 +51,7 @@ export default async function sync(
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
 	telemetry.record(eventCliSession('sync', userConfig));
 
+	await handleTypescriptConfig(astroConfig, logger);
 	const _settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	const settings = await runHookConfigSetup({
@@ -154,4 +157,76 @@ export async function syncInternal(
 	await setUpEnvTs({ settings, logger, fs: fs ?? fsMod });
 
 	return 0;
+}
+
+async function handleTypescriptConfig(astroConfig: AstroConfig, logger: Logger) {
+	const tsconfig = await loadTSConfig(fileURLToPath(astroConfig.root));
+	if (typeof tsconfig === 'string') {
+		throw new Error('TODO: invalid tsconfig');
+	}
+
+	const invalidFields: Array<string> = [];
+
+	if (tsconfig.rawConfig.tsconfig?.include?.length > 0) {
+		invalidFields.push('include');
+	}
+	if (tsconfig.rawConfig.tsconfig?.exclude?.length > 0) {
+		invalidFields.push('exclude');
+	}
+	if (tsconfig.rawConfig.tsconfig?.files?.length > 0) {
+		invalidFields.push('files');
+	}
+
+	if (invalidFields.length > 0) {
+		logger.warn(
+			null,
+			`The following fields of your tsconfig.json will conflict with Astro: ${invalidFields.join(
+				', '
+			)}`
+		);
+	}
+
+	function getRelativePathToCacheDir(url: URL) {
+		const path = fileURLToPath(url);
+		return relative(fileURLToPath(new URL('.astro', astroConfig.root)), path).replaceAll('\\', '/');
+	}
+
+	function getField(_tsconfig: any, name: 'include' | 'exclude' | 'files') {
+		return [
+			...(astroConfig.typescript?.[name] ?? []),
+			...(invalidFields.includes(name) ? (_tsconfig[name] as Array<string>) : []),
+		];
+	}
+
+	function deduplicate<T extends Array<unknown>>(array: T) {
+		return [...new Set([...array])];
+	}
+
+	const newTsconfig = {
+		include: deduplicate(['astro/client', ...getField(tsconfig.rawConfig.tsconfig, 'include')]),
+		exclude: deduplicate([
+			...getField(tsconfig.rawConfig.tsconfig, 'exclude'),
+			...(astroConfig.typescript?.excludeDefaults
+				? [
+						getRelativePathToCacheDir(astroConfig.outDir),
+						getRelativePathToCacheDir(astroConfig.publicDir),
+					]
+				: []),
+		]),
+		files: deduplicate(getField(tsconfig.rawConfig.tsconfig, 'files')),
+	};
+
+	const tsconfigPath = fileURLToPath(new URL('./.astro/tsconfig.json', astroConfig.root));
+	fsMod.mkdirSync(dirname(tsconfigPath), { recursive: true });
+	fsMod.writeFileSync(tsconfigPath, JSON.stringify(newTsconfig, null, 2), 'utf-8');
+
+	if (typeof tsconfig.rawConfig.tsconfig.extends === 'string') {
+		const outputTsconfig = tsconfig.rawConfig.tsconfig;
+		outputTsconfig.extends = [tsconfig.rawConfig.tsconfig.extends, './.astro/tsconfig.json'];
+		fsMod.writeFileSync(
+			tsconfig.rawConfig.tsconfigFile,
+			JSON.stringify(outputTsconfig, null, 2),
+			'utf-8'
+		);
+	}
 }
