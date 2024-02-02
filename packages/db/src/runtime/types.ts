@@ -1,6 +1,11 @@
 import type { ColumnDataType, ColumnBaseConfig } from 'drizzle-orm';
-import type { SQLiteColumn, SQLiteTableWithColumns } from 'drizzle-orm/sqlite-core';
-import type { DBField } from '../core/types.js';
+import type {
+	SQLiteColumn,
+	SQLiteInsertValue,
+	SQLiteTableWithColumns,
+} from 'drizzle-orm/sqlite-core';
+import type { DBField, FieldsConfig, MaybeArray, MaybePromise } from '../core/types.js';
+import type { SqliteDB } from './index.js';
 
 type GeneratedConfig<T extends ColumnDataType = ColumnDataType> = Pick<
 	ColumnBaseConfig<T, string>,
