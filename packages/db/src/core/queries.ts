@@ -14,8 +14,9 @@ import { bold } from 'kleur/colors';
 import { type SQL, sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import type { AstroIntegrationLogger } from 'astro';
-import type { DBUserConfig } from '../core/types.js';
+import type { MaybePromise } from '../core/types.js';
 import { hasPrimaryKey } from '../runtime/index.js';
+import type { DBDataContext } from '../runtime/types.js';
 
 const sqlite = new SQLiteAsyncDialect();
 
@@ -29,7 +30,7 @@ export async function setupDbTables({
 	useForeignKeys = false,
 }: {
 	db: SqliteRemoteDatabase;
-	data?: DBUserConfig['data'];
+	data?: (ctx: DBDataContext) => MaybePromise<void>;
 	collections: DBCollections;
 	logger?: AstroIntegrationLogger;
 	mode: 'dev' | 'build';
@@ -48,7 +49,7 @@ export async function setupDbTables({
 	if (data) {
 		try {
 			await data({
-				async seed({ table }, values) {
+				async seed(table, values) {
 					const result = Array.isArray(values)
 						? // TODO: fix values typing once we can infer fields type correctly
 							await db

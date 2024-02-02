@@ -184,9 +184,7 @@ export const dbConfigSchema = z.object({
 		.optional(),
 });
 
-export type DBUserConfig = Omit<z.input<typeof dbConfigSchema>, 'data'> & {
-	data(params: DBDataContext): MaybePromise<void>;
-};
+export type DBUserConfig = z.input<typeof dbConfigSchema>;
 
 export const astroConfigWithDbSchema = z.object({
 	db: dbConfigSchema.optional(),

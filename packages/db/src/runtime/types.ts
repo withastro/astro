@@ -112,7 +112,3 @@ export type DBDataContext = {
 	): Promise<any> /** TODO: type output */;
 	mode: 'dev' | 'build';
 };
-
-export function defineData(callback: (ctx: DBDataContext) => MaybePromise<void>) {
-	return callback;
-}

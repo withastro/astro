@@ -38,18 +38,35 @@ export function vitePluginDb(
 	};
 }
 
-export function getVirtualModContents({ collections, root }: { collections: DBCollections; root: URL }) {
+export function getVirtualModContents({
+	collections,
+	root,
+	isSeed,
+}: {
+	collections: DBCollections;
+	root: URL;
+	isSeed?: boolean;
+}) {
 	const dbUrl = new URL(DB_PATH, root);
 	return `
-import { collectionToTable, createLocalDatabaseClient } from ${RUNTIME_IMPORT};
-import dbUrl from '${fileURLToPath(dbUrl)}?fileurl';
+import { collectionToTable, createLocalDatabaseClient, defineData as _defineData } from ${RUNTIME_IMPORT};
+${
+	isSeed
+		? `const dbUrl = ${JSON.stringify(dbUrl)};`
+		: `import dbUrl from '${fileURLToPath(dbUrl)}?fileurl';`
+}
 
 const params = ${JSON.stringify({
 		collections,
-		seeding: false,
+		seeding: isSeed,
 	})};
 params.dbUrl = dbUrl;
 
+export const defineData = ${
+		isSeed
+			? '_defineData;'
+			: '() => { throw new Error("defineData() should not be called at runtime.") }'
+	}; 
 export const db = await createLocalDatabaseClient(params);
 
 export * from ${RUNTIME_DRIZZLE_IMPORT};

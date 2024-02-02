@@ -12,3 +12,10 @@ export const DB_TYPES_FILE = 'db-types.d.ts';
 export const VIRTUAL_MODULE_ID = 'astro:db';
 
 export const DB_PATH = '.astro/content.db';
+
+export const SUPPORTED_DATA_FILES = [
+	'astro.data.ts',
+	'astro.data.mts',
+	'astro.data.js',
+	'astro.data.mjs',
+];

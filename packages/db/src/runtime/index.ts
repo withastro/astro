@@ -1,5 +1,5 @@
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
-import { type DBCollection, type DBField } from '../core/types.js';
+import { type DBCollection, type DBField, type MaybePromise } from '../core/types.js';
 import { type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
 import {
 	customType,
@@ -11,6 +11,7 @@ import {
 	type IndexBuilder,
 } from 'drizzle-orm/sqlite-core';
 import { z } from 'zod';
+import type { DBDataContext } from './types.js';
 
 export type SqliteDB = SqliteRemoteDatabase;
 export type { Table } from './types.js';
@@ -137,4 +138,8 @@ function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boo
 	if (!field.optional) c = c.notNull();
 	if (field.unique) c = c.unique();
 	return c;
+}
+
+export function defineData(callback: (ctx: DBDataContext) => MaybePromise<void>) {
+	return callback;
 }

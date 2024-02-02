@@ -16,6 +16,7 @@ import { bold } from 'kleur/colors';
 import { fileURLIntegration } from './file-url.js';
 import { setupDbTables } from '../queries.js';
 import { collectionToTable } from '../../runtime/index.js';
+import { loadDataFile } from './load-astro-data.js';
 
 function astroDBIntegration(): AstroIntegration {
 	return {
@@ -65,10 +66,11 @@ function astroDBIntegration(): AstroIntegration {
 						dbUrl: dbUrl.toString(),
 						seeding: true,
 					});
+					const dataFile = await loadDataFile({ root: config.root, collections });
 					await setupDbTables({
 						db,
 						collections,
-						data: configWithDb.db?.data,
+						data: dataFile?.default,
 						logger,
 						mode: command === 'dev' ? 'dev' : 'build',
 						useForeignKeys: true,
