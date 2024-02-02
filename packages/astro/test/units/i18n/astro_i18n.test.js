@@ -658,23 +658,21 @@ describe('getLocaleAbsoluteUrl', () => {
 			 */
 			const config = {
 				base: '/blog',
-				experimental: {
-					i18n: {
-						defaultLocale: 'en',
-						locales: [
-							'en',
-							'en_US',
-							'es',
-							{
-								path: 'italiano',
-								codes: ['it', 'it-VA'],
-							},
-						],
-						domains: {
-							es: 'https://es.example.com',
+				i18n: {
+					defaultLocale: 'en',
+					locales: [
+						'en',
+						'en_US',
+						'es',
+						{
+							path: 'italiano',
+							codes: ['it', 'it-VA'],
 						},
-						routingStrategy: 'prefix-other-locales',
+					],
+					domains: {
+						es: 'https://es.example.com',
 					},
+					routingStrategy: 'prefix-other-locales',
 				},
 			};
 
@@ -686,14 +684,14 @@ describe('getLocaleAbsoluteUrl', () => {
 					trailingSlash: 'always',
 					format: 'directory',
 					site: 'https://example.com',
-					...config.experimental.i18n,
+					...config.i18n,
 				})
 			).to.eq('https://example.com/blog/');
 			expect(
 				getLocaleAbsoluteUrl({
 					locale: 'es',
 					base: '/blog/',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'always',
 					format: 'directory',
 					site: 'https://example.com',
@@ -704,7 +702,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'es',
 					base: '/blog/',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'always',
 					format: 'directory',
 					site: 'https://example.com',
@@ -716,7 +714,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'en_US',
 					base: '/blog/',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'always',
 					format: 'directory',
 					site: 'https://example.com',
@@ -728,7 +726,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'en',
 					base: '/blog/',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'always',
 					format: 'file',
 					site: 'https://example.com',
@@ -738,7 +736,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'es',
 					base: '/blog/',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'always',
 					format: 'file',
 					site: 'https://example.com',
@@ -749,7 +747,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'en_US',
 					base: '/blog/',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'always',
 					format: 'file',
 					site: 'https://example.com',
@@ -759,7 +757,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'it-VA',
 					base: '/blog/',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'always',
 					format: 'file',
 					site: 'https://example.com',
@@ -770,7 +768,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'en_US',
 					base: '/blog/',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'always',
 					format: 'file',
 					site: 'https://example.com',
@@ -781,7 +779,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'es',
 					base: '/blog/',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'always',
 					format: 'file',
 					site: 'https://example.com',
@@ -794,7 +792,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'es',
 					base: '/blog/',
 					prependWith: 'some-name',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'always',
 					format: 'file',
 					site: 'https://example.com',
@@ -809,14 +807,14 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en',
 					base: '/blog/',
 					prependWith: 'some-name',
-					...config.experimental.i18n,
+					...config.i18n,
 					trailingSlash: 'always',
 					format: 'file',
 					site: 'https://example.com',
 					path: 'first-post',
 					isBuild: true,
 				})
-			).to.eq('/blog/some-name/first-post/');
+			).to.eq('https://example.com/blog/some-name/first-post/');
 		});
 	});
 	describe('with [prefix-always]', () => {
@@ -1449,34 +1447,39 @@ describe('getLocaleAbsoluteUrl', () => {
 });
 
 describe('getLocaleAbsoluteUrlList', () => {
-	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: never]', () => {
+	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: never]', async () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}
 		 */
-		const config = {
-			i18n: {
-				defaultLocale: 'en',
-				locales: [
-					'en',
-					'en_US',
-					'es',
-					{
-						path: 'italiano',
-						codes: ['it', 'it-VA'],
-					},
-				],
+		const config = await validateConfig(
+			{
+				trailingSlash: 'never',
+				format: 'directory',
+				site: 'https://example.com',
+				base: '/blog',
+				i18n: {
+					defaultLocale: 'en',
+					locales: [
+						'en',
+						'en_US',
+						'es',
+						{
+							path: 'italiano',
+							codes: ['it', 'it-VA'],
+						},
+					],
+				},
 			},
-		};
+			process.cwd()
+		);
 		// directory format
 		expect(
 			getLocaleAbsoluteUrlList({
 				locale: 'en',
-				base: '/blog',
+				...config,
 				...config.i18n,
-				trailingSlash: 'never',
-				format: 'directory',
-				site: 'https://example.com',
+				isBuild: true,
 			})
 		).to.have.members([
 			'https://example.com/blog',
