@@ -1,11 +1,9 @@
-/// <reference path="./src/env.d.ts" />
+import { Ingredient, Recipe, defineData } from 'astro:db';
 
-import { defineData, Ingredient, Recipe } from 'astro:db';
-
-export default defineData(async ({ seed }) => {
+export default defineData(async ({ seed, mode }) => {
 	const pancakes = await seed(Recipe, {
 		title: 'Pancakes',
-		description: 'A delicious breakfast',
+		description: 'A delicious breakfast treat',
 	});
 
 	seed(Ingredient, [
