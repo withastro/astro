@@ -16,6 +16,11 @@ function createReactElementFromDOMElement(element) {
 		attrs[attr.name] = attr.value;
 	}
 
+	// If the element has no children, we can create a simple React element
+	if (element.children.length === 0) {
+		return createElement(element.localName, attrs);
+	}
+
 	return createElement(
 		element.localName,
 		attrs,
