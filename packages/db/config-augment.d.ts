@@ -1,4 +1,4 @@
 declare namespace Config {
-	type DBUserConfig = import('./dist/config.js').DBUserConfig;
+	type DBUserConfig = import('./dist/core/types.js').DBUserConfig;
 	export interface Database extends DBUserConfig {}
 }
