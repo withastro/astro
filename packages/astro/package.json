@@ -168,6 +168,7 @@
     "semver": "^7.5.4",
     "server-destroy": "^1.0.1",
     "shikiji": "^0.9.18",
+    "shikiji-core": "^0.9.18",
     "string-width": "^7.0.0",
     "strip-ansi": "^7.1.0",
     "tsconfck": "^3.0.0",
@@ -177,8 +178,7 @@
     "vitefu": "^0.2.5",
     "which-pm": "^2.1.1",
     "yargs-parser": "^21.1.1",
-    "zod": "^3.22.4",
-    "shikiji-core": "^0.9.18"
+    "zod": "^3.22.4"
   },
   "optionalDependencies": {
     "sharp": "^0.32.6"
