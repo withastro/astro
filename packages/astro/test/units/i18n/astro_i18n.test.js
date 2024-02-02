@@ -6,6 +6,7 @@ import {
 } from '../../../dist/i18n/index.js';
 import { parseLocale } from '../../../dist/core/render/context.js';
 import { expect } from 'chai';
+import { validateConfig } from '../../../dist/core/config/config.js';
 
 describe('getLocaleRelativeUrl', () => {
 	it('should correctly return the URL with the base', () => {
@@ -1454,19 +1455,17 @@ describe('getLocaleAbsoluteUrlList', () => {
 		 * @type {import("../../../dist/@types").AstroUserConfig}
 		 */
 		const config = {
-			experimental: {
-				i18n: {
-					defaultLocale: 'en',
-					locales: [
-						'en',
-						'en_US',
-						'es',
-						{
-							path: 'italiano',
-							codes: ['it', 'it-VA'],
-						},
-					],
-				},
+			i18n: {
+				defaultLocale: 'en',
+				locales: [
+					'en',
+					'en_US',
+					'es',
+					{
+						path: 'italiano',
+						codes: ['it', 'it-VA'],
+					},
+				],
 			},
 		};
 		// directory format
@@ -1474,7 +1473,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 			getLocaleAbsoluteUrlList({
 				locale: 'en',
 				base: '/blog',
-				...config.experimental.i18n,
+				...config.i18n,
 				trailingSlash: 'never',
 				format: 'directory',
 				site: 'https://example.com',
@@ -1487,33 +1486,109 @@ describe('getLocaleAbsoluteUrlList', () => {
 		]);
 	});
 
-	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: always]', () => {
+	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: always]', async () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}
 		 */
-		const config = {
-			experimental: {
+		const config = await validateConfig(
+			{
+				trailingSlash: 'always',
+				format: 'directory',
+				base: '/blog/',
+				site: 'https://example.com',
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['en', 'en_US', 'es'],
 				},
 			},
-		};
+			process.cwd()
+		);
 		// directory format
 		expect(
 			getLocaleAbsoluteUrlList({
 				locale: 'en',
-				base: '/blog/',
-				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
-				site: 'https://example.com',
+				...config,
+				...config.i18n,
 			})
 		).to.have.members([
 			'https://example.com/blog/',
 			'https://example.com/blog/en-us/',
 			'https://example.com/blog/es/',
+		]);
+	});
+
+	it('should retrieve the correct list of base URL with locales and path [format: directory, trailingSlash: always]', async () => {
+		/**
+		 *
+		 * @type {import("../../../dist/@types").AstroUserConfig}
+		 */
+		const config = await validateConfig(
+			{
+				format: 'directory',
+				site: 'https://example.com/',
+				trailingSlash: 'always',
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'en_US', 'es'],
+					routing: {
+						prefixDefaultLocale: true,
+					},
+				},
+			},
+			process.cwd()
+		);
+		// directory format
+		expect(
+			getLocaleAbsoluteUrlList({
+				locale: 'en',
+				path: 'download',
+				...config,
+				...config.i18n,
+			})
+		).to.have.members([
+			'https://example.com/en/download/',
+			'https://example.com/en-us/download/',
+			'https://example.com/es/download/',
+		]);
+	});
+
+	it('should retrieve the correct list of base URL with locales and path [format: directory, trailingSlash: always, domains]', async () => {
+		/**
+		 *
+		 * @type {import("../../../dist/@types").AstroUserConfig}
+		 */
+		const config = await validateConfig(
+			{
+				format: 'directory',
+				site: 'https://example.com/',
+				trailingSlash: 'always',
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'en_US', 'es'],
+					routing: {
+						prefixDefaultLocale: true,
+					},
+					domains: {
+						es: 'https://es.example.com',
+					},
+				},
+			},
+			process.cwd()
+		);
+		// directory format
+		expect(
+			getLocaleAbsoluteUrlList({
+				locale: 'en',
+				path: 'download',
+				...config,
+				...config.i18n,
+				isBuild: true,
+			})
+		).to.have.members([
+			'https://example.com/en/download/',
+			'https://example.com/en-us/download/',
+			'https://es.example.com/download/',
 		]);
 	});
 

@@ -123,7 +123,12 @@ export function getLocaleRelativeUrlList({
 		const pathsToJoin = [base, prependWith];
 		const normalizedLocale = normalizeLocale ? normalizeTheLocale(locale) : locale;
 
-		if (routing === 'pathname-prefix-always' || routing === 'pathname-prefix-always-no-redirect') {
+		if (
+			routing === 'pathname-prefix-always' ||
+			routing === 'pathname-prefix-always-no-redirect' ||
+			routing === 'domains-prefix-always' ||
+			routing === 'domains-prefix-always-no-redirect'
+		) {
 			pathsToJoin.push(normalizedLocale);
 		} else if (locale !== defaultLocale) {
 			pathsToJoin.push(normalizedLocale);
@@ -167,17 +172,25 @@ export function getLocaleAbsoluteUrlList({
 			} else {
 				pathsToJoin.push(site);
 			}
-			pathsToJoin.push(base);
+			// "/" is the default, we don't want to add it here
+			if (base !== '/') {
+				pathsToJoin.push(base);
+			}
 			pathsToJoin.push(prependWith);
 		} else {
 			if (site) {
 				pathsToJoin.push(site);
 			}
-			pathsToJoin.push(base);
+			// "/" is the default, we don't want to add it here
+			if (base !== '/') {
+				pathsToJoin.push(base);
+			}
 			pathsToJoin.push(prependWith);
 			if (
 				routing === 'pathname-prefix-always' ||
-				routing === 'pathname-prefix-always-no-redirect'
+				routing === 'pathname-prefix-always-no-redirect' ||
+				routing === 'domains-prefix-always' ||
+				routing === 'domains-prefix-always-no-redirect'
 			) {
 				pathsToJoin.push(normalizedLocale);
 			} else if (currentLocale !== defaultLocale) {
