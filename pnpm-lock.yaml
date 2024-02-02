@@ -3799,6 +3799,9 @@ importers:
       drizzle-orm:
         specifier: ^0.28.6
         version: 0.28.6(@libsql/client@0.4.3)
+      esbuild:
+        specifier: ^0.19.6
+        version: 0.19.11
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
@@ -3845,9 +3848,6 @@ importers:
       cheerio:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
-      esbuild:
-        specifier: ^0.19.6
-        version: 0.19.11
       mocha:
         specifier: ^10.2.0
         version: 10.2.0

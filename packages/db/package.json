@@ -61,7 +61,8 @@
     "nanoid": "^5.0.1",
     "prompts": "^2.4.2",
     "yargs-parser": "^21.1.1",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "esbuild": "^0.19.6"
   },
   "devDependencies": {
     "@types/chai": "^4.3.6",
@@ -74,7 +75,6 @@
     "astro-scripts": "workspace:*",
     "chai": "^4.3.10",
     "cheerio": "1.0.0-rc.12",
-    "esbuild": "^0.19.6",
     "mocha": "^10.2.0",
     "typescript": "^5.2.2",
     "vite": "^4.4.11"
