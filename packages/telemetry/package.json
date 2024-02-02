@@ -25,7 +25,9 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "ci-info": "^4.0.0",
     "debug": "^4.3.4",
