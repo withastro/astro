@@ -206,7 +206,7 @@ export interface AstroGlobal<
 	 * const { name } = Astro.props
 	 * ```
 	 *
-	 * [Astro reference](https://docs.astro.build/en/core-concepts/astro-components/#component-props)
+	 * [Astro reference](https://docs.astro.build/en/basics/astro-components/#component-props)
 	 */
 	props: AstroSharedContext<Props, Params>['props'];
 	/** Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
@@ -784,7 +784,7 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name build.format
-		 * @typeraw {('file' | 'directory')}
+		 * @typeraw {('file' | 'directory' | 'preserve')}
 		 * @default `'directory'`
 		 * @description
 		 * Control the output file format of each page. This value may be set by an adapter for you.
@@ -796,7 +796,7 @@ export interface AstroUserConfig {
 		 * {
 		 *   build: {
 		 *     // Example: Generate `page.html` instead of `page/index.html` during build.
-		 *     format: 'preserve'
+		 *     format: 'file'
 		 *   }
 		 * }
 		 * ```
@@ -1551,19 +1551,20 @@ export interface AstroUserConfig {
 			 * ```js
 			 * //astro.config.mjs
 			 * export default defineConfig({
-			 * 	site: "https://example.com",
-			 * 	output: "server", // required, with no prerendered pages
+			 * 	 site: "https://example.com",
+			 * 	 output: "server", // required, with no prerendered pages
 			 *   adapter: node({
 			 *     mode: 'standalone',
 			 *   }),
-			 * 	i18n: {
-			 * 		defaultLocale: "en",
-			 * 		locales: ["en", "fr", "pt-br", "es"],
+			 * 	 i18n: {
+			 *     defaultLocale: "en",
+			 *     locales: ["en", "fr", "pt-br", "es"],
 			 *     prefixDefaultLocale: false,
-			 *		  domains: {
-			 *			  fr: "https://fr.example.com",
+			 *     domains: {
+			 *       fr: "https://fr.example.com",
 			 *       es: "https://example.es"
-			 *    },
+			 *     }
+			 *   },
 			 * })
 			 * ```
 			 *
@@ -1683,7 +1684,7 @@ export interface AstroUserConfig {
 		 * @version 4.2.0
 		 * @description
 		 *
-		 * Prioritizes redirects and injected routes equally alongside file-based project routes, following the same [route priority order rules](https://docs.astro.build/en/core-concepts/routing/#route-priority-order) for all routes.
+		 * Prioritizes redirects and injected routes equally alongside file-based project routes, following the same [route priority order rules](https://docs.astro.build/en/guides/routing/#route-priority-order) for all routes.
 		 *
 		 * This allows more control over routing in your project by not automatically prioritizing certain types of routes, and standardizes the route priority ordering for all routes.
 		 *
@@ -1724,21 +1725,22 @@ export interface AstroUserConfig {
 		 * export default defineConfig({
 		 * 	site: "https://example.com",
 		 * 	output: "server", // required, with no prerendered pages
-		 *   adapter: node({
-		 *     mode: 'standalone',
-		 *   }),
+		 * 	adapter: node({
+		 * 		mode: 'standalone',
+		 * 	}),
 		 * 	i18n: {
 		 * 		defaultLocale: "en",
 		 * 		locales: ["en", "fr", "pt-br", "es"],
-		 *     prefixDefaultLocale: false,
-		 *		  domains: {
-		 *			  fr: "https://fr.example.com",
-		 *       es: "https://example.es"
-		 *    },
-		 *  experimental: {
-		 *     i18nDomains: true
-		 *  }
-		 * })
+		 * 		prefixDefaultLocale: false,
+		 * 		domains: {
+		 * 			fr: "https://fr.example.com",
+		 * 			es: "https://example.es",
+		 * 		},
+		 * 	},
+		 * 	experimental: {
+		 * 		i18nDomains: true,
+		 * 	},
+		 * });
 		 * ```
 		 *
 		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
@@ -2021,7 +2023,7 @@ export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
 };
 
 /**
- * Return an array of pages to generate for a [dynamic route](https://docs.astro.build/en/core-concepts/routing/#dynamic-routes). (**SSG Only**)
+ * Return an array of pages to generate for a [dynamic route](https://docs.astro.build/en/guides/routing/#dynamic-routes). (**SSG Only**)
  *
  * [Astro Reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
  */
