@@ -87,7 +87,7 @@ export type Table<
 			{
 				tableName: TTableName;
 				name: K;
-				hasDefault: TFields[K]['default'] extends undefined ? false : true;
+				hasDefault: TFields[K] extends { default: NonNullable<unknown> } ? true : false;
 				notNull: TFields[K]['optional'] extends true ? false : true;
 			}
 		>;
