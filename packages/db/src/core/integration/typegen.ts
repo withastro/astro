@@ -34,6 +34,7 @@ function generateTableType(name: string, collection: DBCollection): string {
 						type: field.type,
 						optional: field.optional,
 						default: field.default,
+						primaryKey: 'primaryKey' in field ? field.primaryKey : false,
 					},
 				])
 			)
