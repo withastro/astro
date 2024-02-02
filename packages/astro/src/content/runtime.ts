@@ -274,7 +274,8 @@ async function render({
 	const { default: defaultMod } = baseMod;
 
 	if (isPropagatedAssetsModule(defaultMod)) {
-		const { collectedStyles, collectedLinks, collectedScripts, getMod } = defaultMod;
+		const { getPropagatedAssets, getMod } = defaultMod;
+		const { collectedStyles, collectedLinks, collectedScripts } = await getPropagatedAssets();
 		if (typeof getMod !== 'function') throw UnexpectedRenderError;
 		const propagationMod = await getMod();
 		if (propagationMod == null || typeof propagationMod !== 'object') throw UnexpectedRenderError;
@@ -385,9 +386,11 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 type PropagatedAssetsModule = {
 	__astroPropagation: true;
 	getMod: () => Promise<any>;
-	collectedStyles: string[];
-	collectedLinks: string[];
-	collectedScripts: string[];
+	getPropagatedAssets: () => Promise<{
+		collectedStyles: string[];
+		collectedLinks: string[];
+		collectedScripts: string[];
+	}>;
 };
 
 function isPropagatedAssetsModule(module: any): module is PropagatedAssetsModule {

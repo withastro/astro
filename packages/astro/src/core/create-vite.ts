@@ -30,6 +30,7 @@ import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
+import astroDevLoader from '../vite-plugin-astro-dev-loader/index.js';
 import type { Logger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
@@ -144,6 +145,7 @@ export async function createVite(
 			astroDevToolbar({ settings, logger }),
 			vitePluginFileURL({}),
 			astroInternationalization({ settings }),
+			mode === 'dev' && astroDevLoader({ mode })
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

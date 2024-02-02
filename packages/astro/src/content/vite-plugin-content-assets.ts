@@ -58,6 +58,9 @@ export function astroContentAssetPropagationPlugin({
 				const basePath = id.split('?')[0];
 				let stringifiedLinks: string, stringifiedStyles: string, stringifiedScripts: string;
 
+
+				let code = ''
+
 				// We can access the server in dev,
 				// so resolve collected styles and scripts here.
 				if (options?.ssr && devModuleLoader) {
@@ -75,6 +78,19 @@ export function astroContentAssetPropagationPlugin({
 					stringifiedLinks = JSON.stringify([...urls]);
 					stringifiedStyles = JSON.stringify(styles.map((s) => s.content));
 					stringifiedScripts = JSON.stringify([...hoistedScripts]);
+
+					code = `import devLoader from 'astro:dev-module-loader';
+import { createGetPropagatedAssets } from 'astro/virtual-modules/dev-helpers.js';
+
+const getPropagatedAssets = createGetPropagatedAssets(devLoader, ${JSON.stringify(basePath)}, ${JSON.stringify(settings.config.root)});
+
+async function getMod() {
+	return import(${JSON.stringify(basePath)});
+}
+
+const defaultMod = { __astroPropagation: true, getMod, getPropagatedAssets };
+export default defaultMod;
+`;
 				} else {
 					// Otherwise, use placeholders to inject styles and scripts
 					// during the production bundle step.
@@ -82,18 +98,29 @@ export function astroContentAssetPropagationPlugin({
 					stringifiedLinks = JSON.stringify(LINKS_PLACEHOLDER);
 					stringifiedStyles = JSON.stringify(STYLES_PLACEHOLDER);
 					stringifiedScripts = JSON.stringify(SCRIPTS_PLACEHOLDER);
+
+					code = `
+async function getMod() {
+	return import(${JSON.stringify(basePath)});
+}
+
+const collectedLinks = ${stringifiedLinks};
+const collectedStyles = ${stringifiedStyles};
+const collectedScripts = ${stringifiedScripts};
+
+function getPropagatedAssets {
+	return {
+		collectedLinks,
+		collectedStyles,
+		collectedScripts
+	};
+};
+
+const defaultMod = { __astroPropagation: true, getMod, getPropagatedAssets };
+export default defaultMod;
+`;
 				}
 
-				const code = `
-					async function getMod() {
-						return import(${JSON.stringify(basePath)});
-					}
-					const collectedLinks = ${stringifiedLinks};
-					const collectedStyles = ${stringifiedStyles};
-					const collectedScripts = ${stringifiedScripts};
-					const defaultMod = { __astroPropagation: true, getMod, collectedLinks, collectedStyles, collectedScripts };
-					export default defaultMod;
-				`;
 				// ^ Use a default export for tools like Markdoc
 				// to catch the `__astroPropagation` identifier
 				return { code, map: { mappings: '' } };
