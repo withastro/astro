@@ -60,6 +60,7 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 					}
 				}
 
+				// TODO: look into why the replacement needs to happen here
 				for (const middleware of server.middlewares.stack) {
 					// This hardcoded name will not break between Vite versions
 					if ((middleware.handle as Connect.HandleFunction).name === 'vite404Middleware') {
