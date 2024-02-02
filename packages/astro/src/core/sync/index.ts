@@ -18,6 +18,8 @@ import { createVite } from '../create-vite.js';
 import { AstroError, AstroErrorData, createSafeError, isAstroError } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { ensureProcessNodeEnv } from '../util.js';
+import { formatErrorMessage } from '../messages.js';
+import { collectErrorMetadata } from '../errors/dev/utils.js';
 
 export type ProcessExit = 0 | 1;
 
@@ -55,7 +57,16 @@ export default async function sync(
 		command: 'build',
 	});
 
-	return await syncInternal(settings, { ...options, logger });
+	try {
+		return await syncInternal(settings, { ...options, logger });
+	} catch (err) {
+		const error = createSafeError(err);
+		logger.error(
+			'content',
+			formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n'
+		);
+		return 1;
+	}
 }
 
 /**
