@@ -82,13 +82,13 @@ const collectedLinks = ${stringifiedLinks};
 const collectedStyles = ${stringifiedStyles};
 const collectedScripts = ${stringifiedScripts};
 
-function getPropagatedAssets {
+function getPropagatedAssets() {
 	return {
 		collectedLinks,
 		collectedStyles,
 		collectedScripts
 	};
-};
+}
 
 const defaultMod = { __astroPropagation: true, getMod, getPropagatedAssets };
 export default defaultMod;
