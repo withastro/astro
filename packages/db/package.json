@@ -64,16 +64,17 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.6",
     "@types/deep-diff": "^1.0.5",
     "@types/diff": "^5.0.8",
-    "@types/yargs-parser": "^21.0.3",
-    "@types/chai": "^4.3.6",
     "@types/mocha": "^10.0.2",
     "@types/prompts": "^2.4.8",
+    "@types/yargs-parser": "^21.0.3",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.10",
     "cheerio": "1.0.0-rc.12",
+    "esbuild": "^0.19.6",
     "mocha": "^10.2.0",
     "typescript": "^5.2.2",
     "vite": "^4.4.11"

@@ -3845,6 +3845,9 @@ importers:
       cheerio:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
+      esbuild:
+        specifier: ^0.19.6
+        version: 0.19.11
       mocha:
         specifier: ^10.2.0
         version: 10.2.0
