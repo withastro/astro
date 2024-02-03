@@ -9,6 +9,7 @@ import type {
 } from 'shikiji';
 import { bundledLanguages } from 'shikiji/langs';
 import { getCachedHighlighter } from '../dist/core/shiki.js';
+import type { HTMLAttributes } from '../types';
 
 interface Props {
 	/** The code to highlight. Required. */
@@ -49,6 +50,9 @@ interface Props {
 	 * @default false
 	 */
 	inline?: boolean;
+
+	/** Additional props to pass to the pre element. */
+	additionalProps?: HTMLAttributes<any>;
 }
 
 const {
