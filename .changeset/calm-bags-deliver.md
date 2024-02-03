@@ -3,4 +3,4 @@
 "astro": minor
 ---
 
-Added functionality for additional props within the code component.
+Allows passing any props to the `<Code />` component
