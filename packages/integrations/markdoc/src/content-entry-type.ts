@@ -178,14 +178,11 @@ async function emitOptimizedImages(
 		astroConfig: AstroConfig;
 	}
 ) {
-	let attributeName = '__optimizedSrc';
 	for (const node of nodeChildren) {
+		let isComponent = node.type === 'tag' && node.tag === 'image';
 		// Support either a ![]() or {% image %} syntax, and handle the `src` attribute accordingly.
-		if (
-			(node.type === 'image' || (node.type === 'tag' && node.tag === 'image')) &&
-			typeof node.attributes.src === 'string'
-		) {
-			if (node.type === 'tag') attributeName = 'src';
+		if ((node.type === 'image' || isComponent) && typeof node.attributes.src === 'string') {
+			let attributeName = isComponent ? 'src' : '__optimizedSrc';
 
 			// If the image isn't an URL or a link to public, try to resolve it.
 			if (shouldOptimizeImage(node.attributes.src)) {
@@ -207,7 +204,9 @@ async function emitOptimizedImages(
 						)} from ${JSON.stringify(ctx.filePath)}. Does the file exist?`,
 					});
 				}
-			} else {
+			} else if (isComponent) {
+				// If the user is using the {% image %} tag, always pass the `src` attribute as `__optimizedSrc`, even if it's an external URL or absolute path.
+				// That way, the component can decide whether to optimize it or not.
 				node.attributes[attributeName] = node.attributes.src;
 			}
 		}
