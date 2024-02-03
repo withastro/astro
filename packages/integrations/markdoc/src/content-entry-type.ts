@@ -178,29 +178,37 @@ async function emitOptimizedImages(
 		astroConfig: AstroConfig;
 	}
 ) {
+	let attributeName = '__optimizedSrc';
 	for (const node of nodeChildren) {
+		// Support either a ![]() or {% image %} syntax, and handle the `src` attribute accordingly.
 		if (
-			node.type === 'image' &&
-			typeof node.attributes.src === 'string' &&
-			shouldOptimizeImage(node.attributes.src)
+			(node.type === 'image' || (node.type === 'tag' && node.tag === 'image')) &&
+			typeof node.attributes.src === 'string'
 		) {
-			// Attempt to resolve source with Vite.
-			// This handles relative paths and configured aliases
-			const resolved = await ctx.pluginContext.resolve(node.attributes.src, ctx.filePath);
+			if (node.type === 'tag') attributeName = 'src';
 
-			if (resolved?.id && fs.existsSync(new URL(prependForwardSlash(resolved.id), 'file://'))) {
-				const src = await emitESMImage(
-					resolved.id,
-					ctx.pluginContext.meta.watchMode,
-					ctx.pluginContext.emitFile
-				);
-				node.attributes.__optimizedSrc = src;
+			// If the image isn't an URL or a link to public, try to resolve it.
+			if (shouldOptimizeImage(node.attributes.src)) {
+				// Attempt to resolve source with Vite.
+				// This handles relative paths and configured aliases
+				const resolved = await ctx.pluginContext.resolve(node.attributes.src, ctx.filePath);
+
+				if (resolved?.id && fs.existsSync(new URL(prependForwardSlash(resolved.id), 'file://'))) {
+					const src = await emitESMImage(
+						resolved.id,
+						ctx.pluginContext.meta.watchMode,
+						ctx.pluginContext.emitFile
+					);
+					node.attributes[attributeName] = src;
+				} else {
+					throw new MarkdocError({
+						message: `Could not resolve image ${JSON.stringify(
+							node.attributes.src
+						)} from ${JSON.stringify(ctx.filePath)}. Does the file exist?`,
+					});
+				}
 			} else {
-				throw new MarkdocError({
-					message: `Could not resolve image ${JSON.stringify(
-						node.attributes.src
-					)} from ${JSON.stringify(ctx.filePath)}. Does the file exist?`,
-				});
+				node.attributes[attributeName] = node.attributes.src;
 			}
 		}
 		await emitOptimizedImages(node.children, ctx);
