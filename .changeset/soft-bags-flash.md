@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fix HMR in MDX deps in Content Collections
+Fixes HMR for MDX dependencies in Content Collections
