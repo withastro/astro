@@ -4,7 +4,7 @@ import type { Properties } from 'hast';
 import type { ShikiConfig } from './types.js';
 
 export interface ShikiHighlighter {
-	highlight(code: string, lang?: string, options?: { inline?: boolean }): string;
+	highlight(code: string, lang?: string, options?: { inline?: boolean }, additionalProps?:any): string;
 }
 
 // TODO: Remove this special replacement in Astro 5
@@ -41,7 +41,7 @@ export async function createShikiHighlighter({
 	const loadedLanguages = highlighter.getLoadedLanguages();
 
 	return {
-		highlight(code, lang = 'plaintext', options) {
+		highlight(code, lang = 'plaintext', options, additionalProps?:any) {
 			if (lang !== 'plaintext' && !loadedLanguages.includes(lang)) {
 				// eslint-disable-next-line no-console
 				console.warn(`[Shiki] The language "${lang}" doesn't exist, falling back to "plaintext".`);
@@ -57,6 +57,14 @@ export async function createShikiHighlighter({
 				transformers: [
 					{
 						pre(node) {
+							Object.entries(additionalProps).forEach(([key, value]) => {
+								if (key === 'class') {
+									node.properties[key] += ` ${value}`; // Append to class instead of replacing it
+								}
+								else {
+									node.properties[key] = value as string;
+								}
+							});
 							// Swap to `code` tag if inline
 							if (inline) {
 								node.tagName = 'code';
