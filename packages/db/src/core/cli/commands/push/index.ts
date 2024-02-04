@@ -97,20 +97,21 @@ async function pushSchema({
 	const confirmations = missingMigrationContents.reduce((acc, curr) => {
 		return [...acc, ...(curr.confirm || [])];
 	}, [] as string[]);
-
-	const response = await prompts([
-		...confirmations.map((message, index) => ({
-			type: 'confirm' as const,
-			name: String(index),
-			message: red('Warning: ') + message + '\nContinue?',
-			initial: true,
-		})),
-	]);
-	if (
-		Object.values(response).length === 0 ||
-		Object.values(response).some((value) => value === false)
-	) {
-		process.exit(1);
+	if (confirmations.length > 0) {
+		const response = await prompts([
+			...confirmations.map((message, index) => ({
+				type: 'confirm' as const,
+				name: String(index),
+				message: red('Warning: ') + message + '\nContinue?',
+				initial: true,
+			})),
+		]);
+		if (
+			Object.values(response).length === 0 ||
+			Object.values(response).some((value) => value === false)
+		) {
+			process.exit(1);
+		}
 	}
 
 	// combine all missing migrations into a single batch
