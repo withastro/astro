@@ -33,7 +33,12 @@ const validXmlWithStylesheet = `<?xml version="1.0" encoding="UTF-8"?><?xml-styl
 const validXmlWithXSLStylesheet = `<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="/feedstylesheet.xsl" type="text/xsl"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link></channel></rss>`;
 
 function assertXmlDeepEqual(a, b) {
-	assert.deepStrictEqual(parseXmlString(a), parseXmlString(b));
+	const parsedA = parseXmlString(a);
+	const parsedB = parseXmlString(b);
+
+	assert.strictEqual(parsedA, null);
+	assert.strictEqual(parsedB, null);
+	assert.deepStrictEqual(parsedA.result, parsedB.result);
 }
 
 describe('rss', () => {
@@ -49,20 +54,6 @@ describe('rss', () => {
 
 		// NOTE: Chai used the below parser to perform the tests, but I have omitted it for now.
 		// parser = new xml2js.Parser({ trim: flag(this, 'deep') });
-
-		// NOTE: The below test code also works, if we do not want to add the parseXmlString() function to test-utils.js
-		// I have already added the function, which returns an object with signature of: { err, result }.
-		// If there is an error, the test will fail (no err present in the expected result)
-
-		/*
-		parseXmlString(str, (err, actual) => {
-			assert.strictEqual(err, null);
-			parseXmlString(validXmlResult, (err, predicted) => {
-				assert.strictEqual(err, null);
-				assert.deepStrictEqual(actual, predicted);
-			});
-		});
-		*/
 
 		assertXmlDeepEqual(str, validXmlResult);
 
