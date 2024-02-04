@@ -218,7 +218,9 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
         if (options.width) options.width = Math.round(options.width);
         if (options.height) options.height = Math.round(options.height);
 
-				delete options.inferSize;
+				// Delete inferSize so it doesn't become an attribute
+				if (options.inferSize) delete options.inferSize;
+
         return options;
     },
 	getHTMLAttributes(options) {

@@ -67,6 +67,9 @@ declare module 'astro:assets' {
 	export type RemoteImageProps = import('./dist/type-utils.js').Simplify<
 		import('./dist/assets/types.js').RemoteImageProps<ImgAttributes>
 	>;
+	export type RemoteImagePropsInferSize = import('./dist/type-utils.js').Simplify<
+		import('./dist/assets/types.js').RemoteImagePropsInferSize<ImgAttributes>
+	>;
 	export const { getImage, getConfiguredImageService, imageConfig, Image, Picture }: AstroAssets;
 }
 
