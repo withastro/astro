@@ -82,6 +82,12 @@ export async function writeWebResponse(res: http.ServerResponse, webResponse: Re
 			res.write(body);
 		} else {
 			const reader = body.getReader();
+			res.on('close', () => {
+				reader.cancel().catch((error: unknown) => {
+					// eslint-disable-next-line no-console
+					console.error('An unexpected error occurred in the middle of the stream.', error);
+				});
+			});
 			while (true) {
 				const { done, value } = await reader.read();
 				if (done) break;
