@@ -227,4 +227,27 @@ describe('getRssString', () => {
 		}
 		chai.expect(error).to.be.null;
 	});
+
+	it('should not fail when an enclosure has a length of 0', async () => {
+		const str = await getRssString({
+			title,
+			description,
+			items: [
+				{
+					title: 'Title',
+					pubDate: new Date().toISOString(),
+					description: 'Description',
+					link: '/link',
+					enclosure: {
+						url: '/enclosure',
+						length: 0,
+						type: 'audio/mpeg',
+					},
+				},
+			],
+			site,
+		});
+
+		chai.expect(str).to.not.throw;
+	});
 });
