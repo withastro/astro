@@ -36,8 +36,8 @@ function assertXmlDeepEqual(a, b) {
 	const parsedA = parseXmlString(a);
 	const parsedB = parseXmlString(b);
 
-	assert.strictEqual(parsedA, null);
-	assert.strictEqual(parsedB, null);
+	assert.strictEqual(parsedA.err, null);
+	assert.strictEqual(parsedB.err, null);
 	assert.deepStrictEqual(parsedA.result, parsedB.result);
 }
 
