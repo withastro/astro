@@ -11,7 +11,8 @@ import { bundledLanguages } from 'shikiji/langs';
 import { getCachedHighlighter } from '../dist/core/shiki.js';
 import type { HTMLAttributes } from '../types';
 
-interface Props {
+interface Props extends HTMLAttributes<'pre'> {
+	
 	/** The code to highlight. Required. */
 	code: string;
 	/**
@@ -21,7 +22,7 @@ interface Props {
 	 *
 	 * @default "plaintext"
 	 */
-	lang?: BuiltinLanguage | SpecialLanguage | LanguageRegistration;
+	lang?: BuiltinLanguage | SpecialLanguage // | LanguageRegistration;
 	/**
 	 * The styling theme.
 	 * Supports all themes listed here: https://github.com/shikijs/shiki/blob/main/docs/themes.md#all-themes
@@ -50,9 +51,6 @@ interface Props {
 	 * @default false
 	 */
 	inline?: boolean;
-
-	/** Additional props to pass to the pre element. */
-	additionalProps?: HTMLAttributes<any>;
 }
 
 const {
