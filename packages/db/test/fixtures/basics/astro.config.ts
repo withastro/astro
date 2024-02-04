@@ -17,6 +17,7 @@ const Themes = defineWritableCollection({
 export default defineConfig({
 	integrations: [db()],
 	db: {
+		studio: true,
 		collections: { Author, Themes },
 		data({ seed }) {
 			seed(Author, [

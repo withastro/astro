@@ -1,8 +1,14 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
+import { STUDIO_CONFIG_MISSING_CLI_ERROR } from '../errors.js';
 
 export async function cli({ flags, config }: { flags: Arguments; config: AstroConfig }) {
 	const command = flags._[3] as string;
+
+	if (!config.db?.studio) {
+		console.log(STUDIO_CONFIG_MISSING_CLI_ERROR);
+		process.exit(1);
+	}
 
 	switch (command) {
 		case 'shell': {

@@ -4,7 +4,7 @@ import deepDiff from 'deep-diff';
 import { drizzle } from 'drizzle-orm/sqlite-proxy';
 import type { Arguments } from 'yargs-parser';
 import type { AstroConfigWithDB } from '../../../types.js';
-import { appTokenError } from '../../../errors.js';
+import { APP_TOKEN_ERROR } from '../../../errors.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -41,7 +41,7 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		process.exit(1);
 	}
 	if (!appToken) {
-		console.error(appTokenError);
+		console.error(APP_TOKEN_ERROR);
 		process.exit(1);
 	}
 	// get all migrations from the filesystem

@@ -8,7 +8,7 @@ import { DB_PATH } from '../consts.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { astroConfigWithDbSchema } from '../types.js';
 import { getAstroStudioEnv, type VitePlugin } from '../utils.js';
-import { appTokenError } from '../errors.js';
+import { APP_TOKEN_ERROR, STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR } from '../errors.js';
 import { errorMap } from './error-map.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -31,20 +31,18 @@ function astroDBIntegration(): AstroIntegration {
 				setCollectionsMeta(collections);
 
 				const studio = configWithDb.db?.studio ?? false;
-				if (!studio && Object.values(collections).some((c) => c.writable)) {
-					logger.warn(
-						`Writable collections should only be used with Astro Studio. Did you set the ${bold(
-							'studio'
-						)} flag in your astro config?`
-					);
+				const foundWritableCollection = Object.entries(collections).find(([, c]) => c.writable);
+				if (!studio && foundWritableCollection) {
+					logger.error(STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR(foundWritableCollection[0]));
+					process.exit(1);
 				}
 
 				let dbPlugin: VitePlugin;
 				if (studio && command === 'build') {
 					const appToken = getAstroStudioEnv().ASTRO_STUDIO_APP_TOKEN;
 					if (!appToken) {
-						logger.error(appTokenError);
-						process.exit(0);
+						logger.error(APP_TOKEN_ERROR);
+						process.exit(1);
 					}
 					dbPlugin = vitePluginDb({
 						connectToStudio: true,
