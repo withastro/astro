@@ -229,7 +229,7 @@ describe('getRssString', () => {
 	});
 
 	it('should not fail when an enclosure has a length of 0', async () => {
-		const str = awaitgetRssString({
+		const str = await getRssString({
 			title,
 			description,
 			items: [
