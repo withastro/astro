@@ -17,25 +17,18 @@
     ".": "./dist/index.js",
     "./package.json": "./package.json"
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "mocha --exit --timeout 20000"
+    "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "devDependencies": {
-    "@types/chai": "^4.3.10",
-    "@types/chai-as-promised": "^7.1.8",
-    "@types/mocha": "^10.0.4",
+    "@types/xml2js": "^0.4.14",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "chai": "^4.3.7",
-    "chai-as-promised": "^7.1.1",
-    "chai-xml": "^0.4.1",
-    "mocha": "^10.2.0"
+    "xml2js": "0.6.2"
   },
   "dependencies": {
     "fast-xml-parser": "^4.2.7",
