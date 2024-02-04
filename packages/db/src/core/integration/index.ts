@@ -12,16 +12,17 @@ import { APP_TOKEN_ERROR, STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR } fro
 import { errorMap } from './error-map.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { bold } from 'kleur/colors';
+import { blue, yellow } from 'kleur/colors';
 import { fileURLIntegration } from './file-url.js';
 import { setupDbTables } from '../queries.js';
 import { collectionToTable } from '../../runtime/index.js';
 
 function astroDBIntegration(): AstroIntegration {
+	let connectedToRemote = false;
 	return {
 		name: 'astro:db',
 		hooks: {
-			async 'astro:config:setup'({ logger, updateConfig, config, command }) {
+			'astro:config:setup': async ({ logger, updateConfig, config, command }) => {
 				if (command === 'preview') return;
 
 				// TODO: refine where we load collections
@@ -33,7 +34,9 @@ function astroDBIntegration(): AstroIntegration {
 				const studio = configWithDb.db?.studio ?? false;
 				const foundWritableCollection = Object.entries(collections).find(([, c]) => c.writable);
 				if (!studio && foundWritableCollection) {
-					logger.error(STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR(foundWritableCollection[0]));
+					logger.error(
+						STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR(foundWritableCollection[0])
+					);
 					process.exit(1);
 				}
 
@@ -44,6 +47,7 @@ function astroDBIntegration(): AstroIntegration {
 						logger.error(APP_TOKEN_ERROR);
 						process.exit(1);
 					}
+					connectedToRemote = true;
 					dbPlugin = vitePluginDb({
 						connectToStudio: true,
 						collections,
@@ -71,7 +75,7 @@ function astroDBIntegration(): AstroIntegration {
 						mode: command === 'dev' ? 'dev' : 'build',
 						useForeignKeys: true,
 					});
-					logger.info('Collections set up 🚀');
+					logger.debug('Database setup complete.');
 
 					dbPlugin = vitePluginDb({
 						connectToStudio: false,
@@ -102,6 +106,17 @@ function astroDBIntegration(): AstroIntegration {
 					},
 				});
 				await typegen({ collections, root: config.root });
+			},
+			'astro:server:start': async ({ logger }) => {
+				// Wait for the server startup to log, so that this can come afterwards.
+				setTimeout(() => {
+					logger.info(
+						connectedToRemote ? 'Connected to remote database.' : 'New local database created.'
+					);
+				}, 100);
+			},
+			'astro:build:start': async ({ logger }) => {
+				logger.info('database: ' + (connectedToRemote ? yellow('remote') : blue('local database.')));
 			},
 		},
 	};
