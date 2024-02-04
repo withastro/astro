@@ -14,7 +14,7 @@ export async function getMigrations(): Promise<string[]> {
 	return migrationFiles;
 }
 
-export async function loadMigration(migration: string): Promise<{ diff: any[]; db: string[] }> {
+export async function loadMigration(migration: string): Promise<{ diff: any[]; db: string[], confirm?: string[] }> {
 	return JSON.parse(await readFile(`./migrations/${migration}`, 'utf-8'));
 }
 

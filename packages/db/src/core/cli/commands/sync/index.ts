@@ -9,6 +9,8 @@ import {
 	initializeMigrationsDirectory,
 } from '../../migrations.js';
 import { getMigrationQueries } from '../../migration-queries.js';
+import prompts from 'prompts';
+import { bgRed, bold, red, reset } from 'kleur/colors';
 const { diff } = deepDiff;
 
 export async function cmd({ config }: { config: AstroConfig; flags: Arguments }) {
@@ -27,11 +29,14 @@ export async function cmd({ config }: { config: AstroConfig; flags: Arguments })
 		return;
 	}
 
-	const migrationQueries = await getMigrationQueries({
+	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
 		oldSnapshot: prevSnapshot,
 		newSnapshot: currentSnapshot,
 	});
-
+	// Warn the user about any changes that lead to data-loss.
+	// When the user runs `db push`, they will be prompted to confirm these changes.
+	confirmations.map((message) => console.log(bgRed(' !!! ') + ' ' + red(message)));
+	// Generate the new migration filename by calculating the largest number.
 	const largestNumber = allMigrationFiles.reduce((acc, curr) => {
 		const num = parseInt(curr.split('_')[0]);
 		return num > acc ? num : acc;
@@ -39,6 +44,9 @@ export async function cmd({ config }: { config: AstroConfig; flags: Arguments })
 	const migrationFileContent = {
 		diff: calculatedDiff,
 		db: migrationQueries,
+		// TODO(fks): Encode the relevant data, instead of the raw message.
+		// This will give `db push` more control over the formatting of the message.
+		confirm: confirmations.map(c => reset(c)),
 	};
 	const migrationFileName = `./migrations/${String(largestNumber + 1).padStart(
 		4,

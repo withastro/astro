@@ -17,6 +17,8 @@ import type { DBSnapshot } from '../../../types.js';
 import { getAstroStudioEnv, getRemoteDatabaseUrl } from '../../../utils.js';
 import { getMigrationQueries } from '../../migration-queries.js';
 import { setupDbTables } from '../../../queries.js';
+import prompts from 'prompts';
+import { red } from 'kleur/colors';
 
 const { diff } = deepDiff;
 
@@ -83,11 +85,34 @@ async function pushSchema({
 	const missingMigrationContents = await Promise.all(filteredMigrations.map(loadMigration));
 	// create a migration for the initial snapshot, if needed
 	const initialMigrationBatch = initialSnapshot
-		? await getMigrationQueries({
-				oldSnapshot: createEmptySnapshot(),
-				newSnapshot: await loadInitialSnapshot(),
-			})
+		? (
+				await getMigrationQueries({
+					oldSnapshot: createEmptySnapshot(),
+					newSnapshot: await loadInitialSnapshot(),
+				})
+			).queries
 		: [];
+
+	// combine all missing migrations into a single batch
+	const confirmations = missingMigrationContents.reduce((acc, curr) => {
+		return [...acc, ...(curr.confirm || [])];
+	}, [] as string[]);
+
+	const response = await prompts([
+		...confirmations.map((message, index) => ({
+			type: 'confirm' as const,
+			name: String(index),
+			message: red('Warning: ') + message + '\nContinue?',
+			initial: true,
+		})),
+	]);
+	if (
+		Object.values(response).length === 0 ||
+		Object.values(response).some((value) => value === false)
+	) {
+		process.exit(1);
+	}
+
 	// combine all missing migrations into a single batch
 	const queries = missingMigrationContents.reduce((acc, curr) => {
 		return [...acc, ...curr.db];

@@ -29,30 +29,19 @@ import { hasPrimaryKey } from '../../runtime/index.js';
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
 
-interface PromptResponses {
-	allowDataLoss: boolean;
-	fieldRenames: Record<string, string | false>;
-	collectionRenames: Record<string, string | false>;
-}
-
 export async function getMigrationQueries({
 	oldSnapshot,
 	newSnapshot,
-	promptResponses,
 }: {
 	oldSnapshot: DBSnapshot;
 	newSnapshot: DBSnapshot;
-	promptResponses?: PromptResponses;
-}): Promise<string[]> {
+}): Promise<{ queries: string[]; confirmations: string[] }> {
 	const queries: string[] = [];
+	const confirmations: string[] = [];
 	let added = getAddedCollections(oldSnapshot, newSnapshot);
 	let dropped = getDroppedCollections(oldSnapshot, newSnapshot);
 	if (!isEmpty(added) && !isEmpty(dropped)) {
-		const resolved = await resolveCollectionRenames(
-			added,
-			dropped,
-			promptResponses?.collectionRenames
-		);
+		const resolved = await resolveCollectionRenames(added, dropped);
 		added = resolved.added;
 		dropped = resolved.dropped;
 		for (const { from, to } of resolved.renamed) {
@@ -76,47 +65,44 @@ export async function getMigrationQueries({
 	for (const [collectionName, newCollection] of Object.entries(newSnapshot.schema)) {
 		const oldCollection = oldSnapshot.schema[collectionName];
 		if (!oldCollection) continue;
-		const collectionChangeQueries = await getCollectionChangeQueries({
+		const result = await getCollectionChangeQueries({
 			collectionName,
 			oldCollection,
 			newCollection,
-			promptResponses,
 		});
-		queries.push(...collectionChangeQueries);
+		queries.push(...result.queries);
+		confirmations.push(...result.confirmations);
 	}
-	return queries;
+	return { queries, confirmations };
 }
 
 export async function getCollectionChangeQueries({
 	collectionName,
 	oldCollection,
 	newCollection,
-	promptResponses,
 }: {
 	collectionName: string;
 	oldCollection: DBCollection;
 	newCollection: DBCollection;
-	promptResponses?: PromptResponses;
-}): Promise<string[]> {
+}): Promise<{ queries: string[]; confirmations: string[] }> {
 	const queries: string[] = [];
+	const confirmations: string[] = [];
 	const updated = getUpdatedFields(oldCollection.fields, newCollection.fields);
 	let added = getAdded(oldCollection.fields, newCollection.fields);
 	let dropped = getDropped(oldCollection.fields, newCollection.fields);
 
 	if (isEmpty(updated) && isEmpty(added) && isEmpty(dropped)) {
-		return getChangeIndexQueries({
-			collectionName,
-			oldIndexes: oldCollection.indexes,
-			newIndexes: newCollection.indexes,
-		});
+		return {
+			queries: getChangeIndexQueries({
+				collectionName,
+				oldIndexes: oldCollection.indexes,
+				newIndexes: newCollection.indexes,
+			}),
+			confirmations,
+		};
 	}
 	if (!isEmpty(added) && !isEmpty(dropped)) {
-		const resolved = await resolveFieldRenames(
-			collectionName,
-			added,
-			dropped,
-			promptResponses?.fieldRenames
-		);
+		const resolved = await resolveFieldRenames(collectionName, added, dropped);
 		added = resolved.added;
 		dropped = resolved.dropped;
 		queries.push(...getFieldRenameQueries(collectionName, resolved.renamed));
@@ -134,48 +120,18 @@ export async function getCollectionChangeQueries({
 				newIndexes: newCollection.indexes,
 			})
 		);
-		return queries;
+		return { queries, confirmations };
 	}
 
 	const dataLossCheck = canRecreateTableWithoutDataLoss(added, updated);
 	if (dataLossCheck.dataLoss) {
-		let allowDataLoss = promptResponses?.allowDataLoss;
-
-		const nameMsg = `Type the collection name ${color.blue(
-			collectionName
-		)} to confirm you want to delete all data:`;
-
 		const { reason, fieldName } = dataLossCheck;
 		const reasonMsgs: Record<DataLossReason, string> = {
-			'added-required': `Adding required ${color.blue(
-				color.bold(collectionName)
-			)} field ${color.blue(color.bold(fieldName))}. ${color.red(
-				'This will delete all existing data in the collection!'
-			)} We recommend setting a default value to avoid data loss.`,
-			'added-unique': `Adding unique ${color.blue(color.bold(collectionName))} field ${color.blue(
-				color.bold(fieldName)
-			)}. ${color.red('This will delete all existing data in the collection!')}`,
-			'updated-type': `Changing the type of ${color.blue(
-				color.bold(collectionName)
-			)} field ${color.blue(color.bold(fieldName))}. ${color.red(
-				'This will delete all existing data in the collection!'
-			)}`,
+			'added-required': `New field ${color.bold(collectionName + '.' + fieldName)} is required with no default value.\nThis requires deleting existing data in the ${color.bold(collectionName)} collection.`, 
+			'added-unique': `New field ${color.bold(collectionName + '.' + fieldName)} is marked as unique.\nThis requires deleting existing data in the ${color.bold(collectionName)} collection.`, 
+			'updated-type': `Updated field ${color.bold(collectionName + '.' + fieldName)} cannot convert data to new field data type.\nThis requires deleting existing data in the ${color.bold(collectionName)} collection.`, 
 		};
-
-		if (allowDataLoss === undefined) {
-			const res = await prompts({
-				type: 'text',
-				name: 'allowDataLoss',
-				message: `${reasonMsgs[reason]} ${nameMsg}`,
-				validate: (name) => name === collectionName || 'Incorrect collection name',
-			});
-			if (typeof res.allowDataLoss !== 'string') process.exit(0);
-			allowDataLoss = !!res.allowDataLoss;
-		}
-		if (!allowDataLoss) {
-			console.info('Exiting without changes 👋');
-			process.exit(0);
-		}
+		confirmations.push(reasonMsgs[reason]);
 	}
 
 	const addedPrimaryKey = Object.entries(added).find(([, field]) => hasPrimaryKey(field));
@@ -191,7 +147,7 @@ export async function getCollectionChangeQueries({
 		migrateHiddenPrimaryKey: !addedPrimaryKey && !droppedPrimaryKey && !updatedPrimaryKey,
 	});
 	queries.push(...recreateTableQueries, ...getCreateIndexQueries(collectionName, newCollection));
-	return queries;
+	return { queries, confirmations };
 }
 
 function getChangeIndexQueries({
@@ -224,57 +180,44 @@ type Renamed = Array<{ from: string; to: string }>;
 async function resolveFieldRenames(
 	collectionName: string,
 	mightAdd: DBFields,
-	mightDrop: DBFields,
-	renamePromptResponses?: PromptResponses['fieldRenames']
+	mightDrop: DBFields
 ): Promise<{ added: DBFields; dropped: DBFields; renamed: Renamed }> {
 	const added: DBFields = {};
 	const dropped: DBFields = {};
 	const renamed: Renamed = [];
 
 	for (const [fieldName, field] of Object.entries(mightAdd)) {
-		const promptResponse = renamePromptResponses?.[fieldName];
-		if (promptResponse === false) {
+		const { oldFieldName } = (await prompts(
+			{
+				type: 'select',
+				name: 'oldFieldName',
+				message:
+					'New field ' +
+					color.blue(color.bold(`${collectionName}.${fieldName}`)) +
+					' detected. Was this renamed from an existing field?',
+				choices: [
+					{ title: 'New field (not renamed from existing)', value: '__NEW__' },
+					...Object.keys(mightDrop)
+						.filter((key) => !(key in renamed))
+						.map((key) => ({ title: key, value: key })),
+				],
+			},
+			{
+				onCancel: () => {
+					process.exit(1);
+				},
+			}
+		)) as { oldFieldName: string };
+		// Handle their response
+		if (oldFieldName === '__NEW__') {
 			added[fieldName] = field;
-			continue;
-		} else if (promptResponse) {
-			renamed.push({ from: promptResponse, to: fieldName });
-			continue;
+		} else {
+			renamed.push({ from: oldFieldName, to: fieldName });
 		}
-
-		const res = await prompts({
-			type: 'toggle',
-			name: 'isRename',
-			message: `Is the field ${color.blue(color.bold(fieldName))} in collection ${color.blue(
-				color.bold(collectionName)
-			)} a new field, or renaming an existing field?`,
-			initial: false,
-			active: 'Rename',
-			inactive: 'New field',
-		});
-		if (typeof res.isRename !== 'boolean') process.exit(0);
-		if (!res.isRename) {
-			added[fieldName] = field;
-			continue;
-		}
-
-		const choices = Object.keys(mightDrop)
-			.filter((key) => !(key in renamed))
-			.map((key) => ({ title: key, value: key }));
-
-		const { oldFieldName } = await prompts({
-			type: 'select',
-			name: 'oldFieldName',
-			message: `Which field in ${color.blue(
-				color.bold(collectionName)
-			)} should be renamed to ${color.blue(color.bold(fieldName))}?`,
-			choices,
-		});
-		if (typeof oldFieldName !== 'string') process.exit(0);
-		renamed.push({ from: oldFieldName, to: fieldName });
-
-		for (const [droppedFieldName, droppedField] of Object.entries(mightDrop)) {
-			if (!renamed.find((r) => r.from === droppedFieldName))
-				dropped[droppedFieldName] = droppedField;
+	}
+	for (const [droppedFieldName, droppedField] of Object.entries(mightDrop)) {
+		if (!renamed.find((r) => r.from === droppedFieldName)) {
+			dropped[droppedFieldName] = droppedField;
 		}
 	}
 
@@ -283,55 +226,45 @@ async function resolveFieldRenames(
 
 async function resolveCollectionRenames(
 	mightAdd: DBCollections,
-	mightDrop: DBCollections,
-	renamePromptResponses?: PromptResponses['fieldRenames']
+	mightDrop: DBCollections
 ): Promise<{ added: DBCollections; dropped: DBCollections; renamed: Renamed }> {
 	const added: DBCollections = {};
 	const dropped: DBCollections = {};
 	const renamed: Renamed = [];
 
 	for (const [collectionName, collection] of Object.entries(mightAdd)) {
-		const promptResponse = renamePromptResponses?.[collectionName];
-		if (promptResponse === false) {
+		const { oldCollectionName } = (await prompts(
+			{
+				type: 'select',
+				name: 'oldCollectionName',
+				message:
+					'New collection ' +
+					color.blue(color.bold(collectionName)) +
+					' detected. Was this renamed from an existing collection?',
+				choices: [
+					{ title: 'New collection (not renamed from existing)', value: '__NEW__' },
+					...Object.keys(mightDrop)
+						.filter((key) => !(key in renamed))
+						.map((key) => ({ title: key, value: key })),
+				],
+			},
+			{
+				onCancel: () => {
+					process.exit(1);
+				},
+			}
+		)) as { oldCollectionName: string };
+		// Handle their response
+		if (oldCollectionName === '__NEW__') {
 			added[collectionName] = collection;
-			continue;
-		} else if (promptResponse) {
-			renamed.push({ from: promptResponse, to: collectionName });
-			continue;
+		} else {
+			renamed.push({ from: oldCollectionName, to: collectionName });
 		}
+	}
 
-		const res = await prompts({
-			type: 'toggle',
-			name: 'isRename',
-			message: `Is the collection ${color.blue(
-				color.bold(collectionName)
-			)} a new collection, or renaming an existing collection?`,
-			initial: false,
-			active: 'Rename',
-			inactive: 'New collection',
-		});
-		if (typeof res.isRename !== 'boolean') process.exit(0);
-		if (!res.isRename) {
-			added[collectionName] = collection;
-			continue;
-		}
-
-		const choices = Object.keys(mightDrop)
-			.filter((key) => !(key in renamed))
-			.map((key) => ({ title: key, value: key }));
-
-		const { oldCollectionName } = await prompts({
-			type: 'select',
-			name: 'oldCollectionName',
-			message: `Which collection should be renamed to ${color.blue(color.bold(collectionName))}?`,
-			choices,
-		});
-		if (typeof oldCollectionName !== 'string') process.exit(0);
-		renamed.push({ from: oldCollectionName, to: collectionName });
-
-		for (const [droppedCollectionName, droppedCollection] of Object.entries(mightDrop)) {
-			if (!renamed.find((r) => r.from === droppedCollectionName))
-				dropped[droppedCollectionName] = droppedCollection;
+	for (const [droppedCollectionName, droppedCollection] of Object.entries(mightDrop)) {
+		if (!renamed.find((r) => r.from === droppedCollectionName)) {
+			dropped[droppedCollectionName] = droppedCollection;
 		}
 	}
 
