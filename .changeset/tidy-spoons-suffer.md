@@ -2,4 +2,4 @@
 "@astrojs/rss": patch
 ---
 
-Update validation to allow for enclosures to have a length of 0
+Allows `enclosure' to have a length of 0
