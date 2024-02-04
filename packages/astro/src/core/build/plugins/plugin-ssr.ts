@@ -263,7 +263,14 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 				return `export const ${name} = _exports['${name}'];`;
 			}
 		}) ?? []),
-		`serverEntrypointModule.start?.(_manifest, _args);`,
+		// NOTE: This is intentionally obfuscated!
+		// Do NOT simplify this to something like `serverEntrypointModule.start?.(_manifest, _args)`
+		// They are NOT equivalent! Some bundlers will throw if `start` is not exported, but we
+		// only want to silently ignore it... hence the dynamic, obfuscated weirdness.
+		`const _start = 'start';
+if (_start in serverEntrypointModule) {
+	serverEntrypointModule[_start](_manifest, _args);
+}`,
 	];
 
 	return {

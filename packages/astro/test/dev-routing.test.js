@@ -22,6 +22,16 @@ describe('Development Routing', () => {
 			expect(response.status).to.equal(200);
 		});
 
+		it('200 when loading non-UTF-8 file name', async () => {
+			const response = await fixture.fetch('/テスト');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading include space file name', async () => {
+			const response = await fixture.fetch('/te st');
+			expect(response.status).to.equal(200);
+		});
+
 		it('200 when adding search params', async () => {
 			const response = await fixture.fetch('/?foo=bar');
 			expect(response.status).to.equal(200);
@@ -312,6 +322,26 @@ describe('Development Routing', () => {
 
 		it('200 when loading /', async () => {
 			const response = await fixture.fetch('/');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /テスト.html', async () => {
+			const response = await fixture.fetch('/テスト.html');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /テスト', async () => {
+			const response = await fixture.fetch('/テスト');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /te st.html', async () => {
+			const response = await fixture.fetch('/te st.html');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /te st', async () => {
+			const response = await fixture.fetch('/te st');
 			expect(response.status).to.equal(200);
 		});
 
