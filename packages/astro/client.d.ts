@@ -161,7 +161,7 @@ declare module 'astro:components' {
 }
 
 declare module 'astro:content' {
-	export * from 'astro/virtual-modules/content.js'
+	export * from 'astro/virtual-modules/content.js';
 }
 
 type MD = import('./dist/@types/astro.js').MarkdownInstance<Record<string, any>>;
