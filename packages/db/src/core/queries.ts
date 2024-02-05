@@ -51,15 +51,8 @@ export async function setupDbTables({
 				async seed({ table }, values) {
 					const result = Array.isArray(values)
 						? // TODO: fix values typing once we can infer fields type correctly
-							await db
-								.insert(table)
-								.values(values as any)
-								.returning()
-						: await db
-								.insert(table)
-								.values(values as any)
-								.returning()
-								.get();
+							await db.insert(table).values(values).returning()
+						: await db.insert(table).values(values).returning().get();
 					return result;
 				},
 				db,
