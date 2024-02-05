@@ -332,8 +332,8 @@ export default function vercelServerless({
 					const entryFile = new URL(_serverEntry, _buildTempFolder)
 					if (isr) {
 						const isrConfig = typeof isr === "object" ? isr : {};
+						await builder.buildServerlessFolder(entryFile, NODE_PATH);
 						if (isrConfig.exclude?.length) {
-							await builder.buildServerlessFolder(entryFile, NODE_PATH);
 							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 							for (const route of isrConfig.exclude) {
 								// vercel interprets src as a regex pattern, so we need to escape it
