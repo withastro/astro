@@ -173,6 +173,10 @@ export type DBDataContext = {
 	mode: 'dev' | 'build';
 };
 
+export function defineData(fn: (ctx: DBDataContext) => MaybePromise<void>) {
+	return fn;
+}
+
 export const dbConfigSchema = z.object({
 	studio: z.boolean().optional(),
 	collections: collectionsSchema.optional(),
