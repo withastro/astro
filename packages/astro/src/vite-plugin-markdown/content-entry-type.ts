@@ -1,10 +1,11 @@
+import { fileURLToPath } from 'node:url';
 import type { ContentEntryType } from '../@types/astro.js';
-import { parseFrontmatter } from '../content/utils.js';
+import { safeParseFrontmatter } from '../content/utils.js';
 
 export const markdownContentEntryType: ContentEntryType = {
 	extensions: ['.md'],
-	async getEntryInfo({ contents }: { contents: string }) {
-		const parsed = parseFrontmatter(contents);
+	async getEntryInfo({ contents, fileUrl }: { contents: string; fileUrl: URL }) {
+		const parsed = safeParseFrontmatter(contents, fileURLToPath(fileUrl));
 		return {
 			data: parsed.data,
 			body: parsed.content,

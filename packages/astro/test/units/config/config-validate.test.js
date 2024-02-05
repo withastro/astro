@@ -213,5 +213,132 @@ describe('Config Validation', () => {
 				'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.'
 			);
 		});
+
+		it('errors if a domains key does not exist', async () => {
+			const configError = await validateConfig(
+				{
+					output: 'server',
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						domains: {
+							lorem: 'https://example.com',
+						},
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal(
+				"The locale `lorem` key in the `i18n.domains` record doesn't exist in the `i18n.locales` array."
+			);
+		});
+
+		it('errors if a domains value is not an URL', async () => {
+			const configError = await validateConfig(
+				{
+					output: 'server',
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						domains: {
+							en: 'www.example.com',
+						},
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal(
+				"The domain value must be a valid URL, and it has to start with 'https' or 'http'."
+			);
+		});
+
+		it('errors if a domains value is not an URL with incorrect protocol', async () => {
+			const configError = await validateConfig(
+				{
+					output: 'server',
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						domains: {
+							en: 'tcp://www.example.com',
+						},
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal(
+				"The domain value must be a valid URL, and it has to start with 'https' or 'http'."
+			);
+		});
+
+		it('errors if a domain is a URL with a pathname that is not the home', async () => {
+			const configError = await validateConfig(
+				{
+					output: 'server',
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						domains: {
+							en: 'https://www.example.com/blog/page/',
+						},
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal(
+				"The URL `https://www.example.com/blog/page/` must contain only the origin. A subsequent pathname isn't allowed here. Remove `/blog/page/`."
+			);
+		});
+
+		it('errors if domains is enabled but site is not provided', async () => {
+			const configError = await validateConfig(
+				{
+					output: 'server',
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						domains: {
+							en: 'https://www.example.com/',
+						},
+					},
+					experimental: {
+						i18nDomains: true,
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal(
+				"The option `site` isn't set. When using the 'domains' strategy for `i18n`, `site` is required to create absolute URLs for locales that aren't mapped to a domain."
+			);
+		});
+
+		it('errors if domains is enabled but the `output` is not "server"', async () => {
+			const configError = await validateConfig(
+				{
+					output: 'static',
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						domains: {
+							en: 'https://www.example.com/',
+						},
+					},
+					experimental: {
+						i18nDomains: true,
+					},
+					site: 'https://foo.org',
+				},
+				process.cwd()
+			).catch((err) => err);
+			expect(configError instanceof z.ZodError).to.equal(true);
+			expect(configError.errors[0].message).to.equal(
+				'Domain support is only available when `output` is `"server"`.'
+			);
+		});
 	});
 });

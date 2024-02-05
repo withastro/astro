@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Preview Routing', function () {
@@ -182,6 +183,41 @@ describe('Preview Routing', function () {
 				expect(response.status).to.equal(404);
 			});
 		});
+
+		describe('Load custom 404.html', () => {
+			/** @type {import('./test-utils').Fixture} */
+			let fixture;
+			/** @type {import('./test-utils').PreviewServer} */
+			let previewServer;
+
+			let $;
+
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/custom-404-html/',
+					server: {
+						port: 4003,
+					},
+				});
+				await fixture.build();
+				previewServer = await fixture.preview();
+			});
+
+			after(async () => {
+				await previewServer.stop();
+			});
+
+			it('renders custom 404 for /a', async () => {
+				const res = await fixture.fetch('/a');
+				expect(res.status).to.equal(404);
+
+				const html = await res.text();
+				$ = cheerio.load(html);
+
+				expect($('h1').text()).to.equal('Page not found');
+				expect($('p').text()).to.equal('This 404 is a static HTML file.');
+			});
+		});
 	});
 
 	describe('build format: file', () => {
@@ -201,7 +237,7 @@ describe('Preview Routing', function () {
 					},
 					trailingSlash: 'never',
 					server: {
-						port: 4003,
+						port: 4004,
 					},
 				});
 				await fixture.build();
@@ -261,7 +297,7 @@ describe('Preview Routing', function () {
 					},
 					trailingSlash: 'always',
 					server: {
-						port: 4004,
+						port: 4005,
 					},
 				});
 				await fixture.build();
@@ -324,7 +360,7 @@ describe('Preview Routing', function () {
 					},
 					trailingSlash: 'ignore',
 					server: {
-						port: 4005,
+						port: 4006,
 					},
 				});
 				await fixture.build();
@@ -387,7 +423,7 @@ describe('Preview Routing', function () {
 					},
 					trailingSlash: 'ignore',
 					server: {
-						port: 4006,
+						port: 4007,
 					},
 				});
 				await fixture.build();
@@ -421,6 +457,44 @@ describe('Preview Routing', function () {
 			it('404 when loading invalid dynamic route', async () => {
 				const response = await fixture.fetch('/blog/2.html');
 				expect(response.status).to.equal(404);
+			});
+		});
+
+		describe('Load custom 404.html', () => {
+			/** @type {import('./test-utils').Fixture} */
+			let fixture;
+			/** @type {import('./test-utils').PreviewServer} */
+			let previewServer;
+
+			let $;
+
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/custom-404-html/',
+					build: {
+						format: 'file',
+					},
+					server: {
+						port: 4008,
+					},
+				});
+				await fixture.build();
+				previewServer = await fixture.preview();
+			});
+
+			after(async () => {
+				await previewServer.stop();
+			});
+
+			it('renders custom 404 for /a', async () => {
+				const res = await fixture.fetch('/a');
+				expect(res.status).to.equal(404);
+
+				const html = await res.text();
+				$ = cheerio.load(html);
+
+				expect($('h1').text()).to.equal('Page not found');
+				expect($('p').text()).to.equal('This 404 is a static HTML file.');
 			});
 		});
 	});
