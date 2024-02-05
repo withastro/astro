@@ -2,9 +2,9 @@
 "@astrojs/vercel": minor
 ---
 
-Introduces a new config options, `isr`, that allows to deploy your project as an ISR function. [ISR (Incremental Static Regeneration)](https://vercel.com/docs/incremental-static-regeneration) caches your on-demand rendered pages in the same way as prerendered pages after first request.
+Introduces a new config option, `isr`, that allows you to deploy your project as an ISR function. [ISR (Incremental Static Regeneration)](https://vercel.com/docs/incremental-static-regeneration) caches your on-demand rendered pages in the same way as prerendered pages after first request.
 
-To enable this feature, set `isr` to true in your `astro.config.mjs`:
+To enable this feature, set `isr` to true in your Vercel adapter configuration in `astro.config.mjs`:
 
 ```js
 export default defineConfig({
@@ -13,9 +13,14 @@ export default defineConfig({
 })
 ```
 
-##### Time-based invalidation
 
-By default, ISR responses are cached for the duration of your deployment. You can change this by setting `isr` to an object with an `expiration` field:
+## Cache invalidation options
+
+By default, ISR responses are cached for the duration of your deployment. You can further control caching by setting an `expiration` time or prevent caching entirely for certain routes.
+
+### Time-based invalidation
+
+You can change the length of time to cache routes this by configuring an `expiration` value in seconds:
 
 ```js
 export default defineConfig({
@@ -29,9 +34,9 @@ export default defineConfig({
 })
 ```
 
-##### Manual invalidation
+### Manual invalidation
 
-To implement [Draft mode](https://vercel.com/docs/build-output-api/v3/features#draft-mode), or [On-Demand Incremental Static Regeneration (ISR)](https://vercel.com/docs/build-output-api/v3/features#on-demand-incremental-static-regeneration-isr), you can create a bypass token and provide it to the `isr` config: 
+To implement Vercel's [Draft mode](https://vercel.com/docs/build-output-api/v3/features#draft-mode), or [On-Demand Incremental Static Regeneration (ISR)](https://vercel.com/docs/build-output-api/v3/features#on-demand-incremental-static-regeneration-isr), you can create a bypass token and provide it to the `isr` config along with the paths to exclude from caching: 
 
 ```js
 export default defineConfig({
