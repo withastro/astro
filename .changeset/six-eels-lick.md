@@ -1,5 +1,5 @@
 ---
-"astro": major
+"astro": patch
 ---
 
-chore: typo
+Fixes a JSDoc typo
