@@ -160,17 +160,7 @@ export type DBDataContext = {
 	db: SqliteDB;
 	seed<TFields extends FieldsConfig>(
 		collection: ResolvedCollectionConfig<TFields>,
-		data: MaybeArray<
-			SQLiteInsertValue<
-				Table<
-					string,
-					/** TODO: true type inference */ Record<
-						Extract<keyof TFields, string>,
-						FieldsConfig[number] & { optional: true }
-					>
-				>
-			>
-		>
+		data: MaybeArray<SQLiteInsertValue<Table<string, TFields>>>
 	): Promise<any> /** TODO: type output */;
 	mode: 'dev' | 'build';
 };
