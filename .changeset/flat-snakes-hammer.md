@@ -52,4 +52,3 @@ export default defineConfig({
 })
 ```
 
-Note that ISR function requests do not include search params, similar to [requests](https://docs.astro.build/en/reference/api-reference/#astrorequest) in static mode.
