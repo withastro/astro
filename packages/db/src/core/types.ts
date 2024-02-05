@@ -1,4 +1,5 @@
 import type { SQLiteInsertValue } from 'drizzle-orm/sqlite-core';
+import type { InferSelectModel } from 'drizzle-orm';
 import type { SqliteDB, Table } from '../runtime/index.js';
 import { z } from 'zod';
 import { getTableName } from 'drizzle-orm';
@@ -158,10 +159,17 @@ export type WritableDBCollection = z.infer<typeof writableCollectionSchema>;
 
 export type DBDataContext = {
 	db: SqliteDB;
-	seed<TFields extends FieldsConfig>(
+	seed: <
+		TFields extends FieldsConfig,
+		TData extends MaybeArray<SQLiteInsertValue<Table<string, TFields>>>,
+	>(
 		collection: ResolvedCollectionConfig<TFields>,
-		data: MaybeArray<SQLiteInsertValue<Table<string, TFields>>>
-	): Promise<any> /** TODO: type output */;
+		data: TData
+	) => Promise<
+		TData extends Array<SQLiteInsertValue<Table<string, TFields>>>
+			? InferSelectModel<Table<string, TFields>>[]
+			: InferSelectModel<Table<string, TFields>>
+	>;
 	mode: 'dev' | 'build';
 };
 

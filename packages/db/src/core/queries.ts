@@ -48,12 +48,17 @@ export async function setupDbTables({
 	if (data) {
 		try {
 			await data({
-				async seed({ table }, values) {
+				seed: async ({ table }, values) => {
 					const result = Array.isArray(values)
-						? // TODO: fix values typing once we can infer fields type correctly
-							await db.insert(table).values(values).returning()
-						: await db.insert(table).values(values).returning().get();
-					return result;
+						? db.insert(table).values(values).returning()
+						: db
+								.insert(table)
+								.values(values as any)
+								.returning()
+								.get();
+					// Drizzle types don't *quite* line up, and it's tough to debug why.
+					// we're casting and calling this close enough :)
+					return result as any;
 				},
 				db,
 				mode,
