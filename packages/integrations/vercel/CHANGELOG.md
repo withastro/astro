@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 7.1.1
+
+### Patch Changes
+
+- [#9955](https://github.com/withastro/astro/pull/9955) [`bc1742df9423ba66e33dcbf65fbebf67a236175d`](https://github.com/withastro/astro/commit/bc1742df9423ba66e33dcbf65fbebf67a236175d) Thanks [@matthewp](https://github.com/matthewp)! - Fix regression with bundling of @libsql/client
+
 ## 7.1.0
 
 ### Minor Changes
