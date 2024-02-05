@@ -7,7 +7,7 @@ import type {
 	SSRManifest,
 } from '../@types/astro.js';
 import type { PipelineHookFunction } from '../core/pipeline.js';
-import { getPathByLocale, normalizeTheLocale } from './index.js';
+import { getPathByLocale, normalizeTheLocale, removeOrReplaceLocaleFromPathname } from './index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { ROUTE_DATA_SYMBOL } from '../core/constants.js';
 import type { SSRManifestI18n } from '../core/app/types.js';
@@ -65,9 +65,9 @@ export function createI18nMiddleware(
 	};
 
 	const prefixOtherLocales = (url: URL, response: Response): Response | undefined => {
-		const pathnameContainsDefaultLocale = url.pathname.includes(`/${i18n.defaultLocale}`);
+		const pathnameContainsDefaultLocale = url.pathname.split('/').includes(i18n.defaultLocale);
 		if (pathnameContainsDefaultLocale) {
-			const newLocation = url.pathname.replace(`/${i18n.defaultLocale}`, '');
+			const newLocation = removeOrReplaceLocaleFromPathname(i18n.defaultLocale, url.pathname)
 			response.headers.set('Location', newLocation);
 			return new Response(null, {
 				status: 404,
@@ -193,9 +193,9 @@ export function createI18nMiddleware(
 					// If a locale falls back to the default locale, we want to **remove** the locale because
 					// the default locale doesn't have a prefix
 					if (pathFallbackLocale === defaultLocale && routing === 'pathname-prefix-other-locales') {
-						newPathname = url.pathname.replace(`/${urlLocale}`, ``);
+						newPathname = removeOrReplaceLocaleFromPathname(urlLocale, url.pathname)
 					} else {
-						newPathname = url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
+						newPathname = removeOrReplaceLocaleFromPathname(urlLocale, url.pathname, pathFallbackLocale);
 					}
 
 					return context.redirect(newPathname);

@@ -3,6 +3,7 @@ import {
 	getLocaleRelativeUrlList,
 	getLocaleAbsoluteUrl,
 	getLocaleAbsoluteUrlList,
+	removeOrReplaceLocaleFromPathname
 } from '../../../dist/i18n/index.js';
 import { parseLocale } from '../../../dist/core/render/context.js';
 import { expect } from 'chai';
@@ -1777,5 +1778,29 @@ describe('parse accept-header', () => {
 		expect(parseLocale('fr;q=1000')).to.have.deep.members([
 			{ locale: 'fr', qualityValue: undefined },
 		]);
+	});
+});
+
+describe('remove or replace locale in pathname', () => {
+	it('should remove the locale if it is the entire pathname', () => {
+		const result = removeOrReplaceLocaleFromPathname('en', '/en')
+		expect(result).to.eq('')
+	});
+	it('should remove the locale if it is part of a longer pathname', () => {
+		const result = removeOrReplaceLocaleFromPathname('en', '/en/introduction')
+		expect(result).to.eq('/introduction')
+	});
+	it('should remove the locale if it is doesn’t occur at the start of a longer pathname', () => {
+		const result = removeOrReplaceLocaleFromPathname('en', '/documentation/en/introduction')
+		expect(result).to.eq('/documentation/introduction')
+	});
+	it('should not remove the locale if it occurs as part of an unrelated fragment', () => {
+		// Should not touch the `/en` from `/energy`
+		const result = removeOrReplaceLocaleFromPathname('en', '/en/departments/energy')
+		expect(result).to.eq('/departments/energy')
+	});
+	it('should correctly replace the locale if a replacement is specified', () => {
+		const result = removeOrReplaceLocaleFromPathname('en', '/en/departments/energy', 'de')
+		expect(result).to.eq('/de/departments/energy')
 	});
 });

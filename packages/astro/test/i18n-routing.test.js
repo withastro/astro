@@ -218,6 +218,14 @@ describe('[DEV] i18n routing', () => {
 			expect(await response2.text()).includes('Hello world');
 		});
 
+		it('should only match the default locale string in URLs where it is actually used as a locale', async () => {
+			// It should _not_ match `/en` from `/spanish/enigma` 
+			// and should respond with a 200
+			const response = await fixture.fetch('/new-site/spanish/enigma');
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Astro Enigma');
+		});
+
 		it('should return 404 when route contains the default locale', async () => {
 			const response = await fixture.fetch('/new-site/en/start');
 			expect(response.status).to.equal(404);
@@ -699,6 +707,19 @@ describe('[SSG] i18n routing', () => {
 				// success
 				return true;
 			}
+		});
+
+		it('should only match the default locale string in URLs where it is actually used as a locale', async () => {
+			// It should _not_ match `/en` from `/spanish/enigma` 
+			// and should respond with a 200
+			let html = ''
+			try {
+				html = await fixture.readFile('/spanish/enigma/index.html');
+			} catch {
+				// catch block just here so the test can fail cleanly
+			}
+			let $ = cheerio.load(html);
+			expect($('body').text()).includes('Astro Enigma');
 		});
 	});
 
@@ -1215,6 +1236,15 @@ describe('[SSR] i18n routing', () => {
 			let request = new Request('http://example.com/new-site/fr/start');
 			let response = await app.render(request);
 			expect(response.status).to.equal(404);
+		});
+
+		it('should only match the default locale string in URLs where it is actually used as a locale', async () => {
+			// It should _not_ match `/en` from `/spanish/enigma` 
+			// and should respond with a 200
+			let request = new Request('http://example.com/new-site/spanish/enigma');
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Astro Enigma');
 		});
 	});
 
