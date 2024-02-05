@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fixes a JSDoc typo
+Fixes a variable name typo
