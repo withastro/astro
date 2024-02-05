@@ -194,7 +194,7 @@ export const astroConfigWithDbSchema = z.object({
 
 export type FieldsConfig = z.input<typeof collectionSchema>['fields'];
 
-interface CollectionConfig<TFields extends FieldsConfig>
+interface CollectionConfig<TFields extends FieldsConfig = FieldsConfig>
 	// use `extends` to ensure types line up with zod,
 	// only adding generics for type completions.
 	extends Pick<z.input<typeof collectionSchema>, 'fields' | 'indexes' | 'foreignKeys'> {
@@ -271,27 +271,20 @@ export type AstroConfigWithDB = z.infer<typeof astroConfigWithDbSchema>;
 
 type FieldOpts<T extends DBFieldInput> = Omit<T, 'type'>;
 
-const baseDefaults = {
-	optional: false,
-	unique: false,
-	label: undefined,
-	default: undefined,
-};
-
 export const field = {
-	number(opts: FieldOpts<NumberField> = {}): NumberField {
-		return { type: 'number', ...baseDefaults, ...opts };
+	number: <T extends FieldOpts<NumberField>>(opts: T = {} as T) => {
+		return { type: 'number', ...opts } satisfies NumberField;
 	},
-	boolean(opts: FieldOpts<BooleanField> = {}): BooleanField {
-		return { type: 'boolean', ...baseDefaults, ...opts };
+	boolean: <T extends FieldOpts<BooleanField>>(opts: T = {} as T) => {
+		return { type: 'boolean', ...opts } satisfies BooleanField;
 	},
-	text(opts: FieldOpts<TextField> = {}): TextField {
-		return { type: 'text', multiline: false, ...baseDefaults, ...opts };
+	text: <T extends FieldOpts<TextField>>(opts: T = {} as T) => {
+		return { type: 'text', ...opts } satisfies TextField;
 	},
-	date(opts: FieldOpts<DateFieldInput> = {}): DateFieldInput {
-		return { type: 'date', ...baseDefaults, ...opts };
+	date<T extends FieldOpts<DateFieldInput>>(opts: T) {
+		return { type: 'date', ...opts } satisfies DateFieldInput;
 	},
-	json(opts: FieldOpts<JsonField> = {}): JsonField {
-		return { type: 'json', ...baseDefaults, ...opts };
+	json<T extends FieldOpts<JsonField>>(opts: T) {
+		return { type: 'json', ...opts } satisfies JsonField;
 	},
 };
