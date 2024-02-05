@@ -42,6 +42,12 @@ export async function renderEndpoint(
 	const response = await handler.call(mod, context);
 	// Endpoints explicitly returning 404 or 500 response status should
 	// NOT be subject to rerouting to 404.astro or 500.astro.
-	response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
+	if (response.status === 404 || response.status === 500) {
+		// Only `Response.redirect` headers are immutable, therefore a `try..catch` is not necessary.
+		// Note: `Response.redirect` can only be called with HTTP status codes: 301, 302, 303, 307, 308.
+		// Source: https://developer.mozilla.org/en-US/docs/Web/API/Response/redirect_static#parameters
+		response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
+	}
+
 	return response;
 }

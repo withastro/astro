@@ -20,8 +20,8 @@ async function main() {
 	const version = process.versions.node;
 	// Fast-path for higher Node.js versions
 	if ((parseInt(version) || 0) <= skipSemverCheckIfAbove) {
+		const semver = await import('semver');
 		try {
-			const semver = await import('semver');
 			if (!semver.satisfies(version, engines)) {
 				await errorNodeUnsupported();
 				return;

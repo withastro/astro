@@ -66,7 +66,10 @@ export function coerce(key: string, value: unknown) {
 		case 'boolean': {
 			if (value === 'true' || value === 1) return true;
 			if (value === 'false' || value === 0) return false;
+			break;
 		}
+		default:
+			throw new Error(`Incorrect value for ${key}`);
 	}
 	return value as any;
 }
