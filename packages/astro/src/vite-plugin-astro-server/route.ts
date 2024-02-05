@@ -393,7 +393,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 	const settings = pipeline.getSettings();
 	const mode = pipeline.getEnvironment().mode;
 	// Add hoisted script tags
-	const scripts = await getScriptsForURL(filePath, settings.config.root, moduleLoader);
+	const { scripts } = await getScriptsForURL(filePath, settings.config.root, moduleLoader);
 
 	// Inject HMR scripts
 	if (isPage(filePath, settings) && mode === 'development') {

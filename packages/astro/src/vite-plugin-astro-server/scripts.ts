@@ -9,12 +9,16 @@ export async function getScriptsForURL(
 	filePath: URL,
 	root: URL,
 	loader: ModuleLoader
-): Promise<Set<SSRElement>> {
+): Promise<{ scripts: Set<SSRElement>; crawledFiles: Set<string> }> {
 	const elements = new Set<SSRElement>();
+	const crawledFiles = new Set<string>();
 	const rootID = viteID(filePath);
 	const modInfo = loader.getModuleInfo(rootID);
 	addHoistedScripts(elements, modInfo, root);
 	for await (const moduleNode of crawlGraph(loader, rootID, true)) {
+		if (moduleNode.file) {
+			crawledFiles.add(moduleNode.file);
+		}
 		const id = moduleNode.id;
 		if (id) {
 			const info = loader.getModuleInfo(id);
@@ -22,7 +26,7 @@ export async function getScriptsForURL(
 		}
 	}
 
-	return elements;
+	return { scripts: elements, crawledFiles };
 }
 
 function addHoistedScripts(set: Set<SSRElement>, info: ModuleInfo | null, root: URL) {

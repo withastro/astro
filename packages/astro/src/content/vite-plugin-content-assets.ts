@@ -64,13 +64,29 @@ export function astroContentAssetPropagationPlugin({
 					if (!devModuleLoader.getModuleById(basePath)?.ssrModule) {
 						await devModuleLoader.import(basePath);
 					}
-					const { styles, urls } = await getStylesForURL(pathToFileURL(basePath), devModuleLoader);
+					const {
+						styles,
+						urls,
+						crawledFiles: styleCrawledFiles,
+					} = await getStylesForURL(pathToFileURL(basePath), devModuleLoader);
 
-					const hoistedScripts = await getScriptsForURL(
-						pathToFileURL(basePath),
-						settings.config.root,
-						devModuleLoader
-					);
+					const { scripts: hoistedScripts, crawledFiles: scriptCrawledFiles } =
+						await getScriptsForURL(pathToFileURL(basePath), settings.config.root, devModuleLoader);
+
+					// Register files we crawled to be able to retrieve the rendered styles and scripts,
+					// as when they get updated, we need to re-transform ourselves.
+					// We also only watch files within the user source code, as changes in node_modules
+					// are usually also ignored by Vite.
+					for (const file of styleCrawledFiles) {
+						if (!file.includes('node_modules')) {
+							this.addWatchFile(file);
+						}
+					}
+					for (const file of scriptCrawledFiles) {
+						if (!file.includes('node_modules')) {
+							this.addWatchFile(file);
+						}
+					}
 
 					stringifiedLinks = JSON.stringify([...urls]);
 					stringifiedStyles = JSON.stringify(styles.map((s) => s.content));
