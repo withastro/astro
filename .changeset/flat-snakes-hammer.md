@@ -23,7 +23,7 @@ export default defineConfig({
     adapter: vercel({
         isr: {
             // caches all pages on first request and saves for 1 day
-            revalidate: 60 * 60 * 24
+            expiration: 60 * 60 * 24
         }
     })
 })
