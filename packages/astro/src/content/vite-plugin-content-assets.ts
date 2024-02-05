@@ -1,11 +1,16 @@
 import { extname } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type { Plugin, Rollup } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { getPageDataByViteID, type BuildInternals } from '../core/build/internal.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { StaticBuildOptions } from '../core/build/types.js';
+import type { ModuleLoader } from '../core/module-loader/loader.js';
+import { createViteLoader } from '../core/module-loader/vite.js';
 import { joinPaths, prependForwardSlash } from '../core/path.js';
+import { getStylesForURL } from '../vite-plugin-astro-server/css.js';
+import { getScriptsForURL } from '../vite-plugin-astro-server/scripts.js';
 import {
 	CONTENT_RENDER_FLAG,
 	LINKS_PLACEHOLDER,
@@ -22,6 +27,7 @@ export function astroContentAssetPropagationPlugin({
 	mode: string;
 	settings: AstroSettings;
 }): Plugin {
+	let devModuleLoader: ModuleLoader;
 	return {
 		name: 'astro:content-asset-propagation',
 		enforce: 'pre',
@@ -42,29 +48,33 @@ export function astroContentAssetPropagationPlugin({
 				return this.resolve(base, importer, { skipSelf: true, ...opts });
 			}
 		},
+		configureServer(server) {
+			if (mode === 'dev') {
+				devModuleLoader = createViteLoader(server);
+			}
+		},
 		async transform(_, id, options) {
 			if (hasContentFlag(id, PROPAGATED_ASSET_FLAG)) {
 				const basePath = id.split('?')[0];
 				let stringifiedLinks: string, stringifiedStyles: string, stringifiedScripts: string;
 
-
-				let code = ''
-
 				// We can access the server in dev,
 				// so resolve collected styles and scripts here.
-				if (options?.ssr && mode === 'dev') {
-					code = `import devLoader from 'astro:dev-module-loader';
-import { createGetPropagatedAssets } from 'astro/virtual-modules/dev-helpers.js';
+				if (options?.ssr && devModuleLoader) {
+					if (!devModuleLoader.getModuleById(basePath)?.ssrModule) {
+						await devModuleLoader.import(basePath);
+					}
+					const { styles, urls } = await getStylesForURL(pathToFileURL(basePath), devModuleLoader);
 
-const getPropagatedAssets = createGetPropagatedAssets(devLoader, ${JSON.stringify(basePath)}, ${JSON.stringify(settings.config.root)});
+					const hoistedScripts = await getScriptsForURL(
+						pathToFileURL(basePath),
+						settings.config.root,
+						devModuleLoader
+					);
 
-async function getMod() {
-	return import(${JSON.stringify(basePath)});
-}
-
-const defaultMod = { __astroPropagation: true, getMod, getPropagatedAssets };
-export default defaultMod;
-`;
+					stringifiedLinks = JSON.stringify([...urls]);
+					stringifiedStyles = JSON.stringify(styles.map((s) => s.content));
+					stringifiedScripts = JSON.stringify([...hoistedScripts]);
 				} else {
 					// Otherwise, use placeholders to inject styles and scripts
 					// during the production bundle step.
@@ -72,29 +82,18 @@ export default defaultMod;
 					stringifiedLinks = JSON.stringify(LINKS_PLACEHOLDER);
 					stringifiedStyles = JSON.stringify(STYLES_PLACEHOLDER);
 					stringifiedScripts = JSON.stringify(SCRIPTS_PLACEHOLDER);
-
-					code = `
-async function getMod() {
-	return import(${JSON.stringify(basePath)});
-}
-
-const collectedLinks = ${stringifiedLinks};
-const collectedStyles = ${stringifiedStyles};
-const collectedScripts = ${stringifiedScripts};
-
-function getPropagatedAssets() {
-	return {
-		collectedLinks,
-		collectedStyles,
-		collectedScripts
-	};
-}
-
-const defaultMod = { __astroPropagation: true, getMod, getPropagatedAssets };
-export default defaultMod;
-`;
 				}
 
+				const code = `
+					async function getMod() {
+						return import(${JSON.stringify(basePath)});
+					}
+					const collectedLinks = ${stringifiedLinks};
+					const collectedStyles = ${stringifiedStyles};
+					const collectedScripts = ${stringifiedScripts};
+					const defaultMod = { __astroPropagation: true, getMod, collectedLinks, collectedStyles, collectedScripts };
+					export default defaultMod;
+				`;
 				// ^ Use a default export for tools like Markdoc
 				// to catch the `__astroPropagation` identifier
 				return { code, map: { mappings: '' } };
