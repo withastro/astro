@@ -23,7 +23,7 @@ interface EnhanceCompilerErrorOptions {
 	logger: Logger;
 }
 
-const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
+const FRONTMATTER_PARSE_REGEXP = /^---(.*)^---/ms;
 
 export async function compileAstro({
 	compileProps,

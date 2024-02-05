@@ -175,7 +175,8 @@ export default function (dir, opts = {}) {
 
 	let ignores = [];
 	if (opts.ignores !== false) {
-		ignores.push(/[/]([A-Za-z\s\d~$._-]+\.\w+){1,}$/); // any extn
+		// eslint-disable-next-line regexp/no-super-linear-backtracking
+		ignores.push(/\/([\w\s~$.-]+\.\w+)+$/); // any extn
 		if (opts.dotfiles) ignores.push(/\/\.\w/);
 		else ignores.push(/\/\.well-known/);
 		[].concat(opts.ignores || []).forEach((x) => {
@@ -189,9 +190,9 @@ export default function (dir, opts = {}) {
 
 	if (!opts.dev) {
 		totalist(dir, (name, abs, stats) => {
-			if (/\.well-known[\\+\/]/.test(name)) {
+			if (/\.well-known[\\+/]/.test(name)) {
 			} // keep
-			else if (!opts.dotfiles && /(^\.|[\\+|\/+]\.)/.test(name)) return;
+			else if (!opts.dotfiles && /^\.|[\\+|/]\./.test(name)) return;
 
 			let headers = toHeaders(name, stats, isEtag);
 			if (cc) headers['Cache-Control'] = cc;

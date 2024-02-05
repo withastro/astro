@@ -132,7 +132,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 function generateHint(err: ErrorWithMetadata): string | undefined {
 	const commonBrowserAPIs = ['document', 'window'];
 
-	if (/Unknown file extension \"\.(jsx|vue|svelte|astro|css)\" for /.test(err.message)) {
+	if (/Unknown file extension "\.(jsx|vue|svelte|astro|css)" for /.test(err.message)) {
 		return 'You likely need to add this package to `vite.ssr.noExternal` in your astro config file.';
 	} else if (commonBrowserAPIs.some((api) => err.toString().includes(api))) {
 		const hint = `Browser APIs are not available on the server.
@@ -174,8 +174,8 @@ function collectInfoFromStacktrace(error: SSRError & { stack: string }): StackIn
 			stackText.split('\n').find((ln) => ln.includes('src') || ln.includes('node_modules'));
 		const source = possibleFilePath?.replace(/^[^(]+\(([^)]+).*$/, '$1').replace(/^\s+at\s+/, '');
 
-		let file = source?.replace(/(:[0-9]+)/g, '');
-		const location = /:([0-9]+):([0-9]+)/g.exec(source!) ?? [];
+		let file = source?.replace(/(:\d+)/g, '');
+		const location = /:(\d+):(\d+)/.exec(source!) ?? [];
 		const line = location[1];
 		const column = location[2];
 
@@ -195,8 +195,8 @@ function collectInfoFromStacktrace(error: SSRError & { stack: string }): StackIn
 	// Derive plugin from stack (if possible)
 	if (!stackInfo.plugin) {
 		stackInfo.plugin =
-			/withastro\/astro\/packages\/integrations\/([\w-]+)/gim.exec(stackText)?.at(1) ||
-			/(@astrojs\/[\w-]+)\/(server|client|index)/gim.exec(stackText)?.at(1) ||
+			/withastro\/astro\/packages\/integrations\/([\w-]+)/i.exec(stackText)?.at(1) ||
+			/(@astrojs\/[\w-]+)\/(server|client|index)/i.exec(stackText)?.at(1) ||
 			undefined;
 	}
 
@@ -208,7 +208,7 @@ function collectInfoFromStacktrace(error: SSRError & { stack: string }): StackIn
 
 function cleanErrorStack(stack: string) {
 	return stack
-		.split(/\n/g)
+		.split(/\n/)
 		.map((l) => l.replace(/\/@fs\//g, '/'))
 		.join('\n');
 }
@@ -233,10 +233,10 @@ export function getDocsForError(err: ErrorWithMetadata): string | undefined {
  * Render a subset of Markdown to HTML or a CLI output
  */
 export function renderErrorMarkdown(markdown: string, target: 'html' | 'cli') {
-	const linkRegex = /\[([^\[]+)\]\((.*)\)/gm;
-	const boldRegex = /\*\*(.+)\*\*/gm;
-	const urlRegex = / (\b(https?|ftp):\/\/[-A-Z0-9+&@#\\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|])/gim;
-	const codeRegex = /`([^`]+)`/gim;
+	const linkRegex = /\[([^[]+)\]\((.*)\)/g;
+	const boldRegex = /\*\*(.+)\*\*/g;
+	const urlRegex = / (\b(https?|ftp):\/\/[-\w+&@#\\/%?=~|!:,.;]*[-\w+&@#\\/%=~|])/gi;
+	const codeRegex = /`([^`]+)`/g;
 
 	if (target === 'html') {
 		return escape(markdown)

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 
-const NEW_LINES = /[\r\n]+/gm;
+const NEW_LINES = /[\r\n]+/g;
 
 /**
  * The doctype declaration is on a line between the rest of the HTML in SSG.

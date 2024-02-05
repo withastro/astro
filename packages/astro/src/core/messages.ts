@@ -225,7 +225,7 @@ export function formatConfigErrorMessage(err: ZodError) {
 
 // a regex to match the first line of a stack trace
 const STACK_LINE_REGEXP = /^\s+at /g;
-const IRRELEVANT_STACK_REGEXP = /(node_modules|astro[\/\\]dist)/g;
+const IRRELEVANT_STACK_REGEXP = /(node_modules|astro[/\\]dist)/g;
 function formatErrorStackTrace(
 	err: Error | ErrorWithMetadata,
 	showFullStacktrace: boolean

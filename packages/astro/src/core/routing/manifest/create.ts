@@ -49,7 +49,7 @@ function getParts(part: string, file: string) {
 
 		const [, content] = dynamic ? /([^(]+)$/.exec(str) || [null, null] : [null, str];
 
-		if (!content || (dynamic && !/^(\.\.\.)?[a-zA-Z0-9_$]+$/.test(content))) {
+		if (!content || (dynamic && !/^(?:\.\.\.)?[\w$]+$/.test(content))) {
 			throw new Error(`Invalid route ${file} — parameter name must match /^[a-zA-Z0-9_$]+$/`);
 		}
 

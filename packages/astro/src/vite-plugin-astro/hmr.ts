@@ -58,7 +58,7 @@ export async function handleHotUpdate(
 	}
 }
 
-const frontmatterRE = /^\-\-\-.*?^\-\-\-/ms;
+const frontmatterRE = /^---.*?^---/ms;
 const scriptRE = /<script(?:\s.*?)?>.*?<\/script>/gs;
 const styleRE = /<style(?:\s.*?)?>.*?<\/style>/gs;
 
