@@ -8,6 +8,7 @@ import {
 } from '../utils/highlight.js';
 import { createWindowElement } from '../utils/window.js';
 import { a11y } from './a11y.js';
+import { perf } from './perf.js';
 
 const icon =
 	'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 1 20 16"><path fill="#fff" d="M.6 2A1.1 1.1 0 0 1 1.7.9h16.6a1.1 1.1 0 1 1 0 2.2H1.6A1.1 1.1 0 0 1 .8 2Zm1.1 7.1h6a1.1 1.1 0 0 0 0-2.2h-6a1.1 1.1 0 0 0 0 2.2ZM9.3 13H1.8a1.1 1.1 0 1 0 0 2.2h7.5a1.1 1.1 0 1 0 0-2.2Zm11.3 1.9a1.1 1.1 0 0 1-1.5 0l-1.7-1.7a4.1 4.1 0 1 1 1.6-1.6l1.6 1.7a1.1 1.1 0 0 1 0 1.6Zm-5.3-3.4a1.9 1.9 0 1 0 0-3.8 1.9 1.9 0 0 0 0 3.8Z"/></svg>';
@@ -28,10 +29,20 @@ export interface ResolvedAuditRule {
 
 export interface AuditRuleWithSelector extends AuditRule {
 	selector: string;
-	match?: (element: Element) => boolean | null | undefined | void;
+	match?: (
+		element: Element
+	) =>
+		| boolean
+		| null
+		| undefined
+		| void
+		| Promise<boolean>
+		| Promise<void>
+		| Promise<null>
+		| Promise<undefined>;
 }
 
-const rules = [...a11y];
+const rules = [...a11y, ...perf];
 
 const dynamicAuditRuleKeys: Array<keyof AuditRule> = ['title', 'message'];
 function resolveAuditRule(rule: AuditRule, element: Element): ResolvedAuditRule {
@@ -93,7 +104,7 @@ export default {
 					matches = Array.from(elements);
 				} else {
 					for (const element of elements) {
-						if (rule.match(element)) {
+						if (await rule.match(element)) {
 							matches.push(element);
 						}
 					}

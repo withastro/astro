@@ -61,6 +61,10 @@ if (props.sizes) {
 if (fallbackImage.srcSet.values.length > 0) {
 	imgAdditionalAttributes.srcset = fallbackImage.srcSet.attribute;
 }
+
+if (import.meta.env.DEV) {
+    imgAdditionalAttributes['data-image-component'] = 'true';
+}
 ---
 
 <picture {...pictureAttributes}>
