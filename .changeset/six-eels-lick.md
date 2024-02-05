@@ -1,0 +1,5 @@
+---
+"astro": major
+---
+
+chore: typo
