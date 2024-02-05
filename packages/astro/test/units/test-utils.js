@@ -62,9 +62,6 @@ class VirtualVolume extends Volume {
 class VirtualVolumeWithFallback extends VirtualVolume {
 	// Fallback to the real fs
 	readFile(p, ...args) {
-		if(p?.toString().includes('astro:dev-module-loader')) {
-			throw new Error('This module can\'t be loaded threw here. blah');
-		}
 		const cb = args[args.length - 1];
 		const argsMinusCallback = args.slice(0, args.length - 1);
 		return super.readFile(p, ...argsMinusCallback, function (err, data) {
