@@ -12,3 +12,6 @@ const myPic = await getImage({src: "https://example.com/example.png", inferSize:
 <Image src="https://example.com/example.png" inferSize={true} alt="">
 <Picture src="https://example.com/example.png" inferSize={true} alt="">
 ```
+
+
+> added to trigger tests
