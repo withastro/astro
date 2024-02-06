@@ -31,5 +31,4 @@ export const collections = {
 	'with-custom-slugs': withCustomSlugs,
 	'with-schema-config': withSchemaConfig,
 	'with-union-schema': withUnionSchema,
-	'garbo': withUnionSchema,
 }
