@@ -5,54 +5,46 @@ import {
 	getMigrationQueries,
 } from '../../dist/core/cli/migration-queries.js';
 import { getCreateTableQuery } from '../../dist/core/queries.js';
-import { field, collectionSchema } from '../../dist/core/types.js';
+import { field, defineCollection } from '../../dist/core/types.js';
 
 const COLLECTION_NAME = 'Users';
 
-const userInitial = collectionSchema.parse({
+const userInitial = defineCollection({
 	fields: {
 		name: field.text(),
 		age: field.number(),
 		email: field.text({ unique: true }),
 		mi: field.text({ optional: true }),
 	},
-	writable: false,
 });
 
-const defaultPromptResponse = {
-	allowDataLoss: false,
-	fieldRenames: new Proxy(
-		{},
-		{
-			get: () => false,
-		}
-	),
-	collectionRenames: new Proxy(
-		{},
-		{
-			get: () => false,
-		}
-	),
+const defaultAmbiguityResponses = {
+	collectionRenames: {},
+	fieldRenames: {},
 };
 
-function userChangeQueries(oldCollection, newCollection, promptResponses = defaultPromptResponse) {
+function userChangeQueries(
+	oldCollection,
+	newCollection,
+	ambiguityResponses = defaultAmbiguityResponses
+) {
 	return getCollectionChangeQueries({
 		collectionName: COLLECTION_NAME,
 		oldCollection,
 		newCollection,
-		promptResponses,
+		ambiguityResponses,
 	});
 }
 
 function configChangeQueries(
 	oldCollections,
 	newCollections,
-	promptResponses = defaultPromptResponse
+	ambiguityResponses = defaultAmbiguityResponses
 ) {
 	return getMigrationQueries({
 		oldSnapshot: { schema: oldCollections, experimentalVersion: 1 },
 		newSnapshot: { schema: newCollections, experimentalVersion: 1 },
-		promptResponses,
+		ambiguityResponses,
 	});
 }
 
@@ -61,21 +53,21 @@ describe('field queries', () => {
 		it('should be empty when collections are the same', async () => {
 			const oldCollections = { [COLLECTION_NAME]: userInitial };
 			const newCollections = { [COLLECTION_NAME]: userInitial };
-			const queries = await configChangeQueries(oldCollections, newCollections);
+			const { queries } = await configChangeQueries(oldCollections, newCollections);
 			expect(queries).to.deep.equal([]);
 		});
 
 		it('should create table for new collections', async () => {
 			const oldCollections = {};
 			const newCollections = { [COLLECTION_NAME]: userInitial };
-			const queries = await configChangeQueries(oldCollections, newCollections);
+			const { queries } = await configChangeQueries(oldCollections, newCollections);
 			expect(queries).to.deep.equal([getCreateTableQuery(COLLECTION_NAME, userInitial)]);
 		});
 
 		it('should drop table for removed collections', async () => {
 			const oldCollections = { [COLLECTION_NAME]: userInitial };
 			const newCollections = {};
-			const queries = await configChangeQueries(oldCollections, newCollections);
+			const { queries } = await configChangeQueries(oldCollections, newCollections);
 			expect(queries).to.deep.equal([`DROP TABLE "${COLLECTION_NAME}"`]);
 		});
 
@@ -83,8 +75,8 @@ describe('field queries', () => {
 			const rename = 'Peeps';
 			const oldCollections = { [COLLECTION_NAME]: userInitial };
 			const newCollections = { [rename]: userInitial };
-			const queries = await configChangeQueries(oldCollections, newCollections, {
-				...defaultPromptResponse,
+			const { queries } = await configChangeQueries(oldCollections, newCollections, {
+				...defaultAmbiguityResponses,
 				collectionRenames: { [rename]: COLLECTION_NAME },
 			});
 			expect(queries).to.deep.equal([`ALTER TABLE "${COLLECTION_NAME}" RENAME TO "${rename}"`]);
@@ -93,26 +85,26 @@ describe('field queries', () => {
 
 	describe('getCollectionChangeQueries', () => {
 		it('should be empty when collections are the same', async () => {
-			const queries = await userChangeQueries(userInitial, userInitial);
+			const { queries } = await userChangeQueries(userInitial, userInitial);
 			expect(queries).to.deep.equal([]);
 		});
 
 		it('should be empty when type updated to same underlying SQL type', async () => {
-			const blogInitial = collectionSchema.parse({
+			const blogInitial = defineCollection({
 				...userInitial,
 				fields: {
 					title: field.text(),
 					draft: field.boolean(),
 				},
 			});
-			const blogFinal = collectionSchema.parse({
+			const blogFinal = defineCollection({
 				...userInitial,
 				fields: {
 					...blogInitial.fields,
 					draft: field.number(),
 				},
 			});
-			const queries = await userChangeQueries(blogInitial, blogFinal);
+			const { queries } = await userChangeQueries(blogInitial, blogFinal);
 			expect(queries).to.deep.equal([]);
 		});
 
@@ -127,9 +119,9 @@ describe('field queries', () => {
 				userFinal.fields.middleInitial = userFinal.fields.mi;
 				delete userFinal.fields.mi;
 
-				const queries = await userChangeQueries(userInitial, userFinal, {
-					...defaultPromptResponse,
-					fieldRenames: { middleInitial: 'mi' },
+				const { queries } = await userChangeQueries(userInitial, userFinal, {
+					collectionRenames: {},
+					fieldRenames: { [COLLECTION_NAME]: { middleInitial: 'mi' } },
 				});
 				expect(queries).to.deep.equal([
 					`ALTER TABLE "${COLLECTION_NAME}" RENAME COLUMN "mi" TO "middleInitial"`,
@@ -147,10 +139,7 @@ describe('field queries', () => {
 					},
 				};
 
-				const queries = await userChangeQueries(userInitial, userFinal, {
-					...defaultPromptResponse,
-					allowDataLoss: true,
-				});
+				const { queries } = await userChangeQueries(userInitial, userFinal);
 
 				expect(queries).to.deep.equal([
 					'DROP TABLE "Users"',
@@ -167,10 +156,7 @@ describe('field queries', () => {
 					},
 				};
 
-				const queries = await userChangeQueries(userInitial, userFinal, {
-					...defaultPromptResponse,
-					allowDataLoss: true,
-				});
+				const { queries } = await userChangeQueries(userInitial, userFinal);
 
 				expect(queries).to.deep.equal([
 					'DROP TABLE "Users"',
@@ -189,10 +175,7 @@ describe('field queries', () => {
 					},
 				};
 
-				const queries = await userChangeQueries(userInitial, userFinal, {
-					...defaultPromptResponse,
-					allowDataLoss: true,
-				});
+				const { queries } = await userChangeQueries(userInitial, userFinal);
 				expect(queries).to.have.lengthOf(4);
 
 				const tempTableName = getTempTableName(queries[0]);
@@ -214,7 +197,7 @@ describe('field queries', () => {
 				};
 				delete userFinal.fields.email;
 
-				const queries = await userChangeQueries(userInitial, userFinal);
+				const { queries } = await userChangeQueries(userInitial, userFinal);
 				expect(queries).to.have.lengthOf(4);
 
 				const tempTableName = getTempTableName(queries[0]);
@@ -228,7 +211,7 @@ describe('field queries', () => {
 			});
 
 			it('when updating to a runtime default', async () => {
-				const initial = collectionSchema.parse({
+				const initial = defineCollection({
 					...userInitial,
 					fields: {
 						...userInitial.fields,
@@ -236,15 +219,15 @@ describe('field queries', () => {
 					},
 				});
 
-				const userFinal = {
-					...userInitial,
+				const userFinal = defineCollection({
+					...initial,
 					fields: {
 						...initial.fields,
 						age: field.date({ default: 'now' }),
 					},
-				};
+				});
 
-				const queries = await userChangeQueries(initial, userFinal);
+				const { queries } = await userChangeQueries(initial, userFinal);
 				expect(queries).to.have.lengthOf(4);
 
 				const tempTableName = getTempTableName(queries[0]);
@@ -265,7 +248,7 @@ describe('field queries', () => {
 					},
 				};
 
-				const queries = await userChangeQueries(userInitial, userFinal);
+				const { queries } = await userChangeQueries(userInitial, userFinal);
 				expect(queries).to.have.lengthOf(4);
 
 				const tempTableName = getTempTableName(queries[0]);
@@ -294,10 +277,7 @@ describe('field queries', () => {
 					},
 				};
 
-				const queries = await userChangeQueries(userInitial, userFinal, {
-					...defaultPromptResponse,
-					allowDataLoss: true,
-				});
+				const { queries } = await userChangeQueries(userInitial, userFinal);
 
 				expect(queries).to.have.lengthOf(4);
 
@@ -320,10 +300,7 @@ describe('field queries', () => {
 					},
 				};
 
-				const queries = await userChangeQueries(userInitial, userFinal, {
-					...defaultPromptResponse,
-					allowDataLoss: true,
-				});
+				const { queries } = await userChangeQueries(userInitial, userFinal);
 				expect(queries).to.have.lengthOf(4);
 
 				const tempTableName = getTempTableName(queries[0]);
@@ -347,13 +324,13 @@ describe('field queries', () => {
 					},
 				};
 
-				const queries = await userChangeQueries(userInitial, userFinal);
+				const { queries } = await userChangeQueries(userInitial, userFinal);
 				expect(queries).to.deep.equal(['ALTER TABLE "Users" ADD COLUMN "birthday" text']);
 			});
 
 			it('when adding a required field with default', async () => {
 				const defaultDate = new Date('2023-01-01');
-				const userFinal = collectionSchema.parse({
+				const userFinal = defineCollection({
 					...userInitial,
 					fields: {
 						...userInitial.fields,
@@ -361,7 +338,7 @@ describe('field queries', () => {
 					},
 				});
 
-				const queries = await userChangeQueries(userInitial, userFinal);
+				const { queries } = await userChangeQueries(userInitial, userFinal);
 				expect(queries).to.deep.equal([
 					`ALTER TABLE "Users" ADD COLUMN "birthday" text NOT NULL DEFAULT '${defaultDate.toISOString()}'`,
 				]);
@@ -378,7 +355,7 @@ describe('field queries', () => {
 					},
 				};
 
-				const queries = await userChangeQueries(userInitial, userFinal);
+				const { queries } = await userChangeQueries(userInitial, userFinal);
 				expect(queries).to.deep.equal([
 					'ALTER TABLE "Users" DROP COLUMN "age"',
 					'ALTER TABLE "Users" DROP COLUMN "mi"',
