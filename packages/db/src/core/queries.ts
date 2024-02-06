@@ -26,19 +26,17 @@ export async function setupDbTables({
 	logger,
 	mode,
 	// TODO: Remove once Turso has foreign key PRAGMA support
-	useForeignKeys = false,
 }: {
 	db: SqliteRemoteDatabase;
 	data?: DBUserConfig['data'];
 	collections: DBCollections;
 	logger?: AstroIntegrationLogger;
 	mode: 'dev' | 'build';
-	useForeignKeys?: boolean;
 }) {
 	const setupQueries: SQL[] = [];
 	for (const [name, collection] of Object.entries(collections)) {
 		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${name}`);
-		const createQuery = sql.raw(getCreateTableQuery(name, collection, useForeignKeys));
+		const createQuery = sql.raw(getCreateTableQuery(name, collection));
 		const indexQueries = getCreateIndexQueries(name, collection);
 		setupQueries.push(dropQuery, createQuery, ...indexQueries.map((s) => sql.raw(s)));
 	}
@@ -71,12 +69,7 @@ export async function setupDbTables({
 	}
 }
 
-export function getCreateTableQuery(
-	collectionName: string,
-	collection: DBCollection,
-	// TODO: Remove once Turso has foreign key PRAGMA support
-	useForeignKeys = false
-) {
+export function getCreateTableQuery(collectionName: string, collection: DBCollection) {
 	let query = `CREATE TABLE ${sqlite.escapeName(collectionName)} (`;
 
 	const colQueries = [];
@@ -93,9 +86,7 @@ export function getCreateTableQuery(
 		colQueries.push(colQuery);
 	}
 
-	if (useForeignKeys) {
-		colQueries.push(...getCreateForeignKeyQueries(collectionName, collection));
-	}
+	colQueries.push(...getCreateForeignKeyQueries(collectionName, collection));
 
 	query += colQueries.join(', ') + ')';
 	return query;
@@ -190,7 +181,7 @@ export function getModifiers(fieldName: string, field: DBField) {
 	return modifiers;
 }
 
-function getReferencesConfig(field: DBField) {
+export function getReferencesConfig(field: DBField) {
 	const canHaveReferences = field.type === 'number' || field.type === 'text';
 	if (!canHaveReferences) return undefined;
 	return field.references?.();
