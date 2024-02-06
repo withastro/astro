@@ -1589,7 +1589,6 @@ describe('[SSR] i18n routing', () => {
 				let request = new Request('http://example.com/blog/es', {});
 				let response = await app.render(request);
 				let text = await response.text();
-				console.log('text', text);
 				expect(response.status).to.equal(200);
 				// expect(await response.text()).includes('Current Locale: en');
 			});
