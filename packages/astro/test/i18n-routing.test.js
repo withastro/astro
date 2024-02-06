@@ -1588,9 +1588,8 @@ describe('[SSR] i18n routing', () => {
 			it('should return the default locale when rendering a route with spread operator', async () => {
 				let request = new Request('http://example.com/blog/es', {});
 				let response = await app.render(request);
-				let text = await response.text();
 				expect(response.status).to.equal(200);
-				// expect(await response.text()).includes('Current Locale: en');
+				expect(await response.text()).includes('Current Locale: es');
 			});
 
 			it('should return the default locale of the current URL', async () => {
