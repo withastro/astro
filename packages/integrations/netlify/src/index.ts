@@ -6,6 +6,7 @@ import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
 import { AstroError } from 'astro/errors';
 import { build } from 'esbuild';
 import { appendFile, mkdir, readFile, rm, writeFile } from 'fs/promises';
+import type { Args } from "./ssr-function.js"
 
 const { version: packageVersion } = JSON.parse(
 	await readFile(new URL('../package.json', import.meta.url), 'utf8')
@@ -75,6 +76,8 @@ export default function netlifyIntegration(
 	let outDir: URL;
 	let rootDir: URL;
 	let astroMiddlewareEntryPoint: URL | undefined = undefined;
+	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
+	const middlewareSecret = crypto.randomUUID();
 
 	const ssrOutputDir = () => new URL('./.netlify/functions-internal/ssr/', rootDir);
 	const middlewareOutputDir = () => new URL('.netlify/edge-functions/middleware/', rootDir);
@@ -136,6 +139,7 @@ export default function netlifyIntegration(
 				const next = () => {
 					const { netlify, ...otherLocals } = ctx.locals;
 					request.headers.set("x-astro-locals", trySerializeLocals(otherLocals));
+					request.headers.set("x-astro-middleware-secret", "${middlewareSecret}");
 					return context.next();
 				};
 			
@@ -270,6 +274,8 @@ export default function netlifyIntegration(
 						'See https://github.com/withastro/adapters/tree/main/packages/netlify#image-cdn for more.'
 					);
 				}
+				
+				const edgeMiddleware = integrationConfig?.edgeMiddleware ?? false;
 
 				setAdapter({
 					name: '@astrojs/netlify',
@@ -277,8 +283,9 @@ export default function netlifyIntegration(
 					exports: ['default'],
 					adapterFeatures: {
 						functionPerRoute: false,
-						edgeMiddleware: integrationConfig?.edgeMiddleware ?? false,
+						edgeMiddleware,
 					},
+					args: { middlewareSecret } satisfies Args,
 					supportedAstroFeatures: {
 						hybridOutput: 'stable',
 						staticOutput: 'stable',

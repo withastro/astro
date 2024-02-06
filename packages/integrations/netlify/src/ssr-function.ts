@@ -6,11 +6,13 @@ import { applyPolyfills } from 'astro/app/node';
 applyPolyfills();
 
 // biome-ignore lint/complexity/noBannedTypes: safe to use in this case
-export type Args = {};
+export interface Args {
+	middlewareSecret: string;
+};
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
-export const createExports = (manifest: SSRManifest, _args: Args) => {
+export const createExports = (manifest: SSRManifest, { middlewareSecret }: Args) => {
 	const app = new App(manifest);
 
 	function createHandler(integrationConfig: {
@@ -27,7 +29,13 @@ export const createExports = (manifest: SSRManifest, _args: Args) => {
 			let locals: Record<string, unknown> = {};
 
 			const astroLocalsHeader = request.headers.get('x-astro-locals');
+			const middlewareSecretHeader = request.headers.get('x-astro-middleware-secret');
 			if (astroLocalsHeader) {
+				if (middlewareSecretHeader !== middlewareSecret) {
+					return new Response("Forbidden", { status: 403 })
+				}
+				// hide the secret from the rest of user and library code
+				request.headers.delete('x-astro-middleware-secret');
 				locals = JSON.parse(astroLocalsHeader);
 			}
 
