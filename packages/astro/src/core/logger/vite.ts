@@ -12,7 +12,7 @@ function isAstroSrcFile(id: string | null) {
 }
 
 // capture "page reload some/Component.vue (additional info)" messages
-const vitePageReloadMsg = /page reload (.*)( \(.*\))?/;
+const vitePageReloadMsg = /page reload (.*)/;
 // capture "hmr update some/Component.vue" messages
 const viteHmrUpdateMsg = /hmr update (.*)/;
 // capture "vite v5.0.0 building SSR bundle for production..." and "vite v5.0.0 building for production..." messages
@@ -20,7 +20,7 @@ const viteBuildMsg = /vite.*building.*for production/;
 // capture "\n  Shortcuts" messages
 const viteShortcutTitleMsg = /^\s*Shortcuts\s*$/;
 // capture "press * + enter to ..." messages
-const viteShortcutHelpMsg = /press\s+(.*?)\s+to\s+(.*)$/s;
+const viteShortcutHelpMsg = /press (.+?) to (.+)$/s;
 
 export function createViteLogger(
 	astroLogger: AstroLogger,

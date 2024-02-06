@@ -90,7 +90,7 @@ export async function createVite(
 				pkgJson.keywords?.includes('astro') ||
 				pkgJson.keywords?.includes('astro-component') ||
 				// Attempt: package is named `astro-something` or `@scope/astro-something`. ✅ Likely a community package
-				/^(@[^/]+\/)?astro-/.test(pkgJson.name)
+				/^(?:@[^/]+\/)?astro-/.test(pkgJson.name)
 			);
 		},
 		isFrameworkPkgByName(pkgName) {

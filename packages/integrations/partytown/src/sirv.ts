@@ -213,7 +213,7 @@ export default function (dir, opts = {}) {
 		// NEW END
 		let val = req.headers['accept-encoding'] || '';
 		if (gzips && val.includes('gzip')) extns.unshift(...gzips);
-		if (brots && /(br|brotli)/i.test(val)) extns.unshift(...brots);
+		if (brots && /br/i.test(val)) extns.unshift(...brots);
 		extns.push(...extensions); // [...br, ...gz, orig, ...exts]
 
 		if (pathname.indexOf('%') !== -1) {

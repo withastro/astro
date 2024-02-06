@@ -132,7 +132,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 function generateHint(err: ErrorWithMetadata): string | undefined {
 	const commonBrowserAPIs = ['document', 'window'];
 
-	if (/Unknown file extension "\.(jsx|vue|svelte|astro|css)" for /.test(err.message)) {
+	if (/Unknown file extension "\.(?:jsx|vue|svelte|astro|css)" for /.test(err.message)) {
 		return 'You likely need to add this package to `vite.ssr.noExternal` in your astro config file.';
 	} else if (commonBrowserAPIs.some((api) => err.toString().includes(api))) {
 		const hint = `Browser APIs are not available on the server.
@@ -172,9 +172,10 @@ function collectInfoFromStacktrace(error: SSRError & { stack: string }): StackIn
 			error.id ||
 			// TODO: this could be better, `src` might be something else
 			stackText.split('\n').find((ln) => ln.includes('src') || ln.includes('node_modules'));
+		// eslint-disable-next-line regexp/no-super-linear-backtracking
 		const source = possibleFilePath?.replace(/^[^(]+\(([^)]+).*$/, '$1').replace(/^\s+at\s+/, '');
 
-		let file = source?.replace(/(:\d+)/g, '');
+		let file = source?.replace(/:\d+/g, '');
 		const location = /:(\d+):(\d+)/.exec(source!) ?? [];
 		const line = location[1];
 		const column = location[2];
@@ -235,7 +236,7 @@ export function getDocsForError(err: ErrorWithMetadata): string | undefined {
 export function renderErrorMarkdown(markdown: string, target: 'html' | 'cli') {
 	const linkRegex = /\[([^[]+)\]\((.*)\)/g;
 	const boldRegex = /\*\*(.+)\*\*/g;
-	const urlRegex = / (\b(https?|ftp):\/\/[-\w+&@#\\/%?=~|!:,.;]*[-\w+&@#\\/%=~|])/gi;
+	const urlRegex = / ((?:https?|ftp):\/\/[-\w+&@#\\/%?=~|!:,.;]*[-\w+&@#\\/%=~|])/gi;
 	const codeRegex = /`([^`]+)`/g;
 
 	if (target === 'html') {

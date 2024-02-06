@@ -16,6 +16,7 @@ export function addAstro(Prism: typeof import('prismjs')) {
 
 	let script = Prism.util.clone(Prism.languages[scriptLang]);
 
+	// eslint-disable-next-line regexp/no-useless-assertions
 	let space = /(?:\s|\/\/.*(?!.)|\/\*(?:[^*]|\*(?!\/))\*\/)/.source;
 	let braces = /(?:\{(?:\{(?:\{[^{}]*\}|[^{}])*\}|[^{}])*\})/.source;
 	let spread = /(?:\{<S>*\.{3}(?:[^{}]|<BRACES>)*\})/.source;

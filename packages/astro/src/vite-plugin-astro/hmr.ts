@@ -58,8 +58,10 @@ export async function handleHotUpdate(
 	}
 }
 
-const frontmatterRE = /^---.*?^---/ms;
+const frontmatterRE = /^---.+?^---/ms;
+// eslint-disable-next-line regexp/no-super-linear-backtracking
 const scriptRE = /<script(?:\s.*?)?>.*?<\/script>/gs;
+// eslint-disable-next-line regexp/no-super-linear-backtracking
 const styleRE = /<style(?:\s.*?)?>.*?<\/style>/gs;
 
 function isStyleOnlyChanged(oldCode: string, newCode: string) {

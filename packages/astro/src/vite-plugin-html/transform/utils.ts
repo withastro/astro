@@ -12,7 +12,7 @@ export function replaceAttribute(s: MagicString, node: Element, key: string, new
 	if (offset === -1) return;
 	const start = node.position!.start.offset! + offset;
 	const tokens = text.slice(offset).split(splitAttrsTokenizer);
-	const token = tokens[0].replace(/([^>])(>[\s\S]*$)/gm, '$1');
+	const token = tokens[0].replace(/([^>])>[\s\S]*$/gm, '$1');
 	if (token.trim() === key) {
 		const end = start + key.length;
 		return s.overwrite(start, end, newValue, { contentOnly: true });

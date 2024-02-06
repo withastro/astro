@@ -390,7 +390,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 }
 
 function sanitizeElementName(tag: string) {
-	const unsafe = /[&<>'"\s]+/g;
+	const unsafe = /[&<>'"\s]+/;
 	if (!unsafe.test(tag)) return tag;
 	return tag.trim().split(unsafe)[0].trim();
 }

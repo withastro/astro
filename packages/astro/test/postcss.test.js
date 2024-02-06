@@ -26,23 +26,23 @@ describe('PostCSS', function () {
 
 	/** All test cases check whether nested styles (i.e. &.nested {}) are correctly transformed */
 	it('works in Astro page styles', () => {
-		expect(bundledCSS).to.match(new RegExp(`\.astro-page(\.(\w|-)*)*\.nested`));
+		expect(bundledCSS).to.match(/\.astro-page(\.(\w|-)*)*\.nested/);
 	});
 
 	it('works in Astro component styles', () => {
-		expect(bundledCSS).to.match(new RegExp(`\.astro-component(\.(\w|-)*)*\.nested`));
+		expect(bundledCSS).to.match(/\.astro-component(\.(\w|-)*)*\.nested/);
 	});
 
 	it('works in JSX', () => {
-		expect(bundledCSS).to.match(new RegExp(`\.solid(\.(\w|-)*)*\.nested`));
+		expect(bundledCSS).to.match(/\.solid(\.(w|-)*)*\.nested/);
 	});
 
 	it('works in Vue', () => {
-		expect(bundledCSS).to.match(new RegExp(`\.vue(\.(\w|-)*)*\.nested`));
+		expect(bundledCSS).to.match(/\.vue(\.(w|-)*)*\.nested/);
 	});
 
 	it('works in Svelte', () => {
-		expect(bundledCSS).to.match(new RegExp(`\.svelte(\.(\w|-)*)*\.nested`));
+		expect(bundledCSS).to.match(/\.svelte(\.(w|-)*)*\.nested/);
 	});
 
 	it('ignores CSS in public/', async () => {

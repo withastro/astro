@@ -955,7 +955,7 @@ describe('astro:image', () => {
 			let $script = $('script');
 
 			// Find image
-			const regex = /src:"([^"]*)/g;
+			const regex = /src:"([^"]*)/;
 			const imageSrc = regex.exec($script.html())[1];
 			const data = await fixture.readFile(imageSrc, null);
 			expect(data).to.be.an.instanceOf(Buffer);
@@ -967,7 +967,7 @@ describe('astro:image', () => {
 			const srcset = $('#local-2-widths-with-spaces img').attr('srcset');
 
 			// Find image
-			const regex = /^(.+?) \d+[wx]$/gm;
+			const regex = /^(.+?) \d+[wx]$/m;
 			const imageSrcset = regex.exec(srcset)[1];
 			expect(imageSrcset).to.not.contain(' ');
 		});

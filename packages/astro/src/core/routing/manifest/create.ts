@@ -43,6 +43,7 @@ function countOccurrences(needle: string, haystack: string) {
 
 function getParts(part: string, file: string) {
 	const result: RoutePart[] = [];
+	// eslint-disable-next-line regexp/no-super-linear-backtracking
 	part.split(/\[(.+?\(.+?\)|.+?)\]/).map((str, i) => {
 		if (!str) return;
 		const dynamic = i % 2 === 1;
