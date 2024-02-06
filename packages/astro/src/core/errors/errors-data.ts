@@ -530,22 +530,22 @@ export const MissingImageDimension = {
 	message: (missingDimension: 'width' | 'height' | 'both', imageURL: string) =>
 		`Missing ${
 			missingDimension === 'both' ? 'width and height attributes' : `${missingDimension} attribute`
-		} for ${imageURL}. When using remote images, both dimensions are always required in order to avoid CLS.`,
-	hint: 'If your image is inside your `src` folder, you probably meant to import it instead. See [the Imports guide for more information](https://docs.astro.build/en/guides/imports/#other-assets).',
+		} for ${imageURL}. When using remote images, both dimensions are required unless in order to avoid CLS.`,
+	hint: 'If your image is inside your `src` folder, you probably meant to import it instead. See [the Imports guide for more information](https://docs.astro.build/en/guides/imports/#other-assets). You can also use `inferSize={true}` for remote images to get the original dimensions.',
 } satisfies ErrorData;
 /**
  * @docs
  * @message
  * Failed to get the dimensions for `IMAGE_URL`.
  * @description
- * Probing the remote image's dimensions failed, this is typically caused by an incorrect URL. Probing is done by the [probe-image-size](https://www.npmjs.com/package/probe-image-size) package.
+ * Probing the remote image's dimensions failed, this is typically caused by an incorrect URL or attempting to infer the size of an image in the public folder. Infering the size of images in public folder is not possible. Probing is done by the [probe-image-size](https://www.npmjs.com/package/probe-image-size) package.
  */
 export const FailedToProbeRemoteImage = {
 	name: 'FailedToProbeRemoteImage',
 	title: 'Failed to probe remote image dimensions',
 	message: (imageURL: string) =>
 		`Failed to get the dimensions for ${imageURL}.`,
-	hint: 'Verify your image URL is accurate.',
+	hint: 'Verify your image URL is accurate. If you are using an image in public folder, you will not be able to infer its size.',
 } satisfies ErrorData;
 /**
  * @docs
