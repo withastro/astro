@@ -26,11 +26,11 @@ describe('PostCSS', function () {
 
 	/** All test cases check whether nested styles (i.e. &.nested {}) are correctly transformed */
 	it('works in Astro page styles', () => {
-		expect(bundledCSS).to.match(/\.astro-page(\.(\w|-)*)*\.nested/);
+		expect(bundledCSS).to.match(/\.astro-page\[data-astro-cid-.*?\]\.nested/);
 	});
 
 	it('works in Astro component styles', () => {
-		expect(bundledCSS).to.match(/\.astro-component(\.(\w|-)*)*\.nested/);
+		expect(bundledCSS).to.match(/\.astro-component\[data-astro-cid-.*?\]\.nested/);
 	});
 
 	it('works in JSX', () => {
