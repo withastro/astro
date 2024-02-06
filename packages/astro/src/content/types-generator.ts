@@ -363,6 +363,9 @@ async function writeContentFiles({
 }) {
 	let contentTypesStr = '';
 	let dataTypesStr = '';
+	for (const [collection, config] of Object.entries(contentConfig?.collections ?? {})) {
+		collectionEntryMap[JSON.stringify(collection)] ??= { type: config.type, entries: {} };
+	}
 	for (const collectionKey of Object.keys(collectionEntryMap).sort()) {
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
 		const collection = collectionEntryMap[collectionKey];
