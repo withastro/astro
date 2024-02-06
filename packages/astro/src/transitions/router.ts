@@ -454,7 +454,7 @@ async function transition(
 		updateScrollPosition({ scrollX, scrollY });
 	}
 	if (samePage(from, to)) {
-		if ((direction === 'forward' && !!to.hash) || (direction === 'back' && !!from.hash)) {
+		if ((direction !== 'back' && to.hash) || (direction === 'back' && from.hash)) {
 			moveToLocation(to, from, options, document.title, historyState);
 			return;
 		}
