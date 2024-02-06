@@ -710,7 +710,7 @@ export interface AstroUserConfig {
 	 * @name typegenDir
 	 * @type {string}
 	 * @default `"./.astro"`
-	 * @description TODO
+	 * @description Set the directory that files created through codegen by Astro and integrations will use.
 	 *
 	 * The value can be either an absolute file system path or a path relative to the project root.
 	 *
@@ -1593,17 +1593,71 @@ export interface AstroUserConfig {
 		};
 	};
 
-	/** TODO: */
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name typescript
+	 * @type {object}
+	 * @version 4.4.0
+	 * @type {object}
+	 * @description
+	 *
+	 * Configures a few TypeScript fields that can't be inferred from `tsconfig.json`.
+	 */
 	typescript?: {
-		/** TODO: */
-		exclude?: Array<string>
-		/** TODO: */
-		include?: Array<string>
-		/** TODO: */
-		files?: Array<string>
-		/** TODO: */
-		excludeDefaults?: boolean
-	}
+		/**
+		 * @docs
+		 * @name typescript.exclude
+		 * @type {Array<string>}
+		 * @version 4.4.0
+		 * @description
+		 *
+		 * Specifies a list of files to be excluded from compilation. The 'exclude' property only affects the files
+		 * included via the 'include' property and not the 'files' property. Glob patterns require TypeScript version
+		 * 2.0 or later.
+		 *
+		 */
+		exclude?: Array<string>;
+		/**
+		 * @docs
+		 * @name typescript.exclude
+		 * @type {Array<string>}
+		 * @version 4.4.0
+		 * @description
+		 *
+		 * Specifies a list of glob patterns that match files to be included in compilation. If no 'files' or 'include'
+		 * property is present in a tsconfig.json, the compiler defaults to including all files in the containing
+		 * directory and subdirectories except those specified by 'exclude'. Requires TypeScript version 2.0 or later.
+		 *
+		 */
+		include?: Array<string>;
+		/**
+		 * @docs
+		 * @name typescript.exclude
+		 * @type {Array<string>}
+		 * @version 4.4.0
+		 * @description
+		 *
+		 * If no 'files' or 'include' property is present in a tsconfig.json, the compiler defaults to including all
+		 * files in the containing directory and subdirectories except those specified by 'exclude'. When a 'files'
+		 * property is specified, only those files and those specified by 'include' are included.
+		 *
+		 */
+		files?: Array<string>;
+		/**
+		 * @docs
+		 * @name typescript.exclude
+		 * @type {boolean}
+		 * @default `true`
+		 * @version 4.4.0
+		 * @description
+		 *
+		 * If enabled, {outDir} and {publicDir} will be added to TypeScript's `exclude` field. This allows to avoid
+		 * false positives when using `@astrojs/check`.
+		 *
+		 */
+		excludeDefaults?: boolean;
+	};
 
 	/** ⚠️ WARNING: SUBJECT TO CHANGE */
 	db?: Config.Database;

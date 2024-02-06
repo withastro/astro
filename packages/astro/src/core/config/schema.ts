@@ -494,7 +494,7 @@ export const AstroConfigSchema = z.object({
 				exclude: z.array(z.string()).optional(),
 				include: z.array(z.string()).optional(),
 				files: z.array(z.string()).optional(),
-				excludeDefaults: z.boolean().default(false)
+				excludeDefaults: z.boolean().default(true)
 			})
 			.optional()
 	),
