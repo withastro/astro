@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fixes an regression in `Astro.currentLocale`, where it stopped working properly with dynamic routes
+Fixes a regression in `Astro.currentLocale` where it stopped working properly with dynamic routes
