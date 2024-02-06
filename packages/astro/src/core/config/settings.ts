@@ -124,21 +124,21 @@ async function handleTypescriptConfig(
 
 	if (invalidFields.length > 0) {
 		logger.warn(
-			null,
-			`The following fields of your tsconfig.json will conflict with Astro: ${invalidFields.join(
+			'config',
+			`The following fields of your tsconfig.json must now be set inside your Astro config: ${invalidFields.join(
 				', '
-			)}`
+			)}. They will be merged until Astro 5, see TODO:link.`
 		);
 	}
 
-	function getRelativePathToCacheDir(url: URL) {
-		const path = fileURLToPath(url);
-		return relative(fileURLToPath(config.typegenDir), path).replaceAll('\\', '/');
+	function getRelativePath(a: URL, b: URL) {
+		return normalizePath(relative(fileURLToPath(a), fileURLToPath(b)));
 	}
 
 	function getField(_tsconfig: any, name: 'include' | 'exclude' | 'files') {
 		return [
 			...(config.typescript?.[name] ?? []),
+			// TODO: remove in Astro 5
 			...(invalidFields.includes(name) ? (_tsconfig[name] as Array<string>) : []),
 		];
 	}
@@ -153,35 +153,38 @@ async function handleTypescriptConfig(
 			...getField(tsconfig.tsconfig, 'exclude'),
 			...(config.typescript?.excludeDefaults
 				? [
-						getRelativePathToCacheDir(config.outDir),
-						getRelativePathToCacheDir(config.publicDir),
+						getRelativePath(config.typegenDir, config.outDir),
+						getRelativePath(config.typegenDir, config.publicDir),
 					]
 				: []),
 		]),
 		files: deduplicate(getField(tsconfig.tsconfig, 'files')),
 	};
 
-	const rawTsConfigPath = normalizePath(
-		relative(fileURLToPath(config.root), fileURLToPath(new URL('tsconfig.json', config.typegenDir)))
-	);
+	const rawTsConfigPath = getRelativePath(config.root, new URL('tsconfig.json', config.typegenDir));
 	const tsconfigPath = fileURLToPath(new URL(rawTsConfigPath, config.root));
 	mkdirSync(dirname(tsconfigPath), { recursive: true });
 	writeFileSync(tsconfigPath, JSON.stringify(newTsconfig, null, 2), 'utf-8');
 
-	const outputTsconfig = tsconfig.tsconfig;
-	if (typeof tsconfig.tsconfig.extends === 'string') {
-		outputTsconfig.extends = [tsconfig.tsconfig.extends, rawTsConfigPath];
-		writeFileSync(tsconfig.tsconfigFile, JSON.stringify(outputTsconfig, null, 2), 'utf-8');
-	} else if (
-		Array.isArray(tsconfig.tsconfig.extends) &&
-		!tsconfig.tsconfig.extends.includes(rawTsConfigPath)
-	) {
-		outputTsconfig.extends = [...tsconfig.tsconfig.extends, rawTsConfigPath];
-		writeFileSync(tsconfig.tsconfigFile, JSON.stringify(outputTsconfig, null, 2), 'utf-8');
+	// extends is a reserved keyword
+	const { extends: extendsField } = tsconfig.tsconfig;
+	if (Array.isArray(extendsField) && extendsField.includes(rawTsConfigPath)) {
+		return;
 	}
+
+	const outputTsconfig = { ...tsconfig.tsconfig };
+	outputTsconfig.extends = [
+		...(typeof extendsField === 'string' ? [extendsField] : extendsField),
+		rawTsConfigPath,
+	];
+	writeFileSync(tsconfig.tsconfigFile, JSON.stringify(outputTsconfig, null, 2), 'utf-8');
 }
 
-export async function createSettings(config: AstroConfig, logger: Logger, cwd?: string): Promise<AstroSettings> {
+export async function createSettings(
+	config: AstroConfig,
+	logger: Logger,
+	cwd?: string
+): Promise<AstroSettings> {
 	const tsconfig = await loadTSConfig(cwd);
 	const settings = createBaseSettings(config);
 
@@ -191,11 +194,7 @@ export async function createSettings(config: AstroConfig, logger: Logger, cwd?: 
 	}
 
 	if (typeof tsconfig !== 'string') {
-		await handleTypescriptConfig(
-			config,
-			tsconfig.rawConfig,
-			logger
-		);
+		await handleTypescriptConfig(config, tsconfig.rawConfig, logger);
 		watchFiles.push(
 			...[tsconfig.tsconfigFile, ...(tsconfig.extended ?? []).map((e) => e.tsconfigFile)]
 		);
