@@ -50,7 +50,7 @@ function checkIfModificationIsAllowed(collections: DBCollections, Table: SQLiteT
 }
 
 export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string) {
-	const url = new URL('./db/query/', remoteDbURL);
+	const url = new URL('/db/query', remoteDbURL);
 
 	const db = drizzleProxy(async (sql, parameters, method) => {
 		const requestBody: InStatement = { sql, args: parameters };

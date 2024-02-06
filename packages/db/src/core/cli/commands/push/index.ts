@@ -2,9 +2,15 @@ import { createClient, type InStatement } from '@libsql/client';
 import type { AstroConfig } from 'astro';
 import deepDiff from 'deep-diff';
 import { drizzle } from 'drizzle-orm/sqlite-proxy';
+import { red } from 'kleur/colors';
+import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
-import type { AstroConfigWithDB } from '../../../types.js';
 import { APP_TOKEN_ERROR } from '../../../errors.js';
+import { setupDbTables } from '../../../queries.js';
+import { getManagedAppToken } from '../../../tokens.js';
+import type { AstroConfigWithDB, DBSnapshot } from '../../../types.js';
+import { getRemoteDatabaseUrl } from '../../../utils.js';
+import { getMigrationQueries } from '../../migration-queries.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -13,19 +19,12 @@ import {
 	loadInitialSnapshot,
 	loadMigration,
 } from '../../migrations.js';
-import type { DBSnapshot } from '../../../types.js';
-import { getAstroStudioEnv, getRemoteDatabaseUrl } from '../../../utils.js';
-import { getMigrationQueries } from '../../migration-queries.js';
-import { setupDbTables } from '../../../queries.js';
-import prompts from 'prompts';
-import { red } from 'kleur/colors';
 
 const { diff } = deepDiff;
 
 export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
 	const isSeedData = flags.seed;
 	const isDryRun = flags.dryRun;
-	const appToken = flags.token ?? getAstroStudioEnv().ASTRO_STUDIO_APP_TOKEN;
 	const currentSnapshot = createCurrentSnapshot(config);
 	const allMigrationFiles = await getMigrations();
 	if (allMigrationFiles.length === 0) {
@@ -40,15 +39,18 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		console.log(calculatedDiff);
 		process.exit(1);
 	}
+
+	const appToken = await getManagedAppToken(flags.token);
 	if (!appToken) {
 		console.error(APP_TOKEN_ERROR);
 		process.exit(1);
 	}
+
 	// get all migrations from the filesystem
 	const allLocalMigrations = await getMigrations();
 	const { data: missingMigrations } = await prepareMigrateQuery({
 		migrations: allLocalMigrations,
-		appToken,
+		appToken: appToken.token,
 	});
 	// exit early if there are no migrations to push
 	if (missingMigrations.length === 0) {
@@ -58,13 +60,19 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 	// push the database schema
 	if (missingMigrations.length > 0) {
 		console.log(`Pushing ${missingMigrations.length} migrations...`);
-		await pushSchema({ migrations: missingMigrations, appToken, isDryRun, currentSnapshot });
+		await pushSchema({
+			migrations: missingMigrations,
+			appToken: appToken.token,
+			isDryRun,
+			currentSnapshot,
+		});
 	}
 	// push the database seed data
 	if (isSeedData) {
 		console.info('Pushing data...');
-		await pushData({ config, appToken, isDryRun });
+		await pushData({ config, appToken: appToken.token, isDryRun });
 	}
+	await appToken.destroy();
 	console.info('Push complete!');
 }
 
@@ -201,7 +209,7 @@ async function runMigrateQuery({
 		return new Response(null, { status: 200 });
 	}
 
-	const url = new URL('/db/migrate/run', getRemoteDatabaseUrl());
+	const url = new URL('/migrations/run', getRemoteDatabaseUrl());
 
 	return await fetch(url, {
 		method: 'POST',
@@ -219,7 +227,7 @@ async function prepareMigrateQuery({
 	migrations: string[];
 	appToken: string;
 }) {
-	const url = new URL('/db/migrate/prepare', getRemoteDatabaseUrl());
+	const url = new URL('/migrations/prepare', getRemoteDatabaseUrl());
 	const requestBody = {
 		migrations,
 		experimentalVersion: 1,

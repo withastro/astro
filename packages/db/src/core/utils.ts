@@ -12,3 +12,8 @@ export function getRemoteDatabaseUrl(): string {
 	const env = getAstroStudioEnv();
 	return env.ASTRO_STUDIO_REMOTE_DB_URL;
 }
+
+export function getAstroStudioUrl(): string {
+	const env = getAstroStudioEnv();
+	return env.ASTRO_STUDIO_URL;
+}
