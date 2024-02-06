@@ -8,7 +8,7 @@ applyPolyfills();
 // biome-ignore lint/complexity/noBannedTypes: safe to use in this case
 export interface Args {
 	middlewareSecret: string;
-};
+}
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
@@ -32,7 +32,7 @@ export const createExports = (manifest: SSRManifest, { middlewareSecret }: Args)
 			const middlewareSecretHeader = request.headers.get('x-astro-middleware-secret');
 			if (astroLocalsHeader) {
 				if (middlewareSecretHeader !== middlewareSecret) {
-					return new Response("Forbidden", { status: 403 })
+					return new Response('Forbidden', { status: 403 });
 				}
 				// hide the secret from the rest of user and library code
 				request.headers.delete('x-astro-middleware-secret');

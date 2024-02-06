@@ -6,7 +6,7 @@ import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
 import { AstroError } from 'astro/errors';
 import { build } from 'esbuild';
 import { appendFile, mkdir, readFile, rm, writeFile } from 'fs/promises';
-import type { Args } from "./ssr-function.js"
+import type { Args } from './ssr-function.js';
 
 const { version: packageVersion } = JSON.parse(
 	await readFile(new URL('../package.json', import.meta.url), 'utf8')
@@ -274,7 +274,7 @@ export default function netlifyIntegration(
 						'See https://github.com/withastro/adapters/tree/main/packages/netlify#image-cdn for more.'
 					);
 				}
-				
+
 				const edgeMiddleware = integrationConfig?.edgeMiddleware ?? false;
 
 				setAdapter({
