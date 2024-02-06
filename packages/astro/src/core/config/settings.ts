@@ -181,7 +181,7 @@ async function handleTypescriptConfig(
 	}
 }
 
-export async function createSettings(config: AstroConfig, cwd?: string): Promise<AstroSettings> {
+export async function createSettings(config: AstroConfig, logger: Logger, cwd?: string): Promise<AstroSettings> {
 	const tsconfig = await loadTSConfig(cwd);
 	const settings = createBaseSettings(config);
 
@@ -194,10 +194,7 @@ export async function createSettings(config: AstroConfig, cwd?: string): Promise
 		await handleTypescriptConfig(
 			config,
 			tsconfig.rawConfig,
-			// TODO: find how to pass a real logger
-			{
-				warn: (_: any, msg: string) => console.log(msg),
-			} as any
+			logger
 		);
 		watchFiles.push(
 			...[tsconfig.tsconfigFile, ...(tsconfig.extended ?? []).map((e) => e.tsconfigFile)]

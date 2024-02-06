@@ -78,7 +78,7 @@ export default async function build(
 		}
 	}
 
-	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
+	const settings = await createSettings(astroConfig, logger, fileURLToPath(astroConfig.root));
 
 	const builder = new AstroBuilder(settings, {
 		...options,

@@ -73,7 +73,7 @@ export async function preferences(
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const logger = createLoggerFromFlags(flags);
 	const { astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev');
-	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
+	const settings = await createSettings(astroConfig, logger, fileURLToPath(astroConfig.root));
 	const opts: SubcommandOptions = {
 		location: flags.global ? 'global' : undefined,
 		json: flags.json,
