@@ -12,20 +12,32 @@ export async function cli({ flags, config }: { flags: Arguments; config: AstroCo
 
 	switch (command) {
 		case 'shell': {
-			const { cmd: shellCommand } = await import('./commands/shell/index.js');
-			return await shellCommand({ config, flags });
+			const { cmd } = await import('./commands/shell/index.js');
+			return await cmd({ config, flags });
 		}
 		case 'sync': {
-			const { cmd: syncCommand } = await import('./commands/sync/index.js');
-			return await syncCommand({ config, flags });
+			const { cmd } = await import('./commands/sync/index.js');
+			return await cmd({ config, flags });
 		}
 		case 'push': {
-			const { cmd: pushCommand } = await import('./commands/push/index.js');
-			return await pushCommand({ config, flags });
+			const { cmd } = await import('./commands/push/index.js');
+			return await cmd({ config, flags });
 		}
 		case 'verify': {
-			const { cmd: verifyCommand } = await import('./commands/verify/index.js');
-			return await verifyCommand({ config, flags });
+			const { cmd } = await import('./commands/verify/index.js');
+			return await cmd({ config, flags });
+		}
+		case 'login': {
+			const { cmd } = await import('./commands/login/index.js');
+			return await cmd({ config, flags });
+		}
+		case 'logout': {
+			const { cmd } = await import('./commands/logout/index.js');
+			return await cmd({ config, flags });
+		}
+		case 'link': {
+			const { cmd } = await import('./commands/link/index.js');
+			return await cmd({ config, flags });
 		}
 		default: {
 			if (command == null) {
