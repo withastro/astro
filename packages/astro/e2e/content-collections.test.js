@@ -24,9 +24,6 @@ test.describe('Content Collections', () => {
 
 		const h1 = page.locator('#my-heading');
 
-		await expect(h1, 'should have green color').toHaveCSS(
-			'color',
-			'rgb(0, 128, 0)'
-		);
+		await expect(h1, 'should have green color').toHaveCSS('color', 'rgb(0, 128, 0)');
 	});
 });
