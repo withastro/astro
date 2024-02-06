@@ -22,6 +22,7 @@ import {
 	getCreateIndexQueries,
 	getCreateTableQuery,
 	getModifiers,
+	getReferencesConfig,
 	hasDefault,
 	schemaTypeToSqlType,
 } from '../queries.js';
@@ -103,8 +104,12 @@ export async function getCollectionChangeQueries({
 	const updated = getUpdatedFields(oldCollection.fields, newCollection.fields);
 	let added = getAdded(oldCollection.fields, newCollection.fields);
 	let dropped = getDropped(oldCollection.fields, newCollection.fields);
+	/** Any foreign key changes require a full table recreate */
+	const hasForeignKeyChanges = Boolean(
+		deepDiff(oldCollection.foreignKeys, newCollection.foreignKeys)
+	);
 
-	if (isEmpty(updated) && isEmpty(added) && isEmpty(dropped)) {
+	if (!hasForeignKeyChanges && isEmpty(updated) && isEmpty(added) && isEmpty(dropped)) {
 		return {
 			queries: getChangeIndexQueries({
 				collectionName,
@@ -114,13 +119,14 @@ export async function getCollectionChangeQueries({
 			confirmations,
 		};
 	}
-	if (!isEmpty(added) && !isEmpty(dropped)) {
+	if (!hasForeignKeyChanges && !isEmpty(added) && !isEmpty(dropped)) {
 		const resolved = await resolveFieldRenames(collectionName, added, dropped, ambiguityResponses);
 		added = resolved.added;
 		dropped = resolved.dropped;
 		queries.push(...getFieldRenameQueries(collectionName, resolved.renamed));
 	}
 	if (
+		!hasForeignKeyChanges &&
 		isEmpty(updated) &&
 		Object.values(dropped).every(canAlterTableDropColumn) &&
 		Object.values(added).every(canAlterTableAddColumn)
@@ -432,6 +438,7 @@ function canAlterTableAddColumn(field: DBField) {
 	if (hasRuntimeDefault(field)) return false;
 	if (!field.optional && !hasDefault(field)) return false;
 	if (hasPrimaryKey(field)) return false;
+	if (getReferencesConfig(field)) return false;
 	return true;
 }
 
