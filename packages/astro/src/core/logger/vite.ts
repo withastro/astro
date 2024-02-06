@@ -39,8 +39,7 @@ export function createViteLogger(
 			// Rewrite HMR page reload message
 			if ((m = vitePageReloadMsg.exec(stripped))) {
 				if (isAstroSrcFile(m[1])) return;
-				const extra = m[2] ?? '';
-				astroLogger.info('watch', m[1] + extra);
+				astroLogger.info('watch', m[1]);
 			}
 			// Rewrite HMR update message
 			else if ((m = viteHmrUpdateMsg.exec(stripped))) {
