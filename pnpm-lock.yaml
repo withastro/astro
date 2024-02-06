@@ -935,6 +935,15 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/e2e/fixtures/content-collections:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/e2e/fixtures/css:
     dependencies:
       astro:
