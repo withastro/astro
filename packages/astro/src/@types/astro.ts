@@ -1530,7 +1530,7 @@ export interface AstroUserConfig {
 			 * @version 3.7.0
 			 * @description
 			 *
-			 * - `"pathanme": The strategy is applied to the pathname of the URLs
+			 * - `"pathname": The strategy is applied to the pathname of the URLs
 			 */
 			strategy: 'pathname';
 
