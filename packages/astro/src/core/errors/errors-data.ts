@@ -536,9 +536,9 @@ export const MissingImageDimension = {
 /**
  * @docs
  * @message
- * Failed to get the dimensions for `IMAGE_URL, error stack trace?`.
+ * Failed to get the dimensions for `IMAGE_URL`.
  * @description
- * I am not sure what would cause this error.
+ * Probing the remote image's dimensions failed, this is typically caused by an incorrect URL. Probing is done by the [probe-image-size](https://www.npmjs.com/package/probe-image-size) package.
  */
 export const FailedToProbeRemoteImage = {
 	name: 'FailedToProbeRemoteImage',
