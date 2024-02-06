@@ -24,6 +24,7 @@ import {
 	type ContentObservable,
 	type ContentPaths,
 } from './utils.js';
+import { injectTypes } from '../config/types.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
@@ -310,7 +311,7 @@ export async function createContentTypesGenerator({
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 				contentEntryTypes: settings.contentEntryTypes,
 				viteServer,
-				typegenDir: settings.config.typegenDir
+				typegenDir: settings.config.typegenDir,
 			});
 			invalidateVirtualMod(viteServer);
 			if (observable.status === 'loaded') {
@@ -360,7 +361,7 @@ async function writeContentFiles({
 	contentEntryTypes,
 	contentConfig,
 	viteServer,
-	typegenDir
+	typegenDir,
 }: {
 	fs: typeof fsMod;
 	contentPaths: ContentPaths;
@@ -369,7 +370,7 @@ async function writeContentFiles({
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
 	viteServer: Pick<ViteDevServer, 'ws'>;
-	typegenDir: AstroConfig["typegenDir"]
+	typegenDir: AstroConfig['typegenDir'];
 }) {
 	let contentTypesStr = '';
 	let dataTypesStr = '';
@@ -453,10 +454,7 @@ async function writeContentFiles({
 		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never'
 	);
 
-	await fs.promises.writeFile(
-		new URL(CONTENT_TYPES_FILE, typegenDir),
-		typeTemplateContent
-	);
+	injectTypes({ typegenDir, filename: CONTENT_TYPES_FILE, content: typeTemplateContent });
 }
 
 function warnNonexistentCollections({
