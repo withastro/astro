@@ -191,7 +191,7 @@ async function pushData({
 }
 
 async function runMigrateQuery({
-	queries,
+	queries: baseQueries,
 	migrations,
 	snapshot,
 	appToken,
@@ -203,6 +203,8 @@ async function runMigrateQuery({
 	appToken: string;
 	isDryRun?: boolean;
 }) {
+	const queries = ['pragma defer_foreign_keys=true;', ...baseQueries];
+
 	const requestBody = {
 		snapshot,
 		migrations,
