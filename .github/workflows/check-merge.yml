@@ -10,6 +10,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'withastro' }}
     steps:
       - name: Check if there is already a block on this PR
         id: blocked
