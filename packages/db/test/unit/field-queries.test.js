@@ -5,18 +5,22 @@ import {
 	getMigrationQueries,
 } from '../../dist/core/cli/migration-queries.js';
 import { getCreateTableQuery } from '../../dist/core/queries.js';
-import { field, defineCollection } from '../../dist/core/types.js';
+import { field, defineCollection, collectionSchema } from '../../dist/core/types.js';
 
 const COLLECTION_NAME = 'Users';
 
-const userInitial = defineCollection({
-	fields: {
-		name: field.text(),
-		age: field.number(),
-		email: field.text({ unique: true }),
-		mi: field.text({ optional: true }),
-	},
-});
+// `parse` to resolve schema transformations
+// ex. convert field.date() to ISO strings
+const userInitial = collectionSchema.parse(
+	defineCollection({
+		fields: {
+			name: field.text(),
+			age: field.number(),
+			email: field.text({ unique: true }),
+			mi: field.text({ optional: true }),
+		},
+	})
+);
 
 const defaultAmbiguityResponses = {
 	collectionRenames: {},
@@ -90,14 +94,14 @@ describe('field queries', () => {
 		});
 
 		it('should be empty when type updated to same underlying SQL type', async () => {
-			const blogInitial = defineCollection({
+			const blogInitial = collectionSchema.parse({
 				...userInitial,
 				fields: {
 					title: field.text(),
 					draft: field.boolean(),
 				},
 			});
-			const blogFinal = defineCollection({
+			const blogFinal = collectionSchema.parse({
 				...userInitial,
 				fields: {
 					...blogInitial.fields,
@@ -211,7 +215,7 @@ describe('field queries', () => {
 			});
 
 			it('when updating to a runtime default', async () => {
-				const initial = defineCollection({
+				const initial = collectionSchema.parse({
 					...userInitial,
 					fields: {
 						...userInitial.fields,
@@ -219,7 +223,7 @@ describe('field queries', () => {
 					},
 				});
 
-				const userFinal = defineCollection({
+				const userFinal = collectionSchema.parse({
 					...initial,
 					fields: {
 						...initial.fields,
@@ -241,12 +245,13 @@ describe('field queries', () => {
 			});
 
 			it('when adding a field with a runtime default', async () => {
-				const userFinal = {
+				const userFinal = collectionSchema.parse({
+					...userInitial,
 					fields: {
 						...userInitial.fields,
 						birthday: field.date({ default: 'now' }),
 					},
-				};
+				});
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
 				expect(queries).to.have.lengthOf(4);
@@ -330,7 +335,7 @@ describe('field queries', () => {
 
 			it('when adding a required field with default', async () => {
 				const defaultDate = new Date('2023-01-01');
-				const userFinal = defineCollection({
+				const userFinal = collectionSchema.parse({
 					...userInitial,
 					fields: {
 						...userInitial.fields,
