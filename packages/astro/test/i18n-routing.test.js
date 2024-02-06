@@ -52,7 +52,6 @@ describe('astro:i18n virtual module', () => {
 			let html = await response.text();
 			let $ = cheerio.load(html);
 
-			console.log(html);
 			expect($('body').text()).includes("Virtual module doesn't break");
 			expect($('body').text()).includes('Absolute URL pt: https://example.pt/about');
 			expect($('body').text()).includes('Absolute URL it: http://it.example.com/');
@@ -1005,6 +1004,67 @@ describe('[SSG] i18n routing', () => {
 			expect(html).to.include('Redirecting to: /new-site/');
 		});
 	});
+
+	describe('current locale', () => {
+		describe('with [prefix-other-locales]', () => {
+			/** @type {import('./test-utils').Fixture} */
+			let fixture;
+
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing/',
+				});
+				await fixture.build();
+			});
+
+			it('should return the default locale', async () => {
+				const html = await fixture.readFile('/current-locale/index.html');
+				expect(html).includes('Current Locale: en');
+			});
+
+			it('should return the default locale when rendering a route with spread operator', async () => {
+				const html = await fixture.readFile('/blog/es/index.html');
+				expect(html).includes('Current Locale: es');
+			});
+
+			it('should return the default locale of the current URL', async () => {
+				const html = await fixture.readFile('/pt/start/index.html');
+				expect(html).includes('Current Locale: pt');
+			});
+
+			it('should return the default locale when a route is dynamic', async () => {
+				const html = await fixture.readFile('/dynamic/lorem/index.html');
+				expect(html).includes('Current Locale: en');
+			});
+
+			it('should returns the correct locale when requesting a locale via path', async () => {
+				const html = await fixture.readFile('/spanish/index.html');
+				expect(html).includes('Current Locale: es');
+			});
+		});
+
+		describe('with [pathname-prefix-always]', () => {
+			/** @type {import('./test-utils').Fixture} */
+			let fixture;
+
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing-prefix-always/',
+				});
+				await fixture.build();
+			});
+
+			it('should return the locale of the current URL (en)', async () => {
+				const html = await fixture.readFile('/en/start/index.html');
+				expect(html).includes('Current Locale: en');
+			});
+
+			it('should return the locale of the current URL (pt)', async () => {
+				const html = await fixture.readFile('/pt/start/index.html');
+				expect(html).includes('Current Locale: pt');
+			});
+		});
+	});
 });
 describe('[SSR] i18n routing', () => {
 	let app;
@@ -1523,6 +1583,13 @@ describe('[SSR] i18n routing', () => {
 				let response = await app.render(request);
 				expect(response.status).to.equal(200);
 				expect(await response.text()).includes('Current Locale: en');
+			});
+
+			it('should return the default locale when rendering a route with spread operator', async () => {
+				let request = new Request('http://example.com/blog/es', {});
+				let response = await app.render(request);
+				expect(response.status).to.equal(200);
+				expect(await response.text()).includes('Current Locale: es');
 			});
 
 			it('should return the default locale of the current URL', async () => {
