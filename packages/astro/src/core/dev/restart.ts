@@ -30,6 +30,7 @@ async function createRestartedContainer(
 }
 
 const configRE = new RegExp(`.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$`);
+// TODO: use typegenDir
 const preferencesRE = new RegExp(`.*\.astro\/settings\.json$`);
 
 export function shouldRestartContainer(

@@ -14,6 +14,7 @@ import { loadTSConfig } from './tsconfig.js';
 import type { Logger } from '../logger/core.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import type { TSConfckParseResult } from 'tsconfck';
+import { normalizePath } from 'vite';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	const { contentDir } = getContentPaths(config);
@@ -105,7 +106,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 }
 
 async function handleTypescriptConfig(
-	astroConfig: AstroConfig,
+	config: AstroConfig,
 	tsconfig: TSConfckParseResult,
 	logger: Logger
 ) {
@@ -132,12 +133,12 @@ async function handleTypescriptConfig(
 
 	function getRelativePathToCacheDir(url: URL) {
 		const path = fileURLToPath(url);
-		return relative(fileURLToPath(new URL('.astro', astroConfig.root)), path).replaceAll('\\', '/');
+		return relative(fileURLToPath(config.typegenDir), path).replaceAll('\\', '/');
 	}
 
 	function getField(_tsconfig: any, name: 'include' | 'exclude' | 'files') {
 		return [
-			...(astroConfig.typescript?.[name] ?? []),
+			...(config.typescript?.[name] ?? []),
 			...(invalidFields.includes(name) ? (_tsconfig[name] as Array<string>) : []),
 		];
 	}
@@ -150,18 +151,20 @@ async function handleTypescriptConfig(
 		include: deduplicate(['astro/client', ...getField(tsconfig.tsconfig, 'include')]),
 		exclude: deduplicate([
 			...getField(tsconfig.tsconfig, 'exclude'),
-			...(astroConfig.typescript?.excludeDefaults
+			...(config.typescript?.excludeDefaults
 				? [
-						getRelativePathToCacheDir(astroConfig.outDir),
-						getRelativePathToCacheDir(astroConfig.publicDir),
+						getRelativePathToCacheDir(config.outDir),
+						getRelativePathToCacheDir(config.publicDir),
 					]
 				: []),
 		]),
 		files: deduplicate(getField(tsconfig.tsconfig, 'files')),
 	};
 
-	const rawTsConfigPath = './.astro/tsconfig.json';
-	const tsconfigPath = fileURLToPath(new URL(rawTsConfigPath, astroConfig.root));
+	const rawTsConfigPath = normalizePath(
+		relative(fileURLToPath(config.root), fileURLToPath(new URL('tsconfig.json', config.typegenDir)))
+	);
+	const tsconfigPath = fileURLToPath(new URL(rawTsConfigPath, config.root));
 	mkdirSync(dirname(tsconfigPath), { recursive: true });
 	writeFileSync(tsconfigPath, JSON.stringify(newTsconfig, null, 2), 'utf-8');
 

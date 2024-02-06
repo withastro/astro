@@ -76,7 +76,7 @@ export function coerce(key: string, value: unknown) {
 
 export default function createPreferences(config: AstroConfig): AstroPreferences {
 	const global = new PreferenceStore(getGlobalPreferenceDir());
-	const project = new PreferenceStore(fileURLToPath(new URL('./.astro/', config.root)));
+	const project = new PreferenceStore(fileURLToPath(config.typegenDir));
 	const stores: Record<PreferenceLocation, PreferenceStore> = { global, project };
 
 	return {

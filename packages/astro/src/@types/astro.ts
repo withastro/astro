@@ -707,6 +707,23 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @name typegenDir
+	 * @type {string}
+	 * @default `"./.astro"`
+	 * @description TODO
+	 *
+	 * The value can be either an absolute file system path or a path relative to the project root.
+	 *
+	 * ```js
+	 * {
+	 *   typegenDir: './my-custom-cache-directory'
+	 * }
+	 * ```
+	 */
+	typegenDir?: string;
+
+	/**
+	 * @docs
 	 * @name compressHTML
 	 * @type {boolean}
 	 * @default `true`

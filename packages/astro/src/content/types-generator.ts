@@ -4,7 +4,7 @@ import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizePath, type ViteDevServer } from 'vite';
-import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
+import type { AstroConfig, AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
@@ -310,6 +310,7 @@ export async function createContentTypesGenerator({
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 				contentEntryTypes: settings.contentEntryTypes,
 				viteServer,
+				typegenDir: settings.config.typegenDir
 			});
 			invalidateVirtualMod(viteServer);
 			if (observable.status === 'loaded') {
@@ -359,6 +360,7 @@ async function writeContentFiles({
 	contentEntryTypes,
 	contentConfig,
 	viteServer,
+	typegenDir
 }: {
 	fs: typeof fsMod;
 	contentPaths: ContentPaths;
@@ -367,6 +369,7 @@ async function writeContentFiles({
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
 	viteServer: Pick<ViteDevServer, 'ws'>;
+	typegenDir: AstroConfig["typegenDir"]
 }) {
 	let contentTypesStr = '';
 	let dataTypesStr = '';
@@ -429,12 +432,12 @@ async function writeContentFiles({
 		}
 	}
 
-	if (!fs.existsSync(contentPaths.cacheDir)) {
-		fs.mkdirSync(contentPaths.cacheDir, { recursive: true });
+	if (!fs.existsSync(typegenDir)) {
+		fs.mkdirSync(typegenDir, { recursive: true });
 	}
 
 	const configPathRelativeToCacheDir = normalizeConfigPath(
-		contentPaths.cacheDir.pathname,
+		typegenDir.pathname,
 		contentPaths.config.url.pathname
 	);
 
@@ -451,7 +454,7 @@ async function writeContentFiles({
 	);
 
 	await fs.promises.writeFile(
-		new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir),
+		new URL(CONTENT_TYPES_FILE, typegenDir),
 		typeTemplateContent
 	);
 }

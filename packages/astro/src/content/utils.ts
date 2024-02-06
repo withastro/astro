@@ -40,10 +40,9 @@ export const collectionConfigParser = z.union([
 	}),
 ]);
 
-export function getDotAstroTypeReference({ root, srcDir }: { root: URL; srcDir: URL }) {
-	const { cacheDir } = getContentPaths({ root, srcDir });
+export function getDotAstroTypeReference({ typegenDir, srcDir }: { typegenDir: URL; srcDir: URL }) {
 	const contentTypesRelativeToSrcDir = normalizePath(
-		path.relative(fileURLToPath(srcDir), fileURLToPath(new URL(CONTENT_TYPES_FILE, cacheDir)))
+		path.relative(fileURLToPath(srcDir), fileURLToPath(new URL(CONTENT_TYPES_FILE, typegenDir)))
 	);
 
 	return `/// <reference path=${JSON.stringify(contentTypesRelativeToSrcDir)} />`;
@@ -430,7 +429,6 @@ export function contentObservable(initialCtx: ContentCtx): ContentObservable {
 export type ContentPaths = {
 	contentDir: URL;
 	assetsDir: URL;
-	cacheDir: URL;
 	typesTemplate: URL;
 	virtualModTemplate: URL;
 	config: {
@@ -440,13 +438,12 @@ export type ContentPaths = {
 };
 
 export function getContentPaths(
-	{ srcDir, root }: Pick<AstroConfig, 'root' | 'srcDir'>,
+	{ srcDir }: Pick<AstroConfig, 'srcDir'>,
 	fs: typeof fsMod = fsMod
 ): ContentPaths {
 	const configStats = search(fs, srcDir);
 	const pkgBase = new URL('../../', import.meta.url);
 	return {
-		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
 		assetsDir: new URL('./assets/', srcDir),
 		typesTemplate: new URL('content-types.template.d.ts', pkgBase),
