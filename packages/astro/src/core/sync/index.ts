@@ -93,7 +93,6 @@ export async function syncInternal(
 	{ logger, fs }: SyncInternalOptions
 ): Promise<ProcessExit> {
 	const timerStart = performance.now();
-	const command = 'build';
 
 	// Needed to load content config
 	const tempViteServer = await createServer(
@@ -104,7 +103,7 @@ export async function syncInternal(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode: 'build', command, fs }
+			{ settings, logger, mode: 'build', command: 'build', fs }
 		)
 	);
 
@@ -119,7 +118,6 @@ export async function syncInternal(
 	};
 
 	try {
-		settings = await runHookConfigSetup({ settings, command, logger, isRestart: false });
 		const contentTypesGenerator = await createContentTypesGenerator({
 			contentConfigObserver: globalContentConfigObserver,
 			logger: logger,

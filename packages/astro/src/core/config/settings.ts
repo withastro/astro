@@ -104,6 +104,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		watchFiles: [],
 		devToolbarApps: [],
 		timer: new AstroTimer(),
+		injectedDts: []
 	};
 }
 
