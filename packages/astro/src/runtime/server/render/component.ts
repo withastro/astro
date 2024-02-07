@@ -184,6 +184,7 @@ async function renderFrameworkComponent(
 		}
 	}
 
+	let componentServerRenderEndTime;
 	// If no one claimed the renderer
 	if (!renderer) {
 		if (metadata.hydrate === 'only') {
@@ -241,6 +242,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		if (metadata.hydrate === 'only') {
 			html = await renderSlotToString(result, slots?.fallback);
 		} else {
+			const componentRenderStartTime = performance.now();
 			({ html, attrs } = await renderer.ssr.renderToStaticMarkup.call(
 				{ result },
 				Component,
@@ -248,6 +250,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 				children,
 				metadata
 			));
+			componentServerRenderEndTime = performance.now() - componentRenderStartTime;
 		}
 	}
 
@@ -326,6 +329,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		{ renderer: renderer!, result, astroId, props, attrs },
 		metadata as Required<AstroComponentMetadata>
 	);
+
+	island.props['server-render-time'] = componentServerRenderEndTime;
 
 	// Render template if not all astro fragments are provided.
 	let unrenderedSlots: string[] = [];

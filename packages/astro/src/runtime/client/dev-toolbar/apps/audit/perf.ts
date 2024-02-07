@@ -70,4 +70,48 @@ export const perf: AuditRuleWithSelector[] = [
 			return true;
 		},
 	},
+	{
+		code: 'perf-slow-component-server-render',
+		title: 'Server-rendered component took a long time to render',
+		message: (element) =>
+			`This component took an unusually long time to render on the server (${getCleanRenderingTime(
+				element.getAttribute('server-render-time')
+			)}.). This might be a sign that it's doing too much work on the server, or something is blocking rendering.`,
+		selector: 'astro-island[server-render-time]',
+		match(element) {
+			const serverRenderTime = element.getAttribute('server-render-time');
+			if (!serverRenderTime) return false;
+
+			const renderingTime = parseFloat(serverRenderTime);
+			if (Number.isNaN(renderingTime)) return false;
+
+			return renderingTime > 500;
+		},
+	},
+	{
+		code: 'perf-slow-component-client-hydration',
+		title: 'Client-rendered component took a long time to hydrate',
+		message: (element) =>
+			`This component took an unusually long time to render on the server (${getCleanRenderingTime(
+				element.getAttribute('client-render-time')
+			)}.). This could be a sign that something is blocking the main thread and preventing the component from hydrating quickly.`,
+		selector: 'astro-island[client-render-time]',
+		match(element) {
+			const clientRenderTime = element.getAttribute('client-render-time');
+			if (!clientRenderTime) return false;
+
+			const renderingTime = parseFloat(clientRenderTime);
+			if (Number.isNaN(renderingTime)) return false;
+
+			return renderingTime > 500;
+		},
+	},
 ];
+
+function getCleanRenderingTime(time: string | null) {
+	if (!time) return 'unknown';
+	const renderingTime = parseFloat(time);
+	if (Number.isNaN(renderingTime)) return 'unknown';
+
+	return renderingTime.toFixed(2) + 's';
+}

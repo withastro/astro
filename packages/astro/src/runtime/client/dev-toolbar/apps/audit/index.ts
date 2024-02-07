@@ -157,10 +157,10 @@ export default {
 						}
 					</style>
 					<header>
-						<h1><astro-dev-toolbar-icon icon="check-circle"></astro-dev-toolbar-icon>No accessibility issues detected.</h1>
+						<h1><astro-dev-toolbar-icon icon="check-circle"></astro-dev-toolbar-icon>No accessibility or performance issues detected.</h1>
 					</header>
 					<p>
-						Nice work! This app scans the page and highlights common accessibility issues for you, like a missing "alt" attribute on an image.
+						Nice work! This app scans the page and highlights common accessibility and performance issues for you, like a missing "alt" attribute on an image, or a image not using performant attributes.
 					</p>
 					`
 				);
