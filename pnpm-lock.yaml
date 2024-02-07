@@ -551,9 +551,6 @@ importers:
       cookie:
         specifier: ^0.6.0
         version: 0.6.0
-      cssesc:
-        specifier: ^3.0.0
-        version: 3.0.0
       debug:
         specifier: ^4.3.4
         version: 4.3.4(supports-color@8.1.1)
@@ -715,9 +712,6 @@ importers:
       '@types/cookie':
         specifier: ^0.5.4
         version: 0.5.4
-      '@types/cssesc':
-        specifier: ^3.0.2
-        version: 3.0.2
       '@types/debug':
         specifier: ^4.1.12
         version: 4.1.12
@@ -7293,10 +7287,6 @@ packages:
 
   /@types/cookie@0.5.4:
     resolution: {integrity: sha512-7z/eR6O859gyWIAjuvBWFzNURmf2oPBmJlfVWkwehU5nzIyjwBsTh7WMmEEV4JFnHuQ3ex4oyTvfKzcyJVDBNA==}
-    dev: true
-
-  /@types/cssesc@3.0.2:
-    resolution: {integrity: sha512-Qii6nTRktvtI380EloxH/V7MwgrYxkPgBI+NklUjQuhzgAd1AqT3QDJd+eD+0doRADgfwvtagLRo7JFa7aMHXg==}
     dev: true
 
   /@types/debug@4.1.12:
