@@ -30,29 +30,34 @@ export const perf: AuditRuleWithSelector[] = [
 		code: 'perf-use-loading-lazy',
 		title: 'Use the loading="lazy" attribute',
 		message: (element) =>
-			`This ${element.tagName} is below the fold and could be lazy-loaded to improve performance.`,
+			`This ${element.nodeName} tag is below the fold and could be lazy-loaded to improve performance.`,
 		selector:
 			'img:not([loading]), img[loading="eager"], iframe:not([loading]), iframe[loading="eager"]',
 		match(element) {
+			const htmlElement = element as HTMLImageElement | HTMLIFrameElement;
 			// Ignore elements that are above the fold, they should be loaded eagerly
-			if (element.getBoundingClientRect().top < window.innerHeight) return false;
+			if (htmlElement.offsetTop < window.innerHeight) return false;
+
+			return true;
 		},
 	},
 	{
 		code: 'perf-use-loading-eager',
 		title: 'Use the loading="eager" attribute',
 		message: (element) =>
-			`This ${element.tagName} is above the fold and could be eagerly-loaded to improve performance.`,
+			`This ${element.nodeName} tag is above the fold and could be eagerly-loaded to improve performance.`,
 		selector: 'img[loading="lazy"], iframe[loading="lazy"]',
 		match(element) {
+			const htmlElement = element as HTMLImageElement | HTMLIFrameElement;
 			// Ignore elements that are below the fold, they should be loaded lazily
-			if (element.getBoundingClientRect().top > window.innerHeight) return false;
+			if (htmlElement.offsetTop > window.innerHeight) return false;
 		},
 	},
 	{
 		code: 'perf-use-videos',
 		title: 'Use videos instead of GIFs for large animations',
-		message: 'This GIF could be replaced with a video to improve performance.',
+		message:
+			'This GIF could be replaced with a video to reduce its file size and improve performance.',
 		selector: 'img[src$=".gif"]',
 		async match(element) {
 			const src = element.getAttribute('src');
