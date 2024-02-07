@@ -1,8 +1,0 @@
-{
-  "name": "@test/space-in-folder-name",
-  "version": "0.0.0",
-  "private": true,
-  "dependencies": {
-    "astro": "workspace:*"
-  }
-}

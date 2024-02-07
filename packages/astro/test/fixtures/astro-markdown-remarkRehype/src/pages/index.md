@@ -1,9 +1,0 @@
----
-foo: bar
----
-
-# Hello world
-
-This[^1] should be visible.
-
-[^1]: And there would be a footnote.

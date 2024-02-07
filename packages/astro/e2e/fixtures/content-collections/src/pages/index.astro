@@ -1,8 +1,0 @@
----
-import { getEntryBySlug } from 'astro:content'
-
-const post = await getEntryBySlug('posts', 'post-1')
-const { Content } = await post.render();
----
-
-<Content/>

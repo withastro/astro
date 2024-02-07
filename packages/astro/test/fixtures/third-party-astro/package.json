@@ -1,9 +1,0 @@
-{
-  "name": "@e2e/third-party-astro",
-  "version": "0.0.0",
-  "private": true,
-  "dependencies": {
-    "astro": "workspace:*",
-    "astro-embed": "^0.6.0"
-  }
-}

@@ -1,3 +1,0 @@
-# Page with alternative .mkdn extension
-
-Hope this loads fine 🤞

@@ -1,1 +1,0 @@
-console.log('no hoist nonmodule');

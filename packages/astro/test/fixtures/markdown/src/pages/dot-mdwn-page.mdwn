@@ -1,3 +1,0 @@
-# Page with alternative .mdwn extension
-
-Hope this loads fine 🤞
