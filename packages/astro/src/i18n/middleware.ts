@@ -32,6 +32,10 @@ function pathnameHasLocale(pathname: string, locales: Locales): boolean {
 	return false;
 }
 
+interface RegExCache {
+	[key: string]: RegExp
+}
+
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
 	base: SSRManifest['base'],
@@ -39,6 +43,23 @@ export function createI18nMiddleware(
 	buildFormat: SSRManifest['buildFormat']
 ): MiddlewareHandler {
 	if (!i18n) return (_, next) => next();
+
+	// We want to match locales only when they are followed
+	// by `/` or nothing, not when they are part of a URL fragment, eg. 
+	// `/en/crypto/enigma` should not become 
+	// `/cryptoigma` if the default locale of `en` is stripped
+	// We cache the regexes for these here.
+	// We have more than one Regex because the fallbackLocale might not be
+	// the defaultLocale
+	let regexCache: RegExCache = {}
+	function getRegex(locale: string) {
+		if (regexCache[locale]) {
+			return regexCache[locale]
+		}
+		const localeRegex = new RegExp(`/${locale}(/|$)`)
+		regexCache[locale] = localeRegex
+		return localeRegex
+	}
 
 	const prefixAlways = (
 		url: URL,
@@ -67,7 +88,7 @@ export function createI18nMiddleware(
 	const prefixOtherLocales = (url: URL, response: Response): Response | undefined => {
 		const pathnameContainsDefaultLocale = url.pathname.split('/').includes(i18n.defaultLocale);
 		if (pathnameContainsDefaultLocale) {
-			const newLocation = removeOrReplaceLocaleFromPathname(i18n.defaultLocale, url.pathname)
+			const newLocation = removeOrReplaceLocaleFromPathname(getRegex(i18n.defaultLocale), url.pathname)
 			response.headers.set('Location', newLocation);
 			return new Response(null, {
 				status: 404,
@@ -193,9 +214,9 @@ export function createI18nMiddleware(
 					// If a locale falls back to the default locale, we want to **remove** the locale because
 					// the default locale doesn't have a prefix
 					if (pathFallbackLocale === defaultLocale && routing === 'pathname-prefix-other-locales') {
-						newPathname = removeOrReplaceLocaleFromPathname(urlLocale, url.pathname)
+						newPathname = removeOrReplaceLocaleFromPathname(getRegex(urlLocale), url.pathname)
 					} else {
-						newPathname = removeOrReplaceLocaleFromPathname(urlLocale, url.pathname, pathFallbackLocale);
+						newPathname = removeOrReplaceLocaleFromPathname(getRegex(urlLocale), url.pathname, pathFallbackLocale);
 					}
 
 					return context.redirect(newPathname);

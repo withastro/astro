@@ -287,17 +287,12 @@ export function toPaths(locales: Locales): string[] {
  * @param localeToRemove 
  * @param replacement 
  */
-export function removeOrReplaceLocaleFromPathname(locale: string, pathname: string, replacement?: string) {
-	// We want to remove the default locale only when it is followed
-	// by `/` or nothing, not when it is part of a URL fragment, eg. 
-	// `/en/crypto/enigma` should not become 
-	// `/cryptoigma` if the default locale of `en` is stripped
-	const regex = new RegExp(`/${locale}(/|$)`)
+export function removeOrReplaceLocaleFromPathname(localeRegex: RegExp, pathname: string, replacement?: string) {
 	let result
 	if (replacement) {
-		result = pathname.replace(regex, `$1${replacement}$1`)
+		result = pathname.replace(localeRegex, `$1${replacement}$1`)
 	} else {
-		result = pathname.replace(regex, '$1')
+		result = pathname.replace(localeRegex, '$1')
 	}
 	return result
 }
@@ -324,9 +319,9 @@ class Unreachable extends Error {
 	constructor() {
 		super(
 			'Astro encountered an unexpected line of code.\n' +
-				'In most cases, this is not your fault, but a bug in astro code.\n' +
-				"If there isn't one already, please create an issue.\n" +
-				'https://astro.build/issues'
+			'In most cases, this is not your fault, but a bug in astro code.\n' +
+			"If there isn't one already, please create an issue.\n" +
+			'https://astro.build/issues'
 		);
 	}
 }
