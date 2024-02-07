@@ -42,7 +42,7 @@ describe('CSS', function () {
 				const classes = $('#class');
 				let scopedAttribute;
 				for (const [key] of Object.entries(classes[0].attribs)) {
-					if (/^data-astro-cid-[A-Za-z0-9-]+/.test(key)) {
+					if (/^data-astro-cid-[A-Za-z\d-]+/.test(key)) {
 						// Ema: this is ugly, but for reasons that I don't want to explore, cheerio
 						// lower case the hash of the attribute
 						scopedAttribute = key;
@@ -72,7 +72,7 @@ describe('CSS', function () {
 
 			it('Child inheritance', (done) => {
 				for (const [key] of Object.entries($('#passed-in')[0].attribs)) {
-					if (/^data-astro-cid-[A-Za-z0-9-]+/.test(key)) {
+					if (/^data-astro-cid-[A-Za-z\d-]+/.test(key)) {
 						done();
 					}
 				}
@@ -84,25 +84,25 @@ describe('CSS', function () {
 			});
 
 			it('<style lang="sass">', async () => {
-				expect(bundledCSS).to.match(new RegExp('h1\\[data-astro-cid-[^{]*{color:#90ee90}'));
+				expect(bundledCSS).to.match(/h1\[data-astro-cid-[^{]*\{color:#90ee90\}/);
 			});
 
 			it('<style lang="scss">', async () => {
-				expect(bundledCSS).to.match(new RegExp('h1\\[data-astro-cid-[^{]*{color:#ff69b4}'));
+				expect(bundledCSS).to.match(/h1\[data-astro-cid-[^{]*\{color:#ff69b4\}/);
 			});
 		});
 
 		describe('Styles in src/', () => {
 			it('.css', async () => {
-				expect(bundledCSS).to.match(new RegExp('.linked-css[^{]*{color:gold'));
+				expect(bundledCSS).to.match(/.linked-css[^{]*\{color:gold/);
 			});
 
 			it('.sass', async () => {
-				expect(bundledCSS).to.match(new RegExp('.linked-sass[^{]*{color:#789'));
+				expect(bundledCSS).to.match(/.linked-sass[^{]*\{color:#789/);
 			});
 
 			it('.scss', async () => {
-				expect(bundledCSS).to.match(new RegExp('.linked-scss[^{]*{color:#6b8e23'));
+				expect(bundledCSS).to.match(/.linked-scss[^{]*\{color:#6b8e23/);
 			});
 		});
 
@@ -118,7 +118,7 @@ describe('CSS', function () {
 			it('.module.css', async () => {
 				const el = $('#react-module-css');
 				const classes = el.attr('class').split(' ');
-				const moduleClass = classes.find((name) => /^_title_[A-Za-z0-9-_]+/.test(name));
+				const moduleClass = classes.find((name) => /^_title_[\w-]+/.test(name));
 
 				// 1. check HTML
 				expect(el.attr('class')).to.include(moduleClass);
@@ -134,7 +134,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include('react-sass-title');
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.react-sass-title[^{]*{font-family:fantasy`));
+				expect(bundledCSS).to.match(/.react-sass-title[^{]*\{font-family:fantasy/);
 			});
 
 			it('.scss', async () => {
@@ -144,13 +144,13 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include('react-scss-title');
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.react-scss-title[^{]*{font-family:fantasy`));
+				expect(bundledCSS).to.match(/.react-scss-title[^{]*\{font-family:fantasy/);
 			});
 
 			it('.module.sass', async () => {
 				const el = $('#react-module-sass');
 				const classes = el.attr('class').split(' ');
-				const moduleClass = classes.find((name) => /^_title_[A-Za-z0-9-_]+/.test(name));
+				const moduleClass = classes.find((name) => /^_title_[\w-]+/.test(name));
 
 				// 1. check HTML
 				expect(el.attr('class')).to.include(moduleClass);
@@ -162,7 +162,7 @@ describe('CSS', function () {
 			it('.module.scss', async () => {
 				const el = $('#react-module-scss');
 				const classes = el.attr('class').split(' ');
-				const moduleClass = classes.find((name) => /^_title_[A-Za-z0-9-_]+/.test(name));
+				const moduleClass = classes.find((name) => /^_title_[\w-]+/.test(name));
 
 				// 1. check HTML
 				expect(el.attr('class')).to.include(moduleClass);
@@ -189,7 +189,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include('vue-css');
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.vue-css[^{]*{font-family:cursive`));
+				expect(bundledCSS).to.match(/.vue-css[^{]*\{font-family:cursive/);
 			});
 
 			it('<style scoped>', async () => {
@@ -210,7 +210,7 @@ describe('CSS', function () {
 			it('<style module>', async () => {
 				const el = $('#vue-modules');
 				const classes = el.attr('class').split(' ');
-				const moduleClass = classes.find((name) => /^_title_[A-Za-z0-9-_]+/.test(name));
+				const moduleClass = classes.find((name) => /^_title_[\w-]+/.test(name));
 
 				// 1. check HTML
 				expect(el.attr('class')).to.include(moduleClass);
@@ -226,7 +226,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include('vue-sass');
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.vue-sass[^{]*{font-family:cursive`));
+				expect(bundledCSS).to.match(/.vue-sass[^{]*\{font-family:cursive/);
 			});
 
 			it('<style lang="scss">', async () => {
@@ -236,7 +236,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include('vue-scss');
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.vue-scss[^{]*{font-family:cursive`));
+				expect(bundledCSS).to.match(/.vue-scss[^{]*\{font-family:cursive/);
 			});
 		});
 
@@ -245,7 +245,7 @@ describe('CSS', function () {
 				const el = $('#svelte-css');
 				const classes = el.attr('class').split(' ');
 				const scopedClass = classes.find(
-					(name) => name !== 'svelte-css' && /^svelte-[A-Za-z0-9-]+/.test(name)
+					(name) => name !== 'svelte-css' && /^svelte-[A-Za-z\d-]+/.test(name)
 				);
 
 				// 1. check HTML
@@ -261,7 +261,7 @@ describe('CSS', function () {
 				const el = $('#svelte-sass');
 				const classes = el.attr('class').split(' ');
 				const scopedClass = classes.find(
-					(name) => name !== 'svelte-sass' && /^svelte-[A-Za-z0-9-]+/.test(name)
+					(name) => name !== 'svelte-sass' && /^svelte-[A-Za-z\d-]+/.test(name)
 				);
 
 				// 1. check HTML
@@ -277,7 +277,7 @@ describe('CSS', function () {
 				const el = $('#svelte-scss');
 				const classes = el.attr('class').split(' ');
 				const scopedClass = classes.find(
-					(name) => name !== 'svelte-scss' && /^svelte-[A-Za-z0-9-]+/.test(name)
+					(name) => name !== 'svelte-scss' && /^svelte-[A-Za-z\d-]+/.test(name)
 				);
 
 				// 1. check HTML

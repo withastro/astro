@@ -4,6 +4,7 @@ import type { HmrContext } from 'vite';
 import type { Logger } from '../core/logger/core.js';
 import type { CompileAstroResult } from './compile.js';
 import type { CompileMetadata } from './types.js';
+import { frontmatterRE } from './utils.js';
 
 export interface HandleHotUpdateOptions {
 	logger: Logger;
@@ -58,8 +59,10 @@ export async function handleHotUpdate(
 	}
 }
 
-const frontmatterRE = /^\-\-\-.*?^\-\-\-/ms;
+// Disable eslint as we're not sure how to improve this regex yet
+// eslint-disable-next-line regexp/no-super-linear-backtracking
 const scriptRE = /<script(?:\s.*?)?>.*?<\/script>/gs;
+// eslint-disable-next-line regexp/no-super-linear-backtracking
 const styleRE = /<style(?:\s.*?)?>.*?<\/style>/gs;
 
 function isStyleOnlyChanged(oldCode: string, newCode: string) {

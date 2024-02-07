@@ -66,6 +66,7 @@ export const reference = noop;
 /** Run `astro sync` to generate high fidelity types */
 export type CollectionKey = any;
 /** Run `astro sync` to generate high fidelity types */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export type CollectionEntry<C> = any;
 /** Run `astro sync` to generate high fidelity types */
 export type ContentCollectionKey = any;

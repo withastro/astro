@@ -19,7 +19,7 @@ import type { StaticBuildOptions } from '../types.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
-const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
+const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
 
 export const SSR_MANIFEST_VIRTUAL_MODULE_ID = '@astrojs-manifest';
 export const RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID = '\0' + SSR_MANIFEST_VIRTUAL_MODULE_ID;

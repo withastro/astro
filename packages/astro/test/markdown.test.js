@@ -70,7 +70,7 @@ describe('Markdown tests', () => {
 
 		it('Does not unescape entities', async () => {
 			const html = await fixture.readFile('/entities/index.html');
-			expect(html).to.match(new RegExp('&#x3C;i>This should NOT be italic&#x3C;/i>'));
+			expect(html).to.match(/&#x3C;i>This should NOT be italic&#x3C;\/i>/);
 		});
 	});
 });
