@@ -7,7 +7,7 @@ import { notFoundTemplate, subpathNotUsedTemplate } from '../../template/4xx.js'
 import { cleanUrl } from '../../vite-plugin-utils/index.js';
 import { stripBase } from './util.js';
 
-const HAS_FILE_EXTENSION_REGEXP = /^[^\n\r.\u2028\u2029]*\.(?:[^\n\r\\\u2028\u2029]*\\[^\n\r.\u2028\u2029]*\.)*(?:[\n\r\u2028\u2029][^\\]*|[^\n\r\\\u2028\u2029]+(?:[\n\r\u2028\u2029][^\\]*)?)$/;
+const HAS_FILE_EXTENSION_REGEXP = /\.[^/]+$/;
 
 export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 	const { base, outDir, trailingSlash } = settings.config;

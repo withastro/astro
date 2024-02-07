@@ -229,6 +229,7 @@ export async function handleRoute({
 					return '';
 				},
 				params: [],
+				// Disable eslint as we only want to generate an empty RegExp
 				// eslint-disable-next-line prefer-regex-literals
 				pattern: new RegExp(''),
 				prerender: false,
