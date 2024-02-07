@@ -12,7 +12,7 @@ applyPolyfills();
 
 export const createExports = (
 	manifest: SSRManifest,
-	{ middlewareSecret }: { middlewareSecret: string | undefined }
+	{ middlewareSecret }: { middlewareSecret: string }
 ) => {
 	const app = new NodeApp(manifest);
 	const handler = async (req: IncomingMessage, res: ServerResponse) => {
