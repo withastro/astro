@@ -1,5 +1,13 @@
 # astro
 
+## 4.3.4
+
+### Patch Changes
+
+- [#10013](https://github.com/withastro/astro/pull/10013) [`e6b5306a7de779ce495d0ff076d302de0aa57eaf`](https://github.com/withastro/astro/commit/e6b5306a7de779ce495d0ff076d302de0aa57eaf) Thanks [@delucis](https://github.com/delucis)! - Fixes a regression in content collection types
+
+- [#10003](https://github.com/withastro/astro/pull/10003) [`ce4283331f18c6178654dd705e3cf02efeef004a`](https://github.com/withastro/astro/commit/ce4283331f18c6178654dd705e3cf02efeef004a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Adds support for `.strict()` on content collection schemas when a custom `slug` is present.
+
 ## 4.3.3
 
 ### Patch Changes
