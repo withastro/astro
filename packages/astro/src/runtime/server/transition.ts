@@ -7,7 +7,7 @@ import type {
 } from '../../@types/astro.js';
 import { fade, slide } from '../../transitions/index.js';
 import { markHTMLString } from './escape.js';
-import cssesc from 'cssesc';
+import cssesc from './cssesc.js';
 
 const transitionNameMap = new WeakMap<SSRResult, number>();
 function incrementTransitionNumber(result: SSRResult) {
