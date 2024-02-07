@@ -32,13 +32,6 @@ function pathnameHasLocale(pathname: string, locales: Locales): boolean {
 	return false;
 }
 
-type MiddlewareOptions = {
-	i18n: SSRManifest['i18n'];
-	base: SSRManifest['base'];
-	trailingSlash: SSRManifest['trailingSlash'];
-	buildFormat: SSRManifest['buildFormat'];
-};
-
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
 	base: SSRManifest['base'],
@@ -72,7 +65,13 @@ export function createI18nMiddleware(
 	};
 
 	const prefixOtherLocales = (url: URL, response: Response): Response | undefined => {
-		const pathnameContainsDefaultLocale = url.pathname.includes(`/${i18n.defaultLocale}`);
+		let pathnameContainsDefaultLocale = false;
+		for (const segment of url.pathname.split('/')) {
+			if (normalizeTheLocale(segment) === normalizeTheLocale(i18n.defaultLocale)) {
+				pathnameContainsDefaultLocale = true;
+				break;
+			}
+		}
 		if (pathnameContainsDefaultLocale) {
 			const newLocation = url.pathname.replace(`/${i18n.defaultLocale}`, '');
 			response.headers.set('Location', newLocation);

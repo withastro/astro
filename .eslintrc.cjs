@@ -7,13 +7,14 @@ module.exports = {
     'plugin:@typescript-eslint/recommended-type-checked',
     'plugin:@typescript-eslint/stylistic-type-checked',
     'prettier',
+    'plugin:regexp/recommended',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: ['./packages/*/tsconfig.json', './tsconfig.eslint.json'],
     tsconfigRootDir: __dirname,
   },
-  plugins: ['@typescript-eslint', 'prettier', 'no-only-tests'],
+  plugins: ['@typescript-eslint', 'prettier', 'no-only-tests', 'regexp'],
   rules: {
     // These off/configured-differently-by-default rules fit well for us
     '@typescript-eslint/switch-exhaustiveness-check': 'error',
@@ -72,6 +73,9 @@ module.exports = {
     // These rules enabled by the preset configs don't work well for us
     '@typescript-eslint/await-thenable': 'off',
     'prefer-const': 'off',
+
+    // In some cases, using explicit letter-casing is more performant than the `i` flag
+    'regexp/use-ignore-case': 'off',
   },
   overrides: [
     {

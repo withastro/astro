@@ -4,6 +4,7 @@ import { compile, type CompileProps, type CompileResult } from '../core/compile/
 import type { Logger } from '../core/logger/core.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import type { CompileMetadata } from './types.js';
+import { frontmatterRE } from './utils.js';
 
 interface CompileAstroOption {
 	compileProps: CompileProps;
@@ -22,8 +23,6 @@ interface EnhanceCompilerErrorOptions {
 	config: AstroConfig;
 	logger: Logger;
 }
-
-const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 
 export async function compileAstro({
 	compileProps,
@@ -107,7 +106,7 @@ async function enhanceCompileError({
 	// Before throwing, it is better to verify the frontmatter here, and
 	// let esbuild throw a more specific exception if the code is invalid.
 	// If frontmatter is valid or cannot be parsed, then continue.
-	const scannedFrontmatter = FRONTMATTER_PARSE_REGEXP.exec(source);
+	const scannedFrontmatter = frontmatterRE.exec(source);
 	if (scannedFrontmatter) {
 		// Top-level return is not supported, so replace `return` with throw
 		const frontmatter = scannedFrontmatter[1].replace(/\breturn\b/g, 'throw');

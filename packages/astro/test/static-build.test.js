@@ -128,7 +128,7 @@ describe('Static build', () => {
 	}
 
 	describe('Page CSS', () => {
-		const findEvidence = createFindEvidence(/height:( )*45vw/);
+		const findEvidence = createFindEvidence(/height:\s*45vw/);
 
 		it('Page level CSS is added', async () => {
 			const found = await findEvidence('/index.html');
@@ -185,9 +185,7 @@ describe('Static build', () => {
 	it('warns when accessing headers', async () => {
 		let found = false;
 		for (const log of logs) {
-			if (
-				/\`Astro\.request\.headers\` is not available in "static" output mode/.test(log.message)
-			) {
+			if (/`Astro\.request\.headers` is not available in "static" output mode/.test(log.message)) {
 				found = true;
 			}
 		}
