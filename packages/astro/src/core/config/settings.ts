@@ -1,5 +1,5 @@
 import yaml from 'js-yaml';
-import { dirname, relative } from 'node:path';
+import { relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroConfig, AstroSettings } from '../../@types/astro.js';
 import { getContentPaths } from '../../content/index.js';
@@ -11,11 +11,6 @@ import { formatYAMLException, isYAMLException } from '../errors/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
-import type { Logger } from '../logger/core.js';
-import { mkdirSync, writeFileSync } from 'node:fs';
-import type { TSConfckParseResult } from 'tsconfck';
-import { normalizePath } from 'vite';
-import { isRelativePath } from '../path.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	const { contentDir } = getContentPaths(config);
@@ -103,90 +98,12 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		watchFiles: [],
 		devToolbarApps: [],
 		timer: new AstroTimer(),
+		injectedDts: [],
 	};
-}
-
-async function handleTypescriptConfig(
-	config: AstroConfig,
-	tsconfig: TSConfckParseResult,
-	logger: Logger
-) {
-	const invalidFields: Array<string> = [];
-
-	if (tsconfig.tsconfig?.include?.length > 0) {
-		invalidFields.push('include');
-	}
-	if (tsconfig.tsconfig?.exclude?.length > 0) {
-		invalidFields.push('exclude');
-	}
-	if (tsconfig.tsconfig?.files?.length > 0) {
-		invalidFields.push('files');
-	}
-
-	if (invalidFields.length > 0) {
-		logger.warn(
-			'config',
-			`The following fields of your tsconfig.json must now be set inside your Astro config: ${invalidFields.join(
-				', '
-			)}. They will be merged until Astro 5, see TODO:link.`
-		);
-	}
-
-	function getRelativePath(a: URL, b: URL) {
-		return normalizePath(relative(fileURLToPath(a), fileURLToPath(b)));
-	}
-
-	function getField(_tsconfig: any, name: 'include' | 'exclude' | 'files') {
-		return [
-			...(config.typescript?.[name] ?? []),
-			// TODO: remove in Astro 5
-			...(invalidFields.includes(name) ? (_tsconfig[name] as Array<string>) : []),
-		];
-	}
-
-	function deduplicate<T extends Array<unknown>>(array: T) {
-		return [...new Set([...array])];
-	}
-
-	const newTsconfig = {
-		include: deduplicate(['astro/client', ...getField(tsconfig.tsconfig, 'include')]),
-		exclude: deduplicate([
-			...getField(tsconfig.tsconfig, 'exclude'),
-			...(config.typescript?.excludeDefaults
-				? [
-						getRelativePath(config.codegenDir, config.outDir),
-						getRelativePath(config.codegenDir, config.publicDir),
-					]
-				: []),
-		]),
-		files: deduplicate(getField(tsconfig.tsconfig, 'files')),
-	};
-
-	let rawTsConfigPath = getRelativePath(config.root, new URL('tsconfig.json', config.codegenDir));
-	if (!isRelativePath(rawTsConfigPath)) {
-		rawTsConfigPath = `./${rawTsConfigPath}`
-	}
-	const tsconfigPath = fileURLToPath(new URL(rawTsConfigPath, config.root));
-	mkdirSync(dirname(tsconfigPath), { recursive: true });
-	writeFileSync(tsconfigPath, JSON.stringify(newTsconfig, null, 2), 'utf-8');
-
-	// extends is a reserved keyword
-	const { extends: extendsField } = tsconfig.tsconfig;
-	if (Array.isArray(extendsField) && extendsField.includes(rawTsConfigPath)) {
-		return;
-	}
-
-	const outputTsconfig = { ...tsconfig.tsconfig };
-	outputTsconfig.extends = [
-		...(typeof extendsField === 'string' ? [extendsField] : extendsField),
-		rawTsConfigPath,
-	];
-	writeFileSync(tsconfig.tsconfigFile, JSON.stringify(outputTsconfig, null, 2), 'utf-8');
 }
 
 export async function createSettings(
 	config: AstroConfig,
-	logger: Logger,
 	cwd?: string
 ): Promise<AstroSettings> {
 	const tsconfig = await loadTSConfig(cwd);
@@ -198,7 +115,6 @@ export async function createSettings(
 	}
 
 	if (typeof tsconfig !== 'string') {
-		await handleTypescriptConfig(config, tsconfig.rawConfig, logger);
 		watchFiles.push(
 			...[tsconfig.tsconfigFile, ...(tsconfig.extended ?? []).map((e) => e.tsconfigFile)]
 		);

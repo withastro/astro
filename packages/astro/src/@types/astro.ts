@@ -1996,6 +1996,11 @@ export interface AstroAdapterFeatures {
 	functionPerRoute: boolean;
 }
 
+export interface InjectedDts {
+	filename: `${string}.d.ts`
+	content: string
+}
+
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
@@ -2020,6 +2025,7 @@ export interface AstroSettings {
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
 	timer: AstroTimer;
+	injectedDts: InjectedDts[];
 }
 
 export type AsyncRendererComponentFn<U> = (
@@ -2611,6 +2617,7 @@ export interface AstroIntegration {
 			addDevToolbarApp: (entrypoint: string) => void;
 			addMiddleware: (mid: AstroIntegrationMiddleware) => void;
 			logger: AstroIntegrationLogger;
+			injectDts: (dts: InjectedDts) => void;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.

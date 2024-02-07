@@ -35,7 +35,7 @@ export function getViteConfig(inlineConfig: UserConfig) {
 			level: 'info',
 		});
 		const { astroConfig: config } = await resolveConfig({}, cmd);
-		const settings = await createSettings(config, logger, inlineConfig.root);
+		const settings = await createSettings(config, inlineConfig.root);
 		await runHookConfigSetup({ settings, command: cmd, logger });
 		const viteConfig = await createVite(
 			{

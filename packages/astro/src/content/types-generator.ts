@@ -4,7 +4,7 @@ import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizePath, type ViteDevServer } from 'vite';
-import type { AstroConfig, AstroSettings, ContentEntryType } from '../@types/astro.js';
+import type { AstroConfig, AstroSettings, ContentEntryType, InjectedDts } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
@@ -24,7 +24,6 @@ import {
 	type ContentObservable,
 	type ContentPaths,
 } from './utils.js';
-import { injectTypes } from '../config/types.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
@@ -55,6 +54,7 @@ type CreateContentGeneratorParams = {
 	/** This is required for loading the content config */
 	viteServer: ViteDevServer;
 	fs: typeof fsMod;
+	injectDts: (dts: InjectedDts) => void
 };
 
 export async function createContentTypesGenerator({
@@ -63,6 +63,7 @@ export async function createContentTypesGenerator({
 	logger,
 	settings,
 	viteServer,
+	injectDts
 }: CreateContentGeneratorParams) {
 	const collectionEntryMap: CollectionEntryMap = {};
 	const contentPaths = getContentPaths(settings.config, fs);
@@ -312,6 +313,7 @@ export async function createContentTypesGenerator({
 				contentEntryTypes: settings.contentEntryTypes,
 				viteServer,
 				codegenDir: settings.config.codegenDir,
+				injectDts
 			});
 			invalidateVirtualMod(viteServer);
 			if (observable.status === 'loaded') {
@@ -362,6 +364,7 @@ async function writeContentFiles({
 	contentConfig,
 	viteServer,
 	codegenDir,
+	injectDts,
 }: {
 	fs: typeof fsMod;
 	contentPaths: ContentPaths;
@@ -371,6 +374,7 @@ async function writeContentFiles({
 	contentConfig?: ContentConfig;
 	viteServer: Pick<ViteDevServer, 'ws'>;
 	codegenDir: AstroConfig['codegenDir'];
+	injectDts: (dts: InjectedDts) => void
 }) {
 	let contentTypesStr = '';
 	let dataTypesStr = '';
@@ -454,7 +458,7 @@ async function writeContentFiles({
 		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never'
 	);
 
-	injectTypes({ codegenDir, filename: CONTENT_TYPES_FILE, content: typeTemplateContent });
+	injectDts({ filename: CONTENT_TYPES_FILE, content: typeTemplateContent });
 }
 
 function warnNonexistentCollections({

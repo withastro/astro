@@ -170,6 +170,7 @@ export async function runHookConfigSetup({
 					updatedSettings.middlewares[order].push(entrypoint);
 				},
 				logger: integrationLogger,
+				injectDts: (dts) => updatedSettings.injectedDts.push(dts),
 			};
 
 			// ---
