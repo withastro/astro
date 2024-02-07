@@ -32,9 +32,8 @@ export const createExports = (
 				res.end('Forbidden');
 				return;
 			}
-			locals = typeof localsHeader === 'string'
-				? JSON.parse(localsHeader)
-				: JSON.parse(localsHeader[0]);
+			locals =
+				typeof localsHeader === 'string' ? JSON.parse(localsHeader) : JSON.parse(localsHeader[0]);
 		}
 		// hide the secret from the rest of user code
 		delete req.headers[ASTRO_MIDDLEWARE_SECRET_HEADER];
