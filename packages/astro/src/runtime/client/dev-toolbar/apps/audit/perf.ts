@@ -1,7 +1,7 @@
 import type { AuditRuleWithSelector } from './index.js';
 
 // A regular expression to match external URLs
-const externalUrlRe = new RegExp('^(?:[a-z+]+:)?//', 'i');
+const externalUrlRe = /^(?:[a-z+]+:)?\/\//i;
 
 export const perf: AuditRuleWithSelector[] = [
 	{
