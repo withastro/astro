@@ -16,6 +16,7 @@ export function addAstro(Prism: typeof import('prismjs')) {
 
 	let script = Prism.util.clone(Prism.languages[scriptLang]);
 
+	// eslint-disable-next-line regexp/no-useless-assertions
 	let space = /(?:\s|\/\/.*(?!.)|\/\*(?:[^*]|\*(?!\/))\*\/)/.source;
 	let braces = /(?:\{(?:\{(?:\{[^{}]*\}|[^{}])*\}|[^{}])*\})/.source;
 	let spread = /(?:\{<S>*\.{3}(?:[^{}]|<BRACES>)*\})/.source;
@@ -39,13 +40,13 @@ export function addAstro(Prism: typeof import('prismjs')) {
 	Prism.languages.astro = Prism.languages.extend('markup', script);
 
 	(Prism.languages.astro as any).tag.pattern = re(
-		/<\/?(?:[\w.:-]+(?:<S>+(?:[\w.:$-]+(?:=(?:"(?:\\[^]|[^\\"])*"|'(?:\\[^]|[^\\'])*'|[^\s{'"/>=]+|<BRACES>))?|<SPREAD>))*<S>*\/?)?>/
+		/<\/?(?:[\w.:-]+(?:<S>+(?:[\w.:$-]+(?:=(?:"(?:\\[\s\S]|[^\\"])*"|'(?:\\[\s\S]|[^\\'])*'|[^\s{'"/>=]+|<BRACES>))?|<SPREAD>))*<S>*\/?)?>/
 			.source
 	);
 
-	(Prism.languages.astro as any).tag.inside['tag'].pattern = /^<\/?[^\s>\/]*/i;
+	(Prism.languages.astro as any).tag.inside['tag'].pattern = /^<\/?[^\s>/]*/;
 	(Prism.languages.astro as any).tag.inside['attr-value'].pattern =
-		/=(?!\{)(?:"(?:\\[^]|[^\\"])*"|'(?:\\[^]|[^\\'])*'|[^\s'">]+)/i;
+		/=(?!\{)(?:"(?:\\[\s\S]|[^\\"])*"|'(?:\\[\s\S]|[^\\'])*'|[^\s'">]+)/;
 	(Prism.languages.astro as any).tag.inside['tag'].inside['class-name'] =
 		/^[A-Z]\w*(?:\.[A-Z]\w*)*$/;
 	(Prism.languages.astro as any).tag.inside['comment'] = script['comment'];
@@ -71,7 +72,7 @@ export function addAstro(Prism: typeof import('prismjs')) {
 				pattern: re(/=<BRACES>/.source),
 				inside: {
 					'script-punctuation': {
-						pattern: /^=(?={)/,
+						pattern: /^=(?=\{)/,
 						alias: 'punctuation',
 					},
 					rest: Prism.languages.astro,
