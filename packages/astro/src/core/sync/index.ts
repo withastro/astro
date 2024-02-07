@@ -211,11 +211,7 @@ async function handleTypescriptConfig(
 	}
 
 	const newTsconfig = {
-		include: deduplicate([
-			'astro/client',
-			...getField(tsconfig.tsconfig, 'include'),
-			...injectedDts.map((e) => `./${e.filename}`),
-		]),
+		include: deduplicate(['./astro.d.ts', '..', ...getField(tsconfig.tsconfig, 'include')]),
 		exclude: deduplicate([
 			...getField(tsconfig.tsconfig, 'exclude'),
 			...(config.typescript?.excludeDefaults
@@ -236,6 +232,16 @@ async function handleTypescriptConfig(
 
 	fsMod.mkdirSync(dirname(tsconfigPath), { recursive: true });
 	fsMod.writeFileSync(tsconfigPath, JSON.stringify(newTsconfig, null, 2), 'utf-8');
+
+	const astroDtsPath = fileURLToPath(new URL('astro.d.ts', config.codegenDir));
+	fsMod.writeFileSync(
+		astroDtsPath,
+		`/// <reference types="astro/client" />
+${injectedDts.map((e) => `/// <reference path="${e.filename}" />`).join('\n')}
+
+export {};
+	`
+	);
 
 	// extends is a reserved keyword
 	const { extends: extendsField } = tsconfig.tsconfig;
