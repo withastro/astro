@@ -139,23 +139,23 @@ interface VercelISRConfig {
 	 * A secret random string that you create.
 	 * Its presence in the `__prerender_bypass` cookie will result in fresh responses being served, bypassing the cache. See Vercel’s documentation on [Draft Mode](https://vercel.com/docs/build-output-api/v3/features#draft-mode) for more information.
 	 * Its presence in the `x-prerender-revalidate` header will result in a fresh response which will then be cached for all future requests to be used. See Vercel’s documentation on [On-Demand Incremental Static Regeneration (ISR)](https://vercel.com/docs/build-output-api/v3/features#on-demand-incremental-static-regeneration-isr) for more information.
-	 * 
+	 *
 	 * @default `undefined`
 	 */
 	bypassToken?: string;
 
 	/**
 	 * Expiration time (in seconds) before the pages will be re-generated.
-	 * 
+	 *
 	 * Setting to `false` means that the page will stay cached as long as the current deployment is in production.
-	 * 
+	 *
 	 * @default `false`
 	 */
 	expiration?: number | false;
 
 	/**
 	 * Paths that will always be served by a serverless function instead of an ISR function.
-	 * 
+	 *
 	 * @default `[]`
 	 */
 	exclude?: string[];
@@ -260,18 +260,18 @@ export default function vercelServerless({
 					);
 				}
 			},
-			'astro:server:setup' ({ server }) {
+			'astro:server:setup'({ server }) {
 				// isr functions do not have access to search params, this middleware removes them for the dev mode
 				if (isr) {
-					const exclude_ = typeof isr === "object" ? isr.exclude ?? [] : [];
+					const exclude_ = typeof isr === 'object' ? isr.exclude ?? [] : [];
 					// we create a regex to emulate vercel's production behavior
-					const exclude = exclude_.concat("/_image").map(ex => new RegExp(escapeRegex(ex)));
+					const exclude = exclude_.concat('/_image').map((ex) => new RegExp(escapeRegex(ex)));
 					server.middlewares.use(function removeIsrParams(req, _, next) {
 						const { pathname } = new URL(`https://example.com${req.url}`);
-						if (exclude.some(ex => ex.test(pathname))) return next();
+						if (exclude.some((ex) => ex.test(pathname))) return next();
 						req.url = pathname;
 						return next();
-					})
+					});
 				}
 			},
 			'astro:build:ssr': async ({ entryPoints, middlewareEntryPoint }) => {
@@ -330,25 +330,24 @@ export default function vercelServerless({
 						});
 					}
 				} else {
-					const entryFile = new URL(_serverEntry, _buildTempFolder)
+					const entryFile = new URL(_serverEntry, _buildTempFolder);
 					if (isr) {
-						const isrConfig = typeof isr === "object" ? isr : {};
+						const isrConfig = typeof isr === 'object' ? isr : {};
 						await builder.buildServerlessFolder(entryFile, NODE_PATH);
 						if (isrConfig.exclude?.length) {
 							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 							for (const route of isrConfig.exclude) {
 								// vercel interprets src as a regex pattern, so we need to escape it
-								routeDefinitions.push({ src: escapeRegex(route), dest })
+								routeDefinitions.push({ src: escapeRegex(route), dest });
 							}
 						}
 						await builder.buildISRFolder(entryFile, '_isr', isrConfig);
 						for (const route of routes) {
 							const src = route.pattern.source;
-							const dest = src.startsWith("^\\/_image") ? NODE_PATH : ISR_PATH;
+							const dest = src.startsWith('^\\/_image') ? NODE_PATH : ISR_PATH;
 							if (!route.prerender) routeDefinitions.push({ src, dest });
 						}
-					}
-					else {
+					} else {
 						await builder.buildServerlessFolder(entryFile, NODE_PATH);
 						const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 						for (const route of routes) {
@@ -413,7 +412,7 @@ export default function vercelServerless({
 type Runtime = `nodejs${string}.x`;
 
 class VercelBuilder {
-	readonly NTF_CACHE = {}
+	readonly NTF_CACHE = {};
 
 	constructor(
 		readonly config: AstroConfig,
@@ -460,13 +459,16 @@ class VercelBuilder {
 
 	async buildISRFolder(entry: URL, functionName: string, isr: VercelISRConfig) {
 		await this.buildServerlessFolder(entry, functionName);
-		const prerenderConfig = new URL(`./functions/${functionName}.prerender-config.json`, this.config.outDir)
+		const prerenderConfig = new URL(
+			`./functions/${functionName}.prerender-config.json`,
+			this.config.outDir
+		);
 		// https://vercel.com/docs/build-output-api/v3/primitives#prerender-configuration-file
 		await writeJson(prerenderConfig, {
 			expiration: isr.expiration ?? false,
 			bypassToken: isr.bypassToken,
 			allowQuery: [ASTRO_PATH_PARAM],
-			passQuery: true
+			passQuery: true,
 		});
 	}
 
@@ -478,7 +480,7 @@ class VercelBuilder {
 			new URL(VERCEL_EDGE_MIDDLEWARE_FILE, this.config.srcDir),
 			new URL('./middleware.mjs', functionFolder)
 		);
-	
+
 		await writeJson(new URL(`./.vc-config.json`, functionFolder), {
 			runtime: 'edge',
 			entrypoint: 'middleware.mjs',

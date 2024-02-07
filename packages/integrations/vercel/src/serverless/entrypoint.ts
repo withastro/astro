@@ -8,7 +8,7 @@ applyPolyfills();
 export const createExports = (manifest: SSRManifest) => {
 	const app = new NodeApp(manifest);
 	const handler = async (req: IncomingMessage, res: ServerResponse) => {
-		const url = new URL(`https://example.com${req.url}`)
+		const url = new URL(`https://example.com${req.url}`);
 		const clientAddress = req.headers['x-forwarded-for'] as string | undefined;
 		const localsHeader = req.headers[ASTRO_LOCALS_HEADER];
 		const realPath = req.headers[ASTRO_PATH_HEADER] ?? url.searchParams.get(ASTRO_PATH_PARAM);
