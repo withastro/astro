@@ -115,7 +115,9 @@ export function getCreateForeignKeyQueries(collectionName: string, collection: D
 	let queries: string[] = [];
 	for (const foreignKey of collection.foreignKeys ?? []) {
 		const fields = asArray(foreignKey.fields);
-		const references = asArray(foreignKey.references());
+		const references = asArray(foreignKey.references);
+
+		console.log(references[0]);
 
 		if (fields.length !== references.length) {
 			throw new Error(
@@ -185,7 +187,7 @@ export function getModifiers(fieldName: string, field: DBField) {
 export function getReferencesConfig(field: DBField) {
 	const canHaveReferences = field.type === 'number' || field.type === 'text';
 	if (!canHaveReferences) return undefined;
-	return field.references?.();
+	return field.references;
 }
 
 // Using `DBField` will not narrow `default` based on the column `type`

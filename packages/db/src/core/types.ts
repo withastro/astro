@@ -1,8 +1,9 @@
 import type { SQLiteInsertValue } from 'drizzle-orm/sqlite-core';
 import type { InferSelectModel } from 'drizzle-orm';
 import type { SqliteDB, Table } from '../runtime/index.js';
-import { z } from 'zod';
-import { getTableName, SQL } from 'drizzle-orm';
+import { z, type ZodTypeDef } from 'zod';
+import { SQL } from 'drizzle-orm';
+import { errorMap } from './integration/error-map.js';
 
 export type MaybePromise<T> = T | Promise<T>;
 export type MaybeArray<T> = T | T[];
@@ -43,14 +44,19 @@ const numberFieldBaseSchema = baseFieldSchema.omit({ optional: true }).and(
 const numberFieldOptsSchema: z.ZodType<
 	z.infer<typeof numberFieldBaseSchema> & {
 		// ReferenceableField creates a circular type. Define ZodType to resolve.
-		references?: () => NumberField;
+		references?: NumberField;
+	},
+	ZodTypeDef,
+	z.input<typeof numberFieldBaseSchema> & {
+		references?: () => NumberFieldInput;
 	}
 > = numberFieldBaseSchema.and(
 	z.object({
 		references: z
 			.function()
 			.returns(z.lazy(() => numberFieldSchema))
-			.optional(),
+			.optional()
+			.transform((fn) => fn?.()),
 	})
 );
 
@@ -86,14 +92,19 @@ const textFieldBaseSchema = baseFieldSchema
 const textFieldOptsSchema: z.ZodType<
 	z.infer<typeof textFieldBaseSchema> & {
 		// ReferenceableField creates a circular type. Define ZodType to resolve.
-		references?: () => TextField;
+		references?: TextField;
+	},
+	ZodTypeDef,
+	z.input<typeof textFieldBaseSchema> & {
+		references?: () => TextFieldInput;
 	}
 > = textFieldBaseSchema.and(
 	z.object({
 		references: z
 			.function()
 			.returns(z.lazy(() => textFieldSchema))
-			.optional(),
+			.optional()
+			.transform((fn) => fn?.()),
 	})
 );
 
@@ -136,14 +147,22 @@ export const indexSchema = z.object({
 	unique: z.boolean().optional(),
 });
 
-const foreignKeysSchema: z.ZodType<{
+type ForeignKeysInput = {
 	fields: MaybeArray<string>;
-	references: () => MaybeArray<ReferenceableField>;
-}> = z.object({
+	references: () => MaybeArray<Omit<ReferenceableField, 'references'>>;
+};
+
+type ForeignKeysOutput = Omit<ForeignKeysInput, 'references'> & {
+	// reference fn called in `transform`. Ensures output is JSON serializable.
+	references: MaybeArray<Omit<ReferenceableField, 'references'>>;
+};
+
+const foreignKeysSchema: z.ZodType<ForeignKeysOutput, ZodTypeDef, ForeignKeysInput> = z.object({
 	fields: z.string().or(z.array(z.string())),
 	references: z
 		.function()
-		.returns(z.lazy(() => referenceableFieldSchema.or(z.array(referenceableFieldSchema)))),
+		.returns(z.lazy(() => referenceableFieldSchema.or(z.array(referenceableFieldSchema))))
+		.transform((fn) => fn()),
 });
 
 export type Indexes = Record<string, z.infer<typeof indexSchema>>;
@@ -165,11 +184,32 @@ export const writableCollectionSchema = baseCollectionSchema.extend({
 });
 
 export const collectionSchema = z.union([readableCollectionSchema, writableCollectionSchema]);
-export const collectionsSchema = z.record(collectionSchema);
+export const collectionsSchema = z.preprocess((rawCollections) => {
+	// Preprocess collections to append collection and field names to fields.
+	// Used to track collection info for references.
+
+	// Use minimum parsing to ensure collection has a `fields` record.
+	const collections = z
+		.record(
+			z.object({
+				fields: z.record(z.any()),
+			})
+		)
+		.parse(rawCollections, { errorMap });
+	for (const [collectionName, collection] of Object.entries(collections)) {
+		for (const [fieldName, field] of Object.entries(collection.fields)) {
+			field.name = fieldName;
+			field.collection = collectionName;
+		}
+	}
+	return rawCollections;
+}, z.record(collectionSchema));
 
 export type BooleanField = z.infer<typeof booleanFieldSchema>;
 export type NumberField = z.infer<typeof numberFieldSchema>;
+export type NumberFieldInput = z.input<typeof numberFieldSchema>;
 export type TextField = z.infer<typeof textFieldSchema>;
+export type TextFieldInput = z.input<typeof textFieldSchema>;
 export type DateField = z.infer<typeof dateFieldSchema>;
 // Type `Date` is the config input, `string` is the output for D1 storage
 export type DateFieldInput = z.input<typeof dateFieldSchema>;
@@ -183,7 +223,12 @@ export type FieldType =
 	| JsonField['type'];
 
 export type DBField = z.infer<typeof fieldSchema>;
-export type DBFieldInput = DateFieldInput | BooleanField | NumberField | TextField | JsonField;
+export type DBFieldInput =
+	| DateFieldInput
+	| BooleanField
+	| NumberFieldInput
+	| TextFieldInput
+	| JsonField;
 export type DBFields = z.infer<typeof fieldsSchema>;
 export type DBCollection = z.infer<
 	typeof readableCollectionSchema | typeof writableCollectionSchema
@@ -268,11 +313,6 @@ function baseDefineCollection<TFields extends FieldsConfig, TWritable extends bo
 	userConfig: CollectionConfig<TFields>,
 	writable: TWritable
 ): ResolvedCollectionConfig<TFields, TWritable> {
-	for (const fieldName in userConfig.fields) {
-		const field = userConfig.fields[fieldName];
-		// Store field name within the field itself to track references
-		field.name = fieldName;
-	}
 	const meta: { table: Table<string, TFields> } = { table: null! };
 	/**
 	 * We need to attach the Drizzle `table` at runtime using `_setMeta`.
@@ -281,12 +321,6 @@ function baseDefineCollection<TFields extends FieldsConfig, TWritable extends bo
 	 */
 	const _setMeta = (values: { table: Table<string, TFields> }) => {
 		Object.assign(meta, values);
-
-		const tableName = getTableName(meta.table);
-		for (const fieldName in userConfig.fields) {
-			const field = userConfig.fields[fieldName];
-			field.collection = tableName;
-		}
 	};
 
 	return {
