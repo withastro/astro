@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Support `.strict()` on content collection schemas when a custom `slug` is present.
+Adds support for `.strict()` on content collection schemas when a custom `slug` is present.
