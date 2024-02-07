@@ -60,6 +60,30 @@ describe('astro:i18n virtual module', () => {
 	});
 });
 describe('[DEV] i18n routing', () => {
+	describe('should render a page that stars with a locale but it is a page', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing/',
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('renders the page', async () => {
+			const response = await fixture.fetch('/endurance');
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Endurance');
+		});
+	});
+
 	describe('i18n routing', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
@@ -1014,6 +1038,23 @@ describe('[SSG] i18n routing', () => {
 		});
 	});
 
+	describe('should render a page that stars with a locale but it is a page', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing/',
+			});
+			await fixture.build();
+		});
+
+		it('renders the page', async () => {
+			const html = await fixture.readFile('/endurance/index.html');
+			expect(html).includes('Endurance');
+		});
+	});
+
 	describe('current locale', () => {
 		describe('with [prefix-other-locales]', () => {
 			/** @type {import('./test-utils').Fixture} */
@@ -1077,6 +1118,29 @@ describe('[SSG] i18n routing', () => {
 });
 describe('[SSR] i18n routing', () => {
 	let app;
+
+	describe('should render a page that stars with a locale but it is a page', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing/',
+				output: 'server',
+				adapter: testAdapter(),
+			});
+			await fixture.build();
+			app = await fixture.loadTestAdapterApp();
+		});
+
+		it('renders the page', async () => {
+			let request = new Request('http://example.com/endurance');
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Endurance');
+		});
+	});
+
 	describe('default', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;

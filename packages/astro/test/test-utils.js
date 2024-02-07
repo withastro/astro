@@ -302,7 +302,7 @@ export async function parseCliDevStart(proc) {
 	const messages = stdout
 		.split('\n')
 		.filter((ln) => !!ln.trim())
-		.map((ln) => ln.replace(/[🚀┃]/g, '').replace(/\s+/g, ' ').trim());
+		.map((ln) => ln.replace(/[🚀┃]/gu, '').replace(/\s+/g, ' ').trim());
 
 	return { messages };
 }

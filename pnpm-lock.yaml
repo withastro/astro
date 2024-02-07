@@ -51,6 +51,9 @@ importers:
       eslint-plugin-prettier:
         specifier: ^5.0.0
         version: 5.1.2(eslint-config-prettier@9.1.0)(eslint@8.56.0)(prettier@3.1.1)
+      eslint-plugin-regexp:
+        specifier: ^2.2.0
+        version: 2.2.0(eslint@8.56.0)
       globby:
         specifier: ^14.0.0
         version: 14.0.0
@@ -128,7 +131,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
 
   examples/blog:
@@ -143,13 +146,13 @@ importers:
         specifier: ^3.0.5
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
 
   examples/component:
     devDependencies:
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
 
   examples/framework-alpine:
@@ -164,7 +167,7 @@ importers:
         specifier: ^3.13.3
         version: 3.13.3
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
 
   examples/framework-lit:
@@ -176,7 +179,7 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
       lit:
         specifier: ^3.1.2
@@ -200,7 +203,7 @@ importers:
         specifier: ^4.0.8
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
       preact:
         specifier: ^10.19.2
@@ -230,7 +233,7 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1(preact@10.19.3)
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
       preact:
         specifier: ^10.19.2
@@ -248,7 +251,7 @@ importers:
         specifier: ^18.2.15
         version: 18.2.18
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
       react:
         specifier: ^18.2.0
@@ -263,7 +266,7 @@ importers:
         specifier: ^4.0.1
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.8.5
@@ -275,7 +278,7 @@ importers:
         specifier: ^5.0.3
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.5
@@ -287,7 +290,7 @@ importers:
         specifier: ^4.0.8
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
       vue:
         specifier: ^3.3.8
@@ -299,13 +302,13 @@ importers:
         specifier: ^8.2.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
 
   examples/middleware:
@@ -314,7 +317,7 @@ importers:
         specifier: ^8.2.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
       html-minifier:
         specifier: ^4.0.0
@@ -327,19 +330,19 @@ importers:
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
 
   examples/non-html-pages:
     dependencies:
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
 
   examples/ssr:
@@ -351,7 +354,7 @@ importers:
         specifier: ^5.0.3
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.5
@@ -360,7 +363,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
       sass:
         specifier: ^1.69.5
@@ -378,7 +381,7 @@ importers:
         specifier: ^5.1.0
         version: link:../../packages/integrations/tailwind
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -387,7 +390,7 @@ importers:
         specifier: ^0.8.3
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
 
   examples/with-markdown-plugins:
@@ -396,7 +399,7 @@ importers:
         specifier: ^4.2.1
         version: link:../../packages/markdown/remark
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
       hast-util-select:
         specifier: ^6.0.2
@@ -417,7 +420,7 @@ importers:
   examples/with-markdown-shiki:
     dependencies:
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -429,7 +432,7 @@ importers:
         specifier: ^3.1.0
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
       preact:
         specifier: ^10.19.2
@@ -444,7 +447,7 @@ importers:
         specifier: ^0.5.0
         version: 0.5.0(nanostores@0.9.5)(preact@10.19.3)
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.9.5
@@ -465,7 +468,7 @@ importers:
         specifier: ^1.6.3
         version: 1.6.4
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
       autoprefixer:
         specifier: ^10.4.15
@@ -483,7 +486,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^4.3.3
+        specifier: ^4.3.4
         version: link:../../packages/astro
       vitest:
         specifier: ^1.2.1
@@ -4761,6 +4764,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/vercel/test/fixtures/isr:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/vercel/test/fixtures/max-duration:
     dependencies:
       '@astrojs/vercel':
@@ -8894,6 +8906,11 @@ packages:
     engines: {node: ^12.20.0 || >=14}
     dev: true
 
+  /comment-parser@1.4.1:
+    resolution: {integrity: sha512-buhp5kePrmda3vhc5B9t7pUQXAb2Tnd0qgpkIhPhkHXxJpiPJ11H0ZEU0oBpJ2QztSbzG/ZxMj/CHsYJqRHmyg==}
+    engines: {node: '>= 12.0.0'}
+    dev: true
+
   /common-ancestor-path@1.0.1:
     resolution: {integrity: sha512-L3sHRo1pXXEqX8VU28kfgUY+YGsk09hPqZiZmLacNib6XNTCM8ubYeT7ryXQw8asB1sKgcU5lkB7ONug08aB8w==}
     dev: false
@@ -9631,6 +9648,22 @@ packages:
       prettier: 3.1.1
       prettier-linter-helpers: 1.0.0
       synckit: 0.8.8
+    dev: true
+
+  /eslint-plugin-regexp@2.2.0(eslint@8.56.0):
+    resolution: {integrity: sha512-0kwpiWiLRVBkVr3oIRQLl196sXP/NF6DQFefv9jtR4ZOgQR+6WID2pIZ0I+wIt54qgBPwBB7Gm2a+ueh8/WsFQ==}
+    engines: {node: ^18 || >=20}
+    peerDependencies:
+      eslint: '>=8.44.0'
+    dependencies:
+      '@eslint-community/eslint-utils': 4.4.0(eslint@8.56.0)
+      '@eslint-community/regexpp': 4.10.0
+      comment-parser: 1.4.1
+      eslint: 8.56.0
+      jsdoc-type-pratt-parser: 4.0.0
+      refa: 0.12.1
+      regexp-ast-analysis: 0.7.1
+      scslre: 0.3.0
     dev: true
 
   /eslint-scope@7.2.2:
@@ -11164,6 +11197,11 @@ packages:
     hasBin: true
     dependencies:
       argparse: 2.0.1
+
+  /jsdoc-type-pratt-parser@4.0.0:
+    resolution: {integrity: sha512-YtOli5Cmzy3q4dP26GraSOeAhqecewG04hoO8DY56CH4KJ9Fvv5qKWUCCo3HZob7esJQHCv6/+bnTy72xZZaVQ==}
+    engines: {node: '>=12.0.0'}
+    dev: true
 
   /jsdom@22.1.0:
     resolution: {integrity: sha512-/9AVW7xNbsBv6GfWho4TTNjEo9fe6Zhf9O7s0Fhhr3u+awPwAJMKwAMXnkk5vBxflqLW9hTHX/0cs+P3gW+cQw==}
@@ -13755,12 +13793,27 @@ packages:
       strip-indent: 3.0.0
     dev: true
 
+  /refa@0.12.1:
+    resolution: {integrity: sha512-J8rn6v4DBb2nnFqkqwy6/NnTYMcgLA+sLr0iIO41qpv0n+ngb7ksag2tMRl0inb1bbO/esUwzW1vbJi7K0sI0g==}
+    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
+    dependencies:
+      '@eslint-community/regexpp': 4.10.0
+    dev: true
+
   /regenerator-runtime@0.13.11:
     resolution: {integrity: sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==}
     dev: true
 
   /regenerator-runtime@0.14.1:
     resolution: {integrity: sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==}
+    dev: true
+
+  /regexp-ast-analysis@0.7.1:
+    resolution: {integrity: sha512-sZuz1dYW/ZsfG17WSAG7eS85r5a0dDsvg+7BiiYR5o6lKCAtUrEwdmRmaGF6rwVj3LcmAeYkOWKEPlbPzN3Y3A==}
+    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
+    dependencies:
+      '@eslint-community/regexpp': 4.10.0
+      refa: 0.12.1
     dev: true
 
   /regexp.prototype.flags@1.5.1:
@@ -14161,6 +14214,15 @@ packages:
     resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
     dependencies:
       loose-envify: 1.4.0
+
+  /scslre@0.3.0:
+    resolution: {integrity: sha512-3A6sD0WYP7+QrjbfNA2FN3FsOaGGFoekCVgTyypy53gPxhbkCIjtO6YWgdrfM+n/8sI8JeXZOIxsHjMTNxQ4nQ==}
+    engines: {node: ^14.0.0 || >=16.0.0}
+    dependencies:
+      '@eslint-community/regexpp': 4.10.0
+      refa: 0.12.1
+      regexp-ast-analysis: 0.7.1
+    dev: true
 
   /section-matter@1.0.0:
     resolution: {integrity: sha512-vfD3pmTzGpufjScBh50YHKzEu2lxBWhVEHsNGoEXmCmn2hKGfeNLYMzCJpe8cD7gqX7TJluOVpBkAequ6dgMmA==}

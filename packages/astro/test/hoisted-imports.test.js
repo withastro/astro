@@ -19,7 +19,7 @@ describe('Hoisted Imports', () => {
 		const $ = cheerio.load(html);
 		const scriptText = [];
 
-		const importRegex = /import\s*?['"]([^'"]+?)['"]/g;
+		const importRegex = /import\s*['"]([^'"]+)['"]/g;
 		async function resolveImports(text) {
 			const matches = text.matchAll(importRegex);
 			for (const match of matches) {

@@ -17,7 +17,7 @@ export function getFileInfo(id: string, config: AstroConfig) {
 	let fileUrl = fileId.includes('/pages/')
 		? fileId
 				.replace(/^.*?\/pages\//, sitePathname)
-				.replace(/(\/index)?\.(md|markdown|mdown|mkdn|mkd|mdwn|md|astro)$/, '')
+				.replace(/(?:\/index)?\.(?:md|markdown|mdown|mkdn|mkd|mdwn|astro)$/, '')
 		: undefined;
 	if (fileUrl && config.trailingSlash === 'always') {
 		fileUrl = appendForwardSlash(fileUrl);
