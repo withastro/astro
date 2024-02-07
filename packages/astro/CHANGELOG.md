@@ -1,5 +1,35 @@
 # astro
 
+## 4.3.5
+
+### Patch Changes
+
+- [#10022](https://github.com/withastro/astro/pull/10022) [`3fc76efb2a8faa47edf67562a1f0c84a19be1b33`](https://github.com/withastro/astro/commit/3fc76efb2a8faa47edf67562a1f0c84a19be1b33) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes a regression where types for the `astro:content` module did not include required exports, leading to typescript errors.
+
+- [#10016](https://github.com/withastro/astro/pull/10016) [`037e4f12dd2f460d66f72c9f2d992b95e74d2da9`](https://github.com/withastro/astro/commit/037e4f12dd2f460d66f72c9f2d992b95e74d2da9) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where routes with a name that start with the name of the `i18n.defaultLocale` were incorrectly returning a 404 response.
+
+## 4.3.4
+
+### Patch Changes
+
+- [#10013](https://github.com/withastro/astro/pull/10013) [`e6b5306a7de779ce495d0ff076d302de0aa57eaf`](https://github.com/withastro/astro/commit/e6b5306a7de779ce495d0ff076d302de0aa57eaf) Thanks [@delucis](https://github.com/delucis)! - Fixes a regression in content collection types
+
+- [#10003](https://github.com/withastro/astro/pull/10003) [`ce4283331f18c6178654dd705e3cf02efeef004a`](https://github.com/withastro/astro/commit/ce4283331f18c6178654dd705e3cf02efeef004a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Adds support for `.strict()` on content collection schemas when a custom `slug` is present.
+
+## 4.3.3
+
+### Patch Changes
+
+- [#9998](https://github.com/withastro/astro/pull/9998) [`18ac0940ea1b49b6b0ddd9be1f96aef416e2d7ee`](https://github.com/withastro/astro/commit/18ac0940ea1b49b6b0ddd9be1f96aef416e2d7ee) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug in `Astro.currentLocale` that wasn't returning the correct locale when a locale is configured via `path`
+
+- [#9998](https://github.com/withastro/astro/pull/9998) [`18ac0940ea1b49b6b0ddd9be1f96aef416e2d7ee`](https://github.com/withastro/astro/commit/18ac0940ea1b49b6b0ddd9be1f96aef416e2d7ee) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression in `Astro.currentLocale` where it stopped working properly with dynamic routes
+
+- [#9956](https://github.com/withastro/astro/pull/9956) [`81acac24a3cac5a9143155c1d9f838ea84a70421`](https://github.com/withastro/astro/commit/81acac24a3cac5a9143155c1d9f838ea84a70421) Thanks [@matthewp](https://github.com/matthewp)! - Fixes HMR for MDX dependencies in Content Collections
+
+- [#9999](https://github.com/withastro/astro/pull/9999) [`c53a31321a935e4be04809046d7e0ba3cc41b272`](https://github.com/withastro/astro/commit/c53a31321a935e4be04809046d7e0ba3cc41b272) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - Rollbacks the feature which allowed to dynamically generate slots with variable slot names due to unexpected regressions.
+
+- [#9906](https://github.com/withastro/astro/pull/9906) [`3c0876cbed5033e6b5b42cc2b9d8b393d7e5a55e`](https://github.com/withastro/astro/commit/3c0876cbed5033e6b5b42cc2b9d8b393d7e5a55e) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves the types for the `astro:content` module by making low fidelity types available before running `astro sync`
+
 ## 4.3.2
 
 ### Patch Changes
