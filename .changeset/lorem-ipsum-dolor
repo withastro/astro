@@ -1,5 +1,0 @@
----
-'astro': patch
----
-
-Fixes static builds when `config.outDir` is located outside of the astro project
