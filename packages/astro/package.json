@@ -96,6 +96,7 @@
     "content-types.template.d.ts",
     "content-module.template.mjs",
     "astro-jsx.d.ts",
+    "types/content.d.ts",
     "types.d.ts",
     "README.md",
     "vendor"
