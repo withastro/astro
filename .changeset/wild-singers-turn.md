@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Change behavior of View Transitions when browser back.
+Increases compatibility with standard browser behavior by changing where view transitions occur  on browser back navigation.  
