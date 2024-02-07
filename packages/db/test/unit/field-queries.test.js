@@ -112,6 +112,35 @@ describe('field queries', () => {
 			expect(queries).to.deep.equal([]);
 		});
 
+		it('should respect user primary key without adding a hidden id', async () => {
+			const user = collectionSchema.parse({
+				...userInitial,
+				fields: {
+					...userInitial.fields,
+					id: field.number({ primaryKey: true }),
+				},
+			});
+
+			const userFinal = collectionSchema.parse({
+				...user,
+				fields: {
+					...user.fields,
+					name: field.text({ unique: true, optional: true }),
+				},
+			});
+
+			const { queries } = await userChangeQueries(user, userFinal);
+			expect(queries[0]).to.not.be.undefined;
+			const tempTableName = getTempTableName(queries[0]);
+
+			expect(queries).to.deep.equal([
+				`CREATE TABLE \"${tempTableName}\" (\"name\" text UNIQUE, \"age\" integer NOT NULL, \"email\" text NOT NULL UNIQUE, \"mi\" text, \"id\" integer PRIMARY KEY)`,
+				`INSERT INTO \"${tempTableName}\" (\"name\", \"age\", \"email\", \"mi\", \"id\") SELECT \"name\", \"age\", \"email\", \"mi\", \"id\" FROM \"Users\"`,
+				'DROP TABLE "Users"',
+				`ALTER TABLE "${tempTableName}" RENAME TO "Users"`,
+			]);
+		});
+
 		describe('ALTER RENAME COLUMN', () => {
 			it('when renaming a field', async () => {
 				const userFinal = {
@@ -170,6 +199,48 @@ describe('field queries', () => {
 		});
 
 		describe('Lossless table recreate', () => {
+			it('when adding a primary key', async () => {
+				const userFinal = {
+					...userInitial,
+					fields: {
+						...userInitial.fields,
+						id: field.number({ primaryKey: true }),
+					},
+				};
+
+				const { queries } = await userChangeQueries(userInitial, userFinal);
+				expect(queries[0]).to.not.be.undefined;
+
+				const tempTableName = getTempTableName(queries[0]);
+				expect(queries).to.deep.equal([
+					`CREATE TABLE \"${tempTableName}\" (\"name\" text NOT NULL, \"age\" integer NOT NULL, \"email\" text NOT NULL UNIQUE, \"mi\" text, \"id\" integer PRIMARY KEY)`,
+					`INSERT INTO \"${tempTableName}\" (\"name\", \"age\", \"email\", \"mi\") SELECT \"name\", \"age\", \"email\", \"mi\" FROM \"Users\"`,
+					'DROP TABLE "Users"',
+					`ALTER TABLE "${tempTableName}" RENAME TO "Users"`,
+				]);
+			});
+
+			it('when dropping a primary key', async () => {
+				const user = {
+					...userInitial,
+					fields: {
+						...userInitial.fields,
+						id: field.number({ primaryKey: true }),
+					},
+				};
+
+				const { queries } = await userChangeQueries(user, userInitial);
+				expect(queries[0]).to.not.be.undefined;
+
+				const tempTableName = getTempTableName(queries[0]);
+				expect(queries).to.deep.equal([
+					`CREATE TABLE \"${tempTableName}\" (_id INTEGER PRIMARY KEY, \"name\" text NOT NULL, \"age\" integer NOT NULL, \"email\" text NOT NULL UNIQUE, \"mi\" text)`,
+					`INSERT INTO \"${tempTableName}\" (\"name\", \"age\", \"email\", \"mi\") SELECT \"name\", \"age\", \"email\", \"mi\" FROM \"Users\"`,
+					'DROP TABLE "Users"',
+					`ALTER TABLE "${tempTableName}" RENAME TO "Users"`,
+				]);
+			});
+
 			it('when adding an optional unique field', async () => {
 				const userFinal = {
 					...userInitial,

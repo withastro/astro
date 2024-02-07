@@ -158,17 +158,17 @@ export async function getCollectionChangeQueries({
 		confirmations.push(reasonMsgs[reason]);
 	}
 
-	const addedPrimaryKey = Object.entries(added).find(([, field]) => hasPrimaryKey(field));
-	const droppedPrimaryKey = Object.entries(dropped).find(([, field]) => hasPrimaryKey(field));
-	const updatedPrimaryKey = Object.entries(updated).find(
-		([, field]) => hasPrimaryKey(field.old) || hasPrimaryKey(field.new)
+	const primaryKeyExists = Object.entries(newCollection.fields).find(([, field]) =>
+		hasPrimaryKey(field)
 	);
+	const droppedPrimaryKey = Object.entries(dropped).find(([, field]) => hasPrimaryKey(field));
+
 	const recreateTableQueries = getRecreateTableQueries({
 		collectionName,
 		newCollection,
 		added,
 		hasDataLoss: dataLossCheck.dataLoss,
-		migrateHiddenPrimaryKey: !addedPrimaryKey && !droppedPrimaryKey && !updatedPrimaryKey,
+		migrateHiddenPrimaryKey: !primaryKeyExists && !droppedPrimaryKey,
 	});
 	queries.push(...recreateTableQueries, ...getCreateIndexQueries(collectionName, newCollection));
 	return { queries, confirmations };
