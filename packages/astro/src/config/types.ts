@@ -5,10 +5,10 @@ import { fileURLToPath } from 'node:url';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 
 export function injectTypes({
-	typegenDir,
+	codegenDir,
 	filename,
 	content,
-}: Pick<AstroConfig, 'typegenDir'> & {
+}: Pick<AstroConfig, 'codegenDir'> & {
 	filename: `${string}.d.ts`;
 	content: string;
 }) {
@@ -16,9 +16,9 @@ export function injectTypes({
 		throw new AstroError(AstroErrorData.InvalidInjectTypesFilename);
 	}
 
-	writeFileSync(new URL(typegenDir, filename), content);
+	writeFileSync(new URL(codegenDir, filename), content);
 
-	const tsConfigPath = normalizePath(fileURLToPath(new URL('tsconfig.json', typegenDir)));
+	const tsConfigPath = normalizePath(fileURLToPath(new URL('tsconfig.json', codegenDir)));
 	const tsconfig = JSON.parse(readFileSync(tsConfigPath, 'utf-8'));
 	tsconfig.include.push(`./${filename}`);
 	writeFileSync(tsConfigPath, JSON.stringify(tsconfig, null, 2), 'utf-8');

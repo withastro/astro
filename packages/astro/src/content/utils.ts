@@ -40,9 +40,9 @@ export const collectionConfigParser = z.union([
 	}),
 ]);
 
-export function getDotAstroTypeReference({ typegenDir, srcDir }: { typegenDir: URL; srcDir: URL }) {
+export function getDotAstroTypeReference({ codegenDir, srcDir }: { codegenDir: URL; srcDir: URL }) {
 	const contentTypesRelativeToSrcDir = normalizePath(
-		path.relative(fileURLToPath(srcDir), fileURLToPath(new URL(CONTENT_TYPES_FILE, typegenDir)))
+		path.relative(fileURLToPath(srcDir), fileURLToPath(new URL(CONTENT_TYPES_FILE, codegenDir)))
 	);
 
 	return `/// <reference path=${JSON.stringify(contentTypesRelativeToSrcDir)} />`;

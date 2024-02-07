@@ -153,15 +153,15 @@ async function handleTypescriptConfig(
 			...getField(tsconfig.tsconfig, 'exclude'),
 			...(config.typescript?.excludeDefaults
 				? [
-						getRelativePath(config.typegenDir, config.outDir),
-						getRelativePath(config.typegenDir, config.publicDir),
+						getRelativePath(config.codegenDir, config.outDir),
+						getRelativePath(config.codegenDir, config.publicDir),
 					]
 				: []),
 		]),
 		files: deduplicate(getField(tsconfig.tsconfig, 'files')),
 	};
 
-	const rawTsConfigPath = getRelativePath(config.root, new URL('tsconfig.json', config.typegenDir));
+	const rawTsConfigPath = getRelativePath(config.root, new URL('tsconfig.json', config.codegenDir));
 	const tsconfigPath = fileURLToPath(new URL(rawTsConfigPath, config.root));
 	mkdirSync(dirname(tsconfigPath), { recursive: true });
 	writeFileSync(tsconfigPath, JSON.stringify(newTsconfig, null, 2), 'utf-8');

@@ -707,7 +707,7 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @name typegenDir
+	 * @name codegenDir
 	 * @type {string}
 	 * @default `"./.astro"`
 	 * @description Set the directory that files created through codegen by Astro and integrations will use.
@@ -716,11 +716,11 @@ export interface AstroUserConfig {
 	 *
 	 * ```js
 	 * {
-	 *   typegenDir: './my-custom-cache-directory'
+	 *   codegenDir: './my-custom-cache-directory'
 	 * }
 	 * ```
 	 */
-	typegenDir?: string;
+	codegenDir?: string;
 
 	/**
 	 * @docs

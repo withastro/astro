@@ -311,7 +311,7 @@ export async function createContentTypesGenerator({
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 				contentEntryTypes: settings.contentEntryTypes,
 				viteServer,
-				typegenDir: settings.config.typegenDir,
+				codegenDir: settings.config.codegenDir,
 			});
 			invalidateVirtualMod(viteServer);
 			if (observable.status === 'loaded') {
@@ -361,7 +361,7 @@ async function writeContentFiles({
 	contentEntryTypes,
 	contentConfig,
 	viteServer,
-	typegenDir,
+	codegenDir,
 }: {
 	fs: typeof fsMod;
 	contentPaths: ContentPaths;
@@ -370,7 +370,7 @@ async function writeContentFiles({
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
 	viteServer: Pick<ViteDevServer, 'ws'>;
-	typegenDir: AstroConfig['typegenDir'];
+	codegenDir: AstroConfig['codegenDir'];
 }) {
 	let contentTypesStr = '';
 	let dataTypesStr = '';
@@ -433,12 +433,12 @@ async function writeContentFiles({
 		}
 	}
 
-	if (!fs.existsSync(typegenDir)) {
-		fs.mkdirSync(typegenDir, { recursive: true });
+	if (!fs.existsSync(codegenDir)) {
+		fs.mkdirSync(codegenDir, { recursive: true });
 	}
 
 	const configPathRelativeToCacheDir = normalizeConfigPath(
-		typegenDir.pathname,
+		codegenDir.pathname,
 		contentPaths.config.url.pathname
 	);
 
@@ -454,7 +454,7 @@ async function writeContentFiles({
 		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never'
 	);
 
-	injectTypes({ typegenDir, filename: CONTENT_TYPES_FILE, content: typeTemplateContent });
+	injectTypes({ codegenDir, filename: CONTENT_TYPES_FILE, content: typeTemplateContent });
 }
 
 function warnNonexistentCollections({

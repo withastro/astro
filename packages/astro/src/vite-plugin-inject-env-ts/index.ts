@@ -49,7 +49,7 @@ export async function setUpEnvTs({
 	if (fs.existsSync(envTsPath)) {
 		let typesEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');
 
-		if (!fs.existsSync(settings.config.typegenDir))
+		if (!fs.existsSync(settings.config.codegenDir))
 			// Add `.astro` types reference if none exists
 			return;
 		const expectedTypeReference = getDotAstroTypeReference(settings.config);
@@ -64,7 +64,7 @@ export async function setUpEnvTs({
 		let referenceDefs: string[] = [];
 		referenceDefs.push('/// <reference types="astro/client" />');
 
-		if (fs.existsSync(settings.config.typegenDir)) {
+		if (fs.existsSync(settings.config.codegenDir)) {
 			referenceDefs.push(dotAstroTypeReference);
 		}
 
