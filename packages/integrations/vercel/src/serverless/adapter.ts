@@ -42,6 +42,7 @@ export const ASTRO_PATH_PARAM = 'x_astro_path';
  * with the locals serialized into this header.
  */
 export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
+export const ASTRO_MIDDLEWARE_SECRET_HEADER = 'x-astro-middleware-secret';
 export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
 
 // Vercel routes the folder names to a path on the deployed website.
@@ -67,14 +68,17 @@ const SUPPORTED_NODE_VERSIONS: Record<
 function getAdapter({
 	edgeMiddleware,
 	functionPerRoute,
+	middlewareSecret,
 }: {
 	edgeMiddleware: boolean;
 	functionPerRoute: boolean;
+	middlewareSecret: string;
 }): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
 		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
 		exports: ['default'],
+		args: { middlewareSecret },
 		adapterFeatures: {
 			edgeMiddleware,
 			functionPerRoute,
@@ -190,6 +194,8 @@ export default function vercelServerless({
 	let _middlewareEntryPoint: URL | undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
+	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
+	const middlewareSecret = crypto.randomUUID();
 
 	return {
 		name: PACKAGE_NAME,
@@ -248,7 +254,7 @@ export default function vercelServerless({
 					);
 				}
 
-				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware }));
+				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware, middlewareSecret }));
 
 				_config = config;
 				_buildTempFolder = config.build.server;
@@ -356,7 +362,11 @@ export default function vercelServerless({
 					}
 				}
 				if (_middlewareEntryPoint) {
-					await builder.buildMiddlewareFolder(_middlewareEntryPoint, MIDDLEWARE_PATH);
+					await builder.buildMiddlewareFolder(
+						_middlewareEntryPoint,
+						MIDDLEWARE_PATH,
+						middlewareSecret
+					);
 				}
 				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
 				// Output configuration
@@ -472,13 +482,14 @@ class VercelBuilder {
 		});
 	}
 
-	async buildMiddlewareFolder(entry: URL, functionName: string) {
+	async buildMiddlewareFolder(entry: URL, functionName: string, middlewareSecret: string) {
 		const functionFolder = new URL(`./functions/${functionName}.func/`, this.config.outDir);
 
 		await generateEdgeMiddleware(
 			entry,
 			new URL(VERCEL_EDGE_MIDDLEWARE_FILE, this.config.srcDir),
-			new URL('./middleware.mjs', functionFolder)
+			new URL('./middleware.mjs', functionFolder),
+			middlewareSecret
 		);
 
 		await writeJson(new URL(`./.vc-config.json`, functionFolder), {
