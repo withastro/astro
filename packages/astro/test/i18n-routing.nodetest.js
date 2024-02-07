@@ -79,8 +79,8 @@ describe('[DEV] i18n routing', () => {
 
 		it('renders the page', async () => {
 			const response = await fixture.fetch('/endurance');
-			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Endurance');
+			assert.equal(response.status, 200);
+			assert.equal((await response.text()).includes('Endurance'), true);
 		});
 	});
 
@@ -1051,7 +1051,7 @@ describe('[SSG] i18n routing', () => {
 
 		it('renders the page', async () => {
 			const html = await fixture.readFile('/endurance/index.html');
-			expect(html).includes('Endurance');
+			assert.equal(html.includes('Endurance'), true);
 		});
 	});
 
@@ -1136,8 +1136,8 @@ describe('[SSR] i18n routing', () => {
 		it('renders the page', async () => {
 			let request = new Request('http://example.com/endurance');
 			let response = await app.render(request);
-			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('Endurance');
+			assert.equal(response.status, 200);
+			assert.equal((await response.text()).includes('Endurance'), true);
 		});
 	});
 
@@ -1774,7 +1774,7 @@ describe('i18n routing does not break assets and endpoints', () => {
 			app = await fixture.loadTestAdapterApp();
 		});
 
-		it('should return the expected data', async () => {
+		it('should return the assert.equaled data', async () => {
 			let request = new Request('http://example.com/new-site/test.json');
 			let response = await app.render(request);
 			assert.equal(response.status, 200);
