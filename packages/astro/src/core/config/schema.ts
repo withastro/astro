@@ -488,16 +488,20 @@ export const AstroConfigSchema = z.object({
 				}
 			})
 	),
-	typescript: z.optional(
-		z
-			.object({
-				exclude: z.array(z.string()).optional(),
-				include: z.array(z.string()).optional(),
-				files: z.array(z.string()).optional(),
-				excludeDefaults: z.boolean().default(true)
-			})
-			.optional()
-	),
+	typescript: z
+		.optional(
+			z
+				.object({
+					exclude: z.array(z.string()).optional(),
+					include: z.array(z.string()).optional(),
+					files: z.array(z.string()).optional(),
+					excludeDefaults: z.boolean().default(true),
+				})
+				.optional()
+		)
+		.default({
+			excludeDefaults: true,
+		}),
 	experimental: z
 		.object({
 			optimizeHoistedScript: z
