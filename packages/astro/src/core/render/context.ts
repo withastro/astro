@@ -249,20 +249,32 @@ export function computeCurrentLocale(
 	if (!routeData) {
 		return defaultLocale;
 	}
-
-	for (const segment of routeData.route.split('/')) {
+	// Typically, RouteData::pathname has the correct information in SSR, but it's not available in SSG, so we fall back
+	// to use the pathname from the Request
+	const pathname = routeData.pathname ?? new URL(request.url).pathname;
+	for (const segment of pathname.split('/').filter(Boolean)) {
 		for (const locale of locales) {
 			if (typeof locale === 'string') {
+				// we skip ta locale that isn't present in the current segment
+
+				if (!segment.includes(locale)) continue;
 				if (normalizeTheLocale(locale) === normalizeTheLocale(segment)) {
 					return locale;
 				}
 			} else {
 				if (locale.path === segment) {
 					return locale.codes.at(0);
+				} else {
+					for (const code of locale.codes) {
+						if (normalizeTheLocale(code) === normalizeTheLocale(segment)) {
+							return code;
+						}
+					}
 				}
 			}
 		}
 	}
+
 	if (
 		routingStrategy === 'pathname-prefix-other-locales' ||
 		routingStrategy === 'domains-prefix-other-locales'

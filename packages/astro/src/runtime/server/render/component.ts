@@ -65,8 +65,8 @@ function isHTMLComponent(Component: unknown) {
 	return Component && (Component as any)['astro:html'] === true;
 }
 
-const ASTRO_SLOT_EXP = /\<\/?astro-slot\b[^>]*>/g;
-const ASTRO_STATIC_SLOT_EXP = /\<\/?astro-static-slot\b[^>]*>/g;
+const ASTRO_SLOT_EXP = /<\/?astro-slot\b[^>]*>/g;
+const ASTRO_STATIC_SLOT_EXP = /<\/?astro-static-slot\b[^>]*>/g;
 function removeStaticAstroSlot(html: string, supportsAstroStaticSlot: boolean) {
 	const exp = supportsAstroStaticSlot ? ASTRO_STATIC_SLOT_EXP : ASTRO_SLOT_EXP;
 	return html.replace(exp, '');
@@ -395,7 +395,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 }
 
 function sanitizeElementName(tag: string) {
-	const unsafe = /[&<>'"\s]+/g;
+	const unsafe = /[&<>'"\s]+/;
 	if (!unsafe.test(tag)) return tag;
 	return tag.trim().split(unsafe)[0].trim();
 }

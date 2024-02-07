@@ -58,7 +58,7 @@ describe('Component Libraries', () => {
 
 			expect($('button').text()).to.equal('Click me', "Rendered the component's slot");
 
-			const findEvidence = createFindEvidence(/border-radius:( )*1rem/);
+			const findEvidence = createFindEvidence(/border-radius:\s*1rem/);
 			expect(await findEvidence('with-astro/index.html')).to.equal(
 				true,
 				"Included the .astro component's <style>"
@@ -136,7 +136,7 @@ describe('Component Libraries', () => {
 
 			expect($('button').text()).to.equal('Click me', "Rendered the component's slot");
 
-			const findEvidence = createFindEvidence(/border-radius:( )*1rem/);
+			const findEvidence = createFindEvidence(/border-radius:\s*1rem/);
 			expect(await findEvidence('/with-astro/')).to.equal(
 				true,
 				"Included the .astro component's <style>"
