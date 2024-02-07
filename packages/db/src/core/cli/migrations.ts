@@ -1,6 +1,6 @@
 import deepDiff from 'deep-diff';
 import { mkdir, readFile, readdir, writeFile } from 'fs/promises';
-import type { DBSnapshot } from '../types.js';
+import { collectionsSchema, type DBSnapshot } from '../types.js';
 import type { AstroConfig } from 'astro';
 import { cyan, green, yellow } from 'kleur/colors';
 const { applyChange, diff: generateDiff } = deepDiff;
@@ -82,7 +82,9 @@ export async function getMigrations(): Promise<string[]> {
 	return migrationFiles;
 }
 
-export async function loadMigration(migration: string): Promise<{ diff: any[]; db: string[], confirm?: string[] }> {
+export async function loadMigration(
+	migration: string
+): Promise<{ diff: any[]; db: string[]; confirm?: string[] }> {
 	return JSON.parse(await readFile(`./migrations/${migration}`, 'utf-8'));
 }
 
@@ -117,7 +119,9 @@ export async function initializeFromMigrations(allMigrationFiles: string[]): Pro
 }
 
 export function createCurrentSnapshot(config: AstroConfig): DBSnapshot {
-	const schema = JSON.parse(JSON.stringify(config.db?.collections ?? {}));
+	// Parse to resolve non-serializable types like () => references
+	const collectionsConfig = collectionsSchema.parse(config.db?.collections ?? {});
+	const schema = JSON.parse(JSON.stringify(collectionsConfig));
 	return { experimentalVersion: 1, schema };
 }
 export function createEmptySnapshot(): DBSnapshot {
