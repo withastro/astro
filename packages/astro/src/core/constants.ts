@@ -13,3 +13,5 @@ export const SUPPORTED_MARKDOWN_FILE_EXTENSIONS = [
 
 // The folder name where to find the middleware
 export const MIDDLEWARE_PATH_SEGMENT_NAME = 'middleware';
+
+export const ROUTE_DATA_SYMBOL = 'astro.routeData';

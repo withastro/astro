@@ -11,6 +11,8 @@ export function rehypeImages() {
 				if (node.tagName !== 'img') return;
 
 				if (node.properties?.src) {
+					node.properties.src = decodeURI(node.properties.src);
+
 					if (file.data.imagePaths?.has(node.properties.src)) {
 						const { ...props } = node.properties;
 

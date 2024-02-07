@@ -132,7 +132,7 @@ async function generateMessage() {
 	}
 
 	if (message.length < 2000) {
-		console.log(message);
+		return message;
 	} else {
 		const { name, version, url } = packages.find((pkg) => pkg.name === 'astro') ?? packages[0];
 		message = `${emoji} Some ${descriptor} ${pluralize(verb)}\n\n`;
@@ -158,11 +158,8 @@ async function generateMessage() {
 }
 
 async function run() {
-	if (!process.env.DISCORD_WEBHOOK) {
-		console.error('No DISCORD_WEBHOOK variable detected!');
-		process.exit(1);
-	}
 	const content = await generateMessage();
+	console.log(content);
 	setOutput('DISCORD_MESSAGE', content);
 }
 

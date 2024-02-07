@@ -125,6 +125,7 @@ describe('Astro feature map', function () {
 			{
 				output: 'hybrid',
 			},
+			{},
 			defaultLogger
 		);
 		expect(result['hybridOutput']).to.be.true;
@@ -137,6 +138,7 @@ describe('Astro feature map', function () {
 			{
 				output: 'hybrid',
 			},
+			{},
 			defaultLogger
 		);
 		expect(result['hybridOutput']).to.be.false;
@@ -149,6 +151,7 @@ describe('Astro feature map', function () {
 			{
 				output: 'hybrid',
 			},
+			{},
 			defaultLogger
 		);
 		expect(result['hybridOutput']).to.be.false;
@@ -162,6 +165,7 @@ describe('Astro feature map', function () {
 				{
 					output: 'static',
 				},
+				{},
 				defaultLogger
 			);
 			expect(result['staticOutput']).to.be.true;
@@ -174,6 +178,7 @@ describe('Astro feature map', function () {
 				{
 					output: 'static',
 				},
+				{},
 				defaultLogger
 			);
 			expect(result['staticOutput']).to.be.false;
@@ -187,6 +192,7 @@ describe('Astro feature map', function () {
 				{
 					output: 'hybrid',
 				},
+				{},
 				defaultLogger
 			);
 			expect(result['hybridOutput']).to.be.true;
@@ -201,6 +207,7 @@ describe('Astro feature map', function () {
 				{
 					output: 'hybrid',
 				},
+				{},
 				defaultLogger
 			);
 			expect(result['hybridOutput']).to.be.false;
@@ -214,6 +221,7 @@ describe('Astro feature map', function () {
 				{
 					output: 'server',
 				},
+				{},
 				defaultLogger
 			);
 			expect(result['serverOutput']).to.be.true;
@@ -228,6 +236,7 @@ describe('Astro feature map', function () {
 				{
 					output: 'server',
 				},
+				{},
 				defaultLogger
 			);
 			expect(result['serverOutput']).to.be.false;
@@ -251,6 +260,7 @@ describe('Astro feature map', function () {
 						},
 					},
 				},
+				{},
 				defaultLogger
 			);
 			expect(result['assets']).to.be.true;
@@ -271,6 +281,7 @@ describe('Astro feature map', function () {
 						},
 					},
 				},
+				{},
 				defaultLogger
 			);
 			expect(result['assets']).to.be.true;
@@ -292,6 +303,7 @@ describe('Astro feature map', function () {
 						},
 					},
 				},
+				{},
 				defaultLogger
 			);
 			expect(result['assets']).to.be.false;

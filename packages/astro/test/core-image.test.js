@@ -480,7 +480,14 @@ describe('astro:image', () => {
 
 			it('Adds the <img> tags', () => {
 				let $img = $('img');
-				expect($img).to.have.a.lengthOf(7);
+				expect($img).to.have.a.lengthOf(8);
+			});
+
+			it('image in cc folder is processed', () => {
+				let $imgs = $('img');
+				let $blogfolderimg = $($imgs[7]);
+				expect($blogfolderimg.attr('src')).to.include('blogfolder.jpg');
+				expect($blogfolderimg.attr('src').endsWith('f=webp')).to.equal(true);
 			});
 
 			it('has proper source for directly used image', () => {
@@ -948,7 +955,7 @@ describe('astro:image', () => {
 			let $script = $('script');
 
 			// Find image
-			const regex = /src:"([^"]*)/gm;
+			const regex = /src:"([^"]*)/;
 			const imageSrc = regex.exec($script.html())[1];
 			const data = await fixture.readFile(imageSrc, null);
 			expect(data).to.be.an.instanceOf(Buffer);
@@ -960,7 +967,7 @@ describe('astro:image', () => {
 			const srcset = $('#local-2-widths-with-spaces img').attr('srcset');
 
 			// Find image
-			const regex = /^(.+?) [0-9]+[wx]$/gm;
+			const regex = /^(.+?) \d+[wx]$/m;
 			const imageSrcset = regex.exec(srcset)[1];
 			expect(imageSrcset).to.not.contain(' ');
 		});

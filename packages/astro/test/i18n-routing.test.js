@@ -29,6 +29,33 @@ describe('astro:i18n virtual module', () => {
 		expect(text).includes('About spanish: /spanish/about');
 		expect(text).includes('Spain path: spanish');
 		expect(text).includes('Preferred path: es');
+		expect(text).includes('About it: /it/about');
+	});
+
+	describe('absolute URLs', () => {
+		let app;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-subdomain/',
+				output: 'server',
+				adapter: testAdapter(),
+			});
+			await fixture.build();
+			app = await fixture.loadTestAdapterApp();
+		});
+
+		it('correctly renders the absolute URL', async () => {
+			let request = new Request('http://example.com/');
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+
+			let html = await response.text();
+			let $ = cheerio.load(html);
+
+			expect($('body').text()).includes("Virtual module doesn't break");
+			expect($('body').text()).includes('Absolute URL pt: https://example.pt/about');
+			expect($('body').text()).includes('Absolute URL it: http://it.example.com/');
+		});
 	});
 });
 describe('[DEV] i18n routing', () => {
@@ -844,7 +871,7 @@ describe('[SSG] i18n routing', () => {
 		it('should render localised page correctly', async () => {
 			let html = await fixture.readFile('/pt/start/index.html');
 			let $ = cheerio.load(html);
-			expect($('body').text()).includes('Oi essa e start');
+			expect($('body').text()).includes('Oi essa e start: pt');
 
 			html = await fixture.readFile('/pt/blog/1/index.html');
 			$ = cheerio.load(html);
@@ -975,6 +1002,67 @@ describe('[SSG] i18n routing', () => {
 			let html = await fixture.readFile('/it/index.html');
 			expect(html).to.include('http-equiv="refresh');
 			expect(html).to.include('Redirecting to: /new-site/');
+		});
+	});
+
+	describe('current locale', () => {
+		describe('with [prefix-other-locales]', () => {
+			/** @type {import('./test-utils').Fixture} */
+			let fixture;
+
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing/',
+				});
+				await fixture.build();
+			});
+
+			it('should return the default locale', async () => {
+				const html = await fixture.readFile('/current-locale/index.html');
+				expect(html).includes('Current Locale: en');
+			});
+
+			it('should return the default locale when rendering a route with spread operator', async () => {
+				const html = await fixture.readFile('/blog/es/index.html');
+				expect(html).includes('Current Locale: es');
+			});
+
+			it('should return the default locale of the current URL', async () => {
+				const html = await fixture.readFile('/pt/start/index.html');
+				expect(html).includes('Current Locale: pt');
+			});
+
+			it('should return the default locale when a route is dynamic', async () => {
+				const html = await fixture.readFile('/dynamic/lorem/index.html');
+				expect(html).includes('Current Locale: en');
+			});
+
+			it('should returns the correct locale when requesting a locale via path', async () => {
+				const html = await fixture.readFile('/spanish/index.html');
+				expect(html).includes('Current Locale: es');
+			});
+		});
+
+		describe('with [pathname-prefix-always]', () => {
+			/** @type {import('./test-utils').Fixture} */
+			let fixture;
+
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing-prefix-always/',
+				});
+				await fixture.build();
+			});
+
+			it('should return the locale of the current URL (en)', async () => {
+				const html = await fixture.readFile('/en/start/index.html');
+				expect(html).includes('Current Locale: en');
+			});
+
+			it('should return the locale of the current URL (pt)', async () => {
+				const html = await fixture.readFile('/pt/start/index.html');
+				expect(html).includes('Current Locale: pt');
+			});
 		});
 	});
 });
@@ -1497,6 +1585,13 @@ describe('[SSR] i18n routing', () => {
 				expect(await response.text()).includes('Current Locale: en');
 			});
 
+			it('should return the default locale when rendering a route with spread operator', async () => {
+				let request = new Request('http://example.com/blog/es', {});
+				let response = await app.render(request);
+				expect(response.status).to.equal(200);
+				expect(await response.text()).includes('Current Locale: es');
+			});
+
 			it('should return the default locale of the current URL', async () => {
 				let request = new Request('http://example.com/pt/start', {});
 				let response = await app.render(request);
@@ -1611,6 +1706,69 @@ describe('i18n routing does not break assets and endpoints', () => {
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
 			expect(await response.text()).includes('lorem');
+		});
+	});
+
+	describe('i18n routing with routing strategy [subdomain]', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		let app;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-subdomain/',
+				output: 'server',
+				adapter: testAdapter(),
+			});
+			await fixture.build();
+			app = await fixture.loadTestAdapterApp();
+		});
+
+		it('should render the en locale when X-Forwarded-Host header is passed', async () => {
+			let request = new Request('http://example.pt/start', {
+				headers: {
+					'X-Forwarded-Host': 'example.pt',
+					'X-Forwarded-Proto': 'https',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Oi essa e start\n');
+		});
+
+		it('should render the en locale when Host header is passed', async () => {
+			let request = new Request('http://example.pt/start', {
+				headers: {
+					Host: 'example.pt',
+					'X-Forwarded-Proto': 'https',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Oi essa e start\n');
+		});
+
+		it('should render the en locale when Host header is passed and it has the port', async () => {
+			let request = new Request('http://example.pt/start', {
+				headers: {
+					Host: 'example.pt:8080',
+					'X-Forwarded-Proto': 'https',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Oi essa e start\n');
+		});
+
+		it('should render when the protocol header we fallback to the one of the host', async () => {
+			let request = new Request('https://example.pt/start', {
+				headers: {
+					Host: 'example.pt',
+				},
+			});
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+			expect(await response.text()).includes('Oi essa e start\n');
 		});
 	});
 });

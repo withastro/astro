@@ -1,5 +1,17 @@
 # @astrojs/rss
 
+## 4.0.5
+
+### Patch Changes
+
+- [#9967](https://github.com/withastro/astro/pull/9967) [`8b8f26fdf2af2a769f4846bdaaf4cf6b30f9e37c`](https://github.com/withastro/astro/commit/8b8f26fdf2af2a769f4846bdaaf4cf6b30f9e37c) Thanks [@madcampos](https://github.com/madcampos)! - Allows `enclosure' to have a length of 0
+
+## 4.0.4
+
+### Patch Changes
+
+- [#9797](https://github.com/withastro/astro/pull/9797) [`457e8b6422704ba23347c766a8bb9c101c2aba0b`](https://github.com/withastro/astro/commit/457e8b6422704ba23347c766a8bb9c101c2aba0b) Thanks [@wkillerud](https://github.com/wkillerud)! - Restores `rssSchema` to a zod object
+
 ## 4.0.3
 
 ### Patch Changes

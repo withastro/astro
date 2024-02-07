@@ -3,6 +3,8 @@ import type { AstroSettings } from '../@types/astro.js';
 
 import { bold } from 'kleur/colors';
 import * as fs from 'node:fs';
+import path from 'node:path';
+import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../core/logger/core.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 import { writeHtmlResponse } from './response.js';
@@ -52,11 +54,15 @@ export function baseMiddleware(
 		const publicPath = new URL('.' + req.url, config.publicDir);
 		fs.stat(publicPath, (_err, stats) => {
 			if (stats) {
-				const expectedLocation = new URL('.' + url, devRootURL).pathname;
+				const publicDir = appendForwardSlash(
+					path.posix.relative(config.root.pathname, config.publicDir.pathname)
+				);
+				const expectedLocation = new URL(devRootURL.pathname + url, devRootURL).pathname;
+
 				logger.error(
 					'router',
 					`Request URLs for ${bold(
-						'public/'
+						publicDir
 					)} assets must also include your base. "${expectedLocation}" expected, but received "${url}".`
 				);
 				const html = subpathNotUsedTemplate(devRoot, pathname);

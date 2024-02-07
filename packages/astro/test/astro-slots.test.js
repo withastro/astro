@@ -30,26 +30,6 @@ describe('Slots', () => {
 		expect($('#default').text().trim()).to.equal('Default');
 	});
 
-	it('Dynamic named slots work with map work', async () => {
-		const html = await fixture.readFile('/dynamic-map/index.html');
-		const $ = cheerio.load(html);
-
-		expect($('#a').text().trim()).to.equal('A');
-		expect($('#b').text().trim()).to.equal('B');
-		expect($('#c').text().trim()).to.equal('C');
-		expect($('#default').text().trim()).to.equal('Default');
-	});
-
-	it('Dynamic named slots work with for loop', async () => {
-		const html = await fixture.readFile('/dynamic-for/index.html');
-		const $ = cheerio.load(html);
-
-		expect($('#a').text().trim()).to.equal('A');
-		expect($('#b').text().trim()).to.equal('B');
-		expect($('#c').text().trim()).to.equal('C');
-		expect($('#default').text().trim()).to.equal('Default');
-	});
-
 	it('Conditional named slots work', async () => {
 		const html = await fixture.readFile('/conditional/index.html');
 		const $ = cheerio.load(html);

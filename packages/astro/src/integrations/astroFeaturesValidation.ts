@@ -1,4 +1,5 @@
 import type {
+	AstroAdapterFeatures,
 	AstroAssetsFeature,
 	AstroConfig,
 	AstroFeatureMap,
@@ -32,6 +33,7 @@ export function validateSupportedFeatures(
 	adapterName: string,
 	featureMap: AstroFeatureMap,
 	config: AstroConfig,
+	adapterFeatures: AstroAdapterFeatures | undefined,
 	logger: Logger
 ): ValidationResult {
 	const {
@@ -39,6 +41,7 @@ export function validateSupportedFeatures(
 		serverOutput = UNSUPPORTED,
 		staticOutput = UNSUPPORTED,
 		hybridOutput = UNSUPPORTED,
+		i18nDomains = UNSUPPORTED,
 	} = featureMap;
 	const validationResult: ValidationResult = {};
 
@@ -66,6 +69,24 @@ export function validateSupportedFeatures(
 		() => config?.output === 'server'
 	);
 	validationResult.assets = validateAssetsFeature(assets, adapterName, config, logger);
+
+	if (i18nDomains && config?.experimental?.i18nDomains === true && !config.i18n?.domains) {
+		validationResult.i18nDomains = validateSupportKind(
+			i18nDomains,
+			adapterName,
+			logger,
+			'i18nDomains',
+			() => {
+				return config?.output === 'server' && !config?.site;
+			}
+		);
+		if (adapterFeatures?.functionPerRoute) {
+			logger.error(
+				'config',
+				'The Astro feature `i18nDomains` is incompatible with the Adapter feature `functionPerRoute`'
+			);
+		}
+	}
 
 	return validationResult;
 }
