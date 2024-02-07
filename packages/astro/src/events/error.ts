@@ -26,7 +26,7 @@ interface ConfigErrorEventPayload extends ErrorEventPayload {
  * This is only used for errors that do not come from us so we can get a basic
  * and anonymous idea of what the error is about.
  */
-const ANONYMIZE_MESSAGE_REGEX = /^(\w| )+/;
+const ANONYMIZE_MESSAGE_REGEX = /^(?:\w| )+/;
 function anonymizeErrorMessage(msg: string): string | undefined {
 	const matchedMessage = msg.match(ANONYMIZE_MESSAGE_REGEX);
 	if (!matchedMessage?.[0]) {
@@ -100,7 +100,7 @@ function getSafeErrorMessage(message: string | Function): string {
 			.trim()
 			.slice(1, -1)
 			.replace(
-				/\${([^}]+)}/gm,
+				/\$\{([^}]+)\}/g,
 				(str, match1) =>
 					`${match1
 						.split(/\.?(?=[A-Z])/)

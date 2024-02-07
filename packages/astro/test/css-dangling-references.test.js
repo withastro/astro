@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
-const cssAssetReferenceRegExp = /_astro\/[A-Za-z0-9\-]+\.[a0-9a-f]{8}\.css/g;
+const cssAssetReferenceRegExp = /_astro\/[A-Za-z\d\-]+\.[\da-f]{8}\.css/g;
 
 describe("When Vite's preloadModule polyfill is used", async () => {
 	let fixture;

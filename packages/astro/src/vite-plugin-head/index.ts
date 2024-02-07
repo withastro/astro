@@ -9,7 +9,7 @@ import type { BuildInternals } from '../core/build/internal.js';
 import { getAstroMetadata } from '../vite-plugin-astro/index.js';
 
 // Detect this in comments, both in .astro components and in js/ts files.
-const injectExp = /(^\/\/|\/\/!)\s*astro-head-inject/;
+const injectExp = /(?:^\/\/|\/\/!)\s*astro-head-inject/;
 
 export default function configHeadVitePlugin(): vite.Plugin {
 	let server: vite.ViteDevServer;

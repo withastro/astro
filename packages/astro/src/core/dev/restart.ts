@@ -29,9 +29,9 @@ async function createRestartedContainer(
 	return newContainer;
 }
 
-const configRE = new RegExp(`.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$`);
+const configRE = /.*astro.config.(?:mjs|cjs|js|ts)$/;
 // TODO: use codegenDir
-const preferencesRE = new RegExp(`.*\.astro\/settings\.json$`);
+const preferencesRE = /.*\.astro\/settings.json$/;
 
 export function shouldRestartContainer(
 	{ settings, inlineConfig, restartInFlight }: Container,

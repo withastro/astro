@@ -553,7 +553,7 @@ export interface AstroUserConfig {
 	 *
 	 * Specifies the output target for builds.
 	 *
-	 * - `'static'` - Building a static site to be deploy to any static host.
+	 * - `'static'` - Building a static site to be deployed to any static host.
 	 * - `'server'` - Building an app to be deployed to a host supporting SSR (server-side rendering).
 	 * - `'hybrid'` - Building a static site with a few server-side rendered pages.
 	 *
