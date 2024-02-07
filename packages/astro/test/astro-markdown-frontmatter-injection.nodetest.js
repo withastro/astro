@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import { describe, before, it } from 'node:test';
-// import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
 const FIXTURE_ROOT = './fixtures/astro-markdown-frontmatter-injection/';
