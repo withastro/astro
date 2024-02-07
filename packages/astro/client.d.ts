@@ -1,4 +1,5 @@
 /// <reference types="vite/types/import-meta.d.ts" />
+/// <reference path="./types/content.d.ts" />
 
 // eslint-disable-next-line  @typescript-eslint/no-namespace
 declare namespace App {
@@ -158,10 +159,6 @@ declare module 'astro:middleware' {
 
 declare module 'astro:components' {
 	export * from 'astro/components';
-}
-
-declare module 'astro:content' {
-	export * from 'astro/virtual-modules/content.js';
 }
 
 type MD = import('./dist/@types/astro.js').MarkdownInstance<Record<string, any>>;

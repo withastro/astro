@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "4.3.3",
+  "version": "4.3.4",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -107,11 +107,12 @@
     "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\" && astro-scripts copy \"src/**/*.wasm\"",
     "test:unit": "mocha --exit --timeout 30000 ./test/units/**/*.test.js",
-    "test:unit:match": "mocha --exit --timeout 30000 ./test/units/**/*.test.js -g",
-    "test": "pnpm run test:unit && mocha --exit --timeout 30000 --ignore **/lit-element.test.js && mocha --timeout 30000 **/lit-element.test.js",
+    "test:unit:match": "mocha --exit --timeout 30000 ./test/units/**/*.test.js -g --ignore **/*.nodetest.js",
+    "test": "pnpm run test:node && pnpm run test:unit && mocha --exit --timeout 30000 --ignore **/*.nodetest.js --ignore **/lit-element.test.js && mocha --timeout 30000 **/lit-element.test.js --ignore **/*.nodetest.js",
     "test:match": "mocha --timeout 30000 -g",
     "test:e2e": "playwright test",
-    "test:e2e:match": "playwright test -g"
+    "test:e2e:match": "playwright test -g",
+    "test:node": "astro-scripts test \"test/**/*.nodetest.js\""
   },
   "dependencies": {
     "@astrojs/compiler": "^2.5.3",

@@ -1,5 +1,58 @@
 # @astrojs/vercel
 
+## 7.2.0
+
+### Minor Changes
+
+- [#9714](https://github.com/withastro/astro/pull/9714) [`e2fe51c828dc7ea8204788e59e3953fe36c97836`](https://github.com/withastro/astro/commit/e2fe51c828dc7ea8204788e59e3953fe36c97836) Thanks [@lilnasy](https://github.com/lilnasy)! - Introduces a new config option, `isr`, that allows you to deploy your project as an ISR function. [ISR (Incremental Static Regeneration)](https://vercel.com/docs/incremental-static-regeneration) caches your on-demand rendered pages in the same way as prerendered pages after first request.
+
+  To enable this feature, set `isr` to true in your Vercel adapter configuration in `astro.config.mjs`:
+
+  ```js
+  export default defineConfig({
+    output: 'server',
+    adapter: vercel({ isr: true }),
+  });
+  ```
+
+  ## Cache invalidation options
+
+  By default, ISR responses are cached for the duration of your deployment. You can further control caching by setting an `expiration` time or prevent caching entirely for certain routes.
+
+  ### Time-based invalidation
+
+  You can change the length of time to cache routes this by configuring an `expiration` value in seconds:
+
+  ```js
+  export default defineConfig({
+    output: 'server',
+    adapter: vercel({
+      isr: {
+        // caches all pages on first request and saves for 1 day
+        expiration: 60 * 60 * 24,
+      },
+    }),
+  });
+  ```
+
+  ### Manual invalidation
+
+  To implement Vercel's [Draft mode](https://vercel.com/docs/build-output-api/v3/features#draft-mode), or [On-Demand Incremental Static Regeneration (ISR)](https://vercel.com/docs/build-output-api/v3/features#on-demand-incremental-static-regeneration-isr), you can create a bypass token and provide it to the `isr` config along with the paths to exclude from caching:
+
+  ```js
+  export default defineConfig({
+    output: 'server',
+    adapter: vercel({
+      isr: {
+        // A secret random string that you create.
+        bypassToken: '005556d774a8',
+        // Paths that will always be served fresh.
+        exclude: ['/api/invalidate'],
+      },
+    }),
+  });
+  ```
+
 ## 7.1.1
 
 ### Patch Changes
