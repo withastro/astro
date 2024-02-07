@@ -1,27 +1,30 @@
-const { hasOwnProperty } = Object.prototype;
-const merge = (options: any, defaults: any) => {
+/*! https://mths.be/cssesc v3.0.0 by @mathias */
+
+const object = {};
+const hasOwnProperty = object.hasOwnProperty;
+const merge = (options: Readonly<Partial<Options>> | undefined, defaults: Options) => {
 	if (!options) {
 		return defaults;
 	}
-	const result = {} as Record<any, any>;
+	const result = {} as any;
 	for (let key in defaults) {
 		// `if (defaults.hasOwnProperty(key) { … }` is not needed here, since
 		// only recognized option names are used.
 		result[key] = hasOwnProperty.call(options, key)
-			? options[key]
-			: defaults[key];
+			? options[key as keyof Options]
+			: defaults[key as keyof Options];
 	}
-	return result;
+	return result as Options;
 };
 
-const regexAnySingleEscape = /<%= anySingleEscape %>/;
-const regexSingleEscape = /<%= singleEscapes %>/;
+const regexAnySingleEscape = /[ -,\.\/:-@\[-\^`\{-~]/;
+const regexSingleEscape = /[ -,\.\/:-@\[\]\^`\{-~]/;
 const regexAlwaysEscape = /['"\\]/;
 const regexExcessiveSpaces = /(^|\\+)?(\\[A-F0-9]{1,6})\x20(?![a-fA-F0-9\x20])/g;
 
 // https://mathiasbynens.be/notes/css-escapes#css
-const cssesc = (string: string, options: any) => {
-	options = merge(options, defaults);
+const cssesc = (string: string, userOptions?: Readonly<Partial<Options>>) => {
+	const options = merge(userOptions, defaultOptions);
 	if (options.quotes != 'single' && options.quotes != 'double') {
 		options.quotes = 'single';
 	}
@@ -35,7 +38,7 @@ const cssesc = (string: string, options: any) => {
 	while (counter < length) {
 		const character = string.charAt(counter++);
 		let codePoint = character.charCodeAt(0);
-		let value;
+		let value: string;
 		// If it’s not a printable ASCII character…
 		if (codePoint < 0x20 || codePoint > 0x7E) {
 			if (codePoint >= 0xD800 && codePoint <= 0xDBFF && counter < length) {
@@ -89,7 +92,7 @@ const cssesc = (string: string, options: any) => {
 	// Remove spaces after `\HEX` escapes that are not followed by a hex digit,
 	// since they’re redundant. Note that this is only possible if the escape
 	// sequence isn’t preceded by an odd number of backslashes.
-	output = output.replace(regexExcessiveSpaces, function($0, $1, $2) {
+	output = output.replace(regexExcessiveSpaces, function ($0, $1, $2) {
 		if ($1 && $1.length % 2) {
 			// It’s not safe to remove the space, so don’t.
 			return $0;
@@ -104,11 +107,19 @@ const cssesc = (string: string, options: any) => {
 	return output;
 };
 
-const defaults = {
+// Expose default options (so they can be overridden globally).
+const defaultOptions = {
 	'escapeEverything': false,
 	'isIdentifier': false,
 	'quotes': 'single',
 	'wrap': false
 };
 
-export default cssesc
+interface Options {
+	escapeEverything: boolean;
+	isIdentifier: boolean;
+	quotes: string;
+	wrap: boolean;
+}
+
+export default cssesc;
