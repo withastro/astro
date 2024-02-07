@@ -1,5 +1,13 @@
 # @astrojs/netlify
 
+## 5.1.0
+
+### Minor Changes
+
+- [#152](https://github.com/withastro/adapters/pull/152) [`816bdc42e0665904e418dd0137bd6a7c8c74307f`](https://github.com/withastro/adapters/commit/816bdc42e0665904e418dd0137bd6a7c8c74307f) Thanks [@lilnasy](https://github.com/lilnasy)! - Implements verification for edge middleware. This is a security measure to ensure that your serverless functions are only ever called by your edge middleware and not by a third party.
+
+  When `edgeMiddleware` is enabled, the serverless function will now respond with `403 Forbidden` for requests that are not verified to have come from the generated edge middleware. No user action is necessary.
+
 ## 5.0.1
 
 ### Patch Changes
