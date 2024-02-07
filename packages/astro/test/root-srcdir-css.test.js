@@ -20,6 +20,6 @@ describe('srcDir', () => {
 
 		const relPath = $('link').attr('href');
 		const css = await fixture.readFile(relPath);
-		expect(css).to.match(/body{color:green}/);
+		expect(css).to.match(/body\{color:green\}/);
 	});
 });

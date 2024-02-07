@@ -28,20 +28,20 @@ describe('Tailwind', () => {
 		});
 
 		it('resolves CSS in src/styles', async () => {
-			expect(bundledCSS, 'includes used component classes').to.match(/\.bg-purple-600{/);
+			expect(bundledCSS, 'includes used component classes').to.match(/\.bg-purple-600\{/);
 
 			// tests a random tailwind class that isn't used on the page
-			expect(bundledCSS, 'purges unused classes').not.to.match(/\.bg-blue-600{/);
+			expect(bundledCSS, 'purges unused classes').not.to.match(/\.bg-blue-600\{/);
 
 			// tailwind escapes colons, `lg:py-3` compiles to `lg\:py-3`
-			expect(bundledCSS, 'includes responsive classes').to.match(/\.lg\\:py-3{/);
+			expect(bundledCSS, 'includes responsive classes').to.match(/\.lg\\:py-3\{/);
 
 			// tailwind escapes brackets, `font-[900]` compiles to `font-\[900\]`
-			expect(bundledCSS, 'supports arbitrary value classes').to.match(/\.font-\\\[900\\\]{/);
+			expect(bundledCSS, 'supports arbitrary value classes').to.match(/\.font-\\\[900\\\]\{/);
 
 			// custom theme colors were included
-			expect(bundledCSS, 'includes custom theme colors').to.match(/\.text-midnight{/);
-			expect(bundledCSS, 'includes custom theme colors').to.match(/\.bg-dawn{/);
+			expect(bundledCSS, 'includes custom theme colors').to.match(/\.text-midnight\{/);
+			expect(bundledCSS, 'includes custom theme colors').to.match(/\.bg-dawn\{/);
 		});
 
 		it('maintains classes in HTML', async () => {
@@ -64,7 +64,7 @@ describe('Tailwind', () => {
 			const $md = cheerio.load(html);
 			const bundledCSSHREF = $md('link[rel=stylesheet][href^=/_astro/]').attr('href');
 			const mdBundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
-			expect(mdBundledCSS, 'includes used component classes').to.match(/\.bg-purple-600{/);
+			expect(mdBundledCSS, 'includes used component classes').to.match(/\.bg-purple-600\{/);
 		});
 	});
 });
