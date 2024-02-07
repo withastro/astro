@@ -35,9 +35,7 @@ describe('CSS', function () {
 		});
 
 		it('vite.build.cssTarget is respected', async () => {
-			expect(bundledCSS).to.match(
-				/\.class\[data-astro-[^{]*\{top:0;right:0;bottom:0;left:0\}/
-			);
+			expect(bundledCSS).to.match(/\.class\[data-astro-[^{]*\{top:0;right:0;bottom:0;left:0\}/);
 		});
 	});
 });
