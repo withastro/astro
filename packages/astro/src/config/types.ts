@@ -16,7 +16,7 @@ export function injectTypes({
 		throw new AstroError(AstroErrorData.InvalidInjectTypesFilename);
 	}
 
-	writeFileSync(new URL(codegenDir, filename), content);
+	writeFileSync(new URL(filename, codegenDir), content);
 
 	const tsConfigPath = normalizePath(fileURLToPath(new URL('tsconfig.json', codegenDir)));
 	const tsconfig = JSON.parse(readFileSync(tsConfigPath, 'utf-8'));

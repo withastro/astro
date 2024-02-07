@@ -15,6 +15,7 @@ import type { Logger } from '../logger/core.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import type { TSConfckParseResult } from 'tsconfck';
 import { normalizePath } from 'vite';
+import { isRelativePath } from '../path.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	const { contentDir } = getContentPaths(config);
@@ -161,7 +162,10 @@ async function handleTypescriptConfig(
 		files: deduplicate(getField(tsconfig.tsconfig, 'files')),
 	};
 
-	const rawTsConfigPath = getRelativePath(config.root, new URL('tsconfig.json', config.codegenDir));
+	let rawTsConfigPath = getRelativePath(config.root, new URL('tsconfig.json', config.codegenDir));
+	if (!isRelativePath(rawTsConfigPath)) {
+		rawTsConfigPath = `./${rawTsConfigPath}`
+	}
 	const tsconfigPath = fileURLToPath(new URL(rawTsConfigPath, config.root));
 	mkdirSync(dirname(tsconfigPath), { recursive: true });
 	writeFileSync(tsconfigPath, JSON.stringify(newTsconfig, null, 2), 'utf-8');
