@@ -21,4 +21,3 @@ describe('Errors information in build', () => {
 		assert.equal(errorContent.id, 'src/pages/index.astro');
 	});
 });
-e;
