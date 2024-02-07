@@ -19,7 +19,7 @@ async function createDevEnvironment(overrides = {}) {
 	const loader = overrides.loader ?? createLoader();
 	const manifest = createDevelopmentManifest(settings);
 
-	return new DevEnvironment(loader, defaultLogger, manifest, settings);
+	return DevEnvironment.create({ loader, logger: defaultLogger, manifest, settings });
 }
 
 describe('vite-plugin-astro-server', () => {

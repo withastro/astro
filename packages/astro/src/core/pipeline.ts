@@ -3,6 +3,7 @@ import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { attachCookiesToResponse } from './cookies/response.js';
 import { createAPIContext } from './endpoint/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
+import { sequence } from './middleware/index.js';
 import { renderPage } from './render/core.js';
 import type { Environment, RenderContext } from './render/index.js';
 
@@ -12,7 +13,7 @@ import type { Environment, RenderContext } from './render/index.js';
  * Check the {@link ./README.md|README} for more information about the pipeline.
  */
 export class Pipeline {
-	constructor(
+	private constructor(
 		readonly environment: Environment,
 		readonly locals: App.Locals,
 		readonly middleware: MiddlewareHandler,
@@ -20,6 +21,10 @@ export class Pipeline {
 		readonly renderContext: RenderContext,
 		readonly request = renderContext.request,
 	) {}
+
+	static create({ environment, locals, middleware, pathname, renderContext }: Pick<Pipeline, 'environment' | 'pathname' | 'renderContext'> & Partial<Pick<Pipeline, 'locals' | 'middleware'>>) {
+		return new Pipeline(environment, locals ?? {}, sequence(...environment.internalMiddleware, middleware ?? environment.middleware), pathname, renderContext)
+	}
 
 	/**
 	 * The main function of the pipeline. Use this function to render any route known to Astro;
@@ -40,10 +45,10 @@ export class Pipeline {
 		const { adapterName, logger, site, serverLike } = environment;
 		const apiContext = createAPIContext({ adapterName, defaultLocale, locales, params, props, request, route, routingStrategy, site });
 		HiddenPipeline.set(request, this);
-		const terminalNext = renderContext.route.type === 'endpoint'
+		const lastNext = renderContext.route.type === 'endpoint'
 			? () => renderEndpoint(componentInstance as any as EndpointHandler, apiContext, serverLike, logger)
 			: () => renderPage({ mod: componentInstance, renderContext, env: environment, cookies: apiContext.cookies });
-		const response = await callMiddleware(this.middleware, apiContext, terminalNext);
+		const response = await callMiddleware(this.middleware, apiContext, lastNext);
 		attachCookiesToResponse(response, apiContext.cookies);
 		return response;
 	}
@@ -53,10 +58,23 @@ export class Pipeline {
 	}
 }
 
+/** 
+ * The constructor of this class returns the passed object, which allows private fields to be set by a subclass.
+ */
+class AllowPrivateFields {
+	constructor(request: Request) {
+		return request
+	}
+}
+
 /**
  * Allows internal middleware to read the pipeline associated with the current request.
+ * 
+ * It works by setting a private field on the request object called #pipeline.
+ * This prevents user code from having access to routeData and other internals,
+ * as only the HiddenPipeline class and its static methods can see the #pipeline field.
  */
-class HiddenPipeline extends class { constructor(request: Request) { return request } } {
+class HiddenPipeline extends AllowPrivateFields {
 	#pipeline!: Pipeline
 	static get(request: Request) {
 		if (#pipeline in request) return request.#pipeline 

@@ -6,7 +6,7 @@ import { AstroError } from '../errors/index.js';
 import { routeIsFallback } from '../redirects/helpers.js';
 import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../redirects/index.js';
 import type { RenderContext } from './context.js';
-import type { Environment } from './environment.js';
+import type { Environment } from '../environment.js';
 import { createResult } from './result.js';
 
 export type RenderPage = {

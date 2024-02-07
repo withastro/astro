@@ -146,7 +146,7 @@ describe('Route matching', () => {
 
 		const loader = createViteLoader(container.viteServer);
 		const manifest = createDevelopmentManifest(container.settings);
-		environment = new DevEnvironment(loader, defaultLogger, manifest, settings);
+		environment = DevEnvironment.create({ loader, logger: defaultLogger, manifest, settings });
 		manifestData = createRouteManifest(
 			{
 				cwd: fileURLToPath(root),

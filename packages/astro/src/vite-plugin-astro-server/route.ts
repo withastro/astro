@@ -33,6 +33,7 @@ import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { getScriptsForURL } from './scripts.js';
 import { REROUTE_DIRECTIVE_HEADER } from '../runtime/server/consts.js';
+import { Pipeline } from '../core/pipeline.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -296,11 +297,8 @@ export async function handleRoute({
 			defaultLocale: i18n?.defaultLocale,
 		});
 	}
-	const pipeline = environment.createPipeline({
-		pathname,
-		renderContext,
-		middleware: (await loadMiddleware(environment.loader)).onRequest,
-	});
+	const middleware = (await loadMiddleware(environment.loader)).onRequest;
+	const pipeline = Pipeline.create({ environment, pathname, renderContext, middleware });
 
 	let response = await pipeline.renderRoute(mod);
 	if (isLoggedRequest(pathname)) {

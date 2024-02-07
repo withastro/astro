@@ -29,6 +29,7 @@ import { matchRoute } from '../routing/match.js';
 import { AppEnvironment } from './environment.js';
 import type { RouteInfo } from './types.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
+import { Pipeline } from '../pipeline.js';
 export { deserializeManifest } from './common.js';
 
 const localsSymbol = Symbol.for('astro.locals');
@@ -124,12 +125,12 @@ export class App {
 	 * @private
 	 */
 	#createEnvironment(streaming = false) {
-		return new AppEnvironment(
-			this.#logger,
-			this.#manifest,
-			'production',
-			this.#manifest.renderers,
-			async (specifier: string) => {
+		return AppEnvironment.create({
+			logger: this.#logger,
+			manifest: this.#manifest,
+			mode: 'production',
+			renderers: this.#manifest.renderers,
+			resolve: async (specifier: string) => {
 				if (!(specifier in this.#manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);
 				}
@@ -144,10 +145,9 @@ export class App {
 					}
 				}
 			},
-			true,
+			serverLike: true,
 			streaming,
-			new RouteCache(this.#logger),
-		);
+		})
 	}
 
 	set setManifestData(newManifestData: ManifestData) {
@@ -323,7 +323,7 @@ export class App {
 		);
 		let response;
 		try {
-			const pipeline = this.#environment.createPipeline({ pathname, renderContext });
+			const pipeline = Pipeline.create({ environment: this.#environment, pathname, renderContext })
 			response = await pipeline.renderRoute(pageModule);
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
@@ -481,11 +481,12 @@ export class App {
 					mod,
 					status
 				);
-				const pipeline = this.#environment.createPipeline({
+				const pipeline = Pipeline.create({
+					environment: this.#environment,
+					middleware: skipMiddleware ? (_, next) => next() : undefined,
 					pathname: this.#getPathnameFromRequest(request),
 					renderContext: newRenderContext,
-					middleware: skipMiddleware ? (_, next) => next() : undefined
-				});
+				})
 				const response = await pipeline.renderRoute(await mod.page());
 				return this.#mergeResponses(response, originalResponse);
 			} catch {

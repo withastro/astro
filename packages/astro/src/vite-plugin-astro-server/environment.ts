@@ -10,7 +10,11 @@ import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
 
 export class DevEnvironment extends Environment {
-	constructor(
+	// renderers are loaded on every request,
+	// so it needs to be mutable here unlike in other environments
+	override renderers = new Array<SSRLoadedRenderer>
+
+	private constructor(
 		readonly loader: ModuleLoader,
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
@@ -21,8 +25,11 @@ export class DevEnvironment extends Environment {
 		const resolve = createResolve(loader, settings.config.root);
 		const serverLike = isServerLikeOutput(settings.config);
 		const streaming = true;
-		const routeCache = new RouteCache(logger, mode);
-		super(logger, manifest, mode, [], resolve, serverLike, streaming, routeCache);
+		super(logger, manifest, mode, [], resolve, serverLike, streaming);
+	}
+
+	static create({ loader, logger, manifest, settings }: Pick<DevEnvironment, 'loader' | 'logger' | 'manifest' | 'settings'>) {
+		return new DevEnvironment(loader, logger, manifest, settings)
 	}
 
 	async preload(filePath: URL) {

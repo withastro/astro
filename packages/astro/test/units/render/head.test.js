@@ -10,6 +10,7 @@ import {
 	Fragment,
 } from '../../../dist/runtime/server/index.js';
 import { createRenderContext } from '../../../dist/core/render/index.js';
+import { Pipeline } from '../../../dist/core/pipeline.js';
 import { createBasicEnvironment } from '../test-utils.js';
 import * as cheerio from 'cheerio';
 
@@ -97,7 +98,7 @@ describe('core/render', () => {
 				env,
 			});
 
-			const pipeline = env.createPipeline({ renderContext: ctx });
+			const pipeline = Pipeline.create({ environment: env, renderContext: ctx });
 			const response = await pipeline.renderRoute(PageModule);
 
 			const html = await response.text();
@@ -179,7 +180,7 @@ describe('core/render', () => {
 				mod: PageModule,
 			});
 			
-			const pipeline = env.createPipeline({ renderContext: ctx });
+			const pipeline = Pipeline.create({ environment: env, renderContext: ctx });
 			const response = await pipeline.renderRoute(PageModule);
 
 			const html = await response.text();
@@ -228,7 +229,7 @@ describe('core/render', () => {
 				mod: PageModule,
 			});
 
-			const pipeline = env.createPipeline({ renderContext: ctx });
+			const pipeline = Pipeline.create({ environment: env, renderContext: ctx });
 			const response = await pipeline.renderRoute(PageModule);
 
 			const html = await response.text();

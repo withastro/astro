@@ -66,6 +66,7 @@ import type {
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
+import { Pipeline } from '../pipeline.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -136,14 +137,14 @@ export function chunkIsPage(
 	return false;
 }
 
-export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
+export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();
-	const ssr = isServerLikeOutput(opts.settings.config);
+	const ssr = isServerLikeOutput(options.settings.config);
 	let manifest: SSRManifest;
 	if (ssr) {
-		manifest = await BuildEnvironment.retrieveManifest(opts, internals);
+		manifest = await BuildEnvironment.retrieveManifest(options, internals);
 	} else {
-		const baseDirectory = getOutputDirectory(opts.settings.config);
+		const baseDirectory = getOutputDirectory(options.settings.config);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
 		let middleware: MiddlewareHandler = (_, next) => next();
@@ -155,18 +156,18 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			);
 		} catch {}
 		manifest = createBuildManifest(
-			opts.settings,
+			options.settings,
 			internals,
 			renderers.renderers as SSRLoadedRenderer[],
 			middleware
 		);
 	}
-	const environment = new BuildEnvironment(opts, internals, manifest);
+	const environment = BuildEnvironment.create({ internals, manifest, options });
 	const { config, logger } = environment;
 
 	const outFolder = ssr
-		? opts.settings.config.build.server
-		: getOutDirWithinCwd(opts.settings.config.outDir);
+		? options.settings.config.build.server
+		: getOutDirWithinCwd(options.settings.config.outDir);
 
 	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
 	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
@@ -192,7 +193,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const ssrEntryPage = await import(ssrEntryURLPage.toString());
-				if (opts.settings.adapter?.adapterFeatures?.functionPerRoute) {
+				if (options.settings.adapter?.adapterFeatures?.functionPerRoute) {
 					// forcing to use undefined, so we fail in an expected way if the module is not even there.
 					const ssrEntry = ssrEntryPage?.pageModule;
 					if (ssrEntry) {
@@ -252,10 +253,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		delete globalThis?.astroAsset?.addStaticImage;
 	}
 
-	await runHookBuildGenerated({
-		config: opts.settings.config,
-		logger: environment.logger,
-	});
+	await runHookBuildGenerated({ config, logger });
 }
 
 async function generatePage(
@@ -331,7 +329,7 @@ async function getPathsForRoute(
 	environment: BuildEnvironment,
 	builtPaths: Set<string>
 ): Promise<Array<string>> {
-	const { logger, options, serverLike } = environment;
+	const { logger, options, routeCache, serverLike } = environment;
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
@@ -346,7 +344,7 @@ async function getPathsForRoute(
 		const staticPaths = await callGetStaticPaths({
 			mod,
 			route,
-			routeCache: options.routeCache,
+			routeCache,
 			logger,
 			ssr: serverLike,
 		}).catch((err) => {
@@ -555,10 +553,7 @@ async function generatePath(
 		routing: i18n?.routing,
 		defaultLocale: i18n?.defaultLocale,
 	});
-	const pipeline = environment.createPipeline({
-		pathname,
-		renderContext,
-	})
+	const pipeline = Pipeline.create({ environment, pathname, renderContext })
 
 	let body: string | Uint8Array;
 

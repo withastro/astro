@@ -9,7 +9,7 @@ import type {
 } from '../../@types/astro.js';
 import { normalizeTheLocale, toCodes } from '../../i18n/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Environment } from './environment.js';
+import type { Environment } from '../environment.js';
 import { getParamsAndProps } from './params-and-props.js';
 import type { RoutingStrategies } from '../config/schema.js';
 

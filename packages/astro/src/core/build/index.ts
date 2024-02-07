@@ -98,7 +98,6 @@ class AstroBuilder {
 	private logger: Logger;
 	private mode: RuntimeMode = 'production';
 	private origin: string;
-	private routeCache: RouteCache;
 	private manifest: ManifestData;
 	private timer: Record<string, number>;
 	private teardownCompiler: boolean;
@@ -110,7 +109,6 @@ class AstroBuilder {
 		this.settings = settings;
 		this.logger = options.logger;
 		this.teardownCompiler = options.teardownCompiler ?? true;
-		this.routeCache = new RouteCache(this.logger);
 		this.origin = settings.config.site
 			? new URL(settings.config.site).origin
 			: `http://localhost:${settings.config.server.port}`;
@@ -195,7 +193,6 @@ class AstroBuilder {
 			mode: this.mode,
 			origin: this.origin,
 			pageNames,
-			routeCache: this.routeCache,
 			teardownCompiler: this.teardownCompiler,
 			viteConfig,
 		};

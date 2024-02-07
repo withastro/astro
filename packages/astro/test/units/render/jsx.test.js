@@ -8,6 +8,7 @@ import {
 } from '../../../dist/runtime/server/index.js';
 import { jsx } from '../../../dist/jsx-runtime/index.js';
 import { createRenderContext, loadRenderer } from '../../../dist/core/render/index.js';
+import { Pipeline } from '../../../dist/core/pipeline.js';
 import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
 import { createBasicEnvironment } from '../test-utils.js';
 
@@ -48,7 +49,7 @@ describe('core/render', () => {
 				mod,
 			});
 
-			const pipeline = env.createPipeline({ renderContext: ctx });
+			const pipeline = Pipeline.create({ environment: env, renderContext: ctx });
 			const response = await pipeline.renderRoute(mod);
 
 			assert.equal(response.status, 200);
@@ -94,7 +95,7 @@ describe('core/render', () => {
 				env,
 				mod,
 			});
-			const pipeline = env.createPipeline({ renderContext: ctx });
+			const pipeline = Pipeline.create({ environment: env, renderContext: ctx });
 			const response = await pipeline.renderRoute(mod);
 
 			assert.equal(response.status, 200);
@@ -125,7 +126,7 @@ describe('core/render', () => {
 				mod,
 			});
 
-			const pipeline = env.createPipeline({ renderContext: ctx });
+			const pipeline = Pipeline.create({ environment: env, renderContext: ctx });
 			const response = await pipeline.renderRoute(mod);
 
 			try {

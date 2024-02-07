@@ -1,3 +1,4 @@
+import type { B } from 'shikiji-core/dist/chunk-types.mjs';
 import type { SSRLoadedRenderer } from '../../@types/astro.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
@@ -19,10 +20,10 @@ import { i18nHasFallback } from './util.js';
  * This build environment is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
  */
 export class BuildEnvironment extends Environment {
-	constructor(
-		readonly options: StaticBuildOptions,
+	private constructor(
 		readonly internals: BuildInternals,
 		readonly manifest: SSRManifest,
+		readonly options: StaticBuildOptions,
 		readonly config = options.settings.config,
 		readonly settings = options.settings
 	) {
@@ -47,8 +48,13 @@ export class BuildEnvironment extends Environment {
 		}
 		const serverLike = isServerLikeOutput(config);
 		const streaming = true;
-		super(options.logger, manifest, options.mode, manifest.renderers, resolve, serverLike, streaming, options.routeCache)
+		super(options.logger, manifest, options.mode, manifest.renderers, resolve, serverLike, streaming)
 	}
+
+	static create({ internals, manifest, options }: Pick<BuildEnvironment, 'internals' | 'manifest' | 'options'>) {
+		return new BuildEnvironment(internals, manifest, options);
+	}
+
 	/**
 	 * The SSR build emits two important files:
 	 * - dist/server/manifest.mjs

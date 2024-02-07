@@ -33,7 +33,7 @@ export default function createVitePluginAstroServer({
 		configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
 			const manifest = createDevelopmentManifest(settings);
-			const environment = new DevEnvironment(loader, logger, manifest, settings);
+			const environment = DevEnvironment.create({ loader, logger, manifest, settings });
 			let manifestData: ManifestData = createRouteManifest({ settings, fsMod }, logger);
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();

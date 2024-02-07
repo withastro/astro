@@ -43,7 +43,6 @@ export interface StaticBuildOptions {
 	mode: RuntimeMode;
 	origin: string;
 	pageNames: string[];
-	routeCache: RouteCache;
 	viteConfig: InlineConfig;
 	teardownCompiler: boolean;
 }
