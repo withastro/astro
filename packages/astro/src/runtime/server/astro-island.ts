@@ -179,8 +179,9 @@ declare const Astro: {
 						throw e;
 					}
 					let hydrationTimeStart;
+					const hydrator = this.hydrator(this);
 					if (process.env.NODE_ENV === 'development') hydrationTimeStart = performance.now();
-					await this.hydrator(this)(this.Component, props, slots, {
+					await hydrator(this.Component, props, slots, {
 						client: this.getAttribute('client'),
 					});
 					if (process.env.NODE_ENV === 'development' && hydrationTimeStart)
