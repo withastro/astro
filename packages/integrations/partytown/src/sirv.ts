@@ -175,6 +175,7 @@ export default function (dir, opts = {}) {
 
 	let ignores = [];
 	if (opts.ignores !== false) {
+		// Disable eslint as we're not sure how to improve this regex yet
 		// eslint-disable-next-line regexp/no-super-linear-backtracking
 		ignores.push(/\/([\w\s~$.-]+\.\w+)+$/); // any extn
 		if (opts.dotfiles) ignores.push(/\/\.\w/);

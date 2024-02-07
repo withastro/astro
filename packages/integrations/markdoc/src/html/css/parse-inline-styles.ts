@@ -25,6 +25,7 @@ const WHITESPACE_REGEX = /^\s*/;
 // declaration
 const PROPERTY_REGEX = /^([-#/*\\\w]+(\[[\da-z_-]+\])?)\s*/;
 const COLON_REGEX = /^:\s*/;
+// Disable eslint as we're not sure how to improve this regex yet
 // eslint-disable-next-line regexp/no-super-linear-backtracking
 const VALUE_REGEX = /^((?:'(?:\\'|.)*?'|"(?:\\"|.)*?"|\([^)]*\)|[^};])+)/;
 const SEMICOLON_REGEX = /^[;\s]*/;

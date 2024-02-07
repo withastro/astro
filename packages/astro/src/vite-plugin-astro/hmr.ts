@@ -59,6 +59,7 @@ export async function handleHotUpdate(
 	}
 }
 
+// Disable eslint as we're not sure how to improve this regex yet
 // eslint-disable-next-line regexp/no-super-linear-backtracking
 const scriptRE = /<script(?:\s.*?)?>.*?<\/script>/gs;
 // eslint-disable-next-line regexp/no-super-linear-backtracking
