@@ -1,0 +1,9 @@
+---
+import { Image } from "astro:assets";
+---
+
+<Image src="https://source.unsplash.com/random/800x600" loading="lazy" width={800} height={600} alt="Random Image" />
+
+<div style="height: 9000px;">
+
+<Image src="https://source.unsplash.com/random/800x600" loading="eager" width={800} height={600} alt="Random Image" />

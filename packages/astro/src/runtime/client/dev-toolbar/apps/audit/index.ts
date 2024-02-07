@@ -110,6 +110,10 @@ export default {
 					}
 				}
 				for (const element of matches) {
+					// Don't audit elements that already have an audit on them
+					// TODO: This is a naive implementation, it'd be good to show all the audits for an element at the same time.
+					if (audits.some((audit) => audit.auditedElement === element)) continue;
+
 					await createAuditProblem(rule, element);
 				}
 			}
@@ -208,7 +212,7 @@ export default {
 			}
 
 			const rect = originalElement.getBoundingClientRect();
-			const highlight = createHighlight(rect, 'warning');
+			const highlight = createHighlight(rect, 'warning', { 'data-audit-code': rule.code });
 			const tooltip = buildAuditTooltip(rule, originalElement);
 
 			// Set the highlight/tooltip as being fixed position the highlighted element
