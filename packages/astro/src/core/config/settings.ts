@@ -1,5 +1,5 @@
 import yaml from 'js-yaml';
-import { relative } from 'node:path';
+import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroConfig, AstroSettings } from '../../@types/astro.js';
 import { getContentPaths } from '../../content/index.js';
@@ -31,7 +31,10 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 				getEntryInfo({ contents, fileUrl }) {
 					if (contents === undefined || contents === '') return { data: {} };
 
-					const pathRelToContentDir = relative(fileURLToPath(contentDir), fileURLToPath(fileUrl));
+					const pathRelToContentDir = path.relative(
+						fileURLToPath(contentDir),
+						fileURLToPath(fileUrl)
+					);
 					let data;
 					try {
 						data = JSON.parse(contents);
@@ -70,7 +73,10 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 
 						return { data, rawData };
 					} catch (e) {
-						const pathRelToContentDir = relative(fileURLToPath(contentDir), fileURLToPath(fileUrl));
+						const pathRelToContentDir = path.relative(
+							fileURLToPath(contentDir),
+							fileURLToPath(fileUrl)
+						);
 						const formattedError = isYAMLException(e)
 							? formatYAMLException(e)
 							: new Error('contains invalid YAML.');
@@ -98,14 +104,10 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		watchFiles: [],
 		devToolbarApps: [],
 		timer: new AstroTimer(),
-		injectedDts: [],
 	};
 }
 
-export async function createSettings(
-	config: AstroConfig,
-	cwd?: string
-): Promise<AstroSettings> {
+export async function createSettings(config: AstroConfig, cwd?: string): Promise<AstroSettings> {
 	const tsconfig = await loadTSConfig(cwd);
 	const settings = createBaseSettings(config);
 
