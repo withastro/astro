@@ -6,24 +6,26 @@ import { PROJECT_ID_FILE, getSessionIdFromFile } from '../../../tokens.js';
 import { getAstroStudioUrl } from '../../../utils.js';
 import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
 
-export async function cmd({  }: { config: AstroConfig; flags: Arguments }) {
+export async function cmd({ flags }: { config: AstroConfig; flags: Arguments }) {
 	const linkUrl = new URL(getAstroStudioUrl() + '/auth/cli/link');
 	const sessionToken = await getSessionIdFromFile();
 	if (!sessionToken) {
 		console.error(MISSING_SESSION_ID_ERROR);
 		process.exit(1);
 	}
-
-	const workspaceIdName = await promptWorkspaceName();
-	const projectIdName = await promptProjectName();
-
+	let body = {id: flags._[4]} as {id?: string; projectIdName?: string; workspaceIdName?: string};
+	if (!body.id) {
+		const workspaceIdName = await promptWorkspaceName();
+		const projectIdName = await promptProjectName();
+		body = {projectIdName, workspaceIdName};
+	}
 	const response = await fetch(linkUrl, {
 		method: 'POST',
 		headers: { 
 			Authorization: `Bearer ${await getSessionIdFromFile()}`,
 			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify({projectIdName, workspaceIdName})
+		body: JSON.stringify(body)
 	});
 	if (!response.ok) {
 		console.error(`Failed to link project: ${response.status} ${response.statusText}`);
