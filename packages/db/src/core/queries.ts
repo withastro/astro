@@ -116,8 +116,6 @@ export function getCreateForeignKeyQueries(collectionName: string, collection: D
 		const fields = asArray(foreignKey.fields);
 		const references = asArray(foreignKey.references);
 
-		console.log(references[0]);
-
 		if (fields.length !== references.length) {
 			throw new Error(
 				`Foreign key on ${collectionName} is misconfigured. \`fields\` and \`references\` must be the same length.`
