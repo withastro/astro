@@ -1,7 +1,7 @@
 import type { SQLiteInsertValue } from 'drizzle-orm/sqlite-core';
 import type { InferSelectModel } from 'drizzle-orm';
 import type { SqliteDB, Table } from '../runtime/index.js';
-import { z, type ZodTypeDef } from 'zod';
+import { z } from 'zod';
 import { getTableName, SQL } from 'drizzle-orm';
 
 export type MaybePromise<T> = T | Promise<T>;
@@ -60,13 +60,29 @@ const numberFieldSchema = numberFieldOptsSchema.and(
 	})
 );
 
-const textFieldBaseSchema = baseFieldSchema.extend({
-	type: z.literal('text'),
-	primaryKey: z.boolean().optional(),
-	default: z.union([z.string(), z.instanceof(SQL<any>)]).optional(),
-});
+const textFieldBaseSchema = baseFieldSchema
+	.omit({ optional: true })
+	.extend({
+		default: z.union([z.string(), z.instanceof(SQL<any>)]).optional(),
+	})
+	.and(
+		z.union([
+			z.object({
+				primaryKey: z.literal(false).optional(),
+				optional: z.boolean().optional(),
+			}),
+			z.object({
+				// text primary key allows NULL values.
+				// NULL values bypass unique checks, which could
+				// lead to duplicate URLs per record in Astro Studio.
+				// disable `optional` for primary keys.
+				primaryKey: z.literal(true),
+				optional: z.literal(false).optional(),
+			}),
+		])
+	);
 
-const textFieldSchema: z.ZodType<
+const textFieldOptsSchema: z.ZodType<
 	z.infer<typeof textFieldBaseSchema> & {
 		// ReferenceableField creates a circular type. Define ZodType to resolve.
 		references?: () => TextField;
@@ -75,8 +91,14 @@ const textFieldSchema: z.ZodType<
 	z.object({
 		references: z
 			.function()
-			.returns(z.lazy(() => textFieldBaseSchema))
+			.returns(z.lazy(() => textFieldSchema))
 			.optional(),
+	})
+);
+
+const textFieldSchema = textFieldOptsSchema.and(
+	z.object({
+		type: z.literal('text'),
 	})
 );
 
@@ -292,24 +314,25 @@ export function defineWritableCollection<TFields extends FieldsConfig>(
 export type AstroConfigWithDB = z.infer<typeof astroConfigWithDbSchema>;
 
 type FieldOpts<T extends DBFieldInput> = Omit<T, 'type'>;
-// We cannot use `Omit<NumberField, 'type'>`,
+// We cannot use `Omit<NumberField | TextField, 'type'>`,
 // since Omit collapses our union type on primary key.
 type NumberFieldOpts = z.input<typeof numberFieldOptsSchema>;
+type TextFieldOpts = z.input<typeof textFieldOptsSchema>;
 
 export const field = {
 	number: <T extends NumberFieldOpts>(opts: T = {} as T) => {
-		return { type: 'number', ...opts } satisfies NumberField;
+		return { type: 'number', ...opts } satisfies T & { type: 'number' };
 	},
 	boolean: <T extends FieldOpts<BooleanField>>(opts: T = {} as T) => {
-		return { type: 'boolean', ...opts } satisfies BooleanField;
+		return { type: 'boolean', ...opts } satisfies T & { type: 'boolean' };
 	},
-	text: <T extends FieldOpts<TextField>>(opts: T = {} as T) => {
-		return { type: 'text', ...opts } satisfies TextField;
+	text: <T extends TextFieldOpts>(opts: T = {} as T) => {
+		return { type: 'text', ...opts } satisfies T & { type: 'text' };
 	},
 	date<T extends FieldOpts<DateFieldInput>>(opts: T) {
-		return { type: 'date', ...opts } satisfies DateFieldInput;
+		return { type: 'date', ...opts } satisfies T & { type: 'date' };
 	},
 	json<T extends FieldOpts<JsonField>>(opts: T) {
-		return { type: 'json', ...opts } satisfies JsonField;
+		return { type: 'json', ...opts } satisfies T & { type: 'json' };
 	},
 };
