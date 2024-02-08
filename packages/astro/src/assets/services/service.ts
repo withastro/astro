@@ -158,8 +158,8 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
         if (options.inferSize && !isESMImportedImage(options.src)) {
 					try {
 							const result = await probe(options.src); // Directly probe the image URL
-							options.width = options.width || result.width;
-							options.height = options.height || result.height;
+							options.width ??= result.width;
+							options.height ??= result.height;
 					} catch {
 						throw new AstroError({
 							...AstroErrorData.FailedToProbeRemoteImage,
