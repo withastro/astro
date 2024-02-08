@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Static build: pages routes have distURL', () => {
@@ -22,14 +23,9 @@ describe('Static build: pages routes have distURL', () => {
 		await fixture.build();
 	});
 	it('Pages routes have distURL', async () => {
-		expect(checkRoutes).to.have.lengthOf.above(
-			0,
-			'Pages not found: build end hook not being called'
-		);
-		checkRoutes.forEach((p) =>
-			expect(p)
-				.to.have.property('distURL')
-				.that.is.a('URL', `${p.pathname} doesn't include distURL`)
-		);
+		assert.equal(checkRoutes.length > 0, true, 'Pages not found: build end hook not being called');
+		checkRoutes.forEach((p) => {
+			assert.equal(p.distURL instanceof URL, true, `${p.pathname} doesn't include distURL`);
+		});
 	});
 });
