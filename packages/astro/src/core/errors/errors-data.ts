@@ -518,7 +518,7 @@ export const InvalidImageService = {
  * Missing width and height attributes for `IMAGE_URL`. When using remote images, both dimensions are always required in order to avoid cumulative layout shift (CLS).
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
- * - [Image component#width-and-height-required](https://docs.astro.build/en/guides/images/#width-and-height-required-for-public-and-remote-images)
+ * - [Image component#width-and-height-required](https://docs.astro.build/en/guides/images/#width-and-height-required-for-images-in-public)
  * @description
  * For remote images, `width` and `height` cannot be inferred from the original file. As such, in order to avoid CLS, those two properties are always required.
  *
