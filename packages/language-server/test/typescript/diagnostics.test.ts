@@ -1,8 +1,13 @@
-import * as path from 'path';
-import { type Diagnostic, DiagnosticSeverity, Range } from '@volar/language-server';
+import {
+	DiagnosticSeverity,
+	FullDocumentDiagnosticReport,
+	Range,
+	type Diagnostic,
+} from '@volar/language-server';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
-import { type LanguageServer, getLanguageServer } from '../server.js';
+import * as path from 'path';
+import { getLanguageServer, type LanguageServer } from '../server.js';
 
 describe('TypeScript - Diagnostics', async () => {
 	let languageServer: LanguageServer;
@@ -80,5 +85,16 @@ describe('TypeScript - Diagnostics', async () => {
 				source: 'ts',
 			},
 		]);
+	});
+
+	it('can get diagnostics in script tags', async () => {
+		const document = await languageServer.openFakeDocument(
+			`<script>const something: string = "Hello";something;</script><div><script>console.log(doesnotexist);</script></div>`,
+			'astro'
+		);
+		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
+			document.uri
+		)) as FullDocumentDiagnosticReport;
+		expect(diagnostics.items).length(1);
 	});
 });
