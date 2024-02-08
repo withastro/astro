@@ -105,6 +105,7 @@ function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boo
 		case 'number': {
 			c = integer(fieldName);
 			if (field.default !== undefined) c = c.default(field.default);
+			// TODO: remove autoincrement per https://www.sqlite.org/autoinc.html
 			if (field.primaryKey === true) c = c.primaryKey({ autoIncrement: true });
 			break;
 		}
