@@ -90,7 +90,7 @@ test.describe('Dev Toolbar', () => {
 		await expect(xrayWindow.locator('astro-dev-toolbar-icon[icon=lightbulb]')).toBeVisible();
 	});
 
-	test('audit shows higlights and tooltips zzz', async ({ page, astro }) => {
+	test('audit shows higlights and tooltips', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
