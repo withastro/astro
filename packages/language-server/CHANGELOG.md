@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.6.3
+
+### Patch Changes
+
+- a97c048: Adds a completion for `transition:persist`
+
 ## 2.6.2
 
 ### Patch Changes
