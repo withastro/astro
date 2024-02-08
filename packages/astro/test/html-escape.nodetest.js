@@ -61,10 +61,10 @@ describe('HTML Escape', () => {
 			assert.equal(span.attr('${attr}'), '');
 
 			const ce = $('custom-element');
-			assert.equal(ce.attr('x-data'), '`${test}`')
+			assert.equal(ce.attr('x-data'), '`${test}`');
 
 			const script = $('script');
-			assert.equal(script.text(), 'console.log(`hello ${"world"}!`)')
+			assert.equal(script.text(), 'console.log(`hello ${"world"}!`)');
 		});
 	});
 });
