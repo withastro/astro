@@ -1,10 +1,9 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { getCollectionChangeQueries } from '../../dist/core/cli/migration-queries.js';
-import { setCollectionsMeta } from '../../dist/core/integration/index.js';
-import { field, defineCollection, collectionSchema } from '../../dist/core/types.js';
+import { field, defineCollection, collectionsSchema } from '../../dist/core/types.js';
 
-let User = defineCollection({
+const BaseUser = defineCollection({
 	fields: {
 		id: field.number({ primaryKey: true }),
 		name: field.text(),
@@ -14,26 +13,33 @@ let User = defineCollection({
 	},
 });
 
-let SentBox = defineCollection({
+const BaseSentBox = defineCollection({
 	fields: {
-		to: field.text(),
+		to: field.number(),
 		toName: field.text(),
 		subject: field.text(),
 		body: field.text(),
 	},
 });
 
-// Set collection names for references to resolve.
-// Avoid using collectionSchema.parse before this,
-// since Zod will lose some object references.
-setCollectionsMeta({ User, SentBox });
-User = collectionSchema.parse(User);
-SentBox = collectionSchema.parse(SentBox);
-
 const defaultAmbiguityResponses = {
 	collectionRenames: {},
 	fieldRenames: {},
 };
+
+/**
+ * @typedef {import('../../dist/core/types.js').DBCollection} DBCollection
+ * @param {{ User: DBCollection, SentBox: DBCollection }} params
+ * @returns
+ */
+function resolveReferences(
+	{ User = BaseUser, SentBox = BaseSentBox } = {
+		User: BaseUser,
+		SentBox: BaseSentBox,
+	}
+) {
+	return collectionsSchema.parse({ User, SentBox });
+}
 
 function userChangeQueries(
 	oldCollection,
@@ -50,22 +56,24 @@ function userChangeQueries(
 
 describe('reference queries', () => {
 	it('adds references with lossless table recreate', async () => {
-		const SentBoxFinal = collectionSchema.parse(
-			defineCollection({
+		const { SentBox: Initial } = resolveReferences();
+		const { SentBox: Final } = resolveReferences({
+			SentBox: defineCollection({
 				fields: {
-					...SentBox.fields,
-					to: field.text({ references: () => User.fields.id }),
+					...BaseSentBox.fields,
+					to: field.number({ references: () => BaseUser.fields.id }),
 				},
-			})
-		);
+			}),
+		});
 
-		const { queries } = await userChangeQueries(SentBox, SentBoxFinal);
+		const { queries } = await userChangeQueries(Initial, Final);
 
 		expect(queries[0]).to.not.be.undefined;
 		const tempTableName = getTempTableName(queries[0]);
+		expect(tempTableName).to.not.be.undefined;
 
 		expect(queries).to.deep.equal([
-			`CREATE TABLE \"${tempTableName}\" (_id INTEGER PRIMARY KEY, \"to\" text NOT NULL REFERENCES \"User\" (\"id\"), \"toName\" text NOT NULL, \"subject\" text NOT NULL, \"body\" text NOT NULL)`,
+			`CREATE TABLE \"${tempTableName}\" (_id INTEGER PRIMARY KEY, \"to\" integer NOT NULL REFERENCES \"User\" (\"id\"), \"toName\" text NOT NULL, \"subject\" text NOT NULL, \"body\" text NOT NULL)`,
 			`INSERT INTO \"${tempTableName}\" (\"_id\", \"to\", \"toName\", \"subject\", \"body\") SELECT \"_id\", \"to\", \"toName\", \"subject\", \"body\" FROM \"User\"`,
 			'DROP TABLE "User"',
 			`ALTER TABLE \"${tempTableName}\" RENAME TO \"User\"`,
@@ -73,22 +81,24 @@ describe('reference queries', () => {
 	});
 
 	it('removes references with lossless table recreate', async () => {
-		const SentBoxInitial = collectionSchema.parse(
-			defineCollection({
+		const { SentBox: Initial } = resolveReferences({
+			SentBox: defineCollection({
 				fields: {
-					...SentBox.fields,
-					to: field.text({ references: () => User.fields.id }),
+					...BaseSentBox.fields,
+					to: field.number({ references: () => BaseUser.fields.id }),
 				},
-			})
-		);
+			}),
+		});
+		const { SentBox: Final } = resolveReferences();
 
-		const { queries } = await userChangeQueries(SentBoxInitial, SentBox);
+		const { queries } = await userChangeQueries(Initial, Final);
 
 		expect(queries[0]).to.not.be.undefined;
 		const tempTableName = getTempTableName(queries[0]);
+		expect(tempTableName).to.not.be.undefined;
 
 		expect(queries).to.deep.equal([
-			`CREATE TABLE \"${tempTableName}\" (_id INTEGER PRIMARY KEY, \"to\" text NOT NULL, \"toName\" text NOT NULL, \"subject\" text NOT NULL, \"body\" text NOT NULL)`,
+			`CREATE TABLE \"${tempTableName}\" (_id INTEGER PRIMARY KEY, \"to\" integer NOT NULL, \"toName\" text NOT NULL, \"subject\" text NOT NULL, \"body\" text NOT NULL)`,
 			`INSERT INTO \"${tempTableName}\" (\"_id\", \"to\", \"toName\", \"subject\", \"body\") SELECT \"_id\", \"to\", \"toName\", \"subject\", \"body\" FROM \"User\"`,
 			'DROP TABLE "User"',
 			`ALTER TABLE \"${tempTableName}\" RENAME TO \"User\"`,
@@ -96,21 +106,22 @@ describe('reference queries', () => {
 	});
 
 	it('does not use ADD COLUMN when adding optional column with reference', async () => {
-		const SentBoxFinal = collectionSchema.parse(
-			defineCollection({
+		const { SentBox: Initial } = resolveReferences();
+		const { SentBox: Final } = resolveReferences({
+			SentBox: defineCollection({
 				fields: {
-					...SentBox.fields,
-					from: field.text({ references: () => User.fields.id, optional: true }),
+					...BaseSentBox.fields,
+					from: field.number({ references: () => BaseUser.fields.id, optional: true }),
 				},
-			})
-		);
+			}),
+		});
 
-		const { queries } = await userChangeQueries(SentBox, SentBoxFinal);
+		const { queries } = await userChangeQueries(Initial, Final);
 		expect(queries[0]).to.not.be.undefined;
 		const tempTableName = getTempTableName(queries[0]);
 
 		expect(queries).to.deep.equal([
-			`CREATE TABLE \"${tempTableName}\" (_id INTEGER PRIMARY KEY, \"to\" text NOT NULL, \"toName\" text NOT NULL, \"subject\" text NOT NULL, \"body\" text NOT NULL, \"from\" text REFERENCES \"User\" (\"id\"))`,
+			`CREATE TABLE \"${tempTableName}\" (_id INTEGER PRIMARY KEY, \"to\" integer NOT NULL, \"toName\" text NOT NULL, \"subject\" text NOT NULL, \"body\" text NOT NULL, \"from\" integer REFERENCES \"User\" (\"id\"))`,
 			`INSERT INTO \"${tempTableName}\" (\"_id\", \"to\", \"toName\", \"subject\", \"body\") SELECT \"_id\", \"to\", \"toName\", \"subject\", \"body\" FROM \"User\"`,
 			'DROP TABLE "User"',
 			`ALTER TABLE \"${tempTableName}\" RENAME TO \"User\"`,
@@ -118,31 +129,34 @@ describe('reference queries', () => {
 	});
 
 	it('adds and updates foreign key with lossless table recreate', async () => {
-		const SentBoxFinal = collectionSchema.parse(
-			defineCollection({
-				...SentBox,
+		const { SentBox: InitialWithoutFK } = resolveReferences();
+		const { SentBox: InitialWithDifferentFK } = resolveReferences({
+			SentBox: defineCollection({
+				...BaseSentBox,
+				foreignKeys: [{ fields: ['to'], references: () => [BaseUser.fields.id] }],
+			}),
+		});
+		const { SentBox: Final } = resolveReferences({
+			SentBox: defineCollection({
+				...BaseSentBox,
 				foreignKeys: [
-					{ fields: ['to', 'toName'], references: () => [User.fields.id, User.fields.name] },
+					{
+						fields: ['to', 'toName'],
+						references: () => [BaseUser.fields.id, BaseUser.fields.name],
+					},
 				],
-			})
-		);
-
-		const SentBoxWithDifferentFK = collectionSchema.parse(
-			defineCollection({
-				...SentBox,
-				foreignKeys: [{ fields: ['to'], references: () => [User.fields.id] }],
-			})
-		);
+			}),
+		});
 
 		const expected = (tempTableName) => [
-			`CREATE TABLE \"${tempTableName}\" (_id INTEGER PRIMARY KEY, \"to\" text NOT NULL, \"toName\" text NOT NULL, \"subject\" text NOT NULL, \"body\" text NOT NULL, FOREIGN KEY (\"to\", \"toName\") REFERENCES \"User\"(\"id\", \"name\"))`,
+			`CREATE TABLE \"${tempTableName}\" (_id INTEGER PRIMARY KEY, \"to\" integer NOT NULL, \"toName\" text NOT NULL, \"subject\" text NOT NULL, \"body\" text NOT NULL, FOREIGN KEY (\"to\", \"toName\") REFERENCES \"User\"(\"id\", \"name\"))`,
 			`INSERT INTO \"${tempTableName}\" (\"_id\", \"to\", \"toName\", \"subject\", \"body\") SELECT \"_id\", \"to\", \"toName\", \"subject\", \"body\" FROM \"User\"`,
 			'DROP TABLE "User"',
 			`ALTER TABLE \"${tempTableName}\" RENAME TO \"User\"`,
 		];
 
-		const addedForeignKey = await userChangeQueries(SentBox, SentBoxFinal);
-		const updatedForeignKey = await userChangeQueries(SentBoxWithDifferentFK, SentBoxFinal);
+		const addedForeignKey = await userChangeQueries(InitialWithoutFK, Final);
+		const updatedForeignKey = await userChangeQueries(InitialWithDifferentFK, Final);
 
 		expect(addedForeignKey.queries[0]).to.not.be.undefined;
 		expect(updatedForeignKey.queries[0]).to.not.be.undefined;
@@ -157,7 +171,7 @@ describe('reference queries', () => {
 	});
 });
 
-/** @param {string} query */
+/** @param {string | undefined} query */
 function getTempTableName(query) {
 	return query.match(/User_([a-z0-9]+)/)?.[0];
 }
