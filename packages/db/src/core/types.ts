@@ -1,7 +1,7 @@
 import type { SQLiteInsertValue } from 'drizzle-orm/sqlite-core';
 import type { InferSelectModel } from 'drizzle-orm';
 import type { SqliteDB, Table } from '../runtime/index.js';
-import { z } from 'zod';
+import { z, type ZodTypeDef } from 'zod';
 import { getTableName, SQL } from 'drizzle-orm';
 
 export type MaybePromise<T> = T | Promise<T>;
@@ -19,55 +19,72 @@ const baseFieldSchema = z.object({
 
 const booleanFieldSchema = baseFieldSchema.extend({
 	type: z.literal('boolean'),
-	default: z.union([
-		z.boolean(),
-		z.instanceof(SQL<any>),
-	]).optional(),
+	default: z.union([z.boolean(), z.instanceof(SQL<any>)]).optional(),
 });
 
-const numberFieldSchema: z.ZodType<
-	{
+const numberFieldBaseSchema = baseFieldSchema.omit({ optional: true }).and(
+	z.union([
+		z.object({
+			primaryKey: z.literal(false).optional().default(false),
+			optional: z.boolean().optional(),
+			default: z.union([z.number(), z.instanceof(SQL<any>)]).optional(),
+		}),
+		z
+			.object({
+				// `integer primary key` uses ROWID as the default value.
+				// `optional` and `default` do not have an effect,
+				// so omit these config options for primary keys.
+				primaryKey: z.literal(true),
+			})
+			.transform((val) => ({ ...val, optional: false, default: undefined })),
+	])
+);
+
+const numberFieldOptsSchema: z.ZodType<
+	z.output<typeof numberFieldBaseSchema> & {
 		// ReferenceableField creates a circular type. Define ZodType to resolve.
-		type: 'number';
-		default?: number | SQL<any> | undefined;
-		references?: () => ReferenceableField | undefined;
-		primaryKey?: boolean | undefined;
-	} & z.infer<typeof baseFieldSchema>
-> = baseFieldSchema.extend({
-	type: z.literal('number'),
-	default: z.union([
-		z.number(),
-		z.instanceof(SQL<any>),
-	]).optional(),
-	references: z
-		.function()
-		.returns(z.lazy(() => referenceableFieldSchema))
-		.optional(),
+		references?: () => NumberFieldInput;
+	},
+	ZodTypeDef,
+	z.input<typeof numberFieldBaseSchema> & {
+		references?: () => NumberFieldInput;
+	}
+> = numberFieldBaseSchema.and(
+	z.object({
+		references: z
+			.function()
+			.returns(z.lazy(() => numberFieldSchema))
+			.optional(),
+	})
+);
+
+export type NumberFieldOpts = z.input<typeof numberFieldOptsSchema>;
+
+const numberFieldSchema = numberFieldOptsSchema.and(
+	z.object({
+		type: z.literal('number'),
+	})
+);
+
+const textFieldBaseSchema = baseFieldSchema.extend({
+	type: z.literal('text'),
 	primaryKey: z.boolean().optional(),
+	default: z.union([z.string(), z.instanceof(SQL<any>)]).optional(),
 });
 
 const textFieldSchema: z.ZodType<
-	{
+	z.infer<typeof textFieldBaseSchema> & {
 		// ReferenceableField creates a circular type. Define ZodType to resolve.
-		type: 'text';
-		multiline?: boolean | undefined;
-		default?: string | SQL<any> | undefined;
-		references?: () => ReferenceableField | undefined;
-		primaryKey?: boolean | undefined;
-	} & z.infer<typeof baseFieldSchema>
-> = baseFieldSchema.extend({
-	type: z.literal('text'),
-	multiline: z.boolean().optional(),
-	default: z.union([
-		z.string(),
-		z.instanceof(SQL<any>),
-	]).optional(),
-	references: z
-		.function()
-		.returns(z.lazy(() => referenceableFieldSchema))
-		.optional(),
-	primaryKey: z.boolean().optional(),
-});
+		references?: () => TextField;
+	}
+> = textFieldBaseSchema.and(
+	z.object({
+		references: z
+			.function()
+			.returns(z.lazy(() => textFieldBaseSchema))
+			.optional(),
+	})
+);
 
 const dateFieldSchema = baseFieldSchema.extend({
 	type: z.literal('date'),
@@ -93,8 +110,8 @@ const fieldSchema = z.union([
 	dateFieldSchema,
 	jsonFieldSchema,
 ]);
-export const referenceableFieldSchema = z.union([textFieldSchema, numberFieldSchema]);
-export type ReferenceableField = z.infer<typeof referenceableFieldSchema>;
+export const referenceableFieldSchema = z.union([textFieldBaseSchema, numberFieldBaseSchema]);
+export type ReferenceableField = z.input<typeof referenceableFieldSchema>;
 const fieldsSchema = z.record(fieldSchema);
 
 export const indexSchema = z.object({
@@ -134,6 +151,7 @@ export const collectionSchema = z.union([readableCollectionSchema, writableColle
 export const collectionsSchema = z.record(collectionSchema);
 
 export type BooleanField = z.infer<typeof booleanFieldSchema>;
+export type NumberFieldInput = z.input<typeof numberFieldSchema>;
 export type NumberField = z.infer<typeof numberFieldSchema>;
 export type TextField = z.infer<typeof textFieldSchema>;
 export type DateField = z.infer<typeof dateFieldSchema>;
@@ -149,7 +167,7 @@ export type FieldType =
 	| JsonField['type'];
 
 export type DBField = z.infer<typeof fieldSchema>;
-export type DBFieldInput = DateFieldInput | BooleanField | NumberField | TextField | JsonField;
+export type DBFieldInput = DateFieldInput | BooleanField | NumberFieldInput | TextField | JsonField;
 export type DBFields = z.infer<typeof fieldsSchema>;
 export type DBCollection = z.infer<
 	typeof readableCollectionSchema | typeof writableCollectionSchema
@@ -283,8 +301,8 @@ export type AstroConfigWithDB = z.infer<typeof astroConfigWithDbSchema>;
 type FieldOpts<T extends DBFieldInput> = Omit<T, 'type'>;
 
 export const field = {
-	number: <T extends FieldOpts<NumberField>>(opts: T = {} as T) => {
-		return { type: 'number', ...opts } satisfies NumberField;
+	number: <T extends NumberFieldOpts>(opts: T = {} as T) => {
+		return { type: 'number', ...opts } satisfies NumberFieldInput;
 	},
 	boolean: <T extends FieldOpts<BooleanField>>(opts: T = {} as T) => {
 		return { type: 'boolean', ...opts } satisfies BooleanField;
