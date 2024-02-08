@@ -58,6 +58,10 @@ ${showHelp()}`);
 		
 Usage:
 
+astro db login       Authenticate your machine with Astro Studio
+astro db logout      End your authenticated session with Astro Studio
+astro db link        Link an Astro Studio project to this directory
+
 astro db sync        Creates snapshot based on your schema
 astro db push        Pushes migrations to Astro Studio
 astro db verify      Verifies migrations have been pushed and errors if not`;
