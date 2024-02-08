@@ -25,29 +25,25 @@ const booleanFieldSchema = baseFieldSchema.extend({
 const numberFieldBaseSchema = baseFieldSchema.omit({ optional: true }).and(
 	z.union([
 		z.object({
-			primaryKey: z.literal(false).optional().default(false),
+			primaryKey: z.literal(false).optional(),
 			optional: z.boolean().optional(),
 			default: z.union([z.number(), z.instanceof(SQL<any>)]).optional(),
 		}),
-		z
-			.object({
-				// `integer primary key` uses ROWID as the default value.
-				// `optional` and `default` do not have an effect,
-				// so omit these config options for primary keys.
-				primaryKey: z.literal(true),
-			})
-			.transform((val) => ({ ...val, optional: false, default: undefined })),
+		z.object({
+			// `integer primary key` uses ROWID as the default value.
+			// `optional` and `default` do not have an effect,
+			// so disable these config options for primary keys.
+			primaryKey: z.literal(true),
+			optional: z.literal(false).optional(),
+			default: z.literal(undefined).optional(),
+		}),
 	])
 );
 
 const numberFieldOptsSchema: z.ZodType<
-	z.output<typeof numberFieldBaseSchema> & {
+	z.infer<typeof numberFieldBaseSchema> & {
 		// ReferenceableField creates a circular type. Define ZodType to resolve.
-		references?: () => NumberFieldInput;
-	},
-	ZodTypeDef,
-	z.input<typeof numberFieldBaseSchema> & {
-		references?: () => NumberFieldInput;
+		references?: () => NumberField;
 	}
 > = numberFieldBaseSchema.and(
 	z.object({
@@ -57,8 +53,6 @@ const numberFieldOptsSchema: z.ZodType<
 			.optional(),
 	})
 );
-
-export type NumberFieldOpts = z.input<typeof numberFieldOptsSchema>;
 
 const numberFieldSchema = numberFieldOptsSchema.and(
 	z.object({
@@ -110,7 +104,7 @@ const fieldSchema = z.union([
 	dateFieldSchema,
 	jsonFieldSchema,
 ]);
-export const referenceableFieldSchema = z.union([textFieldBaseSchema, numberFieldBaseSchema]);
+export const referenceableFieldSchema = z.union([textFieldBaseSchema, numberFieldSchema]);
 export type ReferenceableField = z.input<typeof referenceableFieldSchema>;
 const fieldsSchema = z.record(fieldSchema);
 
@@ -151,7 +145,6 @@ export const collectionSchema = z.union([readableCollectionSchema, writableColle
 export const collectionsSchema = z.record(collectionSchema);
 
 export type BooleanField = z.infer<typeof booleanFieldSchema>;
-export type NumberFieldInput = z.input<typeof numberFieldSchema>;
 export type NumberField = z.infer<typeof numberFieldSchema>;
 export type TextField = z.infer<typeof textFieldSchema>;
 export type DateField = z.infer<typeof dateFieldSchema>;
@@ -167,7 +160,7 @@ export type FieldType =
 	| JsonField['type'];
 
 export type DBField = z.infer<typeof fieldSchema>;
-export type DBFieldInput = DateFieldInput | BooleanField | NumberFieldInput | TextField | JsonField;
+export type DBFieldInput = DateFieldInput | BooleanField | NumberField | TextField | JsonField;
 export type DBFields = z.infer<typeof fieldsSchema>;
 export type DBCollection = z.infer<
 	typeof readableCollectionSchema | typeof writableCollectionSchema
@@ -299,10 +292,13 @@ export function defineWritableCollection<TFields extends FieldsConfig>(
 export type AstroConfigWithDB = z.infer<typeof astroConfigWithDbSchema>;
 
 type FieldOpts<T extends DBFieldInput> = Omit<T, 'type'>;
+// We cannot use `Omit<NumberField, 'type'>`,
+// since Omit collapses our union type on primary key.
+type NumberFieldOpts = z.input<typeof numberFieldOptsSchema>;
 
 export const field = {
 	number: <T extends NumberFieldOpts>(opts: T = {} as T) => {
-		return { type: 'number', ...opts } satisfies NumberFieldInput;
+		return { type: 'number', ...opts } satisfies NumberField;
 	},
 	boolean: <T extends FieldOpts<BooleanField>>(opts: T = {} as T) => {
 		return { type: 'boolean', ...opts } satisfies BooleanField;
