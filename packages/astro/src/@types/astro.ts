@@ -1997,7 +1997,7 @@ export interface AstroAdapterFeatures {
 }
 
 export interface InjectedDts {
-	filename: `${string}.d.ts`
+	filename: string
 	content: string
 	source: 'core' | 'integration'
 }

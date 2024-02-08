@@ -54,6 +54,7 @@ type CreateContentGeneratorParams = {
 	/** This is required for loading the content config */
 	viteServer: ViteDevServer;
 	fs: typeof fsMod;
+	prepareDts?: (filename: string) => void;
 	injectDts: (dts: InjectedDts) => void
 };
 
@@ -63,6 +64,7 @@ export async function createContentTypesGenerator({
 	logger,
 	settings,
 	viteServer,
+	prepareDts,
 	injectDts
 }: CreateContentGeneratorParams) {
 	const collectionEntryMap: CollectionEntryMap = {};
@@ -70,6 +72,8 @@ export async function createContentTypesGenerator({
 	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 	const dataEntryExts = getDataEntryExts(settings);
+
+	prepareDts?.(CONTENT_TYPES_FILE);
 
 	let events: ContentEvent[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;

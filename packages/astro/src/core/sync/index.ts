@@ -20,7 +20,6 @@ import { AstroError, AstroErrorData, createSafeError, isAstroError } from '../er
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
-import type { TSConfckParseResult } from 'tsconfck';
 import { loadTSConfig } from '../config/tsconfig.js';
 import { dirname, relative } from 'node:path';
 import { isRelativePath } from '../path.js';
@@ -124,15 +123,13 @@ export async function syncInternal(
 			fs: fs ?? fsMod,
 			settings,
 			viteServer: tempViteServer,
-			injectDts: (dts) => settings.injectedDts.push(dts),
+			prepareDts: (filename) =>
+				settings.injectedDts.push({ filename, content: '', source: 'core' }),
+			injectDts: (dts) => injectDts({ ...dts, codegenDir: settings.config.codegenDir }),
 		});
+		await handleTypescriptConfig(settings, logger);
+
 		const typesResult = await contentTypesGenerator.init();
-
-		const tsconfig = await loadTSConfig(fileURLToPath(settings.config.root));
-		if (typeof tsconfig !== 'string') {
-			await handleTypescriptConfig(settings, tsconfig.rawConfig, logger);
-		}
-
 		const contentConfig = globalContentConfigObserver.get();
 		if (contentConfig.status === 'error') {
 			throw contentConfig.error;
@@ -162,17 +159,32 @@ export async function syncInternal(
 		await tempViteServer.close();
 	}
 
-	logger.info(null, `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
+	logger.info('types', `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 	await setUpEnvTs({ settings, logger, fs: fs ?? fsMod });
 
 	return 0;
 }
 
-async function handleTypescriptConfig(
-	{ config, injectedDts }: AstroSettings,
-	tsconfig: TSConfckParseResult,
-	logger: Logger
-) {
+async function handleTypescriptConfig({ config, injectedDts }: AstroSettings, logger: Logger) {
+	function getRelativePath(a: URL, b: URL) {
+		return normalizePath(relative(fileURLToPath(a), fileURLToPath(b)));
+	}
+
+	let rawTsConfigPath = getRelativePath(config.root, new URL('tsconfig.json', config.codegenDir));
+	if (!isRelativePath(rawTsConfigPath)) {
+		rawTsConfigPath = `./${rawTsConfigPath}`;
+	}
+	const tsconfigPath = fileURLToPath(new URL(rawTsConfigPath, config.root));
+
+	// We need to create a stub tsconfig or loadTSConfig will fail
+	fsMod.mkdirSync(dirname(tsconfigPath), { recursive: true });
+	fsMod.writeFileSync(tsconfigPath, '{}', 'utf-8');
+
+	const tsconfig = await loadTSConfig(fileURLToPath(config.root));
+	if (typeof tsconfig === 'string') {
+		return;
+	}
+
 	const invalidFields: Array<string> = [];
 
 	if (tsconfig.tsconfig?.include?.length > 0) {
@@ -194,10 +206,6 @@ async function handleTypescriptConfig(
 		);
 	}
 
-	function getRelativePath(a: URL, b: URL) {
-		return normalizePath(relative(fileURLToPath(a), fileURLToPath(b)));
-	}
-
 	function getField(_tsconfig: any, name: 'include' | 'exclude' | 'files') {
 		return [
 			...(config.typescript?.[name] ?? []),
@@ -210,7 +218,7 @@ async function handleTypescriptConfig(
 		return [...new Set([...array])];
 	}
 
-	const newTsconfig = {
+	const newTsconfig: Record<string, Array<string> | undefined> = {
 		include: deduplicate(['./astro.d.ts', '..', ...getField(tsconfig.tsconfig, 'include')]),
 		exclude: deduplicate([
 			...getField(tsconfig.tsconfig, 'exclude'),
@@ -223,24 +231,23 @@ async function handleTypescriptConfig(
 		]),
 		files: deduplicate(getField(tsconfig.tsconfig, 'files')),
 	};
-
-	let rawTsConfigPath = getRelativePath(config.root, new URL('tsconfig.json', config.codegenDir));
-	if (!isRelativePath(rawTsConfigPath)) {
-		rawTsConfigPath = `./${rawTsConfigPath}`;
+	// Prevent VSC from complaining
+	if (newTsconfig.files?.length === 0) {
+		newTsconfig.files = undefined;
 	}
-	const tsconfigPath = fileURLToPath(new URL(rawTsConfigPath, config.root));
 
-	fsMod.mkdirSync(dirname(tsconfigPath), { recursive: true });
 	fsMod.writeFileSync(tsconfigPath, JSON.stringify(newTsconfig, null, 2), 'utf-8');
 
-	injectedDts.push({
+	injectDts({
+		codegenDir: config.codegenDir,
 		filename: 'astro.d.ts',
 		content: `/// <reference types="astro/client" />
 ${injectedDts.map((e) => `/// <reference path="${e.filename}" />`).join('\n')}
 
 export {};
-	`,
-	source: 'core'
+`,
+		source: 'core',
+		bypassValidation: true,
 	});
 
 	for (const dts of injectedDts) {

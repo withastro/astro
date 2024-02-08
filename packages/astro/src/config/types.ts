@@ -6,8 +6,9 @@ export function injectDts({
 	codegenDir,
 	filename,
 	content,
-}: Pick<AstroConfig, 'codegenDir'> & InjectedDts) {
-	if (!filename.endsWith('.d.ts') || filename === 'astro.d.ts') {
+	bypassValidation = false,
+}: Pick<AstroConfig, 'codegenDir'> & InjectedDts & { bypassValidation?: boolean }) {
+	if (!bypassValidation && (!filename.endsWith('.d.ts') || filename === 'astro.d.ts')) {
 		throw new AstroError(AstroErrorData.InvalidInjectTypesFilename);
 	}
 
