@@ -1,13 +1,13 @@
+import * as path from 'path';
 import {
+	type Diagnostic,
 	DiagnosticSeverity,
 	FullDocumentDiagnosticReport,
 	Range,
-	type Diagnostic,
 } from '@volar/language-server';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
-import * as path from 'path';
-import { getLanguageServer, type LanguageServer } from '../server.js';
+import { type LanguageServer, getLanguageServer } from '../server.js';
 
 describe('TypeScript - Diagnostics', async () => {
 	let languageServer: LanguageServer;
