@@ -26,7 +26,7 @@ describe('Partial HTML', async () => {
 
 		// test 2: correct CSS present
 		const allInjectedStyles = $('style').text();
-		expect(allInjectedStyles).to.match(/\[data-astro-cid-[^{]+{color:red}/);
+		expect(allInjectedStyles).to.match(/\[data-astro-cid-[^{]+\{color:red\}/);
 	});
 
 	it('injects framework styles', async () => {
@@ -38,7 +38,7 @@ describe('Partial HTML', async () => {
 
 		// test 2: link tag present
 		const allInjectedStyles = $('style').text().replace(/\s*/g, '');
-		expect(allInjectedStyles).to.match(/h1{color:red;}/);
+		expect(allInjectedStyles).to.match(/h1\{color:red;\}/);
 	});
 
 	it('pages with a head, injection happens inside', async () => {

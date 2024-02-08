@@ -384,11 +384,11 @@ const toIdent = (name: string) => {
 	const ident = name
 		.trim()
 		// Remove astro or (astrojs) prefix and suffix
-		.replace(/[-_\.\/]?astro(?:js)?[-_\.]?/g, '')
+		.replace(/[-_./]?astro(?:js)?[-_.]?/g, '')
 		// drop .js suffix
 		.replace(/\.js/, '')
 		// convert to camel case
-		.replace(/(?:[\.\-\_\/]+)([a-zA-Z])/g, (_, w) => w.toUpperCase())
+		.replace(/[.\-_/]+([a-zA-Z])/g, (_, w) => w.toUpperCase())
 		// drop invalid first characters
 		.replace(/^[^a-zA-Z$_]+/, '');
 	return `${ident[0].toLowerCase()}${ident.slice(1)}`;

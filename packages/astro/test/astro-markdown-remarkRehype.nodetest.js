@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { describe, before, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -14,8 +15,11 @@ describe('Astro Markdown without remark-rehype config', () => {
 	it('Renders footnotes with default English labels', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		expect($('#footnote-label').text()).to.equal('Footnotes');
-		expect($('.data-footnote-backref').first().attr('aria-label')).to.equal('Back to reference 1');
+		assert.strictEqual($('#footnote-label').text(), 'Footnotes');
+		assert.strictEqual(
+			$('.data-footnote-backref').first().attr('aria-label'),
+			'Back to reference 1'
+		);
 	});
 });
 
@@ -37,7 +41,7 @@ describe('Astro Markdown with remark-rehype config', () => {
 	it('Renders footnotes with values from the configuration', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		expect($('#footnote-label').text()).to.equal('Catatan kaki');
-		expect($('.data-footnote-backref').first().attr('aria-label')).to.equal('Kembali ke konten');
+		assert.strictEqual($('#footnote-label').text(), 'Catatan kaki');
+		assert.strictEqual($('.data-footnote-backref').first().attr('aria-label'), 'Kembali ke konten');
 	});
 });
