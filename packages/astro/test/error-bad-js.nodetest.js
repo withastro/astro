@@ -27,11 +27,11 @@ describe('Errors in JavaScript', () => {
 		let res = await fixture.fetch('/');
 		let html = await res.text();
 
-		assert.equal(html.includes('ReferenceError'), true)
+		assert.equal(html.includes('ReferenceError'), true);
 
 		res = await fixture.fetch('/');
 		await res.text();
 
-		assert.equal(html.includes('ReferenceError'), true)
+		assert.equal(html.includes('ReferenceError'), true);
 	});
 });
