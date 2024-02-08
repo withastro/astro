@@ -24,7 +24,7 @@ export function hasPrimaryKey(field: DBField) {
 // Exports a few common expressions
 export const NOW = sql`CURRENT_TIMESTAMP`;
 export const TRUE = sql`TRUE`;
-export const FALSE = sql`FALSE`
+export const FALSE = sql`FALSE`;
 
 const dateType = customType<{ data: Date; driverData: string }>({
 	dataType() {
@@ -105,8 +105,7 @@ function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boo
 		case 'number': {
 			c = integer(fieldName);
 			if (field.default !== undefined) c = c.default(field.default);
-			// TODO: remove autoincrement per https://www.sqlite.org/autoinc.html
-			if (field.primaryKey === true) c = c.primaryKey({ autoIncrement: true });
+			if (field.primaryKey === true) c = c.primaryKey();
 			break;
 		}
 		case 'boolean': {
@@ -132,9 +131,9 @@ function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boo
 					c = c.default(
 						def instanceof SQL
 							? def
-								// default comes pre-transformed to an ISO string for D1 storage.
+							: // default comes pre-transformed to an ISO string for D1 storage.
 								// parse back to a Date for Drizzle.
-							:	z.coerce.date().parse(field.default)
+								z.coerce.date().parse(field.default)
 					);
 				}
 			}
@@ -152,8 +151,8 @@ function isSerializedSQL(obj: unknown): boolean {
 }
 
 function convertSerializedSQL<T = unknown>(obj: T): SQL<any> | T {
-	if(isSerializedSQL(obj)) {
-		return new SQL((obj as any).queryChunks)
+	if (isSerializedSQL(obj)) {
+		return new SQL((obj as any).queryChunks);
 	} else {
 		return obj;
 	}

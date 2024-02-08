@@ -219,11 +219,11 @@ export function hasDefault(field: DBField): field is DBFieldWithDefault {
 
 function toStringDefault<T>(def: T | SQL<any>): string {
 	const type = typeof def;
-	if(def instanceof SQL) {
+	if (def instanceof SQL) {
 		return sqlite.sqlToQuery(def).sql;
-	} else if(type === 'string') {
+	} else if (type === 'string') {
 		return sqlite.escapeString(def as string);
-	} else if(type === 'boolean') {
+	} else if (type === 'boolean') {
 		return def ? 'TRUE' : 'FALSE';
 	} else {
 		return def + '';
@@ -233,11 +233,8 @@ function toStringDefault<T>(def: T | SQL<any>): string {
 function getDefaultValueSql(columnName: string, column: DBFieldWithDefault): string {
 	switch (column.type) {
 		case 'boolean':
-			return toStringDefault(column.default);
 		case 'number':
-			return `${column.default ? toStringDefault(column.default) : 'AUTOINCREMENT'}`;
 		case 'text':
-			return toStringDefault(column.default);
 		case 'date':
 			return toStringDefault(column.default);
 		case 'json': {
