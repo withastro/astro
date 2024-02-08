@@ -19,19 +19,19 @@ describe('Static build - frameworks', () => {
 
 	it('can build preact', async () => {
 		const html = await fixture.readFile('/preact/index.html');
-		assert.equal(typeof html === 'string', true);
+		assert.equal(typeof html, 'string');
 	});
 
 	it('can build react', async () => {
 		const html = await fixture.readFile('/react/index.html');
-		assert.equal(typeof html === 'string', true);
+		assert.equal(typeof html, 'string');
 	});
 
 	// SKIP: Lit polyfills the server in a way that breaks `sass` require/import
 	// Leads to CI bugs like: "Cannot read properties of undefined (reading 'length')"
 	it.skip('can build lit', async () => {
 		const html = await fixture.readFile('/lit/index.html');
-		assert.equal(typeof html === 'string', true);
+		assert.equal(typeof html, 'string');
 	});
 
 	it('can build nested framework usage', async () => {
