@@ -64,6 +64,7 @@ const textFieldBaseSchema = baseFieldSchema
 	.omit({ optional: true })
 	.extend({
 		default: z.union([z.string(), z.instanceof(SQL<any>)]).optional(),
+		multiline: z.boolean().optional(),
 	})
 	.and(
 		z.union([
