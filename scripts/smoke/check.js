@@ -117,9 +117,12 @@ async function prepareExample(examplePath) {
 	}
 
 	const rawTsConfig = (tsconfig.extended ?? [])[0]
-	rawTsConfig.tsconfig.extends
-		.replace('astro/tsconfig/base', 'astro/tsconfigs/strictest')
+	/** @type {Array<string>} */
+	const extendsFields = rawTsConfig.tsconfig.extends
+	extendsFields.map(e =>
+		e.replace('astro/tsconfig/base', 'astro/tsconfigs/strictest')
 		.replace('astro/tsconfigs/strict', 'astro/tsconfigs/strictest')
+	)
 
 	originalConfig = readFileSync(tsconfigPath).toString();
 	
