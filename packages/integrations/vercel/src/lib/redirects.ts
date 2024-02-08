@@ -76,6 +76,10 @@ function getRedirectStatus(route: RouteData): number {
 	return 301;
 }
 
+export function escapeRegex(content: string) {
+	return `^${getMatchPattern([[{ content, dynamic: false, spread: false }]])}$`;
+}
+
 export function getRedirects(routes: RouteData[], config: AstroConfig): VercelRoute[] {
 	let redirects: VercelRoute[] = [];
 

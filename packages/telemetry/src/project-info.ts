@@ -91,7 +91,7 @@ function getProjectId(isCI: boolean): Pick<ProjectInfo, 'anonymousProjectId' | '
 	// If we're running in CI, the current working directory is not unique.
 	// If the cwd is a single level deep (ex: '/app'), it's probably not unique.
 	const cwd = process.cwd();
-	const isCwdGeneric = (cwd.match(/[\/|\\]/g) || []).length === 1;
+	const isCwdGeneric = (cwd.match(/[/|\\]/g) || []).length === 1;
 	if (isCI || isCwdGeneric) {
 		return {
 			isGit: false,

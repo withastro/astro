@@ -524,7 +524,7 @@ export function makeAstroPageEntryPointFileName(
 	const name = route?.route ?? pageModuleId;
 	return `pages${name
 		.replace(/\/$/, '/index')
-		.replaceAll(/[\[\]]/g, '_')
+		.replaceAll(/[[\]]/g, '_')
 		.replaceAll('...', '---')}.astro.mjs`;
 }
 

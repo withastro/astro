@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 4.0.5
+
+### Patch Changes
+
+- [#9967](https://github.com/withastro/astro/pull/9967) [`8b8f26fdf2af2a769f4846bdaaf4cf6b30f9e37c`](https://github.com/withastro/astro/commit/8b8f26fdf2af2a769f4846bdaaf4cf6b30f9e37c) Thanks [@madcampos](https://github.com/madcampos)! - Allows `enclosure' to have a length of 0
+
 ## 4.0.4
 
 ### Patch Changes
