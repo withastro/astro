@@ -1999,6 +1999,7 @@ export interface AstroAdapterFeatures {
 export interface InjectedDts {
 	filename: `${string}.d.ts`
 	content: string
+	source: 'core' | 'integration'
 }
 
 export interface AstroSettings {
@@ -2617,7 +2618,7 @@ export interface AstroIntegration {
 			addDevToolbarApp: (entrypoint: string) => void;
 			addMiddleware: (mid: AstroIntegrationMiddleware) => void;
 			logger: AstroIntegrationLogger;
-			injectDts: (dts: InjectedDts) => void;
+			injectDts: (dts: Omit<InjectedDts, 'source'>) => void;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.

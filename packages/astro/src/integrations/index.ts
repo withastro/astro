@@ -170,7 +170,19 @@ export async function runHookConfigSetup({
 					updatedSettings.middlewares[order].push(entrypoint);
 				},
 				logger: integrationLogger,
-				injectDts: (dts) => updatedSettings.injectedDts.push(dts),
+				injectDts: (dts) => {
+					if (
+						updatedSettings.injectedDts.some(
+							(_dts) => _dts.filename === dts.filename && _dts.source === 'core'
+						)
+					) {
+						logger.warn(
+							null,
+							`The integration ${integration.name} is overriding a core dts: ${dts.filename}`
+						);
+					}
+					updatedSettings.injectedDts.push({ ...dts, source: 'integration' });
+				},
 			};
 
 			// ---

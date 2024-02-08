@@ -458,7 +458,7 @@ async function writeContentFiles({
 		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never'
 	);
 
-	injectDts({ filename: CONTENT_TYPES_FILE, content: typeTemplateContent });
+	injectDts({ filename: CONTENT_TYPES_FILE, content: typeTemplateContent, source: 'core' });
 }
 
 function warnNonexistentCollections({

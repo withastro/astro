@@ -233,15 +233,19 @@ async function handleTypescriptConfig(
 	fsMod.mkdirSync(dirname(tsconfigPath), { recursive: true });
 	fsMod.writeFileSync(tsconfigPath, JSON.stringify(newTsconfig, null, 2), 'utf-8');
 
-	const astroDtsPath = fileURLToPath(new URL('astro.d.ts', config.codegenDir));
-	fsMod.writeFileSync(
-		astroDtsPath,
-		`/// <reference types="astro/client" />
+	injectedDts.push({
+		filename: 'astro.d.ts',
+		content: `/// <reference types="astro/client" />
 ${injectedDts.map((e) => `/// <reference path="${e.filename}" />`).join('\n')}
 
 export {};
-	`
-	);
+	`,
+	source: 'core'
+	});
+
+	for (const dts of injectedDts) {
+		injectDts({ codegenDir: config.codegenDir, ...dts });
+	}
 
 	// extends is a reserved keyword
 	const { extends: extendsField } = tsconfig.tsconfig;
@@ -255,7 +259,4 @@ export {};
 		rawTsConfigPath,
 	];
 	fsMod.writeFileSync(tsconfig.tsconfigFile, JSON.stringify(outputTsconfig, null, 2), 'utf-8');
-	for (const dts of injectedDts) {
-		injectDts({ codegenDir: config.codegenDir, ...dts });
-	}
 }
