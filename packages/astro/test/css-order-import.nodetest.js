@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, describe, before, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -63,8 +64,8 @@ describe('CSS ordering - import order', () => {
 			let html = await res.text();
 			let [style1, style2] = getStyles(html);
 
-			expect(style1).to.include('green');
-			expect(style2).to.include('salmon');
+			assert.equal(style1.includes('green'), true);
+			assert.equal(style2.includes('salmon'), true);
 		});
 
 		it('import order is depth-first', async () => {
@@ -72,9 +73,9 @@ describe('CSS ordering - import order', () => {
 			let html = await res.text();
 			let [style1, style2, style3] = getStyles(html);
 
-			expect(style1).to.include('burlywood');
-			expect(style2).to.include('aliceblue');
-			expect(style3).to.include('whitesmoke');
+			assert.equal(style1.includes('burlywood'), true);
+			assert.equal(style2.includes('aliceblue'), true);
+			assert.equal(style3.includes('whitesmoke'), true);
 		});
 	});
 
@@ -92,7 +93,7 @@ describe('CSS ordering - import order', () => {
 			let idx1 = css.indexOf('salmon');
 			let idx2 = css.indexOf('green');
 
-			expect(idx1).to.be.greaterThan(idx2, 'Page level CSS should be placed after imported CSS');
+			assert.equal(idx1 > idx2, true);
 		});
 
 		it('import order is depth-first', async () => {
@@ -105,8 +106,8 @@ describe('CSS ordering - import order', () => {
 			let idx2 = css.indexOf('#f0f8ff'); // aliceblue minified
 			let idx3 = css.indexOf('#deb887'); // burlywoord minified
 
-			expect(idx1).to.be.greaterThan(idx2);
-			expect(idx2).to.be.greaterThan(idx3);
+			assert.equal(idx1 > idx2, true);
+			assert.equal(idx2 > idx3, true);
 		});
 
 		it('correctly chunks css import from framework components', async () => {
@@ -114,9 +115,10 @@ describe('CSS ordering - import order', () => {
 
 			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
 			const [, { css }] = content;
-			expect(css).to.not.include(
-				'.client-1{background:red!important}',
-				'CSS from Client2.jsx leaked into index.astro when chunking'
+			assert.equal(
+				css.includes('.client-2{background:blue!important}'),
+				false,
+				'CSS from Client2.jsx leaked into index.astro'
 			);
 		});
 
@@ -125,7 +127,7 @@ describe('CSS ordering - import order', () => {
 
 			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
 			const css = content.map((c) => c.css).join('');
-			expect(css.match(/\.astro-jsx/)?.length).to.eq(1, '.astro-jsx class is duplicated');
+			assert.equal(css.match(/\.astro-jsx/g)?.length, 1, 'astro-jsx class is duplicated');
 		});
 	});
 
@@ -147,8 +149,8 @@ describe('CSS ordering - import order', () => {
 				getLinks(html).map((href) => getLinkContent(href, fixture))
 			);
 			let [link1, link2] = content;
-			expect(link1.css).to.contain('f0f8ff'); // aliceblue minified
-			expect(link2.css).to.contain('#ff0'); // yellow minified
+			assert.equal(link1.css.includes('f0f8ff'), true);
+			assert.equal(link2.css.includes('#ff0'), true);
 		});
 	});
 });
