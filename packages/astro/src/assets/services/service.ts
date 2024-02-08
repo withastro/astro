@@ -5,7 +5,6 @@ import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } fr
 import type { ImageOutputFormat, ImageTransform, UnresolvedSrcSetValue } from '../types.js';
 import { isESMImportedImage } from '../utils/imageKind.js';
 import { isRemoteAllowed } from '../utils/remotePattern.js';
-import probe from 'probe-image-size';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -154,20 +153,6 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
             });
         }
 
-        // Infer size for remote images if inferSize is true
-        if (options.inferSize && !isESMImportedImage(options.src)) {
-					try {
-							const result = await probe(options.src); // Directly probe the image URL
-							options.width ??= result.width;
-							options.height ??= result.height;
-					} catch {
-						throw new AstroError({
-							...AstroErrorData.FailedToProbeRemoteImage,
-							message: AstroErrorData.FailedToProbeRemoteImage.message(options.src),
-					});
-					}
-			}
-
         // Handle local and ESM-imported images
         if (!isESMImportedImage(options.src)) {
             if (options.src.startsWith('/@fs/') || (!isRemotePath(options.src) && !options.src.startsWith('/'))) {
@@ -217,9 +202,6 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
         // Round width and height to avoid floating point numbers
         if (options.width) options.width = Math.round(options.width);
         if (options.height) options.height = Math.round(options.height);
-
-				// Delete inferSize so it doesn't become an attribute
-				if (options.inferSize) delete options.inferSize;
 
         return options;
     },
