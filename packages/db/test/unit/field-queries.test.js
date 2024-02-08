@@ -6,6 +6,7 @@ import {
 } from '../../dist/core/cli/migration-queries.js';
 import { getCreateTableQuery } from '../../dist/core/queries.js';
 import { field, defineCollection, collectionSchema } from '../../dist/core/types.js';
+import { NOW, sql } from '../../dist/runtime/index.js';
 
 const COLLECTION_NAME = 'Users';
 
@@ -298,7 +299,7 @@ describe('field queries', () => {
 					...initial,
 					fields: {
 						...initial.fields,
-						age: field.date({ default: 'now' }),
+						age: field.date({ default: NOW }),
 					},
 				});
 
@@ -320,7 +321,7 @@ describe('field queries', () => {
 					...userInitial,
 					fields: {
 						...userInitial.fields,
-						birthday: field.date({ default: 'now' }),
+						birthday: field.date({ default: NOW }),
 					},
 				});
 

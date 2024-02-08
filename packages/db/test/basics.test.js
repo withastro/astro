@@ -29,7 +29,7 @@ describe('astro:db', () => {
 			const html = await res.text();
 			const $ = cheerioLoad(html);
 
-			const ul = $('ul');
+			const ul = $('.authors-list');
 			expect(ul.children()).to.have.a.lengthOf(5);
 			expect(ul.children().eq(0).text()).to.equal('Ben');
 		});
@@ -53,5 +53,42 @@ describe('astro:db', () => {
 
 			expect($('#error').text()).to.equal('');
 		});
+
+		describe('Expression defaults', () => {
+			let app;
+			before(async () => {
+				app = await fixture.loadTestAdapterApp();
+			});
+
+			it('Allows expression defaults for date fields', async () => {
+				const request = new Request('http://example.com/');
+				const res = await app.render(request);
+				const html = await res.text();
+				const $ = cheerioLoad(html);
+
+				const themeAdded = $($('.themes-list .theme-added')[0]).text();
+				expect(new Date(themeAdded).getTime()).to.not.be.NaN;
+			});
+
+			it('Allows expression defaults for text fields', async () => {
+				const request = new Request('http://example.com/');
+				const res = await app.render(request);
+				const html = await res.text();
+				const $ = cheerioLoad(html);
+
+				const themeOwner = $($('.themes-list .theme-owner')[0]).text();
+				expect(themeOwner).to.equal('');
+			});
+
+			it('Allows expression defaults for boolean fields', async () => {
+				const request = new Request('http://example.com/');
+				const res = await app.render(request);
+				const html = await res.text();
+				const $ = cheerioLoad(html);
+
+				const themeDark = $($('.themes-list .theme-dark')[0]).text();
+				expect(themeDark).to.equal('dark mode');
+			});
+		})
 	});
 });

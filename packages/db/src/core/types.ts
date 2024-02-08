@@ -2,7 +2,7 @@ import type { SQLiteInsertValue } from 'drizzle-orm/sqlite-core';
 import type { InferSelectModel } from 'drizzle-orm';
 import type { SqliteDB, Table } from '../runtime/index.js';
 import { z } from 'zod';
-import { getTableName } from 'drizzle-orm';
+import { getTableName, SQL } from 'drizzle-orm';
 
 export type MaybePromise<T> = T | Promise<T>;
 export type MaybeArray<T> = T | T[];
@@ -19,20 +19,26 @@ const baseFieldSchema = z.object({
 
 const booleanFieldSchema = baseFieldSchema.extend({
 	type: z.literal('boolean'),
-	default: z.boolean().optional(),
+	default: z.union([
+		z.boolean(),
+		z.instanceof(SQL<any>),
+	]).optional(),
 });
 
 const numberFieldSchema: z.ZodType<
 	{
 		// ReferenceableField creates a circular type. Define ZodType to resolve.
 		type: 'number';
-		default?: number | undefined;
+		default?: number | SQL<any> | undefined;
 		references?: () => ReferenceableField | undefined;
 		primaryKey?: boolean | undefined;
 	} & z.infer<typeof baseFieldSchema>
 > = baseFieldSchema.extend({
 	type: z.literal('number'),
-	default: z.number().optional(),
+	default: z.union([
+		z.number(),
+		z.instanceof(SQL<any>),
+	]).optional(),
 	references: z
 		.function()
 		.returns(z.lazy(() => referenceableFieldSchema))
@@ -45,14 +51,17 @@ const textFieldSchema: z.ZodType<
 		// ReferenceableField creates a circular type. Define ZodType to resolve.
 		type: 'text';
 		multiline?: boolean | undefined;
-		default?: string | undefined;
+		default?: string | SQL<any> | undefined;
 		references?: () => ReferenceableField | undefined;
 		primaryKey?: boolean | undefined;
 	} & z.infer<typeof baseFieldSchema>
 > = baseFieldSchema.extend({
 	type: z.literal('text'),
 	multiline: z.boolean().optional(),
-	default: z.string().optional(),
+	default: z.union([
+		z.string(),
+		z.instanceof(SQL<any>),
+	]).optional(),
 	references: z
 		.function()
 		.returns(z.lazy(() => referenceableFieldSchema))
@@ -64,7 +73,7 @@ const dateFieldSchema = baseFieldSchema.extend({
 	type: z.literal('date'),
 	default: z
 		.union([
-			z.literal('now'),
+			z.instanceof(SQL<any>),
 			// allow date-like defaults in user config,
 			// transform to ISO string for D1 storage
 			z.coerce.date().transform((d) => d.toISOString()),

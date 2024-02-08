@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-import db, { defineCollection, defineWritableCollection, field } from '@astrojs/db';
+import db, { defineCollection, defineWritableCollection, field, sql, NOW } from '@astrojs/db';
 
 const Author = defineCollection({
 	fields: {
@@ -10,6 +10,14 @@ const Author = defineCollection({
 const Themes = defineWritableCollection({
 	fields: {
 		name: field.text(),
+		added: field.date({
+			default: sql`CURRENT_TIMESTAMP`
+		}),
+		updated: field.date({
+			default: NOW
+		}),
+		isDark: field.boolean({ default: sql`TRUE` }),
+		owner: field.text({ optional: true, default: sql`NULL` }),
 	},
 });
 
@@ -19,13 +27,17 @@ export default defineConfig({
 	db: {
 		studio: true,
 		collections: { Author, Themes },
-		data({ seed }) {
-			seed(Author, [
+		async data({ seed }) {
+			await seed(Author, [
 				{ name: 'Ben' },
 				{ name: 'Nate' },
 				{ name: 'Erika' },
 				{ name: 'Bjorn' },
 				{ name: 'Sarah' },
+			]);
+			await seed(Themes, [
+				{ name: 'dracula' },
+				{ name: 'monokai' },
 			]);
 		},
 	},

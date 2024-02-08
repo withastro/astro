@@ -1,6 +1,6 @@
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
 import { type DBCollection, type DBField } from '../core/types.js';
-import { type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
+import { type ColumnBuilderBaseConfig, type ColumnDataType, sql, SQL } from 'drizzle-orm';
 import {
 	customType,
 	integer,
@@ -12,6 +12,7 @@ import {
 } from 'drizzle-orm/sqlite-core';
 import { z } from 'zod';
 
+export { sql };
 export type SqliteDB = SqliteRemoteDatabase;
 export type { Table } from './types.js';
 export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';
@@ -19,6 +20,11 @@ export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-clie
 export function hasPrimaryKey(field: DBField) {
 	return 'primaryKey' in field && !!field.primaryKey;
 }
+
+// Exports a few common expressions
+export const NOW = sql`CURRENT_TIMESTAMP`;
+export const TRUE = sql`TRUE`;
+export const FALSE = sql`FALSE`
 
 const dateType = customType<{ data: Date; driverData: string }>({
 	dataType() {
@@ -116,17 +122,18 @@ function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boo
 			if (isJsonSerializable) {
 				c = text(fieldName);
 				if (field.default !== undefined) {
-					c = c.default(field.default === 'now' ? sql`CURRENT_TIMESTAMP` : field.default);
+					c = c.default(field.default);
 				}
 			} else {
 				c = dateType(fieldName);
 				if (field.default !== undefined) {
+					const def = convertSerializedSQL(field.default);
 					c = c.default(
-						field.default === 'now'
-							? sql`CURRENT_TIMESTAMP`
-							: // default comes pre-transformed to an ISO string for D1 storage.
+						def instanceof SQL
+							? def
+								// default comes pre-transformed to an ISO string for D1 storage.
 								// parse back to a Date for Drizzle.
-								z.coerce.date().parse(field.default)
+							:	z.coerce.date().parse(field.default)
 					);
 				}
 			}
@@ -137,4 +144,16 @@ function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boo
 	if (!field.optional) c = c.notNull();
 	if (field.unique) c = c.unique();
 	return c;
+}
+
+function isSerializedSQL(obj: unknown): boolean {
+	return typeof obj === 'object' && !!(obj as any).queryChunks;
+}
+
+function convertSerializedSQL<T = unknown>(obj: T): SQL<any> | T {
+	if(isSerializedSQL(obj)) {
+		return new SQL((obj as any).queryChunks)
+	} else {
+		return obj;
+	}
 }

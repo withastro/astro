@@ -25,7 +25,7 @@ describe('index queries', () => {
 			},
 		};
 
-		const queries = await getCollectionChangeQueries({
+		const { queries } = await getCollectionChangeQueries({
 			collectionName: 'user',
 			oldCollection: userInitial,
 			newCollection: userFinal,
@@ -53,7 +53,7 @@ describe('index queries', () => {
 			indexes: {},
 		};
 
-		const queries = await getCollectionChangeQueries({
+		const { queries } = await getCollectionChangeQueries({
 			collectionName: 'user',
 			oldCollection: initial,
 			newCollection: final,
@@ -81,7 +81,7 @@ describe('index queries', () => {
 			},
 		};
 
-		const queries = await getCollectionChangeQueries({
+		const { queries } = await getCollectionChangeQueries({
 			collectionName: 'user',
 			oldCollection: initial,
 			newCollection: final,

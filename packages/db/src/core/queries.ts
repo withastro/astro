@@ -11,7 +11,7 @@ import {
 	type TextField,
 } from '../core/types.js';
 import { bold } from 'kleur/colors';
-import { type SQL, sql } from 'drizzle-orm';
+import { SQL, sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import type { AstroIntegrationLogger } from 'astro';
 import type { DBUserConfig } from '../core/types.js';
@@ -217,16 +217,29 @@ export function hasDefault(field: DBField): field is DBFieldWithDefault {
 	return false;
 }
 
+function toStringDefault<T>(def: T | SQL<any>): string {
+	const type = typeof def;
+	if(def instanceof SQL) {
+		return sqlite.sqlToQuery(def).sql;
+	} else if(type === 'string') {
+		return sqlite.escapeString(def as string);
+	} else if(type === 'boolean') {
+		return def ? 'TRUE' : 'FALSE';
+	} else {
+		return def + '';
+	}
+}
+
 function getDefaultValueSql(columnName: string, column: DBFieldWithDefault): string {
 	switch (column.type) {
 		case 'boolean':
-			return column.default ? 'TRUE' : 'FALSE';
+			return toStringDefault(column.default);
 		case 'number':
-			return `${column.default || 'AUTOINCREMENT'}`;
+			return `${column.default ? toStringDefault(column.default) : 'AUTOINCREMENT'}`;
 		case 'text':
-			return sqlite.escapeString(column.default);
+			return toStringDefault(column.default);
 		case 'date':
-			return column.default === 'now' ? 'CURRENT_TIMESTAMP' : sqlite.escapeString(column.default);
+			return toStringDefault(column.default);
 		case 'json': {
 			let stringified = '';
 			try {

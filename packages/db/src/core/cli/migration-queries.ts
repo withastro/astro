@@ -14,6 +14,7 @@ import type {
 	NumberField,
 	TextField,
 } from '../types.js';
+import { SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { customAlphabet } from 'nanoid';
 import prompts from 'prompts';
@@ -547,5 +548,5 @@ type DBFieldWithDefault =
 	| WithDefaultDefined<JsonField>;
 
 function hasRuntimeDefault(field: DBField): field is DBFieldWithDefault {
-	return field.type === 'date' && field.default === 'now';
+	return !!(field.default && field.default instanceof SQL);
 }
