@@ -1,11 +1,11 @@
 import type { ParentNode, ParseResult } from '@astrojs/compiler/types';
 import { is } from '@astrojs/compiler/utils';
 import {
-	buildMappings,
-	toString,
 	type CodeInformation,
 	type Segment,
 	type VirtualCode,
+	buildMappings,
+	toString,
 } from '@volar/language-core';
 import type ts from 'typescript';
 import type { HTMLDocument, Node } from 'vscode-html-languageservice';

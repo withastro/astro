@@ -9,7 +9,8 @@ package-lock.json
 *.vsix
 packages/vscode/meta.json
 .tool-versions
-
+.idea/
+.zed
 # .vscode files other than at top-level
 **/.vscode
 

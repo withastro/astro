@@ -1,6 +1,8 @@
-import { DiagnosticModel, type InitializationOptions } from '@volar/language-server';
+import * as path from 'node:path';
+import { DiagnosticModel, InitializationOptions } from '@volar/language-server';
 import * as protocol from '@volar/language-server/protocol';
 import {
+	type ExportsInfoForLabs,
 	activateAutoInsertion,
 	activateFindFileReferences,
 	activateReloadProjects,
@@ -8,9 +10,8 @@ import {
 	activateTsVersionStatusItem,
 	createLabsInfo,
 	getTsdk,
-	type LabsInfo,
+	supportLabsVersion,
 } from '@volar/vscode';
-import * as path from 'node:path';
 import * as vscode from 'vscode';
 import * as lsp from 'vscode-languageclient/node';
 

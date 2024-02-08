@@ -1,4 +1,4 @@
-import { CompletionItemKind, TextEdit, type CompletionItem } from '@volar/language-server';
+import { type CompletionItem, CompletionItemKind, TextEdit } from '@volar/language-server';
 import type { FrontmatterStatus } from '../../core/parseAstro.js';
 
 export function getSnippetCompletions(frontmatter: FrontmatterStatus): CompletionItem[] {

@@ -41,16 +41,16 @@ switch (process.platform) {
 			process.arch === 'arm64'
 				? 'win32-arm64-archive'
 				: process.arch === 'ia32'
-				? 'win32-archive'
-				: 'win32-x64-archive';
+				  ? 'win32-archive'
+				  : 'win32-x64-archive';
 		break;
 	default:
 		systemDefaultPlatform =
 			process.arch === 'arm64'
 				? 'linux-arm64'
 				: process.arch === 'arm'
-				? 'linux-armhf'
-				: 'linux-x64';
+				  ? 'linux-armhf'
+				  : 'linux-x64';
 }
 
 /**

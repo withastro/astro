@@ -1,13 +1,8 @@
-import {
-	DiagnosticSeverity,
-	FullDocumentDiagnosticReport,
-	Range,
-	type Diagnostic,
-} from '@volar/language-server';
+import * as path from 'path';
+import { type Diagnostic, DiagnosticSeverity, Range } from '@volar/language-server';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
-import { getLanguageServer, type LanguageServer } from '../server.js';
-import * as path from 'path';
+import { type LanguageServer, getLanguageServer } from '../server.js';
 
 describe('TypeScript - Diagnostics', async () => {
 	let languageServer: LanguageServer;

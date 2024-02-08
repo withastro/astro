@@ -1,5 +1,5 @@
-import { expect } from 'chai';
 import { spawnSync } from 'child_process';
+import { expect } from 'chai';
 import { describe, it } from 'mocha';
 
 describe('astro-check - binary', async () => {

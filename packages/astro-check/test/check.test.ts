@@ -1,6 +1,6 @@
+import path from 'path';
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import path from 'path';
 import { check } from '../dist/index.js';
 
 describe('astro-check - js api', async () => {

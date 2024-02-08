@@ -1,8 +1,8 @@
+import { existsSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import * as kit from '@volar/kit';
 import { Diagnostic, DiagnosticSeverity } from '@volar/language-server';
 import fg from 'fast-glob';
-import { existsSync } from 'node:fs';
-import { pathToFileURL } from 'node:url';
 import { getLanguageModule } from './core/index.js';
 import { getSvelteLanguageModule } from './core/svelte.js';
 import { getVueLanguageModule } from './core/vue.js';

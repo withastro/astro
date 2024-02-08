@@ -1,9 +1,9 @@
 import {
-	forEachEmbeddedCode,
 	type CodeInformation,
 	type LanguagePlugin,
 	type Mapping,
 	type VirtualCode,
+	forEachEmbeddedCode,
 } from '@volar/language-core';
 import type ts from 'typescript';
 import { framework2tsx } from './utils.js';

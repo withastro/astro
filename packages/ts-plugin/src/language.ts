@@ -1,8 +1,8 @@
 import {
-	forEachEmbeddedCode,
 	type CodeMapping,
 	type LanguagePlugin,
 	type VirtualCode,
+	forEachEmbeddedCode,
 } from '@volar/language-core';
 import type ts from 'typescript';
 import { astro2tsx } from './astro2tsx.js';

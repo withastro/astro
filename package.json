@@ -13,23 +13,21 @@
     "dev": "turbo run dev --filter=\"@astrojs/**\" --filter=\"astro-vscode\" --parallel --no-cache",
     "test": "turbo run test --filter=\"@astrojs/**\" --filter=astro-vscode",
     "test:skip-vs": "turbo run test --filter=\"@astrojs/language-server\" --filter=\"@astrojs/check\"",
-    "format": "pnpm run format:code",
-    "format:ci": "pnpm run format:imports && pnpm run format:code",
-    "format:code": "prettier -w . --cache",
-    "format:imports": "organize-imports-cli ./packages/*/tsconfig.json",
+    "format:ci": "pnpm run format",
+    "format": "biome check --apply ./ && prettier -w \"**/*\" --ignore-unknown --cache",
     "lint": "eslint . --ext .js,.ts,.mjs,.cjs"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.5.3",
     "@changesets/cli": "^2.26.1",
-    "@typescript-eslint/eslint-plugin": "^5.59.9",
-    "@typescript-eslint/parser": "^5.59.9",
-    "eslint": "^8.42.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.2.5",
     "turbo": "1.10.2",
-    "typescript": "^5.2.2",
-    "organize-imports-cli": "^0.10.0"
+    "typescript": "^5.2.2"
   },
   "engines": {
     "node": ">=16.12.0",

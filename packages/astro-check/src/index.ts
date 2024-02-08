@@ -1,8 +1,8 @@
+import { createRequire } from 'node:module';
+import path from 'node:path';
 import { AstroCheck } from '@astrojs/language-server';
 import { watch } from 'chokidar';
 import { bold, dim, red, yellow } from 'kleur/colors';
-import { createRequire } from 'node:module';
-import path from 'node:path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { options } from './options.js';

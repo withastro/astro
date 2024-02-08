@@ -18,9 +18,9 @@
 			"\t<body>",
 			"\t\t$0",
 			"\t</body>",
-			"</html>"
+			"</html>",
 		],
-		"description": "Page with full HTML"
+		"description": "Page with full HTML",
 	},
 	"page_layout": {
 		"prefix": "page_layout",
@@ -33,15 +33,15 @@
 			"",
 			"<$1>",
 			"\t$0",
-			"</$1>"
+			"</$1>",
 		],
-		"description": "Page from Layout"
+		"description": "Page from Layout",
 	},
 	"component": {
 		"prefix": "component",
 		"isFileTemplate": true,
 		"scope": "astro",
 		"body": ["---", "$1", "---", "", "$0"],
-		"description": "Component"
-	}
+		"description": "Component",
+	},
 }

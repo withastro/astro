@@ -1,7 +1,7 @@
 import { Position } from '@volar/language-server';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
-import { getLanguageServer, type LanguageServer } from '../server.js';
+import { type LanguageServer, getLanguageServer } from '../server.js';
 
 describe('TypeScript Addons - Completions', async () => {
 	let languageServer: LanguageServer;

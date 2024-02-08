@@ -1,3 +1,4 @@
+import { dirname } from 'node:path';
 import type { DiagnosticMessage } from '@astrojs/compiler/types';
 import {
 	CodeLens,
@@ -12,7 +13,6 @@ import {
 	TextEdit,
 } from '@volar/language-server';
 import fg from 'fast-glob';
-import { dirname } from 'node:path';
 import type { Provide } from 'volar-service-typescript';
 import type { TextDocument } from 'vscode-html-languageservice';
 import { AstroVirtualCode } from '../core/index.js';

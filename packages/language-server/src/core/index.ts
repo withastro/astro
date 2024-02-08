@@ -1,15 +1,15 @@
+import * as path from 'node:path';
 import type { DiagnosticMessage } from '@astrojs/compiler/types';
 import {
-	forEachEmbeddedCode,
 	type CodeMapping,
 	type ExtraServiceScript,
 	type LanguagePlugin,
 	type VirtualCode,
+	forEachEmbeddedCode,
 } from '@volar/language-core';
-import * as path from 'node:path';
 import type ts from 'typescript';
 import type { HTMLDocument } from 'vscode-html-languageservice';
-import { getLanguageServerTypesDir, type AstroInstall } from '../utils.js';
+import { type AstroInstall, getLanguageServerTypesDir } from '../utils.js';
 import { astro2tsx } from './astro2tsx';
 import { AstroMetadata, getAstroMetadata } from './parseAstro';
 import { extractStylesheets } from './parseCSS';

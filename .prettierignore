@@ -4,4 +4,13 @@
 **/.vscode-test
 .github
 .changeset
+.idea/
 pnpm-lock.yaml
+
+
+*.js
+*.ts
+*.mjs
+*.cjs
+*.json
+*.jsonc
