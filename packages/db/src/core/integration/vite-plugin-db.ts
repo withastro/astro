@@ -1,7 +1,6 @@
-import { RUNTIME_IMPORT, VIRTUAL_MODULE_ID, DB_PATH, RUNTIME_DRIZZLE_IMPORT } from '../consts.js';
+import { DB_PATH, RUNTIME_DRIZZLE_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBCollections } from '../types.js';
 import type { VitePlugin } from '../utils.js';
-import { fileURLToPath } from 'node:url';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -38,11 +37,17 @@ export function vitePluginDb(
 	};
 }
 
-export function getVirtualModContents({ collections, root }: { collections: DBCollections; root: URL }) {
+export function getVirtualModContents({
+	collections,
+	root,
+}: {
+	collections: DBCollections;
+	root: URL;
+}) {
 	const dbUrl = new URL(DB_PATH, root);
 	return `
 import { collectionToTable, createLocalDatabaseClient } from ${RUNTIME_IMPORT};
-import dbUrl from '${fileURLToPath(dbUrl)}?fileurl';
+import dbUrl from ${JSON.stringify(`${dbUrl}?fileurl`)};
 
 const params = ${JSON.stringify({
 		collections,
