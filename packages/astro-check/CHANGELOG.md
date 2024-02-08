@@ -1,5 +1,13 @@
 # @astrojs/check
 
+## 0.5.1
+
+### Patch Changes
+
+- 7b1ab72: Fix TypeScript not working inside script tags
+- Updated dependencies [7b1ab72]
+  - @astrojs/language-server@2.7.1
+
 ## 0.5.0
 
 ### Minor Changes

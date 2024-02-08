@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.7.1
+
+### Patch Changes
+
+- 7b1ab72: Fix TypeScript not working inside script tags
+
 ## 2.7.0
 
 ### Minor Changes
