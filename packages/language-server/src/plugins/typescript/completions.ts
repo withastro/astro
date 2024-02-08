@@ -4,7 +4,7 @@ import {
 	CompletionList,
 	ServiceContext,
 } from '@volar/language-server';
-import { AstroFile } from '../../core/index.js';
+import { AstroVirtualCode } from '../../core/index.js';
 import { editShouldBeInFrontmatter, ensureProperEditForFrontmatter } from '../utils.js';
 
 export function enhancedProvideCompletionItems(completions: CompletionList): CompletionList {
@@ -44,15 +44,15 @@ export function enhancedResolveCompletionItem(
 	}
 
 	if (resolvedCompletion.additionalTextEdits) {
-		const [virtualFile, source] = context.documents.getVirtualFileByUri(
+		const [virtualFile, source] = context.documents.getVirtualCodeByUri(
 			resolvedCompletion.data.uri
 		);
-		const file = source?.root;
-		if (!virtualFile || !(file instanceof AstroFile) || !context.host) return resolvedCompletion;
+		const code = source?.generated?.code;
+		if (!virtualFile || !(code instanceof AstroVirtualCode)) return resolvedCompletion;
 
 		resolvedCompletion.additionalTextEdits = resolvedCompletion.additionalTextEdits.map((edit) => {
-			if (editShouldBeInFrontmatter(edit.range, file.astroMeta).itShould) {
-				edit = ensureProperEditForFrontmatter(edit, file.astroMeta, '\n');
+			if (editShouldBeInFrontmatter(edit.range, code.astroMeta).itShould) {
+				edit = ensureProperEditForFrontmatter(edit, code.astroMeta, '\n');
 			}
 
 			return edit;

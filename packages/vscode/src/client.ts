@@ -1,4 +1,4 @@
-import { DiagnosticModel, InitializationOptions } from '@volar/language-server';
+import { DiagnosticModel, type InitializationOptions } from '@volar/language-server';
 import * as protocol from '@volar/language-server/protocol';
 import {
 	activateAutoInsertion,
@@ -6,9 +6,9 @@ import {
 	activateReloadProjects,
 	activateTsConfigStatusItem,
 	activateTsVersionStatusItem,
+	createLabsInfo,
 	getTsdk,
-	supportLabsVersion,
-	type ExportsInfoForLabs,
+	type LabsInfo,
 } from '@volar/vscode';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
@@ -16,7 +16,7 @@ import * as lsp from 'vscode-languageclient/node';
 
 let client: lsp.BaseLanguageClient;
 
-export async function activate(context: vscode.ExtensionContext): Promise<ExportsInfoForLabs> {
+export async function activate(context: vscode.ExtensionContext): Promise<LabsInfo> {
 	const runtimeConfig = vscode.workspace.getConfiguration('astro.language-server');
 
 	const { workspaceFolders } = vscode.workspace;
@@ -70,26 +70,22 @@ export async function activate(context: vscode.ExtensionContext): Promise<Export
 	await client.start();
 
 	// support for auto close tag
-	activateAutoInsertion([client], (document) => document.languageId === 'astro');
+	activateAutoInsertion('astro', client);
 	activateFindFileReferences('astro.findFileReferences', client);
-	activateReloadProjects('astro.reloadProjects', [client]);
-	activateTsConfigStatusItem('astro.openTsConfig', client, () => false);
+	activateReloadProjects('astro.reloadProjects', client);
+	activateTsConfigStatusItem('astro', 'astro.openTsConfig', client);
 	activateTsVersionStatusItem(
+		'astro',
 		'astro.selectTypescriptVersion',
 		context,
 		client,
-		(document) => document.languageId === 'astro',
-		(text) => text,
-		true
+		(text) => text
 	);
 
-	return {
-		volarLabs: {
-			version: supportLabsVersion,
-			languageClients: [client],
-			languageServerProtocol: protocol,
-		},
-	};
+	const volarLabs = createLabsInfo(protocol);
+	volarLabs.addLanguageClient(client);
+
+	return volarLabs.extensionExports;
 }
 
 export function deactivate(): Thenable<any> | undefined {

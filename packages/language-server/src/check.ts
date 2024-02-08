@@ -29,9 +29,8 @@ export interface CheckResult {
 }
 
 export class AstroCheck {
-	private ts!: typeof import('typescript/lib/tsserverlibrary.js');
-	public project!: ReturnType<typeof kit.createProject>;
-	private linter!: ReturnType<typeof kit.createLinter>;
+	private ts!: typeof import('typescript');
+	public linter!: ReturnType<(typeof kit)['createTypeScriptChecker']>;
 
 	constructor(
 		private readonly workspacePath: string,
@@ -60,8 +59,7 @@ export class AstroCheck {
 			  }
 			| undefined;
 	}): Promise<CheckResult> {
-		let files =
-			fileNames !== undefined ? fileNames : this.project.languageHost.getScriptFileNames();
+		let files = fileNames !== undefined ? fileNames : this.linter.languageHost.getScriptFileNames();
 
 		const result: CheckResult = {
 			status: undefined,
@@ -98,7 +96,7 @@ export class AstroCheck {
 					console.info(errorText);
 				}
 
-				const fileSnapshot = this.project.languageHost.getScriptSnapshot(file);
+				const fileSnapshot = this.linter.languageHost.getScriptSnapshot(file);
 				const fileContent = fileSnapshot?.getText(0, fileSnapshot.getLength());
 
 				result.fileResult.push({
@@ -131,29 +129,17 @@ export class AstroCheck {
 		const tsconfigPath = this.getTsconfig();
 
 		const astroInstall = getAstroInstall([this.workspacePath]);
-		const config: kit.Config = {
-			languages: {
-				astro: getLanguageModule(
-					typeof astroInstall === 'string' ? undefined : astroInstall,
-					this.ts
-				),
-				svelte: getSvelteLanguageModule(),
-				vue: getVueLanguageModule(),
-			},
-			services: {
-				typescript: createTypeScriptService(),
-				astro: createAstroService(),
-			},
-		};
+		const languages = [
+			getLanguageModule(typeof astroInstall === 'string' ? undefined : astroInstall, this.ts),
+			getSvelteLanguageModule(),
+			getVueLanguageModule(),
+		];
+		const services = [createTypeScriptService(this.ts), createAstroService(this.ts)];
 
 		if (tsconfigPath) {
-			this.project = kit.createProject(tsconfigPath, [
-				{ extension: 'astro', isMixedContent: true, scriptKind: 7 },
-				{ extension: 'vue', isMixedContent: true, scriptKind: 7 },
-				{ extension: 'svelte', isMixedContent: true, scriptKind: 7 },
-			]);
+			this.linter = kit.createTypeScriptChecker(languages, services, tsconfigPath);
 		} else {
-			this.project = kit.createInferredProject(this.workspacePath, () => {
+			this.linter = kit.createTypeScriptInferredChecker(languages, services, () => {
 				return fg.sync('**/*.astro', {
 					cwd: this.workspacePath,
 					ignore: ['node_modules'],
@@ -161,8 +147,6 @@ export class AstroCheck {
 				});
 			});
 		}
-
-		this.linter = kit.createLinter(config, this.project.languageHost);
 	}
 
 	private getTsconfig() {

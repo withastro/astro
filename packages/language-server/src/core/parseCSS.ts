@@ -1,69 +1,69 @@
 import type { ParentNode, ParseResult } from '@astrojs/compiler/types';
 import { is } from '@astrojs/compiler/utils';
-import { FileKind, FileRangeCapabilities, VirtualFile } from '@volar/language-core';
-import * as SourceMap from '@volar/source-map';
-import * as muggle from 'muggle-string';
-import type ts from 'typescript/lib/tsserverlibrary';
+import {
+	Segment,
+	buildMappings,
+	toString,
+	type CodeInformation,
+	type VirtualCode,
+} from '@volar/language-core';
+import type ts from 'typescript';
 import type { HTMLDocument, Node } from 'vscode-html-languageservice';
 import type { AttributeNodeWithPosition } from './compilerUtils.js';
 
 export function extractStylesheets(
-	fileName: string,
 	snapshot: ts.IScriptSnapshot,
 	htmlDocument: HTMLDocument,
 	ast: ParseResult['ast']
-): VirtualFile[] {
-	const embeddedCSSFiles: VirtualFile[] = findEmbeddedStyles(
-		fileName,
-		snapshot,
-		htmlDocument.roots
-	);
+): VirtualCode[] {
+	const embeddedCSSCodes: VirtualCode[] = findEmbeddedStyles(snapshot, htmlDocument.roots);
 
 	const inlineStyles = findInlineStyles(ast);
 	if (inlineStyles.length > 0) {
-		const codes: muggle.Segment<FileRangeCapabilities>[] = [];
+		const codes: Segment<CodeInformation>[] = [];
 		for (const inlineStyle of inlineStyles) {
 			codes.push('x { ');
 			codes.push([
 				inlineStyle.value,
 				undefined,
 				inlineStyle.position.start.offset + 'style="'.length,
-				FileRangeCapabilities.full,
+				{
+					completion: true,
+					verification: false,
+					semantic: true,
+					navigation: true,
+					structure: true,
+					format: false,
+				},
 			]);
 			codes.push(' }\n');
 		}
 
-		const mappings = SourceMap.buildMappings(codes);
-		const text = muggle.toString(codes);
+		const mappings = buildMappings(codes);
+		const text = toString(codes);
 
-		embeddedCSSFiles.push({
-			fileName: fileName + '.inline.css',
-			codegenStacks: [],
+		embeddedCSSCodes.push({
+			id: 'inline.css',
+			languageId: 'css',
 			snapshot: {
 				getText: (start, end) => text.substring(start, end),
 				getLength: () => text.length,
 				getChangeRange: () => undefined,
 			},
-			capabilities: { documentSymbol: true },
-			embeddedFiles: [],
-			kind: FileKind.TextFile,
+			embeddedCodes: [],
 			mappings,
 		});
 	}
 
-	return embeddedCSSFiles;
+	return embeddedCSSCodes;
 }
 
 /**
  * Find all embedded styles in a document.
  * Embedded styles are styles that are defined in `<style>` tags.
  */
-function findEmbeddedStyles(
-	fileName: string,
-	snapshot: ts.IScriptSnapshot,
-	roots: Node[]
-): VirtualFile[] {
-	const embeddedCSSFiles: VirtualFile[] = [];
+function findEmbeddedStyles(snapshot: ts.IScriptSnapshot, roots: Node[]): VirtualCode[] {
+	const embeddedCSSCodes: VirtualCode[] = [];
 	let cssIndex = 0;
 
 	getEmbeddedCSSInNodes(roots);
@@ -76,29 +76,30 @@ function findEmbeddedStyles(
 				node.endTagStart !== undefined
 			) {
 				const styleText = snapshot.getText(node.startTagEnd, node.endTagStart);
-				embeddedCSSFiles.push({
-					fileName: fileName + `.${cssIndex}.css`,
-					kind: FileKind.TextFile,
+				embeddedCSSCodes.push({
+					id: `${cssIndex}.css`,
+					languageId: 'css',
 					snapshot: {
 						getText: (start, end) => styleText.substring(start, end),
 						getLength: () => styleText.length,
 						getChangeRange: () => undefined,
 					},
-					codegenStacks: [],
 					mappings: [
 						{
-							sourceRange: [node.startTagEnd, node.endTagStart],
-							generatedRange: [0, styleText.length],
-							data: FileRangeCapabilities.full,
+							sourceOffsets: [node.startTagEnd],
+							generatedOffsets: [0],
+							lengths: [styleText.length],
+							data: {
+								verification: false,
+								completion: true,
+								semantic: true,
+								navigation: true,
+								structure: true,
+								format: false,
+							},
 						},
 					],
-					capabilities: {
-						diagnostic: false,
-						documentSymbol: true,
-						foldingRange: true,
-						documentFormatting: false,
-					},
-					embeddedFiles: [],
+					embeddedCodes: [],
 				});
 				cssIndex++;
 			}
@@ -107,7 +108,7 @@ function findEmbeddedStyles(
 		}
 	}
 
-	return embeddedCSSFiles;
+	return embeddedCSSCodes;
 }
 
 /**

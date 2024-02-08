@@ -1,41 +1,53 @@
 import {
-	FileCapabilities,
-	FileKind,
-	FileRangeCapabilities,
-	Language,
-	VirtualFile,
+	forEachEmbeddedCode,
+	type CodeInformation,
+	type LanguagePlugin,
+	type Mapping,
+	type VirtualCode,
 } from '@volar/language-core';
-import type { Mapping } from '@volar/source-map';
-import type ts from 'typescript/lib/tsserverlibrary';
+import type ts from 'typescript';
 import { framework2tsx } from './utils.js';
 
-export function getVueLanguageModule(): Language<VueFile> {
+export function getVueLanguageModule(): LanguagePlugin<VueVirtualCode> {
 	return {
-		createVirtualFile(fileName, snapshot) {
-			if (fileName.endsWith('.vue')) {
-				return new VueFile(fileName, snapshot);
+		createVirtualCode(fileId, languageId, snapshot) {
+			if (languageId === 'vue') {
+				const fileName = fileId.includes('://') ? fileId.split('://')[1] : fileId;
+				return new VueVirtualCode(fileName, snapshot);
 			}
 		},
-		updateVirtualFile(vueFile, snapshot) {
-			vueFile.update(snapshot);
+		updateVirtualCode(_fileId, vueCode, snapshot) {
+			vueCode.update(snapshot);
+			return vueCode;
+		},
+		typescript: {
+			extraFileExtensions: [{ extension: 'vue', isMixedContent: true, scriptKind: 7 }],
+			getScript(vueCode) {
+				for (const code of forEachEmbeddedCode(vueCode)) {
+					if (code.id === 'tsx') {
+						return {
+							code,
+							extension: '.tsx',
+							scriptKind: 4 satisfies ts.ScriptKind.TSX,
+						};
+					}
+				}
+			},
 		},
 	};
 }
 
-class VueFile implements VirtualFile {
-	kind = FileKind.TextFile;
-	capabilities = FileCapabilities.full;
-
-	fileName: string;
-	mappings!: Mapping<FileRangeCapabilities>[];
-	embeddedFiles!: VirtualFile[];
+class VueVirtualCode implements VirtualCode {
+	id = 'root';
+	languageId = 'vue';
+	mappings!: Mapping<CodeInformation>[];
+	embeddedCodes!: VirtualCode[];
 	codegenStacks = [];
 
 	constructor(
-		public sourceFileName: string,
+		public fileName: string,
 		public snapshot: ts.IScriptSnapshot
 	) {
-		this.fileName = sourceFileName;
 		this.onSnapshotUpdated();
 	}
 
@@ -47,20 +59,23 @@ class VueFile implements VirtualFile {
 	private onSnapshotUpdated() {
 		this.mappings = [
 			{
-				sourceRange: [0, this.snapshot.getLength()],
-				generatedRange: [0, this.snapshot.getLength()],
-				data: FileRangeCapabilities.full,
+				sourceOffsets: [0],
+				generatedOffsets: [0],
+				lengths: [this.snapshot.getLength()],
+				data: {
+					verification: true,
+					completion: true,
+					semantic: true,
+					navigation: true,
+					structure: true,
+					format: true,
+				},
 			},
 		];
 
-		this.embeddedFiles = [];
-		this.embeddedFiles.push(
-			framework2tsx(
-				this.fileName,
-				this.fileName,
-				this.snapshot.getText(0, this.snapshot.getLength()),
-				'vue'
-			)
+		this.embeddedCodes = [];
+		this.embeddedCodes.push(
+			framework2tsx(this.fileName, this.snapshot.getText(0, this.snapshot.getLength()), 'vue')
 		);
 	}
 }

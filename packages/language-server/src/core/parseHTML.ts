@@ -1,19 +1,18 @@
-import { FileKind, FileRangeCapabilities, VirtualFile } from '@volar/language-core';
-import type ts from 'typescript/lib/tsserverlibrary';
+import type { VirtualCode } from '@volar/language-core';
+import type ts from 'typescript';
 import * as html from 'vscode-html-languageservice';
 import { isInsideExpression } from '../plugins/utils';
 
 const htmlLs = html.getLanguageService();
 
 export function parseHTML(
-	fileName: string,
 	snapshot: ts.IScriptSnapshot,
 	frontmatterEnd: number
-): { virtualFile: VirtualFile; htmlDocument: html.HTMLDocument } {
+): { virtualCode: VirtualCode; htmlDocument: html.HTMLDocument } {
 	const htmlContent = preprocessHTML(snapshot.getText(0, snapshot.getLength()), frontmatterEnd);
 
 	return {
-		virtualFile: getHTMLVirtualFile(fileName, htmlContent),
+		virtualCode: getHTMLVirtualCode(htmlContent),
 		htmlDocument: getHTMLDocument(htmlContent),
 	};
 }
@@ -84,29 +83,31 @@ export function preprocessHTML(text: string, frontmatterEnd?: number) {
 	}
 }
 
-function getHTMLVirtualFile(fileName: string, preprocessedHTML: string): VirtualFile {
+function getHTMLVirtualCode(preprocessedHTML: string): VirtualCode {
 	return {
-		fileName: fileName + `.html`,
-		kind: FileKind.TextFile,
+		id: `html`,
+		languageId: 'html',
 		snapshot: {
 			getText: (start, end) => preprocessedHTML.substring(start, end),
 			getLength: () => preprocessedHTML.length,
 			getChangeRange: () => undefined,
 		},
-		codegenStacks: [],
 		mappings: [
 			{
-				sourceRange: [0, preprocessedHTML.length],
-				generatedRange: [0, preprocessedHTML.length],
-				data: FileRangeCapabilities.full,
+				sourceOffsets: [0],
+				generatedOffsets: [0],
+				lengths: [preprocessedHTML.length],
+				data: {
+					verification: true,
+					completion: true,
+					semantic: true,
+					navigation: true,
+					structure: true,
+					format: false,
+				},
 			},
 		],
-		capabilities: {
-			documentSymbol: true,
-			foldingRange: true,
-			documentFormatting: false,
-		},
-		embeddedFiles: [],
+		embeddedCodes: [],
 	};
 }
 

@@ -19,7 +19,7 @@ export function getAstroInstall(
 	basePaths: string[],
 	checkForAstro?: {
 		nearestPackageJson: string | undefined;
-		readDirectory: typeof import('typescript/lib/tsserverlibrary.js').sys.readDirectory;
+		readDirectory: typeof import('typescript').sys.readDirectory;
 	}
 ): AstroInstall | 'not-an-astro-project' | 'not-found' {
 	let astroPath;

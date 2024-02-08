@@ -37,7 +37,12 @@ function safeParseAst(fileName: string, input: string, parseOptions: ParseOption
 			diagnostics: [
 				{
 					code: 1000,
-					location: { file: fileName, line: 1, column: 1, length: input.length },
+					location: {
+						file: fileName,
+						line: 1,
+						column: 1,
+						length: input.length,
+					},
 					severity: 1,
 					text: `The Astro compiler encountered an unknown error while parsing this file's AST. Please create an issue with your code and the error shown in the server's logs: https://github.com/withastro/language-tools/issues`,
 				},

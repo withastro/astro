@@ -1,6 +1,6 @@
 import { TextDocumentEdit } from '@volar/language-server';
 import type { CodeAction, ServiceContext } from '@volar/language-service';
-import { AstroFile } from '../../core/index.js';
+import { AstroVirtualCode } from '../../core/index.js';
 import { editShouldBeInFrontmatter, ensureProperEditForFrontmatter } from '../utils.js';
 
 export function enhancedProvideCodeActions(codeActions: CodeAction[], context: ServiceContext) {
@@ -16,20 +16,20 @@ export function enhancedResolveCodeAction(codeAction: CodeAction, context: Servi
 	return mapCodeAction(codeAction, context);
 }
 
-function mapCodeAction(codeAction: CodeAction, context: ServiceContext<any>) {
+function mapCodeAction(codeAction: CodeAction, context: ServiceContext) {
 	if (!codeAction.edit || !codeAction.edit.documentChanges) return codeAction;
 
 	codeAction.edit.documentChanges = codeAction.edit.documentChanges.map((change) => {
 		if (TextDocumentEdit.is(change)) {
-			const [virtualFile, source] = context.documents.getVirtualFileByUri(change.textDocument.uri);
-			const file = source?.root;
-			if (!virtualFile || !(file instanceof AstroFile) || !context.host) return change;
+			const [virtualFile, source] = context.documents.getVirtualCodeByUri(change.textDocument.uri);
+			const code = source?.generated?.code;
+			if (!virtualFile || !(code instanceof AstroVirtualCode)) return change;
 
 			change.edits = change.edits.map((edit) => {
-				const shouldModifyEdit = editShouldBeInFrontmatter(edit.range, file.astroMeta);
+				const shouldModifyEdit = editShouldBeInFrontmatter(edit.range, code.astroMeta);
 
 				if (shouldModifyEdit.itShould) {
-					edit = ensureProperEditForFrontmatter(edit, file.astroMeta, '\n');
+					edit = ensureProperEditForFrontmatter(edit, code.astroMeta, '\n');
 				}
 
 				return edit;

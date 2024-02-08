@@ -1,51 +1,50 @@
-import {
-	FileCapabilities,
-	FileKind,
-	FileRangeCapabilities,
-	type VirtualFile,
-} from '@volar/language-core';
-import * as path from 'node:path';
+import type { VirtualCode } from '@volar/language-core';
 import { URI, Utils } from 'vscode-uri';
 import { importSvelteIntegration, importVueIntegration } from '../importPackage';
 
 export function framework2tsx(
-	fileName: string,
 	filePath: string,
 	sourceCode: string,
 	framework: 'vue' | 'svelte'
-): VirtualFile {
+): VirtualCode {
 	const integrationEditorEntrypoint =
 		framework === 'vue' ? importVueIntegration(filePath) : importSvelteIntegration(filePath);
 
 	if (!integrationEditorEntrypoint) {
 		const EMPTY_FILE = '';
-		return getVirtualFile(EMPTY_FILE);
+		return getVirtualCode(EMPTY_FILE);
 	}
 
 	const className = classNameFromFilename(filePath);
-	const tsx = patchTSX(integrationEditorEntrypoint.toTSX(sourceCode, className), fileName);
+	const tsx = patchTSX(integrationEditorEntrypoint.toTSX(sourceCode, className), filePath);
 
-	return getVirtualFile(tsx);
+	return getVirtualCode(tsx);
 
-	function getVirtualFile(content: string): VirtualFile {
+	function getVirtualCode(content: string): VirtualCode {
 		return {
-			fileName: fileName + '.tsx',
-			capabilities: FileCapabilities.full,
-			kind: FileKind.TypeScriptHostFile,
+			id: 'tsx',
+			languageId: 'typescript',
 			snapshot: {
 				getText: (start, end) => content.substring(start, end),
 				getLength: () => content.length,
 				getChangeRange: () => undefined,
 			},
-			codegenStacks: [],
 			mappings: [
 				{
-					sourceRange: [0, content.length],
-					generatedRange: [0, 0],
-					data: FileRangeCapabilities.full,
+					sourceOffsets: [0],
+					generatedOffsets: [0],
+					lengths: [content.length],
+					data: {
+						verification: true,
+						completion: true,
+						semantic: true,
+						navigation: true,
+						structure: true,
+						format: true,
+					},
 				},
 			],
-			embeddedFiles: [],
+			embeddedCodes: [],
 		};
 	}
 }
@@ -87,8 +86,8 @@ export function classNameFromFilename(filename: string): string {
 }
 
 // TODO: Patch the upstream packages with these changes
-export function patchTSX(code: string, fileName: string) {
-	const basename = path.basename(fileName, path.extname(fileName));
+export function patchTSX(code: string, filePath: string) {
+	const basename = filePath.split('/').pop()!;
 	const isDynamic = basename.startsWith('[') && basename.endsWith(']');
 
 	return code.replace(/\b(\S*)__AstroComponent_/gm, (fullMatch, m1: string) => {

@@ -1,18 +1,21 @@
 import type { ParentNode, ParseResult } from '@astrojs/compiler/types';
 import { is } from '@astrojs/compiler/utils';
-import { FileKind, FileRangeCapabilities, VirtualFile } from '@volar/language-core';
-import * as SourceMap from '@volar/source-map';
-import * as muggle from 'muggle-string';
-import type ts from 'typescript/lib/tsserverlibrary';
+import {
+	buildMappings,
+	toString,
+	type CodeInformation,
+	type Segment,
+	type VirtualCode,
+} from '@volar/language-core';
+import type ts from 'typescript';
 import type { HTMLDocument, Node } from 'vscode-html-languageservice';
 
 export function extractScriptTags(
-	fileName: string,
 	snapshot: ts.IScriptSnapshot,
 	htmlDocument: HTMLDocument,
 	ast: ParseResult['ast']
-): VirtualFile[] {
-	const embeddedJSFiles: VirtualFile[] = findModuleScripts(fileName, snapshot, htmlDocument.roots);
+): VirtualCode[] {
+	const embeddedJSCodes: VirtualCode[] = findModuleScripts(snapshot, htmlDocument.roots);
 
 	const javascriptContexts = [
 		...findClassicScripts(htmlDocument, snapshot),
@@ -22,10 +25,10 @@ export function extractScriptTags(
 	if (javascriptContexts.length > 0) {
 		// classic scripts share the same scope
 		// merging them brings about redeclaration errors
-		embeddedJSFiles.push(mergeJSContexts(fileName, javascriptContexts));
+		embeddedJSCodes.push(mergeJSContexts(javascriptContexts));
 	}
 
-	return embeddedJSFiles;
+	return embeddedJSCodes;
 }
 
 function getScriptType(scriptTag: Node): 'classic' | 'module' | 'processed module' {
@@ -43,12 +46,8 @@ function getScriptType(scriptTag: Node): 'classic' | 'module' | 'processed modul
  * Isolated scripts are scripts that are hoisted by Astro and as such, are isolated from the rest of the code because of the implicit `type="module"`
  * All the isolated scripts are passed to the TypeScript language server as separate `.mts` files.
  */
-function findModuleScripts(
-	fileName: string,
-	snapshot: ts.IScriptSnapshot,
-	roots: Node[]
-): VirtualFile[] {
-	const embeddedScripts: VirtualFile[] = [];
+function findModuleScripts(snapshot: ts.IScriptSnapshot, roots: Node[]): VirtualCode[] {
+	const embeddedScripts: VirtualCode[] = [];
 	let scriptIndex = 0;
 
 	getEmbeddedScriptsInNodes(roots);
@@ -63,31 +62,31 @@ function findModuleScripts(
 			) {
 				const scriptText = snapshot.getText(node.startTagEnd, node.endTagStart);
 				const extension = getScriptType(node) === 'processed module' ? 'mts' : 'mjs';
+				const languageId = getScriptType(node) === 'processed module' ? 'typescript' : 'javascript';
 				embeddedScripts.push({
-					fileName: fileName + `.${scriptIndex}.${extension}`,
-					kind: FileKind.TypeScriptHostFile,
+					id: `${scriptIndex}.${extension}`,
+					languageId: languageId,
 					snapshot: {
 						getText: (start, end) => scriptText.substring(start, end),
 						getLength: () => scriptText.length,
 						getChangeRange: () => undefined,
 					},
-					codegenStacks: [],
 					mappings: [
 						{
-							sourceRange: [node.startTagEnd, node.endTagStart],
-							generatedRange: [0, scriptText.length],
-							data: FileRangeCapabilities.full,
+							sourceOffsets: [node.startTagEnd],
+							generatedOffsets: [0],
+							lengths: [scriptText.length],
+							data: {
+								verification: true,
+								completion: true,
+								semantic: true,
+								navigation: true,
+								structure: true,
+								format: false,
+							},
 						},
 					],
-					capabilities: {
-						diagnostic: true,
-						codeAction: true,
-						inlayHint: true,
-						documentSymbol: true,
-						foldingRange: true,
-						documentFormatting: false,
-					},
-					embeddedFiles: [],
+					embeddedCodes: [],
 				});
 				scriptIndex++;
 			}
@@ -196,39 +195,37 @@ function findEventAttributes(ast: ParseResult['ast']): JavaScriptContext[] {
 /**
  * Merge all the inline and non-hoisted scripts into a single `.mjs` file
  */
-function mergeJSContexts(fileName: string, javascriptContexts: JavaScriptContext[]): VirtualFile {
-	const codes: muggle.Segment<FileRangeCapabilities>[] = [];
+function mergeJSContexts(javascriptContexts: JavaScriptContext[]): VirtualCode {
+	const codes: Segment<CodeInformation>[] = [];
 
 	for (const javascriptContext of javascriptContexts) {
 		codes.push([
 			javascriptContext.content,
 			undefined,
 			javascriptContext.startOffset,
-			FileRangeCapabilities.full,
+			{
+				verification: true,
+				completion: true,
+				semantic: true,
+				navigation: true,
+				structure: true,
+				format: false,
+			},
 		]);
 	}
 
-	const mappings = SourceMap.buildMappings(codes);
-	const text = muggle.toString(codes);
+	const mappings = buildMappings(codes);
+	const text = toString(codes);
 
 	return {
-		fileName: fileName + '.inline.mjs',
-		codegenStacks: [],
+		id: 'inline.mjs',
+		languageId: 'javascript',
 		snapshot: {
 			getText: (start, end) => text.substring(start, end),
 			getLength: () => text.length,
 			getChangeRange: () => undefined,
 		},
-		capabilities: {
-			codeAction: true,
-			diagnostic: true,
-			documentFormatting: false,
-			documentSymbol: true,
-			foldingRange: true,
-			inlayHint: true,
-		},
-		embeddedFiles: [],
-		kind: FileKind.TypeScriptHostFile,
+		embeddedCodes: [],
 		mappings,
 	};
 }

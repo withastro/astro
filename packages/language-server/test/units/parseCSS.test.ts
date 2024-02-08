@@ -8,15 +8,10 @@ describe('parseCSS - Can find all the styles in an Astro file', () => {
 	it('Can find all the styles in an Astro file, including nested tags', () => {
 		const input = `<style>h1{color: blue;}</style><div><style>h2{color: red;}</style></div>`;
 		const snapshot = ts.ScriptSnapshot.fromString(input);
-		const html = parseHTML('something/style/hello.astro', snapshot, 0);
+		const html = parseHTML(snapshot, 0);
 		const astroAst = getAstroMetadata('file.astro', input).ast;
 
-		const styleTags = extractStylesheets(
-			'something/style/hello.astro',
-			snapshot,
-			html.htmlDocument,
-			astroAst
-		);
+		const styleTags = extractStylesheets(snapshot, html.htmlDocument, astroAst);
 
 		expect(styleTags.length).to.equal(2);
 	});

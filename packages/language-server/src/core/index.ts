@@ -1,13 +1,13 @@
 import type { DiagnosticMessage } from '@astrojs/compiler/types';
 import {
-	FileCapabilities,
-	FileKind,
-	FileRangeCapabilities,
-	type Language,
-	type VirtualFile,
+	forEachEmbeddedCode,
+	type CodeMapping,
+	type ExtraServiceScript,
+	type LanguagePlugin,
+	type VirtualCode,
 } from '@volar/language-core';
 import * as path from 'node:path';
-import type ts from 'typescript/lib/tsserverlibrary';
+import type ts from 'typescript';
 import type { HTMLDocument } from 'vscode-html-languageservice';
 import { getLanguageServerTypesDir, type AstroInstall } from '../utils.js';
 import { astro2tsx } from './astro2tsx';
@@ -18,111 +18,126 @@ import { extractScriptTags } from './parseJS.js';
 
 export function getLanguageModule(
 	astroInstall: AstroInstall | undefined,
-	ts: typeof import('typescript/lib/tsserverlibrary.js')
-): Language<AstroFile> {
+	ts: typeof import('typescript')
+): LanguagePlugin<AstroVirtualCode> {
 	return {
-		createVirtualFile(fileName, snapshot) {
-			if (fileName.endsWith('.astro')) {
-				return new AstroFile(fileName, snapshot, ts);
+		createVirtualCode(fileId, languageId, snapshot) {
+			if (languageId === 'astro') {
+				const fileName = fileId.includes('://') ? fileId.split('://')[1] : fileId;
+				return new AstroVirtualCode(fileName, snapshot);
 			}
 		},
-		updateVirtualFile(astroFile, snapshot) {
-			astroFile.update(snapshot);
+		updateVirtualCode(_fileId, astroCode, snapshot) {
+			astroCode.update(snapshot);
+			return astroCode;
 		},
-		resolveHost(host) {
-			return {
-				...host,
-				resolveModuleName(moduleName, impliedNodeFormat) {
-					if (
-						impliedNodeFormat === ts.ModuleKind.ESNext &&
-						(moduleName.endsWith('.astro') ||
-							moduleName.endsWith('.vue') ||
-							moduleName.endsWith('.svelte'))
-					) {
-						return `${moduleName}.js`;
+		typescript: {
+			extraFileExtensions: [{ extension: 'astro', isMixedContent: true, scriptKind: 7 }],
+			getScript(astroCode) {
+				for (const code of forEachEmbeddedCode(astroCode)) {
+					if (code.id === 'tsx') {
+						return {
+							code,
+							extension: '.tsx',
+							scriptKind: 4 satisfies ts.ScriptKind.TSX,
+						};
 					}
-					return host.resolveModuleName?.(moduleName, impliedNodeFormat) ?? moduleName;
-				},
-				getScriptFileNames() {
-					const languageServerTypesDirectory = getLanguageServerTypesDir(ts);
-					const fileNames = host.getScriptFileNames();
-					const addedFileNames = [];
+				}
+				return undefined;
+			},
+			getExtraScripts(fileName, astroCode) {
+				const result: ExtraServiceScript[] = [];
+				for (const code of forEachEmbeddedCode(astroCode)) {
+					if (code.id.endsWith('.mjs') || code.id.endsWith('.mts')) {
+						result.push({
+							fileName: fileName + '.' + code.id,
+							code,
+							extension: '.mjs',
+							scriptKind: 1 satisfies ts.ScriptKind.JS,
+						});
+					}
+				}
+				return result;
+			},
+			resolveLanguageServiceHost(host) {
+				return {
+					...host,
+					getScriptFileNames() {
+						const languageServerTypesDirectory = getLanguageServerTypesDir(ts);
+						const fileNames = host.getScriptFileNames();
+						const addedFileNames = [];
 
-					if (astroInstall) {
-						addedFileNames.push(
-							...['./env.d.ts', './astro-jsx.d.ts'].map((filePath) =>
-								ts.sys.resolvePath(path.resolve(astroInstall.path, filePath))
-							)
-						);
-
-						// If Astro version is < 4.0.8, add jsx-runtime-augment.d.ts to the files to fake `JSX` being available from "astro/jsx-runtime".
-						// TODO: Remove this once a majority of users are on Astro 4.0.8+, erika - 2023-12-28
-						if (
-							astroInstall.version.major < 4 ||
-							(astroInstall.version.major === 4 &&
-								astroInstall.version.minor === 0 &&
-								astroInstall.version.patch < 8)
-						) {
+						if (astroInstall) {
 							addedFileNames.push(
-								...['./jsx-runtime-augment.d.ts'].map((filePath) =>
-									ts.sys.resolvePath(path.resolve(languageServerTypesDirectory, filePath))
+								...['./env.d.ts', './astro-jsx.d.ts'].map((filePath) =>
+									ts.sys.resolvePath(path.resolve(astroInstall.path, filePath))
 								)
 							);
-							console.log(addedFileNames);
-						}
-					} else {
-						// If we don't have an Astro installation, add the fallback types from the language server.
-						// See the README in packages/language-server/types for more information.
-						addedFileNames.push(
-							...['./env.d.ts', './astro-jsx.d.ts', './jsx-runtime-fallback.d.ts'].map((f) =>
-								ts.sys.resolvePath(path.resolve(languageServerTypesDirectory, f))
-							)
-						);
-					}
 
-					return [...fileNames, ...addedFileNames];
-				},
-				getCompilationSettings() {
-					const baseCompilationSettings = host.getCompilationSettings();
-					return {
-						...baseCompilationSettings,
-						module: ts.ModuleKind.ESNext ?? 99,
-						target: ts.ScriptTarget.ESNext ?? 99,
-						jsx: ts.JsxEmit.Preserve ?? 1,
-						resolveJsonModule: true,
-						allowJs: true, // Needed for inline scripts, which are virtual .js files
-						isolatedModules: true,
-						moduleResolution:
-							baseCompilationSettings.moduleResolution === ts.ModuleResolutionKind.Classic ||
-							!baseCompilationSettings.moduleResolution
-								? ts.ModuleResolutionKind.Node10
-								: baseCompilationSettings.moduleResolution,
-					};
-				},
-			};
+							// If Astro version is < 4.0.8, add jsx-runtime-augment.d.ts to the files to fake `JSX` being available from "astro/jsx-runtime".
+							// TODO: Remove this once a majority of users are on Astro 4.0.8+, erika - 2023-12-28
+							if (
+								astroInstall.version.major < 4 ||
+								(astroInstall.version.major === 4 &&
+									astroInstall.version.minor === 0 &&
+									astroInstall.version.patch < 8)
+							) {
+								addedFileNames.push(
+									...['./jsx-runtime-augment.d.ts'].map((filePath) =>
+										ts.sys.resolvePath(path.resolve(languageServerTypesDirectory, filePath))
+									)
+								);
+							}
+						} else {
+							// If we don't have an Astro installation, add the fallback types from the language server.
+							// See the README in packages/language-server/types for more information.
+							addedFileNames.push(
+								...['./env.d.ts', './astro-jsx.d.ts', './jsx-runtime-fallback.d.ts'].map((f) =>
+									ts.sys.resolvePath(path.resolve(languageServerTypesDirectory, f))
+								)
+							);
+						}
+
+						return [...fileNames, ...addedFileNames];
+					},
+					getCompilationSettings() {
+						const baseCompilationSettings = host.getCompilationSettings();
+						return {
+							...baseCompilationSettings,
+							module: ts.ModuleKind.ESNext ?? 99,
+							target: ts.ScriptTarget.ESNext ?? 99,
+							jsx: ts.JsxEmit.Preserve ?? 1,
+							resolveJsonModule: true,
+							allowJs: true, // Needed for inline scripts, which are virtual .js files
+							isolatedModules: true,
+							moduleResolution:
+								baseCompilationSettings.moduleResolution === ts.ModuleResolutionKind.Classic ||
+								!baseCompilationSettings.moduleResolution
+									? ts.ModuleResolutionKind.Node10
+									: baseCompilationSettings.moduleResolution,
+						};
+					},
+				};
+			},
 		},
 	};
 }
 
-export class AstroFile implements VirtualFile {
-	kind = FileKind.TextFile;
-	capabilities = FileCapabilities.full;
-
-	fileName: string;
-	mappings!: VirtualFile['mappings'];
-	embeddedFiles!: VirtualFile['embeddedFiles'];
+export class AstroVirtualCode implements VirtualCode {
+	id = 'root';
+	languageId = 'astro';
+	mappings!: CodeMapping[];
+	embeddedCodes!: VirtualCode[];
 	astroMeta!: AstroMetadata;
 	compilerDiagnostics!: DiagnosticMessage[];
 	htmlDocument!: HTMLDocument;
-	scriptFiles!: string[];
+	scriptCodeIds!: string[];
 	codegenStacks = [];
 
 	constructor(
-		public sourceFileName: string,
-		public snapshot: ts.IScriptSnapshot,
-		private readonly ts: typeof import('typescript/lib/tsserverlibrary.js')
+		public fileName: string,
+		public snapshot: ts.IScriptSnapshot
 	) {
-		this.fileName = sourceFileName;
 		this.onSnapshotUpdated();
 	}
 
@@ -138,9 +153,17 @@ export class AstroFile implements VirtualFile {
 	onSnapshotUpdated() {
 		this.mappings = [
 			{
-				sourceRange: [0, this.snapshot.getLength()],
-				generatedRange: [0, this.snapshot.getLength()],
-				data: FileRangeCapabilities.full,
+				sourceOffsets: [0],
+				generatedOffsets: [0],
+				lengths: [this.snapshot.getLength()],
+				data: {
+					verification: true,
+					completion: true,
+					semantic: true,
+					navigation: true,
+					structure: true,
+					format: true,
+				},
 			},
 		];
 		this.compilerDiagnostics = [];
@@ -154,8 +177,7 @@ export class AstroFile implements VirtualFile {
 			this.compilerDiagnostics.push(...astroMetadata.diagnostics);
 		}
 
-		const { htmlDocument, virtualFile: htmlVirtualFile } = parseHTML(
-			this.fileName,
+		const { htmlDocument, virtualCode: htmlVirtualCode } = parseHTML(
 			this.snapshot,
 			astroMetadata.frontmatter.status === 'closed'
 				? astroMetadata.frontmatter.position.end.offset
@@ -163,32 +185,26 @@ export class AstroFile implements VirtualFile {
 		);
 		this.htmlDocument = htmlDocument;
 
-		const scriptTags = extractScriptTags(
-			this.fileName,
-			this.snapshot,
-			htmlDocument,
-			astroMetadata.ast
-		);
+		const scriptTags = extractScriptTags(this.snapshot, htmlDocument, astroMetadata.ast);
 
-		this.scriptFiles = scriptTags.map((scriptTag) => scriptTag.fileName);
+		this.scriptCodeIds = scriptTags.map((scriptTag) => scriptTag.id);
 
-		htmlVirtualFile.embeddedFiles.push(
-			...extractStylesheets(this.fileName, this.snapshot, htmlDocument, astroMetadata.ast),
+		htmlVirtualCode.embeddedCodes.push(
+			...extractStylesheets(this.snapshot, htmlDocument, astroMetadata.ast),
 			...scriptTags
 		);
 
-		this.embeddedFiles = [];
-		this.embeddedFiles.push(htmlVirtualFile);
+		this.embeddedCodes = [];
+		this.embeddedCodes.push(htmlVirtualCode);
 
 		const tsx = astro2tsx(
 			this.snapshot.getText(0, this.snapshot.getLength()),
 			this.fileName,
-			this.ts,
 			htmlDocument
 		);
 
 		this.astroMeta = { ...astroMetadata, tsxRanges: tsx.ranges };
 		this.compilerDiagnostics.push(...tsx.diagnostics);
-		this.embeddedFiles.push(tsx.virtualFile);
+		this.embeddedCodes.push(tsx.virtualCode);
 	}
 }
