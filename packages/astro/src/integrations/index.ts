@@ -153,7 +153,8 @@ export async function runHookConfigSetup({
 							`The "${integration.name}" integration is trying to add the "${name}" client directive, but it already exists.`
 						);
 					}
-					addedClientDirectives.set(name, buildClientDirectiveEntrypoint(name, entrypoint));
+					// TODO: this should be performed after astro:config:done
+					addedClientDirectives.set(name, buildClientDirectiveEntrypoint(name, entrypoint, settings.config.root));
 				},
 				addMiddleware: ({ order, entrypoint }) => {
 					if (typeof updatedSettings.middlewares[order] === 'undefined') {
