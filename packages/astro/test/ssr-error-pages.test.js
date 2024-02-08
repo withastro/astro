@@ -1,5 +1,3 @@
-import assert from 'node:assert/strict';
-import { after, describe, before, it } from 'node:test';
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
@@ -37,7 +35,7 @@ describe('404 and 500 pages', () => {
 			});
 			let html = await res.text();
 			let $ = cheerio.load(html);
-			assert.equal($('h1').text(), 'Something went horribly wrong!');
+			expect($('h1').text()).to.equal(`Something went horribly wrong!`);
 		});
 	});
 
@@ -137,11 +135,11 @@ describe('trailing slashes for error pages', () => {
 
 		it('renders 404 page when a route does not match the request', async () => {
 			const response = await fixture.fetch('/ashbfjkasn');
-			assert.equal(response.status, 404);
+			expect(response).to.deep.include({ status: 404 });
 			const html = await response.text();
-			assert.notEqual(html, '');
+			expect(html).to.not.be.empty;
 			const $ = cheerio.load(html);
-			assert.equal($('h1').text(), `Something went horribly wrong!`);
+			expect($('h1').text()).to.equal(`Something went horribly wrong!`);
 		});
 	});
 
@@ -156,11 +154,11 @@ describe('trailing slashes for error pages', () => {
 
 		it('renders 404 page when a route does not match the request', async () => {
 			const response = await app.render(new Request('http://example.com/ajksalscla'));
-			assert.equal(response.status, 404);
+			expect(response).to.deep.include({ status: 404 });
 			const html = await response.text();
-			assert.notEqual(html, '');
+			expect(html).to.not.be.empty;
 			const $ = cheerio.load(html);
-			assert.equal($('h1').text(), 'Something went horribly wrong!');
+			expect($('h1').text()).to.equal('Something went horribly wrong!');
 		});
 	});
 });
