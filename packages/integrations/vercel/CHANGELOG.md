@@ -1,5 +1,13 @@
 # @astrojs/vercel
 
+## 7.3.0
+
+### Minor Changes
+
+- [#9987](https://github.com/withastro/astro/pull/9987) [`0699f34d5c4481c027c4d29d73944f79f97008df`](https://github.com/withastro/astro/commit/0699f34d5c4481c027c4d29d73944f79f97008df) Thanks [@lilnasy](https://github.com/lilnasy)! - Implements verification for edge middleware. This is a security measure to ensure that your serverless functions are only ever called by your edge middleware and not a third party.
+
+  When `edgeMiddleware` is enabled, the serverless function will now respond with `403 Forbidden` for requests that are not verified to have come from the generated edge middleware. No user action is necessary.
+
 ## 7.2.0
 
 ### Minor Changes
