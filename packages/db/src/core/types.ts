@@ -1,6 +1,6 @@
 import type { SQLiteInsertValue } from 'drizzle-orm/sqlite-core';
 import type { InferSelectModel } from 'drizzle-orm';
-import type { SqliteDB, Table } from '../runtime/index.js';
+import { collectionToTable, type SqliteDB, type Table } from '../runtime/index.js';
 import { z, type ZodTypeDef } from 'zod';
 import { SQL } from 'drizzle-orm';
 import { errorMap } from './integration/error-map.js';
@@ -171,8 +171,6 @@ const baseCollectionSchema = z.object({
 	fields: fieldsSchema,
 	indexes: z.record(indexSchema).optional(),
 	foreignKeys: z.array(foreignKeysSchema).optional(),
-	table: z.any(),
-	_setMeta: z.function().optional(),
 });
 
 export const readableCollectionSchema = baseCollectionSchema.extend({
@@ -185,19 +183,19 @@ export const writableCollectionSchema = baseCollectionSchema.extend({
 
 export const collectionSchema = z.union([readableCollectionSchema, writableCollectionSchema]);
 export const collectionsSchema = z.preprocess((rawCollections) => {
-	// Preprocess collections to append collection and field names to fields.
-	// Used to track collection info for references.
-
-	// Use minimum parsing to ensure collection has a `fields` record.
-	const collections = z
-		.record(
-			z.object({
-				fields: z.record(z.any()),
-			})
-		)
-		.parse(rawCollections, { errorMap });
+	// Use `z.any()` to avoid breaking object references
+	const collections = z.record(z.any()).parse(rawCollections, { errorMap });
 	for (const [collectionName, collection] of Object.entries(collections)) {
-		for (const [fieldName, field] of Object.entries(collection.fields)) {
+		// Append `table` object for data seeding.
+		// Must append at runtime so table name exists.
+		collection.table = collectionToTable(
+			collectionName,
+			collectionSchema.parse(collection, { errorMap })
+		);
+		// Append collection and field names to fields.
+		// Used to track collection info for references.
+		const { fields } = z.object({ fields: z.record(z.any()) }).parse(collection, { errorMap });
+		for (const [fieldName, field] of Object.entries(fields)) {
 			field.name = fieldName;
 			field.collection = collectionName;
 		}
@@ -313,24 +311,11 @@ function baseDefineCollection<TFields extends FieldsConfig, TWritable extends bo
 	userConfig: CollectionConfig<TFields>,
 	writable: TWritable
 ): ResolvedCollectionConfig<TFields, TWritable> {
-	const meta: { table: Table<string, TFields> } = { table: null! };
-	/**
-	 * We need to attach the Drizzle `table` at runtime using `_setMeta`.
-	 * These cannot be determined from `defineCollection()`,
-	 * since we don't know the collection name until the `db` config is resolved.
-	 */
-	const _setMeta = (values: { table: Table<string, TFields> }) => {
-		Object.assign(meta, values);
-	};
-
 	return {
 		...userConfig,
-		get table() {
-			return meta.table;
-		},
 		writable,
-		// @ts-expect-error private setter
-		_setMeta,
+		// set at runtime to get the table name
+		table: null!,
 	};
 }
 

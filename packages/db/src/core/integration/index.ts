@@ -15,7 +15,6 @@ import { fileURLToPath } from 'url';
 import { blue, yellow } from 'kleur/colors';
 import { fileURLIntegration } from './file-url.js';
 import { setupDbTables } from '../queries.js';
-import { collectionToTable } from '../../runtime/index.js';
 import { getManagedAppTokenOrExit, type ManagedAppToken } from '../tokens.js';
 
 function astroDBIntegration(): AstroIntegration {
@@ -31,7 +30,6 @@ function astroDBIntegration(): AstroIntegration {
 				// @matthewp: may want to load collections by path at runtime
 				const configWithDb = astroConfigWithDbSchema.parse(config, { errorMap });
 				const collections = configWithDb.db?.collections ?? {};
-				setCollectionsMeta(collections);
 
 				const studio = configWithDb.db?.studio ?? false;
 				const foundWritableCollection = Object.entries(collections).find(([, c]) => c.writable);
@@ -117,25 +115,11 @@ function astroDBIntegration(): AstroIntegration {
 					'database: ' + (connectedToRemote ? yellow('remote') : blue('local database.'))
 				);
 			},
-			'astro:build:done': async ({ }) => {
+			'astro:build:done': async ({}) => {
 				await appToken?.destroy();
 			},
 		},
 	};
-}
-
-/**
- * We need to attach the Drizzle `table` and collection name at runtime.
- * These cannot be determined from `defineCollection()`,
- * since we don't know the collection name until the `db` config is resolved.
- *
- * exported for unit testing.
- */
-export function setCollectionsMeta(collections: Record<string, any>) {
-	for (const [name, collection] of Object.entries(collections)) {
-		const table = collectionToTable(name, collection);
-		collection._setMeta?.({ table });
-	}
 }
 
 export function integration(): AstroIntegration[] {
