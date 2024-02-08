@@ -58,7 +58,7 @@ describe('HTML Slots', () => {
 			const $ = cheerio.load(html);
 
 			const slotDefault = $('#default');
-			assert.equal(slotDefault.text(), 'Default')
+			assert.equal(slotDefault.text(), 'Default');
 
 			const a = $('#a');
 			assert.equal(a.text().trim(), 'A');
@@ -70,7 +70,7 @@ describe('HTML Slots', () => {
 			assert.equal(c.text().trim(), 'C');
 
 			const inline = $('#inline');
-			assert.equal(inline.html(), '<slot is:inline=""></slot>')
+			assert.equal(inline.html(), '<slot is:inline=""></slot>');
 		});
 	});
 });
