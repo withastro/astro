@@ -1,8 +1,8 @@
 import type { ParentNode, ParseResult } from '@astrojs/compiler/types';
 import { is } from '@astrojs/compiler/utils';
 import {
-	Segment,
 	buildMappings,
+	Segment,
 	toString,
 	type CodeInformation,
 	type VirtualCode,

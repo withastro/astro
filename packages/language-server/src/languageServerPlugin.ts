@@ -2,7 +2,6 @@ import {
 	Connection,
 	LanguagePlugin,
 	MessageType,
-	ServiceEnvironment,
 	ShowMessageNotification,
 	VirtualCode,
 } from '@volar/language-server/node';
