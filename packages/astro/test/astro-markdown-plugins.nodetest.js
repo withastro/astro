@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, before, it } from 'node:test';
 
-// import { expect } from 'chai';
 
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
