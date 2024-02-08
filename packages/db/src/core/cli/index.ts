@@ -60,7 +60,7 @@ Usage:
 
 astro db login       Authenticate your machine with Astro Studio
 astro db logout      End your authenticated session with Astro Studio
-astro db link        Link an Astro Studio project to this directory
+astro db link        Link this directory to an Astro Studio project
 
 astro db sync        Creates snapshot based on your schema
 astro db push        Pushes migrations to Astro Studio

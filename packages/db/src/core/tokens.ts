@@ -3,6 +3,7 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { getAstroStudioEnv, getAstroStudioUrl } from './utils.js';
+import { MISSING_PROJECT_ID_ERROR, MISSING_SESSION_ID_ERROR } from './errors.js';
 
 export const SESSION_LOGIN_FILE = pathToFileURL(join(homedir(), '.astro', 'session-token'));
 export const PROJECT_ID_FILE = pathToFileURL(join(process.cwd(), '.astro', 'link'));
@@ -117,7 +118,7 @@ export async function getSessionIdFromFile() {
 	}
 }
 
-export async function getManagedAppToken(token?: string): Promise<ManagedAppToken | undefined> {
+export async function getManagedAppTokenOrExit(token?: string): Promise<ManagedAppToken> {
 	if (token) {
 		return new ManagedLocalAppToken(token);
 	}
@@ -126,9 +127,14 @@ export async function getManagedAppToken(token?: string): Promise<ManagedAppToke
 		return new ManagedLocalAppToken(ASTRO_STUDIO_APP_TOKEN);
 	}
 	const sessionToken = await getSessionIdFromFile();
+	if (!sessionToken) {
+		console.error(MISSING_SESSION_ID_ERROR);
+        process.exit(1);
+	}
     const projectId = await getProjectIdFromFile();
 	if (!sessionToken || !projectId) {
-		return undefined;
+		console.error(MISSING_PROJECT_ID_ERROR);
+        process.exit(1);
 	}
 	return ManagedRemoteAppToken.create(sessionToken, projectId);
 }

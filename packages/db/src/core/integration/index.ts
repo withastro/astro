@@ -7,8 +7,8 @@ import { mkdir, rm, writeFile } from 'fs/promises';
 import { DB_PATH } from '../consts.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { astroConfigWithDbSchema } from '../types.js';
-import { getAstroStudioEnv, type VitePlugin } from '../utils.js';
-import { APP_TOKEN_ERROR, STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR } from '../errors.js';
+import { type VitePlugin } from '../utils.js';
+import { STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR } from '../errors.js';
 import { errorMap } from './error-map.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -16,9 +16,11 @@ import { blue, yellow } from 'kleur/colors';
 import { fileURLIntegration } from './file-url.js';
 import { setupDbTables } from '../queries.js';
 import { collectionToTable } from '../../runtime/index.js';
+import { getManagedAppTokenOrExit, type ManagedAppToken } from '../tokens.js';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectedToRemote = false;
+	let appToken: ManagedAppToken | undefined;
 	return {
 		name: 'astro:db',
 		hooks: {
@@ -42,16 +44,12 @@ function astroDBIntegration(): AstroIntegration {
 
 				let dbPlugin: VitePlugin;
 				if (studio && command === 'build') {
-					const appToken = getAstroStudioEnv().ASTRO_STUDIO_APP_TOKEN;
-					if (!appToken) {
-						logger.error(APP_TOKEN_ERROR);
-						process.exit(1);
-					}
+					appToken = await getManagedAppTokenOrExit();
 					connectedToRemote = true;
 					dbPlugin = vitePluginDb({
 						connectToStudio: true,
 						collections,
-						appToken,
+						appToken: appToken.token,
 						root: config.root,
 					});
 				} else {
@@ -117,6 +115,9 @@ function astroDBIntegration(): AstroIntegration {
 			},
 			'astro:build:start': async ({ logger }) => {
 				logger.info('database: ' + (connectedToRemote ? yellow('remote') : blue('local database.')));
+			},
+			'astro:build:done': async ({ }) => {
+				await appToken?.destroy();
 			},
 		},
 	};

@@ -4,12 +4,13 @@ import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
 import { PROJECT_ID_FILE, getSessionIdFromFile } from '../../../tokens.js';
 import { getAstroStudioUrl } from '../../../utils.js';
+import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
 
-export async function cmd({ flags }: { config: AstroConfig; flags: Arguments }) {
+export async function cmd({  }: { config: AstroConfig; flags: Arguments }) {
 	const linkUrl = new URL(getAstroStudioUrl() + '/auth/cli/link');
 	const sessionToken = await getSessionIdFromFile();
 	if (!sessionToken) {
-		console.error('You must be logged in to link a project.');
+		console.error(MISSING_SESSION_ID_ERROR);
 		process.exit(1);
 	}
 

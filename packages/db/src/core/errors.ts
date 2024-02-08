@@ -1,8 +1,12 @@
 import { cyan, bold, red } from 'kleur/colors';
 
-export const APP_TOKEN_ERROR = `${red(
-	'⚠️ App token invalid or expired.'
-)} Please generate a new one from your the Studio dashboard under project settings.`;
+export const MISSING_SESSION_ID_ERROR = `${red(
+	'⚠️ Login required.'
+)} Run ${bold('astro db login')} to authenticate with Astro Studio.`;
+
+export const MISSING_PROJECT_ID_ERROR = `${red(
+	'⚠️ Directory not linked.'
+)} Run ${bold('astro db link')} to link this directory to an Astro Studio project.`;
 
 export const STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR = (collectionName: string) =>
 	red(`⚠️ Writable collection ${bold(collectionName)} requires Astro Studio.`) +

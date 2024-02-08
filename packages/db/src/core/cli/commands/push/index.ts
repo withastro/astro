@@ -5,9 +5,8 @@ import { drizzle } from 'drizzle-orm/sqlite-proxy';
 import { red } from 'kleur/colors';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
-import { APP_TOKEN_ERROR } from '../../../errors.js';
 import { setupDbTables } from '../../../queries.js';
-import { getManagedAppToken } from '../../../tokens.js';
+import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import type { AstroConfigWithDB, DBSnapshot } from '../../../types.js';
 import { getRemoteDatabaseUrl } from '../../../utils.js';
 import { getMigrationQueries } from '../../migration-queries.js';
@@ -25,6 +24,7 @@ const { diff } = deepDiff;
 export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
 	const isSeedData = flags.seed;
 	const isDryRun = flags.dryRun;
+	const appToken = await getManagedAppTokenOrExit(flags.token);
 	const currentSnapshot = createCurrentSnapshot(config);
 	const allMigrationFiles = await getMigrations();
 	if (allMigrationFiles.length === 0) {
@@ -37,12 +37,6 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 	if (calculatedDiff) {
 		console.log('Changes detected!');
 		console.log(calculatedDiff);
-		process.exit(1);
-	}
-
-	const appToken = await getManagedAppToken(flags.token);
-	if (!appToken) {
-		console.error(APP_TOKEN_ERROR);
 		process.exit(1);
 	}
 
