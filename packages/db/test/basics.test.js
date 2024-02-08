@@ -3,6 +3,10 @@ import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from '../../astro/test/test-utils.js';
 import testAdapter from '../../astro/test/test-adapter.js';
 
+// TODO(fks): Rename this to something more generic/generally useful
+// like `ASTRO_MONOREPO_TEST_ENV` if @astrojs/db is merged into astro.
+process.env.ASTRO_DB_TEST_ENV = '1';
+
 describe('astro:db', () => {
 	let fixture;
 	before(async () => {

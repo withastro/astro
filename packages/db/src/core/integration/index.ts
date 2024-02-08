@@ -43,7 +43,7 @@ function astroDBIntegration(): AstroIntegration {
 				}
 
 				let dbPlugin: VitePlugin;
-				if (studio && command === 'build') {
+				if (studio && command === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
 					appToken = await getManagedAppTokenOrExit();
 					connectedToRemote = true;
 					dbPlugin = vitePluginDb({
