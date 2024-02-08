@@ -1,5 +1,5 @@
 {
-  "extends": "astro/tsconfigs/base",
+  "extends": ["astro/tsconfigs/base", "./.astro/tsconfig.json"],
   "compilerOptions": {
     // Solid specific settings
     "jsx": "preserve",
