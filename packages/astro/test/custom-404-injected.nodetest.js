@@ -1,13 +1,15 @@
-import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
+import assert from 'node:assert/strict';
+import { after, describe, before, it } from 'node:test';
 
-describe('Custom 404 Markdown', () => {
+describe('Custom 404 with injectRoute', () => {
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/custom-404-md/',
+			root: './fixtures/custom-404-injected/',
+			site: 'http://example.com',
 		});
 	});
 
@@ -27,17 +29,18 @@ describe('Custom 404 Markdown', () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			$ = cheerio.load(html);
 
-			expect($('h1').text()).to.equal('Home');
+			assert.strictEqual($('h1').text(), 'Home');
 		});
 
-		it('renders 404 for /abc', async () => {
+		it('renders 404 for /a', async () => {
 			const res = await fixture.fetch('/a');
-			expect(res.status).to.equal(404);
+			assert.strictEqual(res.status, 404);
 
 			const html = await res.text();
 			$ = cheerio.load(html);
 
-			expect($('h1').text()).to.equal('Page not found');
+			assert.strictEqual($('h1').text(), 'Page not found');
+			assert.strictEqual($('p').text(), '/a');
 		});
 	});
 });

@@ -1,5 +1,6 @@
-import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
+import assert from 'node:assert/strict';
+import { after, describe, before, it } from 'node:test';
 
 for (const caseNumber of [1, 2, 3, 4]) {
 	describe(`Custom 404 with implicit rerouting - Case #${caseNumber}`, () => {
@@ -21,15 +22,15 @@ for (const caseNumber of [1, 2, 3, 4]) {
 		it('dev server handles normal requests', async () => {
 			const resPromise = fixture.fetch('/');
 			const result = await withTimeout(resPromise, 1000);
-			expect(result).to.not.equal(timeout);
-			expect(result.status).to.equal(200);
+			assert.notStrictEqual(result, timeout);
+			assert.strictEqual(result.status, 200);
 		});
 
 		it('dev server stays responsive', async () => {
 			const resPromise = fixture.fetch('/alvsibdlvjks');
 			const result = await withTimeout(resPromise, 1000);
-			expect(result).to.not.equal(timeout);
-			expect(result.status).to.equal(404);
+			assert.notStrictEqual(result, timeout);
+			assert.strictEqual(result.status, 404);
 		});
 
 		after(async () => {
