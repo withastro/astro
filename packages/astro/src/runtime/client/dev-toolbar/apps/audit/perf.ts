@@ -49,8 +49,12 @@ export const perf: AuditRuleWithSelector[] = [
 		selector: 'img[loading="lazy"], iframe[loading="lazy"]',
 		match(element) {
 			const htmlElement = element as HTMLImageElement | HTMLIFrameElement;
+			console.log(htmlElement);
+			console.log({ offsetTop: htmlElement.offsetTop, innerHeight: window.innerHeight });
 			// Ignore elements that are below the fold, they should be loaded lazily
 			if (htmlElement.offsetTop > window.innerHeight) return false;
+
+			return true;
 		},
 	},
 	{

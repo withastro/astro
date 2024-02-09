@@ -250,7 +250,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 				children,
 				metadata
 			));
-			componentServerRenderEndTime = performance.now() - componentRenderStartTime;
+			if (process.env.NODE_ENV === 'development')
+				componentServerRenderEndTime = performance.now() - componentRenderStartTime;
 		}
 	}
 
@@ -330,7 +331,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		metadata as Required<AstroComponentMetadata>
 	);
 
-	island.props['server-render-time'] = componentServerRenderEndTime;
+	if (componentServerRenderEndTime && process.env.NODE_ENV === 'development')
+		island.props['server-render-time'] = componentServerRenderEndTime;
 
 	// Render template if not all astro fragments are provided.
 	let unrenderedSlots: string[] = [];

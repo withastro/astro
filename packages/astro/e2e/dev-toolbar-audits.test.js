@@ -16,7 +16,7 @@ test.afterAll(async () => {
 });
 
 test.describe('Dev Toolbar - Audits', () => {
-	test('can warn about perf issues', async ({ page, astro }) => {
+	test('can warn about perf issues zzz', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/audits-perf'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
@@ -25,6 +25,9 @@ test.describe('Dev Toolbar - Audits', () => {
 
 		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
 		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
+
+		const count = await auditHighlights.count();
+		expect(count).toEqual(2);
 
 		for (const auditHighlight of await auditHighlights.all()) {
 			await expect(auditHighlight).toBeVisible();
