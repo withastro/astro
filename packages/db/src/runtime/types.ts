@@ -76,7 +76,7 @@ export type Column<T extends DBField['type'], S extends GeneratedConfig> = T ext
 
 export type Table<
 	TTableName extends string,
-	TFields extends Record<string, Pick<DBField, 'type' | 'default' | 'optional'>>,
+	TFields extends Record<string, Pick<DBField, 'type' | 'schema'>>,
 > = SQLiteTableWithColumns<{
 	name: TTableName;
 	schema: undefined;
@@ -92,7 +92,7 @@ export type Table<
 					: TFields[K] extends { primaryKey: true }
 						? true
 						: false;
-				notNull: TFields[K]['optional'] extends true ? false : true;
+				notNull: TFields[K]['schema']['optional'] extends true ? false : true;
 			}
 		>;
 	};

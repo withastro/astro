@@ -19,7 +19,7 @@ export type { Table } from './types.js';
 export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';
 
 export function hasPrimaryKey(field: DBField) {
-	return 'primaryKey' in field && !!field.primaryKey;
+	return 'primaryKey' in field.schema && !!field.schema.primaryKey;
 }
 
 // Exports a few common expressions
@@ -99,42 +99,42 @@ function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boo
 			c = text(fieldName);
 			// Duplicate default logic across cases to preserve type inference.
 			// No clean generic for every column builder.
-			if (field.default !== undefined) c = c.default(handleSerializedSQL(field.default));
-			if (field.primaryKey === true) c = c.primaryKey();
+			if (field.schema.default !== undefined) c = c.default(handleSerializedSQL(field.schema.default));
+			if (field.schema.primaryKey === true) c = c.primaryKey();
 			break;
 		}
 		case 'number': {
 			c = integer(fieldName);
-			if (field.default !== undefined) c = c.default(handleSerializedSQL(field.default));
-			if (field.primaryKey === true) c = c.primaryKey();
+			if (field.schema.default !== undefined) c = c.default(handleSerializedSQL(field.schema.default));
+			if (field.schema.primaryKey === true) c = c.primaryKey();
 			break;
 		}
 		case 'boolean': {
 			c = integer(fieldName, { mode: 'boolean' });
-			if (field.default !== undefined) c = c.default(handleSerializedSQL(field.default));
+			if (field.schema.default !== undefined) c = c.default(handleSerializedSQL(field.schema.default));
 			break;
 		}
 		case 'json':
 			c = jsonType(fieldName);
-			if (field.default !== undefined) c = c.default(field.default);
+			if (field.schema.default !== undefined) c = c.default(field.schema.default);
 			break;
 		case 'date': {
 			// Parse dates as strings when in JSON serializable mode
 			if (isJsonSerializable) {
 				c = text(fieldName);
-				if (field.default !== undefined) {
-					c = c.default(handleSerializedSQL(field.default));
+				if (field.schema.default !== undefined) {
+					c = c.default(handleSerializedSQL(field.schema.default));
 				}
 			} else {
 				c = dateType(fieldName);
-				if (field.default !== undefined) {
-					const def = handleSerializedSQL(field.default);
+				if (field.schema.default !== undefined) {
+					const def = handleSerializedSQL(field.schema.default);
 					c = c.default(
 						def instanceof SQL
 							? def
 							: // default comes pre-transformed to an ISO string for D1 storage.
 								// parse back to a Date for Drizzle.
-								z.coerce.date().parse(field.default)
+								z.coerce.date().parse(field.schema.default)
 					);
 				}
 			}
@@ -142,8 +142,8 @@ function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boo
 		}
 	}
 
-	if (!field.optional) c = c.notNull();
-	if (field.unique) c = c.unique();
+	if (!field.schema.optional) c = c.notNull();
+	if (field.schema.unique) c = c.unique();
 	return c;
 }
 

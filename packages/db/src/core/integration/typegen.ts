@@ -35,8 +35,8 @@ function generateTableType(name: string, collection: DBCollection): string {
 					{
 						// Only select fields Drizzle needs for inference
 						type: field.type,
-						optional: field.optional,
-						default: field.default,
+						optional: field.schema.optional,
+						default: field.schema.default,
 					},
 				])
 			)

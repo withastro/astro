@@ -123,7 +123,7 @@ export function getCreateForeignKeyQueries(collectionName: string, collection: D
 				`Foreign key on ${collectionName} is misconfigured. \`fields\` and \`references\` must be the same length.`
 			);
 		}
-		const referencedCollection = references[0]?.collection;
+		const referencedCollection = references[0]?.schema.collection;
 		if (!referencedCollection) {
 			throw new Error(
 				`Foreign key on ${collectionName} is misconfigured. \`references\` cannot be empty.`
@@ -132,7 +132,7 @@ export function getCreateForeignKeyQueries(collectionName: string, collection: D
 		const query = `FOREIGN KEY (${fields
 			.map((f) => sqlite.escapeName(f))
 			.join(', ')}) REFERENCES ${sqlite.escapeName(referencedCollection)}(${references
-			.map((r) => sqlite.escapeName(r.name!))
+			.map((r) => sqlite.escapeName(r.schema.name!))
 			.join(', ')})`;
 		queries.push(query);
 	}
@@ -160,10 +160,10 @@ export function getModifiers(fieldName: string, field: DBField) {
 	if (hasPrimaryKey(field)) {
 		return ' PRIMARY KEY';
 	}
-	if (!field.optional) {
+	if (!field.schema.optional) {
 		modifiers += ' NOT NULL';
 	}
-	if (field.unique) {
+	if (field.schema.unique) {
 		modifiers += ' UNIQUE';
 	}
 	if (hasDefault(field)) {
@@ -171,7 +171,7 @@ export function getModifiers(fieldName: string, field: DBField) {
 	}
 	const references = getReferencesConfig(field);
 	if (references) {
-		const { collection, name } = references;
+		const { collection, name } = references.schema;
 		if (!collection || !name) {
 			throw new Error(
 				`Invalid reference for field ${fieldName}. This is an unexpected error that should be reported to the Astro team.`
@@ -186,12 +186,14 @@ export function getModifiers(fieldName: string, field: DBField) {
 export function getReferencesConfig(field: DBField) {
 	const canHaveReferences = field.type === 'number' || field.type === 'text';
 	if (!canHaveReferences) return undefined;
-	return field.references;
+	return field.schema.references;
 }
 
 // Using `DBField` will not narrow `default` based on the column `type`
 // Handle each field separately
-type WithDefaultDefined<T extends DBField> = T & Required<Pick<T, 'default'>>;
+type WithDefaultDefined<T extends DBField> = T & {
+	schema: Required<Pick<T['schema'], 'default'>>
+};
 type DBFieldWithDefault =
 	| WithDefaultDefined<TextField>
 	| WithDefaultDefined<DateField>
@@ -201,7 +203,7 @@ type DBFieldWithDefault =
 
 // Type narrowing the default fails on union types, so use a type guard
 export function hasDefault(field: DBField): field is DBFieldWithDefault {
-	if (field.default !== undefined) {
+	if (field.schema.default !== undefined) {
 		return true;
 	}
 	if (hasPrimaryKey(field) && field.type === 'number') {
@@ -222,8 +224,8 @@ function toDefault<T>(def: T | SQL<any>): string {
 }
 
 function getDefaultValueSql(columnName: string, column: DBFieldWithDefault): string {
-	if (isSerializedSQL(column.default)) {
-		return column.default.sql;
+	if (isSerializedSQL(column.schema.default)) {
+		return column.schema.default.sql;
 	}
 
 	switch (column.type) {
@@ -231,11 +233,11 @@ function getDefaultValueSql(columnName: string, column: DBFieldWithDefault): str
 		case 'number':
 		case 'text':
 		case 'date':
-			return toDefault(column.default);
+			return toDefault(column.schema.default);
 		case 'json': {
 			let stringified = '';
 			try {
-				stringified = JSON.stringify(column.default);
+				stringified = JSON.stringify(column.schema.default);
 			} catch (e) {
 				// eslint-disable-next-line no-console
 				console.log(

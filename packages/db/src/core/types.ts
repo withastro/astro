@@ -29,9 +29,11 @@ const baseFieldSchema = z.object({
 	collection: z.string().optional(),
 });
 
-const booleanFieldSchema = baseFieldSchema.extend({
+const booleanFieldSchema = z.object({
 	type: z.literal('boolean'),
-	default: z.union([z.boolean(), sqlSchema]).optional(),
+	schema: baseFieldSchema.extend({
+		default: z.union([z.boolean(), sqlSchema]).optional(),
+	}),
 });
 
 const numberFieldBaseSchema = baseFieldSchema.omit({ optional: true }).and(
@@ -71,11 +73,10 @@ const numberFieldOptsSchema: z.ZodType<
 	})
 );
 
-const numberFieldSchema = numberFieldOptsSchema.and(
-	z.object({
-		type: z.literal('number'),
-	})
-);
+const numberFieldSchema = z.object({
+	type: z.literal('number'),
+	schema: numberFieldOptsSchema
+});
 
 const textFieldBaseSchema = baseFieldSchema
 	.omit({ optional: true })
@@ -119,27 +120,30 @@ const textFieldOptsSchema: z.ZodType<
 	})
 );
 
-const textFieldSchema = textFieldOptsSchema.and(
-	z.object({
-		type: z.literal('text'),
-	})
-);
-
-const dateFieldSchema = baseFieldSchema.extend({
-	type: z.literal('date'),
-	default: z
-		.union([
-			sqlSchema,
-			// allow date-like defaults in user config,
-			// transform to ISO string for D1 storage
-			z.coerce.date().transform((d) => d.toISOString()),
-		])
-		.optional(),
+const textFieldSchema = z.object({
+	type: z.literal('text'),
+	schema: textFieldOptsSchema
 });
 
-const jsonFieldSchema = baseFieldSchema.extend({
+const dateFieldSchema = z.object({
+	type: z.literal('date'),
+	schema: baseFieldSchema.extend({
+		default: z
+			.union([
+				sqlSchema,
+				// allow date-like defaults in user config,
+				// transform to ISO string for D1 storage
+				z.coerce.date().transform((d) => d.toISOString()),
+			])
+			.optional(),
+	})
+});
+
+const jsonFieldSchema = z.object({
 	type: z.literal('json'),
-	default: z.unknown().optional(),
+	schema: baseFieldSchema.extend({
+		default: z.unknown().optional(),
+	})
 });
 
 const fieldSchema = z.union([
@@ -150,6 +154,7 @@ const fieldSchema = z.union([
 	jsonFieldSchema,
 ]);
 export const referenceableFieldSchema = z.union([textFieldSchema, numberFieldSchema]);
+
 const fieldsSchema = z.record(fieldSchema);
 
 export const indexSchema = z.object({
@@ -350,20 +355,30 @@ type FieldOpts<T extends DBFieldInput> = Omit<T, 'type'>;
 type NumberFieldOpts = z.input<typeof numberFieldOptsSchema>;
 type TextFieldOpts = z.input<typeof textFieldOptsSchema>;
 
+function createField<S extends string, T extends Record<string, unknown>>(type: S, schema: T) {
+	return {
+		type,
+		/**
+		 * @internal
+		 */
+		schema
+	};
+}
+
 export const field = {
 	number: <T extends NumberFieldOpts>(opts: T = {} as T) => {
-		return { type: 'number', ...opts } satisfies T & { type: 'number' };
+		return createField('number', opts) satisfies { type: 'number' };
 	},
 	boolean: <T extends FieldOpts<BooleanFieldInput>>(opts: T = {} as T) => {
-		return { type: 'boolean', ...opts } satisfies T & { type: 'boolean' };
+		return createField('boolean', opts) satisfies { type: 'boolean' }
 	},
 	text: <T extends TextFieldOpts>(opts: T = {} as T) => {
-		return { type: 'text', ...opts } satisfies T & { type: 'text' };
+		return createField('text', opts) satisfies { type: 'text' };
 	},
-	date<T extends FieldOpts<DateFieldInput>>(opts: T) {
-		return { type: 'date', ...opts } satisfies T & { type: 'date' };
+	date<T extends FieldOpts<DateFieldInput>>(opts: T = {} as T) {
+		return createField('date', opts) satisfies { type: 'date' };
 	},
-	json<T extends FieldOpts<JsonFieldInput>>(opts: T) {
-		return { type: 'json', ...opts } satisfies T & { type: 'json' };
+	json<T extends FieldOpts<JsonFieldInput>>(opts: T = {} as T) {
+		return createField('json', opts) satisfies { type: 'json' };
 	},
 };

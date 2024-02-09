@@ -434,16 +434,16 @@ function isEmpty(obj: Record<string, unknown>) {
  * @see https://www.sqlite.org/lang_altertable.html#alter_table_add_column
  */
 function canAlterTableAddColumn(field: DBField) {
-	if (field.unique) return false;
+	if (field.schema.unique) return false;
 	if (hasRuntimeDefault(field)) return false;
-	if (!field.optional && !hasDefault(field)) return false;
+	if (!field.schema.optional && !hasDefault(field)) return false;
 	if (hasPrimaryKey(field)) return false;
 	if (getReferencesConfig(field)) return false;
 	return true;
 }
 
 function canAlterTableDropColumn(field: DBField) {
-	if (field.unique) return false;
+	if (field.schema.unique) return false;
 	if (hasPrimaryKey(field)) return false;
 	return true;
 }
@@ -461,10 +461,10 @@ function canRecreateTableWithoutDataLoss(
 		if (hasPrimaryKey(a) && a.type !== 'number' && !hasDefault(a)) {
 			return { dataLoss: true, fieldName, reason: 'added-required' };
 		}
-		if (!a.optional && !hasDefault(a)) {
+		if (!a.schema.optional && !hasDefault(a)) {
 			return { dataLoss: true, fieldName, reason: 'added-required' };
 		}
-		if (!a.optional && a.unique) {
+		if (!a.schema.optional && a.schema.unique) {
 			return { dataLoss: true, fieldName, reason: 'added-unique' };
 		}
 	}
@@ -546,7 +546,7 @@ function canChangeTypeWithoutQuery(oldField: DBField, newField: DBField) {
 
 // Using `DBField` will not narrow `default` based on the column `type`
 // Handle each field separately
-type WithDefaultDefined<T extends DBField> = T & Required<Pick<T, 'default'>>;
+type WithDefaultDefined<T extends DBField> = T & Required<Pick<T['schema'], 'default'>>;
 type DBFieldWithDefault =
 	| WithDefaultDefined<TextField>
 	| WithDefaultDefined<DateField>
@@ -555,5 +555,5 @@ type DBFieldWithDefault =
 	| WithDefaultDefined<JsonField>;
 
 function hasRuntimeDefault(field: DBField): field is DBFieldWithDefault {
-	return !!(field.default && isSerializedSQL(field.default));
+	return !!(field.schema.default && isSerializedSQL(field.schema.default));
 }
