@@ -16,6 +16,7 @@ import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import type { AstroIntegrationLogger } from 'astro';
 import type { DBUserConfig } from '../core/types.js';
 import { hasPrimaryKey } from '../runtime/index.js';
+import type { SQLiteInsert } from 'drizzle-orm/sqlite-core';
 
 const sqlite = new SQLiteAsyncDialect();
 
@@ -37,6 +38,10 @@ export async function setupDbTables({
 }) {
 	const setupQueries: SQL[] = [];
 	for (const [name, collection] of Object.entries(collections)) {
+		// We don't reset writable collections in production
+		if (mode === 'build' && collection.writable) {
+			continue;
+		}
 		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${name}`);
 		const createQuery = sql.raw(getCreateTableQuery(name, collection, useForeignKeys));
 		const indexQueries = getCreateIndexQueries(name, collection);
@@ -48,17 +53,26 @@ export async function setupDbTables({
 	if (data) {
 		try {
 			await data({
-				seed: async ({ table }, values) => {
-					const result = Array.isArray(values)
-						? db.insert(table).values(values).returning()
-						: db
-								.insert(table)
-								.values(values as any)
-								.returning()
-								.get();
-					// Drizzle types don't *quite* line up, and it's tough to debug why.
-					// we're casting and calling this close enough :)
-					return result as any;
+				seed: async (collection, values, options = {}) => {
+					const shouldRunInDev = (options.when === 'dev' || options.when === 'always')  ? true : true;
+					const shouldRunInBuild = (options.when === 'build' || options.when === 'always')  ? true : !collection.writable;
+					const shouldRun = mode === 'dev' ? shouldRunInDev : shouldRunInBuild;
+					if (options.returning && (!shouldRunInDev || !shouldRunInBuild)) {
+						throw new Error(`'returning' is set to true, but this data will not always seed. Set 'when' to 'always' to seed this data on every run, including production.`);
+					}
+					if (!shouldRun) {
+						return;
+					}
+					let result: SQLiteInsert<any, any, any, any> = db
+						.insert(collection.table)
+						.values(values as any);
+					if (options.returning) {
+						result = result.returning();
+					}
+					if (!Array.isArray(values)) {
+						result = result.get();
+					}
+					return await result.execute();
 				},
 				db,
 				mode,

@@ -207,7 +207,8 @@ export type DBDataContext = {
 		TData extends MaybeArray<SQLiteInsertValue<Table<string, TFields>>>,
 	>(
 		collection: ResolvedCollectionConfig<TFields>,
-		data: TData
+		data: TData,
+		options?: { returning?: boolean, when?: 'build' | 'dev' | 'always' | 'never'}
 	) => Promise<
 		TData extends Array<SQLiteInsertValue<Table<string, TFields>>>
 			? InferSelectModel<Table<string, TFields>>[]
