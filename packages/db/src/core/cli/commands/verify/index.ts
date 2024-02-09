@@ -1,23 +1,28 @@
 import type { AstroConfig } from 'astro';
-import deepDiff from 'deep-diff';
 import type { Arguments } from 'yargs-parser';
-import { getMigrations, initializeFromMigrations } from '../../migrations.js';
-const { diff } = deepDiff;
+import { getMigrationStatus, MIGRATION_NEEDED, MIGRATIONS_NOT_INITIALIZED, MIGRATIONS_UP_TO_DATE } from '../../migrations.js';
 
-export async function cmd({ config }: { config: AstroConfig; flags: Arguments }) {
-	const currentSnapshot = JSON.parse(JSON.stringify(config.db?.collections ?? {}));
-	const allMigrationFiles = await getMigrations();
-	if (allMigrationFiles.length === 0) {
-		console.log('Project not yet initialized!');
-		process.exit(1);
+export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
+	const status = await getMigrationStatus(config);
+	const { state } = status;
+	if (flags.json) {
+		console.log(JSON.stringify(status));
+		process.exit(state === 'up-to-date' ? 0 : 1);
 	}
-
-	const prevSnapshot = await initializeFromMigrations(allMigrationFiles);
-	const calculatedDiff = diff(prevSnapshot, currentSnapshot);
-	if (calculatedDiff) {
-		console.log('Changes detected!');
-		process.exit(1);
+	switch (state) {
+		case 'no-migrations-found': {
+			console.log(MIGRATIONS_NOT_INITIALIZED);
+			process.exit(1);
+		}
+		case 'ahead': {
+			console.log(MIGRATION_NEEDED);
+			process.exit(1);
+		}
+		case 'up-to-date': {
+			console.log(MIGRATIONS_UP_TO_DATE);
+			return;
+		}
 	}
-	console.log('No changes detected.');
-	return;
 }
+
+

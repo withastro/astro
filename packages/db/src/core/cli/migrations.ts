@@ -2,7 +2,75 @@ import deepDiff from 'deep-diff';
 import { mkdir, readFile, readdir, writeFile } from 'fs/promises';
 import type { DBSnapshot } from '../types.js';
 import type { AstroConfig } from 'astro';
-const { applyChange } = deepDiff;
+import { cyan, green, yellow } from 'kleur/colors';
+const { applyChange, diff: generateDiff } = deepDiff;
+
+export type MigrationStatus = {
+	state: 'no-migrations-found'
+	currentSnapshot: DBSnapshot
+} | {
+	state: 'ahead',
+	oldSnapshot: DBSnapshot,
+	newSnapshot: DBSnapshot,
+	diff: deepDiff.Diff<DBSnapshot, DBSnapshot>[],
+	newFilename: string,
+	summary: string,
+} | {
+	state: 'up-to-date',
+	currentSnapshot: DBSnapshot
+}
+
+export async function getMigrationStatus(config: AstroConfig): Promise<MigrationStatus> {
+	const currentSnapshot = createCurrentSnapshot(config);
+	const allMigrationFiles = await getMigrations();
+
+	if (allMigrationFiles.length === 0) {
+		return {
+			state: 'no-migrations-found',
+			currentSnapshot
+		}
+	}
+
+	const previousSnapshot = await initializeFromMigrations(allMigrationFiles);
+	const diff = generateDiff(previousSnapshot, currentSnapshot);
+
+	if (diff) {
+		const n = getNewMigrationNumber(allMigrationFiles);
+		const newFilename = `${String(n + 1).padStart(4, '0')}_migration.json`;
+		return {
+			state: 'ahead',
+			oldSnapshot: previousSnapshot,
+			newSnapshot: currentSnapshot,
+			diff,
+			newFilename,
+			summary: generateDiffSummary(diff),
+		}
+	}
+
+	return {
+		state: 'up-to-date',
+		currentSnapshot
+	}
+}
+
+export const MIGRATIONS_CREATED = `${green('■ Migrations initialized!')}\n\n  To execute your migrations, run\n  ${cyan('astro db push')}`
+export const MIGRATIONS_UP_TO_DATE = `${green('■ No migrations needed!')}\n\n  Your data is all up to date.\n`
+export const MIGRATIONS_NOT_INITIALIZED = `${yellow('▶ No migrations found!')}\n\n  To scaffold your migrations folder, run\n  ${cyan('astro db sync')}\n`
+export const MIGRATION_NEEDED = `${yellow('▶ Changes detected!')}\n\n  To create the necessary migration file, run\n  ${cyan('astro db sync')}\n`
+
+
+function generateDiffSummary(diff: deepDiff.Diff<DBSnapshot, DBSnapshot>[]) {
+	// TODO: human readable summary
+	return JSON.stringify(diff, null, 2);
+}
+
+function getNewMigrationNumber(allMigrationFiles: string[]): number {
+	const len = allMigrationFiles.length - 1;
+	return allMigrationFiles.reduce((acc, curr) => {
+		const num = Number.parseInt(curr.split('_')[0] ?? len, 10);
+		return num > acc ? num : acc;
+	}, 0);
+}
 
 export async function getMigrations(): Promise<string[]> {
 	const migrationFiles = await readdir('./migrations').catch((err) => {

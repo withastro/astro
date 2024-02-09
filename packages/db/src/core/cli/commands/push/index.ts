@@ -1,6 +1,5 @@
 import { createClient, type InStatement } from '@libsql/client';
 import type { AstroConfig } from 'astro';
-import deepDiff from 'deep-diff';
 import { drizzle } from 'drizzle-orm/sqlite-proxy';
 import { red } from 'kleur/colors';
 import prompts from 'prompts';
@@ -11,44 +10,56 @@ import type { AstroConfigWithDB, DBSnapshot } from '../../../types.js';
 import { getRemoteDatabaseUrl } from '../../../utils.js';
 import { getMigrationQueries } from '../../migration-queries.js';
 import {
-	createCurrentSnapshot,
 	createEmptySnapshot,
 	getMigrations,
-	initializeFromMigrations,
+	getMigrationStatus,
 	loadInitialSnapshot,
 	loadMigration,
+	MIGRATION_NEEDED,
+	MIGRATIONS_NOT_INITIALIZED,
+	MIGRATIONS_UP_TO_DATE,
 } from '../../migrations.js';
-
-const { diff } = deepDiff;
+import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
 
 export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
 	const isSeedData = flags.seed;
 	const isDryRun = flags.dryRun;
 	const appToken = await getManagedAppTokenOrExit(flags.token);
-	const currentSnapshot = createCurrentSnapshot(config);
-	const allMigrationFiles = await getMigrations();
-	if (allMigrationFiles.length === 0) {
-		console.log('Project not yet initialized!');
-		process.exit(1);
-	}
 
-	const prevSnapshot = await initializeFromMigrations(allMigrationFiles);
-	const calculatedDiff = diff(prevSnapshot, currentSnapshot);
-	if (calculatedDiff) {
-		console.log('Changes detected!');
-		console.log(calculatedDiff);
+	const migration = await getMigrationStatus(config);
+	if (migration.state === 'no-migrations-found') {
+		console.log(MIGRATIONS_NOT_INITIALIZED)
+		process.exit(1);
+	} else if (migration.state === 'ahead') {
+		console.log(MIGRATION_NEEDED);
 		process.exit(1);
 	}
 
 	// get all migrations from the filesystem
 	const allLocalMigrations = await getMigrations();
-	const { data: missingMigrations } = await prepareMigrateQuery({
-		migrations: allLocalMigrations,
-		appToken: appToken.token,
-	});
+	let missingMigrations: string[] = [];
+	try {
+		const { data } = await prepareMigrateQuery({
+			migrations: allLocalMigrations,
+			appToken: appToken.token,
+		})
+		missingMigrations = data;
+	} catch (e) {
+		if (e instanceof Error) {
+			if (e.message.startsWith('{')) {
+				const { error: { code } = { code: "" } } = JSON.parse(e.message);
+				if (code === 'TOKEN_UNAUTHORIZED') {
+					console.error(MISSING_SESSION_ID_ERROR);
+				}
+				process.exit(1);
+			}
+		}
+		console.error(e);
+		process.exit(1);
+	}
 	// exit early if there are no migrations to push
 	if (missingMigrations.length === 0) {
-		console.info('No migrations to push! Your database is up to date!');
+		console.log(MIGRATIONS_UP_TO_DATE);
 		process.exit(0);
 	}
 	// push the database schema
@@ -58,7 +69,7 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 			migrations: missingMigrations,
 			appToken: appToken.token,
 			isDryRun,
-			currentSnapshot,
+			currentSnapshot: migration.currentSnapshot,
 		});
 	}
 	// push the database seed data
