@@ -179,28 +179,35 @@ async function emitOptimizedImages(
 	}
 ) {
 	for (const node of nodeChildren) {
-		if (
-			node.type === 'image' &&
-			typeof node.attributes.src === 'string' &&
-			shouldOptimizeImage(node.attributes.src)
-		) {
-			// Attempt to resolve source with Vite.
-			// This handles relative paths and configured aliases
-			const resolved = await ctx.pluginContext.resolve(node.attributes.src, ctx.filePath);
+		let isComponent = node.type === 'tag' && node.tag === 'image';
+		// Support either a ![]() or {% image %} syntax, and handle the `src` attribute accordingly.
+		if ((node.type === 'image' || isComponent) && typeof node.attributes.src === 'string') {
+			let attributeName = isComponent ? 'src' : '__optimizedSrc';
 
-			if (resolved?.id && fs.existsSync(new URL(prependForwardSlash(resolved.id), 'file://'))) {
-				const src = await emitESMImage(
-					resolved.id,
-					ctx.pluginContext.meta.watchMode,
-					ctx.pluginContext.emitFile
-				);
-				node.attributes.__optimizedSrc = src;
-			} else {
-				throw new MarkdocError({
-					message: `Could not resolve image ${JSON.stringify(
-						node.attributes.src
-					)} from ${JSON.stringify(ctx.filePath)}. Does the file exist?`,
-				});
+			// If the image isn't an URL or a link to public, try to resolve it.
+			if (shouldOptimizeImage(node.attributes.src)) {
+				// Attempt to resolve source with Vite.
+				// This handles relative paths and configured aliases
+				const resolved = await ctx.pluginContext.resolve(node.attributes.src, ctx.filePath);
+
+				if (resolved?.id && fs.existsSync(new URL(prependForwardSlash(resolved.id), 'file://'))) {
+					const src = await emitESMImage(
+						resolved.id,
+						ctx.pluginContext.meta.watchMode,
+						ctx.pluginContext.emitFile
+					);
+					node.attributes[attributeName] = src;
+				} else {
+					throw new MarkdocError({
+						message: `Could not resolve image ${JSON.stringify(
+							node.attributes.src
+						)} from ${JSON.stringify(ctx.filePath)}. Does the file exist?`,
+					});
+				}
+			} else if (isComponent) {
+				// If the user is using the {% image %} tag, always pass the `src` attribute as `__optimizedSrc`, even if it's an external URL or absolute path.
+				// That way, the component can decide whether to optimize it or not.
+				node.attributes[attributeName] = node.attributes.src;
 			}
 		}
 		await emitOptimizedImages(node.children, ctx);

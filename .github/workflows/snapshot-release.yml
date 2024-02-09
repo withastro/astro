@@ -34,7 +34,7 @@ jobs:
 
       - name: Extract the snapshot name from comment body
         id: getSnapshotName
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const { body } = context.payload.comment;
@@ -58,7 +58,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ steps.refs.outputs.head_ref }}
           fetch-depth: 0
@@ -69,7 +69,7 @@ jobs:
         uses: pnpm/action-setup@v2
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
           registry-url: "https://registry.npmjs.org"
@@ -124,7 +124,7 @@ jobs:
           NO_COLOR: 1
 
       - name: Pull Request Notification
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           TAG: ${{ steps.getSnapshotName.outputs.result }}
           STATUS_DATA: ${{ steps.changesets.outputs.status }}

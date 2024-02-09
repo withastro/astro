@@ -453,9 +453,11 @@ async function transition(
 	if (navigationType !== 'traverse') {
 		updateScrollPosition({ scrollX, scrollY });
 	}
-	if (samePage(from, to) && !!to.hash) {
-		moveToLocation(to, from, options, document.title, historyState);
-		return;
+	if (samePage(from, to)) {
+		if ((direction !== 'back' && to.hash) || (direction === 'back' && from.hash)) {
+			moveToLocation(to, from, options, document.title, historyState);
+			return;
+		}
 	}
 
 	const prepEvent = await doPreparation(
