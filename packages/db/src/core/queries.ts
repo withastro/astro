@@ -16,6 +16,7 @@ import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import type { AstroIntegrationLogger } from 'astro';
 import type { DBUserConfig } from '../core/types.js';
 import { hasPrimaryKey } from '../runtime/index.js';
+import { isSerializedSQL } from '../runtime/types.js';
 
 const sqlite = new SQLiteAsyncDialect();
 
@@ -209,11 +210,9 @@ export function hasDefault(field: DBField): field is DBFieldWithDefault {
 	return false;
 }
 
-function toStringDefault<T>(def: T | SQL<any>): string {
+function toDefault<T>(def: T | SQL<any>): string {
 	const type = typeof def;
-	if (def instanceof SQL) {
-		return sqlite.sqlToQuery(def).sql;
-	} else if (type === 'string') {
+	if (type === 'string') {
 		return sqlite.escapeString(def as string);
 	} else if (type === 'boolean') {
 		return def ? 'TRUE' : 'FALSE';
@@ -223,12 +222,16 @@ function toStringDefault<T>(def: T | SQL<any>): string {
 }
 
 function getDefaultValueSql(columnName: string, column: DBFieldWithDefault): string {
+	if (isSerializedSQL(column.default)) {
+		return sqlite.sqlToQuery(new SQL(column.default.queryChunks)).sql;
+	}
+
 	switch (column.type) {
 		case 'boolean':
 		case 'number':
 		case 'text':
 		case 'date':
-			return toStringDefault(column.default);
+			return toDefault(column.default);
 		case 'json': {
 			let stringified = '';
 			try {

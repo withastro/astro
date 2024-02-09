@@ -1,4 +1,4 @@
-import type { ColumnDataType, ColumnBaseConfig } from 'drizzle-orm';
+import type { ColumnDataType, ColumnBaseConfig, SQLChunk } from 'drizzle-orm';
 import type { SQLiteColumn, SQLiteTableWithColumns } from 'drizzle-orm/sqlite-core';
 import type { DBField } from '../core/types.js';
 
@@ -97,3 +97,13 @@ export type Table<
 		>;
 	};
 }>;
+
+export const SERIALIZED_SQL_KEY = '__serializedSQL';
+export type SerializedSQL = {
+	[SERIALIZED_SQL_KEY]: true;
+	queryChunks: SQLChunk[];
+};
+
+export function isSerializedSQL(value: any): value is SerializedSQL {
+	return typeof value === 'object' && value !== null && SERIALIZED_SQL_KEY in value;
+}
