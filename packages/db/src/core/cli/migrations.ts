@@ -54,7 +54,7 @@ export async function getMigrationStatus(config: AstroConfig): Promise<Migration
 }
 
 export const MIGRATIONS_CREATED = `${green('■ Migrations initialized!')}\n\n  To execute your migrations, run\n  ${cyan('astro db push')}`
-export const MIGRATIONS_UP_TO_DATE = `${green('■ No migrations needed!')}\n\n  Your data is all up to date.\n`
+export const MIGRATIONS_UP_TO_DATE = `${green('■ No migrations needed!')}\n\n  Your database is up to date.\n`
 export const MIGRATIONS_NOT_INITIALIZED = `${yellow('▶ No migrations found!')}\n\n  To scaffold your migrations folder, run\n  ${cyan('astro db sync')}\n`
 export const MIGRATION_NEEDED = `${yellow('▶ Changes detected!')}\n\n  To create the necessary migration file, run\n  ${cyan('astro db sync')}\n`
 

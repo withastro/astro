@@ -27,7 +27,7 @@ export default defineConfig({
 	db: {
 		studio: true,
 		collections: { Author, Themes },
-		async data({ seed }) {
+		async data({ seed, mode }) {
 			await seed(Author, [
 				{ name: 'Ben' },
 				{ name: 'Nate' },
@@ -35,10 +35,13 @@ export default defineConfig({
 				{ name: 'Bjorn' },
 				{ name: 'Sarah' },
 			]);
-			await seed(Themes, [
-				{ name: 'dracula' },
-				{ name: 'monokai' },
-			]);
+			// Seed writable collections in dev mode, only
+			if (mode === 'dev') {
+				await seed(Themes, [
+					{ name: 'dracula' },
+					{ name: 'monokai' },
+				]);
+			}
 		},
 	},
 });

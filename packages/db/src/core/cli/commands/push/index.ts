@@ -22,10 +22,8 @@ import {
 import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
 
 export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
-	const isSeedData = flags.seed;
 	const isDryRun = flags.dryRun;
 	const appToken = await getManagedAppTokenOrExit(flags.token);
-
 	const migration = await getMigrationStatus(config);
 	if (migration.state === 'no-migrations-found') {
 		console.log(MIGRATIONS_NOT_INITIALIZED);
@@ -44,27 +42,22 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 			appToken: appToken.token,
 		});
 		missingMigrations = data;
-	} catch (e) {
-		if (e instanceof Error) {
-			if (e.message.startsWith('{')) {
-				const { error: { code } = { code: '' } } = JSON.parse(e.message);
+	} catch (error) {
+		if (error instanceof Error) {
+			if (error.message.startsWith('{')) {
+				const { error: { code } = { code: '' } } = JSON.parse(error.message);
 				if (code === 'TOKEN_UNAUTHORIZED') {
 					console.error(MISSING_SESSION_ID_ERROR);
 				}
-				process.exit(1);
 			}
 		}
-		console.error(e);
+		console.error(error);
 		process.exit(1);
 	}
-	// exit early if there are no migrations to push
+	// push the database schema
 	if (missingMigrations.length === 0) {
 		console.log(MIGRATIONS_UP_TO_DATE);
-		// Preparing to seed for all runs
-		// process.exit(0);
-	}
-	// push the database schema
-	if (missingMigrations.length > 0) {
+	} else {
 		console.log(`Pushing ${missingMigrations.length} migrations...`);
 		await pushSchema({
 			migrations: missingMigrations,
@@ -74,10 +67,9 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		});
 	}
 	// push the database seed data
-	if (isSeedData) {
-		console.info('Pushing data...');
-		await pushData({ config, appToken: appToken.token, isDryRun });
-	}
+	console.info('Pushing data...');
+	await pushData({ config, appToken: appToken.token, isDryRun });
+	// cleanup and exit
 	await appToken.destroy();
 	console.info('Push complete!');
 }
