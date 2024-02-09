@@ -101,7 +101,7 @@ export type Table<
 export const SERIALIZED_SQL_KEY = '__serializedSQL';
 export type SerializedSQL = {
 	[SERIALIZED_SQL_KEY]: true;
-	queryChunks: SQLChunk[];
+	sql: string;
 };
 
 export function isSerializedSQL(value: any): value is SerializedSQL {

@@ -11,7 +11,7 @@ import {
 	type TextField,
 } from '../core/types.js';
 import { bold } from 'kleur/colors';
-import { SQL, sql } from 'drizzle-orm';
+import { type SQL, sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import type { AstroIntegrationLogger } from 'astro';
 import type { DBUserConfig } from '../core/types.js';
@@ -223,7 +223,7 @@ function toDefault<T>(def: T | SQL<any>): string {
 
 function getDefaultValueSql(columnName: string, column: DBFieldWithDefault): string {
 	if (isSerializedSQL(column.default)) {
-		return sqlite.sqlToQuery(new SQL(column.default.queryChunks)).sql;
+		return column.default.sql;
 	}
 
 	switch (column.type) {

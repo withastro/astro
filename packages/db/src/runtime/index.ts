@@ -149,7 +149,7 @@ function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boo
 
 function handleSerializedSQL<T>(def: T | SerializedSQL) {
 	if (isSerializedSQL(def)) {
-		return new SQL(def.queryChunks);
+		return sql.raw(def.sql);
 	}
 	return def;
 }
