@@ -211,8 +211,8 @@ export const collectionsSchema = z.preprocess((rawCollections) => {
 		// Used to track collection info for references.
 		const { fields } = z.object({ fields: z.record(z.any()) }).parse(collection, { errorMap });
 		for (const [fieldName, field] of Object.entries(fields)) {
-			field.name = fieldName;
-			field.collection = collectionName;
+			field.schema.name = fieldName;
+			field.schema.collection = collectionName;
 		}
 	}
 	return rawCollections;
