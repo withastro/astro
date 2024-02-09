@@ -13,7 +13,7 @@ export class DevToolbarCard extends HTMLElement {
 	connectedCallback() {
 		const element = this.link ? 'a' : this.clickAction ? 'button' : 'div';
 
-		this.shadowRoot.innerHTML = `
+		this.shadowRoot.innerHTML += `
 			<style>
 				:host>a, :host>button, :host>div {
 					box-sizing: border-box;

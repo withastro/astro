@@ -126,6 +126,11 @@ export default {
               transform: none;
               width: 320px;
               padding: 0;
+              overflow: hidden;
+						}
+
+						hr {
+						  margin-bottom: 0;
 						}
 
 						h1 {
@@ -153,6 +158,13 @@ export default {
 						.audit-title {
 						  font-weight: bold;
 							color: white;
+							margin-right: 1ch;
+						}
+
+						#audit-list {
+  						display: flex;
+              flex-direction: column;
+              overflow: auto;
 						}
 					</style>
 
@@ -161,11 +173,33 @@ export default {
 				);
 
 				const auditListUl = document.createElement('ul');
-				audits.forEach((audit) => {
+				auditListUl.id = 'audit-list';
+				audits.forEach((audit, index) => {
 					const resolvedRule = resolveAuditRule(audit.rule, audit.auditedElement);
 					const card = document.createElement('astro-dev-toolbar-card');
+
+					console.log(index);
+					console.log(audits.length);
+					card.shadowRoot.innerHTML = `
+					<style>
+					 :host>button {
+						  text-align: left;
+							box-shadow: none !important;
+							${
+								index + 1 < audits.length
+									? 'border-radius: 0 !important;'
+									: 'border-radius: 0 0 8px 8px !important;'
+							}
+						}
+
+						:host>button:hover {
+						  cursor: pointer;
+						}
+					</style>`;
+
 					card.clickAction = () => {
 						audit.highlightElement.scrollIntoView();
+						audit.highlightElement.focus();
 					};
 					const h3 = document.createElement('h3');
 					h3.innerHTML = getDomPath(audit.auditedElement, true) as string;
