@@ -63,7 +63,7 @@ describe('astro:ssr-manifest, split', () => {
 
 	it('should correctly emit the the pre render page', async () => {
 		const text = readFileSync(
-			resolve('./fixtures/ssr-split-manifest/dist/client/prerender/index.html'),
+			resolve('./test/fixtures/ssr-split-manifest/dist/client/prerender/index.html'),
 			{
 				encoding: 'utf8',
 			}
