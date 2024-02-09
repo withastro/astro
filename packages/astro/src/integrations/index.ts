@@ -154,7 +154,10 @@ export async function runHookConfigSetup({
 						);
 					}
 					// TODO: this should be performed after astro:config:done
-					addedClientDirectives.set(name, buildClientDirectiveEntrypoint(name, entrypoint, settings.config.root));
+					addedClientDirectives.set(
+						name,
+						buildClientDirectiveEntrypoint(name, entrypoint, settings.config.root)
+					);
 				},
 				addMiddleware: ({ order, entrypoint }) => {
 					if (typeof updatedSettings.middlewares[order] === 'undefined') {
