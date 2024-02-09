@@ -1,7 +1,8 @@
-import { expect } from 'chai';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveConfig } from '../../../dist/core/config/index.js';
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 
 describe('resolveConfig', () => {
 	it('resolves relative inline root correctly', async () => {
@@ -13,6 +14,6 @@ describe('resolveConfig', () => {
 			'dev'
 		);
 		const expectedRoot = path.join(process.cwd(), 'relative/path/');
-		expect(fileURLToPath(astroConfig.root)).to.equal(expectedRoot);
+		assert.equal(fileURLToPath(astroConfig.root), expectedRoot);
 	});
 });
