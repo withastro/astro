@@ -1,4 +1,4 @@
-import { type SQLiteInsertValue } from 'drizzle-orm/sqlite-core';
+import { SQLiteAsyncDialect, type SQLiteInsertValue } from 'drizzle-orm/sqlite-core';
 import type { InferSelectModel } from 'drizzle-orm';
 import { collectionToTable, type SqliteDB, type Table } from '../runtime/index.js';
 import { z, type ZodTypeDef } from 'zod';
@@ -10,10 +10,12 @@ export type MaybePromise<T> = T | Promise<T>;
 export type MaybeArray<T> = T | T[];
 
 // Transform to serializable object for migration files
+const sqlite = new SQLiteAsyncDialect();
+
 const sqlSchema = z.instanceof(SQL<any>).transform(
 	(sqlObj): SerializedSQL => ({
 		[SERIALIZED_SQL_KEY]: true,
-		queryChunks: sqlObj.queryChunks,
+		sql: sqlite.sqlToQuery(sqlObj).sql,
 	})
 );
 
