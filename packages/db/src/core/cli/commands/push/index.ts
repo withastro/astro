@@ -60,7 +60,8 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 	// exit early if there are no migrations to push
 	if (missingMigrations.length === 0) {
 		console.log(MIGRATIONS_UP_TO_DATE);
-		process.exit(0);
+		// Preparing to seed for all runs
+		// process.exit(0);
 	}
 	// push the database schema
 	if (missingMigrations.length > 0) {

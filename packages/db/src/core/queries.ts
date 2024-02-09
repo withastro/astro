@@ -63,10 +63,11 @@ export async function setupDbTables({
 				db,
 				mode,
 			});
-		} catch (e) {
+		} catch (error) {
 			(logger ?? console).error(
-				`Failed to seed data. Did you update to match recent schema changes? Full error:\n\n${e}`
+				`Failed to seed data. Did you update to match recent schema changes?`
 			);
+			(logger ?? console).error(error as string);
 		}
 	}
 }
