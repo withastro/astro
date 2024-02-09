@@ -11,6 +11,7 @@ import {
 	type IndexBuilder,
 } from 'drizzle-orm/sqlite-core';
 import { z } from 'zod';
+import { isSerializedSQL, type SerializedSQL } from './types.js';
 
 export { sql };
 export type SqliteDB = SqliteRemoteDatabase;
@@ -98,19 +99,19 @@ function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boo
 			c = text(fieldName);
 			// Duplicate default logic across cases to preserve type inference.
 			// No clean generic for every column builder.
-			if (field.default !== undefined) c = c.default(field.default);
+			if (field.default !== undefined) c = c.default(handleSerializedSQL(field.default));
 			if (field.primaryKey === true) c = c.primaryKey();
 			break;
 		}
 		case 'number': {
 			c = integer(fieldName);
-			if (field.default !== undefined) c = c.default(field.default);
+			if (field.default !== undefined) c = c.default(handleSerializedSQL(field.default));
 			if (field.primaryKey === true) c = c.primaryKey();
 			break;
 		}
 		case 'boolean': {
 			c = integer(fieldName, { mode: 'boolean' });
-			if (field.default !== undefined) c = c.default(field.default);
+			if (field.default !== undefined) c = c.default(handleSerializedSQL(field.default));
 			break;
 		}
 		case 'json':
@@ -122,12 +123,12 @@ function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boo
 			if (isJsonSerializable) {
 				c = text(fieldName);
 				if (field.default !== undefined) {
-					c = c.default(field.default);
+					c = c.default(handleSerializedSQL(field.default));
 				}
 			} else {
 				c = dateType(fieldName);
 				if (field.default !== undefined) {
-					const def = convertSerializedSQL(field.default);
+					const def = handleSerializedSQL(field.default);
 					c = c.default(
 						def instanceof SQL
 							? def
@@ -146,14 +147,9 @@ function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boo
 	return c;
 }
 
-function isSerializedSQL(obj: unknown): boolean {
-	return typeof obj === 'object' && !!(obj as any).queryChunks;
-}
-
-function convertSerializedSQL<T = unknown>(obj: T): SQL<any> | T {
-	if (isSerializedSQL(obj)) {
-		return new SQL((obj as any).queryChunks);
-	} else {
-		return obj;
+function handleSerializedSQL<T>(def: T | SerializedSQL) {
+	if (isSerializedSQL(def)) {
+		return new SQL(def.queryChunks);
 	}
+	return def;
 }

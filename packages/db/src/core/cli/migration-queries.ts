@@ -14,7 +14,6 @@ import type {
 	NumberField,
 	TextField,
 } from '../types.js';
-import { SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { customAlphabet } from 'nanoid';
 import prompts from 'prompts';
@@ -27,6 +26,7 @@ import {
 	schemaTypeToSqlType,
 } from '../queries.js';
 import { hasPrimaryKey } from '../../runtime/index.js';
+import { isSerializedSQL } from '../../runtime/types.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
@@ -555,5 +555,5 @@ type DBFieldWithDefault =
 	| WithDefaultDefined<JsonField>;
 
 function hasRuntimeDefault(field: DBField): field is DBFieldWithDefault {
-	return !!(field.default && field.default instanceof SQL);
+	return !!(field.default && isSerializedSQL(field.default));
 }

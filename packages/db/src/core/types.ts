@@ -1,12 +1,21 @@
-import type { SQLiteInsertValue } from 'drizzle-orm/sqlite-core';
+import { type SQLiteInsertValue } from 'drizzle-orm/sqlite-core';
 import type { InferSelectModel } from 'drizzle-orm';
 import { collectionToTable, type SqliteDB, type Table } from '../runtime/index.js';
 import { z, type ZodTypeDef } from 'zod';
 import { SQL } from 'drizzle-orm';
 import { errorMap } from './integration/error-map.js';
+import { SERIALIZED_SQL_KEY, type SerializedSQL } from '../runtime/types.js';
 
 export type MaybePromise<T> = T | Promise<T>;
 export type MaybeArray<T> = T | T[];
+
+// Transform to serializable object for migration files
+const sqlSchema = z.instanceof(SQL<any>).transform(
+	(sqlObj): SerializedSQL => ({
+		[SERIALIZED_SQL_KEY]: true,
+		queryChunks: sqlObj.queryChunks,
+	})
+);
 
 const baseFieldSchema = z.object({
 	label: z.string().optional(),
@@ -20,7 +29,7 @@ const baseFieldSchema = z.object({
 
 const booleanFieldSchema = baseFieldSchema.extend({
 	type: z.literal('boolean'),
-	default: z.union([z.boolean(), z.instanceof(SQL<any>)]).optional(),
+	default: z.union([z.boolean(), sqlSchema]).optional(),
 });
 
 const numberFieldBaseSchema = baseFieldSchema.omit({ optional: true }).and(
@@ -28,7 +37,7 @@ const numberFieldBaseSchema = baseFieldSchema.omit({ optional: true }).and(
 		z.object({
 			primaryKey: z.literal(false).optional(),
 			optional: z.boolean().optional(),
-			default: z.union([z.number(), z.instanceof(SQL<any>)]).optional(),
+			default: z.union([z.number(), sqlSchema]).optional(),
 		}),
 		z.object({
 			// `integer primary key` uses ROWID as the default value.
@@ -69,7 +78,7 @@ const numberFieldSchema = numberFieldOptsSchema.and(
 const textFieldBaseSchema = baseFieldSchema
 	.omit({ optional: true })
 	.extend({
-		default: z.union([z.string(), z.instanceof(SQL<any>)]).optional(),
+		default: z.union([z.string(), sqlSchema]).optional(),
 		multiline: z.boolean().optional(),
 	})
 	.and(
@@ -118,7 +127,7 @@ const dateFieldSchema = baseFieldSchema.extend({
 	type: z.literal('date'),
 	default: z
 		.union([
-			z.instanceof(SQL<any>),
+			sqlSchema,
 			// allow date-like defaults in user config,
 			// transform to ISO string for D1 storage
 			z.coerce.date().transform((d) => d.toISOString()),
@@ -138,8 +147,7 @@ const fieldSchema = z.union([
 	dateFieldSchema,
 	jsonFieldSchema,
 ]);
-export const referenceableFieldSchema = z.union([textFieldBaseSchema, numberFieldSchema]);
-export type ReferenceableField = z.input<typeof referenceableFieldSchema>;
+export const referenceableFieldSchema = z.union([textFieldSchema, numberFieldSchema]);
 const fieldsSchema = z.record(fieldSchema);
 
 export const indexSchema = z.object({
@@ -149,12 +157,12 @@ export const indexSchema = z.object({
 
 type ForeignKeysInput = {
 	fields: MaybeArray<string>;
-	references: () => MaybeArray<Omit<ReferenceableField, 'references'>>;
+	references: () => MaybeArray<Omit<z.input<typeof referenceableFieldSchema>, 'references'>>;
 };
 
 type ForeignKeysOutput = Omit<ForeignKeysInput, 'references'> & {
 	// reference fn called in `transform`. Ensures output is JSON serializable.
-	references: MaybeArray<Omit<ReferenceableField, 'references'>>;
+	references: MaybeArray<Omit<z.output<typeof referenceableFieldSchema>, 'references'>>;
 };
 
 const foreignKeysSchema: z.ZodType<ForeignKeysOutput, ZodTypeDef, ForeignKeysInput> = z.object({
@@ -204,14 +212,15 @@ export const collectionsSchema = z.preprocess((rawCollections) => {
 }, z.record(collectionSchema));
 
 export type BooleanField = z.infer<typeof booleanFieldSchema>;
+export type BooleanFieldInput = z.input<typeof booleanFieldSchema>;
 export type NumberField = z.infer<typeof numberFieldSchema>;
 export type NumberFieldInput = z.input<typeof numberFieldSchema>;
 export type TextField = z.infer<typeof textFieldSchema>;
 export type TextFieldInput = z.input<typeof textFieldSchema>;
 export type DateField = z.infer<typeof dateFieldSchema>;
-// Type `Date` is the config input, `string` is the output for D1 storage
 export type DateFieldInput = z.input<typeof dateFieldSchema>;
 export type JsonField = z.infer<typeof jsonFieldSchema>;
+export type JsonFieldInput = z.input<typeof jsonFieldSchema>;
 
 export type FieldType =
 	| BooleanField['type']
@@ -223,10 +232,10 @@ export type FieldType =
 export type DBField = z.infer<typeof fieldSchema>;
 export type DBFieldInput =
 	| DateFieldInput
-	| BooleanField
+	| BooleanFieldInput
 	| NumberFieldInput
 	| TextFieldInput
-	| JsonField;
+	| JsonFieldInput;
 export type DBFields = z.infer<typeof fieldsSchema>;
 export type DBCollection = z.infer<
 	typeof readableCollectionSchema | typeof writableCollectionSchema
@@ -290,7 +299,7 @@ interface CollectionConfig<TFields extends FieldsConfig = FieldsConfig>
 	foreignKeys?: Array<{
 		fields: MaybeArray<Extract<keyof TFields, string>>;
 		// TODO: runtime error if parent collection doesn't match for all fields. Can't put a generic here...
-		references: () => MaybeArray<ReferenceableField>;
+		references: () => MaybeArray<z.input<typeof referenceableFieldSchema>>;
 	}>;
 	indexes?: Record<string, IndexConfig<TFields>>;
 }
@@ -343,7 +352,7 @@ export const field = {
 	number: <T extends NumberFieldOpts>(opts: T = {} as T) => {
 		return { type: 'number', ...opts } satisfies T & { type: 'number' };
 	},
-	boolean: <T extends FieldOpts<BooleanField>>(opts: T = {} as T) => {
+	boolean: <T extends FieldOpts<BooleanFieldInput>>(opts: T = {} as T) => {
 		return { type: 'boolean', ...opts } satisfies T & { type: 'boolean' };
 	},
 	text: <T extends TextFieldOpts>(opts: T = {} as T) => {
@@ -352,7 +361,7 @@ export const field = {
 	date<T extends FieldOpts<DateFieldInput>>(opts: T) {
 		return { type: 'date', ...opts } satisfies T & { type: 'date' };
 	},
-	json<T extends FieldOpts<JsonField>>(opts: T) {
+	json<T extends FieldOpts<JsonFieldInput>>(opts: T) {
 		return { type: 'json', ...opts } satisfies T & { type: 'json' };
 	},
 };

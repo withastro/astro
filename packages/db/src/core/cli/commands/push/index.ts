@@ -6,7 +6,7 @@ import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
 import { setupDbTables } from '../../../queries.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
-import type { AstroConfigWithDB, DBSnapshot } from '../../../types.js';
+import { collectionsSchema, type AstroConfigWithDB, type DBSnapshot } from '../../../types.js';
 import { getRemoteDatabaseUrl } from '../../../utils.js';
 import { getMigrationQueries } from '../../migration-queries.js';
 import {
@@ -28,7 +28,7 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 
 	const migration = await getMigrationStatus(config);
 	if (migration.state === 'no-migrations-found') {
-		console.log(MIGRATIONS_NOT_INITIALIZED)
+		console.log(MIGRATIONS_NOT_INITIALIZED);
 		process.exit(1);
 	} else if (migration.state === 'ahead') {
 		console.log(MIGRATION_NEEDED);
@@ -42,12 +42,12 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		const { data } = await prepareMigrateQuery({
 			migrations: allLocalMigrations,
 			appToken: appToken.token,
-		})
+		});
 		missingMigrations = data;
 	} catch (e) {
 		if (e instanceof Error) {
 			if (e.message.startsWith('{')) {
-				const { error: { code } = { code: "" } } = JSON.parse(e.message);
+				const { error: { code } = { code: '' } } = JSON.parse(e.message);
 				if (code === 'TOKEN_UNAUTHORIZED') {
 					console.error(MISSING_SESSION_ID_ERROR);
 				}
@@ -168,7 +168,7 @@ async function pushData({
 		await setupDbTables({
 			db,
 			mode: 'build',
-			collections: config.db.collections ?? {},
+			collections: collectionsSchema.parse(config.db.collections ?? {}),
 			data: config.db.data,
 		});
 	}
