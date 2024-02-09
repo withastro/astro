@@ -1,5 +1,13 @@
 # @astrojs/check
 
+## 0.5.2
+
+### Patch Changes
+
+- a2280a8: Avoid checking Svelte and Vue files when running astro check
+- Updated dependencies [a2280a8]
+  - @astrojs/language-server@2.7.2
+
 ## 0.5.1
 
 ### Patch Changes
