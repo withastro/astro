@@ -30,13 +30,13 @@ jobs:
     outputs:
       run_job: ${{ steps.check_files.outputs.run_job }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v2
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: "pnpm"
@@ -66,7 +66,7 @@ jobs:
     if: needs.check_for_update.outputs.run_job == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
