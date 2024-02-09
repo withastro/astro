@@ -9,7 +9,7 @@ declare const Astro: {
 		fn: () => Promise<() => void>,
 		opts: Record<string, any>,
 		root: HTMLElement
-	) => void;
+	) => unknown;
 };
 
 {
@@ -93,14 +93,15 @@ declare const Astro: {
 					}
 					this.start();
 				}
-				start() {
+				async start() {
 					const opts = JSON.parse(this.getAttribute('opts')!) as Record<string, any>;
 					const directive = this.getAttribute('client') as directiveAstroKeys;
 					if (Astro[directive] === undefined) {
 						window.addEventListener(`astro:${directive}`, () => this.start(), { once: true });
 						return;
 					}
-					Astro[directive]!(
+					try {
+					await Astro[directive]!(
 						async () => {
 							const rendererUrl = this.getAttribute('renderer-url');
 							const [componentModule, { default: hydrator }] = await Promise.all([
@@ -121,7 +122,10 @@ declare const Astro: {
 						},
 						opts,
 						this
-					);
+					)
+					} catch (e) {
+						console.error(`[astro-island] Error hydrating ${this.getAttribute('component-url')}`, e);
+					}
 				}
 				hydrate = async () => {
 					// The client directive needs to load the hydrator code before it can hydrate
