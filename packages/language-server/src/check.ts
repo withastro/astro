@@ -59,7 +59,13 @@ export class AstroCheck {
 			  }
 			| undefined;
 	}): Promise<CheckResult> {
-		let files = fileNames !== undefined ? fileNames : this.linter.languageHost.getScriptFileNames();
+		let files = (
+			fileNames !== undefined ? fileNames : this.linter.languageHost.getScriptFileNames()
+		).filter((file) => {
+			// We don't have the same understanding of Svelte and Vue files as their own respective tools (vue-tsc, svelte-check)
+			// So we don't want to check them here
+			return !file.endsWith('.vue') && !file.endsWith('.svelte');
+		});
 
 		const result: CheckResult = {
 			status: undefined,
