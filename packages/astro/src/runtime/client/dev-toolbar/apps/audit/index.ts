@@ -49,7 +49,11 @@ export default {
 	name: 'Audit',
 	icon: icon,
 	async init(canvas, eventTarget) {
-		let audits: { highlightElement: DevToolbarHighlight; auditedElement: HTMLElement }[] = [];
+		let audits: {
+			highlightElement: DevToolbarHighlight;
+			auditedElement: HTMLElement;
+			rule: AuditRule;
+		}[] = [];
 
 		await lint();
 
@@ -111,6 +115,77 @@ export default {
 						},
 					})
 				);
+
+				const auditListWindow = createWindowElement(
+					`
+					<style>
+						astro-dev-toolbar-window {
+  	          left: initial;
+              top: 8px;
+              right: 8px;
+              transform: none;
+              width: 320px;
+              padding: 0;
+						}
+
+						h1 {
+              padding: 18px;
+              padding-bottom: 0;
+						}
+
+						ul, li {
+						  margin: 0;
+							padding: 0;
+							list-style: none;
+						}
+
+						h1, h2 {
+						  margin: 0;
+						}
+
+						h3 {
+      		    margin: 0;
+              margin-bottom: 8px;
+              color: white;
+              white-space: nowrap;
+						}
+
+						.audit-title {
+						  font-weight: bold;
+							color: white;
+						}
+					</style>
+
+					<h1>Audits</h1>
+					<hr />`
+				);
+
+				const auditListUl = document.createElement('ul');
+				audits.forEach((audit) => {
+					const resolvedRule = resolveAuditRule(audit.rule, audit.auditedElement);
+					const card = document.createElement('astro-dev-toolbar-card');
+					card.clickAction = () => {
+						audit.highlightElement.scrollIntoView();
+					};
+					const h3 = document.createElement('h3');
+					h3.innerHTML = getDomPath(audit.auditedElement, true) as string;
+					card.appendChild(h3);
+					const div = document.createElement('div');
+					const title = document.createElement('span');
+					title.classList.add('audit-title');
+					title.innerHTML = resolvedRule.title;
+					div.appendChild(title);
+					const description = document.createElement('span');
+					description.classList.add('audit-description');
+					description.innerHTML = resolvedRule.message;
+					div.appendChild(description);
+					card.appendChild(div);
+					auditListUl.appendChild(card);
+				});
+
+				auditListWindow.appendChild(auditListUl);
+
+				canvas.append(auditListWindow);
 			} else {
 				eventTarget.dispatchEvent(
 					new CustomEvent('toggle-notification', {
@@ -214,7 +289,11 @@ export default {
 			attachTooltipToHighlight(highlight, tooltip, originalElement);
 
 			canvas.append(highlight);
-			audits.push({ highlightElement: highlight, auditedElement: originalElement as HTMLElement });
+			audits.push({
+				highlightElement: highlight,
+				auditedElement: originalElement as HTMLElement,
+				rule: rule,
+			});
 		}
 
 		function buildAuditTooltip(rule: AuditRule, element: Element) {
@@ -264,3 +343,106 @@ export default {
 		}
 	},
 } satisfies DevToolbarApp;
+
+function getDomPath(el, noVerify) {
+	// store the original element if verify is enabled. If it isn't, then don't even bother
+	// taking up any memory for it.
+
+	const origElem = el;
+
+	if (!el) {
+		console.error('No element provided');
+		return;
+	}
+
+	const stack = [];
+	let levelCount = 0;
+	let nearestElemWithId = null;
+
+	let sibParent;
+	let sibSiblings;
+
+	do {
+		levelCount++;
+
+		let sibCount = 0;
+		let sibIndex = 0;
+		sibParent = el?.parentNode;
+		sibSiblings = sibParent?.children;
+
+		if (sibSiblings) {
+			sibSiblings = Array.from(sibSiblings).filter((sibElem) => el.nodeName == sibElem.nodeName);
+		}
+
+		// Iterate over the childNodes of the elements parentNode to get the
+		// index to use
+		if (sibSiblings) {
+			for (let i = 0; i < sibSiblings.length; i++) {
+				let sib = sibSiblings[i];
+
+				//if ( sib.nodeName != el.nodeName )  continue;
+
+				sibCount++;
+
+				if (sib === el) {
+					// If this is the correct element, then save the sibIndex
+					// and stop looping
+					sibIndex = sibCount;
+					break;
+				}
+			}
+		}
+
+		if (el && el.hasAttribute('id') && el.id != '') {
+			nearestElemWithId = el.id;
+
+			// Turns out, if you have an id that starts with a numerical value, then you can't
+			// use it in querySelector[All] unless you either escape it or add [id=] to it.
+			if (/^[0-9]/.test(el.id)) {
+				stack.unshift(`[id="${el.id}"]`);
+			} else {
+				stack.unshift(`#${el.id}`);
+			}
+		} else if (sibCount > 1) {
+			stack.unshift(el.nodeName.toLowerCase() + ':nth-of-type(' + parseInt(sibIndex) + ')');
+		} else {
+			stack.unshift(el.nodeName.toLowerCase());
+		}
+
+		el = sibParent;
+	} while (sibParent?.nodeType === Node.ELEMENT_NODE && nearestElemWithId === null);
+
+	if (stack[0] === 'html') stack.shift();
+
+	const result = stack.join(' > ');
+
+	if (noVerify) return result;
+
+	let selectionFromResult;
+
+	try {
+		selectionFromResult = document.querySelector(result);
+	} catch (err) {
+		console.error(
+			`Encountered an exception when trying to verify querySelector(${result})\n\tError:`,
+			err
+		);
+	}
+
+	// If there's no matches when using querySelector() with the result string, then
+	// return false;
+	if (!selectionFromResult) {
+		console.error(`Failed to find any document using querySelector(${result})`);
+		return false;
+	}
+
+	// If there is a result, but its not the same element, then return false;
+	else if (!origElem.isSameNode(selectionFromResult)) {
+		console.error(
+			`Element returned from querySelector(${result}) is not the same as the element provided`
+		);
+	}
+
+	// If we got here, then the matched element is the same element, then it's been verified.
+	return result;
+}
