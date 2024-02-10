@@ -1,5 +1,4 @@
-import assert from 'node:assert/strict';
-import { describe, before, it } from 'node:test';
+import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -21,10 +20,10 @@ describe('Client only components', () => {
 		const $ = cheerioLoad(html);
 
 		// test 1: <astro-island> is empty
-		assert.strictEqual($('astro-island').html(), '');
+		expect($('astro-island').html()).to.equal('');
 
 		// test 2: svelte renderer is on the page
-		assert.ok($('astro-island').attr('renderer-url'));
+		expect($('astro-island').attr('renderer-url')).to.be.ok;
 	});
 
 	it('Adds the CSS to the page', async () => {
@@ -39,34 +38,32 @@ describe('Client only components', () => {
 		const css = stylesheets.join('');
 
 		// yellowgreen minified
-		assert.equal(css.includes('#9acd32'), true);
-		assert.equal(css.includes('Svelte styles are added'), true);
-		assert.equal(css.includes('Courier New'), true);
-		assert.equal(css.includes('Global styles are added'), true);
+		expect(css).to.contain('#9acd32', 'Svelte styles are added');
+		expect(css).to.include('Courier New', 'Global styles are added');
 	});
 
 	it('Adds the CSS to the page - standalone svelte component', async () => {
 		const html = await fixture.readFile('/persistent-counter-standalone/index.html');
 		const $ = cheerioLoad(html);
 
-		assert.strictEqual($('head link[rel=stylesheet]').length, 1);
+		expect($('head link[rel=stylesheet]')).to.have.a.lengthOf(1);
 
 		const href = $('link[rel=stylesheet]').attr('href');
 		const css = await fixture.readFile(href);
 
-		assert.match(css, /tomato/, 'Svelte styles are added');
+		expect(css).to.match(/tomato/, 'Svelte styles are added');
 	});
 
 	it('Includes CSS from components that use CSS modules', async () => {
 		const html = await fixture.readFile('/css-modules/index.html');
 		const $ = cheerioLoad(html);
-		assert.strictEqual($('link[rel=stylesheet]').length, 1);
+		expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
 	});
 
 	it('Includes CSS from package components', async () => {
 		const html = await fixture.readFile('/pkg/index.html');
 		const $ = cheerioLoad(html);
-		assert.strictEqual($('link[rel=stylesheet]').length, 1);
+		expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
 	});
 });
 
@@ -89,10 +86,10 @@ describe('Client only components subpath', () => {
 		const $ = cheerioLoad(html);
 
 		// test 1: <astro-island> is empty
-		assert.strictEqual($('astro-island').html(), '');
+		expect($('astro-island').html()).to.equal('');
 
 		// test 2: svelte renderer is on the page
-		assert.ok($('astro-island').attr('renderer-url'));
+		expect($('astro-island').attr('renderer-url')).to.be.ok;
 	});
 
 	it('Adds the CSS to the page', async () => {
@@ -107,10 +104,8 @@ describe('Client only components subpath', () => {
 		const css = stylesheets.join('');
 
 		// yellowgreen minified
-		assert.equal(css.includes('#9acd32'), true);
-		assert.equal(css.includes('Svelte styles are added'), true);
-		assert.equal(css.includes('Courier New'), true);
-		assert.equal(css.includes('Global styles are added'), true);
+		expect(css).to.contain('#9acd32', 'Svelte styles are added');
+		expect(css).to.include('Courier New', 'Global styles are added');
 	});
 
 	it('Adds the CSS to the page for TSX components', async () => {
@@ -120,6 +115,6 @@ describe('Client only components subpath', () => {
 		const href = $('link[rel=stylesheet]').attr('href');
 		const css = await fixture.readFile(href.replace(/\/blog/, ''));
 
-		assert.match(css, /purple/, 'Global styles from tsx component are added');
+		expect(css).to.match(/purple/, 'Global styles from tsx component are added');
 	});
 });
