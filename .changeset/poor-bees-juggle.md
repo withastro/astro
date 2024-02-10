@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Moves `shikiji-core` as a dependency to prevent type errors
+Moves `shikiji-core` from `devDependencies` to `dependencies` to prevent type errors
