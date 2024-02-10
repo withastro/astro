@@ -538,14 +538,14 @@ export const MissingImageDimension = {
  * @message
  * Failed to get the dimensions for `IMAGE_URL`.
  * @description
- * Probing the remote image's dimensions failed, this is typically caused by an incorrect URL or attempting to infer the size of an image in the public folder. Infering the size of images in public folder is not possible. Probing is done by the [probe-image-size](https://www.npmjs.com/package/probe-image-size) package.
+ * Probing the remote image's dimensions failed, this is typically caused by an incorrect URL or attempting to infer the size of an image in the public folder. Infering the size of images in public folder is not possible.  It is also possible that you are trying to probe a file type that is not supported. Please create [an issue](https://github.com/withastro/astro/issues) if you want to see a filetype that is not currently supported be added. All file types supported by Sharp are supported, as well as .bmp, .ico, .heic and .heif. Here is where the probing logic lives in Astro's [sourcecode](https://github.com/withastro/astro/blob/main/packages/astro/src/assets/utils/remoteProbe.ts).
  */
 export const FailedToProbeRemoteImage = {
 	name: 'FailedToProbeRemoteImage',
 	title: 'Failed to probe remote image dimensions',
 	message: (imageURL: string) =>
 		`Failed to get the dimensions for ${imageURL}.`,
-	hint: 'Verify your image URL is accurate. If you are using an image in public folder, you will not be able to infer its size.',
+	hint: 'Verify your image URL is accurate. If you are using an image in public folder, you will not be able to infer its size. It is also possible that you are trying to probe a file type that is not supported. Please create [an issue](https://github.com/withastro/astro/issues) if you want to see a filetype that is not currently supported be added.',
 } satisfies ErrorData;
 /**
  * @docs
