@@ -1351,4 +1351,13 @@ test.describe('View Transitions', () => {
 			'-\\31 1'
 		);
 	});
+	test('automatically handles declarative shadow DOM', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/one'));
+		await page.click('#click-declarative-shadow-dom');
+		const h = page.locator('h2');
+		await expect(h, 'should have content').toHaveText('Shadow DOM');
+		const elementHandle = await page.$('#light');
+		const hasShadowRoot = await page.evaluate((el) => !!el.shadowRoot, elementHandle);
+		expect(hasShadowRoot).toBe(true);
+	});
 });

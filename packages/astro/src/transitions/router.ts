@@ -513,7 +513,12 @@ async function transition(
 
 		parser ??= new DOMParser();
 
-		preparationEvent.newDocument = parser.parseFromString(response.html, response.mediaType);
+		// @ts-ignore  includeShadowRoots is only supported in Chrome
+		// @astrojs/lit explicitly requires this because the
+		// polyfill for handling declarative shadow DOMS excludes browsers with native support
+		preparationEvent.newDocument = parser.parseFromString(response.html, response.mediaType, {
+			includeShadowRoots: true,
+		});
 		// The next line might look like a hack,
 		// but it is actually necessary as noscript elements
 		// and their contents are returned as markup by the parser,
