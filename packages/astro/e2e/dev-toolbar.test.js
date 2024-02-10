@@ -51,6 +51,28 @@ test.describe('Dev Toolbar', () => {
 		await expect(astroWindow).not.toBeVisible();
 	});
 
+	test('show integration data app', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/view-transition-a'));
+
+		let toolbar = page.locator('astro-dev-toolbar');
+		let appButton = toolbar.locator('button[data-app-id="astro"]');
+		await appButton.click();
+
+		let astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro"]');
+		let astroIntegrationSkelton = astroAppCanvas.locator('astro-dev-toolbar-card');
+		await expect(astroIntegrationSkelton).toHaveCount(2);
+
+		await page.click('#go-to-b');
+
+		toolbar = page.locator('astro-dev-toolbar');
+		appButton = toolbar.locator('button[data-app-id="astro"]');
+		await appButton.click();
+
+		astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro"]');
+		astroIntegrationSkelton = astroAppCanvas.locator('astro-dev-toolbar-card');
+		await expect(astroIntegrationSkelton).toHaveCount(2);
+	});
+
 	test('xray shows highlights and tooltips', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
