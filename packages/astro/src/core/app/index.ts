@@ -194,7 +194,7 @@ export class App {
 			this.#manifest.i18n &&
 			(this.#manifest.i18n.routing === 'domains-prefix-always' ||
 				this.#manifest.i18n.routing === 'domains-prefix-other-locales' ||
-				this.#manifest.i18n.routing === 'domains-prefix-other-no-redirect')
+				this.#manifest.i18n.routing === 'domains-prefix-always-no-redirect')
 		) {
 			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
 			let host = request.headers.get('X-Forwarded-Host');
