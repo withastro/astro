@@ -2,7 +2,9 @@ async function polyfill() {
 	const { hydrateShadowRoots } = await import(
 		'@webcomponents/template-shadowroot/template-shadowroot.js'
 	);
-	window.addEventListener('DOMContentLoaded', () => hydrateShadowRoots(document.body), {
+	const listener = () => hydrateShadowRoots(document.body);
+	document.addEventListener('astro:after-swap', listener);
+	window.addEventListener('DOMContentLoaded', listener, {
 		once: true,
 	});
 }
